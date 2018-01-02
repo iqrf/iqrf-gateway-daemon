@@ -1,0 +1,18 @@
+@startuml
+
+artifact ProductSpecification
+artifact ApiSpecification
+artifact SwSpecification
+artifact SwDesign
+artifact ApiDesign
+artifact SwSpecificationTests
+artifact ApiSpecificationTests
+
+ProductSpecification -d-> ApiSpecification
+ProductSpecification -d-> SwSpecification
+SwSpecification <-- SwDesign
+SwSpecification <-- SwSpecificationTests
+ApiSpecification <-- ApiDesign
+ApiSpecification <-- ApiSpecificationTests
+
+@enduml
