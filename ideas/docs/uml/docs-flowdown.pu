@@ -1,18 +1,18 @@
 @startuml
 
 artifact ProductSpecification
-artifact ApiSpecification
-artifact SwSpecification
+artifact ApiRequirements
+artifact SwRequirements
 artifact SwDesign
 artifact ApiDesign
-artifact SwSpecificationTests
-artifact ApiSpecificationTests
+artifact SwTests
+artifact ApiTests
 
-ProductSpecification -d-> ApiSpecification
-ProductSpecification -d-> SwSpecification
-SwSpecification <-- SwDesign
-SwSpecification <-- SwSpecificationTests
-ApiSpecification <-- ApiDesign
-ApiSpecification <-- ApiSpecificationTests
+ProductSpecification -d-> ApiRequirements
+ProductSpecification -d-> SwRequirements
+SwRequirements <-- SwDesign
+SwRequirements <-- SwTests
+ApiRequirements <-- ApiDesign
+ApiRequirements <-- ApiTests
 
 @enduml
