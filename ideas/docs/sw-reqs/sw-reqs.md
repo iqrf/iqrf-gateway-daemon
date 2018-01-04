@@ -26,10 +26,3 @@
 #### **DEM-10** DaemonConfiguration module implementation. [#16](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/16)
 
 #### **DEM-11** DaemonStatistic module implementation. [#17](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/17)
-
-* RF channel, Access password, bonding, discovery (basic)
-* Network test (Enumerace) - table, info about errors, suggestion for updates, saving the table (advanced)
-* Backup/Restore - option to save/export
-* OTA Uload - plugin, handler, OS+DPA update
-* TR configuration Coordinator, TR configuration Nodes
-* These services should be callable from cloud platforms - via MQTT...
