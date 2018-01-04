@@ -1,4 +1,4 @@
-# Product Specification
+# Product Specification [#2](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/1)
 
 This is IQRF Gateway Daemon V1.1.0 product specification.
 

@@ -19,8 +19,9 @@
   - Requirements to Issues
   - Design to Requirements & Issue
   - Use relative links as shown in example:
+
   ```
-  - **DEM-01** Modular core. [SPEC_01](../product-spec/product-spec.md#1-software-specification), [#2](https://github.com/logimic/gateway-daemon/issues/2)
+  - **DEM-01** Modular core. [SPEC_01](../product-spec/product-spec.md#1-software-specification), [#2](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/1)
 
     Basic module management core.
   ```
