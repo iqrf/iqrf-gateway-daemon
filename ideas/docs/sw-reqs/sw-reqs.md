@@ -1,13 +1,13 @@
 # Software Requirements
 
-#### **DEM-01** Modular core. [SPEC_01](../product-spec/product-spec.md#1-software-specification), [#2](https://github.com/logimic/gateway-daemon/issues/2)
+#### **DEM-01** Modular core. [SPEC_01](../product-spec/product-spec.md#1-software-specification), [#6](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/6)
   * Basic module management core.
   * Modul je implementovaný jako samostatně kompilovatelná sdílená knihovna.
   * Modul se skládá z jedné nebo více component.
   * Komponenty jsou provázané interface třídami (pure virtual).
   * Komponenty jsou black box pro ostatní komponenty.
 
-#### **DEM-02** DaemonController module implementation. [#2](https://github.com/logimic/gateway-daemon/issues/2)
+#### **DEM-02** DaemonController module implementation. [#2](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/7)
 
 #### **DEM-03** Scheduler module implementation. [#2](https://github.com/logimic/gateway-daemon/issues/2)
 
