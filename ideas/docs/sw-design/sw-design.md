@@ -17,8 +17,8 @@
 ## 2 Naming convention
 
 * Name of Interface always begins with **I** e.g. IChannel and contains pure virtual methods.
-* Service class always ends with **Srvc** e.g. **ICncDataSrvc** and besides virtual methods also declares a service which implements component.
-* Name of component implementation begins with **Cm** e.g. **CmCobaltData**.
+* Service class always ends with **Srvc** e.g. **ISchedulerDataSrvc** and besides virtual methods also declares a service which implements component.
+* Name of component implementation begins with **Cm** e.g. **CmSchedulerData**.
 
 ## 3 Gateway scheme
 
