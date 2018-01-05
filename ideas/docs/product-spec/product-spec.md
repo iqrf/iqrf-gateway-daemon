@@ -2,6 +2,8 @@
 
 This is IQRF Gateway Daemon V1.1.0 product specification.
 
+)* stoke out specification ~~like this~~ means that we want to work them out later.
+
 ## 1 Software Specification
 
 - **SPEC-01** Modular architecture.
