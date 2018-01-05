@@ -1,4 +1,4 @@
-# Software design
+# Software design [#18](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/18)
 
 ## 1 Terms definition
 
@@ -20,10 +20,13 @@
 * Service class always ends with **Srvc** e.g. **ICncDataSrvc** and besides virtual methods also declares a service which implements component.
 * Name of component implementation begins with **Cm** e.g. **CmCobaltData**.
 
-## 3 Interfaces and Components
+## 3 Gateway scheme
+
+
+## 4 Interfaces and Components
 
 TODO: Basic component diagram.
 
-## 4 Modules implementation
+## 5 Modules implementation
 
 TODO
