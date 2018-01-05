@@ -9,7 +9,7 @@
 
 # Requirements
 
-- collected requirements with linked issues [sw-reqs.md](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/blob/master/ideas/docs/sw-reqs/sw-reqs.md)
+- collected requirements with linked issues [sw-reqs.md](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/blob/master/concepts/docs/sw-reqs/sw-reqs.md)
 
 # Project status
 
