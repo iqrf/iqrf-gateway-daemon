@@ -20,4 +20,4 @@
 
 # Project status
 
-- We use **GitLab Board** for driving API definition project: https://gitlab.iqrfsdk.org/gateway/iqrf-daemon-api/boards
+- We use **GitLab Board** for driving API definition project: https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/boards
