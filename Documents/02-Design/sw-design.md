@@ -1,217 +1,32 @@
-# API Design
+# Software design [#18](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/18)
 
-## 1 MQTT Topics
+## 1 Terms definition
 
-IQRF Daemon suffix is:
-```
-iqrf/mcat
-```
-* _iqrf_ - constant identifier
-* _mcat_ - IQRF message category (unique command identifier)
+**Module** is distributable software in form of shared library. Includes components data classes and ligically merges different SW parts.
 
-### Azure examples [(link..)](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-mqtt-support#using-the-mqtt-protocol-directly)
+**Service** provides data services like send data, parse data, calculate data, log data and more.
 
-* gateway-to-cloud messages
+**Interface** is pure virtual (abstract) class containing methods (functions). Used parameters should be as much general as possible. Interface declares methods which corresponds to required service.
 
-```
-devices/{device_id}/messages/events/iqrf/mcat
-```
+**Component** is class which implements Interface. There can be more components implementing the same interface. E.g. component logging to file and component logging into database. Both can implement the same interface.  Component in Shape framework has a special interface which enables to get a list of provided and required interfaces from library. It can ve said that component implement a service through provided interface.
 
-* cloud-to-gateway messages
+**ComponentInstance** is an object of given component created by component constructor. Number of created **ComponentInstance** depends on application configuration. E.g. file logging component can have three instances, one for critical errors, second for core and third for specific component.
 
-```
-devices/{device_id}/messages/devicebound/iqrf/mcat
-```
+**Data class** represents data and its collections and hierarchy. **Data classes** can be created or destroyed anytime and their number is not limited. They are handled via **ComponentInstances** and their hierarchy is defined by design itself. Implementation can be done as static or dynamic library or even in header file.
 
-### IBM Cloud examples [link..](https://console.bluemix.net/docs/services/IoT/gateways/mqtt.html#mqtt)
+## 2 Naming convention
 
-* gateway-to-cloud messages
+* Name of Interface always begins with **I** e.g. IChannel and contains pure virtual methods.
+* Service class always ends with **Srvc** e.g. **ISchedulerDataSrvc** and besides virtual methods also declares a service which implements component.
+* Name of component implementation begins with **Cm** e.g. **CmSchedulerData**.
 
-```
-iot-2/type/mygateway/id/gateway1/evt/status/fmt/json/iqrf/mcat
-```
+## 3 Gateway scheme
 
-* cloud-to-gateway messages
 
-```
-iot-2/type/typeId/id/deviceId/cmd/commandId/fmt/formatString/iqrf/mcat
-```
+## 4 Interfaces and Components
 
-## 2 Messages
+TODO: Basic component diagram.
 
-### 2.1 Messages parameters
+## 5 Modules implementation
 
-* `"mcat": "string"` - Message category represents unique command identifier.
-* `"msgid": "string"` - Message identification unique for a sender. If used in request and repeated in response. Then it can be used by the sender to match outgoing and incoming messages.
-* `"timeout": "integer"` - Timeout value for DPA request. if zero, the timeout is infinite else it represents time in milliseconds. If omitted the default timer value is used.
-* `"request": "string"` - Bytes to be sent as a DPA request IQRF network. Data is coded as a variable number of 2 character pairs separated by dot or space, e.g. _00.00.06.03.ff.ff_.
-* `"response": "string"` - Bytes received as a DPA response from IQRF network. Data is coded as a variable number of 2 character pairs separated by dot or space, e.g. _00.00.06.03.ff.ff_.
-* `"return_verbose": "boolean"` - TBD.
-* `"return_status": "boolean"` - Status response at coordinator.
-* `"request_ts": "string"` - Timestamp of request YYYY-MM-DDTHH:MM:SS.MS e.g. _2017-12-20T20:21:05.123_
-* `"response_ts": "string"` - Timestamp of response YYYY-MM-DDTHH:MM:SS.MS e.g. _2017-12-20T20:21:05.123_
-* `"nadr": "string"` - Node address as defined in "foursome".
-* `"pnum": "string"` - Periphery number as defined in "foursome".
-* `"pcmd": "string"` - Periphery command as defined in "foursome".
-* `"hwpid": "string"` - Hardware profile identification as defined in "foursome". It can be optional, in this case the default value is ffff.
-
-### 2.2 Raw DPA Request
-
-* Message: sender-to-gateway
-* Message category (mcat): ntw-com-raw
-* Scheme: [ntw-com-raw-request.json](../../JsonSchemes/async-api-json-schemes/ntw-com-raw-request.json)
-* Example: [msg-ntw-com-raw-request.json](../../JsonSchemes/async-api-json-schemes/examples/msg-ntw-com-raw-request.json)
-
-````
-{
-	"mcat": "ntw-com-raw",
-	"msg": {
-		"msgid": "CCCC",
-		"timeout": 1,
-		"req": {
-			"request": "EEEE"
-		},
-		"return_verbose": false
-	}
-}
-````
-
-### 2.3 Raw DPA Response
-
-* Message: gateway-to-sender as a response to Raw DPA Request
-* Message category (mcat): ntw-com-raw
-* Scheme: [ntw-com-raw-response.json](../../JsonSchemes/async-api-json-schemes/ntw-com-raw-response.json)
-* Example: [msg-ntw-com-raw-response.json](../../JsonSchemes/async-api-json-schemes/examples/msg-ntw-com-raw-response.json)
-
-````
-{
-	"mcat": "ntw-com-raw",
-	"msg": {
-		"msgid": "CCCC",
-		"timeout": 1,
-		"resp": {
-			"response": "EEEE"
-		},
-		"raw": {
-			"request": "DD",
-			"confirmation": "aaaaa",
-			"response": "c",
-			"request_ts": "aa",
-			"confirmation_ts": "B",
-			"response_ts": "CCC"
-		},
-		"status": 1,
-		"status_str": "C"
-	}
-}
-````
-
-### 2.4 Raw HDP Request
-
-* Message: sender-to-gateway
-* Message category (mcat): ntw-com-raw-hdp
-* Scheme: [ntw-com-raw-hdp-request.json](../../JsonSchemes/async-api-json-schemes/ntw-com-raw-hdp-request.json)
-* Example: [msg-ntw-com-raw-hdp-request.json](../../JsonSchemes/async-api-json-schemes/examples/msg-ntw-com-raw-hdp-request.json)
-
-````
-{
-	"mcat": "ntw-com-raw-hdp",
-	"msg": {
-		"msgid": "CCCC",
-		"timeout": 1,
-		"req": {
-			"nadr": "EEEE",
-			"pnum": "DD",
-			"pcmd": "aaaaa",
-			"hwpid": "c",
-			"request": "aa"
-		},
-		"return_verbose": false
-	}
-}
-````
-
-### 2.5 Raw HDP Response
-
-* Message: gateway-to-sender
-* Message category (mcat): ntw-com-raw-hdp
-* Scheme: [ntw-com-raw-hdp-response.json](../../JsonSchemes/async-api-json-schemes/ntw-com-raw-hdp-response.json)
-* Example: [msg-ntw-com-raw-hdp-response.json](../../JsonSchemes/async-api-json-schemes/examples/msg-ntw-com-raw-hdp-response.json)
-
-````
-{
-	"mcat": "ntw-com-raw",
-	"msg": {
-		"msgid": "CCCC",
-		"timeout": 1,
-		"resp": {
-			"nadr": "EEEE",
-			"pnum": "DD",
-			"pcmd": "aaaaa",
-			"hwpid": "c",
-			"response": "aa"
-		},
-		"raw": {
-			"request": "B",
-			"confirmation": "CCC",
-			"response": "C",
-			"request_ts": "ddddd",
-			"confirmation_ts": "B",
-			"response_ts": "ee"
-		},
-		"status": 1,
-		"status_str": "EEEEE"
-	}
-}
-````
-
-### 2.6 Embedded Periphery Thermometer Request
-
-* Message: sender-to-gateway
-* Message category (mcat): ntw-com-embper-therm
-* Scheme: [ntw-com-embper-therm-request.json](../../JsonSchemes/async-api-json-schemes/ntw-com-embper-therm-request.json)
-* Example: [msg-ntw-com-embper-therm-request.json](../../JsonSchemes/async-api-json-schemes/examples/msg-ntw-com-embper-thermometer-request.json)
-
-````
-{
-	"mcat": "ntw-com-embper-therm",
-	"msg": {
-		"msgid": "CCCC",
-		"timeout": 1,
-		"cmd": {
-			"command": "EEEE"
-		},
-		"return_verbose": false
-	}
-}
-````
-
-### 2.7  Embedded Periphery Thermometer Response
-
-* Message: gateway-to-sender
-* Message category (mcat): ntw-com-embper-therm
-* Scheme: [ntw-com-embper-therm-response.json](../../JsonSchemes/async-api-json-schemes/ntw-com-embper-therm-response.json)
-* Example: [msg-ntw-com-embper-therm-response.json](../../JsonSchemes/async-api-json-schemes/examples/msg-ntw-com-embper-thermometer-response.json)
-
-````
-{
-	"mcat": "ntw-com-embper-therm",
-	"msg": {
-		"msgid": "CCCC",
-		"timeout": 1,
-		"resp": {
-			"response": "EEEE"
-		},
-		"raw": {
-			"request": "DD",
-			"confirmation": "aaaaa",
-			"response": "c",
-			"request_ts": "aa",
-			"confirmation_ts": "B",
-			"response_ts": "CCC"
-		},
-		"status": 1,
-		"status_str": "C"
-	}
-}
-````
+TODO

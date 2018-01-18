@@ -6,9 +6,9 @@
 
 # Requirements
 
-- Product specification [product_specification.md](Documents/01-Requirements/product_specification.md)
+- Product specification [product_specification.md](Documents/01-Requirements/product-specification.md)
 - API requirements [api-requirements.md](Documents/01-Requirements/api-requirements.md)
-- Software Requirements [api-requirements.md](Documents/01-Requirements/sw-requirements.md)
+- Software Requirements [sw-requirements.md](Documents/01-Requirements/sw-requirements.md)
 
 # Design documents
 
