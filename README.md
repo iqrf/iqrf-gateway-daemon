@@ -1,16 +1,23 @@
-# Iqrf Gateway Daemon
-
 # Structure
 
-- ideas : for anything largely creative
-- concepts: for more detailed specifications and drafts
-- roadmap : to define the main steps without immediately looking at all the details
-- design : basically, everything that is not text
+- **Documets:** Anything related to official documentation (md files, images, uml, ...)
+- **Ideas:** Any non official stuff  (docs, images, files, e-mails, etc...)
+- **Trash:** To be deleted stuff.
 
 # Requirements
 
-- collected requirements with linked issues [sw-reqs.md](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/blob/master/concepts/docs/sw-reqs/sw-reqs.md)
+- Product specification [product_specification.md](Documents/01-Requirements/product_specification.md)
+- API requirements [api-requirements.md](Documents/01-Requirements/api-requirements.md)
+- Software Requirements [api-requirements.md](Documents/01-Requirements/sw-requirements.md)
+
+# Design documents
+
+- software design document [api-design.md](Documents/02-Design/sw-design.md)
+
+# Tools and Guidelines
+
+- Document flow [README.md](Documents/03-Tools&Guidelines/README.md)
 
 # Project status
 
-- We use **Board** for driving project: https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/boards
+- We use **GitLab Board** for driving API definition project: https://gitlab.iqrfsdk.org/gateway/iqrf-daemon-api/boards
