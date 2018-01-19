@@ -48,6 +48,13 @@
       "libraryName": "IqrfCdc",
       "enabled": true,
       "startlevel": 0
+    },
+    {
+      "name": "iqrfgw::IqrfDpa",
+      "libraryPath": "../IqrfDpa/Debug",
+      "libraryName": "IqrfDpa",
+      "enabled": true,
+      "startlevel": 0
     }
   ]
 }

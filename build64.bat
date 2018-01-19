@@ -10,7 +10,7 @@ set libsdir=..\\..
 mkdir %builddir%
 
 rem //get path to to Shape libs
-set shape=..\\..\\..\\shape\\%buildexp%
+set shape=..\\..\\shape\\%buildexp%
 pushd %shape%
 set shape=%cd%
 popd
@@ -34,7 +34,7 @@ set clibdpa=%cd%
 popd
 
 rem //get path to cutils libs
-set cutils=%libsdir%\\cutils\\%buildexp%
+set cutils=%libsdir%\\cutils\\build\\Visual_Studio_14_2015\\x64
 pushd %cutils%
 set cutils=%cd%
 popd

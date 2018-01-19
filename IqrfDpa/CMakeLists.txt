@@ -1,10 +1,12 @@
 project(IqrfDpa)
 
+FIND_PACKAGE(cutils REQUIRED)
 FIND_PACKAGE(clibdpa REQUIRED)
 
 set(COMPONENT iqrfgw::IqrfDpa)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrfgw::IIqrfDpa)
+AddShapeRequiredInterface(${COMPONENT} iqrfgw::IIqrfChannelService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -17,6 +19,7 @@ source_group("Source Files" FILES ${_SRCFILES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
+include_directories(${cutils_INCLUDE_DIRS})
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
@@ -26,4 +29,5 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
 	dpa
+	DpaExtension
 )

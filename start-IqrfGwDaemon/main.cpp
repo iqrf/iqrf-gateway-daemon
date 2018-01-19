@@ -2,7 +2,7 @@
 #include <Trace.h>
 #include <iostream>
 
-TRC_INIT("cobalt-start");
+TRC_INIT_MNAME("IqrfGwDaemon-start");
 
 int main(int argc, char** argv)
 {
