@@ -1,0 +1,53 @@
+{
+  "applicationName": "Cobalt",
+  "resourceDir": "",
+  "dataDir": "",
+  "cacheDir": "cache",
+  "userDir": "",
+  "configurationDir": "configuration",
+  "deploymentDir": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+  "components": [
+    {
+      "name": "shape::TraceFormatService",
+      "libraryPath": "",
+      "libraryName": "TraceFormatService",
+      "enabled": true,
+      "startlevel": -4
+    },
+    {
+      "name": "shape::TraceFileService",
+      "libraryPath": "",
+      "libraryName": "TraceFileService",
+      "enabled": true,
+      "startlevel": -3
+    },
+    {
+      "name": "shape::LauncherService",
+      "libraryPath": "",
+      "libraryName": "",
+      "enabled": false,
+      "startlevel": -2
+    },
+    {
+      "name": "iqrfgw::DaemonController",
+      "libraryPath": "../DaemonController/Debug",
+      "libraryName": "DaemonController",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrfgw::Scheduler",
+      "libraryPath": "../Scheduler/Debug",
+      "libraryName": "Scheduler",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrfgw::IqrfCdc",
+      "libraryPath": "../IqrfCdc/Debug",
+      "libraryName": "IqrfCdc",
+      "enabled": true,
+      "startlevel": 0
+    }
+  ]
+}

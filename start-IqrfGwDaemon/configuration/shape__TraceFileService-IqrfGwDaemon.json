@@ -1,0 +1,14 @@
+{
+  "component": "shape::TraceFileService",
+  "instance": "shape::TraceFileService-Cobalt",
+
+  "path": "",
+  "filename": "IqrfGwDaemon.txt",
+
+  "VerbosityLevels": [
+    {
+      "channel": 0,
+      "level": "DBG"
+    }
+  ]
+}

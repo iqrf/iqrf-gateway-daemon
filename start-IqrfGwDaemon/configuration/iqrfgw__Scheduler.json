@@ -1,0 +1,5 @@
+{
+  "component": "iqrfgw::Scheduler",
+  "instance": "iqrfgw::Scheduler-Instance",
+  "TasksFile": "configuration/Scheduler/Tasks.json"
+}
