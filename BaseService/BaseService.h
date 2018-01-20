@@ -2,6 +2,7 @@
 
 #include "IBaseService.h"
 #include "ShapeProperties.h"
+#include "IMessagingService.h"
 #include "IJsonSerializerService.h"
 #include "IIqrfDpaService.h"
 #include "ISchedulerService.h"
@@ -22,6 +23,9 @@ namespace iqrf {
     void deactivate();
     void modify(const shape::Properties *props);
 
+    void attachInterface(iqrf::IMessagingService* iface);
+    void detachInterface(iqrf::IMessagingService* iface);
+
     void attachInterface(iqrf::IJsonSerializerService* iface);
     void detachInterface(iqrf::IJsonSerializerService* iface);
 
@@ -38,6 +42,7 @@ namespace iqrf {
     void handleMsgFromMessaging(const std::basic_string<uint8_t> & msg);
     void handleAsyncDpaMessage(const DpaMessage& dpaMessage);
 
+    IMessagingService* m_messaging = nullptr;
     IJsonSerializerService* m_serializer = nullptr;
     iqrfgw::IIqrfDpaService* m_dpa = nullptr;
     iqrfgw::ISchedulerService* m_scheduler = nullptr;

@@ -1,15 +1,10 @@
-project(BaseService)
+project(MqMessaging)
 
-FIND_PACKAGE(clibdpa REQUIRED)
 FIND_PACKAGE(cutils REQUIRED)
 
-set(COMPONENT iqrf::BaseService)
+set(COMPONENT iqrf::MqMessaging)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IBaseService)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IJsonSerializerService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrfgw::IIqrfDpaService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrfgw::ISchedulerService MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IMessagingService)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -21,7 +16,6 @@ source_group("Source Files" FILES ${_SRCFILES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${clibdpa_INCLUDE_DIRS})
 include_directories(${cutils_INCLUDE_DIRS})
 
 if(SHAPE_STATIC_LIBS)
@@ -31,6 +25,5 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-	dpa
-	DpaExtension
+	MqChannel
 )

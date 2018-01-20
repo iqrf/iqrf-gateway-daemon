@@ -58,8 +58,8 @@ namespace iqrf {
     /// \param [in] msg message to be sent 
     /// \details
     /// The message is send outside
-    virtual void sendMessage(const ustring& msg) = 0;
+    virtual void sendMessage(const std::basic_string<uint8_t> & msg) = 0;
 
-    inline virtual ~IMessaging() {};
+    inline virtual ~IMessagingService() {};
   };
 }

@@ -69,6 +69,13 @@
       "libraryName": "BaseService",
       "enabled": true,
       "startlevel": 0
+    },
+    {
+      "name": "iqrf::MqMessaging",
+      "libraryPath": "../MqMessaging/Debug",
+      "libraryName": "MqMessaging",
+      "enabled": true,
+      "startlevel": 0
     }
   ]
 }

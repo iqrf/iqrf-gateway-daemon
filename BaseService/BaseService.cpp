@@ -86,8 +86,8 @@ namespace iqrf {
 
     TRC_INFORMATION("Response to send: " << std::endl << MEM_HEX_CHAR(msgu.data(), msgu.size()) << std::endl <<
       ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl);
-    //TODO
-    //m_messaging->sendMessage(msgu);
+    
+    m_messaging->sendMessage(msgu);
   }
 
   void BaseService::handleAsyncDpaMessage(const DpaMessage& dpaMessage)
@@ -98,8 +98,9 @@ namespace iqrf {
       "Asynchronous message to send: " << std::endl << MEM_HEX(sr.data(), sr.size()) << std::endl <<
       ">>>>> ASYNCHRONOUS >>>>>>>>>>>>>>>" << std::endl);
     std::basic_string<uint8_t> msgu((unsigned char*)sr.data(), sr.size());
-    //TODO
-    //m_messaging->sendMessage(msgu);
+
+    m_messaging->sendMessage(msgu);
+    
     TRC_FUNCTION_LEAVE("");
   }
 
@@ -148,6 +149,22 @@ namespace iqrf {
 
   void BaseService::modify(const shape::Properties *props)
   {
+  }
+
+  void BaseService::attachInterface(iqrf::IMessagingService* iface)
+  {
+    TRC_FUNCTION_ENTER(PAR(iface));
+    m_messaging = iface;
+    TRC_FUNCTION_LEAVE("")
+  }
+
+  void BaseService::detachInterface(iqrf::IMessagingService* iface)
+  {
+    TRC_FUNCTION_ENTER(PAR(iface));
+    if (m_messaging == iface) {
+      m_messaging = nullptr;
+    }
+    TRC_FUNCTION_LEAVE("")
   }
 
   void BaseService::attachInterface(iqrf::IJsonSerializerService* iface)
