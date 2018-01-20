@@ -1,13 +1,12 @@
-#define IIqrfDpa_EXPORTS
+#define IIqrfDpaService_EXPORTS
 
 #include "PrfOs.h"
 #include "DpaTransactionTask.h"
 #include "IqrfDpa.h"
 #include "Trace.h"
 
-#include "IqrfLogging.h"
-
 //TODO workaround old tracing 
+#include "IqrfLogging.h"
 TRC_INIT();
 
 #include "iqrfgw__IqrfDpa.hxx"
@@ -30,12 +29,14 @@ namespace iqrfgw {
   void IqrfDpa::executeDpaTransaction(DpaTransaction& dpaTransaction)
   {
     TRC_FUNCTION_ENTER("");
+    m_dpaHandler->ExecuteDpaTransaction(dpaTransaction);
     TRC_FUNCTION_LEAVE("")
   }
 
   void IqrfDpa::killDpaTransaction()
   {
     TRC_FUNCTION_ENTER("");
+    m_dpaHandler->KillDpaTransaction();
     TRC_FUNCTION_LEAVE("")
   }
 
@@ -51,12 +52,12 @@ namespace iqrfgw {
     TRC_FUNCTION_LEAVE("")
   }
 
-  IIqrfDpa::RfMode IqrfDpa::getRfCommunicationMode() const
+  IIqrfDpaService::RfMode IqrfDpa::getRfCommunicationMode() const
   {
     return m_rfMode;
   }
 
-  void IqrfDpa::setRfCommunicationMode(IIqrfDpa::RfMode rfMode)
+  void IqrfDpa::setRfCommunicationMode(IIqrfDpaService::RfMode rfMode)
   {
     TRC_FUNCTION_ENTER("");
     m_rfMode = rfMode;
@@ -123,6 +124,7 @@ namespace iqrfgw {
         asyncDpaMessageHandler(dpaMessage);
       });
 
+#if 0
       //TR module
       PrfOs prfOs;
       prfOs.read();
@@ -140,7 +142,7 @@ namespace iqrfgw {
       m_trType = prfOs.getTrType();
       m_mcuType = prfOs.getMcuType();
       m_osBuild = prfOs.getOsBuild();
-
+#endif
     //}
 
     //catch (std::exception& ae) {
@@ -158,6 +160,13 @@ namespace iqrfgw {
       "IqrfDpa instance deactivate" << std::endl <<
       "******************************"
     );
+
+    m_iqrfDpaChannel->unregisterReceiveFromHandler();
+    m_dpaHandler->UnregisterAsyncMessageHandler();
+
+    delete m_dpaHandler;
+    m_dpaHandler = nullptr;
+
     TRC_FUNCTION_LEAVE("")
   }
 
@@ -174,7 +183,7 @@ namespace iqrfgw {
   void IqrfDpa::detachInterface(iqrfgw::IIqrfChannelService* iface)
   {
     if (m_iqrfChannelService == iface) {
-      iface = nullptr;
+      m_iqrfChannelService = nullptr;
       delete m_iqrfDpaChannel;
       m_iqrfDpaChannel = nullptr;
     }

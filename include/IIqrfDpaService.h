@@ -4,17 +4,17 @@
 #include <string>
 #include <functional>
 
-#ifdef IIqrfDpa_EXPORTS
-#define IIqrfDpa_DECLSPEC SHAPE_ABI_EXPORT
+#ifdef IIqrfDpaService_EXPORTS
+#define IIqrfDpaService_DECLSPEC SHAPE_ABI_EXPORT
 #else
-#define IIqrfDpa_DECLSPEC SHAPE_ABI_IMPORT
+#define IIqrfDpaService_DECLSPEC SHAPE_ABI_IMPORT
 #endif
 
 class DpaTransaction;
 class DpaMessage;
 
 namespace iqrfgw {
-  class IIqrfDpa_DECLSPEC IIqrfDpa
+  class IIqrfDpaService_DECLSPEC IIqrfDpaService
   {
   public:
     enum RfMode {
@@ -36,6 +36,6 @@ namespace iqrfgw {
     virtual void registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun) = 0;
     virtual void unregisterAsyncMessageHandler(const std::string& serviceId) = 0;
 
-    virtual ~IIqrfDpa() {}
+    virtual ~IIqrfDpaService() {}
   };
 }

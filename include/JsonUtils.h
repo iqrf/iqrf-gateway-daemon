@@ -100,7 +100,7 @@ namespace jutils
   template<typename T>
   inline void assertIs(const std::string& name, const rapidjson::Value& v) {
     if (!v.Is<T>())
-      THROW_EX(std::logic_error, "Expected: " << typeid(T).name() << ", detected: " << PAR(name) << NAME_PAR(type, v.GetType()));
+      THROW_EXC_TRC_WAR(std::logic_error, "Expected: " << typeid(T).name() << ", detected: " << PAR(name) << NAME_PAR(type, v.GetType()));
   }
 
   /// \brief Assert json value holds std::string type

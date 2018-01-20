@@ -1,12 +1,14 @@
-project(IqrfDpa)
+project(BaseService)
 
-FIND_PACKAGE(cutils REQUIRED)
 FIND_PACKAGE(clibdpa REQUIRED)
+FIND_PACKAGE(cutils REQUIRED)
 
-set(COMPONENT iqrfgw::IqrfDpa)
+set(COMPONENT iqrf::BaseService)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrfgw::IIqrfDpaService)
-AddShapeRequiredInterface(${COMPONENT} iqrfgw::IIqrfChannelService MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IBaseService)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IJsonSerializerService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrfgw::IIqrfDpaService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrfgw::ISchedulerService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IIqrfDpa.h"
+#include "IIqrfDpaService.h"
 #include "IqrfDpaChannel.h"
 #include "DpaHandler.h"
 #include "ShapeProperties.h"
@@ -11,7 +11,7 @@
 #include <map>
 
 namespace iqrfgw {
-  class IqrfDpa : public IIqrfDpa
+  class IqrfDpa : public IIqrfDpaService
   {
   public:
     IqrfDpa();

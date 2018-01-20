@@ -29,7 +29,6 @@ using namespace std::chrono;
 namespace iqrfgw {
 
   Scheduler::Scheduler()
-    :m_dpaTaskQueue(nullptr)
   {
     TRC_FUNCTION_ENTER("");
     TRC_FUNCTION_LEAVE("")
@@ -38,30 +37,8 @@ namespace iqrfgw {
   Scheduler::~Scheduler()
   {
     TRC_FUNCTION_ENTER("");
-
-    //if (m_timerThread.joinable()) {
-    //  TRC_DEBUG("Joining scheduler thread");
-    //  m_timerThread.join();
-    //  TRC_DEBUG("scheduler thread joined");
-    //}
-
-    TRC_DEBUG("Try to destroy: " << PAR(m_dpaTaskQueue->size()));
-    delete m_dpaTaskQueue;
-    m_dpaTaskQueue = nullptr;
     TRC_FUNCTION_LEAVE("");
   }
-
-  //Scheduler::Scheduler()
-  //{
-  //  TRC_FUNCTION_ENTER("");
-  //  TRC_FUNCTION_LEAVE("")
-  //}
-
-  //Scheduler::~Scheduler()
-  //{
-  //  TRC_FUNCTION_ENTER("");
-  //  TRC_FUNCTION_LEAVE("")
-  //}
 
   void Scheduler::activate(const shape::Properties *props)
   {
@@ -108,6 +85,10 @@ namespace iqrfgw {
       m_timerThread.join();
       TRC_DEBUG("scheduler thread joined");
     }
+
+    TRC_DEBUG("Try to destroy: " << PAR(m_dpaTaskQueue->size()));
+    delete m_dpaTaskQueue;
+    m_dpaTaskQueue = nullptr;
 
     TRC_INFORMATION(std::endl <<
       "******************************" << std::endl <<

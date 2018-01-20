@@ -1,12 +1,10 @@
-project(IqrfDpa)
+project(JsonSerializer)
 
-FIND_PACKAGE(cutils REQUIRED)
 FIND_PACKAGE(clibdpa REQUIRED)
 
-set(COMPONENT iqrfgw::IqrfDpa)
+set(COMPONENT iqrf::JsonSerializer)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrfgw::IIqrfDpaService)
-AddShapeRequiredInterface(${COMPONENT} iqrfgw::IIqrfChannelService MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IJsonSerializerService)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -19,7 +17,6 @@ source_group("Source Files" FILES ${_SRCFILES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
-include_directories(${cutils_INCLUDE_DIRS})
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})

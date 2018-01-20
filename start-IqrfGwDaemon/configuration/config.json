@@ -55,6 +55,20 @@
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
+    },
+    {
+      "name": "iqrf::JsonSerializer",
+      "libraryPath": "../JsonSerializer/Debug",
+      "libraryName": "JsonSerializer",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::BaseService",
+      "libraryPath": "../BaseService/Debug",
+      "libraryName": "BaseService",
+      "enabled": true,
+      "startlevel": 0
     }
   ]
 }

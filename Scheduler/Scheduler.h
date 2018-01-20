@@ -132,7 +132,7 @@ namespace iqrfgw {
     void removeScheduleRecords(std::vector<std::shared_ptr<ScheduleRecord>>& records);
 
     ////////////////////////////////
-    TaskQueue<ScheduleRecord>* m_dpaTaskQueue;
+    TaskQueue<ScheduleRecord>* m_dpaTaskQueue = nullptr;
 
     std::map<std::string, TaskHandlerFunc> m_messageHandlers;
     std::mutex m_messageHandlersMutex;

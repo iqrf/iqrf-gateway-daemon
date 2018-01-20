@@ -101,7 +101,9 @@ namespace iqrfgw {
   void IqrfCdc::deactivate()
   {
     TRC_FUNCTION_ENTER("");
-
+    
+    unregisterReceiveFromHandler();
+    
     delete m_cdc;
     m_cdc = nullptr;
 
