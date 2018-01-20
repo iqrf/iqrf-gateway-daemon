@@ -94,6 +94,7 @@ namespace iqrf {
     //TODO workaround old tracing 
     TRC_START("TraceOldMqChannel.txt", iqrf::Level::dbg, TRC_DEFAULT_FILE_MAXSIZE);
 
+    props->getMemberAsString("instance", m_name);
     props->getMemberAsString("LocalMqName", m_localMqName);
     props->getMemberAsString("RemoteMqName", m_remoteMqName);
 

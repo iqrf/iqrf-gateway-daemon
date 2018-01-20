@@ -118,6 +118,8 @@ namespace iqrf {
 
     props->getMemberAsString("instance", m_name);
 
+    TRC_DEBUG("Attached IMessagingService: " << m_messaging->getName());
+
     m_scheduler->registerMessageHandler(m_name, [&](const std::string& msg) {
       std::basic_string<uint8_t> msgu((unsigned char*)msg.data(), msg.size());
       handleMsgFromMessaging(msgu);

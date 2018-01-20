@@ -76,6 +76,13 @@
       "libraryName": "MqMessaging",
       "enabled": true,
       "startlevel": 0
+    },
+    {
+      "name": "iqrf::MqttMessaging",
+      "libraryPath": "../MqttMessaging/Debug",
+      "libraryName": "MqttMessaging",
+      "enabled": true,
+      "startlevel": 0
     }
   ]
 }

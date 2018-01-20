@@ -1,4 +1,0 @@
-{
-  "component": "iqrf::BaseService",
-  "instance": "BaseServiceForMQTT1"
-}

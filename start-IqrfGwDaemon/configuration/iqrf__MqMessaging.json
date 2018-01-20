@@ -1,4 +1,4 @@
 {
   "component": "iqrf::MqMessaging",
-  "instance": "iqrf::MqMessaging-Instance1"
+  "instance": "MqMessaging"
 }

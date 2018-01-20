@@ -1,0 +1,12 @@
+{
+  "component": "iqrf::BaseService",
+  "instance": "BaseServiceForMQTT1",
+  "RequiredInterfaces": [
+    {
+      "name": "iqrf::IMessagingService",
+      "target": {
+        "instance": "MqttMessaging1"
+      }
+    }
+  ]
+}
