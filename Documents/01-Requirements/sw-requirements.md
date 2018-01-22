@@ -76,3 +76,7 @@ Scheduler has to be implemented
 
 #### **DEM-17** More IQRF networks
 - It is possible to support more coordinators
+
+#### **DEM-18** Virtual DPA Interface
+- Support send/receive DPA messages via any input
+- 
