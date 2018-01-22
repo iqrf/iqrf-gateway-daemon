@@ -1,8 +1,8 @@
 project(Scheduler)
 
-set(COMPONENT iqrfgw::Scheduler)
+set(COMPONENT iqrf::Scheduler)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrfgw::ISchedulerService)
+AddShapeProvidedInterface(${COMPONENT} iqrf::ISchedulerService)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 

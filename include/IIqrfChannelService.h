@@ -10,7 +10,7 @@
 #define IIqrfChannelService_DECLSPEC SHAPE_ABI_IMPORT
 #endif
 
-namespace iqrfgw {
+namespace iqrf {
   class IIqrfChannelService_DECLSPEC IIqrfChannelService
   {
   public:

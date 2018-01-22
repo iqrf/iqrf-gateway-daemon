@@ -29,28 +29,28 @@
       "startlevel": -2
     },
     {
-      "name": "iqrfgw::DaemonController",
+      "name": "iqrf::DaemonController",
       "libraryPath": "../DaemonController/Debug",
       "libraryName": "DaemonController",
       "enabled": true,
       "startlevel": 0
     },
     {
-      "name": "iqrfgw::Scheduler",
+      "name": "iqrf::Scheduler",
       "libraryPath": "../Scheduler/Debug",
       "libraryName": "Scheduler",
       "enabled": true,
       "startlevel": 0
     },
     {
-      "name": "iqrfgw::IqrfCdc",
+      "name": "iqrf::IqrfCdc",
       "libraryPath": "../IqrfCdc/Debug",
       "libraryName": "IqrfCdc",
       "enabled": true,
       "startlevel": 0
     },
     {
-      "name": "iqrfgw::IqrfDpa",
+      "name": "iqrf::IqrfDpa",
       "libraryPath": "../IqrfDpa/Debug",
       "libraryName": "IqrfDpa",
       "enabled": true,

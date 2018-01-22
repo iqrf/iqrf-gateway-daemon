@@ -7,7 +7,7 @@
 #include "ITraceService.h"
 #include <string>
 
-namespace iqrfgw {
+namespace iqrf {
   class ITraceService;
 
   class IqrfCdc : public IIqrfChannelService

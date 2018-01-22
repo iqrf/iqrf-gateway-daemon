@@ -2,9 +2,9 @@ project(IqrfCdc)
 
 FIND_PACKAGE(clibcdc REQUIRED)
 
-set(COMPONENT iqrfgw::IqrfCdc)
+set(COMPONENT iqrf::IqrfCdc)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrfgw::IIqrfChannelService)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfChannelService)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 

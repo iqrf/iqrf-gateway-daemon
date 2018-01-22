@@ -1,6 +1,6 @@
 {
-  "component": "iqrfgw::IqrfCdc",
-  "instance": "iqrfgw::IqrfCdc-Instance1",
+  "component": "iqrf::IqrfCdc",
+  "instance": "iqrf::IqrfCdc-Instance1",
 
   "IqrfInterface": "COM6"
 }

@@ -13,7 +13,7 @@
 class DpaTransaction;
 class DpaMessage;
 
-namespace iqrfgw {
+namespace iqrf {
   class IIqrfDpaService_DECLSPEC IIqrfDpaService
   {
   public:

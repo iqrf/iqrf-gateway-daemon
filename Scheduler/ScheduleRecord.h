@@ -27,7 +27,7 @@
 #include <map>
 #include <memory>
 
-namespace iqrfgw {
+namespace iqrf {
   /// \class SchedulerRecord
   /// \brief Auxiliary class to handle scheduled tasks.
   class ScheduleRecord {

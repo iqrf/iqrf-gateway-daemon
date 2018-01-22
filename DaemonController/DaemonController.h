@@ -5,7 +5,7 @@
 #include "ITraceService.h"
 #include <string>
 
-namespace iqrfgw {
+namespace iqrf {
   class DaemonController : public IDaemonControllerService
   {
   public:

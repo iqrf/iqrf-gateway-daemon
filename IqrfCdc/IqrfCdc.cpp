@@ -12,9 +12,9 @@
 
 #include "iqrfgw__IqrfCdc.hxx"
 
-TRC_INIT_MODULE(iqrfgw::IqrfCdc);
+TRC_INIT_MODULE(iqrf::IqrfCdc);
 
-namespace iqrfgw {
+namespace iqrf {
   IqrfCdc::IqrfCdc()
   {
     TRC_FUNCTION_ENTER("");

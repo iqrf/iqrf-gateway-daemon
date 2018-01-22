@@ -9,7 +9,7 @@
 #define IDaemonControllerService_DECLSPEC SHAPE_ABI_IMPORT
 #endif
 
-namespace iqrfgw {
+namespace iqrf {
   class IDaemonControllerService_DECLSPEC IDaemonControllerService
   {
   public:

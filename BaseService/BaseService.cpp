@@ -185,14 +185,14 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::attachInterface(iqrfgw::IIqrfDpaService* iface)
+  void BaseService::attachInterface(iqrf::IIqrfDpaService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     m_dpa = iface;
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::detachInterface(iqrfgw::IIqrfDpaService* iface)
+  void BaseService::detachInterface(iqrf::IIqrfDpaService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     if (m_dpa == iface) {
@@ -201,14 +201,14 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::attachInterface(iqrfgw::ISchedulerService* iface)
+  void BaseService::attachInterface(iqrf::ISchedulerService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     m_scheduler = iface;
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::detachInterface(iqrfgw::ISchedulerService* iface)
+  void BaseService::detachInterface(iqrf::ISchedulerService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     if (m_scheduler == iface) {

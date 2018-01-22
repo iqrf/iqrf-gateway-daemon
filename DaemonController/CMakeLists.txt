@@ -1,6 +1,6 @@
 project(DaemonController)
 
-set(COMPONENT iqrfgw::DaemonController)
+set(COMPONENT iqrf::DaemonController)
 DeclareShapeComponent(${COMPONENT})
 #AddShapeProvidedInterface(${COMPONENT} iqrfgwe::IDaemonControllerService)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)

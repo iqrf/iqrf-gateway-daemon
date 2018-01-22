@@ -87,7 +87,7 @@
 /// }
 /// ```
 
-namespace iqrfgw {
+namespace iqrf {
   class Scheduler : public ISchedulerService
   {
   public:

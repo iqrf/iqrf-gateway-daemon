@@ -3,10 +3,10 @@ project(IqrfDpa)
 FIND_PACKAGE(cutils REQUIRED)
 FIND_PACKAGE(clibdpa REQUIRED)
 
-set(COMPONENT iqrfgw::IqrfDpa)
+set(COMPONENT iqrf::IqrfDpa)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrfgw::IIqrfDpaService)
-AddShapeRequiredInterface(${COMPONENT} iqrfgw::IIqrfChannelService MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfDpaService)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfChannelService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 

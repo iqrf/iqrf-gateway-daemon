@@ -6,7 +6,7 @@
 //This is workaround class just to keep clibdpa library backward compatibility to satisfy IChannel deps
 //As soon the library is redesigned to Shape component it seems reasonable to pass directly IqrfChannelService
 
-namespace iqrfgw {
+namespace iqrf {
   class IqrfDpaChannel : public IChannel
   {
   public:

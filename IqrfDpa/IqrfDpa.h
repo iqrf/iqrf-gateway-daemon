@@ -10,7 +10,7 @@
 #include <mutex>
 #include <map>
 
-namespace iqrfgw {
+namespace iqrf {
   class IqrfDpa : public IIqrfDpaService
   {
   public:

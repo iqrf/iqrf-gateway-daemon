@@ -11,9 +11,9 @@ TRC_INIT();
 
 #include "iqrfgw__IqrfDpa.hxx"
 
-TRC_INIT_MODULE(iqrfgw::IqrfDpa);
+TRC_INIT_MODULE(iqrf::IqrfDpa);
 
-namespace iqrfgw {
+namespace iqrf {
   IqrfDpa::IqrfDpa()
   {
     TRC_FUNCTION_ENTER("");
@@ -174,13 +174,13 @@ namespace iqrfgw {
   {
   }
 
-  void IqrfDpa::attachInterface(iqrfgw::IIqrfChannelService* iface)
+  void IqrfDpa::attachInterface(iqrf::IIqrfChannelService* iface)
   {
     m_iqrfChannelService = iface;
     m_iqrfDpaChannel = shape_new IqrfDpaChannel(iface);
   }
 
-  void IqrfDpa::detachInterface(iqrfgw::IIqrfChannelService* iface)
+  void IqrfDpa::detachInterface(iqrf::IIqrfChannelService* iface)
   {
     if (m_iqrfChannelService == iface) {
       m_iqrfChannelService = nullptr;

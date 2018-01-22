@@ -20,7 +20,7 @@
 
 using namespace std::chrono;
 
-namespace iqrfgw {
+namespace iqrf {
 
   class RandomTaskHandleGenerator {
   private:

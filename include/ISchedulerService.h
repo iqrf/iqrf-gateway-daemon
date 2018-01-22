@@ -32,7 +32,7 @@
 /// \brief ISchedulerService interface
 /// \details
 /// Provides interface for planning task fired at proper time
-namespace iqrfgw {
+namespace iqrf {
   class ISchedulerService_DECLSPEC ISchedulerService
   {
   public:

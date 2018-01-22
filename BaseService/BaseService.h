@@ -29,11 +29,11 @@ namespace iqrf {
     void attachInterface(iqrf::IJsonSerializerService* iface);
     void detachInterface(iqrf::IJsonSerializerService* iface);
 
-    void attachInterface(iqrfgw::IIqrfDpaService* iface);
-    void detachInterface(iqrfgw::IIqrfDpaService* iface);
+    void attachInterface(iqrf::IIqrfDpaService* iface);
+    void detachInterface(iqrf::IIqrfDpaService* iface);
 
-    void attachInterface(iqrfgw::ISchedulerService* iface);
-    void detachInterface(iqrfgw::ISchedulerService* iface);
+    void attachInterface(iqrf::ISchedulerService* iface);
+    void detachInterface(iqrf::ISchedulerService* iface);
 
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
@@ -44,8 +44,8 @@ namespace iqrf {
 
     IMessagingService* m_messaging = nullptr;
     IJsonSerializerService* m_serializer = nullptr;
-    iqrfgw::IIqrfDpaService* m_dpa = nullptr;
-    iqrfgw::ISchedulerService* m_scheduler = nullptr;
+    iqrf::IIqrfDpaService* m_dpa = nullptr;
+    iqrf::ISchedulerService* m_scheduler = nullptr;
     std::string m_name;
     //IMessaging* m_messaging;
     //IDaemon* m_daemon;

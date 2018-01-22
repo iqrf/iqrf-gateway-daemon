@@ -22,11 +22,11 @@
 
 #include "iqrfgw__Scheduler.hxx"
 
-TRC_INIT_MODULE(iqrfgw::Scheduler);
+TRC_INIT_MODULE(iqrf::Scheduler);
 
 using namespace std::chrono;
 
-namespace iqrfgw {
+namespace iqrf {
 
   Scheduler::Scheduler()
   {

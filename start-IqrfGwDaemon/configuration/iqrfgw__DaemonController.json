@@ -1,4 +1,4 @@
 {
-  "component": "iqrfgw::DaemonController",
-  "instance": "iqrfgw::DaemonController-Instance"
+  "component": "iqrf::DaemonController",
+  "instance": "iqrf::DaemonController-Instance"
 }

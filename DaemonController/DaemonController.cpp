@@ -5,9 +5,9 @@
 
 #include "iqrfgw__DaemonController.hxx"
 
-TRC_INIT_MODULE(iqrfgw::DaemonController);
+TRC_INIT_MODULE(iqrf::DaemonController);
 
-namespace iqrfgw {
+namespace iqrf {
   DaemonController::DaemonController()
   {
     TRC_FUNCTION_ENTER("");
