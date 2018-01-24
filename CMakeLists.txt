@@ -1,4 +1,4 @@
-project(IqrfGwDaemon)
+project(IqrfDaemon)
 
 cmake_minimum_required(VERSION 3.0)
 
@@ -28,7 +28,7 @@ include_directories(${shape_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_subdirectory(include)
-add_subdirectory(start-IqrfGwDaemon)
+add_subdirectory(start-IqrfDaemon)
 add_subdirectory(DaemonController)
 add_subdirectory(Scheduler)
 add_subdirectory(IqrfCdc)

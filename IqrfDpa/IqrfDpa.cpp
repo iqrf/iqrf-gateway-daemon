@@ -9,7 +9,7 @@
 #include "IqrfLogging.h"
 TRC_INIT();
 
-#include "iqrfgw__IqrfDpa.hxx"
+#include "iqrf__IqrfDpa.hxx"
 
 TRC_INIT_MODULE(iqrf::IqrfDpa);
 

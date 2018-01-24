@@ -20,7 +20,7 @@
 #include "ShapeDefines.h"
 #include <algorithm>
 
-#include "iqrfgw__Scheduler.hxx"
+#include "iqrf__Scheduler.hxx"
 
 TRC_INIT_MODULE(iqrf::Scheduler);
 

@@ -10,7 +10,7 @@
 #include "IIqrfChannelService.h"
 #include "Trace.h"
 
-#include "iqrfgw__IqrfCdc.hxx"
+#include "iqrf__IqrfCdc.hxx"
 
 TRC_INIT_MODULE(iqrf::IqrfCdc);
 

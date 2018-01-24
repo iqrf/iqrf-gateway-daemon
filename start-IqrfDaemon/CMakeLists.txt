@@ -1,4 +1,4 @@
-project (start-IqrfGwDaemon)
+project (start-IqrfDaemon)
 
 file(GLOB_RECURSE _HDRFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)

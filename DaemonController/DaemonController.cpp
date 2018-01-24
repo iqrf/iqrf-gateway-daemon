@@ -3,7 +3,7 @@
 #include "DaemonController.h"
 #include "Trace.h"
 
-#include "iqrfgw__DaemonController.hxx"
+#include "iqrf__DaemonController.hxx"
 
 TRC_INIT_MODULE(iqrf::DaemonController);
 
