@@ -39,7 +39,8 @@ TODO
 
 ## 4 Interfaces and Components
 
-TODO: Basic component diagram.
+### Components with respect to Async API
+
 
 ## 5 Modules implementation
 
