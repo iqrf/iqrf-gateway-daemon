@@ -33,7 +33,7 @@ Scheduler has to be implemented
  - operational (IDE4 just connected, no DPA messages received/send)
  - forwarding (all DPA messages forwrded to IDE4)
  - service (IDE4 has direct access to IQRF network without daemon interfering)
-- Switching of modes is done via API (configuration messages) 
+- Switching of modes is done via API (configuration messages)
 - Just one connection is possible
 
 #### **DEM-07** MQTT Messaging [#13](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/13)
@@ -80,3 +80,6 @@ Scheduler has to be implemented
 #### **DEM-18** Virtual DPA Interface
 - Support send/receive DPA messages via any input
 
+#### **DEM-19** WebSocket interface [#24](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/24)
+- Support send/receive API messages via WebSocket channel.
+- Support Authentication/Authorization
