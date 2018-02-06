@@ -36,18 +36,14 @@ component [JsonStdDev] as C35
 component [JsonNtwMgm] as C36
 component [JsonCfgMgm] as C37
 component [JsonSched] as C38
-
-component [IqrfDpa] as C40
-
-component [IqrfCdc] as C50
-component [IqrfSpi] as C51
+component [Json...] as C39
 
 component [Scheduler] as C60
 
 C10 -- I10
 C11 -- I10
 C12 -- I10
-C60 -r- I10
+C38 -r- I10
 
 C20 .u.> I10
 
@@ -58,28 +54,15 @@ C34 .u.> I20
 C35 .u.> I20
 C36 .u.> I20
 C37 .l.> I20
-C38 .r.> I20
+C38 .d.> I20
+C39 .u.> I20
 
-C38 .u.> I60
+C38 .d.> I60
 
-C40 -u- I40
-
-C50 -u- I50
-C51 -u- I50
-
-C30 .d.> I40
-C34 .d.> I40
-C35 .d.> I40
-C36 .d.> I40
-
-C40 .d.> I50
-
-C60 -- I60
+C60 -u- I60
 
 interface "IMessagingService" as I10
 interface "IMessagingSplitterService" as I20
-interface "IIqrfDpaService" as I40
-interface "IIqrfChannelService" as I50
 interface "ISchedulerService" as I60
 
 @enduml

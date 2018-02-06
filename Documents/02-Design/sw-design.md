@@ -27,21 +27,80 @@ The framework is described in: [Shape/README.md](https://github.com/logimic/shap
 
 **Interface Optionality** is UNREQUIRED or MANDATORY. It means all MANDATORY Interfaces have to be attached.
 
+**Interface Target** is UNREQUIRED or MANDATORY. It means all MANDATORY Interfaces have to be attached.
+
 **Activate** is a Component Instance state when all MANDATORY Required Interfaces were attached and the instance is set by Shape to normal operation.
 
 **Dectivate** is a Component Instance state when some of MANDATORY Required Interface was detached and the instance is set by Shape to stop normal operation.
 
 **Service** is represented by its Interface. Provides service like doing command, send data, parse data, calculate data, registering call-back, etc. Service is a published Interface (Provided or Required) within Shape framework.
 
-## 3 Gateway scheme
 
-TODO
+## 2 Components with respect to Async API
 
-## 4 Interfaces and Components
+Description of components processing messages received/sent via Async API
 
-### Components with respect to Async API
+![ComponentDiagramWrtAsyncAPI.png](sw-design-resources/ComponentDiagramWrtAsyncAPI.png)
 
+### Interfaces
+#### IMessagingService Interface
+Is abstraction of specific messaging protocol
+- send message (address, message)
+- register message handler (handlerId, handleFunction)
+- get messaging ID (string) 
+- handleFunction(address, message)
 
-## 5 Modules implementation
+#### IMessagingSplitterService
+Is abstraction of messaging splitter. Incomming address or message is preparsed and the message is routed to proper handler according registered topics. When a message (response) is sent an implementation has to assure that it is routed back to proper messaging according messagingId 
+- send message (messagingId, address, message)
+- register message handler (handlerId, vector<topic>, handleFunction)
+- handleFunction(messagingId, address, message) 
 
-TODO
+#### ISchedulerService
+Provides Interface to Scheduler component
+- Add periodic task (in seconds) for client id
+- Add task with cron syntax for client id
+- Get task by task id
+- Remove task by task id
+- List all tasks for client id
+- Remove all tasks for client id
+
+### Components
+#### LwsMessaging
+Implements IMessagingService Interface via Websockets protocol
+
+#### MqttMessaging
+Implements IMessagingService Interface via MQTT protocol
+
+#### MqMessaging
+Implements IMessagingService Interface via inter-process communication
+
+#### JsonHub
+It uses Required Interface IMessagingService to register a handler processing incoming request messages. JsonHub preparses the request messages to get a key controlling where to route the next processing. It implements IMessagingSplitterService. A users of the interface is selected according the key and registered handler of the user is called. When the processing is finished the user sends back a response message. The response message is send according messagingId parameter. 
+
+#### JsonEmbedPer
+This component is responsible for handling requests messages to perform an action with an embedded periphery as e.g. blink LED or switch IO. It seems appropriate to split it to more components in implementation as some embedded periphery are complex (FRS) and dedicated components may be easily maintained and implemented in parallel by more developers independently.
+
+#### JsonStdDev
+This component is responsible for handling requests messages to perform an action with Standard Devices. It seems appropriate to split it to more components in implementation.
+
+#### JsonNtwMgm
+This component is responsible for handling requests messages to perform an action with Network mamagement. It seems appropriate to split it to more components in implementation.
+
+#### JsonCfgMgm
+This component is responsible for handling requests messages to perform an action with Configuration mamagement. Incoming configurations are handled via Shape Configuration Service
+
+#### JsonSched
+This component is responsible for handling requests messages to schedule tasks. The messages are in form of requests messages as it would be sent directly but wrapped in a scheduling envelope controlling postponing, periodicity, etc. JsonSched uses IScheduler interface to schedule the tasks. When it is fired by Scheduler JsonSched uses Provided Interface IMessaging to send wrapped request message via JsonHub to dedicated message handling component.
+
+## 3 Components with respect to DPA
+
+Description of components processing DPA messages 
+
+![ComponentDiagramWrtIqrfDpa.png](sw-design-resources/ComponentDiagramWrtIqrfDpa.png)
+
+## 4 Components with respect to IQRF Repository
+
+Description of components interacting with IQRF Repository
+
+![ComponentDiagramWrtRepo.png](sw-design-resources/ComponentDiagramWrtRepo.png)

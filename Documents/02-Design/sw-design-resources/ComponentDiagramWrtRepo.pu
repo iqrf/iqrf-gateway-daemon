@@ -1,5 +1,5 @@
 @startuml
-title Iqrf Daemon Components with respect to IQRF Interface
+title Iqrf Daemon Components with respect to Devices Repository
 
 skinparam component {
   FontSize 13
@@ -25,37 +25,34 @@ skinparam note {
 }
 
 
-component [JsonDpa] as C30
-component [JsonEmbedPer] as C34
 component [JsonStdDev] as C35
+component [JsonEmbedPer] as C34
 component [JsonNtwMgm] as C36
-component [Json...] as C39
+component [JsEngine] as C40
+component [RestClient] as C50
+component [JsCache] as C41
+component [Scheduler] as C60
 
-component [IqrfDpa] as C40
-
-component [IqrfCdc] as C50
-component [IqrfSpi] as C51
-component [IqrfVirtual] as C52
-component [Iqrf...] as C53
 
 C40 -u- I40
-C50 -u- I50
-C51 -u- I50
-C52 -l- I50
-C53 -u- I50
+C41 -d- I41
+C50 -d- I50
 
-C30 .d.> I40
+C34 .u.> I41
+C35 .u.> I41
+C36 .u.> I41
 C34 .d.> I40
 C35 .d.> I40
-C36 .r.> I40
-C39 .l.> I40
-
-C40 .d.> I50
-
-C36 .d.> I50
+C36 .d.> I40
 
 
-interface "IIqrfDpaService" as I40
-interface "IIqrfChannelService" as I50
+C41 .l.> I50
+C41 .r.> I60
+C60 -- I60
+
+interface "IJsEngine" as I40
+interface "IJsCache" as I41
+interface "IRestClient" as I50
+interface "ISchedulerService" as I60
 
 @enduml
