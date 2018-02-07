@@ -36,14 +36,14 @@ The framework is described in: [Shape/README.md](https://github.com/logimic/shap
 **Service** is represented by its Interface. Provides service like doing command, send data, parse data, calculate data, registering call-back, etc. Service is a published Interface (Provided or Required) within Shape framework.
 
 
-## 2 Components with respect to Async API
+## 2 Interfaces & Components with respect to Async API
 
 Description of components processing messages received/sent via Async API
 
 ![ComponentDiagramWrtAsyncAPI.png](sw-design-resources/ComponentDiagramWrtAsyncAPI.png)
 
 ### Interfaces
-#### IMessagingService Interface
+#### IMessagingService
 Is abstraction of specific messaging protocol
 - send message (address, message)
 - register message handler (handlerId, handleFunction)
@@ -93,14 +93,108 @@ This component is responsible for handling requests messages to perform an actio
 #### JsonSched
 This component is responsible for handling requests messages to schedule tasks. The messages are in form of requests messages as it would be sent directly but wrapped in a scheduling envelope controlling postponing, periodicity, etc. JsonSched uses IScheduler interface to schedule the tasks. When it is fired by Scheduler JsonSched uses Provided Interface IMessaging to send wrapped request message via JsonHub to dedicated message handling component.
 
-## 3 Components with respect to DPA
+## 3 Interfaces & Components with respect to DPA
 
-Description of components processing DPA messages 
+Description of components acting in processing of DPA messages 
 
 ![ComponentDiagramWrtIqrfDpa.png](sw-design-resources/ComponentDiagramWrtIqrfDpa.png)
+
+### Interfaces
+#### IIqrfDpaService
+Is abstraction of IqrfDpa Component (DPA Transaction, timing, error evaluation, etc.)
+- execute Dpa Transaction
+- kill pending Dpa Transaction
+- get/set Dpa Transaction timeout
+- get/set RF mode (std/lp)
+- register/unregister async message handler
+
+#### IIqrfChannelService
+Is abstraction of device driver providing connection to IQRF Coordinator
+- send message
+- register/unregister receive handler
+- get state (ready, not ready, direct access, ...)
+- set/unset direct access mode (for SW download/upload)
+- set/unset normal mode
+
+### Components
+
+These components (described above) require IIDpaService to process DPA requests as result of incoming API messages (as described above)
+#### JsonEmbedPer
+#### JsonStdDev
+#### JsonNtwMgm
+This component directly require IIqrfChannelService to allow native SW upload
+#### JsonCfgMgm
+This component uses IIqrfDpaService to get/set DPA parameters (RF mode, default timeout)
+
+TODO: There shall be dedicated Component providing processing of asynchronous DPA messages. It is expected these messages could be send offen from asynchronous events from sleeping sensors (e.g. door open). I seems appropriate to analyze content and use right JS script to translate from DPA binary representation to user friendly format
+
+#### IqrfDpa
+Provides DPA transaction processing
+- timeout handling
+- DPA request/response/confirmation handling
+- Async DPA message handling
+- RF setting 
+
+#### IqrfCdc
+Implements IIqrfDpaService via CDC
+
+#### IqrfSpi
+Implements IIqrfDpaService via SPI
+
+#### IqrfVirtual
+Implements IIqrfDpaService as virtual connection to remote coordinator connected via TCP
+
 
 ## 4 Components with respect to IQRF Repository
 
 Description of components interacting with IQRF Repository
 
 ![ComponentDiagramWrtRepo.png](sw-design-resources/ComponentDiagramWrtRepo.png)
+
+### Interfaces
+#### IRestClientService
+Is abstraction of RestClient Component providing generic REST API connection.
+
+#### ISchedulerService
+It is described above. It is used to schedule periodic check of IQRF Repo state (new updates)
+
+#### IRepoCacheService
+Is abstraction of RepoCache Component providing connection to IQRF Repo and caching results
+- gets package (HEX)
+- gets JS drivers
+- gets Repo status
+
+#### IJsEngineService
+Is abstraction of JsEngine providing processing of JavaScript code
+- execute JS
+
+### Components
+
+#### Scheduler
+described above
+
+#### RestClient
+Implementation of REST API client
+
+#### RepoCache
+Implements periodic IQRF Repo check and caching results. Caching is provided for HWPID known for connected nodes to avoid mirroring of complete Repo. 
+
+#### JsonStdDev
+It requires interfaces IRepoCacheService and IJsEngineService to handle incoming API requests for Standard Devices.
+
+#### JsonEmbedPer
+It requires interfaces IRepoCacheService and IJsEngineService to handle incoming API requests for Embedded Peripheries.
+
+#### JsonNtwMgm
+It requires interfaces IRepoCacheService and IJsEngineService to handle incoming API requests for Network management purpose. Mainly EmbedCoordinator, EmbedNode, EmbedOS are used for such purposes.
+
+#### JsEngine
+Provides JavaScript execution.
+
+## 4 Components with respect to IQRF Repository
+
+Description of components processing Upload
+
+![ComponentDiagramWrtUploadService.png](sw-design-resources/ComponentDiagramWrtUploadService.png)
+
+TODO Interface & Compoent description
