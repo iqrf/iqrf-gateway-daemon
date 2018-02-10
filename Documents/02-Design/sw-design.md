@@ -113,8 +113,9 @@ Is abstraction of device driver providing connection to IQRF Coordinator
 - send message
 - register/unregister receive handler
 - get state (ready, not ready, direct access, ...)
-- set/unset direct access mode (for SW download/upload)
+- set/unset direct access mode (for SW download/upload, for IDE4 cooperation)
 - set/unset normal mode
+- set/unset eavesdropping (diagnostic purposes - forwarding to IDE4) 
 
 ### Components
 
@@ -191,10 +192,54 @@ It requires interfaces IRepoCacheService and IJsEngineService to handle incoming
 #### JsEngine
 Provides JavaScript execution.
 
-## 4 Components with respect to IQRF Repository
+## 4 Components with respect to upload
 
 Description of components processing Upload
 
 ![ComponentDiagramWrtUploadService.png](sw-design-resources/ComponentDiagramWrtUploadService.png)
 
 TODO Interface & Compoent description
+
+## 5 Components with respect to IDE4 connection (UDP)
+
+Description of components processing IDE4 cooperation
+
+![ComponentDiagramWrtIde4.png](sw-design-resources/ComponentDiagramWrtIde4.png)
+
+### Interfaces
+
+#### IIqrfChannelService
+Described above
+
+#### IMessagingService
+Described above
+
+#### IDaemonCommonService
+Provides common services used by other components
+- get application version info
+- get coordinator OS vesrsion
+- get coordinator build
+- TODO ... 
+
+#### IEmbedPerService
+Provides access to embeded perifery in generic way
+- access to embedded periferies via get/set methods
+
+### Components
+
+#### MqttMessaging
+Implements IMessagingService Interface via UDP
+
+#### Ide4Counterpart
+Processes messages sent via UDP from IDE4 and uses Required Interfaces to satisfy IDE4 requirements
+- IMessagingService (target UdpMessaging) to receive/send messages from/to IDE4 via UDP
+- IIqrfChannelService for direct access from IDE4 
+- IDaemonCommonService to get generic info required by IDE4 
+
+#### DaemonCommon
+Implements IDaemonCommonService to get common info about the application.
+
+#### EmbedPer
+Is able to use embed peripheries for internal purposes (outside API) with usage of JS drivers
+TODO: JsonEmbedPer shall be split to JSON part requiring IEmbedPerService.
+TODO: Consider similar split of other Json...
