@@ -198,7 +198,25 @@ Description of components processing Upload
 
 ![ComponentDiagramWrtUploadService.png](sw-design-resources/ComponentDiagramWrtUploadService.png)
 
-TODO Interface & Compoent description
+### Interfaces
+
+#### IUploadService
+Is abstraction of UploadService Component(loading code into modules on nodes)
+
+#### IDataPreparerService
+Is abstraction of DataPreparerService Component(preparing data for UploadService
+to load as code into modules on nodes)
+
+### Components
+
+#### UploadService
+- writes code into external EEPROM memory
+- loads code previously stored at external EEPROM memory to the MCU flash memory
+
+#### DataPreparer
+- parses files with code to upload into modules on nodes
+- prepares input for UploadService Component
+
 
 ## 5 Components with respect to IDE4 connection (UDP)
 
