@@ -83,6 +83,20 @@
       "libraryName": "MqttMessaging",
       "enabled": true,
       "startlevel": 0
+    },
+    {
+      "name": "iqrf::UdpMessaging",
+      "libraryPath": "../UdpMessaging/Debug",
+      "libraryName": "UdpMessaging",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::Ide4Counterpart",
+      "libraryPath": "../Ide4Counterpart/Debug",
+      "libraryName": "Ide4Counterpart",
+      "enabled": true,
+      "startlevel": 0
     }
   ]
 }

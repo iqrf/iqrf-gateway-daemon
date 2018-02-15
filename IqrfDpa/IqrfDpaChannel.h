@@ -17,17 +17,18 @@ namespace iqrf {
 
     void sendTo(const std::basic_string<unsigned char>& message) override
     {
-      m_iqrfChannelService->sendTo(message);
+      m_accessor->send(message);
     }
 
     void registerReceiveFromHandler(ReceiveFromFunc receiveFromFunc) override
     {
-      m_iqrfChannelService->registerReceiveFromHandler(receiveFromFunc);
+      m_accessor = m_iqrfChannelService->getAccess(receiveFromFunc, IIqrfChannelService::AccesType::Normal);
     }
 
     void unregisterReceiveFromHandler() override
     {
-      m_iqrfChannelService->unregisterReceiveFromHandler();
+      //m_iqrfChannelService->unregisterReceiveFromHandler();
+      m_accessor.reset();
     }
 
     State getState() override
@@ -45,6 +46,6 @@ namespace iqrf {
 
   private:
     IIqrfChannelService* m_iqrfChannelService = nullptr;
-
+    std::unique_ptr<IIqrfChannelService::Accessor> m_accessor;
   };
 }

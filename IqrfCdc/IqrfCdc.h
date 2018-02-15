@@ -13,13 +13,13 @@ namespace iqrf {
   class IqrfCdc : public IIqrfChannelService
   {
   public:
+    class Imp;
+
     IqrfCdc();
     virtual ~IqrfCdc();
 
-    void sendTo(const std::basic_string<unsigned char>& message) override;
-    void registerReceiveFromHandler(ReceiveFromFunc receiveFromFunc) override;
-    void unregisterReceiveFromHandler() override;
     State getState() const override;
+    std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
@@ -29,8 +29,6 @@ namespace iqrf {
     void detachInterface(shape::ITraceService* iface);
 
   private:
-    CDCImpl* m_cdc = nullptr;
-    ReceiveFromFunc m_receiveFromFunc;
-    std::string m_interfaceName;
+    Imp* m_imp = nullptr;
   };
 }

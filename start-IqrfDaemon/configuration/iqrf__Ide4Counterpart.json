@@ -1,0 +1,12 @@
+{
+  "component": "iqrf::Ide4Counterpart",
+  "instance": "Ide4Counterpart",
+  "RequiredInterfaces": [
+    {
+      "name": "iqrf::IMessagingService",
+      "target": {
+        "instance": "UdpMessaging"
+      }
+    }
+  ]
+}
