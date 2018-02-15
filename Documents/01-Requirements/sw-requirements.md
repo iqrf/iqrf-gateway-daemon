@@ -83,3 +83,9 @@ Scheduler has to be implemented
 #### **DEM-19** WebSocket interface [#24](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/24)
 - Support send/receive API messages via WebSocket channel.
 - Support Authentication/Authorization
+
+#### **DEM-20** OTA upload
+- Support OTA upload
+
+#### **DEM-21** Native upload
+- Support OTA upload
