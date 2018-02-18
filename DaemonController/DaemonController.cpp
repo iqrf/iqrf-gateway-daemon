@@ -2,6 +2,7 @@
 
 #include "DaemonController.h"
 #include "Trace.h"
+#include <algorithm>
 
 #include "iqrf__DaemonController.hxx"
 

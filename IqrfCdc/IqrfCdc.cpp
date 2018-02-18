@@ -1,6 +1,7 @@
 #define IIqrfChannelService_EXPORTS
 
 #include "IqrfCdc.h"
+#include <thread>
 
 #ifdef TRC_CHANNEL
 #undefine TRC_CHANNEL

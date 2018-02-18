@@ -21,8 +21,9 @@ target_link_libraries(${PROJECT_NAME}
 
 if(WIN32)
   set (_CONFIG_DEST ${CMAKE_CURRENT_BINARY_DIR})
-
+  set (_CONFIG_DIR configuration)
 else()
+  set (_CONFIG_DIR configurationLin)
   target_link_libraries(${PROJECT_NAME} 
     dl
     pthread
@@ -41,5 +42,5 @@ add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/configuration "${_CONFIG_DEST}/configuration"
+    ARGS -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_CONFIG_DIR} "${_CONFIG_DEST}/configuration"
 )
