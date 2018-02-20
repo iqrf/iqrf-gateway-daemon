@@ -27,3 +27,11 @@ endif()
 target_link_libraries(${PROJECT_NAME}
 	MqChannel
 )
+
+if(NOT WIN32)
+  target_link_libraries(${PROJECT_NAME}
+	MqChannel
+	rt
+  )
+endif()
+
