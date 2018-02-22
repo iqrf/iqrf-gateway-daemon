@@ -203,6 +203,9 @@ Description of components processing Upload
 #### IUploadService
 Is abstraction of UploadService Component(loading code into modules on nodes)
 
+#### INativeUploadService
+Is abstraction of NativeUploadService Component(loading code into modules on nodes)
+
 #### IDataPreparerService
 Is abstraction of DataPreparerService Component(preparing data for UploadService
 to load as code into modules on nodes)
@@ -212,6 +215,10 @@ to load as code into modules on nodes)
 #### UploadService
 - writes code into external EEPROM memory
 - loads code previously stored at external EEPROM memory to the MCU flash memory
+
+#### NativeUploadService
+- uploads data(configuration, Flash, internal and external EEPROM) to TR module 
+  inside the USB device
 
 #### DataPreparer
 - parses files with code to upload into modules on nodes
