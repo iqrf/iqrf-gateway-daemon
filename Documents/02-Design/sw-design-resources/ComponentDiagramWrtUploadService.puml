@@ -27,19 +27,23 @@ skinparam note {
 
 interface "IUploadService" as I1
 interface "IIqrfDpaService" as I2
-interface "IIqrfChannelService" as I3
+interface "INativeUploadService" as I3
 interface "IDataPreparerService" as I4
+interface "IIqrfChannelService" as I5
 
 component [UploadService] as C1
 component [IqrfDpa] as C2
+component [NativeUploadService] as C3
 component [DataPreparer] as C4
 
 C1 -- I1
 C2 -- I2
+C3 -- I3
 C4 -- I4
 C1 .u.> I2
 C1 .u.> I3
 C1 .u.> I4
-C2 .u.> I3
+C2 .u.> I5
+C3 .u.> I5
 
 @enduml
