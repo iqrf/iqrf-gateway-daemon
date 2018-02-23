@@ -1,0 +1,6 @@
+{
+  "component": "iqrf::IqrfSpi",
+  "instance": "iqrf::IqrfSpi-/dev/spidev0.0",
+
+  "IqrfInterface": "/dev/spidev0.0"
+}

@@ -8,13 +8,13 @@
 namespace iqrf {
   class ITraceService;
 
-  class IqrfCdc : public IIqrfChannelService
+  class IqrfSpi : public IIqrfChannelService
   {
   public:
     class Imp;
 
-    IqrfCdc();
-    virtual ~IqrfCdc();
+    IqrfSpi();
+    virtual ~IqrfSpi();
 
     State getState() const override;
     std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) override;

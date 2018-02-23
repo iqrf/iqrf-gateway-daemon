@@ -46,6 +46,13 @@
       "name": "iqrf::IqrfCdc",
       "libraryPath": "../IqrfCdc",
       "libraryName": "IqrfCdc",
+      "enabled": false,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfSpi",
+      "libraryPath": "../IqrfSpi",
+      "libraryName": "IqrfSpi",
       "enabled": true,
       "startlevel": 0
     },

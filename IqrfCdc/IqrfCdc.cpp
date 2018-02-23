@@ -1,6 +1,8 @@
 #define IIqrfChannelService_EXPORTS
 
 #include "IqrfCdc.h"
+#include "CdcInterface.h"
+#include "CDCImpl.h"
 #include <thread>
 
 #ifdef TRC_CHANNEL
