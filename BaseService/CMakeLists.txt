@@ -1,6 +1,6 @@
 project(BaseService)
 
-FIND_PACKAGE(clibdpa REQUIRED)
+#FIND_PACKAGE(clibdpa REQUIRED)
 FIND_PACKAGE(cutils REQUIRED)
 
 set(COMPONENT iqrf::BaseService)

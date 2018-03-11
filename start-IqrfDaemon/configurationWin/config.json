@@ -53,7 +53,7 @@
       "name": "iqrf::IqrfSpi",
       "libraryPath": "../IqrfSpi/Debug",
       "libraryName": "IqrfSpi",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 0
     },
     {

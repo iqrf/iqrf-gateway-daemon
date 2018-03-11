@@ -1,7 +1,7 @@
 project(IqrfDpa)
 
 FIND_PACKAGE(cutils REQUIRED)
-FIND_PACKAGE(clibdpa REQUIRED)
+#FIND_PACKAGE(clibdpa REQUIRED)
 
 set(COMPONENT iqrf::IqrfDpa)
 DeclareShapeComponent(${COMPONENT})

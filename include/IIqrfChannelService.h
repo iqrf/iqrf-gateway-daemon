@@ -36,6 +36,7 @@ namespace iqrf {
     class Accessor
     {
     public:
+      //TODO return value if message was not send because of access refuse 
       virtual void send(const std::basic_string<unsigned char>& message) = 0;
       virtual AccesType getAccessType() = 0;
       virtual ~Accessor() {}

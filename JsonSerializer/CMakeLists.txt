@@ -1,6 +1,6 @@
 project(JsonSerializer)
 
-FIND_PACKAGE(clibdpa REQUIRED)
+#FIND_PACKAGE(clibdpa REQUIRED)
 
 set(COMPONENT iqrf::JsonSerializer)
 DeclareShapeComponent(${COMPONENT})

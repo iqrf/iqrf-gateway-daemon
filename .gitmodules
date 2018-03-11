@@ -1,0 +1,4 @@
+[submodule "libraries/clibdpa"]
+	path = libraries/clibdpa
+	url = git@github.com:iqrfsdk/clibdpa.git
+	branch = feature/clibdpa2

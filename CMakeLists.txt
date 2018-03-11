@@ -27,6 +27,11 @@ include(${CMAKE_MODULE_PATH}/ShapeComponentDeclaration.cmake)
 include_directories(${shape_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
+
+add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
+#TODO pass to clibdpa
+include(${CMAKE_CURRENT_BINARY_DIR}/libraries/clibdpa/clibdpaConfig.cmake)
+
 add_subdirectory(include)
 add_subdirectory(start-IqrfDaemon)
 add_subdirectory(DaemonController)
