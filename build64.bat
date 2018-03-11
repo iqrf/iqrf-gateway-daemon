@@ -15,6 +15,12 @@ pushd %shape%
 set shape=%cd%
 popd
 
+rem //get path to to Shape libs
+set shapeware=..\\..\\shapeware\\%buildexp%
+pushd %shapeware%
+set shaparts=%cd%
+popd
+
 rem //get path to clibcdc libs
 set clibcdc=%libsdir%\\clibcdc\\build\\Visual_Studio_14_2015\\x64
 pushd %clibcdc%
@@ -38,7 +44,7 @@ set tms="%date% %time%"
 
 rem //launch cmake to generate build environment
 pushd %builddir%
-cmake -G "Visual Studio 14 2015 Win64" -Dshape_DIR:PATH=%shape% -Dcutils_DIR:PATH=%cutils% -Dclibcdc_DIR:PATH=%clibcdc% -Dclibspi_DIR:PATH=%clibspi% -DDAEMON_VERSION:STRING=%ver% -DBUILD_TIMESTAMP:STRING=%tms% %currentdir%
+cmake -G "Visual Studio 14 2015 Win64" -Dshape_DIR:PATH=%shape% -Dshapeware_DIR:PATH=%shaparts% -Dclibdpa_DIR:PATH=%clibdpa% -Dcutils_DIR:PATH=%cutils% -Dclibcdc_DIR:PATH=%clibcdc% -Dclibspi_DIR:PATH=%clibspi% -DDAEMON_VERSION:STRING=%ver% -DBUILD_TIMESTAMP:STRING=%tms% %currentdir%
 popd
 
 rem //build from generated build environment

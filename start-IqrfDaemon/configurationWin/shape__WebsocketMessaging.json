@@ -1,0 +1,4 @@
+{
+  "component": "shape::WebsocketMessaging",
+  "instance": "WebsocketMessaging"
+}

@@ -29,6 +29,13 @@
       "startlevel": -2
     },
     {
+      "name": "shape::WebsocketService",
+      "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
+      "libraryName": "WebsocketService",
+      "enabled": true,
+      "startlevel": -1
+    },
+    {
       "name": "iqrf::DaemonController",
       "libraryPath": "../DaemonController/Debug",
       "libraryName": "DaemonController",
@@ -88,6 +95,13 @@
       "name": "iqrf::MqttMessaging",
       "libraryPath": "../MqttMessaging/Debug",
       "libraryName": "MqttMessaging",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::WebsocketMessaging",
+      "libraryPath": "../WebsocketMessaging/Debug",
+      "libraryName": "WebsocketMessaging",
       "enabled": true,
       "startlevel": 0
     },

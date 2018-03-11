@@ -24,7 +24,7 @@ FIND_PACKAGE(shape REQUIRED)
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 include(${CMAKE_MODULE_PATH}/ShapeComponentDeclaration.cmake)
 
-include_directories(${shape_INCLUDE_DIRS})
+#include_directories(${shape_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 
@@ -43,5 +43,6 @@ add_subdirectory(BaseService)
 add_subdirectory(JsonSerializer)
 add_subdirectory(MqMessaging)
 add_subdirectory(MqttMessaging)
+add_subdirectory(WebsocketMessaging)
 add_subdirectory(UdpMessaging)
 add_subdirectory(Ide4Counterpart)
