@@ -1,7 +1,7 @@
 [submodule "libraries/clibdpa"]
 	path = libraries/clibdpa
 	url = git@github.com:iqrfsdk/clibdpa.git
-	branch = feature/clibdpa2
+	branch = master
 [submodule "libraries/iqrf-daemon-api"]
 	path = libraries/iqrf-daemon-api
 	url = ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon-api.git
