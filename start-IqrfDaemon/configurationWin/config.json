@@ -118,6 +118,20 @@
       "libraryName": "Ide4Counterpart",
       "enabled": true,
       "startlevel": 0
+    },
+    {
+      "name": "iqrf::JsonSplitter",
+      "libraryPath": "../JsonSplitter/Debug",
+      "libraryName": "JsonSplitter",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::JsonDpaApi",
+      "libraryPath": "../JsonDpaApi/Debug",
+      "libraryName": "JsonDpaApi",
+      "enabled": true,
+      "startlevel": 2
     }
   ]
 }

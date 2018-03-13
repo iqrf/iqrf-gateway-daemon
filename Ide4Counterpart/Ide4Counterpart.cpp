@@ -58,8 +58,10 @@ namespace iqrf {
       "******************************"
     );
 
-    m_messaging->registerMessageHandler([&](const std::basic_string<unsigned char>& msg) -> int {
-      return handleMessageFromUdp(msg); });
+    m_messaging->registerMessageHandler([&](const std::string& messagingId, const std::vector<uint8_t>& msg)
+    {
+      return handleMessageFromUdp(msg);
+    });
 
     //TODO handle by iface or cfg
     //setMode(Ide4Counterpart::Mode::Service);
@@ -238,10 +240,12 @@ namespace iqrf {
     message[timeYear] = (unsigned char)(ltm->tm_year % 100);   //DB10 GW date – year
   }
 
-  int Ide4Counterpart::handleMessageFromUdp(const std::basic_string<unsigned char>& udpMessage)
+  int Ide4Counterpart::handleMessageFromUdp(const std::vector<uint8_t>& msg)
   {
     //TRC_DBG("==================================" << std::endl <<
     //  "Received from UDP: " << std::endl << FORM_HEX(udpMessage.data(), udpMessage.size()));
+
+    std::basic_string<uint8_t> udpMessage(msg.data(), msg.size());
 
     size_t msgSize = udpMessage.size();
     std::basic_string<unsigned char> message;

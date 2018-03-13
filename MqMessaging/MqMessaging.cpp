@@ -54,13 +54,13 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  int MqMessaging::handleMessageFromMq(const ustring& mqMessage)
+  int MqMessaging::handleMessageFromMq(const ustring& message)
   {
     TRC_DEBUG("==================================" << std::endl <<
-      "Received from MQ: " << std::endl << MEM_HEX_CHAR(mqMessage.data(), mqMessage.size()));
+      "Received from MQ: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
     if (m_messageHandlerFunc)
-      m_messageHandlerFunc(mqMessage);
+      m_messageHandlerFunc(m_name, std::vector<uint8_t>(message.data(), message.data() + message.size()));
 
     return 0;
   }

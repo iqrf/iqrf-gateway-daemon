@@ -234,13 +234,13 @@ namespace iqrf {
     }
 
     //------------------------
-    void handleMessageFromMqtt(const ustring& mqMessage)
+    void handleMessageFromMqtt(const ustring& message)
     {
       TRC_DEBUG("==================================" << std::endl <<
-        "Received from MQTT: " << std::endl << MEM_HEX_CHAR(mqMessage.data(), mqMessage.size()));
+        "Received from MQTT: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
       if (m_messageHandlerFunc)
-        m_messageHandlerFunc(mqMessage);
+        m_messageHandlerFunc(m_name, std::vector<uint8_t>(message.data(), message.data() + message.size()));
     }
 
     //------------------------

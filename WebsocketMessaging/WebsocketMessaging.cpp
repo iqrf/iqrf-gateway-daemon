@@ -34,13 +34,13 @@ namespace iqrf {
 
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
 
-    int handleMessageFromMq(const std::vector<uint8_t>& mqMessage)
+    int handleMessageFromWebsocket(const std::vector<uint8_t>& message)
     {
       TRC_DEBUG("==================================" << std::endl <<
-        "Received from MQ: " << std::endl << MEM_HEX_CHAR(mqMessage.data(), mqMessage.size()));
+        "Received from Websocket: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
       if (m_messageHandlerFunc)
-        m_messageHandlerFunc(std::basic_string<uint8_t>(mqMessage.data(), mqMessage.size()));
+        m_messageHandlerFunc(m_name, message);
 
       return 0;
     }
@@ -97,7 +97,7 @@ namespace iqrf {
       });
 
       m_iWebsocketService->registerMessageHandler([&](const std::vector<uint8_t>& msg) -> int {
-        return handleMessageFromMq(msg); });
+        return handleMessageFromWebsocket(msg); });
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -140,10 +140,12 @@ namespace iqrf {
   ////////////////////////////////////
   WebsocketMessaging::WebsocketMessaging()
   {
+    m_imp = shape_new Imp();
   }
 
   WebsocketMessaging::~WebsocketMessaging()
   {
+    delete m_imp;
   }
 
   void WebsocketMessaging::registerMessageHandler(MessageHandlerFunc hndl)

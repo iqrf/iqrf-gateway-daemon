@@ -1,0 +1,11 @@
+{
+	"mType": "comRaw",
+	"data": {
+		"msgId": "CCCC",
+		"timeout": 1000,
+		"req": {
+			"request": "01.00.06.03.ff.ff"
+		},
+		"returnVerbose": false
+	}
+}

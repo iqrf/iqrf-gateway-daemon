@@ -60,7 +60,7 @@ namespace iqrf {
       "Received from UDP: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
     if (m_messageHandlerFunc)
-      m_messageHandlerFunc(message);
+      m_messageHandlerFunc(m_name, std::vector<uint8_t>(message.data(), message.data() + message.size()));
 
     return 0;
   }

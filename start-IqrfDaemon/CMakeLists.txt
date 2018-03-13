@@ -40,9 +40,20 @@ else()
 
 endif()
 
+#copy configuration
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND}
     ARGS -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_CONFIG_DIR} "${_CONFIG_DEST}/configuration"
+)
+
+#copy schemes
+set(_JSON_SCHEMES_FROM ${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemes/async-api-json-schemes)
+set(_JSON_SCHEMES_TO ${_CONFIG_DEST}/configuration/JsonSchemes/async-api-json-schemes)
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_directory ${_JSON_SCHEMES_FROM} ${_JSON_SCHEMES_TO}
 )
