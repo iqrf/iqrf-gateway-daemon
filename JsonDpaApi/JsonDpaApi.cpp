@@ -340,6 +340,9 @@ namespace iqrf {
       auto res = trn->get();
       com->createResponse(respDoc, *res);
 
+      //update message type - type is the same for request/response
+      Pointer("/mType").Set(respDoc, msgType);
+
       //TODO validate response in debug
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
 
@@ -362,8 +365,6 @@ namespace iqrf {
       });
 
       ////////////////////////////
-      //ComRaw::setValidator("./configuration/JsonSchemes/async-api-json-schemes/comRaw-request.json");
-      //ComRawHdp::setValidator("./configuration/JsonSchemes/async-api-json-schemes/comRawHdp-request.json");
       createValidator("comRaw", "./configuration/JsonSchemes/async-api-json-schemes/comRaw-request.json");
       createValidator("comRawHdp", "./configuration/JsonSchemes/async-api-json-schemes/comRawHdp-request.json");
       ////////////////////////////
