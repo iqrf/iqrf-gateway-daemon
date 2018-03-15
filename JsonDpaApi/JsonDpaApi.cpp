@@ -3,12 +3,12 @@
 #include "Raws.h"
 #include "DpaHandler2.h"
 #include "JsonDpaApi.h"
+#include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/prettywriter.h"
-#include "rapidjson/schema.h"
 #include "ITemplateService.h"
 #include "Trace.h"
 #include <algorithm>
@@ -29,86 +29,99 @@ namespace iqrf {
   class JsonDpaApi::Imp
   {
   private:
+    const std::string mType_comEperCoordRebond                = "comEperCoordRebond";
+    const std::string mType_comEperCoordRemoveBond            = "comEperCoordRemoveBond";
+    const std::string mType_comEperCoordRestore               = "comEperCoordRestore";
+    const std::string mType_comEperCoordSetDpaParams          = "comEperCoordSetDpaParams";
+    const std::string mType_comEperCoordSetHops               = "comEperCoordSetHops";
+    const std::string mType_comEperExploreEnum                = "comEperExploreEnum";
+    const std::string mType_comEperExploreMorePerInfo         = "comEperExploreMorePerInfo";
+    const std::string mType_comEperExplorePerInfo             = "comEperExplorePerInfo";
+    const std::string mType_comEperFrcExtraResult             = "comEperFrcExtraResult";
+    const std::string mType_comEperFrcSend                    = "comEperFrcSend";
+    const std::string mType_comEperFrcSendSelective           = "comEperFrcSendSelective";
+    const std::string mType_comEperFrcSetParams               = "comEperFrcSetParams";
+    const std::string mType_comEperIoDir                      = "comEperIoDir";
+    const std::string mType_comEperIoGet                      = "comEperIoGet";
+    const std::string mType_comEperIoSet                      = "comEperIoSet";
+    const std::string mType_comEperLedGet                     = "comEperLedGet";
+    const std::string mType_comEperLedPulse                   = "comEperLedPulse";
+    const std::string mType_comEperLedSet                     = "comEperLedSet";
+    const std::string mType_comEperMemoryRead                 = "comEperMemoryRead";
+    const std::string mType_comEperMemoryWrite                = "comEperMemoryWrite";
+    const std::string mType_comEperNodeBackup                 = "comEperNodeBackup";
+    const std::string mType_comEperNodeClearRemotelyBondedMid = "comEperNodeClearRemotelyBondedMid";
+    const std::string mType_comEperNodeEnableRemoteBond       = "comEperNodeEnableRemoteBond";
+    const std::string mType_comEperNodeRead                   = "comEperNodeRead";
+    const std::string mType_comEperNodeReadRemotelyBondedMid  = "comEperNodeReadRemotelyBondedMid";
+    const std::string mType_comEperNodeRemoveBond             = "comEperNodeRemoveBond";
+    const std::string mType_comEperNodeRestore                = "comEperNodeRestore";
+    const std::string mType_comEperOsBatch                    = "comEperOsBatch";
+    const std::string mType_comEperOsInitRR                   = "comEperOsInitRR";
+    const std::string mType_comEperOsLoadCode                 = "comEperOsLoadCode";
+    const std::string mType_comEperOsRead                     = "comEperOsRead";
+    const std::string mType_comEperOsReadCfg                  = "comEperOsReadCfg";
+    const std::string mType_comEperOsRunRfpgm                 = "comEperOsRunRfpgm";
+    const std::string mType_comEperOsSelectiveBatch           = "comEperOsSelectiveBatch";
+    const std::string mType_comEperOsSetSecurity              = "comEperOsSetSecurity";
+    const std::string mType_comEperOsSleep                    = "comEperOsSleep";
+    const std::string mType_comEperOsWriteCfg                 = "comEperOsWriteCfg";
+    const std::string mType_comEperOsWriteCfgByte             = "comEperOsWriteCfgByte";
+    const std::string mType_comEperSpiWriteRead               = "comEperSpiWriteRead";
+    const std::string mType_comEperThermometerRead            = "comEperThermometerRead";
+    const std::string mType_comEperUartClearWriteRead         = "comEperUartClearWriteRead";
+    const std::string mType_comEperUartClose                  = "comEperUartClose";
+    const std::string mType_comEperUartOpen                   = "comEperUartOpen";
+    const std::string mType_comEperUartWriteRead              = "comEperUartWriteRead";
+    const std::string mType_comRaw                            = "comRaw";
+    const std::string mType_comRawHdp                         = "comRawHdp";
+    const std::string mType_comSdevBinaryOutputEnum           = "comSdevBinaryOutputEnum";
+    const std::string mType_comSdevBinaryOutputSetOutput      = "comSdevBinaryOutputSetOutput";
+    const std::string mType_comSdevLightDecrementPower        = "comSdevLightDecrementPower";
+    const std::string mType_comSdevLightEnum                  = "comSdevLightEnum";
+    const std::string mType_comSdevLightIncrementPower        = "comSdevLightIncrementPower";
+    const std::string mType_comSdevLightSetPower              = "comSdevLightSetPower";
+    const std::string mType_comSdevSensorEnum                 = "comSdevSensorEnum";
+    const std::string mType_comSdevSensorFrc                  = "comSdevSensorFrc";
+    const std::string mType_comSdevSensorReadwt               = "comSdevSensorReadwt";
+
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
-    std::list<std::string> m_supportedMsgTypes = { "comRaw", "comRawHdp" };
-    std::map<std::string, SchemaDocument> m_validatorMap;
+    //Scheme support
+    std::vector<IMessagingSplitterService::MsgType> m_supported = 
+    { 
+      { mType_comRaw, 1,0,0},
+      { mType_comRawHdp, 1,0,0}
+    };
+    
+    ObjectFactory<ComBase, rapidjson::Document&> m_objectFactory;
 
   public:
     Imp()
     {
+      m_objectFactory.registerClass<ComRaw>(mType_comRaw);
+      m_objectFactory.registerClass<ComRawHdp>(mType_comRawHdp);
     }
 
     ~Imp()
     {
     }
 
-    void createValidator(const std::string& msgType, const std::string& fname)
+    void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
     {
-      Document sd;
+      TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
+        NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
 
-      std::ifstream ifs(fname);
-      if (!ifs.is_open()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
-      }
-
-      rapidjson::IStreamWrapper isw(ifs);
-      sd.ParseStream(isw);
-
-      if (sd.HasParseError()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Json parse error: " << NAME_PAR(emsg, sd.GetParseError()) <<
-          NAME_PAR(eoffset, sd.GetErrorOffset()));
-      }
-
-      SchemaDocument schema(sd);
-      m_validatorMap.insert(std::make_pair(msgType, std::move(schema)));
-    }
-
-    void validate(const std::string& msgType, const Document& doc)
-    {
-      auto found = m_validatorMap.find(msgType);
-      if (found != m_validatorMap.end()) {
-        SchemaValidator validator(found->second);
-        if (!doc.Accept(validator)) {
-          // Input JSON is invalid according to the schema
-          // Output diagnostic information
-          StringBuffer sb;
-          validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-          printf("Invalid schema: %s\n", sb.GetString());
-          printf("Invalid keyword: %s\n", validator.GetInvalidSchemaKeyword());
-          sb.Clear();
-          validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-          printf("Invalid document: %s\n", sb.GetString());
-          THROW_EXC_TRC_WAR(std::logic_error, "Invalid");
-        }
-        TRC_DEBUG("OK");
-      }
-      else {
-        //TODO why
-        THROW_EXC_TRC_WAR(std::logic_error, "Cannot find validator");
-      }
-    }
-
-    void handleMsg(const std::string & messagingId, const std::string & msgType, rapidjson::Document doc)
-    {
-      TRC_FUNCTION_ENTER(PAR(messagingId) << PAR(msgType));
-      validate(msgType, doc);
-      Document respDoc;
-      std::unique_ptr<ComBase> com;
-
-      if (msgType == "comRaw") {
-        com.reset(shape_new ComRaw(doc));
-      }
-      else if (msgType == "comRawHdp") {
-        com.reset(shape_new ComRawHdp(doc));
-      }
+      std::unique_ptr<ComBase> com = m_objectFactory.createObject(msgType.m_type, doc);
 
       auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest());
       auto res = trn->get();
+
+      Document respDoc;
       com->createResponse(respDoc, *res);
 
       //update message type - type is the same for request/response
-      Pointer("/mType").Set(respDoc, msgType);
+      Pointer("/mType").Set(respDoc, msgType.m_type);
 
       //TODO validate response in debug
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
@@ -125,16 +138,14 @@ namespace iqrf {
         "******************************"
       );
 
-      m_iMessagingSplitterService->registerFilteredMsgHandler(m_supportedMsgTypes,
-        [&](const std::string & messagingId, const std::string & msgType, rapidjson::Document doc)
-      {
-        handleMsg(messagingId, msgType, std::move(doc));
-      });
-
-      ////////////////////////////
-      createValidator("comRaw", "./configuration/JsonSchemes/async-api-json-schemes/comRaw-request.json");
-      createValidator("comRawHdp", "./configuration/JsonSchemes/async-api-json-schemes/comRawHdp-request.json");
-      ////////////////////////////
+      for (auto & sup : m_supported) {
+        sup.m_handlerFunc = 
+          [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
+        {
+          handleMsg(messagingId, msgType, std::move(doc));
+        };
+      }
+      m_iMessagingSplitterService->registerFilteredMsgHandler(m_supported);
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -148,7 +159,7 @@ namespace iqrf {
         "******************************"
       );
 
-      m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_supportedMsgTypes);
+      m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_supported);
 
       TRC_FUNCTION_LEAVE("")
     }
