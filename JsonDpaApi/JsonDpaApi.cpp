@@ -1,6 +1,6 @@
 #define IMessagingSplitterService_EXPORTS
 
-#include "Raws.h"
+#include "ComRaws.h"
 #include "DpaHandler2.h"
 #include "JsonDpaApi.h"
 #include "ObjectFactory.h"
@@ -29,71 +29,81 @@ namespace iqrf {
   class JsonDpaApi::Imp
   {
   private:
-    const std::string mType_comEperCoordRebond                = "comEperCoordRebond";
-    const std::string mType_comEperCoordRemoveBond            = "comEperCoordRemoveBond";
-    const std::string mType_comEperCoordRestore               = "comEperCoordRestore";
-    const std::string mType_comEperCoordSetDpaParams          = "comEperCoordSetDpaParams";
-    const std::string mType_comEperCoordSetHops               = "comEperCoordSetHops";
-    const std::string mType_comEperExploreEnum                = "comEperExploreEnum";
-    const std::string mType_comEperExploreMorePerInfo         = "comEperExploreMorePerInfo";
-    const std::string mType_comEperExplorePerInfo             = "comEperExplorePerInfo";
-    const std::string mType_comEperFrcExtraResult             = "comEperFrcExtraResult";
-    const std::string mType_comEperFrcSend                    = "comEperFrcSend";
-    const std::string mType_comEperFrcSendSelective           = "comEperFrcSendSelective";
-    const std::string mType_comEperFrcSetParams               = "comEperFrcSetParams";
-    const std::string mType_comEperIoDir                      = "comEperIoDir";
-    const std::string mType_comEperIoGet                      = "comEperIoGet";
-    const std::string mType_comEperIoSet                      = "comEperIoSet";
-    const std::string mType_comEperLedGet                     = "comEperLedGet";
-    const std::string mType_comEperLedPulse                   = "comEperLedPulse";
-    const std::string mType_comEperLedSet                     = "comEperLedSet";
-    const std::string mType_comEperMemoryRead                 = "comEperMemoryRead";
-    const std::string mType_comEperMemoryWrite                = "comEperMemoryWrite";
-    const std::string mType_comEperNodeBackup                 = "comEperNodeBackup";
+    const std::string mType_comEperCoordRebond = "comEperCoordRebond";
+    const std::string mType_comEperCoordRemoveBond = "comEperCoordRemoveBond";
+    const std::string mType_comEperCoordRestore = "comEperCoordRestore";
+    const std::string mType_comEperCoordSetDpaParams = "comEperCoordSetDpaParams";
+    const std::string mType_comEperCoordSetHops = "comEperCoordSetHops";
+    const std::string mType_comEperExploreEnum = "comEperExploreEnum";
+    const std::string mType_comEperExploreMorePerInfo = "comEperExploreMorePerInfo";
+    const std::string mType_comEperExplorePerInfo = "comEperExplorePerInfo";
+    const std::string mType_comEperFrcExtraResult = "comEperFrcExtraResult";
+    const std::string mType_comEperFrcSend = "comEperFrcSend";
+    const std::string mType_comEperFrcSendSelective = "comEperFrcSendSelective";
+    const std::string mType_comEperFrcSetParams = "comEperFrcSetParams";
+    const std::string mType_comEperIoDir = "comEperIoDir";
+    const std::string mType_comEperIoGet = "comEperIoGet";
+    const std::string mType_comEperIoSet = "comEperIoSet";
+    const std::string mType_comEperLedGet = "comEperLedGet";
+    const std::string mType_comEperLedPulse = "comEperLedPulse";
+    const std::string mType_comEperLedSet = "comEperLedSet";
+    const std::string mType_comEperMemoryRead = "comEperMemoryRead";
+    const std::string mType_comEperMemoryWrite = "comEperMemoryWrite";
+    const std::string mType_comEperNodeBackup = "comEperNodeBackup";
     const std::string mType_comEperNodeClearRemotelyBondedMid = "comEperNodeClearRemotelyBondedMid";
-    const std::string mType_comEperNodeEnableRemoteBond       = "comEperNodeEnableRemoteBond";
-    const std::string mType_comEperNodeRead                   = "comEperNodeRead";
-    const std::string mType_comEperNodeReadRemotelyBondedMid  = "comEperNodeReadRemotelyBondedMid";
-    const std::string mType_comEperNodeRemoveBond             = "comEperNodeRemoveBond";
-    const std::string mType_comEperNodeRestore                = "comEperNodeRestore";
-    const std::string mType_comEperOsBatch                    = "comEperOsBatch";
-    const std::string mType_comEperOsInitRR                   = "comEperOsInitRR";
-    const std::string mType_comEperOsLoadCode                 = "comEperOsLoadCode";
-    const std::string mType_comEperOsRead                     = "comEperOsRead";
-    const std::string mType_comEperOsReadCfg                  = "comEperOsReadCfg";
-    const std::string mType_comEperOsRunRfpgm                 = "comEperOsRunRfpgm";
-    const std::string mType_comEperOsSelectiveBatch           = "comEperOsSelectiveBatch";
-    const std::string mType_comEperOsSetSecurity              = "comEperOsSetSecurity";
-    const std::string mType_comEperOsSleep                    = "comEperOsSleep";
-    const std::string mType_comEperOsWriteCfg                 = "comEperOsWriteCfg";
-    const std::string mType_comEperOsWriteCfgByte             = "comEperOsWriteCfgByte";
-    const std::string mType_comEperSpiWriteRead               = "comEperSpiWriteRead";
-    const std::string mType_comEperThermometerRead            = "comEperThermometerRead";
-    const std::string mType_comEperUartClearWriteRead         = "comEperUartClearWriteRead";
-    const std::string mType_comEperUartClose                  = "comEperUartClose";
-    const std::string mType_comEperUartOpen                   = "comEperUartOpen";
-    const std::string mType_comEperUartWriteRead              = "comEperUartWriteRead";
-    const std::string mType_comRaw                            = "comRaw";
-    const std::string mType_comRawHdp                         = "comRawHdp";
-    const std::string mType_comSdevBinaryOutputEnum           = "comSdevBinaryOutputEnum";
-    const std::string mType_comSdevBinaryOutputSetOutput      = "comSdevBinaryOutputSetOutput";
-    const std::string mType_comSdevLightDecrementPower        = "comSdevLightDecrementPower";
-    const std::string mType_comSdevLightEnum                  = "comSdevLightEnum";
-    const std::string mType_comSdevLightIncrementPower        = "comSdevLightIncrementPower";
-    const std::string mType_comSdevLightSetPower              = "comSdevLightSetPower";
-    const std::string mType_comSdevSensorEnum                 = "comSdevSensorEnum";
-    const std::string mType_comSdevSensorFrc                  = "comSdevSensorFrc";
-    const std::string mType_comSdevSensorReadwt               = "comSdevSensorReadwt";
+    const std::string mType_comEperNodeEnableRemoteBond = "comEperNodeEnableRemoteBond";
+    const std::string mType_comEperNodeRead = "comEperNodeRead";
+    const std::string mType_comEperNodeReadRemotelyBondedMid = "comEperNodeReadRemotelyBondedMid";
+    const std::string mType_comEperNodeRemoveBond = "comEperNodeRemoveBond";
+    const std::string mType_comEperNodeRestore = "comEperNodeRestore";
+    const std::string mType_comEperOsBatch = "comEperOsBatch";
+    const std::string mType_comEperOsInitRR = "comEperOsInitRR";
+    const std::string mType_comEperOsLoadCode = "comEperOsLoadCode";
+    const std::string mType_comEperOsRead = "comEperOsRead";
+    const std::string mType_comEperOsReadCfg = "comEperOsReadCfg";
+    const std::string mType_comEperOsRunRfpgm = "comEperOsRunRfpgm";
+    const std::string mType_comEperOsSelectiveBatch = "comEperOsSelectiveBatch";
+    const std::string mType_comEperOsSetSecurity = "comEperOsSetSecurity";
+    const std::string mType_comEperOsSleep = "comEperOsSleep";
+    const std::string mType_comEperOsWriteCfg = "comEperOsWriteCfg";
+    const std::string mType_comEperOsWriteCfgByte = "comEperOsWriteCfgByte";
+    const std::string mType_comEperSpiWriteRead = "comEperSpiWriteRead";
+    const std::string mType_comEperThermometerRead = "comEperThermometerRead";
+    const std::string mType_comEperUartClearWriteRead = "comEperUartClearWriteRead";
+    const std::string mType_comEperUartClose = "comEperUartClose";
+    const std::string mType_comEperUartOpen = "comEperUartOpen";
+    const std::string mType_comEperUartWriteRead = "comEperUartWriteRead";
+    const std::string mType_comRaw = "comRaw";
+    const std::string mType_comRawHdp = "comRawHdp";
+    const std::string mType_comSdevBinaryOutputEnum = "comSdevBinaryOutputEnum";
+    const std::string mType_comSdevBinaryOutputSetOutput = "comSdevBinaryOutputSetOutput";
+    const std::string mType_comSdevLightDecrementPower = "comSdevLightDecrementPower";
+    const std::string mType_comSdevLightEnum = "comSdevLightEnum";
+    const std::string mType_comSdevLightIncrementPower = "comSdevLightIncrementPower";
+    const std::string mType_comSdevLightSetPower = "comSdevLightSetPower";
+    const std::string mType_comSdevSensorEnum = "comSdevSensorEnum";
+    const std::string mType_comSdevSensorFrc = "comSdevSensorFrc";
+    const std::string mType_comSdevSensorReadwt = "comSdevSensorReadwt";
 
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     //Scheme support
-    std::vector<IMessagingSplitterService::MsgType> m_supported = 
-    { 
+    std::vector<IMessagingSplitterService::MsgType> m_supported =
+    {
       { mType_comRaw, 1,0,0},
-      { mType_comRawHdp, 1,0,0}
+      { mType_comRawHdp, 1,0,0},
+      { mType_comSdevBinaryOutputEnum, 1,0,0 },
+      { mType_comSdevBinaryOutputSetOutput, 1,0,0 },
+      { mType_comSdevLightDecrementPower, 1,0,0 },
+      { mType_comSdevLightEnum, 1,0,0 },
+      { mType_comSdevLightIncrementPower, 1,0,0 },
+      { mType_comSdevLightSetPower, 1,0,0 },
+      { mType_comSdevSensorEnum, 1,0,0 },
+      { mType_comSdevSensorFrc, 1,0,0 },
+      { mType_comSdevSensorReadwt, 1,0,0 }
+
     };
-    
+
     ObjectFactory<ComBase, rapidjson::Document&> m_objectFactory;
 
   public:
@@ -139,7 +149,7 @@ namespace iqrf {
       );
 
       for (auto & sup : m_supported) {
-        sup.m_handlerFunc = 
+        sup.m_handlerFunc =
           [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
         {
           handleMsg(messagingId, msgType, std::move(doc));
