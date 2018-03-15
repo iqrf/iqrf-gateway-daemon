@@ -2,9 +2,9 @@ project(IqrfDaemon)
 
 cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if(NOT CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|MSBuild)")
   include(CheckCXXCompilerFlag)
@@ -19,21 +19,13 @@ if(NOT CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|MSBuild)")
   endif()
 endif()
 
-set_directory_properties(PROPERTIES COMPILE_DEFINITIONS $<$<CONFIG:Debug>:_DEBUG>)
-
 FIND_PACKAGE(shape REQUIRED)
 
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 include(${CMAKE_MODULE_PATH}/ShapeComponentDeclaration.cmake)
 
-
+include_directories(${shape_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include)
-
-
-add_subdirectory(libraries/clibspi  EXCLUDE_FROM_ALL)
-add_subdirectory(libraries/clibcdc  EXCLUDE_FROM_ALL)
-add_subdirectory(libraries/cutils  EXCLUDE_FROM_ALL)
-add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
 
 add_subdirectory(include)
 add_subdirectory(start-IqrfDaemon)
@@ -46,35 +38,6 @@ add_subdirectory(BaseService)
 add_subdirectory(JsonSerializer)
 add_subdirectory(MqMessaging)
 add_subdirectory(MqttMessaging)
-add_subdirectory(WebsocketMessaging)
 add_subdirectory(UdpMessaging)
 add_subdirectory(Ide4Counterpart)
-add_subdirectory(JsonSplitter)
-add_subdirectory(JsonDpaApiRaw)
-add_subdirectory(JsonMngApi)
-add_subdirectory(JsCache)
-add_subdirectory(JsonDpaApiIqrfStandard)
-add_subdirectory(WriteConfigService)
-add_subdirectory(SchedulerMessaging)
-add_subdirectory(SmartConnectService)
-add_subdirectory(ReadTrConfigService)
-add_subdirectory(OtaUploadService)
-
-set(DEFAULT_DAEMON_VERSION v2.0.0dev)
-string(TIMESTAMP DEFAULT_BUILD_TIMESTAMP)
-
-if(DEFINED DAEMON_VERSION)
-  message(STATUS "DAEMON_VERSION = " ${DAEMON_VERSION})
-else()
-  message(STATUS "Set to default DAEMON_VERSION = " ${DEFAULT_DAEMON_VERSION})
-  set(DAEMON_VERSION ${DEFAULT_DAEMON_VERSION})
-endif()
-
-if(DEFINED BUILD_TIMESTAMP)
-  message(STATUS "BUILD_TIMESTAMP = " ${BUILD_TIMESTAMP})
-else()
-  message(STATUS "Set to default BUILD_TIMESTAMP = " ${DEFAULT_BUILD_TIMESTAMP})
-  set(BUILD_TIMESTAMP ${DEFAULT_BUILD_TIMESTAMP})
-endif()
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/VersionInfo.h.in ${CMAKE_BINARY_DIR}/VersionInfo.h @ONLY)
+add_subdirectory(LocalBondService)
