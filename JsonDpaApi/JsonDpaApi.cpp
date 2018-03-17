@@ -1,6 +1,7 @@
 #define IMessagingSplitterService_EXPORTS
 
 #include "ComRaws.h"
+#include "ComSdevs.h"
 #include "DpaHandler2.h"
 #include "JsonDpaApi.h"
 #include "ObjectFactory.h"
@@ -111,6 +112,15 @@ namespace iqrf {
     {
       m_objectFactory.registerClass<ComRaw>(mType_comRaw);
       m_objectFactory.registerClass<ComRawHdp>(mType_comRawHdp);
+      m_objectFactory.registerClass<ComSdevBinaryOutputEnum>(mType_comSdevBinaryOutputEnum);
+      m_objectFactory.registerClass<ComSdevBinaryOutputSetOutput>(mType_comSdevBinaryOutputSetOutput);
+      m_objectFactory.registerClass<ComSdevLightDecrementPower>(mType_comSdevLightDecrementPower);
+      m_objectFactory.registerClass<ComSdevLightEnum>(mType_comSdevLightEnum);
+      m_objectFactory.registerClass<ComSdevLightIncrementPower>(mType_comSdevLightIncrementPower);
+      m_objectFactory.registerClass<ComSdevLightSetPower>(mType_comSdevLightSetPower);
+      m_objectFactory.registerClass<ComSdevSensorEnum>(mType_comSdevSensorEnum);
+      m_objectFactory.registerClass<ComSdevSensorFrc>(mType_comSdevSensorFrc);
+      m_objectFactory.registerClass<ComSdevSensorReadwt>(mType_comSdevSensorReadwt);
     }
 
     ~Imp()

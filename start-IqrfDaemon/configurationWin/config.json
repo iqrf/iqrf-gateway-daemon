@@ -5,18 +5,18 @@
   "cacheDir": "cache",
   "userDir": "",
   "configurationDir": "configuration",
-  "deploymentDir": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+  "deploymentDir": "../bin/Debug",
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "",
+      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "",
+      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3
@@ -33,102 +33,109 @@
       "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
       "libraryName": "WebsocketService",
       "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "shape::CppRestService",
+      "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
+      "libraryName": "CppRestService",
+      "enabled": true,
       "startlevel": -1
     },
     {
       "name": "iqrf::DaemonController",
-      "libraryPath": "../DaemonController/Debug",
+      "libraryPath": "",
       "libraryName": "DaemonController",
       "enabled": true,
-      "startlevel": 0
+      "startlevel": 1
     },
     {
       "name": "iqrf::Scheduler",
-      "libraryPath": "../Scheduler/Debug",
+      "libraryPath": "",
       "libraryName": "Scheduler",
       "enabled": true,
-      "startlevel": 0
+      "startlevel": 1
     },
     {
       "name": "iqrf::IqrfCdc",
-      "libraryPath": "../IqrfCdc/Debug",
+      "libraryPath": "",
       "libraryName": "IqrfCdc",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfSpi",
-      "libraryPath": "../IqrfSpi/Debug",
+      "libraryPath": "",
       "libraryName": "IqrfSpi",
       "enabled": false,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfDpa",
-      "libraryPath": "../IqrfDpa/Debug",
+      "libraryPath": "",
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsonSerializer",
-      "libraryPath": "../JsonSerializer/Debug",
+      "libraryPath": "",
       "libraryName": "JsonSerializer",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::BaseService",
-      "libraryPath": "../BaseService/Debug",
+      "libraryPath": "",
       "libraryName": "BaseService",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::MqMessaging",
-      "libraryPath": "../MqMessaging/Debug",
+      "libraryPath": "",
       "libraryName": "MqMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::MqttMessaging",
-      "libraryPath": "../MqttMessaging/Debug",
+      "libraryPath": "",
       "libraryName": "MqttMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::WebsocketMessaging",
-      "libraryPath": "../WebsocketMessaging/Debug",
+      "libraryPath": "",
       "libraryName": "WebsocketMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::UdpMessaging",
-      "libraryPath": "../UdpMessaging/Debug",
+      "libraryPath": "",
       "libraryName": "UdpMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::Ide4Counterpart",
-      "libraryPath": "../Ide4Counterpart/Debug",
+      "libraryPath": "",
       "libraryName": "Ide4Counterpart",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsonSplitter",
-      "libraryPath": "../JsonSplitter/Debug",
+      "libraryPath": "",
       "libraryName": "JsonSplitter",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::JsonDpaApi",
-      "libraryPath": "../JsonDpaApi/Debug",
+      "libraryPath": "",
       "libraryName": "JsonDpaApi",
       "enabled": true,
       "startlevel": 2

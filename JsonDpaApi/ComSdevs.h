@@ -3,16 +3,6 @@
 #include "ComBase.h"
 
 namespace iqrf {
-  //const std::string mType_comSdevBinaryOutputEnum = "comSdevBinaryOutputEnum";
-  //const std::string mType_comSdevBinaryOutputSetOutput = "comSdevBinaryOutputSetOutput";
-  //const std::string mType_comSdevLightDecrementPower = "comSdevLightDecrementPower";
-  //const std::string mType_comSdevLightEnum = "comSdevLightEnum";
-  //const std::string mType_comSdevLightIncrementPower = "comSdevLightIncrementPower";
-  //const std::string mType_comSdevLightSetPower = "comSdevLightSetPower";
-  //const std::string mType_comSdevSensorEnum = "comSdevSensorEnum";
-  //const std::string mType_comSdevSensorFrc = "comSdevSensorFrc";
-  //const std::string mType_comSdevSensorReadwt = "comSdevSensorReadwt";
-
   //-------------------------------------------------------
   class ComSdevBinaryOutputEnum : public ComBase
   {
@@ -47,11 +37,43 @@ namespace iqrf {
 
     virtual ~ComSdevBinaryOutputSetOutput()
     {
+      /*"rsp": {
+        "nAdr": "EEEE",
+          "hwpId" : "DD",
+          "rCode" : "aaaaa",
+          "dpaVal" : "c",
+          "prevVals" : [
+            false,
+              true
+          ]
+      },*/
     }
 
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
+      /*
+      "req": {
+      "nAdr": "EEEE",
+      "hwpId": "DD",
+      "binOuts": [
+      {
+      "index": 3.140000,
+      "state": true,
+      "time": 3.140000
+      },
+      {
+      "index": 3.140000,
+      "state": true,
+      "time": 3.140000
+      },
+      {
+      "index": 3.140000,
+      "state": true,
+      "time": 3.140000
+      }
+      ]
+      },*/
     }
 
   private:
@@ -131,6 +153,28 @@ namespace iqrf {
     ComSdevLightSetPower(rapidjson::Document& doc)
       :ComBase(doc)
     {
+      /*"req": {
+        "nAdr": "EEEE",
+          "hwpId" : "DD",
+          "lights" : [
+        {
+          "index": 3.140000,
+            "power" : 3.140000,
+            "time" : 3.140000
+        },
+        {
+          "index": 3.140000,
+          "power" : 3.140000,
+          "time" : 3.140000
+        },
+        {
+          "index": 3.140000,
+          "power" : 3.140000,
+          "time" : 3.140000
+        }
+          ]
+      },*/
+
     }
 
     virtual ~ComSdevLightSetPower()
@@ -140,6 +184,17 @@ namespace iqrf {
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
+      /*
+      "rsp": {
+        "nAdr": "EEEE",
+          "hwpId" : "DD",
+          "rCode" : "aaaaa",
+          "dpaVal" : "c",
+          "prevVals" : [
+            3.140000,
+              3.140000
+          ]
+      },*/
     }
 
   private:
@@ -153,10 +208,43 @@ namespace iqrf {
     ComSdevSensorEnum(rapidjson::Document& doc)
       :ComBase(doc)
     {
+      /*"req": {
+        "nAdr": "EEEE",
+          "hwpId" : "DD"
+      },*/
     }
 
     virtual ~ComSdevSensorEnum()
     {
+      /*
+      "rsp": {
+        "nAdr": "EEEE",
+          "hwpId" : "DD",
+          "rCode" : "aaaaa",
+          "dpaVal" : "c",
+          "result" : [
+        {
+          "type": 3.140000,
+            "name" : "CCCCCCC",
+            "shortName" : "BBBB",
+            "unit" : "DD",
+            "frcs" : [
+              1
+            ]
+        },
+        {
+          "type": 3.140000,
+          "name" : "bbbbbbbb",
+          "shortName" : "cccccc",
+          "unit" : "DDDDDDDDD",
+          "frcs" : [
+            1,
+              1,
+              1
+          ]
+        }
+          ]
+      },*/
     }
 
   protected:
