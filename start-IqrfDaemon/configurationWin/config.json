@@ -139,6 +139,13 @@
       "libraryName": "JsonDpaApi",
       "enabled": true,
       "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsCache",
+      "libraryPath": "",
+      "libraryName": "JsCache",
+      "enabled": true,
+      "startlevel": 2
     }
   ]
 }

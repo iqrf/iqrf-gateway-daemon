@@ -118,15 +118,5 @@ namespace iqrf {
     /// \details
     /// Scheduler removes a group of tasks passed in hndls for the client
     virtual void removeTasks(const std::string& clientId, std::vector<TaskHandle> hndls) = 0;
-
-    ///// \brief Start ISchedulerService instance
-    ///// \details
-    ///// Scheduler implementation starts to process scheduled tasks
-    //virtual void start() = 0;
-
-    ///// \brief Stop ISchedulerService instance
-    ///// \details
-    ///// Scheduler implementation stops processing of scheduled tasks
-    //virtual void stop() = 0;
   };
 }

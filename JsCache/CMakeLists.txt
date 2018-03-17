@@ -1,12 +1,12 @@
-project(JsonDpaApi)
+project(JsCache)
 
-find_package(cpprestsdk REQUIRED)
+FIND_PACKAGE(shapeware REQUIRED)
 
-set(COMPONENT iqrf::JsonDpaApi)
+set(COMPONENT iqrf::JsCache)
 DeclareShapeComponent(${COMPONENT})
-AddShapeRequiredInterface(${COMPONENT} iqrf::IJsCacheService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IJsCacheService)
+AddShapeRequiredInterface(${COMPONENT} iqrf::ISchedulerService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} shape::IRestApiService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -18,18 +18,10 @@ source_group("Source Files" FILES ${_SRCFILES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${clibdpa_INCLUDE_DIRS})
-include_directories(${cutils_INCLUDE_DIRS})
-
-add_definitions(-DRAPIDJSON_HAS_STDSTRING)
+include_directories(${clibcdc_INCLUDE_DIRS})
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
-
-target_link_libraries(${PROJECT_NAME}
-	Dpa
-	cpprestsdk::cpprest
-)

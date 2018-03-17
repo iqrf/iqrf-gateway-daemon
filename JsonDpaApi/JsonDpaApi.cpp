@@ -86,8 +86,10 @@ namespace iqrf {
     const std::string mType_comSdevSensorFrc = "comSdevSensorFrc";
     const std::string mType_comSdevSensorReadwt = "comSdevSensorReadwt";
 
+    iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
+    
     //Scheme support
     std::vector<IMessagingSplitterService::MsgType> m_supported =
     {
@@ -188,6 +190,18 @@ namespace iqrf {
     {
     }
 
+    void attachInterface(IJsCacheService* iface)
+    {
+      m_iJsCacheService = iface;
+    }
+
+    void detachInterface(IJsCacheService* iface)
+    {
+      if (m_iJsCacheService == iface) {
+        m_iJsCacheService = nullptr;
+      }
+    }
+
     void attachInterface(IIqrfDpaService* iface)
     {
       m_iIqrfDpaService = iface;
@@ -240,6 +254,16 @@ namespace iqrf {
   void JsonDpaApi::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsonDpaApi::attachInterface(iqrf::IJsCacheService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonDpaApi::detachInterface(iqrf::IJsCacheService* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsonDpaApi::attachInterface(IIqrfDpaService* iface)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IJsCacheService.h"
 #include "IIqrfDpaService.h"
 #include "IMessagingSplitterService.h"
 #include "ShapeProperties.h"
@@ -17,6 +18,9 @@ namespace iqrf {
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
+
+    void attachInterface(IJsCacheService* iface);
+    void detachInterface(IJsCacheService* iface);
 
     void attachInterface(IIqrfDpaService* iface);
     void detachInterface(IIqrfDpaService* iface);
