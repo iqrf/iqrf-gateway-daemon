@@ -1,6 +1,7 @@
 project(JsCache)
 
-FIND_PACKAGE(shapeware REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem )
+find_package(shapeware REQUIRED)
 
 set(COMPONENT iqrf::JsCache)
 DeclareShapeComponent(${COMPONENT})
@@ -16,6 +17,10 @@ file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibcdc_INCLUDE_DIRS})
@@ -25,3 +30,8 @@ if(SHAPE_STATIC_LIBS)
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
+
+target_link_libraries(${PROJECT_NAME}
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+)

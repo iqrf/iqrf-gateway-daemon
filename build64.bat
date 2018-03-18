@@ -40,13 +40,14 @@ set cutils=%cd%
 popd
 
 set vcpkg-export="c:/devel/vcpkg/vcpkg-export-20180317-095906/scripts/buildsystems/vcpkg.cmake"
+set vcpkg="c:/devel/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
 set ver=v1.0.0
 set tms="%date% %time%"
 
 rem //launch cmake to generate build environment
 pushd %builddir%
-cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_TOOLCHAIN_FILE=%vcpkg-export% -Dshape_DIR:PATH=%shape% -Dshapeware_DIR:PATH=%shaparts% -Dcutils_DIR:PATH=%cutils% -Dclibcdc_DIR:PATH=%clibcdc% -Dclibspi_DIR:PATH=%clibspi% -DDAEMON_VERSION:STRING=%ver% -DBUILD_TIMESTAMP:STRING=%tms% %currentdir%
+cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_TOOLCHAIN_FILE=%vcpkg% -Dshape_DIR:PATH=%shape% -Dshapeware_DIR:PATH=%shaparts% -Dcutils_DIR:PATH=%cutils% -Dclibcdc_DIR:PATH=%clibcdc% -Dclibspi_DIR:PATH=%clibspi% -DDAEMON_VERSION:STRING=%ver% -DBUILD_TIMESTAMP:STRING=%tms% %currentdir%
 popd
 
 rem //build from generated build environment
