@@ -71,37 +71,6 @@ namespace iqrf {
 
   class JsCache::Imp
   {
-    std::map<int, StdDriver> m_drivers = { {0,{}}, {1,{} } };
-    //StdItem lib = { (int)RepoDevice::Library, std::string("Library"),{ { 0,{} },{ 1,{} } } };
-
-    //std::map<int, StdItem> m_standardItemMap =
-    //{
-    //  { (int)RepoDevice::Library, std::string("Library"), { { 0, 0 } } }
-    //};
-
-    //std::map<int, StdItem> m_standardItemMap =
-    //{
-    //  { (int)RepoDevice::Library, "Library", { { 0, 0 } } },
-    //  { (int)RepoDevice::EperCoord, "EperCoord", { { 0, 0 } } },
-    //  { (int)RepoDevice::EperNode, "EperNode", { { 0, 0 } } },
-    //  { (int)RepoDevice::EperOs, "EperOs", { { 0, 0 } } },
-    //  { (int)RepoDevice::EperEeprom, "EperEeprom", { { 0, 0 } } },
-    //  { (int)RepoDevice::EperEeeprom, "EperEeeprom", { { 0, 0 } } },
-    //  { (int)RepoDevice::EperMemory, "EperMemory", { { 0, 0 } } },
-    //  { (int)RepoDevice::EperRLed, "EperRLed", { { 0, 0 } } },
-    //  { (int)RepoDevice::EperGLed, "EperGLed",{ { 0, 0 } } },
-    //  { (int)RepoDevice::EperSpi, "EperSpi",{ { 0, 0 } } },
-    //  { (int)RepoDevice::EperIo, "EperIo",{ { 0, 0 } } },
-    //  { (int)RepoDevice::EperTherm, "EperTherm",{ { 0, 0 } } },
-    //  { (int)RepoDevice::EperPwm, "EperPwm",{ { 0, 0 } } },
-    //  { (int)RepoDevice::EperUart, "EperUart",{ { 0, 0 } } },
-    //  { (int)RepoDevice::EperFrc, "EperFrc",{ { 0, 0 } } },
-    //  { (int)RepoDevice::SdevBinary, "SdevBinary",{ { 0, 0 } } },
-    //  { (int)RepoDevice::SdevSensor, "SdevSensor",{ { 0, 0 } } },
-    //  { (int)RepoDevice::SdevLight, "SdevLight",{ { 0, 0 } } },
-    //  { (int)RepoDevice::EperDpa, "EperDpa",{ { 0, 0 } } }
-    //};
-
   private:
     iqrf::ISchedulerService* m_iSchedulerService = nullptr;
     shape::IRestApiService* m_iRestApiService = nullptr;
@@ -468,7 +437,6 @@ namespace iqrf {
 
       //m_iSchedulerService->scheduleTaskPeriodic("JsCache", "downloadRepo", std::chrono::seconds(10));
 
-      //TODO name from cfg
       m_iRestApiService->registerDataHandler([=](int statusCode, const std::string& data)
       {
         dataHandler(statusCode, data);
