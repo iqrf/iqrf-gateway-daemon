@@ -6,7 +6,7 @@ set -e
 project=IqrfGwDaemon
 
 #expected build dir structure
-buildexp=build/Eclipse_CDT4-Unix_Makefiles
+buildexp=build/Unix_Makefiles
 
 LIB_DIRECTORY=..
 currentdir=$PWD
@@ -47,7 +47,7 @@ popd
 #launch cmake to generate build environment
 pushd ${builddir}
 pwd
-cmake -G "Eclipse CDT4 - Unix Makefiles" -Dshape_DIR:PATH=${shape} -Dclibcdc_DIR:PATH=${clibcdc} -Dclibspi_DIR:PATH=${clibspi} -Dshapeware_DIR:PATH=${shapeware} -Dcutils_DIR:PATH=${cutils} ${currentdir} -DCMAKE_BUILD_TYPE=Debug
+cmake -G "Unix Makefiles" -Dshape_DIR:PATH=${shape} -Dclibcdc_DIR:PATH=${clibcdc} -Dclibspi_DIR:PATH=${clibspi} -Dshapeware_DIR:PATH=${shapeware} -Dcutils_DIR:PATH=${cutils} ${currentdir} -DCMAKE_BUILD_TYPE=Debug
 popd
 
 #build from generated build environment

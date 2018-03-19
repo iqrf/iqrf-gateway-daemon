@@ -199,7 +199,7 @@ namespace iqrf {
     }
 
 #else
-    std::vector<std::string> ConfigurationManager::getConfigFiles(const std::string schemesDir)
+    std::vector<std::string> getConfigFiles(const std::string schemesDir)
     {
       std::vector<std::string> fileVect;
 
