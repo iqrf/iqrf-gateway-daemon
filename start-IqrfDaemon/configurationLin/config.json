@@ -5,18 +5,18 @@
   "cacheDir": "cache",
   "userDir": "",
   "configurationDir": "configuration",
-  "deploymentDir": "../../../../../shape/build/Eclipse_CDT4-Unix_Makefiles/lib",
+  "deploymentDir": ".",
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "",
+      "libraryPath": "../../../../../shape/build/Unix_Makefiles/lib",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "",
+      "libraryPath": "../../../../../shape/build/Unix_Makefiles/lib",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3
@@ -29,81 +29,123 @@
       "startlevel": -2
     },
     {
-      "name": "iqrf::DaemonController",
-      "libraryPath": "../DaemonController",
-      "libraryName": "DaemonController",
+      "name": "shape::WebsocketService",
+      "libraryPath": "../../../../../shapeware/build/Unix_Makefiles/lib",
+      "libraryName": "WebsocketService",
       "enabled": true,
       "startlevel": 0
+    },
+    {
+      "name": "shape::CppRestService",
+      "libraryPath": "../../../../../shapeware/build/Unix_Makefiles/lib",
+      "libraryName": "CppRestService",
+      "enabled": true,
+      "startlevel": -1
+    },
+    {
+      "name": "iqrf::DaemonController",
+      "libraryPath": "",
+      "libraryName": "DaemonController",
+      "enabled": true,
+      "startlevel": 1
     },
     {
       "name": "iqrf::Scheduler",
-      "libraryPath": "../Scheduler",
+      "libraryPath": "",
       "libraryName": "Scheduler",
       "enabled": true,
-      "startlevel": 0
+      "startlevel": 1
     },
     {
       "name": "iqrf::IqrfCdc",
-      "libraryPath": "../IqrfCdc",
+      "libraryPath": "",
       "libraryName": "IqrfCdc",
-      "enabled": false,
+      "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfSpi",
-      "libraryPath": "../IqrfSpi",
+      "libraryPath": "",
       "libraryName": "IqrfSpi",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfDpa",
-      "libraryPath": "../IqrfDpa",
+      "libraryPath": "",
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsonSerializer",
-      "libraryPath": "../JsonSerializer",
+      "libraryPath": "",
       "libraryName": "JsonSerializer",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::BaseService",
-      "libraryPath": "../BaseService",
+      "libraryPath": "",
       "libraryName": "BaseService",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::MqMessaging",
-      "libraryPath": "../MqMessaging",
+      "libraryPath": "",
       "libraryName": "MqMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::MqttMessaging",
-      "libraryPath": "../MqttMessaging",
+      "libraryPath": "",
       "libraryName": "MqttMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
+      "name": "iqrf::WebsocketMessaging",
+      "libraryPath": "",
+      "libraryName": "WebsocketMessaging",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::UdpMessaging",
-      "libraryPath": "../UdpMessaging",
+      "libraryPath": "",
       "libraryName": "UdpMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::Ide4Counterpart",
-      "libraryPath": "../Ide4Counterpart",
+      "libraryPath": "",
       "libraryName": "Ide4Counterpart",
       "enabled": true,
       "startlevel": 0
+    },
+    {
+      "name": "iqrf::JsonSplitter",
+      "libraryPath": "",
+      "libraryName": "JsonSplitter",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::JsonDpaApi",
+      "libraryPath": "",
+      "libraryName": "JsonDpaApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsCache",
+      "libraryPath": "",
+      "libraryName": "JsCache",
+      "enabled": true,
+      "startlevel": 2
     }
   ]
 }
