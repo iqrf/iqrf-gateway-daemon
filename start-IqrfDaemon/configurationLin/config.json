@@ -144,7 +144,7 @@
       "name": "iqrf::JsCache",
       "libraryPath": "",
       "libraryName": "JsCache",
-      "enabled": false,
+      "enabled": true,
       "startlevel": 2
     }
   ]

@@ -442,7 +442,7 @@ namespace iqrf {
         dataHandler(statusCode, data);
       });
 
-      //loadCache();
+      loadCache();
 
       TRC_FUNCTION_LEAVE("")
     }
