@@ -202,6 +202,7 @@ namespace iqrf {
     void modify(const shape::Properties *props)
     {
       props->getMemberAsString("IqrfInterface", m_interfaceName);
+      TRC_INFORMATION(PAR(m_interfaceName));
     }
 
 

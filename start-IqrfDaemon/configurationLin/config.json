@@ -30,14 +30,14 @@
     },
     {
       "name": "shape::WebsocketService",
-      "libraryPath": "../../../../../shapeware/build/Unix_Makefiles/lib",
+      "libraryPath": "../../../../../shapeware/build/Unix_Makefiles/bin",
       "libraryName": "WebsocketService",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "shape::CppRestService",
-      "libraryPath": "../../../../../shapeware/build/Unix_Makefiles/lib",
+      "libraryPath": "../../../../../shapeware/build/Unix_Makefiles/bin",
       "libraryName": "CppRestService",
       "enabled": true,
       "startlevel": -1
@@ -144,7 +144,7 @@
       "name": "iqrf::JsCache",
       "libraryPath": "",
       "libraryName": "JsCache",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 2
     }
   ]
