@@ -125,38 +125,32 @@ namespace iqrf {
     bondNodeRequest.DataToBuffer(bondNodePacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
 
     // issue the DPA request
-    DpaRaw bondNodeTask(bondNodeRequest);
-    DpaTransactionTask bondNodeTransaction(bondNodeTask);
+    std::shared_ptr<IDpaTransaction2> bondNodeTransaction;
+    std::unique_ptr<IDpaTransactionResult2> transResult;
 
     try {
-      m_dpa->executeDpaTransaction(bondNodeTransaction);
+      bondNodeTransaction = m_dpa->executeDpaTransaction(bondNodeRequest);
+      transResult = bondNodeTransaction->get();
     }
     catch (std::exception& e) {
-      bondNodeTransaction.processFinish(DpaTransfer::kError);
       TRC_DEBUG("DPA transaction error : " << e.what());
       THROW_EXC(std::exception, "Could not bond node.");
     }
 
-    int transResult = bondNodeTransaction.waitFinish();
+    TRC_DEBUG("Result from bond node transaction as string:" << PAR(transResult->getErrorString()));
 
-    TRC_DEBUG("Result from bond node transaction as string:" << PAR(bondNodeTransaction.getErrorStr()));
+    IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
-    if (transResult == 0) {
-      TRC_INFORMATION("Bond node done!");
-      TRC_DEBUG("DPA transaction: " << NAME_PAR(bondNodeTask.getPrfName(), bondNodeTask.getAddress()) << PAR(bondNodeTask.encodeCommand()));
-
+    if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+      TRC_INFORMATION("Bond node successful!");
+      TRC_DEBUG(
+        "DPA transaction: " 
+        << NAME_PAR(bondNodeRequest.PeripheralType(), bondNodeRequest.NodeAddress()) 
+        << PAR(bondNodeRequest.PeripheralCommand())
+      );
+      
       // getting response data
-      DpaMessage dpaResponse = bondNodeTask.getResponse();
-
-      // check response code
-      uint8_t respCode = dpaResponse.DpaPacket().DpaResponsePacket_t.ResponseCode;
-      if (respCode == STATUS_NO_ERROR) {
-        TRC_INFORMATION("Bond node successful.");
-      }
-      else {
-        TRC_DEBUG("Bond node NOT successful. " << NAME_PAR_HEX("Response code", respCode));
-        THROW_EXC(std::exception, "Could not bond a node.");
-      }
+      DpaMessage dpaResponse = transResult->getResponse();
 
       // getting bond data
       TPerCoordinatorBondNode_Response bondNodeResponse
@@ -165,8 +159,15 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
       return BondResult(BondResult::Type::NoError, bondNodeResponse.BondAddr, bondNodeResponse.DevNr);
     }
+
+    // transaction error
+    if (errorCode < 0) {
+      TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+    } // DPA error
+    else {
+      TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+    }
     
-    TRC_DEBUG("DPA transaction error. " << NAME_PAR_HEX("Result", transResult));
     THROW_EXC(std::exception, "Could not bond a node.");
   }
 
@@ -185,44 +186,44 @@ namespace iqrf {
     readInfoRequest.DataToBuffer(readInfoPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
 
     // issue the DPA request
-    DpaRaw readInfoTask(readInfoRequest);
-    DpaTransactionTask readInfoTransaction(readInfoTask);
+    std::shared_ptr<IDpaTransaction2> readInfoTransaction;
+    std::unique_ptr<IDpaTransactionResult2> transResult;
 
     try {
-      m_dpa->executeDpaTransaction(readInfoTransaction);
+      readInfoTransaction = m_dpa->executeDpaTransaction(readInfoRequest);
+      transResult = readInfoTransaction->get();
     }
     catch (std::exception& e) {
-      readInfoTransaction.processFinish(DpaTransfer::kError);
       TRC_DEBUG("DPA transaction error : " << e.what());
+      THROW_EXC(std::exception, "Could not read info.");
+    }
+
+    TRC_DEBUG("Result from read node's info transaction as string:" << PAR(transResult->getErrorString()));
+
+    IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+    if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+      TRC_INFORMATION("Read node's info successful!");
+      TRC_DEBUG(
+        "DPA transaction: "
+        << NAME_PAR(readInfoRequest.PeripheralType(), readInfoRequest.NodeAddress())
+        << PAR(readInfoRequest.PeripheralCommand())
+      );
+
+      TRC_FUNCTION_LEAVE("");
+      return true;
+    }
+
+    // transaction error
+    if (errorCode < 0) {
+      TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
       THROW_EXC(std::exception, "Could not read node's info.");
     }
-
-    int transResult = readInfoTransaction.waitFinish();
-
-    TRC_DEBUG("Result from read node's info transaction as string:" << PAR(readInfoTransaction.getErrorStr()));
-
-    if (transResult == 0) {
-      TRC_INFORMATION("Read node's info done!");
-      TRC_DEBUG("DPA transaction :" << NAME_PAR(readInfoTask.getPrfName(), readInfoTask.getAddress()) << PAR(readInfoTask.encodeCommand()));
-
-      // getting response data
-      DpaMessage dpaResponse = readInfoTask.getResponse();
-
-      // check response code
-      uint8_t respCode = dpaResponse.DpaPacket().DpaResponsePacket_t.ResponseCode;
-      if (respCode == STATUS_NO_ERROR) {
-        TRC_INFORMATION("Read node's info successful!");
-        TRC_FUNCTION_LEAVE("");
-        return true;
-      }
-      else {
-        TRC_DEBUG("Read node's info NOT successful. " << NAME_PAR_HEX("Response code", respCode));
-        return false;
-      }
-    }
-
-    TRC_DEBUG("DPA transaction error. " << NAME_PAR_HEX("Result", transResult));
-    THROW_EXC(std::exception, "Could not read node's info.");
+    
+    // DPA error
+    TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+    TRC_FUNCTION_LEAVE("");
+    return false;
   }
 
   // removes specified address from coordinator's list of bonded addresses
@@ -243,43 +244,43 @@ namespace iqrf {
     removeBondRequest.DataToBuffer(removeBondPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
 
     // issue the DPA request
-    DpaRaw removeBondTask(removeBondRequest);
-    DpaTransactionTask removeBondTransaction(removeBondTask);
+    // issue the DPA request
+    std::shared_ptr<IDpaTransaction2> removeBondTransaction;
+    std::unique_ptr<IDpaTransactionResult2> transResult;
 
     try {
-      m_dpa->executeDpaTransaction(removeBondTransaction);
+      removeBondTransaction = m_dpa->executeDpaTransaction(removeBondRequest);
+      transResult = removeBondTransaction->get();
     }
     catch (std::exception& e) {
-      removeBondTransaction.processFinish(DpaTransfer::kError);
       TRC_DEBUG("DPA transaction error : " << e.what());
       THROW_EXC(std::exception, "Could not remove bond.");
     }
 
-    int transResult = removeBondTransaction.waitFinish();
+    TRC_DEBUG("Result from remove bond transaction as string:" << PAR(transResult->getErrorString()));
 
-    TRC_DEBUG("Result from remove bond transaction as string:" << PAR(removeBondTransaction.getErrorStr()));
+    IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
-    if (transResult == 0) {
-      TRC_INFORMATION("Remove bond done!");
-      TRC_DEBUG("DPA transaction :" << NAME_PAR(removeBondTask.getPrfName(), removeBondTask.getAddress()) << PAR(removeBondTask.encodeCommand()));
+    if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+      TRC_INFORMATION("Remove node bond successful!");
+      TRC_DEBUG(
+        "DPA transaction: "
+        << NAME_PAR(removeBondRequest.PeripheralType(), removeBondRequest.NodeAddress())
+        << PAR(removeBondRequest.PeripheralCommand())
+      );
 
-      // getting response data
-      DpaMessage dpaResponse = removeBondTask.getResponse();
-
-      // check response code
-      uint8_t respCode = dpaResponse.DpaPacket().DpaResponsePacket_t.ResponseCode;
-      if (respCode == STATUS_NO_ERROR) {
-        TRC_INFORMATION("Remove bond successful!");
-      } else {
-        TRC_DEBUG("Remove bond NOT successful. " << NAME_PAR_HEX("Response code", respCode));
-        THROW_EXC(std::exception, "Could not remove bond.");
-      }
+      TRC_FUNCTION_LEAVE("");
     }
+
+    // transaction error
+    if (errorCode < 0) {
+      TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+    } // DPA error
     else {
-      TRC_DEBUG("DPA transaction error. " << NAME_PAR_HEX("Result", transResult));
-      THROW_EXC(std::exception, "Could not remove bond.");
+      TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
     }
 
+    THROW_EXC(std::exception, "Could not remove bond.");
     TRC_FUNCTION_LEAVE("");
   }
 
