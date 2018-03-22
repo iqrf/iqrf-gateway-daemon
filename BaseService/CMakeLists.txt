@@ -1,8 +1,5 @@
 project(BaseService)
 
-#FIND_PACKAGE(clibdpa REQUIRED)
-FIND_PACKAGE(cutils REQUIRED)
-
 set(COMPONENT iqrf::BaseService)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IBaseService)

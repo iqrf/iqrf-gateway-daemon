@@ -24,13 +24,21 @@ FIND_PACKAGE(shape REQUIRED)
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 include(${CMAKE_MODULE_PATH}/ShapeComponentDeclaration.cmake)
 
-#include_directories(${shape_INCLUDE_DIRS})
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 
+add_subdirectory(libraries/clibspi  EXCLUDE_FROM_ALL)
+#include(${CMAKE_CURRENT_BINARY_DIR}/libraries/clibspi/clibspiConfig.cmake)
+
+add_subdirectory(libraries/clibcdc  EXCLUDE_FROM_ALL)
+#include(${CMAKE_CURRENT_BINARY_DIR}/libraries/clibcdc/clibcdcConfig.cmake)
+
+add_subdirectory(libraries/cutils  EXCLUDE_FROM_ALL)
+#include(${CMAKE_CURRENT_BINARY_DIR}/libraries/cutils/cutilsConfig.cmake)
+
 add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
-#TODO pass to clibdpa
-include(${CMAKE_CURRENT_BINARY_DIR}/libraries/clibdpa/clibdpaConfig.cmake)
+#include(${CMAKE_CURRENT_BINARY_DIR}/libraries/clibdpa/clibdpaConfig.cmake)
 
 add_subdirectory(include)
 add_subdirectory(start-IqrfDaemon)

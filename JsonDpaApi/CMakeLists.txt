@@ -1,7 +1,5 @@
 project(JsonDpaApi)
 
-find_package(cpprestsdk REQUIRED)
-
 set(COMPONENT iqrf::JsonDpaApi)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} iqrf::IJsCacheService MANDATORY SINGLE)
@@ -31,5 +29,4 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
 	Dpa
-	cpprestsdk::cpprest
 )

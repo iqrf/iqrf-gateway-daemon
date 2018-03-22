@@ -6,3 +6,12 @@
 	path = libraries/iqrf-daemon-api
 	url = ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon-api.git
 	branch = v0.0
+[submodule "libraries/clibcdc"]
+	path = libraries/clibcdc
+	url = git@github.com:iqrfsdk/clibcdc.git
+[submodule "libraries/clibspi"]
+	path = libraries/clibspi
+	url = git@github.com:iqrfsdk/clibspi.git
+[submodule "libraries/cutils"]
+	path = libraries/cutils
+	url = git@github.com:iqrfsdk/cutils.git

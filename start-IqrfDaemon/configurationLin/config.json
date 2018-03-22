@@ -9,14 +9,14 @@
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "../../../../../shape/build/Unix_Makefiles/lib",
+      "libraryPath": "../../../../../shape/build/Unix_Makefiles/bin",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "../../../../../shape/build/Unix_Makefiles/lib",
+      "libraryPath": "../../../../../shape/build/Unix_Makefiles/bin",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3

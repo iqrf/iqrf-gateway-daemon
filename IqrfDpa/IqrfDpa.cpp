@@ -1,6 +1,6 @@
 #define IIqrfDpaService_EXPORTS
 
-#include "PrfOs.h"
+//#include "PrfOs.h"
 #include "DpaTransactionTask.h"
 #include "IqrfDpa.h"
 #include "Trace.h"

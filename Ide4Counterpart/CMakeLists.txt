@@ -1,8 +1,5 @@
 project(Ide4Counterpart)
 
-FIND_PACKAGE(cutils REQUIRED)
-#FIND_PACKAGE(clibdpa REQUIRED)
-
 set(COMPONENT iqrf::Ide4Counterpart)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
