@@ -1,0 +1,62 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "shape__TraceFileService-IqrfGwDaemon",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "...",
+            "default": "shape::TraceFileService"
+        },
+        "instance": {
+            "type": "string",
+            "description": "...",
+            "default": "shape::TraceFileService-Cobalt"
+        },
+        "path": {
+            "type": "string",
+            "description": "...",
+            "default": ""
+        },
+        "filename": {
+            "type": "string",
+            "description": "...",
+            "default": "IqrfDaemon.txt"
+        },
+        "VerbosityLevels": {
+            "type": "array",
+            "description": "Array of verbosity levels.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "channel": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "..."
+                    },
+                    "level": {
+                        "type": "string",
+                        "default": "DBG",
+                        "description": "Masks pins of the port."
+                    }
+                },
+                "required": [
+                    "channel",
+                    "level"
+                ]
+            }
+        }
+    },
+    "required": [
+        "component",
+        "instance",
+        "path",
+        "filename",
+        "VerbosityLevels"
+    ]
+}
