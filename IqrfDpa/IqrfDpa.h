@@ -2,7 +2,7 @@
 
 #include "IIqrfDpaService.h"
 #include "IqrfDpaChannel.h"
-#include "DpaHandler.h"
+#include "DpaHandler2.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 
@@ -17,12 +17,11 @@ namespace iqrf {
     IqrfDpa();
     virtual ~IqrfDpa();
 
-    void executeDpaTransaction(DpaTransaction& dpaTransaction) override;
-    void killDpaTransaction() override;
+    std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout) override;
     int getTimeout() const override;
     void setTimeout(int timeout) override;
-    RfMode getRfCommunicationMode() const override;
-    void setRfCommunicationMode(RfMode rfMode) override;
+    DpaHandler2::RfMode getRfCommunicationMode() const override;
+    void setRfCommunicationMode(DpaHandler2::RfMode rfMode) override;
     //void registerAsyncMessageHandler(std::function<void(const DpaMessage&)> messageHandler) override;
     //void unregisterAsyncMessageHandler(const std::string& serviceId) override;
     void registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun) override;
@@ -41,9 +40,9 @@ namespace iqrf {
   private:
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     IqrfDpaChannel *m_iqrfDpaChannel = nullptr;  //temporary workaround, see comment in IqrfDpaChannel.h
-    DpaHandler* m_dpaHandler = nullptr;
-    RfMode m_rfMode = RfMode::Std;
-    int m_dpaHandlerTimeout = 200;
+    IDpaHandler2* m_dpaHandler = nullptr;
+    //DpaHandler2::RfMode m_rfMode = DpaHandler2::RfMode::kStd;
+    //int m_dpaHandlerTimeout = 200;
 
     std::mutex m_asyncMessageHandlersMutex;
     std::map<std::string, AsyncMessageHandlerFunc> m_asyncMessageHandlers;

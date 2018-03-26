@@ -14,10 +14,16 @@ builddir=./${buildexp}
 
 mkdir -p ${builddir}
 
-#get path to Shape libs
+#get path to shape libs
 shape=../../shape/${buildexp}
 pushd ${shape}
 shape=$PWD
+popd
+
+#get path to shapeware libs
+shapeware=../../shapeware/${buildexp}
+pushd ${shapeware}
+shapeware=$PWD
 popd
 
 #get path to clibcdc libs
@@ -32,12 +38,6 @@ pushd ${clibspi}
 clibspi=$PWD
 popd
 
-#get path to clibdpa libs
-clibdpa=${LIB_DIRECTORY}/clibdpa/${buildexp}
-pushd ${clibdpa}
-clibdpa=$PWD
-popd
-
 #get path to cutils libs
 cutils=${LIB_DIRECTORY}/cutils/${buildexp}
 pushd ${cutils}
@@ -47,7 +47,7 @@ popd
 #launch cmake to generate build environment
 pushd ${builddir}
 pwd
-cmake -G "Eclipse CDT4 - Unix Makefiles" -Dshape_DIR:PATH=${shape} -Dclibcdc_DIR:PATH=${clibcdc} -Dclibspi_DIR:PATH=${clibspi} -Dclibdpa_DIR:PATH=${clibdpa} -Dcutils_DIR:PATH=${cutils} ${currentdir} -DCMAKE_BUILD_TYPE=Debug
+cmake -G "Eclipse CDT4 - Unix Makefiles" -Dshape_DIR:PATH=${shape} -Dclibcdc_DIR:PATH=${clibcdc} -Dclibspi_DIR:PATH=${clibspi} -Dshapeware_DIR:PATH=${shapeware} -Dcutils_DIR:PATH=${cutils} ${currentdir} -DCMAKE_BUILD_TYPE=Debug
 popd
 
 #build from generated build environment

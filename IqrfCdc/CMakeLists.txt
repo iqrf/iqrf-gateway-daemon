@@ -1,7 +1,5 @@
 project(IqrfCdc)
 
-FIND_PACKAGE(clibcdc REQUIRED)
-
 set(COMPONENT iqrf::IqrfCdc)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfChannelService)
@@ -17,6 +15,8 @@ source_group("Source Files" FILES ${_SRCFILES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibcdc_INCLUDE_DIRS})
+
+MESSAGE(STATUS "clibcdc_INCLUDE_DIRS: ${clibcdc_INCLUDE_DIRS}")
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})

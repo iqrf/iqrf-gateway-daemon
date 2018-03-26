@@ -1,5 +1,6 @@
 #define IBaseService_EXPORTS
 
+#include "DpaHandler2.h"
 #include "DpaTransactionTask.h"
 #include "BaseService.h"
 #include "Trace.h"
@@ -45,37 +46,62 @@ namespace iqrf {
     std::string ctype;
     std::string lastError = "Unknown ctype";
     //for (auto ser : m_serializerVect) {
-      ctype = m_serializer->parseCategory(msgs);
-      if (ctype == CAT_DPA_STR) {
-        dpaTask = m_serializer->parseRequest(msgs);
-        if (dpaTask) {
-          DpaTransactionTask trans(*dpaTask);
-          m_dpa->executeDpaTransaction(trans);
-          int result = trans.waitFinish();
-          os << dpaTask->encodeResponse(trans.getErrorStr());
-          //TODO
-          //just stupid hack for test async - remove it
-          ///////
-          //handleAsyncDpaMessage(dpaTask->getResponse());
-          //handleAsyncDpaMessage(dpaTask->getRequest());
-          ///////
-          handled = true;
+    ctype = m_serializer->parseCategory(msgs);
+    if (ctype == CAT_DPA_STR) {
+      dpaTask = m_serializer->parseRequest(msgs);
+      if (dpaTask) {
+        DpaTransactionTask trans(*dpaTask);
+        try {
+          //std::vector<std::shared_ptr<IDpaTransaction2>> trns;
+          //for (int i = 0; i < 8; i++) {
+          //  trns.push_back(m_dpa->executeDpaTransaction(dpaTask->getRequest(), -1));
+          //}
+          //for (int i = 0; i < 8; i++) {
+          //  trns[i]->get();
+          //}
+
+          std::shared_ptr<IDpaTransaction2> dt = m_dpa->executeDpaTransaction(dpaTask->getRequest(), -1);
+          std::unique_ptr<IDpaTransactionResult2> dtr = dt->get();
+
+          //TODO fill taskDpa according result
+          dpaTask->timestampRequest(dtr->getRequestTs());
+          if (dtr->getConfirmation().GetLength() > 0) {
+            dpaTask->handleConfirmation(dtr->getConfirmation());
+            dpaTask->timestampConfirmation(dtr->getConfirmationTs());
+          }
+          if (dtr->getResponse().GetLength() > 0) {
+            dpaTask->handleResponse(dtr->getResponse());
+            dpaTask->timestampResponse(dtr->getResponseTs());
+          }
+          os << dpaTask->encodeResponse(dtr->getErrorString());
         }
-        lastError = m_serializer->getLastError();
-        //break;
-      }
-      else if (ctype == CAT_CONF_STR) {
-        command = m_serializer->parseConfig(msgs);
-        if (!command.empty()) {
-          //TODO
-          //std::string response = m_daemon->doCommand(command);
-          //lastError = m_serializer->getLastError();
-          //os << m_serializer->encodeConfig(msgs, response);
-          handled = true;
+        catch (std::exception &e) {
+          CATCH_EXC_TRC_WAR(std::exception, e, " during message processing");
         }
-        lastError = m_serializer->getLastError();
-        //break;
+
+        //TODO
+        //just stupid hack for test async - remove it
+        ///////
+        //handleAsyncDpaMessage(dpaTask->getResponse());
+        //handleAsyncDpaMessage(dpaTask->getRequest());
+        ///////
+        handled = true;
       }
+      lastError = m_serializer->getLastError();
+      //break;
+    }
+    else if (ctype == CAT_CONF_STR) {
+      command = m_serializer->parseConfig(msgs);
+      if (!command.empty()) {
+        //TODO
+        //std::string response = m_daemon->doCommand(command);
+        //lastError = m_serializer->getLastError();
+        //os << m_serializer->encodeConfig(msgs, response);
+        handled = true;
+      }
+      lastError = m_serializer->getLastError();
+      //break;
+    }
     //}
 
     if (!handled) {
@@ -86,7 +112,7 @@ namespace iqrf {
 
     TRC_INFORMATION("Response to send: " << std::endl << MEM_HEX_CHAR(msgu.data(), msgu.size()) << std::endl <<
       ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl);
-    
+
     m_messaging->sendMessage(msgu);
   }
 
@@ -100,7 +126,7 @@ namespace iqrf {
     std::basic_string<uint8_t> msgu((unsigned char*)sr.data(), sr.size());
 
     m_messaging->sendMessage(msgu);
-    
+
     TRC_FUNCTION_LEAVE("");
   }
 

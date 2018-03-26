@@ -1,6 +1,6 @@
 #define IIqrfDpaService_EXPORTS
 
-#include "PrfOs.h"
+//#include "PrfOs.h"
 #include "DpaTransactionTask.h"
 #include "IqrfDpa.h"
 #include "Trace.h"
@@ -26,41 +26,35 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void IqrfDpa::executeDpaTransaction(DpaTransaction& dpaTransaction)
+  std::shared_ptr<IDpaTransaction2> IqrfDpa::executeDpaTransaction(const DpaMessage& request, int32_t timeout)
   {
     TRC_FUNCTION_ENTER("");
-    m_dpaHandler->ExecuteDpaTransaction(dpaTransaction);
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  void IqrfDpa::killDpaTransaction()
-  {
-    TRC_FUNCTION_ENTER("");
-    m_dpaHandler->KillDpaTransaction();
-    TRC_FUNCTION_LEAVE("")
+    auto result = m_dpaHandler->executeDpaTransaction(request, timeout);
+    TRC_FUNCTION_LEAVE("");
+    return result;
   }
 
   int IqrfDpa::getTimeout() const
   {
-    return m_dpaHandlerTimeout;
+    return m_dpaHandler->getTimeout();
   }
 
   void IqrfDpa::setTimeout(int timeout)
   {
     TRC_FUNCTION_ENTER("");
-    m_dpaHandlerTimeout = timeout;
+    m_dpaHandler->setTimeout(timeout);
     TRC_FUNCTION_LEAVE("")
   }
 
-  IIqrfDpaService::RfMode IqrfDpa::getRfCommunicationMode() const
+  DpaHandler2::RfMode IqrfDpa::getRfCommunicationMode() const
   {
-    return m_rfMode;
+    return m_dpaHandler->getRfCommunicationMode();
   }
 
-  void IqrfDpa::setRfCommunicationMode(IIqrfDpaService::RfMode rfMode)
+  void IqrfDpa::setRfCommunicationMode(DpaHandler2::RfMode rfMode)
   {
     TRC_FUNCTION_ENTER("");
-    m_rfMode = rfMode;
+    m_dpaHandler->setRfCommunicationMode(rfMode);
     TRC_FUNCTION_LEAVE("")
   }
 
@@ -97,32 +91,13 @@ namespace iqrf {
     //TODO workaround old tracing 
     TRC_START("TraceOld.txt", iqrf::Level::dbg, TRC_DEFAULT_FILE_MAXSIZE);
 
-    //try {
-      m_dpaHandler = shape_new DpaHandler(m_iqrfDpaChannel);
-      if (m_dpaHandlerTimeout > 0) {
-        m_dpaHandler->Timeout(m_dpaHandlerTimeout);
-      }
-      else {
-        // 400ms by default
-        m_dpaHandler->Timeout(DpaHandler::DEFAULT_TIMING);
-      }
+    m_dpaHandler = shape_new DpaHandler2(m_iqrfDpaChannel);
+    //TODO set default timeout, rf mode according configuration
 
-      IqrfRfCommunicationMode dpaMode = IqrfRfCommunicationMode::kStd;
-      switch (m_rfMode) {
-      case RfMode::Lp:
-        dpaMode = IqrfRfCommunicationMode::kLp;
-        break;
-      case RfMode::Std:
-        dpaMode = IqrfRfCommunicationMode::kStd;
-        break;
-      default:;
-      }
-      m_dpaHandler->SetRfCommunicationMode(dpaMode);
-
-      //Async msg handling
-      m_dpaHandler->RegisterAsyncMessageHandler([&](const DpaMessage& dpaMessage) {
-        asyncDpaMessageHandler(dpaMessage);
-      });
+    //Async msg handling
+    m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
+      asyncDpaMessageHandler(dpaMessage);
+    });
 
 #if 0
       //TR module
@@ -143,11 +118,6 @@ namespace iqrf {
       m_mcuType = prfOs.getMcuType();
       m_osBuild = prfOs.getOsBuild();
 #endif
-    //}
-
-    //catch (std::exception& ae) {
-    //  TRC_ERROR("There was an error during DPA handler creation: " << ae.what());
-    //}
 
     TRC_FUNCTION_LEAVE("")
   }
@@ -162,7 +132,7 @@ namespace iqrf {
     );
 
     m_iqrfDpaChannel->unregisterReceiveFromHandler();
-    m_dpaHandler->UnregisterAsyncMessageHandler();
+    m_dpaHandler->unregisterAsyncMessageHandler("");
 
     delete m_dpaHandler;
     m_dpaHandler = nullptr;

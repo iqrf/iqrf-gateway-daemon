@@ -3,6 +3,8 @@ project(MqttMessaging)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 FIND_PACKAGE(paho REQUIRED)
+message(STATUS "Found paho: ${paho_FOUND}")
+message(STATUS "PAHO_INCLUDE_DIRS: ${PAHO_INCLUDE_DIRS}")
 
 set(COMPONENT iqrf::MqttMessaging)
 DeclareShapeComponent(${COMPONENT})

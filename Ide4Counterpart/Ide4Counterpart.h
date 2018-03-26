@@ -59,7 +59,7 @@ namespace iqrf {
     void getGwStatus(std::basic_string<unsigned char>& message);
 
     /// \brief UDP message handler
-    int handleMessageFromUdp(const std::basic_string<unsigned char>& udpMessage);
+    int handleMessageFromUdp(const std::vector<uint8_t>& udpMessage);
 
     /// \brief encode message
     /// \param [out] udpMessage encoded message

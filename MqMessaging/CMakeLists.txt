@@ -1,7 +1,5 @@
 project(MqMessaging)
 
-FIND_PACKAGE(cutils REQUIRED)
-
 set(COMPONENT iqrf::MqMessaging)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IMessagingService)

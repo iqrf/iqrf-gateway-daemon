@@ -1,7 +1,5 @@
 project(IqrfSpi)
 
-FIND_PACKAGE(clibspi REQUIRED)
-
 set(COMPONENT iqrf::IqrfSpi)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfChannelService)

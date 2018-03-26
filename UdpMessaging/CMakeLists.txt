@@ -1,7 +1,5 @@
 project(UdpMessaging)
 
-FIND_PACKAGE(cutils REQUIRED)
-
 set(COMPONENT iqrf::UdpMessaging)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IMessagingService)

@@ -18,6 +18,7 @@
 
 #include "ShapeDefines.h"
 #include <string>
+#include <vector>
 #include <functional>
 
 #ifdef IMessagingService_EXPORTS
@@ -36,7 +37,7 @@ namespace iqrf {
   {
   public:
     /// Incoming message handler functional type
-    typedef std::function<void(const std::basic_string<uint8_t> &)> MessageHandlerFunc;
+    typedef std::function<void(const std::string&, const std::vector<uint8_t>&)> MessageHandlerFunc;
 
     /// \brief Register message handler
     /// \param [in] hndl registering handler function
