@@ -1,0 +1,31 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrf__IqrfCdc",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "...",
+            "default": "iqrf::IqrfCdc"
+        },
+        "instance": {
+            "type": "string",
+            "description": "...",
+            "default": "iqrf::IqrfCdc-Instance1"
+        },
+        "IqrfInterface": {
+            "type": "string",
+            "description": "...",
+            "default": "COM6"
+        }
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}
