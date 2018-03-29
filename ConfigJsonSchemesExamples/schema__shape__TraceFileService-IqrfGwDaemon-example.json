@@ -11,6 +11,10 @@
     {
       "channel": 0,
       "level": "DBG"
+    },
+    {
+      "channel": 0,
+      "level": "DBG"
     }
   ]
 }
