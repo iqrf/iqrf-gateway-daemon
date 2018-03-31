@@ -80,19 +80,21 @@ namespace iqrf {
 
     void validate(const IMessagingSplitterService::MsgType & msgType, const Document& doc) const
     {
+      TRC_FUNCTION_ENTER(PAR(msgType.m_type))
       auto found = m_validatorMap.find(getKey(msgType));
       if (found != m_validatorMap.end()) {
         SchemaValidator validator(found->second);
-        if (!doc.Accept(validator)) {
+        if(false) {
+        //if (!doc.Accept(validator)) {
           // Input JSON is invalid according to the schema
           // Output diagnostic information
           StringBuffer sb;
           validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-          printf("Invalid schema: %s\n", sb.GetString());
-          printf("Invalid keyword: %s\n", validator.GetInvalidSchemaKeyword());
+          TRC_WARNING("Invalid schema: " << sb.GetString());
+          TRC_WARNING("Invalid keyword: " << validator.GetInvalidSchemaKeyword());
           sb.Clear();
           validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-          printf("Invalid document: %s\n", sb.GetString());
+          TRC_WARNING("Invalid document: " << sb.GetString());
           //TODO validation error handling => send back an error JSON with details
           THROW_EXC_TRC_WAR(std::logic_error, "Invalid");
         }
@@ -102,6 +104,7 @@ namespace iqrf {
         //TODO why
         THROW_EXC_TRC_WAR(std::logic_error, "Cannot find validator");
       }
+      TRC_FUNCTION_LEAVE("")
     }
 
     void handleMessageFromMessaging(const std::string& messagingId, const std::vector<uint8_t>& message) const
@@ -239,7 +242,7 @@ namespace iqrf {
 
     void loadJsonSchemes(const std::string sdir)
     {
-      TRC_FUNCTION_ENTER("");
+      TRC_FUNCTION_ENTER(PAR(sdir));
 
       std::vector<std::string> files = getConfigFiles(sdir);
 
@@ -312,9 +315,8 @@ namespace iqrf {
         "******************************"
       );
 
-      TRC_INFORMATION("loading schemes from" << PAR(m_schemesDir));
-
       if (shape::Properties::Result::ok == props->getMemberAsString("SchemesDir", m_schemesDir)) {
+        TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
         loadJsonSchemes(m_schemesDir);
       }
 

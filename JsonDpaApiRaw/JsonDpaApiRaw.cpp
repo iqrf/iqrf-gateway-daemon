@@ -1,10 +1,9 @@
 #define IMessagingSplitterService_EXPORTS
 
+#include "JsonDpaApiRaw.h"
 #include "JsonApiMessageNames.h"
 #include "ComRaws.h"
-#include "ComSdevs.h"
 #include "DpaHandler2.h"
-#include "JsonDpaApi.h"
 #include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -16,41 +15,31 @@
 #include <algorithm>
 #include <fstream>
 
-#include "iqrf__JsonDpaApi.hxx"
+#include "iqrf__JsonDpaApiRaw.hxx"
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
 #endif
 #define TRC_CHANNEL 0
 
-TRC_INIT_MODULE(iqrf::JsonDpaApi);
+TRC_INIT_MODULE(iqrf::JsonDpaApiRaw);
 
 using namespace rapidjson;
 
 namespace iqrf {
-  class JsonDpaApi::Imp
+  class JsonDpaApiRaw::Imp
   {
   private:
 
     iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
-    
+
     //Scheme support
     std::vector<IMessagingSplitterService::MsgType> m_supported =
     {
       { mType_comRaw, 1,0,0},
       { mType_comRawHdp, 1,0,0},
-      { mType_comSdevBinaryOutputEnum, 1,0,0 },
-      { mType_comSdevBinaryOutputSetOutput, 1,0,0 },
-      { mType_comSdevLightDecrementPower, 1,0,0 },
-      { mType_comSdevLightEnum, 1,0,0 },
-      { mType_comSdevLightIncrementPower, 1,0,0 },
-      { mType_comSdevLightSetPower, 1,0,0 },
-      { mType_comSdevSensorEnum, 1,0,0 },
-      { mType_comSdevSensorFrc, 1,0,0 },
-      { mType_comSdevSensorReadwt, 1,0,0 }
-
     };
 
     ObjectFactory<ComBase, rapidjson::Document&> m_objectFactory;
@@ -60,15 +49,6 @@ namespace iqrf {
     {
       m_objectFactory.registerClass<ComRaw>(mType_comRaw);
       m_objectFactory.registerClass<ComRawHdp>(mType_comRawHdp);
-      m_objectFactory.registerClass<ComSdevBinaryOutputEnum>(mType_comSdevBinaryOutputEnum);
-      m_objectFactory.registerClass<ComSdevBinaryOutputSetOutput>(mType_comSdevBinaryOutputSetOutput);
-      m_objectFactory.registerClass<ComSdevLightDecrementPower>(mType_comSdevLightDecrementPower);
-      m_objectFactory.registerClass<ComSdevLightEnum>(mType_comSdevLightEnum);
-      m_objectFactory.registerClass<ComSdevLightIncrementPower>(mType_comSdevLightIncrementPower);
-      m_objectFactory.registerClass<ComSdevLightSetPower>(mType_comSdevLightSetPower);
-      m_objectFactory.registerClass<ComSdevSensorEnum>(mType_comSdevSensorEnum);
-      m_objectFactory.registerClass<ComSdevSensorFrc>(mType_comSdevSensorFrc);
-      m_objectFactory.registerClass<ComSdevSensorReadwt>(mType_comSdevSensorReadwt);
     }
 
     ~Imp()
@@ -79,6 +59,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
         NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
+
 
       std::unique_ptr<ComBase> com = m_objectFactory.createObject(msgType.m_type, doc);
 
@@ -102,7 +83,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
-        "JsonDpaApi instance activate" << std::endl <<
+        "JsonDpaApiRaw instance activate" << std::endl <<
         "******************************"
       );
 
@@ -123,7 +104,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
-        "JsonDpaApi instance deactivate" << std::endl <<
+        "JsonDpaApiRaw instance deactivate" << std::endl <<
         "******************************"
       );
 
@@ -177,67 +158,67 @@ namespace iqrf {
   };
 
   /////////////////////////
-  JsonDpaApi::JsonDpaApi()
+  JsonDpaApiRaw::JsonDpaApiRaw()
   {
     m_imp = shape_new Imp();
   }
 
-  JsonDpaApi::~JsonDpaApi()
+  JsonDpaApiRaw::~JsonDpaApiRaw()
   {
     delete m_imp;
   }
 
-  void JsonDpaApi::activate(const shape::Properties *props)
+  void JsonDpaApiRaw::activate(const shape::Properties *props)
   {
     m_imp->activate(props);
   }
 
-  void JsonDpaApi::deactivate()
+  void JsonDpaApiRaw::deactivate()
   {
     m_imp->deactivate();
   }
 
-  void JsonDpaApi::modify(const shape::Properties *props)
+  void JsonDpaApiRaw::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
   }
 
-  void JsonDpaApi::attachInterface(iqrf::IJsCacheService* iface)
+  void JsonDpaApiRaw::attachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void JsonDpaApi::detachInterface(iqrf::IJsCacheService* iface)
+  void JsonDpaApiRaw::detachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void JsonDpaApi::attachInterface(IIqrfDpaService* iface)
+  void JsonDpaApiRaw::attachInterface(IIqrfDpaService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void JsonDpaApi::detachInterface(IIqrfDpaService* iface)
+  void JsonDpaApiRaw::detachInterface(IIqrfDpaService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void JsonDpaApi::attachInterface(IMessagingSplitterService* iface)
+  void JsonDpaApiRaw::attachInterface(IMessagingSplitterService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void JsonDpaApi::detachInterface(IMessagingSplitterService* iface)
+  void JsonDpaApiRaw::detachInterface(IMessagingSplitterService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void JsonDpaApi::attachInterface(shape::ITraceService* iface)
+  void JsonDpaApiRaw::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void JsonDpaApi::detachInterface(shape::ITraceService* iface)
+  void JsonDpaApiRaw::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }

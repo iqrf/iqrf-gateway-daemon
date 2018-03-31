@@ -39,7 +39,6 @@ pushd %cutils%
 set cutils=%cd%
 popd
 
-set vcpkg-export="c:/devel/vcpkg/vcpkg-export-20180317-095906/scripts/buildsystems/vcpkg.cmake"
 set vcpkg="c:/devel/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
 set ver=v1.0.0

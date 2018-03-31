@@ -134,9 +134,9 @@
       "startlevel": 1
     },
     {
-      "name": "iqrf::JsonDpaApi",
+      "name": "iqrf::JsonDpaApiRaw",
       "libraryPath": "",
-      "libraryName": "JsonDpaApi",
+      "libraryName": "JsonDpaApiRaw",
       "enabled": true,
       "startlevel": 2
     },
@@ -146,6 +146,13 @@
       "libraryName": "JsCache",
       "enabled": true,
       "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsonDpaApiIqrfStandard",
+      "libraryPath": "",
+      "libraryName": "JsonDpaApiIqrfStandard",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }

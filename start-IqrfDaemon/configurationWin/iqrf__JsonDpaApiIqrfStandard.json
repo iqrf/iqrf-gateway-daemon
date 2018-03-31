@@ -1,0 +1,56 @@
+{
+  "component": "iqrf::JsonDpaApiIqrfStandard",
+  "instance": "JsonDpaApiIqrfStandard",
+  "mapping": [
+    {
+      "mType": "comEperThermometerRead",
+      "driver": "iqrf.embed.thermometer",
+      "command": "Read"
+    },
+    {
+      "mType": "comSdevBinaryOutputEnum",
+      "driver": "iqrf.binaryoutput",
+      "command": "Enumerate"
+    },
+    {
+      "mType": "comSdevBinaryOutputSetOutput",
+      "driver": "iqrf.binaryoutput",
+      "command": "SetOutput"
+    },
+    {
+      "mType": "comSdevLightDecrementPower",
+      "driver": "iqrf.light",
+      "command": "DecrementPower"
+    },
+    {
+      "mType": "comSdevLightEnum",
+      "driver": "iqrf.light",
+      "command": "Enumerate"
+    },
+    {
+      "mType": "comSdevLightIncrementPower",
+      "driver": "iqrf.light",
+      "command": "IncrementPower"
+    },
+    {
+      "mType": "comSdevLightSetPower",
+      "driver": "iqrf.light",
+      "command": "SetPower"
+    },
+    {
+      "mType": "comSdevSensorEnum",
+      "driver": "iqrf.sensor",
+      "command": "Enumerate"
+    },
+    {
+      "mType": "comSdevSensorFrc",
+      "driver": "iqrf.sensor",
+      "command": "Frc"
+    },
+    {
+      "mType": "comSdevSensorReadwt",
+      "driver": "iqrf.sensor",
+      "command": "ReadSensorsWithTypes"
+    }
+  ]
+}

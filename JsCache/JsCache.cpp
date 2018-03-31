@@ -39,20 +39,27 @@ namespace iqrf {
     READY,
   };
 
-  class StdDriver
-  {
-  public:
-    StdDriver()
-      :m_valid(false)
-    {}
-    StdDriver(const std::string& driver, const std::string& notes)
-      :m_driver(driver), m_notes(notes), m_valid(true)
-    {}
-    bool m_valid = false;
-    int m_versionFlags = 0;
-    std::string m_driver;
-    std::string m_notes;
-  };
+  //class StdDriver
+  //{
+  //public:
+  //  StdDriver()
+  //    :m_valid(false)
+  //  {}
+  //  StdDriver(const std::string& name, const std::string& driver, const std::string& notes, int verFlags)
+  //    :m_name(name), m_driver(driver), m_notes(notes), m_versionFlags(verFlags), m_valid(true)
+  //  {}
+  //  bool isValid() const { return m_valid; }
+  //  const std::string& getName() const { return m_name; }
+  //  const std::string& getDriver() const { return m_driver; }
+  //  const std::string& getNotes() const { return m_notes; }
+  //  int getVersionFlags() { return m_versionFlags; }
+  //private:
+  //  bool m_valid = false;
+  //  int m_versionFlags = 0;
+  //  std::string m_name;
+  //  std::string m_driver;
+  //  std::string m_notes;
+  //};
 
   class StdItem
   {
@@ -61,12 +68,12 @@ namespace iqrf {
     StdItem(const std::string& name)
       :m_name(name)
     {}
-    StdItem(const std::string& name, const std::map<int, StdDriver>& drvs)
+    StdItem(const std::string& name, const std::map<int, IJsCacheService::StdDriver>& drvs)
       :m_name(name), m_drivers(drvs)
     {}
     bool m_valid = false;
     std::string m_name;
-    std::map<int, StdDriver> m_drivers;
+    std::map<int, IJsCacheService::StdDriver> m_drivers;
   };
 
   class JsCache::Imp
@@ -94,9 +101,37 @@ namespace iqrf {
     {
     }
 
-    const std::string& getDriver(int id) const
+    const std::string& getDriver(int id, int ver) const
     {
-      return "";
+      static std::string ni = "not implemented yet";
+      return ni;
+    }
+
+    const std::map<int, const IJsCacheService::StdDriver*> getAllLatestDrivers() const
+    {
+      TRC_FUNCTION_ENTER("");
+      std::map<int, const IJsCacheService::StdDriver*> retval;
+      for (const auto & stdItemPair : m_standardMap) {
+        const StdItem& stdItem = stdItemPair.second;
+        if (stdItem.m_valid && !stdItem.m_drivers.empty()) {
+          const StdDriver& stdDriver = stdItem.m_drivers.crbegin()->second;
+          retval.insert(std::make_pair(stdItemPair.first, &(stdDriver)));
+        }
+      }
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    const std::string& getManufacturer(uint16_t hwpid) const
+    {
+      static std::string ni = "not implemented yet";
+      return ni;
+    }
+
+    const std::string& getProduct(uint16_t hwpid) const
+    {
+      static std::string ni = "not implemented yet";
+      return ni;
     }
 
     bool parseFromFile(const std::string& path, rapidjson::Document& doc)
@@ -207,6 +242,27 @@ namespace iqrf {
       using namespace boost;
 
       TRC_FUNCTION_ENTER("");
+
+      // daemon wrapper workaround
+      {
+        std::ifstream file("./configuration/JavaScript/DaemonWrapper.js");
+        if (file.is_open()) {
+          std::ostringstream strStream;
+          strStream << file.rdbuf();
+          std::string dwString = strStream.str();
+
+          IJsCacheService::StdDriver dwStdDriver("DaemonWrapper", dwString, "", 0);
+
+          StdItem dwStdItem("DaemonWrapper");
+          dwStdItem.m_valid = true;
+          dwStdItem.m_drivers.insert(std::make_pair(0, dwStdDriver));
+
+          m_standardMap.insert(std::make_pair(1000, dwStdItem));
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << "./configuration/JavaScript/DaemonWrapper.js");
+        }
+      }
 
       try {
         switch (m_downloadState) {
@@ -322,7 +378,7 @@ namespace iqrf {
           for (auto & stdItem : m_standardMap) { // 1
             for (auto & stdDriver : stdItem.second.m_drivers) { // 2
 
-              if (stdDriver.second.m_valid) continue; //already updated
+              if (stdDriver.second.isValid()) continue; //already updated
 
               std::ostringstream os;
               os << "standards/" << stdItem.first << '/' << stdDriver.first;
@@ -338,26 +394,27 @@ namespace iqrf {
               else {
                 Document doc;
                 if (parseFromFile(fname, doc)) {
-                  //{"version":15.00, "versionFlags" : 0, "driver" : "-----", "standardID":94,"notes":"++++","name":"Sensor"}
+                  int versionFlag;
+                  std::string driver, notes;
                   if (Value* versionFlagsVal = Pointer("/versionFlags").Get(doc)) {
-                    stdDriver.second.m_versionFlags = versionFlagsVal->GetInt();
+                    versionFlag = versionFlagsVal->GetInt();
                   }
                   else {
                     THROW_EXC(std::logic_error, "parse error /versionFlags not exist " << PAR(fname));
                   }
                   if (Value* driverVal = Pointer("/driver").Get(doc)) {
-                    stdDriver.second.m_driver = driverVal->GetString();
+                    driver = driverVal->GetString();
                   }
                   else {
                     THROW_EXC(std::logic_error, "parse error /driver not exist " << PAR(fname));
                   }
                   if (Value* notesVal = Pointer("/notes").Get(doc)) {
-                    stdDriver.second.m_notes = notesVal->GetString();
+                    notes = notesVal->GetString();
                   }
                   else {
                     THROW_EXC(std::logic_error, "parse error /notes not exist " << PAR(fname));
                   }
-                  stdDriver.second.m_valid = true;
+                  stdDriver.second = StdDriver(stdItem.second.m_name, driver, notes, versionFlag);
                 }
                 else {
                   THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
@@ -503,9 +560,24 @@ namespace iqrf {
     delete m_imp;
   }
 
-  const std::string& JsCache::getDriver(int id) const
+  const std::string& JsCache::getDriver(int id, int ver) const
   {
-    return m_imp->getDriver(id);
+    return m_imp->getDriver(id, ver);
+  }
+
+  const std::map<int, const IJsCacheService::StdDriver*>  JsCache::getAllLatestDrivers() const
+  {
+    return m_imp->getAllLatestDrivers();
+  }
+
+  const std::string& JsCache::getManufacturer(uint16_t hwpid) const
+  {
+    return m_imp->getManufacturer(hwpid);
+  }
+
+  const std::string& JsCache::getProduct(uint16_t hwpid) const
+  {
+    return m_imp->getProduct(hwpid);
   }
 
   void JsCache::activate(const shape::Properties *props)

@@ -4,6 +4,7 @@
 
 namespace iqrf {
   enum class RepoDevice {
+    Undef = -16,
     Library = -1,
     EperCoord = 0,
     EperNode = 1,
@@ -23,6 +24,18 @@ namespace iqrf {
     SdevSensor = 94,
     SdevLight = 113,
     EperDpa = 255
+  };
+
+  // driver mapping
+  class RepoDeviceMethod
+  {
+  public:
+    RepoDeviceMethod() = delete;
+    RepoDeviceMethod(const std::string& methodRequestName, const std::string& methodResponseName)
+      :m_methodRequestName(methodRequestName), m_methodResponseName(methodResponseName)
+    {}
+    std::string m_methodRequestName;
+    std::string m_methodResponseName;
   };
 
   //const std::string repoName_DrvLib = "Driver Library";

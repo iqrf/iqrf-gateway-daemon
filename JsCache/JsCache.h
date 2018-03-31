@@ -15,7 +15,10 @@ namespace iqrf {
     JsCache();
     virtual ~JsCache();
 
-    const std::string& getDriver(int id) const override;
+    const std::string& getDriver(int id, int ver) const override;
+    const std::map<int, const StdDriver*> getAllLatestDrivers() const override;
+    const std::string& getManufacturer(uint16_t hwpid) const override;
+    const std::string& getProduct(uint16_t hwpid) const override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

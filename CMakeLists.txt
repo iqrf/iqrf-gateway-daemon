@@ -19,6 +19,8 @@ if(NOT CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|MSBuild)")
   endif()
 endif()
 
+set_directory_properties(PROPERTIES COMPILE_DEFINITIONS $<$<CONFIG:Debug>:_DEBUG>)
+
 FIND_PACKAGE(shape REQUIRED)
 
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
@@ -55,5 +57,6 @@ add_subdirectory(WebsocketMessaging)
 add_subdirectory(UdpMessaging)
 add_subdirectory(Ide4Counterpart)
 add_subdirectory(JsonSplitter)
-add_subdirectory(JsonDpaApi)
+add_subdirectory(JsonDpaApiRaw)
 add_subdirectory(JsCache)
+add_subdirectory(JsonDpaApiIqrfStandard)
