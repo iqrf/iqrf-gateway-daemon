@@ -875,9 +875,9 @@ namespace iqrf {
       loadCache();
 
       //TODO test
-      auto manu = getManufacturer(4097);
-      auto pro = getProduct(4097);
-      auto pck = getPackage(4097, "08B8", "0302");
+      //auto manu = getManufacturer(4097);
+      //auto pro = getProduct(4097);
+      //auto pck = getPackage(4097, "08B8", "0302");
 
       TRC_FUNCTION_LEAVE("")
     }
