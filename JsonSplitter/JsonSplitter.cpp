@@ -222,6 +222,9 @@ namespace iqrf {
         if (file_name[0] == '.')
           continue;
 
+        if (std::string::npos == file_name.find("-request.json"))
+          continue;
+
         if (stat(full_file_name.c_str(), &st) == -1)
           continue;
 
