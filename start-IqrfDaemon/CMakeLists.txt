@@ -48,8 +48,8 @@ add_custom_command(
 )
 
 #copy schemes
-set(_JSON_SCHEMES_FROM ${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemes/async-api-json-schemes)
-set(_JSON_SCHEMES_TO ${_CONFIG_DEST}/configuration/JsonSchemes/async-api-json-schemes)
+set(_JSON_SCHEMES_FROM ${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemas)
+set(_JSON_SCHEMES_TO ${_CONFIG_DEST}/configuration/JsonSchemas)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD

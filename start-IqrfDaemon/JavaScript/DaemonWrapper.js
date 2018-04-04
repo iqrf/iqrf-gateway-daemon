@@ -258,7 +258,7 @@ iqrf.embed.ledr.Pulse_Request_req = function (param) {
 };
 
 iqrf.embed.ledr.Pulse_Response_rsp = function (rawHdp) {
-    iqrf.embed.ledr.Pulse_Response();
+    iqrf.embed.ledr.Pulse_Response(rawHdp);
     var result =
     {
     };
@@ -297,7 +297,7 @@ iqrf.embed.ledg.Pulse_Request_req = function (param) {
 };
 
 iqrf.embed.ledg.Pulse_Response_rsp = function (rawHdp) {
-    iqrf.embed.ledg.Pulse_Response();
+    iqrf.embed.ledg.Pulse_Response(rawHdp);
     var result =
     {
     };

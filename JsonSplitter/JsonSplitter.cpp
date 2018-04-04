@@ -20,6 +20,7 @@
 #include <fstream>
 #include <algorithm>
 #include <vector>
+#include <locale>
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -84,8 +85,12 @@ namespace iqrf {
       auto found = m_validatorMap.find(getKey(msgType));
       if (found != m_validatorMap.end()) {
         SchemaValidator validator(found->second);
+//TODO validation fails on Linux
+#ifdef SHAPE_PLATFORM_WINDOWS
+        if (!doc.Accept(validator)) {
+#else
         if(false) {
-        //if (!doc.Accept(validator)) {
+#endif
           // Input JSON is invalid according to the schema
           // Output diagnostic information
           StringBuffer sb;
@@ -180,7 +185,7 @@ namespace iqrf {
 
       std::vector<std::string> fileVect;
       std::string sdirect(schemesDir);
-      sdirect.append("/*request.json");
+      sdirect.append("/*-request-*");
 
       found = FindFirstFile(sdirect.c_str(), &fid);
 
@@ -222,7 +227,7 @@ namespace iqrf {
         if (file_name[0] == '.')
           continue;
 
-        if (std::string::npos == file_name.find("-request.json"))
+        if (std::string::npos == file_name.find("-request-"))
           continue;
 
         if (stat(full_file_name.c_str(), &st) == -1)
@@ -267,12 +272,35 @@ namespace iqrf {
               NAME_PAR(eoffset, sd.GetErrorOffset()));
           }
 
-          // preparse key
-          std::string mType;
-          std::string ver;
+          // get version and device name from file name
+          std::string fname2 = fname;
+          std::replace(fname2.begin(), fname2.end(), '-', '.');
+          std::replace(fname2.begin(), fname2.end(), '.', ' ');
+          std::string direction, fileN, possibleDriverFunction;
           int major = 1;
           int minor = 0;
           int micro = 0;
+          std::istringstream os(fname2);
+          os >> fileN >> direction >> major >> minor >> micro;
+          std::replace(fileN.begin(), fileN.end(), '/', ' ');
+          std::istringstream os1(fileN);
+          while (!os1.eof()) {
+            os1 >> fileN;
+          }
+          std::locale loc;
+          for (auto ch : fileN) {
+            if (std::isupper(ch, loc)) {
+              possibleDriverFunction.push_back('.');
+              possibleDriverFunction.push_back(std::tolower(ch, loc));
+            }
+            else {
+              possibleDriverFunction.push_back(ch);
+            }
+          }
+
+          // preparse key
+          std::string mType;
+          std::string ver;
 
           // get message type
           if (Value* mTypeVal = Pointer("/properties/mType/enum/0").Get(sd)) {
@@ -284,18 +312,18 @@ namespace iqrf {
           }
 
           // get version
-          if (Value* verVal = Pointer("/properties/ver/enum/0").Get(sd)) {
-            ver = verVal->GetString();
-            std::replace(ver.begin(), ver.end(), '.', ' ');
-            std::istringstream istr(ver);
-            istr >> major >> minor >> micro;
-          }
-          else {
-            //default
-            major = 1; minor = 0; micro = 0;
-          }
+          //if (Value* verVal = Pointer("/properties/ver/enum/0").Get(sd)) {
+          //  ver = verVal->GetString();
+          //  std::replace(ver.begin(), ver.end(), '.', ' ');
+          //  std::istringstream istr(ver);
+          //  istr >> major >> minor >> micro;
+          //}
+          //else {
+          //  //default
+          //  major = 1; minor = 0; micro = 0;
+          //}
 
-          MsgType msgType(mType, major, minor, micro);
+          MsgType msgType(mType, major, minor, micro, possibleDriverFunction);
 
           SchemaDocument schema(sd);
           m_validatorMap.insert(std::make_pair(getKey(msgType), std::move(schema)));

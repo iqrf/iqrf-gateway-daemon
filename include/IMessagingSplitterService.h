@@ -32,10 +32,14 @@ namespace iqrf {
       MsgType(const std::string mtype, int major, int minor, int micro)
         :m_type(mtype), m_major(major), m_minor(minor), m_micro(micro)
       {}
+      MsgType(const std::string mtype, int major, int minor, int micro, const std::string& possibleDriverFunction)
+        :m_type(mtype), m_major(major), m_minor(minor), m_micro(micro), m_possibleDriverFunction(possibleDriverFunction)
+      {}
       std::string m_type;
       int m_major = 1;
       int m_minor = 0;
       int m_micro = 0;
+      std::string m_possibleDriverFunction;
       FilteredMessageHandlerFunc m_handlerFunc;
     };
 

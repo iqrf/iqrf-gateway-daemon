@@ -3,37 +3,37 @@
   "instance": "JsonDpaApiIqrfStandard",
   "mapping": [
     {
-      "mType": "comEperThermometerRead",
+      "mType": "iqrfEmbedThermometerRead",
       "driver": "iqrf.embed.thermometer",
       "command": "Read"
     },
     {
-      "mType": "comEperLedgGet",
+      "mType": "iqrfEmbedLedgGet",
       "driver": "iqrf.embed.ledg",
       "command": "Get"
     },
     {
-      "mType": "comEperLedgPulse",
+      "mType": "iqrfEmbedLedgPulse",
       "driver": "iqrf.embed.ledg",
       "command": "Pulse"
     },
     {
-      "mType": "comEperLedgSet",
+      "mType": "iqrfEmbedLedgSet",
       "driver": "iqrf.embed.ledg",
       "command": "Set"
     },
     {
-      "mType": "comEperLedrGet",
+      "mType": "iqrfEmbedLedrGet",
       "driver": "iqrf.embed.ledr",
       "command": "Get"
     },
     {
-      "mType": "comEperLedrPulse",
+      "mType": "iqrfEmbedLedrPulse",
       "driver": "iqrf.embed.ledr",
       "command": "Pulse"
     },
     {
-      "mType": "comEperLedrSet",
+      "mType": "iqrfEmbedLedrSet",
       "driver": "iqrf.embed.ledr",
       "command": "Set"
     },

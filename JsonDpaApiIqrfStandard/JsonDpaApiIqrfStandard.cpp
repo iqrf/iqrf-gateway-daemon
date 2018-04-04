@@ -38,22 +38,22 @@ namespace iqrf {
     //Scheme support
     std::vector<IMessagingSplitterService::MsgType> m_supported =
     {
-      { mType_comEperThermometerRead, 1,0,0 },
-      { mType_comEperLedgGet, 1,0,0 },
-      { mType_comEperLedgPulse, 1,0,0 },
-      { mType_comEperLedgSet, 1,0,0 },
-      { mType_comEperLedrGet, 1,0,0 },
-      { mType_comEperLedrPulse, 1,0,0 },
-      { mType_comEperLedrSet, 1,0,0 },
-      { mType_comSdevBinaryOutputEnum, 1,0,0 },
-      { mType_comSdevBinaryOutputSetOutput, 1,0,0 },
-      { mType_comSdevLightDecrementPower, 1,0,0 },
-      { mType_comSdevLightEnum, 1,0,0 },
-      { mType_comSdevLightIncrementPower, 1,0,0 },
-      { mType_comSdevLightSetPower, 1,0,0 },
-      { mType_comSdevSensorEnum, 1,0,0 },
-      { mType_comSdevSensorFrc, 1,0,0 },
-      { mType_comSdevSensorReadwt, 1,0,0 }
+      { mType_iqrfEmbedThermometerRead, 1,0,0 },
+      { mType_iqrfEmbedLedgGet, 1,0,0 },
+      { mType_iqrfEmbedLedgPulse, 1,0,0 },
+      { mType_iqrfEmbedLedgSet, 1,0,0 },
+      { mType_iqrfEmbedLedrGet, 1,0,0 },
+      { mType_iqrfEmbedLedrPulse, 1,0,0 },
+      { mType_iqrfEmbedLedrSet, 1,0,0 },
+      { mType_iqrfSdevBinaryOutputEnum, 1,0,0 },
+      { mType_iqrfSdevBinaryOutputSetOutput, 1,0,0 },
+      { mType_iqrfSdevLightDecrementPower, 1,0,0 },
+      { mType_iqrfSdevLightEnum, 1,0,0 },
+      { mType_iqrfSdevLightIncrementPower, 1,0,0 },
+      { mType_iqrfSdevLightSetPower, 1,0,0 },
+      { mType_iqrfSdevSensorEnum, 1,0,0 },
+      { mType_iqrfSdevSensorFrc, 1,0,0 },
+      { mType_iqrfSdevSensorReadwt, 1,0,0 }
     };
 
     std::map<std::string, RepoDeviceMethod> m_deviceRepoMap;
@@ -112,7 +112,7 @@ namespace iqrf {
     }
 
     // nadr, hwpid not set from drivers
-    std::vector<uint8_t> rawHdpRequestToDpaRequest(const std::string& nadrStr, const std::string& hwpidStr, const std::string& rawHdpRequest)
+    std::vector<uint8_t> rawHdpRequestToDpaRequest(int nadr, int hwpid, const std::string& rawHdpRequest)
     {
       using namespace rapidjson;
 
@@ -121,10 +121,10 @@ namespace iqrf {
       Document doc;
       doc.Parse(rawHdpRequest);
 
-      uint16_t nadr = 0, hwpid = 0;
+      //uint16_t nadr = 0, hwpid = 0;
       uint8_t pnum = 0, pcmd = 0;
-      parseHexaNum(nadr, nadrStr.c_str());
-      parseHexaNum(hwpid, hwpidStr.c_str());
+      //parseHexaNum(nadr, nadrStr.c_str());
+      //parseHexaNum(hwpid, hwpidStr.c_str());
 
       if (Value *val = Pointer("/pnum").Get(doc)) {
         parseHexaNum(pnum, val->GetString());
@@ -217,8 +217,8 @@ namespace iqrf {
         std::string reqObjStr = JsonToStr(reqObj);
         
         // get nadr, hwpid as driver ignore them
-        std::string nadrStrReq = Pointer("/data/req/nAdr").Get(doc)->GetString();
-        std::string hwpidStrReq = Pointer("/data/req/hwpId").Get(doc)->GetString();
+        int nadrStrReq = Pointer("/data/req/nAdr").Get(doc)->GetInt();
+        int hwpidStrReq = Pointer("/data/req/hwpId").Get(doc)->GetInt();
 
         // call _RequestObj driver func
         // driver returns in rawHdpRequest format

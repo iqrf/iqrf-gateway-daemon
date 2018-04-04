@@ -1,5 +1,5 @@
 {
   "component": "iqrf::JsonSplitter",
   "instance": "JsonSplitter",
-  "SchemesDir": "configuration/JsonSchemes/async-api-json-schemes"
+  "SchemesDir": "configuration/JsonSchemas"
 }

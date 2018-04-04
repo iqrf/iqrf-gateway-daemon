@@ -38,8 +38,8 @@ namespace iqrf {
     //Scheme support
     std::vector<IMessagingSplitterService::MsgType> m_supported =
     {
-      { mType_comRaw, 1,0,0},
-      { mType_comRawHdp, 1,0,0},
+      { mType_iqrfRaw, 1,0,0},
+      { mType_iqrfRawHdp, 1,0,0},
     };
 
     ObjectFactory<ComBase, rapidjson::Document&> m_objectFactory;
@@ -47,8 +47,8 @@ namespace iqrf {
   public:
     Imp()
     {
-      m_objectFactory.registerClass<ComRaw>(mType_comRaw);
-      m_objectFactory.registerClass<ComRawHdp>(mType_comRawHdp);
+      m_objectFactory.registerClass<ComRaw>(mType_iqrfRaw);
+      m_objectFactory.registerClass<ComRawHdp>(mType_iqrfRawHdp);
     }
 
     ~Imp()
