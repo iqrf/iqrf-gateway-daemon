@@ -38,25 +38,24 @@ namespace iqrf {
     //Scheme support
     std::vector<IMessagingSplitterService::MsgType> m_supported =
     {
-      { mType_iqrfEmbedThermometerRead, 1,0,0 },
-      { mType_iqrfEmbedLedgGet, 1,0,0 },
-      { mType_iqrfEmbedLedgPulse, 1,0,0 },
-      { mType_iqrfEmbedLedgSet, 1,0,0 },
-      { mType_iqrfEmbedLedrGet, 1,0,0 },
-      { mType_iqrfEmbedLedrPulse, 1,0,0 },
-      { mType_iqrfEmbedLedrSet, 1,0,0 },
-      { mType_iqrfSdevBinaryOutputEnum, 1,0,0 },
-      { mType_iqrfSdevBinaryOutputSetOutput, 1,0,0 },
-      { mType_iqrfSdevLightDecrementPower, 1,0,0 },
-      { mType_iqrfSdevLightEnum, 1,0,0 },
-      { mType_iqrfSdevLightIncrementPower, 1,0,0 },
-      { mType_iqrfSdevLightSetPower, 1,0,0 },
-      { mType_iqrfSdevSensorEnum, 1,0,0 },
-      { mType_iqrfSdevSensorFrc, 1,0,0 },
-      { mType_iqrfSdevSensorReadwt, 1,0,0 }
+      { mType_iqrfEmbedThermometerRead, 1,0,0, "iqrf.embed.thermometer.Read" },
+      { mType_iqrfEmbedLedgGet, 1,0,0, "iqrf.embed.ledg.Get" },
+      { mType_iqrfEmbedLedgPulse, 1,0,0, "iqrf.embed.ledg.Pulse" },
+      { mType_iqrfEmbedLedgSet, 1,0,0, "iqrf.embed.ledg.Set" },
+      { mType_iqrfEmbedLedrGet, 1,0,0, "iqrf.embed.ledr.Get" },
+      { mType_iqrfEmbedLedrPulse, 1,0,0, "iqrf.embed.ledr.Pulse" },
+      { mType_iqrfEmbedLedrSet, 1,0,0, "iqrf.embed.ledr.Set" }
+      //{ mType_iqrfSdevBinaryOutputEnum, 1,0,0, "iqrf.embed.thermometer.Read" },
+      //{ mType_iqrfSdevBinaryOutputSetOutput, 1,0,0, "iqrf.embed.thermometer.Read" },
+      //{ mType_iqrfSdevLightDecrementPower, 1,0,0, "iqrf.embed.thermometer.Read" },
+      //{ mType_iqrfSdevLightEnum, 1,0,0, "iqrf.embed.thermometer.Read" },
+      //{ mType_iqrfSdevLightIncrementPower, 1,0,0, "iqrf.embed.thermometer.Read" },
+      //{ mType_iqrfSdevLightSetPower, 1,0,0, "iqrf.embed.thermometer.Read" },
+      //{ mType_iqrfSdevSensorEnum, 1,0,0, "iqrf.embed.thermometer.Read" },
+      //{ mType_iqrfSdevSensorFrc, 1,0,0, "iqrf.embed.thermometer.Read" },
+      //{ mType_iqrfSdevSensorReadwt, 1,0,0, "iqrf.embed.thermometer.Read" }
     };
 
-    std::map<std::string, RepoDeviceMethod> m_deviceRepoMap;
     DuktapeStuff m_duk;
 
   public:
@@ -66,38 +65,6 @@ namespace iqrf {
 
     ~Imp()
     {
-    }
-
-    void loadMapping(const shape::Properties *props)
-    {
-      using namespace rapidjson;
-
-      const Document& jprops = props->getAsJson();
-
-      if (const Value *mapping = Pointer("/mapping").Get(jprops)) {
-        if (!mapping->IsArray()) {
-          TRC_WARNING("expected mapping array");
-        }
-        else {
-          for (auto itr = mapping->Begin(); itr != mapping->End(); ++itr) {
-            std::string mType, driver, command;
-            std::ostringstream req;
-            std::ostringstream rsp;
-            if (const Value *v = Pointer("/mType").Get(*itr)) {
-              mType = v->GetString();
-            }
-            if (const Value *v = Pointer("/driver").Get(*itr)) {
-              driver = v->GetString();
-            }
-            if (const Value *v = Pointer("/command").Get(*itr)) {
-              command = v->GetString();
-            }
-            req << driver << '.' << command << "_Request_req";
-            rsp << driver << '.' << command << "_Response_rsp";
-            m_deviceRepoMap.insert(std::make_pair(mType, RepoDeviceMethod(req.str(), rsp.str())));
-          }
-        }
-      }
     }
 
     //for debug only
@@ -206,12 +173,21 @@ namespace iqrf {
       Document allResponseDoc;
       std::unique_ptr<ComIqrfStandard> com(shape_new ComIqrfStandard(doc));
 
-      // find req/res methods in mapping
-      auto found = m_deviceRepoMap.find(msgType.m_type);
-      if (found != m_deviceRepoMap.end()) {
-        
-        std::string methodRequestName = found->second.m_methodRequestName;
-        
+      //TODO chnage to map
+      bool isFound = false;
+      std::string methodRequestName = msgType.m_possibleDriverFunction;
+      std::string methodResponseName = msgType.m_possibleDriverFunction;
+      for (auto & mt : m_supported) {
+        if (mt.m_type == msgType.m_type) {
+          isFound = true;
+          methodRequestName += "_Request_req";
+          methodResponseName += "_Response_rsp";
+          break;
+        }
+      }
+
+      if (isFound) {
+
         // get req{} to be passed to _RequestObj driver func
         Value* reqObj = Pointer("/data/req").Get(doc);
         std::string reqObjStr = JsonToStr(reqObj);
@@ -224,7 +200,7 @@ namespace iqrf {
         // driver returns in rawHdpRequest format
         std::string rawHdpRequest;
 
-        m_duk.call(found->second.m_methodRequestName, reqObjStr, rawHdpRequest);
+        m_duk.call(methodRequestName, reqObjStr, rawHdpRequest);
 
         // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
         std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(nadrStrReq, hwpidStrReq, rawHdpRequest);
@@ -251,7 +227,7 @@ namespace iqrf {
         // call _RequestObj driver func
         // _ResponseObj driver func returns in rsp{} in text form
         std::string rspObjStr;
-        m_duk.call(found->second.m_methodResponseName, rawHdpResponse, rspObjStr);
+        m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
         
         // get json from its text representation
         Document rspObj;
@@ -294,8 +270,6 @@ namespace iqrf {
         "JsonDpaApiIqrfStandard instance activate" << std::endl <<
         "******************************"
       );
-
-      loadMapping(props);
 
       const std::map<int, const IJsCacheService::StdDriver*> scripts = m_iJsCacheService->getAllLatestDrivers();
 

@@ -27,16 +27,16 @@ namespace iqrf {
   };
 
   // driver mapping
-  class RepoDeviceMethod
-  {
-  public:
-    RepoDeviceMethod() = delete;
-    RepoDeviceMethod(const std::string& methodRequestName, const std::string& methodResponseName)
-      :m_methodRequestName(methodRequestName), m_methodResponseName(methodResponseName)
-    {}
-    std::string m_methodRequestName;
-    std::string m_methodResponseName;
-  };
+  //class RepoDeviceMethod
+  //{
+  //public:
+  //  RepoDeviceMethod() = delete;
+  //  RepoDeviceMethod(const std::string& methodRequestName, const std::string& methodResponseName)
+  //    :m_methodRequestName(methodRequestName), m_methodResponseName(methodResponseName)
+  //  {}
+  //  std::string m_methodRequestName;
+  //  std::string m_methodResponseName;
+  //};
 
   const std::string mType_iqrfEmbedCoordRebond = "iqrfEmbedCoordRebond";
   const std::string mType_iqrfEmbedCoordRemoveBond = "iqrfEmbedCoordRemoveBond";
