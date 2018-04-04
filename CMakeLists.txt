@@ -57,3 +57,5 @@ add_subdirectory(Ide4Counterpart)
 add_subdirectory(JsonSplitter)
 add_subdirectory(JsonDpaApi)
 add_subdirectory(JsCache)
+add_subdirectory(WriteConfigService)
+

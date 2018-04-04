@@ -17,9 +17,6 @@
 #pragma once
 
 #include "ShapeDefines.h"
-#include "WriteResult.h"
-#include <string>
-#include <list>
 
 #ifdef IWriteConfigService_EXPORTS
 #define IWriteConfigService_DECLSPEC SHAPE_ABI_EXPORT
@@ -34,15 +31,6 @@ namespace iqrf {
 	class IWriteConfigService_DECLSPEC IWriteConfigService
 	{
 	public:
-
-    /// \brief Writes specified configuration bytes and returns result.
-    /// \param [in]	configBytes			  configuration bytes to write
-    /// \param [in] targetNodes				nodes, to write configuration into
-    /// \return												result of write
-    virtual WriteResult writeConfigBytes(
-      const std::vector<HWP_ConfigByte>& configBytes,
-      const std::list<uint16_t>& targetNodes
-    ) = 0;
 
 		/// \brief Destructor
     virtual ~IWriteConfigService() {};
