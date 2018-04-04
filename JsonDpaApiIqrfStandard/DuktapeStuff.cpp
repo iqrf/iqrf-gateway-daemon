@@ -85,7 +85,8 @@ namespace iqrf {
         ++m_relativeStack;
         bool res = duk_get_prop_string(m_ctx, -1, item.c_str());
         if (!res) {
-          TRC_WARNING("Not found:: " << PAR(item));
+          THROW_EXC_TRC_WAR(std::logic_error, "Not found:: " << PAR(item));
+          //TRC_WARNING("Not found:: " << PAR(item));
           retval = false;
           break;
         }
@@ -93,7 +94,8 @@ namespace iqrf {
 
     }
     else {
-      TRC_WARNING("Duktape is not initiated")
+      THROW_EXC_TRC_WAR(std::logic_error, "Duktape is not initiated");
+      //TRC_WARNING("Duktape is not initiated")
     }
     TRC_FUNCTION_LEAVE("");
     return retval;
@@ -119,12 +121,14 @@ namespace iqrf {
 
       ret = duk_json_encode(m_ctx, -1);
       if (res != 0) {
-        TRC_WARNING("Error: " << PAR(ret) << PAR(err));
+        THROW_EXC_TRC_WAR(std::logic_error, "Error: " << PAR(ret) << PAR(err));
+        //TRC_WARNING("Error: " << PAR(ret) << PAR(err));
       }
 
     }
     else {
-      TRC_WARNING("Cannot find function")
+      THROW_EXC_TRC_WAR(std::logic_error, "Cannot find function");
+      //TRC_WARNING("Cannot find function")
     }
     
     duk_pop_n(m_ctx, m_relativeStack);

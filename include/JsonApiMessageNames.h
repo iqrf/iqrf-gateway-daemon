@@ -73,9 +73,12 @@ namespace iqrf {
   const std::string mType_comEperIoDir = "comEperIoDir";
   const std::string mType_comEperIoGet = "comEperIoGet";
   const std::string mType_comEperIoSet = "comEperIoSet";
-  const std::string mType_comEperLedGet = "comEperLedGet";
-  const std::string mType_comEperLedPulse = "comEperLedPulse";
-  const std::string mType_comEperLedSet = "comEperLedSet";
+  const std::string mType_comEperLedgGet = "comEperLedgGet";
+  const std::string mType_comEperLedgPulse = "comEperLedgPulse";
+  const std::string mType_comEperLedgSet = "comEperLedgSet";
+  const std::string mType_comEperLedrGet = "comEperLedrGet";
+  const std::string mType_comEperLedrPulse = "comEperLedrPulse";
+  const std::string mType_comEperLedrSet = "comEperLedrSet";
   const std::string mType_comEperMemoryRead = "comEperMemoryRead";
   const std::string mType_comEperMemoryWrite = "comEperMemoryWrite";
   const std::string mType_comEperNodeBackup = "comEperNodeBackup";

@@ -8,6 +8,36 @@
       "command": "Read"
     },
     {
+      "mType": "comEperLedgGet",
+      "driver": "iqrf.embed.ledg",
+      "command": "Get"
+    },
+    {
+      "mType": "comEperLedgPulse",
+      "driver": "iqrf.embed.ledg",
+      "command": "Pulse"
+    },
+    {
+      "mType": "comEperLedgSet",
+      "driver": "iqrf.embed.ledg",
+      "command": "Set"
+    },
+    {
+      "mType": "comEperLedrGet",
+      "driver": "iqrf.embed.ledr",
+      "command": "Get"
+    },
+    {
+      "mType": "comEperLedrPulse",
+      "driver": "iqrf.embed.ledr",
+      "command": "Pulse"
+    },
+    {
+      "mType": "comEperLedrSet",
+      "driver": "iqrf.embed.ledr",
+      "command": "Set"
+    },
+    {
       "mType": "comSdevBinaryOutputEnum",
       "driver": "iqrf.binaryoutput",
       "command": "Enumerate"

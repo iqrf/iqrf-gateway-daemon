@@ -39,6 +39,12 @@ namespace iqrf {
     std::vector<IMessagingSplitterService::MsgType> m_supported =
     {
       { mType_comEperThermometerRead, 1,0,0 },
+      { mType_comEperLedgGet, 1,0,0 },
+      { mType_comEperLedgPulse, 1,0,0 },
+      { mType_comEperLedgSet, 1,0,0 },
+      { mType_comEperLedrGet, 1,0,0 },
+      { mType_comEperLedrPulse, 1,0,0 },
+      { mType_comEperLedrSet, 1,0,0 },
       { mType_comSdevBinaryOutputEnum, 1,0,0 },
       { mType_comSdevBinaryOutputSetOutput, 1,0,0 },
       { mType_comSdevLightDecrementPower, 1,0,0 },
