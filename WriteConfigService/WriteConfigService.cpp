@@ -87,7 +87,9 @@ namespace iqrf {
     enum class Type {
       NoError,
       NodeNotBonded,
-      Write
+      Write,
+      SecurityPassword,
+      SecurityUserKey
     };
 
     WriteError() : m_type(Type::NoError), m_message("") {};
@@ -342,6 +344,31 @@ namespace iqrf {
       }
     }
 
+    void processSecurityError(
+      WriteResult& writeResult,
+      const std::list<uint16_t>& targetNodes,
+      const WriteError::Type errType,
+      const std::string& errMsg
+    )
+    {
+      std::map<uint16_t, NodeWriteResult> nodeResultsMap = writeResult.getResultsMap();
+      std::map<uint16_t, NodeWriteResult>::iterator it = nodeResultsMap.end();
+
+      WriteError writeError(errType, errMsg);
+
+      for (const uint16_t targetNode : targetNodes) {
+        it = nodeResultsMap.find(targetNode);
+        if (it == nodeResultsMap.end()) {
+          it->second.setError(writeError);
+        }
+        else {
+          NodeWriteResult nodeWriteResult;
+          nodeWriteResult.setError(writeError);
+          writeResult.putResult(targetNode, nodeWriteResult);
+        }
+      }
+    }
+
     // counts checksum for specified configuration bytes
     // RFPGM byte IS NOT included in checksum count
     uint8_t countChecksum(const std::vector<HWP_ConfigByte>& configBytes) {
@@ -521,8 +548,8 @@ namespace iqrf {
       return nodesResults;
     }
 
-    // puts nodes results into overall write config results
-    void putFrcResults(
+    // puts nodes results of write config into overall write config results
+    void putWriteConfigFrcResults(
       WriteResult& writeResult,
       const std::vector<HWP_ConfigByte>& configBytes,
       WriteError::Type errorType,
@@ -557,6 +584,44 @@ namespace iqrf {
           NodeWriteResult nodeWriteResult;
           nodeWriteResult.setError(writeError);
           nodeWriteResult.putFailedBytes(configBytes);
+          writeResult.putResult(p.first, nodeWriteResult);
+        }
+      }
+    }
+
+    // puts nodes results of set security into overall write config results
+    void putSetSecurityFrcResults(
+      WriteResult& writeResult,
+      WriteError::Type errorType,
+      const std::map<uint16_t, uint8_t>& nodesResultsMap
+    )
+    {
+      std::map<uint16_t, NodeWriteResult> writeResultsMap = writeResult.getResultsMap();
+      std::map<uint16_t, NodeWriteResult>::iterator it = writeResultsMap.end();
+
+      for (const std::pair<uint16_t, uint8_t> p : nodesResultsMap) {
+        // all ok
+        if ((p.second & 0b1) == 0b1) {
+          continue;
+        }
+
+        std::string errorMsg;
+        if (p.second == 0) {
+          errorMsg = "Node device did not respond to FRC at all.";
+        }
+        else {
+          errorMsg = "HWPID did not match HWPID of the device.";
+        }
+
+        WriteError writeError(errorType, errorMsg);
+
+        it = writeResultsMap.find(p.first);
+        if (it == writeResultsMap.end()) {
+          it->second.setError(writeError);
+        }
+        else {
+          NodeWriteResult nodeWriteResult;
+          nodeWriteResult.setError(writeError);
           writeResult.putResult(p.first, nodeWriteResult);
         }
       }
@@ -725,7 +790,7 @@ namespace iqrf {
         std::map<uint16_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData);
 
         // putting nodes results into overall write config results
-        putFrcResults(writeResult, configBytesPart, WriteError::Type::Write, nodesResultsMap);
+        putWriteConfigFrcResults(writeResult, configBytesPart, WriteError::Type::Write, nodesResultsMap);
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -982,34 +1047,81 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
     
+    // sets User data part for "Set security" DPA request
+    // securityString can be either password or user key
+    void setUserDataForSetSecurityFrcRequest(
+      DpaMessage& frcRequest, 
+      const std::basic_string<uint8_t>& securityString
+    )
+    {
+      uns8* userData = frcRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData;
+
+      // length
+      userData[0] = 1 + 1 + 1 + 2 + securityString.length();
+      
+      userData[1] = PNUM_OS;
+      userData[2] = CMD_OS_SET_SECURITY;
+      userData[3] = HWPID_Default & 0xFF;
+      userData[4] = (HWPID_Default >> 8) & 0xFF;
+
+      std::copy(securityString.begin(), securityString.end(), userData + 5);
+    }
+
     // sets security
-    // FRC or for each node one DPA request?
-    void setSecurity(WriteResult& writeResult) {
-      /*
+    void setSecurityString(
+      WriteResult& writeResult, 
+      const std::list<uint16_t>& targetNodes,
+      const std::basic_string<uint8_t>& securityString,
+      const bool isPassword
+    ) 
+    {
       TRC_FUNCTION_ENTER("");
 
-      DpaMessage readConfigRequest;
-      DpaMessage::DpaPacket_t readConfigPacket;
-      readConfigPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      readConfigPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
-      readConfigPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
-      readConfigPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-      readConfigRequest.DataToBuffer(readConfigPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      DpaMessage frcRequest;
+      DpaMessage::DpaPacket_t frcPacket;
+      frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+      frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+      frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
+      frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      frcRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
+      frcRequest.DataToBuffer(frcPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+
+      setSelectedNodesForFrcRequest(frcRequest, targetNodes);
+
+      uint8_t writeConfigPacketFreeSpace = FRC_MAX_USER_DATA_LEN
+        - 1
+        - sizeof(frcPacket.DpaRequestPacket_t.PCMD)
+        - sizeof(frcPacket.DpaRequestPacket_t.PNUM)
+        - sizeof(frcPacket.DpaRequestPacket_t.HWPID)
+        ;
+
+      // set security string as a data for FRC request
+      setUserDataForSetSecurityFrcRequest(frcRequest, securityString);
 
       // issue the DPA request
-      std::shared_ptr<IDpaTransaction2> readConfigTransaction;
+      frcRequest.DataToBuffer(frcPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+
+      // issue the DPA request
+      std::shared_ptr<IDpaTransaction2> frcWriteConfigTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
+      // type of error
+      WriteError::Type errorType = (isPassword) ? WriteError::Type::SecurityPassword : WriteError::Type::SecurityUserKey;
+
       try {
-        readConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(readConfigRequest);
-        transResult = readConfigTransaction->get();
+        frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
+        transResult = frcWriteConfigTransaction->get();
       }
       catch (std::exception& e) {
         TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::exception, "Could not read HWP configuration.");
+        processSecurityError(writeResult, targetNodes, errorType, e.what());
+        return;
       }
 
-      TRC_DEBUG("Result from read HWP configuration transaction as string:" << PAR(transResult->getErrorString()));
+      TRC_DEBUG("Result from FRC set security transaction as string:" << PAR(transResult->getErrorString()));
+
+      // data from FRC
+      std::basic_string<uns8> frcData;
 
       IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
@@ -1018,34 +1130,111 @@ namespace iqrf {
       writeResult.addTransactionResult(transResult);
 
       if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Read HWP configuration successful!");
+        TRC_INFORMATION("FRC set security successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(readConfigRequest.PeripheralType(), readConfigRequest.NodeAddress())
-          << PAR(readConfigRequest.PeripheralCommand())
+          << NAME_PAR(frcRequest.PeripheralType(), frcRequest.NodeAddress())
+          << PAR(frcRequest.PeripheralCommand())
         );
 
-        // updating RF Channel band
-        uns8 rfChannelBandInt =
-          dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[CONFIG_BYTES_COORD_RF_CHANNEL_BAND_ADDR];
-        m_coordRfChannelBand = parseAndCheckRfChannelBand(rfChannelBandInt);
-
-        TRC_FUNCTION_LEAVE("");
-        return;
+        // check status
+        uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if ((status >= 0x00) && (status <= 0xEF)) {
+          TRC_INFORMATION("FRC write config status OK.");
+          frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+        }
+        else {
+          TRC_DEBUG("FRC write config status NOT ok." << NAME_PAR_HEX("Status", status));
+          processSecurityError(writeResult, targetNodes, errorType, "Bad status.");
+          return;
+        }
       }
 
       // transaction error
       if (errorCode < 0) {
         TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+        processSecurityError(writeResult, targetNodes, errorType, "Transaction error.");
+        return;
       } // DPA error
       else {
         TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+        processSecurityError(writeResult, targetNodes, errorType, "DPA error.");
+        return;
       }
 
-      THROW_EXC(std::exception, "Could not read HWP configuration.");
-      */
-    }
+      // get extra results
+      DpaMessage extraResultRequest;
+      DpaMessage::DpaPacket_t extraResultPacket;
+      frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+      frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+      frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
+      frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
 
+      // issue the DPA request
+      std::shared_ptr<IDpaTransaction2> extraResultTransaction;
+
+      try {
+        extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
+        transResult = extraResultTransaction->get();
+      }
+      catch (std::exception& e) {
+        TRC_DEBUG("DPA transaction error : " << e.what());
+        processSecurityError(writeResult, targetNodes, errorType, e.what());
+        return;
+      }
+
+      TRC_DEBUG("Result from FRC write config extra result transaction as string:" << PAR(transResult->getErrorString()));
+
+      errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+      // because of the move-semantics
+      dpaResponse = transResult->getResponse();
+      writeResult.addTransactionResult(transResult);
+
+      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+        TRC_INFORMATION("FRC write config extra result successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(extraResultRequest.PeripheralType(), extraResultRequest.NodeAddress())
+          << PAR(extraResultRequest.PeripheralCommand())
+        );
+
+        // check status
+        uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if ((status >= 0x00) && (status <= 0xEF)) {
+          TRC_INFORMATION("FRC write config extra result status OK.");
+          frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+        }
+        else {
+          TRC_DEBUG("FRC write config extra result status NOT ok." << NAME_PAR_HEX("Status", status));
+          processSecurityError(writeResult, targetNodes, errorType, "Bad status.");
+          return;
+        }
+      }
+
+      // transaction error
+      if (errorCode < 0) {
+        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+        processSecurityError(writeResult, targetNodes, errorType, "Transaction error.");
+        return;
+      } // DPA error
+      else {
+        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+        processSecurityError(writeResult, targetNodes, errorType, "DPA error.");
+        return;
+      }
+
+      // FRC data parsing
+      std::map<uint16_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData);
+
+      // putting nodes results into overall write config results
+      putSetSecurityFrcResults(writeResult, errorType, nodesResultsMap);
+      
+
+      TRC_FUNCTION_LEAVE("");
+    }
+    
     WriteResult writeConfigBytes(
       const std::vector<HWP_ConfigByte>& configBytes,
       const std::list<uint16_t>& targetNodes
@@ -1088,10 +1277,16 @@ namespace iqrf {
 
       // if there is specified security password and/or security user key
       // issue DPA set security
-      if (m_isSetSecurityPassword || m_isSetSecurityUserKey) {
-        setSecurity(writeResult);
+      // TODO: Will be specified more precisely and activated later
+      /*
+      if (m_isSetSecurityPassword) {
+        setSecurityString(writeResult, targetBondedNodes, m_securityPassword, true);
       }
 
+      if (m_isSetSecurityUserKey) {
+        setSecurityString(writeResult, targetBondedNodes, m_securityUserKey, false);
+      }
+      */
       return writeResult;
     }
 
