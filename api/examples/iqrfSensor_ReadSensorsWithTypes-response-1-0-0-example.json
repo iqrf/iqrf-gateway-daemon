@@ -1,0 +1,243 @@
+{
+  "mType": "iqrfSensor_ReadSensorsWithTypes",
+  "data": {
+    "msgId": "nisi dolor commodo",
+    "timeout": -75175427,
+    "rsp": {
+      "nAdr": -57396264,
+      "hwpId": -35523022,
+      "rCode": 78483783,
+      "dpaVal": -26268996,
+      "result": [
+        {
+          "type": 63464003,
+          "name": "sit ut ea est nulla",
+          "shortName": "sunt laborum",
+          "value": -17965634.99178663,
+          "unit": "magna est amet"
+        },
+        {
+          "type": -68239336,
+          "name": "c",
+          "shortName": "dolor laborum in",
+          "value": -62672952.0828019,
+          "unit": "consectetur nisi Excepteur velit ut"
+        },
+        {
+          "type": -44046366,
+          "name": "fugiat deserunt veniam",
+          "shortName": "adipisicing sint non veniam",
+          "value": 24269396.39301993,
+          "unit": "sunt proident quis"
+        },
+        {
+          "type": 95030546,
+          "name": "esse ",
+          "shortName": "Excepteur consectetur",
+          "value": -6841468.8330863565,
+          "unit": "qui"
+        },
+        {
+          "type": 91880216,
+          "name": "in aute est",
+          "shortName": "deserunt do",
+          "value": -19239731.35259494,
+          "unit": "culpa in est"
+        },
+        {
+          "type": -63348326,
+          "name": "dolor esse Excepteur",
+          "shortName": "in",
+          "value": -51535474.56157748,
+          "unit": "velit sint"
+        },
+        {
+          "type": -9062973,
+          "name": "sint Lorem exercitation Duis",
+          "shortName": "voluptate in dolore",
+          "value": 9637779.376172647,
+          "unit": "anim nostrud do"
+        },
+        {
+          "type": 36142208,
+          "name": "elit la",
+          "shortName": "ad ut",
+          "value": -39445886.375124365,
+          "unit": "laboris"
+        },
+        {
+          "type": 97350584,
+          "name": "ad Duis occaecat aliquip",
+          "shortName": "culpa incididunt",
+          "value": -69914902.26935042,
+          "unit": "dolore mollit aliqua ut minim"
+        },
+        {
+          "type": 56777576,
+          "name": "proident laborum anim",
+          "shortName": "commodo dolore id cupidatat",
+          "value": -29184402.20973912,
+          "unit": "occaecat voluptate"
+        },
+        {
+          "type": 99489418,
+          "name": "laborum voluptate nostrud Lorem",
+          "shortName": "minim",
+          "value": 6838960.707231671,
+          "unit": "ex quis Ut velit"
+        },
+        {
+          "type": -667483,
+          "name": "dolore aliquip commodo",
+          "shortName": "minim qui in",
+          "value": -41901586.43521751,
+          "unit": "dolor est"
+        },
+        {
+          "type": 63303065,
+          "name": "laboris in",
+          "shortName": "elit ut amet sint",
+          "value": -3371616.6682718843,
+          "unit": "dolore minim deserunt voluptate"
+        },
+        {
+          "type": 69772611,
+          "name": "occaecat voluptate non velit",
+          "shortName": "aute magn",
+          "value": -13730240.302044153,
+          "unit": "mollit Excepteur id cupidatat"
+        },
+        {
+          "type": -73859875,
+          "name": "ut consequat ad",
+          "shortName": "Ut in sunt laborum",
+          "value": 30916993.88034144,
+          "unit": "v"
+        },
+        {
+          "type": 65891321,
+          "name": "laboris nisi",
+          "shortName": "reprehenderit esse amet minim",
+          "value": -31875513.07842113,
+          "unit": "irure in"
+        },
+        {
+          "type": 63911129,
+          "name": "in elit Excep",
+          "shortName": "",
+          "value": 18577595.492528066,
+          "unit": "sint aliquip et"
+        },
+        {
+          "type": -94904974,
+          "name": "elit aliquip ut",
+          "shortName": "occaecat pariatur non",
+          "value": 97998795.37521386,
+          "unit": "in eiusmod officia e"
+        },
+        {
+          "type": -6740192,
+          "name": "deserunt ",
+          "shortName": "labore culpa ullamco",
+          "value": 34266452.69389036,
+          "unit": "elit dolor incididunt minim"
+        },
+        {
+          "type": -7336389,
+          "name": "Duis v",
+          "shortName": "esse ea",
+          "value": -9389418.684570879,
+          "unit": "nulla veniam esse eni"
+        },
+        {
+          "type": 55687335,
+          "name": "cupidatat labore reprehenderit proident",
+          "shortName": "in dolore elit deserunt",
+          "value": -89714956.00234438,
+          "unit": "dolor commodo"
+        },
+        {
+          "type": -54665233,
+          "name": "in dolore esse pariatur Ut",
+          "shortName": "Lorem dolor",
+          "value": -50686.18119414151,
+          "unit": "labore veniam sunt id"
+        },
+        {
+          "type": 18235799,
+          "name": "anim amet id Ut aliqua",
+          "shortName": "enim voluptate ut qui aute",
+          "value": 69086235.56409442,
+          "unit": "sunt mollit aute adipisicing"
+        },
+        {
+          "type": -70328856,
+          "name": "Lor",
+          "shortName": "tempor amet",
+          "value": -11560781.43331261,
+          "unit": "reprehenderit elit tempor"
+        },
+        {
+          "type": -10086982,
+          "name": "ea dolor",
+          "shortName": "sunt",
+          "value": -45685346.43075965,
+          "unit": "Excepteur non Ut"
+        },
+        {
+          "type": 13561228,
+          "name": "ea nostrud magna",
+          "shortName": "sit Excepteur",
+          "value": -15146167.646573484,
+          "unit": "laborum occaecat dolor"
+        },
+        {
+          "type": -61085941,
+          "name": "quis ut enim",
+          "shortName": "elit ",
+          "value": 51922189.56557998,
+          "unit": "consectetur reprehenderit"
+        },
+        {
+          "type": 17544127,
+          "name": "commodo laborum occaecat ipsum",
+          "shortName": "ad enim",
+          "value": 32395350.145037755,
+          "unit": "officia ex"
+        },
+        {
+          "type": 65442068,
+          "name": "id irure anim eu",
+          "shortName": "reprehenderit magna",
+          "value": -44624497.04069309,
+          "unit": "non id fugiat"
+        },
+        {
+          "type": 19390259,
+          "name": "non dolore",
+          "shortName": "velit volup",
+          "value": 67119744.95387784,
+          "unit": "quis qui"
+        },
+        {
+          "type": 94272280,
+          "name": "aliquip tempor voluptate ad",
+          "shortName": "dolor incididunt sunt commodo mollit",
+          "value": 43723995.33326638,
+          "unit": "est dolor"
+        }
+      ]
+    },
+    "raw": {
+      "request": "dolor qui incididunt do",
+      "requestTs": "consectetur deserunt elit eu",
+      "confirmation": "sint exercitation sunt in",
+      "confirmationTs": "dolor Excepteur aliqua",
+      "response": "dolore",
+      "responseTs": "exercitation est ad"
+    },
+    "insId": "id",
+    "status": 21915045,
+    "statusStr": "nisi id"
+  }
+}

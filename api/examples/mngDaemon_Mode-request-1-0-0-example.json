@@ -1,0 +1,10 @@
+{
+  "mType": "mngDaemon_Mode",
+  "data": {
+    "msgId": "ut laboris amet irure",
+    "req": {
+      "operMode": "service"
+    },
+    "returnVerbose": true
+  }
+}

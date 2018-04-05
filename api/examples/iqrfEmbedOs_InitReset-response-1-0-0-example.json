@@ -1,0 +1,24 @@
+{
+  "mType": "iqrfEmbedOs_Reset",
+  "data": {
+    "msgId": "commodo elit est",
+    "timeout": 53165533,
+    "rsp": {
+      "nAdr": -1015433,
+      "hwpId": -48014985,
+      "rCode": -36476325,
+      "dpaVal": 66773804
+    },
+    "raw": {
+      "request": "adipisicing id irure",
+      "requestTs": "fugiat ipsum ullamco cupidatat labore",
+      "confirmation": "labore consequat",
+      "confirmationTs": "Ut pariatur",
+      "response": "est elit",
+      "responseTs": "dolor sint officia tempor"
+    },
+    "insId": "irure reprehenderit magna",
+    "status": -24992898,
+    "statusStr": "esse sunt mollit consequat"
+  }
+}

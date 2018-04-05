@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfEmbedCoordinator_RemoveBond",
+  "data": {
+    "msgId": "ut est",
+    "timeout": -44802559,
+    "req": {
+      "nAdr": 6726896,
+      "hwpId": 17683919,
+      "bondedAddr": 95635073
+    },
+    "returnVerbose": true
+  }
+}

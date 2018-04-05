@@ -1,0 +1,174 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfEmbedNode_Read-response",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Embedded peripheral Node - Read response.",
+            "enum": [
+                "iqrfEmbedNode_Read"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "Timeout to wait for IQRF DPA response."
+                },
+                "rsp": {
+                    "type": "object",
+                    "properties": {
+                        "nAdr": {
+                            "type": "integer",
+                            "description": "Network device address."
+                        },
+                        "hwpId": {
+                            "type": "integer",
+                            "description": "Hardware profile identification."
+                        },
+                        "rCode": {
+                            "type": "integer",
+                            "description": "DPA error code."
+                        },
+                        "dpaVal": {
+                            "type": "integer",
+                            "description": "DPA value."
+                        },
+                        "rData": {
+                            "type": "object",
+                            "properties": {
+                                "ntwAddr": {
+                                    "type": "integer",
+                                    "description": "Network address."
+                                },
+                                "ntwVrn": {
+                                    "type": "integer",
+                                    "description": "Virtual routing number."
+                                },
+                                "ntwZin": {
+                                    "type": "integer",
+                                    "description": "Zone index."
+                                },
+                                "ntwDid": {
+                                    "type": "integer",
+                                    "description": "Discovery id."
+                                },
+                                "ntwPvrn": {
+                                    "type": "integer",
+                                    "description": "Parent virtual routing number."
+                                },
+                                "ntwUserAddr": {
+                                    "type": "integer",
+                                    "description": "User address 2B."
+                                },
+                                "ntwId": {
+                                    "type": "integer",
+                                    "description": "Network identification (NID0/NID1)."
+                                },
+                                "ntwVrnFnz": {
+                                    "type": "integer",
+                                    "description": "VRN of first Node in given zone."
+                                },
+                                "ntwCfg": {
+                                    "type": "integer",
+                                    "description": "Network configuration."
+                                },
+                                "bonded": {
+                                    "type": "boolean",
+                                    "description": "Indicates whether the Node device is bonded."
+                                }
+                            },
+                            "required": [
+                                "ntwAddr",
+                                "ntwVrn",
+                                "ntwZin",
+                                "ntwDid",
+                                "ntwPvrn",
+                                "ntwUserAddr",
+                                "ntwId",
+                                "ntwVrnFnz",
+                                "ntwCfg",
+                                "bonded"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "nAdr",
+                        "hwpId",
+                        "rCode",
+                        "dpaVal"
+                    ]
+                },
+                "raw": {
+                    "type": "object",
+                    "properties": {
+                        "request": {
+                            "type": "string",
+                            "description": "Binary buffer with DPA request."
+                        },
+                        "requestTs": {
+                            "type": "string",
+                            "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                        },
+                        "confirmation": {
+                            "type": "string",
+                            "description": "Binary buffer with DPA confirmation."
+                        },
+                        "confirmationTs": {
+                            "type": "string",
+                            "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                        },
+                        "response": {
+                            "type": "string",
+                            "description": "Binary buffer with DPA response."
+                        },
+                        "responseTs": {
+                            "type": "string",
+                            "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                        }
+                    },
+                    "required": [
+                        "request",
+                        "requestTs",
+                        "confirmation",
+                        "confirmationTs",
+                        "response",
+                        "responseTs"
+                    ]
+                },
+                "insId": {
+                    "type": "string",
+                    "description": "IQRF GW daemon instance identification."
+                },
+                "status": {
+                    "type": "integer",
+                    "description": "IQRF GW daemon API (general or mType) status."
+                },
+                "statusStr": {
+                    "type": "string",
+                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                }
+            },
+            "required": [
+                "msgId",
+                "rsp",
+                "status"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

@@ -1,0 +1,12 @@
+{
+  "mType": "iqrfEmbedOs_ReadCfg",
+  "data": {
+    "msgId": "ad enim veniam quis sint",
+    "timeout": -85418226,
+    "req": {
+      "nAdr": -77376956,
+      "hwpId": 5029589
+    },
+    "returnVerbose": true
+  }
+}

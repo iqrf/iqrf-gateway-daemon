@@ -1,0 +1,155 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfSensor_ReadSensorsWithTypes-response",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Standard peripheral Sensor - Read with Types response.",
+            "enum": [
+                "iqrfSensor_ReadSensorsWithTypes"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "Timeout to wait for IQRF DPA response."
+                },
+                "rsp": {
+                    "type": "object",
+                    "properties": {
+                        "nAdr": {
+                            "type": "integer",
+                            "description": "Network device address."
+                        },
+                        "hwpId": {
+                            "type": "integer",
+                            "description": "Hardware profile identification."
+                        },
+                        "rCode": {
+                            "type": "integer",
+                            "description": "DPA error code."
+                        },
+                        "dpaVal": {
+                            "type": "integer",
+                            "description": "DPA value."
+                        },
+                        "result": {
+                            "type": "array",
+                            "maxItems": 31,
+                            "description": "Returns array of objects for every sensor, see its description.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "integer",
+                                        "description": "Value type of the sensor (quantity)."
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Name of the sensor (quantity)."
+                                    },
+                                    "shortName": {
+                                        "type": "string",
+                                        "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
+                                    },
+                                    "value": {
+                                        "type": "number",
+                                        "description": "Value of the sensor."
+                                    },
+                                    "unit": {
+                                        "type": "string",
+                                        "description": "Unit of the quantity. Dimensionless quantities has \"\"."
+                                    }
+                                },
+                                "required": [
+                                    "type",
+                                    "name",
+                                    "shortName",
+                                    "value",
+                                    "unit"
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "nAdr",
+                        "hwpId",
+                        "rCode",
+                        "dpaVal",
+                        "result"
+                    ]
+                },
+                "raw": {
+                    "type": "object",
+                    "properties": {
+                        "request": {
+                            "type": "string",
+                            "description": "Binary buffer with DPA request."
+                        },
+                        "requestTs": {
+                            "type": "string",
+                            "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                        },
+                        "confirmation": {
+                            "type": "string",
+                            "description": "Binary buffer with DPA confirmation."
+                        },
+                        "confirmationTs": {
+                            "type": "string",
+                            "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                        },
+                        "response": {
+                            "type": "string",
+                            "description": "Binary buffer with DPA response."
+                        },
+                        "responseTs": {
+                            "type": "string",
+                            "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                        }
+                    },
+                    "required": [
+                        "request",
+                        "requestTs",
+                        "confirmation",
+                        "confirmationTs",
+                        "response",
+                        "responseTs"
+                    ]
+                },
+                "insId": {
+                    "type": "string",
+                    "description": "IQRF GW daemon instance identification."
+                },
+                "status": {
+                    "type": "integer",
+                    "description": "IQRF GW daemon API (general or mType) status."
+                },
+                "statusStr": {
+                    "type": "string",
+                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                }
+            },
+            "required": [
+                "msgId",
+                "rsp",
+                "status"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

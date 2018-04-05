@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-raw/</loc>
+    <lastmod>2018-02-12T22:22:15+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-raw-hdp/</loc>
+    <lastmod>2018-02-12T22:40:59+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-explore/</loc>
+    <lastmod>2018-03-09T00:15:43+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-coordinator/</loc>
+    <lastmod>2018-02-27T01:04:43+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-node/</loc>
+    <lastmod>2018-02-27T01:04:50+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-os/</loc>
+    <lastmod>2018-02-27T01:05:02+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-spi/</loc>
+    <lastmod>2018-02-27T01:05:27+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-eeprom/</loc>
+    <lastmod>2018-02-27T01:05:20+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-eeeprom/</loc>
+    <lastmod>2018-02-27T01:05:20+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-ram/</loc>
+    <lastmod>2018-02-27T01:05:20+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-ledr/</loc>
+    <lastmod>2018-02-27T01:35:15+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-ledg/</loc>
+    <lastmod>2018-02-27T01:35:15+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-io/</loc>
+    <lastmod>2018-02-27T01:05:36+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-thermometer/</loc>
+    <lastmod>2018-02-12T22:45:23+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-uart/</loc>
+    <lastmod>2018-02-27T01:05:32+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-frc/</loc>
+    <lastmod>2018-02-27T01:04:58+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-sdev-binaryoutput/</loc>
+    <lastmod>2018-03-09T00:25:09+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-sdev-light/</loc>
+    <lastmod>2018-03-09T00:24:49+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-sdev-sensor/</loc>
+    <lastmod>2018-02-12T22:49:46+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-services/</loc>
+    <lastmod>2018-02-12T22:56:08+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/daemon-management/</loc>
+    <lastmod>2018-03-23T14:50:05+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/daemon-configuration/</loc>
+    <lastmod>2018-03-23T14:50:33+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/daemon-scheduler/</loc>
+    <lastmod>2018-02-27T01:03:59+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/</loc>
+    <lastmod>2018-02-12T22:22:15+01:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

@@ -1,0 +1,23 @@
+{
+  "mType": "iqrfEmbedOs_SelectiveBatch",
+  "data": {
+    "msgId": "nulla tempor adipisicing",
+    "timeout": 48173114,
+    "req": {
+      "nAdr": 10978993,
+      "hwpId": 51757153,
+      "selNodes": [
+        28539897,
+        -41495324,
+        -94758081
+      ],
+      "innerReqs": [
+        {
+          "length": -23094807,
+          "rawStr": "amet minim"
+        }
+      ]
+    },
+    "returnVerbose": true
+  }
+}

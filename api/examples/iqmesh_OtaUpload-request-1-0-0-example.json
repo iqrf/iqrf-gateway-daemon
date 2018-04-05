@@ -1,0 +1,20 @@
+{
+  "mType": "iqmesh_OtaUpload",
+  "data": {
+    "msgId": "ex ullamco nostrud cillum",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": [
+        36819687,
+        72020320,
+        48739341,
+        -35938627,
+        -76872267
+      ],
+      "fileName": "amet cillum fugiat",
+      "startMemAddr": -16383462,
+      "loadingAction": "commodo"
+    },
+    "returnVerbose": true
+  }
+}

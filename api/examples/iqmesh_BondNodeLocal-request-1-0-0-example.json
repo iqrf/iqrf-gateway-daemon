@@ -1,0 +1,11 @@
+{
+  "mType": "iqmesh_BondNodeLocal",
+  "data": {
+    "msgId": "dolore ex",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": -71053185
+    },
+    "returnVerbose": true
+  }
+}

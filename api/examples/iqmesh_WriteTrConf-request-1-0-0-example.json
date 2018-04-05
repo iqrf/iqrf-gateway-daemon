@@ -1,0 +1,39 @@
+{
+  "mType": "iqmesh_WriteTrConf",
+  "data": {
+    "msgId": "ut dolor anim",
+    "repeat": 1,
+    "restart": true,
+    "req": {
+      "deviceAddr": [
+        75013091,
+        -26941044
+      ],
+      "rfBand": "aliqua adipisicing deserunt",
+      "rfChannelA": -14247408,
+      "rfChannelB": 14788583,
+      "rfSubChannelA": 56389352,
+      "rfSubChannelB": 14510242,
+      "txPower": -78583231,
+      "rxFilter": 30278924,
+      "lpRxTimeout": 1976870,
+      "rfPgmAltChannel": -86362925,
+      "rfPgmEnableAfterReset": true,
+      "rfPgmTerminateAfter1Min": false,
+      "rfPgmTerminateMcuPin": true,
+      "rfPgmDualChannel": false,
+      "rfPgmLpMode": true,
+      "rfPgmIncorrectUpload": false,
+      "customDpaHandler": true,
+      "nodeDpaInterface": false,
+      "uartBaudrate": -7957210,
+      "dpaAutoexec": false,
+      "routingOff": false,
+      "ioSetup": false,
+      "peerToPeer": true,
+      "securityPassword": "aliqua dolore amet adipisicing d",
+      "securityUserKey": "sunt minim"
+    },
+    "returnVerbose": false
+  }
+}

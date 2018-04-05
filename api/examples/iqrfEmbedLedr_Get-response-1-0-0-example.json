@@ -1,0 +1,25 @@
+{
+  "mType": "iqrfEmbedLedr_Get",
+  "data": {
+    "msgId": "ut",
+    "timeout": 17170646,
+    "rsp": {
+      "nAdr": -43271605,
+      "hwpId": -63512525,
+      "rCode": -11325103,
+      "dpaVal": -59352649,
+      "onOff": false
+    },
+    "raw": {
+      "request": "nisi aliquip incididunt et",
+      "requestTs": "commodo laboris",
+      "confirmation": "commodo ullamco in",
+      "confirmationTs": "ut pari",
+      "response": "Lorem cupidatat",
+      "responseTs": "minim deserunt ullamco laboris"
+    },
+    "insId": "esse dolore ad laboris cillum",
+    "status": -2121032,
+    "statusStr": "laborum et"
+  }
+}

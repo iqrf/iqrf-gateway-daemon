@@ -1,0 +1,24 @@
+{
+  "mType": "iqrfEmbedLedr_Pulse",
+  "data": {
+    "msgId": "commodo et",
+    "timeout": -51165876,
+    "rsp": {
+      "nAdr": -66829072,
+      "hwpId": -38266630,
+      "rCode": -17412692,
+      "dpaVal": 49352086
+    },
+    "raw": {
+      "request": "consectetur aliquip magna in",
+      "requestTs": "dolor amet ut",
+      "confirmation": "non cupidatat",
+      "confirmationTs": "occaecat commodo aliquip consectetur",
+      "response": "dolore",
+      "responseTs": "dolore sit"
+    },
+    "insId": "voluptate",
+    "status": 4472506,
+    "statusStr": "est"
+  }
+}

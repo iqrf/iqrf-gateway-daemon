@@ -1,0 +1,25 @@
+{
+  "mType": "iqrfEmbedLedg_Get",
+  "data": {
+    "msgId": "sit aliquip sint dolore laborum",
+    "timeout": 15461214,
+    "rsp": {
+      "nAdr": -91038400,
+      "hwpId": 27760799,
+      "rCode": 98732617,
+      "dpaVal": -76547803,
+      "onOff": false
+    },
+    "raw": {
+      "request": "non in nulla",
+      "requestTs": "laboris labore in magna",
+      "confirmation": "occaecat",
+      "confirmationTs": "fugiat dolore dolore",
+      "response": "quis in fugiat",
+      "responseTs": "cillum in labore"
+    },
+    "insId": "velit irure ex",
+    "status": 16658693,
+    "statusStr": "sit in quis ex"
+  }
+}

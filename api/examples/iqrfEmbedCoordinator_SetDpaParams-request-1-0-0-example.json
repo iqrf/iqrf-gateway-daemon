@@ -1,0 +1,15 @@
+{
+  "mType": "iqrfEmbedCoordinator_SetDpaParams",
+  "data": {
+    "msgId": "anim occaecat in",
+    "timeout": 81518463,
+    "req": {
+      "nAdr": 45917342,
+      "hwpId": -57248783,
+      "dpaValueStr": "System",
+      "ledDiagnostic": true,
+      "fixedTimeslot": false
+    },
+    "returnVerbose": true
+  }
+}

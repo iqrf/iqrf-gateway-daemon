@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfEmbedLedg_Set",
+  "data": {
+    "msgId": "nostrud exercitation Ut est",
+    "timeout": -33918662,
+    "req": {
+      "nAdr": 95218452,
+      "hwpId": 44859987,
+      "onOff": true
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "mType": "iqrfEmbedCoordinator_SmartConnect",
+  "data": {
+    "msgId": "amet occaecat Lorem dolor aute",
+    "timeout": -34282489,
+    "req": {
+      "nAdr": 3965924,
+      "hwpId": 94980299,
+      "reqAddr": -30428981,
+      "bondingTestRetries": 2583250,
+      "ibk": [
+        1512564,
+        -78780688,
+        19159394,
+        68911829,
+        83527568,
+        62666189,
+        58727130,
+        41113074,
+        81959958,
+        80832838,
+        85502903,
+        86698976,
+        67450254,
+        19518228,
+        44432169
+      ],
+      "mid": [
+        53624729,
+        1624652,
+        -25539197
+      ],
+      "bondingChannel": -7704419,
+      "virtualDeviceAddress": -19968746,
+      "userData": [
+        -61099311,
+        -57373010,
+        72169781
+      ]
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "mType": "iqrfEmbedRam_Read",
+  "data": {
+    "msgId": "eu elit do Ut commodo",
+    "timeout": 30318521,
+    "rsp": {
+      "nAdr": 5234745,
+      "hwpId": 45809345,
+      "rCode": 78947103,
+      "dpaVal": -89324402,
+      "memData": [
+        -23672557,
+        94270335,
+        -86918883,
+        -20942713,
+        -88485819
+      ]
+    },
+    "raw": {
+      "request": "nisi adipisicing exercitation",
+      "requestTs": "velit sunt in am",
+      "confirmation": "dolore magna in",
+      "confirmationTs": "laboris velit ",
+      "response": "laboris aliquip est incididunt",
+      "responseTs": "Du"
+    },
+    "insId": "cillum in velit si",
+    "status": -57471228,
+    "statusStr": "ex esse laborum aute"
+  }
+}

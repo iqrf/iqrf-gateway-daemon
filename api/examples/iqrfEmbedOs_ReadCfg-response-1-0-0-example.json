@@ -1,0 +1,34 @@
+{
+  "mType": "iqrfEmbedOs_ReadCfg",
+  "data": {
+    "msgId": "nulla mollit aliqua amet laboris",
+    "timeout": 76056464,
+    "rsp": {
+      "nAdr": -4345828,
+      "hwpId": 40733969,
+      "rCode": -988313,
+      "dpaVal": 80284193,
+      "checkSum": 40217775,
+      "cfgBytes": [
+        70264483,
+        -21091126,
+        44168836,
+        4186638,
+        -35770632
+      ],
+      "rfPgm": 20213166,
+      "undocumented": 29764615
+    },
+    "raw": {
+      "request": "ipsum sint Ut",
+      "requestTs": "tempor",
+      "confirmation": "in eu deserunt",
+      "confirmationTs": "voluptate incididunt aute consequat",
+      "response": "nisi dolor ut ipsum",
+      "responseTs": "nisi aliqua"
+    },
+    "insId": "nisi et l",
+    "status": 61059546,
+    "statusStr": "ipsum magna"
+  }
+}

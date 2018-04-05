@@ -1,0 +1,34 @@
+{
+  "mType": "mngSched_List",
+  "data": {
+    "msgId": "laboris pariatur id",
+    "rsp": {
+      "clientId": "dolor id",
+      "tasks": [
+        {
+          "taskId": -73746274,
+          "task": "elit reprehenderit in"
+        },
+        {
+          "taskId": -32066609,
+          "task": "mollit cupidatat"
+        },
+        {
+          "taskId": 13861475,
+          "task": "mollit"
+        },
+        {
+          "taskId": -76111110,
+          "task": "sunt in eiusmod"
+        },
+        {
+          "taskId": -79057346,
+          "task": "elit"
+        }
+      ]
+    },
+    "insId": "officia nisi enim labore",
+    "status": 57924582,
+    "statusStr": "magna pariatur"
+  }
+}

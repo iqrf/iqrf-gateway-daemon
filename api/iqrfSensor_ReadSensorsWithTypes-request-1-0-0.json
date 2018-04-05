@@ -1,0 +1,108 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfSensor_ReadSensorsWithTypes-request",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "definitions": {
+        "paramsReadwtUndefined": {
+            "type": "object",
+            "description": "No parameters: reads 1st sensor.",
+            "properties": {}
+        },
+        "paramsReadwtSenIndex": {
+            "type": "object",
+            "description": "Sensor index to read.",
+            "properties": {
+                "sensorIndexes": {
+                    "type": "integer",
+                    "description": "Specifies sensor to read data from, -1 reads all sensors."
+                }
+            }
+        },
+        "paramsReadwtArrIndexes": {
+            "type": "object",
+            "description": "Array of indexes to read.",
+            "properties": {
+                "sensor_indexes": {
+                    "type": "array",
+                    "description": "Specifies sensors to read as array of indexes.",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "maxItems": 31
+                }
+            }
+        },
+        "paramsReadwt": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/paramsReadwtUndefined"
+                },
+                {
+                    "$ref": "#/definitions/paramsReadwtSenIndex"
+                },
+                {
+                    "$ref": "#/definitions/paramsReadwtArrIndexes"
+                }
+            ]
+        }
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Standard peripheral Sensor - Read with Types request.",
+            "enum": [
+                "iqrfSensor_ReadSensorsWithTypes"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "Timeout to wait for IQRF DPA response."
+                },
+                "req": {
+                    "type": "object",
+                    "properties": {
+                        "nAdr": {
+                            "type": "integer",
+                            "description": "Network device address."
+                        },
+                        "hwpId": {
+                            "type": "integer",
+                            "description": "Hardware profile identification."
+                        },
+                        "params": {
+                            "$ref": "#/definitions/paramsReadwt"
+                        }
+                    },
+                    "required": [
+                        "nAdr",
+                        "params"
+                    ]
+                },
+                "returnVerbose": {
+                    "type": "boolean",
+                    "description": "Flag that includes additional parameters in the response."
+                }
+            },
+            "required": [
+                "msgId",
+                "req"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

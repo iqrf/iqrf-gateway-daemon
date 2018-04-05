@@ -1,0 +1,19 @@
+{
+  "mType": "iqrfEmbedSpi_WriteRead",
+  "data": {
+    "msgId": "aliqua qui irure",
+    "timeout": 14169936,
+    "req": {
+      "nAdr": -23399392,
+      "hwpId": 69044273,
+      "readTimeout": -51232345,
+      "writtenData": [
+        49019961,
+        -43322492,
+        -6990213,
+        4340446
+      ]
+    },
+    "returnVerbose": false
+  }
+}

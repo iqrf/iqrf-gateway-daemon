@@ -1,0 +1,75 @@
+{
+	"$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "iqmesh_OtaUpload-request",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"type": "object",
+	"properties": {
+		"mType": {
+			"type": "string",
+			"description": "iqmesh_ Network management - Upload hex or iqrf file request.",
+			"enum": [
+				"iqmesh_OtaUpload"
+			]
+		},
+		"data": {
+			"type": "object",
+			"properties": {
+				"msgId": {
+					"type": "string",
+					"description": "Message identification for binding request with response."
+				},
+				"repeat": {
+					"type": "integer",
+					"description": "Number of repetitions of DPA messages.",
+					"default": 1
+				},
+				"req": {
+					"type": "object",
+					"properties": {
+						"deviceAddr": {
+							"type": "array",
+							"description": "Device address(es) to write the hex or iqrf file.",
+							"items": {
+								"type": "integer"
+							}
+						},
+						"fileName": {
+							"type": "string",
+							"description": "Full name of file with source code to load."
+						},
+						"startMemAddr": {
+							"type": "integer",
+							"description": "Start address on which will be the data saved into memory."
+						},
+						"loadingAction": {
+							"type": "string",
+							"description": "Loading action - WithoutCodeLoading, WithCodeLoading."
+						}
+					},
+					"required": [
+						"deviceAddr",
+						"fileName",
+						"startMemAddr",
+						"loadingAction"
+					]
+				},
+				"returnVerbose": {
+					"type": "boolean",
+					"description": "Flag that includes additional parameters in the response."
+				}
+			},
+			"required": [
+				"msgId",
+				"req"
+			]
+		}
+	},
+	"required": [
+		"mType",
+		"data"
+	]
+}

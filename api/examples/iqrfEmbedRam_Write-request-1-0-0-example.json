@@ -1,0 +1,16 @@
+{
+  "mType": "iqrfEmbedRam_Write",
+  "data": {
+    "msgId": "veniam aute cillum dolor esse",
+    "timeout": 62092400,
+    "req": {
+      "nAdr": -84730731,
+      "hwpId": 38827308,
+      "address": -39019439,
+      "memData": [
+        -93352096
+      ]
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "mType": "iqrfEmbedLedg_Pulse",
+  "data": {
+    "msgId": "do",
+    "timeout": -4950409,
+    "rsp": {
+      "nAdr": 38460891,
+      "hwpId": -12406889,
+      "rCode": 58710488,
+      "dpaVal": -9357583
+    },
+    "raw": {
+      "request": "ipsum",
+      "requestTs": "eu eiusmod esse ut",
+      "confirmation": "Lorem voluptate magna",
+      "confirmationTs": "velit cillum in aute",
+      "response": "non",
+      "responseTs": "dolore sunt"
+    },
+    "insId": "dolor proident",
+    "status": 49319484,
+    "statusStr": "amet deserunt sint ullamco"
+  }
+}

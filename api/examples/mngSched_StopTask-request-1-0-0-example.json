@@ -1,0 +1,11 @@
+{
+  "mType": "mngSched_StopTask",
+  "data": {
+    "msgId": "laborum in",
+    "req": {
+      "clientId": "dolor",
+      "taskId": 46965879
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "mType": "iqrfEmbedEeeprom_Write",
+  "data": {
+    "msgId": "irure",
+    "timeout": 91179784,
+    "req": {
+      "nAdr": 95503735,
+      "hwpId": -89848725,
+      "address": 55329888,
+      "memData": [
+        57270199,
+        -68720426,
+        65048386
+      ]
+    },
+    "returnVerbose": true
+  }
+}

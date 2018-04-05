@@ -1,0 +1,17 @@
+{
+  "mType": "iqrfEmbedEeprom_Write",
+  "data": {
+    "msgId": "cillum nisi",
+    "timeout": 78503312,
+    "req": {
+      "nAdr": 33749872,
+      "hwpId": 4620954,
+      "address": -49458500,
+      "memData": [
+        80732036,
+        9342495
+      ]
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "mType": "iqrfEmbedThermometer_Read",
+  "data": {
+    "msgId": "v",
+    "timeout": -86770529,
+    "rsp": {
+      "nAdr": 91048114,
+      "hwpId": 55921144,
+      "rCode": 24182702,
+      "dpaVal": 8400963,
+      "temperature": 20378840.041757494
+    },
+    "raw": {
+      "request": "ea sunt ut aliqua nulla",
+      "requestTs": "Ut",
+      "confirmation": "ut ea pariatur eu",
+      "confirmationTs": "incididunt",
+      "response": "ipsum nisi nostrud",
+      "responseTs": "laboris labore"
+    },
+    "insId": "consequat in sit",
+    "status": 2593953,
+    "statusStr": "culpa"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "mType": "iqrfEmbedIo_Dir",
+  "data": {
+    "msgId": "Lorem ad reprehenderit cillum esse",
+    "timeout": 48299769,
+    "req": {
+      "nAdr": 75718069,
+      "hwpId": -1628881,
+      "ports": [
+        {
+          "port": -11866219,
+          "mask": -97842550,
+          "value": 45622574
+        },
+        {
+          "port": -62161798,
+          "mask": -5658266,
+          "value": -66942794
+        }
+      ]
+    },
+    "returnVerbose": true
+  }
+}

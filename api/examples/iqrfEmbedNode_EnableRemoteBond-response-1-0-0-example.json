@@ -1,0 +1,24 @@
+{
+  "mType": "iqrfEmbedNode_EnableRemoteBond",
+  "data": {
+    "msgId": "occaecat nostrud elit sint",
+    "timeout": 83311766,
+    "rsp": {
+      "nAdr": -54766164,
+      "hwpId": 38376158,
+      "rCode": 89152001,
+      "dpaVal": -42695125
+    },
+    "raw": {
+      "request": "dolore quis dolor",
+      "requestTs": "enim non id",
+      "confirmation": "in laboris in",
+      "confirmationTs": "tempor",
+      "response": "cillum sed ullamco",
+      "responseTs": "iru"
+    },
+    "insId": "tempor",
+    "status": -63152468,
+    "statusStr": "reprehenderit in cillum"
+  }
+}

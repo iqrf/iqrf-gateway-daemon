@@ -1,0 +1,79 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfEmbedCoordinator_EnableRemoteBonding-request",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Embedded peripheral Coordinator - Enable Remote Bonding request.",
+            "enum": [
+                "iqrfEmbedCoordinator_EnableRemoteBonding"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "Timeout to wait for IQRF DPA response."
+                },
+                "req": {
+                    "type": "object",
+                    "properties": {
+                        "nAdr": {
+                            "type": "integer",
+                            "description": "Network device address."
+                        },
+                        "hwpId": {
+                            "type": "integer",
+                            "description": "Hardware profile identification."
+                        },
+                        "bondingMask": {
+                            "type": "integer",
+                            "description": "See IQRF OS User's and Reference guides (remote bonding, function bondNewNode)."
+                        },
+                        "control": {
+                            "type": "boolean",
+                            "description": "Enables remote bonding mode. If enabled then previously bonded nodes are forgotten."
+                        },
+                        "userData": {
+                            "type": "array",
+                            "description": "Optional data that can be used at Reset Custom DPA Handler event.",
+                            "items": {
+                                "type": "integer"
+                            },
+                            "maxItems": 3
+                        }
+                    },
+                    "required": [
+                        "nAdr",
+                        "bondingMask",
+                        "control",
+                        "userData"
+                    ]
+                },
+                "returnVerbose": {
+                    "type": "boolean",
+                    "description": "Flag that includes additional parameters in the response."
+                }
+            },
+            "required": [
+                "msgId",
+                "req"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

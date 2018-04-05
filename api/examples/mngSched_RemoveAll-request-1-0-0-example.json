@@ -1,0 +1,10 @@
+{
+  "mType": "mngSched_RemoveAll",
+  "data": {
+    "msgId": "quis dolore cupidatat qui e",
+    "req": {
+      "clientId": "ea"
+    },
+    "returnVerbose": false
+  }
+}

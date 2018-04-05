@@ -1,0 +1,12 @@
+{
+  "mType": "iqrfEmbedNode_ReadRemotelyBondedMid",
+  "data": {
+    "msgId": "est dolore",
+    "timeout": 71755282,
+    "req": {
+      "nAdr": -17840096,
+      "hwpId": -54769224
+    },
+    "returnVerbose": true
+  }
+}

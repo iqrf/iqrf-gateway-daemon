@@ -1,0 +1,81 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfEmbedCoordinator_SetDpaParams-request",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Embedded peripheral Coordinator - Set Dpa Params request.",
+            "enum": [
+                "iqrfEmbedCoordinator_SetDpaParams"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "Timeout to wait for IQRF DPA response."
+                },
+                "req": {
+                    "type": "object",
+                    "properties": {
+                        "nAdr": {
+                            "type": "integer",
+                            "description": "Network device address."
+                        },
+                        "hwpId": {
+                            "type": "integer",
+                            "description": "Hardware profile identification."
+                        },
+                        "dpaValueStr": {
+                            "type": "string",
+                            "description": "Configuration of the type of DPA value.",
+                            "enum": [
+                                "LastRssi",
+                                "Voltage",
+                                "System",
+                                "User"
+                            ]
+                        },
+                        "ledDiagnostic": {
+                            "type": "boolean",
+                            "description": "Diagnosing the network behavior based on LED activities. Red LED flashes when Node or Coordinator receives network message. Green LED flashes when Coordinator sends network message or when Node routes network message."
+                        },
+                        "fixedTimeslot": {
+                            "type": "boolean",
+                            "description": "A long fixed 200 ms timeslot is used. It allows easier tracking of network behavior."
+                        }
+                    },
+                    "required": [
+                        "nAdr",
+                        "dpaValueStr",
+                        "ledDiagnostic",
+                        "fixedTimeslot"
+                    ]
+                },
+                "returnVerbose": {
+                    "type": "boolean",
+                    "description": "Flag that includes additional parameters in the response."
+                }
+            },
+            "required": [
+                "msgId",
+                "req"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

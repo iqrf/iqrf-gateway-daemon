@@ -1,0 +1,104 @@
+{
+  "mType": "iqrfEmbedExplore_MorePerInfo",
+  "data": {
+    "msgId": "Excepteur in qui",
+    "timeout": -31906926,
+    "rsp": {
+      "nAdr": 25209567,
+      "hwpId": -35899055,
+      "rCode": -5940797,
+      "dpaVal": -55100667,
+      "result": [
+        {
+          "perTe": -21686455,
+          "perT": 56335343,
+          "par1": -21092656,
+          "par2": 53566155
+        },
+        {
+          "perTe": -66513753,
+          "perT": 78229703,
+          "par1": -43504443,
+          "par2": -95837532
+        },
+        {
+          "perTe": -46094480,
+          "perT": 49614817,
+          "par1": 22854930,
+          "par2": -66489711
+        },
+        {
+          "perTe": -67800733,
+          "perT": 22899449,
+          "par1": 83397674,
+          "par2": 7816567
+        },
+        {
+          "perTe": -7280929,
+          "perT": -57751194,
+          "par1": 46422396,
+          "par2": 21613552
+        },
+        {
+          "perTe": 45158553,
+          "perT": -80663254,
+          "par1": 67558929,
+          "par2": 35993907
+        },
+        {
+          "perTe": 7862271,
+          "perT": -51270213,
+          "par1": -66514865,
+          "par2": 26693767
+        },
+        {
+          "perTe": -31971282,
+          "perT": -90281727,
+          "par1": 92637371,
+          "par2": -35649309
+        },
+        {
+          "perTe": 56622687,
+          "perT": 37173936,
+          "par1": 37182658,
+          "par2": -31454158
+        },
+        {
+          "perTe": 98767355,
+          "perT": -89251771,
+          "par1": 24605599,
+          "par2": 38931765
+        },
+        {
+          "perTe": -76970933,
+          "perT": -86991518,
+          "par1": -91630404,
+          "par2": 67833413
+        },
+        {
+          "perTe": 99542729,
+          "perT": -15937565,
+          "par1": -99484653,
+          "par2": 39656316
+        },
+        {
+          "perTe": 89284900,
+          "perT": 86838068,
+          "par1": -11779309,
+          "par2": -28147312
+        }
+      ]
+    },
+    "raw": {
+      "request": "commodo dolor mollit",
+      "requestTs": "Ut dolore irure laborum",
+      "confirmation": "occaecat aliqua in dolor",
+      "confirmationTs": "amet reprehenderit",
+      "response": "lab",
+      "responseTs": "magna irure quis sunt"
+    },
+    "insId": "amet quis",
+    "status": -4281469,
+    "statusStr": "voluptate ut"
+  }
+}

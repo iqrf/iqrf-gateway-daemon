@@ -1,0 +1,25 @@
+{
+  "mType": "iqrfBinaryoutput_Enumerate",
+  "data": {
+    "msgId": "labore aliqua irure Duis",
+    "timeout": -66333161,
+    "rsp": {
+      "nAdr": -41226137,
+      "hwpId": 93093892,
+      "rCode": 70296291,
+      "dpaVal": 53101427,
+      "binOuts": -82297789
+    },
+    "raw": {
+      "request": "veniam sit proident",
+      "requestTs": "ullamco occaecat cupidatat",
+      "confirmation": "tempor adipisicing voluptate consectetur Lorem",
+      "confirmationTs": "nostrud Ut ad labore",
+      "response": "dolor ut laborum",
+      "responseTs": "venia"
+    },
+    "insId": "sunt mollit",
+    "status": -67618704,
+    "statusStr": "nisi"
+  }
+}

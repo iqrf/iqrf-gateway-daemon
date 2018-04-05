@@ -1,0 +1,14 @@
+{
+  "mType": "iqrfEmbedCoordinator_SetHops",
+  "data": {
+    "msgId": "culpa anim",
+    "timeout": -9962895,
+    "req": {
+      "nAdr": 59077128,
+      "hwpId": -92787343,
+      "reqHops": 255,
+      "rspHops": 255
+    },
+    "returnVerbose": false
+  }
+}

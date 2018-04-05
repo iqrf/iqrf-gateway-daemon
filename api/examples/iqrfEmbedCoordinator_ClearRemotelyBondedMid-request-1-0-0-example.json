@@ -1,0 +1,12 @@
+{
+  "mType": "iqrfEmbedCoordinator_ClearRemotelyBondedMid",
+  "data": {
+    "msgId": "et consectetur",
+    "timeout": -6605417,
+    "req": {
+      "nAdr": 32471604,
+      "hwpId": 67017777
+    },
+    "returnVerbose": true
+  }
+}

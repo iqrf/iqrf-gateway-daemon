@@ -1,0 +1,19 @@
+{
+  "mType": "iqrfEmbedOs_WriteCfg",
+  "data": {
+    "msgId": "nostrud in",
+    "timeout": -29644591,
+    "req": {
+      "nAdr": -68110594,
+      "hwpId": 11265672,
+      "checkSum": 28092453,
+      "cfgBytes": [
+        -30737184,
+        -6271572,
+        -79278956
+      ],
+      "rfPgm": 91392901
+    },
+    "returnVerbose": true
+  }
+}

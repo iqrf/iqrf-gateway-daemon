@@ -1,0 +1,14 @@
+{
+  "mType": "iqrfEmbedCoordinator_BondNode",
+  "data": {
+    "msgId": "nostrud fugiat reprehenderit sit occaecat",
+    "timeout": -8960037,
+    "req": {
+      "nAdr": 89266488,
+      "hwpId": -66247073,
+      "reqAddr": 0,
+      "bondingMask": 23535651
+    },
+    "returnVerbose": true
+  }
+}

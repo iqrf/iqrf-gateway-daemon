@@ -1,0 +1,16 @@
+{
+  "mType": "iqrfEmbedFrc_Send",
+  "data": {
+    "msgId": "magna aliqua officia exercitati",
+    "timeout": 39739060,
+    "req": {
+      "nAdr": -32345144,
+      "hwpId": 53208330,
+      "frcCmd": -49154198,
+      "userData": [
+        -79307848
+      ]
+    },
+    "returnVerbose": false
+  }
+}

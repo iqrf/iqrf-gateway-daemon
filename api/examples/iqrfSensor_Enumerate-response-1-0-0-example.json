@@ -1,0 +1,38 @@
+{
+  "mType": "iqrfSensor_Enumerate",
+  "data": {
+    "msgId": "ut exercita",
+    "timeout": -96368551,
+    "rsp": {
+      "nAdr": -22997321,
+      "hwpId": 8790738,
+      "rCode": -67362664,
+      "dpaVal": 15182978,
+      "result": [
+        {
+          "type": 81828957,
+          "name": "aute ipsum",
+          "shortName": "culpa ea ad aliqua voluptate",
+          "unit": "eu ad magna ea consectetur",
+          "frcs": [
+            17805753,
+            49356517,
+            53904685,
+            32605214
+          ]
+        }
+      ]
+    },
+    "raw": {
+      "request": "nisi dolor incididunt cupidatat",
+      "requestTs": "esse Excepteur nulla minim",
+      "confirmation": "non magna in",
+      "confirmationTs": "aliquip commodo",
+      "response": "aute tempor voluptate",
+      "responseTs": "ad Lorem"
+    },
+    "insId": "commodo dolore ut incididun",
+    "status": 60480403,
+    "statusStr": "est id irure"
+  }
+}

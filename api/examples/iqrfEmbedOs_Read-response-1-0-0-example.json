@@ -1,0 +1,32 @@
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "eiusmod dolor",
+    "timeout": -24775982,
+    "rsp": {
+      "nAdr": -7104603,
+      "hwpId": 73443094,
+      "rCode": 76853551,
+      "dpaVal": -52268877,
+      "mid": -93619244,
+      "osVersion": -19259432,
+      "trMcuType": 41510560,
+      "osBuild": 74792714,
+      "rssi": -74407592,
+      "supplyVoltage": 60092891,
+      "flags": -97533126,
+      "slotLimits": 43363567
+    },
+    "raw": {
+      "request": "minim exercitation in sed",
+      "requestTs": "aute commodo aliquip",
+      "confirmation": "in pariatur deserunt labore",
+      "confirmationTs": "sint amet",
+      "response": "Lor",
+      "responseTs": "et cillum adipisicing"
+    },
+    "insId": "in Lorem in eu",
+    "status": -59980685,
+    "statusStr": "ea"
+  }
+}

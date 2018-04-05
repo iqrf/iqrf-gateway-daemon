@@ -1,0 +1,25 @@
+{
+  "mType": "iqrfEmbedCoordinator_BondNode",
+  "data": {
+    "msgId": "enim in tempor",
+    "timeout": -74423636,
+    "rsp": {
+      "nAdr": -32532325,
+      "hwpId": -51473497,
+      "rCode": -92764007,
+      "dpaVal": -53588843,
+      "bondAddr": 44498893,
+      "devNr": 49831956
+    },
+    "raw": {
+      "request": "occaecat in cillum nostrud",
+      "requestTs": "nisi sunt",
+      "confirmation": "culpa fugiat",
+      "confirmationTs": "mollit cillum anim ea consectetur",
+      "response": "quis",
+      "responseTs": "cillum"
+    },
+    "status": 86262189,
+    "statusStr": "in ullamco"
+  }
+}

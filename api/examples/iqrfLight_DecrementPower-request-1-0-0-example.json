@@ -1,0 +1,39 @@
+{
+  "mType": "iqrfLight_DecrementPower",
+  "data": {
+    "msgId": "sint minim commodo officia do",
+    "timeout": -16606812,
+    "req": {
+      "nAdr": -60632137,
+      "hwpId": 45825150,
+      "lights": [
+        {
+          "index": -50968841,
+          "power": -97770299,
+          "time": -718112
+        },
+        {
+          "index": -28941004,
+          "power": 53279962,
+          "time": 18492768
+        },
+        {
+          "index": -94024269,
+          "power": 23687985,
+          "time": 57185871
+        },
+        {
+          "index": 87977379,
+          "power": -3624764,
+          "time": 32755356
+        },
+        {
+          "index": -6743813,
+          "power": -55314409,
+          "time": -42242013
+        }
+      ]
+    },
+    "returnVerbose": false
+  }
+}

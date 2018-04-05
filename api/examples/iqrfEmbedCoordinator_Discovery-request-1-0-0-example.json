@@ -1,0 +1,14 @@
+{
+  "mType": "iqrfEmbedCoordinator_Discovery",
+  "data": {
+    "msgId": "non d",
+    "timeout": -41511037,
+    "req": {
+      "nAdr": -91190771,
+      "hwpId": -80572127,
+      "txPower": -42019633,
+      "maxAddr": -93274649
+    },
+    "returnVerbose": false
+  }
+}

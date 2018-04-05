@@ -1,0 +1,27 @@
+{
+  "mType": "iqrfEmbedCoordinator_SetDpaParams",
+  "data": {
+    "msgId": "qui cupidatat",
+    "timeout": -29172363,
+    "rsp": {
+      "nAdr": -13891748,
+      "hwpId": 9004444,
+      "rCode": -19421126,
+      "dpaVal": 26603492,
+      "prevDpaValueStr": "System",
+      "prevLedDiagnostic": true,
+      "prevFixedTimeslot": true
+    },
+    "raw": {
+      "request": "do occaecat",
+      "requestTs": "voluptate in incididunt laboris",
+      "confirmation": "proident aliquip reprehenderit esse cillum",
+      "confirmationTs": "veniam ipsum sunt",
+      "response": "laborum esse cupidatat",
+      "responseTs": "null"
+    },
+    "insId": "dolor ut in amet",
+    "status": -43408871,
+    "statusStr": "deserunt dolore do"
+  }
+}

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>IQRF Gateway Daemon v2 API</title>
+    <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/</link>
+    <description>Recent content on IQRF Gateway Daemon v2 API</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 12 Feb 2018 22:22:15 +0100</lastBuildDate>
+    
+	<atom:link href="http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>IQRF Raw</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-raw/</link>
+      <pubDate>Mon, 12 Feb 2018 22:22:15 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-raw/</guid>
+      <description> Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA version agnostic  </description>
+    </item>
+    
+    <item>
+      <title>IQRF Raw Hdp</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-raw-hdp/</link>
+      <pubDate>Mon, 12 Feb 2018 22:40:59 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-raw-hdp/</guid>
+      <description> Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA version agnostic  </description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed Explore</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-explore/</link>
+      <pubDate>Fri, 09 Mar 2018 00:15:43 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-explore/</guid>
+      <description> Enumerate Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA version agnostic  Peripheral Information Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA version agnostic  More Peripherals Information Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA version agnostic  </description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed Coordinator</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-coordinator/</link>
+      <pubDate>Tue, 27 Feb 2018 01:04:43 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-coordinator/</guid>
+      <description>Addr Info Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Discovered Devices Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Bonded Devices Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.</description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed Node</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-node/</link>
+      <pubDate>Tue, 27 Feb 2018 01:04:50 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-node/</guid>
+      <description>Backup Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Clear Remotely Bonded Mid Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Enable Remote Bond Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.</description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed OS</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-os/</link>
+      <pubDate>Tue, 27 Feb 2018 01:05:02 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-os/</guid>
+      <description>Batch Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Reset Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Restart Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.</description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed SPI</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-spi/</link>
+      <pubDate>Tue, 27 Feb 2018 01:05:27 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-spi/</guid>
+      <description> Write Read Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  </description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed EEPROM</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-eeprom/</link>
+      <pubDate>Tue, 27 Feb 2018 01:05:20 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-eeprom/</guid>
+      <description> Read Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Write Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  </description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed EEEPROM</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-eeeprom/</link>
+      <pubDate>Tue, 27 Feb 2018 01:05:20 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-eeeprom/</guid>
+      <description> Read Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Write Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  </description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed RAM</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-ram/</link>
+      <pubDate>Tue, 27 Feb 2018 01:05:20 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-ram/</guid>
+      <description> Read Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Write Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  </description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed LEDR</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-ledr/</link>
+      <pubDate>Tue, 27 Feb 2018 01:35:15 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-ledr/</guid>
+      <description>Get Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Pulse Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Set Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.</description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed LEDG</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-ledg/</link>
+      <pubDate>Tue, 27 Feb 2018 01:35:15 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-ledg/</guid>
+      <description>Get Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Pulse Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Set Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.</description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed IO</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-io/</link>
+      <pubDate>Tue, 27 Feb 2018 01:05:36 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-io/</guid>
+      <description>Direction Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Get Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Set Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.</description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed Thermometer</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-thermometer/</link>
+      <pubDate>Mon, 12 Feb 2018 22:45:23 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-thermometer/</guid>
+      <description> Read Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  </description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed UART</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-uart/</link>
+      <pubDate>Tue, 27 Feb 2018 01:05:32 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-uart/</guid>
+      <description>Clear Write Read Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Close Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Open Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.</description>
+    </item>
+    
+    <item>
+      <title>IQRF Embed FRC</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-frc/</link>
+      <pubDate>Tue, 27 Feb 2018 01:04:58 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-embed-frc/</guid>
+      <description>Extra Result Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Send Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Send Selective Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.</description>
+    </item>
+    
+    <item>
+      <title>IQRF Binary Output</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-sdev-binaryoutput/</link>
+      <pubDate>Fri, 09 Mar 2018 00:25:09 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-sdev-binaryoutput/</guid>
+      <description> Enumerate Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Std compatibility  Binary Output 004, +  Set Output Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Std compatibility  Binary Output 004, +  </description>
+    </item>
+    
+    <item>
+      <title>IQRF Light</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-sdev-light/</link>
+      <pubDate>Fri, 09 Mar 2018 00:24:49 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-sdev-light/</guid>
+      <description> Enumerate Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Std compatibility  Light 005, +  Set Power Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Std compatibility  Light 005, +  Increment Power Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Std compatibility  Light 005, +  Decrement Power Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Std compatibility  Light 005, +  </description>
+    </item>
+    
+    <item>
+      <title>IQRF Sensor</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-sdev-sensor/</link>
+      <pubDate>Mon, 12 Feb 2018 22:49:46 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-sdev-sensor/</guid>
+      <description> Enumerate Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Std compatibility  Sensor 015, +  Read With Types Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Std compatibility  Sensor 015, +  Frc Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Std compatibility  Sensor 015, +  </description>
+    </item>
+    
+    <item>
+      <title>IQMESH Network Services</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-services/</link>
+      <pubDate>Mon, 12 Feb 2018 22:56:08 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/network-services/</guid>
+      <description>Bond Node Local Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Enumerate Device Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.02, +  Ota Upload Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Dpa compatibility  DPA 3.</description>
+    </item>
+    
+    <item>
+      <title>IQRF GW Daemon Management</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/daemon-management/</link>
+      <pubDate>Fri, 23 Mar 2018 14:50:05 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/daemon-management/</guid>
+      <description> Change Mode Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Daemon compatibility  Daemon 1.0.0, +  Restart Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Daemon compatibility  Daemon 1.0.0, +  </description>
+    </item>
+    
+    <item>
+      <title>IQRF GW Daemon Configuration</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/daemon-configuration/</link>
+      <pubDate>Fri, 23 Mar 2018 14:50:33 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/daemon-configuration/</guid>
+      <description> Component Configuration Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Daemon compatibility  Daemon 1.0.0, +  </description>
+    </item>
+    
+    <item>
+      <title>IQRF GW Daemon Scheduler</title>
+      <link>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/daemon-scheduler/</link>
+      <pubDate>Tue, 27 Feb 2018 01:03:59 +0100</pubDate>
+      
+      <guid>http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/daemon-scheduler/</guid>
+      <description>Add Task Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Daemon compatibility  Daemon 1.0.0, +  Get Task Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Daemon compatibility  Daemon 1.0.0, +  List Json schemas  Json request v1-0-0 Json response v1-0-0  Auto-generated examples  Json request v1-0-0 Json response v1-0-0  Daemon compatibility  Daemon 1.</description>
+    </item>
+    
+  </channel>
+</rss>

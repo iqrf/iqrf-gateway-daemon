@@ -1,0 +1,30 @@
+{
+  "mType": "iqrfEmbedFrc_SendSelective",
+  "data": {
+    "msgId": "fugiat nulla irure",
+    "timeout": 89199516,
+    "rsp": {
+      "nAdr": 88396229,
+      "hwpId": 67442628,
+      "rCode": -1104482,
+      "dpaVal": 11293947,
+      "status": 28441661,
+      "frcData": [
+        -37055013,
+        33492878,
+        67150407
+      ]
+    },
+    "raw": {
+      "request": "Ut",
+      "requestTs": "laborum dolore nisi",
+      "confirmation": "amet ea cillum veniam",
+      "confirmationTs": "quis Ut et occaecat",
+      "response": "ullamco labore sint minim",
+      "responseTs": "dolore proident"
+    },
+    "insId": "ut",
+    "status": 41800339,
+    "statusStr": "veniam exercitation in velit"
+  }
+}

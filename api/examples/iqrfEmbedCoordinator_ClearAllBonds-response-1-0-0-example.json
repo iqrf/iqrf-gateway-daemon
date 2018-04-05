@@ -1,0 +1,23 @@
+{
+  "mType": "iqrfEmbedCoordinator_ClearAllBonds",
+  "data": {
+    "msgId": "minim deserunt ut id",
+    "timeout": -95668753,
+    "rsp": {
+      "nAdr": -38677161,
+      "hwpId": -20274573,
+      "rCode": -91215577,
+      "dpaVal": -52503476
+    },
+    "raw": {
+      "request": "amet tempor elit",
+      "requestTs": "est do",
+      "confirmation": "sint incididunt Lorem id",
+      "confirmationTs": "minim",
+      "response": "cupidatat do aute Lorem nostrud",
+      "responseTs": "tempor dolore nostrud"
+    },
+    "status": 21337458,
+    "statusStr": "non dolore pariatur tempor"
+  }
+}

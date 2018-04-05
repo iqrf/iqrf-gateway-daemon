@@ -1,0 +1,82 @@
+{
+  "mType": "iqrfEmbedCoordinator_ReadRemotelyBondedMid",
+  "data": {
+    "msgId": "dolor",
+    "timeout": -41908729,
+    "rsp": {
+      "nAdr": 57810926,
+      "hwpId": -46072198,
+      "rCode": -88372676,
+      "dpaVal": -40585651,
+      "prebondedNodes": [
+        {
+          "mid": -53548762,
+          "userData": [
+            69627995,
+            36218262,
+            -47856223
+          ]
+        },
+        {
+          "mid": -35555210,
+          "userData": [
+            24226987,
+            -76415733,
+            -79228346
+          ]
+        },
+        {
+          "mid": 37780299,
+          "userData": [
+            30380461,
+            -50016955,
+            -44106335
+          ]
+        },
+        {
+          "mid": 74368280,
+          "userData": [
+            77546672,
+            -81622886,
+            62755036
+          ]
+        },
+        {
+          "mid": 89419975,
+          "userData": [
+            -89607367,
+            3196953,
+            80610051
+          ]
+        },
+        {
+          "mid": -6155123,
+          "userData": [
+            60848336,
+            59140404,
+            -11945035
+          ]
+        },
+        {
+          "mid": 37095499,
+          "userData": [
+            33782822,
+            93328997,
+            55455788
+          ]
+        }
+      ]
+    },
+    "raw": {
+      "request": "in Lorem",
+      "requestTs": "dolor exercitation ",
+      "confirmation": "in officia sit proident",
+      "confirmationTs": "incididunt dolor ea esse",
+      "response": "elit dolore ea ut anim",
+      "responseTs": "Excepteur ut laboris magna"
+    },
+    "insId": "sint velit ipsum",
+    "status": -3535196,
+    "statusStr": "elit pariatur culpa"
+  }
+}

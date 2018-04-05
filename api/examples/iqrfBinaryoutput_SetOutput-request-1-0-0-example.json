@@ -1,0 +1,39 @@
+{
+  "mType": "iqrfBinaryoutput_SetOutput",
+  "data": {
+    "msgId": "aliqua",
+    "timeout": -48169608,
+    "req": {
+      "nAdr": -53967024,
+      "hwpId": -20882106,
+      "binOuts": [
+        {
+          "index": -440493,
+          "state": true,
+          "time": -90395036
+        },
+        {
+          "index": -72248170,
+          "state": true,
+          "time": 97254250
+        },
+        {
+          "index": 86872029,
+          "state": true,
+          "time": -95669795
+        },
+        {
+          "index": 71037925,
+          "state": false,
+          "time": -55770800
+        },
+        {
+          "index": -53533846,
+          "state": true,
+          "time": 47446681
+        }
+      ]
+    },
+    "returnVerbose": true
+  }
+}

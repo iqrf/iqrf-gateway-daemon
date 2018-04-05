@@ -1,0 +1,10 @@
+{
+  "mType": "mngDaemon_Restart",
+  "data": {
+    "msgId": "culpa ut",
+    "req": {
+      "timeToRestart": -37641788.29628926
+    },
+    "returnVerbose": false
+  }
+}

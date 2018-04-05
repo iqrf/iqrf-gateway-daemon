@@ -1,0 +1,14 @@
+{
+  "mType": "iqrfEmbedRam_Read",
+  "data": {
+    "msgId": "ad anim cillum",
+    "timeout": -95121391,
+    "req": {
+      "nAdr": -21448378,
+      "hwpId": -66324202,
+      "address": -233482,
+      "len": -52365165
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "mType": "iqrfEmbedFrc_SendSelective",
+  "data": {
+    "msgId": "dolor ea laborum",
+    "timeout": -80371861,
+    "req": {
+      "nAdr": 52367465,
+      "hwpId": 10960142,
+      "frcCmd": 80156345,
+      "selNodes": [
+        -15082355
+      ],
+      "userData": [
+        -57808007,
+        -41463249,
+        -31520981,
+        13308474
+      ]
+    },
+    "returnVerbose": true
+  }
+}

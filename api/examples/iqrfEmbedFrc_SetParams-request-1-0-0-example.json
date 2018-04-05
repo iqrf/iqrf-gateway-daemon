@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfEmbedFrc_SetParams",
+  "data": {
+    "msgId": "labori",
+    "timeout": 50713692,
+    "req": {
+      "nAdr": -27308800,
+      "hwpId": 32221093,
+      "params": -45309246
+    },
+    "returnVerbose": true
+  }
+}

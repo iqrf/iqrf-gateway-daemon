@@ -1,0 +1,29 @@
+{
+  "mType": "iqrfEmbedOs_WriteCfgByte",
+  "data": {
+    "msgId": "sunt fugiat Ut in",
+    "timeout": 88982230,
+    "req": {
+      "nAdr": 74910245,
+      "hwpId": -92723644,
+      "bytes": [
+        {
+          "address": 13062354,
+          "value": -88440700,
+          "mask": -78386202
+        },
+        {
+          "address": -42636174,
+          "value": 16378857,
+          "mask": -46795656
+        },
+        {
+          "address": 26706303,
+          "value": 44704010,
+          "mask": -95281200
+        }
+      ]
+    },
+    "returnVerbose": true
+  }
+}

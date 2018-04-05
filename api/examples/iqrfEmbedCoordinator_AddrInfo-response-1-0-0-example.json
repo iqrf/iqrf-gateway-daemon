@@ -1,0 +1,25 @@
+{
+  "mType": "iqrfEmbedCoordinator_AddrInfo",
+  "data": {
+    "msgId": "culpa",
+    "timeout": 61065814,
+    "rsp": {
+      "nAdr": -39454745,
+      "hwpId": 22928252,
+      "rCode": 10483567,
+      "dpaVal": 41043798,
+      "devNr": -16915171,
+      "did": -70192492
+    },
+    "raw": {
+      "request": "fugiat",
+      "requestTs": "labore in ut aliqua",
+      "confirmation": "sunt Excepteur",
+      "confirmationTs": "dolore ut dolor",
+      "response": "aute reprehenderit",
+      "responseTs": "veniam ut eiusmod"
+    },
+    "status": 73708138,
+    "statusStr": "amet est nisi"
+  }
+}

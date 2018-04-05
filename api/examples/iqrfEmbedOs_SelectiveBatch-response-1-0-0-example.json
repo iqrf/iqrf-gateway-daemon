@@ -1,0 +1,24 @@
+{
+  "mType": "iqrfEmbedOs_SelectiveBatch",
+  "data": {
+    "msgId": "reprehenderit dolor ut",
+    "timeout": 80047697,
+    "rsp": {
+      "nAdr": 32426574,
+      "hwpId": 34302308,
+      "rCode": 34201163,
+      "dpaVal": 63170915
+    },
+    "raw": {
+      "request": "consectetur eu Duis ex",
+      "requestTs": "sunt ad do dolor",
+      "confirmation": "eiusmod occaecat Excepteur",
+      "confirmationTs": "Lorem fugia",
+      "response": "dolor aute",
+      "responseTs": "sunt proident"
+    },
+    "insId": "elit irure",
+    "status": -68979812,
+    "statusStr": "ex esse"
+  }
+}

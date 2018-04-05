@@ -1,0 +1,367 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqmesh_EnumerateDevice-response",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "definitions": {
+        "iqmesh_EnumDevice1": {
+            "type": "object",
+            "description": "First response.",
+            "properties": {
+                "discovered": {
+                    "type": "boolean",
+                    "description": "Device is discovered."
+                },
+                "vrn": {
+                    "type": "integer",
+                    "description": "Device VRN integer."
+                },
+                "zone": {
+                    "type": "integer",
+                    "description": "Device zone."
+                },
+                "parent": {
+                    "type": "integer",
+                    "description": "Device parent."
+                }
+            },
+            "required": [
+                "discovered",
+                "vrn",
+                "zone",
+                "parent"
+            ]
+        },
+        "iqmesh_EnumDevice2": {
+            "type": "object",
+            "description": "Second response - reduced or full eperOsRead.",
+            "properties": {
+                "mid": {
+                    "type": "string",
+                    "description": "TR Module ID."
+                },
+                "osVersion": {
+                    "type": "string",
+                    "description": "IQRF OS version."
+                },
+                "trMcuType": {
+                    "type": "string",
+                    "description": "TR MCU type."
+                },
+                "osBuild": {
+                    "type": "string",
+                    "description": "IQRF OS build."
+                },
+                "rssi": {
+                    "type": "integer",
+                    "description": "See lastRSSI at IQRF OS Reference Guide."
+                },
+                "supplyVoltage": {
+                    "type": "string",
+                    "description": "Module supply voltage"
+                },
+                "flags": {
+                    "type": "integer",
+                    "description": "See DPA guide."
+                },
+                "slotLimits": {
+                    "type": "integer",
+                    "description": "See DPA guide."
+                }
+            },
+            "required": [
+                "mid",
+                "osVersion",
+                "osBuild"
+            ]
+        },
+        "iqmesh_EnumDevice3": {
+            "type": "object",
+            "description": "Third response - reduced or full eperExploreEnum.",
+            "properties": {
+                "dpaVer": {
+                    "type": "string",
+                    "description": "DPA version."
+                },
+                "perNr": {
+                    "type": "integer",
+                    "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
+                },
+                "embPers": {
+                    "type": "array",
+                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the HWP Configuration.",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "hwpId": {
+                    "type": "string",
+                    "description": "Hardware profile identification."
+                },
+                "hwpIdVer": {
+                    "type": "integer",
+                    "description": "Hardware profile version."
+                },
+                "flags": {
+                    "type": "integer",
+                    "description": "Various flags."
+                },
+                "userPers": {
+                    "type": "array",
+                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "required": [
+                "dpaVer",
+                "hwpId",
+                "hwpIdVer"
+            ]
+        },
+        "iqmesh_EnumDevice4": {
+            "type": "object",
+            "description": "Fourth response - reduced or full eperOsReadCfg.",
+            "properties": {
+                "checkSum": {
+                    "type": "integer",
+                    "description": "Checksum of the Configuration part."
+                },
+                "cfgBytes": {
+                    "type": "array",
+                    "description": "Content the configuration memory block from address 0x01 to 0x1F.",    
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "rfPgm": {
+                    "type": "integer",
+                    "description":"See parameter of setupRFPGM IQRF OS function."
+                },
+                "undocumented": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "cfgBytes",
+                "rfPgm"
+            ]
+        },
+        "iqmesh_EnumDevice5": {
+            "type": "array",
+            "description": "Returns the same information as Get peripheral information but for up to 14 peripherals of consecutive indexes starting with the specified PCMD.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "perTe": {
+                        "type": "integer",
+                        "description": "Extended peripheral characteristic. See Extended Peripheral Characteristic constants."
+                    },
+                    "perT": {
+                        "type": "integer",
+                        "description": "Peripheral type. If the peripheral is not supported or enabled, then PerTx = PERIPHERAL_TYPE_DUMMY. See Peripheral Types constants."
+                    },
+                    "par1": {
+                        "type": "integer",
+                        "description": "Optional peripheral specific information."
+                    },
+                    "par2": {
+                        "type": "integer",
+                        "description": "Optional peripheral specific information."
+                    }
+                },
+                "required": [
+                    "perTe",
+                    "perT",
+                    "per1",
+                    "per2"
+                ]
+            },
+            "maxItems": 14
+        },
+        "iqmesh_EnumDevice6": {
+            "type": "object",
+            "description": "Sixth response - validation and updates.",
+            "properties": {
+                "validation": {
+                    "type": "object",
+                    "description": "IQRF OS version + build, DPA version, TX power, RX filter same as Coordinator.",
+                    "properties": {
+                        "valid": {
+                            "type": "boolean",
+                            "description": "All is fine."
+                        },
+                        "osVer": {
+                            "type": "string",
+                            "description": "IQRF OS version."
+                        },
+                        "osBuild": {
+                            "type": "string",
+                            "description": "IQRF OS build."
+                        },
+                        "dpaVer": {
+                            "type": "string",
+                            "description": "IQRF DPA version."
+                        },
+                        "txPower": {
+                            "type": "integer",
+                            "description": "TX power."
+                        },
+                        "rxFilter": {
+                            "type": "integer",
+                            "description": "RX filter."
+                        }
+                    },
+                    "required": [
+                        "valid"
+                    ]
+                },
+                "updates": {
+                    "type": "object",
+                    "description": "Available updates from IQRF repository.",
+                    "properties": {
+                        "dpaHandlerPath": {
+                            "type": "string",
+                            "description": "Path to the up to date DPA handler."
+                        },
+                        "dpaPluginPath": {
+                            "type": "string",
+                            "description": "Path to the up to date DPA plugin."
+                        },
+                        "osDpaPluginPath": {
+                            "type": "string",
+                            "description": "Path to the up to date OS+DPA plugin."
+                        }
+                    }
+                }
+            },
+            "required": [
+                "validation"
+            ]
+        },
+        "unionResponses": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/iqmesh_EnumDevice1"
+                },
+                {
+                    "$ref": "#/definitions/iqmesh_EnumDevice2"
+                },
+                {
+                    "$ref": "#/definitions/iqmesh_EnumDevice3"
+                },
+                {
+                    "$ref": "#/definitions/iqmesh_EnumDevice4"
+                },
+                {
+                    "$ref": "#/definitions/iqmesh_EnumDevice5"
+                },
+                {
+                    "$ref": "#/definitions/iqmesh_EnumDevice6"
+                }
+            ]
+        }
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "iqmesh_ Network management - Enumerate Device response.",
+            "enum": [
+                "iqmesh_EnumerateDevice"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "rsp": {
+                    "type": "object",
+                    "description": "Returns following values, see its description.",
+                    "properties": {
+                        "deviceAddr": {
+                            "type": "integer",
+                            "description": "Device address to enumerate."
+                        },
+                        "result": {
+                            "$ref": "#/definitions/unionResponses"
+                        }
+                    },
+                    "required": [
+                        "deviceAddr",
+                        "result"
+                    ]
+                },
+                "raw": {
+                    "type": "array",
+                    "description": "Returns array of objects req-cnf-rsp, see its description.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "request": {
+                                "type": "string",
+                                "description": "Binary buffer with DPA request."
+                            },
+                            "requestTs": {
+                                "type": "string",
+                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                            },
+                            "confirmation": {
+                                "type": "string",
+                                "description": "Binary buffer with DPA confirmation."
+                            },
+                            "confirmationTs": {
+                                "type": "string",
+                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                            },
+                            "response": {
+                                "type": "string",
+                                "description": "Binary buffer with DPA response."
+                            },
+                            "responseTs": {
+                                "type": "string",
+                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                            }
+                        },
+                        "required": [
+                            "request",
+                            "requestTs",
+                            "confirmation",
+                            "confirmationTs",
+                            "response",
+                            "responseTs"
+                        ]
+                    }
+                },
+                "insId": {
+                    "type": "string",
+                    "description": "IQRF GW daemon instance identification."
+                },
+                "status": {
+                    "type": "integer",
+                    "description": "IQRF GW daemon API (general or mType) status."
+                },
+                "statusStr": {
+                    "type": "string",
+                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                }
+            },
+            "required": [
+                "msgId",
+                "rsp",
+                "status"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

@@ -1,0 +1,36 @@
+{
+  "mType": "iqrfEmbedIo_Get",
+  "data": {
+    "msgId": "nulla Lorem incididunt eiusmod id",
+    "timeout": 78416131,
+    "rsp": {
+      "nAdr": -70846441,
+      "hwpId": 20370197,
+      "rCode": 8901528,
+      "dpaVal": -15777337,
+      "ports": [
+        {
+          "port": 62532174,
+          "mask": 39517515,
+          "value": -68329410
+        },
+        {
+          "port": -33776432,
+          "mask": 68350104,
+          "value": 19034154
+        }
+      ]
+    },
+    "raw": {
+      "request": "ea Excepteur culpa reprehenderit cillum",
+      "requestTs": "id do",
+      "confirmation": "ullamco eiusmod",
+      "confirmationTs": "in Duis",
+      "response": "eu irure proident cupidatat",
+      "responseTs": "ipsum moll"
+    },
+    "insId": "quis nulla",
+    "status": -17604370,
+    "statusStr": "nisi dolor"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "mType": "iqrfEmbedUart_Open",
+  "data": {
+    "msgId": "no",
+    "timeout": 19344218,
+    "rsp": {
+      "nAdr": 16348434,
+      "hwpId": -46748400,
+      "rCode": -15209963,
+      "dpaVal": -10431026
+    },
+    "raw": {
+      "request": "non eu et",
+      "requestTs": "officia Excepteur non minim do",
+      "confirmation": "pariatur occaecat id in magna",
+      "confirmationTs": "voluptate Duis cupidatat",
+      "response": "dolore sed",
+      "responseTs": "voluptate Lorem dolore elit laboris"
+    },
+    "insId": "cupidatat",
+    "status": 92470202,
+    "statusStr": "consectetur magna sunt proident"
+  }
+}

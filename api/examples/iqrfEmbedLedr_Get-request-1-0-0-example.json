@@ -1,0 +1,12 @@
+{
+  "mType": "iqrfEmbedLedr_Get",
+  "data": {
+    "msgId": "ad dolor anim eu laborum",
+    "timeout": -65704303,
+    "req": {
+      "nAdr": 95535526,
+      "hwpId": 93735269
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "mType": "iqrfEmbedOs_RunRfpgm",
+  "data": {
+    "msgId": "v",
+    "timeout": -13730995,
+    "req": {
+      "nAdr": -17622003,
+      "hwpId": -51921524
+    },
+    "returnVerbose": false
+  }
+}

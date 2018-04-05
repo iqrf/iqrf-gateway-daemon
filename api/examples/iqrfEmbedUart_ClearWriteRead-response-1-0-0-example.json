@@ -1,0 +1,30 @@
+{
+  "mType": "iqrfEmbedUart_ClearWriteRead",
+  "data": {
+    "msgId": "ea do aute laborum anim",
+    "timeout": -57724794,
+    "rsp": {
+      "nAdr": -61605511,
+      "hwpId": 43554866,
+      "rCode": 29370578,
+      "dpaVal": 90081355,
+      "readData": [
+        -58364381,
+        69912994,
+        -31337677,
+        95359564
+      ]
+    },
+    "raw": {
+      "request": "in",
+      "requestTs": "fugiat",
+      "confirmation": "i",
+      "confirmationTs": "cupidatat laboris",
+      "response": "laboris culpa dolore",
+      "responseTs": "aute"
+    },
+    "insId": "amet sunt magna",
+    "status": 97374727,
+    "statusStr": "anim mollit est in"
+  }
+}

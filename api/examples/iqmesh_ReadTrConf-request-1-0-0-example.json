@@ -1,0 +1,14 @@
+{
+  "mType": "iqmesh_ReadTrConf",
+  "data": {
+    "msgId": "exercitation tempo",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": [
+        45811270,
+        -62276996
+      ]
+    },
+    "returnVerbose": false
+  }
+}

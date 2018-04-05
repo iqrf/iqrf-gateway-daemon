@@ -1,0 +1,25 @@
+{
+  "mType": "iqrfEmbedCoordinator_Rebond",
+  "data": {
+    "msgId": "dolor ut esse",
+    "timeout": -65233657,
+    "rsp": {
+      "nAdr": -61046995,
+      "hwpId": -52384863,
+      "rCode": 17738191,
+      "dpaVal": -91635055,
+      "devNr": -2797084
+    },
+    "raw": {
+      "request": "incididunt magna occaecat",
+      "requestTs": "tempor",
+      "confirmation": "et officia adipisici",
+      "confirmationTs": "aute ullamco dolor",
+      "response": "in cupidatat",
+      "responseTs": "magna"
+    },
+    "insId": "sint occaecat magna dolor laborum",
+    "status": 25481061,
+    "statusStr": "exercitation amet minim id qui"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "mType": "iqrfEmbedCoordinator_AddrInfo",
+  "data": {
+    "msgId": "proident non magna eu laborum",
+    "timeout": 83547454,
+    "req": {
+      "nAdr": -35703266,
+      "hwpId": 64900428
+    },
+    "returnVerbose": true
+  }
+}

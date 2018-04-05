@@ -1,0 +1,12 @@
+{
+  "mType": "iqrfEmbedExplore_MorePeripheralsInformation",
+  "data": {
+    "msgId": "in ipsum a",
+    "timeout": -19048042,
+    "req": {
+      "nAdr": 67646557,
+      "per": 17933595
+    },
+    "returnVerbose": false
+  }
+}

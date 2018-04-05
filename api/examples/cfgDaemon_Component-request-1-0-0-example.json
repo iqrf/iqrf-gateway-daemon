@@ -1,0 +1,12 @@
+{
+  "mType": "cfgDaemon_Component",
+  "data": {
+    "msgId": "minim mollit laboris",
+    "req": {
+      "componentName": "ex",
+      "componentInstance": "tempor nulla qui",
+      "configuration": "voluptate dolor pariatur dolor"
+    },
+    "returnVerbose": true
+  }
+}

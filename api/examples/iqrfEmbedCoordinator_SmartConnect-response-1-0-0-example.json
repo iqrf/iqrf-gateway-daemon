@@ -1,0 +1,26 @@
+{
+  "mType": "iqrfEmbedCoordinator_SmartConnect",
+  "data": {
+    "msgId": "dolore sit labore aute",
+    "timeout": 49128675,
+    "rsp": {
+      "nAdr": 82465496,
+      "hwpId": -88406908,
+      "rCode": -39035595,
+      "dpaVal": -26891358,
+      "bondAddr": 63504693,
+      "devNr": -72254960
+    },
+    "raw": {
+      "request": "sit ",
+      "requestTs": "eiusmod in esse",
+      "confirmation": "cupidatat magna ullamco sunt",
+      "confirmationTs": "voluptate",
+      "response": "culpa elit Lorem veniam Duis",
+      "responseTs": "exercitation cillum"
+    },
+    "insId": "in",
+    "status": 38739131,
+    "statusStr": "adipisicing ullamco consequat ad"
+  }
+}

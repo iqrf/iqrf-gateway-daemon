@@ -1,0 +1,24 @@
+{
+  "mType": "iqrfEmbedIo_Set",
+  "data": {
+    "msgid": "in aliquip veniam reprehenderit",
+    "timeout": -26436405,
+    "rsp": {
+      "nAdr": -47071980,
+      "hwpId": 24620625,
+      "rCode": 47719882,
+      "dpaVal": -710422
+    },
+    "raw": {
+      "request": "ven",
+      "requestTs": "laborum Excepteur Lorem",
+      "confirmation": "occaecat ullamco eu",
+      "confirmationTs": "proident Ut irure minim",
+      "response": "minim",
+      "responseTs": "esse nisi"
+    },
+    "insId": "Duis aliquip laborum consectetur",
+    "status": 98283149,
+    "statusStr": "voluptate esse pariatur"
+  }
+}

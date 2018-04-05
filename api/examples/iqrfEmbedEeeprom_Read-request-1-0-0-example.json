@@ -1,0 +1,14 @@
+{
+  "mType": "iqrfEmbedEeeprom_Read",
+  "data": {
+    "msgId": "Lorem ipsum",
+    "timeout": 55219636,
+    "req": {
+      "nAdr": -21021124,
+      "hwpId": 62458972,
+      "address": -48938053,
+      "len": -18522245
+    },
+    "returnVerbose": false
+  }
+}
