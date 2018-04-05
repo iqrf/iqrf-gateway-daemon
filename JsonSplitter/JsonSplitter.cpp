@@ -39,9 +39,10 @@ namespace iqrf {
     std::string m_schemesDir;
 
     std::map<std::string, IMessagingService*> m_iMessagingServiceMap;
-    std::map<std::string, MsgType> m_filteredMessageHandlerFuncMap;
+    std::map<std::string, FilteredMessageHandlerFunc > m_filterMessageHandlerFuncMap;
 
     std::map<std::string, rapidjson::SchemaDocument> m_validatorMap;
+    std::map<std::string, MsgType> m_msgTypeToHandle; //TODO temporary
 
     std::string getKey(const MsgType& msgType) const
     {
@@ -65,17 +66,17 @@ namespace iqrf {
       }
     }
 
-    void registerFilteredMsgHandler(const std::vector<MsgType>& msgTypes)
+    void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc)
     {
-      for (auto & msgType : msgTypes) {
-        m_filteredMessageHandlerFuncMap.insert(std::make_pair(getKey(msgType), msgType));
+      for (const auto & ft : msgTypeFilters) {
+        m_filterMessageHandlerFuncMap.insert(std::make_pair(ft, handlerFunc));
       }
     }
 
-    void unregisterFilteredMsgHandler(const std::vector<MsgType>& msgTypes)
+    void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters)
     {
-      for (auto & msgType : msgTypes) {
-        m_filteredMessageHandlerFuncMap.erase(getKey(msgType));
+      for (const auto & ft : msgTypeFilters) {
+        m_filterMessageHandlerFuncMap.erase(ft);
       }
     }
 
@@ -153,13 +154,24 @@ namespace iqrf {
 
         MsgType msgType(mType, major, minor, micro);
 
+        auto foundType = m_msgTypeToHandle.find(getKey(msgType));
+        if (foundType == m_msgTypeToHandle.end()) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << PAR(mType));
+        }
+
+        msgType = foundType->second;
+
         validate(msgType, doc);
 
-        auto found = m_filteredMessageHandlerFuncMap.find(getKey(msgType));
-        if (found != m_filteredMessageHandlerFuncMap.end()) {
-          found->second.m_handlerFunc(messagingId, found->second, std::move(doc));
+        bool found = false;
+        for (const auto & filter : m_filterMessageHandlerFuncMap) {
+          if (std::string::npos != msgType.m_type.find(filter.first)) {
+            filter.second(messagingId, msgType, std::move(doc));
+            found = true;
+            break;
+          }
         }
-        else {
+        if (!found) {
           //TODO parse error handling => send back an error JSON with details
           THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType.version, getKey(msgType)));
         }
@@ -287,16 +299,21 @@ namespace iqrf {
           while (!os1.eof()) {
             os1 >> fileN;
           }
+          bool stop_ = false;
           std::locale loc;
           for (auto ch : fileN) {
-            if (std::isupper(ch, loc)) {
+            if (!stop_ && std::isupper(ch, loc)) {
               possibleDriverFunction.push_back('.');
               possibleDriverFunction.push_back(std::tolower(ch, loc));
             }
             else {
               possibleDriverFunction.push_back(ch);
             }
+            if (ch == '_') {
+              stop_ = true;
+            }
           }
+          std::replace(possibleDriverFunction.begin(), possibleDriverFunction.end(), '_', '.');
 
           // preparse key
           std::string mType;
@@ -327,6 +344,7 @@ namespace iqrf {
 
           SchemaDocument schema(sd);
           m_validatorMap.insert(std::make_pair(getKey(msgType), std::move(schema)));
+          m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
         }
         catch (std::exception & e) {
           CATCH_EXC_TRC_WAR(std::exception, e, "");
@@ -407,14 +425,14 @@ namespace iqrf {
     m_imp->sendMessage(messagingId, std::move(doc));
   }
 
-  void JsonSplitter::registerFilteredMsgHandler(const std::vector<MsgType>& msgTypes)
+  void JsonSplitter::registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc)
   {
-    m_imp->registerFilteredMsgHandler(msgTypes);
+    m_imp->registerFilteredMsgHandler(msgTypeFilters, handlerFunc);
   }
 
-  void JsonSplitter::unregisterFilteredMsgHandler(const std::vector<MsgType>& msgTypes)
+  void JsonSplitter::unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters)
   {
-    m_imp->unregisterFilteredMsgHandler(msgTypes);
+    m_imp->unregisterFilteredMsgHandler(msgTypeFilters);
   }
 
   void JsonSplitter::activate(const shape::Properties *props)

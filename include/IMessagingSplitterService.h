@@ -44,8 +44,8 @@ namespace iqrf {
     };
 
     virtual void sendMessage(const std::string& messagingId, rapidjson::Document doc) const = 0;
-    virtual void registerFilteredMsgHandler(const std::vector<MsgType>& msgTypes) = 0;
-    virtual void unregisterFilteredMsgHandler(const std::vector<MsgType>& msgTypes) = 0;
+    virtual void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc m_handlerFunc) = 0;
+    virtual void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) = 0;
     virtual ~IMessagingSplitterService() {}
   };
 }

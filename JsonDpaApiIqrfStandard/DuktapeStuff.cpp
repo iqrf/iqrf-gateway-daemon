@@ -28,9 +28,9 @@ namespace iqrf {
     duk_destroy_heap(m_ctx);
   }
 
-  void DuktapeStuff::init(const std::string& exepath, const std::map<int, const IJsCacheService::StdDriver*>& scripts)
+  void DuktapeStuff::init(const std::map<int, const IJsCacheService::StdDriver*>& scripts)
   {
-    TRC_FUNCTION_ENTER(PAR(exepath));
+    TRC_FUNCTION_ENTER("");
     m_scripts = scripts;
     std::string str2load;
 
@@ -133,18 +133,6 @@ namespace iqrf {
     
     duk_pop_n(m_ctx, m_relativeStack);
 
-    TRC_FUNCTION_LEAVE("");
-  }
-
-  void DuktapeStuff::run()
-  {
-    TRC_FUNCTION_ENTER("");
-    if (m_init) {
-      //m_thread = std::thread([this]() { this->thdRun(); });
-    }
-    else {
-      TRC_WARNING("Duktape is not initiated")
-    }
     TRC_FUNCTION_LEAVE("");
   }
 

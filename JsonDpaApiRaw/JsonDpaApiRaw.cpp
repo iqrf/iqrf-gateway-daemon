@@ -35,12 +35,19 @@ namespace iqrf {
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
 
-    //Scheme support
-    std::vector<IMessagingSplitterService::MsgType> m_supported =
+    // TODO from cfg
+    std::vector<std::string> m_filters =
     {
-      { mType_iqrfRaw, 1,0,0},
-      { mType_iqrfRawHdp, 1,0,0},
+      "iqrfRaw",
+      "iqrfRawHdp",
     };
+
+    ////Scheme support
+    //std::vector<IMessagingSplitterService::MsgType> m_supported =
+    //{
+    //  { mType_iqrfRaw, 1,0,0},
+    //  { mType_iqrfRawHdp, 1,0,0},
+    //};
 
     ObjectFactory<ComBase, rapidjson::Document&> m_objectFactory;
 
@@ -87,14 +94,19 @@ namespace iqrf {
         "******************************"
       );
 
-      for (auto & sup : m_supported) {
-        sup.m_handlerFunc =
-          [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
-        {
-          handleMsg(messagingId, msgType, std::move(doc));
-        };
-      }
-      m_iMessagingSplitterService->registerFilteredMsgHandler(m_supported);
+      //for (auto & sup : m_supported) {
+      //  sup.m_handlerFunc =
+      //    [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
+      //  {
+      //    handleMsg(messagingId, msgType, std::move(doc));
+      //  };
+      //}
+      //m_iMessagingSplitterService->registerFilteredMsgHandler(m_supported);
+      m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
+        [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
+      {
+        handleMsg(messagingId, msgType, std::move(doc));
+      });
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -108,7 +120,8 @@ namespace iqrf {
         "******************************"
       );
 
-      m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_supported);
+      //m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_supported);
+      m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
 
       TRC_FUNCTION_LEAVE("")
     }

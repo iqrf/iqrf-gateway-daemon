@@ -14,10 +14,9 @@ namespace iqrf {
   public:
     DuktapeStuff();
     ~DuktapeStuff();
-    void init(const std::string& exepath, const std::map<int, const IJsCacheService::StdDriver*>& scripts);
+    void init(const std::map<int, const IJsCacheService::StdDriver*>& scripts);
     void finit();
     void call(const std::string& functionName, const std::string& par, std::string& ret);
-    void run();
   private:
     bool findFunc(const std::string& functionName);
 

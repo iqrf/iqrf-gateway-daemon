@@ -35,25 +35,12 @@ namespace iqrf {
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
 
-    //Scheme support
-    std::vector<IMessagingSplitterService::MsgType> m_supported =
+    // TODO from cfg
+    std::vector<std::string> m_filters =
     {
-      { mType_iqrfEmbedThermometerRead, 1,0,0, "iqrf.embed.thermometer.Read" },
-      { mType_iqrfEmbedLedgGet, 1,0,0, "iqrf.embed.ledg.Get" },
-      { mType_iqrfEmbedLedgPulse, 1,0,0, "iqrf.embed.ledg.Pulse" },
-      { mType_iqrfEmbedLedgSet, 1,0,0, "iqrf.embed.ledg.Set" },
-      { mType_iqrfEmbedLedrGet, 1,0,0, "iqrf.embed.ledr.Get" },
-      { mType_iqrfEmbedLedrPulse, 1,0,0, "iqrf.embed.ledr.Pulse" },
-      { mType_iqrfEmbedLedrSet, 1,0,0, "iqrf.embed.ledr.Set" }
-      //{ mType_iqrfSdevBinaryOutputEnum, 1,0,0, "iqrf.embed.thermometer.Read" },
-      //{ mType_iqrfSdevBinaryOutputSetOutput, 1,0,0, "iqrf.embed.thermometer.Read" },
-      //{ mType_iqrfSdevLightDecrementPower, 1,0,0, "iqrf.embed.thermometer.Read" },
-      //{ mType_iqrfSdevLightEnum, 1,0,0, "iqrf.embed.thermometer.Read" },
-      //{ mType_iqrfSdevLightIncrementPower, 1,0,0, "iqrf.embed.thermometer.Read" },
-      //{ mType_iqrfSdevLightSetPower, 1,0,0, "iqrf.embed.thermometer.Read" },
-      //{ mType_iqrfSdevSensorEnum, 1,0,0, "iqrf.embed.thermometer.Read" },
-      //{ mType_iqrfSdevSensorFrc, 1,0,0, "iqrf.embed.thermometer.Read" },
-      //{ mType_iqrfSdevSensorReadwt, 1,0,0, "iqrf.embed.thermometer.Read" }
+      "iqrfEmbed",
+      "iqrfLight",
+      "iqrfSensor",
     };
 
     DuktapeStuff m_duk;
@@ -173,78 +160,67 @@ namespace iqrf {
       Document allResponseDoc;
       std::unique_ptr<ComIqrfStandard> com(shape_new ComIqrfStandard(doc));
 
-      //TODO chnage to map
-      bool isFound = false;
       std::string methodRequestName = msgType.m_possibleDriverFunction;
       std::string methodResponseName = msgType.m_possibleDriverFunction;
-      for (auto & mt : m_supported) {
-        if (mt.m_type == msgType.m_type) {
-          isFound = true;
-          methodRequestName += "_Request_req";
-          methodResponseName += "_Response_rsp";
-          break;
-        }
+      methodRequestName += "_Request_req";
+      methodResponseName += "_Response_rsp";
+
+      // get req{} to be passed to _RequestObj driver func
+      Value* reqObj = Pointer("/data/req").Get(doc);
+      std::string reqObjStr = JsonToStr(reqObj);
+        
+      // get nadr, hwpid as driver ignore them
+      int nadrStrReq = Pointer("/data/req/nAdr").Get(doc)->GetInt();
+      int hwpidStrReq = Pointer("/data/req/hwpId").Get(doc)->GetInt();
+
+      // call _RequestObj driver func
+      // driver returns in rawHdpRequest format
+      std::string rawHdpRequest;
+
+      m_duk.call(methodRequestName, reqObjStr, rawHdpRequest);
+
+      // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
+      std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(nadrStrReq, hwpidStrReq, rawHdpRequest);
+
+      // setDpaRequest as DpaMessage in com object 
+      com->setDpaMessage(dpaRequest);
+
+      // send to coordinator and wait for transaction result
+      //-------------------
+      auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest());
+      auto res = trn->get();
+      //-------------------
+
+      // get dpaResponse data
+      const uint8_t *buf = res->getResponse().DpaPacket().Buffer;
+      int sz = res->getResponse().GetLength();
+      std::vector<uint8_t> dpaResponse(buf, buf + sz);
+
+      // nadr, hwpid not set for drivers, so extract them for later use
+      std::string rawHdpResponse, nadrStrRes, hwpidStrRes;
+      // get rawHdpResponse in text form
+      rawHdpResponse = dpaResponseToRawHdpResponse(nadrStrRes, hwpidStrRes, dpaResponse);
+
+      // call _RequestObj driver func
+      // _ResponseObj driver func returns in rsp{} in text form
+      std::string rspObjStr;
+      m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
+        
+      // get json from its text representation
+      Document rspObj;
+      rspObj.Parse(rspObjStr);
+
+      // set nadr, hwpid
+      Pointer("/nAdr").Set(rspObj, nadrStrRes);
+      Pointer("/hwpId").Set(rspObj, hwpidStrRes);
+
+      { //debug
+        std::string str = JsonToStr(&rspObj);
+        TRC_DEBUG(str);
       }
 
-      if (isFound) {
-
-        // get req{} to be passed to _RequestObj driver func
-        Value* reqObj = Pointer("/data/req").Get(doc);
-        std::string reqObjStr = JsonToStr(reqObj);
-        
-        // get nadr, hwpid as driver ignore them
-        int nadrStrReq = Pointer("/data/req/nAdr").Get(doc)->GetInt();
-        int hwpidStrReq = Pointer("/data/req/hwpId").Get(doc)->GetInt();
-
-        // call _RequestObj driver func
-        // driver returns in rawHdpRequest format
-        std::string rawHdpRequest;
-
-        m_duk.call(methodRequestName, reqObjStr, rawHdpRequest);
-
-        // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
-        std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(nadrStrReq, hwpidStrReq, rawHdpRequest);
-
-        // setDpaRequest as DpaMessage in com object 
-        com->setDpaMessage(dpaRequest);
-
-        // send to coordinator and wait for transaction result
-        //-------------------
-        auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest());
-        auto res = trn->get();
-        //-------------------
-
-        // get dpaResponse data
-        const uint8_t *buf = res->getResponse().DpaPacket().Buffer;
-        int sz = res->getResponse().GetLength();
-        std::vector<uint8_t> dpaResponse(buf, buf + sz);
-
-        // nadr, hwpid not set for drivers, so extract them for later use
-        std::string rawHdpResponse, nadrStrRes, hwpidStrRes;
-        // get rawHdpResponse in text form
-        rawHdpResponse = dpaResponseToRawHdpResponse(nadrStrRes, hwpidStrRes, dpaResponse);
-
-        // call _RequestObj driver func
-        // _ResponseObj driver func returns in rsp{} in text form
-        std::string rspObjStr;
-        m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
-        
-        // get json from its text representation
-        Document rspObj;
-        rspObj.Parse(rspObjStr);
-
-        // set nadr, hwpid
-        Pointer("/nAdr").Set(rspObj, nadrStrRes);
-        Pointer("/hwpId").Set(rspObj, hwpidStrRes);
-
-        { //debug
-          std::string str = JsonToStr(&rspObj);
-          TRC_DEBUG(str);
-        }
-
-        com->setPayload(std::move(rspObj));
-        com->createResponse(allResponseDoc, *res);
-      }
+      com->setPayload(std::move(rspObj));
+      com->createResponse(allResponseDoc, *res);
 
       // TODO solve error if not methods in cache
       //com->createResponse(allResponseDoc, *res);
@@ -272,19 +248,13 @@ namespace iqrf {
       );
 
       const std::map<int, const IJsCacheService::StdDriver*> scripts = m_iJsCacheService->getAllLatestDrivers();
+      m_duk.init(scripts);
 
-      //TODO exe path V8 gets just path part
-      m_duk.init("../bin/Debug/a", scripts);
-      m_duk.run();
-
-      for (auto & sup : m_supported) {
-        sup.m_handlerFunc =
-          [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
+      m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
+        [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
         {
           handleMsg(messagingId, msgType, std::move(doc));
-        };
-      }
-      m_iMessagingSplitterService->registerFilteredMsgHandler(m_supported);
+        });
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -298,7 +268,7 @@ namespace iqrf {
         "******************************"
       );
 
-      m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_supported);
+      m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
 
       m_duk.finit();
     
