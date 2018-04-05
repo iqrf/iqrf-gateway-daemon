@@ -1,8 +1,8 @@
 project(MqttMessaging)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-FIND_PACKAGE(paho REQUIRED)
+FIND_PACKAGE(paho-mqtt REQUIRED)
 message(STATUS "Found paho: ${paho_FOUND}")
 message(STATUS "PAHO_INCLUDE_DIRS: ${PAHO_INCLUDE_DIRS}")
 
@@ -33,5 +33,5 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-	paho-mqtt3a
+	${paho-mqtt_LIBRARY}
 )
