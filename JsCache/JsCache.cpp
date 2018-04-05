@@ -30,29 +30,13 @@ TRC_INIT_MODULE(iqrf::JsCache);
 
 namespace iqrf {
 
-  enum class DowloadState {
-    ERROR,
-    INIT,
-    STANDARD,
-    STANDARD_IDS,
-    DRIVERS,
-    READY,
-  };
-
-  class StdDriver
-  {
-  public:
-    StdDriver()
-      :m_valid(false)
-    {}
-    StdDriver(const std::string& driver, const std::string& notes)
-      :m_driver(driver), m_notes(notes), m_valid(true)
-    {}
-    bool m_valid = false;
-    int m_versionFlags = 0;
-    std::string m_driver;
-    std::string m_notes;
-  };
+  static const char* COMPANIES_URL = "companies";
+  static const char* MANUFACTURERS_URL = "manufacturers";
+  static const char* PRODUCTS_URL = "products";
+  static const char* OSDPA_URL = "osdpa";
+  static const char* SERVER_URL = "server";
+  static const char* STANDARDS_URL = "standards";
+  static const char* PACKAGES_URL = "packages";
 
   class StdItem
   {
@@ -61,12 +45,12 @@ namespace iqrf {
     StdItem(const std::string& name)
       :m_name(name)
     {}
-    StdItem(const std::string& name, const std::map<int, StdDriver>& drvs)
+    StdItem(const std::string& name, const std::map<int, IJsCacheService::StdDriver>& drvs)
       :m_name(name), m_drivers(drvs)
     {}
     bool m_valid = false;
     std::string m_name;
-    std::map<int, StdDriver> m_drivers;
+    std::map<int, IJsCacheService::StdDriver> m_drivers;
   };
 
   class JsCache::Imp
@@ -74,16 +58,20 @@ namespace iqrf {
   private:
     iqrf::ISchedulerService* m_iSchedulerService = nullptr;
     shape::IRestApiService* m_iRestApiService = nullptr;
-    
-    std::mutex m_updateMtx;
-    DowloadState m_downloadState = DowloadState::INIT;
-    std::string m_pathLoading;
-    std::string m_urlLoading;
+
+    mutable std::recursive_mutex m_updateMtx;
     std::string cacheDir = "./configuration/jscache";
     std::string m_urlRepo = "https://repository.iqrfalliance.org/api";
     int m_stdItemLoading = -1;
 
-    std::multimap<int, StdItem> m_standardMap;
+
+    std::map<int, Company> m_companyMap;
+    std::map<int, Manufacturer> m_manufacturerMap;
+    std::map<int, Product> m_productMap;
+    std::map<int, OsDpa> m_osDpaMap;
+    ServerState m_serverState;
+    std::map<int, Package> m_packageMap;
+    std::map<int, StdItem> m_standardMap;
 
   public:
     Imp()
@@ -94,9 +82,101 @@ namespace iqrf {
     {
     }
 
-    const std::string& getDriver(int id) const
+    const std::string& getDriver(int id, int ver) const
     {
-      return "";
+      static std::string ni = "not implemented yet";
+      return ni;
+    }
+
+    const std::map<int, const StdDriver*> getAllLatestDrivers() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      std::map<int, const StdDriver*> retval;
+      for (const auto & stdItemPair : m_standardMap) {
+        const StdItem& stdItem = stdItemPair.second;
+        if (stdItem.m_valid && !stdItem.m_drivers.empty()) {
+          const StdDriver& stdDriver = stdItem.m_drivers.crbegin()->second;
+          retval.insert(std::make_pair(stdItemPair.first, &(stdDriver)));
+        }
+      }
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    const Manufacturer* getManufacturer(uint16_t hwpid) const
+    {
+      TRC_FUNCTION_ENTER(PAR(hwpid));
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      const Manufacturer* retval = nullptr;
+      auto found = m_productMap.find(hwpid);
+      if (found != m_productMap.end()) {
+        int manufacturerId = found->second.m_manufacturerId;
+        auto foundManuf = m_manufacturerMap.find(manufacturerId);
+        if (foundManuf != m_manufacturerMap.end()) {
+          retval = &(foundManuf->second);
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    const Product* getProduct(uint16_t hwpid) const
+    {
+      TRC_FUNCTION_ENTER(PAR(hwpid));
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      const Product* retval = nullptr;
+      auto found = m_productMap.find(hwpid);
+      if (found != m_productMap.end()) {
+        retval = &(found->second);
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    const Package* getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const
+    {
+      TRC_FUNCTION_ENTER(PAR(hwpid));
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      const Package* retval = nullptr;
+      for (const auto & pck : m_packageMap) {
+        if (pck.second.m_os == os && pck.second.m_dpa == dpa) {
+          retval = &(pck.second);
+          break;
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    const StdDriver* getStandard(int standardId, int version)
+    {
+      TRC_FUNCTION_ENTER(PAR(standardId) << PAR(version));
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      const StdDriver *retval = nullptr;
+      auto found = m_standardMap.find(standardId);
+      if (found != m_standardMap.end()) {
+        auto foundVer = found->second.m_drivers.find(version);
+        if (foundVer != found->second.m_drivers.end()) {
+          retval = &(foundVer->second);
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
     }
 
     bool parseFromFile(const std::string& path, rapidjson::Document& doc)
@@ -117,6 +197,26 @@ namespace iqrf {
         return true;
       }
       TRC_FUNCTION_LEAVE("")
+    }
+
+    void createPathFile(const std::string& path)
+    {
+      boost::filesystem::path dir(path);
+      boost::filesystem::path parent(dir.parent_path());
+
+      try {
+        if (!(boost::filesystem::exists(parent))) {
+          if (boost::filesystem::create_directories(parent)) {
+            TRC_DEBUG("Created: " << PAR(parent));
+          }
+          else {
+            TRC_DEBUG("Cannot create: " << PAR(parent));
+          }
+        }
+      }
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "cannot create: " << PAR(parent));
+      }
     }
 
     void encodeToFile(const std::string& path, rapidjson::Document& doc)
@@ -143,7 +243,6 @@ namespace iqrf {
       std::ofstream ofs(path);
       if (ofs.is_open()) {
         OStreamWrapper osw(ofs);
-        //Writer<OStreamWrapper> writer(osw);
         PrettyWriter<OStreamWrapper> writer(osw);
         doc.Accept(writer);
         ofs.close();
@@ -165,88 +264,390 @@ namespace iqrf {
       }
     }
 
-    std::string getDataFileName(const std::string& url)
-    {
-      std::ostringstream os;
-      os << cacheDir << '/' << url << "/data.json";
-      return os.str();
-    }
-
-    std::string getDataUrl(const std::string& url)
-    {
-      std::ostringstream os;
-      os << m_urlRepo << '/' << url;
-      return os.str();
-    }
-
-    void downloadData(const std::string& url)
-    {
-      TRC_FUNCTION_ENTER(PAR(url));
-      m_pathLoading = getDataFileName(url);
-      m_urlLoading = getDataUrl(url);
-      TRC_DEBUG("Getting: " << m_urlLoading);
-      std::cout << "Getting: " << m_urlLoading << std::endl;
-      m_iRestApiService->getData(m_urlLoading);
-      TRC_FUNCTION_LEAVE("")
-    }
-
     void loadCache()
     {
       TRC_FUNCTION_ENTER("");
 
-      std::lock_guard<std::mutex> lck(m_updateMtx);
-      m_downloadState = DowloadState::INIT;
-      updateCache();
+      using namespace rapidjson;
+      using namespace boost;
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      try {
+        updateCacheCompany();
+        updateCacheManufacturer();
+        updateCacheProduct();
+        updateCacheOsdpa();
+        updateCacheServer();
+        updateCacheStandard();
+        updateCachePackage();
+        TRC_INFORMATION("Iqrf Repo load success: ");
+      }
+      catch (std::logic_error &e) {
+        CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot load Iqrf Repo");
+      }
 
       TRC_FUNCTION_LEAVE("")
     }
 
-    void updateCache()
+#define POINTER_GET_STRING(iterKey, iter, key, val, fileName) \
+    { rapidjson::Value* jsVal = nullptr; \
+    if ((jsVal = rapidjson::Pointer(key).Get(*iter)) && jsVal->IsString()) { \
+        val = jsVal->GetString(); \
+    } \
+    else { \
+          THROW_EXC(std::logic_error, "parse error " << iterKey << '/' << key << PAR(fileName)); \
+    } }
+
+#define POINTER_GET_INT(iterKey, iter, key, val, fileName) \
+    { rapidjson::Value* jsVal = nullptr; \
+    if ((jsVal = rapidjson::Pointer(key).Get(*iter)) && jsVal->IsNumber()) { \
+        val = jsVal->GetInt(); \
+    } \
+    else { \
+          THROW_EXC(std::logic_error, "parse error " << iterKey << '/' << key << PAR(fileName)); \
+    } }
+
+#define POINTER_GET_DOUBLE(iterKey, iter, key, val, fileName) \
+    { rapidjson::Value* jsVal = nullptr; \
+    if ((jsVal = rapidjson::Pointer(key).Get(*iter)) && jsVal->IsDouble()) { \
+        val = jsVal->GetDouble(); \
+    } \
+    else { \
+          THROW_EXC(std::logic_error, "parse error " << iterKey << '/' << key << PAR(fileName)); \
+    } }
+
+#define POINTER_GET_INT64(iterKey, iter, key, val, fileName) \
+    { rapidjson::Value* jsVal = nullptr; \
+    if ((jsVal = rapidjson::Pointer(key).Get(*iter)) && jsVal->IsInt64()) { \
+        val = jsVal->GetInt64(); \
+    } \
+    else { \
+          THROW_EXC(std::logic_error, "parse error " << iterKey << '/' << key << PAR(fileName)); \
+    } }
+
+    void updateCacheCompany()
     {
+      TRC_FUNCTION_ENTER("");
+
       using namespace rapidjson;
       using namespace boost;
 
-      TRC_FUNCTION_ENTER("");
+      std::string fname = getDataLocalFileName(COMPANIES_URL); 
 
-      try {
-        switch (m_downloadState) {
-        case DowloadState::INIT:
-        {
-          if (!filesystem::exists(getDataFileName("standards"))) {
-            // wait for rest
-            m_downloadState = DowloadState::STANDARD;
-            downloadData("standards");
-            break;
+      if (!filesystem::exists(fname)) {
+        downloadData(COMPANIES_URL);
+      }
+
+      if (filesystem::exists(fname)) {
+        Document doc;
+        if (parseFromFile(fname, doc)) {
+          int companyId = -1;
+          std::string name;
+          std::string homePage;
+          if (doc.IsArray()) {
+            for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
+              POINTER_GET_INT(COMPANIES_URL, itr, "/companyID", companyId, fname);
+              POINTER_GET_STRING(COMPANIES_URL, itr, "/name", name, fname);
+              POINTER_GET_STRING(COMPANIES_URL, itr, "/homePage", homePage, fname);
+              m_companyMap.insert(std::make_pair(companyId, Company(companyId, name, homePage)));
+            }
+          }
+          else {
+            THROW_EXC(std::logic_error, "parse error not array: " << PAR(COMPANIES_URL) << PAR(fname));
           }
         }
-        case DowloadState::STANDARD:
-        {
-          std::string fname = getDataFileName("standards");
+        else {
+          THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
+        }
+      }
+      else {
+        THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
+      }
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void updateCacheManufacturer()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      using namespace rapidjson;
+      using namespace boost;
+
+      std::string fname = getDataLocalFileName(MANUFACTURERS_URL);
+
+      if (!filesystem::exists(fname)) {
+        downloadData(MANUFACTURERS_URL);
+      }
+
+      if (filesystem::exists(fname)) {
+        Document doc;
+        if (parseFromFile(fname, doc)) {
+          int manufacturerId = -1;
+          int companyId = -1;
+          std::string name;
+          if (doc.IsArray()) {
+            for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
+              POINTER_GET_INT(MANUFACTURERS_URL, itr, "/manufacturerID", manufacturerId, fname);
+              POINTER_GET_INT(MANUFACTURERS_URL, itr, "/companyID", companyId, fname);
+              POINTER_GET_STRING(MANUFACTURERS_URL, itr, "/name", name, fname);
+              m_manufacturerMap.insert(std::make_pair(manufacturerId, Manufacturer(manufacturerId, companyId, name)));
+            }
+          }
+          else {
+            THROW_EXC(std::logic_error, "parse error not array: " << PAR(MANUFACTURERS_URL) << PAR(fname));
+          }
+        }
+        else {
+          THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
+        }
+      }
+      else {
+        THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
+      }
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void updateCacheProduct()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      using namespace rapidjson;
+      using namespace boost;
+
+      std::string fname = getDataLocalFileName(PRODUCTS_URL);
+
+      if (!filesystem::exists(fname)) {
+        downloadData(PRODUCTS_URL);
+      }
+
+      if (filesystem::exists(fname)) {
+        Document doc;
+        if (parseFromFile(fname, doc)) {
+          int hwpid = -1;
+          int manufacturerId = -1;
+          std::string name;
+          std::string homePage;
+          std::string picture;
+          if (doc.IsArray()) {
+            for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
+              POINTER_GET_INT(PRODUCTS_URL, itr, "/hwpid", hwpid, fname);
+              POINTER_GET_INT(PRODUCTS_URL, itr, "/manufacturerID", manufacturerId, fname);
+              POINTER_GET_STRING(PRODUCTS_URL, itr, "/name", name, fname);
+              POINTER_GET_STRING(PRODUCTS_URL, itr, "/homePage", homePage, fname);
+              POINTER_GET_STRING(PRODUCTS_URL, itr, "/picture", picture, fname);
+              m_productMap.insert(std::make_pair(hwpid, Product(hwpid, manufacturerId, name, homePage, picture)));
+            }
+          }
+          else {
+            THROW_EXC(std::logic_error, "parse error not array: " << PAR(PRODUCTS_URL) << PAR(fname));
+          }
+        }
+        else {
+          THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
+        }
+      }
+      else {
+        THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
+      }
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void updateCacheOsdpa()
+    {
+      TRC_FUNCTION_LEAVE("");
+
+      using namespace rapidjson;
+      using namespace boost;
+
+      std::string fname = getDataLocalFileName(OSDPA_URL);
+
+      if (!filesystem::exists(fname)) {
+        downloadData(OSDPA_URL);
+      }
+
+      if (filesystem::exists(fname)) {
+        Document doc;
+        if (parseFromFile(fname, doc)) {
+          int osdpaId = -1;
+          std::string os;
+          std::string dpa;
+          std::string notes;
+          if (doc.IsArray()) {
+            int idx = 0;
+            for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
+              POINTER_GET_STRING(OSDPA_URL, itr, "/os", os, fname);
+              POINTER_GET_STRING(OSDPA_URL, itr, "/dpa", dpa, fname);
+              POINTER_GET_STRING(OSDPA_URL, itr, "/notes", notes, fname);
+              m_osDpaMap.insert(std::make_pair(idx, OsDpa(idx, os, dpa, notes)));
+              ++idx;
+            }
+          }
+          else {
+            THROW_EXC(std::logic_error, "parse error not array: " << PAR(OSDPA_URL) << PAR(fname));
+          }
+        }
+        else {
+          THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
+        }
+      }
+      else {
+        THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
+      }
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void updateCacheServer()
+    {
+      TRC_FUNCTION_LEAVE("");
+
+      using namespace rapidjson;
+      using namespace boost;
+
+      std::string fname = getDataLocalFileName(SERVER_URL);
+
+      if (!filesystem::exists(fname)) {
+        downloadData(SERVER_URL);
+      }
+
+      if (filesystem::exists(fname)) {
+        Document doc;
+        if (parseFromFile(fname, doc)) {
+          int apiVersion = -1;
+          std::string hostname;
+          std::string user;
+          std::string buildDateTime;
+          std::string startDateTime;
+          std::string dateTime;
+          int64_t databaseChecksum;
+          std::string databaseChangeDateTime;
+          POINTER_GET_INT(SERVER_URL, &doc, "/apiVersion", m_serverState.m_apiVersion, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/hostname", m_serverState.m_hostname, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/user", m_serverState.m_user, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/buildDateTime", m_serverState.m_buildDateTime, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/startDateTime", m_serverState.m_startDateTime, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/dateTime", m_serverState.m_dateTime, fname);
+          POINTER_GET_INT64(SERVER_URL, &doc, "/databaseChecksum", m_serverState.m_databaseChecksum, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/databaseChangeDateTime", m_serverState.m_databaseChangeDateTime, fname);
+        }
+        else {
+          THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
+        }
+      }
+      else {
+        THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
+      }
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void updateCacheStandard()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      using namespace rapidjson;
+      using namespace boost;
+
+      std::string fname = getDataLocalFileName(STANDARDS_URL);
+
+      if (!filesystem::exists(fname)) {
+        downloadData("standards");
+      }
+
+      if (filesystem::exists(fname)) {
+        Document doc;
+        if (parseFromFile(fname, doc)) {
+          int standardId = 0;
+          std::string name;
+          if (doc.IsArray()) {
+            for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
+              POINTER_GET_INT(STANDARDS_URL, itr, "/standardID", standardId, fname);
+              POINTER_GET_STRING(STANDARDS_URL, itr, "/name", name, fname);
+              m_standardMap.insert(std::make_pair(standardId, StdItem(name)));
+            }
+          }
+          else {
+            THROW_EXC(std::logic_error, "parse error not array: " << PAR(STANDARDS_URL) << PAR(fname));
+          }
+        }
+        else {
+          THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
+        }
+      }
+      else {
+        THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
+      }
+
+      for (auto & stdItem : m_standardMap) { // 1
+
+        std::ostringstream os;
+        os << STANDARDS_URL << '/' << stdItem.first;
+        std::string url = os.str();
+        fname = getDataLocalFileName(url);
+
+        if (!filesystem::exists(fname)) {
+          downloadData(url);
+        }
+
+        if (filesystem::exists(fname)) {
+          Document doc;
+          if (parseFromFile(fname, doc)) {
+            if (Value* versionArray = Pointer("/versions").Get(doc)) {
+              if (versionArray->IsArray()) {
+                for (auto itr = versionArray->Begin(); itr != versionArray->End(); ++itr) {
+                  double version;
+                  if (itr->IsDouble()) {
+                    version = itr->GetDouble();
+                  }
+                  else {
+                    THROW_EXC(std::logic_error, "parse error /versions[] item not double " << PAR(fname));
+                  }
+                  stdItem.second.m_drivers.insert(std::make_pair((int)version, StdDriver()));
+                }
+                stdItem.second.m_valid = true;
+              }
+              else {
+                THROW_EXC(std::logic_error, "parse error /versions[] not array " << PAR(fname));
+              }
+            }
+            else {
+              THROW_EXC(std::logic_error, "parse error /versions[] not exist " << PAR(fname));
+            }
+          }
+          else {
+            THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
+          }
+        }
+        else {
+          THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
+        }
+      } // for 1
+
+      for (auto & stdItem : m_standardMap) { // 2
+        for (auto & stdDriver : stdItem.second.m_drivers) { // 3
+
+          std::ostringstream os;
+          os << STANDARDS_URL << '/' << stdItem.first << '/' << stdDriver.first;
+          std::string url = os.str();
+          fname = getDataLocalFileName(url);
+
+          if (!filesystem::exists(fname)) {
+            downloadData(url);
+          }
+          
           if (filesystem::exists(fname)) {
             Document doc;
             if (parseFromFile(fname, doc)) {
-              int standardId = 0;
-              std::string name;
-              if (doc.IsArray()) {
-                for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
-                  if (Value* standardIdVal = Pointer("/standardID").Get(*itr)) {
-                    standardId = standardIdVal->GetInt();
-                  }
-                  else {
-                    THROW_EXC(std::logic_error, "parse error /standards[]/standardID " << PAR(fname));
-                  }
-                  if (Value* nameVal = Pointer("/name").Get(*itr)) {
-                    name = nameVal->GetString();
-                  }
-                  else {
-                    THROW_EXC(std::logic_error, "parse error /standards[]/name " << PAR(fname));
-                  }
-                  m_standardMap.insert(std::make_pair(standardId, StdItem(name)));
-                }
-              }
-              else {
-                THROW_EXC(std::logic_error, "parse error /standards[] not array " << PAR(fname));
-              }
+              int versionFlag;
+              std::string driver, notes;
+              POINTER_GET_INT("", &doc, "/versionFlags", versionFlag, fname);
+              POINTER_GET_STRING("", &doc, "/driver", driver, fname);
+              POINTER_GET_STRING("", &doc, "/notes", notes, fname);
+              stdDriver.second = StdDriver(stdItem.second.m_name, driver, notes, versionFlag);
             }
             else {
               THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
@@ -255,163 +656,197 @@ namespace iqrf {
           else {
             THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
           }
-          m_downloadState = DowloadState::STANDARD_IDS; // don't break next => state
+        } // for 3
+      } // for 2
+      
+      // daemon wrapper workaround
+      {
+        std::ifstream file("./configuration/JavaScript/DaemonWrapper.js");
+        if (file.is_open()) {
+          std::ostringstream strStream;
+          strStream << file.rdbuf();
+          std::string dwString = strStream.str();
+
+          StdDriver dwStdDriver("DaemonWrapper", dwString, "", 0);
+
+          StdItem dwStdItem("DaemonWrapper");
+          dwStdItem.m_valid = true;
+          dwStdItem.m_drivers.insert(std::make_pair(0, dwStdDriver));
+
+          m_standardMap.insert(std::make_pair(1000, dwStdItem));
         }
-        case DowloadState::STANDARD_IDS:
-        {
-          const std::string url = "standards/";
-
-          bool switchBreak = false;
-          for (auto & stdItem : m_standardMap) { // 1
-
-            if (stdItem.second.m_valid) continue; //already updated
-
-            std::ostringstream os;
-            os << "standards/" << stdItem.first;
-            std::string url = os.str();
-            std::string fname = getDataFileName(url);
-
-            if (!filesystem::exists(fname)) {
-              // wait for rest
-              downloadData(url);
-              switchBreak = true;
-              break; // 1
-            }
-            else {
-              Document doc;
-              if (parseFromFile(fname, doc)) {
-                if (Value* versionArray = Pointer("/versions").Get(doc)) {
-                  if (versionArray->IsArray()) {
-                    for (auto itr = versionArray->Begin(); itr != versionArray->End(); ++itr) {
-                      double version;
-                      if (itr->IsDouble()) {
-                        version = itr->GetDouble();
-                      }
-                      else {
-                        THROW_EXC(std::logic_error, "parse error /versions[] item not double " << PAR(fname));
-                      }
-                      stdItem.second.m_drivers.insert(std::make_pair((int)version, StdDriver()));
-                    }
-                    stdItem.second.m_valid = true;
-                  }
-                  else {
-                    THROW_EXC(std::logic_error, "parse error /versions[] not array " << PAR(fname));
-                  }
-                }
-                else {
-                  THROW_EXC(std::logic_error, "parse error /versions[] not exist " << PAR(fname));
-                }
-              }
-              else {
-                THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
-              }
-            }
-          } // for 1
-          if (switchBreak) {
-            // not finished yet 
-            break; // switch 
-          }
-          else {
-            //all standard/id loaded
-            m_downloadState = DowloadState::DRIVERS;
-          }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << "./configuration/JavaScript/DaemonWrapper.js");
         }
-        case DowloadState::DRIVERS:
-        {
-          bool switchBreak = false;
-          for (auto & stdItem : m_standardMap) { // 1
-            for (auto & stdDriver : stdItem.second.m_drivers) { // 2
-
-              if (stdDriver.second.m_valid) continue; //already updated
-
-              std::ostringstream os;
-              os << "standards/" << stdItem.first << '/' << stdDriver.first;
-              std::string url = os.str();
-              std::string fname = getDataFileName(url);
-
-              if (!filesystem::exists(fname)) {
-                // wait for rest
-                downloadData(url);
-                switchBreak = true;
-                break; // for 2
-              }
-              else {
-                Document doc;
-                if (parseFromFile(fname, doc)) {
-                  //{"version":15.00, "versionFlags" : 0, "driver" : "-----", "standardID":94,"notes":"++++","name":"Sensor"}
-                  if (Value* versionFlagsVal = Pointer("/versionFlags").Get(doc)) {
-                    stdDriver.second.m_versionFlags = versionFlagsVal->GetInt();
-                  }
-                  else {
-                    THROW_EXC(std::logic_error, "parse error /versionFlags not exist " << PAR(fname));
-                  }
-                  if (Value* driverVal = Pointer("/driver").Get(doc)) {
-                    stdDriver.second.m_driver = driverVal->GetString();
-                  }
-                  else {
-                    THROW_EXC(std::logic_error, "parse error /driver not exist " << PAR(fname));
-                  }
-                  if (Value* notesVal = Pointer("/notes").Get(doc)) {
-                    stdDriver.second.m_notes = notesVal->GetString();
-                  }
-                  else {
-                    THROW_EXC(std::logic_error, "parse error /notes not exist " << PAR(fname));
-                  }
-                  stdDriver.second.m_valid = true;
-                }
-                else {
-                  THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
-                }
-              }
-            } // for 2
-            if (switchBreak) {
-              // stop iterate wait for rest
-              break; // for 1
-            }
-          } // for 1
-          if (switchBreak) {
-            // not finished yet 
-            break; // switch
-          }
-          else {
-            //all standard/id/ver loaded
-            m_downloadState = DowloadState::READY;
-          }
-        }
-        case DowloadState::READY:
-          //finit
-        case DowloadState::ERROR:
-          break;
-        default:
-          ;
-        };
-      }
-      catch (std::logic_error &e) {
-        CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot load IQRF Repo");
-        m_downloadState = DowloadState::ERROR;
       }
 
       TRC_FUNCTION_LEAVE("")
     }
 
-    void dataHandler(int statusCode, const std::string& data)
+    void updateCachePackage()
     {
       TRC_FUNCTION_ENTER("");
 
-      std::lock_guard<std::mutex> lck(m_updateMtx);
+      using namespace rapidjson;
+      using namespace boost;
 
-      if (statusCode == 200) {
-        rapidjson::Document doc;
-        if (parseStr(data, doc)) {
-          encodeToFile(m_pathLoading, doc);
-          updateCache();
+      std::string fname = getDataLocalFileName(PACKAGES_URL);
+
+      if (!filesystem::exists(fname)) {
+        downloadData(PACKAGES_URL);
+      }
+
+      if (filesystem::exists(fname)) {
+        Document doc;
+        if (parseFromFile(fname, doc)) {
+          if (doc.IsArray()) {
+            for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
+              Package pck;
+              POINTER_GET_INT(PACKAGES_URL, itr, "/packageID", pck.m_packageId, fname);
+              POINTER_GET_INT(PACKAGES_URL, itr, "/hwpid", pck.m_hwpid, fname);
+              POINTER_GET_INT(PACKAGES_URL, itr, "/hwpidVer", pck.m_hwpidVer, fname);
+              POINTER_GET_STRING(PACKAGES_URL, itr, "/handlerUrl", pck.m_handlerUrl, fname);
+              POINTER_GET_STRING(PACKAGES_URL, itr, "/handlerHash", pck.m_handlerHash, fname);
+              POINTER_GET_STRING(PACKAGES_URL, itr, "/os", pck.m_os, fname);
+              POINTER_GET_STRING(PACKAGES_URL, itr, "/dpa", pck.m_dpa, fname);
+              m_packageMap.insert(std::make_pair(pck.m_packageId, pck));
+            }
+          }
+          else {
+            THROW_EXC(std::logic_error, "parse error not array: " << PAR(PACKAGES_URL) << PAR(fname));
+          }
+        }
+        else {
+          THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
         }
       }
       else {
-        TRC_WARNING("Cannot get data: " << PAR(statusCode) << NAME_PAR(url, m_urlLoading));
-        m_downloadState = DowloadState::ERROR;
+        THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
       }
 
+      for (auto & pck : m_packageMap) { // 1
+
+        std::ostringstream os;
+        os << PACKAGES_URL << '/' << pck.first;
+        std::string url = os.str();
+        fname = getDataLocalFileName(url);
+
+        if (!filesystem::exists(fname)) {
+          downloadData(url);
+        }
+
+        if (filesystem::exists(fname)) {
+          Document doc;
+          if (parseFromFile(fname, doc)) {
+            POINTER_GET_STRING("", &doc, "/driver", pck.second.m_driver, fname);
+            POINTER_GET_STRING("", &doc, "/notes", pck.second.m_notes, fname);
+            if (Value* standardArray = Pointer("/standards").Get(doc)) {
+              if (standardArray->IsArray()) {
+                int standardId = -10;
+                int version = -1;
+                for (auto itr = standardArray->Begin(); itr != standardArray->End(); ++itr) {
+                  POINTER_GET_INT("", itr, "/standardID", standardId, fname);
+                  POINTER_GET_DOUBLE("", itr, "/version", version, fname);
+                  const StdDriver* stdDrv = getStandard(standardId, version);
+                  if (stdDrv) {
+                    pck.second.m_stdDriverVect.push_back(stdDrv);
+                  }
+                }
+                pck.second.m_valid = true;
+              }
+              else {
+                THROW_EXC(std::logic_error, "parse error not array: " << PAR(PACKAGES_URL) << "/standards" << PAR(fname));
+              }
+            }
+            else {
+              THROW_EXC(std::logic_error, "parse error /standards not exist " << PAR(fname));
+            }
+          }
+          else {
+            THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
+          }
+        }
+        else {
+          THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
+        }
+      } // for 1
+
+      for (auto & pck : m_packageMap) { // 2
+
+        std::ostringstream os;
+        os << PACKAGES_URL << '/' << pck.first;
+        std::string url = os.str();
+        std::string fname = getDataLocalFileName(url, "handler.hex");
+
+        if (std::string::npos != pck.second.m_handlerUrl.find("https://")) {
+          if (!filesystem::exists(fname)) {
+            downloadFile(pck.second.m_handlerUrl, fname);
+          }
+
+          if (filesystem::exists(fname)) {
+            std::ifstream file(fname);
+            if (file.is_open()) {
+              std::ostringstream strStream;
+              strStream << file.rdbuf();
+              pck.second.m_handlerHex = strStream.str();
+            }
+            else {
+              THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
+            }
+          }
+          else {
+            THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
+          }
+        }
+
+      } // for 2
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    std::string getDataLocalFileName(const std::string& relativeUrl, const std::string& fname = "data.json")
+    {
+      std::ostringstream os;
+      os << cacheDir << '/' << relativeUrl << '/' << fname;
+      return os.str();
+    }
+
+    std::string getDataAbsoluteUrl(const std::string& relativeUrl)
+    {
+      std::ostringstream os;
+      os << m_urlRepo << '/' << relativeUrl;
+      return os.str();
+    }
+
+    // loads data from REST API with url relative to root Repo URL
+    // and stores to local repo cache to relative path
+    void downloadData(const std::string& relativeUrl, const std::string& fname = "data.json")
+    {
+      TRC_FUNCTION_ENTER(PAR(relativeUrl) << PAR(fname));
+      std::string pathLoading = getDataLocalFileName(relativeUrl, fname);
+      createPathFile(pathLoading);
+
+      std::string urlLoading = getDataAbsoluteUrl(relativeUrl);
+
+      TRC_DEBUG("Getting: " << PAR(urlLoading));
+      std::cout << "Getting: " << urlLoading << std::endl;
+      m_iRestApiService->getFile(urlLoading, pathLoading);
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    
+    // loads file from exact URL
+    // and stores to local repo cache to relative path
+    void downloadFile(const std::string& fileUrl, const std::string& urlFname)
+    {
+      TRC_FUNCTION_ENTER(PAR(fileUrl) << PAR(urlFname));
+      createPathFile(urlFname);
+
+      std::string urlLoading = fileUrl;
+
+      TRC_DEBUG("Getting: " << PAR(urlLoading));
+      std::cout << "Getting: " << urlLoading << std::endl;
+      m_iRestApiService->getFile(urlLoading, urlFname);
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -427,22 +862,22 @@ namespace iqrf {
       modify(props);
 
 
-      //TODO name from cfg
+      //TODO periodic cache check
+      //name from cfg
       //m_iSchedulerService->registerMessageHandler("JsCache", [=](const std::string& task)
       //{
       //  if (task == "downloadRepo") {
       //    downLoadRepo();
       //  }
       //});
-
       //m_iSchedulerService->scheduleTaskPeriodic("JsCache", "downloadRepo", std::chrono::seconds(10));
 
-      m_iRestApiService->registerDataHandler([=](int statusCode, const std::string& data)
-      {
-        dataHandler(statusCode, data);
-      });
-
       loadCache();
+
+      //TODO test
+      //auto manu = getManufacturer(4097);
+      //auto pro = getProduct(4097);
+      //auto pck = getPackage(4097, "08B8", "0302");
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -456,8 +891,6 @@ namespace iqrf {
         "JsCache instance deactivate" << std::endl <<
         "******************************"
       );
-
-      m_iRestApiService->unregisterDataHandler();
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -503,9 +936,29 @@ namespace iqrf {
     delete m_imp;
   }
 
-  const std::string& JsCache::getDriver(int id) const
+  const std::string& JsCache::getDriver(int id, int ver) const
   {
-    return m_imp->getDriver(id);
+    return m_imp->getDriver(id, ver);
+  }
+
+  const std::map<int, const IJsCacheService::StdDriver*>  JsCache::getAllLatestDrivers() const
+  {
+    return m_imp->getAllLatestDrivers();
+  }
+
+  const IJsCacheService::Manufacturer* JsCache::getManufacturer(uint16_t hwpid) const
+  {
+    return m_imp->getManufacturer(hwpid);
+  }
+
+  const IJsCacheService::Product* JsCache::getProduct(uint16_t hwpid) const
+  {
+    return m_imp->getProduct(hwpid);
+  }
+
+  const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const
+  {
+    return m_imp->getPackage(hwpid, os, dpa);
   }
 
   void JsCache::activate(const shape::Properties *props)

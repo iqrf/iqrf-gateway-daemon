@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::DaemonController",
+  "instance": "iqrf::DaemonController-Instance"
+}

@@ -1,0 +1,31 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrf__JsonSplitter",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "...",
+            "default": "iqrf::JsonSplitter"
+        },
+        "instance": {
+            "type": "string",
+            "description": "...",
+            "default": "JsonSplitter"
+        },
+        "SchemesDir": {
+            "type": "string",
+            "description": "...",
+            "default": "configuration/JsonSchemes/async-api-json-schemes"
+        }
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}

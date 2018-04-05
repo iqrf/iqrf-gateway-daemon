@@ -13,8 +13,8 @@ namespace iqrf {
     JsonSplitter();
     virtual ~JsonSplitter();
     void sendMessage(const std::string& messagingId, rapidjson::Document doc) const override;
-    void registerFilteredMsgHandler(const std::vector<MsgType>& msgTypes) override;
-    void unregisterFilteredMsgHandler(const std::vector<MsgType>& msgTypes) override;
+    void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) override;
+    void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

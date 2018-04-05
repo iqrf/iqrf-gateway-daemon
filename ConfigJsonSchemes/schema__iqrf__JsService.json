@@ -1,0 +1,26 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrf__JsCache",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "...",
+            "default": "iqrf::JsCache"
+        },
+        "instance": {
+            "type": "string",
+            "description": "...",
+            "default": "JsCache"
+        }
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}

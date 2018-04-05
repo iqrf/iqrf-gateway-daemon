@@ -19,6 +19,8 @@ if(NOT CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|MSBuild)")
   endif()
 endif()
 
+set_directory_properties(PROPERTIES COMPILE_DEFINITIONS $<$<CONFIG:Debug>:_DEBUG>)
+
 FIND_PACKAGE(shape REQUIRED)
 
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
@@ -29,16 +31,9 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 
 add_subdirectory(libraries/clibspi  EXCLUDE_FROM_ALL)
-#include(${CMAKE_CURRENT_BINARY_DIR}/libraries/clibspi/clibspiConfig.cmake)
-
 add_subdirectory(libraries/clibcdc  EXCLUDE_FROM_ALL)
-#include(${CMAKE_CURRENT_BINARY_DIR}/libraries/clibcdc/clibcdcConfig.cmake)
-
 add_subdirectory(libraries/cutils  EXCLUDE_FROM_ALL)
-#include(${CMAKE_CURRENT_BINARY_DIR}/libraries/cutils/cutilsConfig.cmake)
-
 add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
-#include(${CMAKE_CURRENT_BINARY_DIR}/libraries/clibdpa/clibdpaConfig.cmake)
 
 add_subdirectory(include)
 add_subdirectory(start-IqrfDaemon)
@@ -55,7 +50,6 @@ add_subdirectory(WebsocketMessaging)
 add_subdirectory(UdpMessaging)
 add_subdirectory(Ide4Counterpart)
 add_subdirectory(JsonSplitter)
-add_subdirectory(JsonDpaApi)
+add_subdirectory(JsonDpaApiRaw)
 add_subdirectory(JsCache)
-add_subdirectory(WriteConfigService)
-
+add_subdirectory(JsonDpaApiIqrfStandard)
