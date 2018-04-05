@@ -228,7 +228,7 @@ namespace iqrf {
     // message type: network management write configuration
     // for temporal reasons
     const std::string m_mTypeName_mngIqmeshWriteConfig = "mngIqmeshWriteTrConf";
-    IMessagingSplitterService::MsgType* m_msgType_mngIqmeshWriteConfig;
+    //IMessagingSplitterService::MsgType* m_msgType_mngIqmeshWriteConfig;
 
     //iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
@@ -257,8 +257,10 @@ namespace iqrf {
   public:
     Imp(WriteConfigService& parent) : m_parent(parent)
     {
+      /*
       m_msgType_mngIqmeshWriteConfig
         = new IMessagingSplitterService::MsgType(m_mTypeName_mngIqmeshWriteConfig, 1, 0, 0);
+        */
     }
 
     ~Imp()
@@ -1868,19 +1870,18 @@ namespace iqrf {
         "************************************"
       );
 
-      m_msgType_mngIqmeshWriteConfig->m_handlerFunc =
+      // for the sake of register function parameters 
+      std::vector<std::string> supportedMsgTypes;
+      supportedMsgTypes.push_back(m_mTypeName_mngIqmeshWriteConfig);
+
+      m_iMessagingSplitterService->registerFilteredMsgHandler(
+        supportedMsgTypes,
         [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
       {
         handleMsg(messagingId, msgType, std::move(doc));
-      };
+      });
 
-      // for the sake of register function parameters 
-      std::vector<IMessagingSplitterService::MsgType> supportedMsgTypes;
-      supportedMsgTypes.push_back(*m_msgType_mngIqmeshWriteConfig);
-
-      m_iMessagingSplitterService->registerFilteredMsgHandler(supportedMsgTypes);
-
-      TRC_FUNCTION_LEAVE("")
+      TRC_FUNCTION_LEAVE("");
     }
 
     void deactivate()
@@ -1893,12 +1894,12 @@ namespace iqrf {
       );
 
       // for the sake of unregister function parameters 
-      std::vector<IMessagingSplitterService::MsgType> supportedMsgTypes;
-      supportedMsgTypes.push_back(*m_msgType_mngIqmeshWriteConfig);
+      std::vector<std::string> supportedMsgTypes;
+      supportedMsgTypes.push_back(m_mTypeName_mngIqmeshWriteConfig);
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
 
-      TRC_FUNCTION_LEAVE("")
+      TRC_FUNCTION_LEAVE("");
     }
 
     void modify(const shape::Properties *props)
