@@ -75,10 +75,7 @@ namespace iqrf {
       Document doc;
       doc.Parse(rawHdpRequest);
 
-      //uint16_t nadr = 0, hwpid = 0;
       uint8_t pnum = 0, pcmd = 0;
-      //parseHexaNum(nadr, nadrStr.c_str());
-      //parseHexaNum(hwpid, hwpidStr.c_str());
 
       if (Value *val = Pointer("/pnum").Get(doc)) {
         parseHexaNum(pnum, val->GetString());
@@ -106,7 +103,7 @@ namespace iqrf {
     }
 
     // nadr, hwpid not set for drivers
-    std::string dpaResponseToRawHdpResponse(std::string& nadrStr, std::string& hwpidStr, const std::vector<uint8_t>& dpaResponse )
+    std::string dpaResponseToRawHdpResponse(int& nadr, int& hwpid, const std::vector<uint8_t>& dpaResponse )
     {
       using namespace rapidjson;
 
@@ -115,7 +112,7 @@ namespace iqrf {
       Document doc;
 
       if (dpaResponse.size() >= 8) {
-        uint16_t nadr = 0, hwpid = 0;
+        uint16_t nadr16 = 0, hwpid16 = 0;
         uint8_t pnum = 0, pcmd = 0, rcode = 0, dpaval = 0;
         std::string pnumStr, pcmdStr, rcodeStr, dpavalStr;
 
@@ -128,13 +125,12 @@ namespace iqrf {
         rcode = dpaResponse[6];
         dpaval = dpaResponse[7];
 
-        nadrStr = encodeHexaNum(nadr);
         pnumStr = encodeHexaNum(pnum);
         pcmdStr = encodeHexaNum(pcmd);
-        hwpidStr = encodeHexaNum(hwpid);
         rcodeStr = encodeHexaNum(rcode);
         dpavalStr = encodeHexaNum(dpaval);
 
+        //nadr, hwpid is not interesting for drivers
         Pointer("/pnum").Set(doc, pnumStr);
         Pointer("/pcmd").Set(doc, pcmdStr);
         Pointer("/rcode").Set(doc, rcodeStr);
@@ -170,8 +166,8 @@ namespace iqrf {
       std::string reqObjStr = JsonToStr(reqObj);
         
       // get nadr, hwpid as driver ignore them
-      int nadrStrReq = Pointer("/data/req/nAdr").Get(doc)->GetInt();
-      int hwpidStrReq = Pointer("/data/req/hwpId").Get(doc)->GetInt();
+      int nadrReq = Pointer("/data/req/nAdr").Get(doc)->GetInt();
+      int hwpidReq = Pointer("/data/req/hwpId").Get(doc)->GetInt();
 
       // call _RequestObj driver func
       // driver returns in rawHdpRequest format
@@ -180,7 +176,7 @@ namespace iqrf {
       m_duk.call(methodRequestName, reqObjStr, rawHdpRequest);
 
       // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
-      std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(nadrStrReq, hwpidStrReq, rawHdpRequest);
+      std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(nadrReq, hwpidReq, rawHdpRequest);
 
       // setDpaRequest as DpaMessage in com object 
       com->setDpaMessage(dpaRequest);
@@ -197,9 +193,10 @@ namespace iqrf {
       std::vector<uint8_t> dpaResponse(buf, buf + sz);
 
       // nadr, hwpid not set for drivers, so extract them for later use
-      std::string rawHdpResponse, nadrStrRes, hwpidStrRes;
+      std::string rawHdpResponse;
+      int nadrRes, hwpidRes;
       // get rawHdpResponse in text form
-      rawHdpResponse = dpaResponseToRawHdpResponse(nadrStrRes, hwpidStrRes, dpaResponse);
+      rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, dpaResponse);
 
       // call _RequestObj driver func
       // _ResponseObj driver func returns in rsp{} in text form
@@ -211,8 +208,8 @@ namespace iqrf {
       rspObj.Parse(rspObjStr);
 
       // set nadr, hwpid
-      Pointer("/nAdr").Set(rspObj, nadrStrRes);
-      Pointer("/hwpId").Set(rspObj, hwpidStrRes);
+      Pointer("/nAdr").Set(rspObj, nadrRes);
+      Pointer("/hwpId").Set(rspObj, hwpidRes);
 
       { //debug
         std::string str = JsonToStr(&rspObj);
