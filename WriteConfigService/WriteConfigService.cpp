@@ -99,7 +99,7 @@ namespace iqrf {
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
 
-    WriteError& WriteError::operator=(const WriteError& error) {
+    WriteError& operator=(const WriteError& error) {
       if (this == &error) {
         return *this;
       }
@@ -192,7 +192,7 @@ namespace iqrf {
 
   public:
     // Puts specified write result for specified node into results.
-    void WriteResult::putResult(uint16_t nodeAddr, const NodeWriteResult& result) {
+    void putResult(uint16_t nodeAddr, const NodeWriteResult& result) {
       resultsMap[nodeAddr] = result;
     };
 
@@ -520,7 +520,7 @@ namespace iqrf {
     }
 
     // returns specified part of config bytes
-    std::vector<HWP_ConfigByte>& getConfigBytesPart(
+    std::vector<HWP_ConfigByte> getConfigBytesPart(
       int partId,
       int partSize,
       const std::vector<HWP_ConfigByte>& configBytes
@@ -661,7 +661,7 @@ namespace iqrf {
 
       for (int partId = 0; partId < partsTotal; partId++) {
         // prepare part of config bytes to fill into the FRC request user data
-        std::vector<HWP_ConfigByte>& configBytesPart = getConfigBytesPart(partId, partsTotal, configBytes);
+        std::vector<HWP_ConfigByte> configBytesPart = getConfigBytesPart(partId, partsTotal, configBytes);
         setUserDataForFrcWriteConfigByteRequest(frcRequest, configBytesPart);
 
         // issue the DPA request
