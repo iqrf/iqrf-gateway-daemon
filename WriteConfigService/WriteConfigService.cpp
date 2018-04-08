@@ -281,12 +281,12 @@ namespace iqrf {
           || (configByte.address > CONFIG_BYTES_END_ADDR)
           ) {
           THROW_EXC(
-            std::exception, "Address of config byte out of valid range: " << NAME_PAR_HEX("Address", configByte.address)
+            std::out_of_range, "Address of config byte out of valid range: " << NAME_PAR_HEX("Address", configByte.address)
           );
         }
 
         if (configBytesUsed.test(configByte.address - 1)) {
-          THROW_EXC(std::exception, "Config byte with the same address already exist.");
+          THROW_EXC(std::out_of_range, "Config byte with the same address already exist.");
         }
 
         configBytesUsed[configByte.address - 1] = 1;
@@ -408,7 +408,7 @@ namespace iqrf {
         }
       }
 
-      THROW_EXC(std::exception, "RFPGM byte NOT found.");
+      THROW_EXC(std::logic_error, "RFPGM byte NOT found.");
     }
 
 
@@ -447,7 +447,7 @@ namespace iqrf {
       }
       catch (std::exception& e) {
         TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::exception, "Could not write configuration.");
+        THROW_EXC(std::logic_error, "Could not write configuration.");
       }
 
       TRC_DEBUG("Result from write config transaction as string:" << PAR(transResult->getErrorString()));
@@ -849,7 +849,7 @@ namespace iqrf {
       }
       catch (std::exception& e) {
         TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::exception, "Could not get bonded nodes.");
+        THROW_EXC(std::logic_error, "Could not get bonded nodes.");
       }
 
       TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
@@ -884,7 +884,7 @@ namespace iqrf {
         TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
       }
 
-      THROW_EXC(std::exception, "Could not get bonded nodes.");
+      THROW_EXC(std::logic_error, "Could not get bonded nodes.");
     }
 
     // sorting, which of target nodes are bonded and which not
@@ -946,7 +946,7 @@ namespace iqrf {
       }
       catch (std::exception& e) {
         TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::exception, "Could not read HWP configuration.");
+        THROW_EXC(std::logic_error, "Could not read HWP configuration.");
       }
 
       TRC_DEBUG("Result from read HWP configuration transaction as string:" << PAR(transResult->getErrorString()));
@@ -982,7 +982,7 @@ namespace iqrf {
         TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
       }
 
-      THROW_EXC(std::exception, "Could not read HWP configuration.");
+      THROW_EXC(std::logic_error, "Could not read HWP configuration.");
     }
 
     // indicates, whether specified RF channel is in specified channel band
@@ -1009,7 +1009,7 @@ namespace iqrf {
         break;
 
       default:
-        THROW_EXC(std::exception, "Unsupported RF band. " << NAME_PAR_HEX("Band", (int)band));
+        THROW_EXC(std::out_of_range, "Unsupported RF band. " << NAME_PAR_HEX("Band", (int)band));
       }
 
       return result;
@@ -1038,7 +1038,7 @@ namespace iqrf {
 
             if (!isInBand(configByte.value, m_coordRfChannelBand)) {
               THROW_EXC(
-                std::exception, NAME_PAR_HEX("RF channel", configByte.value) << " not in band: " << PAR((int)m_coordRfChannelBand)
+                std::out_of_range, NAME_PAR_HEX("RF channel", configByte.value) << " not in band: " << PAR((int)m_coordRfChannelBand)
               );
             }
           default:
@@ -1312,7 +1312,7 @@ namespace iqrf {
         return RF_ChannelBand::BAND_916;
       }
 
-      THROW_EXC(std::exception, "Unsupported coordinator RF band: " << PAR(rfBandStr));
+      THROW_EXC(std::out_of_range, "Unsupported coordinator RF band: " << PAR(rfBandStr));
     }
     
     RF_ChannelBand parseAndCheckRfChannelBand(const uint8_t rfBandInt) {
@@ -1324,7 +1324,7 @@ namespace iqrf {
         case 0b10:
           return RF_ChannelBand::BAND_433;
         default:
-          THROW_EXC(std::exception, "Unsupported coordinator RF band: " << PAR(rfBandInt));
+          THROW_EXC(std::out_of_range, "Unsupported coordinator RF band: " << PAR(rfBandInt));
       }
     }
 
@@ -1356,7 +1356,7 @@ namespace iqrf {
 
       // invalid length
       if (securityPasswordStr.length() > SECURITY_PASSWORD_MAX_LEN) {
-        THROW_EXC(std::exception, "Invalid security password length: " << PAR(securityPasswordStr.length()));
+        THROW_EXC(std::out_of_range, "Invalid security password length: " << PAR(securityPasswordStr.length()));
       }
 
       for (int i = 0; i < securityPasswordStr.length(); i++) {
@@ -1376,7 +1376,7 @@ namespace iqrf {
 
       // invalid length
       if (userKeyStr.length() > SECURITY_USER_KEY_MAX_LEN) {
-        THROW_EXC(std::exception, "Invalid security user key length: " << PAR(userKeyStr.length()));
+        THROW_EXC(std::out_of_range, "Invalid security user key length: " << PAR(userKeyStr.length()));
       }
 
       for (int i = 0; i < userKeyStr.length(); i++) {
@@ -1404,13 +1404,13 @@ namespace iqrf {
       std::list<uint16_t> targetNodes;
 
       if (deviceAddr.empty()) {
-        THROW_EXC(std::exception, "No device addresses.");
+        THROW_EXC(std::out_of_range, "No device addresses.");
       }
 
       for (int devAddr : deviceAddr) {
         if ((devAddr < 0) || (devAddr > 0xEF)) {
           THROW_EXC(
-            std::exception, "Device address outside of valid range. " << NAME_PAR_HEX("Address", devAddr)
+            std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", devAddr)
           );
         }
         targetNodes.push_back(devAddr);
@@ -1422,42 +1422,42 @@ namespace iqrf {
 
     uint8_t checkRfChannel(const int rfChannel) {
       if ((rfChannel < 0) || (rfChannel > 255)) {
-        THROW_EXC(std::exception, "RF channel out of valid bounds. Value: " << PAR(rfChannel));
+        THROW_EXC(std::out_of_range, "RF channel out of valid bounds. Value: " << PAR(rfChannel));
       }
       return rfChannel;
     }
 
     uint8_t checkTxPower(const int txPower) {
       if ((txPower < 0) || (txPower > 7)) {
-        THROW_EXC(std::exception, "Tx power out of valid bounds. Value: " << PAR(txPower));
+        THROW_EXC(std::out_of_range, "Tx power out of valid bounds. Value: " << PAR(txPower));
       }
       return txPower;
     }
 
     uint8_t checkRxFilter(const int rxFilter) {
       if ((rxFilter < 0) || (rxFilter > 64)) {
-        THROW_EXC(std::exception, "Rx filter out of valid bounds. Value: " << PAR(rxFilter));
+        THROW_EXC(std::out_of_range, "Rx filter out of valid bounds. Value: " << PAR(rxFilter));
       }
       return rxFilter;
     }
 
     uint8_t checkLpRxTimeout(const int lpRxTimeout) {
       if ((lpRxTimeout < 1) || (lpRxTimeout > 255)) {
-        THROW_EXC(std::exception, "LP Rx timeout out of valid bounds. Value: " << PAR(lpRxTimeout));
+        THROW_EXC(std::out_of_range, "LP Rx timeout out of valid bounds. Value: " << PAR(lpRxTimeout));
       }
       return lpRxTimeout;
     }
 
     uint8_t checkRfPgmAltChannel(const int rfPgmAltChannel) {
       if ((rfPgmAltChannel < 1) || (rfPgmAltChannel > 255)) {
-        THROW_EXC(std::exception, "Alternative DPA service channel out of valid bounds. Value: " << PAR(rfPgmAltChannel));
+        THROW_EXC(std::out_of_range, "Alternative DPA service channel out of valid bounds. Value: " << PAR(rfPgmAltChannel));
       }
       return rfPgmAltChannel;
     }
 
     uint8_t checkUartBaudrate(const int uartBaudrate) {
       if ((uartBaudrate < 0) || (uartBaudrate > 8)) {
-        THROW_EXC(std::exception, "UART baud rate out of valid bounds. Value: " << PAR(uartBaudrate));
+        THROW_EXC(std::out_of_range, "UART baud rate out of valid bounds. Value: " << PAR(uartBaudrate));
       }
       return uartBaudrate;
     }
@@ -1671,7 +1671,7 @@ namespace iqrf {
       // only one node - for the present time
       std::map<uint16_t, NodeWriteResult>::iterator iter = nodeResultsMap.begin();
       if (iter == nodeResultsMap.end()) {
-        THROW_EXC(std::exception, "No nodes results.");
+        THROW_EXC(std::out_of_range, "No nodes results.");
       }
 
       Pointer("/data/rsp/deviceAddr").Set(response, iter->first);
@@ -1780,7 +1780,7 @@ namespace iqrf {
 
       // unsupported type of request
       if (msgType.m_type != m_mTypeName_mngIqmeshWriteConfig) {
-        THROW_EXC(std::logic_error, "Unsupported message type: " << PAR(msgType.m_type));
+        THROW_EXC(std::out_of_range, "Unsupported message type: " << PAR(msgType.m_type));
       }
 
       // creating representation object
@@ -1804,7 +1804,7 @@ namespace iqrf {
 
         // no config bytes specified - error message
         if (configBytes.empty()) {
-          THROW_EXC(std::exception, "No config bytes specified");
+          THROW_EXC(std::out_of_range, "No config bytes specified");
         }
 
         if (comWriteConfig.isSetRfBand()) {

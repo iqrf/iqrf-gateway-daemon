@@ -153,6 +153,13 @@
       "libraryName": "JsonDpaApiIqrfStandard",
       "enabled": true,
       "startlevel": 3
+    },
+	{
+      "name": "iqrf::WriteConfigService",
+      "libraryPath": "",
+      "libraryName": "WriteConfigService",
+      "enabled": true,
+      "startlevel": 0
     }
   ]
 }
