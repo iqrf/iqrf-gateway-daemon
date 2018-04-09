@@ -168,6 +168,7 @@ namespace iqrf {
       // get nadr, hwpid as driver ignore them
       int nadrReq = Pointer("/data/req/nAdr").Get(doc)->GetInt();
       int hwpidReq = Pointer("/data/req/hwpId").Get(doc)->GetInt();
+      int timeout = Pointer("/data/timeout").GetWithDefault(doc, -1).GetInt();
 
       // call _RequestObj driver func
       // driver returns in rawHdpRequest format
@@ -184,7 +185,7 @@ namespace iqrf {
 
       // send to coordinator and wait for transaction result
       //-------------------
-      auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest());
+      auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest(), timeout);
       auto res = trn->get();
       //-------------------
 
