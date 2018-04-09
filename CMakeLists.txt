@@ -54,3 +54,22 @@ add_subdirectory(JsonDpaApiRaw)
 add_subdirectory(JsCache)
 add_subdirectory(JsonDpaApiIqrfStandard)
 add_subdirectory(WriteConfigService)
+
+set(DEFAULT_DAEMON_VERSION v2.0.0dev)
+string(TIMESTAMP DEFAULT_BUILD_TIMESTAMP)
+
+if(DEFINED DAEMON_VERSION)
+  message(STATUS "DAEMON_VERSION = " ${DAEMON_VERSION})
+else()
+  message(STATUS "Set to default DAEMON_VERSION = " ${DEFAULT_DAEMON_VERSION})
+  set(DAEMON_VERSION ${DEFAULT_DAEMON_VERSION})
+endif()
+
+if(DEFINED BUILD_TIMESTAMP)
+  message(STATUS "BUILD_TIMESTAMP = " ${BUILD_TIMESTAMP})
+else()
+  message(STATUS "Set to default BUILD_TIMESTAMP = " ${DEFAULT_BUILD_TIMESTAMP})
+  set(BUILD_TIMESTAMP ${DEFAULT_BUILD_TIMESTAMP})
+endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/VersionInfo.h.in ${CMAKE_BINARY_DIR}/VersionInfo.h @ONLY)
