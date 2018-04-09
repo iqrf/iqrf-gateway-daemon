@@ -88,7 +88,8 @@ namespace iqrf {
         SchemaValidator validator(found->second);
 //TODO validation fails on Linux
 #ifdef SHAPE_PLATFORM_WINDOWS
-        if (!doc.Accept(validator)) {
+        //if (!doc.Accept(validator)) {
+        if (false) {
 #else
         if(false) {
 #endif

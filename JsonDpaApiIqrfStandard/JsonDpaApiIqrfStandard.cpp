@@ -175,6 +175,7 @@ namespace iqrf {
 
       m_duk.call(methodRequestName, reqObjStr, rawHdpRequest);
 
+      TRC_DEBUG(PAR(rawHdpRequest))
       // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
       std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(nadrReq, hwpidReq, rawHdpRequest);
 
@@ -190,22 +191,27 @@ namespace iqrf {
       // get dpaResponse data
       const uint8_t *buf = res->getResponse().DpaPacket().Buffer;
       int sz = res->getResponse().GetLength();
-      std::vector<uint8_t> dpaResponse(buf, buf + sz);
-
-      // nadr, hwpid not set for drivers, so extract them for later use
-      std::string rawHdpResponse;
-      int nadrRes, hwpidRes;
-      // get rawHdpResponse in text form
-      rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, dpaResponse);
-
-      // call _RequestObj driver func
-      // _ResponseObj driver func returns in rsp{} in text form
-      std::string rspObjStr;
-      m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
-        
-      // get json from its text representation
+      
       Document rspObj;
-      rspObj.Parse(rspObjStr);
+      int nadrRes = nadrReq, hwpidRes = hwpidReq;
+      if (sz > 0) {
+        //we have some response
+        std::vector<uint8_t> dpaResponse(buf, buf + sz);
+
+        // nadr, hwpid not set for drivers, so extract them for later use
+        std::string rawHdpResponse;
+        // get rawHdpResponse in text form
+        rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, dpaResponse);
+        TRC_DEBUG(PAR(rawHdpResponse))
+
+          // call _RequestObj driver func
+          // _ResponseObj driver func returns in rsp{} in text form
+          std::string rspObjStr;
+        m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
+
+        // get json from its text representation
+        rspObj.Parse(rspObjStr);
+      }
 
       // set nadr, hwpid
       Pointer("/nAdr").Set(rspObj, nadrRes);
