@@ -34,6 +34,9 @@ namespace iqrf {
     iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
+    //just to be able to abort
+    std::mutex m_iDpaTransactionMtx;
+    std::shared_ptr<IDpaTransaction2> m_iDpaTransaction;
 
     // TODO from cfg
     std::vector<std::string> m_filters =
@@ -185,8 +188,11 @@ namespace iqrf {
 
       // send to coordinator and wait for transaction result
       //-------------------
-      auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest(), timeout);
-      auto res = trn->get();
+      {
+        std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
+        m_iDpaTransaction = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest(), timeout);
+      }
+      auto res = m_iDpaTransaction->get();
       //-------------------
 
       // get dpaResponse data
@@ -196,22 +202,25 @@ namespace iqrf {
       Document rspObj;
       int nadrRes = nadrReq, hwpidRes = hwpidReq;
       if (sz > 0) {
+        int rcode = res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode;
         //we have some response
         std::vector<uint8_t> dpaResponse(buf, buf + sz);
 
-        // nadr, hwpid not set for drivers, so extract them for later use
-        std::string rawHdpResponse;
-        // get rawHdpResponse in text form
-        rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, dpaResponse);
-        TRC_DEBUG(PAR(rawHdpResponse))
+        if (0 == rcode) {
+
+          // nadr, hwpid not set for drivers, so extract them for later use
+          std::string rawHdpResponse;
+          // get rawHdpResponse in text form
+          rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, dpaResponse);
 
           // call _RequestObj driver func
           // _ResponseObj driver func returns in rsp{} in text form
           std::string rspObjStr;
-        m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
+          m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
 
-        // get json from its text representation
-        rspObj.Parse(rspObjStr);
+          // get json from its text representation
+          rspObj.Parse(rspObjStr);
+        }
       }
 
       // set nadr, hwpid
@@ -271,6 +280,13 @@ namespace iqrf {
         "JsonDpaApiIqrfStandard instance deactivate" << std::endl <<
         "******************************"
       );
+
+      {
+        std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
+        if (m_iDpaTransaction) {
+          m_iDpaTransaction->abort();
+        }
+      }
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
 
