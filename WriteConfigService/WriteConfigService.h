@@ -3,6 +3,7 @@
 #include "IWriteConfigService.h"
 #include "ShapeProperties.h"
 #include "IIqrfDpaService.h"
+#include "IMessagingSplitterService.h"
 #include "ITraceService.h"
 #include <string>
 
@@ -28,6 +29,9 @@ namespace iqrf {
 
     void attachInterface(iqrf::IIqrfDpaService* iface);
     void detachInterface(iqrf::IIqrfDpaService* iface);
+
+    void attachInterface(IMessagingSplitterService* iface);
+    void detachInterface(IMessagingSplitterService* iface);
 
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);

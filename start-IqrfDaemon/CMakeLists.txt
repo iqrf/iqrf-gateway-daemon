@@ -13,6 +13,7 @@ source_group("Configuration Lin" FILES ${_CONFIG_LIN})
 source_group("JavaScript" FILES ${_JAVA_SCRIPT})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_BINARY_DIR})
 
 add_executable(${PROJECT_NAME} ${_HDRFILES} ${_SRCFILES} ${_CONFIG_WIN} ${_CONFIG_LIN} ${_JAVA_SCRIPT})
 

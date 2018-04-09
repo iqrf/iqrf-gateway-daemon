@@ -1955,6 +1955,16 @@ namespace iqrf {
     m_imp->detachInterface(iface);
   }
 
+  void WriteConfigService::attachInterface(iqrf::IMessagingSplitterService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void WriteConfigService::detachInterface(iqrf::IMessagingSplitterService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
   void WriteConfigService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
