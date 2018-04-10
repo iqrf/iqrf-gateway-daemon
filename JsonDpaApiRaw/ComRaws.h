@@ -37,9 +37,9 @@ namespace iqrf {
       :ComBase(doc)
     {
       m_request.DpaPacket().DpaRequestPacket_t.NADR = rapidjson::Pointer("/data/req/nAdr").Get(doc)->GetInt();
-      m_request.DpaPacket().DpaRequestPacket_t.PNUM, rapidjson::Pointer("/data/req/pNum").Get(doc)->GetInt();
-      m_request.DpaPacket().DpaRequestPacket_t.PCMD, rapidjson::Pointer("/data/req/pCmd").Get(doc)->GetInt();
-      m_request.DpaPacket().DpaRequestPacket_t.HWPID, rapidjson::Pointer("/data/req/hwpId").Get(doc)->GetInt();
+      m_request.DpaPacket().DpaRequestPacket_t.PNUM = rapidjson::Pointer("/data/req/pNum").Get(doc)->GetInt();
+      m_request.DpaPacket().DpaRequestPacket_t.PCMD = rapidjson::Pointer("/data/req/pCmd").Get(doc)->GetInt();
+      m_request.DpaPacket().DpaRequestPacket_t.HWPID = rapidjson::Pointer("/data/req/hwpId").Get(doc)->GetInt();
       int len = parseBinary(m_request.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData,
         rapidjson::Pointer("/data/req/rData").Get(doc)->GetString(),
         DPA_MAX_DATA_LENGTH);

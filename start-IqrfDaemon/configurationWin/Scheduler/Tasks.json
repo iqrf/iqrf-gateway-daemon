@@ -58,7 +58,7 @@
               "nAdr": 0,
               "hwpId": 65535
             },
-            "returnVerbose": false
+            "returnVerbose": true
           }
         }
       }
