@@ -44,7 +44,6 @@ namespace iqrf {
       "iqrfEmbed",
       "iqrfLight",
       "iqrfSensor",
-      "iqrfSensor",
       "iqrfBinaryoutput",
     };
 
