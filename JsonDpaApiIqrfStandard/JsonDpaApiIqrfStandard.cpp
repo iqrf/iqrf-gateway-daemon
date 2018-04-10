@@ -44,6 +44,8 @@ namespace iqrf {
       "iqrfEmbed",
       "iqrfLight",
       "iqrfSensor",
+      "iqrfSensor",
+      "iqrfBinaryoutput",
     };
 
     DuktapeStuff m_duk;

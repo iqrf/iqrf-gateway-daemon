@@ -45,7 +45,7 @@
       }
     },
     {
-      "time": "*/5 * * * * * *",
+      "time": "*/5 * 1 * * * *",
       "service": "SchedulerMessaging",
       "task": {
         "messaging": "WebsocketMessaging",
