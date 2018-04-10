@@ -171,7 +171,7 @@ namespace iqrf {
         
       // get nadr, hwpid as driver ignore them
       int nadrReq = Pointer("/data/req/nAdr").Get(doc)->GetInt();
-      int hwpidReq = Pointer("/data/req/hwpId").Get(doc)->GetInt();
+      int hwpidReq = Pointer("/data/req/hwpId").GetWithDefault(doc, -1).GetInt();
       int timeout = Pointer("/data/timeout").GetWithDefault(doc, -1).GetInt();
 
       // call _RequestObj driver func
@@ -226,7 +226,9 @@ namespace iqrf {
 
       // set nadr, hwpid
       Pointer("/nAdr").Set(rspObj, nadrRes);
-      Pointer("/hwpId").Set(rspObj, hwpidRes);
+      if (hwpidReq != -1) { // default -1 => wasn't present in request
+        Pointer("/hwpId").Set(rspObj, hwpidRes);
+      }
 
       { //debug
         std::string str = JsonToStr(&rspObj);
