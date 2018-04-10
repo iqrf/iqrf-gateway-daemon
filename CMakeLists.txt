@@ -54,6 +54,7 @@ add_subdirectory(JsonDpaApiRaw)
 add_subdirectory(JsCache)
 add_subdirectory(JsonDpaApiIqrfStandard)
 add_subdirectory(WriteConfigService)
+add_subdirectory(SchedulerMessaging)
 
 set(DEFAULT_DAEMON_VERSION v2.0.0dev)
 string(TIMESTAMP DEFAULT_BUILD_TIMESTAMP)

@@ -17,11 +17,6 @@ namespace iqrf {
   class IIqrfDpaService_DECLSPEC IIqrfDpaService
   {
   public:
-    //enum RfMode {
-    //  Std,
-    //  Lp
-    //};
-
     /// Asynchronous DPA message handler functional type
     typedef std::function<void(const DpaMessage& dpaMessage)> AsyncMessageHandlerFunc;
 
