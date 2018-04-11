@@ -213,6 +213,7 @@ namespace iqrf {
           std::string rawHdpResponse;
           // get rawHdpResponse in text form
           rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, dpaResponse);
+          TRC_DEBUG(PAR(rawHdpResponse))
 
           // call _RequestObj driver func
           // _ResponseObj driver func returns in rsp{} in text form

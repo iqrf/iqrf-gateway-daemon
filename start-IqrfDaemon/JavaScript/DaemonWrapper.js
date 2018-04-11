@@ -212,6 +212,154 @@ iqrf.embed.coordinator.SmartConnect_Response_rsp = function (rawHdp) {
 };
 
 ////////////////////////
+// OS
+////////////////////////
+iqrf.embed.os.Read_Request_req = function (param) {
+    return iqrf.embed.os.Read_Request();
+};
+
+//TODO values are as particular items in schema
+iqrf.embed.os.Read_Response_rsp = function (rawHdp) {
+    var result = iqrf.embed.os.Read_Response(rawHdp);
+    return result;
+};
+
+iqrf.embed.os.Reset_Request_req = function (param) {
+    return iqrf.embed.os.Reset_Request();
+};
+
+//TODO schama has bad name InitReset
+iqrf.embed.os.Reset_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.Reset_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.os.ReadCfg_Request_req = function (param) {
+    return iqrf.embed.os.Read_Request();
+};
+
+//TODO values are as particular items in schema
+iqrf.embed.os.ReadCfg_Response_rsp = function (rawHdp) {
+    var result = iqrf.embed.os.Read_Response(rawHdp);
+    return result;
+};
+
+iqrf.embed.os.Rfpgm_Request_req = function (param) {
+    return iqrf.embed.os.Rfpgm_Request();
+};
+
+iqrf.embed.os.Rfpgm_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.Rfpgm_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.os.Sleep_Request_req = function (param) {
+    return iqrf.embed.os.Sleep_Request(param.time, param.control);
+};
+
+iqrf.embed.os.Sleep_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.Sleep_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.os.Batch_Request_req = function (param) {
+    return iqrf.embed.os.Batch_Request(param.innerReqs);
+};
+
+iqrf.embed.os.Batch_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.Batch_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.os.SetSecurity_Request_req = function (param) {
+    return iqrf.embed.os.SetSecurity_Request(param.type, param.data);
+};
+
+iqrf.embed.os.SetSecurity_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.SetSecurity_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+//TODO schama has bad name InitReset
+iqrf.embed.os.Restart_Request_req = function (param) {
+    return iqrf.embed.os.Restart_Request();
+};
+
+iqrf.embed.os.Restart_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.Restart_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.os.WriteCfgByte_Request_req = function (param) {
+    return iqrf.embed.os.WriteCfgByte_Request(param.bytes);
+};
+
+iqrf.embed.os.WriteCfgByte_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.WriteCfgByte_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+//TODO values are as particular items in schema
+iqrf.embed.os.LoadCode_Request_req = function (param) {
+    return iqrf.embed.os.LoadCodeCfgByte_Request(param.flags, param.address, param.length, param.checkSum);
+};
+
+//TODO rename result in schema
+iqrf.embed.os.LoadCode_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.LoadCode_Response(rawHdp);
+    var result =
+    {
+        lresult: iqrf.embed.os.LoadCode_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.os.SelectiveBatch_Request_req = function (param) {
+    return iqrf.embed.os.SelectiveBatch_Request(param.selectedNodes, param.innerReqs);
+};
+
+iqrf.embed.os.SelectiveBatch_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.SelectiveBatch_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.os.WriteCfg_Request_req = function (param) {
+    return iqrf.embed.os.WriteCfg_Request(param.checkSum, param.cfgBytes, param.rfPgm);
+};
+
+iqrf.embed.os.WriteCfg_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.WriteCfg_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+////////////////////////
 // Thermometer
 ////////////////////////
 iqrf.embed.thermometer.Read_Request_req = function (param) {
@@ -415,12 +563,12 @@ iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {
     return result;
 };
 
-// TODO needs special handling with state info
-//iqrf.sensor.Frc_Request_req = function (p) {
-//    return iqrf.sensor.Frc_Request(p.sensorType, p.sensorIndex, p.frcCmd, p.selectedNodes, p.sleepAfterFrc);
-//};
+iqrf.sensor.Frc_Request_req = function (p) {
+    return iqrf.sensor.Frc_Request(p.sensorType, p.sensorIndex, p.frcCmd, p.selectedNodes, p.sleepAfterFrc);
+};
 
-//iqrf.sensor.Frc_Response_rsp = function (rawHdp) {
+//TODO needs special handling with state info because of parameter per to be passed
+//iqrf.sensor.Frc_Response_rsp = function (sensorType, ..., rawHdp) {
 //    var result =
 //    {
 //        result: iqrf.sensor.Frc_Response(rawHdp)
@@ -428,3 +576,37 @@ iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {
 //    return result;
 //};
 
+////////////////////////
+// EXPLORE
+////////////////////////
+iqrf.embed.explore.Enumerate_Request_req = function (param) {
+    return iqrf.embed.explore.Enumerate_Request();
+};
+
+//TODO values are as particular items in schema
+iqrf.embed.explore.Enumerate_Response_rsp = function (rawHdp) {
+    var result = iqrf.embed.explore.Enumerate_Response(rawHdp);
+    return result;
+};
+
+iqrf.embed.explore.PeripheralInformation_Request_req = function (param) {
+    return iqrf.embed.explore.PeripheralInformation_Request(param.per);
+};
+
+//TODO values are as particular items in schema
+//TODO needs special handling with state info because of parameter per to be passed
+//iqrf.embed.explore.PeripheralInformation_Response_rsp = function (per, rawHdp) {
+//    var result = iqrf.embed.explore.PeripheralInformation_Response(per, rawHdp);
+//    return result;
+//};
+
+iqrf.embed.explore.MorePeripheralInformation_Request_req = function (param) {
+    return iqrf.embed.explore.MorePeripheralInformation_Request();
+};
+
+//TODO values are as particular items in schema
+//TODO needs special handling with state info because of parameter per to be passed
+//iqrf.embed.explore.MorePeripheralInformation_Response_rsp = function (per, rawHdp) {
+//    var result = iqrf.embed.explore.MorePeripheralInformation_Response(rawHdp);
+//    return result;
+//};
