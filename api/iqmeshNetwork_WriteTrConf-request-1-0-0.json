@@ -2,7 +2,7 @@
 	"$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmesh_ReadTrConf-response",
+		"name": "iqmeshNetwork_WriteTrConf-request",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
@@ -10,9 +10,9 @@
 	"properties": {
 		"mType": {
 			"type": "string",
-			"description": "iqmesh_ Network management - Read TR configuration response.",
+			"description": "IQMESH Network management - Write TR configuration request.",
 			"enum": [
-				"iqmesh_ReadTrConf"
+				"iqmeshNetwork_WriteTrConf"
 			]
 		},
 		"data": {
@@ -22,21 +22,25 @@
 					"type": "string",
 					"description": "Message identification for binding request with response."
 				},
-				"rsp": {
+				"repeat": {
+					"type": "integer",
+					"description": "Number of repetitions of DPA messages.",
+					"default": 1
+				},
+				"restart": {
+					"type": "boolean",
+					"description": "Restart required after writing the configuration.",
+					"default": true
+				},
+				"req": {
 					"type": "object",
-					"description": "Returns following values, see its description.",
 					"properties": {
 						"deviceAddr": {
-							"type": "integer",
-							"description": "Device address to read the configuration from."
-						},
-						"embPerBits": {
 							"type": "array",
-							"description": "An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.",
+							"description": "Device address(es) to write the configuration to. Broadcast address is also allowed.",
 							"items": {
 								"type": "integer"
-							},
-							"maxItems": 3
+							}
 						},
 						"rfBand": {
 							"type": "string",
@@ -125,93 +129,28 @@
 						"peerToPeer": {
 							"type": "boolean",
 							"description": "If set, then device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event."
+						},
+						"securityPassword": {
+							"type": "string",
+							"description": "It sets security password. If the field is left completely empty (no characters filled), the default password (16x number 0x00) is used (the same as the default set from the factory."
+						},
+						"securityUserKey": {
+							"type": "string",
+							"description": "It sets security user key. Enter a value up to 16 characters."
 						}
 					},
 					"required": [
-						"deviceAddr",
-						"embPerBits",
-						"rfBand",
-						"rfChannelA",
-						"rfChannelB",
-						"rfSubChannelA",
-						"rfSubChannelB",
-						"txPower",
-						"rxFilter",
-						"lpRxTimeout",
-						"rfPgmAltChannel",
-						"rfPgmEnableAfterReset",
-						"rfPgmTerminateAfter1Min",
-						"rfPgmTerminateMcuPin",
-						"rfPgmDualChannel",
-						"rfPgmLpMode",
-						"rfPgmIncorrectUpload",
-						"customDpaHandler",
-						"nodeDpaInterface",
-						"uartBaudrate",
-						"dpaAutoexec",
-						"routingOff",
-						"ioSetup",
-						"peerToPeer"
+						"deviceAddr"
 					]
 				},
-				"raw": {
-					"type": "array",
-					"description": "Returns array of objects req-cnf-rsp, see its description.",
-					"items": {
-						"type": "object",
-						"properties": {
-							"request": {
-								"type": "string",
-								"description": "Binary buffer with DPA request."
-							},
-							"requestTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.MS"
-							},
-							"confirmation": {
-								"type": "string",
-								"description": "Binary buffer with DPA confirmation."
-							},
-							"confirmationTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.MS"
-							},
-							"response": {
-								"type": "string",
-								"description": "Binary buffer with DPA response."
-							},
-							"responseTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.MS"
-							}
-						},
-						"required": [
-							"request",
-							"requestTs",
-							"confirmation",
-							"confirmationTs",
-							"response",
-							"responseTs"
-						]
-					}
-				},
-				"insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
-				},
-				"status": {
-					"type": "integer",
-					"description": "IQRF GW daemon API (general or mType) status."
-				},
-				"statusStr": {
-					"type": "string",
-					"description": "IQRF GW daemon API (general or mType) status in string form."
+				"returnVerbose": {
+					"type": "boolean",
+					"description": "Flag that includes additional parameters in the response."
 				}
 			},
 			"required": [
 				"msgId",
-				"rsp",
-				"status"
+				"req"
 			]
 		}
 	},

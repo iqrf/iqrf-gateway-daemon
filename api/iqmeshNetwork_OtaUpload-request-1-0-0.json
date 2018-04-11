@@ -2,7 +2,7 @@
 	"$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmesh_ReadTrConf-request",
+		"name": "iqmeshNetwork_OtaUpload-request",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
@@ -10,9 +10,9 @@
 	"properties": {
 		"mType": {
 			"type": "string",
-			"description": "iqmesh_ Network management - Read TR configuration request.",
+			"description": "IQMESH Network management - Upload hex or iqrf file request.",
 			"enum": [
-				"iqmesh_ReadTrConf"
+				"iqmeshNetwork_OtaUpload"
 			]
 		},
 		"data": {
@@ -32,14 +32,29 @@
 					"properties": {
 						"deviceAddr": {
 							"type": "array",
-							"description": "Device address(es) to read the configuration from.",
+							"description": "Device address(es) to write the hex or iqrf file.",
 							"items": {
 								"type": "integer"
 							}
+						},
+						"fileName": {
+							"type": "string",
+							"description": "Full name of file with source code to load."
+						},
+						"startMemAddr": {
+							"type": "integer",
+							"description": "Start address on which will be the data saved into memory."
+						},
+						"loadingAction": {
+							"type": "string",
+							"description": "Loading action - WithoutCodeLoading, WithCodeLoading."
 						}
 					},
 					"required": [
-						"deviceAddr"
+						"deviceAddr",
+						"fileName",
+						"startMemAddr",
+						"loadingAction"
 					]
 				},
 				"returnVerbose": {

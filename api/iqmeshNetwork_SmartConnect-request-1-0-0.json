@@ -2,7 +2,7 @@
 	"$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmesh_BondNodeLocal-request",
+		"name": "iqmeshNetwork_SmartConnect-request",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
@@ -10,9 +10,9 @@
 	"properties": {
 		"mType": {
 			"type": "string",
-			"description": "iqmesh_ Network management - Bond Node Local request.",
+			"description": "IQMESH Network management - Smart Connect request.",
 			"enum": [
-				"iqmesh_BondNodeLocal"
+				"iqmeshNetwork_SmartConnect"
 			]
 		},
 		"data": {
@@ -33,10 +33,31 @@
 						"deviceAddr": {
 							"type": "integer",
 							"description": "Address to bond the device to."
+						},
+						"bondingTestRetries": {
+							"type": "integer",
+							"description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds.",
+							"default": 1
+						},
+						"smartConnectCode": {
+							"type": "string",
+							"description": "Smart connect code of the device."
+						},
+						"userData": {
+							"type": "array",
+							"description": "Optional data passed to the bonded node.",
+							"items": {
+								"type": "integer",
+								"minItems": 4, 
+								"maxItems": 4,
+								"default": 0
+							}
 						}
 					},
 					"required": [
-						"deviceAddr"
+						"deviceAddr",
+						"bondingTestRetries",
+						"smartConnectCode"
 					]
 				},
 				"returnVerbose": {

@@ -1,5 +1,5 @@
 {
-  "mType": "iqmesh_EnumerateDevice",
+  "mType": "iqmeshNetwork_EnumerateDevice",
   "data": {
     "msgId": "officia magna elit ullamco",
     "repeat": 1,

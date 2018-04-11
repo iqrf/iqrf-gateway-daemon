@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfRaw",
+  "data": {
+    "msgId": "test",
+    "timeout": 1000,
+    "req": {
+      "request": "01.00.06.03.ff.ff"
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "mType": "iqrfSensor_ReadSensorsWithTypes",
+  "data": {
+    "msgId": "test",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "hwpId": 65535    
+    },
+    "returnVerbose": true
+  }
+}
+
+{
+  "mType": "iqrfSensor_ReadSensorsWithTypes",
+  "data": {
+    "msgId": "test",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "hwpId": 65535,
+      "params": -1
+    },
+    "returnVerbose": true
+  }
+}
+
+{
+  "mType": "iqrfSensor_ReadSensorsWithTypes",
+  "data": {
+    "msgId": "test",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "hwpId": 65535,
+      "params": [0, 1]
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,181 @@
+{
+	"$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "iqmeshNetwork_SmartConnect-response",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"type": "object",
+	"properties": {
+		"mType": {
+			"type": "string",
+			"description": "IQMESH Network management - Smart connect response.",
+			"enum": [
+				"iqmeshNetwork_SmartConnect"
+			]
+		},
+		"data": {
+			"type": "object",
+			"properties": {
+				"msgId": {
+					"type": "string",
+					"description": "Message identification for binding request with response."
+				},
+				"rsp": {
+					"type": "object",
+					"description": "Returns following values, see its description.",
+					"properties": {
+						"assignedAddr": {
+							"type": "integer",
+							"description": "Assigned address to the node."
+						},
+						"nodesNr": {
+							"type": "integer",
+							"description": "Number of nodes in the network."
+						},
+						"hwpId": {
+							"type": "integer",
+							"description": "Profile integer."
+						},
+						"manufacturer": {
+							"type": "string",
+							"description": "Manufacture name."
+						},
+						"product": {
+							"type": "string",
+							"description": "Product name."
+						},
+						"standards": {
+							"type": "array",
+							"description": "Supported standards by the device.",
+							"items": {
+								"type": "integer"
+							}
+						},
+						"osRead": {
+							"type": "object",
+							"description": "Returns following values, see its description.",
+							"properties": {
+								"mid": {
+									"type": "integer",
+									"description": "TR Module ID."
+								},
+								"osVersion": {
+									"type": "integer",
+									"description": "IQRF OS version."
+								},
+								"trMcuType": {
+									"type": "integer",
+									"description": "TR MCU type."
+								},
+								"osBuild": {
+									"type": "integer",
+									"description": "IQRF OS build."
+								},
+								"rssi": {
+									"type": "integer",
+									"description": "See lastRSSI at IQRF OS Reference Guide."
+								},
+								"supplyVoltage": {
+									"type": "integer",
+									"description": "Module supply voltage, contains real voltage value."
+								},
+								"flags": {
+									"type": "integer",
+									"description": "See DPA guide."
+								},
+								"slotLimits": {
+									"type": "integer",
+									"description": "See DPA guide."
+								},
+								"ibk": {
+									"type": "array",
+									"description": "Individual Bonding Key.",
+									"items": {
+										"type": "integer"
+									},
+									"maxItems": 15
+								}
+							},
+							"required": [
+								"mid"							
+							]
+						}
+					},
+					"required": [
+						"assignedAddr",
+						"nodesNr",
+						"hwpId",
+						"manufacturer",
+						"product",
+						"standards",
+						"osRead"
+					]
+				},
+				"raw": {
+					"type": "array",
+					"description": "Returns array of objects req-cnf-rsp, see its description.",
+					"items": {
+						"type": "object",
+						"properties": {
+							"request": {
+								"type": "string",
+								"description": "Binary buffer with DPA request."
+							},
+							"requestTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+							},
+							"confirmation": {
+								"type": "string",
+								"description": "Binary buffer with DPA confirmation."
+							},
+							"confirmationTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+							},
+							"response": {
+								"type": "string",
+								"description": "Binary buffer with DPA response."
+							},
+							"responseTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+							}
+						},
+						"required": [
+							"request",
+							"requestTs",
+							"confirmation",
+							"confirmationTs",
+							"response",
+							"responseTs"
+						]
+					}
+				},
+				"insId": {
+					"type": "string",
+					"description": "IQRF GW daemon instance identification."
+				},
+				"status": {
+					"type": "integer",
+					"description": "IQRF GW daemon API (general or mType) status."
+				},
+				"statusStr": {
+					"type": "string",
+					"description": "IQRF GW daemon API (general or mType) status in string form."
+				}
+			},
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			]
+		}
+	},
+	"required": [
+		"mType",
+		"data"
+	]
+}

@@ -2,7 +2,7 @@
 	"$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmesh_OtaUpload-response",
+		"name": "iqmeshNetwork_OtaUpload-response",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
@@ -10,9 +10,9 @@
 	"properties": {
 		"mType": {
 			"type": "string",
-			"description": "iqmesh_ Network management - Upload hex or iqrf file response.",
+			"description": "IQMESH Network management - Upload hex or iqrf file response.",
 			"enum": [
-				"iqmesh_OtaUpload"
+				"iqmeshNetwork_OtaUpload"
 			]
 		},
 		"data": {

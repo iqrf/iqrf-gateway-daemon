@@ -1,5 +1,5 @@
 {
-  "mType": "iqmesh_WriteTrConf",
+  "mType": "iqmeshNetwork_WriteTrConf",
   "data": {
     "msgId": "ut dolor anim",
     "repeat": 1,

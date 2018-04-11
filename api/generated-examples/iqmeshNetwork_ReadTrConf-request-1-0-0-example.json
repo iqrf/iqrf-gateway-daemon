@@ -1,5 +1,5 @@
 {
-  "mType": "iqmesh_ReadTrConf",
+  "mType": "iqmeshNetwork_ReadTrConf",
   "data": {
     "msgId": "exercitation tempo",
     "repeat": 1,

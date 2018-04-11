@@ -1,0 +1,15 @@
+{
+  "mType": "iqrfRawHdp",
+  "data": {
+    "msgId": "test",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "pNum": 6,
+      "pCmd": 3,
+      "hwpId": 65535,
+      "rData": ""
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "mType": "iqmesh_OtaUpload",
+  "mType": "iqmeshNetwork_OtaUpload",
   "data": {
     "msgId": "ex ullamco nostrud cillum",
     "repeat": 1,

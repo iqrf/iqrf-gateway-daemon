@@ -2,7 +2,7 @@
 	"$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmesh_BondNodeLocal-response",
+		"name": "iqmeshNetwork_BondNodeLocal-response",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
@@ -10,9 +10,9 @@
 	"properties": {
 		"mType": {
 			"type": "string",
-			"description": "iqmesh_ Network management - Bond Node Local response.",
+			"description": "IQMESH Network management - Bond Node Local response.",
 			"enum": [
-				"iqmesh_BondNodeLocal"
+				"iqmeshNetwork_BondNodeLocal"
 			]
 		},
 		"data": {
@@ -46,24 +46,24 @@
 							"type": "string",
 							"description": "Product name."
 						},
-						"osReadRsp": {
+						"osRead": {
 							"type": "object",
 							"description": "Returns following values, see its description.",
 							"properties": {
 								"mid": {
-									"type": "string",
+									"type": "integer",
 									"description": "TR Module ID."
 								},
 								"osVersion": {
-									"type": "string",
+									"type": "integer",
 									"description": "IQRF OS version."
 								},
 								"trMcuType": {
-									"type": "string",
+									"type": "integer",
 									"description": "TR MCU type."
 								},
 								"osBuild": {
-									"type": "string",
+									"type": "integer",
 									"description": "IQRF OS build."
 								},
 								"rssi": {
@@ -71,8 +71,8 @@
 									"description": "See lastRSSI at IQRF OS Reference Guide."
 								},
 								"supplyVoltage": {
-									"type": "string",
-									"description": "Module supply voltage"
+									"type": "integer",
+									"description": "Module supply voltage, contains real voltage value."
 								},
 								"flags": {
 									"type": "integer",

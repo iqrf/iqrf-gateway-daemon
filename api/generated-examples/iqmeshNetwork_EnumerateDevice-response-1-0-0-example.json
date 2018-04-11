@@ -1,5 +1,5 @@
 {
-  "mType": "iqmesh_EnumerateDevice",
+  "mType": "iqmeshNetwork_EnumerateDevice",
   "data": {
     "msgId": "aliqua non dolor",
     "rsp": {

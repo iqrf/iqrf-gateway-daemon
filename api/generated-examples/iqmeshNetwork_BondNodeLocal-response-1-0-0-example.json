@@ -1,0 +1,52 @@
+{
+	"mType": "iqmeshNetwork_BondNodeLocal",
+	"data": {
+		"msgId": "CCCC",
+		"rsp": {
+			"assignedAddr": 1,
+			"nodesNr": 1,
+			"hwpId": 1,
+			"manufacturer": "EEEE",
+			"product": "DD",
+			"osRead": {
+				"mid": 1,
+				"osVersion": 1,
+				"trMcuType": 1,
+				"osBuild": 1,
+				"rssi": 1,
+				"supplyVoltage": 1,
+				"flags": 1,
+				"slotLimits": 1
+			}
+		},
+		"raw": [
+			{
+				"request": "a",
+				"requestTs": "b",
+				"confirmation": "CCCCCCC",
+				"confirmationTs": "BBBB",
+				"response": "DD",
+				"responseTs": "BBBBBB"
+			},
+			{
+				"request": "AAAAAAA",
+				"requestTs": "bbbbbbbb",
+				"confirmation": "ccccccc",
+				"confirmationTs": "aaaa",
+				"response": "bb",
+				"responseTs": "dddd"
+			},
+			{
+				"request": "BBB",
+				"requestTs": "CCCC",
+				"confirmation": "ccccccc",
+				"confirmationTs": "d",
+				"response": "dddddd",
+				"responseTs": "AA"
+			}
+		],
+		"insId": "",
+		"status": 1,
+		"statusStr": "EEEEEEEE"
+	}
+}

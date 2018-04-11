@@ -2,7 +2,7 @@
 	"$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmesh_OtaUpload-request",
+		"name": "iqmeshNetwork_BondNodeLocal-request",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
@@ -10,9 +10,9 @@
 	"properties": {
 		"mType": {
 			"type": "string",
-			"description": "iqmesh_ Network management - Upload hex or iqrf file request.",
+			"description": "IQMESH Network management - Bond Node Local request.",
 			"enum": [
-				"iqmesh_OtaUpload"
+				"iqmeshNetwork_BondNodeLocal"
 			]
 		},
 		"data": {
@@ -31,30 +31,12 @@
 					"type": "object",
 					"properties": {
 						"deviceAddr": {
-							"type": "array",
-							"description": "Device address(es) to write the hex or iqrf file.",
-							"items": {
-								"type": "integer"
-							}
-						},
-						"fileName": {
-							"type": "string",
-							"description": "Full name of file with source code to load."
-						},
-						"startMemAddr": {
 							"type": "integer",
-							"description": "Start address on which will be the data saved into memory."
-						},
-						"loadingAction": {
-							"type": "string",
-							"description": "Loading action - WithoutCodeLoading, WithCodeLoading."
+							"description": "Address to bond the device to."
 						}
 					},
 					"required": [
-						"deviceAddr",
-						"fileName",
-						"startMemAddr",
-						"loadingAction"
+						"deviceAddr"
 					]
 				},
 				"returnVerbose": {

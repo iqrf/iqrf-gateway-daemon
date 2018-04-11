@@ -2,12 +2,12 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqmesh_EnumerateDevice-response",
+        "name": "iqmeshNetwork_EnumerateDevice-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
     "definitions": {
-        "iqmesh_EnumDevice1": {
+        "iqmeshNetwork_EnumDevice1": {
             "type": "object",
             "description": "First response.",
             "properties": {
@@ -35,7 +35,7 @@
                 "parent"
             ]
         },
-        "iqmesh_EnumDevice2": {
+        "iqmeshNetwork_EnumDevice2": {
             "type": "object",
             "description": "Second response - reduced or full eperOsRead.",
             "properties": {
@@ -78,7 +78,7 @@
                 "osBuild"
             ]
         },
-        "iqmesh_EnumDevice3": {
+        "iqmeshNetwork_EnumDevice3": {
             "type": "object",
             "description": "Third response - reduced or full eperExploreEnum.",
             "properties": {
@@ -123,7 +123,7 @@
                 "hwpIdVer"
             ]
         },
-        "iqmesh_EnumDevice4": {
+        "iqmeshNetwork_EnumDevice4": {
             "type": "object",
             "description": "Fourth response - reduced or full eperOsReadCfg.",
             "properties": {
@@ -151,7 +151,7 @@
                 "rfPgm"
             ]
         },
-        "iqmesh_EnumDevice5": {
+        "iqmeshNetwork_EnumDevice5": {
             "type": "array",
             "description": "Returns the same information as Get peripheral information but for up to 14 peripherals of consecutive indexes starting with the specified PCMD.",
             "items": {
@@ -183,7 +183,7 @@
             },
             "maxItems": 14
         },
-        "iqmesh_EnumDevice6": {
+        "iqmeshNetwork_EnumDevice6": {
             "type": "object",
             "description": "Sixth response - validation and updates.",
             "properties": {
@@ -246,22 +246,22 @@
         "unionResponses": {
             "anyOf": [
                 {
-                    "$ref": "#/definitions/iqmesh_EnumDevice1"
+                    "$ref": "#/definitions/iqmeshNetwork_EnumDevice1"
                 },
                 {
-                    "$ref": "#/definitions/iqmesh_EnumDevice2"
+                    "$ref": "#/definitions/iqmeshNetwork_EnumDevice2"
                 },
                 {
-                    "$ref": "#/definitions/iqmesh_EnumDevice3"
+                    "$ref": "#/definitions/iqmeshNetwork_EnumDevice3"
                 },
                 {
-                    "$ref": "#/definitions/iqmesh_EnumDevice4"
+                    "$ref": "#/definitions/iqmeshNetwork_EnumDevice4"
                 },
                 {
-                    "$ref": "#/definitions/iqmesh_EnumDevice5"
+                    "$ref": "#/definitions/iqmeshNetwork_EnumDevice5"
                 },
                 {
-                    "$ref": "#/definitions/iqmesh_EnumDevice6"
+                    "$ref": "#/definitions/iqmeshNetwork_EnumDevice6"
                 }
             ]
         }
@@ -270,9 +270,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "iqmesh_ Network management - Enumerate Device response.",
+            "description": "IQMESH Network management - Enumerate Device response.",
             "enum": [
-                "iqmesh_EnumerateDevice"
+                "iqmeshNetwork_EnumerateDevice"
             ]
         },
         "data": {
