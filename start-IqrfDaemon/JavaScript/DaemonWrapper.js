@@ -396,7 +396,7 @@ iqrf.embed.ledr.Get_Request_req = function (param) {
 iqrf.embed.ledr.Get_Response_rsp = function (rawHdp) {
     var result =
     {
-        onOff: iqrf.embed.ledr.Set_Response(rawHdp)
+        onOff: iqrf.embed.ledr.Get_Response(rawHdp)
     };
     return result;
 };
@@ -435,7 +435,7 @@ iqrf.embed.ledg.Get_Request_req = function (param) {
 iqrf.embed.ledg.Get_Response_rsp = function (rawHdp) {
     var result =
     {
-        onOff: iqrf.embed.ledg.Set_Response(rawHdp)
+        onOff: iqrf.embed.ledg.Get_Response(rawHdp)
     };
     return result;
 };
