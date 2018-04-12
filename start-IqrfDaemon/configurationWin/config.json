@@ -159,7 +159,7 @@
       "libraryPath": "",
       "libraryName": "SmartConnectService",
       "enabled": true,
-      "startlevel": 0
+      "startlevel": 3
     }
   ]
 }

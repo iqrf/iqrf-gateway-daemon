@@ -2,9 +2,9 @@
 
 #include "DpaTransactionTask.h"
 #include "SmartConnectService.h"
-#include "IMessagingSplitterService.h"
 #include "Trace.h"
-#include "ComIqrfEmbedCoordSmartConnect.h"
+#include "ComIqmeshNetworkSmartConnect.h"
+#include "IqrfCodeDecoder.h"
 #include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -22,6 +22,9 @@ TRC_INIT_MODULE(iqrf::SmartConnectService);
 using namespace rapidjson;
 
 namespace {
+
+  // maximum number of repeats
+  static const uint8_t REPEAT_MAX = 3;
 
   // length of Individual Bonding key [in bytes]
   static const uint8_t IBK_LEN = 16;
@@ -41,6 +44,8 @@ namespace {
   static const int SERVICE_ERROR = 1000;
 
   static const int SERVICE_ERROR_MIN_DPA_VER = SERVICE_ERROR + 1;
+  static const int SERVICE_ERROR_SMART_CONNECT = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_OS_READ = SERVICE_ERROR + 3;
 };
 
 
@@ -53,7 +58,8 @@ namespace iqrf {
     enum class Type {
       NoError,
       MinDpaVerUsed,
-      SmartConnect
+      SmartConnect,
+      OsRead
     };
 
     SmartConnectError() : m_type(Type::NoError), m_message("") {};
@@ -63,7 +69,7 @@ namespace iqrf {
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
 
-    SmartConnectError& SmartConnectError::operator=(const SmartConnectError& error) {
+    SmartConnectError& operator=(const SmartConnectError& error) {
       if (this == &error) {
         return *this;
       }
@@ -83,71 +89,82 @@ namespace iqrf {
   // holds information about result of smart connect
   class SmartConnectResult {
   private:
-    SmartConnectError error;
+    SmartConnectError m_error;
 
-    uint16_t nadr;
-    uint16_t hwpId;
-    uint8_t rCode;
-    uint8_t dpaVal;
-    uint8_t bondedAddr;
-    uint8_t bondedNodesNum;
+    uint16_t m_hwpId;
+    uint8_t m_bondedAddr;
+    uint8_t m_bondedNodesNum;
+    std::string m_manufacturer = "";
+    std::string m_product = "";
+    std::list<std::string> m_standards;
+
+    // OS read response data
+    TPerOSRead_Response m_osRead;
 
     // transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
   public:
-    SmartConnectError getError() const { return error; };
+    SmartConnectError getError() const { return m_error; };
 
     void setError(const SmartConnectError& error) {
-      this->error = error;
-    }
-
-    uint16_t getNadr() const {
-      return nadr;
-    }
-
-    void setNadr(uint16_t nadr) {
-      this->nadr = nadr;
+      m_error = error;
     }
 
     uint16_t getHwpId() const {
-      return hwpId;
+      return m_hwpId;
     }
 
-    void setHwpId(uint16_t hwpId) {
-      this->hwpId = hwpId;
-    }
-
-    uint8_t getRcode() const {
-      return rCode;
-    }
-
-    void setRcode(uint8_t rCode) {
-      this->rCode = rCode;
-    }
-
-    uint8_t getDpaVal() const {
-      return dpaVal;
-    }
-
-    void setDpaVal(uint8_t dpaVal) {
-      this->dpaVal = dpaVal;
+    void setHwpId(uint16_t m_hwpId) {
+      this->m_hwpId = m_hwpId;
     }
 
     uint8_t getBondedAddr() const {
-      return bondedAddr;
+      return m_bondedAddr;
     }
 
-    void setBondedAddr(uint8_t bondedAddr) {
-      this->bondedAddr = bondedAddr;
+    void setBondedAddr(uint8_t m_bondedAddr) {
+      this->m_bondedAddr = m_bondedAddr;
     }
 
     uint8_t getBondedNodesNum() const {
-      return bondedNodesNum;
+      return m_bondedNodesNum;
     }
 
-    void setBondedNodesNum(uint8_t bondedNodesNum) {
-      this->bondedNodesNum = bondedNodesNum;
+    void setBondedNodesNum(uint8_t m_bondedNodesNum) {
+      this->m_bondedNodesNum = m_bondedNodesNum;
+    }
+
+    std::string getManufacturer() {
+      return m_manufacturer;
+    }
+
+    void setManufacturer(const std::string& manufacturer) {
+      m_manufacturer = manufacturer;
+    }
+
+    std::string getProduct() {
+      return m_product;
+    }
+
+    void setProduct(const std::string& product) {
+      m_product = product;
+    }
+
+    std::list<std::string> getStandards() {
+      return m_standards;
+    }
+
+    void setStandards(std::list<std::string> standards) {
+      m_standards = standards;
+    }
+
+    TPerOSRead_Response getOsRead() {
+      return m_osRead;
+    }
+
+    void setOsRead(TPerOSRead_Response osRead) {
+      m_osRead = osRead;
     }
 
     // adds transaction result into the list of results
@@ -175,14 +192,20 @@ namespace iqrf {
     // parent object
     SmartConnectService& m_parent;
 
-    // message type: iqrf embed coordinator Smart connect
+    // message type: IQMESH Network Smart connect
     // for temporal reasons
-    const std::string m_mTypeName_iqrfEmbedCoordSmartConnect = "iqrfEmbedCoordinator_SmartConnect";
+    const std::string m_mTypeName_iqmeshNetworkSmartConnect = "iqmeshNetwork_SmartConnect";
     //IMessagingSplitterService::MsgType* m_msgType_mngIqmeshWriteConfig;
 
-    //iqrf::IJsCacheService* m_iJsCacheService = nullptr;
+    IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
+
+    // number of repeats
+    uint8_t m_repeat;
+
+    // if is set Verbose mode
+    bool m_returnVerbose = false;
 
 
   public:
@@ -262,75 +285,84 @@ namespace iqrf {
       std::shared_ptr<IDpaTransaction2> smartConnectTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      try {
-        smartConnectTransaction = m_iIqrfDpaService->executeDpaTransaction(smartConnectRequest);
-        transResult = smartConnectTransaction->get();
-      }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        SmartConnectError error(SmartConnectError::Type::SmartConnect, e.what());
-        smartConnectResult.setError(error);
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          smartConnectTransaction = m_iIqrfDpaService->executeDpaTransaction(smartConnectRequest);
+          transResult = smartConnectTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
 
-        TRC_FUNCTION_LEAVE("");
-        return;
-      }
+          if (rep < m_repeat) {
+            continue;
+          }
 
-      TRC_DEBUG("Result from smart connect transaction as string:" << PAR(transResult->getErrorString()));
+          SmartConnectError error(SmartConnectError::Type::SmartConnect, e.what());
+          smartConnectResult.setError(error);
 
-      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
 
-      // because of the move-semantics
-      DpaMessage dpaResponse = transResult->getResponse();
-      smartConnectResult.addTransactionResult(transResult);
+        TRC_DEBUG("Result from smart connect transaction as string:" << PAR(transResult->getErrorString()));
 
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Smart connect successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(smartConnectRequest.PeripheralType(), smartConnectRequest.NodeAddress())
-          << PAR(smartConnectRequest.PeripheralCommand())
-        );
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
-        // parsing response
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        smartConnectResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Smart connect successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(smartConnectRequest.PeripheralType(), smartConnectRequest.NodeAddress())
+            << PAR(smartConnectRequest.PeripheralCommand())
+          );
+
+          smartConnectResult.setHwpId(dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID);
+
+          // parsing response pdata
+          uns8* respData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+          smartConnectResult.setBondedAddr(respData[0]);
+          smartConnectResult.setBondedNodesNum(respData[1]);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          SmartConnectError error(SmartConnectError::Type::SmartConnect, "Transaction error.");
+          smartConnectResult.setError(error);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // DPA error
+        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+        if (rep < m_repeat) {
+          continue;
+        }
+
         smartConnectResult.setHwpId(dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID);
-        smartConnectResult.setRcode(dpaResponse.DpaPacket().DpaResponsePacket_t.ResponseCode);
-        smartConnectResult.setDpaVal(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaValue);
-
-        // parsing response pdata
-        uns8* respData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-        smartConnectResult.setBondedAddr(respData[0]);
-        smartConnectResult.setBondedNodesNum(respData[1]);
-
-        TRC_FUNCTION_LEAVE("");
-        return;
-      }
-
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-        SmartConnectError error(SmartConnectError::Type::SmartConnect, "Transaction error.");
+        SmartConnectError error(SmartConnectError::Type::SmartConnect, "Dpa error.");
         smartConnectResult.setError(error);
 
         TRC_FUNCTION_LEAVE("");
-        return;
-      } 
-      
-      // DPA error
-      // parsing response
-      smartConnectResult.setHwpId(dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID);
-      smartConnectResult.setRcode(dpaResponse.DpaPacket().DpaResponsePacket_t.ResponseCode);
-      smartConnectResult.setDpaVal(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaValue);
-
-      TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-      SmartConnectError error(SmartConnectError::Type::SmartConnect, "Dpa error.");
-      smartConnectResult.setError(error);
-
-      TRC_FUNCTION_LEAVE("");
+      }
     }
 
-    // indicates, whether the DPA version used is >= 3.03
-    void checkDpaVersion(uint16_t hwpId) {
+    // returns current used DPA version
+    uint16_t getDpaVersion(uint16_t hwpId) {
       TRC_FUNCTION_ENTER("");
 
       DpaMessage perEnumRequest;
@@ -345,58 +377,159 @@ namespace iqrf {
       std::shared_ptr<IDpaTransaction2> perEnumTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      try {
-        perEnumTransaction = m_iIqrfDpaService->executeDpaTransaction(perEnumRequest);
-        transResult = perEnumTransaction->get();
-      }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(
-          std::logic_error, 
-          "Could not information about individual devices and their implemented peripherals."
-        );
-      }
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          perEnumTransaction = m_iIqrfDpaService->executeDpaTransaction(perEnumRequest);
+          transResult = perEnumTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
 
-      TRC_DEBUG("Result from smart connect transaction as string:" << PAR(transResult->getErrorString()));
+          if (rep < m_repeat) {
+            continue;
+          }
 
-      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
-      // because of the move-semantics
-      DpaMessage dpaResponse = transResult->getResponse();
-      
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Device exploration successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(perEnumRequest.PeripheralType(), perEnumRequest.NodeAddress())
-          << PAR(perEnumRequest.PeripheralCommand())
-        );
-
-        // parsing response pdata
-        uns8* respData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-        uint8_t minorDpaVer = respData[0];
-        uint8_t majorDpaVer = respData[1];
-
-        // check the DPA version
-        uint16_t dpaVersion = minorDpaVer + (majorDpaVer << 8);
-
-        if (DPA_MIN_REQ_VERSION > dpaVersion) {
-          THROW_EXC(std::logic_error, "Old version of DPA: " << PAR(dpaVersion) );
+          THROW_EXC(
+            std::logic_error,
+            "Could not information about individual devices and their implemented peripherals."
+          );
         }
 
-        TRC_FUNCTION_LEAVE("");
-        return;
+        TRC_DEBUG("Result from smart connect transaction as string:" << PAR(transResult->getErrorString()));
+
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Device exploration successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(perEnumRequest.PeripheralType(), perEnumRequest.NodeAddress())
+            << PAR(perEnumRequest.PeripheralCommand())
+          );
+
+          // parsing response pdata
+          uns8* respData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+          uint8_t minorDpaVer = respData[0];
+          uint8_t majorDpaVer = respData[1];
+
+          TRC_FUNCTION_LEAVE("");
+          return minorDpaVer + (majorDpaVer << 8);
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          THROW_EXC(std::logic_error, "Transaction error.");
+        }
+
+        // DPA error
+        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+        if (rep < m_repeat) {
+          continue;
+        }
+
+        THROW_EXC(std::logic_error, "DPA error.");
       }
 
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-        THROW_EXC(std::logic_error, "Transaction error.");
-      } 
+      // should never reach this point
+      THROW_EXC(std::logic_error, "Internal service error.");
+    }
 
-      // DPA error
-      TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-      THROW_EXC(std::logic_error, "DPA error.");
+
+    // reads OS info about smart connected node
+    void osRead(SmartConnectResult& smartConnectResult) {
+      TRC_FUNCTION_ENTER("");
+
+      DpaMessage osReadRequest;
+      DpaMessage::DpaPacket_t osReadPacket;
+      osReadPacket.DpaRequestPacket_t.NADR = smartConnectResult.getBondedAddr();
+      osReadPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
+      osReadPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ;
+      osReadPacket.DpaRequestPacket_t.HWPID = smartConnectResult.getHwpId();
+      osReadRequest.DataToBuffer(osReadPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+
+      // issue the DPA request
+      std::shared_ptr<IDpaTransaction2> osReadTransaction;
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          osReadTransaction = m_iIqrfDpaService->executeDpaTransaction(osReadRequest);
+          transResult = osReadTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          SmartConnectError error(SmartConnectError::Type::OsRead, e.what());
+          smartConnectResult.setError(error);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        TRC_DEBUG("Result from OS read transaction as string:" << PAR(transResult->getErrorString()));
+
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("OS read successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(osReadRequest.PeripheralType(), osReadRequest.NodeAddress())
+            << PAR(osReadRequest.PeripheralCommand())
+          );
+
+          // get OS data
+          TPerOSRead_Response osData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
+          smartConnectResult.setOsRead(osData);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          SmartConnectError error(SmartConnectError::Type::OsRead, "Transaction error.");
+          smartConnectResult.setError(error);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // DPA error
+        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+        if (rep < m_repeat) {
+          continue;
+        }
+
+        SmartConnectError error(SmartConnectError::Type::OsRead, "Dpa error.");
+        smartConnectResult.setError(error);
+
+        TRC_FUNCTION_LEAVE("");
+      }
     }
 
     SmartConnectResult smartConnect(
@@ -416,8 +549,12 @@ namespace iqrf {
       SmartConnectResult smartConnectResult;
 
       // check, if there is at minimal DPA ver. 3.03 at the coordinator
+      uint16_t dpaVersion = 0;
       try {
-        checkDpaVersion(hwpId);
+        dpaVersion = getDpaVersion(hwpId);
+        if (dpaVersion < DPA_MIN_REQ_VERSION) {
+          THROW_EXC(std::logic_error, "Old version of DPA: " << PAR(dpaVersion));
+        }
       }
       catch (std::exception& ex) {
         SmartConnectError error(SmartConnectError::Type::MinDpaVerUsed, ex.what());
@@ -430,7 +567,41 @@ namespace iqrf {
         smartConnectResult, hwpId, reqAddr, bondingTestRetries, ibk, mid, bondingChannel, virtualDeviceAddress, userData
       );
 
-      // TODO: playing with IQRF repository
+      // if there was an error, return
+      if (smartConnectResult.getError().getType() != SmartConnectError::Type::NoError) {
+        return smartConnectResult;
+      }
+
+      // get OS read data
+      osRead(smartConnectResult);
+
+      // if there was an error, return
+      if (smartConnectResult.getError().getType() != SmartConnectError::Type::NoError) {
+        return smartConnectResult;
+      }
+
+      const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(hwpId);
+      if (manufacturer != nullptr) {
+        smartConnectResult.setManufacturer(manufacturer->m_name);
+      }
+      
+      const IJsCacheService::Product* product = m_iJsCacheService->getProduct(hwpId);
+      if (product != nullptr) {
+        smartConnectResult.setProduct(product->m_name);
+      }
+
+      uint8_t osVersion = smartConnectResult.getOsRead().OsVersion;
+      std::string osVersionStr = std::to_string((osVersion << 4) & 0xFF) + "." + std::to_string(osVersion & 0x0F);
+      std::string dpaVersionStr = std::to_string((dpaVersion << 8) & 0xFF) + "." + std::to_string(dpaVersion & 0xFF);
+
+      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(hwpId, osVersionStr, dpaVersionStr);
+      if (package != nullptr) {
+        std::list<std::string> standards;
+        for (const IJsCacheService::StdDriver* driver : package->m_stdDriverVect) {
+          standards.push_back(driver->getName());
+        }
+        smartConnectResult.setStandards(standards);
+      }
 
       return smartConnectResult;
       TRC_FUNCTION_LEAVE("");
@@ -462,7 +633,7 @@ namespace iqrf {
       const std::string& messagingId,
       const IMessagingSplitterService::MsgType& msgType,
       SmartConnectResult& smartConnectResult,
-      const ComIqrfEmbedCoordSmartConnect& comSmartConnect
+      const ComIqmeshNetworkSmartConnect& comSmartConnect
     )
     {
       Document response;
@@ -473,22 +644,78 @@ namespace iqrf {
 
       // checking of error
       SmartConnectError error = smartConnectResult.getError();
-      
-      if (error.getType() == SmartConnectError::Type::MinDpaVerUsed) {
-        Pointer("/data/status").Set(response, SERVICE_ERROR_MIN_DPA_VER);
+      if (error.getType() != SmartConnectError::Type::NoError) {
         Pointer("/data/statusStr").Set(response, error.getMessage());
+
+        switch (error.getType()) {
+          case SmartConnectError::Type::MinDpaVerUsed:
+            Pointer("/data/status").Set(response, SERVICE_ERROR_MIN_DPA_VER);
+            break;
+          case SmartConnectError::Type::SmartConnect:
+            Pointer("/data/status").Set(response, SERVICE_ERROR_SMART_CONNECT);
+            break;
+          case SmartConnectError::Type::OsRead:
+            Pointer("/data/status").Set(response, SERVICE_ERROR_OS_READ);
+            break;
+          default:
+            // some other unsupported error
+            Pointer("/data/status").Set(response, SERVICE_ERROR);
+            break;
+        }
         return response;
       }
 
-      // data/rsp
-      Pointer("/data/rsp/nadr").Set(response, smartConnectResult.getNadr());
-      Pointer("/data/rsp/hwpId").Set(response, smartConnectResult.getHwpId());
-      Pointer("/data/rsp/rCode").Set(response, smartConnectResult.getRcode());
-      Pointer("/data/rsp/dpaVal").Set(response, smartConnectResult.getDpaVal());
-      Pointer("/data/rsp/bondAddr").Set(response, smartConnectResult.getBondedAddr());
-      Pointer("/data/rsp/devNr").Set(response, smartConnectResult.getBondedNodesNum());
+      // all is ok
 
-      // status
+      // data/rsp
+      Pointer("/data/rsp/hwpId").Set(response, smartConnectResult.getHwpId());
+      Pointer("/data/rsp/assignedAddr").Set(response, smartConnectResult.getBondedAddr());
+      Pointer("/data/rsp/nodesNr").Set(response, smartConnectResult.getBondedNodesNum());
+      Pointer("/data/rsp/manufacturer").Set(response, smartConnectResult.getManufacturer());
+      Pointer("/data/rsp/product").Set(response, smartConnectResult.getProduct());
+
+      // standards - array of strings
+      rapidjson::Value standardsJsonArray(kArrayType);
+      Document::AllocatorType& allocator = response.GetAllocator();
+      for (std::string standard : smartConnectResult.getStandards()) {
+        rapidjson::Value standardJsonString;
+        standardJsonString.SetString(standard.c_str(), standard.length(), allocator);
+        standardsJsonArray.PushBack(standardJsonString, allocator);
+      }
+      Pointer("/data/rsp/standards").Set(response, standardsJsonArray);
+
+      // osRead object
+      TPerOSRead_Response osInfo = smartConnectResult.getOsRead();
+
+      // MID - little endian
+      uint32_t mid = 0;
+      for (int i = 0; i < MID_LEN; i++) {
+        mid <<= 8;
+        mid |= osInfo.ModuleId[i] & 0xFF;
+      }
+      Pointer("/data/rsp/osRead/mid").Set(response, mid);
+
+      Pointer("/data/rsp/osRead/osVersion").Set(response, osInfo.OsVersion);
+      Pointer("/data/rsp/osRead/trMcuType").Set(response, osInfo.McuType);
+      Pointer("/data/rsp/osRead/osBuild").Set(response, osInfo.OsBuild);
+      Pointer("/data/rsp/osRead/rssi").Set(response, osInfo.Rssi);
+      Pointer("/data/rsp/osRead/supplyVoltage").Set(response, osInfo.SupplyVoltage);
+      Pointer("/data/rsp/osRead/flags").Set(response, osInfo.Flags);
+      Pointer("/data/rsp/osRead/slotLimits").Set(response, osInfo.SlotLimits);
+
+      // IBK was added later in the version of DPA 3.03 
+#if (DPA_VERSION_MASTER >= 0x0303) 
+        rapidjson::Value ibkJsonArray(kArrayType);
+        rapidjson::Value ibkJsonArray(kArrayType);
+        for (int i = 0; i < IBK_LEN; i++) {
+          ibkJsonArray.PushBack(osInfo.IBK[i], allocator);
+        }
+        Pointer("/data/rsp/osRead/ibk").Set(response, ibkJsonArray);
+#endif
+      
+      // status - ok
+      Pointer("/status").Set(response, 0);
+      Pointer("/statusStr").Set(response, "");
 
       // set raw fields, if verbose mode is active
       if (comSmartConnect.getVerbose()) {
@@ -547,8 +774,21 @@ namespace iqrf {
     }
 
     
+    uint8_t parseAndCheckRepeat(const int repeat) {
+      if (repeat < 0) {
+        TRC_WARNING("repeat cannot be less than 0. It will be set to 0.");
+        return 0;
+      }
 
-    uint16_t parseAndCheckNadr(int nadr) {
+      if (repeat > 0xFF) {
+        TRC_WARNING("repeat exceeds maximum. It will be trimmed to maximum of: " << PAR(REPEAT_MAX));
+        return REPEAT_MAX;
+      }
+
+      return repeat;
+    }
+
+    uint8_t parseAndCheckDeviceAddr(int nadr) {
       if ((nadr < 0) || (nadr > 0xEF)) {
         THROW_EXC(
           std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", nadr)
@@ -557,22 +797,13 @@ namespace iqrf {
       return nadr;
     }
 
-    uint16_t parseAndCheckHwpId(int hwpId) {
+    uint16_t checkHwpId(int hwpId) {
       if ((hwpId < 0) || (hwpId > 0xFFFF)) {
         THROW_EXC(
           std::out_of_range, "HWP ID outside of valid range. " << NAME_PAR_HEX("HWP ID", hwpId)
         );
       }
       return hwpId;
-    }
-
-    uint8_t parseAndCheckReqAddr(int reqAddr) {
-      if ((reqAddr < 0) || (reqAddr > 0xFF)) {
-        THROW_EXC(
-          std::out_of_range, "ReqAddr outside of valid range. " << NAME_PAR_HEX("ReqAddr", reqAddr)
-        );
-      }
-      return reqAddr;
     }
 
     uint8_t parseAndCheckBondingTestRetries(int bondingTestRetries) {
@@ -584,7 +815,7 @@ namespace iqrf {
       return bondingTestRetries;
     }
 
-    std::basic_string<uint8_t> parseAndCheckIbk(const std::basic_string<uint8_t>& ibk) {
+    std::basic_string<uint8_t> checkIbk(const std::basic_string<uint8_t>& ibk) {
       if (ibk.length() != IBK_LEN) {
         THROW_EXC(
           std::out_of_range, "ibk length invalid. " << NAME_PAR_HEX("ibk length", ibk.length())
@@ -593,7 +824,7 @@ namespace iqrf {
       return ibk;
     }
 
-    std::basic_string<uint8_t> parseAndCheckMid(const std::basic_string<uint8_t>& mid) {
+    std::basic_string<uint8_t> checkMid(const std::basic_string<uint8_t>& mid) {
       if (mid.length() != MID_LEN) {
         THROW_EXC(
           std::out_of_range, "mid length invalid. " << NAME_PAR_HEX("mid length", mid.length())
@@ -602,7 +833,7 @@ namespace iqrf {
       return mid;
     }
 
-    uint8_t parseAndCheckBondingChannel(int bondingChannel) {
+    uint8_t checkBondingChannel(int bondingChannel) {
       if ((bondingChannel < 0) || (bondingChannel > 0xFF)) {
         THROW_EXC(
           std::out_of_range, "bondingChannel outside of valid range. " << NAME_PAR_HEX("bondingChannel", bondingChannel)
@@ -629,6 +860,16 @@ namespace iqrf {
       return userData;
     }
 
+    // creates and return default user data
+    std::basic_string<uint8_t> createDefaultUserData() {
+      std::basic_string<uint8_t> defaultUserData;
+
+      for (int i = 0; i < USER_DATA_LEN; i++) {
+        defaultUserData.push_back(0);
+      }
+      return defaultUserData;
+    }
+
 
     void handleMsg(
       const std::string& messagingId,
@@ -645,70 +886,62 @@ namespace iqrf {
       );
 
       // unsupported type of request
-      if (msgType.m_type != m_mTypeName_iqrfEmbedCoordSmartConnect) {
+      if (msgType.m_type != m_mTypeName_iqmeshNetworkSmartConnect) {
         THROW_EXC(std::logic_error, "Unsupported message type: " << PAR(msgType.m_type));
       }
 
       // creating representation object
-      ComIqrfEmbedCoordSmartConnect comSmartConnect(doc);
+      ComIqmeshNetworkSmartConnect comSmartConnect(doc);
 
       // service input parameters
-      uint16_t nadr;
-      uint16_t hwpId;
-      uint8_t reqAddr;
+      uint8_t deviceAddr;
       uint8_t bondingTestRetries;
-      std::basic_string<uint8_t> ibk;
-      std::basic_string<uint8_t> mid;
-      uint8_t bondingChannel;
-      uint8_t virtualDeviceAddress;
+      std::string smartConnectCode;
       std::basic_string<uint8_t> userData;
+
+      // stores values decoded from IQRF Code
+      std::basic_string<uint8_t> mid;
+      std::basic_string<uint8_t> ibk;
+      uint16_t hwpId;
+      uint8_t bondingChannel;
+
+      // default values - will be specified later in the request json message
+      uint8_t virtualDeviceAddress = 0xFF;
+
 
       // parsing and checking service parameters
       try {
-        if (!comSmartConnect.isSetNadr()) {
-          THROW_EXC(std::logic_error, "Nadr not set");
+        m_repeat = parseAndCheckRepeat(comSmartConnect.getRepeat());
+       
+        if (!comSmartConnect.isSetDeviceAddr()) {
+          THROW_EXC(std::logic_error, "deviceAddr not set");
         }
-        nadr = parseAndCheckNadr(comSmartConnect.getNadr());
+        deviceAddr = parseAndCheckDeviceAddr(comSmartConnect.getDeviceAddr());
 
-        hwpId = HWPID_Default;
-        if (comSmartConnect.isSetHwpId()) {
-          hwpId = parseAndCheckHwpId(comSmartConnect.getHwpId());
-        }
-        
-        if (!comSmartConnect.isSetReqAddr()) {
-          THROW_EXC(std::logic_error, "ReqAddr not set");
-        }
-        reqAddr = parseAndCheckReqAddr(comSmartConnect.getReqAddr());
-
-        if (!comSmartConnect.isSetBondingTestRetries()) {
-          THROW_EXC(std::logic_error, "bondingTestRetries not set");
-        }
         bondingTestRetries = parseAndCheckBondingTestRetries(comSmartConnect.getBondingTestRetries());
 
-        if (!comSmartConnect.isSetIbk()) {
-          THROW_EXC(std::logic_error, "ibk not set");
+        if (comSmartConnect.isSetUserData()) {
+          userData = parseAndCheckUserData(comSmartConnect.getUserData());
         }
-        ibk = parseAndCheckIbk(comSmartConnect.getIbk());
+        else {
+          userData = createDefaultUserData();
+        }
 
-        if (!comSmartConnect.isSetMid()) {
-          THROW_EXC(std::logic_error, "mid not set");
+        if (!comSmartConnect.isSetSmartConnectCode()) {
+          THROW_EXC(std::logic_error, "smartConnectCode not set");
         }
-        mid = parseAndCheckMid(comSmartConnect.getMid());
+        smartConnectCode = comSmartConnect.getSmartConnectCode();
 
-        if (!comSmartConnect.isSetBondingChannel()) {
-          THROW_EXC(std::logic_error, "bondingChannel not set");
-        }
-        bondingChannel = parseAndCheckBondingChannel(comSmartConnect.getBondingChannel());
+        // decode IQRF Code
+        IqrfCodeDecoder::decode(smartConnectCode);
 
-        if (!comSmartConnect.isSetVirtualDeviceAddress()) {
-          THROW_EXC(std::logic_error, "virtualDeviceAddress not set");
-        }
-        virtualDeviceAddress = parseAndCheckVirtualDeviceAddress(comSmartConnect.getVirtualDeviceAddress());
-        
-        if (!comSmartConnect.isSetUserData()) {
-          THROW_EXC(std::logic_error, "userData not set");
-        }
-        userData = parseAndCheckUserData(comSmartConnect.getUserData());
+        // get decoded values and check them
+        mid = checkMid(IqrfCodeDecoder::getMid());
+        ibk = checkIbk(IqrfCodeDecoder::getIbk());
+        hwpId = checkHwpId(IqrfCodeDecoder::getHwpId());
+        bondingChannel = checkBondingChannel(IqrfCodeDecoder::getBondingChannel());
+
+        m_returnVerbose = comSmartConnect.getVerbose();
       }
       // parsing and checking service parameters failed 
       catch (std::exception& ex) {
@@ -721,7 +954,7 @@ namespace iqrf {
       
       // call service with checked params
       SmartConnectResult smartConnectResult = smartConnect(
-        hwpId, reqAddr, bondingTestRetries, ibk, mid, bondingChannel, virtualDeviceAddress, userData
+        hwpId, deviceAddr, bondingTestRetries, ibk, mid, bondingChannel, virtualDeviceAddress, userData
       );
 
       // create and send response
@@ -744,7 +977,7 @@ namespace iqrf {
 
       // for the sake of register function parameters 
       std::vector<std::string> supportedMsgTypes;
-      supportedMsgTypes.push_back(m_mTypeName_iqrfEmbedCoordSmartConnect);
+      supportedMsgTypes.push_back(m_mTypeName_iqmeshNetworkSmartConnect);
 
       m_iMessagingSplitterService->registerFilteredMsgHandler(
         supportedMsgTypes,
@@ -767,7 +1000,7 @@ namespace iqrf {
 
       // for the sake of unregister function parameters 
       std::vector<std::string> supportedMsgTypes;
-      supportedMsgTypes.push_back(m_mTypeName_iqrfEmbedCoordSmartConnect);
+      supportedMsgTypes.push_back(m_mTypeName_iqmeshNetworkSmartConnect);
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
 
@@ -787,6 +1020,18 @@ namespace iqrf {
     {
       if (m_iIqrfDpaService == iface) {
         m_iIqrfDpaService = nullptr;
+      }
+    }
+
+    void attachInterface(IJsCacheService* iface)
+    {
+      m_iJsCacheService = iface;
+    }
+
+    void detachInterface(IJsCacheService* iface)
+    {
+      if (m_iJsCacheService == iface) {
+        m_iJsCacheService = nullptr;
       }
     }
 
@@ -823,6 +1068,26 @@ namespace iqrf {
   }
 
   void SmartConnectService::detachInterface(iqrf::IIqrfDpaService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void SmartConnectService::attachInterface(iqrf::IMessagingSplitterService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void SmartConnectService::detachInterface(iqrf::IMessagingSplitterService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void SmartConnectService::attachInterface(iqrf::IJsCacheService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void SmartConnectService::detachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->detachInterface(iface);
   }

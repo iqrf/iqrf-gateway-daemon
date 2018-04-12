@@ -3,6 +3,8 @@
 #include "ISmartConnectService.h"
 #include "ShapeProperties.h"
 #include "IIqrfDpaService.h"
+#include "IMessagingSplitterService.h"
+#include "IJsCacheService.h"
 #include "ITraceService.h"
 #include <string>
 
@@ -28,6 +30,12 @@ namespace iqrf {
 
     void attachInterface(iqrf::IIqrfDpaService* iface);
     void detachInterface(iqrf::IIqrfDpaService* iface);
+
+    void attachInterface(IMessagingSplitterService* iface);
+    void detachInterface(IMessagingSplitterService* iface);
+
+    void attachInterface(iqrf::IJsCacheService* iface);
+    void detachInterface(iqrf::IJsCacheService* iface);
 
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
