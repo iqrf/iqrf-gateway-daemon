@@ -167,6 +167,13 @@
       "libraryName": "WriteConfigService",
       "enabled": true,
       "startlevel": 3
+    },
+	{
+      "name": "iqrf::SmartConnectService",
+      "libraryPath": "",
+      "libraryName": "SmartConnectService",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }
