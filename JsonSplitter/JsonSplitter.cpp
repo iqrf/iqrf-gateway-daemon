@@ -88,7 +88,8 @@ namespace iqrf {
         SchemaValidator validator(found->second);
 //TODO validation fails on Linux
 #ifdef SHAPE_PLATFORM_WINDOWS
-        if (!doc.Accept(validator)) {
+        //if (!doc.Accept(validator)) {
+        if (false) {
 #else
         if(false) {
 #endif
@@ -141,7 +142,7 @@ namespace iqrf {
         }
         else {
           //defaulted to support daemon V1 messages
-          mType = "dpa-V1";
+          mType = "dpaV1";
         }
 
         // get version
@@ -154,14 +155,16 @@ namespace iqrf {
 
         MsgType msgType(mType, major, minor, micro);
 
-        auto foundType = m_msgTypeToHandle.find(getKey(msgType));
-        if (foundType == m_msgTypeToHandle.end()) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << PAR(mType));
+        if (mType != "dpaV1") { // dpaV1 is default legacy support
+          auto foundType = m_msgTypeToHandle.find(getKey(msgType));
+          if (foundType == m_msgTypeToHandle.end()) {
+            THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << PAR(mType));
+          }
+
+          msgType = foundType->second;
+
+          validate(msgType, doc);
         }
-
-        msgType = foundType->second;
-
-        validate(msgType, doc);
 
         bool found = false;
         for (const auto & filter : m_filterMessageHandlerFuncMap) {

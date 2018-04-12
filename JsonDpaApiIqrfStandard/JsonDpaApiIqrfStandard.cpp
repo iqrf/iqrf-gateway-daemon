@@ -34,6 +34,9 @@ namespace iqrf {
     iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
+    //just to be able to abort
+    std::mutex m_iDpaTransactionMtx;
+    std::shared_ptr<IDpaTransaction2> m_iDpaTransaction;
 
     // TODO from cfg
     std::vector<std::string> m_filters =
@@ -41,6 +44,7 @@ namespace iqrf {
       "iqrfEmbed",
       "iqrfLight",
       "iqrfSensor",
+      "iqrfBinaryoutput",
     };
 
     DuktapeStuff m_duk;
@@ -75,10 +79,7 @@ namespace iqrf {
       Document doc;
       doc.Parse(rawHdpRequest);
 
-      //uint16_t nadr = 0, hwpid = 0;
       uint8_t pnum = 0, pcmd = 0;
-      //parseHexaNum(nadr, nadrStr.c_str());
-      //parseHexaNum(hwpid, hwpidStr.c_str());
 
       if (Value *val = Pointer("/pnum").Get(doc)) {
         parseHexaNum(pnum, val->GetString());
@@ -106,7 +107,7 @@ namespace iqrf {
     }
 
     // nadr, hwpid not set for drivers
-    std::string dpaResponseToRawHdpResponse(std::string& nadrStr, std::string& hwpidStr, const std::vector<uint8_t>& dpaResponse )
+    std::string dpaResponseToRawHdpResponse(int& nadr, int& hwpid, const std::vector<uint8_t>& dpaResponse )
     {
       using namespace rapidjson;
 
@@ -115,7 +116,7 @@ namespace iqrf {
       Document doc;
 
       if (dpaResponse.size() >= 8) {
-        uint16_t nadr = 0, hwpid = 0;
+        uint16_t nadr16 = 0, hwpid16 = 0;
         uint8_t pnum = 0, pcmd = 0, rcode = 0, dpaval = 0;
         std::string pnumStr, pcmdStr, rcodeStr, dpavalStr;
 
@@ -128,13 +129,12 @@ namespace iqrf {
         rcode = dpaResponse[6];
         dpaval = dpaResponse[7];
 
-        nadrStr = encodeHexaNum(nadr);
         pnumStr = encodeHexaNum(pnum);
         pcmdStr = encodeHexaNum(pcmd);
-        hwpidStr = encodeHexaNum(hwpid);
         rcodeStr = encodeHexaNum(rcode);
         dpavalStr = encodeHexaNum(dpaval);
 
+        //nadr, hwpid is not interesting for drivers
         Pointer("/pnum").Set(doc, pnumStr);
         Pointer("/pcmd").Set(doc, pcmdStr);
         Pointer("/rcode").Set(doc, rcodeStr);
@@ -170,8 +170,9 @@ namespace iqrf {
       std::string reqObjStr = JsonToStr(reqObj);
         
       // get nadr, hwpid as driver ignore them
-      int nadrStrReq = Pointer("/data/req/nAdr").Get(doc)->GetInt();
-      int hwpidStrReq = Pointer("/data/req/hwpId").Get(doc)->GetInt();
+      int nadrReq = Pointer("/data/req/nAdr").Get(doc)->GetInt();
+      int hwpidReq = Pointer("/data/req/hwpId").GetWithDefault(doc, -1).GetInt();
+      int timeout = Pointer("/data/timeout").GetWithDefault(doc, -1).GetInt();
 
       // call _RequestObj driver func
       // driver returns in rawHdpRequest format
@@ -179,40 +180,56 @@ namespace iqrf {
 
       m_duk.call(methodRequestName, reqObjStr, rawHdpRequest);
 
+      TRC_DEBUG(PAR(rawHdpRequest))
       // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
-      std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(nadrStrReq, hwpidStrReq, rawHdpRequest);
+      std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(nadrReq, hwpidReq, rawHdpRequest);
 
       // setDpaRequest as DpaMessage in com object 
       com->setDpaMessage(dpaRequest);
 
       // send to coordinator and wait for transaction result
       //-------------------
-      auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest());
-      auto res = trn->get();
+      {
+        std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
+        m_iDpaTransaction = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest(), timeout);
+      }
+      auto res = m_iDpaTransaction->get();
       //-------------------
 
       // get dpaResponse data
       const uint8_t *buf = res->getResponse().DpaPacket().Buffer;
       int sz = res->getResponse().GetLength();
-      std::vector<uint8_t> dpaResponse(buf, buf + sz);
-
-      // nadr, hwpid not set for drivers, so extract them for later use
-      std::string rawHdpResponse, nadrStrRes, hwpidStrRes;
-      // get rawHdpResponse in text form
-      rawHdpResponse = dpaResponseToRawHdpResponse(nadrStrRes, hwpidStrRes, dpaResponse);
-
-      // call _RequestObj driver func
-      // _ResponseObj driver func returns in rsp{} in text form
-      std::string rspObjStr;
-      m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
-        
-      // get json from its text representation
+      
       Document rspObj;
-      rspObj.Parse(rspObjStr);
+      int nadrRes = nadrReq, hwpidRes = hwpidReq;
+      if (sz > 0) {
+        int rcode = res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode;
+        //we have some response
+        std::vector<uint8_t> dpaResponse(buf, buf + sz);
+
+        if (0 == rcode) {
+
+          // nadr, hwpid not set for drivers, so extract them for later use
+          std::string rawHdpResponse;
+          // get rawHdpResponse in text form
+          rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, dpaResponse);
+          TRC_DEBUG(PAR(rawHdpResponse))
+
+          // call _RequestObj driver func
+          // _ResponseObj driver func returns in rsp{} in text form
+          std::string rspObjStr;
+          m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
+
+          // get json from its text representation
+          rspObj.Parse(rspObjStr);
+        }
+      }
 
       // set nadr, hwpid
-      Pointer("/nAdr").Set(rspObj, nadrStrRes);
-      Pointer("/hwpId").Set(rspObj, hwpidStrRes);
+      Pointer("/nAdr").Set(rspObj, nadrRes);
+      if (hwpidReq != -1) { // default -1 => wasn't present in request
+        Pointer("/hwpId").Set(rspObj, hwpidRes);
+      }
 
       { //debug
         std::string str = JsonToStr(&rspObj);
@@ -267,6 +284,13 @@ namespace iqrf {
         "JsonDpaApiIqrfStandard instance deactivate" << std::endl <<
         "******************************"
       );
+
+      {
+        std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
+        if (m_iDpaTransaction) {
+          m_iDpaTransaction->abort();
+        }
+      }
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
 

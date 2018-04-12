@@ -1,10 +1,14 @@
 project(MqttMessaging)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
-
+if (WIN32) 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+FIND_PACKAGE(paho-mqtt REQUIRED)
+else()
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 FIND_PACKAGE(paho REQUIRED)
 message(STATUS "Found paho: ${paho_FOUND}")
 message(STATUS "PAHO_INCLUDE_DIRS: ${PAHO_INCLUDE_DIRS}")
+endif()
 
 set(COMPONENT iqrf::MqttMessaging)
 DeclareShapeComponent(${COMPONENT})
@@ -32,6 +36,12 @@ else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
+if (WIN32) 
+target_link_libraries(${PROJECT_NAME}
+	${paho-mqtt_LIBRARY}
+)
+else()
 target_link_libraries(${PROJECT_NAME}
 	paho-mqtt3a
 )
+endif()

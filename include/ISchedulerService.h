@@ -17,6 +17,8 @@
 #pragma once
 
 #include "ShapeDefines.h"
+#include "rapidjson/rapidjson.h"
+#include "rapidjson/document.h"
 #include <string>
 #include <functional>
 #include <vector>
@@ -43,7 +45,7 @@ namespace iqrf {
     static const TaskHandle TASK_HANDLE_INVALID = 0;
 
     /// Task to be processed handler functional type
-    typedef std::function<void(const std::string&)> TaskHandlerFunc;
+    typedef std::function<void(const rapidjson::Value &)> TaskHandlerFunc;
 
     virtual ~ISchedulerService() {};
 
@@ -54,20 +56,20 @@ namespace iqrf {
     /// Whenever the scheduler evaluate a task to be handled it is passed to the handler function.
     /// The only tasks planned for particular clientId are delivered.
     /// Repeated registration with the same client identification replaces previously registered handler
-    virtual void registerMessageHandler(const std::string& clientId, TaskHandlerFunc fun) = 0;
+    virtual void registerTaskHandler(const std::string& clientId, TaskHandlerFunc fun) = 0;
 
     /// \brief Unregister task handler
     /// \param [in] clientId client identification
     /// \details
     /// If the handler is not required anymore, it is possible to unregister via this method.
-    virtual void unregisterMessageHandler(const std::string& clientId) = 0;
+    virtual void unregisterTaskHandler(const std::string& clientId) = 0;
 
     /// \brief Get scheduled tasks for a client
     /// \param [in] clientId client identification
     /// \return scheduled tasks
     /// \details
     /// Returns all pending scheduled tasks for the client
-    virtual std::vector<std::string> getMyTasks(const std::string& clientId) const = 0;
+    virtual std::vector<const rapidjson::Value *> getMyTasks(const std::string& clientId) const = 0;
 
     /// \brief Get a particular tasks for a client
     /// \param [in] clientId client identification
@@ -75,7 +77,7 @@ namespace iqrf {
     /// \return scheduled tasks
     /// \details
     /// Returns a particular task planned for a client or an empty task if doesn't exists
-    virtual std::string getMyTask(const std::string& clientId, const TaskHandle& hndl) const = 0;
+    virtual const rapidjson::Value * getMyTask(const std::string& clientId, const TaskHandle& hndl) const = 0;
 
     /// \brief Schedule task at time point
     /// \param [in] clientId client identification
@@ -85,7 +87,7 @@ namespace iqrf {
     /// \details
     /// Schedules task at exact time point. When the time point is reached the task is passed to its handler and released
     /// Use it for one shot tasks
-    virtual TaskHandle scheduleTaskAt(const std::string& clientId, const std::string& task, const std::chrono::system_clock::time_point& tp) = 0;
+    virtual TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp) = 0;
 
     /// \brief Schedule periodic task
     /// \param [in] clientId client identification
@@ -96,7 +98,7 @@ namespace iqrf {
     /// \details
     /// Schedules periodic task. It is started immediatelly by default, the first shot after one period.
     /// If the start shall be delayed use appropriate time point of start
-    virtual TaskHandle scheduleTaskPeriodic(const std::string& clientId, const std::string& task, const std::chrono::seconds& sec,
+    virtual TaskHandle scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value &, const std::chrono::seconds& sec,
       const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now()) = 0;
 
     /// \brief Remove all task for client

@@ -21,3 +21,12 @@
 # Project status
 
 - We use **GitLab Board** for driving API definition project: https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/boards
+
+# Win developement instalation
+
+Install:
+- [shape](https://github.com/logimic/shape) (launcher, logging, ...)
+- [shapeware](https://github.com/logimic/shapeware) (cpprest, websockets, ...)
+- `./build64.bat` or `./build64.bat`
+- Copy libs according #66 (temporary up to appropriate deployment)
+- install paho: **vcpkg install paho-mqtt**

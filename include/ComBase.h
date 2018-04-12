@@ -46,7 +46,9 @@ namespace iqrf {
       rapidjson::Pointer("/mType").Set(doc, "TODO-mType"); //TODO
       rapidjson::Pointer("/data/msgId").Set(doc, m_msgId);
       if (m_verbose) {
-        rapidjson::Pointer("/data/timeout").Set(doc, m_timeout);
+        if (m_timeout != -1) {
+          rapidjson::Pointer("/data/timeout").Set(doc, m_timeout);
+        }
       }
 
       createResponsePayload(doc, res);

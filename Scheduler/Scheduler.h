@@ -101,17 +101,14 @@ namespace iqrf {
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
 
-    //void start() override;
-    //void stop() override;
+    void registerTaskHandler(const std::string& clientId, TaskHandlerFunc fun) override;
+    void unregisterTaskHandler(const std::string& clientId) override;
 
-    void registerMessageHandler(const std::string& clientId, TaskHandlerFunc fun) override;
-    void unregisterMessageHandler(const std::string& clientId) override;
+    std::vector<const rapidjson::Value *> getMyTasks(const std::string& clientId) const override;
+    const rapidjson::Value * getMyTask(const std::string& clientId, const TaskHandle& hndl) const override;
 
-    std::vector<std::string> getMyTasks(const std::string& clientId) const override;
-    std::string getMyTask(const std::string& clientId, const TaskHandle& hndl) const override;
-
-    TaskHandle scheduleTaskAt(const std::string& clientId, const std::string& task, const std::chrono::system_clock::time_point& tp) override;
-    TaskHandle scheduleTaskPeriodic(const std::string& clientId, const std::string& task, const std::chrono::seconds& sec,
+    TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp) override;
+    TaskHandle scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
       const std::chrono::system_clock::time_point& tp) override;
 
     void removeAllMyTasks(const std::string& clientId) override;

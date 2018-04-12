@@ -17,6 +17,7 @@
 #pragma once
 
 #include "JsonUtils.h"
+#include "rapidjson/rapidjson.h"
 #include "TaskQueue.h"
 #include "ISchedulerService.h"
 #include "ShapeProperties.h"
@@ -33,16 +34,17 @@ namespace iqrf {
   class ScheduleRecord {
   public:
     ScheduleRecord() = delete;
-    ScheduleRecord(const std::string& clientId, const std::string& task, const std::chrono::system_clock::time_point& tp);
-    ScheduleRecord(const std::string& clientId, const std::string& task, const std::chrono::seconds& sec,
+    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp);
+    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
       const std::chrono::system_clock::time_point& tp);
-    ScheduleRecord(const std::string& rec);
+    //ScheduleRecord(const std::string& rec);
     ScheduleRecord(const rapidjson::Value& rec);
+    ScheduleRecord(const ScheduleRecord& other);
 
     ISchedulerService::TaskHandle getTaskHandle() const { return m_taskHandle; }
     std::chrono::system_clock::time_point getNext(const std::chrono::system_clock::time_point& actualTimePoint, const std::tm& actualTime);
     bool verifyTimePattern(const std::tm& actualTime) const;
-    const std::string& getTask() const { return m_task; }
+    const rapidjson::Value& getTask() const { return m_task; }
     const std::string& getClientId() const { return m_clientId; }
 
     static std::string asString(const std::chrono::system_clock::time_point& tp);
@@ -67,8 +69,9 @@ namespace iqrf {
     friend void shuffleDuplicitHandle(ScheduleRecord& rec);
     void init();
     int parseItem(const std::string& item, int mnm, int mxm, std::vector<int>& vec, int offset = 0);
+    
     bool verifyTimePattern(int cval, const std::vector<int>& tvalV) const;
-    std::string m_task;
+    rapidjson::Document m_task;
     std::string m_clientId;
 
     //multi record

@@ -16,6 +16,7 @@
 #define ISchedulerService_EXPORTS
 
 #include "Scheduler.h"
+#include "rapidjson/pointer.h"
 #include "Trace.h"
 #include "ShapeDefines.h"
 #include <algorithm>
@@ -116,7 +117,7 @@ namespace iqrf {
   void Scheduler::updateConfiguration(const std::string& fname)
   {
     TRC_FUNCTION_ENTER("");
-
+    using namespace rapidjson;
     rapidjson::Document cfg;
     jutils::parseJsonFile(fname, cfg);
     jutils::assertIsObject("", cfg);
@@ -125,19 +126,7 @@ namespace iqrf {
 
     const auto m = cfg.FindMember("TasksJson");
 
-    if (m == cfg.MemberEnd()) { //old textual form
-      std::vector<std::string> records = jutils::getMemberAsVector<std::string>("Tasks", cfg);
-      for (auto & it : records) {
-        try {
-          tempRecords.push_back(std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(it)));
-        }
-        catch (std::exception &e) {
-          CATCH_EXC_TRC_WAR(std::exception, e, "Cought when parsing scheduler table");
-        }
-      }
-    }
-    else { //enhanced Json form
-
+    if (Value* v = Pointer("/TasksJson").Get(cfg)) {
       try {
         const auto v = jutils::getMember("TasksJson", cfg);
         if (!v->value.IsArray())
@@ -151,52 +140,22 @@ namespace iqrf {
         CATCH_EXC_TRC_WAR(std::exception, e, "Cought when parsing scheduler table");
       }
     }
+    else {
+      TRC_WARNING("Missing expected member: TasksJson");
+    }
 
     addScheduleRecords(tempRecords);
 
     TRC_FUNCTION_LEAVE("");
   }
 
-  //void Scheduler::start()
-  //{
-  //  TRC_FUNCTION_ENTER("");
-
-  //  //m_dpaTaskQueue = shape_new TaskQueue<ScheduleRecord>([&](const ScheduleRecord& record) {
-  //  //  handleScheduledRecord(record);
-  //  //});
-
-  //  //m_scheduledTaskPushed = false;
-  //  //m_runTimerThread = true;
-  //  //m_timerThread = std::thread(&Scheduler::timer, this);
-
-  //  //TRC_INFORMATION("Scheduler started");
-
-  //  TRC_FUNCTION_LEAVE("");
-  //}
-
-  //void Scheduler::stop()
-  //{
-  //  TRC_FUNCTION_ENTER("");
-  //  //{
-  //  //  m_runTimerThread = false;
-  //  //  std::unique_lock<std::mutex> lck(m_conditionVariableMutex);
-  //  //  m_scheduledTaskPushed = true;
-  //  //  m_conditionVariable.notify_one();
-  //  //}
-
-  //  //m_dpaTaskQueue->stopQueue();
-
-  //  TRC_INFORMATION("Scheduler stopped");
-  //  TRC_FUNCTION_LEAVE("");
-  //}
-
-  Scheduler::TaskHandle Scheduler::scheduleTaskAt(const std::string& clientId, const std::string& task, const std::chrono::system_clock::time_point& tp)
+  Scheduler::TaskHandle Scheduler::scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp)
   {
     std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, tp));
     return addScheduleRecord(s);
   }
 
-  Scheduler::TaskHandle Scheduler::scheduleTaskPeriodic(const std::string& clientId, const std::string& task, const std::chrono::seconds& sec,
+  Scheduler::TaskHandle Scheduler::scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
     const std::chrono::system_clock::time_point& tp)
   {
     std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, sec, tp));
@@ -377,40 +336,40 @@ namespace iqrf {
     m_scheduledTasksMutex.unlock();
   }
 
-  void Scheduler::registerMessageHandler(const std::string& clientId, TaskHandlerFunc fun)
+  void Scheduler::registerTaskHandler(const std::string& clientId, TaskHandlerFunc fun)
   {
     std::lock_guard<std::mutex> lck(m_messageHandlersMutex);
     //TODO check success
     m_messageHandlers.insert(make_pair(clientId, fun));
   }
 
-  void Scheduler::unregisterMessageHandler(const std::string& clientId)
+  void Scheduler::unregisterTaskHandler(const std::string& clientId)
   {
     std::lock_guard<std::mutex> lck(m_messageHandlersMutex);
     m_messageHandlers.erase(clientId);
   }
 
-  std::vector<std::string> Scheduler::getMyTasks(const std::string& clientId) const
+  std::vector<const rapidjson::Value *> Scheduler::getMyTasks(const std::string& clientId) const
   {
-    std::vector<std::string> retval;
+    std::vector<const rapidjson::Value *> retval;
     // lock and copy
     std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
     for (auto & task : m_scheduledTasksByTime) {
       if (task.second->getClientId() == clientId) {
-        retval.push_back(task.second->getTask());
+        retval.push_back(&task.second->getTask());
       }
     }
     return retval;
   }
 
-  std::string Scheduler::getMyTask(const std::string& clientId, const TaskHandle& hndl) const
+  const rapidjson::Value * Scheduler::getMyTask(const std::string& clientId, const TaskHandle& hndl) const
   {
-    std::string retval;
+    const rapidjson::Value * retval = nullptr;
     // lock and copy
     std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
     auto found = m_scheduledTasksByHandle.find(hndl);
     if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId())
-      retval = found->second->getTask();
+      retval = &found->second->getTask();
     return retval;
   }
 

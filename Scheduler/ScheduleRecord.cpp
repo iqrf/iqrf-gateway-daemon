@@ -15,6 +15,7 @@
  */
 
 #include "ScheduleRecord.h"
+#include "rapidjson/pointer.h"
 #include "Trace.h"
 #include <algorithm>
 
@@ -55,7 +56,7 @@ namespace iqrf {
     TRC_DEBUG("Shuffled: " << PAR(m_taskHandle) << PAR(taskHandleOrig));
   }
 
-  ScheduleRecord::ScheduleRecord(const std::string& clientId, const std::string& task, const std::chrono::system_clock::time_point& tp)
+  ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp)
     : m_exactTime(true)
     , m_clientId(clientId)
     , m_startTime(tp)
@@ -72,11 +73,11 @@ namespace iqrf {
     m_vmon.push_back(ptm->tm_mon);
     m_vyear.push_back(ptm->tm_year);
     m_vwday.push_back(ptm->tm_wday);
-    m_task = task;
+    m_task.CopyFrom(task, m_task.GetAllocator());
 
   }
 
-  ScheduleRecord::ScheduleRecord(const std::string& clientId, const std::string& task, const std::chrono::seconds& sec,
+  ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
     const std::chrono::system_clock::time_point& tp)
     : m_periodic(true)
     , m_clientId(clientId)
@@ -85,7 +86,29 @@ namespace iqrf {
 
     m_period = sec;
     m_startTime = tp;
-    m_task = task;
+    m_task.CopyFrom(task, m_task.GetAllocator());
+  }
+
+  ScheduleRecord::ScheduleRecord(const ScheduleRecord& other)
+  {
+    m_task.CopyFrom(other.m_task, m_task.GetAllocator());
+    m_clientId = other.m_clientId;
+
+    m_vsec = other.m_vsec;
+    m_vmin = other.m_vmin;
+    m_vhour = other.m_vhour;
+    m_vmday = other.m_vmday;
+    m_vmon = other.m_vmon;
+    m_vyear = other.m_vyear;
+    m_vwday = other.m_vwday;
+
+    m_exactTime = other.m_exactTime;
+    m_periodic = other.m_periodic;
+    m_started = other.m_started;
+    m_period = other.m_period;
+    m_startTime = other.m_startTime;
+
+    m_taskHandle = other.m_taskHandle;
   }
 
   const std::map<std::string, std::string> NICKNAMES = {
@@ -110,7 +133,6 @@ namespace iqrf {
         if (found->second.empty()) { //reboot
           m_exactTime = true;
           m_startTime = std::chrono::system_clock::now();
-          //return "" - second.empty()
         }
         return found->second;
       }
@@ -119,36 +141,36 @@ namespace iqrf {
     return timeSpec;
   }
 
-  ScheduleRecord::ScheduleRecord(const std::string& rec)
-  {
-    init();
+  //ScheduleRecord::ScheduleRecord(const std::string& rec)
+  //{
+  //  init();
 
-    std::string recStr = solveNickname(rec);
+  //  std::string recStr = solveNickname(rec);
 
-    if (m_exactTime)
-      return; //exact time is set - no reason to parse next items
+  //  if (m_exactTime)
+  //    return; //exact time is set - no reason to parse next items
 
-    std::istringstream is(recStr);
+  //  std::istringstream is(recStr);
 
-    std::string sec("*");
-    std::string mnt("*");
-    std::string hrs("*");
-    std::string day("*");
-    std::string mon("*");
-    std::string yer("*");
-    std::string dow("*");
+  //  std::string sec("*");
+  //  std::string mnt("*");
+  //  std::string hrs("*");
+  //  std::string day("*");
+  //  std::string mon("*");
+  //  std::string yer("*");
+  //  std::string dow("*");
 
-    is >> sec >> mnt >> hrs >> day >> mon >> yer >> dow >> m_clientId;
-    std::getline(is, m_task, '|'); // just to get rest of line with spaces
+  //  is >> sec >> mnt >> hrs >> day >> mon >> yer >> dow >> m_clientId;
+  //  std::getline(is, m_task, '|'); // just to get rest of line with spaces
 
-    parseItem(sec, 0, 59, m_vsec);
-    parseItem(mnt, 0, 59, m_vmin);
-    parseItem(hrs, 0, 23, m_vhour);
-    parseItem(day, 1, 31, m_vmday);
-    parseItem(mon, 1, 12, m_vmon, -1);
-    parseItem(yer, 0, 9000, m_vyear); //TODO maximum?
-    parseItem(dow, 0, 6, m_vwday);
-  }
+  //  parseItem(sec, 0, 59, m_vsec);
+  //  parseItem(mnt, 0, 59, m_vmin);
+  //  parseItem(hrs, 0, 23, m_vhour);
+  //  parseItem(day, 1, 31, m_vmday);
+  //  parseItem(mon, 1, 12, m_vmon, -1);
+  //  parseItem(yer, 0, 9000, m_vyear); //TODO maximum?
+  //  parseItem(dow, 0, 6, m_vwday);
+  //}
 
   ScheduleRecord::ScheduleRecord(const rapidjson::Value& rec)
   {
@@ -186,26 +208,8 @@ namespace iqrf {
 
     m_clientId = jutils::getMemberAs<std::string>("service", rec);
 
-    const auto msg = rec.FindMember("message");
-    if (msg != rec.MemberEnd()) {
-      if (msg->value.IsString()) {
-        m_task = msg->value.GetString();
-      }
-      else {
-        if (!msg->value.IsObject()) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Object, detected: " << NAME_PAR(name, msg->name.GetString()) << NAME_PAR(type, msg->value.GetType()));
-        }
+    m_task.CopyFrom(jutils::getMemberAsObject("task", rec), m_task.GetAllocator());
 
-        //back to string :-( TODO optimize to hold parsed structure to save time
-        StringBuffer buffer;
-        PrettyWriter<StringBuffer> writer(buffer);
-        msg->value.Accept(writer);
-        m_task = buffer.GetString();
-
-      }
-    }
-
-    m_clientId = jutils::getMemberAs<std::string>("service", rec);
   }
 
   int ScheduleRecord::parseItem(const std::string& item, int mnm, int mxm, std::vector<int>& vec, int offset)

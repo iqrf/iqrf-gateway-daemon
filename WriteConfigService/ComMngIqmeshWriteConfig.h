@@ -312,7 +312,7 @@ namespace iqrf {
     void parseDeviceAddr(rapidjson::Document& doc) {
       // mandatory field
       if (rapidjson::Pointer("/data/req/deviceAddr").IsValid() == false) {
-        throw std::exception("Invalid /data/req/deviceAddr");
+        throw std::logic_error("Invalid /data/req/deviceAddr");
       }
 
       rapidjson::Value* deviceAddrJson = rapidjson::Pointer("/data/req/deviceAddr").Get(doc);

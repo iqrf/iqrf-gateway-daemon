@@ -1,44 +1,66 @@
 {
-  "Tasks": [
-  ],
-  
   "TasksJson": [
     {
-      "time": "*/5 6 * * * * *",
-      "service": "BaseServiceForMQTT1",
-      "message": {
-        "ctype": "dpa",
-        "type": "raw",
-        "msgid": "1",
-        "timeout": 1000,
-        "request": "00.00.06.03.ff.ff",
-        "request_ts": "",
-        "confirmation": ".",
-        "confirmation_ts": "",
-        "response": ".",
-        "response_ts": ""
+      "time": "*/5 * 1 * * * *",
+      "service": "SchedulerMessaging",
+      "task": {
+        "messaging": "WebsocketMessaging",
+        "message": {
+          "ctype": "dpa",
+          "type": "raw",
+          "msgid": "1",
+          "timeout": 1000,
+          "request": "00.00.06.03.ff.ff",
+          "request_ts": "",
+          "confirmation": ".",
+          "confirmation_ts": "",
+          "response": ".",
+          "response_ts": ""
+        }
       }
     },
     {
-      "time": "*/5 * * * * * *",
-      "service": "BaseServiceForMQTT1",
-      "message": {
-        "ctype": "dpa",
-        "type": "raw-hdp",
-        "msgid": "123",
-        "timeout": 1000,
-        "nadr": "00",
-        "pnum": "06",
-        "pcmd": "03",
-        "hwpid": "ffff",
-        "rcode": "",
-        "rdata": "",
-        "request": "",
-        "request_ts": "",
-        "confirmation": "",
-        "confirmation_ts": "",
-        "response": "",
-        "response_ts": ""
+      "time": "*/5 * 1 * * * *",
+      "service": "SchedulerMessaging",
+      "task": {
+        "messaging": "WebsocketMessaging",
+        "message": {
+          "ctype": "dpa",
+          "type": "raw-hdp",
+          "msgid": "123",
+          "timeout": 1000,
+          "nadr": "00",
+          "pnum": "06",
+          "pcmd": "03",
+          "hwpid": "ffff",
+          "rcode": "",
+          "rdata": "",
+          "request": "",
+          "request_ts": "",
+          "confirmation": "",
+          "confirmation_ts": "",
+          "response": "",
+          "response_ts": ""
+        }
+      }
+    },
+    {
+      "time": "*/5 * 1 * * * *",
+      "service": "SchedulerMessaging",
+      "task": {
+        "messaging": "WebsocketMessaging",
+        "message": {
+          "mType": "iqrfEmbedLedg_Pulse",
+          "data": {
+            "msgId": "elit incididunt ullamco",
+            "timeout": 1000,
+            "req": {
+              "nAdr": 0,
+              "hwpId": 65535
+            },
+            "returnVerbose": true
+          }
+        }
       }
     }
   ]

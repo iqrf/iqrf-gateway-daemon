@@ -133,6 +133,13 @@
       "enabled": true,
       "startlevel": 1
     },
+	{
+      "name": "iqrf::SchedulerMessaging",
+      "libraryPath": "",
+      "libraryName": "SchedulerMessaging",
+      "enabled": true,
+      "startlevel": 2
+    },
     {
       "name": "iqrf::JsonDpaApiRaw",
       "libraryPath": "",
@@ -155,9 +162,9 @@
       "startlevel": 3
     },
 	{
-      "name": "iqrf::SmartConnectService",
+      "name": "iqrf::WriteConfigService",
       "libraryPath": "",
-      "libraryName": "SmartConnectService",
+      "libraryName": "WriteConfigService",
       "enabled": true,
       "startlevel": 3
     }

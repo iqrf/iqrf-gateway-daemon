@@ -3,6 +3,13 @@
 #include "DpaHandler2.h"
 #include "DpaTransactionTask.h"
 #include "BaseService.h"
+
+#include "rapidjson/rapidjson.h"
+#include "rapidjson/document.h"
+#include "rapidjson/istreamwrapper.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
+
 #include "Trace.h"
 
 #include "iqrf__BaseService.hxx"
@@ -26,7 +33,7 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::handleMsgFromMessaging(const std::basic_string<uint8_t> & msg)
+  void BaseService::handleMsgFromMessaging(const std::string & messagingId, const std::basic_string<uint8_t> & msg)
   {
     TRC_INFORMATION(std::endl << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl <<
       "Message to process: " << std::endl << MEM_HEX_CHAR(msg.data(), msg.size()));
@@ -52,13 +59,6 @@ namespace iqrf {
       if (dpaTask) {
         DpaTransactionTask trans(*dpaTask);
         try {
-          //std::vector<std::shared_ptr<IDpaTransaction2>> trns;
-          //for (int i = 0; i < 8; i++) {
-          //  trns.push_back(m_dpa->executeDpaTransaction(dpaTask->getRequest(), -1));
-          //}
-          //for (int i = 0; i < 8; i++) {
-          //  trns[i]->get();
-          //}
 
           std::shared_ptr<IDpaTransaction2> dt = m_dpa->executeDpaTransaction(dpaTask->getRequest(), -1);
           std::unique_ptr<IDpaTransactionResult2> dtr = dt->get();
@@ -108,12 +108,13 @@ namespace iqrf {
       os << "PARSE ERROR: " << PAR(ctype) << PAR(lastError);
     }
 
-    std::basic_string<uint8_t> msgu((unsigned char*)os.str().data(), os.str().size());
+    //TRC_INFORMATION("Response to send: " << std::endl << MEM_HEX_CHAR(msgu.data(), msgu.size()) << std::endl <<
+    //  ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl);
 
-    TRC_INFORMATION("Response to send: " << std::endl << MEM_HEX_CHAR(msgu.data(), msgu.size()) << std::endl <<
-      ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl);
+    rapidjson::Document doc;
+    doc.Parse(os.str().c_str());
+    m_iMessagingSplitterService->sendMessage(messagingId, std::move(doc));
 
-    m_messaging->sendMessage(msgu);
   }
 
   void BaseService::handleAsyncDpaMessage(const DpaMessage& dpaMessage)
@@ -125,7 +126,9 @@ namespace iqrf {
       ">>>>> ASYNCHRONOUS >>>>>>>>>>>>>>>" << std::endl);
     std::basic_string<uint8_t> msgu((unsigned char*)sr.data(), sr.size());
 
-    m_messaging->sendMessage(msgu);
+    //m_messaging->sendMessage(msgu);
+    //TODO
+    //m_iMessagingSplitterService->sendMessage(msgu);
 
     TRC_FUNCTION_LEAVE("");
   }
@@ -144,19 +147,23 @@ namespace iqrf {
 
     props->getMemberAsString("instance", m_name);
 
-    TRC_DEBUG("Attached IMessagingService: " << m_messaging->getName());
+    //if (m_asyncDpaMessage) {
+    //  TRC_INFORMATION("Set AsyncDpaMessageHandler :" << PAR(m_name));
+    //  m_dpa->registerAsyncMessageHandler(m_name, [&](const DpaMessage& dpaMessage) {
+    //    handleAsyncDpaMessage(dpaMessage);
+    //  });
+    //}
 
-    m_scheduler->registerMessageHandler(m_name, [&](const std::string& msg) {
-      std::basic_string<uint8_t> msgu((unsigned char*)msg.data(), msg.size());
-      handleMsgFromMessaging(msgu);
+    m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
+      [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
+    {
+      rapidjson::StringBuffer buffer;
+      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+      doc.Accept(writer);
+      std::string msg = buffer.GetString();
+      std::basic_string<uint8_t> umsg((uint8_t*)msg.data(), msg.size());
+      handleMsgFromMessaging(messagingId, umsg);
     });
-
-    if (m_asyncDpaMessage) {
-      TRC_INFORMATION("Set AsyncDpaMessageHandler :" << PAR(m_name));
-      m_dpa->registerAsyncMessageHandler(m_name, [&](const DpaMessage& dpaMessage) {
-        handleAsyncDpaMessage(dpaMessage);
-      });
-    }
 
     TRC_FUNCTION_LEAVE("")
   }
@@ -170,7 +177,7 @@ namespace iqrf {
       "******************************"
     );
 
-    m_scheduler->unregisterMessageHandler(m_name);
+    m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
 
     TRC_FUNCTION_LEAVE("")
   }
@@ -179,18 +186,18 @@ namespace iqrf {
   {
   }
 
-  void BaseService::attachInterface(iqrf::IMessagingService* iface)
+  void BaseService::attachInterface(iqrf::IMessagingSplitterService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
-    m_messaging = iface;
+    m_iMessagingSplitterService = iface;
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::detachInterface(iqrf::IMessagingService* iface)
+  void BaseService::detachInterface(iqrf::IMessagingSplitterService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
-    if (m_messaging == iface) {
-      m_messaging = nullptr;
+    if (m_iMessagingSplitterService == iface) {
+      m_iMessagingSplitterService = nullptr;
     }
     TRC_FUNCTION_LEAVE("")
   }
