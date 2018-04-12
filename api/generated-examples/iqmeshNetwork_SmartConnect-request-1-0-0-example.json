@@ -5,8 +5,8 @@
 		"repeat": 1,
 		"req": {
 			"deviceAddr": 1,
-			"bondingTestRetries": 1,
 			"smartConnectCode": "EEEE",
+			"bondingTestRetries": 1,
 			"userData": [
 				0,
 				0,

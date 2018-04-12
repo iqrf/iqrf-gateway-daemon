@@ -9,9 +9,9 @@
 			"manufacturer": "EEEE",
 			"product": "DD",
 			"standards": [
-				"a",
-				"b",
-				"CCCCCCC"
+				1,
+				2,
+				3
 			],
 			"osRead": {
 				"mid": 1,

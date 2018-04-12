@@ -95,7 +95,7 @@
 									"items": {
 										"type": "integer"
 									},
-									"maxItems": 15
+									"maxItems": 16
 								}
 							},
 							"required": [

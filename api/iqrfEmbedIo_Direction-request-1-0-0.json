@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedIo_Dir-request",
+        "name": "iqrfEmbedIo_Direction-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,7 +12,7 @@
             "type": "string",
             "description": "Embedded peripheral IO - Direction request.",
             "enum": [
-                "iqrfEmbedIo_Dir"
+                "iqrfEmbedIo_Direction"
             ]
         },
         "data": {

@@ -34,14 +34,14 @@
 							"type": "integer",
 							"description": "Address to bond the device to."
 						},
+						"smartConnectCode": {
+							"type": "string",
+							"description": "Smart connect code of the device."
+						},
 						"bondingTestRetries": {
 							"type": "integer",
 							"description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds.",
 							"default": 1
-						},
-						"smartConnectCode": {
-							"type": "string",
-							"description": "Smart connect code of the device."
 						},
 						"userData": {
 							"type": "array",
@@ -56,7 +56,6 @@
 					},
 					"required": [
 						"deviceAddr",
-						"bondingTestRetries",
 						"smartConnectCode"
 					]
 				},
