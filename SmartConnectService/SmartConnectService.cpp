@@ -704,14 +704,11 @@ namespace iqrf {
       Pointer("/data/rsp/osRead/slotLimits").Set(response, osInfo.SlotLimits);
 
       // IBK was added later in the version of DPA 3.03 
-#if (DPA_VERSION_MASTER >= 0x0303) 
-        rapidjson::Value ibkJsonArray(kArrayType);
-        rapidjson::Value ibkJsonArray(kArrayType);
-        for (int i = 0; i < IBK_LEN; i++) {
-          ibkJsonArray.PushBack(osInfo.IBK[i], allocator);
-        }
-        Pointer("/data/rsp/osRead/ibk").Set(response, ibkJsonArray);
-#endif
+      rapidjson::Value ibkJsonArray(kArrayType);
+      for (int i = 0; i < IBK_LEN; i++) {
+        ibkJsonArray.PushBack(osInfo.IBK[i], allocator);
+      }
+      Pointer("/data/rsp/osRead/ibk").Set(response, ibkJsonArray);
       
       // status - ok
       Pointer("/status").Set(response, 0);
