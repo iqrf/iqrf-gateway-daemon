@@ -56,6 +56,7 @@ add_subdirectory(JsonDpaApiIqrfStandard)
 add_subdirectory(WriteConfigService)
 add_subdirectory(SchedulerMessaging)
 add_subdirectory(SmartConnectService)
+add_subdirectory(ReadTrConfigService)
 
 set(DEFAULT_DAEMON_VERSION v2.0.0dev)
 string(TIMESTAMP DEFAULT_BUILD_TIMESTAMP)

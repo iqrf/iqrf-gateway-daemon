@@ -167,6 +167,13 @@
       "libraryName": "SmartConnectService",
       "enabled": true,
       "startlevel": 3
+    },
+	{
+      "name": "iqrf::ReadTrConfigService",
+      "libraryPath": "",
+      "libraryName": "ReadTrConfigService",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }
