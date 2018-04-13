@@ -1,5 +1,5 @@
 {
-    "mType": "iqrfSensor_Enumerate",
+    "mType": "iqrfBinaryoutput_Enumerate",
     "data": {
       "msgId": "test",
       "timeout": 1000,
