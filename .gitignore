@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Source for now
+src
+

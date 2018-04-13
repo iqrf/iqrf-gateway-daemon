@@ -19,6 +19,21 @@ weight: 160
 
 - DPA 3.02, +
 
+## Smart Connect
+#### Json schemas
+
+- Json [request](https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_SmartConnect-request-1-0-0.json) v1-0-0
+- Json [response](https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_SmartConnect-response-1-0-0.json) v1-0-0
+
+#### Auto-generated examples
+
+- Json [request](https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/agen-examples/iqmeshNetwork_SmartConnect-request-1-0-0-example.json) v1-0-0
+- Json [response](https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/agen-examples/iqmeshNetwork_SmartConnect-response-1-0-0-example.json) v1-0-0
+
+#### Dpa compatibility
+
+- DPA 3.03, +
+
 ## Enumerate Device
 #### Json schemas
 
