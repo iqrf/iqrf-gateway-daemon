@@ -874,6 +874,9 @@ namespace iqrf {
       rapidjson::Document doc
     )
     {
+      // for the sake of debugging
+      TRC_INFORMATION("Smart Connect handleMsg start ...");
+
       TRC_FUNCTION_ENTER(
         PAR(messagingId) <<
         NAME_PAR(mType, msgType.m_type) <<
