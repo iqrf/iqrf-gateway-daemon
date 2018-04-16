@@ -287,7 +287,7 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          smartConnectTransaction = m_iIqrfDpaService->executeDpaTransaction(smartConnectRequest);
+          smartConnectTransaction = m_iIqrfDpaService->executeDpaTransaction(smartConnectRequest, 10000);
           transResult = smartConnectTransaction->get();
         }
         catch (std::exception& e) {
@@ -955,8 +955,8 @@ namespace iqrf {
       );
 
       // create and send response
-      Document responseDoc = createResponse(messagingId, msgType, smartConnectResult, comSmartConnect);
-      m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
+      Document responseDoc = createResponse(comSmartConnect.getMsgId(), msgType, smartConnectResult, comSmartConnect);
+      m_iMessagingSplitterService->sendMessage(comSmartConnect.getMsgId(), std::move(responseDoc));
 
       TRC_FUNCTION_LEAVE("");
     }

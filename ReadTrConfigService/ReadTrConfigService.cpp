@@ -168,7 +168,7 @@ namespace iqrf {
       readHwpPacket.DpaRequestPacket_t.NADR = deviceAddr;
       readHwpPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       readHwpPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
-      readHwpPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      readHwpPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
       readHwpRequest.DataToBuffer(readHwpPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
 
       // issue the DPA request
@@ -279,7 +279,7 @@ namespace iqrf {
 
     // creates error response about service general fail
     Document createCheckParamsFailedResponse(
-      const std::string& messagingId,
+      const std::string& msgId,
       const IMessagingSplitterService::MsgType& msgType,
       const std::string& errorMsg
     )
@@ -288,7 +288,7 @@ namespace iqrf {
       
       // set common parameters
       Pointer("/mType").Set(response, msgType.m_type);
-      Pointer("/data/msgId").Set(response, messagingId);
+      Pointer("/data/msgId").Set(response, msgId);
 
       // set result
       Pointer("/status").Set(response, SERVICE_ERROR);
@@ -299,7 +299,7 @@ namespace iqrf {
 
     // creates response on the basis of smart connect result
     Document createResponse(
-      const std::string& messagingId,
+      const std::string& msgId,
       const IMessagingSplitterService::MsgType& msgType,
       ReadTrConfigResult& readTrConfigResult,
       const ComIqmeshNetworkReadTrConf& comSmartConnect
@@ -309,7 +309,7 @@ namespace iqrf {
 
       // set common parameters
       Pointer("/mType").Set(response, msgType.m_type);
-      Pointer("/data/msgId").Set(response, messagingId);
+      Pointer("/data/msgId").Set(response, msgId);
 
       // checking of error
       ReadTrConfigError error = readTrConfigResult.getError();
@@ -543,8 +543,8 @@ namespace iqrf {
       ReadTrConfigResult readTrConfigResult = readTrConfig(deviceAddr);
 
       // create and send response
-      Document responseDoc = createResponse(messagingId, msgType, readTrConfigResult, comReadTrConf);
-      m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
+      Document responseDoc = createResponse(comReadTrConf.getMsgId(), msgType, readTrConfigResult, comReadTrConf);
+      m_iMessagingSplitterService->sendMessage(comReadTrConf.getMsgId(), std::move(responseDoc));
 
       TRC_FUNCTION_LEAVE("");
     }
