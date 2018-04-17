@@ -616,7 +616,7 @@ namespace iqrf {
     //mandatory here
     m_pnum = jutils::getMemberAs<std::string>(PNUM_STR, val);
     m_pcmd = jutils::getMemberAs<std::string>(PCMD_STR, val);
-    m_hwpid = jutils::getMemberAs<std::string>(HWPID_STR, val);
+    m_hwpid = jutils::getPossibleMemberAs<std::string>(HWPID_STR, val, "ffff");
 
     m_data = jutils::getPossibleMemberAs<std::string>(REQD_STR, val, m_data);
 

@@ -40,8 +40,13 @@ namespace iqrf {
       m_request.DpaPacket().DpaRequestPacket_t.NADR = rapidjson::Pointer("/data/req/nAdr").Get(doc)->GetInt();
       m_request.DpaPacket().DpaRequestPacket_t.PNUM = rapidjson::Pointer("/data/req/pNum").Get(doc)->GetInt();
       m_request.DpaPacket().DpaRequestPacket_t.PCMD = rapidjson::Pointer("/data/req/pCmd").Get(doc)->GetInt();
-      m_request.DpaPacket().DpaRequestPacket_t.HWPID = rapidjson::Pointer("/data/req/hwpId").Get(doc)->GetInt();
-      
+
+      int hwpidReq = rapidjson::Pointer("/data/req/hwpId").GetWithDefault(doc, -1).GetInt();
+      if (hwpidReq < 0) {
+        hwpidReq = 0xffff;
+      }
+      m_request.DpaPacket().DpaRequestPacket_t.HWPID = (uint16_t)hwpidReq;
+
       rapidjson::Value* req = rapidjson::Pointer("/data/req").Get(doc);
       if (req) {
         std::vector<int> rdata = jutils::getPossibleMemberAsVector<int>("rData", *req);
