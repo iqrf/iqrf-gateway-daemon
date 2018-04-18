@@ -36,7 +36,7 @@ namespace iqrf {
 
     void attachInterface(iqrf::IJsCacheService* iface);
     void detachInterface(iqrf::IJsCacheService* iface);
-
+    
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
 

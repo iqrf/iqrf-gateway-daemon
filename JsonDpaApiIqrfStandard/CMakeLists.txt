@@ -21,6 +21,7 @@ include_directories(${cutils_INCLUDE_DIRS})
 #include_directories(${duktape_INCLUDE_DIR})
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
+add_definitions(-DRAPIDJSON_HAS_STDSTRING -DDUK_USE_DATE_NOW_WINDOWS)
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})

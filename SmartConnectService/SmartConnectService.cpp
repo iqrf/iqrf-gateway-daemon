@@ -579,7 +579,7 @@ namespace iqrf {
       if (smartConnectResult.getError().getType() != SmartConnectError::Type::NoError) {
         return smartConnectResult;
       }
-
+      
       const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(hwpId);
       if (manufacturer != nullptr) {
         smartConnectResult.setManufacturer(manufacturer->m_name);
@@ -602,7 +602,7 @@ namespace iqrf {
         }
         smartConnectResult.setStandards(standards);
       }
-
+      
       return smartConnectResult;
       TRC_FUNCTION_LEAVE("");
     }
@@ -874,9 +874,6 @@ namespace iqrf {
       rapidjson::Document doc
     )
     {
-      // for the sake of debugging
-      TRC_INFORMATION("Smart Connect handleMsg start ...");
-
       TRC_FUNCTION_ENTER(
         PAR(messagingId) <<
         NAME_PAR(mType, msgType.m_type) <<
@@ -976,15 +973,18 @@ namespace iqrf {
       );
 
       // for the sake of register function parameters 
-      std::vector<std::string> supportedMsgTypes;
-      supportedMsgTypes.push_back(m_mTypeName_iqmeshNetworkSmartConnect);
+      std::vector<std::string> m_filters =
+      {
+        m_mTypeName_iqmeshNetworkSmartConnect
+      };
 
       m_iMessagingSplitterService->registerFilteredMsgHandler(
-        supportedMsgTypes,
+        m_filters,
         [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
       {
         handleMsg(messagingId, msgType, std::move(doc));
       });
+
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -999,10 +999,12 @@ namespace iqrf {
       );
 
       // for the sake of unregister function parameters 
-      std::vector<std::string> supportedMsgTypes;
-      supportedMsgTypes.push_back(m_mTypeName_iqmeshNetworkSmartConnect);
+      std::vector<std::string> m_filters =
+      {
+        m_mTypeName_iqmeshNetworkSmartConnect
+      };
 
-      m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
+      m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -1034,7 +1036,7 @@ namespace iqrf {
         m_iJsCacheService = nullptr;
       }
     }
-
+   
     void attachInterface(IMessagingSplitterService* iface)
     {
       m_iMessagingSplitterService = iface;
@@ -1091,7 +1093,7 @@ namespace iqrf {
   {
     m_imp->detachInterface(iface);
   }
-
+  
   void SmartConnectService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
