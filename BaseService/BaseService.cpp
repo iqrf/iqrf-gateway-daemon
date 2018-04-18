@@ -60,7 +60,7 @@ namespace iqrf {
         DpaTransactionTask trans(*dpaTask);
         try {
 
-          std::shared_ptr<IDpaTransaction2> dt = m_dpa->executeDpaTransaction(dpaTask->getRequest(), -1);
+          std::shared_ptr<IDpaTransaction2> dt = m_dpa->executeDpaTransaction(dpaTask->getRequest(), dpaTask->getTimeout());
           std::unique_ptr<IDpaTransactionResult2> dtr = dt->get();
 
           //TODO fill taskDpa according result

@@ -36,7 +36,10 @@ namespace iqrf {
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
+      bool r = res.isResponded();
       rapidjson::Pointer("/data/rsp").Set(doc, m_payload);
+      rapidjson::Pointer("/data/rsp/rCode").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
+      rapidjson::Pointer("/data/rsp/dpaVal").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);
     }
 
   private:

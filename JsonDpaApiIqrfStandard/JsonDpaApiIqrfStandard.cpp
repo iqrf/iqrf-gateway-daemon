@@ -171,6 +171,7 @@ namespace iqrf {
         
       // get nadr, hwpid as driver ignore them
       int nadrReq = Pointer("/data/req/nAdr").Get(doc)->GetInt();
+
       int hwpidReq = Pointer("/data/req/hwpId").GetWithDefault(doc, -1).GetInt();
       int timeout = Pointer("/data/timeout").GetWithDefault(doc, -1).GetInt();
 
@@ -182,7 +183,7 @@ namespace iqrf {
 
       TRC_DEBUG(PAR(rawHdpRequest))
       // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
-      std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(nadrReq, hwpidReq, rawHdpRequest);
+      std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(nadrReq, hwpidReq < 0 ? 0xffff : hwpidReq, rawHdpRequest);
 
       // setDpaRequest as DpaMessage in com object 
       com->setDpaMessage(dpaRequest);
@@ -201,7 +202,7 @@ namespace iqrf {
       int sz = res->getResponse().GetLength();
       
       Document rspObj;
-      int nadrRes = nadrReq, hwpidRes = hwpidReq;
+      int nadrRes = nadrReq, hwpidRes = 0;
       if (sz > 0) {
         int rcode = res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode;
         //we have some response
@@ -227,9 +228,7 @@ namespace iqrf {
 
       // set nadr, hwpid
       Pointer("/nAdr").Set(rspObj, nadrRes);
-      if (hwpidReq != -1) { // default -1 => wasn't present in request
-        Pointer("/hwpId").Set(rspObj, hwpidRes);
-      }
+      Pointer("/hwpId").Set(rspObj, hwpidRes);
 
       { //debug
         std::string str = JsonToStr(&rspObj);
