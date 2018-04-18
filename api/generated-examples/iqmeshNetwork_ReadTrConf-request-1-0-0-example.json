@@ -4,10 +4,8 @@
     "msgId": "exercitation tempo",
     "repeat": 1,
     "req": {
-      "deviceAddr": [
-        45811270,
-        -62276996
-      ]
+      "deviceAddr": 45811270,
+      "hwpId": 14725836
     },
     "returnVerbose": false
   }

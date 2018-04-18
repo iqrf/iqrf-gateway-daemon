@@ -5,10 +5,8 @@
     "repeat": 1,
     "restart": true,
     "req": {
-      "deviceAddr": [
-        75013091,
-        -26941044
-      ],
+      "deviceAddr": 75013091,
+      "hwpId": 75013091,
       "rfBand": "aliqua adipisicing deserunt",
       "rfChannelA": -14247408,
       "rfChannelB": 14788583,

@@ -36,7 +36,7 @@
 						},
 						"hwpId": {
 							"type": "integer",
-							"description": "Profile integer."
+							"description": "Hardware profile."
 						},
 						"manufacturer": {
 							"type": "string",

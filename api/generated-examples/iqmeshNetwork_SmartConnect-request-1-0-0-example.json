@@ -4,7 +4,7 @@
 		"msgId": "CCCC",
 		"repeat": 1,
 		"req": {
-			"deviceAddr": 1,
+			"reqAddr": 1,
 			"smartConnectCode": "EEEE",
 			"bondingTestRetries": 1,
 			"userData": [

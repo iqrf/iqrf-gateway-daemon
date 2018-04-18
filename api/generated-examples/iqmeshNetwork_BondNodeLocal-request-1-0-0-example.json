@@ -4,7 +4,7 @@
     "msgId": "dolore ex",
     "repeat": 1,
     "req": {
-      "deviceAddr": -71053185
+      "reqAddr": -71053185
     },
     "returnVerbose": true
   }

@@ -1,0 +1,12 @@
+{
+  "mType": "iqrfLight_Enumerate",
+  "data": {
+    "msgId": "test",
+    "timeout": 2000,
+    "req": {
+      "nAdr": 6,
+      "hwpId": 65535
+    },
+    "returnVerbose": true
+  }
+}

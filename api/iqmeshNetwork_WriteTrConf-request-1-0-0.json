@@ -36,11 +36,12 @@
 					"type": "object",
 					"properties": {
 						"deviceAddr": {
-							"type": "array",
-							"description": "Device address(es) to write the configuration to. Broadcast address is also allowed.",
-							"items": {
-								"type": "integer"
-							}
+							"type": "integer",
+							"description": "Device address(es) to write the configuration to. Broadcast address is also allowed."
+						},
+						"hwpId": {
+							"type": "integer",
+							"description": "Hardware profile."
 						},
 						"rfBand": {
 							"type": "string",
