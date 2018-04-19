@@ -76,14 +76,14 @@ namespace iqrf {
     shape::Tracer::get().removeTracerService(iface);
   }
 
-  void Ide4Counterpart::attachInterface(iqrf::IMessagingService* iface)
+  void Ide4Counterpart::attachInterface(iqrf::IUdpMessagingService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     m_messaging = iface;
     TRC_FUNCTION_LEAVE("")
   }
 
-  void Ide4Counterpart::detachInterface(iqrf::IMessagingService* iface)
+  void Ide4Counterpart::detachInterface(iqrf::IUdpMessagingService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     if (m_messaging == iface) {

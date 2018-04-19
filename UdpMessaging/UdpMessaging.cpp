@@ -1,3 +1,4 @@
+#define IUdpMessagingService_EXPORTS
 #define IMessagingService_EXPORTS
 
 #include "UdpMessaging.h"

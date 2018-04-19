@@ -3,7 +3,7 @@
 #include "ShapeProperties.h"
 #include "IUdpConnectorService.h"
 #include "ITraceService.h"
-#include "IMessagingService.h"
+#include "IUdpMessagingService.h"
 #include "IIqrfChannelService.h"
 #include "DpaHandler.h"
 #include "TaskQueue.h"
@@ -23,8 +23,8 @@ namespace iqrf {
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
 
-    void attachInterface(iqrf::IMessagingService* iface);
-    void detachInterface(iqrf::IMessagingService* iface);
+    void attachInterface(iqrf::IUdpMessagingService* iface);
+    void detachInterface(iqrf::IUdpMessagingService* iface);
 
     void attachInterface(iqrf::IIqrfChannelService* iface);
     void detachInterface(iqrf::IIqrfChannelService* iface);
@@ -61,7 +61,7 @@ namespace iqrf {
     void decodeMessageUdp(const std::basic_string<unsigned char>& udpMessage, std::basic_string<unsigned char>& message);
 
   private:
-    IMessagingService *m_messaging = nullptr;
+    IUdpMessagingService *m_messaging = nullptr;
     IIqrfChannelService *m_iqrfChannelService = nullptr;
     TaskQueue<DpaTransaction*> *m_dpaTransactionQueue = nullptr;
     std::mutex m_modeMtx;

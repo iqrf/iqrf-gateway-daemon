@@ -2,8 +2,9 @@ project(Ide4Counterpart)
 
 set(COMPONENT iqrf::Ide4Counterpart)
 DeclareShapeComponent(${COMPONENT})
+AddShapeProvidedInterface(${COMPONENT} iqrf::IUdpConnectorService)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IUdpMessagingService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfChannelService MANDATORY SINGLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 

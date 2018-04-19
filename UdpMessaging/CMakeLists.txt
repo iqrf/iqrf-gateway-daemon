@@ -2,7 +2,7 @@ project(UdpMessaging)
 
 set(COMPONENT iqrf::UdpMessaging)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IMessagingService)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IUdpMessagingService)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 

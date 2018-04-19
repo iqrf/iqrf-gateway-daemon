@@ -76,14 +76,18 @@ namespace iqrf {
       if (msgType.m_type == "mngDaemon_Mode") {
         MngModeMsg msg(doc);
 
-        m_iUdpConnectorService->setMode(msg.getMode());
-
-        if (msg.getVerbose()) {
-          rapidjson::Pointer("/data/insId").Set(doc, "iqrfgd2-1"); // TODO replace by daemon instance id
-          rapidjson::Pointer("/data/statusStr").Set(doc, "ok");
+        if (m_iUdpConnectorService) {
+          m_iUdpConnectorService->setMode(msg.getMode());
         }
 
-        rapidjson::Pointer("/data/status").Set(doc, 0);
+        rapidjson::Pointer("/rsp/operMode").Set(respDoc, ModeStringConvertor::enum2str(msg.getMode()));
+
+        if (msg.getVerbose()) {
+          rapidjson::Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+          rapidjson::Pointer("/data/statusStr").Set(respDoc, "ok");
+        }
+
+        rapidjson::Pointer("/data/status").Set(respDoc, 0);
       }
 
       //TODO validate response in debug
