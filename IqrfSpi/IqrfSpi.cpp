@@ -3,6 +3,8 @@
 #include "IqrfSpi.h"
 #include "spi_iqrf.h"
 #include "sysfs_gpio.h"
+#include "machines_def.h"
+#include "rapidjson/pointer.h"
 #include <mutex>
 #include <thread>
 #include <atomic>
@@ -208,20 +210,63 @@ namespace iqrf {
         "******************************"
       );
 
-      modify(props);
-      
-      m_rx = shape_new unsigned char[m_bufsize];
-      memset(m_rx, 0, m_bufsize);
+      using namespace rapidjson;
 
-      int retval = spi_iqrf_init(m_interfaceName.c_str());
-      if (BASE_TYPES_OPER_OK != retval) {
-        delete[] m_rx;
-        m_rx = nullptr;
-        THROW_EXC_TRC_WAR(std::logic_error, "Communication interface has not been open.");
+      try {
+        spi_iqrf_config_struct cfg = { {}, ENABLE_GPIO, CE0_GPIO, MISO_GPIO, MOSI_GPIO, SCLK_GPIO };
+
+        Document d;
+        d.CopyFrom(props->getAsJson(), d.GetAllocator());
+
+        Value* comName = Pointer("/IqrfInterface").Get(d);
+        if (comName != nullptr && comName->IsString()) {
+          m_interfaceName = comName->GetString();
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /IqrfInterface");
+        }
+
+        memset(cfg.spiDev, 0, sizeof(cfg.spiDev));
+        auto sz = m_interfaceName.size();
+        if (sz > sizeof(cfg.spiDev)) sz = sizeof(cfg.spiDev);
+        std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, cfg.spiDev);
+
+        cfg.enableGpioPin = (uint8_t)Pointer("/enableGpioPin").GetWithDefault(d, (int)cfg.enableGpioPin).GetInt();
+        cfg.spiCe0GpioPin = (uint8_t)Pointer("/spiCe0GpioPin").GetWithDefault(d, (int)cfg.spiCe0GpioPin).GetInt();
+        cfg.spiMisoGpioPin = (uint8_t)Pointer("/spiMisoGpioPin").GetWithDefault(d, (int)cfg.spiMisoGpioPin).GetInt();
+        cfg.spiMosiGpioPin = (uint8_t)Pointer("/spiMosiGpioPin").GetWithDefault(d, (int)cfg.spiMosiGpioPin).GetInt();
+        cfg.spiClkGpioPin = (uint8_t)Pointer("/spiClkGpioPin").GetWithDefault(d, (int)cfg.spiClkGpioPin).GetInt();
+
+        TRC_INFORMATION(PAR(m_interfaceName));
+
+        int attempts = 1;
+        int res = BASE_TYPES_OPER_ERROR;
+        while (attempts < 3) {
+          res = spi_iqrf_initAdvanced(&cfg);
+          if (BASE_TYPES_OPER_OK == res) {
+            break;
+          }
+
+          TRC_WARNING(PAR(m_interfaceName) << PAR(attempts) << " Create IqrfInterface failure");
+          ++attempts;
+          std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+        }
+
+        if (BASE_TYPES_OPER_OK == res) {
+          TRC_WARNING(PAR(m_interfaceName) << " Created");
+          m_rx = shape_new unsigned char[m_bufsize];
+          memset(m_rx, 0, m_bufsize);
+          m_runListenThread = true;
+          m_listenThread = std::thread(&IqrfSpi::Imp::listen, this);
+        }
+        else {
+          TRC_WARNING(PAR(m_interfaceName) << " Cannot create IqrfInterface");
+        }
+
       }
-
-      m_runListenThread = true;
-      m_listenThread = std::thread(&IqrfSpi::Imp::listen, this);
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, PAR(m_interfaceName) << " Cannot create IqrfInterface");
+      }
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -251,7 +296,6 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
-      props->getMemberAsString("IqrfInterface", m_interfaceName);
     }
 
     void listen()
