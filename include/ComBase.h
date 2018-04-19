@@ -43,7 +43,7 @@ namespace iqrf {
 
     void createResponse(rapidjson::Document& doc, const IDpaTransactionResult2& res)
     {
-      rapidjson::Pointer("/mType").Set(doc, "TODO-mType"); //TODO
+      rapidjson::Pointer("/mType").Set(doc, "unknown-mType"); // it's here just to keep order - replaced later in processing, 
       rapidjson::Pointer("/data/msgId").Set(doc, m_msgId);
       if (m_verbose) {
         if (m_timeout != -1) {
@@ -61,7 +61,7 @@ namespace iqrf {
         rapidjson::Pointer("/data/raw/response").Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
         rapidjson::Pointer("/data/raw/responseTs").Set(doc, encodeTimestamp(res.getResponseTs()));
 
-        rapidjson::Pointer("/data/insId").Set(doc, "TODO-insId"); //TODO
+        rapidjson::Pointer("/data/insId").Set(doc, "iqrfgd2-1"); // TODO replace by daemon instance id
         rapidjson::Pointer("/data/statusStr").Set(doc, res.getErrorString());
       }
 
