@@ -1,4 +1,4 @@
-#define IIde4CounterpartService_EXPORTS
+#define IUdpConnectorService_EXPORTS
 
 #include "Ide4Counterpart.h"
 #include "EnumStringConvertor.h"
@@ -11,31 +11,6 @@
 TRC_INIT_MODULE(iqrf::Ide4Counterpart);
 
 namespace iqrf {
-
-  class ModeConvertTable
-  {
-  public:
-    static const std::vector<std::pair<Ide4Counterpart::Mode, std::string>>& table()
-    {
-      static std::vector <std::pair<Ide4Counterpart::Mode, std::string>> table = {
-        { Ide4Counterpart::Mode::Forwarding, "Forwarding" },
-        { Ide4Counterpart::Mode::Operational, "Operational" },
-        { Ide4Counterpart::Mode::Service, "Service" }
-      };
-      return table;
-    }
-    static Ide4Counterpart::Mode defaultEnum()
-    {
-      return Ide4Counterpart::Mode::Operational;
-    }
-    static const std::string& defaultStr()
-    {
-      static std::string u("unknown");
-      return u;
-    }
-  };
-
-  typedef shape::EnumStringConvertor<Ide4Counterpart::Mode, ModeConvertTable> ModeStringConvertor;
 
   Ide4Counterpart::Ide4Counterpart()
   {

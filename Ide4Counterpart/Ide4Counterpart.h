@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ShapeProperties.h"
-#include "Ide4Counterpart.h"
+#include "IUdpConnectorService.h"
 #include "ITraceService.h"
 #include "IMessagingService.h"
 #include "IIqrfChannelService.h"
@@ -10,20 +10,9 @@
 #include <string>
 
 namespace iqrf {
-  class Ide4Counterpart
+  class Ide4Counterpart : public IUdpConnectorService
   {
   public:
-    /// \brief operational mode
-    /// \details
-    /// Operational is used for normal work
-    /// Service the only UDP Messaging is used to communicate with IQRF IDE
-    /// Forwarding normal work but all DPA messages are forwarded to IQRF IDE to me monitored there
-    enum class Mode {
-      Operational,
-      Service,
-      Forwarding
-    };
-
     Ide4Counterpart();
     virtual ~Ide4Counterpart();
 
