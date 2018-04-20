@@ -3,6 +3,7 @@
 #include "ComBase.h"
 #include "Trace.h"
 #include <list>
+#include "JsonUtils.h"
 
 namespace iqrf {
   class ComIqmeshNetworkReadTrConf : public ComBase
@@ -27,7 +28,7 @@ namespace iqrf {
       return m_isSetDeviceAddr;
     }
 
-    const int getDeviceAddr() const
+    const std::vector<int> getDeviceAddr() const
     {
       return m_deviceAddr;
     }
@@ -46,7 +47,7 @@ namespace iqrf {
     bool m_isSetDeviceAddr = false;
 
     int m_repeat = 1;
-    int m_deviceAddr;
+    std:: vector<int> m_deviceAddr;
 
 
     void parseRepeat(rapidjson::Document& doc) {
@@ -57,7 +58,8 @@ namespace iqrf {
 
     void parseRequest(rapidjson::Document& doc) {
       if (rapidjson::Pointer("/data/req/deviceAddr").IsValid()) {
-        m_deviceAddr = rapidjson::Pointer("/data/repeat").Get(doc)->GetInt();
+        rapidjson::Value* reqVal = rapidjson::Pointer("/data/req").Get(doc);
+        m_deviceAddr = jutils::getMemberAsVector<int>("deviceAddr", *reqVal);
         m_isSetDeviceAddr = true;
       }
     }

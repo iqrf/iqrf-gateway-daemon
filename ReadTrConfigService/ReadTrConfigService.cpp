@@ -169,7 +169,7 @@ namespace iqrf {
       readHwpPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       readHwpPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
       readHwpPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      readHwpRequest.DataToBuffer(readHwpPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      readHwpRequest.DataToBuffer(readHwpPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> readHwpTransaction;
@@ -248,7 +248,7 @@ namespace iqrf {
     }
 
 
-    ReadTrConfigResult readTrConfig(const uint8_t deviceAddr)
+    ReadTrConfigResult readTrConfig(const std::list<uint8_t>& deviceAddrs)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -256,7 +256,8 @@ namespace iqrf {
       ReadTrConfigResult readTrConfigResult;
       
       // read HWP configuration
-      _readTrConfig(readTrConfigResult, deviceAddr);
+      // for present time - get only the 1. address
+      _readTrConfig(readTrConfigResult, deviceAddrs.front());
 
       TRC_FUNCTION_LEAVE("");
       return readTrConfigResult;
@@ -483,13 +484,22 @@ namespace iqrf {
       return repeat;
     }
 
-    uint8_t parseAndCheckDeviceAddr(int deviceAddr) {
-      if ((deviceAddr < 0) || (deviceAddr > 0xEF)) {
-        THROW_EXC(
-          std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", deviceAddr)
-        );
+    std::list<uint8_t> parseAndCheckDeviceAddr(const std::vector<int>& deviceAddrs) {
+      if (deviceAddrs.empty()) {
+        THROW_EXC(std::logic_error, "No device address.");
       }
-      return deviceAddr;
+
+      std::list<uint8_t> checkedAddrsList;
+
+      for (int devAddr : deviceAddrs) {
+        if ((devAddr < 0) || (devAddr > 0xEF)) {
+          THROW_EXC(
+            std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", devAddr)
+          );
+          checkedAddrsList.push_back(devAddr);
+        }
+      }
+      return checkedAddrsList;
     }
 
 
@@ -516,8 +526,7 @@ namespace iqrf {
       ComIqmeshNetworkReadTrConf comReadTrConf(doc);
 
       // service input parameters
-      uint8_t deviceAddr;
-
+      std::list<uint8_t> deviceAddrs;
 
       // parsing and checking service parameters
       try {
@@ -526,7 +535,7 @@ namespace iqrf {
         if (!comReadTrConf.isSetDeviceAddr()) {
           THROW_EXC(std::logic_error, "deviceAddr not set");
         }
-        deviceAddr = parseAndCheckDeviceAddr(comReadTrConf.getDeviceAddr());
+        deviceAddrs = parseAndCheckDeviceAddr(comReadTrConf.getDeviceAddr());
 
         m_returnVerbose = comReadTrConf.getVerbose();
       }
@@ -540,7 +549,7 @@ namespace iqrf {
       }
       
       // call service with checked params
-      ReadTrConfigResult readTrConfigResult = readTrConfig(deviceAddr);
+      ReadTrConfigResult readTrConfigResult = readTrConfig(deviceAddrs);
 
       // create and send response
       Document responseDoc = createResponse(comReadTrConf.getMsgId(), msgType, readTrConfigResult, comReadTrConf);
@@ -561,8 +570,10 @@ namespace iqrf {
       );
 
       // for the sake of register function parameters 
-      std::vector<std::string> supportedMsgTypes;
-      supportedMsgTypes.push_back(m_mTypeName_iqmeshNetworkReadTrConf);
+      std::vector<std::string> supportedMsgTypes = 
+      {
+        m_mTypeName_iqmeshNetworkReadTrConf
+      };
 
       m_iMessagingSplitterService->registerFilteredMsgHandler(
         supportedMsgTypes,
@@ -584,8 +595,10 @@ namespace iqrf {
       );
 
       // for the sake of unregister function parameters 
-      std::vector<std::string> supportedMsgTypes;
-      supportedMsgTypes.push_back(m_mTypeName_iqmeshNetworkReadTrConf);
+      std::vector<std::string> supportedMsgTypes =
+      {
+        m_mTypeName_iqmeshNetworkReadTrConf
+      };
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
 
