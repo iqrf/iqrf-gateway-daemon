@@ -942,7 +942,7 @@ namespace iqrf {
       }
       // parsing and checking service parameters failed 
       catch (std::exception& ex) {
-        Document failResponse = createCheckParamsFailedResponse(messagingId, msgType, ex.what());
+        Document failResponse = createCheckParamsFailedResponse(comSmartConnect.getMsgId(), msgType, ex.what());
         m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
 
         TRC_FUNCTION_LEAVE("");
@@ -956,7 +956,7 @@ namespace iqrf {
 
       // create and send response
       Document responseDoc = createResponse(comSmartConnect.getMsgId(), msgType, smartConnectResult, comSmartConnect);
-      m_iMessagingSplitterService->sendMessage(comSmartConnect.getMsgId(), std::move(responseDoc));
+      m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -975,7 +975,7 @@ namespace iqrf {
       // for the sake of register function parameters 
       std::vector<std::string> m_filters =
       {
-        m_mTypeName_iqmeshNetworkSmartConnect
+        "iqmeshNetwork_SmartConnect"
       };
 
       m_iMessagingSplitterService->registerFilteredMsgHandler(

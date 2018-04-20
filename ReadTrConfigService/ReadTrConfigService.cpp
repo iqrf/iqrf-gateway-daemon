@@ -541,7 +541,7 @@ namespace iqrf {
       }
       // parsing and checking service parameters failed 
       catch (std::exception& ex) {
-        Document failResponse = createCheckParamsFailedResponse(messagingId, msgType, ex.what());
+        Document failResponse = createCheckParamsFailedResponse(comReadTrConf.getMsgId(), msgType, ex.what());
         m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
 
         TRC_FUNCTION_LEAVE("");
@@ -553,7 +553,7 @@ namespace iqrf {
 
       // create and send response
       Document responseDoc = createResponse(comReadTrConf.getMsgId(), msgType, readTrConfigResult, comReadTrConf);
-      m_iMessagingSplitterService->sendMessage(comReadTrConf.getMsgId(), std::move(responseDoc));
+      m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
 
       TRC_FUNCTION_LEAVE("");
     }
