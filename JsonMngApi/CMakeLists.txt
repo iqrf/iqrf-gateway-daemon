@@ -2,6 +2,8 @@ project(JsonMngApi)
 
 set(COMPONENT iqrf::JsonMngApi)
 DeclareShapeComponent(${COMPONENT})
+AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::ISchedulerService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IUdpConnectorService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)

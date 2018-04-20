@@ -10,6 +10,7 @@
 #include "Trace.h"
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 
 #include "iqrf__JsonMngApi.hxx"
 
@@ -46,10 +47,35 @@ namespace iqrf {
     IUdpConnectorService::Mode m_mode;
   };
 
+  class MngRestartMsg : public ApiMsg
+  {
+  public:
+    MngRestartMsg() = delete;
+    MngRestartMsg(rapidjson::Document& doc)
+      :ApiMsg(doc)
+    {
+      m_timeToRestart = rapidjson::Pointer("/data/req/timeToRestart").Get(doc)->GetInt();
+    }
+
+    virtual ~MngRestartMsg()
+    {
+    }
+
+    double getTimeToRestart() const
+    {
+      return m_timeToRestart;
+    }
+
+  private:
+    double m_timeToRestart;
+  };
+
   class JsonMngApi::Imp
   {
   private:
 
+    shape::ILaunchService* m_iLaunchService = nullptr;
+    ISchedulerService* m_iSchedulerService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IUdpConnectorService* m_iUdpConnectorService = nullptr;
 
@@ -76,11 +102,48 @@ namespace iqrf {
       if (msgType.m_type == "mngDaemon_Mode") {
         MngModeMsg msg(doc);
 
-        if (m_iUdpConnectorService) {
+        if (m_iUdpConnectorService) { // interface is UNREQUIRED
+          
+          // switch mode
           m_iUdpConnectorService->setMode(msg.getMode());
-        }
 
-        rapidjson::Pointer("/rsp/operMode").Set(respDoc, ModeStringConvertor::enum2str(msg.getMode()));
+          // prepare OK response
+          rapidjson::Pointer("/data/rsp/operMode").Set(respDoc, ModeStringConvertor::enum2str(msg.getMode()));
+
+          if (msg.getVerbose()) {
+            rapidjson::Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+            rapidjson::Pointer("/data/statusStr").Set(respDoc, "ok");
+          }
+
+          rapidjson::Pointer("/data/status").Set(respDoc, 0);
+        }
+        else {
+          // prepare ERR response
+          rapidjson::Pointer("/data/rsp/operMode").Set(respDoc, ModeStringConvertor::enum2str(msg.getMode()));
+
+          if (msg.getVerbose()) {
+            rapidjson::Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+            rapidjson::Pointer("/data/statusStr").Set(respDoc, "ERROR UdpConnectorService not active");
+          }
+
+          rapidjson::Pointer("/data/status").Set(respDoc, -1);
+
+        }
+      }
+      else if (msgType.m_type == "mngDaemon_Restart") {
+        MngRestartMsg msg(doc);
+
+        rapidjson::Document d;
+        rapidjson::Pointer("/task/restart").Set(d, true);
+
+        TRC_INFORMATION(std::endl << "Exit scheduled in: " << msg.getTimeToRestart() << " milliseconds");
+        std::cout << std::endl << "Exit scheduled in: " << msg.getTimeToRestart() << " milliseconds" << std::endl;
+
+        m_iSchedulerService->scheduleTaskAt("JsonMngApi",  d,
+          std::chrono::system_clock::now() + std::chrono::milliseconds((unsigned)msg.getTimeToRestart()));
+
+        // prepare OK response
+        rapidjson::Pointer("/data/rsp/timeToRestart").Set(respDoc, msg.getTimeToRestart());
 
         if (msg.getVerbose()) {
           rapidjson::Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
@@ -94,6 +157,13 @@ namespace iqrf {
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
 
       TRC_FUNCTION_LEAVE("");
+    }
+
+    void handleSchedulerMsg(const rapidjson::Value& val)
+    {
+      TRC_INFORMATION(std::endl << "Scheduled Exit ... " << std::endl);
+      std::cout << std::endl << "Scheduled Exit ... " << std::endl;
+      m_iLaunchService->exit();
     }
 
     void activate(const shape::Properties *props)
@@ -111,6 +181,11 @@ namespace iqrf {
         handleMsg(messagingId, msgType, std::move(doc));
       });
 
+      m_iSchedulerService->registerTaskHandler("JsonMngApi", [&](const rapidjson::Value& val)
+      {
+        handleSchedulerMsg(val);
+      });
+
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -124,12 +199,37 @@ namespace iqrf {
       );
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
+      m_iSchedulerService->unregisterTaskHandler("JsonMngApi");
 
       TRC_FUNCTION_LEAVE("")
     }
 
     void modify(const shape::Properties *props)
     {
+    }
+
+    void attachInterface(shape::ILaunchService* iface)
+    {
+      m_iLaunchService = iface;
+    }
+
+    void detachInterface(shape::ILaunchService* iface)
+    {
+      if (m_iLaunchService == iface) {
+        m_iLaunchService = nullptr;
+      }
+    }
+
+    void attachInterface(ISchedulerService* iface)
+    {
+      m_iSchedulerService = iface;
+    }
+
+    void detachInterface(ISchedulerService* iface)
+    {
+      if (m_iSchedulerService == iface) {
+        m_iSchedulerService = nullptr;
+      }
     }
 
     void attachInterface(IUdpConnectorService* iface)
@@ -182,6 +282,26 @@ namespace iqrf {
   void JsonMngApi::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsonMngApi::attachInterface(shape::ILaunchService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonMngApi::detachInterface(shape::ILaunchService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void JsonMngApi::attachInterface(ISchedulerService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonMngApi::detachInterface(ISchedulerService* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsonMngApi::attachInterface(IUdpConnectorService* iface)

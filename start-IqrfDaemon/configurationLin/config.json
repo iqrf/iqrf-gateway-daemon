@@ -25,7 +25,7 @@
       "name": "shape::LauncherService",
       "libraryPath": "",
       "libraryName": "",
-      "enabled": false,
+      "enabled": true,
       "startlevel": -2
     },
     {
