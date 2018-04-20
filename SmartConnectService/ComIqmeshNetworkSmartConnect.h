@@ -99,7 +99,7 @@ namespace iqrf {
       if (rapidjson::Value* userDataJson = rapidjson::Pointer("/data/req/userData").Get(doc)) {
         if (userDataJson->IsArray()) {
           for (rapidjson::SizeType i = 0; i < userDataJson->Size(); i++) {
-            m_userData.push_back(userDataJson[i].GetInt());
+            m_userData.push_back((*userDataJson)[i].GetInt());
           }
           m_isSetUserData = true;
         }
