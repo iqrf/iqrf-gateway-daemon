@@ -257,7 +257,10 @@ namespace iqrf {
       
       // read HWP configuration
       // for present time - get only the 1. address
-      _readTrConfig(readTrConfigResult, deviceAddrs.front());
+      uint8_t firstAddress = deviceAddrs.front();
+      readTrConfigResult.setDeviceAddr(firstAddress);
+
+      _readTrConfig(readTrConfigResult, firstAddress);
 
       TRC_FUNCTION_LEAVE("");
       return readTrConfigResult;
@@ -496,8 +499,8 @@ namespace iqrf {
           THROW_EXC(
             std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", devAddr)
           );
-          checkedAddrsList.push_back(devAddr);
         }
+        checkedAddrsList.push_back(devAddr);
       }
       return checkedAddrsList;
     }

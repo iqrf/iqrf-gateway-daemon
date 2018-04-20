@@ -51,15 +51,14 @@ namespace iqrf {
 
 
     void parseRepeat(rapidjson::Document& doc) {
-      if (rapidjson::Pointer("/data/repeat").IsValid()) {
-        m_repeat = rapidjson::Pointer("/data/repeat").Get(doc)->GetInt();
+      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc)) {
+        m_repeat = repeatJsonVal->GetInt();
       }
     }
 
     void parseRequest(rapidjson::Document& doc) {
-      if (rapidjson::Pointer("/data/req/deviceAddr").IsValid()) {
-        rapidjson::Value* reqVal = rapidjson::Pointer("/data/req").Get(doc);
-        m_deviceAddr = jutils::getMemberAsVector<int>("deviceAddr", *reqVal);
+      if (rapidjson::Value* reqJsonVal = rapidjson::Pointer("/data/req").Get(doc)) {
+        m_deviceAddr = jutils::getMemberAsVector<int>("deviceAddr", *reqJsonVal);
         m_isSetDeviceAddr = true;
       }
     }
