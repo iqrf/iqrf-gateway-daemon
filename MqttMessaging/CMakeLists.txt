@@ -42,6 +42,6 @@ target_link_libraries(${PROJECT_NAME}
 )
 else()
 target_link_libraries(${PROJECT_NAME}
-	paho-mqtt3a
+	paho-mqtt3as
 )
 endif()

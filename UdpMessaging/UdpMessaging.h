@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IMessagingService.h"
+#include "IUdpMessagingService.h"
 #include "TaskQueue.h"
 #include "UdpChannel.h"
 #include "ShapeProperties.h"
@@ -8,7 +8,7 @@
 #include <string>
 
 namespace iqrf {
-  class UdpMessaging : public IMessagingService
+  class UdpMessaging : public IUdpMessagingService
   {
   public:
     UdpMessaging();

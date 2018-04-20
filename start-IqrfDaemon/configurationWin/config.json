@@ -148,6 +148,13 @@
       "startlevel": 2
     },
     {
+      "name": "iqrf::JsonMngApi",
+      "libraryPath": "",
+      "libraryName": "JsonMngApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
       "name": "iqrf::JsCache",
       "libraryPath": "",
       "libraryName": "JsCache",

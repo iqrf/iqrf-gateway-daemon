@@ -1,29 +1,18 @@
 #pragma once
 
 #include "ShapeProperties.h"
-#include "Ide4Counterpart.h"
+#include "IUdpConnectorService.h"
 #include "ITraceService.h"
-#include "IMessagingService.h"
+#include "IUdpMessagingService.h"
 #include "IIqrfChannelService.h"
 #include "DpaHandler.h"
 #include "TaskQueue.h"
 #include <string>
 
 namespace iqrf {
-  class Ide4Counterpart
+  class Ide4Counterpart : public IUdpConnectorService
   {
   public:
-    /// \brief operational mode
-    /// \details
-    /// Operational is used for normal work
-    /// Service the only UDP Messaging is used to communicate with IQRF IDE
-    /// Forwarding normal work but all DPA messages are forwarded to IQRF IDE to me monitored there
-    enum class Mode {
-      Operational,
-      Service,
-      Forwarding
-    };
-
     Ide4Counterpart();
     virtual ~Ide4Counterpart();
 
@@ -34,8 +23,8 @@ namespace iqrf {
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
 
-    void attachInterface(iqrf::IMessagingService* iface);
-    void detachInterface(iqrf::IMessagingService* iface);
+    void attachInterface(iqrf::IUdpMessagingService* iface);
+    void detachInterface(iqrf::IUdpMessagingService* iface);
 
     void attachInterface(iqrf::IIqrfChannelService* iface);
     void detachInterface(iqrf::IIqrfChannelService* iface);
@@ -72,7 +61,7 @@ namespace iqrf {
     void decodeMessageUdp(const std::basic_string<unsigned char>& udpMessage, std::basic_string<unsigned char>& message);
 
   private:
-    IMessagingService *m_messaging = nullptr;
+    IUdpMessagingService *m_messaging = nullptr;
     IIqrfChannelService *m_iqrfChannelService = nullptr;
     TaskQueue<DpaTransaction*> *m_dpaTransactionQueue = nullptr;
     std::mutex m_modeMtx;
