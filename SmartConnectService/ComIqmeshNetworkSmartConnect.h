@@ -32,10 +32,6 @@ namespace iqrf {
       return m_deviceAddr;
     }
 
-    bool isSetBondingTestRetries() const {
-      return m_isSetBondingTestRetries;
-    }
-
     const int getBondingTestRetries() const
     {
       return m_bondingTestRetries;
@@ -70,7 +66,6 @@ namespace iqrf {
 
   private:
     bool m_isSetDeviceAddr = false;
-    bool m_isSetBondingTestRetries = false;
     bool m_isSetSmartConnectCode = false;
     bool m_isSetUserData = false;
 
@@ -83,29 +78,25 @@ namespace iqrf {
 
 
     void parseRepeat(rapidjson::Document& doc) {
-      if (rapidjson::Pointer("/data/repeat").IsValid()) {
-        m_repeat = rapidjson::Pointer("/data/repeat").Get(doc)->GetInt();
+      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc)) {
+        m_repeat = repeatJsonVal->GetInt();
       }
     }
 
     void parseRequest(rapidjson::Document& doc) {
-      if (rapidjson::Pointer("/data/req/deviceAddr").IsValid()) {
-        m_deviceAddr = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)->GetInt();
+      if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
+        m_deviceAddr = deviceAddrJsonVal->GetInt();
         m_isSetDeviceAddr = true;
       }
 
-      if (rapidjson::Pointer("/data/req/bondingTestRetries").IsValid()) {
-        m_bondingTestRetries = rapidjson::Pointer("/data/req/bondingTestRetries").Get(doc)->GetInt();
-        m_isSetBondingTestRetries = true;
-      }
-
-      if (rapidjson::Pointer("/data/req/smartConnectCode").IsValid()) {
-        m_smartConnectCode = rapidjson::Pointer("/data/req/smartConnectCode").Get(doc)->GetString();
+      m_bondingTestRetries = rapidjson::Pointer("/data/req/bondingTestRetries").GetWithDefault(doc, 1).GetInt();
+       
+      if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req/smartConnectCode").Get(doc)) {
+        m_smartConnectCode = deviceAddrJsonVal->GetString();
         m_isSetSmartConnectCode = true;
       }
 
-      if (rapidjson::Pointer("/data/req/userData").IsValid()) {
-        rapidjson::Value* userDataJson = rapidjson::Pointer("/data/req/userData").Get(doc);
+      if (rapidjson::Value* userDataJson = rapidjson::Pointer("/data/req/userData").Get(doc)) {
         if (userDataJson->IsArray()) {
           for (rapidjson::SizeType i = 0; i < userDataJson->Size(); i++) {
             m_userData.push_back(userDataJson[i].GetInt());
