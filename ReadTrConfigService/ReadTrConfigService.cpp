@@ -25,6 +25,25 @@ namespace {
   // maximum number of repeats
   static const uint8_t REPEAT_MAX = 3;
 
+  // length of the configuration part
+  static const uint8_t CONFIGURATION_LEN = 31;
+
+  // baud rates
+  static uint8_t BAUD_RATES_SIZE = 9;
+
+  static uint32_t BaudRates[] = {
+    1200,
+    2400,
+    4800,
+    9600,
+    19200,
+    38400,
+    57600,
+    115200,
+    230400
+  };
+
+
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
 
@@ -281,6 +300,13 @@ namespace iqrf {
       }
     }
 
+    uint32_t parseBaudRate(uint8_t baudRateId) {
+      if ((baudRateId < 0) || (baudRateId >= BAUD_RATES_SIZE)) {
+        THROW_EXC(std::out_of_range,"Baud rate ID out of range: " << PAR(baudRateId) );
+      }
+      return BaudRates[baudRateId];
+    }
+
     // creates error response about service general fail
     Document createCheckParamsFailedResponse(
       const std::string& msgId,
@@ -339,7 +365,13 @@ namespace iqrf {
 
       // osRead object
       TPerOSReadCfg_Response hwpConfig = readTrConfigResult.getHwpConfig();
-      uns8* configuration = hwpConfig.Configuration;
+      uns8* configurationXored = hwpConfig.Configuration;
+
+      // needed to xor all bytes of configuration with the value of 0x34
+      uns8 configuration[CONFIGURATION_LEN];
+      for (int i = 0; i < CONFIGURATION_LEN; i++) {
+        configuration[i] = configurationXored[i] ^ 0x34;
+      }
 
       Document::AllocatorType& allocator = response.GetAllocator();
 
@@ -381,7 +413,15 @@ namespace iqrf {
       Pointer("/data/rsp/rxFilter").Set(response, configuration[0x08]);
       Pointer("/data/rsp/lpRxTimeout").Set(response, configuration[0x09]);
       Pointer("/data/rsp/rfPgmAltChannel").Set(response, configuration[0x0B]);
-      Pointer("/data/rsp/uartBaudrate").Set(response, configuration[0x0A]);
+
+      try {
+        uint32_t baudRate = parseBaudRate(configuration[0x0A]);
+        Pointer("/data/rsp/uartBaudrate").Set(response, baudRate);
+      }
+      catch (std::exception& ex) {
+        TRC_ERROR("Unknown baud rate constant: " << PAR(configuration[0x0A]));
+        Pointer("/data/rsp/uartBaudrate").Set(response, 0);
+      }
 
       // RFPGM byte
       uint8_t rfpgm = hwpConfig.RFPGM;
