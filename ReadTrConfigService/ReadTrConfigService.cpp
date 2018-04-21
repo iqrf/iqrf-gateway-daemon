@@ -345,61 +345,61 @@ namespace iqrf {
 
       // embPerBits
       rapidjson::Value embPerBitsJsonArray(kArrayType);
-      for (int i = 1; i < 3; i++) {
+      for (int i = 0; i < 4; i++) {
         embPerBitsJsonArray.PushBack(configuration[i], allocator);
       }
       Pointer("/data/rsp/embPerBits").Set(response, embPerBitsJsonArray);
 
 
       // byte 0x05
-      uint8_t byte05 = configuration[0x05];
+      uint8_t byte05 = configuration[0x04];
 
-      bool customDpaHandler = (byte05 & 0b1 == 0b1) ? true : false;
+      bool customDpaHandler = ((byte05 & 0b1) == 0b1) ? true : false;
       Pointer("/data/rsp/customDpaHandler").Set(response, customDpaHandler);
 
-      bool nodeDpaInterface = (byte05 & 0b10 == 0b10) ? true : false;
+      bool nodeDpaInterface = ((byte05 & 0b10) == 0b10) ? true : false;
       Pointer("/data/rsp/nodeDpaInterface").Set(response, nodeDpaInterface);
 
-      bool dpaAutoexec = (byte05 & 0b100 == 0b100) ? true : false;
+      bool dpaAutoexec = ((byte05 & 0b100) == 0b100) ? true : false;
       Pointer("/data/rsp/dpaAutoexec").Set(response, dpaAutoexec);
 
-      bool routingOff = (byte05 & 0b1000 == 0b1000) ? true : false;
+      bool routingOff = ((byte05 & 0b1000) == 0b1000) ? true : false;
       Pointer("/data/rsp/routingOff").Set(response, routingOff);
 
-      bool ioSetup = (byte05 & 0b10000 == 0b10000) ? true : false;
+      bool ioSetup = ((byte05 & 0b10000) == 0b10000) ? true : false;
       Pointer("/data/rsp/ioSetup").Set(response, ioSetup);
 
-      bool peerToPeer = (byte05 & 0b100000 == 0b100000) ? true : false;
+      bool peerToPeer = ((byte05 & 0b100000) == 0b100000) ? true : false;
       Pointer("/data/rsp/peerToPeer").Set(response, peerToPeer);
 
       // bytes fields
-      Pointer("/data/rsp/rfChannelA").Set(response, configuration[0x11]);      
-      Pointer("/data/rsp/rfChannelB").Set(response, configuration[0x12]);
-      Pointer("/data/rsp/rfSubChannelA").Set(response, configuration[0x06]);
-      Pointer("/data/rsp/rfSubChannelB").Set(response, configuration[0x07]);
-      Pointer("/data/rsp/txPower").Set(response, configuration[0x08]);
-      Pointer("/data/rsp/rxFilter").Set(response, configuration[0x09]);
-      Pointer("/data/rsp/lpRxTimeout").Set(response, configuration[0x0A]);
-      Pointer("/data/rsp/rfPgmAltChannel").Set(response, configuration[0x0C]);
-      Pointer("/data/rsp/uartBaudrate").Set(response, configuration[0x0B]);
+      Pointer("/data/rsp/rfChannelA").Set(response, configuration[0x10]);      
+      Pointer("/data/rsp/rfChannelB").Set(response, configuration[0x11]);
+      Pointer("/data/rsp/rfSubChannelA").Set(response, configuration[0x05]);
+      Pointer("/data/rsp/rfSubChannelB").Set(response, configuration[0x06]);
+      Pointer("/data/rsp/txPower").Set(response, configuration[0x07]);
+      Pointer("/data/rsp/rxFilter").Set(response, configuration[0x08]);
+      Pointer("/data/rsp/lpRxTimeout").Set(response, configuration[0x09]);
+      Pointer("/data/rsp/rfPgmAltChannel").Set(response, configuration[0x0B]);
+      Pointer("/data/rsp/uartBaudrate").Set(response, configuration[0x0A]);
 
       // RFPGM byte
       uint8_t rfpgm = hwpConfig.RFPGM;
 
-      bool enableAfterReset = (rfpgm & 0b10000 == 0b10000) ? true : false;
-      Pointer("/data/rsp/enableAfterReset").Set(response, enableAfterReset);
-
-      bool rfPgmTerminateAfter1Min = (rfpgm & 0b1000000 == 0b1000000) ? true : false;
-      Pointer("/data/rsp/rfPgmTerminateAfter1Min").Set(response, rfPgmTerminateAfter1Min);
-
-      bool rfPgmTerminateMcuPin = (rfpgm & 0b10000000 == 0b10000000) ? true : false;
-      Pointer("/data/rsp/rfPgmTerminateMcuPin").Set(response, rfPgmTerminateMcuPin);
-
-      bool rfPgmDualChannel = (rfpgm & 0b11 == 0b11) ? true : false;
+      bool rfPgmDualChannel = ((rfpgm & 0b00000011) == 0b00000011) ? true : false;
       Pointer("/data/rsp/rfPgmDualChannel").Set(response, rfPgmDualChannel);
 
-      bool rfPgmLpMode = (rfpgm & 0b100 == 0b100) ? true : false;
+      bool rfPgmLpMode = ((rfpgm & 0b00000100) == 0b00000100) ? true : false;
       Pointer("/data/rsp/rfPgmLpMode").Set(response, rfPgmLpMode);
+
+      bool enableAfterReset = ((rfpgm & 0b00010000) == 0b00010000) ? true : false;
+      Pointer("/data/rsp/enableAfterReset").Set(response, enableAfterReset);
+
+      bool rfPgmTerminateAfter1Min = ((rfpgm & 0b01000000) == 0b01000000) ? true : false;
+      Pointer("/data/rsp/rfPgmTerminateAfter1Min").Set(response, rfPgmTerminateAfter1Min);
+
+      bool rfPgmTerminateMcuPin = ((rfpgm & 0b10000000) == 0b10000000) ? true : false;
+      Pointer("/data/rsp/rfPgmTerminateMcuPin").Set(response, rfPgmTerminateMcuPin);
 
 
       // RF band - undocumented byte
