@@ -29,6 +29,15 @@ namespace {
   /// 11          64.16       64
   static int piece57Lengths[] = { 0, 2, 3, 5, 6, 7, 9, 10, maximumPiece57Length };
 
+  // returns INDEX of specified piece 
+  static int getIndexOfPieceLen(int piece57Len) {
+    for (int i = 0; i < 9; i++) {
+      if (piece57Lengths[i] == piece57Len) {
+        return i;
+      }
+    }
+    return -1;
+  }
 
   static char checkChar(const std::string& text)
   {
@@ -112,25 +121,28 @@ namespace iqrf {
   uint8_t IqrfCodeDecoder::m_bondingChannel;
 
 
-  void IqrfCodeDecoder::decode(const std::string& iqrfCode) {
-    if (iqrfCode.empty()) {
+  void IqrfCodeDecoder::decode(const std::string& iqrfCodeOrig) {
+    if (iqrfCodeOrig.empty()) {
       throw std::logic_error("IQRF Code cannot be empty.");
     }
 
-    char checkedChar = iqrfCode[iqrfCode.length() - 1];
+    char checkedChar = iqrfCodeOrig[iqrfCodeOrig.length() - 1];
+
+    std::string iqrfCode = iqrfCodeOrig.substr(0, iqrfCodeOrig.length() - 1);
     if (checkedChar != checkChar(iqrfCode)) {
       throw std::logic_error("IQRF Code ends by an incorrect check character.");
     }
 
     int lastPiece57Length = iqrfCode.length() % maximumPiece57Length;
-    int* pLastPieceLength = std::find(piece57Lengths, piece57Lengths + 9, lastPiece57Length);
-    if (pLastPieceLength == piece57Lengths + 9) {
+
+    int lastPieceLenIndex = getIndexOfPieceLen(lastPiece57Length);
+    if (lastPieceLenIndex == -1) {
       THROW_EXC(std::logic_error, "IQRF Code has incorrect length: " << PAR(iqrfCode.length()));
     }
 
     std::basic_string<uint8_t> result;
-    result.resize(sizeof(uint64_t) * (iqrfCode.length() / maximumPiece57Length) + (*pLastPieceLength));
-    
+    result.resize(sizeof(uint64_t) * (iqrfCode.length() / maximumPiece57Length) + lastPieceLenIndex);
+ 
     for (int piece57Index = 0, pieceIndex = 0; piece57Index < iqrfCode.length(); piece57Index += maximumPiece57Length, pieceIndex += sizeof(uint64_t))
     {
       int piece57Length = std::min((size_t)maximumPiece57Length, iqrfCode.length() - piece57Index);
@@ -146,9 +158,9 @@ namespace iqrf {
         piece = piece * base57 + (uint64_t)alphabet57Index;
       }
 
-      for (int* pieceLength = std::find(piece57Lengths, piece57Lengths + 9, piece57Length); --(*pieceLength) >= 0; )
+      for (int pieceLenIndex = getIndexOfPieceLen(piece57Length); --pieceLenIndex >= 0; )
       {
-        result[pieceIndex + (*pieceLength)] = (uint8_t)(piece & 0xFF);
+        result[pieceIndex + pieceLenIndex] = (uint8_t)(piece & 0xFF);
         piece >>= 8;
       }
     }

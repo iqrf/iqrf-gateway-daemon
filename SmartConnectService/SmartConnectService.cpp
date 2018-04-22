@@ -279,7 +279,7 @@ namespace iqrf {
         pData, reqAddr, bondingTestRetries, ibk, mid, bondingChannel, virtualDeviceAddress, userData
       );
 
-      smartConnectRequest.DataToBuffer(smartConnectPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      smartConnectRequest.DataToBuffer(smartConnectPacket.Buffer, sizeof(TDpaIFaceHeader) + 38);
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> smartConnectTransaction;
@@ -371,7 +371,7 @@ namespace iqrf {
       perEnumPacket.DpaRequestPacket_t.PNUM = 0xFF;
       perEnumPacket.DpaRequestPacket_t.PCMD = 0x3F;
       perEnumPacket.DpaRequestPacket_t.HWPID = hwpId;
-      perEnumRequest.DataToBuffer(perEnumPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      perEnumRequest.DataToBuffer(perEnumPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> perEnumTransaction;
@@ -455,7 +455,7 @@ namespace iqrf {
       osReadPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       osReadPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ;
       osReadPacket.DpaRequestPacket_t.HWPID = smartConnectResult.getHwpId();
-      osReadRequest.DataToBuffer(osReadPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      osReadRequest.DataToBuffer(osReadPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> osReadTransaction;
@@ -580,6 +580,7 @@ namespace iqrf {
         return smartConnectResult;
       }
       
+      /*
       const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(hwpId);
       if (manufacturer != nullptr) {
         smartConnectResult.setManufacturer(manufacturer->m_name);
@@ -602,7 +603,7 @@ namespace iqrf {
         }
         smartConnectResult.setStandards(standards);
       }
-      
+      */
       return smartConnectResult;
       TRC_FUNCTION_LEAVE("");
     }
@@ -712,7 +713,7 @@ namespace iqrf {
       
       // status - ok
       Pointer("/status").Set(response, 0);
-      Pointer("/statusStr").Set(response, "");
+      Pointer("/statusStr").Set(response, "ok");
 
       // set raw fields, if verbose mode is active
       if (comSmartConnect.getVerbose()) {
@@ -1025,6 +1026,7 @@ namespace iqrf {
       }
     }
 
+    /*
     void attachInterface(IJsCacheService* iface)
     {
       m_iJsCacheService = iface;
@@ -1036,7 +1038,7 @@ namespace iqrf {
         m_iJsCacheService = nullptr;
       }
     }
-   
+   */
     void attachInterface(IMessagingSplitterService* iface)
     {
       m_iMessagingSplitterService = iface;
@@ -1084,6 +1086,7 @@ namespace iqrf {
     m_imp->detachInterface(iface);
   }
 
+  /*
   void SmartConnectService::attachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->attachInterface(iface);
@@ -1093,7 +1096,8 @@ namespace iqrf {
   {
     m_imp->detachInterface(iface);
   }
-  
+  */
+
   void SmartConnectService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);

@@ -445,7 +445,7 @@ namespace iqrf {
       // RF band - undocumented byte
       std::string rfBand;
       try {
-        rfBand = parseRfBand(hwpConfig.Undocumented[0]);
+        rfBand = parseRfBand(hwpConfig.Undocumented[0] & 0x03);
       }
       catch (std::exception& ex) {
         rfBand = "";
@@ -455,7 +455,7 @@ namespace iqrf {
 
       // status - ok
       Pointer("/status").Set(response, 0);
-      Pointer("/statusStr").Set(response, "");
+      Pointer("/statusStr").Set(response, "ok");
 
       // set raw fields, if verbose mode is active
       if (comSmartConnect.getVerbose()) {
