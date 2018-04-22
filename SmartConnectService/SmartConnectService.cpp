@@ -1026,7 +1026,6 @@ namespace iqrf {
       }
     }
 
-    /*
     void attachInterface(IJsCacheService* iface)
     {
       m_iJsCacheService = iface;
@@ -1038,7 +1037,7 @@ namespace iqrf {
         m_iJsCacheService = nullptr;
       }
     }
-   */
+   
     void attachInterface(IMessagingSplitterService* iface)
     {
       m_iMessagingSplitterService = iface;
@@ -1086,7 +1085,6 @@ namespace iqrf {
     m_imp->detachInterface(iface);
   }
 
-  /*
   void SmartConnectService::attachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->attachInterface(iface);
@@ -1096,7 +1094,6 @@ namespace iqrf {
   {
     m_imp->detachInterface(iface);
   }
-  */
 
   void SmartConnectService::attachInterface(shape::ITraceService* iface)
   {
