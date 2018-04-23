@@ -327,12 +327,66 @@ namespace iqrf {
       return response;
     }
 
-    // creates response on the basis of smart connect result
+    // sets response VERBOSE data
+    void setVerboseData(rapidjson::Document& response, ReadTrConfigResult& readTrConfigResult)
+    {
+      rapidjson::Value rawArray(kArrayType);
+      Document::AllocatorType& allocator = response.GetAllocator();
+
+      while (readTrConfigResult.isNextTransactionResult()) {
+        std::unique_ptr<IDpaTransactionResult2> transResult = readTrConfigResult.consumeNextTransactionResult();
+        rapidjson::Value rawObject(kObjectType);
+
+        rawObject.AddMember(
+          "request",
+          encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "requestTs",
+          encodeTimestamp(transResult->getRequestTs()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "confirmation",
+          encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "confirmationTs",
+          encodeTimestamp(transResult->getConfirmationTs()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "response",
+          encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "responseTs",
+          encodeTimestamp(transResult->getResponseTs()),
+          allocator
+        );
+
+        // add object into array
+        rawArray.PushBack(rawObject, allocator);
+      }
+
+      // add array into response document
+      Pointer("/data/raw").Set(response, rawArray);
+    }
+
+    // creates response on the basis of read TR config result
     Document createResponse(
       const std::string& msgId,
       const IMessagingSplitterService::MsgType& msgType,
       ReadTrConfigResult& readTrConfigResult,
-      const ComIqmeshNetworkReadTrConf& comSmartConnect
+      const ComIqmeshNetworkReadTrConf& comReadTrConf
     )
     {
       Document response;
@@ -355,6 +409,12 @@ namespace iqrf {
             Pointer("/data/status").Set(response, SERVICE_ERROR);
             break;
         }
+
+        // set raw fields, if verbose mode is active
+        if (comReadTrConf.getVerbose()) {
+          setVerboseData(response, readTrConfigResult);
+        }
+
         return response;
       }
 
@@ -458,56 +518,8 @@ namespace iqrf {
       Pointer("/statusStr").Set(response, "ok");
 
       // set raw fields, if verbose mode is active
-      if (comSmartConnect.getVerbose()) {
-        rapidjson::Value rawArray(kArrayType);
-        Document::AllocatorType& allocator = response.GetAllocator();
-
-        while (readTrConfigResult.isNextTransactionResult()) {
-          std::unique_ptr<IDpaTransactionResult2> transResult = readTrConfigResult.consumeNextTransactionResult();
-          rapidjson::Value rawObject(kObjectType);
-          
-          rawObject.AddMember(
-            "request",
-            encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "requestTs",
-            encodeTimestamp(transResult->getRequestTs()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "confirmation",
-            encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "confirmationTs",
-            encodeTimestamp(transResult->getConfirmationTs()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "response",
-            encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "responseTs",
-            encodeTimestamp(transResult->getResponseTs()),
-            allocator
-          );
-
-          // add object into array
-          rawArray.PushBack(rawObject, allocator);
-        }
-        
-        // add array into response document
-        Pointer("/data/raw").Set(response, rawArray);
+      if (comReadTrConf.getVerbose()) {
+        setVerboseData(response, readTrConfigResult);
       }
 
       return response;

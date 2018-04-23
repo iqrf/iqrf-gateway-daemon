@@ -627,6 +627,61 @@ namespace iqrf {
 
       return response;
     }
+   
+    // sets response VERBOSE data
+    void setVerboseData(rapidjson::Document& response, SmartConnectResult& smartConnectResult) 
+    {
+      // set raw fields, if verbose mode is active
+      rapidjson::Value rawArray(kArrayType);
+      Document::AllocatorType& allocator = response.GetAllocator();
+
+      while (smartConnectResult.isNextTransactionResult()) {
+        std::unique_ptr<IDpaTransactionResult2> transResult = smartConnectResult.consumeNextTransactionResult();
+        rapidjson::Value rawObject(kObjectType);
+
+        rawObject.AddMember(
+          "request",
+          encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "requestTs",
+          encodeTimestamp(transResult->getRequestTs()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "confirmation",
+          encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "confirmationTs",
+          encodeTimestamp(transResult->getConfirmationTs()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "response",
+          encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "responseTs",
+          encodeTimestamp(transResult->getResponseTs()),
+          allocator
+        );
+
+        // add object into array
+        rawArray.PushBack(rawObject, allocator);
+      }
+
+      // add array into response document
+      Pointer("/data/raw").Set(response, rawArray);
+    }
 
     // creates response on the basis of smart connect result
     Document createResponse(
@@ -662,6 +717,12 @@ namespace iqrf {
             Pointer("/data/status").Set(response, SERVICE_ERROR);
             break;
         }
+
+        // set raw fields, if verbose mode is active
+        if (comSmartConnect.getVerbose()) {
+          setVerboseData(response, smartConnectResult);
+        }
+
         return response;
       }
 
@@ -716,55 +777,7 @@ namespace iqrf {
 
       // set raw fields, if verbose mode is active
       if (comSmartConnect.getVerbose()) {
-        rapidjson::Value rawArray(kArrayType);
-        Document::AllocatorType& allocator = response.GetAllocator();
-
-        while (smartConnectResult.isNextTransactionResult()) {
-          std::unique_ptr<IDpaTransactionResult2> transResult = smartConnectResult.consumeNextTransactionResult();
-          rapidjson::Value rawObject(kObjectType);
-          
-          rawObject.AddMember(
-            "request",
-            encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "requestTs",
-            encodeTimestamp(transResult->getRequestTs()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "confirmation",
-            encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "confirmationTs",
-            encodeTimestamp(transResult->getConfirmationTs()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "response",
-            encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "responseTs",
-            encodeTimestamp(transResult->getResponseTs()),
-            allocator
-          );
-
-          // add object into array
-          rawArray.PushBack(rawObject, allocator);
-        }
-        
-        // add array into response document
-        Pointer("/data/raw").Set(response, rawArray);
+        setVerboseData(response, smartConnectResult);
       }
 
       return response;
