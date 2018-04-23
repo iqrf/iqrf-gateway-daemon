@@ -580,7 +580,6 @@ namespace iqrf {
         return smartConnectResult;
       }
       
-      /*
       const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(hwpId);
       if (manufacturer != nullptr) {
         smartConnectResult.setManufacturer(manufacturer->m_name);
@@ -603,7 +602,7 @@ namespace iqrf {
         }
         smartConnectResult.setStandards(standards);
       }
-      */
+      
       return smartConnectResult;
       TRC_FUNCTION_LEAVE("");
     }
