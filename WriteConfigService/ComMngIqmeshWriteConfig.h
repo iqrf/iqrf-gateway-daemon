@@ -1,7 +1,8 @@
 #pragma once
 
 #include "ComBase.h"
-#include <list>
+#include <vector>
+#include "JsonUtils.h"
 
 namespace iqrf {
   class ComMngIqmeshWriteConfig : public ComBase
@@ -27,17 +28,17 @@ namespace iqrf {
       return m_restart;
     }
 
-    bool isSetRepeat() {
-      return m_isSetRepeat;
-    }
-
     const int getRepeat() const
     {
       return m_repeat;
     }
 
+    bool isSetDeviceAddr() const {
+      return m_isSetDeviceAddr;
+    }
+
     // returns addresses of devices, to which write configuration in
-    const std::list<int> getDeviceAddr() const
+    const std::vector<int> getDeviceAddr() const
     {
       return m_deviceAddr;
     }
@@ -248,8 +249,8 @@ namespace iqrf {
 
 
   private:
-    bool m_isSetRepeat = false;
     bool m_isSetRestart = false;
+    bool m_isSetDeviceAddr = false;
 
     bool m_isSetRfChannelA = false;
     bool m_isSetRfChannelB = false;
@@ -280,7 +281,7 @@ namespace iqrf {
 
     int m_repeat = 0;
     bool m_restart;
-    std::list<int> m_deviceAddr;
+    std::vector<int> m_deviceAddr;
     int m_rfChannelA;
     int m_rfChannelB;
     int m_rfSubChannelA;
@@ -310,156 +311,147 @@ namespace iqrf {
 
 
     void parseDeviceAddr(rapidjson::Document& doc) {
-      // mandatory field
-      if (rapidjson::Pointer("/data/req/deviceAddr").IsValid() == false) {
-        throw std::logic_error("Invalid /data/req/deviceAddr");
-      }
-
-      rapidjson::Value* deviceAddrJson = rapidjson::Pointer("/data/req/deviceAddr").Get(doc);
-      if (deviceAddrJson->IsArray()) {
-        for (rapidjson::SizeType i = 0; i < deviceAddrJson->Size(); i++) {
-          m_deviceAddr.push_back(deviceAddrJson[i].GetInt());
-        }
+      if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req").Get(doc)) {
+        m_deviceAddr = jutils::getMemberAsVector<int>("deviceAddr", *deviceAddrJsonVal);
+        m_isSetDeviceAddr = true;
       }
     }
 
     // parses configuration bytes
     void parseConfigBytes(rapidjson::Document& doc) 
     {      
-      if (rapidjson::Pointer("/data/req/rfChannelA").IsValid()) {
+      if (rapidjson::Value* rfChannelAJsonVal = rapidjson::Pointer("/data/rfChannelA").Get(doc)) {
+        m_rfChannelA = rfChannelAJsonVal->GetInt();
         m_isSetRfChannelA = true;
-        m_rfChannelA = rapidjson::Pointer("/data/req/rfChannelA").Get(doc)->GetInt();
-      }
-
-      if (rapidjson::Pointer("/data/req/rfChannelB").IsValid()) {
-        m_isSetRfChannelB = true;
-        m_rfChannelB = rapidjson::Pointer("/data/req/rfChannelB").Get(doc)->GetInt();
-      }
-
-      if (rapidjson::Pointer("/data/req/rfSubChannelA").IsValid()) {
-        m_isSetRfSubChannelA = true;
-        m_rfSubChannelA = rapidjson::Pointer("/data/req/rfSubChannelA").Get(doc)->GetInt();
-      }
-
-      if (rapidjson::Pointer("/data/req/rfSubChannelB").IsValid()) {
-        m_isSetRfSubChannelB = true;
-        m_rfSubChannelB = rapidjson::Pointer("/data/req/rfSubChannelB").Get(doc)->GetInt();
-      }
-
-      if (rapidjson::Pointer("/data/req/txPower").IsValid()) {
-        m_isSetTxPower = true;
-        m_txPower = rapidjson::Pointer("/data/req/txPower").Get(doc)->GetInt();
-      }
-
-      if (rapidjson::Pointer("/data/req/rxFilter").IsValid()) {
-        m_isSetRxFilter = true;
-        m_rxFilter = rapidjson::Pointer("/data/req/rxFilter").Get(doc)->GetInt();
-      }
-
-      if (rapidjson::Pointer("/data/req/lpRxTimeout").IsValid()) {
-        m_isSetLpRxTimeout = true;
-        m_lpRxTimeout = rapidjson::Pointer("/data/req/lpRxTimeout").Get(doc)->GetInt();
-      }
-     
-      if (rapidjson::Pointer("/data/req/rfPgmAltChannel").IsValid()) {
-        m_isSetRfPgmAltChannel = true;
-        m_rfPgmAltChannel = rapidjson::Pointer("/data/req/rfPgmAltChannel").Get(doc)->GetInt();
       }
       
-      if (rapidjson::Pointer("/data/req/uartBaudrate").IsValid()) {
+      if (rapidjson::Value* rfChannelBJsonVal = rapidjson::Pointer("/data/rfChannelB").Get(doc)) {
+        m_rfChannelB = rfChannelBJsonVal->GetInt();
+        m_isSetRfChannelB = true;
+      }
+
+      if (rapidjson::Value* rfSubChannelAJsonVal = rapidjson::Pointer("/data/rfSubChannelA").Get(doc)) {
+        m_rfSubChannelA = rfSubChannelAJsonVal->GetInt();
+        m_isSetRfSubChannelA = true;
+      }
+
+      if (rapidjson::Value* rfSubChannelBJsonVal = rapidjson::Pointer("/data/rfSubChannelB").Get(doc)) {
+        m_rfSubChannelB = rfSubChannelBJsonVal->GetInt();
+        m_isSetRfSubChannelB = true;
+      }
+
+      if (rapidjson::Value* txPowerJsonVal = rapidjson::Pointer("/data/txPower").Get(doc)) {
+        m_txPower = txPowerJsonVal->GetInt();
+        m_isSetTxPower = true;
+      }
+
+      if (rapidjson::Value* rxFilterJsonVal = rapidjson::Pointer("/data/rxFilter").Get(doc)) {
+        m_rxFilter = rxFilterJsonVal->GetInt();
+        m_isSetRxFilter = true;
+      }
+
+      if (rapidjson::Value* lpRxTimeoutJsonVal = rapidjson::Pointer("/data/lpRxTimeout").Get(doc)) {
+        m_lpRxTimeout = lpRxTimeoutJsonVal->GetInt();
+        m_isSetLpRxTimeout = true;
+      }
+
+      if (rapidjson::Value* rfPgmAltChannelJsonVal = rapidjson::Pointer("/data/rfPgmAltChannel").Get(doc)) {
+        m_rfPgmAltChannel = rfPgmAltChannelJsonVal->GetInt();
+        m_isSetRfPgmAltChannel = true;
+      }
+
+      if (rapidjson::Value* uartBaudrateJsonVal = rapidjson::Pointer("/data/uartBaudrate").Get(doc)) {
+        m_uartBaudrate = uartBaudrateJsonVal->GetInt();
         m_isSetUartBaudrate = true;
-        m_uartBaudrate = rapidjson::Pointer("/data/req/uartBaudrate").Get(doc)->GetInt();
       }
 
 
-
-      if (rapidjson::Pointer("/data/req/customDpaHandler").IsValid()) {
+      if (rapidjson::Value* customDpaHandlerJsonVal = rapidjson::Pointer("/data/customDpaHandler").Get(doc)) {
+        m_customDpaHandler = customDpaHandlerJsonVal->GetBool();
         m_isSetCustomDpaHandler = true;
-        m_customDpaHandler = rapidjson::Pointer("/data/req/customDpaHandler").Get(doc)->GetBool();
       }
 
-      if (rapidjson::Pointer("/data/req/nodeDpaInterface").IsValid()) {
+      if (rapidjson::Value* nodeDpaInterfaceJsonVal = rapidjson::Pointer("/data/nodeDpaInterface").Get(doc)) {
+        m_nodeDpaInterface = nodeDpaInterfaceJsonVal->GetBool();
         m_isSetNodeDpaInterface = true;
-       m_nodeDpaInterface = rapidjson::Pointer("/data/req/nodeDpaInterface").Get(doc)->GetBool();
       }
 
-      if (rapidjson::Pointer("/data/req/dpaAutoexec").IsValid()) {
+      if (rapidjson::Value* dpaAutoexecJsonVal = rapidjson::Pointer("/data/dpaAutoexec").Get(doc)) {
+        m_dpaAutoexec = dpaAutoexecJsonVal->GetBool();
         m_isSetDpaAutoexec = true;
-        m_dpaAutoexec = rapidjson::Pointer("/data/req/dpaAutoexec").Get(doc)->GetBool();
       }
 
-      if (rapidjson::Pointer("/data/req/routingOff").IsValid()) {
+      if (rapidjson::Value* routingOffJsonVal = rapidjson::Pointer("/data/routingOff").Get(doc)) {
+        m_routingOff = routingOffJsonVal->GetBool();
         m_isSetRoutingOff = true;
-        m_routingOff = rapidjson::Pointer("/data/req/routingOff").Get(doc)->GetBool();
       }
 
-      if (rapidjson::Pointer("/data/req/ioSetup").IsValid()) {
+      if (rapidjson::Value* ioSetupJsonVal = rapidjson::Pointer("/data/ioSetup").Get(doc)) {
+        m_ioSetup = ioSetupJsonVal->GetBool();
         m_isSetIoSetup = true;
-        m_ioSetup = rapidjson::Pointer("/data/req/ioSetup").Get(doc)->GetBool();
       }
 
-      if (rapidjson::Pointer("/data/req/peerToPeer").IsValid()) {
+      if (rapidjson::Value* peerToPeerJsonVal = rapidjson::Pointer("/data/peerToPeer").Get(doc)) {
+        m_peerToPeer = peerToPeerJsonVal->GetBool();
         m_isSetPeerToPeer = true;
-        m_peerToPeer = rapidjson::Pointer("/data/req/peerToPeer").Get(doc)->GetBool();
       }
 
 
       // RFPGM configuration bits
-      if (rapidjson::Pointer("/data/req/rfPgmDualChannel").IsValid()) {
+      if (rapidjson::Value* rfPgmDualChannelJsonVal = rapidjson::Pointer("/data/rfPgmDualChannel").Get(doc)) {
+        m_rfPgmDualChannel = rfPgmDualChannelJsonVal->GetBool();
         m_isSetRfPgmDualChannel = true;
-        m_rfPgmDualChannel = rapidjson::Pointer("/data/req/rfPgmDualChannel").Get(doc)->GetBool();
       }
 
-      if (rapidjson::Pointer("/data/req/rfPgmLpMode").IsValid()) {
+      if (rapidjson::Value* rfPgmLpModeJsonVal = rapidjson::Pointer("/data/rfPgmLpMode").Get(doc)) {
+        m_rfPgmLpMode = rfPgmLpModeJsonVal->GetBool();
         m_isSetRfPgmLpMode = true;
-        m_rfPgmLpMode = rapidjson::Pointer("/data/req/rfPgmLpMode").Get(doc)->GetBool();
       }
 
-      if (rapidjson::Pointer("/data/req/rfPgmEnableAfterReset").IsValid()) {
+      if (rapidjson::Value* rfPgmEnableAfterResetJsonVal = rapidjson::Pointer("/data/rfPgmEnableAfterReset").Get(doc)) {
+        m_rfPgmEnableAfterReset = rfPgmEnableAfterResetJsonVal->GetBool();
         m_isSetRfPgmEnableAfterReset = true;
-        m_rfPgmEnableAfterReset = rapidjson::Pointer("/data/req/rfPgmEnableAfterReset").Get(doc)->GetBool();
       }
 
-      if (rapidjson::Pointer("/data/req/rfPgmTerminateAfter1Min").IsValid()) {
+      if (rapidjson::Value* rfPgmTerminateAfter1MinJsonVal = rapidjson::Pointer("/data/rfPgmTerminateAfter1Min").Get(doc)) {
+        m_rfPgmTerminateAfter1Min = rfPgmTerminateAfter1MinJsonVal->GetBool();
         m_isSetRfPgmTerminateAfter1Min = true;
-        m_rfPgmTerminateAfter1Min = rapidjson::Pointer("/data/req/rfPgmTerminateAfter1Min").Get(doc)->GetBool();
       }
 
-      if (rapidjson::Pointer("/data/req/rfPgmTerminateMcuPin").IsValid()) {
+      if (rapidjson::Value* rfPgmTerminateMcuPinJsonVal = rapidjson::Pointer("/data/rfPgmTerminateMcuPin").Get(doc)) {
+        m_rfPgmTerminateMcuPin = rfPgmTerminateMcuPinJsonVal->GetBool();
         m_isSetRfPgmTerminateMcuPin = true;
-        m_rfPgmTerminateMcuPin = rapidjson::Pointer("/data/req/rfPgmTerminateMcuPin").Get(doc)->GetBool();
       }
     }
 
     void parseBand(rapidjson::Document& doc) {
-      if (rapidjson::Pointer("/data/req/rfBand").IsValid()) {
+      if (rapidjson::Value* rfBandJsonVal = rapidjson::Pointer("/data/req/rfBand").Get(doc)) {
+        m_rfBand = rfBandJsonVal->GetString();
         m_isSetRfBand = true;
-        m_rfBand = rapidjson::Pointer("/data/req/rfBand").Get(doc)->GetString();
       }
     }
 
     void parseSecuritySettings(rapidjson::Document& doc) {
-      if (rapidjson::Pointer("/data/req/securityPassword").IsValid()) {
+      if (rapidjson::Value* securityPasswordJsonVal = rapidjson::Pointer("/data/req/securityPassword").Get(doc)) {
+        m_securityPassword = securityPasswordJsonVal->GetString();
         m_isSetSecurityPassword = true;
-        m_securityPassword = rapidjson::Pointer("/data/req/securityPassword").Get(doc)->GetString();
       }
-      
-      if (rapidjson::Pointer("/data/req/securityUserKey").IsValid()) {
+
+      if (rapidjson::Value* securityUserKeyJsonVal = rapidjson::Pointer("/data/req/securityUserKey").Get(doc)) {
+        m_securityUserKey = securityUserKeyJsonVal->GetString();
         m_isSetSecurityUserKey = true;
-        m_securityUserKey = rapidjson::Pointer("/data/req/securityUserKey").Get(doc)->GetString();
       }
     }
 
     void parseRepeat(rapidjson::Document& doc) {
-      if (rapidjson::Pointer("/data/repeat").IsValid()) {
-        m_repeat = rapidjson::Pointer("/data/repeat").Get(doc)->GetInt();
-        m_isSetRepeat = true;
+      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc)) {
+        m_repeat = repeatJsonVal->GetInt();
       }
     }
 
     void parseRestart(rapidjson::Document& doc) {
-      if (rapidjson::Pointer("/data/restart").IsValid()) {
-        m_restart = rapidjson::Pointer("/data/restart").Get(doc)->GetBool();
+      if (rapidjson::Value* restartJsonVal = rapidjson::Pointer("/data/restart").Get(doc)) {
+        m_restart = restartJsonVal->GetBool();
         m_isSetRestart = true;
       }
     }

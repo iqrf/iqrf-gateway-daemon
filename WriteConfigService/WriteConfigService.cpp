@@ -73,7 +73,9 @@ namespace {
   };
 
   // service general fail code - may and probably will be changed later in the future
-  static const int ERROR_SERVICE_FAILED = 1000;
+  static const int SERVICE_ERROR = 1000;
+
+  static const int SERVICE_ERROR_READ_HWP = SERVICE_ERROR + 1;
 };
 
 
@@ -252,6 +254,9 @@ namespace iqrf {
     bool m_isSetCoordRfChannelBand = false;
     bool m_isSetSecurityPassword = false;
     bool m_isSetSecurityUserKey = false;
+
+    // if is set Verbose mode
+    bool m_returnVerbose = false;
 
 
   public:
@@ -435,7 +440,10 @@ namespace iqrf {
       setWriteRequestConfigurationField(tOsWriteCfgRequest->Configuration, configBytes);
       tOsWriteCfgRequest->RFPGM = getRfpgmByte(configBytes);
 
-      writeConfigRequest.DataToBuffer(writeConfigPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      writeConfigRequest.DataToBuffer(
+        writeConfigPacket.Buffer, 
+        sizeof(TDpaIFaceHeader) + 1 + 31 + 1
+      );
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> writeConfigTransaction;
@@ -645,7 +653,6 @@ namespace iqrf {
       frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
       frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
       frcRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
-      frcRequest.DataToBuffer(frcPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
 
       setSelectedNodesForFrcRequest(frcRequest, targetNodes);
 
@@ -665,7 +672,10 @@ namespace iqrf {
         setUserDataForFrcWriteConfigByteRequest(frcRequest, configBytesPart);
 
         // issue the DPA request
-        frcRequest.DataToBuffer(frcPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+        frcRequest.DataToBuffer(
+          frcPacket.Buffer, 
+          sizeof(TDpaIFaceHeader) + 1 + 30 + 5 + configBytesPart.size()
+        );
 
         // issue the DPA request
         std::shared_ptr<IDpaTransaction2> frcWriteConfigTransaction;
@@ -732,7 +742,7 @@ namespace iqrf {
         frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
         frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
         frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-        frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+        frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
 
         // issue the DPA request
         std::shared_ptr<IDpaTransaction2> extraResultTransaction;
@@ -837,7 +847,7 @@ namespace iqrf {
       bondedNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
       bondedNodesPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
       bondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-      bondedNodesRequest.DataToBuffer(bondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      bondedNodesRequest.DataToBuffer(bondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> getBondedNodesTransaction;
@@ -934,7 +944,7 @@ namespace iqrf {
       readConfigPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       readConfigPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
       readConfigPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-      readConfigRequest.DataToBuffer(readConfigPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      readConfigRequest.DataToBuffer(readConfigPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> readConfigTransaction;
@@ -1086,8 +1096,7 @@ namespace iqrf {
       frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
       frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
       frcRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
-      frcRequest.DataToBuffer(frcPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
-
+      
       setSelectedNodesForFrcRequest(frcRequest, targetNodes);
 
       uint8_t writeConfigPacketFreeSpace = FRC_MAX_USER_DATA_LEN
@@ -1101,7 +1110,10 @@ namespace iqrf {
       setUserDataForSetSecurityFrcRequest(frcRequest, securityString);
 
       // issue the DPA request
-      frcRequest.DataToBuffer(frcPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      frcRequest.DataToBuffer(
+        frcPacket.Buffer, 
+        sizeof(TDpaIFaceHeader) + 1 + 30 + 5 + securityString.size()
+      );
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> frcWriteConfigTransaction;
@@ -1171,7 +1183,7 @@ namespace iqrf {
       frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
       frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
       frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-      frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> extraResultTransaction;
@@ -1400,12 +1412,12 @@ namespace iqrf {
       return repeat;
     }
 
-    std::list<uint16_t> parseAndCheckDeviceAddr(const std::list<int> deviceAddr) {
-      std::list<uint16_t> targetNodes;
-
+    std::list<uint16_t> parseAndCheckDeviceAddr(const std::vector<int> deviceAddr) {
       if (deviceAddr.empty()) {
         THROW_EXC(std::out_of_range, "No device addresses.");
       }
+
+      std::list<uint16_t> checkedAddrs;
 
       for (int devAddr : deviceAddr) {
         if ((devAddr < 0) || (devAddr > 0xEF)) {
@@ -1413,10 +1425,9 @@ namespace iqrf {
             std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", devAddr)
           );
         }
-        targetNodes.push_back(devAddr);
+        checkedAddrs.push_back(devAddr);
       }
-
-      return targetNodes;
+      return checkedAddrs;
     }
 
 
@@ -1622,34 +1633,20 @@ namespace iqrf {
     }
 
     // creates error response about service general fail
-    Document createServiceGeneralFailResponse(
-      const std::string& messagingId,
+    Document createCheckParamsFailedResponse(
+      const std::string& msgId,
       const IMessagingSplitterService::MsgType& msgType,
-      const std::list<uint16_t>& targetNodes,
-      const bool restartNeeded,
       const std::string& errorMsg
     )
     {
       Document response;
-      
+
       // set common parameters
       Pointer("/mType").Set(response, msgType.m_type);
-      Pointer("/data/msgId").Set(response, messagingId);
+      Pointer("/data/msgId").Set(response, msgId);
 
-      // set nodes to write the configuration into
-      rapidjson::Value rawArray(kArrayType);
-      Document::AllocatorType& allocator = response.GetAllocator();
-
-      for (uint16_t nodeAddr : targetNodes) {
-        rawArray.PushBack(nodeAddr, allocator);
-      }
-      Pointer("/data/rsp/deviceAddr").Set(response, rawArray);
-
-      // result info
-      Pointer("/data/rsp/writeSuccess").Set(response, false);
-      Pointer("/data/rsp/restartNeeded").Set(response, restartNeeded);
-
-      Pointer("/status").Set(response, ERROR_SERVICE_FAILED);
+      // set result
+      Pointer("/status").Set(response, SERVICE_ERROR);
       Pointer("/statusStr").Set(response, errorMsg);
 
       return response;
@@ -1670,9 +1667,6 @@ namespace iqrf {
 
       // only one node - for the present time
       std::map<uint16_t, NodeWriteResult>::iterator iter = nodeResultsMap.begin();
-      if (iter == nodeResultsMap.end()) {
-        THROW_EXC(std::out_of_range, "No nodes results.");
-      }
 
       Pointer("/data/rsp/deviceAddr").Set(response, iter->first);
       if (iter->second.getError().getType() == WriteError::Type::NoError) {
@@ -1785,21 +1779,19 @@ namespace iqrf {
 
       // creating representation object
       ComMngIqmeshWriteConfig comWriteConfig(doc);
-
-      if (comWriteConfig.isSetRepeat()) {
-        m_repeat = parseAndCheckRepeat(comWriteConfig.getRepeat());
-        m_isSetRepeat = true;
-      }
       
-      std::list<uint16_t> targetNodes;
+      // service input parameters
+      std::list<uint16_t> deviceAddrs;
       std::vector<HWP_ConfigByte> configBytes;
-      bool serviceGeneralFail = false;
-      std::string errorMsg = "";
       
-      WriteResult writeResult;
       try {
-        // parsing and checking of parameters comming from input message json document
-        targetNodes = parseAndCheckDeviceAddr(comWriteConfig.getDeviceAddr());
+        m_repeat = parseAndCheckRepeat(comWriteConfig.getRepeat());
+
+        if (!comWriteConfig.isSetDeviceAddr()) {
+          THROW_EXC(std::logic_error, "deviceAddr not set");
+        }
+        deviceAddrs = parseAndCheckDeviceAddr(comWriteConfig.getDeviceAddr());
+      
         configBytes = parseAndCheckConfigBytes(comWriteConfig);
 
         // no config bytes specified - error message
@@ -1831,29 +1823,25 @@ namespace iqrf {
           m_securityUserKey = createDefaultSecurityUserKey();
         }
 
-        writeResult = writeConfigBytes(configBytes, targetNodes);
+        m_returnVerbose = comWriteConfig.getVerbose();
       }
       // all errors are generally taken as a service general fail  
       catch (std::exception& ex) {
-        serviceGeneralFail = true;
-        errorMsg = ex.what();
+        Document failResponse = createCheckParamsFailedResponse(comWriteConfig.getMsgId(), msgType, ex.what());
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
       }
       
-      // creating response
-      bool restartNeeded = isRestartNeeded(configBytes);
+      // call service with checked params
+      WriteResult writeResult = writeConfigBytes(configBytes, deviceAddrs);
 
-      Document responseDoc;
-
-      if (serviceGeneralFail) {
-        responseDoc = createServiceGeneralFailResponse(
-          messagingId, msgType, targetNodes, restartNeeded, errorMsg
-        );
-      }
-      else {
-        responseDoc = createResponse(messagingId, msgType, writeResult, comWriteConfig, restartNeeded);
-      }
-
-      // send response back
+      // create and send response
+      // will be changed later - indication of restart used here only temporary
+      Document responseDoc = createResponse(
+        comWriteConfig.getMsgId(), msgType, writeResult, comWriteConfig, isRestartNeeded(configBytes)
+      );
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
 
       TRC_FUNCTION_LEAVE("");
