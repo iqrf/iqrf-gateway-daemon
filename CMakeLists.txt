@@ -58,6 +58,7 @@ add_subdirectory(WriteConfigService)
 add_subdirectory(SchedulerMessaging)
 add_subdirectory(SmartConnectService)
 add_subdirectory(ReadTrConfigService)
+add_subdirectory(OtaUploadService)
 
 set(DEFAULT_DAEMON_VERSION v2.0.0dev)
 string(TIMESTAMP DEFAULT_BUILD_TIMESTAMP)
