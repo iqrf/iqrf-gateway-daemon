@@ -41,7 +41,8 @@ namespace iqrf {
     std::map<std::string, IMessagingService*> m_iMessagingServiceMap;
     std::map<std::string, FilteredMessageHandlerFunc > m_filterMessageHandlerFuncMap;
 
-    std::map<std::string, rapidjson::SchemaDocument> m_validatorMap;
+    std::map<std::string, rapidjson::SchemaDocument> m_validatorMapRequest;
+    std::map<std::string, rapidjson::SchemaDocument> m_validatorMapResponse;
     std::map<std::string, MsgType> m_msgTypeToHandle; //TODO temporary
 
     std::string getKey(const MsgType& msgType) const
@@ -52,12 +53,58 @@ namespace iqrf {
     }
 
   public:
+
+    MsgType getMessageType(const rapidjson::Document& doc) const
+    {
+      using namespace rapidjson;
+      std::string mType;
+      std::string ver;
+
+      //default version
+      int major = 1;
+      int minor = 0;
+      int micro = 0;
+
+      // get message type
+      if (const Value* mTypeVal = Pointer("/mType").Get(doc)) {
+        mType = mTypeVal->GetString();
+      }
+      else {
+        //defaulted to support daemon V1 messages
+        mType = "dpaV1";
+      }
+
+      // get version
+      if (const Value* verVal = Pointer("/ver").Get(doc)) {
+        ver = verVal->GetString();
+        std::replace(ver.begin(), ver.end(), '.', ' ');
+        std::istringstream istr(ver);
+        istr >> major >> minor >> micro;
+      }
+
+      return MsgType(mType, major, minor, micro);
+    }
+
     void sendMessage(const std::string& messagingId, rapidjson::Document doc) const
     {
+      using namespace rapidjson;
+      
+      MsgType msgType = getMessageType(doc);
+      if (msgType.m_type != "dpaV1") { // dpaV1 is default legacy support
+        auto foundType = m_msgTypeToHandle.find(getKey(msgType));
+        if (foundType == m_msgTypeToHandle.end()) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type));
+        }
+
+        const std::string RESP("response");
+        msgType = foundType->second;
+        validate(msgType, doc, m_validatorMapResponse, "response");
+      }
+      
       auto found = m_iMessagingServiceMap.find(messagingId);
       if (found != m_iMessagingServiceMap.end()) {
-        rapidjson::StringBuffer buffer;
-        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        StringBuffer buffer;
+        PrettyWriter<StringBuffer> writer(buffer);
         doc.Accept(writer);
         found->second->sendMessage(std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
       }
@@ -80,36 +127,37 @@ namespace iqrf {
       }
     }
 
-    void validate(const IMessagingSplitterService::MsgType & msgType, const Document& doc) const
+    void validate(const IMessagingSplitterService::MsgType & msgType, const Document& doc,
+      const std::map<std::string, rapidjson::SchemaDocument>& validators, const std::string& direction) const
     {
       TRC_FUNCTION_ENTER(PAR(msgType.m_type))
-      auto found = m_validatorMap.find(getKey(msgType));
-      if (found != m_validatorMap.end()) {
+      auto found = validators.find(getKey(msgType));
+      if (found != validators.end()) {
         SchemaValidator validator(found->second);
 //TODO validation fails on Linux
-#ifdef SHAPE_PLATFORM_WINDOWS
-        //if (!doc.Accept(validator)) {
-        if (false) {
-#else
-        if(false) {
-#endif
+//#ifdef SHAPE_PLATFORM_WINDOWS
+        if (!doc.Accept(validator)) {
+        //if (false) {
+//#else
+        //if(false) {
+//#endif
           // Input JSON is invalid according to the schema
-          // Output diagnostic information
           StringBuffer sb;
+          std::string schema, keyword, document;
           validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-          TRC_WARNING("Invalid schema: " << sb.GetString());
-          TRC_WARNING("Invalid keyword: " << validator.GetInvalidSchemaKeyword());
+          schema = sb.GetString();
+          keyword = validator.GetInvalidSchemaKeyword();
           sb.Clear();
           validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-          TRC_WARNING("Invalid document: " << sb.GetString());
-          //TODO validation error handling => send back an error JSON with details
-          THROW_EXC_TRC_WAR(std::logic_error, "Invalid");
+          document = sb.GetString();
+          THROW_EXC_TRC_WAR(std::logic_error, "Invalid " << direction << ": " <<
+            NAME_PAR(mType, msgType.m_type) << PAR(schema) << PAR(keyword) << NAME_PAR(message, document));
         }
         TRC_DEBUG("OK");
       }
       else {
-        //TODO why
-        THROW_EXC_TRC_WAR(std::logic_error, "Cannot find validator");
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid " << direction << ": " <<
+          NAME_PAR(mType, msgType.m_type) << " cannot find validator");
       }
       TRC_FUNCTION_LEAVE("")
     }
@@ -130,40 +178,17 @@ namespace iqrf {
             NAME_PAR(eoffset, doc.GetErrorOffset()));
         }
 
-        std::string mType;
-        std::string ver;
-        int major = 1;
-        int minor = 0;
-        int micro = 0;
+        MsgType msgType = getMessageType(doc);
 
-        // get message type
-        if (Value* mTypeVal = Pointer("/mType").Get(doc)) {
-          mType = mTypeVal->GetString();
-        }
-        else {
-          //defaulted to support daemon V1 messages
-          mType = "dpaV1";
-        }
-
-        // get version
-        if (Value* verVal = Pointer("/ver").Get(doc)) {
-          ver = verVal->GetString();
-          std::replace(ver.begin(), ver.end(), '.', ' ');
-          std::istringstream istr(ver);
-          istr >> major >> minor >> micro;
-        }
-
-        MsgType msgType(mType, major, minor, micro);
-
-        if (mType != "dpaV1") { // dpaV1 is default legacy support
+        if (msgType.m_type != "dpaV1") { // dpaV1 is default legacy support
           auto foundType = m_msgTypeToHandle.find(getKey(msgType));
           if (foundType == m_msgTypeToHandle.end()) {
-            THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << PAR(mType));
+            THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type));
           }
 
+          const std::string REQS("request");
           msgType = foundType->second;
-
-          validate(msgType, doc);
+          validate(msgType, doc, m_validatorMapRequest, REQS);
         }
 
         bool found = false;
@@ -193,14 +218,16 @@ namespace iqrf {
     }
 
 #ifdef SHAPE_PLATFORM_WINDOWS
-    std::vector<std::string> getConfigFiles(const std::string schemesDir)
+    std::vector<std::string> getSchemesFiles(const std::string& schemesDir, const std::string& filter)
     {
       WIN32_FIND_DATA fid;
       HANDLE found = INVALID_HANDLE_VALUE;
 
       std::vector<std::string> fileVect;
       std::string sdirect(schemesDir);
-      sdirect.append("/*-request-*");
+      sdirect.append("/*");
+      sdirect.append(filter);
+      sdirect.append("*");
 
       found = FindFirstFile(sdirect.c_str(), &fid);
 
@@ -222,7 +249,7 @@ namespace iqrf {
     }
 
 #else
-    std::vector<std::string> getConfigFiles(const std::string schemesDir)
+    std::vector<std::string> getSchemesFiles(const std::string& schemesDir, const std::string& filter)
     {
       std::vector<std::string> fileVect;
 
@@ -242,7 +269,7 @@ namespace iqrf {
         if (file_name[0] == '.')
           continue;
 
-        if (std::string::npos == file_name.find("-request-"))
+        if (std::string::npos == file_name.find(filter))
           continue;
 
         if (stat(full_file_name.c_str(), &st) == -1)
@@ -263,11 +290,12 @@ namespace iqrf {
 
 #endif
 
-    void loadJsonSchemes(const std::string sdir)
+    void loadJsonSchemesRequest(const std::string sdir)
     {
       TRC_FUNCTION_ENTER(PAR(sdir));
 
-      std::vector<std::string> files = getConfigFiles(sdir);
+      //std::vector<std::string> files = getSchemesFiles(sdir, "-request-");
+      std::vector<std::string> files = getSchemesFiles(sdir, ".json");
 
       for (const auto & fname : files) {
         TRC_INFORMATION("loading: " << PAR(fname));
@@ -331,23 +359,17 @@ namespace iqrf {
             THROW_EXC_TRC_WAR(std::logic_error, "Invalid schema: " << PAR(fname));
           }
 
-          // get version
-          //if (Value* verVal = Pointer("/properties/ver/enum/0").Get(sd)) {
-          //  ver = verVal->GetString();
-          //  std::replace(ver.begin(), ver.end(), '.', ' ');
-          //  std::istringstream istr(ver);
-          //  istr >> major >> minor >> micro;
-          //}
-          //else {
-          //  //default
-          //  major = 1; minor = 0; micro = 0;
-          //}
-
           MsgType msgType(mType, major, minor, micro, possibleDriverFunction);
 
           SchemaDocument schema(sd);
-          m_validatorMap.insert(std::make_pair(getKey(msgType), std::move(schema)));
-          m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
+
+          if (direction == "request") {
+            m_validatorMapRequest.insert(std::make_pair(getKey(msgType), std::move(schema)));
+            m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
+          }
+          else if (direction == "response") {
+            m_validatorMapResponse.insert(std::make_pair(getKey(msgType), std::move(schema)));
+          }
         }
         catch (std::exception & e) {
           CATCH_EXC_TRC_WAR(std::exception, e, "");
@@ -356,7 +378,6 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
     }
-
 
     void activate(const shape::Properties *props)
     {
@@ -369,7 +390,7 @@ namespace iqrf {
 
       if (shape::Properties::Result::ok == props->getMemberAsString("SchemesDir", m_schemesDir)) {
         TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
-        loadJsonSchemes(m_schemesDir);
+        loadJsonSchemesRequest(m_schemesDir);
       }
 
       TRC_FUNCTION_LEAVE("")
