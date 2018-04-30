@@ -602,7 +602,7 @@ namespace iqrf {
         }
         smartConnectResult.setStandards(standards);
       }
-      
+     
       return smartConnectResult;
       TRC_FUNCTION_LEAVE("");
     }
@@ -880,6 +880,32 @@ namespace iqrf {
       return defaultUserData;
     }
 
+    // prints specified byte stream into standard output
+    void printByteStream(const std::string& name, const std::basic_string<uint8_t>& byteStream)
+    {
+      printf("%s: ", name.c_str());
+      for (uint8_t byte : byteStream) {
+        printf("%x ", byte);
+      }
+      printf("\n");
+    }
+
+    void printDecodedValues(
+      const std::basic_string<uint8_t>& mid, 
+      const std::basic_string<uint8_t>& ibk,
+      uint16_t hwpId, 
+      uint8_t bondingChannel
+    ) 
+    {
+      printByteStream("MID", mid);
+      printByteStream("IBK", ibk);
+      
+      printf("HWP ID: ");
+      printf("%x ", (hwpId >> 8) & 0xFF);
+      printf("%x\n", hwpId & 0xFF);
+
+      printf("Bonding channel: %x\n", bondingChannel);
+    }
 
     void handleMsg(
       const std::string& messagingId,
@@ -951,6 +977,10 @@ namespace iqrf {
         hwpId = checkHwpId(IqrfCodeDecoder::getHwpId());
         bondingChannel = checkBondingChannel(IqrfCodeDecoder::getBondingChannel());
 
+        // print decoded values onto standard output
+        printf("\nIQRFCode decoded values: \n");
+        printDecodedValues(mid, ibk, hwpId, bondingChannel);
+       
         m_returnVerbose = comSmartConnect.getVerbose();
       }
       // parsing and checking service parameters failed 
@@ -963,8 +993,9 @@ namespace iqrf {
       }
       
       // call service with checked params
+      // HWP ID = 0xFFFF only for temporal reasons and testing
       SmartConnectResult smartConnectResult = smartConnect(
-        hwpId, deviceAddr, bondingTestRetries, ibk, mid, bondingChannel, virtualDeviceAddress, userData
+        0xFFFF, deviceAddr, bondingTestRetries, ibk, mid, bondingChannel, virtualDeviceAddress, userData
       );
 
       // create and send response
@@ -1049,7 +1080,7 @@ namespace iqrf {
         m_iJsCacheService = nullptr;
       }
     }
-   
+  
     void attachInterface(IMessagingSplitterService* iface)
     {
       m_iMessagingSplitterService = iface;
@@ -1106,7 +1137,7 @@ namespace iqrf {
   {
     m_imp->detachInterface(iface);
   }
-
+ 
   void SmartConnectService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
