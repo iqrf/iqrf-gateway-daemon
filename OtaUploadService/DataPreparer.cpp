@@ -225,8 +225,10 @@ namespace {
           codeBlocks.push_back(*pMergedBlock);
           return;
         }
+        else {
+          codeBlockIter++;
+        }
       }
-
       codeBlocks.push_back(newBlock);
     }
 
@@ -254,7 +256,6 @@ namespace {
 
         lineIndex++;
       }
-
       return codeBlocks;
     }
   };

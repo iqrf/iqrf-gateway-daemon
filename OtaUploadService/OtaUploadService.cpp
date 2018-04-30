@@ -194,10 +194,30 @@ namespace iqrf {
       return true;
     }
      
+    // returns file suffix
+    std::string getFileSuffix(const std::string& fileName) {
+      size_t dotPos = fileName.find_last_of('.');
+      if ((dotPos == std::string::npos)  || (dotPos == (fileName.length()-1))) {
+        THROW_EXC(std::logic_error, "Bad file name format - no suffix");
+      }
+
+      return fileName.substr(dotPos+1);
+    }
+
     // encounters type of loading content
     // TODO
     IOtaUploadService::LoadingContentType parseLoadingContentType(const std::string& fileName) 
     {
+      std::string fileSuffix = getFileSuffix(fileName);
+
+      if (fileSuffix == "hex") {
+        return IOtaUploadService::LoadingContentType::Hex;
+      }
+
+      if (fileSuffix == "iqrf") {
+        return IOtaUploadService::LoadingContentType::Iqrf_plugin;
+      }
+
       THROW_EXC(std::logic_error, "Not implemented.");
     }
 
