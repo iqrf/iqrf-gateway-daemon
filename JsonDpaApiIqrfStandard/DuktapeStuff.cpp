@@ -122,13 +122,13 @@ namespace iqrf {
       ret = duk_json_encode(m_ctx, -1);
       if (res != 0) {
         duk_pop_n(m_ctx, m_relativeStack);
-        THROW_EXC_TRC_WAR(std::logic_error, "Error: " << PAR(ret) << PAR(err));
+        THROW_EXC_TRC_WAR(std::logic_error, err);
       }
 
     }
     else {
       duk_pop_n(m_ctx, m_relativeStack);
-      THROW_EXC_TRC_WAR(std::logic_error, "Cannot find function");
+      THROW_EXC_TRC_WAR(std::logic_error, "Cannot find driver function: " << functionName);
     }
     
     duk_pop_n(m_ctx, m_relativeStack);

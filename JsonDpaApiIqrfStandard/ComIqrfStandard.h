@@ -1,6 +1,10 @@
 #pragma once
 
 #include "ComBase.h"
+#include "rapidjson/rapidjson.h"
+#include "rapidjson/document.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
 
 namespace iqrf {
   //-------------------------------------------------------
@@ -11,6 +15,32 @@ namespace iqrf {
     ComIqrfStandard(rapidjson::Document& doc)
       :ComBase(doc)
     {
+      using namespace rapidjson;
+      m_nadr = rapidjson::Pointer("/data/req/nAdr").Get(doc)->GetInt();
+      m_hwpid = rapidjson::Pointer("/data/req/hwpId").GetWithDefault(doc, m_hwpid).GetInt();
+      Value* reqParamObj = Pointer("/data/req/param").Get(doc);
+      rapidjson::Document param;
+      param.Swap(*reqParamObj);
+      //param.CopyFrom(*val, doc.GetAllocator());
+      rapidjson::StringBuffer buffer;
+      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+      param.Accept(writer);
+      m_param = buffer.GetString();
+    }
+
+    int getNadr() const
+    {
+      return m_nadr;
+    }
+    
+    int getHwpid() const
+    {
+      return m_hwpid;
+    }
+
+    std::string getParamAsString() const
+    {
+      return m_param;
     }
 
     void setDpaMessage(std::vector<uint8_t> dpaVect)
@@ -24,8 +54,9 @@ namespace iqrf {
       }
     }
 
-    void setPayload(rapidjson::Document&& doc)
+    void setPayload(const std::string& payloadKey, rapidjson::Document&& doc)
     {
+      m_payloadKey = payloadKey;
       m_payload.Swap(doc);
     }
 
@@ -36,13 +67,22 @@ namespace iqrf {
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
+      using namespace rapidjson;
       bool r = res.isResponded();
-      rapidjson::Pointer("/data/rsp").Set(doc, m_payload);
-      rapidjson::Pointer("/data/rsp/rCode").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
-      rapidjson::Pointer("/data/rsp/dpaVal").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);
+      Pointer("/data/rsp/nAdr").Set(doc, m_nadr);
+      if (m_hwpid != -1) {
+        Pointer("/data/rsp/hwpId").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : m_hwpid);
+      }
+      Pointer("/data/rsp/rCode").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
+      Pointer("/data/rsp/dpaVal").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);
+      Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
     }
 
   private:
+    int m_nadr = -1;
+    int m_hwpid = -1;
+    std::string m_param;
+    std::string m_payloadKey;
     rapidjson::Document m_payload;
   };
 

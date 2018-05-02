@@ -98,7 +98,7 @@ namespace iqrf {
 
         const std::string RESP("response");
         msgType = foundType->second;
-        validate(msgType, doc, m_validatorMapResponse, "response");
+        //validate(msgType, doc, m_validatorMapResponse, "response");
       }
       
       auto found = m_iMessagingServiceMap.find(messagingId);

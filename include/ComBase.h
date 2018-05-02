@@ -11,6 +11,7 @@ namespace iqrf {
     ComBase() {}
     ComBase(rapidjson::Document& doc)
     {
+      m_mType = rapidjson::Pointer("/mType").Get(doc)->GetString();
       m_msgId = rapidjson::Pointer("/data/msgId").Get(doc)->GetString();
       m_timeout = rapidjson::Pointer("/data/timeout").GetWithDefault(doc, (int)m_timeout).GetInt();
       m_verbose = rapidjson::Pointer("/data/returnVerbose").GetWithDefault(doc, m_verbose).GetBool();
@@ -43,7 +44,7 @@ namespace iqrf {
 
     void createResponse(rapidjson::Document& doc, const IDpaTransactionResult2& res)
     {
-      rapidjson::Pointer("/mType").Set(doc, "unknown-mType"); // it's here just to keep order - replaced later in processing, 
+      rapidjson::Pointer("/mType").Set(doc, m_mType);
       rapidjson::Pointer("/data/msgId").Set(doc, m_msgId);
       if (m_verbose) {
         if (m_timeout != -1) {
@@ -73,6 +74,7 @@ namespace iqrf {
     DpaMessage m_request;
 
   private:
+    std::string m_mType;
     std::string m_msgId;
     int32_t m_timeout = -1;
     bool m_verbose = false;
