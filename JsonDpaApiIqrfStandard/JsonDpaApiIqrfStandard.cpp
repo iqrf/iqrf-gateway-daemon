@@ -30,7 +30,8 @@ namespace iqrf {
   class FakeTransactionResult : public IDpaTransactionResult2
   {
   public:
-    int getErrorCode() const override { return TRN_ERROR_BAD_REQUEST; }
+    int getErrorCode() const override { return m_errCode; }
+    void overrideErrorCode(IDpaTransactionResult2::ErrorCode err) override { m_errCode = err; }
     std::string getErrorString() const override { return "BAD_REQUEST"; }
 
     virtual const DpaMessage& getRequest() const override { return m_fake; }
@@ -44,6 +45,7 @@ namespace iqrf {
     virtual ~FakeTransactionResult() {};
   private:
     DpaMessage m_fake;
+    IDpaTransactionResult2::ErrorCode m_errCode = TRN_ERROR_BAD_REQUEST;
   };
 
   class JsonDpaApiIqrfStandard::Imp
@@ -163,7 +165,7 @@ namespace iqrf {
         Pointer("/dpaval").Set(doc, rcodeStr);
 
         if (dpaResponse.size() > 8) {
-          //Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, dpaResponse.size() - 8));
+          Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, dpaResponse.size() - 8));
         }
 
         rawHdpResponse = JsonToStr(&doc);
@@ -203,8 +205,8 @@ namespace iqrf {
       if (driverRequestError) {
         //provide error response
         Document rDataError;
-        Pointer("/reason").Set(rDataError, errStrReq);
-        com->setPayload("/data/rsp/rData/error", std::move(rDataError));
+        rDataError.SetString(errStrReq, rDataError.GetAllocator());
+        com->setPayload("/data/rsp/errorStr", rDataError, true);
         com->createResponse(allResponseDoc, FakeTransactionResult());
       }
       else {
@@ -257,8 +259,9 @@ namespace iqrf {
             if (driverResponseError) {
               //provide error response
               Document rDataError;
-              Pointer("/reason").Set(rDataError, errStrRes);
-              com->setPayload("/data/rsp/rData/error", std::move(rDataError));
+              rDataError.SetString(errStrRes.c_str(), rDataError.GetAllocator());
+              com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
+              res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);
               com->createResponse(allResponseDoc, *res);
             }
             else {
@@ -266,21 +269,21 @@ namespace iqrf {
               Document rspObj;
               rspObj.Parse(rspObjStr);
               TRC_DEBUG("result object: " << std::endl << JsonToStr(&rspObj));
-              com->setPayload("/data/rsp/rData/result", std::move(rspObj));
+              com->setPayload("/data/rsp/result", std::move(rspObj), false);
               com->createResponse(allResponseDoc, *res);
             }
           }
           else {
             Document rDataError;
-            Pointer("/reason").Set(rDataError, "rcode error");
-            com->setPayload("/data/rsp/rData/error", std::move(rDataError));
+            rDataError.SetString("rcode error", rDataError.GetAllocator());
+            com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
             com->createResponse(allResponseDoc, *res);
           }
         }
         else {
           Document rDataError;
-          Pointer("/reason").Set(rDataError, "no response");
-          com->setPayload("/data/rsp/rData/error", std::move(rDataError));
+          rDataError.SetString("no response", rDataError.GetAllocator());
+          com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
           com->createResponse(allResponseDoc, *res);
         }
       }

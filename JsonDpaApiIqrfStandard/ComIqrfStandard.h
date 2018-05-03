@@ -21,7 +21,6 @@ namespace iqrf {
       Value* reqParamObj = Pointer("/data/req/param").Get(doc);
       rapidjson::Document param;
       param.Swap(*reqParamObj);
-      //param.CopyFrom(*val, doc.GetAllocator());
       rapidjson::StringBuffer buffer;
       rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
       param.Accept(writer);
@@ -54,10 +53,11 @@ namespace iqrf {
       }
     }
 
-    void setPayload(const std::string& payloadKey, rapidjson::Document&& doc)
+    void setPayload(const std::string& payloadKey, rapidjson::Value& val, bool onlyForVerbose)
     {
       m_payloadKey = payloadKey;
-      m_payload.Swap(doc);
+      m_payload.CopyFrom(val, m_payload.GetAllocator());
+      m_payloadOnlyForVerbose = onlyForVerbose;
     }
 
     virtual ~ComIqrfStandard()
@@ -75,7 +75,9 @@ namespace iqrf {
       }
       Pointer("/data/rsp/rCode").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
       Pointer("/data/rsp/dpaVal").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);
-      Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
+      if (!m_payloadOnlyForVerbose || getVerbose()) {
+        Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
+      }
     }
 
   private:
@@ -84,6 +86,7 @@ namespace iqrf {
     std::string m_param;
     std::string m_payloadKey;
     rapidjson::Document m_payload;
+    bool m_payloadOnlyForVerbose = true;
   };
 
 }
