@@ -14,7 +14,6 @@
 #include <list>
 #include <memory>
 #include <math.h>
-#include <bitset>
 
 TRC_INIT_MODULE(iqrf::SmartConnectService);
 
@@ -603,8 +602,8 @@ namespace iqrf {
         smartConnectResult.setStandards(standards);
       }
      
-      return smartConnectResult;
       TRC_FUNCTION_LEAVE("");
+      return smartConnectResult;
     }
 
 
@@ -880,32 +879,45 @@ namespace iqrf {
       return defaultUserData;
     }
 
-    // prints specified byte stream into standard output
-    void printByteStream(const std::string& name, const std::basic_string<uint8_t>& byteStream)
+    // creates string of HEX characters for specified byte stream
+    std::string getHexaString(const std::basic_string<uint8_t>& byteStream)
     {
-      printf("%s: ", name.c_str());
-      for (uint8_t byte : byteStream) {
-        printf("%x ", byte);
+      std::ostringstream os;
+      
+      for ( const uint8_t byte : byteStream ) {
+        os << std::setfill('0') << std::setw(2) << std::hex << (int)byte;
+        os << " ";
       }
-      printf("\n");
+      return os.str();
     }
 
-    void printDecodedValues(
+    // creates string of HEX characters for specified byte stream
+    std::string getHexaString(const uint16_t val)
+    {
+      std::ostringstream os;
+
+      os << std::setfill('0') << std::setw(2) << std::hex << (int)((val >> 8) & 0xFF);
+      os << " ";
+      os << std::setfill('0') << std::setw(2) << std::hex << (int)(val & 0xFF);
+
+      return os.str();
+    }
+
+    void logDecodedValues(
       const std::basic_string<uint8_t>& mid, 
       const std::basic_string<uint8_t>& ibk,
       uint16_t hwpId, 
       uint8_t bondingChannel
     ) 
     {
-      printByteStream("MID", mid);
-      printByteStream("IBK", ibk);
+      TRC_INFORMATION("IQRFCode decoded values: ");
       
-      printf("HWP ID: ");
-      printf("%x ", (hwpId >> 8) & 0xFF);
-      printf("%x\n", hwpId & 0xFF);
-
-      printf("Bonding channel: %x\n", bondingChannel);
+      TRC_INFORMATION("MID: " << PAR(getHexaString(mid)));
+      TRC_INFORMATION("IBK: " << PAR(getHexaString(ibk)));
+      TRC_INFORMATION("HWP ID: " << PAR(getHexaString(hwpId)));
+      TRC_INFORMATION("Bonding channel: " << PAR(getHexaString(bondingChannel)));
     }
+
 
     void handleMsg(
       const std::string& messagingId,
@@ -944,7 +956,6 @@ namespace iqrf {
       // default values - will be specified later in the request json message
       uint8_t virtualDeviceAddress = 0xFF;
 
-
       // parsing and checking service parameters
       try {
         m_repeat = parseAndCheckRepeat(comSmartConnect.getRepeat());
@@ -977,9 +988,8 @@ namespace iqrf {
         hwpId = checkHwpId(IqrfCodeDecoder::getHwpId());
         bondingChannel = checkBondingChannel(IqrfCodeDecoder::getBondingChannel());
 
-        // print decoded values onto standard output
-        printf("\nIQRFCode decoded values: \n");
-        printDecodedValues(mid, ibk, hwpId, bondingChannel);
+        // logs decoded values
+        logDecodedValues(mid, ibk, hwpId, bondingChannel);
        
         m_returnVerbose = comSmartConnect.getVerbose();
       }
@@ -1068,7 +1078,7 @@ namespace iqrf {
         m_iIqrfDpaService = nullptr;
       }
     }
-
+    
     void attachInterface(IJsCacheService* iface)
     {
       m_iJsCacheService = iface;
@@ -1080,7 +1090,7 @@ namespace iqrf {
         m_iJsCacheService = nullptr;
       }
     }
-  
+    
     void attachInterface(IMessagingSplitterService* iface)
     {
       m_iMessagingSplitterService = iface;
@@ -1128,6 +1138,7 @@ namespace iqrf {
     m_imp->detachInterface(iface);
   }
 
+  
   void SmartConnectService::attachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->attachInterface(iface);
@@ -1137,7 +1148,7 @@ namespace iqrf {
   {
     m_imp->detachInterface(iface);
   }
- 
+  
   void SmartConnectService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
