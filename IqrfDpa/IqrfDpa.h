@@ -41,8 +41,8 @@ namespace iqrf {
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     IqrfDpaChannel *m_iqrfDpaChannel = nullptr;  //temporary workaround, see comment in IqrfDpaChannel.h
     IDpaHandler2* m_dpaHandler = nullptr;
-    //DpaHandler2::RfMode m_rfMode = DpaHandler2::RfMode::kStd;
-    //int m_dpaHandlerTimeout = 200;
+    DpaHandler2::RfMode m_rfMode = IDpaHandler2::RfMode::kStd;
+    int m_dpaHandlerTimeout = IDpaHandler2::DEFAULT_TIMEOUT;
 
     std::mutex m_asyncMessageHandlersMutex;
     std::map<std::string, AsyncMessageHandlerFunc> m_asyncMessageHandlers;

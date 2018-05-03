@@ -1,9 +1,9 @@
 #define IIqrfDpaService_EXPORTS
 
-//#include "PrfOs.h"
 #include "DpaTransactionTask.h"
 #include "IqrfDpa.h"
 #include "Trace.h"
+#include "rapidjson/pointer.h"
 
 //TODO workaround old tracing 
 #include "IqrfLogging.h"
@@ -92,7 +92,26 @@ namespace iqrf {
     TRC_START("TraceOld.txt", iqrf::Level::dbg, TRC_DEFAULT_FILE_MAXSIZE);
 
     m_dpaHandler = shape_new DpaHandler2(m_iqrfDpaChannel);
-    //TODO set default timeout, rf mode according configuration
+
+    const rapidjson::Document& doc = props->getAsJson();
+    const rapidjson::Value* valT = rapidjson::Pointer("/DpaHandlerTimeout").Get(doc);
+    if (valT && valT->IsInt()) {
+      m_dpaHandlerTimeout = valT->GetInt();
+      m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
+    }
+    m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
+
+    const rapidjson::Value* valC = rapidjson::Pointer("/CommunicationMode").Get(doc);
+    if (valC && valC->IsString()) {
+      std::string communicationMode = valC->GetString();
+      if (communicationMode == "LP")
+        m_rfMode = IDpaHandler2::kLp;
+      else if (communicationMode == "STD")
+        m_rfMode = IDpaHandler2::kStd;
+      else
+        m_rfMode = IDpaHandler2::kStd;
+    }
+    m_dpaHandler->setRfCommunicationMode(m_rfMode);
 
     //Async msg handling
     m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
