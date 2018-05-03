@@ -89,6 +89,7 @@ namespace iqrf {
     }
 
     // nadr, hwpid not set from drivers
+    //TODO return directly DpaMessage to avoid later conversion vector -> DpaMessage
     std::vector<uint8_t> rawHdpRequestToDpaRequest(int nadr, int hwpid, const std::string& rawHdpRequest)
     {
       using namespace rapidjson;
@@ -125,8 +126,9 @@ namespace iqrf {
       return retvect;
     }
 
-    // nadr, hwpid not set for drivers
-    std::string dpaResponseToRawHdpResponse(int& nadr, int& hwpid, const std::vector<uint8_t>& dpaResponse)
+    // nadr, hwpid, rcode not set for drivers
+    //TODO rewrite with const DpaMessage& dpaResponse to avoid previous conversion DpaMessage -> vector
+    std::string dpaResponseToRawHdpResponse(int& nadr, int& hwpid, int& rcode, const std::vector<uint8_t>& dpaResponse)
     {
       using namespace rapidjson;
 
@@ -136,7 +138,7 @@ namespace iqrf {
 
       if (dpaResponse.size() >= 8) {
         uint16_t nadr16 = 0, hwpid16 = 0;
-        uint8_t pnum = 0, pcmd = 0, rcode = 0, dpaval = 0;
+        uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
         std::string pnumStr, pcmdStr, rcodeStr, dpavalStr;
 
         nadr = dpaResponse[0];
@@ -145,12 +147,13 @@ namespace iqrf {
         pcmd = dpaResponse[3];
         hwpid = dpaResponse[4];
         hwpid += dpaResponse[5] << 8;
-        rcode = dpaResponse[6];
+        rcode8 = dpaResponse[6];
+        rcode = rcode8;
         dpaval = dpaResponse[7];
 
         pnumStr = encodeHexaNum(pnum);
         pcmdStr = encodeHexaNum(pcmd);
-        rcodeStr = encodeHexaNum(rcode);
+        rcodeStr = encodeHexaNum(rcode8);
         dpavalStr = encodeHexaNum(dpaval);
 
         //nadr, hwpid is not interesting for drivers
@@ -160,47 +163,13 @@ namespace iqrf {
         Pointer("/dpaval").Set(doc, rcodeStr);
 
         if (dpaResponse.size() > 8) {
-          Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, dpaResponse.size() - 8));
+          //Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, dpaResponse.size() - 8));
         }
 
         rawHdpResponse = JsonToStr(&doc);
       }
 
       return rawHdpResponse;
-    }
-
-    void formResponseDriverRequestError(rapidjson::Document&& docRequest, const std::string& errStrReq)
-    {
-      std::unique_ptr<ComIqrfStandard> com(shape_new ComIqrfStandard(docRequest));
-    }
-
-    void formResponseDriverResponseError(rapidjson::Document&& docRequest, const std::string& mType, std::unique_ptr<ComIqrfStandard> com, int nadrRes, int hwpidRes, rapidjson::Document&& rspObj)
-    {
-      //using namespace rapidjson;
-
-      //Document allResponseDoc;
-
-      //// set nadr, hwpid
-      //Pointer("/data/rsp/nAdr").Set(allResponseDoc, nadrRes);
-      //Pointer("/data/rsp/hwpId").Set(allResponseDoc, hwpidRes);
-
-      //{ //debug
-      //  std::string str = JsonToStr(&rspObj);
-      //  TRC_DEBUG(str);
-      //}
-
-      //com->setPayload("/data/rsp/rData/result", std::move(rspObj));
-      //com->createResponse(allResponseDoc, *res);
-
-      //// TODO solve error if not methods in cache
-      ////com->createResponse(allResponseDoc, *res);
-
-      ////update message type - type is the same for request/response
-      //Pointer("/mType").Set(allResponseDoc,mType);
-      //{ //debug
-      //  std::string str = JsonToStr(&allResponseDoc);
-      //  TRC_DEBUG(str);
-      //}
     }
 
     void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
@@ -218,8 +187,7 @@ namespace iqrf {
       methodRequestName += "_Request_req";
       methodResponseName += "_Response_rsp";
 
-      // call _RequestObj driver func
-      // driver returns in rawHdpRequest format
+      // call request driver func, it returns rawHdpRequest format in text form
       std::string rawHdpRequest;
       std::string errStrReq;
       bool driverRequestError = false;
@@ -227,11 +195,13 @@ namespace iqrf {
         m_duk.call(methodRequestName, com->getParamAsString(), rawHdpRequest);
       }
       catch (std::exception &e) {
+        //request driver func error
         errStrReq = e.what();
         driverRequestError = true;
       }
 
       if (driverRequestError) {
+        //provide error response
         Document rDataError;
         Pointer("/reason").Set(rDataError, errStrReq);
         com->setPayload("/data/rsp/rData/error", std::move(rDataError));
@@ -247,74 +217,75 @@ namespace iqrf {
         com->setDpaMessage(dpaRequest);
 
         // send to coordinator and wait for transaction result
-        //-------------------
         {
           std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
           m_iDpaTransaction = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest(), com->getTimeout());
         }
         auto res = m_iDpaTransaction->get();
-        //-------------------
 
-        // get dpaResponse data
-        const uint8_t *buf = res->getResponse().DpaPacket().Buffer;
-        int sz = res->getResponse().GetLength();
 
-        Document rspObj;
+        //process response
         int nadrRes = com->getNadr();
         int hwpidRes = 0;
-        if (sz > 0) {
-          int rcode = res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode;
+        int rcode = -1;
+
+        if (res->isResponded()) {
           //we have some response
+          const uint8_t *buf = res->getResponse().DpaPacket().Buffer;
+          int sz = res->getResponse().GetLength();
           std::vector<uint8_t> dpaResponse(buf, buf + sz);
 
+          // get rawHdpResponse in text form
+          std::string rawHdpResponse;
+          rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, rcode, dpaResponse);
+          TRC_DEBUG(PAR(rawHdpResponse))
+
           if (0 == rcode) {
-
-            // nadr, hwpid not set for drivers, so extract them for later use
-            std::string rawHdpResponse;
-            // get rawHdpResponse in text form
-            rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, dpaResponse);
-            TRC_DEBUG(PAR(rawHdpResponse))
-
-              // call _RequestObj driver func
-              // _ResponseObj driver func returns in rsp{} in text form
-              std::string rspObjStr;
+            // call response driver func, it returns rsp{} in text form
+            std::string rspObjStr;
             std::string errStrRes;
+            bool driverResponseError = false;
             try {
               m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
             }
             catch (std::exception &e) {
+              //response driver func error
               errStrRes = e.what();
+              driverResponseError = true;
             }
 
-            // get json from its text representation
-            rspObj.Parse(rspObjStr);
+            if (driverResponseError) {
+              //provide error response
+              Document rDataError;
+              Pointer("/reason").Set(rDataError, errStrRes);
+              com->setPayload("/data/rsp/rData/error", std::move(rDataError));
+              com->createResponse(allResponseDoc, *res);
+            }
+            else {
+              // get json from its text representation
+              Document rspObj;
+              rspObj.Parse(rspObjStr);
+              TRC_DEBUG("result object: " << std::endl << JsonToStr(&rspObj));
+              com->setPayload("/data/rsp/rData/result", std::move(rspObj));
+              com->createResponse(allResponseDoc, *res);
+            }
+          }
+          else {
+            Document rDataError;
+            Pointer("/reason").Set(rDataError, "rcode error");
+            com->setPayload("/data/rsp/rData/error", std::move(rDataError));
+            com->createResponse(allResponseDoc, *res);
           }
         }
-
-        // set nadr, hwpid
-        //Pointer("/data/rsp/nAdr").Set(allResponseDoc, nadrRes);
-        //Pointer("/data/rsp/hwpId").Set(allResponseDoc, hwpidRes);
-
-        { //debug
-          std::string str = JsonToStr(&rspObj);
-          TRC_DEBUG(str);
+        else {
+          Document rDataError;
+          Pointer("/reason").Set(rDataError, "no response");
+          com->setPayload("/data/rsp/rData/error", std::move(rDataError));
+          com->createResponse(allResponseDoc, *res);
         }
-
-        com->setPayload("/data/rsp/rData/result", std::move(rspObj));
-        com->createResponse(allResponseDoc, *res);
       }
+      TRC_DEBUG("response object: " << std::endl << JsonToStr(&allResponseDoc));
 
-      // TODO solve error if not methods in cache
-      //com->createResponse(allResponseDoc, *res);
-
-      //update message type - type is the same for request/response
-      //Pointer("/mType").Set(allResponseDoc, msgType.m_type);
-      { //debug
-        std::string str = JsonToStr(&allResponseDoc);
-        TRC_DEBUG(str);
-      }
-
-      //TODO validate response in debug
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(allResponseDoc));
 
       TRC_FUNCTION_LEAVE("");
