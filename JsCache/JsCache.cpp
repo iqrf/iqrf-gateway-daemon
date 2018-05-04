@@ -60,10 +60,12 @@ namespace iqrf {
     shape::IRestApiService* m_iRestApiService = nullptr;
 
     mutable std::recursive_mutex m_updateMtx;
-    std::string cacheDir = "./configuration/jscache";
+    std::string m_cacheDir = "./configuration/jscache";
     std::string m_urlRepo = "https://repository.iqrfalliance.org/api";
-    int m_stdItemLoading = -1;
+    int m_checkPeriodSec = 0;
 
+    const int m_checkPeriodSecMin = 60;
+    std::string m_name = "JsCache";
 
     std::map<int, Company> m_companyMap;
     std::map<int, Manufacturer> m_manufacturerMap;
@@ -158,6 +160,16 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
       return retval;
+    }
+
+    ServerState getServerState() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      TRC_FUNCTION_LEAVE("");
+      return m_serverState;
     }
 
     const StdDriver* getStandard(int standardId, int version)
@@ -264,6 +276,32 @@ namespace iqrf {
       }
     }
 
+    bool checkCache()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      using namespace rapidjson;
+      using namespace boost;
+      bool retval = true;
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      try {
+        if (!updateCacheServer()) {
+          //DB checksum changed => reload cache
+          TRC_INFORMATION("Iqrf Repo has been changed => reload");
+          retval = false;
+          filesystem::remove_all(m_cacheDir);
+        }
+      }
+      catch (std::logic_error &e) {
+        CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot load Iqrf Repo");
+      }
+
+      TRC_FUNCTION_LEAVE(PAR(retval));
+      return retval;
+    }
+
     void loadCache()
     {
       TRC_FUNCTION_ENTER("");
@@ -278,7 +316,6 @@ namespace iqrf {
         updateCacheManufacturer();
         updateCacheProduct();
         updateCacheOsdpa();
-        updateCacheServer();
         updateCacheStandard();
         updateCachePackage();
         TRC_INFORMATION("Iqrf Repo load success: ");
@@ -501,18 +538,16 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void updateCacheServer()
+    ServerState getCacheServer()
     {
       TRC_FUNCTION_LEAVE("");
 
       using namespace rapidjson;
       using namespace boost;
 
+      ServerState retval;
+      
       std::string fname = getDataLocalFileName(SERVER_URL);
-
-      if (!filesystem::exists(fname)) {
-        downloadData(SERVER_URL);
-      }
 
       if (filesystem::exists(fname)) {
         Document doc;
@@ -525,24 +560,45 @@ namespace iqrf {
           std::string dateTime;
           int64_t databaseChecksum;
           std::string databaseChangeDateTime;
-          POINTER_GET_INT(SERVER_URL, &doc, "/apiVersion", m_serverState.m_apiVersion, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/hostname", m_serverState.m_hostname, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/user", m_serverState.m_user, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/buildDateTime", m_serverState.m_buildDateTime, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/startDateTime", m_serverState.m_startDateTime, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/dateTime", m_serverState.m_dateTime, fname);
-          POINTER_GET_INT64(SERVER_URL, &doc, "/databaseChecksum", m_serverState.m_databaseChecksum, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/databaseChangeDateTime", m_serverState.m_databaseChangeDateTime, fname);
+          POINTER_GET_INT(SERVER_URL, &doc, "/apiVersion", retval.m_apiVersion, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/hostname", retval.m_hostname, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/user", retval.m_user, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/buildDateTime", retval.m_buildDateTime, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/startDateTime", retval.m_startDateTime, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/dateTime", retval.m_dateTime, fname);
+          POINTER_GET_INT64(SERVER_URL, &doc, "/databaseChecksum", retval.m_databaseChecksum, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/databaseChangeDateTime", retval.m_databaseChangeDateTime, fname);
         }
         else {
           THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
         }
       }
-      else {
+
+      TRC_FUNCTION_LEAVE("")
+      return retval;
+    }
+
+    bool updateCacheServer()
+    {
+      TRC_FUNCTION_LEAVE("");
+
+      using namespace rapidjson;
+      using namespace boost;
+
+      ServerState serverStateOld = getCacheServer();
+
+      std::string fname = getDataLocalFileName(SERVER_URL);
+      downloadData(SERVER_URL);
+
+      if (!filesystem::exists(fname)) {
         THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
       }
 
-      TRC_FUNCTION_LEAVE("")
+      m_serverState = getCacheServer();
+      bool result = m_serverState.m_databaseChecksum == serverStateOld.m_databaseChecksum;
+
+      TRC_FUNCTION_LEAVE(PAR(result));
+      return result;
     }
 
     void updateCacheStandard()
@@ -807,7 +863,7 @@ namespace iqrf {
     std::string getDataLocalFileName(const std::string& relativeUrl, const std::string& fname = "data.json")
     {
       std::ostringstream os;
-      os << cacheDir << '/' << relativeUrl << '/' << fname;
+      os << m_cacheDir << '/' << relativeUrl << '/' << fname;
       return os.str();
     }
 
@@ -861,23 +917,8 @@ namespace iqrf {
 
       modify(props);
 
-
-      //TODO periodic cache check
-      //name from cfg
-      //m_iSchedulerService->registerMessageHandler("JsCache", [=](const std::string& task)
-      //{
-      //  if (task == "downloadRepo") {
-      //    downLoadRepo();
-      //  }
-      //});
-      //m_iSchedulerService->scheduleTaskPeriodic("JsCache", "downloadRepo", std::chrono::seconds(10));
-
+      checkCache();
       loadCache();
-
-      //TODO test
-      //auto manu = getManufacturer(4097);
-      //auto pro = getProduct(4097);
-      //auto pck = getPackage(4097, "08B8", "0302");
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -885,6 +926,9 @@ namespace iqrf {
     void deactivate()
     {
       TRC_FUNCTION_ENTER("");
+
+      m_iSchedulerService->removeAllMyTasks(m_name);
+      m_iSchedulerService->unregisterTaskHandler(m_name);
 
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -897,6 +941,49 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      using namespace rapidjson;
+      const std::string CHECK_CACHE("checkCache");
+      const Document& doc = props->getAsJson();
+
+      m_iSchedulerService->removeAllMyTasks(m_name);
+      m_iSchedulerService->unregisterTaskHandler(m_name);
+
+      const Value* v = Pointer("/instance").Get(doc);
+      if (v && v->IsString()) {
+        m_name = v->GetString();
+      }
+      v = Pointer("/cacheDir").Get(doc);
+      if (v && v->IsString()) {
+        m_cacheDir = v->GetString();
+      }
+      v = Pointer("/urlRepo").Get(doc);
+      if (v && v->IsString()) {
+        m_urlRepo = v->GetString();
+      }
+      v = Pointer("/checkPeriodSec").Get(doc);
+      if (v && v->IsInt()) {
+        m_checkPeriodSec = v->GetInt();
+        if (m_checkPeriodSec > 0 && m_checkPeriodSec < m_checkPeriodSecMin) {
+          TRC_WARNING(PAR(m_checkPeriodSec) << " from configuration forced to: " << PAR(m_checkPeriodSecMin));
+          m_checkPeriodSec = m_checkPeriodSecMin;
+        }
+      }
+        
+      m_iSchedulerService->registerTaskHandler(m_name, [=](const rapidjson::Value & task)
+      {
+        if (task.IsString() && std::string(task.GetString()) == CHECK_CACHE) {
+          if (!checkCache()) {
+            loadCache();
+          }
+        }
+      });
+
+      if (m_checkPeriodSec > 0) {
+        Document task;
+        task.SetString(CHECK_CACHE.c_str(), task.GetAllocator());
+        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(m_checkPeriodSec));
+      }
+      
     }
 
     void attachInterface(iqrf::ISchedulerService* iface)
@@ -959,6 +1046,11 @@ namespace iqrf {
   const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const
   {
     return m_imp->getPackage(hwpid, os, dpa);
+  }
+
+  IJsCacheService::ServerState JsCache::getServerState() const
+  {
+    return m_imp->getServerState();
   }
 
   void JsCache::activate(const shape::Properties *props)

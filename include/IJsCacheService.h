@@ -119,7 +119,7 @@ namespace iqrf {
       std::string m_buildDateTime;
       std::string m_startDateTime;
       std::string m_dateTime;
-      int64_t m_databaseChecksum;
+      int64_t m_databaseChecksum = -1;
       std::string m_databaseChangeDateTime;
     };
 
@@ -130,6 +130,7 @@ namespace iqrf {
     virtual const Manufacturer* getManufacturer(uint16_t hwpid) const = 0;
     virtual const Product* getProduct(uint16_t hwpid) const = 0;
     virtual const Package* getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const = 0;
+    virtual ServerState getServerState() const = 0;
 
     virtual ~IJsCacheService() {};
   };

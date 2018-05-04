@@ -20,6 +20,7 @@ namespace iqrf {
     const IJsCacheService::Manufacturer* getManufacturer(uint16_t hwpid) const override;
     const IJsCacheService::Product* getProduct(uint16_t hwpid) const override;
     const IJsCacheService::Package* getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const override;
+    IJsCacheService::ServerState getServerState() const override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
