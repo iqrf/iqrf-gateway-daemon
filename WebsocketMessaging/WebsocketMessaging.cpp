@@ -24,7 +24,8 @@ namespace iqrf {
   {
   private:
     std::string m_name;
-    
+    bool m_acceptAsyncMsg = false;
+
     shape::IWebsocketService* m_iWebsocketService = nullptr;
 
     TaskQueue<std::vector<uint8_t>>* m_toMqMessageQueue = nullptr;
@@ -81,6 +82,11 @@ namespace iqrf {
       return m_name;
     }
 
+    bool acceptAsyncMsg() const
+    {
+      return m_acceptAsyncMsg;
+    }
+
     void activate(const shape::Properties *props)
     {
       TRC_FUNCTION_ENTER("");
@@ -91,6 +97,7 @@ namespace iqrf {
       );
 
       props->getMemberAsString("instance", m_name);
+      props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
 
       m_toMqMessageQueue = shape_new TaskQueue<std::vector<uint8_t>>([&](const std::vector<uint8_t>& msg) {
         m_iWebsocketService->sendMessage(msg);
@@ -166,6 +173,11 @@ namespace iqrf {
   const std::string& WebsocketMessaging::getName() const
   {
     return m_imp->getName();
+  }
+
+  bool WebsocketMessaging::acceptAsyncMsg() const
+  {
+    return m_imp->acceptAsyncMsg();
   }
 
   //////////////////////////////////////

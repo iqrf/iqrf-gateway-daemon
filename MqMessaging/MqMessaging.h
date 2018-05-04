@@ -18,6 +18,7 @@ namespace iqrf {
     void unregisterMessageHandler() override;
     void sendMessage(const std::basic_string<uint8_t> & msg) override;
     const std::string & getName() const override { return m_name; }
+    bool acceptAsyncMsg() const override { return m_acceptAsyncMsg; }
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
@@ -30,6 +31,8 @@ namespace iqrf {
     int handleMessageFromMq(const std::basic_string<uint8_t> & mqMessage);
 
     std::string m_name;
+    bool m_acceptAsyncMsg = false;
+
     MqChannel* m_mqChannel = nullptr;
     TaskQueue<std::basic_string<uint8_t>>* m_toMqMessageQueue = nullptr;
 

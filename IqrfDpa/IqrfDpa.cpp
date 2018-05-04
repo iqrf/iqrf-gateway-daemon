@@ -79,6 +79,21 @@ namespace iqrf {
       hndl.second(dpaMessage);
   }
 
+  //TODO for testing async - remove
+  //"request": "00.00.0a.00.ff.ff"
+  //"response" : "00.00.0a.80.00.00.00.00.1b.be.01"
+  //void IqrfDpa::testAsync()
+  //{
+  //  while (true) {
+  //    //std::vector<uint8_t> v = { 0x00, 0x00, 0x0a, 0x80, 0x00, 0x00, 0x00, 0x00, 0x1b, 0xbe, 0x01 };
+  //    std::vector<uint8_t> v = { 0x00, 0x00, 0x0a, 0x00, 0xff, 0xff };
+  //    DpaMessage msg;
+  //    msg.DataToBuffer(v.data(), v.size());
+  //    asyncDpaMessageHandler(msg);
+  //    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+  //  }
+  //}
+
   void IqrfDpa::activate(const shape::Properties *props)
   {
     TRC_FUNCTION_ENTER("");
@@ -117,6 +132,10 @@ namespace iqrf {
     m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
       asyncDpaMessageHandler(dpaMessage);
     });
+
+    //TODO for testing async - remove
+    //m_thd = std::thread(&IqrfDpa::testAsync, this);
+    //m_thd.detach();
 
 #if 0
       //TR module

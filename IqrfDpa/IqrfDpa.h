@@ -22,10 +22,12 @@ namespace iqrf {
     void setTimeout(int timeout) override;
     DpaHandler2::RfMode getRfCommunicationMode() const override;
     void setRfCommunicationMode(DpaHandler2::RfMode rfMode) override;
-    //void registerAsyncMessageHandler(std::function<void(const DpaMessage&)> messageHandler) override;
-    //void unregisterAsyncMessageHandler(const std::string& serviceId) override;
     void registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun) override;
     void unregisterAsyncMessageHandler(const std::string& serviceId) override;
+    
+    //TODO for testing async - remove
+    //void testAsync();
+    //std::thread m_thd;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

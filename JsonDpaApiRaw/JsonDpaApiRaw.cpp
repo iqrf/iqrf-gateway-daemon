@@ -27,6 +27,41 @@ TRC_INIT_MODULE(iqrf::JsonDpaApiRaw);
 using namespace rapidjson;
 
 namespace iqrf {
+  class FakeAsyncTransactionResult : public IDpaTransactionResult2
+  {
+  public:
+    FakeAsyncTransactionResult(const DpaMessage& dpaMessage)
+      :m_now(std::chrono::system_clock::now())
+    {
+      switch (dpaMessage.MessageDirection()) {
+      case DpaMessage::MessageType::kRequest:
+        m_request = dpaMessage;
+      case DpaMessage::MessageType::kResponse:
+        m_response = dpaMessage;
+      default:;
+      }
+    }
+
+    int getErrorCode() const override { return STATUS_NO_ERROR; }
+    void overrideErrorCode(ErrorCode err) override {}
+    std::string getErrorString() const override { return "ok"; }
+
+    virtual const DpaMessage& getRequest() const override { return m_request; }
+    virtual const DpaMessage& getConfirmation() const override { return m_confirmation; }
+    virtual const DpaMessage& getResponse() const override { return m_response; }
+    virtual const std::chrono::time_point<std::chrono::system_clock>& getRequestTs() const override { return m_now; }
+    virtual const std::chrono::time_point<std::chrono::system_clock>& getConfirmationTs() const override { return m_now; }
+    virtual const std::chrono::time_point<std::chrono::system_clock>& getResponseTs() const override { return m_now; }
+    virtual bool isConfirmed() const override { return false; }
+    virtual bool isResponded() const override { return false; }
+    virtual ~FakeAsyncTransactionResult() {};
+  private:
+    std::chrono::time_point<std::chrono::system_clock> m_now;
+    DpaMessage m_confirmation;
+    DpaMessage m_request;
+    DpaMessage m_response;
+  };
+
   class JsonDpaApiRaw::Imp
   {
   private:
@@ -34,6 +69,8 @@ namespace iqrf {
     iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
+    std::string m_name = "JsonDpaApiRaw";
+    bool m_asyncDpaMessage = false;
 
     // TODO from cfg
     std::vector<std::string> m_filters =
@@ -78,6 +115,25 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    void handleAsyncDpaMessage(const DpaMessage& msg)
+    {
+      std::string fakeRequestStr =
+        "{\"mType\": \"iqrfRaw\",\"data\":{\"msgId\": \"async\",\"req\":{\"request\":\"00.00.00.00.00.00\"}}}";
+      Document fakeRequest;
+      fakeRequest.Parse(fakeRequestStr);
+      Document respDoc;
+
+      ComRaw asyncResp(fakeRequest);
+      FakeAsyncTransactionResult res(msg);
+
+      asyncResp.createResponse(respDoc, res);
+
+      //update message type - type is the same for request/response
+      Pointer("/mType").Set(respDoc, "iqrfRaw");
+
+      m_iMessagingSplitterService->sendMessage("", std::move(respDoc));
+    }
+
     void activate(const shape::Properties *props)
     {
       TRC_FUNCTION_ENTER("");
@@ -87,11 +143,28 @@ namespace iqrf {
         "******************************"
       );
 
+      const Document& doc = props->getAsJson();
+
+      const Value* v = Pointer("/instance").Get(doc);
+      if (v && v->IsString()) {
+        m_name = v->GetString();
+      }
+      v = Pointer("/asyncDpaMessage").Get(doc);
+      if (v && v->IsBool()) {
+        m_asyncDpaMessage = v->GetBool();
+      }
+
       m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
         [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
       {
         handleMsg(messagingId, msgType, std::move(doc));
       });
+
+      if (m_asyncDpaMessage) {
+        m_iIqrfDpaService->registerAsyncMessageHandler(m_name, [&](const DpaMessage& dpaMessage) {
+          handleAsyncDpaMessage(dpaMessage);
+        });
+      }
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -106,6 +179,7 @@ namespace iqrf {
       );
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
+      m_iIqrfDpaService->unregisterAsyncMessageHandler(m_name);
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -136,7 +210,6 @@ namespace iqrf {
       if (m_iIqrfDpaService == iface) {
         m_iIqrfDpaService = nullptr;
       }
-
     }
 
     void attachInterface(IMessagingSplitterService* iface)

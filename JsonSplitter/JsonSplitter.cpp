@@ -20,6 +20,8 @@
 #include <fstream>
 #include <algorithm>
 #include <vector>
+#include <map>
+#include <set>
 #include <locale>
 
 #ifdef TRC_CHANNEL
@@ -39,6 +41,7 @@ namespace iqrf {
     std::string m_schemesDir;
 
     std::map<std::string, IMessagingService*> m_iMessagingServiceMap;
+    std::set<IMessagingService*> m_iMessagingServiceSetAcceptAsync;
     std::map<std::string, FilteredMessageHandlerFunc > m_filterMessageHandlerFuncMap;
 
     std::map<std::string, rapidjson::SchemaDocument> m_validatorMapRequest;
@@ -96,20 +99,30 @@ namespace iqrf {
           THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type));
         }
 
-        const std::string RESP("response");
         msgType = foundType->second;
         validate(msgType, doc, m_validatorMapResponse, "response");
       }
       
-      auto found = m_iMessagingServiceMap.find(messagingId);
-      if (found != m_iMessagingServiceMap.end()) {
-        StringBuffer buffer;
-        PrettyWriter<StringBuffer> writer(buffer);
-        doc.Accept(writer);
-        found->second->sendMessage(std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+      StringBuffer buffer;
+      PrettyWriter<StringBuffer> writer(buffer);
+      doc.Accept(writer);
+
+      if (!messagingId.empty()) {
+        auto found = m_iMessagingServiceMap.find(messagingId);
+        if (found != m_iMessagingServiceMap.end()) {
+          //StringBuffer buffer;
+          //PrettyWriter<StringBuffer> writer(buffer);
+          //doc.Accept(writer);
+          found->second->sendMessage(std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+        }
+        else {
+          TRC_WARNING("Cannot find required: " << PAR(messagingId))
+        }
       }
       else {
-        TRC_WARNING("Cannot find required: " << PAR(messagingId))
+        for (auto m : m_iMessagingServiceSetAcceptAsync) {
+          m->sendMessage(std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+        }
       }
     }
 
@@ -134,13 +147,7 @@ namespace iqrf {
       auto found = validators.find(getKey(msgType));
       if (found != validators.end()) {
         SchemaValidator validator(found->second);
-//TODO validation fails on Linux
-//#ifdef SHAPE_PLATFORM_WINDOWS
         if (!doc.Accept(validator)) {
-        //if (false) {
-//#else
-        //if(false) {
-//#endif
           // Input JSON is invalid according to the schema
           StringBuffer sb;
           std::string schema, keyword, document;
@@ -419,15 +426,27 @@ namespace iqrf {
       {
         handleMessageFromMessaging(messagingId, message);
       });
+
+      if (iface->acceptAsyncMsg()) {
+        m_iMessagingServiceSetAcceptAsync.insert(iface);
+      }
     }
 
     void detachInterface(iqrf::IMessagingService* iface)
     {
       //TODO mtx?
-      auto found = m_iMessagingServiceMap.find(iface->getName());
-      if (found != m_iMessagingServiceMap.end() && found->second == iface) {
-        iface->unregisterMessageHandler();
-        m_iMessagingServiceMap.erase(found);
+      {
+        auto found = m_iMessagingServiceMap.find(iface->getName());
+        if (found != m_iMessagingServiceMap.end() && found->second == iface) {
+          iface->unregisterMessageHandler();
+          m_iMessagingServiceMap.erase(found);
+        }
+      }
+      {
+        auto found = m_iMessagingServiceSetAcceptAsync.find(iface);
+        if (found != m_iMessagingServiceSetAcceptAsync.end() && *found == iface) {
+          m_iMessagingServiceSetAcceptAsync.erase(found);
+        }
       }
     }
 
