@@ -71,29 +71,39 @@ namespace iqrf {
       counter++;
 
       TRC_INFORMATION("Sending to IQRF CDC: " << std::endl << MEM_HEX(message.data(), message.size()));
-
-      while (attempt++ < 4) {
-        TRC_INFORMATION("Trying to sent: " << counter << "." << attempt);
-        dsResponse = m_cdc->sendData(message);
-        if (dsResponse != DSResponse::BUSY)
-          break;
-        //wait for next attempt
-        TRC_DEBUG("Sleep for a while ... ");
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      }
-      if (dsResponse == DSResponse::OK) {
-        if (m_snifferFromFunc) {
-          m_snifferFromFunc(message);
+      
+      if (m_cdc) {
+        while (attempt++ < 4) {
+          TRC_INFORMATION("Trying to sent: " << counter << "." << attempt);
+          dsResponse = m_cdc->sendData(message);
+          if (dsResponse != DSResponse::BUSY)
+            break;
+          //wait for next attempt
+          TRC_DEBUG("Sleep for a while ... ");
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        if (dsResponse == DSResponse::OK) {
+          if (m_snifferFromFunc) {
+            m_snifferFromFunc(message);
+          }
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "CDC send failed" << PAR(dsResponse));
         }
       }
       else {
-        THROW_EXC_TRC_WAR(std::logic_error, "CDC send failed" << PAR(dsResponse));
+        THROW_EXC_TRC_WAR(std::logic_error, "CDC not active" << PAR(dsResponse));
       }
     }
 
     IIqrfChannelService::State getState() const
     {
-      return IIqrfChannelService::State::Ready;
+      if (m_cdc && m_cdcValid) {
+        return IIqrfChannelService::State::Ready;
+      }
+      else {
+        return IIqrfChannelService::State::NotReady;
+      }
     }
 
     std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
@@ -163,21 +173,25 @@ namespace iqrf {
         "******************************"
       );
 
-      modify(props);
-
-      m_cdc = shape_new CDCImpl(m_interfaceName.c_str());
-
       try {
+        modify(props);
+        m_cdc = shape_new CDCImpl(m_interfaceName.c_str());
         if (!m_cdc->test()) {
           THROW_EXC_TRC_WAR(std::logic_error, "CDC Test failed");
         }
+        m_cdcValid = true;
       }
       catch (CDCImplException & e) {
-        THROW_EXC_TRC_WAR(std::logic_error, "CDC Test failed: " << e.getDescr());
+        CATCH_EXC_TRC_WAR(CDCImplException, e, "CDC Test failed: " << e.getDescr());
+      }
+      catch (std::exception & e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "CDC failed: ");
       }
 
-      m_cdc->registerAsyncMsgListener([&](unsigned char* data, unsigned int length) {
-        messageHandler(std::basic_string<unsigned char>(data, length)); });
+      if (m_cdc) {
+        m_cdc->registerAsyncMsgListener([&](unsigned char* data, unsigned int length) {
+          messageHandler(std::basic_string<unsigned char>(data, length)); });
+      }
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -186,7 +200,9 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      m_cdc->unregisterAsyncMsgListener();
+      if (m_cdc) {
+        m_cdc->unregisterAsyncMsgListener();
+      }
 
       delete m_cdc;
       m_cdc = nullptr;
@@ -208,6 +224,7 @@ namespace iqrf {
 
   private:
     CDCImpl* m_cdc = nullptr;
+    bool m_cdcValid = false;
     IIqrfChannelService::ReceiveFromFunc m_receiveFromFunc;
     IIqrfChannelService::ReceiveFromFunc m_exclusiveReceiveFromFunc;
     IIqrfChannelService::ReceiveFromFunc m_snifferFromFunc;
