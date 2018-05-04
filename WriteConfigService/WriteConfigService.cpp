@@ -186,6 +186,8 @@ namespace iqrf {
   // holds information about configuration writing result for each node
   class WriteResult {
   private:
+    WriteError m_error;
+
     // map of write results on nodes indexed by node address
     std::map<uint16_t, NodeWriteResult> resultsMap;
 
@@ -193,6 +195,12 @@ namespace iqrf {
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
   public:
+    WriteError getError() const { return m_error; };
+
+    void setError(const WriteError& error) {
+      m_error = error;
+    }
+
     // Puts specified write result for specified node into results.
     void putResult(uint16_t nodeAddr, const NodeWriteResult& result) {
       resultsMap[nodeAddr] = result;
@@ -412,7 +420,6 @@ namespace iqrf {
           return configByte.value;
         }
       }
-
       THROW_EXC(std::logic_error, "RFPGM byte NOT found.");
     }
 
@@ -449,41 +456,61 @@ namespace iqrf {
       std::shared_ptr<IDpaTransaction2> writeConfigTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      try {
-        writeConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(writeConfigRequest);
-        transResult = writeConfigTransaction->get();
-      }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::logic_error, "Could not write configuration.");
-      }
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          writeConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(writeConfigRequest);
+          transResult = writeConfigTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
 
-      TRC_DEBUG("Result from write config transaction as string:" << PAR(transResult->getErrorString()));
+          if (rep < m_repeat) {
+            continue;
+          }
 
-      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+          processWriteError(writeResult, nodeAddr, configBytes, WriteError::Type::Write, e.what());
 
-      writeResult.addTransactionResult(transResult);
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
 
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Write config successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(writeConfigRequest.PeripheralType(), writeConfigRequest.NodeAddress())
-          << PAR(writeConfigRequest.PeripheralCommand())
-        );
+        TRC_DEBUG("Result from write config transaction as string:" << PAR(transResult->getErrorString()));
 
-        TRC_FUNCTION_LEAVE("");
-        return;
-      }
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-        processWriteError(writeResult, nodeAddr, configBytes, WriteError::Type::Write, "Transaction error.");
-      } // DPA error
-      else {
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-        processWriteError(writeResult, nodeAddr, configBytes, WriteError::Type::Write, "DPA error.");
+        writeResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Write config successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(writeConfigRequest.PeripheralType(), writeConfigRequest.NodeAddress())
+            << PAR(writeConfigRequest.PeripheralCommand())
+          );
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          processWriteError(writeResult, nodeAddr, configBytes, WriteError::Type::Write, "Transaction error.");
+        } // DPA error
+        else {
+          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          processWriteError(writeResult, nodeAddr, configBytes, WriteError::Type::Write, "DPA error.");
+        }
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -637,6 +664,21 @@ namespace iqrf {
       }
     }
 
+    // returns nodes, which were writen unsuccessfully into
+    std::list<uint16_t> getUnsuccessfulNodes(
+      const std::map<uint16_t, uint8_t>& nodesResultsMap
+    ) {
+      std::list<uint16_t> unsuccessfulNodes;
+
+      for (std::pair<uint16_t, uint8_t> p : nodesResultsMap) {
+        if ((p.second & 0b1) != 0b1) {
+          unsuccessfulNodes.push_back(p.first);
+        }
+      }
+      return unsuccessfulNodes;
+    }
+
+
     // writes configuration bytes into target nodes
     void _writeConfigBytes(
       WriteResult& writeResult,
@@ -666,143 +708,210 @@ namespace iqrf {
       // number of parts with config. bytes to send by FRC request
       uint8_t partsTotal = (configBytes.size() * 3) / WriteConfigPacketFreeSpace;
 
+      
       for (int partId = 0; partId < partsTotal; partId++) {
-        // prepare part of config bytes to fill into the FRC request user data
-        std::vector<HWP_ConfigByte> configBytesPart = getConfigBytesPart(partId, partsTotal, configBytes);
-        setUserDataForFrcWriteConfigByteRequest(frcRequest, configBytesPart);
 
-        // issue the DPA request
-        frcRequest.DataToBuffer(
-          frcPacket.Buffer, 
-          sizeof(TDpaIFaceHeader) + 1 + 30 + 5 + configBytesPart.size()
-        );
+        // for each part try to write data m_rep times
+        // at the end of each iteration, discover unsuccessful nodes
+        std::list<uint16_t> nodesToWrite(targetNodes);
 
-        // issue the DPA request
-        std::shared_ptr<IDpaTransaction2> frcWriteConfigTransaction;
-        std::unique_ptr<IDpaTransactionResult2> transResult;
+        for (int rep = 0; rep <= m_repeat; rep++) {
+          // all nodes were successfully writen into for actual data part
+          if (nodesToWrite.empty()) {
+            break;
+          }
 
-        try {
-          frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
-          transResult = frcWriteConfigTransaction->get();
-        }
-        catch (std::exception& e) {
-          TRC_DEBUG("DPA transaction error : " << e.what());
-          processWriteError(writeResult, targetNodes, configBytesPart, WriteError::Type::Write, e.what());
-          continue;
-        }
+          setSelectedNodesForFrcRequest(frcRequest, nodesToWrite);
 
-        TRC_DEBUG("Result from FRC write config transaction as string:" << PAR(transResult->getErrorString()));
+          // prepare part of config bytes to fill into the FRC request user data
+          std::vector<HWP_ConfigByte> configBytesPart = getConfigBytesPart(partId, partsTotal, configBytes);
+          setUserDataForFrcWriteConfigByteRequest(frcRequest, configBytesPart);
 
-        // data from FRC
-        std::basic_string<uns8> frcData;
-
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-        
-        // because of the move-semantics
-        DpaMessage dpaResponse = transResult->getResponse();
-        writeResult.addTransactionResult(transResult);
-
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("FRC write config successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(frcRequest.PeripheralType(), frcRequest.NodeAddress())
-            << PAR(frcRequest.PeripheralCommand())
+          // issue the DPA request
+          frcRequest.DataToBuffer(
+            frcPacket.Buffer,
+            sizeof(TDpaIFaceHeader) + 1 + 30 + 5 + configBytesPart.size()
           );
 
-          // check status
-          uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-          if ((status >= 0x00) && (status <= 0xEF)) {
-            TRC_INFORMATION("FRC write config status OK.");
-            frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+          // issue the DPA request
+          std::shared_ptr<IDpaTransaction2> frcWriteConfigTransaction;
+          std::unique_ptr<IDpaTransactionResult2> transResult;
+
+          try {
+            frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
+            transResult = frcWriteConfigTransaction->get();
           }
+          catch (std::exception& e) {
+            TRC_DEBUG("DPA transaction error : " << e.what());
+
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processWriteError(writeResult, nodesToWrite, configBytesPart, WriteError::Type::Write, e.what());
+            break;
+          }
+
+          TRC_DEBUG("Result from FRC write config transaction as string:" << PAR(transResult->getErrorString()));
+
+          // data from FRC
+          std::basic_string<uns8> frcData;
+
+          IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+          // because of the move-semantics
+          DpaMessage dpaResponse = transResult->getResponse();
+          writeResult.addTransactionResult(transResult);
+
+          if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+            TRC_INFORMATION("FRC write config successful!");
+            TRC_DEBUG(
+              "DPA transaction: "
+              << NAME_PAR(frcRequest.PeripheralType(), frcRequest.NodeAddress())
+              << PAR(frcRequest.PeripheralCommand())
+            );
+
+            // check status
+            uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+            if ((status >= 0x00) && (status <= 0xEF)) {
+              TRC_INFORMATION("FRC write config status OK.");
+              frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+            }
+            else {
+              TRC_DEBUG("FRC write config status NOT ok." << NAME_PAR_HEX("Status", status));
+              
+              if (rep < m_repeat) {
+                continue;
+              }
+              
+              processWriteError(writeResult, nodesToWrite, configBytesPart, WriteError::Type::Write, "Bad status.");
+              break;
+            }
+          }
+
+          // transaction error
+          if (errorCode < 0) {
+            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processWriteError(writeResult, nodesToWrite, configBytesPart, WriteError::Type::Write, "Transaction error.");
+            break;
+          } // DPA error
           else {
-            TRC_DEBUG("FRC write config status NOT ok." << NAME_PAR_HEX("Status", status));
-            processWriteError(writeResult, targetNodes, configBytesPart, WriteError::Type::Write, "Bad status.");
+            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+            
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processWriteError(writeResult, nodesToWrite, configBytesPart, WriteError::Type::Write, "DPA error.");
+            break;
+          }
+
+          // get extra results
+          DpaMessage extraResultRequest;
+          DpaMessage::DpaPacket_t extraResultPacket;
+          frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+          frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+          frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
+          frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+          frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
+
+          // issue the DPA request
+          std::shared_ptr<IDpaTransaction2> extraResultTransaction;
+
+          try {
+            extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
+            transResult = extraResultTransaction->get();
+          }
+          catch (std::exception& e) {
+            TRC_DEBUG("DPA transaction error : " << e.what());
+
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processWriteError(writeResult, nodesToWrite, configBytesPart, WriteError::Type::Write, e.what());
+            break;
+          }
+
+          TRC_DEBUG("Result from FRC write config extra result transaction as string:" << PAR(transResult->getErrorString()));
+
+          errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+          // because of the move-semantics
+          dpaResponse = transResult->getResponse();
+          writeResult.addTransactionResult(transResult);
+
+          if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+            TRC_INFORMATION("FRC write config extra result successful!");
+            TRC_DEBUG(
+              "DPA transaction: "
+              << NAME_PAR(extraResultRequest.PeripheralType(), extraResultRequest.NodeAddress())
+              << PAR(extraResultRequest.PeripheralCommand())
+            );
+
+            // check status
+            uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+            if ((status >= 0x00) && (status <= 0xEF)) {
+              TRC_INFORMATION("FRC write config extra result status OK.");
+              frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+            }
+            else {
+              TRC_DEBUG("FRC write config extra result status NOT ok." << NAME_PAR_HEX("Status", status));
+              
+              if (rep < m_repeat) {
+                continue;
+              }
+
+              processWriteError(writeResult, nodesToWrite, configBytesPart, WriteError::Type::Write, "Bad status.");
+              break;
+            }
+          }
+
+          // transaction error
+          if (errorCode < 0) {
+            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+            
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processWriteError(writeResult, nodesToWrite, configBytesPart, WriteError::Type::Write, "Transaction error.");
+            break;
+          } // DPA error
+          else {
+            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+            
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processWriteError(writeResult, nodesToWrite, configBytesPart, WriteError::Type::Write, "DPA error.");
+            break;
+          }
+
+          // FRC data parsing
+          std::map<uint16_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData);
+
+          // find out, which nodes are unsuccessful and update for next attempt
+          if (rep < m_repeat) {
+            nodesToWrite = getUnsuccessfulNodes(nodesResultsMap);
+
+            // if all nodes were successfull, go to next data part
+            if (nodesToWrite.empty()) {
+              break;
+            }
+
             continue;
           }
+
+          // putting nodes results into overall write config results
+          putWriteConfigFrcResults(writeResult, configBytesPart, WriteError::Type::Write, nodesResultsMap);
         }
-
-        // transaction error
-        if (errorCode < 0) {
-          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-          processWriteError(writeResult, targetNodes, configBytesPart, WriteError::Type::Write, "Transaction error.");
-          continue;
-        } // DPA error
-        else {
-          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-          processWriteError(writeResult, targetNodes, configBytesPart, WriteError::Type::Write, "DPA error.");
-          continue;
-        }
-
-        // get extra results
-        DpaMessage extraResultRequest;
-        DpaMessage::DpaPacket_t extraResultPacket;
-        frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-        frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
-        frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-        frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-        frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
-
-        // issue the DPA request
-        std::shared_ptr<IDpaTransaction2> extraResultTransaction;
-
-        try {
-          extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
-          transResult = extraResultTransaction->get();
-        }
-        catch (std::exception& e) {
-          TRC_DEBUG("DPA transaction error : " << e.what());
-          processWriteError(writeResult, targetNodes, configBytesPart, WriteError::Type::Write, e.what());
-          continue;
-        }
-
-        TRC_DEBUG("Result from FRC write config extra result transaction as string:" << PAR(transResult->getErrorString()));
-
-        errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-        
-        // because of the move-semantics
-        dpaResponse = transResult->getResponse();
-        writeResult.addTransactionResult(transResult);
-
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("FRC write config extra result successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(extraResultRequest.PeripheralType(), extraResultRequest.NodeAddress())
-            << PAR(extraResultRequest.PeripheralCommand())
-          );
-
-          // check status
-          uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-          if ((status >= 0x00) && (status <= 0xEF)) {
-            TRC_INFORMATION("FRC write config extra result status OK.");
-            frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
-          }
-          else {
-            TRC_DEBUG("FRC write config extra result status NOT ok." << NAME_PAR_HEX("Status", status));
-            processWriteError(writeResult, targetNodes, configBytesPart, WriteError::Type::Write, "Bad status.");
-            continue;
-          }
-        }
-
-        // transaction error
-        if (errorCode < 0) {
-          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-          processWriteError(writeResult, targetNodes, configBytesPart, WriteError::Type::Write, "Transaction error.");
-          continue;
-        } // DPA error
-        else {
-          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-          processWriteError(writeResult, targetNodes, configBytesPart, WriteError::Type::Write, "DPA error.");
-          continue;
-        }
-
-        // FRC data parsing
-        std::map<uint16_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData);
-
-        // putting nodes results into overall write config results
-        putWriteConfigFrcResults(writeResult, configBytesPart, WriteError::Type::Write, nodesResultsMap);
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -853,48 +962,66 @@ namespace iqrf {
       std::shared_ptr<IDpaTransaction2> getBondedNodesTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      try {
-        getBondedNodesTransaction = m_iIqrfDpaService->executeDpaTransaction(bondedNodesRequest);
-        transResult = getBondedNodesTransaction->get();
-      }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::logic_error, "Could not get bonded nodes.");
-      }
 
-      TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          getBondedNodesTransaction = m_iIqrfDpaService->executeDpaTransaction(bondedNodesRequest);
+          transResult = getBondedNodesTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
 
-      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+          if (rep < m_repeat) {
+            continue;
+          }
 
-      // because of the move-semantics
-      DpaMessage dpaResponse = transResult->getResponse();
-      writeResult.addTransactionResult(transResult);
+          THROW_EXC(std::logic_error, "DPA transaction error.");
+        }
 
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Get bonded nodes successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(bondedNodesRequest.PeripheralType(), bondedNodesRequest.NodeAddress())
-          << PAR(bondedNodesRequest.PeripheralCommand())
-        );
+        TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
 
-        // parsing response data
-        uns8* bondedNodesArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-        parseBondedNodes(bondedNodesArr, bondedNodes);
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        writeResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Get bonded nodes successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(bondedNodesRequest.PeripheralType(), bondedNodesRequest.NodeAddress())
+            << PAR(bondedNodesRequest.PeripheralCommand())
+          );
+
+          // parsing response data
+          uns8* bondedNodesArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+          parseBondedNodes(bondedNodesArr, bondedNodes);
+
+          TRC_FUNCTION_LEAVE("");
+          return bondedNodes;
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          THROW_EXC(std::logic_error, "Transaction error.");
+        } 
         
-        TRC_FUNCTION_LEAVE("");
-        return bondedNodes;
-      }
-
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-      } // DPA error
-      else {
+        // DPA error
         TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-      }
+        
+        if (rep < m_repeat) {
+          continue;
+        }
 
-      THROW_EXC(std::logic_error, "Could not get bonded nodes.");
+        THROW_EXC(std::logic_error, "Dpa error.");
+      }
     }
 
     // sorting, which of target nodes are bonded and which not
@@ -950,49 +1077,66 @@ namespace iqrf {
       std::shared_ptr<IDpaTransaction2> readConfigTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      try {
-        readConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(readConfigRequest);
-        transResult = readConfigTransaction->get();
-      }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::logic_error, "Could not read HWP configuration.");
-      }
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          readConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(readConfigRequest);
+          transResult = readConfigTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
 
-      TRC_DEBUG("Result from read HWP configuration transaction as string:" << PAR(transResult->getErrorString()));
+          if (rep < m_repeat) {
+            continue;
+          }
 
-      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+          THROW_EXC(std::logic_error, "Dpa transaction error.");
+        }
 
-      // because of the move-semantics
-      DpaMessage dpaResponse = transResult->getResponse();
-      writeResult.addTransactionResult(transResult);
+        TRC_DEBUG("Result from read HWP configuration transaction as string:" << PAR(transResult->getErrorString()));
 
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Read HWP configuration successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(readConfigRequest.PeripheralType(), readConfigRequest.NodeAddress())
-          << PAR(readConfigRequest.PeripheralCommand())
-        );
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
-        // updating RF Channel band
-        uns8 rfChannelBandInt = 
-          dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[CONFIG_BYTES_COORD_RF_CHANNEL_BAND_ADDR];
-        m_coordRfChannelBand = parseAndCheckRfChannelBand(rfChannelBandInt);
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        writeResult.addTransactionResult(transResult);
 
-        TRC_FUNCTION_LEAVE("");
-        return;
-      }
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Read HWP configuration successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(readConfigRequest.PeripheralType(), readConfigRequest.NodeAddress())
+            << PAR(readConfigRequest.PeripheralCommand())
+          );
 
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-      } // DPA error
-      else {
+          // updating RF Channel band
+          uns8 rfChannelBandInt =
+            dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[CONFIG_BYTES_COORD_RF_CHANNEL_BAND_ADDR];
+          m_coordRfChannelBand = parseAndCheckRfChannelBand(rfChannelBandInt);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          THROW_EXC(std::logic_error, "Transaction error.");
+        } 
+        
+        // DPA error
         TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-      }
 
-      THROW_EXC(std::logic_error, "Could not read HWP configuration.");
+        if (rep < m_repeat) {
+          continue;
+        }
+
+        THROW_EXC(std::logic_error, "Dpa error.");
+      }
     }
 
     // indicates, whether specified RF channel is in specified channel band
@@ -1042,7 +1186,12 @@ namespace iqrf {
           case CONFIG_BYTES_SUBORD_RF_CHANNEL_A_ADDR:
           case CONFIG_BYTES_SUBORD_RF_CHANNEL_B_ADDR:
             if (!isRfBandActual) {
-              updateCoordRfChannelBand(writeResult);
+              try {
+                updateCoordRfChannelBand(writeResult);
+              }
+              catch (std::exception& ex) {
+                THROW_EXC(std::logic_error, "Cannot update coordinator RF channel band");
+              }
               isRfBandActual = true;
             }
 
@@ -1122,129 +1271,171 @@ namespace iqrf {
       // type of error
       WriteError::Type errorType = (isPassword) ? WriteError::Type::SecurityPassword : WriteError::Type::SecurityUserKey;
 
-      try {
-        frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
-        transResult = frcWriteConfigTransaction->get();
-      }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        processSecurityError(writeResult, targetNodes, errorType, e.what());
-        return;
-      }
-
-      TRC_DEBUG("Result from FRC set security transaction as string:" << PAR(transResult->getErrorString()));
-
-      // data from FRC
-      std::basic_string<uns8> frcData;
-
-      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
-      // because of the move-semantics
-      DpaMessage dpaResponse = transResult->getResponse();
-      writeResult.addTransactionResult(transResult);
-
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("FRC set security successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(frcRequest.PeripheralType(), frcRequest.NodeAddress())
-          << PAR(frcRequest.PeripheralCommand())
-        );
-
-        // check status
-        uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if ((status >= 0x00) && (status <= 0xEF)) {
-          TRC_INFORMATION("FRC write config status OK.");
-          frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
+          transResult = frcWriteConfigTransaction->get();
         }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          processSecurityError(writeResult, targetNodes, errorType, e.what());
+          break;
+        }
+
+        TRC_DEBUG("Result from FRC set security transaction as string:" << PAR(transResult->getErrorString()));
+
+        // data from FRC
+        std::basic_string<uns8> frcData;
+
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        writeResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("FRC set security successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(frcRequest.PeripheralType(), frcRequest.NodeAddress())
+            << PAR(frcRequest.PeripheralCommand())
+          );
+
+          // check status
+          uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+          if ((status >= 0x00) && (status <= 0xEF)) {
+            TRC_INFORMATION("FRC write config status OK.");
+            frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+          }
+          else {
+            TRC_DEBUG("FRC write config status NOT ok." << NAME_PAR_HEX("Status", status));
+
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processSecurityError(writeResult, targetNodes, errorType, "Bad status.");
+            break;
+          }
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          processSecurityError(writeResult, targetNodes, errorType, "Transaction error.");
+          break;
+        } // DPA error
         else {
-          TRC_DEBUG("FRC write config status NOT ok." << NAME_PAR_HEX("Status", status));
-          processSecurityError(writeResult, targetNodes, errorType, "Bad status.");
-          return;
+          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          processSecurityError(writeResult, targetNodes, errorType, "DPA error.");
+          break;
         }
-      }
 
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-        processSecurityError(writeResult, targetNodes, errorType, "Transaction error.");
-        return;
-      } // DPA error
-      else {
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-        processSecurityError(writeResult, targetNodes, errorType, "DPA error.");
-        return;
-      }
+        // get extra results
+        DpaMessage extraResultRequest;
+        DpaMessage::DpaPacket_t extraResultPacket;
+        frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
+        frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+        frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
 
-      // get extra results
-      DpaMessage extraResultRequest;
-      DpaMessage::DpaPacket_t extraResultPacket;
-      frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
-      frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-      frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-      frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
+        // issue the DPA request
+        std::shared_ptr<IDpaTransaction2> extraResultTransaction;
 
-      // issue the DPA request
-      std::shared_ptr<IDpaTransaction2> extraResultTransaction;
-
-      try {
-        extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
-        transResult = extraResultTransaction->get();
-      }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        processSecurityError(writeResult, targetNodes, errorType, e.what());
-        return;
-      }
-
-      TRC_DEBUG("Result from FRC write config extra result transaction as string:" << PAR(transResult->getErrorString()));
-
-      errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
-      // because of the move-semantics
-      dpaResponse = transResult->getResponse();
-      writeResult.addTransactionResult(transResult);
-
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("FRC write config extra result successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(extraResultRequest.PeripheralType(), extraResultRequest.NodeAddress())
-          << PAR(extraResultRequest.PeripheralCommand())
-        );
-
-        // check status
-        uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if ((status >= 0x00) && (status <= 0xEF)) {
-          TRC_INFORMATION("FRC write config extra result status OK.");
-          frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+        try {
+          extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
+          transResult = extraResultTransaction->get();
         }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          processSecurityError(writeResult, targetNodes, errorType, e.what());
+          break;
+        }
+
+        TRC_DEBUG("Result from FRC write config extra result transaction as string:" << PAR(transResult->getErrorString()));
+
+        errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
+        dpaResponse = transResult->getResponse();
+        writeResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("FRC write config extra result successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(extraResultRequest.PeripheralType(), extraResultRequest.NodeAddress())
+            << PAR(extraResultRequest.PeripheralCommand())
+          );
+
+          // check status
+          uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+          if ((status >= 0x00) && (status <= 0xEF)) {
+            TRC_INFORMATION("FRC write config extra result status OK.");
+            frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+          }
+          else {
+            TRC_DEBUG("FRC write config extra result status NOT ok." << NAME_PAR_HEX("Status", status));
+            
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processSecurityError(writeResult, targetNodes, errorType, "Bad status.");
+            break;
+          }
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          processSecurityError(writeResult, targetNodes, errorType, "Transaction error.");
+          break;
+        } // DPA error
         else {
-          TRC_DEBUG("FRC write config extra result status NOT ok." << NAME_PAR_HEX("Status", status));
-          processSecurityError(writeResult, targetNodes, errorType, "Bad status.");
-          return;
+          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          processSecurityError(writeResult, targetNodes, errorType, "DPA error.");
+          break;
         }
+
+        // FRC data parsing
+        std::map<uint16_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData);
+
+        // putting nodes results into overall write config results
+        putSetSecurityFrcResults(writeResult, errorType, nodesResultsMap);
+        break;
       }
-
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-        processSecurityError(writeResult, targetNodes, errorType, "Transaction error.");
-        return;
-      } // DPA error
-      else {
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-        processSecurityError(writeResult, targetNodes, errorType, "DPA error.");
-        return;
-      }
-
-      // FRC data parsing
-      std::map<uint16_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData);
-
-      // putting nodes results into overall write config results
-      putSetSecurityFrcResults(writeResult, errorType, nodesResultsMap);
-      
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -1757,6 +1948,8 @@ namespace iqrf {
       }
       return false;
     }
+
+
 
     void handleMsg(
       const std::string& messagingId,
