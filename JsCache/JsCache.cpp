@@ -276,32 +276,6 @@ namespace iqrf {
       }
     }
 
-    bool checkCache()
-    {
-      TRC_FUNCTION_ENTER("");
-
-      using namespace rapidjson;
-      using namespace boost;
-      bool retval = true;
-
-      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
-
-      try {
-        if (!updateCacheServer()) {
-          //DB checksum changed => reload cache
-          TRC_INFORMATION("Iqrf Repo has been changed => reload");
-          retval = false;
-          filesystem::remove_all(m_cacheDir);
-        }
-      }
-      catch (std::logic_error &e) {
-        CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot load Iqrf Repo");
-      }
-
-      TRC_FUNCTION_LEAVE(PAR(retval));
-      return retval;
-    }
-
     void loadCache()
     {
       TRC_FUNCTION_ENTER("");
@@ -312,6 +286,7 @@ namespace iqrf {
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
       try {
+        updateCacheServer();
         updateCacheCompany();
         updateCacheManufacturer();
         updateCacheProduct();
@@ -578,12 +553,15 @@ namespace iqrf {
       return retval;
     }
 
-    bool updateCacheServer()
+    bool checkCache()
     {
       TRC_FUNCTION_LEAVE("");
 
       using namespace rapidjson;
       using namespace boost;
+      bool result = false;
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
       ServerState serverStateOld = getCacheServer();
 
@@ -591,14 +569,39 @@ namespace iqrf {
       downloadData(SERVER_URL);
 
       if (!filesystem::exists(fname)) {
-        THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
+        TRC_WARNING("file not exist " << PAR(fname));
       }
+      else {
 
-      m_serverState = getCacheServer();
-      bool result = m_serverState.m_databaseChecksum == serverStateOld.m_databaseChecksum;
+        m_serverState = getCacheServer();
+
+        result = m_serverState.m_databaseChecksum == serverStateOld.m_databaseChecksum;
+        if (!result) {
+          TRC_INFORMATION("Iqrf Repo has been changed => reload");
+          filesystem::remove_all(m_cacheDir);
+        }
+      }
 
       TRC_FUNCTION_LEAVE(PAR(result));
       return result;
+    }
+
+    void updateCacheServer()
+    {
+      TRC_FUNCTION_LEAVE("");
+
+      using namespace rapidjson;
+      using namespace boost;
+
+      std::string fname = getDataLocalFileName(SERVER_URL);
+
+      if (!filesystem::exists(fname)) {
+        downloadData(SERVER_URL);
+      }
+
+      m_serverState = getCacheServer();
+
+      TRC_FUNCTION_LEAVE("");
     }
 
     void updateCacheStandard()
@@ -917,7 +920,6 @@ namespace iqrf {
 
       modify(props);
 
-      checkCache();
       loadCache();
 
       TRC_FUNCTION_LEAVE("")
