@@ -30,9 +30,6 @@ namespace iqrf {
 
     TaskQueue<std::vector<uint8_t>>* m_toMqMessageQueue = nullptr;
 
-    std::string m_localMqName = "iqrf-daemon-110";
-    std::string m_remoteMqName = "iqrf-daemon-100";
-
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
 
     int handleMessageFromWebsocket(const std::vector<uint8_t>& message)
