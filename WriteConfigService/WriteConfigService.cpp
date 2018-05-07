@@ -75,7 +75,8 @@ namespace {
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
 
-  static const int SERVICE_ERROR_READ_HWP = SERVICE_ERROR + 1;
+  static const int SERVICE_ERROR_GET_BONDED_NODES = SERVICE_ERROR + 1;
+  static const int SERVICE_ERROR_UPDATE_COORD_CHANNEL_BAND = SERVICE_ERROR + 2;
 };
 
 
@@ -88,6 +89,8 @@ namespace iqrf {
     // Type of error
     enum class Type {
       NoError,
+      GetBondedNodes,
+      UpdateCoordChannelBand,
       NodeNotBonded,
       Write,
       SecurityPassword,
@@ -237,7 +240,7 @@ namespace iqrf {
 
     // message type: network management write configuration
     // for temporal reasons
-    const std::string m_mTypeName_mngIqmeshWriteConfig = "mngIqmeshWriteTrConf";
+    const std::string m_mTypeName_iqmeshNetwork_WriteTrConf = "iqmeshNetwork_WriteTrConf";
     //IMessagingSplitterService::MsgType* m_msgType_mngIqmeshWriteConfig;
 
     //iqrf::IJsCacheService* m_iJsCacheService = nullptr;
@@ -1449,7 +1452,15 @@ namespace iqrf {
       WriteResult writeResult;
 
       // getting list of all bonded nodes
-      std::list<uint16_t> bondedNodes = getBondedNodes(writeResult);
+      std::list<uint16_t> bondedNodes;
+      try {
+        std::list<uint16_t> bondedNodes = getBondedNodes(writeResult);
+      }
+      catch (std::exception& ex) {
+        WriteError error(WriteError::Type::NodeNotBonded, ex.what());
+        writeResult.setError(error);
+        return writeResult;
+      }
 
       // filter out, which one's of the target nodes are bonded and which not
       std::list<uint16_t> targetBondedNodes;
@@ -1469,7 +1480,14 @@ namespace iqrf {
 
       // if there are RF channel config. bytes, it is needed to check theirs values 
       // to be in accordance with coordinator's RF band
-      checkRfChannelIfPresent(configBytes, writeResult);
+      try {
+        checkRfChannelIfPresent(configBytes, writeResult);
+      }
+      catch (std::exception& ex) {
+        WriteError error(WriteError::Type::NodeNotBonded, ex.what());
+        writeResult.setError(error);
+        return writeResult;
+      }
 
       // if there is only one node and it is needed to write ALL configuration bytes
       // use traditional Write HWP Configuration
@@ -1482,8 +1500,6 @@ namespace iqrf {
 
       // if there is specified security password and/or security user key
       // issue DPA set security
-      // TODO: Will be specified more precisely and activated later
-      /*
       if (m_isSetSecurityPassword) {
         setSecurityString(writeResult, targetBondedNodes, m_securityPassword, true);
       }
@@ -1491,7 +1507,7 @@ namespace iqrf {
       if (m_isSetSecurityUserKey) {
         setSecurityString(writeResult, targetBondedNodes, m_securityUserKey, false);
       }
-      */
+      
       return writeResult;
     }
 
@@ -1843,6 +1859,61 @@ namespace iqrf {
       return response;
     }
 
+    // sets response VERBOSE data
+    void setVerboseData(rapidjson::Document& response, WriteResult& writeResult)
+    {
+      // set raw fields, if verbose mode is active
+      rapidjson::Value rawArray(kArrayType);
+      Document::AllocatorType& allocator = response.GetAllocator();
+
+      while (writeResult.isNextTransactionResult()) {
+        std::unique_ptr<IDpaTransactionResult2> transResult = writeResult.consumeNextTransactionResult();
+        rapidjson::Value rawObject(kObjectType);
+
+        rawObject.AddMember(
+          "request",
+          encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "requestTs",
+          encodeTimestamp(transResult->getRequestTs()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "confirmation",
+          encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "confirmationTs",
+          encodeTimestamp(transResult->getConfirmationTs()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "response",
+          encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "responseTs",
+          encodeTimestamp(transResult->getResponseTs()),
+          allocator
+        );
+
+        // add object into array
+        rawArray.PushBack(rawObject, allocator);
+      }
+
+      // add array into response document
+      Pointer("/data/raw").Set(response, rawArray);
+    }
+
     // creates response on the basis of write result
     Document createResponse(
       const std::string& messagingId,
@@ -1854,12 +1925,44 @@ namespace iqrf {
     {
       Document response;
 
+      // set common parameters
+      Pointer("/mType").Set(response, msgType.m_type);
+      Pointer("/data/msgId").Set(response, messagingId);
+
+      // checking of error
+      WriteError error = writeResult.getError();
+      if (error.getType() != WriteError::Type::NoError) {
+        Pointer("/data/statusStr").Set(response, error.getMessage());
+
+        switch (error.getType()) {
+          case WriteError::Type::GetBondedNodes:
+            Pointer("/data/status").Set(response, SERVICE_ERROR_GET_BONDED_NODES);
+            break;
+          case WriteError::Type::UpdateCoordChannelBand:
+            Pointer("/data/status").Set(response, SERVICE_ERROR_UPDATE_COORD_CHANNEL_BAND);
+            break;
+          default:
+            // some other unsupported error
+            Pointer("/data/status").Set(response, SERVICE_ERROR);
+            break;
+        }
+
+        // set raw fields, if verbose mode is active
+        if (comWriteConfig.getVerbose()) {
+          setVerboseData(response, writeResult);
+        }
+
+        return response;
+      }
+
+
       std::map<uint16_t, NodeWriteResult> nodeResultsMap = writeResult.getResultsMap();
 
       // only one node - for the present time
       std::map<uint16_t, NodeWriteResult>::iterator iter = nodeResultsMap.begin();
 
       Pointer("/data/rsp/deviceAddr").Set(response, iter->first);
+
       if (iter->second.getError().getType() == WriteError::Type::NoError) {
         Pointer("/data/rsp/writeSuccess").Set(response, true);
       }
@@ -1880,55 +1983,7 @@ namespace iqrf {
 
       // set raw fields, if verbose mode is active
       if (comWriteConfig.getVerbose()) {
-        rapidjson::Value rawArray(kArrayType);
-        Document::AllocatorType& allocator = response.GetAllocator();
-
-        while (writeResult.isNextTransactionResult()) {
-          std::unique_ptr<IDpaTransactionResult2> transResult = writeResult.consumeNextTransactionResult();
-          rapidjson::Value rawObject(kObjectType);
-          
-          rawObject.AddMember(
-            "request",
-            encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "requestTs",
-            encodeTimestamp(transResult->getRequestTs()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "confirmation",
-            encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "confirmationTs",
-            encodeTimestamp(transResult->getConfirmationTs()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "response",
-            encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
-            allocator
-          );
-
-          rawObject.AddMember(
-            "responseTs",
-            encodeTimestamp(transResult->getResponseTs()),
-            allocator
-          );
-
-          // add object into array
-          rawArray.PushBack(rawObject, allocator);
-        }
-        
-        // add array into response document
-        Pointer("/data/raw").Set(response, rawArray);
+        setVerboseData(response, writeResult);
       }
 
       return response;
@@ -1966,7 +2021,7 @@ namespace iqrf {
       );
 
       // unsupported type of request
-      if (msgType.m_type != m_mTypeName_mngIqmeshWriteConfig) {
+      if (msgType.m_type != m_mTypeName_iqmeshNetwork_WriteTrConf) {
         THROW_EXC(std::out_of_range, "Unsupported message type: " << PAR(msgType.m_type));
       }
 
@@ -2052,8 +2107,10 @@ namespace iqrf {
       );
 
       // for the sake of register function parameters 
-      std::vector<std::string> supportedMsgTypes;
-      supportedMsgTypes.push_back(m_mTypeName_mngIqmeshWriteConfig);
+      std::vector<std::string> supportedMsgTypes =
+      {
+        m_mTypeName_iqmeshNetwork_WriteTrConf
+      };
 
       m_iMessagingSplitterService->registerFilteredMsgHandler(
         supportedMsgTypes,
@@ -2075,8 +2132,10 @@ namespace iqrf {
       );
 
       // for the sake of unregister function parameters 
-      std::vector<std::string> supportedMsgTypes;
-      supportedMsgTypes.push_back(m_mTypeName_mngIqmeshWriteConfig);
+      std::vector<std::string> supportedMsgTypes = 
+      {
+        m_mTypeName_iqmeshNetwork_WriteTrConf
+      };
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
 
