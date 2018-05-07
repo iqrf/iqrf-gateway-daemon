@@ -903,6 +903,14 @@ namespace iqrf {
       return os.str();
     }
 
+    // returns reversed byte sequence to the one in the parameter
+    std::basic_string<uint8_t> getReversedBytes(const std::basic_string<uint8_t>& bytes) 
+    {
+      std::basic_string<uint8_t> reversedBytes(bytes);
+      std::reverse(reversedBytes.begin(), reversedBytes.end());
+      return reversedBytes;
+    }
+
     void logDecodedValues(
       const std::basic_string<uint8_t>& mid, 
       const std::basic_string<uint8_t>& ibk,
@@ -912,8 +920,8 @@ namespace iqrf {
     {
       TRC_INFORMATION("IQRFCode decoded values: ");
       
-      TRC_INFORMATION("MID: " << PAR(getHexaString(mid)));
-      TRC_INFORMATION("IBK: " << PAR(getHexaString(ibk)));
+      TRC_INFORMATION("MID: " << PAR(getHexaString(getReversedBytes(mid))));
+      TRC_INFORMATION("IBK: " << PAR(getHexaString(getReversedBytes(ibk))));
       TRC_INFORMATION("HWP ID: " << PAR(getHexaString(hwpId)));
       TRC_INFORMATION("Bonding channel: " << PAR(getHexaString(bondingChannel)));
     }
