@@ -27,7 +27,7 @@ namespace {
   static const uint8_t REPEAT_MAX = 3;
 
   // loading code action
-  static enum class LoadingAction {
+  enum class LoadingAction {
     WithoutCodeLoading,
     WithCodeLoading
   };
