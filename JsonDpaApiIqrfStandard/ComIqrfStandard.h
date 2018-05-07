@@ -53,7 +53,7 @@ namespace iqrf {
       }
     }
 
-    void setPayload(const std::string& payloadKey, rapidjson::Value& val, bool onlyForVerbose)
+    void setPayload(const std::string& payloadKey, rapidjson::Value&& val, bool onlyForVerbose)
     {
       m_payloadKey = payloadKey;
       m_payload.CopyFrom(val, m_payload.GetAllocator());

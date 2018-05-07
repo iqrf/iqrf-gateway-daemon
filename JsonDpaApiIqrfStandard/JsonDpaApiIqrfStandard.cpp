@@ -206,7 +206,7 @@ namespace iqrf {
         //provide error response
         Document rDataError;
         rDataError.SetString(errStrReq, rDataError.GetAllocator());
-        com->setPayload("/data/rsp/errorStr", rDataError, true);
+        com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
         com->createResponse(allResponseDoc, FakeTransactionResult());
       }
       else {
