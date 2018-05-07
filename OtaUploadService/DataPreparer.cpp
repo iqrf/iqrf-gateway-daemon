@@ -164,8 +164,14 @@ namespace {
       }
 
       if (recordType == 0x00) {
+        uint16_t endAddress = realAddress + byteCount - 1;
+
+        if (endAddress > (2 * 0x3D7F)) {
+          throw std::range_error("End block address out of bound.");
+        }
+
         return std::unique_ptr<CodeBlock>(
-          new CodeBlock(data, realAddress, realAddress + byteCount - 1)
+          new CodeBlock(data, realAddress, endAddress)
           );
       }
 
@@ -335,7 +341,7 @@ namespace iqrf {
     // finds block with custom DPA handler
     CodeBlock* findHandlerBlock(const std::list<CodeBlock>& codeBlocks) {
       for (CodeBlock block : codeBlocks) {
-        if (block.getStartAddress() == 0x6400) {
+        if (block.getStartAddress() == (0x3A20*2)) {
           return &block;
         }
       }
