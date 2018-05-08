@@ -650,7 +650,7 @@ namespace iqrf {
     )
     {
       for (const std::pair<uint8_t, uint8_t> p : nodesResultsMap) {
-        if (p.second & 0x01 == 0x01) {
+        if ((p.second & 0x01) == 0x01) {
           uploadResult.putResult(p.first, true);
         }
         else {

@@ -339,8 +339,8 @@ namespace iqrf {
     }
 
     // finds block with custom DPA handler
-    CodeBlock* findHandlerBlock(const std::list<CodeBlock>& codeBlocks) {
-      for (CodeBlock block : codeBlocks) {
+    const CodeBlock* findHandlerBlock(const std::list<CodeBlock>& codeBlocks) {
+      for (const CodeBlock& block : codeBlocks) {
         if (block.getStartAddress() == (0x3A20*2)) {
           return &block;
         }
@@ -473,7 +473,7 @@ namespace iqrf {
     {
       std::list<CodeBlock> codeBlocks = IntelHexParser::parse(fileName);
 
-      CodeBlock* handlerBlock = findHandlerBlock(codeBlocks);
+      const CodeBlock* handlerBlock = findHandlerBlock(codeBlocks);
       if (handlerBlock == nullptr) {
         throw std::logic_error(
           "Selected.hex file does not include Custom DPA "
