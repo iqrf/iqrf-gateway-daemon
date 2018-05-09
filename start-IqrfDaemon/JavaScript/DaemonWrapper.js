@@ -595,17 +595,13 @@ iqrf.sensor.Enumerate_Response_rsp = function (rawHdp) {
 };
 
 iqrf.sensor.ReadSensorsWithTypes_Request_req = function (param) {
-    //TODO "params" shall be renamed in iqrfSensor_ReadSensorsWithTypes-request-1-0-0.json
-    // else we have perplexing param:{params:[]}
-    return iqrf.sensor.ReadSensorsWithTypes_Request(param.params);
+    return iqrf.sensor.ReadSensorsWithTypes_Request(param.sensorIndexes);
 };
 
 iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {
     var result =
     {
-        //TODO "result" shall be renamed in iqrfSensor_ReadSensorsWithTypes-response-1-0-0.json
-        // else we have perplexing result:{result:[]}
-        result: iqrf.sensor.ReadSensorsWithTypes_Response(rawHdp)
+        sensors: iqrf.sensor.ReadSensorsWithTypes_Response(rawHdp)
     };
     return result;
 };
