@@ -38,6 +38,7 @@ using namespace rapidjson;
 namespace iqrf {
   class JsonSplitter::Imp {
   private:
+    bool m_validateResponse = true;
     std::string m_schemesDir;
 
     shape::ILaunchService* m_iLaunchService = nullptr;
@@ -101,7 +102,9 @@ namespace iqrf {
         }
 
         msgType = foundType->second;
-        //validate(msgType, doc, m_validatorMapResponse, "response");
+        if (m_validateResponse) {
+          validate(msgType, doc, m_validatorMapResponse, "response");
+        }
       }
       
       StringBuffer buffer;
@@ -396,6 +399,8 @@ namespace iqrf {
         "******************************"
       );
 
+      props->getMemberAsBool("validateJsonResponse", m_validateResponse);
+      TRC_INFORMATION(PAR(m_validateResponse));
       m_schemesDir = m_iLaunchService->getDataDir() + "/JsonSchemas";
       TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
       loadJsonSchemesRequest(m_schemesDir);
