@@ -73,7 +73,15 @@ namespace iqrf {
             dpaTask->handleResponse(dtr->getResponse());
             dpaTask->timestampResponse(dtr->getResponseTs());
           }
-          os << dpaTask->encodeResponse(dtr->getErrorString());
+          //workaround for V2/V1 support
+          std::string errStr;
+          if (dtr->getErrorCode() != 0) {
+            errStr = dtr->getErrorString();
+          }
+          else {
+            errStr = "STATUS_NO_ERROR";
+          }
+          os << dpaTask->encodeResponse(errStr);
         }
         catch (std::exception &e) {
           CATCH_EXC_TRC_WAR(std::exception, e, " during message processing");
