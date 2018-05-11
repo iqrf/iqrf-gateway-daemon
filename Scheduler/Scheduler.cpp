@@ -50,10 +50,13 @@ namespace iqrf {
       "******************************"
     );
 
-    std::string fname;
-    if (shape::Properties::Result::ok == props->getMemberAsString("TasksFile", fname)) {
-      updateConfiguration(fname);
-    }
+    std::string fname = m_iLaunchService->getCacheDir();
+    fname += "/Scheduler/Tasks.json";
+    updateConfiguration(fname);
+
+    //if (shape::Properties::Result::ok == props->getMemberAsString("TasksFile", fname)) {
+    //  updateConfiguration(fname);
+    //}
 
     m_dpaTaskQueue = shape_new TaskQueue<ScheduleRecord>([&](const ScheduleRecord& record) {
       handleScheduledRecord(record);
@@ -102,6 +105,18 @@ namespace iqrf {
 
   void Scheduler::modify(const shape::Properties *props)
   {
+  }
+
+  void Scheduler::attachInterface(shape::ILaunchService* iface)
+  {
+    m_iLaunchService = iface;
+  }
+
+  void Scheduler::detachInterface(shape::ILaunchService* iface)
+  {
+    if (m_iLaunchService == iface) {
+      m_iLaunchService = nullptr;
+    }
   }
 
   void Scheduler::attachInterface(shape::ITraceService* iface)

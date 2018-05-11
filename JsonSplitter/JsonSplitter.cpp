@@ -40,6 +40,7 @@ namespace iqrf {
   private:
     std::string m_schemesDir;
 
+    shape::ILaunchService* m_iLaunchService = nullptr;
     std::map<std::string, IMessagingService*> m_iMessagingServiceMap;
     std::set<IMessagingService*> m_iMessagingServiceSetAcceptAsync;
     std::map<std::string, FilteredMessageHandlerFunc > m_filterMessageHandlerFuncMap;
@@ -395,10 +396,9 @@ namespace iqrf {
         "******************************"
       );
 
-      if (shape::Properties::Result::ok == props->getMemberAsString("SchemesDir", m_schemesDir)) {
-        TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
-        loadJsonSchemesRequest(m_schemesDir);
-      }
+      m_schemesDir = m_iLaunchService->getDataDir() + "/JsonSchemas";
+      TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
+      loadJsonSchemesRequest(m_schemesDir);
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -416,6 +416,18 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+    }
+
+    void attachInterface(shape::ILaunchService* iface)
+    {
+      m_iLaunchService = iface;
+    }
+
+    void detachInterface(shape::ILaunchService* iface)
+    {
+      if (m_iLaunchService == iface) {
+        m_iLaunchService = nullptr;
+      }
     }
 
     void attachInterface(iqrf::IMessagingService* iface)
@@ -491,6 +503,16 @@ namespace iqrf {
   void JsonSplitter::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsonSplitter::attachInterface(shape::ILaunchService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonSplitter::detachInterface(shape::ILaunchService* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsonSplitter::attachInterface(iqrf::IMessagingService* iface)

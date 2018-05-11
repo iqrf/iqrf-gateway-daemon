@@ -56,11 +56,12 @@ namespace iqrf {
   class JsCache::Imp
   {
   private:
+    shape::ILaunchService* m_iLaunchService = nullptr;
     iqrf::ISchedulerService* m_iSchedulerService = nullptr;
     shape::IRestApiService* m_iRestApiService = nullptr;
 
     mutable std::recursive_mutex m_updateMtx;
-    std::string m_cacheDir = "./configuration/jscache";
+    std::string m_cacheDir = "";
     std::string m_urlRepo = "https://repository.iqrfalliance.org/api";
     int m_checkPeriodSec = 0;
 
@@ -720,7 +721,9 @@ namespace iqrf {
       
       // daemon wrapper workaround
       {
-        std::ifstream file("./configuration/JavaScript/DaemonWrapper.js");
+        std::string fname = m_iLaunchService->getDataDir();
+        fname += "/JavaScript/DaemonWrapper.js";
+        std::ifstream file(fname);
         if (file.is_open()) {
           std::ostringstream strStream;
           strStream << file.rdbuf();
@@ -735,7 +738,7 @@ namespace iqrf {
           m_standardMap.insert(std::make_pair(1000, dwStdItem));
         }
         else {
-          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << "./configuration/JavaScript/DaemonWrapper.js");
+          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
         }
       }
 
@@ -917,7 +920,7 @@ namespace iqrf {
         "JsCache instance activate" << std::endl <<
         "******************************"
       );
-
+      m_cacheDir = m_iLaunchService->getCacheDir() + "/jscache";
       modify(props);
 
       loadCache();
@@ -954,10 +957,6 @@ namespace iqrf {
       if (v && v->IsString()) {
         m_name = v->GetString();
       }
-      v = Pointer("/cacheDir").Get(doc);
-      if (v && v->IsString()) {
-        m_cacheDir = v->GetString();
-      }
       v = Pointer("/urlRepo").Get(doc);
       if (v && v->IsString()) {
         m_urlRepo = v->GetString();
@@ -986,6 +985,18 @@ namespace iqrf {
         m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(m_checkPeriodSec));
       }
       
+    }
+
+    void attachInterface(shape::ILaunchService* iface)
+    {
+      m_iLaunchService = iface;
+    }
+
+    void detachInterface(shape::ILaunchService* iface)
+    {
+      if (m_iLaunchService == iface) {
+        m_iLaunchService = nullptr;
+      }
     }
 
     void attachInterface(iqrf::ISchedulerService* iface)
@@ -1068,6 +1079,16 @@ namespace iqrf {
   void JsCache::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsCache::attachInterface(shape::ILaunchService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsCache::detachInterface(shape::ILaunchService* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsCache::attachInterface(iqrf::ISchedulerService* iface)
