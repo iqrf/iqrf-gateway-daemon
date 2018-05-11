@@ -587,9 +587,7 @@ iqrf.sensor.Enumerate_Request_req = function (param) {
 iqrf.sensor.Enumerate_Response_rsp = function (rawHdp) {
     var result =
     {
-        //TODO "result" shall be renamed in iqrfSensor_Enumerate-response-1-0-0.json
-        // else we have perplexing result:{result:[]}
-        result: iqrf.sensor.Enumerate_Response(rawHdp)
+        sensors: iqrf.sensor.Enumerate_Response(rawHdp)
     };
     return result;
 };
