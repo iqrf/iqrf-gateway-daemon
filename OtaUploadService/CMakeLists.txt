@@ -1,14 +1,10 @@
-project(JsCache)
+project(OtaUploadService)
 
-find_package(Boost REQUIRED COMPONENTS filesystem )
-find_package(shapeware REQUIRED)
-
-set(COMPONENT iqrf::JsCache)
+set(COMPONENT iqrf::OtaUploadService)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IJsCacheService)
-AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::ISchedulerService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} shape::IRestApiService MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IOtaUploadService)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -18,13 +14,13 @@ file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 
-if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
-endif()
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${clibcdc_INCLUDE_DIRS})
+include_directories(${clibdpa_INCLUDE_DIRS})
+include_directories(${cutils_INCLUDE_DIRS})
+
+
+add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
@@ -33,6 +29,5 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
+	Dpa
 )

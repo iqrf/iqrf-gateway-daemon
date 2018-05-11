@@ -56,14 +56,17 @@ namespace iqrf {
   class JsCache::Imp
   {
   private:
+    shape::ILaunchService* m_iLaunchService = nullptr;
     iqrf::ISchedulerService* m_iSchedulerService = nullptr;
     shape::IRestApiService* m_iRestApiService = nullptr;
 
     mutable std::recursive_mutex m_updateMtx;
-    std::string cacheDir = "./configuration/jscache";
+    std::string m_cacheDir = "";
     std::string m_urlRepo = "https://repository.iqrfalliance.org/api";
-    int m_stdItemLoading = -1;
+    int m_checkPeriodSec = 0;
 
+    const int m_checkPeriodSecMin = 60;
+    std::string m_name = "JsCache";
 
     std::map<int, Company> m_companyMap;
     std::map<int, Manufacturer> m_manufacturerMap;
@@ -158,6 +161,16 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
       return retval;
+    }
+
+    ServerState getServerState() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      TRC_FUNCTION_LEAVE("");
+      return m_serverState;
     }
 
     const StdDriver* getStandard(int standardId, int version)
@@ -274,11 +287,11 @@ namespace iqrf {
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
       try {
+        updateCacheServer();
         updateCacheCompany();
         updateCacheManufacturer();
         updateCacheProduct();
         updateCacheOsdpa();
-        updateCacheServer();
         updateCacheStandard();
         updateCachePackage();
         TRC_INFORMATION("Iqrf Repo load success: ");
@@ -501,6 +514,79 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    ServerState getCacheServer()
+    {
+      TRC_FUNCTION_LEAVE("");
+
+      using namespace rapidjson;
+      using namespace boost;
+
+      ServerState retval;
+      
+      std::string fname = getDataLocalFileName(SERVER_URL);
+
+      if (filesystem::exists(fname)) {
+        Document doc;
+        if (parseFromFile(fname, doc)) {
+          int apiVersion = -1;
+          std::string hostname;
+          std::string user;
+          std::string buildDateTime;
+          std::string startDateTime;
+          std::string dateTime;
+          int64_t databaseChecksum;
+          std::string databaseChangeDateTime;
+          POINTER_GET_INT(SERVER_URL, &doc, "/apiVersion", retval.m_apiVersion, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/hostname", retval.m_hostname, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/user", retval.m_user, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/buildDateTime", retval.m_buildDateTime, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/startDateTime", retval.m_startDateTime, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/dateTime", retval.m_dateTime, fname);
+          POINTER_GET_INT64(SERVER_URL, &doc, "/databaseChecksum", retval.m_databaseChecksum, fname);
+          POINTER_GET_STRING(SERVER_URL, &doc, "/databaseChangeDateTime", retval.m_databaseChangeDateTime, fname);
+        }
+        else {
+          THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("")
+      return retval;
+    }
+
+    bool checkCache()
+    {
+      TRC_FUNCTION_LEAVE("");
+
+      using namespace rapidjson;
+      using namespace boost;
+      bool result = false;
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      ServerState serverStateOld = getCacheServer();
+
+      std::string fname = getDataLocalFileName(SERVER_URL);
+      downloadData(SERVER_URL);
+
+      if (!filesystem::exists(fname)) {
+        TRC_WARNING("file not exist " << PAR(fname));
+      }
+      else {
+
+        m_serverState = getCacheServer();
+
+        result = m_serverState.m_databaseChecksum == serverStateOld.m_databaseChecksum;
+        if (!result) {
+          TRC_INFORMATION("Iqrf Repo has been changed => reload");
+          filesystem::remove_all(m_cacheDir);
+        }
+      }
+
+      TRC_FUNCTION_LEAVE(PAR(result));
+      return result;
+    }
+
     void updateCacheServer()
     {
       TRC_FUNCTION_LEAVE("");
@@ -514,35 +600,9 @@ namespace iqrf {
         downloadData(SERVER_URL);
       }
 
-      if (filesystem::exists(fname)) {
-        Document doc;
-        if (parseFromFile(fname, doc)) {
-          int apiVersion = -1;
-          std::string hostname;
-          std::string user;
-          std::string buildDateTime;
-          std::string startDateTime;
-          std::string dateTime;
-          int64_t databaseChecksum;
-          std::string databaseChangeDateTime;
-          POINTER_GET_INT(SERVER_URL, &doc, "/apiVersion", m_serverState.m_apiVersion, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/hostname", m_serverState.m_hostname, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/user", m_serverState.m_user, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/buildDateTime", m_serverState.m_buildDateTime, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/startDateTime", m_serverState.m_startDateTime, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/dateTime", m_serverState.m_dateTime, fname);
-          POINTER_GET_INT64(SERVER_URL, &doc, "/databaseChecksum", m_serverState.m_databaseChecksum, fname);
-          POINTER_GET_STRING(SERVER_URL, &doc, "/databaseChangeDateTime", m_serverState.m_databaseChangeDateTime, fname);
-        }
-        else {
-          THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
-        }
-      }
-      else {
-        THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
-      }
+      m_serverState = getCacheServer();
 
-      TRC_FUNCTION_LEAVE("")
+      TRC_FUNCTION_LEAVE("");
     }
 
     void updateCacheStandard()
@@ -661,7 +721,9 @@ namespace iqrf {
       
       // daemon wrapper workaround
       {
-        std::ifstream file("./configuration/JavaScript/DaemonWrapper.js");
+        std::string fname = m_iLaunchService->getDataDir();
+        fname += "/JavaScript/DaemonWrapper.js";
+        std::ifstream file(fname);
         if (file.is_open()) {
           std::ostringstream strStream;
           strStream << file.rdbuf();
@@ -676,7 +738,7 @@ namespace iqrf {
           m_standardMap.insert(std::make_pair(1000, dwStdItem));
         }
         else {
-          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << "./configuration/JavaScript/DaemonWrapper.js");
+          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
         }
       }
 
@@ -807,7 +869,7 @@ namespace iqrf {
     std::string getDataLocalFileName(const std::string& relativeUrl, const std::string& fname = "data.json")
     {
       std::ostringstream os;
-      os << cacheDir << '/' << relativeUrl << '/' << fname;
+      os << m_cacheDir << '/' << relativeUrl << '/' << fname;
       return os.str();
     }
 
@@ -858,26 +920,10 @@ namespace iqrf {
         "JsCache instance activate" << std::endl <<
         "******************************"
       );
-
+      m_cacheDir = m_iLaunchService->getCacheDir() + "/jscache";
       modify(props);
 
-
-      //TODO periodic cache check
-      //name from cfg
-      //m_iSchedulerService->registerMessageHandler("JsCache", [=](const std::string& task)
-      //{
-      //  if (task == "downloadRepo") {
-      //    downLoadRepo();
-      //  }
-      //});
-      //m_iSchedulerService->scheduleTaskPeriodic("JsCache", "downloadRepo", std::chrono::seconds(10));
-
       loadCache();
-
-      //TODO test
-      //auto manu = getManufacturer(4097);
-      //auto pro = getProduct(4097);
-      //auto pck = getPackage(4097, "08B8", "0302");
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -885,6 +931,9 @@ namespace iqrf {
     void deactivate()
     {
       TRC_FUNCTION_ENTER("");
+
+      m_iSchedulerService->removeAllMyTasks(m_name);
+      m_iSchedulerService->unregisterTaskHandler(m_name);
 
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -897,6 +946,57 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      using namespace rapidjson;
+      const std::string CHECK_CACHE("checkCache");
+      const Document& doc = props->getAsJson();
+
+      m_iSchedulerService->removeAllMyTasks(m_name);
+      m_iSchedulerService->unregisterTaskHandler(m_name);
+
+      const Value* v = Pointer("/instance").Get(doc);
+      if (v && v->IsString()) {
+        m_name = v->GetString();
+      }
+      v = Pointer("/urlRepo").Get(doc);
+      if (v && v->IsString()) {
+        m_urlRepo = v->GetString();
+      }
+      v = Pointer("/checkPeriodSec").Get(doc);
+      if (v && v->IsInt()) {
+        m_checkPeriodSec = v->GetInt();
+        if (m_checkPeriodSec > 0 && m_checkPeriodSec < m_checkPeriodSecMin) {
+          TRC_WARNING(PAR(m_checkPeriodSec) << " from configuration forced to: " << PAR(m_checkPeriodSecMin));
+          m_checkPeriodSec = m_checkPeriodSecMin;
+        }
+      }
+        
+      m_iSchedulerService->registerTaskHandler(m_name, [=](const rapidjson::Value & task)
+      {
+        if (task.IsString() && std::string(task.GetString()) == CHECK_CACHE) {
+          if (!checkCache()) {
+            loadCache();
+          }
+        }
+      });
+
+      if (m_checkPeriodSec > 0) {
+        Document task;
+        task.SetString(CHECK_CACHE.c_str(), task.GetAllocator());
+        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(m_checkPeriodSec));
+      }
+      
+    }
+
+    void attachInterface(shape::ILaunchService* iface)
+    {
+      m_iLaunchService = iface;
+    }
+
+    void detachInterface(shape::ILaunchService* iface)
+    {
+      if (m_iLaunchService == iface) {
+        m_iLaunchService = nullptr;
+      }
     }
 
     void attachInterface(iqrf::ISchedulerService* iface)
@@ -961,6 +1061,11 @@ namespace iqrf {
     return m_imp->getPackage(hwpid, os, dpa);
   }
 
+  IJsCacheService::ServerState JsCache::getServerState() const
+  {
+    return m_imp->getServerState();
+  }
+
   void JsCache::activate(const shape::Properties *props)
   {
     m_imp->activate(props);
@@ -974,6 +1079,16 @@ namespace iqrf {
   void JsCache::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsCache::attachInterface(shape::ILaunchService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsCache::detachInterface(shape::ILaunchService* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsCache::attachInterface(iqrf::ISchedulerService* iface)

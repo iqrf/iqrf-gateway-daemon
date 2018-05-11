@@ -1,8 +1,8 @@
 {
   "applicationName": "IqrfDaemon",
   "resourceDir": "",
-  "dataDir": "",
-  "cacheDir": "cache",
+  "dataDir": "configuration",
+  "cacheDir": "configuration",
   "userDir": "",
   "configurationDir": "configuration",
   "deploymentDir": "../bin/Debug",
@@ -186,6 +186,13 @@
       "name": "iqrf::ReadTrConfigService",
       "libraryPath": "",
       "libraryName": "ReadTrConfigService",
+      "enabled": true,
+      "startlevel": 3
+    },
+	{
+      "name": "iqrf::OtaUploadService",
+      "libraryPath": "",
+      "libraryName": "OtaUploadService",
       "enabled": true,
       "startlevel": 3
     }

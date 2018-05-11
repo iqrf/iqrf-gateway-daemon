@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ILaunchService.h"
 #include "IJsCacheService.h"
 #include "ISchedulerService.h"
 #include "IRestApiService.h"
@@ -20,10 +21,14 @@ namespace iqrf {
     const IJsCacheService::Manufacturer* getManufacturer(uint16_t hwpid) const override;
     const IJsCacheService::Product* getProduct(uint16_t hwpid) const override;
     const IJsCacheService::Package* getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const override;
+    IJsCacheService::ServerState getServerState() const override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
+
+    void attachInterface(shape::ILaunchService* iface);
+    void detachInterface(shape::ILaunchService* iface);
 
     void attachInterface(iqrf::ISchedulerService* iface);
     void detachInterface(iqrf::ISchedulerService* iface);

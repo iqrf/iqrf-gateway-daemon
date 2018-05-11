@@ -1,5 +1,4 @@
 {
   "component": "iqrf::JsonSplitter",
-  "instance": "JsonSplitter",
-  "SchemesDir": "configuration/JsonSchemas"
+  "instance": "JsonSplitter"
 }

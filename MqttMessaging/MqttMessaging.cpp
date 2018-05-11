@@ -57,6 +57,7 @@ namespace iqrf {
     bool m_enableServerCertAuth = true;
 
     std::string m_name;
+    bool m_acceptAsyncMsg = false;
 
     TaskQueue<ustring>* m_toMqttMessageQueue;
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
@@ -121,6 +122,7 @@ namespace iqrf {
       props->getMemberAsInt("ConnectTimeout", m_mqttConnectTimeout);
       props->getMemberAsInt("MinReconnect", m_mqttMinReconnect);
       props->getMemberAsInt("MaxReconnect", m_mqttMaxReconnect);
+      props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -217,6 +219,11 @@ namespace iqrf {
 
     //------------------------
     const std::string& getName() const { return m_name; }
+
+    bool acceptAsyncMsg() const
+    {
+      return m_acceptAsyncMsg;
+    }
 
     //------------------------
     void registerMessageHandler(IMessagingService::MessageHandlerFunc hndl) {
@@ -485,6 +492,11 @@ namespace iqrf {
   const std::string &  MqttMessaging::getName() const
   {
     return m_impl->getName();
+  }
+
+  bool MqttMessaging::acceptAsyncMsg() const
+  {
+    return m_impl->acceptAsyncMsg();
   }
 
   void MqttMessaging::activate(const shape::Properties *props)

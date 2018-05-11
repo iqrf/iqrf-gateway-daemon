@@ -81,6 +81,7 @@ namespace iqrf {
     props->getMemberAsString("instance", m_name);
     props->getMemberAsString("LocalMqName", m_localMqName);
     props->getMemberAsString("RemoteMqName", m_remoteMqName);
+    props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
 
     m_mqChannel = ant_new MqChannel(m_remoteMqName, m_localMqName, IQRF_MQ_BUFFER_SIZE, true);
 

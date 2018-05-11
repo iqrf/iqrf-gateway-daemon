@@ -192,5 +192,9 @@ namespace iqrf {
         THROW_EXC(std::logic_error, "Unknown tag value.");
       }
     }
+
+    // MID and IBK are in BIG ENDIAN order now, turn to LITTLE ENDIAN
+    std::reverse(m_mid.begin(), m_mid.end());
+    std::reverse(m_ibk.begin(), m_ibk.end());
   }
 }

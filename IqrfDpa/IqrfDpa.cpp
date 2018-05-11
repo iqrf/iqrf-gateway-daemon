@@ -1,9 +1,9 @@
 #define IIqrfDpaService_EXPORTS
 
-//#include "PrfOs.h"
 #include "DpaTransactionTask.h"
 #include "IqrfDpa.h"
 #include "Trace.h"
+#include "rapidjson/pointer.h"
 
 //TODO workaround old tracing 
 #include "IqrfLogging.h"
@@ -79,6 +79,21 @@ namespace iqrf {
       hndl.second(dpaMessage);
   }
 
+  //TODO for testing async - remove
+  //"request": "00.00.0a.00.ff.ff"
+  //"response" : "00.00.0a.80.00.00.00.00.1b.be.01"
+  //void IqrfDpa::testAsync()
+  //{
+  //  while (true) {
+  //    //std::vector<uint8_t> v = { 0x00, 0x00, 0x0a, 0x80, 0x00, 0x00, 0x00, 0x00, 0x1b, 0xbe, 0x01 };
+  //    std::vector<uint8_t> v = { 0x00, 0x00, 0x0a, 0x00, 0xff, 0xff };
+  //    DpaMessage msg;
+  //    msg.DataToBuffer(v.data(), v.size());
+  //    asyncDpaMessageHandler(msg);
+  //    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+  //  }
+  //}
+
   void IqrfDpa::activate(const shape::Properties *props)
   {
     TRC_FUNCTION_ENTER("");
@@ -92,12 +107,35 @@ namespace iqrf {
     TRC_START("TraceOld.txt", iqrf::Level::dbg, TRC_DEFAULT_FILE_MAXSIZE);
 
     m_dpaHandler = shape_new DpaHandler2(m_iqrfDpaChannel);
-    //TODO set default timeout, rf mode according configuration
+
+    const rapidjson::Document& doc = props->getAsJson();
+    const rapidjson::Value* valT = rapidjson::Pointer("/DpaHandlerTimeout").Get(doc);
+    if (valT && valT->IsInt()) {
+      m_dpaHandlerTimeout = valT->GetInt();
+      m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
+    }
+    m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
+
+    const rapidjson::Value* valC = rapidjson::Pointer("/CommunicationMode").Get(doc);
+    if (valC && valC->IsString()) {
+      std::string communicationMode = valC->GetString();
+      if (communicationMode == "LP")
+        m_rfMode = IDpaHandler2::kLp;
+      else if (communicationMode == "STD")
+        m_rfMode = IDpaHandler2::kStd;
+      else
+        m_rfMode = IDpaHandler2::kStd;
+    }
+    m_dpaHandler->setRfCommunicationMode(m_rfMode);
 
     //Async msg handling
     m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
       asyncDpaMessageHandler(dpaMessage);
     });
+
+    //TODO for testing async - remove
+    //m_thd = std::thread(&IqrfDpa::testAsync, this);
+    //m_thd.detach();
 
 #if 0
       //TR module

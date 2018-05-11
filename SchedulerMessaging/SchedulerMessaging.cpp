@@ -193,6 +193,12 @@ namespace iqrf {
     return m_imp->getName();
   }
 
+  bool SchedulerMessaging::acceptAsyncMsg() const
+  {
+    //Scheduler never accepts async
+    return false;
+  }
+
   //////////////////////////////////////
   void SchedulerMessaging::activate(const shape::Properties *props)
   {

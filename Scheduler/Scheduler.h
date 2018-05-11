@@ -19,6 +19,7 @@
 #include "JsonUtils.h"
 #include "ScheduleRecord.h"
 #include "TaskQueue.h"
+#include "ILaunchService.h"
 #include "ISchedulerService.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
@@ -98,6 +99,9 @@ namespace iqrf {
     void deactivate();
     void modify(const shape::Properties *props);
 
+    void attachInterface(shape::ILaunchService* iface);
+    void detachInterface(shape::ILaunchService* iface);
+
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
 
@@ -150,6 +154,7 @@ namespace iqrf {
 
     std::map<TaskHandle, std::shared_ptr<ScheduleRecord>> m_scheduledTasksByHandle;
 
+    shape::ILaunchService* m_iLaunchService = nullptr;
   };
 
 }
