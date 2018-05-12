@@ -3,6 +3,7 @@
 #include "ILocalBondService.h"
 #include "ShapeProperties.h"
 #include "IMessagingSplitterService.h"
+#include "IJsCacheService.h"
 #include "IIqrfDpaService.h"
 #include "ITraceService.h"
 #include <string>
@@ -27,6 +28,9 @@ namespace iqrf {
 
     void attachInterface(iqrf::IIqrfDpaService* iface);
     void detachInterface(iqrf::IIqrfDpaService* iface);
+
+    void attachInterface(iqrf::IJsCacheService* iface);
+    void detachInterface(iqrf::IJsCacheService* iface);
 
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);

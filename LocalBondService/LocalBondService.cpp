@@ -159,7 +159,7 @@ namespace iqrf {
     const std::string m_mTypeName_iqmeshNetworkBondNodeLocal = "iqmeshNetwork_BondNodeLocal";
     //IMessagingSplitterService::MsgType* m_msgType_mngIqmeshBondNodeLocal;
 
-    //iqrf::IJsCacheService* m_iJsCacheService = nullptr;
+    iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
 
@@ -212,7 +212,9 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          bondNodeTransaction = m_iIqrfDpaService->executeDpaTransaction(bondNodeRequest);
+          bondNodeTransaction = m_iIqrfDpaService->executeDpaTransaction(
+            bondNodeRequest, 10500 + rep*100
+          );
           transResult = bondNodeTransaction->get();
         }
         catch (std::exception& e) {
@@ -757,10 +759,24 @@ namespace iqrf {
       rapidjson::Pointer("/data/rsp/assignedAddr").Set(response, bondResult.getBondedAddr());
       rapidjson::Pointer("/data/rsp/nodesNr").Set(response, bondResult.getBondedNodesNum());
 
-      // manufacturer name and product name
-      // TODO fill from JsCache 
-      rapidjson::Pointer("/data/rsp/manufacturer").Set(response, "");
-      rapidjson::Pointer("/data/rsp/product").Set(response, "");
+      // manufacturer name and product name - how to obtain hwpid
+      /*
+      const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(hwpId);
+      if (manufacturer != nullptr) {
+        rapidjson::Pointer("/data/rsp/manufacturer").Set(response, manufacturer->m_name);
+      }
+      else {
+        rapidjson::Pointer("/data/rsp/manufacturer").Set(response, "");
+      }
+      
+      const IJsCacheService::Product* product = m_iJsCacheService->getProduct(hwpId);
+      if (product != nullptr) {
+        rapidjson::Pointer("/data/rsp/product").Set(response, product->m_name);
+      }
+      else {
+        rapidjson::Pointer("/data/rsp/product").Set(response, "");
+      }
+      */
 
       // osRead object
       const TPerOSRead_Response readInfo = bondResult.getReadInfo();
@@ -923,6 +939,18 @@ namespace iqrf {
       }
     }
 
+    void attachInterface(IJsCacheService* iface)
+    {
+      m_iJsCacheService = iface;
+    }
+
+    void detachInterface(IJsCacheService* iface)
+    {
+      if (m_iJsCacheService == iface) {
+        m_iJsCacheService = nullptr;
+      }
+    }
+
     void attachInterface(IMessagingSplitterService* iface)
     {
       m_iMessagingSplitterService = iface;
@@ -955,6 +983,16 @@ namespace iqrf {
   }
 
   void LocalBondService::detachInterface(iqrf::IIqrfDpaService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void LocalBondService::attachInterface(iqrf::IJsCacheService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void LocalBondService::detachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->detachInterface(iface);
   }
