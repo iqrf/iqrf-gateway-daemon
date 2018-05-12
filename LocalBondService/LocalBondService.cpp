@@ -4,10 +4,8 @@
 #include "DpaTransactionTask.h"
 #include "LocalBondService.h"
 #include "Trace.h"
-#include "PrfOs.h"
 #include "DpaRaw.h"
-#include "PrfFrc.h"
-#include "ComMngIqmeshBondNodeLocal.h"
+#include "ComIqmeshNetworkBondNodeLocal.h"
 #include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -25,81 +23,99 @@ using namespace rapidjson;
 
 namespace {
 
+  // maximum number of repeats
+  static const uint8_t REPEAT_MAX = 3;
+
   // Default bonding mask. No masking effect.
   static const uint8_t DEFAULT_BONDING_MASK = 0;
 
   // values of result error codes
-  static const int BOND_RESULT_TYPE_NO_ERROR = 0;
-  static const int BOND_RESULT_TYPE_ERROR_BASE = 1000;
+  // service general fail code - may and probably will be changed later in the future
+  static const int SERVICE_ERROR = 1000;
 
-  static const int BOND_RESULT_TYPE_ALREADY_USED = BOND_RESULT_TYPE_ERROR_BASE + 1;
-  static const int BOND_RESULT_TYPE_NO_FREE_SPACE = BOND_RESULT_TYPE_ERROR_BASE + 2;
-  static const int BOND_RESULT_TYPE_ABOVE_ADDRESS_LIMIT = BOND_RESULT_TYPE_ERROR_BASE + 3;
-  static const int BOND_RESULT_TYPE_PING_FAILED = BOND_RESULT_TYPE_ERROR_BASE + 4;
-  static const int BOND_RESULT_TYPE_PING_INTERNAL_ERROR = BOND_RESULT_TYPE_ERROR_BASE + 5;
+  static const int SERVICE_ERROR_GET_BONDED_NODES = SERVICE_ERROR + 1;
+  static const int SERVICE_ERROR_ALREADY_BONDED = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_NO_FREE_SPACE = SERVICE_ERROR + 3;
+  static const int SERVICE_ERROR_BOND_FAILED = SERVICE_ERROR + 4;
+  static const int SERVICE_ERROR_ABOVE_ADDRESS_LIMIT = SERVICE_ERROR + 5;
+  static const int SERVICE_ERROR_PING_FAILED = SERVICE_ERROR + 6;
+  static const int SERVICE_ERROR_PING_INTERNAL_ERROR = SERVICE_ERROR + 7;
 };
 
 
 namespace iqrf {
 
+  // Holds information about errors, which encounter during local bond service run
+  class BondError {
+  public:
+    // Type of error
+    enum class Type {
+      NoError,
+      GetBondedNodes,
+      AlreadyBonded,
+      NoFreeSpace,
+      BondError,
+      AboveAddressLimit,
+      PingFailed,
+      InternalError
+    };
+
+    BondError() : m_type(Type::NoError), m_message("") {};
+    BondError(Type errorType) : m_type(errorType), m_message("") {};
+    BondError(Type errorType, const std::string& message) : m_type(errorType), m_message(message) {};
+
+    Type getType() const { return m_type; };
+    std::string getMessage() const { return m_message; };
+
+    BondError& operator=(const BondError& error) {
+      if (this == &error) {
+        return *this;
+      }
+
+      this->m_type = error.m_type;
+      this->m_message = error.m_message;
+
+      return *this;
+    }
+
+  private:
+    Type m_type;
+    std::string m_message;
+  };
+
+
   /// \class BondResult
   /// \brief Result of bonding of a node.
   class BondResult {
+  private:
+    BondError m_error;
+    uint8_t m_bondedAddr;
+    uint8_t m_bondedNodesNum;
+    TPerOSRead_Response m_readInfo;
+
+    // transaction results
+    std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
+
   public:
-    /// Type of result
-    enum class Type {
-      NoError = BOND_RESULT_TYPE_NO_ERROR,
-      AlreadyUsed = BOND_RESULT_TYPE_ALREADY_USED,
-      NoFreeSpace = BOND_RESULT_TYPE_NO_FREE_SPACE,
-      AboveAddressLimit = BOND_RESULT_TYPE_ABOVE_ADDRESS_LIMIT,
-      PingFailed = BOND_RESULT_TYPE_PING_FAILED,
-      InternalError = BOND_RESULT_TYPE_PING_INTERNAL_ERROR
-    };
+    BondError getError() const { return m_error; };
 
-    BondResult() {
-      this->m_type = Type::NoError;
-      this->m_bondedAddr = 0;
-      this->m_bondedNodesNum = 0;
+    void setError(const BondError& error) {
+      m_error = error;
     }
 
-    BondResult(Type type) {
-      this->m_type = type;
-      this->m_bondedAddr = 0;
-      this->m_bondedNodesNum = 0;
+    void setBondedAddr(const uint8_t addr) {
+      m_bondedAddr = addr;
     }
 
-    /// \brief Constructor
-    /// \param [in] type              type of result
-    /// \param [in] bondedNodeAddr    address of newly bonded node
-    /// \param [in] bondedNodesNum    number of bonded nodes
-    BondResult(Type type, uint16_t bondedNodeAddr, uint16_t bondedNodesNum) {
-      this->m_type = type;
-      this->m_bondedAddr = bondedNodeAddr;
-      this->m_bondedNodesNum = bondedNodesNum;
+    // returns address of the newly bonded node
+    uint8_t getBondedAddr() const { return m_bondedAddr; };
 
-      if (type != Type::NoError) {
-        this->m_bondedAddr = 0;
-        this->m_bondedNodesNum = 0;
-      }
+    void setBondedNodesNum(const uint8_t nodesNum) {
+      m_bondedNodesNum = nodesNum;
     }
 
-    /// \brief Returns type of bonding result.
-    /// \return Type of bonding result
-    Type getType() const { return m_type; };
-
-    /// \brief Returns address of the newly bonded node.
-    /// \return address of the newly bonded node
-    /// \details
-    /// Returned value is valid only if bonding was successfully processed,
-    /// i.e. the result type is NoError. Otherwise the returned value is 0.
-    uint16_t getBondedAddr() const { return m_bondedAddr; };
-
-    /// \brief Returns number of bonded network nodes.
-    /// \return number of bonded network nodes
-    /// \details
-    /// Returned value is valid only if bonding was successfully processed,
-    /// i.e. the result type is NoError. Otherwise the returned value is 0.
-    uint16_t getBondedNodesNum() const { return m_bondedNodesNum; };
+    // returns number of bonded network nodes.
+    uint8_t getBondedNodesNum() const { return m_bondedNodesNum; };
 
     // sets info about device
     void setReadInfo(const TPerOSRead_Response readInfo) {
@@ -111,25 +127,23 @@ namespace iqrf {
       return m_readInfo;
     }
 
-    // sets transaction result
-    void setTransactionResult(
-      std::unique_ptr<IDpaTransactionResult2>& transResult
-    ) 
-    {
-      m_transResult = std::move(transResult);
+    // adds transaction result into the list of results
+    void addTransactionResult(std::unique_ptr<IDpaTransactionResult2>& transResult) {
+      m_transResults.push_back(std::move(transResult));
     }
 
-    // returns transaction result
-    std::unique_ptr<IDpaTransactionResult2> getTransactionResult() {
-      return std::move(m_transResult);
+    bool isNextTransactionResult() {
+      return (m_transResults.size() > 0);
     }
 
-  private:
-    Type m_type;
-    uint16_t m_bondedAddr;
-    uint16_t m_bondedNodesNum;
-    TPerOSRead_Response m_readInfo;
-    std::unique_ptr<IDpaTransactionResult2> m_transResult;
+    // consumes the first element in the transaction results list
+    std::unique_ptr<IDpaTransactionResult2> consumeNextTransactionResult() {
+      std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
+      std::unique_ptr<IDpaTransactionResult2> tranResult = std::move(*iter);
+      m_transResults.pop_front();
+      return std::move(tranResult);
+    }
+
   };
 
 
@@ -142,8 +156,8 @@ namespace iqrf {
 
     // message type: network management bond node local
     // for temporal reasons
-    const std::string m_mTypeName_mngIqmeshBondNodeLocal = "mngIqmeshBondNodeLocal";
-    IMessagingSplitterService::MsgType* m_msgType_mngIqmeshBondNodeLocal;
+    const std::string m_mTypeName_iqmeshNetworkBondNodeLocal = "iqmeshNetwork_BondNodeLocal";
+    //IMessagingSplitterService::MsgType* m_msgType_mngIqmeshBondNodeLocal;
 
     //iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
@@ -152,12 +166,13 @@ namespace iqrf {
     // number of repeats
     uint8_t m_repeat = 1;
 
+    // if is set Verbose mode
+    bool m_returnVerbose = false;
+
 
   public:
     Imp(LocalBondService& parent) : m_parent(parent)
     {
-      m_msgType_mngIqmeshBondNodeLocal 
-        = new IMessagingSplitterService::MsgType(m_mTypeName_mngIqmeshBondNodeLocal, 1, 0, 0);
     }
 
     ~Imp()
@@ -174,7 +189,8 @@ namespace iqrf {
     }
 
     // trys to bonds node and returns result
-    BondResult _bondNode(const uint16_t nodeAddr) {
+    void _bondNode(BondResult& bondResult, const uint8_t nodeAddr) 
+    {
       TRC_FUNCTION_ENTER("");
 
       DpaMessage bondNodeRequest;
@@ -182,7 +198,7 @@ namespace iqrf {
       bondNodePacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       bondNodePacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
       bondNodePacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BOND_NODE;
-      bondNodePacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      bondNodePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       TPerCoordinatorBondNode_Request* tCoordBondNodeRequest = &bondNodeRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request;
       tCoordBondNodeRequest->ReqAddr = uint8_t(nodeAddr & 0xFF);
@@ -194,51 +210,83 @@ namespace iqrf {
       std::shared_ptr<IDpaTransaction2> bondNodeTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      try {
-        bondNodeTransaction = m_iIqrfDpaService->executeDpaTransaction(bondNodeRequest);
-        transResult = bondNodeTransaction->get();
-      }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::exception, "Could not bond node.");
-      }
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          bondNodeTransaction = m_iIqrfDpaService->executeDpaTransaction(bondNodeRequest);
+          transResult = bondNodeTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
 
-      TRC_DEBUG("Result from bond node transaction as string:" << PAR(transResult->getErrorString()));
+          if (rep < m_repeat) {
+            continue;
+          }
 
-      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+          BondError error(BondError::Type::BondError, e.what());
+          bondResult.setError(error);
 
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Bond node successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(bondNodeRequest.PeripheralType(), bondNodeRequest.NodeAddress())
-          << PAR(bondNodeRequest.PeripheralCommand())
-        );
+          TRC_FUNCTION_LEAVE("");
+          return;
 
-        // getting response data
+        }
+
+        TRC_DEBUG("Result from bond node transaction as string:" << PAR(transResult->getErrorString()));
+
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
+        bondResult.addTransactionResult(transResult);
 
-        // getting bond data
-        TPerCoordinatorBondNode_Response bondNodeResponse
-          = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorBondNode_Response;
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Bond node successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(bondNodeRequest.PeripheralType(), bondNodeRequest.NodeAddress())
+            << PAR(bondNodeRequest.PeripheralCommand())
+          );
 
-        TRC_FUNCTION_LEAVE("");
-        return BondResult(BondResult::Type::NoError, bondNodeResponse.BondAddr, bondNodeResponse.DevNr);
+          // getting bond data
+          TPerCoordinatorBondNodeSmartConnect_Response respData
+            = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorBondNodeSmartConnect_Response;
+
+          bondResult.setBondedAddr(respData.BondAddr);
+          bondResult.setBondedNodesNum(respData.DevNr);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          BondError error(BondError::Type::BondError, "Transaction error.");
+          bondResult.setError(error);
+        }
+        else {
+          // DPA error
+          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          BondError error(BondError::Type::BondError, "Dpa error.");
+          bondResult.setError(error);
+        }
       }
 
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-      } // DPA error
-      else {
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-      }
-
-      THROW_EXC(std::exception, "Could not bond a node.");
+      TRC_FUNCTION_LEAVE("");
+      return;
     }
 
     // pings specified node using OS::Read command
-    TPerOSRead_Response pingNode(const uint16_t nodeAddr)
+    void pingNode(BondResult& bondResult, const uint8_t nodeAddr)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -247,55 +295,83 @@ namespace iqrf {
       readInfoPacket.DpaRequestPacket_t.NADR = nodeAddr;
       readInfoPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       readInfoPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ;
-      readInfoPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-
-      readInfoRequest.DataToBuffer(readInfoPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      readInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      readInfoRequest.DataToBuffer(readInfoPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> readInfoTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      try {
-        readInfoTransaction = m_iIqrfDpaService->executeDpaTransaction(readInfoRequest);
-        transResult = readInfoTransaction->get();
-      }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::exception, "Could not read info.");
-      }
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          readInfoTransaction = m_iIqrfDpaService->executeDpaTransaction(readInfoRequest);
+          transResult = readInfoTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
 
-      TRC_DEBUG("Result from read node's info transaction as string:" << PAR(transResult->getErrorString()));
+          if (rep < m_repeat) {
+            continue;
+          }
 
-      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+          BondError error(BondError::Type::PingFailed, e.what());
+          bondResult.setError(error);
 
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Read node's info successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(readInfoRequest.PeripheralType(), readInfoRequest.NodeAddress())
-          << PAR(readInfoRequest.PeripheralCommand())
-        );
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
 
-        // getting response data
+        TRC_DEBUG("Result from read node's info transaction as string:" << PAR(transResult->getErrorString()));
+
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
+        bondResult.addTransactionResult(transResult);
 
-        TRC_FUNCTION_LEAVE("");
-        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Read node's info successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(readInfoRequest.PeripheralType(), readInfoRequest.NodeAddress())
+            << PAR(readInfoRequest.PeripheralCommand())
+          );
+
+          bondResult.setReadInfo(
+            dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response
+          );
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          BondError error(BondError::Type::PingFailed, "Transaction error");
+          bondResult.setError(error);
+        } // DPA error
+        else {
+          TRC_DEBUG("Dpa error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          BondError error(BondError::Type::PingFailed, "Dpa error");
+          bondResult.setError(error);
+        }
       }
-
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-      } // DPA error
-      else {
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-      }
-
-      THROW_EXC(std::exception, "Could not read node's info.");
     }
 
     // removes specified address from coordinator's list of bonded addresses
-    void removeBondedNode(const uint16_t nodeAddr) {
+    void removeBondedNode(BondResult& bondResult, const uint8_t nodeAddr) 
+    {
       TRC_FUNCTION_ENTER("");
 
       DpaMessage removeBondRequest;
@@ -303,56 +379,72 @@ namespace iqrf {
       removeBondPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       removeBondPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
       removeBondPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_REMOVE_BOND;
-      removeBondPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      removeBondPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       TPerCoordinatorRemoveRebondBond_Request* tCoordRemoveBondRequest
         = &removeBondRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerCoordinatorRemoveRebondBond_Request;
       tCoordRemoveBondRequest->BondAddr = uint8_t(nodeAddr & 0xFF);
 
-      removeBondRequest.DataToBuffer(removeBondPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      removeBondRequest.DataToBuffer(removeBondPacket.Buffer, sizeof(TDpaIFaceHeader) + 1);
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> removeBondTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      try {
-        removeBondTransaction = m_iIqrfDpaService->executeDpaTransaction(removeBondRequest);
-        transResult = removeBondTransaction->get();
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          removeBondTransaction = m_iIqrfDpaService->executeDpaTransaction(removeBondRequest);
+          transResult = removeBondTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
+          THROW_EXC(std::exception, "Could not remove bond.");
+        }
+
+        TRC_DEBUG("Result from remove bond transaction as string:" << PAR(transResult->getErrorString()));
+
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        bondResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Remove node bond done!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(removeBondRequest.PeripheralType(), removeBondRequest.NodeAddress())
+            << PAR(removeBondRequest.PeripheralCommand())
+          );
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+        } // DPA error
+        else {
+          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+        }
       }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::exception, "Could not remove bond.");
-      }
 
-      TRC_DEBUG("Result from remove bond transaction as string:" << PAR(transResult->getErrorString()));
-
-      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Remove node bond successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(removeBondRequest.PeripheralType(), removeBondRequest.NodeAddress())
-          << PAR(removeBondRequest.PeripheralCommand())
-        );
-
-        TRC_FUNCTION_LEAVE("");
-      }
-
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-      } // DPA error
-      else {
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-      }
-
-      THROW_EXC(std::exception, "Could not remove bond.");
+      TRC_FUNCTION_LEAVE("");
+      return;
     }
 
     // parses bit array of bonded nodes
-    std::list<uint16_t> parseBondedNodes(const unsigned char* pData) {
-      std::list<uint16_t> bondedNodes;
+    std::list<uint8_t> parseBondedNodes(const unsigned char* pData) {
+      std::list<uint8_t> bondedNodes;
 
       // maximal bonded node number
       const uint8_t MAX_BONDED_NODE_NUMBER = 0xEF;
@@ -380,7 +472,7 @@ namespace iqrf {
     }
 
     // returns list of bonded nodes
-    std::list<uint16_t> getBondedNodes() {
+    std::list<uint8_t> getBondedNodes(BondResult& bondResult) {
       TRC_FUNCTION_ENTER("");
 
       DpaMessage getBondedNodesRequest;
@@ -388,122 +480,279 @@ namespace iqrf {
       getBondedNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       getBondedNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
       getBondedNodesPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
-      getBondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      getBondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
-      getBondedNodesRequest.DataToBuffer(getBondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      getBondedNodesRequest.DataToBuffer(getBondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> getBondedNodesTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      try {
-        getBondedNodesTransaction = m_iIqrfDpaService->executeDpaTransaction(getBondedNodesRequest);
-        transResult = getBondedNodesTransaction->get();
-      }
-      catch (std::exception& e) {
-        TRC_DEBUG("DPA transaction error : " << e.what());
-        THROW_EXC(std::exception, "Could not get bonded nodes.");
-      }
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          getBondedNodesTransaction = m_iIqrfDpaService->executeDpaTransaction(getBondedNodesRequest);
+          transResult = getBondedNodesTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
 
-      TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
+          if (rep < m_repeat) {
+            continue;
+          }
 
-      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+          BondError error(BondError::Type::GetBondedNodes, e.what());
+          bondResult.setError(error);
 
-      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Get bonded nodes successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(getBondedNodesRequest.PeripheralType(), getBondedNodesRequest.NodeAddress())
-          << PAR(getBondedNodesRequest.PeripheralCommand())
-        );
+          THROW_EXC(std::exception, "Could not get bonded nodes.");
+        }
 
-        // get response data
-        const unsigned char* pData = transResult->getResponse().DpaPacketData();
+        TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
 
-        TRC_FUNCTION_LEAVE("");
-        return parseBondedNodes(pData);
-      }
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
-      // transaction error
-      if (errorCode < 0) {
-        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-      } // DPA error
-      else {
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        bondResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Get bonded nodes successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(getBondedNodesRequest.PeripheralType(), getBondedNodesRequest.NodeAddress())
+            << PAR(getBondedNodesRequest.PeripheralCommand())
+          );
+
+          // get response data
+          const unsigned char* pData = transResult->getResponse().DpaPacketData();
+
+          TRC_FUNCTION_LEAVE("");
+          return parseBondedNodes(pData);
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          BondError error(BondError::Type::GetBondedNodes, "Transaction error.");
+          bondResult.setError(error);
+        }
+        else {
+          // DPA error
+          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          BondError error(BondError::Type::GetBondedNodes, "Dpa error.");
+          bondResult.setError(error);
+        }
       }
 
       THROW_EXC(std::exception, "Could not get bonded nodes.");
     }
 
     // indicates, whether all nodes are bonded
-    bool areAllUsed(const std::list<uint16_t>& bondedNodes) {
+    bool areAllUsed(const std::list<uint8_t>& bondedNodes) {
       return (bondedNodes.size() == (0xEF + 1));
     }
 
     // indicates, whether the specified node is already bonded
-    bool isBonded(const std::list<uint16_t>& bondedNodes, const uint16_t nodeAddr) {
-      std::list<uint16_t>::const_iterator it 
+    bool isBonded(const std::list<uint8_t>& bondedNodes, const uint8_t nodeAddr) 
+    {
+      std::list<uint8_t>::const_iterator it 
         = std::find(bondedNodes.begin(), bondedNodes.end(), nodeAddr);
       return (it != bondedNodes.end());
     }
 
-    BondResult bondNode(const uint16_t nodeAddr)
+    BondResult bondNode(const uint8_t nodeAddr)
     {
-      // basic check
-      checkNodeAddr(nodeAddr);
+      TRC_FUNCTION_ENTER("");
 
-      // get bonded nodes to check it against address to bond
-      std::list<uint16_t> bondedNodes = getBondedNodes();
+      BondResult bondResult;
       
+      std::list<uint8_t> bondedNodes;
+      try {
+        // get bonded nodes to check it against address to bond
+        std::list<uint8_t> bondedNodes = getBondedNodes(bondResult);
+      }
+      catch (std::exception& ex) {
+        TRC_FUNCTION_LEAVE("");
+        return bondResult;
+      }
+
       // node is already bonded
       if (isBonded(bondedNodes, nodeAddr)) {
-        return BondResult(BondResult::Type::AlreadyUsed);
+        BondError error(BondError::Type::AlreadyBonded, "Address already bonded.");
+        bondResult.setError(error);
+
+        TRC_FUNCTION_LEAVE("");
+        return bondResult;
       }
 
       // all nodes are already bonded
       if (areAllUsed(bondedNodes)) {
-        return BondResult(BondResult::Type::NoFreeSpace);
+        BondError error(BondError::Type::NoFreeSpace, "No free space.");
+        bondResult.setError(error);
+
+        TRC_FUNCTION_LEAVE("");
+        return bondResult;
       }
 
       // bond a node
-      BondResult bondResult = _bondNode(nodeAddr);
+      _bondNode(bondResult, nodeAddr);
 
       // bonding node failed
-      if (bondResult.getType() != BondResult::Type::NoError) {
+      if (bondResult.getError().getType() != BondError::Type::NoError) {
         return bondResult;
       }
 
       // ping newly bonded node and return info
-      bool pingSuccessful = false;
-      TPerOSRead_Response readInfo;
-
-      for (int i = 0; i < m_repeat; i++) {
-        try {
-          readInfo = pingNode(bondResult.getBondedAddr());
-          bondResult.setReadInfo(readInfo);
-          pingSuccessful = true;
-          break;
-        }
-        catch (std::exception& ex) {
-          TRC_ERROR("Ping attempt: " << PAR(i) << " failed.");
-        } 
-      }
-
-      if (pingSuccessful) {
+      pingNode(bondResult, nodeAddr);
+      if (bondResult.getError().getType() == BondError::Type::NoError) {
         return bondResult;
       }
 
       // if ping failed, remove bonded node from the coordinator's list
-      removeBondedNode(bondResult.getBondedAddr());
+      removeBondedNode(bondResult, nodeAddr);
 
       // and return Ping Failed error
-      return BondResult(BondResult::Type::PingFailed, 0, 0);
+      return bondResult;
     }
 
     
-    void setOkResponse(Document& response, BondResult& bondResult) {
-      Pointer("/status").Set(response, (int)BondResult::Type::NoError);
- 
+    // creates error response about service general fail
+    Document createCheckParamsFailedResponse(
+      const std::string& msgId,
+      const IMessagingSplitterService::MsgType& msgType,
+      const std::string& errorMsg
+    )
+    {
+      Document response;
+
+      // set common parameters
+      Pointer("/mType").Set(response, msgType.m_type);
+      Pointer("/data/msgId").Set(response, msgId);
+
+      // set result
+      Pointer("/status").Set(response, SERVICE_ERROR);
+      Pointer("/statusStr").Set(response, errorMsg);
+
+      return response;
+    }
+
+
+    // sets response VERBOSE data
+    void setVerboseData(rapidjson::Document& response, BondResult& bondResult)
+    {
+      rapidjson::Value rawArray(kArrayType);
+      Document::AllocatorType& allocator = response.GetAllocator();
+
+      while (bondResult.isNextTransactionResult()) {
+        std::unique_ptr<IDpaTransactionResult2> transResult = bondResult.consumeNextTransactionResult();
+        rapidjson::Value rawObject(kObjectType);
+
+        rawObject.AddMember(
+          "request",
+          encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "requestTs",
+          encodeTimestamp(transResult->getRequestTs()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "confirmation",
+          encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "confirmationTs",
+          encodeTimestamp(transResult->getConfirmationTs()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "response",
+          encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
+          allocator
+        );
+
+        rawObject.AddMember(
+          "responseTs",
+          encodeTimestamp(transResult->getResponseTs()),
+          allocator
+        );
+
+        // add object into array
+        rawArray.PushBack(rawObject, allocator);
+      }
+
+      // add array into response document
+      Pointer("/data/raw").Set(response, rawArray);
+    }
+
+    // creates response on the basis of bond result
+    Document createResponse(
+      const std::string& msgId,
+      const IMessagingSplitterService::MsgType& msgType,
+      BondResult& bondResult,
+      const ComIqmeshNetworkBondNodeLocal& comBondNodeLocal
+    )
+    {
+      Document response;
+      
+      // set common parameters
+      Pointer("/mType").Set(response, msgType.m_type);
+      Pointer("/data/msgId").Set(response, msgId);
+
+      // checking of error
+      BondError error = bondResult.getError();
+
+      if (error.getType() != BondError::Type::NoError) {
+        Pointer("/data/statusStr").Set(response, error.getMessage());
+
+        switch (error.getType()) {
+          case BondError::Type::GetBondedNodes:
+            Pointer("/status").Set(response, SERVICE_ERROR_GET_BONDED_NODES);
+            break;
+          case BondError::Type::AlreadyBonded:
+            Pointer("/status").Set(response, SERVICE_ERROR_ALREADY_BONDED);
+            break;
+          case BondError::Type::NoFreeSpace:
+            Pointer("/status").Set(response, SERVICE_ERROR_NO_FREE_SPACE);
+            break;
+          case BondError::Type::PingFailed:
+            Pointer("/status").Set(response, SERVICE_ERROR_PING_FAILED);
+            break;
+          case BondError::Type::BondError:
+            Pointer("/status").Set(response, SERVICE_ERROR_BOND_FAILED);
+            break;
+          default:
+            Pointer("/status").Set(response, SERVICE_ERROR);
+            break;
+        }
+
+        // set raw fields, if verbose mode is active
+        if (comBondNodeLocal.getVerbose()) {
+          setVerboseData(response, bondResult);
+        }
+
+        return response;
+      }
+
+      // status - ok
+      Pointer("/status").Set(response, 0);
+      Pointer("/statusStr").Set(response, "ok");
+
       // rsp object
       rapidjson::Pointer("/data/rsp/assignedAddr").Set(response, bondResult.getBondedAddr());
       rapidjson::Pointer("/data/rsp/nodesNr").Set(response, bondResult.getBondedNodesNum());
@@ -524,63 +773,36 @@ namespace iqrf {
       rapidjson::Pointer("/data/rsp/osRead/supplyVoltage").Set(response, encodeHexaNum(readInfo.SupplyVoltage));
       rapidjson::Pointer("/data/rsp/osRead/flags").Set(response, encodeHexaNum(readInfo.Flags));
       rapidjson::Pointer("/data/rsp/osRead/slotLimits").Set(response, encodeHexaNum(readInfo.SlotLimits));
-    }
-
-    // creates response on the basis of bond result
-    Document createResponse(
-      const std::string& messagingId,
-      const IMessagingSplitterService::MsgType& msgType,
-      BondResult& bondResult,
-      ComMngIqmeshBondNodeLocal& comBondNodeLocal
-    )
-    {
-      Document response;
-      std::unique_ptr<IDpaTransactionResult2> transResult = bondResult.getTransactionResult();
-
-      switch (bondResult.getType()) {
-        case BondResult::Type::AlreadyUsed:
-          Pointer("/status").Set(response, (int)BondResult::Type::AlreadyUsed);
-          break;
-        case BondResult::Type::NoFreeSpace:
-          Pointer("/status").Set(response, (int)BondResult::Type::NoFreeSpace);
-          break;
-        case BondResult::Type::PingFailed:
-          Pointer("/status").Set(response, (int)BondResult::Type::PingFailed);
-          break;
-        case BondResult::Type::NoError:
-          setOkResponse(response, bondResult);
-          rapidjson::Pointer("/data/rsp/hwpId").Set(
-            response, transResult->getResponse().DpaPacket().DpaResponsePacket_t.HWPID
-          );
-          break;
-        case BondResult::Type::InternalError:
-        // unsupported type - internal error
-        default:
-          Pointer("/status").Set(response, (int)BondResult::Type::InternalError);
-          break;
-      }
-
-      // set common parameters
-      Pointer("/mType").Set(response, msgType.m_type);
-      Pointer("/data/msgId").Set(response, messagingId);
 
       // set raw fields, if verbose mode is active
       if (comBondNodeLocal.getVerbose()) {
-        rapidjson::Pointer("/data/raw/request")
-          .Set(response, encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()));
-        rapidjson::Pointer("/data/raw/requestTs")
-          .Set(response, encodeTimestamp(transResult->getRequestTs()));
-        rapidjson::Pointer("/data/raw/confirmation")
-          .Set(response, encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()));
-        rapidjson::Pointer("/data/raw/confirmationTs")
-          .Set(response, encodeTimestamp(transResult->getConfirmationTs()));
-        rapidjson::Pointer("/data/raw/response")
-          .Set(response, encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()));
-        rapidjson::Pointer("/data/raw/responseTs")
-          .Set(response, encodeTimestamp(transResult->getResponseTs()));
+        setVerboseData(response, bondResult);
       }
      
       return response;
+    }
+
+    uint8_t parseAndCheckRepeat(const int repeat) {
+      if (repeat < 0) {
+        TRC_WARNING("repeat cannot be less than 0. It will be set to 0.");
+        return 0;
+      }
+
+      if (repeat > 0xFF) {
+        TRC_WARNING("repeat exceeds maximum. It will be trimmed to maximum of: " << PAR(REPEAT_MAX));
+        return REPEAT_MAX;
+      }
+
+      return repeat;
+    }
+
+    uint8_t parseAndCheckDeviceAddr(const int devAddr) {
+      if ((devAddr < 0) || (devAddr > 0xEF)) {
+        THROW_EXC(
+          std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", devAddr)
+        );
+      }
+      return devAddr;
     }
 
 
@@ -599,24 +821,37 @@ namespace iqrf {
       );
 
       // unsupported type of request
-      if (msgType.m_type != m_mTypeName_mngIqmeshBondNodeLocal) {
+      if (msgType.m_type != m_mTypeName_iqmeshNetworkBondNodeLocal) {
         THROW_EXC(std::logic_error, "Unsupported message type: " << PAR(msgType.m_type));
       }
 
       // creating representation object
-      ComMngIqmeshBondNodeLocal comBondNodeLocal(doc);
+      ComIqmeshNetworkBondNodeLocal comBondNodeLocal(doc);
       
-      // pass request data as parameters into processing method
-      m_repeat = comBondNodeLocal.getRepeat();
+      // service input parameters
+      uint8_t deviceAddr;
 
-      BondResult bondResult;
+      // parsing and checking service parameters
       try {
-        bondResult = bondNode(comBondNodeLocal.getDeviceAddr());
-      }
-      // all errors are generally taken as "internal errors"  
+        m_repeat = parseAndCheckRepeat(comBondNodeLocal.getRepeat());
+
+        if (!comBondNodeLocal.isSetDeviceAddr()) {
+          THROW_EXC(std::logic_error, "deviceAddr not set");
+        }
+        deviceAddr = parseAndCheckDeviceAddr(comBondNodeLocal.getDeviceAddr());
+
+        m_returnVerbose = comBondNodeLocal.getVerbose();
+      } 
+      // parsing and checking service parameters failed 
       catch (std::exception& ex) {
-        bondResult = BondResult(BondResult::Type::InternalError);
+        Document failResponse = createCheckParamsFailedResponse(comBondNodeLocal.getMsgId(), msgType, ex.what());
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
       }
+
+      BondResult bondResult = bondNode(deviceAddr);
 
       // creating response
       Document responseDoc = createResponse(messagingId, msgType, bondResult, comBondNodeLocal);
@@ -636,19 +871,20 @@ namespace iqrf {
         "************************************"
       );
 
-      m_msgType_mngIqmeshBondNodeLocal->m_handlerFunc = 
+      // for the sake of register function parameters 
+      std::vector<std::string> supportedMsgTypes =
+      {
+        m_mTypeName_iqmeshNetworkBondNodeLocal
+      };
+
+      /*
+      m_iMessagingSplitterService->registerFilteredMsgHandler(
+        supportedMsgTypes,
         [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
       {
         handleMsg(messagingId, msgType, std::move(doc));
-      };
-
-      // for the sake of register function parameters 
-      std::vector<IMessagingSplitterService::MsgType> supportedMsgTypes;
-      supportedMsgTypes.push_back(*m_msgType_mngIqmeshBondNodeLocal);
-
-      m_iMessagingSplitterService->registerFilteredMsgHandler(supportedMsgTypes);
-      
-
+      });
+      */
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -661,11 +897,12 @@ namespace iqrf {
         "************************************"
       );
       
-      // for the sake of unregister function parameters 
-      std::vector<IMessagingSplitterService::MsgType> supportedMsgTypes;
-      supportedMsgTypes.push_back(*m_msgType_mngIqmeshBondNodeLocal);
+      std::vector<std::string> supportedMsgTypes =
+      {
+        m_mTypeName_iqmeshNetworkBondNodeLocal
+      };
 
-      m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
+      //m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
       
       TRC_FUNCTION_LEAVE("");
     }
