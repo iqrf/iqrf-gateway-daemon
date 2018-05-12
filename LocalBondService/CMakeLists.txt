@@ -1,8 +1,5 @@
 project(LocalBondService)
 
-#FIND_PACKAGE(clibdpa REQUIRED)
-FIND_PACKAGE(cutils REQUIRED)
-
 set(COMPONENT iqrf::LocalBondService)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::ILocalBondService)
@@ -21,7 +18,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
 include_directories(${cutils_INCLUDE_DIRS})
-include_directories(../JsonDpaApi)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
@@ -33,5 +29,4 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
 	Dpa
-	DpaExtension
 )
