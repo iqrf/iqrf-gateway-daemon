@@ -759,6 +759,10 @@ namespace iqrf {
       rapidjson::Pointer("/data/rsp/assignedAddr").Set(response, bondResult.getBondedAddr());
       rapidjson::Pointer("/data/rsp/nodesNr").Set(response, bondResult.getBondedNodesNum());
 
+      // only for temporal reasons
+      rapidjson::Pointer("/data/rsp/manufacturer").Set(response, "");
+      rapidjson::Pointer("/data/rsp/product").Set(response, "");
+
       // manufacturer name and product name - how to obtain hwpid
       /*
       const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(hwpId);
