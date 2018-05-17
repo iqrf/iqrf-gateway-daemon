@@ -11,8 +11,8 @@ then
     exit 1
 fi
 
-echo "Shape folder ${LIB}${IQRFGD2} created."
 mkdir -p ${LIB}${IQRFGD2}
+echo "Shape folder ${LIB}${IQRFGD2} created."
 
 cp shape-build/bin/libTraceFormatService.so ${LIB}${IQRFGD2}
 cp shape-build/bin/libTraceFileService.so ${LIB}${IQRFGD2}

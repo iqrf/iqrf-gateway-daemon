@@ -15,7 +15,7 @@ shape-build:
 	script:
 		- git clone https://github.com/logimic/shape.git shape-source
 		- mkdir shape-build shape-libs
-		- cmake -Bshape-build Hshape-source
+		- cmake -Bshape-build -Hshape-source -DCMAKE_BUILD_TYPE=Debug
 		- make -j$(nproc) -C shape-build
 		- bash .gitlab_build_files/copy_shape_libs.sh shape-libs
 		- tar czvf shape-libs_amd64.tar.gz shape-libs
