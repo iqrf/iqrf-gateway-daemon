@@ -1,6 +1,7 @@
 image: buildpack-deps:stretch
 
 stages:
+	- dependencies
 	- build
 
 before_script:
@@ -11,7 +12,7 @@ before_script:
 	- gem install --no-rdoc --no-ri fpm
 	
 shape-build:
-	stage: build
+	stage: dependencies
 	script:
 		- git clone https://github.com/logimic/shape.git shape-source
 		- mkdir shape-build shape-libs
