@@ -1,8 +1,9 @@
 image: buildpack-deps:stretch
 
 stages:
- - dependencies
- - build
+ - shape-build
+ - shapeware-build
+ - iqrf-gateway-daemon
 
 before_script:
  - apt-get update -y
@@ -11,8 +12,8 @@ before_script:
  - rm -rf /var/lib/apt/lists/*
  - gem install --no-rdoc --no-ri fpm
 
-shape-build:
- stage: dependencies
+shape:
+ stage: shape-build 
  script:
   - git clone https://github.com/logimic/shape.git shape-source
   - mkdir shape-build shape-libs
@@ -28,8 +29,8 @@ shape-build:
  tags:
   - linux, amd64
 
-shapeware-build:
- stage: dependencies
+shapeware:
+ stage: shapeware-build
  script:
   - git clone https://github.com/logimic/shapeware.git shapeware-source
   - git -C shapeware-source submodule init
@@ -41,8 +42,6 @@ shapeware-build:
   - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
   - tar czvf shapeware-build_amd64.tar.gz shapeware-build
   - tar czvf shapeware-libs_amd64.tar.gz shapeware-libs
- dependencies:
-  - shape-build
  artifacts:
   paths:
    - shapeware-build_amd64.tar.gz
