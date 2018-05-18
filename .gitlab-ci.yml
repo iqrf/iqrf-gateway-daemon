@@ -19,9 +19,33 @@ shape-build:
   - cmake -Bshape-build -Hshape-source -DCMAKE_BUILD_TYPE=Debug
   - make -j$(nproc) -C shape-build
   - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
+  - tar czvf shape-build_amd64.tar.gz shape-build
   - tar czvf shape-libs_amd64.tar.gz shape-libs
  artifacts:
   paths:
+   - shape-build_amd64.tar.gz
    - shape-libs_amd64.tar.gz
+ tags:
+  - linux, amd64
+
+shapeware-build:
+ stage: dependencies
+ script:
+  - git clone https://github.com/logimic/shapeware.git shapeware-source
+  - git -C shapeware-source submodule init
+  - git -C shapeware-source submodule update
+  - mkdir shapeware-build shapeware-libs
+  - tar xzvf shape-build_amd64.tar.gz shape-build
+  - cmake -Bshapeware-build -Hshapeware-source -DCMAKE_BUILD_TYPE=Debug -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -Dshape_DIR:PATH=../shape-build
+  - make -j$(nproc) -C shapeware-build
+  - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
+  - tar czvf shapeware-build_amd64.tar.gz shapeware-build
+  - tar czvf shapeware-libs_amd64.tar.gz shapeware-libs
+ dependencies:
+  - shape-build
+ artifacts:
+  paths:
+   - shapeware-build_amd64.tar.gz
+   - shapeware-libs_amd64.tar.gz
  tags:
   - linux, amd64
