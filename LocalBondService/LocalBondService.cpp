@@ -183,7 +183,7 @@ namespace iqrf {
     {
       if ((nodeAddr < 0) || (nodeAddr > 0xEF)) {
         THROW_EXC(
-          std::exception, "Node address outside of valid range. " << NAME_PAR_HEX("Address", nodeAddr)
+          std::logic_error, "Node address outside of valid range. " << NAME_PAR_HEX("Address", nodeAddr)
         );
       }
     }
@@ -400,7 +400,7 @@ namespace iqrf {
         }
         catch (std::exception& e) {
           TRC_DEBUG("DPA transaction error : " << e.what());
-          THROW_EXC(std::exception, "Could not remove bond.");
+          THROW_EXC(std::logic_error, "Could not remove bond.");
         }
 
         TRC_DEBUG("Result from remove bond transaction as string:" << PAR(transResult->getErrorString()));
@@ -505,7 +505,7 @@ namespace iqrf {
           BondError error(BondError::Type::GetBondedNodes, e.what());
           bondResult.setError(error);
 
-          THROW_EXC(std::exception, "Could not get bonded nodes.");
+          THROW_EXC(std::logic_error, "Could not get bonded nodes.");
         }
 
         TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
@@ -555,7 +555,7 @@ namespace iqrf {
         }
       }
 
-      THROW_EXC(std::exception, "Could not get bonded nodes.");
+      THROW_EXC(std::logic_error, "Could not get bonded nodes.");
     }
 
     // indicates, whether all nodes are bonded
