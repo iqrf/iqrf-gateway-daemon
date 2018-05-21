@@ -1,6 +1,0 @@
-{
-  "component": "iqrf::JsCache",
-  "instance": "JsCache",
-  "urlRepo": "https://repository.iqrfalliance.org/api",
-  "checkPeriodSec": 0
-}

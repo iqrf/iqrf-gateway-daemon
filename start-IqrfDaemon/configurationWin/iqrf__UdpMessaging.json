@@ -1,6 +1,0 @@
-{
-  "component": "iqrf::UdpMessaging",
-  "instance": "UdpMessaging",
-  "RemotePort": 55000,
-  "LocalPort": 55300
-}

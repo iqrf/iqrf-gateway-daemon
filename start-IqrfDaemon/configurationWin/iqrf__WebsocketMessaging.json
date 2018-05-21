@@ -1,5 +1,0 @@
-{
-  "component": "iqrf::WebsocketMessaging",
-  "instance": "WebsocketMessaging",
-  "acceptAsyncMsg": true
-}
