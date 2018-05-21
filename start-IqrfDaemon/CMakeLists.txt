@@ -92,3 +92,12 @@ add_custom_command(
     ARGS -E copy_directory ${_CFG_SCHEMA_FROM} ${_CFG_SCHEMA_TO}
 )
 
+#copy Scheduler/Task.json
+set(_CFG_SCHEDULER_FROM ${CMAKE_CURRENT_SOURCE_DIR}/Scheduler)
+set(_CFG_SCHEDULER_TO ${_CONFIG_DEST}/configuration/Scheduler)
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_directory ${_CFG_SCHEDULER_FROM} ${_CFG_SCHEDULER_TO}
+)
