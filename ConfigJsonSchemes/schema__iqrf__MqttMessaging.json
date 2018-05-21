@@ -1,0 +1,149 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__iqrf__MqttMessaging",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "iqrf::MqttMessaging"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended iqrf::MqttMessaging-(id)",
+            "default": "iqrf::MqttMessaging-1"
+        },
+        "BrokerAddr": {
+            "type": "string",
+            "description": "...",
+            "default": "tcp://127.0.0.1:1883"
+        },
+        "ClientId": {
+            "type": "string",
+            "description": "...",
+            "default": "IqrfDpaMessaging1"
+        },
+        "Persistence": {
+            "type": "integer",
+            "description": "...",
+            "default": 1
+        },
+        "Qos": {
+            "type": "integer",
+            "description": "...",
+            "default": 1
+        },
+        "TopicRequest": {
+            "type": "string",
+            "description": "...",
+            "default": "Iqrf/DpaRequest"
+        },
+        "TopicResponse": {
+            "type": "string",
+            "description": "...",
+            "default": "Iqrf/DpaResponse"
+        },
+        "User": {
+            "type": "string",
+            "description": "...",
+            "default": ""
+        },
+        "Password": {
+            "type": "string",
+            "description": "...",
+            "default": ""
+        },
+        "EnabledSSL": {
+            "type": "boolean",
+            "description": "...",
+            "default": false
+        },
+        "KeepAliveInterval": {
+            "type": "integer",
+            "description": "...",
+            "default": 20
+        },
+        "ConnectTimeout": {
+            "type": "integer",
+            "description": "...",
+            "default": 5
+        },
+        "MinReconnect": {
+            "type": "integer",
+            "description": "...",
+            "default": 1
+        },
+        "MaxReconnect": {
+            "type": "integer",
+            "description": "...",
+            "default": 64
+        },
+        "TrustStore": {
+            "type": "string",
+            "description": "...",
+            "default": "server-ca.crt"
+        },
+        "KeyStore": {
+            "type": "string",
+            "description": "...",
+            "default": "client.pem"
+        },
+        "PrivateKey": {
+            "type": "string",
+            "description": "...",
+            "default": "client-privatekey.pem"
+        },
+        "PrivateKeyPassword": {
+            "type": "string",
+            "description": "...",
+            "default": ""
+        },
+        "EnabledCipherSuites": {
+            "type": "string",
+            "description": "...",
+            "default": ""
+        },
+        "EnableServerCertAuth": {
+            "type": "boolean",
+            "description": "...",
+            "default": true
+        },
+        "acceptAsyncMsg": {
+            "type": "boolean",
+            "description": "...",
+            "default": false
+        },
+        "RequiredInterfaces": {
+            "type": "array",
+            "description": "Array of required interfaces..",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "iqrf::IMessagingService",
+                        "description": "..."
+                    },
+                    "target": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "name",
+                    "target"
+                ]
+            }
+        }
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}

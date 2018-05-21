@@ -1,5 +1,3 @@
-#define IMessagingSplitterService_EXPORTS
-
 #include "ApiMsg.h"
 #include "JsonMngApi.h"
 #include "rapidjson/rapidjson.h"

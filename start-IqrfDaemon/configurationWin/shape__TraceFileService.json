@@ -1,9 +1,11 @@
 {
   "component": "shape::TraceFileService",
-  "instance": "shape::TraceFileService-Cobalt",
+  "instance": "shape::TraceFileService-daemon1",
 
   "path": "",
   "filename": "IqrfDaemon.txt",
+  "maxSizeMB": 1048576,
+  "timestampFiles": false,
 
   "VerbosityLevels": [
     {

@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrf__BaseService",
+        "name": "schema__iqrf__BaseService",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,13 +10,15 @@
     "properties": {
         "component": {
             "type": "string",
-            "description": "...",
-            "default": "iqrf::BaseService"
+            "description": "Name of component.",
+            "enum": [
+                "iqrf::BaseService"
+            ]
         },
         "instance": {
             "type": "string",
-            "description": "...",
-            "default": "BaseServiceForMQ"
+            "description": "Recomended iqrf::BaseService-(id)",
+            "default": "iqrf::BaseService-1"
         },
         "RequiredInterfaces": {
             "type": "array",
@@ -30,22 +32,15 @@
                         "description": "..."
                     },
                     "target": {
-                        "type": "object",
-                        "properties":{                            
-                            "instance":{
-                                "type":"string",
-                                "description": "...",
-                                "default":"MqMessaging"
-                            }
-                        }
+                        "type": "object"
                     }
                 },
                 "required": [
-                    "channel",
-                    "level"
+                    "name",
+                    "target"
                 ]
             }
-        }        
+        }
     },
     "required": [
         "component",

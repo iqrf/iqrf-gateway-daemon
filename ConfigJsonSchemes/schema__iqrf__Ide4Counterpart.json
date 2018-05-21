@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "schema__iqrf__Scheduler",
+        "name": "schema__iqrf__Ide4Counterpart",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,17 +12,17 @@
             "type": "string",
             "description": "Name of component.",
             "enum": [
-                "iqrf::Scheduler"
+                "iqrf::Ide4Counterpart"
             ]
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::Scheduler-(id)",
-            "default": "iqrf::Scheduler-1"
+            "description": "Recomended shape::WebsocketService-(id)",
+            "default": "iqrf::Ide4Counterpart-1"
         },
         "RequiredInterfaces": {
             "type": "array",
-            "description": "Array of required interfaces..",
+            "description": "Array of verbosity levels.",
             "items": {
                 "type": "object",
                 "properties": {

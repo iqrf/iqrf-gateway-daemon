@@ -1,4 +1,6 @@
 {
   "component": "iqrf::IqrfDpa",
-  "instance": "iqrf::IqrfDpa-Instance1"
+  "instance": "iqrf::IqrfDpa-Instance1",
+  "DpaHandlerTimeout": 500,
+  "CommunicationMode": "STD"
 }
