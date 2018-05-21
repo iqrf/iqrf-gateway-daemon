@@ -1,0 +1,59 @@
+image: buildpack-deps:stretch
+
+stages:
+ - dependencies
+ - build
+
+before_script:
+ - apt-get update -y
+ - apt-get install --no-install-recommends -y build-essential git cmake gcc g++ zlib1g-dev libcpprest-dev libssl-dev mlocate ruby ruby-dev unzip wget
+ - apt-get clean
+ - rm -rf /var/lib/apt/lists/*
+ - gem install --no-rdoc --no-ri fpm
+
+shape_&_shapeware:
+ stage: dependencies
+ script:
+  - git clone https://github.com/logimic/shape.git shape-source
+  - mkdir shape-build shape-libs
+  - cmake -Bshape-build -Hshape-source -DCMAKE_BUILD_TYPE=Debug
+  - make -j$(nproc) -C shape-build
+  - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
+  - tar czvf shape-source_amd64.tar.gz shape-source
+  - tar czvf shape-build_amd64.tar.gz shape-build
+  - tar czvf shape-libs_amd64.tar.gz shape-libs
+  - git clone https://github.com/logimic/shapeware.git shapeware-source
+  - git -C shapeware-source submodule init
+  - git -C shapeware-source submodule update
+  - mkdir shapeware-build shapeware-libs
+  - cmake -Bshapeware-build -Hshapeware-source -DCMAKE_BUILD_TYPE=Debug -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -Dshape_DIR:PATH=../shape-build
+  - make -j$(nproc) -C shapeware-build
+  - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
+  - tar czvf shapeware-source_amd64.tar.gz shapeware-source
+  - tar czvf shapeware-build_amd64.tar.gz shapeware-build
+  - tar czvf shapeware-libs_amd64.tar.gz shapeware-libs 
+ artifacts:
+  paths:
+   - shape-source_amd64.tar.gz
+   - shape-build_amd64.tar.gz
+   - shape-libs_amd64.tar.gz
+   - shapeware-source_amd64.tar.gz
+   - shapeware-build_amd64.tar.gz
+   - shapeware-libs_amd64.tar.gz
+ tags:
+  - linux, amd64
+
+paho:
+ stage: dependencies
+ script:
+  - git clone https://github.com/eclipse/paho.mqtt.c.git paho-source
+  - git -C paho-source checkout v1.2.0
+  - mkdir paho-build
+  - cmake -Bpaho-build -Hpaho-source -DCMAKE_BUILD_TYPE=Debug -DPAHO_WITH_SSL=TRUE
+  - make -j$(nproc) -C paho-build
+  - tar czvf paho-build_amd64.tar.gz paho-build
+ artifacts:
+  paths:
+   - paho-build_amd64.tar.gz
+ tags:
+  - linux, amd64
