@@ -29,6 +29,13 @@
       "startlevel": -2
     },
     {
+      "name": "shape::ConfigurationService",
+      "libraryPath": "",
+      "libraryName": "",
+      "enabled": true,
+      "startlevel": -2
+    },
+    {
       "name": "shape::WebsocketService",
       "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
       "libraryName": "WebsocketService",
@@ -155,6 +162,13 @@
       "startlevel": 2
     },
     {
+      "name": "iqrf::JsonCfgApi",
+      "libraryPath": "",
+      "libraryName": "JsonCfgApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
       "name": "iqrf::JsCache",
       "libraryPath": "",
       "libraryName": "JsCache",
@@ -193,6 +207,13 @@
       "name": "iqrf::OtaUploadService",
       "libraryPath": "",
       "libraryName": "OtaUploadService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::LocalBondService",
+      "libraryPath": "",
+      "libraryName": "LocalBondService",
       "enabled": true,
       "startlevel": 3
     }

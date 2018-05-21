@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "schema__iqrf__Scheduler",
+        "name": "schema__iqrf__DaemonController",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,13 +12,13 @@
             "type": "string",
             "description": "Name of component.",
             "enum": [
-                "iqrf::Scheduler"
+                "iqrf::DaemonController"
             ]
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::Scheduler-(id)",
-            "default": "iqrf::Scheduler-1"
+            "description": "Recomended iqrf::DaemonController-(id)",
+            "default": "iqrf::DaemonController-1"
         },
         "RequiredInterfaces": {
             "type": "array",

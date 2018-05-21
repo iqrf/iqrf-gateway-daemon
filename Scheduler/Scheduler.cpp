@@ -105,6 +105,15 @@ namespace iqrf {
 
   void Scheduler::modify(const shape::Properties *props)
   {
+    using namespace rapidjson;
+    const Document& propDoc = props->getAsJson();
+    {
+      StringBuffer buffer;
+      PrettyWriter<StringBuffer> writer(buffer);
+      propDoc.Accept(writer);
+      std::string cfgStr = buffer.GetString();
+      TRC_DEBUG(std::endl << cfgStr);
+    }
   }
 
   void Scheduler::attachInterface(shape::ILaunchService* iface)

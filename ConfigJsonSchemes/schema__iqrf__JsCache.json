@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "schema__iqrf__Scheduler",
+        "name": "schema__iqrf__JsCache",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,13 +12,23 @@
             "type": "string",
             "description": "Name of component.",
             "enum": [
-                "iqrf::Scheduler"
+                "iqrf::JsCache"
             ]
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::Scheduler-(id)",
-            "default": "iqrf::Scheduler-1"
+            "description": "Recomended iqrf::JsCache-(id)",
+            "default": "iqrf::JsCache-1"
+        },
+        "urlRepo": {
+            "type": "string",
+            "description": "...",
+            "default": "https://repository.iqrfalliance.org/api"
+        },
+        "checkPeriodSec": {
+            "type": "integer",
+            "description": "...",
+            "default": 0
         },
         "RequiredInterfaces": {
             "type": "array",

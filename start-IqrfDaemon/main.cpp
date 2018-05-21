@@ -8,6 +8,7 @@ TRC_INIT_MNAME("IqrfGwDaemon-start");
 
 extern "C" {
   const shape::ComponentMeta& get_component_shape__LauncherService(unsigned long* compiler, unsigned long* typehash);
+  const shape::ComponentMeta& get_component_shape__ConfigurationService(unsigned long* compiler, unsigned long* typehash);
 }
 
 void staticInit()
@@ -19,6 +20,7 @@ void staticInit()
   unsigned long expectedHashcode = std::type_index(typeid(shape::ComponentMeta)).hash_code();
 
   shape::ComponentMap::get().setComponent(&get_component_shape__LauncherService(&compiler, &hashcode));
+  shape::ComponentMap::get().setComponent(&get_component_shape__ConfigurationService(&compiler, &hashcode));
 }
 
 int main(int argc, char** argv)

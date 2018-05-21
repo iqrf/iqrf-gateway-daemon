@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "shape__TraceFileService-IqrfGwDaemon",
+        "name": "schema__shape__TraceFileService",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,13 +10,15 @@
     "properties": {
         "component": {
             "type": "string",
-            "description": "...",
-            "default": "shape::TraceFileService"
+            "description": "Name of component.",
+            "enum": [
+                "shape::TraceFileService"
+            ]
         },
         "instance": {
             "type": "string",
-            "description": "...",
-            "default": "shape::TraceFileService-Cobalt"
+            "description": "Recomended shape::TraceFileService-(id)",
+            "default": "shape::TraceFileService-1"
         },
         "path": {
             "type": "string",
@@ -27,6 +29,16 @@
             "type": "string",
             "description": "...",
             "default": "IqrfDaemon.txt"
+        },
+        "maxSizeMB": {
+            "type": "integer",
+            "description": "...",
+            "default": 1048576
+        },
+        "timestampFiles": {
+            "type": "boolean",
+            "description": "...",
+            "default": false
         },
         "VerbosityLevels": {
             "type": "array",
@@ -48,6 +60,27 @@
                 "required": [
                     "channel",
                     "level"
+                ]
+            }
+        },
+        "RequiredInterfaces": {
+            "type": "array",
+            "description": "Array of required interfaces..",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "iqrf::IMessagingService",
+                        "description": "..."
+                    },
+                    "target": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "name",
+                    "target"
                 ]
             }
         }

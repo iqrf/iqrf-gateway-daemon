@@ -188,6 +188,13 @@
       "libraryName": "OtaUploadService",
       "enabled": true,
       "startlevel": 3
+    },
+    {
+      "name": "iqrf::LocalBondService",
+      "libraryPath": "",
+      "libraryName": "LocalBondService",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }

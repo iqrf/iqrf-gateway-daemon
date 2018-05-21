@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::LocalBondService",
+  "instance": "iqrf::LocalBondService-Instance1"
+}

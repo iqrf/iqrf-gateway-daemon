@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrf__Ide4Counterpart",
+        "name": "schema__iqrf__Scheduler",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,17 +10,19 @@
     "properties": {
         "component": {
             "type": "string",
-            "description": "...",
-            "default": "iqrf::Ide4Counterpart"
+            "description": "Name of component.",
+            "enum": [
+                "iqrf::Scheduler"
+            ]
         },
         "instance": {
             "type": "string",
-            "description": "...",
-            "default": "Ide4Counterpart"
+            "description": "Recomended iqrf::Scheduler-(id)",
+            "default": "iqrf::Scheduler-1"
         },
         "RequiredInterfaces": {
             "type": "array",
-            "description": "Array of verbosity levels.",
+            "description": "Array of required interfaces..",
             "items": {
                 "type": "object",
                 "properties": {
@@ -30,22 +32,15 @@
                         "description": "..."
                     },
                     "target": {
-                        "type": "object",
-                        "properties":{                            
-                            "instance":{
-                                "type":"string",
-                                "description": "...",
-                                "default":"UdpMessaging"
-                            }
-                        }
+                        "type": "object"
                     }
                 },
                 "required": [
-                    "channel",
-                    "level"
+                    "name",
+                    "target"
                 ]
             }
-        }        
+        }
     },
     "required": [
         "component",
