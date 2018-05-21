@@ -1,0 +1,64 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__iqrf__MqMessaging",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "iqrf::MqMessaging"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended iqrf::MqMessaging-(id)",
+            "default": "iqrf::MqMessaging-1"
+        },
+        "LocalMqName": {
+            "type": "string",
+            "description": "...",
+            "default": "iqrf-daemon-110"
+        },
+        "RemoteMqName": {
+            "type": "string",
+            "description": "...",
+            "default": "iqrf-daemon-100"
+        },
+        "acceptAsyncMsg": {
+            "type": "boolean",
+            "description": "...",
+            "default": false
+        },
+        "RequiredInterfaces": {
+            "type": "array",
+            "description": "Array of required interfaces..",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "iqrf::IMessagingService",
+                        "description": "..."
+                    },
+                    "target": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "name",
+                    "target"
+                ]
+            }
+        }
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}

@@ -1,0 +1,95 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__shape__TraceFileService",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "shape::TraceFileService"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended shape::TraceFileService-(id)",
+            "default": "shape::TraceFileService-1"
+        },
+        "path": {
+            "type": "string",
+            "description": "...",
+            "default": ""
+        },
+        "filename": {
+            "type": "string",
+            "description": "...",
+            "default": "IqrfDaemon.txt"
+        },
+        "maxSizeMB": {
+            "type": "integer",
+            "description": "...",
+            "default": 1048576
+        },
+        "timestampFiles": {
+            "type": "boolean",
+            "description": "...",
+            "default": false
+        },
+        "VerbosityLevels": {
+            "type": "array",
+            "description": "Array of verbosity levels.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "channel": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "..."
+                    },
+                    "level": {
+                        "type": "string",
+                        "default": "DBG",
+                        "description": "Masks pins of the port."
+                    }
+                },
+                "required": [
+                    "channel",
+                    "level"
+                ]
+            }
+        },
+        "RequiredInterfaces": {
+            "type": "array",
+            "description": "Array of required interfaces..",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "iqrf::IMessagingService",
+                        "description": "..."
+                    },
+                    "target": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "name",
+                    "target"
+                ]
+            }
+        }
+    },
+    "required": [
+        "component",
+        "instance",
+        "path",
+        "filename",
+        "VerbosityLevels"
+    ]
+}

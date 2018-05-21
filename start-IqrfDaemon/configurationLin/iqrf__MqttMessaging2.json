@@ -19,5 +19,6 @@
   "PrivateKey": "client-privatekey.pem",
   "PrivateKeyPassword": "",
   "EnabledCipherSuites": "",
-  "EnableServerCertAuth": true
+  "EnableServerCertAuth": true,
+  "acceptAsyncMsg": false
 }

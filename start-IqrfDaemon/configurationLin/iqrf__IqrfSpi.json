@@ -1,7 +1,6 @@
 {
   "component": "iqrf::IqrfSpi",
   "instance": "iqrf::IqrfSpi-/dev/spidev0.0",
-
   "IqrfInterface": "/dev/spidev0.0",
   "enableGpioPin": 23,
   "spiCe0GpioPin": 8,

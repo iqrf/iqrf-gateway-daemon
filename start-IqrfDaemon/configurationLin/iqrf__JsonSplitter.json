@@ -1,5 +1,5 @@
 {
   "component": "iqrf::JsonSplitter",
   "instance": "JsonSplitter",
-  "SchemesDir": "configuration/JsonSchemas"
+  "validateJsonResponse": true
 }

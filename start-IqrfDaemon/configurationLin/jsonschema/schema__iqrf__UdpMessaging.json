@@ -1,0 +1,59 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__iqrf__UdpMessaging",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "iqrf::UdpMessaging"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended iqrf::UdpMessaging-(id)",
+            "default": "iqrf::UdpMessaging-1"
+        },
+        "RemotePort": {
+            "type": "integer",
+            "description": "...",
+            "default": 55000
+        },
+        "LocalPort": {
+            "type": "integer",
+            "description": "...",
+            "default": 55300
+        },
+        "RequiredInterfaces": {
+            "type": "array",
+            "description": "Array of required interfaces..",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "iqrf::IMessagingService",
+                        "description": "..."
+                    },
+                    "target": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "name",
+                    "target"
+                ]
+            }
+        }
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}
