@@ -48,13 +48,12 @@ paho:
  script:
   - git clone https://github.com/eclipse/paho.mqtt.c.git paho-source
   - git -C paho-source checkout v1.2.0
-  - mkdir paho-build paho-libs
+  - mkdir paho-build
   - cmake -Bpaho-build -Hpaho-source -DCMAKE_BUILD_TYPE=Debug -DPAHO_WITH_SSL=TRUE
   - make -j$(nproc) -C paho-build
   - tar czvf paho-build_amd64.tar.gz paho-build
-artifacts:
+ artifacts:
   paths:
    - paho-build_amd64.tar.gz
  tags:
   - linux, amd64
-  
