@@ -37,15 +37,16 @@ namespace iqrf {
     virtual const DpaMessage& getRequest() const override { return m_fake; }
     virtual const DpaMessage& getConfirmation() const override { return m_fake; }
     virtual const DpaMessage& getResponse() const override { return m_fake; }
-    virtual const std::chrono::time_point<std::chrono::system_clock>& getRequestTs() const override { return std::chrono::system_clock::now(); }
-    virtual const std::chrono::time_point<std::chrono::system_clock>& getConfirmationTs() const override { return std::chrono::system_clock::now(); }
-    virtual const std::chrono::time_point<std::chrono::system_clock>& getResponseTs() const override { return std::chrono::system_clock::now(); }
+    virtual const std::chrono::time_point<std::chrono::system_clock>& getRequestTs() const override { return m_now; }
+    virtual const std::chrono::time_point<std::chrono::system_clock>& getConfirmationTs() const override { return m_now; }
+    virtual const std::chrono::time_point<std::chrono::system_clock>& getResponseTs() const override { return m_now; }
     virtual bool isConfirmed() const override { return false; }
     virtual bool isResponded() const override { return false; }
     virtual ~FakeTransactionResult() {};
   private:
     DpaMessage m_fake;
     IDpaTransactionResult2::ErrorCode m_errCode = TRN_ERROR_BAD_REQUEST;
+    std::chrono::time_point<std::chrono::system_clock> m_now;
   };
 
   class JsonDpaApiIqrfStandard::Imp
