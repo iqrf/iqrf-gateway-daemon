@@ -1,4 +1,0 @@
-{
-  "component": "iqrf::WebsocketMessaging",
-  "instance": "WebsocketMessaging"
-}

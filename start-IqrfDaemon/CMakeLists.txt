@@ -2,20 +2,26 @@ project (start-IqrfDaemon)
 
 file(GLOB_RECURSE _HDRFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE _CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configuration/*)
 file(GLOB_RECURSE _CONFIG_WIN ${CMAKE_CURRENT_SOURCE_DIR}/configurationWin/*)
 file(GLOB_RECURSE _CONFIG_LIN ${CMAKE_CURRENT_SOURCE_DIR}/configurationLin/*)
 file(GLOB_RECURSE _JAVA_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/JavaScript/*)
 
+if(WIN32)
+set(_CONFIG_SRC ${_CONFIG_WIN} ${_CONFIG} )
+else()
+set(_CONFIG_SRC ${_CONFIG_LIN} ${_CONFIG} )
+endif()
+
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
-source_group("Configuration Win" FILES ${_CONFIG_WIN})
-source_group("Configuration Lin" FILES ${_CONFIG_LIN})
+source_group("Configuration" FILES ${_CONFIG_SRC})
 source_group("JavaScript" FILES ${_JAVA_SCRIPT})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
 
-add_executable(${PROJECT_NAME} ${_HDRFILES} ${_SRCFILES} ${_CONFIG_WIN} ${_CONFIG_LIN} ${_JAVA_SCRIPT})
+add_executable(${PROJECT_NAME} ${_HDRFILES} ${_SRCFILES} ${_CONFIG_SRC} ${_JAVA_SCRIPT})
 
 target_link_libraries(${PROJECT_NAME} 
   launcher
@@ -40,12 +46,20 @@ else()
 
 endif()
 
-#copy configuration
+#copy diff configuration
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND}
     ARGS -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_CONFIG_DIR} "${_CONFIG_DEST}/configuration"
+)
+
+#copy common
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/configuration "${_CONFIG_DEST}/configuration"
 )
 
 #copy schemes
@@ -66,4 +80,24 @@ add_custom_command(
     POST_BUILD
     COMMAND ${CMAKE_COMMAND}
     ARGS -E copy_directory ${_JAVA_SCRIPT_FROM} ${_JAVA_SCRIPT_TO}
+)
+
+#copy JavaScript/DaemonWrapper.js
+set(_CFG_SCHEMA_FROM ${CMAKE_CURRENT_SOURCE_DIR}/jsonschema)
+set(_CFG_SCHEMA_TO ${_CONFIG_DEST}/configuration/jsonschema)
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_directory ${_CFG_SCHEMA_FROM} ${_CFG_SCHEMA_TO}
+)
+
+#copy Scheduler/Task.json
+set(_CFG_SCHEDULER_FROM ${CMAKE_CURRENT_SOURCE_DIR}/Scheduler)
+set(_CFG_SCHEDULER_TO ${_CONFIG_DEST}/configuration/Scheduler)
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_directory ${_CFG_SCHEDULER_FROM} ${_CFG_SCHEDULER_TO}
 )

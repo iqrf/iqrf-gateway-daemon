@@ -1,5 +1,0 @@
-{
-  "component": "iqrf::Scheduler",
-  "instance": "iqrf::Scheduler-Instance",
-  "TasksFile": "configuration/Scheduler/Tasks.json"
-}
