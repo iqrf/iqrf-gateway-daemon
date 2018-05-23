@@ -26,7 +26,7 @@ namespace iqrf {
   {
   public:
     MngModeMsg() = delete;
-    MngModeMsg(rapidjson::Document& doc)
+    MngModeMsg(const rapidjson::Document& doc)
       :ApiMsg(doc)
     {
       m_mode = ModeStringConvertor::str2enum(rapidjson::Pointer("/data/req/operMode").Get(doc)->GetString());
@@ -49,7 +49,7 @@ namespace iqrf {
   {
   public:
     MngRestartMsg() = delete;
-    MngRestartMsg(rapidjson::Document& doc)
+    MngRestartMsg(const rapidjson::Document& doc)
       :ApiMsg(doc)
     {
       m_timeToRestart = rapidjson::Pointer("/data/req/timeToRestart").Get(doc)->GetInt();
@@ -68,6 +68,139 @@ namespace iqrf {
     double m_timeToRestart;
   };
 
+  class SchedPeriodicTaskMsg : public ApiMsg
+  {
+  public:
+    SchedPeriodicTaskMsg() = delete;
+    SchedPeriodicTaskMsg(const rapidjson::Document& doc)
+      :ApiMsg(doc)
+    {
+      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
+      m_period = rapidjson::Pointer("/data/req/timePeriod").Get(doc)->GetInt();
+      m_point = rapidjson::Pointer("/data/req/timePoint").Get(doc)->GetString();
+      const Value *taskVal = Pointer("/data/req/task").Get(doc);
+      if (taskVal && taskVal->IsObject()) {
+        m_task.CopyFrom(*taskVal, m_task.GetAllocator());
+      }
+      else {
+        TRC_WARNING("Expected object: /data/req/task")
+      }
+    }
+
+    virtual ~SchedPeriodicTaskMsg()
+    {
+    }
+
+    const std::string& getClientId() const
+    {
+      return m_clientId;
+    }
+
+    int getPeriod() const
+    {
+      return m_period;
+    }
+
+    const std::string& getPoint() const
+    {
+      return m_point;
+    }
+
+    const rapidjson::Document& getTask() const
+    {
+      return m_task;
+    }
+
+  private:
+    std::string m_clientId;
+    int m_period;
+    std::string m_point;
+    rapidjson::Document m_task;
+  };
+
+  class SchedGetTaskMsg : public ApiMsg
+  {
+  public:
+    SchedGetTaskMsg() = delete;
+    SchedGetTaskMsg(const rapidjson::Document& doc)
+      :ApiMsg(doc)
+    {
+      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
+      m_taskId = rapidjson::Pointer("/data/req/taskId").Get(doc)->GetInt();
+    }
+
+    virtual ~SchedGetTaskMsg()
+    {
+    }
+
+    const std::string& getClientId() const
+    {
+      return m_clientId;
+    }
+
+    const int getTaskId() const
+    {
+      return m_taskId;
+    }
+
+  private:
+    std::string m_clientId;
+    int m_taskId;
+  };
+
+  class SchedRemoveTaskMsg : public ApiMsg
+  {
+  public:
+    SchedRemoveTaskMsg() = delete;
+    SchedRemoveTaskMsg(const rapidjson::Document& doc)
+      :ApiMsg(doc)
+    {
+      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
+      m_taskId = rapidjson::Pointer("/data/req/taskId").Get(doc)->GetInt();
+    }
+
+    virtual ~SchedRemoveTaskMsg()
+    {
+    }
+
+    const std::string& getClientId() const
+    {
+      return m_clientId;
+    }
+
+    const int getTaskId() const
+    {
+      return m_taskId;
+    }
+
+  private:
+    std::string m_clientId;
+    int m_taskId;
+  };
+
+  class SchedRemoveAllMsg : public ApiMsg
+  {
+  public:
+    SchedRemoveAllMsg() = delete;
+    SchedRemoveAllMsg(const rapidjson::Document& doc)
+      :ApiMsg(doc)
+    {
+      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
+    }
+
+    virtual ~SchedRemoveAllMsg()
+    {
+    }
+
+    const std::string& getClientId() const
+    {
+      return m_clientId;
+    }
+
+  private:
+    std::string m_clientId;
+  };
+
   class JsonMngApi::Imp
   {
   private:
@@ -79,7 +212,8 @@ namespace iqrf {
 
     std::vector<std::string> m_filters =
     {
-      "mngDaemon"
+      "mngDaemon",
+      "mngSched"
     };
 
   public:
@@ -91,6 +225,192 @@ namespace iqrf {
     {
     }
 
+    void handleMsg_mngDaemon_Mode(const rapidjson::Document& reqDoc, Document& respDoc)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      using namespace rapidjson;
+      MngModeMsg msg(reqDoc);
+
+      if (m_iUdpConnectorService) { // interface is UNREQUIRED
+
+                                    // switch mode
+        m_iUdpConnectorService->setMode(msg.getMode());
+
+        // prepare OK response
+        Pointer("/data/rsp/operMode").Set(respDoc, ModeStringConvertor::enum2str(msg.getMode()));
+
+        if (msg.getVerbose()) {
+          Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+          Pointer("/data/statusStr").Set(respDoc, "ok");
+        }
+
+        Pointer("/data/status").Set(respDoc, 0);
+      }
+      else {
+        // prepare ERR response
+        Pointer("/data/rsp/operMode").Set(respDoc, ModeStringConvertor::enum2str(msg.getMode()));
+
+        if (msg.getVerbose()) {
+          Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+          Pointer("/data/statusStr").Set(respDoc, "ERROR UdpConnectorService not active");
+        }
+
+        Pointer("/data/status").Set(respDoc, -1);
+
+      }
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    
+    void handleMsg_mngDaemon_Restart(const rapidjson::Document& reqDoc, Document& respDoc)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      MngRestartMsg msg(reqDoc);
+
+      Document d;
+      Pointer("/task/restart").Set(d, true);
+
+      TRC_INFORMATION(std::endl << "Exit scheduled in: " << msg.getTimeToRestart() << " milliseconds");
+      std::cout << std::endl << "Exit scheduled in: " << msg.getTimeToRestart() << " milliseconds" << std::endl;
+
+      m_iSchedulerService->scheduleTaskAt("JsonMngApi", d,
+        std::chrono::system_clock::now() + std::chrono::milliseconds((unsigned)msg.getTimeToRestart()));
+
+      // prepare OK response
+      Pointer("/data/rsp/timeToRestart").Set(respDoc, msg.getTimeToRestart());
+
+      if (msg.getVerbose()) {
+        Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+        Pointer("/data/statusStr").Set(respDoc, "ok");
+      }
+
+      Pointer("/data/status").Set(respDoc, 0);
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void handleMsg_mngSched_PeriodicTask(const rapidjson::Document& reqDoc, Document& respDoc)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      SchedPeriodicTaskMsg msg(reqDoc);
+
+      long taskId = m_iSchedulerService->scheduleTaskPeriodic(msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()/1000)); //TODO point
+
+      // prepare OK response
+      Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
+      Pointer("/data/rsp/taskId").Set(respDoc, taskId);
+
+      if (msg.getVerbose()) {
+        Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+        Pointer("/data/statusStr").Set(respDoc, "ok");
+      }
+
+      Pointer("/data/status").Set(respDoc, 0);
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void handleMsg_mngSched_GetTask(const rapidjson::Document& reqDoc, Document& respDoc)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      SchedGetTaskMsg msg(reqDoc);
+
+      const Value *task = m_iSchedulerService->getMyTask(msg.getClientId(), msg.getTaskId());
+      if (task) {
+        //m_iScheduler/Service->removeTask(msg.getClientId(), msg.getTaskId());
+        // prepare OK response
+        Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
+        Pointer("/data/rsp/taskId").Set(respDoc, msg.getTaskId());
+        Pointer("/data/rsp/task").Set(respDoc, *task);
+
+        if (msg.getVerbose()) {
+          Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+          Pointer("/data/statusStr").Set(respDoc, "ok");
+        }
+
+        Pointer("/data/status").Set(respDoc, 0);
+      }
+      else {
+        // prepare err response
+        Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
+        Pointer("/data/rsp/taskId").Set(respDoc, msg.getTaskId());
+
+        if (msg.getVerbose()) {
+          Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+          Pointer("/data/statusStr").Set(respDoc, "err");
+          Value empty;
+          empty.SetObject();
+          //Pointer("/data/rsp/task").Set(respDoc, empty);
+          Pointer("/data/errorStr").Set(respDoc, "clientId or taskId doesn't exist");
+        }
+
+        Pointer("/data/status").Set(respDoc, -1);
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void handleMsg_mngSched_RemoveTask(const rapidjson::Document& reqDoc, Document& respDoc)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      SchedRemoveTaskMsg msg(reqDoc);
+
+      auto *task = m_iSchedulerService->getMyTask(msg.getClientId(), msg.getTaskId());
+      if (task) {
+        m_iSchedulerService->removeTask(msg.getClientId(), msg.getTaskId());
+        // prepare OK response
+        Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
+        Pointer("/data/rsp/taskId").Set(respDoc, msg.getTaskId());
+
+        if (msg.getVerbose()) {
+          Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+          Pointer("/data/statusStr").Set(respDoc, "ok");
+        }
+
+        Pointer("/data/status").Set(respDoc, 0);
+      }
+      else {
+        // prepare err response
+        Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
+        Pointer("/data/rsp/taskId").Set(respDoc, msg.getTaskId());
+
+        if (msg.getVerbose()) {
+          Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+          Pointer("/data/statusStr").Set(respDoc, "err");
+          Pointer("/data/errorStr").Set(respDoc, "clientId or taskId doesn't exist");
+        }
+
+        Pointer("/data/status").Set(respDoc, -1);
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void handleMsg_mngSched_RemoveAll(const rapidjson::Document& reqDoc, Document& respDoc)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      SchedRemoveAllMsg msg(reqDoc);
+
+      m_iSchedulerService->removeAllMyTasks(msg.getClientId());
+      // prepare OK response
+      Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
+
+      if (msg.getVerbose()) {
+        Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+        Pointer("/data/statusStr").Set(respDoc, "ok");
+      }
+
+      Pointer("/data/status").Set(respDoc, 0);
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
     void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
     {
       TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
@@ -98,57 +418,25 @@ namespace iqrf {
 
       Document respDoc;
       if (msgType.m_type == "mngDaemon_Mode") {
-        MngModeMsg msg(doc);
-
-        if (m_iUdpConnectorService) { // interface is UNREQUIRED
-          
-          // switch mode
-          m_iUdpConnectorService->setMode(msg.getMode());
-
-          // prepare OK response
-          rapidjson::Pointer("/data/rsp/operMode").Set(respDoc, ModeStringConvertor::enum2str(msg.getMode()));
-
-          if (msg.getVerbose()) {
-            rapidjson::Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
-            rapidjson::Pointer("/data/statusStr").Set(respDoc, "ok");
-          }
-
-          rapidjson::Pointer("/data/status").Set(respDoc, 0);
-        }
-        else {
-          // prepare ERR response
-          rapidjson::Pointer("/data/rsp/operMode").Set(respDoc, ModeStringConvertor::enum2str(msg.getMode()));
-
-          if (msg.getVerbose()) {
-            rapidjson::Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
-            rapidjson::Pointer("/data/statusStr").Set(respDoc, "ERROR UdpConnectorService not active");
-          }
-
-          rapidjson::Pointer("/data/status").Set(respDoc, -1);
-
-        }
+        handleMsg_mngDaemon_Mode(doc, respDoc);
       }
       else if (msgType.m_type == "mngDaemon_Restart") {
-        MngRestartMsg msg(doc);
-
-        rapidjson::Document d;
-        rapidjson::Pointer("/task/restart").Set(d, true);
-
-        TRC_INFORMATION(std::endl << "Exit scheduled in: " << msg.getTimeToRestart() << " milliseconds");
-        std::cout << std::endl << "Exit scheduled in: " << msg.getTimeToRestart() << " milliseconds" << std::endl;
-
-        m_iSchedulerService->scheduleTaskAt("JsonMngApi",  d,
-          std::chrono::system_clock::now() + std::chrono::milliseconds((unsigned)msg.getTimeToRestart()));
-
-        // prepare OK response
-        rapidjson::Pointer("/data/rsp/timeToRestart").Set(respDoc, msg.getTimeToRestart());
-
-        if (msg.getVerbose()) {
-          rapidjson::Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
-          rapidjson::Pointer("/data/statusStr").Set(respDoc, "ok");
-        }
-
-        rapidjson::Pointer("/data/status").Set(respDoc, 0);
+        handleMsg_mngDaemon_Restart(doc, respDoc);
+      }
+      else if (msgType.m_type == "mngSched_PeriodicTask") {
+        handleMsg_mngSched_PeriodicTask(doc, respDoc);
+      }
+      else if (msgType.m_type == "mngSched_GetTask") {
+        handleMsg_mngSched_GetTask(doc, respDoc);
+      }
+      else if (msgType.m_type == "mngSched_RemoveTask") {
+        handleMsg_mngSched_RemoveTask(doc, respDoc);
+      }
+      else if (msgType.m_type == "mngSched_RemoveAll") {
+        handleMsg_mngSched_RemoveAll(doc, respDoc);
+      }
+      else {
+        //TODO not support
       }
 
       //TODO validate response in debug

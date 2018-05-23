@@ -7,10 +7,13 @@ namespace iqrf {
   {
   public:
     ApiMsg() {}
-    ApiMsg(rapidjson::Document& doc)
+    ApiMsg(const rapidjson::Document& doc)
     {
       m_msgId = rapidjson::Pointer("/data/msgId").Get(doc)->GetString();
-      m_verbose = rapidjson::Pointer("/data/returnVerbose").GetWithDefault(doc, m_verbose).GetBool();
+      const rapidjson::Value* v = rapidjson::Pointer("/data/returnVerbose").Get(doc);
+      if (v && v->IsBool()) {
+        m_verbose = v->GetBool();
+      }
     }
 
     virtual ~ApiMsg()
