@@ -1,5 +1,6 @@
 #include "ApiMsg.h"
 #include "JsonMngApi.h"
+#include "HexStringCoversion.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
@@ -68,6 +69,61 @@ namespace iqrf {
     double m_timeToRestart;
   };
 
+  class SchedAddTaskMsg : public ApiMsg
+  {
+  public:
+    SchedAddTaskMsg() = delete;
+    SchedAddTaskMsg(const rapidjson::Document& doc)
+      :ApiMsg(doc)
+    {
+      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
+      
+      std::ostringstream os;
+      os <<
+        rapidjson::Pointer("/data/req/cronTime/0").Get(doc)->GetString() << ' ' <<
+        rapidjson::Pointer("/data/req/cronTime/1").Get(doc)->GetString() << ' ' <<
+        rapidjson::Pointer("/data/req/cronTime/2").Get(doc)->GetString() << ' ' <<
+        rapidjson::Pointer("/data/req/cronTime/3").Get(doc)->GetString() << ' ' <<
+        rapidjson::Pointer("/data/req/cronTime/4").Get(doc)->GetString() << ' ' <<
+        rapidjson::Pointer("/data/req/cronTime/5").Get(doc)->GetString() << ' ' <<
+        rapidjson::Pointer("/data/req/cronTime/6").Get(doc)->GetString();
+
+      m_cronTime = os.str();
+
+      const Value *taskVal = Pointer("/data/req/task").Get(doc);
+      if (taskVal && taskVal->IsObject()) {
+        m_task.CopyFrom(*taskVal, m_task.GetAllocator());
+      }
+      else {
+        TRC_WARNING("Expected object: /data/req/task")
+      }
+    }
+
+    virtual ~SchedAddTaskMsg()
+    {
+    }
+
+    const std::string& getClientId() const
+    {
+      return m_clientId;
+    }
+
+    const std::string& getCronTime() const
+    {
+      return m_cronTime;
+    }
+
+    const rapidjson::Document& getTask() const
+    {
+      return m_task;
+    }
+
+  private:
+    std::string m_clientId;
+    std::string m_cronTime;
+    rapidjson::Document m_task;
+  };
+
   class SchedPeriodicTaskMsg : public ApiMsg
   {
   public:
@@ -77,7 +133,15 @@ namespace iqrf {
     {
       m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
       m_period = rapidjson::Pointer("/data/req/timePeriod").Get(doc)->GetInt();
-      m_point = rapidjson::Pointer("/data/req/timePoint").Get(doc)->GetString();
+
+      const Value *tpVal = Pointer("/data/req/timePoint").Get(doc);
+      if (tpVal && tpVal->IsString()) {
+        m_point = parseTimestamp(tpVal->GetString());
+      }
+      else {
+        TRC_WARNING("Expected object: /data/req/task")
+      }
+
       const Value *taskVal = Pointer("/data/req/task").Get(doc);
       if (taskVal && taskVal->IsObject()) {
         m_task.CopyFrom(*taskVal, m_task.GetAllocator());
@@ -101,7 +165,7 @@ namespace iqrf {
       return m_period;
     }
 
-    const std::string& getPoint() const
+    const std::chrono::system_clock::time_point& getPoint() const
     {
       return m_point;
     }
@@ -114,7 +178,7 @@ namespace iqrf {
   private:
     std::string m_clientId;
     int m_period;
-    std::string m_point;
+    std::chrono::system_clock::time_point m_point;
     rapidjson::Document m_task;
   };
 
@@ -176,6 +240,29 @@ namespace iqrf {
   private:
     std::string m_clientId;
     int m_taskId;
+  };
+
+  class SchedListMsg : public ApiMsg
+  {
+  public:
+    SchedListMsg() = delete;
+    SchedListMsg(const rapidjson::Document& doc)
+      :ApiMsg(doc)
+    {
+      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
+    }
+
+    virtual ~SchedListMsg()
+    {
+    }
+
+    const std::string& getClientId() const
+    {
+      return m_clientId;
+    }
+
+  private:
+    std::string m_clientId;
   };
 
   class SchedRemoveAllMsg : public ApiMsg
@@ -262,7 +349,6 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    
     void handleMsg_mngDaemon_Restart(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
@@ -291,13 +377,36 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    void handleMsg_mngSched_AddTask(const rapidjson::Document& reqDoc, Document& respDoc)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      SchedAddTaskMsg msg(reqDoc);
+
+      long taskId = m_iSchedulerService->scheduleTask(msg.getClientId(), msg.getTask(), msg.getCronTime()); //TODO point
+
+      // prepare OK response
+      Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
+      Pointer("/data/rsp/taskId").Set(respDoc, taskId);
+
+      if (msg.getVerbose()) {
+        Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+        Pointer("/data/statusStr").Set(respDoc, "ok");
+      }
+
+      Pointer("/data/status").Set(respDoc, 0);
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
     void handleMsg_mngSched_PeriodicTask(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
 
       SchedPeriodicTaskMsg msg(reqDoc);
 
-      long taskId = m_iSchedulerService->scheduleTaskPeriodic(msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()/1000)); //TODO point
+      long taskId = m_iSchedulerService->scheduleTaskPeriodic(
+        msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()/1000), msg.getPoint()); //TODO point
 
       // prepare OK response
       Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
@@ -320,12 +429,13 @@ namespace iqrf {
       SchedGetTaskMsg msg(reqDoc);
 
       const Value *task = m_iSchedulerService->getMyTask(msg.getClientId(), msg.getTaskId());
+      const Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(msg.getClientId(), msg.getTaskId());
       if (task) {
-        //m_iScheduler/Service->removeTask(msg.getClientId(), msg.getTaskId());
         // prepare OK response
         Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
         Pointer("/data/rsp/taskId").Set(respDoc, msg.getTaskId());
         Pointer("/data/rsp/task").Set(respDoc, *task);
+        Pointer("/data/rsp/timeSpec").Set(respDoc, *timeSpec);
 
         if (msg.getVerbose()) {
           Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
@@ -344,7 +454,7 @@ namespace iqrf {
           Pointer("/data/statusStr").Set(respDoc, "err");
           Value empty;
           empty.SetObject();
-          //Pointer("/data/rsp/task").Set(respDoc, empty);
+          Pointer("/data/rsp/task").Set(respDoc, empty);
           Pointer("/data/errorStr").Set(respDoc, "clientId or taskId doesn't exist");
         }
 
@@ -391,6 +501,33 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    void handleMsg_mngSched_List(const rapidjson::Document& reqDoc, Document& respDoc)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      SchedListMsg msg(reqDoc);
+
+      std::vector<ISchedulerService::TaskHandle> vect = m_iSchedulerService->getMyTasks(msg.getClientId());
+      
+      // prepare OK response
+      Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
+      Value arr;
+      arr.SetArray();
+      for (auto v : vect) {
+        arr.PushBack(v, respDoc.GetAllocator());
+      }
+      Pointer("/data/rsp/tasks").Set(respDoc, arr);
+
+      if (msg.getVerbose()) {
+        Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
+        Pointer("/data/statusStr").Set(respDoc, "ok");
+      }
+
+      Pointer("/data/status").Set(respDoc, 0);
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
     void handleMsg_mngSched_RemoveAll(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
@@ -423,6 +560,9 @@ namespace iqrf {
       else if (msgType.m_type == "mngDaemon_Restart") {
         handleMsg_mngDaemon_Restart(doc, respDoc);
       }
+      else if (msgType.m_type == "mngSched_AddTask") {
+        handleMsg_mngSched_AddTask(doc, respDoc);
+      }
       else if (msgType.m_type == "mngSched_PeriodicTask") {
         handleMsg_mngSched_PeriodicTask(doc, respDoc);
       }
@@ -434,6 +574,9 @@ namespace iqrf {
       }
       else if (msgType.m_type == "mngSched_RemoveAll") {
         handleMsg_mngSched_RemoveAll(doc, respDoc);
+      }
+      else if (msgType.m_type == "mngSched_List") {
+        handleMsg_mngSched_List(doc, respDoc);
       }
       else {
         //TODO not support

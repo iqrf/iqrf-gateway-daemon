@@ -37,7 +37,7 @@ namespace iqrf {
     ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp);
     ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
       const std::chrono::system_clock::time_point& tp);
-    //ScheduleRecord(const std::string& rec);
+    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime);
     ScheduleRecord(const rapidjson::Value& rec);
     ScheduleRecord(const ScheduleRecord& other);
 
@@ -46,14 +46,17 @@ namespace iqrf {
     bool verifyTimePattern(const std::tm& actualTime) const;
     const rapidjson::Value& getTask() const { return m_task; }
     const std::string& getClientId() const { return m_clientId; }
+    const rapidjson::Value& getTimeSpec() const { return m_timeSpec; }
 
     static std::string asString(const std::chrono::system_clock::time_point& tp);
     static void getTime(std::chrono::system_clock::time_point& timePoint, std::tm& timeStr);
 
   private:
+    void init(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime);
+
     //These special time specification "nicknames" which replace the 5 initial time and date fields,
     //and are prefixed with the '@' character, are supported :
-    //@reboot : Run once after reboot.
+    //  @reboot : Run once after reboot.
     //  @yearly : Run once a year, ie.  "0 0 0 0 1 1 *".
     //  @annually : Run once a year, ie.  "0 0 0 0 1 1 *".
     //  @monthly : Run once a month, ie. "0 0 0 0 1 * *".
@@ -69,7 +72,8 @@ namespace iqrf {
     friend void shuffleDuplicitHandle(ScheduleRecord& rec);
     void init();
     int parseItem(const std::string& item, int mnm, int mxm, std::vector<int>& vec, int offset = 0);
-    
+    void setTimeSpec();
+
     bool verifyTimePattern(int cval, const std::vector<int>& tvalV) const;
     rapidjson::Document m_task;
     std::string m_clientId;
@@ -87,9 +91,12 @@ namespace iqrf {
     bool m_exactTime = false;
     bool m_periodic = false;
     bool m_started = false;
-    std::chrono::seconds m_period;
+    std::chrono::seconds m_period = std::chrono::seconds(0);
     std::chrono::system_clock::time_point m_startTime;
 
     ISchedulerService::TaskHandle m_taskHandle;
+
+    std::string m_cronTime;
+    rapidjson::Document m_timeSpec;
   };
 }

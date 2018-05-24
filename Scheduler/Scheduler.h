@@ -108,9 +108,12 @@ namespace iqrf {
     void registerTaskHandler(const std::string& clientId, TaskHandlerFunc fun) override;
     void unregisterTaskHandler(const std::string& clientId) override;
 
-    std::vector<const rapidjson::Value *> getMyTasks(const std::string& clientId) const override;
+    //std::vector<const rapidjson::Value *> getMyTasks(const std::string& clientId) const override;
+    std::vector<TaskHandle> getMyTasks(const std::string& clientId) const override;
     const rapidjson::Value * getMyTask(const std::string& clientId, const TaskHandle& hndl) const override;
+    const rapidjson::Value * getMyTaskTimeSpec(const std::string& clientId, const TaskHandle& hndl) const override;
 
+    TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime) override;
     TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp) override;
     TaskHandle scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
       const std::chrono::system_clock::time_point& tp) override;

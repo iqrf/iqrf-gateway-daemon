@@ -173,6 +173,12 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
+  Scheduler::TaskHandle Scheduler::scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime)
+  {
+    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, cronTime));
+    return addScheduleRecord(s);
+  }
+
   Scheduler::TaskHandle Scheduler::scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp)
   {
     std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, tp));
@@ -373,14 +379,27 @@ namespace iqrf {
     m_messageHandlers.erase(clientId);
   }
 
-  std::vector<const rapidjson::Value *> Scheduler::getMyTasks(const std::string& clientId) const
+  //std::vector<const rapidjson::Value *> Scheduler::getMyTasks(const std::string& clientId) const
+  //{
+  //  std::vector<const rapidjson::Value *> retval;
+  //  // lock and copy
+  //  std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
+  //  for (auto & task : m_scheduledTasksByTime) {
+  //    if (task.second->getClientId() == clientId) {
+  //      retval.push_back(&task.second->getTask());
+  //    }
+  //  }
+  //  return retval;
+  //}
+
+  std::vector<ISchedulerService::TaskHandle> Scheduler::getMyTasks(const std::string& clientId) const
   {
-    std::vector<const rapidjson::Value *> retval;
+    std::vector<TaskHandle> retval;
     // lock and copy
     std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
     for (auto & task : m_scheduledTasksByTime) {
       if (task.second->getClientId() == clientId) {
-        retval.push_back(&task.second->getTask());
+        retval.push_back(task.second->getTaskHandle());
       }
     }
     return retval;
@@ -394,6 +413,17 @@ namespace iqrf {
     auto found = m_scheduledTasksByHandle.find(hndl);
     if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId())
       retval = &found->second->getTask();
+    return retval;
+  }
+
+  const rapidjson::Value * Scheduler::getMyTaskTimeSpec(const std::string& clientId, const TaskHandle& hndl) const
+  {
+    const rapidjson::Value * retval = nullptr;
+    // lock and copy
+    std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
+    auto found = m_scheduledTasksByHandle.find(hndl);
+    if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId())
+      retval = &found->second->getTimeSpec();
     return retval;
   }
 

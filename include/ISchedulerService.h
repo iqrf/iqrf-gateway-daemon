@@ -69,7 +69,8 @@ namespace iqrf {
     /// \return scheduled tasks
     /// \details
     /// Returns all pending scheduled tasks for the client
-    virtual std::vector<const rapidjson::Value *> getMyTasks(const std::string& clientId) const = 0;
+    //virtual std::vector<const rapidjson::Value *> getMyTasks(const std::string& clientId) const = 0;
+    virtual std::vector<TaskHandle> getMyTasks(const std::string& clientId) const = 0;
 
     /// \brief Get a particular tasks for a client
     /// \param [in] clientId client identification
@@ -78,6 +79,10 @@ namespace iqrf {
     /// \details
     /// Returns a particular task planned for a client or an empty task if doesn't exists
     virtual const rapidjson::Value * getMyTask(const std::string& clientId, const TaskHandle& hndl) const = 0;
+
+    virtual const rapidjson::Value * getMyTaskTimeSpec(const std::string& clientId, const TaskHandle& hndl) const = 0;
+
+    virtual TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime) = 0;
 
     /// \brief Schedule task at time point
     /// \param [in] clientId client identification

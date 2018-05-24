@@ -53,6 +53,39 @@ namespace iqrf {
     }
   }
 
+  /// \brief parse time up to seconds granularity in format YYY-MM-DDThh:mm:ss
+  /// \param [in] from string to be parsed
+  /// \return encoded time point
+  std::chrono::time_point<std::chrono::system_clock> parseTimestamp(const std::string& from)
+  {
+    int tm_year = 0, tm_mon = 1;
+
+    time_t rawtime;
+    tm * tm1;
+    time(&rawtime);
+    tm1 = localtime(&rawtime);
+
+    std::string buf(from);
+    std::replace(buf.begin(), buf.end(), '-', ' ');
+    std::replace(buf.begin(), buf.end(), 'T', ' ');
+    std::replace(buf.begin(), buf.end(), ':', ' ');
+    std::replace(buf.begin(), buf.end(), '.', ' ');
+
+    std::istringstream is(buf);
+    is >> tm_year >> tm_mon >> tm1->tm_mday >> tm1->tm_hour >> tm1->tm_min >> tm1->tm_sec;
+    tm1->tm_year = tm_year - 1900;
+    tm1->tm_mon = tm_mon - 1;
+
+    time_t tt = mktime(tm1);
+
+    std::chrono::time_point<std::chrono::system_clock> retval;
+    if (tt >= 0) {
+      retval = std::chrono::system_clock::from_time_t(tt);
+    }
+
+    return retval;
+  }
+
   /// \brief Encode uint_8 to hexa string
   /// \param [in] from value to be encoded
   /// \return encoded string
