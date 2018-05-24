@@ -25,34 +25,38 @@ skinparam note {
 }
 
 
-component [JsonDpa] as C30
-component [JsonEmbedPer] as C34
-component [JsonStdDev] as C35
-component [JsonNtwMgm] as C36
-component [Json...] as C39
+component [BaseService] as C30
+component [JsonDpaApiIqrfStandard] as C31
+component [JsonDpaApiRaw] as C32
+component [LocalBondService] as C33
+component [OtaUploadService] as C34
+component [ReadTrConfigService] as C35
+component [SmartConnectService] as C36
+component [WriteConfigService] as C37
+component [Ide4Counterpart] as C38
+
 
 component [IqrfDpa] as C40
 
 component [IqrfCdc] as C50
 component [IqrfSpi] as C51
-component [IqrfVirtual] as C52
-component [Iqrf...] as C53
 
 C40 -u- I40
 C50 -u- I50
 C51 -u- I50
-C52 -l- I50
-C53 -u- I50
 
-C30 .d.> I40
+C30 .l.> I40
+C31 .l.> I40
+C32 .d.> I40
+C33 .d.> I40
 C34 .d.> I40
 C35 .d.> I40
 C36 .r.> I40
-C39 .l.> I40
+C37 .r.> I40
 
 C40 .d.> I50
 
-C36 .d.> I50
+C38 .r.> I50
 
 
 interface "IIqrfDpaService" as I40

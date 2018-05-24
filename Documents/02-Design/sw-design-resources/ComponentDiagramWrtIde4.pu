@@ -25,25 +25,25 @@ skinparam note {
 }
 
 
-interface "IIqrfChannelService" as I3
-interface "IMessagingService" as I4
-interface "IDaemonCommonService" as I5
-interface "IEmbedPerService" as I6
+interface "IIqrfChannelService" as I1
+interface "IUdpMessagingService" as I2
+interface "IUdpConnectorService" as I3
 
 component [Ide4Counterpart] as C1
-component [UdpMessaging] as C4
-component [DaemonCommon] as C5
-component [EmbedPer] as C6
+component [UdpMessaging] as C2
+component [IqrfCdc] as C3
+component [IqrfSpi] as C4
+component [JsonMngApi] as C5
 
 
-C4 -- I4
-C5 -u- I5
-C6 -l- I6
+C1 -- I3
+C2 -- I2
+C3 -u- I1
+C4 -u- I1
 
-C1 .d.> I3
-C1 .d.> I4
-C1 .d.> I5
+C1 .d.> I1
+C1 .d.> I2
+C5 .d.> I3
 
-C5 .r.> I6
 
 @enduml

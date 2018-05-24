@@ -1,5 +1,5 @@
 @startuml
-title Iqrf Daemon Components with respect to Async API
+title Iqrf Daemon Components with respect to JSON API
 
 skinparam component {
   FontSize 13
@@ -24,45 +24,43 @@ skinparam note {
   ArrowFontName Arial
 }
 
-component [LwsMessaging] as C10
+component [WebsocketMessaging] as C10
 component [MqttMessaging] as C11
 component [MqMessaging] as C12
+component [SchedulerMessaging] as C13
 
-component [JsonHub] as C20
+component [JsonSplitter] as C20
 
-component [JsonDpa] as C30
-component [JsonEmbedPer] as C34
-component [JsonStdDev] as C35
-component [JsonNtwMgm] as C36
-component [JsonCfgMgm] as C37
-component [JsonSched] as C38
-component [Json...] as C39
-
-component [Scheduler] as C60
+component [BaseService] as C30
+component [JsonCfgApi] as C31
+component [JsonDpaApiIqrfStandard] as C32
+component [JsonDpaApiRaw] as C33
+component [JsonMngApi] as C34
+component [OtaUploadService] as C35
+component [ReadTrConfigService] as C36
+component [SmartConnectService] as C37
+component [WriteConfigService] as C38
 
 C10 -- I10
 C11 -- I10
 C12 -- I10
-C38 -r- I10
+C13 -- I10
 
 C20 .u.> I10
 
 C20 -- I20
 
-C30 .u.> I20
+C30 .r.> I20
+C31 .r.> I20
+C32 .u.> I20
+C33 .u.> I20
 C34 .u.> I20
 C35 .u.> I20
 C36 .u.> I20
 C37 .l.> I20
-C38 .d.> I20
-C39 .u.> I20
-
-C38 .d.> I60
-
-C60 -u- I60
+C38 .l.> I20
 
 interface "IMessagingService" as I10
 interface "IMessagingSplitterService" as I20
-interface "ISchedulerService" as I60
 
 @enduml

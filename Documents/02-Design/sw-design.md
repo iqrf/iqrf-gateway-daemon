@@ -1,4 +1,4 @@
-# Software design [#18](https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/issues/18)
+# Software design
 
 
 ## 1 Component design
@@ -36,37 +36,30 @@ The framework is described in: [Shape/README.md](https://github.com/logimic/shap
 **Service** is represented by its Interface. Provides service like doing command, send data, parse data, calculate data, registering call-back, etc. Service is a published Interface (Provided or Required) within Shape framework.
 
 
-## 2 Interfaces & Components with respect to Async API
+## 2 Interfaces & Components with respect to JSON API
 
-Description of components processing messages received/sent via Async API
+Description of components processing messages received/sent via JSON API
 
-![ComponentDiagramWrtAsyncAPI.png](sw-design-resources/ComponentDiagramWrtAsyncAPI.png)
+![ComponentDiagramWrtJsonAPI.png](sw-design-resources/ComponentDiagramWrtJsonAPI.png)
 
 ### Interfaces
 #### IMessagingService
 Is abstraction of specific messaging protocol
 - send message (address, message)
-- register message handler (handlerId, handleFunction)
-- get messaging ID (string) 
+- register/unregister message handler (handlerId, handleFunction)
+- get messaging ID name (string) 
 - handleFunction(address, message)
+- get flag if accepts async DPA message
 
 #### IMessagingSplitterService
-Is abstraction of messaging splitter. Incomming address or message is preparsed and the message is routed to proper handler according registered topics. When a message (response) is sent an implementation has to assure that it is routed back to proper messaging according messagingId 
-- send message (messagingId, address, message)
-- register message handler (handlerId, vector<topic>, handleFunction)
+Is abstraction of messaging splitter. Incomming message is preparsed and the message is routed to proper handler according registered message type filters. When a message (response) is sent an implementation has to assure that it is routed back to proper messaging according messagingId 
+- send message (messagingId, message)
+- register/unregister message handler (vector< message filter>, handleFunction)
 - handleFunction(messagingId, address, message) 
 
-#### ISchedulerService
-Provides Interface to Scheduler component
-- Add periodic task (in seconds) for client id
-- Add task with cron syntax for client id
-- Get task by task id
-- Remove task by task id
-- List all tasks for client id
-- Remove all tasks for client id
 
 ### Components
-#### LwsMessaging
+#### WebsocketMessaging
 Implements IMessagingService Interface via Websockets protocol
 
 #### MqttMessaging
@@ -75,23 +68,54 @@ Implements IMessagingService Interface via MQTT protocol
 #### MqMessaging
 Implements IMessagingService Interface via inter-process communication
 
-#### JsonHub
-It uses Required Interface IMessagingService to register a handler processing incoming request messages. JsonHub preparses the request messages to get a key controlling where to route the next processing. It implements IMessagingSplitterService. A users of the interface is selected according the key and registered handler of the user is called. When the processing is finished the user sends back a response message. The response message is send according messagingId parameter. 
+#### SchedulerMessaging
+Implements IMessagingService Interface delivering messages from Scheduler
 
-#### JsonEmbedPer
-This component is responsible for handling requests messages to perform an action with an embedded periphery as e.g. blink LED or switch IO. It seems appropriate to split it to more components in implementation as some embedded periphery are complex (FRS) and dedicated components may be easily maintained and implemented in parallel by more developers independently.
+#### JsonSplitter
+It uses Required Interface IMessagingService to register a handler processing incoming request messages. JsonSplitter preparses the request messages to get a message type controlling where to route the next processing. It implements IMessagingSplitterService. A users of the interface is selected by matching the type and registered filters. The filter match if it is substring of incoming message type. It the type fits registered handler of the user is called. When the processing is finished the user sends back a response message. The response message is send according messagingId parameter. 
 
-#### JsonStdDev
-This component is responsible for handling requests messages to perform an action with Standard Devices. It seems appropriate to split it to more components in implementation.
+#### BaseService
+This component is responsible for handling requests messages in format of daemon V1:
+- Raw
+- RawHdp
 
-#### JsonNtwMgm
-This component is responsible for handling requests messages to perform an action with Network mamagement. It seems appropriate to split it to more components in implementation.
+#### JsonCfgApi
+This component is responsible for handling requests messages filtered by:
+- cfgDaemon
 
-#### JsonCfgMgm
-This component is responsible for handling requests messages to perform an action with Configuration mamagement. Incoming configurations are handled via Shape Configuration Service
+#### JsonDpaApiIqrfStandard
+This component is responsible for handling requests messages to perform an action with an embedded periphery and standard devices. It is responsible for messages filtered by:
+- iqrfEmbed
+- iqrfLight
+- iqrfSensor
+- iqrfBinaryoutput
 
-#### JsonSched
-This component is responsible for handling requests messages to schedule tasks. The messages are in form of requests messages as it would be sent directly but wrapped in a scheduling envelope controlling postponing, periodicity, etc. JsonSched uses IScheduler interface to schedule the tasks. When it is fired by Scheduler JsonSched uses Provided Interface IMessaging to send wrapped request message via JsonHub to dedicated message handling component.
+#### JsonDpaApiRaw
+This component is responsible for handling requests messages filtered by:
+- iqrfRaw
+- iqrfRawHdp
+
+#### JsonMngApi
+This component is responsible for handling requests messages filtered by:
+- mngDaemon
+- mngSched
+
+#### OtaUploadService
+This component is responsible for handling requests messages filtered by:
+- TODO
+
+#### ReadTrConfigService
+This component is responsible for handling requests messages filtered by:
+- TODO
+
+#### SmartConnectService
+This component is responsible for handling requests messages filtered by:
+- TODO
+
+#### WriteConfigService
+This component is responsible for handling requests messages filtered by:
+- TODO
+
 
 ## 3 Interfaces & Components with respect to DPA
 
@@ -103,94 +127,100 @@ Description of components acting in processing of DPA messages
 #### IIqrfDpaService
 Is abstraction of IqrfDpa Component (DPA Transaction, timing, error evaluation, etc.)
 - execute Dpa Transaction
-- kill pending Dpa Transaction
-- get/set Dpa Transaction timeout
+- get/set Dpa Transaction default timeout
 - get/set RF mode (std/lp)
 - register/unregister async message handler
 
 #### IIqrfChannelService
 Is abstraction of device driver providing connection to IQRF Coordinator
 - send message
-- register/unregister receive handler
-- get state (ready, not ready, direct access, ...)
-- set/unset direct access mode (for SW download/upload, for IDE4 cooperation)
-- set/unset normal mode
-- set/unset eavesdropping (diagnostic purposes - forwarding to IDE4) 
+- get accessor with receive handler with normal, exclusive, sniffer access mode (for SW download/upload, for IDE4 cooperation)
+- get state (ready, not ready, exclusive access)
 
 ### Components
 
-These components (described above) require IIDpaService to process DPA requests as result of incoming API messages (as described above)
-#### JsonEmbedPer
-#### JsonStdDev
-#### JsonNtwMgm
-This component directly require IIqrfChannelService to allow native SW upload
-#### JsonCfgMgm
-This component uses IIqrfDpaService to get/set DPA parameters (RF mode, default timeout)
+#### BaseService
+Processes legacy daemon V1 Raw and RawHdp messages, convert them to DPA messages and executes DPA transaction via IIqrfDpaService interface.
+ 
+#### JsonDpaApiIqrfStandard
+Processes Standard and Embed devices handling JSON API messges, convert them to DPA messages and executes DPA transaction via IIqrfDpaService interface.
+
+
+#### JsonDpaApiRaw
+Processes Raw and RawHdp JSON API messges, convert them to DPA messages and executes DPA transaction via IIqrfDpaService interface.
+
+#### LocalBondService
+TODO
+
+#### OtaUploadService
+TODO
+
+#### ReadTrConfigService
+TODO
+
+#### SmartConnectService
+TODO
+
+#### WriteConfigService
+TODO
+
+#### Ide4Counterpart
+TODO
+
+#### IqrfDpa
+Encapsulates DPA transaction processing via clibdpa and IIqrfChannelService as a channel to the coordinator
+
+#### IqrfCdc
+Implements IIqrfChannelService via CDC
+
+#### IqrfSpi
+Implements IIqrfChannelService via SPI
 
 TODO: There shall be dedicated Component providing processing of asynchronous DPA messages. It is expected these messages could be send offen from asynchronous events from sleeping sensors (e.g. door open). I seems appropriate to analyze content and use right JS script to translate from DPA binary representation to user friendly format
 
-#### IqrfDpa
-Provides DPA transaction processing
-- timeout handling
-- DPA request/response/confirmation handling
-- Async DPA message handling
-- RF setting 
-
-#### IqrfCdc
-Implements IIqrfDpaService via CDC
-
-#### IqrfSpi
-Implements IIqrfDpaService via SPI
-
-#### IqrfVirtual
-Implements IIqrfDpaService as virtual connection to remote coordinator connected via TCP
-
 
 ## 4 Components with respect to IQRF Repository
+TODO update
 
 Description of components interacting with IQRF Repository
 
 ![ComponentDiagramWrtRepo.png](sw-design-resources/ComponentDiagramWrtRepo.png)
 
 ### Interfaces
-#### IRestClientService
-Is abstraction of RestClient Component providing generic REST API connection.
+#### shape::IRestClientService
+Is interface providing generic REST API connection.
 
 #### ISchedulerService
-It is described above. It is used to schedule periodic check of IQRF Repo state (new updates)
+Is interface used to schedule periodic check of IQRF Repo state (new updates)
 
-#### IRepoCacheService
-Is abstraction of RepoCache Component providing connection to IQRF Repo and caching results
+#### IJsCacheService
+Is interface providing access to IQRF Repo cache
 - gets package (HEX)
 - gets JS drivers
-- gets Repo status
+- provides repo simple searches.
+- gets all other repo related data.
 
-#### IJsEngineService
-Is abstraction of JsEngine providing processing of JavaScript code
-- execute JS
 
 ### Components
 
 #### Scheduler
-described above
+Provides scheduled periodic task to check and download of possible repo new versions
 
-#### RestClient
-Implementation of REST API client
+#### CppRestService
+Implementation of REST API client in Shapeware component collection.
 
-#### RepoCache
-Implements periodic IQRF Repo check and caching results. Caching is provided for HWPID known for connected nodes to avoid mirroring of complete Repo. 
+#### JsCache
+Downloads and holds repo cached data. Implements periodic repo check for new versions invoked as scheduled periodic task.
 
-#### JsonStdDev
-It requires interfaces IRepoCacheService and IJsEngineService to handle incoming API requests for Standard Devices.
+#### JsonDpaApiIqrfStandard
+Encapsulates JS Engine implementation to interpret downloaded JS scripts to process Standard and Embed devices.
 
-#### JsonEmbedPer
-It requires interfaces IRepoCacheService and IJsEngineService to handle incoming API requests for Embedded Peripheries.
+#### LocalBondService
+TODO
 
-#### JsonNtwMgm
-It requires interfaces IRepoCacheService and IJsEngineService to handle incoming API requests for Network management purpose. Mainly EmbedCoordinator, EmbedNode, EmbedOS are used for such purposes.
+#### SmartConnectService
+TODO
 
-#### JsEngine
-Provides JavaScript execution.
 
 ## 4 Components with respect to upload
 
@@ -234,37 +264,41 @@ Description of components processing IDE4 cooperation
 ### Interfaces
 
 #### IIqrfChannelService
-Described above
+Interface to get direct access to the coordinator in Service mode and Sniffer access in Forwarding mode.
 
-#### IMessagingService
-Described above
+#### IUdpMessagingService
+Interface to comunicate via UDP with IDE
 
-#### IDaemonCommonService
-Provides common services used by other components
-- get application version info
-- get coordinator OS vesrsion
-- get coordinator build
-- TODO ... 
-
-#### IEmbedPerService
-Provides access to embeded perifery in generic way
-- access to embedded periferies via get/set methods
+#### IUdpConnectorService
+Interface to expose Normal/Service/Forwarding mode switch via Json API
 
 ### Components
 
-#### MqttMessaging
-Implements IMessagingService Interface via UDP
-
 #### Ide4Counterpart
-Processes messages sent via UDP from IDE4 and uses Required Interfaces to satisfy IDE4 requirements
-- IMessagingService (target UdpMessaging) to receive/send messages from/to IDE4 via UDP
-- IIqrfChannelService for direct access from IDE4 
-- IDaemonCommonService to get generic info required by IDE4 
+Process communication with IDE
 
-#### DaemonCommon
-Implements IDaemonCommonService to get common info about the application.
+#### UdpMessaging
+Implements UDP based communication protocol with IDE
 
-#### EmbedPer
-Is able to use embed peripheries for internal purposes (outside API) with usage of JS drivers
-TODO: JsonEmbedPer shall be split to JSON part requiring IEmbedPerService.
-TODO: Consider similar split of other Json...
+#### IqrfCdc
+Implements IIqrfChannelService via CDC
+
+#### IqrfSpi
+Implements IIqrfChannelService via SPI
+
+#### JsonMngApi
+Process mngDaemon_Mode JSON API message to switch Normal/Service/Forwarding mode
+
+--------
+
+#### ISchedulerService
+Provides Interface to Scheduler component
+- Add periodic task (in seconds) for client id
+- Add task with cron syntax for client id
+- Get task by task id
+- Remove task by task id
+- List all tasks for client id
+- Remove all tasks for client id
+
+#### SchedulerMessaging
+This component is responsible for handling requests messages to schedule tasks. The messages are in form of requests messages as it would be sent directly but wrapped in a scheduling envelope controlling postponing, periodicity, etc. JsonSched uses IScheduler interface to schedule the tasks. When it is fired by Scheduler JsonSched uses Provided Interface IMessaging to send wrapped request message via JsonHub to dedicated message handling component.
