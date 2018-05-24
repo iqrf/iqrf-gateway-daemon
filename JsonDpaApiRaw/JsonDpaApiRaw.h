@@ -19,8 +19,8 @@ namespace iqrf {
     void deactivate();
     void modify(const shape::Properties *props);
 
-    void attachInterface(IJsCacheService* iface);
-    void detachInterface(IJsCacheService* iface);
+    //void attachInterface(IJsCacheService* iface);
+    //void detachInterface(IJsCacheService* iface);
 
     void attachInterface(IIqrfDpaService* iface);
     void detachInterface(IIqrfDpaService* iface);

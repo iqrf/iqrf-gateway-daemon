@@ -25,8 +25,8 @@ namespace iqrf {
     void deactivate();
     void modify(const shape::Properties *props);
 
-    void attachInterface(IMessagingSplitterService* iface);
-    void detachInterface(IMessagingSplitterService* iface);
+    //void attachInterface(IMessagingSplitterService* iface);
+    //void detachInterface(IMessagingSplitterService* iface);
 
     void attachInterface(ISchedulerService* iface);
     void detachInterface(ISchedulerService* iface);

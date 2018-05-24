@@ -66,7 +66,7 @@ namespace iqrf {
   {
   private:
 
-    iqrf::IJsCacheService* m_iJsCacheService = nullptr;
+    //iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::string m_name = "JsonDpaApiRaw";
@@ -188,17 +188,17 @@ namespace iqrf {
     {
     }
 
-    void attachInterface(IJsCacheService* iface)
-    {
-      m_iJsCacheService = iface;
-    }
+    //void attachInterface(IJsCacheService* iface)
+    //{
+    //  m_iJsCacheService = iface;
+    //}
 
-    void detachInterface(IJsCacheService* iface)
-    {
-      if (m_iJsCacheService == iface) {
-        m_iJsCacheService = nullptr;
-      }
-    }
+    //void detachInterface(IJsCacheService* iface)
+    //{
+    //  if (m_iJsCacheService == iface) {
+    //    m_iJsCacheService = nullptr;
+    //  }
+    //}
 
     void attachInterface(IIqrfDpaService* iface)
     {
@@ -253,15 +253,15 @@ namespace iqrf {
     m_imp->modify(props);
   }
 
-  void JsonDpaApiRaw::attachInterface(iqrf::IJsCacheService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
+  //void JsonDpaApiRaw::attachInterface(iqrf::IJsCacheService* iface)
+  //{
+  //  m_imp->attachInterface(iface);
+  //}
 
-  void JsonDpaApiRaw::detachInterface(iqrf::IJsCacheService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
+  //void JsonDpaApiRaw::detachInterface(iqrf::IJsCacheService* iface)
+  //{
+  //  m_imp->detachInterface(iface);
+  //}
 
   void JsonDpaApiRaw::attachInterface(IIqrfDpaService* iface)
   {

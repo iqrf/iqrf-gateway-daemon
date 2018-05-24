@@ -28,7 +28,7 @@ namespace iqrf {
   private:
     std::string m_name;
     
-    IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
+    //IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     ISchedulerService* m_iSchedulerService = nullptr;
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
 
@@ -134,17 +134,17 @@ namespace iqrf {
     {
     }
 
-    void attachInterface(IMessagingSplitterService* iface)
-    {
-      m_iMessagingSplitterService = iface;
-    }
+    //void attachInterface(IMessagingSplitterService* iface)
+    //{
+    //  m_iMessagingSplitterService = iface;
+    //}
 
-    void detachInterface(IMessagingSplitterService* iface)
-    {
-      if (m_iMessagingSplitterService == iface) {
-        m_iMessagingSplitterService = nullptr;
-      }
-    }
+    //void detachInterface(IMessagingSplitterService* iface)
+    //{
+    //  if (m_iMessagingSplitterService == iface) {
+    //    m_iMessagingSplitterService = nullptr;
+    //  }
+    //}
 
     void attachInterface(ISchedulerService* iface)
     {
@@ -214,15 +214,15 @@ namespace iqrf {
   {
   }
 
-  void SchedulerMessaging::attachInterface(IMessagingSplitterService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
+  //void SchedulerMessaging::attachInterface(IMessagingSplitterService* iface)
+  //{
+  //  m_imp->attachInterface(iface);
+  //}
 
-  void SchedulerMessaging::detachInterface(IMessagingSplitterService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
+  //void SchedulerMessaging::detachInterface(IMessagingSplitterService* iface)
+  //{
+  //  m_imp->detachInterface(iface);
+  //}
 
   void SchedulerMessaging::attachInterface(ISchedulerService* iface)
   {
