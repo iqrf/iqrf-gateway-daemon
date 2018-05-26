@@ -76,7 +76,8 @@ namespace {
   static const int SERVICE_ERROR = 1000;
 
   static const int SERVICE_ERROR_GET_BONDED_NODES = SERVICE_ERROR + 1;
-  static const int SERVICE_ERROR_UPDATE_COORD_CHANNEL_BAND = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_NO_BONDED_NODES = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_UPDATE_COORD_CHANNEL_BAND = SERVICE_ERROR + 3;
 };
 
 
@@ -90,6 +91,7 @@ namespace iqrf {
     enum class Type {
       NoError,
       GetBondedNodes,
+      NoBondedNodes,
       UpdateCoordChannelBand,
       NodeNotBonded,
       Write,
@@ -1475,6 +1477,9 @@ namespace iqrf {
       // if there are no target nodes, which are bonded, return
       if (targetBondedNodes.empty()) {
         TRC_INFORMATION("No target nodes, which are bonded.");
+
+        WriteError error(WriteError::Type::NoBondedNodes, "No bonded nodes");
+        writeResult.setError(error);
         return writeResult;
       }
 
@@ -1938,6 +1943,9 @@ namespace iqrf {
           case WriteError::Type::GetBondedNodes:
             Pointer("/data/status").Set(response, SERVICE_ERROR_GET_BONDED_NODES);
             break;
+          case WriteError::Type::NoBondedNodes:
+            Pointer("/data/status").Set(response, SERVICE_ERROR_NO_BONDED_NODES);
+            break;
           case WriteError::Type::UpdateCoordChannelBand:
             Pointer("/data/status").Set(response, SERVICE_ERROR_UPDATE_COORD_CHANNEL_BAND);
             break;
@@ -2075,6 +2083,8 @@ namespace iqrf {
       }
       // all errors are generally taken as a service general fail  
       catch (std::exception& ex) {
+        TRC_ERROR("Parsing service arguments failed." << PAR(ex.what()));
+
         Document failResponse = createCheckParamsFailedResponse(comWriteConfig.getMsgId(), msgType, ex.what());
         m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
 
