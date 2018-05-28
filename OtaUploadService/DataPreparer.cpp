@@ -192,6 +192,9 @@ namespace {
       std::string line;
 
       while (std::getline(sourceFile, line)) {
+        if (line[line.length() - 1] == '\r') {
+          line.erase(line.length()-1, 1);
+        }
         lines.push_back(line);
       }
 
