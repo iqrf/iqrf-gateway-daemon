@@ -321,8 +321,8 @@ namespace iqrf {
       Pointer("/data/msgId").Set(response, msgId);
 
       // set result
-      Pointer("/status").Set(response, SERVICE_ERROR);
-      Pointer("/statusStr").Set(response, errorMsg);
+      Pointer("/data/status").Set(response, SERVICE_ERROR);
+      Pointer("/data/statusStr").Set(response, errorMsg);
 
       return response;
     }
@@ -514,8 +514,8 @@ namespace iqrf {
 
 
       // status - ok
-      Pointer("/status").Set(response, 0);
-      Pointer("/statusStr").Set(response, "ok");
+      Pointer("/data/status").Set(response, 0);
+      Pointer("/data/statusStr").Set(response, "ok");
 
       // set raw fields, if verbose mode is active
       if (comReadTrConf.getVerbose()) {

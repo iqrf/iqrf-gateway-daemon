@@ -1858,8 +1858,8 @@ namespace iqrf {
       Pointer("/data/msgId").Set(response, msgId);
 
       // set result
-      Pointer("/status").Set(response, SERVICE_ERROR);
-      Pointer("/statusStr").Set(response, errorMsg);
+      Pointer("/data/status").Set(response, SERVICE_ERROR);
+      Pointer("/data/statusStr").Set(response, errorMsg);
 
       return response;
     }

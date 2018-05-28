@@ -641,8 +641,8 @@ namespace iqrf {
       Pointer("/data/msgId").Set(response, msgId);
 
       // set result
-      Pointer("/status").Set(response, SERVICE_ERROR);
-      Pointer("/statusStr").Set(response, errorMsg);
+      Pointer("/data/status").Set(response, SERVICE_ERROR);
+      Pointer("/data/statusStr").Set(response, errorMsg);
 
       return response;
     }
@@ -724,22 +724,22 @@ namespace iqrf {
 
         switch (error.getType()) {
           case BondError::Type::GetBondedNodes:
-            Pointer("/status").Set(response, SERVICE_ERROR_GET_BONDED_NODES);
+            Pointer("/data/status").Set(response, SERVICE_ERROR_GET_BONDED_NODES);
             break;
           case BondError::Type::AlreadyBonded:
-            Pointer("/status").Set(response, SERVICE_ERROR_ALREADY_BONDED);
+            Pointer("/data/status").Set(response, SERVICE_ERROR_ALREADY_BONDED);
             break;
           case BondError::Type::NoFreeSpace:
-            Pointer("/status").Set(response, SERVICE_ERROR_NO_FREE_SPACE);
+            Pointer("/data/status").Set(response, SERVICE_ERROR_NO_FREE_SPACE);
             break;
           case BondError::Type::PingFailed:
-            Pointer("/status").Set(response, SERVICE_ERROR_PING_FAILED);
+            Pointer("/data/status").Set(response, SERVICE_ERROR_PING_FAILED);
             break;
           case BondError::Type::BondError:
-            Pointer("/status").Set(response, SERVICE_ERROR_BOND_FAILED);
+            Pointer("/data/status").Set(response, SERVICE_ERROR_BOND_FAILED);
             break;
           default:
-            Pointer("/status").Set(response, SERVICE_ERROR);
+            Pointer("/data/status").Set(response, SERVICE_ERROR);
             break;
         }
 
@@ -752,8 +752,8 @@ namespace iqrf {
       }
 
       // status - ok
-      Pointer("/status").Set(response, 0);
-      Pointer("/statusStr").Set(response, "ok");
+      Pointer("/data/status").Set(response, 0);
+      Pointer("/data/statusStr").Set(response, "ok");
 
       // rsp object
       rapidjson::Pointer("/data/rsp/assignedAddr").Set(response, bondResult.getBondedAddr());
@@ -897,14 +897,14 @@ namespace iqrf {
         m_mTypeName_iqmeshNetworkBondNodeLocal
       };
 
-      /*
+      
       m_iMessagingSplitterService->registerFilteredMsgHandler(
         supportedMsgTypes,
         [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
       {
         handleMsg(messagingId, msgType, std::move(doc));
       });
-      */
+      
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -922,7 +922,7 @@ namespace iqrf {
         m_mTypeName_iqmeshNetworkBondNodeLocal
       };
 
-      //m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
+      m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
       
       TRC_FUNCTION_LEAVE("");
     }
