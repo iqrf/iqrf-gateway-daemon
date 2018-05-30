@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IReadTrConfigService.h"
+#include "IReadTrConfService.h"
 #include "ShapeProperties.h"
 #include "IIqrfDpaService.h"
 #include "IMessagingSplitterService.h"
@@ -10,16 +10,16 @@
 
 namespace iqrf {
 
-  /// \class ReadTrConfigService
-  /// \brief Implementation of IReadTrConfigService
-  class ReadTrConfigService : public IReadTrConfigService
+  /// \class ReadTrConfService
+  /// \brief Implementation of IReadTrConfService
+  class ReadTrConfService : public IReadTrConfService
   {
   public:
     /// \brief Constructor
-    ReadTrConfigService();
+    ReadTrConfService();
 
     /// \brief Destructor
-    virtual ~ReadTrConfigService();
+    virtual ~ReadTrConfService();
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

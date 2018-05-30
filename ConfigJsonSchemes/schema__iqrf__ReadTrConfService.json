@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "schema__iqrf__WriteConfigService",
+        "name": "schema__iqrf__ReadTrConfService",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,13 +12,13 @@
             "type": "string",
             "description": "Name of component.",
             "enum": [
-                "iqrf::WriteConfigService"
+                "iqrf::ReadTrConfService"
             ]
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::WriteConfigService-(id)",
-            "default": "iqrf::WriteConfigService-1"
+            "description": "Recomended iqrf::ReadTrConfService-(id)",
+            "default": "iqrf::ReadTrConfService-1"
         },
         "RequiredInterfaces": {
             "type": "array",

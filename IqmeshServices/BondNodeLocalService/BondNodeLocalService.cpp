@@ -1,8 +1,8 @@
-#define ILocalBondService_EXPORTS
+#define IBondNodeLocalService_EXPORTS
 
 
 #include "DpaTransactionTask.h"
-#include "LocalBondService.h"
+#include "BondNodeLocalService.h"
 #include "Trace.h"
 #include "DpaRaw.h"
 #include "ComIqmeshNetworkBondNodeLocal.h"
@@ -15,9 +15,9 @@
 #include <list>
 #include <cmath>
 
-#include "iqrf__LocalBondService.hxx"
+#include "iqrf__BondNodeLocalService.hxx"
 
-TRC_INIT_MODULE(iqrf::LocalBondService);
+TRC_INIT_MODULE(iqrf::BondNodeLocalService);
 
 using namespace rapidjson;
 
@@ -149,10 +149,10 @@ namespace iqrf {
 
 
   // implementation class
-  class LocalBondService::Imp {
+  class BondNodeLocalService::Imp {
   private:
     // parent object
-    LocalBondService& m_parent;
+    BondNodeLocalService& m_parent;
 
     // message type: network management bond node local
     // for temporal reasons
@@ -171,7 +171,7 @@ namespace iqrf {
 
 
   public:
-    Imp(LocalBondService& parent) : m_parent(parent)
+    Imp(BondNodeLocalService& parent) : m_parent(parent)
     {
     }
 
@@ -887,7 +887,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "************************************" << std::endl <<
-        "LocalBondService instance activate" << std::endl <<
+        "BondNodeLocalService instance activate" << std::endl <<
         "************************************"
       );
 
@@ -913,7 +913,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "************************************" << std::endl <<
-        "LocalBondService instance deactivate" << std::endl <<
+        "BondNodeLocalService instance deactivate" << std::endl <<
         "************************************"
       );
       
@@ -970,59 +970,59 @@ namespace iqrf {
   };
 
   
-  LocalBondService::LocalBondService()
+  BondNodeLocalService::BondNodeLocalService()
   {
     m_imp = shape_new Imp(*this);
   }
 
-  LocalBondService::~LocalBondService()
+  BondNodeLocalService::~BondNodeLocalService()
   {
     delete m_imp;
   }
 
   
-  void LocalBondService::attachInterface(iqrf::IIqrfDpaService* iface)
+  void BondNodeLocalService::attachInterface(iqrf::IIqrfDpaService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void LocalBondService::detachInterface(iqrf::IIqrfDpaService* iface)
+  void BondNodeLocalService::detachInterface(iqrf::IIqrfDpaService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void LocalBondService::attachInterface(iqrf::IJsCacheService* iface)
+  void BondNodeLocalService::attachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void LocalBondService::detachInterface(iqrf::IJsCacheService* iface)
+  void BondNodeLocalService::detachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void LocalBondService::attachInterface(shape::ITraceService* iface)
+  void BondNodeLocalService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void LocalBondService::detachInterface(shape::ITraceService* iface)
+  void BondNodeLocalService::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }
 
 
-  void LocalBondService::activate(const shape::Properties *props)
+  void BondNodeLocalService::activate(const shape::Properties *props)
   {
     m_imp->activate(props);
   }
 
-  void LocalBondService::deactivate()
+  void BondNodeLocalService::deactivate()
   {
     m_imp->deactivate();
   }
 
-  void LocalBondService::modify(const shape::Properties *props)
+  void BondNodeLocalService::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
   }

@@ -1,8 +1,8 @@
-project(ReadTrConfigService)
+project(WriteTrConfService)
 
-set(COMPONENT iqrf::ReadTrConfigService)
+set(COMPONENT iqrf::WriteTrConfService)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IReadTrConfigService)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IWriteTrConfService)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
@@ -18,7 +18,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
 include_directories(${cutils_INCLUDE_DIRS})
-
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 

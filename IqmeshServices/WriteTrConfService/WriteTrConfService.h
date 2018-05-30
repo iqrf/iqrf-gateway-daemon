@@ -1,26 +1,27 @@
 #pragma once
 
-#include "ILocalBondService.h"
+#include "IWriteTrConfService.h"
 #include "ShapeProperties.h"
-#include "IMessagingSplitterService.h"
-#include "IJsCacheService.h"
 #include "IIqrfDpaService.h"
+#include "IMessagingSplitterService.h"
 #include "ITraceService.h"
 #include <string>
 
+/// Forward declaration of DpaMessage
+class DpaMessage;
 
 namespace iqrf {
 
-  /// \class LocalBondService
-  /// \brief Implementation of ILocalBondService
-  class LocalBondService : public ILocalBondService
+  /// \class IWriteTrConfService
+  /// \brief Implementation of IWriteTrConfService
+  class WriteTrConfService : public IWriteTrConfService
   {
   public:
     /// \brief Constructor
-    LocalBondService();
+    WriteTrConfService();
 
     /// \brief Destructor
-    virtual ~LocalBondService();
+    virtual ~WriteTrConfService();
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
@@ -29,8 +30,8 @@ namespace iqrf {
     void attachInterface(iqrf::IIqrfDpaService* iface);
     void detachInterface(iqrf::IIqrfDpaService* iface);
 
-    void attachInterface(iqrf::IJsCacheService* iface);
-    void detachInterface(iqrf::IJsCacheService* iface);
+    void attachInterface(IMessagingSplitterService* iface);
+    void detachInterface(IMessagingSplitterService* iface);
 
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);

@@ -183,9 +183,9 @@
       "startlevel": 3
     },
 	{
-      "name": "iqrf::WriteConfigService",
+      "name": "iqrf::WriteTrConfService",
       "libraryPath": "",
-      "libraryName": "WriteConfigService",
+      "libraryName": "WriteTrConfService",
       "enabled": true,
       "startlevel": 3
     },
@@ -197,9 +197,9 @@
       "startlevel": 3
     },
 	{
-      "name": "iqrf::ReadTrConfigService",
+      "name": "iqrf::ReadTrConfService",
       "libraryPath": "",
-      "libraryName": "ReadTrConfigService",
+      "libraryName": "ReadTrConfService",
       "enabled": true,
       "startlevel": 3
     },
@@ -211,9 +211,9 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::LocalBondService",
+      "name": "iqrf::BondNodeLocalService",
       "libraryPath": "",
-      "libraryName": "LocalBondService",
+      "libraryName": "BondNodeLocalService",
       "enabled": true,
       "startlevel": 3
     }

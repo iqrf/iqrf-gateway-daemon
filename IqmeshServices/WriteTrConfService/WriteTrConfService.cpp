@@ -1,7 +1,7 @@
-#define IWriteConfigService_EXPORTS
+#define IWriteTrConfService_EXPORTS
 
 #include "DpaTransactionTask.h"
-#include "WriteConfigService.h"
+#include "WriteTrConfService.h"
 #include "IMessagingSplitterService.h"
 #include "Trace.h"
 #include "ComMngIqmeshWriteConfig.h"
@@ -9,14 +9,14 @@
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 
-#include "iqrf__WriteConfigService.hxx"
+#include "iqrf__WriteTrConfService.hxx"
 
 #include <list>
 #include <memory>
 #include <math.h>
 #include <bitset>
 
-TRC_INIT_MODULE(iqrf::WriteConfigService);
+TRC_INIT_MODULE(iqrf::WriteTrConfService);
 
 
 using namespace rapidjson;
@@ -235,10 +235,10 @@ namespace iqrf {
 
 
   // implementation class
-  class WriteConfigService::Imp {
+  class WriteTrConfService::Imp {
   private:
     // parent object
-    WriteConfigService& m_parent;
+    WriteTrConfService& m_parent;
 
     // message type: network management write configuration
     // for temporal reasons
@@ -273,7 +273,7 @@ namespace iqrf {
 
 
   public:
-    Imp(WriteConfigService& parent) : m_parent(parent)
+    Imp(WriteTrConfService& parent) : m_parent(parent)
     {
       /*
       m_msgType_mngIqmeshWriteConfig
@@ -2112,7 +2112,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "************************************" << std::endl <<
-        "WriteConfigService instance activate" << std::endl <<
+        "WriteTrConfService instance activate" << std::endl <<
         "************************************"
       );
 
@@ -2137,7 +2137,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "**************************************" << std::endl <<
-        "WriteConfigService instance deactivate" << std::endl <<
+        "WriteTrConfService instance deactivate" << std::endl <<
         "**************************************"
       );
 
@@ -2184,59 +2184,59 @@ namespace iqrf {
 
 
 
-  WriteConfigService::WriteConfigService()
+  WriteTrConfService::WriteTrConfService()
   {
     m_imp = shape_new Imp(*this);
   }
 
-  WriteConfigService::~WriteConfigService()
+  WriteTrConfService::~WriteTrConfService()
   {
     delete m_imp;
   }
 
 
-  void WriteConfigService::attachInterface(iqrf::IIqrfDpaService* iface)
+  void WriteTrConfService::attachInterface(iqrf::IIqrfDpaService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void WriteConfigService::detachInterface(iqrf::IIqrfDpaService* iface)
+  void WriteTrConfService::detachInterface(iqrf::IIqrfDpaService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void WriteConfigService::attachInterface(iqrf::IMessagingSplitterService* iface)
+  void WriteTrConfService::attachInterface(iqrf::IMessagingSplitterService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void WriteConfigService::detachInterface(iqrf::IMessagingSplitterService* iface)
+  void WriteTrConfService::detachInterface(iqrf::IMessagingSplitterService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void WriteConfigService::attachInterface(shape::ITraceService* iface)
+  void WriteTrConfService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void WriteConfigService::detachInterface(shape::ITraceService* iface)
+  void WriteTrConfService::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }
 
 
-  void WriteConfigService::activate(const shape::Properties *props)
+  void WriteTrConfService::activate(const shape::Properties *props)
   {
     m_imp->activate(props);
   }
 
-  void WriteConfigService::deactivate()
+  void WriteTrConfService::deactivate()
   {
     m_imp->deactivate();
   }
 
-  void WriteConfigService::modify(const shape::Properties *props)
+  void WriteTrConfService::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
   }

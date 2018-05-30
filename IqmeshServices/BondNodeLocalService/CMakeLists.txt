@@ -1,8 +1,8 @@
-project(LocalBondService)
+project(BondNodeLocalService)
 
-set(COMPONENT iqrf::LocalBondService)
+set(COMPONENT iqrf::BondNodeLocalService)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::ILocalBondService)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IBondNodeLocalService)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IJsCacheService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)

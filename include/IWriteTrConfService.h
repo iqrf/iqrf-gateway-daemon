@@ -18,21 +18,22 @@
 
 #include "ShapeDefines.h"
 
-#ifdef IReadTrConfigService_EXPORTS
-#define IReadTrConfigService_DECLSPEC SHAPE_ABI_EXPORT
+#ifdef IWriteTrConfService_EXPORTS
+#define IWriteTrConfService_DECLSPEC SHAPE_ABI_EXPORT
 #else
-#define IReadTrConfigService_DECLSPEC SHAPE_ABI_IMPORT
+#define IWriteTrConfService_DECLSPEC SHAPE_ABI_IMPORT
 #endif
 
 namespace iqrf {
 
-	/// \class IReadTrConfigService
-	/// \brief IReadTrConfigService interface
-	class IReadTrConfigService_DECLSPEC IReadTrConfigService
+  /// \class IWriteTrConfService
+	/// \brief IWriteTrConfService interface
+	class IWriteTrConfService_DECLSPEC IWriteTrConfService
 	{
 	public:
 
-	/// \brief Destructor
-    virtual ~IReadTrConfigService() {};
+		/// \brief Destructor
+    virtual ~IWriteTrConfService() {};
 	};
 }
+

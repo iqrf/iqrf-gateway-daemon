@@ -1,21 +1,21 @@
-#define IReadTrConfigService_EXPORTS
+#define IReadTrConfService_EXPORTS
 
 #include "DpaTransactionTask.h"
-#include "ReadTrConfigService.h"
+#include "ReadTrConfService.h"
 #include "Trace.h"
 #include "ComIqmeshNetworkReadTrConf.h"
 #include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 
-#include "iqrf__ReadTrConfigService.hxx"
+#include "iqrf__ReadTrConfService.hxx"
 
 #include <list>
 #include <memory>
 #include <math.h>
 #include <bitset>
 
-TRC_INIT_MODULE(iqrf::ReadTrConfigService);
+TRC_INIT_MODULE(iqrf::ReadTrConfService);
 
 
 using namespace rapidjson;
@@ -139,10 +139,10 @@ namespace iqrf {
 
 
   // implementation class
-  class ReadTrConfigService::Imp {
+  class ReadTrConfService::Imp {
   private:
     // parent object
-    ReadTrConfigService& m_parent;
+    ReadTrConfService& m_parent;
 
     // message type: IQMESH Network Read TR Configuration
     // for temporal reasons
@@ -160,7 +160,7 @@ namespace iqrf {
 
 
   public:
-    Imp(ReadTrConfigService& parent) : m_parent(parent)
+    Imp(ReadTrConfService& parent) : m_parent(parent)
     {
       /*
       m_msgType_mngIqmeshWriteConfig
@@ -620,7 +620,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "************************************" << std::endl <<
-        "ReadTrConfigService instance activate" << std::endl <<
+        "ReadTrConfService instance activate" << std::endl <<
         "************************************"
       );
 
@@ -645,7 +645,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "**************************************" << std::endl <<
-        "ReadTrConfigService instance deactivate" << std::endl <<
+        "ReadTrConfService instance deactivate" << std::endl <<
         "**************************************"
       );
 
@@ -692,59 +692,59 @@ namespace iqrf {
 
 
 
-  ReadTrConfigService::ReadTrConfigService()
+  ReadTrConfService::ReadTrConfService()
   {
     m_imp = shape_new Imp(*this);
   }
 
-  ReadTrConfigService::~ReadTrConfigService()
+  ReadTrConfService::~ReadTrConfService()
   {
     delete m_imp;
   }
 
 
-  void ReadTrConfigService::attachInterface(iqrf::IIqrfDpaService* iface)
+  void ReadTrConfService::attachInterface(iqrf::IIqrfDpaService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void ReadTrConfigService::detachInterface(iqrf::IIqrfDpaService* iface)
+  void ReadTrConfService::detachInterface(iqrf::IIqrfDpaService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void ReadTrConfigService::attachInterface(iqrf::IMessagingSplitterService* iface)
+  void ReadTrConfService::attachInterface(iqrf::IMessagingSplitterService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void ReadTrConfigService::detachInterface(iqrf::IMessagingSplitterService* iface)
+  void ReadTrConfService::detachInterface(iqrf::IMessagingSplitterService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void ReadTrConfigService::attachInterface(shape::ITraceService* iface)
+  void ReadTrConfService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void ReadTrConfigService::detachInterface(shape::ITraceService* iface)
+  void ReadTrConfService::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }
 
 
-  void ReadTrConfigService::activate(const shape::Properties *props)
+  void ReadTrConfService::activate(const shape::Properties *props)
   {
     m_imp->activate(props);
   }
 
-  void ReadTrConfigService::deactivate()
+  void ReadTrConfService::deactivate()
   {
     m_imp->deactivate();
   }
 
-  void ReadTrConfigService::modify(const shape::Properties *props)
+  void ReadTrConfService::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
   }

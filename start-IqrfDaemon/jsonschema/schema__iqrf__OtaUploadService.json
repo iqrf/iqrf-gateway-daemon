@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "schema__iqrf__ReadTrConfigService",
+        "name": "schema__iqrf__OtaUploadService",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,13 +12,13 @@
             "type": "string",
             "description": "Name of component.",
             "enum": [
-                "iqrf::ReadTrConfigService"
+                "iqrf::OtaUploadService"
             ]
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::ReadTrConfigService-(id)",
-            "default": "iqrf::ReadTrConfigService-1"
+            "description": "Recomended iqrf::OtaUploadService-(id)",
+            "default": "iqrf::OtaUploadService-1"
         },
         "RequiredInterfaces": {
             "type": "array",
