@@ -18,7 +18,7 @@ before_script:
  - eval $(ssh-agent -s)
 
  # load the private key, which is accesible as a environment variable
- - echo "$GIT_SSH_KEY" | ssh-add -
+ - echo "$GIT_SSH_KEY_1" | ssh-add -
  - mkdir -p ~/.ssh
  - chmod 700 ~/.ssh
 
@@ -76,7 +76,12 @@ daemon:
  stage: build
  script:
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
+  - git -C iqrf-daemon-source submodule init
+  - git -C iqrf-daemon-source submodule update
   - mkdir iqrf-daemon-build
   - tar xzvf shape-build_amd64.tar.gz
   - tar xzvf shapeware-build_amd64.tar.gz
   - cmake -G -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../shapeware-build -DCMAKE_BUILD_TYPE=Debug
+  - make -j$(nproc) -C iqrf-daemon-build
+ tags:
+  - linux, amd64
