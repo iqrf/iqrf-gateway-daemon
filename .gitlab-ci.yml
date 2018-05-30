@@ -5,11 +5,25 @@ stages:
  - build
 
 before_script:
+ # build environment
  - apt-get update -y
- - apt-get install --no-install-recommends -y build-essential git cmake gcc g++ zlib1g-dev libcpprest-dev libssl-dev mlocate ruby ruby-dev unzip wget
+ - apt-get install --no-install-recommends -y build-essential git cmake gcc g++ zlib1g-dev libcpprest-dev libssl-dev mlocate ruby ruby-dev unzip wget openssh-client
  - apt-get clean
  - rm -rf /var/lib/apt/lists/*
+ 
+ # tool to create deb package
  - gem install --no-rdoc --no-ri fpm
+ 
+ # run ssh-agent (inside the build environment)
+ - eval $(ssh-agent -s)
+
+ # load the private key, which is accesible as a environment variable
+ - echo "$GIT_SSH_KEY" | ssh-add -
+ - mkdir -p ~/.ssh
+ - chmod 700 ~/.ssh
+
+ # ensure that ssh will trust a new host, instead of asking
+ - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
 
 shape_&_shapeware:
  stage: dependencies
@@ -26,7 +40,7 @@ shape_&_shapeware:
   - git -C shapeware-source submodule init
   - git -C shapeware-source submodule update
   - mkdir shapeware-build shapeware-libs
-  - cmake -Bshapeware-build -Hshapeware-source -DCMAKE_BUILD_TYPE=Debug -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -Dshape_DIR:PATH=../shape-build
+  - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=../shape-build -DCMAKE_BUILD_TYPE=Debug -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false
   - make -j$(nproc) -C shapeware-build
   - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
   - tar czvf shapeware-source_amd64.tar.gz shapeware-source
@@ -57,3 +71,12 @@ paho:
    - paho-build_amd64.tar.gz
  tags:
   - linux, amd64
+
+daemon:
+ stage: build
+ script:
+  - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
+  - mkdir iqrf-daemon-build
+  - tar xzvf shape-build_amd64.tar.gz
+  - tar xzvf shapeware-build_amd64.tar.gz
+  - cmake -G -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../shapeware-build -DCMAKE_BUILD_TYPE=Debug
