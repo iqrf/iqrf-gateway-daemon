@@ -89,13 +89,11 @@ iqrf.embed.coordinator.Discovery_Request_req = function (param) {
 iqrf.embed.coordinator.Discovery_Response_rsp = function (rawHdp) {
     var result =
     {
-        devNr: iqrf.embed.coordinator.Discovery_Response(rawHdp)
+        discNr: iqrf.embed.coordinator.Discovery_Response(rawHdp)
     };
     return result;
 };
 
-//TODO more detailed param in iqrfEmbedCoordinatorSetDpaParams-request-1-0-0.json
-// then expected by this function?
 iqrf.embed.coordinator.SetDpaParams_Request_req = function (param) {
     return iqrf.embed.coordinator.SetDpaParams_Request(param.dpaParam)
 };
@@ -206,7 +204,6 @@ iqrf.embed.coordinator.SmartConnect_Request_req = function (p) {
 };
 
 iqrf.embed.coordinator.SmartConnect_Response_rsp = function (rawHdp) {
-    iqrf.embed.coordinator.SmartConnect_Response(rawHdp);
     var result = iqrf.embed.coordinator.SmartConnect_Response(rawHdp);
     return result;
 };
@@ -354,6 +351,87 @@ iqrf.embed.os.WriteCfg_Request_req = function (param) {
 iqrf.embed.os.WriteCfg_Response_rsp = function (rawHdp) {
     iqrf.embed.os.WriteCfg_Response(rawHdp);
     var result =
+    {
+    };
+    return result;
+};
+
+////////////////////////
+// EEPROM
+////////////////////////
+iqrf.embed.eeprom.Read_Request_req = function (param) {	
+    return iqrf.embed.eeprom.Read_Request(param.address, param.len)
+};
+
+iqrf.embed.eeprom.Read_Response_rsp = function (rawHdp) {	
+    var result = 
+    {
+        pData: iqrf.embed.eeprom.Read_Response(rawHdp) 
+    };
+    return result;
+};
+
+iqrf.embed.eeprom.Write_Request_req = function (param) {	
+    return iqrf.embed.eeprom.Write_Request(param.address, param.pData)
+};
+
+iqrf.embed.eeprom.Read_Response_rsp = function (rawHdp) {	
+    iqrf.embed.eeprom.Read_Response(rawHdp)
+    var result = 
+    {
+    };
+    return result;
+};
+
+////////////////////////
+// EEEPROM
+////////////////////////
+iqrf.embed.eeeprom.Read_Request_req = function (param) {	
+    return iqrf.embed.eeeprom.Read_Request(param.address, param.len)
+};
+
+iqrf.embed.eeeprom.Read_Response_rsp = function (rawHdp) {	
+    var result = 
+    {
+        pData: iqrf.embed.eeeprom.Read_Response(rawHdp) 
+    };
+    return result;
+};
+
+iqrf.embed.eeeprom.Write_Request_req = function (param) {	
+    return iqrf.embed.eeeprom.Write_Request(param.address, param.pData)
+};
+
+iqrf.embed.eeeprom.Read_Response_rsp = function (rawHdp) {	
+    iqrf.embed.eeeprom.Read_Response(rawHdp)
+    var result = 
+    {
+    };
+    return result;
+};
+
+////////////////////////
+// RAM
+////////////////////////
+iqrf.embed.ram.Read_Request_req = function (param) {	
+    return iqrf.embed.ram.Read_Request(param.address, param.len)
+};
+
+iqrf.embed.ram.Read_Response_rsp = function (rawHdp) {	
+    var result = 
+    {
+        pData: iqrf.embed.ram.Read_Response(rawHdp) 
+    };
+    return result;
+};
+
+iqrf.embed.ram.Write_Request_req = function (param) {	
+    return iqrf.embed.ram.Write_Request(param.address, param.pData)
+};
+
+iqrf.embed.ram.Read_Response_rsp = function (rawHdp) {	
+    iqrf.embed.ram.Read_Response(rawHdp)
+    var result = 
     {
     };
     return result;
