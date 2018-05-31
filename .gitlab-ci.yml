@@ -65,9 +65,11 @@ paho:
   - mkdir paho-build
   - cmake -Bpaho-build -Hpaho-source -DCMAKE_BUILD_TYPE=Debug -DPAHO_WITH_SSL=TRUE
   - make -j$(nproc) -C paho-build
+  - tar czvf paho-source_amd64.tar.gz paho-source
   - tar czvf paho-build_amd64.tar.gz paho-build
  artifacts:
   paths:
+   - paho-source_amd64.tar.gz
    - paho-build_amd64.tar.gz
  tags:
   - linux, amd64
@@ -78,10 +80,20 @@ daemon:
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
-  - mkdir iqrf-daemon-build
+  - mkdir iqrf-daemon-build iqrf-daemon-deploy
+  - tar xzvf shape-source_amd64.tar.gz
   - tar xzvf shape-build_amd64.tar.gz
+  - tar xzvf shape-libs_amd64.tar.gz
+  - tar xzvf shapeware-source_amd64.tar.gz
   - tar xzvf shapeware-build_amd64.tar.gz
+  - tar xzvf shapeware-libs_amd64.tar.gz
+  - tar xzvf paho-source_amd64.tar.gz
+  - tar xzvf paho-build_amd64.tar.gz
+  - sudo make -j$(nproc) install -C paho-build
+  - sudo ldconfig
   - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../shapeware-build -DCMAKE_BUILD_TYPE=Debug
   - make -j$(nproc) -C iqrf-daemon-build
+  - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
+  - tar czvf iqrf-daemon-deploy_amd64.tar.gz iqrf-daemon-deploy    
  tags:
   - linux, amd64
