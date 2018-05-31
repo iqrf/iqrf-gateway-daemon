@@ -91,7 +91,7 @@ daemon:
   - tar xzvf paho-build_amd64.tar.gz
   - make -j$(nproc) install -C paho-build
   - ldconfig
-  - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../shapeware-build -DCMAKE_BUILD_TYPE=Debug
+  - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../../shapeware-build -DCMAKE_BUILD_TYPE=Debug
   - make -j$(nproc) -C iqrf-daemon-build
   - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
   - tar czvf iqrf-daemon-deploy_amd64.tar.gz iqrf-daemon-deploy    
