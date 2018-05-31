@@ -81,7 +81,7 @@ daemon:
   - mkdir iqrf-daemon-build
   - tar xzvf shape-build_amd64.tar.gz
   - tar xzvf shapeware-build_amd64.tar.gz
-  - cmake -G -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../shapeware-build -DCMAKE_BUILD_TYPE=Debug
+  - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../shapeware-build -DCMAKE_BUILD_TYPE=Debug
   - make -j$(nproc) -C iqrf-daemon-build
  tags:
   - linux, amd64
