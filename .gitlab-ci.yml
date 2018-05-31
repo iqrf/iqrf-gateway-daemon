@@ -89,8 +89,8 @@ daemon:
   - tar xzvf shapeware-libs_amd64.tar.gz
   - tar xzvf paho-source_amd64.tar.gz
   - tar xzvf paho-build_amd64.tar.gz
-  - sudo make -j$(nproc) install -C paho-build
-  - sudo ldconfig
+  - make -j$(nproc) install -C paho-build
+  - ldconfig
   - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../shapeware-build -DCMAKE_BUILD_TYPE=Debug
   - make -j$(nproc) -C iqrf-daemon-build
   - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
