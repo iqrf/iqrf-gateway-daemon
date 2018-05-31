@@ -18,7 +18,7 @@ before_script:
  - eval $(ssh-agent -s)
 
  # load the private key, which is accesible as a environment variable
- - echo "$GIT_SSH_KEY_1" | ssh-add -
+ - echo "$GIT_SSH_PRIVATE" | ssh-add -
  - mkdir -p ~/.ssh
  - chmod 700 ~/.ssh
 
