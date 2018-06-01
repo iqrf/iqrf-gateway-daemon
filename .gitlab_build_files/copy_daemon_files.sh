@@ -54,7 +54,7 @@ cp -r iqrf-daemon-build/bin/configuration/Scheduler ${DEPLOY}${IQRFGD2_CACHE}
 cp -r iqrf-daemon-build/bin/configuration/jscache ${DEPLOY}${IQRFGD2_CACHE}
 
 # SERVICE
-cp -r iqrf-daemon-build/bin/configuration/systemd ${DEPLOY}${IQRFGD2_SERVICE}
+cp iqrf-daemon-build/bin/configuration/systemd/*.service ${DEPLOY}${IQRFGD2_SERVICE}
 
 # SHAPE 
 cp shape-libs/usr/lib/iqrfgd2/* ${DEPLOY}${IQRFGD2_LIBS}
