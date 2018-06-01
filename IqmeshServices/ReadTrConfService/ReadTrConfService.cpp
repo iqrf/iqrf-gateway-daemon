@@ -1,6 +1,6 @@
 #define IReadTrConfService_EXPORTS
 
-#include "DpaTransactionTask.h"
+//#include "DpaTransactionTask.h"
 #include "ReadTrConfService.h"
 #include "Trace.h"
 #include "ComIqmeshNetworkReadTrConf.h"

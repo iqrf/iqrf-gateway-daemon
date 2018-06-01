@@ -5,7 +5,7 @@
 #include "ITraceService.h"
 #include "IUdpMessagingService.h"
 #include "IIqrfChannelService.h"
-#include "DpaHandler.h"
+//#include "DpaHandler.h"
 #include "TaskQueue.h"
 #include <string>
 
@@ -63,7 +63,7 @@ namespace iqrf {
   private:
     IUdpMessagingService *m_messaging = nullptr;
     IIqrfChannelService *m_iqrfChannelService = nullptr;
-    TaskQueue<DpaTransaction*> *m_dpaTransactionQueue = nullptr;
+    //TaskQueue<DpaTransaction*> *m_dpaTransactionQueue = nullptr;
     std::mutex m_modeMtx;
     Mode m_mode;
     std::unique_ptr<IIqrfChannelService::Accessor> m_exclusiveAcessor;

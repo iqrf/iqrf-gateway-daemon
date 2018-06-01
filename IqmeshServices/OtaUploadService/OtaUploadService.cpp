@@ -1,6 +1,6 @@
 #define IOtaUploadService_EXPORTS
 
-#include "DpaTransactionTask.h"
+//#include "DpaTransactionTask.h"
 #include "OtaUploadService.h"
 #include "DataPreparer.h"
 #include "Trace.h"

@@ -1,6 +1,6 @@
 #define IIqrfDpaService_EXPORTS
 
-#include "DpaTransactionTask.h"
+//#include "DpaTransactionTask.h"
 #include "IqrfDpa.h"
 #include "Trace.h"
 #include "rapidjson/pointer.h"

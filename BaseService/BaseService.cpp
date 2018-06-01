@@ -1,7 +1,7 @@
 #define IBaseService_EXPORTS
 
 #include "DpaHandler2.h"
-#include "DpaTransactionTask.h"
+//#include "DpaTransactionTask.h"
 #include "BaseService.h"
 
 #include "rapidjson/rapidjson.h"
@@ -57,7 +57,7 @@ namespace iqrf {
     if (ctype == CAT_DPA_STR) {
       dpaTask = m_serializer->parseRequest(msgs);
       if (dpaTask) {
-        DpaTransactionTask trans(*dpaTask);
+        //DpaTransactionTask trans(*dpaTask);
         try {
 
           std::shared_ptr<IDpaTransaction2> dt = m_dpa->executeDpaTransaction(dpaTask->getRequest(), dpaTask->getTimeout());

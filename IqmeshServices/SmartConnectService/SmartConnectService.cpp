@@ -1,6 +1,6 @@
 #define ISmartConnectService_EXPORTS
 
-#include "DpaTransactionTask.h"
+//#include "DpaTransactionTask.h"
 #include "SmartConnectService.h"
 #include "Trace.h"
 #include "ComIqmeshNetworkSmartConnect.h"
