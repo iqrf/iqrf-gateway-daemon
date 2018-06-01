@@ -1,7 +1,7 @@
 #define IBaseService_EXPORTS
 
 #include "DpaHandler2.h"
-//#include "DpaTransactionTask.h"
+#include "DpaTask.h"
 #include "BaseService.h"
 
 #include "rapidjson/rapidjson.h"

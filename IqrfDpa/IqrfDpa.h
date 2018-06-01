@@ -20,8 +20,8 @@ namespace iqrf {
     std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout) override;
     int getTimeout() const override;
     void setTimeout(int timeout) override;
-    DpaHandler2::RfMode getRfCommunicationMode() const override;
-    void setRfCommunicationMode(DpaHandler2::RfMode rfMode) override;
+    IDpaTransaction2::RfMode getRfCommunicationMode() const override;
+    void setRfCommunicationMode(IDpaTransaction2::RfMode rfMode) override;
     void registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun) override;
     void unregisterAsyncMessageHandler(const std::string& serviceId) override;
     
@@ -43,8 +43,8 @@ namespace iqrf {
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     IqrfDpaChannel *m_iqrfDpaChannel = nullptr;  //temporary workaround, see comment in IqrfDpaChannel.h
     IDpaHandler2* m_dpaHandler = nullptr;
-    DpaHandler2::RfMode m_rfMode = IDpaHandler2::RfMode::kStd;
-    int m_dpaHandlerTimeout = IDpaHandler2::DEFAULT_TIMEOUT;
+    IDpaTransaction2::RfMode m_rfMode = IDpaTransaction2::RfMode::kStd;
+    int m_dpaHandlerTimeout = IDpaTransaction2::DEFAULT_TIMEOUT;
 
     std::mutex m_asyncMessageHandlersMutex;
     std::map<std::string, AsyncMessageHandlerFunc> m_asyncMessageHandlers;

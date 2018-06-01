@@ -46,12 +46,12 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  DpaHandler2::RfMode IqrfDpa::getRfCommunicationMode() const
+  IDpaTransaction2::RfMode IqrfDpa::getRfCommunicationMode() const
   {
     return m_dpaHandler->getRfCommunicationMode();
   }
 
-  void IqrfDpa::setRfCommunicationMode(DpaHandler2::RfMode rfMode)
+  void IqrfDpa::setRfCommunicationMode(IDpaTransaction2::RfMode rfMode)
   {
     TRC_FUNCTION_ENTER("");
     m_dpaHandler->setRfCommunicationMode(rfMode);
@@ -120,11 +120,11 @@ namespace iqrf {
     if (valC && valC->IsString()) {
       std::string communicationMode = valC->GetString();
       if (communicationMode == "LP")
-        m_rfMode = IDpaHandler2::kLp;
+        m_rfMode = IDpaTransaction2::kLp;
       else if (communicationMode == "STD")
-        m_rfMode = IDpaHandler2::kStd;
+        m_rfMode = IDpaTransaction2::kStd;
       else
-        m_rfMode = IDpaHandler2::kStd;
+        m_rfMode = IDpaTransaction2::kStd;
     }
     m_dpaHandler->setRfCommunicationMode(m_rfMode);
 

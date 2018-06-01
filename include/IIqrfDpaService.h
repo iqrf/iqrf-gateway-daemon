@@ -24,8 +24,8 @@ namespace iqrf {
     virtual std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) = 0;
     virtual int getTimeout() const = 0;
     virtual void setTimeout(int timeout) = 0;
-    virtual DpaHandler2::RfMode getRfCommunicationMode() const = 0;
-    virtual void setRfCommunicationMode(DpaHandler2::RfMode rfMode) = 0;
+    virtual IDpaTransaction2::RfMode getRfCommunicationMode() const = 0;
+    virtual void setRfCommunicationMode(IDpaTransaction2::RfMode rfMode) = 0;
     virtual void registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun) = 0;
     virtual void unregisterAsyncMessageHandler(const std::string& serviceId) = 0;
 
