@@ -1001,6 +1001,16 @@ namespace iqrf {
     m_imp->detachInterface(iface);
   }
 
+  void BondNodeLocalService::attachInterface(iqrf::IMessagingSplitterService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void BondNodeLocalService::detachInterface(iqrf::IMessagingSplitterService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
   void BondNodeLocalService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
