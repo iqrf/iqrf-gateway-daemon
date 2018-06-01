@@ -1,0 +1,16 @@
+{
+  "component": "shape::TraceFileService",
+  "instance": "shape::TraceFileService-daemon1",
+
+  "path": "/var/log/iqrfgd2",
+  "filename": "iqrf-gateway-daemon.log",
+  "maxSizeMB": 1048576,
+  "timestampFiles": true,
+
+  "VerbosityLevels": [
+    {
+      "channel": 0,
+      "level": "DBG"
+    }
+  ]
+}

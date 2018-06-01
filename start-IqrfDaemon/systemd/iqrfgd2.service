@@ -1,0 +1,17 @@
+[Unit]
+Description=IQRF Gateway Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/usr/bin
+ExecStart=/usr/bin/iqrfgd2 /etc/iqrfgd2/config.json
+StandardOutput=syslog
+StandardError=syslog
+RestartSec=5
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
