@@ -1,6 +1,6 @@
 #define IBaseService_EXPORTS
 
-#include "DpaHandler2.h"
+#include "IDpaHandler2.h"
 #include "DpaTask.h"
 #include "BaseService.h"
 

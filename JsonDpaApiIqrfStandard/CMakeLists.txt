@@ -31,8 +31,3 @@ if(SHAPE_STATIC_LIBS)
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
-
-target_link_libraries(${PROJECT_NAME}
-	Dpa
-	${duktape_LIBRARIES}
-)

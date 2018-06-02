@@ -2,7 +2,7 @@
 
 #include "JsonApiMessageNames.h"
 #include "ComIqrfStandard.h"
-#include "DpaHandler2.h"
+#include "IDpaTransactionResult2.h"
 #include "JsonDpaApiIqrfStandard.h"
 #include "DuktapeStuff.h"
 #include "rapidjson/rapidjson.h"

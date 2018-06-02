@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DpaHandler2.h" //TODO just because of 
+#include "IDpaTransaction2.h"
 #include "ShapeDefines.h"
 #include <string>
 #include <functional>

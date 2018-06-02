@@ -2,7 +2,7 @@
 
 #include "IIqrfDpaService.h"
 #include "IqrfDpaChannel.h"
-#include "DpaHandler2.h"
+#include "IDpaHandler2.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 
