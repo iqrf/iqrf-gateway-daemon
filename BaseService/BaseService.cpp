@@ -14,10 +14,6 @@
 
 #include "iqrf__BaseService.hxx"
 
-//TODO workaround old tracing 
-#include "IqrfLogging.h"
-TRC_INIT();
-
 TRC_INIT_MODULE(iqrf::BaseService);
 
 namespace iqrf {
@@ -149,9 +145,6 @@ namespace iqrf {
       "BaseService instance activate" << std::endl <<
       "******************************"
     );
-
-    //TODO workaround old tracing 
-    TRC_START("TraceOldBaseService.txt", iqrf::Level::dbg, TRC_DEFAULT_FILE_MAXSIZE);
 
     props->getMemberAsString("instance", m_name);
 

@@ -16,7 +16,6 @@
  */
 
 #include "DpaTask.h"
-#include "IqrfLogging.h"
 
 DpaTask::DpaTask(const std::string& prfName, uint8_t prfNum) : m_prfName(prfName) {
 	DpaMessage::DpaPacket_t& packet = m_request.DpaPacket();

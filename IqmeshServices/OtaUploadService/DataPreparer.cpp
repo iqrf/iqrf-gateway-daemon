@@ -1,5 +1,6 @@
 #include "DataPreparer.h"
-#include "IqrfLogging.h"
+#include <fstream>
+#include <sstream>
 #include <list>
 
 namespace {
