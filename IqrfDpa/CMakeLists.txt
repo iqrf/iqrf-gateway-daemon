@@ -16,7 +16,6 @@ source_group("Source Files" FILES ${_SRCFILES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
-include_directories(${cutils_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/libraries/clibdpa/Dpa)
 
 if(SHAPE_STATIC_LIBS)
