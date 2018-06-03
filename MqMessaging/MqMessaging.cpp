@@ -13,10 +13,6 @@
 
 TRC_INIT_MODULE(iqrf::MqMessaging);
 
-//TODO workaround old tracing 
-#include "IqrfLogging.h"
-TRC_INIT();
-
 const unsigned IQRF_MQ_BUFFER_SIZE = 64 * 1024;
 
 namespace iqrf {
@@ -75,17 +71,14 @@ namespace iqrf {
       "******************************"
     );
 
-    //TODO workaround old tracing 
-    TRC_START("TraceOldMqChannel.txt", iqrf::Level::dbg, TRC_DEFAULT_FILE_MAXSIZE);
-
     props->getMemberAsString("instance", m_name);
     props->getMemberAsString("LocalMqName", m_localMqName);
     props->getMemberAsString("RemoteMqName", m_remoteMqName);
     props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
 
-    m_mqChannel = ant_new MqChannel(m_remoteMqName, m_localMqName, IQRF_MQ_BUFFER_SIZE, true);
+    m_mqChannel = shape_new MqChannel(m_remoteMqName, m_localMqName, IQRF_MQ_BUFFER_SIZE, true);
 
-    m_toMqMessageQueue = ant_new TaskQueue<ustring>([&](const ustring& msg) {
+    m_toMqMessageQueue = shape_new TaskQueue<ustring>([&](const ustring& msg) {
       m_mqChannel->sendTo(msg);
     });
 

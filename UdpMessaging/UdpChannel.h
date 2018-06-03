@@ -107,7 +107,8 @@ private:
   std::map<std::string, MyAdapter> m_adapters;
 };
 
-class UdpChannelException : public std::logic_error {
+class UdpChannelException : public std::logic_error
+{
 public:
   UdpChannelException(const std::string& cause) : logic_error(cause) {}
   UdpChannelException(const char* cause) : logic_error(cause) {}
