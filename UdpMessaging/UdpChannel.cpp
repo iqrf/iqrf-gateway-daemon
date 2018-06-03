@@ -21,7 +21,7 @@
 #include <string.h>
 
 #ifndef SHAPE_PLATFORM_WINDOWS
-
+#define GetLastError() errno
 #define WSAGetLastError() errno
 #define SOCKET_ERROR -1
 int closesocket(int filedes) { close(filedes); }

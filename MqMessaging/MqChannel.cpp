@@ -18,6 +18,7 @@
 #include "Trace.h"
 
 #ifndef SHAPE_PLATFORM_WINDOWS
+#define GetLastError() errno
 #include <string.h>
 const int INVALID_HANDLE_VALUE = -1;
 #define QUEUE_PERMISSIONS 0644
@@ -224,7 +225,7 @@ void MqChannel::listen()
       }
       TRC_INFORMATION("openMqRead() opened: " << PAR(m_localMqName));
 
-#ifdef WIN
+#ifdef SHAPE_PLATFORM_WINDOWS
       // Wait to connect from cient
       m_state = State::Ready;
       fSuccess = ConnectNamedPipe(m_localMqHandle, NULL);
