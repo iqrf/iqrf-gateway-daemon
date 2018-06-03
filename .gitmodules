@@ -10,6 +10,3 @@
 [submodule "libraries/clibspi"]
 	path = libraries/clibspi
 	url = git@github.com:iqrfsdk/clibspi.git
-[submodule "libraries/cutils"]
-	path = libraries/cutils
-	url = git@github.com:iqrfsdk/cutils.git

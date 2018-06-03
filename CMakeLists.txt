@@ -33,7 +33,6 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_subdirectory(libraries/clibspi  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibcdc  EXCLUDE_FROM_ALL)
-#add_subdirectory(libraries/cutils  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
 
 add_subdirectory(include)
