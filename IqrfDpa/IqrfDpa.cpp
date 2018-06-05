@@ -5,10 +5,6 @@
 #include "Trace.h"
 #include "rapidjson/pointer.h"
 
-//TODO workaround old tracing 
-#include "IqrfLogging.h"
-TRC_INIT();
-
 #include "iqrf__IqrfDpa.hxx"
 
 TRC_INIT_MODULE(iqrf::IqrfDpa);
@@ -102,9 +98,6 @@ namespace iqrf {
       "IqrfDpa instance activate" << std::endl <<
       "******************************"
     );
-
-    //TODO workaround old tracing 
-    TRC_START("TraceOld.txt", iqrf::Level::dbg, TRC_DEFAULT_FILE_MAXSIZE);
 
     m_dpaHandler = shape_new DpaHandler2(m_iqrfDpaChannel);
 
