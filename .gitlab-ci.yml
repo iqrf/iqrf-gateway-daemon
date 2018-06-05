@@ -1,19 +1,10 @@
-image: buildpack-deps:stretch
+image: iqrfsdk/iqrf-gateway-daemon-build:latest
 
 stages:
  - dependencies
  - build
 
 before_script:
- # build environment
- - apt-get update -y
- - apt-get install --no-install-recommends -y build-essential git cmake gcc g++ zlib1g-dev libcpprest-dev libssl-dev mlocate ruby ruby-dev unzip wget openssh-client
- - apt-get clean
- - rm -rf /var/lib/apt/lists/*
- 
- # tool to create deb package
- - gem install --no-rdoc --no-ri fpm
- 
  # run ssh-agent (inside the build environment)
  - eval $(ssh-agent -s)
 
@@ -77,6 +68,7 @@ paho:
 daemon:
  stage: build
  script:
+  - export IQRF_GW_DAEMON_VERSION=2.0.0beta1
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
@@ -95,10 +87,10 @@ daemon:
   - make -j$(nproc) -C iqrf-daemon-build
   - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package.sh
-  - tar czvf iqrf-daemon-deploy_amd64.tar.gz iqrf-daemon-deploy    
+  - tar czvf iqrf-daemon-deploy_$IQRF_GW_DAEMON_VERSION_amd64.tar.gz iqrf-daemon-deploy    
  artifacts:
   paths:
    - iqrf-gateway-daemon_*_amd64.deb
-   - iqrf-daemon-deploy_amd64.tar.gz
+   - iqrf-daemon-deploy_*_amd64.tar.gz
  tags:
   - linux, amd64

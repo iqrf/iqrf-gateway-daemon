@@ -6,9 +6,9 @@ fpm \
 -s dir \
 -C iqrf-daemon-deploy \
 --name "iqrf-gateway-daemon" \
---version "2.0.0beta1" \
+--version $IQRF_GW_DAEMON_VERSION \
 --license "Apache License, Version 2.0" \
---vendor "IQRF Tech s.r.o" \
+--vendor "IQRF Tech s.r.o." \
 --category "devel" \
 --architecture "amd64" \
 --maintainer "Rostislav Spinar <rostislav.spinar@iqrf.com>" \
