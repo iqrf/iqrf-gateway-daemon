@@ -3,6 +3,7 @@
 #include "IDpaHandler2.h"
 #include "DpaTask.h"
 #include "BaseService.h"
+#include "JsonSerializer.h"
 
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -49,9 +50,9 @@ namespace iqrf {
     std::string ctype;
     std::string lastError = "Unknown ctype";
     //for (auto ser : m_serializerVect) {
-    ctype = m_serializer->parseCategory(msgs);
+    ctype = m_serializer.parseCategory(msgs);
     if (ctype == CAT_DPA_STR) {
-      dpaTask = m_serializer->parseRequest(msgs);
+      dpaTask = m_serializer.parseRequest(msgs);
       if (dpaTask) {
         //DpaTransactionTask trans(*dpaTask);
         try {
@@ -91,11 +92,11 @@ namespace iqrf {
         ///////
         handled = true;
       }
-      lastError = m_serializer->getLastError();
+      lastError = m_serializer.getLastError();
       //break;
     }
     else if (ctype == CAT_CONF_STR) {
-      command = m_serializer->parseConfig(msgs);
+      command = m_serializer.parseConfig(msgs);
       if (!command.empty()) {
         //TODO
         //std::string response = m_daemon->doCommand(command);
@@ -103,7 +104,7 @@ namespace iqrf {
         //os << m_serializer->encodeConfig(msgs, response);
         handled = true;
       }
-      lastError = m_serializer->getLastError();
+      lastError = m_serializer.getLastError();
       //break;
     }
     //}
@@ -124,7 +125,7 @@ namespace iqrf {
   void BaseService::handleAsyncDpaMessage(const DpaMessage& dpaMessage)
   {
     TRC_FUNCTION_ENTER("");
-    std::string sr = m_serializer->encodeAsyncAsDpaRaw(dpaMessage);
+    std::string sr = m_serializer.encodeAsyncAsDpaRaw(dpaMessage);
     TRC_INFORMATION(std::endl << "<<<<< ASYNCHRONOUS <<<<<<<<<<<<<<<" << std::endl <<
       "Asynchronous message to send: " << std::endl << MEM_HEX(sr.data(), sr.size()) << std::endl <<
       ">>>>> ASYNCHRONOUS >>>>>>>>>>>>>>>" << std::endl);
@@ -203,21 +204,21 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::attachInterface(iqrf::IJsonSerializerService* iface)
-  {
-    TRC_FUNCTION_ENTER(PAR(iface));
-    m_serializer = iface;
-    TRC_FUNCTION_LEAVE("")
-  }
+  //void BaseService::attachInterface(iqrf::IJsonSerializerService* iface)
+  //{
+  //  TRC_FUNCTION_ENTER(PAR(iface));
+  //  m_serializer = iface;
+  //  TRC_FUNCTION_LEAVE("")
+  //}
 
-  void BaseService::detachInterface(iqrf::IJsonSerializerService* iface)
-  {
-    TRC_FUNCTION_ENTER(PAR(iface));
-    if (m_serializer == iface) {
-      m_serializer = nullptr;
-    }
-    TRC_FUNCTION_LEAVE("")
-  }
+  //void BaseService::detachInterface(iqrf::IJsonSerializerService* iface)
+  //{
+  //  TRC_FUNCTION_ENTER(PAR(iface));
+  //  if (m_serializer == iface) {
+  //    m_serializer = nullptr;
+  //  }
+  //  TRC_FUNCTION_LEAVE("")
+  //}
 
   void BaseService::attachInterface(iqrf::IIqrfDpaService* iface)
   {

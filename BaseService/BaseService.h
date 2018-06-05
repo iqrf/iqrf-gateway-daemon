@@ -3,7 +3,7 @@
 #include "IBaseService.h"
 #include "ShapeProperties.h"
 #include "IMessagingSplitterService.h"
-#include "IJsonSerializerService.h"
+#include "JsonSerializer.h"
 #include "IIqrfDpaService.h"
 #include "ISchedulerService.h"
 #include "ITraceService.h"
@@ -26,9 +26,6 @@ namespace iqrf {
     void attachInterface(iqrf::IMessagingSplitterService* iface);
     void detachInterface(iqrf::IMessagingSplitterService* iface);
 
-    void attachInterface(iqrf::IJsonSerializerService* iface);
-    void detachInterface(iqrf::IJsonSerializerService* iface);
-
     void attachInterface(iqrf::IIqrfDpaService* iface);
     void detachInterface(iqrf::IIqrfDpaService* iface);
 
@@ -43,7 +40,7 @@ namespace iqrf {
     void handleAsyncDpaMessage(const DpaMessage& dpaMessage);
 
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
-    IJsonSerializerService* m_serializer = nullptr;
+    JsonSerializer m_serializer;
     iqrf::IIqrfDpaService* m_dpa = nullptr;
     iqrf::ISchedulerService* m_scheduler = nullptr;
     std::string m_name;
