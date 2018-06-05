@@ -1,6 +1,5 @@
 #pragma once
 
-#include "IBaseService.h"
 #include "ShapeProperties.h"
 #include "IMessagingSplitterService.h"
 #include "JsonSerializer.h"
@@ -13,11 +12,11 @@ class DpaMessage;
 
 namespace iqrf {
 
-  class BaseService : public IBaseService
+  class LegacyApiSupport
   {
   public:
-    BaseService();
-    virtual ~BaseService();
+    LegacyApiSupport();
+    virtual ~LegacyApiSupport();
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

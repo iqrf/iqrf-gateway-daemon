@@ -85,9 +85,9 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::BaseService",
+      "name": "iqrf::LegacyApiSupport",
       "libraryPath": "",
-      "libraryName": "BaseService",
+      "libraryName": "LegacyApiSupport",
       "enabled": true,
       "startlevel": 0
     },

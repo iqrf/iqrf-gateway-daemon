@@ -1,8 +1,7 @@
-project(BaseService)
+project(LegacyApiSupport)
 
-set(COMPONENT iqrf::BaseService)
+set(COMPONENT iqrf::LegacyApiSupport)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IBaseService)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::ISchedulerService MANDATORY SINGLE)

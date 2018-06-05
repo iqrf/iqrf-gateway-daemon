@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IJsonSerializerService.h"
+#include "DpaTask.h"
 #include "ObjectFactory.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
@@ -9,6 +9,11 @@
 #include <string>
 
 namespace iqrf {
+  /// Configuration category identification string
+  static const std::string CAT_CONF_STR("conf");
+  /// DPA category identification sting
+  static const std::string CAT_DPA_STR("dpa");
+
   class JsonSerializer : public ObjectFactory<DpaTask, rapidjson::Value>
   {
   public:

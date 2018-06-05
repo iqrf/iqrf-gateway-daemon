@@ -1,8 +1,8 @@
-#define IBaseService_EXPORTS
+#define ILegacyApiSupport_EXPORTS
 
 #include "IDpaHandler2.h"
 #include "DpaTask.h"
-#include "BaseService.h"
+#include "LegacyApiSupport.h"
 #include "JsonSerializer.h"
 
 #include "rapidjson/rapidjson.h"
@@ -13,24 +13,24 @@
 
 #include "Trace.h"
 
-#include "iqrf__BaseService.hxx"
+#include "iqrf__LegacyApiSupport.hxx"
 
-TRC_INIT_MODULE(iqrf::BaseService);
+TRC_INIT_MODULE(iqrf::LegacyApiSupport);
 
 namespace iqrf {
-  BaseService::BaseService()
+  LegacyApiSupport::LegacyApiSupport()
   {
     TRC_FUNCTION_ENTER("");
     TRC_FUNCTION_LEAVE("")
   }
 
-  BaseService::~BaseService()
+  LegacyApiSupport::~LegacyApiSupport()
   {
     TRC_FUNCTION_ENTER("");
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::handleMsgFromMessaging(const std::string & messagingId, const std::basic_string<uint8_t> & msg)
+  void LegacyApiSupport::handleMsgFromMessaging(const std::string & messagingId, const std::basic_string<uint8_t> & msg)
   {
     TRC_INFORMATION(std::endl << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl <<
       "Message to process: " << std::endl << MEM_HEX_CHAR(msg.data(), msg.size()));
@@ -122,7 +122,7 @@ namespace iqrf {
 
   }
 
-  void BaseService::handleAsyncDpaMessage(const DpaMessage& dpaMessage)
+  void LegacyApiSupport::handleAsyncDpaMessage(const DpaMessage& dpaMessage)
   {
     TRC_FUNCTION_ENTER("");
     std::string sr = m_serializer.encodeAsyncAsDpaRaw(dpaMessage);
@@ -138,12 +138,12 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
-  void BaseService::activate(const shape::Properties *props)
+  void LegacyApiSupport::activate(const shape::Properties *props)
   {
     TRC_FUNCTION_ENTER("");
     TRC_INFORMATION(std::endl <<
       "******************************" << std::endl <<
-      "BaseService instance activate" << std::endl <<
+      "LegacyApiSupport instance activate" << std::endl <<
       "******************************"
     );
 
@@ -170,12 +170,12 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::deactivate()
+  void LegacyApiSupport::deactivate()
   {
     TRC_FUNCTION_ENTER("");
     TRC_INFORMATION(std::endl <<
       "******************************" << std::endl <<
-      "BaseService instance deactivate" << std::endl <<
+      "LegacyApiSupport instance deactivate" << std::endl <<
       "******************************"
     );
 
@@ -184,18 +184,18 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::modify(const shape::Properties *props)
+  void LegacyApiSupport::modify(const shape::Properties *props)
   {
   }
 
-  void BaseService::attachInterface(iqrf::IMessagingSplitterService* iface)
+  void LegacyApiSupport::attachInterface(iqrf::IMessagingSplitterService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     m_iMessagingSplitterService = iface;
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::detachInterface(iqrf::IMessagingSplitterService* iface)
+  void LegacyApiSupport::detachInterface(iqrf::IMessagingSplitterService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     if (m_iMessagingSplitterService == iface) {
@@ -204,14 +204,14 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  //void BaseService::attachInterface(iqrf::IJsonSerializerService* iface)
+  //void LegacyApiSupport::attachInterface(iqrf::IJsonSerializerService* iface)
   //{
   //  TRC_FUNCTION_ENTER(PAR(iface));
   //  m_serializer = iface;
   //  TRC_FUNCTION_LEAVE("")
   //}
 
-  //void BaseService::detachInterface(iqrf::IJsonSerializerService* iface)
+  //void LegacyApiSupport::detachInterface(iqrf::IJsonSerializerService* iface)
   //{
   //  TRC_FUNCTION_ENTER(PAR(iface));
   //  if (m_serializer == iface) {
@@ -220,14 +220,14 @@ namespace iqrf {
   //  TRC_FUNCTION_LEAVE("")
   //}
 
-  void BaseService::attachInterface(iqrf::IIqrfDpaService* iface)
+  void LegacyApiSupport::attachInterface(iqrf::IIqrfDpaService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     m_dpa = iface;
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::detachInterface(iqrf::IIqrfDpaService* iface)
+  void LegacyApiSupport::detachInterface(iqrf::IIqrfDpaService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     if (m_dpa == iface) {
@@ -236,14 +236,14 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::attachInterface(iqrf::ISchedulerService* iface)
+  void LegacyApiSupport::attachInterface(iqrf::ISchedulerService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     m_scheduler = iface;
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::detachInterface(iqrf::ISchedulerService* iface)
+  void LegacyApiSupport::detachInterface(iqrf::ISchedulerService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     if (m_scheduler == iface) {
@@ -252,12 +252,12 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void BaseService::attachInterface(shape::ITraceService* iface)
+  void LegacyApiSupport::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void BaseService::detachInterface(shape::ITraceService* iface)
+  void LegacyApiSupport::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }

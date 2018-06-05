@@ -1,6 +1,6 @@
 {
-  "component": "iqrf::BaseService",
-  "instance": "BaseServiceForMQ",
+  "component": "iqrf::LegacyApiSupport",
+  "instance": "LegacyApiSupportForMQ",
   "RequiredInterfaces": [
     {
       "name": "iqrf::IMessagingService",
