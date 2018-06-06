@@ -87,10 +87,10 @@ daemon:
   - make -j$(nproc) -C iqrf-daemon-build
   - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package.sh
-  - tar czvf iqrf-daemon-deploy_$IQRF_GW_DAEMON_VERSION_amd64.tar.gz iqrf-daemon-deploy    
+  - tar czvf iqrf-gateway-daemon_${IQRF_GW_DAEMON_VERSION}_amd64.tar.gz iqrf-daemon-deploy    
  artifacts:
   paths:
    - iqrf-gateway-daemon_*_amd64.deb
-   - iqrf-daemon-deploy_*_amd64.tar.gz
+   - iqrf-gateway-daemon_*_amd64.tar.gz
  tags:
   - linux, amd64

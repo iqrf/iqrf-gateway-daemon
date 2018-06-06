@@ -176,14 +176,14 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::WriteTrConfigService",
+      "name": "iqrf::WriteTrConfService",
       "libraryPath": "",
       "libraryName": "WriteTrConfigService",
       "enabled": true,
       "startlevel": 3
     },
     {
-      "name": "iqrf::ReadTrConfigService",
+      "name": "iqrf::ReadTrConfService",
       "libraryPath": "",
       "libraryName": "ReadTrConfigService",
       "enabled": true,
