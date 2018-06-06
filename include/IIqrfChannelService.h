@@ -40,11 +40,43 @@ namespace iqrf {
       virtual void send(const std::basic_string<unsigned char>& message) = 0;
       virtual AccesType getAccessType() = 0;
       virtual ~Accessor() {}
+
+      // target of upload
+      enum class UploadTarget
+      {
+        UPLOAD_TARGET_CFG,
+        UPLOAD_TARGET_RFPMG,
+        UPLOAD_TARGET_RFBAND,
+        UPLOAD_TARGET_ACCESS_PWD,
+        UPLOAD_TARGET_USER_KEY,
+        UPLOAD_TARGET_FLASH,
+        UPLOAD_TARGET_INTERNAL_EEPROM,
+        UPLOAD_TARGET_EXTERNAL_EEPROM,
+        UPLOAD_TARGET_SPECIAL
+      };
+
+      // error codes of upload operation
+      enum class UploadErrorCode {
+        UPLOAD_NO_ERROR = 0,
+        UPLOAD_ERROR_GENERAL,
+        UPLOAD_ERROR_TARGET_MEMORY,
+        UPLOAD_ERROR_DATA_LEN,
+        UPLOAD_ERROR_ADDRESS,
+        UPLOAD_ERROR_WRITE_ONLY,
+        UPLOAD_ERROR_COMMUNICATION,
+        UPLOAD_ERROR_NOT_SUPPORTED,
+        UPLOAD_ERROR_BUSY
+      };
+
+      virtual bool enterProgrammingState() = 0;
+      virtual UploadErrorCode upload(const UploadTarget target, const std::basic_string<uint8_t>& data) = 0;
+      virtual bool terminateProgrammingState() = 0;
     };
 
     virtual State getState() const = 0;
     virtual std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) = 0;
     virtual ~IIqrfChannelService() {}
+
 
     class StateConvertTable
     {

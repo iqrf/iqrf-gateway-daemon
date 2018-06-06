@@ -25,6 +25,11 @@ namespace iqrf {
     void send(const std::basic_string<unsigned char>& message) override;
     IIqrfChannelService::AccesType getAccessType() override;
     virtual ~IqrfCdcAccessor();
+
+    bool enterProgrammingState() override;
+    UploadErrorCode upload(UploadTarget target, const std::basic_string<uint8_t>& data) override;
+    bool terminateProgrammingState() override;
+
   private:
     IqrfCdc::Imp * m_iqrfCdc = nullptr;
     IIqrfChannelService::AccesType m_type = IIqrfChannelService::AccesType::Normal;
@@ -95,6 +100,127 @@ namespace iqrf {
         THROW_EXC_TRC_WAR(std::logic_error, "CDC not active" << PAR(dsResponse));
       }
     }
+
+    bool enterProgrammingState() 
+    {
+      TRC_INFORMATION("Entering programming mode.");
+
+      PTEResponse response;
+      try {
+        response = m_cdc->enterProgrammingMode();
+      }
+      catch (std::exception& ex) {
+        TRC_ERROR("Entering programming mode failed: " << ex.what());
+        return false;
+      }
+
+      if (response != PTEResponse::OK) {
+        TRC_ERROR("Entering programming mode failed: " << PAR((int)response));
+        return false;
+      }
+
+      return true;
+    }
+
+    IIqrfChannelService::Accessor::UploadErrorCode 
+      upload(const Accessor::UploadTarget target, const std::basic_string<uint8_t>& data)
+    {
+      // write data to TR module
+      TRC_INFORMATION("Uploading");
+
+      unsigned char targetInt = 0;
+      switch (target) {
+        case Accessor::UploadTarget::UPLOAD_TARGET_CFG:
+          targetInt = 0x80;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_RFPMG:
+          targetInt = 0x81;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_RFBAND:
+          targetInt = 0x82;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_ACCESS_PWD:
+          targetInt = 0x83;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_USER_KEY:
+          targetInt = 0x84;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_FLASH:
+          targetInt = 0x85;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM:
+          targetInt = 0x86;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM:
+          targetInt = 0x87;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_SPECIAL:
+          targetInt = 0x88;
+          break;
+        default:
+          targetInt = 0;
+      }
+
+      // unsupported target
+      if (targetInt == 0) {
+        TRC_ERROR("Unsupported target: " << PAR((int)target));
+        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
+      }
+      
+      PMResponse response;
+      try {
+        response = m_cdc->upload(targetInt, data);
+      }
+      catch (std::exception& ex) {
+        TRC_ERROR("Uploading failed: " << ex.what());
+        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_COMMUNICATION;
+      }
+
+      if (response == PMResponse::OK) {
+        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
+      }
+
+      switch (response)
+      {
+        case PMResponse::ERR2:
+          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_TARGET_MEMORY;
+        case PMResponse::ERR3:
+          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_DATA_LEN;
+        case PMResponse::ERR4:
+          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_ADDRESS;
+        case PMResponse::ERR5:
+          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_WRITE_ONLY;
+        case PMResponse::ERR6:
+          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_COMMUNICATION;
+        case PMResponse::ERR7:
+          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
+        case PMResponse::BUSY:
+          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_BUSY;
+        default:
+          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_GENERAL;
+      }
+    }
+
+    bool terminateProgrammingState() {
+      TRC_INFORMATION("Terminating programming mode.");
+
+      PTEResponse response;
+      try {
+        response = m_cdc->terminateProgrammingMode();
+      }
+      catch (std::exception& ex) {
+        TRC_ERROR("Terminating programming mode failed: " << ex.what());
+        return false;
+      }
+
+      if (response != PTEResponse::OK) {
+        TRC_ERROR("Programming mode termination failed: " << PAR((int)response));
+        return false;
+      }
+
+      return true;
+    }
+
 
     IIqrfChannelService::State getState() const
     {
@@ -251,6 +377,22 @@ namespace iqrf {
   IqrfCdcAccessor::~IqrfCdcAccessor()
   {
     m_iqrfCdc->resetAccess(m_type);
+  }
+
+  bool IqrfCdcAccessor::enterProgrammingState()
+  {
+    return m_iqrfCdc->enterProgrammingState();
+  }
+
+  IIqrfChannelService::Accessor::UploadErrorCode IqrfCdcAccessor::upload(
+    UploadTarget target, const std::basic_string<uint8_t>& data
+  )
+  {
+    return m_iqrfCdc->upload(target, data);
+  }
+
+  bool IqrfCdcAccessor::terminateProgrammingState() {
+    return m_iqrfCdc->terminateProgrammingState();
   }
 
   //////////////////////////////////////////////////

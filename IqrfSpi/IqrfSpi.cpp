@@ -20,6 +20,15 @@
 
 #include "iqrf__IqrfSpi.hxx"
 
+// for upload functionality
+#ifndef WIN32
+#include <unistd.h>
+#define SLEEP(ms) usleep(1000*ms)
+#else
+#include "Windows.h"
+#define SLEEP(ms) Sleep(ms)
+#endif
+
 TRC_INIT_MODULE(iqrf::IqrfSpi);
 
 const unsigned SPI_REC_BUFFER_SIZE = 1024;
@@ -32,6 +41,11 @@ namespace iqrf {
     void send(const std::basic_string<unsigned char>& message) override;
     IIqrfChannelService::AccesType getAccessType() override;
     virtual ~IqrfSpiAccessor();
+
+    bool enterProgrammingState() override;
+    UploadErrorCode upload(const UploadTarget target, const std::basic_string<uint8_t>& data) override;
+    bool terminateProgrammingState() override;
+
   private:
     IqrfSpi::Imp * m_IqrfSpi = nullptr;
     IIqrfChannelService::AccesType m_type = IIqrfChannelService::AccesType::Normal;
@@ -107,6 +121,154 @@ namespace iqrf {
         TRC_DEBUG("Sleep for a while ... ");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
+    }
+
+    bool enterProgrammingState() {
+      TRC_INFORMATION("Entering programming mode.");
+
+      int progModeEnterRes = spi_iqrf_pe();
+      if (progModeEnterRes != BASE_TYPES_OPER_OK) {
+        TRC_ERROR("Entering programming mode failed: " << PAR(progModeEnterRes));
+        return false;
+      }
+
+      return true;
+    }
+
+    
+    // try to wait for communication ready state in specified timeout (in ms).
+    // returns	last read IQRF SPI status.
+    // copied and slightly modified from: spi_example_pgm_hex.c
+    spi_iqrf_SPIStatus tryToWaitForPgmReady(uint32_t timeout)
+    {
+      spi_iqrf_SPIStatus spiStatus = { 0, SPI_IQRF_SPI_DISABLED };
+      int operResult = -1;
+      uint32_t elapsedTime = 0;
+      uint8_t buffer[64];
+      unsigned int dataLen = 0;
+      uint16_t memStatus = 0x8000;
+      uint16_t repStatCounter = 1;
+
+      do
+      {
+        if (elapsedTime > timeout) {
+          TRC_DEBUG("Status: " << PAR(spiStatus.dataNotReadyStatus));
+          TRC_DEBUG("Timeout of waiting on ready state expired");
+          return spiStatus;
+        }
+
+        SLEEP(10);
+        elapsedTime += 10;
+
+        // getting slave status
+        operResult = spi_iqrf_getSPIStatus(&spiStatus);
+        if (operResult < 0) {
+          TRC_DEBUG("Failed to get SPI status: " << PAR(operResult));
+        }
+        else {
+          if (memStatus != spiStatus.dataNotReadyStatus) {
+            if (memStatus != 0x8000) {
+              TRC_DEBUG("Status: " << PAR(memStatus));
+            }
+            memStatus = spiStatus.dataNotReadyStatus;
+            repStatCounter = 1;
+          }
+          else repStatCounter++;
+        }
+
+        if (spiStatus.isDataReady == 1) {
+          // reading - only to dispose old data if any
+          spi_iqrf_read(buffer, spiStatus.dataReady);
+        }
+      } while (spiStatus.dataNotReadyStatus != SPI_IQRF_SPI_READY_PROG);
+
+      TRC_DEBUG("Status: " << PAR(spiStatus.dataNotReadyStatus));
+      return spiStatus;
+    }
+
+    IIqrfChannelService::Accessor::UploadErrorCode upload(
+      const Accessor::UploadTarget target, 
+      const std::basic_string<uint8_t>& data
+    )
+    {
+      // wait for TR module is ready
+      spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(2000);
+
+      // if SPI not ready in 2000 ms, end
+      if (spiStatus.dataNotReadyStatus != SPI_IQRF_SPI_READY_PROG) {
+        TRC_ERROR("Waiting for ready state failed." << NAME_PAR_HEX(SPI status, spiStatus.dataNotReadyStatus));
+        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_GENERAL;
+      }
+
+      // write data to TR module
+      TRC_INFORMATION("Uploading");
+
+      int targetInt = 0;
+      switch (target) {
+        case Accessor::UploadTarget::UPLOAD_TARGET_CFG:
+          targetInt = CFG_TARGET;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_RFPMG:
+          targetInt = RFPMG_TARGET;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_RFBAND:
+          targetInt = RFBAND_TARGET;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_ACCESS_PWD:
+          targetInt = ACCESS_PWD_TARGET;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_USER_KEY:
+          targetInt = USER_KEY_TARGET;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_FLASH:
+          targetInt = FLASH_TARGET;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM:
+          targetInt = INTERNAL_EEPROM_TARGET;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM:
+          targetInt = EXTERNAL_EEPROM_TARGET;
+          break;
+        case Accessor::UploadTarget::UPLOAD_TARGET_SPECIAL:
+          targetInt = SPECIAL_TARGET;
+          break;
+        default:
+          targetInt = -1;
+      }
+
+      // unsupported target
+      if (targetInt == -1) {
+        TRC_ERROR("Unsupported target: " << PAR((int)target));
+        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
+      }
+
+      int uploadRes = spi_iqrf_upload(targetInt, data.data(), data.size());
+
+      // wait for TR module to finish upload operation for at max. 2s
+      tryToWaitForPgmReady(2000);
+
+      // check result of write operation
+      if (uploadRes != BASE_TYPES_OPER_OK) {
+        TRC_ERROR("Data programming failed. " << NAME_PAR_HEX(Result, uploadRes));
+        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_GENERAL;
+      }
+      else {
+        TRC_INFORMATION("Upload OK");
+      }
+
+      return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
+    }
+
+    bool terminateProgrammingState() {
+      TRC_INFORMATION("Terminating programming mode.");
+
+      int progModeTerminateRes = spi_iqrf_pe();
+      if (progModeTerminateRes != BASE_TYPES_OPER_OK) {
+        TRC_ERROR("Programming mode termination failed: " << PAR(progModeTerminateRes));
+        return false;
+      }
+
+      return true;
     }
 
     IIqrfChannelService::State getState() const
@@ -236,6 +398,9 @@ namespace iqrf {
         cfg.spiMisoGpioPin = (uint8_t)Pointer("/spiMisoGpioPin").GetWithDefault(d, (int)cfg.spiMisoGpioPin).GetInt();
         cfg.spiMosiGpioPin = (uint8_t)Pointer("/spiMosiGpioPin").GetWithDefault(d, (int)cfg.spiMosiGpioPin).GetInt();
         cfg.spiClkGpioPin = (uint8_t)Pointer("/spiClkGpioPin").GetWithDefault(d, (int)cfg.spiClkGpioPin).GetInt();
+
+        // for sake of upload
+        cfg.spiPgmSwGpioPin = PGM_SW_GPIO;
 
         TRC_INFORMATION(PAR(m_interfaceName));
 
@@ -390,6 +555,22 @@ namespace iqrf {
   IqrfSpiAccessor::~IqrfSpiAccessor()
   {
     m_IqrfSpi->resetAccess(m_type);
+  }
+
+  bool IqrfSpiAccessor::enterProgrammingState()
+  {
+    return m_IqrfSpi->enterProgrammingState();
+  }
+
+  IIqrfChannelService::Accessor::UploadErrorCode IqrfSpiAccessor::upload(
+    UploadTarget target, const std::basic_string<uint8_t>& data
+  )
+  {
+    return m_IqrfSpi->upload(target, data);
+  }
+
+  bool IqrfSpiAccessor::terminateProgrammingState() {
+    return m_IqrfSpi->terminateProgrammingState();
   }
 
   //////////////////////////////////////////////////
