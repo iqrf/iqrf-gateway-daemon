@@ -405,7 +405,7 @@ namespace iqrf {
 
       SchedPeriodicTaskMsg msg(reqDoc);
 
-      long taskId = m_iSchedulerService->scheduleTaskPeriodic(
+      uint64_t taskId = m_iSchedulerService->scheduleTaskPeriodic(
         msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()/1000), msg.getPoint()); //TODO point
 
       // prepare OK response
