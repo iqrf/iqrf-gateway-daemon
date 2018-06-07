@@ -130,9 +130,9 @@ shape_&_shapeware-armhf:
   - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs 
  artifacts:
   paths:
-   - shape-source_amrhf.tar.gz
+   - shape-source_armhf.tar.gz
    - shape-build_armhf.tar.gz
-   - shape-libs_amrhf.tar.gz
+   - shape-libs_armhf.tar.gz
    - shapeware-source_armhf.tar.gz
    - shapeware-build_armhf.tar.gz
    - shapeware-libs_armhf.tar.gz
