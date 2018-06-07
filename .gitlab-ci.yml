@@ -1,12 +1,13 @@
 stages:
  - dependencies
  - build
-
+ 
 shape_&_shapeware-amd64:
  stage: dependencies
  image: iqrfsdk/iqrf-gateway-daemon-build:latest-amd64
  only:
   - master
+ dependencies: [] 
  script:
   - export ARCH=amd64
   - git clone https://github.com/logimic/shape.git shape-source
@@ -29,18 +30,19 @@ shape_&_shapeware-amd64:
   - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs 
  artifacts:
   paths:
-   - shape-source_${ARCH}.tar.gz
-   - shape-build_${ARCH}.tar.gz
-   - shape-libs_${ARCH}.tar.gz
-   - shapeware-source_${ARCH}.tar.gz
-   - shapeware-build_${ARCH}.tar.gz
-   - shapeware-libs_${ARCH}.tar.gz
+   - shape-source_amd64.tar.gz
+   - shape-build_amd64.tar.gz
+   - shape-libs_amd64.tar.gz
+   - shapeware-source_amd64.tar.gz
+   - shapeware-build_amd64.tar.gz
+   - shapeware-libs_amd64.tar.gz
  tags:
   - linux, amd64
 
 paho-amd64:
  stage: dependencies
  image: iqrfsdk/iqrf-gateway-daemon-build:latest-amd64
+ dependencies: []
  script:
   - export ARCH=amd64
   - git clone https://github.com/eclipse/paho.mqtt.c.git paho-source
@@ -52,8 +54,8 @@ paho-amd64:
   - tar czvf paho-build_${ARCH}.tar.gz paho-build
  artifacts:
   paths:
-   - paho-source_${ARCH}.tar.gz
-   - paho-build_${ARCH}.tar.gz
+   - paho-source_amd64.tar.gz
+   - paho-build_amd64.tar.gz
  tags:
   - linux, amd64
 
@@ -62,6 +64,9 @@ daemon-amd64:
  image: iqrfsdk/iqrf-gateway-daemon-build:latest-amd64
  only:
   - master
+ dependencies:
+  - shape_&_shapeware-amd64
+  - paho-amd64
  before_script:
   - eval $(ssh-agent -s)
   - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
@@ -92,8 +97,8 @@ daemon-amd64:
   - tar czvf iqrf-gateway-daemon_${IQRF_GW_DAEMON_VERSION}_${ARCH}.tar.gz iqrf-daemon-deploy    
  artifacts:
   paths:
-   - iqrf-gateway-daemon_*_${ARCH}.deb
-   - iqrf-gateway-daemon_*_${ARCH}.tar.gz
+   - iqrf-gateway-daemon_*_amd64.deb
+   - iqrf-gateway-daemon_*_amd64.tar.gz
  tags:
   - linux, amd64
 
@@ -102,6 +107,7 @@ shape_&_shapeware-armhf:
  image: iqrfsdk/iqrf-gateway-daemon-build:latest-armhf
  only:
   - master
+ dependencies: [] 
  script:
   - export ARCH=armhf
   - git clone https://github.com/logimic/shape.git shape-source
@@ -124,18 +130,19 @@ shape_&_shapeware-armhf:
   - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs 
  artifacts:
   paths:
-   - shape-source_${ARCH}.tar.gz
-   - shape-build_${ARCH}.tar.gz
-   - shape-libs_${ARCH}.tar.gz
-   - shapeware-source_${ARCH}.tar.gz
-   - shapeware-build_${ARCH}.tar.gz
-   - shapeware-libs_${ARCH}.tar.gz
+   - shape-source_amrhf.tar.gz
+   - shape-build_armhf.tar.gz
+   - shape-libs_amrhf.tar.gz
+   - shapeware-source_armhf.tar.gz
+   - shapeware-build_armhf.tar.gz
+   - shapeware-libs_armhf.tar.gz
  tags:
   - linux, armhf
 
 paho-armhf:
  stage: dependencies
  image: iqrfsdk/iqrf-gateway-daemon-build:latest-armhf
+ dependencies: []
  script:
   - export ARCH=armhf
   - git clone https://github.com/eclipse/paho.mqtt.c.git paho-source
@@ -147,14 +154,19 @@ paho-armhf:
   - tar czvf paho-build_${ARCH}.tar.gz paho-build
  artifacts:
   paths:
-   - paho-source_${ARCH}.tar.gz
-   - paho-build_${ARCH}.tar.gz
+   - paho-source_armhf.tar.gz
+   - paho-build_armhf.tar.gz
  tags:
   - linux, armhf
 
 daemon-armhf:
  stage: build
  image: iqrfsdk/iqrf-gateway-daemon-build:latest-armhf
+ only:
+  - master
+ dependencies:
+  - shape_&_shapeware-armhf
+  - paho-armhf
  script:
   - export ARCH=armhf
   - export IQRF_GW_DAEMON_VERSION=2.0.0beta1
@@ -179,7 +191,7 @@ daemon-armhf:
   - tar czvf iqrf-gateway-daemon_${IQRF_GW_DAEMON_VERSION}_${ARCH}.tar.gz iqrf-daemon-deploy    
  artifacts:
   paths:
-   - iqrf-gateway-daemon_*_${ARCH}.deb
-   - iqrf-gateway-daemon_*_${ARCH}.tar.gz
+   - iqrf-gateway-daemon_*_armhf.deb
+   - iqrf-gateway-daemon_*_armhf.tar.gz
  tags:
   - linux, armhf
