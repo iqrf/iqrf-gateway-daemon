@@ -36,6 +36,7 @@ shape_&_shapeware-amd64:
    - shapeware-source_amd64.tar.gz
    - shapeware-build_amd64.tar.gz
    - shapeware-libs_amd64.tar.gz
+  expire_in: 2 weeks
  tags:
   - linux, amd64
 
@@ -56,6 +57,7 @@ paho-amd64:
   paths:
    - paho-source_amd64.tar.gz
    - paho-build_amd64.tar.gz
+  expire_in: 2 weeks
  tags:
   - linux, amd64
 
@@ -99,6 +101,7 @@ daemon-amd64:
   paths:
    - iqrf-gateway-daemon_*_amd64.deb
    - iqrf-gateway-daemon_*_amd64.tar.gz
+  expire_in: 2 weeks
  tags:
   - linux, amd64
 
@@ -136,6 +139,7 @@ shape_&_shapeware-armhf:
    - shapeware-source_armhf.tar.gz
    - shapeware-build_armhf.tar.gz
    - shapeware-libs_armhf.tar.gz
+  expire_in: 2 weeks
  tags:
   - linux, armhf
 
@@ -156,6 +160,7 @@ paho-armhf:
   paths:
    - paho-source_armhf.tar.gz
    - paho-build_armhf.tar.gz
+  expire_in: 2 weeks
  tags:
   - linux, armhf
 
@@ -167,6 +172,12 @@ daemon-armhf:
  dependencies:
   - shape_&_shapeware-armhf
   - paho-armhf
+ before_script:
+  - eval $(ssh-agent -s)
+  - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
  script:
   - export ARCH=armhf
   - export IQRF_GW_DAEMON_VERSION=2.0.0beta1
@@ -193,5 +204,6 @@ daemon-armhf:
   paths:
    - iqrf-gateway-daemon_*_armhf.deb
    - iqrf-gateway-daemon_*_armhf.tar.gz
+  expire_in: 2 weeks
  tags:
   - linux, armhf
