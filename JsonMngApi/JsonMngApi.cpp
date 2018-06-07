@@ -383,7 +383,7 @@ namespace iqrf {
 
       SchedAddTaskMsg msg(reqDoc);
 
-      long taskId = m_iSchedulerService->scheduleTask(msg.getClientId(), msg.getTask(), msg.getCronTime()); //TODO point
+      int64_t taskId = m_iSchedulerService->scheduleTask(msg.getClientId(), msg.getTask(), msg.getCronTime()); //TODO point
 
       // prepare OK response
       Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
