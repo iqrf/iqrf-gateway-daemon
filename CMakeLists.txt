@@ -60,6 +60,7 @@ add_subdirectory(IqmeshServices/SmartConnectService)
 add_subdirectory(IqmeshServices/OtaUploadService)
 add_subdirectory(IqmeshServices/ReadTrConfService)
 add_subdirectory(IqmeshServices/WriteTrConfService)
+add_subdirectory(IqmeshServices/EnumerateDeviceService)
 
 set(DEFAULT_DAEMON_VERSION v2.0.0dev)
 string(TIMESTAMP DEFAULT_BUILD_TIMESTAMP)

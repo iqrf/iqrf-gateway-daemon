@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::EnumerateDeviceService",
+  "instance": "iqrf::EnumerateDeviceService-Instance1"
+}

@@ -209,6 +209,13 @@
       "libraryName": "BondNodeLocalService",
       "enabled": true,
       "startlevel": 3
+    },
+    {
+      "name": "iqrf::EnumerateDeviceService",
+      "libraryPath": "",
+      "libraryName": "EnumerateDeviceService",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }
