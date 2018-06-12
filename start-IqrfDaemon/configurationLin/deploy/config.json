@@ -178,14 +178,14 @@
     {
       "name": "iqrf::WriteTrConfService",
       "libraryPath": "",
-      "libraryName": "WriteTrConfigService",
+      "libraryName": "WriteTrConfService",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::ReadTrConfService",
       "libraryPath": "",
-      "libraryName": "ReadTrConfigService",
+      "libraryName": "ReadTrConfService",
       "enabled": true,
       "startlevel": 3
     },

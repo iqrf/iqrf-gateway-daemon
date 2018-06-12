@@ -13,7 +13,7 @@ shape_&_shapeware-amd64:
   - git clone https://github.com/logimic/shape.git shape-source
   - mkdir shape-build shape-libs
   - cmake -Bshape-build -Hshape-source -DCMAKE_BUILD_TYPE=Debug
-  - make -j$(nproc) -C shape-build
+  - cmake --build shape-build
   - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
   - tar czvf shape-source_${ARCH}.tar.gz shape-source
   - tar czvf shape-build_${ARCH}.tar.gz shape-build
@@ -23,7 +23,7 @@ shape_&_shapeware-amd64:
   - git -C shapeware-source submodule update
   - mkdir shapeware-build shapeware-libs
   - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=../shape-build -DCMAKE_BUILD_TYPE=Debug -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false
-  - make -j$(nproc) -C shapeware-build
+  - cmake --build shapeware-build
   - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
   - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
   - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
@@ -93,7 +93,7 @@ daemon-amd64:
   - make -j$(nproc) install -C paho-build
   - ldconfig
   - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../../shapeware-build -DCMAKE_BUILD_TYPE=Debug
-  - make -j$(nproc) -C iqrf-daemon-build
+  - cmake --build iqrf-daemon-build
   - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package.sh
   - tar czvf iqrf-gateway-daemon_${IQRF_GW_DAEMON_VERSION}_${ARCH}.tar.gz iqrf-daemon-deploy    
@@ -116,7 +116,7 @@ shape_&_shapeware-armhf:
   - git clone https://github.com/logimic/shape.git shape-source
   - mkdir shape-build shape-libs
   - cmake -Bshape-build -Hshape-source -DCMAKE_BUILD_TYPE=Debug
-  - make -j$(nproc) -C shape-build
+  - cmake --build shape-build
   - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
   - tar czvf shape-source_${ARCH}.tar.gz shape-source
   - tar czvf shape-build_${ARCH}.tar.gz shape-build
@@ -126,7 +126,7 @@ shape_&_shapeware-armhf:
   - git -C shapeware-source submodule update
   - mkdir shapeware-build shapeware-libs
   - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=../shape-build -DCMAKE_BUILD_TYPE=Debug -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false
-  - make -j$(nproc) -C shapeware-build
+  - cmake --build shapeware-build
   - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
   - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
   - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
@@ -196,7 +196,7 @@ daemon-armhf:
   - make -j$(nproc) install -C paho-build
   - ldconfig
   - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../../shapeware-build -DCMAKE_BUILD_TYPE=Debug
-  - make -j$(nproc) -C iqrf-daemon-build
+  - cmake --build iqrf-daemon-build
   - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package.sh
   - tar czvf iqrf-gateway-daemon_${IQRF_GW_DAEMON_VERSION}_${ARCH}.tar.gz iqrf-daemon-deploy    
