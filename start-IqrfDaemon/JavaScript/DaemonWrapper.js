@@ -533,8 +533,6 @@ iqrf.embed.ledg.Pulse_Response_rsp = function (rawHdp) {
 ////////////////////////
 // FRC
 ////////////////////////
-
-//TODO frcCmd from msg differs frcCommand param name
 iqrf.embed.frc.Send_Request_req = function (param) {
     return iqrf.embed.frc.Send_Request(param.frcCommand, param.userData);
 };
@@ -555,16 +553,14 @@ iqrf.embed.frc.ExtraResult_Response_rsp = function (rawHdp) {
     return result;
 };
 
-//TODO names from msg differs param names
 iqrf.embed.frc.SendSelective_Request_req = function (param) {
-    return iqrf.embed.frc.SendSelective_Request(param.frcCmd, param.selNodes, param.userData);
+    return iqrf.embed.frc.SendSelective_Request(param.frcCommand, param.selectedNodes, param.userData);
 };
 
 iqrf.embed.frc.SendSelective_Response_rsp = function (rawHdp) {
     return iqrf.embed.frc.SendSelective_Response(rawHdp);
 };
 
-//TODO name params (not suitable) from msg differs frcResponseTime
 iqrf.embed.frc.SetParams_Request_req = function (param) {
     return iqrf.embed.frc.SetParams_Request(param.frcResponseTime);
 };
@@ -572,7 +568,7 @@ iqrf.embed.frc.SetParams_Request_req = function (param) {
 iqrf.embed.frc.SetParams_Response_rsp = function (rawHdp) {
     var result =
     {
-        prevParams: iqrf.embed.frc.SetParams_Response(rawHdp)
+        frcResponseTime: iqrf.embed.frc.SetParams_Response(rawHdp)
     };
     return result;
 };
@@ -682,15 +678,15 @@ iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {
     return result;
 };
 
-iqrf.sensor.Frc_Request_req = function (p) {
-    return iqrf.sensor.Frc_Request(p.sensorType, p.sensorIndex, p.frcCmd, p.selectedNodes, p.sleepAfterFrc);
+iqrf.sensor.Frc_Request_req = function (param) {
+    return iqrf.sensor.Frc_Request(param.sensorType, param.sensorIndex, param.frcCommand, param.selectedNodes, param.sleepAfterFrc);
 };
 
 //TODO needs special handling with state info because of parameter per to be passed
 //iqrf.sensor.Frc_Response_rsp = function (sensorType, ..., rawHdp) {
 //    var result =
 //    {
-//        result: iqrf.sensor.Frc_Response(rawHdp)
+//        sensors: iqrf.sensor.Frc_Response(rawHdp)
 //    };
 //    return result;
 //};
