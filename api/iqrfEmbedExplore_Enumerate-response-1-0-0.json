@@ -45,48 +45,51 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "dpaVer": {
-                            "type": "integer",
-                            "description": "DPA version."
-                        },
-                        "perNr": {
-                            "type": "integer",
-                            "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
-                        },
-                        "embPers": {
-                            "type": "array",
-                            "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the HWP Configuration.",
-                            "items": {
-                                "type": "integer"
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "dpaVer": {
+                                    "type": "integer",
+                                    "description": "DPA version."
+                                },
+                                "perNr": {
+                                    "type": "integer",
+                                    "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
+                                },
+                                "embPers": {
+                                    "type": "array",
+                                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the HWP Configuration.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "hwpIdVer": {
+                                    "type": "integer",
+                                    "description": "Hardware profile version."
+                                },
+                                "flags": {
+                                    "type": "integer",
+                                    "description": "Various flags."
+                                },
+                                "userPers": {
+                                    "type": "array",
+                                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }        
                             }
                         },
-                        "hwpIdVer": {
-                            "type": "integer",
-                            "description": "Hardware profile version."
-                        },
-                        "flags": {
-                            "type": "integer",
-                            "description": "Various flags."
-                        },
-                        "userPers": {
-                            "type": "array",
-                            "description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
-                            "items": {
-                                "type": "integer"
-                            }
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "dpaVer",
-                        "perNr",
-                        "embPers",
-                        "hwpIdVer",
-                        "flags",
-                        "userPers"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

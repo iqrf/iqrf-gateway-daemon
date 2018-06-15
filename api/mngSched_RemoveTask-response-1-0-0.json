@@ -28,10 +28,15 @@
                         "clientId": {
                             "type": "string",
                             "description": "Client identifier."
+                        },
+                        "taskId": {
+                            "type": "integer",
+                            "description": "Task identifier."
                         }
                     },
                     "required": [
-                        "clientId"
+                        "clientId",
+						"taskId"
                     ]
                 },
                 "insId": {
@@ -45,6 +50,10 @@
                 "statusStr": {
                     "type": "string",
                     "description": "IQRF GW daemon API (general or mType) status in string form."
+                },
+                "errorStr": {
+                    "type": "string",
+                    "description": "reason of error in string form."
                 }
             },
             "required": [

@@ -45,33 +45,25 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "prevDpaValueStr": {
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "prevDpaParam": {
+                                    "type": "integer",
+                                    "description": "Previously set DPA parameter."
+                                }
+                            }
+                        },
+                        "errorStr": {
                             "type": "string",
-                            "description": "Previous configuration of the type of DPA value.",
-                            "enum": [
-                                "LastRssi",
-                                "Voltage",
-                                "System",
-                                "User"
-                            ]
-                        },
-                        "prevLedDiagnostic": {
-                            "type": "boolean",
-                            "description": " Previous diagnosing the network behavior based on LED activities. Red LED flashes when Node or Coordinator receives network message. Green LED flashes when Coordinator sends network message or when Node routes network message."
-                        },
-                        "prevFixedTimeslot": {
-                            "type": "boolean",
-                            "description": "Previous a long fixed 200 ms timeslot is used. It allows easier tracking of network behavior."
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "prevDpaValueStr",
-                        "prevLedDiagnostic",
-                        "prevFixedTimeslot"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

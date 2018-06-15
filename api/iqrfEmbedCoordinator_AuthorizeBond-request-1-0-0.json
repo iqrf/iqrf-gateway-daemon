@@ -37,19 +37,23 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "reqAddr": {
-                            "type": "integer",
-                            "description": "See Bond node request. If 0xFF is specified then the pre-bonded node is unbonded and then reset."
-                        },
-                        "mid": {
-                            "type": "integer",
-                            "description": "Module ID of the node to be authorized."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "reqAddr": {
+                                    "type": "integer",
+                                    "description": "See Bond node request. If 0xFF is specified then the pre-bonded node is unbonded and then reset."
+                                },
+                                "mid": {
+                                    "type": "integer",
+                                    "description": "Module ID of the node to be authorized."
+                                }
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "reqAddr",
-                        "mid"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

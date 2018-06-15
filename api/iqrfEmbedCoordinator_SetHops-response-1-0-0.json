@@ -45,24 +45,31 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "prevReqHops": {
-                            "type": "integer",
-                            "description": "Allows the specifying fixed number of hops used to send the DPA request or to specify an optimization algorithm to compute a integer of hops.",
-                            "default": 255
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "requestHops": {
+                                    "type": "integer",
+                                    "description": "Allows the specifying fixed number of hops used to send the DPA request or to specify an optimization algorithm to compute a integer of hops.",
+                                    "default": 255
+                                },
+                                "responseHops": {
+                                    "type": "integer",
+                                    "description": "Allows the specifying fixed number of hops used to send the DPA response or to specify an optimization algorithm to compute a integer of hops.",
+                                    "default": 255
+                                }
+                            }
                         },
-                        "prevRspHops": {
-                            "type": "integer",
-                            "description": "Allows the specifying fixed number of hops used to send the DPA response or to specify an optimization algorithm to compute a integer of hops.",
-                            "default": 255
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "prevReqHops",
-                        "prevRspHops"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

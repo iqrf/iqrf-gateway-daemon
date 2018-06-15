@@ -1,6 +1,11 @@
 {
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-        "self": { 		"vendor": "com.iqrftech.self-desc", 		"name": "", 		"format": "jsonschema", 		"version": "1-0-0" 	},
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfBinaryoutput_SetOutput-response",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
     "type": "object",
     "properties": {
         "mType": {
@@ -40,20 +45,28 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "prevVals": {
-                            "type": "array",
-                            "description": "Array of boolean true/false values specifying the previous state of each binary output. false is returned for unimplemented binary outputs.",
-                            "items": {
-                                "type": "boolean"
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "prevVals": {
+                                    "type": "array",
+                                    "description": "Array of boolean true/false values specifying the previous state of each binary output. false is returned for unimplemented binary outputs.",
+                                    "items": {
+                                        "type": "boolean"
+                                    }
+                                }
                             }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "prevVals"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

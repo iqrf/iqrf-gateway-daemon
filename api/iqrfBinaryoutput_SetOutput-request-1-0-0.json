@@ -37,35 +37,40 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "binOuts": {
-                            "type": "array",
-                            "description": "Array of objects with the following fields.",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "index": {
-                                        "type": "integer",
-                                        "description": "Zero based index of the light to set."
-                                    },
-                                    "state": {
-                                        "type": "boolean",
-                                        "description": "true to set ON state, false to set OFF state."
-                                    },
-                                    "time": {
-                                        "type": "integer",
-                                        "description": "Time in seconds. Allowed values are <1;127> or 60*<1;127>."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "binOuts": {
+                                    "type": "array",
+                                    "description": "Array of objects with the following fields.",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "index": {
+                                                "type": "integer",
+                                                "description": "Zero based index of the light to set."
+                                            },
+                                            "state": {
+                                                "type": "boolean",
+                                                "description": "true to set ON state, false to set OFF state."
+                                            },
+                                            "time": {
+                                                "type": "integer",
+                                                "description": "Time in seconds. Allowed values are <1;127> or 60*<1;127>."
+                                            }
+                                        },
+                                        "required": [
+                                            "index",
+                                            "state"
+                                        ]
                                     }
-                                },
-                                "required": [
-                                    "index",
-                                    "state"
-                                ]
+                                }
                             }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "binOuts"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

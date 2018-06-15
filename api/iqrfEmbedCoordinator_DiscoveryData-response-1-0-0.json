@@ -45,21 +45,29 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "discData": {
-                            "type": "array",
-                            "description": "Array of bytes with discovery data.",
-                            "items": {
-                                "type": "integer"
-                            },
-                            "maxItems": 47
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "discData": {
+                                    "type": "array",
+                                    "description": "Array of bytes with discovery data.",
+                                    "items": {
+                                        "type": "integer"
+                                    },
+                                    "maxItems": 47
+                                }
+                            }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "discData"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

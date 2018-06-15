@@ -37,20 +37,24 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "reqAddr": {
-                            "type": "integer",
-                            "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node.",
-                            "default": 0
-                        },
-                        "bondingMask": {
-                            "type": "integer",
-                            "description": "See IQRF OS User's and Reference guides (remote bonding, function bondNewNode)."
-                        }
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "reqAddr": {
+                                    "type": "integer",
+                                    "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node.",
+                                    "default": 0
+                                },
+                                "bondingMask": {
+                                    "type": "integer",
+                                    "description": "See IQRF OS User's and Reference guides (remote bonding, function bondNewNode)."
+                                }
+                            }
+						}
                     },
                     "required": [
                         "nAdr",
-                        "reqAddr",
-                        "bondingMask"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

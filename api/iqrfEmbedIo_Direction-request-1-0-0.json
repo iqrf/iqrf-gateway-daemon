@@ -37,36 +37,41 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "ports": {
-                            "type": "array",
-                            "description": "Array of ports.",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "port": {
-                                        "type": "integer",
-                                        "description": " Specifies port to setup a direction."
-                                    },
-                                    "mask": {
-                                        "type": "integer",
-                                        "description": "Masks pins of the port."
-                                    },
-                                    "value": {
-                                        "type": "integer",
-                                        "description": "Actual direction."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "ports": {
+                                    "type": "array",
+                                    "description": "Array of ports.",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "port": {
+                                                "type": "integer",
+                                                "description": " Specifies port to setup a direction."
+                                            },
+                                            "mask": {
+                                                "type": "integer",
+                                                "description": "Masks pins of the port."
+                                            },
+                                            "value": {
+                                                "type": "integer",
+                                                "description": "Actual direction."
+                                            }
+                                        },
+                                        "required": [
+                                            "port",
+                                            "mask",
+                                            "value"
+                                        ]
                                     }
-                                },
-                                "required": [
-                                    "port",
-                                    "mask",
-                                    "value"
-                                ]
+                                }
                             }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "ports"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

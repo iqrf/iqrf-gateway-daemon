@@ -31,12 +31,11 @@
 					"type": "object",
 					"properties": {
 						"deviceAddr": {
-							"type": "integer",
-							"description": "Device address(es) to read the configuration from."
-						},
-						"hwpId": {
-							"type": "integer",
-							"description": "Hardware profile."
+							"type": "array",
+							"description": "Device address(es) to read the configuration from.",
+							"items": {
+								"type": "integer"
+							}
 						}
 					},
 					"required": [

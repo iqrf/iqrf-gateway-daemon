@@ -44,6 +44,14 @@
                         "dpaVal": {
                             "type": "integer",
                             "description": "DPA value."
+                        },
+                        "result": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [

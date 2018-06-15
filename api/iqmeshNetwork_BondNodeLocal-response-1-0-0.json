@@ -153,7 +153,6 @@
 			},
 			"required": [
 				"msgId",
-				"rsp",
 				"status"
 			]
 		}

@@ -33,8 +33,33 @@
                             "type": "integer",
                             "description": "Task identifier."
                         },
+                        "timeSpec": {
+                            "type": "object",
+							"properties": {
+								"cronTime": {
+									"type": "string",
+									"description": "Cron time expresion."
+								},
+								"exactTime": {
+									"type": "boolean",
+									"description": "Ignore Cron time and gets start time."
+								},
+								"periodic": {
+									"type": "boolean",
+									"description": "Is periodic."
+								},
+								"period": {
+									"type": "integer",
+									"description": "If periodic, use period in sec and ignore Cron time."
+								},
+								"startTime": {
+									"type": "string",
+									"description": "Exact time of start."
+								}
+							}
+                        }
                         "task": {
-                            "type": "string",
+                            "type": "object",
                             "description": "Task."
                         }
                     },
@@ -55,6 +80,10 @@
                 "statusStr": {
                     "type": "string",
                     "description": "IQRF GW daemon API (general or mType) status in string form."
+                },
+                "errorStr": {
+                    "type": "string",
+                    "description": "reason of error in string form."
                 }
             },
             "required": [

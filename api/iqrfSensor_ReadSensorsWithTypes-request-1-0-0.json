@@ -6,50 +6,6 @@
         "format": "jsonschema",
         "version": "1-0-0"
     },
-    "definitions": {
-        "paramsReadwtUndefined": {
-            "type": "object",
-            "description": "No parameters: reads 1st sensor.",
-            "properties": {}
-        },
-        "paramsReadwtSenIndex": {
-            "type": "object",
-            "description": "Sensor index to read.",
-            "properties": {
-                "sensorIndexes": {
-                    "type": "integer",
-                    "description": "Specifies sensor to read data from, -1 reads all sensors."
-                }
-            }
-        },
-        "paramsReadwtArrIndexes": {
-            "type": "object",
-            "description": "Array of indexes to read.",
-            "properties": {
-                "sensor_indexes": {
-                    "type": "array",
-                    "description": "Specifies sensors to read as array of indexes.",
-                    "items": {
-                        "type": "integer"
-                    },
-                    "maxItems": 31
-                }
-            }
-        },
-        "paramsReadwt": {
-            "anyOf": [
-                {
-                    "$ref": "#/definitions/paramsReadwtUndefined"
-                },
-                {
-                    "$ref": "#/definitions/paramsReadwtSenIndex"
-                },
-                {
-                    "$ref": "#/definitions/paramsReadwtArrIndexes"
-                }
-            ]
-        }
-    },
     "type": "object",
     "properties": {
         "mType": {
@@ -81,13 +37,27 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "params": {
-                            "$ref": "#/definitions/paramsReadwt"
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "sensorIndexes": {
+                                    "oneOf": [
+                                        { "type": "null" },
+                                        { "type": "integer" },
+                                        { "type": "array", 
+                                            "items": {
+                                                "type":"integer"
+                                            }  
+                                        }
+                                    ],
+                                    "description": "Specifies sensors to read data from. Undefined: Missing parameter: reads 1st sensor. Number: -1: reads all sensors. Array: array of indexes: specifies sensors to read."
+                                }
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "params"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

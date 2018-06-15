@@ -45,21 +45,29 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "netData": {
-                            "type": "array",
-                            "description": "One block of the coordinator network info data.",
-                            "items": {
-                                "type": "integer"
-                            },
-                            "maxItems": 48
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "netData": {
+                                    "type": "array",
+                                    "description": "One block of the coordinator network info data.",
+                                    "items": {
+                                        "type": "integer"
+                                    },
+                                    "maxItems": 48
+                                }        
+                            }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "netData"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

@@ -45,32 +45,37 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "perTe": {
-                            "type": "integer",
-                            "description": "Extended peripheral characteristic. See Extended Peripheral Characteristic constants."
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "perTe": {
+                                    "type": "integer",
+                                    "description": "Extended peripheral characteristic. See Extended Peripheral Characteristic constants."
+                                },
+                                "perT": {
+                                    "type": "integer",
+                                    "description": "Peripheral type. If the peripheral is not supported or enabled, then PerTx = PERIPHERAL_TYPE_DUMMY. See Peripheral Types constants."
+                                },
+                                "par1": {
+                                    "type": "integer",
+                                    "description": "Optional peripheral specific information."
+                                },
+                                "par2": {
+                                    "type": "integer",
+                                    "description": "Optional peripheral specific information."
+                                }
+                            }
                         },
-                        "perT": {
-                            "type": "integer",
-                            "description": "Peripheral type. If the peripheral is not supported or enabled, then PerTx = PERIPHERAL_TYPE_DUMMY. See Peripheral Types constants."
-                        },
-                        "par1": {
-                            "type": "integer",
-                            "description": "Optional peripheral specific information."
-                        },
-                        "par2": {
-                            "type": "integer",
-                            "description": "Optional peripheral specific information."
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "perTe",
-                        "perT",
-                        "par1",
-                        "par2"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

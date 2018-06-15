@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedNode_RemoveBond-request",
+        "name": "iqrfEmbedNode_RemoveBondAddress-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,7 +12,7 @@
             "type": "string",
             "description": "Embedded peripheral Node - Remove Bond Address request.",
             "enum": [
-                "iqrfEmbedNode_RemoveBond"
+                "iqrfEmbedNode_RemoveBondAddress"
             ]
         },
         "data": {
@@ -36,10 +36,15 @@
                         "hwpId": {
                             "type": "integer",
                             "description": "Hardware profile identification."
+                        },
+                        "param": {
+                            "type": "object",
+                            "properties": {}
                         }
                     },
                     "required": [
-                        "nAdr"
+                        "nAdr",
+                        "param"
                     ]
                 },
                 "returnVerbose": {

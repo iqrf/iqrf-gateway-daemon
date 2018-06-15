@@ -33,14 +33,19 @@
                             "type": "integer",
                             "description": "Network device address."
                         },
-                        "per": {
-                            "type": "integer",
-                            "description": "Peripheral to get information about."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "per": {
+                                    "type": "integer",
+                                    "description": "Peripheral to get information about."
+                                }
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "per"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

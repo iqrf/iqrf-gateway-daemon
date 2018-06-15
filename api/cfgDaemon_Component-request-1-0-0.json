@@ -34,7 +34,7 @@
                             "description": "Component instance."
                         },                                                
                         "configuration": {
-                            "type": "string",
+                            "type": "object",
                             "description": "Configuration Json."
                         }
                     },

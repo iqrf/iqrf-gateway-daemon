@@ -37,14 +37,19 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "bondedAddr": {
-                            "type": "integer",
-                            "description": "Address of the node to be re-bonded."
-                        }
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "bondedAddr": {
+                                    "type": "integer",
+                                    "description": "Address of the node to be re-bonded."
+                                }
+                            }
+						}
                     },
                     "required": [
                         "nAdr",
-                        "bondedAddr"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

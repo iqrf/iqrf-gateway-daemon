@@ -37,35 +37,40 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "lights": {
-                            "type": "array",
-                            "description": "Array of objects with the following fields.",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "index": {
-                                        "type": "integer",
-                                        "description": "Zero based index of the light to set."
-                                    },
-                                    "power": {
-                                        "type": "integer",
-                                        "description": "Decreses power level."
-                                    },
-                                    "time": {
-                                        "type": "integer",
-                                        "description": "Time in seconds. Allowed values are <1;127> or 60*<1;127>."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "lights": {
+                                    "type": "array",
+                                    "description": "Array of objects with the following fields.",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "index": {
+                                                "type": "integer",
+                                                "description": "Zero based index of the light to set."
+                                            },
+                                            "power": {
+                                                "type": "integer",
+                                                "description": "Increases power level."
+                                            },
+                                            "time": {
+                                                "type": "integer",
+                                                "description": "Time in seconds. Allowed values are <1;127> or 60*<1;127>."
+                                            }
+                                        },
+                                        "required": [
+                                            "index",
+                                            "power"
+                                        ]
                                     }
-                                },
-                                "required": [
-                                    "index",
-                                    "power"
-                                ]
+                                }
                             }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "lights"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

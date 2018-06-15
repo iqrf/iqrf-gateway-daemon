@@ -37,56 +37,55 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "reqAddr": {
-                            "type": "integer",
-                            "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node."
-                        },
-                        "bondingTestRetries": {
-                            "type": "integer",
-                            "description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds."
-                        },
-                        "ibk": {
-                            "type": "array",
-                            "description": "Individual Bonding Key of the Node to bond.",
-                            "items": {
-                                "type": "integer"
-                            },
-                            "maxItems": 15
-                        },
-                        "mid": {
-                            "type": "array",
-                            "description": "MID of the Node to bond.",
-                            "items": {
-                                "type": "integer"
-                            },
-                            "maxItems": 3
-                        },
-                        "bondingChannel": {
-                            "type": "integer",
-                            "description": "RF channel used for bonding."
-                        },
-                        "virtualDeviceAddress": {
-                            "type": "integer",
-                            "description": "Virtual device address. Must equal to 0xFF if not used."
-                        },
-                        "userData": {
-                            "type": "array",
-                            "description": "Optional data passed to the bonded node.",
-                            "items": {
-                                "type": "integer"
-                            },
-                            "maxItems": 3
-                        }
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "reqAddr": {
+                                    "type": "integer",
+                                    "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node."
+                                },
+                                "bondingTestRetries": {
+                                    "type": "integer",
+                                    "description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds."
+                                },
+                                "ibk": {
+                                    "type": "array",
+                                    "description": "Individual Bonding Key of the Node to bond.",
+                                    "items": {
+                                        "type": "integer"
+                                    },
+                                    "maxItems": 15
+                                },
+                                "mid": {
+                                    "type": "array",
+                                    "description": "MID of the Node to bond.",
+                                    "items": {
+                                        "type": "integer"
+                                    },
+                                    "maxItems": 3
+                                },
+                                "bondingChannel": {
+                                    "type": "integer",
+                                    "description": "RF channel used for bonding."
+                                },
+                                "virtualDeviceAddress": {
+                                    "type": "integer",
+                                    "description": "Virtual device address. Must equal to 0xFF if not used."
+                                },
+                                "userData": {
+                                    "type": "array",
+                                    "description": "Optional data passed to the bonded node.",
+                                    "items": {
+                                        "type": "integer"
+                                    },
+                                    "maxItems": 3
+                                }
+                            }
+						}
                     },
                     "required": [
                         "nAdr",
-                        "reqAddr",
-                        "bondingTestRetries",
-                        "ibk",
-                        "mid",
-                        "bondingChannel",
-                        "virtualDeviceAddress",
-                        "userData"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

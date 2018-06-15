@@ -45,17 +45,25 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "onOff": {
-                            "type": "boolean",
-                            "description": "LED status."
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "onOff": {
+                                    "type": "boolean",
+                                    "description": "LED status."
+                                }
+                            }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "onOff"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

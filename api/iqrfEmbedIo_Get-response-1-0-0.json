@@ -45,31 +45,40 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "ports": {
-                            "type": "array",
-                            "description": "Array of ports.",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "port": {
-                                        "type": "integer",
-                                        "description": " Specifies port to setup a direction."
-                                    },
-                                    "mask": {
-                                        "type": "integer",
-                                        "description": "Masks pins of the port."
-                                    },
-                                    "value": {
-                                        "type": "integer",
-                                        "description": "Actual direction."
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "ports": {
+                                    "type": "array",
+                                    "description": "Array of ports.",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "port": {
+                                                "type": "integer",
+                                                "description": " Specifies port to setup a direction."
+                                            },
+                                            "mask": {
+                                                "type": "integer",
+                                                "description": "Masks pins of the port."
+                                            },
+                                            "value": {
+                                                "type": "integer",
+                                                "description": "Actual direction."
+                                            }
+                                        },
+                                        "required": [
+                                            "port",
+                                            "mask",
+                                            "value"
+                                        ]
                                     }
-                                },
-                                "required": [
-                                    "port",
-                                    "mask",
-                                    "value"
-                                ]
+                                }
                             }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [

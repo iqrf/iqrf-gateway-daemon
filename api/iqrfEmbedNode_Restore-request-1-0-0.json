@@ -37,20 +37,25 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "netData": {
+                        "param": {
                             "type": "object",
-                            "description": "Array of restored data.",
                             "properties": {
-                                "index": {
-                                    "type": "integer"
+                                "networkData": {
+                                    "type": "object",
+                                    "description": "Array of restored data.",
+                                    "properties": {
+                                        "index": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "maxItems":48
                                 }
-                            },
-                            "maxItems":48
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "netData"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

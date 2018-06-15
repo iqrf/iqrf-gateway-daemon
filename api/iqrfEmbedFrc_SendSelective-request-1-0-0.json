@@ -37,30 +37,33 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "frcCmd": {
-                            "type": "integer",
-                            "description": "Specifies data to be collected."
-                        },
-                        "selNodes": {
-                            "type": "array",
-                            "description": "Selected nodes 1 ... 30.",
-                            "items": {
-                                "type": "integer"
-                            }                        
-                        },
-                        "userData": {
-                            "type": "array",
-                            "description": "User data.",
-                            "items": {
-                                "type": "integer"
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "frcCommand": {
+                                    "type": "integer",
+                                    "description": "Specifies data to be collected."
+                                },
+                                "selectedNodes": {
+                                    "type": "array",
+                                    "description": "Selected nodes 1 ... 30.",
+                                    "items": {
+                                        "type": "integer"
+                                    }                        
+                                },
+                                "userData": {
+                                    "type": "array",
+                                    "description": "User data.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "frcCmd",
-                        "selNodes",
-                        "userData"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

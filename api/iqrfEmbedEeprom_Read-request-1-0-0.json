@@ -37,19 +37,23 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "address": {
-                            "type": "integer",
-                            "description": "Memory address to read from."
-                        },
-                        "len": {
-                            "type": "integer",
-                            "description": "Length of data to read."
-                        }
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "address": {
+                                    "type": "integer",
+                                    "description": "Memory address to read from."
+                                },
+                                "len": {
+                                    "type": "integer",
+                                    "description": "Length of data to read."
+                                }
+                            }
+						}
                     },
                     "required": [
                         "nAdr",
-                        "address",
-                        "len"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

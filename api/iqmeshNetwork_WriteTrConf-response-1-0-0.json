@@ -101,7 +101,6 @@
 			},
 			"required": [
 				"msgId",
-				"rsp",
 				"status"
 			]
 		}

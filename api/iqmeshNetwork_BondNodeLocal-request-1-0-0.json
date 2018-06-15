@@ -30,13 +30,13 @@
 				"req": {
 					"type": "object",
 					"properties": {
-						"reqAddr": {
+						"deviceAddr": {
 							"type": "integer",
 							"description": "Address to bond the device to."
 						}
 					},
 					"required": [
-						"reqAddr"
+						"deviceAddr"
 					]
 				},
 				"returnVerbose": {

@@ -45,39 +45,47 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "prebondedNodes": {
-                            "type": "array",
-                            "description": "Js driver response structure for given a command.",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "mid": {
-                                        "type": "integer",
-                                        "description": "Module ID of the remotely pre-bonded node. It can be used later for bonding authorization later."
-                                    },
-                                    "userData": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "prebondedNodes": {
+                                    "type": "array",
+                                    "description": "Js driver response structure for given a command.",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "mid": {
+                                                "type": "integer",
+                                                "description": "Module ID of the remotely pre-bonded node. It can be used later for bonding authorization later."
+                                            },
+                                            "userData": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "integer"
+                                                },
+                                                "maxItems": 3,
+                                                "description": "Optional bonding user data specified at Reset Custom DPA Handler event."
+                                            }
                                         },
-                                        "maxItems": 3,
-                                        "description": "Optional bonding user data specified at Reset Custom DPA Handler event."
-                                    }
-                                },
-                                "required":[
-                                    "mid",
-                                    "userData"
-                                ]
-                            },
-                            "maxItems": 7
+                                        "required":[
+                                            "mid",
+                                            "userData"
+                                        ]
+                                    },
+                                    "maxItems": 7
+                                }
+                            }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "prebondedNodes"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

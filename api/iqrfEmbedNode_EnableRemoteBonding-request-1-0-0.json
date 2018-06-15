@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedNode_EnableRemoteBond-request",
+        "name": "iqrfEmbedNode_EnableRemoteBonding-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,7 +12,7 @@
             "type": "string",
             "description": "Embedded peripheral Node - Enable Remote Bond request.",
             "enum": [
-                "iqrfEmbedNode_EnableRemoteBond"
+                "iqrfEmbedNode_EnableRemoteBonding"
             ]
         },
         "data": {
@@ -37,28 +37,31 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "bondingMask": {
-                            "type": "integer",
-                            "description": "See IQRF OS User's and Reference guides (remote bonding, function bondNewNode)."
-                        },
-                        "control": {
-                            "type": "boolean",
-                            "description": "Enables remote bonding mode. If enabled then previously bonded nodes are forgotten."
-                        },
-                        "userData": {
-                            "type": "array",
-                            "description": "Optional data that can be used at Reset Custom DPA Handler event.",
-                            "items": {
-                                "type": "integer"
-                            },
-                            "maxItems": 3
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "bondingMask": {
+                                    "type": "integer",
+                                    "description": "See IQRF OS User's and Reference guides (remote bonding, function bondNewNode)."
+                                },
+                                "control": {
+                                    "type": "integer",
+                                    "description": "Enables remote bonding mode. If enabled then previously bonded nodes are forgotten."
+                                },
+                                "userData": {
+                                    "type": "array",
+                                    "description": "Optional data that can be used at Reset Custom DPA Handler event.",
+                                    "items": {
+                                        "type": "integer"
+                                    },
+                                    "maxItems": 4
+                                }        
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "bondingMask",
-                        "control",
-                        "userData"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

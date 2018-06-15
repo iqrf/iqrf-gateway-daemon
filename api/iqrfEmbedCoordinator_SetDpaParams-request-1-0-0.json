@@ -37,30 +37,19 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "dpaValueStr": {
-                            "type": "string",
-                            "description": "Configuration of the type of DPA value.",
-                            "enum": [
-                                "LastRssi",
-                                "Voltage",
-                                "System",
-                                "User"
-                            ]
-                        },
-                        "ledDiagnostic": {
-                            "type": "boolean",
-                            "description": "Diagnosing the network behavior based on LED activities. Red LED flashes when Node or Coordinator receives network message. Green LED flashes when Coordinator sends network message or when Node routes network message."
-                        },
-                        "fixedTimeslot": {
-                            "type": "boolean",
-                            "description": "A long fixed 200 ms timeslot is used. It allows easier tracking of network behavior."
-                        }
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "dpaParam": {
+                                    "type": "integer",
+                                    "description": "Set DPA parameter."
+                                }
+                            }
+						}
                     },
                     "required": [
                         "nAdr",
-                        "dpaValueStr",
-                        "ledDiagnostic",
-                        "fixedTimeslot"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

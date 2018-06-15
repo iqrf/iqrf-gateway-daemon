@@ -37,14 +37,19 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "index": {
-                            "type": "integer",
-                            "description": "Index of the block of data."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "index": {
+                                    "type": "integer",
+                                    "description": "Index of the block of data."
+                                }
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "index"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

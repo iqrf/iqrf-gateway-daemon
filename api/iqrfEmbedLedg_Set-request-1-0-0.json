@@ -37,14 +37,19 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "onOff": {
-                            "type": "boolean",
-                            "description": "Turns on/off LED."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "onOff": {
+                                    "type": "boolean",
+                                    "description": "Turns on/off LED."
+                                }
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "onOff"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

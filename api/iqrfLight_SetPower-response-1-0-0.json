@@ -45,20 +45,28 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "prevVals": {
-                            "type": "array",
-                            "description": "Array integers corresponding to the previous power level of each selected light. If the unimplemented light was selected the returned value is 0.",
-                            "items": {
-                                "type": "integer"
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "prevVals": {
+                                    "type": "array",
+                                    "description": "Array integers corresponding to the previous power level of each selected light. If the unimplemented light was selected the returned value is 0.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "prevVals"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

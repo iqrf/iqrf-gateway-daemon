@@ -30,7 +30,7 @@
                             "description": "Client identifier."
                         },
                         "task": {
-                            "type": "string",
+                            "type": "object",
                             "description": "Scheduled task."
                         },
                         "cronTime": {

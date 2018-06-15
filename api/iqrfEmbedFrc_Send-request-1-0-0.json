@@ -37,22 +37,26 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "frcCmd": {
-                            "type": "integer",
-                            "description": "Specifies data to be collected."
-                        },
-                        "userData": {
-                            "type": "array",
-                            "description": "User data.",
-                            "items": {
-                                "type": "integer"
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "frcCommand": {
+                                    "type": "integer",
+                                    "description": "Specifies data to be collected."
+                                },
+                                "userData": {
+                                    "type": "array",
+                                    "description": "User data.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "frcCmd",
-                        "userData"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

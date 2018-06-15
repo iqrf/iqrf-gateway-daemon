@@ -37,44 +37,48 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "sensorType": {
-                            "type": "integer",
-                            "description": "Type of sensor (quantity) to read values of. Use iqrf.sensor.STD_SENSOR_TYPE_* constant. Use 0 to specify the sensor only by sensorIndex parameter."
-                        },
-                        "sensorIndex": {
-                            "type": "integer",
-                            "description": "Index of the sensor. If the sensor type is specified, then its is an index among of all sensors of the specified type. If sensorType is 0 then it is overall sensor index. Some FRC commands might use top 3 bits of this parameter for passing additional data."
-                        },
-                        "frcCmd": {
-                            "type": "integer",
-                            "description": "One of predefined standard sensor FRC commands. See iqrf.sensor.STD_SENSOR_FRC_* constants."
-                        },
-                        "selectedNodes": {
-                            "type": "array",
-                            "description": "Array if integer values corresponding to the selected nodes. Use default value to select all nodes and use sleepAfterFrc parameter.",
-                            "items": {
-                                "type": "integer"
-                            }
-                        },
-                        "sleepAfterFrc": {
+                        "param": {
                             "type": "object",
-                            "description": "Object with the following fields to put the nodes into sleep mode after the FRC is finished.",
                             "properties": {
-                                "time": {
+                                "sensorType": {
                                     "type": "integer",
-                                    "description": "See DPA documentation https://​www​.iqrf​.org​/DpaTechGuide for details."
+                                    "description": "Type of sensor (quantity) to read values of. Use iqrf.sensor.STD_SENSOR_TYPE_* constant. Use 0 to specify the sensor only by sensorIndex parameter."
                                 },
-                                "control": {
+                                "sensorIndex": {
                                     "type": "integer",
-                                    "description": "See DPA documentation https://​www​.iqrf​.org​/DpaTechGuide for details."
+                                    "description": "Index of the sensor. If the sensor type is specified, then its is an index among of all sensors of the specified type. If sensorType is 0 then it is overall sensor index. Some FRC commands might use top 3 bits of this parameter for passing additional data."
+                                },
+                                "frcCommand": {
+                                    "type": "integer",
+                                    "description": "One of predefined standard sensor FRC commands. See iqrf.sensor.STD_SENSOR_FRC_* constants."
+                                },
+                                "selectedNodes": {
+                                    "type": "array",
+                                    "description": "Array if integer values corresponding to the selected nodes. Use default value to select all nodes and use sleepAfterFrc parameter.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "sleepAfterFrc": {
+                                    "type": "object",
+                                    "description": "Object with the following fields to put the nodes into sleep mode after the FRC is finished.",
+                                    "properties": {
+                                        "time": {
+                                            "type": "integer",
+                                            "description": "See DPA documentation https://​www​.iqrf​.org​/DpaTechGuide for details."
+                                        },
+                                        "control": {
+                                            "type": "integer",
+                                            "description": "See DPA documentation https://​www​.iqrf​.org​/DpaTechGuide for details."
+                                        }
+                                    }
                                 }
                             }
                         }
                     },
                     "required": [
-                        "sensorType",
-                        "sensorIndex",
-                        "frcCmd"
+                        "nAdr",
+                        "param"
                     ]
                 },
                 "returnVerbose": {

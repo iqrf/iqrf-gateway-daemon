@@ -37,9 +37,14 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "params": {
-                            "type": "integer",
-                            "description": "Maximum time reserved for preparing return FRC value."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "frcResponseTime": {
+                                    "type": "integer",
+                                    "description": "Maximum time reserved for preparing return FRC value."
+                                }
+                            }
                         }
                     },
                     "required": [

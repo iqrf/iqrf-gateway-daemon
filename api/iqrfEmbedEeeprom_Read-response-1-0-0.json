@@ -45,20 +45,28 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "memData": {
-                            "type": "array",
-                            "description": "Returned data.",
-                            "items": {
-                                "type": "integer"
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "pData": {
+                                    "type": "array",
+                                    "description": "Returned data.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "memData"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

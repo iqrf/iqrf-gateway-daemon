@@ -76,14 +76,17 @@
                                 ]
                             },
                             "maxItems": 13
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "result"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

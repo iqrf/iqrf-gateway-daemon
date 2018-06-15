@@ -45,17 +45,25 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "devNr": {
-                            "type": "integer",
-                            "description": "Number of bonded nodes."
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "devNr": {
+                                    "type": "integer",
+                                    "description": "Number of bonded nodes."
+                                }
+                            }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "devNr"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

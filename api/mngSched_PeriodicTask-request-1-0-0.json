@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "mngSched_PerTask-request",
+        "name": "mngSched_PeriodicTask-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,7 +12,7 @@
             "type": "string",
             "description": "Scheduler management - Per Task request.",
             "enum": [
-                "mngSched_PerTask"
+                "mngSched_PeriodicTask"
             ]
         },
         "data": {
@@ -31,14 +31,14 @@
                         },
                         "timePeriod": {
                             "type": "integer",
-                            "description": "Period in seconds in timestamp format '2018-01-03T16:00:09.859515'"
+                            "description": "Period in miliseconds"
                         },
                         "timePoint": {
-                            "type": "integer",
+                            "type": "string",
                             "description": "Delayed start in seconds in timestamp format '2018-01-03T16:00:09.859515'"
                         },
                         "task": {
-                            "type": "string",
+                            "type": "object",
                             "description": "Task."
                         }
                     },

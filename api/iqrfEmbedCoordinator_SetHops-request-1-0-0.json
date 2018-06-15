@@ -37,21 +37,25 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "reqHops": {
-                            "type": "integer",
-                            "description": "Allows the specifying fixed number of hops used to send the DPA request or to specify an optimization algorithm to compute a integer of hops.",
-                            "default": 255
-                        },
-                        "rspHops": {
-                            "type": "integer",
-                            "description": "Allows the specifying fixed number of hops used to send the DPA response or to specify an optimization algorithm to compute a integer of hops.",
-                            "default": 255
-                        }
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "requestHops": {
+                                    "type": "integer",
+                                    "description": "Allows the specifying fixed number of hops used to send the DPA request or to specify an optimization algorithm to compute a integer of hops.",
+                                    "default": 255
+                                },
+                                "responseHops": {
+                                    "type": "integer",
+                                    "description": "Allows the specifying fixed number of hops used to send the DPA response or to specify an optimization algorithm to compute a integer of hops.",
+                                    "default": 255
+                                }
+                            }
+						}
                     },
                     "required": [
                         "nAdr",
-                        "reqHops",
-                        "resHops"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

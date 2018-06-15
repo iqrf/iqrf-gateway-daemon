@@ -32,21 +32,7 @@
                         "tasks": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "properties": {
-                                    "taskId": {
-                                        "type": "integer",
-                                        "description": "Task identifier."
-                                    },
-                                    "task": {
-                                        "type": "string",
-                                        "description": "Task."
-                                    }
-                                },
-                                "required": [
-                                    "taskId",
-                                    "task"
-                                ]
+                                "type": "integer"
                             }
                         }
                     },

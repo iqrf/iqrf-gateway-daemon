@@ -36,7 +36,7 @@
 						},
 						"hwpId": {
 							"type": "integer",
-							"description": "Hardware profile."
+							"description": "Profile integer."
 						},
 						"manufacturer": {
 							"type": "string",
@@ -169,7 +169,6 @@
 			},
 			"required": [
 				"msgId",
-				"rsp",
 				"status"
 			]
 		}

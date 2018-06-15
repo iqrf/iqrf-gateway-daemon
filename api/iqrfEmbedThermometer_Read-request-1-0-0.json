@@ -36,10 +36,15 @@
                         "hwpId": {
                             "type": "integer",
                             "description": "Hardware profile identification."
-                        }
+                        },
+                        "param": {
+                            "type": "object",
+                            "properties": {}
+						}
                     },
                     "required": [
-                        "nAdr"
+                        "nAdr",
+						"param"
                     ]
                 },
                 "returnVerbose": {

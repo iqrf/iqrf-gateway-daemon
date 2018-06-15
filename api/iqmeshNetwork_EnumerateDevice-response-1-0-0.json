@@ -355,7 +355,6 @@
             },
             "required": [
                 "msgId",
-                "rsp",
                 "status"
             ]
         }

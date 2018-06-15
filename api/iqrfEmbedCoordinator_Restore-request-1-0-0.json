@@ -37,18 +37,23 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "netData": {
-                            "type": "array",
-                            "description": "One block of the coordinator network info data previously obtained by a backup command.",
-                            "items": {
-                                "type": "integer"
-                            },
-                            "maxItems": 48
-                        }
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "netData": {
+                                    "type": "array",
+                                    "description": "One block of the coordinator network info data previously obtained by a backup command.",
+                                    "items": {
+                                        "type": "integer"
+                                    },
+                                    "maxItems": 48
+                                }
+                            }
+						}
                     },
                     "required": [
                         "nAdr",
-                        "netData"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

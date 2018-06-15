@@ -37,19 +37,23 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "txPower": {
-                            "type": "integer",
-                            "description": "TX Power used for discovery."
-                        },
-                        "maxAddr": {
-                            "type": "integer",
-                            "description": "Nonzero value specifies maxItems node address to be part of the discovery process."
-                        }
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "txPower": {
+                                    "type": "integer",
+                                    "description": "TX Power used for discovery."
+                                },
+                                "maxAddr": {
+                                    "type": "integer",
+                                    "description": "Nonzero value specifies maxItems node address to be part of the discovery process."
+                                }
+                            }
+						}
                     },
                     "required": [
                         "nAdr",
-                        "txPower",
-                        "maxAddr"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

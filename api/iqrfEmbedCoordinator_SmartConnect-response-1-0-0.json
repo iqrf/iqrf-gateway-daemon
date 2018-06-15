@@ -45,22 +45,29 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "bondAddr": {
-                            "type": "integer",
-                            "description": "Address of the node newly bonded to the network."
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "bondAddr": {
+                                    "type": "integer",
+                                    "description": "Address of the node newly bonded to the network."
+                                },
+                                "devNr": {
+                                    "type": "integer",
+                                    "description": "Number of bonded network nodes."
+                                }
+                            }
                         },
-                        "devNr": {
-                            "type": "integer",
-                            "description": "Number of bonded network nodes."
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "bondAddr",
-                        "devNr"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

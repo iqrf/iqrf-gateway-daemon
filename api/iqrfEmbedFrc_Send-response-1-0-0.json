@@ -45,25 +45,32 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "status": {
-                            "type": "integer",
-                            "description": "FRC status."
-                        },
-                        "frcData": {
-                            "type": "array",
-                            "description": "FRC data.",
-                            "items": {
-                                "type": "integer"
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": "integer",
+                                    "description": "FRC status."
+                                },
+                                "frcData": {
+                                    "type": "array",
+                                    "description": "FRC data.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "status",
-                        "frcData"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

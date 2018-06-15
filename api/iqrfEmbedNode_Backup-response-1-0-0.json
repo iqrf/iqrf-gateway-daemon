@@ -45,22 +45,29 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "rData": {
-                            "type": "array",
-                            "description": "Array of bytes with the backup content.",
-                            "items": {
-                                "type": "integer"
-                            },
-                            "maxItems": 48
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "backupData": {
+                                    "type": "array",
+                                    "description": "Array of bytes with the backup content.",
+                                    "items": {
+                                        "type": "integer"
+                                    },
+                                    "maxItems": 48
+                                }
+                            }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
-                        "cmd_str",
                         "rCode",
-                        "dpaVal",
-                        "rData"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

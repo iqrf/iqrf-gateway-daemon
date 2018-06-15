@@ -36,7 +36,7 @@
 							"items": {
 								"type": "integer"
 							},
-							"maxItems": 3
+							"maxItems": 4
 						},
 						"rfBand": {
 							"type": "string",
@@ -128,30 +128,7 @@
 						}
 					},
 					"required": [
-						"deviceAddr",
-						"embPerBits",
-						"rfBand",
-						"rfChannelA",
-						"rfChannelB",
-						"rfSubChannelA",
-						"rfSubChannelB",
-						"txPower",
-						"rxFilter",
-						"lpRxTimeout",
-						"rfPgmAltChannel",
-						"rfPgmEnableAfterReset",
-						"rfPgmTerminateAfter1Min",
-						"rfPgmTerminateMcuPin",
-						"rfPgmDualChannel",
-						"rfPgmLpMode",
-						"rfPgmIncorrectUpload",
-						"customDpaHandler",
-						"nodeDpaInterface",
-						"uartBaudrate",
-						"dpaAutoexec",
-						"routingOff",
-						"ioSetup",
-						"peerToPeer"
+						"deviceAddr"
 					]
 				},
 				"raw": {
@@ -210,7 +187,6 @@
 			},
 			"required": [
 				"msgId",
-				"rsp",
 				"status"
 			]
 		}

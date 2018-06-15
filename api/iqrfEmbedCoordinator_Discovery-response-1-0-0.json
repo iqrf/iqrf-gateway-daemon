@@ -45,17 +45,25 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "discNr": {
-                            "type": "integer",
-                            "description": "Number of discovered nodes."
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "discNr": {
+                                    "type": "integer",
+                                    "description": "Number of discovered nodes."
+                                }
+                            }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "discNr"
+                        "dpaVal"
                     ]
                 },
                 "raw": {
