@@ -199,12 +199,51 @@ iqrf.embed.coordinator.EnableRemoteBonding_Response_rsp = function (rawHdp) {
     return result;
 };
 
-iqrf.embed.coordinator.SmartConnect_Request_req = function (p) {
-    return iqrf.embed.coordinator.SmartConnect_Request(p.reqAddr, p.bondingTestRetries, p.ibk, p.mid, p.bondingChannel, p.virtualDeviceAddress, p.userData)
+iqrf.embed.coordinator.SmartConnect_Request_req = function (param) {
+    return iqrf.embed.coordinator.SmartConnect_Request(param.reqAddr, param.bondingTestRetries, param.ibk, param.mid, param.bondingChannel, param.virtualDeviceAddress, param.userData)
 };
 
 iqrf.embed.coordinator.SmartConnect_Response_rsp = function (rawHdp) {
     var result = iqrf.embed.coordinator.SmartConnect_Response(rawHdp);
+    return result;
+};
+
+////////////////////////
+// IO
+////////////////////////
+iqrf.embed.io.Direction_Request_req = function (param) {
+    return iqrf.embed.io.Direction_Request(param.ports);
+};
+
+iqrf.embed.io.Direction_Response_rsp = function (rawHdp) {
+    iqrf.embed.io.Direction_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.io.Get_Request_req = function (param) {
+    return iqrf.embed.io.Get_Request(param.ports);
+};
+
+iqrf.embed.io.Get_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        ports: iqrf.embed.io.Get_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.io.Set_Request_req = function (param) {
+    return iqrf.embed.io.Set_Request(param.ports);
+};
+
+iqrf.embed.io.Set_Response_rsp = function (rawHdp) {
+    iqrf.embed.io.Set_Response(rawHdp);
+    var result =
+    {
+    };
     return result;
 };
 
@@ -524,6 +563,93 @@ iqrf.embed.ledg.Pulse_Request_req = function (param) {
 
 iqrf.embed.ledg.Pulse_Response_rsp = function (rawHdp) {
     iqrf.embed.ledg.Pulse_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+////////////////////////
+// Node
+////////////////////////
+iqrf.embed.node.Backup_Request_req = function (param) {
+    return iqrf.embed.node.Backup_Request(param.index);
+};
+
+iqrf.embed.node.Backup_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        backupData: iqrf.embed.node.Backup_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.node.ClearRemotelyBondedMid_Request_req = function (param) {
+    return iqrf.embed.node.ClearRemotelyBondedMid_Request();
+};
+
+iqrf.embed.node.ClearRemotelyBondedMid_Response_rsp = function (rawHdp) {
+    iqrf.embed.node.ClearRemotelyBondedMid_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.node.EnableRemoteBonding_Request_req = function (param) {
+    return iqrf.embed.node.EnableRemoteBonding_Request(param.bondingMask, param.control, param.userData);
+};
+
+iqrf.embed.node.EnableRemoteBonding_Response_rsp = function (rawHdp) {
+    iqrf.embed.node.EnableRemoteBonding_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.node.Read_Request_req = function (param) {
+    return iqrf.embed.node.Read_Request();
+};
+
+iqrf.embed.node.Read_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        readData: iqrf.embed.node.Read_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.node.ReadRemotelyBondedMid_Request_req = function (param) {
+    return iqrf.embed.node.ReadRemotelyBondedMid_Request();
+};
+
+iqrf.embed.node.ReadRemotelyBondedMid_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        prebondedNodes: iqrf.embed.node.ReadRemotelyBondedMid_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.node.RemoveBondAddress_Request_req = function (param) {
+    return iqrf.embed.node.RemoveBondAddress_Request();
+};
+
+iqrf.embed.node.RemoveBondAddress_Response_rsp = function (rawHdp) {
+    iqrf.embed.node.RemoveBondAddress_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.node.Restore_Request_req = function (param) {
+    return iqrf.embed.node.Restore_Request(param.networkData);
+};
+
+iqrf.embed.node.Restore_Response_rsp = function (rawHdp) {
+    iqrf.embed.node.Restore_Response(rawHdp);
     var result =
     {
     };
