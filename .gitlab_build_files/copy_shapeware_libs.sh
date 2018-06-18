@@ -5,6 +5,7 @@ set -e
 
 LIB=$1
 IQRFGD2=/usr/lib/iqrfgd2
+LOCAL=/usr/local/lib
 
 if [ -z $1 ];
 then
@@ -16,5 +17,7 @@ mkdir -p ${LIB}${IQRFGD2}
 
 cp shapeware-build/bin/libCppRestService.so ${LIB}${IQRFGD2}
 cp shapeware-build/bin/libWebsocketService.so ${LIB}${IQRFGD2}
+cp -av shapeware-build/external/libwebsockets/lib/libwebsockets.so ${LIB}${LOCAL}
+cp -av shapeware-build/external/libwebsockets/lib/libwebsockets.so.12 ${LIB}${LOCAL}
 
 echo "Shapeware libs copied."

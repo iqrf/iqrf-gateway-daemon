@@ -13,6 +13,7 @@ IQRFGD2_BIN=/usr/bin
 
 # dynamic libraries
 IQRFGD2_LIBS=/usr/lib/iqrfgd2
+LOCAL_LIBS=/usr/local/lib
 
 # json api schemas, javascript wrapper
 IQRFGD2_SHARE=/usr/share/iqrfgd2
@@ -61,5 +62,6 @@ cp shape-libs/usr/lib/iqrfgd2/* ${DEPLOY}${IQRFGD2_LIBS}
 
 # SHAPEWARE
 cp shapeware-libs/usr/lib/iqrfgd2/* ${DEPLOY}${IQRFGD2_LIBS}
+cp shapeware-libs/usr/local/lib/* ${DEPLOY}${LOCAL_LIBS}
 
 echo "Daemon files copied."

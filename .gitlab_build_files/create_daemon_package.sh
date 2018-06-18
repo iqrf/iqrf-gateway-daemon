@@ -16,6 +16,8 @@ fpm \
 --description "IQRF Gateway Daemon v2 with the multiple communication channels - UDP/MQ/MQTT/WS." \
 --depends openssl \
 --depends zlib1g \
+--depends libev4 \
+--depends libuv1 \
 --depends libcpprest2.9 \
 --depends libpaho.mqtt.c \
 --verbose \
