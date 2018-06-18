@@ -493,7 +493,7 @@ namespace iqrf {
       Pointer("/data/rsp/rfPgmLpMode").Set(response, rfPgmLpMode);
 
       bool enableAfterReset = ((rfpgm & 0b00010000) == 0b00010000) ? true : false;
-      Pointer("/data/rsp/enableAfterReset").Set(response, enableAfterReset);
+      Pointer("/data/rsp/rfPgmEnableAfterReset").Set(response, enableAfterReset);
 
       bool rfPgmTerminateAfter1Min = ((rfpgm & 0b01000000) == 0b01000000) ? true : false;
       Pointer("/data/rsp/rfPgmTerminateAfter1Min").Set(response, rfPgmTerminateAfter1Min);

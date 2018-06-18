@@ -167,6 +167,9 @@ namespace iqrf {
     // if is set Verbose mode
     bool m_returnVerbose = false;
 
+    // absolute path with hex file to upload
+    std::string m_uploadPath;
+
 
   public:
     Imp(OtaUploadService& parent) : m_parent(parent)
@@ -1364,6 +1367,27 @@ namespace iqrf {
       }
     }
 
+    // creates and returns full file name
+    std::string getFullFileName(const std::string& uploadPath, const std::string& fileName) 
+    {
+      char fileSeparator;
+      
+      #if defined(WIN32) || defined(_WIN32)
+          fileSeparator = '\\';
+      #else
+          fileSeparator = '/';
+      #endif
+      
+      std::string fullFileName = uploadPath;
+      
+      if (uploadPath[uploadPath.size() - 1] != fileSeparator) {
+        fullFileName += fileSeparator;
+      }
+
+      fullFileName += fileName;
+
+      return fullFileName;
+    }
 
     UploadResult upload(
       const std::list<uint8_t> deviceAddrs, 
@@ -1648,6 +1672,15 @@ namespace iqrf {
       // creating representation object
       ComIqmeshNetworkOtaUpload comOtaUpload(doc);
 
+      // if upload path (service's configuration parameter) is empty, return error message
+      if (m_uploadPath.empty()) {
+        Document failResponse = createCheckParamsFailedResponse(comOtaUpload.getMsgId(), msgType, "Empty upload path");
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
       // service input parameters
       std::list<uint8_t> deviceAddrs;
       std::string fileName;
@@ -1689,8 +1722,11 @@ namespace iqrf {
         return;
       }
       
+      // construct full file name
+      std::string fullFileName = getFullFileName(m_uploadPath, fileName);
+
       // call service with checked params
-      UploadResult uploadResult = upload(deviceAddrs, fileName, startMemAddr, loadingAction);
+      UploadResult uploadResult = upload(deviceAddrs, fullFileName, startMemAddr, loadingAction);
 
       // create and send response
       Document responseDoc = createResponse(comOtaUpload.getMsgId(), msgType, uploadResult, comOtaUpload);
@@ -1709,6 +1745,13 @@ namespace iqrf {
         "OtaUploadService instance activate" << std::endl <<
         "************************************"
       );
+
+      props->getMemberAsString("uploadPath", m_uploadPath);
+      TRC_INFORMATION(PAR(m_uploadPath));
+
+      if (m_uploadPath.empty()) {
+        TRC_ERROR("Upload path is empty.");
+      }
 
       // for the sake of register function parameters 
       std::vector<std::string> supportedMsgTypes = 
