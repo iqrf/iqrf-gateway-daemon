@@ -32,6 +32,7 @@ fi
 mkdir -p ${DEPLOY}${IQRFGD2_CFG}
 mkdir -p ${DEPLOY}${IQRFGD2_BIN}
 mkdir -p ${DEPLOY}${IQRFGD2_LIBS}
+mkdir -p ${DEPLOY}${LOCAL_LIBS}
 mkdir -p ${DEPLOY}${IQRFGD2_SHARE}
 mkdir -p ${DEPLOY}${IQRFGD2_CACHE}
 mkdir -p ${DEPLOY}${IQRFGD2_SERVICE}
