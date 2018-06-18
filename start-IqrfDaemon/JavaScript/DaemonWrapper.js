@@ -487,6 +487,72 @@ iqrf.embed.thermometer.Read_Response_rsp = function (rawHdp) {
 };
 
 ////////////////////////
+// SPI
+////////////////////////
+iqrf.embed.spi.WriteRead_Request_req = function (param) {
+    return iqrf.embed.spi.WriteRead_Request(param.readTimeout, param.writtenData);
+};
+
+iqrf.embed.spi.WriteRead_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        readData: iqrf.embed.spi.WriteRead_Response(rawHdp)
+    };
+    return result;
+};
+
+////////////////////////
+// UART
+////////////////////////
+iqrf.embed.uart.WriteRead_Request_req = function (param) {
+    return iqrf.embed.uart.WriteRead_Request(param.readTimeout, param.writtenData);
+};
+
+iqrf.embed.uart.WriteRead_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        readData: iqrf.embed.uart.WriteRead_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.uart.Open_Request_req = function (param) {
+    return iqrf.embed.uart.Open_Request(param.baudRate);
+};
+
+iqrf.embed.uart.Open_Response_rsp = function (rawHdp) {
+    iqrf.embed.uart.Open_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.uart.Close_Request_req = function (param) {
+    return iqrf.embed.uart.Close_Request();
+};
+
+iqrf.embed.uart.Close_Response_rsp = function (rawHdp) {
+    iqrf.embed.uart.Close_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.uart.ClearWriteRead_Request_req = function (param) {
+    return iqrf.embed.uart.ClearWriteRead_Request(param.readTimeout, param.writtenData);
+};
+
+iqrf.embed.uart.ClearWriteRead_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        readData: iqrf.embed.uart.ClearWriteRead_Response(rawHdp)
+    };
+    return result;
+};
+
+////////////////////////
 // LEDR
 ////////////////////////
 iqrf.embed.ledr.Set_Request_req = function (param) {
