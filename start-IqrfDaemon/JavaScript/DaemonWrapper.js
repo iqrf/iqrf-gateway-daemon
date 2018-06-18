@@ -254,7 +254,6 @@ iqrf.embed.os.Read_Request_req = function (param) {
     return iqrf.embed.os.Read_Request();
 };
 
-//TODO values are as particular items in schema
 iqrf.embed.os.Read_Response_rsp = function (rawHdp) {
     var result = iqrf.embed.os.Read_Response(rawHdp);
     return result;
@@ -264,7 +263,6 @@ iqrf.embed.os.Reset_Request_req = function (param) {
     return iqrf.embed.os.Reset_Request();
 };
 
-//TODO schama has bad name InitReset
 iqrf.embed.os.Reset_Response_rsp = function (rawHdp) {
     iqrf.embed.os.Reset_Response(rawHdp);
     var result =
@@ -277,7 +275,6 @@ iqrf.embed.os.ReadCfg_Request_req = function (param) {
     return iqrf.embed.os.Read_Request();
 };
 
-//TODO values are as particular items in schema
 iqrf.embed.os.ReadCfg_Response_rsp = function (rawHdp) {
     var result = iqrf.embed.os.Read_Response(rawHdp);
     return result;
@@ -308,7 +305,7 @@ iqrf.embed.os.Sleep_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.os.Batch_Request_req = function (param) {
-    return iqrf.embed.os.Batch_Request(param.innerReqs);
+    return iqrf.embed.os.Batch_Request(param.requests);
 };
 
 iqrf.embed.os.Batch_Response_rsp = function (rawHdp) {
@@ -331,7 +328,6 @@ iqrf.embed.os.SetSecurity_Response_rsp = function (rawHdp) {
     return result;
 };
 
-//TODO schama has bad name InitReset
 iqrf.embed.os.Restart_Request_req = function (param) {
     return iqrf.embed.os.Restart_Request();
 };
@@ -345,7 +341,7 @@ iqrf.embed.os.Restart_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.os.WriteCfgByte_Request_req = function (param) {
-    return iqrf.embed.os.WriteCfgByte_Request(param.bytes);
+    return iqrf.embed.os.WriteCfgByte_Request(param.cfgBytes);
 };
 
 iqrf.embed.os.WriteCfgByte_Response_rsp = function (rawHdp) {
@@ -356,12 +352,11 @@ iqrf.embed.os.WriteCfgByte_Response_rsp = function (rawHdp) {
     return result;
 };
 
-//TODO values are as particular items in schema
+
 iqrf.embed.os.LoadCode_Request_req = function (param) {
     return iqrf.embed.os.LoadCodeCfgByte_Request(param.flags, param.address, param.length, param.checkSum);
 };
 
-//TODO rename result in schema
 iqrf.embed.os.LoadCode_Response_rsp = function (rawHdp) {
     iqrf.embed.os.LoadCode_Response(rawHdp);
     var result =
@@ -372,7 +367,7 @@ iqrf.embed.os.LoadCode_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.os.SelectiveBatch_Request_req = function (param) {
-    return iqrf.embed.os.SelectiveBatch_Request(param.selectedNodes, param.innerReqs);
+    return iqrf.embed.os.SelectiveBatch_Request(param.selectedNodes, param.requests);
 };
 
 iqrf.embed.os.SelectiveBatch_Response_rsp = function (rawHdp) {
