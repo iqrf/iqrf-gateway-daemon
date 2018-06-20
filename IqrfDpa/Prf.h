@@ -51,32 +51,32 @@ namespace iqrf {
 
     virtual void parseResponse(const DpaMessage& response) = 0;
 
-    uint16_t Prf::getAddress() const
+    uint16_t getAddress() const
     {
       return m_request.DpaPacket().DpaRequestPacket_t.NADR;
     }
 
-    void Prf::setAddress(uint16_t address)
+    void setAddress(uint16_t address)
     {
       m_request.DpaPacket().DpaRequestPacket_t.NADR = address;
     }
 
-    uint16_t Prf::getHwpid() const
+    uint16_t getHwpid() const
     {
       return m_request.DpaPacket().DpaRequestPacket_t.HWPID;
     }
 
-    void Prf::setHwpid(uint16_t hwpid)
+    void setHwpid(uint16_t hwpid)
     {
       m_request.DpaPacket().DpaRequestPacket_t.HWPID = hwpid;
     }
 
-    uint8_t Prf::getPcmd() const
+    uint8_t getPcmd() const
     {
       return m_request.DpaPacket().DpaRequestPacket_t.PCMD;
     }
 
-    void Prf::setPcmd(uint8_t command)
+    void setPcmd(uint8_t command)
     {
       m_request.DpaPacket().DpaRequestPacket_t.PCMD = command;
     }
