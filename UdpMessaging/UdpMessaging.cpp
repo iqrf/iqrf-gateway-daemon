@@ -43,6 +43,22 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
+  const std::string& UdpMessaging::getListeningIpAddress() const
+  {
+    return m_udpChannel->getListeningIpAddress();
+
+  }
+
+  unsigned short UdpMessaging::getListeningIpPort() const
+  {
+    return m_udpChannel->getListeningIpPort();
+  }
+
+  const std::string& UdpMessaging::getListeningMacAddress() const
+  {
+    return m_udpChannel->getListeningMacAddress();
+  }
+
   void UdpMessaging::sendMessage(const std::basic_string<uint8_t> & msg)
   {
     TRC_FUNCTION_ENTER("");

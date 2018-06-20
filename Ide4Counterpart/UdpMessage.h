@@ -36,13 +36,16 @@ const unsigned char IQRF_UDP_IQRF_SPI_DATA = 0x04;	// Data from TR module's SPI 
 const unsigned char IQRF_UDP_ACK = 0x50;	// Positive answer
 const unsigned char IQRF_UDP_NAK = 0x60;	// Negative answer
 const unsigned char IQRF_UDP_BUS_BUSY = 0x61;	// Communication channel (IQRF SPI or RS485) is busy
+const unsigned char IQRF_UDP_CRCM_ERROR = 0x62;	// CRCM Error
+const unsigned char IQRF_UDP_GW_NOT_SERVICE = 0x63;	// GW is not in service mode
 
 //TODO
 enum IqrfWriteResults {
   wr_OK = 0x50,
   wr_Error_Len = 0x60, //(number of data = 0 or more than TR buffer COM length)
   wr_Error_SPI = 0x61, //(SPI bus busy)
-  wr_Error_IQRF = 0x62 //(IQRF - CRCM Error)
+  wr_Error_IQRF = 0x62, //(IQRF - CRCM Error)
+  wr_Error_Service = 0x63 //(IQRF - Not in service mode)
 };
 
 //--- IQRF UDP header ---

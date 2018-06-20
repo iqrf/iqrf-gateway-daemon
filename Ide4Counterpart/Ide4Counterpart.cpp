@@ -1,5 +1,6 @@
 #define IUdpConnectorService_EXPORTS
 
+#include "VersionInfo.h"
 #include "Ide4Counterpart.h"
 #include "EnumStringConvertor.h"
 #include "UdpMessage.h"
@@ -38,9 +39,6 @@ namespace iqrf {
       return handleMessageFromUdp(msg);
     });
 
-    //TODO handle by iface or cfg
-    //setMode(Ide4Counterpart::Mode::Service);
-    //setMode(Ide4Counterpart::Mode::Forwarding);
     setMode(Ide4Counterpart::Mode::Operational);
 
     TRC_FUNCTION_LEAVE("")
@@ -108,6 +106,21 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
+  void Ide4Counterpart::attachInterface(iqrf::IIqrfDpaService* iface)
+  {
+    TRC_FUNCTION_ENTER(PAR(iface));
+    m_iqrfDpaService = iface;
+    TRC_FUNCTION_LEAVE("")
+  }
+
+  void Ide4Counterpart::detachInterface(iqrf::IIqrfDpaService* iface)
+  {
+    TRC_FUNCTION_ENTER(PAR(iface));
+    if (m_iqrfDpaService == iface) {
+      m_iqrfDpaService = nullptr;
+    }
+    TRC_FUNCTION_LEAVE("")
+  }
 
   void Ide4Counterpart::setMode(Mode mode)
   {
@@ -175,21 +188,13 @@ namespace iqrf {
     std::basic_ostringstream<char> ostring;
     ostring << crlf <<
       "iqrf-daemon" << crlf <<
-      //TODO
-      //m_daemon->getDaemonVersion() << crlf <<
-      //m_udpChannel->getListeningMacAddress() << crlf <<
-      "V2.0" << crlf <<
-      "127.0.0.1" << crlf <<
-      "0.00" << crlf << //TODO
-      //TODO
-      //m_udpChannel->getListeningIpAddress() << crlf <<
-      "55:44:33:22:11" << crlf <<
-      "iqrf_xxxx" << crlf << //TODO
-      //TODO
-      //m_daemon->getOsVersion() << "(" << m_daemon->getOsBuild() << ")" << crlf <<
-      //m_udpChannel->getListeningIpAddress() << crlf; //TODO
-      "OS123" << "(" << "456" << ")" << crlf <<
-      "127.0.0.1" << crlf; //TODO
+      DAEMON_VERSION << crlf <<
+      m_messaging->getListeningMacAddress() << crlf <<
+      "0.00" << crlf << //TODO IP stack?
+      m_messaging->getListeningIpAddress() << crlf <<
+      "iqrf_xxxx" << crlf << //TODO Net BIOS name?
+      m_iqrfDpaService->getCoordinatorParameters().osVersion << "(" << m_iqrfDpaService->getCoordinatorParameters().osBuild << ")" << crlf <<
+      "127.0.0.1" << crlf; //TODO public IP?
 
     std::string resp = ostring.str();
     std::basic_string<unsigned char> res((unsigned char*)resp.data(), resp.size());
@@ -262,20 +267,24 @@ namespace iqrf {
       //send response
       ustring udpResponse(udpMessage.substr(0, IQRF_UDP_HEADER_SIZE));
       udpResponse[cmd] = udpResponse[cmd] | 0x80;
-      udpResponse[subcmd] = (unsigned char)IQRF_UDP_ACK;
-      encodeMessageUdp(udpResponse);
       //TODO it is required to send back via subcmd write result - implement sync write with appropriate ret code
-      m_messaging->sendMessage(udpResponse);
-
       if (m_exclusiveAcessor) { // exclusiveAccess
-        m_exclusiveAcessor->send(message);
+        udpResponse[subcmd] = IQRF_UDP_ACK;
       }
       else {
+        udpResponse[subcmd] = IQRF_UDP_GW_NOT_SERVICE;
         TRC_WARNING(std::endl <<
           "****************************************************" << std::endl <<
           "CANNOT SEND DPA MESSAGE IN OPERATIONAL MODE" << std::endl <<
           "****************************************************" << std::endl <<
           "Messages from UDP are accepted only in service mode" << std::endl);
+      }
+
+      encodeMessageUdp(udpResponse);
+      m_messaging->sendMessage(udpResponse);
+
+      if (m_exclusiveAcessor) { // exclusiveAccess
+        m_exclusiveAcessor->send(message);
       }
     }
     return 0;

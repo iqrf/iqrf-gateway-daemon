@@ -29,6 +29,9 @@ namespace iqrf {
   class IUdpMessagingService_DECLSPEC IUdpMessagingService : public IMessagingService
   {
   public:
+    virtual const std::string& getListeningIpAddress() const = 0;
+    virtual unsigned short getListeningIpPort() const = 0;
+    virtual const std::string& getListeningMacAddress() const = 0;
     inline virtual ~IUdpMessagingService() {};
   };
 }

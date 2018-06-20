@@ -65,10 +65,10 @@ public:
   void unregisterReceiveFromHandler() override;
   State getState() override;
 
-  const std::string& getListeningIpAddress() { return m_myIpAdress; }
-  unsigned short getListeningIpPort() { return m_localPort; }
-  const std::string& getListeningMacAddress() { return m_myMacAdress; }
-  bool isListening() { return m_isListening; }
+  const std::string& getListeningIpAddress() const { return m_myIpAdress; }
+  unsigned short getListeningIpPort() const { return m_localPort; }
+  const std::string& getListeningMacAddress() const { return m_myMacAdress; }
+  bool isListening() const { return m_isListening; }
 
 private:
   class MyAdapter {

@@ -5,7 +5,7 @@
 #include "ITraceService.h"
 #include "IUdpMessagingService.h"
 #include "IIqrfChannelService.h"
-//#include "DpaHandler.h"
+#include "IIqrfDpaService.h"
 #include "TaskQueue.h"
 #include <string>
 
@@ -28,6 +28,9 @@ namespace iqrf {
 
     void attachInterface(iqrf::IIqrfChannelService* iface);
     void detachInterface(iqrf::IIqrfChannelService* iface);
+
+    void attachInterface(iqrf::IIqrfDpaService* iface);
+    void detachInterface(iqrf::IIqrfDpaService* iface);
 
     /// \brief switch operational mode
     /// \param [in] mode operational mode to switch
@@ -63,7 +66,7 @@ namespace iqrf {
   private:
     IUdpMessagingService *m_messaging = nullptr;
     IIqrfChannelService *m_iqrfChannelService = nullptr;
-    //TaskQueue<DpaTransaction*> *m_dpaTransactionQueue = nullptr;
+    IIqrfDpaService *m_iqrfDpaService = nullptr;
     std::mutex m_modeMtx;
     Mode m_mode;
     std::unique_ptr<IIqrfChannelService::Accessor> m_exclusiveAcessor;
