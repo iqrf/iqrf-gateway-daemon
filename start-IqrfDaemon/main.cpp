@@ -25,12 +25,16 @@ void staticInit()
 
 int main(int argc, char** argv)
 {
-  std::cout <<
-    "============================================================================" << std::endl <<
-    PAR(DAEMON_VERSION) << PAR(BUILD_TIMESTAMP) << std::endl << std::endl <<
-    "Copyright 2015 - 2017 MICRORISC s.r.o." << std::endl <<
-    "Copyright 2018 IQRF Tech s.r.o." << std::endl <<
-    "============================================================================" << std::endl;
+  std::ostringstream header;
+  header <<
+      "============================================================================" << std::endl <<
+      PAR(DAEMON_VERSION) << PAR(BUILD_TIMESTAMP) << std::endl << std::endl <<
+      "Copyright 2015 - 2017 MICRORISC s.r.o." << std::endl <<
+      "Copyright 2018 IQRF Tech s.r.o." << std::endl <<
+      "============================================================================" << std::endl;
+
+  std::cout << header.str();
+  TRC_INFORMATION(header.str());
 
   std::cout << "startup ... " << std::endl;
   staticInit();
