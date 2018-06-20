@@ -122,7 +122,7 @@ iqrf.embed.coordinator.DiscoveryData_Request_req = function (param) {
 iqrf.embed.coordinator.DiscoveryData_Response_rsp = function (rawHdp) {
     var result =
     {
-        discData: iqrf.embed.coordinator.DiscoveryData_Response(rawHdp)
+        discoveryData: iqrf.embed.coordinator.DiscoveryData_Response(rawHdp)
     };
     return result;
 };
@@ -134,7 +134,7 @@ iqrf.embed.coordinator.Backup_Request_req = function (param) {
 iqrf.embed.coordinator.Backup_Response_rsp = function (rawHdp) {
     var result =
     {
-        netData: iqrf.embed.coordinator.Backup_Response(rawHdp)
+        networkData: iqrf.embed.coordinator.Backup_Response(rawHdp)
     };
     return result;
 };
@@ -188,7 +188,7 @@ iqrf.embed.coordinator.ClearRemotelyBondedMid_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.coordinator.EnableRemoteBonding_Request_req = function (param) {
-    return iqrf.embed.coordinator.EnableRemoteBonding_Request()
+    return iqrf.embed.coordinator.EnableRemoteBonding_Request(param.bondingMask, param.control, param.userData)
 };
 
 iqrf.embed.coordinator.EnableRemoteBonding_Response_rsp = function (rawHdp) {
