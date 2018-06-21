@@ -65,4 +65,7 @@ cp shape-libs/usr/lib/iqrfgd2/* ${DEPLOY}${IQRFGD2_LIBS}
 cp shapeware-libs/usr/lib/iqrfgd2/* ${DEPLOY}${IQRFGD2_LIBS}
 cp shapeware-libs/usr/local/lib/* ${DEPLOY}${LOCAL_LIBS}
 
+# PAHO
+cp paho-build/src/*.so.1.2.0 ${DEPLOY}${LOCAL_LIBS}
+
 echo "Daemon files copied."

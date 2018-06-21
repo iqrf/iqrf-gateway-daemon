@@ -19,6 +19,5 @@ fpm \
 --depends libev4 \
 --depends libuv1 \
 --depends libcpprest2.9 \
---depends libpaho.mqtt.c \
 --verbose \
 .
