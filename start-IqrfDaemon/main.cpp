@@ -25,6 +25,11 @@ void staticInit()
 
 int main(int argc, char** argv)
 {
+  if (argc == 2 && argv[1] == std::string("version")) {
+    std::cout << DAEMON_VERSION << " " << BUILD_TIMESTAMP << std::endl;
+    return 0;
+  }
+
   std::ostringstream header;
   header <<
       "============================================================================" << std::endl <<
