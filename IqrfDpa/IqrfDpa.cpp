@@ -1,5 +1,6 @@
 #define IIqrfDpaService_EXPORTS
 
+#include "EnumStringConvertor.h"
 #include "DpaHandler2.h"
 #include "IqrfDpa.h"
 #include "PrfOs.h"
@@ -12,6 +13,38 @@
 TRC_INIT_MODULE(iqrf::IqrfDpa);
 
 namespace iqrf {
+  
+  class FrcResponseTimeConvertTable
+  {
+  public:
+    static const std::vector<std::pair<IDpaTransaction2::FrcResponseTime, std::string>>& table()
+    {
+      static std::vector <std::pair<IDpaTransaction2::FrcResponseTime, std::string>> table = {
+        { IDpaTransaction2::FrcResponseTime::k40Ms, "k40Ms" },
+        { IDpaTransaction2::FrcResponseTime::k360Ms, "k360Ms" },
+        { IDpaTransaction2::FrcResponseTime::k680Ms, "k680Ms" },
+        { IDpaTransaction2::FrcResponseTime::k1320Ms, "k1320Ms" },
+        { IDpaTransaction2::FrcResponseTime::k2600Ms, "k2600Ms" },
+        { IDpaTransaction2::FrcResponseTime::k5160Ms, "k5160Ms" },
+        { IDpaTransaction2::FrcResponseTime::k10280Ms, "k10280Ms" },
+        { IDpaTransaction2::FrcResponseTime::k20620Ms, "k20620Ms" }
+      };
+      return table;
+    }
+    static IDpaTransaction2::FrcResponseTime defaultEnum()
+    {
+      return IDpaTransaction2::FrcResponseTime::k40Ms;
+    }
+    static const std::string& defaultStr()
+    {
+      static std::string u("unknown");
+      return u;
+    }
+  };
+
+  typedef shape::EnumStringConvertor<IDpaTransaction2::FrcResponseTime, FrcResponseTimeConvertTable> FrcResponseTimeStringConvertor;
+
+
   IqrfDpa::IqrfDpa()
   {
     TRC_FUNCTION_ENTER("");
@@ -177,24 +210,57 @@ namespace iqrf {
     m_dpaHandler = shape_new DpaHandler2(m_iqrfDpaChannel);
 
     const rapidjson::Document& doc = props->getAsJson();
-    const rapidjson::Value* valT = rapidjson::Pointer("/DpaHandlerTimeout").Get(doc);
-    if (valT && valT->IsInt()) {
-      m_dpaHandlerTimeout = valT->GetInt();
+    
+    {
+      const rapidjson::Value* val = rapidjson::Pointer("/DpaHandlerTimeout").Get(doc);
+      if (val && val->IsInt()) {
+        m_dpaHandlerTimeout = val->GetInt();
+        m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
+      }
       m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
     }
-    m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
 
-    const rapidjson::Value* valC = rapidjson::Pointer("/CommunicationMode").Get(doc);
-    if (valC && valC->IsString()) {
-      std::string communicationMode = valC->GetString();
-      if (communicationMode == "LP")
-        m_rfMode = IDpaTransaction2::kLp;
-      else if (communicationMode == "STD")
-        m_rfMode = IDpaTransaction2::kStd;
-      else
-        m_rfMode = IDpaTransaction2::kStd;
+    {
+      const rapidjson::Value* val = rapidjson::Pointer("/CommunicationMode").Get(doc);
+      if (val && val->IsString()) {
+        std::string communicationMode = val->GetString();
+        if (communicationMode == "LP")
+          m_rfMode = IDpaTransaction2::kLp;
+        else if (communicationMode == "STD")
+          m_rfMode = IDpaTransaction2::kStd;
+        else
+          m_rfMode = IDpaTransaction2::kStd;
+      }
+      m_dpaHandler->setRfCommunicationMode(m_rfMode);
     }
-    m_dpaHandler->setRfCommunicationMode(m_rfMode);
+
+    {
+      const rapidjson::Value* val = rapidjson::Pointer("/BondedNodes").Get(doc);
+      if (val && val->IsInt()) {
+        m_bondedNodes = val->GetInt();
+      }
+    }
+
+    {
+      const rapidjson::Value* val = rapidjson::Pointer("/DiscoveredNodes").Get(doc);
+      if (val && val->IsInt()) {
+        m_discoveredNodes = val->GetInt();
+      }
+    }
+
+    {
+      const rapidjson::Value* val = rapidjson::Pointer("/ResponseTime").Get(doc);
+      if (val && val->IsString()) {
+        FrcResponseTimeStringConvertor conv;
+        m_responseTime = conv.str2enum(val->GetString());
+      }
+    }
+
+    IDpaTransaction2::FRC_TimingParams params;
+    params.bondedNodes = m_bondedNodes;
+    params.discoveredNodes = m_discoveredNodes;
+    params.responseTime = m_responseTime;
+    m_dpaHandler->setFrcTiming(params);
 
     getIqrfNetworkParams();
 

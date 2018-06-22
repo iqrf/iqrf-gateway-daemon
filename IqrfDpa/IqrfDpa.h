@@ -42,6 +42,9 @@ namespace iqrf {
     IDpaHandler2* m_dpaHandler = nullptr;
     IDpaTransaction2::RfMode m_rfMode = IDpaTransaction2::RfMode::kStd;
     int m_dpaHandlerTimeout = IDpaTransaction2::DEFAULT_TIMEOUT;
+    int m_bondedNodes = 10;
+    int m_discoveredNodes = 10;
+    IDpaTransaction2::FrcResponseTime m_responseTime = IDpaTransaction2::FrcResponseTime::k40Ms;
 
     std::mutex m_asyncMessageHandlersMutex;
     std::map<std::string, AsyncMessageHandlerFunc> m_asyncMessageHandlers;
