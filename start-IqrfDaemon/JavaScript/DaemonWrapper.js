@@ -116,7 +116,7 @@ iqrf.embed.coordinator.SetHops_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.coordinator.DiscoveryData_Request_req = function (param) {
-    return iqrf.embed.coordinator.DiscoveryData_Request()
+    return iqrf.embed.coordinator.DiscoveryData_Request(param.address)
 };
 
 iqrf.embed.coordinator.DiscoveryData_Response_rsp = function (rawHdp) {
