@@ -2,7 +2,7 @@
 
 #include "IIqrfDpaService.h"
 #include "IqrfDpaChannel.h"
-#include "DpaHandler2.h"
+#include "IDpaHandler2.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 
@@ -18,17 +18,14 @@ namespace iqrf {
     virtual ~IqrfDpa();
 
     std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout) override;
+    IIqrfDpaService::CoordinatorParameters getCoordinatorParameters() const override;
     int getTimeout() const override;
     void setTimeout(int timeout) override;
-    DpaHandler2::RfMode getRfCommunicationMode() const override;
-    void setRfCommunicationMode(DpaHandler2::RfMode rfMode) override;
+    IDpaTransaction2::RfMode getRfCommunicationMode() const override;
+    void setRfCommunicationMode(IDpaTransaction2::RfMode rfMode) override;
     void registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun) override;
     void unregisterAsyncMessageHandler(const std::string& serviceId) override;
     
-    //TODO for testing async - remove
-    //void testAsync();
-    //std::thread m_thd;
-
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
@@ -43,19 +40,20 @@ namespace iqrf {
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     IqrfDpaChannel *m_iqrfDpaChannel = nullptr;  //temporary workaround, see comment in IqrfDpaChannel.h
     IDpaHandler2* m_dpaHandler = nullptr;
-    DpaHandler2::RfMode m_rfMode = IDpaHandler2::RfMode::kStd;
-    int m_dpaHandlerTimeout = IDpaHandler2::DEFAULT_TIMEOUT;
+    IDpaTransaction2::RfMode m_rfMode = IDpaTransaction2::RfMode::kStd;
+    int m_dpaHandlerTimeout = IDpaTransaction2::DEFAULT_TIMEOUT;
+    int m_bondedNodes = 10;
+    int m_discoveredNodes = 10;
+    IDpaTransaction2::FrcResponseTime m_responseTime = IDpaTransaction2::FrcResponseTime::k40Ms;
 
     std::mutex m_asyncMessageHandlersMutex;
     std::map<std::string, AsyncMessageHandlerFunc> m_asyncMessageHandlers;
     void asyncDpaMessageHandler(const DpaMessage& dpaMessage);
 
-    /// TR module
-    std::string m_moduleId;
-    std::string m_osVersion;
-    std::string m_trType;
-    bool m_fcc = false;
-    std::string m_mcuType;
-    std::string m_osBuild;
+    void getIqrfNetworkParams();
+
+    /// Coordinator parameters
+    IIqrfDpaService::CoordinatorParameters m_cPar;
+    bool m_initCoord = false;
   };
 }

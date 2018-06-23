@@ -1,0 +1,49 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__shape__ConfigurationService",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "shape::ConfigurationService"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended shape::ConfigurationService-(id)",
+            "default": "shape::ConfigurationService-1"
+        },
+        "RequiredInterfaces": {
+            "type": "array",
+            "description": "Array of required interfaces..",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "iqrf::IMessagingService",
+                        "description": "..."
+                    },
+                    "target": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "name",
+                    "target"
+                ]
+            }
+        }
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}

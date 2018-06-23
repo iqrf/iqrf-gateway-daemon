@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DpaHandler2.h"
+#include "IDpaTransactionResult2.h"
 #include "rapidjson/pointer.h"
 #include "HexStringCoversion.h"
 

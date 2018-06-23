@@ -2,5 +2,8 @@
   "component": "iqrf::IqrfDpa",
   "instance": "iqrf::IqrfDpa-Instance1",
   "DpaHandlerTimeout": 500,
-  "CommunicationMode": "STD"
+  "CommunicationMode": "STD",
+  "BondedNodes": 10,
+  "DiscoveredNodes": 10,
+  "ResponseTime":  "k40Ms"
 }

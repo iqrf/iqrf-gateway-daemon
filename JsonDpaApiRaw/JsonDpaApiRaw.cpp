@@ -3,7 +3,6 @@
 #include "JsonDpaApiRaw.h"
 #include "JsonApiMessageNames.h"
 #include "ComRaws.h"
-#include "DpaHandler2.h"
 #include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -65,8 +64,6 @@ namespace iqrf {
   class JsonDpaApiRaw::Imp
   {
   private:
-
-    //iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::string m_name = "JsonDpaApiRaw";

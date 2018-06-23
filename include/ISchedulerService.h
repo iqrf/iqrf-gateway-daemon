@@ -39,7 +39,7 @@ namespace iqrf {
   {
   public:
     /// Task handle is task identification
-    typedef long TaskHandle;
+    typedef int64_t TaskHandle;
 
     /// Invalid task handle
     static const TaskHandle TASK_HANDLE_INVALID = 0;

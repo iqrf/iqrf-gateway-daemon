@@ -1,10 +1,10 @@
 #define IBondNodeLocalService_EXPORTS
 
 
-#include "DpaTransactionTask.h"
+//#include "DpaTransactionTask.h"
 #include "BondNodeLocalService.h"
 #include "Trace.h"
-#include "DpaRaw.h"
+//#include "DpaRaw.h"
 #include "ComIqmeshNetworkBondNodeLocal.h"
 #include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
@@ -997,6 +997,16 @@ namespace iqrf {
   }
 
   void BondNodeLocalService::detachInterface(iqrf::IJsCacheService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void BondNodeLocalService::attachInterface(iqrf::IMessagingSplitterService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void BondNodeLocalService::detachInterface(iqrf::IMessagingSplitterService* iface)
   {
     m_imp->detachInterface(iface);
   }

@@ -20,6 +20,10 @@ namespace iqrf {
     const std::string & getName() const override { return m_name; }
     bool acceptAsyncMsg() const override { return false; }
 
+    const std::string& getListeningIpAddress() const override;
+    unsigned short getListeningIpPort() const override;
+    const std::string& getListeningMacAddress() const override;
+
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);

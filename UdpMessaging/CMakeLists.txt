@@ -14,17 +14,12 @@ source_group("Source Files" FILES ${_SRCFILES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${cutils_INCLUDE_DIRS})
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
-
-target_link_libraries(${PROJECT_NAME}
-	UdpChannel
-)
 
 if (WIN32) 
 	target_link_libraries(${PROJECT_NAME}

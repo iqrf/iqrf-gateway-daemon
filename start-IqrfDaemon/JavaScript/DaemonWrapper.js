@@ -116,13 +116,13 @@ iqrf.embed.coordinator.SetHops_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.coordinator.DiscoveryData_Request_req = function (param) {
-    return iqrf.embed.coordinator.DiscoveryData_Request()
+    return iqrf.embed.coordinator.DiscoveryData_Request(param.address)
 };
 
 iqrf.embed.coordinator.DiscoveryData_Response_rsp = function (rawHdp) {
     var result =
     {
-        discData: iqrf.embed.coordinator.DiscoveryData_Response(rawHdp)
+        discoveryData: iqrf.embed.coordinator.DiscoveryData_Response(rawHdp)
     };
     return result;
 };
@@ -134,7 +134,7 @@ iqrf.embed.coordinator.Backup_Request_req = function (param) {
 iqrf.embed.coordinator.Backup_Response_rsp = function (rawHdp) {
     var result =
     {
-        netData: iqrf.embed.coordinator.Backup_Response(rawHdp)
+        networkData: iqrf.embed.coordinator.Backup_Response(rawHdp)
     };
     return result;
 };
@@ -188,7 +188,7 @@ iqrf.embed.coordinator.ClearRemotelyBondedMid_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.coordinator.EnableRemoteBonding_Request_req = function (param) {
-    return iqrf.embed.coordinator.EnableRemoteBonding_Request()
+    return iqrf.embed.coordinator.EnableRemoteBonding_Request(param.bondingMask, param.control, param.userData)
 };
 
 iqrf.embed.coordinator.EnableRemoteBonding_Response_rsp = function (rawHdp) {
@@ -199,12 +199,51 @@ iqrf.embed.coordinator.EnableRemoteBonding_Response_rsp = function (rawHdp) {
     return result;
 };
 
-iqrf.embed.coordinator.SmartConnect_Request_req = function (p) {
-    return iqrf.embed.coordinator.SmartConnect_Request(p.reqAddr, p.bondingTestRetries, p.ibk, p.mid, p.bondingChannel, p.virtualDeviceAddress, p.userData)
+iqrf.embed.coordinator.SmartConnect_Request_req = function (param) {
+    return iqrf.embed.coordinator.SmartConnect_Request(param.reqAddr, param.bondingTestRetries, param.ibk, param.mid, param.bondingChannel, param.virtualDeviceAddress, param.userData)
 };
 
 iqrf.embed.coordinator.SmartConnect_Response_rsp = function (rawHdp) {
     var result = iqrf.embed.coordinator.SmartConnect_Response(rawHdp);
+    return result;
+};
+
+////////////////////////
+// IO
+////////////////////////
+iqrf.embed.io.Direction_Request_req = function (param) {
+    return iqrf.embed.io.Direction_Request(param.ports);
+};
+
+iqrf.embed.io.Direction_Response_rsp = function (rawHdp) {
+    iqrf.embed.io.Direction_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.io.Get_Request_req = function (param) {
+    return iqrf.embed.io.Get_Request(param.ports);
+};
+
+iqrf.embed.io.Get_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        ports: iqrf.embed.io.Get_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.io.Set_Request_req = function (param) {
+    return iqrf.embed.io.Set_Request(param.ports);
+};
+
+iqrf.embed.io.Set_Response_rsp = function (rawHdp) {
+    iqrf.embed.io.Set_Response(rawHdp);
+    var result =
+    {
+    };
     return result;
 };
 
@@ -215,7 +254,6 @@ iqrf.embed.os.Read_Request_req = function (param) {
     return iqrf.embed.os.Read_Request();
 };
 
-//TODO values are as particular items in schema
 iqrf.embed.os.Read_Response_rsp = function (rawHdp) {
     var result = iqrf.embed.os.Read_Response(rawHdp);
     return result;
@@ -225,7 +263,6 @@ iqrf.embed.os.Reset_Request_req = function (param) {
     return iqrf.embed.os.Reset_Request();
 };
 
-//TODO schama has bad name InitReset
 iqrf.embed.os.Reset_Response_rsp = function (rawHdp) {
     iqrf.embed.os.Reset_Response(rawHdp);
     var result =
@@ -238,7 +275,6 @@ iqrf.embed.os.ReadCfg_Request_req = function (param) {
     return iqrf.embed.os.Read_Request();
 };
 
-//TODO values are as particular items in schema
 iqrf.embed.os.ReadCfg_Response_rsp = function (rawHdp) {
     var result = iqrf.embed.os.Read_Response(rawHdp);
     return result;
@@ -269,7 +305,7 @@ iqrf.embed.os.Sleep_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.os.Batch_Request_req = function (param) {
-    return iqrf.embed.os.Batch_Request(param.innerReqs);
+    return iqrf.embed.os.Batch_Request(param.requests);
 };
 
 iqrf.embed.os.Batch_Response_rsp = function (rawHdp) {
@@ -292,7 +328,6 @@ iqrf.embed.os.SetSecurity_Response_rsp = function (rawHdp) {
     return result;
 };
 
-//TODO schama has bad name InitReset
 iqrf.embed.os.Restart_Request_req = function (param) {
     return iqrf.embed.os.Restart_Request();
 };
@@ -306,7 +341,7 @@ iqrf.embed.os.Restart_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.os.WriteCfgByte_Request_req = function (param) {
-    return iqrf.embed.os.WriteCfgByte_Request(param.bytes);
+    return iqrf.embed.os.WriteCfgByte_Request(param.cfgBytes);
 };
 
 iqrf.embed.os.WriteCfgByte_Response_rsp = function (rawHdp) {
@@ -317,12 +352,11 @@ iqrf.embed.os.WriteCfgByte_Response_rsp = function (rawHdp) {
     return result;
 };
 
-//TODO values are as particular items in schema
+
 iqrf.embed.os.LoadCode_Request_req = function (param) {
     return iqrf.embed.os.LoadCodeCfgByte_Request(param.flags, param.address, param.length, param.checkSum);
 };
 
-//TODO rename result in schema
 iqrf.embed.os.LoadCode_Response_rsp = function (rawHdp) {
     iqrf.embed.os.LoadCode_Response(rawHdp);
     var result =
@@ -333,7 +367,7 @@ iqrf.embed.os.LoadCode_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.os.SelectiveBatch_Request_req = function (param) {
-    return iqrf.embed.os.SelectiveBatch_Request(param.selectedNodes, param.innerReqs);
+    return iqrf.embed.os.SelectiveBatch_Request(param.selectedNodes, param.requests);
 };
 
 iqrf.embed.os.SelectiveBatch_Response_rsp = function (rawHdp) {
@@ -453,6 +487,72 @@ iqrf.embed.thermometer.Read_Response_rsp = function (rawHdp) {
 };
 
 ////////////////////////
+// SPI
+////////////////////////
+iqrf.embed.spi.WriteRead_Request_req = function (param) {
+    return iqrf.embed.spi.WriteRead_Request(param.readTimeout, param.writtenData);
+};
+
+iqrf.embed.spi.WriteRead_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        readData: iqrf.embed.spi.WriteRead_Response(rawHdp)
+    };
+    return result;
+};
+
+////////////////////////
+// UART
+////////////////////////
+iqrf.embed.uart.WriteRead_Request_req = function (param) {
+    return iqrf.embed.uart.WriteRead_Request(param.readTimeout, param.writtenData);
+};
+
+iqrf.embed.uart.WriteRead_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        readData: iqrf.embed.uart.WriteRead_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.uart.Open_Request_req = function (param) {
+    return iqrf.embed.uart.Open_Request(param.baudRate);
+};
+
+iqrf.embed.uart.Open_Response_rsp = function (rawHdp) {
+    iqrf.embed.uart.Open_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.uart.Close_Request_req = function (param) {
+    return iqrf.embed.uart.Close_Request();
+};
+
+iqrf.embed.uart.Close_Response_rsp = function (rawHdp) {
+    iqrf.embed.uart.Close_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.uart.ClearWriteRead_Request_req = function (param) {
+    return iqrf.embed.uart.ClearWriteRead_Request(param.readTimeout, param.writtenData);
+};
+
+iqrf.embed.uart.ClearWriteRead_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        readData: iqrf.embed.uart.ClearWriteRead_Response(rawHdp)
+    };
+    return result;
+};
+
+////////////////////////
 // LEDR
 ////////////////////////
 iqrf.embed.ledr.Set_Request_req = function (param) {
@@ -531,10 +631,95 @@ iqrf.embed.ledg.Pulse_Response_rsp = function (rawHdp) {
 };
 
 ////////////////////////
+// Node
+////////////////////////
+iqrf.embed.node.Backup_Request_req = function (param) {
+    return iqrf.embed.node.Backup_Request(param.index);
+};
+
+iqrf.embed.node.Backup_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        backupData: iqrf.embed.node.Backup_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.node.ClearRemotelyBondedMid_Request_req = function (param) {
+    return iqrf.embed.node.ClearRemotelyBondedMid_Request();
+};
+
+iqrf.embed.node.ClearRemotelyBondedMid_Response_rsp = function (rawHdp) {
+    iqrf.embed.node.ClearRemotelyBondedMid_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.node.EnableRemoteBonding_Request_req = function (param) {
+    return iqrf.embed.node.EnableRemoteBonding_Request(param.bondingMask, param.control, param.userData);
+};
+
+iqrf.embed.node.EnableRemoteBonding_Response_rsp = function (rawHdp) {
+    iqrf.embed.node.EnableRemoteBonding_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.node.Read_Request_req = function (param) {
+    return iqrf.embed.node.Read_Request();
+};
+
+iqrf.embed.node.Read_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        readData: iqrf.embed.node.Read_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.node.ReadRemotelyBondedMid_Request_req = function (param) {
+    return iqrf.embed.node.ReadRemotelyBondedMid_Request();
+};
+
+iqrf.embed.node.ReadRemotelyBondedMid_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        prebondedNodes: iqrf.embed.node.ReadRemotelyBondedMid_Response(rawHdp)
+    };
+    return result;
+};
+
+iqrf.embed.node.RemoveBondAddress_Request_req = function (param) {
+    return iqrf.embed.node.RemoveBondAddress_Request();
+};
+
+iqrf.embed.node.RemoveBondAddress_Response_rsp = function (rawHdp) {
+    iqrf.embed.node.RemoveBondAddress_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.node.Restore_Request_req = function (param) {
+    return iqrf.embed.node.Restore_Request(param.networkData);
+};
+
+iqrf.embed.node.Restore_Response_rsp = function (rawHdp) {
+    iqrf.embed.node.Restore_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+////////////////////////
 // FRC
 ////////////////////////
-
-//TODO frcCmd from msg differs frcCommand param name
 iqrf.embed.frc.Send_Request_req = function (param) {
     return iqrf.embed.frc.Send_Request(param.frcCommand, param.userData);
 };
@@ -555,16 +740,14 @@ iqrf.embed.frc.ExtraResult_Response_rsp = function (rawHdp) {
     return result;
 };
 
-//TODO names from msg differs param names
 iqrf.embed.frc.SendSelective_Request_req = function (param) {
-    return iqrf.embed.frc.SendSelective_Request(param.frcCmd, param.selNodes, param.userData);
+    return iqrf.embed.frc.SendSelective_Request(param.frcCommand, param.selectedNodes, param.userData);
 };
 
 iqrf.embed.frc.SendSelective_Response_rsp = function (rawHdp) {
     return iqrf.embed.frc.SendSelective_Response(rawHdp);
 };
 
-//TODO name params (not suitable) from msg differs frcResponseTime
 iqrf.embed.frc.SetParams_Request_req = function (param) {
     return iqrf.embed.frc.SetParams_Request(param.frcResponseTime);
 };
@@ -572,7 +755,7 @@ iqrf.embed.frc.SetParams_Request_req = function (param) {
 iqrf.embed.frc.SetParams_Response_rsp = function (rawHdp) {
     var result =
     {
-        prevParams: iqrf.embed.frc.SetParams_Response(rawHdp)
+        frcResponseTime: iqrf.embed.frc.SetParams_Response(rawHdp)
     };
     return result;
 };
@@ -682,15 +865,15 @@ iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {
     return result;
 };
 
-iqrf.sensor.Frc_Request_req = function (p) {
-    return iqrf.sensor.Frc_Request(p.sensorType, p.sensorIndex, p.frcCmd, p.selectedNodes, p.sleepAfterFrc);
+iqrf.sensor.Frc_Request_req = function (param) {
+    return iqrf.sensor.Frc_Request(param.sensorType, param.sensorIndex, param.frcCommand, param.selectedNodes, param.sleepAfterFrc);
 };
 
 //TODO needs special handling with state info because of parameter per to be passed
 //iqrf.sensor.Frc_Response_rsp = function (sensorType, ..., rawHdp) {
 //    var result =
 //    {
-//        result: iqrf.sensor.Frc_Response(rawHdp)
+//        sensors: iqrf.sensor.Frc_Response(rawHdp)
 //    };
 //    return result;
 //};

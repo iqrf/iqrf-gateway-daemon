@@ -1,19 +1,50 @@
 #define IIqrfDpaService_EXPORTS
 
-#include "DpaTransactionTask.h"
+#include "EnumStringConvertor.h"
+#include "DpaHandler2.h"
 #include "IqrfDpa.h"
+#include "PrfOs.h"
+#include "PrfEnum.h"
 #include "Trace.h"
 #include "rapidjson/pointer.h"
-
-//TODO workaround old tracing 
-#include "IqrfLogging.h"
-TRC_INIT();
 
 #include "iqrf__IqrfDpa.hxx"
 
 TRC_INIT_MODULE(iqrf::IqrfDpa);
 
 namespace iqrf {
+  
+  class FrcResponseTimeConvertTable
+  {
+  public:
+    static const std::vector<std::pair<IDpaTransaction2::FrcResponseTime, std::string>>& table()
+    {
+      static std::vector <std::pair<IDpaTransaction2::FrcResponseTime, std::string>> table = {
+        { IDpaTransaction2::FrcResponseTime::k40Ms, "k40Ms" },
+        { IDpaTransaction2::FrcResponseTime::k360Ms, "k360Ms" },
+        { IDpaTransaction2::FrcResponseTime::k680Ms, "k680Ms" },
+        { IDpaTransaction2::FrcResponseTime::k1320Ms, "k1320Ms" },
+        { IDpaTransaction2::FrcResponseTime::k2600Ms, "k2600Ms" },
+        { IDpaTransaction2::FrcResponseTime::k5160Ms, "k5160Ms" },
+        { IDpaTransaction2::FrcResponseTime::k10280Ms, "k10280Ms" },
+        { IDpaTransaction2::FrcResponseTime::k20620Ms, "k20620Ms" }
+      };
+      return table;
+    }
+    static IDpaTransaction2::FrcResponseTime defaultEnum()
+    {
+      return IDpaTransaction2::FrcResponseTime::k40Ms;
+    }
+    static const std::string& defaultStr()
+    {
+      static std::string u("unknown");
+      return u;
+    }
+  };
+
+  typedef shape::EnumStringConvertor<IDpaTransaction2::FrcResponseTime, FrcResponseTimeConvertTable> FrcResponseTimeStringConvertor;
+
+
   IqrfDpa::IqrfDpa()
   {
     TRC_FUNCTION_ENTER("");
@@ -34,6 +65,11 @@ namespace iqrf {
     return result;
   }
 
+  IIqrfDpaService::CoordinatorParameters IqrfDpa::getCoordinatorParameters() const
+  {
+    return m_cPar;
+  }
+
   int IqrfDpa::getTimeout() const
   {
     return m_dpaHandler->getTimeout();
@@ -46,12 +82,12 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  DpaHandler2::RfMode IqrfDpa::getRfCommunicationMode() const
+  IDpaTransaction2::RfMode IqrfDpa::getRfCommunicationMode() const
   {
     return m_dpaHandler->getRfCommunicationMode();
   }
 
-  void IqrfDpa::setRfCommunicationMode(DpaHandler2::RfMode rfMode)
+  void IqrfDpa::setRfCommunicationMode(IDpaTransaction2::RfMode rfMode)
   {
     TRC_FUNCTION_ENTER("");
     m_dpaHandler->setRfCommunicationMode(rfMode);
@@ -75,24 +111,92 @@ namespace iqrf {
   void IqrfDpa::asyncDpaMessageHandler(const DpaMessage& dpaMessage)
   {
     std::lock_guard<std::mutex> lck(m_asyncMessageHandlersMutex);
+    
     for (auto & hndl : m_asyncMessageHandlers)
       hndl.second(dpaMessage);
   }
 
-  //TODO for testing async - remove
-  //"request": "00.00.0a.00.ff.ff"
-  //"response" : "00.00.0a.80.00.00.00.00.1b.be.01"
-  //void IqrfDpa::testAsync()
-  //{
-  //  while (true) {
-  //    //std::vector<uint8_t> v = { 0x00, 0x00, 0x0a, 0x80, 0x00, 0x00, 0x00, 0x00, 0x1b, 0xbe, 0x01 };
-  //    std::vector<uint8_t> v = { 0x00, 0x00, 0x0a, 0x00, 0xff, 0xff };
-  //    DpaMessage msg;
-  //    msg.DataToBuffer(v.data(), v.size());
-  //    asyncDpaMessageHandler(msg);
-  //    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-  //  }
-  //}
+  void IqrfDpa::getIqrfNetworkParams()
+  {
+    TRC_FUNCTION_ENTER("");
+    
+    std::mutex mtx;
+    std::condition_variable cv;
+    
+    //Provisional Async msg handling
+    m_dpaHandler->unregisterAsyncMessageHandler("");
+    m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
+      std::unique_lock<std::mutex> lck(mtx);
+      PrfEnum prfEnum;
+      if (prfEnum.parseCoordinatorResetAsyncResponse(dpaMessage)) {
+        // Get coordinator parameters
+        m_cPar.m_dpaVer = prfEnum.getDpaVer();
+        m_cPar.dpaVerMajor = prfEnum.getDpaVerMajor();
+        m_cPar.dpaVerMinor = prfEnum.getDpaVerMinor();
+        m_cPar.demoFlag = prfEnum.getDemoFlag();
+        m_cPar.stdModeSupportFlag = prfEnum.getStdModeSupportFlag();
+        m_cPar.lpModeSupportFlag = prfEnum.getLpModeSupportFlag();
+        m_initCoord = true;
+      }
+      else {
+        TRC_WARNING("Wrong format of TR reset result async msg");
+      }
+      cv.notify_all();
+    });
+
+    // Get coordinator parameters
+    PrfOs prfOs;
+
+    { // reset TR module
+      std::unique_lock<std::mutex> lck(mtx);
+      if (!m_initCoord) {
+        prfOs.setResetCmd();
+        auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
+        auto res = trn->get();
+        // don't care about result
+
+        //wait for async msg after reset
+        int waitPeriod = 100;
+        int waitNumber = 0;
+        int waitMax = 10000;
+        while (cv.wait_for(lck, std::chrono::milliseconds(waitPeriod)) == std::cv_status::timeout) {
+          int wtime = ++waitNumber * waitPeriod;
+          TRC_INFORMATION("Waiting for TR reset result: " << PAR(wtime));
+          if (wtime > waitMax) {
+            TRC_WARNING("Cannot get TR reset result: " << PAR(wtime));
+            break;
+          }
+        }
+      }
+    }
+
+    prfOs.setReadCmd();
+    {
+      auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
+      auto res = trn->get();
+
+      if (res->getErrorCode() == 0) {
+        prfOs.parseResponse(res->getResponse());
+        m_cPar.moduleId = prfOs.getModuleId();
+        m_cPar.osVersion = prfOs.getOsVersion();
+        m_cPar.trType = prfOs.getTrType();
+        m_cPar.mcuType = prfOs.getMcuType();
+        m_cPar.osBuild = prfOs.getOsBuild();
+      }
+      else {
+        //THROW_EXC_TRC_WAR(std::logic_error, "Cannot get TR parameters");
+        TRC_WARNING("Cannot get TR parameters");
+      }
+    }
+
+    //Async msg handling
+    m_dpaHandler->unregisterAsyncMessageHandler("");
+    m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
+      asyncDpaMessageHandler(dpaMessage);
+    });
+
+    TRC_FUNCTION_LEAVE("")
+  }
 
   void IqrfDpa::activate(const shape::Properties *props)
   {
@@ -103,59 +207,62 @@ namespace iqrf {
       "******************************"
     );
 
-    //TODO workaround old tracing 
-    TRC_START("TraceOld.txt", iqrf::Level::dbg, TRC_DEFAULT_FILE_MAXSIZE);
-
     m_dpaHandler = shape_new DpaHandler2(m_iqrfDpaChannel);
 
     const rapidjson::Document& doc = props->getAsJson();
-    const rapidjson::Value* valT = rapidjson::Pointer("/DpaHandlerTimeout").Get(doc);
-    if (valT && valT->IsInt()) {
-      m_dpaHandlerTimeout = valT->GetInt();
+    
+    {
+      const rapidjson::Value* val = rapidjson::Pointer("/DpaHandlerTimeout").Get(doc);
+      if (val && val->IsInt()) {
+        m_dpaHandlerTimeout = val->GetInt();
+        m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
+      }
       m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
     }
-    m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
 
-    const rapidjson::Value* valC = rapidjson::Pointer("/CommunicationMode").Get(doc);
-    if (valC && valC->IsString()) {
-      std::string communicationMode = valC->GetString();
-      if (communicationMode == "LP")
-        m_rfMode = IDpaHandler2::kLp;
-      else if (communicationMode == "STD")
-        m_rfMode = IDpaHandler2::kStd;
-      else
-        m_rfMode = IDpaHandler2::kStd;
-    }
-    m_dpaHandler->setRfCommunicationMode(m_rfMode);
-
-    //Async msg handling
-    m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
-      asyncDpaMessageHandler(dpaMessage);
-    });
-
-    //TODO for testing async - remove
-    //m_thd = std::thread(&IqrfDpa::testAsync, this);
-    //m_thd.detach();
-
-#if 0
-      //TR module
-      PrfOs prfOs;
-      prfOs.read();
-
-      DpaTransactionTask trans(prfOs);
-      executeDpaTransaction(trans);
-      int result = trans.waitFinish();
-
-      if (result != 0) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Cannot get TR parameters");
+    {
+      const rapidjson::Value* val = rapidjson::Pointer("/CommunicationMode").Get(doc);
+      if (val && val->IsString()) {
+        std::string communicationMode = val->GetString();
+        if (communicationMode == "LP")
+          m_rfMode = IDpaTransaction2::kLp;
+        else if (communicationMode == "STD")
+          m_rfMode = IDpaTransaction2::kStd;
+        else
+          m_rfMode = IDpaTransaction2::kStd;
       }
+      m_dpaHandler->setRfCommunicationMode(m_rfMode);
+    }
 
-      m_moduleId = prfOs.getModuleId();
-      m_osVersion = prfOs.getOsVersion();
-      m_trType = prfOs.getTrType();
-      m_mcuType = prfOs.getMcuType();
-      m_osBuild = prfOs.getOsBuild();
-#endif
+    {
+      const rapidjson::Value* val = rapidjson::Pointer("/BondedNodes").Get(doc);
+      if (val && val->IsInt()) {
+        m_bondedNodes = val->GetInt();
+      }
+    }
+
+    {
+      const rapidjson::Value* val = rapidjson::Pointer("/DiscoveredNodes").Get(doc);
+      if (val && val->IsInt()) {
+        m_discoveredNodes = val->GetInt();
+      }
+    }
+
+    {
+      const rapidjson::Value* val = rapidjson::Pointer("/ResponseTime").Get(doc);
+      if (val && val->IsString()) {
+        FrcResponseTimeStringConvertor conv;
+        m_responseTime = conv.str2enum(val->GetString());
+      }
+    }
+
+    IDpaTransaction2::FRC_TimingParams params;
+    params.bondedNodes = m_bondedNodes;
+    params.discoveredNodes = m_discoveredNodes;
+    params.responseTime = m_responseTime;
+    m_dpaHandler->setFrcTiming(params);
+
+    getIqrfNetworkParams();
 
     TRC_FUNCTION_LEAVE("")
   }

@@ -1,6 +1,5 @@
 #define IReadTrConfService_EXPORTS
 
-#include "DpaTransactionTask.h"
 #include "ReadTrConfService.h"
 #include "Trace.h"
 #include "ComIqmeshNetworkReadTrConf.h"
@@ -492,8 +491,11 @@ namespace iqrf {
       bool rfPgmLpMode = ((rfpgm & 0b00000100) == 0b00000100) ? true : false;
       Pointer("/data/rsp/rfPgmLpMode").Set(response, rfPgmLpMode);
 
+      bool rfPgmIncorrectUpload = ((rfpgm & 0b00001000) == 0b00001000) ? true : false;
+      Pointer("/data/rsp/rfPgmIncorrectUpload").Set(response, rfPgmIncorrectUpload);
+
       bool enableAfterReset = ((rfpgm & 0b00010000) == 0b00010000) ? true : false;
-      Pointer("/data/rsp/enableAfterReset").Set(response, enableAfterReset);
+      Pointer("/data/rsp/rfPgmEnableAfterReset").Set(response, enableAfterReset);
 
       bool rfPgmTerminateAfter1Min = ((rfpgm & 0b01000000) == 0b01000000) ? true : false;
       Pointer("/data/rsp/rfPgmTerminateAfter1Min").Set(response, rfPgmTerminateAfter1Min);

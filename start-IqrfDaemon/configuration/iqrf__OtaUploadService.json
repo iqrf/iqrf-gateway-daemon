@@ -1,4 +1,5 @@
 {
   "component": "iqrf::OtaUploadService",
-  "instance": "iqrf::OtaUploadService-Instance1"
+  "instance": "iqrf::OtaUploadService-Instance1",
+  "uploadPath": "/var/cache/iqrfgd2/upload"
 }

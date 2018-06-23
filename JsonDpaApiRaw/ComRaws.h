@@ -12,7 +12,7 @@ namespace iqrf {
       :ComBase(doc)
     {
       int len = parseBinary(m_request.DpaPacket().Buffer,
-        rapidjson::Pointer("/data/req/request").Get(doc)->GetString(),
+        rapidjson::Pointer("/data/req/rData").Get(doc)->GetString(),
         DPA_MAX_DATA_LENGTH);
       m_request.SetLength(len);
     }
@@ -24,7 +24,7 @@ namespace iqrf {
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
-      rapidjson::Pointer("/data/rsp/response").Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
+      rapidjson::Pointer("/data/rsp/rData").Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
     }
 
   private:
@@ -49,7 +49,7 @@ namespace iqrf {
 
       rapidjson::Value* req = rapidjson::Pointer("/data/req").Get(doc);
       if (req) {
-        std::vector<int> rdata = jutils::getPossibleMemberAsVector<int>("rData", *req);
+        std::vector<int> rdata = jutils::getPossibleMemberAsVector<int>("pData", *req);
         int sz = rdata.size() <= DPA_MAX_DATA_LENGTH ? rdata.size() : DPA_MAX_DATA_LENGTH;
         uint8_t* pdata = m_request.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData;
         for (int i = 0; i < sz; i++) {
@@ -88,7 +88,7 @@ namespace iqrf {
         for (int i = 0; i < sz; i++) {
           rdata.PushBack((int)(*(pdata + i)), allocator);
         }
-        req->AddMember("rData", rdata, allocator);
+        req->AddMember("pData", rdata, allocator);
       }
 
       //rapidjson::Pointer("/data/rsp/rData").Set(doc, r ? encodeBinary(res.getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData,

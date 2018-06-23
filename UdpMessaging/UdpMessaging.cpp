@@ -14,10 +14,6 @@
 
 TRC_INIT_MODULE(iqrf::UdpMessaging);
 
-//TODO workaround old tracing 
-#include "IqrfLogging.h"
-TRC_INIT();
-
 const unsigned IQRF_MQ_BUFFER_SIZE = 64 * 1024;
 
 namespace iqrf {
@@ -45,6 +41,22 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
     m_messageHandlerFunc = IMessagingService::MessageHandlerFunc();
     TRC_FUNCTION_LEAVE("")
+  }
+
+  const std::string& UdpMessaging::getListeningIpAddress() const
+  {
+    return m_udpChannel->getListeningIpAddress();
+
+  }
+
+  unsigned short UdpMessaging::getListeningIpPort() const
+  {
+    return m_udpChannel->getListeningIpPort();
+  }
+
+  const std::string& UdpMessaging::getListeningMacAddress() const
+  {
+    return m_udpChannel->getListeningMacAddress();
   }
 
   void UdpMessaging::sendMessage(const std::basic_string<uint8_t> & msg)
@@ -76,16 +88,13 @@ namespace iqrf {
       "******************************"
     );
 
-    //TODO workaround old tracing 
-    TRC_START("TraceOldMqChannel.txt", iqrf::Level::dbg, TRC_DEFAULT_FILE_MAXSIZE);
-
     props->getMemberAsString("instance", m_name);
     props->getMemberAsInt("RemotePort", m_remotePort);
     props->getMemberAsInt("LocalPort", m_localPort);
 
-    m_udpChannel = ant_new UdpChannel(m_remotePort, m_localPort, IQRF_MQ_BUFFER_SIZE);
+    m_udpChannel = shape_new UdpChannel(m_remotePort, m_localPort, IQRF_MQ_BUFFER_SIZE);
 
-    m_toUdpMessageQueue = ant_new TaskQueue<std::basic_string<uint8_t>>([&](const std::basic_string<uint8_t>& msg) {
+    m_toUdpMessageQueue = shape_new TaskQueue<std::basic_string<uint8_t>>([&](const std::basic_string<uint8_t>& msg) {
       m_udpChannel->sendTo(msg);
     });
 

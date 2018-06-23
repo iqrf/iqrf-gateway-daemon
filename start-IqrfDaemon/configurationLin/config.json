@@ -85,16 +85,9 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::JsonSerializer",
+      "name": "iqrf::LegacyApiSupport",
       "libraryPath": "",
-      "libraryName": "JsonSerializer",
-      "enabled": true,
-      "startlevel": 0
-    },
-    {
-      "name": "iqrf::BaseService",
-      "libraryPath": "",
-      "libraryName": "BaseService",
+      "libraryName": "LegacyApiSupport",
       "enabled": true,
       "startlevel": 0
     },
@@ -214,6 +207,13 @@
       "name": "iqrf::BondNodeLocalService",
       "libraryPath": "",
       "libraryName": "BondNodeLocalService",
+      "enabled": true,
+      "startlevel": 3
+    },
+	{
+      "name": "iqrf::EnumerateDeviceService",
+      "libraryPath": "",
+      "libraryName": "EnumerateDeviceService",
       "enabled": true,
       "startlevel": 3
     }

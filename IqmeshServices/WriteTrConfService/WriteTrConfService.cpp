@@ -1,6 +1,6 @@
 #define IWriteTrConfService_EXPORTS
 
-#include "DpaTransactionTask.h"
+//#include "DpaTransactionTask.h"
 #include "WriteTrConfService.h"
 #include "IMessagingSplitterService.h"
 #include "Trace.h"

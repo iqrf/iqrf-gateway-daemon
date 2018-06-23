@@ -17,8 +17,6 @@ source_group("Source Files" FILES ${_SRCFILES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
-include_directories(${cutils_INCLUDE_DIRS})
-#include_directories(${duktape_INCLUDE_DIR})
 
 if(WIN32)
 add_definitions(-DRAPIDJSON_HAS_STDSTRING -DDUK_USE_DATE_NOW_WINDOWS)
@@ -31,8 +29,3 @@ if(SHAPE_STATIC_LIBS)
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
-
-target_link_libraries(${PROJECT_NAME}
-	Dpa
-	${duktape_LIBRARIES}
-)

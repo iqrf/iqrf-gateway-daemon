@@ -383,7 +383,7 @@ namespace iqrf {
 
       SchedAddTaskMsg msg(reqDoc);
 
-      long taskId = m_iSchedulerService->scheduleTask(msg.getClientId(), msg.getTask(), msg.getCronTime()); //TODO point
+      int64_t taskId = m_iSchedulerService->scheduleTask(msg.getClientId(), msg.getTask(), msg.getCronTime()); //TODO point
 
       // prepare OK response
       Pointer("/data/rsp/clientId").Set(respDoc, msg.getClientId());
@@ -405,7 +405,7 @@ namespace iqrf {
 
       SchedPeriodicTaskMsg msg(reqDoc);
 
-      long taskId = m_iSchedulerService->scheduleTaskPeriodic(
+      uint64_t taskId = m_iSchedulerService->scheduleTaskPeriodic(
         msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()/1000), msg.getPoint()); //TODO point
 
       // prepare OK response
