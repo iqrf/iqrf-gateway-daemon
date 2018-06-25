@@ -24,6 +24,25 @@ namespace schemas_classes_util
       // loop via schemas
       foreach (FileInfo file in Files)
       {
+        if (file.Name.Contains("iqrfRaw"))
+        {
+          // read json schema
+          var schemaJson = File.ReadAllText(file.FullName);
+
+          // generate class
+          var schema = JsonSchema4.FromJsonAsync(schemaJson).Result;
+          var generator = new CSharpGenerator(schema);
+          var generatedFile = generator.GenerateFile();
+
+          // class name
+          string s = file.Name;
+          s = s.Replace("json", "cs");
+
+          // ...classes\iqrfRaw\*.cs
+          string destPath = Path.Combine(Directory.GetCurrentDirectory() + "\\classes\\iqrfRaw", s);
+          File.WriteAllText(destPath, generatedFile);
+        }
+
         if (file.Name.Contains("iqmeshNetwork"))
         {
           // read json schema
