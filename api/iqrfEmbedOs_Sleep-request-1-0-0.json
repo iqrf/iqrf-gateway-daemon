@@ -37,19 +37,23 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "time": {
-                            "type": "integer",
-                            "description": "Sleep time in 2.097 s or 32.768 ms units. See Control.bit.4."
-                        },
-                        "control": {
-                            "type": "integer",
-                            "description": "See DPA guide."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "time": {
+                                    "type": "integer",
+                                    "description": "Sleep time in 2.097 s or 32.768 ms units. See Control.bit.4."
+                                },
+                                "control": {
+                                    "type": "integer",
+                                    "description": "See DPA guide."
+                                }
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "time",
-                        "control"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

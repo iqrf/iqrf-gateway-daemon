@@ -53,7 +53,7 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "rData": {
+                        "pData": {
                             "type": "array",
                             "description": "Binary buffer with DPA response data.",
                             "items": {

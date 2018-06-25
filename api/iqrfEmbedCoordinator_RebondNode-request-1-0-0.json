@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedCoordinator_Rebond-request",
+        "name": "iqrfEmbedCoordinator_RebondNode-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,7 +12,7 @@
             "type": "string",
             "description": "Embedded peripheral Coordinator - Rebond request.",
             "enum": [
-                "iqrfEmbedCoordinator_Rebond"
+                "iqrfEmbedCoordinator_RebondNode"
             ]
         },
         "data": {
@@ -40,7 +40,7 @@
                         "param": {
                             "type": "object",
                             "properties": {
-                                "bondedAddr": {
+                                "bondAddr": {
                                     "type": "integer",
                                     "description": "Address of the node to be re-bonded."
                                 }

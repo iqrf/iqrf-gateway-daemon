@@ -29,13 +29,13 @@
                 "rsp": {
                     "type": "object",
                     "properties": {
-                        "response": {
+                        "rData": {
                             "type": "string",
                             "description": "Binary buffer with DPA response"
                         }
                     },
                     "required": [
-                        "response"
+                        "rData"
                     ]
                 },
                 "raw": {

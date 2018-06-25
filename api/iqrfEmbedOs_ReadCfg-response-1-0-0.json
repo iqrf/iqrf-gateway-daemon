@@ -45,34 +45,39 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "checkSum": {
-                            "type": "integer",
-                            "description": "Checksum of the Configuration part."
-                        },
-                        "cfgBytes": {
-                            "type": "array",
-                            "description": "Content the configuration memory block from address 0x01 to 0x1F.",    
-                            "items": {
-                                "type": "integer"
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "checkSum": {
+                                    "type": "integer",
+                                    "description": "Checksum of the Configuration part."
+                                },
+                                "cfgBytes": {
+                                    "type": "array",
+                                    "description": "Content the configuration memory block from address 0x01 to 0x1F.",    
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "rfPgm": {
+                                    "type": "integer",
+                                    "description":"See parameter of setupRFPGM IQRF OS function."
+                                },
+                                "undocumented": {
+                                    "type": "integer"
+                                }
                             }
                         },
-                        "rfPgm": {
-                            "type": "integer",
-                            "description":"See parameter of setupRFPGM IQRF OS function."
-                        },
-                        "undocumented": {
-                            "type": "integer"
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "checkSum",
-                        "cfgBytes",
-                        "rfPgm",
-                        "undocumented"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

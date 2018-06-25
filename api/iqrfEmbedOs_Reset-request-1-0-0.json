@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_InitReset-request",
+        "name": "iqrfEmbedOs_Reset-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -36,10 +36,15 @@
                         "hwpId": {
                             "type": "string",
                             "description": "Hardware profile identification."
+                        },
+                        "param": {
+                            "type": "object",
+                            "properties": {}
                         }
                     },
                     "required": [
-                        "nAdr"
+                        "nAdr",
+                        "param"
                     ]
                 },
                 "returnVerbose": {

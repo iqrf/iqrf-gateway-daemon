@@ -40,7 +40,7 @@
                         "param": {
                             "type": "object",
                             "properties": {
-                                "bondedAddr": {
+                                "bondAddr": {
                                     "type": "integer",
                                     "description": "Address of the node to be removed."
                                 }

@@ -45,7 +45,7 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "rData": {
+                        "pData": {
                             "type": "array",
                             "description": "Binary buffer with DPA request data.",
                             "items": {

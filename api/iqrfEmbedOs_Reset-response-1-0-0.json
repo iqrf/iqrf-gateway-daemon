@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_InitRestart-response",
+        "name": "iqrfEmbedOs_Reset-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Embedded peripheral OS - Restart response.",
+            "description": "Embedded peripheral OS - Reset response.",
             "enum": [
-                "iqrfEmbedOs_Restart"
+                "iqrfEmbedOs_Reset"
             ]
         },
         "data": {
@@ -44,6 +44,14 @@
                         "dpaVal": {
                             "type": "integer",
                             "description": "DPA value."
+                        },
+                        "result": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [

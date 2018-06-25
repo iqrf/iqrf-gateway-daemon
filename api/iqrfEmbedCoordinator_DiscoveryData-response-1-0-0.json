@@ -48,13 +48,13 @@
                         "result": {
                             "type": "object",
                             "properties": {
-                                "discData": {
+                                "discoveryData": {
                                     "type": "array",
                                     "description": "Array of bytes with discovery data.",
                                     "items": {
                                         "type": "integer"
                                     },
-                                    "maxItems": 47
+                                    "maxItems": 48
                                 }
                             }
                         },

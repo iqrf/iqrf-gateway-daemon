@@ -37,38 +37,29 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "selNodes": {
-                            "type": "array",
-                            "description": "Array if integer values corresponding to the selected nodes.",
-                            "items": {
-                                "type": "integer"
-                            }
-                        },
-                        "innerReqs": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "length": {
-                                        "type": "integer",
-                                        "description": "Length of the inner request"
-                                    },
-                                    "rawStr": {
-                                        "type": "string",
-                                        "description": "Binary buffer with DPA request"
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "selectedNodes": {
+                                    "type": "array",
+                                    "description": "Array if integer values corresponding to the selected nodes.",
+                                    "items": {
+                                        "type": "integer"
                                     }
                                 },
-                                "required": [
-                                    "length",
-                                    "rawStr"
-                                ]
+                                "requets": {
+                                    "type": "array",
+                                    "description": "Array of objects (requests).",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "selNodes",
-                        "innerReqs"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

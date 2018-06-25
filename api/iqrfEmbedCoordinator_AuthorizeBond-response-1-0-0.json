@@ -47,16 +47,7 @@
                         },
                         "result": {
                             "type": "object",
-                            "properties": {
-                                "bondAddr": {
-                                    "type": "integer",
-                                    "description": "Address of the node newly bonded to the network."
-                                },
-                                "devNr": {
-                                    "type": "integer",
-                                    "description": "Number of bonded network nodes."
-                                }
-                            }
+                            "properties": {}
                         },
                         "errorStr": {
                             "type": "string",

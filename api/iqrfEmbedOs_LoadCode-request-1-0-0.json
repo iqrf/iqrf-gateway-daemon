@@ -37,29 +37,31 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "flags": {
-                            "type": "integer",
-                            "description": "Action flags."
-                        },
-                        "address": {
-                            "type": "integer",
-                            "description": "A physical address at external EEPROM memory to load the code image from."
-                        },
-                        "length": {
-                            "type": "integer",
-                            "description": "Length of the code image in bytes at the external EEPROM."
-                        },
-                        "checkSum": {
-                            "type": "integer",
-                            "description":"One’s complement Fletcher-16 checksum of the code image."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "flags": {
+                                    "type": "integer",
+                                    "description": "Action flags."
+                                },
+                                "address": {
+                                    "type": "integer",
+                                    "description": "A physical address at external EEPROM memory to load the code image from."
+                                },
+                                "length": {
+                                    "type": "integer",
+                                    "description": "Length of the code image in bytes at the external EEPROM."
+                                },
+                                "checkSum": {
+                                    "type": "integer",
+                                    "description":"One’s complement Fletcher-16 checksum of the code image."
+                                }
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "flags",
-                        "address",
-                        "length",
-                        "checkSum"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

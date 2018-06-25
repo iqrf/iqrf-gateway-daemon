@@ -37,22 +37,26 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "readTimeout": {
-                            "type": "integer",
-                            "description": "Specifies timeout in 10 ms unit to wait for data to be read after data is (optionally) written."
-                        },
-                        "writtenData": {
-                            "type": "array",
-                            "description": "Optional data to be written.",    
-                            "items": {
-                                "type": "integer"
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "readTimeout": {
+                                    "type": "integer",
+                                    "description": "Specifies timeout in 10 ms unit to wait for data to be read after data is (optionally) written."
+                                },
+                                "writtenData": {
+                                    "type": "array",
+                                    "description": "Optional data to be written.",    
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "readTimeout",
-                        "writtenData"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

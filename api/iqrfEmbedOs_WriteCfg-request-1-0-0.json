@@ -37,27 +37,30 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "checkSum": {
-                            "type": "integer",
-                            "description": "Checksum of the Configuration part."
-                        },
-                        "cfgBytes": {
-                            "type": "array",
-                            "description": "Content the configuration memory block from address 0x01 to 0x1F.",    
-                            "items": {
-                                "type": "integer"
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "checkSum": {
+                                    "type": "integer",
+                                    "description": "Checksum of the Configuration part."
+                                },
+                                "cfgBytes": {
+                                    "type": "array",
+                                    "description": "Content the configuration memory block from address 0x01 to 0x1F.",    
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "rfPgm": {
+                                    "type": "integer",
+                                    "description":"See parameter of setupRFPGM IQRF OS function."
+                                }
                             }
-                        },
-                        "rfPgm": {
-                            "type": "integer",
-                            "description":"See parameter of setupRFPGM IQRF OS function."
                         }
                     },
                     "required": [
                         "nAdr",
-                        "checkSum",
-                        "cfgBytes",
-                        "rfPgm"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

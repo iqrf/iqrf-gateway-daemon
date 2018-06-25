@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_InitReset-response",
+        "name": "iqrfEmbedCoordinator_RebondNode-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Embedded peripheral OS - Reset response.",
+            "description": "Embedded peripheral Coordinator - Rebond request.",
             "enum": [
-                "iqrfEmbedOs_Reset"
+                "iqrfEmbedCoordinator_RebondNode"
             ]
         },
         "data": {
@@ -44,6 +44,19 @@
                         "dpaVal": {
                             "type": "integer",
                             "description": "DPA value."
+                        },
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "devNr": {
+                                    "type": "integer",
+                                    "description": "Number of bonded nodes."
+                                }
+                            }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [

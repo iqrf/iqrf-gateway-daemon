@@ -50,11 +50,10 @@
                             "properties": {
                                 "bondedDevices": {
                                     "type": "array",
-                                    "description": "Bit array indicating discovered nodes (addresses). Address 0 at bit0 of PData0, Address 1 at bit1 of PData0 etc.",
+                                    "description": "Values corresponding to the addresses of the bonded devices",
                                     "items": {
                                         "type": "integer"
-                                    },
-                                    "maxItems": 31
+                                    }
                                 }        
                             }
                         },

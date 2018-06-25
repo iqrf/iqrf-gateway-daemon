@@ -45,52 +45,53 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "mid": {
-                            "type": "integer",
-                            "description": "TR Module ID."
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "mid": {
+                                    "type": "integer",
+                                    "description": "TR Module ID."
+                                },
+                                "osVersion": {
+                                    "type": "integer",
+                                    "description": "IQRF OS version."
+                                },
+                                "trMcuType": {
+                                    "type": "integer",
+                                    "description": "TR MCU type."
+                                },
+                                "osBuild": {
+                                    "type": "integer",
+                                    "description": "IQRF OS build."
+                                },
+                                "rssi": {
+                                    "type": "integer",
+                                    "description": "See lastRSSI at IQRF OS Reference Guide."
+                                },
+                                "supplyVoltage": {
+                                    "type": "integer",
+                                    "description": "Module supply voltage, contains real voltage value."
+                                },
+                                "flags": {
+                                    "type": "integer",
+                                    "description": "See DPA guide."
+                                },
+                                "slotLimits": {
+                                    "type": "integer",
+                                    "description": "See DPA guide."
+                                }
+                            }
                         },
-                        "osVersion": {
-                            "type": "integer",
-                            "description": "IQRF OS version."
-                        },
-                        "trMcuType": {
-                            "type": "integer",
-                            "description": "TR MCU type."
-                        },
-                        "osBuild": {
-                            "type": "integer",
-                            "description": "IQRF OS build."
-                        },
-                        "rssi": {
-                            "type": "integer",
-                            "description": "See lastRSSI at IQRF OS Reference Guide."
-                        },
-                        "supplyVoltage": {
-                            "type": "integer",
-                            "description": "Module supply voltage, contains real voltage value."
-                        },
-                        "flags": {
-                            "type": "integer",
-                            "description": "See DPA guide."
-                        },
-                        "slotLimits": {
-                            "type": "integer",
-                            "description": "See DPA guide."
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "mid",
-                        "osVersion",
-                        "trMcuType",
-                        "osBuild",
-                        "rssi",
-                        "supplyVoltage",
-                        "flags",
-                        "slotLimits"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

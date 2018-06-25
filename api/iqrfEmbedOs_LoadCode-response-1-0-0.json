@@ -46,16 +46,24 @@
                             "description": "DPA value."
                         },
                         "result": {
-                            "type": "integer",
-                            "description": "The checksum matches a checksum of a code at the external EEPROM."
+                            "type": "object",
+                            "properties": {
+                                "loadingCode": {
+                                    "type": "integer",
+                                    "description": "Loading code result value."
+                                }
+                            }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "result"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

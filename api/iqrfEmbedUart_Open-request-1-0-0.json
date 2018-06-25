@@ -37,14 +37,19 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "baudrateStr": {
-                            "type": "string",
-                            "description": "UART is opened with this baudrate."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "baudRate": {
+                                    "type": "integer",
+                                    "description": "UART is opened with this baudrate."
+                                }
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "baudrateStr"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

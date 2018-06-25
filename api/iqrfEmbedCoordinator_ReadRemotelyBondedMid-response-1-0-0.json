@@ -63,7 +63,7 @@
                                                 "items": {
                                                     "type": "integer"
                                                 },
-                                                "maxItems": 3,
+                                                "maxItems": 4,
                                                 "description": "Optional bonding user data specified at Reset Custom DPA Handler event."
                                             }
                                         },
@@ -72,7 +72,7 @@
                                             "userData"
                                         ]
                                     },
-                                    "maxItems": 7
+                                    "maxItems": 8
                                 }
                             }
                         },

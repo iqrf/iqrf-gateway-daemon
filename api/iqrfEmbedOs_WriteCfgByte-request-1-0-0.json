@@ -37,35 +37,40 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "bytes": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "address": {
-                                        "type": "integer",
-                                        "description": "Address of the item at configuration memory block."
-                                    },
-                                    "value": {
-                                        "type": "integer",
-                                        "description": "Value of the configuration item to write."
-                                    },
-                                    "mask": {
-                                        "type": "integer",
-                                        "description": "Specifies bits of the configuration byte to be modified by the corresponding bits of the Value parameter."
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "cfgBytes": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "address": {
+                                                "type": "integer",
+                                                "description": "Address of the item at configuration memory block."
+                                            },
+                                            "value": {
+                                                "type": "integer",
+                                                "description": "Value of the configuration item to write."
+                                            },
+                                            "mask": {
+                                                "type": "integer",
+                                                "description": "Specifies bits of the configuration byte to be modified by the corresponding bits of the Value parameter."
+                                            }
+                                        },
+                                        "required": [
+                                            "address",
+                                            "value",
+                                            "mask"
+                                        ]
                                     }
-                                },
-                                "required": [
-                                    "address",
-                                    "value",
-                                    "mask"
-                                ]
+                                }
                             }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "bytes"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

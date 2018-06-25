@@ -37,30 +37,22 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "innerReqs": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "length": {
-                                        "type": "integer",
-                                        "description": "Length of the inner request"
-                                    },
-                                    "rawStr": {
-                                        "type": "string",
-                                        "description": "Binary buffer with DPA request"
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "requests": {
+                                    "type": "array",
+                                    "description": "Array of objects (requests).",
+                                    "items": {
+                                        "type": "integer"
                                     }
-                                },
-                                "required": [
-                                    "length",
-                                    "rawStr"
-                                ]
+                                }
                             }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "innerReqs"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

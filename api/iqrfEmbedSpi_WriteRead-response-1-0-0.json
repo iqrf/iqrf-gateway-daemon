@@ -45,20 +45,28 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "readData": {
-                            "type": "array",
-                            "description": "Optional data to be written.",    
-                            "items": {
-                                "type": "integer"
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "readData": {
+                                    "type": "array",
+                                    "description": "Optional data to be written.",    
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
                         }
                     },
                     "required": [
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "readData"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

@@ -45,8 +45,8 @@
                                     "description": "See IQRF OS User's and Reference guides (remote bonding, function bondNewNode)."
                                 },
                                 "control": {
-                                    "type": "boolean",
-                                    "description": "Enables remote bonding mode. If enabled then previously bonded nodes are forgotten."
+                                    "type": "integer",
+                                    "description": "Bit 0 enables remote bonding mode. If enabled then previously bonded nodes are forgotten. Bit 1-7 reserved"
                                 },
                                 "userData": {
                                     "type": "array",
@@ -54,7 +54,7 @@
                                     "items": {
                                         "type": "integer"
                                     },
-                                    "maxItems": 3
+                                    "maxItems": 4
                                 }
                             }
 						}

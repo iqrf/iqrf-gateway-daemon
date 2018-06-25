@@ -37,23 +37,27 @@
                             "type": "integer",
                             "description": "Hardware profile identification."
                         },
-                        "type": {
-                            "type": "integer",
-                            "description": "Sets access password or user key stored at data."
-                        },
-                        "data": {
-                            "type": "array",
-                            "description": "Hardware profile identification.",
-                            "items": {
-                                "type": "integer"
-                            },
-                            "maxItems": 15
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "integer",
+                                    "description": "Sets access password or user key stored at data."
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "description": "Access password or user key.",
+                                    "items": {
+                                        "type": "integer"
+                                    },
+                                    "maxItems": 16
+                                }
+                            }
                         }
                     },
                     "required": [
                         "nAdr",
-                        "type",
-                        "data"
+                        "param"
                     ]
                 },
                 "returnVerbose": {

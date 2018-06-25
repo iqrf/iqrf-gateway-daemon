@@ -29,13 +29,13 @@
                 "req": {
                     "type": "object",
                     "properties": {
-                        "request": {
+                        "rData": {
                             "type": "string",
                             "description": "Binary buffer with DPA request"
                         }
                     },
                     "required": [
-                        "request"
+                        "rData"
                     ]
                 },
                 "returnVerbose": {

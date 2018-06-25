@@ -48,14 +48,14 @@
                         "result": {
                             "type": "object",
                             "properties": {
-                                "netData": {
+                                "networkData": {
                                     "type": "array",
                                     "description": "One block of the coordinator network info data.",
                                     "items": {
                                         "type": "integer"
                                     },
-                                    "maxItems": 48
-                                }        
+                                    "maxItems": 49
+                                }
                             }
                         },
                         "errorStr": {
