@@ -1,0 +1,17 @@
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\schemas-classes-util.exe.config
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\obj\Debug\schemas-classes-util.csprojResolveAssemblyReference.cache
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\schemas-classes-util.exe
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\schemas-classes-util.pdb
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\DotLiquid.dll
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\Newtonsoft.Json.dll
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.CodeGeneration.CSharp.dll
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.CodeGeneration.dll
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.dll
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\DotLiquid.xml
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\Newtonsoft.Json.xml
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.xml
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.CodeGeneration.xml
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.CodeGeneration.CSharp.xml
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\it\DotLiquid.resources.dll
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\obj\Debug\schemas-classes-util.exe
+c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\obj\Debug\schemas-classes-util.pdb
