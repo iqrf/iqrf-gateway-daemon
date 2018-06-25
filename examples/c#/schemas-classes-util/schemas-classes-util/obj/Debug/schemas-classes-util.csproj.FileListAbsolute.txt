@@ -15,3 +15,20 @@ c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas
 c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\bin\Debug\it\DotLiquid.resources.dll
 c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\obj\Debug\schemas-classes-util.exe
 c:\users\e520\documents\visual studio 2015\Projects\schemas-classes-util\schemas-classes-util\obj\Debug\schemas-classes-util.pdb
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\schemas-classes-util.exe.config
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\obj\Debug\schemas-classes-util.exe
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\obj\Debug\schemas-classes-util.pdb
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\schemas-classes-util.exe
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\schemas-classes-util.pdb
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\DotLiquid.dll
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\Newtonsoft.Json.dll
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.CodeGeneration.CSharp.dll
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.CodeGeneration.dll
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.dll
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\DotLiquid.xml
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\Newtonsoft.Json.xml
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.xml
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.CodeGeneration.xml
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\NJsonSchema.CodeGeneration.CSharp.xml
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\bin\Debug\it\DotLiquid.resources.dll
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\schemas-classes-util\schemas-classes-util\obj\Debug\schemas-classes-util.csprojResolveAssemblyReference.cache

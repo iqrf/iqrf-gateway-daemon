@@ -14,7 +14,7 @@ namespace schemas_classes_util
     static void Main(string[] args)
     {
       // json schemas
-      DirectoryInfo d = new DirectoryInfo(@"..\..\api");
+      DirectoryInfo d = new DirectoryInfo(@"..\\..\\..\\..\\..\\..\\api");
       FileInfo[] Files = d.GetFiles("*.json*");
 
       foreach (FileInfo file in Files)
