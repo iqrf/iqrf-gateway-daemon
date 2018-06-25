@@ -4,13 +4,21 @@
 // </auto-generated>
 //----------------------
 
-namespace MyNamespace
+namespace iqrfRawHdp_Request
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Anonymous : System.ComponentModel.INotifyPropertyChanged
+    public partial class iqrfRawHdp_Request : System.ComponentModel.INotifyPropertyChanged
     {
+        public IqrfRawHdp_Request ( string msgId, int timeout, Req req, bool verbose )
+        {
+            this.Data.MsgId = msgId;
+            this.Data.Timeout = timeout;
+            this.Data.Req = req;
+            this.Data.ReturnVerbose = verbose;
+        }
+
         private MType _mType;
         private Data _data = new Data();
     
@@ -51,9 +59,9 @@ namespace MyNamespace
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static Anonymous FromJson(string data)
+        public static iqrfRawHdp_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Anonymous>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<iqrfRawHdp_Request>(data);
         }
     
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;

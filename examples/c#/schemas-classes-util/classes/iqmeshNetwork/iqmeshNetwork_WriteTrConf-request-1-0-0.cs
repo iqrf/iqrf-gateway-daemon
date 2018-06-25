@@ -4,13 +4,21 @@
 // </auto-generated>
 //----------------------
 
-namespace MyNamespace
+namespace iqmeshNetwork_WriteTrConf_Request
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Anonymous : System.ComponentModel.INotifyPropertyChanged
+    public partial class iqmeshNetwork_SmartConnect_Response : System.ComponentModel.INotifyPropertyChanged
     {
+        public IqmeshNetwork_WriteTrConf_Request ( string msgId, int repeat, Req req, bool verbose )
+        {
+            this.Data.MsgId = msgId;
+            this.Data.Req = req;
+            this.Data.Repeat = repeat;
+            this.Data.ReturnVerbose = verbose;
+        }
+
         private MType _mType;
         private Data _data = new Data();
     
@@ -51,9 +59,9 @@ namespace MyNamespace
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static Anonymous FromJson(string data)
+        public static iqmeshNetwork_SmartConnect_Response FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Anonymous>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<iqmeshNetwork_SmartConnect_Response>(data);
         }
     
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;

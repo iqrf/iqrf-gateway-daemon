@@ -4,13 +4,21 @@
 // </auto-generated>
 //----------------------
 
-namespace MyNamespace
+namespace iqmeshNetwork_ReadTrConf_Request
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Anonymous : System.ComponentModel.INotifyPropertyChanged
+    public partial class iqmeshNetwork_ReadTrConf_Request : System.ComponentModel.INotifyPropertyChanged
     {
+        public IqmeshNetwork_ReadTrConf_Request ( string msgId, System.Collections.ObjectModel.ObservableCollection<int> deviceAddr, int repeat, bool verbose )
+        {
+            this.Data.MsgId = msgId;
+            this.Data.Repeat = repeat;
+            this.Data.Req.DeviceAddr = deviceAddr;
+            this.Data.ReturnVerbose = verbose;
+        }
+
         private MType _mType;
         private Data _data = new Data();
     
@@ -51,9 +59,9 @@ namespace MyNamespace
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static Anonymous FromJson(string data)
+        public static iqmeshNetwork_ReadTrConf_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Anonymous>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<iqmeshNetwork_ReadTrConf_Request>(data);
         }
     
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
