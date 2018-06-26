@@ -10,7 +10,7 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Scheduler management - Add Task response.",
+            "description": "Scheduler management - Get Task response.",
             "enum": [
                 "mngSched_GetTask"
             ]
@@ -57,7 +57,7 @@
 									"description": "Exact time of start."
 								}
 							}
-                        }
+                        },
                         "task": {
                             "type": "object",
                             "description": "Task."

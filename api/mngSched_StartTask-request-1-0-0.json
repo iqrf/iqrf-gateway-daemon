@@ -10,7 +10,7 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Scheduler management - Get Task request.",
+            "description": "Scheduler management - Start Task request.",
             "enum": [
                 "mngSched_StartTask"
             ]

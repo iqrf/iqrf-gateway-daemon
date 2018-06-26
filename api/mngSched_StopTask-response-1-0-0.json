@@ -10,7 +10,7 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Scheduler management - Add Task response.",
+            "description": "Scheduler management - Stop Task response.",
             "enum": [
                 "mngSched_StopTask"
             ]
