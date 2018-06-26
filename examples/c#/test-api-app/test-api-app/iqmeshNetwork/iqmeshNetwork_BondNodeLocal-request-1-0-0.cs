@@ -9,9 +9,9 @@ namespace iqmeshNetwork_BondNodeLocal_Request
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class iqmeshNetwork_BondNodeLocal_Request : System.ComponentModel.INotifyPropertyChanged
+    public partial class IqmeshNetwork_BondNodeLocal_Request : System.ComponentModel.INotifyPropertyChanged
     {
-        public IqmeshNetwork_BondNodeLocal_Request ( string msgId, int deviceAddr, int repeat, bool verbose )
+        public IqmeshNetwork_BondNodeLocal_Request( string msgId, int deviceAddr, int repeat, bool verbose )
         {
             this.Data.MsgId = msgId;
             this.Data.Req.DeviceAddr = deviceAddr;
@@ -59,9 +59,9 @@ namespace iqmeshNetwork_BondNodeLocal_Request
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static iqmeshNetwork_BondNodeLocal_Request FromJson(string data)
+        public static IqmeshNetwork_BondNodeLocal_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<iqmeshNetwork_BondNodeLocal_Request>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_BondNodeLocal_Request>(data);
         }
     
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;

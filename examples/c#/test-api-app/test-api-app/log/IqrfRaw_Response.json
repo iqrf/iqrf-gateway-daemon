@@ -1,0 +1,21 @@
+{
+    "mType": "iqrfRaw",
+    "data": {
+        "msgId": "48479ecc-7b5e-4f74-8c05-3731b06fe261",
+        "timeout": 1000,
+        "rsp": {
+            "rData": "00.00.06.83.00.00.00.00"
+        },
+        "raw": {
+            "request": "00.00.06.03.ff.ff",
+            "requestTs": "2018-06-26T10:48:34.798020",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.06.83.00.00.00.00",
+            "responseTs": "2018-06-26T10:48:34.829766"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

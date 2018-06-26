@@ -9,7 +9,7 @@ namespace iqmeshNetwork_WriteTrConf_Request
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class iqmeshNetwork_SmartConnect_Response : System.ComponentModel.INotifyPropertyChanged
+    public partial class IqmeshNetwork_WriteTrConf_Request : System.ComponentModel.INotifyPropertyChanged
     {
         public IqmeshNetwork_WriteTrConf_Request ( string msgId, int repeat, Req req, bool verbose )
         {
@@ -59,9 +59,9 @@ namespace iqmeshNetwork_WriteTrConf_Request
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static iqmeshNetwork_SmartConnect_Response FromJson(string data)
+        public static IqmeshNetwork_WriteTrConf_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<iqmeshNetwork_SmartConnect_Response>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_WriteTrConf_Request>(data);
         }
     
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;

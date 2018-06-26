@@ -9,7 +9,7 @@ namespace iqrfRawHdp_Request
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class iqrfRawHdp_Request : System.ComponentModel.INotifyPropertyChanged
+    public partial class IqrfRawHdp_Request : System.ComponentModel.INotifyPropertyChanged
     {
         public IqrfRawHdp_Request ( string msgId, int timeout, Req req, bool verbose )
         {
@@ -59,9 +59,9 @@ namespace iqrfRawHdp_Request
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static iqrfRawHdp_Request FromJson(string data)
+        public static IqrfRawHdp_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<iqrfRawHdp_Request>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfRawHdp_Request>(data);
         }
     
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;

@@ -9,7 +9,7 @@ namespace iqmeshNetwork_ReadTrConf_Response
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class iqmeshNetwork_ReadTrConf_Response : System.ComponentModel.INotifyPropertyChanged
+    public partial class IqmeshNetwork_ReadTrConf_Response : System.ComponentModel.INotifyPropertyChanged
     {
         private MType _mType;
         private Data _data = new Data();
@@ -51,9 +51,9 @@ namespace iqmeshNetwork_ReadTrConf_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static iqmeshNetwork_ReadTrConf_Response FromJson(string data)
+        public static IqmeshNetwork_ReadTrConf_Response FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<iqmeshNetwork_ReadTrConf_Response>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_ReadTrConf_Response>(data);
         }
     
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;

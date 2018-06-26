@@ -9,7 +9,7 @@ namespace iqrfRaw_Response
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class iqrfRaw_Response : System.ComponentModel.INotifyPropertyChanged
+    public partial class IqrfRaw_Response : System.ComponentModel.INotifyPropertyChanged
     {
 
 
@@ -53,9 +53,9 @@ namespace iqrfRaw_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static iqrfRaw_Response FromJson(string data)
+        public static IqrfRaw_Response FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<iqrfRaw_Response>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfRaw_Response>(data);
         }
     
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;

@@ -9,7 +9,7 @@ namespace iqmeshNetwork_OtaUpload_Request
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class iqmeshNetwork_OtaUpload_Request : System.ComponentModel.INotifyPropertyChanged
+    public partial class IqmeshNetwork_OtaUpload_Request : System.ComponentModel.INotifyPropertyChanged
     {
         public IqmeshNetwork_OtaUpload_Request ( string msgId, int repeat, Req req, bool verbose )
         {
@@ -59,9 +59,9 @@ namespace iqmeshNetwork_OtaUpload_Request
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static iqmeshNetwork_OtaUpload_Request FromJson(string data)
+        public static IqmeshNetwork_OtaUpload_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<iqmeshNetwork_OtaUpload_Request>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_OtaUpload_Request>(data);
         }
     
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;

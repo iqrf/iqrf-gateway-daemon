@@ -25,14 +25,14 @@
   using iqrfRawHdp_Response;
 
   // IqMeshNetwork APIs
-  using iqMeshNetwork_BondNodeLocal_Request;
-  using iqMeshNetwork_BondNodeLocal_Response;
+  using iqmeshNetwork_BondNodeLocal_Request;
+  using iqmeshNetwork_BondNodeLocal_Response;
   using iqmeshNetwork_EnumerateDevice_Request;
   using iqmeshNetwork_EnumerateDevice_Response;
   using iqmeshNetwork_OtaUpload_Request;
   using iqmeshNetwork_OtaUpload_Response;
-  using iqMeshNetwork_ReadTrConf_Request;
-  using iqMeshNetwork_ReadTrConf_Response;
+  using iqmeshNetwork_ReadTrConf_Request;
+  using iqmeshNetwork_ReadTrConf_Response;
   using iqmeshNetwork_SmartConnect_Request;
   using iqmeshNetwork_SmartConnect_Response;
   using iqmeshNetwork_WriteTrConf_Request;
@@ -80,7 +80,7 @@
     /// <summary>
     /// Enter your IQRF GW Daemon (running MQTT broker) address/name
     /// </summary>
-    const string IqrfGwDaemon = "192.168.2.103";
+    const string IqrfGwDaemon = "192.168.1.105";
     //const string IqrfGwDaemon = "10.11.12.54";
 
     /// <summary>
@@ -133,13 +133,13 @@
             mqttPublishEvent.Set();
         };
 
-        IqrfRaw_Request request = new IqrfRaw_Request( "test", "00.00.06.03.FF.FF", true );
+        //IqrfRaw_Request request = new IqrfRaw_Request( "test", 1000, "00.00.06.03.FF.FF", true );
         //IqrfRawHdp_Request request = new IqrfRawHdp_Request( "test", new iqrfRawHdp_Request.Req( 0, 6, 3, 65535, new System.Collections.ObjectModel.ObservableCollection<int> { } ), 1000, true );
 
-        //IqMeshNetwork_BondNodeLocal_Request request = new IqMeshNetwork_BondNodeLocal_Request( "test", 5, 1, true );
+        //IqmeshNetwork_BondNodeLocal_Request request = new IqmeshNetwork_BondNodeLocal_Request( "test", 5, 1, true );
         //IqmeshNetwork_EnumerateDevice_Request request = new IqmeshNetwork_EnumerateDevice_Request( "test", 0, 1, true );
         //IqmeshNetwork_OtaUpload_Request request = new IqmeshNetwork_OtaUpload_Request( "test", new iqmeshNetwork_OtaUpload_Request.Req( new System.Collections.ObjectModel.ObservableCollection<int> { 0 }, "test.hex", 0, "WithoutCodeLoading" ), 1, true );
-        //IqMeshNetwork_ReadTrConf_Request request = new IqMeshNetwork_ReadTrConf_Request( "test", new System.Collections.ObjectModel.ObservableCollection<int> { 0 }, 1, true );
+        IqmeshNetwork_ReadTrConf_Request request = new IqmeshNetwork_ReadTrConf_Request( "test", new System.Collections.ObjectModel.ObservableCollection<int> { 0 }, 1, true );
         //IqmeshNetwork_SmartConnect_Request request = new IqmeshNetwork_SmartConnect_Request( "test", new iqmeshNetwork_SmartConnect_Request.Req( 1, "0123456789abcdef", 1, new System.Collections.ObjectModel.ObservableCollection<int> { 11, 22, 33, 44 } ), 1000, true );
         //IqmeshNetwork_WriteTrConf_Request request = new IqmeshNetwork_WriteTrConf_Request( "test", new iqmeshNetwork_WriteTrConf_Request.Req(), 1000, true );
 
@@ -172,18 +172,18 @@
         
         // Write request to file
         string req = ( (object)request ).JsonSerialize();
-        System.IO.File.WriteAllText( @"..\..\Log\" + request.MType.ToString() + "_Request.json", request.JsonSerialize() );
+        System.IO.File.WriteAllText( @"..\..\log\" + request.MType.ToString() + "_Request.json", request.JsonSerialize() );
         
         // Send request 
         dynamic dResponse = GetMqttResponse( request );
         
-        IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr );
+        //IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr );
         //IqrfRawHdp_Response response = IqrfRawHdp_Response.FromJson( responseStr );
 
-        //IqMeshNetwork_BondNodeLocal_Response response = IqMeshNetwork_BondNodeLocal_Response.FromJson( responseStr );
+        //IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson( responseStr );
         //IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson( responseStr );
         //IqmeshNetwork_OtaUpload_Response response = IqmeshNetwork_OtaUpload_Response.FromJson( responseStr );
-        //IqMeshNetwork_ReadTrConf_Response response = IqMeshNetwork_ReadTrConf_Response.FromJson( responseStr );
+        IqmeshNetwork_ReadTrConf_Response response = IqmeshNetwork_ReadTrConf_Response.FromJson( responseStr );
         //IqmeshNetwork_SmartConnect_Response response = IqmeshNetwork_SmartConnect_Response.FromJson( responseStr );
         //IqmeshNetwork_WriteTrConf_Response response = IqmeshNetwork_WriteTrConf_Response.FromJson( responseStr );
 

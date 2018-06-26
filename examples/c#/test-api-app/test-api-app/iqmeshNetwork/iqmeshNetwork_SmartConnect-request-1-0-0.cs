@@ -9,7 +9,7 @@ namespace iqmeshNetwork_SmartConnect_Request
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class iqmeshNetwork_SmartConnect_Request : System.ComponentModel.INotifyPropertyChanged
+    public partial class IqmeshNetwork_SmartConnect_Request : System.ComponentModel.INotifyPropertyChanged
     {
         public IqmeshNetwork_SmartConnect_Request ( string msgId, Req req, int repeat, bool verbose )
         {
@@ -59,9 +59,9 @@ namespace iqmeshNetwork_SmartConnect_Request
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static iqmeshNetwork_SmartConnect_Request FromJson(string data)
+        public static IqmeshNetwork_SmartConnect_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<iqmeshNetwork_SmartConnect_Request>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_SmartConnect_Request>(data);
         }
     
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
