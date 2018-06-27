@@ -96,28 +96,28 @@
       "libraryPath": "",
       "libraryName": "MqMessaging",
       "enabled": true,
-      "startlevel": 0
+      "startlevel": 10
     },
     {
       "name": "iqrf::MqttMessaging",
       "libraryPath": "",
       "libraryName": "MqttMessaging",
       "enabled": true,
-      "startlevel": 0
+      "startlevel": 10
     },
     {
       "name": "iqrf::WebsocketMessaging",
       "libraryPath": "",
       "libraryName": "WebsocketMessaging",
       "enabled": true,
-      "startlevel": 0
+      "startlevel": 10
     },
     {
       "name": "iqrf::UdpMessaging",
       "libraryPath": "",
       "libraryName": "UdpMessaging",
       "enabled": true,
-      "startlevel": 0
+      "startlevel": 10
     },
     {
       "name": "iqrf::Ide4Counterpart",
@@ -138,7 +138,7 @@
       "libraryPath": "",
       "libraryName": "SchedulerMessaging",
       "enabled": true,
-      "startlevel": 2
+      "startlevel": 10
     },
     {
       "name": "iqrf::JsonDpaApiRaw",
