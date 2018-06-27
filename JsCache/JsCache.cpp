@@ -516,7 +516,7 @@ namespace iqrf {
 
     ServerState getCacheServer()
     {
-      TRC_FUNCTION_LEAVE("");
+      TRC_FUNCTION_ENTER("");
 
       using namespace rapidjson;
       using namespace boost;
@@ -556,7 +556,7 @@ namespace iqrf {
 
     bool checkCache()
     {
-      TRC_FUNCTION_LEAVE("");
+      TRC_FUNCTION_ENTER("");
 
       using namespace rapidjson;
       using namespace boost;
@@ -589,7 +589,7 @@ namespace iqrf {
 
     void updateCacheServer()
     {
-      TRC_FUNCTION_LEAVE("");
+      TRC_FUNCTION_ENTER("");
 
       using namespace rapidjson;
       using namespace boost;
