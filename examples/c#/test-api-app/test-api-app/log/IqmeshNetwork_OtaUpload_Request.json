@@ -1,0 +1,16 @@
+{
+  "mType": "iqmeshNetwork_OtaUpload",
+  "data": {
+    "msgId": "4ece7710-d28a-4fc4-8feb-8f99a1781905",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": [
+        0
+      ],
+      "fileName": "CustomDpaHandler-LED-Green-On-7xD-V302-171116.hex",
+      "startMemAddr": 0,
+      "loadingAction": "WithoutCodeLoading"
+    },
+    "returnVerbose": true
+  }
+}

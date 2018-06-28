@@ -17,3 +17,5 @@ C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\test-ap
 C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\test-api-app\test-api-app\obj\Debug\test-api-app.csprojResolveAssemblyReference.cache
 C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\test-api-app\test-api-app\obj\Debug\test-api-app.exe
 C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\test-api-app\test-api-app\obj\Debug\test-api-app.pdb
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\test-api-app\test-api-app\bin\Debug\websocket-sharp.dll
+C:\Users\E520\Desktop\SDK\GITHUB\IQRFSDK\iqrf-gateway-daemon\examples\c#\test-api-app\test-api-app\bin\Debug\websocket-sharp.xml

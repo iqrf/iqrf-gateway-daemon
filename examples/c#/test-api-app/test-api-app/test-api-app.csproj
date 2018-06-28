@@ -61,60 +61,28 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="websocket-sharp, Version=1.0.1.0, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSocketSharp-netstandard.1.0.1\lib\net45\websocket-sharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_AddrInfo-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_AddrInfo-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_AuthorizeBond-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_AuthorizeBond-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_Backup-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_Backup-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_BondedDevices-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_BondedDevices-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_BondNode-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_BondNode-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_ClearAllBonds-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_ClearAllBonds-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_ClearRemotelyBondedMid-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_ClearRemotelyBondedMid-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_DiscoveredDevices-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_DiscoveredDevices-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_Discovery-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_Discovery-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_DiscoveryData-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_DiscoveryData-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_EnableRemoteBonding-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_EnableRemoteBonding-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_ReadRemotelyBondedMid-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_ReadRemotelyBondedMid-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_Rebond-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_Rebond-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_RemoveBond-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_RemoveBond-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_Restore-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_Restore-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_SetDpaParams-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_SetDpaParams-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_SetHops-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_SetHops-response-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_SmartConnect-request-1-0-0.cs" />
-    <Compile Include="iqrfEmbedCoordinator\iqrfEmbedCoordinator_SmartConnect-response-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_BondNodeLocal-request-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_BondNodeLocal-response-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_EnumerateDevice-request-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_EnumerateDevice-response-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_OtaUpload-request-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_OtaUpload-response-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_ReadTrConf-request-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_ReadTrConf-response-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_SmartConnect-request-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_SmartConnect-response-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_WriteTrConf-request-1-0-0.cs" />
-    <Compile Include="iqmeshNetwork\iqmeshNetwork_WriteTrConf-response-1-0-0.cs" />
-    <Compile Include="iqrfRaw\iqrfRaw-request-1-0-0.cs" />
-    <Compile Include="iqrfRaw\iqrfRaw-response-1-0-0.cs" />
-    <Compile Include="iqrfRaw\iqrfRawHdp-request-1-0-0.cs" />
-    <Compile Include="iqrfRaw\iqrfRawHdp-response-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_BondNodeLocal-request-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_BondNodeLocal-response-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_EnumerateDevice-request-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_EnumerateDevice-response-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_OtaUpload-request-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_OtaUpload-response-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_ReadTrConf-request-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_ReadTrConf-response-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_SmartConnect-request-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_SmartConnect-response-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_WriteTrConf-request-1-0-0.cs" />
+    <Compile Include="api\iqmeshNetwork\iqmeshNetwork_WriteTrConf-response-1-0-0.cs" />
+    <Compile Include="api\iqrfRawHdp\iqrfRawHdp-request-1-0-0.cs" />
+    <Compile Include="api\iqrfRawHdp\iqrfRawHdp-response-1-0-0.cs" />
+    <Compile Include="api\iqrfRaw\iqrfRaw-request-1-0-0.cs" />
+    <Compile Include="api\iqrfRaw\iqrfRaw-response-1-0-0.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
