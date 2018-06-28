@@ -20,14 +20,6 @@
 
 #include "iqrf__IqrfSpi.hxx"
 
-// for upload functionality
-#ifndef WIN32
-#include <unistd.h>
-#define SLEEP(ms) usleep(1000*ms)
-#else
-#include "Windows.h"
-#define SLEEP(ms) Sleep(ms)
-#endif
 
 TRC_INIT_MODULE(iqrf::IqrfSpi);
 
@@ -124,14 +116,17 @@ namespace iqrf {
     }
 
     bool enterProgrammingState() {
+      TRC_FUNCTION_ENTER("");
       TRC_INFORMATION("Entering programming mode.");
 
       int progModeEnterRes = spi_iqrf_pe();
       if (progModeEnterRes != BASE_TYPES_OPER_OK) {
-        TRC_ERROR("Entering programming mode failed: " << PAR(progModeEnterRes));
+        TRC_WARNING("Entering programming mode failed: " << PAR(progModeEnterRes));
+        TRC_FUNCTION_LEAVE("");
         return false;
       }
 
+      TRC_FUNCTION_LEAVE("");
       return true;
     }
 
@@ -157,7 +152,7 @@ namespace iqrf {
           return spiStatus;
         }
 
-        SLEEP(10);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         elapsedTime += 10;
 
         // getting slave status
@@ -191,12 +186,15 @@ namespace iqrf {
       const std::basic_string<uint8_t>& data
     )
     {
+      TRC_FUNCTION_ENTER("");
+      
       // wait for TR module is ready
       spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(2000);
 
       // if SPI not ready in 2000 ms, end
       if (spiStatus.dataNotReadyStatus != SPI_IQRF_SPI_READY_PROG) {
-        TRC_ERROR("Waiting for ready state failed." << NAME_PAR_HEX(SPI status, spiStatus.dataNotReadyStatus));
+        TRC_WARNING("Waiting for ready state failed." << NAME_PAR_HEX(SPI status, spiStatus.dataNotReadyStatus));
+        TRC_FUNCTION_LEAVE("");
         return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_GENERAL;
       }
 
@@ -238,7 +236,8 @@ namespace iqrf {
 
       // unsupported target
       if (targetInt == -1) {
-        TRC_ERROR("Unsupported target: " << PAR((int)target));
+        TRC_WARNING("Unsupported target: " << PAR((int)target));
+        TRC_FUNCTION_LEAVE("");
         return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
       }
 
@@ -249,13 +248,15 @@ namespace iqrf {
 
       // check result of write operation
       if (uploadRes != BASE_TYPES_OPER_OK) {
-        TRC_ERROR("Data programming failed. " << NAME_PAR_HEX(Result, uploadRes));
+        TRC_WARNING("Data programming failed. " << NAME_PAR_HEX(Result, uploadRes));
+        TRC_FUNCTION_LEAVE("");
         return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_GENERAL;
       }
       else {
         TRC_INFORMATION("Upload OK");
       }
 
+      TRC_FUNCTION_LEAVE("");
       return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
     }
 
@@ -264,7 +265,7 @@ namespace iqrf {
 
       int progModeTerminateRes = spi_iqrf_pe();
       if (progModeTerminateRes != BASE_TYPES_OPER_OK) {
-        TRC_ERROR("Programming mode termination failed: " << PAR(progModeTerminateRes));
+        TRC_WARNING("Programming mode termination failed: " << PAR(progModeTerminateRes));
         return false;
       }
 

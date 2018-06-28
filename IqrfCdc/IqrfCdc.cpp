@@ -103,6 +103,7 @@ namespace iqrf {
 
     bool enterProgrammingState() 
     {
+      TRC_FUNCTION_ENTER("");
       TRC_INFORMATION("Entering programming mode.");
 
       PTEResponse response;
@@ -110,15 +111,18 @@ namespace iqrf {
         response = m_cdc->enterProgrammingMode();
       }
       catch (std::exception& ex) {
-        TRC_ERROR("Entering programming mode failed: " << ex.what());
+        CATCH_EXC_TRC_WAR(std::exception, ex, "Entering programming mode failed.");
+        TRC_FUNCTION_LEAVE("");
         return false;
       }
 
       if (response != PTEResponse::OK) {
-        TRC_ERROR("Entering programming mode failed: " << PAR((int)response));
+        TRC_WARNING("Entering programming mode failed: " << PAR((int)response));
+        TRC_FUNCTION_LEAVE("");
         return false;
       }
 
+      TRC_FUNCTION_LEAVE("");
       return true;
     }
 
@@ -126,6 +130,7 @@ namespace iqrf {
       upload(const Accessor::UploadTarget target, const std::basic_string<uint8_t>& data)
     {
       // write data to TR module
+      TRC_FUNCTION_ENTER("");
       TRC_INFORMATION("Uploading");
 
       unsigned char targetInt = 0;
@@ -163,7 +168,8 @@ namespace iqrf {
 
       // unsupported target
       if (targetInt == 0) {
-        TRC_ERROR("Unsupported target: " << PAR((int)target));
+        TRC_WARNING("Unsupported target: " << PAR((int)target));
+        TRC_FUNCTION_LEAVE("");
         return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
       }
       
@@ -172,36 +178,50 @@ namespace iqrf {
         response = m_cdc->upload(targetInt, data);
       }
       catch (std::exception& ex) {
-        TRC_ERROR("Uploading failed: " << ex.what());
+        TRC_WARNING("Uploading failed: " << ex.what());
+        TRC_FUNCTION_LEAVE("");
         return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_COMMUNICATION;
       }
 
       if (response == PMResponse::OK) {
+        TRC_FUNCTION_LEAVE("");
         return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
       }
 
+      IIqrfChannelService::Accessor::UploadErrorCode errorCode;
       switch (response)
       {
         case PMResponse::ERR2:
-          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_TARGET_MEMORY;
+          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_TARGET_MEMORY;
+          break;
         case PMResponse::ERR3:
-          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_DATA_LEN;
+          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_DATA_LEN;
+          break;
         case PMResponse::ERR4:
-          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_ADDRESS;
+          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_ADDRESS;
+          break;
         case PMResponse::ERR5:
-          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_WRITE_ONLY;
+          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_WRITE_ONLY;
+          break;
         case PMResponse::ERR6:
-          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_COMMUNICATION;
+          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_COMMUNICATION;
+          break;
         case PMResponse::ERR7:
-          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
+          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
+          break;
         case PMResponse::BUSY:
-          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_BUSY;
+          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_BUSY;
+          break;
         default:
-          return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_GENERAL;
+          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_GENERAL;
       }
+
+      TRC_FUNCTION_LEAVE("");
+      return errorCode;
     }
 
     bool terminateProgrammingState() {
+      TRC_FUNCTION_ENTER("");
       TRC_INFORMATION("Terminating programming mode.");
 
       PTEResponse response;
@@ -209,15 +229,18 @@ namespace iqrf {
         response = m_cdc->terminateProgrammingMode();
       }
       catch (std::exception& ex) {
-        TRC_ERROR("Terminating programming mode failed: " << ex.what());
+        CATCH_EXC_TRC_WAR(std::exception, ex, "Terminating programming mode failed.");
+        TRC_FUNCTION_LEAVE("");
         return false;
       }
 
       if (response != PTEResponse::OK) {
-        TRC_ERROR("Programming mode termination failed: " << PAR((int)response));
+        TRC_WARNING("Programming mode termination failed: " << PAR((int)response));
+        TRC_FUNCTION_LEAVE("");
         return false;
       }
 
+      TRC_FUNCTION_LEAVE("");
       return true;
     }
 
