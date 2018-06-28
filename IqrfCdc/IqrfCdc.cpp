@@ -27,7 +27,9 @@ namespace iqrf {
     virtual ~IqrfCdcAccessor();
 
     bool enterProgrammingState() override;
-    UploadErrorCode upload(UploadTarget target, const std::basic_string<uint8_t>& data) override;
+    UploadErrorCode upload(
+      const UploadTarget target, const std::basic_string<uint8_t>& data, const uint16_t address
+    ) override;
     bool terminateProgrammingState() override;
 
   private:
@@ -127,11 +129,17 @@ namespace iqrf {
     }
 
     IIqrfChannelService::Accessor::UploadErrorCode 
-      upload(const Accessor::UploadTarget target, const std::basic_string<uint8_t>& data)
+      upload(
+        const Accessor::UploadTarget target, 
+        const std::basic_string<uint8_t>& data,
+        const uint16_t address
+    )
     {
       // write data to TR module
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION("Uploading");
+
+      bool useAddress = false;
 
       unsigned char targetInt = 0;
       switch (target) {
@@ -152,12 +160,15 @@ namespace iqrf {
           break;
         case Accessor::UploadTarget::UPLOAD_TARGET_FLASH:
           targetInt = 0x85;
+          useAddress = true;
           break;
         case Accessor::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM:
           targetInt = 0x86;
+          useAddress = true;
           break;
         case Accessor::UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM:
           targetInt = 0x87;
+          useAddress = true;
           break;
         case Accessor::UploadTarget::UPLOAD_TARGET_SPECIAL:
           targetInt = 0x88;
@@ -175,7 +186,19 @@ namespace iqrf {
       
       PMResponse response;
       try {
-        response = m_cdc->upload(targetInt, data);
+        // add address into beginning of data to upload
+        if (useAddress) {
+          std::basic_string<uint8_t> addressAndData;
+
+          addressAndData += address & 0xFF;
+          addressAndData += (address >> 8) & 0xFF;
+          addressAndData += data;
+
+          response = m_cdc->upload(targetInt, addressAndData);
+        }
+        else {
+          response = m_cdc->upload(targetInt, data);
+        }
       }
       catch (std::exception& ex) {
         TRC_WARNING("Uploading failed: " << ex.what());
@@ -408,10 +431,10 @@ namespace iqrf {
   }
 
   IIqrfChannelService::Accessor::UploadErrorCode IqrfCdcAccessor::upload(
-    UploadTarget target, const std::basic_string<uint8_t>& data
+    const UploadTarget target, const std::basic_string<uint8_t>& data, const uint16_t address
   )
   {
-    return m_iqrfCdc->upload(target, data);
+    return m_iqrfCdc->upload(target, data, address);
   }
 
   bool IqrfCdcAccessor::terminateProgrammingState() {

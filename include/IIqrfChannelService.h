@@ -69,7 +69,14 @@ namespace iqrf {
       };
 
       virtual bool enterProgrammingState() = 0;
-      virtual UploadErrorCode upload(const UploadTarget target, const std::basic_string<uint8_t>& data) = 0;
+
+      // 'address' parameter is NOT used, if upload target has already defined its own address, 
+      // which to upload code into, e.g. RF band or RFPGM
+      virtual UploadErrorCode upload(
+        const UploadTarget target, 
+        const std::basic_string<uint8_t>& data,
+        const uint16_t address
+      ) = 0;
       virtual bool terminateProgrammingState() = 0;
     };
 

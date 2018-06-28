@@ -35,7 +35,11 @@ namespace iqrf {
     virtual ~IqrfSpiAccessor();
 
     bool enterProgrammingState() override;
-    UploadErrorCode upload(const UploadTarget target, const std::basic_string<uint8_t>& data) override;
+    UploadErrorCode upload(
+      const UploadTarget target, 
+      const std::basic_string<uint8_t>& data,
+      const uint16_t address
+    ) override;
     bool terminateProgrammingState() override;
 
   private:
@@ -183,7 +187,8 @@ namespace iqrf {
 
     IIqrfChannelService::Accessor::UploadErrorCode upload(
       const Accessor::UploadTarget target, 
-      const std::basic_string<uint8_t>& data
+      const std::basic_string<uint8_t>& data,
+      const uint16_t address
     )
     {
       TRC_FUNCTION_ENTER("");
@@ -200,6 +205,8 @@ namespace iqrf {
 
       // write data to TR module
       TRC_INFORMATION("Uploading");
+
+      bool useAddress = false;
 
       int targetInt = 0;
       switch (target) {
@@ -220,12 +227,15 @@ namespace iqrf {
           break;
         case Accessor::UploadTarget::UPLOAD_TARGET_FLASH:
           targetInt = FLASH_TARGET;
+          useAddress = true;
           break;
         case Accessor::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM:
           targetInt = INTERNAL_EEPROM_TARGET;
+          useAddress = true;
           break;
         case Accessor::UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM:
           targetInt = EXTERNAL_EEPROM_TARGET;
+          useAddress = true;
           break;
         case Accessor::UploadTarget::UPLOAD_TARGET_SPECIAL:
           targetInt = SPECIAL_TARGET;
@@ -241,7 +251,21 @@ namespace iqrf {
         return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
       }
 
-      int uploadRes = spi_iqrf_upload(targetInt, data.data(), data.size());
+      int uploadRes = BASE_TYPES_OPER_ERROR;
+
+      // add address into beginning of data to upload
+      if (useAddress) {
+        std::basic_string<uint8_t> addressAndData;
+
+        addressAndData += address & 0xFF;
+        addressAndData += (address >> 8) & 0xFF;
+        addressAndData += data;
+
+        uploadRes = spi_iqrf_upload(targetInt, addressAndData.data(), addressAndData.size());
+      }
+      else {
+        uploadRes = spi_iqrf_upload(targetInt, data.data(), data.size());
+      }
 
       // wait for TR module to finish upload operation for at max. 2s
       tryToWaitForPgmReady(2000);
@@ -564,10 +588,12 @@ namespace iqrf {
   }
 
   IIqrfChannelService::Accessor::UploadErrorCode IqrfSpiAccessor::upload(
-    UploadTarget target, const std::basic_string<uint8_t>& data
+    const UploadTarget target, 
+    const std::basic_string<uint8_t>& data,
+    const uint16_t address
   )
   {
-    return m_IqrfSpi->upload(target, data);
+    return m_IqrfSpi->upload(target, data, address);
   }
 
   bool IqrfSpiAccessor::terminateProgrammingState() {
