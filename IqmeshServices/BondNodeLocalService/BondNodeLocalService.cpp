@@ -525,7 +525,7 @@ namespace iqrf {
           );
 
           // get response data
-          const unsigned char* pData = transResult->getResponse().DpaPacketData();
+          const unsigned char* pData = dpaResponse.DpaPacketData();
 
           TRC_FUNCTION_LEAVE("");
           return parseBondedNodes(pData);
