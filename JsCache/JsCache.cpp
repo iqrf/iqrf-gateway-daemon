@@ -973,8 +973,13 @@ namespace iqrf {
       m_iSchedulerService->registerTaskHandler(m_name, [=](const rapidjson::Value & task)
       {
         if (task.IsString() && std::string(task.GetString()) == CHECK_CACHE) {
-          if (!checkCache()) {
-            loadCache();
+          try {
+            if (!checkCache()) {
+              loadCache();
+            }
+          }
+          catch (std::exception& e) {
+            CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot load Iqrf Repo");
           }
         }
       });
