@@ -124,7 +124,7 @@ namespace iqrf {
       m_errorsMap.insert(std::pair<uint8_t, UploadError>(nodeAddr, error));
     }
 
-    std::map<uint8_t, bool> getResultsMap() const { return m_resultsMap; };
+    const std::map<uint8_t, bool>& getResultsMap() const { return m_resultsMap; };
 
     std::map<uint8_t, UploadError> getErrorsMap() const { return m_errorsMap; };
 

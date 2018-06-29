@@ -400,6 +400,7 @@ namespace iqrf {
       uint16_t sourceOffset
     )
     {
+      byteBlock.resize(blockSize);
       for (uint8_t i = 0; i < blockSize; i++) {
         if ((sourceOffset + i) >= source.size()) {
           byteBlock[i] = 0x00;
