@@ -1,6 +1,5 @@
 #define IOtaUploadService_EXPORTS
 
-//#include "DpaTransactionTask.h"
 #include "OtaUploadService.h"
 #include "DataPreparer.h"
 #include "Trace.h"
@@ -248,6 +247,16 @@ namespace iqrf {
       }
     }
 
+    // returns size of extended write packet without data part
+    uint8_t getExtendedWritePacketHeaderSize(const DpaMessage::DpaPacket_t& packet) {
+      return
+        1
+        + sizeof(packet.DpaRequestPacket_t.PCMD)
+        + sizeof(packet.DpaRequestPacket_t.PNUM)
+        + sizeof(packet.DpaRequestPacket_t.HWPID)
+        + 2;
+    }
+
     // sets specified EEEPROM extended write packet to be embedded in batch request
     void setEmbeddedExtWritePacket(
       DpaMessage::DpaPacket_t& packet, uint16_t address, const std::basic_string<uint8_t>& data
@@ -256,13 +265,7 @@ namespace iqrf {
       setExtendedWritePacketData(packet, address, data);
 
       // on the position of NADR there must be the length of the packet
-      packet.DpaRequestPacket_t.NADR
-        = 1
-        + sizeof(packet.DpaRequestPacket_t.PCMD)
-        + sizeof(packet.DpaRequestPacket_t.PNUM)
-        + sizeof(packet.DpaRequestPacket_t.HWPID)
-        + 2
-        + data.size();
+      packet.DpaRequestPacket_t.NADR = getExtendedWritePacketHeaderSize(packet) + data.size();
     }
 
     // sets specified EEEPROM extended write packet for coordinator
@@ -316,14 +319,21 @@ namespace iqrf {
             setEmbeddedExtWritePacket(extendedWritePacket, actualAddress, data[index]);
             actualAddress += data[index].size();
 
+            // size of the first packet
+            uint8_t firstPacketSize = getExtendedWritePacketHeaderSize(extendedWritePacket) + data[index].size();
+
             // add 1st write packet into batch
-            memcpy(batchRequestData, extendedWritePacket.Buffer, sizeof(extendedWritePacket.Buffer));
+            memcpy(batchRequestData, extendedWritePacket.Buffer, firstPacketSize);
 
             // set 2nd embedded packet
             setEmbeddedExtWritePacket(extendedWritePacket, actualAddress, data[index + 1]);
 
             // add 2nd write packet into batch
-            memcpy(batchRequestData + sizeof(extendedWritePacket.Buffer), extendedWritePacket.Buffer, sizeof(extendedWritePacket.Buffer));
+            memcpy(
+              batchRequestData + firstPacketSize,
+              extendedWritePacket.Buffer,
+              getExtendedWritePacketHeaderSize(extendedWritePacket) + data[index + 1].size()
+            );
 
             batchRequest.DataToBuffer(
               batchPacket.Buffer, 
@@ -560,6 +570,9 @@ namespace iqrf {
           index++;
         }
       }
+
+      // write into coordinator OK
+      uploadResult.putResult(0, true);
     }
 
     void setSelectedNodesForFrcRequest(
@@ -1547,41 +1560,36 @@ namespace iqrf {
 
       // checking of error
       UploadError error = uploadResult.getError();
-      if (error.getType() != UploadError::Type::NoError) {
-        Pointer("/data/statusStr").Set(response, error.getMessage());
+      bool isAllOk = false;
 
-        switch (error.getType()) {
-          case UploadError::Type::DataPrepare:
-            Pointer("/data/status").Set(response, SERVICE_ERROR_DATA_PREPARE);
-            break;
-          case UploadError::Type::UnsupportedLoadingContent:
-            Pointer("/data/status").Set(response, SERVICE_ERROR_UNSUPPORTED_LOADING_CONTENT);
-            break;
-          default:
-            Pointer("/data/status").Set(response, SERVICE_ERROR);
-        }
-
-        // set raw fields, if verbose mode is active
-        if (comReadTrConf.getVerbose()) {
-          setVerboseData(response, uploadResult);
-        }
-        return response;
+      switch (error.getType()) {
+        case UploadError::Type::NoError:
+          isAllOk = true;
+          break;
+        case UploadError::Type::DataPrepare:
+          Pointer("/data/status").Set(response, SERVICE_ERROR_DATA_PREPARE);
+          break;
+        case UploadError::Type::UnsupportedLoadingContent:
+          Pointer("/data/status").Set(response, SERVICE_ERROR_UNSUPPORTED_LOADING_CONTENT);
+          break;
+        default:
+          Pointer("/data/status").Set(response, SERVICE_ERROR);
       }
 
       // all is ok
+      if (isAllOk) {
+        // get the first address in the device addresses list - because of json schema
+        uint8_t firstAddr = uploadResult.getDeviceAddrs().front();
+        Pointer("/data/rsp/deviceAddr").Set(response, firstAddr);
 
-      // get the first address in the device addresses list - because of json schema
-      uint8_t firstAddr = uploadResult.getDeviceAddrs().front();
-      Pointer("/data/rsp/deviceAddr").Set(response, firstAddr);
+        std::map<uint8_t, bool>::const_iterator iter = uploadResult.getResultsMap().find(firstAddr);
+        if (iter != uploadResult.getResultsMap().end()) {
+          Pointer("/data/rsp/writeSuccess").Set(response, iter->second);
+        }
 
-      std::map<uint8_t, bool>::const_iterator iter = uploadResult.getResultsMap().find(firstAddr);
-      if (iter != uploadResult.getResultsMap().end()) {
-        Pointer("/data/rsp/writeSuccess").Set(response, iter->second);
+        Pointer("/data/status").Set(response, 0);
+        Pointer("/data/statusStr").Set(response, "ok");
       }
-
-      // status - ok
-      Pointer("/data/status").Set(response, 0);
-      Pointer("/data/statusStr").Set(response, "ok");
 
       // set raw fields, if verbose mode is active
       if (comReadTrConf.getVerbose()) {
