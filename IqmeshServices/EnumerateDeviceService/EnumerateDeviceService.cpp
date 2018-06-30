@@ -314,9 +314,10 @@ namespace iqrf {
 
       // read data from specified address
       uns8* pData = discoveryDataPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
-      pData[0] = address;
+      pData[0] = address & 0xFF;
+      pData[1] = (address >> 8) & 0xFF;
 
-      discoveryDataRequest.DataToBuffer(discoveryDataPacket.Buffer, sizeof(TDpaIFaceHeader) + 1);
+      discoveryDataRequest.DataToBuffer(discoveryDataPacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> discoveryDataTransaction;
@@ -904,8 +905,8 @@ namespace iqrf {
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, msgId);
       
-      Pointer("/status").Set(response, SERVICE_ERROR);
-      Pointer("/statusStr").Set(response, errorMsg);
+      Pointer("/data/status").Set(response, SERVICE_ERROR);
+      Pointer("/data/statusStr").Set(response, errorMsg);
 
       return response;
     }
@@ -969,8 +970,8 @@ namespace iqrf {
       rapidjson::Document& response, int32_t errorCode, const std::string& msg
     ) 
     {
-      Pointer("/status").Set(response, errorCode);
-      Pointer("/statusStr").Set(response, msg);
+      Pointer("/data/status").Set(response, errorCode);
+      Pointer("/data/statusStr").Set(response, msg);
     }
 
     // creates and sends discovery message
@@ -1029,7 +1030,7 @@ namespace iqrf {
 
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, comDeviceEnumerate.getMsgId());
-
+ 
       // if data was not successfully read, send empty message
       if (
         deviceEnumerateResult.getOsReadError().getType() != DeviceEnumerateError::Type::NoError
@@ -1043,26 +1044,19 @@ namespace iqrf {
         // osRead object
         TPerOSRead_Response osInfo = deviceEnumerateResult.getOsRead();
 
-        // MID - little endian
-        uint32_t mid = 0;
-        for (int i = 0; i < MID_LEN; i++) {
-          mid <<= 8;
-          mid |= osInfo.ModuleId[i] & 0xFF;
-        }
-        Pointer("/data/rsp/osRead/mid").Set(response, mid);
-
-        Pointer("/data/rsp/osRead/osVersion").Set(response, osInfo.OsVersion);
-        Pointer("/data/rsp/osRead/trMcuType").Set(response, osInfo.McuType);
-        Pointer("/data/rsp/osRead/osBuild").Set(response, osInfo.OsBuild);
-        Pointer("/data/rsp/osRead/rssi").Set(response, osInfo.Rssi);
-        Pointer("/data/rsp/osRead/supplyVoltage").Set(response, osInfo.SupplyVoltage);
-        Pointer("/data/rsp/osRead/flags").Set(response, osInfo.Flags);
-        Pointer("/data/rsp/osRead/slotLimits").Set(response, osInfo.SlotLimits);
-
+        rapidjson::Pointer("/data/rsp/result/mid").Set(response, encodeBinary(osInfo.ModuleId, 4));
+        rapidjson::Pointer("/data/rsp/result/osVersion").Set(response, encodeHexaNum(osInfo.OsVersion));
+        rapidjson::Pointer("/data/rsp/result/trMcuType").Set(response, encodeHexaNum(osInfo.McuType));
+        rapidjson::Pointer("/data/rsp/result/osBuild").Set(response, encodeHexaNum(osInfo.OsBuild));
+        rapidjson::Pointer("/data/rsp/result/rssi").Set(response, osInfo.Rssi);
+        rapidjson::Pointer("/data/rsp/result/supplyVoltage").Set(response, encodeHexaNum(osInfo.SupplyVoltage));
+        rapidjson::Pointer("/data/rsp/result/flags").Set(response, osInfo.Flags);
+        rapidjson::Pointer("/data/rsp/result/slotLimits").Set(response, osInfo.SlotLimits);
+        
         // status - ok
         setResponseStatus(response, 0, "ok");
       }
-
+      
       // set raw fields, if verbose mode is active
       if (comDeviceEnumerate.getVerbose()) {
         setVerboseData(response, deviceEnumerateResult);
@@ -1115,7 +1109,7 @@ namespace iqrf {
         Pointer("/data/rsp/result/embPers").Set(response, embPersJsonArray);
 
         // hwpId
-        Pointer("/data/rsp/result/hwpId").Set(response, perEnum.HWPID);
+        Pointer("/data/rsp/result/hwpId").Set(response, encodeHexaNum(perEnum.HWPID));
 
         // hwpIdVer
         Pointer("/data/rsp/result/hwpIdVer").Set(response, perEnum.HWPIDver);
@@ -1227,7 +1221,7 @@ namespace iqrf {
         Document::AllocatorType& allocator = response.GetAllocator();
         rapidjson::Value perInfoJsonArray(kArrayType);
 
-        for (int i = 0; i < CONFIGURATION_LEN; i++) {
+        for (int i = 0; i < PERIPHERALS_NUM; i++) {
           rapidjson::Value perInfoObj(kObjectType);
           perInfoObj.AddMember(
             "perTe",
@@ -1289,19 +1283,17 @@ namespace iqrf {
       Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
 
       // valid for now always true
-      Pointer("/data/rsp/result/valid").Set(response, true);
+      Pointer("/data/rsp/result/validation/valid").Set(response, true);
       
       // OS read
       if (deviceEnumerateResult.getOsReadError().getType() == DeviceEnumerateError::Type::NoError) 
       {
         // OS version
         TPerOSRead_Response osRead = deviceEnumerateResult.getOsRead();
-        Pointer("/data/rsp/result/osVer").Set(response, osRead.OsVersion);
+        Pointer("/data/rsp/result/validation/osVer").Set(response, encodeHexaNum(osRead.OsVersion));
 
         // OS build
-        std::string osBuildStr
-          = std::to_string((osRead.OsBuild >> 8) & 0xFF) + std::to_string(osRead.OsBuild & 0xFF);
-        Pointer("/data/rsp/result/osBuild").Set(response, osBuildStr);
+        Pointer("/data/rsp/result/validation/osBuild").Set(response, encodeHexaNum(osRead.OsBuild));
       }
 
       if (
@@ -1310,9 +1302,7 @@ namespace iqrf {
       {
         // DPA ver
         TEnumPeripheralsAnswer perEnum = deviceEnumerateResult.getPerEnum();
-        std::string dpaVerStr
-          = std::to_string((perEnum.DpaVersion >> 8) & 0xFF) + std::to_string(perEnum.DpaVersion & 0xFF);
-        Pointer("/data/rsp/result/dpaVer").Set(response, dpaVerStr);
+        Pointer("/data/rsp/result/validation/dpaVer").Set(response, encodeHexaNum(perEnum.DpaVersion));
       }
 
       if (deviceEnumerateResult.getReadHwpConfigError().getType() == DeviceEnumerateError::Type::NoError)
@@ -1321,10 +1311,10 @@ namespace iqrf {
         TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
 
         // txPower
-        Pointer("/data/rsp/result/txPower").Set(response, hwpConfig.Configuration[0x08]);
+        Pointer("/data/rsp/result/validation/txPower").Set(response, hwpConfig.Configuration[0x08]);
 
         // rxFilter
-        Pointer("/data/rsp/result/rxFilter").Set(response, hwpConfig.Configuration[0x09]);
+        Pointer("/data/rsp/result/validation/rxFilter").Set(response, hwpConfig.Configuration[0x09]);
       }
 
       // status - ok
@@ -1410,9 +1400,12 @@ namespace iqrf {
       
       // result
       DeviceEnumerateResult deviceEnumerateResult;
+      deviceEnumerateResult.setDeviceAddr(deviceAddr);
 
       // check, if the address is bonded
-      checkBond(deviceEnumerateResult, deviceAddr);
+      if (deviceAddr != COORDINATOR_ADDRESS) {
+        checkBond(deviceEnumerateResult, deviceAddr);
+      }
 
       if (deviceEnumerateResult.getBondedError().getType() != DeviceEnumerateError::Type::NoError) {
         Document failResponse = getCheckParamsFailedResponse(comEnumerateDevice.getMsgId(), msgType, deviceEnumerateResult.getBondedError().getMessage());
@@ -1433,7 +1426,7 @@ namespace iqrf {
       // peripheral enumeration
       peripheralEnumeration(deviceEnumerateResult);
       sendPeripheralEnumerationResponse(messagingId, msgType, deviceEnumerateResult, comEnumerateDevice);
-
+      
       // read Hwp configuration
       readHwpConfiguration(deviceEnumerateResult);
       sendReadHwpConfigurationResponse(messagingId, msgType, deviceEnumerateResult, comEnumerateDevice);
