@@ -885,7 +885,6 @@ iqrf.embed.explore.Enumerate_Request_req = function (param) {
     return iqrf.embed.explore.Enumerate_Request();
 };
 
-//TODO values are as particular items in schema
 iqrf.embed.explore.Enumerate_Response_rsp = function (rawHdp) {
     var result = iqrf.embed.explore.Enumerate_Response(rawHdp);
     return result;
@@ -895,20 +894,19 @@ iqrf.embed.explore.PeripheralInformation_Request_req = function (param) {
     return iqrf.embed.explore.PeripheralInformation_Request(param.per);
 };
 
-//TODO values are as particular items in schema
-//TODO needs special handling with state info because of parameter per to be passed
-//iqrf.embed.explore.PeripheralInformation_Response_rsp = function (per, rawHdp) {
-//    var result = iqrf.embed.explore.PeripheralInformation_Response(per, rawHdp);
-//    return result;
-//};
-
-iqrf.embed.explore.MorePeripheralInformation_Request_req = function (param) {
-    return iqrf.embed.explore.MorePeripheralInformation_Request();
+iqrf.embed.explore.PeripheralInformation_Response_rsp = function (rawHdp) {
+   var result = iqrf.embed.explore.PeripheralInformation_Response(parseInt( rawHdp.pnum, 16 ), rawHdp);
+   return result;
 };
 
-//TODO values are as particular items in schema
-//TODO needs special handling with state info because of parameter per to be passed
-//iqrf.embed.explore.MorePeripheralInformation_Response_rsp = function (per, rawHdp) {
-//    var result = iqrf.embed.explore.MorePeripheralInformation_Response(rawHdp);
-//    return result;
-//};
+iqrf.embed.explore.MorePeripheralsInformation_Request_req = function (param) {
+    return iqrf.embed.explore.MorePeripheralsInformation_Request(param.per);
+};
+
+iqrf.embed.explore.MorePeripheralsInformation_Response_rsp = function (rawHdp) {
+    var result =
+    {
+        peripherals: iqrf.embed.explore.MorePeripheralsInformation_Response(rawHdp.pcmd, rawHdp)
+    };
+    return result;
+};
