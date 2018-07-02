@@ -22,7 +22,7 @@
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
 #endif
-#define TRC_CHANNEL 0
+#define TRC_CHANNEL 33
 
 #include "iqrf__JsCache.hxx"
 
@@ -62,10 +62,11 @@ namespace iqrf {
 
     mutable std::recursive_mutex m_updateMtx;
     std::string m_cacheDir = "";
+    int m_cacheDirSet = 0;
     std::string m_urlRepo = "https://repository.iqrfalliance.org/api";
-    int m_checkPeriodSec = 0;
+    int m_checkPeriodInMinutes = 0;
 
-    const int m_checkPeriodSecMin = 60;
+    const int m_checkPeriodInMinutesMin = 1;
     std::string m_name = "JsCache";
 
     std::map<int, Company> m_companyMap;
@@ -75,6 +76,7 @@ namespace iqrf {
     ServerState m_serverState;
     std::map<int, Package> m_packageMap;
     std::map<int, StdItem> m_standardMap;
+    bool m_upToDate = false;
 
   public:
     Imp()
@@ -196,7 +198,7 @@ namespace iqrf {
     {
       using namespace rapidjson;
       TRC_FUNCTION_ENTER("Loading: " << path);
-      std::cout << "Loading: " << path << std::endl;
+      //std::cout << "Loading: " << path << std::endl;
 
       std::ifstream ifs(path);
       IStreamWrapper isw(ifs);
@@ -214,8 +216,8 @@ namespace iqrf {
 
     void createPathFile(const std::string& path)
     {
-      boost::filesystem::path dir(path);
-      boost::filesystem::path parent(dir.parent_path());
+      boost::filesystem::path createdFile(path);
+      boost::filesystem::path parent(createdFile.parent_path());
 
       try {
         if (!(boost::filesystem::exists(parent))) {
@@ -229,36 +231,6 @@ namespace iqrf {
       }
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "cannot create: " << PAR(parent));
-      }
-    }
-
-    void encodeToFile(const std::string& path, rapidjson::Document& doc)
-    {
-      using namespace rapidjson;
-
-      boost::filesystem::path dir(path);
-      boost::filesystem::path parent(dir.parent_path());
-
-      try {
-        if (!(boost::filesystem::exists(parent))) {
-          if (boost::filesystem::create_directories(parent)) {
-            TRC_DEBUG("Created: " << PAR(parent));
-          }
-          else {
-            TRC_DEBUG("Cannot create: " << PAR(parent));
-          }
-        }
-      }
-      catch (std::exception &e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "cannot create: " << PAR(parent));
-      }
-
-      std::ofstream ofs(path);
-      if (ofs.is_open()) {
-        OStreamWrapper osw(ofs);
-        PrettyWriter<OStreamWrapper> writer(osw);
-        doc.Accept(writer);
-        ofs.close();
       }
     }
 
@@ -287,6 +259,9 @@ namespace iqrf {
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
       try {
+        TRC_INFORMATION("Loading cache ... ");
+        std::cout << "Loading cache ... " << std::endl;
+
         updateCacheServer();
         updateCacheCompany();
         updateCacheManufacturer();
@@ -294,10 +269,15 @@ namespace iqrf {
         updateCacheOsdpa();
         updateCacheStandard();
         updateCachePackage();
-        TRC_INFORMATION("Iqrf Repo load success: ");
+
+        m_upToDate = true;
+        TRC_INFORMATION("Loading cache success");
+        std::cout << "Loading cache success" << std::endl;
+
       }
-      catch (std::logic_error &e) {
-        CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot load Iqrf Repo");
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::logic_error, e, "Loading cache failed");
+        std::cerr << "Loading cache failed: " << e.what() << std::endl;
       }
 
       TRC_FUNCTION_LEAVE("")
@@ -346,7 +326,7 @@ namespace iqrf {
       using namespace rapidjson;
       using namespace boost;
 
-      std::string fname = getDataLocalFileName(COMPANIES_URL); 
+      std::string fname = getDataLocalFileName(COMPANIES_URL);
 
       if (!filesystem::exists(fname)) {
         downloadData(COMPANIES_URL);
@@ -355,6 +335,7 @@ namespace iqrf {
       if (filesystem::exists(fname)) {
         Document doc;
         if (parseFromFile(fname, doc)) {
+          std::map<int, Company> companyMap;
           int companyId = -1;
           std::string name;
           std::string homePage;
@@ -363,12 +344,13 @@ namespace iqrf {
               POINTER_GET_INT(COMPANIES_URL, itr, "/companyID", companyId, fname);
               POINTER_GET_STRING(COMPANIES_URL, itr, "/name", name, fname);
               POINTER_GET_STRING(COMPANIES_URL, itr, "/homePage", homePage, fname);
-              m_companyMap.insert(std::make_pair(companyId, Company(companyId, name, homePage)));
+              companyMap.insert(std::make_pair(companyId, Company(companyId, name, homePage)));
             }
           }
           else {
             THROW_EXC(std::logic_error, "parse error not array: " << PAR(COMPANIES_URL) << PAR(fname));
           }
+          m_companyMap = companyMap;
         }
         else {
           THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
@@ -397,6 +379,7 @@ namespace iqrf {
       if (filesystem::exists(fname)) {
         Document doc;
         if (parseFromFile(fname, doc)) {
+          std::map<int, Manufacturer> manufacturerMap;
           int manufacturerId = -1;
           int companyId = -1;
           std::string name;
@@ -405,12 +388,13 @@ namespace iqrf {
               POINTER_GET_INT(MANUFACTURERS_URL, itr, "/manufacturerID", manufacturerId, fname);
               POINTER_GET_INT(MANUFACTURERS_URL, itr, "/companyID", companyId, fname);
               POINTER_GET_STRING(MANUFACTURERS_URL, itr, "/name", name, fname);
-              m_manufacturerMap.insert(std::make_pair(manufacturerId, Manufacturer(manufacturerId, companyId, name)));
+              manufacturerMap.insert(std::make_pair(manufacturerId, Manufacturer(manufacturerId, companyId, name)));
             }
           }
           else {
             THROW_EXC(std::logic_error, "parse error not array: " << PAR(MANUFACTURERS_URL) << PAR(fname));
           }
+          m_manufacturerMap = manufacturerMap;
         }
         else {
           THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
@@ -439,6 +423,7 @@ namespace iqrf {
       if (filesystem::exists(fname)) {
         Document doc;
         if (parseFromFile(fname, doc)) {
+          std::map<int, Product> productMap;
           int hwpid = -1;
           int manufacturerId = -1;
           std::string name;
@@ -451,12 +436,13 @@ namespace iqrf {
               POINTER_GET_STRING(PRODUCTS_URL, itr, "/name", name, fname);
               POINTER_GET_STRING(PRODUCTS_URL, itr, "/homePage", homePage, fname);
               POINTER_GET_STRING(PRODUCTS_URL, itr, "/picture", picture, fname);
-              m_productMap.insert(std::make_pair(hwpid, Product(hwpid, manufacturerId, name, homePage, picture)));
+              productMap.insert(std::make_pair(hwpid, Product(hwpid, manufacturerId, name, homePage, picture)));
             }
           }
           else {
             THROW_EXC(std::logic_error, "parse error not array: " << PAR(PRODUCTS_URL) << PAR(fname));
           }
+          m_productMap = productMap;
         }
         else {
           THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
@@ -489,19 +475,21 @@ namespace iqrf {
           std::string os;
           std::string dpa;
           std::string notes;
+          std::map<int, OsDpa> osDpaMap;
           if (doc.IsArray()) {
             int idx = 0;
             for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
               POINTER_GET_STRING(OSDPA_URL, itr, "/os", os, fname);
               POINTER_GET_STRING(OSDPA_URL, itr, "/dpa", dpa, fname);
               POINTER_GET_STRING(OSDPA_URL, itr, "/notes", notes, fname);
-              m_osDpaMap.insert(std::make_pair(idx, OsDpa(idx, os, dpa, notes)));
+              osDpaMap.insert(std::make_pair(idx, OsDpa(idx, os, dpa, notes)));
               ++idx;
             }
           }
           else {
             THROW_EXC(std::logic_error, "parse error not array: " << PAR(OSDPA_URL) << PAR(fname));
           }
+          m_osDpaMap = osDpaMap;
         }
         else {
           THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
@@ -522,7 +510,7 @@ namespace iqrf {
       using namespace boost;
 
       ServerState retval;
-      
+
       std::string fname = getDataLocalFileName(SERVER_URL);
 
       if (filesystem::exists(fname)) {
@@ -551,16 +539,17 @@ namespace iqrf {
       }
 
       TRC_FUNCTION_LEAVE("")
-      return retval;
+        return retval;
     }
 
-    bool checkCache()
+    void checkCache()
     {
       TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION("=============================================================" << std::endl <<
+        "Checking Iqrf Repo for updates");
+      //std::cout << "Checking Iqrf Repo for updates" << std::endl;
 
-      using namespace rapidjson;
       using namespace boost;
-      bool result = false;
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
@@ -569,22 +558,28 @@ namespace iqrf {
       std::string fname = getDataLocalFileName(SERVER_URL);
       downloadData(SERVER_URL);
 
-      if (!filesystem::exists(fname)) {
-        TRC_WARNING("file not exist " << PAR(fname));
-      }
-      else {
-
-        m_serverState = getCacheServer();
-
-        result = m_serverState.m_databaseChecksum == serverStateOld.m_databaseChecksum;
-        if (!result) {
-          TRC_INFORMATION("Iqrf Repo has been changed => reload");
-          filesystem::remove_all(m_cacheDir);
+      if (m_upToDate) {
+        if (!filesystem::exists(fname)) {
+          TRC_WARNING("file not exist " << PAR(fname));
+          m_upToDate = false;
+        }
+        else {
+          m_serverState = getCacheServer();
+          m_upToDate = m_serverState.m_databaseChecksum == serverStateOld.m_databaseChecksum;
         }
       }
 
-      TRC_FUNCTION_LEAVE(PAR(result));
-      return result;
+      if (!m_upToDate) {
+        TRC_INFORMATION("Iqrf Repo has been changed => reload");
+        //std::cout << "Iqrf Repo has been changed => reload" << std::endl;
+        filesystem::remove_all(m_cacheDir);
+      }
+      else {
+        TRC_INFORMATION("Iqrf Repo is up to date");
+        //std::cout << "Iqrf Repo is up to date" << std::endl;
+      }
+
+      TRC_FUNCTION_LEAVE(PAR(m_upToDate));
     }
 
     void updateCacheServer()
@@ -619,6 +614,7 @@ namespace iqrf {
       }
 
       if (filesystem::exists(fname)) {
+        std::map<int, StdItem> standardMap;
         Document doc;
         if (parseFromFile(fname, doc)) {
           int standardId = 0;
@@ -627,7 +623,7 @@ namespace iqrf {
             for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
               POINTER_GET_INT(STANDARDS_URL, itr, "/standardID", standardId, fname);
               POINTER_GET_STRING(STANDARDS_URL, itr, "/name", name, fname);
-              m_standardMap.insert(std::make_pair(standardId, StdItem(name)));
+              standardMap.insert(std::make_pair(standardId, StdItem(name)));
             }
           }
           else {
@@ -637,6 +633,7 @@ namespace iqrf {
         else {
           THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
         }
+        m_standardMap = standardMap;
       }
       else {
         THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
@@ -698,7 +695,7 @@ namespace iqrf {
           if (!filesystem::exists(fname)) {
             downloadData(url);
           }
-          
+
           if (filesystem::exists(fname)) {
             Document doc;
             if (parseFromFile(fname, doc)) {
@@ -718,7 +715,7 @@ namespace iqrf {
           }
         } // for 3
       } // for 2
-      
+
       // daemon wrapper workaround
       {
         std::string fname = m_iLaunchService->getDataDir();
@@ -736,6 +733,7 @@ namespace iqrf {
           dwStdItem.m_drivers.insert(std::make_pair(0, dwStdDriver));
 
           m_standardMap.insert(std::make_pair(1000, dwStdItem));
+
         }
         else {
           THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
@@ -761,6 +759,7 @@ namespace iqrf {
       if (filesystem::exists(fname)) {
         Document doc;
         if (parseFromFile(fname, doc)) {
+          std::map<int, Package> packageMap;
           if (doc.IsArray()) {
             for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
               Package pck;
@@ -771,12 +770,13 @@ namespace iqrf {
               POINTER_GET_STRING(PACKAGES_URL, itr, "/handlerHash", pck.m_handlerHash, fname);
               POINTER_GET_STRING(PACKAGES_URL, itr, "/os", pck.m_os, fname);
               POINTER_GET_STRING(PACKAGES_URL, itr, "/dpa", pck.m_dpa, fname);
-              m_packageMap.insert(std::make_pair(pck.m_packageId, pck));
+              packageMap.insert(std::make_pair(pck.m_packageId, pck));
             }
           }
           else {
             THROW_EXC(std::logic_error, "parse error not array: " << PAR(PACKAGES_URL) << PAR(fname));
           }
+          m_packageMap = packageMap;
         }
         else {
           THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
@@ -891,12 +891,27 @@ namespace iqrf {
       std::string urlLoading = getDataAbsoluteUrl(relativeUrl);
 
       TRC_DEBUG("Getting: " << PAR(urlLoading));
-      std::cout << "Getting: " << urlLoading << std::endl;
-      m_iRestApiService->getFile(urlLoading, pathLoading);
+      //std::cout << "Getting: " << urlLoading << std::endl;
+
+      try {
+        boost::filesystem::path getFile(pathLoading);
+        boost::filesystem::path downloadFile(pathLoading);
+        downloadFile += ".download";
+        boost::filesystem::remove(downloadFile);
+
+        m_iRestApiService->getFile(urlLoading, downloadFile.string());
+
+        boost::filesystem::copy_file(downloadFile, getFile, boost::filesystem::copy_option::overwrite_if_exists);
+      }
+      catch (boost::filesystem::filesystem_error& e) {
+        CATCH_EXC_TRC_WAR(boost::filesystem::filesystem_error, e, "cannot get " << PAR(fname));
+        throw e;
+      }
+
       TRC_FUNCTION_LEAVE("")
     }
 
-    
+
     // loads file from exact URL
     // and stores to local repo cache to relative path
     void downloadFile(const std::string& fileUrl, const std::string& urlFname)
@@ -907,8 +922,23 @@ namespace iqrf {
       std::string urlLoading = fileUrl;
 
       TRC_DEBUG("Getting: " << PAR(urlLoading));
-      std::cout << "Getting: " << urlLoading << std::endl;
-      m_iRestApiService->getFile(urlLoading, urlFname);
+      //std::cout << "Getting: " << urlLoading << std::endl;
+
+      try {
+        boost::filesystem::path getFile(urlFname);
+        boost::filesystem::path downloadFile(urlFname);
+        downloadFile += ".download";
+        boost::filesystem::remove(downloadFile);
+
+        m_iRestApiService->getFile(urlLoading, downloadFile.string());
+
+        boost::filesystem::copy_file(downloadFile, getFile, boost::filesystem::copy_option::overwrite_if_exists);
+      }
+      catch (boost::filesystem::filesystem_error& e) {
+        CATCH_EXC_TRC_WAR(boost::filesystem::filesystem_error, e, "cannot get " << PAR(urlFname));
+        throw e;
+      }
+
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -961,35 +991,43 @@ namespace iqrf {
       if (v && v->IsString()) {
         m_urlRepo = v->GetString();
       }
-      v = Pointer("/checkPeriodSec").Get(doc);
+      v = Pointer("/checkPeriodInMinutes").Get(doc);
       if (v && v->IsInt()) {
-        m_checkPeriodSec = v->GetInt();
-        if (m_checkPeriodSec > 0 && m_checkPeriodSec < m_checkPeriodSecMin) {
-          TRC_WARNING(PAR(m_checkPeriodSec) << " from configuration forced to: " << PAR(m_checkPeriodSecMin));
-          m_checkPeriodSec = m_checkPeriodSecMin;
+        m_checkPeriodInMinutes = v->GetInt();
+        if (m_checkPeriodInMinutes > 0 && m_checkPeriodInMinutes < m_checkPeriodInMinutesMin) {
+          TRC_WARNING(PAR(m_checkPeriodInMinutes) << " from configuration forced to: " << PAR(m_checkPeriodInMinutesMin));
+          m_checkPeriodInMinutes = m_checkPeriodInMinutesMin;
         }
       }
-        
+
       m_iSchedulerService->registerTaskHandler(m_name, [=](const rapidjson::Value & task)
       {
         if (task.IsString() && std::string(task.GetString()) == CHECK_CACHE) {
           try {
-            if (!checkCache()) {
+            checkCache();
+            if (!m_upToDate) {
               loadCache();
             }
           }
           catch (std::exception& e) {
-            CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot load Iqrf Repo");
+            CATCH_EXC_TRC_WAR(std::logic_error, e, std::endl << "Iqrf Repo download failure ... next attempt in " << m_checkPeriodInMinutes << " minutes");
+            std::cerr << e.what() << std::endl << "Iqrf Repo download failure ... next attempt in " << m_checkPeriodInMinutes << " minutes" << std::endl;
           }
         }
       });
 
-      if (m_checkPeriodSec > 0) {
+      if (m_checkPeriodInMinutes > 0) {
         Document task;
         task.SetString(CHECK_CACHE.c_str(), task.GetAllocator());
-        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(m_checkPeriodSec));
+        auto tp = std::chrono::system_clock::now();
+        tp += std::chrono::minutes(m_checkPeriodInMinutes);
+        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(m_checkPeriodInMinutes * 60), tp);
+        TRC_INFORMATION("Cache update scheduled: " << PAR(m_checkPeriodInMinutes));
       }
-      
+      else {
+        TRC_INFORMATION("Cache update is not scheduled: " << PAR(m_checkPeriodInMinutes));
+      }
+
     }
 
     void attachInterface(shape::ILaunchService* iface)

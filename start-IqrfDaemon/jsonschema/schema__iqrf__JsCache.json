@@ -25,7 +25,7 @@
             "description": "...",
             "default": "https://repository.iqrfalliance.org/api"
         },
-        "checkPeriodSec": {
+        "checkPeriodInMinutes": {
             "type": "integer",
             "description": "...",
             "default": 0
