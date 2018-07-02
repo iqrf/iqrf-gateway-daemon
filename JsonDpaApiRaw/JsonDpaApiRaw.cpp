@@ -97,7 +97,7 @@ namespace iqrf {
 
       std::unique_ptr<ComBase> com = m_objectFactory.createObject(msgType.m_type, doc);
 
-      auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest());
+      auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest(), com->getTimeout());
       auto res = trn->get();
 
       Document respDoc;
