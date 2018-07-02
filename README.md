@@ -10,5 +10,4 @@ are licenced under Apache Licence 2.0 and can be used for commercial purposes.
 ## Overview
 ![Overview](https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-overview.png)
 
-## Architecture
-![Architecture](https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-components.png)
+<a href="https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-components.png" target="_blank">See the gateway-daemon architecture</a><br/>
