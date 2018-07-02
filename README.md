@@ -10,4 +10,8 @@ are licenced under Apache Licence 2.0 and can be used for commercial purposes.
 ## Overview
 ![Overview](https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-overview.png)
 
-<a href="https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-components.png" target="_blank">See the gateway-daemon architecture</a><br/>
+### API
+- [See the gateway-daemon API](https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/)
+
+### Architecture
+- [See the gateway-daemon architecture](https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-components.png)
