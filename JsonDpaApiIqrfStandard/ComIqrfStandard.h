@@ -70,9 +70,7 @@ namespace iqrf {
       using namespace rapidjson;
       bool r = res.isResponded();
       Pointer("/data/rsp/nAdr").Set(doc, m_nadr);
-      if (m_hwpid != -1) {
-        Pointer("/data/rsp/hwpId").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.HWPID : m_hwpid);
-      }
+      Pointer("/data/rsp/hwpId").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.HWPID : m_hwpid);
       Pointer("/data/rsp/rCode").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
       Pointer("/data/rsp/dpaVal").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);
       if (!m_payloadOnlyForVerbose || getVerbose()) {
