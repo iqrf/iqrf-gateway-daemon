@@ -11,7 +11,7 @@ are licenced under Apache Licence 2.0 and can be used for commercial purposes.
 ![Overview](https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-overview.png)
 
 ### API
-- [See the gateway-daemon API](https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/)
+- [See the gateway-daemon API](https://docs.iqrfsdk.org/iqrf-gateway-daemon/api.html)
 
 ![Overview](https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-api-packed.png)
 
