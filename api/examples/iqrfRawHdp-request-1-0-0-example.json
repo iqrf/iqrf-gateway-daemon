@@ -1,14 +1,13 @@
 {
   "mType": "iqrfRawHdp",
   "data": {
-    "msgId": "test",
+    "msgId": "testRawHdp",
     "timeout": 1000,
     "req": {
       "nAdr": 1,
       "pNum": 6,
       "pCmd": 3,
-      "hwpId": 65535,
-      "rData": []
+      "pData": []
     },
     "returnVerbose": true
   }

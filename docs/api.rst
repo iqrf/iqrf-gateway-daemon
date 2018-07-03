@@ -1,8 +1,8 @@
 Gateway-daemon API
 ==================
 
-JSON messages for communication via MQ/WS/MQTT channels.
-Messages are compatible with OS v4.02D and DPA v3.02 at TR-7xD. 
+JSON messages for communication via MQ/WS/MQTT channels. Messages are compatible with OS v4.02D and 
+DPA v3.02 at TR-7xD. 
 
 IQRF Generic
 ------------
@@ -10,20 +10,24 @@ IQRF Generic
 Raw
 +++
 
-- `Raw request v1-0-0`_
-- `Raw response v1-0-0`_
+- `Raw request v1-0-0`_ and `Raw request v1-0-0 example`_ 
+- `Raw response v1-0-0`_ and `Raw response v1-0-0 example`_
 
 .. _`Raw request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfRaw-request-1-0-0.json
+.. _`Raw request v1-0-0 example`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRaw-request-1-0-0-example.json
 .. _`Raw response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfRaw-response-1-0-0.json
+.. _`Raw response v1-0-0 example`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRaw-response-1-0-0-example.json
 
 RawHdp
 ++++++
 
-- `RawHdp request v1-0-0`_
-- `RawHdp response v1-0-0`_
+- `RawHdp request v1-0-0`_ and `RawHdp request v1-0-0 example`_
+- `RawHdp response v1-0-0`_ and and `RawHdp response v1-0-0 example`_
 
 .. _`RawHdp request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfRawHdp-request-1-0-0.json
+.. _`RawHdp request v1-0-0 example`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRawHdp-request-1-0-0-example.json
 .. _`RawHdp response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfRawHdp-response-1-0-0.json
+.. _`RawHdp response v1-0-0 example`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRawHdp-response-1-0-0-example.json
 
 IQRF Standard
 -------------
