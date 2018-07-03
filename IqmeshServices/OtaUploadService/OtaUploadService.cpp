@@ -242,32 +242,15 @@ namespace iqrf {
       pData[0] = address & 0xFF;
       pData[1] = (address >> 8) & 0xFF;
 
-      for (int i = 0; i < 16; i++) {
+      for (int i = 0; i < data.size(); i++) {
         pData[i + 2] = data[i];
       }
     }
 
-    // returns size of extended write packet without data part
-    uint8_t getExtendedWritePacketHeaderSize(const DpaMessage::DpaPacket_t& packet) {
-      return
-        1
-        + sizeof(packet.DpaRequestPacket_t.PCMD)
-        + sizeof(packet.DpaRequestPacket_t.PNUM)
-        + sizeof(packet.DpaRequestPacket_t.HWPID)
-        + 2;
-    }
+    // size of the embedded write packet INCLUDING target address, which to write data to
+    const uint8_t EMB_WRITE_PACKET_HEADER_SIZE = 1 + 1 + 1 + 2 + 2;
 
-    // sets specified EEEPROM extended write packet to be embedded in batch request
-    void setEmbeddedExtWritePacket(
-      DpaMessage::DpaPacket_t& packet, uint16_t address, const std::basic_string<uint8_t>& data
-    ) 
-    {
-      setExtendedWritePacketData(packet, address, data);
-
-      // on the position of NADR there must be the length of the packet
-      packet.DpaRequestPacket_t.NADR = getExtendedWritePacketHeaderSize(packet) + data.size();
-    }
-
+ 
     // sets specified EEEPROM extended write packet for coordinator
     void setExtWritePacketForCoord(
       DpaMessage::DpaPacket_t& packet, uint16_t address, const std::basic_string<uint8_t>& data
@@ -276,6 +259,29 @@ namespace iqrf {
       setExtendedWritePacketData(packet, address, data);
       packet.DpaRequestPacket_t.NADR = 0;
     }
+
+    // adds embedded write packet data into batch data
+    void addEmbeddedWritePacket(
+      uint8_t* batchPacketPData, 
+      const uint16_t address, 
+      const std::basic_string<uint8_t>& data,
+      const uint8_t offset
+    ) {
+      // length
+      batchPacketPData[offset] = EMB_WRITE_PACKET_HEADER_SIZE + data.size();
+      batchPacketPData[offset + 1] = PNUM_EEEPROM;
+      batchPacketPData[offset + 2] = CMD_EEEPROM_XWRITE;
+      batchPacketPData[offset + 3] = HWPID_DoNotCheck & 0xFF;
+      batchPacketPData[offset + 4] = (HWPID_DoNotCheck >> 8 ) & 0xFF;
+
+      batchPacketPData[offset + 5] = address & 0xFF;
+      batchPacketPData[offset + 6] = (address >> 8) & 0xFF;
+
+      for (int i = 0; i < data.size(); i++) {
+        batchPacketPData[offset + EMB_WRITE_PACKET_HEADER_SIZE + i] = data[i];
+      }
+    }
+
 
     void writeDataToMemoryInCoordinator(
       UploadResult& uploadResult,
@@ -313,33 +319,26 @@ namespace iqrf {
           if ((data[index].size() == 16) && (data[index + 1].size() == 16)) {
             // delete previous batch request data
             uns8* batchRequestData = batchPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
-            memset(batchRequestData, 0, sizeof(batchRequestData));
+            memset(batchRequestData, 0, DPA_MAX_DATA_LENGTH);
 
-            // set 1st embedded packet
-            setEmbeddedExtWritePacket(extendedWritePacket, actualAddress, data[index]);
+            // add 1st embedded packet into PData of the BATCH
+            addEmbeddedWritePacket(batchRequestData, actualAddress, data[index], 0);
             actualAddress += data[index].size();
 
             // size of the first packet
-            uint8_t firstPacketSize = getExtendedWritePacketHeaderSize(extendedWritePacket) + data[index].size();
+            uint8_t firstPacketSize = EMB_WRITE_PACKET_HEADER_SIZE + data[index].size();
 
-            // add 1st write packet into batch
-            memcpy(batchRequestData, extendedWritePacket.Buffer, firstPacketSize);
-
-            // set 2nd embedded packet
-            setEmbeddedExtWritePacket(extendedWritePacket, actualAddress, data[index + 1]);
-
-            // add 2nd write packet into batch
-            memcpy(
-              batchRequestData + firstPacketSize,
-              extendedWritePacket.Buffer,
-              getExtendedWritePacketHeaderSize(extendedWritePacket) + data[index + 1].size()
-            );
+            // add 2nd embedded packet into PData of the BATCH
+            addEmbeddedWritePacket(batchRequestData, actualAddress, data[index + 1], firstPacketSize);
 
             batchRequest.DataToBuffer(
               batchPacket.Buffer, 
-              sizeof(TDpaIFaceHeader) + 2*(16 + 2) + 1
+              sizeof(TDpaIFaceHeader) 
+              + 2* EMB_WRITE_PACKET_HEADER_SIZE 
+              + data[index].size() 
+              + data[index + 1].size()
+              + 1
             );
-
 
             // issue batch request
             std::shared_ptr<IDpaTransaction2> batchTransaction;
@@ -982,9 +981,9 @@ namespace iqrf {
       loadCodePacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       loadCodePacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       loadCodePacket.DpaRequestPacket_t.PCMD = CMD_OS_LOAD_CODE;
-      loadCodePacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      loadCodePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
-      TPerOSLoadCode_Request* tOsLoadCodeRequest = &loadCodeRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerOSLoadCode_Request;
+      TPerOSLoadCode_Request* tOsLoadCodeRequest = &loadCodePacket.DpaRequestPacket_t.DpaMessage.PerOSLoadCode_Request;
       tOsLoadCodeRequest->Address = startAddress;
       tOsLoadCodeRequest->CheckSum = checksum;
       tOsLoadCodeRequest->Length = length;
@@ -1142,7 +1141,7 @@ namespace iqrf {
       frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
       frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
-      frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      frcPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
       frcRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
 
       setSelectedNodesForFrcRequest(frcRequest, targetNodes);

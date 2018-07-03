@@ -359,6 +359,9 @@ namespace iqrf {
     {
       uint16_t checksum = initialValue;
 
+      uint16_t fillingByte = 0x34FF;
+      bool lowerFillingByteOnRank = true;
+
       size_t byteIndex = 0;
       for (
         uint16_t address = block.getStartAddress();
@@ -369,8 +372,18 @@ namespace iqrf {
         uint8_t oneByte = 0x00;
         if (block.getEndAddress() - address >= 0) {
           oneByte = block.getCode()[byteIndex] & 0xFF;
+        }/*
+        else {
+          if (lowerFillingByteOnRank) {
+            oneByte = fillingByte & 0xFF;
+            lowerFillingByteOnRank = false;
+          }
+          else {
+            oneByte = (fillingByte >> 8) & 0xFF;
+            lowerFillingByteOnRank = true;
+          }
         }
-
+        */
         // One’s Complement Fletcher Checksum
         uint16_t tempL = checksum & 0xff;
         tempL += oneByte;
@@ -409,9 +422,6 @@ namespace iqrf {
           byteBlock[i] = source[sourceOffset + i];
         }
       }
-
-      // update size of the byte block
-      byteBlock.resize(blockSize);
     }
 
     // prepares specified code block as 16 byte blocks
@@ -538,7 +548,7 @@ namespace iqrf {
     m_imp = shape_new DataPreparer::Imp();
 
     m_imp->checkFileName(fileName);
-
+    
     std::unique_ptr<PreparedData> preparedData;
 
     switch (loadingContent) {
