@@ -10,24 +10,24 @@ IQRF Generic
 Raw
 +++
 
-- `Raw request v1-0-0`_ and `Raw request v1-0-0 example`_ 
-- `Raw response v1-0-0`_ and `Raw response v1-0-0 example`_
+- `Raw request v1-0-0`_ and `example`__ 
+- `Raw response v1-0-0`_ and `example`__
 
 .. _`Raw request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfRaw-request-1-0-0.json
-.. _`Raw request v1-0-0 example`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRaw-request-1-0-0-example.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRaw-request-1-0-0-example.json
 .. _`Raw response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfRaw-response-1-0-0.json
-.. _`Raw response v1-0-0 example`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRaw-response-1-0-0-example.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRaw-response-1-0-0-example.json
 
 RawHdp
 ++++++
 
-- `RawHdp request v1-0-0`_ and `RawHdp request v1-0-0 example`_
-- `RawHdp response v1-0-0`_ and and `RawHdp response v1-0-0 example`_
+- `RawHdp request v1-0-0`_ and `example`__
+- `RawHdp response v1-0-0`_ and and `example`__
 
 .. _`RawHdp request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfRawHdp-request-1-0-0.json
-.. _`RawHdp request v1-0-0 example`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRawHdp-request-1-0-0-example.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRawHdp-request-1-0-0-example.json
 .. _`RawHdp response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfRawHdp-response-1-0-0.json
-.. _`RawHdp response v1-0-0 example`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRawHdp-response-1-0-0-example.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfRawHdp-response-1-0-0-example.json
 
 IQRF Standard
 -------------
