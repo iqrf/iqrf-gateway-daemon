@@ -35,19 +35,25 @@ IQRF Standard
 Embed Explore
 +++++++++++++
 
-- `Enumerate request v1-0-0`_
-- `Enumerate response v1-0-0`_
-- `PeripheralInformation request v1-0-0`_
-- `PeripheralInformation response v1-0-0`_
-- `MorePeripheralsInformation request v1-0-0`_
-- `MorePeripheralsInformation response v1-0-0`_
+- `Enumerate request v1-0-0`_ and `example`__
+- `Enumerate response v1-0-0`_ and `example`__
+- `PeripheralInformation request v1-0-0`_ and `example`__
+- `PeripheralInformation response v1-0-0`_ and `example`__
+- `MorePeripheralsInformation request v1-0-0`_ and `example`__
+- `MorePeripheralsInformation response v1-0-0`_ and `example`__
 
 .. _`Enumerate request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedExplore_Enumerate-request-1-0-0.json 
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedExplore_Enumerate-request-1-0-0-example.json
 .. _`Enumerate response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedExplore_Enumerate-response-1-0-0.json 
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedExplore_Enumerate-response-1-0-0-example.json
 .. _`PeripheralInformation request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedExplore_PeripheralInformation-request-1-0-0.json 
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedExplore_PeripheralInformation-request-1-0-0-example.json
 .. _`PeripheralInformation response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedExplore_PeripheralInformation-response-1-0-0.json 
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedExplore_PeripheralInformation-response-1-0-0-example.json
 .. _`MorePeripheralsInformation request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedExplore_MorePeripheralsInformation-request-1-0-0.json 
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedExplore_MorePeripheralsInformation-request-1-0-0-example.json
 .. _`MorePeripheralsInformation response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedExplore_MorePeripheralsInformation-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedExplore_MorePeripheralsInformation-response-1-0-0-example.json
 
 Embed Coordinator
 +++++++++++++++++
