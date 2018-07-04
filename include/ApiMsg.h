@@ -9,8 +9,10 @@ namespace iqrf {
     ApiMsg() {}
     ApiMsg(const rapidjson::Document& doc)
     {
-      m_msgId = rapidjson::Pointer("/data/msgId").Get(doc)->GetString();
-      const rapidjson::Value* v = rapidjson::Pointer("/data/returnVerbose").Get(doc);
+      using namespace rapidjson;
+      m_mType = Pointer("/mType").Get(doc)->GetString();
+      m_msgId = Pointer("/data/msgId").Get(doc)->GetString();
+      const Value* v = Pointer("/data/returnVerbose").Get(doc);
       if (v && v->IsBool()) {
         m_verbose = v->GetBool();
       }
@@ -33,11 +35,12 @@ namespace iqrf {
 
     void createResponse(rapidjson::Document& doc)
     {
-      rapidjson::Pointer("/mType").Set(doc, "unknown-mType"); // it's here just to keep order - replaced later in processing, 
+      rapidjson::Pointer("/mType").Set(doc, m_mType);
       rapidjson::Pointer("/data/msgId").Set(doc, m_msgId);
     }
 
   private:
+    std::string m_mType;
     std::string m_msgId;
     bool m_verbose = false;
   };

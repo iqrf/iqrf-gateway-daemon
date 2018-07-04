@@ -318,6 +318,7 @@ namespace iqrf {
 
       using namespace rapidjson;
       MngModeMsg msg(reqDoc);
+      msg.createResponse(respDoc);
 
       if (m_iUdpConnectorService) { // interface is UNREQUIRED
 
@@ -354,6 +355,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       MngRestartMsg msg(reqDoc);
+      msg.createResponse(respDoc);
 
       Document d;
       Pointer("/task/restart").Set(d, true);
@@ -382,6 +384,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       SchedAddTaskMsg msg(reqDoc);
+      msg.createResponse(respDoc);
 
       int64_t taskId = m_iSchedulerService->scheduleTask(msg.getClientId(), msg.getTask(), msg.getCronTime()); //TODO point
 
@@ -404,6 +407,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       SchedPeriodicTaskMsg msg(reqDoc);
+      msg.createResponse(respDoc);
 
       uint64_t taskId = m_iSchedulerService->scheduleTaskPeriodic(
         msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()/1000), msg.getPoint()); //TODO point
@@ -427,6 +431,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       SchedGetTaskMsg msg(reqDoc);
+      msg.createResponse(respDoc);
 
       const Value *task = m_iSchedulerService->getMyTask(msg.getClientId(), msg.getTaskId());
       const Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(msg.getClientId(), msg.getTaskId());
@@ -469,6 +474,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       SchedRemoveTaskMsg msg(reqDoc);
+      msg.createResponse(respDoc);
 
       auto *task = m_iSchedulerService->getMyTask(msg.getClientId(), msg.getTaskId());
       if (task) {
@@ -506,6 +512,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       SchedListMsg msg(reqDoc);
+      msg.createResponse(respDoc);
 
       std::vector<ISchedulerService::TaskHandle> vect = m_iSchedulerService->getMyTasks(msg.getClientId());
       
@@ -533,6 +540,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       SchedRemoveAllMsg msg(reqDoc);
+      msg.createResponse(respDoc);
 
       m_iSchedulerService->removeAllMyTasks(msg.getClientId());
       // prepare OK response
@@ -582,7 +590,6 @@ namespace iqrf {
         //TODO not support
       }
 
-      //TODO validate response in debug
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
 
       TRC_FUNCTION_LEAVE("");
