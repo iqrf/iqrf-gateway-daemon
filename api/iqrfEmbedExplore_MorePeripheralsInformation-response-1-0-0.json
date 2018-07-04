@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedExplore_MorePerInfo-response",
+        "name": "iqrfEmbedExplore_MorePeripheralsInformation-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,7 +12,7 @@
             "type": "string",
             "description": "Embedded peripheral Explore - More Peripheral Information response.",
             "enum": [
-                "iqrfEmbedExplore_MorePerInfo"
+                "iqrfEmbedExplore_MorePeripheralsInformation"
             ]
         },
         "data": {
@@ -45,38 +45,43 @@
                             "type": "integer",
                             "description": "DPA value."
                         },
-                        "result": {
-                            "type":"array",
-                            "description": "Returns the same information as Get peripheral information but for up to 14 peripherals of consecutive indexes starting with the specified PCMD.",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "perTe": {
-                                        "type": "integer",
-                                        "description": "Extended peripheral characteristic. See Extended Peripheral Characteristic constants."
-                                    },
-                                    "perT": {
-                                        "type": "integer",
-                                        "description": "Peripheral type. If the peripheral is not supported or enabled, then PerTx = PERIPHERAL_TYPE_DUMMY. See Peripheral Types constants."
-                                    },
-                                    "par1": {
-                                        "type": "integer",
-                                        "description": "Optional peripheral specific information."
-                                    },
-                                    "par2": {
-                                        "type": "integer",
-                                        "description": "Optional peripheral specific information."
-                                    }
-                                },
-                                "required":[
-                                    "perTe",
-                                    "perT",
-                                    "per1",
-                                    "per2"
-                                ]
-                            },
-                            "maxItems": 13
-                        },
+						"result": {
+							"type": "object",
+							"properties": {
+								"peripherals": {
+									"type":"array",
+									"description": "Returns the same information as Get peripheral information but for up to 14 peripherals of consecutive indexes starting with the specified PCMD.",
+									"items": {
+										"type": "object",
+										"properties": {
+											"perTe": {
+												"type": "integer",
+												"description": "Extended peripheral characteristic. See Extended Peripheral Characteristic constants."
+											},
+											"perT": {
+												"type": "integer",
+												"description": "Peripheral type. If the peripheral is not supported or enabled, then PerTx = PERIPHERAL_TYPE_DUMMY. See Peripheral Types constants."
+											},
+											"par1": {
+												"type": "integer",
+												"description": "Optional peripheral specific information."
+											},
+											"par2": {
+												"type": "integer",
+												"description": "Optional peripheral specific information."
+											}
+										},
+										"required":[
+											"perTe",
+											"perT",
+											"par1",
+											"par2"
+										]
+									},
+									"maxItems": 14
+								}
+							}
+						},
                         "errorStr": {
                             "type": "string",
                             "description": "Error description from JS drivers."

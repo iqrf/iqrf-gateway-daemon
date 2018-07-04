@@ -177,8 +177,8 @@
                 "required": [
                     "perTe",
                     "perT",
-                    "per1",
-                    "per2"
+                    "par1",
+                    "par2"
                 ]
             },
             "maxItems": 14

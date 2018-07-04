@@ -42,7 +42,7 @@
                             "properties": {
                                 "address": {
                                     "type": "integer",
-                                    "description": "Memory address to read from."
+                                    "description": "Memory address to write to."
                                 },
                                 "pData": {
                                     "type": "array",
