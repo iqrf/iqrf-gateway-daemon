@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <thread>
+#include <condition_variable>
 
 #include "iqrf__JsRenderDuktape.hxx"
 
