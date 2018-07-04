@@ -1,0 +1,271 @@
+==================================
+Sending to MQTT: 2018-07-04 17:34:33.262
+{
+  "mType": "iqmeshNetwork_EnumerateDevice",
+  "data": {
+    "msgId": "c726ecb9-ee7c-433a-9aa4-3fb21cae2d4d",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 0
+    },
+    "returnVerbose": true
+  }
+}
+Received from MQTT: 2018-07-04 17:34:34.365
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "c726ecb9-ee7c-433a-9aa4-3fb21cae2d4d",
+        "rsp": {
+            "deviceAddr": 0,
+            "result": {
+                "discovered": false,
+                "vrn": 0,
+                "zone": 0,
+                "parent": 0
+            }
+        },
+        "status": 0,
+        "statusStr": "ok",
+        "raw": []
+    }
+}
+Received from MQTT: 2018-07-04 17:34:34.392
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "c726ecb9-ee7c-433a-9aa4-3fb21cae2d4d",
+        "rsp": {
+            "deviceAddr": 0,
+            "result": {
+                "mid": "11.11.11.11",
+                "osVersion": "42",
+                "trMcuType": "24",
+                "osBuild": "08b8",
+                "rssi": 0,
+                "supplyVoltage": "28",
+                "flags": 4,
+                "slotLimits": 49
+            }
+        },
+        "status": 0,
+        "statusStr": "ok",
+        "raw": []
+    }
+}
+Received from MQTT: 2018-07-04 17:34:34.401
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "c726ecb9-ee7c-433a-9aa4-3fb21cae2d4d",
+        "rsp": {
+            "deviceAddr": 0,
+            "result": {
+                "dpaVer": "0.2",
+                "perNr": 0,
+                "embPers": [
+                    253,
+                    38,
+                    0,
+                    0
+                ],
+                "hwpId": "0000",
+                "hwpIdVer": 0,
+                "flags": 1,
+                "userPers": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "status": 0,
+        "statusStr": "ok",
+        "raw": []
+    }
+}
+Received from MQTT: 2018-07-04 17:34:34.409
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "c726ecb9-ee7c-433a-9aa4-3fb21cae2d4d",
+        "rsp": {
+            "deviceAddr": 0,
+            "result": {
+                "checkSum": 169,
+                "cfgBytes": [
+                    201,
+                    18,
+                    52,
+                    52,
+                    52,
+                    30,
+                    52,
+                    55,
+                    49,
+                    50,
+                    50,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    0,
+                    54,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    55,
+                    52
+                ],
+                "rfPgm": 131,
+                "undocumented": 174
+            }
+        },
+        "status": 0,
+        "statusStr": "ok",
+        "raw": []
+    }
+}
+Received from MQTT: 2018-07-04 17:34:34.421
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "c726ecb9-ee7c-433a-9aa4-3fb21cae2d4d",
+        "rsp": {
+            "deviceAddr": 0,
+            "result": [
+                {
+                    "perTe": 2,
+                    "perT": 3,
+                    "par1": 0,
+                    "par2": 253
+                },
+                {
+                    "perTe": 38,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 1
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                }
+            ]
+        },
+        "status": 0,
+        "statusStr": "ok",
+        "raw": []
+    }
+}
+Received from MQTT: 2018-07-04 17:34:34.429
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "c726ecb9-ee7c-433a-9aa4-3fb21cae2d4d",
+        "rsp": {
+            "deviceAddr": 0,
+            "result": {
+                "validation": {
+                    "valid": true,
+                    "osVer": "42",
+                    "osBuild": "08b8",
+                    "dpaVer": "0302",
+                    "txPower": 49,
+                    "rxFilter": 50
+                }
+            }
+        },
+        "status": 0,
+        "statusStr": "ok",
+        "raw": []
+    }
+}
+2018-07-04 17:34:34.892
+==================================
+

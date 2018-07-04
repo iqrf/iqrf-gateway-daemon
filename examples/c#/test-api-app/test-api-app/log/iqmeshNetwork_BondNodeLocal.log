@@ -1,0 +1,51 @@
+==================================
+Sending to MQTT: 2018-07-04 17:34:21.533
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "07f80295-01d6-4a44-b082-8cc285d9fa7c",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 5
+    },
+    "returnVerbose": true
+  }
+}
+Received from MQTT: 2018-07-04 17:34:32.784
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "MqttMessaging1",
+        "statusStr": "Dpa error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-04T15:34:22.983519",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.08.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.37.34",
+                "responseTs": "2018-07-04T15:34:23.22483"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.00.00",
+                "requestTs": "2018-07-04T15:34:23.23524",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.04.ff.ff.00.00",
+                "requestTs": "2018-07-04T15:34:33.630532",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.01.00",
+                "responseTs": "2018-07-04T15:34:34.193957"
+            }
+        ]
+    }
+}
+2018-07-04 17:34:33.224
+==================================
+

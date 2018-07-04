@@ -1,0 +1,8 @@
+{
+    "mType": "iqmeshNetwork_WriteTrConf",
+    "data": {
+        "msgId": "b06f76f6-7a45-44f3-86c2-765b55efba1a",
+        "status": 1000,
+        "statusStr": "UART baud rate out of valid bounds. Value: uartBaudrate=\"57600\" "
+    }
+}

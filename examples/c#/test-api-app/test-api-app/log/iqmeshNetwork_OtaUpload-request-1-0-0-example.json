@@ -1,0 +1,16 @@
+{
+  "mType": "iqmeshNetwork_OtaUpload",
+  "data": {
+    "msgId": "fb1affca-4faf-4898-88e5-97f0c24264ce",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": [
+        0
+      ],
+      "fileName": "test.hex",
+      "startMemAddr": 2048,
+      "loadingAction": "WithCodeLoading"
+    },
+    "returnVerbose": true
+  }
+}

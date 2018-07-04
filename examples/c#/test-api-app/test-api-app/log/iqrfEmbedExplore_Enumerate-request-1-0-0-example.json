@@ -1,0 +1,12 @@
+{
+  "mType": "iqrfEmbedExplore_Enumerate",
+  "data": {
+    "msgId": "testEmbedExplore",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

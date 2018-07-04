@@ -1,0 +1,128 @@
+==================================
+Sending to WebSocket: 2018-07-04 21:00:23.008
+{
+  "mType": "iqrfEmbedExplore_Enumerate",
+  "data": {
+    "msgId": "testEmbedExplore",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-04 21:00:23.519
+{
+    "mType": "iqrfEmbedExplore_Enumerate",
+    "data": {
+        "msgId": "testEmbedExplore",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 81,
+            "result": {
+                "dpaVer": 771,
+                "perNr": 1,
+                "embeddedPers": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    9,
+                    10,
+                    13
+                ],
+                "hwpid": 2,
+                "hwpidVer": 0,
+                "flags": 1,
+                "userPer": [
+                    94
+                ]
+            }
+        },
+        "raw": {
+            "request": "01.00.ff.3f.ff.ff",
+            "requestTs": "2018-07-04T21:00:24.814877",
+            "confirmation": "01.00.ff.3f.ff.ff.ff.4d.01.04.01",
+            "confirmationTs": "2018-07-04T21:00:24.847281",
+            "response": "01.00.ff.bf.02.00.00.51.03.03.01.fe.26.00.00.02.00.00.00.01.00.00.00.00.00.00.00.40",
+            "responseTs": "2018-07-04T21:00:24.991525"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-04 21:00:23.989
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-04 21:00:45.29
+{
+  "mType": "iqrfEmbedExplore_Enumerate",
+  "data": {
+    "msgId": "testEmbedExplore",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-04 21:00:45.793
+{
+    "mType": "iqrfEmbedExplore_Enumerate",
+    "data": {
+        "msgId": "testEmbedExplore",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 80,
+            "result": {
+                "dpaVer": 771,
+                "perNr": 1,
+                "embeddedPers": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    9,
+                    10,
+                    13
+                ],
+                "hwpid": 2,
+                "hwpidVer": 0,
+                "flags": 1,
+                "userPer": [
+                    94
+                ]
+            }
+        },
+        "raw": {
+            "request": "01.00.ff.3f.ff.ff",
+            "requestTs": "2018-07-04T21:00:47.95442",
+            "confirmation": "01.00.ff.3f.ff.ff.ff.4e.01.04.01",
+            "confirmationTs": "2018-07-04T21:00:47.132168",
+            "response": "01.00.ff.bf.02.00.00.50.03.03.01.fe.26.00.00.02.00.00.00.01.00.00.00.00.00.00.00.40",
+            "responseTs": "2018-07-04T21:00:47.265792"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-04 21:00:46.269
+==================================
+
