@@ -1,7 +1,6 @@
 #define IMessagingSplitterService_EXPORTS
 
 #include "JsonDpaApiRaw.h"
-#include "JsonApiMessageNames.h"
 #include "ComRaws.h"
 #include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
@@ -81,6 +80,8 @@ namespace iqrf {
   public:
     Imp()
     {
+      const std::string mType_iqrfRaw = "iqrfRaw";
+      const std::string mType_iqrfRawHdp = "iqrfRawHdp";
       m_objectFactory.registerClass<ComRaw>(mType_iqrfRaw);
       m_objectFactory.registerClass<ComRawHdp>(mType_iqrfRawHdp);
     }

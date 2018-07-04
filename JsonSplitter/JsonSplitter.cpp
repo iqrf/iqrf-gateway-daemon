@@ -203,14 +203,26 @@ namespace iqrf {
         }
 
         bool found = false;
+        std::map<std::string, FilteredMessageHandlerFunc > bestFitMap;
         for (const auto & filter : m_filterMessageHandlerFuncMap) {
+          // best fit
           if (std::string::npos != msgType.m_type.find(filter.first)) {
-            filter.second(messagingId, msgType, std::move(doc));
-            found = true;
-            break;
+            bestFitMap.insert(filter);
           }
         }
-        if (!found) {
+        if (!bestFitMap.empty()) {
+          size_t len = 0;
+          FilteredMessageHandlerFunc selected;
+          for (const auto & fit : bestFitMap) {
+            if (len < fit.first.size()) {
+              selected = fit.second;
+              len = fit.first.size();
+            }
+          }
+          // invoke handling
+          selected(messagingId, msgType, std::move(doc));
+        }
+        else {
           //TODO parse error handling => send back an error JSON with details
           THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType.version, getKey(msgType)));
         }

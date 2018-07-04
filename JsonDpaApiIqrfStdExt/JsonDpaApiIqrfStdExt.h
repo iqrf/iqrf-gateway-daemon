@@ -9,11 +9,11 @@
 #include <map>
 
 namespace iqrf {
-  class JsonDpaApiIqrfStandard
+  class JsonDpaApiIqrfStdExt
   {
   public:
-    JsonDpaApiIqrfStandard();
-    virtual ~JsonDpaApiIqrfStandard();
+    JsonDpaApiIqrfStdExt();
+    virtual ~JsonDpaApiIqrfStdExt();
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

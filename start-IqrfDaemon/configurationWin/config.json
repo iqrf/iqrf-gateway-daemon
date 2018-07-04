@@ -133,7 +133,7 @@
       "enabled": true,
       "startlevel": 1
     },
-	{
+    {
       "name": "iqrf::SchedulerMessaging",
       "libraryPath": "",
       "libraryName": "SchedulerMessaging",
@@ -169,34 +169,48 @@
       "startlevel": 2
     },
     {
+      "name": "iqrf::JsRenderDuktape",
+      "libraryPath": "",
+      "libraryName": "JsRenderDuktape",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
       "name": "iqrf::JsonDpaApiIqrfStandard",
       "libraryPath": "",
       "libraryName": "JsonDpaApiIqrfStandard",
       "enabled": true,
       "startlevel": 3
     },
-	{
+    {
+      "name": "iqrf::JsonDpaApiIqrfStdExt",
+      "libraryPath": "",
+      "libraryName": "JsonDpaApiIqrfStdExt",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
       "name": "iqrf::WriteTrConfService",
       "libraryPath": "",
       "libraryName": "WriteTrConfService",
       "enabled": true,
       "startlevel": 3
     },
-	{
+    {
       "name": "iqrf::SmartConnectService",
       "libraryPath": "",
       "libraryName": "SmartConnectService",
       "enabled": true,
       "startlevel": 3
     },
-	{
+    {
       "name": "iqrf::ReadTrConfService",
       "libraryPath": "",
       "libraryName": "ReadTrConfService",
       "enabled": true,
       "startlevel": 3
     },
-	{
+    {
       "name": "iqrf::OtaUploadService",
       "libraryPath": "",
       "libraryName": "OtaUploadService",

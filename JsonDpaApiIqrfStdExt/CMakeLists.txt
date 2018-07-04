@@ -1,6 +1,6 @@
-project(JsonDpaApiIqrfStandard)
+project(JsonDpaApiIqrfStdExt)
 
-set(COMPONENT iqrf::JsonDpaApiIqrfStandard)
+set(COMPONENT iqrf::JsonDpaApiIqrfStdExt)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} iqrf::IJsRenderService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)

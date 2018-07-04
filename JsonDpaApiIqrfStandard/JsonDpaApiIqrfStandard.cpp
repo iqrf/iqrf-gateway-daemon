@@ -1,16 +1,13 @@
 #define IMessagingSplitterService_EXPORTS
 
-#include "JsonApiMessageNames.h"
 #include "ComIqrfStandard.h"
 #include "IDpaTransactionResult2.h"
 #include "JsonDpaApiIqrfStandard.h"
-#include "DuktapeStuff.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/prettywriter.h"
-#include "ITemplateService.h"
 #include "Trace.h"
 #include <algorithm>
 #include <fstream>
@@ -53,7 +50,7 @@ namespace iqrf {
   {
   private:
 
-    iqrf::IJsCacheService* m_iJsCacheService = nullptr;
+    iqrf::IJsRenderService* m_iJsRenderService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     //just to be able to abort
@@ -66,10 +63,8 @@ namespace iqrf {
       "iqrfEmbed",
       "iqrfLight",
       "iqrfSensor",
-      "iqrfBinaryoutput",
+      "iqrfBinaryoutput"
     };
-
-    DuktapeStuff m_duk;
 
   public:
     Imp()
@@ -195,7 +190,7 @@ namespace iqrf {
       std::string errStrReq;
       bool driverRequestError = false;
       try {
-        m_duk.call(methodRequestName, com->getParamAsString(), rawHdpRequest);
+        m_iJsRenderService->call(methodRequestName, com->getParamAsString(), rawHdpRequest);
       }
       catch (std::exception &e) {
         //request driver func error
@@ -249,7 +244,7 @@ namespace iqrf {
             std::string errStrRes;
             bool driverResponseError = false;
             try {
-              m_duk.call(methodResponseName, rawHdpResponse, rspObjStr);
+              m_iJsRenderService->call(methodResponseName, rawHdpResponse, rspObjStr);
             }
             catch (std::exception &e) {
               //response driver func error
@@ -304,9 +299,6 @@ namespace iqrf {
         "******************************"
       );
 
-      const std::map<int, const IJsCacheService::StdDriver*> scripts = m_iJsCacheService->getAllLatestDrivers();
-      m_duk.init(scripts);
-
       m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
         [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
       {
@@ -334,8 +326,6 @@ namespace iqrf {
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
 
-      m_duk.finit();
-
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -343,15 +333,15 @@ namespace iqrf {
     {
     }
 
-    void attachInterface(IJsCacheService* iface)
+    void attachInterface(IJsRenderService* iface)
     {
-      m_iJsCacheService = iface;
+      m_iJsRenderService = iface;
     }
 
-    void detachInterface(IJsCacheService* iface)
+    void detachInterface(IJsRenderService* iface)
     {
-      if (m_iJsCacheService == iface) {
-        m_iJsCacheService = nullptr;
+      if (m_iJsRenderService == iface) {
+        m_iJsRenderService = nullptr;
       }
     }
 
@@ -409,12 +399,12 @@ namespace iqrf {
     m_imp->modify(props);
   }
 
-  void JsonDpaApiIqrfStandard::attachInterface(iqrf::IJsCacheService* iface)
+  void JsonDpaApiIqrfStandard::attachInterface(iqrf::IJsRenderService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void JsonDpaApiIqrfStandard::detachInterface(iqrf::IJsCacheService* iface)
+  void JsonDpaApiIqrfStandard::detachInterface(iqrf::IJsRenderService* iface)
   {
     m_imp->detachInterface(iface);
   }

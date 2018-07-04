@@ -9,12 +9,17 @@ namespace iqrf {
   {
   public:
     ComBase() {}
-    ComBase(rapidjson::Document& doc)
+    ComBase(const rapidjson::Document& doc)
     {
-      m_mType = rapidjson::Pointer("/mType").Get(doc)->GetString();
-      m_msgId = rapidjson::Pointer("/data/msgId").Get(doc)->GetString();
-      m_timeout = rapidjson::Pointer("/data/timeout").GetWithDefault(doc, (int)m_timeout).GetInt();
-      m_verbose = rapidjson::Pointer("/data/returnVerbose").GetWithDefault(doc, m_verbose).GetBool();
+      using namespace rapidjson;
+      m_mType = Pointer("/mType").Get(doc)->GetString();
+      m_msgId = Pointer("/data/msgId").Get(doc)->GetString();
+      const Value* timeoutVal = Pointer("/data/timeout").Get(doc);
+      if (timeoutVal && timeoutVal->IsInt())
+        m_timeout = timeoutVal->GetInt();
+      const Value* verboseVal = Pointer("/data/returnVerbose").Get(doc);
+      if (verboseVal && verboseVal->IsBool())
+        m_verbose = verboseVal->GetBool();
     }
 
     virtual ~ComBase()

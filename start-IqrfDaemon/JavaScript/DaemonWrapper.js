@@ -866,17 +866,21 @@ iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {
 };
 
 iqrf.sensor.Frc_Request_req = function (param) {
-    return iqrf.sensor.Frc_Request(param.sensorType, param.sensorIndex, param.frcCommand, param.selectedNodes, param.sleepAfterFrc);
+    var result =
+    {
+        retpars: iqrf.sensor.Frc_Request(param.sensorType, param.sensorIndex, param.frcCommand, param.selectedNodes, param.sleepAfterFrc)
+    };
+    return result;
 };
 
-//TODO needs special handling with state info because of parameter per to be passed
-//iqrf.sensor.Frc_Response_rsp = function (sensorType, ..., rawHdp) {
-//    var result =
-//    {
-//        sensors: iqrf.sensor.Frc_Response(rawHdp)
-//    };
-//    return result;
-//};
+//special handling with state info because of parameter per to be passed
+iqrf.sensor.Frc_Response_rsp = function (param) {
+   var result =
+   {
+       sensors: iqrf.sensor.Frc_Response(param.sensorType, param.frcCommand, param.responseFrcSend, param.responseFrcExtraResult)
+   };
+   return result;
+};
 
 ////////////////////////
 // EXPLORE

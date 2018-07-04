@@ -1,10 +1,9 @@
-project(JsonDpaApiIqrfStandard)
+project(JsRenderDuktape)
 
-set(COMPONENT iqrf::JsonDpaApiIqrfStandard)
+set(COMPONENT iqrf::JsRenderDuktape)
 DeclareShapeComponent(${COMPONENT})
-AddShapeRequiredInterface(${COMPONENT} iqrf::IJsRenderService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IJsRenderService)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IJsCacheService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -16,9 +15,12 @@ source_group("Source Files" FILES ${_SRCFILES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${clibdpa_INCLUDE_DIRS})
 
+if(WIN32)
+add_definitions(-DRAPIDJSON_HAS_STDSTRING -DDUK_USE_DATE_NOW_WINDOWS)
+else()
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
+endif()
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
