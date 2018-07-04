@@ -106,16 +106,16 @@ namespace iqrfSensor_Frc_Request
     public partial class Param 
     {
         /// <summary>Type of sensor (quantity) to read values of. Use iqrf.sensor.STD_SENSOR_TYPE_* constant. Use 0 to specify the sensor only by sensorIndex parameter.</summary>
-        [Newtonsoft.Json.JsonProperty("sensorType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? SensorType { get; set; }
+        [Newtonsoft.Json.JsonProperty("sensorType", Required = Newtonsoft.Json.Required.Always)]
+        public int SensorType { get; set; }
     
         /// <summary>Index of the sensor. If the sensor type is specified, then its is an index among of all sensors of the specified type. If sensorType is 0 then it is overall sensor index. Some FRC commands might use top 3 bits of this parameter for passing additional data.</summary>
-        [Newtonsoft.Json.JsonProperty("sensorIndex", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? SensorIndex { get; set; }
+        [Newtonsoft.Json.JsonProperty("sensorIndex", Required = Newtonsoft.Json.Required.Always)]
+        public int SensorIndex { get; set; }
     
         /// <summary>One of predefined standard sensor FRC commands. See iqrf.sensor.STD_SENSOR_FRC_* constants.</summary>
-        [Newtonsoft.Json.JsonProperty("frcCommand", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? FrcCommand { get; set; }
+        [Newtonsoft.Json.JsonProperty("frcCommand", Required = Newtonsoft.Json.Required.Always)]
+        public int FrcCommand { get; set; }
     
         /// <summary>Array if integer values corresponding to the selected nodes. Use default value to select all nodes and use sleepAfterFrc parameter.</summary>
         [Newtonsoft.Json.JsonProperty("selectedNodes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -124,6 +124,10 @@ namespace iqrfSensor_Frc_Request
         /// <summary>Object with the following fields to put the nodes into sleep mode after the FRC is finished.</summary>
         [Newtonsoft.Json.JsonProperty("sleepAfterFrc", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public SleepAfterFrc SleepAfterFrc { get; set; }
+    
+        /// <summary>If set Extra result DPA message is sent and processed</summary>
+        [Newtonsoft.Json.JsonProperty("getExtraResult", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? GetExtraResult { get; set; } = true;
     
         public string ToJson() 
         {

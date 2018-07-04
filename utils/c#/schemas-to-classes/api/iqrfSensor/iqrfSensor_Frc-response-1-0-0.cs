@@ -62,6 +62,9 @@ namespace iqrfSensor_Frc_Response
         [Newtonsoft.Json.JsonProperty("raw", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Raw Raw { get; set; }
     
+        [Newtonsoft.Json.JsonProperty("rawExtra", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public RawExtra RawExtra { get; set; }
+    
         /// <summary>IQRF GW daemon instance identification.</summary>
         [Newtonsoft.Json.JsonProperty("insId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string InsId { get; set; }
@@ -165,6 +168,51 @@ namespace iqrfSensor_Frc_Response
         public static Raw FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<Raw>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class RawExtra 
+    {
+        /// <summary>Binary buffer with DPA request.</summary>
+        [Newtonsoft.Json.JsonProperty("request", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Request { get; set; }
+    
+        /// <summary>YYYY-MM-DDTHH:MM:SS.MS</summary>
+        [Newtonsoft.Json.JsonProperty("requestTs", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string RequestTs { get; set; }
+    
+        /// <summary>Binary buffer with DPA confirmation.</summary>
+        [Newtonsoft.Json.JsonProperty("confirmation", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Confirmation { get; set; }
+    
+        /// <summary>YYYY-MM-DDTHH:MM:SS.MS</summary>
+        [Newtonsoft.Json.JsonProperty("confirmationTs", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string ConfirmationTs { get; set; }
+    
+        /// <summary>Binary buffer with DPA response.</summary>
+        [Newtonsoft.Json.JsonProperty("response", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Response { get; set; }
+    
+        /// <summary>YYYY-MM-DDTHH:MM:SS.MS</summary>
+        [Newtonsoft.Json.JsonProperty("responseTs", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string ResponseTs { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static RawExtra FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<RawExtra>(data);
         }
     
     }

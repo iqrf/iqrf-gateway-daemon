@@ -36,9 +36,9 @@ namespace iqrfEmbedExplore_MorePeripheralsInformation_Response
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public enum IqrfEmbedExplore_MorePeripheralsInformation_ResponseMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedExplore_MorePerInfo")]
+        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedExplore_MorePeripheralsInformation")]
     
-        IqrfEmbedExplore_MorePerInfo = 0,
+        IqrfEmbedExplore_MorePeripheralsInformation = 0,
     
     
     }
@@ -105,9 +105,8 @@ namespace iqrfEmbedExplore_MorePeripheralsInformation_Response
         [Newtonsoft.Json.JsonProperty("dpaVal", Required = Newtonsoft.Json.Required.Always)]
         public int DpaVal { get; set; }
     
-        /// <summary>Returns the same information as Get peripheral information but for up to 14 peripherals of consecutive indexes starting with the specified PCMD.</summary>
         [Newtonsoft.Json.JsonProperty("result", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<Anonymous> Result { get; set; }
+        public Result Result { get; set; }
     
         /// <summary>Error description from JS drivers.</summary>
         [Newtonsoft.Json.JsonProperty("errorStr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -171,6 +170,25 @@ namespace iqrfEmbedExplore_MorePeripheralsInformation_Response
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Result 
+    {
+        /// <summary>Returns the same information as Get peripheral information but for up to 14 peripherals of consecutive indexes starting with the specified PCMD.</summary>
+        [Newtonsoft.Json.JsonProperty("peripherals", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<Anonymous> Peripherals { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Result FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Result>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Anonymous 
     {
         /// <summary>Extended peripheral characteristic. See Extended Peripheral Characteristic constants.</summary>
@@ -182,12 +200,12 @@ namespace iqrfEmbedExplore_MorePeripheralsInformation_Response
         public int PerT { get; set; }
     
         /// <summary>Optional peripheral specific information.</summary>
-        [Newtonsoft.Json.JsonProperty("par1", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Par1 { get; set; }
+        [Newtonsoft.Json.JsonProperty("par1", Required = Newtonsoft.Json.Required.Always)]
+        public int Par1 { get; set; }
     
         /// <summary>Optional peripheral specific information.</summary>
-        [Newtonsoft.Json.JsonProperty("par2", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Par2 { get; set; }
+        [Newtonsoft.Json.JsonProperty("par2", Required = Newtonsoft.Json.Required.Always)]
+        public int Par2 { get; set; }
     
         public string ToJson() 
         {

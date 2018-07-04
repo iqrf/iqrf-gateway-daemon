@@ -105,7 +105,7 @@ namespace iqrfEmbedEeprom_Write_Request
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Param 
     {
-        /// <summary>Memory address to read from.</summary>
+        /// <summary>Memory address to write to.</summary>
         [Newtonsoft.Json.JsonProperty("address", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Address { get; set; }
     
