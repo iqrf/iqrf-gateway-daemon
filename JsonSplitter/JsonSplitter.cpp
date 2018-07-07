@@ -1,5 +1,6 @@
 #define IMessagingSplitterService_EXPORTS
 
+#include "ApiMsg.h"
 #include "JsonSplitter.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -36,6 +37,33 @@ TRC_INIT_MODULE(iqrf::JsonSplitter);
 using namespace rapidjson;
 
 namespace iqrf {
+  class MessageErrorMsg : public ApiMsg
+  {
+  public:
+    MessageErrorMsg() = delete;
+    MessageErrorMsg(const std::string msgId, const std::string wrongMsg, const std::string errorStr)
+      :ApiMsg("messageError", msgId, true)
+      ,m_wrongMsg(wrongMsg)
+      ,m_errorStr(errorStr)
+    {
+    }
+
+    virtual ~MessageErrorMsg()
+    {
+    }
+
+    void createResponsePayload(rapidjson::Document& doc) override
+    {
+      Pointer("/data/rsp/wrongMsg").Set(doc, m_wrongMsg);
+      Pointer("/data/rsp/errorStr").Set(doc, m_errorStr);
+      setStatus("err",-1);
+    }
+
+  private:
+    std::string m_wrongMsg;
+    std::string m_errorStr;
+  };
+
   class JsonSplitter::Imp {
   private:
     bool m_validateResponse = true;
@@ -177,6 +205,7 @@ namespace iqrf {
     {
       using namespace rapidjson;
 
+      std::string msgId("undefined");
       std::string str((char*)message.data(), message.size());
       StringStream sstr(str.data());
       Document doc;
@@ -229,13 +258,14 @@ namespace iqrf {
 
       }
       catch (std::logic_error &e) {
-        //TODO send back parse error
-        //TODO mtx?
-        auto found = m_iMessagingServiceMap.find(messagingId);
-        if (found != m_iMessagingServiceMap.end()) {
-          std::string what(e.what());
-          std::basic_string<uint8_t> bwhat((uint8_t*)what.c_str(), what.size());
-          found->second->sendMessage(bwhat);
+        Document rspDoc;
+        MessageErrorMsg msg(msgId, str, e.what());
+        msg.createResponse(rspDoc);
+        try {
+          sendMessage(messagingId, std::move(rspDoc));
+        }
+        catch (std::logic_error &ee) {
+          TRC_WARNING("Cannot create error response:" << ee.what());
         }
       }
     }
@@ -388,11 +418,12 @@ namespace iqrf {
 
           if (direction == "request") {
             m_validatorMapRequest.insert(std::make_pair(getKey(msgType), std::move(schema)));
-            m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
+            //m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
           }
           else if (direction == "response") {
             m_validatorMapResponse.insert(std::make_pair(getKey(msgType), std::move(schema)));
           }
+          m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
         }
         catch (std::exception & e) {
           CATCH_EXC_TRC_WAR(std::exception, e, "");

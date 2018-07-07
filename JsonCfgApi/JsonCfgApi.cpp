@@ -68,10 +68,32 @@ namespace iqrf {
       return m_cfgDoc;
     }
 
+    void setErr(const std::string& errStr)
+    {
+      m_errStr = errStr;
+    }
+
+    void createResponsePayload(rapidjson::Document& doc) override
+    {
+      Pointer("/data/rsp/componentName").Set(doc, getComponentName());
+      Pointer("/data/rsp/componentInstance").Set(doc, getComponentInstance());
+      
+      if (m_errStr.empty()) {
+        setStatus("ok", 0);
+      }
+      else {
+        if (getVerbose()) {
+          Pointer("/data/errorStr").Set(doc, m_errStr);
+        }
+        setStatus("err", -1);
+      }
+    }
+
   private:
     rapidjson::Document m_cfgDoc;
     std::string m_componentName;
     std::string m_componentInstance;
+    std::string m_errStr;
 
   };
 
@@ -136,34 +158,15 @@ namespace iqrf {
             Pointer("/instance").Set(propDoc, msg.getComponentInstance());
 
             cfgPtr->update();
-
-            // prepare ok response
-            Pointer("/data/rsp/componentName").Set(respDoc, msg.getComponentName());
-            Pointer("/data/rsp/componentInstance").Set(respDoc, msg.getComponentInstance());
-
-            if (msg.getVerbose()) {
-              Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
-              Pointer("/data/statusStr").Set(respDoc, "ok");
-            }
-
-            Pointer("/data/status").Set(respDoc, 0);
           }
           else {
             THROW_EXC_TRC_WAR(std::logic_error, "Cannot find configuration");
           }
         }
         catch (std::exception &e) {
-          Pointer("/data/rsp/componentName").Set(respDoc, msg.getComponentName());
-          Pointer("/data/rsp/componentInstance").Set(respDoc, msg.getComponentInstance());
-
-          if (msg.getVerbose()) {
-            Pointer("/data/insId").Set(respDoc, "iqrfgd2-1"); // TODO replace by daemon instance id
-            Pointer("/data/statusStr").Set(respDoc, "err");
-            Pointer("/data/errorStr").Set(respDoc, e.what());
-          }
-
-          Pointer("/data/status").Set(respDoc, -1);
+          msg.setErr(e.what());
         }
+        msg.createResponse(respDoc);
       }
 
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
