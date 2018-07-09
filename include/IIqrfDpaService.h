@@ -36,6 +36,17 @@ namespace iqrf {
       bool lpModeSupportFlag = false;
     };
 
+    class ExclusiveAccess
+    {
+    public:
+      virtual std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) = 0;
+      virtual ~ExclusiveAccess() {}
+    };
+
+    /// returns empty pointer if exclusiveAccess already assigned
+    /// explicit unique_ptr::reset() or just get it out of scope of returned ptr releases exclusive access
+    virtual std::unique_ptr<ExclusiveAccess> getExclusiveAccess() = 0;
+
     /// 0 > timeout - use default, 0 == timeout - use infinit, 0 < timeout - user value
     virtual std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) = 0;
     virtual CoordinatorParameters getCoordinatorParameters() const = 0;

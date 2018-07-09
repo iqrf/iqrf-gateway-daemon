@@ -44,6 +44,55 @@ namespace iqrf {
 
   typedef shape::EnumStringConvertor<IDpaTransaction2::FrcResponseTime, FrcResponseTimeConvertTable> FrcResponseTimeStringConvertor;
 
+  class ExclusiveAccessImpl : public IIqrfDpaService::ExclusiveAccess
+  {
+  public:
+    ExclusiveAccessImpl() = delete;
+    ExclusiveAccessImpl(IqrfDpa* iqrfDpa)
+      :m_iqrfDpa(iqrfDpa)
+    {
+      m_iqrfDpa->setExclusiveAccess(true);
+    }
+
+    std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) override
+    {
+      TRC_FUNCTION_ENTER("");
+      auto result = m_iqrfDpa->executeExclusiveDpaTransaction(request, timeout);
+      TRC_FUNCTION_LEAVE("");
+      return result;
+    }
+
+    virtual ~ExclusiveAccessImpl()
+    {
+      m_iqrfDpa->setExclusiveAccess(false);
+    }
+
+  private:
+    IqrfDpa* m_iqrfDpa = nullptr;
+  };
+
+  std::unique_ptr<IIqrfDpaService::ExclusiveAccess> IqrfDpa::getExclusiveAccess()
+  {
+    std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
+    std::unique_ptr<IIqrfDpaService::ExclusiveAccess> retval;
+    if (!m_exclusiveAccess) {
+      retval.reset(shape_new ExclusiveAccessImpl(this));
+    }
+    return retval;
+  }
+
+  void IqrfDpa::setExclusiveAccess(bool val)
+  {
+    std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
+    if (val) {
+      m_iqrfDpaChannel->getExclusiveAccess();
+      m_exclusiveAccess = true;
+    }
+    else {
+      m_iqrfDpaChannel->ungetExclusiveAccess();
+      m_exclusiveAccess = false;
+    }
+  }
 
   IqrfDpa::IqrfDpa()
   {
@@ -57,10 +106,22 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  std::shared_ptr<IDpaTransaction2> IqrfDpa::executeDpaTransaction(const DpaMessage& request, int32_t timeout)
+  std::shared_ptr<IDpaTransaction2> IqrfDpa::executeExclusiveDpaTransaction(const DpaMessage& request, int32_t timeout)
   {
     TRC_FUNCTION_ENTER("");
     auto result = m_dpaHandler->executeDpaTransaction(request, timeout);
+    TRC_FUNCTION_LEAVE("");
+    return result;
+  }
+
+  std::shared_ptr<IDpaTransaction2> IqrfDpa::executeDpaTransaction(const DpaMessage& request, int32_t timeout)
+  {
+    TRC_FUNCTION_ENTER("");
+    IDpaTransactionResult2::ErrorCode defaultError = IDpaTransactionResult2::TRN_OK;
+    if (m_exclusiveAccess) {
+      defaultError = IDpaTransactionResult2::TRN_ERROR_IFACE_BUSY;
+    }
+    auto result = m_dpaHandler->executeDpaTransaction(request, timeout, defaultError);
     TRC_FUNCTION_LEAVE("");
     return result;
   }

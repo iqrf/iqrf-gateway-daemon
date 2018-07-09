@@ -242,11 +242,20 @@ namespace iqrf {
           iqrfSensorFrc.setDpaRequestExtra(RawHdpRequest(*val1, iqrfSensorFrc.getNadr(), iqrfSensorFrc.getHwpid()).getDpaRequest());
         }
 
+        auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+
+        if (!exclusiveAccess) {
+          const char* errstr = "Cannot get exclusiveAccess";
+          TRC_WARNING(PAR(methodRequestName) << " error " << PAR(errstr));
+          throw HandleException(errstr, IDpaTransactionResult2::ErrorCode::TRN_ERROR_IFACE_BUSY);
+        }
+
         // send to coordinator DpaRequest and wait for transaction result
         {
           TRC_DEBUG("Sending FRC request");
           std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
-          m_iDpaTransaction = m_iIqrfDpaService->executeDpaTransaction(iqrfSensorFrc.getDpaRequest(), iqrfSensorFrc.getTimeout());
+          //m_iDpaTransaction = m_iIqrfDpaService->executeDpaTransaction(iqrfSensorFrc.getDpaRequest(), iqrfSensorFrc.getTimeout());
+          m_iDpaTransaction = exclusiveAccess->executeDpaTransaction(iqrfSensorFrc.getDpaRequest(), iqrfSensorFrc.getTimeout());
         }
         auto resultDpaRequest = m_iDpaTransaction->get();
 
@@ -266,7 +275,8 @@ namespace iqrf {
           {
             TRC_DEBUG("Sending FRC extra request");
             std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
-            m_iDpaTransaction = m_iIqrfDpaService->executeDpaTransaction(iqrfSensorFrc.getDpaRequestExtra(), iqrfSensorFrc.getTimeout());
+            //m_iDpaTransaction = m_iIqrfDpaService->executeDpaTransaction(iqrfSensorFrc.getDpaRequestExtra(), iqrfSensorFrc.getTimeout());
+            m_iDpaTransaction = exclusiveAccess->executeDpaTransaction(iqrfSensorFrc.getDpaRequestExtra(), iqrfSensorFrc.getTimeout());
           }
           auto resultDpaRequestExtra = m_iDpaTransaction->get();
 
@@ -281,6 +291,8 @@ namespace iqrf {
             throw HandleException(errstr, errCode);
           }
         }
+
+        exclusiveAccess.reset();
 
         // prepare params for driver
         Document paramDoc;
