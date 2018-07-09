@@ -1,10 +1,8 @@
 #define IBondNodeLocalService_EXPORTS
 
 
-//#include "DpaTransactionTask.h"
 #include "BondNodeLocalService.h"
 #include "Trace.h"
-//#include "DpaRaw.h"
 #include "ComIqmeshNetworkBondNodeLocal.h"
 #include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
@@ -874,7 +872,7 @@ namespace iqrf {
       BondResult bondResult = bondNode(deviceAddr);
 
       // creating response
-      Document responseDoc = createResponse(messagingId, msgType, bondResult, comBondNodeLocal);
+      Document responseDoc = createResponse(comBondNodeLocal.getMsgId(), msgType, bondResult, comBondNodeLocal);
 
       // send response back
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
