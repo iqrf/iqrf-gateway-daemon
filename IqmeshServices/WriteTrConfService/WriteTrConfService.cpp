@@ -1,6 +1,5 @@
 #define IWriteTrConfService_EXPORTS
 
-//#include "DpaTransactionTask.h"
 #include "WriteTrConfService.h"
 #include "IMessagingSplitterService.h"
 #include "Trace.h"
@@ -70,6 +69,21 @@ namespace {
     BAND_433,
     BAND_868,
     BAND_916
+  };
+
+  // baud rates
+  static uint8_t BAUD_RATES_SIZE = 9;
+
+  static uint32_t BaudRates[] = {
+    1200,
+    2400,
+    4800,
+    9600,
+    19200,
+    38400,
+    57600,
+    115200,
+    230400
   };
 
   // service general fail code - may and probably will be changed later in the future
@@ -1678,11 +1692,25 @@ namespace iqrf {
       return rfPgmAltChannel;
     }
 
-    uint8_t checkUartBaudrate(const int uartBaudrate) {
-      if ((uartBaudrate < 0) || (uartBaudrate > 8)) {
-        THROW_EXC(std::out_of_range, "UART baud rate out of valid bounds. Value: " << PAR(uartBaudrate));
+    uint32_t checkUartBaudrate(const int uartBaudRate) {
+      for (const uint32_t baudRate : BaudRates) {
+        if (uartBaudRate == baudRate) {
+          return uartBaudRate;
+        }
       }
-      return uartBaudrate;
+      
+      THROW_EXC(std::out_of_range, "Unsupported UART baud rate: " << PAR(uartBaudRate));
+    }
+
+    // returns code of the specified baud rate
+    uint8_t toBaudRateCode(const uint32_t uartBaudRate) {
+      for (int i = 0; i < BAUD_RATES_SIZE; i++) {
+        if (uartBaudRate == BaudRates[i]) {
+          return i;
+        }
+      }
+
+      THROW_EXC(std::out_of_range, "Unsupported UART baud rate: " << PAR(uartBaudRate));
     }
 
     std::vector<HWP_ConfigByte> parseAndCheckConfigBytes(ComMngIqmeshWriteConfig comWriteConfig) {
@@ -1737,8 +1765,8 @@ namespace iqrf {
       }
 
       if (comWriteConfig.isSetUartBaudrate()) {
-        uint8_t uartBaudrate = checkUartBaudrate(comWriteConfig.getUartBaudrate());
-        HWP_ConfigByte uartBaudrate_configByte(0x09, uartBaudrate, 0xFF);
+        uint32_t uartBaudrate = checkUartBaudrate(comWriteConfig.getUartBaudrate());
+        HWP_ConfigByte uartBaudrate_configByte(0x09, toBaudRateCode(uartBaudrate), 0xFF);
         configBytes.push_back(uartBaudrate_configByte);
       }
 
