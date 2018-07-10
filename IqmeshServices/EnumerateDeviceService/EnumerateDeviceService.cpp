@@ -344,6 +344,7 @@ namespace iqrf {
 
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
+        deviceEnumerateResult.addTransactionResult(transResult);
 
         if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
           TRC_INFORMATION("Discovery data successful!");
@@ -486,6 +487,7 @@ namespace iqrf {
 
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
+        deviceEnumerateResult.addTransactionResult(transResult);
 
         if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
           TRC_INFORMATION("OS read successful!");
@@ -572,6 +574,7 @@ namespace iqrf {
 
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
+        deviceEnumerateResult.addTransactionResult(transResult);
 
         if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
           TRC_INFORMATION("Peripheral enumeration successful!");
@@ -658,6 +661,7 @@ namespace iqrf {
 
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
+        deviceEnumerateResult.addTransactionResult(transResult);
 
         if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
           TRC_INFORMATION("Read HWP configuration successful!");
@@ -744,6 +748,7 @@ namespace iqrf {
 
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
+        deviceEnumerateResult.addTransactionResult(transResult);
 
         if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
           TRC_INFORMATION("Get info for more peripherals successful!");
@@ -838,6 +843,7 @@ namespace iqrf {
 
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
+        deviceEnumerateResult.addTransactionResult(transResult);
 
         if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
           TRC_INFORMATION("Get bonded nodes successful!");
@@ -1045,9 +1051,19 @@ namespace iqrf {
         TPerOSRead_Response osInfo = deviceEnumerateResult.getOsRead();
 
         rapidjson::Pointer("/data/rsp/result/mid").Set(response, encodeBinary(osInfo.ModuleId, 4));
-        rapidjson::Pointer("/data/rsp/result/osVersion").Set(response, encodeHexaNum(osInfo.OsVersion));
+
+        // OS version - string
+        std::string osVerStr = std::to_string((osInfo.OsVersion >> 4) & 0xFF)
+          + "." + std::to_string(osInfo.OsVersion & 0xF);
+        rapidjson::Pointer("/data/rsp/result/osVersion").Set(response, osVerStr);
+
         rapidjson::Pointer("/data/rsp/result/trMcuType").Set(response, encodeHexaNum(osInfo.McuType));
-        rapidjson::Pointer("/data/rsp/result/osBuild").Set(response, encodeHexaNum(osInfo.OsBuild));
+        
+        // OS version - string
+        std::string osBuildStr = std::to_string((osInfo.OsBuild >> 8) & 0xFF)
+          + "." + std::to_string(osInfo.OsBuild & 0xFF);
+        rapidjson::Pointer("/data/rsp/result/osBuild").Set(response, osBuildStr);
+
         rapidjson::Pointer("/data/rsp/result/rssi").Set(response, osInfo.Rssi);
         rapidjson::Pointer("/data/rsp/result/supplyVoltage").Set(response, encodeHexaNum(osInfo.SupplyVoltage));
         rapidjson::Pointer("/data/rsp/result/flags").Set(response, osInfo.Flags);
@@ -1092,7 +1108,7 @@ namespace iqrf {
         TEnumPeripheralsAnswer perEnum = deviceEnumerateResult.getPerEnum();
 
         // dpa version - string
-        std::string dpaVer = std::to_string((perEnum.DpaVersion & 0xFF) >> 8)
+        std::string dpaVer = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
           + "." + std::to_string(perEnum.DpaVersion & 0xFF);
         Pointer("/data/rsp/result/dpaVer").Set(response, dpaVer);
 
@@ -1290,10 +1306,16 @@ namespace iqrf {
       {
         // OS version
         TPerOSRead_Response osRead = deviceEnumerateResult.getOsRead();
-        Pointer("/data/rsp/result/validation/osVer").Set(response, encodeHexaNum(osRead.OsVersion));
 
-        // OS build
-        Pointer("/data/rsp/result/validation/osBuild").Set(response, encodeHexaNum(osRead.OsBuild));
+        // OS version - string
+        std::string osVerStr = std::to_string((osRead.OsVersion >> 4) & 0xFF)
+          + "." + std::to_string(osRead.OsVersion & 0xF);
+        Pointer("/data/rsp/result/validation/osVer").Set(response, osVerStr);
+
+        // OS build - string
+        std::string osBuildStr = std::to_string((osRead.OsBuild >> 8) & 0xFF)
+          + "." + std::to_string(osRead.OsBuild & 0xFF);
+        Pointer("/data/rsp/result/validation/osBuild").Set(response, osBuildStr);
       }
 
       if (
@@ -1301,20 +1323,24 @@ namespace iqrf {
         ) 
       {
         // DPA ver
-        TEnumPeripheralsAnswer perEnum = deviceEnumerateResult.getPerEnum();
-        Pointer("/data/rsp/result/validation/dpaVer").Set(response, encodeHexaNum(perEnum.DpaVersion));
+        TEnumPeripheralsAnswer perEnum = deviceEnumerateResult.getPerEnum();  
+
+        // dpa version - string
+        std::string dpaVerStr = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
+          + "." + std::to_string(perEnum.DpaVersion & 0xFF);
+        Pointer("/data/rsp/result/validation/dpaVer").Set(response, dpaVerStr);
       }
 
       if (deviceEnumerateResult.getReadHwpConfigError().getType() == DeviceEnumerateError::Type::NoError)
       {
-        // configuration
+        // configuration - bytes need to be XORED
         TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
 
         // txPower
-        Pointer("/data/rsp/result/validation/txPower").Set(response, hwpConfig.Configuration[0x08]);
+        Pointer("/data/rsp/result/validation/txPower").Set(response, hwpConfig.Configuration[0x07] ^ 0x34);
 
         // rxFilter
-        Pointer("/data/rsp/result/validation/rxFilter").Set(response, hwpConfig.Configuration[0x09]);
+        Pointer("/data/rsp/result/validation/rxFilter").Set(response, hwpConfig.Configuration[0x08] ^ 0x34);
       }
 
       // status - ok
