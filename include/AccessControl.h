@@ -5,6 +5,8 @@
 
 namespace iqrf {
 
+  template<class IqrfChannel>  class AccessorImpl;
+
   template<class IqrfChannel>
   class AccessControl
   {
