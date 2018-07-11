@@ -51,7 +51,7 @@ namespace iqrf {
     ExclusiveAccessImpl(IqrfDpa* iqrfDpa)
       :m_iqrfDpa(iqrfDpa)
     {
-      m_iqrfDpa->setExclusiveAccess(true);
+      m_iqrfDpa->setExclusiveAccess();
     }
 
     std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) override
@@ -64,7 +64,7 @@ namespace iqrf {
 
     virtual ~ExclusiveAccessImpl()
     {
-      m_iqrfDpa->setExclusiveAccess(false);
+      m_iqrfDpa->resetExclusiveAccess();
     }
 
   private:
@@ -74,24 +74,19 @@ namespace iqrf {
   std::unique_ptr<IIqrfDpaService::ExclusiveAccess> IqrfDpa::getExclusiveAccess()
   {
     std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
-    std::unique_ptr<IIqrfDpaService::ExclusiveAccess> retval;
-    if (!m_exclusiveAccess) {
-      retval.reset(shape_new ExclusiveAccessImpl(this));
-    }
-    return retval;
+    return std::unique_ptr<IIqrfDpaService::ExclusiveAccess>(shape_new ExclusiveAccessImpl(this));
   }
 
-  void IqrfDpa::setExclusiveAccess(bool val)
+  void IqrfDpa::setExclusiveAccess()
   {
     std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
-    if (val) {
-      m_iqrfDpaChannel->getExclusiveAccess();
-      m_exclusiveAccess = true;
-    }
-    else {
-      m_iqrfDpaChannel->ungetExclusiveAccess();
-      m_exclusiveAccess = false;
-    }
+    m_iqrfDpaChannel->setExclusiveAccess();
+  }
+
+  void IqrfDpa::resetExclusiveAccess()
+  {
+    std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
+    m_iqrfDpaChannel->resetExclusiveAccess();
   }
 
   IqrfDpa::IqrfDpa()
@@ -118,8 +113,8 @@ namespace iqrf {
   {
     TRC_FUNCTION_ENTER("");
     IDpaTransactionResult2::ErrorCode defaultError = IDpaTransactionResult2::TRN_OK;
-    if (m_exclusiveAccess) {
-      defaultError = IDpaTransactionResult2::TRN_ERROR_IFACE_BUSY;
+    if (m_iqrfDpaChannel->hasExclusiveAccess()) {
+      defaultError = IDpaTransactionResult2::TRN_ERROR_IFACE_EXCLUSIVE_ACCESS;
     }
     auto result = m_dpaHandler->executeDpaTransaction(request, timeout, defaultError);
     TRC_FUNCTION_LEAVE("");

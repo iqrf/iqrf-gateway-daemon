@@ -4,6 +4,7 @@
 #include "spi_iqrf.h"
 #include "sysfs_gpio.h"
 #include "machines_def.h"
+#include "AccessControl.h"
 #include "rapidjson/pointer.h"
 #include <mutex>
 #include <thread>
@@ -11,7 +12,7 @@
 #include <cstring>
 
 #ifdef TRC_CHANNEL
-#undefine TRC_CHANNEL
+#undef TRC_CHANNEL
 #endif
 #define TRC_CHANNEL 0
 
@@ -26,58 +27,17 @@ TRC_INIT_MODULE(iqrf::IqrfSpi);
 const unsigned SPI_REC_BUFFER_SIZE = 1024;
 
 namespace iqrf {
-  class IqrfSpiAccessor : public IIqrfChannelService::Accessor
-  {
-  public:
-    IqrfSpiAccessor(IqrfSpi::Imp * const IqrfSpi, IIqrfChannelService::AccesType accesType);
-    void send(const std::basic_string<unsigned char>& message) override;
-    IIqrfChannelService::AccesType getAccessType() override;
-    virtual ~IqrfSpiAccessor();
-
-    bool enterProgrammingState() override;
-    UploadErrorCode upload(
-      const UploadTarget target, 
-      const std::basic_string<uint8_t>& data,
-      const uint16_t address
-    ) override;
-    bool terminateProgrammingState() override;
-
-  private:
-    IqrfSpi::Imp * m_IqrfSpi = nullptr;
-    IIqrfChannelService::AccesType m_type = IIqrfChannelService::AccesType::Normal;
-  };
 
   class IqrfSpi::Imp
   {
   public:
     Imp()
+      :m_accessControl(this)
     {
     }
 
     ~Imp()
     {
-    }
-
-    void sendTo(const std::basic_string<unsigned char>& message, IIqrfChannelService::AccesType access)
-    {
-      switch (access)
-      {
-      case AccesType::Normal:
-        if (!m_exclusiveReceiveFromFunc) {
-          send(message);
-        }
-        else {
-          TRC_WARNING("Cannot send: Exclusive access is active");
-        }
-        break;
-      case AccesType::Exclusive:
-        send(message);
-        break;
-      case AccesType::Sniffer:
-        TRC_WARNING("Cannot send via sniffer access");
-        break;
-      default:;
-      }
     }
 
     void send(const std::basic_string<unsigned char>& message)
@@ -104,7 +64,10 @@ namespace iqrf {
 
           if (status.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM) {
             int retval = spi_iqrf_write((void*)message.data(), message.size());
-            if (BASE_TYPES_OPER_OK != retval) {
+            if (BASE_TYPES_OPER_OK == retval) {
+              m_accessControl.sniff(message); //send to sniffer if set
+            }
+            else {
               THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_write()() failed: " << PAR(retval));
             }
             break;
@@ -332,60 +295,12 @@ namespace iqrf {
 
     std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
     {
-      TRC_FUNCTION_ENTER("");
-      //TODO if not exclusive
-      std::unique_ptr<IIqrfChannelService::Accessor> retval(shape_new IqrfSpiAccessor(this, access));
-      switch (access)
-      {
-      case AccesType::Normal:
-        m_receiveFromFunc = receiveFromFunc;
-        break;
-      case AccesType::Exclusive:
-        m_exclusiveReceiveFromFunc = receiveFromFunc;
-        break;
-      case AccesType::Sniffer:
-        m_snifferFromFunc = receiveFromFunc;
-        break;
-      default:;
-      }
-      TRC_FUNCTION_LEAVE("");
-      return retval;
+      return m_accessControl.getAccess(receiveFromFunc, access);
     }
 
-    void resetAccess(AccesType access)
+    bool hasExclusiveAccess() const
     {
-      TRC_FUNCTION_ENTER("");
-      switch (access)
-      {
-      case AccesType::Normal:
-        m_receiveFromFunc = ReceiveFromFunc();
-        break;
-      case AccesType::Exclusive:
-        m_exclusiveReceiveFromFunc = ReceiveFromFunc();
-        break;
-      case AccesType::Sniffer:
-        m_snifferFromFunc = ReceiveFromFunc();
-        break;
-      default:;
-      }
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void messageHandler(const std::basic_string<unsigned char>& message)
-    {
-      if (!m_exclusiveReceiveFromFunc && m_receiveFromFunc) {
-        m_receiveFromFunc(message);
-      }
-      else if (m_exclusiveReceiveFromFunc) {
-        m_exclusiveReceiveFromFunc(message);
-      }
-      else {
-        TRC_WARNING("Cannot receive: no access is active");
-      }
-
-      if (m_snifferFromFunc) {
-        m_snifferFromFunc(message);
-      }
+      return m_accessControl.hasExclusiveAccess();
     }
 
     void activate(const shape::Properties *props)
@@ -528,7 +443,7 @@ namespace iqrf {
           // unlocked - possible to write in receiveFromFunc
           if (recData) {
             std::basic_string<unsigned char> message(m_rx, recData);
-            messageHandler(message);
+            m_accessControl.messageHandler(message);
           }
 
           // checking every 10ms
@@ -543,9 +458,7 @@ namespace iqrf {
     }
 
   private:
-    IIqrfChannelService::ReceiveFromFunc m_receiveFromFunc;
-    IIqrfChannelService::ReceiveFromFunc m_exclusiveReceiveFromFunc;
-    IIqrfChannelService::ReceiveFromFunc m_snifferFromFunc;
+    AccessControl<IqrfSpi::Imp> m_accessControl;
     std::string m_interfaceName;
 
     std::atomic_bool m_runListenThread;
@@ -559,46 +472,6 @@ namespace iqrf {
     mutable std::mutex m_commMutex;
 
   };
-
-  //////////////////////////////////////////////////
-  IqrfSpiAccessor::IqrfSpiAccessor(IqrfSpi::Imp * IqrfSpi, IIqrfChannelService::AccesType accesType)
-    :m_IqrfSpi(IqrfSpi)
-    , m_type(accesType)
-  {
-  }
-
-  void IqrfSpiAccessor::send(const std::basic_string<unsigned char>& message)
-  {
-    m_IqrfSpi->sendTo(message, m_type);
-  }
-
-  IIqrfChannelService::AccesType IqrfSpiAccessor::getAccessType()
-  {
-    return m_type;
-  }
-
-  IqrfSpiAccessor::~IqrfSpiAccessor()
-  {
-    m_IqrfSpi->resetAccess(m_type);
-  }
-
-  bool IqrfSpiAccessor::enterProgrammingState()
-  {
-    return m_IqrfSpi->enterProgrammingState();
-  }
-
-  IIqrfChannelService::Accessor::UploadErrorCode IqrfSpiAccessor::upload(
-    const UploadTarget target, 
-    const std::basic_string<uint8_t>& data,
-    const uint16_t address
-  )
-  {
-    return m_IqrfSpi->upload(target, data, address);
-  }
-
-  bool IqrfSpiAccessor::terminateProgrammingState() {
-    return m_IqrfSpi->terminateProgrammingState();
-  }
 
   //////////////////////////////////////////////////
   IqrfSpi::IqrfSpi()
@@ -619,6 +492,11 @@ namespace iqrf {
   std::unique_ptr<IIqrfChannelService::Accessor>  IqrfSpi::getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
   {
     return m_imp->getAccess(receiveFromFunc, access);
+  }
+
+  bool IqrfSpi::hasExclusiveAccess() const
+  {
+    return m_imp->hasExclusiveAccess();
   }
 
   void IqrfSpi::activate(const shape::Properties *props)

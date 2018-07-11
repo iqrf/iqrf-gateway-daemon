@@ -52,18 +52,31 @@ namespace iqrf {
       return State::NotReady;
     }
 
-    void getExclusiveAccess()
+    void setExclusiveAccess()
     {
       TRC_FUNCTION_ENTER("");
+      std::unique_lock<std::mutex> lck(m_accessMtx);
       m_accessorExclusive = m_iqrfChannelService->getAccess(m_receiveFromFunc, IIqrfChannelService::AccesType::Exclusive);
       TRC_FUNCTION_LEAVE("");
     }
 
-    void ungetExclusiveAccess()
+    void resetExclusiveAccess()
     {
       TRC_FUNCTION_ENTER("");
+      std::unique_lock<std::mutex> lck(m_accessMtx);
       m_accessorExclusive.reset();
       TRC_FUNCTION_LEAVE("");
+    }
+
+    bool hasOwnExclusiveAccess()
+    {
+      std::unique_lock<std::mutex> lck(m_accessMtx);
+      return (bool)m_accessorExclusive;
+    }
+
+    bool hasExclusiveAccess()
+    {
+      return m_iqrfChannelService->hasExclusiveAccess();
     }
 
   private:
@@ -71,5 +84,6 @@ namespace iqrf {
     ReceiveFromFunc m_receiveFromFunc;
     std::unique_ptr<IIqrfChannelService::Accessor> m_accessor;
     std::unique_ptr<IIqrfChannelService::Accessor> m_accessorExclusive;
+    std::mutex m_accessMtx;
   };
 }

@@ -3,10 +3,13 @@
 #include "IqrfCdc.h"
 #include "CdcInterface.h"
 #include "CDCImpl.h"
+#include "AccessControl.h"
 #include <thread>
+#include <mutex>
+#include <memory>
 
 #ifdef TRC_CHANNEL
-#undefine TRC_CHANNEL
+#undef TRC_CHANNEL
 #endif
 #define TRC_CHANNEL 0
 
@@ -18,56 +21,17 @@
 TRC_INIT_MODULE(iqrf::IqrfCdc);
 
 namespace iqrf {
-  class IqrfCdcAccessor : public IIqrfChannelService::Accessor
-  {
-  public:
-    IqrfCdcAccessor(IqrfCdc::Imp * const iqrfCdc, IIqrfChannelService::AccesType accesType);
-    void send(const std::basic_string<unsigned char>& message) override;
-    IIqrfChannelService::AccesType getAccessType() override;
-    virtual ~IqrfCdcAccessor();
-
-    bool enterProgrammingState() override;
-    UploadErrorCode upload(
-      const UploadTarget target, const std::basic_string<uint8_t>& data, const uint16_t address
-    ) override;
-    bool terminateProgrammingState() override;
-
-  private:
-    IqrfCdc::Imp * m_iqrfCdc = nullptr;
-    IIqrfChannelService::AccesType m_type = IIqrfChannelService::AccesType::Normal;
-  };
 
   class IqrfCdc::Imp
   {
   public:
     Imp()
+      :m_accessControl(this)
     {
     }
 
     ~Imp()
     {
-    }
-
-    void sendTo(const std::basic_string<unsigned char>& message, IIqrfChannelService::AccesType access)
-    {
-      switch (access)
-      {
-      case AccesType::Normal:
-        if (!m_exclusiveReceiveFromFunc) {
-          send(message);
-        }
-        else {
-          TRC_WARNING("Cannot send: Exclusive access is active");
-        }
-        break;
-      case AccesType::Exclusive:
-        send(message);
-        break;
-      case AccesType::Sniffer:
-        TRC_WARNING("Cannot send via sniffer access");
-        break;
-      default:;
-      }
     }
 
     void send(const std::basic_string<unsigned char>& message)
@@ -90,9 +54,7 @@ namespace iqrf {
           std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         if (dsResponse == DSResponse::OK) {
-          if (m_snifferFromFunc) {
-            m_snifferFromFunc(message);
-          }
+          m_accessControl.sniff(message);
         }
         else {
           THROW_EXC_TRC_WAR(std::logic_error, "CDC send failed" << PAR(dsResponse));
@@ -280,60 +242,12 @@ namespace iqrf {
 
     std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
     {
-      TRC_FUNCTION_ENTER("");
-      //TODO if not exclusive
-      std::unique_ptr<IIqrfChannelService::Accessor> retval(shape_new IqrfCdcAccessor(this, access));
-      switch (access)
-      {
-      case AccesType::Normal:
-        m_receiveFromFunc = receiveFromFunc;
-        break;
-      case AccesType::Exclusive:
-        m_exclusiveReceiveFromFunc = receiveFromFunc;
-        break;
-      case AccesType::Sniffer:
-        m_snifferFromFunc = receiveFromFunc;
-        break;
-      default:;
-      }
-      TRC_FUNCTION_LEAVE("");
-      return retval;
+      return m_accessControl.getAccess(receiveFromFunc, access);
     }
 
-    void resetAccess(AccesType access)
+    bool hasExclusiveAccess() const
     {
-      TRC_FUNCTION_ENTER("");
-      switch (access)
-      {
-      case AccesType::Normal:
-        m_receiveFromFunc = ReceiveFromFunc();
-        break;
-      case AccesType::Exclusive:
-        m_exclusiveReceiveFromFunc = ReceiveFromFunc();
-        break;
-      case AccesType::Sniffer:
-        m_snifferFromFunc = ReceiveFromFunc();
-        break;
-      default:;
-      }
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void messageHandler(const std::basic_string<unsigned char>& message)
-    {
-      if (!m_exclusiveReceiveFromFunc && m_receiveFromFunc) {
-        m_receiveFromFunc(message);
-      }
-      else if (m_exclusiveReceiveFromFunc) {
-        m_exclusiveReceiveFromFunc(message);
-      }
-      else {
-        TRC_WARNING("Cannot receive: no access is active");
-      }
-
-      if (m_snifferFromFunc) {
-        m_snifferFromFunc(message);
-      }
+      return m_accessControl.hasExclusiveAccess();
     }
 
     void activate(const shape::Properties *props)
@@ -362,7 +276,7 @@ namespace iqrf {
 
       if (m_cdc) {
         m_cdc->registerAsyncMsgListener([&](unsigned char* data, unsigned int length) {
-          messageHandler(std::basic_string<unsigned char>(data, length)); });
+          m_accessControl.messageHandler(std::basic_string<unsigned char>(data, length)); });
       }
 
       TRC_FUNCTION_LEAVE("")
@@ -397,49 +311,9 @@ namespace iqrf {
   private:
     CDCImpl* m_cdc = nullptr;
     bool m_cdcValid = false;
-    IIqrfChannelService::ReceiveFromFunc m_receiveFromFunc;
-    IIqrfChannelService::ReceiveFromFunc m_exclusiveReceiveFromFunc;
-    IIqrfChannelService::ReceiveFromFunc m_snifferFromFunc;
     std::string m_interfaceName;
+    AccessControl<IqrfCdc::Imp> m_accessControl;
   };
-
-  //////////////////////////////////////////////////
-  IqrfCdcAccessor::IqrfCdcAccessor(IqrfCdc::Imp * iqrfCdc, IIqrfChannelService::AccesType accesType)
-    :m_iqrfCdc(iqrfCdc)
-    , m_type(accesType)
-  {
-  }
-
-  void IqrfCdcAccessor::send(const std::basic_string<unsigned char>& message)
-  {
-    m_iqrfCdc->sendTo(message, m_type);
-  }
-
-  IIqrfChannelService::AccesType IqrfCdcAccessor::getAccessType()
-  {
-    return m_type;
-  }
-
-  IqrfCdcAccessor::~IqrfCdcAccessor()
-  {
-    m_iqrfCdc->resetAccess(m_type);
-  }
-
-  bool IqrfCdcAccessor::enterProgrammingState()
-  {
-    return m_iqrfCdc->enterProgrammingState();
-  }
-
-  IIqrfChannelService::Accessor::UploadErrorCode IqrfCdcAccessor::upload(
-    const UploadTarget target, const std::basic_string<uint8_t>& data, const uint16_t address
-  )
-  {
-    return m_iqrfCdc->upload(target, data, address);
-  }
-
-  bool IqrfCdcAccessor::terminateProgrammingState() {
-    return m_iqrfCdc->terminateProgrammingState();
-  }
 
   //////////////////////////////////////////////////
   IqrfCdc::IqrfCdc()
@@ -460,6 +334,11 @@ namespace iqrf {
   std::unique_ptr<IIqrfChannelService::Accessor>  IqrfCdc::getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
   {
     return m_imp->getAccess(receiveFromFunc, access);
+  }
+
+  bool IqrfCdc::hasExclusiveAccess() const
+  {
+    return m_imp->hasExclusiveAccess();
   }
 
   void IqrfCdc::activate(const shape::Properties *props)

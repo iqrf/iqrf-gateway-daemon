@@ -38,12 +38,12 @@ namespace iqrf {
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
 
-    void setExclusiveAccess(bool val);
+    void setExclusiveAccess();
+    void resetExclusiveAccess();
   private:
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     IqrfDpaChannel *m_iqrfDpaChannel = nullptr;  //temporary workaround, see comment in IqrfDpaChannel.h
     std::recursive_mutex m_exclusiveAccessMutex;
-    bool m_exclusiveAccess = false;
     IDpaHandler2* m_dpaHandler = nullptr;
     IDpaTransaction2::RfMode m_rfMode = IDpaTransaction2::RfMode::kStd;
     int m_dpaHandlerTimeout = IDpaTransaction2::DEFAULT_TIMEOUT;

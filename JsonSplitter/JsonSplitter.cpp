@@ -249,10 +249,14 @@ namespace iqrf {
             }
           }
           // invoke handling
-          selected(messagingId, msgType, std::move(doc));
+          try {
+            selected(messagingId, msgType, std::move(doc));
+          }
+          catch (std::exception &e) {
+            THROW_EXC_TRC_WAR(std::logic_error, "Unhandled exception: " << e.what());
+          }
         }
         else {
-          //TODO parse error handling => send back an error JSON with details
           THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType.version, getKey(msgType)));
         }
 

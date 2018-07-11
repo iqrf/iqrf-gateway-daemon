@@ -242,12 +242,14 @@ namespace iqrf {
           iqrfSensorFrc.setDpaRequestExtra(RawHdpRequest(*val1, iqrfSensorFrc.getNadr(), iqrfSensorFrc.getHwpid()).getDpaRequest());
         }
 
-        auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-
-        if (!exclusiveAccess) {
-          const char* errstr = "Cannot get exclusiveAccess";
+        std::unique_ptr<IIqrfDpaService::ExclusiveAccess> exclusiveAccess;
+        try {
+          exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+        }
+        catch (std::exception &e) {
+          const char* errstr = e.what();
           TRC_WARNING(PAR(methodRequestName) << " error " << PAR(errstr));
-          throw HandleException(errstr, IDpaTransactionResult2::ErrorCode::TRN_ERROR_IFACE_BUSY);
+          throw HandleException(errstr, IDpaTransactionResult2::ErrorCode::TRN_ERROR_IFACE_EXCLUSIVE_ACCESS);
         }
 
         // send to coordinator DpaRequest and wait for transaction result
