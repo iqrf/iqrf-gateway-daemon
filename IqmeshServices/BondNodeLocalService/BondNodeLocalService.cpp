@@ -198,87 +198,71 @@ namespace iqrf {
       bondNodePacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BOND_NODE;
       bondNodePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
-      TPerCoordinatorBondNode_Request* tCoordBondNodeRequest = &bondNodeRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request;
-      tCoordBondNodeRequest->ReqAddr = uint8_t(nodeAddr & 0xFF);
-      tCoordBondNodeRequest->BondingMask = DEFAULT_BONDING_MASK;
-
+      bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.ReqAddr = uint8_t(nodeAddr & 0xFF);
+      bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.BondingMask = DEFAULT_BONDING_MASK;
+      
       bondNodeRequest.DataToBuffer(bondNodePacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> bondNodeTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      for (int rep = 0; rep <= m_repeat; rep++) {
-        try {
-          bondNodeTransaction = m_iIqrfDpaService->executeDpaTransaction(
-            bondNodeRequest, 10500 + rep*100
-          );
-          transResult = bondNodeTransaction->get();
-        }
-        catch (std::exception& e) {
-          TRC_DEBUG("DPA transaction error : " << e.what());
+      try {
+        bondNodeTransaction = m_iIqrfDpaService->executeDpaTransaction(
+          bondNodeRequest, 10000
+        );
+        transResult = bondNodeTransaction->get();
+      }
+      catch (std::exception& e) {
+        TRC_DEBUG("DPA transaction error : " << e.what());
 
-          if (rep < m_repeat) {
-            continue;
-          }
+        BondError error(BondError::Type::BondError, e.what());
+        bondResult.setError(error);
 
-          BondError error(BondError::Type::BondError, e.what());
-          bondResult.setError(error);
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
 
-          TRC_FUNCTION_LEAVE("");
-          return;
+      TRC_DEBUG("Result from bond node transaction as string:" << PAR(transResult->getErrorString()));
 
-        }
+      IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
-        TRC_DEBUG("Result from bond node transaction as string:" << PAR(transResult->getErrorString()));
+      // because of the move-semantics
+      DpaMessage dpaResponse = transResult->getResponse();
+      bondResult.addTransactionResult(transResult);
 
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+      if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+        TRC_INFORMATION("Bond node successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(bondNodeRequest.PeripheralType(), bondNodeRequest.NodeAddress())
+          << PAR(bondNodeRequest.PeripheralCommand())
+        );
 
-        // because of the move-semantics
-        DpaMessage dpaResponse = transResult->getResponse();
-        bondResult.addTransactionResult(transResult);
+        // getting bond data
+        TPerCoordinatorBondNodeSmartConnect_Response respData
+          = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorBondNodeSmartConnect_Response;
 
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("Bond node successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(bondNodeRequest.PeripheralType(), bondNodeRequest.NodeAddress())
-            << PAR(bondNodeRequest.PeripheralCommand())
-          );
+        bondResult.setBondedAddr(respData.BondAddr);
+        bondResult.setBondedNodesNum(respData.DevNr);
 
-          // getting bond data
-          TPerCoordinatorBondNodeSmartConnect_Response respData
-            = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorBondNodeSmartConnect_Response;
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
 
-          bondResult.setBondedAddr(respData.BondAddr);
-          bondResult.setBondedNodesNum(respData.DevNr);
+      // transaction error
+      if (errorCode < 0) {
+        TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
+        BondError error(BondError::Type::BondError, "Transaction error.");
+        bondResult.setError(error);
+      }
+      else {
+        // DPA error
+        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
-        // transaction error
-        if (errorCode < 0) {
-          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          BondError error(BondError::Type::BondError, "Transaction error.");
-          bondResult.setError(error);
-        }
-        else {
-          // DPA error
-          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          BondError error(BondError::Type::BondError, "Dpa error.");
-          bondResult.setError(error);
-        }
+        BondError error(BondError::Type::BondError, "Dpa error.");
+        bondResult.setError(error);
       }
 
       TRC_FUNCTION_LEAVE("");
