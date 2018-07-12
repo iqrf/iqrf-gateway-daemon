@@ -484,13 +484,18 @@ namespace iqrf {
       using namespace rapidjson;
       MngModeMsg msg(reqDoc);
 
-      if (m_iUdpConnectorService) { // interface is UNREQUIRED
-        // switch mode
-        m_iUdpConnectorService->setMode(msg.getMode());
+      try {
+        if (m_iUdpConnectorService) { // interface is UNREQUIRED
+          // switch mode
+          m_iUdpConnectorService->setMode(msg.getMode());
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "UdpConnectorService not active");
+        }
       }
-      else {
-        // prepare ERR response
-        msg.setErr("UdpConnectorService not active");
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Cannot handle MngModeMsg");
+        msg.setErr(e.what());
       }
       msg.createResponse(respDoc);
 

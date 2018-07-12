@@ -82,8 +82,8 @@ namespace iqrf {
 
     virtual State getState() const = 0;
     virtual std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) = 0;
+    virtual bool hasExclusiveAccess() const = 0;
     virtual ~IIqrfChannelService() {}
-
 
     class StateConvertTable
     {
