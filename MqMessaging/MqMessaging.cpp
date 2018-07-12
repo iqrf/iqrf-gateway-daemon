@@ -3,7 +3,7 @@
 #include "MqMessaging.h"
 
 #ifdef TRC_CHANNEL
-#undefine TRC_CHANNEL
+#undef TRC_CHANNEL
 #endif
 #define TRC_CHANNEL 0
 
