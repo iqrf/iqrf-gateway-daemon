@@ -4,18 +4,18 @@
 // </auto-generated>
 //----------------------
 
-namespace parseError_Response
+namespace messageError_Response
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class ParseError_Response 
+    public partial class MessageError_Response 
     {
         /// <summary>Repeated mType from unsupported request.</summary>
         [Newtonsoft.Json.JsonProperty("mType", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ParseError_ResponseMType MType { get; set; }
+        public MessageError_ResponseMType MType { get; set; }
     
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -26,19 +26,19 @@ namespace parseError_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static ParseError_Response FromJson(string data)
+        public static MessageError_Response FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<ParseError_Response>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<MessageError_Response>(data);
         }
     
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum ParseError_ResponseMType
+    public enum MessageError_ResponseMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "parseError")]
+        [System.Runtime.Serialization.EnumMember(Value = "messageError")]
     
-        ParseError = 0,
+        MessageError = 0,
     
     
     }
@@ -49,21 +49,15 @@ namespace parseError_Response
         /// <summary>Message identification for binding request with response.</summary>
         [Newtonsoft.Json.JsonProperty("msgId", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public DataMsgId MsgId { get; set; }
+        public string MsgId { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("rsp", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public Rsp Rsp { get; set; } = new Rsp();
     
         /// <summary>IQRF GW daemon instance identification.</summary>
         [Newtonsoft.Json.JsonProperty("insId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string InsId { get; set; }
-    
-        /// <summary>String with content of wrong msg.</summary>
-        [Newtonsoft.Json.JsonProperty("errorMsg", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ErrorMsg { get; set; }
-    
-        /// <summary>Error description.</summary>
-        [Newtonsoft.Json.JsonProperty("errorStr", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string ErrorStr { get; set; }
     
         /// <summary>Status of operation.</summary>
         [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Always)]
@@ -86,12 +80,27 @@ namespace parseError_Response
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum DataMsgId
+    public partial class Rsp 
     {
-        [System.Runtime.Serialization.EnumMember(Value = "undefined")]
+        /// <summary>String with content of wrong msg.</summary>
+        [Newtonsoft.Json.JsonProperty("wrongMsg", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string WrongMsg { get; set; }
     
-        Undefined = 0,
+        /// <summary>Error description.</summary>
+        [Newtonsoft.Json.JsonProperty("errorStr", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string ErrorStr { get; set; }
     
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Rsp FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Rsp>(data);
+        }
     
     }
 }

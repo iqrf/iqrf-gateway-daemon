@@ -1,0 +1,30 @@
+{
+    "mType": "iqrfEmbedCoordinator_BondedDevices",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 71,
+            "result": {
+                "bondedDevices": [
+                    1,
+                    2,
+                    3
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.00.02.ff.ff",
+            "requestTs": "2018-07-11T19:38:57.686486",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.82.00.00.00.47.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-11T19:38:57.728294"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

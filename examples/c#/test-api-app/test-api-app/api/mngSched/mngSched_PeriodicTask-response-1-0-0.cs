@@ -36,9 +36,9 @@ namespace mngSched_PeriodicTask_Response
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public enum MngSched_PeriodicTask_ResponseMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "mngSched_PerTask")]
+        [System.Runtime.Serialization.EnumMember(Value = "mngSched_PeriodicTask")]
     
-        MngSched_PerTask = 0,
+        MngSched_PeriodicTask = 0,
     
     
     }

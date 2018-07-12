@@ -234,3 +234,55 @@ Received from MQTT: 2018-07-04 17:34:39.126
 2018-07-04 17:34:39.598
 ==================================
 
+==================================
+Sending to WebSocket: 2018-07-11 19:15:46.157
+{
+  "mType": "iqmeshNetwork_OtaUpload",
+  "data": {
+    "msgId": "testIqmeshOta",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": [
+        3
+      ],
+      "fileName": "CustomDpaHandler-LED-Red-On-7xD-V302-171116.hex",
+      "startMemAddr": 0,
+      "loadingAction": "WithCodeLoading"
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-11 19:15:46.678
+{
+    "mType": "iqmeshNetwork_OtaUpload",
+    "data": {
+        "msgId": "testIqmeshOta",
+        "rsp": {
+            "deviceAddr": 3,
+            "writeSuccess": false
+        },
+        "status": 0,
+        "statusStr": "ok",
+        "raw": [
+            {
+                "request": "00.00.0d.01.00.00.00.00.98.56.c4.4a.d0.7f.00.00.b0.48.5b.e1.61.55.00.00.69.07.00.00.00.00.00.00.b0.48.5b.e1.61.55.00.00.08.8a.c3.4a.d0.7f.00.00.98.56.c4.4a.d0.7f.00.00.b3.0b.d6.61",
+                "requestTs": "2018-07-11T19:15:45.809226",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.0d.81.00.00.05.4d",
+                "responseTs": "2018-07-11T19:15:45.851471"
+            },
+            {
+                "request": "00.00.0d.01.00.00.00.00.98.56.c4.4a.d0.7f.00.00.b0.48.5b.e1.61.55.00.00.69.07.00.00.00.00.00.00.b0.48.5b.e1.61.55.00.00.08.8a.c3.4a.d0.7f.00.00.98.56.c4.4a.d0.7f.00.00.b3.0b.d6.61",
+                "requestTs": "2018-07-11T19:15:45.852019",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.0d.81.00.00.05.4d",
+                "responseTs": "2018-07-11T19:15:45.994974"
+            }
+        ]
+    }
+}
+2018-07-11 19:15:47.146
+==================================
+

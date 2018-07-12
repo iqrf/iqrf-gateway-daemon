@@ -1,0 +1,26 @@
+{
+    "mType": "iqrfEmbedCoordinator_RemoveBond",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 0,
+            "result": {
+                "devNr": 0
+            }
+        },
+        "raw": {
+            "request": "00.00.00.05.ff.ff.06",
+            "requestTs": "2018-07-09T12:00:29.136675",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.85.00.00.00.00.00",
+            "responseTs": "2018-07-09T12:00:29.168983"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

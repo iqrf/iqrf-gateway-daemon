@@ -1,10 +1,10 @@
 {
   "mType": "iqmeshNetwork_BondNodeLocal",
   "data": {
-    "msgId": "07f80295-01d6-4a44-b082-8cc285d9fa7c",
+    "msgId": "testIqmeshBondNodeLocal",
     "repeat": 1,
     "req": {
-      "deviceAddr": 5
+      "deviceAddr": 1
     },
     "returnVerbose": true
   }

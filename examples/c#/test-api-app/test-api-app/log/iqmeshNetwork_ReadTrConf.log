@@ -66,3 +66,71 @@ Received from MQTT: 2018-07-04 17:34:49.579
 2018-07-04 17:34:50.025
 ==================================
 
+==================================
+Sending to WebSocket: 2018-07-11 16:53:12.45
+{
+  "mType": "iqmeshNetwork_ReadTrConf",
+  "data": {
+    "msgId": "testIqmeshRead",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": [
+        0
+      ]
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-11 16:53:12.651
+{
+    "mType": "iqmeshNetwork_ReadTrConf",
+    "data": {
+        "msgId": "testIqmeshRead",
+        "rsp": {
+            "deviceAddr": 0,
+            "embPerBits": [
+                253,
+                38,
+                0,
+                0
+            ],
+            "customDpaHandler": false,
+            "nodeDpaInterface": false,
+            "dpaAutoexec": false,
+            "routingOff": false,
+            "ioSetup": false,
+            "peerToPeer": false,
+            "rfChannelA": 52,
+            "rfChannelB": 10,
+            "rfSubChannelA": 15,
+            "rfSubChannelB": 20,
+            "txPower": 7,
+            "rxFilter": 5,
+            "lpRxTimeout": 6,
+            "rfPgmAltChannel": 0,
+            "uartBaudrate": 9600,
+            "rfPgmDualChannel": true,
+            "rfPgmLpMode": false,
+            "rfPgmIncorrectUpload": false,
+            "rfPgmEnableAfterReset": false,
+            "rfPgmTerminateAfter1Min": true,
+            "rfPgmTerminateMcuPin": true,
+            "rfBand": "868"
+        },
+        "status": 0,
+        "statusStr": "ok",
+        "raw": [
+            {
+                "request": "00.00.02.02.ff.ff",
+                "requestTs": "2018-07-11T16:53:11.842708",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.02.82.00.00.00.50.91.c9.12.34.34.34.3b.20.33.31.32.37.34.34.34.34.34.00.3e.34.34.34.34.34.34.34.34.34.34.34.37.34.c3.20",
+                "responseTs": "2018-07-11T16:53:11.882661"
+            }
+        ]
+    }
+}
+2018-07-11 16:53:13.121
+==================================
+

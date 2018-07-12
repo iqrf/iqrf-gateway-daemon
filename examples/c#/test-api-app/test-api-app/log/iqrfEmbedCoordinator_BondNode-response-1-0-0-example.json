@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedCoordinator_BondNode",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 1,
+            "dpaVal": 64,
+            "errorStr": "rcode error"
+        },
+        "raw": {
+            "request": "00.00.00.04.ff.ff.06.00",
+            "requestTs": "2018-07-07T19:58:26.485803",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.84.00.00.01.40",
+            "responseTs": "2018-07-07T19:58:36.551473"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ERROR_FAIL",
+        "status": 1
+    }
+}

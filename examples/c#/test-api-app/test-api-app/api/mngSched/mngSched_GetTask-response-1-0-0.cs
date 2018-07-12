@@ -99,9 +99,8 @@ namespace mngSched_GetTask_Response
         public TimeSpec TimeSpec { get; set; }
     
         /// <summary>Task.</summary>
-        [Newtonsoft.Json.JsonProperty("task", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public object Task { get; set; } = new object();
+        [Newtonsoft.Json.JsonProperty("task", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public object Task { get; set; }
     
         public string ToJson() 
         {

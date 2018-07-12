@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedCoordinator_EnableRemoteBonding",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "TypeError: undefined not callable (property 'EnableRemoteBonding_Response' of [object Object])"
+        },
+        "raw": {
+            "request": "00.00.00.11.ff.ff.00.00.00.01.02.03",
+            "requestTs": "2018-07-09T19:33:36.568136",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.91.00.00.00.00",
+            "responseTs": "2018-07-09T19:33:36.601256"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_RESPONSE",
+        "status": -7
+    }
+}

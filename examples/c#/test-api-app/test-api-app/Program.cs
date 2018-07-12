@@ -30,16 +30,55 @@
   using iqrfRawHdp_Response;
 
   //IqrfEmbed APIs 
-  using iqrfEmbedEeeprom_Read_Request;
-  using iqrfEmbedEeeprom_Read_Response;
-  using iqrfEmbedEeeprom_Write_Request;
-  using iqrfEmbedEeeprom_Write_Response;
   using iqrfEmbedExplore_Enumerate_Request;
   using iqrfEmbedExplore_Enumerate_Response;
   using iqrfEmbedExplore_PeripheralInformation_Request;
   using iqrfEmbedExplore_PeripheralInformation_Response;
   using iqrfEmbedExplore_MorePeripheralsInformation_Request;
   using iqrfEmbedExplore_MorePeripheralsInformation_Response;
+
+  using iqrfEmbedCoordinator_AddrInfo_Request;
+  using iqrfEmbedCoordinator_AddrInfo_Response;
+  using iqrfEmbedCoordinator_AuthorizeBond_Request;
+  using iqrfEmbedCoordinator_AuthorizeBond_Response;
+  using iqrfEmbedCoordinator_Backup_Request;
+  using iqrfEmbedCoordinator_Backup_Response;
+  using iqrfEmbedCoordinator_BondedDevices_Request;
+  using iqrfEmbedCoordinator_BondedDevices_Response;
+  using iqrfEmbedCoordinator_BondNode_Request;
+  using iqrfEmbedCoordinator_BondNode_Response;
+  using iqrfEmbedCoordinator_ClearAllBonds_Request;
+  using iqrfEmbedCoordinator_ClearAllBonds_Response;
+  using iqrfEmbedCoordinator_ClearRemotelyBondedMid_Request;
+  using iqrfEmbedCoordinator_ClearRemotelyBondedMid_Response;
+  using iqrfEmbedCoordinator_DiscoveredDevices_Request;
+  using iqrfEmbedCoordinator_DiscoveredDevices_Response;
+  using iqrfEmbedCoordinator_Discovery_Request;
+  using iqrfEmbedCoordinator_Discovery_Response;
+  using iqrfEmbedCoordinator_DiscoveryData_Request;
+  using iqrfEmbedCoordinator_DiscoveryData_Response;
+  using iqrfEmbedCoordinator_EnableRemoteBonding_Request;
+  using iqrfEmbedCoordinator_EnableRemoteBonding_Response;
+  using iqrfEmbedCoordinator_ReadRemotelyBondedMid_Request;
+  using iqrfEmbedCoordinator_ReadRemotelyBondedMid_Response;
+  using iqrfEmbedCoordinator_RebondNode_Request;
+  using iqrfEmbedCoordinator_RebondNode_Response;
+  using iqrfEmbedCoordinator_RemoveBond_Request;
+  using iqrfEmbedCoordinator_RemoveBond_Response;
+  using iqrfEmbedCoordinator_Restore_Request;
+  using iqrfEmbedCoordinator_Restore_Response;
+  using iqrfEmbedCoordinator_SetDpaParams_Request;
+  using iqrfEmbedCoordinator_SetDpaParams_Response;
+  using iqrfEmbedCoordinator_SetHops_Request;
+  using iqrfEmbedCoordinator_SetHops_Response;
+
+  using iqrfEmbedEeeprom_Read_Request;
+  using iqrfEmbedEeeprom_Read_Response;
+  using iqrfEmbedEeeprom_Write_Request;
+  using iqrfEmbedEeeprom_Write_Response;
+
+  using iqrfEmbedOs_Read_Request;
+  using iqrfEmbedOs_Read_Response;
 
   // IqmeshNetwork APIs
   using iqmeshNetwork_BondNodeLocal_Request;
@@ -60,6 +99,9 @@
   using mngSched_List_Response;
   using mngSched_AddTask_Request;
   using mngSched_AddTask_Response;
+  using mngSched_SchedulerMessagingTask;
+  using mngSched_StartTask_Request;
+  using mngSched_StartTask_Response;
   #endregion
 
   class Program
@@ -72,7 +114,7 @@
     /// <summary>
     /// GW IP address
     /// </summary>
-    const string IqrfGwDeamonIP = "192.168.1.105";
+    const string IqrfGwDeamonIP = "192.168.1.101";
 
     /// <summary>
     /// Log transaction
@@ -244,7 +286,7 @@
       {
         // Create request 
 
-/* RAW */
+        /* RAW */
 
         /*
         IqrfRaw_Request request = new IqrfRaw_Request();
@@ -254,7 +296,7 @@
         request.Data.ReturnVerbose = true;
         */
 
-/* RAWHDP */
+        /* RAWHDP */
 
         /*
         IqrfRawHdp_Request request = new IqrfRawHdp_Request();
@@ -267,7 +309,175 @@
         request.Data.ReturnVerbose = true;
         */
 
-/* EEEPROM */
+        /* EXPLORE */
+
+        /*
+        IqrfEmbedExplore_Enumerate_Request request = new IqrfEmbedExplore_Enumerate_Request();
+        request.Data.MsgId = "testEmbedExplore";
+        request.Data.Timeout = 1000;
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedExplore_PeripheralInformation_Request request = new IqrfEmbedExplore_PeripheralInformation_Request();
+        request.Data.MsgId = "testEmbedExplore";
+        request.Data.Timeout = 1000;
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.Per = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedExplore_MorePeripheralsInformation_Request request = new IqrfEmbedExplore_MorePeripheralsInformation_Request();
+        request.Data.MsgId = "testEmbedExplore";
+        request.Data.Timeout = 1000;
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.Per = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* COORDINATOR */
+
+        /*
+        IqrfEmbedCoordinator_AddrInfo_Request request = new IqrfEmbedCoordinator_AddrInfo_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_AuthorizeBond_Request request = new IqrfEmbedCoordinator_AuthorizeBond_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.ReqAddr = 6;
+        request.Data.Req.Param.Mid = 0x00000000;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_Backup_Request request = new IqrfEmbedCoordinator_Backup_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.Index = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_BondedDevices_Request request = new IqrfEmbedCoordinator_BondedDevices_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_BondNode_Request request = new IqrfEmbedCoordinator_BondNode_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        //request.Data.Timeout = 11000;
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.ReqAddr = 6;
+        request.Data.Req.Param.BondingMask = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_ClearAllBonds_Request request = new IqrfEmbedCoordinator_ClearAllBonds_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_ClearRemotelyBondedMid_Request request = new IqrfEmbedCoordinator_ClearRemotelyBondedMid_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_DiscoveredDevices_Request request = new IqrfEmbedCoordinator_DiscoveredDevices_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_Discovery_Request request = new IqrfEmbedCoordinator_Discovery_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        //request.Data.Timeout = 0;
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.MaxAddr = 0;
+        request.Data.Req.Param.TxPower = 6;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_DiscoveryData_Request request = new IqrfEmbedCoordinator_DiscoveryData_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.Address = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_EnableRemoteBonding_Request request = new IqrfEmbedCoordinator_EnableRemoteBonding_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.BondingMask = 0;
+        request.Data.Req.Param.Control = 0;
+        request.Data.Req.Param.UserData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1, 2, 3 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_ReadRemotelyBondedMid_Request request = new IqrfEmbedCoordinator_ReadRemotelyBondedMid_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_RebondNode_Request request = new IqrfEmbedCoordinator_RebondNode_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.BondAddr = 6;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_RemoveBond_Request request = new IqrfEmbedCoordinator_RemoveBond_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.BondAddr = 6;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_Restore_Request request = new IqrfEmbedCoordinator_Restore_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.NetData = new System.Collections.ObjectModel.ObservableCollection<int> { 237, 96, 20, 81, 130, 222, 124, 114, 222, 248, 144, 163, 238, 130, 117, 237, 144, 84, 167, 183, 129, 51, 202, 101, 112, 7, 123, 36, 3, 67, 8, 30, 130, 98, 206, 11, 16, 43, 35, 67, 163, 88, 214, 166, 140, 145, 17, 104, 168 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_SetDpaParams_Request request = new IqrfEmbedCoordinator_SetDpaParams_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.DpaParam = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_SetHops_Request request = new IqrfEmbedCoordinator_SetHops_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.RequestHops = 0xff;
+        request.Data.Req.Param.ResponseHops = 0xff;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* EEEPROM */
 
         /*
         IqrfEmbedEeeprom_Read_Request request = new IqrfEmbedEeeprom_Read_Request();
@@ -288,33 +498,22 @@
         request.Data.ReturnVerbose = true;
         */
 
-/* EXPLORE */
-
-        IqrfEmbedExplore_Enumerate_Request request = new IqrfEmbedExplore_Enumerate_Request();
-        request.Data.MsgId = "testEmbedExplore";
-        request.Data.Timeout = 1000;
-        request.Data.Req.NAdr = 1;
-        request.Data.ReturnVerbose = true;
+        /* OS */
 
         /*
-        IqrfEmbedExplore_PeripheralInformation_Request request = new IqrfEmbedExplore_PeripheralInformation_Request();
-        request.Data.MsgId = "testEmbedExplore";
-        request.Data.Timeout = 1000;
-        request.Data.Req.NAdr = 1;
-        request.Data.Req.Param.Per = 1;
-        request.Data.ReturnVerbose = true;        
-        */
-
-        /*
-        IqrfEmbedExplore_MorePeripheralsInformation_Request request = new IqrfEmbedExplore_MorePeripheralsInformation_Request();
-        request.Data.MsgId = "testEmbedExplore";
-        request.Data.Timeout = 1000;
-        request.Data.Req.NAdr = 1;
-        request.Data.Req.Param.Per = 1;
+        IqrfEmbedOs_Read_Request request = new IqrfEmbedOs_Read_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 0;
         request.Data.ReturnVerbose = true;
         */
 
-/* IQMESH */
+        /* IQMESH */
+
+        IqmeshNetwork_BondNodeLocal_Request request = new IqmeshNetwork_BondNodeLocal_Request();
+        request.Data.MsgId = "testIqmeshBondNodeLocal";
+        request.Data.Repeat = 1;
+        request.Data.Req.DeviceAddr = 1;
+        request.Data.ReturnVerbose = true;
 
         /*
         IqmeshNetwork_EnumerateDevice_Request request = new IqmeshNetwork_EnumerateDevice_Request();
@@ -324,7 +523,35 @@
         request.Data.ReturnVerbose = true;
         */
 
-/* SCHEDULER */
+        /*
+        IqmeshNetwork_ReadTrConf_Request request = new IqmeshNetwork_ReadTrConf_Request();
+        request.Data.MsgId = "testIqmeshRead";
+        request.Data.Repeat = 1;
+        request.Data.Req.DeviceAddr = new System.Collections.ObjectModel.ObservableCollection<int> { 0 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqmeshNetwork_WriteTrConf_Request request = new IqmeshNetwork_WriteTrConf_Request();
+        request.Data.MsgId = "testIqmeshWrite";
+        request.Data.Repeat = 1;
+        request.Data.Req.DeviceAddr = new System.Collections.ObjectModel.ObservableCollection<int> { 0 };
+        request.Data.Req.TxPower = 3;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqmeshNetwork_OtaUpload_Request request = new IqmeshNetwork_OtaUpload_Request();
+        request.Data.MsgId = "testIqmeshOta";
+        request.Data.Repeat = 1;
+        request.Data.Req.DeviceAddr = new System.Collections.ObjectModel.ObservableCollection<int> { 3 };
+        request.Data.Req.FileName = "CustomDpaHandler-LED-Red-On-7xD-V302-171116.hex";
+        request.Data.Req.LoadingAction = "WithCodeLoading";
+        request.Data.Req.StartMemAddr = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* SCHEDULER */
 
         /*
         MngSched_List_Request request = new MngSched_List_Request();
@@ -334,16 +561,21 @@
         */
 
         /*
-        IqrfRaw_Request task = new IqrfRaw_Request();
-        task.Data.MsgId = "testRaw";
-        task.Data.Req.RData = "00.00.06.03.FF.FF";
-        task.Data.Timeout = 1000;
-        task.Data.ReturnVerbose = true;
+        IqrfRaw_Request rawReq = new IqrfRaw_Request();
+        rawReq.Data.MsgId = "testRaw";
+        rawReq.Data.Req.RData = "00.00.06.03.FF.FF";
+        rawReq.Data.Timeout = 1000;
+        rawReq.Data.ReturnVerbose = true;
+
+        MngSched_SchedulerMessagingTask task = new MngSched_SchedulerMessagingTask();
+        task.Messaging = MngSched_SchedulerMessagingTaskMessaging.WebsocketMessaging;
+        task.Message = rawReq;
 
         MngSched_AddTask_Request request = new MngSched_AddTask_Request();
         request.Data.MsgId = "testSchedAdd";
         request.Data.Req.ClientId = "SchedulerMessaging";
-        request.Data.Req.Task = task.JsonSerialize();
+        request.Data.Req.Task = task;
+        request.Data.Req.CronTime = new System.Collections.ObjectModel.ObservableCollection<string> { "*\/10", "*", "*", "*", "*", "*", "*" };
         request.Data.ReturnVerbose = true;
         */
 
@@ -357,20 +589,54 @@
         responseStr = WebSocketRequest( IqrfGwDeamonIP, request.JsonSerialize(), Timeout);
 
         // Get response
+        /* RAW */
         //IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr[0] );
-        
         //IqrfRawHdp_Response response = IqrfRawHdp_Response.FromJson ( responseStr[0] );
-        
-        //IqrfEmbedEeeprom_Read_Response response = IqrfEmbedEeeprom_Read_Response.FromJson( responseStr[0] );
-        //IqrfEmbedEeeprom_Write_Response response = IqrfEmbedEeeprom_Write_Response.FromJson( responseStr[0] );
-        
-        IqrfEmbedExplore_Enumerate_Response response = IqrfEmbedExplore_Enumerate_Response.FromJson( responseStr[0] );
+
+        /* EXPLORE */
+        //IqrfEmbedExplore_Enumerate_Response response = IqrfEmbedExplore_Enumerate_Response.FromJson( responseStr[0] );
         //IqrfEmbedExplore_PeripheralInformation_Response response = IqrfEmbedExplore_PeripheralInformation_Response.FromJson( responseStr[0] );
         //IqrfEmbedExplore_MorePeripheralsInformation_Response response = IqrfEmbedExplore_MorePeripheralsInformation_Response.FromJson( responseStr[0] );
 
-        //IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson( responseStr[0] );
+        /* COORDINATOR */
+        //IqrfEmbedCoordinator_AddrInfo_Response response = IqrfEmbedCoordinator_AddrInfo_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_AuthorizeBond_Response response = IqrfEmbedCoordinator_AuthorizeBond_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_Backup_Response response = IqrfEmbedCoordinator_Backup_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_BondedDevices_Response response = IqrfEmbedCoordinator_BondedDevices_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_BondNode_Response response = IqrfEmbedCoordinator_BondNode_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_ClearAllBonds_Response response = IqrfEmbedCoordinator_ClearAllBonds_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_ClearRemotelyBondedMid_Response response = IqrfEmbedCoordinator_ClearRemotelyBondedMid_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_DiscoveredDevices_Response response = IqrfEmbedCoordinator_DiscoveredDevices_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_Discovery_Response response = IqrfEmbedCoordinator_Discovery_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_DiscoveryData_Response response = IqrfEmbedCoordinator_DiscoveryData_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_EnableRemoteBonding_Response response = IqrfEmbedCoordinator_EnableRemoteBonding_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_ReadRemotelyBondedMid_Response response = IqrfEmbedCoordinator_ReadRemotelyBondedMid_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_RebondNode_Response response = IqrfEmbedCoordinator_RebondNode_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_RemoveBond_Response response = IqrfEmbedCoordinator_RemoveBond_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_Restore_Response response = IqrfEmbedCoordinator_Restore_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_SetDpaParams_Response response = IqrfEmbedCoordinator_SetDpaParams_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_SetHops_Response response = IqrfEmbedCoordinator_SetHops_Response.FromJson(responseStr[0]);
 
+        /* EEEPROM */
+        //IqrfEmbedEeeprom_Read_Response response = IqrfEmbedEeeprom_Read_Response.FromJson( responseStr[0] );
+        //IqrfEmbedEeeprom_Write_Response response = IqrfEmbedEeeprom_Write_Response.FromJson( responseStr[0] );
+
+        /* OS */
+        //IqrfEmbedOs_Read_Response response = IqrfEmbedOs_Read_Response.FromJson(responseStr[0]);
+
+        /* IQMESH */
+        IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson(responseStr[0]);
+        //IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson( responseStr[0] );
+        //IqmeshNetwork_ReadTrConf_Response response = IqmeshNetwork_ReadTrConf_Response.FromJson(responseStr[0]);
+        //IqmeshNetwork_WriteTrConf_Response response = IqmeshNetwork_WriteTrConf_Response.FromJson(responseStr[0]);
+        //IqmeshNetwork_OtaUpload_Response response = IqmeshNetwork_OtaUpload_Response.FromJson(responseStr[0]);
+
+        //foreach (string s in responseStr)
+        //  Console.WriteLine(s);
+
+        /* SCHEDULER */
         //MngSched_List_Response response = MngSched_List_Response.FromJson ( responseStr[0] );
+        //MngSched_AddTask_Response response = MngSched_AddTask_Response.FromJson(responseStr[0]);
 
         Console.WriteLine( response.JsonSerialize() );
       }

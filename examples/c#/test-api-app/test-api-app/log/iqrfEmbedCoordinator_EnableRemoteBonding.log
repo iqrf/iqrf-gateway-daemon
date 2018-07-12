@@ -1,0 +1,150 @@
+==================================
+Sending to WebSocket: 2018-07-09 11:36:30.906
+{
+  "mType": "iqrfEmbedCoordinator_EnableRemoteBonding",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "bondingMask": 0,
+        "control": 0,
+        "userData": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-09 11:36:31.643
+{
+    "mType": "iqrfEmbedCoordinator_EnableRemoteBonding",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "ReferenceError: identifier 'bondingMask' undefined"
+        },
+        "raw": {
+            "request": "",
+            "requestTs": "",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_REQUEST",
+        "status": -6
+    }
+}
+2018-07-09 11:36:32.09
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-09 19:30:01.486
+{
+  "mType": "iqrfEmbedCoordinator_EnableRemoteBonding",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "bondingMask": 0,
+        "control": 0,
+        "userData": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-09 19:30:01.614
+{
+    "mType": "iqrfEmbedCoordinator_EnableRemoteBonding",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "ReferenceError: identifier 'bondingMask' undefined"
+        },
+        "raw": {
+            "request": "",
+            "requestTs": "",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_REQUEST",
+        "status": -6
+    }
+}
+2018-07-09 19:30:02.072
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-09 19:33:36.035
+{
+  "mType": "iqrfEmbedCoordinator_EnableRemoteBonding",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "bondingMask": 0,
+        "control": 0,
+        "userData": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-09 19:33:36.176
+{
+    "mType": "iqrfEmbedCoordinator_EnableRemoteBonding",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "TypeError: undefined not callable (property 'EnableRemoteBonding_Response' of [object Object])"
+        },
+        "raw": {
+            "request": "00.00.00.11.ff.ff.00.00.00.01.02.03",
+            "requestTs": "2018-07-09T19:33:36.568136",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.91.00.00.00.00",
+            "responseTs": "2018-07-09T19:33:36.601256"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_RESPONSE",
+        "status": -7
+    }
+}
+2018-07-09 19:33:36.597
+==================================
+

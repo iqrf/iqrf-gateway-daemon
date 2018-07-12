@@ -1,7 +1,7 @@
 {
   "mType": "iqmeshNetwork_ReadTrConf",
   "data": {
-    "msgId": "89ee18cb-f18b-4b11-95a1-0ac78017dcc3",
+    "msgId": "testIqmeshRead",
     "repeat": 1,
     "req": {
       "deviceAddr": [
