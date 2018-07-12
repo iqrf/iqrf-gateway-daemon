@@ -65,8 +65,7 @@
                     },
                     "required": [
                         "clientId",
-                        "taskId",
-                        "task"
+                        "taskId"
                     ]
                 },
                 "insId": {

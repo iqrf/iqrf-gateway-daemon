@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "mngSched_PerTask-response",
+        "name": "mngSched_PeriodicTask-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,7 +12,7 @@
             "type": "string",
             "description": "Scheduler management - Per Task response.",
             "enum": [
-                "mngSched_PerTask"
+                "mngSched_PeriodicTask"
             ]
         },
         "data": {

@@ -49,7 +49,7 @@
                             "type": "object",
                             "properties": {
                                 "mid": {
-                                    "type": "integer",
+                                    "type": "number",
                                     "description": "TR Module ID."
                                 },
                                 "osVersion": {
@@ -69,7 +69,7 @@
                                     "description": "See lastRSSI at IQRF OS Reference Guide."
                                 },
                                 "supplyVoltage": {
-                                    "type": "integer",
+                                    "type": "number",
                                     "description": "Module supply voltage, contains real voltage value."
                                 },
                                 "flags": {
