@@ -37,8 +37,8 @@ namespace iqrf {
       return m_isSetDeviceAddr;
     }
 
-    // returns addresses of devices, to which write configuration in
-    const std::vector<int> getDeviceAddr() const
+    // returns address of device, to which write configuration in
+    const int getDeviceAddr() const
     {
       return m_deviceAddr;
     }
@@ -281,7 +281,7 @@ namespace iqrf {
 
     int m_repeat = 0;
     bool m_restart;
-    std::vector<int> m_deviceAddr;
+    int m_deviceAddr;
     int m_rfChannelA;
     int m_rfChannelB;
     int m_rfSubChannelA;
@@ -311,8 +311,8 @@ namespace iqrf {
 
 
     void parseDeviceAddr(rapidjson::Document& doc) {
-      if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req").Get(doc)) {
-        m_deviceAddr = jutils::getMemberAsVector<int>("deviceAddr", *deviceAddrJsonVal);
+      if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
+        m_deviceAddr = deviceAddrJsonVal->GetInt();
         m_isSetDeviceAddr = true;
       }
     }
