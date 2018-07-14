@@ -690,12 +690,12 @@ iqrf.embed.node.ReadRemotelyBondedMid_Response_rsp = function (rawHdp) {
     return result;
 };
 
-iqrf.embed.node.RemoveBondAddress_Request_req = function (param) {
-    return iqrf.embed.node.RemoveBondAddress_Request();
+iqrf.embed.node.RemoveBond_Request_req = function (param) {
+    return iqrf.embed.node.RemoveBond_Request();
 };
 
-iqrf.embed.node.RemoveBondAddress_Response_rsp = function (rawHdp) {
-    iqrf.embed.node.RemoveBondAddress_Response(rawHdp);
+iqrf.embed.node.RemoveBond_Response_rsp = function (rawHdp) {
+    iqrf.embed.node.RemoveBond_Response(rawHdp);
     var result =
     {
     };
