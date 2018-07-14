@@ -36,9 +36,9 @@ namespace iqrfEmbedNode_EnableRemoteBonding_Response
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public enum IqrfEmbedNode_EnableRemoteBonding_ResponseMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedNode_EnableRemoteBond")]
+        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedNode_EnableRemoteBonding")]
     
-        IqrfEmbedNode_EnableRemoteBond = 0,
+        IqrfEmbedNode_EnableRemoteBonding = 0,
     
     
     }

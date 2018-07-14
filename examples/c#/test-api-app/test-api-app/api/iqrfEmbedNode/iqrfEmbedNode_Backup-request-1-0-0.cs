@@ -105,7 +105,7 @@ namespace iqrfEmbedNode_Backup_Request
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Param 
     {
-        /// <summary>This command reads coordinator network information data that can be then restored to another coordinator in order to make a clone of the original coordinator.</summary>
+        /// <summary>This command reads node data that can be then restored to another coordinator in order to make a clone of the original coordinator.</summary>
         [Newtonsoft.Json.JsonProperty("index", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Index { get; set; }
     

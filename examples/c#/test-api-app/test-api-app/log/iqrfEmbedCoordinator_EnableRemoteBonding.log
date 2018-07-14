@@ -148,3 +148,53 @@ Received from WebSocket: 2018-07-09 19:33:36.176
 2018-07-09 19:33:36.597
 ==================================
 
+==================================
+Sending to WebSocket: 2018-07-14 18:24:41.365
+{
+  "mType": "iqrfEmbedCoordinator_EnableRemoteBonding",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "bondingMask": 0,
+        "control": 0,
+        "userData": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-14 18:24:41.505
+{
+    "mType": "iqrfEmbedCoordinator_EnableRemoteBonding",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 56,
+            "result": {}
+        },
+        "raw": {
+            "request": "00.00.00.11.ff.ff.00.00.00.01.02.03",
+            "requestTs": "2018-07-14T18:24:41.462695",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.91.00.00.00.38",
+            "responseTs": "2018-07-14T18:24:41.491609"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-14 18:24:41.957
+==================================
+

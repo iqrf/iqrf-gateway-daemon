@@ -174,7 +174,7 @@ namespace iqrfEmbedOs_Read_Response
     {
         /// <summary>TR Module ID.</summary>
         [Newtonsoft.Json.JsonProperty("mid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Mid { get; set; }
+        public int? Mid { get; set; }
     
         /// <summary>IQRF OS version.</summary>
         [Newtonsoft.Json.JsonProperty("osVersion", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

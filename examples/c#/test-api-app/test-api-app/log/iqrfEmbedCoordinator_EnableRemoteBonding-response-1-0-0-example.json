@@ -6,19 +6,19 @@
             "nAdr": 0,
             "hwpId": 0,
             "rCode": 0,
-            "dpaVal": 0,
-            "errorStr": "TypeError: undefined not callable (property 'EnableRemoteBonding_Response' of [object Object])"
+            "dpaVal": 56,
+            "result": {}
         },
         "raw": {
             "request": "00.00.00.11.ff.ff.00.00.00.01.02.03",
-            "requestTs": "2018-07-09T19:33:36.568136",
+            "requestTs": "2018-07-14T18:24:41.462695",
             "confirmation": "",
             "confirmationTs": "",
-            "response": "00.00.00.91.00.00.00.00",
-            "responseTs": "2018-07-09T19:33:36.601256"
+            "response": "00.00.00.91.00.00.00.38",
+            "responseTs": "2018-07-14T18:24:41.491609"
         },
         "insId": "iqrfgd2-1",
-        "statusStr": "BAD_RESPONSE",
-        "status": -7
+        "statusStr": "ok",
+        "status": 0
     }
 }

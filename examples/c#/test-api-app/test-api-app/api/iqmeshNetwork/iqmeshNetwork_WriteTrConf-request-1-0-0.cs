@@ -82,10 +82,9 @@ namespace iqmeshNetwork_WriteTrConf_Request
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Req 
     {
-        /// <summary>Device address(es) to write the configuration to. Broadcast address is also allowed.</summary>
+        /// <summary>Device address to write the configuration to. Broadcast address is also allowed.</summary>
         [Newtonsoft.Json.JsonProperty("deviceAddr", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public System.Collections.ObjectModel.ObservableCollection<int> DeviceAddr { get; set; } = new System.Collections.ObjectModel.ObservableCollection<int>();
+        public int DeviceAddr { get; set; }
     
         /// <summary>Used RF band.</summary>
         [Newtonsoft.Json.JsonProperty("rfBand", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

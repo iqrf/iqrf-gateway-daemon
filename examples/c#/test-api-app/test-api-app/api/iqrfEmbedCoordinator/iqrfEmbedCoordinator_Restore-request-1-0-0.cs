@@ -106,8 +106,8 @@ namespace iqrfEmbedCoordinator_Restore_Request
     public partial class Param 
     {
         /// <summary>One block of the coordinator network info data previously obtained by a backup command.</summary>
-        [Newtonsoft.Json.JsonProperty("netData", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<int> NetData { get; set; }
+        [Newtonsoft.Json.JsonProperty("networkData", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<int> NetworkData { get; set; }
     
         public string ToJson() 
         {

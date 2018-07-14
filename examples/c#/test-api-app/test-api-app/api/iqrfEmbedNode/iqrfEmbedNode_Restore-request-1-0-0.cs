@@ -105,9 +105,9 @@ namespace iqrfEmbedNode_Restore_Request
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Param 
     {
-        /// <summary>Array of restored data.</summary>
-        [Newtonsoft.Json.JsonProperty("networkData", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public NetworkData NetworkData { get; set; }
+        /// <summary>One block of the node data previously obtained by a backup command.</summary>
+        [Newtonsoft.Json.JsonProperty("backupData", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<int> BackupData { get; set; }
     
         public string ToJson() 
         {
@@ -117,24 +117,6 @@ namespace iqrfEmbedNode_Restore_Request
         public static Param FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<Param>(data);
-        }
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class NetworkData 
-    {
-        [Newtonsoft.Json.JsonProperty("index", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Index { get; set; }
-    
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-        
-        public static NetworkData FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<NetworkData>(data);
         }
     
     }

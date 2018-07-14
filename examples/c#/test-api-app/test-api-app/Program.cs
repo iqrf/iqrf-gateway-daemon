@@ -72,13 +72,28 @@
   using iqrfEmbedCoordinator_SetHops_Request;
   using iqrfEmbedCoordinator_SetHops_Response;
 
+  using iqrfEmbedNode_Read_Request;
+  using iqrfEmbedNode_Read_Response;
+  using iqrfEmbedNode_Backup_Request;
+  using iqrfEmbedNode_Backup_Response;
+  using iqrfEmbedNode_Restore_Request;
+  using iqrfEmbedNode_Restore_Response;
+  using iqrfEmbedNode_ReadRemotelyBondedMid_Request;
+  using iqrfEmbedNode_ReadRemotelyBondedMid_Response;
+  using iqrfEmbedNode_ClearRemotelyBondedMid_Request;
+  using iqrfEmbedNode_ClearRemotelyBondedMid_Response;
+  using iqrfEmbedNode_EnableRemoteBonding_Request;
+  using iqrfEmbedNode_EnableRemoteBonding_Response;
+  using iqrfEmbedNode_RemoveBond_Request;
+  using iqrfEmbedNode_RemoveBond_Response;
+
+  using iqrfEmbedOs_Read_Request;
+  using iqrfEmbedOs_Read_Response;
+
   using iqrfEmbedEeeprom_Read_Request;
   using iqrfEmbedEeeprom_Read_Response;
   using iqrfEmbedEeeprom_Write_Request;
   using iqrfEmbedEeeprom_Write_Response;
-
-  using iqrfEmbedOs_Read_Request;
-  using iqrfEmbedOs_Read_Response;
 
   // IqmeshNetwork APIs
   using iqmeshNetwork_BondNodeLocal_Request;
@@ -350,7 +365,7 @@
         IqrfEmbedCoordinator_AuthorizeBond_Request request = new IqrfEmbedCoordinator_AuthorizeBond_Request();
         request.Data.MsgId = "testEmbedCoordinator";
         request.Data.Req.NAdr = 0;
-        request.Data.Req.Param.ReqAddr = 6;
+        request.Data.Req.Param.ReqAddr = 3;
         request.Data.Req.Param.Mid = 0x00000000;
         request.Data.ReturnVerbose = true;
         */
@@ -370,15 +385,13 @@
         request.Data.ReturnVerbose = true;
         */
 
-        /*
         IqrfEmbedCoordinator_BondNode_Request request = new IqrfEmbedCoordinator_BondNode_Request();
         request.Data.MsgId = "testEmbedCoordinator";
-        //request.Data.Timeout = 11000;
+        request.Data.Timeout = 11000;
         request.Data.Req.NAdr = 0;
-        request.Data.Req.Param.ReqAddr = 6;
+        request.Data.Req.Param.ReqAddr = 1;
         request.Data.Req.Param.BondingMask = 0;
         request.Data.ReturnVerbose = true;
-        */
 
         /*
         IqrfEmbedCoordinator_ClearAllBonds_Request request = new IqrfEmbedCoordinator_ClearAllBonds_Request();
@@ -448,7 +461,7 @@
         IqrfEmbedCoordinator_RemoveBond_Request request = new IqrfEmbedCoordinator_RemoveBond_Request();
         request.Data.MsgId = "testEmbedCoordinator";
         request.Data.Req.NAdr = 0;
-        request.Data.Req.Param.BondAddr = 6;
+        request.Data.Req.Param.BondAddr = 1;
         request.Data.ReturnVerbose = true;
         */
 
@@ -456,7 +469,7 @@
         IqrfEmbedCoordinator_Restore_Request request = new IqrfEmbedCoordinator_Restore_Request();
         request.Data.MsgId = "testEmbedCoordinator";
         request.Data.Req.NAdr = 0;
-        request.Data.Req.Param.NetData = new System.Collections.ObjectModel.ObservableCollection<int> { 237, 96, 20, 81, 130, 222, 124, 114, 222, 248, 144, 163, 238, 130, 117, 237, 144, 84, 167, 183, 129, 51, 202, 101, 112, 7, 123, 36, 3, 67, 8, 30, 130, 98, 206, 11, 16, 43, 35, 67, 163, 88, 214, 166, 140, 145, 17, 104, 168 };
+        request.Data.Req.Param.NetworkData = new System.Collections.ObjectModel.ObservableCollection<int> { 237, 96, 20, 81, 130, 222, 124, 114, 222, 248, 144, 163, 238, 130, 117, 237, 144, 84, 167, 183, 129, 51, 202, 101, 112, 7, 123, 36, 3, 67, 8, 30, 130, 98, 206, 11, 16, 43, 35, 67, 163, 88, 214, 166, 140, 145, 17, 104, 168 };
         request.Data.ReturnVerbose = true;
         */
 
@@ -474,6 +487,62 @@
         request.Data.Req.NAdr = 0;
         request.Data.Req.Param.RequestHops = 0xff;
         request.Data.Req.Param.ResponseHops = 0xff;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* NODE */
+
+        /*
+        IqrfEmbedNode_Read_Request request = new IqrfEmbedNode_Read_Request();
+        request.Data.MsgId = "testEmbedNode";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedNode_Backup_Request request = new IqrfEmbedNode_Backup_Request();
+        request.Data.MsgId = "testEmbedNode";
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.Index = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedNode_Restore_Request request = new IqrfEmbedNode_Restore_Request();
+        request.Data.MsgId = "testEmbedNode";
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.BackupData = new System.Collections.ObjectModel.ObservableCollection<int> { 141, 108, 81, 171, 106, 240, 247, 200, 61, 80, 54, 94, 38, 225, 61, 90, 70, 131, 32, 188, 213, 35, 98, 116, 0, 245, 128, 226, 180, 99, 166, 173, 223, 184, 90, 121, 173, 244, 18, 91, 85, 6, 169, 23, 234, 27, 225, 41, 6 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedNode_ReadRemotelyBondedMid_Request request = new IqrfEmbedNode_ReadRemotelyBondedMid_Request();
+        request.Data.MsgId = "testEmbedNode";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedNode_ClearRemotelyBondedMid_Request request = new IqrfEmbedNode_ClearRemotelyBondedMid_Request();
+        request.Data.MsgId = "testEmbedNode";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedNode_EnableRemoteBonding_Request request = new IqrfEmbedNode_EnableRemoteBonding_Request();
+        request.Data.MsgId = "testEmbedNode";
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.BondingMask = 0;
+        request.Data.Req.Param.Control = 0;
+        request.Data.Req.Param.UserData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1, 2, 3 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedNode_RemoveBond_Request request = new IqrfEmbedNode_RemoveBond_Request();
+        request.Data.MsgId = "testEmbedNode";
+        request.Data.Req.NAdr = 1;
         request.Data.ReturnVerbose = true;
         */
 
@@ -509,11 +578,13 @@
 
         /* IQMESH */
 
+        /*
         IqmeshNetwork_BondNodeLocal_Request request = new IqmeshNetwork_BondNodeLocal_Request();
         request.Data.MsgId = "testIqmeshBondNodeLocal";
         request.Data.Repeat = 1;
         request.Data.Req.DeviceAddr = 1;
         request.Data.ReturnVerbose = true;
+        */
 
         /*
         IqmeshNetwork_EnumerateDevice_Request request = new IqmeshNetwork_EnumerateDevice_Request();
@@ -589,21 +660,25 @@
         responseStr = WebSocketRequest( IqrfGwDeamonIP, request.JsonSerialize(), Timeout);
 
         // Get response
+
         /* RAW */
+
         //IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr[0] );
         //IqrfRawHdp_Response response = IqrfRawHdp_Response.FromJson ( responseStr[0] );
 
         /* EXPLORE */
+
         //IqrfEmbedExplore_Enumerate_Response response = IqrfEmbedExplore_Enumerate_Response.FromJson( responseStr[0] );
         //IqrfEmbedExplore_PeripheralInformation_Response response = IqrfEmbedExplore_PeripheralInformation_Response.FromJson( responseStr[0] );
         //IqrfEmbedExplore_MorePeripheralsInformation_Response response = IqrfEmbedExplore_MorePeripheralsInformation_Response.FromJson( responseStr[0] );
 
         /* COORDINATOR */
+
         //IqrfEmbedCoordinator_AddrInfo_Response response = IqrfEmbedCoordinator_AddrInfo_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_AuthorizeBond_Response response = IqrfEmbedCoordinator_AuthorizeBond_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_Backup_Response response = IqrfEmbedCoordinator_Backup_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_BondedDevices_Response response = IqrfEmbedCoordinator_BondedDevices_Response.FromJson(responseStr[0]);
-        //IqrfEmbedCoordinator_BondNode_Response response = IqrfEmbedCoordinator_BondNode_Response.FromJson(responseStr[0]);
+        IqrfEmbedCoordinator_BondNode_Response response = IqrfEmbedCoordinator_BondNode_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_ClearAllBonds_Response response = IqrfEmbedCoordinator_ClearAllBonds_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_ClearRemotelyBondedMid_Response response = IqrfEmbedCoordinator_ClearRemotelyBondedMid_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_DiscoveredDevices_Response response = IqrfEmbedCoordinator_DiscoveredDevices_Response.FromJson(responseStr[0]);
@@ -617,24 +692,44 @@
         //IqrfEmbedCoordinator_SetDpaParams_Response response = IqrfEmbedCoordinator_SetDpaParams_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_SetHops_Response response = IqrfEmbedCoordinator_SetHops_Response.FromJson(responseStr[0]);
 
+        /* NODE */
+
+        //IqrfEmbedNode_Read_Response response = IqrfEmbedNode_Read_Response.FromJson(responseStr[0]);
+        //IqrfEmbedNode_Backup_Response response = IqrfEmbedNode_Backup_Response.FromJson(responseStr[0]);
+        //IqrfEmbedNode_Restore_Response response = IqrfEmbedNode_Restore_Response.FromJson(responseStr[0]);
+        //IqrfEmbedNode_ReadRemotelyBondedMid_Response response = IqrfEmbedNode_ReadRemotelyBondedMid_Response.FromJson(responseStr[0]);
+        //IqrfEmbedNode_ClearRemotelyBondedMid_Response response = IqrfEmbedNode_ClearRemotelyBondedMid_Response.FromJson(responseStr[0]);
+        //IqrfEmbedNode_EnableRemoteBonding_Response response = IqrfEmbedNode_EnableRemoteBonding_Response.FromJson(responseStr[0]);
+        //IqrfEmbedNode_RemoveBond_Response response = IqrfEmbedNode_RemoveBond_Response.FromJson(responseStr[0]);
+
+        /* OS */
+
+        //IqrfEmbedOs_Read_Response response = IqrfEmbedOs_Read_Response.FromJson(responseStr[0]);
+
         /* EEEPROM */
+
         //IqrfEmbedEeeprom_Read_Response response = IqrfEmbedEeeprom_Read_Response.FromJson( responseStr[0] );
         //IqrfEmbedEeeprom_Write_Response response = IqrfEmbedEeeprom_Write_Response.FromJson( responseStr[0] );
 
-        /* OS */
-        //IqrfEmbedOs_Read_Response response = IqrfEmbedOs_Read_Response.FromJson(responseStr[0]);
-
         /* IQMESH */
-        IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson(responseStr[0]);
-        //IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson( responseStr[0] );
+
+        //IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson(responseStr[0]);
+
+        /*
+        foreach (string rspStr in responseStr)
+        {
+          IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson(rspStr);
+          UnionResponses result = response.Data.Rsp.Result;
+          Console.WriteLine(response.JsonSerialize());
+        }
+        */
+
         //IqmeshNetwork_ReadTrConf_Response response = IqmeshNetwork_ReadTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_WriteTrConf_Response response = IqmeshNetwork_WriteTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_OtaUpload_Response response = IqmeshNetwork_OtaUpload_Response.FromJson(responseStr[0]);
 
-        //foreach (string s in responseStr)
-        //  Console.WriteLine(s);
-
         /* SCHEDULER */
+
         //MngSched_List_Response response = MngSched_List_Response.FromJson ( responseStr[0] );
         //MngSched_AddTask_Response response = MngSched_AddTask_Response.FromJson(responseStr[0]);
 
