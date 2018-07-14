@@ -674,10 +674,7 @@ iqrf.embed.node.Read_Request_req = function (param) {
 };
 
 iqrf.embed.node.Read_Response_rsp = function (rawHdp) {
-    var result =
-    {
-        readData: iqrf.embed.node.Read_Response(rawHdp)
-    };
+    var result = iqrf.embed.node.Read_Response(rawHdp)
     return result;
 };
 
