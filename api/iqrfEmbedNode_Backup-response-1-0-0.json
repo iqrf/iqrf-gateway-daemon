@@ -54,7 +54,7 @@
                                     "items": {
                                         "type": "integer"
                                     },
-                                    "maxItems": 48
+                                    "maxItems": 49
                                 }
                             }
                         },

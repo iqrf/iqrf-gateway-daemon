@@ -12,7 +12,7 @@
             "type": "string",
             "description": "Embedded peripheral Node - Enable Remote Bond response.",
             "enum": [
-                "iqrfEmbedNode_EnableRemoteBond"
+                "iqrfEmbedNode_EnableRemoteBonding"
             ]
         },
         "data": {

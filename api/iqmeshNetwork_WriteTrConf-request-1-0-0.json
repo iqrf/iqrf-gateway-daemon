@@ -36,12 +36,9 @@
 					"type": "object",
 					"properties": {
 						"deviceAddr": {
-							"type": "array",
-							"description": "Device address(es) to write the configuration to. Broadcast address is also allowed.",
-							"items": {
-								"type": "integer"
-							}
-						},
+                            "type": "integer",
+                            "description": "Device address to write the configuration to. Broadcast address is also allowed."
+                        },
 						"rfBand": {
 							"type": "string",
 							"description": "Used RF band."

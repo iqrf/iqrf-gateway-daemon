@@ -31,12 +31,9 @@
 					"type": "object",
 					"properties": {
 						"deviceAddr": {
-							"type": "array",
-							"description": "Device address(es) to read the configuration from.",
-							"items": {
-								"type": "integer"
-							}
-						}
+                            "type": "integer",
+                            "description": "Device address to read the configuration from."
+                        }
 					},
 					"required": [
 						"deviceAddr"

@@ -40,7 +40,7 @@
                         "param": {
                             "type": "object",
                             "properties": {
-                                "netData": {
+                                "networkData": {
                                     "type": "array",
                                     "description": "One block of the coordinator network info data previously obtained by a backup command.",
                                     "items": {

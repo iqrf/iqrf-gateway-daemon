@@ -31,12 +31,9 @@
 					"type": "object",
 					"properties": {
 						"deviceAddr": {
-							"type": "array",
-							"description": "Device address(es) to write the hex or iqrf file.",
-							"items": {
-								"type": "integer"
-							}
-						},
+                            "type": "integer",
+                            "description": "Device address to write the hex or iqrf file."
+                        },
 						"fileName": {
 							"type": "string",
 							"description": "Full name of file with source code to load."

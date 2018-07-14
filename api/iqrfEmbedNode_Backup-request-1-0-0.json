@@ -42,7 +42,7 @@
                             "properties": {
                                 "index": {
                                     "type": "integer",
-                                    "description": "This command reads coordinator network information data that can be then restored to another coordinator in order to make a clone of the original coordinator."
+                                    "description": "This command reads node data that can be then restored to another coordinator in order to make a clone of the original coordinator."
                                 }
                             }
                         }

@@ -40,15 +40,13 @@
                         "param": {
                             "type": "object",
                             "properties": {
-                                "networkData": {
-                                    "type": "object",
-                                    "description": "Array of restored data.",
-                                    "properties": {
-                                        "index": {
-                                            "type": "integer"
-                                        }
+                                "backupData": {
+                                    "type": "array",
+                                    "description": "One block of the node data previously obtained by a backup command.",
+                                    "items": {
+                                        "type": "integer"
                                     },
-                                    "maxItems":48
+                                    "maxItems": 49
                                 }
                             }
                         }

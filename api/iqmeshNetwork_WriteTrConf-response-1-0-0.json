@@ -40,9 +40,7 @@
 						}
 					},
 					"required": [
-						"deviceAddr",
-						"writeSuccess",
-						"restartNeeded"
+						"deviceAddr"
 					]
 				},
 				"raw": {

@@ -48,64 +48,59 @@
                         "result": {
                             "type": "object",
                             "properties": {
-                                "readData": {
-                                    "type": "object",
-                                    "properties": {
-                                        "ntwADDR": {
-                                            "type": "integer",
-                                            "description": "Network address."
-                                        },
-                                        "ntwVRN": {
-                                            "type": "integer",
-                                            "description": "Virtual routing number."
-                                        },
-                                        "ntwZIN": {
-                                            "type": "integer",
-                                            "description": "Zone index."
-                                        },
-                                        "ntwDID": {
-                                            "type": "integer",
-                                            "description": "Discovery id."
-                                        },
-                                        "ntwPVRN": {
-                                            "type": "integer",
-                                            "description": "Parent virtual routing number."
-                                        },
-                                        "ntwUSERADDRESS": {
-                                            "type": "integer",
-                                            "description": "User address 2B."
-                                        },
-                                        "ntwID": {
-                                            "type": "integer",
-                                            "description": "Network identification (NID0/NID1)."
-                                        },
-                                        "ntwVRNFNZ": {
-                                            "type": "integer",
-                                            "description": "VRN of first Node in given zone."
-                                        },
-                                        "ntwCFG": {
-                                            "type": "integer",
-                                            "description": "Network configuration."
-                                        },
-                                        "flags": {
-                                            "type": "integer",
-                                            "description": "Indicates whether the Node device is bonded."
-                                        }
-                                    },
-                                    "required": [
-                                        "ntwADDR",
-                                        "ntwVRN",
-                                        "ntwZIN",
-                                        "ntwDID",
-                                        "ntwPVRN",
-                                        "ntwUSERADDRESS",
-                                        "ntwID",
-                                        "ntwVRNFNZ",
-                                        "ntwCFG",
-                                        "flags"
-                                    ]
+                                "ntwADDR": {
+                                    "type": "integer",
+                                    "description": "Network address."
+                                },
+                                "ntwVRN": {
+                                    "type": "integer",
+                                    "description": "Virtual routing number."
+                                },
+                                "ntwZIN": {
+                                    "type": "integer",
+                                    "description": "Zone index."
+                                },
+                                "ntwDID": {
+                                    "type": "integer",
+                                    "description": "Discovery id."
+                                },
+                                "ntwPVRN": {
+                                    "type": "integer",
+                                    "description": "Parent virtual routing number."
+                                },
+                                "ntwUSERADDRESS": {
+                                    "type": "integer",
+                                    "description": "User address 2B."
+                                },
+                                "ntwID": {
+                                    "type": "integer",
+                                    "description": "Network identification (NID0/NID1)."
+                                },
+                                "ntwVRNFNZ": {
+                                    "type": "integer",
+                                    "description": "VRN of first Node in given zone."
+                                },
+                                "ntwCFG": {
+                                    "type": "integer",
+                                    "description": "Network configuration."
+                                },
+                                "flags": {
+                                    "type": "integer",
+                                    "description": "Indicates whether the Node device is bonded."
                                 }
-                            }
+                            },
+                            "required": [
+                                "ntwADDR",
+                                "ntwVRN",
+                                "ntwZIN",
+                                "ntwDID",
+                                "ntwPVRN",
+                                "ntwUSERADDRESS",
+                                "ntwID",
+                                "ntwVRNFNZ",
+                                "ntwCFG",
+                                "flags"
+                            ]
                         },
                         "errorStr": {
                             "type": "string",
