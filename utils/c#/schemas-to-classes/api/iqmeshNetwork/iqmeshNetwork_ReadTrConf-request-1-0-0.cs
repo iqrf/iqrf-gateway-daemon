@@ -78,10 +78,9 @@ namespace iqmeshNetwork_ReadTrConf_Request
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Req 
     {
-        /// <summary>Device address(es) to read the configuration from.</summary>
+        /// <summary>Device address to read the configuration from.</summary>
         [Newtonsoft.Json.JsonProperty("deviceAddr", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public System.Collections.ObjectModel.ObservableCollection<int> DeviceAddr { get; set; } = new System.Collections.ObjectModel.ObservableCollection<int>();
+        public int DeviceAddr { get; set; }
     
         public string ToJson() 
         {

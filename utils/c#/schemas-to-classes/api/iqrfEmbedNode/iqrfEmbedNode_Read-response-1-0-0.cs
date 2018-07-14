@@ -172,24 +172,6 @@ namespace iqrfEmbedNode_Read_Response
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Result 
     {
-        [Newtonsoft.Json.JsonProperty("readData", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ReadData ReadData { get; set; }
-    
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-        
-        public static Result FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Result>(data);
-        }
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class ReadData 
-    {
         /// <summary>Network address.</summary>
         [Newtonsoft.Json.JsonProperty("ntwADDR", Required = Newtonsoft.Json.Required.Always)]
         public int NtwADDR { get; set; }
@@ -235,9 +217,9 @@ namespace iqrfEmbedNode_Read_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static ReadData FromJson(string data)
+        public static Result FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<ReadData>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Result>(data);
         }
     
     }

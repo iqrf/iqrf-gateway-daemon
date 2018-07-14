@@ -4,18 +4,18 @@
 // </auto-generated>
 //----------------------
 
-namespace iqrfEmbedNode_RemoveBondAddress_Request
+namespace iqrfEmbedNode_RemoveBond_Request
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqrfEmbedNode_RemoveBondAddress_Request 
+    public partial class IqrfEmbedNode_RemoveBond_Request 
     {
         /// <summary>Embedded peripheral Node - Remove Bond Address request.</summary>
         [Newtonsoft.Json.JsonProperty("mType", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public IqrfEmbedNode_RemoveBondAddress_RequestMType MType { get; set; }
+        public IqrfEmbedNode_RemoveBond_RequestMType MType { get; set; }
     
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -26,19 +26,19 @@ namespace iqrfEmbedNode_RemoveBondAddress_Request
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqrfEmbedNode_RemoveBondAddress_Request FromJson(string data)
+        public static IqrfEmbedNode_RemoveBond_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedNode_RemoveBondAddress_Request>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedNode_RemoveBond_Request>(data);
         }
     
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum IqrfEmbedNode_RemoveBondAddress_RequestMType
+    public enum IqrfEmbedNode_RemoveBond_RequestMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedNode_RemoveBondAddress")]
+        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedNode_RemoveBond")]
     
-        IqrfEmbedNode_RemoveBondAddress = 0,
+        IqrfEmbedNode_RemoveBond = 0,
     
     
     }

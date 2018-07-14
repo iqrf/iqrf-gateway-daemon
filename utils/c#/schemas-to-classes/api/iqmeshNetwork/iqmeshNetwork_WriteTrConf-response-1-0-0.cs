@@ -91,12 +91,12 @@ namespace iqmeshNetwork_WriteTrConf_Response
         public int DeviceAddr { get; set; }
     
         /// <summary>If sets, then configuration has been successfully written.</summary>
-        [Newtonsoft.Json.JsonProperty("writeSuccess", Required = Newtonsoft.Json.Required.Always)]
-        public bool WriteSuccess { get; set; }
+        [Newtonsoft.Json.JsonProperty("writeSuccess", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? WriteSuccess { get; set; }
     
         /// <summary>Restart required, but not done yet.</summary>
-        [Newtonsoft.Json.JsonProperty("restartNeeded", Required = Newtonsoft.Json.Required.Always)]
-        public bool RestartNeeded { get; set; }
+        [Newtonsoft.Json.JsonProperty("restartNeeded", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? RestartNeeded { get; set; }
     
         public string ToJson() 
         {
