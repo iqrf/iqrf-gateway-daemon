@@ -47,11 +47,11 @@
                                         "type": "integer"
                                     }
                                 },
-                                "requets": {
+                                "requests": {
                                     "type": "array",
                                     "description": "Array of objects (requests).",
                                     "items": {
-                                        "type": "integer"
+                                        "type": "object"
                                     }
                                 }
                             }

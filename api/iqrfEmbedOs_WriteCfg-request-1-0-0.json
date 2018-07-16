@@ -40,18 +40,18 @@
                         "param": {
                             "type": "object",
                             "properties": {
-                                "checkSum": {
+                                "checksum": {
                                     "type": "integer",
                                     "description": "Checksum of the Configuration part."
                                 },
-                                "cfgBytes": {
+                                "configuration": {
                                     "type": "array",
                                     "description": "Content the configuration memory block from address 0x01 to 0x1F.",    
                                     "items": {
                                         "type": "integer"
                                     }
                                 },
-                                "rfPgm": {
+                                "rfpgm": {
                                     "type": "integer",
                                     "description":"See parameter of setupRFPGM IQRF OS function."
                                 }

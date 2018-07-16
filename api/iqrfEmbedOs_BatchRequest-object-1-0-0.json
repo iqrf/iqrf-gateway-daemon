@@ -1,0 +1,57 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfEmbed_BatchRequest-object",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "description": "Single request for batch.",
+    "properties": {
+        "ctype": {
+            "type": "string",
+            "description": "Request cType.",
+            "enum": [
+                "dpa"
+            ]
+        },
+        "type": {
+            "type": "string",
+            "description": "Request Type.",
+            "enum": [
+                "raw-hdp"
+            ]
+        },
+        "msgid": {
+            "type": "string",
+            "description": "Message Id."
+        },
+        "nadr": {
+            "type": "string",
+            "description": "Network Address."
+        },
+        "pnum": {
+            "type": "string",
+            "description": "Peripheral Number."
+        },
+        "pcmd": {
+            "type": "string",
+            "description": "Peripheral Command."
+        },
+        "hwpid": {
+            "type": "string",
+            "description": "Hardware Profile ID."
+        },
+        "rdata": {
+            "type": "string",
+            "description": "Request Data."
+        }
+    },
+    "required": [
+        "ctype",
+        "type",
+        "pnum",
+        "pcmd"
+    ]
+}

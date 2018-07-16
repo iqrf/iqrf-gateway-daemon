@@ -30,11 +30,11 @@
                     "type": "object",
                     "properties": {
                         "nAdr": {
-                            "type": "string",
+                            "type": "integer",
                             "description": "Network device address."
                         },
                         "hwpId": {
-                            "type": "string",
+                            "type": "integer",
                             "description": "Hardware profile identification."
                         },
                         "param": {
