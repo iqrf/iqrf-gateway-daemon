@@ -106,16 +106,16 @@ namespace iqrfEmbedOs_WriteCfg_Request
     public partial class Param 
     {
         /// <summary>Checksum of the Configuration part.</summary>
-        [Newtonsoft.Json.JsonProperty("checkSum", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? CheckSum { get; set; }
+        [Newtonsoft.Json.JsonProperty("checksum", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Checksum { get; set; }
     
         /// <summary>Content the configuration memory block from address 0x01 to 0x1F.</summary>
-        [Newtonsoft.Json.JsonProperty("cfgBytes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<int> CfgBytes { get; set; }
+        [Newtonsoft.Json.JsonProperty("configuration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<int> Configuration { get; set; }
     
         /// <summary>See parameter of setupRFPGM IQRF OS function.</summary>
-        [Newtonsoft.Json.JsonProperty("rfPgm", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? RfPgm { get; set; }
+        [Newtonsoft.Json.JsonProperty("rfpgm", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Rfpgm { get; set; }
     
         public string ToJson() 
         {

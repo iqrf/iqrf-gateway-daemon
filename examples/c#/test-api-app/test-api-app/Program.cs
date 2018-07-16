@@ -87,8 +87,32 @@
   using iqrfEmbedNode_RemoveBond_Request;
   using iqrfEmbedNode_RemoveBond_Response;
 
+  using iqrfEmbedOs_Batch_Request;
+  using iqrfEmbedOs_Batch_Response;
+  using iqrfEmbedOs_BatchRequest;
+  using iqrfEmbedOs_LoadCode_Request;
+  using iqrfEmbedOs_LoadCode_Response;
   using iqrfEmbedOs_Read_Request;
   using iqrfEmbedOs_Read_Response;
+  using iqrfEmbedOs_ReadCfg_Request;
+  using iqrfEmbedOs_ReadCfg_Response;
+  using iqrfEmbedOs_Reset_Request;
+  using iqrfEmbedOs_Reset_Response;
+  using iqrfEmbedOs_Restart_Request;
+  using iqrfEmbedOs_Restart_Response;
+  using iqrfEmbedOs_Rfpgm_Request;
+  using iqrfEmbedOs_Rfpgm_Response;
+  using iqrfEmbedOs_SelectiveBatch_Request;
+  using iqrfEmbedOs_SelectiveBatch_Response;
+  using iqrfEmbedOs_SetSecurity_Request;
+  using iqrfEmbedOs_SetSecurity_Response;
+  using iqrfEmbedOs_Sleep_Request;
+  using iqrfEmbedOs_Sleep_Response;
+  using iqrfEmbedOs_WriteCfg_Request;
+  using iqrfEmbedOs_WriteCfg_Response;
+  using iqrfEmbedOs_WriteCfgByte_Request;
+  using iqrfEmbedOs_WriteCfgByte_Response;
+  using iqrfEmbedOs_WriteCfgTriplet;
 
   using iqrfEmbedEeeprom_Read_Request;
   using iqrfEmbedEeeprom_Read_Response;
@@ -104,8 +128,6 @@
   using iqmeshNetwork_OtaUpload_Response;
   using iqmeshNetwork_ReadTrConf_Request;
   using iqmeshNetwork_ReadTrConf_Response;
-  using iqmeshNetwork_SmartConnect_Request;
-  using iqmeshNetwork_SmartConnect_Response;
   using iqmeshNetwork_WriteTrConf_Request;
   using iqmeshNetwork_WriteTrConf_Response;
 
@@ -385,6 +407,7 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /*
         IqrfEmbedCoordinator_BondNode_Request request = new IqrfEmbedCoordinator_BondNode_Request();
         request.Data.MsgId = "testEmbedCoordinator";
         request.Data.Timeout = 11000;
@@ -392,6 +415,7 @@
         request.Data.Req.Param.ReqAddr = 1;
         request.Data.Req.Param.BondingMask = 0;
         request.Data.ReturnVerbose = true;
+        */
 
         /*
         IqrfEmbedCoordinator_ClearAllBonds_Request request = new IqrfEmbedCoordinator_ClearAllBonds_Request();
@@ -546,6 +570,123 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /* OS */
+
+        /*
+        IqrfEmbedOs_BatchRequest requestLedrOn = new IqrfEmbedOs_BatchRequest();
+        requestLedrOn.Pnum = "06";
+        requestLedrOn.Pcmd = "03";
+        requestLedrOn.Hwpid = "ffff";
+        
+        IqrfEmbedOs_Batch_Request request = new IqrfEmbedOs_Batch_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.Requests = new System.Collections.ObjectModel.ObservableCollection<object> { requestLedrPulse };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedOs_LoadCode_Request request = new IqrfEmbedOs_LoadCode_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.Flags = 0;
+        request.Data.Req.Param.Address = 0;
+        // Taken from example DPA techdoc 11.3
+        request.Data.Req.Param.Length = 0x40;
+        request.Data.Req.Param.CheckSum = 0xEA3A;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedOs_Read_Request request = new IqrfEmbedOs_Read_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedOs_ReadCfg_Request request = new IqrfEmbedOs_ReadCfg_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedOs_Reset_Request request = new IqrfEmbedOs_Reset_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedOs_Restart_Request request = new IqrfEmbedOs_Restart_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedOs_Rfpgm_Request request = new IqrfEmbedOs_Rfpgm_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedOs_BatchRequest requestLedrOn = new IqrfEmbedOs_BatchRequest();
+        requestLedrOn.Pnum = "06";
+        requestLedrOn.Pcmd = "01";
+        requestLedrOn.Hwpid = "ffff";
+
+        IqrfEmbedOs_SelectiveBatch_Request request = new IqrfEmbedOs_SelectiveBatch_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 0xff;
+        request.Data.Req.Param.SelectedNodes = new System.Collections.ObjectModel.ObservableCollection<int> { 1, 2 };
+        request.Data.Req.Param.Requests = new System.Collections.ObjectModel.ObservableCollection<object> { requestLedrOn };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedOs_SetSecurity_Request request = new IqrfEmbedOs_SetSecurity_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 1;
+        // 0 ... access password, 1 ... user key
+        request.Data.Req.Param.Type = 1;
+        request.Data.Req.Param.Data = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedOs_Sleep_Request request = new IqrfEmbedOs_Sleep_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 2;
+        request.Data.Req.Param.Time = 1;
+        request.Data.Req.Param.Control = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedOs_WriteCfg_Request request = new IqrfEmbedOs_WriteCfg_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 0;
+        // From ReadCfg
+        request.Data.Req.Param.Checksum = 129;
+        request.Data.Req.Param.Configuration = new System.Collections.ObjectModel.ObservableCollection<int> { 201, 18, 52, 52, 52, 30, 52, 55, 49, 50, 55, 52, 52, 52, 52, 52, 45, 54, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 55, 52 };
+        request.Data.Req.Param.Rfpgm = 195;
+        request.Data.ReturnVerbose = true;
+        */
+
+        IqrfEmbedOs_WriteCfgTriplet cfgTriplet = new IqrfEmbedOs_WriteCfgTriplet();
+        cfgTriplet.Address = 0x08;
+        cfgTriplet.Value = 0x03;
+        cfgTriplet.Mask = 0xff;
+
+        IqrfEmbedOs_WriteCfgByte_Request request = new IqrfEmbedOs_WriteCfgByte_Request();
+        request.Data.MsgId = "testEmbedOs";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.Bytes = new System.Collections.ObjectModel.ObservableCollection<object> { cfgTriplet };
+        request.Data.ReturnVerbose = true;
+
         /* EEEPROM */
 
         /*
@@ -564,15 +705,6 @@
         request.Data.Req.NAdr = 1;
         request.Data.Req.Param.Address = 0;
         request.Data.Req.Param.PData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1, 2, 3, 4 };
-        request.Data.ReturnVerbose = true;
-        */
-
-        /* OS */
-
-        /*
-        IqrfEmbedOs_Read_Request request = new IqrfEmbedOs_Read_Request();
-        request.Data.MsgId = "testEmbedOs";
-        request.Data.Req.NAdr = 0;
         request.Data.ReturnVerbose = true;
         */
 
@@ -678,7 +810,7 @@
         //IqrfEmbedCoordinator_AuthorizeBond_Response response = IqrfEmbedCoordinator_AuthorizeBond_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_Backup_Response response = IqrfEmbedCoordinator_Backup_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_BondedDevices_Response response = IqrfEmbedCoordinator_BondedDevices_Response.FromJson(responseStr[0]);
-        IqrfEmbedCoordinator_BondNode_Response response = IqrfEmbedCoordinator_BondNode_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_BondNode_Response response = IqrfEmbedCoordinator_BondNode_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_ClearAllBonds_Response response = IqrfEmbedCoordinator_ClearAllBonds_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_ClearRemotelyBondedMid_Response response = IqrfEmbedCoordinator_ClearRemotelyBondedMid_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_DiscoveredDevices_Response response = IqrfEmbedCoordinator_DiscoveredDevices_Response.FromJson(responseStr[0]);
@@ -704,7 +836,18 @@
 
         /* OS */
 
+        //IqrfEmbedOs_Batch_Response response = IqrfEmbedOs_Batch_Response.FromJson(responseStr[0]);
+        //IqrfEmbedOs_LoadCode_Response response = IqrfEmbedOs_LoadCode_Response.FromJson(responseStr[0]);
         //IqrfEmbedOs_Read_Response response = IqrfEmbedOs_Read_Response.FromJson(responseStr[0]);
+        //IqrfEmbedOs_ReadCfg_Response response = IqrfEmbedOs_ReadCfg_Response.FromJson(responseStr[0]);
+        //IqrfEmbedOs_Reset_Response response = IqrfEmbedOs_Reset_Response.FromJson(responseStr[0]);
+        //IqrfEmbedOs_Restart_Response response = IqrfEmbedOs_Restart_Response.FromJson(responseStr[0]);
+        //IqrfEmbedOs_Rfpgm_Response response = IqrfEmbedOs_Rfpgm_Response.FromJson(responseStr[0]);
+        //IqrfEmbedOs_SelectiveBatch_Response response = IqrfEmbedOs_SelectiveBatch_Response.FromJson(responseStr[0]);
+        //IqrfEmbedOs_SetSecurity_Response response = IqrfEmbedOs_SetSecurity_Response.FromJson(responseStr[0]);
+        //IqrfEmbedOs_Sleep_Response response = IqrfEmbedOs_Sleep_Response.FromJson(responseStr[0]);
+        //IqrfEmbedOs_WriteCfg_Response response = IqrfEmbedOs_WriteCfg_Response.FromJson(responseStr[0]);
+        IqrfEmbedOs_WriteCfgByte_Response response = IqrfEmbedOs_WriteCfgByte_Response.FromJson(responseStr[0]);
 
         /* EEEPROM */
 

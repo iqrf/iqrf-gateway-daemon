@@ -1,0 +1,49 @@
+==================================
+Sending to WebSocket: 2018-07-16 20:41:29.626
+{
+  "mType": "iqrfEmbedOs_WriteCfgByte",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "bytes": [
+          {
+            "address": 8,
+            "value": 3,
+            "mask": 255
+          }
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 20:41:29.711
+{
+    "mType": "iqrfEmbedOs_WriteCfgByte",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "TypeError: cannot read property 'length' of undefined"
+        },
+        "raw": {
+            "request": "",
+            "requestTs": "",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_REQUEST",
+        "status": -6
+    }
+}
+2018-07-16 20:41:30.187
+==================================
+

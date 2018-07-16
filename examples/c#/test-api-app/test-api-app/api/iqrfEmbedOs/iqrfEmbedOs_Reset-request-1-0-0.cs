@@ -80,12 +80,11 @@ namespace iqrfEmbedOs_Reset_Request
     {
         /// <summary>Network device address.</summary>
         [Newtonsoft.Json.JsonProperty("nAdr", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string NAdr { get; set; }
+        public int NAdr { get; set; }
     
         /// <summary>Hardware profile identification.</summary>
         [Newtonsoft.Json.JsonProperty("hwpId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string HwpId { get; set; }
+        public int? HwpId { get; set; }
     
         [Newtonsoft.Json.JsonProperty("param", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]

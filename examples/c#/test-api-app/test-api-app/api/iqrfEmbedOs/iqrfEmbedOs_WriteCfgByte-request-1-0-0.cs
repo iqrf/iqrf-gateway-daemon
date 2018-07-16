@@ -105,8 +105,8 @@ namespace iqrfEmbedOs_WriteCfgByte_Request
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Param 
     {
-        [Newtonsoft.Json.JsonProperty("cfgBytes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<Anonymous> CfgBytes { get; set; }
+        [Newtonsoft.Json.JsonProperty("bytes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<object> Bytes { get; set; }
     
         public string ToJson() 
         {
@@ -116,33 +116,6 @@ namespace iqrfEmbedOs_WriteCfgByte_Request
         public static Param FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<Param>(data);
-        }
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Anonymous 
-    {
-        /// <summary>Address of the item at configuration memory block.</summary>
-        [Newtonsoft.Json.JsonProperty("address", Required = Newtonsoft.Json.Required.Always)]
-        public int Address { get; set; }
-    
-        /// <summary>Value of the configuration item to write.</summary>
-        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Always)]
-        public int Value { get; set; }
-    
-        /// <summary>Specifies bits of the configuration byte to be modified by the corresponding bits of the Value parameter.</summary>
-        [Newtonsoft.Json.JsonProperty("mask", Required = Newtonsoft.Json.Required.Always)]
-        public int Mask { get; set; }
-    
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-        
-        public static Anonymous FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Anonymous>(data);
         }
     
     }

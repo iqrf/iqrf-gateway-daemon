@@ -110,8 +110,8 @@ namespace iqrfEmbedOs_SelectiveBatch_Request
         public System.Collections.ObjectModel.ObservableCollection<int> SelectedNodes { get; set; }
     
         /// <summary>Array of objects (requests).</summary>
-        [Newtonsoft.Json.JsonProperty("requets", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<int> Requets { get; set; }
+        [Newtonsoft.Json.JsonProperty("requests", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<object> Requests { get; set; }
     
         public string ToJson() 
         {

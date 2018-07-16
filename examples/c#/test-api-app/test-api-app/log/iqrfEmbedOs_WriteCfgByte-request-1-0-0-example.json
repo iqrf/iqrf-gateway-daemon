@@ -1,0 +1,19 @@
+{
+  "mType": "iqrfEmbedOs_WriteCfgByte",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "bytes": [
+          {
+            "address": 8,
+            "value": 3,
+            "mask": 255
+          }
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

@@ -141,6 +141,7 @@
     <Compile Include="api\iqrfEmbedNode\iqrfEmbedNode_Restore-response-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_Batch-request-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_Batch-response-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_BatchRequest-object-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_LoadCode-request-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_LoadCode-response-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_Read-request-1-0-0.cs" />
@@ -151,8 +152,8 @@
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_Reset-response-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_Restart-request-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_Restart-response-1-0-0.cs" />
-    <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_RunRfpgm-request-1-0-0.cs" />
-    <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_RunRfpgm-response-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_Rfpgm-request-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_Rfpgm-response-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_SelectiveBatch-request-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_SelectiveBatch-response-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_SetSecurity-request-1-0-0.cs" />
@@ -163,6 +164,7 @@
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_WriteCfg-response-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_WriteCfgByte-request-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_WriteCfgByte-response-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedOs\iqrfEmbedOs_WriteCfgTriplet-object-1-0-0.cs" />
     <Compile Include="api\iqrfRawHdp\iqrfRawHdp-request-1-0-0.cs" />
     <Compile Include="api\iqrfRawHdp\iqrfRawHdp-response-1-0-0.cs" />
     <Compile Include="api\iqrfRaw\iqrfRaw-request-1-0-0.cs" />
