@@ -107,7 +107,7 @@ namespace iqrfEmbedOs_Batch_Request
     {
         /// <summary>Array of objects (requests).</summary>
         [Newtonsoft.Json.JsonProperty("requests", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<int> Requests { get; set; }
+        public System.Collections.ObjectModel.ObservableCollection<object> Requests { get; set; }
     
         public string ToJson() 
         {

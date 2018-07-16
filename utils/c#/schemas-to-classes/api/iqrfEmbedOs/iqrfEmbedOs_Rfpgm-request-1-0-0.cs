@@ -4,18 +4,18 @@
 // </auto-generated>
 //----------------------
 
-namespace iqrfEmbedOs_RunRfpgm_Request
+namespace iqrfEmbedOs_Rfpgm_Request
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqrfEmbedOs_RunRfpgm_Request 
+    public partial class IqrfEmbedOs_Rfpgm_Request 
     {
         /// <summary>Embedded peripheral OS - Run Rfpgm request.</summary>
         [Newtonsoft.Json.JsonProperty("mType", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public IqrfEmbedOs_RunRfpgm_RequestMType MType { get; set; }
+        public IqrfEmbedOs_Rfpgm_RequestMType MType { get; set; }
     
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -26,19 +26,19 @@ namespace iqrfEmbedOs_RunRfpgm_Request
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqrfEmbedOs_RunRfpgm_Request FromJson(string data)
+        public static IqrfEmbedOs_Rfpgm_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedOs_RunRfpgm_Request>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedOs_Rfpgm_Request>(data);
         }
     
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum IqrfEmbedOs_RunRfpgm_RequestMType
+    public enum IqrfEmbedOs_Rfpgm_RequestMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedOs_RunRfpgm")]
+        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedOs_Rfpgm")]
     
-        IqrfEmbedOs_RunRfpgm = 0,
+        IqrfEmbedOs_Rfpgm = 0,
     
     
     }
