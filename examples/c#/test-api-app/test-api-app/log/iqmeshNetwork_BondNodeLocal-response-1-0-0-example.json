@@ -1,58 +1,13 @@
 {
-    "mType": "iqmeshNetwork_BondNodeLocal",
+    "mType": "messageError",
     "data": {
-        "msgId": "testIqmeshBondNodeLocal",
-        "status": 0,
-        "statusStr": "ok",
+        "msgId": "undefined",
         "rsp": {
-            "assignedAddr": 1,
-            "nodesNr": 1,
-            "manufacturer": "",
-            "product": "",
-            "osRead": {
-                "mid": "06.30.10.81",
-                "osVersion": "43",
-                "trMcuType": "24",
-                "osBuild": "08bf",
-                "rssi": "3c",
-                "supplyVoltage": "27",
-                "flags": "14",
-                "slotLimits": "31"
-            }
+            "wrongMsg": "{\r\n  \"mType\": \"iqmeshNetwork_BondNodeLocal\",\r\n  \"data\": {\r\n    \"msgId\": \"testIqmeshBondNodeLocal\",\r\n    \"repeat\": 1,\r\n    \"req\": {\r\n      \"deviceAddr\": 3\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqmeshNetwork_BondNodeLocal\" schema=\"#/properties/data/properties/rsp/properties/osRead/properties/mid\" keyword=\"type\" message=\"#/data/rsp/osRead/mid\" "
         },
-        "raw": [
-            {
-                "request": "00.00.00.02.ff.ff",
-                "requestTs": "2018-07-12T21:32:52.372318",
-                "confirmation": "",
-                "confirmationTs": "",
-                "response": "00.00.00.82.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-                "responseTs": "2018-07-12T21:32:52.400801"
-            },
-            {
-                "request": "00.00.00.04.ff.ff.01.00",
-                "requestTs": "2018-07-12T21:32:52.401429",
-                "confirmation": "",
-                "confirmationTs": "",
-                "response": "00.00.00.84.00.00.00.00.01.01",
-                "responseTs": "2018-07-12T21:33:00.370255"
-            },
-            {
-                "request": "01.00.02.00.ff.ff",
-                "requestTs": "2018-07-12T21:33:00.371596",
-                "confirmation": "01.00.02.00.ff.ff.ff.00.00.04.00",
-                "confirmationTs": "2018-07-12T21:33:00.507401",
-                "response": "",
-                "responseTs": ""
-            },
-            {
-                "request": "01.00.02.00.ff.ff",
-                "requestTs": "2018-07-12T21:33:01.8424",
-                "confirmation": "01.00.02.00.ff.ff.ff.00.00.04.00",
-                "confirmationTs": "2018-07-12T21:33:01.35970",
-                "response": "01.00.02.80.02.00.00.3c.06.30.10.81.43.24.bf.08.3c.27.14.31.6a.21.c0.d0.4a.a4.40.48.06.d9.77.0c.5b.02.b2.1b",
-                "responseTs": "2018-07-12T21:33:01.148876"
-            }
-        ]
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
     }
 }

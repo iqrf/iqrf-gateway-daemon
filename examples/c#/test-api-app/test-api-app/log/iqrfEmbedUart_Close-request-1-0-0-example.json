@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfEmbedUart_Close",
+  "data": {
+    "msgId": "testEmbedUart",
+    "req": {
+      "nAdr": 3,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

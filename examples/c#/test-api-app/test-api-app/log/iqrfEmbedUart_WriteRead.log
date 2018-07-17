@@ -1,0 +1,52 @@
+==================================
+Sending to WebSocket: 2018-07-17 18:05:19.523
+{
+  "mType": "iqrfEmbedUart_WriteRead",
+  "data": {
+    "msgId": "testEmbedUart",
+    "req": {
+      "nAdr": 3,
+      "param": {
+        "readTimeout": 1,
+        "writtenData": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 18:05:19.974
+{
+    "mType": "iqrfEmbedUart_WriteRead",
+    "data": {
+        "msgId": "testEmbedUart",
+        "rsp": {
+            "nAdr": 3,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 74,
+            "result": {
+                "readData": []
+            }
+        },
+        "raw": {
+            "request": "03.00.0c.02.ff.ff.01.00.01.02.03.04",
+            "requestTs": "2018-07-17T18:05:20.14271",
+            "confirmation": "03.00.0c.02.ff.ff.ff.32.01.04.01",
+            "confirmationTs": "2018-07-17T18:05:20.46948",
+            "response": "03.00.0c.82.00.00.00.4a",
+            "responseTs": "2018-07-17T18:05:20.168138"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-17 18:05:20.399
+==================================
+

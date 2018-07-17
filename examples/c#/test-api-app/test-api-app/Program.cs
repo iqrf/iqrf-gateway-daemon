@@ -114,10 +114,48 @@
   using iqrfEmbedOs_WriteCfgByte_Response;
   using iqrfEmbedOs_WriteCfgTriplet;
 
+  using iqrfEmbedEeprom_Read_Request;
+  using iqrfEmbedEeprom_Read_Response;
+  using iqrfEmbedEeprom_Write_Request;
+  using iqrfEmbedEeprom_Write_Response;
+
   using iqrfEmbedEeeprom_Read_Request;
   using iqrfEmbedEeeprom_Read_Response;
   using iqrfEmbedEeeprom_Write_Request;
   using iqrfEmbedEeeprom_Write_Response;
+
+  using iqrfEmbedRam_Read_Request;
+  using iqrfEmbedRam_Read_Response;
+  using iqrfEmbedRam_Write_Request;
+  using iqrfEmbedRam_Write_Response;
+
+  using iqrfEmbedLedr_Set_Request;
+  using iqrfEmbedLedr_Set_Response;
+  using iqrfEmbedLedr_Get_Request;
+  using iqrfEmbedLedr_Get_Response;
+  using iqrfEmbedLedr_Pulse_Request;
+  using iqrfEmbedLedr_Pulse_Response;
+  using iqrfEmbedLedg_Set_Request;
+  using iqrfEmbedLedg_Set_Response;
+  using iqrfEmbedLedg_Get_Request;
+  using iqrfEmbedLedg_Get_Response;
+  using iqrfEmbedLedg_Pulse_Request;
+  using iqrfEmbedLedg_Pulse_Response;
+
+  using iqrfEmbedThermometer_Read_Request;
+  using iqrfEmbedThermometer_Read_Response;
+
+  using iqrfEmbedSpi_WriteRead_Request;
+  using iqrfEmbedSpi_WriteRead_Response;
+
+  using iqrfEmbedUart_Open_Request;
+  using iqrfEmbedUart_Open_Response;
+  using iqrfEmbedUart_Close_Request;
+  using iqrfEmbedUart_Close_Response;
+  using iqrfEmbedUart_WriteRead_Request;
+  using iqrfEmbedUart_WriteRead_Response;
+  using iqrfEmbedUart_ClearWriteRead_Request;
+  using iqrfEmbedUart_ClearWriteRead_Response;
 
   // IqmeshNetwork APIs
   using iqmeshNetwork_BondNodeLocal_Request;
@@ -342,7 +380,7 @@
         request.Data.Req.NAdr = 1;
         request.Data.Req.PNum = 6;
         request.Data.Req.PCmd = 3;
-        request.Data.Req.PData = new System.Collections.ObjectModel.ObservableCollection<int> {}; ;
+        request.Data.Req.PData = new System.Collections.ObjectModel.ObservableCollection<int> {};
         request.Data.ReturnVerbose = true;
         */
 
@@ -676,28 +714,40 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /*
         IqrfEmbedOs_WriteCfgTriplet cfgTriplet = new IqrfEmbedOs_WriteCfgTriplet();
         cfgTriplet.Address = 0x08;
         cfgTriplet.Value = 0x03;
-        cfgTriplet.Mask = 0xff;
+        cfgTriplet.Mask = 0x07;
 
         IqrfEmbedOs_WriteCfgByte_Request request = new IqrfEmbedOs_WriteCfgByte_Request();
         request.Data.MsgId = "testEmbedOs";
         request.Data.Req.NAdr = 0;
         request.Data.Req.Param.Bytes = new System.Collections.ObjectModel.ObservableCollection<object> { cfgTriplet };
         request.Data.ReturnVerbose = true;
+        */
 
-        /* EEEPROM */
+        /* EEPROM */
 
         /*
-        IqrfEmbedEeeprom_Read_Request request = new IqrfEmbedEeeprom_Read_Request();
-        request.Data.MsgId = "testEmbedEeeprom";
-        request.Data.Timeout = 1000;
+        IqrfEmbedEeprom_Write_Request request = new IqrfEmbedEeprom_Write_Request();
+        request.Data.MsgId = "testEmbedEeprom";
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.Address = 0;
+        request.Data.Req.Param.PData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1, 2, 3, 4 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedEeprom_Read_Request request = new IqrfEmbedEeprom_Read_Request();
+        request.Data.MsgId = "testEmbedEeprom";
         request.Data.Req.NAdr = 1;
         request.Data.Req.Param.Address= 0;
         request.Data.Req.Param.Len = 10;
         request.Data.ReturnVerbose = true;
         */
+
+        /* EEEPROM */
 
         /*
         IqrfEmbedEeeprom_Write_Request request = new IqrfEmbedEeeprom_Write_Request();
@@ -708,13 +758,141 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /*
+        IqrfEmbedEeeprom_Read_Request request = new IqrfEmbedEeeprom_Read_Request();
+        request.Data.MsgId = "testEmbedEeeprom";
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.Address= 0;
+        request.Data.Req.Param.Len = 10;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* RAM */
+
+        /*
+        IqrfEmbedRam_Write_Request request = new IqrfEmbedRam_Write_Request();
+        request.Data.MsgId = "testEmbedRam";
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.Address = 0;
+        request.Data.Req.Param.PData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1, 2, 3, 4 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedRam_Read_Request request = new IqrfEmbedRam_Read_Request();
+        request.Data.MsgId = "testEmbedRam";
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.Address= 0;
+        request.Data.Req.Param.Len = 10;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* LED */
+
+        /*
+        IqrfEmbedLedr_Set_Request request = new IqrfEmbedLedr_Set_Request();
+        request.Data.MsgId = "testEmbedLedr";
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.OnOff = true;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedLedr_Get_Request request = new IqrfEmbedLedr_Get_Request();
+        request.Data.MsgId = "testEmbedLedr";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedLedr_Pulse_Request request = new IqrfEmbedLedr_Pulse_Request();
+        request.Data.MsgId = "testEmbedLedr";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedLedg_Set_Request request = new IqrfEmbedLedg_Set_Request();
+        request.Data.MsgId = "testEmbedLedg";
+        request.Data.Req.NAdr = 1;
+        request.Data.Req.Param.OnOff = true;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedLedg_Get_Request request = new IqrfEmbedLedg_Get_Request();
+        request.Data.MsgId = "testEmbedLedg";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedLedg_Pulse_Request request = new IqrfEmbedLedg_Pulse_Request();
+        request.Data.MsgId = "testEmbedLedg";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* THERMOMETER */
+
+        /*
+        IqrfEmbedThermometer_Read_Request request = new IqrfEmbedThermometer_Read_Request();
+        request.Data.MsgId = "testEmbedThermometer";
+        request.Data.Req.NAdr = 3;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* SPI */
+
+        /*
+        IqrfEmbedSpi_WriteRead_Request request = new IqrfEmbedSpi_WriteRead_Request();
+        request.Data.MsgId = "testEmbedSpi";
+        request.Data.Req.NAdr = 3;
+        request.Data.Req.Param.ReadTimeout = 1;
+        request.Data.Req.Param.WrittenData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1, 2, 3, 4 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* UART */
+
+        /*
+        IqrfEmbedUart_Open_Request request = new IqrfEmbedUart_Open_Request();
+        request.Data.MsgId = "testEmbedUart";
+        request.Data.Req.NAdr = 3;
+        request.Data.Req.Param.BaudRate = 0x04;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedUart_WriteRead_Request request = new IqrfEmbedUart_WriteRead_Request();
+        request.Data.MsgId = "testEmbedUart";
+        request.Data.Req.NAdr = 3;
+        request.Data.Req.Param.ReadTimeout = 1;
+        request.Data.Req.Param.WrittenData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1, 2, 3, 4 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedUart_ClearWriteRead_Request request = new IqrfEmbedUart_ClearWriteRead_Request();
+        request.Data.MsgId = "testEmbedUart";
+        request.Data.Req.NAdr = 3;
+        request.Data.Req.Param.ReadTimeout = 1;
+        request.Data.Req.Param.WrittenData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1, 2, 3, 4 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        IqrfEmbedUart_Close_Request request = new IqrfEmbedUart_Close_Request();
+        request.Data.MsgId = "testEmbedUart";
+        request.Data.Req.NAdr = 3;
+        request.Data.ReturnVerbose = true;
+
         /* IQMESH */
 
         /*
         IqmeshNetwork_BondNodeLocal_Request request = new IqmeshNetwork_BondNodeLocal_Request();
         request.Data.MsgId = "testIqmeshBondNodeLocal";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 1;
+        request.Data.Req.DeviceAddr = 3;
         request.Data.ReturnVerbose = true;
         */
 
@@ -847,16 +1025,52 @@
         //IqrfEmbedOs_SetSecurity_Response response = IqrfEmbedOs_SetSecurity_Response.FromJson(responseStr[0]);
         //IqrfEmbedOs_Sleep_Response response = IqrfEmbedOs_Sleep_Response.FromJson(responseStr[0]);
         //IqrfEmbedOs_WriteCfg_Response response = IqrfEmbedOs_WriteCfg_Response.FromJson(responseStr[0]);
-        IqrfEmbedOs_WriteCfgByte_Response response = IqrfEmbedOs_WriteCfgByte_Response.FromJson(responseStr[0]);
+        //IqrfEmbedOs_WriteCfgByte_Response response = IqrfEmbedOs_WriteCfgByte_Response.FromJson(responseStr[0]);
+
+        /* EEPROM */
+
+        //IqrfEmbedEeprom_Write_Response response = IqrfEmbedEeprom_Write_Response.FromJson( responseStr[0] );
+        //IqrfEmbedEeprom_Read_Response response = IqrfEmbedEeprom_Read_Response.FromJson( responseStr[0] );
 
         /* EEEPROM */
 
+        //IqrfEmbedEeeprom_Write_Response response = IqrfEmbedEeeprom_Write_Response.FromJson(responseStr[0]);
         //IqrfEmbedEeeprom_Read_Response response = IqrfEmbedEeeprom_Read_Response.FromJson( responseStr[0] );
-        //IqrfEmbedEeeprom_Write_Response response = IqrfEmbedEeeprom_Write_Response.FromJson( responseStr[0] );
+
+        /* RAM */
+
+        //IqrfEmbedRam_Write_Response response = IqrfEmbedRam_Write_Response.FromJson(responseStr[0]);
+        //IqrfEmbedRam_Read_Response response = IqrfEmbedRam_Read_Response.FromJson( responseStr[0] );
+
+        /* LED */
+
+        //IqrfEmbedLedr_Set_Response response = IqrfEmbedLedr_Set_Response.FromJson(responseStr[0]);
+        //IqrfEmbedLedr_Get_Response response = IqrfEmbedLedr_Get_Response.FromJson( responseStr[0] );
+        //IqrfEmbedLedr_Pulse_Response response = IqrfEmbedLedr_Pulse_Response.FromJson( responseStr[0] );
+
+        //IqrfEmbedLedg_Set_Response response = IqrfEmbedLedg_Set_Response.FromJson(responseStr[0]);
+        //IqrfEmbedLedg_Get_Response response = IqrfEmbedLedg_Get_Response.FromJson( responseStr[0] );
+        //IqrfEmbedLedg_Pulse_Response response = IqrfEmbedLedg_Pulse_Response.FromJson( responseStr[0] );
+
+        /* THERMOMETER */
+
+        //IqrfEmbedThermometer_Read_Response response = IqrfEmbedThermometer_Read_Response.FromJson(responseStr[0]);
+
+        /* SPI */
+
+        //IqrfEmbedSpi_WriteRead_Response response = IqrfEmbedSpi_WriteRead_Response.FromJson(responseStr[0]);
+
+        /* UART */
+
+        //IqrfEmbedUart_Open_Response response = IqrfEmbedUart_Open_Response.FromJson(responseStr[0]);
+        //IqrfEmbedUart_WriteRead_Response response = IqrfEmbedUart_WriteRead_Response.FromJson(responseStr[0]);
+        //IqrfEmbedUart_ClearWriteRead_Response response = IqrfEmbedUart_ClearWriteRead_Response.FromJson(responseStr[0]);
+        IqrfEmbedUart_Close_Response response = IqrfEmbedUart_Close_Response.FromJson(responseStr[0]);
 
         /* IQMESH */
 
         //IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson(responseStr[0]);
+        //IqmeshNetwork_SmartConnect_Response response = IqmeshNetwork_SmartConnect_Response.FromJson(responseStr[0]);
 
         /*
         foreach (string rspStr in responseStr)

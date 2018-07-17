@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfEmbedLedg_Pulse",
+  "data": {
+    "msgId": "testEmbedLedg",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

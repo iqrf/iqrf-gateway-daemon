@@ -1,0 +1,43 @@
+==================================
+Sending to WebSocket: 2018-07-17 16:55:37.925
+{
+  "mType": "iqrfEmbedLedr_Get",
+  "data": {
+    "msgId": "testEmbedLedr",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 16:55:38.51
+{
+    "mType": "iqrfEmbedLedr_Get",
+    "data": {
+        "msgId": "testEmbedLedr",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 73,
+            "result": {
+                "onOff": true
+            }
+        },
+        "raw": {
+            "request": "01.00.06.02.ff.ff",
+            "requestTs": "2018-07-17T16:55:38.406093",
+            "confirmation": "01.00.06.02.ff.ff.ff.3a.01.04.01",
+            "confirmationTs": "2018-07-17T16:55:38.435532",
+            "response": "01.00.06.82.02.00.00.49.01",
+            "responseTs": "2018-07-17T16:55:38.567275"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-17 16:55:39.012
+==================================
+

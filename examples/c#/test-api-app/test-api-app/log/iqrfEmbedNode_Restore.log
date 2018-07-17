@@ -91,3 +91,282 @@ Received from WebSocket: 2018-07-14 19:12:32.343
 2018-07-14 19:12:32.813
 ==================================
 
+==================================
+Sending to WebSocket: 2018-07-17 12:41:08.276
+{
+  "mType": "iqrfEmbedNode_Restore",
+  "data": {
+    "msgId": "testEmbedNode",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "backupData": [
+          141,
+          108,
+          81,
+          171,
+          106,
+          240,
+          247,
+          200,
+          61,
+          80,
+          54,
+          94,
+          38,
+          225,
+          61,
+          90,
+          70,
+          131,
+          32,
+          188,
+          213,
+          35,
+          98,
+          116,
+          0,
+          245,
+          128,
+          226,
+          180,
+          99,
+          166,
+          173,
+          223,
+          184,
+          90,
+          121,
+          173,
+          244,
+          18,
+          91,
+          85,
+          6,
+          169,
+          23,
+          234,
+          27,
+          225,
+          41,
+          6
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 12:41:09.361
+{
+    "mType": "iqrfEmbedNode_Restore",
+    "data": {
+        "msgId": "testEmbedNode",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "no response"
+        },
+        "raw": {
+            "request": "01.00.01.07.ff.ff.8d.6c.51.ab.6a.f0.f7.c8.3d.50.36.5e.26.e1.3d.5a.46.83.20.bc.d5.23.62.74.00.f5.80.e2.b4.63.a6.ad.df.b8.5a.79.ad.f4.12.5b.55.06.a9.17.ea.1b.e1.29.06",
+            "requestTs": "2018-07-17T12:41:08.996833",
+            "confirmation": "01.00.01.07.ff.ff.ff.00.01.06.01",
+            "confirmationTs": "2018-07-17T12:41:09.37680",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ERROR_TIMEOUT",
+        "status": -1
+    }
+}
+2018-07-17 12:41:09.779
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-17 12:42:25.435
+{
+  "mType": "iqrfEmbedNode_Restore",
+  "data": {
+    "msgId": "testEmbedNode",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "backupData": [
+          141,
+          108,
+          81,
+          171,
+          106,
+          240,
+          247,
+          200,
+          61,
+          80,
+          54,
+          94,
+          38,
+          225,
+          61,
+          90,
+          70,
+          131,
+          32,
+          188,
+          213,
+          35,
+          98,
+          116,
+          0,
+          245,
+          128,
+          226,
+          180,
+          99,
+          166,
+          173,
+          223,
+          184,
+          90,
+          121,
+          173,
+          244,
+          18,
+          91,
+          85,
+          6,
+          169,
+          23,
+          234,
+          27,
+          225,
+          41,
+          6
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 12:42:26.099
+{
+    "mType": "iqrfEmbedNode_Restore",
+    "data": {
+        "msgId": "testEmbedNode",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "no response"
+        },
+        "raw": {
+            "request": "01.00.01.07.ff.ff.8d.6c.51.ab.6a.f0.f7.c8.3d.50.36.5e.26.e1.3d.5a.46.83.20.bc.d5.23.62.74.00.f5.80.e2.b4.63.a6.ad.df.b8.5a.79.ad.f4.12.5b.55.06.a9.17.ea.1b.e1.29.06",
+            "requestTs": "2018-07-17T12:42:25.721607",
+            "confirmation": "01.00.01.07.ff.ff.ff.00.01.06.01",
+            "confirmationTs": "2018-07-17T12:42:25.762709",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ERROR_TIMEOUT",
+        "status": -1
+    }
+}
+2018-07-17 12:42:26.551
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-17 12:47:37.704
+{
+  "mType": "iqrfEmbedNode_Restore",
+  "data": {
+    "msgId": "testEmbedNode",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "backupData": [
+          141,
+          108,
+          81,
+          171,
+          106,
+          240,
+          247,
+          200,
+          61,
+          80,
+          54,
+          94,
+          38,
+          225,
+          61,
+          90,
+          70,
+          131,
+          32,
+          188,
+          213,
+          35,
+          98,
+          116,
+          0,
+          245,
+          128,
+          226,
+          180,
+          99,
+          166,
+          173,
+          223,
+          184,
+          90,
+          121,
+          173,
+          244,
+          18,
+          91,
+          85,
+          6,
+          169,
+          23,
+          234,
+          27,
+          225,
+          41,
+          6
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 12:47:38.255
+{
+    "mType": "iqrfEmbedNode_Restore",
+    "data": {
+        "msgId": "testEmbedNode",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 64,
+            "result": {}
+        },
+        "raw": {
+            "request": "01.00.01.07.ff.ff.8d.6c.51.ab.6a.f0.f7.c8.3d.50.36.5e.26.e1.3d.5a.46.83.20.bc.d5.23.62.74.00.f5.80.e2.b4.63.a6.ad.df.b8.5a.79.ad.f4.12.5b.55.06.a9.17.ea.1b.e1.29.06",
+            "requestTs": "2018-07-17T12:47:38.6468",
+            "confirmation": "01.00.01.07.ff.ff.ff.38.01.06.01",
+            "confirmationTs": "2018-07-17T12:47:38.47335",
+            "response": "01.00.01.87.02.00.00.40",
+            "responseTs": "2018-07-17T12:47:38.210494"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-17 12:47:38.698
+==================================
+

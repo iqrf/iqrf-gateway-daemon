@@ -4,21 +4,21 @@
         "msgId": "testEmbedOs",
         "rsp": {
             "nAdr": 0,
-            "hwpId": -1,
+            "hwpId": 0,
             "rCode": 0,
-            "dpaVal": 0,
-            "errorStr": "TypeError: cannot read property 'length' of undefined"
+            "dpaVal": 61,
+            "result": {}
         },
         "raw": {
-            "request": "",
-            "requestTs": "",
+            "request": "00.00.02.09.ff.ff.08.03.07",
+            "requestTs": "2018-07-17T14:16:21.400868",
             "confirmation": "",
             "confirmationTs": "",
-            "response": "",
-            "responseTs": ""
+            "response": "00.00.02.89.00.00.00.3d",
+            "responseTs": "2018-07-17T14:16:21.444578"
         },
         "insId": "iqrfgd2-1",
-        "statusStr": "BAD_REQUEST",
-        "status": -6
+        "statusStr": "ok",
+        "status": 0
     }
 }

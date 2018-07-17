@@ -9,7 +9,7 @@
           {
             "address": 8,
             "value": 3,
-            "mask": 255
+            "mask": 7
           }
         ]
       }

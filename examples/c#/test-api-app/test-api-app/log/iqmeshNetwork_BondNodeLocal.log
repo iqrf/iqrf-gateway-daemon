@@ -534,3 +534,76 @@ Received from WebSocket: 2018-07-12 21:33:01.662
 2018-07-12 21:33:02.154
 ==================================
 
+==================================
+Sending to WebSocket: 2018-07-17 17:14:55.456
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 3
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 17:15:05.725
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Transaction error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-17T17:14:55.946439",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.3b.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-17T17:14:55.977644"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.03.00",
+                "requestTs": "2018-07-17T17:14:55.978483",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ]
+    }
+}
+2018-07-17 17:15:06.274
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-17 17:16:51.131
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 3
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 17:16:55.666
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqmeshNetwork_BondNodeLocal\",\r\n  \"data\": {\r\n    \"msgId\": \"testIqmeshBondNodeLocal\",\r\n    \"repeat\": 1,\r\n    \"req\": {\r\n      \"deviceAddr\": 3\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqmeshNetwork_BondNodeLocal\" schema=\"#/properties/data/properties/rsp/properties/osRead/properties/mid\" keyword=\"type\" message=\"#/data/rsp/osRead/mid\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-17 17:16:56.137
+==================================
+
