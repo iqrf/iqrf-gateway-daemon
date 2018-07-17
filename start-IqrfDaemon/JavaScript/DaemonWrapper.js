@@ -702,7 +702,7 @@ iqrf.embed.node.RemoveBond_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.node.Restore_Request_req = function (param) {
-    return iqrf.embed.node.Restore_Request(param.networkData);
+    return iqrf.embed.node.Restore_Request(param.backupData);
 };
 
 iqrf.embed.node.Restore_Response_rsp = function (rawHdp) {
