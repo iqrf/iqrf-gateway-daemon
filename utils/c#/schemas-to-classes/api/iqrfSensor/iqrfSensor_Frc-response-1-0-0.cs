@@ -239,29 +239,6 @@ namespace iqrfSensor_Frc_Response
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Anonymous 
     {
-        /// <summary>Value type of the sensor (quantity).</summary>
-        [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Always)]
-        public int Type { get; set; }
-    
-        /// <summary>Name of the sensor (quantity).</summary>
-        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string Name { get; set; }
-    
-        /// <summary> Short name of the sensor (quantity). Typically it is a symbol used at physics.</summary>
-        [Newtonsoft.Json.JsonProperty("shortName", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string ShortName { get; set; }
-    
-        /// <summary>Value of the sensor.</summary>
-        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Always)]
-        public double Value { get; set; }
-    
-        /// <summary>Unit of the quantity. Dimensionless quantities has "".</summary>
-        [Newtonsoft.Json.JsonProperty("unit", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string Unit { get; set; }
-    
         public string ToJson() 
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);

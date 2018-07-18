@@ -157,6 +157,27 @@
   using iqrfEmbedUart_ClearWriteRead_Request;
   using iqrfEmbedUart_ClearWriteRead_Response;
 
+  using iqrfSensor_Enumerate_Request;
+  using iqrfSensor_Enumerate_Response;
+  using iqrfSensor_ReadSensorsWithTypes_Request;
+  using iqrfSensor_ReadSensorsWithTypes_Response;
+  using iqrfSensor_Frc_Request;
+  using iqrfSensor_Frc_Response;
+
+  using iqrfBinaryoutput_Enumerate_Request;
+  using iqrfBinaryoutput_Enumerate_Response;
+  using iqrfBinaryoutput_SetOutput_Request;
+  using iqrfBinaryoutput_SetOutput_Response;
+
+  using iqrfLight_Enumerate_Request;
+  using iqrfLight_Enumerate_Response;
+  using iqrfLight_SetPower_Request;
+  using iqrfLight_SetPower_Response;
+  using iqrfLight_IncrementPower_Request;
+  using iqrfLight_IncrementPower_Response;
+  using iqrfLight_DecrementPower_Request;
+  using iqrfLight_DecrementPower_Response;
+
   // IqmeshNetwork APIs
   using iqmeshNetwork_BondNodeLocal_Request;
   using iqmeshNetwork_BondNodeLocal_Response;
@@ -881,9 +902,121 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /*
         IqrfEmbedUart_Close_Request request = new IqrfEmbedUart_Close_Request();
         request.Data.MsgId = "testEmbedUart";
         request.Data.Req.NAdr = 3;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* SENSOR */
+
+        /*
+        IqrfSensor_Enumerate_Request request = new IqrfSensor_Enumerate_Request();
+        request.Data.MsgId = "testEmbedSensor";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfSensor_ReadSensorsWithTypes_Request request = new IqrfSensor_ReadSensorsWithTypes_Request();
+        request.Data.MsgId = "testEmbedSensor";
+        request.Data.Req.NAdr = 1;
+        //request.Data.Req.Param.SensorIndexes = -1;
+        request.Data.Req.Param.SensorIndexes = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfSensor_Frc_Request request = new IqrfSensor_Frc_Request();
+        request.Data.MsgId = "testEmbedSensor";
+        request.Data.Req.NAdr = 0;
+        // refer to standard sensor documentation https://www.iqrfalliance.org/techDocs/
+        request.Data.Req.Param.SensorType = 0x01;
+        request.Data.Req.Param.SensorIndex = 0x01;
+        // 2bits = 0x10, 1B = 0x90, 2B = 0xE0
+        request.Data.Req.Param.FrcCommand = 0x90;
+
+        //request.Data.Req.Param.SelectedNodes = new System.Collections.ObjectModel.ObservableCollection<int> { };
+        SleepAfterFrc sleep = new SleepAfterFrc();
+        // refer to Os sleep
+        //sleep.Control = 0;
+        //sleep.Time = 0;
+        //request.Data.Req.Param.SleepAfterFrc = sleep;
+        
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* BINARYOUTPUT */
+
+        /*
+        IqrfBinaryoutput_Enumerate_Request request = new IqrfBinaryoutput_Enumerate_Request();
+        request.Data.MsgId = "testEmbedBout";
+        request.Data.Req.NAdr = 2;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfBinaryoutput_SetOutput_Request request = new IqrfBinaryoutput_SetOutput_Request();
+        request.Data.MsgId = "testEmbedBout";
+        request.Data.Req.NAdr = 2;
+
+        iqrfBinaryoutput_SetOutput_Request.Anonymous binOuts = new iqrfBinaryoutput_SetOutput_Request.Anonymous();
+        binOuts.Index = 0;
+        binOuts.State = true;
+        //binOuts.Time = 10;
+
+        request.Data.Req.Param.BinOuts = new System.Collections.ObjectModel.ObservableCollection<iqrfBinaryoutput_SetOutput_Request.Anonymous> { binOuts };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /* LIGHT */
+
+        /*
+        IqrfLight_Enumerate_Request request = new IqrfLight_Enumerate_Request();
+        request.Data.MsgId = "testEmbedLight";
+        request.Data.Req.NAdr = 4;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfLight_SetPower_Request request = new IqrfLight_SetPower_Request();
+        request.Data.MsgId = "testEmbedLight";
+        request.Data.Req.NAdr = 4;
+
+        iqrfLight_SetPower_Request.Anonymous light = new iqrfLight_SetPower_Request.Anonymous();
+        light.Index = 0;
+        light.Power = 100;
+        //light.Time = 10;
+
+        request.Data.Req.Param.Lights = new System.Collections.ObjectModel.ObservableCollection<iqrfLight_SetPower_Request.Anonymous> { light };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfLight_IncrementPower_Request request = new IqrfLight_IncrementPower_Request();
+        request.Data.MsgId = "testEmbedLight";
+        request.Data.Req.NAdr = 4;
+
+        iqrfLight_IncrementPower_Request.Anonymous light = new iqrfLight_IncrementPower_Request.Anonymous();
+        light.Index = 0;
+        light.Power = 10;
+        //light.Time = 10;
+
+        request.Data.Req.Param.Lights = new System.Collections.ObjectModel.ObservableCollection<iqrfLight_IncrementPower_Request.Anonymous> { light };
+        request.Data.ReturnVerbose = true;
+        */
+
+        IqrfLight_DecrementPower_Request request = new IqrfLight_DecrementPower_Request();
+        request.Data.MsgId = "testEmbedLight";
+        request.Data.Req.NAdr = 4;
+
+        iqrfLight_DecrementPower_Request.Anonymous light = new iqrfLight_DecrementPower_Request.Anonymous();
+        light.Index = 0;
+        light.Power = 10;
+        //light.Time = 10;
+
+        request.Data.Req.Param.Lights = new System.Collections.ObjectModel.ObservableCollection<iqrfLight_DecrementPower_Request.Anonymous> { light };
         request.Data.ReturnVerbose = true;
 
         /* IQMESH */
@@ -892,7 +1025,7 @@
         IqmeshNetwork_BondNodeLocal_Request request = new IqmeshNetwork_BondNodeLocal_Request();
         request.Data.MsgId = "testIqmeshBondNodeLocal";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 3;
+        request.Data.Req.DeviceAddr = 4;
         request.Data.ReturnVerbose = true;
         */
 
@@ -961,7 +1094,7 @@
         */
 
         // Create response
-        List<string> responseStr = new List<string>();
+        List< string> responseStr = new List<string>();
 
         // Send the request to iqrf-daemon via MQTT
         //responseStr = MQTTRequest( IqrfGwDeamonIP, request.ToJson(), Timeout );
@@ -1065,7 +1198,31 @@
         //IqrfEmbedUart_Open_Response response = IqrfEmbedUart_Open_Response.FromJson(responseStr[0]);
         //IqrfEmbedUart_WriteRead_Response response = IqrfEmbedUart_WriteRead_Response.FromJson(responseStr[0]);
         //IqrfEmbedUart_ClearWriteRead_Response response = IqrfEmbedUart_ClearWriteRead_Response.FromJson(responseStr[0]);
-        IqrfEmbedUart_Close_Response response = IqrfEmbedUart_Close_Response.FromJson(responseStr[0]);
+        //IqrfEmbedUart_Close_Response response = IqrfEmbedUart_Close_Response.FromJson(responseStr[0]);
+
+        /* IO */
+
+
+        /* SENSOR */
+
+        //IqrfSensor_Enumerate_Response response = IqrfSensor_Enumerate_Response.FromJson(responseStr[0]);
+        /*
+        IqrfSensor_ReadSensorsWithTypes_Response response = IqrfSensor_ReadSensorsWithTypes_Response.FromJson(responseStr[0]);
+        foreach (iqrfSensor_ReadSensorsWithTypes_Response.Anonymous sensor in response.Data.Rsp.Result.Sensors) {}
+        */
+        //IqrfSensor_Frc_Response response = IqrfSensor_Frc_Response.FromJson(responseStr[0]);
+
+        /* BINARYOUTPUT */
+
+        //IqrfBinaryoutput_Enumerate_Response response = IqrfBinaryoutput_Enumerate_Response.FromJson(responseStr[0]);
+        //IqrfBinaryoutput_SetOutput_Response response = IqrfBinaryoutput_SetOutput_Response.FromJson(responseStr[0]);
+
+        /* LIGHT */
+
+        //IqrfLight_Enumerate_Response response = IqrfLight_Enumerate_Response.FromJson(responseStr[0]);
+        //IqrfLight_SetPower_Response response = IqrfLight_SetPower_Response.FromJson(responseStr[0]);
+        //IqrfLight_IncrementPower_Response response = IqrfLight_IncrementPower_Response.FromJson(responseStr[0]);
+        IqrfLight_DecrementPower_Response response = IqrfLight_DecrementPower_Response.FromJson(responseStr[0]);
 
         /* IQMESH */
 

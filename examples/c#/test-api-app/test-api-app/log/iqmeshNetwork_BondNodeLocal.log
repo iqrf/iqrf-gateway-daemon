@@ -607,3 +607,162 @@ Received from WebSocket: 2018-07-17 17:16:55.666
 2018-07-17 17:16:56.137
 ==================================
 
+==================================
+Sending to WebSocket: 2018-07-18 14:40:29.052
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 3
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 14:40:29.547
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Dpa error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-18T14:40:30.338343",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.3f.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-18T14:40:30.369867"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.03.00",
+                "requestTs": "2018-07-18T14:40:30.370531",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.01.3f",
+                "responseTs": "2018-07-18T14:40:30.664718"
+            }
+        ]
+    }
+}
+2018-07-18 14:40:30.004
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 14:42:15.331
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 4
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 14:42:25.586
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Transaction error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-18T14:42:16.551704",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.3f.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-18T14:42:16.581030"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.04.00",
+                "requestTs": "2018-07-18T14:42:16.581667",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ]
+    }
+}
+2018-07-18 14:42:26.07
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 14:42:43.266
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 4
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 14:42:53.555
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Transaction error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-18T14:42:44.480386",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.3f.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-18T14:42:44.517195"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.04.00",
+                "requestTs": "2018-07-18T14:42:44.517834",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ]
+    }
+}
+2018-07-18 14:42:54.1
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 14:45:10.666
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 4
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 14:45:14.442
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqmeshNetwork_BondNodeLocal\",\r\n  \"data\": {\r\n    \"msgId\": \"testIqmeshBondNodeLocal\",\r\n    \"repeat\": 1,\r\n    \"req\": {\r\n      \"deviceAddr\": 4\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqmeshNetwork_BondNodeLocal\" schema=\"#/properties/data/properties/rsp/properties/osRead/properties/mid\" keyword=\"type\" message=\"#/data/rsp/osRead/mid\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-18 14:45:14.872
+==================================
+

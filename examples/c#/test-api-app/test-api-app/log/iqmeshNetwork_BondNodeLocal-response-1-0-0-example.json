@@ -3,7 +3,7 @@
     "data": {
         "msgId": "undefined",
         "rsp": {
-            "wrongMsg": "{\r\n  \"mType\": \"iqmeshNetwork_BondNodeLocal\",\r\n  \"data\": {\r\n    \"msgId\": \"testIqmeshBondNodeLocal\",\r\n    \"repeat\": 1,\r\n    \"req\": {\r\n      \"deviceAddr\": 3\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "wrongMsg": "{\r\n  \"mType\": \"iqmeshNetwork_BondNodeLocal\",\r\n  \"data\": {\r\n    \"msgId\": \"testIqmeshBondNodeLocal\",\r\n    \"repeat\": 1,\r\n    \"req\": {\r\n      \"deviceAddr\": 4\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
             "errorStr": "Unhandled exception: Invalid response: mType=\"iqmeshNetwork_BondNodeLocal\" schema=\"#/properties/data/properties/rsp/properties/osRead/properties/mid\" keyword=\"type\" message=\"#/data/rsp/osRead/mid\" "
         },
         "insId": "iqrfgd2-1",

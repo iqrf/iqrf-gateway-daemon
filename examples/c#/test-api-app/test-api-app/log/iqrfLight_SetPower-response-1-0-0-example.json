@@ -1,0 +1,28 @@
+{
+    "mType": "iqrfLight_SetPower",
+    "data": {
+        "msgId": "testEmbedLight",
+        "rsp": {
+            "nAdr": 4,
+            "hwpId": 4098,
+            "rCode": 0,
+            "dpaVal": 64,
+            "result": {
+                "prevVals": [
+                    0
+                ]
+            }
+        },
+        "raw": {
+            "request": "04.00.71.00.ff.ff.01.00.00.00.64",
+            "requestTs": "2018-07-18T14:54:38.862648",
+            "confirmation": "04.00.71.00.ff.ff.ff.3b.01.04.01",
+            "confirmationTs": "2018-07-18T14:54:38.892590",
+            "response": "04.00.71.80.02.10.00.40.00",
+            "responseTs": "2018-07-18T14:54:39.26946"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

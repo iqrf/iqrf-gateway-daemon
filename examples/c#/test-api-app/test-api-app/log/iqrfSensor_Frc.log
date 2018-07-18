@@ -1,0 +1,410 @@
+==================================
+Sending to WebSocket: 2018-07-17 20:21:24.811
+{
+  "mType": "iqrfSensor_Frc",
+  "data": {
+    "msgId": "testEmbedSensor",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "sensorType": 0,
+        "sensorIndex": 0,
+        "frcCommand": 1,
+        "getExtraResult": true
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 20:21:25.812
+{
+    "mType": "iqrfSensor_Frc",
+    "data": {
+        "msgId": "testEmbedSensor",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 56,
+            "errorStr": "Error: iqrf.sensor.Frc_Response: Unknown sensor type 0"
+        },
+        "raw": {
+            "request": "00.00.0d.00.ff.ff.01.5e.00.00.00",
+            "requestTs": "2018-07-17T20:21:25.383223",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.0d.80.00.00.00.38.03.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-17T20:21:26.113898"
+        },
+        "rawExtra": {
+            "request": "00.00.0d.01.ff.ff",
+            "requestTs": "2018-07-17T20:21:26.114250",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.0d.81.00.00.00.38.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-17T20:21:26.237249"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_RESPONSE",
+        "status": -7
+    }
+}
+2018-07-17 20:21:26.327
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-17 20:46:37.76
+{
+  "mType": "iqrfSensor_Frc",
+  "data": {
+    "msgId": "testEmbedSensor",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "sensorType": 0,
+        "sensorIndex": 1,
+        "frcCommand": 144,
+        "getExtraResult": true
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 20:46:39.172
+{
+    "mType": "iqrfSensor_Frc",
+    "data": {
+        "msgId": "testEmbedSensor",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 56,
+            "errorStr": "Error: iqrf.sensor.Frc_Response: Unknown sensor type 0"
+        },
+        "raw": {
+            "request": "00.00.0d.00.ff.ff.90.5e.00.01.00",
+            "requestTs": "2018-07-17T20:46:38.647916",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.0d.80.00.00.00.38.07.00.5e.01.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-17T20:46:39.391166"
+        },
+        "rawExtra": {
+            "request": "00.00.0d.01.ff.ff",
+            "requestTs": "2018-07-17T20:46:39.392008",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.0d.81.00.00.00.38.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-17T20:46:39.519032"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_RESPONSE",
+        "status": -7
+    }
+}
+2018-07-17 20:46:39.664
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-17 20:49:18.905
+{
+  "mType": "iqrfSensor_Frc",
+  "data": {
+    "msgId": "testEmbedSensor",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "sensorType": 1,
+        "sensorIndex": 1,
+        "frcCommand": 144,
+        "getExtraResult": true
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 20:49:19.849
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqrfSensor_Frc\",\r\n  \"data\": {\r\n    \"msgId\": \"testEmbedSensor\",\r\n    \"req\": {\r\n      \"nAdr\": 0,\r\n      \"param\": {\r\n        \"sensorType\": 1,\r\n        \"sensorIndex\": 1,\r\n        \"frcCommand\": 144,\r\n        \"getExtraResult\": true\r\n      }\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqrfSensor_Frc\" schema=\"#/properties/data/properties/rsp/properties/result/properties/sensors/items\" keyword=\"type\" message=\"#/data/rsp/result/sensors/0\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-17 20:49:20.284
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-17 23:59:49.79
+{
+  "mType": "iqrfSensor_Frc",
+  "data": {
+    "msgId": "testEmbedSensor",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "sensorType": 1,
+        "sensorIndex": 1,
+        "frcCommand": 144,
+        "getExtraResult": true
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 23:59:51.338
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqrfSensor_Frc\",\r\n  \"data\": {\r\n    \"msgId\": \"testEmbedSensor\",\r\n    \"req\": {\r\n      \"nAdr\": 0,\r\n      \"param\": {\r\n        \"sensorType\": 1,\r\n        \"sensorIndex\": 1,\r\n        \"frcCommand\": 144,\r\n        \"getExtraResult\": true\r\n      }\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqrfSensor_Frc\" schema=\"#/properties/data/properties/rsp/properties/result/properties/sensors/items\" keyword=\"type\" message=\"#/data/rsp/result/sensors/0\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-17 23:59:51.831
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 00:03:57.4
+{
+  "mType": "iqrfSensor_Frc",
+  "data": {
+    "msgId": "testEmbedSensor",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "sensorType": 1,
+        "sensorIndex": 1,
+        "frcCommand": 144,
+        "getExtraResult": true
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 00:03:58.375
+{
+    "mType": "iqrfSensor_Frc",
+    "data": {
+        "msgId": "testEmbedSensor",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 58,
+            "result": {
+                "sensors": [
+                    null,
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 25,
+                        "unit": "°C"
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "unit": "°C"
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "unit": "°C"
+                    }
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.0d.00.ff.ff.90.5e.01.01.00",
+            "requestTs": "2018-07-18T00:03:58.96442",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.0d.80.00.00.00.3a.07.00.5e.01.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-18T00:03:58.823652"
+        },
+        "rawExtra": {
+            "request": "00.00.0d.01.ff.ff",
+            "requestTs": "2018-07-18T00:03:58.824215",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.0d.81.00.00.00.3a.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-18T00:03:58.961637"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-18 00:03:58.871
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 00:17:27.331
+{
+  "mType": "iqrfSensor_Frc",
+  "data": {
+    "msgId": "testEmbedSensor",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "sensorType": 1,
+        "sensorIndex": 1,
+        "frcCommand": 144,
+        "getExtraResult": true
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 00:17:28.31
+{
+    "mType": "iqrfSensor_Frc",
+    "data": {
+        "msgId": "testEmbedSensor",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 58,
+            "result": {
+                "sensors": [
+                    null,
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 25,
+                        "unit": "°C"
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "unit": "°C"
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "unit": "°C"
+                    }
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.0d.00.ff.ff.90.5e.01.01.00",
+            "requestTs": "2018-07-18T00:17:28.49699",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.0d.80.00.00.00.3a.07.00.5e.01.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-18T00:17:28.785679"
+        },
+        "rawExtra": {
+            "request": "00.00.0d.01.ff.ff",
+            "requestTs": "2018-07-18T00:17:28.786242",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.0d.81.00.00.00.3a.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-18T00:17:28.923602"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-18 00:17:28.808
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 16:30:41.699
+{
+  "mType": "iqrfSensor_Frc",
+  "data": {
+    "msgId": "testEmbedSensor",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "sensorType": 1,
+        "sensorIndex": 1,
+        "frcCommand": 144,
+        "getExtraResult": true
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 16:30:42.753
+{
+    "mType": "iqrfSensor_Frc",
+    "data": {
+        "msgId": "testEmbedSensor",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 57,
+            "result": {
+                "sensors": [
+                    null,
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 27,
+                        "unit": "°C"
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "unit": "°C"
+                    },
+                    null,
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "unit": "°C"
+                    }
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.0d.00.ff.ff.90.5e.01.01.00",
+            "requestTs": "2018-07-18T16:30:43.43132",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.0d.80.00.00.00.39.05.00.62.01.00.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-18T16:30:43.794327"
+        },
+        "rawExtra": {
+            "request": "00.00.0d.01.ff.ff",
+            "requestTs": "2018-07-18T16:30:43.794839",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.0d.81.00.00.00.39.00.00.00.00.00.00.00.00.00",
+            "responseTs": "2018-07-18T16:30:43.928838"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-18 16:30:43.225
+==================================
+
