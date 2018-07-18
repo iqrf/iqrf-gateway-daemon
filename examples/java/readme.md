@@ -1,0 +1,1 @@
+http://www.jsonschema2pojo.org/
