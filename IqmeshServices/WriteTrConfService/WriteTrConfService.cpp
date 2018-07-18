@@ -95,9 +95,10 @@ namespace {
   static const int SERVICE_ERROR = 1000;
 
   static const int SERVICE_ERROR_NOERROR = 0;
-  static const int SERVICE_ERROR_GET_BONDED_NODES = SERVICE_ERROR + 1;
-  static const int SERVICE_ERROR_NO_BONDED_NODES = SERVICE_ERROR + 2;
-  static const int SERVICE_ERROR_UPDATE_COORD_CHANNEL_BAND = SERVICE_ERROR + 3;
+  static const int SERVICE_ERROR_INTERNAL = SERVICE_ERROR + 1;
+  static const int SERVICE_ERROR_GET_BONDED_NODES = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_NO_BONDED_NODES = SERVICE_ERROR + 3;
+  static const int SERVICE_ERROR_UPDATE_COORD_CHANNEL_BAND = SERVICE_ERROR + 4;
 };
 
 
@@ -166,60 +167,73 @@ namespace iqrf {
   // Holds information about configuration writing result on one node
   class NodeWriteResult {
   private:
+
     // write error
-    WriteError writeError;
+    WriteError m_writeError;
 
     // map of configuration bytes, which failed to write
     // indexed by byte addresses
-    std::map<uint8_t, HWP_ConfigByte> failedBytesMap;
+    std::map<uint8_t, HWP_ConfigByte> m_failedBytesMap;
 
     void setWriteError() {
-      if (this->writeError.getType() != WriteError::Type::Write) {
+      if (this->m_writeError.getType() != WriteError::Type::Write) {
         WriteError writeError(WriteError::Type::Write);
-        this->writeError = writeError;
+        this->m_writeError = writeError;
       }
     }
 
   public:
     NodeWriteResult() {};
 
-    WriteError getError() const { return writeError; };
+    WriteError getError() const { return m_writeError; };
 
     void setError(const WriteError& error) {
-      this->writeError = error;
+      this->m_writeError = error;
     }
 
     // Puts specified configuration byte, which failed to write.
     void putFailedByte(const HWP_ConfigByte& failedByte) {
-      failedBytesMap[failedByte.address] = failedByte;
+      m_failedBytesMap[failedByte.address] = failedByte;
       setWriteError();
     }
 
     // Puts specified configuration bytes, which failed to write.
     void putFailedBytes(const std::vector<HWP_ConfigByte>& failedBytes) {
       for (const HWP_ConfigByte failedByte : failedBytes) {
-        failedBytesMap[failedByte.address] = failedByte;
+        m_failedBytesMap[failedByte.address] = failedByte;
       }
       setWriteError();
     }
 
     // Returns map of failed bytes indexed by their addresses
-    std::map<uint8_t, HWP_ConfigByte> getFailedBytesMap() const { return failedBytesMap; };
+    std::map<uint8_t, HWP_ConfigByte> getFailedBytesMap() const { return m_failedBytesMap; };
   };
 
 
   // holds information about configuration writing result for each node
   class WriteResult {
   private:
+    // device addresses
+    std::list<uint16_t> m_deviceAddrs;
+
     WriteError m_error;
 
     // map of write results on nodes indexed by node address
-    std::map<uint16_t, NodeWriteResult> resultsMap;
+    std::map<uint16_t, NodeWriteResult> m_resultsMap;
 
     // transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
   public:
+
+    std::list<uint16_t> getDeviceAddrs() const {
+      return m_deviceAddrs;
+    }
+
+    void setDeviceAddrs(const std::list<uint16_t>& deviceAddrs) {
+      m_deviceAddrs = deviceAddrs;
+    }
+
     WriteError getError() const { return m_error; };
 
     void setError(const WriteError& error) {
@@ -228,14 +242,14 @@ namespace iqrf {
 
     // Puts specified write result for specified node into results.
     void putResult(uint16_t nodeAddr, const NodeWriteResult& result) {
-      if (resultsMap.find(nodeAddr) != resultsMap.end()) {
-        resultsMap.erase(nodeAddr);
+      if (m_resultsMap.find(nodeAddr) != m_resultsMap.end()) {
+        m_resultsMap.erase(nodeAddr);
       }
-      resultsMap.insert(std::pair<uint16_t, NodeWriteResult>(nodeAddr, result));
+      m_resultsMap.insert(std::pair<uint16_t, NodeWriteResult>(nodeAddr, result));
     };
 
     // returns map of write results on nodes indexed by node address
-    const std::map<uint16_t, NodeWriteResult>& getResultsMap() const { return resultsMap; };
+    const std::map<uint16_t, NodeWriteResult>& getResultsMap() const { return m_resultsMap; };
     
     // adds transaction result into the list of results
     void addTransactionResult(std::unique_ptr<IDpaTransactionResult2>& transResult) {
@@ -452,7 +466,10 @@ namespace iqrf {
 
       writeConfigRequest.DataToBuffer(
         writeConfigPacket.Buffer, 
-        sizeof(TDpaIFaceHeader) + 1 + 31 + 1
+          sizeof(TDpaIFaceHeader) 
+            + 1       // checksum
+            + 31      // configuration
+            + 1       // RFPGM
       );
 
       // issue the DPA request
@@ -1081,25 +1098,10 @@ namespace iqrf {
               << PAR(extraResultRequest.PeripheralCommand())
             );
 
-            // check status
-            uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-            if ((status >= 0x00) && (status <= 0xEF)) {
-              TRC_INFORMATION("FRC write config extra result status OK.");
-              frcData.append(
-                dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData,
-                64 - frcData.size()
-              );
-            }
-            else {
-              TRC_DEBUG("FRC write config extra result status NOT ok." << NAME_PAR_HEX("Status", status));
-              
-              if (rep < m_repeat) {
-                continue;
-              }
-
-              processWriteError(writeResult, nodesToWrite, configBytesPart, WriteError::Type::Write, "Bad status.");
-              break;
-            }
+            frcData.append(
+              dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData,
+              64 - frcData.size()
+            );
           }
           else {
             // transaction error
@@ -1131,21 +1133,15 @@ namespace iqrf {
             frcData, nodesToWrite
           );
 
-          // find out, which nodes are unsuccessful and update for next attempt
-          if (rep < m_repeat) {
-            nodesToWrite = getUnsuccessfulNodes(nodesToWrite, nodesResultsMap);
-
-            // if all nodes were successfull, put result into overall write config results and go to next data part
-            if (nodesToWrite.empty()) {
-              putWriteConfigFrcResults(writeResult, configBytesPart, WriteError::Type::Write, nodesResultsMap);
-              break;
-            }
-
-            continue;
-          }
+          // update group of nodes needed to write into
+          nodesToWrite = getUnsuccessfulNodes(nodesToWrite, nodesResultsMap);
 
           // putting nodes results into overall write config results
           putWriteConfigFrcResults(writeResult, configBytesPart, WriteError::Type::Write, nodesResultsMap);
+
+          if (nodesToWrite.empty()) {
+            break;
+          }
         }
       }
 
@@ -1480,20 +1476,22 @@ namespace iqrf {
     // securityString can be either password or user key
     void setUserDataForSetSecurityFrcRequest(
       TPerFrcSendSelective_Request* frcPacket,
-      const std::basic_string<uint8_t>& securityString
+      const std::basic_string<uint8_t>& securityString,
+      const bool isPassword
     )
     {
       uns8* userData = frcPacket->UserData;
 
       // length
-      userData[0] = 1 + 1 + 1 + 2 + securityString.length();
+      userData[0] = sizeof (TDpaIFaceHeader) - 1 + 1 + securityString.length();
       
       userData[1] = PNUM_OS;
       userData[2] = CMD_OS_SET_SECURITY;
       userData[3] = HWPID_Default & 0xFF;
       userData[4] = (HWPID_Default >> 8) & 0xFF;
+      userData[5] = (isPassword) ? 0 : 1;
 
-      std::copy(securityString.begin(), securityString.end(), userData + 5);
+      std::copy(securityString.begin(), securityString.end(), userData + 6);
     }
 
     // sets security
@@ -1515,8 +1513,11 @@ namespace iqrf {
 
       TPerFrcSendSelective_Request* frcPacketRequest = &frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request;
 
+      // at the end of each iteration, discover unsuccessful nodes
+      std::list<uint16_t> nodesToWrite(targetNodes);
+
       frcPacketRequest->FrcCommand = FRC_AcknowledgedBroadcastBits;
-      setSelectedNodesForFrcRequest(frcPacketRequest, targetNodes);
+      setSelectedNodesForFrcRequest(frcPacketRequest, nodesToWrite);
 
       uint8_t writeConfigPacketFreeSpace = FRC_MAX_USER_DATA_LEN
         - 1
@@ -1526,12 +1527,17 @@ namespace iqrf {
         ;
 
       // set security string as a data for FRC request
-      setUserDataForSetSecurityFrcRequest(frcPacketRequest, securityString);
+      setUserDataForSetSecurityFrcRequest(frcPacketRequest, securityString, isPassword);
 
       // issue the DPA request
       frcRequest.DataToBuffer(
-        frcPacket.Buffer, 
-        sizeof(TDpaIFaceHeader) + 1 + 30 + 5 + securityString.size()
+        frcPacket.Buffer,
+        + sizeof(TDpaIFaceHeader)       // "main command header"
+        + 1                             // FRC command ID
+        + 30                            // target nodes
+        + sizeof(TDpaIFaceHeader) - 1   // embedded header
+        + 1                             // type of security string data 
+        + securityString.size()         // security string
       );
 
       // issue the DPA request
@@ -1553,7 +1559,7 @@ namespace iqrf {
             continue;
           }
 
-          processSecurityError(writeResult, targetNodes, errorType, e.what());
+          processSecurityError(writeResult, nodesToWrite, errorType, e.what());
           break;
         }
 
@@ -1580,7 +1586,10 @@ namespace iqrf {
           uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
           if ((status >= 0x00) && (status <= 0xEF)) {
             TRC_INFORMATION("FRC write config status OK.");
-            frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+            frcData.append(
+              dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData,
+              DPA_MAX_DATA_LENGTH - sizeof(uns8)
+            );
           }
           else {
             TRC_DEBUG("FRC write config status NOT ok." << NAME_PAR_HEX("Status", status));
@@ -1589,33 +1598,35 @@ namespace iqrf {
               continue;
             }
 
-            processSecurityError(writeResult, targetNodes, errorType, "Bad status.");
+            processSecurityError(writeResult, nodesToWrite, errorType, "Bad status.");
+            break;
+          }
+        }
+        else {
+          // transaction error
+          if (errorCode < 0) {
+            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processSecurityError(writeResult, nodesToWrite, errorType, "Transaction error.");
+            break;
+          } // DPA error
+          else {
+            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processSecurityError(writeResult, nodesToWrite, errorType, "DPA error.");
             break;
           }
         }
 
-        // transaction error
-        if (errorCode < 0) {
-          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          processSecurityError(writeResult, targetNodes, errorType, "Transaction error.");
-          break;
-        } // DPA error
-        else {
-          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          processSecurityError(writeResult, targetNodes, errorType, "DPA error.");
-          break;
-        }
-
+        
         // get extra results
         DpaMessage extraResultRequest;
         DpaMessage::DpaPacket_t extraResultPacket;
@@ -1639,7 +1650,7 @@ namespace iqrf {
             continue;
           }
 
-          processSecurityError(writeResult, targetNodes, errorType, e.what());
+          processSecurityError(writeResult, nodesToWrite, errorType, e.what());
           break;
         }
 
@@ -1659,52 +1670,48 @@ namespace iqrf {
             << PAR(extraResultRequest.PeripheralCommand())
           );
 
-          // check status
-          uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-          if ((status >= 0x00) && (status <= 0xEF)) {
-            TRC_INFORMATION("FRC write config extra result status OK.");
-            frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
-          }
-          else {
-            TRC_DEBUG("FRC write config extra result status NOT ok." << NAME_PAR_HEX("Status", status));
-            
+          frcData.append(
+            dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData,
+            64 - frcData.size()
+          );
+        }
+        else {
+          // transaction error
+          if (errorCode < 0) {
+            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
             if (rep < m_repeat) {
               continue;
             }
 
-            processSecurityError(writeResult, targetNodes, errorType, "Bad status.");
+            processSecurityError(writeResult, nodesToWrite, errorType, "Transaction error.");
+            break;
+          } // DPA error
+          else {
+            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processSecurityError(writeResult, nodesToWrite, errorType, "DPA error.");
             break;
           }
         }
 
-        // transaction error
-        if (errorCode < 0) {
-          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          processSecurityError(writeResult, targetNodes, errorType, "Transaction error.");
-          break;
-        } // DPA error
-        else {
-          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          processSecurityError(writeResult, targetNodes, errorType, "DPA error.");
-          break;
-        }
-
         // FRC data parsing
-        std::map<uint16_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData, targetNodes);
+        std::map<uint16_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData, nodesToWrite);
 
         // putting nodes results into overall write config results
         putSetSecurityFrcResults(writeResult, errorType, nodesResultsMap);
-        break;
+        
+        // update unsuccessful nodes for next iteration
+        nodesToWrite = getUnsuccessfulNodes(nodesToWrite, nodesResultsMap);
+
+        // if all nodes were successfull, go to the end
+        if (nodesToWrite.empty()) {
+          break;
+        }
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -1717,6 +1724,9 @@ namespace iqrf {
     {
       // result of writing configuration
       WriteResult writeResult;
+
+      // set list of addresses of target nodes
+      writeResult.setDeviceAddrs(targetNodes);
 
       // getting list of all bonded nodes
       std::list<uint16_t> bondedNodes;
@@ -2235,6 +2245,10 @@ namespace iqrf {
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, messagingId);
 
+      // only one node - for the present time
+      uint8_t firstAddr = writeResult.getDeviceAddrs().front();
+      Pointer("/data/rsp/deviceAddr").Set(response, firstAddr);
+
       // checking of error
       WriteError error = writeResult.getError();
 
@@ -2248,11 +2262,10 @@ namespace iqrf {
         return response;
       }
 
-      const std::map<uint16_t, NodeWriteResult>& nodeResultsMap = writeResult.getResultsMap();
 
       // only one node - for the present time
-      std::map<uint16_t, NodeWriteResult>::const_iterator iter = nodeResultsMap.begin();
-      if (iter != nodeResultsMap.end()) {
+      std::map<uint16_t, NodeWriteResult>::const_iterator iter = writeResult.getResultsMap().find(firstAddr);
+      if (iter != writeResult.getResultsMap().end()) {
         Pointer("/data/rsp/deviceAddr").Set(response, iter->first);
 
         if (iter->second.getError().getType() == WriteError::Type::NoError) {
@@ -2261,26 +2274,37 @@ namespace iqrf {
         else {
           Pointer("/data/rsp/writeSuccess").Set(response, false);
         }
-      }
-      // shouldn't reach this branch - would be probably an internal bug
-      else {
-        TRC_WARNING("No nodes in the result");
-      }
 
-      if (restartNeeded) {
-        Pointer("/data/rsp/restartNeeded").Set(response, true);
+        if (restartNeeded) {
+          Pointer("/data/rsp/restartNeeded").Set(response, true);
+        }
+        else {
+          Pointer("/data/rsp/restartNeeded").Set(response, false);
+        }
+
+        // set raw fields, if verbose mode is active
+        if (comWriteConfig.getVerbose()) {
+          setVerboseData(response, writeResult);
+        }
+
+        setReponseStatus(response, iter->second.getError());
+
+        return response;
       }
-      else {
-        Pointer("/data/rsp/restartNeeded").Set(response, false);
-      }
-           
-      // set raw fields, if verbose mode is active
+      
+     
+      // shouldn't reach this branch - would be probably an internal bug
+      TRC_WARNING("Service internal error - no nodes in the result");
+
+      // to fulfill formal requirements of json response schema 
+      Pointer("/data/rsp/writeSuccess").Set(response, false);
+
       if (comWriteConfig.getVerbose()) {
         setVerboseData(response, writeResult);
       }
 
-      // status
-      setReponseStatus(response, iter->second.getError());
+      Pointer("/data/status").Set(response, SERVICE_ERROR_INTERNAL);
+      Pointer("/data/statusStr").Set(response, "Service internal error - no nodes in the result");
 
       return response;
     }

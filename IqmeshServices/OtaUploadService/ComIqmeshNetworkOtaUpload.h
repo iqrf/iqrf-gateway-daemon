@@ -28,7 +28,7 @@ namespace iqrf {
       return m_isSetDeviceAddr;
     }
 
-    const std::vector<int> getDeviceAddr() const
+    const int getDeviceAddr() const
     {
       return m_deviceAddr;
     }
@@ -79,7 +79,7 @@ namespace iqrf {
     bool m_isSetLoadingAction = false;
 
     int m_repeat = 1;
-    std::vector<int> m_deviceAddr;
+    int m_deviceAddr;
     std::string m_fileName;
     int m_startMemAddr;
     std::string m_loadingAction;
@@ -92,8 +92,8 @@ namespace iqrf {
     }
 
     void parseRequest(rapidjson::Document& doc) {
-      if (rapidjson::Value* reqJsonVal = rapidjson::Pointer("/data/req").Get(doc)) {
-        m_deviceAddr = jutils::getMemberAsVector<int>("deviceAddr", *reqJsonVal);
+      if (rapidjson::Value* devAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
+        m_deviceAddr = devAddrJsonVal->GetInt();
         m_isSetDeviceAddr = true;
       }
 

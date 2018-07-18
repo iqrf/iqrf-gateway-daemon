@@ -35,8 +35,12 @@ namespace {
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
 
-  static const int SERVICE_ERROR_UNSUPPORTED_LOADING_CONTENT = SERVICE_ERROR + 1;
-  static const int SERVICE_ERROR_DATA_PREPARE = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_NOERROR = 0;
+  static const int SERVICE_ERROR_INTERNAL = SERVICE_ERROR + 1;
+  static const int SERVICE_ERROR_UNSUPPORTED_LOADING_CONTENT = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_DATA_PREPARE = SERVICE_ERROR + 3;
+  static const int SERVICE_ERROR_WRITE = SERVICE_ERROR + 4;
+  static const int SERVICE_ERROR_LOAD = SERVICE_ERROR + 5;
 };
 
 
@@ -83,13 +87,13 @@ namespace iqrf {
     UploadError m_error;
 
     // device addresses
-    std::list<uint8_t> m_deviceAddrs;
+    std::list<uint16_t> m_deviceAddrs;
 
     // map of upload results on nodes indexed by node ID
-    std::map<uint8_t, bool> m_resultsMap;
+    std::map<uint16_t, bool> m_resultsMap;
 
     // map of upload errors on nodes indexed by node ID
-    std::map<uint8_t, UploadError> m_errorsMap;
+    std::map<uint16_t, UploadError> m_errorsMap;
 
     // transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
@@ -102,30 +106,30 @@ namespace iqrf {
       m_error = error;
     }
 
-    std::list<uint8_t> getDeviceAddrs() const {
+    std::list<uint16_t> getDeviceAddrs() const {
       return m_deviceAddrs;
     }
 
-    void setDeviceAddrs(const std::list<uint8_t>& deviceAddrs) {
+    void setDeviceAddrs(const std::list<uint16_t>& deviceAddrs) {
       m_deviceAddrs = deviceAddrs;
     }
 
     // puts specified result for specified node
-    void putResult(uint8_t nodeAddr, bool result) {
+    void putResult(uint16_t nodeAddr, bool result) {
       m_resultsMap[nodeAddr] = result;
     }
 
     // puts specified error for specified node
-    void putError(uint8_t nodeAddr, const UploadError& error) {
+    void putError(uint16_t nodeAddr, const UploadError& error) {
       if (m_errorsMap.find(nodeAddr) != m_errorsMap.end()) {
        m_errorsMap.erase(nodeAddr);
       }
       m_errorsMap.insert(std::pair<uint8_t, UploadError>(nodeAddr, error));
     }
 
-    const std::map<uint8_t, bool>& getResultsMap() const { return m_resultsMap; };
+    const std::map<uint16_t, bool>& getResultsMap() const { return m_resultsMap; };
 
-    std::map<uint8_t, UploadError> getErrorsMap() const { return m_errorsMap; };
+    const std::map<uint16_t, UploadError>& getErrorsMap() const { return m_errorsMap; };
 
     // adds transaction result into the list of results
     void addTransactionResult(std::unique_ptr<IDpaTransactionResult2>& transResult) {
@@ -187,7 +191,7 @@ namespace iqrf {
   private:
     
     // indicates, whether will be used broadcast for loading data into EEEPROM
-    bool willBeUsedBroadcast(const std::list<uint8_t>& deviceAddrs) {
+    bool willBeUsedBroadcast(const std::list<uint16_t>& deviceAddrs) {
       if (deviceAddrs.size() == 1) {
         if (deviceAddrs.front() == COORDINATOR_ADDRESS) {
           return false;
@@ -224,8 +228,8 @@ namespace iqrf {
     }
 
     // decides, whether there is coordinator address in the list
-    bool isCoordinatorPresent(const std::list<uint8_t>& deviceAddrs) {
-      for (uint8_t addr : deviceAddrs) {
+    bool isCoordinatorPresent(const std::list<uint16_t>& deviceAddrs) {
+      for (uint16_t addr : deviceAddrs) {
         if (addr == COORDINATOR_ADDRESS) {
           return true;
         }
@@ -233,7 +237,7 @@ namespace iqrf {
       return false;
     }
 
-    // sets PData of specified EEEPROM packet
+    // sets PData of specified EEEPROM extended write packet
     void setExtendedWritePacketData(
       DpaMessage::DpaPacket_t& packet, uint16_t address, const std::basic_string<uint8_t>& data
     ) 
@@ -248,16 +252,20 @@ namespace iqrf {
     }
 
     // size of the embedded write packet INCLUDING target address, which to write data to
-    const uint8_t EMB_WRITE_PACKET_HEADER_SIZE = 1 + 1 + 1 + 2 + 2;
+    const uint8_t EMB_WRITE_PACKET_HEADER_SIZE 
+      = sizeof(TDpaIFaceHeader)-1 + 2;
 
  
-    // sets specified EEEPROM extended write packet for coordinator
-    void setExtWritePacketForCoord(
-      DpaMessage::DpaPacket_t& packet, uint16_t address, const std::basic_string<uint8_t>& data
+    // sets specified EEEPROM extended write packet
+    void setExtWritePacket(
+      DpaMessage::DpaPacket_t& packet, 
+      const uint16_t address, 
+      const std::basic_string<uint8_t>& data,
+      const uint16_t nodeAddr
     ) 
     {
       setExtendedWritePacketData(packet, address, data);
-      packet.DpaRequestPacket_t.NADR = 0;
+      packet.DpaRequestPacket_t.NADR = nodeAddr;
     }
 
     // adds embedded write packet data into batch data
@@ -283,10 +291,11 @@ namespace iqrf {
     }
 
 
-    void writeDataToMemoryInCoordinator(
+    void writeDataToMemoryInOneNode(
       UploadResult& uploadResult,
       const uint16_t startMemAddress,
-      const std::vector<std::basic_string<uint8_t>>& data
+      const std::vector<std::basic_string<uint8_t>>& data,
+      const uint16_t nodeAddress
     )
     {
       TRC_FUNCTION_ENTER("");
@@ -294,7 +303,7 @@ namespace iqrf {
 
       // eeeprom extended write packet
       DpaMessage::DpaPacket_t extendedWritePacket;
-      extendedWritePacket.DpaRequestPacket_t.NADR = 0x00;
+      extendedWritePacket.DpaRequestPacket_t.NADR = nodeAddress;
       extendedWritePacket.DpaRequestPacket_t.PNUM = PNUM_EEEPROM;
       extendedWritePacket.DpaRequestPacket_t.PCMD = CMD_EEEPROM_XWRITE;
       extendedWritePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
@@ -302,7 +311,7 @@ namespace iqrf {
 
       // batch packet
       DpaMessage::DpaPacket_t batchPacket;
-      batchPacket.DpaRequestPacket_t.NADR = 0x00;
+      batchPacket.DpaRequestPacket_t.NADR = nodeAddress;
       batchPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       batchPacket.DpaRequestPacket_t.PCMD = CMD_OS_BATCH;
       batchPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
@@ -337,7 +346,7 @@ namespace iqrf {
               + 2* EMB_WRITE_PACKET_HEADER_SIZE 
               + data[index].size() 
               + data[index + 1].size()
-              + 1
+              + 1 // end of BATCH
             );
 
             // issue batch request
@@ -356,7 +365,7 @@ namespace iqrf {
                   continue;
                 }
 
-                processUploadError(uploadResult, COORDINATOR_ADDRESS, UploadError::Type::Write, "DPA transaction error.");
+                processUploadError(uploadResult, nodeAddress, UploadError::Type::Write, "DPA transaction error.");
                 
                 TRC_FUNCTION_LEAVE("");
                 return;
@@ -377,35 +386,35 @@ namespace iqrf {
                   << NAME_PAR(batchRequest.PeripheralType(), batchRequest.NodeAddress())
                   << PAR(batchRequest.PeripheralCommand())
                 );
-
                 break;
               }
+              else {
+                // transaction error
+                if (errorCode < 0) {
+                  TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
-              // transaction error
-              if (errorCode < 0) {
-                TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+                  if (rep < m_repeat) {
+                    continue;
+                  }
+
+                  processUploadError(uploadResult, nodeAddress, UploadError::Type::Write, "DPA transaction error.");
+
+                  TRC_FUNCTION_LEAVE("");
+                  return;
+                }
+
+                // DPA error
+                TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
                 if (rep < m_repeat) {
                   continue;
                 }
 
-                processUploadError(uploadResult, COORDINATOR_ADDRESS, UploadError::Type::Write, "DPA transaction error.");
+                processUploadError(uploadResult, nodeAddress, UploadError::Type::Write, "DPA error.");
 
                 TRC_FUNCTION_LEAVE("");
                 return;
               }
-
-              // DPA error
-              TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-              if (rep < m_repeat) {
-                continue;
-              }
-
-              processUploadError(uploadResult, COORDINATOR_ADDRESS, UploadError::Type::Write, "DPA error.");
-
-              TRC_FUNCTION_LEAVE("");
-              return;
             }
 
             actualAddress += data[index + 1].size();
@@ -413,7 +422,7 @@ namespace iqrf {
           }
           else {
             DpaMessage extendedWriteRequest;
-            setExtWritePacketForCoord(extendedWritePacket, actualAddress, data[index]);
+            setExtWritePacket(extendedWritePacket, actualAddress, data[index], nodeAddress);
             extendedWriteRequest.DataToBuffer(
               extendedWritePacket.Buffer, 
               sizeof(TDpaIFaceHeader) + 2 + data[index].size()
@@ -434,7 +443,7 @@ namespace iqrf {
                 if (rep < m_repeat) {
                   continue;
                 }
-                processUploadError(uploadResult, COORDINATOR_ADDRESS, UploadError::Type::Write, "DPA transaction error.");
+                processUploadError(uploadResult, nodeAddress, UploadError::Type::Write, "DPA transaction error.");
 
                 TRC_FUNCTION_LEAVE("");
                 return;
@@ -455,35 +464,35 @@ namespace iqrf {
                   << NAME_PAR(extendedWriteRequest.PeripheralType(), extendedWriteRequest.NodeAddress())
                   << PAR(extendedWriteRequest.PeripheralCommand())
                 );
-
                 break;
               }
+              else {
+                // transaction error
+                if (errorCode < 0) {
+                  TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
-              // transaction error
-              if (errorCode < 0) {
-                TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+                  if (rep < m_repeat) {
+                    continue;
+                  }
+
+                  processUploadError(uploadResult, nodeAddress, UploadError::Type::Write, "Transaction error.");
+
+                  TRC_FUNCTION_LEAVE("");
+                  return;
+                }
+
+                // DPA error
+                TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
                 if (rep < m_repeat) {
                   continue;
                 }
 
-                processUploadError(uploadResult, COORDINATOR_ADDRESS, UploadError::Type::Write, "Transaction error.");
+                processUploadError(uploadResult, nodeAddress, UploadError::Type::Write, "DPA error.");
 
                 TRC_FUNCTION_LEAVE("");
                 return;
               }
-
-              // DPA error
-              TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-              if (rep < m_repeat) {
-                continue;
-              }
-
-              processUploadError(uploadResult, COORDINATOR_ADDRESS, UploadError::Type::Write, "DPA error.");
-
-              TRC_FUNCTION_LEAVE("");
-              return;
             }
 
             actualAddress += data[index].size();
@@ -492,7 +501,7 @@ namespace iqrf {
         }
         else {
           DpaMessage extendedWriteRequest;
-          setExtWritePacketForCoord(extendedWritePacket, actualAddress, data[index]);
+          setExtWritePacket(extendedWritePacket, actualAddress, data[index], nodeAddress);
           extendedWriteRequest.DataToBuffer(
             extendedWritePacket.Buffer, sizeof(TDpaIFaceHeader) + 2 + data[index].size()
           );
@@ -513,7 +522,7 @@ namespace iqrf {
                 continue;
               }
 
-              processUploadError(uploadResult, COORDINATOR_ADDRESS, UploadError::Type::Write, "DPA transaction error.");
+              processUploadError(uploadResult, nodeAddress, UploadError::Type::Write, "DPA transaction error.");
 
               TRC_FUNCTION_LEAVE("");
               return;
@@ -534,35 +543,35 @@ namespace iqrf {
                 << NAME_PAR(extendedWriteRequest.PeripheralType(), extendedWriteRequest.NodeAddress())
                 << PAR(extendedWriteRequest.PeripheralCommand())
               );
-
               break;
             }
+            else {
+              // transaction error
+              if (errorCode < 0) {
+                TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
-            // transaction error
-            if (errorCode < 0) {
-              TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+                if (rep < m_repeat) {
+                  continue;
+                }
+
+                processUploadError(uploadResult, nodeAddress, UploadError::Type::Write, "Transaction error.");
+
+                TRC_FUNCTION_LEAVE("");
+                return;
+              }
+
+              // DPA error
+              TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
               if (rep < m_repeat) {
                 continue;
               }
 
-              processUploadError(uploadResult, COORDINATOR_ADDRESS, UploadError::Type::Write, "Transaction error.");
+              processUploadError(uploadResult, nodeAddress, UploadError::Type::Write, "DPA error.");
 
               TRC_FUNCTION_LEAVE("");
               return;
             }
-
-            // DPA error
-            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-            if (rep < m_repeat) {
-              continue;
-            }
-
-            processUploadError(uploadResult, COORDINATOR_ADDRESS, UploadError::Type::Write, "DPA error.");
-
-            TRC_FUNCTION_LEAVE("");
-            return;
           }
 
           actualAddress += data[index].size();
@@ -570,33 +579,38 @@ namespace iqrf {
         }
       }
 
-      // write into coordinator OK
-      uploadResult.putResult(0, true);
+      // write into node result
+      uploadResult.putResult(nodeAddress, true);
     }
 
     void setSelectedNodesForFrcRequest(
-      DpaMessage& frcRequest, const std::list<uint8_t>& targetNodes
+      TPerFrcSendSelective_Request* frcPacket,
+      const std::list<uint16_t>& targetNodes
     )
     {
-      uns8* selectedNodes = frcRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes;
-
+      // initialize "SelectedNodes" section
+      memset(frcPacket->SelectedNodes, 0, 30 * sizeof(uns8));
+      
       for (uint8_t i : targetNodes) {
         uns8 byteIndex = i / 8;
         uns8 bitIndex = i % 8;
-        selectedNodes[byteIndex] |= (uns8)pow(2, bitIndex);
+        frcPacket->SelectedNodes[byteIndex] |= (uns8)pow(2, bitIndex);
       }
     }
 
     void setUserDataForFrcEeepromXWriteRequest(
-      DpaMessage& frcRequest,
+      TPerFrcSendSelective_Request* frcPacket,
       const uint16_t startAddress,
       const std::basic_string<uint8_t>& data
     )
     {
-      uns8* userData = frcRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData;
+      uns8* userData = frcPacket->UserData;
+
+      // initialize user data to zero
+      memset(userData, 0, 25 * sizeof(uns8));
 
       // copy foursome
-      userData[0] = 2 + data.size() + 1 + 1 + 1 + 2;
+      userData[0] = sizeof(TDpaIFaceHeader) - 1 + 2 + data.size();
       userData[1] = PNUM_EEEPROM;
       userData[2] = CMD_EEEPROM_XWRITE;
       userData[3] = HWPID_Default & 0xFF;
@@ -619,14 +633,14 @@ namespace iqrf {
       const std::string& errMsg
     )
     {
-      uploadResult.putResult(0, false);
+      uploadResult.putResult(nodeId, false);
       UploadError uploadError(errType, errMsg);
-      uploadResult.putError(0, uploadError);
+      uploadResult.putError(nodeId, uploadError);
     }
 
     void processUploadError(
       UploadResult& uploadResult,
-      const std::list<uint8_t>& failedNodes,
+      const std::list<uint16_t>& failedNodes,
       UploadError::Type errType,
       const std::string& errMsg
     )
@@ -640,8 +654,13 @@ namespace iqrf {
     }
 
     // parses 2bits FRC results into map: keys are nodes IDs, values are returned 2 bits
-    std::map<uint8_t, uint8_t> parse2bitsFrcData(const std::basic_string<uint8_t>& frcData) {
-      std::map<uint8_t, uint8_t> nodesResults;
+    std::map<uint16_t, uint8_t> parse2bitsFrcData(
+      const std::basic_string<uint8_t>& frcData,
+      const std::list<uint16_t>& targetNodes
+    ) 
+    {
+      std::map<uint16_t, uint8_t> nodesResults;
+      std::list<uint16_t>::const_iterator findIter;
 
       uint8_t nodeId = 0;
       for (int byteId = 0; byteId <= 29; byteId++) {
@@ -649,7 +668,12 @@ namespace iqrf {
         for (int bitId = 0; bitId < 8; bitId++) {
           uint8_t bit0 = ((frcData[byteId] & bitComp) == bitComp) ? 1 : 0;
           uint8_t bit1 = ((frcData[byteId + 32] & bitComp) == bitComp) ? 1 : 0;
-          nodesResults.insert(std::pair<uint8_t, uint8_t>(nodeId, bit0 + 2 * bit1));
+          
+          findIter = std::find(targetNodes.begin(), targetNodes.end(), nodeId);
+          if (findIter != targetNodes.end()) {
+            nodesResults.insert(std::pair<uint16_t, uint8_t>(nodeId, bit0 + 2 * bit1));
+          }
+
           nodeId++;
           bitComp *= 2;
         }
@@ -661,10 +685,10 @@ namespace iqrf {
     void putFrcResults(
       UploadResult& uploadResult,
       UploadError::Type resultType,
-      const std::map<uint8_t, uint8_t>& nodesResultsMap
+      const std::map<uint16_t, uint8_t>& nodesResultsMap
     )
     {
-      for (const std::pair<uint8_t, uint8_t> p : nodesResultsMap) {
+      for (const std::pair<uint16_t, uint8_t> p : nodesResultsMap) {
         if ((p.second & 0x01) == 0x01) {
           uploadResult.putResult(p.first, true);
         }
@@ -685,16 +709,40 @@ namespace iqrf {
       }
     }
 
+    // returns nodes, which were writen unsuccessfully into
+    std::list<uint16_t> getUnsuccessfulNodes(
+      const std::list<uint16_t>& nodesToWrite,
+      const std::map<uint16_t, uint8_t>& nodesResultsMap
+    )
+    {
+      std::list<uint16_t> unsuccessfulNodes;
+
+      for (std::pair<uint16_t, uint8_t> p : nodesResultsMap) {
+        std::list<uint16_t>::const_iterator findIter
+          = std::find(nodesToWrite.begin(), nodesToWrite.end(), p.first);
+
+        if (findIter == nodesToWrite.end()) {
+          continue;
+        }
+
+        if ((p.second & 0b1) != 0b1) {
+          unsuccessfulNodes.push_back(p.first);
+        }
+      }
+
+      return unsuccessfulNodes;
+    }
+
     // excludes failed nodes from the list according to results
     void excludeFailedNodes(
-      std::list<uint8_t>& nodes, 
+      std::list<uint16_t>& nodes, 
       const UploadResult& uploadResult
     )
     {
-      const std::map<uint8_t, bool> resultsMap = uploadResult.getResultsMap();
-      std::map<uint8_t, bool>::const_iterator resultIter = resultsMap.end();
+      const std::map<uint16_t, bool> resultsMap = uploadResult.getResultsMap();
+      std::map<uint16_t, bool>::const_iterator resultIter = resultsMap.end();
 
-      std::list<uint8_t>::iterator nodesIter = nodes.begin();
+      std::list<uint16_t>::iterator nodesIter = nodes.begin();
 
       while (nodesIter != nodes.end()) {
         resultIter = uploadResult.getResultsMap().find(*nodesIter);
@@ -708,11 +756,21 @@ namespace iqrf {
       }
     }
 
+    void removeUnsuccesfullNodes(
+      std::list<uint16_t>& succNodes, 
+      const std::list<uint16_t>& nodesToRemove
+    )
+    {
+      for (const uint16_t node : nodesToRemove) {
+        succNodes.remove(node);
+      }
+    }
+
     void writeDataToMemoryInNodes(
       UploadResult& uploadResult,
       const uint16_t startAddress,
       const std::vector<std::basic_string<uint8_t>>& data,
-      const std::list<uint8_t>& deviceAddrs
+      const std::list<uint16_t>& deviceAddrs
     )
     {
       DpaMessage frcRequest;
@@ -721,28 +779,34 @@ namespace iqrf {
       frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
       frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
       frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-      frcRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
+      frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
 
-      DpaMessage extraResultRequest;
-      DpaMessage::DpaPacket_t extraResultPacket;
-      frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
-      frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-      frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-      frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
+      TPerFrcSendSelective_Request* frcRequestPacket = &frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request;
 
       uint16_t actualAddress = startAddress;
       size_t index = 0;
 
-      // because some nodes can fail during write - nodes in this list are OK
-      std::list<uint8_t> nodesToWriteInto(deviceAddrs);
+      // list of nodes to write into
+      std::list<uint16_t> nodesToWrite(deviceAddrs);
+      
+      // nodes, which were successfully written to so far
+      std::list<uint16_t> succNodes(deviceAddrs);
 
-      while (index < data.size()) {
-        setSelectedNodesForFrcRequest(frcRequest, nodesToWriteInto);
-        setUserDataForFrcEeepromXWriteRequest(frcRequest, actualAddress, data[index]);
+      while ( (index < data.size()) && (!succNodes.empty()) ) {
+        // will be write only to successfully written nodes - from previous data
+        nodesToWrite = succNodes;
+
+        setSelectedNodesForFrcRequest(frcRequestPacket, nodesToWrite);
+        setUserDataForFrcEeepromXWriteRequest(frcRequestPacket, actualAddress, data[index]);
 
         frcRequest.DataToBuffer(
-          frcPacket.Buffer, sizeof(TDpaIFaceHeader) + 1 + 30 + 7 + data[index].size()
+          frcPacket.Buffer,
+          sizeof(TDpaIFaceHeader)
+          + 1                           // FRC Command 
+          + 30                          // nodes
+          + sizeof(TDpaIFaceHeader) - 1 // embedded command header 
+          + 2                           // target address for write 
+          + data[index].size()          // size of data to write
         );
 
         // issue FRC request
@@ -764,10 +828,9 @@ namespace iqrf {
               continue;
             }
 
-            processUploadError(uploadResult, nodesToWriteInto, UploadError::Type::Write, "FRC unsuccessful.");
-
-            TRC_FUNCTION_LEAVE("");
-            return;
+            removeUnsuccesfullNodes(succNodes, nodesToWrite);
+            processUploadError(uploadResult, nodesToWrite, UploadError::Type::Write, "FRC unsuccessful.");
+            break;
           }
 
           TRC_DEBUG("Result from FRC extended write transaction as string:" << PAR(transResult->getErrorString()));
@@ -791,7 +854,6 @@ namespace iqrf {
             if ((status >= 0x00) && (status <= 0xEF)) {
               TRC_INFORMATION("FRC extended write successful.");
               frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
-              break;
             }
             else {
               TRC_DEBUG("FRC Extended write NOT successful." << NAME_PAR("Status", status));
@@ -800,44 +862,49 @@ namespace iqrf {
                 continue;
               }
 
-              processUploadError(uploadResult, nodesToWriteInto, UploadError::Type::Write, "FRC unsuccessful.");
-            
-              TRC_FUNCTION_LEAVE("");
-              return;
+              removeUnsuccesfullNodes(succNodes, nodesToWrite);
+              processUploadError(uploadResult, nodesToWrite, UploadError::Type::Write, "FRC unsuccessful.");
+              break;
             }
           }
+          else {
+            // transaction error
+            if (errorCode < 0) {
+              TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
-          // transaction error
-          if (errorCode < 0) {
-            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+              if (rep < m_repeat) {
+                continue;
+              }
+
+              removeUnsuccesfullNodes(succNodes, nodesToWrite);
+              processUploadError(uploadResult, nodesToWrite, UploadError::Type::Write, "FRC unsuccessful.");
+              break;
+            }
+
+            // DPA error
+            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
             if (rep < m_repeat) {
               continue;
             }
 
-            processUploadError(uploadResult, nodesToWriteInto, UploadError::Type::Write, "FRC unsuccessful.");
-            
-            TRC_FUNCTION_LEAVE("");
-            return;
+            removeUnsuccesfullNodes(succNodes, nodesToWrite);
+            processUploadError(uploadResult, nodesToWrite, UploadError::Type::Write, "FRC unsuccessful.");
+            break;
           }
 
-          // DPA error
-          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
-          if (rep < m_repeat) {
-            continue;
-          }
+          DpaMessage extraResultRequest;
+          DpaMessage::DpaPacket_t extraResultPacket;
+          extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+          extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+          extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
+          extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+          extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
 
-          processUploadError(uploadResult, nodesToWriteInto, UploadError::Type::Write, "FRC unsuccessful.");
+          // getting FRC extra result
+          std::shared_ptr<IDpaTransaction2> extraResultTransaction;
 
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // getting FRC extra result
-        std::shared_ptr<IDpaTransaction2> extraResultTransaction;
-
-        for (int rep = 0; rep <= m_repeat; rep++) {
           try {
             extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
             transResult = extraResultTransaction->get();
@@ -849,18 +916,17 @@ namespace iqrf {
               continue;
             }
 
-            processUploadError(uploadResult, nodesToWriteInto, UploadError::Type::Write, "FRC unsuccessful.");
-
-            TRC_FUNCTION_LEAVE("");
-            return;
+            removeUnsuccesfullNodes(succNodes, nodesToWrite);
+            processUploadError(uploadResult, nodesToWrite, UploadError::Type::Write, "FRC unsuccessful.");
+            break;
           }
 
           TRC_DEBUG("Result from FRC extended write extra result transaction as string:" << PAR(transResult->getErrorString()));
 
-          IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+          errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
           // because of the move-semantics
-          DpaMessage dpaResponse = transResult->getResponse();
+          dpaResponse = transResult->getResponse();
           uploadResult.addTransactionResult(transResult);
 
           if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
@@ -871,67 +937,65 @@ namespace iqrf {
               << PAR(extraResultRequest.PeripheralCommand())
             );
 
-            uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-            if (status >= 0x00 && status <= 0xEF) {
-              TRC_INFORMATION("FRC Extended write extra result successful.");
-              frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
-              break;
-            }
-            else {
-              TRC_DEBUG("FRC Extended write extra result NOT successful." << NAME_PAR("Status", status));
-              
+            frcData.append(
+              dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData,
+              64 - frcData.size()
+            );
+          }
+          else {
+            // transaction error
+            if (errorCode < 0) {
+              TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
               if (rep < m_repeat) {
                 continue;
               }
 
-              processUploadError(uploadResult, nodesToWriteInto, UploadError::Type::Write, "FRC unsuccessful.");
-              
-              TRC_FUNCTION_LEAVE("");
-              return;
+              removeUnsuccesfullNodes(succNodes, nodesToWrite);
+              processUploadError(uploadResult, nodesToWrite, UploadError::Type::Write, "FRC unsuccessful.");
+              break;
             }
-          }
 
-          // transaction error
-          if (errorCode < 0) {
-            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+            // DPA error
+            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
             if (rep < m_repeat) {
               continue;
             }
 
-            processUploadError(uploadResult, nodesToWriteInto, UploadError::Type::Write, "FRC unsuccessful.");
-
-            TRC_FUNCTION_LEAVE("");
-            return;
+            removeUnsuccesfullNodes(succNodes, nodesToWrite);
+            processUploadError(uploadResult, nodesToWrite, UploadError::Type::Write, "FRC unsuccessful.");
+            break;
           }
 
-          // DPA error
-          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
-          if (rep < m_repeat) {
-            continue;
+          // FRC data parsing
+          std::map<uint16_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData, nodesToWrite);
+
+          // putting nodes results into overall load code results
+          putFrcResults(uploadResult, UploadError::Type::Write, nodesResultsMap);
+
+          // update unsuccessful nodes for next iteration
+          nodesToWrite = getUnsuccessfulNodes(nodesToWrite, nodesResultsMap);
+
+          // if all nodes were successfull, go to the next chunk of data
+          if (nodesToWrite.empty()) {
+            break;
           }
 
-          processUploadError(uploadResult, nodesToWriteInto, UploadError::Type::Write, "FRC unsuccessful.");
-
-          TRC_FUNCTION_LEAVE("");
-          return;
+          // if this is the last iteration, remove nodes, which failed to write into
+          if (rep == m_repeat) {
+            removeUnsuccesfullNodes(succNodes, nodesToWrite);
+            processUploadError(uploadResult, nodesToWrite, UploadError::Type::Write, "Write failed.");
+          }
         }
-
-        // FRC data parsing
-        std::map<uint8_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData);
-
-        // putting nodes results into overall load code results
-        putFrcResults(uploadResult, UploadError::Type::Write, nodesResultsMap);
-
-        // excluding nodes, which failed to write into
-        excludeFailedNodes(nodesToWriteInto, uploadResult);
 
         // increase target address
         actualAddress += data[index].length();
         index++;
       }
 
+      TRC_FUNCTION_LEAVE("");
     }
 
     // writes data into external EEPROM memory
@@ -939,26 +1003,38 @@ namespace iqrf {
       UploadResult& result,
       const uint16_t startMemAddr,
       const std::vector<std::basic_string<uint8_t>>& data,
-      const std::list<uint8_t> deviceAddrs
+      const std::list<uint16_t> deviceAddrs
     )
     {
-      if (isCoordinatorPresent(deviceAddrs)) {
-        writeDataToMemoryInCoordinator(result, startMemAddr, data);
-
-        // coordinator is the only address
-        if (deviceAddrs.size() == 1) {
-          return;
-        }
+      if (deviceAddrs.size() == 1) {
+        writeDataToMemoryInOneNode(result, startMemAddr, data, deviceAddrs.front());
+        return;
       }
-      writeDataToMemoryInNodes(result, startMemAddr, data, deviceAddrs);
+      
+      bool isCoordPresent = false;
+
+      if (isCoordinatorPresent(deviceAddrs)) {
+        writeDataToMemoryInOneNode(result, startMemAddr, data, 0);
+        isCoordPresent = true;
+      }
+
+      // exclude coordinator's address from target device addresses
+      if (isCoordPresent) {
+        std::list<uint16_t> onlyNodesDeviceAddrs(deviceAddrs);
+        onlyNodesDeviceAddrs.remove(0);
+        writeDataToMemoryInNodes(result, startMemAddr, data, onlyNodesDeviceAddrs);
+      }
+      else {
+        writeDataToMemoryInNodes(result, startMemAddr, data, deviceAddrs);
+      }
     }
 
     // returns list of node addesses, which have successful results
-    std::list<uint8_t> getSuccessfulResultNodes(const UploadResult& uploadResult)
+    std::list<uint16_t> getSuccessfulResultNodes(const UploadResult& uploadResult)
     {
-      std::list<uint8_t> successfulResultNodes;
+      std::list<uint16_t> successfulResultNodes;
 
-      for (const std::pair<uint8_t, bool> p : uploadResult.getResultsMap()) {
+      for (const std::pair<uint16_t, bool> p : uploadResult.getResultsMap()) {
         if (p.second == true) {
           successfulResultNodes.push_back(p.first);
         }
@@ -1085,7 +1161,7 @@ namespace iqrf {
     }
 
     void setUserDataForFrcLoadCodeRequest(
-      DpaMessage& frcRequest,
+      TPerFrcSendSelective_Request* frcPacket,
       const LoadingAction loadingAction,
       const IOtaUploadService::LoadingContentType loadingContentType,
       const uint16_t startAddress,
@@ -1093,10 +1169,18 @@ namespace iqrf {
       const uint16_t checksum
     )
     {
-      uns8* userData = frcRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData;
+      uns8* userData = frcPacket->UserData;
+
+      // initialize user data to zero
+      memset(userData, 0, 25 * sizeof(uns8));
 
       // copy foursome
-      userData[0] = 1 + 1 + 1 + 2 + 7;
+      userData[0] = sizeof(TDpaIFaceHeader) - 1
+        + 1     // flags
+        + 2     // address
+        + 2     // length
+        + 2     // checksum
+      ;
       userData[1] = PNUM_OS;
       userData[2] = CMD_OS_LOAD_CODE;
       userData[3] = HWPID_Default & 0xFF;
@@ -1132,7 +1216,7 @@ namespace iqrf {
       const IOtaUploadService::LoadingContentType loadingContentType,
       const uint16_t length,
       const uint16_t checksum,
-      const std::list<uint8_t>& targetNodes,
+      const std::list<uint16_t>& targetNodes,
       UploadResult& uploadResult
     )
     {
@@ -1142,14 +1226,35 @@ namespace iqrf {
       frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
       frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
       frcPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      frcRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
+      frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
 
-      setSelectedNodesForFrcRequest(frcRequest, targetNodes);
+      TPerFrcSendSelective_Request* frcRequestPacket = &frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request;
+
+
+      // will be updated through iteration
+      std::list<uint16_t> nodesToLoad(targetNodes);
+
+      setSelectedNodesForFrcRequest(frcRequestPacket, nodesToLoad);
       setUserDataForFrcLoadCodeRequest(
-        frcRequest, loadingAction, loadingContentType, startAddress, length, checksum
+        frcRequestPacket,
+        loadingAction, 
+        loadingContentType, 
+        startAddress, 
+        length,
+        checksum
       );
 
-      frcRequest.DataToBuffer(frcPacket.Buffer, sizeof(TDpaIFaceHeader) + 12);
+      frcRequest.DataToBuffer(
+        frcPacket.Buffer, 
+        + sizeof(TDpaIFaceHeader)       // "main command header"
+        + 1                             // FRC command ID
+        + 30                            // target nodes
+        + sizeof(TDpaIFaceHeader) - 1   // embedded header
+        + 1                             // flags
+        + 2                             // address
+        + 2                             // length
+        + 2                             // checksum
+      );
 
       // issue FRC request
       std::shared_ptr<IDpaTransaction2> frcTransaction;
@@ -1170,10 +1275,8 @@ namespace iqrf {
             continue;
           }
 
-          processUploadError(uploadResult, targetNodes, UploadError::Type::Load, "FRC unsuccessful.");
-
-          TRC_FUNCTION_LEAVE("");
-          return;
+          processUploadError(uploadResult, nodesToLoad, UploadError::Type::Load, "FRC unsuccessful.");
+          break;
         }
 
         TRC_DEBUG("Result from FRC load code transaction as string:" << PAR(transResult->getErrorString()));
@@ -1196,7 +1299,10 @@ namespace iqrf {
           uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
           if ((status >= 0x00) && (status <= 0xEF)) {
             TRC_INFORMATION("FRC load code successful.");
-            frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
+            frcData.append(
+              dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData,
+              DPA_MAX_DATA_LENGTH - sizeof(uns8)
+            );
             break;
           }
           else {
@@ -1206,53 +1312,48 @@ namespace iqrf {
               continue;
             }
 
-            processUploadError(uploadResult, targetNodes, UploadError::Type::Load, "FRC unsuccessful.");
+            processUploadError(uploadResult, nodesToLoad, UploadError::Type::Load, "FRC unsuccessful.");
+            break;
+          }
+        }
+        else {
+          // transaction error
+          if (errorCode < 0) {
+            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
-            TRC_FUNCTION_LEAVE("");
-            return;
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processUploadError(uploadResult, nodesToLoad, UploadError::Type::Load, "FRC unsuccessful.");
+            break;
+          }
+          else {
+            // DPA error
+            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processUploadError(uploadResult, nodesToLoad, UploadError::Type::Load, "FRC unsuccessful.");
+            break;
           }
         }
 
-        // transaction error
-        if (errorCode < 0) {
-          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
-          if (rep < m_repeat) {
-            continue;
-          }
+        // getting FRC extra result
+        DpaMessage extraResultRequest;
+        DpaMessage::DpaPacket_t extraResultPacket;
+        extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
+        extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+        extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
 
-          processUploadError(uploadResult, targetNodes, UploadError::Type::Load, "FRC unsuccessful.");
+        // issue request
+        std::shared_ptr<IDpaTransaction2> extraResultTransaction;
 
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // DPA error
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-        if (rep < m_repeat) {
-          continue;
-        }
-
-        processUploadError(uploadResult, targetNodes, UploadError::Type::Load, "FRC unsuccessful.");
-
-        TRC_FUNCTION_LEAVE("");
-        return;
-      }
-
-      // getting FRC extra result
-      DpaMessage extraResultRequest;
-      DpaMessage::DpaPacket_t extraResultPacket;
-      frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
-      frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-      frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-      frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
-
-      // issue request
-      std::shared_ptr<IDpaTransaction2> extraResultTransaction;
-
-      for (int rep = 0; rep <= m_repeat; rep++) {
         try {
           extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
           transResult = extraResultTransaction->get();
@@ -1264,7 +1365,7 @@ namespace iqrf {
             continue;
           }
 
-          processUploadError(uploadResult, targetNodes, UploadError::Type::Load, "FRC unsuccessful.");
+          processUploadError(uploadResult, nodesToLoad, UploadError::Type::Load, "FRC unsuccessful.");
 
           TRC_FUNCTION_LEAVE("");
           return;
@@ -1272,10 +1373,10 @@ namespace iqrf {
 
         TRC_DEBUG("Result from FRC extra result transaction as string:" << PAR(transResult->getErrorString()));
 
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+        errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
         // because of the move-semantics
-        DpaMessage dpaResponse = transResult->getResponse();
+        dpaResponse = transResult->getResponse();
         uploadResult.addTransactionResult(transResult);
 
         if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
@@ -1286,58 +1387,49 @@ namespace iqrf {
             << PAR(extraResultRequest.PeripheralCommand())
           );
 
-          uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-          if (status >= 0x00 && status <= 0xEF) {
-            TRC_INFORMATION("FRC load code extra result successful.");
-            frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
-            break;
-          }
-          else {
-            TRC_DEBUG("FRC load code extra result NOT successful." << NAME_PAR("Status", status));
+          frcData.append(
+            dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData,
+            64 - frcData.size()
+          );
+        }
+        else {
+          // transaction error
+          if (errorCode < 0) {
+            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
             if (rep < m_repeat) {
               continue;
             }
 
-            processUploadError(uploadResult, targetNodes, UploadError::Type::Load, "FRC unsuccessful.");
-
-            TRC_FUNCTION_LEAVE("");
-            return;
+            processUploadError(uploadResult, nodesToLoad, UploadError::Type::Load, "FRC unsuccessful.");
+            break;
           }
-        }
 
-        // transaction error
-        if (errorCode < 0) {
-          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+          // DPA error
+          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
           if (rep < m_repeat) {
             continue;
           }
 
-          processUploadError(uploadResult, targetNodes, UploadError::Type::Load, "FRC unsuccessful.");
-
-          TRC_FUNCTION_LEAVE("");
-          return;
+          processUploadError(uploadResult, nodesToLoad, UploadError::Type::Load, "FRC unsuccessful.");
+          break;
         }
 
-        // DPA error
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+        // FRC data parsing
+        std::map<uint16_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData, nodesToLoad);
 
-        if (rep < m_repeat) {
-          continue;
+        // putting nodes results into overall load code results
+        putFrcResults(uploadResult, UploadError::Type::Load, nodesResultsMap);
+
+        // update unsuccessful nodes for next iteration
+        nodesToLoad = getUnsuccessfulNodes(nodesToLoad, nodesResultsMap);
+
+        // if all nodes were successfull, go to the end
+        if (nodesToLoad.empty()) {
+          break;
         }
-
-        processUploadError(uploadResult, targetNodes, UploadError::Type::Load, "FRC unsuccessful.");
-
-        TRC_FUNCTION_LEAVE("");
-        return;
       }
-
-      // FRC data parsing
-      std::map<uint8_t, uint8_t> nodesResultsMap = parse2bitsFrcData(frcData);
-
-      // putting nodes results into overall load code results
-      putFrcResults(uploadResult, UploadError::Type::Load, nodesResultsMap);
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -1351,15 +1443,15 @@ namespace iqrf {
       const IOtaUploadService::LoadingContentType loadingContentType,
       const uint16_t length,
       const uint16_t checksum,
-      const std::list<uint8_t>& nodes,
+      const std::list<uint16_t>& nodes,
       UploadResult& result
     )
     {
-      std::list<uint8_t> pureNodes;
+      std::list<uint16_t> pureNodes;
       bool isCoordPresent = false;
 
       // filter out non-coordinator nodes
-      for (uint8_t nodeId : nodes) {
+      for (uint16_t nodeId : nodes) {
         if (nodeId == COORDINATOR_ADDRESS) {
           isCoordPresent = true;
         }
@@ -1402,7 +1494,7 @@ namespace iqrf {
     }
 
     UploadResult upload(
-      const std::list<uint8_t> deviceAddrs, 
+      const std::list<uint16_t> deviceAddrs, 
       const std::string& fileName, 
       const uint16_t startMemAddr, 
       const LoadingAction loadingAction
@@ -1413,6 +1505,9 @@ namespace iqrf {
       // result
       UploadResult uploadResult;
 
+      // set list of addresses of target nodes
+      uploadResult.setDeviceAddrs(deviceAddrs);
+
       IOtaUploadService::LoadingContentType loadingContentType;
       try {
         loadingContentType = parseLoadingContentType(fileName);
@@ -1422,9 +1517,6 @@ namespace iqrf {
         uploadResult.setError(error);
         return uploadResult;
       }
-
-      // set list of addresses of target nodes
-      uploadResult.setDeviceAddrs(deviceAddrs);
 
       // indicates, whether the data will be prepared for broadcast or not 
       bool isDataForBroadcast = willBeUsedBroadcast(deviceAddrs);
@@ -1446,7 +1538,7 @@ namespace iqrf {
       writeDataToMemory(uploadResult, startMemAddr, preparedData->getData(), deviceAddrs);
 
       // identify, which nodes were code successfully written into
-      std::list<uint8_t> succWrittenNodes = getSuccessfulResultNodes(uploadResult);
+      std::list<uint16_t> succWrittenNodes = getSuccessfulResultNodes(uploadResult);
 
       // if no nodes were successfully written into, it is useless to proceed with code load
       if (succWrittenNodes.empty()) {
@@ -1543,12 +1635,45 @@ namespace iqrf {
       Pointer("/data/raw").Set(response, rawArray);
     }
 
+    // sets status inside specified response accoding to specified error
+    void setResponseStatus(Document& response, const UploadError& error)
+    {
+      switch (error.getType()) {
+      case UploadError::Type::NoError:
+        Pointer("/data/status").Set(response, SERVICE_ERROR_NOERROR);
+        break;
+      case UploadError::Type::DataPrepare:
+        Pointer("/data/status").Set(response, SERVICE_ERROR_DATA_PREPARE);
+        break;
+      case UploadError::Type::UnsupportedLoadingContent:
+        Pointer("/data/status").Set(response, SERVICE_ERROR_UNSUPPORTED_LOADING_CONTENT);
+        break;
+      case UploadError::Type::Write:
+        Pointer("/data/status").Set(response, SERVICE_ERROR_WRITE);
+        break;
+      case UploadError::Type::Load:
+        Pointer("/data/status").Set(response, SERVICE_ERROR_LOAD);
+        break;
+      default:
+        // some other unsupported error
+        Pointer("/data/status").Set(response, SERVICE_ERROR);
+        break;
+      }
+
+      if (error.getType() == UploadError::Type::NoError) {
+        Pointer("/data/statusStr").Set(response, "ok");
+      }
+      else {
+        Pointer("/data/statusStr").Set(response, error.getMessage());
+      }
+    }
+
     // creates response on the basis of read TR config result
     Document createResponse(
       const std::string& msgId,
       const IMessagingSplitterService::MsgType& msgType,
       UploadResult& uploadResult,
-      const ComIqmeshNetworkOtaUpload& comReadTrConf
+      const ComIqmeshNetworkOtaUpload& comOtaUpload
     )
     {
       Document response;
@@ -1557,44 +1682,69 @@ namespace iqrf {
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, msgId);
 
+      // only one node - for the present time
+      uint8_t firstAddr = uploadResult.getDeviceAddrs().front();
+      Pointer("/data/rsp/deviceAddr").Set(response, firstAddr);
+      
       // checking of error
       UploadError error = uploadResult.getError();
-      bool isAllOk = false;
 
-      switch (error.getType()) {
-        case UploadError::Type::NoError:
-          isAllOk = true;
-          break;
-        case UploadError::Type::DataPrepare:
-          Pointer("/data/status").Set(response, SERVICE_ERROR_DATA_PREPARE);
-          break;
-        case UploadError::Type::UnsupportedLoadingContent:
-          Pointer("/data/status").Set(response, SERVICE_ERROR_UNSUPPORTED_LOADING_CONTENT);
-          break;
-        default:
-          Pointer("/data/status").Set(response, SERVICE_ERROR);
-      }
+      if (error.getType() != UploadError::Type::NoError) {
+        Pointer("/data/rsp/writeSuccess").Set(response, false);
 
-      // all is ok
-      if (isAllOk) {
-        // get the first address in the device addresses list - because of json schema
-        uint8_t firstAddr = uploadResult.getDeviceAddrs().front();
-        Pointer("/data/rsp/deviceAddr").Set(response, firstAddr);
-
-        std::map<uint8_t, bool>::const_iterator iter = uploadResult.getResultsMap().find(firstAddr);
-        if (iter != uploadResult.getResultsMap().end()) {
-          Pointer("/data/rsp/writeSuccess").Set(response, iter->second);
+        // set raw fields, if verbose mode is active
+        if (comOtaUpload.getVerbose()) {
+          setVerboseData(response, uploadResult);
         }
 
-        Pointer("/data/status").Set(response, 0);
-        Pointer("/data/statusStr").Set(response, "ok");
+        setResponseStatus(response, error);
+        return response;
       }
 
-      // set raw fields, if verbose mode is active
-      if (comReadTrConf.getVerbose()) {
+
+      std::map<uint16_t, bool>::const_iterator iter = uploadResult.getResultsMap().find(firstAddr);
+      if (iter != uploadResult.getResultsMap().end()) {
+        Pointer("/data/rsp/writeSuccess").Set(response, iter->second);
+
+        // set raw fields, if verbose mode is active
+        if (comOtaUpload.getVerbose()) {
+          setVerboseData(response, uploadResult);
+        }
+
+        // write was successfull
+        if (iter->second) {
+          UploadError noError(UploadError::Type::NoError);
+          setResponseStatus(response, noError);
+        }
+        else {
+          std::map<uint16_t, UploadError>::const_iterator errorIter = uploadResult.getErrorsMap().find(firstAddr);
+          if (errorIter != uploadResult.getErrorsMap().end()) {
+            setResponseStatus(response, errorIter->second);
+          }
+          else {
+            // shouldn't reach this branch - would be probably an internal bug
+            TRC_WARNING("Service internal error - no error info");
+            Pointer("/data/status").Set(response, SERVICE_ERROR_INTERNAL);
+            Pointer("/data/statusStr").Set(response, "Service internal error - no error info");
+          }
+        }
+
+        return response;
+      }
+
+      // shouldn't reach this branch - would be probably an internal bug
+      TRC_WARNING("Service internal error - no nodes in the result");
+      
+      // to fullfill requirements of json response schema 
+      Pointer("/data/rsp/writeSuccess").Set(response, false);
+
+      if (comOtaUpload.getVerbose()) {
         setVerboseData(response, uploadResult);
       }
 
+      Pointer("/data/status").Set(response, SERVICE_ERROR_INTERNAL);
+      Pointer("/data/statusStr").Set(response, "Service internal error - no nodes in the result");
+      
       return response;
     }
     
@@ -1612,22 +1762,13 @@ namespace iqrf {
       return repeat;
     }
 
-    std::list<uint8_t> parseAndCheckDeviceAddr(const std::vector<int>& deviceAddrs) {
-      if (deviceAddrs.empty()) {
-        THROW_EXC(std::logic_error, "No device address.");
+    uint16_t parseAndCheckDeviceAddr(const int& deviceAddr) {
+      if ((deviceAddr < 0) || (deviceAddr > 0xEF)) {
+        THROW_EXC(
+          std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", deviceAddr)
+        );
       }
-
-      std::list<uint8_t> checkedAddrsList;
-
-      for (int devAddr : deviceAddrs) {
-        if ((devAddr < 0) || (devAddr > 0xEF)) {
-          THROW_EXC(
-            std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", devAddr)
-          );
-        }
-        checkedAddrsList.push_back(devAddr);
-      }
-      return checkedAddrsList;
+      return deviceAddr;
     }
 
     std::string checkFileName(const std::string& fileName) {
@@ -1689,7 +1830,7 @@ namespace iqrf {
       }
 
       // service input parameters
-      std::list<uint8_t> deviceAddrs;
+      uint16_t deviceAddr;
       std::string fileName;
       uint16_t startMemAddr;
       LoadingAction loadingAction;
@@ -1701,7 +1842,7 @@ namespace iqrf {
         if (!comOtaUpload.isSetDeviceAddr()) {
           THROW_EXC(std::logic_error, "deviceAddr not set");
         }
-        deviceAddrs = parseAndCheckDeviceAddr(comOtaUpload.getDeviceAddr());
+        deviceAddr = parseAndCheckDeviceAddr(comOtaUpload.getDeviceAddr());
 
         if (!comOtaUpload.isSetFileName()) {
           THROW_EXC(std::logic_error, "fileName not set");
@@ -1731,6 +1872,12 @@ namespace iqrf {
       
       // construct full file name
       std::string fullFileName = getFullFileName(m_uploadPath, fileName);
+
+      // just for temporary reasons
+      std::list<uint16_t> deviceAddrs =
+      {
+        deviceAddr
+      };
 
       // call service with checked params
       UploadResult uploadResult = upload(deviceAddrs, fullFileName, startMemAddr, loadingAction);
