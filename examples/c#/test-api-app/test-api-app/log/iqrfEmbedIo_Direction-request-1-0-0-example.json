@@ -1,0 +1,19 @@
+{
+  "mType": "iqrfEmbedIo_Direction",
+  "data": {
+    "msgId": "testEmbedIo",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "ports": [
+          {
+            "port": 0,
+            "mask": 4,
+            "value": 0
+          }
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

@@ -50,28 +50,9 @@
                             "properties": {
                                 "ports": {
                                     "type": "array",
-                                    "description": "Array of ports.",
+                                    "description": "Ports values.",
                                     "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "port": {
-                                                "type": "integer",
-                                                "description": " Specifies port to setup a direction."
-                                            },
-                                            "mask": {
-                                                "type": "integer",
-                                                "description": "Masks pins of the port."
-                                            },
-                                            "value": {
-                                                "type": "integer",
-                                                "description": "Actual direction."
-                                            }
-                                        },
-                                        "required": [
-                                            "port",
-                                            "mask",
-                                            "value"
-                                        ]
+                                        "type": "integer"
                                     }
                                 }
                             }
@@ -85,8 +66,7 @@
                         "nAdr",
                         "hwpId",
                         "rCode",
-                        "dpaVal",
-                        "ports"
+                        "dpaVal"
                     ]
                 },
                 "raw": {

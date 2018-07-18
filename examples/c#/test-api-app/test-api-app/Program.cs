@@ -157,6 +157,13 @@
   using iqrfEmbedUart_ClearWriteRead_Request;
   using iqrfEmbedUart_ClearWriteRead_Response;
 
+  using iqrfEmbedIo_Direction_Request;
+  using iqrfEmbedIo_Direction_Response;
+  using iqrfEmbedIo_Set_Request;
+  using iqrfEmbedIo_Set_Response;
+  using iqrfEmbedIo_Get_Request;
+  using iqrfEmbedIo_Get_Response;
+
   using iqrfSensor_Enumerate_Request;
   using iqrfSensor_Enumerate_Response;
   using iqrfSensor_ReadSensorsWithTypes_Request;
@@ -909,6 +916,37 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /* IO */
+
+        /*
+        IqrfEmbedIo_Direction_Request request = new IqrfEmbedIo_Direction_Request();
+        request.Data.MsgId = "testEmbedIo";
+        request.Data.Req.NAdr = 1;
+        iqrfEmbedIo_Direction_Request.Anonymous port = new iqrfEmbedIo_Direction_Request.Anonymous();
+        port.Port = 0x00;  // trisa
+        port.Mask = 0x04;  // pin.2
+        port.Value = 0x00; // output
+        request.Data.Req.Param.Ports = new System.Collections.ObjectModel.ObservableCollection<iqrfEmbedIo_Direction_Request.Anonymous> { port };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedIo_Set_Request request = new IqrfEmbedIo_Set_Request();
+        request.Data.MsgId = "testEmbedIo";
+        request.Data.Req.NAdr = 1;
+        iqrfEmbedIo_Set_Request.Anonymous port = new iqrfEmbedIo_Set_Request.Anonymous();
+        port.Port = 0x00;  // porta
+        port.Mask = 0x04;  // pin.2
+        port.Value = 0x04; // log.1
+        request.Data.Req.Param.Ports = new System.Collections.ObjectModel.ObservableCollection<iqrfEmbedIo_Set_Request.Anonymous> { port };
+        request.Data.ReturnVerbose = true;
+        */
+
+        IqrfEmbedIo_Get_Request request = new IqrfEmbedIo_Get_Request();
+        request.Data.MsgId = "testEmbedIo";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+
         /* SENSOR */
 
         /*
@@ -1007,6 +1045,7 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /*
         IqrfLight_DecrementPower_Request request = new IqrfLight_DecrementPower_Request();
         request.Data.MsgId = "testEmbedLight";
         request.Data.Req.NAdr = 4;
@@ -1018,6 +1057,7 @@
 
         request.Data.Req.Param.Lights = new System.Collections.ObjectModel.ObservableCollection<iqrfLight_DecrementPower_Request.Anonymous> { light };
         request.Data.ReturnVerbose = true;
+        */
 
         /* IQMESH */
 
@@ -1202,6 +1242,9 @@
 
         /* IO */
 
+        //IqrfEmbedIo_Direction_Response response = IqrfEmbedIo_Direction_Response.FromJson(responseStr[0]);
+        //IqrfEmbedIo_Set_Response response = IqrfEmbedIo_Set_Response.FromJson(responseStr[0]);
+        IqrfEmbedIo_Get_Response response = IqrfEmbedIo_Get_Response.FromJson(responseStr[0]);
 
         /* SENSOR */
 
@@ -1222,7 +1265,7 @@
         //IqrfLight_Enumerate_Response response = IqrfLight_Enumerate_Response.FromJson(responseStr[0]);
         //IqrfLight_SetPower_Response response = IqrfLight_SetPower_Response.FromJson(responseStr[0]);
         //IqrfLight_IncrementPower_Response response = IqrfLight_IncrementPower_Response.FromJson(responseStr[0]);
-        IqrfLight_DecrementPower_Response response = IqrfLight_DecrementPower_Response.FromJson(responseStr[0]);
+        //IqrfLight_DecrementPower_Response response = IqrfLight_DecrementPower_Response.FromJson(responseStr[0]);
 
         /* IQMESH */
 

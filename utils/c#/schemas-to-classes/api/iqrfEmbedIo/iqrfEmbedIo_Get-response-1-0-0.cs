@@ -172,9 +172,9 @@ namespace iqrfEmbedIo_Get_Response
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Result 
     {
-        /// <summary>Array of ports.</summary>
+        /// <summary>Ports values.</summary>
         [Newtonsoft.Json.JsonProperty("ports", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<Anonymous> Ports { get; set; }
+        public System.Collections.ObjectModel.ObservableCollection<int> Ports { get; set; }
     
         public string ToJson() 
         {
@@ -184,33 +184,6 @@ namespace iqrfEmbedIo_Get_Response
         public static Result FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<Result>(data);
-        }
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Anonymous 
-    {
-        /// <summary> Specifies port to setup a direction.</summary>
-        [Newtonsoft.Json.JsonProperty("port", Required = Newtonsoft.Json.Required.Always)]
-        public int Port { get; set; }
-    
-        /// <summary>Masks pins of the port.</summary>
-        [Newtonsoft.Json.JsonProperty("mask", Required = Newtonsoft.Json.Required.Always)]
-        public int Mask { get; set; }
-    
-        /// <summary>Actual direction.</summary>
-        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Always)]
-        public int Value { get; set; }
-    
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-        
-        public static Anonymous FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Anonymous>(data);
         }
     
     }

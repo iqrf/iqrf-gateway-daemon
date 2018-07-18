@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedIo_Direction",
+    "data": {
+        "msgId": "testEmbedIo",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 67,
+            "result": {}
+        },
+        "raw": {
+            "request": "01.00.09.00.ff.ff.00.04.00",
+            "requestTs": "2018-07-18T21:33:31.541873",
+            "confirmation": "01.00.09.00.ff.ff.ff.39.01.04.01",
+            "confirmationTs": "2018-07-18T21:33:31.572249",
+            "response": "01.00.09.80.02.00.00.43",
+            "responseTs": "2018-07-18T21:33:31.705112"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
