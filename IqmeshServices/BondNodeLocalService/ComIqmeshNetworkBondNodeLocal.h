@@ -30,6 +30,15 @@ namespace iqrf {
     {
       return m_deviceAddr;
     }
+    
+    bool isSetBondingMask() const {
+      return m_isSetBondingMask;
+    }
+
+    const int getBondingMask() const
+    {
+      return m_bondingMask;
+    }
 
 
   protected:
@@ -40,9 +49,11 @@ namespace iqrf {
 
   private:
     bool m_isSetDeviceAddr = false;
+    bool m_isSetBondingMask = false;
 
     int m_repeat = 1;
     int m_deviceAddr;
+    int m_bondingMask = 0x00;
 
 
     void parseRepeat(rapidjson::Document& doc) {
@@ -56,6 +67,11 @@ namespace iqrf {
         m_deviceAddr = repeatJsonVal->GetInt();
       }
       m_isSetDeviceAddr = true;
+
+      if ( rapidjson::Value* repeatJsonVal = rapidjson::Pointer( "/data/req/bondingMask" ).Get( doc ) ) {
+        m_bondingMask = repeatJsonVal->GetInt();
+      }
+      m_isSetBondingMask = true;
     }
 
     // parses document into data fields
