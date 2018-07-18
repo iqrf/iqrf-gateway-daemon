@@ -277,10 +277,19 @@ namespace iqrf {
           }
         }
         else {
-          Document rDataError;
-          rDataError.SetString("no response", rDataError.GetAllocator());
-          com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
-          com->createResponse(allResponseDoc, *res);
+          if (res->getErrorCode() != 0) {
+            Document rDataError;
+            rDataError.SetString("rcode error", rDataError.GetAllocator());
+            com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
+            com->createResponse(allResponseDoc, *res);
+          }
+          else {
+            //no response but not considered as an error
+            Document rspObj;
+            Pointer("/response").Set(rspObj, "unrequired");
+            com->setPayload("/data/rsp/result", std::move(rspObj), false);
+            com->createResponse(allResponseDoc, *res);
+          }
         }
       }
       TRC_DEBUG("response object: " << std::endl << JsonToStr(&allResponseDoc));
