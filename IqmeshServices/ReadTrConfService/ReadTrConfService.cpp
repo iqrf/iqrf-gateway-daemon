@@ -46,7 +46,10 @@ namespace {
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
 
-  static const int SERVICE_ERROR_READ_HWP = SERVICE_ERROR + 1;
+  static const int SERVICE_ERROR_NOERROR = 0;
+  
+  static const int SERVICE_ERROR_INTERNAL = SERVICE_ERROR + 1;
+  static const int SERVICE_ERROR_READ_HWP = SERVICE_ERROR + 2;
 };
 
 
@@ -89,7 +92,7 @@ namespace iqrf {
   class ReadTrConfigResult {
   private:
     ReadTrConfigError m_error;
-    uint8_t m_deviceAddr;
+    std::list<uint16_t> m_deviceAddrs;
     TPerOSReadCfg_Response m_hwpConfig;
 
     // transaction results
@@ -102,12 +105,12 @@ namespace iqrf {
       m_error = error;
     }
 
-    uint8_t getDeviceAddr() {
-      return m_deviceAddr;
+    std::list<uint16_t> getDeviceAddrs() {
+      return m_deviceAddrs;
     }
 
-    void setDeviceAddr(uint8_t deviceAddr) {
-      m_deviceAddr = deviceAddr;
+    void setDeviceAddrs(const std::list<uint16_t>& deviceAddrs) {
+      m_deviceAddrs = deviceAddrs;
     }
 
     TPerOSReadCfg_Response getHwpConfig() const {
@@ -174,9 +177,12 @@ namespace iqrf {
 
   private:
     
-    void _readTrConfig(
+    
+
+    // reads configuration of one node
+    void _readTrConfigOneNode(
       ReadTrConfigResult& readTrConfigResult,
-      const uint8_t deviceAddr
+      const uint16_t deviceAddr
     ) 
     {
       TRC_FUNCTION_ENTER("");
@@ -265,20 +271,41 @@ namespace iqrf {
       } 
     }
 
+    // reads configuration from specified target nodes
+    void _readTrConfigNodes(
+      ReadTrConfigResult& readTrConfigResult,
+      const std::list<uint16_t>& targetNodes
+    ) 
+    {
+      // currently not implemented - return INTERNAL ERROR in the response
+      THROW_EXC(std::logic_error, "Reading not implemented for multiple nodes.");
+    }
 
-    ReadTrConfigResult readTrConfig(const std::list<uint8_t>& deviceAddrs)
+    void _readTrConfig(
+      ReadTrConfigResult& readTrConfigResult,
+      const std::list<uint16_t>& targetNodes
+    ) 
+    {
+      if (targetNodes.size() == 1) {
+        _readTrConfigOneNode(readTrConfigResult, targetNodes.front());
+      }
+      else {
+        _readTrConfigNodes(readTrConfigResult, targetNodes);
+      }
+    }
+
+    ReadTrConfigResult readTrConfig(const std::list<uint16_t>& deviceAddrs)
     {
       TRC_FUNCTION_ENTER("");
 
       // result
       ReadTrConfigResult readTrConfigResult;
       
-      // read HWP configuration
-      // for present time - get only the 1. address
-      uint8_t firstAddress = deviceAddrs.front();
-      readTrConfigResult.setDeviceAddr(firstAddress);
+      // set adresses of target nodes
+      readTrConfigResult.setDeviceAddrs(deviceAddrs);
 
-      _readTrConfig(readTrConfigResult, firstAddress);
+      // read HWP configuration
+      _readTrConfig(readTrConfigResult, deviceAddrs);
 
       TRC_FUNCTION_LEAVE("");
       return readTrConfigResult;
@@ -380,6 +407,30 @@ namespace iqrf {
       Pointer("/data/raw").Set(response, rawArray);
     }
 
+    // sets status inside specified response accoding to specified error
+    void setResponseStatus(Document& response, const ReadTrConfigError& error)
+    {
+      switch (error.getType()) {
+        case ReadTrConfigError::Type::NoError:
+          Pointer("/data/status").Set(response, SERVICE_ERROR_NOERROR);
+          break;
+        case ReadTrConfigError::Type::ReadHwp:
+          Pointer("/data/status").Set(response, SERVICE_ERROR_READ_HWP);
+          break;
+        default:
+          // some other unsupported error
+          Pointer("/data/status").Set(response, SERVICE_ERROR);
+          break;
+      }
+
+      if (error.getType() == ReadTrConfigError::Type::NoError) {
+        Pointer("/data/statusStr").Set(response, "ok");
+      }
+      else {
+        Pointer("/data/statusStr").Set(response, error.getMessage());
+      }
+    }
+
     // creates response on the basis of read TR config result
     Document createResponse(
       const std::string& msgId,
@@ -394,33 +445,22 @@ namespace iqrf {
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, msgId);
 
+      // only one node - for the present time
+      uint16_t firstAddr = readTrConfigResult.getDeviceAddrs().front();
+      Pointer("/data/rsp/deviceAddr").Set(response, firstAddr);
+
       // checking of error
       ReadTrConfigError error = readTrConfigResult.getError();
+
       if (error.getType() != ReadTrConfigError::Type::NoError) {
-        Pointer("/data/statusStr").Set(response, error.getMessage());
-
-        switch (error.getType()) {
-          case ReadTrConfigError::Type::ReadHwp:
-            Pointer("/data/status").Set(response, SERVICE_ERROR_READ_HWP);
-            break;
-          default:
-            // some other unsupported error
-            Pointer("/data/status").Set(response, SERVICE_ERROR);
-            break;
-        }
-
         // set raw fields, if verbose mode is active
         if (comReadTrConf.getVerbose()) {
           setVerboseData(response, readTrConfigResult);
         }
 
+        setResponseStatus(response, error);
         return response;
       }
-
-      // all is ok
-
-      // data/rsp
-      Pointer("/data/rsp/deviceAddr").Set(response, readTrConfigResult.getDeviceAddr());
 
       // osRead object
       TPerOSReadCfg_Response hwpConfig = readTrConfigResult.getHwpConfig();
@@ -478,7 +518,7 @@ namespace iqrf {
         Pointer("/data/rsp/uartBaudrate").Set(response, baudRate);
       }
       catch (std::exception& ex) {
-        TRC_ERROR("Unknown baud rate constant: " << PAR(configuration[0x0A]));
+        TRC_WARNING("Unknown baud rate constant: " << PAR(configuration[0x0A]));
         Pointer("/data/rsp/uartBaudrate").Set(response, 0);
       }
 
@@ -515,14 +555,14 @@ namespace iqrf {
       Pointer("/data/rsp/rfBand").Set(response, rfBand);
 
 
-      // status - ok
-      Pointer("/data/status").Set(response, 0);
-      Pointer("/data/statusStr").Set(response, "ok");
-
       // set raw fields, if verbose mode is active
       if (comReadTrConf.getVerbose()) {
         setVerboseData(response, readTrConfigResult);
       }
+
+      // status - ok
+      ReadTrConfigError noError(ReadTrConfigError::Type::NoError);
+      setResponseStatus(response, noError);
 
       return response;
     }
@@ -541,22 +581,13 @@ namespace iqrf {
       return repeat;
     }
 
-    std::list<uint8_t> parseAndCheckDeviceAddr(const std::vector<int>& deviceAddrs) {
-      if (deviceAddrs.empty()) {
-        THROW_EXC(std::logic_error, "No device address.");
+    uint16_t parseAndCheckDeviceAddr(const int deviceAddr) {
+      if ((deviceAddr < 0) || (deviceAddr > 0xEF)) {
+        THROW_EXC(
+          std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", deviceAddr)
+        );
       }
-
-      std::list<uint8_t> checkedAddrsList;
-
-      for (int devAddr : deviceAddrs) {
-        if ((devAddr < 0) || (devAddr > 0xEF)) {
-          THROW_EXC(
-            std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", devAddr)
-          );
-        }
-        checkedAddrsList.push_back(devAddr);
-      }
-      return checkedAddrsList;
+      return deviceAddr;
     }
 
 
@@ -583,7 +614,7 @@ namespace iqrf {
       ComIqmeshNetworkReadTrConf comReadTrConf(doc);
 
       // service input parameters
-      std::list<uint8_t> deviceAddrs;
+      uint16_t deviceAddr;
 
       // parsing and checking service parameters
       try {
@@ -592,7 +623,7 @@ namespace iqrf {
         if (!comReadTrConf.isSetDeviceAddr()) {
           THROW_EXC(std::logic_error, "deviceAddr not set");
         }
-        deviceAddrs = parseAndCheckDeviceAddr(comReadTrConf.getDeviceAddr());
+        deviceAddr = parseAndCheckDeviceAddr(comReadTrConf.getDeviceAddr());
 
         m_returnVerbose = comReadTrConf.getVerbose();
       }
@@ -605,6 +636,11 @@ namespace iqrf {
         return;
       }
       
+      std::list<uint16_t> deviceAddrs =
+      {
+        deviceAddr
+      };
+
       // call service with checked params
       ReadTrConfigResult readTrConfigResult = readTrConfig(deviceAddrs);
 
