@@ -1,5 +1,6 @@
 #define IMessagingSplitterService_EXPORTS
 
+#include "TaskQueue.h"
 #include "ApiMsg.h"
 #include "JsonSplitter.h"
 #include "rapidjson/rapidjson.h"
@@ -77,6 +78,10 @@ namespace iqrf {
     std::map<std::string, rapidjson::SchemaDocument> m_validatorMapRequest;
     std::map<std::string, rapidjson::SchemaDocument> m_validatorMapResponse;
     std::map<std::string, MsgType> m_msgTypeToHandle; //TODO temporary
+
+    typedef std::pair<std::string, std::vector<uint8_t>> MsgIdMsg; //pairing messagingId with msg 
+
+    TaskQueue<MsgIdMsg>* m_splitterMessageQueue = nullptr;
 
     std::string getKey(const MsgType& msgType) const
     {
@@ -202,6 +207,13 @@ namespace iqrf {
     }
 
     void handleMessageFromMessaging(const std::string& messagingId, const std::vector<uint8_t>& message) const
+    {
+      TRC_FUNCTION_ENTER(PAR(messagingId));
+      int queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messagingId, message));
+      TRC_FUNCTION_LEAVE(PAR(queueLen))
+    }
+
+    void handleMessageFromSplitterQueue(const std::string& messagingId, const std::vector<uint8_t>& message) const
     {
       using namespace rapidjson;
 
@@ -452,6 +464,10 @@ namespace iqrf {
       TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
       loadJsonSchemesRequest(m_schemesDir);
 
+      m_splitterMessageQueue = shape_new TaskQueue<MsgIdMsg>([&](const MsgIdMsg& msgIdMsg) {
+        handleMessageFromSplitterQueue(msgIdMsg.first, msgIdMsg.second);
+      });
+
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -463,6 +479,9 @@ namespace iqrf {
         "JsonSplitter instance deactivate" << std::endl <<
         "******************************"
       );
+
+      delete m_splitterMessageQueue;
+
       TRC_FUNCTION_LEAVE("")
     }
 
