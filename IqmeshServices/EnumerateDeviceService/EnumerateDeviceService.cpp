@@ -46,8 +46,11 @@ namespace {
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
 
-  static const int SERVICE_ERROR_NODE_NOT_BONDED = SERVICE_ERROR + 1;
-  static const int SERVICE_ERROR_INFO_MISSING = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_NOERROR = 0;
+
+  static const int SERVICE_ERROR_INTERNAL = SERVICE_ERROR + 1;
+  static const int SERVICE_ERROR_NODE_NOT_BONDED = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_INFO_MISSING = SERVICE_ERROR + 3;
 };
 
 
@@ -299,7 +302,7 @@ namespace iqrf {
   private:
     
     // returns discovery data read from the coordinator private external EEPROM storage
-    std::basic_string<uint8_t> discoveryData(
+    std::basic_string<uint8_t> _discoveryData(
       DeviceEnumerateResult& deviceEnumerateResult, 
       uint16_t address
     ) {
@@ -393,7 +396,7 @@ namespace iqrf {
     void discoveryData(DeviceEnumerateResult& deviceEnumerateResult) {
       // get discovered indicator
       try {
-        std::basic_string<uint8_t> discoveredDevicesBitmap = discoveryData(deviceEnumerateResult, 0x20);
+        std::basic_string<uint8_t> discoveredDevicesBitmap = _discoveryData(deviceEnumerateResult, 0x20);
         
         uint8_t byteIndex = deviceEnumerateResult.getDeviceAddr() / 8;
         uint8_t bitIndex = deviceEnumerateResult.getDeviceAddr() % 8;
@@ -412,7 +415,7 @@ namespace iqrf {
       try {
         uint16_t address = 0x5000 + deviceEnumerateResult.getDeviceAddr();
 
-        std::basic_string<uint8_t> vrnArray = discoveryData(deviceEnumerateResult, address);
+        std::basic_string<uint8_t> vrnArray = _discoveryData(deviceEnumerateResult, address);
         deviceEnumerateResult.setVrn(vrnArray[0]);
       }
       catch (std::exception& ex) {
@@ -424,7 +427,7 @@ namespace iqrf {
       try {
         uint16_t address = 0x5200 + deviceEnumerateResult.getDeviceAddr();
 
-        std::basic_string<uint8_t> zoneArray = discoveryData(deviceEnumerateResult, address);
+        std::basic_string<uint8_t> zoneArray = _discoveryData(deviceEnumerateResult, address);
         deviceEnumerateResult.setZone(zoneArray[0]);
       }
       catch (std::exception& ex) {
@@ -436,7 +439,7 @@ namespace iqrf {
       try {
         uint16_t address = 0x5300 + deviceEnumerateResult.getDeviceAddr();
 
-        std::basic_string<uint8_t> parentArray = discoveryData(deviceEnumerateResult, address);
+        std::basic_string<uint8_t> parentArray = _discoveryData(deviceEnumerateResult, address);
         deviceEnumerateResult.setParent(parentArray[0]);
       }
       catch (std::exception& ex) {
@@ -917,6 +920,27 @@ namespace iqrf {
       return response;
     }
 
+    // creates response for the situation, when target node is not bonded
+    rapidjson::Document getNodeNotBondedResponse(
+      const std::string& msgId,
+      const IMessagingSplitterService::MsgType& msgType,
+      const uint16_t deviceAddr,
+      const std::string& errorMsg
+    )
+    {
+      rapidjson::Document response;
+
+      Pointer("/mType").Set(response, msgType.m_type);
+      Pointer("/data/msgId").Set(response, msgId);
+
+      Pointer("/data/rsp/deviceAddr").Set(response, deviceAddr);
+
+      Pointer("/data/status").Set(response, SERVICE_ERROR_NODE_NOT_BONDED);
+      Pointer("/data/statusStr").Set(response, errorMsg);
+
+      return response;
+    }
+
     // sets response VERBOSE data
     void setVerboseData(rapidjson::Document& response, DeviceEnumerateResult& deviceEnumerateResult)
     {
@@ -993,33 +1017,43 @@ namespace iqrf {
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, comDeviceEnumerate.getMsgId());
 
+      Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
+
       // if no data was successfully read, return empty message
       if (
         deviceEnumerateResult.getDiscoveredError().getType() != DeviceEnumerateError::Type::NoError
         && deviceEnumerateResult.getVrnError().getType() != DeviceEnumerateError::Type::NoError
         && deviceEnumerateResult.getZoneError().getType() != DeviceEnumerateError::Type::NoError
         && deviceEnumerateResult.getParentError().getType() != DeviceEnumerateError::Type::NoError
-      ) {
+      ) 
+      {
+        // set raw fields, if verbose mode is active
+        if (comDeviceEnumerate.getVerbose()) {
+          setVerboseData(response, deviceEnumerateResult);
+        }
+        
         // status - ERROR_INFO_MISSING
         setResponseStatus(response, SERVICE_ERROR_INFO_MISSING, "info missing");
-      }
-      else {
-        Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
 
-        Pointer("/data/rsp/result/discovered").Set(response, deviceEnumerateResult.isDiscovered());
-        Pointer("/data/rsp/result/vrn").Set(response, deviceEnumerateResult.getVrn());
-        Pointer("/data/rsp/result/zone").Set(response, deviceEnumerateResult.getZone());
-        Pointer("/data/rsp/result/parent").Set(response, deviceEnumerateResult.getParent());
-
-        // status - ok
-        setResponseStatus(response, 0, "ok");
+        // send response
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        return;
       }
+      
+
+      Pointer("/data/rsp/result/discovered").Set(response, deviceEnumerateResult.isDiscovered());
+      Pointer("/data/rsp/result/vrn").Set(response, deviceEnumerateResult.getVrn());
+      Pointer("/data/rsp/result/zone").Set(response, deviceEnumerateResult.getZone());
+      Pointer("/data/rsp/result/parent").Set(response, deviceEnumerateResult.getParent());
 
       // set raw fields, if verbose mode is active
       if (comDeviceEnumerate.getVerbose()) {
         setVerboseData(response, deviceEnumerateResult);
       }
-
+      
+      // status - ok
+      setResponseStatus(response, SERVICE_ERROR_NOERROR, "ok");
+     
       // send response
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
     }
@@ -1036,47 +1070,56 @@ namespace iqrf {
 
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, comDeviceEnumerate.getMsgId());
- 
+  
+      Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
+
       // if data was not successfully read, send empty message
       if (
         deviceEnumerateResult.getOsReadError().getType() != DeviceEnumerateError::Type::NoError
-        ) {
+        ) 
+      {
+        // set raw fields, if verbose mode is active
+        if (comDeviceEnumerate.getVerbose()) {
+          setVerboseData(response, deviceEnumerateResult);
+        }
+
         // status - ERROR_INFO_MISSING
         setResponseStatus(response, SERVICE_ERROR_INFO_MISSING, "info missing");
+
+        // send response
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        return;
       }
-      else {
-        Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
+      
+      // osRead object
+      TPerOSRead_Response osInfo = deviceEnumerateResult.getOsRead();
 
-        // osRead object
-        TPerOSRead_Response osInfo = deviceEnumerateResult.getOsRead();
+      rapidjson::Pointer("/data/rsp/result/mid").Set(response, encodeBinary(osInfo.ModuleId, 4));
 
-        rapidjson::Pointer("/data/rsp/result/mid").Set(response, encodeBinary(osInfo.ModuleId, 4));
+      // OS version - string
+      std::string osVerStr = std::to_string((osInfo.OsVersion >> 4) & 0xFF)
+        + "." + std::to_string(osInfo.OsVersion & 0xF);
+      rapidjson::Pointer("/data/rsp/result/osVersion").Set(response, osVerStr);
 
-        // OS version - string
-        std::string osVerStr = std::to_string((osInfo.OsVersion >> 4) & 0xFF)
-          + "." + std::to_string(osInfo.OsVersion & 0xF);
-        rapidjson::Pointer("/data/rsp/result/osVersion").Set(response, osVerStr);
-
-        rapidjson::Pointer("/data/rsp/result/trMcuType").Set(response, encodeHexaNum(osInfo.McuType));
+      rapidjson::Pointer("/data/rsp/result/trMcuType").Set(response, encodeHexaNum(osInfo.McuType));
         
-        // OS version - string
-        std::string osBuildStr = std::to_string((osInfo.OsBuild >> 8) & 0xFF)
-          + "." + std::to_string(osInfo.OsBuild & 0xFF);
-        rapidjson::Pointer("/data/rsp/result/osBuild").Set(response, osBuildStr);
+      // OS version - string
+      std::string osBuildStr = std::to_string((osInfo.OsBuild >> 8) & 0xFF)
+        + "." + std::to_string(osInfo.OsBuild & 0xFF);
+      rapidjson::Pointer("/data/rsp/result/osBuild").Set(response, osBuildStr);
 
-        rapidjson::Pointer("/data/rsp/result/rssi").Set(response, osInfo.Rssi);
-        rapidjson::Pointer("/data/rsp/result/supplyVoltage").Set(response, encodeHexaNum(osInfo.SupplyVoltage));
-        rapidjson::Pointer("/data/rsp/result/flags").Set(response, osInfo.Flags);
-        rapidjson::Pointer("/data/rsp/result/slotLimits").Set(response, osInfo.SlotLimits);
-        
-        // status - ok
-        setResponseStatus(response, 0, "ok");
-      }
+      rapidjson::Pointer("/data/rsp/result/rssi").Set(response, osInfo.Rssi);
+      rapidjson::Pointer("/data/rsp/result/supplyVoltage").Set(response, encodeHexaNum(osInfo.SupplyVoltage));
+      rapidjson::Pointer("/data/rsp/result/flags").Set(response, osInfo.Flags);
+      rapidjson::Pointer("/data/rsp/result/slotLimits").Set(response, osInfo.SlotLimits);
       
       // set raw fields, if verbose mode is active
       if (comDeviceEnumerate.getVerbose()) {
         setVerboseData(response, deviceEnumerateResult);
       }
+
+      // status - ok
+      setResponseStatus(response, SERVICE_ERROR_NOERROR, "ok");
 
       // send response
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
@@ -1094,61 +1137,71 @@ namespace iqrf {
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, comDeviceEnumerate.getMsgId());
 
+      Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
+
       // if data was not successfully read, send empty message
       if (
         deviceEnumerateResult.getPerEnumError().getType() != DeviceEnumerateError::Type::NoError
-        ) {
+        ) 
+      {
+        // set raw fields, if verbose mode is active
+        if (comDeviceEnumerate.getVerbose()) {
+          setVerboseData(response, deviceEnumerateResult);
+        }
+        
         // status - ERROR_INFO_MISSING
         setResponseStatus(response, SERVICE_ERROR_INFO_MISSING, "info missing");
+
+        // send response
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        return;
       }
-      else {
-        Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
+     
+      // per enum object
+      TEnumPeripheralsAnswer perEnum = deviceEnumerateResult.getPerEnum();
 
-        // per enum object
-        TEnumPeripheralsAnswer perEnum = deviceEnumerateResult.getPerEnum();
+      // dpa version - string
+      std::string dpaVer = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
+        + "." + std::to_string(perEnum.DpaVersion & 0xFF);
+      Pointer("/data/rsp/result/dpaVer").Set(response, dpaVer);
 
-        // dpa version - string
-        std::string dpaVer = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
-          + "." + std::to_string(perEnum.DpaVersion & 0xFF);
-        Pointer("/data/rsp/result/dpaVer").Set(response, dpaVer);
+      // perNr
+      Pointer("/data/rsp/result/perNr").Set(response, perEnum.UserPerNr);
 
-        // perNr
-        Pointer("/data/rsp/result/perNr").Set(response, perEnum.UserPerNr);
+      Document::AllocatorType& allocator = response.GetAllocator();
 
-        Document::AllocatorType& allocator = response.GetAllocator();
-
-        // embPers
-        rapidjson::Value embPersJsonArray(kArrayType);
-        for (int i = 0; i < EMBEDDED_PERS_LEN; i++) {
-          embPersJsonArray.PushBack(perEnum.EmbeddedPers[i], allocator);
-        }
-        Pointer("/data/rsp/result/embPers").Set(response, embPersJsonArray);
-
-        // hwpId
-        Pointer("/data/rsp/result/hwpId").Set(response, encodeHexaNum(perEnum.HWPID));
-
-        // hwpIdVer
-        Pointer("/data/rsp/result/hwpIdVer").Set(response, perEnum.HWPIDver);
-
-        // flags
-        Pointer("/data/rsp/result/flags").Set(response, perEnum.Flags);
-
-        // userPers
-        rapidjson::Value userPerJsonArray(kArrayType);
-        for (int i = 0; i < USER_PER_LEN; i++) {
-          userPerJsonArray.PushBack(perEnum.UserPer[i], allocator);
-        }
-        Pointer("/data/rsp/result/userPers").Set(response, userPerJsonArray);
-
-        // status - ok
-        setResponseStatus(response, 0, "ok");
+      // embPers
+      rapidjson::Value embPersJsonArray(kArrayType);
+      for (int i = 0; i < EMBEDDED_PERS_LEN; i++) {
+        embPersJsonArray.PushBack(perEnum.EmbeddedPers[i], allocator);
       }
+      Pointer("/data/rsp/result/embPers").Set(response, embPersJsonArray);
+
+      // hwpId
+      Pointer("/data/rsp/result/hwpId").Set(response, encodeHexaNum(perEnum.HWPID));
+
+      // hwpIdVer
+      Pointer("/data/rsp/result/hwpIdVer").Set(response, perEnum.HWPIDver);
+
+      // flags
+      Pointer("/data/rsp/result/flags").Set(response, perEnum.Flags);
+
+      // userPers
+      rapidjson::Value userPerJsonArray(kArrayType);
+      for (int i = 0; i < USER_PER_LEN; i++) {
+        userPerJsonArray.PushBack(perEnum.UserPer[i], allocator);
+      }
+      Pointer("/data/rsp/result/userPers").Set(response, userPerJsonArray);
+
       
       // set raw fields, if verbose mode is active
       if (comDeviceEnumerate.getVerbose()) {
         setVerboseData(response, deviceEnumerateResult);
       }
-
+      
+      // status - ok
+      setResponseStatus(response, SERVICE_ERROR_NOERROR, "ok");
+      
       // send response
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
     }
@@ -1165,45 +1218,55 @@ namespace iqrf {
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, comDeviceEnumerate.getMsgId());
 
+      Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
+
       // if data was not successfully read, send empty message
       if (
         deviceEnumerateResult.getPerEnumError().getType() != DeviceEnumerateError::Type::NoError
-        ) {
+        ) 
+      {
+        // set raw fields, if verbose mode is active
+        if (comDeviceEnumerate.getVerbose()) {
+          setVerboseData(response, deviceEnumerateResult);
+        }
+        
         // status - ERROR_INFO_MISSING
         setResponseStatus(response, SERVICE_ERROR_INFO_MISSING, "info missing");
-      }
-      else {
-        Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
 
-        // per enum object
-        TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
+        // send response
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        return;
+      }
+      
+      // per enum object
+      TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
         
-        // checkSum
-        Pointer("/data/rsp/result/checkSum").Set(response, hwpConfig.Checksum);
+      // checkSum
+      Pointer("/data/rsp/result/checkSum").Set(response, hwpConfig.Checksum);
 
-        // cfgBytes
-        Document::AllocatorType& allocator = response.GetAllocator();
-        rapidjson::Value cfgBytesJsonArray(kArrayType);
-        for (int i = 0; i < CONFIGURATION_LEN; i++) {
-          cfgBytesJsonArray.PushBack(hwpConfig.Configuration[i], allocator);
-        }
-        Pointer("/data/rsp/result/cfgBytes").Set(response, cfgBytesJsonArray);
-
-        // rfPgm
-        Pointer("/data/rsp/result/rfPgm").Set(response, hwpConfig.RFPGM);
-
-        // undocumented
-        Pointer("/data/rsp/result/undocumented").Set(response, hwpConfig.Undocumented[1]);
-
-        // status - ok
-        setResponseStatus(response, 0, "ok");
+      // cfgBytes
+      Document::AllocatorType& allocator = response.GetAllocator();
+      rapidjson::Value cfgBytesJsonArray(kArrayType);
+      for (int i = 0; i < CONFIGURATION_LEN; i++) {
+        cfgBytesJsonArray.PushBack(hwpConfig.Configuration[i], allocator);
       }
+      Pointer("/data/rsp/result/cfgBytes").Set(response, cfgBytesJsonArray);
 
+      // rfPgm
+      Pointer("/data/rsp/result/rfPgm").Set(response, hwpConfig.RFPGM);
+
+      // undocumented
+      Pointer("/data/rsp/result/undocumented").Set(response, hwpConfig.Undocumented[1]);
+      
+      
       // set raw fields, if verbose mode is active
       if (comDeviceEnumerate.getVerbose()) {
         setVerboseData(response, deviceEnumerateResult);
       }
 
+      // status - ok
+      setResponseStatus(response, SERVICE_ERROR_NOERROR, "ok");
+      
       // send response
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
     }
@@ -1220,61 +1283,71 @@ namespace iqrf {
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, comDeviceEnumerate.getMsgId());
 
+      Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
+
       // if data was not successfully read, send empty message
       if (
         deviceEnumerateResult.getPerEnumError().getType() != DeviceEnumerateError::Type::NoError
-        ) {
+        ) 
+      {
+        // set raw fields, if verbose mode is active
+        if (comDeviceEnumerate.getVerbose()) {
+          setVerboseData(response, deviceEnumerateResult);
+        }
+        
         // status - ERROR_INFO_MISSING
         setResponseStatus(response, SERVICE_ERROR_INFO_MISSING, "Info missing");
+
+
+        // send response
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        return;
       }
-      else {
-        Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
+      
+      // per enum object
+      std::vector<TPeripheralInfoAnswer> moreInfoPers = deviceEnumerateResult.getMorePersInfo();
 
-        // per enum object
-        std::vector<TPeripheralInfoAnswer> moreInfoPers = deviceEnumerateResult.getMorePersInfo();
+      // array of objects
+      Document::AllocatorType& allocator = response.GetAllocator();
+      rapidjson::Value perInfoJsonArray(kArrayType);
 
-        // array of objects
-        Document::AllocatorType& allocator = response.GetAllocator();
-        rapidjson::Value perInfoJsonArray(kArrayType);
+      for (int i = 0; i < PERIPHERALS_NUM; i++) {
+        rapidjson::Value perInfoObj(kObjectType);
+        perInfoObj.AddMember(
+          "perTe",
+          moreInfoPers[i].PerTE,
+          allocator
+        );
 
-        for (int i = 0; i < PERIPHERALS_NUM; i++) {
-          rapidjson::Value perInfoObj(kObjectType);
-          perInfoObj.AddMember(
-            "perTe",
-            moreInfoPers[i].PerTE,
-            allocator
-          );
+        perInfoObj.AddMember(
+          "perT",
+          moreInfoPers[i].PerT,
+          allocator
+        );
 
-          perInfoObj.AddMember(
-            "perT",
-            moreInfoPers[i].PerT,
-            allocator
-          );
+        perInfoObj.AddMember(
+          "par1",
+          moreInfoPers[i].Par1,
+          allocator
+        );
 
-          perInfoObj.AddMember(
-            "par1",
-            moreInfoPers[i].Par1,
-            allocator
-          );
+        perInfoObj.AddMember(
+          "par2",
+          moreInfoPers[i].Par2,
+          allocator
+        );
 
-          perInfoObj.AddMember(
-            "par2",
-            moreInfoPers[i].Par2,
-            allocator
-          );
-
-          perInfoJsonArray.PushBack(perInfoObj, allocator);
-        }
-        Pointer("/data/rsp/result").Set(response, perInfoJsonArray);
-
-        // status - ok
-        setResponseStatus(response, 0, "ok");
+        perInfoJsonArray.PushBack(perInfoObj, allocator);
       }
-
+      Pointer("/data/rsp/result").Set(response, perInfoJsonArray);
+      
       // set raw fields, if verbose mode is active
       if (comDeviceEnumerate.getVerbose()) {
         setVerboseData(response, deviceEnumerateResult);
       }
+
+      // status - ok
+      setResponseStatus(response, SERVICE_ERROR_NOERROR, "ok");
 
       // send response
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
@@ -1298,7 +1371,7 @@ namespace iqrf {
 
       Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumerateResult.getDeviceAddr());
 
-      // valid for now always true
+      // valid - for now always true
       Pointer("/data/rsp/result/validation/valid").Set(response, true);
       
       // OS read
@@ -1342,14 +1415,14 @@ namespace iqrf {
         // rxFilter
         Pointer("/data/rsp/result/validation/rxFilter").Set(response, hwpConfig.Configuration[0x08] ^ 0x34);
       }
-
-      // status - ok
-      setResponseStatus(response, 0, "ok");
-
+      
       // set raw fields, if verbose mode is active
       if (comDeviceEnumerate.getVerbose()) {
         setVerboseData(response, deviceEnumerateResult);
       }
+
+      // status - ok
+      setResponseStatus(response, SERVICE_ERROR_NOERROR, "ok");
 
       // send response
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
@@ -1369,7 +1442,7 @@ namespace iqrf {
       return repeat;
     }
 
-    uint8_t parseAndCheckDeviceAddr(int nadr) {
+    uint16_t parseAndCheckDeviceAddr(int nadr) {
       if ((nadr < 0) || (nadr > 0xEF)) {
         THROW_EXC(
           std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX("Address", nadr)
@@ -1402,7 +1475,7 @@ namespace iqrf {
       ComIqmeshNetworkEnumerateDevice comEnumerateDevice(doc);
 
       // service input parameters
-      uint8_t deviceAddr;
+      uint16_t deviceAddr;
 
       // parsing and checking service parameters
       try {
@@ -1433,9 +1506,15 @@ namespace iqrf {
         checkBond(deviceEnumerateResult, deviceAddr);
       }
 
-      if (deviceEnumerateResult.getBondedError().getType() != DeviceEnumerateError::Type::NoError) {
-        Document failResponse = getCheckParamsFailedResponse(comEnumerateDevice.getMsgId(), msgType, deviceEnumerateResult.getBondedError().getMessage());
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+      if (deviceEnumerateResult.getBondedError().getType() != DeviceEnumerateError::Type::NoError) 
+      {
+        Document nodeNotBondedResponse = getNodeNotBondedResponse(
+          comEnumerateDevice.getMsgId(),
+          msgType, 
+          deviceAddr,
+          deviceEnumerateResult.getBondedError().getMessage()
+        );
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(nodeNotBondedResponse));
 
         TRC_FUNCTION_LEAVE("");
         return;
