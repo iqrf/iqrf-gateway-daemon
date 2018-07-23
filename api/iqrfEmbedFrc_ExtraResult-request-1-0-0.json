@@ -18,7 +18,7 @@
         "data": {
             "type": "object",
             "properties": {
-                "msgid": {
+                "msgId": {
                     "type": "string",
                     "description": "Message identification for binding request with response."
                 },
