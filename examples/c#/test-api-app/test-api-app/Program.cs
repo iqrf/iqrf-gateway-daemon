@@ -218,8 +218,6 @@
   using mngSched_AddTask_Request;
   using mngSched_AddTask_Response;
   using mngSched_SchedulerMessagingTask;
-  using mngSched_StartTask_Request;
-  using mngSched_StartTask_Response;
   #endregion
 
   class Program
