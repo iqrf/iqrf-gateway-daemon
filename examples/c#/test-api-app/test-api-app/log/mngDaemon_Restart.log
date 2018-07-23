@@ -1,0 +1,15 @@
+==================================
+Sending to WebSocket: 2018-07-23 23:30:40.136
+{
+  "mType": "mngDaemon_Restart",
+  "data": {
+    "msgId": "testMngRestart",
+    "req": {
+      "timeToRestart": 10.0
+    },
+    "returnVerbose": true
+  }
+}
+2018-07-23 23:31:00.308
+==================================
+

@@ -133,6 +133,14 @@
     <Compile Include="api\iqrfEmbedExplore\iqrfEmbedExplore_MorePeripheralsInformation-response-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedExplore\iqrfEmbedExplore_PeripheralInformation-request-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedExplore\iqrfEmbedExplore_PeripheralInformation-response-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedFrc\iqrfEmbedFrc_ExtraResult-request-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedFrc\iqrfEmbedFrc_ExtraResult-response-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedFrc\iqrfEmbedFrc_Send-request-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedFrc\iqrfEmbedFrc_Send-response-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedFrc\iqrfEmbedFrc_SendSelective-request-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedFrc\iqrfEmbedFrc_SendSelective-response-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedFrc\iqrfEmbedFrc_SetParams-request-1-0-0.cs" />
+    <Compile Include="api\iqrfEmbedFrc\iqrfEmbedFrc_SetParams-response-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedIo\iqrfEmbedIo_Direction-request-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedIo\iqrfEmbedIo_Direction-response-1-0-0.cs" />
     <Compile Include="api\iqrfEmbedIo\iqrfEmbedIo_Get-request-1-0-0.cs" />
@@ -226,6 +234,12 @@
     <Compile Include="api\iqrfSensor\iqrfSensor_ReadSensorsWithTypes-request-1-0-0.cs" />
     <Compile Include="api\iqrfSensor\iqrfSensor_ReadSensorsWithTypes-response-1-0-0.cs" />
     <Compile Include="api\messageError\messageError-response-1-0-0.cs" />
+    <Compile Include="api\mngDaemon\mngDaemon_Mode-request-1-0-0.cs" />
+    <Compile Include="api\mngDaemon\mngDaemon_Mode-response-1-0-0.cs" />
+    <Compile Include="api\mngDaemon\mngDaemon_Restart-request-1-0-0.cs" />
+    <Compile Include="api\mngDaemon\mngDaemon_Restart-response-1-0-0.cs" />
+    <Compile Include="api\mngDaemon\mngDaemon_Upload-request-1-0-0.cs" />
+    <Compile Include="api\mngDaemon\mngDaemon_Upload-response-1-0-0.cs" />
     <Compile Include="api\mngSched\mngSched_AddTask-request-1-0-0.cs" />
     <Compile Include="api\mngSched\mngSched_AddTask-response-1-0-0.cs" />
     <Compile Include="api\mngSched\mngSched_GetTask-request-1-0-0.cs" />

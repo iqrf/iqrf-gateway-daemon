@@ -82,6 +82,10 @@ namespace iqmeshNetwork_BondNodeLocal_Request
         [Newtonsoft.Json.JsonProperty("deviceAddr", Required = Newtonsoft.Json.Required.Always)]
         public int DeviceAddr { get; set; }
     
+        /// <summary>See IQRF OS User's and Reference guides (remote bonding, function bondNewNode).</summary>
+        [Newtonsoft.Json.JsonProperty("bondingMask", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? BondingMask { get; set; }
+    
         public string ToJson() 
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);

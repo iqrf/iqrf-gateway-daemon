@@ -164,6 +164,15 @@
   using iqrfEmbedIo_Get_Request;
   using iqrfEmbedIo_Get_Response;
 
+  using iqrfEmbedFrc_Send_Request;
+  using iqrfEmbedFrc_Send_Response;
+  using iqrfEmbedFrc_SendSelective_Request;
+  using iqrfEmbedFrc_SendSelective_Response;
+  using iqrfEmbedFrc_ExtraResult_Request;
+  using iqrfEmbedFrc_ExtraResult_Response;
+  using iqrfEmbedFrc_SetParams_Request;
+  using iqrfEmbedFrc_SetParams_Response;
+
   using iqrfSensor_Enumerate_Request;
   using iqrfSensor_Enumerate_Response;
   using iqrfSensor_ReadSensorsWithTypes_Request;
@@ -197,6 +206,12 @@
   using iqmeshNetwork_WriteTrConf_Request;
   using iqmeshNetwork_WriteTrConf_Response;
 
+  // Management APIs
+  using mngDaemon_Mode_Request;
+  using mngDaemon_Mode_Response;
+  using mngDaemon_Restart_Request;
+  using mngDaemon_Restart_Response;
+
   // Scheduler APIs
   using mngSched_List_Request;
   using mngSched_List_Response;
@@ -217,7 +232,7 @@
     /// <summary>
     /// GW IP address
     /// </summary>
-    const string IqrfGwDeamonIP = "192.168.1.101";
+    const string IqrfGwDeamonIP = "192.168.1.102";
 
     /// <summary>
     /// Log transaction
@@ -942,10 +957,51 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /*
         IqrfEmbedIo_Get_Request request = new IqrfEmbedIo_Get_Request();
         request.Data.MsgId = "testEmbedIo";
         request.Data.Req.NAdr = 1;
         request.Data.ReturnVerbose = true;
+        */
+
+        /* FRC */
+
+        /*
+        IqrfEmbedFrc_Send_Request request = new IqrfEmbedFrc_Send_Request();
+        request.Data.MsgId = "testEmbedFrc";
+        //request.Data.Timeout = 5000;
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.FrcCommand = 0x80;
+        request.Data.Req.Param.UserData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 0 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedFrc_ExtraResult_Request request = new IqrfEmbedFrc_ExtraResult_Request();
+        request.Data.MsgId = "testEmbedFrc";
+        //request.Data.Timeout = 5000;
+        request.Data.Req.NAdr = 0;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedFrc_SendSelective_Request request = new IqrfEmbedFrc_SendSelective_Request();
+        request.Data.MsgId = "testEmbedFrc";
+        //request.Data.Timeout = 5000;
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.SelectedNodes = new System.Collections.ObjectModel.ObservableCollection<int> { 1, 2, 3 };
+        request.Data.Req.Param.FrcCommand = 0x80;
+        request.Data.Req.Param.UserData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 0 };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedFrc_SetParams_Request request = new IqrfEmbedFrc_SetParams_Request();
+        request.Data.MsgId = "testEmbedFrc";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.FrcResponseTime = 0x00;
+        request.Data.ReturnVerbose = true;
+        */
 
         /* SENSOR */
 
@@ -1105,6 +1161,20 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /* MNG */
+
+        /*
+        MngDaemon_Mode_Request request = new MngDaemon_Mode_Request();
+        request.Data.MsgId = "testMngMode";
+        request.Data.Req.OperMode = ReqOperMode.Service;
+        request.Data.ReturnVerbose = true;
+        */
+
+        MngDaemon_Restart_Request request = new MngDaemon_Restart_Request();
+        request.Data.MsgId = "testMngRestart";
+        request.Data.Req.TimeToRestart = 10;
+        request.Data.ReturnVerbose = true;
+
         /* SCHEDULER */
 
         /*
@@ -1244,7 +1314,14 @@
 
         //IqrfEmbedIo_Direction_Response response = IqrfEmbedIo_Direction_Response.FromJson(responseStr[0]);
         //IqrfEmbedIo_Set_Response response = IqrfEmbedIo_Set_Response.FromJson(responseStr[0]);
-        IqrfEmbedIo_Get_Response response = IqrfEmbedIo_Get_Response.FromJson(responseStr[0]);
+        //IqrfEmbedIo_Get_Response response = IqrfEmbedIo_Get_Response.FromJson(responseStr[0]);
+
+        /* FRC */
+
+        //IqrfEmbedFrc_Send_Response response = IqrfEmbedFrc_Send_Response.FromJson(responseStr[0]);
+        //IqrfEmbedFrc_ExtraResult_Response response = IqrfEmbedFrc_ExtraResult_Response.FromJson(responseStr[0]);
+        //IqrfEmbedFrc_SendSelective_Response response = IqrfEmbedFrc_SendSelective_Response.FromJson(responseStr[0]);
+        //IqrfEmbedFrc_SetParams_Response response = IqrfEmbedFrc_SetParams_Response.FromJson(responseStr[0]);
 
         /* SENSOR */
 
@@ -1285,9 +1362,14 @@
         //IqmeshNetwork_WriteTrConf_Response response = IqmeshNetwork_WriteTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_OtaUpload_Response response = IqmeshNetwork_OtaUpload_Response.FromJson(responseStr[0]);
 
+        /* MNG */
+
+        //MngDaemon_Mode_Response response = MngDaemon_Mode_Response.FromJson(responseStr[0]);
+        MngDaemon_Restart_Response response = MngDaemon_Restart_Response.FromJson(responseStr[0]);
+
         /* SCHEDULER */
 
-        //MngSched_List_Response response = MngSched_List_Response.FromJson ( responseStr[0] );
+        //MngSched_List_Response response = MngSched_List_Response.FromJson(responseStr[0]);
         //MngSched_AddTask_Response response = MngSched_AddTask_Response.FromJson(responseStr[0]);
 
         Console.WriteLine( response.JsonSerialize() );

@@ -206,8 +206,8 @@ namespace iqrfSensor_ReadSensorsWithTypes_Response
         public string ShortName { get; set; }
     
         /// <summary>Value of the sensor.</summary>
-        [Newtonsoft.Json.JsonProperty("value", NullValueHandling = Newtonsoft.Json.NullValueHandling.Include)]
-        public dynamic Value { get; set; }
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? Value { get; set; }
     
         /// <summary>Unit of the quantity. Dimensionless quantities has "".</summary>
         [Newtonsoft.Json.JsonProperty("unit", Required = Newtonsoft.Json.Required.Always)]

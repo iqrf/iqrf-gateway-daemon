@@ -47,8 +47,9 @@ namespace iqrfEmbedFrc_ExtraResult_Request
     public partial class Data 
     {
         /// <summary>Message identification for binding request with response.</summary>
-        [Newtonsoft.Json.JsonProperty("msgid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Msgid { get; set; }
+        [Newtonsoft.Json.JsonProperty("msgId", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string MsgId { get; set; }
     
         /// <summary>Timeout to wait for IQRF DPA response.</summary>
         [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
