@@ -59,7 +59,6 @@ namespace {
     MID = 0x1,
     IBK = 0x2,
     HWPID = 0x3,
-    BondChannel = 0x4,
 
     // For future tags count expansion.
     TAG_RESERVED = 0xF
@@ -118,7 +117,6 @@ namespace iqrf {
   std::basic_string<uint8_t> IqrfCodeDecoder::m_mid;
   std::basic_string<uint8_t> IqrfCodeDecoder::m_ibk;
   uint16_t IqrfCodeDecoder::m_hwpId = HWPID_Default;
-  uint8_t IqrfCodeDecoder::m_bondingChannel;
 
 
   void IqrfCodeDecoder::decode(const std::string& iqrfCodeOrig) {
@@ -184,17 +182,9 @@ namespace iqrf {
         m_hwpId = nibbleReader.readByte() << 8 | nibbleReader.readByte();
         break;
 
-      case Tags::BondChannel:
-        m_bondingChannel = nibbleReader.readByte();
-        break;
-
       default:
         THROW_EXC(std::logic_error, "Unknown tag value.");
       }
     }
-
-    // MID and IBK are in BIG ENDIAN order now, turn to LITTLE ENDIAN
-    std::reverse(m_mid.begin(), m_mid.end());
-    std::reverse(m_ibk.begin(), m_ibk.end());
   }
 }

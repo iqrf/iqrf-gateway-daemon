@@ -1,20 +1,12 @@
 #define IBondNodeLocalService_EXPORTS
 
-
 #include "BondNodeLocalService.h"
 #include "Trace.h"
 #include "ComIqmeshNetworkBondNodeLocal.h"
-#include "ObjectFactory.h"
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/document.h"
-#include "rapidjson/istreamwrapper.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/prettywriter.h"
+#include "iqrf__BondNodeLocalService.hxx"
 #include <list>
 #include <cmath>
-#include <thread>
-
-#include "iqrf__BondNodeLocalService.hxx"
+#include <thread> 
 
 TRC_INIT_MODULE(iqrf::BondNodeLocalService);
 
@@ -785,18 +777,6 @@ namespace iqrf {
       osVer << std::setw( 2 ) << (int)( readInfo.OsVersion & 0xf ) << 'D';
       rapidjson::Pointer( "/data/rsp/osRead/osVersion" ).Set( response, osVer.str() );
 
-      // MID - hex string without separator
-      //std::string mid = encodeHexaNum( readInfo.ModuleId[3] );
-      //mid += encodeHexaNum( readInfo.ModuleId[2] );
-      //mid += encodeHexaNum( readInfo.ModuleId[1] );
-      //mid += encodeHexaNum( readInfo.ModuleId[0] );
-      //rapidjson::Pointer( "/data/rsp/osRead/mid" ).Set( response, mid );
-
-      // OS version - string
-      //std::string osVerStr = std::to_string( ( readInfo.OsVersion >> 4 ) & 0xFF )
-      //  + ".0" + std::to_string( readInfo.OsVersion & 0x0F ) + 'D';
-      //rapidjson::Pointer( "/data/rsp/osRead/osVersion" ).Set( response, osVerStr );
-
       // trMcuType
       rapidjson::Pointer( "/data/rsp/osRead/trMcuType/value" ).Set( response, readInfo.McuType );
       std::string trTypeStr = "(DC)TR-";
@@ -853,6 +833,15 @@ namespace iqrf {
       uint8_t longestTimeSlot = ( ( ( readInfo.SlotLimits >> 0x04 ) & 0x0f ) + 3 ) * 10;
       rapidjson::Pointer( "/data/rsp/osRead/slotLimits/shortestTimeslot" ).Set( response, std::to_string( shortestTimeSlot ) + " ms" );
       rapidjson::Pointer( "/data/rsp/osRead/slotLimits/longestTimeslot" ).Set( response, std::to_string( longestTimeSlot ) + " ms" );
+      // ibk      
+      if ( readInfo.OsVersion > 0x42 ) {
+        Document::AllocatorType& allocator = response.GetAllocator();
+        rapidjson::Value ibkBitsJsonArray( kArrayType );
+        for ( int i = 0; i < 16; i++ ) {
+          ibkBitsJsonArray.PushBack( readInfo.IBK[i], allocator );
+        }
+        Pointer( "/data/rsp/osRead/ibk" ).Set( response, ibkBitsJsonArray );
+      }
 
       // set raw fields, if verbose mode is active
       if ( comBondNodeLocal.getVerbose() ) {

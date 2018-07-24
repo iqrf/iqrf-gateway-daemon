@@ -9,7 +9,6 @@ namespace iqrf {
     static std::basic_string<uint8_t> m_mid;
     static std::basic_string<uint8_t> m_ibk;
     static uint16_t m_hwpId;
-    static uint8_t m_bondingChannel;
 
   public:
 
@@ -26,8 +25,5 @@ namespace iqrf {
 
     // returns decoded HWP id
     static uint16_t getHwpId() { return m_hwpId; };
-
-    // returns decoded bonding channel
-    static uint8_t getBondingChannel() { return m_bondingChannel; };
   };
 }
