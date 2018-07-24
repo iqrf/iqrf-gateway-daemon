@@ -238,8 +238,6 @@
     <Compile Include="api\mngDaemon\mngDaemon_Mode-response-1-0-0.cs" />
     <Compile Include="api\mngDaemon\mngDaemon_Restart-request-1-0-0.cs" />
     <Compile Include="api\mngDaemon\mngDaemon_Restart-response-1-0-0.cs" />
-    <Compile Include="api\mngDaemon\mngDaemon_Upload-request-1-0-0.cs" />
-    <Compile Include="api\mngDaemon\mngDaemon_Upload-response-1-0-0.cs" />
     <Compile Include="api\mngSched\mngSched_AddTask-request-1-0-0.cs" />
     <Compile Include="api\mngSched\mngSched_AddTask-response-1-0-0.cs" />
     <Compile Include="api\mngSched\mngSched_GetTask-request-1-0-0.cs" />
@@ -253,10 +251,6 @@
     <Compile Include="api\mngSched\mngSched_RemoveTask-request-1-0-0.cs" />
     <Compile Include="api\mngSched\mngSched_RemoveTask-response-1-0-0.cs" />
     <Compile Include="api\mngSched\mngSched_SchedulerMessagingTask-object-1-0-0.cs" />
-    <Compile Include="api\mngSched\mngSched_StartTask-request-1-0-0.cs" />
-    <Compile Include="api\mngSched\mngSched_StartTask-response-1-0-0.cs" />
-    <Compile Include="api\mngSched\mngSched_StopTask-request-1-0-0.cs" />
-    <Compile Include="api\mngSched\mngSched_StopTask-response-1-0-0.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

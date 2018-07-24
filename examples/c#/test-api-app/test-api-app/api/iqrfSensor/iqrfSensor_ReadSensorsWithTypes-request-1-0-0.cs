@@ -107,7 +107,7 @@ namespace iqrfSensor_ReadSensorsWithTypes_Request
     {
         /// <summary>Specifies sensors to read data from. Undefined: Missing parameter: reads 1st sensor. Number: -1: reads all sensors. Array: array of indexes: specifies sensors to read.</summary>
         [Newtonsoft.Json.JsonProperty("sensorIndexes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? SensorIndexes { get; set; }
+        public dynamic SensorIndexes { get; set; }
     
         public string ToJson() 
         {

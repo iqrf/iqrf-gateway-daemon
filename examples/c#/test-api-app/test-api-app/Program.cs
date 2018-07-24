@@ -217,6 +217,10 @@
   using mngSched_List_Response;
   using mngSched_AddTask_Request;
   using mngSched_AddTask_Response;
+  using mngSched_PeriodicTask_Request;
+  using mngSched_PeriodicTask_Response;
+  using mngSched_RemoveTask_Request;
+  using mngSched_RemoveTask_Response;
   using mngSched_SchedulerMessagingTask;
   #endregion
 
@@ -1168,10 +1172,12 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /*
         MngDaemon_Restart_Request request = new MngDaemon_Restart_Request();
         request.Data.MsgId = "testMngRestart";
-        request.Data.Req.TimeToRestart = 10;
+        request.Data.Req.TimeToRestart = 10000;
         request.Data.ReturnVerbose = true;
+        */
 
         /* SCHEDULER */
 
@@ -1182,7 +1188,6 @@
         request.Data.ReturnVerbose = true;
         */
 
-        /*
         IqrfRaw_Request rawReq = new IqrfRaw_Request();
         rawReq.Data.MsgId = "testRaw";
         rawReq.Data.Req.RData = "00.00.06.03.FF.FF";
@@ -1193,11 +1198,26 @@
         task.Messaging = MngSched_SchedulerMessagingTaskMessaging.WebsocketMessaging;
         task.Message = rawReq;
 
+        MngSched_PeriodicTask_Request request = new MngSched_PeriodicTask_Request();
+        request.Data.MsgId = "testSchedPeriodic";
+        request.Data.Req.ClientId = "SchedulerMessaging";
+        request.Data.Req.Task = task;
+        request.Data.Req.TimePeriod = 10000;
+
+        /*
         MngSched_AddTask_Request request = new MngSched_AddTask_Request();
         request.Data.MsgId = "testSchedAdd";
         request.Data.Req.ClientId = "SchedulerMessaging";
         request.Data.Req.Task = task;
         request.Data.Req.CronTime = new System.Collections.ObjectModel.ObservableCollection<string> { "*\/10", "*", "*", "*", "*", "*", "*" };
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        MngSched_RemoveTask_Request request = new MngSched_RemoveTask_Request();
+        request.Data.MsgId = "testSchedRemove";
+        request.Data.Req.ClientId = "SchedulerMessaging";
+        request.Data.Req.TaskId = 2146077740;
         request.Data.ReturnVerbose = true;
         */
 
@@ -1346,16 +1366,7 @@
 
         //IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_SmartConnect_Response response = IqmeshNetwork_SmartConnect_Response.FromJson(responseStr[0]);
-
-        /*
-        foreach (string rspStr in responseStr)
-        {
-          IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson(rspStr);
-          UnionResponses result = response.Data.Rsp.Result;
-          Console.WriteLine(response.JsonSerialize());
-        }
-        */
-
+        //IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_ReadTrConf_Response response = IqmeshNetwork_ReadTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_WriteTrConf_Response response = IqmeshNetwork_WriteTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_OtaUpload_Response response = IqmeshNetwork_OtaUpload_Response.FromJson(responseStr[0]);
@@ -1363,12 +1374,14 @@
         /* MNG */
 
         //MngDaemon_Mode_Response response = MngDaemon_Mode_Response.FromJson(responseStr[0]);
-        MngDaemon_Restart_Response response = MngDaemon_Restart_Response.FromJson(responseStr[0]);
+        //MngDaemon_Restart_Response response = MngDaemon_Restart_Response.FromJson(responseStr[0]);
 
         /* SCHEDULER */
 
         //MngSched_List_Response response = MngSched_List_Response.FromJson(responseStr[0]);
         //MngSched_AddTask_Response response = MngSched_AddTask_Response.FromJson(responseStr[0]);
+        MngSched_PeriodicTask_Response response = MngSched_PeriodicTask_Response.FromJson(responseStr[0]);
+        //MngSched_RemoveTask_Response response = MngSched_RemoveTask_Response.FromJson(responseStr[0]);
 
         Console.WriteLine( response.JsonSerialize() );
       }

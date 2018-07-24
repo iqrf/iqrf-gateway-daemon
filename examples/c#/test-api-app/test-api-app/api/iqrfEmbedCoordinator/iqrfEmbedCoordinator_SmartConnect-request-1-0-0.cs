@@ -121,10 +121,6 @@ namespace iqrfEmbedCoordinator_SmartConnect_Request
         [Newtonsoft.Json.JsonProperty("mid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.ObjectModel.ObservableCollection<int> Mid { get; set; }
     
-        /// <summary>RF channel used for bonding.</summary>
-        [Newtonsoft.Json.JsonProperty("bondingChannel", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? BondingChannel { get; set; }
-    
         /// <summary>Virtual device address. Must equal to 0xFF if not used.</summary>
         [Newtonsoft.Json.JsonProperty("virtualDeviceAddress", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? VirtualDeviceAddress { get; set; }

@@ -3,7 +3,7 @@
   "data": {
     "msgId": "testMngRestart",
     "req": {
-      "timeToRestart": 10.0
+      "timeToRestart": 10000.0
     },
     "returnVerbose": true
   }

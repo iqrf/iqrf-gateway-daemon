@@ -1,7 +1,7 @@
 {
-    "mType": "mngSched_AddTask",
+    "mType": "mngSched_RemoveTask",
     "data": {
-        "msgId": "testSchedAdd",
+        "msgId": "testSchedRemove",
         "rsp": {
             "clientId": "SchedulerMessaging",
             "taskId": 2146077740

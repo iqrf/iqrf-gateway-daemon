@@ -1125,3 +1125,129 @@ Received from WebSocket: 2018-07-18 16:25:30.944
 2018-07-18 16:25:31.407
 ==================================
 
+==================================
+Sending to WebSocket: 2018-07-24 15:31:50.085
+{
+  "mType": "iqrfSensor_ReadSensorsWithTypes",
+  "data": {
+    "msgId": "testEmbedSensor",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "sensorIndexes": [
+          0,
+          1
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-24 15:31:50.572
+{
+    "mType": "iqrfSensor_ReadSensorsWithTypes",
+    "data": {
+        "msgId": "testEmbedSensor",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 69,
+            "result": {
+                "sensors": [
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": null,
+                        "unit": "°C"
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 29.5,
+                        "unit": "°C"
+                    }
+                ]
+            }
+        },
+        "raw": {
+            "request": "01.00.5e.01.ff.ff.03.00.00.00",
+            "requestTs": "2018-07-24T15:31:49.524516",
+            "confirmation": "01.00.5e.01.ff.ff.ff.3f.01.04.01",
+            "confirmationTs": "2018-07-24T15:31:49.557317",
+            "response": "01.00.5e.81.02.00.00.45.01.00.80.01.d8.01",
+            "responseTs": "2018-07-24T15:31:49.690507"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-24 15:31:51.076
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-24 15:33:31.232
+{
+  "mType": "iqrfSensor_ReadSensorsWithTypes",
+  "data": {
+    "msgId": "testEmbedSensor",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "sensorIndexes": [
+          0,
+          1
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-24 15:33:31.695
+{
+    "mType": "iqrfSensor_ReadSensorsWithTypes",
+    "data": {
+        "msgId": "testEmbedSensor",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 68,
+            "result": {
+                "sensors": [
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": null,
+                        "unit": "°C"
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 29.5,
+                        "unit": "°C"
+                    }
+                ]
+            }
+        },
+        "raw": {
+            "request": "01.00.5e.01.ff.ff.03.00.00.00",
+            "requestTs": "2018-07-24T15:33:30.654551",
+            "confirmation": "01.00.5e.01.ff.ff.ff.3f.01.04.01",
+            "confirmationTs": "2018-07-24T15:33:30.686905",
+            "response": "01.00.5e.81.02.00.00.44.01.00.80.01.d8.01",
+            "responseTs": "2018-07-24T15:33:30.819994"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-24 15:33:32.141
+==================================
+

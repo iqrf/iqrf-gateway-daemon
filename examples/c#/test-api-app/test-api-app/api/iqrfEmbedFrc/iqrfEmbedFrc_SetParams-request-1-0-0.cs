@@ -86,8 +86,9 @@ namespace iqrfEmbedFrc_SetParams_Request
         [Newtonsoft.Json.JsonProperty("hwpId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? HwpId { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("param", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Param Param { get; set; }
+        [Newtonsoft.Json.JsonProperty("param", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public Param Param { get; set; } = new Param();
     
         public string ToJson() 
         {
