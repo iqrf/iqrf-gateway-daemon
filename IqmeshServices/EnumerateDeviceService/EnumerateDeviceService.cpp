@@ -60,7 +60,6 @@ namespace {
 
   };
 
-
   // maximum number of repeats
   static const uint8_t REPEAT_MAX = 3;
 
@@ -82,6 +81,21 @@ namespace {
   // number of peripherals in DPA response: get info for more peripherals
   static const uint8_t PERIPHERALS_NUM = 14;
 
+
+  // baud rates
+  static uint8_t BAUD_RATES_SIZE = 9;
+
+  static uint32_t BaudRates[] = {
+    1200,
+    2400,
+    4800,
+    9600,
+    19200,
+    38400,
+    57600,
+    115200,
+    230400
+  };
 
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
@@ -1060,10 +1074,10 @@ namespace iqrf {
     )
     {
       // if no data was successfully read, return empty message
-      Pointer("/data/rsp/result/discovery/discovered").Set(response, deviceEnumerateResult.isDiscovered());
-      Pointer("/data/rsp/result/discovery/vrn").Set(response, deviceEnumerateResult.getVrn());
-      Pointer("/data/rsp/result/discovery/zone").Set(response, deviceEnumerateResult.getZone());
-      Pointer("/data/rsp/result/discovery/parent").Set(response, deviceEnumerateResult.getParent());
+      Pointer("/data/rsp/discovery/discovered").Set(response, deviceEnumerateResult.isDiscovered());
+      Pointer("/data/rsp/discovery/vrn").Set(response, deviceEnumerateResult.getVrn());
+      Pointer("/data/rsp/discovery/zone").Set(response, deviceEnumerateResult.getZone());
+      Pointer("/data/rsp/discovery/parent").Set(response, deviceEnumerateResult.getParent());
     }
 
     // parses OS read info
@@ -1156,34 +1170,34 @@ namespace iqrf {
       rapidjson::Document& response
     )
     {
-      rapidjson::Pointer("/data/rsp/result/osRead/mid").Set(response, osReadObject.mid);
-      rapidjson::Pointer("/data/rsp/result/osRead/osVersion").Set(response, osReadObject.osVersion);
+      rapidjson::Pointer("/data/rsp/osRead/mid").Set(response, osReadObject.mid);
+      rapidjson::Pointer("/data/rsp/osRead/osVersion").Set(response, osReadObject.osVersion);
 
-      rapidjson::Pointer("/data/rsp/result/osRead/trMcuType/value").Set(response, osReadObject.trMcuType.value);
-      rapidjson::Pointer("/data/rsp/result/osRead/trMcuType/trType").Set(response, osReadObject.trMcuType.trType);
-      rapidjson::Pointer("/data/rsp/result/osRead/trMcuType/fccCertified").Set(response, osReadObject.trMcuType.fccCertified);
-      rapidjson::Pointer("/data/rsp/result/osRead/trMcuType/mcuType").Set(response, osReadObject.trMcuType.mcuType);
+      rapidjson::Pointer("/data/rsp/osRead/trMcuType/value").Set(response, osReadObject.trMcuType.value);
+      rapidjson::Pointer("/data/rsp/osRead/trMcuType/trType").Set(response, osReadObject.trMcuType.trType);
+      rapidjson::Pointer("/data/rsp/osRead/trMcuType/fccCertified").Set(response, osReadObject.trMcuType.fccCertified);
+      rapidjson::Pointer("/data/rsp/osRead/trMcuType/mcuType").Set(response, osReadObject.trMcuType.mcuType);
 
-      rapidjson::Pointer("/data/rsp/result/osRead/osBuild").Set(response, osReadObject.osBuild);
+      rapidjson::Pointer("/data/rsp/osRead/osBuild").Set(response, osReadObject.osBuild);
 
       // RSSI [dBm]
-      rapidjson::Pointer("/data/rsp/result/osRead/rssi").Set(response, osReadObject.rssi);
+      rapidjson::Pointer("/data/rsp/osRead/rssi").Set(response, osReadObject.rssi);
 
       // Supply voltage [V]
-      rapidjson::Pointer("/data/rsp/result/osRead/supplyVoltage").Set(response, osReadObject.supplyVoltage);
+      rapidjson::Pointer("/data/rsp/osRead/supplyVoltage").Set(response, osReadObject.supplyVoltage);
 
       // Flags
-      rapidjson::Pointer("/data/rsp/result/osRead/flags/value").Set(response, osReadObject.flags.value);
-      rapidjson::Pointer("/data/rsp/result/osRead/flags/insufficientOsBuild").Set(response, osReadObject.flags.insufficientOsBuild);
-      rapidjson::Pointer("/data/rsp/result/osRead/flags/interfaceType").Set(response, osReadObject.flags.interface);
-      rapidjson::Pointer("/data/rsp/result/osRead/flags/dpaHandlerDetected").Set(response, osReadObject.flags.dpaHandlerDetected);
-      rapidjson::Pointer("/data/rsp/result/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, osReadObject.flags.dpaHandlerNotDetectedButEnabled);
-      rapidjson::Pointer("/data/rsp/result/osRead/flags/noInterfaceSupported").Set(response, osReadObject.flags.noInterfaceSupported);
+      rapidjson::Pointer("/data/rsp/osRead/flags/value").Set(response, osReadObject.flags.value);
+      rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsBuild").Set(response, osReadObject.flags.insufficientOsBuild);
+      rapidjson::Pointer("/data/rsp/osRead/flags/interfaceType").Set(response, osReadObject.flags.interface);
+      rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, osReadObject.flags.dpaHandlerDetected);
+      rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, osReadObject.flags.dpaHandlerNotDetectedButEnabled);
+      rapidjson::Pointer("/data/rsp/osRead/flags/noInterfaceSupported").Set(response, osReadObject.flags.noInterfaceSupported);
 
       // Slot limits
-      rapidjson::Pointer("/data/rsp/result/osRead/slotLimits/value").Set(response, osReadObject.slotLimits.value);
-      rapidjson::Pointer("/data/rsp/result/osRead/slotLimits/shortestTimeslot").Set(response, osReadObject.slotLimits.shortestTimeslot);
-      rapidjson::Pointer("/data/rsp/result/osRead/slotLimits/longestTimeslot").Set(response, osReadObject.slotLimits.longestTimeslot);
+      rapidjson::Pointer("/data/rsp/osRead/slotLimits/value").Set(response, osReadObject.slotLimits.value);
+      rapidjson::Pointer("/data/rsp/osRead/slotLimits/shortestTimeslot").Set(response, osReadObject.slotLimits.shortestTimeslot);
+      rapidjson::Pointer("/data/rsp/osRead/slotLimits/longestTimeslot").Set(response, osReadObject.slotLimits.longestTimeslot);
     }
 
     // sets peripheral enumeration part of the response
@@ -1201,10 +1215,10 @@ namespace iqrf {
       // dpa version - string
       std::string dpaVer = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
         + "." + std::to_string(perEnum.DpaVersion & 0xFF);
-      Pointer("/data/rsp/result/peripheralEnumeration/dpaVer").Set(response, dpaVer);
+      Pointer("/data/rsp/peripheralEnumeration/dpaVer").Set(response, dpaVer);
 
       // perNr
-      Pointer("/data/rsp/result/peripheralEnumeration/perNr").Set(response, perEnum.UserPerNr);
+      Pointer("/data/rsp/peripheralEnumeration/perNr").Set(response, perEnum.UserPerNr);
 
       Document::AllocatorType& allocator = response.GetAllocator();
 
@@ -1213,25 +1227,46 @@ namespace iqrf {
       for (int i = 0; i < EMBEDDED_PERS_LEN; i++) {
         embPersJsonArray.PushBack(perEnum.EmbeddedPers[i], allocator);
       }
-      Pointer("/data/rsp/result/peripheralEnumeration/embPers").Set(response, embPersJsonArray);
+      Pointer("/data/rsp/peripheralEnumeration/embPers").Set(response, embPersJsonArray);
 
       // hwpId
-      Pointer("/data/rsp/result/peripheralEnumeration/hwpId").Set(response, encodeHexaNum(perEnum.HWPID));
+      Pointer("/data/rsp/peripheralEnumeration/hwpId").Set(response, encodeHexaNum(perEnum.HWPID));
 
       // hwpIdVer
-      Pointer("/data/rsp/result/peripheralEnumeration/hwpIdVer").Set(response, perEnum.HWPIDver);
+      Pointer("/data/rsp/peripheralEnumeration/hwpIdVer").Set(response, perEnum.HWPIDver);
 
       // flags
-      Pointer("/data/rsp/result/peripheralEnumeration/flags").Set(response, perEnum.Flags);
+      Pointer("/data/rsp/peripheralEnumeration/flags").Set(response, perEnum.Flags);
 
       // userPers
       rapidjson::Value userPerJsonArray(kArrayType);
       for (int i = 0; i < USER_PER_LEN; i++) {
         userPerJsonArray.PushBack(perEnum.UserPer[i], allocator);
       }
-      Pointer("/data/rsp/result/peripheralEnumeration/userPers").Set(response, userPerJsonArray);
+      Pointer("/data/rsp/peripheralEnumeration/userPers").Set(response, userPerJsonArray);
     }
     
+    uint32_t parseBaudRate(uint8_t baudRateId) {
+      if ((baudRateId < 0) || (baudRateId >= BAUD_RATES_SIZE)) {
+        THROW_EXC(std::out_of_range, "Baud rate ID out of range: " << PAR(baudRateId));
+      }
+      return BaudRates[baudRateId];
+    }
+
+    // parses RF band
+    std::string parseRfBand(const uint8_t rfBand) {
+      switch (rfBand) {
+        case 0b00:
+          return "868";
+        case 0b01:
+          return "916";
+        case 0b10:
+          return "433";
+        default:
+          THROW_EXC(std::out_of_range, "Unsupported coordinator RF band: " << PAR(rfBand));
+        }
+    }
+
     // sets Read HWP Configuration part of the response
     void setReadHwpConfigurationResponse(
       const std::string& messagingId,
@@ -1241,25 +1276,97 @@ namespace iqrf {
       rapidjson::Document& response
     )
     {
-      // per enum object
+      // read configuration object
       TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
-        
-      // checkSum
-      Pointer("/data/rsp/result/trConfiguration/checkSum").Set(response, hwpConfig.Checksum);
+      uns8* configurationXored = hwpConfig.Configuration;
 
-      // cfgBytes
-      Document::AllocatorType& allocator = response.GetAllocator();
-      rapidjson::Value cfgBytesJsonArray(kArrayType);
+      // needed to xor all bytes of configuration with the value of 0x34
+      uns8 configuration[CONFIGURATION_LEN];
       for (int i = 0; i < CONFIGURATION_LEN; i++) {
-        cfgBytesJsonArray.PushBack(hwpConfig.Configuration[i], allocator);
+        configuration[i] = configurationXored[i] ^ 0x34;
       }
-      Pointer("/data/rsp/result/hwpConfiguration/cfgBytes").Set(response, cfgBytesJsonArray);
 
-      // rfPgm
-      Pointer("/data/rsp/result/hwpConfiguration/rfPgm").Set(response, hwpConfig.RFPGM);
+      Document::AllocatorType& allocator = response.GetAllocator();
 
-      // undocumented
-      Pointer("/data/rsp/result/hwpConfiguration/undocumented").Set(response, hwpConfig.Undocumented[1]);
+      // embPerBits
+      rapidjson::Value embPerBitsJsonArray(kArrayType);
+      for (int i = 0; i < 4; i++) {
+        embPerBitsJsonArray.PushBack(configuration[i], allocator);
+      }
+      Pointer("/data/rsp/trConfiguration/embPerBits").Set(response, embPerBitsJsonArray);
+
+
+      // byte 0x05
+      uint8_t byte05 = configuration[0x04];
+
+      bool customDpaHandler = ((byte05 & 0b1) == 0b1) ? true : false;
+      Pointer("/data/rsp/trConfiguration/customDpaHandler").Set(response, customDpaHandler);
+
+      bool nodeDpaInterface = ((byte05 & 0b10) == 0b10) ? true : false;
+      Pointer("/data/rsp/trConfiguration/nodeDpaInterface").Set(response, nodeDpaInterface);
+
+      bool dpaAutoexec = ((byte05 & 0b100) == 0b100) ? true : false;
+      Pointer("/data/rsp/trConfiguration/dpaAutoexec").Set(response, dpaAutoexec);
+
+      bool routingOff = ((byte05 & 0b1000) == 0b1000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/routingOff").Set(response, routingOff);
+
+      bool ioSetup = ((byte05 & 0b10000) == 0b10000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/ioSetup").Set(response, ioSetup);
+
+      bool peerToPeer = ((byte05 & 0b100000) == 0b100000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/peerToPeer").Set(response, peerToPeer);
+
+      // bytes fields
+      Pointer("/data/rsp/trConfiguration/rfChannelA").Set(response, configuration[0x10]);
+      Pointer("/data/rsp/trConfiguration/rfChannelB").Set(response, configuration[0x11]);
+      Pointer("/data/rsp/trConfiguration/rfSubChannelA").Set(response, configuration[0x05]);
+      Pointer("/data/rsp/trConfiguration/rfSubChannelB").Set(response, configuration[0x06]);
+      Pointer("/data/rsp/trConfiguration/txPower").Set(response, configuration[0x07]);
+      Pointer("/data/rsp/trConfiguration/rxFilter").Set(response, configuration[0x08]);
+      Pointer("/data/rsp/trConfiguration/lpRxTimeout").Set(response, configuration[0x09]);
+      Pointer("/data/rsp/trConfiguration/rfPgmAltChannel").Set(response, configuration[0x0B]);
+
+      try {
+        uint32_t baudRate = parseBaudRate(configuration[0x0A]);
+        Pointer("/data/rsp/trConfiguration/uartBaudrate").Set(response, baudRate);
+      }
+      catch (std::exception& ex) {
+        TRC_WARNING("Unknown baud rate constant: " << PAR(configuration[0x0A]));
+        Pointer("/data/rsp/trConfiguration/uartBaudrate").Set(response, 0);
+      }
+
+      // RFPGM byte
+      uint8_t rfpgm = hwpConfig.RFPGM;
+
+      bool rfPgmDualChannel = ((rfpgm & 0b00000011) == 0b00000011) ? true : false;
+      Pointer("/data/rsp/trConfiguration/rfPgmDualChannel").Set(response, rfPgmDualChannel);
+
+      bool rfPgmLpMode = ((rfpgm & 0b00000100) == 0b00000100) ? true : false;
+      Pointer("/data/rsp/trConfiguration/rfPgmLpMode").Set(response, rfPgmLpMode);
+
+      bool rfPgmIncorrectUpload = ((rfpgm & 0b00001000) == 0b00001000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/rfPgmIncorrectUpload").Set(response, rfPgmIncorrectUpload);
+
+      bool enableAfterReset = ((rfpgm & 0b00010000) == 0b00010000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/rfPgmEnableAfterReset").Set(response, enableAfterReset);
+
+      bool rfPgmTerminateAfter1Min = ((rfpgm & 0b01000000) == 0b01000000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/rfPgmTerminateAfter1Min").Set(response, rfPgmTerminateAfter1Min);
+
+      bool rfPgmTerminateMcuPin = ((rfpgm & 0b10000000) == 0b10000000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/rfPgmTerminateMcuPin").Set(response, rfPgmTerminateMcuPin);
+
+
+      // RF band - undocumented byte
+      std::string rfBand;
+      try {
+        rfBand = parseRfBand(hwpConfig.Undocumented[0] & 0x03);
+      }
+      catch (std::exception& ex) {
+        rfBand = "";
+      }
+      Pointer("/data/rsp/trConfiguration/rfBand").Set(response, rfBand);
     }
 
     // sets Info for more peripherals part of the response
@@ -1306,7 +1413,7 @@ namespace iqrf {
 
         perInfoJsonArray.PushBack(perInfoObj, allocator);
       }
-      Pointer("/data/rsp/result/morePeripheralsInfo").Set(response, perInfoJsonArray);
+      Pointer("/data/rsp/morePeripheralsInfo").Set(response, perInfoJsonArray);
     }
 
 
@@ -1323,13 +1430,13 @@ namespace iqrf {
     ) 
     {
       // valid - for now always true
-      Pointer("/data/rsp/result/validationAndUpdates/validation/valid").Set(response, true);
+      Pointer("/data/rsp/validationAndUpdates/validation/valid").Set(response, true);
       
       // OS read
       if (deviceEnumerateResult.getOsReadError().getType() == DeviceEnumerateError::Type::NoError) 
       {
-        Pointer("/data/rsp/result/validationAndUpdates/validation/osVer").Set(response, osReadObject.osVersion);
-        Pointer("/data/rsp/result/validationAndUpdates/validation/osBuild").Set(response, osReadObject.osBuild);
+        Pointer("/data/rsp/validationAndUpdates/validation/osVer").Set(response, osReadObject.osVersion);
+        Pointer("/data/rsp/validationAndUpdates/validation/osBuild").Set(response, osReadObject.osBuild);
       }
 
       if (
@@ -1342,7 +1449,7 @@ namespace iqrf {
         // dpa version - string
         std::string dpaVerStr = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
           + "." + std::to_string(perEnum.DpaVersion & 0xFF);
-        Pointer("/data/rsp/result/validationAndUpdates/validation/dpaVer").Set(response, dpaVerStr);
+        Pointer("/data/rsp/validationAndUpdates/validation/dpaVer").Set(response, dpaVerStr);
       }
 
       if (deviceEnumerateResult.getReadHwpConfigError().getType() == DeviceEnumerateError::Type::NoError)
@@ -1351,10 +1458,10 @@ namespace iqrf {
         TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
 
         // txPower
-        Pointer("/data/rsp/result/validationAndUpdates/validation/txPower").Set(response, hwpConfig.Configuration[0x07] ^ 0x34);
+        Pointer("/data/rsp/validationAndUpdates/validation/txPower").Set(response, hwpConfig.Configuration[0x07] ^ 0x34);
 
         // rxFilter
-        Pointer("/data/rsp/result/validationAndUpdates/validation/rxFilter").Set(response, hwpConfig.Configuration[0x08] ^ 0x34);
+        Pointer("/data/rsp/validationAndUpdates/validation/rxFilter").Set(response, hwpConfig.Configuration[0x08] ^ 0x34);
       }
     }
     
