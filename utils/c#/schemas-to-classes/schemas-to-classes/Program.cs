@@ -14,7 +14,7 @@ namespace schemas_to_classes
     static void Main(string[] args)
     {
       // Generate c# classes from JSON schema
-      generateCSClassFromJSON(@"..\\..\\..\\..\\..\\..\\api", @"..\\..\\..\\api\\");
+      generateCSClassFromJSON(@"..\\..\\..\\..\\..\\..\\api", @"..\\..\\..\\..\\..\\..\\examples\\c#\\test-api-app\\test-api-app\\api\\");
     }
 
     /// <summary>
