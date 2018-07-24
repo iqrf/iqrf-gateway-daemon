@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedOs_SelectiveBatch",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 255,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "no response"
+        },
+        "raw": {
+            "request": "ff.00.02.0b.ff.ff.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.05.06.01.ff.ff.00",
+            "requestTs": "2018-07-16T19:29:34.383534",
+            "confirmation": "ff.00.02.0b.ff.ff.ff.3c.01.05.00",
+            "confirmationTs": "2018-07-16T19:29:34.424591",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

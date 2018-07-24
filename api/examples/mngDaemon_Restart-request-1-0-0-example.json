@@ -1,0 +1,10 @@
+{
+  "mType": "mngDaemon_Restart",
+  "data": {
+    "msgId": "testMngRestart",
+    "req": {
+      "timeToRestart": 10000.0
+    },
+    "returnVerbose": true
+  }
+}

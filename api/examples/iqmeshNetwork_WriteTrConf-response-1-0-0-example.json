@@ -1,0 +1,18 @@
+{
+    "mType": "iqmeshNetwork_WriteTrConf",
+    "data": {
+        "msgId": "testIqmeshWrite",
+        "statusStr": "No bonded nodes",
+        "status": 1002,
+        "raw": [
+            {
+                "request": "00.00.00.02.00.00",
+                "requestTs": "2018-07-11T16:57:04.17549",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.50.02.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.37.34",
+                "responseTs": "2018-07-11T16:57:04.57835"
+            }
+        ]
+    }
+}

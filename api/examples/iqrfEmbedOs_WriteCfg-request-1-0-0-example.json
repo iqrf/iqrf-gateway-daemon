@@ -1,0 +1,47 @@
+{
+  "mType": "iqrfEmbedOs_WriteCfg",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "checksum": 129,
+        "configuration": [
+          201,
+          18,
+          52,
+          52,
+          52,
+          30,
+          52,
+          55,
+          49,
+          50,
+          55,
+          52,
+          52,
+          52,
+          52,
+          52,
+          45,
+          54,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          55,
+          52
+        ],
+        "rfpgm": 195
+      }
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfEmbedCoordinator_RemoveBond",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "bondAddr": 1
+      }
+    },
+    "returnVerbose": true
+  }
+}

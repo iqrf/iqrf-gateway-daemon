@@ -1,0 +1,22 @@
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "c726ecb9-ee7c-433a-9aa4-3fb21cae2d4d",
+        "rsp": {
+            "deviceAddr": 0,
+            "result": {
+                "validation": {
+                    "valid": true,
+                    "osVer": "42",
+                    "osBuild": "08b8",
+                    "dpaVer": "0302",
+                    "txPower": 49,
+                    "rxFilter": 50
+                }
+            }
+        },
+        "status": 0,
+        "statusStr": "ok",
+        "raw": []
+    }
+}

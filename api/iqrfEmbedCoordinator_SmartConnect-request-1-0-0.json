@@ -54,7 +54,7 @@
                                     "items": {
                                         "type": "integer"
                                     },
-                                    "maxItems": 15
+                                    "maxItems": 16
                                 },
                                 "mid": {
                                     "type": "array",
@@ -62,11 +62,7 @@
                                     "items": {
                                         "type": "integer"
                                     },
-                                    "maxItems": 3
-                                },
-                                "bondingChannel": {
-                                    "type": "integer",
-                                    "description": "RF channel used for bonding."
+                                    "maxItems": 4
                                 },
                                 "virtualDeviceAddress": {
                                     "type": "integer",
@@ -78,7 +74,7 @@
                                     "items": {
                                         "type": "integer"
                                     },
-                                    "maxItems": 3
+                                    "maxItems": 4
                                 }
                             }
 						}

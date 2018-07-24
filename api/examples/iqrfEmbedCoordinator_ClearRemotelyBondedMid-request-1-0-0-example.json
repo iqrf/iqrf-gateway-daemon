@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfEmbedCoordinator_ClearRemotelyBondedMid",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

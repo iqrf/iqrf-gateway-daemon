@@ -1,0 +1,20 @@
+{
+  "mType": "iqrfEmbedCoordinator_EnableRemoteBonding",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "bondingMask": 0,
+        "control": 0,
+        "userData": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

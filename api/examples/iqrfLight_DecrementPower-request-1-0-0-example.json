@@ -1,0 +1,18 @@
+{
+  "mType": "iqrfLight_DecrementPower",
+  "data": {
+    "msgId": "testEmbedLight",
+    "req": {
+      "nAdr": 4,
+      "param": {
+        "lights": [
+          {
+            "index": 0,
+            "power": 10
+          }
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

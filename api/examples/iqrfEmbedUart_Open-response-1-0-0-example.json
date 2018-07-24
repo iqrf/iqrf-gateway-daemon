@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedUart_Open",
+    "data": {
+        "msgId": "testEmbedUart",
+        "rsp": {
+            "nAdr": 3,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 74,
+            "result": {}
+        },
+        "raw": {
+            "request": "03.00.0c.00.ff.ff.04",
+            "requestTs": "2018-07-17T18:02:40.758568",
+            "confirmation": "03.00.0c.00.ff.ff.ff.3c.01.04.01",
+            "confirmationTs": "2018-07-17T18:02:40.787155",
+            "response": "03.00.0c.80.00.00.00.4a",
+            "responseTs": "2018-07-17T18:02:40.921447"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedOs_Rfpgm",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 66,
+            "result": {}
+        },
+        "raw": {
+            "request": "01.00.02.03.ff.ff",
+            "requestTs": "2018-07-16T18:51:20.953042",
+            "confirmation": "01.00.02.03.ff.ff.ff.3a.01.04.01",
+            "confirmationTs": "2018-07-16T18:51:20.984683",
+            "response": "01.00.02.83.02.00.00.42",
+            "responseTs": "2018-07-16T18:51:21.110096"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

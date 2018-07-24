@@ -1,0 +1,17 @@
+{
+  "mType": "iqrfEmbedFrc_Send",
+  "data": {
+    "msgId": "testEmbedFrc",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "frcCommand": 128,
+        "userData": [
+          0,
+          0
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

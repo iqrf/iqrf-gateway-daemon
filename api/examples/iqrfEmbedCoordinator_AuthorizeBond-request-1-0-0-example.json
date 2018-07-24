@@ -1,0 +1,14 @@
+{
+  "mType": "iqrfEmbedCoordinator_AuthorizeBond",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "reqAddr": 6,
+        "mid": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}
