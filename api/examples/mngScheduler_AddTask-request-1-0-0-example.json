@@ -1,7 +1,7 @@
 {
-  "mType": "mngSched_AddTask",
+  "mType": "mngScheduler_AddTask",
   "data": {
-    "msgId": "testSchedAdd",
+    "msgId": "testSchedulerAdd",
     "req": {
       "clientId": "SchedulerMessaging",
       "task": {

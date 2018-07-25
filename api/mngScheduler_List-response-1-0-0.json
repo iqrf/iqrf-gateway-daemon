@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "mngSched_RemoveAll-response",
+        "name": "mngScheduler_List-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Scheduler management - Remove All response.",
+            "description": "Scheduler management - List response.",
             "enum": [
-                "mngSched_RemoveAll"
+                "mngScheduler_List"
             ]
         },
         "data": {
@@ -27,11 +27,18 @@
                     "properties": {
                         "clientId": {
                             "type": "string",
-                            "description": "Client identifier."
+                            "description": "Command identifier."
+                        },
+                        "tasks": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
                         }
                     },
                     "required": [
-                        "clientId"
+                        "clientId",
+                        "tasks"
                     ]
                 },
                 "insId": {
@@ -40,7 +47,7 @@
 				},
                 "status": {
                     "type": "integer",
-                    "description": "IQRF GW daemon API (general or mType) status."
+                    "description": "Status of operation."
                 },
                 "statusStr": {
                     "type": "string",
@@ -49,8 +56,7 @@
             },
             "required": [
                 "msgId",
-                "rsp",
-                "status"
+                "rsp"
             ]
         }
     },

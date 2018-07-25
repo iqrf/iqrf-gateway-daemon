@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "mngSched_RemoveAll-request",
+        "name": "mngScheduler_PeriodicTask-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Scheduler management - Remove All request.",
+            "description": "Scheduler management - Per Task request.",
             "enum": [
-                "mngSched_RemoveAll"
+                "mngScheduler_PeriodicTask"
             ]
         },
         "data": {
@@ -28,10 +28,24 @@
                         "clientId": {
                             "type": "string",
                             "description": "Client identifier."
+                        },
+                        "timePeriod": {
+                            "type": "integer",
+                            "description": "Period in miliseconds"
+                        },
+                        "timePoint": {
+                            "type": "string",
+                            "description": "Delayed start in seconds in timestamp format '2018-01-03T16:00:09.859515'"
+                        },
+                        "task": {
+                            "type": "object",
+                            "description": "Task."
                         }
                     },
                     "required": [
-                        "clientId"
+                        "clientId",
+                        "timePeriod",
+                        "task"
                     ]
                 },
                 "returnVerbose": {

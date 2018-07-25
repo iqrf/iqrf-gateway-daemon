@@ -4,9 +4,7 @@
     "msgId": "testIqmeshRead",
     "repeat": 1,
     "req": {
-      "deviceAddr": [
-        0
-      ]
+      "deviceAddr": 0
     },
     "returnVerbose": true
   }

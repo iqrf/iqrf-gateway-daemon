@@ -1,7 +1,7 @@
 {
-  "mType": "mngSched_PeriodicTask",
+  "mType": "mngScheduler_PeriodicTask",
   "data": {
-    "msgId": "testSchedPeriodic",
+    "msgId": "testSchedulerPeriodic",
     "req": {
       "clientId": "SchedulerMessaging",
       "timePeriod": 10000,

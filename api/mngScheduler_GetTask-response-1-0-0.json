@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "mngSched_PeriodicTask-response",
+        "name": "mngScheduler_GetTask-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Scheduler management - Per Task response.",
+            "description": "Scheduler management - Get Task response.",
             "enum": [
-                "mngSched_PeriodicTask"
+                "mngScheduler_GetTask"
             ]
         },
         "data": {
@@ -32,6 +32,35 @@
                         "taskId": {
                             "type": "integer",
                             "description": "Task identifier."
+                        },
+                        "timeSpec": {
+                            "type": "object",
+							"properties": {
+								"cronTime": {
+									"type": "string",
+									"description": "Cron time expresion."
+								},
+								"exactTime": {
+									"type": "boolean",
+									"description": "Ignore Cron time and gets start time."
+								},
+								"periodic": {
+									"type": "boolean",
+									"description": "Is periodic."
+								},
+								"period": {
+									"type": "integer",
+									"description": "If periodic, use period in sec and ignore Cron time."
+								},
+								"startTime": {
+									"type": "string",
+									"description": "Exact time of start."
+								}
+							}
+                        },
+                        "task": {
+                            "type": "object",
+                            "description": "Task."
                         }
                     },
                     "required": [
@@ -45,11 +74,15 @@
 				},
                 "status": {
                     "type": "integer",
-                    "description": "IQRF GW daemon API (general or mType) status."
+                    "description": "Status of operation."
                 },
                 "statusStr": {
                     "type": "string",
                     "description": "IQRF GW daemon API (general or mType) status in string form."
+                },
+                "errorStr": {
+                    "type": "string",
+                    "description": "reason of error in string form."
                 }
             },
             "required": [

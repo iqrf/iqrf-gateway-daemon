@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "mngSched_AddTask-request",
+        "name": "mngDaemon_Exit-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Scheduler management - Add Task request.",
+            "description": "Daemon runtime management - restart the daemon request.",
             "enum": [
-                "mngSched_AddTask"
+                "mngDaemon_Exit"
             ]
         },
         "data": {
@@ -25,28 +25,13 @@
                 "req": {
                     "type": "object",
                     "properties": {
-                        "clientId": {
-                            "type": "string",
-                            "description": "Client identifier."
-                        },
-                        "task": {
-                            "type": "object",
-                            "description": "Scheduled task."
-                        },
-                        "cronTime": {
-                            "type": "array",
-                            "minItems": 7,
-                            "maxItems": 7,
-                            "items": {
-                                "type": "string"
-                            },
-                            "description": "7 items of cron syntax..."
+                        "timeToExit": {
+                            "type": "number",
+                            "description": "Time to exit the daemon in ms."
                         }
                     },
                     "required": [
-                        "clientId",
-                        "task",
-                        "cronTime"
+                        "timeToExit"
                     ]
                 },
                 "returnVerbose": {

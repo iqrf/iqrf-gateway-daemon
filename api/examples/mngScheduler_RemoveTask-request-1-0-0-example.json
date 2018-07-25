@@ -1,10 +1,10 @@
 {
-  "mType": "mngSched_StartTask",
+  "mType": "mngScheduler_RemoveTask",
   "data": {
-    "msgId": "testSchedStart",
+    "msgId": "testSchedulerRemove",
     "req": {
       "clientId": "SchedulerMessaging",
-      "taskId": 1354218399
+      "taskId": 2146077740
     },
     "returnVerbose": true
   }

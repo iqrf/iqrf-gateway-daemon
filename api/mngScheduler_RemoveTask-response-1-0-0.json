@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "mngSched_GetTask-request",
+        "name": "mngScheduler_RemoveTask-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Scheduler management - Get Task request.",
+            "description": "Scheduler management - Remove Task response.",
             "enum": [
-                "mngSched_GetTask"
+                "mngScheduler_RemoveTask"
             ]
         },
         "data": {
@@ -22,7 +22,7 @@
                     "type": "string",
                     "description": "Message identification for binding request with response."
                 },
-                "req": {
+                "rsp": {
                     "type": "object",
                     "properties": {
                         "clientId": {
@@ -36,17 +36,30 @@
                     },
                     "required": [
                         "clientId",
-                        "taskId"
+						"taskId"
                     ]
                 },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
+                "insId": {
+					"type": "string",
+					"description": "IQRF GW daemon instance identification."
+				},
+                "status": {
+                    "type": "integer",
+                    "description": "IQRF GW daemon API (general or mType) status."
+                },
+                "statusStr": {
+                    "type": "string",
+                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                },
+                "errorStr": {
+                    "type": "string",
+                    "description": "reason of error in string form."
                 }
             },
             "required": [
                 "msgId",
-                "req"
+                "rsp",
+                "status"
             ]
         }
     },

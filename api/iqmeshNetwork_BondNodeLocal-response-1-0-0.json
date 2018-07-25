@@ -36,7 +36,7 @@
             },
             "hwpId": {
               "type": "integer",
-              "description": "Profile integer."
+              "description": "Hardware profile identification."
             },
             "manufacturer": {
               "type": "string",
@@ -45,6 +45,13 @@
             "product": {
               "type": "string",
               "description": "Product name."
+            },
+            "standards": {
+              "type": "array",
+              "description": "Supported standards by the device.",
+              "items": {
+                "type": "integer"
+              }
             },
             "osRead": {
               "type": "object",
@@ -139,12 +146,27 @@
                       "description": "Longets timeslot length in 10 ms units."
                     }
                   }
+                },
+                "ibk": {
+                  "type": "array",
+                  "description": "Individual Bonding Key.",
+                  "items": {
+                    "type": "integer",
+                    "minItems": 16,
+                    "maxItems": 16,
+                    "default": 0
+                  }
                 }
               },
               "required": [
                 "mid",
                 "osVersion",
-                "osBuild"
+                "trMcuType",
+                "osBuild",
+                "rssi",
+                "supplyVoltage",
+                "flags",
+                "slotLimits"
               ]
             }
           },

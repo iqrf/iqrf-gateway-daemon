@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "mngDaemon_Restart-response",
+        "name": "mngDaemon_Exit-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,7 +12,7 @@
             "type": "string",
             "description": "Daemon runtime management - restart the daemon response.",
             "enum": [
-                "mngDaemon_Restart"
+                "mngDaemon_Exit"
             ]
         },
         "data": {
@@ -25,13 +25,13 @@
                 "rsp": {
                     "type": "object",
                     "properties": {
-                        "timeToRestart": {
+                        "timeToExit": {
                             "type": "number",
-                            "description": "Time to restart."
+                            "description": "Time to exit the daemon in ms."
                         }
                     },
                     "required": [
-                        "timeToRestart"
+                        "timeToExit"
                     ]
                 },
                 "insId": {
