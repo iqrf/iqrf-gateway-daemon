@@ -214,7 +214,7 @@
       "name": "iqrf::SmartConnectService",
       "libraryPath": "",
       "libraryName": "SmartConnectService",
-      "enabled": false,
+      "enabled": true,
       "startlevel": 3
     },
     {
