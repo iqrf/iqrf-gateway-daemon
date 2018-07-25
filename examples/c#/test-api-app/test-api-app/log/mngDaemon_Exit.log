@@ -1,0 +1,12 @@
+==================================
+Sending to WebSocket: 2018-07-25 14:21:19.145
+{
+  "mType": "mngDaemon_Exit",
+  "data": {
+    "msgId": "testMngExit",
+    "req": {
+      "timeToExit": 10000.0
+    },
+    "returnVerbose": true
+  }
+}

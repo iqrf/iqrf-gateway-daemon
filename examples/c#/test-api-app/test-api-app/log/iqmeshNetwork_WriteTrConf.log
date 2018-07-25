@@ -88,3 +88,53 @@ Received from WebSocket: 2018-07-11 16:57:04.806
 2018-07-11 16:57:05.34
 ==================================
 
+==================================
+Sending to WebSocket: 2018-07-25 17:19:03.169
+{
+  "mType": "iqmeshNetwork_WriteTrConf",
+  "data": {
+    "msgId": "testIqmeshWrite",
+    "repeat": 1,
+    "restart": true,
+    "req": {
+      "deviceAddr": 0,
+      "txPower": 4
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-25 17:19:03.475
+{
+    "mType": "iqmeshNetwork_WriteTrConf",
+    "data": {
+        "msgId": "testIqmeshWrite",
+        "rsp": {
+            "deviceAddr": 0,
+            "writeSuccess": true,
+            "restartNeeded": false
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.00.00",
+                "requestTs": "2018-07-25T17:19:01.621231",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.1e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.37.34",
+                "responseTs": "2018-07-25T17:19:01.656555"
+            },
+            {
+                "request": "00.00.02.09.00.00.08.04.ff",
+                "requestTs": "2018-07-25T17:19:01.657159",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.02.89.00.00.00.00",
+                "responseTs": "2018-07-25T17:19:01.796809"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-07-25 17:19:03.978
+==================================
+

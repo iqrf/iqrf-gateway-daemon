@@ -8,9 +8,171 @@ namespace iqmeshNetwork_EnumerateDevice_Response
 {
     #pragma warning disable // Disable all warnings
 
-    /// <summary>First response.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqmeshNetwork_EnumDevice1 
+    public partial class IqmeshNetwork_EnumerateDevice_Response 
+    {
+        /// <summary>IQMESH Network management - Enumerate Device response.</summary>
+        [Newtonsoft.Json.JsonProperty("mType", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+        public IqmeshNetwork_EnumerateDevice_ResponseMType MType { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public Data Data { get; set; } = new Data();
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static IqmeshNetwork_EnumerateDevice_Response FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_EnumerateDevice_Response>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public enum IqmeshNetwork_EnumerateDevice_ResponseMType
+    {
+        [System.Runtime.Serialization.EnumMember(Value = "iqmeshNetwork_EnumerateDevice")]
+    
+        IqmeshNetwork_EnumerateDevice = 0,
+    
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Data 
+    {
+        /// <summary>Message identification for binding request with response.</summary>
+        [Newtonsoft.Json.JsonProperty("msgId", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string MsgId { get; set; }
+    
+        /// <summary>Returns following values, see its description.</summary>
+        [Newtonsoft.Json.JsonProperty("rsp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Rsp Rsp { get; set; }
+    
+        /// <summary>Returns array of objects req-cnf-rsp, see its description.</summary>
+        [Newtonsoft.Json.JsonProperty("raw", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<Anonymous> Raw { get; set; }
+    
+        /// <summary>IQRF GW daemon instance identification.</summary>
+        [Newtonsoft.Json.JsonProperty("insId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string InsId { get; set; }
+    
+        /// <summary>IQRF GW daemon API (general or mType) status.</summary>
+        [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Always)]
+        public int Status { get; set; }
+    
+        /// <summary>IQRF GW daemon API (general or mType) status in string form.</summary>
+        [Newtonsoft.Json.JsonProperty("statusStr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string StatusStr { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Data FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Data>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Rsp 
+    {
+        /// <summary>Device address to enumerate.</summary>
+        [Newtonsoft.Json.JsonProperty("deviceAddr", Required = Newtonsoft.Json.Required.Always)]
+        public int DeviceAddr { get; set; }
+    
+        /// <summary>First response.</summary>
+        [Newtonsoft.Json.JsonProperty("discovery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Discovery Discovery { get; set; }
+    
+        /// <summary>Returns Embedded peripheral OS - Read response.</summary>
+        [Newtonsoft.Json.JsonProperty("osRead", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public OsRead OsRead { get; set; }
+    
+        /// <summary>Reduced or full eperExploreEnum.</summary>
+        [Newtonsoft.Json.JsonProperty("peripheralEnumeration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public PeripheralEnumeration PeripheralEnumeration { get; set; }
+    
+        /// <summary>Reduced or full eperOsReadCfg.</summary>
+        [Newtonsoft.Json.JsonProperty("trConfiguration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public TrConfiguration TrConfiguration { get; set; }
+    
+        /// <summary>Returns the same information as Get peripheral information but for up to 14 peripherals of consecutive indexes starting with the specified PCMD.</summary>
+        [Newtonsoft.Json.JsonProperty("morePeripheralsInfo", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<Anonymous2> MorePeripheralsInfo { get; set; }
+    
+        /// <summary>Validation and updates.</summary>
+        [Newtonsoft.Json.JsonProperty("validationAndUpdates", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ValidationAndUpdates ValidationAndUpdates { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Rsp FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Rsp>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Anonymous 
+    {
+        /// <summary>Binary buffer with DPA request.</summary>
+        [Newtonsoft.Json.JsonProperty("request", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Request { get; set; }
+    
+        /// <summary>YYYY-MM-DDTHH:MM:SS.MS</summary>
+        [Newtonsoft.Json.JsonProperty("requestTs", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string RequestTs { get; set; }
+    
+        /// <summary>Binary buffer with DPA confirmation.</summary>
+        [Newtonsoft.Json.JsonProperty("confirmation", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Confirmation { get; set; }
+    
+        /// <summary>YYYY-MM-DDTHH:MM:SS.MS</summary>
+        [Newtonsoft.Json.JsonProperty("confirmationTs", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string ConfirmationTs { get; set; }
+    
+        /// <summary>Binary buffer with DPA response.</summary>
+        [Newtonsoft.Json.JsonProperty("response", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Response { get; set; }
+    
+        /// <summary>YYYY-MM-DDTHH:MM:SS.MS</summary>
+        [Newtonsoft.Json.JsonProperty("responseTs", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string ResponseTs { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Anonymous FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Anonymous>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Discovery 
     {
         /// <summary>Device is discovered.</summary>
         [Newtonsoft.Json.JsonProperty("discovered", Required = Newtonsoft.Json.Required.Always)]
@@ -33,16 +195,15 @@ namespace iqmeshNetwork_EnumerateDevice_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqmeshNetwork_EnumDevice1 FromJson(string data)
+        public static Discovery FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_EnumDevice1>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Discovery>(data);
         }
     
     }
     
-    /// <summary>Second response - reduced or full eperOsRead.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqmeshNetwork_EnumDevice2 
+    public partial class OsRead 
     {
         /// <summary>TR Module ID.</summary>
         [Newtonsoft.Json.JsonProperty("mid", Required = Newtonsoft.Json.Required.Always)]
@@ -54,9 +215,9 @@ namespace iqmeshNetwork_EnumerateDevice_Response
         [System.ComponentModel.DataAnnotations.Required]
         public string OsVersion { get; set; }
     
-        /// <summary>TR MCU type.</summary>
+        /// <summary>See DPA guide.</summary>
         [Newtonsoft.Json.JsonProperty("trMcuType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string TrMcuType { get; set; }
+        public TrMcuType TrMcuType { get; set; }
     
         /// <summary>IQRF OS build.</summary>
         [Newtonsoft.Json.JsonProperty("osBuild", Required = Newtonsoft.Json.Required.Always)]
@@ -65,7 +226,7 @@ namespace iqmeshNetwork_EnumerateDevice_Response
     
         /// <summary>See lastRSSI at IQRF OS Reference Guide.</summary>
         [Newtonsoft.Json.JsonProperty("rssi", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Rssi { get; set; }
+        public string Rssi { get; set; }
     
         /// <summary>Module supply voltage</summary>
         [Newtonsoft.Json.JsonProperty("supplyVoltage", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -73,27 +234,26 @@ namespace iqmeshNetwork_EnumerateDevice_Response
     
         /// <summary>See DPA guide.</summary>
         [Newtonsoft.Json.JsonProperty("flags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Flags { get; set; }
+        public Flags Flags { get; set; }
     
         /// <summary>See DPA guide.</summary>
         [Newtonsoft.Json.JsonProperty("slotLimits", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? SlotLimits { get; set; }
+        public SlotLimits SlotLimits { get; set; }
     
         public string ToJson() 
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqmeshNetwork_EnumDevice2 FromJson(string data)
+        public static OsRead FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_EnumDevice2>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<OsRead>(data);
         }
     
     }
     
-    /// <summary>Third response - reduced or full eperExploreEnum.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqmeshNetwork_EnumDevice3 
+    public partial class PeripheralEnumeration 
     {
         /// <summary>DPA version.</summary>
         [Newtonsoft.Json.JsonProperty("dpaVer", Required = Newtonsoft.Json.Required.Always)]
@@ -130,48 +290,153 @@ namespace iqmeshNetwork_EnumerateDevice_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqmeshNetwork_EnumDevice3 FromJson(string data)
+        public static PeripheralEnumeration FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_EnumDevice3>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<PeripheralEnumeration>(data);
         }
     
     }
     
-    /// <summary>Fourth response - reduced or full eperOsReadCfg.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqmeshNetwork_EnumDevice4 
+    public partial class TrConfiguration 
     {
-        /// <summary>Checksum of the Configuration part.</summary>
-        [Newtonsoft.Json.JsonProperty("checkSum", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? CheckSum { get; set; }
+        /// <summary>An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.</summary>
+        [Newtonsoft.Json.JsonProperty("embPerBits", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<int> EmbPerBits { get; set; }
     
-        /// <summary>Content the configuration memory block from address 0x01 to 0x1F.</summary>
-        [Newtonsoft.Json.JsonProperty("cfgBytes", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public System.Collections.ObjectModel.ObservableCollection<int> CfgBytes { get; set; } = new System.Collections.ObjectModel.ObservableCollection<int>();
+        /// <summary>Used RF band.</summary>
+        [Newtonsoft.Json.JsonProperty("rfBand", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string RfBand { get; set; }
     
-        /// <summary>See parameter of setupRFPGM IQRF OS function.</summary>
-        [Newtonsoft.Json.JsonProperty("rfPgm", Required = Newtonsoft.Json.Required.Always)]
-        public int RfPgm { get; set; }
+        /// <summary>Main RF channel A of the main network. Valid numbers depend on used RF band.</summary>
+        [Newtonsoft.Json.JsonProperty("rfChannelA", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? RfChannelA { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("undocumented", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Undocumented { get; set; }
+        /// <summary>Same as above but second B channel. Used at RFPGM only.</summary>
+        [Newtonsoft.Json.JsonProperty("rfChannelB", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? RfChannelB { get; set; }
+    
+        /// <summary>Main RF channel A of the optional subordinate network in case the node also plays a role of the coordinator of such network. Valid numbers depend on used RF band.</summary>
+        [Newtonsoft.Json.JsonProperty("rfSubChannelA", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? RfSubChannelA { get; set; }
+    
+        /// <summary>Same as above but second B channel.</summary>
+        [Newtonsoft.Json.JsonProperty("rfSubChannelB", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? RfSubChannelB { get; set; }
+    
+        /// <summary>RF output power. Valid numbers 0-7.</summary>
+        [Newtonsoft.Json.JsonProperty("txPower", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? TxPower { get; set; }
+    
+        /// <summary>RF signal filter. Valid numbers 0-64.</summary>
+        [Newtonsoft.Json.JsonProperty("rxFilter", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? RxFilter { get; set; }
+    
+        /// <summary>Timeout for receiving RF packets at LP mode at N device.</summary>
+        [Newtonsoft.Json.JsonProperty("lpRxTimeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? LpRxTimeout { get; set; }
+    
+        /// <summary>A nonzero value specifies an alternative DPA service mode channel.</summary>
+        [Newtonsoft.Json.JsonProperty("rfPgmAltChannel", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? RfPgmAltChannel { get; set; }
+    
+        /// <summary>If sets, then activates RFPGM invoking by TR module reset.</summary>
+        [Newtonsoft.Json.JsonProperty("rfPgmEnableAfterReset", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? RfPgmEnableAfterReset { get; set; }
+    
+        /// <summary>If sets, then terminates RFPGM automatically ~1 minute after reset.</summary>
+        [Newtonsoft.Json.JsonProperty("rfPgmTerminateAfter1Min", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? RfPgmTerminateAfter1Min { get; set; }
+    
+        /// <summary>If sets, then terminates RFPGM by dedicated pin of the TR module.</summary>
+        [Newtonsoft.Json.JsonProperty("rfPgmTerminateMcuPin", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? RfPgmTerminateMcuPin { get; set; }
+    
+        /// <summary>If sets, then enables single or dual channel function.</summary>
+        [Newtonsoft.Json.JsonProperty("rfPgmDualChannel", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? RfPgmDualChannel { get; set; }
+    
+        /// <summary>RFPGM receiving mode setting. If set, then LP (low power) Rx mode is used during RFPGM. Otherwise STD (standard) Rx mode is used.</summary>
+        [Newtonsoft.Json.JsonProperty("rfPgmLpMode", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? RfPgmLpMode { get; set; }
+    
+        /// <summary>Read only. Indicates that the last RFPGM has successfully been completed.</summary>
+        [Newtonsoft.Json.JsonProperty("rfPgmIncorrectUpload", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? RfPgmIncorrectUpload { get; set; }
+    
+        /// <summary>If set, then a Custom DPA handler is called in case of an event.</summary>
+        [Newtonsoft.Json.JsonProperty("customDpaHandler", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? CustomDpaHandler { get; set; }
+    
+        /// <summary>If set, then Node device can be controlled by a SPI or UART interface.</summary>
+        [Newtonsoft.Json.JsonProperty("nodeDpaInterface", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? NodeDpaInterface { get; set; }
+    
+        /// <summary>Baud rate of the UART interface if one is used.</summary>
+        [Newtonsoft.Json.JsonProperty("uartBaudrate", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? UartBaudrate { get; set; }
+    
+        /// <summary>If set, then DPA Autoexec is run at a later stage of the module boot time.</summary>
+        [Newtonsoft.Json.JsonProperty("dpaAutoexec", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? DpaAutoexec { get; set; }
+    
+        /// <summary>If set, then the Node device does not route packets on the background.</summary>
+        [Newtonsoft.Json.JsonProperty("routingOff", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? RoutingOff { get; set; }
+    
+        /// <summary>If set, then DPA IO Setup is run at an early stage of the module boot time.</summary>
+        [Newtonsoft.Json.JsonProperty("ioSetup", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? IoSetup { get; set; }
+    
+        /// <summary>If set, then device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event.</summary>
+        [Newtonsoft.Json.JsonProperty("peerToPeer", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? PeerToPeer { get; set; }
     
         public string ToJson() 
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqmeshNetwork_EnumDevice4 FromJson(string data)
+        public static TrConfiguration FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_EnumDevice4>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<TrConfiguration>(data);
         }
     
     }
     
-    /// <summary>Sixth response - validation and updates.</summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqmeshNetwork_EnumDevice6 
+    public partial class Anonymous2 
+    {
+        /// <summary>Extended peripheral characteristic. See Extended Peripheral Characteristic constants.</summary>
+        [Newtonsoft.Json.JsonProperty("perTe", Required = Newtonsoft.Json.Required.Always)]
+        public int PerTe { get; set; }
+    
+        /// <summary>Peripheral type. If the peripheral is not supported or enabled, then PerTx = PERIPHERAL_TYPE_DUMMY. See Peripheral Types constants.</summary>
+        [Newtonsoft.Json.JsonProperty("perT", Required = Newtonsoft.Json.Required.Always)]
+        public int PerT { get; set; }
+    
+        /// <summary>Optional peripheral specific information.</summary>
+        [Newtonsoft.Json.JsonProperty("par1", Required = Newtonsoft.Json.Required.Always)]
+        public int Par1 { get; set; }
+    
+        /// <summary>Optional peripheral specific information.</summary>
+        [Newtonsoft.Json.JsonProperty("par2", Required = Newtonsoft.Json.Required.Always)]
+        public int Par2 { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Anonymous2 FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Anonymous2>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class ValidationAndUpdates 
     {
         /// <summary>IQRF OS version + build, DPA version, TX power, RX filter same as Coordinator.</summary>
         [Newtonsoft.Json.JsonProperty("validation", Required = Newtonsoft.Json.Required.Always)]
@@ -187,49 +452,106 @@ namespace iqmeshNetwork_EnumerateDevice_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqmeshNetwork_EnumDevice6 FromJson(string data)
+        public static ValidationAndUpdates FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_EnumDevice6>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<ValidationAndUpdates>(data);
         }
     
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class UnionResponses 
+    public partial class TrMcuType 
     {
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-        
-        public static UnionResponses FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<UnionResponses>(data);
-        }
+        /// <summary>TR&McuType value.</summary>
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Value { get; set; }
     
-    }
+        /// <summary>TR module type.</summary>
+        [Newtonsoft.Json.JsonProperty("trType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string TrType { get; set; }
     
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqmeshNetwork_EnumerateDevice_Response 
-    {
-        /// <summary>IQMESH Network management - Enumerate Device response.</summary>
-        [Newtonsoft.Json.JsonProperty("mType", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public IqmeshNetwork_EnumerateDevice_ResponseMType MType { get; set; }
+        /// <summary>TR module is FCC certified.</summary>
+        [Newtonsoft.Json.JsonProperty("fccCertified", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? FccCertified { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public Data Data { get; set; } = new Data();
+        /// <summary>TR module MCU type.</summary>
+        [Newtonsoft.Json.JsonProperty("mcuType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string McuType { get; set; }
     
         public string ToJson() 
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqmeshNetwork_EnumerateDevice_Response FromJson(string data)
+        public static TrMcuType FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_EnumerateDevice_Response>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<TrMcuType>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Flags 
+    {
+        /// <summary>Flags value.</summary>
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Value { get; set; }
+    
+        /// <summary>Flags.0 - Insufficient OsBuild.</summary>
+        [Newtonsoft.Json.JsonProperty("insufficientOsBuild", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? InsufficientOsBuild { get; set; }
+    
+        /// <summary>Flags.1 - Interface type.</summary>
+        [Newtonsoft.Json.JsonProperty("interface", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Interface { get; set; }
+    
+        /// <summary>Flags.2 - Custom DPA handler was detected.</summary>
+        [Newtonsoft.Json.JsonProperty("dpaHandlerDetected", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? DpaHandlerDetected { get; set; }
+    
+        /// <summary>Flags.3 - Custom DPA Handler is not detected but enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("dpaHandlerNotDetectedButEnabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? DpaHandlerNotDetectedButEnabled { get; set; }
+    
+        /// <summary>Flags.4 - No interface supported.</summary>
+        [Newtonsoft.Json.JsonProperty("noInterfaceSupported", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? NoInterfaceSupported { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Flags FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Flags>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class SlotLimits 
+    {
+        /// <summary>Slot limits value.</summary>
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Value { get; set; }
+    
+        /// <summary>Shortest timeslot length in 10 ms units.</summary>
+        [Newtonsoft.Json.JsonProperty("shortestTimeslot", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ShortestTimeslot { get; set; }
+    
+        /// <summary>Longets timeslot length in 10 ms units.</summary>
+        [Newtonsoft.Json.JsonProperty("longestTimeslot", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string LongestTimeslot { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static SlotLimits FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<SlotLimits>(data);
         }
     
     }
@@ -296,123 +618,6 @@ namespace iqmeshNetwork_EnumerateDevice_Response
         public static Updates FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<Updates>(data);
-        }
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum IqmeshNetwork_EnumerateDevice_ResponseMType
-    {
-        [System.Runtime.Serialization.EnumMember(Value = "iqmeshNetwork_EnumerateDevice")]
-    
-        IqmeshNetwork_EnumerateDevice = 0,
-    
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Data 
-    {
-        /// <summary>Message identification for binding request with response.</summary>
-        [Newtonsoft.Json.JsonProperty("msgId", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string MsgId { get; set; }
-    
-        /// <summary>Returns following values, see its description.</summary>
-        [Newtonsoft.Json.JsonProperty("rsp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Rsp Rsp { get; set; }
-    
-        /// <summary>Returns array of objects req-cnf-rsp, see its description.</summary>
-        [Newtonsoft.Json.JsonProperty("raw", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<Anonymous> Raw { get; set; }
-    
-        /// <summary>IQRF GW daemon instance identification.</summary>
-        [Newtonsoft.Json.JsonProperty("insId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string InsId { get; set; }
-    
-        /// <summary>IQRF GW daemon API (general or mType) status.</summary>
-        [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Always)]
-        public int Status { get; set; }
-    
-        /// <summary>IQRF GW daemon API (general or mType) status in string form.</summary>
-        [Newtonsoft.Json.JsonProperty("statusStr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string StatusStr { get; set; }
-    
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-        
-        public static Data FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Data>(data);
-        }
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Rsp 
-    {
-        /// <summary>Device address to enumerate.</summary>
-        [Newtonsoft.Json.JsonProperty("deviceAddr", Required = Newtonsoft.Json.Required.Always)]
-        public int DeviceAddr { get; set; }
-    
-        [Newtonsoft.Json.JsonProperty("result", Required = Newtonsoft.Json.Required.Always)]
-        public UnionResponses Result { get; set; }
-    
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-        
-        public static Rsp FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Rsp>(data);
-        }
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Anonymous 
-    {
-        /// <summary>Binary buffer with DPA request.</summary>
-        [Newtonsoft.Json.JsonProperty("request", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string Request { get; set; }
-    
-        /// <summary>YYYY-MM-DDTHH:MM:SS.MS</summary>
-        [Newtonsoft.Json.JsonProperty("requestTs", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string RequestTs { get; set; }
-    
-        /// <summary>Binary buffer with DPA confirmation.</summary>
-        [Newtonsoft.Json.JsonProperty("confirmation", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string Confirmation { get; set; }
-    
-        /// <summary>YYYY-MM-DDTHH:MM:SS.MS</summary>
-        [Newtonsoft.Json.JsonProperty("confirmationTs", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string ConfirmationTs { get; set; }
-    
-        /// <summary>Binary buffer with DPA response.</summary>
-        [Newtonsoft.Json.JsonProperty("response", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string Response { get; set; }
-    
-        /// <summary>YYYY-MM-DDTHH:MM:SS.MS</summary>
-        [Newtonsoft.Json.JsonProperty("responseTs", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string ResponseTs { get; set; }
-    
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-        
-        public static Anonymous FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Anonymous>(data);
         }
     
     }

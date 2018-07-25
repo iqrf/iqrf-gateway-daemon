@@ -4,18 +4,18 @@
 // </auto-generated>
 //----------------------
 
-namespace iqrfEmbedOs_Read_Response
+namespace iqrfSensor_ReadSensorsWithTypes_Response
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqrfEmbedOs_Read_Response 
+    public partial class IqrfSensor_ReadSensorsWithTypes_Response 
     {
-        /// <summary>Embedded peripheral OS - Read response.</summary>
+        /// <summary>Standard peripheral Sensor - Read with Types response.</summary>
         [Newtonsoft.Json.JsonProperty("mType", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public IqrfEmbedOs_Read_ResponseMType MType { get; set; }
+        public IqrfSensor_ReadSensorsWithTypes_ResponseMType MType { get; set; }
     
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -26,19 +26,19 @@ namespace iqrfEmbedOs_Read_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqrfEmbedOs_Read_Response FromJson(string data)
+        public static IqrfSensor_ReadSensorsWithTypes_Response FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedOs_Read_Response>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfSensor_ReadSensorsWithTypes_Response>(data);
         }
     
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum IqrfEmbedOs_Read_ResponseMType
+    public enum IqrfSensor_ReadSensorsWithTypes_ResponseMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedOs_Read")]
+        [System.Runtime.Serialization.EnumMember(Value = "iqrfSensor_ReadSensorsWithTypes")]
     
-        IqrfEmbedOs_Read = 0,
+        IqrfSensor_ReadSensorsWithTypes = 0,
     
     
     }
@@ -172,41 +172,9 @@ namespace iqrfEmbedOs_Read_Response
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Result 
     {
-        /// <summary>TR Module ID.</summary>
-        [Newtonsoft.Json.JsonProperty("mid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Mid { get; set; }
-    
-        /// <summary>IQRF OS version.</summary>
-        [Newtonsoft.Json.JsonProperty("osVersion", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? OsVersion { get; set; }
-    
-        /// <summary>TR MCU type.</summary>
-        [Newtonsoft.Json.JsonProperty("trMcuType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? TrMcuType { get; set; }
-    
-        /// <summary>IQRF OS build.</summary>
-        [Newtonsoft.Json.JsonProperty("osBuild", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? OsBuild { get; set; }
-    
-        /// <summary>See lastRSSI at IQRF OS Reference Guide.</summary>
-        [Newtonsoft.Json.JsonProperty("rssi", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Rssi { get; set; }
-    
-        /// <summary>Module supply voltage, contains real voltage value.</summary>
-        [Newtonsoft.Json.JsonProperty("supplyVoltage", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? SupplyVoltage { get; set; }
-    
-        /// <summary>See DPA guide.</summary>
-        [Newtonsoft.Json.JsonProperty("flags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Flags { get; set; }
-    
-        /// <summary>See DPA guide.</summary>
-        [Newtonsoft.Json.JsonProperty("slotLimits", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? SlotLimits { get; set; }
-    
-        /// <summary>Individual Bonding Key.</summary>
-        [Newtonsoft.Json.JsonProperty("ibk", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<int> Ibk { get; set; }
+        /// <summary>Returns array of objects for every sensor, see its description.</summary>
+        [Newtonsoft.Json.JsonProperty("sensors", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<Anonymous> Sensors { get; set; }
     
         public string ToJson() 
         {
@@ -216,6 +184,44 @@ namespace iqrfEmbedOs_Read_Response
         public static Result FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<Result>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Anonymous 
+    {
+        /// <summary>Value type of the sensor (quantity).</summary>
+        [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Always)]
+        public int Type { get; set; }
+    
+        /// <summary>Name of the sensor (quantity).</summary>
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Name { get; set; }
+    
+        /// <summary> Short name of the sensor (quantity). Typically it is a symbol used at physics.</summary>
+        [Newtonsoft.Json.JsonProperty("shortName", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string ShortName { get; set; }
+    
+        /// <summary>Value of the sensor.</summary>
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Include)]
+        public dynamic Value { get; set; }
+    
+        /// <summary>Unit of the quantity. Dimensionless quantities has "".</summary>
+        [Newtonsoft.Json.JsonProperty("unit", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Unit { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Anonymous FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Anonymous>(data);
         }
     
     }

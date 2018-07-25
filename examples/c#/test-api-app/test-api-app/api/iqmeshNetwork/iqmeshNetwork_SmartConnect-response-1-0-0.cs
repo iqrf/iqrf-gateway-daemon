@@ -94,7 +94,7 @@ namespace iqmeshNetwork_SmartConnect_Response
         [Newtonsoft.Json.JsonProperty("nodesNr", Required = Newtonsoft.Json.Required.Always)]
         public int NodesNr { get; set; }
     
-        /// <summary>Profile integer.</summary>
+        /// <summary>Hardware profile identification.</summary>
         [Newtonsoft.Json.JsonProperty("hwpId", Required = Newtonsoft.Json.Required.Always)]
         public int HwpId { get; set; }
     
@@ -108,12 +108,7 @@ namespace iqmeshNetwork_SmartConnect_Response
         [System.ComponentModel.DataAnnotations.Required]
         public string Product { get; set; }
     
-        /// <summary>Supported standards by the device.</summary>
-        [Newtonsoft.Json.JsonProperty("standards", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public System.Collections.ObjectModel.ObservableCollection<int> Standards { get; set; } = new System.Collections.ObjectModel.ObservableCollection<int>();
-    
-        /// <summary>Returns following values, see its description.</summary>
+        /// <summary>Returns Embedded peripheral OS - Read response.</summary>
         [Newtonsoft.Json.JsonProperty("osRead", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public OsRead OsRead { get; set; } = new OsRead();
@@ -180,35 +175,43 @@ namespace iqmeshNetwork_SmartConnect_Response
     {
         /// <summary>TR Module ID.</summary>
         [Newtonsoft.Json.JsonProperty("mid", Required = Newtonsoft.Json.Required.Always)]
-        public int Mid { get; set; }
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Mid { get; set; }
     
         /// <summary>IQRF OS version.</summary>
-        [Newtonsoft.Json.JsonProperty("osVersion", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? OsVersion { get; set; }
+        [Newtonsoft.Json.JsonProperty("osVersion", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string OsVersion { get; set; }
     
-        /// <summary>TR MCU type.</summary>
-        [Newtonsoft.Json.JsonProperty("trMcuType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? TrMcuType { get; set; }
+        /// <summary>See DPA guide.</summary>
+        [Newtonsoft.Json.JsonProperty("trMcuType", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public TrMcuType TrMcuType { get; set; } = new TrMcuType();
     
         /// <summary>IQRF OS build.</summary>
-        [Newtonsoft.Json.JsonProperty("osBuild", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? OsBuild { get; set; }
+        [Newtonsoft.Json.JsonProperty("osBuild", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string OsBuild { get; set; }
     
         /// <summary>See lastRSSI at IQRF OS Reference Guide.</summary>
-        [Newtonsoft.Json.JsonProperty("rssi", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Rssi { get; set; }
+        [Newtonsoft.Json.JsonProperty("rssi", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Rssi { get; set; }
     
-        /// <summary>Module supply voltage, contains real voltage value.</summary>
-        [Newtonsoft.Json.JsonProperty("supplyVoltage", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? SupplyVoltage { get; set; }
-    
-        /// <summary>See DPA guide.</summary>
-        [Newtonsoft.Json.JsonProperty("flags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Flags { get; set; }
+        /// <summary>Module supply voltage</summary>
+        [Newtonsoft.Json.JsonProperty("supplyVoltage", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string SupplyVoltage { get; set; }
     
         /// <summary>See DPA guide.</summary>
-        [Newtonsoft.Json.JsonProperty("slotLimits", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? SlotLimits { get; set; }
+        [Newtonsoft.Json.JsonProperty("flags", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public Flags Flags { get; set; } = new Flags();
+    
+        /// <summary>See DPA guide.</summary>
+        [Newtonsoft.Json.JsonProperty("slotLimits", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public SlotLimits SlotLimits { get; set; } = new SlotLimits();
     
         /// <summary>Individual Bonding Key.</summary>
         [Newtonsoft.Json.JsonProperty("ibk", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -222,6 +225,103 @@ namespace iqmeshNetwork_SmartConnect_Response
         public static OsRead FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<OsRead>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class TrMcuType 
+    {
+        /// <summary>TR&McuType value.</summary>
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Value { get; set; }
+    
+        /// <summary>TR module type.</summary>
+        [Newtonsoft.Json.JsonProperty("trType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string TrType { get; set; }
+    
+        /// <summary>TR module is FCC certified.</summary>
+        [Newtonsoft.Json.JsonProperty("fccCertified", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? FccCertified { get; set; }
+    
+        /// <summary>TR module MCU type.</summary>
+        [Newtonsoft.Json.JsonProperty("mcuType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string McuType { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static TrMcuType FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<TrMcuType>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Flags 
+    {
+        /// <summary>Flags value.</summary>
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Value { get; set; }
+    
+        /// <summary>Flags.0 - Insufficient OsBuild.</summary>
+        [Newtonsoft.Json.JsonProperty("insufficientOsBuild", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? InsufficientOsBuild { get; set; }
+    
+        /// <summary>Flags.1 - Interface type.</summary>
+        [Newtonsoft.Json.JsonProperty("interface", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Interface { get; set; }
+    
+        /// <summary>Flags.2 - Custom DPA handler was detected.</summary>
+        [Newtonsoft.Json.JsonProperty("dpaHandlerDetected", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? DpaHandlerDetected { get; set; }
+    
+        /// <summary>Flags.3 - Custom DPA Handler is not detected but enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("dpaHandlerNotDetectedButEnabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? DpaHandlerNotDetectedButEnabled { get; set; }
+    
+        /// <summary>Flags.4 - No interface supported.</summary>
+        [Newtonsoft.Json.JsonProperty("noInterfaceSupported", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? NoInterfaceSupported { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Flags FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Flags>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class SlotLimits 
+    {
+        /// <summary>Slot limits value.</summary>
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Value { get; set; }
+    
+        /// <summary>Shortest timeslot length in 10 ms units.</summary>
+        [Newtonsoft.Json.JsonProperty("shortestTimeslot", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ShortestTimeslot { get; set; }
+    
+        /// <summary>Longets timeslot length in 10 ms units.</summary>
+        [Newtonsoft.Json.JsonProperty("longestTimeslot", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string LongestTimeslot { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static SlotLimits FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<SlotLimits>(data);
         }
     
     }

@@ -1,0 +1,63 @@
+==================================
+Sending to WebSocket: 2018-07-24 16:06:08.38
+{
+  "mType": "mngScheduler_PeriodicTask",
+  "data": {
+    "msgId": "testSchedulerPeriodic",
+    "req": {
+      "clientId": "SchedulerMessaging",
+      "timePeriod": 10000,
+      "task": {
+        "messaging": "WebsocketMessaging",
+        "message": {
+          "mType": "iqrfRaw",
+          "data": {
+            "msgId": "testRaw",
+            "timeout": 1000,
+            "req": {
+              "rData": "00.00.06.03.FF.FF"
+            },
+            "returnVerbose": true
+          }
+        }
+      }
+    }
+  }
+}
+Received from WebSocket: 2018-07-24 16:06:08.489
+{
+    "mType": "mngScheduler_PeriodicTask",
+    "data": {
+        "msgId": "testSchedulerPeriodic",
+        "rsp": {
+            "clientId": "SchedulerMessaging",
+            "taskId": 974702513
+        },
+        "status": 0
+    }
+}
+Received from WebSocket: 2018-07-24 16:06:08.489
+{
+    "mType": "iqrfRaw",
+    "data": {
+        "msgId": "testRaw",
+        "timeout": 1000,
+        "rsp": {
+            "rData": "00.00.06.83.00.00.00.3f"
+        },
+        "raw": {
+            "request": "00.00.06.03.ff.ff",
+            "requestTs": "2018-07-24T16:06:07.846025",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.06.83.00.00.00.3f",
+            "responseTs": "2018-07-24T16:06:07.863320"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-24 16:06:09.023
+==================================
+

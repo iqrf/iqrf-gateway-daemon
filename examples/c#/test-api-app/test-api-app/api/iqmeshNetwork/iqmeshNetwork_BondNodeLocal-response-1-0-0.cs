@@ -94,7 +94,7 @@ namespace iqmeshNetwork_BondNodeLocal_Response
         [Newtonsoft.Json.JsonProperty("nodesNr", Required = Newtonsoft.Json.Required.Always)]
         public int NodesNr { get; set; }
     
-        /// <summary>Profile integer.</summary>
+        /// <summary>Hardware profile identification.</summary>
         [Newtonsoft.Json.JsonProperty("hwpId", Required = Newtonsoft.Json.Required.Always)]
         public int HwpId { get; set; }
     
@@ -107,6 +107,10 @@ namespace iqmeshNetwork_BondNodeLocal_Response
         [Newtonsoft.Json.JsonProperty("product", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public string Product { get; set; }
+    
+        /// <summary>Supported standards by the device.</summary>
+        [Newtonsoft.Json.JsonProperty("standards", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<int> Standards { get; set; }
     
         /// <summary>Returns Embedded peripheral OS - Read response.</summary>
         [Newtonsoft.Json.JsonProperty("osRead", Required = Newtonsoft.Json.Required.Always)]
@@ -184,8 +188,9 @@ namespace iqmeshNetwork_BondNodeLocal_Response
         public string OsVersion { get; set; }
     
         /// <summary>See DPA guide.</summary>
-        [Newtonsoft.Json.JsonProperty("trMcuType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public TrMcuType TrMcuType { get; set; }
+        [Newtonsoft.Json.JsonProperty("trMcuType", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public TrMcuType TrMcuType { get; set; } = new TrMcuType();
     
         /// <summary>IQRF OS build.</summary>
         [Newtonsoft.Json.JsonProperty("osBuild", Required = Newtonsoft.Json.Required.Always)]
@@ -193,20 +198,28 @@ namespace iqmeshNetwork_BondNodeLocal_Response
         public string OsBuild { get; set; }
     
         /// <summary>See lastRSSI at IQRF OS Reference Guide.</summary>
-        [Newtonsoft.Json.JsonProperty("rssi", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("rssi", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
         public string Rssi { get; set; }
     
         /// <summary>Module supply voltage</summary>
-        [Newtonsoft.Json.JsonProperty("supplyVoltage", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("supplyVoltage", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
         public string SupplyVoltage { get; set; }
     
         /// <summary>See DPA guide.</summary>
-        [Newtonsoft.Json.JsonProperty("flags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Flags Flags { get; set; }
+        [Newtonsoft.Json.JsonProperty("flags", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public Flags Flags { get; set; } = new Flags();
     
         /// <summary>See DPA guide.</summary>
-        [Newtonsoft.Json.JsonProperty("slotLimits", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public SlotLimits SlotLimits { get; set; }
+        [Newtonsoft.Json.JsonProperty("slotLimits", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public SlotLimits SlotLimits { get; set; } = new SlotLimits();
+    
+        /// <summary>Individual Bonding Key.</summary>
+        [Newtonsoft.Json.JsonProperty("ibk", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<int> Ibk { get; set; }
     
         public string ToJson() 
         {

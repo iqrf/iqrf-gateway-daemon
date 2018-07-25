@@ -2,17 +2,30 @@
     "mType": "iqmeshNetwork_WriteTrConf",
     "data": {
         "msgId": "testIqmeshWrite",
-        "statusStr": "No bonded nodes",
-        "status": 1002,
+        "rsp": {
+            "deviceAddr": 0,
+            "writeSuccess": true,
+            "restartNeeded": false
+        },
         "raw": [
             {
                 "request": "00.00.00.02.00.00",
-                "requestTs": "2018-07-11T16:57:04.17549",
+                "requestTs": "2018-07-25T17:19:01.621231",
                 "confirmation": "",
                 "confirmationTs": "",
-                "response": "00.00.00.82.00.00.00.50.02.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.37.34",
-                "responseTs": "2018-07-11T16:57:04.57835"
+                "response": "00.00.00.82.00.00.00.00.1e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.37.34",
+                "responseTs": "2018-07-25T17:19:01.656555"
+            },
+            {
+                "request": "00.00.02.09.00.00.08.04.ff",
+                "requestTs": "2018-07-25T17:19:01.657159",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.02.89.00.00.00.00",
+                "responseTs": "2018-07-25T17:19:01.796809"
             }
-        ]
+        ],
+        "status": 0,
+        "statusStr": "ok"
     }
 }
