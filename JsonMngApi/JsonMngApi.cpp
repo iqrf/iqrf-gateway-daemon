@@ -465,7 +465,7 @@ namespace iqrf {
     std::vector<std::string> m_filters =
     {
       "mngDaemon",
-      "mngSched"
+      "mngScheduler"
     };
 
   public:
@@ -502,7 +502,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void handleMsg_mngDaemon_Restart(const rapidjson::Document& reqDoc, Document& respDoc)
+    void handleMsg_mngDaemon_Exit(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -522,7 +522,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void handleMsg_mngSched_AddTask(const rapidjson::Document& reqDoc, Document& respDoc)
+    void handleMsg_mngScheduler_AddTask(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -536,7 +536,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void handleMsg_mngSched_PeriodicTask(const rapidjson::Document& reqDoc, Document& respDoc)
+    void handleMsg_mngScheduler_PeriodicTask(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -551,7 +551,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void handleMsg_mngSched_GetTask(const rapidjson::Document& reqDoc, Document& respDoc)
+    void handleMsg_mngScheduler_GetTask(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -571,7 +571,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void handleMsg_mngSched_RemoveTask(const rapidjson::Document& reqDoc, Document& respDoc)
+    void handleMsg_mngScheduler_RemoveTask(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -589,7 +589,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void handleMsg_mngSched_List(const rapidjson::Document& reqDoc, Document& respDoc)
+    void handleMsg_mngScheduler_List(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -602,7 +602,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void handleMsg_mngSched_RemoveAll(const rapidjson::Document& reqDoc, Document& respDoc)
+    void handleMsg_mngScheduler_RemoveAll(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -624,26 +624,26 @@ namespace iqrf {
       if (msgType.m_type == "mngDaemon_Mode") {
         handleMsg_mngDaemon_Mode(doc, respDoc);
       }
-      else if (msgType.m_type == "mngDaemon_Restart") {
-        handleMsg_mngDaemon_Restart(doc, respDoc);
+      else if (msgType.m_type == "mngDaemon_Exit") {
+        handleMsg_mngDaemon_Exit(doc, respDoc);
       }
-      else if (msgType.m_type == "mngSched_AddTask") {
-        handleMsg_mngSched_AddTask(doc, respDoc);
+      else if (msgType.m_type == "mngScheduler_AddTask") {
+        handleMsg_mngScheduler_AddTask(doc, respDoc);
       }
-      else if (msgType.m_type == "mngSched_PeriodicTask") {
-        handleMsg_mngSched_PeriodicTask(doc, respDoc);
+      else if (msgType.m_type == "mngScheduler_PeriodicTask") {
+        handleMsg_mngScheduler_PeriodicTask(doc, respDoc);
       }
-      else if (msgType.m_type == "mngSched_GetTask") {
-        handleMsg_mngSched_GetTask(doc, respDoc);
+      else if (msgType.m_type == "mngScheduler_GetTask") {
+        handleMsg_mngScheduler_GetTask(doc, respDoc);
       }
-      else if (msgType.m_type == "mngSched_RemoveTask") {
-        handleMsg_mngSched_RemoveTask(doc, respDoc);
+      else if (msgType.m_type == "mngScheduler_RemoveTask") {
+        handleMsg_mngScheduler_RemoveTask(doc, respDoc);
       }
-      else if (msgType.m_type == "mngSched_RemoveAll") {
-        handleMsg_mngSched_RemoveAll(doc, respDoc);
+      else if (msgType.m_type == "mngScheduler_RemoveAll") {
+        handleMsg_mngScheduler_RemoveAll(doc, respDoc);
       }
-      else if (msgType.m_type == "mngSched_List") {
-        handleMsg_mngSched_List(doc, respDoc);
+      else if (msgType.m_type == "mngScheduler_List") {
+        handleMsg_mngScheduler_List(doc, respDoc);
       }
       else {
         //TODO not support
