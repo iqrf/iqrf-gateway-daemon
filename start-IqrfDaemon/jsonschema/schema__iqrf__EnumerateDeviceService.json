@@ -22,7 +22,7 @@
         },
         "RequiredInterfaces": {
             "type": "array",
-            "description": "Array of verbosity levels.",
+            "description": "Array of required interfaces.",
             "items": {
                 "type": "object",
                 "properties": {

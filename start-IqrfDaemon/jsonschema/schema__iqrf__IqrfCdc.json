@@ -27,7 +27,7 @@
         },
         "RequiredInterfaces": {
             "type": "array",
-            "description": "Array of required interfaces..",
+            "description": "Array of required interfaces.",
             "items": {
                 "type": "object",
                 "properties": {
