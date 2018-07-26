@@ -1,6 +1,6 @@
 # How to install the gateway-daemon
 
-[http://repos.iqrfsdk.org/](http://repos.iqrfsdk.org/)
+[https://repos.iqrfsdk.org/testing](https://repos.iqrfsdk.org/testing)
 
 -   iqrf-gateway-daemon_2.0.0-x_amd64.deb
 -   iqrf-gateway-daemon_2.0.0-x_armhf.deb
@@ -18,14 +18,14 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C
 -	For Debian (amd64, armhf, arm64)
 
 ```Bash
-echo "deb http://repos.iqrfsdk.org/debian stretch testing" | sudo tee -a /etc/apt/sources.list
+echo "deb https://repos.iqrfsdk.org/testing/debian stretch testing" | sudo tee -a /etc/apt/sources.list
 sudo apt-get update
 ```
 
 -	For Ubuntu (amd64, armhf, arm64)
 
 ```Bash
-echo "deb http://repos.iqrfsdk.org/ubuntu xenial testing" | sudo tee -a /etc/apt/sources.list
+echo "deb https://repos.iqrfsdk.org/testing/ubuntu xenial testing" | sudo tee -a /etc/apt/sources.list
 sudo apt-get update
 ```
 

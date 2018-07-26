@@ -1,46 +1,46 @@
 {
     "mType": "iqmeshNetwork_ReadTrConf",
     "data": {
-        "msgId": "testIqmeshRead",
+        "msgId": "c2d4cdbe-6b75-4276-b0ff-e34537306d4b",
         "rsp": {
-            "deviceAddr": 0,
+            "deviceAddr": 1,
             "embPerBits": [
-                253,
-                38,
+                254,
+                6,
                 0,
                 0
             ],
-            "customDpaHandler": false,
+            "customDpaHandler": true,
             "nodeDpaInterface": false,
             "dpaAutoexec": false,
             "routingOff": false,
             "ioSetup": false,
             "peerToPeer": false,
-            "rfChannelA": 25,
+            "rfChannelA": 17,
             "rfChannelB": 2,
             "rfSubChannelA": 42,
             "rfSubChannelB": 0,
-            "txPower": 4,
+            "txPower": 3,
             "rxFilter": 5,
             "lpRxTimeout": 6,
             "rfPgmAltChannel": 0,
-            "uartBaudrate": 9600,
+            "uartBaudrate": 1200,
             "rfPgmDualChannel": true,
             "rfPgmLpMode": false,
             "rfPgmIncorrectUpload": false,
             "rfPgmEnableAfterReset": false,
-            "rfPgmTerminateAfter1Min": true,
+            "rfPgmTerminateAfter1Min": false,
             "rfPgmTerminateMcuPin": true,
             "rfBand": "868"
         },
         "raw": [
             {
-                "request": "00.00.02.02.ff.ff",
-                "requestTs": "2018-07-25T17:19:51.768584",
-                "confirmation": "",
-                "confirmationTs": "",
-                "response": "00.00.02.82.00.00.00.00.86.c9.12.34.34.34.1e.34.30.31.32.37.34.34.34.34.34.2d.36.34.34.34.34.34.34.34.34.34.34.34.37.34.c3.30",
-                "responseTs": "2018-07-25T17:19:51.802400"
+                "request": "01.00.02.02.ff.ff",
+                "requestTs": "2018-07-26T13:22:57.984918",
+                "confirmation": "01.00.02.02.ff.ff.ff.37.00.04.00",
+                "confirmationTs": "2018-07-26T13:22:58.15692",
+                "response": "01.00.02.82.02.14.00.3c.a8.ca.32.34.34.35.1e.34.37.31.32.34.34.34.34.34.34.25.36.34.34.34.34.34.34.34.34.34.34.34.37.34.83.30",
+                "responseTs": "2018-07-26T13:22:58.123986"
             }
         ],
         "status": 0,

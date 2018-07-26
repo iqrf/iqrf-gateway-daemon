@@ -1,17 +1,17 @@
 {
     "mType": "iqmeshNetwork_EnumerateDevice",
     "data": {
-        "msgId": "testIqmeshEnumerate",
+        "msgId": "8375b64d-9320-421e-9b2c-d913c4e3db2d",
         "rsp": {
-            "deviceAddr": 0,
+            "deviceAddr": 1,
             "discovery": {
-                "discovered": true,
-                "vrn": 0,
-                "zone": 0,
+                "discovered": false,
+                "vrn": 1,
+                "zone": 1,
                 "parent": 0
             },
             "osRead": {
-                "mid": "81102d58",
+                "mid": "830004fb",
                 "osVersion": "4.03D",
                 "trMcuType": {
                     "value": 36,
@@ -19,16 +19,16 @@
                     "fccCertified": false,
                     "mcuType": "PIC16LF1938"
                 },
-                "osBuild": "08bf",
-                "rssi": "126 dBm",
+                "osBuild": "08c1",
+                "rssi": "-75 dBm",
                 "supplyVoltage": "3.00 V",
                 "flags": {
-                    "value": 0,
+                    "value": 20,
                     "insufficientOsBuild": false,
                     "interfaceType": "SPI",
-                    "dpaHandlerDetected": false,
+                    "dpaHandlerDetected": true,
                     "dpaHandlerNotDetectedButEnabled": false,
-                    "noInterfaceSupported": false
+                    "noInterfaceSupported": true
                 },
                 "slotLimits": {
                     "value": 49,
@@ -38,14 +38,14 @@
             },
             "peripheralEnumeration": {
                 "dpaVer": "3.3",
-                "perNr": 0,
+                "perNr": 1,
                 "embPers": [
-                    253,
-                    38,
+                    254,
+                    6,
                     0,
                     0
                 ],
-                "hwpId": "0000",
+                "hwpId": "1402",
                 "hwpIdVer": 0,
                 "flags": 1,
                 "userPers": [
@@ -56,7 +56,7 @@
                     0,
                     0,
                     0,
-                    0,
+                    64,
                     0,
                     0,
                     0,
@@ -65,18 +65,18 @@
             },
             "trConfiguration": {
                 "embPerBits": [
-                    253,
-                    38,
+                    254,
+                    6,
                     0,
                     0
                 ],
-                "customDpaHandler": false,
+                "customDpaHandler": true,
                 "nodeDpaInterface": false,
                 "dpaAutoexec": false,
                 "routingOff": false,
                 "ioSetup": false,
                 "peerToPeer": false,
-                "rfChannelA": 25,
+                "rfChannelA": 17,
                 "rfChannelB": 2,
                 "rfSubChannelA": 42,
                 "rfSubChannelB": 0,
@@ -84,12 +84,12 @@
                 "rxFilter": 5,
                 "lpRxTimeout": 6,
                 "rfPgmAltChannel": 0,
-                "uartBaudrate": 9600,
+                "uartBaudrate": 1200,
                 "rfPgmDualChannel": true,
                 "rfPgmLpMode": false,
                 "rfPgmIncorrectUpload": false,
                 "rfPgmEnableAfterReset": false,
-                "rfPgmTerminateAfter1Min": true,
+                "rfPgmTerminateAfter1Min": false,
                 "rfPgmTerminateMcuPin": true,
                 "rfBand": "868"
             },
@@ -97,17 +97,17 @@
                 {
                     "perTe": 3,
                     "perT": 3,
-                    "par1": 0,
-                    "par2": 253
+                    "par1": 1,
+                    "par2": 254
                 },
                 {
-                    "perTe": 38,
+                    "perTe": 6,
                     "perT": 0,
                     "par1": 0,
-                    "par2": 0
+                    "par2": 2
                 },
                 {
-                    "perTe": 0,
+                    "perTe": 20,
                     "perT": 0,
                     "par1": 0,
                     "par2": 1
@@ -122,7 +122,7 @@
                     "perTe": 0,
                     "perT": 0,
                     "par1": 0,
-                    "par2": 0
+                    "par2": 64
                 },
                 {
                     "perTe": 0,
@@ -183,7 +183,7 @@
                 "validation": {
                     "valid": true,
                     "osVer": "4.03D",
-                    "osBuild": "08bf",
+                    "osBuild": "08c1",
                     "dpaVer": "3.3",
                     "txPower": 3,
                     "rxFilter": 5
@@ -192,68 +192,76 @@
         },
         "raw": [
             {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-26T13:20:39.402453",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.36.02.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.37.34",
+                "responseTs": "2018-07-26T13:20:39.439765"
+            },
+            {
                 "request": "00.00.00.0a.ff.ff.20.00",
-                "requestTs": "2018-07-25T17:08:46.106512",
+                "requestTs": "2018-07-26T13:20:39.441015",
                 "confirmation": "",
                 "confirmationTs": "",
-                "response": "00.00.00.8a.00.00.00.00.79.25.10.81.00.00.47.01.22.50.22.20.00.00.47.01.23.50.23.30.00.00.47.01.1c.50.1c.30.00.00.46.01.10.50.10.40.00.00.45.01.11.50.11.40.00.00.45.01",
-                "responseTs": "2018-07-25T17:08:46.153339"
+                "response": "00.00.00.8a.00.00.00.36.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.08.09.00.ff.ff.00.01.00.08.09.01.ff.ff.00.01.00",
+                "responseTs": "2018-07-26T13:20:39.595595"
             },
             {
-                "request": "00.00.00.0a.ff.ff.00.50",
-                "requestTs": "2018-07-25T17:08:46.153888",
+                "request": "00.00.00.0a.ff.ff.01.50",
+                "requestTs": "2018-07-26T13:20:39.596392",
                 "confirmation": "",
                 "confirmationTs": "",
-                "response": "00.00.00.8a.00.00.00.00.00.01.02.03.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-                "responseTs": "2018-07-25T17:08:46.309469"
+                "response": "00.00.00.8a.00.00.00.36.01.02.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-26T13:20:39.749743"
             },
             {
-                "request": "00.00.00.0a.ff.ff.00.52",
-                "requestTs": "2018-07-25T17:08:46.309885",
+                "request": "00.00.00.0a.ff.ff.01.52",
+                "requestTs": "2018-07-26T13:20:39.750644",
                 "confirmation": "",
                 "confirmationTs": "",
-                "response": "00.00.00.8a.00.00.00.00.00.01.01.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-                "responseTs": "2018-07-25T17:08:46.471053"
+                "response": "00.00.00.8a.00.00.00.36.01.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-26T13:20:39.903753"
             },
             {
-                "request": "00.00.00.0a.ff.ff.00.53",
-                "requestTs": "2018-07-25T17:08:46.471494",
+                "request": "00.00.00.0a.ff.ff.01.53",
+                "requestTs": "2018-07-26T13:20:39.904550",
                 "confirmation": "",
                 "confirmationTs": "",
-                "response": "00.00.00.8a.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-                "responseTs": "2018-07-25T17:08:46.622904"
+                "response": "00.00.00.8a.00.00.00.36.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-26T13:20:40.57663"
             },
             {
-                "request": "00.00.02.00.ff.ff",
-                "requestTs": "2018-07-25T17:08:46.623324",
-                "confirmation": "",
-                "confirmationTs": "",
-                "response": "00.00.02.80.00.00.00.00.58.2d.10.81.43.24.bf.08.00.28.00.31.ae.8b.a7.1c.a8.14.9b.11.ca.55.08.e3.ca.91.31.68",
-                "responseTs": "2018-07-25T17:08:46.759524"
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-07-26T13:20:40.58485",
+                "confirmation": "01.00.02.00.ff.ff.ff.36.00.04.00",
+                "confirmationTs": "2018-07-26T13:20:40.190535",
+                "response": "01.00.02.80.02.14.00.37.fb.04.00.83.43.24.c1.08.37.28.14.31.b9.38.0c.7c.8e.b8.45.dc.6f.fd.63.14.bd.b8.dc.2a",
+                "responseTs": "2018-07-26T13:20:40.297872"
             },
             {
-                "request": "00.00.ff.3f.ff.ff",
-                "requestTs": "2018-07-25T17:08:46.759931",
-                "confirmation": "",
-                "confirmationTs": "",
-                "response": "00.00.ff.bf.00.00.00.00.03.03.00.fd.26.00.00.00.00.00.00.01",
-                "responseTs": "2018-07-25T17:08:46.881643"
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-07-26T13:20:40.430424",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.32.00.04.00",
+                "confirmationTs": "2018-07-26T13:20:40.462719",
+                "response": "01.00.ff.bf.02.14.00.37.03.03.01.fe.06.00.00.02.14.00.00.01.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-07-26T13:20:40.569354"
             },
             {
-                "request": "00.00.02.02.ff.ff",
-                "requestTs": "2018-07-25T17:08:46.882075",
-                "confirmation": "",
-                "confirmationTs": "",
-                "response": "00.00.02.82.00.00.00.00.81.c9.12.34.34.34.1e.34.37.31.32.37.34.34.34.34.34.2d.36.34.34.34.34.34.34.34.34.34.34.34.37.34.c3.30",
-                "responseTs": "2018-07-25T17:08:47.8897"
+                "request": "01.00.02.02.ff.ff",
+                "requestTs": "2018-07-26T13:20:40.702166",
+                "confirmation": "01.00.02.02.ff.ff.ff.31.00.04.00",
+                "confirmationTs": "2018-07-26T13:20:40.734195",
+                "response": "01.00.02.82.02.14.00.37.a8.ca.32.34.34.35.1e.34.37.31.32.34.34.34.34.34.34.25.36.34.34.34.34.34.34.34.34.34.34.34.37.34.83.30",
+                "responseTs": "2018-07-26T13:20:40.842843"
             },
             {
-                "request": "00.00.ff.3f.ff.ff",
-                "requestTs": "2018-07-25T17:08:47.9294",
-                "confirmation": "",
-                "confirmationTs": "",
-                "response": "00.00.ff.bf.00.00.00.00.03.03.00.fd.26.00.00.00.00.00.00.01",
-                "responseTs": "2018-07-25T17:08:47.131967"
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-07-26T13:20:40.975276",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.31.00.04.00",
+                "confirmationTs": "2018-07-26T13:20:41.7050",
+                "response": "01.00.ff.bf.02.14.00.37.03.03.01.fe.06.00.00.02.14.00.00.01.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-07-26T13:20:41.124369"
             }
         ],
         "status": 0,

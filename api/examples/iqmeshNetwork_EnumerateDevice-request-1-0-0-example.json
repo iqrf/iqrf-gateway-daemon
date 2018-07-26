@@ -1,10 +1,10 @@
 {
   "mType": "iqmeshNetwork_EnumerateDevice",
   "data": {
-    "msgId": "testIqmeshEnumerate",
+    "msgId": "8375b64d-9320-421e-9b2c-d913c4e3db2d",
     "repeat": 1,
     "req": {
-      "deviceAddr": 0
+      "deviceAddr": 1
     },
     "returnVerbose": true
   }
