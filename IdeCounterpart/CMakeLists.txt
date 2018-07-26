@@ -1,6 +1,6 @@
-project(Ide4Counterpart)
+project(IdeCounterpart)
 
-set(COMPONENT iqrf::Ide4Counterpart)
+set(COMPONENT iqrf::IdeCounterpart)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IUdpConnectorService)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)

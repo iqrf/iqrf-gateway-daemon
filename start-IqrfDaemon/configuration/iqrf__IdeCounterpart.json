@@ -1,6 +1,6 @@
 {
-  "component": "iqrf::Ide4Counterpart",
-  "instance": "Ide4Counterpart",
+  "component": "iqrf::IdeCounterpart",
+  "instance": "IdeCounterpart",
   "RequiredInterfaces": [
     {
       "name": "iqrf::IMessagingService",

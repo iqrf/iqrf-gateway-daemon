@@ -10,11 +10,11 @@
 #include <string>
 
 namespace iqrf {
-  class Ide4Counterpart : public IUdpConnectorService
+  class IdeCounterpart : public IUdpConnectorService
   {
   public:
-    Ide4Counterpart();
-    virtual ~Ide4Counterpart();
+    IdeCounterpart();
+    virtual ~IdeCounterpart();
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

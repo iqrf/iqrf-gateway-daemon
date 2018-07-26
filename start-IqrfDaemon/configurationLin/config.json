@@ -120,9 +120,9 @@
       "startlevel": 10
     },
     {
-      "name": "iqrf::Ide4Counterpart",
+      "name": "iqrf::IdeCounterpart",
       "libraryPath": "",
-      "libraryName": "Ide4Counterpart",
+      "libraryName": "IdeCounterpart",
       "enabled": true,
       "startlevel": 0
     },
