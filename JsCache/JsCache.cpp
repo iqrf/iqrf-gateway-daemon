@@ -718,7 +718,7 @@ namespace iqrf {
       // daemon wrapper workaround
       {
         std::string fname = m_iLaunchService->getDataDir();
-        fname += "/JavaScript/DaemonWrapper.js";
+        fname += "/javaScript/DaemonWrapper.js";
         std::ifstream file(fname);
         if (file.is_open()) {
           std::ostringstream strStream;

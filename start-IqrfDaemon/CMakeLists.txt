@@ -5,7 +5,7 @@ file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE _CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configuration/*)
 file(GLOB_RECURSE _CONFIG_WIN ${CMAKE_CURRENT_SOURCE_DIR}/configurationWin/*)
 file(GLOB_RECURSE _CONFIG_LIN ${CMAKE_CURRENT_SOURCE_DIR}/configurationLin/*)
-file(GLOB_RECURSE _JAVA_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/JavaScript/*)
+file(GLOB_RECURSE _JAVA_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/javaScript/*)
 file(GLOB_RECURSE _JS_CACHE ${CMAKE_CURRENT_SOURCE_DIR}/jscache/*)
 file(GLOB_RECURSE _SYSTEMD ${CMAKE_CURRENT_SOURCE_DIR}/systemd/*)
 
@@ -18,7 +18,7 @@ endif()
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 source_group("Configuration" FILES ${_CONFIG_SRC})
-source_group("JavaScript" FILES ${_JAVA_SCRIPT})
+source_group("javaScript" FILES ${_JAVA_SCRIPT})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
@@ -74,9 +74,9 @@ add_custom_command(
     ARGS -E copy_directory ${_JSON_SCHEMES_FROM} ${_JSON_SCHEMES_TO}
 )
 
-#copy JavaScript/DaemonWrapper.js
-set(_JAVA_SCRIPT_FROM ${CMAKE_CURRENT_SOURCE_DIR}/JavaScript)
-set(_JAVA_SCRIPT_TO ${_CONFIG_DEST}/configuration/JavaScript)
+#copy javaScript/DaemonWrapper.js
+set(_JAVA_SCRIPT_FROM ${CMAKE_CURRENT_SOURCE_DIR}/javaScript)
+set(_JAVA_SCRIPT_TO ${_CONFIG_DEST}/configuration/javaScript)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
