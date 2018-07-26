@@ -949,7 +949,8 @@ namespace iqrf {
         "JsCache instance activate" << std::endl <<
         "******************************"
       );
-      m_cacheDir = m_iLaunchService->getCacheDir() + "/jscache";
+      m_cacheDir = m_iLaunchService->getCacheDir() + "/iqrfRepoCache";
+      TRC_DEBUG("Using cache directory: " << PAR(m_cacheDir))
       modify(props);
 
       loadCache();
