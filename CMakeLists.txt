@@ -37,7 +37,6 @@ add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
 
 add_subdirectory(include)
 add_subdirectory(start-IqrfDaemon)
-add_subdirectory(DaemonController)
 add_subdirectory(Scheduler)
 add_subdirectory(IqrfCdc)
 add_subdirectory(IqrfSpi)

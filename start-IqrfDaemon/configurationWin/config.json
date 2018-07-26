@@ -50,13 +50,6 @@
       "startlevel": -1
     },
     {
-      "name": "iqrf::DaemonController",
-      "libraryPath": "",
-      "libraryName": "DaemonController",
-      "enabled": true,
-      "startlevel": 1
-    },
-    {
       "name": "iqrf::Scheduler",
       "libraryPath": "",
       "libraryName": "Scheduler",
