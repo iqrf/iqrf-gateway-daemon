@@ -1137,19 +1137,19 @@
         request.Data.ReturnVerbose = true;
         */
 
-        /*
         IqmeshNetwork_EnumerateDevice_Request request = new IqmeshNetwork_EnumerateDevice_Request();
         request.Data.MsgId = "testIqmeshEnumerate";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 0 ;
+        request.Data.Req.DeviceAddr = 1;
         request.Data.ReturnVerbose = true;
-        */
 
+        /*
         IqmeshNetwork_ReadTrConf_Request request = new IqmeshNetwork_ReadTrConf_Request();
         request.Data.MsgId = "testIqmeshRead";
         request.Data.Repeat = 1;
         request.Data.Req.DeviceAddr = 0;
         request.Data.ReturnVerbose = true;
+        */
 
         /*
         IqmeshNetwork_WriteTrConf_Request request = new IqmeshNetwork_WriteTrConf_Request();
@@ -1377,8 +1377,8 @@
 
         //IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_SmartConnect_Response response = IqmeshNetwork_SmartConnect_Response.FromJson(responseStr[0]);
-        //IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson(responseStr[0]);
-        IqmeshNetwork_ReadTrConf_Response response = IqmeshNetwork_ReadTrConf_Response.FromJson(responseStr[0]);
+        IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson(responseStr[0]);
+        //IqmeshNetwork_ReadTrConf_Response response = IqmeshNetwork_ReadTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_WriteTrConf_Response response = IqmeshNetwork_WriteTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_OtaUpload_Response response = IqmeshNetwork_OtaUpload_Response.FromJson(responseStr[0]);
 
