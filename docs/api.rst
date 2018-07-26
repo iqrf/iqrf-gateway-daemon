@@ -4,13 +4,9 @@ IQRF Gateway-daemon API
 JSON messages for communication via MQ/WS/MQTT channels. Messages are compatible from OS v4.02D and 
 DPA v3.02 at TR-7xD and higher. It is always highly recommended to use latest OS/DPA FW on the modules. 
 
-.. figure:: iqrfgd-api.png
-    :align: center
-    :figclass: align-center
-    :width: 1160px
-    :height: 304px
+IQRF Gateway-daemon API `categories`_.
 
-    IQRF GWD API categories
+.. _`categories`: https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-api.png
 
 IQRF Generic
 ------------
@@ -83,8 +79,8 @@ Embed Coordinator
 - `ClearAllBonds response v1-0-0`_ and `example`__
 - `BondNode request v1-0-0`_ and `example`__
 - `BondNode response v1-0-0`_ and `example`__
-- `RemoveBond request v1-0-0`_ and `example`__
-- `RemoveBond response v1-0-0`_ and `example`__
+- `RemoveBond C request v1-0-0`_ and `example`__
+- `RemoveBond C response v1-0-0`_ and `example`__
 - `Rebond request v1-0-0`_ and `example`__
 - `Rebond response v1-0-0`_ and `example`__
 - `Discovery request v1-0-0`_ and `example`__
@@ -95,20 +91,20 @@ Embed Coordinator
 - `SetHops response v1-0-0`_ and `example`__
 - `DiscoveryData request v1-0-0`_ and `example`__
 - `DiscoveryData response v1-0-0`_ and `example`__
-- `Backup request v1-0-0`_ and `example`__
-- `Backup response v1-0-0`_ and `example`__
-- `Restore request v1-0-0`_ and `example`__
-- `Restore response v1-0-0`_ and `example`__
+- `Backup C request v1-0-0`_ and `example`__
+- `Backup C response v1-0-0`_ and `example`__
+- `Restore C request v1-0-0`_ and `example`__
+- `Restore C response v1-0-0`_ and `example`__
 - `AuthorizeBond request v1-0-0`_ and `example`__
 - `AuthorizeBond response v1-0-0`_ and `example`__
-- `ReadRemotelyBondedMid request v1-0-0`_ and `example`__
-- `ReadRemotelyBondedMid response v1-0-0`_ and `example`__
-- `ClearRemotelyBondedMid request v1-0-0`_ and `example`__
-- `ClearRemotelyBondedMid response v1-0-0`_ and `example`__
-- `EnableRemoteBonding request v1-0-0`_ and `example`__
-- `EnableRemoteBonding response v1-0-0`_ and `example`__
-- `SmartConnect request v1-0-0`_ and `example`__
-- `SmartConnect response v1-0-0`_ and `example`__
+- `ReadRemotelyBondedMid C request v1-0-0`_ and `example`__
+- `ReadRemotelyBondedMid C response v1-0-0`_ and `example`__
+- `ClearRemotelyBondedMid C request v1-0-0`_ and `example`__
+- `ClearRemotelyBondedMid C response v1-0-0`_ and `example`__
+- `EnableRemoteBonding C request v1-0-0`_ and `example`__
+- `EnableRemoteBonding C response v1-0-0`_ and `example`__
+- `SmartConnect C request v1-0-0`_ and `example`__
+- `SmartConnect C response v1-0-0`_ and `example`__
 
 .. _`AddrInfo request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_AddrInfo-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_AddrInfo-request-1-0-0-example.json
@@ -130,9 +126,9 @@ Embed Coordinator
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_BondNode-request-1-0-0-example.json
 .. _`BondNode response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_BondNode-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_BondNode-response-1-0-0-example.json
-.. _`RemoveBond request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_RemoveBond-request-1-0-0.json
+.. _`RemoveBond C request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_RemoveBond-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_RemoveBond-request-1-0-0-example.json
-.. _`RemoveBond response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_RemoveBond-response-1-0-0.json
+.. _`RemoveBond C response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_RemoveBond-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_RemoveBond-response-1-0-0-example.json
 .. _`Rebond request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_Rebond-request-1-0-0.json 
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_Rebond-request-1-0-0-example.json
@@ -154,87 +150,87 @@ Embed Coordinator
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_DiscoveryData-request-1-0-0-example.json
 .. _`DiscoveryData response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_DiscoveryData-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_DiscoveryData-response-1-0-0-example.json
-.. _`Backup request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_Backup-request-1-0-0.json
+.. _`Backup C request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_Backup-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_Backup-request-1-0-0-example.json
-.. _`Backup response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_Backup-response-1-0-0.json
+.. _`Backup C response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_Backup-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_Backup-response-1-0-0-example.json
-.. _`Restore request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_Restore-request-1-0-0.json
+.. _`Restore C request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_Restore-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_Restore-request-1-0-0-example.json
-.. _`Restore response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_Restore-response-1-0-0.json
+.. _`Restore C response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_Restore-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_Restore-response-1-0-0-example.json
 .. _`AuthorizeBond request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_AuthorizeBond-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_AuthorizeBond-request-1-0-0-example.json
 .. _`AuthorizeBond response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_AuthorizeBond-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_AuthorizeBond-response-1-0-0-example.json
-.. _`ReadRemotelyBondedMid request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_ReadRemotelyBondedMid-request-1-0-0.json
+.. _`ReadRemotelyBondedMid C request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_ReadRemotelyBondedMid-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_ReadRemotelyBondedMid-request-1-0-0-example.json
-.. _`ReadRemotelyBondedMid response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_ReadRemotelyBondedMid-response-1-0-0.json
+.. _`ReadRemotelyBondedMid C response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_ReadRemotelyBondedMid-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_ReadRemotelyBondedMid-response-1-0-0-example.json
-.. _`ClearRemotelyBondedMid request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_ClearRemotelyBondedMid-request-1-0-0.json
+.. _`ClearRemotelyBondedMid C request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_ClearRemotelyBondedMid-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_ClearRemotelyBondedMid-request-1-0-0-example.json
-.. _`ClearRemotelyBondedMid response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_ClearRemotelyBondedMid-response-1-0-0.json
+.. _`ClearRemotelyBondedMid C response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_ClearRemotelyBondedMid-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_ClearRemotelyBondedMid-response-1-0-0-example.json
-.. _`EnableRemoteBonding request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_EnableRemoteBonding-request-1-0-0.json
+.. _`EnableRemoteBonding C request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_EnableRemoteBonding-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_EnableRemoteBonding-request-1-0-0-example.json
-.. _`EnableRemoteBonding response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_EnableRemoteBonding-response-1-0-0.json
+.. _`EnableRemoteBonding C response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_EnableRemoteBonding-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_EnableRemoteBonding-response-1-0-0-example.json
-.. _`SmartConnect request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_SmartConnect-request-1-0-0.json
+.. _`SmartConnect C request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_SmartConnect-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_SmartConnect-request-1-0-0-example.json
-.. _`SmartConnect response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_SmartConnect-response-1-0-0.json
+.. _`SmartConnect C response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_SmartConnect-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_SmartConnect-response-1-0-0-example.json
 
 Embed Node
 ++++++++++
 
-- `Read request v1-0-0`_ and `example`__
-- `Read response v1-0-0`_ and `example`__
-- `RemoveBond request v1-0-0`_ and `example`__
-- `RemoveBond response v1-0-0`_ and `example`__
-- `Backup request v1-0-0`_ and `example`__
-- `Backup response v1-0-0`_ and `example`__
-- `Restore request v1-0-0`_ and `example`__
-- `Restore response v1-0-0`_ and `example`__
-- `ReadRemotelyBondedMid request v1-0-0`_ and `example`__
-- `ReadRemotelyBondedMid response v1-0-0`_ and `example`__
-- `ClearRemotelyBondedMid request v1-0-0`_ and `example`__
-- `ClearRemotelyBondedMid response v1-0-0`_ and `example`__
-- `EnableRemoteBonding request v1-0-0`_ and `example`__
-- `EnableRemoteBonding response v1-0-0`_ and `example`__
+- `Read N request v1-0-0`_ and `example`__
+- `Read N response v1-0-0`_ and `example`__
+- `RemoveBond N request v1-0-0`_ and `example`__
+- `RemoveBond N response v1-0-0`_ and `example`__
+- `Backup N request v1-0-0`_ and `example`__
+- `Backup N response v1-0-0`_ and `example`__
+- `Restore N request v1-0-0`_ and `example`__
+- `Restore N response v1-0-0`_ and `example`__
+- `ReadRemotelyBondedMid N request v1-0-0`_ and `example`__
+- `ReadRemotelyBondedMid N response v1-0-0`_ and `example`__
+- `ClearRemotelyBondedMid N request v1-0-0`_ and `example`__
+- `ClearRemotelyBondedMid N response v1-0-0`_ and `example`__
+- `EnableRemoteBonding N request v1-0-0`_ and `example`__
+- `EnableRemoteBonding N response v1-0-0`_ and `example`__
 
-.. _`Read request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Read-request-1-0-0.json
+.. _`Read N request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Read-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_Read-request-1-0-0-example.json
-.. _`Read response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Read-response-1-0-0.json
+.. _`Read N response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Read-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_Read-response-1-0-0-example.json
-.. _`RemoveBond request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_RemoveBond-request-1-0-0.json
+.. _`RemoveBond N request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_RemoveBond-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_RemoveBond-request-1-0-0-example.json
-.. _`RemoveBond response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_RemoveBond-response-1-0-0.json
+.. _`RemoveBond N response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_RemoveBond-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_RemoveBond-response-1-0-0-example.json
-.. _`Backup request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Backup-request-1-0-0.json
+.. _`Backup N request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Backup-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_Backup-request-1-0-0-example.json
-.. _`Backup response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Backup-response-1-0-0.json
+.. _`Backup N response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Backup-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_Backup-response-1-0-0-example.json
-.. _`Restore request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Restore-request-1-0-0.json
+.. _`Restore N request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Restore-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_Restore-request-1-0-0-example.json
-.. _`Restore response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Restore-response-1-0-0.json
+.. _`Restore N response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Restore-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_Restore-response-1-0-0-example.json
-.. _`ReadRemotelyBondedMid request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_ReadRemotelyBondedMid-request-1-0-0.json
+.. _`ReadRemotelyBondedMid N request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_ReadRemotelyBondedMid-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_ReadRemotelyBondedMid-request-1-0-0-example.json
-.. _`ReadRemotelyBondedMid response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_ReadRemotelyBondedMid-response-1-0-0.json
+.. _`ReadRemotelyBondedMid N response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_ReadRemotelyBondedMid-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_ReadRemotelyBondedMid-response-1-0-0-example.json
-.. _`ClearRemotelyBondedMid request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_ClearRemotelyBondedMid-request-1-0-0.json
+.. _`ClearRemotelyBondedMid N request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_ClearRemotelyBondedMid-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_ClearRemotelyBondedMid-request-1-0-0-example.json
-.. _`ClearRemotelyBondedMid response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_ClearRemotelyBondedMid-response-1-0-0.json
+.. _`ClearRemotelyBondedMid N response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_ClearRemotelyBondedMid-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_ClearRemotelyBondedMid-response-1-0-0-example.json
-.. _`EnableRemoteBonding request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_EnableRemoteBonding-request-1-0-0.json
+.. _`EnableRemoteBonding N request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_EnableRemoteBonding-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_EnableRemoteBonding-request-1-0-0-example.json
-.. _`EnableRemoteBonding response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_EnableRemoteBonding-response-1-0-0.json
+.. _`EnableRemoteBonding N response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_EnableRemoteBonding-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_EnableRemoteBonding-response-1-0-0-example.json
 
 Embed OS
 ++++++++
 
-- `Read request v1-0-0`_ and `example`__
-- `Read response v1-0-0`_ and `example`__
+- `Read OS request v1-0-0`_ and `example`__
+- `Read OS response v1-0-0`_ and `example`__
 - `Batch request v1-0-0`_ and `example`__
 - `Batch response v1-0-0`_ and `example`__
 - `SelectiveBatch request v1-0-0`_ and `example`__
@@ -258,9 +254,9 @@ Embed OS
 - `WriteCfgByte request v1-0-0`_ and `example`__
 - `WriteCfgByte response v1-0-0`_ and `example`__
 
-.. _`Read request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedOs_Read-request-1-0-0.json
+.. _`Read OS request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedOs_Read-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedOs_Read-request-1-0-0-example.json
-.. _`Read response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedOs_Read-response-1-0-0.json
+.. _`Read OS response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedOs_Read-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedOs_Read-response-1-0-0-example.json
 .. _`Batch request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedOs_Batch-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedOs_Batch-request-1-0-0-example.json
@@ -310,172 +306,172 @@ Embed OS
 Embed EEPROM
 ++++++++++++
 
-- `Read request v1-0-0`_ and `example`__
-- `Read response v1-0-0`_ and `example`__
-- `Write request v1-0-0`_ and `example`__
-- `Write response v1-0-0`_ and `example`__
+- `Read EE request v1-0-0`_ and `example`__
+- `Read EE response v1-0-0`_ and `example`__
+- `Write EE request v1-0-0`_ and `example`__
+- `Write EE response v1-0-0`_ and `example`__
 
-.. _`Read request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeprom_Read-request-1-0-0.json
+.. _`Read EE request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeprom_Read-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedEeprom_Read-request-1-0-0-example.json
-.. _`Read response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeprom_Read-response-1-0-0.json
+.. _`Read EE response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeprom_Read-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedEeprom_Read-response-1-0-0-example.json
-.. _`Write request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeprom_Write-request-1-0-0.json
+.. _`Write EE request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeprom_Write-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedEeprom_Write-request-1-0-0-example.json
-.. _`Write response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeprom_Write-response-1-0-0.json
+.. _`Write EE response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeprom_Write-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedEeprom_Write-response-1-0-0-example.json
 
 Embed EEEPROM
 +++++++++++++
 
-- `Read request v1-0-0`_ and `example`__
-- `Read response v1-0-0`_ and `example`__
-- `Write request v1-0-0`_ and `example`__
-- `Write response v1-0-0`_ and `example`__
+- `Read EEE request v1-0-0`_ and `example`__
+- `Read EEE response v1-0-0`_ and `example`__
+- `Write EEE request v1-0-0`_ and `example`__
+- `Write EEE response v1-0-0`_ and `example`__
 
-.. _`Read request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeeprom_Read-request-1-0-0.json
+.. _`Read EEE request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeeprom_Read-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedEeeprom_Read-request-1-0-0-example.json
-.. _`Read response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeeprom_Read-response-1-0-0.json
+.. _`Read EEE response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeeprom_Read-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedEeeprom_Read-response-1-0-0-example.json
-.. _`Write request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeeprom_Write-request-1-0-0.json
+.. _`Write EEE request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeeprom_Write-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedEeeprom_Write-request-1-0-0-example.json
-.. _`Write response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeeprom_Write-response-1-0-0.json
+.. _`Write EEE response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedEeeprom_Write-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedEeeprom_Write-response-1-0-0-example.json
 
 Embed RAM
 +++++++++
 
-- `Read request v1-0-0`_ and `example`__
-- `Read response v1-0-0`_ and `example`__
-- `Write request v1-0-0`_ and `example`__
-- `Write response v1-0-0`_ and `example`__
+- `Read RAM request v1-0-0`_ and `example`__
+- `Read RAM response v1-0-0`_ and `example`__
+- `Write RAM request v1-0-0`_ and `example`__
+- `Write RAM response v1-0-0`_ and `example`__
 
-.. _`Read request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedRam_Read-request-1-0-0.json
+.. _`Read RAM request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedRam_Read-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedRam_Read-request-1-0-0-example.json
-.. _`Read response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedRam_Read-response-1-0-0.json
+.. _`Read RAM response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedRam_Read-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedRam_Read-response-1-0-0-example.json
-.. _`Write request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedRam_Write-request-1-0-0.json
+.. _`Write RAM request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedRam_Write-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedRam_Write-request-1-0-0-example.json
-.. _`Write response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedRam_Write-response-1-0-0.json
+.. _`Write RAM response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedRam_Write-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedRam_Write-response-1-0-0-example.json
 
 Embed SPI
 +++++++++
 
-- `WriteRead request v1-0-0`_ and `example`__
-- `WriteRead response v1-0-0`_ and `example`__
+- `WriteRead SPI request v1-0-0`_ and `example`__
+- `WriteRead SPI response v1-0-0`_ and `example`__
 
-.. _`WriteRead request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedSpi_WriteRead-request-1-0-0.json
+.. _`WriteRead SPI request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedSpi_WriteRead-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedSpi_WriteRead-request-1-0-0-example.json
-.. _`WriteRead response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedSpi_WriteRead-response-1-0-0.json
+.. _`WriteRead SPI response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedSpi_WriteRead-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedSpi_WriteRead-response-1-0-0-example.json
 
 Embed LEDR
 ++++++++++
 
-- `Set request v1-0-0`_ and `example`__
-- `Set response v1-0-0`_ and `example`__
-- `Get request v1-0-0`_ and `example`__
-- `Get response v1-0-0`_ and `example`__
-- `Pulse request v1-0-0`_ and `example`__
-- `Pulse response v1-0-0`_ and `example`__
+- `Set LEDR request v1-0-0`_ and `example`__
+- `Set LEDR response v1-0-0`_ and `example`__
+- `Get LEDR request v1-0-0`_ and `example`__
+- `Get LEDR response v1-0-0`_ and `example`__
+- `Pulse LEDR request v1-0-0`_ and `example`__
+- `Pulse LEDR response v1-0-0`_ and `example`__
 
-.. _`Set request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Set-request-1-0-0.json
+.. _`Set LEDR request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Set-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Set-request-1-0-0-example.json
-.. _`Set response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Set-response-1-0-0.json
+.. _`Set LEDR response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Set-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Set-response-1-0-0-example.json
-.. _`Get request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Get-request-1-0-0.json
+.. _`Get LEDR request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Get-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Get-request-1-0-0-example.json
-.. _`Get response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Get-response-1-0-0.json
+.. _`Get LEDR response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Get-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Get-response-1-0-0-example.json
-.. _`Pulse request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Pulse-request-1-0-0.json
+.. _`Pulse LEDR request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Pulse-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Pulse-request-1-0-0-example.json
-.. _`Pulse response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Pulse-response-1-0-0.json
+.. _`Pulse LEDR response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Pulse-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Pulse-response-1-0-0-example.json
 
 Embed LEDG
 ++++++++++
 
-- `Set request v1-0-0`_ and `example`__
-- `Set response v1-0-0`_ and `example`__
-- `Get request v1-0-0`_ and `example`__
-- `Get response v1-0-0`_ and `example`__
-- `Pulse request v1-0-0`_ and `example`__
-- `Pulse response v1-0-0`_ and `example`__
+- `Set LEDG request v1-0-0`_ and `example`__
+- `Set LEDG response v1-0-0`_ and `example`__
+- `Get LEDG request v1-0-0`_ and `example`__
+- `Get LEDG response v1-0-0`_ and `example`__
+- `Pulse LEDG request v1-0-0`_ and `example`__
+- `Pulse LEDG response v1-0-0`_ and `example`__
 
-.. _`Set request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Set-request-1-0-0.json
+.. _`Set LEDG request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Set-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Set-request-1-0-0-example.json
-.. _`Set response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Set-response-1-0-0.json
+.. _`Set LEDG response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Set-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Set-response-1-0-0-example.json
-.. _`Get request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Get-request-1-0-0.json
+.. _`Get LEDG request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Get-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Get-request-1-0-0-example.json
-.. _`Get response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Get-response-1-0-0.json
+.. _`Get LEDG response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Get-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Get-response-1-0-0-example.json
-.. _`Pulse request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Pulse-request-1-0-0.json
+.. _`Pulse LEDG request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Pulse-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Pulse-request-1-0-0-example.json
-.. _`Pulse response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Pulse-response-1-0-0.json
+.. _`Pulse LEDG response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Pulse-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Pulse-response-1-0-0-example.json
 
 Embed IO
 ++++++++
 
-- `Direction request v1-0-0`_ and `example`__
-- `Direction response v1-0-0`_ and `example`__
-- `Set request v1-0-0`_ and `example`__
-- `Set response v1-0-0`_ and `example`__
-- `Get request v1-0-0`_ and `example`__
-- `Get response v1-0-0`_ and `example`__
+- `Direction IO request v1-0-0`_ and `example`__
+- `Direction IO response v1-0-0`_ and `example`__
+- `Set IO request v1-0-0`_ and `example`__
+- `Set IO response v1-0-0`_ and `example`__
+- `Get IO request v1-0-0`_ and `example`__
+- `Get IO response v1-0-0`_ and `example`__
 
-.. _`Direction request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Direction-request-1-0-0.json
+.. _`Direction IO request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Direction-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedIo_Direction-request-1-0-0-example.json
-.. _`Direction response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Direction-response-1-0-0.json
+.. _`Direction IO response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Direction-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedIo_Direction-response-1-0-0-example.json
-.. _`Set request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Set-request-1-0-0.json
+.. _`Set IO request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Set-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedIo_Set-request-1-0-0-example.json
-.. _`Set response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Set-response-1-0-0.json
+.. _`Set IO response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Set-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedIo_Set-response-1-0-0-example.json
-.. _`Get request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Get-request-1-0-0.json
+.. _`Get IO request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Get-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedIo_Get-request-1-0-0-example.json
-.. _`Get response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Get-response-1-0-0.json
+.. _`Get IO response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedIo_Get-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedIo_Get-response-1-0-0-example.json
 
 Embed Thermometer
 +++++++++++++++++
 
-- `Read request v1-0-0`_ and `example`__
-- `Read response v1-0-0`_ and `example`__
+- `Read T request v1-0-0`_ and `example`__
+- `Read T response v1-0-0`_ and `example`__
 
-.. _`Read request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedThermometer_Read-request-1-0-0.json
+.. _`Read T request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedThermometer_Read-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedThermometer_Read-request-1-0-0-example.json
-.. _`Read response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedThermometer_Read-response-1-0-0.json
+.. _`Read T response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedThermometer_Read-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedThermometer_Read-response-1-0-0-example.json
 
 Embed Uart
 ++++++++++
 
-- `Open request v1-0-0`_ and `example`__
-- `Open response v1-0-0`_ and `example`__
-- `Close request v1-0-0`_ and `example`__
-- `Close response v1-0-0`_ and `example`__
-- `WriteRead request v1-0-0`_ and `example`__
-- `WriteRead response v1-0-0`_ and `example`__
-- `ClearWriteRead request v1-0-0`_ and `example`__
-- `ClearWriteRead response v1-0-0`_ and `example`__
+- `Open UART request v1-0-0`_ and `example`__
+- `Open UART response v1-0-0`_ and `example`__
+- `Close UART request v1-0-0`_ and `example`__
+- `Close UART response v1-0-0`_ and `example`__
+- `WriteRead UART request v1-0-0`_ and `example`__
+- `WriteRead UART response v1-0-0`_ and `example`__
+- `ClearWriteRead UART request v1-0-0`_ and `example`__
+- `ClearWriteRead UART response v1-0-0`_ and `example`__
 
-.. _`Open request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_Open-request-1-0-0.json
+.. _`Open UART request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_Open-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedUart_Open-request-1-0-0-example.json
-.. _`Open response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_Open-response-1-0-0.json
+.. _`Open UART response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_Open-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedUart_Open-response-1-0-0-example.json
-.. _`Close request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_Close-request-1-0-0.json
+.. _`Close UART request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_Close-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedUart_Close-request-1-0-0-example.json
-.. _`Close response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_Close-response-1-0-0.json
+.. _`Close UART response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_Close-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedUart_Close-response-1-0-0-example.json
-.. _`WriteRead request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_WriteRead-request-1-0-0.json
+.. _`WriteRead UART request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_WriteRead-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedUart_WriteRead-request-1-0-0-example.json
-.. _`WriteRead response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_WriteRead-response-1-0-0.json
+.. _`WriteRead UART response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_WriteRead-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedUart_WriteRead-response-1-0-0-example.json
-.. _`ClearWriteRead request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_ClearWriteRead-request-1-0-0.json
+.. _`ClearWriteRead UART request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_ClearWriteRead-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedUart_ClearWriteRead-request-1-0-0-example.json
-.. _`ClearWriteRead response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_ClearWriteRead-response-1-0-0.json
+.. _`ClearWriteRead UART response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedUart_ClearWriteRead-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedUart_ClearWriteRead-response-1-0-0-example.json
 
 Embed Frc
@@ -510,14 +506,14 @@ Embed Frc
 Binaryoutput
 ++++++++++++
 
-- `Enumerate request v1-0-0`_ and `example`__
-- `Enumerate response v1-0-0`_ and `example`__
+- `Enumerate BO request v1-0-0`_ and `example`__
+- `Enumerate BO response v1-0-0`_ and `example`__
 - `SetOutput request v1-0-0`_ and `example`__
 - `SetOutput response v1-0-0`_ and `example`__
 
-.. _`Enumerate request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_Enumerate-request-1-0-0.json
+.. _`Enumerate BO request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_Enumerate-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_Enumerate-request-1-0-0-example.json
-.. _`Enumerate response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_Enumerate-response-1-0-0.json
+.. _`Enumerate BO response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_Enumerate-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_Enumerate-response-1-0-0-example.json
 .. _`SetOutput request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_SetOutput-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_SetOutput-request-1-0-0-example.json
@@ -527,8 +523,8 @@ Binaryoutput
 Light
 +++++
 
-- `Enumerate request v1-0-0`_ and `example`__
-- `Enumerate response v1-0-0`_ and `example`__
+- `Enumerate L request v1-0-0`_ and `example`__
+- `Enumerate L response v1-0-0`_ and `example`__
 - `SetPower request v1-0-0`_ and `example`__
 - `SetPower response v1-0-0`_ and `example`__
 - `IncrementPower request v1-0-0`_ and `example`__
@@ -536,9 +532,9 @@ Light
 - `DecrementPower request v1-0-0`_ and `example`__
 - `DecrementPower response v1-0-0`_ and `example`__
 
-.. _`Enumerate request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_Enumerate-request-1-0-0.json
+.. _`Enumerate L request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_Enumerate-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_Enumerate-request-1-0-0-example.json
-.. _`Enumerate response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_Enumerate-response-1-0-0.json
+.. _`Enumerate L response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_Enumerate-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_Enumerate-response-1-0-0-example.json
 .. _`SetPower request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_SetPower-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_SetPower-request-1-0-0-example.json
@@ -556,16 +552,16 @@ Light
 Sensor
 ++++++
 
-- `Enumerate request v1-0-0`_ and `example`__
-- `Enumerate response v1-0-0`_ and `example`__
+- `Enumerate S request v1-0-0`_ and `example`__
+- `Enumerate S response v1-0-0`_ and `example`__
 - `ReadSensorsWithTypes request v1-0-0`_ and `example`__
 - `ReadSensorsWithTypes response v1-0-0`_ and `example`__
 - `Frc request v1-0-0`_ and `example`__
 - `Frc response v1-0-0`_ and `example`__
 
-.. _`Enumerate request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Enumerate-request-1-0-0.json
+.. _`Enumerate S request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Enumerate-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_Enumerate-request-1-0-0-example.json
-.. _`Enumerate response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Enumerate-response-1-0-0.json
+.. _`Enumerate S response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Enumerate-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_Enumerate-response-1-0-0-example.json
 .. _`ReadSensorsWithTypes request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_ReadSensorsWithTypes-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_ReadSensorsWithTypes-request-1-0-0-example.json
@@ -591,7 +587,7 @@ IQRF Bonding
 
 - `BondNodeLocal request v1-0-0`_ and `example`__
 - `BondNodeLocal response v1-0-0`_ and `example`__
-- `SmartConnect request v1-0-0`_ and `example`__
+- `SmartConnect  request v1-0-0`_ and `example`__
 - `SmartConnect response v1-0-0`_ and `example`__
 
 .. _`BondNodeLocal request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_BondNodeLocal-request-1-0-0.json
