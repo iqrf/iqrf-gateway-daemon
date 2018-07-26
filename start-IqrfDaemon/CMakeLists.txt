@@ -85,8 +85,8 @@ add_custom_command(
 )
 
 #copy config schemas
-set(_CFG_SCHEMA_FROM ${CMAKE_CURRENT_SOURCE_DIR}/jsonschema)
-set(_CFG_SCHEMA_TO ${_CONFIG_DEST}/configuration/jsonschema)
+set(_CFG_SCHEMA_FROM ${CMAKE_CURRENT_SOURCE_DIR}/cfgSchemas)
+set(_CFG_SCHEMA_TO ${_CONFIG_DEST}/configuration/cfgSchemas)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
@@ -94,9 +94,9 @@ add_custom_command(
     ARGS -E copy_directory ${_CFG_SCHEMA_FROM} ${_CFG_SCHEMA_TO}
 )
 
-#copy Scheduler/Task.json
-set(_CFG_SCHEDULER_FROM ${CMAKE_CURRENT_SOURCE_DIR}/Scheduler)
-set(_CFG_SCHEDULER_TO ${_CONFIG_DEST}/configuration/Scheduler)
+#copy scheduler/Task.json
+set(_CFG_SCHEDULER_FROM ${CMAKE_CURRENT_SOURCE_DIR}/scheduler)
+set(_CFG_SCHEDULER_TO ${_CONFIG_DEST}/configuration/scheduler)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
@@ -105,8 +105,8 @@ add_custom_command(
 )
 
 #copy offline repository
-set(_IQRF_REPO_FROM ${CMAKE_CURRENT_SOURCE_DIR}/jscache)
-set(_IQRF_REPO_TO ${_CONFIG_DEST}/configuration/jscache)
+set(_IQRF_REPO_FROM ${CMAKE_CURRENT_SOURCE_DIR}/iqrfRepoCache)
+set(_IQRF_REPO_TO ${_CONFIG_DEST}/configuration/iqrfRepoCache)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
