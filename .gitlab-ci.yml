@@ -77,7 +77,7 @@ daemon-amd64:
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
  script:
   - export ARCH=amd64
-  - export IQRF_GW_DAEMON_VERSION=2.0.0dev
+  - export IQRF_GW_DAEMON_VERSION=2.0.0-dev
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
@@ -96,7 +96,7 @@ daemon-amd64:
   - cmake --build iqrf-daemon-build
   - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package.sh
-  - tar czvf iqrf-gateway-daemon_${IQRF_GW_DAEMON_VERSION}_${ARCH}.tar.gz iqrf-daemon-deploy    
+  - tar czvf iqrf-gateway-daemon_${IQRF_GW_DAEMON_VERSION}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy    
  artifacts:
   paths:
    - iqrf-gateway-daemon_*_amd64.deb
@@ -180,7 +180,7 @@ daemon-armhf:
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
  script:
   - export ARCH=armhf
-  - export IQRF_GW_DAEMON_VERSION=2.0.0dev
+  - export IQRF_GW_DAEMON_VERSION=2.0.0-dev
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
@@ -199,7 +199,7 @@ daemon-armhf:
   - cmake --build iqrf-daemon-build
   - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package.sh
-  - tar czvf iqrf-gateway-daemon_${IQRF_GW_DAEMON_VERSION}_${ARCH}.tar.gz iqrf-daemon-deploy    
+  - tar czvf iqrf-gateway-daemon_${IQRF_GW_DAEMON_VERSION}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy    
  artifacts:
   paths:
    - iqrf-gateway-daemon_*_armhf.deb
