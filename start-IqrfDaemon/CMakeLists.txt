@@ -66,7 +66,7 @@ add_custom_command(
 
 #copy api schemas
 set(_JSON_SCHEMES_FROM ${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemas)
-set(_JSON_SCHEMES_TO ${_CONFIG_DEST}/configuration/JsonSchemas)
+set(_JSON_SCHEMES_TO ${_CONFIG_DEST}/configuration/apiSchemas)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD

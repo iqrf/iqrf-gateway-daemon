@@ -460,7 +460,7 @@ namespace iqrf {
 
       props->getMemberAsBool("validateJsonResponse", m_validateResponse);
       TRC_INFORMATION(PAR(m_validateResponse));
-      m_schemesDir = m_iLaunchService->getDataDir() + "/JsonSchemas";
+      m_schemesDir = m_iLaunchService->getDataDir() + "/apiSchemas";
       TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
       loadJsonSchemesRequest(m_schemesDir);
 
