@@ -172,7 +172,7 @@ namespace {
         }
 
         return std::unique_ptr<CodeBlock>(
-          new CodeBlock(data, realAddress, endAddress)
+          shape_new CodeBlock(data, realAddress, endAddress)
           );
       }
 
@@ -216,12 +216,12 @@ namespace {
     static std::unique_ptr<CodeBlock> mergeBlock(const CodeBlock& b1, const CodeBlock& b2) {
       if ((b1.getEndAddress() + 1) == b2.getStartAddress()) {
         return std::unique_ptr<CodeBlock>(
-          new CodeBlock(b1.getCode() + b2.getCode(), b1.getStartAddress(), b2.getEndAddress())
+          shape_new CodeBlock(b1.getCode() + b2.getCode(), b1.getStartAddress(), b2.getEndAddress())
           );
       }
 
       return std::unique_ptr<CodeBlock>(
-        new CodeBlock(b2.getCode() + b1.getCode(), b2.getStartAddress(), b1.getEndAddress())
+        shape_new CodeBlock(b2.getCode() + b1.getCode(), b2.getStartAddress(), b1.getEndAddress())
         );
     }
 
@@ -511,7 +511,7 @@ namespace iqrf {
         prepareAsMostEffective(*handlerBlock, data);
       }
 
-      return std::unique_ptr<PreparedData>(new PreparedDataImpl(data, length, checksum));
+      return std::unique_ptr<PreparedData>(shape_new PreparedDataImpl(data, length, checksum));
     }
 
 
@@ -534,7 +534,7 @@ namespace iqrf {
         prepareAsMostEffective(codeBlock, data);
       }
 
-      return std::unique_ptr<PreparedData>(new PreparedDataImpl(data, length, checksum));
+      return std::unique_ptr<PreparedData>(shape_new PreparedDataImpl(data, length, checksum));
     }
 
   };

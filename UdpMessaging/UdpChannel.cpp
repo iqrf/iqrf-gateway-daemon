@@ -277,11 +277,11 @@ void UdpChannel::getMyMacAddress(SOCKET soc)
   DWORD dwBufLen = sizeof(IP_ADAPTER_INFO);
   char mac_addr[32];
 
-  AdapterInfo = (PIP_ADAPTER_INFO) new uint8_t[dwBufLen];
+  AdapterInfo = (PIP_ADAPTER_INFO) shape_new uint8_t[dwBufLen];
 
   if (GetAdaptersInfo(AdapterInfo, &dwBufLen) == ERROR_BUFFER_OVERFLOW) {
     delete[] AdapterInfo;
-    AdapterInfo = (PIP_ADAPTER_INFO) new uint8_t[dwBufLen];
+    AdapterInfo = (PIP_ADAPTER_INFO) shape_new uint8_t[dwBufLen];
   }
 
   if (GetAdaptersInfo(AdapterInfo, &dwBufLen) == NO_ERROR) {

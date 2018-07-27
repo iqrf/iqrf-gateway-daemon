@@ -50,9 +50,9 @@ private:
 
   /*******************************************************************\
   *                                                                   *
-  *   uint16_t UpdateCRC_CCITT(uint16_t crc, uint8_t c);                *
+  *   uint16_t UpdateCRC_CCITT(uint16_t crc, uint8_t c);              *
   *                                                                   *
-  *   The function update_crc_ccitt calculates  a  new  CRC-CCITT     *
+  *   The function update_crc_ccitt calculates  a  CRC-CCITT          *
   *   value  based  on the previous value of the CRC and the next     *
   *   byte of the data to be checked.                                 *
   *                                                                   *

@@ -179,7 +179,7 @@ namespace iqrf {
     {
       /*
       m_msgType_mngIqmeshWriteConfig
-        = new IMessagingSplitterService::MsgType(m_mTypeName_mngIqmeshWriteConfig, 1, 0, 0);
+        = shape_new IMessagingSplitterService::MsgType(m_mTypeName_mngIqmeshWriteConfig, 1, 0, 0);
         */
     }
 

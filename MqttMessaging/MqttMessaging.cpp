@@ -59,10 +59,10 @@ namespace iqrf {
     std::string m_name;
     bool m_acceptAsyncMsg = false;
 
-    TaskQueue<ustring>* m_toMqttMessageQueue;
+    TaskQueue<ustring>* m_toMqttMessageQueue = nullptr;
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
 
-    MQTTAsync m_client;
+    MQTTAsync m_client = nullptr;
 
     std::atomic<MQTTAsync_token> m_deliveredtoken;
     std::atomic_bool m_stopAutoConnect;
@@ -208,6 +208,8 @@ namespace iqrf {
       if (m_disconnect_future.wait_for(span) == std::future_status::timeout) {
         TRC_WARNING("Timeout to wait disconnect");
       }
+
+      MQTTAsync_setCallbacks(m_client, nullptr, nullptr, nullptr, nullptr);
 
       MQTTAsync_destroy(&m_client);
       delete m_toMqttMessageQueue;
