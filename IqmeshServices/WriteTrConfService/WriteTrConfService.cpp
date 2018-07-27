@@ -930,7 +930,7 @@ namespace iqrf {
       frcPacketRequest->FrcCommand = FRC_AcknowledgedBroadcastBits;
       setSelectedNodesForFrcRequest(frcPacketRequest,targetNodes);
 
-      uint8_t writeConfigPacketFreeSpace = FRC_MAX_USER_DATA_LEN
+      uint8_t writeConfigPacketFreeSpace = 25
         - 1
         - sizeof(frcPacket.DpaRequestPacket_t.PCMD)
         - sizeof(frcPacket.DpaRequestPacket_t.PNUM)
@@ -1482,6 +1482,9 @@ namespace iqrf {
     {
       uns8* userData = frcPacket->UserData;
 
+      // initialize user data to zero
+      memset(userData, 0, 25 * sizeof(uns8));
+
       // length
       userData[0] = sizeof (TDpaIFaceHeader) - 1 + 1 + securityString.length();
       
@@ -1518,13 +1521,6 @@ namespace iqrf {
 
       frcPacketRequest->FrcCommand = FRC_AcknowledgedBroadcastBits;
       setSelectedNodesForFrcRequest(frcPacketRequest, nodesToWrite);
-
-      uint8_t writeConfigPacketFreeSpace = FRC_MAX_USER_DATA_LEN
-        - 1
-        - sizeof(frcPacket.DpaRequestPacket_t.PCMD)
-        - sizeof(frcPacket.DpaRequestPacket_t.PNUM)
-        - sizeof(frcPacket.DpaRequestPacket_t.HWPID)
-        ;
 
       // set security string as a data for FRC request
       setUserDataForSetSecurityFrcRequest(frcPacketRequest, securityString, isPassword);
@@ -1630,11 +1626,11 @@ namespace iqrf {
         // get extra results
         DpaMessage extraResultRequest;
         DpaMessage::DpaPacket_t extraResultPacket;
-        frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-        frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
-        frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-        frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
-        frcRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
+        extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
+        extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+        extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
 
         // issue the DPA request
         std::shared_ptr<IDpaTransaction2> extraResultTransaction;
