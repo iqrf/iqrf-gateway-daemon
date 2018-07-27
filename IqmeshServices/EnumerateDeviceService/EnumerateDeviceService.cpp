@@ -384,7 +384,7 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          discoveryDataTransaction = m_exclusiveAccess->executeDpaTransaction(discoveryDataRequest);
+          discoveryDataTransaction = m_iIqrfDpaService->executeDpaTransaction(discoveryDataRequest);
           transResult = discoveryDataTransaction->get();
         }
         catch (std::exception& e) {
@@ -524,7 +524,7 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          osReadTransaction = m_exclusiveAccess->executeDpaTransaction(osReadRequest);
+          osReadTransaction = m_iIqrfDpaService->executeDpaTransaction(osReadRequest);
           transResult = osReadTransaction->get();
         }
         catch (std::exception& e) {
@@ -611,7 +611,7 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          perEnumTransaction = m_exclusiveAccess->executeDpaTransaction(perEnumRequest);
+          perEnumTransaction = m_iIqrfDpaService->executeDpaTransaction(perEnumRequest);
           transResult = perEnumTransaction->get();
         }
         catch (std::exception& e) {
@@ -698,7 +698,7 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          readHwpTransaction = m_exclusiveAccess->executeDpaTransaction(readHwpRequest);
+          readHwpTransaction = m_iIqrfDpaService->executeDpaTransaction(readHwpRequest);
           transResult = readHwpTransaction->get();
         }
         catch (std::exception& e) {
@@ -785,7 +785,7 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          morePersInfoTransaction = m_exclusiveAccess->executeDpaTransaction(morePersInfoRequest);
+          morePersInfoTransaction = m_iIqrfDpaService->executeDpaTransaction(morePersInfoRequest);
           transResult = morePersInfoTransaction->get();
         }
         catch (std::exception& e) {
@@ -880,7 +880,7 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          bondedNodesTransaction = m_exclusiveAccess->executeDpaTransaction(bondedNodesRequest);
+          bondedNodesTransaction = m_iIqrfDpaService->executeDpaTransaction(bondedNodesRequest);
           transResult = bondedNodesTransaction->get();
         }
         catch (std::exception& e) {
@@ -1672,6 +1672,7 @@ namespace iqrf {
       }
 
       // try to establish exclusive access
+      /*
       try {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
@@ -1685,7 +1686,7 @@ namespace iqrf {
         TRC_FUNCTION_LEAVE("");
         return;
       }
-
+      */
       // discovery data
       discoveryData(deviceEnumerateResult);
       
@@ -1703,7 +1704,7 @@ namespace iqrf {
 
 
       // release exclusive access
-      m_exclusiveAccess.reset();
+      //m_exclusiveAccess.reset();
 
       // create and send FINAL response
       Document responseDoc = createResponse(comEnumerateDevice.getMsgId(), msgType, deviceEnumerateResult, comEnumerateDevice);

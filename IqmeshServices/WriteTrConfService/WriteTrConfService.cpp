@@ -386,6 +386,21 @@ namespace iqrf {
 
     void processSecurityError(
       WriteResult& writeResult,
+      const uint16_t targetNode,
+      const WriteError::Type errType,
+      const std::string& errMsg
+    )
+    {
+      WriteError writeError(errType, errMsg);
+
+      NodeWriteResult nodeWriteResult;
+      nodeWriteResult.setError(writeError);
+
+      writeResult.putResult(targetNode, nodeWriteResult);
+    }
+
+    void processSecurityError(
+      WriteResult& writeResult,
       const std::list<uint16_t>& targetNodes,
       const WriteError::Type errType,
       const std::string& errMsg
@@ -1497,8 +1512,102 @@ namespace iqrf {
       std::copy(securityString.begin(), securityString.end(), userData + 6);
     }
 
-    // sets security
-    void setSecurityString(
+    // sets security string into one concrete node - issues one DPA Set Security request
+    void _setSecurityStringToOneNode(
+      WriteResult& writeResult,
+      const uint16_t nodeAddr,
+      const std::basic_string<uint8_t>& securityString,
+      const bool isPassword
+    )
+    {
+      TRC_FUNCTION_ENTER("");
+
+      DpaMessage securityRequest;
+      DpaMessage::DpaPacket_t securityPacket;
+      securityPacket.DpaRequestPacket_t.NADR = nodeAddr;
+      securityPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
+      securityPacket.DpaRequestPacket_t.PCMD = CMD_OS_SET_SECURITY;
+      securityPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+
+      TPerOSSetSecurity_Request* securityPacketRequest = &securityPacket.DpaRequestPacket_t.DpaMessage.PerOSSetSecurity_Request;
+      securityPacketRequest->Type = (isPassword) ? 0 : 1;
+
+      // copy security string into packet
+      memset(securityPacketRequest->Data, 0, 16 * sizeof(uint8_t));
+      std::copy(securityString.begin(), securityString.end(), securityPacketRequest->Data);
+
+      securityRequest.DataToBuffer(
+        securityPacket.Buffer,
+        sizeof(TDpaIFaceHeader) + (1 + 16) * sizeof(uint8_t)
+      );
+
+      // issue the DPA request
+      std::shared_ptr<IDpaTransaction2> setSecurityTransaction;
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+
+      // type of error
+      WriteError::Type errorType = (isPassword) ? WriteError::Type::SecurityPassword : WriteError::Type::SecurityUserKey;
+
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          setSecurityTransaction = m_iIqrfDpaService->executeDpaTransaction(securityRequest);
+          transResult = setSecurityTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_DEBUG("DPA transaction error : " << e.what());
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          processSecurityError(writeResult, nodeAddr, errorType, e.what());
+          break;
+        }
+
+        TRC_DEBUG("Result from set security transaction as string:" << PAR(transResult->getErrorString()));
+
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        writeResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Set security successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(securityRequest.PeripheralType(), securityRequest.NodeAddress())
+            << PAR(securityRequest.PeripheralCommand())
+          );
+        }
+        else {
+          // transaction error
+          if (errorCode < 0) {
+            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processSecurityError(writeResult, nodeAddr, errorType, "Transaction error.");
+            break;
+          } // DPA error
+          else {
+            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+            if (rep < m_repeat) {
+              continue;
+            }
+
+            processSecurityError(writeResult, nodeAddr, errorType, "DPA error.");
+            break;
+          }
+        }
+      }
+    }
+
+    // sets security to pure nodes (without coordinator)
+    void _setSecurityStringToNodes(
       WriteResult& writeResult, 
       const std::list<uint16_t>& targetNodes,
       const std::basic_string<uint8_t>& securityString,
@@ -1713,6 +1822,40 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
     
+    void setSecurityString(
+      WriteResult& writeResult,
+      const std::list<uint16_t>& targetNodes,
+      const std::basic_string<uint8_t>& securityPassword,
+      const bool isPassword
+    ) 
+    {
+      bool isCoordPresent = false;
+
+      std::list<uint16_t> targetNodesCopy;
+
+      // only nodes - coordinator filtered out
+      for (const uint16_t nodeAddr : targetNodes) {
+        if (nodeAddr == COORDINATOR_ADDRESS) {
+          isCoordPresent = true;
+          continue;
+        }
+        targetNodesCopy.push_back(nodeAddr);
+      }
+
+      if (isCoordPresent) {
+        _setSecurityStringToOneNode(writeResult, 0, securityPassword, isPassword);
+      }
+
+      if (!targetNodesCopy.empty()) {
+        if (targetNodesCopy.size() == 1) {
+          _setSecurityStringToOneNode(writeResult, targetNodesCopy.front(), securityPassword, isPassword);
+        }
+        else {
+          _setSecurityStringToNodes(writeResult, targetNodesCopy, securityPassword, isPassword);
+        }
+      }
+    }
+
     WriteResult writeConfigBytes(
       const std::vector<HWP_ConfigByte>& configBytes,
       const std::list<uint16_t>& targetNodes
