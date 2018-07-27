@@ -15,17 +15,10 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C
 
 ## Add repository to the source list
 
--	For Debian (amd64, armhf, arm64)
+-	For Debian 9 (amd64, armhf, arm64)
 
 ```Bash
 echo "deb https://repos.iqrfsdk.org/testing/debian stretch testing" | sudo tee -a /etc/apt/sources.list
-sudo apt-get update
-```
-
--	For Ubuntu (amd64, armhf, arm64)
-
-```Bash
-echo "deb https://repos.iqrfsdk.org/testing/ubuntu xenial testing" | sudo tee -a /etc/apt/sources.list
 sudo apt-get update
 ```
 
