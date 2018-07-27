@@ -1,0 +1,16 @@
+{
+  "component": "shape::TraceFileService",
+  "instance": "shape::TraceFileService-JsCache",
+
+  "path": "/var/log/iqrfgd2",
+  "filename": "iqrf-gateway-daemon-cache.log",
+  "maxSizeMB": 1048576,
+  "timestampFiles": false,
+
+  "VerbosityLevels": [
+    {
+      "channel": 33,
+      "level": "DBG"
+    }
+  ]
+}
