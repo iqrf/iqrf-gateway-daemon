@@ -50,9 +50,10 @@ namespace iqrf {
       "******************************"
     );
 
-    std::string fname = m_iLaunchService->getCacheDir();
-    fname += "/Scheduler/Tasks.json";
-    updateConfiguration(fname);
+    std::string schedulerDir = m_iLaunchService->getCacheDir();
+    schedulerDir += "/scheduler/Tasks.json";
+    TRC_DEBUG("Using directory: " << PAR(schedulerDir))
+    updateConfiguration(schedulerDir);
 
     //if (shape::Properties::Result::ok == props->getMemberAsString("TasksFile", fname)) {
     //  updateConfiguration(fname);

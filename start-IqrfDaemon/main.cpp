@@ -4,7 +4,13 @@
 #include <Trace.h>
 #include <iostream>
 
-TRC_INIT_MNAME("IqrfGwDaemon-start");
+TRC_INIT_MNAME("iqrfgd2");
+#ifdef TRC_CHANNEL
+#undef TRC_CHANNEL
+#endif
+//Shape buffer channel
+#define TRC_CHANNEL 0
+
 
 extern "C" {
   const shape::ComponentMeta& get_component_shape__LauncherService(unsigned long* compiler, unsigned long* typehash);

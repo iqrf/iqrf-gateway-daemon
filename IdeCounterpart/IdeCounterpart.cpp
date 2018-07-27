@@ -1,36 +1,36 @@
 #define IUdpConnectorService_EXPORTS
 
 #include "VersionInfo.h"
-#include "Ide4Counterpart.h"
+#include "IdeCounterpart.h"
 #include "EnumStringConvertor.h"
 #include "UdpMessage.h"
 #include "crc.h"
 #include "Trace.h"
 
-#include "iqrf__Ide4Counterpart.hxx"
+#include "iqrf__IdeCounterpart.hxx"
 
-TRC_INIT_MODULE(iqrf::Ide4Counterpart);
+TRC_INIT_MODULE(iqrf::IdeCounterpart);
 
 namespace iqrf {
 
-  Ide4Counterpart::Ide4Counterpart()
+  IdeCounterpart::IdeCounterpart()
   {
     TRC_FUNCTION_ENTER("");
     TRC_FUNCTION_LEAVE("")
   }
 
-  Ide4Counterpart::~Ide4Counterpart()
+  IdeCounterpart::~IdeCounterpart()
   {
     TRC_FUNCTION_ENTER("");
     TRC_FUNCTION_LEAVE("")
   }
 
-  void Ide4Counterpart::activate(const shape::Properties *props)
+  void IdeCounterpart::activate(const shape::Properties *props)
   {
     TRC_FUNCTION_ENTER("");
     TRC_INFORMATION(std::endl <<
       "******************************" << std::endl <<
-      "Ide4Counterpart instance activate" << std::endl <<
+      "IdeCounterpart instance activate" << std::endl <<
       "******************************"
     );
 
@@ -39,49 +39,49 @@ namespace iqrf {
       return handleMessageFromUdp(msg);
     });
 
-    setMode(Ide4Counterpart::Mode::Operational);
+    setMode(IdeCounterpart::Mode::Operational);
 
     TRC_FUNCTION_LEAVE("")
   }
 
-  void Ide4Counterpart::deactivate()
+  void IdeCounterpart::deactivate()
   {
     TRC_FUNCTION_ENTER("");
     TRC_INFORMATION(std::endl <<
       "******************************" << std::endl <<
-      "Ide4Counterpart instance deactivate" << std::endl <<
+      "IdeCounterpart instance deactivate" << std::endl <<
       "******************************"
     );
 
-    setMode(Ide4Counterpart::Mode::Operational);
+    setMode(IdeCounterpart::Mode::Operational);
     
     m_messaging->unregisterMessageHandler();
 
     TRC_FUNCTION_LEAVE("")
   }
 
-  void Ide4Counterpart::modify(const shape::Properties *props)
+  void IdeCounterpart::modify(const shape::Properties *props)
   {
   }
 
-  void Ide4Counterpart::attachInterface(shape::ITraceService* iface)
+  void IdeCounterpart::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void Ide4Counterpart::detachInterface(shape::ITraceService* iface)
+  void IdeCounterpart::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }
 
-  void Ide4Counterpart::attachInterface(iqrf::IUdpMessagingService* iface)
+  void IdeCounterpart::attachInterface(iqrf::IUdpMessagingService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     m_messaging = iface;
     TRC_FUNCTION_LEAVE("")
   }
 
-  void Ide4Counterpart::detachInterface(iqrf::IUdpMessagingService* iface)
+  void IdeCounterpart::detachInterface(iqrf::IUdpMessagingService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     if (m_messaging == iface) {
@@ -90,14 +90,14 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void Ide4Counterpart::attachInterface(iqrf::IIqrfChannelService* iface)
+  void IdeCounterpart::attachInterface(iqrf::IIqrfChannelService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     m_iqrfChannelService = iface;
     TRC_FUNCTION_LEAVE("")
   }
 
-  void Ide4Counterpart::detachInterface(iqrf::IIqrfChannelService* iface)
+  void IdeCounterpart::detachInterface(iqrf::IIqrfChannelService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     if (m_iqrfChannelService == iface) {
@@ -106,14 +106,14 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void Ide4Counterpart::attachInterface(iqrf::IIqrfDpaService* iface)
+  void IdeCounterpart::attachInterface(iqrf::IIqrfDpaService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     m_iqrfDpaService = iface;
     TRC_FUNCTION_LEAVE("")
   }
 
-  void Ide4Counterpart::detachInterface(iqrf::IIqrfDpaService* iface)
+  void IdeCounterpart::detachInterface(iqrf::IIqrfDpaService* iface)
   {
     TRC_FUNCTION_ENTER(PAR(iface));
     if (m_iqrfDpaService == iface) {
@@ -122,7 +122,7 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void Ide4Counterpart::setMode(Mode mode)
+  void IdeCounterpart::setMode(Mode mode)
   {
     TRC_FUNCTION_ENTER(NAME_PAR(mode, (int)mode));
 
@@ -163,7 +163,7 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
-  int Ide4Counterpart::sendMessageToIde(const std::basic_string<unsigned char>& message)
+  int IdeCounterpart::sendMessageToIde(const std::basic_string<unsigned char>& message)
   {
     std::basic_string<unsigned char> udpMessage(IQRF_UDP_HEADER_SIZE + IQRF_UDP_CRC_SIZE, '\0');
     udpMessage[cmd] = (unsigned char)IQRF_UDP_IQRF_SPI_DATA;
@@ -172,7 +172,7 @@ namespace iqrf {
     return 0;
   }
 
-  void Ide4Counterpart::getGwIdent(std::basic_string<unsigned char>& message)
+  void IdeCounterpart::getGwIdent(std::basic_string<unsigned char>& message)
   {
     //1. - GW type e.g.: GW - ETH - 02A
     //2. - FW version e.g. : 2.50
@@ -201,7 +201,7 @@ namespace iqrf {
     message = res;
   }
 
-  void Ide4Counterpart::getGwStatus(std::basic_string<unsigned char>& message)
+  void IdeCounterpart::getGwStatus(std::basic_string<unsigned char>& message)
   {
     // current date/time based on current system
     time_t now = time(0);
@@ -220,7 +220,7 @@ namespace iqrf {
     message[timeYear] = (unsigned char)(ltm->tm_year % 100);   //DB10 GW date – year
   }
 
-  int Ide4Counterpart::handleMessageFromUdp(const std::vector<uint8_t>& msg)
+  int IdeCounterpart::handleMessageFromUdp(const std::vector<uint8_t>& msg)
   {
     //TRC_DBG("==================================" << std::endl <<
     //  "Received from UDP: " << std::endl << FORM_HEX(udpMessage.data(), udpMessage.size()));
@@ -301,7 +301,7 @@ namespace iqrf {
     return -1;
   }
 
-  void Ide4Counterpart::encodeMessageUdp(std::basic_string<unsigned char>& udpMessage, const std::basic_string<unsigned char>& message)
+  void IdeCounterpart::encodeMessageUdp(std::basic_string<unsigned char>& udpMessage, const std::basic_string<unsigned char>& message)
   {
     unsigned short dlen = (unsigned short)message.size();
 
@@ -318,7 +318,7 @@ namespace iqrf {
     udpMessage[dlen + IQRF_UDP_HEADER_SIZE + 1] = (unsigned char)(crc & 0xFF);
   }
 
-  void Ide4Counterpart::decodeMessageUdp(const std::basic_string<unsigned char>& udpMessage, std::basic_string<unsigned char>& message)
+  void IdeCounterpart::decodeMessageUdp(const std::basic_string<unsigned char>& udpMessage, std::basic_string<unsigned char>& message)
   {
     unsigned short dlen = 0;
 

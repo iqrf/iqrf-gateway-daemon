@@ -1,11 +1,11 @@
-project (start-IqrfDaemon)
+project (iqrfgd2)
 
 file(GLOB_RECURSE _HDRFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE _CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configuration/*)
 file(GLOB_RECURSE _CONFIG_WIN ${CMAKE_CURRENT_SOURCE_DIR}/configurationWin/*)
 file(GLOB_RECURSE _CONFIG_LIN ${CMAKE_CURRENT_SOURCE_DIR}/configurationLin/*)
-file(GLOB_RECURSE _JAVA_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/JavaScript/*)
+file(GLOB_RECURSE _JAVA_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/javaScript/*)
 file(GLOB_RECURSE _JS_CACHE ${CMAKE_CURRENT_SOURCE_DIR}/jscache/*)
 file(GLOB_RECURSE _SYSTEMD ${CMAKE_CURRENT_SOURCE_DIR}/systemd/*)
 
@@ -18,7 +18,7 @@ endif()
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 source_group("Configuration" FILES ${_CONFIG_SRC})
-source_group("JavaScript" FILES ${_JAVA_SCRIPT})
+source_group("javaScript" FILES ${_JAVA_SCRIPT})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
@@ -66,7 +66,7 @@ add_custom_command(
 
 #copy api schemas
 set(_JSON_SCHEMES_FROM ${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemas)
-set(_JSON_SCHEMES_TO ${_CONFIG_DEST}/configuration/JsonSchemas)
+set(_JSON_SCHEMES_TO ${_CONFIG_DEST}/configuration/apiSchemas)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
@@ -74,9 +74,9 @@ add_custom_command(
     ARGS -E copy_directory ${_JSON_SCHEMES_FROM} ${_JSON_SCHEMES_TO}
 )
 
-#copy JavaScript/DaemonWrapper.js
-set(_JAVA_SCRIPT_FROM ${CMAKE_CURRENT_SOURCE_DIR}/JavaScript)
-set(_JAVA_SCRIPT_TO ${_CONFIG_DEST}/configuration/JavaScript)
+#copy javaScript/DaemonWrapper.js
+set(_JAVA_SCRIPT_FROM ${CMAKE_CURRENT_SOURCE_DIR}/javaScript)
+set(_JAVA_SCRIPT_TO ${_CONFIG_DEST}/configuration/javaScript)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
@@ -85,8 +85,8 @@ add_custom_command(
 )
 
 #copy config schemas
-set(_CFG_SCHEMA_FROM ${CMAKE_CURRENT_SOURCE_DIR}/jsonschema)
-set(_CFG_SCHEMA_TO ${_CONFIG_DEST}/configuration/jsonschema)
+set(_CFG_SCHEMA_FROM ${CMAKE_CURRENT_SOURCE_DIR}/cfgSchemas)
+set(_CFG_SCHEMA_TO ${_CONFIG_DEST}/configuration/cfgSchemas)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
@@ -94,9 +94,9 @@ add_custom_command(
     ARGS -E copy_directory ${_CFG_SCHEMA_FROM} ${_CFG_SCHEMA_TO}
 )
 
-#copy Scheduler/Task.json
-set(_CFG_SCHEDULER_FROM ${CMAKE_CURRENT_SOURCE_DIR}/Scheduler)
-set(_CFG_SCHEDULER_TO ${_CONFIG_DEST}/configuration/Scheduler)
+#copy scheduler/Task.json
+set(_CFG_SCHEDULER_FROM ${CMAKE_CURRENT_SOURCE_DIR}/scheduler)
+set(_CFG_SCHEDULER_TO ${_CONFIG_DEST}/configuration/scheduler)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
@@ -105,8 +105,8 @@ add_custom_command(
 )
 
 #copy offline repository
-set(_IQRF_REPO_FROM ${CMAKE_CURRENT_SOURCE_DIR}/jscache)
-set(_IQRF_REPO_TO ${_CONFIG_DEST}/configuration/jscache)
+set(_IQRF_REPO_FROM ${CMAKE_CURRENT_SOURCE_DIR}/iqrfRepoCache)
+set(_IQRF_REPO_TO ${_CONFIG_DEST}/configuration/iqrfRepoCache)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD

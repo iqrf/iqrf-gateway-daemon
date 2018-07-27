@@ -50,13 +50,6 @@
       "startlevel": -1
     },
     {
-      "name": "iqrf::DaemonController",
-      "libraryPath": "",
-      "libraryName": "DaemonController",
-      "enabled": true,
-      "startlevel": 1
-    },
-    {
       "name": "iqrf::Scheduler",
       "libraryPath": "",
       "libraryName": "Scheduler",
@@ -120,9 +113,9 @@
       "startlevel": 10
     },
     {
-      "name": "iqrf::Ide4Counterpart",
+      "name": "iqrf::IdeCounterpart",
       "libraryPath": "",
-      "libraryName": "Ide4Counterpart",
+      "libraryName": "IdeCounterpart",
       "enabled": true,
       "startlevel": 0
     },

@@ -718,7 +718,7 @@ namespace iqrf {
       // daemon wrapper workaround
       {
         std::string fname = m_iLaunchService->getDataDir();
-        fname += "/JavaScript/DaemonWrapper.js";
+        fname += "/javaScript/DaemonWrapper.js";
         std::ifstream file(fname);
         if (file.is_open()) {
           std::ostringstream strStream;
@@ -949,7 +949,8 @@ namespace iqrf {
         "JsCache instance activate" << std::endl <<
         "******************************"
       );
-      m_cacheDir = m_iLaunchService->getCacheDir() + "/jscache";
+      m_cacheDir = m_iLaunchService->getCacheDir() + "/iqrfRepoCache";
+      TRC_DEBUG("Using cache directory: " << PAR(m_cacheDir))
       modify(props);
 
       loadCache();
