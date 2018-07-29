@@ -471,7 +471,7 @@ namespace iqrf {
       writeConfigPacket.DpaRequestPacket_t.NADR = nodeAddr;
       writeConfigPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       writeConfigPacket.DpaRequestPacket_t.PCMD = CMD_OS_WRITE_CFG;
-      writeConfigPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      writeConfigPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       TPerOSWriteCfg_Request* tOsWriteCfgRequest = &writeConfigPacket.DpaRequestPacket_t.DpaMessage.PerOSWriteCfg_Request;
 
@@ -589,8 +589,8 @@ namespace iqrf {
       userData[0] = 1 + 1 + 1 + 2 + configBytes.size() * 3;
       userData[1] = PNUM_OS;
       userData[2] = CMD_OS_WRITE_CFG_BYTE;
-      userData[3] = HWPID_Default & 0xFF;
-      userData[4] = (HWPID_Default >> 8) & 0xFF;
+      userData[3] = HWPID_DoNotCheck & 0xFF;
+      userData[4] = (HWPID_DoNotCheck >> 8) & 0xFF;
 
       // fill in config bytes
       uint8_t dataIndex = 5;
@@ -836,7 +836,7 @@ namespace iqrf {
       writeConfigBytePacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       writeConfigBytePacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       writeConfigBytePacket.DpaRequestPacket_t.PCMD = CMD_OS_WRITE_CFG_BYTE;
-      writeConfigBytePacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      writeConfigBytePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       TPerOSWriteCfgByte_Request* writeConfigPacketRequest
         = &writeConfigBytePacket.DpaRequestPacket_t.DpaMessage.PerOSWriteCfgByte_Request;
@@ -938,7 +938,7 @@ namespace iqrf {
       frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
       frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
-      frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      frcPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       TPerFrcSendSelective_Request* frcPacketRequest = &frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request;
 
@@ -1076,7 +1076,7 @@ namespace iqrf {
           extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
           extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
           extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-          extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+          extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
           extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
 
           // issue the DPA request
@@ -1229,7 +1229,7 @@ namespace iqrf {
       bondedNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       bondedNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
       bondedNodesPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
-      bondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      bondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
       bondedNodesRequest.DataToBuffer(bondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
@@ -1349,7 +1349,7 @@ namespace iqrf {
       readConfigPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       readConfigPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       readConfigPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
-      readConfigPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      readConfigPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
       readConfigRequest.DataToBuffer(readConfigPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
@@ -1505,8 +1505,8 @@ namespace iqrf {
       
       userData[1] = PNUM_OS;
       userData[2] = CMD_OS_SET_SECURITY;
-      userData[3] = HWPID_Default & 0xFF;
-      userData[4] = (HWPID_Default >> 8) & 0xFF;
+      userData[3] = HWPID_DoNotCheck & 0xFF;
+      userData[4] = (HWPID_DoNotCheck >> 8) & 0xFF;
       userData[5] = (isPassword) ? 0 : 1;
 
       std::copy(securityString.begin(), securityString.end(), userData + 6);
@@ -1527,7 +1527,7 @@ namespace iqrf {
       securityPacket.DpaRequestPacket_t.NADR = nodeAddr;
       securityPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       securityPacket.DpaRequestPacket_t.PCMD = CMD_OS_SET_SECURITY;
-      securityPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      securityPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       TPerOSSetSecurity_Request* securityPacketRequest = &securityPacket.DpaRequestPacket_t.DpaMessage.PerOSSetSecurity_Request;
       securityPacketRequest->Type = (isPassword) ? 0 : 1;
@@ -1621,7 +1621,7 @@ namespace iqrf {
       frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
       frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
-      frcPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+      frcPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       TPerFrcSendSelective_Request* frcPacketRequest = &frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request;
 
@@ -1738,7 +1738,7 @@ namespace iqrf {
         extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
         extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
         extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-        extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_Default;
+        extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
 
         // issue the DPA request
