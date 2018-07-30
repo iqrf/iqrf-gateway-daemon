@@ -5,8 +5,9 @@
     "repeat": 1,
     "restart": true,
     "req": {
-      "deviceAddr": 0,
-      "txPower": 4
+      "deviceAddr": 1,
+      "txPower": 3,
+      "rxFilter": 5
     },
     "returnVerbose": true
   }

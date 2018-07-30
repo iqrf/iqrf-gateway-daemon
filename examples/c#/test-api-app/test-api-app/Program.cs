@@ -236,7 +236,7 @@
     /// <summary>
     /// GW IP address
     /// </summary>
-    const string IqrfGwDeamonIP = "192.168.1.102";
+    const string IqrfGwDeamonIP = "192.168.1.100";
 
     /// <summary>
     /// Log transaction
@@ -1137,17 +1137,19 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /*
         IqmeshNetwork_EnumerateDevice_Request request = new IqmeshNetwork_EnumerateDevice_Request();
         request.Data.MsgId = "testIqmeshEnumerate";
         request.Data.Repeat = 1;
         request.Data.Req.DeviceAddr = 1;
         request.Data.ReturnVerbose = true;
+        */
 
         /*
         IqmeshNetwork_ReadTrConf_Request request = new IqmeshNetwork_ReadTrConf_Request();
         request.Data.MsgId = "testIqmeshRead";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 0;
+        request.Data.Req.DeviceAddr = 1;
         request.Data.ReturnVerbose = true;
         */
 
@@ -1155,8 +1157,11 @@
         IqmeshNetwork_WriteTrConf_Request request = new IqmeshNetwork_WriteTrConf_Request();
         request.Data.MsgId = "testIqmeshWrite";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 0;
-        request.Data.Req.TxPower = 4;
+        request.Data.Req.DeviceAddr = 1;
+        request.Data.Req.TxPower = 3;
+        request.Data.Req.RxFilter = 5;
+        //request.Data.Req.SecurityPassword = "";
+        //request.Data.Req.SecurityUserKey = "";
         request.Data.ReturnVerbose = true;
         */
 
@@ -1377,7 +1382,7 @@
 
         //IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_SmartConnect_Response response = IqmeshNetwork_SmartConnect_Response.FromJson(responseStr[0]);
-        IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson(responseStr[0]);
+        //IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_ReadTrConf_Response response = IqmeshNetwork_ReadTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_WriteTrConf_Response response = IqmeshNetwork_WriteTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_OtaUpload_Response response = IqmeshNetwork_OtaUpload_Response.FromJson(responseStr[0]);

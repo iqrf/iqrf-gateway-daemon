@@ -33,12 +33,20 @@ sudo systemctl disable iqrf-daemon.service
 
 ```Bash
 sudo apt-get install iqrf-gateway-daemon
+sudo systemctl daemon-reload
+sudo systemctl status iqrfgd2.service
 ```
 or
 
 ```Bash
 sudo apt-get update
 sudo apt-get install --only-upgrade iqrf-gateway-daemon
+```
+and
+
+```Bash
+sudo systemctl daemon-reload
+sudo systemctl restart iqrfgd2.service
 ```
 
 ## Check the daemon service status
