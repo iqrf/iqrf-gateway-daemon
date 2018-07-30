@@ -1,4 +1,4 @@
-# How to install the gateway-daemon
+# How to install the gateway-daemon (ALFA)
 
 [https://repos.iqrfsdk.org/testing](https://repos.iqrfsdk.org/testing)
 
@@ -18,7 +18,7 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C
 -	For Debian 9 (amd64, armhf, arm64)
 
 ```Bash
-echo "deb https://repos.iqrfsdk.org/testing/debian stretch testing" | sudo tee -a /etc/apt/sources.list
+echo "deb https://repos.iqrfsdk.org/devel/debian stretch devel" | sudo tee -a /etc/apt/sources.list
 sudo apt-get update
 ```
 
