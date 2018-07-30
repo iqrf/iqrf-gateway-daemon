@@ -106,7 +106,7 @@ namespace iqrf {
     MngRestartMsg(const rapidjson::Document& doc)
       :MngMsg(doc)
     {
-      m_timeToRestart = rapidjson::Pointer("/data/req/timeToRestart").Get(doc)->GetInt();
+      m_timeToExit = rapidjson::Pointer("/data/req/timeToExit").Get(doc)->GetInt();
     }
 
     virtual ~MngRestartMsg()
@@ -115,17 +115,17 @@ namespace iqrf {
 
     double getTimeToRestart() const
     {
-      return m_timeToRestart;
+      return m_timeToExit;
     }
 
     void createResponsePayload(rapidjson::Document& doc) override
     {
-      Pointer("/data/rsp/timeToRestart").Set(doc, m_timeToRestart);
+      Pointer("/data/rsp/timeToExit").Set(doc, m_timeToExit);
       MngMsg::createResponsePayload(doc);
     }
 
   private:
-    double m_timeToRestart;
+    double m_timeToExit;
   };
 
   class SchedAddTaskMsg : public MngMsg
