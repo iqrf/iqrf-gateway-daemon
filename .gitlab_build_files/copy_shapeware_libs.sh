@@ -21,6 +21,6 @@ mkdir -p ${LIB}${LOCAL}
 cp shapeware-build/bin/libCppRestService.so ${LIB}${IQRFGD2}
 cp shapeware-build/bin/libWebsocketService.so ${LIB}${IQRFGD2}
 
-cp -av shapeware-build/external/libwebsockets/lib/libwebsockets.so.12 ${LIB}${LOCAL}
+#cp -av shapeware-build/external/libwebsockets/lib/libwebsockets.so.12 ${LIB}${LOCAL}
 
 echo "Shapeware libs copied."
