@@ -1,6 +1,6 @@
 # How to install the gateway-daemon (ALFA)
 
-[https://repos.iqrfsdk.org/testing](https://repos.iqrfsdk.org/testing)
+[https://repos.iqrfsdk.org/devel](https://repos.iqrfsdk.org/devel)
 
 -   iqrf-gateway-daemon_2.0.0-x_amd64.deb
 -   iqrf-gateway-daemon_2.0.0-x_armhf.deb
@@ -33,8 +33,6 @@ sudo systemctl disable iqrf-daemon.service
 
 ```Bash
 sudo apt-get install iqrf-gateway-daemon
-sudo systemctl daemon-reload
-sudo systemctl status iqrfgd2.service
 ```
 or
 
@@ -83,11 +81,12 @@ Configure/check mainly following components:
 
 folder /etc/iqrfgd2: 
 
-- config.json           (tip: enable/disable daemon components)
+- config.json           (tip: enable/disable daemon components, select either SPI or CDC)
 - iqrf__IqrfSpi.json    (tip: configure your IQRF interface - SPI)
 - iqrf__IqrfCdc.json    (tip: configure your IQRF interface - CDC)
 - iqrf__IqrfDpa.json    (tip: configure your DPA params)
-- iqrf__MqttMessaging1.json    (tip: configure your MQTT brokers - you can enable second mqtt instance)
+- iqrf__MqttMessaging.json    (tip: configure your MQTT broker)
+- ...
 
 folder /var/cache/iqrfgd2/scheduler:
 
