@@ -179,12 +179,13 @@ namespace iqrf {
     std::mutex mtx;
     std::condition_variable cv;
     
-    //Provisional Async msg handling
+    TRC_DEBUG("Set provisional Async msg handling");
     m_dpaHandler->unregisterAsyncMessageHandler("");
     m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
       std::unique_lock<std::mutex> lck(mtx);
       PrfEnum prfEnum;
       if (prfEnum.parseCoordinatorResetAsyncResponse(dpaMessage)) {
+        TRC_DEBUG("Parsed TR reset result async msg");
         // Get coordinator parameters
         m_cPar.m_dpaVer = prfEnum.getDpaVer();
         m_cPar.dpaVerMajor = prfEnum.getDpaVerMajor();
@@ -192,7 +193,6 @@ namespace iqrf {
         m_cPar.demoFlag = prfEnum.getDemoFlag();
         m_cPar.stdModeSupportFlag = prfEnum.getStdModeSupportFlag();
         m_cPar.lpModeSupportFlag = prfEnum.getLpModeSupportFlag();
-        m_initCoord = true;
       }
       else {
         TRC_WARNING("Wrong format of TR reset result async msg");
@@ -203,12 +203,14 @@ namespace iqrf {
     // Get coordinator parameters
     PrfOs prfOs;
 
-    { // reset TR module
+    { // wait for reset TR module async msg.
       std::unique_lock<std::mutex> lck(mtx);
-      if (!m_initCoord) {
-        prfOs.setResetCmd();
-        auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
-        auto res = trn->get();
+      //explicit reset not necessary here as reset TR is called from IqrfChannelService in advance
+      //if (!m_initCoord) {
+        //TRC_DEBUG("Send TR reset");
+        //prfOs.setResetCmd();
+        //auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
+        //auto res = trn->get();
         // don't care about result
 
         //wait for async msg after reset
@@ -223,11 +225,12 @@ namespace iqrf {
             break;
           }
         }
-      }
+      //}
     }
 
     prfOs.setReadCmd();
     {
+      TRC_DEBUG("Send TR OS Read");
       auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
       auto res = trn->get();
 

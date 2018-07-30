@@ -1,7 +1,6 @@
 #define IIqrfChannelService_EXPORTS
 
 #include "IqrfCdc.h"
-#include "CdcInterface.h"
 #include "CDCImpl.h"
 #include "AccessControl.h"
 #include <thread>
@@ -44,24 +43,23 @@ namespace iqrf {
       TRC_INFORMATION("Sending to IQRF CDC: " << std::endl << MEM_HEX(message.data(), message.size()));
       
       if (m_cdc) {
-        while (attempt++ < 4) {
+        while (attempt++ < 10) {
           TRC_INFORMATION("Trying to sent: " << counter << "." << attempt);
           dsResponse = m_cdc->sendData(message);
-          if (dsResponse != DSResponse::BUSY)
+          if (dsResponse == DSResponse::OK)
             break;
-          //wait for next attempt
-          TRC_DEBUG("Sleep for a while ... ");
+          TRC_DEBUG("Send failed: " << PAR(dsResponse) << "Sleep for a while and try next attempt ... ");
           std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         if (dsResponse == DSResponse::OK) {
           m_accessControl.sniff(message);
         }
         else {
-          THROW_EXC_TRC_WAR(std::logic_error, "CDC send failed" << PAR(dsResponse));
+          THROW_EXC_TRC_WAR(std::logic_error, "CDC send failed: " << PAR(dsResponse));
         }
       }
       else {
-        THROW_EXC_TRC_WAR(std::logic_error, "CDC not active" << PAR(dsResponse));
+        THROW_EXC_TRC_WAR(std::logic_error, "CDC not active: " << PAR(dsResponse));
       }
     }
 
@@ -262,10 +260,14 @@ namespace iqrf {
       try {
         modify(props);
         m_cdc = shape_new CDCImpl(m_interfaceName.c_str());
+
         if (!m_cdc->test()) {
           THROW_EXC_TRC_WAR(std::logic_error, "CDC Test failed");
         }
         m_cdcValid = true;
+
+        m_cdc->resetTRModule();
+
       }
       catch (CDCImplException & e) {
         CATCH_EXC_TRC_WAR(CDCImplException, e, "CDC Test failed: " << e.getDescr());
