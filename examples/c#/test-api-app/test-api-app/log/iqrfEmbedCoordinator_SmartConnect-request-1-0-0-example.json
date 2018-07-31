@@ -1,0 +1,40 @@
+{
+  "mType": "iqrfEmbedCoordinator_SmartConnect",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "reqAddr": 1,
+        "bondingTestRetries": 1,
+        "ibk": [
+          154,
+          30,
+          121,
+          178,
+          60,
+          220,
+          57,
+          214,
+          204,
+          94,
+          100,
+          192,
+          107,
+          191,
+          253,
+          167
+        ],
+        "mid": [
+          129,
+          16,
+          45,
+          84
+        ],
+        "virtualDeviceAddress": 255,
+        "userData": []
+      }
+    },
+    "returnVerbose": true
+  }
+}

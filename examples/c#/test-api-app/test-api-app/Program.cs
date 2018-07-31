@@ -71,6 +71,8 @@
   using iqrfEmbedCoordinator_SetDpaParams_Response;
   using iqrfEmbedCoordinator_SetHops_Request;
   using iqrfEmbedCoordinator_SetHops_Response;
+  using iqrfEmbedCoordinator_SmartConnect_Request;
+  using iqrfEmbedCoordinator_SmartConnect_Response;
 
   using iqrfEmbedNode_Read_Request;
   using iqrfEmbedNode_Read_Response;
@@ -236,7 +238,9 @@
     /// <summary>
     /// GW IP address
     /// </summary>
-    const string IqrfGwDeamonIP = "192.168.1.100";
+    //const string IqrfGwDeamonIP = "192.168.1.100";
+    const string IqrfGwDeamonIP = "10.11.16.79";
+
 
     /// <summary>
     /// Log transaction
@@ -409,7 +413,6 @@
         // Create request 
 
         /* RAW */
-
         /*
         IqrfRaw_Request request = new IqrfRaw_Request();
         request.Data.MsgId = "testRaw";
@@ -417,7 +420,6 @@
         request.Data.Timeout = 1000;
         request.Data.ReturnVerbose = true;
         */
-
         /* RAWHDP */
 
         /*
@@ -596,6 +598,19 @@
         request.Data.Req.NAdr = 0;
         request.Data.Req.Param.RequestHops = 0xff;
         request.Data.Req.Param.ResponseHops = 0xff;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedCoordinator_SmartConnect_Request request = new IqrfEmbedCoordinator_SmartConnect_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.ReqAddr = 1;
+        request.Data.Req.Param.BondingTestRetries = 1;
+        request.Data.Req.Param.Ibk = new System.Collections.ObjectModel.ObservableCollection<int> { 0x9A,  0x1E, 0x79, 0xB2, 0x3C, 0xDC, 0x39, 0xD6, 0xCC, 0x5E, 0x64, 0xC0, 0x6B, 0xBF, 0xFD, 0xA7 };
+        request.Data.Req.Param.Mid = new System.Collections.ObjectModel.ObservableCollection<int> { 0x81, 0x10, 0x2D, 0x54 };
+        request.Data.Req.Param.VirtualDeviceAddress = 0xFF;
+        request.Data.Req.Param.UserData = new System.Collections.ObjectModel.ObservableCollection<int> {};
         request.Data.ReturnVerbose = true;
         */
 
@@ -1185,12 +1200,10 @@
         request.Data.ReturnVerbose = true;
         */
 
-        /*
         MngDaemon_Exit_Request request = new MngDaemon_Exit_Request();
         request.Data.MsgId = "testMngExit";
         request.Data.Req.TimeToExit = 10000;
         request.Data.ReturnVerbose = true;
-        */
 
         /* SCHEDULER */
 
@@ -1278,6 +1291,7 @@
         //IqrfEmbedCoordinator_Restore_Response response = IqrfEmbedCoordinator_Restore_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_SetDpaParams_Response response = IqrfEmbedCoordinator_SetDpaParams_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_SetHops_Response response = IqrfEmbedCoordinator_SetHops_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_SmartConnect_Response response = IqrfEmbedCoordinator_SmartConnect_Response.FromJson(responseStr[0]);
 
         /* NODE */
 
@@ -1390,7 +1404,7 @@
         /* MNG */
 
         //MngDaemon_Mode_Response response = MngDaemon_Mode_Response.FromJson(responseStr[0]);
-        //MngDaemon_Exit_Response response = MngDaemon_Exit_Response.FromJson(responseStr[0]);
+        MngDaemon_Exit_Response response = MngDaemon_Exit_Response.FromJson(responseStr[0]);
 
         /* SCHEDULER */
 

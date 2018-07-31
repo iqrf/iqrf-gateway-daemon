@@ -1,0 +1,10 @@
+{
+  "mType": "mngDaemon_Exit",
+  "data": {
+    "msgId": "testMngExit",
+    "req": {
+      "timeToExit": 10000.0
+    },
+    "returnVerbose": true
+  }
+}

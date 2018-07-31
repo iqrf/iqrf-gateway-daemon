@@ -44,6 +44,7 @@ and
 
 ```Bash
 sudo systemctl daemon-reload
+sudo systemctl enable iqrfgd2.service
 sudo systemctl restart iqrfgd2.service
 ```
 
@@ -144,7 +145,6 @@ dpkg -L iqrf-gateway-daemon
 /usr/local/lib
 /usr/local/lib/libpaho-mqtt3c.so.1.2.0
 /usr/local/lib/libpaho-mqtt3as.so.1.2.0
-/usr/local/lib/libwebsockets.so.12
 /usr/local/lib/libpaho-mqtt3a.so.1.2.0
 /usr/local/lib/libpaho-mqtt3cs.so.1.2.0
 /usr/share

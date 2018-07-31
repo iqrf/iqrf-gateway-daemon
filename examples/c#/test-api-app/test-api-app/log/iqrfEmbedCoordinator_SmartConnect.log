@@ -1,0 +1,198 @@
+==================================
+Sending to WebSocket: 2018-07-30 19:46:43.34
+{
+  "mType": "iqrfEmbedCoordinator_SmartConnect",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "reqAddr": 1,
+        "bondingTestRetries": 1,
+        "ibk": [
+          154,
+          30,
+          121,
+          178,
+          60,
+          220,
+          57,
+          214,
+          204,
+          94,
+          100,
+          192,
+          107,
+          191,
+          253,
+          167
+        ],
+        "mid": [
+          129,
+          16,
+          45,
+          84
+        ],
+        "virtualDeviceAddress": 255,
+        "userData": []
+      }
+    }
+  }
+}
+Received from WebSocket: 2018-07-30 19:46:43.774
+{
+    "mType": "iqrfEmbedCoordinator_SmartConnect",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0
+        },
+        "status": -6
+    }
+}
+2018-07-30 19:46:44.204
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-30 19:47:42.912
+{
+  "mType": "iqrfEmbedCoordinator_SmartConnect",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "reqAddr": 1,
+        "bondingTestRetries": 1,
+        "ibk": [
+          154,
+          30,
+          121,
+          178,
+          60,
+          220,
+          57,
+          214,
+          204,
+          94,
+          100,
+          192,
+          107,
+          191,
+          253,
+          167
+        ],
+        "mid": [
+          129,
+          16,
+          45,
+          84
+        ],
+        "virtualDeviceAddress": 255,
+        "userData": []
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-30 19:47:43.029
+{
+    "mType": "iqrfEmbedCoordinator_SmartConnect",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "Error: iqrf.IntToHexStringBytesArray: Parameter value is not number but object"
+        },
+        "raw": {
+            "request": "",
+            "requestTs": "",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_REQUEST",
+        "status": -6
+    }
+}
+2018-07-30 19:47:43.5
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-30 20:00:46.825
+{
+  "mType": "iqrfEmbedCoordinator_SmartConnect",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "reqAddr": 1,
+        "bondingTestRetries": 1,
+        "ibk": [
+          154,
+          30,
+          121,
+          178,
+          60,
+          220,
+          57,
+          214,
+          204,
+          94,
+          100,
+          192,
+          107,
+          191,
+          253,
+          167
+        ],
+        "mid": [
+          129,
+          16,
+          45,
+          84
+        ],
+        "virtualDeviceAddress": 255,
+        "userData": []
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-30 20:00:46.985
+{
+    "mType": "iqrfEmbedCoordinator_SmartConnect",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "Error: iqrf.IntToHexStringBytesArray: Parameter value is not number but object"
+        },
+        "raw": {
+            "request": "",
+            "requestTs": "",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_REQUEST",
+        "status": -6
+    }
+}
+2018-07-30 20:00:47.421
+==================================
+

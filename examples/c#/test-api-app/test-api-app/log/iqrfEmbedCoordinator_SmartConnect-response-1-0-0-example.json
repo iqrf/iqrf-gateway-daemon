@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedCoordinator_SmartConnect",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "Error: iqrf.IntToHexStringBytesArray: Parameter value is not number but object"
+        },
+        "raw": {
+            "request": "",
+            "requestTs": "",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_REQUEST",
+        "status": -6
+    }
+}
