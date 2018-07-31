@@ -106,7 +106,7 @@ namespace iqrf {
     MngRestartMsg(const rapidjson::Document& doc)
       :MngMsg(doc)
     {
-      m_timeToExit = rapidjson::Pointer("/data/req/timeToExit").Get(doc)->GetInt();
+      m_timeToExit = rapidjson::Pointer("/data/req/timeToExit").Get(doc)->GetDouble();
     }
 
     virtual ~MngRestartMsg()
