@@ -200,7 +200,7 @@ iqrf.embed.coordinator.EnableRemoteBonding_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.coordinator.SmartConnect_Request_req = function (param) {
-    return iqrf.embed.coordinator.SmartConnect_Request(param.reqAddr, param.bondingTestRetries, param.ibk, param.mid, param.bondingChannel, param.virtualDeviceAddress, param.userData)
+    return iqrf.embed.coordinator.SmartConnect_Request(param.reqAddr, param.bondingTestRetries, param.ibk, param.mid, param.virtualDeviceAddress, param.userData)
 };
 
 iqrf.embed.coordinator.SmartConnect_Response_rsp = function (rawHdp) {

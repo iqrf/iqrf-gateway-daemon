@@ -6,10 +6,10 @@ fpm \
 -s dir \
 -C iqrf-daemon-deploy \
 --name "iqrf-gateway-daemon" \
---version ${IQRF_GW_DAEMON_VERSION}${CI_PIPELINE_ID} \
+--version ${DAEMON_VERSION}${CI_PIPELINE_ID} \
 --license "Apache License, Version 2.0" \
 --vendor "IQRF Tech s.r.o." \
---category "devel" \
+--category "testing" \
 --architecture ${ARCH} \
 --maintainer "Rostislav Spinar <rostislav.spinar@iqrf.com>" \
 --url "https://github.com/iqrfsdk/iqrf-gateway-daemon" \

@@ -34,7 +34,7 @@ stages:
         - chmod 700 ~/.ssh
         - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
     script:
-        - export IQRF_GW_DAEMON_VERSION=2.0.0-dev
+        - export DAEMON_VERSION=2.0.0-beta
         - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
         - git -C iqrf-daemon-source submodule init
         - git -C iqrf-daemon-source submodule update
@@ -49,11 +49,11 @@ stages:
         - tar xzvf paho-build_${ARCH}.tar.gz
         - make -j$(nproc) install -C paho-build
         - ldconfig
-        - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../../shapeware-build -DCMAKE_BUILD_TYPE=Debug
+        - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../../shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION} -DCMAKE_BUILD_TYPE=Debug
         - cmake --build iqrf-daemon-build
         - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
         - bash .gitlab_build_files/create_daemon_package.sh
-        - tar czvf iqrf-gateway-daemon_${IQRF_GW_DAEMON_VERSION}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+        - tar czvf iqrf-gateway-daemon_${DAEMON_VERSION}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
     artifacts:
         paths:
             - iqrf-gateway-daemon_*_*.deb
