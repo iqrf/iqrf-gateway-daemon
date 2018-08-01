@@ -1,0 +1,51 @@
+DEBIAN STRETCH (UBUNTU XENIAL)
+------------------------------
+
+SSL & WS & REST & PAHO deps
+===========================
+
+sudo apt-get install dirmngr
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E
+echo "deb http://repos.iqrfsdk.org/debian stretch stable" | sudo tee -a /etc/apt/sources.list
+#echo "deb http://repos.iqrfsdk.org/armbian stretch stable" | sudo tee -a /etc/apt/sources.list
+sudo apt-get update
+sudo apt-get install openssl zlib1g libcpprest2.9 libpaho.mqtt.c
+
+MQTT broker
+===========
+
+sudo apt-get install mosquitto mosquitto-clients
+
+IQRF balicek
+============
+
+spinarr@orangepizero:~/iqrf/deb$ tree -d
+.
+âââ etc
+âÂ Â  âââ iqrfgd2
+âââ lib
+âÂ Â  âââ systemd
+âÂ Â      âââ system
+âââ usr
+âÂ Â  âââ bin
+âÂ Â  âââ lib
+âÂ Â  âÂ Â  âââ iqrfgd2
+âÂ Â  âââ share
+âÂ Â      âââ iqrfgd2
+âÂ Â          âââ JavaScript
+âÂ Â          âââ JsonSchemas
+âââ var
+    âââ cache
+        âââ iqrfgd2
+            âââ Scheduler
+
+17 directories
+
+--- ref ---
+
+LEGACY KERNEL
+=============
+
+sudo apt-get install linux-libc-dev (enable SPI lib)
+
+--- ref ---
