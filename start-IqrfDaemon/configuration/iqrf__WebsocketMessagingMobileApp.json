@@ -1,5 +1,13 @@
 {
   "component": "iqrf::WebsocketMessaging",
   "instance": "WebsocketMessagingMobileApp",
-  "acceptAsyncMsg": true  
+  "acceptAsyncMsg": true,
+  "RequiredInterfaces": [
+    {
+      "name": "shape::IWebsocketService",
+      "target": {
+        "WebsocketPort": 1339
+      }
+    }
+  ]
 }
