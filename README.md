@@ -7,6 +7,10 @@ Together they form ready-to-use solution, including an user-friendly web-interfa
 Components can be extended or added based on the project requirements. All components 
 are licenced under Apache Licence 2.0 and can be used for commercial purposes.
 
+## Install
+
+[Guidelines](INSTALL.md)
+
 ## Overview
 ![Overview](https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-overview.png)
 

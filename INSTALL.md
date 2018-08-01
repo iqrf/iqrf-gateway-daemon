@@ -95,7 +95,7 @@ folder /etc/iqrfgd2:
   - Interface (/dev/ttyACMx {x=0...y})
 
 - iqrf__IqrfDpa.json    (tip: check/configure your DPA params)
-  - Mode (LP/STD)
+  - RF mode (STD)
   - Bonded/discovered devices (10)
   - FRC response time (40ms) 
 
@@ -128,6 +128,7 @@ folder /etc/iqrfgd2:
 
 - shape__TraceFileService.json    (tip: check/configure log file)
   - Path (/var/log/iqrfgd2)
+  - Filename (iqrf-gateway-daemon.log)
   - Size (1048576MB)
   - Timestamp (true)
   - Verbosity (DBG)
