@@ -413,13 +413,12 @@
         // Create request 
 
         /* RAW */
-        /*
         IqrfRaw_Request request = new IqrfRaw_Request();
         request.Data.MsgId = "testRaw";
         request.Data.Req.RData = "00.00.06.03.FF.FF";
         request.Data.Timeout = 1000;
         request.Data.ReturnVerbose = true;
-        */
+
         /* RAWHDP */
 
         /*
@@ -1185,6 +1184,7 @@
         request.Data.MsgId = "testIqmeshOta";
         request.Data.Repeat = 1;
         request.Data.Req.DeviceAddr = 3;
+        //hex must be in "uploadPath": "/var/cache/iqrfgd2/upload"
         request.Data.Req.FileName = "CustomDpaHandler-LED-Red-On-7xD-V302-171116.hex";
         request.Data.Req.LoadingAction = "WithCodeLoading";
         request.Data.Req.StartMemAddr = 0;
@@ -1200,10 +1200,12 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /*
         MngDaemon_Exit_Request request = new MngDaemon_Exit_Request();
         request.Data.MsgId = "testMngExit";
         request.Data.Req.TimeToExit = 10000;
         request.Data.ReturnVerbose = true;
+        */
 
         /* SCHEDULER */
 
@@ -1263,7 +1265,7 @@
 
         /* RAW */
 
-        //IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr[0] );
+        IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr[0] );
         //IqrfRawHdp_Response response = IqrfRawHdp_Response.FromJson ( responseStr[0] );
 
         /* EXPLORE */
@@ -1404,7 +1406,7 @@
         /* MNG */
 
         //MngDaemon_Mode_Response response = MngDaemon_Mode_Response.FromJson(responseStr[0]);
-        MngDaemon_Exit_Response response = MngDaemon_Exit_Response.FromJson(responseStr[0]);
+        //MngDaemon_Exit_Response response = MngDaemon_Exit_Response.FromJson(responseStr[0]);
 
         /* SCHEDULER */
 

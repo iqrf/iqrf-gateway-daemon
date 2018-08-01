@@ -86,45 +86,51 @@ folder /etc/iqrfgd2:
   - select either SPI or CDC
 
 - iqrf__IqrfSpi.json    (tip: configure your IQRF interface - SPI)
-  - Raspberry Pi: /dev/spidev0.0
-  - Orange Pi Zero: /dev/spidev1.0
-  - UP board: /dev/spidev2.0
-  - UP2 board: /dev/spidev1.0
+  - Raspberry Pi (/dev/spidev0.0)
+  - Orange Pi Zero (/dev/spidev1.0)
+  - UP board (/dev/spidev2.0)
+  - UP2 board (/dev/spidev1.0)
 
 - iqrf__IqrfCdc.json    (tip: check/configure your IQRF interface - CDC)
-  - Interface: /dev/ttyACMx {x=0...y}
+  - Interface (/dev/ttyACMx {x=0...y})
 
 - iqrf__IqrfDpa.json    (tip: check/configure your DPA params)
-  - Mode: LP/STD
-  - Bonded/discovered devices
-  - FRC response time 
+  - Mode (LP/STD)
+  - Bonded/discovered devices (10)
+  - FRC response time (40ms) 
 
 - iqrf__MqttMessaging.json    (tip: check/configure your MQTT broker)
-  - Broker IP
-  - Broker port
-  - Client topics
-  - Accept async msgs
+  - Broker IP (127.0.0.1)
+  - Broker port (1883)
+  - Client topics (Iqrf/DpaRequest, Iqrf/DpaResponse)
+  - Accept async msgs (true)
 
 - cat iqrf__MqMessaging.json   (tip: check/configure your MQ names) 
-  - Remote MQ name
-  - Local MQ name
-  - Accept async msgs
+  - Remote MQ name (iqrf-daemon-100)
+  - Local MQ name (iqrf-daemon-110)
+  - Accept async msgs (true)
 
 - iqrf__UdpMessaging.json   (tip: check/configure your UDP ports)
-  - Remote port
-  - Local port
+  - Remote port (55000)
+  - Local port (55300)
 
 - iqrf__WebsocketMessaging.json   (tip: check/configure your Websocket msgs)
-  - Accept async msgs
+  - Accept async msgs (true)
 
 - shape__WebsocketService.json    (tip: check/configure your Websocket ports)
-  - Websocket port
+  - Websocket port (1338)
 
 - iqrf__JsCache.json    (tip: check/configure IQRF repository cache update period)
-  - Cache update period
+  - Cache update period (360m)
 
 - iqrf__OtaUploadService.json   (tip: check/configure location of HEX, IQRF files)
-  - Upload path
+  - Upload path (/var/cache/iqrfgd2/upload)
+
+- shape__TraceFileService.json    (tip: check/configure log file)
+  - Path (/var/log/iqrfgd2)
+  - Size (1048576MB)
+  - Timestamp (true)
+  - Verbosity (DBG)
 
 folder /var/cache/iqrfgd2/scheduler:
 
