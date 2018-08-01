@@ -20,5 +20,5 @@
   "PrivateKeyPassword": "",
   "EnabledCipherSuites": "",
   "EnableServerCertAuth": true,
-  "acceptAsyncMsg": false
+  "acceptAsyncMsg": true
 }
