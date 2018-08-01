@@ -1,6 +1,6 @@
-# How to install the gateway-daemon (ALFA)
+# How to install the gateway-daemon (Beta)
 
-[https://repos.iqrfsdk.org/devel](https://repos.iqrfsdk.org/devel)
+[https://repos.iqrfsdk.org/testing](https://repos.iqrfsdk.org/testing)
 
 -   iqrf-gateway-daemon_2.0.0-x_amd64.deb
 -   iqrf-gateway-daemon_2.0.0-x_armhf.deb
@@ -18,7 +18,7 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C
 -	For Debian 9 (amd64, armhf, arm64)
 
 ```Bash
-echo "deb https://repos.iqrfsdk.org/devel/debian stretch devel" | sudo tee -a /etc/apt/sources.list
+echo "deb https://repos.iqrfsdk.org/testing/debian stretch testing" | sudo tee -a /etc/apt/sources.list
 sudo apt-get update
 ```
 
@@ -82,12 +82,49 @@ Configure/check mainly following components:
 
 folder /etc/iqrfgd2: 
 
-- config.json           (tip: enable/disable daemon components, select either SPI or CDC)
+- config.json           (tip: check/enable/disable daemon components)
+  - select either SPI or CDC
+
 - iqrf__IqrfSpi.json    (tip: configure your IQRF interface - SPI)
-- iqrf__IqrfCdc.json    (tip: configure your IQRF interface - CDC)
-- iqrf__IqrfDpa.json    (tip: configure your DPA params)
-- iqrf__MqttMessaging.json    (tip: configure your MQTT broker)
-- ...
+  - Raspberry Pi: /dev/spidev0.0
+  - Orange Pi Zero: /dev/spidev1.0
+  - UP board: /dev/spidev2.0
+  - UP2 board: /dev/spidev1.0
+
+- iqrf__IqrfCdc.json    (tip: check/configure your IQRF interface - CDC)
+  - Interface: /dev/ttyACMx {x=0...y}
+
+- iqrf__IqrfDpa.json    (tip: check/configure your DPA params)
+  - Mode: LP/STD
+  - Bonded/discovered devices
+  - FRC response time 
+
+- iqrf__MqttMessaging.json    (tip: check/configure your MQTT broker)
+  - Broker IP
+  - Broker port
+  - Client topics
+  - Accept async msgs
+
+- cat iqrf__MqMessaging.json   (tip: check/configure your MQ names) 
+  - Remote MQ name
+  - Local MQ name
+  - Accept async msgs
+
+- iqrf__UdpMessaging.json   (tip: check/configure your UDP ports)
+  - Remote port
+  - Local port
+
+- iqrf__WebsocketMessaging.json   (tip: check/configure your Websocket msgs)
+  - Accept async msgs
+
+- shape__WebsocketService.json    (tip: check/configure your Websocket ports)
+  - Websocket port
+
+- iqrf__JsCache.json    (tip: check/configure IQRF repository cache update period)
+  - Cache update period
+
+- iqrf__OtaUploadService.json   (tip: check/configure location of HEX, IQRF files)
+  - Upload path
 
 folder /var/cache/iqrfgd2/scheduler:
 
