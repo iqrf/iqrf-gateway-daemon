@@ -1,0 +1,14 @@
+{
+  "mType": "iqrfEmbedEeeprom_Read",
+  "data": {
+    "msgId": "testEmbedEeeprom",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "address": 0,
+        "len": 10
+      }
+    },
+    "returnVerbose": true
+  }
+}

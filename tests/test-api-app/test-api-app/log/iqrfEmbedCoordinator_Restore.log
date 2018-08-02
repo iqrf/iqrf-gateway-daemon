@@ -1,0 +1,257 @@
+==================================
+Sending to WebSocket: 2018-07-09 12:28:40.422
+{
+  "mType": "iqrfEmbedCoordinator_Restore",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "netData": [
+          237,
+          96,
+          20,
+          81,
+          130,
+          222,
+          124,
+          114,
+          222,
+          248,
+          144,
+          163,
+          238,
+          130,
+          117,
+          237,
+          144,
+          84,
+          167,
+          183,
+          129,
+          51,
+          202,
+          101,
+          112,
+          7,
+          123,
+          36,
+          3,
+          67,
+          8,
+          30,
+          130,
+          98,
+          206,
+          11,
+          16,
+          43,
+          35,
+          67,
+          163,
+          88,
+          214,
+          166,
+          140,
+          145,
+          17,
+          104,
+          168
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-09 12:28:40.891
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqrfEmbedCoordinator_Restore\",\r\n  \"data\": {\r\n    \"msgId\": \"testEmbedCoordinator\",\r\n    \"req\": {\r\n      \"nAdr\": 0,\r\n      \"param\": {\r\n        \"netData\": [\r\n          237,\r\n          96,\r\n          20,\r\n          81,\r\n          130,\r\n          222,\r\n          124,\r\n          114,\r\n          222,\r\n          248,\r\n          144,\r\n          163,\r\n          238,\r\n          130,\r\n          117,\r\n          237,\r\n          144,\r\n          84,\r\n          167,\r\n          183,\r\n          129,\r\n          51,\r\n          202,\r\n          101,\r\n          112,\r\n          7,\r\n          123,\r\n          36,\r\n          3,\r\n          67,\r\n          8,\r\n          30,\r\n          130,\r\n          98,\r\n          206,\r\n          11,\r\n          16,\r\n          43,\r\n          35,\r\n          67,\r\n          163,\r\n          88,\r\n          214,\r\n          166,\r\n          140,\r\n          145,\r\n          17,\r\n          104,\r\n          168\r\n        ]\r\n      }\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Invalid request: mType=\"iqrfEmbedCoordinator_Restore\" schema=\"#/properties/data/properties/req/properties/param/properties/netData\" keyword=\"maxItems\" message=\"#/data/req/param/netData\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-09 12:28:41.35
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-09 12:40:51.067
+{
+  "mType": "iqrfEmbedCoordinator_Restore",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "netData": [
+          237,
+          96,
+          20,
+          81,
+          130,
+          222,
+          124,
+          114,
+          222,
+          248,
+          144,
+          163,
+          238,
+          130,
+          117,
+          237,
+          144,
+          84,
+          167,
+          183,
+          129,
+          51,
+          202,
+          101,
+          112,
+          7,
+          123,
+          36,
+          3,
+          67,
+          8,
+          30,
+          130,
+          98,
+          206,
+          11,
+          16,
+          43,
+          35,
+          67,
+          163,
+          88,
+          214,
+          166,
+          140,
+          145,
+          17,
+          104,
+          168
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-09 12:40:51.157
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqrfEmbedCoordinator_Restore\",\r\n  \"data\": {\r\n    \"msgId\": \"testEmbedCoordinator\",\r\n    \"req\": {\r\n      \"nAdr\": 0,\r\n      \"param\": {\r\n        \"netData\": [\r\n          237,\r\n          96,\r\n          20,\r\n          81,\r\n          130,\r\n          222,\r\n          124,\r\n          114,\r\n          222,\r\n          248,\r\n          144,\r\n          163,\r\n          238,\r\n          130,\r\n          117,\r\n          237,\r\n          144,\r\n          84,\r\n          167,\r\n          183,\r\n          129,\r\n          51,\r\n          202,\r\n          101,\r\n          112,\r\n          7,\r\n          123,\r\n          36,\r\n          3,\r\n          67,\r\n          8,\r\n          30,\r\n          130,\r\n          98,\r\n          206,\r\n          11,\r\n          16,\r\n          43,\r\n          35,\r\n          67,\r\n          163,\r\n          88,\r\n          214,\r\n          166,\r\n          140,\r\n          145,\r\n          17,\r\n          104,\r\n          168\r\n        ]\r\n      }\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Invalid request: mType=\"iqrfEmbedCoordinator_Restore\" schema=\"#/properties/data/properties/req/properties/param/properties/netData\" keyword=\"maxItems\" message=\"#/data/req/param/netData\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-09 12:40:51.637
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-09 12:42:05.828
+{
+  "mType": "iqrfEmbedCoordinator_Restore",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "netData": [
+          237,
+          96,
+          20,
+          81,
+          130,
+          222,
+          124,
+          114,
+          222,
+          248,
+          144,
+          163,
+          238,
+          130,
+          117,
+          237,
+          144,
+          84,
+          167,
+          183,
+          129,
+          51,
+          202,
+          101,
+          112,
+          7,
+          123,
+          36,
+          3,
+          67,
+          8,
+          30,
+          130,
+          98,
+          206,
+          11,
+          16,
+          43,
+          35,
+          67,
+          163,
+          88,
+          214,
+          166,
+          140,
+          145,
+          17,
+          104,
+          168
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-09 12:42:05.993
+{
+    "mType": "iqrfEmbedCoordinator_Restore",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 0,
+            "result": {}
+        },
+        "raw": {
+            "request": "00.00.00.0c.ff.ff.ed.60.14.51.82.de.7c.72.de.f8.90.a3.ee.82.75.ed.90.54.a7.b7.81.33.ca.65.70.07.7b.24.03.43.08.1e.82.62.ce.0b.10.2b.23.43.a3.58.d6.a6.8c.91.11.68.a8",
+            "requestTs": "2018-07-09T12:42:08.227756",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.8c.00.00.00.00",
+            "responseTs": "2018-07-09T12:42:08.286055"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-09 12:42:06.497
+==================================
+

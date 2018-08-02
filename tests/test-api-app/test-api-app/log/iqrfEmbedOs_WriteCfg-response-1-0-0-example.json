@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedOs_WriteCfg",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 53,
+            "result": {}
+        },
+        "raw": {
+            "request": "00.00.02.0f.ff.ff.81.c9.12.34.34.34.1e.34.37.31.32.37.34.34.34.34.34.2d.36.34.34.34.34.34.34.34.34.34.34.34.37.34.c3",
+            "requestTs": "2018-07-16T20:09:09.658631",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.02.8f.00.00.00.35",
+            "responseTs": "2018-07-16T20:09:09.708295"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

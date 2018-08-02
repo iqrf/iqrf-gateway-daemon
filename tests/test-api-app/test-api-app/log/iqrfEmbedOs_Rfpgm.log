@@ -1,0 +1,71 @@
+==================================
+Sending to WebSocket: 2018-07-16 18:44:36.753
+{
+  "mType": "iqrfEmbedOs_Rfpgm",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 18:44:36.946
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqrfEmbedOs_Rfpgm\",\r\n  \"data\": {\r\n    \"msgId\": \"testEmbedOs\",\r\n    \"req\": {\r\n      \"nAdr\": 1,\r\n      \"param\": {}\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unsupported: mType=\"iqrfEmbedOs_Rfpgm\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-16 18:44:37.448
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-16 18:51:19.183
+{
+  "mType": "iqrfEmbedOs_Rfpgm",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 18:51:19.741
+{
+    "mType": "iqrfEmbedOs_Rfpgm",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 66,
+            "result": {}
+        },
+        "raw": {
+            "request": "01.00.02.03.ff.ff",
+            "requestTs": "2018-07-16T18:51:20.953042",
+            "confirmation": "01.00.02.03.ff.ff.ff.3a.01.04.01",
+            "confirmationTs": "2018-07-16T18:51:20.984683",
+            "response": "01.00.02.83.02.00.00.42",
+            "responseTs": "2018-07-16T18:51:21.110096"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-16 18:51:20.208
+==================================
+

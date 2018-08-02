@@ -1,0 +1,13 @@
+{
+    "mType": "mngScheduler_RemoveTask",
+    "data": {
+        "msgId": "testSchedulerRemove",
+        "rsp": {
+            "clientId": "SchedulerMessaging",
+            "taskId": 2146077740
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

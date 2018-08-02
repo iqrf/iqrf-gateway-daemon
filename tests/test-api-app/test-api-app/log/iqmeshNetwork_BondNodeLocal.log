@@ -1,0 +1,768 @@
+==================================
+Sending to MQTT: 2018-07-04 17:34:21.533
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "07f80295-01d6-4a44-b082-8cc285d9fa7c",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 5
+    },
+    "returnVerbose": true
+  }
+}
+Received from MQTT: 2018-07-04 17:34:32.784
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "MqttMessaging1",
+        "statusStr": "Dpa error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-04T15:34:22.983519",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.08.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.37.34",
+                "responseTs": "2018-07-04T15:34:23.22483"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.00.00",
+                "requestTs": "2018-07-04T15:34:23.23524",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.04.ff.ff.00.00",
+                "requestTs": "2018-07-04T15:34:33.630532",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.01.00",
+                "responseTs": "2018-07-04T15:34:34.193957"
+            }
+        ]
+    }
+}
+2018-07-04 17:34:33.224
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-11 14:20:11.022
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-11 14:20:13.935
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Dpa error",
+        "status": 1006,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-11T14:20:11.246949",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.40.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-11T14:20:11.282765"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.32.30",
+                "requestTs": "2018-07-11T14:20:11.283868",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.00.32.02",
+                "responseTs": "2018-07-11T14:20:12.240578"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-07-11T14:20:12.241674",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "01.00.02.80.ff.ff.08.00",
+                "responseTs": "2018-07-11T14:20:12.365838"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-07-11T14:20:12.447191",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "01.00.02.80.ff.ff.08.00",
+                "responseTs": "2018-07-11T14:20:12.469787"
+            },
+            {
+                "request": "00.00.00.05.ff.ff.00",
+                "requestTs": "2018-07-11T14:20:12.550694",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.85.00.00.01.00",
+                "responseTs": "2018-07-11T14:20:12.571538"
+            },
+            {
+                "request": "00.00.00.05.ff.ff.00",
+                "requestTs": "2018-07-11T14:20:12.572156",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.85.00.00.01.00",
+                "responseTs": "2018-07-11T14:20:12.696064"
+            }
+        ]
+    }
+}
+2018-07-11 14:20:14.401
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-11 14:56:52.151
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-11 14:56:58.473
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "status": 0,
+        "statusStr": "ok",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 3,
+            "manufacturer": "",
+            "product": "",
+            "osRead": {
+                "mid": "db.2f.10.81",
+                "osVersion": "43",
+                "trMcuType": "24",
+                "osBuild": "08bf",
+                "rssi": "4c",
+                "supplyVoltage": "28",
+                "flags": "14",
+                "slotLimits": "31"
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-11T14:56:52.570253",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.40.00.00.00.00.00.04.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-11T14:56:52.608490"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-07-11T14:56:52.609061",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.00.01.03",
+                "responseTs": "2018-07-11T14:56:57.867704"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-07-11T14:56:57.868900",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.00.04.00",
+                "confirmationTs": "2018-07-11T14:56:58.2951",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-07-11T14:56:58.504248",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.00.04.00",
+                "confirmationTs": "2018-07-11T14:56:58.531159",
+                "response": "01.00.02.80.02.0c.00.4c.db.2f.10.81.43.24.bf.08.4c.28.14.31.a7.d2.22.9d.ea.4d.49.40.18.35.04.c9.88.17.1f.39",
+                "responseTs": "2018-07-11T14:56:58.639193"
+            }
+        ]
+    }
+}
+2018-07-11 14:56:58.973
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-11 16:23:22.56
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-11 16:23:26.464
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "status": 0,
+        "statusStr": "ok",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 1,
+            "manufacturer": "",
+            "product": "",
+            "osRead": {
+                "mid": "db.2f.10.81",
+                "osVersion": "43",
+                "trMcuType": "24",
+                "osBuild": "08bf",
+                "rssi": "51",
+                "supplyVoltage": "28",
+                "flags": "14",
+                "slotLimits": "31"
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-11T16:23:21.867290",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.4c.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-11T16:23:21.902686"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-07-11T16:23:21.903384",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.4c.01.01",
+                "responseTs": "2018-07-11T16:23:25.120955"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-07-11T16:23:25.122176",
+                "confirmation": "01.00.02.00.ff.ff.ff.4c.00.04.00",
+                "confirmationTs": "2018-07-11T16:23:25.247109",
+                "response": "01.00.02.80.02.0c.00.51.db.2f.10.81.43.24.bf.08.51.28.14.31.a7.d2.22.9d.ea.4d.49.40.18.35.04.c9.88.17.1f.39",
+                "responseTs": "2018-07-11T16:23:25.535664"
+            }
+        ]
+    }
+}
+2018-07-11 16:23:26.982
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-11 17:52:41.662
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 2
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-11 17:52:46.068
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "status": 0,
+        "statusStr": "ok",
+        "rsp": {
+            "assignedAddr": 2,
+            "nodesNr": 2,
+            "manufacturer": "",
+            "product": "",
+            "osRead": {
+                "mid": "db.2f.10.81",
+                "osVersion": "43",
+                "trMcuType": "24",
+                "osBuild": "08bf",
+                "rssi": "5c",
+                "supplyVoltage": "28",
+                "flags": "14",
+                "slotLimits": "31"
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-11T17:52:41.71257",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.50.02.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.37.34",
+                "responseTs": "2018-07-11T17:52:41.112641"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.02.00",
+                "requestTs": "2018-07-11T17:52:41.113391",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.50.02.02",
+                "responseTs": "2018-07-11T17:52:44.467431"
+            },
+            {
+                "request": "02.00.02.00.ff.ff",
+                "requestTs": "2018-07-11T17:52:44.468101",
+                "confirmation": "02.00.02.00.ff.ff.ff.50.00.04.00",
+                "confirmationTs": "2018-07-11T17:52:44.590923",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "02.00.02.00.ff.ff",
+                "requestTs": "2018-07-11T17:52:45.92203",
+                "confirmation": "02.00.02.00.ff.ff.ff.50.00.04.00",
+                "confirmationTs": "2018-07-11T17:52:45.122696",
+                "response": "02.00.02.80.02.0c.00.5c.db.2f.10.81.43.24.bf.08.5c.28.14.31.a7.d2.22.9d.ea.4d.49.40.18.35.04.c9.88.17.1f.39",
+                "responseTs": "2018-07-11T17:52:45.229961"
+            }
+        ]
+    }
+}
+2018-07-11 17:52:46.556
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-11 17:53:29.016
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 3
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-11 17:53:32.268
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "status": 0,
+        "statusStr": "ok",
+        "rsp": {
+            "assignedAddr": 3,
+            "nodesNr": 3,
+            "manufacturer": "",
+            "product": "",
+            "osRead": {
+                "mid": "c4.2f.10.81",
+                "osVersion": "43",
+                "trMcuType": "24",
+                "osBuild": "08bf",
+                "rssi": "4d",
+                "supplyVoltage": "28",
+                "flags": "10",
+                "slotLimits": "31"
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-11T17:53:28.426488",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.5c.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.98.bd",
+                "responseTs": "2018-07-11T17:53:28.453775"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.03.00",
+                "requestTs": "2018-07-11T17:53:28.454180",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.5c.03.03",
+                "responseTs": "2018-07-11T17:53:30.675110"
+            },
+            {
+                "request": "03.00.02.00.ff.ff",
+                "requestTs": "2018-07-11T17:53:30.676169",
+                "confirmation": "03.00.02.00.ff.ff.ff.5c.00.04.00",
+                "confirmationTs": "2018-07-11T17:53:30.809724",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "03.00.02.00.ff.ff",
+                "requestTs": "2018-07-11T17:53:31.311322",
+                "confirmation": "03.00.02.00.ff.ff.ff.5c.00.04.00",
+                "confirmationTs": "2018-07-11T17:53:31.342869",
+                "response": "03.00.02.80.00.00.00.4d.c4.2f.10.81.43.24.bf.08.4d.28.10.31.5c.53.cd.39.14.6b.58.1a.87.96.4c.e0.07.f8.14.f9",
+                "responseTs": "2018-07-11T17:53:31.449527"
+            }
+        ]
+    }
+}
+2018-07-11 17:53:32.816
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-12 21:31:31.921
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-12 21:31:42.504
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Transaction error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-12T21:31:31.979180",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-12T21:31:32.11648"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-07-12T21:31:32.12430",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ]
+    }
+}
+2018-07-12 21:31:42.963
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-12 21:32:52.618
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-12 21:33:01.662
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "status": 0,
+        "statusStr": "ok",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 1,
+            "manufacturer": "",
+            "product": "",
+            "osRead": {
+                "mid": "06.30.10.81",
+                "osVersion": "43",
+                "trMcuType": "24",
+                "osBuild": "08bf",
+                "rssi": "3c",
+                "supplyVoltage": "27",
+                "flags": "14",
+                "slotLimits": "31"
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-12T21:32:52.372318",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-12T21:32:52.400801"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-07-12T21:32:52.401429",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.00.01.01",
+                "responseTs": "2018-07-12T21:33:00.370255"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-07-12T21:33:00.371596",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.00.04.00",
+                "confirmationTs": "2018-07-12T21:33:00.507401",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-07-12T21:33:01.8424",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.00.04.00",
+                "confirmationTs": "2018-07-12T21:33:01.35970",
+                "response": "01.00.02.80.02.00.00.3c.06.30.10.81.43.24.bf.08.3c.27.14.31.6a.21.c0.d0.4a.a4.40.48.06.d9.77.0c.5b.02.b2.1b",
+                "responseTs": "2018-07-12T21:33:01.148876"
+            }
+        ]
+    }
+}
+2018-07-12 21:33:02.154
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-17 17:14:55.456
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 3
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 17:15:05.725
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Transaction error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-17T17:14:55.946439",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.3b.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-17T17:14:55.977644"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.03.00",
+                "requestTs": "2018-07-17T17:14:55.978483",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ]
+    }
+}
+2018-07-17 17:15:06.274
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-17 17:16:51.131
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 3
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-17 17:16:55.666
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqmeshNetwork_BondNodeLocal\",\r\n  \"data\": {\r\n    \"msgId\": \"testIqmeshBondNodeLocal\",\r\n    \"repeat\": 1,\r\n    \"req\": {\r\n      \"deviceAddr\": 3\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqmeshNetwork_BondNodeLocal\" schema=\"#/properties/data/properties/rsp/properties/osRead/properties/mid\" keyword=\"type\" message=\"#/data/rsp/osRead/mid\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-17 17:16:56.137
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 14:40:29.052
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 3
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 14:40:29.547
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Dpa error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-18T14:40:30.338343",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.3f.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-18T14:40:30.369867"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.03.00",
+                "requestTs": "2018-07-18T14:40:30.370531",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.01.3f",
+                "responseTs": "2018-07-18T14:40:30.664718"
+            }
+        ]
+    }
+}
+2018-07-18 14:40:30.004
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 14:42:15.331
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 4
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 14:42:25.586
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Transaction error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-18T14:42:16.551704",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.3f.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-18T14:42:16.581030"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.04.00",
+                "requestTs": "2018-07-18T14:42:16.581667",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ]
+    }
+}
+2018-07-18 14:42:26.07
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 14:42:43.266
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 4
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 14:42:53.555
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Transaction error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-18T14:42:44.480386",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.3f.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-18T14:42:44.517195"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.04.00",
+                "requestTs": "2018-07-18T14:42:44.517834",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ]
+    }
+}
+2018-07-18 14:42:54.1
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 14:45:10.666
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 4
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 14:45:14.442
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqmeshNetwork_BondNodeLocal\",\r\n  \"data\": {\r\n    \"msgId\": \"testIqmeshBondNodeLocal\",\r\n    \"repeat\": 1,\r\n    \"req\": {\r\n      \"deviceAddr\": 4\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqmeshNetwork_BondNodeLocal\" schema=\"#/properties/data/properties/rsp/properties/osRead/properties/mid\" keyword=\"type\" message=\"#/data/rsp/osRead/mid\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-18 14:45:14.872
+==================================
+

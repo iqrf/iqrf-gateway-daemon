@@ -1,0 +1,51 @@
+==================================
+Sending to WebSocket: 2018-07-31 09:25:32.866
+{
+  "mType": "iqrfRaw",
+  "data": {
+    "msgId": "testRaw",
+    "timeout": 1000,
+    "req": {
+      "rData": "00.00.06.03.FF.FF"
+    },
+    "returnVerbose": true
+  }
+}
+==================================
+Sending to WebSocket: 2018-07-31 09:26:04.211
+{
+  "mType": "iqrfRaw",
+  "data": {
+    "msgId": "testRaw",
+    "timeout": 1000,
+    "req": {
+      "rData": "00.00.06.03.FF.FF"
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-31 09:26:04.542
+{
+    "mType": "iqrfRaw",
+    "data": {
+        "msgId": "testRaw",
+        "timeout": 1000,
+        "rsp": {
+            "rData": "00.00.06.83.00.00.00.00"
+        },
+        "raw": {
+            "request": "00.00.06.03.ff.ff",
+            "requestTs": "2018-07-31T09:26:04.15872",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.06.83.00.00.00.00",
+            "responseTs": "2018-07-31T09:26:04.35458"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-31 09:26:04.963
+==================================
+

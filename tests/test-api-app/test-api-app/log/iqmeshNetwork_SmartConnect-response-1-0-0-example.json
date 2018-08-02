@@ -1,0 +1,80 @@
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "3fbb3149-3d7e-48d7-b536-9717318c03f4",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 1,
+            "hwpId": 5122,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "Sensor template",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "830004fb",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08c1",
+                "rssi": "-72 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 49,
+                    "shortestTimeslot": "40 ms",
+                    "longestTimeslot": "60 ms"
+                },
+                "ibk": [
+                    185,
+                    56,
+                    12,
+                    124,
+                    142,
+                    184,
+                    69,
+                    220,
+                    111,
+                    253,
+                    99,
+                    20,
+                    189,
+                    184,
+                    220,
+                    42
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.01.03.b9.38.0c.7c.8e.b8.45.dc.6f.fd.63.14.bd.b8.dc.2a.fb.04.00.83.00.00.ff.00.00.00.00.00.00.00.00.00.11.22.33.44",
+                "requestTs": "2018-07-26T13:17:59.949079",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.3c.01.01",
+                "responseTs": "2018-07-26T13:18:02.334686"
+            },
+            {
+                "request": "01.00.02.00.02.14",
+                "requestTs": "2018-07-26T13:18:02.837790",
+                "confirmation": "01.00.02.00.02.14.ff.3c.00.04.00",
+                "confirmationTs": "2018-07-26T13:18:02.867571",
+                "response": "01.00.02.80.02.14.00.3a.fb.04.00.83.43.24.c1.08.3a.28.14.31.b9.38.0c.7c.8e.b8.45.dc.6f.fd.63.14.bd.b8.dc.2a",
+                "responseTs": "2018-07-26T13:18:02.974930"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "ctype":"dpa",
+    "type":"raw",
+    "msgid":"1",
+    "timeout":1000,
+    "request":"01.00.06.03.ff.ff",
+    "request_ts":"",
+    "confirmation":".",
+    "confirmation_ts":"",
+    "response":".",
+    "response_ts":""
+}

@@ -1,0 +1,20 @@
+{
+  "mType": "iqrfEmbedUart_WriteRead",
+  "data": {
+    "msgId": "testEmbedUart",
+    "req": {
+      "nAdr": 3,
+      "param": {
+        "readTimeout": 1,
+        "writtenData": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,109 @@
+==================================
+Sending to WebSocket: 2018-07-18 21:43:27.85
+{
+  "mType": "iqrfEmbedIo_Get",
+  "data": {
+    "msgId": "testEmbedIo",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 21:43:28.385
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqrfEmbedIo_Get\",\r\n  \"data\": {\r\n    \"msgId\": \"testEmbedIo\",\r\n    \"req\": {\r\n      \"nAdr\": 1,\r\n      \"param\": {}\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqrfEmbedIo_Get\" schema=\"#/properties/data/properties/rsp/properties/result/properties/ports/items\" keyword=\"type\" message=\"#/data/rsp/result/ports/0\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-18 21:43:28.899
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 22:00:05.523
+{
+  "mType": "iqrfEmbedIo_Get",
+  "data": {
+    "msgId": "testEmbedIo",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 22:00:05.985
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqrfEmbedIo_Get\",\r\n  \"data\": {\r\n    \"msgId\": \"testEmbedIo\",\r\n    \"req\": {\r\n      \"nAdr\": 1,\r\n      \"param\": {}\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqrfEmbedIo_Get\" schema=\"#/properties/data/properties/rsp/properties/result/properties/ports/items\" keyword=\"type\" message=\"#/data/rsp/result/ports/0\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-18 22:00:06.454
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-18 22:02:46.089
+{
+  "mType": "iqrfEmbedIo_Get",
+  "data": {
+    "msgId": "testEmbedIo",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 22:02:46.652
+{
+    "mType": "iqrfEmbedIo_Get",
+    "data": {
+        "msgId": "testEmbedIo",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 64,
+            "result": {
+                "ports": [
+                    206,
+                    81,
+                    24,
+                    0,
+                    8
+                ]
+            }
+        },
+        "raw": {
+            "request": "01.00.09.02.ff.ff",
+            "requestTs": "2018-07-18T22:02:47.641768",
+            "confirmation": "01.00.09.02.ff.ff.ff.39.01.04.01",
+            "confirmationTs": "2018-07-18T22:02:47.672164",
+            "response": "01.00.09.82.02.00.00.40.ce.51.18.00.08",
+            "responseTs": "2018-07-18T22:02:47.804780"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-18 22:02:47.169
+==================================
+

@@ -1,0 +1,714 @@
+==================================
+Sending to WebSocket: 2018-07-06 13:33:01.194
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-06 13:33:02.575
+Invalid response: mType="iqrfEmbedOs_Read" schema="#/properties/data/properties/rsp/properties/result/properties/supplyVoltage" keyword="type" message="#/data/rsp/result/supplyVoltage" 
+2018-07-06 13:33:03.002
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-06 13:42:50.505
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-06 13:42:51.146
+Invalid response: mType="iqrfEmbedOs_Read" schema="#/properties/data/properties/rsp/properties/result/properties/supplyVoltage" keyword="type" message="#/data/rsp/result/supplyVoltage" 
+2018-07-06 13:42:51.576
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-06 13:46:55.735
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-06 13:46:56.31
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 67,
+            "result": {
+                "mid": -2129648262,
+                "osVersion": 67,
+                "trMcuType": 36,
+                "osBuild": 2239,
+                "rssi": 67,
+                "supplyVoltage": 3.001379310344828,
+                "flags": 20,
+                "slotLimits": 49,
+                "ibk": [
+                    36,
+                    228,
+                    167,
+                    129,
+                    24,
+                    128,
+                    17,
+                    252,
+                    135,
+                    182,
+                    42,
+                    139,
+                    251,
+                    80,
+                    171,
+                    38
+                ]
+            }
+        },
+        "raw": {
+            "request": "01.00.02.00.ff.ff",
+            "requestTs": "2018-07-06T13:46:57.45895",
+            "confirmation": "01.00.02.00.ff.ff.ff.00.01.04.01",
+            "confirmationTs": "2018-07-06T13:46:57.77268",
+            "response": "01.00.02.80.02.00.00.43.7a.25.10.81.43.24.bf.08.43.28.14.31.24.e4.a7.81.18.80.11.fc.87.b6.2a.8b.fb.50.ab.26",
+            "responseTs": "2018-07-06T13:46:57.231039"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-06 13:46:56.731
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-07 18:52:12.174
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 18:52:14.255
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "no response"
+        },
+        "raw": {
+            "request": "01.00.02.00.ff.ff",
+            "requestTs": "2018-07-07T18:52:13.354738",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ERROR_TIMEOUT",
+        "status": -1
+    }
+}
+2018-07-07 18:52:14.7
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-07 18:53:24.172
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 18:53:25.327
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "no response"
+        },
+        "raw": {
+            "request": "01.00.02.00.ff.ff",
+            "requestTs": "2018-07-07T18:53:24.549730",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ERROR_TIMEOUT",
+        "status": -1
+    }
+}
+2018-07-07 18:53:25.794
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-07 18:57:54.513
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 18:57:56.115
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "no response"
+        },
+        "raw": {
+            "request": "00.00.02.00.ff.ff",
+            "requestTs": "2018-07-07T18:57:54.868689",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ERROR_TIMEOUT",
+        "status": -1
+    }
+}
+2018-07-07 18:57:56.606
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-07 18:59:17.943
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 18:59:19.551
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "no response"
+        },
+        "raw": {
+            "request": "00.00.02.00.ff.ff",
+            "requestTs": "2018-07-07T18:59:18.304270",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ERROR_TIMEOUT",
+        "status": -1
+    }
+}
+2018-07-07 18:59:20.043
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-07 19:02:30.56
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 19:02:30.708
+Invalid response: mType="iqrfEmbedOs_Read" schema="#/properties/data/properties/rsp/properties/result/properties/supplyVoltage" keyword="type" message="#/data/rsp/result/supplyVoltage" 
+2018-07-07 19:02:31.134
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-07 19:03:32.504
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 19:03:32.653
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 77,
+            "result": {
+                "mid": -2129636086,
+                "osVersion": 67,
+                "trMcuType": 36,
+                "osBuild": 2239,
+                "rssi": 77,
+                "supplyVoltage": 2.9672727272727275,
+                "flags": 0,
+                "slotLimits": 49,
+                "ibk": [
+                    171,
+                    73,
+                    77,
+                    37,
+                    36,
+                    196,
+                    201,
+                    182,
+                    174,
+                    103,
+                    128,
+                    15,
+                    224,
+                    94,
+                    79,
+                    124
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.02.00.ff.ff",
+            "requestTs": "2018-07-07T19:03:32.865540",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.02.80.00.00.00.4d.0a.55.10.81.43.24.bf.08.4d.27.00.31.ab.49.4d.25.24.c4.c9.b6.ae.67.80.0f.e0.5e.4f.7c",
+            "responseTs": "2018-07-07T19:03:32.896779"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-07 19:03:33.094
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-07 19:07:30.842
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 19:07:31.366
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 66,
+            "result": {
+                "mid": -2129645562,
+                "osVersion": 67,
+                "trMcuType": 36,
+                "osBuild": 2239,
+                "rssi": 66,
+                "supplyVoltage": 2.9672727272727275,
+                "flags": 20,
+                "slotLimits": 49,
+                "ibk": [
+                    106,
+                    33,
+                    192,
+                    208,
+                    74,
+                    164,
+                    64,
+                    72,
+                    6,
+                    217,
+                    119,
+                    12,
+                    91,
+                    2,
+                    178,
+                    27
+                ]
+            }
+        },
+        "raw": {
+            "request": "01.00.02.00.ff.ff",
+            "requestTs": "2018-07-07T19:07:31.182787",
+            "confirmation": "01.00.02.00.ff.ff.ff.4d.01.04.01",
+            "confirmationTs": "2018-07-07T19:07:31.210127",
+            "response": "01.00.02.80.02.00.00.42.06.30.10.81.43.24.bf.08.42.27.14.31.6a.21.c0.d0.4a.a4.40.48.06.d9.77.0c.5b.02.b2.1b",
+            "responseTs": "2018-07-07T19:07:31.366219"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-07 19:07:31.914
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-09 19:46:22.124
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-09 19:46:22.817
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 65535,
+            "rCode": 8,
+            "dpaVal": 0,
+            "errorStr": "rcode error"
+        },
+        "raw": {
+            "request": "01.00.02.00.ff.ff",
+            "requestTs": "2018-07-09T19:46:23.152241",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "01.00.02.80.ff.ff.08.00",
+            "responseTs": "2018-07-09T19:46:23.172083"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ERROR_NADR",
+        "status": 8
+    }
+}
+2018-07-09 19:46:23.277
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-09 19:46:44.862
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-09 19:46:45.046
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqrfEmbedOs_Read\",\r\n  \"data\": {\r\n    \"msgId\": \"testEmbedOs\",\r\n    \"req\": {\r\n      \"nAdr\": 0,\r\n      \"param\": {}\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Invalid response: mType=\"iqrfEmbedOs_Read\" schema=\"#/properties/data/properties/rsp/properties/result/properties/supplyVoltage\" keyword=\"type\" message=\"#/data/rsp/result/supplyVoltage\" "
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-09 19:46:45.466
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-09 19:48:16.658
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-09 19:48:16.896
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 0,
+            "result": {
+                "mid": 2165331210,
+                "osVersion": 67,
+                "trMcuType": 36,
+                "osBuild": 2239,
+                "rssi": 0,
+                "supplyVoltage": 2.9672727272727275,
+                "flags": 0,
+                "slotLimits": 49,
+                "ibk": [
+                    171,
+                    73,
+                    77,
+                    37,
+                    36,
+                    196,
+                    201,
+                    182,
+                    174,
+                    103,
+                    128,
+                    15,
+                    224,
+                    94,
+                    79,
+                    124
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.02.00.ff.ff",
+            "requestTs": "2018-07-09T19:48:17.283949",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.02.80.00.00.00.00.0a.55.10.81.43.24.bf.08.00.27.00.31.ab.49.4d.25.24.c4.c9.b6.ae.67.80.0f.e0.5e.4f.7c",
+            "responseTs": "2018-07-09T19:48:17.317968"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-09 19:48:17.308
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-09 20:11:14.081
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-09 20:11:14.712
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 0,
+            "result": {
+                "mid": 2165331210,
+                "osVersion": 67,
+                "trMcuType": 36,
+                "osBuild": 2239,
+                "rssi": 0,
+                "supplyVoltage": 2.9672727272727275,
+                "flags": 0,
+                "slotLimits": 49,
+                "ibk": [
+                    171,
+                    73,
+                    77,
+                    37,
+                    36,
+                    196,
+                    201,
+                    182,
+                    174,
+                    103,
+                    128,
+                    15,
+                    224,
+                    94,
+                    79,
+                    124
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.02.00.ff.ff",
+            "requestTs": "2018-07-09T20:11:15.143644",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.02.80.00.00.00.00.0a.55.10.81.43.24.bf.08.00.27.00.31.ab.49.4d.25.24.c4.c9.b6.ae.67.80.0f.e0.5e.4f.7c",
+            "responseTs": "2018-07-09T20:11:15.180582"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-09 20:11:15.127
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-16 18:26:03.678
+{
+  "mType": "iqrfEmbedOs_Read",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 18:26:03.941
+{
+    "mType": "iqrfEmbedOs_Read",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 55,
+            "result": {
+                "mid": 2165321048,
+                "osVersion": 67,
+                "trMcuType": 36,
+                "osBuild": 2239,
+                "rssi": 55,
+                "supplyVoltage": 3.0013793103448278,
+                "flags": 0,
+                "slotLimits": 49,
+                "ibk": [
+                    174,
+                    139,
+                    167,
+                    28,
+                    168,
+                    20,
+                    155,
+                    17,
+                    202,
+                    85,
+                    8,
+                    227,
+                    202,
+                    145,
+                    49,
+                    104
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.02.00.ff.ff",
+            "requestTs": "2018-07-16T18:26:05.552250",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.02.80.00.00.00.37.58.2d.10.81.43.24.bf.08.37.28.00.31.ae.8b.a7.1c.a8.14.9b.11.ca.55.08.e3.ca.91.31.68",
+            "responseTs": "2018-07-16T18:26:05.587904"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-16 18:26:04.381
+==================================
+

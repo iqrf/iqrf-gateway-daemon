@@ -1,0 +1,15 @@
+{
+  "mType": "iqrfEmbedCoordinator_BondNode",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "timeout": 11000,
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "reqAddr": 1,
+        "bondingMask": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}

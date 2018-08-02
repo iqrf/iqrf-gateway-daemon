@@ -1,0 +1,52 @@
+==================================
+Sending to WebSocket: 2018-07-25 14:21:19.145
+{
+  "mType": "mngDaemon_Exit",
+  "data": {
+    "msgId": "testMngExit",
+    "req": {
+      "timeToExit": 10000.0
+    },
+    "returnVerbose": true
+  }
+}
+==================================
+Sending to WebSocket: 2018-07-31 11:09:30.238
+{
+  "mType": "mngDaemon_Exit",
+  "data": {
+    "msgId": "testMngExit",
+    "req": {
+      "timeToExit": 10000.0
+    },
+    "returnVerbose": true
+  }
+}
+==================================
+Sending to WebSocket: 2018-07-31 12:18:04.283
+{
+  "mType": "mngDaemon_Exit",
+  "data": {
+    "msgId": "testMngExit",
+    "req": {
+      "timeToExit": 10000.0
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-31 12:18:05.058
+{
+    "mType": "mngDaemon_Exit",
+    "data": {
+        "msgId": "testMngExit",
+        "rsp": {
+            "timeToExit": 10000.0
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-31 12:18:05.486
+==================================
+

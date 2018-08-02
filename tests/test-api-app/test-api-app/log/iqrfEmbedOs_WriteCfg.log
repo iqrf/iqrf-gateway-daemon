@@ -1,0 +1,231 @@
+==================================
+Sending to WebSocket: 2018-07-16 20:03:36.265
+{
+  "mType": "iqrfEmbedOs_WriteCfg",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "checksum": 129,
+        "configuration": [
+          201,
+          18,
+          52,
+          52,
+          52,
+          30,
+          52,
+          55,
+          49,
+          50,
+          55,
+          52,
+          52,
+          52,
+          52,
+          52,
+          45,
+          54,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          55,
+          52
+        ],
+        "rfpgm": 195
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 20:03:36.372
+{
+    "mType": "iqrfEmbedOs_WriteCfg",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "Error: iqrf.ToHexStringByte: Parameter value is not number but undefined"
+        },
+        "raw": {
+            "request": "",
+            "requestTs": "",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_REQUEST",
+        "status": -6
+    }
+}
+2018-07-16 20:03:36.846
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-16 20:04:09.731
+{
+  "mType": "iqrfEmbedOs_WriteCfg",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "checksum": 129,
+        "configuration": [
+          201,
+          18,
+          52,
+          52,
+          52,
+          30,
+          52,
+          55,
+          49,
+          50,
+          55,
+          52,
+          52,
+          52,
+          52,
+          52,
+          45,
+          54,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          55,
+          52
+        ],
+        "rfpgm": 195
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 20:04:09.865
+{
+    "mType": "iqrfEmbedOs_WriteCfg",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "Error: iqrf.ToHexStringByte: Parameter value is not number but undefined"
+        },
+        "raw": {
+            "request": "",
+            "requestTs": "",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_REQUEST",
+        "status": -6
+    }
+}
+2018-07-16 20:04:10.378
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-16 20:09:07.854
+{
+  "mType": "iqrfEmbedOs_WriteCfg",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "checksum": 129,
+        "configuration": [
+          201,
+          18,
+          52,
+          52,
+          52,
+          30,
+          52,
+          55,
+          49,
+          50,
+          55,
+          52,
+          52,
+          52,
+          52,
+          52,
+          45,
+          54,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          52,
+          55,
+          52
+        ],
+        "rfpgm": 195
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 20:09:08.028
+{
+    "mType": "iqrfEmbedOs_WriteCfg",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 53,
+            "result": {}
+        },
+        "raw": {
+            "request": "00.00.02.0f.ff.ff.81.c9.12.34.34.34.1e.34.37.31.32.37.34.34.34.34.34.2d.36.34.34.34.34.34.34.34.34.34.34.34.37.34.c3",
+            "requestTs": "2018-07-16T20:09:09.658631",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.02.8f.00.00.00.35",
+            "responseTs": "2018-07-16T20:09:09.708295"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-16 20:09:08.523
+==================================
+

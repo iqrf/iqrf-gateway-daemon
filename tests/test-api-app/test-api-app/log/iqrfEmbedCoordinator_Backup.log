@@ -1,0 +1,192 @@
+==================================
+Sending to WebSocket: 2018-07-07 19:42:20.929
+{
+  "mType": "iqrfEmbedCoordinator_Backup",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "index": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 19:42:21.127
+{
+    "mType": "iqrfEmbedCoordinator_Backup",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 64,
+            "result": {
+                "networkData": [
+                    237,
+                    96,
+                    20,
+                    81,
+                    130,
+                    222,
+                    124,
+                    114,
+                    222,
+                    248,
+                    144,
+                    163,
+                    238,
+                    130,
+                    117,
+                    237,
+                    144,
+                    84,
+                    167,
+                    183,
+                    129,
+                    51,
+                    202,
+                    101,
+                    112,
+                    7,
+                    123,
+                    36,
+                    3,
+                    67,
+                    8,
+                    30,
+                    130,
+                    98,
+                    206,
+                    11,
+                    16,
+                    43,
+                    35,
+                    67,
+                    163,
+                    88,
+                    214,
+                    166,
+                    140,
+                    145,
+                    17,
+                    104,
+                    168
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.00.0b.ff.ff.00",
+            "requestTs": "2018-07-07T19:42:21.335240",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.8b.00.00.00.40.ed.60.14.51.82.de.7c.72.de.f8.90.a3.ee.82.75.ed.90.54.a7.b7.81.33.ca.65.70.07.7b.24.03.43.08.1e.82.62.ce.0b.10.2b.23.43.a3.58.d6.a6.8c.91.11.68.a8",
+            "responseTs": "2018-07-07T19:42:21.378475"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-07 19:42:21.631
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-07 20:15:04.562
+{
+  "mType": "iqrfEmbedCoordinator_Backup",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "index": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 20:15:04.76
+{
+    "mType": "iqrfEmbedCoordinator_Backup",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 64,
+            "result": {
+                "networkData": [
+                    237,
+                    96,
+                    20,
+                    81,
+                    130,
+                    222,
+                    124,
+                    114,
+                    222,
+                    248,
+                    144,
+                    163,
+                    238,
+                    130,
+                    117,
+                    237,
+                    144,
+                    84,
+                    167,
+                    183,
+                    129,
+                    51,
+                    202,
+                    101,
+                    112,
+                    7,
+                    123,
+                    36,
+                    3,
+                    67,
+                    8,
+                    30,
+                    130,
+                    98,
+                    206,
+                    11,
+                    16,
+                    43,
+                    35,
+                    67,
+                    163,
+                    88,
+                    214,
+                    166,
+                    140,
+                    145,
+                    17,
+                    104,
+                    168
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.00.0b.ff.ff.00",
+            "requestTs": "2018-07-07T20:15:04.977337",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.8b.00.00.00.40.ed.60.14.51.82.de.7c.72.de.f8.90.a3.ee.82.75.ed.90.54.a7.b7.81.33.ca.65.70.07.7b.24.03.43.08.1e.82.62.ce.0b.10.2b.23.43.a3.58.d6.a6.8c.91.11.68.a8",
+            "responseTs": "2018-07-07T20:15:05.23197"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-07 20:15:05.243
+==================================
+

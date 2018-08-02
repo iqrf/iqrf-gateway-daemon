@@ -1,0 +1,85 @@
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "8d64f207-f088-4ced-abb1-7f7cfe1f940f",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 1,
+            "hwpId": 5122,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "Sensor template",
+            "osRead": {
+                "mid": "830004fb",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08c1",
+                "rssi": "-64 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 49,
+                    "shortestTimeslot": "40 ms",
+                    "longestTimeslot": "60 ms"
+                },
+                "ibk": [
+                    185,
+                    56,
+                    12,
+                    124,
+                    142,
+                    184,
+                    69,
+                    220,
+                    111,
+                    253,
+                    99,
+                    20,
+                    189,
+                    184,
+                    220,
+                    42
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-07-26T13:15:19.465599",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.32.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-07-26T13:15:19.498151"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-07-26T13:15:19.499034",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.32.01.01",
+                "responseTs": "2018-07-26T13:15:22.458860"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-07-26T13:15:22.960126",
+                "confirmation": "01.00.02.00.ff.ff.ff.32.00.04.00",
+                "confirmationTs": "2018-07-26T13:15:22.991732",
+                "response": "01.00.02.80.02.14.00.42.fb.04.00.83.43.24.c1.08.42.28.14.31.b9.38.0c.7c.8e.b8.45.dc.6f.fd.63.14.bd.b8.dc.2a",
+                "responseTs": "2018-07-26T13:15:23.109698"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}

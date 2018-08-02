@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedLedg_Pulse",
+    "data": {
+        "msgId": "testEmbedLedg",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 74,
+            "result": {}
+        },
+        "raw": {
+            "request": "01.00.07.03.ff.ff",
+            "requestTs": "2018-07-17T16:59:16.803440",
+            "confirmation": "01.00.07.03.ff.ff.ff.3b.01.04.01",
+            "confirmationTs": "2018-07-17T16:59:16.833185",
+            "response": "01.00.07.83.02.00.00.4a",
+            "responseTs": "2018-07-17T16:59:17.132825"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
