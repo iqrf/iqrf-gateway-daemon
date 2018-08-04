@@ -183,7 +183,7 @@ namespace iqrf {
     m_imp->unregisterMessageHandler();
   }
 
-  void SchedulerMessaging::sendMessage(const std::basic_string<uint8_t> & msg)
+  void SchedulerMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
   {
     m_imp->sendMessage(msg);
   }

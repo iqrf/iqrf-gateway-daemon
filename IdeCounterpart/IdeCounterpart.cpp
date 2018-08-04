@@ -168,7 +168,7 @@ namespace iqrf {
     std::basic_string<unsigned char> udpMessage(IQRF_UDP_HEADER_SIZE + IQRF_UDP_CRC_SIZE, '\0');
     udpMessage[cmd] = (unsigned char)IQRF_UDP_IQRF_SPI_DATA;
     encodeMessageUdp(udpMessage, message);
-    m_messaging->sendMessage(udpMessage);
+    m_messaging->sendMessage("", udpMessage);
     return 0;
   }
 
@@ -247,7 +247,7 @@ namespace iqrf {
       ustring msg;
       getGwIdent(msg);
       encodeMessageUdp(udpResponse, msg);
-      m_messaging->sendMessage(udpResponse);
+      m_messaging->sendMessage("", udpResponse);
     }
     return 0;
 
@@ -258,7 +258,7 @@ namespace iqrf {
       ustring msg;
       getGwStatus(msg);
       encodeMessageUdp(udpResponse, msg);
-      m_messaging->sendMessage(udpResponse);
+      m_messaging->sendMessage("", udpResponse);
     }
     return 0;
 
@@ -281,7 +281,7 @@ namespace iqrf {
       }
 
       encodeMessageUdp(udpResponse);
-      m_messaging->sendMessage(udpResponse);
+      m_messaging->sendMessage("", udpResponse);
 
       if (m_exclusiveAcessor) { // exclusiveAccess
         m_exclusiveAcessor->send(message);
@@ -295,7 +295,7 @@ namespace iqrf {
       udpResponse[cmd] = udpResponse[cmd] | 0x80;
       udpResponse[subcmd] = (unsigned char)IQRF_UDP_NAK;
       encodeMessageUdp(udpResponse);
-      m_messaging->sendMessage(udpResponse);
+      m_messaging->sendMessage("", udpResponse);
       break;
     }
     return -1;

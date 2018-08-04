@@ -143,14 +143,21 @@ namespace iqrf {
       StringBuffer buffer;
       PrettyWriter<StringBuffer> writer(buffer);
       doc.Accept(writer);
-
+      
       if (!messagingId.empty()) {
-        auto found = m_iMessagingServiceMap.find(messagingId);
+        std::string messagingId2(messagingId);
+        if (std::string::npos != messagingId2.find_first_of('/')) {
+          //preparse messageId to remove possible optional appended topic
+          //we need just clean massaging name to find in map
+          std::string buf(messagingId2);
+          std::replace(buf.begin(), buf.end(), '/', ' ');
+          std::istringstream is(buf);
+          is >> messagingId2;
+        }
+
+        auto found = m_iMessagingServiceMap.find(messagingId2);
         if (found != m_iMessagingServiceMap.end()) {
-          //StringBuffer buffer;
-          //PrettyWriter<StringBuffer> writer(buffer);
-          //doc.Accept(writer);
-          found->second->sendMessage(std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+          found->second->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
         }
         else {
           TRC_WARNING("Cannot find required: " << PAR(messagingId))
@@ -158,7 +165,7 @@ namespace iqrf {
       }
       else {
         for (auto m : m_iMessagingServiceSetAcceptAsync) {
-          m->sendMessage(std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+          m->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
         }
       }
     }

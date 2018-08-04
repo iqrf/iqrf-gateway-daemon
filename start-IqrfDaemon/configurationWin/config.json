@@ -43,6 +43,13 @@
       "startlevel": 0
     },
     {
+      "name": "shape::WebsocketCppService",
+      "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
+      "libraryName": "WebsocketCppService",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "shape::CppRestService",
       "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
       "libraryName": "CppRestService",

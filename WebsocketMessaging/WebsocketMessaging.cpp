@@ -28,17 +28,23 @@ namespace iqrf {
 
     shape::IWebsocketService* m_iWebsocketService = nullptr;
 
-    TaskQueue<std::vector<uint8_t>>* m_toMqMessageQueue = nullptr;
+    typedef std::pair<std::string, std::vector<uint8_t>> ConnMsg;
+
+    TaskQueue<ConnMsg>* m_toMqMessageQueue = nullptr;
 
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
 
-    int handleMessageFromWebsocket(const std::vector<uint8_t>& message)
+    int handleMessageFromWebsocket(const std::vector<uint8_t>& message, const std::string& connId)
     {
       TRC_DEBUG("==================================" << std::endl <<
-        "Received from Websocket: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
+        "Received from Websocket: " << PAR(connId) << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
-      if (m_messageHandlerFunc)
-        m_messageHandlerFunc(m_name, message);
+      if (m_messageHandlerFunc) {
+        std::string messaginId(m_name);
+        messaginId += '/';
+        messaginId += connId;
+        m_messageHandlerFunc(messaginId, message);
+      }
 
       return 0;
     }
@@ -66,11 +72,11 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void sendMessage(const std::basic_string<uint8_t> & msg)
+    void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
     {
       TRC_FUNCTION_ENTER("");
       TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
-      m_toMqMessageQueue->pushToQueue(std::vector<uint8_t>(msg.data(), msg.data() + msg.size()));
+      m_toMqMessageQueue->pushToQueue(std::make_pair(messagingId, std::vector<uint8_t>(msg.data(), msg.data() + msg.size())));
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -96,13 +102,24 @@ namespace iqrf {
       props->getMemberAsString("instance", m_name);
       props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
 
-      m_toMqMessageQueue = shape_new TaskQueue<std::vector<uint8_t>>([&](const std::vector<uint8_t>& msg) {
-        m_iWebsocketService->sendMessage(msg);
+      m_toMqMessageQueue = shape_new TaskQueue<ConnMsg>([&](ConnMsg conMsg) {
+        std::string messagingId2(conMsg.first);
+        std::string connId;
+        if (std::string::npos != messagingId2.find_first_of('/')) {
+          //preparse messageId to remove possible optional appended topic
+          //we need just clean massaging name to find in map
+          std::string buf(messagingId2);
+          std::replace(buf.begin(), buf.end(), '/', ' ');
+          std::istringstream is(buf);
+          is >> messagingId2 >> connId;
+        }
+
+        m_iWebsocketService->sendMessage(conMsg.second, connId);
       });
 
       TRC_DEBUG("Assigned port: " << PAR(m_iWebsocketService->getPort()));
-      m_iWebsocketService->registerMessageHandler([&](const std::vector<uint8_t>& msg) -> int {
-        return handleMessageFromWebsocket(msg); });
+      m_iWebsocketService->registerMessageHandler([&](const std::vector<uint8_t>& msg, const std::string& connId ) -> int {
+        return handleMessageFromWebsocket(msg, connId); });
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -163,9 +180,9 @@ namespace iqrf {
     m_imp->unregisterMessageHandler();
   }
 
-  void WebsocketMessaging::sendMessage(const std::basic_string<uint8_t> & msg)
+  void WebsocketMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
   {
-    m_imp->sendMessage(msg);
+    m_imp->sendMessage(messagingId, msg);
   }
 
   const std::string& WebsocketMessaging::getName() const
