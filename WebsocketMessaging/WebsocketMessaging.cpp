@@ -100,6 +100,7 @@ namespace iqrf {
         m_iWebsocketService->sendMessage(msg);
       });
 
+      TRC_DEBUG("Assigned port: " << PAR(m_iWebsocketService->getPort()));
       m_iWebsocketService->registerMessageHandler([&](const std::vector<uint8_t>& msg) -> int {
         return handleMessageFromWebsocket(msg); });
 
