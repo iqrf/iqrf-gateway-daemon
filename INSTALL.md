@@ -115,10 +115,14 @@ folder /etc/iqrfgd2:
   - Local port (55300)
 
 - iqrf__WebsocketMessaging.json   (tip: check/configure your Websocket msgs)
+- iqrf__WebsocketMessagingMobileApp.json
+- iqrf__WebsocketMessagingWebApp.json
   - Accept async msgs (true)
 
 - shape__WebsocketService.json    (tip: check/configure your Websocket ports)
-  - Websocket port (1338)
+- shape__WebsocketServiceMobileApp.json
+- shape__WebsocketServiceWebApp.json
+  - Websocket port (1338, 1339, 1340)
 
 - iqrf__JsCache.json    (tip: check/configure IQRF repository cache update period)
   - Cache update period (360m)
