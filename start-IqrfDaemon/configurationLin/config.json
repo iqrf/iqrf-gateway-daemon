@@ -36,9 +36,9 @@
       "startlevel": -2
     },
     {
-      "name": "shape::WebsocketService",
+      "name": "shape::WebsocketCppService",
       "libraryPath": "../../../../../shapeware/build/Unix_Makefiles/bin",
-      "libraryName": "WebsocketService",
+      "libraryName": "WebsocketCppService",
       "enabled": true,
       "startlevel": 0
     },

@@ -3,6 +3,7 @@
 #include "WebsocketMessaging.h"
 #include "Trace.h"
 #include <vector>
+#include <algorithm>
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
