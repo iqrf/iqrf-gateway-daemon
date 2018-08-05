@@ -42,7 +42,7 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void MqMessaging::sendMessage(const std::basic_string<uint8_t> & msg)
+  void MqMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
   {
     TRC_FUNCTION_ENTER("");
     TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));

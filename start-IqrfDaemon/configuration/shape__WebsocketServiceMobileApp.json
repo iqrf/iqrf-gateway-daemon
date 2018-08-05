@@ -1,5 +1,0 @@
-{
-  "component": "shape::WebsocketService",
-  "instance": "WebsocketServiceMobileApp",
-  "WebsocketPort": 1339
-}

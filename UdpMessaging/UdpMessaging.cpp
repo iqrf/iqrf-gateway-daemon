@@ -59,7 +59,7 @@ namespace iqrf {
     return m_udpChannel->getListeningMacAddress();
   }
 
-  void UdpMessaging::sendMessage(const std::basic_string<uint8_t> & msg)
+  void UdpMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
   {
     TRC_FUNCTION_ENTER("");
     TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));

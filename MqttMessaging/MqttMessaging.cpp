@@ -484,7 +484,7 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void MqttMessaging::sendMessage(const std::basic_string<uint8_t> & msg)
+  void MqttMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
   {
     TRC_FUNCTION_ENTER("");
     m_impl->sendMessage(msg);
