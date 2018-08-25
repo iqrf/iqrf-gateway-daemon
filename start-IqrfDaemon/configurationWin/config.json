@@ -230,6 +230,13 @@
       "libraryName": "EnumerateDeviceService",
       "enabled": true,
       "startlevel": 3
+    },
+    {
+      "name": "iqrf::NativeUploadService",
+      "libraryPath": "",
+      "libraryName": "NativeUploadService",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }

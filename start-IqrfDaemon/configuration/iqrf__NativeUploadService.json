@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::NativeUploadService",
+  "instance": "iqrf::NativeUpload-Instance1"
+}
