@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "schema__iqrf__Ide4Counterpart",
+        "name": "schema__iqrf__IdeCounterpart",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,13 +12,13 @@
             "type": "string",
             "description": "Name of component.",
             "enum": [
-                "iqrf::Ide4Counterpart"
+                "iqrf::IdeCounterpart"
             ]
         },
         "instance": {
             "type": "string",
-            "description": "Recomended shape::WebsocketService-(id)",
-            "default": "iqrf::Ide4Counterpart-1"
+            "description": "Recomended iqrf::IdeCounterpart-(id)",
+            "default": "iqrf::IdeCounterpart-1"
         },
         "RequiredInterfaces": {
             "type": "array",
