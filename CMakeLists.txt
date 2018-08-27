@@ -64,6 +64,11 @@ add_subdirectory(IqmeshServices/WriteTrConfService)
 add_subdirectory(IqmeshServices/EnumerateDeviceService)
 add_subdirectory(NativeUpload)
 
+if(${BUILD_TESTING})
+  add_subdirectory(tests/TestScheduler)
+endif()
+
+
 set(DEFAULT_DAEMON_VERSION v2.0.0dev)
 string(TIMESTAMP DEFAULT_BUILD_TIMESTAMP)
 

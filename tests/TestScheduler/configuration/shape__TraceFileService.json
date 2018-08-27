@@ -1,0 +1,16 @@
+{
+  "component": "shape::TraceFileService",
+  "instance": "shape::TraceFileService-1",
+
+  "path": "",
+  "filename": "TestScheduler.txt",
+  "maxSizeMB": 1048576,
+  "timestampFiles": false,
+
+  "VerbosityLevels": [
+    {
+      "channel": 0,
+      "level": "DBG"
+    }
+  ]
+}
