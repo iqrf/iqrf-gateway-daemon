@@ -170,7 +170,7 @@ namespace iqrf {
 
     // message type: Native Upload Service
     // for temporal reasons
-    const std::string m_mTypeName_mngDaemonUpload = "iqmeshNetwork_NativeUpload";
+    const std::string m_mTypeName_mngDaemonUpload = "mngDaemon_Upload";
 
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
