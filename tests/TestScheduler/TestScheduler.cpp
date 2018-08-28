@@ -15,7 +15,6 @@
 #include <iomanip>
 #include <thread>
 #include <algorithm>
-#include <Windows.h>
 
 #include "iqrf__TestScheduler.hxx"
 
