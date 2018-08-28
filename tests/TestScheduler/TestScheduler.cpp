@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iomanip>
 #include <thread>
+#include <condition_variable>
 #include <algorithm>
 
 #include "iqrf__TestScheduler.hxx"
