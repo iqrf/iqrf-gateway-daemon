@@ -2,7 +2,7 @@
   "applicationName": "IqrfDaemon",
   "resourceDir": "",
   "dataDir": "",
-  "cacheDir": "",
+  "cacheDir": ".",
   "userDir": "",
   "configurationDir": "configuration",
   "deploymentDir": "../../bin/Debug",
