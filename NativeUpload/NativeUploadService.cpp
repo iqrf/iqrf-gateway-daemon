@@ -182,6 +182,9 @@ namespace iqrf {
     // if is set Verbose mode
     bool m_returnVerbose = false;
 
+    // absolute path with hex file to upload
+    std::string m_uploadPath;
+
     // upload receive function
     IIqrfChannelService::ReceiveFromFunc recvFunction;
 
@@ -208,19 +211,21 @@ namespace iqrf {
   private:
     
     // creates error response about service general fail
-    rapidjson::Document getCheckParamsFailedResponse(
+    Document createCheckParamsFailedResponse(
       const std::string& msgId,
       const IMessagingSplitterService::MsgType& msgType,
       const std::string& errorMsg
     )
     {
-      rapidjson::Document response;
+      Document response;
 
+      // set common parameters
       Pointer("/mType").Set(response, msgType.m_type);
       Pointer("/data/msgId").Set(response, msgId);
-      
-      Pointer("/status").Set(response, SERVICE_ERROR);
-      Pointer("/statusStr").Set(response, errorMsg);
+
+      // set result
+      Pointer("/data/status").Set(response, SERVICE_ERROR);
+      Pointer("/data/statusStr").Set(response, errorMsg);
 
       return response;
     }
@@ -734,6 +739,30 @@ namespace iqrf {
       return response;
     }
 
+    // creates and returns full file name
+    std::string getFullFileName(const std::string& uploadPath, const std::string& fileName)
+    {
+      char fileSeparator;
+
+      #if defined(WIN32) || defined(_WIN32)
+        fileSeparator = '\\';
+      #else
+        fileSeparator = '/';
+      #endif
+
+      std::string fullFileName = uploadPath;
+
+      if (uploadPath[uploadPath.size() - 1] != fileSeparator) {
+        fullFileName += fileSeparator;
+      }
+
+      fullFileName += fileName;
+
+      return fullFileName;
+    }
+
+
+
     void handleMsg(
       const std::string& messagingId,
       const IMessagingSplitterService::MsgType& msgType,
@@ -755,6 +784,15 @@ namespace iqrf {
 
       // creating representation object
       ComIqmeshNetworkNativeUpload comNativeUpload(doc);
+
+      // if upload path (service's configuration parameter) is empty, return error message
+      if (m_uploadPath.empty()) {
+        Document failResponse = createCheckParamsFailedResponse(comNativeUpload.getMsgId(), msgType, "Empty upload path");
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
 
       // service input parameters
       std::string fileName;
@@ -781,15 +819,18 @@ namespace iqrf {
       }
       // parsing and checking service parameters failed 
       catch (std::exception& ex) {
-        Document failResponse = getCheckParamsFailedResponse(comNativeUpload.getMsgId(), msgType, ex.what());
+        Document failResponse = createCheckParamsFailedResponse(comNativeUpload.getMsgId(), msgType, ex.what());
         m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
 
         TRC_FUNCTION_LEAVE("");
         return;
       }
       
+      // construct full file name
+      std::string fullFileName = getFullFileName(m_uploadPath, fileName);
+
       // call service and get result
-      NativeUploadResult nativeUploadResult = doNativeUpload(fileName, target, isSetTarget);
+      NativeUploadResult nativeUploadResult = doNativeUpload(fullFileName, target, isSetTarget);
 
       // create and send response
       Document responseDoc = createResponse(comNativeUpload.getMsgId(), msgType, nativeUploadResult, comNativeUpload);
