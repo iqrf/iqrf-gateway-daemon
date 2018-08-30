@@ -285,6 +285,7 @@ namespace iqrf {
     //iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
+    std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
 
     // number of repeats
     uint8_t m_repeat = 0;
@@ -307,6 +308,7 @@ namespace iqrf {
 
     // if is set Verbose mode
     bool m_returnVerbose = false;
+
 
 
   public:
@@ -493,7 +495,8 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          writeConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(writeConfigRequest);
+          //writeConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(writeConfigRequest);
+          writeConfigTransaction = m_exclusiveAccess->executeDpaTransaction(writeConfigRequest);
           transResult = writeConfigTransaction->get();
         }
         catch (std::exception& e) {
@@ -862,7 +865,8 @@ namespace iqrf {
           std::unique_ptr<IDpaTransactionResult2> transResult;
 
           try {
-            writeConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(writeConfigByteRequest);
+            //writeConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(writeConfigByteRequest);
+            writeConfigTransaction = m_exclusiveAccess->executeDpaTransaction(writeConfigByteRequest);
             transResult = writeConfigTransaction->get();
           }
           catch (std::exception& e) {
@@ -991,7 +995,8 @@ namespace iqrf {
           std::unique_ptr<IDpaTransactionResult2> transResult;
 
           try {
-            frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
+            //frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
+            frcWriteConfigTransaction = m_exclusiveAccess->executeDpaTransaction(frcRequest);
             transResult = frcWriteConfigTransaction->get();
           }
           catch (std::exception& e) {
@@ -1083,7 +1088,8 @@ namespace iqrf {
           std::shared_ptr<IDpaTransaction2> extraResultTransaction;
 
           try {
-            extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
+            //extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
+            extraResultTransaction = m_exclusiveAccess->executeDpaTransaction(extraResultRequest);
             transResult = extraResultTransaction->get();
           }
           catch (std::exception& e) {
@@ -1239,7 +1245,8 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          getBondedNodesTransaction = m_iIqrfDpaService->executeDpaTransaction(bondedNodesRequest);
+          //getBondedNodesTransaction = m_iIqrfDpaService->executeDpaTransaction(bondedNodesRequest);
+          getBondedNodesTransaction = m_exclusiveAccess->executeDpaTransaction(bondedNodesRequest);
           transResult = getBondedNodesTransaction->get();
         }
         catch (std::exception& e) {
@@ -1358,7 +1365,8 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          readConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(readConfigRequest);
+          //readConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(readConfigRequest);
+          readConfigTransaction = m_exclusiveAccess->executeDpaTransaction(readConfigRequest);
           transResult = readConfigTransaction->get();
         }
         catch (std::exception& e) {
@@ -1550,7 +1558,8 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          setSecurityTransaction = m_iIqrfDpaService->executeDpaTransaction(securityRequest);
+          //setSecurityTransaction = m_iIqrfDpaService->executeDpaTransaction(securityRequest);
+          setSecurityTransaction = m_exclusiveAccess->executeDpaTransaction(securityRequest);
           transResult = setSecurityTransaction->get();
         }
         catch (std::exception& e) {
@@ -1654,7 +1663,8 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
+          //frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
+          frcWriteConfigTransaction = m_exclusiveAccess->executeDpaTransaction(frcRequest);
           transResult = frcWriteConfigTransaction->get();
         }
         catch (std::exception& e) {
@@ -1745,7 +1755,8 @@ namespace iqrf {
         std::shared_ptr<IDpaTransaction2> extraResultTransaction;
 
         try {
-          extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
+          //extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
+          extraResultTransaction = m_exclusiveAccess->executeDpaTransaction(extraResultRequest);
           transResult = extraResultTransaction->get();
         }
         catch (std::exception& e) {
@@ -2284,6 +2295,24 @@ namespace iqrf {
       return response;
     }
 
+    // creates error response about failed exclusive access
+    rapidjson::Document getExclusiveAccessFailedResponse(
+      const std::string& msgId,
+      const IMessagingSplitterService::MsgType& msgType,
+      const std::string& errorMsg
+    )
+    {
+      rapidjson::Document response;
+
+      Pointer("/mType").Set(response, msgType.m_type);
+      Pointer("/data/msgId").Set(response, msgId);
+
+      Pointer("/data/status").Set(response, SERVICE_ERROR_INTERNAL);
+      Pointer("/data/statusStr").Set(response, errorMsg);
+
+      return response;
+    }
+
     // sets response VERBOSE data
     void setVerboseData(rapidjson::Document& response, WriteResult& writeResult)
     {
@@ -2549,8 +2578,26 @@ namespace iqrf {
         deviceAddr
       };
 
+      // try to establish exclusive access
+      try {
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      }
+      catch (std::exception &e) {
+        const char* errorStr = e.what();
+        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
+
+        Document failResponse = getExclusiveAccessFailedResponse(comWriteConfig.getMsgId(), msgType, errorStr);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
       // call service with checked params
       WriteResult writeResult = writeConfigBytes(configBytes, deviceAddrs);
+
+      // release exclusive access
+      m_exclusiveAccess.reset();
 
       // create and send response
       // will be changed later - indication of restart used here only temporary

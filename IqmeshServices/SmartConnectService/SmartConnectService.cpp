@@ -33,9 +33,12 @@ namespace {
 
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
-  static const int SERVICE_ERROR_MIN_DPA_VER = SERVICE_ERROR + 1;
-  static const int SERVICE_ERROR_SMART_CONNECT = SERVICE_ERROR + 2;
-  static const int SERVICE_ERROR_OS_READ = SERVICE_ERROR + 3;
+
+  static const int SERVICE_ERROR_INTERNAL = SERVICE_ERROR + 1;
+
+  static const int SERVICE_ERROR_MIN_DPA_VER = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_SMART_CONNECT = SERVICE_ERROR + 3;
+  static const int SERVICE_ERROR_OS_READ = SERVICE_ERROR + 4;
 };
 
 
@@ -189,6 +192,7 @@ namespace iqrf {
     IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
+    std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
 
     // number of repeats
     uint8_t m_repeat;
@@ -264,7 +268,8 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          smartConnectTransaction = m_iIqrfDpaService->executeDpaTransaction(smartConnectRequest, 11000);
+          //smartConnectTransaction = m_iIqrfDpaService->executeDpaTransaction(smartConnectRequest, 11000);
+          smartConnectTransaction = m_exclusiveAccess->executeDpaTransaction(smartConnectRequest, 11000);
           transResult = smartConnectTransaction->get();
         }
         catch (std::exception& e) {
@@ -355,7 +360,8 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          perEnumTransaction = m_iIqrfDpaService->executeDpaTransaction(perEnumRequest);
+          //perEnumTransaction = m_iIqrfDpaService->executeDpaTransaction(perEnumRequest);
+          perEnumTransaction = m_exclusiveAccess->executeDpaTransaction(perEnumRequest);
           transResult = perEnumTransaction->get();
         }
         catch (std::exception& e) {
@@ -439,7 +445,8 @@ namespace iqrf {
 
       for ( int rep = 0; rep <= m_repeat; rep++ ) {
         try {
-          osReadTransaction = m_iIqrfDpaService->executeDpaTransaction( osReadRequest );
+          //osReadTransaction = m_iIqrfDpaService->executeDpaTransaction( osReadRequest );
+          osReadTransaction = m_exclusiveAccess->executeDpaTransaction(osReadRequest);
           transResult = osReadTransaction->get();
         }
         catch ( std::exception& e ) {
@@ -605,6 +612,24 @@ namespace iqrf {
       return response;
     }
    
+    // creates error response about failed exclusive access
+    rapidjson::Document getExclusiveAccessFailedResponse(
+      const std::string& msgId,
+      const IMessagingSplitterService::MsgType& msgType,
+      const std::string& errorMsg
+    )
+    {
+      rapidjson::Document response;
+
+      Pointer("/mType").Set(response, msgType.m_type);
+      Pointer("/data/msgId").Set(response, msgId);
+
+      Pointer("/data/status").Set(response, SERVICE_ERROR_INTERNAL);
+      Pointer("/data/statusStr").Set(response, errorMsg);
+
+      return response;
+    }
+
     // sets response VERBOSE data
     void setVerboseData(rapidjson::Document& response, SmartConnectResult& smartConnectResult) 
     {
@@ -1035,10 +1060,28 @@ namespace iqrf {
         return;
       }
       
+      // try to establish exclusive access
+      try {
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      }
+      catch (std::exception &e) {
+        const char* errorStr = e.what();
+        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
+
+        Document failResponse = getExclusiveAccessFailedResponse(comSmartConnect.getMsgId(), msgType, errorStr);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
       // call service with checked params
       SmartConnectResult smartConnectResult = smartConnect(
         hwpId, deviceAddr, bondingTestRetries, ibk, mid, virtualDeviceAddress, userData
       );
+
+      // release exclusive access
+      m_exclusiveAccess.reset();
 
       // create and send response
       Document responseDoc = createResponse(comSmartConnect.getMsgId(), msgType, smartConnectResult, comSmartConnect);

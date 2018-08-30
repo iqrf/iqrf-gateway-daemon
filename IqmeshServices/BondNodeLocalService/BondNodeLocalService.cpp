@@ -24,13 +24,15 @@ namespace {
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
 
-  static const int SERVICE_ERROR_GET_BONDED_NODES = SERVICE_ERROR + 1;
-  static const int SERVICE_ERROR_ALREADY_BONDED = SERVICE_ERROR + 2;
-  static const int SERVICE_ERROR_NO_FREE_SPACE = SERVICE_ERROR + 3;
-  static const int SERVICE_ERROR_BOND_FAILED = SERVICE_ERROR + 4;
-  static const int SERVICE_ERROR_ABOVE_ADDRESS_LIMIT = SERVICE_ERROR + 5;
-  static const int SERVICE_ERROR_PING_FAILED = SERVICE_ERROR + 6;
-  static const int SERVICE_ERROR_PING_INTERNAL_ERROR = SERVICE_ERROR + 7;
+  static const int SERVICE_ERROR_INTERNAL = SERVICE_ERROR + 1;
+
+  static const int SERVICE_ERROR_GET_BONDED_NODES = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_ALREADY_BONDED = SERVICE_ERROR + 3;
+  static const int SERVICE_ERROR_NO_FREE_SPACE = SERVICE_ERROR + 4;
+  static const int SERVICE_ERROR_BOND_FAILED = SERVICE_ERROR + 5;
+  static const int SERVICE_ERROR_ABOVE_ADDRESS_LIMIT = SERVICE_ERROR + 6;
+  static const int SERVICE_ERROR_PING_FAILED = SERVICE_ERROR + 7;
+  static const int SERVICE_ERROR_PING_INTERNAL_ERROR = SERVICE_ERROR + 8;
 };
 
 
@@ -162,6 +164,7 @@ namespace iqrf {
     iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
+    std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
 
     // number of repeats
     uint8_t m_repeat = 1;
@@ -210,7 +213,8 @@ namespace iqrf {
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
       try {
-        bondNodeTransaction = m_iIqrfDpaService->executeDpaTransaction( bondNodeRequest );
+        //bondNodeTransaction = m_iIqrfDpaService->executeDpaTransaction( bondNodeRequest );
+        bondNodeTransaction = m_exclusiveAccess->executeDpaTransaction(bondNodeRequest);
         transResult = bondNodeTransaction->get();
       }
       catch ( std::exception& e ) {
@@ -288,7 +292,8 @@ namespace iqrf {
 
       for ( int rep = 0; rep <= m_repeat; rep++ ) {
         try {
-          readInfoTransaction = m_iIqrfDpaService->executeDpaTransaction( readInfoRequest );
+          //readInfoTransaction = m_iIqrfDpaService->executeDpaTransaction( readInfoRequest );
+          readInfoTransaction = m_exclusiveAccess->executeDpaTransaction(readInfoRequest);
           transResult = readInfoTransaction->get();
         }
         catch ( std::exception& e ) {
@@ -378,7 +383,8 @@ namespace iqrf {
 
       for ( int rep = 0; rep <= m_repeat; rep++ ) {
         try {
-          removeBondTransaction = m_iIqrfDpaService->executeDpaTransaction( removeBondRequest );
+          //removeBondTransaction = m_iIqrfDpaService->executeDpaTransaction( removeBondRequest );
+          removeBondTransaction = m_exclusiveAccess->executeDpaTransaction(removeBondRequest);
           transResult = removeBondTransaction->get();
         }
         catch ( std::exception& e ) {
@@ -475,7 +481,8 @@ namespace iqrf {
 
       for ( int rep = 0; rep <= m_repeat; rep++ ) {
         try {
-          getBondedNodesTransaction = m_iIqrfDpaService->executeDpaTransaction( getBondedNodesRequest );
+          //getBondedNodesTransaction = m_iIqrfDpaService->executeDpaTransaction( getBondedNodesRequest );
+          getBondedNodesTransaction = m_exclusiveAccess->executeDpaTransaction(getBondedNodesRequest);
           transResult = getBondedNodesTransaction->get();
         }
         catch ( std::exception& e ) {
@@ -631,6 +638,23 @@ namespace iqrf {
       return response;
     }
 
+    // creates error response about failed exclusive access
+    rapidjson::Document getExclusiveAccessFailedResponse(
+      const std::string& msgId,
+      const IMessagingSplitterService::MsgType& msgType,
+      const std::string& errorMsg
+    )
+    {
+      rapidjson::Document response;
+
+      Pointer("/mType").Set(response, msgType.m_type);
+      Pointer("/data/msgId").Set(response, msgId);
+
+      Pointer("/data/status").Set(response, SERVICE_ERROR_INTERNAL);
+      Pointer("/data/statusStr").Set(response, errorMsg);
+
+      return response;
+    }
 
     // sets response VERBOSE data
     void setVerboseData( rapidjson::Document& response, BondResult& bondResult )
@@ -945,7 +969,25 @@ namespace iqrf {
         return;
       }
 
+      // try to establish exclusive access
+      try {
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      }
+      catch (std::exception &e) {
+        const char* errorStr = e.what();
+        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
+
+        Document failResponse = getExclusiveAccessFailedResponse(comBondNodeLocal.getMsgId(), msgType, errorStr);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
       BondResult bondResult = bondNode( deviceAddr, bondingMask );
+
+      // release exclusive access
+      m_exclusiveAccess.reset();
 
       // creating response
       Document responseDoc = createResponse( comBondNodeLocal.getMsgId(), msgType, bondResult, comBondNodeLocal );
