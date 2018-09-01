@@ -1,7 +1,7 @@
 #define IIqrfChannelService_EXPORTS
 
 #include "IqrfUart.h"
-#include "spi_iqrf.h"
+#include "uart_iqrf.h"
 #include "sysfs_gpio.h"
 #include "machines_def.h"
 #include "AccessControl.h"
@@ -46,8 +46,9 @@ namespace iqrf {
       int attempt = 0;
       counter++;
 
-      TRC_INFORMATION("Sending to IQRF SPI: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
+      TRC_INFORMATION("Sending to IQRF UART: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
+#if 0
       while (attempt++ < 4) {
         TRC_INFORMATION("Trying to sent: " << counter << "." << attempt);
 
@@ -80,11 +81,13 @@ namespace iqrf {
         TRC_DEBUG("Sleep for a while ... ");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
+#endif
     }
 
     bool enterProgrammingState() {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION("Entering programming mode.");
+#if 0   
 
       int progModeEnterRes = spi_iqrf_pe();
       if (progModeEnterRes != BASE_TYPES_OPER_OK) {
@@ -92,12 +95,12 @@ namespace iqrf {
         TRC_FUNCTION_LEAVE("");
         return false;
       }
-
+#endif
       TRC_FUNCTION_LEAVE("");
       return true;
     }
 
-    
+#if 0   
     // try to wait for communication ready state in specified timeout (in ms).
     // returns	last read IQRF SPI status.
     // copied and slightly modified from: spi_example_pgm_hex.c
@@ -147,6 +150,7 @@ namespace iqrf {
       TRC_DEBUG("Status: " << PAR(spiStatus.dataNotReadyStatus));
       return spiStatus;
     }
+#endif
 
     IIqrfChannelService::Accessor::UploadErrorCode upload(
       const Accessor::UploadTarget target, 
@@ -155,7 +159,7 @@ namespace iqrf {
     )
     {
       TRC_FUNCTION_ENTER("");
-      
+#if 0      
       // wait for TR module is ready
       spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(2000);
 
@@ -242,6 +246,7 @@ namespace iqrf {
       else {
         TRC_INFORMATION("Upload OK");
       }
+#endif
 
       TRC_FUNCTION_LEAVE("");
       return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
@@ -249,19 +254,20 @@ namespace iqrf {
 
     bool terminateProgrammingState() {
       TRC_INFORMATION("Terminating programming mode.");
-
+#if 0
       int progModeTerminateRes = spi_iqrf_pe();
       if (progModeTerminateRes != BASE_TYPES_OPER_OK) {
         TRC_WARNING("Programming mode termination failed: " << PAR(progModeTerminateRes));
         return false;
       }
-
+#endif
       return true;
     }
 
     IIqrfChannelService::State getState() const
     {
       IIqrfChannelService::State state = State::NotReady;
+#if 0
       spi_iqrf_SPIStatus spiStatus1, spiStatus2;
       int ret = 1;
 
@@ -289,7 +295,7 @@ namespace iqrf {
         state = State::NotReady;
         break;
       }
-
+#endif
       return state;
     }
 
@@ -314,6 +320,7 @@ namespace iqrf {
 
       using namespace rapidjson;
 
+#if 0
       try {
         spi_iqrf_config_struct cfg = { {}, ENABLE_GPIO, CE0_GPIO, MISO_GPIO, MOSI_GPIO, SCLK_GPIO };
 
@@ -372,7 +379,7 @@ namespace iqrf {
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, PAR(m_interfaceName) << " Cannot create IqrfInterface");
       }
-
+#endif
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -387,9 +394,11 @@ namespace iqrf {
         m_listenThread.join();
       TRC_DEBUG("listening thread joined");
 
+#if 0
       spi_iqrf_destroy();
 
       delete[] m_rx;
+#endif
 
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -408,12 +417,12 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("thread starts");
 
       try {
-        TRC_DEBUG("SPI is ready");
+        TRC_DEBUG("UART is ready");
 
         while (m_runListenThread)
         {
           int recData = 0;
-
+#if 0
           // lock scope
           {
             std::lock_guard<std::mutex> lck(m_commMutex);
@@ -445,9 +454,10 @@ namespace iqrf {
             std::basic_string<unsigned char> message(m_rx, recData);
             m_accessControl.messageHandler(message);
           }
+#endif
 
           // checking every 10ms
-          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+          std::this_thread::sleep_for(std::chrono::milliseconds(100)); //TODO adapt sleep time
         }
       }
       catch (std::logic_error& e) {
