@@ -10,3 +10,6 @@
 [submodule "libraries/clibspi"]
 	path = libraries/clibspi
 	url = git@github.com:iqrfsdk/clibspi.git
+[submodule "libraries/clibuart"]
+	path = libraries/clibuart
+	url = git@github.com:iqrfsdk/clibuart.git
