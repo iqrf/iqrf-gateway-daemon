@@ -55,7 +55,7 @@ namespace iqrf {
         {
           std::lock_guard<std::mutex> lck(m_commMutex);
 
-          int retval = uart_iqrf_write((void*)message.data(), message.size());
+          int retval = uart_iqrf_write((uint8_t*)message.data(), message.size());
           if (BASE_TYPES_OPER_OK == retval) {
             m_accessControl.sniff(message); //send to sniffer if set
           }

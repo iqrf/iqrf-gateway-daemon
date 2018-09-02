@@ -21,7 +21,7 @@
 #define GetLastError() errno
 #include <string.h>
 const int INVALID_HANDLE_VALUE = -1;
-#define QUEUE_PERMISSIONS 0644
+#define QUEUE_PERMISSIONS 0666
 #define MAX_MESSAGES 32
 
 const std::string MQ_PREFIX("/");
@@ -39,7 +39,10 @@ inline MQDESCR openMqRead(const std::string name, unsigned bufsize)
   req_attr.mq_curmsgs = 0;
 
   TRC_DEBUG("required attributes" << PAR(req_attr.mq_maxmsg) << PAR(req_attr.mq_msgsize))
-  desc = mq_open(name.c_str(), O_RDONLY | O_CREAT, QUEUE_PERMISSIONS, &req_attr);
+  mode_t omask;
+  omask = umask(0);
+  desc = mq_open(name.c_str(), O_RDWR | O_CREAT, QUEUE_PERMISSIONS, &req_attr);
+  umask(omask);
 
   if (desc > 0) {
 
@@ -51,7 +54,7 @@ inline MQDESCR openMqRead(const std::string name, unsigned bufsize)
       if (act_attr.mq_maxmsg != req_attr.mq_maxmsg || act_attr.mq_msgsize != req_attr.mq_msgsize) {
         res = mq_unlink(name.c_str());
         if (res == 0 || errno == ENOENT) {
-          desc = mq_open(name.c_str(), O_RDONLY | O_CREAT, QUEUE_PERMISSIONS, &req_attr);
+          desc = mq_open(name.c_str(), O_RDWR | O_CREAT, QUEUE_PERMISSIONS, &req_attr);
           if (desc < 0) {
             TRC_WARNING("mq_open() after mq_unlink() failed:" << PAR(name) << PAR(desc))
           }
@@ -85,7 +88,7 @@ inline MQDESCR openMqWrite(const std::string name, unsigned bufsize)
   attr.mq_curmsgs = 0;
 
   TRC_DEBUG("explicit attributes" << PAR(attr.mq_maxmsg) << PAR(attr.mq_msgsize))
-  mqd_t retval = mq_open(name.c_str(), O_WRONLY);
+  mqd_t retval = mq_open(name.c_str(), O_RDWR | O_CREAT, QUEUE_PERMISSIONS);
 
   if (retval > 0) {
     struct mq_attr nwattr;
