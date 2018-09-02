@@ -2,8 +2,8 @@
 
 #include "IqrfUart.h"
 #include "uart_iqrf.h"
-#include "sysfs_gpio.h"
-#include "machines_def.h"
+//#include "sysfs_gpio.h"
+//#include "machines_def.h"
 #include "AccessControl.h"
 #include "rapidjson/pointer.h"
 #include <mutex>
@@ -48,7 +48,6 @@ namespace iqrf {
 
       TRC_INFORMATION("Sending to IQRF UART: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
-#if 0
       while (attempt++ < 4) {
         TRC_INFORMATION("Trying to sent: " << counter << "." << attempt);
 
@@ -56,37 +55,25 @@ namespace iqrf {
         {
           std::lock_guard<std::mutex> lck(m_commMutex);
 
-          // get status
-          spi_iqrf_SPIStatus status;
-          int retval = spi_iqrf_getSPIStatus(&status);
-          if (BASE_TYPES_OPER_OK != retval) {
-            THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
-          }
-
-          if (status.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM) {
-            int retval = spi_iqrf_write((void*)message.data(), message.size());
-            if (BASE_TYPES_OPER_OK == retval) {
-              m_accessControl.sniff(message); //send to sniffer if set
-            }
-            else {
-              THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_write()() failed: " << PAR(retval));
-            }
-            break;
+          int retval = uart_iqrf_write((void*)message.data(), message.size());
+          if (BASE_TYPES_OPER_OK == retval) {
+            m_accessControl.sniff(message); //send to sniffer if set
           }
           else {
-            TRC_INFORMATION(PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus));
+            THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_write()() failed: " << PAR(retval));
           }
+          break;
         }
         //wait for next attempt
         TRC_DEBUG("Sleep for a while ... ");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
-#endif
     }
 
     bool enterProgrammingState() {
       TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION("Entering programming mode.");
+      //TRC_INFORMATION("Entering programming mode.");
+      TRC_WARNING("Not implemented");
 #if 0   
 
       int progModeEnterRes = spi_iqrf_pe();
@@ -97,7 +84,8 @@ namespace iqrf {
       }
 #endif
       TRC_FUNCTION_LEAVE("");
-      return true;
+      //return true;
+      return false;
     }
 
 #if 0   
@@ -159,6 +147,7 @@ namespace iqrf {
     )
     {
       TRC_FUNCTION_ENTER("");
+      TRC_WARNING("Not implemented");
 #if 0      
       // wait for TR module is ready
       spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(2000);
@@ -249,11 +238,13 @@ namespace iqrf {
 #endif
 
       TRC_FUNCTION_LEAVE("");
-      return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
+      //return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
+      return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
     }
 
     bool terminateProgrammingState() {
       TRC_INFORMATION("Terminating programming mode.");
+      TRC_WARNING("Not implemented");
 #if 0
       int progModeTerminateRes = spi_iqrf_pe();
       if (progModeTerminateRes != BASE_TYPES_OPER_OK) {
@@ -261,41 +252,18 @@ namespace iqrf {
         return false;
       }
 #endif
-      return true;
+      //return true;
+      return false;
     }
 
     IIqrfChannelService::State getState() const
     {
       IIqrfChannelService::State state = State::NotReady;
-#if 0
-      spi_iqrf_SPIStatus spiStatus1, spiStatus2;
-      int ret = 1;
+      if (m_accessControl.hasExclusiveAccess())
+        state = State::ExclusiveAcess;
+      else if (m_runListenThread)
+        state = State::Ready;
 
-      {
-        std::lock_guard<std::mutex> lck(m_commMutex);
-
-        ret = spi_iqrf_getSPIStatus(&spiStatus1);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        ret = spi_iqrf_getSPIStatus(&spiStatus2);
-      }
-
-      switch (ret) {
-      case BASE_TYPES_OPER_OK:
-        if (spiStatus1.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM && spiStatus2.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM) {
-          state = State::Ready;
-        }
-        else {
-          TRC_INFORMATION("SPI status1: " << PAR(spiStatus1.dataNotReadyStatus));
-          TRC_INFORMATION("SPI status2: " << PAR(spiStatus2.dataNotReadyStatus));
-          state = State::NotReady;
-        }
-        break;
-
-      default:
-        state = State::NotReady;
-        break;
-      }
-#endif
       return state;
     }
 
@@ -320,9 +288,8 @@ namespace iqrf {
 
       using namespace rapidjson;
 
-#if 0
       try {
-        spi_iqrf_config_struct cfg = { {}, ENABLE_GPIO, CE0_GPIO, MISO_GPIO, MOSI_GPIO, SCLK_GPIO };
+        T_UART_IQRF_CONFIG_STRUCT cfg;
 
         Document d;
         d.CopyFrom(props->getAsJson(), d.GetAllocator());
@@ -335,26 +302,29 @@ namespace iqrf {
           THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /IqrfInterface");
         }
 
-        memset(cfg.spiDev, 0, sizeof(cfg.spiDev));
+        Value* baudRate = Pointer("/baudRate").Get(d);
+        if (baudRate != nullptr && baudRate->IsInt()) {
+          m_baudRate = baudRate->GetInt();
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /IqrfInterface");
+        }
+
+        memset(cfg.uartDev, 0, sizeof(cfg.uartDev));
         auto sz = m_interfaceName.size();
-        if (sz > sizeof(cfg.spiDev)) sz = sizeof(cfg.spiDev);
-        std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, cfg.spiDev);
+        if (sz > sizeof(cfg.uartDev)) sz = sizeof(cfg.uartDev);
+        std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, cfg.uartDev);
 
-        cfg.enableGpioPin = (uint8_t)Pointer("/enableGpioPin").GetWithDefault(d, (int)cfg.enableGpioPin).GetInt();
-        cfg.spiCe0GpioPin = (uint8_t)Pointer("/spiCe0GpioPin").GetWithDefault(d, (int)cfg.spiCe0GpioPin).GetInt();
-        cfg.spiMisoGpioPin = (uint8_t)Pointer("/spiMisoGpioPin").GetWithDefault(d, (int)cfg.spiMisoGpioPin).GetInt();
-        cfg.spiMosiGpioPin = (uint8_t)Pointer("/spiMosiGpioPin").GetWithDefault(d, (int)cfg.spiMosiGpioPin).GetInt();
-        cfg.spiClkGpioPin = (uint8_t)Pointer("/spiClkGpioPin").GetWithDefault(d, (int)cfg.spiClkGpioPin).GetInt();
+        cfg.baudRate = m_baudRate;
 
-        // for sake of upload
-        cfg.spiPgmSwGpioPin = PGM_SW_GPIO;
-
-        TRC_INFORMATION(PAR(m_interfaceName));
+        TRC_INFORMATION(PAR(m_interfaceName) << PAR(m_baudRate));
 
         int attempts = 1;
         int res = BASE_TYPES_OPER_ERROR;
         while (attempts < 3) {
-          res = spi_iqrf_initAdvanced(&cfg);
+
+          uart_iqrf_init(&cfg);
+
           if (BASE_TYPES_OPER_OK == res) {
             break;
           }
@@ -379,7 +349,7 @@ namespace iqrf {
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, PAR(m_interfaceName) << " Cannot create IqrfInterface");
       }
-#endif
+
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -394,11 +364,9 @@ namespace iqrf {
         m_listenThread.join();
       TRC_DEBUG("listening thread joined");
 
-#if 0
-      spi_iqrf_destroy();
+      uart_iqrf_destroy();
 
       delete[] m_rx;
-#endif
 
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -422,42 +390,24 @@ namespace iqrf {
         while (m_runListenThread)
         {
           int recData = 0;
-#if 0
+
           // lock scope
           {
             std::lock_guard<std::mutex> lck(m_commMutex);
-
-            // get status
-            spi_iqrf_SPIStatus status;
-            int retval = spi_iqrf_getSPIStatus(&status);
-            if (BASE_TYPES_OPER_OK != retval) {
-              THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
+            // reading
+            uint8_t reclen;
+            int retval = uart_iqrf_read(m_rx, &reclen, 100); //waits for 100 ms
+            if (BASE_TYPES_OPER_OK != retval || UART_IQRF_ERROR_TIMEOUT != retval) {
+              THROW_EXC_TRC_WAR(std::logic_error, "uart_iqrf_read() failed: " << PAR(retval));
             }
-
-            if (status.isDataReady) {
-
-              if (status.dataReady > m_bufsize) {
-                THROW_EXC_TRC_WAR(std::logic_error, "Received data too long: " << NAME_PAR(len, status.dataReady) << PAR(m_bufsize));
-              }
-
-              // reading
-              int retval = spi_iqrf_read(m_rx, status.dataReady);
-              if (BASE_TYPES_OPER_OK != retval) {
-                THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_read() failed: " << PAR(retval));
-              }
-              recData = status.dataReady;
-            }
-          }
+            recData = reclen;          }
 
           // unlocked - possible to write in receiveFromFunc
           if (recData) {
             std::basic_string<unsigned char> message(m_rx, recData);
             m_accessControl.messageHandler(message);
           }
-#endif
 
-          // checking every 10ms
-          std::this_thread::sleep_for(std::chrono::milliseconds(100)); //TODO adapt sleep time
         }
       }
       catch (std::logic_error& e) {
@@ -470,6 +420,7 @@ namespace iqrf {
   private:
     AccessControl<IqrfUart::Imp> m_accessControl;
     std::string m_interfaceName;
+    int m_baudRate = 0;
 
     std::atomic_bool m_runListenThread;
     std::thread m_listenThread;
