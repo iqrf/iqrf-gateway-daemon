@@ -170,6 +170,26 @@ namespace iqrf {
 
   /////////// Tests
   //TODO missing:
+  TEST_F(JsRenderTesting, loadJsCode)
+  {
+    std::ifstream jsFile("./TestJavaScript/test.js");
+    ASSERT_TRUE(jsFile.is_open());
+    std::ostringstream strStream;
+    strStream << jsFile.rdbuf();
+    std::string jsString = strStream.str();
+    ASSERT_FALSE(jsString.empty());
+    Imp::get().m_iJsRenderService->loadJsCode(jsString);
+  }
+  TEST_F(JsRenderTesting, callFunction)
+  {
+    std::string input = "\"qwerty\"";
+    std::string output;
+    std::string expect = "{\"out\":\"QWERTY\"}";
+    Imp::get().m_iJsRenderService->call("test.convertUpperCase", input, output);
+    ASSERT_EQ(expect, output);
+  }
+
+#if 0
 
   TEST_F(JsRenderTesting, loadJsCode)
   {
@@ -190,247 +210,4 @@ namespace iqrf {
     Imp::get().m_iJsRenderService->call("test.convertUpperCase", input, output);
     ASSERT_EQ(expect, output);
   }
-
-#if 0
-
-  TEST_F(SchedulerTesting, scheduleTask)
-  {
-    using namespace rapidjson;
-    Document doc1;
-    Pointer("/item").Set(doc1, VAL1);
-    Document doc2;
-    Pointer("/item").Set(doc2, VAL2);
-
-    //schedule two tasks by cron time
-    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTask(CLIENT_ID, doc1, CRON1);
-    ISchedulerService::TaskHandle th2 = m_iJsRenderService->scheduleTask(CLIENT_ID, doc2, CRON2);
-
-    //expected two handlers
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
-    ASSERT_EQ(2, taskHandleVect.size());
-    //tasks ordered according scheduled time so no exact ordering expected
-    EXPECT_TRUE(th1 == taskHandleVect[0] || th1 == taskHandleVect[1]);
-    EXPECT_TRUE(th2 == taskHandleVect[0] || th2 == taskHandleVect[1]);
-
-    //verify returned task1
-    const rapidjson::Value *task1 = m_iJsRenderService->getMyTask(CLIENT_ID, th1);
-    const rapidjson::Value *val1 = Pointer("/item").Get(*task1);
-    ASSERT_NE(nullptr, val1);
-    ASSERT_TRUE(val1->IsInt());
-    EXPECT_EQ(VAL1, val1->GetInt());
-
-    //verify returned task2
-    const rapidjson::Value *task2 = m_iJsRenderService->getMyTask(CLIENT_ID, th2);
-    const rapidjson::Value *val2 = Pointer("/item").Get(*task2);
-    ASSERT_NE(nullptr, val2);
-    ASSERT_TRUE(val2->IsInt());
-    EXPECT_EQ(VAL2, val2->GetInt());
-
-    //verify returned task1 timeSpec
-    const rapidjson::Value *timeSpec = m_iJsRenderService->getMyTaskTimeSpec(CLIENT_ID, th1);
-    SchedulerTesting::checkTimeSpec(timeSpec, CRON1, false, false, 0, "");
-
-    //remove tasks by vector
-    std::vector<ISchedulerService::TaskHandle> taskHandleVectRem = { th1, th2 };
-    m_iJsRenderService->removeTasks(CLIENT_ID, taskHandleVectRem);
-    
-    //verify removal
-    taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
-  }
-
-  TEST_F(SchedulerTesting, scheduleTaskAt)
-  {
-    using namespace rapidjson;
-    using namespace chrono;
-
-    Document doc1;
-    Pointer("/item").Set(doc1, VAL1);
-
-    //prepare expiration time
-    system_clock::time_point tp = system_clock::now();
-    tp += milliseconds(10000); //expire in 10 sec
-    string tpStr = encodeTimestamp(tp);
-
-    //schedule
-    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTaskAt(CLIENT_ID, doc1, tp);
-    const rapidjson::Value *task1 = m_iJsRenderService->getMyTask(CLIENT_ID, th1);
-
-    //verify returned task1
-    const rapidjson::Value *val1 = Pointer("/item").Get(*task1);
-    ASSERT_NE(nullptr, val1);
-    ASSERT_TRUE(val1->IsInt());
-    EXPECT_EQ(VAL1, val1->GetInt());
-
-    //verify returned task1 timeSpec
-    const rapidjson::Value *timeSpec = m_iJsRenderService->getMyTaskTimeSpec(CLIENT_ID, th1);
-    SchedulerTesting::checkTimeSpec(timeSpec, "", true, false, 0, tpStr); //expiration time as str in tpStr
-
-    //remove tasks by id
-    m_iJsRenderService->removeAllMyTasks(CLIENT_ID);
-    
-    //verify removal
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
-  }
-
-  TEST_F(SchedulerTesting, scheduleTaskPeriodic)
-  {
-    using namespace rapidjson;
-    using namespace chrono;
-
-    Document doc1;
-    Pointer("/item").Set(doc1, VAL1);
-
-    //prepare start time
-    system_clock::time_point tp = system_clock::now();
-    tp += milliseconds(10000); //start in 10 sec
-    string tpStr = encodeTimestamp(tp);
-
-    //schedule
-    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTaskPeriodic(CLIENT_ID, doc1, seconds(PERIOD1), tp);
-    const rapidjson::Value *task1 = m_iJsRenderService->getMyTask(CLIENT_ID, th1);
-
-    //verify returned task1
-    const rapidjson::Value *val1 = Pointer("/item").Get(*task1);
-    ASSERT_NE(nullptr, val1);
-    ASSERT_TRUE(val1->IsInt());
-    EXPECT_EQ(VAL1, val1->GetInt());
-
-    //verify returned task1 timeSpec
-    const rapidjson::Value *timeSpec = m_iJsRenderService->getMyTaskTimeSpec(CLIENT_ID, th1);
-    SchedulerTesting::checkTimeSpec(timeSpec, "", false, true, PERIOD1 * 1000, tpStr);
-
-
-    //remove tasks by id, hndl
-    m_iJsRenderService->removeTask(CLIENT_ID, th1);
-
-    //verify removal
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
-  }
-
-  TEST_F(SchedulerTesting, scheduleTaskHandler)
-  {
-    using namespace rapidjson;
-    Document doc1;
-    Pointer("/item").Set(doc1, VAL1);
-    
-    //schedule
-    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTask(CLIENT_ID, doc1, CRON1);
-
-    { //verify 1st iter
-      Document doc = fetchTask(2000);
-      //cout << ">>>>>>>>>>>>> " << SchedulerTesting::JsonToStr(&doc) << std::endl;
-      ASSERT_FALSE(doc.IsNull());
-
-      //verify task delivered by task handler
-      const rapidjson::Value *val1 = Pointer("/item").Get(doc);
-      ASSERT_NE(nullptr, val1);
-      ASSERT_TRUE(val1->IsInt());
-      EXPECT_EQ(VAL1, val1->GetInt());
-    }
-
-    { //verify 2nd iter
-      Document doc = fetchTask(2000);
-      ASSERT_FALSE(doc.IsNull());
-
-      //verify task delivered by task handler
-      const rapidjson::Value *val1 = Pointer("/item").Get(doc);
-      ASSERT_NE(nullptr, val1);
-      ASSERT_TRUE(val1->IsInt());
-      EXPECT_EQ(VAL1, val1->GetInt());
-    }
-
-    //remove tasks by id, hndl
-    m_iJsRenderService->removeTask(CLIENT_ID, th1);
-
-    //verify removal
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
-  }
-
-  TEST_F(SchedulerTesting, scheduleTaskAtHandler)
-  {
-    using namespace rapidjson;
-    using namespace chrono;
-
-    Document doc1;
-    Pointer("/item").Set(doc1, VAL1);
-
-    system_clock::time_point tp = system_clock::now();
-    tp += milliseconds(1000); //expire in 1 sec
-    string tpStr = encodeTimestamp(tp);
-
-    //schedule one shot task
-    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTaskAt(CLIENT_ID, doc1, tp);
-
-    { //shouldn't expire yet
-      Document doc = fetchTask(200); //200 ms
-      ASSERT_TRUE(doc.IsNull());
-    }
-
-    { //verify the only expiration
-      Document doc = fetchTask(2000);
-      ASSERT_FALSE(doc.IsNull());
-      const rapidjson::Value *val1 = Pointer("/item").Get(doc);
-      ASSERT_NE(nullptr, val1);
-      ASSERT_TRUE(val1->IsInt());
-      EXPECT_EQ(VAL1, val1->GetInt());
-    }
-
-    //shall be empty now
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
-  }
-
-  TEST_F(SchedulerTesting, scheduleTaskPeriodicHandler)
-  {
-    using namespace rapidjson;
-    using namespace chrono;
-
-    Document doc1;
-    Pointer("/item").Set(doc1, VAL1);
-
-    //prepare start time
-    system_clock::time_point tp = system_clock::now();
-    tp += milliseconds(1000); //postpone start by 1 sec
-    string tpStr = encodeTimestamp(tp);
-
-    //schedule
-    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTaskPeriodic(CLIENT_ID, doc1, seconds(PERIOD1), tp);
-    const rapidjson::Value *task1 = m_iJsRenderService->getMyTask(CLIENT_ID, th1);
-
-    { //shouldn't expire yet
-      Document doc = fetchTask(200); //200 ms
-      ASSERT_TRUE(doc.IsNull());
-    }
-
-    { //verify 1st expiration
-      Document doc = fetchTask(2000);
-      ASSERT_FALSE(doc.IsNull());
-      const rapidjson::Value *val1 = Pointer("/item").Get(doc);
-      ASSERT_NE(nullptr, val1);
-      ASSERT_TRUE(val1->IsInt());
-      EXPECT_EQ(VAL1, val1->GetInt());
-    }
-
-    { //verify 2nd expiration
-      Document doc = fetchTask(2000);
-      ASSERT_FALSE(doc.IsNull());
-      const rapidjson::Value *val1 = Pointer("/item").Get(doc);
-      ASSERT_NE(nullptr, val1);
-      ASSERT_TRUE(val1->IsInt());
-      EXPECT_EQ(VAL1, val1->GetInt());
-    }
-
-    //remove tasks by id, hndl
-    m_iJsRenderService->removeTask(CLIENT_ID, th1);
-
-    //verify removal
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
-  }
-#endif
-
 }
