@@ -12,6 +12,7 @@ namespace iqrf {
     JsRenderDuktape();
     virtual ~JsRenderDuktape();
 
+    void loadJsCode(const std::string& js) override;
     void call(const std::string& functionName, const std::string& par, std::string& ret) override;
 
     void activate(const shape::Properties *props = 0);

@@ -97,6 +97,21 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    void loadJsCode(const std::string& js)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      duk_push_string(m_ctx, js.c_str());
+      if (duk_peval(m_ctx) != 0) {
+        std::cerr << "Error in driver scripts: " << duk_safe_to_string(m_ctx, -1) << std::endl;
+        throw std::logic_error("");
+      }
+      duk_pop(m_ctx);  // ignore result
+
+      m_init = true;
+      TRC_FUNCTION_LEAVE("");
+    }
+
     void finit()
     {
       TRC_FUNCTION_ENTER("");
@@ -237,6 +252,11 @@ namespace iqrf {
   JsRenderDuktape::~JsRenderDuktape()
   {
     delete m_imp;
+  }
+
+  void JsRenderDuktape::loadJsCode(const std::string& js)
+  {
+    m_imp->loadJsCode(js);
   }
 
   void JsRenderDuktape::call(const std::string& functionName, const std::string& par, std::string& ret)
