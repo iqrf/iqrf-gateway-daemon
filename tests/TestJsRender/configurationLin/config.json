@@ -1,22 +1,22 @@
 {
-  "applicationName": "IqrfDaemon",
+  "applicationName": "startup",
   "resourceDir": "",
   "dataDir": "",
-  "cacheDir": ".",
+  "cacheDir": "cache",
   "userDir": "",
   "configurationDir": "configuration",
-  "deploymentDir": "../../bin/Debug",
+  "deploymentDir": "../../../../shape/build/Unix_Makefiles/bin",
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3
@@ -29,18 +29,18 @@
       "startlevel": -2
     },
     {
-      "name": "iqrf::Scheduler",
-      "libraryPath": "",
-      "libraryName": "Scheduler",
-      "enabled": true,
-      "startlevel": 0
-    },
-    {
-      "name": "iqrf::TestScheduler",
-      "libraryPath": "",
-      "libraryName": "TestScheduler",
+      "name": "iqrf::JsRenderDuktape",
+      "libraryPath": ".",
+      "libraryName": "JsRenderDuktape",
       "enabled": true,
       "startlevel": 1
+    },
+    {
+      "name": "iqrf::TestJsRender",
+      "libraryPath": ".",
+      "libraryName": "TestJsRender",
+      "enabled": true,
+      "startlevel": 2
     }
   ]
 }

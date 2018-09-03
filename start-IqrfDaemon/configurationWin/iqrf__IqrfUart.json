@@ -1,0 +1,6 @@
+{
+  "component": "iqrf::IqrfUart",
+  "instance": "iqrf::IqrfUart1",
+  "IqrfInterface": "COM1",
+  "baudRate": 115200
+}

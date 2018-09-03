@@ -2,16 +2,22 @@ project(TestJsRender)
 
 find_package(GoogleTest REQUIRED)
 
-set(COMPONENT iqrf::TestScheduler)
+set(COMPONENT iqrf::TestJsRender)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} iqrf::IJsRenderService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
+if(WIN32)
+  set(_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configurationWin)
+else()
+  set(_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configurationLin)
+endif()
+
 file(GLOB_RECURSE _HDRFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-file(GLOB_RECURSE _SRCCONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configuration/*)
+file(GLOB_RECURSE _SRCCONFIG ${_CONFIG}/*)
 file(GLOB_RECURSE _SRCTJS ${CMAKE_CURRENT_SOURCE_DIR}/TestJavaScript/*)
 
 source_group("Header Files" FILES ${_HDRFILES})
@@ -36,7 +42,7 @@ add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/configuration "${CMAKE_CURRENT_BINARY_DIR}/configuration"
+    ARGS -E copy_directory ${_CONFIG} "${CMAKE_CURRENT_BINARY_DIR}/configuration"
 )
 
 #copy TestJavaScript

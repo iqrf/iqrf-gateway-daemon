@@ -1,11 +1,9 @@
 {
   "component": "shape::TraceFileService",
-  "instance": "shape::TraceFileService-1",
+  "instance": "shape::TraceFileService-startup",
 
   "path": "",
-  "filename": "TestScheduler.txt",
-  "maxSizeMB": 1048576,
-  "timestampFiles": false,
+  "filename": "startup.txt",
 
   "VerbosityLevels": [
     {

@@ -1,24 +1,24 @@
 #pragma once
 
-#include "ISchedulerService.h"
+#include "IJsRenderService.h"
 #include "ShapeProperties.h"
 #include "ILaunchService.h"
 #include "ITraceService.h"
 
 namespace iqrf {
 
-  class TestScheduler
+  class TestJsRender
   {
   public:
-    TestScheduler();
-    virtual ~TestScheduler();
+    TestJsRender();
+    virtual ~TestJsRender();
   
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
 
-    void attachInterface(iqrf::ISchedulerService* iface);
-    void detachInterface(iqrf::ISchedulerService* iface);
+    void attachInterface(iqrf::IJsRenderService* iface);
+    void detachInterface(iqrf::IJsRenderService* iface);
 
     void attachInterface(shape::ILaunchService* iface);
     void detachInterface(shape::ILaunchService* iface);

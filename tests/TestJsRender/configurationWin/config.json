@@ -1,0 +1,46 @@
+{
+  "applicationName": "startup",
+  "resourceDir": "",
+  "dataDir": "",
+  "cacheDir": "cache",
+  "userDir": "",
+  "configurationDir": "configuration",
+  "deploymentDir": "../../../../shape/build/VS14_2015_x64/bin/Debug",
+  "components": [
+    {
+      "name": "shape::TraceFormatService",
+      "libraryPath": "",
+      "libraryName": "TraceFormatService",
+      "enabled": true,
+      "startlevel": -4
+    },
+    {
+      "name": "shape::TraceFileService",
+      "libraryPath": "",
+      "libraryName": "TraceFileService",
+      "enabled": true,
+      "startlevel": -3
+    },
+    {
+      "name": "shape::LauncherService",
+      "libraryPath": "",
+      "libraryName": "",
+      "enabled": true,
+      "startlevel": -2
+    },
+    {
+      "name": "iqrf::JsRenderDuktape",
+      "libraryPath": ".",
+      "libraryName": "JsRenderDuktape",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::TestJsRender",
+      "libraryPath": ".",
+      "libraryName": "TestJsRender",
+      "enabled": true,
+      "startlevel": 2
+    }
+  ]
+}

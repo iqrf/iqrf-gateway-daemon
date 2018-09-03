@@ -1,4 +1,4 @@
-#include "TestScheduler.h"
+#include "TestJsRender.h"
 #include "Trace.h"
 #include "GTestStaticRunner.h"
 #include "HexStringCoversion.h"
@@ -17,7 +17,7 @@
 #include <condition_variable>
 #include <algorithm>
 
-#include "iqrf__TestScheduler.hxx"
+#include "iqrf__TestJsRender.hxx"
 
 TRC_INIT_MNAME(cobalt::CmCobaltTestTrj)
 
@@ -33,7 +33,7 @@ namespace iqrf {
 
   public:
     shape::ILaunchService* m_iLaunchService = nullptr;
-    iqrf::ISchedulerService* m_iSchedulerService = nullptr;
+    iqrf::IJsRenderService* m_iJsRenderService = nullptr;
     std::thread m_thread;
     shape::GTestStaticRunner m_gtest;
 
@@ -62,15 +62,15 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void attachInterface(iqrf::ISchedulerService* iface)
+    void attachInterface(iqrf::IJsRenderService* iface)
     {
-      m_iSchedulerService = iface;
+      m_iJsRenderService = iface;
     }
 
-    void detachInterface(iqrf::ISchedulerService* iface)
+    void detachInterface(iqrf::IJsRenderService* iface)
     {
-      if (m_iSchedulerService == iface) {
-        m_iSchedulerService = nullptr;
+      if (m_iJsRenderService == iface) {
+        m_iJsRenderService = nullptr;
       }
     }
 
@@ -89,70 +89,71 @@ namespace iqrf {
   };
 
   ////////////////////////////////////
-  TestScheduler::TestScheduler()
+  TestJsRender::TestJsRender()
   {
   }
 
-  TestScheduler::~TestScheduler()
+  TestJsRender::~TestJsRender()
   {
   }
 
-  void TestScheduler::activate(const shape::Properties *props)
+  void TestJsRender::activate(const shape::Properties *props)
   {
     Imp::get().activate(props);
   }
 
-  void TestScheduler::deactivate()
+  void TestJsRender::deactivate()
   {
     Imp::get().deactivate();
   }
 
-  void TestScheduler::modify(const shape::Properties *props)
+  void TestJsRender::modify(const shape::Properties *props)
   {
   }
 
-  void TestScheduler::attachInterface(iqrf::ISchedulerService* iface)
-  {
-    Imp::get().attachInterface(iface);
-  }
-
-  void TestScheduler::detachInterface(iqrf::ISchedulerService* iface)
-  {
-    Imp::get().detachInterface(iface);
-  }
-
-  void TestScheduler::attachInterface(shape::ILaunchService* iface)
+  void TestJsRender::attachInterface(iqrf::IJsRenderService* iface)
   {
     Imp::get().attachInterface(iface);
   }
 
-  void TestScheduler::detachInterface(shape::ILaunchService* iface)
+  void TestJsRender::detachInterface(iqrf::IJsRenderService* iface)
   {
     Imp::get().detachInterface(iface);
   }
 
-  void TestScheduler::attachInterface(shape::ITraceService* iface)
+  void TestJsRender::attachInterface(shape::ILaunchService* iface)
+  {
+    Imp::get().attachInterface(iface);
+  }
+
+  void TestJsRender::detachInterface(shape::ILaunchService* iface)
+  {
+    Imp::get().detachInterface(iface);
+  }
+
+  void TestJsRender::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void TestScheduler::detachInterface(shape::ITraceService* iface)
+  void TestJsRender::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }
 
+#if 0
   ////////////////////////////////////////////////////////
   class SchedulerTesting : public ::testing::Test
   {
   protected:
-    const std::string CLIENT_ID = "TestScheduler";
+    const std::string CLIENT_ID = "TestJsRender";
     const int VAL1 = 1;
     const int VAL2 = 2;
     const std::string CRON1 = "*/1 * * * * * *"; //every 1sec
     const std::string CRON2 = "20 * * * * * *";
     const int PERIOD1 = 1; //every 1sec
 
-    iqrf::ISchedulerService* m_iSchedulerService = nullptr;
+    iqrf::IJsRenderService* m_iJsRenderService = nullptr;
     std::condition_variable m_msgCon;
     std::mutex m_mux;
     rapidjson::Document m_expectedTask;
@@ -160,15 +161,15 @@ namespace iqrf {
     void SetUp(void) override
     {
       ASSERT_NE(nullptr, &Imp::get());
-      ASSERT_NE(nullptr, Imp::get().m_iSchedulerService);
-      m_iSchedulerService = Imp::get().m_iSchedulerService;
-      m_iSchedulerService->registerTaskHandler(CLIENT_ID, [&](const rapidjson::Value& task) { taskHandler(task); });
+      ASSERT_NE(nullptr, Imp::get().m_iJsRenderService);
+      m_iJsRenderService = Imp::get().m_iJsRenderService;
+      m_iJsRenderService->registerTaskHandler(CLIENT_ID, [&](const rapidjson::Value& task) { taskHandler(task); });
       ASSERT_NE(nullptr, &Imp::get().m_iLaunchService);
     };
 
     void TearDown(void) override
     {
-      m_iSchedulerService->unregisterTaskHandler(CLIENT_ID);
+      m_iJsRenderService->unregisterTaskHandler(CLIENT_ID);
     };
 
     void taskHandler(const rapidjson::Value& task)
@@ -266,15 +267,15 @@ namespace iqrf {
   TEST_F(SchedulerTesting, empty)
   {
     //verify empty result as we haven't any tasks yet
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect =  m_iSchedulerService->getMyTasks(CLIENT_ID);
+    std::vector<ISchedulerService::TaskHandle> taskHandleVect =  m_iJsRenderService->getMyTasks(CLIENT_ID);
     EXPECT_EQ(0, taskHandleVect.size());
 
     //verify empty result as we pass wrong handler
-    const rapidjson::Value *val = m_iSchedulerService->getMyTask(CLIENT_ID, 0);
+    const rapidjson::Value *val = m_iJsRenderService->getMyTask(CLIENT_ID, 0);
     EXPECT_EQ(nullptr, val);
 
     //verify empty result as we pass wrong handler
-    val = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, 0);
+    val = m_iJsRenderService->getMyTaskTimeSpec(CLIENT_ID, 0);
     EXPECT_EQ(nullptr, val);
   }
 
@@ -287,40 +288,40 @@ namespace iqrf {
     Pointer("/item").Set(doc2, VAL2);
 
     //schedule two tasks by cron time
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTask(CLIENT_ID, doc1, CRON1);
-    ISchedulerService::TaskHandle th2 = m_iSchedulerService->scheduleTask(CLIENT_ID, doc2, CRON2);
+    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTask(CLIENT_ID, doc1, CRON1);
+    ISchedulerService::TaskHandle th2 = m_iJsRenderService->scheduleTask(CLIENT_ID, doc2, CRON2);
 
     //expected two handlers
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
+    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
     ASSERT_EQ(2, taskHandleVect.size());
     //tasks ordered according scheduled time so no exact ordering expected
     EXPECT_TRUE(th1 == taskHandleVect[0] || th1 == taskHandleVect[1]);
     EXPECT_TRUE(th2 == taskHandleVect[0] || th2 == taskHandleVect[1]);
 
     //verify returned task1
-    const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
+    const rapidjson::Value *task1 = m_iJsRenderService->getMyTask(CLIENT_ID, th1);
     const rapidjson::Value *val1 = Pointer("/item").Get(*task1);
     ASSERT_NE(nullptr, val1);
     ASSERT_TRUE(val1->IsInt());
     EXPECT_EQ(VAL1, val1->GetInt());
 
     //verify returned task2
-    const rapidjson::Value *task2 = m_iSchedulerService->getMyTask(CLIENT_ID, th2);
+    const rapidjson::Value *task2 = m_iJsRenderService->getMyTask(CLIENT_ID, th2);
     const rapidjson::Value *val2 = Pointer("/item").Get(*task2);
     ASSERT_NE(nullptr, val2);
     ASSERT_TRUE(val2->IsInt());
     EXPECT_EQ(VAL2, val2->GetInt());
 
     //verify returned task1 timeSpec
-    const rapidjson::Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, th1);
+    const rapidjson::Value *timeSpec = m_iJsRenderService->getMyTaskTimeSpec(CLIENT_ID, th1);
     SchedulerTesting::checkTimeSpec(timeSpec, CRON1, false, false, 0, "");
 
     //remove tasks by vector
     std::vector<ISchedulerService::TaskHandle> taskHandleVectRem = { th1, th2 };
-    m_iSchedulerService->removeTasks(CLIENT_ID, taskHandleVectRem);
+    m_iJsRenderService->removeTasks(CLIENT_ID, taskHandleVectRem);
     
     //verify removal
-    taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
+    taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
     EXPECT_EQ(0, taskHandleVect.size());
   }
 
@@ -338,8 +339,8 @@ namespace iqrf {
     string tpStr = encodeTimestamp(tp);
 
     //schedule
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(CLIENT_ID, doc1, tp);
-    const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
+    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTaskAt(CLIENT_ID, doc1, tp);
+    const rapidjson::Value *task1 = m_iJsRenderService->getMyTask(CLIENT_ID, th1);
 
     //verify returned task1
     const rapidjson::Value *val1 = Pointer("/item").Get(*task1);
@@ -348,14 +349,14 @@ namespace iqrf {
     EXPECT_EQ(VAL1, val1->GetInt());
 
     //verify returned task1 timeSpec
-    const rapidjson::Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, th1);
+    const rapidjson::Value *timeSpec = m_iJsRenderService->getMyTaskTimeSpec(CLIENT_ID, th1);
     SchedulerTesting::checkTimeSpec(timeSpec, "", true, false, 0, tpStr); //expiration time as str in tpStr
 
     //remove tasks by id
-    m_iSchedulerService->removeAllMyTasks(CLIENT_ID);
+    m_iJsRenderService->removeAllMyTasks(CLIENT_ID);
     
     //verify removal
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
+    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
     EXPECT_EQ(0, taskHandleVect.size());
   }
 
@@ -373,8 +374,8 @@ namespace iqrf {
     string tpStr = encodeTimestamp(tp);
 
     //schedule
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskPeriodic(CLIENT_ID, doc1, seconds(PERIOD1), tp);
-    const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
+    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTaskPeriodic(CLIENT_ID, doc1, seconds(PERIOD1), tp);
+    const rapidjson::Value *task1 = m_iJsRenderService->getMyTask(CLIENT_ID, th1);
 
     //verify returned task1
     const rapidjson::Value *val1 = Pointer("/item").Get(*task1);
@@ -383,15 +384,15 @@ namespace iqrf {
     EXPECT_EQ(VAL1, val1->GetInt());
 
     //verify returned task1 timeSpec
-    const rapidjson::Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, th1);
+    const rapidjson::Value *timeSpec = m_iJsRenderService->getMyTaskTimeSpec(CLIENT_ID, th1);
     SchedulerTesting::checkTimeSpec(timeSpec, "", false, true, PERIOD1 * 1000, tpStr);
 
 
     //remove tasks by id, hndl
-    m_iSchedulerService->removeTask(CLIENT_ID, th1);
+    m_iJsRenderService->removeTask(CLIENT_ID, th1);
 
     //verify removal
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
+    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
     EXPECT_EQ(0, taskHandleVect.size());
   }
 
@@ -402,7 +403,7 @@ namespace iqrf {
     Pointer("/item").Set(doc1, VAL1);
     
     //schedule
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTask(CLIENT_ID, doc1, CRON1);
+    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTask(CLIENT_ID, doc1, CRON1);
 
     { //verify 1st iter
       Document doc = fetchTask(2000);
@@ -428,10 +429,10 @@ namespace iqrf {
     }
 
     //remove tasks by id, hndl
-    m_iSchedulerService->removeTask(CLIENT_ID, th1);
+    m_iJsRenderService->removeTask(CLIENT_ID, th1);
 
     //verify removal
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
+    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
     EXPECT_EQ(0, taskHandleVect.size());
   }
 
@@ -448,7 +449,7 @@ namespace iqrf {
     string tpStr = encodeTimestamp(tp);
 
     //schedule one shot task
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(CLIENT_ID, doc1, tp);
+    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTaskAt(CLIENT_ID, doc1, tp);
 
     { //shouldn't expire yet
       Document doc = fetchTask(200); //200 ms
@@ -465,7 +466,7 @@ namespace iqrf {
     }
 
     //shall be empty now
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
+    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
     EXPECT_EQ(0, taskHandleVect.size());
   }
 
@@ -483,8 +484,8 @@ namespace iqrf {
     string tpStr = encodeTimestamp(tp);
 
     //schedule
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskPeriodic(CLIENT_ID, doc1, seconds(PERIOD1), tp);
-    const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
+    ISchedulerService::TaskHandle th1 = m_iJsRenderService->scheduleTaskPeriodic(CLIENT_ID, doc1, seconds(PERIOD1), tp);
+    const rapidjson::Value *task1 = m_iJsRenderService->getMyTask(CLIENT_ID, th1);
 
     { //shouldn't expire yet
       Document doc = fetchTask(200); //200 ms
@@ -510,12 +511,12 @@ namespace iqrf {
     }
 
     //remove tasks by id, hndl
-    m_iSchedulerService->removeTask(CLIENT_ID, th1);
+    m_iJsRenderService->removeTask(CLIENT_ID, th1);
 
     //verify removal
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
+    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iJsRenderService->getMyTasks(CLIENT_ID);
     EXPECT_EQ(0, taskHandleVect.size());
   }
-
+#endif
 
 }
