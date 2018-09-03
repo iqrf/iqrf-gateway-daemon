@@ -141,47 +141,20 @@ namespace iqrf {
     shape::Tracer::get().removeTracerService(iface);
   }
 
-#if 0
   ////////////////////////////////////////////////////////
-  class SchedulerTesting : public ::testing::Test
+  class JsRenderTesting : public ::testing::Test
   {
   protected:
-    const std::string CLIENT_ID = "TestJsRender";
-    const int VAL1 = 1;
-    const int VAL2 = 2;
-    const std::string CRON1 = "*/1 * * * * * *"; //every 1sec
-    const std::string CRON2 = "20 * * * * * *";
-    const int PERIOD1 = 1; //every 1sec
-
-    iqrf::IJsRenderService* m_iJsRenderService = nullptr;
-    std::condition_variable m_msgCon;
-    std::mutex m_mux;
-    rapidjson::Document m_expectedTask;
 
     void SetUp(void) override
     {
-      ASSERT_NE(nullptr, &Imp::get());
-      ASSERT_NE(nullptr, Imp::get().m_iJsRenderService);
-      m_iJsRenderService = Imp::get().m_iJsRenderService;
-      m_iJsRenderService->registerTaskHandler(CLIENT_ID, [&](const rapidjson::Value& task) { taskHandler(task); });
       ASSERT_NE(nullptr, &Imp::get().m_iLaunchService);
+      ASSERT_NE(nullptr, &Imp::get().m_iJsRenderService);
     };
 
     void TearDown(void) override
     {
-      m_iJsRenderService->unregisterTaskHandler(CLIENT_ID);
     };
-
-    void taskHandler(const rapidjson::Value& task)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      std::unique_lock<std::mutex> lck(m_mux);
-      m_expectedTask.CopyFrom(task, m_expectedTask.GetAllocator());
-      m_msgCon.notify_all();
-
-      TRC_FUNCTION_LEAVE("");
-    }
 
     //for debug only
     static std::string JsonToStr(const rapidjson::Value* val)
@@ -193,91 +166,32 @@ namespace iqrf {
       doc.Accept(writer);
       return buffer.GetString();
     }
-
-    void checkTimeSpec(
-      const rapidjson::Value *timeSpec,
-      const std::string& cronTimeStr,
-      bool exactTimeB,
-      bool periodicB,
-      int periodI,
-      const std::string& startTimeStr
-      )
-    {
-      TRC_FUNCTION_ENTER(PAR(cronTimeStr) << PAR(exactTimeB) << PAR(periodicB) << PAR(periodI) << PAR(startTimeStr));
-
-      using namespace rapidjson;
-      using namespace chrono;
-
-      const rapidjson::Value *cronTime = Pointer("/cronTime").Get(*timeSpec);
-      const rapidjson::Value *exactTime = Pointer("/exactTime").Get(*timeSpec);
-      const rapidjson::Value *periodic = Pointer("/periodic").Get(*timeSpec);
-      const rapidjson::Value *period = Pointer("/period").Get(*timeSpec);
-      const rapidjson::Value *startTime = Pointer("/startTime").Get(*timeSpec);
-
-      ASSERT_NE(nullptr, cronTime);
-      ASSERT_NE(nullptr, exactTime);
-      ASSERT_NE(nullptr, periodic);
-      ASSERT_NE(nullptr, period);
-      ASSERT_NE(nullptr, startTime);
-
-      ASSERT_TRUE(cronTime->IsString());
-      ASSERT_TRUE(exactTime->IsBool());
-      ASSERT_TRUE(periodic->IsBool());
-      ASSERT_TRUE(period->IsInt());
-      ASSERT_TRUE(startTime->IsString());
-
-      EXPECT_EQ(cronTimeStr, cronTime->GetString());
-      EXPECT_EQ(exactTimeB, exactTime->GetBool());
-      EXPECT_EQ(periodicB, periodic->GetBool());
-      EXPECT_EQ(periodI, period->GetInt());
-
-      //std::cout << ">>>>>>>>> " << SchedulerTesting::JsonToStr(startTime) << std::endl;
-      if (!startTimeStr.empty()) {
-        EXPECT_EQ(startTimeStr, startTime->GetString());
-      }
-
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    rapidjson::Document fetchTask(unsigned millisToWait)
-    {
-      TRC_FUNCTION_ENTER(PAR(millisToWait));
-
-      std::unique_lock<std::mutex> lck(m_mux);
-      if (m_expectedTask.IsNull()) {
-        while (m_msgCon.wait_for(lck, std::chrono::milliseconds(millisToWait)) != std::cv_status::timeout) {
-          if (!m_expectedTask.IsNull()) break;
-        }
-      }
-      
-      rapidjson::Document expectedTask;
-      expectedTask.Swap(m_expectedTask);
-      TRC_FUNCTION_LEAVE("");
-      return expectedTask;
-    }
-
   };
 
   /////////// Tests
   //TODO missing:
-  // exact timing of tasks with long time => Scheduler wouldn't call now() directly. It shall be done by time provider interface mocked in tests
-  // cron NICKNAMES: @yearly, ...
-  // predefined scheduler/tasks.json => shall be done after implementation of persistency
 
-  TEST_F(SchedulerTesting, empty)
+  TEST_F(JsRenderTesting, loadJsCode)
   {
-    //verify empty result as we haven't any tasks yet
-    std::vector<ISchedulerService::TaskHandle> taskHandleVect =  m_iJsRenderService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
-
-    //verify empty result as we pass wrong handler
-    const rapidjson::Value *val = m_iJsRenderService->getMyTask(CLIENT_ID, 0);
-    EXPECT_EQ(nullptr, val);
-
-    //verify empty result as we pass wrong handler
-    val = m_iJsRenderService->getMyTaskTimeSpec(CLIENT_ID, 0);
-    EXPECT_EQ(nullptr, val);
+    std::ifstream jsFile("./TestJavaScript/test.js");
+    ASSERT_TRUE(jsFile.is_open());
+    std::ostringstream strStream;
+    strStream << jsFile.rdbuf();
+    std::string jsString = strStream.str();
+    ASSERT_FALSE(jsString.empty());
+    Imp::get().m_iJsRenderService->loadJsCode(jsString);
   }
+
+  TEST_F(JsRenderTesting, callFunction)
+  {
+    std::string input = "\"qwerty\"";
+    std::string output;
+    std::string expect = "{\"out\":\"QWERTY\"}";
+    Imp::get().m_iJsRenderService->call("test.convertUpperCase", input, output);
+    ASSERT_EQ(expect, output);
+  }
+
+#if 0
 
   TEST_F(SchedulerTesting, scheduleTask)
   {
