@@ -180,27 +180,6 @@ namespace iqrf {
     ASSERT_FALSE(jsString.empty());
     Imp::get().m_iJsRenderService->loadJsCode(jsString);
   }
-  TEST_F(JsRenderTesting, callFunction)
-  {
-    std::string input = "\"qwerty\"";
-    std::string output;
-    std::string expect = "{\"out\":\"QWERTY\"}";
-    Imp::get().m_iJsRenderService->call("test.convertUpperCase", input, output);
-    ASSERT_EQ(expect, output);
-  }
-
-#if 0
-
-  TEST_F(JsRenderTesting, loadJsCode)
-  {
-    std::ifstream jsFile("./TestJavaScript/test.js");
-    ASSERT_TRUE(jsFile.is_open());
-    std::ostringstream strStream;
-    strStream << jsFile.rdbuf();
-    std::string jsString = strStream.str();
-    ASSERT_FALSE(jsString.empty());
-    Imp::get().m_iJsRenderService->loadJsCode(jsString);
-  }
 
   TEST_F(JsRenderTesting, callFunction)
   {
@@ -210,4 +189,5 @@ namespace iqrf {
     Imp::get().m_iJsRenderService->call("test.convertUpperCase", input, output);
     ASSERT_EQ(expect, output);
   }
+
 }
