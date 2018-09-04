@@ -42,7 +42,7 @@ add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_directory ${_CONFIG} "${CMAKE_CURRENT_BINARY_DIR}/configuration"
+    ARGS -E ${_CONFIG} "${CMAKE_CURRENT_BINARY_DIR}/configuration"
 )
 
 #copy scheduler/Task.json
