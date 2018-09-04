@@ -340,6 +340,8 @@ namespace iqrf {
     // if is set Verbose mode
     bool m_returnVerbose = false;
 
+    bool m_morePeripheralsInfo = false;
+
 
   public:
     Imp(EnumerateDeviceService& parent) : m_parent(parent)
@@ -1555,14 +1557,17 @@ namespace iqrf {
         isError = true;
       }
 
-      if (
-        deviceEnumResult.getPerEnumError().getType() == DeviceEnumerateError::Type::NoError
-        )
-      {
-        setInfoForMorePeripheralsResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, response);
-      }
-      else {
-        isError = true;
+      // result of more peripherals info according to request
+      if (m_morePeripheralsInfo) {
+        if (
+          deviceEnumResult.getPerEnumError().getType() == DeviceEnumerateError::Type::NoError
+          )
+        {
+          setInfoForMorePeripheralsResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, response);
+        }
+        else {
+          isError = true;
+        }
       }
 
       setValidationAndUpdatesResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, osReadObject, response);
@@ -1641,6 +1646,8 @@ namespace iqrf {
         }
         deviceAddr = parseAndCheckDeviceAddr(comEnumerateDevice.getDeviceAddr());
 
+        m_morePeripheralsInfo = comEnumerateDevice.getMorePeripheralsInfo();
+
         m_returnVerbose = comEnumerateDevice.getVerbose();
       }
       // parsing and checking service parameters failed 
@@ -1704,8 +1711,9 @@ namespace iqrf {
       readHwpConfiguration(deviceEnumerateResult);
 
       // get info for more peripherals
-      getInfoForMorePeripherals(deviceEnumerateResult);
-
+      if (m_morePeripheralsInfo) {
+        getInfoForMorePeripherals(deviceEnumerateResult);
+      }
 
       // release exclusive access
       m_exclusiveAccess.reset();

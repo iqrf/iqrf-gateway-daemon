@@ -32,6 +32,10 @@ namespace iqrf {
     {
       return m_deviceAddr;
     }
+  
+    const bool getMorePeripheralsInfo() {
+      return m_morePeripheralsInfo;
+    }
 
 
   protected:
@@ -47,6 +51,7 @@ namespace iqrf {
     
     int m_repeat = 1;
     int m_deviceAddr;
+    bool m_morePeripheralsInfo = false;
     
 
     void parseRepeat(rapidjson::Document& doc) {
@@ -59,6 +64,10 @@ namespace iqrf {
       if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
         m_deviceAddr = deviceAddrJsonVal->GetInt();
         m_isSetDeviceAddr = true;
+      }
+
+      if (rapidjson::Value* morePerInfoJsonVal = rapidjson::Pointer("/data/req/morePeripheralsInfo").Get(doc)) {
+        m_morePeripheralsInfo = morePerInfoJsonVal->GetBool();
       }
     }
 
