@@ -76,6 +76,7 @@ add_subdirectory(NativeUpload)
 
 if(${BUILD_TESTING})
   add_subdirectory(tests/TestScheduler)
+  add_subdirectory(tests/TestJsRender)
 endif()
 
 

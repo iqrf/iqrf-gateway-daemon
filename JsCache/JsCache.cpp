@@ -55,8 +55,9 @@ namespace iqrf {
   class JsCache::Imp
   {
   private:
-    shape::ILaunchService* m_iLaunchService = nullptr;
+    iqrf::IJsRenderService* m_iJsRenderService = nullptr;
     iqrf::ISchedulerService* m_iSchedulerService = nullptr;
+    shape::ILaunchService* m_iLaunchService = nullptr;
     shape::IRestApiService* m_iRestApiService = nullptr;
 
     mutable std::recursive_mutex m_updateMtx;
@@ -955,6 +956,18 @@ namespace iqrf {
 
       loadCache();
 
+      const std::map<int, const IJsCacheService::StdDriver*> scripts = getAllLatestDrivers();
+      std::string str2load;
+
+      // agregate scripts
+      for (const auto sc : scripts) {
+        // Create a string containing the JavaScript source code.
+        str2load += sc.second->getDriver();
+      }
+
+      m_iJsRenderService->loadJsCode(str2load);
+
+
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -1030,15 +1043,15 @@ namespace iqrf {
 
     }
 
-    void attachInterface(shape::ILaunchService* iface)
+    void attachInterface(iqrf::IJsRenderService* iface)
     {
-      m_iLaunchService = iface;
+      m_iJsRenderService = iface;
     }
 
-    void detachInterface(shape::ILaunchService* iface)
+    void detachInterface(iqrf::IJsRenderService* iface)
     {
-      if (m_iLaunchService == iface) {
-        m_iLaunchService = nullptr;
+      if (m_iJsRenderService == iface) {
+        m_iJsRenderService = nullptr;
       }
     }
 
@@ -1051,6 +1064,18 @@ namespace iqrf {
     {
       if (m_iSchedulerService == iface) {
         m_iSchedulerService = nullptr;
+      }
+    }
+
+    void attachInterface(shape::ILaunchService* iface)
+    {
+      m_iLaunchService = iface;
+    }
+
+    void detachInterface(shape::ILaunchService* iface)
+    {
+      if (m_iLaunchService == iface) {
+        m_iLaunchService = nullptr;
       }
     }
 
@@ -1082,11 +1107,6 @@ namespace iqrf {
   const std::string& JsCache::getDriver(int id, int ver) const
   {
     return m_imp->getDriver(id, ver);
-  }
-
-  const std::map<int, const IJsCacheService::StdDriver*>  JsCache::getAllLatestDrivers() const
-  {
-    return m_imp->getAllLatestDrivers();
   }
 
   const IJsCacheService::Manufacturer* JsCache::getManufacturer(uint16_t hwpid) const
@@ -1124,12 +1144,12 @@ namespace iqrf {
     m_imp->modify(props);
   }
 
-  void JsCache::attachInterface(shape::ILaunchService* iface)
+  void JsCache::attachInterface(iqrf::IJsRenderService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void JsCache::detachInterface(shape::ILaunchService* iface)
+  void JsCache::detachInterface(iqrf::IJsRenderService* iface)
   {
     m_imp->detachInterface(iface);
   }
@@ -1150,6 +1170,16 @@ namespace iqrf {
   }
 
   void JsCache::detachInterface(shape::IRestApiService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void JsCache::attachInterface(shape::ILaunchService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsCache::detachInterface(shape::ILaunchService* iface)
   {
     m_imp->detachInterface(iface);
   }

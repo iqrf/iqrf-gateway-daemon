@@ -73,20 +73,11 @@ namespace iqrf {
       return buffer.GetString();
     }
 
-    void init(const std::map<int, const IJsCacheService::StdDriver*>& scripts)
+    void loadJsCode(const std::string& js)
     {
       TRC_FUNCTION_ENTER("");
-      m_scripts = scripts;
-      std::string str2load;
 
-      // agregate scripts
-      for (const auto sc : m_scripts) {
-        // Create a string containing the JavaScript source code.
-        str2load += sc.second->getDriver();
-      }
-
-      TRC_DEBUG("loading agregated scripts: " << NAME_PAR(size, str2load.size()));
-      duk_push_string(m_ctx, str2load.c_str());
+      duk_push_string(m_ctx, js.c_str());
       if (duk_peval(m_ctx) != 0) {
         std::cerr << "Error in driver scripts: " << duk_safe_to_string(m_ctx, -1) << std::endl;
         throw std::logic_error("");
@@ -190,9 +181,6 @@ namespace iqrf {
         "******************************"
       );
 
-      const std::map<int, const IJsCacheService::StdDriver*> scripts = m_iJsCacheService->getAllLatestDrivers();
-      init(scripts);
-
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -237,6 +225,11 @@ namespace iqrf {
   JsRenderDuktape::~JsRenderDuktape()
   {
     delete m_imp;
+  }
+
+  void JsRenderDuktape::loadJsCode(const std::string& js)
+  {
+    m_imp->loadJsCode(js);
   }
 
   void JsRenderDuktape::call(const std::string& functionName, const std::string& par, std::string& ret)

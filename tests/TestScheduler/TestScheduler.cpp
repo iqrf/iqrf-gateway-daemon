@@ -33,7 +33,7 @@ namespace iqrf {
 
   public:
     shape::ILaunchService* m_iLaunchService = nullptr;
-    iqrf::ISchedulerService* m_iSchedulerService = nullptr;
+    iqrf::ISchedulerService* m_iJsRenderService = nullptr;
     std::thread m_thread;
     shape::GTestStaticRunner m_gtest;
 
@@ -64,13 +64,13 @@ namespace iqrf {
 
     void attachInterface(iqrf::ISchedulerService* iface)
     {
-      m_iSchedulerService = iface;
+      m_iJsRenderService = iface;
     }
 
     void detachInterface(iqrf::ISchedulerService* iface)
     {
-      if (m_iSchedulerService == iface) {
-        m_iSchedulerService = nullptr;
+      if (m_iJsRenderService == iface) {
+        m_iJsRenderService = nullptr;
       }
     }
 
@@ -160,8 +160,8 @@ namespace iqrf {
     void SetUp(void) override
     {
       ASSERT_NE(nullptr, &Imp::get());
-      ASSERT_NE(nullptr, Imp::get().m_iSchedulerService);
-      m_iSchedulerService = Imp::get().m_iSchedulerService;
+      ASSERT_NE(nullptr, Imp::get().m_iJsRenderService);
+      m_iSchedulerService = Imp::get().m_iJsRenderService;
       m_iSchedulerService->registerTaskHandler(CLIENT_ID, [&](const rapidjson::Value& task) { taskHandler(task); });
       ASSERT_NE(nullptr, &Imp::get().m_iLaunchService);
     };

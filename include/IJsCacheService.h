@@ -126,7 +126,6 @@ namespace iqrf {
     typedef std::function<void(int statusCode, const std::string & data)> DataHandlerFunc;
 
     virtual const std::string& getDriver(int id, int ver) const = 0;
-    virtual const std::map<int, const StdDriver*> getAllLatestDrivers() const = 0;
     virtual const Manufacturer* getManufacturer(uint16_t hwpid) const = 0;
     virtual const Product* getProduct(uint16_t hwpid) const = 0;
     virtual const Package* getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const = 0;
