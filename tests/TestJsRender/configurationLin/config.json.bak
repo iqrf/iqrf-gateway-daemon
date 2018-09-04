@@ -1,8 +1,8 @@
 {
-  "applicationName": "iqrfgd2",
+  "applicationName": "startup",
   "resourceDir": "",
   "dataDir": "",
-  "cacheDir": ".",
+  "cacheDir": "cache",
   "userDir": "",
   "configurationDir": "configuration",
   "deploymentDir": "../../bin",

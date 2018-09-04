@@ -29,18 +29,18 @@
       "startlevel": -2
     },
     {
-      "name": "iqrf::JsRenderDuktape",
+      "name": "iqrf::Scheduler",
       "libraryPath": "",
-      "libraryName": "JsRenderDuktape",
+      "libraryName": "Scheduler",
       "enabled": true,
-      "startlevel": 1
+      "startlevel": 0
     },
     {
-      "name": "iqrf::TestJsRender",
+      "name": "iqrf::TestScheduler",
       "libraryPath": "",
-      "libraryName": "TestJsRender",
+      "libraryName": "TestScheduler",
       "enabled": true,
-      "startlevel": 2
+      "startlevel": 1
     }
   ]
 }
