@@ -5,18 +5,18 @@
   "cacheDir": "cache",
   "userDir": "",
   "configurationDir": "configuration",
-  "deploymentDir": "../../../../shape/build/Unix_Makefiles/bin",
+  "deploymentDir": "../../bin",
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "",
+      "libraryPath": "../../../../../../shape/build/Unix_Makefiles/bin",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "",
+      "libraryPath": "../../../../../../shape/build/Unix_Makefiles/bin",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3
@@ -30,14 +30,14 @@
     },
     {
       "name": "iqrf::JsRenderDuktape",
-      "libraryPath": ".",
+      "libraryPath": "",
       "libraryName": "JsRenderDuktape",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::TestJsRender",
-      "libraryPath": ".",
+      "libraryPath": "",
       "libraryName": "TestJsRender",
       "enabled": true,
       "startlevel": 2
