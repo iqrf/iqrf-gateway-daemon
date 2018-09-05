@@ -315,7 +315,7 @@ namespace iqrf {
         if (sz > sizeof(cfg.uartDev)) sz = sizeof(cfg.uartDev);
         std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, cfg.uartDev);
 
-        cfg.baudRate = m_baudRate;
+        cfg.baudRate = get_baud(m_baudRate);
 
         TRC_INFORMATION(PAR(m_interfaceName) << PAR(m_baudRate));
 
@@ -323,7 +323,7 @@ namespace iqrf {
         int res = BASE_TYPES_OPER_ERROR;
         while (attempts < 3) {
 
-          uart_iqrf_init(&cfg);
+          res = uart_iqrf_init(&cfg);
 
           if (BASE_TYPES_OPER_OK == res) {
             break;
@@ -352,6 +352,26 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("")
     }
+
+// converts integer baud to Linux define
+int get_baud(int baud)
+{
+	switch (baud) {
+	case 9600:
+		return B9600;
+	case 19200:
+		return B19200;
+	case 38400:
+		return B38400;
+	case 57600:
+		return B57600;
+	case 115200:
+		return B115200;
+	default:
+		return -1;
+	}
+}
+
 
     void deactivate()
     {
