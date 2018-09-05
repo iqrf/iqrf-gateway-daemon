@@ -28,7 +28,7 @@ namespace iqrf {
       std::string trType;
       std::string mcuType;
       std::string osBuild;
-      std::string m_dpaVer;
+      std::string dpaVer;
       int dpaVerMajor = 0;
       int dpaVerMinor = 0;
       bool demoFlag = false;
