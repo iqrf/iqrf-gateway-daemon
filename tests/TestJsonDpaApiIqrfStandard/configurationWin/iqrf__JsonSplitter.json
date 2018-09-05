@@ -1,0 +1,5 @@
+{
+  "component": "iqrf::JsonSplitter",
+  "instance": "JsonSplitter",
+  "validateJsonResponse": true
+}

@@ -94,7 +94,6 @@ namespace iqrf {
   public:
     shape::ILaunchService* m_iLaunchService = nullptr;
     iqrf::IIqrfDpaService* m_iIqrfDpaService = nullptr;
-    iqrf::ITestSimulationMessaging* m_iTestSimulationMessaging = nullptr;
 
     std::mutex m_mtx;
     std::condition_variable m_cv;
@@ -104,6 +103,10 @@ namespace iqrf {
     shape::GTestStaticRunner m_gtest;
 
     AccessControl<Imp> m_accessControl;
+
+    std::vector<std::string> m_msgTypeFilters;
+    IMessagingSplitterService::FilteredMessageHandlerFunc m_handlerFunc;
+
 
     static Imp& get()
     {
@@ -115,29 +118,29 @@ namespace iqrf {
     {
     }
 
-    ////iqrf::IMessagingSplitterService
-    ///////////////////////////////////////
-    //void sendMessage(const std::string& messagingId, rapidjson::Document* doc) const
-    //{
-    //  TRC_FUNCTION_ENTER("");
-    //  TRC_FUNCTION_LEAVE("")
-    //}
+    //iqrf::IMessagingSplitterService
+    /////////////////////////////////////
+    void sendMessage(const std::string& messagingId, rapidjson::Document* doc) const
+    {
+      TRC_FUNCTION_ENTER("");
+      TRC_FUNCTION_LEAVE("")
+    }
 
-    //void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, IMessagingSplitterService::FilteredMessageHandlerFunc handlerFunc)
-    //{
-    //  TRC_FUNCTION_ENTER("");
-    //  m_msgTypeFilters = msgTypeFilters;
-    //  m_handlerFunc = handlerFunc;
-    //  TRC_FUNCTION_LEAVE("")
-    //}
+    void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, IMessagingSplitterService::FilteredMessageHandlerFunc handlerFunc)
+    {
+      TRC_FUNCTION_ENTER("");
+      m_msgTypeFilters = msgTypeFilters;
+      m_handlerFunc = handlerFunc;
+      TRC_FUNCTION_LEAVE("")
+    }
 
-    //void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters)
-    //{
-    //  TRC_FUNCTION_ENTER("");
-    //  m_msgTypeFilters.clear();
-    //  m_handlerFunc = nullptr;
-    //  TRC_FUNCTION_LEAVE("")
-    //}
+    void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters)
+    {
+      TRC_FUNCTION_ENTER("");
+      m_msgTypeFilters.clear();
+      m_handlerFunc = nullptr;
+      TRC_FUNCTION_LEAVE("")
+    }
 
     //iqrf::IIqrfChannelService
     /////////////////////////////////////
@@ -253,18 +256,6 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void attachInterface(iqrf::ITestSimulationMessaging* iface)
-    {
-      m_iTestSimulationMessaging = iface;
-    }
-
-    void detachInterface(iqrf::ITestSimulationMessaging* iface)
-    {
-      if (m_iTestSimulationMessaging == iface) {
-        m_iTestSimulationMessaging = nullptr;
-      }
-    }
-
     void attachInterface(iqrf::IIqrfDpaService* iface)
     {
       m_iIqrfDpaService = iface;
@@ -305,6 +296,22 @@ namespace iqrf {
   {
   }
 
+  //iqrf::IMessagingSplitterService
+  void TestJsonDpaApiIqrfStandard::sendMessage(const std::string& messagingId, rapidjson::Document doc) const
+  {
+    Imp::get().sendMessage(messagingId, &doc);
+  }
+
+  void TestJsonDpaApiIqrfStandard::registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc)
+  {
+    Imp::get().registerFilteredMsgHandler(msgTypeFilters, handlerFunc);
+  }
+
+  void TestJsonDpaApiIqrfStandard::unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters)
+  {
+    Imp::get().unregisterFilteredMsgHandler(msgTypeFilters);
+  }
+
   //iqrf::IIqrfChannelService
   IIqrfChannelService::State TestJsonDpaApiIqrfStandard::getState() const
   {
@@ -334,16 +341,6 @@ namespace iqrf {
 
   void TestJsonDpaApiIqrfStandard::modify(const shape::Properties *props)
   {
-  }
-
-  void TestJsonDpaApiIqrfStandard::attachInterface(iqrf::ITestSimulationMessaging* iface)
-  {
-    Imp::get().attachInterface(iface);
-  }
-
-  void TestJsonDpaApiIqrfStandard::detachInterface(iqrf::ITestSimulationMessaging* iface)
-  {
-    Imp::get().detachInterface(iface);
   }
 
   void TestJsonDpaApiIqrfStandard::attachInterface(iqrf::IIqrfDpaService* iface)
@@ -435,36 +432,17 @@ namespace iqrf {
     EXPECT_EQ(" 3.08D", par.osVersion);
   }
 
-  TEST_F(JsonDpaApiIqrfStandardTesting, iqrfEmbedCoordinator_AddrInfo)
+  TEST_F(JsonDpaApiIqrfStandardTesting, filterRegistration)
   {
-    std::string imsg =
-      "{"
-      "  \"mType\": \"iqrfEmbedCoordinator_AddrInfo\","
-      "  \"data\" : {"
-      "    \"msgId\": \"testEmbedCoordinator\","
-      "    \"timeout\" : 1000,"
-      "    \"req\" : {"
-      "      \"nAdr\": 0,"
-      "      \"param\" : {}"
-      "    },"
-      "    \"returnVerbose\" : true"
-      "}";
+    auto & filters = Imp::get().m_msgTypeFilters;
+    ASSERT_EQ(4, filters.size());
 
-    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(imsg);
-    std::string omsg = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
+    EXPECT_EQ("iqrfEmbed", filters[0]);
+    EXPECT_EQ("iqrfLight", filters[1]);
+    EXPECT_EQ("iqrfSensor", filters[2]);
+    EXPECT_EQ("iqrfBinaryoutput", filters[3]);
+
+    ASSERT_NE(nullptr, Imp::get().m_handlerFunc);
   }
-
-  //TEST_F(JsonDpaApiIqrfStandardTesting, filterRegistration)
-  //{
-  //  auto & filters = Imp::get().m_msgTypeFilters;
-  //  ASSERT_EQ(4, filters.size());
-
-  //  EXPECT_EQ("iqrfEmbed", filters[0]);
-  //  EXPECT_EQ("iqrfLight", filters[1]);
-  //  EXPECT_EQ("iqrfSensor", filters[2]);
-  //  EXPECT_EQ("iqrfBinaryoutput", filters[3]);
-
-  //  ASSERT_NE(nullptr, Imp::get().m_handlerFunc);
-  //}
 
 }

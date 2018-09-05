@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IMessagingSplitterService.h"
-#include "ITestSimulationMessaging.h"
 #include "IIqrfChannelService.h"
 #include "IJsRenderService.h"
 #include "ShapeProperties.h"
@@ -12,11 +11,16 @@ namespace iqrf {
 
   class IIqrfDpaService;
 
-  class TestJsonDpaApiIqrfStandard : public iqrf::IIqrfChannelService
+  class TestJsonDpaApiIqrfStandard : public iqrf::IMessagingSplitterService, public iqrf::IIqrfChannelService
   {
   public:
     TestJsonDpaApiIqrfStandard();
     virtual ~TestJsonDpaApiIqrfStandard();
+
+    //iqrf::IMessagingSplitterService
+    void sendMessage(const std::string& messagingId, rapidjson::Document doc) const override;
+    void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) override;
+    void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) override;
 
     //iqrf::IIqrfChannelService
     State getState() const override;
@@ -26,9 +30,6 @@ namespace iqrf {
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
-
-    void attachInterface(iqrf::ITestSimulationMessaging* iface);
-    void detachInterface(iqrf::ITestSimulationMessaging* iface);
 
     void attachInterface(iqrf::IIqrfDpaService* iface);
     void detachInterface(iqrf::IIqrfDpaService* iface);
