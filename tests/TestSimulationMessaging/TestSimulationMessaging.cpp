@@ -143,7 +143,12 @@ namespace iqrf {
     void pushIncomingMessage(const std::string& msg)
     {
       TRC_FUNCTION_ENTER(PAR(msg));
-      m_hndl(m_name, std::vector<uint8_t>((uint8_t*)msg.data(), (uint8_t*)msg.data() + msg.size()));
+      if (m_hndl) {
+        m_hndl(m_name, std::vector<uint8_t>((uint8_t*)msg.data(), (uint8_t*)msg.data() + msg.size()));
+      }
+      else {
+        TRC_WARNING("message handler is not registered");
+      }
       TRC_FUNCTION_LEAVE("")
     }
 

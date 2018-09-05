@@ -448,6 +448,7 @@ namespace iqrf {
       "      \"param\" : {}"
       "    },"
       "    \"returnVerbose\" : true"
+      "  }"
       "}";
 
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(imsg);

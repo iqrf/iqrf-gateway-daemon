@@ -48,14 +48,24 @@ add_custom_command(
     ARGS -E copy_directory ${_CONFIG} "${CMAKE_CURRENT_BINARY_DIR}/configuration"
 )
 
-#copy TestJavaScript
-set(_CFG_TJS_FROM ${CMAKE_CURRENT_SOURCE_DIR}/TestJavaScript)
-set(_CFG_TJS_TO "${CMAKE_CURRENT_BINARY_DIR}/TestJavaScript")
+#copy api schemas
+set(_JSON_SCHEMES_FROM ${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemas)
+set(_JSON_SCHEMES_TO ${CMAKE_CURRENT_BINARY_DIR}/configuration/apiSchemas)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_directory ${_CFG_TJS_FROM} ${_CFG_TJS_TO}
+    ARGS -E copy_directory ${_JSON_SCHEMES_FROM} ${_JSON_SCHEMES_TO}
+)
+
+#copy javaScript/DaemonWrapper.js
+set(_JAVA_SCRIPT_FROM ${CMAKE_SOURCE_DIR}/start-IqrfDaemon/JavaScript)
+set(_JAVA_SCRIPT_TO ${CMAKE_CURRENT_BINARY_DIR}/configuration/javaScript)
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_directory ${_JAVA_SCRIPT_FROM} ${_JAVA_SCRIPT_TO}
 )
 
 add_test(

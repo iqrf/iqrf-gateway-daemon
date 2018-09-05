@@ -131,7 +131,7 @@ namespace iqrf {
       }
       else {
         duk_pop_n(m_ctx, m_relativeStack);
-        THROW_EXC_TRC_WAR(std::logic_error, "Duktape is not initiated");
+        THROW_EXC_TRC_WAR(std::logic_error, "JS engine is not initiated");
       }
       TRC_FUNCTION_LEAVE("");
       return retval;
