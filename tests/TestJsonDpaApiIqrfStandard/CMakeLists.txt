@@ -68,6 +68,26 @@ add_custom_command(
     ARGS -E copy_directory ${_JAVA_SCRIPT_FROM} ${_JAVA_SCRIPT_TO}
 )
 
+#copy scheduler/Task.json
+set(_CFG_SCHEDULER_FROM ${CMAKE_SOURCE_DIR}/start-IqrfDaemon/scheduler)
+set(_CFG_SCHEDULER_TO ${CMAKE_CURRENT_BINARY_DIR}/configuration/scheduler)
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_directory ${_CFG_SCHEDULER_FROM} ${_CFG_SCHEDULER_TO}
+)
+
+#copy offline repository
+set(_IQRF_REPO_FROM ${CMAKE_SOURCE_DIR}/start-IqrfDaemon/iqrfRepoCache)
+set(_IQRF_REPO_TO ${CMAKE_CURRENT_BINARY_DIR}/configuration/iqrfRepoCache)
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_directory ${_IQRF_REPO_FROM} ${_IQRF_REPO_TO}
+)
+
 add_test(
 	NAME TestJsRender
 	COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/iqrfgd2 ${CMAKE_CURRENT_BINARY_DIR}/configuration/config.json

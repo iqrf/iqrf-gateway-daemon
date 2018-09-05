@@ -452,20 +452,14 @@ namespace iqrf {
       "}";
 
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(imsg);
+
+    EXPECT_EQ("00.00.00.00.ff.ff", Imp::get().fetchMessage(MILLIS_WAIT));
+
+    //simulate send response
+    Imp::get().m_accessControl.messageHandler(DotMsg("00.00.00.80.00.00.00.40.04.2a"));
+
     std::string omsg = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
+    //TODO EXPECT omsg
   }
-
-  //TEST_F(JsonDpaApiIqrfStandardTesting, filterRegistration)
-  //{
-  //  auto & filters = Imp::get().m_msgTypeFilters;
-  //  ASSERT_EQ(4, filters.size());
-
-  //  EXPECT_EQ("iqrfEmbed", filters[0]);
-  //  EXPECT_EQ("iqrfLight", filters[1]);
-  //  EXPECT_EQ("iqrfSensor", filters[2]);
-  //  EXPECT_EQ("iqrfBinaryoutput", filters[3]);
-
-  //  ASSERT_NE(nullptr, Imp::get().m_handlerFunc);
-  //}
 
 }

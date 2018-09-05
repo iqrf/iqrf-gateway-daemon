@@ -29,11 +29,32 @@
       "startlevel": -2
     },
     {
+      "name": "shape::CppRestService",
+      "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
+      "libraryName": "CppRestService",
+      "enabled": true,
+      "startlevel": -1
+    },
+    {
+      "name": "iqrf::Scheduler",
+      "libraryPath": "",
+      "libraryName": "Scheduler",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
       "name": "iqrf::IqrfDpa",
       "libraryPath": "",
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
+    },
+    {
+      "name": "iqrf::JsCache",
+      "libraryPath": "",
+      "libraryName": "JsCache",
+      "enabled": true,
+      "startlevel": 2
     },
     {
       "name": "iqrf::JsRenderDuktape",
