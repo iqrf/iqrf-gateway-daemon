@@ -11,6 +11,10 @@
 #include <atomic>
 #include <cstring>
 
+#ifndef SHAPE_PLATFORM_WINDOWS
+#include <termios.h>
+#endif
+
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
 #endif
@@ -141,7 +145,7 @@ namespace iqrf {
 #endif
 
     IIqrfChannelService::Accessor::UploadErrorCode upload(
-      const Accessor::UploadTarget target, 
+      const Accessor::UploadTarget target,
       const std::basic_string<uint8_t>& data,
       const uint16_t address
     )
@@ -166,38 +170,38 @@ namespace iqrf {
 
       int targetInt = 0;
       switch (target) {
-        case Accessor::UploadTarget::UPLOAD_TARGET_CFG:
-          targetInt = CFG_TARGET;
-          break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_RFPMG:
-          targetInt = RFPMG_TARGET;
-          break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_RFBAND:
-          targetInt = RFBAND_TARGET;
-          break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_ACCESS_PWD:
-          targetInt = ACCESS_PWD_TARGET;
-          break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_USER_KEY:
-          targetInt = USER_KEY_TARGET;
-          break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_FLASH:
-          targetInt = FLASH_TARGET;
-          useAddress = true;
-          break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM:
-          targetInt = INTERNAL_EEPROM_TARGET;
-          useAddress = true;
-          break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM:
-          targetInt = EXTERNAL_EEPROM_TARGET;
-          useAddress = true;
-          break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_SPECIAL:
-          targetInt = SPECIAL_TARGET;
-          break;
-        default:
-          targetInt = -1;
+      case Accessor::UploadTarget::UPLOAD_TARGET_CFG:
+        targetInt = CFG_TARGET;
+        break;
+      case Accessor::UploadTarget::UPLOAD_TARGET_RFPMG:
+        targetInt = RFPMG_TARGET;
+        break;
+      case Accessor::UploadTarget::UPLOAD_TARGET_RFBAND:
+        targetInt = RFBAND_TARGET;
+        break;
+      case Accessor::UploadTarget::UPLOAD_TARGET_ACCESS_PWD:
+        targetInt = ACCESS_PWD_TARGET;
+        break;
+      case Accessor::UploadTarget::UPLOAD_TARGET_USER_KEY:
+        targetInt = USER_KEY_TARGET;
+        break;
+      case Accessor::UploadTarget::UPLOAD_TARGET_FLASH:
+        targetInt = FLASH_TARGET;
+        useAddress = true;
+        break;
+      case Accessor::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM:
+        targetInt = INTERNAL_EEPROM_TARGET;
+        useAddress = true;
+        break;
+      case Accessor::UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM:
+        targetInt = EXTERNAL_EEPROM_TARGET;
+        useAddress = true;
+        break;
+      case Accessor::UploadTarget::UPLOAD_TARGET_SPECIAL:
+        targetInt = SPECIAL_TARGET;
+        break;
+      default:
+        targetInt = -1;
       }
 
       // unsupported target
@@ -353,25 +357,28 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-// converts integer baud to Linux define
-int get_baud(int baud)
-{
-	switch (baud) {
-	case 9600:
-		return B9600;
-	case 19200:
-		return B19200;
-	case 38400:
-		return B38400;
-	case 57600:
-		return B57600;
-	case 115200:
-		return B115200;
-	default:
-		return -1;
-	}
-}
-
+#ifdef SHAPE_PLATFORM_WINDOWS
+    int get_baud(int baud) { return baud; }
+#else
+      // converts integer baud to Linux define
+    int get_baud(int baud)
+    {
+      switch (baud) {
+      case 9600:
+        return B9600;
+      case 19200:
+        return B19200;
+      case 38400:
+        return B38400;
+      case 57600:
+        return B57600;
+      case 115200:
+        return B115200;
+      default:
+        return -1;
+      }
+    }
+#endif
 
     void deactivate()
     {
@@ -417,7 +424,7 @@ int get_baud(int baud)
             // reading
             uint8_t reclen;
             int retval = uart_iqrf_read(m_rx, &reclen, 100); //waits for 100 ms
-            if (BASE_TYPES_OPER_OK != retval || UART_IQRF_ERROR_TIMEOUT != retval) {
+            if (BASE_TYPES_OPER_OK != retval && UART_IQRF_ERROR_TIMEOUT != retval) {
               THROW_EXC_TRC_WAR(std::logic_error, "uart_iqrf_read() failed: " << PAR(retval));
             }
             recData = reclen;          }

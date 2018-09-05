@@ -4,7 +4,6 @@
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 #include <string>
-#include <termios.h>
 
 namespace iqrf {
   class ITraceService;
