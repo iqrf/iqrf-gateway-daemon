@@ -6,19 +6,9 @@
 #include "HexStringCoversion.h"
 
 #include "rapidjson/pointer.h"
-#include "rapidjson/istreamwrapper.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/prettywriter.h"
 
 #include <queue>
 #include <condition_variable>
-
-//#include <iostream>
-//#include <fstream>
-//#include <iomanip>
-//#include <thread>
-//#include <condition_variable>
-//#include <algorithm>
 
 #include "iqrf__TestSimulationMessaging.hxx"
 
@@ -28,60 +18,6 @@ using namespace std;
 
 namespace iqrf {
 
-  const std::string ATTACH_IqrfDpa("ATTACH IqrfDpa");
-  
-  //aux class to convert from dot notation to ustring and back
-  class DotMsg
-  {
-  public:
-    DotMsg(std::basic_string<unsigned char> msg)
-      :m_msg(msg)
-    {}
-
-    DotMsg(std::string dotMsg)
-    {
-      if (!dotMsg.empty()) {
-        std::string buf = dotMsg;
-        std::replace(buf.begin(), buf.end(), '.', ' ');
-
-        std::istringstream istr(buf);
-
-        int val;
-        while (true) {
-          if (!(istr >> std::hex >> val)) {
-            if (istr.eof()) break;
-            THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format: " << PAR(dotMsg));
-          }
-          m_msg.push_back((uint8_t)val);
-        }
-      }
-    }
-
-    operator std::basic_string<unsigned char>() { return m_msg; }
-
-    operator std::string()
-    {
-      std::string to;
-      if (!m_msg.empty()) {
-        std::ostringstream ostr;
-        ostr.setf(std::ios::hex, std::ios::basefield);
-        ostr.fill('0');
-        long i = 0;
-        for (uint8_t c : m_msg) {
-          ostr << std::setw(2) << (short int)c;
-          ostr << '.';
-        }
-        to = ostr.str();
-        to.pop_back();
-      }
-      return to;
-    }
-
-  private:
-    std::basic_string<unsigned char> m_msg;
-  };
-
-  /////////////////////////
   class TestSimulationMessaging::Imp {
   private:
     std::string m_name;
@@ -121,6 +57,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       std::unique_lock<std::mutex> lck(m_queueMux);
       m_outgoingMsgQueue.push(std::make_pair(messagingId, std::string((char*)msg.data(), msg.size())));
+      m_cv.notify_one();
       TRC_FUNCTION_LEAVE("")
     }
 

@@ -1,7 +1,7 @@
-#define IMessagingSplitterService_EXPORTS
 #define IIqrfChannelService_EXPORTS
 
 #include "TestJsonDpaApiIqrfStandard.h"
+#include "DotMsg.h"
 #include "IIqrfDpaService.h"
 #include "AccessControl.h"
 #include "Trace.h"
@@ -32,57 +32,6 @@ namespace iqrf {
 
   const std::string ATTACH_IqrfDpa("ATTACH IqrfDpa");
   
-  //aux class to convert from dot notation to ustring and back
-  class DotMsg
-  {
-  public:
-    DotMsg(std::basic_string<unsigned char> msg)
-      :m_msg(msg)
-    {}
-
-    DotMsg(std::string dotMsg)
-    {
-      if (!dotMsg.empty()) {
-        std::string buf = dotMsg;
-        std::replace(buf.begin(), buf.end(), '.', ' ');
-
-        std::istringstream istr(buf);
-
-        int val;
-        while (true) {
-          if (!(istr >> std::hex >> val)) {
-            if (istr.eof()) break;
-            THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format: " << PAR(dotMsg));
-          }
-          m_msg.push_back((uint8_t)val);
-        }
-      }
-    }
-
-    operator std::basic_string<unsigned char>() { return m_msg; }
-
-    operator std::string()
-    {
-      std::string to;
-      if (!m_msg.empty()) {
-        std::ostringstream ostr;
-        ostr.setf(std::ios::hex, std::ios::basefield);
-        ostr.fill('0');
-        long i = 0;
-        for (uint8_t c : m_msg) {
-          ostr << std::setw(2) << (short int)c;
-          ostr << '.';
-        }
-        to = ostr.str();
-        to.pop_back();
-      }
-      return to;
-    }
-
-  private:
-    std::basic_string<unsigned char> m_msg;
-  };
-
   /////////////////////////
   class Imp {
   private:
@@ -114,30 +63,6 @@ namespace iqrf {
     ~Imp()
     {
     }
-
-    ////iqrf::IMessagingSplitterService
-    ///////////////////////////////////////
-    //void sendMessage(const std::string& messagingId, rapidjson::Document* doc) const
-    //{
-    //  TRC_FUNCTION_ENTER("");
-    //  TRC_FUNCTION_LEAVE("")
-    //}
-
-    //void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, IMessagingSplitterService::FilteredMessageHandlerFunc handlerFunc)
-    //{
-    //  TRC_FUNCTION_ENTER("");
-    //  m_msgTypeFilters = msgTypeFilters;
-    //  m_handlerFunc = handlerFunc;
-    //  TRC_FUNCTION_LEAVE("")
-    //}
-
-    //void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters)
-    //{
-    //  TRC_FUNCTION_ENTER("");
-    //  m_msgTypeFilters.clear();
-    //  m_handlerFunc = nullptr;
-    //  TRC_FUNCTION_LEAVE("")
-    //}
 
     //iqrf::IIqrfChannelService
     /////////////////////////////////////
