@@ -56,7 +56,7 @@ add_custom_command(
 )
 
 add_test(
-	NAME TestJsRender
+	NAME ${PROJECT_NAME}
 	COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/iqrfgd2 ${CMAKE_CURRENT_BINARY_DIR}/configuration/config.json
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
