@@ -474,12 +474,69 @@ namespace iqrf {
 
       Document::AllocatorType& allocator = response.GetAllocator();
 
-      // embPerBits
+
+      // embedded peripherals bits - parsed
+      // byte 0x01
+      uint8_t byte01 = configuration[0x00];
+
+      bool coordPresent = ((byte01 & 0b1) == 0b1) ? true : false;
+      Pointer("/data/rsp/embPeripherals/coordinator").Set(response, coordPresent);
+
+      bool nodePresent = ((byte01 & 0b10) == 0b10) ? true : false;
+      Pointer("/data/rsp/embPeripherals/node").Set(response, nodePresent);
+
+      bool osPresent = ((byte01 & 0b100) == 0b100) ? true : false;
+      Pointer("/data/rsp/embPeripherals/os").Set(response, osPresent);
+
+      bool eepromPresent = ((byte01 & 0b1000) == 0b1000) ? true : false;
+      Pointer("/data/rsp/embPeripherals/eeprom").Set(response, eepromPresent);
+
+      bool eeepromPresent = ((byte01 & 0b10000) == 0b10000) ? true : false;
+      Pointer("/data/rsp/embPeripherals/eeeprom").Set(response, eeepromPresent);
+
+      bool ramPresent = ((byte01 & 0b100000) == 0b100000) ? true : false;
+      Pointer("/data/rsp/embPeripherals/ram").Set(response, ramPresent);
+
+      bool ledrPresent = ((byte01 & 0b1000000) == 0b1000000) ? true : false;
+      Pointer("/data/rsp/embPeripherals/ledr").Set(response, ledrPresent);
+
+      bool ledgPresent = ((byte01 & 0b10000000) == 0b10000000) ? true : false;
+      Pointer("/data/rsp/embPeripherals/ledg").Set(response, ledgPresent);
+
+
+      // byte 0x02
+      uint8_t byte02 = configuration[0x01];
+
+      bool spiPresent = ((byte02 & 0b1) == 0b1) ? true : false;
+      Pointer("/data/rsp/embPeripherals/spi").Set(response, spiPresent);
+
+      bool ioPresent = ((byte02 & 0b10) == 0b10) ? true : false;
+      Pointer("/data/rsp/embPeripherals/io").Set(response, ioPresent);
+
+      bool thermometerPresent = ((byte02 & 0b100) == 0b100) ? true : false;
+      Pointer("/data/rsp/embPeripherals/thermometer").Set(response, thermometerPresent);
+
+      bool pwmPresent = ((byte02 & 0b1000) == 0b1000) ? true : false;
+      Pointer("/data/rsp/embPeripherals/pwm").Set(response, pwmPresent);
+
+      bool uartPresent = ((byte02 & 0b10000) == 0b10000) ? true : false;
+      Pointer("/data/rsp/embPeripherals/uart").Set(response, uartPresent);
+
+      bool frcPresent = ((byte02 & 0b100000) == 0b100000) ? true : false;
+      Pointer("/data/rsp/embPeripherals/frc").Set(response, frcPresent);
+
+
+      // 1. user peripheral - user1
+      bool user1Present = ((configuration[3] & 0b10000000) == 0b10000000) ? true : false;
+      Pointer("/data/rsp/embPeripherals/user1").Set(response, user1Present);
+
+
+      // user peripherals - bits
       rapidjson::Value embPerBitsJsonArray(kArrayType);
       for (int i = 0; i < 4; i++) {
         embPerBitsJsonArray.PushBack(configuration[i], allocator);
       }
-      Pointer("/data/rsp/embPerBits").Set(response, embPerBitsJsonArray);
+      Pointer("/data/rsp/embPeripherals/bits").Set(response, embPerBitsJsonArray);
 
 
       // byte 0x05
