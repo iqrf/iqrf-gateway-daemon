@@ -5,6 +5,7 @@ find_package(GoogleTest REQUIRED)
 set(COMPONENT iqrf::TestSimulationIqrfChannel)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfChannelService)
+AddShapeProvidedInterface(${COMPONENT} iqrf::ITestSimulationIqrfChannel)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 

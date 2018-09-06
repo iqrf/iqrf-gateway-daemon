@@ -1,9 +1,6 @@
 #define IIqrfChannelService_EXPORTS
 
 #include "TestJsonDpaApiIqrfStandard.h"
-#include "DotMsg.h"
-#include "IIqrfDpaService.h"
-#include "AccessControl.h"
 #include "Trace.h"
 #include "GTestStaticRunner.h"
 #include "HexStringCoversion.h"
@@ -15,44 +12,24 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/prettywriter.h"
 
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <thread>
-#include <condition_variable>
-#include <algorithm>
-
 #include "iqrf__TestJsonDpaApiIqrfStandard.hxx"
 
 TRC_INIT_MNAME(iqrf::TestJsonDpaApiIqrfStandard)
 
-using namespace std;
-
 namespace iqrf {
 
-  const std::string ATTACH_IqrfDpa("ATTACH IqrfDpa");
-  
-  /////////////////////////
   class Imp {
   private:
     Imp()
-      :m_accessControl(this)
     {
     }
 
   public:
     shape::ILaunchService* m_iLaunchService = nullptr;
-    iqrf::IIqrfDpaService* m_iIqrfDpaService = nullptr;
+    iqrf::ITestSimulationIqrfChannel* m_iTestSimulationIqrfChannel = nullptr;
     iqrf::ITestSimulationMessaging* m_iTestSimulationMessaging = nullptr;
 
-    std::mutex m_mtx;
-    std::condition_variable m_cv;
-    std::string m_expectedMessage;
-
-    std::thread m_thread;
     shape::GTestStaticRunner m_gtest;
-
-    AccessControl<Imp> m_accessControl;
 
     static Imp& get()
     {
@@ -64,90 +41,6 @@ namespace iqrf {
     {
     }
 
-    //iqrf::IIqrfChannelService
-    /////////////////////////////////////
-    IIqrfChannelService::State getState() const
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_FUNCTION_LEAVE("")
-      return IIqrfChannelService::State::Ready;
-    }
-
-    std::unique_ptr<IIqrfChannelService::Accessor> getAccess(IIqrfChannelService::ReceiveFromFunc receiveFromFunc, IIqrfChannelService::AccesType access)
-    {
-      auto retval = m_accessControl.getAccess(receiveFromFunc, access);
-      
-      //IqrfDpa has registered - fire test
-      m_cv.notify_all();
-
-      return retval;
-    }
-
-    bool hasExclusiveAccess() const
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_FUNCTION_LEAVE("")
-      return false;
-    }
-
-    //Accessor
-    ///////////////////////////////////
-    void send(const std::basic_string<unsigned char>& message)
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION("Sending to simulation: " << std::endl << MEM_HEX(message.data(), message.size()));
-
-      std::unique_lock<std::mutex> lck(m_mtx);
-      m_expectedMessage = DotMsg(message);
-      //std::cout << m_expectedMessage << std::endl;
-      m_cv.notify_all();
-
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    bool enterProgrammingState()
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_FUNCTION_LEAVE("");
-      return true;
-    }
-
-    IIqrfChannelService::Accessor::UploadErrorCode
-      upload(
-        const IIqrfChannelService::Accessor::UploadTarget target,
-        const std::basic_string<uint8_t>& data,
-        const uint16_t address
-      )
-    {
-      // write data to TR module
-      TRC_FUNCTION_ENTER("");
-      TRC_FUNCTION_LEAVE("");
-      return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
-    }
-
-    bool terminateProgrammingState() {
-      TRC_FUNCTION_ENTER("");
-      TRC_FUNCTION_LEAVE("");
-      return true;
-    }
-
-    std::string fetchMessage(unsigned millisToWait)
-    {
-      TRC_FUNCTION_ENTER(PAR(millisToWait));
-
-      std::unique_lock<std::mutex> lck(m_mtx);
-      if (m_expectedMessage.empty()) {
-        while (m_cv.wait_for(lck, std::chrono::milliseconds(millisToWait)) != std::cv_status::timeout) {
-          if (!m_expectedMessage.empty()) break;
-        }
-      }
-      std::string expectedMessage = m_expectedMessage;
-      m_expectedMessage.clear();
-      TRC_FUNCTION_LEAVE(PAR(expectedMessage));
-      return expectedMessage;
-    }
-
-
     void activate(const shape::Properties *props)
     {
       TRC_FUNCTION_ENTER("");
@@ -157,12 +50,7 @@ namespace iqrf {
         "******************************"
       );
 
-      m_thread = std::thread([&]()
-      {
-        std::unique_lock<std::mutex> lck(m_mtx);
-        m_cv.wait(lck);
-        m_gtest.runAllTests(m_iLaunchService);
-      });
+      m_gtest.runAllTests(m_iLaunchService);
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -178,6 +66,18 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    void attachInterface(iqrf::ITestSimulationIqrfChannel* iface)
+    {
+      m_iTestSimulationIqrfChannel = iface;
+    }
+
+    void detachInterface(iqrf::ITestSimulationIqrfChannel* iface)
+    {
+      if (m_iTestSimulationIqrfChannel == iface) {
+        m_iTestSimulationIqrfChannel = nullptr;
+      }
+    }
+
     void attachInterface(iqrf::ITestSimulationMessaging* iface)
     {
       m_iTestSimulationMessaging = iface;
@@ -187,23 +87,6 @@ namespace iqrf {
     {
       if (m_iTestSimulationMessaging == iface) {
         m_iTestSimulationMessaging = nullptr;
-      }
-    }
-
-    void attachInterface(iqrf::IIqrfDpaService* iface)
-    {
-      m_iIqrfDpaService = iface;
-
-      std::unique_lock<std::mutex> lck(m_mtx);
-      m_expectedMessage = ATTACH_IqrfDpa;
-      m_cv.notify_all();
-
-    }
-
-    void detachInterface(iqrf::IIqrfDpaService* iface)
-    {
-      if (m_iIqrfDpaService == iface) {
-        m_iIqrfDpaService = nullptr;
       }
     }
 
@@ -230,23 +113,6 @@ namespace iqrf {
   {
   }
 
-  //iqrf::IIqrfChannelService
-  IIqrfChannelService::State TestJsonDpaApiIqrfStandard::getState() const
-  {
-    return Imp::get().getState();
-  }
-
-  std::unique_ptr<IIqrfChannelService::Accessor> TestJsonDpaApiIqrfStandard::getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
-  {
-    return Imp::get().getAccess(receiveFromFunc, access);
-  }
-
-  bool TestJsonDpaApiIqrfStandard::hasExclusiveAccess() const
-  {
-    return Imp::get().hasExclusiveAccess();
-  }
-
-  /////////////////////////
   void TestJsonDpaApiIqrfStandard::activate(const shape::Properties *props)
   {
     Imp::get().activate(props);
@@ -261,22 +127,22 @@ namespace iqrf {
   {
   }
 
+  void TestJsonDpaApiIqrfStandard::attachInterface(iqrf::ITestSimulationIqrfChannel* iface)
+  {
+    Imp::get().attachInterface(iface);
+  }
+
+  void TestJsonDpaApiIqrfStandard::detachInterface(iqrf::ITestSimulationIqrfChannel* iface)
+  {
+    Imp::get().detachInterface(iface);
+  }
+
   void TestJsonDpaApiIqrfStandard::attachInterface(iqrf::ITestSimulationMessaging* iface)
   {
     Imp::get().attachInterface(iface);
   }
 
   void TestJsonDpaApiIqrfStandard::detachInterface(iqrf::ITestSimulationMessaging* iface)
-  {
-    Imp::get().detachInterface(iface);
-  }
-
-  void TestJsonDpaApiIqrfStandard::attachInterface(iqrf::IIqrfDpaService* iface)
-  {
-    Imp::get().attachInterface(iface);
-  }
-
-  void TestJsonDpaApiIqrfStandard::detachInterface(iqrf::IIqrfDpaService* iface)
   {
     Imp::get().detachInterface(iface);
   }
@@ -329,10 +195,13 @@ namespace iqrf {
 
   /////////// Tests
   //TODO missing:
-  //parametric tests shall be called for all msgs from .../iqrf-daemon/tests/test-api-app/test-api-app/log/
+  // parameters shall be taken from .../iqrf-daemon/tests/test-api-app/test-api-app/log/
+  // and provided to parametrisation of TEST_F(JsonDpaApiIqrfStandardTesting, iqrfEmbedCoordinator_AddrInfo) example
 
   const unsigned MILLIS_WAIT = 1000;
 
+#if 0
+  //TODO move to IqrfDpa testing
   TEST_F(JsonDpaApiIqrfStandardTesting, IqrfDpaActivate)
   {
     //simulate send async response after TR reset
@@ -359,10 +228,12 @@ namespace iqrf {
     EXPECT_EQ("0879", par.osBuild);
     EXPECT_EQ(" 3.08D", par.osVersion);
   }
+#endif
 
   TEST_F(JsonDpaApiIqrfStandardTesting, iqrfEmbedCoordinator_AddrInfo)
   {
-    std::string imsg =
+    //JSON message input (jmi) as received from a messaging
+    std::string jmi =
       "{"
       "  \"mType\": \"iqrfEmbedCoordinator_AddrInfo\","
       "  \"data\" : {"
@@ -376,15 +247,24 @@ namespace iqrf {
       "  }"
       "}";
 
-    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(imsg);
+    //simulate receiving of jmi
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(jmi);
+    
+    //expected DPA transaction as result jmi processing
+    //expected DPA request sent from IqrfDpa
+    EXPECT_EQ("00.00.00.00.ff.ff", Imp::get().m_iTestSimulationIqrfChannel->popIncomingMessage(MILLIS_WAIT));
+    //simulate send DPA response
+    Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage("00.00.00.80.00.00.00.40.04.2a", 10);
+    
+    //expected JSON message output (jmo) as result of processing to be sent out by a messaging
+    std::string jmo = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
+    
+    //TODO check EXPECT jmo
+    // parse jmo and replace timestamps as the time cannot be compared
+    // in tests with timestams from .../iqrf-daemon\tests\test-api-app\test-api-app\log\
+    // after timestamps homogenization it shall be possible to compare jmo as string
 
-    EXPECT_EQ("00.00.00.00.ff.ff", Imp::get().fetchMessage(MILLIS_WAIT));
-
-    //simulate send response
-    Imp::get().m_accessControl.messageHandler(DotMsg("00.00.00.80.00.00.00.40.04.2a"));
-
-    std::string omsg = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
-    //TODO EXPECT omsg
+    //just logout for now
+    TRC_DEBUG(jmo);
   }
-
 }

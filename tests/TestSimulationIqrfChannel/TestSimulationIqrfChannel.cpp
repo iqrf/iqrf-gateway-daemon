@@ -24,6 +24,7 @@ namespace iqrf {
     std::queue<std::string> m_incomingMsgQueue;
     std::mutex  m_queueMux;
     std::condition_variable m_cv;
+    std::thread m_thd;
     
     AccessControl<Imp> m_accessControl;
 
@@ -43,7 +44,8 @@ namespace iqrf {
     void pushOutgoingMessage(const std::string& msg, unsigned millisToDelay)
     {
       TRC_FUNCTION_ENTER("");
-      std::this_thread::sleep_for(std::chrono::milliseconds(millisToDelay));
+      if (millisToDelay > 0)
+        std::this_thread::sleep_for(std::chrono::milliseconds(millisToDelay));
       m_accessControl.messageHandler(DotMsg(msg));
       TRC_FUNCTION_LEAVE("")
     }
@@ -80,8 +82,20 @@ namespace iqrf {
     {
       auto retval = m_accessControl.getAccess(receiveFromFunc, access);
       
-      //IqrfDpa has registered - fire test
-      m_cv.notify_all();
+      //simulate IqrfDpa activate procedure
+      m_thd = std::thread([&]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //simulate send async response after TR reset
+        pushOutgoingMessage("00.00.ff.3f.00.00.00.00.28.02.00.fd.26.00.00.00.00.00.00.01", 0);
+        
+        //simulate send OS read transaction handling
+        //get OS read request
+        std::string osRead = popIncomingMessage(1000);
+        if (osRead == "00.00.02.00.ff.ff") {
+          //OS read response
+          pushOutgoingMessage("00.00.02.80.00.00.00.00.8a.52.00.81.38.24.79.08.00.28.00.c0", 20);
+        }
+      });
 
       return retval;
     }
@@ -99,7 +113,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
       std::unique_lock<std::mutex> lck(m_queueMux);
-      m_incomingMsgQueue.push(std::string((char*)message.data(), message.size()));
+      m_incomingMsgQueue.push(DotMsg(message));
       m_cv.notify_one();
 
       TRC_FUNCTION_LEAVE("");
@@ -151,6 +165,10 @@ namespace iqrf {
         "TestSimulationIqrfChannel instance deactivate" << std::endl <<
         "******************************"
       );
+
+      if (m_thd.joinable()) {
+        m_thd.join();
+      }
       TRC_FUNCTION_LEAVE("")
     }
 
