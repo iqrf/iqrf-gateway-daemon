@@ -35,7 +35,7 @@ else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES} ${_SRCCONFIG} ${_SRCTJS})
 endif()
 
-target_link_libraries(${PROJECT_NAME} ${GoogleTest_LIBRARIES} GTestStaticRunner)
+target_link_libraries(${PROJECT_NAME} GTestStaticRunner ${GoogleTest_LIBRARIES})
 
 # do the copying
 add_custom_command(
@@ -56,7 +56,7 @@ add_custom_command(
 )
 
 add_test(
-	NAME TestJsRender
+	NAME ${PROJECT_NAME}
 	COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/iqrfgd2 ${CMAKE_CURRENT_BINARY_DIR}/configuration/config.json
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )

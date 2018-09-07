@@ -19,7 +19,7 @@
 
 #include "iqrf__TestJsRender.hxx"
 
-TRC_INIT_MNAME(cobalt::CmCobaltTestTrj)
+TRC_INIT_MNAME(iqrf::TestJsRender)
 
 using namespace std;
 
