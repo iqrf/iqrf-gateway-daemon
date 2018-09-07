@@ -65,7 +65,7 @@
     },
     {
       "name": "iqrf::JsRenderDuktape",
-      "libraryPath": ".",
+      "libraryPath": "",
       "libraryName": "JsRenderDuktape",
       "enabled": true,
       "startlevel": 1

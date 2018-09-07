@@ -56,7 +56,7 @@ add_custom_command(
 )
 
 #copy javaScript/DaemonWrapper.js
-set(_JAVA_SCRIPT_FROM ${CMAKE_SOURCE_DIR}/start-IqrfDaemon/JavaScript)
+set(_JAVA_SCRIPT_FROM ${CMAKE_SOURCE_DIR}/start-IqrfDaemon/javaScript)
 set(_JAVA_SCRIPT_TO ${CMAKE_CURRENT_BINARY_DIR}/configuration/javaScript)
 add_custom_command(
     TARGET ${PROJECT_NAME}
