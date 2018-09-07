@@ -1,8 +1,8 @@
 {
   "applicationName": "iqrfgd2",
   "resourceDir": "",
-  "dataDir": "",
-  "cacheDir": ".",
+  "dataDir": "configuration",
+  "cacheDir": "configuration",
   "userDir": "",
   "configurationDir": "configuration",
   "deploymentDir": "../../bin",
@@ -29,18 +29,74 @@
       "startlevel": -2
     },
     {
-      "name": "iqrf::JsRenderDuktape",
+      "name": "shape::CppRestService",
+      "libraryPath": "../../../../../../shapeware/build/Unix_Makefiles/bin",
+      "libraryName": "CppRestService",
+      "enabled": true,
+      "startlevel": -1
+    },
+    {
+      "name": "iqrf::Scheduler",
       "libraryPath": "",
+      "libraryName": "Scheduler",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::TestSimulationIqrfChannel",
+      "libraryPath": "",
+      "libraryName": "TestSimulationIqrfChannel",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfDpa",
+      "libraryPath": "",
+      "libraryName": "IqrfDpa",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::JsCache",
+      "libraryPath": "",
+      "libraryName": "JsCache",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsRenderDuktape",
+      "libraryPath": ".",
       "libraryName": "JsRenderDuktape",
       "enabled": true,
       "startlevel": 1
     },
     {
-      "name": "iqrf::TestJsRender",
+      "name": "iqrf::TestSimulationMessaging",
       "libraryPath": "",
-      "libraryName": "TestJsRender",
+      "libraryName": "TestSimulationMessaging",
       "enabled": true,
-      "startlevel": 2
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::JsonSplitter",
+      "libraryPath": "",
+      "libraryName": "JsonSplitter",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::JsonDpaApiIqrfStandard",
+      "libraryPath": "",
+      "libraryName": "JsonDpaApiIqrfStandard",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::TestJsonDpaApiIqrfStandard",
+      "libraryPath": "",
+      "libraryName": "TestJsonDpaApiIqrfStandard",
+      "enabled": true,
+      "startlevel": 4
     }
   ]
 }
