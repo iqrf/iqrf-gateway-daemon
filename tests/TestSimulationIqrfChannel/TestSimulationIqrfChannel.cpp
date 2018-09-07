@@ -9,6 +9,7 @@
 
 #include <queue>
 #include <condition_variable>
+#include <thread>
 
 #include "iqrf__TestSimulationIqrfChannel.hxx"
 
