@@ -49,3 +49,105 @@ Received from WebSocket: 2018-07-31 09:26:04.542
 2018-07-31 09:26:04.963
 ==================================
 
+==================================
+Sending to WebSocket: 2018-08-29 11:20:53.388
+{
+  "mType": "iqrfRaw",
+  "data": {
+    "msgId": "testRaw",
+    "timeout": 1000,
+    "req": {
+      "rData": "00.00.06.03.FF.FF"
+    },
+    "returnVerbose": true
+  }
+}
+==================================
+Sending to WebSocket: 2018-08-29 11:48:54.453
+{
+  "mType": "iqrfRaw",
+  "data": {
+    "msgId": "testRaw",
+    "timeout": 1000,
+    "req": {
+      "rData": "00.00.06.03.FF.FF"
+    },
+    "returnVerbose": true
+  }
+}
+==================================
+Sending to WebSocket: 2018-08-30 09:48:01.561
+{
+  "mType": "iqrfRaw",
+  "data": {
+    "msgId": "testRaw",
+    "timeout": 1000,
+    "req": {
+      "rData": "00.00.06.03.FF.FF"
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-08-30 09:48:01.987
+{
+    "mType": "iqrfRaw",
+    "data": {
+        "msgId": "testRaw",
+        "timeout": 1000,
+        "rsp": {
+            "rData": "00.00.06.83.ef.ee.00.00"
+        },
+        "raw": {
+            "request": "00.00.06.03.ff.ff",
+            "requestTs": "2018-08-30T09:48:02.894607",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.06.83.ef.ee.00.00",
+            "responseTs": "2018-08-30T09:48:02.915826"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-08-30 09:48:02.46
+==================================
+
+==================================
+Sending to WebSocket: 2018-08-31 12:48:33.075
+{
+  "mType": "iqrfRaw",
+  "data": {
+    "msgId": "testRaw",
+    "timeout": 1000,
+    "req": {
+      "rData": "00.00.06.03.FF.FF"
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-08-31 12:48:33.662
+{
+    "mType": "iqrfRaw",
+    "data": {
+        "msgId": "testRaw",
+        "timeout": 1000,
+        "rsp": {
+            "rData": "00.00.06.83.00.00.00.44"
+        },
+        "raw": {
+            "request": "00.00.06.03.ff.ff",
+            "requestTs": "2018-08-31T12:48:35.887733",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.06.83.00.00.00.44",
+            "responseTs": "2018-08-31T12:48:35.915579"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-08-31 12:48:34.111
+==================================
+

@@ -1440,3 +1440,825 @@ Received from WebSocket: 2018-07-27 18:07:11.366
 2018-07-27 18:07:11.775
 ==================================
 
+==================================
+Sending to WebSocket: 2018-08-31 12:50:50.552
+{
+  "mType": "iqmeshNetwork_EnumerateDevice",
+  "data": {
+    "msgId": "testIqmeshEnumerate",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-08-31 12:50:52.559
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "testIqmeshEnumerate",
+        "rsp": {
+            "deviceAddr": 1,
+            "discovery": {
+                "discovered": true,
+                "vrn": 0,
+                "zone": 0,
+                "parent": 0
+            },
+            "osRead": {
+                "mid": "81000314",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08c2",
+                "rssi": "-59 dBm",
+                "supplyVoltage": "2.97 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 49,
+                    "shortestTimeslot": "40 ms",
+                    "longestTimeslot": "60 ms"
+                }
+            },
+            "peripheralEnumeration": {
+                "dpaVer": "3.3",
+                "perNr": 1,
+                "embPers": [
+                    254,
+                    38,
+                    0,
+                    0
+                ],
+                "hwpId": "0002",
+                "hwpIdVer": 0,
+                "flags": 1,
+                "userPers": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    64,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "trConfiguration": {
+                "embPerBits": [
+                    254,
+                    38,
+                    0,
+                    0
+                ],
+                "customDpaHandler": true,
+                "nodeDpaInterface": false,
+                "dpaAutoexec": false,
+                "routingOff": false,
+                "ioSetup": false,
+                "peerToPeer": false,
+                "rfChannelA": 25,
+                "rfChannelB": 2,
+                "rfSubChannelA": 42,
+                "rfSubChannelB": 0,
+                "txPower": 3,
+                "rxFilter": 5,
+                "lpRxTimeout": 6,
+                "rfPgmAltChannel": 0,
+                "uartBaudrate": 1200,
+                "rfPgmDualChannel": true,
+                "rfPgmLpMode": false,
+                "rfPgmIncorrectUpload": false,
+                "rfPgmEnableAfterReset": false,
+                "rfPgmTerminateAfter1Min": true,
+                "rfPgmTerminateMcuPin": true,
+                "rfBand": "868"
+            },
+            "morePeripheralsInfo": [
+                {
+                    "perTe": 3,
+                    "perT": 3,
+                    "par1": 1,
+                    "par2": 254
+                },
+                {
+                    "perTe": 38,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 2
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 1
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 64
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                },
+                {
+                    "perTe": 0,
+                    "perT": 0,
+                    "par1": 0,
+                    "par2": 0
+                }
+            ],
+            "validationAndUpdates": {
+                "validation": {
+                    "valid": true,
+                    "osVer": "4.03D",
+                    "osBuild": "08c2",
+                    "dpaVer": "3.3",
+                    "txPower": 3,
+                    "rxFilter": 5
+                }
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-08-31T12:50:52.943868",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.44.02.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.37.34",
+                "responseTs": "2018-08-31T12:50:52.980106"
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.20.00",
+                "requestTs": "2018-08-31T12:50:52.980524",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.8a.00.00.00.44.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.ff.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-08-31T12:50:53.135619"
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.01.50",
+                "requestTs": "2018-08-31T12:50:53.136060",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.8a.00.00.00.44.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-08-31T12:50:53.290629"
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.01.52",
+                "requestTs": "2018-08-31T12:50:53.291067",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.8a.00.00.00.44.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-08-31T12:50:53.445588"
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.01.53",
+                "requestTs": "2018-08-31T12:50:53.446001",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.8a.00.00.00.44.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-08-31T12:50:53.599701"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-08-31T12:50:53.600137",
+                "confirmation": "01.00.02.00.ff.ff.ff.44.00.04.00",
+                "confirmationTs": "2018-08-31T12:50:53.729017",
+                "response": "01.00.02.80.02.00.00.47.14.03.00.81.43.24.c2.08.47.27.14.31.69.fc.29.d9.40.fb.8a.c6.e9.53.0c.ac.5f.b1.5c.41",
+                "responseTs": "2018-08-31T12:50:53.851682"
+            },
+            {
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-08-31T12:50:53.982927",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.3b.00.04.00",
+                "confirmationTs": "2018-08-31T12:50:54.12713",
+                "response": "01.00.ff.bf.02.00.00.40.03.03.01.fe.26.00.00.02.00.00.00.01.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-08-31T12:50:54.118540"
+            },
+            {
+                "request": "01.00.02.02.ff.ff",
+                "requestTs": "2018-08-31T12:50:54.250140",
+                "confirmation": "01.00.02.02.ff.ff.ff.3e.00.04.00",
+                "confirmationTs": "2018-08-31T12:50:54.282276",
+                "response": "01.00.02.82.02.00.00.4a.80.ca.12.34.34.35.1e.34.37.31.32.34.34.34.34.34.34.2d.36.34.34.34.34.34.34.34.34.34.34.34.37.34.c3.30",
+                "responseTs": "2018-08-31T12:50:54.391315"
+            },
+            {
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-08-31T12:50:54.522741",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.48.00.04.00",
+                "confirmationTs": "2018-08-31T12:50:54.556202",
+                "response": "01.00.ff.bf.02.00.00.48.03.03.01.fe.26.00.00.02.00.00.00.01.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-08-31T12:50:54.666826"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-08-31 12:50:53.044
+==================================
+
+==================================
+Sending to WebSocket: 2018-09-05 17:26:17.278
+{
+  "mType": "iqmeshNetwork_EnumerateDevice",
+  "data": {
+    "msgId": "testIqmeshEnumerate",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-09-05 17:26:19.472
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "testIqmeshEnumerate",
+        "rsp": {
+            "deviceAddr": 1
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-09-05T15:26:16.710775",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-09-05T15:26:17.243318",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ],
+        "status": 1002,
+        "statusStr": "Transaction error."
+    }
+}
+2018-09-05 17:26:19.939
+==================================
+
+==================================
+Sending to WebSocket: 2018-09-05 17:28:05.132
+{
+  "mType": "iqmeshNetwork_EnumerateDevice",
+  "data": {
+    "msgId": "testIqmeshEnumerate",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 0
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-09-05 17:28:13.803
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "testIqmeshEnumerate",
+        "rsp": {
+            "deviceAddr": 0,
+            "validationAndUpdates": {
+                "validation": {
+                    "valid": true
+                }
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.0a.ff.ff.20.00",
+                "requestTs": "2018-09-05T15:28:03.654642",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.20.00",
+                "requestTs": "2018-09-05T15:28:04.193140",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.50",
+                "requestTs": "2018-09-05T15:28:04.723494",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.50",
+                "requestTs": "2018-09-05T15:28:05.252991",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.52",
+                "requestTs": "2018-09-05T15:28:05.783527",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.52",
+                "requestTs": "2018-09-05T15:28:06.313037",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.53",
+                "requestTs": "2018-09-05T15:28:06.843455",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.53",
+                "requestTs": "2018-09-05T15:28:07.372999",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.00.ff.ff",
+                "requestTs": "2018-09-05T15:28:07.903450",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.00.ff.ff",
+                "requestTs": "2018-09-05T15:28:08.433062",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T15:28:08.963522",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T15:28:09.493039",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.02.ff.ff",
+                "requestTs": "2018-09-05T15:28:10.23272",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.02.ff.ff",
+                "requestTs": "2018-09-05T15:28:10.552995",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T15:28:11.83387",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T15:28:11.613026",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ],
+        "status": 1003,
+        "statusStr": "info missing"
+    }
+}
+2018-09-05 17:28:14.354
+==================================
+
+==================================
+Sending to WebSocket: 2018-09-05 18:15:36.359
+{
+  "mType": "iqmeshNetwork_EnumerateDevice",
+  "data": {
+    "msgId": "testIqmeshEnumerate",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 0
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-09-05 18:15:45.116
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "testIqmeshEnumerate",
+        "rsp": {
+            "deviceAddr": 0,
+            "validationAndUpdates": {
+                "validation": {
+                    "valid": true
+                }
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.0a.ff.ff.20.00",
+                "requestTs": "2018-09-05T16:15:34.975713",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.20.00",
+                "requestTs": "2018-09-05T16:15:35.503418",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.50",
+                "requestTs": "2018-09-05T16:15:36.33617",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.50",
+                "requestTs": "2018-09-05T16:15:36.562993",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.52",
+                "requestTs": "2018-09-05T16:15:37.93402",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.52",
+                "requestTs": "2018-09-05T16:15:37.623005",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.53",
+                "requestTs": "2018-09-05T16:15:38.153551",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.53",
+                "requestTs": "2018-09-05T16:15:38.683393",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.00.ff.ff",
+                "requestTs": "2018-09-05T16:15:39.213429",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.00.ff.ff",
+                "requestTs": "2018-09-05T16:15:39.743081",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T16:15:40.297223",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T16:15:40.823136",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.02.ff.ff",
+                "requestTs": "2018-09-05T16:15:41.353253",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.02.ff.ff",
+                "requestTs": "2018-09-05T16:15:41.883044",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T16:15:42.413241",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T16:15:42.943037",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ],
+        "status": 1003,
+        "statusStr": "info missing"
+    }
+}
+2018-09-05 18:15:45.58
+==================================
+
+==================================
+Sending to WebSocket: 2018-09-05 18:28:16.359
+{
+  "mType": "iqmeshNetwork_EnumerateDevice",
+  "data": {
+    "msgId": "testIqmeshEnumerate",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 0
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-09-05 18:28:24.998
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "testIqmeshEnumerate",
+        "rsp": {
+            "deviceAddr": 0,
+            "validationAndUpdates": {
+                "validation": {
+                    "valid": true
+                }
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.0a.ff.ff.20.00",
+                "requestTs": "2018-09-05T16:28:14.885111",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.20.00",
+                "requestTs": "2018-09-05T16:28:15.413374",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.50",
+                "requestTs": "2018-09-05T16:28:15.943657",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.50",
+                "requestTs": "2018-09-05T16:28:16.473040",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.52",
+                "requestTs": "2018-09-05T16:28:17.3438",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.52",
+                "requestTs": "2018-09-05T16:28:17.532964",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.53",
+                "requestTs": "2018-09-05T16:28:18.63436",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.00.53",
+                "requestTs": "2018-09-05T16:28:18.592969",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.00.ff.ff",
+                "requestTs": "2018-09-05T16:28:19.123499",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.00.ff.ff",
+                "requestTs": "2018-09-05T16:28:19.652986",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T16:28:20.209134",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T16:28:20.733009",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.02.ff.ff",
+                "requestTs": "2018-09-05T16:28:21.263295",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.02.02.ff.ff",
+                "requestTs": "2018-09-05T16:28:21.792987",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T16:28:22.323278",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2018-09-05T16:28:22.853039",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "",
+                "responseTs": ""
+            }
+        ],
+        "status": 1003,
+        "statusStr": "info missing"
+    }
+}
+2018-09-05 18:28:25.454
+==================================
+

@@ -238,9 +238,8 @@
     /// <summary>
     /// GW IP address
     /// </summary>
-    //const string IqrfGwDeamonIP = "192.168.1.100";
-    const string IqrfGwDeamonIP = "10.11.16.79";
-
+    const string IqrfGwDeamonIP = "192.168.1.101";
+    //const string IqrfGwDeamonIP = "10.11.16.79";
 
     /// <summary>
     /// Log transaction
@@ -272,7 +271,7 @@
     private static List<string> WebSocketRequest(string iqrfGwDaemonIP, dynamic request, int timeoutMs)
     {
       // Create WebSocket client
-      WebSocket ws = new WebSocket("ws://" + iqrfGwDaemonIP + ":1338", new string[] { "iqrf" });
+      WebSocket ws = new WebSocket("ws://" + iqrfGwDaemonIP + ":1338");
       try
       {
         int timeout = timeoutMs / 100;
@@ -413,11 +412,14 @@
         // Create request 
 
         /* RAW */
+        
+        /*
         IqrfRaw_Request request = new IqrfRaw_Request();
         request.Data.MsgId = "testRaw";
         request.Data.Req.RData = "00.00.06.03.FF.FF";
         request.Data.Timeout = 1000;
         request.Data.ReturnVerbose = true;
+        */
 
         /* RAWHDP */
 
@@ -1030,14 +1032,12 @@
         request.Data.ReturnVerbose = true;
         */
 
-        /*
         IqrfSensor_ReadSensorsWithTypes_Request request = new IqrfSensor_ReadSensorsWithTypes_Request();
         request.Data.MsgId = "testEmbedSensor";
         request.Data.Req.NAdr = 1;
         //request.Data.Req.Param.SensorIndexes = -1;
         request.Data.Req.Param.SensorIndexes = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1 };
         request.Data.ReturnVerbose = true;
-        */
 
         /*
         IqrfSensor_Frc_Request request = new IqrfSensor_Frc_Request();
@@ -1155,7 +1155,7 @@
         IqmeshNetwork_EnumerateDevice_Request request = new IqmeshNetwork_EnumerateDevice_Request();
         request.Data.MsgId = "testIqmeshEnumerate";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 1;
+        request.Data.Req.DeviceAddr = 0;
         request.Data.ReturnVerbose = true;
         */
 
@@ -1183,20 +1183,22 @@
         IqmeshNetwork_OtaUpload_Request request = new IqmeshNetwork_OtaUpload_Request();
         request.Data.MsgId = "testIqmeshOta";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 3;
+        request.Data.Req.DeviceAddr = 0;
         //hex must be in "uploadPath": "/var/cache/iqrfgd2/upload"
         request.Data.Req.FileName = "CustomDpaHandler-LED-Red-On-7xD-V302-171116.hex";
+        //request.Data.Req.FileName = "CustomDpaHandler-LED-Green-On-7xD-V302-171116.hex";
         request.Data.Req.LoadingAction = "WithCodeLoading";
         request.Data.Req.StartMemAddr = 0;
         request.Data.ReturnVerbose = true;
         */
 
         /* MNG */
-
         /*
         MngDaemon_Mode_Request request = new MngDaemon_Mode_Request();
         request.Data.MsgId = "testMngMode";
-        request.Data.Req.OperMode = ReqOperMode.Service;
+        //request.Data.Req.OperMode = ReqOperMode.Service;
+        //request.Data.Req.OperMode = ReqOperMode.Operational;
+        request.Data.Req.OperMode = ReqOperMode.Forwarding;
         request.Data.ReturnVerbose = true;
         */
 
@@ -1265,7 +1267,7 @@
 
         /* RAW */
 
-        IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr[0] );
+        //IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr[0] );
         //IqrfRawHdp_Response response = IqrfRawHdp_Response.FromJson ( responseStr[0] );
 
         /* EXPLORE */
@@ -1376,10 +1378,8 @@
         /* SENSOR */
 
         //IqrfSensor_Enumerate_Response response = IqrfSensor_Enumerate_Response.FromJson(responseStr[0]);
-        /*
         IqrfSensor_ReadSensorsWithTypes_Response response = IqrfSensor_ReadSensorsWithTypes_Response.FromJson(responseStr[0]);
         foreach (iqrfSensor_ReadSensorsWithTypes_Response.Anonymous sensor in response.Data.Rsp.Result.Sensors) {}
-        */
         //IqrfSensor_Frc_Response response = IqrfSensor_Frc_Response.FromJson(responseStr[0]);
 
         /* BINARYOUTPUT */

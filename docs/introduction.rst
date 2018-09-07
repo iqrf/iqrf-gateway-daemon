@@ -18,5 +18,5 @@ and can be used for commercial purposes.
 IQRF Gateway-daemon `architecture`_.
 
 .. _`Open-source`: https://github.com/iqrfsdk/iqrf-gateway-daemon
-.. _`web-interface`: https://github.com/iqrfsdk/iqrf-daemon-webapp
+.. _`web-interface`: https://github.com/iqrfsdk/iqrf-gateway-webapp
 .. _`architecture`: https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-components.png
