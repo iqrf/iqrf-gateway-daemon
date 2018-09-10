@@ -465,72 +465,72 @@ namespace iqrf {
     }
 
     void parseEmbPeripherals(rapidjson::Document& doc) {
-      if (rapidjson::Value* coordinatorJsonVal = rapidjson::Pointer("/data/req/embPeripherals/coordinator").Get(doc)) {
+      if (rapidjson::Value* coordinatorJsonVal = rapidjson::Pointer("/data/req/embPers/coordinator").Get(doc)) {
         m_coordinator = coordinatorJsonVal->GetBool();
         m_isSetCoordinator = true;
       }
 
-      if (rapidjson::Value* nodeJsonVal = rapidjson::Pointer("/data/req/embPeripherals/node").Get(doc)) {
+      if (rapidjson::Value* nodeJsonVal = rapidjson::Pointer("/data/req/embPers/node").Get(doc)) {
         m_node = nodeJsonVal->GetBool();
         m_isSetNode = true;
       }
 
-      if (rapidjson::Value* OsJsonVal = rapidjson::Pointer("/data/req/embPeripherals/os").Get(doc)) {
+      if (rapidjson::Value* OsJsonVal = rapidjson::Pointer("/data/req/embPers/os").Get(doc)) {
         m_os = OsJsonVal->GetBool();
         m_isSetOs = true;
       }
 
-      if (rapidjson::Value* eepromJsonVal = rapidjson::Pointer("/data/req/embPeripherals/eeprom").Get(doc)) {
+      if (rapidjson::Value* eepromJsonVal = rapidjson::Pointer("/data/req/embPers/eeprom").Get(doc)) {
         m_eeprom = eepromJsonVal->GetBool();
         m_isSetEeprom = true;
       }
 
-      if (rapidjson::Value* eeepromJsonVal = rapidjson::Pointer("/data/req/embPeripherals/eeeprom").Get(doc)) {
+      if (rapidjson::Value* eeepromJsonVal = rapidjson::Pointer("/data/req/embPers/eeeprom").Get(doc)) {
         m_eeeprom = eeepromJsonVal->GetBool();
         m_isSetEeeprom = true;
       }
 
-      if (rapidjson::Value* ramJsonVal = rapidjson::Pointer("/data/req/embPeripherals/ram").Get(doc)) {
+      if (rapidjson::Value* ramJsonVal = rapidjson::Pointer("/data/req/embPers/ram").Get(doc)) {
         m_ram = ramJsonVal->GetBool();
         m_isSetRam = true;
       }
 
-      if (rapidjson::Value* ledrJsonVal = rapidjson::Pointer("/data/req/embPeripherals/ledr").Get(doc)) {
+      if (rapidjson::Value* ledrJsonVal = rapidjson::Pointer("/data/req/embPers/ledr").Get(doc)) {
         m_ledr = ledrJsonVal->GetBool();
         m_isSetLedr = true;
       }
 
-      if (rapidjson::Value* ledgJsonVal = rapidjson::Pointer("/data/req/embPeripherals/ledg").Get(doc)) {
+      if (rapidjson::Value* ledgJsonVal = rapidjson::Pointer("/data/req/embPers/ledg").Get(doc)) {
         m_ledg = ledgJsonVal->GetBool();
         m_isSetLedg = true;
       }
 
-      if (rapidjson::Value* spiJsonVal = rapidjson::Pointer("/data/req/embPeripherals/spi").Get(doc)) {
+      if (rapidjson::Value* spiJsonVal = rapidjson::Pointer("/data/req/embPers/spi").Get(doc)) {
         m_spi = spiJsonVal->GetBool();
         m_isSetSpi = true;
       }
 
-      if (rapidjson::Value* ioJsonVal = rapidjson::Pointer("/data/req/embPeripherals/io").Get(doc)) {
+      if (rapidjson::Value* ioJsonVal = rapidjson::Pointer("/data/req/embPers/io").Get(doc)) {
         m_io = ioJsonVal->GetBool();
         m_isSetIo = true;
       }
 
-      if (rapidjson::Value* thermometerJsonVal = rapidjson::Pointer("/data/req/embPeripherals/thermometer").Get(doc)) {
+      if (rapidjson::Value* thermometerJsonVal = rapidjson::Pointer("/data/req/embPers/thermometer").Get(doc)) {
         m_thermometer = thermometerJsonVal->GetBool();
         m_isSetThermometer = true;
       }
 
-      if (rapidjson::Value* pwmJsonVal = rapidjson::Pointer("/data/req/embPeripherals/pwm").Get(doc)) {
+      if (rapidjson::Value* pwmJsonVal = rapidjson::Pointer("/data/req/embPers/pwm").Get(doc)) {
         m_pwm = pwmJsonVal->GetBool();
         m_isSetPwm = true;
       }
 
-      if (rapidjson::Value* uartJsonVal = rapidjson::Pointer("/data/req/embPeripherals/uart").Get(doc)) {
+      if (rapidjson::Value* uartJsonVal = rapidjson::Pointer("/data/req/embPers/uart").Get(doc)) {
         m_uart = uartJsonVal->GetBool();
         m_isSetUart = true;
       }
 
-      if (rapidjson::Value* frcJsonVal = rapidjson::Pointer("/data/req/embPeripherals/frc").Get(doc)) {
+      if (rapidjson::Value* frcJsonVal = rapidjson::Pointer("/data/req/embPers/frc").Get(doc)) {
         m_frc = frcJsonVal->GetBool();
         m_isSetFrc = true;
       }

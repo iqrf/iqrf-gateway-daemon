@@ -479,57 +479,57 @@ namespace iqrf {
       for (int i = 0; i < 4; i++) {
         embPerBitsJsonArray.PushBack(configuration[i], allocator);
       }
-      Pointer("/data/rsp/embPeripherals/values").Set(response, embPerBitsJsonArray);
+      Pointer("/data/rsp/embPers/values").Set(response, embPerBitsJsonArray);
 
       // embedded peripherals bits - parsed
       // byte 0x01
       uint8_t byte01 = configuration[0x00];
 
       bool coordPresent = ((byte01 & 0b1) == 0b1) ? true : false;
-      Pointer("/data/rsp/embPeripherals/coordinator").Set(response, coordPresent);
+      Pointer("/data/rsp/embPers/coordinator").Set(response, coordPresent);
 
       bool nodePresent = ((byte01 & 0b10) == 0b10) ? true : false;
-      Pointer("/data/rsp/embPeripherals/node").Set(response, nodePresent);
+      Pointer("/data/rsp/embPers/node").Set(response, nodePresent);
 
       bool osPresent = ((byte01 & 0b100) == 0b100) ? true : false;
-      Pointer("/data/rsp/embPeripherals/os").Set(response, osPresent);
+      Pointer("/data/rsp/embPers/os").Set(response, osPresent);
 
       bool eepromPresent = ((byte01 & 0b1000) == 0b1000) ? true : false;
-      Pointer("/data/rsp/embPeripherals/eeprom").Set(response, eepromPresent);
+      Pointer("/data/rsp/embPers/eeprom").Set(response, eepromPresent);
 
       bool eeepromPresent = ((byte01 & 0b10000) == 0b10000) ? true : false;
-      Pointer("/data/rsp/embPeripherals/eeeprom").Set(response, eeepromPresent);
+      Pointer("/data/rsp/embPers/eeeprom").Set(response, eeepromPresent);
 
       bool ramPresent = ((byte01 & 0b100000) == 0b100000) ? true : false;
-      Pointer("/data/rsp/embPeripherals/ram").Set(response, ramPresent);
+      Pointer("/data/rsp/embPers/ram").Set(response, ramPresent);
 
       bool ledrPresent = ((byte01 & 0b1000000) == 0b1000000) ? true : false;
-      Pointer("/data/rsp/embPeripherals/ledr").Set(response, ledrPresent);
+      Pointer("/data/rsp/embPers/ledr").Set(response, ledrPresent);
 
       bool ledgPresent = ((byte01 & 0b10000000) == 0b10000000) ? true : false;
-      Pointer("/data/rsp/embPeripherals/ledg").Set(response, ledgPresent);
+      Pointer("/data/rsp/embPers/ledg").Set(response, ledgPresent);
 
 
       // byte 0x02
       uint8_t byte02 = configuration[0x01];
 
       bool spiPresent = ((byte02 & 0b1) == 0b1) ? true : false;
-      Pointer("/data/rsp/embPeripherals/spi").Set(response, spiPresent);
+      Pointer("/data/rsp/embPers/spi").Set(response, spiPresent);
 
       bool ioPresent = ((byte02 & 0b10) == 0b10) ? true : false;
-      Pointer("/data/rsp/embPeripherals/io").Set(response, ioPresent);
+      Pointer("/data/rsp/embPers/io").Set(response, ioPresent);
 
       bool thermometerPresent = ((byte02 & 0b100) == 0b100) ? true : false;
-      Pointer("/data/rsp/embPeripherals/thermometer").Set(response, thermometerPresent);
+      Pointer("/data/rsp/embPers/thermometer").Set(response, thermometerPresent);
 
       bool pwmPresent = ((byte02 & 0b1000) == 0b1000) ? true : false;
-      Pointer("/data/rsp/embPeripherals/pwm").Set(response, pwmPresent);
+      Pointer("/data/rsp/embPers/pwm").Set(response, pwmPresent);
 
       bool uartPresent = ((byte02 & 0b10000) == 0b10000) ? true : false;
-      Pointer("/data/rsp/embPeripherals/uart").Set(response, uartPresent);
+      Pointer("/data/rsp/embPers/uart").Set(response, uartPresent);
 
       bool frcPresent = ((byte02 & 0b100000) == 0b100000) ? true : false;
-      Pointer("/data/rsp/embPeripherals/frc").Set(response, frcPresent);
+      Pointer("/data/rsp/embPers/frc").Set(response, frcPresent);
       
 
 

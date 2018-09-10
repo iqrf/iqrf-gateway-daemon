@@ -1316,12 +1316,62 @@ namespace iqrf {
 
       Document::AllocatorType& allocator = response.GetAllocator();
 
-      // embPerBits
+      // embedded periherals
       rapidjson::Value embPerBitsJsonArray(kArrayType);
       for (int i = 0; i < 4; i++) {
         embPerBitsJsonArray.PushBack(configuration[i], allocator);
       }
-      Pointer("/data/rsp/trConfiguration/embPerBits").Set(response, embPerBitsJsonArray);
+      Pointer("/data/rsp/trConfiguration/embPers/values").Set(response, embPerBitsJsonArray);
+
+      // embedded peripherals bits - parsed
+      // byte 0x01
+      uint8_t byte01 = configuration[0x00];
+
+      bool coordPresent = ((byte01 & 0b1) == 0b1) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/coordinator").Set(response, coordPresent);
+
+      bool nodePresent = ((byte01 & 0b10) == 0b10) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/node").Set(response, nodePresent);
+
+      bool osPresent = ((byte01 & 0b100) == 0b100) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/os").Set(response, osPresent);
+
+      bool eepromPresent = ((byte01 & 0b1000) == 0b1000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/eeprom").Set(response, eepromPresent);
+
+      bool eeepromPresent = ((byte01 & 0b10000) == 0b10000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/eeeprom").Set(response, eeepromPresent);
+
+      bool ramPresent = ((byte01 & 0b100000) == 0b100000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/ram").Set(response, ramPresent);
+
+      bool ledrPresent = ((byte01 & 0b1000000) == 0b1000000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/ledr").Set(response, ledrPresent);
+
+      bool ledgPresent = ((byte01 & 0b10000000) == 0b10000000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/ledg").Set(response, ledgPresent);
+
+
+      // byte 0x02
+      uint8_t byte02 = configuration[0x01];
+
+      bool spiPresent = ((byte02 & 0b1) == 0b1) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/spi").Set(response, spiPresent);
+
+      bool ioPresent = ((byte02 & 0b10) == 0b10) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/io").Set(response, ioPresent);
+
+      bool thermometerPresent = ((byte02 & 0b100) == 0b100) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/thermometer").Set(response, thermometerPresent);
+
+      bool pwmPresent = ((byte02 & 0b1000) == 0b1000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/pwm").Set(response, pwmPresent);
+
+      bool uartPresent = ((byte02 & 0b10000) == 0b10000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/uart").Set(response, uartPresent);
+
+      bool frcPresent = ((byte02 & 0b100000) == 0b100000) ? true : false;
+      Pointer("/data/rsp/trConfiguration/embPers/frc").Set(response, frcPresent);
 
 
       // byte 0x05
@@ -1570,7 +1620,8 @@ namespace iqrf {
         }
       }
 
-      setValidationAndUpdatesResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, osReadObject, response);
+      // removed also from JSON api - will be implemented next year
+      //setValidationAndUpdatesResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, osReadObject, response);
 
       // set raw fields, if verbose mode is active
       if (comEnumerateDevice.getVerbose()) {
