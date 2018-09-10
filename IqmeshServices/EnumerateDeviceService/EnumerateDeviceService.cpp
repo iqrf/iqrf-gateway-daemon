@@ -1263,8 +1263,19 @@ namespace iqrf {
       // hwpIdVer
       Pointer("/data/rsp/peripheralEnumeration/hwpIdVer").Set(response, perEnum.HWPIDver);
 
-      // flags
-      Pointer("/data/rsp/peripheralEnumeration/flags").Set(response, perEnum.Flags);
+
+      // flags - int value
+      Pointer("/data/rsp/peripheralEnumeration/flags/value").Set(response, perEnum.Flags);
+
+      // flags - parsed
+      bool stdModeSupported = ((perEnum.Flags & 0b1) == 0b1) ? true : false;
+      if (stdModeSupported) {
+        Pointer("/data/rsp/peripheralEnumeration/flags/rfMode").Set(response, "std");
+      }
+      else {
+        Pointer("/data/rsp/peripheralEnumeration/flags/rfMode").Set(response, "lp");
+      }
+
 
       // userPers
       rapidjson::Value userPerJsonArray(kArrayType);
