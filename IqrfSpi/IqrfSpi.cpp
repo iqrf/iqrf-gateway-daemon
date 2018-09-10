@@ -19,7 +19,6 @@
 
 #include "IqrfSpi.h"
 #include "spi_iqrf.h"
-#include "sysfs_gpio.h"
 #include "machines_def.h"
 #include "AccessControl.h"
 #include "rapidjson/pointer.h"
