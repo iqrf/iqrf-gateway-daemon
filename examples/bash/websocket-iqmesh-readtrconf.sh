@@ -1,8 +1,9 @@
 #!/bin/bash
 # Script for testing Websocket channel on Linux machine
 #
-# wget https://github.com/vi/websocat/releases/download/v1.0.0/websocat_1.0.0_amd64.deb
-# sudo dpkg -i websocat_1.0.0_amd64.deb
+# wget https://github.com/vi/websocat/releases/download/v1.1.0/websocat_1.1.0_amd64.deb
+# wget https://github.com/vi/websocat/releases/download/v1.1.0/websocat_1.1.0_armhf.deb
+# sudo dpkg -i websocat_1.1.0_*.deb
 # sudo apt-get install jq
 
 echo "sending request to read config of device and listen for response"

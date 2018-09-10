@@ -6,11 +6,11 @@
 # sudo dpkg -i websocat_1.1.0_*.deb
 # sudo apt-get install jq
 
-echo "sending request to enumerate device and listen for response"
+echo "sending request to write config of device and listen for response"
 
 echo \
-"{\"mType\":\"iqmeshNetwork_EnumerateDevice\","   \
-"\"data\":{\"msgId\":\"test\",\"repeat\":1," 	  \
-"\"req\":{\"deviceAddr\":0},"                	  \
-"\"returnVerbose\":true}}"                   	  \
+"{\"mType\":\"iqmeshNetwork_WriteTrConf\","  					\
+"\"data\":{\"msgId\":\"test\",\"repeat\":1," 					\
+"\"req\":{\"deviceAddr\":0,\"embPeripherals\":{\"frc\":true,\"ledr\":true}},"	\
+"\"returnVerbose\":true}}" 		     					\
 | websocat --no-close ws://localhost:1338 | jq '.'
