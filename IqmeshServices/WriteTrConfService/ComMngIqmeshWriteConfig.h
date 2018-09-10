@@ -240,6 +240,121 @@ namespace iqrf {
       return m_securityUserKey;
     }
 
+
+    // first 4 bytes of configuration - enabled/disabled peripherals 
+    bool isSetCoordinator() {
+      return m_isSetCoordinator;
+    }
+
+    const bool getCoordinator() {
+      return m_coordinator;
+    }
+
+    bool isSetNode() {
+      return m_isSetNode;
+    }
+
+    const bool getNode() {
+      return m_node;
+    }
+
+    bool isSetOs() {
+      return m_isSetOs;
+    }
+
+    const bool getOs() {
+      return m_os;
+    }
+
+    bool isSetEeprom() {
+      return m_isSetEeprom;
+    }
+
+    const bool getEeprom() {
+      return m_eeprom;
+    }
+
+    bool isSetEeeprom() {
+      return m_isSetEeeprom;
+    }
+
+    const bool getEeeprom() {
+      return m_eeeprom;
+    }
+
+    bool isSetRam() {
+      return m_isSetRam;
+    }
+
+    const bool getRam() {
+      return m_ram;
+    }
+
+    bool isSetLedr() {
+      return m_isSetLedr;
+    }
+
+    const bool getLedr() {
+      return m_ledr;
+    }
+
+    bool isSetLedg() {
+      return m_isSetLedg;
+    }
+
+    const bool getLedg() {
+      return m_ledg;
+    }
+
+    bool isSetSpi() {
+      return m_isSetSpi;
+    }
+
+    const bool getSpi() {
+      return m_spi;
+    }
+
+    bool isSetIo() {
+      return m_isSetIo;
+    }
+
+    const bool getIo() {
+      return m_io;
+    }
+
+    bool isSetThermometer() {
+      return m_isSetThermometer;
+    }
+
+    const bool getThermometer() {
+      return m_thermometer;
+    }
+
+    bool isSetPwm() {
+      return m_isSetPwm;
+    }
+
+    const bool getPwm() {
+      return m_pwm;
+    }
+
+    bool isSetUart() {
+      return m_isSetUart;
+    }
+
+    const bool getUart() {
+      return m_uart;
+    }
+
+    bool isSetFrc() {
+      return m_isSetFrc;
+    }
+
+    const bool getFrc() {
+      return m_frc;
+    }
+
+
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
@@ -309,6 +424,38 @@ namespace iqrf {
     std::string m_securityPassword;
     std::string m_securityUserKey;
 
+    // periherals presence in config bytes
+    bool m_coordinator;
+    bool m_node;
+    bool m_os;
+    bool m_eeprom;
+    bool m_eeeprom;
+    bool m_ram;
+    bool m_ledr;
+    bool m_ledg;
+    bool m_spi;
+    bool m_io;
+    bool m_thermometer;
+    bool m_pwm;
+    bool m_uart;
+    bool m_frc;
+
+    bool m_isSetCoordinator = false;
+    bool m_isSetNode = false;
+    bool m_isSetOs = false;
+    bool m_isSetEeprom = false;
+    bool m_isSetEeeprom = false;
+    bool m_isSetRam = false;
+    bool m_isSetLedr = false;
+    bool m_isSetLedg = false;
+    bool m_isSetSpi = false;
+    bool m_isSetIo = false;
+    bool m_isSetThermometer = false;
+    bool m_isSetPwm = false;
+    bool m_isSetUart = false;
+    bool m_isSetFrc = false;
+
+
 
     void parseDeviceAddr(rapidjson::Document& doc) {
       if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
@@ -317,9 +464,83 @@ namespace iqrf {
       }
     }
 
+    void parseEmbPeripherals(rapidjson::Document& doc) {
+      if (rapidjson::Value* coordinatorJsonVal = rapidjson::Pointer("/data/req/embPeripherals/coordinator").Get(doc)) {
+        m_coordinator = coordinatorJsonVal->GetBool();
+        m_isSetCoordinator = true;
+      }
+
+      if (rapidjson::Value* nodeJsonVal = rapidjson::Pointer("/data/req/embPeripherals/node").Get(doc)) {
+        m_node = nodeJsonVal->GetBool();
+        m_isSetNode = true;
+      }
+
+      if (rapidjson::Value* OsJsonVal = rapidjson::Pointer("/data/req/embPeripherals/os").Get(doc)) {
+        m_os = OsJsonVal->GetBool();
+        m_isSetOs = true;
+      }
+
+      if (rapidjson::Value* eepromJsonVal = rapidjson::Pointer("/data/req/embPeripherals/eeprom").Get(doc)) {
+        m_eeprom = eepromJsonVal->GetBool();
+        m_isSetEeprom = true;
+      }
+
+      if (rapidjson::Value* eeepromJsonVal = rapidjson::Pointer("/data/req/embPeripherals/eeeprom").Get(doc)) {
+        m_eeeprom = eeepromJsonVal->GetBool();
+        m_isSetEeeprom = true;
+      }
+
+      if (rapidjson::Value* ramJsonVal = rapidjson::Pointer("/data/req/embPeripherals/ram").Get(doc)) {
+        m_ram = ramJsonVal->GetBool();
+        m_isSetRam = true;
+      }
+
+      if (rapidjson::Value* ledrJsonVal = rapidjson::Pointer("/data/req/embPeripherals/ledr").Get(doc)) {
+        m_ledr = ledrJsonVal->GetBool();
+        m_isSetLedr = true;
+      }
+
+      if (rapidjson::Value* ledgJsonVal = rapidjson::Pointer("/data/req/embPeripherals/ledg").Get(doc)) {
+        m_ledg = ledgJsonVal->GetBool();
+        m_isSetLedg = true;
+      }
+
+      if (rapidjson::Value* spiJsonVal = rapidjson::Pointer("/data/req/embPeripherals/spi").Get(doc)) {
+        m_spi = spiJsonVal->GetBool();
+        m_isSetSpi = true;
+      }
+
+      if (rapidjson::Value* ioJsonVal = rapidjson::Pointer("/data/req/embPeripherals/io").Get(doc)) {
+        m_io = ioJsonVal->GetBool();
+        m_isSetIo = true;
+      }
+
+      if (rapidjson::Value* thermometerJsonVal = rapidjson::Pointer("/data/req/embPeripherals/thermometer").Get(doc)) {
+        m_thermometer = thermometerJsonVal->GetBool();
+        m_isSetThermometer = true;
+      }
+
+      if (rapidjson::Value* pwmJsonVal = rapidjson::Pointer("/data/req/embPeripherals/pwm").Get(doc)) {
+        m_pwm = pwmJsonVal->GetBool();
+        m_isSetPwm = true;
+      }
+
+      if (rapidjson::Value* uartJsonVal = rapidjson::Pointer("/data/req/embPeripherals/uart").Get(doc)) {
+        m_uart = uartJsonVal->GetBool();
+        m_isSetUart = true;
+      }
+
+      if (rapidjson::Value* frcJsonVal = rapidjson::Pointer("/data/req/embPeripherals/frc").Get(doc)) {
+        m_frc = frcJsonVal->GetBool();
+        m_isSetFrc = true;
+      }
+    }
+
     // parses configuration bytes
     void parseConfigBytes(rapidjson::Document& doc) 
     {      
+      parseEmbPeripherals(doc);
+      
       if (rapidjson::Value* rfChannelAJsonVal = rapidjson::Pointer("/data/req/rfChannelA").Get(doc)) {
         m_rfChannelA = rfChannelAJsonVal->GetInt();
         m_isSetRfChannelA = true;

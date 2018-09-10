@@ -474,6 +474,12 @@ namespace iqrf {
 
       Document::AllocatorType& allocator = response.GetAllocator();
 
+      // predefined peripherals - bits
+      rapidjson::Value embPerBitsJsonArray(kArrayType);
+      for (int i = 0; i < 4; i++) {
+        embPerBitsJsonArray.PushBack(configuration[i], allocator);
+      }
+      Pointer("/data/rsp/embPeripherals/values").Set(response, embPerBitsJsonArray);
 
       // embedded peripherals bits - parsed
       // byte 0x01
@@ -524,19 +530,7 @@ namespace iqrf {
 
       bool frcPresent = ((byte02 & 0b100000) == 0b100000) ? true : false;
       Pointer("/data/rsp/embPeripherals/frc").Set(response, frcPresent);
-
-
-      // 1. user peripheral - user1
-      bool user1Present = ((configuration[3] & 0b10000000) == 0b10000000) ? true : false;
-      Pointer("/data/rsp/embPeripherals/user1").Set(response, user1Present);
-
-
-      // user peripherals - bits
-      rapidjson::Value embPerBitsJsonArray(kArrayType);
-      for (int i = 0; i < 4; i++) {
-        embPerBitsJsonArray.PushBack(configuration[i], allocator);
-      }
-      Pointer("/data/rsp/embPeripherals/bits").Set(response, embPerBitsJsonArray);
+      
 
 
       // byte 0x05
