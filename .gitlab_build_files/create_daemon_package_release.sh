@@ -13,11 +13,12 @@ fpm \
 --architecture ${ARCH} \
 --maintainer "Rostislav Spinar <rostislav.spinar@iqrf.com>" \
 --url "https://github.com/iqrfsdk/iqrf-gateway-daemon" \
---description "IQRF Gateway Daemon v2 with the multiple communication channels - UDP/MQ/MQTT/WS." \
+--description "IQRF Gateway Daemon with UDP/MQ/MQTT/WS communication channels." \
+--deb-changelog debian/changelog \
+--depends libc6 \
+--depends libstdc++6 \
 --depends openssl \
---depends zlib1g \
---depends libev4 \
---depends libuv1 \
 --depends libcpprest2.9 \
+--depends libboost-filesystem1.62.0 \
 --verbose \
 .

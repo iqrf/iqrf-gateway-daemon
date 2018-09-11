@@ -1,0 +1,8 @@
+iqrf-gateway-daemon (v2.0.0-beta) testing; urgency=medium
+
+  ** SNAPSHOT build @01ebe9ff4e49a618e87f86e9a8e9b92d13622aa3 **
+
+  * Only for testing purposes
+  * Real changelog must be generated from git commit
+
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Thu, 06 Sep 2018 11:24:59 +0200
