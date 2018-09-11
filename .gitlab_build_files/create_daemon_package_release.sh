@@ -15,6 +15,8 @@ fpm \
 --url "https://github.com/iqrfsdk/iqrf-gateway-daemon" \
 --description "IQRF Gateway Daemon with UDP/MQ/MQTT/WS communication channels." \
 --deb-changelog debian/changelog \
+--after-install debian/after-install.sh \
+--after-remove debian/after-remove.sh \
 --depends libc6 \
 --depends libstdc++6 \
 --depends openssl \
