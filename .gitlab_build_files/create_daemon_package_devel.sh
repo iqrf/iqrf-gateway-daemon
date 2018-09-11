@@ -6,7 +6,7 @@ fpm \
 -s dir \
 -C iqrf-daemon-deploy \
 --name "iqrf-gateway-daemon-dev" \
---version ${DAEMON_VERSION}${CI_PIPELINE_ID} \
+--version ${DAEMON_VERSION_NUM}${CI_PIPELINE_ID} \
 --license "Apache License, Version 2.0" \
 --vendor "IQRF Tech s.r.o." \
 --category "devel" \
