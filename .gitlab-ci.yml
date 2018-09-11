@@ -54,7 +54,7 @@ stages:
         - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../../shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION} -DCMAKE_BUILD_TYPE=Debug
         - cmake --build iqrf-daemon-build
         - bash .gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
-        - bash .gitlab_build_files/create_daemon_package.sh
+        - bash .gitlab_build_files/create_daemon_package_devel.sh
         - tar czvf iqrf-gateway-daemon-dev_${DAEMON_VERSION}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
     artifacts:
         paths:
@@ -91,7 +91,7 @@ stages:
         - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../../shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION}
         - cmake --build iqrf-daemon-build
         - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
-        - bash .gitlab_build_files/create_daemon_package.sh
+        - bash .gitlab_build_files/create_daemon_package_release.sh
         - tar czvf iqrf-gateway-daemon_${DAEMON_VERSION}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
     artifacts:
         paths:
