@@ -4,8 +4,8 @@
 NAME=iqrfgd2
 
 daemon_stop-remove() {
-    systemctl stop ${NAME}
-    systemctl disable ${NAME}
+    deb-systemd-invoke stop ${NAME}.service
+    deb-systemd-invoke disable ${NAME}.service
     rm -f /lib/systemd/system/${NAME}.service
 }
 

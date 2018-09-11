@@ -4,7 +4,6 @@
 NAME=iqrfgd2
 
 daemon_chmod_dirs() {
-    echo "Changing daemon dirs"
     chmod -R 666 /etc/${NAME}/
     chmod 777 /etc/${NAME}/
     chmod 777 /etc/${NAME}/cfgSchemas/
@@ -15,9 +14,9 @@ daemon_chmod_dirs() {
 daemon_enable-restart() {
     which systemctl &>/dev/null
     if [[ $? -eq 0 ]]; then
-        systemctl daemon-reload
-        systemctl enable ${NAME}
-        systemctl restart ${NAME}
+        deb-systemd-invoke daemon-reload
+        deb-systemd-invoke enable ${NAME}.service
+        deb-systemd-invoke restart ${NAME}.service
     else
         echo "Init.d not supported."
     fi
