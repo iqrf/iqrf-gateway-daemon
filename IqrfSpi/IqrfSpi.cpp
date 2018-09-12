@@ -64,7 +64,7 @@ namespace iqrf {
 
       TRC_INFORMATION("Sending to IQRF SPI: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
-      while (attempt++ < 4) {
+      while (attempt++ < 11) {
         TRC_INFORMATION("Trying to sent: " << counter << "." << attempt);
 
         // lock scope
@@ -172,9 +172,9 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       
       // wait for TR module is ready
-      spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(2000);
+      spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(1000);
 
-      // if SPI not ready in 2000 ms, end
+      // if SPI not ready in 1000 ms, end
       if (spiStatus.dataNotReadyStatus != SPI_IQRF_SPI_READY_PROG) {
         TRC_WARNING("Waiting for ready state failed." << NAME_PAR_HEX(SPI status, spiStatus.dataNotReadyStatus));
         TRC_FUNCTION_LEAVE("");

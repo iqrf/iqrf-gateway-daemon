@@ -12,15 +12,12 @@ daemon_chmod_dirs() {
 }
 
 daemon_enable-restart() {
-    which systemctl &>/dev/null
-    if [[ $? -eq 0 ]]; then
-        deb-systemd-invoke daemon-reload
+    if [ -d /run/systemd/system ]; then
+        systemctl --system daemon-reload
         deb-systemd-invoke enable ${NAME}.service
         deb-systemd-invoke restart ${NAME}.service
-    else
-        echo "Init.d not supported."
     fi
-    
+   
     # for paho libs
     ldconfig
 }
