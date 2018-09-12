@@ -464,14 +464,17 @@ namespace iqrf {
 
       // osRead object
       TPerOSReadCfg_Response hwpConfig = readTrConfigResult.getHwpConfig();
-      uns8* configurationXored = hwpConfig.Configuration;
 
+#if DPA_VERSION_MASTER == 0x0303
+      uns8* configuration = hwpConfig.Configuration;  
+#else
+      uns8* configurationXored = hwpConfig.Configuration;
       // needed to xor all bytes of configuration with the value of 0x34
       uns8 configuration[CONFIGURATION_LEN];
       for (int i = 0; i < CONFIGURATION_LEN; i++) {
         configuration[i] = configurationXored[i] ^ 0x34;
       }
-
+#endif
       Document::AllocatorType& allocator = response.GetAllocator();
 
       // predefined peripherals - bits
