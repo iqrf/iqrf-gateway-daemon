@@ -56,7 +56,7 @@ public class MqttBlink {
         String topicReq     = "Iqrf/DpaRequest";
         String topicResp    = "Iqrf/DpaResponse";
         int qos             = 1;
-        String broker       = "tcp://mqtt.iqrfsdk.org:1883";
+        String broker       = "tcp://localhost:1883";
         String clientId     = "MqttBlinkTest";
         
         MemoryPersistence persistence = new MemoryPersistence();
