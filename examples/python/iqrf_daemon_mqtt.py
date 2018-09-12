@@ -1,5 +1,5 @@
 # #############################################################################
-# Author: 2017                                                                #  
+# Author: 2018                                                                #
 #         Rostislav Spinar <rostislav.spinar@iqrf.com>                        #
 #         Roman Ondracek <roman.ondracek@iqrf.com>                            #
 #         IQRF Tech s.r.o.                                                    #
@@ -61,22 +61,26 @@ def create_dpa_frame(node_id, pnum, pcmd, hwpid, data=[]):
 
 def create_dpa_json(msg_id, dpa_frame):
     request = {}
-    request['ctype'] = 'dpa'
-    request['type'] = 'raw'
-    request['msgid'] = msg_id
-    request['request'] = dpa_frame
-    request['request_ts'] = ''
-    request['confirmation'] = ''
-    request['confirmation_ts'] = ''
-    request['response'] = ''
-    request['response_ts'] = ''
+    request['mType'] = 'iqrfRaw'
+
+    rdata = {}
+    rdata['msgId'] = msg_id
+    #rdata['timeout'] = timeout
+
+    req = {}
+    req['rData'] = dpa_frame
+
+    rdata['req'] = req
+    rdata['returnVerbose'] = True
+
+    request['data'] = rdata
 
     return json.dumps(request)
 
 
 def main():
     # IQRF
-    # default hwpid
+    # default HWPID
     hwpid = 0xffff
     # default DPA timeout (in miliseconds)
     timeout = 1000
@@ -128,20 +132,28 @@ def main():
     client.loop_start()
     # client.loop_stop()
 
-    # dpa frame
-    dpa_frame = create_dpa_frame(0x0f, 0x06, 0x03, hwpid)
+    # DPA frame
+    ledr_pulse = create_dpa_frame(0x00, 0x06, 0x03, hwpid)
+    ledg_pulse = create_dpa_frame(0x00, 0x07, 0x03, hwpid)
 
     while True:
-        # json dpa
+        # JSON DPA
         msg_id = str(time.time())
-        json_dpa = create_dpa_json(msg_id, dpa_frame)
+        json_ledr_pulse = create_dpa_json(msg_id, ledr_pulse)
+	    msg_id = str(time.time())
+	    json_ledg_pulse = create_dpa_json(msg_id, ledg_pulse)
 
         # publish
-        (rc, mid) = client.publish(topic_pub, json_dpa, qos=1)
+        (rc, mid) = client.publish(topic_pub, json_ledr_pulse, qos=1)
 
         # sleep
-        time.sleep(10)
+        time.sleep(2)
 
+        # publish
+        (rc, mid) = client.publish(topic_pub, json_ledg_pulse, qos=1)
+
+        # sleep
+        time.sleep(2)
 
 if __name__ == "__main__":
     main()
