@@ -465,7 +465,11 @@ namespace iqrf {
       // osRead object
       TPerOSReadCfg_Response hwpConfig = readTrConfigResult.getHwpConfig();
 
-#if DPA_VERSION_MASTER == 0x0303
+      // getting DPA version
+      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
+
+#if dpaVer == 0x0303
       uns8* configuration = hwpConfig.Configuration;  
 #else
       uns8* configurationXored = hwpConfig.Configuration;
