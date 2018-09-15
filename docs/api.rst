@@ -1,12 +1,16 @@
-IQRF Gateway-daemon API
-=======================
+Application Programming Interface
+=================================
 
-JSON messages for communication via MQ/WS/MQTT channels. Messages are compatible from OS v4.02D and 
+JSON messages for communication via `MQ`_/`WS`_/`MQTT`_ channels. Messages are compatible from OS v4.02D and 
 DPA v3.02 at TR-7xD and higher. It is always highly recommended to use latest OS/DPA FW on the modules. 
 
-IQRF Gateway-daemon API `categories`_.
+IQRF Gateway Daemon API `categories`_.
 
 .. _`categories`: https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-api.png
+
+.. _`MQ`: https://en.wikipedia.org/wiki/Message_queue
+.. _`WS`: https://en.wikipedia.org/wiki/WebSocket
+.. _`MQTT`: https://cs.wikipedia.org/wiki/MQTT
 
 IQRF Generic
 ------------
@@ -38,10 +42,79 @@ RawHdp
 IQRF Standard
 -------------
 
-Standard messages has been design according to IQRF Standard  `[1]`_, `[2]`_. 
+Standard messages has been design according to `IQRF Standard`_ and `DPA protocol`_.
 
-.. _`[1]`: https://www.iqrf.org/DpaTechGuide
-.. _`[2]`: https://www.iqrfalliance.org/techDocs
+.. _`IQRF Standard`: https://www.iqrfalliance.org/techDocs
+.. _`DPA protocol`: https://www.iqrf.org/DpaTechGuide
+
+Binaryoutput
+++++++++++++
+
+- `Enumerate BO request v1-0-0`_ and `example`__
+- `Enumerate BO response v1-0-0`_ and `example`__
+- `SetOutput request v1-0-0`_ and `example`__
+- `SetOutput response v1-0-0`_ and `example`__
+
+.. _`Enumerate BO request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_Enumerate-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_Enumerate-request-1-0-0-example.json
+.. _`Enumerate BO response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_Enumerate-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_Enumerate-response-1-0-0-example.json
+.. _`SetOutput request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_SetOutput-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_SetOutput-request-1-0-0-example.json
+.. _`SetOutput response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_SetOutput-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_SetOutput-response-1-0-0-example.json
+
+Light
++++++
+
+- `Enumerate L request v1-0-0`_ and `example`__
+- `Enumerate L response v1-0-0`_ and `example`__
+- `SetPower request v1-0-0`_ and `example`__
+- `SetPower response v1-0-0`_ and `example`__
+- `IncrementPower request v1-0-0`_ and `example`__
+- `IncrementPower response v1-0-0`_ and `example`__
+- `DecrementPower request v1-0-0`_ and `example`__
+- `DecrementPower response v1-0-0`_ and `example`__
+
+.. _`Enumerate L request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_Enumerate-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_Enumerate-request-1-0-0-example.json
+.. _`Enumerate L response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_Enumerate-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_Enumerate-response-1-0-0-example.json
+.. _`SetPower request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_SetPower-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_SetPower-request-1-0-0-example.json
+.. _`SetPower response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_SetPower-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_SetPower-response-1-0-0-example.json
+.. _`IncrementPower request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_IncrementPower-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_IncrementPower-request-1-0-0-example.json
+.. _`IncrementPower response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_IncrementPower-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_IncrementPower-response-1-0-0-example.json
+.. _`DecrementPower request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_DecrementPower-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_DecrementPower-request-1-0-0-example.json
+.. _`DecrementPower response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_DecrementPower-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_DecrementPower-response-1-0-0-example.json
+
+Sensor
+++++++
+
+- `Enumerate S request v1-0-0`_ and `example`__
+- `Enumerate S response v1-0-0`_ and `example`__
+- `ReadSensorsWithTypes request v1-0-0`_ and `example`__
+- `ReadSensorsWithTypes response v1-0-0`_ and `example`__
+- `Frc request v1-0-0`_ and `example`__
+- `Frc response v1-0-0`_ and `example`__
+
+.. _`Enumerate S request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Enumerate-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_Enumerate-request-1-0-0-example.json
+.. _`Enumerate S response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Enumerate-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_Enumerate-response-1-0-0-example.json
+.. _`ReadSensorsWithTypes request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_ReadSensorsWithTypes-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_ReadSensorsWithTypes-request-1-0-0-example.json
+.. _`ReadSensorsWithTypes response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_ReadSensorsWithTypes-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_ReadSensorsWithTypes-response-1-0-0-example.json
+.. _`Frc request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Frc-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_Frc-request-1-0-0-example.json
+.. _`Frc response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Frc-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_Frc-response-1-0-0-example.json
 
 Embed Explore
 +++++++++++++
@@ -374,6 +447,8 @@ Embed LEDR
 - `Get LEDR response v1-0-0`_ and `example`__
 - `Pulse LEDR request v1-0-0`_ and `example`__
 - `Pulse LEDR response v1-0-0`_ and `example`__
+- `Flashing LEDR request v1-0-0`_ and `example`__
+- `Flashing LEDR response v1-0-0`_ and `example`__
 
 .. _`Set LEDR request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Set-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Set-request-1-0-0-example.json
@@ -387,6 +462,10 @@ Embed LEDR
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Pulse-request-1-0-0-example.json
 .. _`Pulse LEDR response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Pulse-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Pulse-response-1-0-0-example.json
+.. _`Flashing LEDR request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Flashing-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Flashing-request-1-0-0-example.json
+.. _`Flashing LEDR response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedr_Flashing-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedr_Flashing-response-1-0-0-example.json
 
 Embed LEDG
 ++++++++++
@@ -397,6 +476,8 @@ Embed LEDG
 - `Get LEDG response v1-0-0`_ and `example`__
 - `Pulse LEDG request v1-0-0`_ and `example`__
 - `Pulse LEDG response v1-0-0`_ and `example`__
+- `Flashing LEDG request v1-0-0`_ and `example`__
+- `Flashing LEDG response v1-0-0`_ and `example`__
 
 .. _`Set LEDG request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Set-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Set-request-1-0-0-example.json
@@ -410,6 +491,10 @@ Embed LEDG
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Pulse-request-1-0-0-example.json
 .. _`Pulse LEDG response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Pulse-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Pulse-response-1-0-0-example.json
+.. _`Flashing LEDG request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Flashing-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Flashing-request-1-0-0-example.json
+.. _`Flashing LEDG response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedLedg_Flashing-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedLedg_Flashing-response-1-0-0-example.json
 
 Embed IO
 ++++++++
@@ -503,83 +588,14 @@ Embed Frc
 .. _`SetParams response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedFrc_SetParams-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedFrc_SetParams-response-1-0-0-example.json
 
-Binaryoutput
-++++++++++++
-
-- `Enumerate BO request v1-0-0`_ and `example`__
-- `Enumerate BO response v1-0-0`_ and `example`__
-- `SetOutput request v1-0-0`_ and `example`__
-- `SetOutput response v1-0-0`_ and `example`__
-
-.. _`Enumerate BO request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_Enumerate-request-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_Enumerate-request-1-0-0-example.json
-.. _`Enumerate BO response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_Enumerate-response-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_Enumerate-response-1-0-0-example.json
-.. _`SetOutput request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_SetOutput-request-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_SetOutput-request-1-0-0-example.json
-.. _`SetOutput response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfBinaryoutput_SetOutput-response-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfBinaryoutput_SetOutput-response-1-0-0-example.json
-
-Light
-+++++
-
-- `Enumerate L request v1-0-0`_ and `example`__
-- `Enumerate L response v1-0-0`_ and `example`__
-- `SetPower request v1-0-0`_ and `example`__
-- `SetPower response v1-0-0`_ and `example`__
-- `IncrementPower request v1-0-0`_ and `example`__
-- `IncrementPower response v1-0-0`_ and `example`__
-- `DecrementPower request v1-0-0`_ and `example`__
-- `DecrementPower response v1-0-0`_ and `example`__
-
-.. _`Enumerate L request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_Enumerate-request-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_Enumerate-request-1-0-0-example.json
-.. _`Enumerate L response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_Enumerate-response-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_Enumerate-response-1-0-0-example.json
-.. _`SetPower request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_SetPower-request-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_SetPower-request-1-0-0-example.json
-.. _`SetPower response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_SetPower-response-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_SetPower-response-1-0-0-example.json
-.. _`IncrementPower request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_IncrementPower-request-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_IncrementPower-request-1-0-0-example.json
-.. _`IncrementPower response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_IncrementPower-response-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_IncrementPower-response-1-0-0-example.json
-.. _`DecrementPower request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_DecrementPower-request-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_DecrementPower-request-1-0-0-example.json
-.. _`DecrementPower response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfLight_DecrementPower-response-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfLight_DecrementPower-response-1-0-0-example.json
-
-Sensor
-++++++
-
-- `Enumerate S request v1-0-0`_ and `example`__
-- `Enumerate S response v1-0-0`_ and `example`__
-- `ReadSensorsWithTypes request v1-0-0`_ and `example`__
-- `ReadSensorsWithTypes response v1-0-0`_ and `example`__
-- `Frc request v1-0-0`_ and `example`__
-- `Frc response v1-0-0`_ and `example`__
-
-.. _`Enumerate S request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Enumerate-request-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_Enumerate-request-1-0-0-example.json
-.. _`Enumerate S response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Enumerate-response-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_Enumerate-response-1-0-0-example.json
-.. _`ReadSensorsWithTypes request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_ReadSensorsWithTypes-request-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_ReadSensorsWithTypes-request-1-0-0-example.json
-.. _`ReadSensorsWithTypes response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_ReadSensorsWithTypes-response-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_ReadSensorsWithTypes-response-1-0-0-example.json
-.. _`Frc request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Frc-request-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_Frc-request-1-0-0-example.json
-.. _`Frc response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfSensor_Frc-response-1-0-0.json
-.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfSensor_Frc-response-1-0-0-example.json
-
 IQMESH Network
 --------------
 
 Services that ease the task of working with IQMESH network. They are composed of more then single DPA transaction 
-(req-cnf-rsp) in most of the cases. They are also integrating information from `IQRF repository`_. They are
+(req-cnf-rsp) in most of the cases. They are also integrating information from `IQRF Repository`_. They are
 inspired by the services available in `IQRF IDE`_ - IQMESH Network Manager.
 
-.. _`IQRF repository`: https://repository.iqrfalliance.org/doc/
+.. _`IQRF Repository`: https://repository.iqrfalliance.org/doc/
 .. _`IQRF IDE`: https://iqrf.org/technology/iqrf-ide
 
 IQRF Bonding

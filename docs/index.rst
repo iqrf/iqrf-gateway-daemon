@@ -7,6 +7,8 @@ Contents:
    :maxdepth: 3
 
    introduction
+   install
+   configure
    api
 
 Indices and tables

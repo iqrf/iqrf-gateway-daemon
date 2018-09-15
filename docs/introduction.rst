@@ -1,13 +1,13 @@
-IQRF Gateway-daemon introduction
-================================
+Introduction
+============
 
-`Open-source`_ components for building IQRF gateway.
+Open-source components for building IQRF Gateway.
 
-IQRF Gateway-daemon (GWD) project provides open-source components for building 
-IQRF gateways. Together they form ready-to-use solution, including an 
-user-friendly `web-interface`_. Components can be extended or added based on
-the project requirements. All components are licenced under Apache Licence 2.0 
-and can be used for commercial purposes.
+`IQRF Gateway Daemon`_ (IQRF GWD) project provides open-source components for building 
+IQRF Gateways. Together they form ready-to-use solution, including an user-friendly 
+`web-interface`_. Components can be extended or added based on the project requirements. 
+All components are licenced under Apache Licence 2.0 and can be used for commercial 
+purposes.
 
 .. figure:: images/iqrfgd-overview.png
     :align: center
@@ -15,8 +15,71 @@ and can be used for commercial purposes.
 
     IQRF GWD overview
 
-IQRF Gateway-daemon `architecture`_.
-
-.. _`Open-source`: https://github.com/iqrfsdk/iqrf-gateway-daemon
+.. _`IQRF Gateway Daemon`: https://github.com/iqrfsdk/iqrf-gateway-daemon
 .. _`web-interface`: https://github.com/iqrfsdk/iqrf-gateway-webapp
-.. _`architecture`: https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-components.png
+
+Why v2
+------
+
+- Modular design
+
+  - Extendible
+  - Components as dynamic libraries
+  - Based on `Shape framework`_
+
+- `IQRF Standards`_ supported
+
+  - Working with IQRF Repository
+  - Offline cached support
+
+- `IQMESH Services`_ introduced 
+
+  - Convenient for higher level integrators
+  - Leaving DPA bits and bytes to us
+
+- `IQRF Generic`_ is kept alive
+
+  - Working with DPA bits and bytes as in v1
+
+- Reworked IQMESH Manager in `IQRF Gateway Webapp`_ 
+
+  - Making use of IQMESH Services as mentioned above
+
+- `WebSocket`_ channel introduced
+  
+  - Enables Docker containers for End-apps
+
+- UART interface supported
+  
+  - Working with `UniPi Neuron IQRF`_
+
+- Unicast, broadcast and FRC timing supported 
+
+  - Daemon knows correct time to wait for DPA response
+
+- API v1 supported
+
+  - Value of v1 applications
+
+- Growing base of `examples and reference apps`_
+
+  - Great inspiration on how to work with our API from your favourite programming language
+
+- Long term support
+
+  - support@iqrf.org
+
+.. figure:: images/iqrfgd-components.png
+    :align: center
+    :figclass: align-center
+
+    IQRF GWD architecture
+
+.. _`Shape framework`: https://github.com/logimic/shape
+.. _`IQRF Standards`: https://docs.iqrfsdk.org/iqrf-gateway-daemon/api.html#iqrf-standard
+.. _`IQMESH Services`: https://docs.iqrfsdk.org/iqrf-gateway-daemon/api.html#iqmesh-network
+.. _`IQRF Generic`: https://docs.iqrfsdk.org/iqrf-gateway-daemon/api.html#iqrf-generic
+.. _`IQRF Gateway Webapp`: https://docs.iqrfsdk.org/iqrf-gateway-webapp
+.. _`WebSocket`: https://en.wikipedia.org/wiki/WebSocket
+.. _`UniPi Neuron IQRF`: https://www.unipi.technology/cs/neuron-s103-iqrf-p139
+.. _`examples and reference apps`: https://github.com/iqrfsdk/iqrf-gateway-daemon/tree/master/examples
