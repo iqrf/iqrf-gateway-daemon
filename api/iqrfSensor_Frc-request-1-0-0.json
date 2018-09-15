@@ -76,7 +76,7 @@
                 "getExtraResult": {
                   "type": "boolean",
                   "description": "If set Extra result DPA message is sent and processed",
-				  "default": true
+                  "default": true
                 }
               },
               "required": [

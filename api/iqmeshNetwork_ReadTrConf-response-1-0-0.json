@@ -30,13 +30,79 @@
 							"type": "integer",
 							"description": "Device address to read the configuration from."
 						},
-						"embPerBits": {
-							"type": "array",
-							"description": "An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.",
-							"items": {
-								"type": "integer"
-							},
-							"maxItems": 4
+						"embPers": {
+							"type": "object",
+							"description": "Embedded peripherals enabled on the node.",
+							"properties": {
+								"values": {
+									"type": "array",
+									"description": "An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.",
+									"items": {
+										"type": "integer"
+									},
+									"maxItems": 4
+								},
+								"coordinator": {
+									"type": "boolean",
+									"description": "If coordinator is enabled."
+								},
+								"node": {
+									"type": "boolean",
+									"description": "If node is enabled."
+								},
+								"os": {
+									"type": "boolean",
+									"description": "If OS is enabled."
+								},
+								"eeprom": {
+									"type": "boolean",
+									"description": "If EEPROM is enabled."
+								},
+								"eeeprom": {
+									"type": "boolean",
+									"description": "If EEEPROM is enabled."
+								},
+								"ram": {
+									"type": "boolean",
+									"description": "If RAM is enabled."
+								},
+								"ledr": {
+									"type": "boolean",
+									"description": "If LEDR is enabled."
+								},
+								"ledg": {
+									"type": "boolean",
+									"description": "If LEDG is enabled."
+								},
+								"ledg": {
+									"type": "boolean",
+									"description": "If LEDG is enabled."
+								},
+								"spi": {
+									"type": "boolean",
+									"description": "If SPI is enabled."
+								},
+								"io": {
+									"type": "boolean",
+									"description": "If IO is enabled."
+								},
+								"thermometer": {
+									"type": "boolean",
+									"description": "If thermometer is enabled."
+								},
+								"pwm": {
+									"type": "boolean",
+									"description": "If PWM is enabled."
+								},
+								"uart": {
+									"type": "boolean",
+									"description": "If UART is enabled."
+								},
+								"frc": {
+									"type": "boolean",
+									"description": "If FRC is enabled."
+								}
+							}
 						},
 						"rfBand": {
 							"type": "string",

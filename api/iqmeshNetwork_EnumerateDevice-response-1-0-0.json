@@ -187,8 +187,16 @@
 									"description": "Hardware profile version."
 								},
 								"flags": {
-									"type": "integer",
-									"description": "Various flags."
+									"type": "object",
+									"description": "Various flags.",
+									"properties":  {
+										"value": {
+											"type": "integer"
+										},
+										"rfMode": {
+											"type": "string"
+										}
+									}
 								},
 								"userPers": {
 									"type": "array",
@@ -208,13 +216,79 @@
 							"type": "object",
 							"description": "Reduced or full eperOsReadCfg.",
 							"properties": {
-								"embPerBits": {
-									"type": "array",
-									"description": "An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.",
-									"items": {
-										"type": "integer"
-									},
-									"maxItems": 4
+								"embPeripherals": {
+									"type": "object",
+									"description": "Embedded peripherals enabled on the node.",
+									"properties": {
+										"values": {
+											"type": "array",
+											"description": "An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.",
+											"items": {
+												"type": "integer"
+											},
+											"maxItems": 4
+										},
+										"coordinator": {
+											"type": "boolean",
+											"description": "If coordinator is enabled."
+										},
+										"node": {
+											"type": "boolean",
+											"description": "If node is enabled."
+										},
+										"os": {
+											"type": "boolean",
+											"description": "If OS is enabled."
+										},
+										"eeprom": {
+											"type": "boolean",
+											"description": "If EEPROM is enabled."
+										},
+										"eeeprom": {
+											"type": "boolean",
+											"description": "If EEEPROM is enabled."
+										},
+										"ram": {
+											"type": "boolean",
+											"description": "If RAM is enabled."
+										},
+										"ledr": {
+											"type": "boolean",
+											"description": "If LEDR is enabled."
+										},
+										"ledg": {
+											"type": "boolean",
+											"description": "If LEDG is enabled."
+										},
+										"ledg": {
+											"type": "boolean",
+											"description": "If LEDG is enabled."
+										},
+										"spi": {
+											"type": "boolean",
+											"description": "If SPI is enabled."
+										},
+										"io": {
+											"type": "boolean",
+											"description": "If IO is enabled."
+										},
+										"thermometer": {
+											"type": "boolean",
+											"description": "If thermometer is enabled."
+										},
+										"pwm": {
+											"type": "boolean",
+											"description": "If PWM is enabled."
+										},
+										"uart": {
+											"type": "boolean",
+											"description": "If UART is enabled."
+										},
+										"frc": {
+											"type": "boolean",
+											"description": "If FRC is enabled."
+										}
+									}
 								},
 								"rfBand": {
 									"type": "string",
@@ -338,66 +412,6 @@
 								]
 							},
 							"maxItems": 14
-						},
-						"validationAndUpdates": {
-							"type": "object",
-							"description": "Validation and updates.",
-							"properties": {
-								"validation": {
-									"type": "object",
-									"description": "IQRF OS version + build, DPA version, TX power, RX filter same as Coordinator.",
-									"properties": {
-										"valid": {
-											"type": "boolean",
-											"description": "All is fine."
-										},
-										"osVer": {
-											"type": "string",
-											"description": "IQRF OS version."
-										},
-										"osBuild": {
-											"type": "string",
-											"description": "IQRF OS build."
-										},
-										"dpaVer": {
-											"type": "string",
-											"description": "IQRF DPA version."
-										},
-										"txPower": {
-											"type": "integer",
-											"description": "TX power."
-										},
-										"rxFilter": {
-											"type": "integer",
-											"description": "RX filter."
-										}
-									},
-									"required": [
-										"valid"
-									]
-								},
-								"updates": {
-									"type": "object",
-									"description": "Available updates from IQRF repository.",
-									"properties": {
-										"dpaHandlerPath": {
-											"type": "string",
-											"description": "Path to the up to date DPA handler."
-										},
-										"dpaPluginPath": {
-											"type": "string",
-											"description": "Path to the up to date DPA plugin."
-										},
-										"osDpaPluginPath": {
-											"type": "string",
-											"description": "Path to the up to date OS+DPA plugin."
-										}
-									}
-								}
-							},
-							"required": [
-								"validation"
-							]
 						}
 					},
 					"required": [
