@@ -24,5 +24,4 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
 	uart_iqrf
-	sysfs_gpio
 )
