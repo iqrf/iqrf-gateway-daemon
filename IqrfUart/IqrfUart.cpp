@@ -25,7 +25,6 @@
 
 #include "iqrf__IqrfUart.hxx"
 
-
 TRC_INIT_MODULE(iqrf::IqrfUart);
 
 const unsigned SPI_REC_BUFFER_SIZE = 1024;
@@ -320,6 +319,10 @@ namespace iqrf {
         std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, cfg.uartDev);
 
         cfg.baudRate = get_baud(m_baudRate);
+
+        cfg.enableGpioPin = (uint8_t)Pointer("/enableGpioPin").GetWithDefault(d, (int)cfg.enableGpioPin).GetInt();
+        cfg.spiMasterEnGpioPin = -1;
+        cfg.spiPgmSwGpioPin = -1;
 
         TRC_INFORMATION(PAR(m_interfaceName) << PAR(m_baudRate));
 
