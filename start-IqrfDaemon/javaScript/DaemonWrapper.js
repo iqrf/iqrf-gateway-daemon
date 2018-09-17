@@ -590,6 +590,18 @@ iqrf.embed.ledr.Pulse_Response_rsp = function (rawHdp) {
     return result;
 };
 
+iqrf.embed.ledr.Flashing_Request_req = function (param) {
+    return iqrf.embed.ledr.Flashing_Request();
+};
+
+iqrf.embed.ledr.Flashing_Response_rsp = function (rawHdp) {
+    iqrf.embed.ledr.Flashing_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
 ////////////////////////
 // LEDG
 ////////////////////////
@@ -623,6 +635,18 @@ iqrf.embed.ledg.Pulse_Request_req = function (param) {
 
 iqrf.embed.ledg.Pulse_Response_rsp = function (rawHdp) {
     iqrf.embed.ledg.Pulse_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+};
+
+iqrf.embed.ledg.Flashing_Request_req = function (param) {
+    return iqrf.embed.ledg.Flashing_Request();
+};
+
+iqrf.embed.ledg.Flashing_Response_rsp = function (rawHdp) {
+    iqrf.embed.ledg.Flashing_Response(rawHdp);
     var result =
     {
     };

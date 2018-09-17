@@ -2119,156 +2119,312 @@ namespace iqrf {
     std::vector<HWP_ConfigByte> parseAndCheckConfigBytes(ComMngIqmeshWriteConfig comWriteConfig) {
       std::vector<HWP_ConfigByte> configBytes;
 
+      // byte 0x01 - configuration bits
+      uint8_t byte01ConfigBits = 0;
+      uint8_t byte01ConfigBitsMask = 0;
+      bool isSetByte01ConfigBits = false;
+
+      if (comWriteConfig.isSetCoordinator()) {
+        if (comWriteConfig.getCoordinator()) {
+          byte01ConfigBits |= 0b00000001;
+        }
+        byte01ConfigBitsMask |= 0b00000001;
+        isSetByte01ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetNode()) {
+        if (comWriteConfig.getNode()) {
+          byte01ConfigBits |= 0b00000010;
+        }
+        byte01ConfigBitsMask |= 0b00000010;
+        isSetByte01ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetOs()) {
+        if (comWriteConfig.getOs()) {
+          byte01ConfigBits |= 0b00000100;
+        }
+        byte01ConfigBitsMask |= 0b00000100;
+        isSetByte01ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetEeprom()) {
+        if (comWriteConfig.getEeprom()) {
+          byte01ConfigBits |= 0b00001000;
+        }
+        byte01ConfigBitsMask |= 0b00001000;
+        isSetByte01ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetEeeprom()) {
+        if (comWriteConfig.getEeeprom()) {
+          byte01ConfigBits |= 0b00010000;
+        }
+        byte01ConfigBitsMask |= 0b00010000;
+        isSetByte01ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetRam()) {
+        if (comWriteConfig.getRam()) {
+          byte01ConfigBits |= 0b00100000;
+        }
+        byte01ConfigBitsMask |= 0b00100000;
+        isSetByte01ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetLedr()) {
+        if (comWriteConfig.getLedr()) {
+          byte01ConfigBits |= 0b01000000;
+        }
+        byte01ConfigBitsMask |= 0b01000000;
+        isSetByte01ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetLedg()) {
+        if (comWriteConfig.getLedg()) {
+          byte01ConfigBits |= 0b10000000;
+        }
+        byte01ConfigBitsMask |= 0b10000000;
+        isSetByte01ConfigBits = true;
+      }
+
+      // if there is at minimal one bit set, add byte01
+      if (isSetByte01ConfigBits) {
+        HWP_ConfigByte byte01(0x01, byte01ConfigBits, byte01ConfigBitsMask);
+        configBytes.push_back(byte01);
+      }
+
+      // byte 0x02 - configuration bits
+      uint8_t byte02ConfigBits = 0;
+      uint8_t byte02ConfigBitsMask = 0;
+      bool isSetByte02ConfigBits = false;
+
+      if (comWriteConfig.isSetSpi()) {
+        if (comWriteConfig.getSpi()) {
+          byte02ConfigBits |= 0b00000001;
+        }
+        byte02ConfigBitsMask |= 0b00000001;
+        isSetByte02ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetIo()) {
+        if (comWriteConfig.getIo()) {
+          byte02ConfigBits |= 0b00000010;
+        }
+        byte02ConfigBitsMask |= 0b00000010;
+        isSetByte02ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetThermometer()) {
+        if (comWriteConfig.getThermometer()) {
+          byte02ConfigBits |= 0b00000100;
+        }
+        byte02ConfigBitsMask |= 0b00000100;
+        isSetByte02ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetPwm()) {
+        if (comWriteConfig.getPwm()) {
+          byte02ConfigBits |= 0b00001000;
+        }
+        byte02ConfigBitsMask |= 0b00001000;
+        isSetByte02ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetUart()) {
+        if (comWriteConfig.getUart()) {
+          byte02ConfigBits |= 0b00010000;
+        }
+        byte02ConfigBitsMask |= 0b00010000;
+        isSetByte02ConfigBits = true;
+      }
+
+      if (comWriteConfig.isSetFrc()) {
+        if (comWriteConfig.getFrc()) {
+          byte02ConfigBits |= 0b00100000;
+        }
+        byte02ConfigBitsMask |= 0b00100000;
+        isSetByte02ConfigBits = true;
+      }
+
+      // if there is at minimal one bit set, add byte02
+      if (isSetByte02ConfigBits) {
+        HWP_ConfigByte byte02(0x02, byte02ConfigBits, byte02ConfigBitsMask);
+        configBytes.push_back(byte02);
+      }
+
+      // main RF channel A of the main network
       if (comWriteConfig.isSetRfChannelA()) {
         uint8_t rfChannelA = checkRfChannel(comWriteConfig.getRfChannelA());
         HWP_ConfigByte rfChannelA_configByte(0x11, rfChannelA, 0xFF);
         configBytes.push_back(rfChannelA_configByte);
       }
 
+      // main RF channel B of the main network
       if (comWriteConfig.isSetRfChannelB()) {
         uint8_t rfChannelB = checkRfChannel(comWriteConfig.getRfChannelB());
-        HWP_ConfigByte rfChannelB_configByte(0x11, rfChannelB, 0xFF);
+        HWP_ConfigByte rfChannelB_configByte(0x12, rfChannelB, 0xFF);
         configBytes.push_back(rfChannelB_configByte);
       }
 
+      // Main RF channel A of the optional subordinate network
       if (comWriteConfig.isSetRfSubChannelA()) {
         uint8_t rfSubChannelA = checkRfChannel(comWriteConfig.getRfSubChannelA());
         HWP_ConfigByte rfSubChannelA_configByte(0x06, rfSubChannelA, 0xFF);
         configBytes.push_back(rfSubChannelA_configByte);
       }
 
+      // Main RF channel B of the optional subordinate network
       if (comWriteConfig.isSetRfSubChannelB()) {
         uint8_t rfSubChannelB = checkRfChannel(comWriteConfig.getRfSubChannelB());
-        HWP_ConfigByte rfSubChannelB_configByte(0x12, rfSubChannelB, 0xFF);
+        HWP_ConfigByte rfSubChannelB_configByte(0x07, rfSubChannelB, 0xFF);
         configBytes.push_back(rfSubChannelB_configByte);
       }
 
+      // RF output power
       if (comWriteConfig.isSetTxPower()) {
         uint8_t txPower = checkTxPower(comWriteConfig.getTxPower());
         HWP_ConfigByte txPower_configByte(0x08, txPower, 0xFF);
         configBytes.push_back(txPower_configByte);
       }
 
+      // RF signal filter
       if (comWriteConfig.isSetRxFilter()) {
         uint8_t rxFilter = checkRxFilter(comWriteConfig.getRxFilter());
         HWP_ConfigByte rxFilter_configByte(0x09, rxFilter, 0xFF);
         configBytes.push_back(rxFilter_configByte);
       }
 
+      // Timeout for receiving RF packets at LP mode at N device.
       if (comWriteConfig.isSetLpRxTimeout()) {
         uint8_t lpRxTimeout = checkLpRxTimeout(comWriteConfig.getLpRxTimeout());
-        HWP_ConfigByte lpRxTimeout_configByte(0x09, lpRxTimeout, 0xFF);
+        HWP_ConfigByte lpRxTimeout_configByte(0x0A, lpRxTimeout, 0xFF);
         configBytes.push_back(lpRxTimeout_configByte);
       }
 
+      // an alternative DPA service mode channel
       if (comWriteConfig.isSetRfPgmAltChannel()) {
         uint8_t rfPgmAltChannel = checkRfPgmAltChannel(comWriteConfig.getRfPgmAltChannel());
-        HWP_ConfigByte rfPgmAltChannel_configByte(0x09, rfPgmAltChannel, 0xFF);
+        HWP_ConfigByte rfPgmAltChannel_configByte(0x0C, rfPgmAltChannel, 0xFF);
         configBytes.push_back(rfPgmAltChannel_configByte);
       }
 
+      // Baud rate of the UART interface if one is used
       if (comWriteConfig.isSetUartBaudrate()) {
         uint32_t uartBaudrate = checkUartBaudrate(comWriteConfig.getUartBaudrate());
-        HWP_ConfigByte uartBaudrate_configByte(0x09, toBaudRateCode(uartBaudrate), 0xFF);
+        HWP_ConfigByte uartBaudrate_configByte(0x0B, toBaudRateCode(uartBaudrate), 0xFF);
         configBytes.push_back(uartBaudrate_configByte);
       }
 
 
-      // byte 0x06 - configuration bits
-      uint8_t byte06ConfigBits = 0;
-      bool isSetByte06ConfigBits = false;
+      // byte 0x05 - configuration bits
+      uint8_t byte05ConfigBits = 0;
+      uint8_t byte05ConfigBitsMask = 0;
+      bool isSetByte05ConfigBits = false;
 
       if (comWriteConfig.isSetCustomDpaHandler()) {
         if (comWriteConfig.getCustomDpaHandler()) {
-          byte06ConfigBits |= 0b00000001;
+          byte05ConfigBits |= 0b00000001;
         }
-        isSetByte06ConfigBits = true;
+        byte05ConfigBitsMask |= 0b00000001;
+        isSetByte05ConfigBits = true;
       }
 
       if (comWriteConfig.isSetNodeDpaInterface()) {
         if (comWriteConfig.getNodeDpaInterface()) {
-          byte06ConfigBits |= 0b00000010;
+          byte05ConfigBits |= 0b00000010;
         }
-        isSetByte06ConfigBits = true;
+        byte05ConfigBitsMask |= 0b00000010;
+        isSetByte05ConfigBits = true;
       }
 
       if (comWriteConfig.isSetDpaAutoexec()) {
         if (comWriteConfig.getDpaAutoexec()) {
-          byte06ConfigBits |= 0b00000100;
+          byte05ConfigBits |= 0b00000100;
         }
-        isSetByte06ConfigBits = true;
+        byte05ConfigBitsMask |= 0b00000100;
+        isSetByte05ConfigBits = true;
       }
 
       if (comWriteConfig.isSetRoutingOff()) {
         if (comWriteConfig.getRoutingOff()) {
-          byte06ConfigBits |= 0b00001000;
+          byte05ConfigBits |= 0b00001000;
         }
-        isSetByte06ConfigBits = true;
+        byte05ConfigBitsMask |= 0b00001000;
+        isSetByte05ConfigBits = true;
       }
 
       if (comWriteConfig.isSetIoSetup()) {
         if (comWriteConfig.getIoSetup()) {
-          byte06ConfigBits |= 0b00010000;
+          byte05ConfigBits |= 0b00010000;
         }
-        isSetByte06ConfigBits = true;
+        byte05ConfigBitsMask |= 0b00010000;
+        isSetByte05ConfigBits = true;
       }
 
       if (comWriteConfig.isSetPeerToPeer()) {
         if (comWriteConfig.getPeerToPeer()) {
-          byte06ConfigBits |= 0b00100000;
+          byte05ConfigBits |= 0b00100000;
         }
-        isSetByte06ConfigBits = true;
+        byte05ConfigBitsMask |= 0b00100000;
+        isSetByte05ConfigBits = true;
       }
 
-      // if there is at minimal one bit set, add byte06
-      if (isSetByte06ConfigBits) {
-        HWP_ConfigByte byte06(0x06, byte06ConfigBits, 0xFF);
-        configBytes.push_back(byte06);
+      // if there is at minimal one bit set, add byte05
+      if (isSetByte05ConfigBits) {
+        HWP_ConfigByte byte05(0x05, byte05ConfigBits, byte05ConfigBitsMask);
+        configBytes.push_back(byte05);
       }
      
 
       // RFPGM configuration bits
       uint8_t rfpgmConfigBits = 0;
+      uint8_t rfpgmConfigBitsMask = 0;
       bool isSetRfpgmConfigBits = false;
 
       if (comWriteConfig.isSetRfPgmDualChannel()) {
         if (comWriteConfig.getRfPgmDualChannel()) {
-          byte06ConfigBits |= 0b00000011;
+          rfpgmConfigBits |= 0b00000011;
         }
+        rfpgmConfigBitsMask |= 0b00000011;
         isSetRfpgmConfigBits = true;
       }
 
       if (comWriteConfig.isSetRfPgmLpMode()) {
         if (comWriteConfig.getRfPgmLpMode()) {
-          byte06ConfigBits |= 0b00000100;
+          rfpgmConfigBits |= 0b00000100;
         }
+        rfpgmConfigBitsMask |= 0b00000100;
         isSetRfpgmConfigBits = true;
       }
 
       if (comWriteConfig.isSetRfPgmEnableAfterReset()) {
         if (comWriteConfig.getRfPgmEnableAfterReset()) {
-          byte06ConfigBits |= 0b00010000;
+          rfpgmConfigBits |= 0b00010000;
         }
+        rfpgmConfigBitsMask |= 0b00010000;
         isSetRfpgmConfigBits = true;
       }
       
       if (comWriteConfig.isSetRfPgmTerminateAfter1Min()) {
         if (comWriteConfig.getRfPgmTerminateAfter1Min()) {
-          byte06ConfigBits |= 0b01000000;
+          rfpgmConfigBits |= 0b01000000;
         }
+        rfpgmConfigBitsMask |= 0b01000000;
         isSetRfpgmConfigBits = true;
       }
 
       if (comWriteConfig.isSetRfPgmTerminateMcuPin()) {
         if (comWriteConfig.getRfPgmTerminateMcuPin()) {
-          byte06ConfigBits |= 0b10000000;
+          rfpgmConfigBits |= 0b10000000;
         }
+        rfpgmConfigBitsMask |= 0b10000000;
         isSetRfpgmConfigBits = true;
       }
 
       // if there is at minimal one bit set, add RFPGM byte
       if (isSetRfpgmConfigBits) {
-        HWP_ConfigByte rfpgmByte(0x20, rfpgmConfigBits, 0xFF);
+        HWP_ConfigByte rfpgmByte(0x20, rfpgmConfigBits, rfpgmConfigBitsMask);
         configBytes.push_back(rfpgmByte);
       }
 

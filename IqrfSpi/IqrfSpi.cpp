@@ -1,8 +1,24 @@
+/*
+* Copyright 2015 MICRORISC s.r.o.
+* Copyright 2018 IQRF Tech s.r.o.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #define IIqrfChannelService_EXPORTS
 
 #include "IqrfSpi.h"
 #include "spi_iqrf.h"
-#include "sysfs_gpio.h"
 #include "machines_def.h"
 #include "AccessControl.h"
 #include "rapidjson/pointer.h"
@@ -48,7 +64,7 @@ namespace iqrf {
 
       TRC_INFORMATION("Sending to IQRF SPI: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
-      while (attempt++ < 4) {
+      while (attempt++ < 11) {
         TRC_INFORMATION("Trying to sent: " << counter << "." << attempt);
 
         // lock scope
@@ -78,7 +94,7 @@ namespace iqrf {
         }
         //wait for next attempt
         TRC_DEBUG("Sleep for a while ... ");
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
       }
     }
 
@@ -97,7 +113,6 @@ namespace iqrf {
       return true;
     }
 
-    
     // try to wait for communication ready state in specified timeout (in ms).
     // returns	last read IQRF SPI status.
     // copied and slightly modified from: spi_example_pgm_hex.c
@@ -157,9 +172,9 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       
       // wait for TR module is ready
-      spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(2000);
+      spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(1000);
 
-      // if SPI not ready in 2000 ms, end
+      // if SPI not ready in 1000 ms, end
       if (spiStatus.dataNotReadyStatus != SPI_IQRF_SPI_READY_PROG) {
         TRC_WARNING("Waiting for ready state failed." << NAME_PAR_HEX(SPI status, spiStatus.dataNotReadyStatus));
         TRC_FUNCTION_LEAVE("");
@@ -167,7 +182,7 @@ namespace iqrf {
       }
 
       // write data to TR module
-      TRC_INFORMATION("Uploading");
+      TRC_INFORMATION("Uploading...");
 
       bool useAddress = false;
 
@@ -250,7 +265,7 @@ namespace iqrf {
     bool terminateProgrammingState() {
       TRC_INFORMATION("Terminating programming mode.");
 
-      int progModeTerminateRes = spi_iqrf_pe();
+      int progModeTerminateRes = spi_iqrf_pt();
       if (progModeTerminateRes != BASE_TYPES_OPER_OK) {
         TRC_WARNING("Programming mode termination failed: " << PAR(progModeTerminateRes));
         return false;
@@ -315,7 +330,7 @@ namespace iqrf {
       using namespace rapidjson;
 
       try {
-        spi_iqrf_config_struct cfg = { {}, ENABLE_GPIO, CE0_GPIO, MISO_GPIO, MOSI_GPIO, SCLK_GPIO };
+        spi_iqrf_config_struct cfg = { {}, ENABLE_GPIO, SPI_MASTER_EN_GPIO, PGM_SW_GPIO };
 
         Document d;
         d.CopyFrom(props->getAsJson(), d.GetAllocator());
@@ -334,13 +349,8 @@ namespace iqrf {
         std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, cfg.spiDev);
 
         cfg.enableGpioPin = (uint8_t)Pointer("/enableGpioPin").GetWithDefault(d, (int)cfg.enableGpioPin).GetInt();
-        cfg.spiCe0GpioPin = (uint8_t)Pointer("/spiCe0GpioPin").GetWithDefault(d, (int)cfg.spiCe0GpioPin).GetInt();
-        cfg.spiMisoGpioPin = (uint8_t)Pointer("/spiMisoGpioPin").GetWithDefault(d, (int)cfg.spiMisoGpioPin).GetInt();
-        cfg.spiMosiGpioPin = (uint8_t)Pointer("/spiMosiGpioPin").GetWithDefault(d, (int)cfg.spiMosiGpioPin).GetInt();
-        cfg.spiClkGpioPin = (uint8_t)Pointer("/spiClkGpioPin").GetWithDefault(d, (int)cfg.spiClkGpioPin).GetInt();
-
-        // for sake of upload
-        cfg.spiPgmSwGpioPin = PGM_SW_GPIO;
+        cfg.spiMasterEnGpioPin = (uint8_t)Pointer("/spiMasterEnGpioPin").GetWithDefault(d, (int)cfg.spiMasterEnGpioPin).GetInt();
+        cfg.spiPgmSwGpioPin = (uint8_t)Pointer("/spiPgmSwGpioPin").GetWithDefault(d, (int)cfg.spiPgmSwGpioPin).GetInt();
 
         TRC_INFORMATION(PAR(m_interfaceName));
 
@@ -354,7 +364,7 @@ namespace iqrf {
 
           TRC_WARNING(PAR(m_interfaceName) << PAR(attempts) << " Create IqrfInterface failure");
           ++attempts;
-          std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
 
         if (BASE_TYPES_OPER_OK == res) {
@@ -382,7 +392,7 @@ namespace iqrf {
 
       m_runListenThread = false;
 
-      TRC_DEBUG("joining udp listening thread");
+      TRC_DEBUG("joining spi listening thread");
       if (m_listenThread.joinable())
         m_listenThread.join();
       TRC_DEBUG("listening thread joined");

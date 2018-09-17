@@ -40,15 +40,24 @@ echo "Daemon folders created."
 
 # CFG
 cp iqrf-daemon-build/bin/configuration/*.json ${DEPLOY}${IQRFGD2_CFG}
-cp iqrf-daemon-build/bin/configuration/deploy/*.json ${DEPLOY}${IQRFGD2_CFG}
+cp iqrf-daemon-build/bin/configuration/deploy/release/*.json ${DEPLOY}${IQRFGD2_CFG}
+rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__NativeUploadService.json ${DEPLOY}${IQRFGD2_CFG}/iqrf__OtaUploadService.json
+
 cp -r iqrf-daemon-build/bin/configuration/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
+rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__NativeUploadService.json ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__OtaUploadService.json
 
 # BIN
 cp iqrf-daemon-build/bin/iqrfgd2 ${DEPLOY}${IQRFGD2_BIN}/iqrfgd2
 cp iqrf-daemon-build/bin/*.so ${DEPLOY}${IQRFGD2_LIBS}
+rm ${DEPLOY}${IQRFGD2_LIBS}/libNativeUploadService.so ${DEPLOY}${IQRFGD2_LIBS}/libOtaUploadService.so
 
 # SHARE
 cp -r iqrf-daemon-build/bin/configuration/apiSchemas ${DEPLOY}${IQRFGD2_SHARE}
+rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/iqmeshNetwork_OtaUpload*.json
+rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/mngDaemon_Upload*.json
+rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/iqrfEmbedOs_BatchRequest-object-1-0-0.json
+rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/mngScheduler_SchedulerMessagingTask-object-1-0-0.json
+
 cp -r iqrf-daemon-build/bin/configuration/javaScript ${DEPLOY}${IQRFGD2_SHARE}
 
 # CACHE
@@ -67,5 +76,9 @@ cp shapeware-libs/usr/lib/iqrfgd2/* ${DEPLOY}${IQRFGD2_LIBS}
 
 # PAHO
 cp paho-build/src/*.so.1.2.0 ${DEPLOY}${LOCAL_LIBS}
+
+# NO EXE
+chmod -x ${DEPLOY}${IQRFGD2_LIBS}/*
+chmod -x ${DEPLOY}${LOCAL_LIBS}/*
 
 echo "Daemon files copied."

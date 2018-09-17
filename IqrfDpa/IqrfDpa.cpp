@@ -187,7 +187,7 @@ namespace iqrf {
       if (prfEnum.parseCoordinatorResetAsyncResponse(dpaMessage)) {
         TRC_DEBUG("Parsed TR reset result async msg");
         // Get coordinator parameters
-        m_cPar.m_dpaVer = prfEnum.getDpaVer();
+        m_cPar.dpaVer = prfEnum.getDpaVer();
         m_cPar.dpaVerMajor = prfEnum.getDpaVerMajor();
         m_cPar.dpaVerMinor = prfEnum.getDpaVerMinor();
         m_cPar.demoFlag = prfEnum.getDemoFlag();

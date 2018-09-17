@@ -19,7 +19,7 @@
 
 #include "iqrf__TestScheduler.hxx"
 
-TRC_INIT_MNAME(cobalt::CmCobaltTestTrj)
+TRC_INIT_MNAME(iqrf::TestScheduler)
 
 using namespace std;
 

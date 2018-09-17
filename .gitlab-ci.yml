@@ -1,6 +1,8 @@
 stages:
-    - dependencies
-    - build
+    - dependencies-dev
+    - build-dev
+    - dependencies-release
+    - build-release
 
 .arch_amd64-template: &arch_amd64-template
     image: iqrfsdk/iqrf-gateway-daemon-build:latest-amd64
@@ -10,7 +12,7 @@ stages:
         - linux, amd64
 
 .arch_arm64-template: &arch_arm64-template
-    image: iqrfsdk/iqrf-gateway-daemon-build:latest-armhf
+    image: iqrfsdk/iqrf-gateway-daemon-build:latest-arm64
     variables:
         ARCH: "arm64"
     tags:
@@ -23,8 +25,8 @@ stages:
     tags:
         - linux, armhf
 
-.daemon-template: &daemon-template
-    stage: build
+.daemon-template-dev: &daemon-template-dev
+    stage: build-dev
     only:
         - master
     before_script:
@@ -34,7 +36,8 @@ stages:
         - chmod 700 ~/.ssh
         - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
     script:
-        - export DAEMON_VERSION=2.0.0-beta
+        - export DAEMON_VERSION=v2.0.0-dev
+        - export DAEMON_VERSION_NUM=2.0.0-dev
         - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
         - git -C iqrf-daemon-source submodule init
         - git -C iqrf-daemon-source submodule update
@@ -51,17 +54,55 @@ stages:
         - ldconfig
         - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../../shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION} -DCMAKE_BUILD_TYPE=Debug
         - cmake --build iqrf-daemon-build
-        - bash .gitlab_build_files/copy_daemon_files.sh iqrf-daemon-deploy
-        - bash .gitlab_build_files/create_daemon_package.sh
-        - tar czvf iqrf-gateway-daemon_${DAEMON_VERSION}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+        - bash .gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
+        - bash .gitlab_build_files/create_daemon_package_devel.sh
+        - tar czvf iqrf-gateway-daemon-dev_${DAEMON_VERSION_NUM}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+    artifacts:
+        paths:
+            - iqrf-gateway-daemon-dev_*_*.deb
+            - iqrf-gateway-daemon-dev_*_*.tar.gz
+        expire_in: 2 weeks
+
+.daemon-template: &daemon-template
+    stage: build-release
+    only:
+        - master
+    before_script:
+        - eval $(ssh-agent -s)
+        - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    script:
+        - export DAEMON_VERSION=v2.0.0-beta
+        - export DAEMON_VERSION_NUM=2.0.0-beta
+        - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
+        - git -C iqrf-daemon-source submodule init
+        - git -C iqrf-daemon-source submodule update
+        - mkdir iqrf-daemon-build iqrf-daemon-deploy
+        - tar xzvf shape-source_${ARCH}.tar.gz
+        - tar xzvf shape-build_${ARCH}.tar.gz
+        - tar xzvf shape-libs_${ARCH}.tar.gz
+        - tar xzvf shapeware-source_${ARCH}.tar.gz
+        - tar xzvf shapeware-build_${ARCH}.tar.gz
+        - tar xzvf shapeware-libs_${ARCH}.tar.gz
+        - tar xzvf paho-source_${ARCH}.tar.gz
+        - tar xzvf paho-build_${ARCH}.tar.gz
+        - make -j$(nproc) install -C paho-build
+        - ldconfig
+        - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=../shape-build -Dshapeware_DIR:PATH=../../shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION}
+        - cmake --build iqrf-daemon-build
+        - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+        - bash .gitlab_build_files/create_daemon_package_release.sh
+        - tar czvf iqrf-gateway-daemon_${DAEMON_VERSION_NUM}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
     artifacts:
         paths:
             - iqrf-gateway-daemon_*_*.deb
             - iqrf-gateway-daemon_*_*.tar.gz
         expire_in: 2 weeks
 
-.paho-template: &paho-template
-    stage: dependencies
+.paho-template-dev: &paho-template-dev
+    stage: dependencies-dev
     only:
         - master
     dependencies: []
@@ -79,8 +120,27 @@ stages:
             - paho-build_*.tar.gz
         expire_in: 2 weeks
 
-.shape_shapeware-template: &shape_shapeware-template
-    stage: dependencies
+.paho-template: &paho-template
+    stage: dependencies-release
+    only:
+        - master
+    dependencies: []
+    script:
+        - git clone https://github.com/eclipse/paho.mqtt.c.git paho-source
+        - git -C paho-source checkout v1.2.0
+        - mkdir paho-build
+        - cmake -Bpaho-build -Hpaho-source -DPAHO_WITH_SSL=TRUE
+        - make -j$(nproc) -C paho-build
+        - tar czvf paho-source_${ARCH}.tar.gz paho-source
+        - tar czvf paho-build_${ARCH}.tar.gz paho-build
+    artifacts:
+        paths:
+            - paho-source_*.tar.gz
+            - paho-build_*.tar.gz
+        expire_in: 2 weeks
+
+.shape_shapeware-template-dev: &shape_shapeware-template-dev
+    stage: dependencies-dev
     only:
         - master
     dependencies: []
@@ -113,6 +173,55 @@ stages:
             - shapeware-libs_*.tar.gz
         expire_in: 2 weeks
 
+.shape_shapeware-template: &shape_shapeware-template
+    stage: dependencies-release
+    only:
+        - master
+    dependencies: []
+    script:
+        - git clone https://github.com/logimic/shape.git shape-source
+        - mkdir shape-build shape-libs
+        - cmake -Bshape-build -Hshape-source
+        - cmake --build shape-build
+        - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
+        - tar czvf shape-source_${ARCH}.tar.gz shape-source
+        - tar czvf shape-build_${ARCH}.tar.gz shape-build
+        - tar czvf shape-libs_${ARCH}.tar.gz shape-libs
+        - git clone https://github.com/logimic/shapeware.git shapeware-source
+        - git -C shapeware-source submodule init
+        - git -C shapeware-source submodule update
+        - mkdir shapeware-build shapeware-libs
+        - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=../shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false
+        - cmake --build shapeware-build
+        - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
+        - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
+        - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
+        - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs
+    artifacts:
+        paths:
+            - shape-source_*.tar.gz
+            - shape-build_*.tar.gz
+            - shape-libs_*.tar.gz
+            - shapeware-source_*.tar.gz
+            - shapeware-build_*.tar.gz
+            - shapeware-libs_*.tar.gz
+        expire_in: 2 weeks
+
+shape_&_shapeware-amd64-dev:
+    <<: *arch_amd64-template
+    <<: *shape_shapeware-template-dev
+
+paho-amd64-dev:
+    <<: *arch_amd64-template
+    <<: *paho-template-dev
+
+daemon-amd64-dev:
+    <<: *arch_amd64-template
+    <<: *daemon-template-dev
+    dependencies:
+        - shape_&_shapeware-amd64-dev
+        - paho-amd64-dev
+
 shape_&_shapeware-amd64:
     <<: *arch_amd64-template
     <<: *shape_shapeware-template
@@ -128,6 +237,21 @@ daemon-amd64:
         - shape_&_shapeware-amd64
         - paho-amd64
 
+shape_&_shapeware-armhf-dev:
+    <<: *arch_armhf-template
+    <<: *shape_shapeware-template-dev
+
+paho-armhf-dev:
+    <<: *arch_armhf-template
+    <<: *paho-template-dev
+
+daemon-armhf-dev:
+    <<: *arch_armhf-template
+    <<: *daemon-template-dev
+    dependencies:
+        - shape_&_shapeware-armhf-dev
+        - paho-armhf-dev
+
 shape_&_shapeware-armhf:
     <<: *arch_armhf-template
     <<: *shape_shapeware-template
@@ -142,6 +266,21 @@ daemon-armhf:
     dependencies:
         - shape_&_shapeware-armhf
         - paho-armhf
+
+shape_&_shapeware-arm64-dev:
+    <<: *arch_arm64-template
+    <<: *shape_shapeware-template-dev
+
+paho-arm64-dev:
+    <<: *arch_arm64-template
+    <<: *paho-template-dev
+
+daemon-arm64-dev:
+    <<: *arch_arm64-template
+    <<: *daemon-template-dev
+    dependencies:
+        - shape_&_shapeware-arm64-dev
+        - paho-arm64-dev
 
 shape_&_shapeware-arm64:
     <<: *arch_arm64-template

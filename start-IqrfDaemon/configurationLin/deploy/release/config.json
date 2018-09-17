@@ -197,13 +197,6 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::OtaUploadService",
-      "libraryPath": "",
-      "libraryName": "OtaUploadService",
-      "enabled": true,
-      "startlevel": 3
-    },
-    {
       "name": "iqrf::SmartConnectService",
       "libraryPath": "",
       "libraryName": "SmartConnectService",

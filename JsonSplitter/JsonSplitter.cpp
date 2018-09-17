@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #endif
 
+#include <mutex>
 #include <fstream>
 #include <algorithm>
 #include <vector>
@@ -71,6 +72,7 @@ namespace iqrf {
     std::string m_schemesDir;
 
     shape::ILaunchService* m_iLaunchService = nullptr;
+    mutable std::mutex m_iMessagingServiceMapMux;
     std::map<std::string, IMessagingService*> m_iMessagingServiceMap;
     std::set<IMessagingService*> m_iMessagingServiceSetAcceptAsync;
     std::map<std::string, FilteredMessageHandlerFunc > m_filterMessageHandlerFuncMap;
@@ -155,6 +157,7 @@ namespace iqrf {
           is >> messagingId2;
         }
 
+        std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
         auto found = m_iMessagingServiceMap.find(messagingId2);
         if (found != m_iMessagingServiceMap.end()) {
           found->second->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
@@ -164,6 +167,7 @@ namespace iqrf {
         }
       }
       else {
+        std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
         for (auto m : m_iMessagingServiceSetAcceptAsync) {
           m->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
         }
@@ -216,7 +220,13 @@ namespace iqrf {
     void handleMessageFromMessaging(const std::string& messagingId, const std::vector<uint8_t>& message) const
     {
       TRC_FUNCTION_ENTER(PAR(messagingId));
-      int queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messagingId, message));
+      int queueLen = -1;
+      if (m_splitterMessageQueue) {
+        queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messagingId, message));
+      }
+      else {
+        TRC_WARNING("Not activated yet => message is droped ");
+      }
       TRC_FUNCTION_LEAVE(PAR(queueLen))
     }
 
@@ -465,6 +475,10 @@ namespace iqrf {
         "******************************"
       );
 
+      m_splitterMessageQueue = shape_new TaskQueue<MsgIdMsg>([&](const MsgIdMsg& msgIdMsg) {
+        handleMessageFromSplitterQueue(msgIdMsg.first, msgIdMsg.second);
+      });
+
       props->getMemberAsBool("validateJsonResponse", m_validateResponse);
       TRC_INFORMATION(PAR(m_validateResponse));
       m_schemesDir = m_iLaunchService->getDataDir() + "/apiSchemas";
@@ -511,6 +525,7 @@ namespace iqrf {
     void attachInterface(iqrf::IMessagingService* iface)
     {
       //TODO shall be targeted only to JSON content or "iqrf-daemon-api"
+      std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
       m_iMessagingServiceMap.insert(std::make_pair(iface->getName(), iface));
       iface->registerMessageHandler([&](const std::string& messagingId, const std::vector<uint8_t>& message)
       {
@@ -524,7 +539,7 @@ namespace iqrf {
 
     void detachInterface(iqrf::IMessagingService* iface)
     {
-      //TODO mtx?
+      std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
       {
         auto found = m_iMessagingServiceMap.find(iface->getName());
         if (found != m_iMessagingServiceMap.end() && found->second == iface) {

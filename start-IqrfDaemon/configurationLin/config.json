@@ -1,5 +1,5 @@
 {
-  "applicationName": "IqrfDaemon",
+  "applicationName": "IqrfGatewayDaemon",
   "resourceDir": "",
   "dataDir": "configuration",
   "cacheDir": "configuration",
@@ -186,6 +186,13 @@
       "name": "iqrf::JsonDpaApiIqrfStdExt",
       "libraryPath": "",
       "libraryName": "JsonDpaApiIqrfStdExt",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::NativeUploadService",
+      "libraryPath": "",
+      "libraryName": "NativeUploadService",
       "enabled": true,
       "startlevel": 3
     },
