@@ -2,8 +2,7 @@
 
 #include "IqrfUart.h"
 #include "uart_iqrf.h"
-//#include "sysfs_gpio.h"
-//#include "machines_def.h"
+#include "machines_def.h"
 #include "AccessControl.h"
 #include "rapidjson/pointer.h"
 #include <mutex>
