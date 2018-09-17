@@ -36,11 +36,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 add_subdirectory(libraries/clibspi  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibcdc  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
-
-#if (NOT WIN32) 
-  set(NO_UART_SYSFS_GPIO true) #don't define duplicit target sysfs_gpio provided already bz clibspi
-  add_subdirectory(libraries/clibuart  EXCLUDE_FROM_ALL)
-#endif()
+add_subdirectory(libraries/clibuart EXCLUDE_FROM_ALL)
 
 add_subdirectory(include)
 add_subdirectory(start-IqrfDaemon)

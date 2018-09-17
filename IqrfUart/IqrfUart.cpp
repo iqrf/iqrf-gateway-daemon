@@ -363,7 +363,7 @@ namespace iqrf {
 #ifdef SHAPE_PLATFORM_WINDOWS
     int get_baud(int baud) { return baud; }
 #else
-      // converts integer baud to Linux define
+    // converts integer baud to Linux define
     int get_baud(int baud)
     {
       switch (baud) {
@@ -430,10 +430,12 @@ namespace iqrf {
             if (BASE_TYPES_OPER_OK != retval && UART_IQRF_ERROR_TIMEOUT != retval) {
               THROW_EXC_TRC_WAR(std::logic_error, "uart_iqrf_read() failed: " << PAR(retval));
             }
-            recData = reclen;          }
+            recData = reclen;
+          }
 
           // unlocked - possible to write in receiveFromFunc
           if (recData) {
+            TRC_DEBUG(PAR(recData));
             std::basic_string<unsigned char> message(m_rx, recData);
             m_accessControl.messageHandler(message);
           }
