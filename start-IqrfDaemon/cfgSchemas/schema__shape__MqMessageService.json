@@ -1,0 +1,36 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__shape__MqMessageService",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "shape::MqMessageService"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended shape::MqMessageService-(id)",
+            "default": "shape::MqMessageService-1"
+        },
+		"LocalMqName": {
+			"type": "string",
+			"description": "Local Mq name."
+		},
+		"RemoteMqName": {
+			"type": "string",
+			"description": "Remote Mq name."
+		},
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}

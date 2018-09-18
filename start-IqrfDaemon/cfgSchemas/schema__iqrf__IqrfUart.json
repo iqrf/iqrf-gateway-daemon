@@ -1,0 +1,41 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__iqrf__IqrfUart",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "iqrf::IqrfUart"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended iqrf::IqrfUart-(id)",
+            "default": "iqrf::IqrfUart-1"
+        },
+        "IqrfInterface": {
+            "type": "string",
+            "description": "...",
+            "default": "COM6"
+        },
+        "baudRate":  {
+			"type": "integer",
+			"description": "...",
+		},
+		"enableGpioPin":  {
+			"type": "boolean",
+			"description": "...",
+		}
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}

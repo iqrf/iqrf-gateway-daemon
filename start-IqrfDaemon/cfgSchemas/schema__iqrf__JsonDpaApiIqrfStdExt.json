@@ -1,0 +1,28 @@
+{
+    "$schema": "http://apidocs.iqrfsdk.org/iqrfgd2-schemas/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__iqrf__JsonDpaApiIqrfStdExt",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "iqrf::JsonDpaApiIqrfStdExt"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended iqrf::JsonDpaApiIqrfStdExt-(id)",
+            "default": "iqrf::JsonDpaApiIqrfStdExt-1"
+        }
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}
