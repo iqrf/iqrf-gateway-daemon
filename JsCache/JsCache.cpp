@@ -64,9 +64,14 @@ namespace iqrf {
     std::string m_cacheDir = "";
     int m_cacheDirSet = 0;
     std::string m_urlRepo = "https://repository.iqrfalliance.org/api";
-    int m_checkPeriodInMinutes = 0;
+    std::string m_iqrfRepoCache = "iqrfRepoCache";
+    double m_checkPeriodInMinutes = 0;
 
-    const int m_checkPeriodInMinutesMin = 1;
+#ifdef _DEBUG
+    const double m_checkPeriodInMinutesMin = 0.01;
+#else
+    const double m_checkPeriodInMinutesMin = 1;
+#endif
     std::string m_name = "JsCache";
 
     std::map<int, Company> m_companyMap;
@@ -159,6 +164,22 @@ namespace iqrf {
           retval = &(pck.second);
           break;
         }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    const IJsCacheService::OsDpa* getOsDpa(int id) const
+    {
+      TRC_FUNCTION_ENTER(PAR(id));
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      const OsDpa* retval = nullptr;
+      auto found = m_osDpaMap.find(id);
+      if (found != m_osDpaMap.end()) {
+        retval = &(found->second);
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -270,10 +291,19 @@ namespace iqrf {
         updateCacheStandard();
         updateCachePackage();
 
+        //refresh scripts
+        const std::map<int, const IJsCacheService::StdDriver*> scripts = getAllLatestDrivers();
+        std::string str2load;
+        // agregate scripts
+        for (const auto sc : scripts) {
+          // Create a string containing the JavaScript source code.
+          str2load += sc.second->getDriver();
+        }
+        m_iJsRenderService->loadJsCode(str2load);
+
         m_upToDate = true;
         TRC_INFORMATION("Loading cache success");
         std::cout << "Loading cache success" << std::endl;
-
       }
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::logic_error, e, "Loading cache failed");
@@ -950,22 +980,21 @@ namespace iqrf {
         "JsCache instance activate" << std::endl <<
         "******************************"
       );
-      m_cacheDir = m_iLaunchService->getCacheDir() + "/iqrfRepoCache";
-      TRC_DEBUG("Using cache directory: " << PAR(m_cacheDir))
+
       modify(props);
 
       loadCache();
 
-      const std::map<int, const IJsCacheService::StdDriver*> scripts = getAllLatestDrivers();
-      std::string str2load;
+      //const std::map<int, const IJsCacheService::StdDriver*> scripts = getAllLatestDrivers();
+      //std::string str2load;
 
-      // agregate scripts
-      for (const auto sc : scripts) {
-        // Create a string containing the JavaScript source code.
-        str2load += sc.second->getDriver();
-      }
+      //// agregate scripts
+      //for (const auto sc : scripts) {
+      //  // Create a string containing the JavaScript source code.
+      //  str2load += sc.second->getDriver();
+      //}
 
-      m_iJsRenderService->loadJsCode(str2load);
+      //m_iJsRenderService->loadJsCode(str2load);
 
 
       TRC_FUNCTION_LEAVE("")
@@ -1000,18 +1029,25 @@ namespace iqrf {
       if (v && v->IsString()) {
         m_name = v->GetString();
       }
+      v = Pointer("/iqrfRepoCache").Get(doc);
+      if (v && v->IsString()) {
+        m_iqrfRepoCache = v->GetString();
+      }
       v = Pointer("/urlRepo").Get(doc);
       if (v && v->IsString()) {
         m_urlRepo = v->GetString();
       }
       v = Pointer("/checkPeriodInMinutes").Get(doc);
-      if (v && v->IsInt()) {
-        m_checkPeriodInMinutes = v->GetInt();
+      if (v && v->IsNumber()) {
+        m_checkPeriodInMinutes = v->GetDouble();
         if (m_checkPeriodInMinutes > 0 && m_checkPeriodInMinutes < m_checkPeriodInMinutesMin) {
           TRC_WARNING(PAR(m_checkPeriodInMinutes) << " from configuration forced to: " << PAR(m_checkPeriodInMinutesMin));
           m_checkPeriodInMinutes = m_checkPeriodInMinutesMin;
         }
       }
+
+      m_cacheDir = m_iLaunchService->getCacheDir() + "/" + m_iqrfRepoCache;
+      TRC_DEBUG("Using cache directory: " << PAR(m_cacheDir))
 
       m_iSchedulerService->registerTaskHandler(m_name, [=](const rapidjson::Value & task)
       {
@@ -1030,11 +1066,13 @@ namespace iqrf {
       });
 
       if (m_checkPeriodInMinutes > 0) {
+        int checkPeriodInMillis = m_checkPeriodInMinutes * 60000;
         Document task;
         task.SetString(CHECK_CACHE.c_str(), task.GetAllocator());
         auto tp = std::chrono::system_clock::now();
-        tp += std::chrono::minutes(m_checkPeriodInMinutes);
-        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(m_checkPeriodInMinutes * 60), tp);
+        tp += std::chrono::milliseconds(checkPeriodInMillis);
+        //delay 1.st period
+        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(checkPeriodInMillis * 1000), tp);
         TRC_INFORMATION("Cache update scheduled: " << PAR(m_checkPeriodInMinutes));
       }
       else {
@@ -1122,6 +1160,11 @@ namespace iqrf {
   const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const
   {
     return m_imp->getPackage(hwpid, os, dpa);
+  }
+
+  const IJsCacheService::OsDpa* JsCache::getOsDpa(int id) const
+  {
+    return m_imp->getOsDpa(id);
   }
 
   IJsCacheService::ServerState JsCache::getServerState() const

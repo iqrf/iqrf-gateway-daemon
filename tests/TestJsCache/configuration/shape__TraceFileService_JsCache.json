@@ -1,0 +1,16 @@
+{
+  "component": "shape::TraceFileService",
+  "instance": "shape::TraceFileService-JsCache",
+
+  "path": "",
+  "filename": "IqrfDaemonJsCache.txt",
+  "maxSizeMB": 1048576,
+  "timestampFiles": false,
+
+  "VerbosityLevels": [
+    {
+      "channel": 33,
+      "level": "DBG"
+    }
+  ]
+}

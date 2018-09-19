@@ -20,13 +20,18 @@
             "description": "Recomended iqrf::JsCache-(id)",
             "default": "iqrf::JsCache-1"
         },
-        "urlRepo": {
+        "iqrfRepoCache": {
+            "type": "string",
+            "description": "...",
+            "default": "iqrfRepoCache"
+        },
+		"urlRepo": {
             "type": "string",
             "description": "...",
             "default": "https://repository.iqrfalliance.org/api"
         },
         "checkPeriodInMinutes": {
-            "type": "integer",
+            "type": "number",
             "description": "...",
             "default": 0
         },

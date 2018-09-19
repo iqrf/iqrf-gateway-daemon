@@ -1,0 +1,6 @@
+{
+  "component": "iqrf::TestJsCache",
+  "instance": "TestJsCache",
+  "urlRepo": "https://repository.iqrfalliance.org/api",
+  "checkPeriodInMinutes": 0
+}

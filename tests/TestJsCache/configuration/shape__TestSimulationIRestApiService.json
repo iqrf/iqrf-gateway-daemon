@@ -1,0 +1,4 @@
+{
+  "component": "shape::TestSimulationIRestApiService",
+  "instance": "TestSimulationIRestApiService"
+}
