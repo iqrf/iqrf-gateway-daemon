@@ -1,7 +1,7 @@
 #!/bin/bash
 # After remove script for iqrf-gateway-daemon
 
-NAME=iqrfgd2
+NAME=iqrf-gateway-daemon
 
 daemon_stop-remove() {
     deb-systemd-invoke stop ${NAME}.service

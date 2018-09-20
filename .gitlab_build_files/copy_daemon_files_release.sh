@@ -6,20 +6,20 @@ set -e
 DEPLOY=$1
 
 # configuration
-IQRFGD2_CFG=/etc/iqrfgd2
+IQRFGD2_CFG=/etc/iqrf-gateway-daemon
 
 # binary files
 IQRFGD2_BIN=/usr/bin
 
 # dynamic libraries
-IQRFGD2_LIBS=/usr/lib/iqrfgd2
+IQRFGD2_LIBS=/usr/lib/iqrf-gateway-daemon
 LOCAL_LIBS=/usr/local/lib
 
 # json api schemas, javascript wrapper
-IQRFGD2_SHARE=/usr/share/iqrfgd2
+IQRFGD2_SHARE=/usr/share/iqrf-gateway-daemon
 
 # iqrf repository, scheduler
-IQRFGD2_CACHE=/var/cache/iqrfgd2
+IQRFGD2_CACHE=/var/cache/iqrf-gateway-daemon
 
 # systemd service
 IQRFGD2_SERVICE=/lib/systemd/system
@@ -44,7 +44,7 @@ cp iqrf-daemon-build/bin/configuration/deploy/release/*.json ${DEPLOY}${IQRFGD2_
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__NativeUploadService.json ${DEPLOY}${IQRFGD2_CFG}/iqrf__OtaUploadService.json
 
 cp -r iqrf-daemon-build/bin/configuration/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
-rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__NativeUploadService.json ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__OtaUploadService.json
+rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__NativeUploadService.json ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__OtaUploadService.json ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__shape__WebsocketCppClientService.json
 
 # BIN
 cp iqrf-daemon-build/bin/iqrfgd2 ${DEPLOY}${IQRFGD2_BIN}/iqrfgd2
@@ -67,11 +67,11 @@ cp -r iqrf-daemon-build/bin/configuration/iqrfRepoCache ${DEPLOY}${IQRFGD2_CACHE
 # SERVICE
 cp iqrf-daemon-build/bin/configuration/systemd/*.service ${DEPLOY}${IQRFGD2_SERVICE}
 
-# SHAPE 
-cp shape-libs/usr/lib/iqrfgd2/* ${DEPLOY}${IQRFGD2_LIBS}
+# SHAPE
+cp shape-libs/usr/lib/iqrf-gateway-daemon/* ${DEPLOY}${IQRFGD2_LIBS}
 
 # SHAPEWARE
-cp shapeware-libs/usr/lib/iqrfgd2/* ${DEPLOY}${IQRFGD2_LIBS}
+cp shapeware-libs/usr/lib/iqrf-gateway-daemon/* ${DEPLOY}${IQRFGD2_LIBS}
 #cp shapeware-libs/usr/local/lib/* ${DEPLOY}${LOCAL_LIBS}
 
 # PAHO

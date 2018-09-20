@@ -1,7 +1,7 @@
 #!/bin/bash
 # After install script for iqrf-gateway-daemon
 
-NAME=iqrfgd2
+NAME=iqrf-gateway-daemon
 
 daemon_chmod_dirs() {
     chmod -R 666 /etc/${NAME}/
@@ -17,7 +17,7 @@ daemon_enable-restart() {
         deb-systemd-invoke enable ${NAME}.service
         deb-systemd-invoke restart ${NAME}.service
     fi
-   
+
     # for paho libs
     ldconfig
 }

@@ -5,7 +5,7 @@ set -e
 
 LIB=$1
 
-IQRFGD2=/usr/lib/iqrfgd2
+IQRFGD2=/usr/lib/iqrf-gateway-daemon
 LOCAL=/usr/local/lib
 
 if [ -z $1 ];

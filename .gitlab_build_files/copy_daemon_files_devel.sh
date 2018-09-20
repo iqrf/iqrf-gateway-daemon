@@ -6,20 +6,20 @@ set -e
 DEPLOY=$1
 
 # configuration
-IQRFGD2_CFG=/etc/iqrfgd2
+IQRFGD2_CFG=/etc/iqrf-gateway-daemon
 
 # binary files
 IQRFGD2_BIN=/usr/bin
 
 # dynamic libraries
-IQRFGD2_LIBS=/usr/lib/iqrfgd2
+IQRFGD2_LIBS=/usr/lib/iqrf-gateway-daemon
 LOCAL_LIBS=/usr/local/lib
 
 # json api schemas, javascript wrapper
-IQRFGD2_SHARE=/usr/share/iqrfgd2
+IQRFGD2_SHARE=/usr/share/iqrf-gateway-daemon
 
 # iqrf repository, scheduler
-IQRFGD2_CACHE=/var/cache/iqrfgd2
+IQRFGD2_CACHE=/var/cache/iqrf-gateway-daemon
 
 # systemd service
 IQRFGD2_SERVICE=/lib/systemd/system

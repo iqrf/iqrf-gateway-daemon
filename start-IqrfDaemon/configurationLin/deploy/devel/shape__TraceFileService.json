@@ -2,7 +2,7 @@
   "component": "shape::TraceFileService",
   "instance": "shape::TraceFileService-daemon1",
 
-  "path": "/var/log/iqrfgd2",
+  "path": "/var/log/iqrf-gateway-daemon",
   "filename": "iqrf-gateway-daemon.log",
   "maxSizeMB": 1048576,
   "timestampFiles": true,

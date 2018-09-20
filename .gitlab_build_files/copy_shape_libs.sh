@@ -4,7 +4,7 @@
 set -e
 
 LIB=$1
-IQRFGD2=/usr/lib/iqrfgd2
+IQRFGD2=/usr/lib/iqrf-gateway-daemon
 
 if [ -z $1 ];
 then

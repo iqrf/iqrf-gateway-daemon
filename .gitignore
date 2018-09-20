@@ -32,3 +32,6 @@
 *.exe
 *.out
 *.app
+
+# Docs in separe repo
+docs
