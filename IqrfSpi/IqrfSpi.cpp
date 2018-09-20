@@ -348,9 +348,9 @@ namespace iqrf {
         if (sz > sizeof(cfg.spiDev)) sz = sizeof(cfg.spiDev);
         std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, cfg.spiDev);
 
-        cfg.enableGpioPin = (uint8_t)Pointer("/enableGpioPin").GetWithDefault(d, (int)cfg.enableGpioPin).GetInt();
-        cfg.spiMasterEnGpioPin = (uint8_t)Pointer("/spiMasterEnGpioPin").GetWithDefault(d, (int)cfg.spiMasterEnGpioPin).GetInt();
-        cfg.spiPgmSwGpioPin = (uint8_t)Pointer("/spiPgmSwGpioPin").GetWithDefault(d, (int)cfg.spiPgmSwGpioPin).GetInt();
+        cfg.powerEnableGpioPin = (uint8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)cfg.powerEnableGpioPin).GetInt();
+        cfg.busEnableGpioPin = (uint8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)cfg.busEnableGpioPin).GetInt();
+        cfg.pgmSwitchGpioPin = (uint8_t)Pointer("/pgmSwitchGpioPin").GetWithDefault(d, (int)cfg.pgmSwitchGpioPin).GetInt();
 
         TRC_INFORMATION(PAR(m_interfaceName));
 

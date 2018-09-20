@@ -319,9 +319,9 @@ namespace iqrf {
 
         cfg.baudRate = get_baud(m_baudRate);
 
-        cfg.enableGpioPin = (uint8_t)Pointer("/enableGpioPin").GetWithDefault(d, (int)cfg.enableGpioPin).GetInt();
-        cfg.spiMasterEnGpioPin = -1;
-        cfg.spiPgmSwGpioPin = -1;
+        cfg.powerEnableGpioPin = (uint8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)cfg.powerEnableGpioPin).GetInt();
+        cfg.busEnableGpioPin = (uint8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)cfg.busEnableGpioPin).GetInt();
+        cfg.pgmSwitchGpioPin = -1;
 
         TRC_INFORMATION(PAR(m_interfaceName) << PAR(m_baudRate));
 
