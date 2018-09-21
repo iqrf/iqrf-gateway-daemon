@@ -330,7 +330,7 @@ namespace iqrf {
       using namespace rapidjson;
 
       try {
-        spi_iqrf_config_struct cfg = { {}, ENABLE_GPIO, SPI_MASTER_EN_GPIO, PGM_SW_GPIO };
+        spi_iqrf_config_struct cfg = { {}, POWER_ENABLE_GPIO, BUS_ENABLE_GPIO, PGM_SWITCH_GPIO };
 
         Document d;
         d.CopyFrom(props->getAsJson(), d.GetAllocator());
