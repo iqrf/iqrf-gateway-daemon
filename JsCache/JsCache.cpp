@@ -170,6 +170,28 @@ namespace iqrf {
       return retval;
     }
 
+    std::map<int, std::map<int, std::vector<std::pair<int, int>>>> getDrivers(const std::string& os, const std::string& dpa) const
+    {
+      TRC_FUNCTION_ENTER(PAR(os) << PAR(dpa));
+
+      //DriverId, DriverVersion, hwpid, hwpidVer
+      std::map<int, std::map<int, std::vector<std::pair<int, int>>>> map2;
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      for (const auto & pck : m_packageMap) {
+        if (pck.second.m_os == os && pck.second.m_dpa == dpa) {
+          const Package& p = pck.second;
+          for (const auto & drv : p.m_stdDriverVect) {
+            map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
+          }
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return map2;
+    }
+
     const IJsCacheService::OsDpa* getOsDpa(int id) const
     {
       TRC_FUNCTION_ENTER(PAR(id));
@@ -730,11 +752,13 @@ namespace iqrf {
             Document doc;
             if (parseFromFile(fname, doc)) {
               int versionFlag;
+              double version;
               std::string driver, notes;
+              POINTER_GET_DOUBLE("", &doc, "/version", version, fname);
               POINTER_GET_INT("", &doc, "/versionFlags", versionFlag, fname);
               POINTER_GET_STRING("", &doc, "/driver", driver, fname);
               POINTER_GET_STRING("", &doc, "/notes", notes, fname);
-              stdDriver.second = StdDriver(stdItem.second.m_name, driver, notes, versionFlag);
+              stdDriver.second = StdDriver(stdItem.first, stdItem.second.m_name, version, driver, notes, versionFlag);
             }
             else {
               THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
@@ -756,7 +780,7 @@ namespace iqrf {
           strStream << file.rdbuf();
           std::string dwString = strStream.str();
 
-          StdDriver dwStdDriver("DaemonWrapper", dwString, "", 0);
+          StdDriver dwStdDriver(0, "DaemonWrapper", 0, dwString, "", 0);
 
           StdItem dwStdItem("DaemonWrapper");
           dwStdItem.m_valid = true;
@@ -985,17 +1009,16 @@ namespace iqrf {
 
       loadCache();
 
-      //const std::map<int, const IJsCacheService::StdDriver*> scripts = getAllLatestDrivers();
-      //std::string str2load;
-
-      //// agregate scripts
-      //for (const auto sc : scripts) {
-      //  // Create a string containing the JavaScript source code.
-      //  str2load += sc.second->getDriver();
-      //}
-
-      //m_iJsRenderService->loadJsCode(str2load);
-
+      //TODO test
+      //{"os":"08B1", "dpa" : "0300", "notes" : "IQRF OS 4.00D, DPA 3.00"},
+      //{ "os":"08B8","dpa" : "0301","notes" : "IQRF OS 4.02D, DPA 3.01" },
+      //{ "os":"08B8","dpa" : "0302","notes" : "IQRF OS 4.02D, DPA 3.02" },
+      //{ "os":"08C2","dpa" : "0303","notes" : "IQRF OS 4.03D, DPA 3.03" }
+      std::map<int, std::map<int, std::vector<std::pair<int, int>>>> m0, m1, m2, m3;
+      m0 = getDrivers("08B1", "0300");
+      m1 = getDrivers("08B8", "0301");
+      m2 = getDrivers("08B8", "0302");
+      m3 = getDrivers("08C2", "0303");
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -1160,6 +1183,11 @@ namespace iqrf {
   const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const
   {
     return m_imp->getPackage(hwpid, os, dpa);
+  }
+
+  std::map<int, std::map<int, std::vector<std::pair<int, int>>>> JsCache::getDrivers(const std::string& os, const std::string& dpa) const
+  {
+    return m_imp->getDrivers(os, dpa);
   }
 
   const IJsCacheService::OsDpa* JsCache::getOsDpa(int id) const

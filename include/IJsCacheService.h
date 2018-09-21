@@ -61,16 +61,26 @@ namespace iqrf {
       StdDriver()
         :m_valid(false)
       {}
-      StdDriver(const std::string& name, const std::string& driver, const std::string& notes, int verFlags)
-        :m_name(name), m_driver(driver), m_notes(notes), m_versionFlags(verFlags), m_valid(true)
+      StdDriver(int id, const std::string& name, double version, const std::string& driver, const std::string& notes, int verFlags)
+        :m_id(id)
+        ,m_name(name)
+        ,m_version(version)
+        ,m_driver(driver)
+        ,m_notes(notes)
+        ,m_versionFlags(verFlags)
+        ,m_valid(true)
       {}
       bool isValid() const { return m_valid; }
       const std::string& getName() const { return m_name; }
       const std::string& getDriver() const { return m_driver; }
       const std::string& getNotes() const { return m_notes; }
-      int getVersionFlags() { return m_versionFlags; }
+      int getVersionFlags() const { return m_versionFlags; }
+      int getVersion() const { return m_version; }
+      int getId() const { return m_id; }
     private:
       bool m_valid = false;
+      int m_id = 0;
+      double m_version = 0;
       int m_versionFlags = 0;
       std::string m_name;
       std::string m_driver;
@@ -130,6 +140,8 @@ namespace iqrf {
     virtual const Manufacturer* getManufacturer(uint16_t hwpid) const = 0;
     virtual const Product* getProduct(uint16_t hwpid) const = 0;
     virtual const Package* getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const = 0;
+    //virtual std::map<int, Package*> getPackages(const std::string& os, const std::string& dpa) const = 0;
+    virtual std::map<int, std::map<int, std::vector<std::pair<int,int>>>> getDrivers(const std::string& os, const std::string& dpa) const = 0;
     virtual const OsDpa* getOsDpa(int id) const = 0;
     virtual ServerState getServerState() const = 0;
 
