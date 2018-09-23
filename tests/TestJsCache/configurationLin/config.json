@@ -43,6 +43,20 @@
       "startlevel": 1
     },
     {
+      "name": "iqrf::TestSimulationIqrfChannel",
+      "libraryPath": "",
+      "libraryName": "TestSimulationIqrfChannel",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfDpa",
+      "libraryPath": "",
+      "libraryName": "IqrfDpa",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::JsCache",
       "libraryPath": "",
       "libraryName": "JsCache",

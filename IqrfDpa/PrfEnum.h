@@ -42,6 +42,8 @@ namespace iqrf {
 
     Cmd getCmd() const;
 
+    uint16_t getDpaVerWord() const { return m_dpaVerWord; }
+    const std::string& getDpaVerWordAsStr() const { return m_dpaVerWordAsStr; }
     const std::string& getDpaVer() const { return m_dpaVer; }
     int getDpaVerMajor() const { return m_dpaVerMajor; }
     int getDpaVerMinor() const { return m_dpaVerMinor; }
@@ -55,6 +57,8 @@ namespace iqrf {
 
     TEnumPeripheralsAnswer m_resp = { 0 };
 
+    uint16_t m_dpaVerWord;
+    std::string m_dpaVerWordAsStr;
     std::string m_dpaVer;
     int m_dpaVerMajor = 0;
     int m_dpaVerMinor = 0;

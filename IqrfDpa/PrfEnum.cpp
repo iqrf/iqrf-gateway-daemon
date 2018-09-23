@@ -54,12 +54,22 @@ namespace iqrf {
       m_resp = response.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
       {
         //DPA version
-        std::ostringstream os;
-        os.fill('0');
-        os << std::hex <<
-          std::setw(2) << (m_resp.DpaVersion >> 8) << '.' << (m_resp.DpaVersion & 0xef);
-        m_dpaVer = os.str();
-        m_demo = 0 != (m_resp.DpaVersion & 0x80);
+        m_dpaVerWord = m_resp.DpaVersion;
+        {
+          std::ostringstream os;
+          os.fill('0');
+          os << std::hex <<
+            std::setw(2) << ((m_resp.DpaVersion & 0xefff) >> 8) << '.' << std::setw(2) << (m_resp.DpaVersion & 0xff);
+          m_dpaVer = os.str();
+        }
+        {
+          std::ostringstream os;
+          os.fill('0');
+          os << std::hex <<
+            std::setw(2) << ((m_resp.DpaVersion & 0xefff) >> 8) << std::setw(2) << (m_resp.DpaVersion & 0xff);
+          m_dpaVerWordAsStr = os.str();
+        }
+        m_demo = 0 != (m_resp.DpaVersion & 0x8000);
 
         std::string buf(m_dpaVer);
         std::replace(buf.begin(), buf.end(), '.', ' ');

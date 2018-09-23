@@ -56,7 +56,7 @@ namespace iqrf {
 
       {
         std::ostringstream os;
-
+        
         os << std::hex <<
           std::setw(2) << (int)(resp.OsVersion >> 4) << '.';
 
@@ -93,7 +93,7 @@ namespace iqrf {
         std::ostringstream os;
         os.fill('0');
 
-        os << std::hex << std::setw(4) << (int)resp.OsBuild;
+        os << std::hex << std::uppercase << std::setw(4) << (int)resp.OsBuild;
         m_osBuild = os.str();
       }
     }

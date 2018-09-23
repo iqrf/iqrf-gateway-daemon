@@ -136,13 +136,13 @@ namespace iqrf {
     typedef std::function<void(int statusCode, const std::string & data)> DataHandlerFunc;
 
     //TODO change to return by value as poineters are dangerous in case of cache update
-    virtual const std::string& getDriver(int id, int ver) const = 0;
+    virtual const StdDriver* getDriver(int id, int ver) const = 0;
     virtual const Manufacturer* getManufacturer(uint16_t hwpid) const = 0;
     virtual const Product* getProduct(uint16_t hwpid) const = 0;
     virtual const Package* getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const = 0;
-    //virtual std::map<int, Package*> getPackages(const std::string& os, const std::string& dpa) const = 0;
     virtual std::map<int, std::map<int, std::vector<std::pair<int,int>>>> getDrivers(const std::string& os, const std::string& dpa) const = 0;
     virtual const OsDpa* getOsDpa(int id) const = 0;
+    virtual const OsDpa* getOsDpa(const std::string& os, const std::string& dpa) const = 0;
     virtual ServerState getServerState() const = 0;
 
     virtual ~IJsCacheService() {};
