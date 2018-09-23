@@ -332,7 +332,7 @@ namespace iqrf {
         auto osdpa = getOsDpa(osAct, dpaAct);
         if (!osdpa) {
           //loading lowest supported version
-          osdpa = getOsDpa(0);
+          osdpa = getOsDpa(3);
           if (osdpa) {
             osSel = osdpa->m_os;
             dpaSel = osdpa->m_dpa;
@@ -409,6 +409,23 @@ namespace iqrf {
             TRC_WARNING("Inconsistency in driver versions: " << NAME_PAR(Driver, driverId) << NAME_PAR(Version, version) << " no driver found");
           }
 
+        }
+
+        // daemon wrapper workaround
+        {
+          std::string fname = m_iLaunchService->getDataDir();
+          fname += "/javaScript/DaemonWrapper.js";
+          std::ifstream file(fname);
+          if (file.is_open()) {
+            std::ostringstream strStream;
+            strStream << file.rdbuf();
+            std::string dwString = strStream.str();
+
+            str2load += dwString;
+          }
+          else {
+            THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
+          }
         }
 
         // load agregated scripts to JSE
@@ -861,29 +878,29 @@ namespace iqrf {
         } // for 3
       } // for 2
 
-      // daemon wrapper workaround
-      {
-        std::string fname = m_iLaunchService->getDataDir();
-        fname += "/javaScript/DaemonWrapper.js";
-        std::ifstream file(fname);
-        if (file.is_open()) {
-          std::ostringstream strStream;
-          strStream << file.rdbuf();
-          std::string dwString = strStream.str();
+      //// daemon wrapper workaround
+      //{
+      //  std::string fname = m_iLaunchService->getDataDir();
+      //  fname += "/javaScript/DaemonWrapper.js";
+      //  std::ifstream file(fname);
+      //  if (file.is_open()) {
+      //    std::ostringstream strStream;
+      //    strStream << file.rdbuf();
+      //    std::string dwString = strStream.str();
 
-          StdDriver dwStdDriver(0, "DaemonWrapper", 0, dwString, "", 0);
+      //    StdDriver dwStdDriver(0, "DaemonWrapper", 0, dwString, "", 0);
 
-          StdItem dwStdItem("DaemonWrapper");
-          dwStdItem.m_valid = true;
-          dwStdItem.m_drivers.insert(std::make_pair(0, dwStdDriver));
+      //    StdItem dwStdItem("DaemonWrapper");
+      //    dwStdItem.m_valid = true;
+      //    dwStdItem.m_drivers.insert(std::make_pair(0, dwStdDriver));
 
-          m_standardMap.insert(std::make_pair(1000, dwStdItem));
+      //    m_standardMap.insert(std::make_pair(1000, dwStdItem));
 
-        }
-        else {
-          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
-        }
-      }
+      //  }
+      //  else {
+      //    THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
+      //  }
+      //}
 
       TRC_FUNCTION_LEAVE("")
     }
