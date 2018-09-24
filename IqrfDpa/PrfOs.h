@@ -80,6 +80,7 @@ namespace iqrf {
 
     std::string m_moduleId;
     std::string m_osVersion;
+    uint16_t m_osVersionWord;
     std::string m_trType;
     bool m_fcc = false;
     std::string m_mcuType;

@@ -32,6 +32,6 @@ int main(int argc, char** argv)
 
   std::cout << "startup ... " << std::endl;
   shapeInit(argc, argv);
-  shapeRun();
-  return 0;
+  int retval = shapeRun();
+  return retval;
 }

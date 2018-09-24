@@ -300,6 +300,25 @@ namespace iqrf {
       return res;
 
     }
+
+    static bool prepareTestDataFakeOsDpa()
+    {
+      //Prepare data for the test of OS/DPA lowest version load for old unsupported versions
+      //We pretend the only lowest version is in repo and thus it is selected with warning even if we have higher OS/DPA reported from IqrfDpa
+      bool res = true;
+
+      res = prepareTestData();
+      if (!res)
+        return res;
+
+      //copy updated osdpa
+      res = copyTestData(
+        "./configuration/testData/osdpa/upd_data_fake_osdpa.json",
+        "./configuration/testResources/iqrfRepoResource2/api/osdpa/data.json");
+      if (!res)
+        return res;
+
+    }
   };
 
   /////////// Tests
@@ -389,7 +408,7 @@ namespace iqrf {
     EXPECT_EQ(UPDATED_SUM, sum);
 
   }
-  
+
   TEST_F(JsCacheTesting, GetServerState2)
   {
     auto  serverState = Imp::get().m_iJsCacheService->getServerState();
@@ -422,6 +441,41 @@ namespace iqrf {
     }
     par = ret;
     EXPECT_EQ("\"ASDFGH\"", ret);
+  }
+
+  TEST_F(JsCacheTesting, LowestOsDpa)
+  {
+    using namespace rapidjson;
+
+    shape::IConfiguration* cfg = Imp::get().m_iConfigurationService->getConfiguration("iqrf::JsCache", "JsCache");
+    ASSERT_FALSE(cfg == nullptr);
+    auto props = cfg->getProperties();
+    ASSERT_FALSE(props == nullptr);
+
+    Document& doc = props->getAsJson();
+
+    //stop repo update
+    Pointer("/checkPeriodInMinutes").Set(doc, 0);
+    cfg->update();
+
+    JsCacheTesting::prepareTestDataFakeOsDpa();
+
+    //update cfg to repo check every 0.02 min
+    Pointer("/checkPeriodInMinutes").Set(doc, 0.02);
+    cfg->update();
+
+    for (const char* url : testUrls) {
+      std::string inReq = Imp::get().m_iTestSimulationIRestApiService->popIncomingRequest(MILLIS_WAIT);
+      EXPECT_EQ(url, inReq);
+    }
+
+    // now the cache shall be reloaded by the lowest supported result
+    auto  o = Imp::get().m_iJsCacheService->getOsDpa(0);
+    ASSERT_FALSE(o == nullptr);
+    EXPECT_EQ("08B1", o->m_os);
+    EXPECT_EQ("0300", o->m_dpa);
+    o = Imp::get().m_iJsCacheService->getOsDpa(1);
+    ASSERT_TRUE(o == nullptr);
   }
 
 }

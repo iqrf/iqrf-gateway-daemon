@@ -55,6 +55,7 @@ namespace iqrf {
   class JsCache::Imp
   {
   private:
+    iqrf::IIqrfDpaService* m_iIqrfDpaService = nullptr;
     iqrf::IJsRenderService* m_iJsRenderService = nullptr;
     iqrf::ISchedulerService* m_iSchedulerService = nullptr;
     shape::ILaunchService* m_iLaunchService = nullptr;
@@ -92,28 +93,20 @@ namespace iqrf {
     {
     }
 
-    const std::string& getDriver(int id, int ver) const
+    const StdDriver* getDriver(int id, int ver) const
     {
-      static std::string ni = "not implemented yet";
-      return ni;
-    }
-
-    const std::map<int, const StdDriver*> getAllLatestDrivers() const
-    {
-      TRC_FUNCTION_ENTER("");
-
-      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
-
-      std::map<int, const StdDriver*> retval;
-      for (const auto & stdItemPair : m_standardMap) {
-        const StdItem& stdItem = stdItemPair.second;
-        if (stdItem.m_valid && !stdItem.m_drivers.empty()) {
-          const StdDriver& stdDriver = stdItem.m_drivers.crbegin()->second;
-          retval.insert(std::make_pair(stdItemPair.first, &(stdDriver)));
+      TRC_FUNCTION_ENTER(PAR(id) << PAR(ver));
+      const StdDriver* drv = nullptr;
+      auto foundDrv = m_standardMap.find(id);
+      if (foundDrv != m_standardMap.end()) {
+        const StdItem& stdItem = foundDrv->second;
+        auto foundVer = stdItem.m_drivers.find(ver);
+        if (foundVer != stdItem.m_drivers.end()) {
+          drv = &foundVer->second;
         }
       }
-      TRC_FUNCTION_LEAVE("");
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(drv));
+      return drv;
     }
 
     const Manufacturer* getManufacturer(uint16_t hwpid) const
@@ -170,6 +163,28 @@ namespace iqrf {
       return retval;
     }
 
+    std::map<int, std::map<int, std::vector<std::pair<int, int>>>> getDrivers(const std::string& os, const std::string& dpa) const
+    {
+      TRC_FUNCTION_ENTER(PAR(os) << PAR(dpa));
+
+      //DriverId, DriverVersion, hwpid, hwpidVer
+      std::map<int, std::map<int, std::vector<std::pair<int, int>>>> map2;
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      for (const auto & pck : m_packageMap) {
+        if (pck.second.m_os == os && pck.second.m_dpa == dpa) {
+          const Package& p = pck.second;
+          for (const auto & drv : p.m_stdDriverVect) {
+            map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
+          }
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return map2;
+    }
+
     const IJsCacheService::OsDpa* getOsDpa(int id) const
     {
       TRC_FUNCTION_ENTER(PAR(id));
@@ -180,6 +195,24 @@ namespace iqrf {
       auto found = m_osDpaMap.find(id);
       if (found != m_osDpaMap.end()) {
         retval = &(found->second);
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    const IJsCacheService::OsDpa* getOsDpa(const std::string& os, const std::string& dpa) const
+    {
+      TRC_FUNCTION_ENTER(PAR(os) << PAR(dpa));
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      const OsDpa* retval = nullptr;
+      for (auto & a : m_osDpaMap) {
+        if (os == a.second.m_os && dpa == a.second.m_dpa) {
+          retval = &a.second;
+          break;
+        }
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -291,14 +324,111 @@ namespace iqrf {
         updateCacheStandard();
         updateCachePackage();
 
-        //refresh scripts
-        const std::map<int, const IJsCacheService::StdDriver*> scripts = getAllLatestDrivers();
-        std::string str2load;
-        // agregate scripts
-        for (const auto sc : scripts) {
-          // Create a string containing the JavaScript source code.
-          str2load += sc.second->getDriver();
+        std::string osAct = m_iIqrfDpaService->getCoordinatorParameters().osBuild;
+        std::string dpaAct = m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr;
+        std::string osSel = osAct;
+        std::string dpaSel = dpaAct;
+
+        auto osdpa = getOsDpa(osAct, dpaAct);
+        if (!osdpa) {
+          //loading lowest supported version
+          osdpa = getOsDpa(3);
+          if (osdpa) {
+            osSel = osdpa->m_os;
+            dpaSel = osdpa->m_dpa;
+            TRC_WARNING("Cannot find actual OS/DPA: " << NAME_PAR(OS, osAct) << NAME_PAR(DPA, dpaAct) << std::endl <<
+              "  loading minimal IqrfRepo supported OS/DPA: " << NAME_PAR(OS, osSel) << NAME_PAR(DPA, dpaSel));
+          }
         }
+        if (!osdpa) {
+          //still nothing?
+          TRC_WARNING("Cannot get OS/DPA information");
+        }
+
+        std::map<int, std::map<int, std::vector<std::pair<int, int>>>> drivers;
+
+        drivers = getDrivers(osSel, dpaSel);
+        
+        if (drivers.size() == 0) {
+          TRC_WARNING("Cannot get drivers");
+        }
+          
+        // analyze and selected drivers
+        std::string str2load; // agregated scripts
+
+        for (auto & drv : drivers) {
+          int driverId = drv.first;
+          int version = 0;
+          const IJsCacheService::StdDriver* driver = nullptr;
+
+          if (drv.second.size() > 1) {
+            // driver version conflict => prepare WARNING
+            std::ostringstream os;
+
+            // iterate via versions
+            for (auto & drvVer : drv.second) {
+              version = drvVer.first;
+              driver = getDriver(driverId, version);
+              if (driver) {
+                os <<
+                  " Required " << NAME_PAR(Driver, driver->getId()) << NAME_PAR(Version, driver->getVersion()) << NAME_PAR(Name, driver->getName()) << std::endl <<
+                  "   hwpid:" << std::endl;
+                // iterate via hwpid
+                for (auto & hwpidPair : drvVer.second) {
+                  os <<
+                    "      " << std::hex << std::uppercase << std::setw(4) << hwpidPair.first << '.' <<
+                      std::hex << std::uppercase << std::setw(2) << hwpidPair.second << std::endl;
+                }
+                os << std::dec;
+              }
+              else {
+                TRC_WARNING("Inconsistency in driver versions: " << NAME_PAR(Driver, driverId) << NAME_PAR(Version, version) << " no driver found");
+              }
+            }
+            if (driver) {
+              // selected the last one => last version
+              os << "  Selected: " << NAME_PAR(Driver, driverId) << NAME_PAR(Version, version) << std::endl;
+              TRC_WARNING("Driver version conflict (only one version supported for now): " << std::endl << os.str());
+            }
+          }
+          else if (drv.second.size() == 1) {
+            // no conflict
+            version = drv.second.begin()->first;
+            driver = getDriver(driverId, version);
+          }
+          else {
+            // unexpected error here
+            TRC_WARNING("Inconsistency in driver versions: " << NAME_PAR(Driver, driverId) << " no version");
+          }
+
+          if (driver) {
+            // got selected driver add to agregated scripts
+            str2load += driver->getDriver();
+          }
+          else {
+            TRC_WARNING("Inconsistency in driver versions: " << NAME_PAR(Driver, driverId) << NAME_PAR(Version, version) << " no driver found");
+          }
+
+        }
+
+        // daemon wrapper workaround
+        {
+          std::string fname = m_iLaunchService->getDataDir();
+          fname += "/javaScript/DaemonWrapper.js";
+          std::ifstream file(fname);
+          if (file.is_open()) {
+            std::ostringstream strStream;
+            strStream << file.rdbuf();
+            std::string dwString = strStream.str();
+
+            str2load += dwString;
+          }
+          else {
+            THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
+          }
+        }
+
+        // load agregated scripts to JSE
         m_iJsRenderService->loadJsCode(str2load);
 
         m_upToDate = true;
@@ -730,11 +860,13 @@ namespace iqrf {
             Document doc;
             if (parseFromFile(fname, doc)) {
               int versionFlag;
+              double version;
               std::string driver, notes;
+              POINTER_GET_DOUBLE("", &doc, "/version", version, fname);
               POINTER_GET_INT("", &doc, "/versionFlags", versionFlag, fname);
               POINTER_GET_STRING("", &doc, "/driver", driver, fname);
               POINTER_GET_STRING("", &doc, "/notes", notes, fname);
-              stdDriver.second = StdDriver(stdItem.second.m_name, driver, notes, versionFlag);
+              stdDriver.second = StdDriver(stdItem.first, stdItem.second.m_name, version, driver, notes, versionFlag);
             }
             else {
               THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
@@ -746,29 +878,29 @@ namespace iqrf {
         } // for 3
       } // for 2
 
-      // daemon wrapper workaround
-      {
-        std::string fname = m_iLaunchService->getDataDir();
-        fname += "/javaScript/DaemonWrapper.js";
-        std::ifstream file(fname);
-        if (file.is_open()) {
-          std::ostringstream strStream;
-          strStream << file.rdbuf();
-          std::string dwString = strStream.str();
+      //// daemon wrapper workaround
+      //{
+      //  std::string fname = m_iLaunchService->getDataDir();
+      //  fname += "/javaScript/DaemonWrapper.js";
+      //  std::ifstream file(fname);
+      //  if (file.is_open()) {
+      //    std::ostringstream strStream;
+      //    strStream << file.rdbuf();
+      //    std::string dwString = strStream.str();
 
-          StdDriver dwStdDriver("DaemonWrapper", dwString, "", 0);
+      //    StdDriver dwStdDriver(0, "DaemonWrapper", 0, dwString, "", 0);
 
-          StdItem dwStdItem("DaemonWrapper");
-          dwStdItem.m_valid = true;
-          dwStdItem.m_drivers.insert(std::make_pair(0, dwStdDriver));
+      //    StdItem dwStdItem("DaemonWrapper");
+      //    dwStdItem.m_valid = true;
+      //    dwStdItem.m_drivers.insert(std::make_pair(0, dwStdDriver));
 
-          m_standardMap.insert(std::make_pair(1000, dwStdItem));
+      //    m_standardMap.insert(std::make_pair(1000, dwStdItem));
 
-        }
-        else {
-          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
-        }
-      }
+      //  }
+      //  else {
+      //    THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
+      //  }
+      //}
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -985,18 +1117,6 @@ namespace iqrf {
 
       loadCache();
 
-      //const std::map<int, const IJsCacheService::StdDriver*> scripts = getAllLatestDrivers();
-      //std::string str2load;
-
-      //// agregate scripts
-      //for (const auto sc : scripts) {
-      //  // Create a string containing the JavaScript source code.
-      //  str2load += sc.second->getDriver();
-      //}
-
-      //m_iJsRenderService->loadJsCode(str2load);
-
-
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -1081,6 +1201,18 @@ namespace iqrf {
 
     }
 
+    void attachInterface(iqrf::IIqrfDpaService* iface)
+    {
+      m_iIqrfDpaService = iface;
+    }
+
+    void detachInterface(iqrf::IIqrfDpaService* iface)
+    {
+      if (m_iIqrfDpaService == iface) {
+        m_iIqrfDpaService = nullptr;
+      }
+    }
+
     void attachInterface(iqrf::IJsRenderService* iface)
     {
       m_iJsRenderService = iface;
@@ -1142,7 +1274,7 @@ namespace iqrf {
     delete m_imp;
   }
 
-  const std::string& JsCache::getDriver(int id, int ver) const
+  const IJsCacheService::StdDriver* JsCache::getDriver(int id, int ver) const
   {
     return m_imp->getDriver(id, ver);
   }
@@ -1162,9 +1294,19 @@ namespace iqrf {
     return m_imp->getPackage(hwpid, os, dpa);
   }
 
+  std::map<int, std::map<int, std::vector<std::pair<int, int>>>> JsCache::getDrivers(const std::string& os, const std::string& dpa) const
+  {
+    return m_imp->getDrivers(os, dpa);
+  }
+
   const IJsCacheService::OsDpa* JsCache::getOsDpa(int id) const
   {
     return m_imp->getOsDpa(id);
+  }
+
+  const IJsCacheService::OsDpa* JsCache::getOsDpa(const std::string& os, const std::string& dpa) const
+  {
+    return m_imp->getOsDpa(os, dpa);
   }
 
   IJsCacheService::ServerState JsCache::getServerState() const
@@ -1185,6 +1327,16 @@ namespace iqrf {
   void JsCache::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsCache::attachInterface(iqrf::IIqrfDpaService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsCache::detachInterface(iqrf::IIqrfDpaService* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsCache::attachInterface(iqrf::IJsRenderService* iface)
