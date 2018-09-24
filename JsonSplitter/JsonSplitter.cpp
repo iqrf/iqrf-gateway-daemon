@@ -252,7 +252,7 @@ namespace iqrf {
         if (msgType.m_type != "dpaV1") { // dpaV1 is default legacy support
           auto foundType = m_msgTypeToHandle.find(getKey(msgType));
           if (foundType == m_msgTypeToHandle.end()) {
-            THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type));
+            THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type) << NAME_PAR(key, getKey(msgType)));
           }
 
           const std::string REQS("request");
@@ -457,6 +457,8 @@ namespace iqrf {
             m_validatorMapResponse.insert(std::make_pair(getKey(msgType), std::move(schema)));
           }
           m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
+          TRC_DEBUG ("Add: " << NAME_PAR(key, getKey(msgType)) << PAR(msgType.m_type) << " ver" << msgType.m_major << '.' << msgType.m_minor << '.' << msgType.m_micro << " drv:" <<
+            msgType.m_possibleDriverFunction)
         }
         catch (std::exception & e) {
           CATCH_EXC_TRC_WAR(std::exception, e, "");
