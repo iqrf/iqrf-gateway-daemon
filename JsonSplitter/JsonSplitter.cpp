@@ -482,10 +482,6 @@ namespace iqrf {
         "******************************"
       );
 
-      m_splitterMessageQueue = shape_new TaskQueue<MsgIdMsg>([&](const MsgIdMsg& msgIdMsg) {
-        handleMessageFromSplitterQueue(msgIdMsg.first, msgIdMsg.second);
-      });
-
       props->getMemberAsBool("validateJsonResponse", m_validateResponse);
       TRC_INFORMATION(PAR(m_validateResponse));
       m_schemesDir = m_iLaunchService->getDataDir() + "/apiSchemas";
