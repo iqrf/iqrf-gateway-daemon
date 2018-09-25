@@ -56,11 +56,11 @@ stages:
         - cmake --build iqrf-daemon-build
         - bash .gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
         - bash .gitlab_build_files/create_daemon_package_devel.sh
-        - tar czvf iqrf-gateway-daemon-dev_${DAEMON_VERSION_NUM}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+        - tar czvf iqrf-gateway-daemon_${DAEMON_VERSION_NUM}${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
     artifacts:
         paths:
-            - iqrf-gateway-daemon-dev_*_*.deb
-            - iqrf-gateway-daemon-dev_*_*.tar.gz
+            - iqrf-gateway-daemon_*_*.deb
+            - iqrf-gateway-daemon_*_*.tar.gz
         expire_in: 2 weeks
 
 .daemon-template: &daemon-template
