@@ -55,7 +55,7 @@ add_custom_command(
 
 #copy api schemas
 set(_JSON_SCHEMES_FROM ${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemas)
-set(_JSON_SCHEMES_TO ${CMAKE_CURRENT_BINARY_DIR}/configuration/apiSchemas)
+set(_JSON_SCHEMES_TO ${CMAKE_CURRENT_BINARY_DIR}/configuration/da-ta-dir-share/apiSchemas)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
@@ -65,7 +65,7 @@ add_custom_command(
 
 #copy javaScript/DaemonWrapper.js
 set(_JAVA_SCRIPT_FROM ${CMAKE_SOURCE_DIR}/start-IqrfDaemon/javaScript)
-set(_JAVA_SCRIPT_TO ${CMAKE_CURRENT_BINARY_DIR}/configuration/javaScript)
+set(_JAVA_SCRIPT_TO ${CMAKE_CURRENT_BINARY_DIR}/configuration/da-ta-dir-share/javaScript)
 add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD

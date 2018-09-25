@@ -403,6 +403,11 @@ namespace iqrf {
 
           // get version and device name from file name
           std::string fname2 = fname;
+          std::size_t found = fname2.find_last_of("/\\");
+          if (found != std::string::npos) {
+            fname2 = fname2.substr(found + 1);
+          }
+
           std::replace(fname2.begin(), fname2.end(), '-', '.');
           std::replace(fname2.begin(), fname2.end(), '.', ' ');
           std::string direction, fileN, possibleDriverFunction;
