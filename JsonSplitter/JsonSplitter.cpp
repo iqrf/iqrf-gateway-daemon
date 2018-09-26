@@ -94,6 +94,15 @@ namespace iqrf {
 
   public:
 
+    // for logging only
+    static std::string JsonToStr(const rapidjson::Document& doc)
+    {
+      StringBuffer buffer;
+      Writer<StringBuffer> writer(buffer);
+      doc.Accept(writer);
+      return buffer.GetString();
+    }
+
     MsgType getMessageType(const rapidjson::Document& doc) const
     {
       using namespace rapidjson;
@@ -129,6 +138,12 @@ namespace iqrf {
     {
       using namespace rapidjson;
       
+      TRC_INFORMATION("Outcomming message:\n"
+        << NAME_PAR(Messaging ID, messagingId)
+        << "\n"
+        << NAME_PAR(Sent message, JsonToStr(doc))
+      )
+
       MsgType msgType = getMessageType(doc);
       if (msgType.m_type != "dpaV1") { // dpaV1 is default legacy support
         auto foundType = m_msgTypeToHandle.find(getKey(msgType));
@@ -145,7 +160,7 @@ namespace iqrf {
       StringBuffer buffer;
       PrettyWriter<StringBuffer> writer(buffer);
       doc.Accept(writer);
-      
+
       if (!messagingId.empty()) {
         std::string messagingId2(messagingId);
         if (std::string::npos != messagingId2.find_first_of('/')) {
@@ -161,6 +176,7 @@ namespace iqrf {
         auto found = m_iMessagingServiceMap.find(messagingId2);
         if (found != m_iMessagingServiceMap.end()) {
           found->second->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+          TRC_INFORMATION("Outcomming message successfully sent.");
         }
         else {
           TRC_WARNING("Cannot find required: " << PAR(messagingId))
@@ -170,6 +186,7 @@ namespace iqrf {
         std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
         for (auto m : m_iMessagingServiceSetAcceptAsync) {
           m->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+          TRC_INFORMATION("Outcomming message successfully sent.");
         }
       }
     }
@@ -208,7 +225,8 @@ namespace iqrf {
           THROW_EXC_TRC_WAR(std::logic_error, "Invalid " << direction << ": " <<
             NAME_PAR(mType, msgType.m_type) << PAR(schema) << PAR(keyword) << NAME_PAR(message, document));
         }
-        TRC_DEBUG("OK");
+        //TRC_DEBUG("OK");
+        TRC_INFORMATION("Message successfully validated.")
       }
       else {
         THROW_EXC_TRC_WAR(std::logic_error, "Invalid " << direction << ": " <<
@@ -220,6 +238,15 @@ namespace iqrf {
     void handleMessageFromMessaging(const std::string& messagingId, const std::vector<uint8_t>& message) const
     {
       TRC_FUNCTION_ENTER(PAR(messagingId));
+
+      std::string msgStr((char*)message.data(), message.size());
+      
+      TRC_INFORMATION("Incomming message:\n"
+        << NAME_PAR(Messaging ID, messagingId)
+        << "\n"
+        << NAME_PAR(Message, msgStr)
+        );
+
       int queueLen = -1;
       if (m_splitterMessageQueue) {
         queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messagingId, message));
@@ -280,6 +307,7 @@ namespace iqrf {
           // invoke handling
           try {
             selected(messagingId, msgType, std::move(doc));
+            TRC_INFORMATION("Incomming message successfully handled.");
           }
           catch (std::exception &e) {
             THROW_EXC_TRC_WAR(std::logic_error, "Unhandled exception: " << e.what());
@@ -291,6 +319,8 @@ namespace iqrf {
 
       }
       catch (std::logic_error &e) {
+        TRC_INFORMATION("Error while handling incomming message: " << e.what());
+
         Document rspDoc;
         MessageErrorMsg msg(msgId, str, e.what());
         msg.createResponse(rspDoc);
