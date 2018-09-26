@@ -15,7 +15,7 @@
         },
         "value": {
             "type": "integer",
-            "description": "Value of the configuration item to write.",
+            "description": "Value of the configuration item to write."
         },
         "mask": {
             "type": "integer",

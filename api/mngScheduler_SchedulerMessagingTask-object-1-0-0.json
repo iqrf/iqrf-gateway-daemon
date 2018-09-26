@@ -19,7 +19,7 @@
         },
         "message": {
             "type": "object",
-            "description": "Particular JSON request with supported mType type.",
+            "description": "Particular JSON request with supported mType type."
         }
     },
     "required": [

@@ -9,28 +9,6 @@
     "type": "object",
     "description": "Single request for batch.",
     "properties": {
-        "ctype": {
-            "type": "string",
-            "description": "Request cType.",
-            "enum": [
-                "dpa"
-            ]
-        },
-        "type": {
-            "type": "string",
-            "description": "Request Type.",
-            "enum": [
-                "raw-hdp"
-            ]
-        },
-        "msgid": {
-            "type": "string",
-            "description": "Message Id."
-        },
-        "nadr": {
-            "type": "string",
-            "description": "Network Address."
-        },
         "pnum": {
             "type": "string",
             "description": "Peripheral Number."
@@ -49,8 +27,6 @@
         }
     },
     "required": [
-        "ctype",
-        "type",
         "pnum",
         "pcmd"
     ]

@@ -34,4 +34,6 @@
 # Source for now
 src
 _*
-/examples/java/iqrfraw/target/
+examples/java/iqrfraw/target/
+examples/c#/test-api-app/packages/
+
