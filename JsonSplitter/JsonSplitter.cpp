@@ -319,7 +319,7 @@ namespace iqrf {
 
       }
       catch (std::logic_error &e) {
-        TRC_INFORMATION("Error while handling incomming message: " << e.what());
+        TRC_WARNING("Error while handling incomming message:" << e.what());
 
         Document rspDoc;
         MessageErrorMsg msg(msgId, str, e.what());
