@@ -53,11 +53,9 @@ rm ${DEPLOY}${IQRFGD2_LIBS}/libNativeUploadService.so ${DEPLOY}${IQRFGD2_LIBS}/l
 
 # SHARE
 cp -r iqrf-daemon-build/bin/configuration/apiSchemas ${DEPLOY}${IQRFGD2_SHARE}
+# NOT YET UPLOAD
 rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/iqmeshNetwork_OtaUpload*.json
 rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/mngDaemon_Upload*.json
-rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/iqrfEmbedOs_BatchRequest-object-1-0-0.json
-rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/iqrfEmbedOs_WriteCfgTriplet-object-1-0-0.json
-rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/mngScheduler_SchedulerMessagingTask-object-1-0-0.json
 
 cp -r iqrf-daemon-build/bin/configuration/javaScript ${DEPLOY}${IQRFGD2_SHARE}
 
