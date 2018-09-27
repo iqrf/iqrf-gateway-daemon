@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::ReadTrConfService",
+  "instance": "iqrf::ReadTrConfService-Instance1"
+}
