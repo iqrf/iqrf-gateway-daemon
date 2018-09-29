@@ -87,6 +87,10 @@ namespace iqrf {
     , m_period(sec)
     , m_startTime(tp)
   {
+    if (sec.count() <= 0) {
+      THROW_EXC_TRC_WAR(std::logic_error, "Period must be at least >= 1sec " << NAME_PAR(sec, sec.count()))
+    }
+    
     init();
 
     m_task.CopyFrom(task, m_task.GetAllocator());
