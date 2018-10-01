@@ -1192,7 +1192,7 @@ namespace iqrf {
         auto tp = std::chrono::system_clock::now();
         tp += std::chrono::milliseconds(checkPeriodInMillis);
         //delay 1.st period
-        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(checkPeriodInMillis * 1000), tp);
+        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(checkPeriodInMillis), tp);
         TRC_INFORMATION("Cache update scheduled: " << PAR(m_checkPeriodInMinutes));
       }
       else {
