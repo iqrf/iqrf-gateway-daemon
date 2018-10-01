@@ -57,6 +57,13 @@
       "startlevel": 1
     },
     {
+      "name": "iqrf::ReadTrConfService",
+      "libraryPath": "",
+      "libraryName": "ReadTrConfService",
+      "enabled": true,
+      "startlevel": 4
+    },
+    {
       "name": "iqrf::TestReadTrConfService",
       "libraryPath": "",
       "libraryName": "TestReadTrConfService",

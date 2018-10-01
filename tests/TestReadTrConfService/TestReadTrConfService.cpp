@@ -203,7 +203,7 @@ namespace iqrf {
   TEST_F(ReadTrConfTesting, iqmeshReadTrConfService_1)
   {
     // JSON request - as received from messaging
-    std::string jmi =
+    std::string requestStr =
       "{"
       "  \"mType\": \"iqmeshNetwork_ReadTrConf\","
       "  \"data\" : {"
@@ -217,7 +217,7 @@ namespace iqrf {
       "}";
 
     // simulate receiving of request by splitter and tested service
-    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(jmi);
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(requestStr);
     
     // expected DPA request sent from IqrfDpa to Coordinator
     //std::string responseStr = Imp::get().m_iTestSimulationIqrfChannel->popIncomingMessage(MILLIS_WAIT);
@@ -229,11 +229,231 @@ namespace iqrf {
     );
     
     // expected JSON message output (jmo) as result of processing to be sent out by a messaging
-    std::string jmo = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
+    std::string responseStr = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
 
-    TRC_INFORMATION("Response = " << jmo);
+    rapidjson::Document responseDoc;
+    responseDoc.Parse(responseStr);
+
+    // testing response data field values
+    rapidjson::Value* msgMtypeJsonVal = rapidjson::Pointer("/mType").Get(responseDoc);
+    EXPECT_NE(msgMtypeJsonVal, nullptr);
+    EXPECT_STREQ(msgMtypeJsonVal->GetString(), "iqmeshNetwork_ReadTrConf");
+
+    rapidjson::Value* msgIdJsonVal = rapidjson::Pointer("/data/msgId").Get(responseDoc);
+    EXPECT_NE(msgIdJsonVal, nullptr);
+    EXPECT_STREQ(msgIdJsonVal->GetString(), "testReadTrConf");
+
+    rapidjson::Value* devAddrJsonVal = rapidjson::Pointer("/data/rsp/deviceAddr").Get(responseDoc);
+    EXPECT_NE(devAddrJsonVal, nullptr);
+    EXPECT_EQ(devAddrJsonVal->GetInt(), 0);
+
+
+    // embedded peripheral presence - byte values
+    rapidjson::Value* embPersJsonVal = rapidjson::Pointer("/data/rsp/embPers/values").Get(responseDoc);
+    EXPECT_NE(embPersJsonVal, nullptr);
+
+    if (!HasNonfatalFailure()) {
+      EXPECT_EQ(embPersJsonVal->IsArray(), true);
+      EXPECT_EQ(embPersJsonVal->Size(), 4);
+
+      // parsing and checking raw object
+      EXPECT_EQ((*embPersJsonVal)[0].GetInt(), 253);
+      EXPECT_EQ((*embPersJsonVal)[1].GetInt(), 36);
+      EXPECT_EQ((*embPersJsonVal)[2].GetInt(), 0);
+      EXPECT_EQ((*embPersJsonVal)[3].GetInt(), 0);
+    }
+
+    // embedded peripheral presence - parsed
+    rapidjson::Value* coordJsonVal = rapidjson::Pointer("/data/rsp/embPers/coordinator").Get(responseDoc);
+    EXPECT_NE(coordJsonVal, nullptr);
+    EXPECT_EQ(coordJsonVal->GetBool(), true);
+
+    rapidjson::Value* nodeJsonVal = rapidjson::Pointer("/data/rsp/embPers/node").Get(responseDoc);
+    EXPECT_NE(nodeJsonVal, nullptr);
+    EXPECT_EQ(nodeJsonVal->GetBool(), false);
+
+    rapidjson::Value* osJsonVal = rapidjson::Pointer("/data/rsp/embPers/os").Get(responseDoc);
+    EXPECT_NE(osJsonVal, nullptr);
+    EXPECT_EQ(osJsonVal->GetBool(), true);
+
+    rapidjson::Value* eepromJsonVal = rapidjson::Pointer("/data/rsp/embPers/eeprom").Get(responseDoc);
+    EXPECT_NE(eepromJsonVal, nullptr);
+    EXPECT_EQ(eepromJsonVal->GetBool(), true);
+
+    rapidjson::Value* eeepromJsonVal = rapidjson::Pointer("/data/rsp/embPers/eeeprom").Get(responseDoc);
+    EXPECT_NE(eeepromJsonVal, nullptr);
+    EXPECT_EQ(eeepromJsonVal->GetBool(), true);
+
+    rapidjson::Value* ramJsonVal = rapidjson::Pointer("/data/rsp/embPers/ram").Get(responseDoc);
+    EXPECT_NE(ramJsonVal, nullptr);
+    EXPECT_EQ(ramJsonVal->GetBool(), true);
+
+    rapidjson::Value* ledrJsonVal = rapidjson::Pointer("/data/rsp/embPers/ledr").Get(responseDoc);
+    EXPECT_NE(ledrJsonVal, nullptr);
+    EXPECT_EQ(ledrJsonVal->GetBool(), true);
+
+    rapidjson::Value* ledgJsonVal = rapidjson::Pointer("/data/rsp/embPers/ledg").Get(responseDoc);
+    EXPECT_NE(ledgJsonVal, nullptr);
+    EXPECT_EQ(ledgJsonVal->GetBool(), true);
+
+    rapidjson::Value* spiJsonVal = rapidjson::Pointer("/data/rsp/embPers/spi").Get(responseDoc);
+    EXPECT_NE(spiJsonVal, nullptr);
+    EXPECT_EQ(spiJsonVal->GetBool(), false);
+
+    rapidjson::Value* ioJsonVal = rapidjson::Pointer("/data/rsp/embPers/io").Get(responseDoc);
+    EXPECT_NE(ioJsonVal, nullptr);
+    EXPECT_EQ(ioJsonVal->GetBool(), false);
+
+    rapidjson::Value* thermometerJsonVal = rapidjson::Pointer("/data/rsp/embPers/thermometer").Get(responseDoc);
+    EXPECT_NE(thermometerJsonVal, nullptr);
+    EXPECT_EQ(thermometerJsonVal->GetBool(), true);
+
+    rapidjson::Value* pwmJsonVal = rapidjson::Pointer("/data/rsp/embPers/pwm").Get(responseDoc);
+    EXPECT_NE(pwmJsonVal, nullptr);
+    EXPECT_EQ(pwmJsonVal->GetBool(), false);
+
+    rapidjson::Value* uartJsonVal = rapidjson::Pointer("/data/rsp/embPers/uart").Get(responseDoc);
+    EXPECT_NE(uartJsonVal, nullptr);
+    EXPECT_EQ(uartJsonVal->GetBool(), false);
+
+    rapidjson::Value* frcJsonVal = rapidjson::Pointer("/data/rsp/embPers/frc").Get(responseDoc);
+    EXPECT_NE(frcJsonVal, nullptr);
+    EXPECT_EQ(frcJsonVal->GetBool(), true);
+
+
+    // other fields read from HWP configuration block
+    rapidjson::Value* customDpaHandlerJsonVal = rapidjson::Pointer("/data/rsp/customDpaHandler").Get(responseDoc);
+    EXPECT_NE(customDpaHandlerJsonVal, nullptr);
+    EXPECT_EQ(customDpaHandlerJsonVal->GetBool(), false);
+
+    rapidjson::Value* nodeDpaInterfaceJsonVal = rapidjson::Pointer("/data/rsp/nodeDpaInterface").Get(responseDoc);
+    EXPECT_NE(nodeDpaInterfaceJsonVal, nullptr);
+    EXPECT_EQ(nodeDpaInterfaceJsonVal->GetBool(), false);
+
+    rapidjson::Value* dpaAutoexecJsonVal = rapidjson::Pointer("/data/rsp/dpaAutoexec").Get(responseDoc);
+    EXPECT_NE(dpaAutoexecJsonVal, nullptr);
+    EXPECT_EQ(dpaAutoexecJsonVal->GetBool(), false);
+
+    rapidjson::Value* routingOffJsonVal = rapidjson::Pointer("/data/rsp/routingOff").Get(responseDoc);
+    EXPECT_NE(routingOffJsonVal, nullptr);
+    EXPECT_EQ(routingOffJsonVal->GetBool(), false);
+
+    rapidjson::Value* ioSetupJsonVal = rapidjson::Pointer("/data/rsp/ioSetup").Get(responseDoc);
+    EXPECT_NE(ioSetupJsonVal, nullptr);
+    EXPECT_EQ(ioSetupJsonVal->GetBool(), false);
+
+    rapidjson::Value* peerToPeerJsonVal = rapidjson::Pointer("/data/rsp/peerToPeer").Get(responseDoc);
+    EXPECT_NE(peerToPeerJsonVal, nullptr);
+    EXPECT_EQ(peerToPeerJsonVal->GetBool(), false);
+
+    rapidjson::Value* rfBandJsonVal = rapidjson::Pointer("/data/rsp/rfBand").Get(responseDoc);
+    EXPECT_NE(rfBandJsonVal, nullptr);
+    EXPECT_STREQ(rfBandJsonVal->GetString(), "868");
+
+    rapidjson::Value* rfChannelAJsonVal = rapidjson::Pointer("/data/rsp/rfChannelA").Get(responseDoc);
+    EXPECT_NE(rfChannelAJsonVal, nullptr);
+    EXPECT_EQ(rfChannelAJsonVal->GetInt(), 33);
+
+    rapidjson::Value* rfChannelBJsonVal = rapidjson::Pointer("/data/rsp/rfChannelB").Get(responseDoc);
+    EXPECT_NE(rfChannelBJsonVal, nullptr);
+    EXPECT_EQ(rfChannelBJsonVal->GetInt(), 41);
+
+    rapidjson::Value* rfSubChannelAJsonVal = rapidjson::Pointer("/data/rsp/rfSubChannelA").Get(responseDoc);
+    EXPECT_NE(rfSubChannelAJsonVal, nullptr);
+    EXPECT_EQ(rfSubChannelAJsonVal->GetInt(), 8);
+
+    rapidjson::Value* rfSubChannelBJsonVal = rapidjson::Pointer("/data/rsp/rfSubChannelB").Get(responseDoc);
+    EXPECT_NE(rfSubChannelBJsonVal, nullptr);
+    EXPECT_EQ(rfSubChannelBJsonVal->GetInt(), 0);
+
+    rapidjson::Value* txPowerJsonVal = rapidjson::Pointer("/data/rsp/txPower").Get(responseDoc);
+    EXPECT_NE(txPowerJsonVal, nullptr);
+    EXPECT_EQ(txPowerJsonVal->GetInt(), 6);
+
+    rapidjson::Value* rxFilterJsonVal = rapidjson::Pointer("/data/rsp/rxFilter").Get(responseDoc);
+    EXPECT_NE(rxFilterJsonVal, nullptr);
+    EXPECT_EQ(rxFilterJsonVal->GetInt(), 6);
+
+    rapidjson::Value* lpRxTimeoutJsonVal = rapidjson::Pointer("/data/rsp/lpRxTimeout").Get(responseDoc);
+    EXPECT_NE(lpRxTimeoutJsonVal, nullptr);
+    EXPECT_EQ(lpRxTimeoutJsonVal->GetInt(), 6);
+
+    rapidjson::Value* rfPgmAltChannelJsonVal = rapidjson::Pointer("/data/rsp/rfPgmAltChannel").Get(responseDoc);
+    EXPECT_NE(rfPgmAltChannelJsonVal, nullptr);
+    EXPECT_EQ(rfPgmAltChannelJsonVal->GetInt(), 0);
+
+    rapidjson::Value* uartBaudrateJsonVal = rapidjson::Pointer("/data/rsp/uartBaudrate").Get(responseDoc);
+    EXPECT_NE(uartBaudrateJsonVal, nullptr);
+    EXPECT_EQ(uartBaudrateJsonVal->GetInt(), 9600);
+
+
+    // RFPGM subfields
+    rapidjson::Value* rfPgmDualChannelJsonVal = rapidjson::Pointer("/data/rsp/rfPgmDualChannel").Get(responseDoc);
+    EXPECT_NE(rfPgmDualChannelJsonVal, nullptr);
+    EXPECT_EQ(rfPgmDualChannelJsonVal->GetBool(), false);
+
+    rapidjson::Value* rfPgmLpModeJsonVal = rapidjson::Pointer("/data/rsp/rfPgmLpMode").Get(responseDoc);
+    EXPECT_NE(rfPgmLpModeJsonVal, nullptr);
+    EXPECT_EQ(rfPgmLpModeJsonVal->GetBool(), false);
+
+    rapidjson::Value* rfPgmIncorrectUploadJsonVal = rapidjson::Pointer("/data/rsp/rfPgmIncorrectUpload").Get(responseDoc);
+    EXPECT_NE(rfPgmIncorrectUploadJsonVal, nullptr);
+    EXPECT_EQ(rfPgmIncorrectUploadJsonVal->GetBool(), false);
+
+    rapidjson::Value* rfPgmEnableAfterResetJsonVal = rapidjson::Pointer("/data/rsp/rfPgmEnableAfterReset").Get(responseDoc);
+    EXPECT_NE(rfPgmEnableAfterResetJsonVal, nullptr);
+    EXPECT_EQ(rfPgmEnableAfterResetJsonVal->GetBool(), false);
     
-    //just logout for now
-    TRC_DEBUG(jmo);
+    rapidjson::Value* rfPgmTerminateAfter1MinJsonVal = rapidjson::Pointer("/data/rsp/rfPgmTerminateAfter1Min").Get(responseDoc);
+    EXPECT_NE(rfPgmTerminateAfter1MinJsonVal, nullptr);
+    EXPECT_EQ(rfPgmTerminateAfter1MinJsonVal->GetBool(), false);
+    
+    rapidjson::Value* rfPgmTerminateMcuPinJsonVal = rapidjson::Pointer("/data/rsp/rfPgmTerminateMcuPin").Get(responseDoc);
+    EXPECT_NE(rfPgmTerminateMcuPinJsonVal, nullptr);
+    EXPECT_EQ(rfPgmTerminateMcuPinJsonVal->GetBool(), false);
+    
+
+    // raw data
+    rapidjson::Value* rawDataJson = rapidjson::Pointer("/data/raw").Get(responseDoc);
+    EXPECT_NE(rawDataJson, nullptr);
+
+    if (!HasNonfatalFailure()) {
+      EXPECT_EQ(rawDataJson->IsArray(), true);
+      EXPECT_EQ(rawDataJson->Size(), 1);
+
+      // parsing and checking raw object
+      EXPECT_EQ((*rawDataJson)[0].IsObject(), true);
+
+      // request
+      rapidjson::Value::MemberIterator requestIter = (*rawDataJson)[0].FindMember("request");
+      EXPECT_NE(requestIter, (*rawDataJson)[0].MemberEnd());
+      EXPECT_STREQ(requestIter->value.GetString(), "00.00.02.02.ff.ff");
+
+      // confirmation
+      rapidjson::Value::MemberIterator confirmIter = (*rawDataJson)[0].FindMember("confirmation");
+      EXPECT_NE(confirmIter, (*rawDataJson)[0].MemberEnd());
+      EXPECT_STREQ(confirmIter->value.GetString(), "");
+
+      // response
+      rapidjson::Value::MemberIterator responseIter = (*rawDataJson)[0].FindMember("response");
+      EXPECT_NE(responseIter, (*rawDataJson)[0].MemberEnd());
+      EXPECT_STREQ(
+        responseIter->value.GetString(), 
+        "00.00.02.82.00.00.00.00.b4.c9.10.34.34.34.3c.34.32.32.32.37.34.34.34.34.34.15.1d.34.34.34.34.34.34.34.34.34.34.34.37.34.00.30"
+      );
+    }
+
+    
+
+    // status
+    rapidjson::Value* statusJsonVal = rapidjson::Pointer("/data/status").Get(responseDoc);
+    EXPECT_NE(statusJsonVal, nullptr);
+    EXPECT_EQ(statusJsonVal->GetInt(), 0);
+
+    rapidjson::Value* statusStr = rapidjson::Pointer("/data/statusStr").Get(responseDoc);
+    EXPECT_NE(statusStr, nullptr);
+    EXPECT_STREQ(statusStr->GetString(), "ok");
+
+    TRC_INFORMATION("Response = " << responseStr);
   }
 }
