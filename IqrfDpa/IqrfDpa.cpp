@@ -150,6 +150,30 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
+  IDpaTransaction2::TimingParams IqrfDpa::getTimingParams() const
+  {
+    return m_dpaHandler->getTimingParams();
+  }
+
+  void IqrfDpa::setTimingParams( IDpaTransaction2::TimingParams params )
+  {
+    TRC_FUNCTION_ENTER( "" );
+    m_dpaHandler->setTimingParams( params );
+    TRC_FUNCTION_LEAVE( "" )
+  }
+
+  IDpaTransaction2::FrcResponseTime IqrfDpa::getFrcResponseTime() const
+  {
+    return m_dpaHandler->getFrcResponseTime();
+  }
+
+  void IqrfDpa::setFrcResponseTime( IDpaTransaction2::FrcResponseTime frcResponseTime )
+  {
+    TRC_FUNCTION_ENTER( "" );
+    m_dpaHandler->setFrcResponseTime( frcResponseTime );
+    TRC_FUNCTION_LEAVE( "" )
+  }
+
   void IqrfDpa::registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun)
   {
     std::lock_guard<std::mutex> lck(m_asyncMessageHandlersMutex);
@@ -317,13 +341,15 @@ namespace iqrf {
       }
     }
 
-    IDpaTransaction2::FRC_TimingParams params;
-    params.bondedNodes = m_bondedNodes;
-    params.discoveredNodes = m_discoveredNodes;
-    params.responseTime = m_responseTime;
-    m_dpaHandler->setFrcTiming(params);
-
     getIqrfNetworkParams();
+
+    IDpaTransaction2::TimingParams timingParams;
+    timingParams.bondedNodes = m_bondedNodes;
+    timingParams.discoveredNodes = m_discoveredNodes;
+    timingParams.frcResponseTime = m_responseTime;
+    timingParams.dpaVersion = m_cPar.dpaVerWord;
+    timingParams.osVersion = m_cPar.osVersion;
+    m_dpaHandler->setTimingParams( timingParams );
 
     TRC_FUNCTION_LEAVE("")
   }
