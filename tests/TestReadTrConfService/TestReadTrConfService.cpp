@@ -443,8 +443,6 @@ namespace iqrf {
       );
     }
 
-    
-
     // status
     rapidjson::Value* statusJsonVal = rapidjson::Pointer("/data/status").Get(responseDoc);
     EXPECT_NE(statusJsonVal, nullptr);
@@ -453,7 +451,113 @@ namespace iqrf {
     rapidjson::Value* statusStr = rapidjson::Pointer("/data/statusStr").Get(responseDoc);
     EXPECT_NE(statusStr, nullptr);
     EXPECT_STREQ(statusStr->GetString(), "ok");
+  }
 
-    TRC_INFORMATION("Response = " << responseStr);
+  // invalid device address
+  TEST_F(ReadTrConfTesting, iqmeshReadTrConfService_2)
+  {
+    // JSON request - as received from messaging
+    std::string requestStr =
+      "{"
+      "  \"mType\": \"iqmeshNetwork_ReadTrConf\","
+      "  \"data\" : {"
+      "    \"msgId\": \"testReadTrConf\","
+      "    \"timeout\" : 1000,"
+      "    \"req\" : {"
+      "      \"deviceAddr\": -1"
+      "    },"
+      "    \"returnVerbose\" : true"
+      "  }"
+      "}";
+
+    // simulate receiving of request by splitter and tested service
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(requestStr);
+
+    // NOTE: 
+    // read Tr Conf Service should send error JSON response WITHOUT ever sending some DPA request
+
+    // expected JSON message output (jmo) as result of processing to be sent out by a messaging
+    std::string responseStr = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
+
+    rapidjson::Document responseDoc;
+    responseDoc.Parse(responseStr);
+
+
+    // testing response data field values
+    rapidjson::Value* msgMtypeJsonVal = rapidjson::Pointer("/mType").Get(responseDoc);
+    EXPECT_NE(msgMtypeJsonVal, nullptr);
+    EXPECT_STREQ(msgMtypeJsonVal->GetString(), "iqmeshNetwork_ReadTrConf");
+
+    rapidjson::Value* msgIdJsonVal = rapidjson::Pointer("/data/msgId").Get(responseDoc);
+    EXPECT_NE(msgIdJsonVal, nullptr);
+    EXPECT_STREQ(msgIdJsonVal->GetString(), "testReadTrConf");
+
+    // address should be NOT present in the response
+    rapidjson::Value* devAddrJsonVal = rapidjson::Pointer("/data/rsp/deviceAddr").Get(responseDoc);
+    EXPECT_EQ(devAddrJsonVal, nullptr);
+
+
+    // status
+    rapidjson::Value* statusJsonVal = rapidjson::Pointer("/data/status").Get(responseDoc);
+    EXPECT_NE(statusJsonVal, nullptr);
+    EXPECT_EQ(statusJsonVal->GetInt(), 1000);
+
+    rapidjson::Value* statusStr = rapidjson::Pointer("/data/statusStr").Get(responseDoc);
+    EXPECT_NE(statusStr, nullptr);
+    EXPECT_STRNE(statusStr->GetString(), "ok");
+  }
+
+  // invalid device address
+  TEST_F(ReadTrConfTesting, iqmeshReadTrConfService_3)
+  {
+    // JSON request - as received from messaging
+    std::string requestStr =
+      "{"
+      "  \"mType\": \"iqmeshNetwork_ReadTrConf\","
+      "  \"data\" : {"
+      "    \"msgId\": \"testReadTrConf\","
+      "    \"timeout\" : 1000,"
+      "    \"req\" : {"
+      "      \"deviceAddr\": 240"
+      "    },"
+      "    \"returnVerbose\" : true"
+      "  }"
+      "}";
+
+    // simulate receiving of request by splitter and tested service
+    Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(requestStr);
+
+    // NOTE: 
+    // read Tr Conf Service should send error JSON response WITHOUT ever sending some DPA request
+
+    // expected JSON message output (jmo) as result of processing to be sent out by a messaging
+    std::string responseStr = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
+
+    rapidjson::Document responseDoc;
+    responseDoc.Parse(responseStr);
+
+
+    // testing response data field values
+    rapidjson::Value* msgMtypeJsonVal = rapidjson::Pointer("/mType").Get(responseDoc);
+    EXPECT_NE(msgMtypeJsonVal, nullptr);
+    EXPECT_STREQ(msgMtypeJsonVal->GetString(), "iqmeshNetwork_ReadTrConf");
+
+    rapidjson::Value* msgIdJsonVal = rapidjson::Pointer("/data/msgId").Get(responseDoc);
+    EXPECT_NE(msgIdJsonVal, nullptr);
+    EXPECT_STREQ(msgIdJsonVal->GetString(), "testReadTrConf");
+
+    // address should be NOT present in the response
+    rapidjson::Value* devAddrJsonVal = rapidjson::Pointer("/data/rsp/deviceAddr").Get(responseDoc);
+    EXPECT_EQ(devAddrJsonVal, nullptr);
+
+
+    // status
+    rapidjson::Value* statusJsonVal = rapidjson::Pointer("/data/status").Get(responseDoc);
+    EXPECT_NE(statusJsonVal, nullptr);
+    EXPECT_EQ(statusJsonVal->GetInt(), 1000);
+
+    rapidjson::Value* statusStr = rapidjson::Pointer("/data/statusStr").Get(responseDoc);
+    EXPECT_NE(statusStr, nullptr);
+    EXPECT_STRNE(statusStr->GetString(), "ok");
   }
 }
