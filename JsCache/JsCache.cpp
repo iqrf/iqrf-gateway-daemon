@@ -1186,13 +1186,13 @@ namespace iqrf {
       });
 
       if (m_checkPeriodInMinutes > 0) {
-        int checkPeriodInMillis = m_checkPeriodInMinutes * 60000;
+        int checkPeriodInSeconds = m_checkPeriodInMinutes * 60;
         Document task;
         task.SetString(CHECK_CACHE.c_str(), task.GetAllocator());
         auto tp = std::chrono::system_clock::now();
-        tp += std::chrono::milliseconds(checkPeriodInMillis);
+        tp += std::chrono::seconds(checkPeriodInSeconds);
         //delay 1.st period
-        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(checkPeriodInMillis * 1000), tp);
+        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(checkPeriodInSeconds), tp);
         TRC_INFORMATION("Cache update scheduled: " << PAR(m_checkPeriodInMinutes));
       }
       else {

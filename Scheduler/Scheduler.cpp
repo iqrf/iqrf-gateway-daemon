@@ -189,8 +189,14 @@ namespace iqrf {
   Scheduler::TaskHandle Scheduler::scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
     const std::chrono::system_clock::time_point& tp)
   {
-    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, sec, tp));
-    return addScheduleRecord(s);
+    try {
+      std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, sec, tp));
+      return addScheduleRecord(s);
+    }
+    catch (std::exception &e) {
+      CATCH_EXC_TRC_WAR(std::exception, e, "Cannot schedule task " << PAR(clientId));
+    }
+    return 0;
   }
 
   int Scheduler::handleScheduledRecord(const ScheduleRecord& record)
@@ -200,13 +206,18 @@ namespace iqrf {
 
     {
       std::lock_guard<std::mutex> lck(m_messageHandlersMutex);
-      auto found = m_messageHandlers.find(record.getClientId());
-      if (found != m_messageHandlers.end()) {
-        //TRC_DEBUG(NAME_PAR(Task, record.getTask()) << " has been passed to: " << NAME_PAR(ClinetId, record.getClientId()));
-        found->second(record.getTask());
+      try {
+        auto found = m_messageHandlers.find(record.getClientId());
+        if (found != m_messageHandlers.end()) {
+          //TRC_DEBUG(NAME_PAR(Task, record.getTask()) << " has been passed to: " << NAME_PAR(ClinetId, record.getClientId()));
+          found->second(record.getTask());
+        }
+        else {
+          TRC_DEBUG("Unregistered client: " << PAR(record.getClientId()));
+        }
       }
-      else {
-        TRC_DEBUG("Unregistered client: " << PAR(record.getClientId()));
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "untreated handler exception");
       }
     }
 

@@ -269,7 +269,7 @@ namespace iqrf {
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
           //smartConnectTransaction = m_iIqrfDpaService->executeDpaTransaction(smartConnectRequest, 11000);
-          smartConnectTransaction = m_exclusiveAccess->executeDpaTransaction(smartConnectRequest, 11000);
+          smartConnectTransaction = m_exclusiveAccess->executeDpaTransaction(smartConnectRequest, 0);
           transResult = smartConnectTransaction->get();
         }
         catch (std::exception& e) {

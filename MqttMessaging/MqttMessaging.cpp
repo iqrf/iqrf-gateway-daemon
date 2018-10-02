@@ -355,7 +355,8 @@ namespace iqrf {
     void onConnectFailure(MQTTAsync_failureData* response) {
       TRC_FUNCTION_ENTER("");
       if (response) {
-        TRC_WARNING("Connect failed: " << PAR(response->code) << PAR(m_mqttTopicRequest) << PAR(m_mqttQos));
+        TRC_WARNING("Connect failed: " << PAR(response->code) << NAME_PAR(errmsg, (response->message ? response->message : "-")) <<
+          PAR(m_mqttTopicRequest) << PAR(m_mqttQos));
       }
 
       {
