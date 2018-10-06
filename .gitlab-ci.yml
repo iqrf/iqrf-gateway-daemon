@@ -28,9 +28,9 @@ stages:
 .arch_rpi-template: &arch_rpi-template
     image: iqrfsdk/iqrf-gateway-daemon-build:latest-rpi
     variables:
-        ARCH: "rpi-armhf"
+        ARCH: "armhf"
     tags:
-        - linux, rpi-armhf
+        - linux, armhf
 
 .daemon-template-dev: &daemon-template-dev
     stage: build-dev
