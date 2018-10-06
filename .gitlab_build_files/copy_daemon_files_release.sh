@@ -74,7 +74,7 @@ cp shapeware-libs${IQRFGD2_LIBS}/* ${DEPLOY}${IQRFGD2_LIBS}
 #cp shapeware-libs/usr/local/lib/* ${DEPLOY}${LOCAL_LIBS}
 
 # PAHO
-cp paho-build/src/*.so.1.2.0 ${DEPLOY}${LOCAL_LIBS}
+cp paho-build/src/*.so* ${DEPLOY}${LOCAL_LIBS}
 
 # NO EXE
 chmod -x ${DEPLOY}${IQRFGD2_LIBS}/*
