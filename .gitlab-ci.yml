@@ -25,6 +25,13 @@ stages:
     tags:
         - linux, armhf
 
+.arch_rpi-template: &arch_rpi-template
+    image: iqrfsdk/iqrf-gateway-daemon-build:latest-rpi
+    variables:
+        ARCH: "rpi-armhf"
+    tags:
+        - linux, rpi-armhf
+
 .daemon-template-dev: &daemon-template-dev
     stage: build-dev
     only:
@@ -108,7 +115,7 @@ stages:
     dependencies: []
     script:
         - git clone https://github.com/eclipse/paho.mqtt.c.git paho-source
-        - git -C paho-source checkout v1.2.0
+        - git -C paho-source checkout v1.3.0
         - mkdir paho-build
         - cmake -Bpaho-build -Hpaho-source -DCMAKE_BUILD_TYPE=Debug -DPAHO_WITH_SSL=TRUE
         - make -j$(nproc) -C paho-build
@@ -127,7 +134,7 @@ stages:
     dependencies: []
     script:
         - git clone https://github.com/eclipse/paho.mqtt.c.git paho-source
-        - git -C paho-source checkout v1.2.0
+        - git -C paho-source checkout v1.3.0
         - mkdir paho-build
         - cmake -Bpaho-build -Hpaho-source -DPAHO_WITH_SSL=TRUE
         - make -j$(nproc) -C paho-build
@@ -207,6 +214,8 @@ stages:
             - shapeware-libs_*.tar.gz
         expire_in: 2 weeks
 
+#AMD64
+
 shape_&_shapeware-amd64-dev:
     <<: *arch_amd64-template
     <<: *shape_shapeware-template-dev
@@ -236,6 +245,8 @@ daemon-amd64:
     dependencies:
         - shape_&_shapeware-amd64
         - paho-amd64
+
+#ARMHF
 
 shape_&_shapeware-armhf-dev:
     <<: *arch_armhf-template
@@ -267,6 +278,8 @@ daemon-armhf:
         - shape_&_shapeware-armhf
         - paho-armhf
 
+#ARM64
+
 shape_&_shapeware-arm64-dev:
     <<: *arch_arm64-template
     <<: *shape_shapeware-template-dev
@@ -296,3 +309,35 @@ daemon-arm64:
     dependencies:
         - shape_&_shapeware-arm64
         - paho-arm64
+
+#RPI
+
+shape_&_shapeware-rpi-dev:
+    <<: *arch_rpi-template
+    <<: *shape_shapeware-template-dev
+
+paho-rpi-dev:
+    <<: *arch_rpi-template
+    <<: *paho-template-dev
+
+daemon-rpi-dev:
+    <<: *arch_rpi-template
+    <<: *daemon-template-dev
+    dependencies:
+        - shape_&_shapeware-rpi-dev
+        - paho-rpi-dev
+
+shape_&_shapeware-rpi:
+    <<: *arch_rpi-template
+    <<: *shape_shapeware-template
+
+paho-rpi:
+    <<: *arch_rpi-template
+    <<: *paho-template
+
+daemon-rpi:
+    <<: *arch_rpi-template
+    <<: *daemon-template
+    dependencies:
+        - shape_&_shapeware-rpi
+        - paho-rpi
