@@ -117,8 +117,9 @@ stages:
         - git clone https://github.com/eclipse/paho.mqtt.c.git paho-source
         - git -C paho-source checkout v1.3.0
         - mkdir paho-build
-        - cmake -Bpaho-build -Hpaho-source -DCMAKE_BUILD_TYPE=Debug -DPAHO_WITH_SSL=TRUE
+        - cmake -Bpaho-build -Hpaho-source -DCMAKE_BUILD_TYPE=Debug -DPAHO_WITH_SSL=TRUE PAHO_BUILD_DEB_PACKAGE=TRUE
         - make -j$(nproc) -C paho-build
+        - make -j$(nproc) -C paho-build package
         - tar czvf paho-source_${ARCH}.tar.gz paho-source
         - tar czvf paho-build_${ARCH}.tar.gz paho-build
     artifacts:
@@ -136,8 +137,9 @@ stages:
         - git clone https://github.com/eclipse/paho.mqtt.c.git paho-source
         - git -C paho-source checkout v1.3.0
         - mkdir paho-build
-        - cmake -Bpaho-build -Hpaho-source -DPAHO_WITH_SSL=TRUE
+        - cmake -Bpaho-build -Hpaho-source -DPAHO_WITH_SSL=TRUE PAHO_BUILD_DEB_PACKAGE=TRUE
         - make -j$(nproc) -C paho-build
+        - make -j$(nproc) -C paho-build package
         - tar czvf paho-source_${ARCH}.tar.gz paho-source
         - tar czvf paho-build_${ARCH}.tar.gz paho-build
     artifacts:
