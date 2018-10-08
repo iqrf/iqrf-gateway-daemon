@@ -88,7 +88,7 @@ inline MQDESCR openMqWrite(const std::string name, unsigned bufsize)
   attr.mq_curmsgs = 0;
 
   TRC_DEBUG("explicit attributes" << PAR(attr.mq_maxmsg) << PAR(attr.mq_msgsize))
-  mqd_t retval = mq_open(name.c_str(), O_RDWR | O_CREAT, QUEUE_PERMISSIONS);
+  mqd_t retval = mq_open(name.c_str(), O_RDWR | O_CREAT, QUEUE_PERMISSIONS, nullptr);
 
   if (retval > 0) {
     struct mq_attr nwattr;
