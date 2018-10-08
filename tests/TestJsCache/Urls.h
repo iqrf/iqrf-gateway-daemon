@@ -5,7 +5,7 @@
 namespace iqrf {
 
   static std::vector<const char*> testUrls = {
-     "https://repository.iqrfalliance.org/api/server"
+    "https://repository.iqrfalliance.org/api/server"
     ,"https://repository.iqrfalliance.org/api/server"
     ,"https://repository.iqrfalliance.org/api/companies"
     ,"https://repository.iqrfalliance.org/api/manufacturers"

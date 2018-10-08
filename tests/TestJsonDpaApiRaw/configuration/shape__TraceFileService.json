@@ -1,0 +1,14 @@
+{
+  "component": "shape::TraceFileService",
+  "instance": "shape::TraceFileService-startup",
+
+  "path": "",
+  "filename": "TestJsonDpaApiRaw",
+
+  "VerbosityLevels": [
+    {
+      "channel": 0,
+      "level": "DBG"
+    }
+  ]
+}

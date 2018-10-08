@@ -459,14 +459,17 @@ namespace iqrf {
     cfg->update();
 
     JsCacheTesting::prepareTestDataFakeOsDpa();
+    Imp::get().m_iTestSimulationIRestApiService->clearIncomingRequest();
 
     //update cfg to repo check every 0.02 min
     Pointer("/checkPeriodInMinutes").Set(doc, 0.02);
     cfg->update();
 
+    int num = 10;
     for (const char* url : testUrls) {
       std::string inReq = Imp::get().m_iTestSimulationIRestApiService->popIncomingRequest(MILLIS_WAIT);
       EXPECT_EQ(url, inReq);
+      if (num-- < 0) break;
     }
 
     // now the cache shall be reloaded by the lowest supported result
