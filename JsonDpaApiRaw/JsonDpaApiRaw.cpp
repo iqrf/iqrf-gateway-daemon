@@ -116,7 +116,7 @@ namespace iqrf {
     void handleAsyncDpaMessage(const DpaMessage& msg)
     {
       std::string fakeRequestStr =
-        "{\"mType\": \"iqrfRaw\",\"data\":{\"msgId\": \"async\",\"req\":{\"request\":\"00.00.00.00.00.00\"}}}";
+        "{\"mType\": \"iqrfRaw\",\"data\":{\"msgId\": \"async\",\"req\":{\"rData\":\"00.00.00.00.00.00\"}}}";
       Document fakeRequest;
       fakeRequest.Parse(fakeRequestStr);
       Document respDoc;
