@@ -168,7 +168,7 @@ namespace iqrf {
   }
 
   ////////////////////////////////////////////////////////
-  class JsonDpaApiIqrfStandardTesting : public ::testing::Test
+  class JsonDpaApiRawTesting : public ::testing::Test
   {
   protected:
 
@@ -197,37 +197,7 @@ namespace iqrf {
 
   const unsigned MILLIS_WAIT = 1000;
 
-#if 0
-  //TODO move to IqrfDpa testing
-  TEST_F(JsonDpaApiIqrfStandardTesting, IqrfDpaActivate)
-  {
-    //simulate send async response after TR reset
-    Imp::get().m_accessControl.messageHandler(DotMsg("00.00.ff.3f.00.00.00.00.28.02.00.fd.26.00.00.00.00.00.00.01"));
-    EXPECT_EQ("00.00.02.00.ff.ff", Imp::get().fetchMessage(MILLIS_WAIT));
-
-    //simulate send OS read response
-    Imp::get().m_accessControl.messageHandler(DotMsg("00.00.02.80.00.00.00.00.8a.52.00.81.38.24.79.08.00.28.00.c0"));
-    EXPECT_EQ(ATTACH_IqrfDpa, Imp::get().fetchMessage(MILLIS_WAIT*2));
-
-    auto par = Imp::get().m_iIqrfDpaService->getCoordinatorParameters();
-    TRC_DEBUG(PAR(par.demoFlag) << PAR(par.dpaVer) << PAR(par.dpaVerMajor) << PAR(par.dpaVerMinor) <<
-      PAR(par.lpModeSupportFlag) << PAR(par.stdModeSupportFlag) << std::endl <<
-      PAR(par.mcuType) << PAR(par.moduleId) << PAR(par.osBuild) << PAR(par.osVersion) );
-
-    EXPECT_EQ(false, par.demoFlag);
-    EXPECT_EQ("02.28", par.dpaVer);
-    EXPECT_EQ(2, par.dpaVerMajor);
-    EXPECT_EQ(28, par.dpaVerMinor);
-    EXPECT_EQ(false, par.lpModeSupportFlag);
-    EXPECT_EQ(true, par.stdModeSupportFlag);
-    EXPECT_EQ("PIC16F1938", par.mcuType);
-    EXPECT_EQ("8100528a", par.moduleId);
-    EXPECT_EQ("0879", par.osBuild);
-    EXPECT_EQ(" 3.08D", par.osVersion);
-  }
-#endif
-
-  TEST_F(JsonDpaApiIqrfStandardTesting, iqrfEmbedCoordinator_AddrInfo)
+  TEST_F(JsonDpaApiRawTesting, iqrfEmbedCoordinator_AddrInfo)
   {
     //JSON message input (jmi) as received from a messaging
     std::string jmoexp =
