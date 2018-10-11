@@ -996,7 +996,7 @@ namespace iqrf {
 
           try {
             //frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
-            frcWriteConfigTransaction = m_exclusiveAccess->executeDpaTransaction(frcRequest);
+            frcWriteConfigTransaction = m_exclusiveAccess->executeDpaTransaction(frcRequest, 0);
             transResult = frcWriteConfigTransaction->get();
           }
           catch (std::exception& e) {
@@ -1089,7 +1089,7 @@ namespace iqrf {
 
           try {
             //extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
-            extraResultTransaction = m_exclusiveAccess->executeDpaTransaction(extraResultRequest);
+            extraResultTransaction = m_exclusiveAccess->executeDpaTransaction(extraResultRequest, 0);
             transResult = extraResultTransaction->get();
           }
           catch (std::exception& e) {
@@ -1664,7 +1664,7 @@ namespace iqrf {
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
           //frcWriteConfigTransaction = m_iIqrfDpaService->executeDpaTransaction(frcRequest);
-          frcWriteConfigTransaction = m_exclusiveAccess->executeDpaTransaction(frcRequest);
+          frcWriteConfigTransaction = m_exclusiveAccess->executeDpaTransaction(frcRequest, 0);
           transResult = frcWriteConfigTransaction->get();
         }
         catch (std::exception& e) {
@@ -1756,7 +1756,7 @@ namespace iqrf {
 
         try {
           //extraResultTransaction = m_iIqrfDpaService->executeDpaTransaction(extraResultRequest);
-          extraResultTransaction = m_exclusiveAccess->executeDpaTransaction(extraResultRequest);
+          extraResultTransaction = m_exclusiveAccess->executeDpaTransaction(extraResultRequest, 0);
           transResult = extraResultTransaction->get();
         }
         catch (std::exception& e) {
