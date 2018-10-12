@@ -124,6 +124,7 @@ namespace iqrf {
       ComRaw asyncResp(fakeRequest);
       FakeAsyncTransactionResult res(msg);
 
+      asyncResp.setStatus(res.getErrorString(), res.getErrorCode());
       asyncResp.createResponse(respDoc, res);
 
       //update message type - type is the same for request/response

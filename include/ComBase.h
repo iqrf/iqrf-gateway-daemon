@@ -24,22 +24,18 @@ namespace iqrf {
 
     virtual ~ComBase()
     {
-
     }
 
-    const std::string& getMsgId() const
-    {
-      return m_msgId;
-    }
-
-    const int32_t getTimeout() const
-    {
-      return m_timeout;
-    }
-
-    const bool getVerbose() const
-    {
-      return m_verbose;
+    const std::string& getMsgId() const { return m_msgId; }
+    const int32_t getTimeout() const { return m_timeout; }
+    const bool getVerbose() const { return m_verbose; }
+    const std::string& getInsId() const { return m_insId; }
+    const std::string& getStatusStr() const { return m_statusStr; }
+    int getStatus() const { return m_status; }
+    void setInsId(const std::string& insId) { m_insId = insId; }
+    void setStatus(const std::string& statusStr, int status) {
+      m_statusStr = statusStr;
+      m_status = status;
     }
 
     const DpaMessage& getDpaRequest() const
@@ -60,18 +56,18 @@ namespace iqrf {
       createResponsePayload(doc, res);
 
       if (m_verbose) {
-        rapidjson::Pointer("/data/raw/request").Set(doc, encodeBinary(res.getRequest().DpaPacket().Buffer, res.getRequest().GetLength()));
-        rapidjson::Pointer("/data/raw/requestTs").Set(doc, encodeTimestamp(res.getRequestTs()));
-        rapidjson::Pointer("/data/raw/confirmation").Set(doc, encodeBinary(res.getConfirmation().DpaPacket().Buffer, res.getConfirmation().GetLength()));
-        rapidjson::Pointer("/data/raw/confirmationTs").Set(doc, encodeTimestamp(res.getConfirmationTs()));
-        rapidjson::Pointer("/data/raw/response").Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
-        rapidjson::Pointer("/data/raw/responseTs").Set(doc, encodeTimestamp(res.getResponseTs()));
+        rapidjson::Pointer("/data/raw/0/request").Set(doc, encodeBinary(res.getRequest().DpaPacket().Buffer, res.getRequest().GetLength()));
+        rapidjson::Pointer("/data/raw/0/requestTs").Set(doc, encodeTimestamp(res.getRequestTs()));
+        rapidjson::Pointer("/data/raw/0/confirmation").Set(doc, encodeBinary(res.getConfirmation().DpaPacket().Buffer, res.getConfirmation().GetLength()));
+        rapidjson::Pointer("/data/raw/0/confirmationTs").Set(doc, encodeTimestamp(res.getConfirmationTs()));
+        rapidjson::Pointer("/data/raw/0/response").Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
+        rapidjson::Pointer("/data/raw/0/responseTs").Set(doc, encodeTimestamp(res.getResponseTs()));
 
-        rapidjson::Pointer("/data/insId").Set(doc, "iqrfgd2-1"); // TODO replace by daemon instance id
-        rapidjson::Pointer("/data/statusStr").Set(doc, res.getErrorString());
+        rapidjson::Pointer("/data/insId").Set(doc, m_insId);
+        rapidjson::Pointer("/data/statusStr").Set(doc, m_statusStr);
       }
 
-      rapidjson::Pointer("/data/status").Set(doc, res.getErrorCode());
+      rapidjson::Pointer("/data/status").Set(doc, m_status);
     }
 
   protected:
@@ -83,5 +79,8 @@ namespace iqrf {
     std::string m_msgId;
     int32_t m_timeout = -1;
     bool m_verbose = false;
+    std::string m_insId = "iqrfgd2-1";
+    std::string m_statusStr = "unknown";
+    int m_status = -1;
   };
 }

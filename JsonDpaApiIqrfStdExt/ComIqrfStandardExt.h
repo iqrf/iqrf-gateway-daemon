@@ -65,12 +65,12 @@ namespace iqrf {
 
       if (getVerbose()) {
         r = (bool)m_res;
-        rapidjson::Pointer("/data/raw/request").Set(doc, r ? encodeBinary(m_res->getRequest().DpaPacket().Buffer, m_res->getRequest().GetLength()) : "");
-        rapidjson::Pointer("/data/raw/requestTs").Set(doc, r ? encodeTimestamp(m_res->getRequestTs()) : "");
-        rapidjson::Pointer("/data/raw/confirmation").Set(doc, r ? encodeBinary(m_res->getConfirmation().DpaPacket().Buffer, m_res->getConfirmation().GetLength()) : "");
-        rapidjson::Pointer("/data/raw/confirmationTs").Set(doc, r ? encodeTimestamp(m_res->getConfirmationTs()) : "");
-        rapidjson::Pointer("/data/raw/response").Set(doc, r ? encodeBinary(m_res->getResponse().DpaPacket().Buffer, m_res->getResponse().GetLength()) : "");
-        rapidjson::Pointer("/data/raw/responseTs").Set(doc, r ? encodeTimestamp(m_res->getResponseTs()) : "");
+        rapidjson::Pointer("/data/raw/0/request").Set(doc, r ? encodeBinary(m_res->getRequest().DpaPacket().Buffer, m_res->getRequest().GetLength()) : "");
+        rapidjson::Pointer("/data/raw/0/requestTs").Set(doc, r ? encodeTimestamp(m_res->getRequestTs()) : "");
+        rapidjson::Pointer("/data/raw/0/confirmation").Set(doc, r ? encodeBinary(m_res->getConfirmation().DpaPacket().Buffer, m_res->getConfirmation().GetLength()) : "");
+        rapidjson::Pointer("/data/raw/0/confirmationTs").Set(doc, r ? encodeTimestamp(m_res->getConfirmationTs()) : "");
+        rapidjson::Pointer("/data/raw/0/response").Set(doc, r ? encodeBinary(m_res->getResponse().DpaPacket().Buffer, m_res->getResponse().GetLength()) : "");
+        rapidjson::Pointer("/data/raw/0/responseTs").Set(doc, r ? encodeTimestamp(m_res->getResponseTs()) : "");
       }
     }
 
@@ -138,12 +138,12 @@ namespace iqrf {
       
       bool r = (bool)m_extraRes;
       if (getVerbose() && r) {
-        rapidjson::Pointer("/data/rawExtra/request").Set(doc, r ? encodeBinary(m_extraRes->getRequest().DpaPacket().Buffer, m_extraRes->getRequest().GetLength()) : "");
-        rapidjson::Pointer("/data/rawExtra/requestTs").Set(doc, r ? encodeTimestamp(m_extraRes->getRequestTs()) : "");
-        rapidjson::Pointer("/data/rawExtra/confirmation").Set(doc, r ? encodeBinary(m_extraRes->getConfirmation().DpaPacket().Buffer, m_extraRes->getConfirmation().GetLength()) : "");
-        rapidjson::Pointer("/data/rawExtra/confirmationTs").Set(doc, r ? encodeTimestamp(m_extraRes->getConfirmationTs()) : "");
-        rapidjson::Pointer("/data/rawExtra/response").Set(doc, r ? encodeBinary(m_extraRes->getResponse().DpaPacket().Buffer, m_extraRes->getResponse().GetLength()) : "");
-        rapidjson::Pointer("/data/rawExtra/responseTs").Set(doc, r ? encodeTimestamp(m_extraRes->getResponseTs()) : "");
+        rapidjson::Pointer("/data/raw/1/request").Set(doc, r ? encodeBinary(m_extraRes->getRequest().DpaPacket().Buffer, m_extraRes->getRequest().GetLength()) : "");
+        rapidjson::Pointer("/data/raw/1/requestTs").Set(doc, r ? encodeTimestamp(m_extraRes->getRequestTs()) : "");
+        rapidjson::Pointer("/data/raw/1/confirmation").Set(doc, r ? encodeBinary(m_extraRes->getConfirmation().DpaPacket().Buffer, m_extraRes->getConfirmation().GetLength()) : "");
+        rapidjson::Pointer("/data/raw/1/confirmationTs").Set(doc, r ? encodeTimestamp(m_extraRes->getConfirmationTs()) : "");
+        rapidjson::Pointer("/data/raw/1/response").Set(doc, r ? encodeBinary(m_extraRes->getResponse().DpaPacket().Buffer, m_extraRes->getResponse().GetLength()) : "");
+        rapidjson::Pointer("/data/raw/1/responseTs").Set(doc, r ? encodeTimestamp(m_extraRes->getResponseTs()) : "");
       }
     }
 

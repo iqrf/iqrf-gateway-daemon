@@ -203,7 +203,9 @@ namespace iqrf {
         Document rDataError;
         rDataError.SetString(errStrReq, rDataError.GetAllocator());
         com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
-        com->createResponse(allResponseDoc, FakeTransactionResult());
+        FakeTransactionResult fr;
+        com->setStatus(fr.getErrorString(), fr.getErrorCode());
+        com->createResponse(allResponseDoc, fr);
       }
       else {
         TRC_DEBUG(PAR(rawHdpRequest));
@@ -258,6 +260,7 @@ namespace iqrf {
               rDataError.SetString(errStrRes.c_str(), rDataError.GetAllocator());
               com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
               res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);
+              com->setStatus(res->getErrorString(), res->getErrorCode());
               com->createResponse(allResponseDoc, *res);
             }
             else {
@@ -266,6 +269,7 @@ namespace iqrf {
               rspObj.Parse(rspObjStr);
               TRC_DEBUG("result object: " << std::endl << JsonToStr(&rspObj));
               com->setPayload("/data/rsp/result", std::move(rspObj), false);
+              com->setStatus(res->getErrorString(), res->getErrorCode());
               com->createResponse(allResponseDoc, *res);
             }
           }
@@ -273,6 +277,7 @@ namespace iqrf {
             Document rDataError;
             rDataError.SetString("rcode error", rDataError.GetAllocator());
             com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
+            com->setStatus(res->getErrorString(), res->getErrorCode());
             com->createResponse(allResponseDoc, *res);
           }
         }
@@ -281,6 +286,7 @@ namespace iqrf {
             Document rDataError;
             rDataError.SetString("rcode error", rDataError.GetAllocator());
             com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
+            com->setStatus(res->getErrorString(), res->getErrorCode());
             com->createResponse(allResponseDoc, *res);
           }
           else {
@@ -288,6 +294,7 @@ namespace iqrf {
             Document rspObj;
             Pointer("/response").Set(rspObj, "unrequired");
             com->setPayload("/data/rsp/result", std::move(rspObj), false);
+            com->setStatus(res->getErrorString(), res->getErrorCode());
             com->createResponse(allResponseDoc, *res);
           }
         }
