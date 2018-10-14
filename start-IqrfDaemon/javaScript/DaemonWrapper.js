@@ -807,135 +807,144 @@ iqrf.embed.frc.SetParams_Response_rsp = function (rawHdp) {
 ////////////////////////
 // IqrfStandardBinaryOutput
 ////////////////////////
-iqrf.binaryoutput.Enumerate_Request_req = function (param) {
-    return iqrf.binaryoutput.Enumerate_Request();
-};
+if (iqrf.binaryoutput !== undefined) {
 
-iqrf.binaryoutput.Enumerate_Response_rsp = function (rawHdp) {
-    var result =
-    {
-        binOuts: iqrf.binaryoutput.Enumerate_Response(rawHdp)
-    };
-    return result;
-};
+	iqrf.binaryoutput.enumerate_request_req = function (param) {
+		return iqrf.binaryoutput.enumerate_request();
+	};
 
-iqrf.binaryoutput.SetOutput_Request_req = function (param) {
-    return iqrf.binaryoutput.SetOutput_Request(param.binOuts);
-};
+	iqrf.binaryoutput.enumerate_response_rsp = function (rawhdp) {
+		var result =
+		{
+			binouts: iqrf.binaryoutput.enumerate_response(rawhdp)
+		};
+		return result;
+	};
 
-iqrf.binaryoutput.SetOutput_Response_rsp = function (rawHdp) {
-    var result =
-    {
-        prevVals: iqrf.binaryoutput.SetOutput_Response(rawHdp)
-    };
-    return result;
-};
+	iqrf.binaryoutput.setoutput_request_req = function (param) {
+		return iqrf.binaryoutput.setoutput_request(param.binouts);
+	};
+
+	iqrf.binaryoutput.setoutput_response_rsp = function (rawhdp) {
+		var result =
+		{
+			prevvals: iqrf.binaryoutput.setoutput_response(rawhdp)
+		};
+		return result;
+	};
+}
 
 ////////////////////////
 // IqrfStandardLight
 ////////////////////////
-iqrf.light.Enumerate_Request_req = function (param) {
-    return iqrf.light.Enumerate_Request();
-};
+if (iqrf.light !== undefined) {
+	
+	iqrf.light.Enumerate_Request_req = function (param) {
+		return iqrf.light.Enumerate_Request();
+	};
 
-iqrf.light.Enumerate_Response_rsp = function (rawHdp) {
-    var result =
-    {
-        lights: iqrf.light.Enumerate_Response(rawHdp)
-    };
-    return result;
-};
+	iqrf.light.Enumerate_Response_rsp = function (rawHdp) {
+		var result =
+		{
+			lights: iqrf.light.Enumerate_Response(rawHdp)
+		};
+		return result;
+	};
 
-iqrf.light.SetPower_Request_req = function (param) {
-    return iqrf.light.SetPower_Request(param.lights);
-};
+	iqrf.light.SetPower_Request_req = function (param) {
+		return iqrf.light.SetPower_Request(param.lights);
+	};
 
-iqrf.light.SetPower_Response_rsp = function (rawHdp) {
-    var result =
-    {
-        prevVals: iqrf.light.SetPower_Response(rawHdp)
-    };
-    return result;
-};
+	iqrf.light.SetPower_Response_rsp = function (rawHdp) {
+		var result =
+		{
+			prevVals: iqrf.light.SetPower_Response(rawHdp)
+		};
+		return result;
+	};
 
-iqrf.light.IncrementPower_Request_req = function (param) {
-    return iqrf.light.IncrementPower_Request(param.lights);
-};
+	iqrf.light.IncrementPower_Request_req = function (param) {
+		return iqrf.light.IncrementPower_Request(param.lights);
+	};
 
-iqrf.light.IncrementPower_Response_rsp = function (rawHdp) {
-    var result =
-    {
-        prevVals: iqrf.light.IncrementPower_Response(rawHdp)
-    };
-    return result;
-};
+	iqrf.light.IncrementPower_Response_rsp = function (rawHdp) {
+		var result =
+		{
+			prevVals: iqrf.light.IncrementPower_Response(rawHdp)
+		};
+		return result;
+	};
 
-iqrf.light.DecrementPower_Request_req = function (param) {
-    return iqrf.light.DecrementPower_Request(param.lights);
-};
+	iqrf.light.DecrementPower_Request_req = function (param) {
+		return iqrf.light.DecrementPower_Request(param.lights);
+	};
 
-iqrf.light.DecrementPower_Response_rsp = function (rawHdp) {
-    var result =
-    {
-        prevVals: iqrf.light.DecrementPower_Response(rawHdp)
-    };
-    return result;
-};
+	iqrf.light.DecrementPower_Response_rsp = function (rawHdp) {
+		var result =
+		{
+			prevVals: iqrf.light.DecrementPower_Response(rawHdp)
+		};
+		return result;
+	};
+}
 
 ////////////////////////
 // IqrfStandardSensor
 ////////////////////////
-iqrf.sensor.Enumerate_Request_req = function (param) {
-    return iqrf.sensor.Enumerate_Request();
-};
+if (iqrf.sensor !== undefined) {
+	
+	iqrf.sensor.Enumerate_Request_req = function (param) {
+		return iqrf.sensor.Enumerate_Request();
+	};
 
-iqrf.sensor.Enumerate_Response_rsp = function (rawHdp) {
-    var result =
-    {
-        sensors: iqrf.sensor.Enumerate_Response(rawHdp)
-    };
-    return result;
-};
+	iqrf.sensor.Enumerate_Response_rsp = function (rawHdp) {
+		var result =
+		{
+			sensors: iqrf.sensor.Enumerate_Response(rawHdp)
+		};
+		return result;
+	};
 
-iqrf.sensor.ReadSensorsWithTypes_Request_req = function (param) {
-    return iqrf.sensor.ReadSensorsWithTypes_Request(param.sensorIndexes);
-};
+	iqrf.sensor.ReadSensorsWithTypes_Request_req = function (param) {
+		return iqrf.sensor.ReadSensorsWithTypes_Request(param.sensorIndexes);
+	};
 
-iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {
-    var result =
-    {
-        sensors: iqrf.sensor.ReadSensorsWithTypes_Response(rawHdp)
-    };
-    return result;
-};
+	iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {
+		var result =
+		{
+			sensors: iqrf.sensor.ReadSensorsWithTypes_Response(rawHdp)
+		};
+		return result;
+	};
 
-iqrf.sensor.Frc_Request_req = function (param) {
-    var result =
-    {
-        retpars: iqrf.sensor.Frc_Request(param.sensorType, param.sensorIndex, param.frcCommand, param.selectedNodes, param.sleepAfterFrc)
-    };
-    return result;
-};
+	iqrf.sensor.Frc_Request_req = function (param) {
+		var result =
+		{
+			retpars: iqrf.sensor.Frc_Request(param.sensorType, param.sensorIndex, param.frcCommand, param.selectedNodes, param.sleepAfterFrc)
+		};
+		return result;
+	};
 
-//special handling with state info because of parameter per to be passed
-iqrf.sensor.Frc_Response_rsp = function (param) {
-   var result =
-   {
-       sensors: iqrf.sensor.Frc_Response(param.sensorType, param.frcCommand, param.responseFrcSend, param.responseFrcExtraResult)
-   };
-   return result;
-};
+	//special handling with state info because of parameter per to be passed
+	iqrf.sensor.Frc_Response_rsp = function (param) {
+	   var result =
+	   {
+		   sensors: iqrf.sensor.Frc_Response(param.sensorType, param.frcCommand, param.responseFrcSend, param.responseFrcExtraResult)
+	   };
+	   return result;
+	};
+}
 
 ////////////////////////
 // EXPLORE
 ////////////////////////
 iqrf.embed.explore.Enumerate_Request_req = function (param) {
-    return iqrf.embed.explore.Enumerate_Request();
+   return iqrf.embed.explore.Enumerate_Request();
 };
 
 iqrf.embed.explore.Enumerate_Response_rsp = function (rawHdp) {
-    var result = iqrf.embed.explore.Enumerate_Response(rawHdp);
-    return result;
+   var result = iqrf.embed.explore.Enumerate_Response(rawHdp);
+   return result;
 };
 
 iqrf.embed.explore.PeripheralInformation_Request_req = function (param) {

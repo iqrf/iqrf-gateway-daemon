@@ -79,8 +79,9 @@ namespace iqrf {
 
       duk_push_string(m_ctx, js.c_str());
       if (duk_peval(m_ctx) != 0) {
-        std::cerr << "Error in driver scripts: " << duk_safe_to_string(m_ctx, -1) << std::endl;
-        throw std::logic_error("");
+        std::string errstr = duk_safe_to_string(m_ctx, -1);
+        std::cerr << "Error in driver scripts: " << errstr << std::endl;
+        THROW_EXC_TRC_WAR(std::logic_error, errstr);
       }
       duk_pop(m_ctx);  // ignore result
 

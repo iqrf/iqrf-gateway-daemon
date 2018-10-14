@@ -219,6 +219,13 @@ namespace iqrf {
         m_cPar.demoFlag = prfEnum.getDemoFlag();
         m_cPar.stdModeSupportFlag = prfEnum.getStdModeSupportFlag();
         m_cPar.lpModeSupportFlag = prfEnum.getLpModeSupportFlag();
+        TRC_INFORMATION("DPA params: " << std::endl <<
+          NAME_PAR(dpaVer, m_cPar.dpaVer) <<
+          NAME_PAR(demoFlag, m_cPar.demoFlag) <<
+          NAME_PAR(stdModeSupportFlag, m_cPar.stdModeSupportFlag) <<
+          NAME_PAR(lpModeSupportFlag, m_cPar.lpModeSupportFlag) <<
+          std::endl
+        );
       }
       else {
         TRC_WARNING("Wrong format of TR reset result async msg");
@@ -267,6 +274,14 @@ namespace iqrf {
         m_cPar.trType = prfOs.getTrType();
         m_cPar.mcuType = prfOs.getMcuType();
         m_cPar.osBuild = prfOs.getOsBuild();
+        TRC_INFORMATION("TR params: " << std::endl <<
+          NAME_PAR(moduleId, m_cPar.moduleId) <<
+          NAME_PAR(osVersion, m_cPar.osVersion) <<
+          NAME_PAR(trType, m_cPar.trType) <<
+          NAME_PAR(mcuType, m_cPar.mcuType) <<
+          NAME_PAR(osBuild, m_cPar.osBuild) <<
+          std::endl
+        );
       }
       else {
         //THROW_EXC_TRC_WAR(std::logic_error, "Cannot get TR parameters");
