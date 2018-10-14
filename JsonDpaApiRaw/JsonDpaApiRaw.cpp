@@ -102,6 +102,7 @@ namespace iqrf {
       auto res = trn->get();
 
       Document respDoc;
+      com->setStatus(res->getErrorString(), res->getErrorCode());
       com->createResponse(respDoc, *res);
 
       //update message type - type is the same for request/response
