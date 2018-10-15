@@ -475,11 +475,19 @@ namespace iqrf {
       writeConfigPacket.DpaRequestPacket_t.PCMD = CMD_OS_WRITE_CFG;
       writeConfigPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
-      TPerOSWriteCfg_Request* tOsWriteCfgRequest = &writeConfigPacket.DpaRequestPacket_t.DpaMessage.PerOSWriteCfg_Request;
+      //TPerOSWriteCfg_Request* tOsWriteCfgRequest = &writeConfigPacket.DpaRequestPacket_t.DpaMessage.PerOSWriteCfg_Request;
+      uns8* pData = writeConfigPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
 
-      tOsWriteCfgRequest->Checksum = countChecksum(configBytes);
-      setWriteRequestConfigurationField(tOsWriteCfgRequest->Configuration, configBytes);
-      tOsWriteCfgRequest->RFPGM = getRfpgmByte(configBytes);
+      // getting DPA version
+      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
+
+      if (dpaVer < 0x0303) {
+        pData[0] = countChecksum(configBytes);
+      }
+
+      setWriteRequestConfigurationField(pData+1, configBytes);
+      pData[32] = getRfpgmByte(configBytes);
 
       writeConfigRequest.DataToBuffer(
         writeConfigPacket.Buffer, 

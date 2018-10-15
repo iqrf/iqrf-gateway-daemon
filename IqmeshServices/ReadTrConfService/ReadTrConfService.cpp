@@ -469,16 +469,14 @@ namespace iqrf {
       IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
       uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
 
-#if dpaVer == 0x0303
-      uns8* configuration = hwpConfig.Configuration;  
-#else
-      uns8* configurationXored = hwpConfig.Configuration;
-      // needed to xor all bytes of configuration with the value of 0x34
-      uns8 configuration[CONFIGURATION_LEN];
-      for (int i = 0; i < CONFIGURATION_LEN; i++) {
-        configuration[i] = configurationXored[i] ^ 0x34;
+      uns8* configuration = hwpConfig.Configuration;
+
+      if (dpaVer < 0x0303) {
+        for (int i = 0; i < CONFIGURATION_LEN; i++) {
+          configuration[i] = configuration[i] ^ 0x34;
+        }
       }
-#endif
+
       Document::AllocatorType& allocator = response.GetAllocator();
 
       // predefined peripherals - bits

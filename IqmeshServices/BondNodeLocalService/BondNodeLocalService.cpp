@@ -84,7 +84,7 @@ namespace iqrf {
     uint8_t m_bondedAddr;
     uint8_t m_bondedNodesNum;
     uint16_t m_bondedNodeHwpId;
-    TPerOSRead_Response m_readInfo;   
+    std::vector<uns8> m_readInfo;   
 
     // transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
@@ -111,12 +111,12 @@ namespace iqrf {
     uint8_t getBondedNodesNum() const { return m_bondedNodesNum; };
 
     // sets info about device
-    void setReadInfo( const TPerOSRead_Response readInfo ) {
-      m_readInfo = readInfo;
+    void setReadInfo( const uns8* readInfo ) {
+      m_readInfo.insert(m_readInfo.begin(), readInfo, readInfo + DPA_MAX_DATA_LENGTH);
     }
 
     // returns info about device
-    const TPerOSRead_Response getReadInfo() const {
+    const std::vector<uns8> getReadInfo() const {
       return m_readInfo;
     }
 
@@ -327,7 +327,7 @@ namespace iqrf {
           );
 
           bondResult.setReadInfo(
-            dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response
+            dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData
           );
 
           bondResult.setBondedNodeHwpId( dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID );
@@ -372,8 +372,8 @@ namespace iqrf {
       removeBondPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_REMOVE_BOND;
       removeBondPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
-      TPerCoordinatorRemoveRebondBond_Request* tCoordRemoveBondRequest = &removeBondPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorRemoveRebondBond_Request;
-      tCoordRemoveBondRequest->BondAddr = uint8_t( nodeAddr & 0xFF );
+      uns8* pData = removeBondPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
+      pData[0] = uns8(nodeAddr & 0xFF);
 
       removeBondRequest.DataToBuffer( removeBondPacket.Buffer, sizeof( TDpaIFaceHeader ) + 1 );
 
@@ -782,29 +782,31 @@ namespace iqrf {
       }
 
       // osRead object
-      const TPerOSRead_Response readInfo = bondResult.getReadInfo();
+      const std::vector<uns8> readInfo = bondResult.getReadInfo();
 
       // MID - hex string without separator
       std::ostringstream moduleId;
       moduleId.fill( '0' );
       moduleId << std::hex <<
-        std::setw( 2 ) << (int)readInfo.ModuleId[3] <<
-        std::setw( 2 ) << (int)readInfo.ModuleId[2] <<
-        std::setw( 2 ) << (int)readInfo.ModuleId[1] <<
-        std::setw( 2 ) << (int)readInfo.ModuleId[0];
+        std::setw( 2 ) << (int)readInfo[3] <<
+        std::setw( 2 ) << (int)readInfo[2] <<
+        std::setw( 2 ) << (int)readInfo[1] <<
+        std::setw( 2 ) << (int)readInfo[0];
       rapidjson::Pointer( "/data/rsp/osRead/mid" ).Set( response, moduleId.str() );
 
       // OS version - string
       std::ostringstream osVer;
-      osVer << std::hex << (int)( readInfo.OsVersion >> 4 ) << '.';
+      osVer << std::hex << (int)( readInfo[4] >> 4 ) << '.';
       osVer.fill( '0' );
-      osVer << std::setw( 2 ) << (int)( readInfo.OsVersion & 0xf ) << 'D';
+      osVer << std::setw( 2 ) << (int)( readInfo[4] & 0xf ) << 'D';
       rapidjson::Pointer( "/data/rsp/osRead/osVersion" ).Set( response, osVer.str() );
 
       // trMcuType
-      rapidjson::Pointer( "/data/rsp/osRead/trMcuType/value" ).Set( response, readInfo.McuType );
+      uns8 trMcuType = readInfo[5];
+
+      rapidjson::Pointer( "/data/rsp/osRead/trMcuType/value" ).Set( response, trMcuType );
       std::string trTypeStr = "(DC)TR-";
-      switch ( readInfo.McuType >> 4 ) {
+      switch ( trMcuType >> 4 ) {
         case 2: trTypeStr += "72Dx";
           break;
         case 4: trTypeStr += "78Dx";
@@ -819,52 +821,62 @@ namespace iqrf {
           break;
       }
       rapidjson::Pointer( "/data/rsp/osRead/trMcuType/trType" ).Set( response, trTypeStr );
-      bool fccCertified = ( ( readInfo.McuType & 0x08 ) == 0x08 ) ? true : false;
+      bool fccCertified = ( (trMcuType & 0x08 ) == 0x08 ) ? true : false;
       rapidjson::Pointer( "/data/rsp/osRead/trMcuType/fccCertified" ).Set( response, fccCertified );
-      std::string mcuTypeStr = ( ( readInfo.McuType & 0x07 ) == 0x04 ) ? "PIC16LF1938" : "UNKNOWN";
+      std::string mcuTypeStr = ( (trMcuType & 0x07 ) == 0x04 ) ? "PIC16LF1938" : "UNKNOWN";
       rapidjson::Pointer( "/data/rsp/osRead/trMcuType/mcuType" ).Set( response, mcuTypeStr );
 
       // OS build - string
-      rapidjson::Pointer( "/data/rsp/osRead/osBuild" ).Set( response, encodeHexaNum( readInfo.OsBuild ) );
+      uint16_t osBuild = (readInfo[7] << 8) + readInfo[6];
+      rapidjson::Pointer( "/data/rsp/osRead/osBuild" ).Set( response, encodeHexaNum( osBuild ) );
 
       // RSSI [dBm]
-      int8_t rssi = readInfo.Rssi - 130;
+      int8_t rssi = readInfo[8] - 130;
       std::string rssiStr = std::to_string( rssi ) + " dBm";
       rapidjson::Pointer( "/data/rsp/osRead/rssi" ).Set( response, rssiStr );
 
       // Supply voltage [V]
-      float supplyVoltage = 261.12f / (float)( 127 - readInfo.SupplyVoltage );
+      float supplyVoltage = 261.12f / (float)( 127 - readInfo[9]);
       char supplyVoltageStr[8];
       std::sprintf( supplyVoltageStr, "%1.2f V", supplyVoltage );
       rapidjson::Pointer( "/data/rsp/osRead/supplyVoltage" ).Set( response, supplyVoltageStr );
 
       // Flags
-      rapidjson::Pointer( "/data/rsp/osRead/flags/value" ).Set( response, readInfo.Flags );
-      bool insufficientOsBuild = ( ( readInfo.Flags & 0x01 ) == 0x01 ) ? true : false;
+      uns8 flags = readInfo[10];
+
+      rapidjson::Pointer( "/data/rsp/osRead/flags/value" ).Set( response, flags );
+      bool insufficientOsBuild = ( ( flags & 0x01 ) == 0x01 ) ? true : false;
       rapidjson::Pointer( "/data/rsp/osRead/flags/insufficientOsBuild" ).Set( response, insufficientOsBuild );
-      std::string iface = ( ( readInfo.Flags & 0x02 ) == 0x02 ) ? "UART" : "SPI";
+      std::string iface = ( ( flags & 0x02 ) == 0x02 ) ? "UART" : "SPI";
       rapidjson::Pointer( "/data/rsp/osRead/flags/interfaceType" ).Set( response, iface );
-      bool dpaHandlerDetected = ( ( readInfo.Flags & 0x04 ) == 0x04 ) ? true : false;
+      bool dpaHandlerDetected = ( ( flags & 0x04 ) == 0x04 ) ? true : false;
       rapidjson::Pointer( "/data/rsp/osRead/flags/dpaHandlerDetected" ).Set( response, dpaHandlerDetected );
-      bool dpaHandlerNotDetectedButEnabled = ( ( readInfo.Flags & 0x08 ) == 0x08 ) ? true : false;
+      bool dpaHandlerNotDetectedButEnabled = ( ( flags & 0x08 ) == 0x08 ) ? true : false;
       rapidjson::Pointer( "/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled" ).Set( response, dpaHandlerNotDetectedButEnabled );
-      bool noInterfaceSupported = ( ( readInfo.Flags & 0x10 ) == 0x10 ) ? true : false;
+      bool noInterfaceSupported = ( ( flags & 0x10 ) == 0x10 ) ? true : false;
       rapidjson::Pointer( "/data/rsp/osRead/flags/noInterfaceSupported" ).Set( response, noInterfaceSupported );
 
       // SlotLimits
-      rapidjson::Pointer( "/data/rsp/osRead/slotLimits/value" ).Set( response, readInfo.SlotLimits );
-      uint8_t shortestTimeSlot = ( ( readInfo.SlotLimits & 0x0f ) + 3 ) * 10;
-      uint8_t longestTimeSlot = ( ( ( readInfo.SlotLimits >> 0x04 ) & 0x0f ) + 3 ) * 10;
+      uns8 slotLimits = readInfo[11];
+
+      rapidjson::Pointer( "/data/rsp/osRead/slotLimits/value" ).Set( response, slotLimits );
+      uint8_t shortestTimeSlot = ( ( slotLimits & 0x0f ) + 3 ) * 10;
+      uint8_t longestTimeSlot = ( ( ( slotLimits >> 0x04 ) & 0x0f ) + 3 ) * 10;
       rapidjson::Pointer( "/data/rsp/osRead/slotLimits/shortestTimeslot" ).Set( response, std::to_string( shortestTimeSlot ) + " ms" );
       rapidjson::Pointer( "/data/rsp/osRead/slotLimits/longestTimeslot" ).Set( response, std::to_string( longestTimeSlot ) + " ms" );
-      // ibk      
-      if ( readInfo.OsVersion > 0x42 ) {
+      
+      // ibk - only if DPA version is >= 3.03
+      // getting DPA version
+      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
+
+      if (dpaVer >= 0x0303) {
         Document::AllocatorType& allocator = response.GetAllocator();
-        rapidjson::Value ibkBitsJsonArray( kArrayType );
-        for ( int i = 0; i < 16; i++ ) {
-          ibkBitsJsonArray.PushBack( readInfo.IBK[i], allocator );
+        rapidjson::Value ibkBitsJsonArray(kArrayType);
+        for (int i = 0; i < 16; i++) {
+          ibkBitsJsonArray.PushBack(readInfo[12 + i], allocator);
         }
-        Pointer( "/data/rsp/osRead/ibk" ).Set( response, ibkBitsJsonArray );
+        Pointer("/data/rsp/osRead/ibk").Set(response, ibkBitsJsonArray);
       }
 
       // set raw fields, if verbose mode is active

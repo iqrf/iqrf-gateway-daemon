@@ -167,7 +167,7 @@ namespace iqrf {
     uint8_t m_vrn;
     uint8_t m_zone;
     uint8_t m_parent;
-    TPerOSRead_Response m_osRead;
+    std::vector<uns8> m_osRead;
     TEnumPeripheralsAnswer m_perEnum;
     TPerOSReadCfg_Response m_hwpConfig;
     std::vector<TPeripheralInfoAnswer> m_morePersInfo;
@@ -265,12 +265,12 @@ namespace iqrf {
     }
 
 
-    TPerOSRead_Response getOsRead() {
+    const std::vector<uns8> getOsRead() {
       return m_osRead;
     }
 
-    void setOsRead(TPerOSRead_Response osRead) {
-      m_osRead = osRead;
+    void setOsRead(const uns8* osRead) {
+      m_osRead.insert(m_osRead.begin(), osRead, osRead + DPA_MAX_DATA_LENGTH);
     }
 
     TEnumPeripheralsAnswer getPerEnum() const {
@@ -562,7 +562,7 @@ namespace iqrf {
           );
 
           // get OS data
-          TPerOSRead_Response osData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
+          uns8* osData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
           deviceEnumerateResult.setOsRead(osData);
 
           TRC_FUNCTION_LEAVE("");
@@ -1110,33 +1110,36 @@ namespace iqrf {
 
     // parses OS read info
     // TEMPORAL SOLUTION !!!
-    OsReadObject parseOsReadResponse(const TPerOSRead_Response osReadInfo)
+    OsReadObject parseOsReadResponse(const std::vector<uns8>& osReadInfo)
     {
       OsReadObject osReadObject;
 
       std::ostringstream moduleId;
       moduleId.fill('0');
       moduleId << std::hex <<
-        std::setw(2) << (int)osReadInfo.ModuleId[3] <<
-        std::setw(2) << (int)osReadInfo.ModuleId[2] <<
-        std::setw(2) << (int)osReadInfo.ModuleId[1] <<
-        std::setw(2) << (int)osReadInfo.ModuleId[0];
+        std::setw(2) << (int)osReadInfo[3] <<
+        std::setw(2) << (int)osReadInfo[2] <<
+        std::setw(2) << (int)osReadInfo[1] <<
+        std::setw(2) << (int)osReadInfo[0];
 
       osReadObject.mid = moduleId.str();
 
       // OS version - string
       std::ostringstream osVer;
-      osVer << std::hex << (int)(osReadInfo.OsVersion >> 4) << '.';
+      uns8 osVersion = osReadInfo[4];
+
+      osVer << std::hex << (int)(osVersion >> 4) << '.';
       osVer.fill('0');
-      osVer << std::setw(2) << (int)(osReadInfo.OsVersion & 0xf) << 'D';
+      osVer << std::setw(2) << (int)(osVersion & 0xf) << 'D';
 
       osReadObject.osVersion = osVer.str();
 
       // trMcuType
-      osReadObject.trMcuType.value = osReadInfo.McuType;
+      osReadObject.trMcuType.value = osReadInfo[5];
+      uns8 mcuType = osReadInfo[5];
 
       std::string trTypeStr = "(DC)TR-";
-      switch (osReadInfo.McuType >> 4) {
+      switch (mcuType >> 4) {
         case 2: trTypeStr += "72Dx";
           break;
         case 4: trTypeStr += "78Dx";
@@ -1152,35 +1155,38 @@ namespace iqrf {
       }
 
       osReadObject.trMcuType.trType = trTypeStr;
-      osReadObject.trMcuType.fccCertified = ((osReadInfo.McuType & 0x08) == 0x08) ? true : false;
-      osReadObject.trMcuType.mcuType = ((osReadInfo.McuType & 0x07) == 0x04) ? "PIC16LF1938" : "UNKNOWN";
+      osReadObject.trMcuType.fccCertified = ((mcuType & 0x08) == 0x08) ? true : false;
+      osReadObject.trMcuType.mcuType = ((mcuType & 0x07) == 0x04) ? "PIC16LF1938" : "UNKNOWN";
     
       // OS build - string
-      osReadObject.osBuild = encodeHexaNum(osReadInfo.OsBuild);
+      uint16_t osBuild = (osReadInfo[7] << 8) + osReadInfo[6];
+      osReadObject.osBuild = encodeHexaNum(osBuild);
 
       // RSSI [dBm]
-      int8_t rssi = osReadInfo.Rssi - 130;
+      int8_t rssi = osReadInfo[8] - 130;
       std::string rssiStr = std::to_string(rssi) + " dBm";
       osReadObject.rssi = rssiStr;
 
       // Supply voltage [V]
-      float supplyVoltage = 261.12f / (float)(127 - osReadInfo.SupplyVoltage);
+      float supplyVoltage = 261.12f / (float)(127 - osReadInfo[9]);
       char supplyVoltageStr[8];
       std::sprintf(supplyVoltageStr, "%1.2f V", supplyVoltage);
       osReadObject.supplyVoltage = supplyVoltageStr;
 
       // Flags
-      osReadObject.flags.value = osReadInfo.Flags;
-      osReadObject.flags.insufficientOsBuild = ((osReadInfo.Flags & 0x01) == 0x01) ? true : false;
-      osReadObject.flags.interface = ((osReadInfo.Flags & 0x02) == 0x02) ? "UART" : "SPI";
-      osReadObject.flags.dpaHandlerDetected = ((osReadInfo.Flags & 0x04) == 0x04) ? true : false;
-      osReadObject.flags.dpaHandlerNotDetectedButEnabled = ((osReadInfo.Flags & 0x08) == 0x08) ? true : false;
-      osReadObject.flags.noInterfaceSupported = ((osReadInfo.Flags & 0x10) == 0x10) ? true : false;
+      uns8 flags = osReadInfo[10];
+      osReadObject.flags.value = flags;
+      osReadObject.flags.insufficientOsBuild = ((flags & 0x01) == 0x01) ? true : false;
+      osReadObject.flags.interface = ((flags & 0x02) == 0x02) ? "UART" : "SPI";
+      osReadObject.flags.dpaHandlerDetected = ((flags & 0x04) == 0x04) ? true : false;
+      osReadObject.flags.dpaHandlerNotDetectedButEnabled = ((flags & 0x08) == 0x08) ? true : false;
+      osReadObject.flags.noInterfaceSupported = ((flags & 0x10) == 0x10) ? true : false;
 
       // Slot limits
-      osReadObject.slotLimits.value = osReadInfo.SlotLimits;
-      uint8_t shortestTimeSlot = ((osReadInfo.SlotLimits & 0x0f) + 3) * 10;
-      uint8_t longestTimeSlot = (((osReadInfo.SlotLimits >> 0x04) & 0x0f) + 3) * 10;
+      uns8 slotLimits = osReadInfo[11];
+      osReadObject.slotLimits.value = slotLimits;
+      uint8_t shortestTimeSlot = ((slotLimits & 0x0f) + 3) * 10;
+      uint8_t longestTimeSlot = (((slotLimits >> 0x04) & 0x0f) + 3) * 10;
 
       osReadObject.slotLimits.shortestTimeslot = std::to_string(shortestTimeSlot) + " ms";
       osReadObject.slotLimits.longestTimeslot = std::to_string(longestTimeSlot) + " ms";
@@ -1585,7 +1591,7 @@ namespace iqrf {
       }
 
       // osRead object
-      TPerOSRead_Response osInfo = deviceEnumResult.getOsRead();
+      const std::vector<uns8> osInfo = deviceEnumResult.getOsRead();
       OsReadObject osReadObject = parseOsReadResponse(osInfo);
 
       if (
