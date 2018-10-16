@@ -320,42 +320,6 @@ namespace iqrf {
       m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
     }
 
-    {
-      const rapidjson::Value* val = rapidjson::Pointer("/CommunicationMode").Get(doc);
-      if (val && val->IsString()) {
-        std::string communicationMode = val->GetString();
-        if (communicationMode == "LP")
-          m_rfMode = IDpaTransaction2::kLp;
-        else if (communicationMode == "STD")
-          m_rfMode = IDpaTransaction2::kStd;
-        else
-          m_rfMode = IDpaTransaction2::kStd;
-      }
-      m_dpaHandler->setRfCommunicationMode(m_rfMode);
-    }
-
-    {
-      const rapidjson::Value* val = rapidjson::Pointer("/BondedNodes").Get(doc);
-      if (val && val->IsInt()) {
-        m_bondedNodes = val->GetInt();
-      }
-    }
-
-    {
-      const rapidjson::Value* val = rapidjson::Pointer("/DiscoveredNodes").Get(doc);
-      if (val && val->IsInt()) {
-        m_discoveredNodes = val->GetInt();
-      }
-    }
-
-    {
-      const rapidjson::Value* val = rapidjson::Pointer("/ResponseTime").Get(doc);
-      if (val && val->IsString()) {
-        FrcResponseTimeStringConvertor conv;
-        m_responseTime = conv.str2enum(val->GetString());
-      }
-    }
-
     getIqrfNetworkParams();
 
     IDpaTransaction2::TimingParams timingParams;

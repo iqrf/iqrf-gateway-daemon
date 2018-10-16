@@ -25,35 +25,6 @@
             "description": "...",
             "default": 500
         },
-        "CommunicationMode": {
-            "type": "string",
-            "description": "...",
-            "default": "STD"
-        },
-        "BondedNodes": {
-            "type": "integer",
-            "description": "...",
-            "default": 10
-        },
-        "DiscoveredNodes": {
-            "type": "integer",
-            "description": "...",
-            "default": 10
-        },
-        "ResponseTime": {
-            "type": "string",
-            "description": "...",
-            "enum": [
-                "k40Ms",
-                "k360Ms",
-                "k680Ms",
-                "k1320Ms",
-                "k2600Ms",
-                "k5160Ms",
-                "k10280Ms",
-                "k20620Ms"
-            ]
-        },
         "RequiredInterfaces": {
             "type": "array",
             "description": "Array of required interfaces.",
