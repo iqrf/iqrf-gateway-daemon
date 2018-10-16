@@ -424,7 +424,7 @@ namespace iqrf {
           {
             std::lock_guard<std::mutex> lck(m_commMutex);
             // reading
-            uint8_t reclen;
+            uint8_t reclen = 0;
             int retval = uart_iqrf_read(m_rx, &reclen, 100); //waits for 100 ms
             if (BASE_TYPES_OPER_OK != retval && UART_IQRF_ERROR_TIMEOUT != retval) {
               THROW_EXC_TRC_WAR(std::logic_error, "uart_iqrf_read() failed: " << PAR(retval));
