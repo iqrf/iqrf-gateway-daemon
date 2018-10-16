@@ -82,6 +82,10 @@ namespace iqmeshNetwork_EnumerateDevice_Request
         [Newtonsoft.Json.JsonProperty("deviceAddr", Required = Newtonsoft.Json.Required.Always)]
         public int DeviceAddr { get; set; }
     
+        /// <summary>If to get more peripherals information.</summary>
+        [Newtonsoft.Json.JsonProperty("morePeripheralsInfo", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? MorePeripheralsInfo { get; set; }
+    
         public string ToJson() 
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);

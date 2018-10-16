@@ -12,26 +12,6 @@ namespace iqrfEmbedOs_BatchRequest
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class IqrfEmbedOs_BatchRequest 
     {
-        /// <summary>Request cType.</summary>
-        [Newtonsoft.Json.JsonProperty("ctype", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public IqrfEmbedOs_BatchRequestCtype Ctype { get; set; }
-    
-        /// <summary>Request Type.</summary>
-        [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public IqrfEmbedOs_BatchRequestType Type { get; set; }
-    
-        /// <summary>Message Id.</summary>
-        [Newtonsoft.Json.JsonProperty("msgid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Msgid { get; set; }
-    
-        /// <summary>Network Address.</summary>
-        [Newtonsoft.Json.JsonProperty("nadr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Nadr { get; set; }
-    
         /// <summary>Peripheral Number.</summary>
         [Newtonsoft.Json.JsonProperty("pnum", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -59,26 +39,6 @@ namespace iqrfEmbedOs_BatchRequest
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedOs_BatchRequest>(data);
         }
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum IqrfEmbedOs_BatchRequestCtype
-    {
-        [System.Runtime.Serialization.EnumMember(Value = "dpa")]
-    
-        Dpa = 0,
-    
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum IqrfEmbedOs_BatchRequestType
-    {
-        [System.Runtime.Serialization.EnumMember(Value = "raw-hdp")]
-    
-        RawHdp = 0,
-    
     
     }
 }

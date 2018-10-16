@@ -34,6 +34,13 @@
 # Source for now
 src
 _*
-examples/java/iqrfraw/target/
-examples/c#/test-api-app/packages/
 
+examples/java/iqrfraw/target/
+
+examples/c#/test-api-app/packages/
+examples/c#/test-api-app/test-api-app/bin/
+examples/c#/test-api-app/test-api-app/obj/
+
+utils/c#/schemas-to-classes/packages/
+utils/c#/schemas-to-classes/schemas-to-classes/bin/
+utils/c#/schemas-to-classes/schemas-to-classes/obj/

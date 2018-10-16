@@ -110,10 +110,6 @@ namespace iqmeshNetwork_EnumerateDevice_Response
         [Newtonsoft.Json.JsonProperty("morePeripheralsInfo", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.ObjectModel.ObservableCollection<Anonymous2> MorePeripheralsInfo { get; set; }
     
-        /// <summary>Validation and updates.</summary>
-        [Newtonsoft.Json.JsonProperty("validationAndUpdates", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ValidationAndUpdates ValidationAndUpdates { get; set; }
-    
         public string ToJson() 
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
@@ -279,7 +275,7 @@ namespace iqmeshNetwork_EnumerateDevice_Response
     
         /// <summary>Various flags.</summary>
         [Newtonsoft.Json.JsonProperty("flags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Flags { get; set; }
+        public Flags2 Flags { get; set; }
     
         /// <summary>Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.</summary>
         [Newtonsoft.Json.JsonProperty("userPers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -300,9 +296,9 @@ namespace iqmeshNetwork_EnumerateDevice_Response
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class TrConfiguration 
     {
-        /// <summary>An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.</summary>
-        [Newtonsoft.Json.JsonProperty("embPerBits", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<int> EmbPerBits { get; set; }
+        /// <summary>Embedded peripherals enabled on the node.</summary>
+        [Newtonsoft.Json.JsonProperty("embPeripherals", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public EmbPeripherals EmbPeripherals { get; set; }
     
         /// <summary>Used RF band.</summary>
         [Newtonsoft.Json.JsonProperty("rfBand", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -436,30 +432,6 @@ namespace iqmeshNetwork_EnumerateDevice_Response
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class ValidationAndUpdates 
-    {
-        /// <summary>IQRF OS version + build, DPA version, TX power, RX filter same as Coordinator.</summary>
-        [Newtonsoft.Json.JsonProperty("validation", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public Validation Validation { get; set; } = new Validation();
-    
-        /// <summary>Available updates from IQRF repository.</summary>
-        [Newtonsoft.Json.JsonProperty("updates", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Updates Updates { get; set; }
-    
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-        
-        public static ValidationAndUpdates FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<ValidationAndUpdates>(data);
-        }
-    
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class TrMcuType 
     {
         /// <summary>TR&McuType value.</summary>
@@ -557,67 +529,97 @@ namespace iqmeshNetwork_EnumerateDevice_Response
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Validation 
+    public partial class Flags2 
     {
-        /// <summary>All is fine.</summary>
-        [Newtonsoft.Json.JsonProperty("valid", Required = Newtonsoft.Json.Required.Always)]
-        public bool Valid { get; set; }
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Value { get; set; }
     
-        /// <summary>IQRF OS version.</summary>
-        [Newtonsoft.Json.JsonProperty("osVer", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string OsVer { get; set; }
-    
-        /// <summary>IQRF OS build.</summary>
-        [Newtonsoft.Json.JsonProperty("osBuild", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string OsBuild { get; set; }
-    
-        /// <summary>IQRF DPA version.</summary>
-        [Newtonsoft.Json.JsonProperty("dpaVer", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string DpaVer { get; set; }
-    
-        /// <summary>TX power.</summary>
-        [Newtonsoft.Json.JsonProperty("txPower", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? TxPower { get; set; }
-    
-        /// <summary>RX filter.</summary>
-        [Newtonsoft.Json.JsonProperty("rxFilter", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? RxFilter { get; set; }
+        [Newtonsoft.Json.JsonProperty("rfMode", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string RfMode { get; set; }
     
         public string ToJson() 
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static Validation FromJson(string data)
+        public static Flags2 FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Validation>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Flags2>(data);
         }
     
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Updates 
+    public partial class EmbPeripherals 
     {
-        /// <summary>Path to the up to date DPA handler.</summary>
-        [Newtonsoft.Json.JsonProperty("dpaHandlerPath", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string DpaHandlerPath { get; set; }
+        /// <summary>An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.</summary>
+        [Newtonsoft.Json.JsonProperty("values", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<int> Values { get; set; }
     
-        /// <summary>Path to the up to date DPA plugin.</summary>
-        [Newtonsoft.Json.JsonProperty("dpaPluginPath", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string DpaPluginPath { get; set; }
+        /// <summary>If coordinator is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("coordinator", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Coordinator { get; set; }
     
-        /// <summary>Path to the up to date OS+DPA plugin.</summary>
-        [Newtonsoft.Json.JsonProperty("osDpaPluginPath", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string OsDpaPluginPath { get; set; }
+        /// <summary>If node is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("node", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Node { get; set; }
+    
+        /// <summary>If OS is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("os", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Os { get; set; }
+    
+        /// <summary>If EEPROM is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("eeprom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Eeprom { get; set; }
+    
+        /// <summary>If EEEPROM is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("eeeprom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Eeeprom { get; set; }
+    
+        /// <summary>If RAM is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("ram", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Ram { get; set; }
+    
+        /// <summary>If LEDR is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("ledr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Ledr { get; set; }
+    
+        /// <summary>If LEDG is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("ledg", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Ledg { get; set; }
+    
+        /// <summary>If SPI is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("spi", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Spi { get; set; }
+    
+        /// <summary>If IO is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("io", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Io { get; set; }
+    
+        /// <summary>If thermometer is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("thermometer", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Thermometer { get; set; }
+    
+        /// <summary>If PWM is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("pwm", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Pwm { get; set; }
+    
+        /// <summary>If UART is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("uart", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Uart { get; set; }
+    
+        /// <summary>If FRC is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("frc", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Frc { get; set; }
     
         public string ToJson() 
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static Updates FromJson(string data)
+        public static EmbPeripherals FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Updates>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<EmbPeripherals>(data);
         }
     
     }

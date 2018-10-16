@@ -202,6 +202,10 @@
 							"type": "boolean",
 							"description": "If set, then device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event."
 						},
+						"neverSleep": {
+							"type": "boolean",
+							"description": "If set, then unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03"
+						},
 						"securityPassword": {
 							"type": "string",
 							"description": "It sets security password. If the field is left completely empty (no characters filled), the default password (16x number 0x00) is used (the same as the default set from the factory."

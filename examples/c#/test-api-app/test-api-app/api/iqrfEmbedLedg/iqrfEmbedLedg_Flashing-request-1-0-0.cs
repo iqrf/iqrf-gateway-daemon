@@ -4,18 +4,18 @@
 // </auto-generated>
 //----------------------
 
-namespace iqmeshNetwork_OtaUpload_Request
+namespace iqrfEmbedLedg_Flashing_Request
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqmeshNetwork_OtaUpload_Request 
+    public partial class IqrfEmbedLedg_Flashing_Request 
     {
-        /// <summary>IQMESH Network management - Upload hex or iqrf file request.</summary>
+        /// <summary>Embedded peripheral Ledg - Flashing request.</summary>
         [Newtonsoft.Json.JsonProperty("mType", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public IqmeshNetwork_OtaUpload_RequestMType MType { get; set; }
+        public IqrfEmbedLedg_Flashing_RequestMType MType { get; set; }
     
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -26,19 +26,19 @@ namespace iqmeshNetwork_OtaUpload_Request
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqmeshNetwork_OtaUpload_Request FromJson(string data)
+        public static IqrfEmbedLedg_Flashing_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_OtaUpload_Request>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedLedg_Flashing_Request>(data);
         }
     
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum IqmeshNetwork_OtaUpload_RequestMType
+    public enum IqrfEmbedLedg_Flashing_RequestMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "iqmeshNetwork_OtaUpload")]
+        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedLedg_Flashing")]
     
-        IqmeshNetwork_OtaUpload = 0,
+        IqrfEmbedLedg_Flashing = 0,
     
     
     }
@@ -51,9 +51,9 @@ namespace iqmeshNetwork_OtaUpload_Request
         [System.ComponentModel.DataAnnotations.Required]
         public string MsgId { get; set; }
     
-        /// <summary>Number of repetitions of DPA messages.</summary>
-        [Newtonsoft.Json.JsonProperty("repeat", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Repeat { get; set; } = 1;
+        /// <summary>Timeout to wait for IQRF DPA response.</summary>
+        [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Timeout { get; set; }
     
         [Newtonsoft.Json.JsonProperty("req", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -78,23 +78,17 @@ namespace iqmeshNetwork_OtaUpload_Request
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Req 
     {
-        /// <summary>Device address to write the hex or iqrf file.</summary>
-        [Newtonsoft.Json.JsonProperty("deviceAddr", Required = Newtonsoft.Json.Required.Always)]
-        public int DeviceAddr { get; set; }
+        /// <summary>Network device address.</summary>
+        [Newtonsoft.Json.JsonProperty("nAdr", Required = Newtonsoft.Json.Required.Always)]
+        public int NAdr { get; set; }
     
-        /// <summary>Full name of file with source code to load.</summary>
-        [Newtonsoft.Json.JsonProperty("fileName", Required = Newtonsoft.Json.Required.Always)]
+        /// <summary>Hardware profile identification.</summary>
+        [Newtonsoft.Json.JsonProperty("hwpId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? HwpId { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("param", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
-        public string FileName { get; set; }
-    
-        /// <summary>Start address on which will be the data saved into memory.</summary>
-        [Newtonsoft.Json.JsonProperty("startMemAddr", Required = Newtonsoft.Json.Required.Always)]
-        public int StartMemAddr { get; set; }
-    
-        /// <summary>Loading action - WithoutCodeLoading, WithCodeLoading.</summary>
-        [Newtonsoft.Json.JsonProperty("loadingAction", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string LoadingAction { get; set; }
+        public object Param { get; set; } = new object();
     
         public string ToJson() 
         {

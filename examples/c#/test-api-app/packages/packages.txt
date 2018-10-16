@@ -1,4 +1,3 @@
-total 0
 drwxr-xr-x 1 E520 197121 0 srp  2 23:01 DotLiquid.2.0.254/
 drwxr-xr-x 1 E520 197121 0 srp  2 23:01 M2Mqtt.4.3.0.0/
 drwxr-xr-x 1 E520 197121 0 srp  2 23:01 Newtonsoft.Json.11.0.2/

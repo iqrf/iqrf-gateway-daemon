@@ -86,6 +86,10 @@ namespace iqmeshNetwork_WriteTrConf_Request
         [Newtonsoft.Json.JsonProperty("deviceAddr", Required = Newtonsoft.Json.Required.Always)]
         public int DeviceAddr { get; set; }
     
+        /// <summary>Embedded peripherals enabled on the node.</summary>
+        [Newtonsoft.Json.JsonProperty("embPers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public EmbPers EmbPers { get; set; }
+    
         /// <summary>Used RF band.</summary>
         [Newtonsoft.Json.JsonProperty("rfBand", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string RfBand { get; set; }
@@ -174,6 +178,10 @@ namespace iqmeshNetwork_WriteTrConf_Request
         [Newtonsoft.Json.JsonProperty("peerToPeer", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? PeerToPeer { get; set; }
     
+        /// <summary>If set, then unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03</summary>
+        [Newtonsoft.Json.JsonProperty("neverSleep", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? NeverSleep { get; set; }
+    
         /// <summary>It sets security password. If the field is left completely empty (no characters filled), the default password (16x number 0x00) is used (the same as the default set from the factory.</summary>
         [Newtonsoft.Json.JsonProperty("securityPassword", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string SecurityPassword { get; set; }
@@ -190,6 +198,81 @@ namespace iqmeshNetwork_WriteTrConf_Request
         public static Req FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<Req>(data);
+        }
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class EmbPers 
+    {
+        /// <summary>An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.</summary>
+        [Newtonsoft.Json.JsonProperty("values", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<int> Values { get; set; }
+    
+        /// <summary>If coordinator is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("coordinator", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Coordinator { get; set; }
+    
+        /// <summary>If node is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("node", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Node { get; set; }
+    
+        /// <summary>If OS is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("os", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Os { get; set; }
+    
+        /// <summary>If EEPROM is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("eeprom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Eeprom { get; set; }
+    
+        /// <summary>If EEEPROM is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("eeeprom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Eeeprom { get; set; }
+    
+        /// <summary>If RAM is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("ram", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Ram { get; set; }
+    
+        /// <summary>If LEDR is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("ledr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Ledr { get; set; }
+    
+        /// <summary>If LEDG is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("ledg", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Ledg { get; set; }
+    
+        /// <summary>If SPI is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("spi", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Spi { get; set; }
+    
+        /// <summary>If IO is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("io", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Io { get; set; }
+    
+        /// <summary>If thermometer is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("thermometer", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Thermometer { get; set; }
+    
+        /// <summary>If PWM is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("pwm", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Pwm { get; set; }
+    
+        /// <summary>If UART is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("uart", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Uart { get; set; }
+    
+        /// <summary>If FRC is enabled.</summary>
+        [Newtonsoft.Json.JsonProperty("frc", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Frc { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static EmbPers FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<EmbPers>(data);
         }
     
     }

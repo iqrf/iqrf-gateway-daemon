@@ -39,41 +39,45 @@
                     ]
                 },
                 "raw": {
-                    "type": "object",
-                    "properties": {
-                        "request": {
-                            "type": "string",
-                            "description": "Binary buffer with DPA request"
+                    "type": "array",
+                    "description": "Returns array of objects req-cnf-rsp, see its description.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "request": {
+                                "type": "string",
+                                "description": "Binary buffer with DPA request."
+                            },
+                            "requestTs": {
+                                "type": "string",
+                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                            },
+                            "confirmation": {
+                                "type": "string",
+                                "description": "Binary buffer with DPA confirmation."
+                            },
+                            "confirmationTs": {
+                                "type": "string",
+                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                            },
+                            "response": {
+                                "type": "string",
+                                "description": "Binary buffer with DPA response."
+                            },
+                            "responseTs": {
+                                "type": "string",
+                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                            }
                         },
-                        "requestTs": {
-                            "type": "string",
-                            "description": "YYYY-MM-DDTHH:MM:SS.MS"
-                        },
-                        "confirmation": {
-                            "type": "string",
-                            "description": "Binary buffer with DPA confirmation"
-                        },
-                        "confirmationTs": {
-                            "type": "string",
-                            "description": "YYYY-MM-DDTHH:MM:SS.MS"
-                        },
-                        "response": {
-                            "type": "string",
-                            "description": "Binary buffer with DPA response"
-                        },
-                        "responseTs": {
-                            "type": "string",
-                            "description": "YYYY-MM-DDTHH:MM:SS.MS"
-                        }
-                    },
-                    "required": [
-                        "request",
-                        "requestTs",
-                        "confirmation",
-                        "confirmationTs",
-                        "response",
-                        "responseTs"
-                    ]
+                        "required": [
+                            "request",
+                            "requestTs",
+                            "confirmation",
+                            "confirmationTs",
+                            "response",
+                            "responseTs"
+                        ]
+                    }
                 },
                 "insId": {
                     "type": "string",

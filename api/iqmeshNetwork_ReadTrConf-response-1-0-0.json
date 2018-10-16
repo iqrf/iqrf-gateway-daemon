@@ -191,6 +191,10 @@
 						"peerToPeer": {
 							"type": "boolean",
 							"description": "If set, then device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event."
+						},
+						"neverSleep": {
+							"type": "boolean",
+							"description": "If set, then unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03"
 						}
 					},
 					"required": [

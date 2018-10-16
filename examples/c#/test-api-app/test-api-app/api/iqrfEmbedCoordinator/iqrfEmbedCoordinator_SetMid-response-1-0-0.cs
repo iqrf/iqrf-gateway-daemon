@@ -4,18 +4,18 @@
 // </auto-generated>
 //----------------------
 
-namespace iqmeshNetwork_OtaUpload_Response
+namespace iqrfEmbedCoordinator_SetMid_Response
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqmeshNetwork_OtaUpload_Response 
+    public partial class IqrfEmbedCoordinator_SetMid_Response 
     {
-        /// <summary>IQMESH Network management - Upload hex or iqrf file response.</summary>
+        /// <summary>Embedded peripheral Coordinator - Set Mid value response.</summary>
         [Newtonsoft.Json.JsonProperty("mType", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public IqmeshNetwork_OtaUpload_ResponseMType MType { get; set; }
+        public IqrfEmbedCoordinator_SetMid_ResponseMType MType { get; set; }
     
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -26,19 +26,19 @@ namespace iqmeshNetwork_OtaUpload_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqmeshNetwork_OtaUpload_Response FromJson(string data)
+        public static IqrfEmbedCoordinator_SetMid_Response FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqmeshNetwork_OtaUpload_Response>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedCoordinator_SetMid_Response>(data);
         }
     
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum IqmeshNetwork_OtaUpload_ResponseMType
+    public enum IqrfEmbedCoordinator_SetMid_ResponseMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "iqmeshNetwork_OtaUpload")]
+        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedCoordinator_SetMid")]
     
-        IqmeshNetwork_OtaUpload = 0,
+        IqrfEmbedCoordinator_SetMid = 0,
     
     
     }
@@ -51,9 +51,13 @@ namespace iqmeshNetwork_OtaUpload_Response
         [System.ComponentModel.DataAnnotations.Required]
         public string MsgId { get; set; }
     
-        /// <summary>Returns following values, see its description.</summary>
-        [Newtonsoft.Json.JsonProperty("rsp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Rsp Rsp { get; set; }
+        /// <summary>Timeout to wait for IQRF DPA response.</summary>
+        [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Timeout { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("rsp", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public Rsp Rsp { get; set; } = new Rsp();
     
         /// <summary>Returns array of objects req-cnf-rsp, see its description.</summary>
         [Newtonsoft.Json.JsonProperty("raw", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -86,13 +90,28 @@ namespace iqmeshNetwork_OtaUpload_Response
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Rsp 
     {
-        /// <summary>Device address to write the configuration to. Broadcast address is also allowed.</summary>
-        [Newtonsoft.Json.JsonProperty("deviceAddr", Required = Newtonsoft.Json.Required.Always)]
-        public int DeviceAddr { get; set; }
+        /// <summary>Network device address.</summary>
+        [Newtonsoft.Json.JsonProperty("nAdr", Required = Newtonsoft.Json.Required.Always)]
+        public int NAdr { get; set; }
     
-        /// <summary>If sets, then selected file has been successfully loaded.</summary>
-        [Newtonsoft.Json.JsonProperty("writeSuccess", Required = Newtonsoft.Json.Required.Always)]
-        public bool WriteSuccess { get; set; }
+        /// <summary>Hardware profile identification.</summary>
+        [Newtonsoft.Json.JsonProperty("hwpId", Required = Newtonsoft.Json.Required.Always)]
+        public int HwpId { get; set; }
+    
+        /// <summary>DPA error code.</summary>
+        [Newtonsoft.Json.JsonProperty("rCode", Required = Newtonsoft.Json.Required.Always)]
+        public int RCode { get; set; }
+    
+        /// <summary>DPA value.</summary>
+        [Newtonsoft.Json.JsonProperty("dpaVal", Required = Newtonsoft.Json.Required.Always)]
+        public int DpaVal { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("result", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public object Result { get; set; }
+    
+        /// <summary>Error description from JS drivers.</summary>
+        [Newtonsoft.Json.JsonProperty("errorStr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ErrorStr { get; set; }
     
         public string ToJson() 
         {

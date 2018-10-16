@@ -58,8 +58,9 @@ namespace iqrfEmbedIo_Set_Response
         [System.ComponentModel.DataAnnotations.Required]
         public Rsp Rsp { get; set; } = new Rsp();
     
+        /// <summary>Returns array of objects req-cnf-rsp, see its description.</summary>
         [Newtonsoft.Json.JsonProperty("raw", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Raw Raw { get; set; }
+        public System.Collections.ObjectModel.ObservableCollection<Anonymous> Raw { get; set; }
     
         /// <summary>IQRF GW daemon instance identification.</summary>
         [Newtonsoft.Json.JsonProperty("insId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -124,7 +125,7 @@ namespace iqrfEmbedIo_Set_Response
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Raw 
+    public partial class Anonymous 
     {
         /// <summary>Binary buffer with DPA request.</summary>
         [Newtonsoft.Json.JsonProperty("request", Required = Newtonsoft.Json.Required.Always)]
@@ -161,9 +162,9 @@ namespace iqrfEmbedIo_Set_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static Raw FromJson(string data)
+        public static Anonymous FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Raw>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Anonymous>(data);
         }
     
     }
