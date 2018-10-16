@@ -541,23 +541,30 @@ namespace iqrf {
       // byte 0x05
       uint8_t byte05 = configuration[0x04];
 
-      bool customDpaHandler = ((byte05 & 0b1) == 0b1) ? true : false;
+      bool customDpaHandler = ((byte05 & 0b00000001) == 0b00000001) ? true : false;
       Pointer("/data/rsp/customDpaHandler").Set(response, customDpaHandler);
 
-      bool nodeDpaInterface = ((byte05 & 0b10) == 0b10) ? true : false;
+      bool nodeDpaInterface = ((byte05 & 0b00000010) == 0b00000010) ? true : false;
       Pointer("/data/rsp/nodeDpaInterface").Set(response, nodeDpaInterface);
 
-      bool dpaAutoexec = ((byte05 & 0b100) == 0b100) ? true : false;
+      bool dpaAutoexec = ((byte05 & 0b00000100) == 0b00000100) ? true : false;
       Pointer("/data/rsp/dpaAutoexec").Set(response, dpaAutoexec);
 
-      bool routingOff = ((byte05 & 0b1000) == 0b1000) ? true : false;
+      bool routingOff = ((byte05 & 0b00001000) == 0b00001000) ? true : false;
       Pointer("/data/rsp/routingOff").Set(response, routingOff);
 
-      bool ioSetup = ((byte05 & 0b10000) == 0b10000) ? true : false;
+      bool ioSetup = ((byte05 & 0b00010000) == 0b00010000) ? true : false;
       Pointer("/data/rsp/ioSetup").Set(response, ioSetup);
 
-      bool peerToPeer = ((byte05 & 0b100000) == 0b100000) ? true : false;
+      bool peerToPeer = ((byte05 & 0b00100000) == 0b00100000) ? true : false;
       Pointer("/data/rsp/peerToPeer").Set(response, peerToPeer);
+
+
+      // for DPA v3.03 onwards
+      if (dpaVer >= 0x0303) {
+        bool neverSleep = ((byte05 & 0b0100000) == 0b0100000) ? true : false;
+        Pointer("/data/rsp/neverSleep").Set(response, neverSleep);
+      }
 
       // bytes fields
       Pointer("/data/rsp/rfChannelA").Set(response, configuration[0x10]);      

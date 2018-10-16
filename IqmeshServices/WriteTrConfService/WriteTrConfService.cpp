@@ -2378,6 +2378,23 @@ namespace iqrf {
         isSetByte05ConfigBits = true;
       }
 
+      // only for DPA 3.03 onwards - needs to control
+      if (comWriteConfig.isSetNeverSleep()) {
+        IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+        uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
+
+        if (dpaVer >= 0x0303) {
+          if (comWriteConfig.getNeverSleep()) {
+            byte05ConfigBits |= 0b01000000;
+          }
+          byte05ConfigBitsMask |= 0b01000000;
+          isSetByte05ConfigBits = true;
+        }
+        else {
+          THROW_EXC(std::logic_error, "NeverSleep parameter accessible from DPA v3.03");
+        }
+      }
+
       // if there is at minimal one bit set, add byte05
       if (isSetByte05ConfigBits) {
         HWP_ConfigByte byte05(0x05, byte05ConfigBits, byte05ConfigBitsMask);

@@ -211,6 +211,14 @@ namespace iqrf {
       return m_peerToPeer;
     }
 
+    // only for DPA 3.03 onwards
+    bool isSetNeverSleep() {
+      return m_isSetNeverSleep;
+    }
+
+    const bool getNeverSleep() {
+      return m_neverSleep;
+    }
 
     bool isSetRfBand() const {
       return m_isSetRfBand;
@@ -389,6 +397,7 @@ namespace iqrf {
     bool m_isSetRoutingOff = false;
     bool m_isSetIoSetup = false;
     bool m_isSetPeerToPeer = false;
+    bool m_isSetNeverSleep = false;
 
     bool m_isSetRfBand = false;
     bool m_isSetSecurityPassword = false;
@@ -419,6 +428,7 @@ namespace iqrf {
     bool m_routingOff;
     bool m_ioSetup;
     bool m_peerToPeer;
+    bool m_neverSleep;
 
     std::string m_rfBand;
     std::string m_securityPassword;
@@ -617,6 +627,10 @@ namespace iqrf {
         m_isSetPeerToPeer = true;
       }
 
+      if (rapidjson::Value* neverSleepJsonVal = rapidjson::Pointer("/data/req/neverSleep").Get(doc)) {
+        m_neverSleep = neverSleepJsonVal->GetBool();
+        m_isSetNeverSleep = true;
+      }
 
       // RFPGM configuration bits
       if (rapidjson::Value* rfPgmDualChannelJsonVal = rapidjson::Pointer("/data/req/rfPgmDualChannel").Get(doc)) {
