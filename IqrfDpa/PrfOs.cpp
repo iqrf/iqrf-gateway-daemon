@@ -46,10 +46,10 @@ namespace iqrf {
         os.fill('0');
 
         os << std::hex <<
-          std::setw(2) << (int)resp.ModuleId[3] <<
-          std::setw(2) << (int)resp.ModuleId[2] <<
-          std::setw(2) << (int)resp.ModuleId[1] <<
-          std::setw(2) << (int)resp.ModuleId[0];
+          std::setw(2) << (int)resp.MID[3] <<
+          std::setw(2) << (int)resp.MID[2] <<
+          std::setw(2) << (int)resp.MID[1] <<
+          std::setw(2) << (int)resp.MID[0];
 
         m_moduleId = os.str();
       }
@@ -66,7 +66,7 @@ namespace iqrf {
         m_osVersion = os.str();
       }
 
-      m_trType = (resp.ModuleId[3] & 0x80) ? "DCTR-" : "TR-";
+      m_trType = (resp.MID[3] & 0x80) ? "DCTR-" : "TR-";
 
       switch (resp.McuType >> 4) {
       case 0: m_trType += "52D"; break;
