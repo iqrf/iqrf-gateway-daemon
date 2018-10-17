@@ -322,6 +322,14 @@ namespace iqrf {
 
     getIqrfNetworkParams();
 
+    if (m_cPar.stdModeSupportFlag) {
+      m_rfMode = IDpaTransaction2::kStd;
+    }
+    if (m_cPar.lpModeSupportFlag) {
+      m_rfMode = IDpaTransaction2::kLp;
+    }
+    m_dpaHandler->setRfCommunicationMode(m_rfMode);
+
     IDpaTransaction2::TimingParams timingParams;
     timingParams.bondedNodes = m_bondedNodes;
     timingParams.discoveredNodes = m_discoveredNodes;
