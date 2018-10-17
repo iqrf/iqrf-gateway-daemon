@@ -58,7 +58,7 @@ namespace iqrf {
         std::ostringstream os;
         
         os << std::hex <<
-          std::setw(2) << (int)(resp.OsVersion >> 4) << '.';
+          (int)(resp.OsVersion >> 4) << '.';
 
         os.fill('0');
         os << std::setw(2) << (int)(resp.OsVersion & 0xf) << 'D';
