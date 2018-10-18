@@ -20,7 +20,7 @@ fpm \
 --depends libc6 \
 --depends libstdc++6 \
 --depends openssl \
---depends libcpprest2.9 \
+--depends libcurl3 \
 --depends libboost-filesystem1.62.0 \
 --verbose \
 .
