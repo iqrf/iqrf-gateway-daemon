@@ -355,6 +355,7 @@ namespace iqrf {
           
         // analyze and selected drivers
         std::string str2load; // agregated scripts
+        std::ostringstream osel;
 
         for (auto & drv : drivers) {
           int driverId = drv.first;
@@ -404,12 +405,15 @@ namespace iqrf {
           if (driver) {
             // got selected driver add to agregated scripts
             str2load += driver->getDriver();
+            osel << NAME_PAR(Driver, driverId) << NAME_PAR(Version, version) << NAME_PAR(Name, driver->getName()) << std::endl;
           }
           else {
             TRC_WARNING("Inconsistency in driver versions: " << NAME_PAR(Driver, driverId) << NAME_PAR(Version, version) << " no driver found");
           }
 
         }
+
+        TRC_INFORMATION("Loaded drivers for: " PAR(osSel) << PAR(dpaSel) << std::endl << osel.str());
 
         // daemon wrapper workaround
         {
