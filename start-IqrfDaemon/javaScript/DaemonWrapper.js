@@ -208,12 +208,12 @@ iqrf.embed.coordinator.SmartConnect_Response_rsp = function (rawHdp) {
     return result;
 };
 
-iqrf.embed.coordinator.SetMid_Request_req = function (param) {
-    return iqrf.embed.coordinator.SetMid_Request(param.bondAddr, param.mid)
+iqrf.embed.coordinator.SetMID_Request_req = function (param) {
+    return iqrf.embed.coordinator.SetMID_Request(param.bondAddr, param.mid)
 };
 
-iqrf.embed.coordinator.SetMid_Response_rsp = function (rawHdp) {
-    iqrf.embed.coordinator.SetMid_Response(rawHdp);
+iqrf.embed.coordinator.SetMID_Response_rsp = function (rawHdp) {
+    iqrf.embed.coordinator.SetMID_Response(rawHdp);
     var result =
     {
     };
