@@ -21,6 +21,16 @@ using namespace rapidjson;
 
 namespace {
 
+  // helper functions
+  std::string encodeHexaNum_CapitalLetters(uint16_t from)
+  {
+    std::ostringstream os;
+    os.fill('0'); os.width(4);
+    os << std::hex << std::uppercase << (int)from;
+    return os.str();
+  }
+
+
   // holds parsed data from OS read response
   class OsReadObject {
   public:
@@ -1116,7 +1126,7 @@ namespace iqrf {
 
       std::ostringstream moduleId;
       moduleId.fill('0');
-      moduleId << std::hex <<
+      moduleId << std::hex << std::uppercase <<
         std::setw(2) << (int)osReadInfo[3] <<
         std::setw(2) << (int)osReadInfo[2] <<
         std::setw(2) << (int)osReadInfo[1] <<
@@ -1160,7 +1170,7 @@ namespace iqrf {
     
       // OS build - string
       uint16_t osBuild = (osReadInfo[7] << 8) + osReadInfo[6];
-      osReadObject.osBuild = encodeHexaNum(osBuild);
+      osReadObject.osBuild = encodeHexaNum_CapitalLetters(osBuild);
 
       // RSSI [dBm]
       int8_t rssi = osReadInfo[8] - 130;
@@ -1276,10 +1286,10 @@ namespace iqrf {
       // flags - parsed
       bool stdModeSupported = ((perEnum.Flags & 0b1) == 0b1) ? true : false;
       if (stdModeSupported) {
-        Pointer("/data/rsp/peripheralEnumeration/flags/rfMode").Set(response, "std");
+        Pointer("/data/rsp/peripheralEnumeration/flags/rfMode").Set(response, "STD");
       }
       else {
-        Pointer("/data/rsp/peripheralEnumeration/flags/rfMode").Set(response, "lp");
+        Pointer("/data/rsp/peripheralEnumeration/flags/rfMode").Set(response, "LP");
       }
 
 

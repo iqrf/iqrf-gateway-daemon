@@ -16,6 +16,15 @@ using namespace rapidjson;
 
 namespace {
 
+  // helper functions
+  std::string encodeHexaNum_CapitalLetters(uint16_t from)
+  {
+    std::ostringstream os;
+    os.fill('0'); os.width(4);
+    os << std::hex << std::uppercase << (int)from;
+    return os.str();
+  }
+
   // maximum number of repeats
   static const uint8_t REPEAT_MAX = 3;
 
@@ -754,7 +763,7 @@ namespace iqrf {
       // MID - hex string without separator
       std::ostringstream moduleId;
       moduleId.fill('0');
-      moduleId << std::hex <<
+      moduleId << std::hex << std::uppercase << 
         std::setw(2) << (int)readInfo[3] <<
         std::setw(2) << (int)readInfo[2] <<
         std::setw(2) << (int)readInfo[1] <<
@@ -795,7 +804,7 @@ namespace iqrf {
 
       // OS build - string
       uint16_t osBuild = (readInfo[7] << 8) + readInfo[6];
-      rapidjson::Pointer("/data/rsp/osRead/osBuild").Set(response, encodeHexaNum(osBuild));
+      rapidjson::Pointer("/data/rsp/osRead/osBuild").Set(response, encodeHexaNum_CapitalLetters(osBuild));
 
       // RSSI [dBm]
       int8_t rssi = readInfo[8] - 130;
