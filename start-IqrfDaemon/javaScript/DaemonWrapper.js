@@ -209,7 +209,7 @@ iqrf.embed.coordinator.SmartConnect_Response_rsp = function (rawHdp) {
 };
 
 iqrf.embed.coordinator.SetMid_Request_req = function (param) {
-    return iqrf.embed.coordinator.SetMid_Request(param.mid, param.bondAddr)
+    return iqrf.embed.coordinator.SetMid_Request(param.bondAddr, param.mid)
 };
 
 iqrf.embed.coordinator.SetMid_Response_rsp = function (rawHdp) {
@@ -749,12 +749,12 @@ iqrf.embed.node.Restore_Response_rsp = function (rawHdp) {
     return result;
 };
 
-iqrf.embed.io.ValidateBonds_Request_req = function (param) {
-    return iqrf.embed.io.ValidateBonds_Request(param.items);
+iqrf.embed.node.ValidateBonds_Request_req = function (param) {
+    return iqrf.embed.node.ValidateBonds_Request(param.nodes);
 };
 
-iqrf.embed.io.ValidateBonds_Response_rsp = function (rawHdp) {
-    iqrf.embed.io.ValidateBonds_Response(rawHdp);
+iqrf.embed.node.ValidateBonds_Response_rsp = function (rawHdp) {
+    iqrf.embed.node.ValidateBonds_Response(rawHdp);
     var result =
     {
     };
