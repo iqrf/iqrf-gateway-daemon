@@ -43,9 +43,9 @@
       "startlevel": 0
     },
     {
-      "name": "shape::CppRestService",
+      "name": "shape::CurlRestApiService",
       "libraryPath": "../../../../../shapeware/build/Unix_Makefiles/bin",
-      "libraryName": "CppRestService",
+      "libraryName": "CurlRestApiService",
       "enabled": true,
       "startlevel": -1
     },

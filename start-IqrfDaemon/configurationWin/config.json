@@ -50,9 +50,9 @@
       "startlevel": 0
     },
     {
-      "name": "shape::CppRestService",
+      "name": "shape::CurlRestApiService",
       "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
-      "libraryName": "CppRestService",
+      "libraryName": "CurlRestApiService",
       "enabled": true,
       "startlevel": -1
     },
