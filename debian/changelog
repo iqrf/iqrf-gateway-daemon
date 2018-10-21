@@ -1,8 +1,178 @@
-iqrf-gateway-daemon (v2.0.0-beta) testing; urgency=medium
+iqrf-gateway-daemon (2.0.0~1.gbp28535d) UNRELEASED; urgency=medium
 
-  ** SNAPSHOT build @01ebe9ff4e49a618e87f86e9a8e9b92d13622aa3 **
+  ** SNAPSHOT build @28535d83c312e28c7128f13ceb87ec582ffb5fdc **
 
-  * Only for testing purposes
-  * Real changelog must be generated from git commit
+  [ Frantisek Mikulu ]
+  * Add IqrfUart component
+  * Add IqrfUart component
+  * IqrfUart just a skeleton copy/paste from IqrfSpi
+  * IqrfUart just a skeleton copy/paste from IqrfSpi
+  * iqrf__IqrfUart mockup build on Win
+  * iqrf__IqrfUart mockup build on Win
+  * IqrfUart component on Lin
+  * TestScheduler for Win/Lin
 
- -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Thu, 06 Sep 2018 11:24:59 +0200
+  [ Rostislav Spinar ]
+  * Uart changes
+
+  [ Frantisek Mikulu ]
+  * Fix IqrfUart::listen()
+
+  [ Rostislav Spinar ]
+  * Fix in CI file
+  * Adding scripts after install and remove deb package
+  * Version must start with number
+  * Improving deb scripts
+
+  [ Michal Konopa ]
+  * Last changes to DPA v3.03 implemented into Iqmesh Services
+
+  [ Rostislav Spinar ]
+  * SPI layer update
+
+  [ Michal Konopa ]
+  * Read TR Conf Service: - improved obtaining DPA version of coordinator
+
+  [ Rostislav Spinar ]
+  * Reflect changes in LED API also in JS wrapper
+  * Update UART
+
+  [ Frantisek Mikulu ]
+  * Remove linking sysfs_gpio
+  * IqrfUart CMakeLists update
+
+  [ Rostislav Spinar ]
+  * Update UART config
+  * Adding UART into DEB packages
+
+  [ Michal Konopa ]
+  * Updated component configuration schemas.
+
+  [ Frantisek Mikulu ]
+  * Fix issue211 Update Repo +  TestJsCache
+
+  [ Rostislav Spinar ]
+  * Update deploy stage
+  * Update IQRF repo offline cache
+  * Fix in CI files
+  * Reflect change in control pins' name for SPI and UART boards
+  * Fix in SPI pin mapping
+
+  [ Frantisek Mikulu ]
+  * Analyze of used OS/DPA in actual IqrfRepo
+  * Implemented Selekce verze driveru dle OS/DPA issue  78
+  * Fix TestSheduler for Lin
+
+  [ Rostislav Spinar ]
+  * CfgSchemas update, some fixes also
+
+  [ Frantisek Mikulu ]
+  * Fix TestJsonDpaApiIqrfStandard for Lin
+  * Fix main retval
+  * Implicit DPA 3.02
+  * Enhanced traces for splitter mType search
+
+  [ Rostislav Spinar ]
+  * Fix in CI, remove object schema for release
+
+  [ Frantisek Mikulu ]
+  * Fix Beh daemona v cilovem nasazeni - issue265
+  * Fix minor error duplicity allocation in JsonSplitter
+
+  [ Rostislav Spinar ]
+  * Updated API schemas, reflected in CI
+
+  [ Michal Konopa ]
+  * logging incoming and outcomming messages
+  * Changed log level to more appropriate one.
+
+  [ Frantisek Mikulu ]
+  * Enhanced MqttMessaging::onConnetcFailure() WAR trace
+
+  [ Michal Konopa ]
+  * Initial commit.
+
+  [ Frantisek Mikulu ]
+  * Sheduler task handling more robust
+  * Fix JsCache::period bug
+  * Fix JsCache::period bug
+
+  [ vencek ]
+  * Timing update
+
+  [ Michal Konopa ]
+  * Completed the first test of complete response.
+  * incporate last remote changes
+  * incorporation of changes in clibdpa
+  * Smart Connect Service: - Smart Connect DPA request user timeout set to 0
+  * added tests for testing invalid device address in JSON request
+
+  [ Rostislav Spinar ]
+  * Update CI
+
+  [ Roman Ondráček ]
+  * Fix arch for Raspberry Pi builds
+  * Fix the path to paho libs
+
+  [ Rostislav Spinar ]
+  * Copy paho libs fix, paho package, clean old directories
+  * CI Paho build fix
+  * CI Paho build fix
+
+  [ Frantisek Mikulu ]
+  * Fix JsonDpaApiRaw
+  * Fix MqMessaging/MqChannel.cpp for Lin Rel
+  * update clibspi
+
+  [ Rostislav Spinar ]
+  * Js wrapper update, ref to updated API
+
+  [ Frantisek Mikulu ]
+  * Add TestJsonDpaApiRaw
+  * Fix TestJsonDpaApiRaw test name
+  * Update clibdpa submodule
+
+  [ Michal Konopa ]
+  * Write TR Conf Service: - FRC timing set to 0
+  * Added Test of Enumeratio Device Service
+
+  [ Frantisek Mikulu ]
+  * Squash merge feature/issue215 raw[{}]
+  * Fix issue 279 JavaScript load failure for OS4.0
+  * Fix issue280 Status in rsp
+  * Fix issue 277 repeated DPA msg read from UART
+
+  [ Michal Konopa ]
+  * - made services agnostic to DPA version strucures changes in DPA.h
+  * Included DPA HWP Configuration byte 5, bit 6
+  * Bug in test log output fixed.
+
+  [ Frantisek Mikulu ]
+  * issue283 IqrfDpa configuration cleaning
+
+  [ Rostislav Spinar ]
+  * Fixes for updated DPA.h, ref to new masters - uart, dpa, api
+
+  [ Frantisek Mikulu ]
+  * Fix reported OsVersion
+  * Fix RF mode setting
+  * issue 285 FRC timing
+
+  [ Rostislav Spinar ]
+  * Add dep to libcurl3 for debian stretch deb
+
+  [ Frantisek Mikulu ]
+  * JsCache selected drivers trace
+  * Set CurlRestApiService cfg
+
+  [ Rostislav Spinar ]
+  * Fixes in JS wrapper
+  * Cfg schema for Curl service, ref to updated api
+  * Fix in copy shapeware curl lib
+  * Fix in Set MID req/rsp
+  * Ref to api
+
+  [ Michal Konopa ]
+  * - hexa values letters of MID, osBuild and RF mode transformed to uppercase
+
+ -- Roman Ondráček <roman.ondracek@iqrf.com>  Sun, 21 Oct 2018 17:50:21 +0200

@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@  --buildsystem=cmake --builddirectory=build
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE \
+                         -DI_WANT_STATIC_LPSOLVE=TRUE -Dshapeware_DIR:PATH=`pwd`/shapeware-build \
+                         -Dshape_DIR:PATH=`pwd`/shape-build
+
+override_dh_fixperms:
+	dh_fixperms
+	chmod -R 666 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/
+	chmod 777 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/
+	chmod 777 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/cfgSchemas/
+	chmod -R 666 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler/
+	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler/
