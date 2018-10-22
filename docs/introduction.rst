@@ -5,7 +5,7 @@ Open-source components for building IQRF Gateway.
 
 `IQRF Gateway Daemon`_ (IQRF GWD) project provides open-source components for building 
 IQRF Gateways. Together they form ready-to-use solution, including an user-friendly 
-`web-interface`_. Components can be extended or added based on the project requirements. 
+`Web Interface`_ . Components can be extended or added based on the project requirements. 
 All components are licenced under Apache Licence 2.0 and can be used for commercial 
 purposes.
 
@@ -16,30 +16,29 @@ purposes.
     IQRF GWD overview
 
 .. _`IQRF Gateway Daemon`: https://github.com/iqrfsdk/iqrf-gateway-daemon
-.. _`web-interface`: https://github.com/iqrfsdk/iqrf-gateway-webapp
+.. _`Web Interface`: https://github.com/iqrfsdk/iqrf-gateway-webapp
 
 Why v2
 ------
 
 - Modular design
 
-  - Extendible
-  - Components as dynamic libraries
+  - Extendible based on project requirements
   - Based on `Shape framework`_
 
-- `IQRF Standards`_ supported
+- `IQRF Standard`_ supported and exposed as JSON API
 
   - Working with IQRF Repository
   - Offline cached support
 
-- `IQMESH Services`_ introduced 
+- `IQMESH Services`_ introduced and exposed as JSON API
 
-  - Convenient for higher level integrators
-  - Leaving DPA bits and bytes to us
+  - Convenient for system integrators
+  - Leaving DPA protocol bits and bytes to us
 
-- `IQRF Generic`_ is kept alive
+- `IQRF Generic`_ API is kept alive
 
-  - Working with DPA bits and bytes as in v1
+  - Working with DPA bits and bytes as in GW Daemon v1
 
 - Reworked IQMESH Manager in `IQRF Gateway Webapp`_ 
 
@@ -47,15 +46,15 @@ Why v2
 
 - `WebSocket`_ channel introduced
   
-  - Enables Docker containers for End-apps
+  - Enables Docker containers for End-apps more easily
 
-- UART interface supported
+- IQRF UART interface supported
   
-  - Working with `UniPi Neuron IQRF`_
+  - Working with `UniPi Neuron IQRF`_ and other boards
 
 - Unicast, broadcast and FRC timing supported 
 
-  - Daemon knows correct time to wait for DPA response
+  - GW Daemon knows correct time to wait for DPA response
 
 - API v1 supported
 
@@ -63,7 +62,7 @@ Why v2
 
 - Growing base of `examples and reference apps`_
 
-  - Great inspiration on how to work with our API from your favourite programming language
+  - Great inspiration on how to work with our JSON API from your favourite programming language
 
 - Long term support
 

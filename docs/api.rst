@@ -4,9 +4,13 @@ Application Programming Interface
 JSON messages for communication via `MQ`_/`WS`_/`MQTT`_ channels. Messages are compatible from OS v4.02D and 
 DPA v3.02 at TR-7xD and higher. It is always highly recommended to use latest OS/DPA FW on the modules. 
 
-IQRF Gateway Daemon API `categories`_.
+IQRF Gateway Daemon API categories:
 
-.. _`categories`: https://github.com/iqrfsdk/iqrf-gateway-daemon/blob/master/docs/images/iqrfgd-api.png
+.. figure:: images/iqrfgd-api.png
+    :align: center
+    :figclass: align-center
+
+    IQRF GWD API categories
 
 .. _`MQ`: https://en.wikipedia.org/wiki/Message_queue
 .. _`WS`: https://en.wikipedia.org/wiki/WebSocket
@@ -178,6 +182,8 @@ Embed Coordinator
 - `EnableRemoteBonding C response v1-0-0`_ and `example`__
 - `SmartConnect C request v1-0-0`_ and `example`__
 - `SmartConnect C response v1-0-0`_ and `example`__
+- `SetMID request v1-0-0`_ and `example`__
+- `SetMID response v1-0-0`_ and `example`__
 
 .. _`AddrInfo request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_AddrInfo-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_AddrInfo-request-1-0-0-example.json
@@ -251,6 +257,10 @@ Embed Coordinator
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_SmartConnect-request-1-0-0-example.json
 .. _`SmartConnect C response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_SmartConnect-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_SmartConnect-response-1-0-0-example.json
+.. _`SetMID request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_SetMID-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_SetMID-request-1-0-0-example.json
+.. _`SetMID response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedCoordinator_SetMID-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedCoordinator_SetMID-response-1-0-0-example.json
 
 Embed Node
 ++++++++++
@@ -269,6 +279,8 @@ Embed Node
 - `ClearRemotelyBondedMid N response v1-0-0`_ and `example`__
 - `EnableRemoteBonding N request v1-0-0`_ and `example`__
 - `EnableRemoteBonding N response v1-0-0`_ and `example`__
+- `ValidateBonds request v1-0-0`_ and `example`__
+- `ValidateBonds response v1-0-0`_ and `example`__
 
 .. _`Read N request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_Read-request-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_Read-request-1-0-0-example.json
@@ -298,6 +310,10 @@ Embed Node
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_EnableRemoteBonding-request-1-0-0-example.json
 .. _`EnableRemoteBonding N response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_EnableRemoteBonding-response-1-0-0.json
 .. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_EnableRemoteBonding-response-1-0-0-example.json
+.. _`ValidateBonds request v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_ValidateBonds-request-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_ValidateBonds-request-1-0-0-example.json
+.. _`ValidateBonds response v1-0-0`: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/#iqrf/iqrfEmbedNode_ValidateBonds-response-1-0-0.json
+.. __: https://apidocs.iqrfsdk.org/iqrf-gateway-daemon/json/iqrf/examples/iqrfEmbedNode_ValidateBonds-response-1-0-0-example.json
 
 Embed OS
 ++++++++
@@ -592,7 +608,7 @@ IQMESH Network
 --------------
 
 Services that ease the task of working with IQMESH network. They are composed of more then single DPA transaction 
-(req-cnf-rsp) in most of the cases. They are also integrating information from `IQRF Repository`_. They are
+(req-cnf-rsp) in most of the cases. They are also integrating information from `IQRF Repository`_. They are 
 inspired by the services available in `IQRF IDE`_ - IQMESH Network Manager.
 
 .. _`IQRF Repository`: https://repository.iqrfalliance.org/doc/

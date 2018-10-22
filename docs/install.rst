@@ -15,7 +15,7 @@ For Debian and UbiLinux
 -----------------------
 .. code-block:: bash
 
-	sudo apt-get install dirmngr
+	sudo apt-get install dirmngr apt-transport-https
 	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E
 	echo "deb https://repos.iqrfsdk.org/testing/debian stretch testing" | sudo tee -a /etc/apt/sources.list
 	sudo apt-get update
@@ -34,6 +34,6 @@ Check the status of IQRF Gateway Daemon
 #######################################
 .. code-block:: bash
 	
-	systemctl status iqrfgd2.service
+	systemctl status iqrf-gateway-daemon.service
 
 .. _`https://repos.iqrfsdk.org/testing`: https://repos.iqrfsdk.org/testing

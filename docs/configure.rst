@@ -20,7 +20,7 @@ Main configuration parameters and its location
 
 `IQRF Gateway Webapp`_ gives you nice GUI to configure all these parameters an easy way.
 
-Folder /etc/iqrfgd2:
+Folder /etc/iqrf-gateway-daemon:
 
 - config.json
 
@@ -34,6 +34,12 @@ Folder /etc/iqrfgd2:
   - Orange Pi Zero (/dev/spidev1.0)
   - UP board (/dev/spidev2.0)
   - UP2 board (/dev/spidev1.0)
+
+- iqrf__IqrfUart.json
+
+  - **Tip: configure your IQRF interface - UART**
+  - Interface (/dev/ttyS0)
+  - BaudRate (57600)
 
 - iqrf__IqrfCdc.json
 
@@ -68,15 +74,15 @@ Folder /etc/iqrfgd2:
   - Remote port (55000)
   - Local port (55300)
 
-- iqrf__WebsocketMessaging.json, iqrf__WebsocketMessagingWebApp.json
+- iqrf__WebsocketMessaging.json
 
   - **Tip: check/configure your Websocket msgs**
   - Accept async msgs (true)
 
-- shape__WebsocketService.json, shape__WebsocketServiceWebApp.json
+- shape__WebsocketService.json
 
-  - **Tip: check/configure your Websocket ports**
-  - Websocket port (1338, 1340)
+  - **Tip: check/configure your Websocket port**
+  - Websocket port (1338)
 
 - iqrf__JsCache.json
 
@@ -86,13 +92,13 @@ Folder /etc/iqrfgd2:
 - shape__TraceFileService.json
 
   - **Tip: check/configure log file**
-  - Path (/var/log/iqrfgd2)
+  - Path (/var/log/iqrf-gateway-daemon)
   - Filename (iqrf-gateway-daemon.log)
   - Size (1048576MB)
   - Timestamp (true)
   - Verbosity (INF)
 
-Folder /var/cache/iqrfgd2/scheduler:
+Folder /var/cache/iqrf-gateway-daemon/scheduler:
 
 - Tasks.json
 
@@ -105,7 +111,7 @@ To load new configuration restart the daemon.
 
 .. code-block:: bash
 
-	sudo systemctl restart iqrfgd2.service
+	sudo systemctl restart iqrf-gateway-daemon.service
 
 .. _`installation guide`: https://docs.iqrfsdk.org/iqrf-gateway-webapp/install.html
-.. _`IQRF Gateway Webapp`: https://github.com/iqrfsdk/iqrf-gateway-webapp
+.. _`IQRF Gateway Webapp`: https://docs.iqrfsdk.org/iqrf-gateway-webapp
