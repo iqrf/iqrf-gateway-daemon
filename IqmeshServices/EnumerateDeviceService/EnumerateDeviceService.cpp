@@ -6,6 +6,7 @@
 #include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
+#include "HexStringCoversion.h"
 
 #include "iqrf__EnumerateDeviceService.hxx"
 
@@ -1255,12 +1256,12 @@ namespace iqrf {
     {
       // per enum object
       TEnumPeripheralsAnswer perEnum = deviceEnumerateResult.getPerEnum();
-
+      
       // dpa version - string
-      std::string dpaVer = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
-        + "." + std::to_string(perEnum.DpaVersion & 0xFF);
-      Pointer("/data/rsp/peripheralEnumeration/dpaVer").Set(response, dpaVer);
-
+      std::string dpaVerStr = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
+        + "." + encodeHexaNum((uint8_t)(perEnum.DpaVersion & 0xFF));
+      Pointer("/data/rsp/peripheralEnumeration/dpaVer").Set(response, dpaVerStr);
+      
       // perNr
       Pointer("/data/rsp/peripheralEnumeration/perNr").Set(response, perEnum.UserPerNr);
 
@@ -1331,14 +1332,17 @@ namespace iqrf {
       rapidjson::Document& response
     )
     {
-      // read configuration object
-      TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
-      uns8* configurationXored = hwpConfig.Configuration;
+      // getting DPA version
+      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
 
-      // needed to xor all bytes of configuration with the value of 0x34
-      uns8 configuration[CONFIGURATION_LEN];
-      for (int i = 0; i < CONFIGURATION_LEN; i++) {
-        configuration[i] = configurationXored[i] ^ 0x34;
+      TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
+      uns8* configuration = hwpConfig.Configuration;
+
+      if (dpaVer < 0x0303) {
+        for (int i = 0; i < CONFIGURATION_LEN; i++) {
+          configuration[i] = configuration[i] ^ 0x34;
+        }
       }
 
       Document::AllocatorType& allocator = response.GetAllocator();
@@ -1553,7 +1557,7 @@ namespace iqrf {
 
         // dpa version - string
         std::string dpaVerStr = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
-          + "." + std::to_string(perEnum.DpaVersion & 0xFF);
+          + "." + encodeHexaNum((uint8_t)(perEnum.DpaVersion & 0xFF));
         Pointer("/data/rsp/validationAndUpdates/validation/dpaVer").Set(response, dpaVerStr);
       }
 
