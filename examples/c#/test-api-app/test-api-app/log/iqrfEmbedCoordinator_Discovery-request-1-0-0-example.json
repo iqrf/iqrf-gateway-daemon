@@ -2,7 +2,6 @@
   "mType": "iqrfEmbedCoordinator_Discovery",
   "data": {
     "msgId": "testEmbedCoordinator",
-    "timeout": 0,
     "req": {
       "nAdr": 0,
       "param": {

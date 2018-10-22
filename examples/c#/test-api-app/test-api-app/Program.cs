@@ -71,6 +71,8 @@
   using iqrfEmbedCoordinator_SetDpaParams_Response;
   using iqrfEmbedCoordinator_SetHops_Request;
   using iqrfEmbedCoordinator_SetHops_Response;
+  using iqrfEmbedCoordinator_SetMID_Request;
+  using iqrfEmbedCoordinator_SetMID_Response;
   using iqrfEmbedCoordinator_SmartConnect_Request;
   using iqrfEmbedCoordinator_SmartConnect_Response;
 
@@ -88,6 +90,8 @@
   using iqrfEmbedNode_EnableRemoteBonding_Response;
   using iqrfEmbedNode_RemoveBond_Request;
   using iqrfEmbedNode_RemoveBond_Response;
+  using iqrfEmbedNode_ValidateBonds_Request;
+  using iqrfEmbedNode_ValidateBonds_Response;
 
   using iqrfEmbedOs_Batch_Request;
   using iqrfEmbedOs_Batch_Response;
@@ -137,12 +141,16 @@
   using iqrfEmbedLedr_Get_Response;
   using iqrfEmbedLedr_Pulse_Request;
   using iqrfEmbedLedr_Pulse_Response;
+  using iqrfEmbedLedr_Flashing_Request;
+  using iqrfEmbedLedr_Flashing_Response;
   using iqrfEmbedLedg_Set_Request;
   using iqrfEmbedLedg_Set_Response;
   using iqrfEmbedLedg_Get_Request;
   using iqrfEmbedLedg_Get_Response;
   using iqrfEmbedLedg_Pulse_Request;
   using iqrfEmbedLedg_Pulse_Response;
+  using iqrfEmbedLedg_Flashing_Request;
+  using iqrfEmbedLedg_Flashing_Response;
 
   using iqrfEmbedThermometer_Read_Request;
   using iqrfEmbedThermometer_Read_Response;
@@ -203,8 +211,6 @@
   using iqmeshNetwork_SmartConnect_Response;
   using iqmeshNetwork_EnumerateDevice_Request;
   using iqmeshNetwork_EnumerateDevice_Response;
-  using iqmeshNetwork_OtaUpload_Request;
-  using iqmeshNetwork_OtaUpload_Response;
   using iqmeshNetwork_ReadTrConf_Request;
   using iqmeshNetwork_ReadTrConf_Response;
   using iqmeshNetwork_WriteTrConf_Request;
@@ -412,21 +418,15 @@
         // Create request 
 
         /* RAW */
-        
-        /*
         IqrfRaw_Request request = new IqrfRaw_Request();
         request.Data.MsgId = "testRaw";
         request.Data.Req.RData = "00.00.06.03.FF.FF";
-        request.Data.Timeout = 1000;
         request.Data.ReturnVerbose = true;
-        */
 
         /* RAWHDP */
-
         /*
         IqrfRawHdp_Request request = new IqrfRawHdp_Request();
         request.Data.MsgId = "testRawHdp";
-        request.Data.Timeout = 1000;
         request.Data.Req.NAdr = 1;
         request.Data.Req.PNum = 6;
         request.Data.Req.PCmd = 3;
@@ -439,7 +439,6 @@
         /*
         IqrfEmbedExplore_Enumerate_Request request = new IqrfEmbedExplore_Enumerate_Request();
         request.Data.MsgId = "testEmbedExplore";
-        request.Data.Timeout = 1000;
         request.Data.Req.NAdr = 1;
         request.Data.ReturnVerbose = true;
         */
@@ -447,7 +446,6 @@
         /*
         IqrfEmbedExplore_PeripheralInformation_Request request = new IqrfEmbedExplore_PeripheralInformation_Request();
         request.Data.MsgId = "testEmbedExplore";
-        request.Data.Timeout = 1000;
         request.Data.Req.NAdr = 1;
         request.Data.Req.Param.Per = 1;
         request.Data.ReturnVerbose = true;
@@ -456,7 +454,6 @@
         /*
         IqrfEmbedExplore_MorePeripheralsInformation_Request request = new IqrfEmbedExplore_MorePeripheralsInformation_Request();
         request.Data.MsgId = "testEmbedExplore";
-        request.Data.Timeout = 1000;
         request.Data.Req.NAdr = 1;
         request.Data.Req.Param.Per = 1;
         request.Data.ReturnVerbose = true;
@@ -603,15 +600,24 @@
         */
 
         /*
+        IqrfEmbedCoordinator_SetMID_Request request = new IqrfEmbedCoordinator_SetMID_Request();
+        request.Data.MsgId = "testEmbedCoordinator";
+        request.Data.Req.NAdr = 0;
+        request.Data.Req.Param.BondAddr = 10;
+        request.Data.Req.Param.Mid = 0x00000000;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
         IqrfEmbedCoordinator_SmartConnect_Request request = new IqrfEmbedCoordinator_SmartConnect_Request();
         request.Data.MsgId = "testEmbedCoordinator";
         request.Data.Req.NAdr = 0;
-        request.Data.Req.Param.ReqAddr = 1;
+        request.Data.Req.Param.ReqAddr = 11;
         request.Data.Req.Param.BondingTestRetries = 1;
-        request.Data.Req.Param.Ibk = new System.Collections.ObjectModel.ObservableCollection<int> { 0x9A,  0x1E, 0x79, 0xB2, 0x3C, 0xDC, 0x39, 0xD6, 0xCC, 0x5E, 0x64, 0xC0, 0x6B, 0xBF, 0xFD, 0xA7 };
-        request.Data.Req.Param.Mid = new System.Collections.ObjectModel.ObservableCollection<int> { 0x81, 0x10, 0x2D, 0x54 };
+        request.Data.Req.Param.Ibk = new System.Collections.ObjectModel.ObservableCollection<int> { 0x9A, 0x69, 0x1F, 0x1A, 0x21, 0x01, 0x21, 0x65, 0x03, 0xE5, 0xC5, 0x88, 0xFF, 0xE7, 0xF6, 0xC2 };
+        request.Data.Req.Param.Mid = (0x81 << 24) + (0x10 << 16) + (0x2D << 8) + 0x55;
         request.Data.Req.Param.VirtualDeviceAddress = 0xFF;
-        request.Data.Req.Param.UserData = new System.Collections.ObjectModel.ObservableCollection<int> {};
+        request.Data.Req.Param.UserData = new System.Collections.ObjectModel.ObservableCollection<int> { 0x00, 0x00, 0x00, 0x00};
         request.Data.ReturnVerbose = true;
         */
 
@@ -668,6 +674,17 @@
         IqrfEmbedNode_RemoveBond_Request request = new IqrfEmbedNode_RemoveBond_Request();
         request.Data.MsgId = "testEmbedNode";
         request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedNode_ValidateBonds_Request request = new IqrfEmbedNode_ValidateBonds_Request();
+        request.Data.MsgId = "testEmbedNode";
+        request.Data.Req.NAdr = 1;
+        iqrfEmbedNode_ValidateBonds_Request.Anonymous node = new iqrfEmbedNode_ValidateBonds_Request.Anonymous();
+        node.BondAddr = 10;
+        node.Mid = 0x00000000;
+        request.Data.Req.Param.Nodes = new System.Collections.ObjectModel.ObservableCollection<iqrfEmbedNode_ValidateBonds_Request.Anonymous> { node };
         request.Data.ReturnVerbose = true;
         */
 
@@ -875,6 +892,13 @@
         */
 
         /*
+        IqrfEmbedLedr_Flashing_Request request = new IqrfEmbedLedr_Flashing_Request();
+        request.Data.MsgId = "testEmbedLedr";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
         IqrfEmbedLedg_Set_Request request = new IqrfEmbedLedg_Set_Request();
         request.Data.MsgId = "testEmbedLedg";
         request.Data.Req.NAdr = 1;
@@ -891,6 +915,13 @@
 
         /*
         IqrfEmbedLedg_Pulse_Request request = new IqrfEmbedLedg_Pulse_Request();
+        request.Data.MsgId = "testEmbedLedg";
+        request.Data.Req.NAdr = 1;
+        request.Data.ReturnVerbose = true;
+        */
+
+        /*
+        IqrfEmbedLedg_Flashing_Request request = new IqrfEmbedLedg_Flashing_Request();
         request.Data.MsgId = "testEmbedLedg";
         request.Data.Req.NAdr = 1;
         request.Data.ReturnVerbose = true;
@@ -985,11 +1016,9 @@
         */
 
         /* FRC */
-
         /*
         IqrfEmbedFrc_Send_Request request = new IqrfEmbedFrc_Send_Request();
         request.Data.MsgId = "testEmbedFrc";
-        //request.Data.Timeout = 5000;
         request.Data.Req.NAdr = 0;
         request.Data.Req.Param.FrcCommand = 0x80;
         request.Data.Req.Param.UserData = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 0 };
@@ -1032,12 +1061,14 @@
         request.Data.ReturnVerbose = true;
         */
 
+        /*
         IqrfSensor_ReadSensorsWithTypes_Request request = new IqrfSensor_ReadSensorsWithTypes_Request();
         request.Data.MsgId = "testEmbedSensor";
         request.Data.Req.NAdr = 1;
         //request.Data.Req.Param.SensorIndexes = -1;
         request.Data.Req.Param.SensorIndexes = new System.Collections.ObjectModel.ObservableCollection<int> { 0, 1 };
         request.Data.ReturnVerbose = true;
+        */
 
         /*
         IqrfSensor_Frc_Request request = new IqrfSensor_Frc_Request();
@@ -1134,12 +1165,11 @@
         */
 
         /* IQMESH */
-
         /*
         IqmeshNetwork_BondNodeLocal_Request request = new IqmeshNetwork_BondNodeLocal_Request();
         request.Data.MsgId = "testIqmeshBondNodeLocal";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 4;
+        request.Data.Req.DeviceAddr = 1;
         request.Data.ReturnVerbose = true;
         */
 
@@ -1147,7 +1177,9 @@
         IqmeshNetwork_SmartConnect_Request request = new IqmeshNetwork_SmartConnect_Request();
         request.Data.MsgId = "testIqmeshBondNodeLocal";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 4;
+        request.Data.Req.DeviceAddr = 11;
+        request.Data.Req.BondingTestRetries = 1;
+        request.Data.Req.SmartConnectCode = "YqZ5BUEcFP4ZyaUB36iRC6Ab4WxmYBGGU2";
         request.Data.ReturnVerbose = true;
         */
 
@@ -1155,7 +1187,7 @@
         IqmeshNetwork_EnumerateDevice_Request request = new IqmeshNetwork_EnumerateDevice_Request();
         request.Data.MsgId = "testIqmeshEnumerate";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 0;
+        request.Data.Req.DeviceAddr = 1;
         request.Data.ReturnVerbose = true;
         */
 
@@ -1176,19 +1208,6 @@
         request.Data.Req.RxFilter = 5;
         //request.Data.Req.SecurityPassword = "";
         //request.Data.Req.SecurityUserKey = "";
-        request.Data.ReturnVerbose = true;
-        */
-
-        /*
-        IqmeshNetwork_OtaUpload_Request request = new IqmeshNetwork_OtaUpload_Request();
-        request.Data.MsgId = "testIqmeshOta";
-        request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 0;
-        //hex must be in "uploadPath": "/var/cache/iqrfgd2/upload"
-        request.Data.Req.FileName = "CustomDpaHandler-LED-Red-On-7xD-V302-171116.hex";
-        //request.Data.Req.FileName = "CustomDpaHandler-LED-Green-On-7xD-V302-171116.hex";
-        request.Data.Req.LoadingAction = "WithCodeLoading";
-        request.Data.Req.StartMemAddr = 0;
         request.Data.ReturnVerbose = true;
         */
 
@@ -1267,7 +1286,7 @@
 
         /* RAW */
 
-        //IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr[0] );
+        IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr[0] );
         //IqrfRawHdp_Response response = IqrfRawHdp_Response.FromJson ( responseStr[0] );
 
         /* EXPLORE */
@@ -1296,6 +1315,7 @@
         //IqrfEmbedCoordinator_SetDpaParams_Response response = IqrfEmbedCoordinator_SetDpaParams_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_SetHops_Response response = IqrfEmbedCoordinator_SetHops_Response.FromJson(responseStr[0]);
         //IqrfEmbedCoordinator_SmartConnect_Response response = IqrfEmbedCoordinator_SmartConnect_Response.FromJson(responseStr[0]);
+        //IqrfEmbedCoordinator_SetMID_Response response = IqrfEmbedCoordinator_SetMID_Response.FromJson(responseStr[0]);
 
         /* NODE */
 
@@ -1306,6 +1326,7 @@
         //IqrfEmbedNode_ClearRemotelyBondedMid_Response response = IqrfEmbedNode_ClearRemotelyBondedMid_Response.FromJson(responseStr[0]);
         //IqrfEmbedNode_EnableRemoteBonding_Response response = IqrfEmbedNode_EnableRemoteBonding_Response.FromJson(responseStr[0]);
         //IqrfEmbedNode_RemoveBond_Response response = IqrfEmbedNode_RemoveBond_Response.FromJson(responseStr[0]);
+        //IqrfEmbedNode_ValidateBonds_Response response = IqrfEmbedNode_ValidateBonds_Response.FromJson(responseStr[0]);
 
         /* OS */
 
@@ -1342,10 +1363,12 @@
         //IqrfEmbedLedr_Set_Response response = IqrfEmbedLedr_Set_Response.FromJson(responseStr[0]);
         //IqrfEmbedLedr_Get_Response response = IqrfEmbedLedr_Get_Response.FromJson( responseStr[0] );
         //IqrfEmbedLedr_Pulse_Response response = IqrfEmbedLedr_Pulse_Response.FromJson( responseStr[0] );
+        //IqrfEmbedLedr_Flashing_Response response = IqrfEmbedLedr_Flashing_Response.FromJson(responseStr[0]);
 
         //IqrfEmbedLedg_Set_Response response = IqrfEmbedLedg_Set_Response.FromJson(responseStr[0]);
         //IqrfEmbedLedg_Get_Response response = IqrfEmbedLedg_Get_Response.FromJson( responseStr[0] );
         //IqrfEmbedLedg_Pulse_Response response = IqrfEmbedLedg_Pulse_Response.FromJson( responseStr[0] );
+        //IqrfEmbedLedg_Flashing_Response response = IqrfEmbedLedg_Flashing_Response.FromJson(responseStr[0]);
 
         /* THERMOMETER */
 
@@ -1378,8 +1401,8 @@
         /* SENSOR */
 
         //IqrfSensor_Enumerate_Response response = IqrfSensor_Enumerate_Response.FromJson(responseStr[0]);
-        IqrfSensor_ReadSensorsWithTypes_Response response = IqrfSensor_ReadSensorsWithTypes_Response.FromJson(responseStr[0]);
-        foreach (iqrfSensor_ReadSensorsWithTypes_Response.Anonymous sensor in response.Data.Rsp.Result.Sensors) {}
+        //IqrfSensor_ReadSensorsWithTypes_Response response = IqrfSensor_ReadSensorsWithTypes_Response.FromJson(responseStr[0]);
+        //foreach (iqrfSensor_ReadSensorsWithTypes_Response.Anonymous sensor in response.Data.Rsp.Result.Sensors) {}
         //IqrfSensor_Frc_Response response = IqrfSensor_Frc_Response.FromJson(responseStr[0]);
 
         /* BINARYOUTPUT */
@@ -1401,7 +1424,6 @@
         //IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_ReadTrConf_Response response = IqmeshNetwork_ReadTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_WriteTrConf_Response response = IqmeshNetwork_WriteTrConf_Response.FromJson(responseStr[0]);
-        //IqmeshNetwork_OtaUpload_Response response = IqmeshNetwork_OtaUpload_Response.FromJson(responseStr[0]);
 
         /* MNG */
 

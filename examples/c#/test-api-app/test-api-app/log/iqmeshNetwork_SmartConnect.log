@@ -1,0 +1,152 @@
+==================================
+Sending to WebSocket: 2018-10-18 12:11:33.397
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 11,
+      "smartConnectCode": "YqZ5BUEcFP4ZyaUB36iRC6Ab4WxmYBGGU2",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-18 12:11:49.121
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Transaction error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0b.01.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2.55.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-18T12:11:33.368393",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.38.0b.0f",
+                "responseTs": "2018-10-18T12:11:42.389335"
+            },
+            {
+                "request": "0b.00.02.00.ff.ff",
+                "requestTs": "2018-10-18T12:11:42.890307",
+                "confirmation": "0b.00.02.00.ff.ff.ff.38.0e.08.0e",
+                "confirmationTs": "2018-10-18T12:11:42.918532",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "0b.00.02.00.ff.ff",
+                "requestTs": "2018-10-18T12:11:45.809223",
+                "confirmation": "0b.00.02.00.ff.ff.ff.38.0e.08.0e",
+                "confirmationTs": "2018-10-18T12:11:45.841507",
+                "response": "",
+                "responseTs": ""
+            }
+        ]
+    }
+}
+2018-10-18 12:11:49.563
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-18 13:12:34.099
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 11,
+      "smartConnectCode": "YqZ5BUEcFP4ZyaUB36iRC6Ab4WxmYBGGU2",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-18 13:12:48.148
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 11,
+            "nodesNr": 15,
+            "hwpId": 65535,
+            "manufacturer": "",
+            "product": "",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "81102d55",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08c8",
+                "rssi": "-63 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 16,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": false,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    154,
+                    105,
+                    31,
+                    26,
+                    33,
+                    1,
+                    33,
+                    101,
+                    3,
+                    229,
+                    197,
+                    136,
+                    255,
+                    231,
+                    246,
+                    194
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0b.01.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2.55.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-18T13:12:34.300982",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.00.0b.0f",
+                "responseTs": "2018-10-18T13:12:43.314926"
+            },
+            {
+                "request": "0b.00.02.00.ff.ff",
+                "requestTs": "2018-10-18T13:12:43.815975",
+                "confirmation": "0b.00.02.00.ff.ff.ff.00.0e.08.0e",
+                "confirmationTs": "2018-10-18T13:12:43.850360",
+                "response": "0b.00.02.80.00.00.00.43.55.2d.10.81.43.24.c8.08.43.28.10.75.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2",
+                "responseTs": "2018-10-18T13:12:45.166488"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-18 13:12:48.587
+==================================
+

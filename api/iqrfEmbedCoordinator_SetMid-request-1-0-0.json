@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedCoordinator_SetMid-request",
+        "name": "iqrfEmbedCoordinator_SetMID-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Embedded peripheral Coordinator - Set Mid value request.",
+            "description": "Embedded peripheral Coordinator - Set MID value request.",
             "enum": [
-                "iqrfEmbedCoordinator_SetMid"
+                "iqrfEmbedCoordinator_SetMID"
             ]
         },
         "data": {
@@ -40,13 +40,13 @@
                         "param": {
                             "type": "object",
                             "properties": {
-                                "mid": {
-                                    "type": "integer",
-                                    "description": "The MID is written to the Coordinator’s database in the external EEPROM."
-                                },
                                 "bondAddr": {
                                     "type": "integer",
                                     "description": "Address of the node to set the MID to."
+                                },
+                                "mid": {
+                                    "type": "integer",
+                                    "description": "MID to write to the Coordinator's database."
                                 }
                             }
 						}

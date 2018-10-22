@@ -4,18 +4,18 @@
 // </auto-generated>
 //----------------------
 
-namespace iqrfEmbedCoordinator_SetMid_Request
+namespace iqrfEmbedCoordinator_SetMID_Request
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqrfEmbedCoordinator_SetMid_Request 
+    public partial class IqrfEmbedCoordinator_SetMID_Request 
     {
-        /// <summary>Embedded peripheral Coordinator - Set Mid value request.</summary>
+        /// <summary>Embedded peripheral Coordinator - Set MID value request.</summary>
         [Newtonsoft.Json.JsonProperty("mType", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public IqrfEmbedCoordinator_SetMid_RequestMType MType { get; set; }
+        public IqrfEmbedCoordinator_SetMID_RequestMType MType { get; set; }
     
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -26,19 +26,19 @@ namespace iqrfEmbedCoordinator_SetMid_Request
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqrfEmbedCoordinator_SetMid_Request FromJson(string data)
+        public static IqrfEmbedCoordinator_SetMID_Request FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedCoordinator_SetMid_Request>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedCoordinator_SetMID_Request>(data);
         }
     
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum IqrfEmbedCoordinator_SetMid_RequestMType
+    public enum IqrfEmbedCoordinator_SetMID_RequestMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedCoordinator_SetMid")]
+        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedCoordinator_SetMID")]
     
-        IqrfEmbedCoordinator_SetMid = 0,
+        IqrfEmbedCoordinator_SetMID = 0,
     
     
     }
@@ -105,13 +105,13 @@ namespace iqrfEmbedCoordinator_SetMid_Request
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Param 
     {
-        /// <summary>The MID is written to the Coordinator’s database in the external EEPROM.</summary>
-        [Newtonsoft.Json.JsonProperty("mid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Mid { get; set; }
-    
         /// <summary>Address of the node to set the MID to.</summary>
         [Newtonsoft.Json.JsonProperty("bondAddr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? BondAddr { get; set; }
+    
+        /// <summary>MID to write to the Coordinator's database.</summary>
+        [Newtonsoft.Json.JsonProperty("mid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Mid { get; set; }
     
         public string ToJson() 
         {

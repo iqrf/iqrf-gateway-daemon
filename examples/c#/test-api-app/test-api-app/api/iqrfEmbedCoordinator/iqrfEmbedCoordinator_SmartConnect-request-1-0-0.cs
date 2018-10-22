@@ -119,7 +119,7 @@ namespace iqrfEmbedCoordinator_SmartConnect_Request
     
         /// <summary>MID of the Node to bond.</summary>
         [Newtonsoft.Json.JsonProperty("mid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<int> Mid { get; set; }
+        public int? Mid { get; set; }
     
         /// <summary>Virtual device address. Must equal to 0xFF if not used.</summary>
         [Newtonsoft.Json.JsonProperty("virtualDeviceAddress", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

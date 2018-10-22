@@ -398,3 +398,252 @@ Received from WebSocket: 2018-07-30 12:49:07.291
 2018-07-30 12:49:07.757
 ==================================
 
+==================================
+Sending to WebSocket: 2018-10-18 10:14:28.962
+{
+  "mType": "iqmeshNetwork_ReadTrConf",
+  "data": {
+    "msgId": "testIqmeshRead",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-18 10:15:14.8
+{
+    "mType": "iqmeshNetwork_ReadTrConf",
+    "data": {
+        "msgId": "testIqmeshRead",
+        "rsp": {
+            "deviceAddr": 1,
+            "embPers": {
+                "values": [
+                    254,
+                    38,
+                    0,
+                    0
+                ],
+                "coordinator": false,
+                "node": true,
+                "os": true,
+                "eeprom": true,
+                "eeeprom": true,
+                "ram": true,
+                "ledr": true,
+                "ledg": true,
+                "spi": false,
+                "io": true,
+                "thermometer": true,
+                "pwm": false,
+                "uart": false,
+                "frc": true
+            },
+            "customDpaHandler": false,
+            "nodeDpaInterface": false,
+            "dpaAutoexec": false,
+            "routingOff": false,
+            "ioSetup": false,
+            "peerToPeer": false,
+            "neverSleep": false,
+            "rfChannelA": 25,
+            "rfChannelB": 2,
+            "rfSubChannelA": 42,
+            "rfSubChannelB": 0,
+            "txPower": 3,
+            "rxFilter": 5,
+            "lpRxTimeout": 6,
+            "rfPgmAltChannel": 0,
+            "uartBaudrate": 1200,
+            "rfPgmDualChannel": true,
+            "rfPgmLpMode": false,
+            "rfPgmIncorrectUpload": false,
+            "rfPgmEnableAfterReset": true,
+            "rfPgmTerminateAfter1Min": true,
+            "rfPgmTerminateMcuPin": true,
+            "rfBand": "868"
+        },
+        "raw": [
+            {
+                "request": "01.00.02.02.ff.ff",
+                "requestTs": "2018-10-18T10:15:09.124075",
+                "confirmation": "01.00.02.02.ff.ff.ff.3b.01.08.01",
+                "confirmationTs": "2018-10-18T10:15:09.155324",
+                "response": "01.00.02.82.00.00.00.41.b5.fe.26.00.00.00.2a.00.03.05.06.00.00.00.00.00.00.19.02.00.00.00.00.00.00.00.00.00.00.00.03.00.d3.20",
+                "responseTs": "2018-10-18T10:15:09.427622"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-18 10:15:15.328
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-18 11:55:38.623
+{
+  "mType": "iqmeshNetwork_ReadTrConf",
+  "data": {
+    "msgId": "testIqmeshRead",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 2
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-18 11:55:41.56
+{
+    "mType": "iqmeshNetwork_ReadTrConf",
+    "data": {
+        "msgId": "testIqmeshRead",
+        "rsp": {
+            "deviceAddr": 2,
+            "embPers": {
+                "values": [
+                    254,
+                    38,
+                    0,
+                    0
+                ],
+                "coordinator": false,
+                "node": true,
+                "os": true,
+                "eeprom": true,
+                "eeeprom": true,
+                "ram": true,
+                "ledr": true,
+                "ledg": true,
+                "spi": false,
+                "io": true,
+                "thermometer": true,
+                "pwm": false,
+                "uart": false,
+                "frc": true
+            },
+            "customDpaHandler": false,
+            "nodeDpaInterface": false,
+            "dpaAutoexec": false,
+            "routingOff": false,
+            "ioSetup": false,
+            "peerToPeer": false,
+            "neverSleep": false,
+            "rfChannelA": 25,
+            "rfChannelB": 2,
+            "rfSubChannelA": 42,
+            "rfSubChannelB": 0,
+            "txPower": 3,
+            "rxFilter": 5,
+            "lpRxTimeout": 6,
+            "rfPgmAltChannel": 0,
+            "uartBaudrate": 1200,
+            "rfPgmDualChannel": true,
+            "rfPgmLpMode": false,
+            "rfPgmIncorrectUpload": false,
+            "rfPgmEnableAfterReset": true,
+            "rfPgmTerminateAfter1Min": true,
+            "rfPgmTerminateMcuPin": true,
+            "rfBand": "868"
+        },
+        "raw": [
+            {
+                "request": "02.00.02.02.ff.ff",
+                "requestTs": "2018-10-18T11:55:40.114177",
+                "confirmation": "02.00.02.02.ff.ff.ff.3a.02.08.02",
+                "confirmationTs": "2018-10-18T11:55:40.144829",
+                "response": "02.00.02.82.00.00.00.3a.b5.fe.26.00.00.00.2a.00.03.05.06.00.00.00.00.00.00.19.02.00.00.00.00.00.00.00.00.00.00.00.03.00.d3.20",
+                "responseTs": "2018-10-18T11:55:40.599093"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-18 11:55:41.977
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-19 12:09:03.339
+{
+  "mType": "iqmeshNetwork_ReadTrConf",
+  "data": {
+    "msgId": "testIqmeshRead",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-19 12:09:07.336
+{
+    "mType": "iqmeshNetwork_ReadTrConf",
+    "data": {
+        "msgId": "testIqmeshRead",
+        "rsp": {
+            "deviceAddr": 1,
+            "embPers": {
+                "values": [
+                    254,
+                    38,
+                    0,
+                    0
+                ],
+                "coordinator": false,
+                "node": true,
+                "os": true,
+                "eeprom": true,
+                "eeeprom": true,
+                "ram": true,
+                "ledr": true,
+                "ledg": true,
+                "spi": false,
+                "io": true,
+                "thermometer": true,
+                "pwm": false,
+                "uart": false,
+                "frc": true
+            },
+            "customDpaHandler": false,
+            "nodeDpaInterface": false,
+            "dpaAutoexec": false,
+            "routingOff": false,
+            "ioSetup": false,
+            "peerToPeer": false,
+            "neverSleep": false,
+            "rfChannelA": 25,
+            "rfChannelB": 2,
+            "rfSubChannelA": 42,
+            "rfSubChannelB": 0,
+            "txPower": 3,
+            "rxFilter": 5,
+            "lpRxTimeout": 6,
+            "rfPgmAltChannel": 0,
+            "uartBaudrate": 1200,
+            "rfPgmDualChannel": true,
+            "rfPgmLpMode": false,
+            "rfPgmIncorrectUpload": false,
+            "rfPgmEnableAfterReset": true,
+            "rfPgmTerminateAfter1Min": true,
+            "rfPgmTerminateMcuPin": true,
+            "rfBand": "868"
+        },
+        "raw": [
+            {
+                "request": "01.00.02.02.ff.ff",
+                "requestTs": "2018-10-19T12:09:03.64366",
+                "confirmation": "01.00.02.02.ff.ff.ff.42.0d.08.0d",
+                "confirmationTs": "2018-10-19T12:09:03.90162",
+                "response": "01.00.02.82.00.00.00.4d.b5.fe.26.00.00.00.2a.00.03.05.06.00.00.00.00.00.00.19.02.00.00.00.00.00.00.00.00.00.00.00.03.00.d3.20",
+                "responseTs": "2018-10-19T12:09:04.332086"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-19 12:09:07.801
+==================================
+

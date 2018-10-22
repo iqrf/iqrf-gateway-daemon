@@ -57,12 +57,8 @@
                                     "maxItems": 16
                                 },
                                 "mid": {
-                                    "type": "array",
-                                    "description": "MID of the Node to bond.",
-                                    "items": {
-                                        "type": "integer"
-                                    },
-                                    "maxItems": 4
+                                    "type": "integer",
+                                    "description": "MID of the Node to bond."
                                 },
                                 "virtualDeviceAddress": {
                                     "type": "integer",

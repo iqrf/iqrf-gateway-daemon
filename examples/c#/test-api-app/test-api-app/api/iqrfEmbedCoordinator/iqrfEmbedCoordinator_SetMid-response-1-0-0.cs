@@ -4,18 +4,18 @@
 // </auto-generated>
 //----------------------
 
-namespace iqrfEmbedCoordinator_SetMid_Response
+namespace iqrfEmbedCoordinator_SetMID_Response
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class IqrfEmbedCoordinator_SetMid_Response 
+    public partial class IqrfEmbedCoordinator_SetMID_Response 
     {
-        /// <summary>Embedded peripheral Coordinator - Set Mid value response.</summary>
+        /// <summary>Embedded peripheral Coordinator - Set MID value response.</summary>
         [Newtonsoft.Json.JsonProperty("mType", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public IqrfEmbedCoordinator_SetMid_ResponseMType MType { get; set; }
+        public IqrfEmbedCoordinator_SetMID_ResponseMType MType { get; set; }
     
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
@@ -26,19 +26,19 @@ namespace iqrfEmbedCoordinator_SetMid_Response
             return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
         
-        public static IqrfEmbedCoordinator_SetMid_Response FromJson(string data)
+        public static IqrfEmbedCoordinator_SetMID_Response FromJson(string data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedCoordinator_SetMid_Response>(data);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IqrfEmbedCoordinator_SetMID_Response>(data);
         }
     
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum IqrfEmbedCoordinator_SetMid_ResponseMType
+    public enum IqrfEmbedCoordinator_SetMID_ResponseMType
     {
-        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedCoordinator_SetMid")]
+        [System.Runtime.Serialization.EnumMember(Value = "iqrfEmbedCoordinator_SetMID")]
     
-        IqrfEmbedCoordinator_SetMid = 0,
+        IqrfEmbedCoordinator_SetMID = 0,
     
     
     }

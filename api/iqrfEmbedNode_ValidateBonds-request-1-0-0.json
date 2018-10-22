@@ -40,24 +40,24 @@
                         "param": {
                             "type": "object",
                             "properties": {
-                                "items": {
+                                "nodes": {
                                     "type": "array",
                                     "description": "Array of pairs.",
                                     "items": {
                                         "type": "object",
                                         "properties": {
-                                            "address": {
+                                            "bondAddr": {
                                                 "type": "integer",
-                                                "description": "Node’s address."
+                                                "description": "Address of the node to validate."
                                             },
-                                            "MID": {
+                                            "mid": {
                                                 "type": "integer",
-                                                "description": "Node’s MID."
+                                                "description": "MID to check against."
                                             }
                                         },
                                         "required": [
-                                            "address",
-                                            "MID"
+                                            "bondAddr",
+                                            "mid"
                                         ]
                                     }
                                 }

@@ -2,24 +2,25 @@
     "mType": "iqrfEmbedCoordinator_Discovery",
     "data": {
         "msgId": "testEmbedCoordinator",
-        "timeout": 0,
         "rsp": {
             "nAdr": 0,
             "hwpId": 0,
             "rCode": 0,
-            "dpaVal": 64,
+            "dpaVal": 55,
             "result": {
-                "discNr": 0
+                "discNr": 15
             }
         },
-        "raw": {
-            "request": "00.00.00.07.ff.ff.06.00",
-            "requestTs": "2018-07-07T20:29:33.36490",
-            "confirmation": "",
-            "confirmationTs": "",
-            "response": "00.00.00.87.00.00.00.40.00",
-            "responseTs": "2018-07-07T20:29:33.821958"
-        },
+        "raw": [
+            {
+                "request": "00.00.00.07.ff.ff.06.00",
+                "requestTs": "2018-10-17T11:16:14.435756",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.87.00.00.00.37.0f",
+                "responseTs": "2018-10-17T11:16:17.708044"
+            }
+        ],
         "insId": "iqrfgd2-1",
         "statusStr": "ok",
         "status": 0

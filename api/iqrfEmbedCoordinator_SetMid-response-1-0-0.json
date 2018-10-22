@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrfsdk.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedCoordinator_SetMid-response",
+        "name": "iqrfEmbedCoordinator_SetMID-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Embedded peripheral Coordinator - Set Mid value response.",
+            "description": "Embedded peripheral Coordinator - Set MID value response.",
             "enum": [
-                "iqrfEmbedCoordinator_SetMid"
+                "iqrfEmbedCoordinator_SetMID"
             ]
         },
         "data": {

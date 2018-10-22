@@ -106,8 +106,8 @@ namespace iqrfEmbedNode_ValidateBonds_Request
     public partial class Param 
     {
         /// <summary>Array of pairs.</summary>
-        [Newtonsoft.Json.JsonProperty("items", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<Anonymous> Items { get; set; }
+        [Newtonsoft.Json.JsonProperty("nodes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.ObjectModel.ObservableCollection<Anonymous> Nodes { get; set; }
     
         public string ToJson() 
         {
@@ -124,13 +124,13 @@ namespace iqrfEmbedNode_ValidateBonds_Request
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.56.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Anonymous 
     {
-        /// <summary>Node’s address.</summary>
-        [Newtonsoft.Json.JsonProperty("address", Required = Newtonsoft.Json.Required.Always)]
-        public int Address { get; set; }
+        /// <summary>Address of the node to validate.</summary>
+        [Newtonsoft.Json.JsonProperty("bondAddr", Required = Newtonsoft.Json.Required.Always)]
+        public int BondAddr { get; set; }
     
-        /// <summary>Node’s MID.</summary>
-        [Newtonsoft.Json.JsonProperty("MID", Required = Newtonsoft.Json.Required.Always)]
-        public int MID { get; set; }
+        /// <summary>MID to check against.</summary>
+        [Newtonsoft.Json.JsonProperty("mid", Required = Newtonsoft.Json.Required.Always)]
+        public int Mid { get; set; }
     
         public string ToJson() 
         {

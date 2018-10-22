@@ -138,3 +138,51 @@ Received from WebSocket: 2018-07-07 20:29:33.503
 2018-07-07 20:29:33.994
 ==================================
 
+==================================
+Sending to WebSocket: 2018-10-17 11:16:14.481
+{
+  "mType": "iqrfEmbedCoordinator_Discovery",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "txPower": 6,
+        "maxAddr": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-17 11:16:18.046
+{
+    "mType": "iqrfEmbedCoordinator_Discovery",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 55,
+            "result": {
+                "discNr": 15
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.07.ff.ff.06.00",
+                "requestTs": "2018-10-17T11:16:14.435756",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.87.00.00.00.37.0f",
+                "responseTs": "2018-10-17T11:16:17.708044"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-10-17 11:16:18.458
+==================================
+
