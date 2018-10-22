@@ -25,12 +25,13 @@ stages:
     tags:
         - linux, armhf
 
-.arch_rpi-template: &arch_rpi-template
-    image: iqrfsdk/iqrf-gateway-daemon-build:latest-rpi
-    variables:
-        ARCH: "armhf"
-    tags:
-        - linux, armhf
+# Using ARMHF for RPI
+#.arch_rpi-template: &arch_rpi-template
+#    image: iqrfsdk/iqrf-gateway-daemon-build:latest-rpi
+#    variables:
+#        ARCH: "armhf"
+#    tags:
+#        - linux, armhf
 
 .daemon-template-dev: &daemon-template-dev
     stage: build-dev
@@ -314,32 +315,32 @@ daemon-arm64:
 
 #RPI
 
-shape_&_shapeware-rpi-dev:
-    <<: *arch_rpi-template
-    <<: *shape_shapeware-template-dev
+#shape_&_shapeware-rpi-dev:
+#    <<: *arch_rpi-template
+#    <<: *shape_shapeware-template-dev
 
-paho-rpi-dev:
-    <<: *arch_rpi-template
-    <<: *paho-template-dev
+#paho-rpi-dev:
+#    <<: *arch_rpi-template
+#    <<: *paho-template-dev
 
-daemon-rpi-dev:
-    <<: *arch_rpi-template
-    <<: *daemon-template-dev
-    dependencies:
-        - shape_&_shapeware-rpi-dev
-        - paho-rpi-dev
+#daemon-rpi-dev:
+#    <<: *arch_rpi-template
+#    <<: *daemon-template-dev
+#    dependencies:
+#        - shape_&_shapeware-rpi-dev
+#        - paho-rpi-dev
 
-shape_&_shapeware-rpi:
-    <<: *arch_rpi-template
-    <<: *shape_shapeware-template
+#shape_&_shapeware-rpi:
+#    <<: *arch_rpi-template
+#    <<: *shape_shapeware-template
 
-paho-rpi:
-    <<: *arch_rpi-template
-    <<: *paho-template
+#paho-rpi:
+#    <<: *arch_rpi-template
+#    <<: *paho-template
 
-daemon-rpi:
-    <<: *arch_rpi-template
-    <<: *daemon-template
-    dependencies:
-        - shape_&_shapeware-rpi
-        - paho-rpi
+#daemon-rpi:
+#    <<: *arch_rpi-template
+#    <<: *daemon-template
+#    dependencies:
+#        - shape_&_shapeware-rpi
+#        - paho-rpi
