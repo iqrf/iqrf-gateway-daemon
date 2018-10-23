@@ -205,7 +205,7 @@ namespace iqrf {
           transResult = readHwpTransaction->get();
         }
         catch (std::exception& e) {
-          TRC_DEBUG("DPA transaction error : " << e.what());
+          TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
             continue;
@@ -244,7 +244,7 @@ namespace iqrf {
 
         // transaction error
         if (errorCode < 0) {
-          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
           if (rep < m_repeat) {
             continue;
@@ -258,7 +258,7 @@ namespace iqrf {
         }
 
         // DPA error
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
         if (rep < m_repeat) {
           continue;

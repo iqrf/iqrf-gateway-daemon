@@ -361,7 +361,7 @@ namespace iqrf {
                 transResult = batchTransaction->get();
               }
               catch (std::exception& e) {
-                TRC_DEBUG("DPA transaction error : " << e.what());
+                TRC_WARNING("DPA transaction error : " << e.what());
 
                 if (rep < m_repeat) {
                   continue;
@@ -393,7 +393,7 @@ namespace iqrf {
               else {
                 // transaction error
                 if (errorCode < 0) {
-                  TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+                  TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
                   if (rep < m_repeat) {
                     continue;
@@ -406,7 +406,7 @@ namespace iqrf {
                 }
 
                 // DPA error
-                TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+                TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
                 if (rep < m_repeat) {
                   continue;
@@ -441,7 +441,7 @@ namespace iqrf {
                 transResult = extWriteTransaction->get();
               }
               catch (std::exception& e) {
-                TRC_DEBUG("DPA transaction error : " << e.what());
+                TRC_WARNING("DPA transaction error : " << e.what());
 
                 if (rep < m_repeat) {
                   continue;
@@ -472,7 +472,7 @@ namespace iqrf {
               else {
                 // transaction error
                 if (errorCode < 0) {
-                  TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+                  TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
                   if (rep < m_repeat) {
                     continue;
@@ -485,7 +485,7 @@ namespace iqrf {
                 }
 
                 // DPA error
-                TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+                TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
                 if (rep < m_repeat) {
                   continue;
@@ -520,7 +520,7 @@ namespace iqrf {
               transResult = extWriteTransaction->get();
             }
             catch (std::exception& e) {
-              TRC_DEBUG("DPA transaction error : " << e.what());
+              TRC_WARNING("DPA transaction error : " << e.what());
 
               if (rep < m_repeat) {
                 continue;
@@ -552,7 +552,7 @@ namespace iqrf {
             else {
               // transaction error
               if (errorCode < 0) {
-                TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+                TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
                 if (rep < m_repeat) {
                   continue;
@@ -565,7 +565,7 @@ namespace iqrf {
               }
 
               // DPA error
-              TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+              TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
               if (rep < m_repeat) {
                 continue;
@@ -826,7 +826,7 @@ namespace iqrf {
             transResult = frcTransaction->get();
           }
           catch (std::exception& e) {
-            TRC_DEBUG("DPA transaction error : " << e.what());
+            TRC_WARNING("DPA transaction error : " << e.what());
 
             if (rep < m_repeat) {
               continue;
@@ -860,7 +860,7 @@ namespace iqrf {
               frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
             }
             else {
-              TRC_DEBUG("FRC Extended write NOT successful." << NAME_PAR("Status", status));
+              TRC_WARNING("FRC Extended write NOT successful." << NAME_PAR("Status", status));
 
               if (rep < m_repeat) {
                 continue;
@@ -874,7 +874,7 @@ namespace iqrf {
           else {
             // transaction error
             if (errorCode < 0) {
-              TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+              TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
               if (rep < m_repeat) {
                 continue;
@@ -886,7 +886,7 @@ namespace iqrf {
             }
 
             // DPA error
-            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+            TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
             if (rep < m_repeat) {
               continue;
@@ -915,7 +915,7 @@ namespace iqrf {
             transResult = extraResultTransaction->get();
           }
           catch (std::exception& e) {
-            TRC_DEBUG("DPA transaction error : " << e.what());
+            TRC_WARNING("DPA transaction error : " << e.what());
 
             if (rep < m_repeat) {
               continue;
@@ -950,7 +950,7 @@ namespace iqrf {
           else {
             // transaction error
             if (errorCode < 0) {
-              TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+              TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
               if (rep < m_repeat) {
                 continue;
@@ -962,7 +962,7 @@ namespace iqrf {
             }
 
             // DPA error
-            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+            TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
             if (rep < m_repeat) {
               continue;
@@ -1092,7 +1092,7 @@ namespace iqrf {
           transResult = loadCodeTransaction->get();
         }
         catch (std::exception& e) {
-          TRC_DEBUG("DPA transaction error : " << e.what());
+          TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
             continue;
@@ -1126,7 +1126,7 @@ namespace iqrf {
             return;
           }
           else {
-            TRC_DEBUG("Load code NOT successful." << PAR("The checksum does not match."));
+            TRC_WARNING("Load code NOT successful." << PAR("The checksum does not match."));
             
             if (rep < m_repeat) {
               continue;
@@ -1141,7 +1141,7 @@ namespace iqrf {
 
         // transaction error
         if (errorCode < 0) {
-          TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
           if (rep < m_repeat) {
             continue;
@@ -1154,7 +1154,7 @@ namespace iqrf {
         }
 
         // DPA error
-        TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
         if (rep < m_repeat) {
           continue;
@@ -1276,7 +1276,7 @@ namespace iqrf {
           transResult = frcTransaction->get();
         }
         catch (std::exception& e) {
-          TRC_DEBUG("DPA transaction error : " << e.what());
+          TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
             continue;
@@ -1313,7 +1313,7 @@ namespace iqrf {
             break;
           }
           else {
-            TRC_DEBUG("FRC Extended write NOT successful." << NAME_PAR("Status", status));
+            TRC_WARNING("FRC Extended write NOT successful." << NAME_PAR("Status", status));
 
             if (rep < m_repeat) {
               continue;
@@ -1326,7 +1326,7 @@ namespace iqrf {
         else {
           // transaction error
           if (errorCode < 0) {
-            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+            TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
             if (rep < m_repeat) {
               continue;
@@ -1337,7 +1337,7 @@ namespace iqrf {
           }
           else {
             // DPA error
-            TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+            TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
             if (rep < m_repeat) {
               continue;
@@ -1367,7 +1367,7 @@ namespace iqrf {
           transResult = extraResultTransaction->get();
         }
         catch (std::exception& e) {
-          TRC_DEBUG("DPA transaction error : " << e.what());
+          TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
             continue;
@@ -1403,7 +1403,7 @@ namespace iqrf {
         else {
           // transaction error
           if (errorCode < 0) {
-            TRC_DEBUG("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+            TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
 
             if (rep < m_repeat) {
               continue;
@@ -1414,7 +1414,7 @@ namespace iqrf {
           }
 
           // DPA error
-          TRC_DEBUG("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+          TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
 
           if (rep < m_repeat) {
             continue;
