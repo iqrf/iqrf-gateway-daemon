@@ -1426,6 +1426,13 @@ namespace iqrf {
       bool peerToPeer = ((byte05 & 0b100000) == 0b100000) ? true : false;
       Pointer("/data/rsp/trConfiguration/peerToPeer").Set(response, peerToPeer);
 
+
+      // for DPA v3.03 onwards
+      if (dpaVer >= 0x0303) {
+        bool neverSleep = ((byte05 & 0b0100000) == 0b0100000) ? true : false;
+        Pointer("/data/rsp/trConfiguration/neverSleep").Set(response, neverSleep);
+      }
+
       // bytes fields
       Pointer("/data/rsp/trConfiguration/rfChannelA").Set(response, configuration[0x10]);
       Pointer("/data/rsp/trConfiguration/rfChannelB").Set(response, configuration[0x11]);
