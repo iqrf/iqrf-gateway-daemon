@@ -492,6 +492,9 @@ namespace iqrf {
           uns8* osData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
           smartConnectResult.setOsRead( osData );
 
+          // set HWP ID of the newly connected device
+          smartConnectResult.setHwpId(dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID);
+
           TRC_FUNCTION_LEAVE( "" );
           return;
         }
@@ -567,6 +570,8 @@ namespace iqrf {
 
       // get OS read data
       smartConnectResult.setHwpId( hwpId );
+
+      // if successfull, it sets hwp ID to the newly connected node
       osRead( smartConnectResult );
 
       // if there was an error, return
@@ -574,12 +579,12 @@ namespace iqrf {
         return smartConnectResult;
       }
 
-      const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer( hwpId );
+      const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(smartConnectResult.getHwpId() );
       if ( manufacturer != nullptr ) {
         smartConnectResult.setManufacturer( manufacturer->m_name );
       }
 
-      const IJsCacheService::Product* product = m_iJsCacheService->getProduct( hwpId );
+      const IJsCacheService::Product* product = m_iJsCacheService->getProduct(smartConnectResult.getHwpId());
       if ( product != nullptr ) {
         smartConnectResult.setProduct( product->m_name );
       }
@@ -587,7 +592,7 @@ namespace iqrf {
       uint8_t osVersion = smartConnectResult.getOsRead()[4];
       std::string osVersionStr = std::to_string( ( osVersion >> 4 ) & 0xFF ) + "." + std::to_string( osVersion & 0x0F );
       std::string dpaVersionStr = std::to_string( ( dpaVersion >> 8 ) & 0xFF ) + "." + std::to_string( dpaVersion & 0xFF );
-      const IJsCacheService::Package* package = m_iJsCacheService->getPackage( hwpId, osVersionStr, dpaVersionStr );
+      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(smartConnectResult.getHwpId(), osVersionStr, dpaVersionStr );
       if ( package != nullptr ) {
         std::list<std::string> standards;
         for ( const IJsCacheService::StdDriver* driver : package->m_stdDriverVect ) {
