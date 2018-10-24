@@ -238,6 +238,7 @@ namespace iqrf {
     void handleMessageFromMessaging(const std::string& messagingId, const std::vector<uint8_t>& message) const
     {
       TRC_FUNCTION_ENTER(PAR(messagingId));
+      using namespace rapidjson;
 
       std::string msgStr((char*)message.data(), message.size());
       
@@ -249,7 +250,26 @@ namespace iqrf {
 
       int queueLen = -1;
       if (m_splitterMessageQueue) {
-        queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messagingId, message));
+        queueLen = m_splitterMessageQueue->size();
+        if (queueLen <= 32) { //TODO parameter
+          queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messagingId, message));
+        }
+        else {
+          TRC_WARNING("Error queue overload: " << PAR(queueLen));
+
+          std::string str((char*)message.data(), message.size());
+          std::ostringstream oser;
+          oser << "daemon overload: " << PAR(queueLen);
+          Document rspDoc;
+          MessageErrorMsg msg("ignored", str, oser.str());
+          msg.createResponse(rspDoc);
+          try {
+            sendMessage(messagingId, std::move(rspDoc));
+          }
+          catch (std::logic_error &ee) {
+            TRC_WARNING("Cannot create error response:" << ee.what());
+          }
+        }
       }
       else {
         TRC_WARNING("Not activated yet => message is droped ");
