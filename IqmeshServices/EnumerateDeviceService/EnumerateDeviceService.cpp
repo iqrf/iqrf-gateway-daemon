@@ -1123,6 +1123,7 @@ namespace iqrf {
     // TEMPORAL SOLUTION !!!
     OsReadObject parseOsReadResponse(const std::vector<uns8>& osReadInfo)
     {
+      TRC_FUNCTION_ENTER(PAR(osReadInfo.size()))
       OsReadObject osReadObject;
 
       std::ostringstream moduleId;
@@ -1202,6 +1203,7 @@ namespace iqrf {
       osReadObject.slotLimits.shortestTimeslot = std::to_string(shortestTimeSlot) + " ms";
       osReadObject.slotLimits.longestTimeslot = std::to_string(longestTimeSlot) + " ms";
 
+      TRC_FUNCTION_LEAVE("")
       return osReadObject;
     }
 
