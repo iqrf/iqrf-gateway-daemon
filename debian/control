@@ -1,0 +1,17 @@
+Source: iqrf-gateway-daemon
+Section: comm
+Priority: optional
+Maintainer: Rostislav Spinar <rostislav.spinar@iqrf.com>
+Build-Depends: debhelper (>= 10), cmake, libboost-filesystem1.62.0,
+ libc6, libcurl4-openssl-dev, libcpaho-mqtt-dev, libssl-dev, libstdc++6
+Standards-Version: 4.1.5
+Homepage: https://github.com/iqrfsdk/iqrf-gateway-daemon
+Vcs-Git: https://github.com/iqrfsdk/iqrf-gateway-daemon.git
+Vcs-Browser: https://github.com/iqrfsdk/iqrf-gateway-daemon
+
+Package: iqrf-gateway-daemon
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}, openssl, libcpaho-mqtt
+Description: IQRF Gateway Daemon
+ IQRF Gateway Daemon with UDP/MQ/MQTT/WS communication channels.

@@ -1,13 +1,10 @@
 #!/bin/bash
 # After remove script for iqrf-gateway-daemon
 
+set -e
+
 NAME=iqrf-gateway-daemon
 
-daemon_stop-remove() {
-    deb-systemd-invoke stop ${NAME}.service
-    deb-systemd-invoke disable ${NAME}.service
-    rm -f /lib/systemd/system/${NAME}.service
-}
 
 daemon_remove_config() {
     if [ -d /etc/${NAME}/ ] ; then
@@ -26,7 +23,6 @@ daemon_remove_data() {
 }
 
 if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
-    daemon_stop-remove
     daemon_remove_data
     daemon_remove_config
 fi

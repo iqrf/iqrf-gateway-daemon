@@ -1,0 +1,7 @@
+description-is-pkg-name IQRF Gateway Daemon
+file-in-unusual-dir var/cache/iqrf-gateway-daemon/iqrfRepoCache/*
+file-in-unusual-dir var/cache/iqrf-gateway-daemon/scheduler/*
+non-standard-dir-perm etc/iqrf-gateway-daemon/*
+non-standard-dir-perm var/cache/iqrf-gateway-daemon/scheduler/*
+non-standard-file-perm etc/iqrf-gateway-daemon/*
+non-standard-file-perm var/cache/iqrf-gateway-daemon/scheduler/*
