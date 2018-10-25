@@ -66,7 +66,7 @@ stages:
   - tar xzvf shapeware-build_${ARCH}.tar.gz
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
-  - cp ../iqrf-gateway-daemon*.deb .
+  - mv ../iqrf-gateway-daemon*.deb .
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
@@ -77,23 +77,19 @@ stages:
   dependencies: []
   script:
   - git clone https://github.com/logimic/shape.git shape-source
-  - mkdir shape-build shape-libs
+  - mkdir shape-build
   - cmake -Bshape-build -Hshape-source
   - cmake --build shape-build
-  - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
   - tar czvf shape-source_${ARCH}.tar.gz shape-source
   - tar czvf shape-build_${ARCH}.tar.gz shape-build
-  - tar czvf shape-libs_${ARCH}.tar.gz shape-libs
   - git clone https://github.com/logimic/shapeware.git shapeware-source
   - git -C shapeware-source submodule init
   - git -C shapeware-source submodule update
-  - mkdir shapeware-build shapeware-libs
+  - mkdir shapeware-build
   - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=../shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false
   - cmake --build shapeware-build
-  - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
   - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
   - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
-  - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs
   artifacts:
     paths:
     - shape-source_*.tar.gz
