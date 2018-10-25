@@ -15,10 +15,6 @@ https://docs.iqrfsdk.org/iqrf-gateway-daemon
 
 ![Overview](docs/images/iqrfgd-overview.png)
 
-### API
-
-![API](docs/images/iqrfgd-api-packed.png)
-
-### Architecture
+## Architecture
 
 ![Architecture](docs/images/iqrfgd-components.png)
