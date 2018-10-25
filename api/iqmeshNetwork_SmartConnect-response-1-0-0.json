@@ -165,11 +165,7 @@
           },
           "required": [
             "assignedAddr",
-            "nodesNr",
-            "hwpId",
-            "manufacturer",
-            "product",
-            "osRead"
+            "nodesNr"
           ]
         },
         "raw": {

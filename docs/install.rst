@@ -24,11 +24,28 @@ For Ubuntu
 ----------
 Currently Ubuntu is not supported.
 
+Stop and disable IQRF Gateway Daemon v1
+#######################################
+
+If there is IQRF Gateway Daemon v1 already running in the system.
+
+.. code-block:: bash
+
+	sudo systemctl stop iqrf-daemon
+	sudo systemctl disable iqrf-daemon
+
 Install IQRF Gateway Daemon
 ###########################
 .. code-block:: bash
 
 	sudo apt-get install iqrf-gateway-daemon
+
+or **update** if the daemon is already installed.
+
+.. code-block:: bash
+
+	sudo apt-get update
+	sudo apt-get --only-upgrade install iqrf-gateway-daemon
 
 Check the status of IQRF Gateway Daemon
 #######################################

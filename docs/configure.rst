@@ -25,7 +25,7 @@ Folder /etc/iqrf-gateway-daemon:
 - config.json
 
   - **Tip: check/enable/disable daemon components**
-  - Select either SPI or CDC
+  - Select either SPI, UART or CDC
 
 - iqrf__IqrfSpi.json
 
@@ -39,7 +39,7 @@ Folder /etc/iqrf-gateway-daemon:
 
   - **Tip: configure your IQRF interface - UART**
   - Interface (/dev/ttyS0)
-  - BaudRate (57600)
+  - BaudRate (*Depends on TR configuration of your coordinator module*)
 
 - iqrf__IqrfCdc.json
 
@@ -49,9 +49,7 @@ Folder /etc/iqrf-gateway-daemon:
 - iqrf__IqrfDpa.json
 
   - **Tip: check/configure your DPA params**
-  - RF mode (STD/LP)
-  - Bonded/discovered devices (10)
-  - FRC response time (40ms) 
+  - DPA Handler timeout (default time to wait for DPA cnf/rsp, 500ms)
 
 - iqrf__MqttMessaging.json
 
@@ -93,7 +91,7 @@ Folder /etc/iqrf-gateway-daemon:
 
   - **Tip: check/configure log file**
   - Path (/var/log/iqrf-gateway-daemon)
-  - Filename (iqrf-gateway-daemon.log)
+  - Filename (*Timestamp*-iqrf-gateway-daemon.log)
   - Size (1048576MB)
   - Timestamp (true)
   - Verbosity (INF)
@@ -102,7 +100,8 @@ Folder /var/cache/iqrf-gateway-daemon/scheduler:
 
 - Tasks.json
 
-  - **Tip: configure your regural DPA tasks if any**
+  - **Tip: configure your regural DPA tasks**
+  - See `Scheduler documentation`_
 
 Restart the daemon
 ++++++++++++++++++
@@ -115,3 +114,4 @@ To load new configuration restart the daemon.
 
 .. _`installation guide`: https://docs.iqrfsdk.org/iqrf-gateway-webapp/install.html
 .. _`IQRF Gateway Webapp`: https://docs.iqrfsdk.org/iqrf-gateway-webapp
+.. _`Scheduler documentation`: https://docs.iqrfsdk.org/iqrf-gateway-webapp/scheduler.html

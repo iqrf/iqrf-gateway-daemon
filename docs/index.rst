@@ -4,13 +4,14 @@ Welcome to IQRF Gateway Daemon's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    introduction
    start
    install
    configure
    api
+   scheduler
 
 Indices and tables
 ==================
