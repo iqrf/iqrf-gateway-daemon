@@ -538,7 +538,6 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          //osReadTransaction = m_iIqrfDpaService->executeDpaTransaction(osReadRequest);
           osReadTransaction = m_exclusiveAccess->executeDpaTransaction(osReadRequest);
           transResult = osReadTransaction->get();
         }
@@ -569,7 +568,7 @@ namespace iqrf {
           TRC_DEBUG(
             "DPA transaction: "
             << NAME_PAR(osReadRequest.PeripheralType(), osReadRequest.NodeAddress())
-            << PAR(osReadRequest.PeripheralCommand())
+            << PAR((unsigned)osReadRequest.PeripheralCommand())
           );
 
           // get OS data
@@ -745,7 +744,7 @@ namespace iqrf {
           TRC_DEBUG(
             "DPA transaction: "
             << NAME_PAR(readHwpRequest.PeripheralType(), readHwpRequest.NodeAddress())
-            << PAR(readHwpRequest.PeripheralCommand())
+            << PAR((unsigned)readHwpRequest.PeripheralCommand())
           );
 
           // get HWP configuration 
@@ -928,7 +927,7 @@ namespace iqrf {
           TRC_DEBUG(
             "DPA transaction: "
             << NAME_PAR(bondedNodesRequest.PeripheralType(), bondedNodesRequest.NodeAddress())
-            << PAR(bondedNodesRequest.PeripheralCommand())
+            << PAR((unsigned)bondedNodesRequest.PeripheralCommand())
           );
 
           // get bonded nodes
@@ -1613,14 +1612,13 @@ namespace iqrf {
         isError = true;
       }
 
-      // osRead object
-      const std::vector<uns8> osInfo = deviceEnumResult.getOsRead();
-      OsReadObject osReadObject = parseOsReadResponse(osInfo);
-
+      // OS Read data
       if (
         deviceEnumResult.getOsReadError().getType() == DeviceEnumerateError::Type::NoError
         )
       {
+        const std::vector<uns8> osInfo = deviceEnumResult.getOsRead();
+        OsReadObject osReadObject = parseOsReadResponse(osInfo);
         setOsReadResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, osReadObject, response);
       }
       else {
