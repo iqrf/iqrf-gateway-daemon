@@ -75,6 +75,7 @@ namespace iqrf {
     mutable std::mutex m_iMessagingServiceMapMux;
     std::map<std::string, IMessagingService*> m_iMessagingServiceMap;
     std::set<IMessagingService*> m_iMessagingServiceSetAcceptAsync;
+    mutable std::mutex m_filterMessageHandlerFuncMapMux;
     std::map<std::string, FilteredMessageHandlerFunc > m_filterMessageHandlerFuncMap;
 
     std::map<std::string, rapidjson::SchemaDocument> m_validatorMapRequest;
@@ -193,6 +194,7 @@ namespace iqrf {
 
     void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc)
     {
+      std::lock_guard<std::mutex> lck(m_filterMessageHandlerFuncMapMux);
       for (const auto & ft : msgTypeFilters) {
         m_filterMessageHandlerFuncMap.insert(std::make_pair(ft, handlerFunc));
       }
@@ -200,6 +202,7 @@ namespace iqrf {
 
     void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters)
     {
+      std::lock_guard<std::mutex> lck(m_filterMessageHandlerFuncMapMux);
       for (const auto & ft : msgTypeFilters) {
         m_filterMessageHandlerFuncMap.erase(ft);
       }
@@ -309,32 +312,35 @@ namespace iqrf {
 
         bool found = false;
         std::map<std::string, FilteredMessageHandlerFunc > bestFitMap;
-        for (const auto & filter : m_filterMessageHandlerFuncMap) {
-          // best fit
-          if (std::string::npos != msgType.m_type.find(filter.first)) {
-            bestFitMap.insert(filter);
-          }
-        }
-        if (!bestFitMap.empty()) {
-          size_t len = 0;
-          FilteredMessageHandlerFunc selected;
-          for (const auto & fit : bestFitMap) {
-            if (len < fit.first.size()) {
-              selected = fit.second;
-              len = fit.first.size();
+        { //lock scope
+          std::lock_guard<std::mutex> lck(m_filterMessageHandlerFuncMapMux);
+          for (const auto & filter : m_filterMessageHandlerFuncMap) {
+            // best fit
+            if (std::string::npos != msgType.m_type.find(filter.first)) {
+              bestFitMap.insert(filter);
             }
           }
-          // invoke handling
-          try {
-            selected(messagingId, msgType, std::move(doc));
-            TRC_INFORMATION("Incomming message successfully handled.");
+          if (!bestFitMap.empty()) {
+            size_t len = 0;
+            FilteredMessageHandlerFunc selected;
+            for (const auto & fit : bestFitMap) {
+              if (len < fit.first.size()) {
+                selected = fit.second;
+                len = fit.first.size();
+              }
+            }
+            // invoke handling
+            try {
+              selected(messagingId, msgType, std::move(doc));
+              TRC_INFORMATION("Incomming message successfully handled.");
+            }
+            catch (std::exception &e) {
+              THROW_EXC_TRC_WAR(std::logic_error, "Unhandled exception: " << e.what());
+            }
           }
-          catch (std::exception &e) {
-            THROW_EXC_TRC_WAR(std::logic_error, "Unhandled exception: " << e.what());
+          else {
+            THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType.version, getKey(msgType)));
           }
-        }
-        else {
-          THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType.version, getKey(msgType)));
         }
 
       }
