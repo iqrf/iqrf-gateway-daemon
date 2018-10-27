@@ -145,7 +145,7 @@ namespace iqrf {
       return retval;
     }
 
-    const Package* getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const
+    const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
     {
       TRC_FUNCTION_ENTER(PAR(hwpid));
 
@@ -153,7 +153,8 @@ namespace iqrf {
 
       const Package* retval = nullptr;
       for (const auto & pck : m_packageMap) {
-        if (pck.second.m_os == os && pck.second.m_dpa == dpa) {
+        const Package& pckp = pck.second;
+        if (pckp.m_hwpid == hwpidVer && pckp.m_hwpidVer == hwpidVer && pckp.m_os == os && pckp.m_dpa == dpa) {
           retval = &(pck.second);
           break;
         }
@@ -1293,9 +1294,9 @@ namespace iqrf {
     return m_imp->getProduct(hwpid);
   }
 
-  const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, const std::string& os, const std::string& dpa) const
+  const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
   {
-    return m_imp->getPackage(hwpid, os, dpa);
+    return m_imp->getPackage(hwpid, hwpidVer, os, dpa);
   }
 
   std::map<int, std::map<int, std::vector<std::pair<int, int>>>> JsCache::getDrivers(const std::string& os, const std::string& dpa) const

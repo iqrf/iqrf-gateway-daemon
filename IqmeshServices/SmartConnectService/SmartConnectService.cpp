@@ -592,7 +592,7 @@ namespace iqrf {
       uint8_t osVersion = smartConnectResult.getOsRead()[4];
       std::string osVersionStr = std::to_string( ( osVersion >> 4 ) & 0xFF ) + "." + std::to_string( osVersion & 0x0F );
       std::string dpaVersionStr = std::to_string( ( dpaVersion >> 8 ) & 0xFF ) + "." + std::to_string( dpaVersion & 0xFF );
-      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(smartConnectResult.getHwpId(), osVersionStr, dpaVersionStr );
+      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(smartConnectResult.getHwpId(), /*TODO*/0, osVersionStr, dpaVersionStr );
       if ( package != nullptr ) {
         std::list<std::string> standards;
         for ( const IJsCacheService::StdDriver* driver : package->m_stdDriverVect ) {
