@@ -92,7 +92,7 @@ private:
   void getMyAddress();
   void getMyMacAddress(SOCKET soc);
 
-  SOCKET m_iqrfUdpSocket;
+  SOCKET m_iqrfUdpSocket = -1;
   sockaddr_in m_iqrfUdpListener;
   sockaddr_in m_iqrfUdpTalker;
 
