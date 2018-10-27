@@ -787,7 +787,10 @@ namespace iqrf {
       }
 
       const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
-        bondResult.getBondedNodeHwpId(), osVersionStr, dpaVersionStr
+        bondResult.getBondedNodeHwpId(),
+        bondResult.getBondedNodeHwpIdVer(),
+        osVersionStr, 
+        dpaVersionStr
       );
       if (package != nullptr) {
         std::list<std::string> standards;

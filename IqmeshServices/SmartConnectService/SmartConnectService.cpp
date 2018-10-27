@@ -625,7 +625,12 @@ namespace iqrf {
         return smartConnectResult;
       }
 
-      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(smartConnectResult.getHwpId(), osVersionStr, dpaVersionStr );
+      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
+        smartConnectResult.getHwpId(),
+        smartConnectResult.getHwpIdVersion(),
+        osVersionStr, 
+        dpaVersionStr 
+      );
       if ( package != nullptr ) {
         std::list<std::string> standards;
         for ( const IJsCacheService::StdDriver* driver : package->m_stdDriverVect ) {
