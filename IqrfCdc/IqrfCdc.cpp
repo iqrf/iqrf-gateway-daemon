@@ -70,7 +70,12 @@ namespace iqrf {
 
       PTEResponse response;
       try {
-        response = m_cdc->enterProgrammingMode();
+        if (m_cdc) {
+          response = m_cdc->enterProgrammingMode();
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "CDC not active");
+        }
       }
       catch (std::exception& ex) {
         CATCH_EXC_TRC_WAR(std::exception, ex, "Entering programming mode failed.");
@@ -146,6 +151,10 @@ namespace iqrf {
       
       PMResponse response;
       try {
+        if (!m_cdc) {
+          THROW_EXC_TRC_WAR(std::logic_error, "CDC not active");
+        }
+
         // add address into beginning of data to upload
         if (useAddress) {
           std::basic_string<uint8_t> addressAndData;
@@ -209,7 +218,12 @@ namespace iqrf {
 
       PTEResponse response;
       try {
-        response = m_cdc->terminateProgrammingMode();
+        if (m_cdc) {
+          response = m_cdc->terminateProgrammingMode();
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "CDC not active");
+        }
       }
       catch (std::exception& ex) {
         CATCH_EXC_TRC_WAR(std::exception, ex, "Terminating programming mode failed.");
@@ -227,6 +241,31 @@ namespace iqrf {
       return true;
     }
 
+    void startListen()
+    {
+      try {
+        m_cdc = shape_new CDCImpl(m_interfaceName.c_str());
+
+        if (!m_cdc->test()) {
+          THROW_EXC_TRC_WAR(std::logic_error, "CDC Test failed");
+        }
+        m_cdcValid = true;
+
+        m_cdc->resetTRModule();
+
+      }
+      catch (CDCImplException & e) {
+        CATCH_EXC_TRC_WAR(CDCImplException, e, "CDC Test failed: " << e.getDescr());
+      }
+      catch (std::exception & e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "CDC failed: ");
+      }
+
+      if (m_cdc) {
+        m_cdc->registerAsyncMsgListener([&](unsigned char* data, unsigned int length) {
+          m_accessControl.messageHandler(std::basic_string<unsigned char>(data, length)); });
+      }
+    }
 
     IIqrfChannelService::State getState() const
     {
@@ -259,26 +298,9 @@ namespace iqrf {
 
       try {
         modify(props);
-        m_cdc = shape_new CDCImpl(m_interfaceName.c_str());
-
-        if (!m_cdc->test()) {
-          THROW_EXC_TRC_WAR(std::logic_error, "CDC Test failed");
-        }
-        m_cdcValid = true;
-
-        m_cdc->resetTRModule();
-
-      }
-      catch (CDCImplException & e) {
-        CATCH_EXC_TRC_WAR(CDCImplException, e, "CDC Test failed: " << e.getDescr());
       }
       catch (std::exception & e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "CDC failed: ");
-      }
-
-      if (m_cdc) {
-        m_cdc->registerAsyncMsgListener([&](unsigned char* data, unsigned int length) {
-          m_accessControl.messageHandler(std::basic_string<unsigned char>(data, length)); });
       }
 
       TRC_FUNCTION_LEAVE("")
@@ -326,6 +348,11 @@ namespace iqrf {
   IqrfCdc::~IqrfCdc()
   {
     delete m_imp;
+  }
+
+  void IqrfCdc::startListen()
+  {
+    m_imp->startListen();
   }
 
   IIqrfChannelService::State IqrfCdc::getState() const

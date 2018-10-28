@@ -274,6 +274,12 @@ namespace iqrf {
       return true;
     }
 
+    void startListen()
+    {
+      m_runListenThread = true;
+      m_listenThread = std::thread(&IqrfSpi::Imp::listen, this);
+    }
+
     IIqrfChannelService::State getState() const
     {
       IIqrfChannelService::State state = State::NotReady;
@@ -371,8 +377,6 @@ namespace iqrf {
           TRC_WARNING(PAR(m_interfaceName) << " Created");
           m_rx = shape_new unsigned char[m_bufsize];
           memset(m_rx, 0, m_bufsize);
-          m_runListenThread = true;
-          m_listenThread = std::thread(&IqrfSpi::Imp::listen, this);
         }
         else {
           TRC_WARNING(PAR(m_interfaceName) << " Cannot create IqrfInterface");
@@ -492,6 +496,11 @@ namespace iqrf {
   IqrfSpi::~IqrfSpi()
   {
     delete m_imp;
+  }
+
+  void IqrfSpi::startListen()
+  {
+    return m_imp->startListen();
   }
 
   IIqrfChannelService::State IqrfSpi::getState() const

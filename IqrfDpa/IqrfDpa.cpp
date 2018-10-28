@@ -236,6 +236,8 @@ namespace iqrf {
     // Get coordinator parameters
     PrfOs prfOs;
 
+    m_iqrfChannelService->startListen();
+
     { // wait for reset TR module async msg.
       std::unique_lock<std::mutex> lck(mtx);
       //explicit reset not necessary here as reset TR is called from IqrfChannelService in advance

@@ -16,6 +16,7 @@ namespace iqrf {
     IqrfCdc();
     virtual ~IqrfCdc();
 
+    void startListen() override;
     State getState() const override;
     std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) override;
     bool hasExclusiveAccess() const override;

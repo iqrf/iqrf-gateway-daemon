@@ -72,6 +72,11 @@ namespace iqrf {
 
     //iqrf::IIqrfChannelService
     /////////////////////////////////////
+
+    void startListen()
+    {
+    }
+
     IIqrfChannelService::State getState() const
     {
       TRC_FUNCTION_ENTER("");
@@ -202,6 +207,11 @@ namespace iqrf {
 
   //iqrf::IIqrfChannelService
   /////////////////////////////////////
+  void TestSimulationIqrfChannel::startListen()
+  {
+    return m_imp->startListen();
+  }
+
   IIqrfChannelService::State TestSimulationIqrfChannel::getState() const
   {
     return m_imp->getState();
