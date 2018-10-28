@@ -48,6 +48,7 @@ namespace {
   static const int SERVICE_ERROR_MIN_DPA_VER = SERVICE_ERROR + 2;
   static const int SERVICE_ERROR_SMART_CONNECT = SERVICE_ERROR + 3;
   static const int SERVICE_ERROR_OS_READ = SERVICE_ERROR + 4;
+  static const int SERVICE_ERROR_HWPID_VERSION = SERVICE_ERROR + 5;
 };
 
 
@@ -61,7 +62,8 @@ namespace iqrf {
       NoError,
       MinDpaVerUsed,
       SmartConnect,
-      OsRead
+      OsRead,
+      HwpIdVersion
     };
 
     SmartConnectError() : m_type(Type::NoError), m_message("") {};
@@ -94,6 +96,7 @@ namespace iqrf {
     SmartConnectError m_error;
 
     uint16_t m_hwpId;
+    uint16_t m_hwpIdVer;
     uint8_t m_bondedAddr;
     uint8_t m_bondedNodesNum;
     std::string m_manufacturer = "";
@@ -117,8 +120,16 @@ namespace iqrf {
       return m_hwpId;
     }
 
-    void setHwpId(uint16_t m_hwpId) {
-      this->m_hwpId = m_hwpId;
+    void setHwpId(uint16_t hwpId) {
+      this->m_hwpId = hwpId;
+    }
+
+    uint16_t getHwpIdVersion() const {
+      return m_hwpIdVer;
+    }
+
+    void setHwpIdVersion(uint16_t hwpIdVer) {
+      this->m_hwpIdVer = hwpIdVer;
     }
 
     uint8_t getBondedAddr() const {
@@ -319,7 +330,7 @@ namespace iqrf {
 
           TRC_FUNCTION_LEAVE("");
           return;
-          }
+        }
 
         // transaction error
         if (errorCode < 0) {
@@ -351,16 +362,20 @@ namespace iqrf {
       }
     }
 
-    // returns current used DPA version
-    uint16_t getDpaVersion(uint16_t hwpId) {
+    // gets HWP ID version of specified node address and sets it into the result
+    void getHwpIdVersion(
+      SmartConnectResult& smartConnectResult, 
+      const uint16_t nodeAddr
+    ) 
+    {
       TRC_FUNCTION_ENTER("");
 
       DpaMessage perEnumRequest;
       DpaMessage::DpaPacket_t perEnumPacket;
-      perEnumPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+      perEnumPacket.DpaRequestPacket_t.NADR = nodeAddr;
       perEnumPacket.DpaRequestPacket_t.PNUM = 0xFF;
       perEnumPacket.DpaRequestPacket_t.PCMD = 0x3F;
-      perEnumPacket.DpaRequestPacket_t.HWPID = hwpId;
+      perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
       perEnumRequest.DataToBuffer(perEnumPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
@@ -369,7 +384,6 @@ namespace iqrf {
 
       for (int rep = 0; rep <= m_repeat; rep++) {
         try {
-          //perEnumTransaction = m_iIqrfDpaService->executeDpaTransaction(perEnumRequest);
           perEnumTransaction = m_exclusiveAccess->executeDpaTransaction(perEnumRequest);
           transResult = perEnumTransaction->get();
         }
@@ -380,10 +394,11 @@ namespace iqrf {
             continue;
           }
 
-          THROW_EXC(
-            std::logic_error,
-            "Could not information about individual devices and their implemented peripherals."
-          );
+          SmartConnectError error(SmartConnectError::Type::HwpIdVersion, e.what());
+          smartConnectResult.setError(error);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
         }
 
         TRC_DEBUG("Result from smart connect transaction as string:" << PAR(transResult->getErrorString()));
@@ -392,6 +407,7 @@ namespace iqrf {
 
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
+        smartConnectResult.addTransactionResult(transResult);
 
         if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
           TRC_INFORMATION("Device exploration successful!");
@@ -403,11 +419,13 @@ namespace iqrf {
 
           // parsing response pdata
           uns8* respData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-          uint8_t minorDpaVer = respData[0];
-          uint8_t majorDpaVer = respData[1];
+          uint8_t minorHwpIdVer = respData[9];
+          uint8_t majorHwpIdVer = respData[10];
+
+          smartConnectResult.setHwpIdVersion(minorHwpIdVer + (majorHwpIdVer << 8));
 
           TRC_FUNCTION_LEAVE("");
-          return minorDpaVer + (majorDpaVer << 8);
+          return;
         }
 
         // transaction error
@@ -418,7 +436,11 @@ namespace iqrf {
             continue;
           }
 
-          THROW_EXC(std::logic_error, "Transaction error.");
+          SmartConnectError error(SmartConnectError::Type::HwpIdVersion, "Transaction error.");
+          smartConnectResult.setError(error);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
         }
 
         // DPA error
@@ -428,11 +450,11 @@ namespace iqrf {
           continue;
         }
 
-        THROW_EXC(std::logic_error, "DPA error.");
-      }
+        SmartConnectError error(SmartConnectError::Type::HwpIdVersion, "Dpa error.");
+        smartConnectResult.setError(error);
 
-      // should never reach this point
-      THROW_EXC(std::logic_error, "Internal service error.");
+        TRC_FUNCTION_LEAVE("");
+      }
     }
 
 
@@ -546,7 +568,9 @@ namespace iqrf {
       // check, if there is at minimal DPA ver. 3.03 at the coordinator
       uint16_t dpaVersion = 0;
       try {
-        dpaVersion = getDpaVersion( HWPID_DoNotCheck );
+        IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+        dpaVersion = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
+
         if ( dpaVersion < DPA_MIN_REQ_VERSION ) {
           THROW_EXC( std::logic_error, "Old version of DPA: " << PAR( dpaVersion ) );
         }
@@ -592,7 +616,21 @@ namespace iqrf {
       uint8_t osVersion = smartConnectResult.getOsRead()[4];
       std::string osVersionStr = std::to_string( ( osVersion >> 4 ) & 0xFF ) + "." + std::to_string( osVersion & 0x0F );
       std::string dpaVersionStr = std::to_string( ( dpaVersion >> 8 ) & 0xFF ) + "." + std::to_string( dpaVersion & 0xFF );
-      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(smartConnectResult.getHwpId(), /*TODO*/0, osVersionStr, dpaVersionStr );
+      
+      // getting hwpId version
+      getHwpIdVersion(smartConnectResult, smartConnectResult.getBondedAddr());
+
+      // if there was an error, return
+      if (smartConnectResult.getError().getType() != SmartConnectError::Type::NoError) {
+        return smartConnectResult;
+      }
+
+      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
+        smartConnectResult.getHwpId(),
+        smartConnectResult.getHwpIdVersion(),
+        osVersionStr, 
+        dpaVersionStr 
+      );
       if ( package != nullptr ) {
         std::list<std::string> standards;
         for ( const IJsCacheService::StdDriver* driver : package->m_stdDriverVect ) {
@@ -818,76 +856,83 @@ namespace iqrf {
 
       // checking of error
       SmartConnectError error = smartConnectResult.getError();
-      if ( error.getType() != SmartConnectError::Type::NoError ) {
-        Pointer( "/data/statusStr" ).Set( response, error.getMessage() );
+
+      if ( error.getType() != SmartConnectError::Type::NoError ) 
+      {
+        int status = SERVICE_ERROR;
 
         switch ( error.getType() ) {
           case SmartConnectError::Type::MinDpaVerUsed:
-            Pointer( "/data/status" ).Set( response, SERVICE_ERROR_MIN_DPA_VER );
-            break;
-          case SmartConnectError::Type::SmartConnect:
-            Pointer( "/data/status" ).Set( response, SERVICE_ERROR_SMART_CONNECT );
+            status = SERVICE_ERROR_MIN_DPA_VER;
             break;
 
-          // THIS IS EXCEPTION FROM OTHER ERROR TYPES: set error and do NORMAL processing 
+          case SmartConnectError::Type::SmartConnect:
+            status = SERVICE_ERROR_SMART_CONNECT;
+            break;
+
           case SmartConnectError::Type::OsRead:
-            Pointer( "/data/status" ).Set( response, SERVICE_ERROR_OS_READ );
-            goto ALL_OK;
+            Pointer("/data/rsp/assignedAddr").Set(response, smartConnectResult.getBondedAddr());
+            Pointer("/data/rsp/nodesNr").Set(response, smartConnectResult.getBondedNodesNum());
+            status = SERVICE_ERROR_OS_READ;
+            break;
+
+          case SmartConnectError::Type::HwpIdVersion:
+            Pointer("/data/rsp/assignedAddr").Set(response, smartConnectResult.getBondedAddr());
+            Pointer("/data/rsp/nodesNr").Set(response, smartConnectResult.getBondedNodesNum());
+            Pointer("/data/rsp/hwpId").Set(response, smartConnectResult.getHwpId());
+            Pointer("/data/rsp/manufacturer").Set(response, smartConnectResult.getManufacturer());
+            Pointer("/data/rsp/product").Set(response, smartConnectResult.getProduct());
+            status = SERVICE_ERROR_HWPID_VERSION;
             break;
 
           default:
             // some other unsupported error
-            Pointer( "/data/status" ).Set( response, SERVICE_ERROR );
+            status = SERVICE_ERROR;
             break;
         }
 
         // set raw fields, if verbose mode is active
-        if ( comSmartConnect.getVerbose() ) {
-          setVerboseData( response, smartConnectResult );
+        if (comSmartConnect.getVerbose()) {
+          setVerboseData(response, smartConnectResult);
         }
+
+        Pointer("/data/status").Set(response, status);
+        Pointer("/data/statusStr").Set(response, error.getMessage());
 
         return response;
       }
 
-      // all is ok including situation, when OS Read fails to obtain info about newly connected node
-      ALL_OK:
+      // no errors
 
       // rsp object
-      rapidjson::Pointer( "/data/rsp/assignedAddr" ).Set( response, smartConnectResult.getBondedAddr() );
-      rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( response, smartConnectResult.getBondedNodesNum() );
+      Pointer( "/data/rsp/assignedAddr" ).Set( response, smartConnectResult.getBondedAddr() );
+      Pointer( "/data/rsp/nodesNr" ).Set( response, smartConnectResult.getBondedNodesNum() );
       
+      rapidjson::Pointer("/data/rsp/hwpId").Set(response, smartConnectResult.getHwpId());
+      rapidjson::Pointer("/data/rsp/manufacturer").Set(response, smartConnectResult.getManufacturer());
+      rapidjson::Pointer("/data/rsp/product").Set(response, smartConnectResult.getProduct());
 
-      if (error.getType() == SmartConnectError::Type::NoError) {
-        rapidjson::Pointer("/data/rsp/hwpId").Set(response, smartConnectResult.getHwpId());
-
-        // manufacturer name and product name - may be empty, if OS read error have occured
-        rapidjson::Pointer("/data/rsp/manufacturer").Set(response, smartConnectResult.getManufacturer());
-        rapidjson::Pointer("/data/rsp/product").Set(response, smartConnectResult.getProduct());
-
-        // standards - array of strings
-        rapidjson::Value standardsJsonArray(kArrayType);
-        Document::AllocatorType& allocator = response.GetAllocator();
-        for (std::string standard : smartConnectResult.getStandards()) {
-          rapidjson::Value standardJsonString;
-          standardJsonString.SetString(standard.c_str(), standard.length(), allocator);
-          standardsJsonArray.PushBack(standardJsonString, allocator);
-        }
-        Pointer("/data/rsp/standards").Set(response, standardsJsonArray);
-
-        // osRead object
-        setOsReadSection(response, smartConnectResult.getOsRead());
+      // standards - array of strings
+      rapidjson::Value standardsJsonArray(kArrayType);
+      Document::AllocatorType& allocator = response.GetAllocator();
+      for (std::string standard : smartConnectResult.getStandards()) {
+        rapidjson::Value standardJsonString;
+        standardJsonString.SetString(standard.c_str(), standard.length(), allocator);
+        standardsJsonArray.PushBack(standardJsonString, allocator);
       }
+      Pointer("/data/rsp/standards").Set(response, standardsJsonArray);
 
+      // osRead object
+      setOsReadSection(response, smartConnectResult.getOsRead());
+      
       // set raw fields, if verbose mode is active
       if ( comSmartConnect.getVerbose() ) {
         setVerboseData( response, smartConnectResult );
       }
 
       // status - ok
-      if (error.getType() == SmartConnectError::Type::NoError) {
-        Pointer("/data/status").Set(response, 0);
-        Pointer("/data/statusStr").Set(response, "ok");
-      }
+      Pointer("/data/status").Set(response, 0);
+      Pointer("/data/statusStr").Set(response, "ok");
 
       return response;
     }

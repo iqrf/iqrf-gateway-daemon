@@ -42,6 +42,7 @@ namespace {
   static const int SERVICE_ERROR_ABOVE_ADDRESS_LIMIT = SERVICE_ERROR + 6;
   static const int SERVICE_ERROR_PING_FAILED = SERVICE_ERROR + 7;
   static const int SERVICE_ERROR_PING_INTERNAL_ERROR = SERVICE_ERROR + 8;
+  static const int SERVICE_ERROR_HWPID_VERSION = SERVICE_ERROR + 9;
 };
 
 
@@ -59,7 +60,8 @@ namespace iqrf {
       BondError,
       AboveAddressLimit,
       PingFailed,
-      InternalError
+      InternalError,
+      HwpIdVersion
     };
 
     BondError() : m_type( Type::NoError ), m_message( "" ) {};
@@ -93,7 +95,12 @@ namespace iqrf {
     uint8_t m_bondedAddr;
     uint8_t m_bondedNodesNum;
     uint16_t m_bondedNodeHwpId;
-    std::vector<uns8> m_readInfo;   
+    uint16_t m_bondedNodeHwpIdVer;
+    std::vector<uns8> m_osRead; 
+
+    std::string m_manufacturer = "";
+    std::string m_product = "";
+    std::list<std::string> m_standards = { "" };
 
     // transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
@@ -119,14 +126,14 @@ namespace iqrf {
     // returns number of bonded network nodes.
     uint8_t getBondedNodesNum() const { return m_bondedNodesNum; };
 
-    // sets info about device
-    void setReadInfo( const uns8* readInfo ) {
-      m_readInfo.insert(m_readInfo.begin(), readInfo, readInfo + DPA_MAX_DATA_LENGTH);
+    // sets OS Read info about device
+    void setOsRead( const uns8* readInfo ) {
+      m_osRead.insert(m_osRead.begin(), readInfo, readInfo + DPA_MAX_DATA_LENGTH);
     }
 
-    // returns info about device
-    const std::vector<uns8> getReadInfo() const {
-      return m_readInfo;
+    // returns OS Read info about device
+    const std::vector<uns8> getOsRead() const {
+      return m_osRead;
     }
 
     // sets HwpId of bonded node
@@ -138,6 +145,41 @@ namespace iqrf {
     uint16_t getBondedNodeHwpId() const {
       return m_bondedNodeHwpId;
     }
+
+    // sets HwpId version of bonded node
+    void setBondedNodeHwpIdVer(const uint16_t hwpIdVer) {
+      m_bondedNodeHwpIdVer = hwpIdVer;
+    }
+
+    // returns HwpId version of bonded node
+    uint16_t getBondedNodeHwpIdVer() const {
+      return m_bondedNodeHwpIdVer;
+    }
+
+    std::string getManufacturer() {
+      return m_manufacturer;
+    }
+
+    void setManufacturer(const std::string& manufacturer) {
+      m_manufacturer = manufacturer;
+    }
+
+    std::string getProduct() {
+      return m_product;
+    }
+
+    void setProduct(const std::string& product) {
+      m_product = product;
+    }
+
+    std::list<std::string> getStandards() {
+      return m_standards;
+    }
+
+    void setStandards(std::list<std::string> standards) {
+      m_standards = standards;
+    }
+
 
     // adds transaction result into the list of results
     void addTransactionResult( std::unique_ptr<IDpaTransactionResult2>& transResult ) {
@@ -335,7 +377,7 @@ namespace iqrf {
             << PAR( readInfoRequest.PeripheralCommand() )
           );
 
-          bondResult.setReadInfo(
+          bondResult.setOsRead(
             dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData
           );
 
@@ -568,6 +610,98 @@ namespace iqrf {
       return ( result );
     }
 
+    // gets HWP ID version of specified node address and sets it into the result
+    void getHwpIdVersion(BondResult& bondResult, const uint16_t nodeAddr)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      DpaMessage perEnumRequest;
+      DpaMessage::DpaPacket_t perEnumPacket;
+      perEnumPacket.DpaRequestPacket_t.NADR = nodeAddr;
+      perEnumPacket.DpaRequestPacket_t.PNUM = 0xFF;
+      perEnumPacket.DpaRequestPacket_t.PCMD = 0x3F;
+      perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      perEnumRequest.DataToBuffer(perEnumPacket.Buffer, sizeof(TDpaIFaceHeader));
+
+      // issue the DPA request
+      std::shared_ptr<IDpaTransaction2> perEnumTransaction;
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          perEnumTransaction = m_exclusiveAccess->executeDpaTransaction(perEnumRequest);
+          transResult = perEnumTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_WARNING("DPA transaction error : " << e.what());
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          BondError error(BondError::Type::HwpIdVersion, e.what());
+          bondResult.setError(error);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        TRC_DEBUG("Result from smart connect transaction as string:" << PAR(transResult->getErrorString()));
+
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        bondResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Device exploration successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(perEnumRequest.PeripheralType(), perEnumRequest.NodeAddress())
+            << PAR(perEnumRequest.PeripheralCommand())
+          );
+
+          // parsing response pdata
+          uns8* respData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+          uint8_t minorHwpIdVer = respData[9];
+          uint8_t majorHwpIdVer = respData[10];
+
+          bondResult.setBondedNodeHwpIdVer(minorHwpIdVer + (majorHwpIdVer << 8));
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          BondError error(BondError::Type::HwpIdVersion, "Transaction error.");
+          bondResult.setError(error);
+
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+
+        // DPA error
+        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+        if (rep < m_repeat) {
+          continue;
+        }
+
+        BondError error(BondError::Type::HwpIdVersion, "Dpa error.");
+        bondResult.setError(error);
+
+        TRC_FUNCTION_LEAVE("");
+      }
+    }
+
     // Bond the requested node
     BondResult bondNode( const uint8_t nodeAddr, const uint8_t bondingMask )
     {
@@ -614,18 +748,62 @@ namespace iqrf {
       // Delay after successful bonding
       std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
 
-      // ping newly bonded node and return info
+      // ping newly bonded node and stores its OS Read info into the result
       pingNode( bondResult, nodeAddr );
-      if ( bondResult.getError().getType() == BondError::Type::NoError ) {
+      if ( bondResult.getError().getType() != BondError::Type::NoError ) 
+      {
+        // if ping failed, remove bonded node from the coordinator's list
+        removeBondedNode(bondResult, nodeAddr);
+
+        // and return Ping Failed error
         return bondResult;
       }
 
-      // if ping failed, remove bonded node from the coordinator's list
-      removeBondedNode( bondResult, nodeAddr );
 
-      // and return Ping Failed error
+      // manufacturer name and product name
+      const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(bondResult.getBondedNodeHwpId());
+      if (manufacturer != nullptr) {
+        bondResult.setManufacturer(manufacturer->m_name);
+      }
+      
+      const IJsCacheService::Product* product = m_iJsCacheService->getProduct(bondResult.getBondedNodeHwpId());
+      if (product != nullptr) {
+        bondResult.setProduct(product->m_name);
+      }
+
+      uint8_t osVersion = bondResult.getOsRead()[4];
+      std::string osVersionStr = std::to_string((osVersion >> 4) & 0xFF) + "." + std::to_string(osVersion & 0x0F);
+      
+      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      uint16_t dpaVersion = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
+      std::string dpaVersionStr = std::to_string((dpaVersion >> 8) & 0xFF) + "." + std::to_string(dpaVersion & 0xFF);
+
+      // getting hwpId version of the newly bonded node
+      getHwpIdVersion(bondResult, bondResult.getBondedAddr());
+
+      // if there was an error, return
+      if (bondResult.getError().getType() != BondError::Type::NoError) {
+        return bondResult;
+      }
+
+      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
+        bondResult.getBondedNodeHwpId(),
+        bondResult.getBondedNodeHwpIdVer(),
+        osVersionStr, 
+        dpaVersionStr
+      );
+      if (package != nullptr) {
+        std::list<std::string> standards;
+        for (const IJsCacheService::StdDriver* driver : package->m_stdDriverVect) {
+          standards.push_back(driver->getName());
+        }
+        bondResult.setStandards(standards);
+      }
+
       return bondResult;
     }
+
+
 
     // creates error response about service general fail   
     Document createCheckParamsFailedResponse(
@@ -838,30 +1016,44 @@ namespace iqrf {
       // checking of error
       BondError error = bondResult.getError();
 
-      if ( error.getType() != BondError::Type::NoError ) {
-        Pointer( "/data/statusStr" ).Set( response, error.getMessage() );
+      if ( error.getType() != BondError::Type::NoError ) 
+      {
+        int status = SERVICE_ERROR;
 
         switch ( error.getType() ) {
           case BondError::Type::GetBondedNodes:
-            Pointer( "/data/status" ).Set( response, SERVICE_ERROR_GET_BONDED_NODES );
-            break;
-          case BondError::Type::AlreadyBonded:
-            Pointer( "/data/status" ).Set( response, SERVICE_ERROR_ALREADY_BONDED );
-            break;
-          case BondError::Type::NoFreeSpace:
-            Pointer( "/data/status" ).Set( response, SERVICE_ERROR_NO_FREE_SPACE );
+            status = SERVICE_ERROR_GET_BONDED_NODES;
             break;
 
-            // THIS IS EXCEPTION FROM OTHER ERROR TYPES: set error and do NORMAL processing 
-          case BondError::Type::PingFailed:
-            Pointer( "/data/status" ).Set( response, SERVICE_ERROR_PING_FAILED );
-            goto ALL_OK;
+          case BondError::Type::AlreadyBonded:
+            status = SERVICE_ERROR_ALREADY_BONDED;
             break;
+
+          case BondError::Type::NoFreeSpace:
+            status = SERVICE_ERROR_NO_FREE_SPACE;
+            break;
+
           case BondError::Type::BondError:
-            Pointer( "/data/status" ).Set( response, SERVICE_ERROR_BOND_FAILED );
+            status = SERVICE_ERROR_BOND_FAILED;
             break;
+
+          case BondError::Type::PingFailed:
+            rapidjson::Pointer("/data/rsp/assignedAddr").Set(response, bondResult.getBondedAddr());
+            rapidjson::Pointer("/data/rsp/nodesNr").Set(response, bondResult.getBondedNodesNum());
+            status = SERVICE_ERROR_PING_FAILED;
+            break;
+
+          case BondError::Type::HwpIdVersion:
+            Pointer("/data/rsp/assignedAddr").Set(response, bondResult.getBondedAddr());
+            Pointer("/data/rsp/nodesNr").Set(response, bondResult.getBondedNodesNum());
+            Pointer("/data/rsp/hwpId").Set(response, bondResult.getBondedNodeHwpId());
+            Pointer("/data/rsp/manufacturer").Set(response, bondResult.getManufacturer());
+            Pointer("/data/rsp/product").Set(response, bondResult.getProduct());
+            status = SERVICE_ERROR_HWPID_VERSION;
+            break;
+
           default:
-            Pointer( "/data/status" ).Set( response, SERVICE_ERROR );
+            status = SERVICE_ERROR;
             break;
         }
 
@@ -870,41 +1062,34 @@ namespace iqrf {
           setVerboseData( response, bondResult );
         }
 
+        Pointer("/data/status").Set(response, status);
+        Pointer("/data/statusStr").Set(response, error.getMessage());
+
         return response;
       }
 
-      // all is ok including situation, when OS Read fails to obtain info about newly bonded node
-      ALL_OK:
+      // no errors
 
       // rsp object
       rapidjson::Pointer( "/data/rsp/assignedAddr" ).Set( response, bondResult.getBondedAddr() );
       rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( response, bondResult.getBondedNodesNum() );
       
+      rapidjson::Pointer("/data/rsp/hwpId").Set(response, bondResult.getBondedNodeHwpId());
+      rapidjson::Pointer("/data/rsp/manufacturer").Set(response, bondResult.getManufacturer());
+      rapidjson::Pointer("/data/rsp/product").Set(response, bondResult.getProduct());
 
-      if (error.getType() == BondError::Type::NoError) {
-        rapidjson::Pointer("/data/rsp/hwpId").Set(response, bondResult.getBondedNodeHwpId());
-
-        // manufacturer name and product name
-        const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(bondResult.getBondedNodeHwpId());
-        if (manufacturer != nullptr) {
-          rapidjson::Pointer("/data/rsp/manufacturer").Set(response, manufacturer->m_name);
-        }
-        else {
-          rapidjson::Pointer("/data/rsp/manufacturer").Set(response, "");
-        }
-
-        const IJsCacheService::Product* product = m_iJsCacheService->getProduct(bondResult.getBondedNodeHwpId());
-        if (product != nullptr) {
-          rapidjson::Pointer("/data/rsp/product").Set(response, product->m_name);
-        }
-        else {
-          rapidjson::Pointer("/data/rsp/product").Set(response, "");
-        }
-
-        // osRead object
-        setOsReadSection(response, bondResult.getReadInfo());
+      // standards - array of strings
+      rapidjson::Value standardsJsonArray(kArrayType);
+      Document::AllocatorType& allocator = response.GetAllocator();
+      for (std::string standard : bondResult.getStandards()) {
+        rapidjson::Value standardJsonString;
+        standardJsonString.SetString(standard.c_str(), standard.length(), allocator);
+        standardsJsonArray.PushBack(standardJsonString, allocator);
       }
+      Pointer("/data/rsp/standards").Set(response, standardsJsonArray);
 
+      // osRead object
+      setOsReadSection(response, bondResult.getOsRead());
 
       // set raw fields, if verbose mode is active
       if ( comBondNodeLocal.getVerbose() ) {
@@ -912,10 +1097,8 @@ namespace iqrf {
       }
 
       // status
-      if (error.getType() == BondError::Type::NoError) {
-        Pointer("/data/status").Set(response, 0);
-        Pointer("/data/statusStr").Set(response, "ok");
-      }
+      Pointer("/data/status").Set(response, 0);
+      Pointer("/data/statusStr").Set(response, "ok");
 
       return response;
     }
