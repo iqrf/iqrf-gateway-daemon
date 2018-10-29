@@ -147,7 +147,7 @@ namespace iqrf {
 
     const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
     {
-      TRC_FUNCTION_ENTER(PAR(hwpid));
+      TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(os) << PAR(dpa));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
@@ -160,7 +160,7 @@ namespace iqrf {
         }
       }
 
-      TRC_FUNCTION_LEAVE("");
+      TRC_FUNCTION_LEAVE(PAR(retval));
       return retval;
     }
 
