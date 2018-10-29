@@ -345,6 +345,14 @@ namespace iqrf {
     ASSERT_TRUE(o == nullptr);
   }
 
+  TEST_F(JsCacheTesting, GetPackage1)
+  {
+    auto  o = Imp::get().m_iJsCacheService->getPackage(0, 0, "08C8", "0303");
+    ASSERT_FALSE(o == nullptr);
+    EXPECT_EQ("08BF", o->m_os);
+    EXPECT_EQ("0303", o->m_dpa);
+  }
+
   TEST_F(JsCacheTesting, CallJsScript1)
   {
     std::string functionName = "iqrf.test.cache.convert";
