@@ -1276,7 +1276,7 @@ namespace iqrf {
       Pointer("/data/rsp/peripheralEnumeration/embPers").Set(response, embPersJsonArray);
 
       // hwpId
-      Pointer("/data/rsp/peripheralEnumeration/hwpId").Set(response, encodeHexaNum(perEnum.HWPID));
+      Pointer("/data/rsp/peripheralEnumeration/hwpId").Set(response, perEnum.HWPID);
 
       // hwpIdVer
       Pointer("/data/rsp/peripheralEnumeration/hwpIdVer").Set(response, perEnum.HWPIDver);
