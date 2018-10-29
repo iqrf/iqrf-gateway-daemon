@@ -26,3 +26,16 @@ if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
     daemon_remove_data
     daemon_remove_config
 fi
+
+if [ "$1" = "remove" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper mask iqrf-gateway-daemon.service >/dev/null || true
+	fi
+fi
+
+if [ "$1" = "purge" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge iqrf-gateway-daemon.service >/dev/null || true
+		deb-systemd-helper unmask iqrf-gateway-daemon.service >/dev/null || true
+	fi
+fi
