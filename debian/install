@@ -3,9 +3,11 @@ build/bin/configuration/deploy/release/*.json   etc/iqrf-gateway-daemon
 build/bin/configuration/cfgSchemas              etc/iqrf-gateway-daemon
 build/bin/iqrfgd2                               usr/bin
 build/bin/*.so                                  usr/lib/iqrf-gateway-daemon
-shape-build/bin/*.so                            usr/lib/iqrf-gateway-daemon
+shape-build/bin/libTraceFormatService.so        usr/lib/iqrf-gateway-daemon
+shape-build/bin/libTraceFileService.so          usr/lib/iqrf-gateway-daemon
 shape-build/lib/liblauncher.a                   usr/lib/iqrf-gateway-daemon
-shapeware-build/bin/*.so                        usr/lib/iqrf-gateway-daemon
+shapeware-build/bin/libCurlRestApiService.so    usr/lib/iqrf-gateway-daemon
+shapeware-build/bin/libWebsocketCppService.so   usr/lib/iqrf-gateway-daemon
 build/bin/configuration/apiSchemas              usr/share/iqrf-gateway-daemon
 build/bin/configuration/javaScript              usr/share/iqrf-gateway-daemon
 build/bin/configuration/scheduler               var/cache/iqrf-gateway-daemon

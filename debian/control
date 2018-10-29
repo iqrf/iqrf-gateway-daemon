@@ -5,9 +5,9 @@ Maintainer: Rostislav Spinar <rostislav.spinar@iqrf.com>
 Build-Depends: debhelper (>= 10), cmake, libboost-filesystem1.62.0, libc6,  libcurl4-openssl-dev,
  linux-libc-dev, libcpaho-mqtt-dev, libssl-dev, libstdc++6, zlib1g-dev
 Standards-Version: 4.1.5
-Homepage: https://github.com/iqrfsdk/iqrf-gateway-daemon
-Vcs-Git: https://github.com/iqrfsdk/iqrf-gateway-daemon.git
-Vcs-Browser: https://github.com/iqrfsdk/iqrf-gateway-daemon
+Homepage: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon
+Vcs-Git: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon.git
+Vcs-Browser: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon
 
 Package: iqrf-gateway-daemon
 Architecture: any
