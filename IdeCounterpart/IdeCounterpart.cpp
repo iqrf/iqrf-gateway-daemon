@@ -6,6 +6,7 @@
 #include "UdpMessage.h"
 #include "crc.h"
 #include "Trace.h"
+#include "rapidjson/pointer.h"
 
 #include "iqrf__IdeCounterpart.hxx"
 
@@ -33,6 +34,37 @@ namespace iqrf {
       "IdeCounterpart instance activate" << std::endl <<
       "******************************"
     );
+
+    using namespace rapidjson;
+    const Document& doc = props->getAsJson();
+
+    {
+      const Value* val = rapidjson::Pointer("/gwIdentName").Get(doc);
+      if (val && val->IsString()) {
+        m_gwIdentName = val->GetString();
+      }
+    }
+
+    {
+      const Value* val = rapidjson::Pointer("/gwIdentIpStack").Get(doc);
+      if (val && val->IsString()) {
+        m_gwIdentIpStack = val->GetString();
+      }
+    }
+
+    {
+      const Value* val = rapidjson::Pointer("/gwIdentNetBios").Get(doc);
+      if (val && val->IsString()) {
+        m_gwIdentNetBios = val->GetString();
+      }
+    }
+
+    {
+      const Value* val = rapidjson::Pointer("/gwIdentPublicIp").Get(doc);
+      if (val && val->IsString()) {
+        m_gwIdentPublicIp = val->GetString();
+      }
+    }
 
     m_messaging->registerMessageHandler([&](const std::string& messagingId, const std::vector<uint8_t>& msg)
     {
@@ -187,14 +219,14 @@ namespace iqrf {
 
     std::basic_ostringstream<char> ostring;
     ostring << crlf <<
-      "iqrf-daemon" << crlf <<
+      m_gwIdentName << crlf <<
       DAEMON_VERSION << crlf <<
       m_messaging->getListeningMacAddress() << crlf <<
-      "0.00" << crlf << //TODO IP stack?
+      m_gwIdentIpStack << crlf <<
       m_messaging->getListeningIpAddress() << crlf <<
-      "iqrf_xxxx" << crlf << //TODO Net BIOS name?
+      m_gwIdentNetBios << crlf <<
       m_iqrfDpaService->getCoordinatorParameters().osVersion << "(" << m_iqrfDpaService->getCoordinatorParameters().osBuild << ")" << crlf <<
-      "127.0.0.1" << crlf; //TODO public IP?
+      m_gwIdentPublicIp << crlf;
 
     std::string resp = ostring.str();
     std::basic_string<unsigned char> res((unsigned char*)resp.data(), resp.size());

@@ -20,6 +20,26 @@
             "description": "Recomended iqrf::IdeCounterpart-(id)",
             "default": "iqrf::IdeCounterpart-1"
         },
+        "gwIdentName": {
+            "type": "string",
+            "description": "GW ident Name",
+            "default": "iqrf-gateway-daemon"
+        },
+        "gwIdentIpStack": {
+            "type": "string",
+            "description": "GW ident IP Stack version",
+            "default": "N/A"
+        },
+        "gwIdentNetBios": {
+            "type": "string",
+            "description": "GW ident Net BIOS",
+            "default": "N/A"
+        },
+        "gwIdentPublicIp": {
+            "type": "string",
+            "description": "GW ident Public IP",
+            "default": "N/A"
+        },
         "RequiredInterfaces": {
             "type": "array",
             "description": "Array of required interfaces.",

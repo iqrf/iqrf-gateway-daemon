@@ -72,5 +72,11 @@ namespace iqrf {
     std::unique_ptr<IIqrfChannelService::Accessor> m_exclusiveAcessor;
     std::unique_ptr<IIqrfChannelService::Accessor> m_snifferAcessor;
     int sendMessageToIde(const std::basic_string<unsigned char>& message);
+
+    std::string m_gwIdentName = "iqrf-gateway-daemon";
+    std::string m_gwIdentIpStack = "N/A";
+    std::string m_gwIdentNetBios = "N/A";
+    std::string m_gwIdentPublicIp = "N/A";
+
   };
 }

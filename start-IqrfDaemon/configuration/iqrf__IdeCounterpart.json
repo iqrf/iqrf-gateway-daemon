@@ -1,6 +1,10 @@
 {
   "component": "iqrf::IdeCounterpart",
   "instance": "IdeCounterpart",
+  "gwIdentName": "iqrf-gateway-daemon",
+  "gwIdentIpStack": "N/A",
+  "gwIdentNetBios": "N/A",
+  "gwIdentPublicIp": "N/A",
   "RequiredInterfaces": [
     {
       "name": "iqrf::IMessagingService",
