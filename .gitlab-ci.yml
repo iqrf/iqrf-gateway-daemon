@@ -24,6 +24,32 @@ stages:
   tags:
   - linux, armhf
 
+.shape_shapeware-template: &shape_shapeware-template
+  stage: dependencies
+  dependencies: []
+  script:
+  - git clone https://github.com/logimic/shape.git shape-source
+  - mkdir shape-build
+  - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
+  - cmake --build shape-build
+  - tar czvf shape-source_${ARCH}.tar.gz shape-source
+  - tar czvf shape-build_${ARCH}.tar.gz shape-build
+  - git clone https://github.com/logimic/shapeware.git shapeware-source
+  - git -C shapeware-source submodule init
+  - git -C shapeware-source submodule update
+  - mkdir shapeware-build
+  - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
+  - cmake --build shapeware-build
+  - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
+  - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
+  artifacts:
+    paths:
+    - shape-source_*.tar.gz
+    - shape-build_*.tar.gz
+    - shapeware-source_*.tar.gz
+    - shapeware-build_*.tar.gz
+    expire_in: 2 weeks
+
 .daemon-template: &daemon-template
   stage: build
   before_script:
@@ -37,13 +63,20 @@ stages:
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
-  - mkdir iqrf-daemon-build iqrf-daemon-deploy
+  - mkdir iqrf-daemon-build
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
   - tar xzvf shapeware-source_${ARCH}.tar.gz
   - tar xzvf shapeware-build_${ARCH}.tar.gz
   - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION}
   - cmake --build iqrf-daemon-build
+  - tar czvf iqrf-daemon-source_${ARCH}.tar.gz iqrf-daemon-source
+  - tar czvf iqrf-daemon-build_${ARCH}.tar.gz iqrf-daemon-build
+  artifacts:
+    paths:
+    - iqrf-daemon-source_*.tar.gz
+    - iqrf-daemon-build_*.tar.gz
+    expire_in: 2 weeks
 
 .package-template: &package-template
   stage: build-package
@@ -62,49 +95,12 @@ stages:
   - tar xzvf shape-build_${ARCH}.tar.gz
   - tar xzvf shapeware-source_${ARCH}.tar.gz
   - tar xzvf shapeware-build_${ARCH}.tar.gz
-#  - mkdir shape-build shapeware-build
-#  - git clone https://github.com/logimic/shape.git
-#  - git -C shape submodule init
-#  - git -C shape submodule update
-#  - git clone https://github.com/logimic/shapeware.git
-#  - git -C shapeware submodule init
-#  - git -C shapeware submodule update
-#  - cmake -Bshape-build -Hshape -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
-#  - cmake --build shape-build
-#  - cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=TRUE -DLWS_WITH_SSL:BOOL=FALSE -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
-#  - cmake --build shapeware-build
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
   - mv ../iqrf-gateway-daemon*.deb .
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
-    expire_in: 2 weeks
-
-.shape_shapeware-template: &shape_shapeware-template
-  stage: dependencies
-  dependencies: []
-  script:
-  - git clone https://github.com/logimic/shape.git shape-source
-  - mkdir shape-build
-  - cmake -Bshape-build -Hshape-source
-  - cmake --build shape-build
-  - tar czvf shape-source_${ARCH}.tar.gz shape-source
-  - tar czvf shape-build_${ARCH}.tar.gz shape-build
-  - git clone https://github.com/logimic/shapeware.git shapeware-source
-  - git -C shapeware-source submodule init
-  - git -C shapeware-source submodule update
-  - mkdir shapeware-build
-  - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false
-  - cmake --build shapeware-build
-  - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
-  - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
-  artifacts:
-    paths:
-    - shape-source_*.tar.gz
-    - shape-build_*.tar.gz
-    - shapeware-source_*.tar.gz
-    - shapeware-build_*.tar.gz
     expire_in: 2 weeks
 
 #AMD64
