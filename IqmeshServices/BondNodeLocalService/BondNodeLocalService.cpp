@@ -799,6 +799,10 @@ namespace iqrf {
         }
         bondResult.setStandards(standards);
       }
+      else {
+        TRC_INFORMATION("Package not found");
+      }
+
 
       return bondResult;
     }

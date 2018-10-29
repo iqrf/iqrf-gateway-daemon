@@ -638,6 +638,9 @@ namespace iqrf {
         }
         smartConnectResult.setStandards( standards );
       }
+      else {
+        TRC_INFORMATION("Package not found");
+      }
 
       TRC_FUNCTION_LEAVE( "" );
       return smartConnectResult;
