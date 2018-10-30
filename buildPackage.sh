@@ -3,6 +3,8 @@
 
 set -e
 
+export DAEMON_VERSION=v2.0.0
+
 rm -rf shape shape-build shapeware shapeware-build
 mkdir shape-build shapeware-build
 
@@ -10,11 +12,13 @@ mkdir shape-build shapeware-build
 git clone https://github.com/logimic/shape.git
 git -C shape submodule init
 git -C shape submodule update
+git -C checkout v1.0.0
 
 # Clone shapeware repository
 git clone https://github.com/logimic/shapeware.git
 git -C shapeware submodule init
 git -C shapeware submodule update
+git -C checkout v1.0.0
 
 # Build shape
 cmake -Bshape-build -Hshape -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE

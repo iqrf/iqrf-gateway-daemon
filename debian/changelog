@@ -97,7 +97,7 @@ iqrf-gateway-daemon (2.0.0~1.gbp28535d) UNRELEASED; urgency=medium
   * Fix JsCache::period bug
   * Fix JsCache::period bug
 
-  [ vencek ]
+  [ Vasek Hanak ]
   * Timing update
 
   [ Michal Konopa ]
@@ -143,7 +143,7 @@ iqrf-gateway-daemon (2.0.0~1.gbp28535d) UNRELEASED; urgency=medium
   * Fix issue 277 repeated DPA msg read from UART
 
   [ Michal Konopa ]
-  * - made services agnostic to DPA version strucures changes in DPA.h
+  * Made services agnostic to DPA version strucures changes in DPA.h
   * Included DPA HWP Configuration byte 5, bit 6
   * Bug in test log output fixed.
 
@@ -173,6 +173,6 @@ iqrf-gateway-daemon (2.0.0~1.gbp28535d) UNRELEASED; urgency=medium
   * Ref to api
 
   [ Michal Konopa ]
-  * - hexa values letters of MID, osBuild and RF mode transformed to uppercase
+  * Hexa values letters of MID, osBuild and RF mode transformed to uppercase
 
  -- Roman Ondráček <roman.ondracek@iqrf.com>  Sun, 21 Oct 2018 17:50:21 +0200
