@@ -96,7 +96,8 @@ namespace iqrf {
     uint8_t m_bondedNodesNum;
     uint16_t m_bondedNodeHwpId;
     uint16_t m_bondedNodeHwpIdVer;
-    std::vector<uns8> m_osRead; 
+    std::vector<uns8> m_osRead; //TODO parse instead of maintain response data in raw form
+    uint16_t m_osBuild;
 
     std::string m_manufacturer = "";
     std::string m_product = "";
@@ -134,6 +135,14 @@ namespace iqrf {
     // returns OS Read info about device
     const std::vector<uns8> getOsRead() const {
       return m_osRead;
+    }
+
+    uint16_t getOsBuild() const {
+      return m_osBuild;
+    }
+
+    void setOsBuild(uint16_t osBuild) {
+      m_osBuild = osBuild;
     }
 
     // sets HwpId of bonded node
@@ -380,6 +389,9 @@ namespace iqrf {
           bondResult.setOsRead(
             dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData
           );
+
+          TPerOSRead_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
+          bondResult.setOsBuild(resp.OsBuild);
 
           bondResult.setBondedNodeHwpId( dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID );
 
@@ -777,7 +789,7 @@ namespace iqrf {
       {
         std::ostringstream os;
         os.fill('0');
-        os << std::hex << std::uppercase << std::setw(4) << (int)bondResult.getOsRead()[4];
+        os << std::hex << std::uppercase << std::setw(4) << (int)bondResult.getOsBuild();
         osBuildStr = os.str();
       }
 

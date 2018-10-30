@@ -104,7 +104,8 @@ namespace iqrf {
     std::list<std::string> m_standards = { "" };
 
     // OS read response data
-    std::vector<uns8> m_osRead;
+    std::vector<uns8> m_osRead; //TODO parse instead of maintain response data in raw form
+    uint16_t m_osBuild;
 
     // transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
@@ -178,6 +179,14 @@ namespace iqrf {
 
     void setOsRead(const uns8* readInfo) {
       m_osRead.insert(m_osRead.begin(), readInfo, readInfo + DPA_MAX_DATA_LENGTH);
+    }
+
+    uint16_t getOsBuild() const {
+      return m_osBuild;
+    }
+
+    void setOsBuild(uint16_t osBuild) {
+      m_osBuild = osBuild;
     }
 
     // adds transaction result into the list of results
@@ -513,6 +522,8 @@ namespace iqrf {
           // get OS data
           uns8* osData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
           smartConnectResult.setOsRead( osData );
+          TPerOSRead_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
+          smartConnectResult.setOsBuild(resp.OsBuild);
 
           // set HWP ID of the newly connected device
           smartConnectResult.setHwpId(dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID);
@@ -619,7 +630,7 @@ namespace iqrf {
       {
         std::ostringstream os;
         os.fill('0');
-        os << std::hex << std::uppercase << std::setw(4) << (int)smartConnectResult.getOsRead()[4];
+        os << std::hex << std::uppercase << std::setw(4) << (int)smartConnectResult.getOsBuild();
         osBuildStr = os.str();
       }
       
@@ -634,7 +645,7 @@ namespace iqrf {
       const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
         smartConnectResult.getHwpId(),
         smartConnectResult.getHwpIdVersion(),
-        osBuildStr, //TODO m_iIqrfDpaService->getCoordinatorParameters().osBuild ?
+        osBuildStr,
         m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr
       );
       if ( package != nullptr ) {
