@@ -771,12 +771,19 @@ namespace iqrf {
         bondResult.setProduct(product->m_name);
       }
 
-      uint8_t osVersion = bondResult.getOsRead()[4];
-      std::string osVersionStr = std::to_string((osVersion >> 4) & 0xFF) + "." + std::to_string(osVersion & 0x0F);
-      
-      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-      uint16_t dpaVersion = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
-      std::string dpaVersionStr = std::to_string((dpaVersion >> 8) & 0xFF) + "." + std::to_string(dpaVersion & 0xFF);
+      //uint8_t osVersion = bondResult.getOsRead()[4];
+      //std::string osVersionStr = std::to_string((osVersion >> 4) & 0xFF) + "." + std::to_string(osVersion & 0x0F);
+      std::string osBuildStr;
+      {
+        std::ostringstream os;
+        os.fill('0');
+        os << std::hex << std::uppercase << std::setw(4) << (int)bondResult.getOsRead()[4];
+        osBuildStr = os.str();
+      }
+
+      //IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      //uint16_t dpaVersion = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
+      //std::string dpaVersionStr = std::to_string((dpaVersion >> 8) & 0xFF) + "." + std::to_string(dpaVersion & 0xFF);
 
       // getting hwpId version of the newly bonded node
       getHwpIdVersion(bondResult, bondResult.getBondedAddr());
@@ -789,8 +796,8 @@ namespace iqrf {
       const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
         bondResult.getBondedNodeHwpId(),
         bondResult.getBondedNodeHwpIdVer(),
-        osVersionStr, 
-        dpaVersionStr
+        osBuildStr, //TODO m_iIqrfDpaService->getCoordinatorParameters().osBuild ?
+        m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr
       );
       if (package != nullptr) {
         std::list<std::string> standards;

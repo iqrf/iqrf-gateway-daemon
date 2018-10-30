@@ -613,9 +613,15 @@ namespace iqrf {
         smartConnectResult.setProduct( product->m_name );
       }
 
-      uint8_t osVersion = smartConnectResult.getOsRead()[4];
-      std::string osVersionStr = std::to_string( ( osVersion >> 4 ) & 0xFF ) + "." + std::to_string( osVersion & 0x0F );
-      std::string dpaVersionStr = std::to_string( ( dpaVersion >> 8 ) & 0xFF ) + "." + std::to_string( dpaVersion & 0xFF );
+      //uint8_t osVersion = smartConnectResult.getOsRead()[4];
+      //std::string osVersionStr = std::to_string( ( osVersion >> 4 ) & 0xFF ) + "." + std::to_string( osVersion & 0x0F );
+      std::string osBuildStr;
+      {
+        std::ostringstream os;
+        os.fill('0');
+        os << std::hex << std::uppercase << std::setw(4) << (int)smartConnectResult.getOsRead()[4];
+        osBuildStr = os.str();
+      }
       
       // getting hwpId version
       getHwpIdVersion(smartConnectResult, smartConnectResult.getBondedAddr());
@@ -628,8 +634,8 @@ namespace iqrf {
       const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
         smartConnectResult.getHwpId(),
         smartConnectResult.getHwpIdVersion(),
-        osVersionStr, 
-        dpaVersionStr 
+        osBuildStr, //TODO m_iIqrfDpaService->getCoordinatorParameters().osBuild ?
+        m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr
       );
       if ( package != nullptr ) {
         std::list<std::string> standards;
