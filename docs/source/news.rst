@@ -10,8 +10,10 @@ iqrf-gateway-daemon (2.0.0-rc) testing; urgency=medium
  [ Michal Konopa ]
  [ Vasek Hanak ]
  [ Dusan Machut ]
+ [ Vlastimil Kosar ]
  [ Roman Ondracek ]
  [ Jaromir Mastik ]
+ [ Michal Valny ]
  [ Rostislav Spinar ]
 
  * IQRF JSON API v2, v1
