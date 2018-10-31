@@ -75,7 +75,7 @@ Why v2
     IQRF GWD architecture
 
 .. _`Shape framework`: https://github.com/logimic/shape
-.. _`IQRF Standards`: https://docs.iqrf.org/iqrf-gateway-daemon/api.html#iqrf-standard
+.. _`IQRF Standard`: https://docs.iqrf.org/iqrf-gateway-daemon/api.html#iqrf-standard
 .. _`IQMESH Services`: https://docs.iqrf.org/iqrf-gateway-daemon/api.html#iqmesh-network
 .. _`IQRF Generic`: https://docs.iqrf.org/iqrf-gateway-daemon/api.html#iqrf-generic
 .. _`IQRF Gateway Webapp`: https://docs.iqrf.org/iqrf-gateway-webapp
