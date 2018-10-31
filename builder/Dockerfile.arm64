@@ -1,0 +1,31 @@
+FROM multiarch/debian-debootstrap:arm64-stretch
+
+MAINTAINER Rostislav Spinar <rostislav.spinar@iqrf.com>
+LABEL maintainer="rostislav.spinar@iqrf.com"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    fakeroot \
+    devscripts \
+    dh-make \
+    lsb-release \
+    cmake \
+    gcc \
+    git \
+    g++ \
+    zlib1g-dev \
+    libcpprest-dev \
+    libssl-dev \
+    mlocate \
+    ruby \
+    ruby-dev \
+    unzip \
+    wget \
+    openssh-client \
+    git-buildpackage \
+    python3-recommonmark \
+    python3-sphinx \
+    rsync \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
+  && gem install --no-rdoc --no-ri fpm
