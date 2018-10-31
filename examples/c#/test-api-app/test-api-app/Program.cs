@@ -245,7 +245,6 @@
     /// GW IP address
     /// </summary>
     const string IqrfGwDeamonIP = "192.168.1.101";
-    //const string IqrfGwDeamonIP = "10.11.16.79";
 
     /// <summary>
     /// Log transaction
@@ -418,10 +417,12 @@
         // Create request 
 
         /* RAW */
+        /*
         IqrfRaw_Request request = new IqrfRaw_Request();
         request.Data.MsgId = "testRaw";
         request.Data.Req.RData = "00.00.06.03.FF.FF";
         request.Data.ReturnVerbose = true;
+        */
 
         /* RAWHDP */
         /*
@@ -1173,21 +1174,19 @@
         request.Data.ReturnVerbose = true;
         */
 
-        /*
         IqmeshNetwork_SmartConnect_Request request = new IqmeshNetwork_SmartConnect_Request();
         request.Data.MsgId = "testIqmeshBondNodeLocal";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 11;
+        request.Data.Req.DeviceAddr = 13;
         request.Data.Req.BondingTestRetries = 1;
-        request.Data.Req.SmartConnectCode = "YqZ5BUEcFP4ZyaUB36iRC6Ab4WxmYBGGU2";
+        request.Data.Req.SmartConnectCode = "5feZJ5UmFP4kKZCMWQJZFixnd5wH1eyPEo";
         request.Data.ReturnVerbose = true;
-        */
 
         /*
         IqmeshNetwork_EnumerateDevice_Request request = new IqmeshNetwork_EnumerateDevice_Request();
         request.Data.MsgId = "testIqmeshEnumerate";
         request.Data.Repeat = 1;
-        request.Data.Req.DeviceAddr = 1;
+        request.Data.Req.DeviceAddr = 12;
         request.Data.ReturnVerbose = true;
         */
 
@@ -1286,7 +1285,7 @@
 
         /* RAW */
 
-        IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr[0] );
+        //IqrfRaw_Response response = IqrfRaw_Response.FromJson( responseStr[0] );
         //IqrfRawHdp_Response response = IqrfRawHdp_Response.FromJson ( responseStr[0] );
 
         /* EXPLORE */
@@ -1420,7 +1419,7 @@
         /* IQMESH */
 
         //IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson(responseStr[0]);
-        //IqmeshNetwork_SmartConnect_Response response = IqmeshNetwork_SmartConnect_Response.FromJson(responseStr[0]);
+        IqmeshNetwork_SmartConnect_Response response = IqmeshNetwork_SmartConnect_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_ReadTrConf_Response response = IqmeshNetwork_ReadTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_WriteTrConf_Response response = IqmeshNetwork_WriteTrConf_Response.FromJson(responseStr[0]);

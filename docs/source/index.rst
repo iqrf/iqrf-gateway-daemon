@@ -6,12 +6,14 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   news
    introduction
    start
    install
    configure
    api
    scheduler
+   support
 
 Indices and tables
 ==================

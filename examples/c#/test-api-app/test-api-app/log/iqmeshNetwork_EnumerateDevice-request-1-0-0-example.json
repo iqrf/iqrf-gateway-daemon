@@ -4,7 +4,7 @@
     "msgId": "testIqmeshEnumerate",
     "repeat": 1,
     "req": {
-      "deviceAddr": 1
+      "deviceAddr": 12
     },
     "returnVerbose": true
   }

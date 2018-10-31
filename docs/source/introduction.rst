@@ -15,8 +15,8 @@ purposes.
 
     IQRF GWD overview
 
-.. _`IQRF Gateway Daemon`: https://github.com/iqrfsdk/iqrf-gateway-daemon
-.. _`Web Interface`: https://github.com/iqrfsdk/iqrf-gateway-webapp
+.. _`IQRF Gateway Daemon`: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon
+.. _`Web Interface`: https://gitlab.iqrf.org/open-source/iqrf-gateway-webapp
 
 Why v2
 ------
@@ -64,9 +64,9 @@ Why v2
 
   - Great inspiration on how to work with our JSON API from your favourite programming language
 
-- Long term support
+- Long term `support`_
 
-  - support@iqrf.org
+  - Have trouble, write `issue`_
 
 .. figure:: images/iqrfgd-components.png
     :align: center
@@ -75,10 +75,12 @@ Why v2
     IQRF GWD architecture
 
 .. _`Shape framework`: https://github.com/logimic/shape
-.. _`IQRF Standards`: https://docs.iqrfsdk.org/iqrf-gateway-daemon/api.html#iqrf-standard
-.. _`IQMESH Services`: https://docs.iqrfsdk.org/iqrf-gateway-daemon/api.html#iqmesh-network
-.. _`IQRF Generic`: https://docs.iqrfsdk.org/iqrf-gateway-daemon/api.html#iqrf-generic
-.. _`IQRF Gateway Webapp`: https://docs.iqrfsdk.org/iqrf-gateway-webapp
+.. _`IQRF Standards`: https://docs.iqrf.org/iqrf-gateway-daemon/api.html#iqrf-standard
+.. _`IQMESH Services`: https://docs.iqrf.org/iqrf-gateway-daemon/api.html#iqmesh-network
+.. _`IQRF Generic`: https://docs.iqrf.org/iqrf-gateway-daemon/api.html#iqrf-generic
+.. _`IQRF Gateway Webapp`: https://docs.iqrf.org/iqrf-gateway-webapp
 .. _`WebSocket`: https://en.wikipedia.org/wiki/WebSocket
 .. _`UniPi Neuron IQRF`: https://www.unipi.technology/cs/neuron-s103-iqrf-p139
-.. _`examples and reference apps`: https://github.com/iqrfsdk/iqrf-gateway-daemon/tree/master/examples
+.. _`examples and reference apps`: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon/tree/master/examples
+.. _`support`: https://docs.iqrf.org/iqrf-gateway-daemon/support.html
+.. _`issue`: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon/issues

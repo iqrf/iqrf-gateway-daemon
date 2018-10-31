@@ -112,6 +112,6 @@ To load new configuration restart the daemon.
 
 	sudo systemctl restart iqrf-gateway-daemon.service
 
-.. _`installation guide`: https://docs.iqrfsdk.org/iqrf-gateway-webapp/install.html
-.. _`IQRF Gateway Webapp`: https://docs.iqrfsdk.org/iqrf-gateway-webapp
-.. _`Scheduler documentation`: https://docs.iqrfsdk.org/iqrf-gateway-webapp/scheduler.html
+.. _`installation guide`: https://docs.iqrf.org/iqrf-gateway-webapp/install.html
+.. _`IQRF Gateway Webapp`: https://docs.iqrf.org/iqrf-gateway-webapp
+.. _`Scheduler documentation`: https://docs.iqrf.org/iqrf-gateway-webapp/scheduler.html

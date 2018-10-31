@@ -3,16 +3,30 @@
     "data": {
         "msgId": "testIqmeshBondNodeLocal",
         "rsp": {
-            "assignedAddr": 11,
+            "assignedAddr": 13,
             "nodesNr": 15,
-            "hwpId": 65535,
-            "manufacturer": "",
-            "product": "",
+            "hwpId": 0,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "Plain DPA without Custom DPA Handler",
             "standards": [
-                ""
+                "Driver Library",
+                "Embed: Coordinator",
+                "Embed: Node",
+                "Embed: OS",
+                "Embed: EEPROM",
+                "Embed: EEEPROM",
+                "Embed: RAM",
+                "Embed: Red LED",
+                "Embed: Green LED",
+                "Embed: SPI",
+                "Embed: IO",
+                "Embed: Thermometer",
+                "Embed: UART",
+                "Embed: FRC",
+                "Embed: DPA Exploration"
             ],
             "osRead": {
-                "mid": "81102d55",
+                "mid": "8110FEDB",
                 "osVersion": "4.03D",
                 "trMcuType": {
                     "value": 36,
@@ -20,8 +34,8 @@
                     "fccCertified": false,
                     "mcuType": "PIC16LF1938"
                 },
-                "osBuild": "08c8",
-                "rssi": "-63 dBm",
+                "osBuild": "08C8",
+                "rssi": "-97 dBm",
                 "supplyVoltage": "3.00 V",
                 "flags": {
                     "value": 16,
@@ -37,41 +51,49 @@
                     "longestTimeslot": "100 ms"
                 },
                 "ibk": [
-                    154,
-                    105,
-                    31,
-                    26,
-                    33,
-                    1,
-                    33,
-                    101,
-                    3,
-                    229,
-                    197,
-                    136,
-                    255,
-                    231,
-                    246,
-                    194
+                    96,
+                    25,
+                    162,
+                    207,
+                    70,
+                    237,
+                    240,
+                    36,
+                    11,
+                    162,
+                    112,
+                    67,
+                    87,
+                    17,
+                    140,
+                    28
                 ]
             }
         },
         "raw": [
             {
-                "request": "00.00.00.12.ff.ff.0b.01.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2.55.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
-                "requestTs": "2018-10-18T13:12:34.300982",
+                "request": "00.00.00.12.ff.ff.0d.01.60.19.a2.cf.46.ed.f0.24.0b.a2.70.43.57.11.8c.1c.db.fe.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-30T16:02:08.524081",
                 "confirmation": "",
                 "confirmationTs": "",
-                "response": "00.00.00.92.00.00.00.00.0b.0f",
-                "responseTs": "2018-10-18T13:12:43.314926"
+                "response": "00.00.00.92.00.00.00.00.0d.0f",
+                "responseTs": "2018-10-30T16:02:16.371535"
             },
             {
-                "request": "0b.00.02.00.ff.ff",
-                "requestTs": "2018-10-18T13:12:43.815975",
-                "confirmation": "0b.00.02.00.ff.ff.ff.00.0e.08.0e",
-                "confirmationTs": "2018-10-18T13:12:43.850360",
-                "response": "0b.00.02.80.00.00.00.43.55.2d.10.81.43.24.c8.08.43.28.10.75.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2",
-                "responseTs": "2018-10-18T13:12:45.166488"
+                "request": "0d.00.02.00.ff.ff",
+                "requestTs": "2018-10-30T16:02:16.873069",
+                "confirmation": "0d.00.02.00.ff.ff.ff.00.0c.08.0c",
+                "confirmationTs": "2018-10-30T16:02:16.904706",
+                "response": "0d.00.02.80.00.00.00.21.db.fe.10.81.43.24.c8.08.21.28.10.75.60.19.a2.cf.46.ed.f0.24.0b.a2.70.43.57.11.8c.1c",
+                "responseTs": "2018-10-30T16:02:18.136729"
+            },
+            {
+                "request": "0d.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-30T16:02:20.388269",
+                "confirmation": "0d.00.ff.3f.ff.ff.ff.4c.0c.08.0c",
+                "confirmationTs": "2018-10-30T16:02:20.423064",
+                "response": "0d.00.ff.bf.00.00.00.20.03.03.00.fe.26.00.00.00.00.00.00.02",
+                "responseTs": "2018-10-30T16:02:21.626337"
             }
         ],
         "status": 0,
