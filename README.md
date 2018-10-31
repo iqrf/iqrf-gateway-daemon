@@ -9,12 +9,12 @@ are licenced under Apache Licence 2.0 and can be used for commercial purposes.
 
 ## Documentation
 
-https://docs.iqrfsdk.org/iqrf-gateway-daemon
+https://docs.iqrf.org/iqrf-gateway-daemon
 
 ## Overview
 
-![Overview](docs/images/iqrfgd-overview.png)
+![Overview](docs/source/images/iqrfgd-overview.png)
 
 ## Architecture
 
-![Architecture](docs/images/iqrfgd-components.png)
+![Architecture](docs/source/images/iqrfgd-components.png)
