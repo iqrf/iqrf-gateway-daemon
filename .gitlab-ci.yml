@@ -149,6 +149,12 @@ package-amd64:
   dependencies:
   - shape_&_shapeware-amd64
 
+package-release-amd64:
+  <<: *arch_amd64-template
+  <<: *package-release-template
+  dependencies:
+  - shape_&_shapeware-amd64
+
 #ARMHF
 
 shape_&_shapeware-armhf:
@@ -167,6 +173,12 @@ package-armhf:
   dependencies:
   - shape_&_shapeware-armhf
 
+package-release-armhf:
+  <<: *arch_armhf-template
+  <<: *package-release-template
+  dependencies:
+  - shape_&_shapeware-armhf
+
 #ARM64
 
 shape_&_shapeware-arm64:
@@ -182,5 +194,11 @@ daemon-arm64:
 package-arm64:
   <<: *arch_arm64-template
   <<: *package-template
+  dependencies:
+  - shape_&_shapeware-arm64
+
+package-release-arm64:
+  <<: *arch_arm64-template
+  <<: *package-release-template
   dependencies:
   - shape_&_shapeware-arm64
