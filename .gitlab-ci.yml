@@ -80,6 +80,8 @@ stages:
 
 .package-template: &package-template
   stage: build-package
+  only:
+  - branches
   before_script:
   - eval $(ssh-agent -s)
   - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null

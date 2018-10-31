@@ -1,4 +1,4 @@
-iqrf-gateway-daemon (2.0.0) stable; urgency=medium
+iqrf-gateway-daemon (2.0.0-rc) UNRELEASED; urgency=medium
 
   [ Frantisek Mikulu ]
   [ Michal Konopa ]
@@ -16,7 +16,7 @@ iqrf-gateway-daemon (2.0.0) stable; urgency=medium
   * DPA timing - unicast, broadcast, FRC
   * DPA 3.03, 3.02
 
- -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Tue, 31 Oct 2018 9:15:00 +0000
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Tue, 31 Oct 2018 11:20:00 +0000
 
 iqrf-gateway-daemon (2.0.0~1.gbp28535d) UNRELEASED; urgency=medium
 
