@@ -1,3 +1,23 @@
+iqrf-gateway-daemon (2.0.0) stable; urgency=medium
+
+  [ Frantisek Mikulu ]
+  [ Michal Konopa ]
+  [ Vasek Hanak ]
+  [ Dusan Machut ]
+  [ Roman Ondracek ]
+  [ Rostislav Spinar ]
+
+  * IQRF JSON API v2, v1
+  * IQRF Standard
+  * IQRF Repository - offline/online
+  * IQMESH Network services
+  * MQ, MQTT, Websocket messaging
+  * SPI, UART, CDC interfaces
+  * DPA timing - unicast, broadcast, FRC
+  * DPA 3.03, 3.02
+
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Tue, 31 Oct 2018 9:15:00 +0000
+
 iqrf-gateway-daemon (2.0.0~1.gbp28535d) UNRELEASED; urgency=medium
 
   ** SNAPSHOT build @28535d83c312e28c7128f13ceb87ec582ffb5fdc **
