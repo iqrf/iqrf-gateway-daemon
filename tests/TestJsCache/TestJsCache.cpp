@@ -347,7 +347,7 @@ namespace iqrf {
 
   TEST_F(JsCacheTesting, GetPackage1)
   {
-    auto  o = Imp::get().m_iJsCacheService->getPackage(0, 0, "08C8", "0303");
+    auto  o = Imp::get().m_iJsCacheService->getPackage(2, 1, "08C8", "0303");
     ASSERT_FALSE(o == nullptr);
     EXPECT_EQ("08BF", o->m_os);
     EXPECT_EQ("0303", o->m_dpa);

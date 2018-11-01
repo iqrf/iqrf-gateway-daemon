@@ -154,7 +154,7 @@ namespace iqrf {
       const Package* retval = nullptr;
       for (const auto & pck : m_packageMap) {
         const Package& pckp = pck.second;
-        if (pckp.m_hwpid == hwpidVer && pckp.m_hwpidVer == hwpidVer && pckp.m_os == os && pckp.m_dpa == dpa) {
+        if (pckp.m_hwpid == hwpid && pckp.m_hwpidVer == hwpidVer && pckp.m_os == os && pckp.m_dpa == dpa) {
           retval = &(pck.second);
           break;
         }
