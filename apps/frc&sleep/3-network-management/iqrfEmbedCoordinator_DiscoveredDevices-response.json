@@ -1,0 +1,31 @@
+{
+    "mType": "iqrfEmbedCoordinator_DiscoveredDevices",
+    "data": {
+        "msgId": "EmbedCoordinatorDD",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 43,
+            "result": {
+                "discoveredDevices": [
+                    1,
+                    2
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.01.ff.ff",
+                "requestTs": "2018-11-01T11:10:20.876686",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.81.00.00.00.2b.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-11-01T11:10:20.926976"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

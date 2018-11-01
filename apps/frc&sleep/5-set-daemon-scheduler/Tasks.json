@@ -1,0 +1,27 @@
+{
+  "TasksJson": [
+    {
+      "time": "0 */3 * * * * *",
+      "service": "SchedulerMessaging",
+      "task": {
+        "messaging": "WebsocketMessaging",
+        "message": {
+          "mType": "iqrfSensor_Frc",
+          "data": {
+            "msgId": "EmbedSensors",
+            "req": {
+              "nAdr": 0,
+              "param": {
+                "sensorType": 1,
+                "sensorIndex": 1,
+                "frcCommand": 224,
+                "getExtraResult": true
+              }
+            },
+            "returnVerbose": true
+  		    }
+        }
+      }
+    }
+  ]
+}

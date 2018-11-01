@@ -1,0 +1,88 @@
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "IqmeshBondNodeLocal1",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 1,
+            "hwpId": 2,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "DDC-SE-01 sensor example",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "81102D55",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-53 dBm",
+                "supplyVoltage": "2.97 V",
+                "flags": {
+                    "value": 16,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": false,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    59,
+                    74,
+                    82,
+                    191,
+                    254,
+                    53,
+                    210,
+                    44,
+                    86,
+                    242,
+                    55,
+                    243,
+                    204,
+                    23,
+                    213,
+                    187
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-10-18T13:37:32.810042",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.38.fc.ff.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.03.00",
+                "responseTs": "2018-10-18T13:37:32.841448"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-10-18T13:37:32.841868",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.38.01.0f",
+                "responseTs": "2018-10-18T13:37:36.547614"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-10-18T13:37:37.48938",
+                "confirmation": "01.00.02.00.ff.ff.ff.38.0d.08.0d",
+                "confirmationTs": "2018-10-18T13:37:37.75704",
+                "response": "01.00.02.80.00.00.00.4d.00.30.10.81.43.24.c8.08.4d.27.10.75.3b.4a.52.bf.fe.35.d2.2c.56.f2.37.f3.cc.17.d5.bb",
+                "responseTs": "2018-10-18T13:37:38.304438"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}

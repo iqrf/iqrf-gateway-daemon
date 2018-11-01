@@ -1,0 +1,96 @@
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "IqmeshSmartConnect2",
+        "rsp": {
+            "assignedAddr": 2,
+            "nodesNr": 2,
+            "hwpId": 2,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "DDC-SE-01 sensor example",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "81102D61",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-88 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    132,
+                    81,
+                    117,
+                    214,
+                    188,
+                    191,
+                    169,
+                    178,
+                    73,
+                    25,
+                    229,
+                    109,
+                    41,
+                    138,
+                    141,
+                    50
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.02.01.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32.61.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-11-01T10:45:50.20086",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.01.26",
+                "responseTs": "2018-11-01T10:45:52.595073"
+            },
+            {
+                "request": "00.00.00.12.ff.ff.02.01.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32.61.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-11-01T10:45:52.596206",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.26.02.02",
+                "responseTs": "2018-11-01T10:45:55.174377"
+            },
+            {
+                "request": "02.00.02.00.ff.ff",
+                "requestTs": "2018-11-01T10:45:55.675593",
+                "confirmation": "02.00.02.00.ff.ff.ff.26.00.08.00",
+                "confirmationTs": "2018-11-01T10:45:55.710701",
+                "response": "02.00.02.80.02.00.00.2a.61.2d.10.81.43.24.c8.08.2a.28.14.75.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32",
+                "responseTs": "2018-11-01T10:45:55.897965"
+            },
+            {
+                "request": "02.00.ff.3f.ff.ff",
+                "requestTs": "2018-11-01T10:45:56.109495",
+                "confirmation": "02.00.ff.3f.ff.ff.ff.29.00.08.00",
+                "confirmationTs": "2018-11-01T10:45:56.138233",
+                "response": "02.00.ff.bf.02.00.00.2a.03.03.01.fe.26.00.00.02.00.01.00.02.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-11-01T10:45:56.333413"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}

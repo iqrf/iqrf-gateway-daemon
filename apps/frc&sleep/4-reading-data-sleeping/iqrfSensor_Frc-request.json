@@ -1,0 +1,51 @@
+# type:   1=Temperature
+# index:  0=TR 
+#         1=DS18B20
+# cmd:    144=1B
+# sleep:  81*2.097s
+{
+  "mType": "iqrfSensor_Frc",
+  "data": {
+    "msgId": "EmbedSensors",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "sensorType": 1,
+        "sensorIndex": 1,
+        "frcCommand": 144,
+        "sleepAfterFrc": {
+          "time": 81,
+          "control": 0
+        },
+        "getExtraResult": true
+      }
+    },
+    "returnVerbose": true
+  }
+}
+
+# type:   1=Temperature
+# index:  0=TR 
+#         1=DS18B20
+# cmd:    224=2B
+# sleep:  81*2.097s
+{
+  "mType": "iqrfSensor_Frc",
+  "data": {
+    "msgId": "EmbedSensors",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "sensorType": 1,
+        "sensorIndex": 1,
+        "frcCommand": 224,
+        "sleepAfterFrc": {
+          "time": 81,
+          "control": 0
+        },
+        "getExtraResult": true
+      }
+    },
+    "returnVerbose": true
+  }
+}

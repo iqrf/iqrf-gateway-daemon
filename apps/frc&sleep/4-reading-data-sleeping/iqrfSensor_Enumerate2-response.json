@@ -1,0 +1,69 @@
+{
+    "mType": "iqrfSensor_Enumerate",
+    "data": {
+        "msgId": "EmbedSensor2",
+        "rsp": {
+            "nAdr": 2,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 41,
+            "result": {
+                "sensors": [
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "unit": "°C",
+                        "frcs": [
+                            144,
+                            224
+                        ]
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "unit": "°C",
+                        "frcs": [
+                            144,
+                            224
+                        ]
+                    },
+                    {
+                        "type": 129,
+                        "name": "Binary data7",
+                        "shortName": "bin7",
+                        "unit": "?",
+                        "frcs": [
+                            16,
+                            144
+                        ]
+                    },
+                    {
+                        "type": 129,
+                        "name": "Binary data7",
+                        "shortName": "bin7",
+                        "unit": "?",
+                        "frcs": [
+                            16,
+                            144
+                        ]
+                    }
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "02.00.5e.3e.ff.ff",
+                "requestTs": "2018-11-01T13:15:42.362082",
+                "confirmation": "02.00.5e.3e.ff.ff.ff.2d.02.08.02",
+                "confirmationTs": "2018-11-01T13:15:42.393219",
+                "response": "02.00.5e.be.02.00.00.29.01.01.81.81",
+                "responseTs": "2018-11-01T13:15:42.729078"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
