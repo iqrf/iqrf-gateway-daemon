@@ -18,7 +18,7 @@ We use following HW:
 
 ### IQRF Modules 
 
-How to get ready TR modules, please refer to ![how-to-start](https://www.iqrf.org/support/how-to-start).
+How to get ready TR modules, please refer to [how-to-start](https://www.iqrf.org/support/how-to-start).
 Get ready 2x TRs as DPA Node with custom handler uploaded and enabled for DDC-SE-01 and 1x TR as DPA 
 Coordinator. 
 
@@ -26,15 +26,17 @@ Bonding DPA nodes to DPA coordinator will be shown using IQRF JSON reqs.
 
 ### IQRF Gateway
 
-How to build IQRF Gateway from your RPI board, please refer to ![iqrf-gateway-daemon](https://docs.iqrf.org/iqrf-gateway-daemon/).
+How to build IQRF Gateway from your RPI board, please refer to [iqrf-gateway-daemon](https://docs.iqrf.org/iqrf-gateway-daemon/).
 
-You can use ![iqrf-gateway-webapp](https://docs.iqrf.org/iqrf-gateway-webapp/) to ease the configuration
+You can use [iqrf-gateway-webapp](https://docs.iqrf.org/iqrf-gateway-webapp/) to ease the configuration
 task and also make sure that you established communication with DPA coordiantor e.g. sending DPA cmd LEDR 
 ON to coordinator via http://webapp-ip/iqrfnet/send-raw/. 
 
 ### Other tools
 
-We use Simple WebSocket ![Client for Chrome](../tools/enumerate-device.png) to send/receive IQRF JSONs to/from the gateway.
+We use Simple WebSocket Client for Chrome to send/receive IQRF JSONs to/from the gateway.
+
+![Client](../tools/enumerate-device.png)
 
 ## Step 2 - Network management
 
@@ -42,13 +44,18 @@ It is a good practice to start from clean state.
 
 * 2A - Clear coordinator memory
 
-  * ![iqrfEmbedCoordinator_ClearAllBonds-request.json](1-network-management/iqrfEmbedCoordinator_ClearAllBonds-request.json)
-  * ![iqrfEmbedCoordinator_ClearAllBonds-response.json](1-network-management/iqrfEmbedCoordinator_ClearAllBonds-response.json)
+  * [iqrfEmbedCoordinator_ClearAllBonds-request.json](1-network-management/iqrfEmbedCoordinator_ClearAllBonds-request.json)
+
+```json
+1-network-management/iqrfEmbedCoordinator_ClearAllBonds-request.json
+```
+
+  * [iqrfEmbedCoordinator_ClearAllBonds-response.json](1-network-management/iqrfEmbedCoordinator_ClearAllBonds-response.json)
 
 * 2B - Confirm clean state
 
-  * ![iqrfEmbedCoordinator_BondedDevices-request.json](1-network-management/iqrfEmbedCoordinator_BondedDevices-request.json)
-  * ![iqrfEmbedCoordinator_BondedDevices-response.json](1-network-management/iqrfEmbedCoordinator_BondedDevices-response.json)
+  * [iqrfEmbedCoordinator_BondedDevices-request.json](1-network-management/iqrfEmbedCoordinator_BondedDevices-request.json)
+  * [iqrfEmbedCoordinator_BondedDevices-response.json](1-network-management/iqrfEmbedCoordinator_BondedDevices-response.json)
 
 * 2C - Change coordinator configuration
 
