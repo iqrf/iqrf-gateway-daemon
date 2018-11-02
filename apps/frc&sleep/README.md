@@ -40,7 +40,7 @@ We use Simple WebSocket Client for Chrome to send/receive IQRF JSONs to/from the
 
 ## Step 2 - Network management
 
-It is a good practice to start from clean state.
+**It is a good practice to start from clean state.**
 
 * 2A - Clear coordinator memory
 
@@ -54,7 +54,7 @@ It is a good practice to start from clean state.
 
 * 2C - Change coordinator configuration
 
-  It is good practice to have rxFilter=5 at the gateway. We also need to have FRC enabled at the coordinator.
+  **It is good practice to have rxFilter=5 at the gateway. We also need to have FRC enabled at the coordinator.**
 
   * [iqmeshNetwork_WriteTrConf-request.json](1-network-management/iqmeshNetwork_WriteTrConf-request.json)
   * [iqmeshNetwork_WriteTrConf-response.json](1-network-management/iqmeshNetwork_WriteTrConf-response.json) 
@@ -66,7 +66,7 @@ Connect. Both are shown.
 
 * 3A - Bonding via button
 
-  Send the request and press the bonding button on the device until LEDR is ON.
+  **Send the request and press the bonding button on the device until LEDR is ON.**
 
   * [iqmeshNetwork_BondNodeLocal1-request.json](2-bonding-devices/iqmeshNetwork_BondNodeLocal1-request.json)
   * [iqmeshNetwork_BondNodeLocal1-response.json](2-bonding-devices/iqmeshNetwork_BondNodeLocal1-response.json)  
@@ -75,8 +75,8 @@ Connect. Both are shown.
 
 * 3B - Bonding via Smart Connect
 
-  Button less bonding. Get **smartConnectCode** for your TR module using IQRF-IDE/tools/IQRF-Code-Tool and 
-  **replace** in the requests below. 
+  Button-less bonding. Get **smartConnectCode** for your TR module using IQRF-IDE/tools/IQRF-Code-Tool and 
+  **replace** it in the requests below. 
 
   * [iqmeshNetwork_SmartConnect1-request.json](2-bonding-devices/iqmeshNetwork_SmartConnect1-request.json)
   * [iqmeshNetwork_SmartConnect1-response.json](2-bonding-devices/iqmeshNetwork_SmartConnect1-response.json)
@@ -92,7 +92,7 @@ Connect. Both are shown.
 
 * 4B - Enumerate bonded and discovered devices
 
-  IQMESH Enumeration gives us complete information about the device including its configuration. 
+  **IQMESH Enumeration gives us complete information about the device including its configuration.** 
   Address 0 is for the coordinator.
 
   * [iqmeshNetwork_EnumerateDevice0-request.json](3-network-management/iqmeshNetwork_EnumerateDevice0-request.json)
@@ -104,7 +104,7 @@ Connect. Both are shown.
 
 * 4C - Run discovery and confirm discovered devices
 
-  It is good practice to run discovery at txPower(for coordinator and devices)-1.
+  **It is good practice to run discovery at txPower(for coordinator and devices)-1.**
 
   * [iqrfEmbedCoordinator_Discovery-request.json](3-network-management/iqrfEmbedCoordinator_Discovery-request.json)
   * [iqrfEmbedCoordinator_Discovery-response.json](3-network-management/iqrfEmbedCoordinator_Discovery-response.json)
@@ -117,7 +117,7 @@ We use [IQRF Standard](https://www.iqrfalliance.org/techDocs/) for sensors and F
 
 * 5A - Enumerate sensors on the standard device
 
-  Learn sensor types and also FRC types by enumerating.
+  **Learn sensor types and also FRC types by enumerating.**
 
   * [iqrfSensor_Enumerate1-request.json](4-reading-data-sleeping/iqrfSensor_Enumerate1-request.json)
   * [iqrfSensor_Enumerate1-response.json](4-reading-data-sleeping/iqrfSensor_Enumerate1-response.json)
@@ -126,7 +126,7 @@ We use [IQRF Standard](https://www.iqrfalliance.org/techDocs/) for sensors and F
 
 * 5B - FRC and sleep
 
-Send FRC for 2B temperature and sleep for ~170s. Later we set scheduler to read temeperature every 3min.  
+  **Send FRC for 2B temperature and sleep for ~170s.** Later we set scheduler to read temeperature every 3min.  
 
   * [iqrfSensor_Frc-request.json](4-reading-data-sleeping/iqrfSensor_Frc-request.json)
   * [iqrfSensor_Frc-response.json](4-reading-data-sleeping/iqrfSensor_Frc-response.json)
@@ -140,7 +140,7 @@ Scheduler sends FRC request every 3min and FRC response goes to WebSocket messag
 
   * [Tasks.json](5-set-daemon-scheduler/Tasks.json)
 
-Upload the Tasks.json, restart the daemon and Listen for FRC responses on WebSocket 1338 port.
+  **Upload the Tasks.json, restart the daemon and Listen for FRC responses on WebSocket 1338 port.**
 
 Enjoy!
 
