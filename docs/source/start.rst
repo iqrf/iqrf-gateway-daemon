@@ -34,6 +34,13 @@ Next steps
 .. _`JSON API`: https://docs.iqrf.org/iqrf-gateway-daemon/api.html
 .. _`JSON API for Standard`: https://docs.iqrf.org/iqrf-gateway-daemon/api.html#iqrf-standard
 
+Reference applications
+----------------------
+
+- `FRC&Sleep`_
+
+.. _`FRC&Sleep`: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon/tree/master/apps/frc&sleep
+
 Examples
 --------
 

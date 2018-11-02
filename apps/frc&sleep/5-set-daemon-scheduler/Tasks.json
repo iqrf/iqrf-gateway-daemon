@@ -15,6 +15,10 @@
                 "sensorType": 1,
                 "sensorIndex": 1,
                 "frcCommand": 224,
+                "sleepAfterFrc": {
+                  "time": 81,
+                  "control": 0
+                },
                 "getExtraResult": true
               }
             },
