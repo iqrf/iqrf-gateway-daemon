@@ -1534,3 +1534,139 @@ Received from WebSocket: 2018-11-05 14:09:27.492
 2018-11-05 14:09:27.986
 ==================================
 
+==================================
+Sending to WebSocket: 2018-11-05 15:07:08.229
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 2,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-11-05 15:07:19.591
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 17,
+            "hwpId": 2,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "DDC-SE-01 sensor example",
+            "standards": [
+                "Driver Library",
+                "IQRF: Sensor",
+                "Embed: Coordinator",
+                "Embed: Node",
+                "Embed: OS",
+                "Embed: EEPROM",
+                "Embed: EEEPROM",
+                "Embed: RAM",
+                "Embed: Red LED",
+                "Embed: Green LED",
+                "Embed: SPI",
+                "Embed: IO",
+                "Embed: Thermometer",
+                "Embed: UART",
+                "Embed: FRC",
+                "Embed: DPA Exploration"
+            ],
+            "osRead": {
+                "mid": "81103000",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-38 dBm",
+                "supplyVoltage": "2.97 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    59,
+                    74,
+                    82,
+                    191,
+                    254,
+                    53,
+                    210,
+                    44,
+                    86,
+                    242,
+                    55,
+                    243,
+                    204,
+                    23,
+                    213,
+                    187
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-11-05T15:07:09.842107",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.fc.ff.30.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.03.00",
+                "responseTs": "2018-11-05T15:07:09.885948"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-11-05T15:07:09.886923",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.00.01.11",
+                "responseTs": "2018-11-05T15:07:10.861443"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T15:07:11.112983",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.0b.08.0b",
+                "confirmationTs": "2018-11-05T15:07:11.144979",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T15:07:13.716621",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.0b.08.0b",
+                "confirmationTs": "2018-11-05T15:07:13.745593",
+                "response": "01.00.02.80.02.00.00.5c.00.30.10.81.43.24.c8.08.5c.27.14.75.3b.4a.52.bf.fe.35.d2.2c.56.f2.37.f3.cc.17.d5.bb",
+                "responseTs": "2018-11-05T15:07:14.809591"
+            },
+            {
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-11-05T15:07:16.891671",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.4c.0b.08.0b",
+                "confirmationTs": "2018-11-05T15:07:16.915730",
+                "response": "01.00.ff.bf.02.00.00.5e.03.03.01.fe.26.00.00.02.00.01.00.02.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-11-05T15:07:17.979076"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-11-05 15:07:20.013
+==================================
+

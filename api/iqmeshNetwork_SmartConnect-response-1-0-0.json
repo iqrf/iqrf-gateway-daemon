@@ -46,6 +46,13 @@
               "type": "string",
               "description": "Product name."
             },
+              "standards": {
+              "type": "array",
+              "description": "Supported standards by the device.",
+              "items": {
+                "type": "string"
+              }
+            },
             "osRead": {
               "type": "object",
               "description": "Returns Embedded peripheral OS - Read response.",
@@ -165,11 +172,7 @@
           },
           "required": [
             "assignedAddr",
-            "nodesNr",
-            "hwpId",
-            "manufacturer",
-            "product",
-            "osRead"
+            "nodesNr"
           ]
         },
         "raw": {

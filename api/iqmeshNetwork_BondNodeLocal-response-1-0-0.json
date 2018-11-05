@@ -50,7 +50,7 @@
               "type": "array",
               "description": "Supported standards by the device.",
               "items": {
-                "type": "integer"
+                "type": "string"
               }
             },
             "osRead": {
@@ -172,11 +172,7 @@
           },
           "required": [
             "assignedAddr",
-            "nodesNr",
-            "hwpId",
-            "manufacturer",
-            "product",
-            "osRead"
+            "nodesNr"
           ]
         },
         "raw": {

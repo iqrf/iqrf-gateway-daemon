@@ -1168,7 +1168,7 @@
         /* IQMESH */
         IqmeshNetwork_BondNodeLocal_Request request = new IqmeshNetwork_BondNodeLocal_Request();
         request.Data.MsgId = "testIqmeshBondNodeLocal";
-        request.Data.Repeat = 1;
+        request.Data.Repeat = 2;
         request.Data.Req.DeviceAddr = 1;
         request.Data.ReturnVerbose = true;
 

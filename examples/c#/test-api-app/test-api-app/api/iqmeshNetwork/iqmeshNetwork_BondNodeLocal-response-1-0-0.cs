@@ -95,27 +95,24 @@ namespace iqmeshNetwork_BondNodeLocal_Response
         public int NodesNr { get; set; }
     
         /// <summary>Hardware profile identification.</summary>
-        [Newtonsoft.Json.JsonProperty("hwpId", Required = Newtonsoft.Json.Required.Always)]
-        public int HwpId { get; set; }
+        [Newtonsoft.Json.JsonProperty("hwpId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? HwpId { get; set; }
     
         /// <summary>Manufacture name.</summary>
-        [Newtonsoft.Json.JsonProperty("manufacturer", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
+        [Newtonsoft.Json.JsonProperty("manufacturer", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Manufacturer { get; set; }
     
         /// <summary>Product name.</summary>
-        [Newtonsoft.Json.JsonProperty("product", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
+        [Newtonsoft.Json.JsonProperty("product", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Product { get; set; }
     
         /// <summary>Supported standards by the device.</summary>
         [Newtonsoft.Json.JsonProperty("standards", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.ObjectModel.ObservableCollection<int> Standards { get; set; }
+        public System.Collections.ObjectModel.ObservableCollection<string> Standards { get; set; }
     
         /// <summary>Returns Embedded peripheral OS - Read response.</summary>
-        [Newtonsoft.Json.JsonProperty("osRead", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public OsRead OsRead { get; set; } = new OsRead();
+        [Newtonsoft.Json.JsonProperty("osRead", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public OsRead OsRead { get; set; }
     
         public string ToJson() 
         {
