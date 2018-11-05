@@ -350,24 +350,17 @@ namespace iqrf {
       std::shared_ptr<IDpaTransaction2> readInfoTransaction;
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
-      // +1 & sleep -> waiting for releasing bonding button since DPA 3.03
-      for ( int rep = 0; rep <= 3; rep++ ) {
+      for ( int rep = 0; rep <= m_repeat; rep++ ) {
         try {
           //readInfoTransaction = m_iIqrfDpaService->executeDpaTransaction( readInfoRequest );
           readInfoTransaction = m_exclusiveAccess->executeDpaTransaction(readInfoRequest);
           transResult = readInfoTransaction->get();
-
-          IDpaTransactionResult2::ErrorCode errorCode = ( IDpaTransactionResult2::ErrorCode )transResult->getErrorCode();
-
-          if ( errorCode != IDpaTransactionResult2::ErrorCode::TRN_OK ) {
-            TRC_WARNING( "DPA OS read ping failed, wait and try again.");
-            std::this_thread::sleep_for( std::chrono::milliseconds( 250 ));
-          }
         }
         catch ( std::exception& e ) {
           TRC_WARNING( "DPA transaction error : " << e.what() );
 
           if ( rep < m_repeat ) {
+            std::this_thread::sleep_for( std::chrono::milliseconds( 250 ));
             continue;
           }
 
@@ -412,6 +405,7 @@ namespace iqrf {
           TRC_WARNING( "Transaction error. " << NAME_PAR_HEX( "Error code", errorCode ) );
 
           if ( rep < m_repeat ) {
+            std::this_thread::sleep_for( std::chrono::milliseconds( 250 ));
             continue;
           }
 
@@ -422,6 +416,7 @@ namespace iqrf {
           TRC_WARNING( "Dpa error. " << NAME_PAR_HEX( "Error code", errorCode ) );
 
           if ( rep < m_repeat ) {
+            std::this_thread::sleep_for( std::chrono::milliseconds( 250 ));
             continue;
           }
 
