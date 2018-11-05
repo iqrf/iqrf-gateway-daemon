@@ -372,7 +372,7 @@ namespace iqrf {
         uint8_t oneByte = 0x00;
         if (block.getEndAddress() - address >= 0) {
           oneByte = block.getCode()[byteIndex] & 0xFF;
-        }/*
+        }        
         else {
           if (lowerFillingByteOnRank) {
             oneByte = fillingByte & 0xFF;
@@ -383,7 +383,7 @@ namespace iqrf {
             lowerFillingByteOnRank = true;
           }
         }
-        */
+        
         // One’s Complement Fletcher Checksum
         uint16_t tempL = checksum & 0xff;
         tempL += oneByte;
@@ -413,10 +413,13 @@ namespace iqrf {
       uint16_t sourceOffset
     )
     {
-      byteBlock.resize(blockSize);
-      for (uint8_t i = 0; i < blockSize; i++) {
-        if ((sourceOffset + i) >= source.size()) {
-          byteBlock[i] = 0x00;
+      byteBlock.resize( blockSize );
+      for ( uint8_t i = 0; i < blockSize; i++ ) {
+        if ( ( sourceOffset + i ) >= source.size() ) {
+          if ( i & 0x01 )
+            byteBlock[i] = 0x34;
+          else
+            byteBlock[i] = 0xff;
         }
         else {
           byteBlock[i] = source[sourceOffset + i];
@@ -443,8 +446,9 @@ namespace iqrf {
 
       // it is necessary to align block with DPA specification
       while (((data.size() * 16) % BLOCK_SIZE) != 0) {
-        for (uint8_t i = 0; i < 16; i++) {
-          byteBlock[i] = 0x00;
+        for (uint8_t i = 0; i < 16; i += 2) {
+          byteBlock[i] = 0xff;
+          byteBlock[i + 1] = 0x34;
         }
         data.push_back(byteBlock);
       }
@@ -504,13 +508,8 @@ namespace iqrf {
       uint16_t checksum = calculateChecksum(*handlerBlock, CRC_INIT_VALUE_HEX, length);
 
       PreparedData::Data data;
-      if (isForBroadcast) {
-        prepareAs16ByteBlocks(*handlerBlock, data);
-      }
-      else {
-        prepareAsMostEffective(*handlerBlock, data);
-      }
-
+      prepareAsMostEffective( *handlerBlock, data );
+     
       return std::unique_ptr<PreparedData>(shape_new PreparedDataImpl(data, length, checksum));
     }
 

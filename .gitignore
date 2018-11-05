@@ -33,5 +33,5 @@
 *.out
 *.app
 
-# Docs in separe repo
-docs
+#VS
+.vscode/

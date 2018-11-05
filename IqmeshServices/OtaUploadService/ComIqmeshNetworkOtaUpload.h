@@ -33,6 +33,14 @@ namespace iqrf {
       return m_deviceAddr;
     }
 
+    bool isSetHwpId() const {
+      return m_isSetHwpId;
+    }
+
+    const int getHwpId() const
+    {
+      return m_hwpId;
+    }
 
     bool isSetFileName() const {
       return m_isSetFileName;
@@ -43,7 +51,6 @@ namespace iqrf {
       return m_fileName;
     }
     
-
     bool isSetStartMemAddr() const {
       return m_isSetStartMemAddr;
     }
@@ -74,12 +81,14 @@ namespace iqrf {
 
   private:
     bool m_isSetDeviceAddr = false;
+    bool m_isSetHwpId = false;
     bool m_isSetFileName = false;
     bool m_isSetStartMemAddr = false;
     bool m_isSetLoadingAction = false;
 
     int m_repeat = 1;
     int m_deviceAddr;
+    int m_hwpId;
     std::string m_fileName;
     int m_startMemAddr;
     std::string m_loadingAction;
@@ -95,6 +104,11 @@ namespace iqrf {
       if (rapidjson::Value* devAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
         m_deviceAddr = devAddrJsonVal->GetInt();
         m_isSetDeviceAddr = true;
+      }
+
+      if ( rapidjson::Value* devAddrJsonVal = rapidjson::Pointer( "/data/req/hwpId" ).Get( doc ) ) {
+        m_hwpId = devAddrJsonVal->GetInt();
+        m_isSetHwpId = true;
       }
 
       if (rapidjson::Value* fileNameJsonVal = rapidjson::Pointer("/data/req/fileName").Get(doc)) {
