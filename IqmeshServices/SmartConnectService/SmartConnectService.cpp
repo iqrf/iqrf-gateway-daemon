@@ -601,7 +601,7 @@ namespace iqrf {
       }
 
       // Delay after successful bonding
-      std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
+      std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
 
       // get OS read data
       smartConnectResult.setHwpId( hwpId );
