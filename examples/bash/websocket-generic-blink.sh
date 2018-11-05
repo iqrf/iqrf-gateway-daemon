@@ -9,8 +9,8 @@
 echo "sending request to pulse red led on device and listen for response"
 
 echo \
-"{\"mType\":\"iqrfRaw\"," 			 \
-"\"data\":{\"msgId\":\"test\",\"timeout\":1000," \
+"{\"mType\":\"iqrfRaw\"," 			             \
+"\"data\":{\"msgId\":\"test\","                  \
 "\"req\":{\"rData\":\"00.00.06.03.ff.ff\"},"	 \
-"\"returnVerbose\":true}}" 			 \
+"\"returnVerbose\":true}}" 			             \
 | websocat --no-close ws://localhost:1338 | jq '.'

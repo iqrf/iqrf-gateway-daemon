@@ -23,4 +23,4 @@ echo \
 "\"data\":{\"msgId\":\"test\",\"repeat\":1,"	\
 "\"req\":{\"deviceAddr\":$adr},"		\
 "\"returnVerbose\":true}}" 			\
-| websocat sudo --no-close ws://localhost:1338 | jq '.'
+| websocat --no-close ws://localhost:1338 | jq '.'
