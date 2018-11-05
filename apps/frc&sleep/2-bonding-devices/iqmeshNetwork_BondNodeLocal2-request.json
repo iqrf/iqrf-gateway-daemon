@@ -2,7 +2,7 @@
   "mType": "iqmeshNetwork_BondNodeLocal",
   "data": {
     "msgId": "IqmeshBondNodeLocal2",
-    "repeat": 1,
+    "repeat": 2,
     "req": {
       "deviceAddr": 2
     },

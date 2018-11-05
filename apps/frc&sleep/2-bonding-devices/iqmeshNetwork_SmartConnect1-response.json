@@ -9,7 +9,22 @@
             "manufacturer": "IQRF Tech s.r.o.",
             "product": "DDC-SE-01 sensor example",
             "standards": [
-                ""
+                "Driver Library",
+                "IQRF: Sensor",
+                "Embed: Coordinator",
+                "Embed: Node",
+                "Embed: OS",
+                "Embed: EEPROM",
+                "Embed: EEEPROM",
+                "Embed: RAM",
+                "Embed: Red LED",
+                "Embed: Green LED",
+                "Embed: SPI",
+                "Embed: IO",
+                "Embed: Thermometer",
+                "Embed: UART",
+                "Embed: FRC",
+                "Embed: DPA Exploration"
             ],
             "osRead": {
                 "mid": "81102D55",

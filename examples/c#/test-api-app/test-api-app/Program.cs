@@ -1166,14 +1166,13 @@
         */
 
         /* IQMESH */
-        /*
         IqmeshNetwork_BondNodeLocal_Request request = new IqmeshNetwork_BondNodeLocal_Request();
         request.Data.MsgId = "testIqmeshBondNodeLocal";
         request.Data.Repeat = 1;
         request.Data.Req.DeviceAddr = 1;
         request.Data.ReturnVerbose = true;
-        */
 
+        /*
         IqmeshNetwork_SmartConnect_Request request = new IqmeshNetwork_SmartConnect_Request();
         request.Data.MsgId = "testIqmeshBondNodeLocal";
         request.Data.Repeat = 1;
@@ -1181,6 +1180,7 @@
         request.Data.Req.BondingTestRetries = 1;
         request.Data.Req.SmartConnectCode = "5feZJ5UmFP4kKZCMWQJZFixnd5wH1eyPEo";
         request.Data.ReturnVerbose = true;
+        */
 
         /*
         IqmeshNetwork_EnumerateDevice_Request request = new IqmeshNetwork_EnumerateDevice_Request();
@@ -1418,8 +1418,8 @@
 
         /* IQMESH */
 
-        //IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson(responseStr[0]);
-        IqmeshNetwork_SmartConnect_Response response = IqmeshNetwork_SmartConnect_Response.FromJson(responseStr[0]);
+        IqmeshNetwork_BondNodeLocal_Response response = IqmeshNetwork_BondNodeLocal_Response.FromJson(responseStr[0]);
+        //IqmeshNetwork_SmartConnect_Response response = IqmeshNetwork_SmartConnect_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_EnumerateDevice_Response response = IqmeshNetwork_EnumerateDevice_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_ReadTrConf_Response response = IqmeshNetwork_ReadTrConf_Response.FromJson(responseStr[0]);
         //IqmeshNetwork_WriteTrConf_Response response = IqmeshNetwork_WriteTrConf_Response.FromJson(responseStr[0]);

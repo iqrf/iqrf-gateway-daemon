@@ -935,3 +935,602 @@ Received from WebSocket: 2018-10-18 13:37:40.988
 2018-10-18 13:37:41.489
 ==================================
 
+==================================
+Sending to WebSocket: 2018-11-05 12:04:41.523
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-11-05 12:04:54.606
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 17,
+            "hwpId": 2,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "DDC-SE-01 sensor example",
+            "standards": [
+                "Driver Library",
+                "Embed: Coordinator",
+                "Embed: Node",
+                "Embed: OS",
+                "Embed: EEPROM",
+                "Embed: EEEPROM",
+                "Embed: RAM",
+                "Embed: Red LED",
+                "Embed: Green LED",
+                "Embed: SPI",
+                "Embed: IO",
+                "Embed: Thermometer",
+                "Embed: UART",
+                "Embed: FRC",
+                "Embed: DPA Exploration"
+            ],
+            "osRead": {
+                "mid": "81103000",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-45 dBm",
+                "supplyVoltage": "2.97 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    59,
+                    74,
+                    82,
+                    191,
+                    254,
+                    53,
+                    210,
+                    44,
+                    86,
+                    242,
+                    55,
+                    243,
+                    204,
+                    23,
+                    213,
+                    187
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-11-05T12:04:43.420613",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.4d.fc.ff.30.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.03.00",
+                "responseTs": "2018-11-05T12:04:43.457251"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-11-05T12:04:43.458531",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.4d.01.11",
+                "responseTs": "2018-11-05T12:04:45.24897"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T12:04:45.526263",
+                "confirmation": "01.00.02.00.ff.ff.ff.4d.0b.08.0b",
+                "confirmationTs": "2018-11-05T12:04:45.555870",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T12:04:48.377644",
+                "confirmation": "01.00.02.00.ff.ff.ff.4d.0b.08.0b",
+                "confirmationTs": "2018-11-05T12:04:48.541752",
+                "response": "01.00.02.80.02.00.00.55.00.30.10.81.43.24.c8.08.55.27.14.75.3b.4a.52.bf.fe.35.d2.2c.56.f2.37.f3.cc.17.d5.bb",
+                "responseTs": "2018-11-05T12:04:49.478293"
+            },
+            {
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-11-05T12:04:52.60640",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.4a.0b.08.0b",
+                "confirmationTs": "2018-11-05T12:04:52.89930",
+                "response": "01.00.ff.bf.02.00.00.5a.03.03.01.fe.26.00.00.02.00.00.00.02.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-11-05T12:04:53.154396"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-11-05 12:04:55.145
+==================================
+
+==================================
+Sending to WebSocket: 2018-11-05 12:27:23.302
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-11-05 12:27:37.169
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 17
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-11-05T12:27:24.479953",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.4a.fc.ff.30.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.03.00",
+                "responseTs": "2018-11-05T12:27:24.519897"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-11-05T12:27:24.520275",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.4a.01.11",
+                "responseTs": "2018-11-05T12:27:28.765900"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T12:27:29.267369",
+                "confirmation": "01.00.02.00.ff.ff.ff.4a.0b.08.0b",
+                "confirmationTs": "2018-11-05T12:27:29.292410",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T12:27:32.114097",
+                "confirmation": "01.00.02.00.ff.ff.ff.4a.0b.08.0b",
+                "confirmationTs": "2018-11-05T12:27:32.138342",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T12:27:34.960083",
+                "confirmation": "01.00.02.00.ff.ff.ff.4a.0b.08.0b",
+                "confirmationTs": "2018-11-05T12:27:34.988180",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.05.ff.ff.01",
+                "requestTs": "2018-11-05T12:27:37.810006",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.85.00.00.00.4a.10",
+                "responseTs": "2018-11-05T12:27:37.839463"
+            }
+        ],
+        "status": 1007,
+        "statusStr": "Transaction error"
+    }
+}
+2018-11-05 12:27:37.596
+==================================
+
+==================================
+Sending to WebSocket: 2018-11-05 12:33:45.894
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-11-05 12:34:01.592
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 17,
+            "hwpId": 2,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "DDC-SE-01 sensor example",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "81103000",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-44 dBm",
+                "supplyVoltage": "2.97 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    59,
+                    74,
+                    82,
+                    191,
+                    254,
+                    53,
+                    210,
+                    44,
+                    86,
+                    242,
+                    55,
+                    243,
+                    204,
+                    23,
+                    213,
+                    187
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-11-05T12:33:46.755396",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.fc.ff.30.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-11-05T12:33:46.798685"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-11-05T12:33:46.799425",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.00.01.11",
+                "responseTs": "2018-11-05T12:33:52.27368"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T12:33:52.528822",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.0b.08.0b",
+                "confirmationTs": "2018-11-05T12:33:52.565262",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T12:33:55.386931",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.0b.08.0b",
+                "confirmationTs": "2018-11-05T12:33:55.418778",
+                "response": "01.00.02.80.02.00.00.56.00.30.10.81.43.24.c8.08.56.27.14.75.3b.4a.52.bf.fe.35.d2.2c.56.f2.37.f3.cc.17.d5.bb",
+                "responseTs": "2018-11-05T12:33:56.483454"
+            },
+            {
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-11-05T12:33:59.66003",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.46.0b.08.0b",
+                "confirmationTs": "2018-11-05T12:33:59.100405",
+                "response": "01.00.ff.bf.02.00.00.58.03.03.01.fe.26.00.00.02.00.01.00.02.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-11-05T12:34:00.165789"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-11-05 12:34:02.066
+==================================
+
+==================================
+Sending to WebSocket: 2018-11-05 13:50:05.506
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-11-05 13:50:17.193
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 17,
+            "hwpId": 2,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "DDC-SE-01 sensor example",
+            "standards": [
+                "Driver Library",
+                "IQRF: Sensor",
+                "Embed: Coordinator",
+                "Embed: Node",
+                "Embed: OS",
+                "Embed: EEPROM",
+                "Embed: EEEPROM",
+                "Embed: RAM",
+                "Embed: Red LED",
+                "Embed: Green LED",
+                "Embed: SPI",
+                "Embed: IO",
+                "Embed: Thermometer",
+                "Embed: UART",
+                "Embed: FRC",
+                "Embed: DPA Exploration"
+            ],
+            "osRead": {
+                "mid": "81103000",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-62 dBm",
+                "supplyVoltage": "2.97 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    59,
+                    74,
+                    82,
+                    191,
+                    254,
+                    53,
+                    210,
+                    44,
+                    86,
+                    242,
+                    55,
+                    243,
+                    204,
+                    23,
+                    213,
+                    187
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-11-05T13:50:06.474687",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.fc.ff.30.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.03.00",
+                "responseTs": "2018-11-05T13:50:06.509382"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-11-05T13:50:06.509994",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.00.01.11",
+                "responseTs": "2018-11-05T13:50:10.586239"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T13:50:11.87893",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.0b.08.0b",
+                "confirmationTs": "2018-11-05T13:50:11.115396",
+                "response": "01.00.02.80.02.00.00.44.00.30.10.81.43.24.c8.08.44.27.14.75.3b.4a.52.bf.fe.35.d2.2c.56.f2.37.f3.cc.17.d5.bb",
+                "responseTs": "2018-11-05T13:50:12.187473"
+            },
+            {
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-11-05T13:50:14.769844",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.48.0b.08.0b",
+                "confirmationTs": "2018-11-05T13:50:14.799495",
+                "response": "01.00.ff.bf.02.00.00.5e.03.03.01.fe.26.00.00.02.00.01.00.02.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-11-05T13:50:15.864665"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-11-05 13:50:17.642
+==================================
+
+==================================
+Sending to WebSocket: 2018-11-05 14:09:15.162
+{
+  "mType": "iqmeshNetwork_BondNodeLocal",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-11-05 14:09:27.492
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 17,
+            "hwpId": 2,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "DDC-SE-01 sensor example",
+            "standards": [
+                "Driver Library",
+                "IQRF: Sensor",
+                "Embed: Coordinator",
+                "Embed: Node",
+                "Embed: OS",
+                "Embed: EEPROM",
+                "Embed: EEEPROM",
+                "Embed: RAM",
+                "Embed: Red LED",
+                "Embed: Green LED",
+                "Embed: SPI",
+                "Embed: IO",
+                "Embed: Thermometer",
+                "Embed: UART",
+                "Embed: FRC",
+                "Embed: DPA Exploration"
+            ],
+            "osRead": {
+                "mid": "81103000",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-38 dBm",
+                "supplyVoltage": "2.97 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    59,
+                    74,
+                    82,
+                    191,
+                    254,
+                    53,
+                    210,
+                    44,
+                    86,
+                    242,
+                    55,
+                    243,
+                    204,
+                    23,
+                    213,
+                    187
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-11-05T14:09:16.126566",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.fc.ff.30.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.03.00",
+                "responseTs": "2018-11-05T14:09:16.155380"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-11-05T14:09:16.155918",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.00.01.11",
+                "responseTs": "2018-11-05T14:09:19.47330"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T14:09:19.304917",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.0b.08.0b",
+                "confirmationTs": "2018-11-05T14:09:19.334298",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T14:09:21.906113",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.0b.08.0b",
+                "confirmationTs": "2018-11-05T14:09:21.935715",
+                "response": "01.00.02.80.02.00.00.5c.00.30.10.81.43.24.c8.08.5c.27.14.75.3b.4a.52.bf.fe.35.d2.2c.56.f2.37.f3.cc.17.d5.bb",
+                "responseTs": "2018-11-05T14:09:22.994645"
+            },
+            {
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-11-05T14:09:25.76340",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.4b.0b.08.0b",
+                "confirmationTs": "2018-11-05T14:09:25.282047",
+                "response": "01.00.ff.bf.02.00.00.5c.03.03.01.fe.26.00.00.02.00.01.00.02.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-11-05T14:09:26.174569"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-11-05 14:09:27.986
+==================================
+
