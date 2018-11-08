@@ -11,12 +11,12 @@ then
     exit 1
 fi
 
-#Stretch,Xenial,Bionic
+#stretch,xenial,bionic
 DIST=$1
 
 #amd64, armhf, arm64
 ARCH=$2
 
 #docker login
-docker build -f Dockerfile.${DIST}.${ARCH} -t iqrfsdk/iqrf-gateway-daemon-build:${DIST}-${ARCH} .
+docker build -f dockerfile.${DIST}.${ARCH} -t iqrfsdk/iqrf-gateway-daemon-build:${DIST}-${ARCH} .
 #docker push iqrfsdk/iqrf-gateway-daemon-build:${DIST}-${ARCH}

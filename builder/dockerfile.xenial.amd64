@@ -5,7 +5,9 @@ LABEL maintainer="rostislav.spinar@iqrf.com"
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN echo "deb http://archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse" >> /etc/apt/sources.list
+
+RUN apt-get update && apt-get install -y --no-install-recommends -t xenial-backports \
     build-essential \
     fakeroot \
     devscripts \
