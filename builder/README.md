@@ -9,13 +9,13 @@ https://hub.docker.com/r/iqrfsdk/iqrf-gateway-daemon-build
 ## Manual build
 
 ```Bash
-docker build -f Dockerfile.amd64 -t iqrf-gateway-daemon-build .
+docker build -f Dockerfile.Stretch.amd64 -t iqrf-gateway-daemon-build .
 ```
 
 ## Cross build
 
 ```Bash
-docker build -f Dockerfile.armhf -t iqrf-gateway-daemon-crossbuild .
+docker build -f Dockerfile.Stretch.armhf -t iqrf-gateway-daemon-crossbuild .
 ```
 
 ## Run cross image
