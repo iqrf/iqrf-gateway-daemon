@@ -5,35 +5,15 @@ LABEL maintainer="rostislav.spinar@iqrf.com"
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends dirmngr apt-transport-https
-
-RUN echo "deb https://repos.iqrf.org/ubuntu/bionic bionic stable" > /etc/apt/sources.list.d/iqrf.list \
-    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    fakeroot \
-    devscripts \
-    dh-make \
-    lsb-release \
-    cmake \
-    gcc \
-    git \
-    g++ \
-    zlib1g-dev \
-    libcpprest-dev \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    mlocate \
-    ruby \
-    ruby-dev \
-    unzip \
-    wget \
-    openssh-client \
-    git-buildpackage \
-    python3-sphinx \
-    rsync \
-    libcpaho-mqtt-dev \
+RUN apt-get update \
+  && apt-get install --no-install-recommends -y apt-transport-https dirmngr gnupg2 \
+  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
+  && echo "deb http://repos.iqrf.org/ubuntu/bionic bionic stable" | tee -a /etc/apt/sources.list \
+  && apt-get update \
+  && apt-get install --no-install-recommends -y build-essential fakeroot devscripts dh-make lsb-release \
+     cmake gcc git g++ zlib1g-dev libcpprest-dev libssl-dev libcurl4-openssl-dev libgtest-dev libcpaho-mqtt-dev \
+     google-mock mlocate unzip wget openssh-client rsync git-buildpackage python3-recommonmark python3-sphinx \
+     ruby ruby-dev libwww-perl \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && gem install --no-rdoc --no-ri fpm
