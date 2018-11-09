@@ -56,8 +56,6 @@ Install the daemon
 .. code-block:: bash
 
 	sudo apt-get install iqrf-gateway-daemon
-	sudo systemctl daemon-reload
-	sudo systemctl restart iqrf-gateway-daemon
 
 or **update** if the daemon is already installed.
 
@@ -65,8 +63,6 @@ or **update** if the daemon is already installed.
 
 	sudo apt-get update
 	sudo apt-get --only-upgrade install iqrf-gateway-daemon
-	sudo systemctl daemon-reload
-	sudo systemctl restart iqrf-gateway-daemon
 
 Check the status of the daemon
 ##############################
