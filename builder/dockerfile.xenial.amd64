@@ -5,7 +5,11 @@ LABEL maintainer="rostislav.spinar@iqrf.com"
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN echo "deb http://archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse" >> /etc/apt/sources.list
+RUN apt-get update && apt-get install -y --no-install-recommends dirmngr apt-transport-https
+
+RUN echo "deb http://archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse" >> /etc/apt/sources.list \
+    && echo "deb https://repos.iqrf.org/ubuntu/xenial xenial stable" > /etc/apt/sources.list.d/iqrf.list \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E
 
 RUN apt-get update && apt-get install -y --no-install-recommends -t xenial-backports \
     build-essential \
@@ -30,6 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends -t xenial-backp
     git-buildpackage \
     python3-sphinx \
     rsync \
+    libcpaho-mqtt-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && gem install --no-rdoc --no-ri fpm
