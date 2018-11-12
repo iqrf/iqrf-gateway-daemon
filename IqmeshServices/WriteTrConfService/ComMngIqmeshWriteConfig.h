@@ -19,15 +19,6 @@ namespace iqrf {
     {
     }
 
-    bool isSetRestart() {
-      return m_isSetRestart;
-    }
-
-    const bool getRestart() const
-    {
-      return m_restart;
-    }
-
     const int getRepeat() const
     {
       return m_repeat;
@@ -372,7 +363,6 @@ namespace iqrf {
 
 
   private:
-    bool m_isSetRestart = false;
     bool m_isSetDeviceAddr = false;
 
     bool m_isSetRfChannelA = false;
@@ -404,7 +394,6 @@ namespace iqrf {
     bool m_isSetSecurityUserKey = false;
 
     int m_repeat = 0;
-    bool m_restart;
     int m_deviceAddr;
     int m_rfChannelA;
     int m_rfChannelB;
@@ -684,17 +673,9 @@ namespace iqrf {
       }
     }
 
-    void parseRestart(rapidjson::Document& doc) {
-      if (rapidjson::Value* restartJsonVal = rapidjson::Pointer("/data/restart").Get(doc)) {
-        m_restart = restartJsonVal->GetBool();
-        m_isSetRestart = true;
-      }
-    }
-
     // parses document into data fields
     void parse(rapidjson::Document& doc) {
       parseRepeat(doc);
-      parseRestart(doc);
       parseDeviceAddr(doc);
       parseConfigBytes(doc);
       parseBand(doc);

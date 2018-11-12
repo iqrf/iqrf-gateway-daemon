@@ -99,6 +99,8 @@ namespace {
   static const int SERVICE_ERROR_GET_BONDED_NODES = SERVICE_ERROR + 2;
   static const int SERVICE_ERROR_NO_BONDED_NODES = SERVICE_ERROR + 3;
   static const int SERVICE_ERROR_UPDATE_COORD_CHANNEL_BAND = SERVICE_ERROR + 4;
+  static const int SERVICE_ERROR_ENABLE_FRC = SERVICE_ERROR + 5;
+  static const int SERVICE_ERROR_DISABLE_FRC = SERVICE_ERROR + 6;
 };
 
 
@@ -115,6 +117,8 @@ namespace iqrf {
       NoBondedNodes,
       UpdateCoordChannelBand,
       NodeNotBonded,
+      EnableFrc,
+      DisableFrc,
       Write,
       SecurityPassword,
       SecurityUserKey
@@ -309,6 +313,8 @@ namespace iqrf {
     // if is set Verbose mode
     bool m_returnVerbose = false;
 
+    // indication, if FRC has been temporarily enabled
+    bool m_frcEnabled = false;
 
 
   public:
@@ -1177,6 +1183,164 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    // indication, if FRC is enabled on Coordinator's HWP Configuration
+    bool frcEnabledOnCoord(WriteResult& writeResult) 
+    {
+      TRC_FUNCTION_ENTER("");
+
+      DpaMessage readHwpConfigRequest;
+      DpaMessage::DpaPacket_t readHwpConfigPacket;
+      readHwpConfigPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+      readHwpConfigPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
+      readHwpConfigPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
+      readHwpConfigPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      readHwpConfigRequest.DataToBuffer(readHwpConfigPacket.Buffer, sizeof(TDpaIFaceHeader));
+
+      // issue the DPA request
+      std::shared_ptr<IDpaTransaction2> readHwpConfigTransaction;
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+
+
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          readHwpConfigTransaction = m_exclusiveAccess->executeDpaTransaction(readHwpConfigRequest);
+          transResult = readHwpConfigTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_WARNING("DPA transaction error : " << e.what());
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          THROW_EXC(std::logic_error, "DPA transaction error.");
+        }
+
+        TRC_DEBUG("Result from Read HWP Configuration transaction as string:" << PAR(transResult->getErrorString()));
+
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        writeResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Read HWP Configuration successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(readHwpConfigRequest.PeripheralType(), readHwpConfigRequest.NodeAddress())
+            << PAR(readHwpConfigRequest.PeripheralCommand())
+          );
+
+          // parsing response data
+          uns8* readConfigRespData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+
+          TRC_FUNCTION_LEAVE("");
+          return (readConfigRespData[2] & 0b00100000) == 0b00100000;
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          THROW_EXC(std::logic_error, "Transaction error.");
+        }
+
+        // DPA error
+        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+        if (rep < m_repeat) {
+          continue;
+        }
+
+        THROW_EXC(std::logic_error, "Dpa error.");
+      }
+    }
+
+    // sets FRC on coordinator - enables or disables it - 2. parameter
+    void setFrcOnCoord(WriteResult& writeResult, bool enable)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      DpaMessage setFrcRequest;
+      DpaMessage::DpaPacket_t setFrcPacket;
+      setFrcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+      setFrcPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
+      setFrcPacket.DpaRequestPacket_t.PCMD = CMD_OS_WRITE_CFG_BYTE;
+      setFrcPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      setFrcRequest.DataToBuffer(setFrcPacket.Buffer, sizeof(TDpaIFaceHeader) + 3);
+
+      // FRC configuration byte
+      uns8* pData = setFrcPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
+      pData[0] = 0x02;
+      pData[1] = enable? 0b00100000 : 0b00000000;
+      pData[2] = 0b00100000;
+
+      setFrcRequest.DataToBuffer(setFrcPacket.Buffer, sizeof(TDpaIFaceHeader) + 3);
+
+      // issue the DPA request
+      std::shared_ptr<IDpaTransaction2> setFrcTransaction;
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+
+
+      for (int rep = 0; rep <= m_repeat; rep++) {
+        try {
+          setFrcTransaction = m_exclusiveAccess->executeDpaTransaction(setFrcRequest);
+          transResult = setFrcTransaction->get();
+        }
+        catch (std::exception& e) {
+          TRC_WARNING("DPA transaction error : " << e.what());
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          THROW_EXC(std::logic_error, "DPA transaction error.");
+        }
+
+        TRC_DEBUG("Result from Set FRC on Coordinator transaction as string:" << PAR(transResult->getErrorString()));
+
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        writeResult.addTransactionResult(transResult);
+
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
+          TRC_INFORMATION("Set FRC on Coordinator successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(setFrcRequest.PeripheralType(), setFrcRequest.NodeAddress())
+            << PAR(setFrcRequest.PeripheralCommand())
+          );
+        }
+
+        // transaction error
+        if (errorCode < 0) {
+          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
+
+          if (rep < m_repeat) {
+            continue;
+          }
+
+          THROW_EXC(std::logic_error, "Transaction error.");
+        }
+
+        // DPA error
+        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
+
+        if (rep < m_repeat) {
+          continue;
+        }
+
+        THROW_EXC(std::logic_error, "Dpa error.");
+      }
+    }
+
     void _writeConfigBytes(
       WriteResult& writeResult, 
       const std::vector<HWP_ConfigByte>& configBytes,
@@ -1201,6 +1365,25 @@ namespace iqrf {
       }
 
       if (!targetNodesCopy.empty()) {
+        
+        // first of all it, it is needed to temporarily enable FRC peripheral, if it is not enabled by Configuration 
+        bool isFrcEnabledOnCoord = false; 
+        try {
+          // issues DPA request - read HWP configuration
+          isFrcEnabledOnCoord = frcEnabledOnCoord(writeResult);
+          if (!isFrcEnabledOnCoord) {
+            setFrcOnCoord(writeResult, true);
+
+            // indication - before finishing the service, FRC must be disabled to restore the state before
+            m_frcEnabled = true;
+          }
+        }
+        catch (std::exception& ex) {
+          WriteError error(WriteError::Type::EnableFrc, ex.what());
+          writeResult.setError(error);
+          return;
+        }
+
         _writeConfigBytesToNodes(writeResult, configBytes, targetNodesCopy);
       }
     }
@@ -1311,6 +1494,8 @@ namespace iqrf {
 
         THROW_EXC(std::logic_error, "Dpa error.");
       }
+
+      THROW_EXC(std::logic_error, "Service internal error. Getting bonded nodes failed.");
     }
 
     // sorting, which of target nodes are bonded and which not
@@ -1947,6 +2132,17 @@ namespace iqrf {
         setSecurityString(writeResult, targetBondedNodes, m_securityUserKey, false);
       }
       
+      // disable - if previously enabled - FRC on the Coordinator
+      try {
+        if (m_frcEnabled) {
+          setFrcOnCoord(writeResult, false);
+        }
+      }
+      catch (std::exception& ex) {
+        WriteError error(WriteError::Type::DisableFrc, ex.what());
+        writeResult.setError(error);
+      }
+      
       return writeResult;
     }
 
@@ -2565,6 +2761,12 @@ namespace iqrf {
         case WriteError::Type::UpdateCoordChannelBand:
           Pointer("/data/status").Set(response, SERVICE_ERROR_UPDATE_COORD_CHANNEL_BAND);
           break;
+        case WriteError::Type::EnableFrc:
+          Pointer("/data/status").Set(response, SERVICE_ERROR_ENABLE_FRC);
+          break;
+        case WriteError::Type::DisableFrc:
+          Pointer("/data/status").Set(response, SERVICE_ERROR_DISABLE_FRC);
+          break;
         default:
           // some other unsupported error
           Pointer("/data/status").Set(response, SERVICE_ERROR);
@@ -2602,6 +2804,12 @@ namespace iqrf {
       WriteError error = writeResult.getError();
 
       if (error.getType() != WriteError::Type::NoError) {
+        
+        // do "normal" processing
+        if (error.getType() == WriteError::Type::DisableFrc) {
+          goto NORMAL_PROCESSING;
+        }
+
         // set raw fields, if verbose mode is active
         if (comWriteConfig.getVerbose()) {
           setVerboseData(response, writeResult);
@@ -2611,6 +2819,8 @@ namespace iqrf {
         return response;
       }
 
+
+      NORMAL_PROCESSING:
 
       // only one node - for the present time
       std::map<uint16_t, NodeWriteResult>::const_iterator iter = writeResult.getResultsMap().find(firstAddr);
@@ -2636,7 +2846,13 @@ namespace iqrf {
           setVerboseData(response, writeResult);
         }
 
-        setReponseStatus(response, iter->second.getError());
+        // do "normal" processing
+        if (error.getType() == WriteError::Type::DisableFrc) {
+          setReponseStatus(response, error);
+        }
+        else {
+          setReponseStatus(response, iter->second.getError());
+        }
 
         return response;
       }
@@ -2781,7 +2997,6 @@ namespace iqrf {
       m_exclusiveAccess.reset();
 
       // create and send response
-      // will be changed later - indication of restart used here only temporary
       Document responseDoc = createResponse(
         comWriteConfig.getMsgId(), msgType, writeResult, comWriteConfig, isRestartNeeded(configBytes)
       );
