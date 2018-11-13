@@ -5,7 +5,7 @@ Getting started
 * Install the `IQRF Gateway Webapp`_
 * `Configure`_ your IQRF interface for coordinator TR module
 
-  * Select one of from SPI, UART or CDC based on your HW
+  * Select **one of** from SPI, UART or CDC based on your HW
 
 * `Learn`_ about the daemon API
 * `Scheduler`_ helps with regular tasks 
@@ -25,8 +25,9 @@ Getting started
 Next steps
 ----------
 
-* Use http://IQRF-Gateway-Webapp-IP/iqrfnet/network/ to *Bond via button*/*Smart Connect via QR code* new devices into the IQRF network
-* Use http://IQRF-Gateway-Webapp-IP/cloud/{aws/azure/bluemix/inteli-glue/} manager to connect GW to the favourite cloud 
+* Use http://webapp-ip/iqrfnet/send-raw/ to confirm communication with TR module in the gateway
+* Use http://webapp-ip/iqrfnet/network/ to **Bond via button**/**Smart Connect via QR code** new devices into the IQRF network
+* Use http://webapp-ip/cloud/{aws/azure/bluemix/inteli-glue/} manager to connect the gateway to the **favourite cloud** 
 * Configure any JSON API task in the `Scheduler`_ or send `JSON API`_ requests from your application directly
 * If you use IQRF standard devices such as Sensor, Binary output or Light in your network, check `JSON API for Standard`_    
 * Parse `JSON API`_ responses coming from the network

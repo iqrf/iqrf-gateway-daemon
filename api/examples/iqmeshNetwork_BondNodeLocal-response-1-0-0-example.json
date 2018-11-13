@@ -4,7 +4,7 @@
         "msgId": "testIqmeshBondNodeLocal",
         "rsp": {
             "assignedAddr": 1,
-            "nodesNr": 17,
+            "nodesNr": 1,
             "hwpId": 2,
             "manufacturer": "IQRF Tech s.r.o.",
             "product": "DDC-SE-01 sensor example",

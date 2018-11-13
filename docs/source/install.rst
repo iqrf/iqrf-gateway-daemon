@@ -1,6 +1,6 @@
-**********************************
-How to install IQRF Gateway Daemon
-**********************************
+*************************
+How to install the daemon
+*************************
 
 Add IQRF Gateway repository
 ###########################

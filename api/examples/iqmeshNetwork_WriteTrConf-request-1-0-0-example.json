@@ -3,7 +3,6 @@
   "data": {
     "msgId": "testIqmeshWrite",
     "repeat": 1,
-    "restart": true,
     "req": {
       "deviceAddr": 1,
       "txPower": 3,

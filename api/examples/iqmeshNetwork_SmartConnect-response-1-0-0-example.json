@@ -3,8 +3,8 @@
     "data": {
         "msgId": "testIqmeshBondNodeLocal",
         "rsp": {
-            "assignedAddr": 13,
-            "nodesNr": 15,
+            "assignedAddr": 1,
+            "nodesNr": 1,
             "hwpId": 0,
             "manufacturer": "IQRF Tech s.r.o.",
             "product": "Plain DPA without Custom DPA Handler",

@@ -1,6 +1,6 @@
-************************************
-How to configure IQRF Gateway Daemon
-************************************
+***************************
+How to configure the daemon
+***************************
 
 **CK-USB-04A or GW-USB-06 devices must be switched to USB CDC IQRF mode using IDE
 menu:** Tools/USB Classes/Switch to CDC IQRF mode

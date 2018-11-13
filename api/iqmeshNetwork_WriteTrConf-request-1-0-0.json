@@ -1,5 +1,5 @@
 {
-	"$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
 		"name": "iqmeshNetwork_WriteTrConf-request",
@@ -26,11 +26,6 @@
 					"type": "integer",
 					"description": "Number of repetitions of DPA messages.",
 					"default": 1
-				},
-				"restart": {
-					"type": "boolean",
-					"description": "Restart required after writing the configuration.",
-					"default": true
 				},
 				"req": {
 					"type": "object",
