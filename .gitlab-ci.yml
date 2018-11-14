@@ -64,6 +64,32 @@ stages:
     - shapeware-build_*.tar.gz
     expire_in: 2 weeks
 
+.shape_shapeware_debug-template: &shape_shapeware_debug-template
+  stage: dependencies
+  dependencies: []
+  script:
+  - git clone https://github.com/logimic/shape.git shape-source
+  - mkdir shape-build
+  - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
+  - cmake --build shape-build
+  - tar czvf shape-source_${ARCH}.tar.gz shape-source
+  - tar czvf shape-build_${ARCH}.tar.gz shape-build
+  - git clone https://github.com/logimic/shapeware.git shapeware-source
+  - git -C shapeware-source submodule init
+  - git -C shapeware-source submodule update
+  - mkdir shapeware-build
+  - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
+  - cmake --build shapeware-build
+  - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
+  - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
+  artifacts:
+    paths:
+    - shape-source_*.tar.gz
+    - shape-build_*.tar.gz
+    - shapeware-source_*.tar.gz
+    - shapeware-build_*.tar.gz
+    expire_in: 2 weeks
+
 .daemon-template: &daemon-template
   stage: build
   before_script:
@@ -83,6 +109,34 @@ stages:
   - tar xzvf shapeware-source_${ARCH}.tar.gz
   - tar xzvf shapeware-build_${ARCH}.tar.gz
   - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION}
+  - cmake --build iqrf-daemon-build
+  - tar czvf iqrf-daemon-source_${ARCH}.tar.gz iqrf-daemon-source
+  - tar czvf iqrf-daemon-build_${ARCH}.tar.gz iqrf-daemon-build
+  artifacts:
+    paths:
+    - iqrf-daemon-source_*.tar.gz
+    - iqrf-daemon-build_*.tar.gz
+    expire_in: 2 weeks
+
+.daemon_debug-template: &daemon_debug-template
+  stage: build
+  before_script:
+  - eval $(ssh-agent -s)
+  - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  script:
+  - export DAEMON_VERSION=v2.0.0-rc
+  - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
+  - git -C iqrf-daemon-source submodule init
+  - git -C iqrf-daemon-source submodule update
+  - mkdir iqrf-daemon-build
+  - tar xzvf shape-source_${ARCH}.tar.gz
+  - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-source_${ARCH}.tar.gz
+  - tar xzvf shapeware-build_${ARCH}.tar.gz
+  - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION} -DCMAKE_BUILD_TYPE=Debug
   - cmake --build iqrf-daemon-build
   - tar czvf iqrf-daemon-source_${ARCH}.tar.gz iqrf-daemon-source
   - tar czvf iqrf-daemon-build_${ARCH}.tar.gz iqrf-daemon-build
@@ -119,6 +173,34 @@ stages:
     - iqrf-gateway-daemon*.deb
     expire_in: 2 weeks
 
+.package_debug-template: &package_debug-template
+  stage: build-package
+  only:
+  - branches
+  before_script:
+  - eval $(ssh-agent -s)
+  - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+  - git submodule init
+  - git submodule update
+  script:
+  - export DAEMON_VERSION=v2.0.0-rc
+  - tar xzvf shape-source_${ARCH}.tar.gz
+  - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-source_${ARCH}.tar.gz
+  - tar xzvf shapeware-build_${ARCH}.tar.gz
+  - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
+  - export DEB_BUILD_OPTIONS=nostrip,noopt
+  - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+  - mv ../iqrf-gateway-daemon*.deb .
+  artifacts:
+    paths:
+    - iqrf-gateway-daemon*.deb
+    expire_in: 2 weeks
+
 .package-release-template: &package-release-template
   stage: build-package
   only:
@@ -140,6 +222,35 @@ stages:
   - tar xzvf shapeware-build_${ARCH}.tar.gz
 #CHANGELOG generated manually
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
+  - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+  - mv ../iqrf-gateway-daemon*.deb .
+  artifacts:
+    paths:
+    - iqrf-gateway-daemon*.deb
+    expire_in: 2 weeks
+
+.package_debug-release-template: &package_debug-release-template
+  stage: build-package
+  only:
+  - tags
+  before_script:
+  - eval $(ssh-agent -s)
+  - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+  - git submodule init
+  - git submodule update
+  script:
+  - export DAEMON_VERSION="$CI_COMMIT_TAG"
+  - tar xzvf shape-source_${ARCH}.tar.gz
+  - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-source_${ARCH}.tar.gz
+  - tar xzvf shapeware-build_${ARCH}.tar.gz
+#CHANGELOG generated manually
+# - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
+  - export DEB_BUILD_OPTIONS=nostrip,noopt
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
   - mv ../iqrf-gateway-daemon*.deb .
   artifacts:
@@ -225,11 +336,21 @@ shape_&_shapeware-armhf:
   <<: *arch_armhf-template
   <<: *shape_shapeware-template
 
+shape_&_shapeware_debug-armhf:
+  <<: *arch_armhf-template
+  <<: *shape_shapeware_debug-template
+
 daemon-armhf:
   <<: *arch_armhf-template
   <<: *daemon-template
   dependencies:
   - shape_&_shapeware-armhf
+
+daemon_debug-armhf:
+  <<: *arch_armhf-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-armhf
 
 package-armhf:
   <<: *arch_armhf-template
@@ -237,11 +358,23 @@ package-armhf:
   dependencies:
   - shape_&_shapeware-armhf
 
+package_debug-armhf:
+  <<: *arch_armhf-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-armhf
+
 package-release-armhf:
   <<: *arch_armhf-template
   <<: *package-release-template
   dependencies:
   - shape_&_shapeware-armhf
+
+package_debug-release-armhf:
+  <<: *arch_armhf-template
+  <<: *package_debug-release-template
+  dependencies:
+  - shape_&_shapeware_debug-armhf
 
 #ARM64
 
