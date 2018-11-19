@@ -202,10 +202,11 @@ namespace iqrf {
       uint16_t nadr16 = inadr, hwpid16 = ihwpid;
       uint8_t pnum = 0, pcmd = 0;
 
-      const Value *nadrVal = Pointer("/nadr").Get(value);
-      if (nadrVal && nadrVal->IsString()) {
-        parseHexaNum(nadr16, nadrVal->GetString());
-      }
+      //set explicitly by param
+      //const Value *nadrVal = Pointer("/nadr").Get(value);
+      //if (nadrVal && nadrVal->IsString()) {
+      //  parseHexaNum(nadr16, nadrVal->GetString());
+      //}
       const Value *pnumVal = Pointer("/pnum").Get(value);
       if (pnumVal && pnumVal->IsString()) {
         parseHexaNum(pnum, pnumVal->GetString());
@@ -214,10 +215,11 @@ namespace iqrf {
       if (pcmdVal && pcmdVal->IsString()) {
         parseHexaNum(pcmd, pcmdVal->GetString());
       }
-      const Value *hwpidVal = Pointer("/hwpid").Get(value);
-      if (hwpidVal && hwpidVal->IsString()) {
-        parseHexaNum(hwpid16, hwpidVal->GetString());
-      }
+      //set explicitly by param
+      //const Value *hwpidVal = Pointer("/hwpid").Get(value);
+      //if (hwpidVal && hwpidVal->IsString()) {
+      //  parseHexaNum(hwpid16, hwpidVal->GetString());
+      //}
 
       m_nadr = nadr16;
       m_pnum = pnum;
