@@ -43,25 +43,31 @@ stages:
   dependencies: []
   script:
   - git clone https://github.com/logimic/shape.git shape-source
-  - mkdir shape-build
+  - mkdir shape-build shape-libs
   - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
   - cmake --build shape-build
+  - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
   - tar czvf shape-source_${ARCH}.tar.gz shape-source
   - tar czvf shape-build_${ARCH}.tar.gz shape-build
+  - tar czvf shape-libs_${ARCH}.tar.gz shape-libs
   - git clone https://github.com/logimic/shapeware.git shapeware-source
   - git -C shapeware-source submodule init
   - git -C shapeware-source submodule update
-  - mkdir shapeware-build
+  - mkdir shapeware-build shapeware-libs
   - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
   - cmake --build shapeware-build
+  - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
   - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
   - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
+  - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs
   artifacts:
     paths:
     - shape-source_*.tar.gz
     - shape-build_*.tar.gz
+    - shape-libs_*.tar.gz
     - shapeware-source_*.tar.gz
     - shapeware-build_*.tar.gz
+    - shapeware-libs_*.tar.gz
     expire_in: 2 weeks
 
 .shape_shapeware_debug-template: &shape_shapeware_debug-template
@@ -69,25 +75,31 @@ stages:
   dependencies: []
   script:
   - git clone https://github.com/logimic/shape.git shape-source
-  - mkdir shape-build
+  - mkdir shape-build shape-libs
   - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
   - cmake --build shape-build
+  - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
   - tar czvf shape-source_${ARCH}.tar.gz shape-source
   - tar czvf shape-build_${ARCH}.tar.gz shape-build
+  - tar czvf shape-libs_${ARCH}.tar.gz shape-libs
   - git clone https://github.com/logimic/shapeware.git shapeware-source
   - git -C shapeware-source submodule init
   - git -C shapeware-source submodule update
-  - mkdir shapeware-build
+  - mkdir shapeware-build shapeware-libs
   - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
   - cmake --build shapeware-build
+  - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
   - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
   - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
+  - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs
   artifacts:
     paths:
     - shape-source_*.tar.gz
     - shape-build_*.tar.gz
+    - shape-libs_*.tar.gz
     - shapeware-source_*.tar.gz
     - shapeware-build_*.tar.gz
+    - shapeware-libs_*.tar.gz
     expire_in: 2 weeks
 
 .daemon-template: &daemon-template
@@ -99,7 +111,7 @@ stages:
   - chmod 700 ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   script:
-  - export DAEMON_VERSION=v2.0.0-rc
+  - export DAEMON_VERSION=v2.0.0
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
@@ -127,7 +139,7 @@ stages:
   - chmod 700 ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   script:
-  - export DAEMON_VERSION=v2.0.0-rc
+  - export DAEMON_VERSION=v2.0.0
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
@@ -160,7 +172,7 @@ stages:
   - git submodule init
   - git submodule update
   script:
-  - export DAEMON_VERSION=v2.0.0-rc
+  - export DAEMON_VERSION=v2.0.0
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
   - tar xzvf shapeware-source_${ARCH}.tar.gz
@@ -187,15 +199,22 @@ stages:
   - git submodule init
   - git submodule update
   script:
-  - export DAEMON_VERSION=v2.0.0-rc
+  - export DAEMON_VERSION=v2.0.0
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shape-libs_${ARCH}.tar.gz
   - tar xzvf shapeware-source_${ARCH}.tar.gz
   - tar xzvf shapeware-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
-  - export DEB_BUILD_OPTIONS=nostrip,noopt
-  - dpkg-buildpackage -b -rfakeroot -us -uc -tc
-  - mv ../iqrf-gateway-daemon*.deb .
+#  - export DEB_BUILD_OPTIONS=nostrip,noopt
+#  - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+#  - mv ../iqrf-gateway-daemon*.deb .
+  - bash .gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
+  - bash .gitlab_build_files/create_daemon_package_dbg.sh
+  - tar czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION_NUM}~${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
@@ -246,16 +265,25 @@ stages:
   - export DAEMON_VERSION="$CI_COMMIT_TAG"
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shape-libs_${ARCH}.tar.gz
   - tar xzvf shapeware-source_${ARCH}.tar.gz
   - tar xzvf shapeware-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
 #CHANGELOG generated manually
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
-  - export DEB_BUILD_OPTIONS=nostrip,noopt
-  - dpkg-buildpackage -b -rfakeroot -us -uc -tc
-  - mv ../iqrf-gateway-daemon*.deb .
+#  - export DEB_BUILD_OPTIONS=nostrip,noopt
+#  - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+#  - mv ../iqrf-gateway-daemon*.deb .
+   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+   - bash .gitlab_build_files/create_daemon_package_dbg.sh
+   - tar czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION_NUM}~${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
+    - iqrf-gateway-daemon-dbg*.tar.gz
     expire_in: 2 weeks
 
 #AMD64 STRETCH
