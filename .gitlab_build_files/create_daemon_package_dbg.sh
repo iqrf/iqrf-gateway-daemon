@@ -17,7 +17,7 @@ fpm \
 --deb-changelog debian/changelog \
 --after-install debian/postinst \
 --after-remove debian/postrm \
---deb-build-depends debhelper (>= 10) \
+--deb-build-depends debhelper \
 --deb-build-depends cmake \
 --deb-build-depends libc6 \
 --deb-build-depends libstdc++6 \
