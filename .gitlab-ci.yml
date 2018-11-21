@@ -170,6 +170,7 @@ stages:
   before_script:
   - eval $(ssh-agent -s)
   - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
@@ -207,6 +208,7 @@ stages:
   before_script:
   - eval $(ssh-agent -s)
   - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
@@ -246,6 +248,7 @@ stages:
   before_script:
   - eval $(ssh-agent -s)
   - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
@@ -284,6 +287,7 @@ stages:
   before_script:
   - eval $(ssh-agent -s)
   - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
