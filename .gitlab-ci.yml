@@ -218,6 +218,8 @@ stages:
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
+    - iqrf-gateway-daemon-dbg*.tar.gz
+
     expire_in: 2 weeks
 
 .package-release-template: &package-release-template
@@ -279,7 +281,6 @@ stages:
    - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
    - bash .gitlab_build_files/create_daemon_package_dbg.sh
    - tar czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION_NUM}~${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
-
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
