@@ -44,7 +44,7 @@ cp iqrf-daemon-build/bin/configuration/deploy/release/*.json ${DEPLOY}${IQRFGD2_
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__NativeUploadService.json ${DEPLOY}${IQRFGD2_CFG}/iqrf__OtaUploadService.json
 
 cp -r iqrf-daemon-build/bin/configuration/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
-rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__NativeUploadService.json ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__OtaUploadService.json ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__shape__WebsocketCppClientService.json
+rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__NativeUploadService.json ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__OtaUploadService.json
 
 # BIN
 cp iqrf-daemon-build/bin/iqrfgd2 ${DEPLOY}${IQRFGD2_BIN}/iqrfgd2
@@ -71,10 +71,8 @@ cp shape-libs${IQRFGD2_LIBS}/* ${DEPLOY}${IQRFGD2_LIBS}
 
 # SHAPEWARE
 cp shapeware-libs${IQRFGD2_LIBS}/* ${DEPLOY}${IQRFGD2_LIBS}
-#cp shapeware-libs/usr/local/lib/* ${DEPLOY}${LOCAL_LIBS}
 
 # NO EXE
 chmod -x ${DEPLOY}${IQRFGD2_LIBS}/*
-chmod -x ${DEPLOY}${LOCAL_LIBS}/*
 
 echo "Daemon files copied."

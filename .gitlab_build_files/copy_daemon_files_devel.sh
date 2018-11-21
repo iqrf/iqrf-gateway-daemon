@@ -63,10 +63,8 @@ cp shape-libs${IQRFGD2_LIBS}/* ${DEPLOY}${IQRFGD2_LIBS}
 
 # SHAPEWARE
 cp shapeware-libs${IQRFGD2_LIBS}/* ${DEPLOY}${IQRFGD2_LIBS}
-#cp shapeware-libs/usr/local/lib/* ${DEPLOY}${LOCAL_LIBS}
 
 # NO EXE
 chmod -x ${DEPLOY}${IQRFGD2_LIBS}/*
-chmod -x ${DEPLOY}${LOCAL_LIBS}/*
 
 echo "Daemon files copied."
