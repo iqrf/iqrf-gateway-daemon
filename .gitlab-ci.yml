@@ -356,9 +356,9 @@ package-release-stretch-amd64:
   - shape_&_shapeware-stretch-amd64
   - daemon-stretch-amd64
 
-package-release_debug-stretch-amd64:
+package_debug-release-stretch-amd64:
   <<: *arch_stretch-amd64-template
-  <<: *package-release_debug-template
+  <<: *package_debug-release-template
   dependencies:
   - shape_&_shapeware_debug-stretch-amd64
   - daemon_debug-stretch-amd64
@@ -406,9 +406,9 @@ package-release-xenial-amd64:
   - shape_&_shapeware-xenial-amd64
   - daemon-xenial-amd64
 
-package-release_debug-xenial-amd64:
+package_debug-release_debug-xenial-amd64:
   <<: *arch_xenial-amd64-template
-  <<: *package-release_debug-template
+  <<: *package_debug-release-template
   dependencies:
   - shape_&_shapeware_debug-xenial-amd64
   - daemon_debug-xenial-amd64
@@ -456,9 +456,9 @@ package-release-bionic-amd64:
   - shape_&_shapeware-bionic-amd64
   - daemon-bionic-amd64
 
-package-release_debug-bionic-amd64:
+package_debug-release-bionic-amd64:
   <<: *arch_bionic-amd64-template
-  <<: *package-release_debug-template
+  <<: *package_debug-release-template
   dependencies:
   - shape_&_shapeware_debug-bionic-amd64
   - daemon_debug-bionic-amd64
