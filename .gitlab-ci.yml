@@ -7,6 +7,7 @@ stages:
   image: iqrfsdk/iqrf-gateway-daemon-build:latest-amd64
   variables:
     ARCH: "amd64"
+    DIST: "stretch"
   tags:
   - linux, amd64
 
@@ -14,6 +15,7 @@ stages:
   image: iqrfsdk/iqrf-gateway-daemon-build:xenial-amd64
   variables:
     ARCH: "amd64"
+    DIST: "xenial"
   tags:
   - linux, amd64
 
@@ -21,6 +23,7 @@ stages:
   image: iqrfsdk/iqrf-gateway-daemon-build:bionic-amd64
   variables:
     ARCH: "amd64"
+    DIST: "bionic"
   tags:
   - linux, amd64
 
@@ -28,6 +31,7 @@ stages:
   image: iqrfsdk/iqrf-gateway-daemon-build:latest-arm64
   variables:
     ARCH: "arm64"
+    DIST: "stretch"
   tags:
   - linux, arm64
 
@@ -35,6 +39,7 @@ stages:
   image: iqrfsdk/iqrf-gateway-daemon-build:latest-armhf
   variables:
     ARCH: "armhf"
+    DIST: "stretch"
   tags:
   - linux, armhf
 
@@ -168,6 +173,8 @@ stages:
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
   - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
   - git submodule init
   - git submodule update
@@ -175,6 +182,7 @@ stages:
   - export DAEMON_VERSION=v2.0.0
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shape-libs_${ARCH}.tar.gz  
   - tar xzvf shapeware-source_${ARCH}.tar.gz
   - tar xzvf shapeware-build_${ARCH}.tar.gz
   - tar xzvf shapeware-libs_${ARCH}.tar.gz
@@ -185,6 +193,7 @@ stages:
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
   - mv ../iqrf-gateway-daemon*.deb .
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
@@ -201,6 +210,8 @@ stages:
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
   - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
   - git submodule init
   - git submodule update
@@ -221,6 +232,7 @@ stages:
   - bash .gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package_dbg.sh
   - tar czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION_NUM}~${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon-dbg*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
@@ -256,6 +268,7 @@ stages:
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
   - mv ../iqrf-gateway-daemon*.deb .
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
@@ -293,6 +306,7 @@ stages:
   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package_dbg.sh
   - tar czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION_NUM}~${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon-dbg*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
@@ -305,23 +319,49 @@ shape_&_shapeware-stretch-amd64:
   <<: *arch_stretch-amd64-template
   <<: *shape_shapeware-template
 
+shape_&_shapeware_debug-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *shape_shapeware_debug-template
+
 daemon-stretch-amd64:
   <<: *arch_stretch-amd64-template
   <<: *daemon-template
   dependencies:
   - shape_&_shapeware-stretch-amd64
 
+daemon_debug-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-stretch-amd64
+
 package-stretch-amd64:
   <<: *arch_stretch-amd64-template
   <<: *package-template
   dependencies:
   - shape_&_shapeware-stretch-amd64
+  - daemon-stretch-amd64
+
+package_debug-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-stretch-amd64
+  - daemon_debug-stretch-amd64
 
 package-release-stretch-amd64:
   <<: *arch_stretch-amd64-template
   <<: *package-release-template
   dependencies:
   - shape_&_shapeware-stretch-amd64
+  - daemon-stretch-amd64
+
+package-release_debug-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *package-release_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-stretch-amd64
+  - daemon_debug-stretch-amd64
 
 #AMD64 XENIAL
 
@@ -329,23 +369,49 @@ shape_&_shapeware-xenial-amd64:
   <<: *arch_xenial-amd64-template
   <<: *shape_shapeware-template
 
+shape_&_shapeware_debug-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *shape_shapeware_debug-template
+
 daemon-xenial-amd64:
   <<: *arch_xenial-amd64-template
   <<: *daemon-template
   dependencies:
   - shape_&_shapeware-xenial-amd64
 
+daemon_debug-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-xenial-amd64
+
 package-xenial-amd64:
   <<: *arch_xenial-amd64-template
   <<: *package-template
   dependencies:
   - shape_&_shapeware-xenial-amd64
+  - daemon-xenial-amd64
+
+package_debug-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-xenial-amd64
+  - daemon_debug-xenial-amd64
 
 package-release-xenial-amd64:
   <<: *arch_xenial-amd64-template
   <<: *package-release-template
   dependencies:
   - shape_&_shapeware-xenial-amd64
+  - daemon-xenial-amd64
+
+package-release_debug-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *package-release_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-xenial-amd64
+  - daemon_debug-xenial-amd64
 
 #AMD64 BIONIC
 
@@ -353,23 +419,49 @@ shape_&_shapeware-bionic-amd64:
   <<: *arch_bionic-amd64-template
   <<: *shape_shapeware-template
 
+shape_&_shapeware_debug-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *shape_shapeware_debug-template
+
 daemon-bionic-amd64:
   <<: *arch_bionic-amd64-template
   <<: *daemon-template
   dependencies:
   - shape_&_shapeware-bionic-amd64
 
+daemon_debug-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-bionic-amd64
+
 package-bionic-amd64:
   <<: *arch_bionic-amd64-template
   <<: *package-template
   dependencies:
   - shape_&_shapeware-bionic-amd64
+  - daemon-bionic-amd64
+
+package_debug-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-bionic-amd64
+  - daemon_debug-bionic-amd64
 
 package-release-bionic-amd64:
   <<: *arch_bionic-amd64-template
   <<: *package-release-template
   dependencies:
   - shape_&_shapeware-bionic-amd64
+  - daemon-bionic-amd64
+
+package-release_debug-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *package-release_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-bionic-amd64
+  - daemon_debug-bionic-amd64
 
 #ARMHF
 
@@ -398,24 +490,28 @@ package-armhf:
   <<: *package-template
   dependencies:
   - shape_&_shapeware-armhf
+  - daemon-armhf
 
 package_debug-armhf:
   <<: *arch_armhf-template
   <<: *package_debug-template
   dependencies:
   - shape_&_shapeware_debug-armhf
+  - daemon_debug-armhf
 
 package-release-armhf:
   <<: *arch_armhf-template
   <<: *package-release-template
   dependencies:
   - shape_&_shapeware-armhf
+  - daemon-armhf
 
 package_debug-release-armhf:
   <<: *arch_armhf-template
   <<: *package_debug-release-template
   dependencies:
   - shape_&_shapeware_debug-armhf
+  - daemon_debug-armhf
 
 #ARM64
 
@@ -423,20 +519,46 @@ shape_&_shapeware-arm64:
   <<: *arch_arm64-template
   <<: *shape_shapeware-template
 
+shape_&_shapeware_debug-arm64:
+  <<: *arch_arm64-template
+  <<: *shape_shapeware_debug-template
+
 daemon-arm64:
   <<: *arch_arm64-template
   <<: *daemon-template
   dependencies:
   - shape_&_shapeware-arm64
 
+daemon_debug-arm64:
+  <<: *arch_arm64-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-arm64
+
 package-arm64:
   <<: *arch_arm64-template
   <<: *package-template
   dependencies:
   - shape_&_shapeware-arm64
+  - daemon-arm64
+
+package_debug-arm64:
+  <<: *arch_arm64-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-arm64
+  - daemon_debug-arm64
 
 package-release-arm64:
   <<: *arch_arm64-template
   <<: *package-release-template
   dependencies:
   - shape_&_shapeware-arm64
+  - daemon-arm64
+
+package_debug-release-arm64:
+  <<: *arch_arm64-template
+  <<: *package_debug-release-template
+  dependencies:
+  - shape_&_shapeware_debug-arm64
+  - daemon_debug-arm64
