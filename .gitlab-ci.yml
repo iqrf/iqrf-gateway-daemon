@@ -187,14 +187,14 @@ stages:
   - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz  
   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
-  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
   - mv ../iqrf-gateway-daemon*.deb .
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
-  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}/devel
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
@@ -229,12 +229,12 @@ stages:
 # - dpkg-buildpackage -b -rfakeroot -us -uc -tc
 # - mv ../iqrf-gateway-daemon*.deb .
   - bash .gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
-  - bash .gitlab_build_files/create_daemon_package_dbg.sh ${DIST}
-  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
+  - bash .gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "devel"
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
-  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon-dbg*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon-dbg*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}/devel
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
@@ -273,7 +273,7 @@ stages:
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
-  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}/stable
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
@@ -309,12 +309,12 @@ stages:
 # - dpkg-buildpackage -b -rfakeroot -us -uc -tc
 # - mv ../iqrf-gateway-daemon*.deb .
   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
-  - bash .gitlab_build_files/create_daemon_package_dbg.sh ${DIST}
+  - bash .gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "release"
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
-  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon-dbg*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon-dbg*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${ARCH}/${DIST}/stable
   artifacts:
     paths:
     - iqrf-gateway-daemon*.deb
