@@ -187,7 +187,7 @@ stages:
   - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz  
   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
-  - tar czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
   - mv ../iqrf-gateway-daemon*.deb .
@@ -230,7 +230,7 @@ stages:
 # - mv ../iqrf-gateway-daemon*.deb .
   - bash .gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package_dbg.sh
-  - tar czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
@@ -265,7 +265,7 @@ stages:
   - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz  
   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
-  - tar czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
 #CHANGELOG generated manually
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
@@ -310,7 +310,7 @@ stages:
 # - mv ../iqrf-gateway-daemon*.deb .
   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package_dbg.sh
-  - tar czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz iqrf-daemon-deploy
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
