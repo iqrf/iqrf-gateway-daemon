@@ -56,6 +56,7 @@ If there is IQRF Gateway Daemon v1 already running in the system.
 
 Install the daemon
 ##################
+
 .. code-block:: bash
 
 	sudo apt-get install iqrf-gateway-daemon
@@ -66,6 +67,14 @@ or **update** if the daemon is already installed.
 
 	sudo apt-get update
 	sudo apt-get --only-upgrade install iqrf-gateway-daemon
+
+Update from beta release
+------------------------
+
+.. code-block:: bash
+
+	sudo apt-get purge iqrf-gateway-daemon
+	sudo apt-get install iqrf-gateway-daemon
 
 Check the status of the daemon
 ##############################
