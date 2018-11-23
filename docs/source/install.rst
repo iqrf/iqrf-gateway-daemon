@@ -81,18 +81,18 @@ Packages and tarballs for download.
 Stretch
 -------
 
-- https://dl.iqrf.org/iqrf-gateway-daemon/amd64/stretch/stable/
-- https://dl.iqrf.org/iqrf-gateway-daemon/armhf/stretch/stable/
-- https://dl.iqrf.org/iqrf-gateway-daemon/arm64/stretch/stable/
+- https://dl.iqrf.org/iqrf-gateway-daemon/stretch/amd64/stable/
+- https://dl.iqrf.org/iqrf-gateway-daemon/stretch/armhf/stable/
+- https://dl.iqrf.org/iqrf-gateway-daemon/stretch/arm64/stable/
 
 Bionic
 ------
 
-- http://dl.iqrf.org/iqrf-gateway-daemon/amd64/bionic/stable/
+- http://dl.iqrf.org/iqrf-gateway-daemon/bionic/amd64/stable/
 
 Xenial
 ------
 
-- http://dl.iqrf.org/iqrf-gateway-daemon/amd64/xenial/stable/
+- http://dl.iqrf.org/iqrf-gateway-daemon/xenial/amd64/stable/
 
 .. _`https://repos.iqrf.org`: https://repos.iqrf.org
