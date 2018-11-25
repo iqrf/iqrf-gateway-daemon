@@ -5,18 +5,18 @@
   "cacheDir": "configuration",
   "userDir": "",
   "configurationDir": "configuration",
-  "deploymentDir": "../bin/Debug",
+  "deploymentDir": "../../..",
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3
@@ -37,210 +37,210 @@
     },
     {
       "name": "shape::WebsocketService",
-      "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shapeware/bin",
       "libraryName": "WebsocketService",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "shape::WebsocketCppService",
-      "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shapeware/bin",
       "libraryName": "WebsocketCppService",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "shape::CurlRestApiService",
-      "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shapeware/bin",
       "libraryName": "CurlRestApiService",
       "enabled": true,
       "startlevel": -1
     },
     {
       "name": "iqrf::Scheduler",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "Scheduler",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::IqrfCdc",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "IqrfCdc",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfSpi",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "IqrfSpi",
       "enabled": false,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfUart",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "IqrfUart",
       "enabled": false,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfDpa",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::LegacyApiSupport",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "LegacyApiSupport",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::MqMessaging",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "MqMessaging",
       "enabled": true,
       "startlevel": 10
     },
     {
       "name": "iqrf::MqttMessaging",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "MqttMessaging",
       "enabled": true,
       "startlevel": 10
     },
     {
       "name": "iqrf::WebsocketMessaging",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "WebsocketMessaging",
       "enabled": true,
       "startlevel": 10
     },
     {
       "name": "iqrf::UdpMessaging",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "UdpMessaging",
       "enabled": true,
       "startlevel": 10
     },
     {
       "name": "iqrf::IdeCounterpart",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "IdeCounterpart",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsonSplitter",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsonSplitter",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::SchedulerMessaging",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "SchedulerMessaging",
       "enabled": true,
       "startlevel": 10
     },
     {
       "name": "iqrf::JsonDpaApiRaw",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsonDpaApiRaw",
       "enabled": true,
       "startlevel": 2
     },
     {
       "name": "iqrf::JsonMngApi",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsonMngApi",
       "enabled": true,
       "startlevel": 2
     },
     {
       "name": "iqrf::JsonCfgApi",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsonCfgApi",
       "enabled": true,
       "startlevel": 2
     },
     {
       "name": "iqrf::JsCache",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsCache",
       "enabled": true,
       "startlevel": 2
     },
     {
       "name": "iqrf::JsRenderDuktape",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsRenderDuktape",
       "enabled": true,
       "startlevel": 2
     },
     {
       "name": "iqrf::JsonDpaApiIqrfStandard",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsonDpaApiIqrfStandard",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::JsonDpaApiIqrfStdExt",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsonDpaApiIqrfStdExt",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::WriteTrConfService",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "WriteTrConfService",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::SmartConnectService",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "SmartConnectService",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::ReadTrConfService",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "ReadTrConfService",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::OtaUploadService",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "OtaUploadService",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::BondNodeLocalService",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "BondNodeLocalService",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::EnumerateDeviceService",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "EnumerateDeviceService",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::NativeUploadService",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "NativeUploadService",
       "enabled": true,
       "startlevel": 3

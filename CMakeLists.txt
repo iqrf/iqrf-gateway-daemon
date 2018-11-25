@@ -30,6 +30,9 @@ FIND_PACKAGE(shape REQUIRED)
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 include(${CMAKE_MODULE_PATH}/ShapeComponentDeclaration.cmake)
 
+set(PROJECT_INSTALL_PREFIX ${PROJECT_NAME})
+set(CMAKE_INSTALL_PREFIX ${shape_DEPLOY})
+
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)

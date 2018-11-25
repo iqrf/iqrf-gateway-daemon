@@ -545,7 +545,7 @@ namespace iqrf {
     found = FindFirstFile(sdirect.c_str(), &fid);
 
     if (INVALID_HANDLE_VALUE == found) {
-      THROW_EXC_TRC_WAR(std::logic_error, "Directory or files does not exist: " << PAR(sdirect));
+      TRC_INFORMATION("Directory does not exist or empty Scheduler cache: " << PAR(sdirect));
     }
 
     do {
@@ -573,36 +573,36 @@ namespace iqrf {
 
     dir = opendir(dirStr.c_str());
     if (dir == nullptr) {
-      THROW_EXC_TRC_WAR(std::logic_error, "Directory does not exist: " << PAR(dirStr));
+      TRC_INFORMATION("Directory does not exist or empty Scheduler cache: " << PAR(dirStr));
     }
-    //TODO exeption if dir doesn't exists
-    while ((ent = readdir(dir)) != NULL) {
-      const std::string file_name = ent->d_name;
-      const std::string full_file_name(dirStr + "/" + file_name);
+    else {
+      while ((ent = readdir(dir)) != NULL) {
+        const std::string file_name = ent->d_name;
+        const std::string full_file_name(dirStr + "/" + file_name);
 
-      if (file_name[0] == '.')
-        continue;
+        if (file_name[0] == '.')
+          continue;
 
-      if (stat(full_file_name.c_str(), &st) == -1)
-        continue;
+        if (stat(full_file_name.c_str(), &st) == -1)
+          continue;
 
-      const bool is_directory = (st.st_mode & S_IFDIR) != 0;
+        const bool is_directory = (st.st_mode & S_IFDIR) != 0;
 
-      if (is_directory)
-        continue;
+        if (is_directory)
+          continue;
 
-      //keep just *.json
-      size_t i = full_file_name.rfind('.', full_file_name.length());
-      if (i != std::string::npos && jsonExt == full_file_name.substr(i + 1, full_file_name.length() - i)) {
-        fileSet.insert(full_file_name);
+        //keep just *.json
+        size_t i = full_file_name.rfind('.', full_file_name.length());
+        if (i != std::string::npos && jsonExt == full_file_name.substr(i + 1, full_file_name.length() - i)) {
+          fileSet.insert(full_file_name);
+        }
+        else {
+          continue;
+        }
       }
-      else {
-        continue;
-      }
-
+      closedir(dir);
+ 
     }
-    closedir(dir);
-
 
     return fileSet;
   }
