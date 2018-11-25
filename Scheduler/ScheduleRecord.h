@@ -34,10 +34,10 @@ namespace iqrf {
   class ScheduleRecord {
   public:
     ScheduleRecord() = delete;
-    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp);
+    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist);
     ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
-      const std::chrono::system_clock::time_point& tp);
-    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime);
+      const std::chrono::system_clock::time_point& tp, bool persist);
+    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist);
     ScheduleRecord(const rapidjson::Value& rec);
     ScheduleRecord(const ScheduleRecord& other);
 
@@ -47,11 +47,18 @@ namespace iqrf {
     const rapidjson::Value& getTask() const { return m_task; }
     const std::string& getClientId() const { return m_clientId; }
     const rapidjson::Value& getTimeSpec() const { return m_timeSpec; }
+    bool isPersist() const { return m_persist; }
+    void setPersist(bool persist) { m_persist = persist; }
 
     static std::string asString(const std::chrono::system_clock::time_point& tp);
     static void getTime(std::chrono::system_clock::time_point& timePoint, std::tm& timeStr);
 
+    void parse(const rapidjson::Value& rec);
+    rapidjson::Value serialize(rapidjson::Document::AllocatorType& a) const;
+
   private:
+    void parseCron(const std::string& cronTime);
+
     void init(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime);
 
     //These special time specification "nicknames" which replace the 5 initial time and date fields,
@@ -73,6 +80,7 @@ namespace iqrf {
     void init();
     int parseItem(const std::string& item, int mnm, int mxm, std::vector<int>& vec, int offset = 0);
     void setTimeSpec();
+    void parseTimeSpec(const rapidjson::Value &v);
 
     bool verifyTimePattern(int cval, const std::vector<int>& tvalV) const;
     rapidjson::Document m_task;
@@ -93,6 +101,7 @@ namespace iqrf {
     bool m_started = false;
     std::chrono::seconds m_period = std::chrono::seconds(0);
     std::chrono::system_clock::time_point m_startTime;
+    bool m_persist = false;
 
     ISchedulerService::TaskHandle m_taskHandle;
 

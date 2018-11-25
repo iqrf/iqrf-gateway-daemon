@@ -156,6 +156,12 @@ namespace iqrf {
       else {
         TRC_WARNING("Expected object: /data/req/task")
       }
+
+      const Value *persistVal = Pointer("/data/req/persist").Get(doc);
+      if (persistVal && persistVal->IsBool()) {
+        m_persist = persistVal->GetBool();
+      }
+
     }
 
     virtual ~SchedAddTaskMsg()
@@ -194,11 +200,14 @@ namespace iqrf {
       MngMsg::createResponsePayload(doc);
     }
 
+    bool getPersist() const { return m_persist; }
+
   private:
     std::string m_clientId;
     std::string m_cronTime;
     rapidjson::Document m_task;
     int64_t m_taskId;
+    bool m_persist = false;
   };
 
   class SchedPeriodicTaskMsg : public MngMsg
@@ -216,7 +225,7 @@ namespace iqrf {
         m_point = parseTimestamp(tpVal->GetString());
       }
       else {
-        TRC_WARNING("Expected object: /data/req/task")
+        TRC_WARNING("Expected string: /data/req/timePoint")
       }
 
       const Value *taskVal = Pointer("/data/req/task").Get(doc);
@@ -226,6 +235,12 @@ namespace iqrf {
       else {
         TRC_WARNING("Expected object: /data/req/task")
       }
+
+      const Value *persistVal = Pointer("/data/req/persist").Get(doc);
+      if (persistVal && persistVal->IsBool()) {
+        m_persist = persistVal->GetBool();
+      }
+
     }
 
     virtual ~SchedPeriodicTaskMsg()
@@ -269,12 +284,15 @@ namespace iqrf {
       MngMsg::createResponsePayload(doc);
     }
 
+    bool getPersist() const { return m_persist; }
+
   private:
     std::string m_clientId;
     int m_period;
     std::chrono::system_clock::time_point m_point;
     rapidjson::Document m_task;
     int64_t m_taskId;
+    bool m_persist = false;
   };
 
   class SchedGetTaskMsg : public MngMsg
@@ -528,7 +546,9 @@ namespace iqrf {
 
       SchedAddTaskMsg msg(reqDoc);
 
-      int64_t taskId = m_iSchedulerService->scheduleTask(msg.getClientId(), msg.getTask(), msg.getCronTime()); //TODO point
+      int64_t taskId = m_iSchedulerService->scheduleTask(
+        msg.getClientId(), msg.getTask(), msg.getCronTime(), msg.getPersist() );
+      
       msg.setTaskId(taskId);
 
       msg.createResponse(respDoc);
@@ -543,7 +563,7 @@ namespace iqrf {
       SchedPeriodicTaskMsg msg(reqDoc);
 
       uint64_t taskId = m_iSchedulerService->scheduleTaskPeriodic(
-        msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()/1000), msg.getPoint()); //TODO point
+        msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()/1000), msg.getPoint(), msg.getPersist());
       msg.setTaskId(taskId);
 
       msg.createResponse(respDoc);

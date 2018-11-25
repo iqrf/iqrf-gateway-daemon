@@ -23,11 +23,13 @@
 #include "ISchedulerService.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
+#include "rapidjson/schema.h"
 
 #include <string>
 #include <chrono>
 #include <map>
 #include <memory>
+#include <set>
 
 /// \class Scheduler
 /// \brief Tasks scheduler
@@ -112,31 +114,35 @@ namespace iqrf {
     std::vector<TaskHandle> getMyTasks(const std::string& clientId) const override;
     const rapidjson::Value * getMyTask(const std::string& clientId, const TaskHandle& hndl) const override;
     const rapidjson::Value * getMyTaskTimeSpec(const std::string& clientId, const TaskHandle& hndl) const override;
+    bool isPersist(const std::string& clientId, const TaskHandle& hndl) const override;
 
-    TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime) override;
-    TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp) override;
+    TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist) override;
+    TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist) override;
     TaskHandle scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
-      const std::chrono::system_clock::time_point& tp) override;
+      const std::chrono::system_clock::time_point& tp, bool persist) override;
 
     void removeAllMyTasks(const std::string& clientId) override;
     void removeTask(const std::string& clientId, TaskHandle hndl) override;
     void removeTasks(const std::string& clientId, std::vector<TaskHandle> hndls) override;
 
-    void updateConfiguration(const std::string& fname);
-
   private:
+    void loadCache();
+
     int handleScheduledRecord(const ScheduleRecord& record);
 
     TaskHandle addScheduleRecordUnlocked(std::shared_ptr<ScheduleRecord>& record);
     TaskHandle addScheduleRecord(std::shared_ptr<ScheduleRecord>& record);
-    void addScheduleRecords(std::vector<std::shared_ptr<ScheduleRecord>>& records);
-
+    
     void removeScheduleRecordUnlocked(std::shared_ptr<ScheduleRecord>& record);
     void removeScheduleRecord(std::shared_ptr<ScheduleRecord>& record);
-    void removeScheduleRecords(std::vector<std::shared_ptr<ScheduleRecord>>& records);
 
     ////////////////////////////////
     TaskQueue<ScheduleRecord>* m_dpaTaskQueue = nullptr;
+
+    std::string m_cacheDir;
+    std::string m_schemaFile;
+
+    std::set<std::string> Scheduler::getTaskFiles(const std::string& dir) const;
 
     std::map<std::string, TaskHandlerFunc> m_messageHandlers;
     std::mutex m_messageHandlersMutex;
@@ -158,6 +164,8 @@ namespace iqrf {
     std::map<TaskHandle, std::shared_ptr<ScheduleRecord>> m_scheduledTasksByHandle;
 
     shape::ILaunchService* m_iLaunchService = nullptr;
+
+    std::shared_ptr<rapidjson::SchemaDocument> m_schema;
   };
 
 }

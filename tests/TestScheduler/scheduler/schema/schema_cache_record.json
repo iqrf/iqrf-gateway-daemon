@@ -1,0 +1,57 @@
+{
+    "type": "object",
+    "properties": {
+        "taskId": {
+            "type": "number",
+            "description": "Task ID number.",
+            "default": 25828
+        },
+        "clientId": {
+            "type": "string",
+            "description": "Client ID string."
+        },
+        "timeSpec": {
+            "type": "object",
+            "properties": {
+                "cronTime": {
+                    "type": "string",
+                    "description": "Cron like string.",
+                    "default": "0 */1 * * * * *"
+                },
+                "exactTime": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "periodic": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "period": {
+                    "type": "number",
+                    "default": 0
+                },
+                "startTime": {
+                    "type": "string",
+                    "default": "2018-11-21T21:21:16.103930"
+                }
+            },
+            "required": [
+                "cronTime",
+                "exactTime",
+                "periodic",
+                "period",
+                "startTime"
+            ]
+        },
+        "task": {
+            "type": "object",
+            "properties": {}
+        }
+    },
+    "required": [
+        "taskId",
+        "clientId",
+        "timeSpec",
+        "task"
+    ]
+}
