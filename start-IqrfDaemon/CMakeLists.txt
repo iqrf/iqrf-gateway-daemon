@@ -123,3 +123,5 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND}
     ARGS -E copy_directory ${_SYSTEMD_FROM} ${_SYSTEMD_TO}
 )
+
+DeployShapeComponent(${PROJECT_NAME})

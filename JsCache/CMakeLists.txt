@@ -38,3 +38,5 @@ target_link_libraries(${PROJECT_NAME}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
 )
+
+DeployShapeComponent(${PROJECT_NAME})

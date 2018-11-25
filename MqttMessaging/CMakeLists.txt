@@ -45,3 +45,5 @@ target_link_libraries(${PROJECT_NAME}
 	paho-mqtt3as
 )
 endif()
+
+DeployShapeComponent(${PROJECT_NAME})

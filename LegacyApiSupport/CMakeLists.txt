@@ -23,3 +23,5 @@ if(SHAPE_STATIC_LIBS)
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
+
+DeployShapeComponent(${PROJECT_NAME})

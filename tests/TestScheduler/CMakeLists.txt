@@ -37,6 +37,8 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} GTestStaticRunner ${GoogleTest_LIBRARIES})
 
+set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${TESTS_FOLDER})
+
 # system dependant configurationLin/Win
 add_custom_command(
     TARGET ${PROJECT_NAME}
