@@ -316,7 +316,8 @@ namespace iqrf {
       }
       else {
         Document d;
-        d.Swap(record->serialize(d.GetAllocator()));
+        auto v = record->serialize(d.GetAllocator());
+        d.Swap(v);
         std::ofstream ofs(fname);
         OStreamWrapper osw(ofs);
         PrettyWriter<OStreamWrapper> writer(osw);
@@ -561,7 +562,7 @@ namespace iqrf {
   }
 
 #else
-  std::set<std::string> ConfigurationManager::getConfigFiles(const std::string& dirStr) const
+  std::set<std::string> Scheduler::getTaskFiles(const std::string& dirStr) const
   {
     std::set<std::string> fileSet;
     std::string jsonExt = "json";
@@ -592,7 +593,7 @@ namespace iqrf {
 
       //keep just *.json
       size_t i = full_file_name.rfind('.', full_file_name.length());
-      if (i != string::npos && jsonExt == full_file_name.substr(i + 1, full_file_name.length() - i)) {
+      if (i != std::string::npos && jsonExt == full_file_name.substr(i + 1, full_file_name.length() - i)) {
         fileSet.insert(full_file_name);
       }
       else {

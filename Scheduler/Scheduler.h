@@ -142,7 +142,7 @@ namespace iqrf {
     std::string m_cacheDir;
     std::string m_schemaFile;
 
-    std::set<std::string> Scheduler::getTaskFiles(const std::string& dir) const;
+    std::set<std::string> getTaskFiles(const std::string& dir) const;
 
     std::map<std::string, TaskHandlerFunc> m_messageHandlers;
     std::mutex m_messageHandlersMutex;
