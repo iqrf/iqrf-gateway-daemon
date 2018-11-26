@@ -120,7 +120,7 @@ stages:
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
-  - mkdir iqrf-daemon-build
+  - mkdir iqrf-daemon-build iqrf-daemon-source
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
   - tar xzvf shapeware-source_${ARCH}.tar.gz
@@ -148,7 +148,7 @@ stages:
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
-  - mkdir iqrf-daemon-build
+  - mkdir iqrf-daemon-build iqrf-daemon-source
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
   - tar xzvf shapeware-source_${ARCH}.tar.gz
@@ -166,7 +166,7 @@ stages:
 .package-template: &package-template
   stage: build-package
   only:
-  - branches
+  - /^release*/
   before_script:
   - eval $(ssh-agent -s)
   - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
@@ -185,8 +185,9 @@ stages:
   - tar xzvf shapeware-build_${ARCH}.tar.gz
   - tar xzvf shapeware-libs_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
-  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz  
-  - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+  - mkdir iqrf-daemon-deploy
+  - bash .gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
@@ -204,7 +205,7 @@ stages:
 .package_debug-template: &package_debug-template
   stage: build-package
   only:
-  - branches
+  - /^release*/
   before_script:
   - eval $(ssh-agent -s)
   - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
@@ -228,6 +229,7 @@ stages:
 # - export DEB_BUILD_OPTIONS=nostrip,noopt
 # - dpkg-buildpackage -b -rfakeroot -us -uc -tc
 # - mv ../iqrf-gateway-daemon*.deb .
+  - mkdir iqrf-daemon-deploy
   - bash .gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "devel"
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
@@ -264,6 +266,7 @@ stages:
   - tar xzvf shapeware-libs_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz  
+  - mkdir iqrf-daemon-deploy
   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
 #CHANGELOG generated manually
@@ -308,6 +311,7 @@ stages:
 # - export DEB_BUILD_OPTIONS=nostrip,noopt
 # - dpkg-buildpackage -b -rfakeroot -us -uc -tc
 # - mv ../iqrf-gateway-daemon*.deb .
+  - mkdir iqrf-daemon-deploy
   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
   - bash .gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "release"
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
