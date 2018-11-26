@@ -120,7 +120,7 @@ stages:
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
-  - mkdir iqrf-daemon-build iqrf-daemon-source
+  - mkdir iqrf-daemon-build
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
   - tar xzvf shapeware-source_${ARCH}.tar.gz
@@ -148,7 +148,7 @@ stages:
   - git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git iqrf-daemon-source
   - git -C iqrf-daemon-source submodule init
   - git -C iqrf-daemon-source submodule update
-  - mkdir iqrf-daemon-build iqrf-daemon-source
+  - mkdir iqrf-daemon-build
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
   - tar xzvf shapeware-source_${ARCH}.tar.gz
