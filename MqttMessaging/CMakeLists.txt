@@ -47,3 +47,19 @@ target_link_libraries(${PROJECT_NAME}
 endif()
 
 DeployShapeComponent(${PROJECT_NAME})
+
+if(WIN32)
+	install(
+		FILES
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/paho-mqtt3as.dll"
+		CONFIGURATIONS Debug
+		DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	)
+
+	install(
+		FILES
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/paho-mqtt3as.dll"
+		CONFIGURATIONS Release
+		DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	)
+endif()
