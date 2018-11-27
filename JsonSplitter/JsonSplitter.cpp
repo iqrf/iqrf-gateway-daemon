@@ -68,6 +68,7 @@ namespace iqrf {
 
   class JsonSplitter::Imp {
   private:
+    std::string m_insId = "iqrfgd2-default";
     bool m_validateResponse = true;
     std::string m_schemesDir;
 
@@ -138,6 +139,11 @@ namespace iqrf {
     void sendMessage(const std::string& messagingId, rapidjson::Document doc) const
     {
       using namespace rapidjson;
+
+      if (Pointer("/data/insId").Get(doc)) {
+        //if exist replace by configured insId value
+        Pointer("/data/insId").Set(doc, m_insId);
+      }
       
       TRC_INFORMATION("Outcomming message:\n"
         << NAME_PAR(Messaging ID, messagingId)
@@ -538,8 +544,8 @@ namespace iqrf {
         "******************************"
       );
 
-      props->getMemberAsBool("validateJsonResponse", m_validateResponse);
-      TRC_INFORMATION(PAR(m_validateResponse));
+      modify(props);
+
       m_schemesDir = m_iLaunchService->getDataDir() + "/apiSchemas";
       TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
       loadJsonSchemesRequest(m_schemesDir);
@@ -567,6 +573,9 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      props->getMemberAsString("insId", m_insId);
+      props->getMemberAsBool("validateJsonResponse", m_validateResponse);
+      TRC_INFORMATION(PAR(m_validateResponse));
     }
 
     void attachInterface(shape::ILaunchService* iface)
