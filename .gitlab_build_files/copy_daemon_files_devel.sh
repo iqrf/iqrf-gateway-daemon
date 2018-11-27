@@ -39,24 +39,24 @@ mkdir -p ${DEPLOY}${IQRFGD2_SERVICE}
 echo "Daemon folders created."
 
 # CFG
-cp iqrf-daemon-build/bin/configuration/*.json ${DEPLOY}${IQRFGD2_CFG}
-cp iqrf-daemon-build/bin/configuration/deploy/devel/*.json ${DEPLOY}${IQRFGD2_CFG}
-cp -r iqrf-daemon-build/bin/configuration/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
+cp iqrf-daemon-source/start-IqrfDaemon/configuration/*.json ${DEPLOY}${IQRFGD2_CFG}
+cp iqrf-daemon-source/start-IqrfDaemon/configuration-LinDeployDevel/*.json ${DEPLOY}${IQRFGD2_CFG}
+cp -r iqrf-daemon-source/start-IqrfDaemon/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
 
 # BIN
 cp iqrf-daemon-build/bin/iqrfgd2 ${DEPLOY}${IQRFGD2_BIN}/iqrfgd2
 cp iqrf-daemon-build/bin/*.so ${DEPLOY}${IQRFGD2_LIBS}
 
 # SHARE
-cp -r iqrf-daemon-build/bin/configuration/apiSchemas ${DEPLOY}${IQRFGD2_SHARE}
-cp -r iqrf-daemon-build/bin/configuration/javaScript ${DEPLOY}${IQRFGD2_SHARE}
+cp -r iqrf-daemon-source/libraries/iqrf-daemon-api/JsonSchemas/ ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/
+cp -r iqrf-daemon-source/start-IqrfDaemon/configuration/javaScript ${DEPLOY}${IQRFGD2_SHARE}
 
 # CACHE
-cp -r iqrf-daemon-build/bin/configuration/scheduler ${DEPLOY}${IQRFGD2_CACHE}
-cp -r iqrf-daemon-build/bin/configuration/iqrfRepoCache ${DEPLOY}${IQRFGD2_CACHE}
+cp -r iqrf-daemon-source/start-IqrfDaemon/javaScript ${DEPLOY}${IQRFGD2_CACHE}
+cp -r iqrf-daemon-source/start-IqrfDaemon/iqrfRepoCache ${DEPLOY}${IQRFGD2_CACHE}
 
 # SERVICE
-cp iqrf-daemon-build/bin/configuration/systemd/*.service ${DEPLOY}${IQRFGD2_SERVICE}
+cp iqrf-daemon-source/start-IqrfDaemon/systemd/*.service ${DEPLOY}${IQRFGD2_SERVICE}
 
 # SHAPE 
 cp shape-libs${IQRFGD2_LIBS}/* ${DEPLOY}${IQRFGD2_LIBS}
