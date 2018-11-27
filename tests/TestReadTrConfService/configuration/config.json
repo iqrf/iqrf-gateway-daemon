@@ -65,6 +65,7 @@
     },
     {
       "name": "iqrf::TestReadTrConfService",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "TestReadTrConfService",
       "enabled": true,
       "startlevel": 4
