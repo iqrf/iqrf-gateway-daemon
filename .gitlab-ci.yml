@@ -184,6 +184,10 @@ stages:
   - tar xzvf shapeware-source_${ARCH}.tar.gz
   - tar xzvf shapeware-build_${ARCH}.tar.gz
   - tar xzvf shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+  - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
   - mv ../iqrf-gateway-daemon*.deb .
