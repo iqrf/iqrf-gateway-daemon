@@ -408,7 +408,7 @@ namespace iqrf {
 
     for (const char* url : testUrls) {
       std::string inReq = Imp::get().m_iTestSimulationIRestApiService->popIncomingRequest(MILLIS_WAIT);
-      EXPECT_EQ(url, inReq);
+      ASSERT_EQ(url, inReq);
     }
 
     auto  serverState = Imp::get().m_iJsCacheService->getServerState();
@@ -476,7 +476,7 @@ namespace iqrf {
     int num = 10;
     for (const char* url : testUrls) {
       std::string inReq = Imp::get().m_iTestSimulationIRestApiService->popIncomingRequest(MILLIS_WAIT);
-      EXPECT_EQ(url, inReq);
+      ASSERT_EQ(url, inReq);
       if (num-- < 0) break;
     }
 

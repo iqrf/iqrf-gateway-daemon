@@ -5,18 +5,18 @@
   "cacheDir": "configuration",
   "userDir": "",
   "configurationDir": "configuration",
-  "deploymentDir": "../../bin/Debug",
+  "deploymentDir": "../../..",
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3
@@ -30,43 +30,43 @@
     },
     {
       "name": "iqrf::TestSimulationIqrfChannel",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "TestSimulationIqrfChannel",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfDpa",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::TestSimulationMessaging",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "TestSimulationMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsonSplitter",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsonSplitter",
       "enabled": true,
       "startlevel": 1
     },
     {
-      "name": "iqrf::EnumerateDeviceService",
-      "libraryPath": "",
-      "libraryName": "EnumerateDeviceService",
+      "name": "iqrf::JsonDpaApiRaw",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "JsonDpaApiRaw",
       "enabled": true,
-      "startlevel": 4
+      "startlevel": 3
     },
     {
-      "name": "iqrf::TestEnumerationDeviceService",
-      "libraryPath": "",
-      "libraryName": "TestEnumerationDeviceService",
+      "name": "iqrf::TestJsonDpaApiRaw",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "TestJsonDpaApiRaw",
       "enabled": true,
       "startlevel": 4
     }

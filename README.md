@@ -1,8 +1,7 @@
 # Structure
 
 - **Documets:** Anything related to official documentation (md files, images, uml, ...)
-- **Ideas:** Any non official stuff  (docs, images, files, e-mails, etc...)
-- **Trash:** To be deleted stuff.
+
 
 # Requirements
 
@@ -25,8 +24,32 @@
 # Win developement instalation
 
 Install:
-- [shape](https://github.com/logimic/shape) (launcher, logging, ...)
-- [shapeware](https://github.com/logimic/shapeware) (cpprest, websockets, ...)
-- `./build64.bat` or `./build64.bat`
-- Copy libs according #66 (temporary up to appropriate deployment)
-- install paho: **vcpkg install paho-mqtt**
+- install [vcpkg](https://github.com/Microsoft/vcpkg) to `c:\devel\vcpkg\`
+- `vcpkg install paho-mqtt:x64-windows`
+- `vcpkg install boost-filesystem:x64-windows`
+- `vcpkg install curl:x64-windows`
+- [shape](https://github.com/logimic/shape) (basic components launcher, logging, ...) start `build64_2017.bat` (change MSVC version to your MSVC)
+- [shapeware](https://github.com/logimic/shapeware) (additional components websockets, ...) start `build64_2017.bat` (change MSVC version to your MSVC)
+- from this director  start one of `build64_2017.bat` (change MSVC version to your MSVC)
+
+# Lin developement instalation
+
+Install:
+- install necessary packages TODO describe how
+  - boost-filesystem
+  - curl
+  - paho
+- [shape](https://github.com/logimic/shape) (basic components launcher, logging, ...) start `buildMake.sh`
+- [shapeware](https://github.com/logimic/shapeware) (additional components websockets, ...) start `buildMake.sh`
+- from this director  start one of `buildMake.sh`
+
+# Deploy structure
+Deploy directory can be specified in Shape build script `build*.bat` resp. `buildMake.sh` or is defaulted to `.../shape/deploy`. The directory is passed to dependent projects via cmake variable during configuration/generation phase.
+
+The deploy directory is created by cmake install by build script and it can be re-run by INSTALL target in MSVC, resp. `make install`
+
+The deploy directory contains ready to run installation and tests. It can be used by a packaging script. Note we intend to evaluate cmake packaging feature even for packaging if applicable. 
+
+See more at https://github.com/logimic/shape/blob/master/Deployment.md
+
+  

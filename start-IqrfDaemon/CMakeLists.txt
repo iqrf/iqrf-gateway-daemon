@@ -27,10 +27,15 @@ if(UNIX)
     pthread
   )
 endif()
-
+ 
 DeployShapeComponent(${PROJECT_NAME})
 
-list(APPEND CfgList "WinCdc" "LinCdc" "LinSpi" "LinUart" "LinDeployDevel" "LinDeployRelease")
+if(UNIX)
+	list(APPEND CfgList "LinCdc" "LinSpi" "LinUart" "LinDeployDevel" "LinDeployRelease")
+else()
+	list(APPEND CfgList "WinCdc")
+endif()
+
 foreach(cfg ${CfgList})
 	DeployShapeConfiguration(${PROJECT_NAME}-${cfg}
 		${CMAKE_CURRENT_SOURCE_DIR}/configuration					configuration

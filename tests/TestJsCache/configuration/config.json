@@ -5,18 +5,18 @@
   "cacheDir": "configuration",
   "userDir": "",
   "configurationDir": "configuration",
-  "deploymentDir": "../../bin/Debug",
+  "deploymentDir": "../../..",
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3
@@ -37,49 +37,49 @@
     },
     {
       "name": "iqrf::Scheduler",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "Scheduler",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::TestSimulationIqrfChannel",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "TestSimulationIqrfChannel",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfDpa",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsCache",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsCache",
       "enabled": true,
       "startlevel": 2
     },
     {
       "name": "iqrf::JsRenderDuktape",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsRenderDuktape",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "shape::TestSimulationIRestApiService",
-      "libraryPath": "../../../../../../shapeware/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shapeware/bin",
       "libraryName": "TestSimulationIRestApiService",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::TestJsCache",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "TestJsCache",
       "enabled": true,
       "startlevel": 1

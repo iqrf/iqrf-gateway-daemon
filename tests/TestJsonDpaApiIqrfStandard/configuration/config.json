@@ -5,18 +5,18 @@
   "cacheDir": "configuration",
   "userDir": "",
   "configurationDir": "configuration",
-  "deploymentDir": "../../bin",
+  "deploymentDir": "../../..",
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "../../../../../../shape/build/Unix_Makefiles/bin",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "../../../../../../shape/build/Unix_Makefiles/bin",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3
@@ -29,44 +29,72 @@
       "startlevel": -2
     },
     {
+      "name": "shape::CurlRestApiService",
+      "libraryPath": "shapeware/bin",
+      "libraryName": "CurlRestApiService",
+      "enabled": true,
+      "startlevel": -1
+    },
+    {
+      "name": "iqrf::Scheduler",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "Scheduler",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
       "name": "iqrf::TestSimulationIqrfChannel",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "TestSimulationIqrfChannel",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfDpa",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
     },
     {
+      "name": "iqrf::JsCache",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "JsCache",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsRenderDuktape",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "JsRenderDuktape",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
       "name": "iqrf::TestSimulationMessaging",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "TestSimulationMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsonSplitter",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsonSplitter",
       "enabled": true,
       "startlevel": 1
     },
     {
-      "name": "iqrf::JsonDpaApiRaw",
-      "libraryPath": "",
-      "libraryName": "JsonDpaApiRaw",
+      "name": "iqrf::JsonDpaApiIqrfStandard",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "JsonDpaApiIqrfStandard",
       "enabled": true,
       "startlevel": 3
     },
     {
-      "name": "iqrf::TestJsonDpaApiRaw",
-      "libraryPath": "",
-      "libraryName": "TestJsonDpaApiRaw",
+      "name": "iqrf::TestJsonDpaApiIqrfStandard",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "TestJsonDpaApiIqrfStandard",
       "enabled": true,
       "startlevel": 4
     }

@@ -25,3 +25,5 @@ else()
 endif()
 
 set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${TESTS_FOLDER})
+
+DeployShapeComponent(${PROJECT_NAME})

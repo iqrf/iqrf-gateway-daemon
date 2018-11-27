@@ -5,18 +5,18 @@
   "cacheDir": ".",
   "userDir": "",
   "configurationDir": "configuration",
-  "deploymentDir": "../../bin/Debug",
+  "deploymentDir": "../../..",
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "../../../../../../shape/build/VS14_2015_x64/bin/Debug",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3
@@ -29,18 +29,18 @@
       "startlevel": -2
     },
     {
-      "name": "iqrf::JsRenderDuktape",
-      "libraryPath": ".",
-      "libraryName": "JsRenderDuktape",
+      "name": "iqrf::Scheduler",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "Scheduler",
       "enabled": true,
-      "startlevel": 1
+      "startlevel": 0
     },
     {
-      "name": "iqrf::TestJsRender",
-      "libraryPath": ".",
-      "libraryName": "TestJsRender",
+      "name": "iqrf::TestScheduler",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "TestScheduler",
       "enabled": true,
-      "startlevel": 2
+      "startlevel": 1
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "applicationName": "iqrfgd2",
   "resourceDir": "",
-  "dataDir": "configuration",
+  "dataDir": "configuration/da-ta-dir-share",
   "cacheDir": "configuration",
   "userDir": "",
   "configurationDir": "configuration",
-  "deploymentDir": "../../bin",
+  "deploymentDir": "../../..",
   "components": [
     {
       "name": "shape::TraceFormatService",
-      "libraryPath": "../../../../../../shape/build/Unix_Makefiles/bin",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFormatService",
       "enabled": true,
       "startlevel": -4
     },
     {
       "name": "shape::TraceFileService",
-      "libraryPath": "../../../../../../shape/build/Unix_Makefiles/bin",
+      "libraryPath": "shape/bin",
       "libraryName": "TraceFileService",
       "enabled": true,
       "startlevel": -3
@@ -29,72 +29,43 @@
       "startlevel": -2
     },
     {
-      "name": "shape::CppRestService",
-      "libraryPath": "../../../../../../shapeware/build/Unix_Makefiles/bin",
-      "libraryName": "CppRestService",
-      "enabled": true,
-      "startlevel": -1
-    },
-    {
-      "name": "iqrf::Scheduler",
-      "libraryPath": "",
-      "libraryName": "Scheduler",
-      "enabled": true,
-      "startlevel": 1
-    },
-    {
       "name": "iqrf::TestSimulationIqrfChannel",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "TestSimulationIqrfChannel",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfDpa",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
     },
     {
-      "name": "iqrf::JsCache",
-      "libraryPath": "",
-      "libraryName": "JsCache",
-      "enabled": true,
-      "startlevel": 2
-    },
-    {
-      "name": "iqrf::JsRenderDuktape",
-      "libraryPath": "",
-      "libraryName": "JsRenderDuktape",
-      "enabled": true,
-      "startlevel": 1
-    },
-    {
       "name": "iqrf::TestSimulationMessaging",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "TestSimulationMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsonSplitter",
-      "libraryPath": "",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "JsonSplitter",
       "enabled": true,
       "startlevel": 1
     },
     {
-      "name": "iqrf::JsonDpaApiIqrfStandard",
-      "libraryPath": "",
-      "libraryName": "JsonDpaApiIqrfStandard",
+      "name": "iqrf::ReadTrConfService",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "ReadTrConfService",
       "enabled": true,
-      "startlevel": 3
+      "startlevel": 4
     },
     {
-      "name": "iqrf::TestJsonDpaApiIqrfStandard",
-      "libraryPath": "",
-      "libraryName": "TestJsonDpaApiIqrfStandard",
+      "name": "iqrf::TestReadTrConfService",
+      "libraryName": "TestReadTrConfService",
       "enabled": true,
       "startlevel": 4
     }
