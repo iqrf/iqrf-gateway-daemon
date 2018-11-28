@@ -140,10 +140,8 @@ namespace iqrf {
     {
       using namespace rapidjson;
 
-      if (Pointer("/data/insId").Get(doc)) {
-        //if exist replace by configured insId value
-        Pointer("/data/insId").Set(doc, m_insId);
-      }
+      //all outgoing msgs tagged by insId
+      Pointer("/data/insId").Set(doc, m_insId);
       
       TRC_INFORMATION("Outcomming message:\n"
         << NAME_PAR(Messaging ID, messagingId)
