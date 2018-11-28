@@ -49,7 +49,7 @@ cp iqrf-daemon-build/bin/*.so ${DEPLOY}${IQRFGD2_LIBS}
 
 # SHARE
 cp -r iqrf-daemon-source/libraries/iqrf-daemon-api/JsonSchemas/ ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/
-cp -r iqrf-daemon-source/start-IqrfDaemon/configuration/javaScript ${DEPLOY}${IQRFGD2_SHARE}
+cp -r iqrf-daemon-source/start-IqrfDaemon/javaScript ${DEPLOY}${IQRFGD2_SHARE}
 
 # CACHE
 cp -r iqrf-daemon-source/start-IqrfDaemon/javaScript ${DEPLOY}${IQRFGD2_CACHE}

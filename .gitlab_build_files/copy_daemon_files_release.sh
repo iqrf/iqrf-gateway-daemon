@@ -60,7 +60,7 @@ rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/mngDaemon_Upload*.json
 cp -r iqrf-daemon-source/start-IqrfDaemon/javaScript ${DEPLOY}${IQRFGD2_SHARE}
 
 # CACHE
-cp -r iqrf-daemon-source/start-IqrfDaemon/configuration/scheduler ${DEPLOY}${IQRFGD2_CACHE}
+cp -r iqrf-daemon-source/start-IqrfDaemon/scheduler ${DEPLOY}${IQRFGD2_CACHE}
 cp -r iqrf-daemon-source/start-IqrfDaemon/iqrfRepoCache ${DEPLOY}${IQRFGD2_CACHE}
 
 # SERVICE
