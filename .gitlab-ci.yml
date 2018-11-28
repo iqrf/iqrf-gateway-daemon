@@ -73,7 +73,7 @@ stages:
     - shapeware-source_*.tar.gz
     - shapeware-build_*.tar.gz
     - shapeware-libs_*.tar.gz
-    expire_in: 2 weeks
+    expire_in: 2 days
 
 .shape_shapeware_debug-template: &shape_shapeware_debug-template
   stage: dependencies
@@ -105,7 +105,7 @@ stages:
     - shapeware-source_*.tar.gz
     - shapeware-build_*.tar.gz
     - shapeware-libs_*.tar.gz
-    expire_in: 2 weeks
+    expire_in: 2 days
 
 .daemon-template: &daemon-template
   stage: build
@@ -133,7 +133,7 @@ stages:
     paths:
     - iqrf-daemon-source_*.tar.gz
     - iqrf-daemon-build_*.tar.gz
-    expire_in: 2 weeks
+    expire_in: 2 days
 
 .daemon_debug-template: &daemon_debug-template
   stage: build
