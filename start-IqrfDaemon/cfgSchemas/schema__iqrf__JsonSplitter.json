@@ -25,6 +25,11 @@
             "description": "...",
             "default": true
         },
+        "insId": {
+            "type": "string",
+            "description": "iqrfgd2 instance identification",
+            "default": "iqrfgd2-default"
+        },
         "RequiredInterfaces": {
             "type": "array",
             "description": "Array of required interfaces.",

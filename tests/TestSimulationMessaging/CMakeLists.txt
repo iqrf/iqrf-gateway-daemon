@@ -21,3 +21,7 @@ if(SHAPE_STATIC_LIBS)
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
+
+set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${TESTS_FOLDER})
+
+DeployShapeComponent(${PROJECT_NAME})

@@ -25,3 +25,5 @@ endif()
 target_link_libraries(${PROJECT_NAME}
 	uart_iqrf
 )
+
+DeployShapeComponent(${PROJECT_NAME})

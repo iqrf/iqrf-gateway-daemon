@@ -2,6 +2,8 @@ project(IqrfDaemon)
 
 cmake_minimum_required(VERSION 3.0)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 enable_testing()
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -27,6 +29,9 @@ FIND_PACKAGE(shape REQUIRED)
 
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 include(${CMAKE_MODULE_PATH}/ShapeComponentDeclaration.cmake)
+
+set(PROJECT_INSTALL_PREFIX ${PROJECT_NAME})
+set(CMAKE_INSTALL_PREFIX ${shape_DEPLOY})
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 

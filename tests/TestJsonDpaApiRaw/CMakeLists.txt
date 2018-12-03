@@ -10,15 +10,9 @@ AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
-if(WIN32)
-  set(_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configurationWin)
-else()
-  set(_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configurationLin)
-endif()
-
 file(GLOB_RECURSE _HDRFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-file(GLOB_RECURSE _SRCCONFIG ${_CONFIG}/*)
+file(GLOB_RECURSE _SRCCONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configuration/*)
 
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
@@ -37,34 +31,17 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} GTestStaticRunner ${GoogleTest_LIBRARIES})
 
-# system dependant configurationLin/Win
-add_custom_command(
-    TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_directory ${_CONFIG} "${CMAKE_CURRENT_BINARY_DIR}/configuration"
+set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${TESTS_FOLDER})
+
+DeployShapeComponent(${PROJECT_NAME})
+
+DeployShapeConfiguration(${PROJECT_NAME}
+	${CMAKE_CURRENT_SOURCE_DIR}/configuration	configuration
+	${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemas configuration/da-ta-dir-share/apiSchemas
 )
 
-# configuration
-add_custom_command(
-    TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/configuration "${CMAKE_CURRENT_BINARY_DIR}/configuration"
-)
+DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/iqrfgd2" ${PROJECT_NAME})
 
-#copy api schemas
-set(_JSON_SCHEMES_FROM ${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemas)
-set(_JSON_SCHEMES_TO ${CMAKE_CURRENT_BINARY_DIR}/configuration/da-ta-dir-share/apiSchemas)
-add_custom_command(
-    TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_directory ${_JSON_SCHEMES_FROM} ${_JSON_SCHEMES_TO}
-)
+ConfigureMsvcProject("${PROJECT_INSTALL_PREFIX}/bin/iqrfgd2" ${PROJECT_NAME})
 
-add_test(
-	NAME ${PROJECT_NAME}
-	COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/iqrfgd2 ${CMAKE_CURRENT_BINARY_DIR}/configuration/config.json
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
+DeployShapeConfigurationTest("${PROJECT_INSTALL_PREFIX}/bin/iqrfgd2" ${PROJECT_NAME})

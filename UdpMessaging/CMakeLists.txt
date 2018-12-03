@@ -31,3 +31,5 @@ else()
 		rt
 	)
 endif()
+
+DeployShapeComponent(${PROJECT_NAME})

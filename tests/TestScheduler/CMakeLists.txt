@@ -9,15 +9,9 @@ AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
-if(WIN32)
-  set(_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configurationWin)
-else()
-  set(_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configurationLin)
-endif()
-
 file(GLOB_RECURSE _HDRFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-file(GLOB_RECURSE _SRCCONFIG ${_CONFIG}/*)
+file(GLOB_RECURSE _SRCCONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configuration/*)
 file(GLOB_RECURSE _SRCSCHED ${CMAKE_CURRENT_SOURCE_DIR}/scheduler/*)
 
 source_group("Header Files" FILES ${_HDRFILES})
@@ -37,34 +31,18 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} GTestStaticRunner ${GoogleTest_LIBRARIES})
 
-# system dependant configurationLin/Win
-add_custom_command(
-    TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_directory ${_CONFIG} "${CMAKE_CURRENT_BINARY_DIR}/configuration"
+set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${TESTS_FOLDER})
+
+DeployShapeComponent(${PROJECT_NAME})
+
+DeployShapeConfiguration(${PROJECT_NAME}
+	${CMAKE_CURRENT_SOURCE_DIR}/configuration	configuration
+	${CMAKE_CURRENT_SOURCE_DIR}/scheduler		scheduler
 )
 
-# configuration
-add_custom_command(
-    TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/configuration "${CMAKE_CURRENT_BINARY_DIR}/configuration"
-)
+DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/iqrfgd2" ${PROJECT_NAME})
 
-#copy scheduler/Task.json
-set(_CFG_SCHEDULER_FROM ${CMAKE_CURRENT_SOURCE_DIR}/scheduler)
-set(_CFG_SCHEDULER_TO "${CMAKE_CURRENT_BINARY_DIR}/scheduler")
-add_custom_command(
-    TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy_directory ${_CFG_SCHEDULER_FROM} ${_CFG_SCHEDULER_TO}
-)
+ConfigureMsvcProject("${PROJECT_INSTALL_PREFIX}/bin/iqrfgd2" ${PROJECT_NAME})
 
-add_test(
-	NAME ${PROJECT_NAME}
-	COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/iqrfgd2 ${CMAKE_CURRENT_BINARY_DIR}/configuration/config.json
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
+DeployShapeConfigurationTest("${PROJECT_INSTALL_PREFIX}/bin/iqrfgd2" ${PROJECT_NAME})
+

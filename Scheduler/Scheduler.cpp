@@ -17,9 +17,18 @@
 
 #include "Scheduler.h"
 #include "rapidjson/pointer.h"
+#include "rapidjson/ostreamwrapper.h"
 #include "Trace.h"
 #include "ShapeDefines.h"
 #include <algorithm>
+#include <set>
+
+#ifdef SHAPE_PLATFORM_WINDOWS
+#include <windows.h>
+#else
+#include <dirent.h>
+#include <sys/stat.h>
+#endif
 
 #include "iqrf__Scheduler.hxx"
 
@@ -50,14 +59,31 @@ namespace iqrf {
       "******************************"
     );
 
-    std::string schedulerDir = m_iLaunchService->getCacheDir();
-    schedulerDir += "/scheduler/Tasks.json";
-    TRC_DEBUG("Using directory: " << PAR(schedulerDir))
-    updateConfiguration(schedulerDir);
+    using namespace rapidjson;
 
-    //if (shape::Properties::Result::ok == props->getMemberAsString("TasksFile", fname)) {
-    //  updateConfiguration(fname);
-    //}
+    m_cacheDir = m_iLaunchService->getCacheDir();
+    m_cacheDir += "/scheduler";
+    m_schemaFile = m_cacheDir;
+    m_schemaFile += "/schema/schema_cache_record.json";
+    TRC_INFORMATION("Using cache dir: " << PAR(m_cacheDir));
+    
+    Document sd;
+    std::ifstream ifs(m_schemaFile);
+    if (!ifs.is_open()) {
+      THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(m_schemaFile));
+    }
+
+    IStreamWrapper isw(ifs);
+    sd.ParseStream(isw);
+
+    if (sd.HasParseError()) {
+      THROW_EXC_TRC_WAR(std::logic_error, "Json parse error: " << NAME_PAR(emsg, sd.GetParseError()) <<
+        NAME_PAR(eoffset, sd.GetErrorOffset()));
+    }
+
+    m_schema = std::shared_ptr<SchemaDocument>(shape_new SchemaDocument(sd));
+
+    loadCache();
 
     m_dpaTaskQueue = shape_new TaskQueue<ScheduleRecord>([&](const ScheduleRecord& record) {
       handleScheduledRecord(record);
@@ -139,58 +165,84 @@ namespace iqrf {
     shape::Tracer::get().removeTracerService(iface);
   }
 
-  void Scheduler::updateConfiguration(const std::string& fname)
+  void Scheduler::loadCache()
   {
     TRC_FUNCTION_ENTER("");
     using namespace rapidjson;
-    rapidjson::Document cfg;
-    jutils::parseJsonFile(fname, cfg);
-    jutils::assertIsObject("", cfg);
+  
+    try {
+      auto tfiles = getTaskFiles(m_cacheDir);
 
-    std::vector<std::shared_ptr<ScheduleRecord>> tempRecords;
+      for (const auto& fname : tfiles) {
+        std::ifstream ifs(fname);
+        IStreamWrapper isw(ifs);
 
-    const auto m = cfg.FindMember("TasksJson");
+        Document d;
+        d.ParseStream(isw);
+        if (d.HasParseError()) {
+          TRC_WARNING("Json parse error: " << NAME_PAR(emsg, d.GetParseError()) <<
+            NAME_PAR(eoffset, d.GetErrorOffset()));
 
-    if (Value* v = Pointer("/TasksJson").Get(cfg)) {
-      try {
-        const auto v = jutils::getMember("TasksJson", cfg);
-        if (!v->value.IsArray())
-          THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array, detected: " << NAME_PAR(name, v->value.GetString()) << NAME_PAR(type, v->value.GetType()));
+          continue; //ignore task 
 
-        for (auto it = v->value.Begin(); it != v->value.End(); ++it) {
-          tempRecords.push_back(std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(*it)));
+        }
+
+        SchemaValidator validator(*m_schema);
+
+        if (!d.Accept(validator)) {
+          // Input JSON is invalid according to the schema
+          StringBuffer sb;
+          std::string schema, keyword, document;
+          validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+          schema = sb.GetString();
+          keyword = validator.GetInvalidSchemaKeyword();
+          sb.Clear();
+          validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+          document = sb.GetString();
+          TRC_WARNING("Invalid " << PAR(schema) << PAR(keyword) << NAME_PAR(message, document));
+
+          continue; //ignore task
+
+        }
+
+        std::shared_ptr<ScheduleRecord> ptr(shape_new ScheduleRecord(d));
+        ptr->setPersist(true);
+
+        // lock and copy
+        std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
+        auto found = m_scheduledTasksByHandle.find(ptr->getTaskHandle());
+        if (found != m_scheduledTasksByHandle.end()) {
+          TRC_WARNING("Cannot load duplicit: " << NAME_PAR(taskId, ptr->getTaskHandle()))
+        }
+        else {
+          addScheduleRecordUnlocked(ptr);
         }
       }
-      catch (std::exception &e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Cought when parsing scheduler table");
-      }
     }
-    else {
-      TRC_WARNING("Missing expected member: TasksJson");
+    catch (std::exception &e) {
+      CATCH_EXC_TRC_WAR(std::exception, e, "cannot load scheduler cache")
     }
-
-    addScheduleRecords(tempRecords);
 
     TRC_FUNCTION_LEAVE("");
   }
 
-  Scheduler::TaskHandle Scheduler::scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime)
+  Scheduler::TaskHandle Scheduler::scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist)
   {
-    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, cronTime));
+    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, cronTime, persist));
     return addScheduleRecord(s);
   }
 
-  Scheduler::TaskHandle Scheduler::scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp)
+  Scheduler::TaskHandle Scheduler::scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist)
   {
-    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, tp));
+    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, tp, persist));
     return addScheduleRecord(s);
   }
 
   Scheduler::TaskHandle Scheduler::scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
-    const std::chrono::system_clock::time_point& tp)
+    const std::chrono::system_clock::time_point& tp, bool persist)
   {
     try {
-      std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, sec, tp));
+      std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, sec, tp, persist));
       return addScheduleRecord(s);
     }
     catch (std::exception &e) {
@@ -251,6 +303,28 @@ namespace iqrf {
   {
     std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
 
+    if (record->isPersist()) {
+      using namespace rapidjson;
+
+      std::ostringstream os;
+      os << m_cacheDir << '/' << record->getTaskHandle() << ".json";
+      std::string fname = os.str();
+
+      std::ifstream ifs(fname);
+      if (ifs.good()) {
+        TRC_WARNING("File already exists: " << PAR(fname));
+      }
+      else {
+        Document d;
+        auto v = record->serialize(d.GetAllocator());
+        d.Swap(v);
+        std::ofstream ofs(fname);
+        OStreamWrapper osw(ofs);
+        PrettyWriter<OStreamWrapper> writer(osw);
+        d.Accept(writer);
+      }
+    }
+
     addScheduleRecordUnlocked(record);
 
     // notify timer thread
@@ -259,20 +333,6 @@ namespace iqrf {
     m_conditionVariable.notify_one();
 
     return record->getTaskHandle();
-  }
-
-  void Scheduler::addScheduleRecords(std::vector<std::shared_ptr<ScheduleRecord>>& records)
-  {
-    std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-
-    for (auto & record : records) {
-      addScheduleRecordUnlocked(record);
-    }
-
-    // notify timer thread
-    std::unique_lock<std::mutex> lckn(m_conditionVariableMutex);
-    m_scheduledTaskPushed = true;
-    m_conditionVariable.notify_one();
   }
 
   void Scheduler::removeScheduleRecordUnlocked(std::shared_ptr<ScheduleRecord>& record)
@@ -284,6 +344,14 @@ namespace iqrf {
       else
         it++;
     }
+    
+    if (record->isPersist()) {
+      std::ostringstream os;
+      os << m_cacheDir << '/' << record->getTaskHandle() << ".json";
+      std::string fname = os.str();
+      std::remove(fname.c_str());
+    }
+
     m_scheduledTasksByHandle.erase(handle);
   }
 
@@ -291,14 +359,6 @@ namespace iqrf {
   {
     std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
     removeScheduleRecordUnlocked(record);
-  }
-
-  void Scheduler::removeScheduleRecords(std::vector<std::shared_ptr<ScheduleRecord>>& records)
-  {
-    std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-    for (auto & record : records) {
-      removeScheduleRecordUnlocked(record);
-    }
   }
 
   //thread function
@@ -345,7 +405,8 @@ namespace iqrf {
             m_scheduledTasksByTime.insert(std::make_pair(nextTimePoint, record));
           }
           else {
-            //TODO remove from m_scheduledTasksByHandle
+            //expired one shot task - remove from m_scheduledTasksByHandle
+            m_scheduledTasksByHandle.erase(record->getTaskHandle());
           }
 
           nextWakeupAndUnlock(timePoint);
@@ -391,19 +452,6 @@ namespace iqrf {
     m_messageHandlers.erase(clientId);
   }
 
-  //std::vector<const rapidjson::Value *> Scheduler::getMyTasks(const std::string& clientId) const
-  //{
-  //  std::vector<const rapidjson::Value *> retval;
-  //  // lock and copy
-  //  std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-  //  for (auto & task : m_scheduledTasksByTime) {
-  //    if (task.second->getClientId() == clientId) {
-  //      retval.push_back(&task.second->getTask());
-  //    }
-  //  }
-  //  return retval;
-  //}
-
   std::vector<ISchedulerService::TaskHandle> Scheduler::getMyTasks(const std::string& clientId) const
   {
     std::vector<TaskHandle> retval;
@@ -423,8 +471,10 @@ namespace iqrf {
     // lock and copy
     std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
     auto found = m_scheduledTasksByHandle.find(hndl);
-    if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId())
+    if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId()) {
       retval = &found->second->getTask();
+      const rapidjson::Value& vvv = found->second->getTask();
+    }
     return retval;
   }
 
@@ -436,6 +486,17 @@ namespace iqrf {
     auto found = m_scheduledTasksByHandle.find(hndl);
     if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId())
       retval = &found->second->getTimeSpec();
+    return retval;
+  }
+
+  bool Scheduler::isPersist(const std::string& clientId, const TaskHandle& hndl) const
+  {
+    bool retval = false;
+    // lock and copy
+    std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
+    auto found = m_scheduledTasksByHandle.find(hndl);
+    if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId())
+      retval = found->second->isPersist();
     return retval;
   }
 
@@ -470,5 +531,82 @@ namespace iqrf {
         removeScheduleRecordUnlocked(found->second);
     }
   }
+
+#ifdef SHAPE_PLATFORM_WINDOWS
+  std::set<std::string> Scheduler::getTaskFiles(const std::string& dir) const
+  {
+    WIN32_FIND_DATA fid;
+    HANDLE found = INVALID_HANDLE_VALUE;
+
+    std::set<std::string>  fileSet;
+    std::string sdirect(dir);
+    sdirect.append("/*.json");
+
+    found = FindFirstFile(sdirect.c_str(), &fid);
+
+    if (INVALID_HANDLE_VALUE == found) {
+      TRC_INFORMATION("Directory does not exist or empty Scheduler cache: " << PAR(sdirect));
+    }
+
+    do {
+      if (fid.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        continue; //skip a directory
+      std::string fil(dir);
+      fil.append("/");
+      fil.append(fid.cFileName);
+      fileSet.insert(fil);
+    } while (FindNextFile(found, &fid) != 0);
+
+    FindClose(found);
+    return fileSet;
+  }
+
+#else
+  std::set<std::string> Scheduler::getTaskFiles(const std::string& dirStr) const
+  {
+    std::set<std::string> fileSet;
+    std::string jsonExt = "json";
+
+    DIR *dir;
+    class dirent *ent;
+    class stat st;
+
+    dir = opendir(dirStr.c_str());
+    if (dir == nullptr) {
+      TRC_INFORMATION("Directory does not exist or empty Scheduler cache: " << PAR(dirStr));
+    }
+    else {
+      while ((ent = readdir(dir)) != NULL) {
+        const std::string file_name = ent->d_name;
+        const std::string full_file_name(dirStr + "/" + file_name);
+
+        if (file_name[0] == '.')
+          continue;
+
+        if (stat(full_file_name.c_str(), &st) == -1)
+          continue;
+
+        const bool is_directory = (st.st_mode & S_IFDIR) != 0;
+
+        if (is_directory)
+          continue;
+
+        //keep just *.json
+        size_t i = full_file_name.rfind('.', full_file_name.length());
+        if (i != std::string::npos && jsonExt == full_file_name.substr(i + 1, full_file_name.length() - i)) {
+          fileSet.insert(full_file_name);
+        }
+        else {
+          continue;
+        }
+      }
+      closedir(dir);
+ 
+    }
+
+    return fileSet;
+  }
+
+#endif
 
 }

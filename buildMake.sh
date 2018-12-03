@@ -33,4 +33,6 @@ cmake -G "Unix Makefiles" -DBUILD_TESTING:BOOL=true -Dshape_DIR:PATH=${shape} -D
 popd
 
 #build from generated build environment
-cmake --build ${builddir}
+cmake --build ${builddir} --config Debug --target install
+cmake --build ${builddir} --config Release --target install
+

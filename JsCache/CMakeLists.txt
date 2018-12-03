@@ -38,3 +38,23 @@ target_link_libraries(${PROJECT_NAME}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
 )
+
+DeployShapeComponent(${PROJECT_NAME})
+
+if(WIN32)
+	install(
+		FILES
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc140-mt-gd-x64-1_66.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_system-vc140-mt-gd-x64-1_66.dll"
+		CONFIGURATIONS Debug
+		DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	)
+
+	install(
+		FILES
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc140-mt-x64-1_66.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_system-vc140-mt-x64-1_66.dll"
+		CONFIGURATIONS Release
+		DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	)
+endif()

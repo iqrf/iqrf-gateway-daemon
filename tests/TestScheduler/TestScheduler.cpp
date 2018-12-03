@@ -146,6 +146,7 @@ namespace iqrf {
   {
   protected:
     const std::string CLIENT_ID = "TestScheduler";
+    const std::string CLIENT_ID_PERSIST = "TestSchedulerPersist";
     const int VAL1 = 1;
     const int VAL2 = 2;
     const std::string CRON1 = "*/1 * * * * * *"; //every 1sec
@@ -261,7 +262,6 @@ namespace iqrf {
   //TODO missing:
   // exact timing of tasks with long time => Scheduler wouldn't call now() directly. It shall be done by time provider interface mocked in tests
   // cron NICKNAMES: @yearly, ...
-  // predefined scheduler/tasks.json => shall be done after implementation of persistency
 
   TEST_F(SchedulerTesting, empty)
   {
@@ -276,6 +276,103 @@ namespace iqrf {
     //verify empty result as we pass wrong handler
     val = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, 0);
     EXPECT_EQ(nullptr, val);
+  }
+
+  TEST_F(SchedulerTesting, persist)
+  {
+    using namespace rapidjson;
+
+    const int TID1 = 1736;
+    const int TID2 = 25828;
+    const std::string MSG_ID1 = "b726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
+    const std::string MSG_ID2 = "a726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
+
+    //verify empty result as we haven't any tasks yet
+    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID_PERSIST);
+    ASSERT_EQ(2, taskHandleVect.size());
+
+    ISchedulerService::TaskHandle th1 = taskHandleVect[0];
+    ISchedulerService::TaskHandle th2 = taskHandleVect[1];
+
+    //tasks ordered according scheduled time so keep order
+    if (th1 != TID1) {
+      //swap
+      ISchedulerService::TaskHandle tmp = th1;
+      th1 = th2;
+      th2 = tmp;
+    }
+
+    //tasks ordered according scheduled time so no exact ordering expected
+    EXPECT_TRUE(TID1 == th1);
+    EXPECT_TRUE(TID2 == th2);
+
+    //verify returned task1
+    const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID_PERSIST, th1);
+    const rapidjson::Value *val1 = Pointer("/message/data/msgId").Get(*task1);
+    ASSERT_NE(nullptr, val1);
+    ASSERT_TRUE(val1->IsString());
+    EXPECT_EQ(MSG_ID1, val1->GetString());
+
+    //verify returned task2
+    const rapidjson::Value *task2 = m_iSchedulerService->getMyTask(CLIENT_ID_PERSIST, th2);
+    const rapidjson::Value *val2 = Pointer("/message/data/msgId").Get(*task2);
+    ASSERT_NE(nullptr, val2);
+    ASSERT_TRUE(val2->IsString());
+    EXPECT_EQ(MSG_ID2, val2->GetString());
+  }
+
+  TEST_F(SchedulerTesting, addTaskPersist)
+  {
+    using namespace rapidjson;
+    Document doc1;
+    Pointer("/item").Set(doc1, VAL1);
+
+    //schedule two tasks by cron time
+    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTask(CLIENT_ID, doc1, CRON1, true);
+
+    //expected one handler
+    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
+    ASSERT_EQ(1, taskHandleVect.size());
+    //tasks ordered according scheduled time so no exact ordering expected
+    EXPECT_TRUE(th1 == taskHandleVect[0]);
+
+    //verify returned task1
+    const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
+    const rapidjson::Value *val1 = Pointer("/item").Get(*task1);
+    ASSERT_NE(nullptr, val1);
+    ASSERT_TRUE(val1->IsInt());
+    EXPECT_EQ(VAL1, val1->GetInt());
+
+    //verify returned task1 timeSpec
+    const rapidjson::Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, th1);
+    SchedulerTesting::checkTimeSpec(timeSpec, CRON1, false, false, 0, "");
+
+    //verify created persistent file
+    std::ostringstream os;
+    os << "scheduler/" << th1 << ".json";
+    std::string fname = os.str();
+
+    std::ifstream ifs(fname), ifs1;
+    ASSERT_TRUE(ifs.is_open());
+
+    //verify file written correctly
+    Document d;
+    IStreamWrapper isw(ifs);
+    d.ParseStream(isw);
+    const rapidjson::Value *val2 = Pointer("/task/item").Get(d);
+    ASSERT_NE(nullptr, val2);
+    ASSERT_TRUE(val2->IsInt());
+    EXPECT_EQ(VAL1, val2->GetInt());
+    
+    ifs.close();
+
+    //remove tasks
+    m_iSchedulerService->removeTask(CLIENT_ID, th1);
+
+    //verify remove file
+    ifs1.open(fname);
+    ASSERT_FALSE(ifs1.good());
+    ifs1.close();
   }
 
   TEST_F(SchedulerTesting, scheduleTask)

@@ -27,3 +27,4 @@ if(NOT WIN32)
   )
 endif()
 
+DeployShapeComponent(${PROJECT_NAME})

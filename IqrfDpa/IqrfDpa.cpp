@@ -196,17 +196,19 @@ namespace iqrf {
       hndl.second(dpaMessage);
   }
 
-  void IqrfDpa::getIqrfNetworkParams()
+  void IqrfDpa::asyncResetHandler(const DpaMessage& dpaMessage)
   {
     TRC_FUNCTION_ENTER("");
+
+    const DpaMessage::DpaPacket_t& p = dpaMessage.DpaPacket();
     
-    std::mutex mtx;
-    std::condition_variable cv;
-    
-    TRC_DEBUG("Set provisional Async msg handling");
-    m_dpaHandler->unregisterAsyncMessageHandler("");
-    m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
-      std::unique_lock<std::mutex> lck(mtx);
+    if (p.DpaResponsePacket_t.NADR == 0 &&
+      p.DpaResponsePacket_t.PNUM == PNUM_ENUMERATION &&
+      p.DpaResponsePacket_t.PCMD == CMD_GET_PER_INFO &&
+      p.DpaResponsePacket_t.ResponseCode == STATUS_ASYNC_RESPONSE
+      )
+    { // shall be TR reset result async msg
+
       PrfEnum prfEnum;
       if (prfEnum.parseCoordinatorResetAsyncResponse(dpaMessage)) {
         TRC_DEBUG("Parsed TR reset result async msg");
@@ -226,76 +228,92 @@ namespace iqrf {
           NAME_PAR(lpModeSupportFlag, m_cPar.lpModeSupportFlag) <<
           std::endl
         );
+        if (m_cPar.stdModeSupportFlag) {
+          m_rfMode = IDpaTransaction2::kStd;
+        }
+        if (m_cPar.lpModeSupportFlag) {
+          m_rfMode = IDpaTransaction2::kLp;
+        }
+        m_dpaHandler->setRfCommunicationMode(m_rfMode);
       }
       else {
         TRC_WARNING("Wrong format of TR reset result async msg");
       }
-      cv.notify_all();
-    });
+
+      m_asyncResetCv.notify_all();
+
+    }
+    else {
+      TRC_DEBUG("Not a TR reset async response")
+    }
+
+    TRC_FUNCTION_LEAVE("")
+  }
+
+  void IqrfDpa::getIqrfNetworkParams()
+  {
+    TRC_FUNCTION_ENTER("");
+
+    bool sentExplicitReset = false;
+
+    while (true)
+    { // wait for reset TR module async msg.
+      std::unique_lock<std::mutex> lck(m_asyncResetMtx);
+
+      //wait for async msg after reset
+      const int wtime = 3000;
+      TRC_INFORMATION("Waiting for TR reset result [ms]: " << PAR(wtime));
+
+      //while (m_asyncResetCv.wait_for(lck, std::chrono::milliseconds(wtime))== std::cv_status::timeout) {
+      if (m_asyncResetCv.wait_for(lck, std::chrono::milliseconds(wtime)) == std::cv_status::timeout) {
+
+        if (!sentExplicitReset) {
+          sentExplicitReset = true;
+          TRC_INFORMATION("No async TR reset response => Send explicit request");
+          PrfOs prfOs;
+          prfOs.setResetCmd();
+          auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
+          // don't care about result => interested in async reset response
+          //auto res = trn->get();
+        }
+        else {
+          TRC_WARNING("Cannot get TR reset async msg");
+          break;
+        }
+      }
+      else {
+        TRC_WARNING("TR reset async msg was handled");
+        break;
+      }
+    }
 
     // Get coordinator parameters
     PrfOs prfOs;
-
-    m_iqrfChannelService->startListen();
-
-    { // wait for reset TR module async msg.
-      std::unique_lock<std::mutex> lck(mtx);
-      //explicit reset not necessary here as reset TR is called from IqrfChannelService in advance
-      //if (!m_initCoord) {
-        //TRC_DEBUG("Send TR reset");
-        //prfOs.setResetCmd();
-        //auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
-        //auto res = trn->get();
-        // don't care about result
-
-        //wait for async msg after reset
-        int waitPeriod = 100;
-        int waitNumber = 0;
-        int waitMax = 10000;
-        while (cv.wait_for(lck, std::chrono::milliseconds(waitPeriod)) == std::cv_status::timeout) {
-          int wtime = ++waitNumber * waitPeriod;
-          TRC_INFORMATION("Waiting for TR reset result: " << PAR(wtime));
-          if (wtime > waitMax) {
-            TRC_WARNING("Cannot get TR reset result: " << PAR(wtime));
-            break;
-          }
-        }
-      //}
-    }
-
     prfOs.setReadCmd();
-    {
-      TRC_DEBUG("Send TR OS Read");
-      auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
-      auto res = trn->get();
 
-      if (res->getErrorCode() == 0) {
-        prfOs.parseResponse(res->getResponse());
-        m_cPar.moduleId = prfOs.getModuleId();
-        m_cPar.osVersion = prfOs.getOsVersion();
-        m_cPar.trType = prfOs.getTrType();
-        m_cPar.mcuType = prfOs.getMcuType();
-        m_cPar.osBuild = prfOs.getOsBuild();
-        TRC_INFORMATION("TR params: " << std::endl <<
-          NAME_PAR(moduleId, m_cPar.moduleId) <<
-          NAME_PAR(osVersion, m_cPar.osVersion) <<
-          NAME_PAR(trType, m_cPar.trType) <<
-          NAME_PAR(mcuType, m_cPar.mcuType) <<
-          NAME_PAR(osBuild, m_cPar.osBuild) <<
-          std::endl
-        );
-      }
-      else {
-        //THROW_EXC_TRC_WAR(std::logic_error, "Cannot get TR parameters");
-        TRC_WARNING("Cannot get TR parameters");
-      }
+    TRC_DEBUG("Send TR OS Read");
+    auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
+    auto res = trn->get();
+
+    if (res->getErrorCode() == 0) {
+      prfOs.parseResponse(res->getResponse());
+      m_cPar.moduleId = prfOs.getModuleId();
+      m_cPar.osVersion = prfOs.getOsVersion();
+      m_cPar.trType = prfOs.getTrType();
+      m_cPar.mcuType = prfOs.getMcuType();
+      m_cPar.osBuild = prfOs.getOsBuild();
+      TRC_INFORMATION("TR params: " << std::endl <<
+        NAME_PAR(moduleId, m_cPar.moduleId) <<
+        NAME_PAR(osVersion, m_cPar.osVersion) <<
+        NAME_PAR(trType, m_cPar.trType) <<
+        NAME_PAR(mcuType, m_cPar.mcuType) <<
+        NAME_PAR(osBuild, m_cPar.osBuild) <<
+        std::endl
+      );
     }
-
-    //Async msg handling
-    m_dpaHandler->unregisterAsyncMessageHandler("");
-    m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
-      asyncDpaMessageHandler(dpaMessage);
-    });
+    else {
+      TRC_WARNING("Cannot get TR parameters");
+    }
 
     TRC_FUNCTION_LEAVE("")
   }
@@ -322,15 +340,19 @@ namespace iqrf {
       m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
     }
 
-    getIqrfNetworkParams();
+    // handle asyn reset
+    registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) { //spaces in front of "  IqrfDpa" make it first in handlers map
+      asyncResetHandler(dpaMessage);
+    });
 
-    if (m_cPar.stdModeSupportFlag) {
-      m_rfMode = IDpaTransaction2::kStd;
-    }
-    if (m_cPar.lpModeSupportFlag) {
-      m_rfMode = IDpaTransaction2::kLp;
-    }
-    m_dpaHandler->setRfCommunicationMode(m_rfMode);
+    // register to IQRF interface
+    m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
+      asyncDpaMessageHandler(dpaMessage);
+    });
+
+    m_iqrfChannelService->startListen();
+
+    getIqrfNetworkParams();
 
     IDpaTransaction2::TimingParams timingParams;
     timingParams.bondedNodes = m_bondedNodes;

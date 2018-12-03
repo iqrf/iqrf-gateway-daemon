@@ -57,23 +57,13 @@ namespace iqrf {
     TRC_DEBUG("Shuffled: " << PAR(m_taskHandle) << PAR(taskHandleOrig));
   }
 
-  ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp)
+  ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist)
     : m_exactTime(true)
     , m_clientId(clientId)
     , m_startTime(tp)
+    , m_persist(persist)
   {
     init();
-
-    //std::time_t tt = system_clock::to_time_t(tp);
-    //struct std::tm * ptm = std::localtime(&tt);
-
-    //m_vsec.push_back(ptm->tm_sec);
-    //m_vmin.push_back(ptm->tm_min);
-    //m_vhour.push_back(ptm->tm_hour);
-    //m_vmday.push_back(ptm->tm_mday);
-    //m_vmon.push_back(ptm->tm_mon);
-    //m_vyear.push_back(ptm->tm_year);
-    //m_vwday.push_back(ptm->tm_wday);
 
     m_task.CopyFrom(task, m_task.GetAllocator());
 
@@ -81,11 +71,12 @@ namespace iqrf {
   }
 
   ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
-    const std::chrono::system_clock::time_point& tp)
+    const std::chrono::system_clock::time_point& tp, bool persist)
     : m_clientId(clientId)
     , m_periodic(true)
     , m_period(sec)
     , m_startTime(tp)
+    , m_persist(persist)
   {
     if (sec.count() <= 0) {
       THROW_EXC_TRC_WAR(std::logic_error, "Period must be at least >= 1sec " << NAME_PAR(sec, sec.count()))
@@ -130,9 +121,21 @@ namespace iqrf {
     Pointer("/cronTime").Set(m_timeSpec, m_cronTime.c_str());
     Pointer("/exactTime").Set(m_timeSpec, m_exactTime);
     Pointer("/periodic").Set(m_timeSpec, m_periodic);
-    Pointer("/period").Set(m_timeSpec, m_period.count()*1000); //reports in millis
+    Pointer("/period").Set(m_timeSpec, m_period.count() * 1000);
     Pointer("/startTime").Set(m_timeSpec, ScheduleRecord::asString(m_startTime));
+  }
 
+  void ScheduleRecord::parseTimeSpec(const rapidjson::Value &v)
+  {
+    using namespace rapidjson;
+
+    m_timeSpec.CopyFrom(v, m_timeSpec.GetAllocator());
+    
+    m_cronTime = Pointer("/cronTime").Get(m_timeSpec)->GetString();
+    m_exactTime = Pointer("/exactTime").Get(m_timeSpec)->GetBool();
+    m_periodic = Pointer("/periodic").Get(m_timeSpec)->GetBool();
+    m_period = std::chrono::seconds(Pointer("/period").Get(m_timeSpec)->GetInt() / 1000);
+    m_startTime = parseTimestamp(Pointer("/startTime").Get(m_timeSpec)->GetString());
   }
 
   const std::map<std::string, std::string> NICKNAMES = {
@@ -165,10 +168,8 @@ namespace iqrf {
     return timeSpec;
   }
 
-  void ScheduleRecord::init(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime)
+  void ScheduleRecord::parseCron(const std::string& cronTime)
   {
-    init();
-
     std::string tmr = cronTime;
 
     tmr = solveNickname(tmr);
@@ -196,6 +197,13 @@ namespace iqrf {
       parseItem(dow, 0, 6, m_vwday);
 
     }
+  }
+
+  void ScheduleRecord::init(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime)
+  {
+    init();
+
+    parseCron(cronTime);
 
     m_clientId = clientId;
     m_task.CopyFrom(task, m_task.GetAllocator());
@@ -203,7 +211,8 @@ namespace iqrf {
     m_startTime = std::chrono::system_clock::now();
   }
 
-  ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime)
+  ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist)
+    : m_persist(persist)
   {
     init(clientId, task, cronTime);
     setTimeSpec();
@@ -211,12 +220,32 @@ namespace iqrf {
 
   ScheduleRecord::ScheduleRecord(const rapidjson::Value& rec)
   {
-    std::string cronTime = jutils::getMemberAs<std::string>("time", rec);
-    std::string clientId = jutils::getMemberAs<std::string>("service", rec);
-    const rapidjson::Value & task = jutils::getMemberAsObject("task", rec);
+    parse(rec);
+  }
 
-    init(clientId, task, cronTime);
-    setTimeSpec();
+  void ScheduleRecord::parse(const rapidjson::Value& rec)
+  {
+    using namespace rapidjson;
+    //TODO schema
+    m_taskHandle = Pointer("/taskId").Get(rec)->GetInt();
+    m_clientId = Pointer("/clientId").Get(rec)->GetString();
+    parseTimeSpec(*Pointer("/timeSpec").Get(rec));
+    m_task.CopyFrom(*Pointer("/task").Get(rec), m_task.GetAllocator());
+
+    parseCron(m_cronTime);
+  }
+
+  rapidjson::Value ScheduleRecord::serialize(rapidjson::Document::AllocatorType& a) const
+  {
+    using namespace rapidjson;
+    Value v;
+
+    Pointer("/taskId").Set(v, m_taskHandle, a);
+    Pointer("/clientId").Set(v, m_clientId, a);
+    Pointer("/timeSpec").Set(v, m_timeSpec, a);
+    Pointer("/task").Set(v, m_task, a);
+
+    return v;
   }
 
   int ScheduleRecord::parseItem(const std::string& item, int mnm, int mxm, std::vector<int>& vec, int offset)
@@ -308,13 +337,6 @@ namespace iqrf {
 
       tp = actualTimePoint + seconds(dsec);
 
-      //TRC_DBG(
-      //  "???????????????????????" << std::endl <<
-      //  PAR(dsec) << std::endl <<
-      //  NAME_PAR(next, ScheduleRecord::asString(tp)) << std::endl <<
-      //  "???????????????????????" << std::endl
-      //);
-
     }
     else {
       if (m_started)
@@ -356,11 +378,6 @@ namespace iqrf {
 
   std::string ScheduleRecord::asString(const std::chrono::system_clock::time_point& tp)
   {
-    // convert to system time:
-    //std::time_t t = std::chrono::system_clock::to_time_t(tp);
-    //std::string ts = ctime(&t);   // convert to calendar time
-    //ts.resize(ts.size() - 1);       // skip trailing newline
-    //return ts;
     return encodeTimestamp(tp);
   }
 

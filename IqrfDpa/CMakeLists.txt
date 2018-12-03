@@ -27,3 +27,5 @@ endif()
 target_link_libraries(${PROJECT_NAME}
 	Dpa
 )
+
+DeployShapeComponent(${PROJECT_NAME})

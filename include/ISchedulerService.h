@@ -39,7 +39,7 @@ namespace iqrf {
   {
   public:
     /// Task handle is task identification
-    typedef int64_t TaskHandle;
+    typedef int32_t TaskHandle;
 
     /// Invalid task handle
     static const TaskHandle TASK_HANDLE_INVALID = 0;
@@ -82,7 +82,10 @@ namespace iqrf {
 
     virtual const rapidjson::Value * getMyTaskTimeSpec(const std::string& clientId, const TaskHandle& hndl) const = 0;
 
-    virtual TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime) = 0;
+    // if exists and is persist return true
+    virtual bool isPersist(const std::string& clientId, const TaskHandle& hndl) const = 0;
+
+    virtual TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist = false) = 0;
 
     /// \brief Schedule task at time point
     /// \param [in] clientId client identification
@@ -92,7 +95,7 @@ namespace iqrf {
     /// \details
     /// Schedules task at exact time point. When the time point is reached the task is passed to its handler and released
     /// Use it for one shot tasks
-    virtual TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp) = 0;
+    virtual TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist = false) = 0;
 
     /// \brief Schedule periodic task
     /// \param [in] clientId client identification
@@ -104,7 +107,7 @@ namespace iqrf {
     /// Schedules periodic task. It is started immediatelly by default, the first shot after one period.
     /// If the start shall be delayed use appropriate time point of start
     virtual TaskHandle scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value &, const std::chrono::seconds& sec,
-      const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now()) = 0;
+      const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now(), bool persist = false) = 0;
 
     /// \brief Remove all task for client
     /// \param [in] clientId client identification

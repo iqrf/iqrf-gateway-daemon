@@ -1,8 +1,0 @@
-{
-  "component": "iqrf::IqrfUart",
-  "instance": "iqrf::IqrfUart1",
-  "IqrfInterface": "COM1",
-  "baudRate": 57600,
-  "powerEnableGpioPin": 18,
-  "busEnableGpioPin": -1
-}

@@ -1,0 +1,46 @@
+{
+  "applicationName": "iqrfgd2",
+  "resourceDir": "",
+  "dataDir": "",
+  "cacheDir": ".",
+  "userDir": "",
+  "configurationDir": "configuration",
+  "deploymentDir": "../../..",
+  "components": [
+    {
+      "name": "shape::TraceFormatService",
+      "libraryPath": "shape/bin",
+      "libraryName": "TraceFormatService",
+      "enabled": true,
+      "startlevel": -4
+    },
+    {
+      "name": "shape::TraceFileService",
+      "libraryPath": "shape/bin",
+      "libraryName": "TraceFileService",
+      "enabled": true,
+      "startlevel": -3
+    },
+    {
+      "name": "shape::LauncherService",
+      "libraryPath": "",
+      "libraryName": "",
+      "enabled": true,
+      "startlevel": -2
+    },
+    {
+      "name": "iqrf::JsRenderDuktape",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "JsRenderDuktape",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::TestJsRender",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "TestJsRender",
+      "enabled": true,
+      "startlevel": 2
+    }
+  ]
+}
