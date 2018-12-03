@@ -1,3 +1,43 @@
+iqrf-gateway-daemon (2.1.0~1.gbp0ee115) UNRELEASED; urgency=medium
+
+  ** SNAPSHOT build @0ee115da39f8a267ddd96c3a695fea2006092654 **
+
+  [ Rostislav Spinar ]
+  * Increase version and reflect CI changes into master
+
+  [ Frantisek Mikulu ]
+  * Scheduler persistence support #205
+  * Fix for Lin
+  * Add DeployShapeComponent() to component CMakeLists
+  * Working iqrfgd2 from deploy on Win
+  * Explicit install of dependencies DLL on Win to deploy
+  * Deploy support #52 #76
+
+  [ Roman Ondráček ]
+  * Fix release package build
+
+  [ Frantisek Mikulu ]
+  * Fix deploy for Lin
+  * Fix deploy for Lin
+
+  [ Roman Ondráček ]
+  * Fix release package build
+
+  [ Frantisek Mikulu ]
+  * Daemon instance ID #209
+
+  [ Roman Ondráček ]
+  * Fix paths of the dirs to deploy
+
+  [ Frantisek Mikulu ]
+  * all outgoing msgs tagged by insId
+
+  [ Roman Ondráček ]
+  * Fix paths of the dirs to deploy
+  * Decrease caching time in GitLab CI
+
+ -- Roman Ondráček <roman.ondracek@iqrf.com>  Mon, 03 Dec 2018 09:51:20 +0100
+
 iqrf-gateway-daemon (2.0.0) RELEASED; urgency=medium
 
   [ Frantisek Mikulu ]
