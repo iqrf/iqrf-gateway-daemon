@@ -230,6 +230,13 @@
       "libraryName": "EnumerateDeviceService",
       "enabled": true,
       "startlevel": 3
+    },
+	{
+      "name": "iqrf::Autonetwork",
+      "libraryPath": "Autonetwork/bin",
+      "libraryName": "Autonetwork",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }
