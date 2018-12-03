@@ -1527,7 +1527,7 @@ namespace iqrf {
           uint8_t newDevicesCount = response.DevNr;
 
           TRC_INFORMATION(
-            "Authorizing node: " << PAR(moduleId) << ", address: " <<  PAR(newAddr), 
+            "Authorizing node: " << PAR(moduleId) << ", address: " <<  PAR(newAddr) 
             << ", devices count: " << PAR(newDevicesCount)
             );
 
@@ -1920,6 +1920,12 @@ namespace iqrf {
 
       autonetworkResult.setLastWave(false);
 
+      std::bitset<MAX_ADDRESS> bondedNodes;
+      uint8_t bondedNodesNr = 0;
+
+      std::bitset<MAX_ADDRESS> discoveredNodes;
+      uint8_t discoveredNodesNr = 0;
+
       // check, if Coordinator and OS peripherals are present at coordinator's node
       checkPresentCoordAndCoordOs(autonetworkResult);
 
@@ -1928,12 +1934,6 @@ namespace iqrf {
       }
 
       TRC_INFORMATION("Initial network check");
-
-      std::bitset<MAX_ADDRESS> bondedNodes;
-      uint8_t bondedNodesNr = 0;
-
-      std::bitset<MAX_ADDRESS> discoveredNodes;
-      uint8_t discoveredNodesNr = 0;
 
       try {
         updateNodesInfo(autonetworkResult, bondedNodesNr, bondedNodes, discoveredNodesNr, discoveredNodes);
