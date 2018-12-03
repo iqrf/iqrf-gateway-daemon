@@ -26,7 +26,7 @@ then
         --version ${DAEMON_VERSION:1} \
         --license "Apache License, Version 2.0" \
         --vendor "IQRF Tech s.r.o." \
-        --category "debug" \
+        --category "stable" \
         --architecture ${ARCH} \
         --maintainer "Rostislav Spinar <rostislav.spinar@iqrf.com>" \
         --url "https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon" \
@@ -86,7 +86,7 @@ then
         --version ${DAEMON_VERSION:1} \
         --license "Apache License, Version 2.0" \
         --vendor "IQRF Tech s.r.o." \
-        --category "debug" \
+        --category "stable" \
         --architecture ${ARCH} \
         --maintainer "Rostislav Spinar <rostislav.spinar@iqrf.com>" \
         --url "https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon" \
@@ -146,7 +146,7 @@ then
         --version ${DAEMON_VERSION:1} \
         --license "Apache License, Version 2.0" \
         --vendor "IQRF Tech s.r.o." \
-        --category "debug" \
+        --category "stable" \
         --architecture ${ARCH} \
         --maintainer "Rostislav Spinar <rostislav.spinar@iqrf.com>" \
         --url "https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon" \

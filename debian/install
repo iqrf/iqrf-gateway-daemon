@@ -8,7 +8,7 @@ shape-build/bin/libTraceFileService.so                  usr/lib/iqrf-gateway-dae
 shape-build/lib/liblauncher.a                           usr/lib/iqrf-gateway-daemon
 shapeware-build/bin/libCurlRestApiService.so            usr/lib/iqrf-gateway-daemon
 shapeware-build/bin/libWebsocketCppService.so           usr/lib/iqrf-gateway-daemon
-libraries/iqrf-daemon-api/JsonSchemas                   usr/share/iqrf-gateway-daemon
+libraries/iqrf-daemon-api/JsonSchemas/*.json            usr/share/iqrf-gateway-daemon/apiSchemas
 start-IqrfDaemon/javaScript                             usr/share/iqrf-gateway-daemon
 start-IqrfDaemon/scheduler                              var/cache/iqrf-gateway-daemon
 start-IqrfDaemon/iqrfRepoCache                          var/cache/iqrf-gateway-daemon
