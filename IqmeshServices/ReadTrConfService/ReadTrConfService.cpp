@@ -182,7 +182,8 @@ namespace iqrf {
     // reads configuration of one node
     void _readTrConfigOneNode(
       ReadTrConfigResult& readTrConfigResult,
-      const uint16_t deviceAddr
+      const uint16_t deviceAddr,
+      const uint16_t hwpId
     ) 
     {
       TRC_FUNCTION_ENTER("");
@@ -192,7 +193,7 @@ namespace iqrf {
       readHwpPacket.DpaRequestPacket_t.NADR = deviceAddr;
       readHwpPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       readHwpPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
-      readHwpPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      readHwpPacket.DpaRequestPacket_t.HWPID = hwpId;
       readHwpRequest.DataToBuffer(readHwpPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
@@ -274,7 +275,8 @@ namespace iqrf {
     // reads configuration from specified target nodes
     void _readTrConfigNodes(
       ReadTrConfigResult& readTrConfigResult,
-      const std::list<uint16_t>& targetNodes
+      const std::list<uint16_t>& targetNodes,
+      const uint16_t hwpId
     ) 
     {
       // currently not implemented - return INTERNAL ERROR in the response
@@ -283,18 +285,19 @@ namespace iqrf {
 
     void _readTrConfig(
       ReadTrConfigResult& readTrConfigResult,
-      const std::list<uint16_t>& targetNodes
+      const std::list<uint16_t>& targetNodes,
+      const uint16_t hwpId
     ) 
     {
       if (targetNodes.size() == 1) {
-        _readTrConfigOneNode(readTrConfigResult, targetNodes.front());
+        _readTrConfigOneNode(readTrConfigResult, targetNodes.front(), hwpId);
       }
       else {
-        _readTrConfigNodes(readTrConfigResult, targetNodes);
+        _readTrConfigNodes(readTrConfigResult, targetNodes, hwpId);
       }
     }
 
-    ReadTrConfigResult readTrConfig(const std::list<uint16_t>& deviceAddrs)
+    ReadTrConfigResult readTrConfig(const std::list<uint16_t>& deviceAddrs, uint16_t hwpId)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -305,7 +308,7 @@ namespace iqrf {
       readTrConfigResult.setDeviceAddrs(deviceAddrs);
 
       // read HWP configuration
-      _readTrConfig(readTrConfigResult, deviceAddrs);
+      _readTrConfig(readTrConfigResult, deviceAddrs, hwpId);
 
       TRC_FUNCTION_LEAVE("");
       return readTrConfigResult;
@@ -654,6 +657,8 @@ namespace iqrf {
     }
 
 
+
+
     void handleMsg(
       const std::string& messagingId,
       const IMessagingSplitterService::MsgType& msgType,
@@ -678,6 +683,7 @@ namespace iqrf {
 
       // service input parameters
       uint16_t deviceAddr;
+      uint16_t hwpId;
 
       // parsing and checking service parameters
       try {
@@ -688,6 +694,13 @@ namespace iqrf {
         }
         deviceAddr = parseAndCheckDeviceAddr(comReadTrConf.getDeviceAddr());
 
+        if (comReadTrConf.isSetHwpId()) {
+          hwpId = comReadTrConf.getHwpId();
+        }
+        else {
+          hwpId = HWPID_DoNotCheck;
+        }
+        
         m_returnVerbose = comReadTrConf.getVerbose();
       }
       // parsing and checking service parameters failed 
@@ -705,7 +718,7 @@ namespace iqrf {
       };
 
       // call service with checked params
-      ReadTrConfigResult readTrConfigResult = readTrConfig(deviceAddrs);
+      ReadTrConfigResult readTrConfigResult = readTrConfig(deviceAddrs, hwpId);
 
       // create and send response
       Document responseDoc = createResponse(comReadTrConf.getMsgId(), msgType, readTrConfigResult, comReadTrConf);

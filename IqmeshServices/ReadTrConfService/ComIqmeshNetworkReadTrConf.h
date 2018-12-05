@@ -33,7 +33,15 @@ namespace iqrf {
       return m_deviceAddr;
     }
 
-    
+    bool isSetHwpId() const {
+      return m_isSetHwpId;
+    }
+
+    const int getHwpId() const
+    {
+      return m_deviceAddr;
+    }
+
 
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
@@ -45,9 +53,11 @@ namespace iqrf {
 
   private:
     bool m_isSetDeviceAddr = false;
+    bool m_isSetHwpId = false;
 
     int m_repeat = 1;
     int m_deviceAddr;
+    int m_hwpId;
 
 
     void parseRepeat(rapidjson::Document& doc) {
@@ -60,6 +70,11 @@ namespace iqrf {
       if (rapidjson::Value* devAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
         m_deviceAddr = devAddrJsonVal->GetInt();
         m_isSetDeviceAddr = true;
+      }
+
+      if (rapidjson::Value* hwpIdJsonVal = rapidjson::Pointer("/data/req/hwpId").Get(doc)) {
+        m_hwpId = hwpIdJsonVal->GetInt();
+        m_isSetHwpId = true;
       }
     }
 

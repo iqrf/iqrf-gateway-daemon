@@ -34,6 +34,16 @@ namespace iqrf {
       return m_deviceAddr;
     }
 
+    bool isSetHwpId() const {
+      return m_isSetHwpId;
+    }
+
+    const int getHwpId() const
+    {
+      return m_hwpId;
+    }
+
+
     bool isSetRfChannelA() {
       return m_isSetRfChannelA;
     }
@@ -364,6 +374,7 @@ namespace iqrf {
 
   private:
     bool m_isSetDeviceAddr = false;
+    bool m_isSetHwpId = false;
 
     bool m_isSetRfChannelA = false;
     bool m_isSetRfChannelB = false;
@@ -395,6 +406,8 @@ namespace iqrf {
 
     int m_repeat = 0;
     int m_deviceAddr;
+    int m_hwpId;
+
     int m_rfChannelA;
     int m_rfChannelB;
     int m_rfSubChannelA;
@@ -460,6 +473,13 @@ namespace iqrf {
       if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
         m_deviceAddr = deviceAddrJsonVal->GetInt();
         m_isSetDeviceAddr = true;
+      }
+    }
+
+    void parseHwpId(rapidjson::Document& doc) {
+      if (rapidjson::Value* hwpIdJsonVal = rapidjson::Pointer("/data/req/hwpId").Get(doc)) {
+        m_hwpId = hwpIdJsonVal->GetInt();
+        m_isSetHwpId = true;
       }
     }
 
@@ -677,6 +697,7 @@ namespace iqrf {
     void parse(rapidjson::Document& doc) {
       parseRepeat(doc);
       parseDeviceAddr(doc);
+      parseHwpId(doc);
       parseConfigBytes(doc);
       parseBand(doc);
       parseSecuritySettings(doc);

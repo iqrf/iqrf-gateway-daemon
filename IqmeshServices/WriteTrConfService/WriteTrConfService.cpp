@@ -469,7 +469,8 @@ namespace iqrf {
     void writeHwpConfiguration(
       WriteResult& writeResult,
       const std::vector<HWP_ConfigByte>& configBytes,
-      const uint16_t nodeAddr
+      const uint16_t nodeAddr,
+      const uint16_t hwpId
     )
     {
       TRC_FUNCTION_ENTER("");
@@ -479,7 +480,7 @@ namespace iqrf {
       writeConfigPacket.DpaRequestPacket_t.NADR = nodeAddr;
       writeConfigPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       writeConfigPacket.DpaRequestPacket_t.PCMD = CMD_OS_WRITE_CFG;
-      writeConfigPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      writeConfigPacket.DpaRequestPacket_t.HWPID = hwpId;
 
       //TPerOSWriteCfg_Request* tOsWriteCfgRequest = &writeConfigPacket.DpaRequestPacket_t.DpaMessage.PerOSWriteCfg_Request;
       uns8* pData = writeConfigPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
@@ -594,7 +595,8 @@ namespace iqrf {
 
     void setUserDataForFrcWriteConfigByteRequest(
       TPerFrcSendSelective_Request* frcPacket,
-      const std::vector<HWP_ConfigByte>& configBytes
+      const std::vector<HWP_ConfigByte>& configBytes,
+      const uint16_t hwpId
     )
     {
       uns8* userData = frcPacket->UserData;
@@ -606,8 +608,8 @@ namespace iqrf {
       userData[0] = 1 + 1 + 1 + 2 + configBytes.size() * 3;
       userData[1] = PNUM_OS;
       userData[2] = CMD_OS_WRITE_CFG_BYTE;
-      userData[3] = HWPID_DoNotCheck & 0xFF;
-      userData[4] = (HWPID_DoNotCheck >> 8) & 0xFF;
+      userData[3] = hwpId & 0xFF;
+      userData[4] = (hwpId >> 8) & 0xFF;
 
       // fill in config bytes
       uint8_t dataIndex = 5;
@@ -843,7 +845,8 @@ namespace iqrf {
     // writes config bytes to coordinator
     void _writeConfigBytesToCoordinator(
       WriteResult& writeResult,
-      const std::vector<HWP_ConfigByte>& configBytes
+      const std::vector<HWP_ConfigByte>& configBytes,
+      const uint16_t hwpId
     ) 
     {
       TRC_FUNCTION_ENTER("");
@@ -853,7 +856,7 @@ namespace iqrf {
       writeConfigBytePacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       writeConfigBytePacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       writeConfigBytePacket.DpaRequestPacket_t.PCMD = CMD_OS_WRITE_CFG_BYTE;
-      writeConfigBytePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      writeConfigBytePacket.DpaRequestPacket_t.HWPID = hwpId;
 
       TPerOSWriteCfgByte_Request* writeConfigPacketRequest
         = &writeConfigBytePacket.DpaRequestPacket_t.DpaMessage.PerOSWriteCfgByte_Request;
@@ -946,7 +949,8 @@ namespace iqrf {
     void _writeConfigBytesToNodes(
       WriteResult& writeResult,
       const std::vector<HWP_ConfigByte>& configBytes,
-      const std::list<uint16_t>& targetNodes
+      const std::list<uint16_t>& targetNodes,
+      const uint16_t hwpId
     )
     {
       TRC_FUNCTION_ENTER("");
@@ -956,7 +960,7 @@ namespace iqrf {
       frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
       frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
-      frcPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      frcPacket.DpaRequestPacket_t.HWPID = hwpId;
 
       TPerFrcSendSelective_Request* frcPacketRequest = &frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request;
 
@@ -996,7 +1000,7 @@ namespace iqrf {
             writeConfigPacketFreeSpace, 
             configBytes
           );
-          setUserDataForFrcWriteConfigByteRequest(frcPacketRequest, configBytesPart);
+          setUserDataForFrcWriteConfigByteRequest(frcPacketRequest, configBytesPart, hwpId);
 
           // issue the DPA request
           frcRequest.DataToBuffer(
@@ -1095,7 +1099,7 @@ namespace iqrf {
           extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
           extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
           extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-          extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+          extraResultPacket.DpaRequestPacket_t.HWPID = hwpId;
           extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
 
           // issue the DPA request
@@ -1184,7 +1188,7 @@ namespace iqrf {
     }
 
     // indication, if FRC is enabled on Coordinator's HWP Configuration
-    bool frcEnabledOnCoord(WriteResult& writeResult) 
+    bool frcEnabledOnCoord(WriteResult& writeResult, const uint16_t hwpId)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -1193,7 +1197,7 @@ namespace iqrf {
       readHwpConfigPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       readHwpConfigPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       readHwpConfigPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
-      readHwpConfigPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      readHwpConfigPacket.DpaRequestPacket_t.HWPID = hwpId;
       readHwpConfigRequest.DataToBuffer(readHwpConfigPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
@@ -1259,10 +1263,12 @@ namespace iqrf {
 
         THROW_EXC(std::logic_error, "Dpa error.");
       }
+
+      THROW_EXC(std::logic_error, "Internal error.");
     }
 
     // sets FRC on coordinator - enables or disables it - 2. parameter
-    void setFrcOnCoord(WriteResult& writeResult, bool enable)
+    void setFrcOnCoord(WriteResult& writeResult, bool enable, const uint16_t hwpId)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -1271,7 +1277,7 @@ namespace iqrf {
       setFrcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       setFrcPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       setFrcPacket.DpaRequestPacket_t.PCMD = CMD_OS_WRITE_CFG_BYTE;
-      setFrcPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      setFrcPacket.DpaRequestPacket_t.HWPID = hwpId;
       setFrcRequest.DataToBuffer(setFrcPacket.Buffer, sizeof(TDpaIFaceHeader) + 3);
 
       // FRC configuration byte
@@ -1344,7 +1350,8 @@ namespace iqrf {
     void _writeConfigBytes(
       WriteResult& writeResult, 
       const std::vector<HWP_ConfigByte>& configBytes,
-      const std::list<uint16_t>& targetNodes
+      const std::list<uint16_t>& targetNodes,
+      const uint16_t hwpId
     )
     {
       bool isCoordPresent = false;
@@ -1361,7 +1368,7 @@ namespace iqrf {
       }
 
       if (isCoordPresent) {
-        _writeConfigBytesToCoordinator(writeResult, configBytes);
+        _writeConfigBytesToCoordinator(writeResult, configBytes, hwpId);
       }
 
       if (!targetNodesCopy.empty()) {
@@ -1370,9 +1377,9 @@ namespace iqrf {
         bool isFrcEnabledOnCoord = false; 
         try {
           // issues DPA request - read HWP configuration
-          isFrcEnabledOnCoord = frcEnabledOnCoord(writeResult);
+          isFrcEnabledOnCoord = frcEnabledOnCoord(writeResult, hwpId);
           if (!isFrcEnabledOnCoord) {
-            setFrcOnCoord(writeResult, true);
+            setFrcOnCoord(writeResult, true, hwpId);
 
             // indication - before finishing the service, FRC must be disabled to restore the state before
             m_frcEnabled = true;
@@ -1384,7 +1391,7 @@ namespace iqrf {
           return;
         }
 
-        _writeConfigBytesToNodes(writeResult, configBytes, targetNodesCopy);
+        _writeConfigBytesToNodes(writeResult, configBytes, targetNodesCopy, hwpId);
       }
     }
 
@@ -1415,7 +1422,7 @@ namespace iqrf {
     }
 
     // returns list of bonded nodes
-    std::list<uint16_t> getBondedNodes(WriteResult& writeResult)
+    std::list<uint16_t> getBondedNodes(WriteResult& writeResult, const uint16_t hwpId)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -1426,7 +1433,7 @@ namespace iqrf {
       bondedNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       bondedNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
       bondedNodesPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
-      bondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      bondedNodesPacket.DpaRequestPacket_t.HWPID = hwpId;
       bondedNodesRequest.DataToBuffer(bondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
@@ -1541,7 +1548,8 @@ namespace iqrf {
     //RF_ChannelBand parseAndCheckRfChannelBand(const uint8_t rfBandInt);
 
     // updates coordinator's RF channel band
-    void updateCoordRfChannelBand(WriteResult& writeResult) {
+    void updateCoordRfChannelBand(WriteResult& writeResult, const uint16_t hwpId)
+    {
       TRC_FUNCTION_ENTER("");
 
       DpaMessage readConfigRequest;
@@ -1549,7 +1557,7 @@ namespace iqrf {
       readConfigPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       readConfigPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       readConfigPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
-      readConfigPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      readConfigPacket.DpaRequestPacket_t.HWPID = hwpId;
       readConfigRequest.DataToBuffer(readConfigPacket.Buffer, sizeof(TDpaIFaceHeader));
 
       // issue the DPA request
@@ -1652,7 +1660,8 @@ namespace iqrf {
     // checks, if RF channel config bytes are in accordance with coordinator RF channel band
     void checkRfChannelIfPresent(
       const std::vector<HWP_ConfigByte>& configBytes, 
-      WriteResult& writeResult
+      WriteResult& writeResult,
+      const uint16_t hwpId
     )
     {
       TRC_FUNCTION_ENTER("");
@@ -1667,7 +1676,7 @@ namespace iqrf {
           case CONFIG_BYTES_SUBORD_RF_CHANNEL_B_ADDR:
             if (!isRfBandActual) {
               try {
-                updateCoordRfChannelBand(writeResult);
+                updateCoordRfChannelBand(writeResult, hwpId);
               }
               catch (std::exception& ex) {
                 THROW_EXC(std::logic_error, "Cannot update coordinator RF channel band");
@@ -1693,7 +1702,8 @@ namespace iqrf {
     void setUserDataForSetSecurityFrcRequest(
       TPerFrcSendSelective_Request* frcPacket,
       const std::basic_string<uint8_t>& securityString,
-      const bool isPassword
+      const bool isPassword,
+      const uint16_t hwpId
     )
     {
       uns8* userData = frcPacket->UserData;
@@ -1706,8 +1716,8 @@ namespace iqrf {
       
       userData[1] = PNUM_OS;
       userData[2] = CMD_OS_SET_SECURITY;
-      userData[3] = HWPID_DoNotCheck & 0xFF;
-      userData[4] = (HWPID_DoNotCheck >> 8) & 0xFF;
+      userData[3] = hwpId & 0xFF;
+      userData[4] = (hwpId >> 8) & 0xFF;
       userData[5] = (isPassword) ? 0 : 1;
 
       std::copy(securityString.begin(), securityString.end(), userData + 6);
@@ -1718,7 +1728,8 @@ namespace iqrf {
       WriteResult& writeResult,
       const uint16_t nodeAddr,
       const std::basic_string<uint8_t>& securityString,
-      const bool isPassword
+      const bool isPassword,
+      const uint16_t hwpId
     )
     {
       TRC_FUNCTION_ENTER("");
@@ -1728,7 +1739,7 @@ namespace iqrf {
       securityPacket.DpaRequestPacket_t.NADR = nodeAddr;
       securityPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       securityPacket.DpaRequestPacket_t.PCMD = CMD_OS_SET_SECURITY;
-      securityPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      securityPacket.DpaRequestPacket_t.HWPID = hwpId;
 
       TPerOSSetSecurity_Request* securityPacketRequest = &securityPacket.DpaRequestPacket_t.DpaMessage.PerOSSetSecurity_Request;
       securityPacketRequest->Type = (isPassword) ? 0 : 1;
@@ -1813,7 +1824,8 @@ namespace iqrf {
       WriteResult& writeResult, 
       const std::list<uint16_t>& targetNodes,
       const std::basic_string<uint8_t>& securityString,
-      const bool isPassword
+      const bool isPassword,
+      const uint16_t hwpId
     ) 
     {
       TRC_FUNCTION_ENTER("");
@@ -1823,7 +1835,7 @@ namespace iqrf {
       frcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
       frcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
       frcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
-      frcPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      frcPacket.DpaRequestPacket_t.HWPID = hwpId;
 
       TPerFrcSendSelective_Request* frcPacketRequest = &frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request;
 
@@ -1834,7 +1846,7 @@ namespace iqrf {
       setSelectedNodesForFrcRequest(frcPacketRequest, nodesToWrite);
 
       // set security string as a data for FRC request
-      setUserDataForSetSecurityFrcRequest(frcPacketRequest, securityString, isPassword);
+      setUserDataForSetSecurityFrcRequest(frcPacketRequest, securityString, isPassword, hwpId);
 
       // issue the DPA request
       frcRequest.DataToBuffer(
@@ -1941,7 +1953,7 @@ namespace iqrf {
         extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
         extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
         extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-        extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        extraResultPacket.DpaRequestPacket_t.HWPID = hwpId;
         extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
 
         // issue the DPA request
@@ -2030,7 +2042,8 @@ namespace iqrf {
       WriteResult& writeResult,
       const std::list<uint16_t>& targetNodes,
       const std::basic_string<uint8_t>& securityPassword,
-      const bool isPassword
+      const bool isPassword,
+      const uint16_t hwpId
     ) 
     {
       bool isCoordPresent = false;
@@ -2047,22 +2060,23 @@ namespace iqrf {
       }
 
       if (isCoordPresent) {
-        _setSecurityStringToOneNode(writeResult, 0, securityPassword, isPassword);
+        _setSecurityStringToOneNode(writeResult, 0, securityPassword, isPassword, hwpId);
       }
 
       if (!targetNodesCopy.empty()) {
         if (targetNodesCopy.size() == 1) {
-          _setSecurityStringToOneNode(writeResult, targetNodesCopy.front(), securityPassword, isPassword);
+          _setSecurityStringToOneNode(writeResult, targetNodesCopy.front(), securityPassword, isPassword, hwpId);
         }
         else {
-          _setSecurityStringToNodes(writeResult, targetNodesCopy, securityPassword, isPassword);
+          _setSecurityStringToNodes(writeResult, targetNodesCopy, securityPassword, isPassword, hwpId);
         }
       }
     }
 
     WriteResult writeConfigBytes(
       const std::vector<HWP_ConfigByte>& configBytes,
-      const std::list<uint16_t>& targetNodes
+      const std::list<uint16_t>& targetNodes,
+      const uint16_t hwpId
     )
     {
       // result of writing configuration
@@ -2074,7 +2088,7 @@ namespace iqrf {
       // getting list of all bonded nodes
       std::list<uint16_t> bondedNodes;
       try {
-        bondedNodes = getBondedNodes(writeResult);
+        bondedNodes = getBondedNodes(writeResult, hwpId);
       }
       catch (std::exception& ex) {
         WriteError error(WriteError::Type::NodeNotBonded, ex.what());
@@ -2105,7 +2119,7 @@ namespace iqrf {
       // if there are RF channel config. bytes, it is needed to check theirs values 
       // to be in accordance with coordinator's RF band
       try {
-        checkRfChannelIfPresent(configBytes, writeResult);
+        checkRfChannelIfPresent(configBytes, writeResult, hwpId);
       }
       catch (std::exception& ex) {
         WriteError error(WriteError::Type::NodeNotBonded, ex.what());
@@ -2116,26 +2130,26 @@ namespace iqrf {
       // if there is only one node and it is needed to write ALL configuration bytes
       // use traditional Write HWP Configuration
       if ((targetBondedNodes.size() == 1) && (configBytes.size() == CONFIG_BYTES_LEN)) {
-        writeHwpConfiguration(writeResult, configBytes, targetBondedNodes.front());
+        writeHwpConfiguration(writeResult, configBytes, targetBondedNodes.front(), hwpId);
       }
       else {
-        _writeConfigBytes(writeResult, configBytes, targetBondedNodes);
+        _writeConfigBytes(writeResult, configBytes, targetBondedNodes, hwpId);
       }
 
       // if there is specified security password and/or security user key
       // issue DPA set security
       if (m_isSetSecurityPassword) {
-        setSecurityString(writeResult, targetBondedNodes, m_securityPassword, true);
+        setSecurityString(writeResult, targetBondedNodes, m_securityPassword, true, hwpId);
       }
 
       if (m_isSetSecurityUserKey) {
-        setSecurityString(writeResult, targetBondedNodes, m_securityUserKey, false);
+        setSecurityString(writeResult, targetBondedNodes, m_securityUserKey, false, hwpId);
       }
       
       // disable - if previously enabled - FRC on the Coordinator
       try {
         if (m_frcEnabled) {
-          setFrcOnCoord(writeResult, false);
+          setFrcOnCoord(writeResult, false, hwpId);
         }
       }
       catch (std::exception& ex) {
@@ -2915,6 +2929,7 @@ namespace iqrf {
       
       // service input parameters
       uint16_t deviceAddr;
+      uint16_t hwpId;
       std::vector<HWP_ConfigByte> configBytes;
       
       try {
@@ -2924,7 +2939,14 @@ namespace iqrf {
           THROW_EXC(std::logic_error, "deviceAddr not set");
         }
         deviceAddr = parseAndCheckDeviceAddr(comWriteConfig.getDeviceAddr());
-      
+        
+        if (comWriteConfig.isSetHwpId()) {
+          hwpId = comWriteConfig.getHwpId();
+        }
+        else {
+          hwpId = HWPID_DoNotCheck;
+        }
+
         configBytes = parseAndCheckConfigBytes(comWriteConfig);
 
         // no config bytes specified - error message
@@ -2969,11 +2991,16 @@ namespace iqrf {
         return;
       }
       
-      // just for temporary reasons
-      std::list<uint16_t> deviceAddrs = 
-      {
-        deviceAddr
-      };
+      std::list<uint16_t> deviceAddrs;
+      if (deviceAddr == BROADCAST_ADDRESS) {
+        for (uint8_t addr = 0; addr <= 239; addr++) {
+          deviceAddrs.push_back(addr);
+        }
+      }
+      else {
+        deviceAddrs.push_back(deviceAddr);
+      }
+
 
       // try to establish exclusive access
       try {
@@ -2991,7 +3018,7 @@ namespace iqrf {
       }
 
       // call service with checked params
-      WriteResult writeResult = writeConfigBytes(configBytes, deviceAddrs);
+      WriteResult writeResult = writeConfigBytes(configBytes, deviceAddrs, hwpId);
 
       // release exclusive access
       m_exclusiveAccess.reset();
