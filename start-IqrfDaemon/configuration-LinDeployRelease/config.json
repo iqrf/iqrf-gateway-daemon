@@ -233,7 +233,7 @@
     },
 	{
       "name": "iqrf::Autonetwork",
-      "libraryPath": "Autonetwork/bin",
+      "libraryPath": "",
       "libraryName": "Autonetwork",
       "enabled": true,
       "startlevel": 3
