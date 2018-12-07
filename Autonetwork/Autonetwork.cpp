@@ -212,7 +212,7 @@ namespace iqrf {
 
     // message type: autonetwork
     // for temporal reasons
-    const std::string m_mTypeName_Autonetwork = "autonetwork";
+    const std::string m_mTypeName_Autonetwork = "iqmeshNetwork_Autonetwork";
 
     iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
