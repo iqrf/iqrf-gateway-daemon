@@ -370,11 +370,10 @@ namespace iqrf {
 
   private:
     
-    // returns discovery data read from the coordinator private external EEPROM storage
-    std::basic_string<uint8_t> readDiscoveryData(
+    // returns 1 byte of discovery data read from the coordinator private external EEPROM storage
+    uint8_t readDiscoveryByte(
       DeviceEnumerateResult& deviceEnumerateResult, 
-      uint16_t address, 
-      uint8_t length
+      uint16_t address 
     ) {
       TRC_FUNCTION_ENTER("");
 
@@ -391,7 +390,7 @@ namespace iqrf {
       pData[1] = (address >> 8) & 0xFF;
 
       // length of data to read[in bytes]
-      pData[2] = length;
+      pData[2] = 1;
 
       eeepromReadRequest.DataToBuffer(eeepromReadPacket.Buffer, sizeof(TDpaIFaceHeader) + 3);
 
@@ -431,17 +430,8 @@ namespace iqrf {
             << PAR(eeepromReadRequest.PeripheralCommand())
           );
 
-          // is device discovered?
-          uint8_t* responseData
-            = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-
-          std::basic_string<uint8_t> discoveryData;
-          for (int i = 0; i < length; i++) {
-            discoveryData.push_back(responseData[i]);
-          }
-
           TRC_FUNCTION_LEAVE("");
-          return discoveryData;
+          return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
         }
 
         // transaction error
@@ -473,14 +463,15 @@ namespace iqrf {
     {
       // get discovered indicator
       try {
-        std::basic_string<uint8_t> discoveredDevicesBitmap = readDiscoveryData(deviceEnumerateResult, 0x20, 30);
+        uint16_t address = 0x20 + deviceEnumerateResult.getDeviceAddr() / 8;
+
+        uint8_t discoveredDevicesByte = readDiscoveryByte(deviceEnumerateResult, address);
         
-        uint8_t byteIndex = deviceEnumerateResult.getDeviceAddr() / 8;
         uint8_t bitIndex = deviceEnumerateResult.getDeviceAddr() % 8;
         uint8_t compareByte = uint8_t(pow(2, bitIndex));
 
         deviceEnumerateResult.setDiscovered(
-          (discoveredDevicesBitmap[byteIndex] & compareByte) == compareByte
+          (discoveredDevicesByte & compareByte) == compareByte
         );
       }
       catch (std::exception& ex) {
@@ -492,8 +483,8 @@ namespace iqrf {
       try {
         uint16_t address = 0x5000 + deviceEnumerateResult.getDeviceAddr();
 
-        std::basic_string<uint8_t> vrnArray = readDiscoveryData(deviceEnumerateResult, address, 240);
-        deviceEnumerateResult.setVrn(vrnArray[deviceEnumerateResult.getDeviceAddr()]);
+        uint8_t vrnByte = readDiscoveryByte(deviceEnumerateResult, address);
+        deviceEnumerateResult.setVrn(vrnByte);
       }
       catch (std::exception& ex) {
         DeviceEnumerateError error(DeviceEnumerateError::Type::InfoMissing, ex.what());
@@ -504,8 +495,8 @@ namespace iqrf {
       try {
         uint16_t address = 0x5200 + deviceEnumerateResult.getDeviceAddr();
 
-        std::basic_string<uint8_t> zoneArray = readDiscoveryData(deviceEnumerateResult, address, 240);
-        deviceEnumerateResult.setZone(zoneArray[deviceEnumerateResult.getDeviceAddr()]);
+        uint8_t zoneByte = readDiscoveryByte(deviceEnumerateResult, address);
+        deviceEnumerateResult.setZone(zoneByte);
       }
       catch (std::exception& ex) {
         DeviceEnumerateError error(DeviceEnumerateError::Type::InfoMissing, ex.what());
@@ -516,8 +507,8 @@ namespace iqrf {
       try {
         uint16_t address = 0x5300 + deviceEnumerateResult.getDeviceAddr();
 
-        std::basic_string<uint8_t> parentArray = readDiscoveryData(deviceEnumerateResult, address, 240);
-        deviceEnumerateResult.setParent(parentArray[deviceEnumerateResult.getDeviceAddr()]);
+        uint8_t parentByte = readDiscoveryByte(deviceEnumerateResult, address);
+        deviceEnumerateResult.setParent(parentByte);
       }
       catch (std::exception& ex) {
         DeviceEnumerateError error(DeviceEnumerateError::Type::InfoMissing, ex.what());
