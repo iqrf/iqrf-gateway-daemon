@@ -50,6 +50,7 @@ namespace iqrf {
     bool getDemoFlag() const { return m_demo; }
     bool getStdModeSupportFlag() const { return m_stdModeSupport; }
     bool getLpModeSupportFlag() const { return m_lpModeSupport; }
+    bool getLpModeRunningFlag() const { return m_lpModeRunning; }
 
   private:
     void setCmd(Cmd cmd);
@@ -65,6 +66,7 @@ namespace iqrf {
     bool m_demo = false;
     bool m_stdModeSupport = false;
     bool m_lpModeSupport = false;
+    bool m_lpModeRunning = false;
 
   };
 }

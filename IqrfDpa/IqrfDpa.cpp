@@ -221,18 +221,25 @@ namespace iqrf {
         m_cPar.demoFlag = prfEnum.getDemoFlag();
         m_cPar.stdModeSupportFlag = prfEnum.getStdModeSupportFlag();
         m_cPar.lpModeSupportFlag = prfEnum.getLpModeSupportFlag();
+        m_cPar.lpModeRunningFlag = prfEnum.getLpModeRunningFlag();
         TRC_INFORMATION("DPA params: " << std::endl <<
           NAME_PAR(dpaVer, m_cPar.dpaVer) <<
           NAME_PAR(demoFlag, m_cPar.demoFlag) <<
           NAME_PAR(stdModeSupportFlag, m_cPar.stdModeSupportFlag) <<
           NAME_PAR(lpModeSupportFlag, m_cPar.lpModeSupportFlag) <<
+          NAME_PAR(lpModeRunningFlag, m_cPar.lpModeRunningFlag) <<
           std::endl
         );
-        if (m_cPar.stdModeSupportFlag) {
-          m_rfMode = IDpaTransaction2::kStd;
+        if (m_cPar.stdModeSupportFlag && m_cPar.lpModeSupportFlag) { //dual support of DPA 4.00
+          m_rfMode = m_cPar.lpModeRunningFlag ? IDpaTransaction2::kLp : IDpaTransaction2::kStd;
         }
-        if (m_cPar.lpModeSupportFlag) {
-          m_rfMode = IDpaTransaction2::kLp;
+        else {
+          if (m_cPar.stdModeSupportFlag) {
+            m_rfMode = IDpaTransaction2::kStd;
+          }
+          if (m_cPar.lpModeSupportFlag) {
+            m_rfMode = IDpaTransaction2::kLp;
+          }
         }
         m_dpaHandler->setRfCommunicationMode(m_rfMode);
       }

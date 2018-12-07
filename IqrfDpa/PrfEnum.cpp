@@ -79,6 +79,7 @@ namespace iqrf {
         //RF Mode support
         m_stdModeSupport = 0 != (m_resp.Flags & 1);
         m_lpModeSupport = 0 != (m_resp.Flags & 2);
+        m_lpModeRunning = 0 != (m_resp.Flags & 4);
 
       }
       

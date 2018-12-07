@@ -36,6 +36,7 @@ namespace iqrf {
       bool demoFlag = false;
       bool stdModeSupportFlag = false;
       bool lpModeSupportFlag = false;
+      bool lpModeRunningFlag = false;
     };
 
     class ExclusiveAccess
