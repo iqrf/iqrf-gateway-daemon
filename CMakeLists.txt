@@ -67,6 +67,10 @@ add_subdirectory(JsRenderDuktape)
 add_subdirectory(JsonDpaApiIqrfStandard)
 add_subdirectory(JsonDpaApiIqrfStdExt)
 add_subdirectory(SchedulerMessaging)
+
+
+# IDE folder for IQMesh services
+set(IQMESH_SERVICES_FOLDER "iqmesh")
 add_subdirectory(IqmeshServices/BondNodeLocalService)
 add_subdirectory(IqmeshServices/SmartConnectService)
 add_subdirectory(IqmeshServices/OtaUploadService)
@@ -74,7 +78,7 @@ add_subdirectory(IqmeshServices/ReadTrConfService)
 add_subdirectory(IqmeshServices/WriteTrConfService)
 add_subdirectory(IqmeshServices/EnumerateDeviceService)
 add_subdirectory(NativeUpload)
-add_subdirectory(Autonetwork)
+add_subdirectory(IqmeshServices/AutonetworkService)
 
 if(${BUILD_TESTING})
   add_subdirectory(tests)

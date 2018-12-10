@@ -32,4 +32,6 @@ target_link_libraries(${PROJECT_NAME}
 	Dpa
 )
 
+set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${IQMESH_SERVICES_FOLDER})
+
 DeployShapeComponent(${PROJECT_NAME})

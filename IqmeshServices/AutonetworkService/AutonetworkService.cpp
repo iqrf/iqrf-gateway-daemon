@@ -1,16 +1,16 @@
-#define IAutonetwork_EXPORTS
+#define IAutonetworkService_EXPORTS
 
-#include "Autonetwork.h"
+#include "AutonetworkService.h"
 #include "Trace.h"
 #include "ComAutonetwork.h"
-#include "iqrf__Autonetwork.hxx"
+#include "iqrf__AutonetworkService.hxx"
 #include <list>
 #include <cmath>
 #include <thread> 
 #include <bitset>
 #include <chrono>
 
-TRC_INIT_MODULE(iqrf::Autonetwork);
+TRC_INIT_MODULE(iqrf::AutonetworkService);
 
 using namespace rapidjson;
 
@@ -205,10 +205,10 @@ namespace iqrf {
 
 
   // implementation class
-  class Autonetwork::Imp {
+  class AutonetworkService::Imp {
   private:
     // parent object
-    Autonetwork & m_parent;
+    AutonetworkService & m_parent;
 
     // message type: autonetwork
     // for temporal reasons
@@ -223,7 +223,7 @@ namespace iqrf {
     uint8_t MAX_EMPTY_WAVES = MAX_ADDRESS;
 
   public:
-    Imp( Autonetwork& parent ) : m_parent( parent )
+    Imp( AutonetworkService& parent ) : m_parent( parent )
     {
     }
 
@@ -2556,69 +2556,69 @@ namespace iqrf {
   };
 
 
-  Autonetwork::Autonetwork()
+  AutonetworkService::AutonetworkService()
   {
     m_imp = shape_new Imp( *this );
   }
 
-  Autonetwork::~Autonetwork()
+  AutonetworkService::~AutonetworkService()
   {
     delete m_imp;
   }
 
 
-  void Autonetwork::attachInterface( iqrf::IIqrfDpaService* iface )
+  void AutonetworkService::attachInterface( iqrf::IIqrfDpaService* iface )
   {
     m_imp->attachInterface( iface );
   }
 
-  void Autonetwork::detachInterface( iqrf::IIqrfDpaService* iface )
+  void AutonetworkService::detachInterface( iqrf::IIqrfDpaService* iface )
   {
     m_imp->detachInterface( iface );
   }
 
-  void Autonetwork::attachInterface( iqrf::IJsCacheService* iface )
+  void AutonetworkService::attachInterface( iqrf::IJsCacheService* iface )
   {
     m_imp->attachInterface( iface );
   }
 
-  void Autonetwork::detachInterface( iqrf::IJsCacheService* iface )
+  void AutonetworkService::detachInterface( iqrf::IJsCacheService* iface )
   {
     m_imp->detachInterface( iface );
   }
 
-  void Autonetwork::attachInterface( iqrf::IMessagingSplitterService* iface )
+  void AutonetworkService::attachInterface( iqrf::IMessagingSplitterService* iface )
   {
     m_imp->attachInterface( iface );
   }
 
-  void Autonetwork::detachInterface( iqrf::IMessagingSplitterService* iface )
+  void AutonetworkService::detachInterface( iqrf::IMessagingSplitterService* iface )
   {
     m_imp->detachInterface( iface );
   }
 
-  void Autonetwork::attachInterface( shape::ITraceService* iface )
+  void AutonetworkService::attachInterface( shape::ITraceService* iface )
   {
     shape::Tracer::get().addTracerService( iface );
   }
 
-  void Autonetwork::detachInterface( shape::ITraceService* iface )
+  void AutonetworkService::detachInterface( shape::ITraceService* iface )
   {
     shape::Tracer::get().removeTracerService( iface );
   }
 
 
-  void Autonetwork::activate( const shape::Properties *props )
+  void AutonetworkService::activate( const shape::Properties *props )
   {
     m_imp->activate( props );
   }
 
-  void Autonetwork::deactivate()
+  void AutonetworkService::deactivate()
   {
     m_imp->deactivate();
   }
 
-  void Autonetwork::modify( const shape::Properties *props )
+  void AutonetworkService::modify( const shape::Properties *props )
   {
     m_imp->modify( props );
   }

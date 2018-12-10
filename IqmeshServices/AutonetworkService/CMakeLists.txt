@@ -1,8 +1,8 @@
-project(Autonetwork)
+project(AutonetworkService)
 
-set(COMPONENT iqrf::Autonetwork)
+set(COMPONENT iqrf::AutonetworkService)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IAutonetwork)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IAutonetworkService)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IJsCacheService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
@@ -26,5 +26,7 @@ if(SHAPE_STATIC_LIBS)
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
+
+set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${IQMESH_SERVICES_FOLDER})
 
 DeployShapeComponent(${PROJECT_NAME})

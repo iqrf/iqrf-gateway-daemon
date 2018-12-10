@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IAutonetwork.h"
+#include "IAutonetworkService.h"
 #include "ShapeProperties.h"
 #include "IMessagingSplitterService.h"
 #include "IJsCacheService.h"
@@ -11,16 +11,16 @@
 
 namespace iqrf {
 
-  /// \class Autonetwork
-  /// \brief Implementation of IAutonetwork
-  class Autonetwork : public IAutonetwork
+  /// \class AutonetworkService
+  /// \brief Implementation of IAutonetworkService
+  class AutonetworkService : public IAutonetworkService
   {
   public:
     /// \brief Constructor
-    Autonetwork();
+    AutonetworkService();
 
     /// \brief Destructor
-    virtual ~Autonetwork();
+    virtual ~AutonetworkService();
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
