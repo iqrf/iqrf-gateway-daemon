@@ -1,0 +1,8 @@
+{
+  "component": "iqrf::IqrfSpi",
+  "instance": "iqrf::IqrfSpi-/dev/spidev2.0",
+  "IqrfInterface": "/dev/spidev2.0",
+  "powerEnableGpioPin": 23,
+  "busEnableGpioPin": 7,
+  "pgmSwitchGpioPin": 22
+}
