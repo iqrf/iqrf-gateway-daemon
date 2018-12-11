@@ -244,6 +244,13 @@
       "libraryName": "AutonetworkService",
       "enabled": true,
       "startlevel": 3
+    },
+	{
+      "name": "iqrf::RemoveBondService",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "RemoveBondService",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }

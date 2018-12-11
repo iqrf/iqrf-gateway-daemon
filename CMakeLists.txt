@@ -79,6 +79,7 @@ add_subdirectory(IqmeshServices/WriteTrConfService)
 add_subdirectory(IqmeshServices/EnumerateDeviceService)
 add_subdirectory(NativeUpload)
 add_subdirectory(IqmeshServices/AutonetworkService)
+add_subdirectory(IqmeshServices/RemoveBondService)
 
 if(${BUILD_TESTING})
   add_subdirectory(tests)
