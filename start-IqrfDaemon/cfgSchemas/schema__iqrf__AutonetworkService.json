@@ -12,13 +12,13 @@
             "type": "string",
             "description": "Name of component.",
             "enum": [
-                "iqrf::Autonetwork"
+                "iqrf::AutonetworkService"
             ]
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::Autonetwork-(id)",
-            "default": "iqrf::Autonetwork-1"
+            "description": "Recomended iqrf::AutonetworkService-(id)",
+            "default": "iqrf::AutonetworkService-1"
         },
         "RequiredInterfaces": {
             "type": "array",

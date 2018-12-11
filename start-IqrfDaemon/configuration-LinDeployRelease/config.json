@@ -231,10 +231,10 @@
       "enabled": true,
       "startlevel": 3
     },
-	{
-      "name": "iqrf::Autonetwork",
+	  {
+      "name": "iqrf::AutonetworkService",
       "libraryPath": "",
-      "libraryName": "Autonetwork",
+      "libraryName": "AutonetworkService",
       "enabled": true,
       "startlevel": 3
     }
