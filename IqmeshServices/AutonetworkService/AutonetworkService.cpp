@@ -63,6 +63,7 @@ namespace iqrf {
   public:
     // Type of error
     enum class Type {
+      Internal,
       NoError,
       NoCoordOrCoordOs,
       GetAddressingInfo,
@@ -241,10 +242,10 @@ namespace iqrf {
     }
 
     // parses bit array of nodes into bitmap
-    std::bitset<MAX_ADDRESS> toNodesBitmap( const unsigned char* pData ) {
-      std::bitset<MAX_ADDRESS> nodesMap;
+    std::bitset<MAX_ADDRESS + 1> toNodesBitmap( const unsigned char* pData ) {
+      std::bitset<MAX_ADDRESS + 1> nodesMap;
 
-      for ( int byteId = 0; byteId < 32; byteId++ ) {
+      for ( int byteId = 0; byteId < 29; byteId++ ) {
         uint8_t bitComp = 1;
 
         for ( int bitId = 0; bitId < 8; bitId++ ) {
@@ -422,7 +423,7 @@ namespace iqrf {
     }
 
     // returns map of bonded nodes
-    std::bitset<MAX_ADDRESS> getBondedNodes(AutonetworkResult& autonetworkResult)
+    std::bitset<MAX_ADDRESS + 1> getBondedNodes(AutonetworkResult& autonetworkResult)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -496,7 +497,7 @@ namespace iqrf {
     }
 
     // returns map of discovered nodes
-    std::bitset<MAX_ADDRESS> getDiscoveredNodes(AutonetworkResult& autonetworkResult)
+    std::bitset<MAX_ADDRESS + 1> getDiscoveredNodes(AutonetworkResult& autonetworkResult)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -573,9 +574,9 @@ namespace iqrf {
     void updateNodesInfo(
       AutonetworkResult& autonetworkResult,
       uint8_t& bondedNodesNr,
-      std::bitset<MAX_ADDRESS>& bondedNodes,
+      std::bitset<MAX_ADDRESS + 1>& bondedNodes,
       uint8_t& discoveredNodesNr, 
-      std::bitset<MAX_ADDRESS>& discoveredNodes
+      std::bitset<MAX_ADDRESS + 1>& discoveredNodes
     )
     {
       TPerCoordinatorAddrInfo_Response addressingInfo = getAddressingInfo(autonetworkResult);
@@ -588,7 +589,7 @@ namespace iqrf {
     }
 
     // returns comma-separated list of nodes, whose bits are set to 1 in the bitmap
-    std::string toNodesListStr(const std::bitset<MAX_ADDRESS>& nodes)
+    std::string toNodesListStr(const std::bitset<MAX_ADDRESS + 1>& nodes)
     {
       std::string nodesListStr;
 
@@ -607,8 +608,8 @@ namespace iqrf {
 
 
     bool checkUnbondedNodes(
-      const std::bitset<32>& bondedNodes,
-      const std::bitset<32>& discoveredNodes
+      const std::bitset<MAX_ADDRESS + 1>& bondedNodes,
+      const std::bitset<MAX_ADDRESS + 1>& discoveredNodes
     ) 
     {
       std::stringstream unbondedNodesStream;
@@ -1310,7 +1311,7 @@ namespace iqrf {
 
     // returns next free address
     uint8_t getNextFreeAddr(
-      const std::bitset<MAX_ADDRESS>& bondedNodes,
+      const std::bitset<MAX_ADDRESS + 1>& bondedNodes,
       const uint8_t fromAddr
     ) 
     {
@@ -1502,9 +1503,9 @@ namespace iqrf {
       AutonetworkResult& autonetworkResult,
       const std::list<uint32_t>& prebondedMIDs, 
       uint8_t& bondedNodesNr,
-      std::bitset<MAX_ADDRESS>& bondedNodes,
+      std::bitset<MAX_ADDRESS + 1>& bondedNodes,
       uint8_t& discoveredNodesNr,
-      std::bitset<MAX_ADDRESS>& discoveredNodes,
+      std::bitset<MAX_ADDRESS + 1>& discoveredNodes,
       uint8_t& nextAddr,
       std::map<uint8_t, uint32_t>& authorizedNodes
     )
@@ -1920,10 +1921,10 @@ namespace iqrf {
 
       autonetworkResult.setLastWave(false);
 
-      std::bitset<MAX_ADDRESS> bondedNodes;
+      std::bitset<MAX_ADDRESS + 1> bondedNodes;
       uint8_t bondedNodesNr = 0;
 
-      std::bitset<MAX_ADDRESS> discoveredNodes;
+      std::bitset<MAX_ADDRESS + 1> discoveredNodes;
       uint8_t discoveredNodesNr = 0;
 
       // check, if Coordinator and OS peripherals are present at coordinator's node
@@ -2122,6 +2123,11 @@ namespace iqrf {
       }
       catch (std::exception& ex) {
         TRC_WARNING("Error during algorithm run: " << ex.what());
+
+        if (autonetworkResult.getError().getType() == AutonetworkError::Type::NoError) {
+          AutonetworkError error(AutonetworkError::Type::Internal, ex.what());
+          autonetworkResult.setError(error);
+        }
       }
 
 // creating and sending of message
@@ -2249,6 +2255,10 @@ namespace iqrf {
         int status = SERVICE_ERROR;
 
         switch ( error.getType() ) {
+          case AutonetworkError::Type::Internal:
+            status = SERVICE_ERROR_INTERNAL;
+            break;
+
           case AutonetworkError::Type::NoCoordOrCoordOs:
             status = SERVICE_ERROR_NO_COORD_OR_COORD_OS;
             break;
@@ -2458,8 +2468,7 @@ namespace iqrf {
       }
 
       runAutonetwork(
-        waves, emptyWaves, discoveryTxPower,
-        comAutonetwork, msgType, messagingId
+        waves, emptyWaves, discoveryTxPower, comAutonetwork, msgType, messagingId
       );
 
       // release exclusive access
