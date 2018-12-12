@@ -245,7 +245,7 @@
       "enabled": true,
       "startlevel": 3
     },
-	{
+	  {
       "name": "iqrf::RemoveBondService",
       "libraryPath": "IqrfDaemon/bin",
       "libraryName": "RemoveBondService",
