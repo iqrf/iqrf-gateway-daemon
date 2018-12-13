@@ -6,7 +6,7 @@
 #include "iqrf__AutonetworkService.hxx"
 #include <list>
 #include <cmath>
-#include <thread> 
+#include <thread>
 #include <bitset>
 #include <chrono>
 
@@ -309,8 +309,9 @@ namespace iqrf {
         TRC_INFORMATION("Device exploration successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(addrInfoRequest.PeripheralType(), addrInfoRequest.NodeAddress())
-          << PAR(addrInfoRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, addrInfoRequest.PeripheralType()) 
+          << NAME_PAR(Node address, addrInfoRequest.NodeAddress())
+          << NAME_PAR(Command, (int)addrInfoRequest.PeripheralCommand() )
         );
 
         // parsing response pdata
@@ -395,8 +396,9 @@ namespace iqrf {
         TRC_INFORMATION("Get addressing information successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(addrInfoRequest.PeripheralType(), addrInfoRequest.NodeAddress())
-          << PAR(addrInfoRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, addrInfoRequest.PeripheralType())
+          << NAME_PAR(Node address, addrInfoRequest.NodeAddress())
+          << NAME_PAR(Command, (int)addrInfoRequest.PeripheralCommand())
         );
 
         TRC_FUNCTION_LEAVE("");
@@ -465,8 +467,9 @@ namespace iqrf {
         TRC_INFORMATION("Get bonded nodes successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(getBondedNodesRequest.PeripheralType(), getBondedNodesRequest.NodeAddress())
-          << PAR(getBondedNodesRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, getBondedNodesRequest.PeripheralType())
+          << NAME_PAR(Node address, getBondedNodesRequest.NodeAddress())
+          << NAME_PAR(Command, (int)getBondedNodesRequest.PeripheralCommand())
         );
 
         // get response data
@@ -540,8 +543,9 @@ namespace iqrf {
         TRC_INFORMATION("Get discovered nodes successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(getDiscoveredNodesRequest.PeripheralType(), getDiscoveredNodesRequest.NodeAddress())
-          << PAR(getDiscoveredNodesRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, getDiscoveredNodesRequest.PeripheralType())
+          << NAME_PAR(Node address, getDiscoveredNodesRequest.NodeAddress())
+          << NAME_PAR(Command, (int)getDiscoveredNodesRequest.PeripheralCommand())
         );
 
         // get response data
@@ -678,8 +682,9 @@ namespace iqrf {
         TRC_INFORMATION("Set Hops successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(setHopsRequest.PeripheralType(), setHopsRequest.NodeAddress())
-          << PAR(setHopsRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, setHopsRequest.PeripheralType())
+          << NAME_PAR(Node address, setHopsRequest.NodeAddress())
+          << NAME_PAR(Command, (int)setHopsRequest.PeripheralCommand())
         );
 
         TRC_FUNCTION_LEAVE("");
@@ -751,8 +756,9 @@ namespace iqrf {
         TRC_INFORMATION("Set DPA params successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(setDpaParamsRequest.PeripheralType(), setDpaParamsRequest.NodeAddress())
-          << PAR(setDpaParamsRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, setDpaParamsRequest.PeripheralType())
+          << NAME_PAR(Node address, setDpaParamsRequest.NodeAddress())
+          << NAME_PAR(Command, (int)setDpaParamsRequest.PeripheralCommand())
         );
 
         TRC_FUNCTION_LEAVE("");
@@ -853,8 +859,9 @@ namespace iqrf {
         TRC_INFORMATION("Smart Connect ok!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(smartConnectRequest.PeripheralType(), smartConnectRequest.NodeAddress())
-          << PAR(smartConnectRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, smartConnectRequest.PeripheralType())
+          << NAME_PAR(Node address, smartConnectRequest.NodeAddress())
+          << NAME_PAR(Command, (int)smartConnectRequest.PeripheralCommand())
         );
 
         TRC_FUNCTION_LEAVE("");
@@ -929,7 +936,7 @@ namespace iqrf {
       pData[1] = nodeSeed;
       pData[2] = 0;
 
-      prebondedAliveRequest.DataToBuffer(prebondedAlivePacket.Buffer, sizeof(TDpaIFaceHeader) + 2);
+      prebondedAliveRequest.DataToBuffer(prebondedAlivePacket.Buffer, sizeof(TDpaIFaceHeader) + 3);
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> prebondedAliveTransaction;
@@ -964,8 +971,9 @@ namespace iqrf {
         TRC_INFORMATION("FRC Prebonded Alive successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(prebondedAliveRequest.PeripheralType(), prebondedAliveRequest.NodeAddress())
-          << PAR(prebondedAliveRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, prebondedAliveRequest.PeripheralType())
+          << NAME_PAR(Node address, prebondedAliveRequest.NodeAddress())
+          << NAME_PAR(Command, (int)prebondedAliveRequest.PeripheralCommand())
         );
 
         // check status
@@ -1044,8 +1052,9 @@ namespace iqrf {
         TRC_INFORMATION("FRC write config extra result successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(extraResultRequest.PeripheralType(), extraResultRequest.NodeAddress())
-          << PAR(extraResultRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, extraResultRequest.PeripheralType())
+          << NAME_PAR(Node address, extraResultRequest.NodeAddress())
+          << NAME_PAR(Command, (int)extraResultRequest.PeripheralCommand())
         );
 
         frcData.append(
@@ -1164,8 +1173,9 @@ namespace iqrf {
           TRC_INFORMATION("FRC FRC Prebonded Memory Read successful!");
           TRC_DEBUG(
             "DPA transaction: "
-            << NAME_PAR(prebondedMemoryRequest.PeripheralType(), prebondedMemoryRequest.NodeAddress())
-            << PAR(prebondedMemoryRequest.PeripheralCommand())
+            << NAME_PAR(Peripheral type, prebondedMemoryRequest.PeripheralType())
+            << NAME_PAR(Node address, prebondedMemoryRequest.NodeAddress())
+            << NAME_PAR(Command, (int)prebondedMemoryRequest.PeripheralCommand())
           );
 
           // check status
@@ -1247,8 +1257,9 @@ namespace iqrf {
           TRC_INFORMATION("FRC write config extra result successful!");
           TRC_DEBUG(
             "DPA transaction: "
-            << NAME_PAR(extraResultRequest.PeripheralType(), extraResultRequest.NodeAddress())
-            << PAR(extraResultRequest.PeripheralCommand())
+            << NAME_PAR(Peripheral type, extraResultRequest.PeripheralType())
+            << NAME_PAR(Node address, extraResultRequest.NodeAddress())
+            << NAME_PAR(Command, (int)extraResultRequest.PeripheralCommand())
           );
 
           mids2.append(
@@ -1394,8 +1405,9 @@ namespace iqrf {
         TRC_INFORMATION("Authorize Bond ok!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(authorizeBondRequest.PeripheralType(), authorizeBondRequest.NodeAddress())
-          << PAR(authorizeBondRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, authorizeBondRequest.PeripheralType())
+          << NAME_PAR(Node address, authorizeBondRequest.NodeAddress())
+          << NAME_PAR(Command, (int)authorizeBondRequest.PeripheralCommand())
         );
 
         TRC_FUNCTION_LEAVE("");
@@ -1472,8 +1484,9 @@ namespace iqrf {
         TRC_INFORMATION("Remove Bond ok!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(removeBondRequest.PeripheralType(), removeBondRequest.NodeAddress())
-          << PAR(removeBondRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, removeBondRequest.PeripheralType())
+          << NAME_PAR(Node address, removeBondRequest.NodeAddress())
+          << NAME_PAR(Command, (int)removeBondRequest.PeripheralCommand())
         );
 
         TRC_FUNCTION_LEAVE("");
@@ -1615,8 +1628,9 @@ namespace iqrf {
         TRC_INFORMATION("Check new nodes ok!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(checkNewNodesRequest.PeripheralType(), checkNewNodesRequest.NodeAddress())
-          << PAR(checkNewNodesRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, checkNewNodesRequest.PeripheralType())
+          << NAME_PAR(Node address, checkNewNodesRequest.NodeAddress())
+          << NAME_PAR(Command, (int)checkNewNodesRequest.PeripheralCommand())
         );
 
         TPerFrcSend_Response response = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
@@ -1710,8 +1724,9 @@ namespace iqrf {
         TRC_INFORMATION("Remove bond and restart ok!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(removeBondAndRestartRequest.PeripheralType(), removeBondAndRestartRequest.NodeAddress())
-          << PAR(removeBondAndRestartRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, removeBondAndRestartRequest.PeripheralType())
+          << NAME_PAR(Node address, removeBondAndRestartRequest.NodeAddress())
+          << NAME_PAR(Command, (int)removeBondAndRestartRequest.PeripheralCommand())
         );
 
         TRC_FUNCTION_LEAVE("");
@@ -1788,8 +1803,9 @@ namespace iqrf {
         TRC_INFORMATION("Remove bond and restart ok!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(removeBondAtCoordinatorRequest.PeripheralType(), removeBondAtCoordinatorRequest.NodeAddress())
-          << PAR(removeBondAtCoordinatorRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, removeBondAtCoordinatorRequest.PeripheralType())
+          << NAME_PAR(Node address, removeBondAtCoordinatorRequest.NodeAddress())
+          << NAME_PAR(Command, (int)removeBondAtCoordinatorRequest.PeripheralCommand())
         );
 
         TRC_FUNCTION_LEAVE("");
@@ -1873,8 +1889,9 @@ namespace iqrf {
         TRC_INFORMATION("Run discovery ok!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR(runDiscoveryRequest.PeripheralType(), runDiscoveryRequest.NodeAddress())
-          << PAR(runDiscoveryRequest.PeripheralCommand())
+          << NAME_PAR(Peripheral type, runDiscoveryRequest.PeripheralType())
+          << NAME_PAR(Node address, runDiscoveryRequest.NodeAddress())
+          << NAME_PAR(Command, (int)runDiscoveryRequest.PeripheralCommand())
         );
 
         TPerCoordinatorDiscovery_Response response = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorDiscovery_Response;
@@ -1939,8 +1956,8 @@ namespace iqrf {
       try {
         updateNodesInfo(autonetworkResult, bondedNodesNr, bondedNodes, discoveredNodesNr, discoveredNodes);
 
-        TRC_INFORMATION("Bonded nodes: " << toNodesListStr(bondedNodes));
-        TRC_INFORMATION("Discovered nodes: " << toNodesListStr(discoveredNodes));
+        TRC_INFORMATION(NAME_PAR(Bonded nodes, toNodesListStr(bondedNodes)));
+        TRC_INFORMATION(NAME_PAR(Discovered nodes, toNodesListStr(discoveredNodes)));
 
         // checks, if there are some nodes, which are discovered but NOT bonded
         if (!checkUnbondedNodes(bondedNodesNr, discoveredNodesNr))
@@ -1973,11 +1990,11 @@ namespace iqrf {
         // main cycle
         for (; (bondedNodesNr != MAX_ADDRESS) && (round <= waves); round++)
         {
-          TRC_INFORMATION("Orig nodes count: " << origNodesCount);
-          TRC_INFORMATION("Round: " << round);
+          TRC_INFORMATION(NAME_PAR(Orig nodes count, (int)origNodesCount));
+          TRC_INFORMATION(NAME_PAR(Round, round));
 
           time_t now = system_clock::to_time_t(system_clock::now());
-          TRC_INFORMATION("Start time: " << PAR(ctime(&now)));
+          TRC_INFORMATION(NAME_PAR(Start time, ctime(&now)));
 
           autonetworkResult.setWave(round);
 
@@ -1994,7 +2011,7 @@ namespace iqrf {
           if (prebondedAliveNodes.empty()) {
             continue;
           }
-          TRC_INFORMATION("Prebonded alive nodes: " << PAR(prebondedAliveNodes.size()));
+          TRC_INFORMATION(NAME_PAR(Prebonded alive nodes, prebondedAliveNodes.size()));
 
           std::list<uint32_t> prebondedMIDs;
           prebondedMIDs = getPrebondedMIDs(autonetworkResult, prebondedAliveNodes, virtFrcId);
@@ -2046,13 +2063,13 @@ namespace iqrf {
                 continue;
               }
 
-              TRC_INFORMATION("Removing bond: " << PAR(authorizedNode.first));
+              TRC_INFORMATION(NAME_PAR(Removing bond, authorizedNode.first));
               try {
                 removedNodes.push_back(authorizedNode.first);
                 removeBondAndRestart(autonetworkResult, authorizedNode.first);
               }
               catch (std::exception& ex) {
-                TRC_WARNING("Error removing bond: " << PAR(authorizedNode.first));
+                TRC_WARNING(NAME_PAR(Error removing bond, authorizedNode.first));
               }
 
               // Wait for sure
@@ -2092,7 +2109,7 @@ namespace iqrf {
             uint8_t discoveredNodesCnt = 0;
 
             runDiscovery(autonetworkResult, discoveryTxPower, discoveredNodesCnt);
-            TRC_INFORMATION("Discovered nodes: " << PAR(discoveredNodesCnt));
+            TRC_INFORMATION(NAME_PAR(Discovered nodes, (int)discoveredNodesCnt));
           }
           catch (std::exception& ex) {
             TRC_WARNING("Running discovery failed.")
