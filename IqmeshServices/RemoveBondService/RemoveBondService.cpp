@@ -567,6 +567,7 @@ namespace iqrf {
       }
 
       clearAllBonds(removeBondResult, hwpId);
+      removeBondResult.setNodesNr(0);
 
       TRC_FUNCTION_LEAVE("");
       return;
