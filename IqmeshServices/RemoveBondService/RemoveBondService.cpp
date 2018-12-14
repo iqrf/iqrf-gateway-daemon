@@ -553,7 +553,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
       
-      if (dpaVer < 0x04) {
+      if (dpaVer < 0x0400) {
         batchRemoveBondAndRestartNode(removeBondResult, 0xFF, hwpId);
       }
       else {
@@ -593,7 +593,7 @@ namespace iqrf {
       }
 
       // remove node at the node's side
-      if (dpaVer < 0x04) {
+      if (dpaVer < 0x0400) {
         batchRemoveBondAndRestartNode(removeBondResult, nodeAddr, hwpId);
       }
       else {
