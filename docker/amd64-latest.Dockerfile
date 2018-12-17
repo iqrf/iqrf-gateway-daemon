@@ -23,4 +23,4 @@ COPY config/iqrf-gateway-daemon/. .
 EXPOSE 1338 55000/udp 55300/udp
 
 # run the daemon service
-CMD ["iqrfgd2 /etc/iqrf-gateway-daemon/config.json"]
+CMD ["iqrfgd2", "/etc/iqrf-gateway-daemon/config.json"]
