@@ -6,7 +6,7 @@ MAINTAINER Rostislav Spinar <rostislav.spinar@iqrf.com>
 LABEL maintainer="rostislav.spinar@iqrf.com"
 
 # add iqrf repo
-RUN echo "deb http://repos.iqrf.org/testing/debian stretch testing" | sudo tee -a /etc/apt/sources.list.d/iqrf-daemon.list \
+RUN echo "deb http://repos.iqrf.org/debian stretch stable" | sudo tee -a /etc/apt/sources.list.d/iqrf-daemon.list \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E
 
 # install daemon
