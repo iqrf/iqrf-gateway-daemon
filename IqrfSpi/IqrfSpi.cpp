@@ -357,6 +357,10 @@ namespace iqrf {
         cfg.powerEnableGpioPin = (uint8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)cfg.powerEnableGpioPin).GetInt();
         cfg.busEnableGpioPin = (uint8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)cfg.busEnableGpioPin).GetInt();
         cfg.pgmSwitchGpioPin = (uint8_t)Pointer("/pgmSwitchGpioPin").GetWithDefault(d, (int)cfg.pgmSwitchGpioPin).GetInt();
+        cfg.trModuleReset = TR_MODULE_RESET_ENABLE;
+        Value* v = Pointer("/spiReset").Get(d);
+        if (v && v->IsBool())
+          cfg.trModuleReset = v->GetBool() ? TR_MODULE_RESET_ENABLE : TR_MODULE_RESET_DISABLE;
 
         TRC_INFORMATION(PAR(m_interfaceName));
 

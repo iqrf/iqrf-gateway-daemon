@@ -40,6 +40,11 @@
             "description": "Switch TR module to programming mode",
             "default": 22
         },
+        "spiReset": {
+            "type": "boolean",
+            "description": "Reset SPI in component activation",
+            "default": true
+        },
         "RequiredInterfaces": {
             "type": "array",
             "description": "Array of required interfaces.",
