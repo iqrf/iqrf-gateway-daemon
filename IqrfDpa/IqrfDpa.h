@@ -59,10 +59,10 @@ namespace iqrf {
     std::map<std::string, AsyncMessageHandlerFunc> m_asyncMessageHandlers;
     void asyncDpaMessageHandler(const DpaMessage& dpaMessage);
 
-    std::mutex m_asyncResetMtx;
-    std::condition_variable m_asyncResetCv;
+    std::mutex m_asyncRestartMtx;
+    std::condition_variable m_asyncRestartCv;
 
-    void asyncResetHandler(const DpaMessage& dpaMessage);
+    void asyncRestartHandler(const DpaMessage& dpaMessage);
     void getIqrfNetworkParams();
 
     /// Coordinator parameters

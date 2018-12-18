@@ -150,6 +150,12 @@ namespace iqrf {
     m_request.SetLength(sizeof(TDpaIFaceHeader));
   }
 
+  void PrfOs::setRestartCmd()
+  {
+    setCmd(Cmd::RESTART);
+    m_request.SetLength(sizeof(TDpaIFaceHeader));
+  }
+
   void PrfOs::setReadCmd()
   {
     setCmd(Cmd::READ);

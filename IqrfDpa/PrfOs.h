@@ -58,6 +58,7 @@ namespace iqrf {
     void setSleepCmd(const std::chrono::milliseconds& milis, uint8_t ctrl = 0);
     void setSleepCmd(); //calibration
     void setResetCmd();
+    void setRestartCmd();
     void setReadCmd();
 
     const std::string& getModuleId() const { return m_moduleId; }

@@ -196,7 +196,7 @@ namespace iqrf {
       hndl.second(dpaMessage);
   }
 
-  void IqrfDpa::asyncResetHandler(const DpaMessage& dpaMessage)
+  void IqrfDpa::asyncRestartHandler(const DpaMessage& dpaMessage)
   {
     TRC_FUNCTION_ENTER("");
 
@@ -247,7 +247,7 @@ namespace iqrf {
         TRC_WARNING("Wrong format of TR reset result async msg");
       }
 
-      m_asyncResetCv.notify_all();
+      m_asyncRestartCv.notify_all();
 
     }
     else {
@@ -261,24 +261,24 @@ namespace iqrf {
   {
     TRC_FUNCTION_ENTER("");
 
-    bool sentExplicitReset = false;
+    bool sentExplicitRestart = false;
 
     while (true)
     { // wait for reset TR module async msg.
-      std::unique_lock<std::mutex> lck(m_asyncResetMtx);
+      std::unique_lock<std::mutex> lck(m_asyncRestartMtx);
 
       //wait for async msg after reset
       const int wtime = 3000;
       TRC_INFORMATION("Waiting for TR reset result [ms]: " << PAR(wtime));
 
-      //while (m_asyncResetCv.wait_for(lck, std::chrono::milliseconds(wtime))== std::cv_status::timeout) {
-      if (m_asyncResetCv.wait_for(lck, std::chrono::milliseconds(wtime)) == std::cv_status::timeout) {
+      //while (m_asyncRestartCv.wait_for(lck, std::chrono::milliseconds(wtime))== std::cv_status::timeout) {
+      if (m_asyncRestartCv.wait_for(lck, std::chrono::milliseconds(wtime)) == std::cv_status::timeout) {
 
-        if (!sentExplicitReset) {
-          sentExplicitReset = true;
+        if (!sentExplicitRestart) {
+          sentExplicitRestart = true;
           TRC_INFORMATION("No async TR reset response => Send explicit request");
           PrfOs prfOs;
-          prfOs.setResetCmd();
+          prfOs.setRestartCmd(); //restart only to skip RFPGM
           auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
           // don't care about result => interested in async reset response
           //auto res = trn->get();
@@ -349,7 +349,7 @@ namespace iqrf {
 
     // handle asyn reset
     registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) { //spaces in front of "  IqrfDpa" make it first in handlers map
-      asyncResetHandler(dpaMessage);
+      asyncRestartHandler(dpaMessage);
     });
 
     // register to IQRF interface
