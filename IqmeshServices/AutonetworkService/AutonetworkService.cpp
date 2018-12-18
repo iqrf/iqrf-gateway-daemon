@@ -2009,6 +2009,24 @@ namespace iqrf {
 
           // next iteration
           if (prebondedAliveNodes.empty()) {
+            emptyRounds++;
+
+            if (emptyRounds == emptyWaves) {
+              TRC_INFORMATION("Maximum number of consecutive empty waves reached.")
+
+              AutonetworkError error(AutonetworkError::Type::EmptyWaves, "Maximum number of consecutive empty waves reached.");
+              autonetworkResult.setError(error);
+
+              goto SendResponse;
+            }
+
+            // send NOT last results
+            Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork);
+            m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
+
+            // clear new nodes for the next wave
+            autonetworkResult.clearNewNodes();
+
             continue;
           }
           TRC_INFORMATION(NAME_PAR(Prebonded alive nodes, prebondedAliveNodes.size()));
@@ -2044,6 +2062,13 @@ namespace iqrf {
 
               goto SendResponse;
             }
+
+            // send NOT last results
+            Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork);
+            m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
+
+            // clear new nodes for the next wave
+            autonetworkResult.clearNewNodes();
 
             continue;
           }
@@ -2097,6 +2122,13 @@ namespace iqrf {
 
               goto SendResponse;
             }
+
+            // send NOT last results
+            Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork);
+            m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
+
+            // clear new nodes for the next wave
+            autonetworkResult.clearNewNodes();
 
             continue;
           }
