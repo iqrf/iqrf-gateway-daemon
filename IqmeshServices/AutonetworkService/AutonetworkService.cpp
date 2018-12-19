@@ -816,8 +816,9 @@ namespace iqrf {
       pData[22] = 0x00;
       pData[23] = 0x00;
 
-      // Virtual Device Address - NOT USED
-      pData[24] = 0xFF;
+      // Virtual Device Address - must be 0 like all other parameters
+      // see https://www.iqrf.org/DpaTechGuide/#3.2.19%20Smart%20Connect
+      pData[24] = 0x00;
 
       // fill res1 with zeros
       std::fill_n(pData + 25, 9, 0);
@@ -2370,6 +2371,10 @@ namespace iqrf {
           
           case AutonetworkError::Type::RunDiscovery:
             status = SERVICE_ERROR_RUN_DISCOVERY;
+            break;
+
+          case AutonetworkError::Type::EmptyWaves:
+            status = SERVICE_ERROR_EMPTY_WAWES;
             break;
 
           default:
