@@ -1,3 +1,4 @@
+#include "VersionInfo.h"
 #include "ApiMsg.h"
 #include "JsonMngApi.h"
 #include "HexStringCoversion.h"
@@ -126,6 +127,34 @@ namespace iqrf {
 
   private:
     double m_timeToExit;
+  };
+
+  class MngVersionMsg : public MngMsg
+  {
+  public:
+    MngVersionMsg() = delete;
+    MngVersionMsg(const rapidjson::Document& doc)
+      :MngMsg(doc)
+      , m_buildTimestamp(BUILD_TIMESTAMP)
+      , m_daemonVersion(DAEMON_VERSION)
+    {
+    }
+
+    virtual ~MngVersionMsg()
+    {
+    }
+
+    void createResponsePayload(rapidjson::Document& doc) override
+    {
+      std::stringstream os;
+      os << m_daemonVersion << ' ' << m_buildTimestamp;
+      Pointer("/data/rsp/version").Set(doc, os.str());
+      MngMsg::createResponsePayload(doc);
+    }
+
+  private:
+    std::string m_buildTimestamp;
+    std::string m_daemonVersion;
   };
 
   class SchedAddTaskMsg : public MngMsg
@@ -540,6 +569,16 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    void handleMsg_mngDaemon_Version(const rapidjson::Document& reqDoc, Document& respDoc)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      MngVersionMsg msg(reqDoc);
+      msg.createResponse(respDoc);
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
     void handleMsg_mngScheduler_AddTask(const rapidjson::Document& reqDoc, Document& respDoc)
     {
       TRC_FUNCTION_ENTER("");
@@ -646,6 +685,9 @@ namespace iqrf {
       }
       else if (msgType.m_type == "mngDaemon_Exit") {
         handleMsg_mngDaemon_Exit(doc, respDoc);
+      }
+      else if (msgType.m_type == "mngDaemon_Version") {
+        handleMsg_mngDaemon_Version(doc, respDoc);
       }
       else if (msgType.m_type == "mngScheduler_AddTask") {
         handleMsg_mngScheduler_AddTask(doc, respDoc);
