@@ -850,6 +850,13 @@ namespace iqrf {
         "******************************************"
       );
 
+      props->getMemberAsString("uploadPath", m_uploadPath);
+      TRC_INFORMATION(PAR(m_uploadPath));
+
+      if (m_uploadPath.empty()) {
+        TRC_ERROR("Upload path is empty.");
+      }
+
       // for the sake of register function parameters 
       std::vector<std::string> supportedMsgTypes =
       {
