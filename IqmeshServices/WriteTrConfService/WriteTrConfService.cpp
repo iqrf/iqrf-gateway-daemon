@@ -2334,7 +2334,8 @@ namespace iqrf {
       THROW_EXC(std::out_of_range, "Unsupported UART baud rate: " << PAR(uartBaudRate));
     }
 
-    std::vector<HWP_ConfigByte> parseAndCheckConfigBytes(ComMngIqmeshWriteConfig comWriteConfig) {
+    std::vector<HWP_ConfigByte> parseAndCheckConfigBytes(ComMngIqmeshWriteConfig comWriteConfig) 
+    {
       std::vector<HWP_ConfigByte> configBytes;
 
       // byte 0x01 - configuration bits
@@ -2548,12 +2549,21 @@ namespace iqrf {
         isSetByte05ConfigBits = true;
       }
 
+      // getting DPA version
+      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
+
       if (comWriteConfig.isSetNodeDpaInterface()) {
-        if (comWriteConfig.getNodeDpaInterface()) {
-          byte05ConfigBits |= 0b00000010;
+        if (dpaVer < 0x0400) {
+          if (comWriteConfig.getNodeDpaInterface()) {
+            byte05ConfigBits |= 0b00000010;
+          }
+          byte05ConfigBitsMask |= 0b00000010;
+          isSetByte05ConfigBits = true;
         }
-        byte05ConfigBitsMask |= 0b00000010;
-        isSetByte05ConfigBits = true;
+        else {
+          THROW_EXC(std::logic_error, "NodeDpaInterface parameter accessible from DPA version < 4.00");
+        }
       }
 
       if (comWriteConfig.isSetDpaAutoexec()) {
@@ -2590,9 +2600,6 @@ namespace iqrf {
 
       // only for DPA 3.03 onwards - needs to control
       if (comWriteConfig.isSetNeverSleep()) {
-        IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-        uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
-
         if (dpaVer >= 0x0303) {
           if (comWriteConfig.getNeverSleep()) {
             byte05ConfigBits |= 0b01000000;
@@ -2604,6 +2611,21 @@ namespace iqrf {
           THROW_EXC(std::logic_error, "NeverSleep parameter accessible from DPA v3.03");
         }
       }
+
+      // only for DPA 4.00 onwards - needs to control
+      if (comWriteConfig.isSetStdAndLpControl()) {
+        if (dpaVer >= 0x0400) {
+          if (comWriteConfig.getStdAndLpControl()) {
+            byte05ConfigBits |= 0b10000000;
+          }
+          byte05ConfigBitsMask |= 0b100000000;
+          isSetByte05ConfigBits = true;
+        }
+        else {
+          THROW_EXC(std::logic_error, "stdAndLpControl parameter accessible from DPA v4.00");
+        }
+      }
+
 
       // if there is at minimal one bit set, add byte05
       if (isSetByte05ConfigBits) {
