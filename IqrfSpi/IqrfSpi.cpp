@@ -26,6 +26,7 @@
 #include <thread>
 #include <atomic>
 #include <cstring>
+#include <condition_variable>
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -69,7 +70,7 @@ namespace iqrf {
 
         // lock scope
         {
-          std::lock_guard<std::mutex> lck(m_commMutex);
+          std::unique_lock<std::mutex> lck(m_commMutex);
 
           // get status
           spi_iqrf_SPIStatus status;
@@ -102,21 +103,24 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION("Entering programming mode.");
 
-      int progModeEnterRes = 0;
+      int progModeEnterRes = BASE_TYPES_OPER_ERROR;
 
       {
-        std::lock_guard<std::mutex> lck(m_commMutex);
+        std::unique_lock<std::mutex> lck(m_commMutex);
         progModeEnterRes = spi_iqrf_pe();
-      }
-      
-      if (progModeEnterRes != BASE_TYPES_OPER_OK) {
-        TRC_WARNING("Entering programming mode failed: " << PAR(progModeEnterRes));
-        TRC_FUNCTION_LEAVE("");
-        return false;
-      }
 
-      TRC_FUNCTION_LEAVE("");
-      return true;
+        if (progModeEnterRes == BASE_TYPES_OPER_OK) {
+          m_pgmState = true;
+        }
+        else {
+          TRC_WARNING("Entering programming mode failed: " << PAR(progModeEnterRes));
+          m_pgmState = false;
+        }
+      }
+      m_condVar.notify_all();
+
+      TRC_FUNCTION_LEAVE(PAR(m_pgmState));
+      return m_pgmState;
     }
 
     // try to wait for communication ready state in specified timeout (in ms).
@@ -145,7 +149,7 @@ namespace iqrf {
 
         // getting slave status
         {
-          std::lock_guard<std::mutex> lck(m_commMutex);
+          std::unique_lock<std::mutex> lck(m_commMutex);
 
           operResult = spi_iqrf_getSPIStatus(&spiStatus);
           if (operResult < 0) {
@@ -243,7 +247,7 @@ namespace iqrf {
 
       // add address into beginning of data to upload
       {
-        std::lock_guard<std::mutex> lck(m_commMutex);
+        std::unique_lock<std::mutex> lck(m_commMutex);
 
         if (useAddress) {
           std::basic_string<uint8_t> addressAndData;
@@ -282,9 +286,11 @@ namespace iqrf {
       int progModeTerminateRes = 0;
 
       {
-        std::lock_guard<std::mutex> lck(m_commMutex);
+        std::unique_lock<std::mutex> lck(m_commMutex);
         progModeTerminateRes = spi_iqrf_pt();
+        m_pgmState = false;
       }
+      m_condVar.notify_all();
 
       if (progModeTerminateRes != BASE_TYPES_OPER_OK) {
         TRC_WARNING("Programming mode termination failed: " << PAR(progModeTerminateRes));
@@ -307,7 +313,7 @@ namespace iqrf {
       int ret = 1;
 
       {
-        std::lock_guard<std::mutex> lck(m_commMutex);
+        std::unique_lock<std::mutex> lck(m_commMutex);
 
         ret = spi_iqrf_getSPIStatus(&spiStatus1);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -454,7 +460,10 @@ namespace iqrf {
 
           // lock scope
           {
-            std::lock_guard<std::mutex> lck(m_commMutex);
+            std::unique_lock<std::mutex> lck(m_commMutex);
+            m_condVar.wait_for(lck, std::chrono::milliseconds(10)); //block for 10 ms - lck released when blocking and resumed if unblocked
+            //meantime pgm can be set so verify
+            m_condVar.wait(lck, [&]() { return !m_pgmState; }); //block if pgmState - lck released when blocking and resumed if unblocked
 
             // get status
             spi_iqrf_SPIStatus status;
@@ -484,8 +493,6 @@ namespace iqrf {
             m_accessControl.messageHandler(message);
           }
 
-          // checking every 10ms
-          std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
       }
       catch (std::logic_error& e) {
@@ -508,6 +515,8 @@ namespace iqrf {
     unsigned m_bufsize = SPI_REC_BUFFER_SIZE;
 
     mutable std::mutex m_commMutex;
+    std::condition_variable m_condVar;
+    bool m_pgmState = false;
 
   };
 
