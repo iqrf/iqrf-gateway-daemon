@@ -102,7 +102,13 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION("Entering programming mode.");
 
-      int progModeEnterRes = spi_iqrf_pe();
+      int progModeEnterRes = 0;
+
+      {
+        std::lock_guard<std::mutex> lck(m_commMutex);
+        progModeEnterRes = spi_iqrf_pe();
+      }
+      
       if (progModeEnterRes != BASE_TYPES_OPER_OK) {
         TRC_WARNING("Entering programming mode failed: " << PAR(progModeEnterRes));
         TRC_FUNCTION_LEAVE("");
@@ -138,24 +144,28 @@ namespace iqrf {
         elapsedTime += 10;
 
         // getting slave status
-        operResult = spi_iqrf_getSPIStatus(&spiStatus);
-        if (operResult < 0) {
-          TRC_DEBUG("Failed to get SPI status: " << PAR(operResult));
-        }
-        else {
-          if (memStatus != spiStatus.dataNotReadyStatus) {
-            if (memStatus != 0x8000) {
-              TRC_DEBUG("Status: " << PAR(memStatus));
-            }
-            memStatus = spiStatus.dataNotReadyStatus;
-            repStatCounter = 1;
-          }
-          else repStatCounter++;
-        }
+        {
+          std::lock_guard<std::mutex> lck(m_commMutex);
 
-        if (spiStatus.isDataReady == 1) {
-          // reading - only to dispose old data if any
-          spi_iqrf_read(buffer, spiStatus.dataReady);
+          operResult = spi_iqrf_getSPIStatus(&spiStatus);
+          if (operResult < 0) {
+            TRC_DEBUG("Failed to get SPI status: " << PAR(operResult));
+          }
+          else {
+            if (memStatus != spiStatus.dataNotReadyStatus) {
+              if (memStatus != 0x8000) {
+                TRC_DEBUG("Status: " << PAR(memStatus));
+              }
+              memStatus = spiStatus.dataNotReadyStatus;
+              repStatCounter = 1;
+            }
+            else repStatCounter++;
+          }
+
+          if (spiStatus.isDataReady == 1) {
+            // reading - only to dispose old data if any
+            spi_iqrf_read(buffer, spiStatus.dataReady);
+          }
         }
       } while (spiStatus.dataNotReadyStatus != SPI_IQRF_SPI_READY_PROG);
 
@@ -232,17 +242,21 @@ namespace iqrf {
       int uploadRes = BASE_TYPES_OPER_ERROR;
 
       // add address into beginning of data to upload
-      if (useAddress) {
-        std::basic_string<uint8_t> addressAndData;
+      {
+        std::lock_guard<std::mutex> lck(m_commMutex);
 
-        addressAndData += address & 0xFF;
-        addressAndData += (address >> 8) & 0xFF;
-        addressAndData += data;
+        if (useAddress) {
+          std::basic_string<uint8_t> addressAndData;
 
-        uploadRes = spi_iqrf_upload(targetInt, addressAndData.data(), addressAndData.size());
-      }
-      else {
-        uploadRes = spi_iqrf_upload(targetInt, data.data(), data.size());
+          addressAndData += address & 0xFF;
+          addressAndData += (address >> 8) & 0xFF;
+          addressAndData += data;
+
+          uploadRes = spi_iqrf_upload(targetInt, addressAndData.data(), addressAndData.size());
+        }
+        else {
+          uploadRes = spi_iqrf_upload(targetInt, data.data(), data.size());
+        }
       }
 
       // wait for TR module to finish upload operation for at max. 2s
@@ -265,7 +279,13 @@ namespace iqrf {
     bool terminateProgrammingState() {
       TRC_INFORMATION("Terminating programming mode.");
 
-      int progModeTerminateRes = spi_iqrf_pt();
+      int progModeTerminateRes = 0;
+
+      {
+        std::lock_guard<std::mutex> lck(m_commMutex);
+        progModeTerminateRes = spi_iqrf_pt();
+      }
+
       if (progModeTerminateRes != BASE_TYPES_OPER_OK) {
         TRC_WARNING("Programming mode termination failed: " << PAR(progModeTerminateRes));
         return false;
