@@ -113,7 +113,7 @@ namespace iqrf {
           m_pgmState = true;
         }
         else {
-          TRC_WARNING("Entering programming mode failed: " << PAR(progModeEnterRes));
+          TRC_WARNING("Entering programming mode spi_iqrf_pe() failed: " << PAR(progModeEnterRes));
           m_pgmState = false;
         }
       }
