@@ -809,26 +809,26 @@ iqrf.embed.frc.SetParams_Response_rsp = function (rawHdp) {
 ////////////////////////
 if (iqrf.binaryoutput !== undefined) {
 
-	iqrf.binaryoutput.enumerate_request_req = function (param) {
-		return iqrf.binaryoutput.enumerate_request();
+	iqrf.binaryoutput.Enumerate_Request_req = function (param) {
+		return iqrf.binaryoutput.Enumerate_Request();
 	};
 
-	iqrf.binaryoutput.enumerate_response_rsp = function (rawhdp) {
+	iqrf.binaryoutput.Enumerate_Response_rsp = function (rawhdp) {
 		var result =
 		{
-			binouts: iqrf.binaryoutput.enumerate_response(rawhdp)
+			binouts: iqrf.binaryoutput.Enumerate_Response(rawhdp)
 		};
 		return result;
 	};
 
-	iqrf.binaryoutput.setoutput_request_req = function (param) {
-		return iqrf.binaryoutput.setoutput_request(param.binouts);
+	iqrf.binaryoutput.SetOutput_Request_req = function (param) {
+		return iqrf.binaryoutput.SetOutput_Request(param.binouts);
 	};
 
-	iqrf.binaryoutput.setoutput_response_rsp = function (rawhdp) {
+	iqrf.binaryoutput.SetOutput_Response_rsp = function (rawhdp) {
 		var result =
 		{
-			prevvals: iqrf.binaryoutput.setoutput_response(rawhdp)
+			prevvals: iqrf.binaryoutput.SetOutput_Response(rawhdp)
 		};
 		return result;
 	};
