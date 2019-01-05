@@ -1122,7 +1122,7 @@ namespace iqrf {
         uns8* pData = prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
 
         // FRC Command
-        pData[0] = FRC_MemoryReadPlus1;
+        pData[0] = FRC_PrebondedMemoryReadPlus1;
 
         // selected nodes - prebonded alive nodes
         setFRCSelectedNodes(pData, prebondedAliveNodes);
@@ -1134,8 +1134,8 @@ namespace iqrf {
         pData[32] = offset;
 
         // OS READ command
-        pData[33] = 0x00;
-        pData[34] = 0x00;
+        pData[33] = 0xA0;
+        pData[34] = 0x04;
         pData[35] = PNUM_OS;
         pData[36] = CMD_OS_READ;
         pData[37] = 0x00;
