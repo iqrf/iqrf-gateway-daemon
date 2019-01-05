@@ -73,9 +73,10 @@ namespace {
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
 
-  static const int SERVICE_ERROR_DATA_PREPARE = SERVICE_ERROR + 1;
-  static const int SERVICE_ERROR_ENTER_PROG_STATE = SERVICE_ERROR + 2;
-  static const int SERVICE_ERROR_TERMINATE_PROG_STATE = SERVICE_ERROR + 3;
+  static const int SERVICE_ERROR_INTERNAL = SERVICE_ERROR + 1;
+  static const int SERVICE_ERROR_DATA_PREPARE = SERVICE_ERROR + 2;
+  static const int SERVICE_ERROR_ENTER_PROG_STATE = SERVICE_ERROR + 3;
+  static const int SERVICE_ERROR_TERMINATE_PROG_STATE = SERVICE_ERROR + 4;
 };
 
 
@@ -175,6 +176,7 @@ namespace iqrf {
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     IIqrfChannelService* m_iIqrfChannelService = nullptr;
+    std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
 
     // number of repeats
     uint8_t m_repeat;
@@ -226,6 +228,24 @@ namespace iqrf {
       // set result
       Pointer("/data/status").Set(response, SERVICE_ERROR);
       Pointer("/data/statusStr").Set(response, errorMsg);
+
+      return response;
+    }
+
+    Document createFileNotExistResponse(
+      const std::string& msgId,
+      const IMessagingSplitterService::MsgType& msgType
+    )
+    {
+      Document response;
+
+      // set common parameters
+      Pointer("/mType").Set(response, msgType.m_type);
+      Pointer("/data/msgId").Set(response, msgId);
+
+      // set result
+      Pointer("/data/status").Set(response, SERVICE_ERROR);
+      Pointer("/data/statusStr").Set(response, "Source file doesn't exist.");
 
       return response;
     }
@@ -678,6 +698,24 @@ namespace iqrf {
     }
 
 
+    // creates error response about failed exclusive access
+    rapidjson::Document getExclusiveAccessFailedResponse(
+      const std::string& msgId,
+      const IMessagingSplitterService::MsgType& msgType,
+      const std::string& errorMsg
+    )
+    {
+      rapidjson::Document response;
+
+      Pointer("/mType").Set(response, msgType.m_type);
+      Pointer("/data/msgId").Set(response, msgId);
+
+      Pointer("/data/status").Set(response, SERVICE_ERROR_INTERNAL);
+      Pointer("/data/statusStr").Set(response, errorMsg);
+
+      return response;
+    }
+
     // creates response on the basis of read TR config result
     Document createResponse(
       const std::string& msgId,
@@ -761,6 +799,19 @@ namespace iqrf {
       return fullFileName;
     }
 
+    bool fileExist(const std::string& name) {
+      std::ifstream f(name.c_str());
+
+      bool exist = f.good();
+      try {
+        f.close();
+      }
+      catch (std::exception ex) {
+        TRC_WARNING("Error during closing source file: " << name.c_str());
+      }
+
+      return exist;
+    }
 
 
     void handleMsg(
@@ -829,8 +880,36 @@ namespace iqrf {
       // construct full file name
       std::string fullFileName = getFullFileName(m_uploadPath, fileName);
 
+      // check, if the source file exists
+      if (!fileExist(fullFileName)) {
+        Document failResponse = createFileNotExistResponse(comNativeUpload.getMsgId(), msgType);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
+
+      // try to establish exclusive access
+      try {
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      }
+      catch (std::exception &e) {
+        const char* errorStr = e.what();
+        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
+
+        Document failResponse = getExclusiveAccessFailedResponse(comNativeUpload.getMsgId(), msgType, errorStr);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
       // call service and get result
       NativeUploadResult nativeUploadResult = doNativeUpload(fullFileName, target, isSetTarget);
+
+      // release exclusive access
+      m_exclusiveAccess.reset();
 
       // create and send response
       Document responseDoc = createResponse(comNativeUpload.getMsgId(), msgType, nativeUploadResult, comNativeUpload);

@@ -221,6 +221,16 @@ namespace iqrf {
       return m_neverSleep;
     }
 
+    // only for DPA 4.00 onwards
+    bool isSetStdAndLpControl() {
+      return m_isSetStdAndLpControl;
+    }
+
+    const bool getStdAndLpControl() {
+      return m_stdAndLpControl;
+    }
+
+
     bool isSetRfBand() const {
       return m_isSetRfBand;
     }
@@ -399,6 +409,7 @@ namespace iqrf {
     bool m_isSetIoSetup = false;
     bool m_isSetPeerToPeer = false;
     bool m_isSetNeverSleep = false;
+    bool m_isSetStdAndLpControl = false;
 
     bool m_isSetRfBand = false;
     bool m_isSetSecurityPassword = false;
@@ -431,6 +442,7 @@ namespace iqrf {
     bool m_ioSetup;
     bool m_peerToPeer;
     bool m_neverSleep;
+    bool m_stdAndLpControl;
 
     std::string m_rfBand;
     std::string m_securityPassword;
@@ -639,6 +651,11 @@ namespace iqrf {
       if (rapidjson::Value* neverSleepJsonVal = rapidjson::Pointer("/data/req/neverSleep").Get(doc)) {
         m_neverSleep = neverSleepJsonVal->GetBool();
         m_isSetNeverSleep = true;
+      }
+
+      if (rapidjson::Value* stdAndLpControlJsonVal = rapidjson::Pointer("/data/req/stdAndLpControl").Get(doc)) {
+        m_stdAndLpControl = stdAndLpControlJsonVal->GetBool();
+        m_isSetStdAndLpControl = true;
       }
 
       // RFPGM configuration bits

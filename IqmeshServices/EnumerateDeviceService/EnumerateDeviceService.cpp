@@ -1409,8 +1409,12 @@ namespace iqrf {
       bool customDpaHandler = ((byte05 & 0b1) == 0b1) ? true : false;
       Pointer("/data/rsp/trConfiguration/customDpaHandler").Set(response, customDpaHandler);
 
-      bool nodeDpaInterface = ((byte05 & 0b10) == 0b10) ? true : false;
-      Pointer("/data/rsp/trConfiguration/nodeDpaInterface").Set(response, nodeDpaInterface);
+
+      // for DPA v4.00 downwards
+      if (dpaVer < 0x0400) {
+        bool nodeDpaInterface = ((byte05 & 0b00000010) == 0b00000010) ? true : false;
+        Pointer("/data/rsp/trConfiguration/nodeDpaInterface").Set(response, nodeDpaInterface);
+      }
 
       bool dpaAutoexec = ((byte05 & 0b100) == 0b100) ? true : false;
       Pointer("/data/rsp/trConfiguration/dpaAutoexec").Set(response, dpaAutoexec);
@@ -1429,6 +1433,12 @@ namespace iqrf {
       if (dpaVer >= 0x0303) {
         bool neverSleep = ((byte05 & 0b0100000) == 0b0100000) ? true : false;
         Pointer("/data/rsp/trConfiguration/neverSleep").Set(response, neverSleep);
+      }
+
+      // for DPA v4.00 onwards
+      if (dpaVer >= 0x0400) {
+        bool stdAndLpControl = ((byte05 & 0b1000000) == 0b1000000) ? true : false;
+        Pointer("/data/rsp/trConfiguration/stdAndLpControl").Set(response, stdAndLpControl);
       }
 
       // bytes fields
