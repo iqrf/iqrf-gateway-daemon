@@ -1308,8 +1308,8 @@ namespace iqrf {
             mid--;
             prebondedMIDs.push_back(mid);
 
-            midsSstream << ",";
             midsSstream << std::hex << std::uppercase << mid;
+            midsSstream << ",";
           }
         }
 
@@ -1368,11 +1368,11 @@ namespace iqrf {
       // requested address
       pData[0] = reqAddr;
 
-      // MID
-      pData[1] = 0;
-      pData[2] = 0;
-      pData[3] = 0;
-      pData[4] = 0;
+      // MID to authorize
+      pData[1] = mid & 0xFF;
+      pData[2] = (mid >> 8) & 0xFF;
+      pData[3] = (mid >> 16) & 0xFF;
+      pData[4] = (mid >> 24) & 0xFF;
 
       // Data to buffer
       authorizeBondRequest.DataToBuffer(authorizeBondPacket.Buffer, sizeof(TDpaIFaceHeader) + 5);
@@ -1583,7 +1583,7 @@ namespace iqrf {
       DpaMessage checkNewNodesRequest;
       DpaMessage::DpaPacket_t checkNewNodesPacket;
       checkNewNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      checkNewNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+      checkNewNodesPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
       checkNewNodesPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND;
       checkNewNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
@@ -1679,22 +1679,24 @@ namespace iqrf {
       uns8* pData = removeBondAndRestartPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
 
       // remove bond at node side
-      pData[0] = PNUM_NODE;
-      pData[1] = CMD_NODE_REMOVE_BOND;
-      pData[2] = 0xFF;
+      pData[0] = 0x05;
+      pData[1] = PNUM_NODE;
+      pData[2] = CMD_NODE_REMOVE_BOND;
       pData[3] = 0xFF;
+      pData[4] = 0xFF;
 
       // restart OS
-      pData[4] = PNUM_OS;
-      pData[5] = CMD_OS_RESTART;
-      pData[6] = 0xFF;
-      pData[7] = 0xFF;
+      pData[5] = 0x05;
+      pData[6] = PNUM_OS;
+      pData[7] = CMD_OS_RESTART;
+      pData[8] = 0xFF;
+      pData[9] = 0xFF;
 
       // end of BATCH
-      pData[8] = 0x00;
+      pData[10] = 0x00;
 
       // Data to buffer
-      removeBondAndRestartRequest.DataToBuffer(removeBondAndRestartPacket.Buffer, sizeof(TDpaIFaceHeader) + 9);
+      removeBondAndRestartRequest.DataToBuffer(removeBondAndRestartPacket.Buffer, sizeof(TDpaIFaceHeader) + 11);
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> removeBondAndRestartTransaction;
