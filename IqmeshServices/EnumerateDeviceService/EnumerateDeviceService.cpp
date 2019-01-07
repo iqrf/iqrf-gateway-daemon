@@ -1285,12 +1285,31 @@ namespace iqrf {
       // flags - parsed
       bool stdModeSupported = ((perEnum.Flags & 0b1) == 0b1) ? true : false;
       if (stdModeSupported) {
-        Pointer("/data/rsp/peripheralEnumeration/flags/rfMode").Set(response, "STD");
+        Pointer("/data/rsp/peripheralEnumeration/flags/rfModeStd").Set(response, true);
+        Pointer("/data/rsp/peripheralEnumeration/flags/rfModeLp").Set(response, false);
       }
       else {
-        Pointer("/data/rsp/peripheralEnumeration/flags/rfMode").Set(response, "LP");
+        Pointer("/data/rsp/peripheralEnumeration/flags/rfModeStd").Set(response, false);
+        Pointer("/data/rsp/peripheralEnumeration/flags/rfModeLp").Set(response, true);
       }
 
+      // getting DPA version
+      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
+
+      TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
+      uns8* configuration = hwpConfig.Configuration;
+
+      // STD+LP network is running, otherwise STD network.
+      if (dpaVer >= 0x0400) {
+        bool stdAndLpModeNetwork = ((perEnum.Flags & 0b100) == 0b100) ? true : false;
+        if (stdAndLpModeNetwork) {
+          Pointer("/data/rsp/peripheralEnumeration/flags/stdAndLpNetwork").Set(response, true);
+        }
+        else {
+          Pointer("/data/rsp/peripheralEnumeration/flags/stdAndLpNetwork").Set(response, false);
+        }
+      }
 
       // userPers
       rapidjson::Value userPerJsonArray(kArrayType);
