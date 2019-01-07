@@ -127,27 +127,14 @@ Check the status of the daemon
 	
 	systemctl status iqrf-gateway-daemon.service
 
-Direct link
-###########
+Direct links
+############
 
 Packages and tarballs for download.
 
-Stretch
--------
-
-- https://dl.iqrf.org/iqrf-gateway-daemon/stretch/amd64/stable/
-- https://dl.iqrf.org/iqrf-gateway-daemon/stretch/armhf/stable/
-- https://dl.iqrf.org/iqrf-gateway-daemon/stretch/arm64/stable/
-
-Bionic
-------
-
-- http://dl.iqrf.org/iqrf-gateway-daemon/bionic/amd64/stable/
-
-Xenial
-------
-
-- http://dl.iqrf.org/iqrf-gateway-daemon/xenial/amd64/stable/
+- https://dl.iqrf.org/iqrf-gateway-daemon/stretch
+- https://dl.iqrf.org/iqrf-gateway-daemon/bionic
+- https://dl.iqrf.org/iqrf-gateway-daemon/xenial
 
 .. _`https://repos.iqrf.org`: https://repos.iqrf.org
 .. _`https://repos.iqrf.org/testing`: https://repos.iqrf.org/testing

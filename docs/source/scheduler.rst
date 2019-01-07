@@ -2,7 +2,7 @@ Scheduler
 =========
 
 Schedule any `JSON API`_ request as a single task by editing /var/cache/iqrf-gateway-daemon/scheduler/Tasks.json
-and restart the daemon.
+and restart the daemon. Since v2.1.0 Tasks.json has been removed and replaced by **each json file for single task**. 
 
 .. code-block:: bash
 	
@@ -18,6 +18,9 @@ Following example schedules two tasks.
 - time follows `Cron format`_ with addition for second resolution.
 - use service **SchedulerMessaging**  
 - choose messaging (**MqMessaging**, **WebsocketMessaging**, **MqttMessaging**) `JSON API`_ response will be sent 
+
+v2.0.0
+++++++
 
 .. code-block:: json
 
@@ -62,10 +65,73 @@ Following example schedules two tasks.
     ]
   }
 
+v2.1.0
+++++++
+
+- Task 1, filename e.g. /var/cache/iqrf-gateway-daemon/scheduler/1.json
+
+.. code-block:: json
+
+  {
+      "taskId": 1,
+      "clientId": "SchedulerMessaging",
+      "timeSpec": {
+          "cronTime": "0 */1 * * * * *",
+          "exactTime": false,
+          "periodic": false,
+          "period": 0,
+          "startTime": ""
+      },
+      "task": {
+          "messaging": "MqttMessaging",
+          "message": {
+              "mType": "iqrfEmbedLedr_Pulse",
+              "data": {
+                  "msgId": "testEmbedLedr",
+                  "req": {
+                      "nAdr": 1,
+                      "param": {}
+                  },
+                  "returnVerbose": true
+              }
+          }
+      }
+  }
+
+- Task 2, filename e.g. /var/cache/iqrf-gateway-daemon/scheduler/2.json
+
+.. code-block:: json
+
+  {
+      "taskId": 2,
+      "clientId": "SchedulerMessaging",
+      "timeSpec": {
+          "cronTime": "0 */2 * * * * *",
+          "exactTime": false,
+          "periodic": false,
+          "period": 0,
+          "startTime": ""
+      },
+      "task": {
+          "messaging": "MqttMessaging",
+          "message": {
+              "mType": "iqrfEmbedLedr_Pulse",
+              "data": {
+                  "msgId": "testEmbedLedr",
+                  "req": {
+                      "nAdr": 2,
+                      "param": {}
+                  },
+                  "returnVerbose": true
+              }
+          }
+      }
+  }
+
 API
 ---
 
-Scheduler can be also configured via `Scheduler API`_. **Configuration via API is not persistent yet**.
+Scheduler can be also configured via `Scheduler API`_. **Configuration via API is persistent since v2.1.0**.
 
 There are examples in `C# test app`_.
 
