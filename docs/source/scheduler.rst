@@ -128,6 +128,9 @@ v2.1.0
       }
   }
 
+If *exactTime* set it is one shot timer fired at StartTime. If *periodic* is set it starts ticking at *startTime*.
+If *exactTime* or *periodic* is set *cronTime* is not used.
+
 API
 ---
 
