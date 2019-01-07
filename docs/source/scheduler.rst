@@ -2,7 +2,7 @@ Scheduler
 =========
 
 Schedule any `JSON API`_ request as a single task by editing /var/cache/iqrf-gateway-daemon/scheduler/Tasks.json
-and restart the daemon. Since v2.1.0 Tasks.json has been removed and replaced by **each json file for single task**. 
+and restart the daemon. Since v2.1.0 Tasks.json has been removed and replaced by **one json file for single task**. 
 
 .. code-block:: bash
 	
