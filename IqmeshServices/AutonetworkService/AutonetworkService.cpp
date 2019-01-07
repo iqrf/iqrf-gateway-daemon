@@ -2406,8 +2406,8 @@ namespace iqrf {
       Document::AllocatorType& allocator = response.GetAllocator();
       for (AutonetworkResult::NewNode newNode : autonetworkResult.getNewNodes()) {
         rapidjson::Value newNodeObject(kObjectType);
+        newNodeObject.AddMember("mid", std::to_string(newNode.MID), allocator);
         newNodeObject.AddMember("address", newNode.address, allocator);
-        newNodeObject.AddMember("mid", newNode.MID, allocator);
         newNodesJsonArray.PushBack(newNodeObject, allocator);
       }
       Pointer("/data/rsp/newNodes").Set(response, newNodesJsonArray);
