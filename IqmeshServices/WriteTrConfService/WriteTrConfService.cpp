@@ -2618,7 +2618,7 @@ namespace iqrf {
           if (comWriteConfig.getStdAndLpControl()) {
             byte05ConfigBits |= 0b10000000;
           }
-          byte05ConfigBitsMask |= 0b100000000;
+          byte05ConfigBitsMask |= 0b10000000;
           isSetByte05ConfigBits = true;
         }
         else {

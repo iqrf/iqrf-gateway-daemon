@@ -1431,13 +1431,13 @@ namespace iqrf {
 
       // for DPA v3.03 onwards
       if (dpaVer >= 0x0303) {
-        bool neverSleep = ((byte05 & 0b0100000) == 0b0100000) ? true : false;
+        bool neverSleep = ((byte05 & 0b01000000) == 0b01000000) ? true : false;
         Pointer("/data/rsp/trConfiguration/neverSleep").Set(response, neverSleep);
       }
 
       // for DPA v4.00 onwards
       if (dpaVer >= 0x0400) {
-        bool stdAndLpControl = ((byte05 & 0b1000000) == 0b1000000) ? true : false;
+        bool stdAndLpControl = ((byte05 & 0b10000000) == 0b10000000) ? true : false;
         Pointer("/data/rsp/trConfiguration/stdAndLpControl").Set(response, stdAndLpControl);
       }
 
