@@ -1986,7 +1986,6 @@ namespace iqrf {
         int emptyRounds = 0;
         uint8_t nextAddr = MAX_ADDRESS;
 
-        autonetworkResult.setNodesNr(bondedNodesNr);
 
         using std::chrono::system_clock;
 
@@ -2000,6 +1999,7 @@ namespace iqrf {
           TRC_INFORMATION(NAME_PAR(Start time, ctime(&now)));
 
           autonetworkResult.setWave(round);
+          autonetworkResult.setNodesNr(bondedNodesNr);
 
           TRC_INFORMATION("Prebonding");
           prebond(autonetworkResult);
@@ -2377,6 +2377,14 @@ namespace iqrf {
 
           case AutonetworkError::Type::EmptyWaves:
             status = SERVICE_ERROR_EMPTY_WAWES;
+
+            rapidjson::Pointer("/data/rsp/wave").Set(response, autonetworkResult.getWave());
+            rapidjson::Pointer("/data/rsp/nodesNr").Set(response, autonetworkResult.getNodesNr());
+            rapidjson::Pointer("/data/rsp/newNodesNr").Set(response, autonetworkResult.getNewNodesNr());
+
+            // last wave indication
+            rapidjson::Pointer("/data/rsp/lastWave").Set(response, autonetworkResult.isLastWave());
+
             break;
 
           default:
@@ -2406,7 +2414,11 @@ namespace iqrf {
       Document::AllocatorType& allocator = response.GetAllocator();
       for (AutonetworkResult::NewNode newNode : autonetworkResult.getNewNodes()) {
         rapidjson::Value newNodeObject(kObjectType);
-        newNodeObject.AddMember("mid", std::to_string(newNode.MID), allocator);
+
+        std::stringstream stream;
+        stream << std::hex << newNode.MID;
+
+        newNodeObject.AddMember("mid", stream.str(), allocator);
         newNodeObject.AddMember("address", newNode.address, allocator);
         newNodesJsonArray.PushBack(newNodeObject, allocator);
       }
