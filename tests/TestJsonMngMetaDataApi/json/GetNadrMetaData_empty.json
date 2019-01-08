@@ -1,0 +1,10 @@
+{
+  "mType": "mngMetaData_GetNadrMetaData",
+  "data": {
+    "msgId": "test_SetMetaData_getNadrMetaData",
+    "req": {
+      "nAdr": 0
+    },
+    "returnVerbose": true
+  }
+}

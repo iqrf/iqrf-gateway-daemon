@@ -55,8 +55,10 @@ namespace iqrf {
     void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
     {
       TRC_FUNCTION_ENTER("");
-      std::unique_lock<std::mutex> lck(m_queueMux);
-      m_outgoingMsgQueue.push(std::make_pair(messagingId, std::string((char*)msg.data(), msg.size())));
+      {
+        std::unique_lock<std::mutex> lck(m_queueMux);
+        m_outgoingMsgQueue.push(std::make_pair(messagingId, std::string((char*)msg.data(), msg.size())));
+      }
       m_cv.notify_one();
       TRC_FUNCTION_LEAVE("")
     }

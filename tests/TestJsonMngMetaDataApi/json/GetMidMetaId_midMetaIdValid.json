@@ -1,0 +1,10 @@
+{
+  "mType": "mngMetaData_GetMidMetaId",
+  "data": {
+    "msgId": "test_GetMidMetaId_midMetaIdValid",
+    "req": {
+      "mid": "some mid"
+    },
+    "returnVerbose": true
+  }
+}

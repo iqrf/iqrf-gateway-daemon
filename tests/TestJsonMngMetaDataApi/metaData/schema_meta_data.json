@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "properties": {
+    "nadrMidMap": {
+      "type": "array",
+      "description": "NADR-MID map.",
+      "properties": {
+        "nAdr": {
+          "type": "integer",
+          "description": "Network Address."
+        },
+        "mid": {
+          "type": "string",
+          "description": "Module ID."
+        }
+      }
+    },
+    "midMetaIdMap": {
+      "type": "array",
+      "description": "Metadata MID map.",
+      "properties": {
+        "mid": {
+          "type": "string",
+          "description": "Module ID."
+        },
+        "metaId": {
+          "type": "string",
+          "description": "Metadata ID."
+        }
+      }
+    },
+    "metaIdMetaDataMap": {
+      "type": "array",
+      "description": "Metadata map.",
+      "properties": {
+        "metaId": {
+          "type": "string",
+          "description": "Metadata ID."
+        },
+        "metaData": {
+          "type": "object",
+          "description": "Metadata JSON."
+        }
+      }
+    }
+  },
+  "required": [
+    "nadrMidMap",
+    "midMetaIdMap",
+    "metaIdMetaDataMap"
+  ]
+}

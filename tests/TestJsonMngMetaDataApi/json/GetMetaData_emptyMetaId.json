@@ -1,0 +1,10 @@
+{
+  "mType": "mngMetaData_GetMetaData",
+  "data": {
+    "msgId": "test_SetMetaData_getMetaData",
+    "req": {
+      "metaId": ""
+    },
+    "returnVerbose": true
+  }
+}

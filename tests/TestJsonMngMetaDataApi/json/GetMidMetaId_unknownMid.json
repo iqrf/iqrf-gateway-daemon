@@ -1,0 +1,10 @@
+{
+  "mType": "mngMetaData_GetMidMetaId",
+  "data": {
+    "msgId": "test_GetMidMetaId_unknownValid",
+    "req": {
+      "mid": "unknown mid"
+    },
+    "returnVerbose": true
+  }
+}

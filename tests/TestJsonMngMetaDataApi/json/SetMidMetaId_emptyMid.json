@@ -1,0 +1,11 @@
+{
+  "mType": "mngMetaData_SetMidMetaId",
+  "data": {
+    "msgId": "test_SetMidMetaId_emptyMid",
+    "req": {
+      "mid": "",
+      "metaId": ""
+    },
+    "returnVerbose": true
+  }
+}

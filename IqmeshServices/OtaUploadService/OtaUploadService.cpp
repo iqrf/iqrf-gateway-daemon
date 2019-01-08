@@ -4,7 +4,7 @@
 #include "DataPreparer.h"
 #include "Trace.h"
 #include "ComIqmeshNetworkOtaUpload.h"
-#include "ObjectFactory.h"
+//#include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 

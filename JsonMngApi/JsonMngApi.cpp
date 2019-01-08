@@ -511,8 +511,8 @@ namespace iqrf {
 
     std::vector<std::string> m_filters =
     {
-      "mngDaemon",
       "mngScheduler"
+      "mngDaemon"
     };
 
   public:

@@ -3,7 +3,7 @@
 #include "ReadTrConfService.h"
 #include "Trace.h"
 #include "ComIqmeshNetworkReadTrConf.h"
-#include "ObjectFactory.h"
+//#include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 

@@ -1,0 +1,57 @@
+{
+  "mType": "mngMetaData_ImportMetaDataAll",
+  "data": {
+    "msgId": "test_ImportMetaDataAll_valid",
+    "req": {
+      "metaIdMetaDataMap": [
+        {
+          "metaId": "0",
+          "metaData": {
+            "sn": 0,
+            "pname": "coordinator"
+          }
+        },
+        {
+          "metaId": "1",
+          "metaData": {
+            "sn": 1,
+            "pname": "sensor1"
+          }
+        },
+        {
+          "metaId": "2",
+          "metaData": {
+            "sn": 2,
+            "pname": "sensor2"
+          }
+        },
+        {
+          "metaId": "3",
+          "metaData": {
+            "sn": 3,
+            "pname": "sensor3"
+          }
+        }
+      ],
+      "midMetaIdMap": [
+        {
+          "mid": "000",
+          "metaId": "0"
+        },
+        {
+          "mid": "111",
+          "metaId": "1"
+        },
+        {
+          "mid": "222",
+          "metaId": "2"
+        },
+        {
+          "mid": "333",
+          "metaId": "3"
+        }
+      ]
+    },
+    "returnVerbose": true
+  }
+}

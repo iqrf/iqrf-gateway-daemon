@@ -1,0 +1,14 @@
+{
+  "mType": "mngMetaData_SetMetaData",
+  "data": {
+    "msgId": "test_SetMetaData_unknownMetaId",
+    "req": {
+      "metaId": "unknown",
+      "metaData": {
+		"sn": 1234,
+		"pname": "sensor"
+	  }
+    },
+    "returnVerbose": true
+  }
+}

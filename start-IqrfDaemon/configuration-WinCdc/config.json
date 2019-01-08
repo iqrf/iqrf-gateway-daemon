@@ -155,9 +155,16 @@
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsonCfgApi",
+      "name": "iqrf::JsonMngApi",
       "libraryPath": "IqrfDaemon/bin",
-      "libraryName": "JsonCfgApi",
+      "libraryName": "JsonMngApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsonMngMetaDataApi",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "JsonMngMetaDataApi",
       "enabled": true,
       "startlevel": 2
     },
@@ -238,9 +245,9 @@
       "enabled": true,
       "startlevel": 3
     },
-	  {
+    {
       "name": "iqrf::Autonetwork",
-      "libraryPath": "Autonetwork/bin",
+      "libraryPath": "IqrfDaemon/bin",
       "libraryName": "Autonetwork",
       "enabled": true,
       "startlevel": 3

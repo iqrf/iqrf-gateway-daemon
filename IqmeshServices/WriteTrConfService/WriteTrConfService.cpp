@@ -4,7 +4,7 @@
 #include "IMessagingSplitterService.h"
 #include "Trace.h"
 #include "ComMngIqmeshWriteConfig.h"
-#include "ObjectFactory.h"
+//#include "ObjectFactory.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 

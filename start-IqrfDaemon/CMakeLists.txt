@@ -42,6 +42,7 @@ foreach(cfg ${CfgList})
 		${CMAKE_CURRENT_SOURCE_DIR}/configuration-${cfg}			configuration
 		${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemas	configuration/apiSchemas
 		${CMAKE_CURRENT_SOURCE_DIR}/scheduler						configuration/scheduler
+		${CMAKE_CURRENT_SOURCE_DIR}/metaData						configuration/metaData
 		${CMAKE_CURRENT_SOURCE_DIR}/iqrfRepoCache					configuration/iqrfRepoCache
 		${CMAKE_CURRENT_SOURCE_DIR}/javaScript						configuration/javaScript
 		${CMAKE_CURRENT_SOURCE_DIR}/cfgSchemas						configuration/cfgSchemas

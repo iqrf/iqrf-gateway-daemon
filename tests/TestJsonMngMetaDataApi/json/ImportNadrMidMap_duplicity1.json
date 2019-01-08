@@ -1,0 +1,19 @@
+{
+  "mType": "mngMetaData_ImportNadrMidMap",
+  "data": {
+    "msgId": "minim aute",
+    "req": {
+      "nadrMidMap": [
+        {
+          "nAdr": 0,
+          "mid": "000"
+        },
+        {
+          "nAdr": 0,
+          "mid": "111"
+        }
+      ]
+    },
+    "returnVerbose": true
+  }
+}
