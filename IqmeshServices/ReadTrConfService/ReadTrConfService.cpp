@@ -575,8 +575,8 @@ namespace iqrf {
 
       // for DPA v4.00 onwards
       if (dpaVer >= 0x0400) {
-        bool stdAndLpControl = ((byte05 & 0b10000000) == 0b10000000) ? true : false;
-        Pointer("/data/rsp/stdAndLpControl").Set(response, stdAndLpControl);
+        bool stdAndLpNetwork = ((byte05 & 0b10000000) == 0b10000000) ? true : false;
+        Pointer("/data/rsp/stdAndLpNetwork").Set(response, stdAndLpNetwork);
       }
 
       // bytes fields

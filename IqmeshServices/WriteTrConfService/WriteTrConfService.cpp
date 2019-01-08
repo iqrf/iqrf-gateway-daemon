@@ -2613,16 +2613,16 @@ namespace iqrf {
       }
 
       // only for DPA 4.00 onwards - needs to control
-      if (comWriteConfig.isSetStdAndLpControl()) {
+      if (comWriteConfig.isSetStdAndLpNetwork()) {
         if (dpaVer >= 0x0400) {
-          if (comWriteConfig.getStdAndLpControl()) {
+          if (comWriteConfig.getStdAndLpNetwork()) {
             byte05ConfigBits |= 0b10000000;
           }
           byte05ConfigBitsMask |= 0b10000000;
           isSetByte05ConfigBits = true;
         }
         else {
-          THROW_EXC(std::logic_error, "stdAndLpControl parameter accessible from DPA v4.00");
+          THROW_EXC(std::logic_error, "stdAndLpNetwork parameter accessible from DPA v4.00");
         }
       }
 

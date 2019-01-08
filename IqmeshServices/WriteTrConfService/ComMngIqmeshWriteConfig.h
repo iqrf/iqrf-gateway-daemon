@@ -222,12 +222,12 @@ namespace iqrf {
     }
 
     // only for DPA 4.00 onwards
-    bool isSetStdAndLpControl() {
-      return m_isSetStdAndLpControl;
+    bool isSetStdAndLpNetwork() {
+      return m_isSetStdAndLpNetwork;
     }
 
-    const bool getStdAndLpControl() {
-      return m_stdAndLpControl;
+    const bool getStdAndLpNetwork() {
+      return m_stdAndLpNetwork;
     }
 
 
@@ -409,7 +409,7 @@ namespace iqrf {
     bool m_isSetIoSetup = false;
     bool m_isSetPeerToPeer = false;
     bool m_isSetNeverSleep = false;
-    bool m_isSetStdAndLpControl = false;
+    bool m_isSetStdAndLpNetwork = false;
 
     bool m_isSetRfBand = false;
     bool m_isSetSecurityPassword = false;
@@ -442,7 +442,7 @@ namespace iqrf {
     bool m_ioSetup;
     bool m_peerToPeer;
     bool m_neverSleep;
-    bool m_stdAndLpControl;
+    bool m_stdAndLpNetwork;
 
     std::string m_rfBand;
     std::string m_securityPassword;
@@ -653,9 +653,9 @@ namespace iqrf {
         m_isSetNeverSleep = true;
       }
 
-      if (rapidjson::Value* stdAndLpControlJsonVal = rapidjson::Pointer("/data/req/stdAndLpControl").Get(doc)) {
-        m_stdAndLpControl = stdAndLpControlJsonVal->GetBool();
-        m_isSetStdAndLpControl = true;
+      if (rapidjson::Value* stdAndLpNetworkJsonVal = rapidjson::Pointer("/data/req/stdAndLpNetwork").Get(doc)) {
+        m_stdAndLpNetwork = stdAndLpNetworkJsonVal->GetBool();
+        m_isSetStdAndLpNetwork = true;
       }
 
       // RFPGM configuration bits
