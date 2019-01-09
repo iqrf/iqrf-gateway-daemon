@@ -58,6 +58,7 @@ cp -r iqrf-daemon-source/start-IqrfDaemon/javaScript ${DEPLOY}${IQRFGD2_SHARE}
 
 # CACHE
 cp -r iqrf-daemon-source/start-IqrfDaemon/scheduler ${DEPLOY}${IQRFGD2_CACHE}
+cp -r iqrf-daemon-source/start-IqrfDaemon/metaData ${DEPLOY}${IQRFGD2_CACHE}
 cp -r iqrf-daemon-source/start-IqrfDaemon/iqrfRepoCache ${DEPLOY}${IQRFGD2_CACHE}
 
 # SERVICE
