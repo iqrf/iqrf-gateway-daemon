@@ -14,6 +14,8 @@ override_dh_fixperms:
 	chmod 777 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/cfgSchemas/
 	chmod -R 666 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler/
 	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler/
+	chmod -R 666 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/metaData/
+	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/metaData/
 
 override_dh_install:
 	dh_install
@@ -22,3 +24,4 @@ override_dh_install:
 	rm -f debian/iqrf-gateway-daemon/usr/lib/iqrf-gateway-daemon/libOtaUploadService.so
 	rm -f debian/iqrf-gateway-daemon/usr/share/iqrf-gateway-daemon/apiSchemas/iqmeshNetwork_OtaUpload*.json
 	rm -rf debian/iqrf-gateway-daemon/builds
+	

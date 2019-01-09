@@ -11,4 +11,5 @@ shapeware-build/bin/libWebsocketCppService.so           usr/lib/iqrf-gateway-dae
 libraries/iqrf-daemon-api/JsonSchemas/*.json            usr/share/iqrf-gateway-daemon/apiSchemas
 start-IqrfDaemon/javaScript                             usr/share/iqrf-gateway-daemon
 start-IqrfDaemon/scheduler                              var/cache/iqrf-gateway-daemon
+start-IqrfDaemon/metaData                               var/cache/iqrf-gateway-daemon
 start-IqrfDaemon/iqrfRepoCache                          var/cache/iqrf-gateway-daemon
