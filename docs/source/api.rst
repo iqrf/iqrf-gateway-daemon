@@ -622,7 +622,7 @@ IQRF Bonding
 - `SmartConnect request v1-0-0`_ and `example`__
 - `SmartConnect response v1-0-0`_ and `example`__
 
-**Since v2.1.0-beta**
+**Since v2.1.0**
 
 - `AutoNetwork request v1-0-0`_ and `example`__
 - `AutoNetwork response v1-0-0`_ and `example`__
@@ -682,7 +682,7 @@ Daemon Management
 - `Mode request v1-0-0`_ and `example`__
 - `Mode response v1-0-0`_ and `example`__
 
-**Since v2.1.0-beta**
+**Since v2.1.0**
 
 - `Version request v1-0-0`_ and `example`__
 - `Version response v1-0-0`_ and `example`__
@@ -744,7 +744,7 @@ Daemon Scheduler
 Daemon Metadata
 ---------------
 
-**Since v2.1.0-beta**
+**Since v2.1.0**
 
 - `SetMetaData request v1-0-0`_ and `example`__
 - `SetMetaData response v1-0-0`_ and `example`__
