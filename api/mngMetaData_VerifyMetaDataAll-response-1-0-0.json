@@ -1,0 +1,90 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "mngMetaData_VerifyMetaDataAll-response",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Daemon metadata - Verify metadata.",
+            "enum": [
+                "mngMetaData_VerifyMetaDataAll"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "rsp": {
+                    "type": "object",
+                    "properties": {
+                        "inconsistentMid": {
+                            "type": "array",
+                            "description": "Inconsistent MIDs.",            
+                            "items":{
+                                "type":"string",
+                                "description": "Exists [nadr, mid] in nadrMidMap but no [mid, metaId] in midMetaIdMap."
+                            }
+                        },
+                        "orphanedMid": {
+                            "type": "array",
+                            "description": "Orphaned MIDs.",                    
+                            "items":{
+                                "type":"string",
+                                "description": "Exists [mid, metaId] in midMetaIdMap but no [nadr, mid] in nadrMidMap."
+                            }
+                        },
+                        "inconsistentMetaId": {
+                            "type": "array",
+                            "description": "Inconsistent metadata IDs.",            
+                            "items":{
+                                "type":"string",
+                                "description": "Exists [mid, metaId] in midMetaIdMap but no [metaId, metaData] in metaIdMetaDataMap."
+                            }
+                        },
+                        "orphanedMetaId": {
+                            "type": "array",
+                            "description": "Orphaned metadata IDs.",                    
+                            "items":{
+                                "type":"string",
+                                "description": "Exists [metaId, metaData] in metaIdMetaDataMap but no [mid, metaId] in midMetaIdMap."
+                            }
+                        }
+                    },
+                    "required": [
+                        "orphanedMid",
+                        "inconsistentMetaId"
+                    ]
+                },
+                "insId": {
+					"type": "string",
+					"description": "IQRF GW daemon instance identification."
+				},
+                "status": {
+                    "type": "integer",
+                    "description": "Status of operation."
+                },
+                "statusStr": {
+                    "type": "string",
+                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                }
+            },
+            "required": [
+                "msgId",
+                "rsp",
+                "status"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

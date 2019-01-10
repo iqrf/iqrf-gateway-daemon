@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqmeshNetwork_EnumerateDevice-request",
+        "name": "mngMetaData_GetNadrMetaData-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "IQMESH Network management - Enumerate Device request.",
+            "description": "Daemon metadata - Get NADR to metadata.",
             "enum": [
-                "iqmeshNetwork_EnumerateDevice"
+                "mngMetaData_GetNadrMetaData"
             ]
         },
         "data": {
@@ -22,25 +22,16 @@
                     "type": "string",
                     "description": "Message identification for binding request with response."
                 },
-                "repeat": {
-                    "type": "integer",
-                    "description": "Number of repetitions of DPA messages.",
-                    "default": 1
-                },
                 "req": {
                     "type": "object",
                     "properties": {
-                        "deviceAddr": {
+                        "nAdr": {
                             "type": "integer",
-                            "description": "Device address to enumerate."
-                        },
-						"morePeripheralsInfo": {
-							"type": "boolean",
-                            "description": "If to get more peripherals information."
-						}
+                            "description": "Network address."
+                        }
                     },
                     "required": [
-                        "deviceAddr"
+                        "nAdr"
                     ]
                 },
                 "returnVerbose": {
@@ -49,8 +40,7 @@
                 }
             },
             "required": [
-                "msgId",
-                "req"
+                "msgId"
             ]
         }
     },

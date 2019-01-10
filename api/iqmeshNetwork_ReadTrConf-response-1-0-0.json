@@ -1,5 +1,5 @@
 {
-	"$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
 		"name": "iqmeshNetwork_ReadTrConf-response",
@@ -170,7 +170,7 @@
 						},
 						"nodeDpaInterface": {
 							"type": "boolean",
-							"description": "If set, then Node device can be controlled by a SPI or UART interface."
+							"description": "If set, then Node device can be controlled by a SPI or UART interface. Valid only in DPA version < 4.00"
 						},
 						"uartBaudrate": {
 							"type": "integer",
@@ -195,6 +195,10 @@
 						"neverSleep": {
 							"type": "boolean",
 							"description": "If set, then unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03"
+						},
+						"stdAndLpNetwork": {
+							"type": "boolean",
+							"description": "If the bit is set, then the [C] controls the STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00"
 						}
 					},
 					"required": [

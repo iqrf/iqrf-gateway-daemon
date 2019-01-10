@@ -1,0 +1,86 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "mngMetaData_ExportMetaDataAll-response",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Daemon metadata - Export metadata.",
+            "enum": [
+                "mngMetaData_ExportMetaDataAll"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "rsp": {
+                    "type": "object",
+                    "properties": {
+                        "metaIdMetaDataMap": {
+                            "type": "array",
+                            "description": "Metadata map.",                    
+                            "properties": {
+                                "metaId": {
+                                    "type":"string",
+                                    "description": "Metadata ID."
+                                },
+                                "metaData": {
+                                    "type":"object",
+                                    "description": "Metadata JSON."
+                                }
+                            }
+                        },
+                        "midMetaIdMap": {
+                            "type": "array",
+                            "description": "Metadata MID map.",            
+                            "properties": {
+                                "mid": {
+                                    "type":"string",
+                                    "description": "Module ID."
+                                },
+                                "metaId": {
+                                    "type":"string",
+                                    "description": "Metadata ID."
+                                }
+                            }
+                        }
+                    },
+                    "required": [
+                        "metaIdMetaDataMap",
+                        "midMetaIdMap"
+                    ]
+                },
+                "insId": {
+					"type": "string",
+					"description": "IQRF GW daemon instance identification."
+				},
+                "status": {
+                    "type": "integer",
+                    "description": "Status of operation."
+                },
+                "statusStr": {
+                    "type": "string",
+                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                }
+            },
+            "required": [
+                "msgId",
+                "rsp",
+                "status"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

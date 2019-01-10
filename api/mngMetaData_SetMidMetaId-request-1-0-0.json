@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqmeshNetwork_EnumerateDevice-request",
+        "name": "mngMetaData_SetMidMetaId-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "IQMESH Network management - Enumerate Device request.",
+            "description": "Daemon metadata - Set MID to metadata.",
             "enum": [
-                "iqmeshNetwork_EnumerateDevice"
+                "mngMetaData_SetMidMetaId"
             ]
         },
         "data": {
@@ -22,25 +22,21 @@
                     "type": "string",
                     "description": "Message identification for binding request with response."
                 },
-                "repeat": {
-                    "type": "integer",
-                    "description": "Number of repetitions of DPA messages.",
-                    "default": 1
-                },
                 "req": {
                     "type": "object",
                     "properties": {
-                        "deviceAddr": {
-                            "type": "integer",
-                            "description": "Device address to enumerate."
+                        "mid": {
+                            "type": "string",
+                            "description": "Module ID."
                         },
-						"morePeripheralsInfo": {
-							"type": "boolean",
-                            "description": "If to get more peripherals information."
-						}
+                        "metaId": {
+                            "type": "string",
+                            "description": "Metadata ID."
+                        }
                     },
                     "required": [
-                        "deviceAddr"
+                        "mid", 
+                        "metaId"
                     ]
                 },
                 "returnVerbose": {
@@ -49,8 +45,7 @@
                 }
             },
             "required": [
-                "msgId",
-                "req"
+                "msgId"
             ]
         }
     },

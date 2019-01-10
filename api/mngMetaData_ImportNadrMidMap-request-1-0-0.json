@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqmeshNetwork_EnumerateDevice-request",
+        "name": "mngMetaData_ImportNadrMidMap-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "IQMESH Network management - Enumerate Device request.",
+            "description": "Daemon metadata - Import NADR-MID metadata.",
             "enum": [
-                "iqmeshNetwork_EnumerateDevice"
+                "mngMetaData_ImportNadrMidMap"
             ]
         },
         "data": {
@@ -22,25 +22,26 @@
                     "type": "string",
                     "description": "Message identification for binding request with response."
                 },
-                "repeat": {
-                    "type": "integer",
-                    "description": "Number of repetitions of DPA messages.",
-                    "default": 1
-                },
                 "req": {
                     "type": "object",
                     "properties": {
-                        "deviceAddr": {
-                            "type": "integer",
-                            "description": "Device address to enumerate."
-                        },
-						"morePeripheralsInfo": {
-							"type": "boolean",
-                            "description": "If to get more peripherals information."
-						}
+                        "nadrMidMap": {
+                            "type": "array",
+                            "description": "NADR-MID map.",                    
+                            "properties": {
+                                "nAdr": {
+                                    "type":"integer",
+                                    "description": "Network Address."
+                                },
+                                "mid": {
+                                    "type":"string",
+                                    "description": "Module ID."
+                                }
+                            }
+                        }
                     },
                     "required": [
-                        "deviceAddr"
+                        "nadrMidMap"                    
                     ]
                 },
                 "returnVerbose": {
@@ -49,8 +50,7 @@
                 }
             },
             "required": [
-                "msgId",
-                "req"
+                "msgId"
             ]
         }
     },
