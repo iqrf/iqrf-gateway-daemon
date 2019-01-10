@@ -1382,7 +1382,9 @@ namespace iqrf {
       std::unique_ptr<IDpaTransactionResult2> transResult;
 
       try {
-        authorizeBondTransaction = m_exclusiveAccess->executeDpaTransaction(authorizeBondRequest);
+        authorizeBondTransaction = m_exclusiveAccess->executeDpaTransaction(
+          authorizeBondRequest, MAX_ADDRESS * MAX_LP_TIMESLOT * 10
+        );
         transResult = authorizeBondTransaction->get();
       }
       catch (std::exception& e) {
@@ -1542,8 +1544,8 @@ namespace iqrf {
           uint8_t newDevicesCount = response.DevNr;
 
           TRC_INFORMATION(
-            "Authorizing node: " << PAR(moduleId) << ", address: " <<  PAR(newAddr) 
-            << ", devices count: " << PAR(newDevicesCount)
+            "Authorizing node: " << PAR(moduleId) << ", address: " <<  PAR((int)newAddr) 
+            << ", devices count: " << PAR((int)newDevicesCount)
             );
 
           authorizeOK = true;
