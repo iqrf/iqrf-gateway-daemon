@@ -828,7 +828,7 @@ if (iqrf.binaryoutput !== undefined) {
 	iqrf.binaryoutput.SetOutput_Response_rsp = function (rawhdp) {
 		var result =
 		{
-			prevvals: iqrf.binaryoutput.SetOutput_Response(rawhdp)
+			prevVals: iqrf.binaryoutput.SetOutput_Response(rawhdp)
 		};
 		return result;
 	};
