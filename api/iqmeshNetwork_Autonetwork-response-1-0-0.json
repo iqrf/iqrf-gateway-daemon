@@ -2,7 +2,7 @@
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
   "self": {
     "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_Autonetwork-response",
+    "name": "iqmeshNetwork_AutoNetwork-response",
     "format": "jsonschema",
     "version": "1-0-0"
   },
@@ -10,9 +10,9 @@
   "properties": {
     "mType": {
       "type": "string",
-      "description": "Autonetwork.",
+      "description": "IQMESH Network management - AutoNetwork response.",
       "enum": [
-        "iqmeshNetwork_Autonetwork"
+        "iqmeshNetwork_AutoNetwork"
       ]
     },
     "data": {
@@ -59,16 +59,16 @@
                 ]
               }
             },
-			"lastWave": {
-			  "type": "boolean",
-			  "description": "Indication, if this is the last wave."
-			}
+            "lastWave": {
+              "type": "boolean",
+              "description": "Indication, if this is the last wave."
+            }
           },
           "required": [
             "wave",
             "nodesNr",
             "newNodesNr",
-			"lastWave"
+            "lastWave"
           ]
         },
         "raw": {

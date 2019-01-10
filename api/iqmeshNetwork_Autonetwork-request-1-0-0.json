@@ -2,7 +2,7 @@
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
   "self": {
     "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_Autonetwork-request",
+    "name": "iqmeshNetwork_AutoNetwork-request",
     "format": "jsonschema",
     "version": "1-0-0"
   },
@@ -10,9 +10,9 @@
   "properties": {
     "mType": {
       "type": "string",
-      "description": "IQMESH Network management - Autonetwork request.",
+      "description": "IQMESH Network management - AutoNetwork request.",
       "enum": [
-        "iqmeshNetwork_Autonetwork"
+        "iqmeshNetwork_AutoNetwork"
       ]
     },
     "data": {
@@ -29,7 +29,7 @@
               "type": "integer",
               "description": "Number of waves."
             },
-			"emptyWaves": {
+            "emptyWaves": {
               "type": "integer",
               "description": "Number of consecutive waves, i which no new nodes were added into network."
             },
@@ -37,14 +37,14 @@
               "type": "integer",
               "description": "Number of retries to authorize new node."
             },
-			"discoveryTxPower": {
+            "discoveryTxPower": {
               "type": "integer",
               "description": "TX power to use in discovery process."
             }
           },
           "required": [
             "waves",
-			"emptyWaves"
+            "emptyWaves"
           ]
         },
         "returnVerbose": {
