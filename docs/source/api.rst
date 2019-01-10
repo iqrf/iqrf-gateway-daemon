@@ -626,6 +626,8 @@ IQRF Bonding
 
 - `AutoNetwork request v1-0-0`_ and `example`__
 - `AutoNetwork response v1-0-0`_ and `example`__
+- `RemoveBond request v1-0-0`_ and `example`__
+- `RemoveBond response v1-0-0`_ and `example`__
 
 .. _`BondNodeLocal request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_BondNodeLocal-request-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_BondNodeLocal-request-1-0-0-example.json
@@ -639,6 +641,10 @@ IQRF Bonding
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_AutoNetwork-request-1-0-0-example.json
 .. _`AutoNetwork response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_AutoNetwork-response-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_AutoNetwork-response-1-0-0-example.json
+.. _`RemoveBond request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_RemoveBond-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_RemoveBond-request-1-0-0-example.json
+.. _`RemoveBond response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_RemoveBond-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_RemoveBond-response-1-0-0-example.json
 
 IQRF Enumeration
 ++++++++++++++++
