@@ -37,7 +37,7 @@ Stretch 9
 	echo "deb https://repos.iqrf.org/debian stretch stable" | sudo tee -a /etc/apt/sources.list
 	sudo apt-get update
 
-- Testing
+- Testing (Beta)
 
 .. code-block:: bash
 
@@ -60,7 +60,7 @@ Xenial 16.04
 	echo "deb https://repos.iqrf.org/ubuntu/xenial xenial stable" | sudo tee -a /etc/apt/sources.list
 	sudo apt-get update
 
-- Testing
+- Testing (Beta)
 
 .. code-block:: bash
 
@@ -80,7 +80,7 @@ Bionic 18.04
 	echo "deb https://repos.iqrf.org/ubuntu/bionic bionic stable" | sudo tee -a /etc/apt/sources.list
 	sudo apt-get update
 
-- Testing
+- Testing (Beta)
 
 .. code-block:: bash
 

@@ -619,8 +619,12 @@ IQRF Bonding
 
 - `BondNodeLocal request v1-0-0`_ and `example`__
 - `BondNodeLocal response v1-0-0`_ and `example`__
-- `SmartConnect  request v1-0-0`_ and `example`__
+- `SmartConnect request v1-0-0`_ and `example`__
 - `SmartConnect response v1-0-0`_ and `example`__
+
+**Since v2.1.0-beta**
+- `AutoNetwork request v1-0-0`_ and `example`__
+- `AutoNetwork response v1-0-0`_ and `example`__
 
 .. _`BondNodeLocal request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_BondNodeLocal-request-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_BondNodeLocal-request-1-0-0-example.json
@@ -630,6 +634,10 @@ IQRF Bonding
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_SmartConnect-request-1-0-0-example.json
 .. _`SmartConnect response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_SmartConnect-response-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_SmartConnect-response-1-0-0-example.json
+.. _`AutoNetwork request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_AutoNetwork-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_AutoNetwork-request-1-0-0-example.json
+.. _`AutoNetwork response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_AutoNetwork-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_AutoNetwork-response-1-0-0-example.json
 
 IQRF Enumeration
 ++++++++++++++++
@@ -667,6 +675,10 @@ Daemon Management
 - `Mode request v1-0-0`_ and `example`__
 - `Mode response v1-0-0`_ and `example`__
 
+**Since v2.1.0-beta**
+- `Version request v1-0-0`_ and `example`__
+- `Version response v1-0-0`_ and `example`__
+
 .. _`Exit request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngDaemon_Exit-request-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngDaemon_Exit-request-1-0-0-example.json
 .. _`Exit response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngDaemon_Exit-response-1-0-0.json
@@ -675,6 +687,10 @@ Daemon Management
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngDaemon_Mode-request-1-0-0-example.json
 .. _`Mode response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngDaemon_Mode-response-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngDaemon_Mode-response-1-0-0-example.json
+.. _`Version request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngDaemon_Version-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngDaemon_Version-request-1-0-0-example.json
+.. _`Version response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngDaemon_Version-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngDaemon_Version-response-1-0-0-example.json
 
 Daemon Scheduler
 ----------------
@@ -716,3 +732,69 @@ Daemon Scheduler
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngScheduler_RemoveTask-request-1-0-0-example.json
 .. _`RemoveTask response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngScheduler_RemoveTask-response-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngScheduler_RemoveTask-response-1-0-0-example.json
+
+Daemon Metadata
+---------------
+
+**Since v2.1.0-beta**
+- `SetMetaData request v1-0-0`_ and `example`__
+- `SetMetaData response v1-0-0`_ and `example`__
+- `GetMetaData request v1-0-0`_ and `example`__
+- `GetMetaData response v1-0-0`_ and `example`__
+- `SetMidMetaId request v1-0-0`_ and `example`__
+- `SetMidMetaId response v1-0-0`_ and `example`__
+- `GetMidMetaData request v1-0-0`_ and `example`__
+- `GetMidMetaData response v1-0-0`_ and `example`__
+- `GetNadrMetaData request v1-0-0`_ and `example`__
+- `GetNadrMetaData response v1-0-0`_ and `example`__
+- `ExportMetaDataAll request v1-0-0`_ and `example`__
+- `ExportMetaDataAll response v1-0-0`_ and `example`__
+- `VerifyMetaDataAll request v1-0-0`_ and `example`__
+- `VerifyMetaDataAll response v1-0-0`_ and `example`__
+- `ImportMetaDataAll request v1-0-0`_ and `example`__
+- `ImportMetaDataAll response v1-0-0`_ and `example`__
+- `ImportNadrMidMap request v1-0-0`_ and `example`__
+- `ImportNadrMidMap response v1-0-0`_ and `example`__
+- `ExportNadrMidMap request v1-0-0`_ and `example`__
+- `ExportNadrMidMap response v1-0-0`_ and `example`__
+
+.. _`SetMetaData request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_SetMetaData-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_SetMetaData-request-1-0-0-example.json
+.. _`SetMetaData response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_SetMetaData-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_SetMetaData-response-1-0-0-example.json
+.. _`GetMetaData request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_GetMetaData-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_GetMetaData-request-1-0-0-example.json
+.. _`GetMetaData response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_GetMetaData-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_GetMetaData-response-1-0-0-example.json
+.. _`SetMidMetaId request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_SetMidMetaId-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_SetMidMetaId-request-1-0-0-example.json
+.. _`SetMidMetaId response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_SetMidMetaId-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_SetMidMetaId-response-1-0-0-example.json
+.. _`GetMidMetaData request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_GetMidMetaId-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_GetMidMetaData-request-1-0-0-example.json
+.. _`GetMidMetaData response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_GetMidMetaId-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_GetMidMetaData-response-1-0-0-example.json
+.. _`GetNadrMetaData request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_GetNadrMetaId-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_GetNadrMetaData-request-1-0-0-example.json
+.. _`GetNadrMetaData response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_GetNadrMetaId-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_GetNadrMetaData-response-1-0-0-example.json
+.. _`ExportMetaDataAll request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_ExportMetaDataAll-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_ExportMetaDataAll-request-1-0-0-example.json
+.. _`ExportMetaDataAll response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_ExportMetaDataAll-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_ExportMetaDataAll-response-1-0-0-example.json
+.. _`VerifyMetaDataAll request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_VerifyMetaDataAll-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_VerifyMetaDataAll-request-1-0-0-example.json
+.. _`VerifyMetaDataAll response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_VerifyMetaDataAll-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_VerifyMetaDataAll-response-1-0-0-example.json
+.. _`ImportMetaDataAll request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_ImportMetaDataAll-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_ImportMetaDataAll-request-1-0-0-example.json
+.. _`ImportMetaDataAll response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_ImportMetaDataAll-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_ImportMetaDataAll-response-1-0-0-example.json
+.. _`ImportNadrMidMap request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_ImportNadrMidMap-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_ImportNadrMidMap-request-1-0-0-example.json
+.. _`ImportNadrMidMap response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_ImportNadrMidMap-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_ImportNadrMidMap-response-1-0-0-example.json
+.. _`ExportNadrMidMap request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_ExportNadrMidMap-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_ExportNadrMidMap-request-1-0-0-example.json
+.. _`ExportNadrMidMap response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngMetaData_ExportNadrMidMap-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngMetaData_ExportNadrMidMap-response-1-0-0-example.json
