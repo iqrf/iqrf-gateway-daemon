@@ -34,6 +34,7 @@ Folder /etc/iqrf-gateway-daemon:
   - Orange Pi Zero (/dev/spidev1.0)
   - UP board (/dev/spidev2.0)
   - UP2 board (/dev/spidev1.0)
+  - Aurora (/dev/spidev0.0)
 
 - iqrf__IqrfUart.json
 
