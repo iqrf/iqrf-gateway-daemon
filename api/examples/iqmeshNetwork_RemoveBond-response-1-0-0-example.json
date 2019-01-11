@@ -1,0 +1,30 @@
+{
+    "mType": "iqmeshNetwork_RemoveBond",
+    "data": {
+        "msgId": "testIqmeshRemoveBond",
+        "rsp": {
+            "nodesNr": 0
+        },
+        "raw": [
+            {
+                "request": "ff.00.02.05.ff.ff.05.01.01.ff.ff.05.02.08.ff.ff.00",
+                "requestTs": "2019-01-11T10:56:46.694706",
+                "confirmation": "ff.00.02.05.ff.ff.ff.4e.4e.08.00",
+                "confirmationTs": "2019-01-11T10:56:46.720503",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "00.00.00.03.ff.ff",
+                "requestTs": "2019-01-11T10:56:53.193042",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.83.00.00.00.3d",
+                "responseTs": "2019-01-11T10:56:53.391830"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok",
+        "insId": "iqrfgd2-default"
+    }
+}
