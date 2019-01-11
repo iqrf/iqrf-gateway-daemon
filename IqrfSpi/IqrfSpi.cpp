@@ -362,7 +362,7 @@ namespace iqrf {
       using namespace rapidjson;
 
       try {
-        spi_iqrf_config_struct cfg = { {}, POWER_ENABLE_GPIO, BUS_ENABLE_GPIO, PGM_SWITCH_GPIO };
+        m_cfg = { {}, POWER_ENABLE_GPIO, BUS_ENABLE_GPIO, PGM_SWITCH_GPIO };
 
         Document d;
         d.CopyFrom(props->getAsJson(), d.GetAllocator());
@@ -375,25 +375,25 @@ namespace iqrf {
           THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /IqrfInterface");
         }
 
-        memset(cfg.spiDev, 0, sizeof(cfg.spiDev));
+        memset(m_cfg.spiDev, 0, sizeof(m_cfg.spiDev));
         auto sz = m_interfaceName.size();
-        if (sz > sizeof(cfg.spiDev)) sz = sizeof(cfg.spiDev);
-        std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, cfg.spiDev);
+        if (sz > sizeof(m_cfg.spiDev)) sz = sizeof(m_cfg.spiDev);
+        std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, m_cfg.spiDev);
 
-        cfg.powerEnableGpioPin = (uint8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)cfg.powerEnableGpioPin).GetInt();
-        cfg.busEnableGpioPin = (uint8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)cfg.busEnableGpioPin).GetInt();
-        cfg.pgmSwitchGpioPin = (uint8_t)Pointer("/pgmSwitchGpioPin").GetWithDefault(d, (int)cfg.pgmSwitchGpioPin).GetInt();
-        cfg.trModuleReset = TR_MODULE_RESET_ENABLE;
+        m_cfg.powerEnableGpioPin = (uint8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)m_cfg.powerEnableGpioPin).GetInt();
+        m_cfg.busEnableGpioPin = (uint8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)m_cfg.busEnableGpioPin).GetInt();
+        m_cfg.pgmSwitchGpioPin = (uint8_t)Pointer("/pgmSwitchGpioPin").GetWithDefault(d, (int)m_cfg.pgmSwitchGpioPin).GetInt();
+        m_cfg.trModuleReset = TR_MODULE_RESET_ENABLE;
         Value* v = Pointer("/spiReset").Get(d);
         if (v && v->IsBool())
-          cfg.trModuleReset = v->GetBool() ? TR_MODULE_RESET_ENABLE : TR_MODULE_RESET_DISABLE;
+          m_cfg.trModuleReset = v->GetBool() ? TR_MODULE_RESET_ENABLE : TR_MODULE_RESET_DISABLE;
 
         TRC_INFORMATION(PAR(m_interfaceName));
 
         int attempts = 1;
         int res = BASE_TYPES_OPER_ERROR;
         while (attempts < 3) {
-          res = spi_iqrf_initAdvanced(&cfg);
+          res = spi_iqrf_initAdvanced(&m_cfg);
           if (BASE_TYPES_OPER_OK == res) {
             break;
           }
@@ -517,7 +517,7 @@ namespace iqrf {
     mutable std::mutex m_commMutex;
     std::condition_variable m_condVar;
     bool m_pgmState = false;
-
+    spi_iqrf_config_struct m_cfg;
   };
 
   //////////////////////////////////////////////////
