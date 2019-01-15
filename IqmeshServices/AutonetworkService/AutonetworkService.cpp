@@ -1665,40 +1665,46 @@ namespace iqrf {
       }
     }
 
-    // removes bond at the node side and restarts OS
-    void removeBondAndRestart(AutonetworkResult& autonetworkResult, const uint8_t nodeAddr)
+    // removes new nodes, which not responded to control FRC
+    void removeNotRespondedNewNodes(
+      AutonetworkResult& autonetworkResult, 
+      const std::vector<uint8_t>& notRespondedNewNodes
+    )
     {
       TRC_FUNCTION_ENTER("");
 
       DpaMessage removeBondAndRestartRequest;
       DpaMessage::DpaPacket_t removeBondAndRestartPacket;
-      removeBondAndRestartPacket.DpaRequestPacket_t.NADR = nodeAddr;
+      removeBondAndRestartPacket.DpaRequestPacket_t.NADR = BROADCAST_ADDRESS;
       removeBondAndRestartPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
-      removeBondAndRestartPacket.DpaRequestPacket_t.PCMD = CMD_OS_BATCH;
+      removeBondAndRestartPacket.DpaRequestPacket_t.PCMD = CMD_OS_SELECTIVE_BATCH;
       removeBondAndRestartPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       // Set pData fields
       uns8* pData = removeBondAndRestartPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
 
-      // remove bond at node side
-      pData[0] = 0x05;
-      pData[1] = PNUM_NODE;
-      pData[2] = CMD_NODE_REMOVE_BOND;
-      pData[3] = 0xFF;
-      pData[4] = 0xFF;
+      // selected nodes
+      setFRCSelectedNodes(pData, notRespondedNewNodes);
+
+      // remove bond at the node side
+      pData[30] = 0x05;
+      pData[31] = PNUM_NODE;
+      pData[32] = CMD_NODE_REMOVE_BOND;
+      pData[33] = 0xFF;
+      pData[34] = 0xFF;
 
       // restart OS
-      pData[5] = 0x05;
-      pData[6] = PNUM_OS;
-      pData[7] = CMD_OS_RESTART;
-      pData[8] = 0xFF;
-      pData[9] = 0xFF;
+      pData[35] = 0x05;
+      pData[36] = PNUM_OS;
+      pData[37] = CMD_OS_RESTART;
+      pData[38] = 0xFF;
+      pData[39] = 0xFF;
 
       // end of BATCH
-      pData[10] = 0x00;
+      pData[40] = 0x00;
 
       // Data to buffer
-      removeBondAndRestartRequest.DataToBuffer(removeBondAndRestartPacket.Buffer, sizeof(TDpaIFaceHeader) + 11);
+      removeBondAndRestartRequest.DataToBuffer(removeBondAndRestartPacket.Buffer, sizeof(TDpaIFaceHeader) + 41);
 
       // issue the DPA request
       std::shared_ptr<IDpaTransaction2> removeBondAndRestartTransaction;
@@ -1717,7 +1723,7 @@ namespace iqrf {
         THROW_EXC(std::logic_error, "DPA transaction error : " << e.what());
       }
 
-      TRC_DEBUG("Result from Remove bond and restart (BATCH) transaction as string:" << PAR(transResult->getErrorString()));
+      TRC_DEBUG("Result from Remove bond and restart (SELECTIVE BROADCAST BATCH) transaction as string:" << PAR(transResult->getErrorString()));
 
       IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
@@ -1726,7 +1732,7 @@ namespace iqrf {
       autonetworkResult.addTransactionResult(transResult);
 
       if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-        TRC_INFORMATION("Remove bond and restart ok!");
+        TRC_INFORMATION("Selective BATCH Remove bond and restart ok!");
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR(Peripheral type, removeBondAndRestartRequest.PeripheralType())
@@ -1949,6 +1955,9 @@ namespace iqrf {
       std::bitset<MAX_ADDRESS + 1> discoveredNodes;
       uint8_t discoveredNodesNr = 0;
 
+      // nodes, which successfully responded to FRC check -> for to be available in the error response
+      std::vector<AutonetworkResult::NewNode> respondedNewNodes;
+
       // check, if Coordinator and OS peripherals are present at coordinator's node
       checkPresentCoordAndCoordOs(autonetworkResult);
 
@@ -2003,6 +2012,8 @@ namespace iqrf {
           autonetworkResult.setWave(round);
           autonetworkResult.setNodesNr(bondedNodesNr);
 
+          respondedNewNodes.clear();
+
           TRC_INFORMATION("Prebonding");
           prebond(autonetworkResult);
 
@@ -2026,7 +2037,7 @@ namespace iqrf {
             }
 
             // send NOT last results
-            Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork);
+            Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, respondedNewNodes);
             m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
 
             // clear new nodes for the next wave
@@ -2041,7 +2052,6 @@ namespace iqrf {
           
 
           // authorize MIDs
-          std::list<uint8_t> removedNodes;
           std::map<uint8_t, uint32_t> newNodes;
           authorizeMIDs(
             autonetworkResult, 
@@ -2069,7 +2079,7 @@ namespace iqrf {
             }
 
             // send NOT last results
-            Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork);
+            Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, respondedNewNodes);
             m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
 
             // clear new nodes for the next wave
@@ -2084,34 +2094,33 @@ namespace iqrf {
           std::vector<uint8_t> frcDataCheck;
           frcDataCheck = checkNewNodes(autonetworkResult, frcStatusCheck);
           
+          std::vector<uint8_t> notRespondedNewNodes;
+
           if (frcStatusCheck >= 0xFE) {
             TRC_WARNING("FRC to check new nodes failed.")
           }
           else {
             for (std::pair<uint8_t, uint32_t> authorizedNode : newNodes) {
               if (!(((frcDataCheck[0 + authorizedNode.first / 8] >> (authorizedNode.first % 8)) & 0x01) == 0x00)) {
+                AutonetworkResult::NewNode respNode = { authorizedNode.first, authorizedNode.second };
+                respondedNewNodes.push_back(respNode);
                 continue;
               }
 
-              TRC_INFORMATION(NAME_PAR(Removing bond, authorizedNode.first));
-              try {
-                removedNodes.push_back(authorizedNode.first);
-                removeBondAndRestart(autonetworkResult, authorizedNode.first);
-              }
-              catch (std::exception& ex) {
-                TRC_WARNING(NAME_PAR(Error removing bond, authorizedNode.first));
-              }
+              notRespondedNewNodes.push_back(authorizedNode.first);
 
-              // Wait for sure
+              // Wait for sure - it is still valid?
               std::this_thread::sleep_for(std::chrono::microseconds((bondedNodesNr + 1) * (2 * (MIN_TIMESLOT + 10))));
 
               removeBondAtCoordinator(autonetworkResult, authorizedNode.first);
 
-              // delete removed nodes from newNodes
-              for (uint8_t removedNode : removedNodes) {
-                newNodes.erase(removedNode);
-              }
+              // delete removed node from newNodes
+              newNodes.erase(authorizedNode.first);
             }
+
+            // remove not responded nodes
+            removeNotRespondedNewNodes(autonetworkResult, notRespondedNewNodes);
+            notRespondedNewNodes.clear();
           }
 
           // no new nodes - go to next iteration
@@ -2129,7 +2138,7 @@ namespace iqrf {
             }
 
             // send NOT last results
-            Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork);
+            Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, respondedNewNodes);
             m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
 
             // clear new nodes for the next wave
@@ -2168,7 +2177,7 @@ namespace iqrf {
           }
 
           // send NOT last results
-          Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork);
+          Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, respondedNewNodes);
           m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
 
           // clear new nodes for the next wave
@@ -2187,7 +2196,7 @@ namespace iqrf {
 // creating and sending of message
     SendResponse:
       autonetworkResult.setLastWave(true);
-      Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork);
+      Document responseDoc = createResponse(comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, respondedNewNodes);
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
 
       TRC_FUNCTION_LEAVE("");
@@ -2292,7 +2301,8 @@ namespace iqrf {
       const std::string& msgId,
       const IMessagingSplitterService::MsgType& msgType,
       AutonetworkResult& autonetworkResult,
-      const ComAutonetwork& comAutonetwork
+      const ComAutonetwork& comAutonetwork,
+      const std::vector<AutonetworkResult::NewNode>& respondedNewNodes
     )
     {
       Document response;
@@ -2393,6 +2403,30 @@ namespace iqrf {
             status = SERVICE_ERROR;
             break; 
         }
+
+        // add newly added nodes - even in the error response
+        if ((!respondedNewNodes.empty()) && (status != SERVICE_ERROR_EMPTY_WAWES)) 
+        {
+          // rsp object
+          rapidjson::Pointer("/data/rsp/wave").Set(response, autonetworkResult.getWave());
+          rapidjson::Pointer("/data/rsp/nodesNr").Set(response, autonetworkResult.getNodesNr());
+          rapidjson::Pointer("/data/rsp/newNodesNr").Set(response, respondedNewNodes.size());
+
+          rapidjson::Value newNodesJsonArray(kArrayType);
+          Document::AllocatorType& allocator = response.GetAllocator();
+          for (AutonetworkResult::NewNode newNode : respondedNewNodes) {
+            rapidjson::Value newNodeObject(kObjectType);
+
+            std::stringstream stream;
+            stream << std::hex << newNode.MID;
+
+            newNodeObject.AddMember("mid", stream.str(), allocator);
+            newNodeObject.AddMember("address", newNode.address, allocator);
+            newNodesJsonArray.PushBack(newNodeObject, allocator);
+          }
+          Pointer("/data/rsp/newNodes").Set(response, newNodesJsonArray);
+        }
+
 
         // set raw fields, if verbose mode is active
         if ( comAutonetwork.getVerbose() ) {
