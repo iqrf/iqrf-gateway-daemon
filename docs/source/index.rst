@@ -11,6 +11,7 @@ Contents:
    start
    install
    configure
+   service
    api
    scheduler
    docker
