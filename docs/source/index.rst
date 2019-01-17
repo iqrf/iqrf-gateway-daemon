@@ -13,6 +13,7 @@ Contents:
    configure
    api
    scheduler
+   docker
    support
    links
 
