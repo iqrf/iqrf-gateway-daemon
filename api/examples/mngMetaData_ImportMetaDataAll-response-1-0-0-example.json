@@ -1,0 +1,13 @@
+{
+    "mType": "mngMetaData_ImportMetaDataAll",
+    "data": {
+        "msgId": "ImportMetaDataAll",
+        "rsp": {
+            "duplicitMetaId": [],
+            "duplicitMidMetaIdPair": []
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

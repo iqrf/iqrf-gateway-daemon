@@ -1,0 +1,61 @@
+{
+    "mType": "mngMetaData_ExportMetaDataAll",
+    "data": {
+        "msgId": "ExportMetaDataAll",
+        "rsp": {
+            "midMetaIdMap": [
+                {
+                    "mid": "81102D61",
+                    "metaId": "52642014"
+                }
+            ],
+            "metaIdMetaDataMap": [
+                {
+                    "metaId": "52642014",
+                    "metaData": {
+                        "sensor": {
+                            "user": {
+                                "name": "manager"
+                            },
+                            "location": {
+                                "building": "a1",
+                                "floor": 1,
+                                "room": 1,
+                                "gw": 1
+                            },
+                            "identification": {
+                                "name": "s1",
+                                "measure_number": 159,
+                                "manufacturer": "xyz",
+                                "serial_number": 753
+                            }
+                        }
+                    }
+                },
+                {
+                    "metaId": "654935580",
+                    "metaData": {
+                        "gw": {
+                            "user": {
+                                "name": "manager"
+                            },
+                            "location": {
+                                "building": "a1",
+                                "floor": 1,
+                                "room": 1
+                            },
+                            "identification": {
+                                "name": "gw1",
+                                "manufacturer": "xyz",
+                                "serial_number": "abcdefgh"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
