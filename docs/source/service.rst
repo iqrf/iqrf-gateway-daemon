@@ -1,4 +1,4 @@
-Service Mode
+Service mode
 ============
 
 Use the power of `IQRF IDE`_ and its IQMESH Network Manager to control your network. Connection 
@@ -16,6 +16,7 @@ Using IDE
 .. figure:: images/ide-udp-gw.png
     :align: center
     :figclass: align-center
+    :scale: 75 %
 
     IDE connection to the gateway.
 
