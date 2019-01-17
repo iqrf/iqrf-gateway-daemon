@@ -204,11 +204,13 @@ namespace iqrf {
     }
 
     static std::string m_metaIdOver;
+    static std::string m_midOver;
     static int m_snOver;
 
   };
 
   std::string TestMetaData::m_metaIdOver;
+  std::string TestMetaData::m_midOver;
   int TestMetaData::m_snOver;
   const char* UNEXPECTED = "unexpected";
 
@@ -851,6 +853,9 @@ namespace iqrf {
     jmi.Parse(msg);
     //set metaId from previous addMetaData2 testcase
     Pointer("/data/req/metaId").Set(jmi, m_metaIdOver);
+    std::string mid = UNEXPECTED;
+    getVal("/data/req/mid", &jmi, mid);
+    m_midOver = mid;
     msg = jsonToStr(jmi);
 
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(msg);
@@ -860,8 +865,11 @@ namespace iqrf {
 
     int status = -1;
     getVal("/data/status", &jmoDoc, status);
+    std::string metaIdMid = UNEXPECTED;
+    getVal("/data/rsp/metaIdMid", &jmoDoc, metaIdMid);
 
     EXPECT_EQ(0, status);
+    EXPECT_EQ(mid, metaIdMid);
   }
 
   TEST_F(TestMetaData, SetMidMetaId_insertMidMetaIdAssignedMid)
@@ -884,8 +892,11 @@ namespace iqrf {
 
     std::string estr = UNEXPECTED;
     getVal("/data/errorStr", &jmoDoc, estr);
+    std::string metaIdMid = UNEXPECTED;
+    getVal("/data/rsp/metaIdMid", &jmoDoc, metaIdMid);
 
     EXPECT_EQ(mngMetaDataMsgStatusConvertor::enum2str(mngMetaDataMsgStatus::st_midAssigned), estr);
+    EXPECT_EQ(m_midOver, metaIdMid);
   }
 
   TEST_F(TestMetaData, SetMidMetaId_insertMidMetaIdAssignedMetaId)
@@ -908,8 +919,11 @@ namespace iqrf {
 
     std::string estr = UNEXPECTED;
     getVal("/data/errorStr", &jmoDoc, estr);
+    std::string metaIdMid = UNEXPECTED;
+    getVal("/data/rsp/metaIdMid", &jmoDoc, metaIdMid);
 
     EXPECT_EQ(mngMetaDataMsgStatusConvertor::enum2str(mngMetaDataMsgStatus::st_metaIdAssigned), estr);
+    EXPECT_EQ(m_midOver, metaIdMid);
   }
 
   TEST_F(TestMetaData, GetMidMetaId_MidMetaIdValid)

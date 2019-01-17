@@ -134,12 +134,20 @@ namespace iqrf {
       }
 
       V myFind(const K& key, const V& defaultVal) {
-        V retval;
         auto found = this->find(key);
         if (found != this->end()) {
           return found->second;
         }
         return defaultVal;
+      }
+
+      K myFindKey(const V& val, const K& defaultKey) {
+        for (auto & p : *this) {
+          if (p.second == val) {
+            return p.first;
+          }
+        }
+        return defaultKey;
       }
 
       bool hasValue(const V& val) {
@@ -810,12 +818,15 @@ namespace iqrf {
               case uniqueMidMetaIdMap::success:
                 //update file
                 imp->updateMetaData();
+                m_metaIdMid = m_mid;
                 break;
               case uniqueMidMetaIdMap::duplicit_key:
                 setErr(mngMetaDataMsgStatus::st_midAssigned);
+                m_metaIdMid = m_mid;
                 break;
               case uniqueMidMetaIdMap::duplicit_val:
                 setErr(mngMetaDataMsgStatus::st_metaIdAssigned);
+                m_metaIdMid = imp->getMidMetaIdMap().myFindKey(m_metaId, m_metaIdMid);
                 break;
               case uniqueMidMetaIdMap::failure:
               default: //ok
