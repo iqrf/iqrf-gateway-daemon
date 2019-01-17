@@ -44,11 +44,9 @@ Tools
 .. code-block:: bash
 
   wget https://github.com/vi/websocat/releases/download/v1.1.0/websocat_1.1.0_amd64.deb
-  wget https://github.com/vi/websocat/releases/download/v1.1.0/websocat_1.1.0_armhf.deb
-
-  sudo dpkg -i websocat_1.1.0_*.deb
+  sudo dpkg -i websocat_1.1.0_amd64.deb
   sudo apt-get install -y jq
-  rm -f websocat_1.1.0_*.deb
+  rm -f websocat_1.1.0_amd64.deb
 
 Examples
 ++++++++

@@ -1,7 +1,7 @@
 Links
 =====
 
-Useful links for the orientation.
+Useful links for the quick orientation.
 
 IQRF technology start
 ---------------------
