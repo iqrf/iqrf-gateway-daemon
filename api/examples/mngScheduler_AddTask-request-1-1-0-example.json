@@ -25,7 +25,8 @@
         "*",
         "*",
         "*"
-      ]
+      ],
+      "persist":true
     },
     "returnVerbose": true
   }

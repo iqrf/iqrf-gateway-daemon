@@ -1,9 +1,10 @@
 {
-  "mType": "mngScheduler_AddTask",
+  "mType": "mngScheduler_PeriodicTask",
   "data": {
-    "msgId": "testSchedulerAdd",
+    "msgId": "testSchedulerPeriodic",
     "req": {
       "clientId": "SchedulerMessaging",
+      "timePeriod": 10000,
       "task": {
         "messaging": "WebsocketMessaging",
         "message": {
@@ -17,16 +18,7 @@
           }
         }
       },
-      "cronTime": [
-        "*/10",
-        "*",
-        "*",
-        "*",
-        "*",
-        "*",
-        "*"
-      ]
-    },
-    "returnVerbose": true
+      "persist":true
+    }
   }
 }

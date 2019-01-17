@@ -14,6 +14,7 @@ Contents:
    api
    scheduler
    support
+   links
 
 Indices and tables
 ==================

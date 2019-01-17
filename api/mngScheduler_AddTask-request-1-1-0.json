@@ -1,0 +1,71 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "mngScheduler_AddTask-request",
+        "format": "jsonschema",
+        "version": "1-1-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Scheduler management - Add Task request.",
+            "enum": [
+                "mngScheduler_AddTask"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "req": {
+                    "type": "object",
+                    "properties": {
+                        "clientId": {
+                            "type": "string",
+                            "description": "Client identifier."
+                        },
+                        "task": {
+                            "type": "object",
+                            "description": "Scheduled task."
+                        },
+                        "cronTime": {
+                            "type": "array",
+                            "minItems": 7,
+                            "maxItems": 7,
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "7 items of cron syntax..."
+                        },
+						"persist": { 
+                            "type": "boolean",
+                            "description": "Task will stay after daemon restart."
+                        }
+                    },
+                    "required": [
+                        "clientId",
+                        "task",
+                        "cronTime"
+                    ]
+                },
+                "returnVerbose": {
+                    "type": "boolean",
+                    "description": "Flag that includes additional parameters in the response."
+                }
+            },
+            "required": [
+                "msgId",
+                "req"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}
