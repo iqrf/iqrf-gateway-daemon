@@ -3,8 +3,8 @@ Links
 
 Useful links for the orientation.
 
-IQRF technology
----------------
+IQRF technology start
+---------------------
 * https://www.iqrf.org/support/how-to-start
 * https://www.iqrf.org/support/video-tutorials
 

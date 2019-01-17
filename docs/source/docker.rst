@@ -34,8 +34,8 @@ Point the browser to http://gw-ip:8080/ and explore.
 IQRF Gateway Daemon
 ###################
 
-Getting tools
-+++++++++++++
+Tools
++++++
 
 .. code-block:: bash
 
@@ -43,16 +43,15 @@ Getting tools
 
 .. code-block:: bash
 
-wget https://github.com/vi/websocat/releases/download/v1.1.0/websocat_1.1.0_amd64.deb
-or
-wget https://github.com/vi/websocat/releases/download/v1.1.0/websocat_1.1.0_armhf.deb
+  wget https://github.com/vi/websocat/releases/download/v1.1.0/websocat_1.1.0_amd64.deb
+  wget https://github.com/vi/websocat/releases/download/v1.1.0/websocat_1.1.0_armhf.deb
 
-sudo dpkg -i websocat_1.1.0_*.deb
-sudo apt-get install -y jq
-rm -f websocat_1.1.0_*.deb
+  sudo dpkg -i websocat_1.1.0_*.deb
+  sudo apt-get install -y jq
+  rm -f websocat_1.1.0_*.deb
 
-Getting examples
-++++++++++++++++
+Examples
+++++++++
 
 .. code-block:: bash
 
