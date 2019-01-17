@@ -10,8 +10,8 @@ Mode change
 IQRF Gateway Webapp (/gateway/change-mode/) can be used to switch the gateway into **service** mode.
 Mode switching can be also done via `management API`_.
 
-Using IDE
----------
+Using IQRF IDE
+--------------
 
 .. figure:: images/ide-udp-gw.png
     :align: center
