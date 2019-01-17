@@ -231,7 +231,9 @@ void UdpChannel::getMyAddress()
     TRC_DEBUG("Send to UDP to myself: " << PAR(attempts) << std::endl << MEM_HEX(msgTrm.data(), msgTrm.size()));
     int trmn = sendto(soc, (const char*)msgTrm.data(), msgTrm.size(), 0, (struct sockaddr *)&iqrfUdpMyself, sizeof(iqrfUdpMyself));
     if (trmn < 0) {
-      THROW_EXC_TRC_WAR(UdpChannelException, "sendto failed: " << WSAGetLastError());
+      //THROW_EXC_TRC_WAR(UdpChannelException, "sendto failed: " << WSAGetLastError());
+      TRC_WARNING("sendto failed: " << WSAGetLastError() << " => cannot specify my IP address.");
+      break;
     }
 
     unsigned char rx[16];
@@ -239,7 +241,9 @@ void UdpChannel::getMyAddress()
 
     recn = recvfrom(soc, (char*)rx, 16, 0, (struct sockaddr *)&iqrfUdpListener, &iqrfUdpListenerLength);
     if (recn == SOCKET_ERROR) {
-      THROW_EXC_TRC_WAR(UdpChannelException, "recvfrom failed: " << WSAGetLastError());
+      //THROW_EXC_TRC_WAR(UdpChannelException, "recvfrom failed: " << WSAGetLastError());
+      TRC_WARNING("recvfrom failed: " << WSAGetLastError() << " => cannot specify my IP address.");
+      break;
     }
 
     if (recn > 0) {
@@ -253,10 +257,18 @@ void UdpChannel::getMyAddress()
   }
 
   if (attempts <= 0) {
-    THROW_EXC_TRC_WAR(UdpChannelException, "Failed listen myself - cannot specify my IP address.");
+    //THROW_EXC_TRC_WAR(UdpChannelException, "Failed listen myself => cannot specify my IP address.");
+    TRC_WARNING("Failed listen myself => cannot specify my IP address.");
   }
 
   getMyMacAddress(soc);
+
+  std::ostringstream os;
+  for (auto adapter : m_adapters) {
+    os << std::endl << NAME_PAR(ip, adapter.second.mIpAddr) << NAME_PAR(mac, adapter.second.mMac);
+  }
+  TRC_INFORMATION("Detected network adapters:" << os.str());
+
   auto found = m_adapters.find(m_myIpAdress);
   if (found != m_adapters.end()) {
     m_myMacAdress = found->second.mMac;
