@@ -530,6 +530,48 @@ namespace iqrf {
         ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_SPECIAL, data, addrNotUsed);
     }
 
+    // returns TrModule info  equivalent to specified Coordinator parameters
+    TrModuleInfo toTrModuleInfo(const IIqrfDpaService::CoordinatorParameters& coordParams)
+    {
+      TrModuleInfo trModuleInfo;
+
+      // Tr MCU
+      if (coordParams.mcuType.compare("PIC16F1938") == 0) 
+      {
+        trModuleInfo.mcu = TrMcu::PIC16F1938;
+      }
+      else {
+        trModuleInfo.mcu = TrMcu::NONE;
+      }
+
+      // Tr Serie
+      std::string seriePrefix = coordParams.trType.substr(0, 6);
+
+      if (seriePrefix.compare("DCTR-5") == 0)
+      {
+        trModuleInfo.serie = TrSerie::DCTR_5xD;
+      }
+      else if (seriePrefix.compare("DCTR-7") == 0) {
+        trModuleInfo.serie = TrSerie::DCTR_7xD;
+      }
+      else {
+        trModuleInfo.serie = TrSerie::NONE;
+      }
+
+      // OS Version
+      size_t dotPos = coordParams.osVersion.find_first_of('.');
+      std::string majorOsVer = coordParams.osVersion.substr(0, dotPos);
+      std::string minorOsVer = coordParams.osVersion.substr(dotPos+1, 2);
+
+      trModuleInfo.osVersion = (std::stoi(majorOsVer) << 4 + (std::stoi(minorOsVer) & 0xF)) & 0xFF;
+
+
+      // OS Build
+      trModuleInfo.osBuild = (std::stoi(coordParams.osBuild, nullptr, 16)) & 0xFFFF;
+
+      return trModuleInfo;
+    }
+
     void uploadFromIqrf(NativeUploadResult& uploadResult, const std::string& fileName)
     {
       IqrfFmtParser::iterator itr;
@@ -540,17 +582,18 @@ namespace iqrf {
         uploadResult.setError(error);
         return;
       }
+      
+      IqrfFmtParser parser(fileName);
 
-      // will be solved later
-      /*
-      TrModuleInfo info = getTrModuleInfo(static_cast<ModuleInfo*>(ifc->getTRModuleInfo()));
-      if (!parser.check(info)) {
+      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      TrModuleInfo trModuleInfo = toTrModuleInfo(coordParams);
+
+      if (!parser.check(trModuleInfo)) {
         THROW_EXC(
           std::out_of_range, "IQRF file " << PAR(fileName) << " can not be upload to TR! TR is not in supported types specified in the IQRF file. This message is caused by incopatible type of TR, OS version or OS build."
         );
       }
-      */
-      IqrfFmtParser parser(fileName);
+     
       parser.parse();  
 
       IIqrfChannelService::Accessor::UploadErrorCode errCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
