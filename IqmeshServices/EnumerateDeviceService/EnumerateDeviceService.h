@@ -5,6 +5,7 @@
 #include "IIqrfDpaService.h"
 #include "IMessagingSplitterService.h"
 #include "ITraceService.h"
+#include "IJsCacheService.h"
 #include <string>
 
 
@@ -33,6 +34,9 @@ namespace iqrf {
 
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
+
+    void attachInterface(iqrf::IJsCacheService* iface);
+    void detachInterface(iqrf::IJsCacheService* iface);
 
   private:
     class Imp;

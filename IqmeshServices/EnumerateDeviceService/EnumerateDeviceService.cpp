@@ -183,6 +183,10 @@ namespace iqrf {
     TPerOSReadCfg_Response m_hwpConfig;
     std::vector<TPeripheralInfoAnswer> m_morePersInfo;
 
+    uint16_t m_nodeHwpId;
+    std::string m_manufacturer = "";
+    std::string m_product = "";
+
     // transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
@@ -242,6 +246,33 @@ namespace iqrf {
     void setDeviceAddr(uint8_t deviceAddr) {
       m_deviceAddr = deviceAddr;
     }
+
+    // sets HwpId of enumerated node
+    void setEnumeratedNodeHwpId(const uint16_t hwpId) {
+      m_nodeHwpId = hwpId;
+    }
+
+    // returns HwpId of enumerated node
+    uint16_t getEnumeratedNodeHwpId() const {
+      return m_nodeHwpId;
+    }
+
+    std::string getManufacturer() {
+      return m_manufacturer;
+    }
+
+    void setManufacturer(const std::string& manufacturer) {
+      m_manufacturer = manufacturer;
+    }
+
+    std::string getProduct() {
+      return m_product;
+    }
+
+    void setProduct(const std::string& product) {
+      m_product = product;
+    }
+
 
     bool isDiscovered() const {
       return m_discovered;
@@ -340,6 +371,7 @@ namespace iqrf {
     const std::string m_mTypeName_iqmeshNetworkEnumerateDevice = "iqmeshNetwork_EnumerateDevice";
     //IMessagingSplitterService::MsgType* m_msgType_mngIqmeshWriteConfig;
 
+    iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
@@ -571,6 +603,8 @@ namespace iqrf {
           // get OS data
           uns8* osData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
           deviceEnumerateResult.setOsRead(osData);
+
+          deviceEnumerateResult.setEnumeratedNodeHwpId(dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID);
 
           TRC_FUNCTION_LEAVE("");
           return;
@@ -1624,6 +1658,14 @@ namespace iqrf {
  
       Pointer("/data/rsp/deviceAddr").Set(response, deviceEnumResult.getDeviceAddr());
 
+      // manufacturer and product - if OS Read was correct - to get HWP ID which is needed
+      if (
+        deviceEnumResult.getOsReadError().getType() == DeviceEnumerateError::Type::NoError
+        ) {
+        Pointer("/data/rsp/manufacturer").Set(response, deviceEnumResult.getManufacturer());
+        Pointer("/data/rsp/product").Set(response, deviceEnumResult.getProduct());
+      }
+
       bool isError = false;
       if (
         deviceEnumResult.getDiscoveredError().getType() == DeviceEnumerateError::Type::NoError
@@ -1726,6 +1768,21 @@ namespace iqrf {
       return nadr;
     }
 
+    // gets manufacturer and product
+    void getManufacturerAndProduct(DeviceEnumerateResult& deviceEnumerateResult)
+    {
+      // manufacturer name and product name
+      const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(deviceEnumerateResult.getEnumeratedNodeHwpId());
+      if (manufacturer != nullptr) {
+        deviceEnumerateResult.setManufacturer(manufacturer->m_name);
+      }
+
+      const IJsCacheService::Product* product = m_iJsCacheService->getProduct(deviceEnumerateResult.getEnumeratedNodeHwpId());
+      if (product != nullptr) {
+        deviceEnumerateResult.setProduct(product->m_name);
+      }
+    }
+
 
     void handleMsg(
       const std::string& messagingId,
@@ -1812,13 +1869,16 @@ namespace iqrf {
         TRC_FUNCTION_LEAVE("");
         return;
       }
-      
+
       // discovery data
       discoveryData(deviceEnumerateResult);
       
       // OS read info
       osRead(deviceEnumerateResult);
       
+      // AFTER OS READ - obtains hwpId, which in turn is needed to get manufacturer and product
+      getManufacturerAndProduct(deviceEnumerateResult);
+
       // peripheral enumeration
       peripheralEnumeration(deviceEnumerateResult);
 
@@ -1903,6 +1963,18 @@ namespace iqrf {
       }
     }
 
+    void attachInterface(IJsCacheService* iface)
+    {
+      m_iJsCacheService = iface;
+    }
+
+    void detachInterface(IJsCacheService* iface)
+    {
+      if (m_iJsCacheService == iface) {
+        m_iJsCacheService = nullptr;
+      }
+    }
+
     void attachInterface(IMessagingSplitterService* iface)
     {
       m_iMessagingSplitterService = iface;
@@ -1936,6 +2008,16 @@ namespace iqrf {
   }
 
   void EnumerateDeviceService::detachInterface(iqrf::IIqrfDpaService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void EnumerateDeviceService::attachInterface(iqrf::IJsCacheService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void EnumerateDeviceService::detachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->detachInterface(iface);
   }
