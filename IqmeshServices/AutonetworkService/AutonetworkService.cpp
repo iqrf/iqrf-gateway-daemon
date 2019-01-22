@@ -1933,6 +1933,16 @@ namespace iqrf {
       }
     }
 
+    void setFreeNodes(
+      std::bitset<MAX_ADDRESS + 1> bondedNodes, 
+      const std::vector<uint8_t>& notRespondedNewNodes
+    )
+    {
+      for (uint8_t addrToFree : notRespondedNewNodes) {
+        bondedNodes.reset(addrToFree);
+      }
+    }
+
     // processes the autonetwork algorithm
     void runAutonetwork(
       const uint8_t waves, 
@@ -2120,6 +2130,10 @@ namespace iqrf {
 
             // remove not responded nodes
             removeNotRespondedNewNodes(autonetworkResult, notRespondedNewNodes);
+
+            // return not responded nodes into free nodes available for bond
+            setFreeNodes(bondedNodes, notRespondedNewNodes);
+
             notRespondedNewNodes.clear();
           }
 
