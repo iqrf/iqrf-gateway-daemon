@@ -2486,18 +2486,25 @@ namespace iqrf {
         configBytes.push_back(rfChannelB_configByte);
       }
 
-      // Main RF channel A of the optional subordinate network
-      if (comWriteConfig.isSetRfSubChannelA()) {
-        uint8_t rfSubChannelA = checkRfChannel(comWriteConfig.getRfSubChannelA());
-        HWP_ConfigByte rfSubChannelA_configByte(0x06, rfSubChannelA, 0xFF);
-        configBytes.push_back(rfSubChannelA_configByte);
-      }
+      // getting DPA version
+      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
 
-      // Main RF channel B of the optional subordinate network
-      if (comWriteConfig.isSetRfSubChannelB()) {
-        uint8_t rfSubChannelB = checkRfChannel(comWriteConfig.getRfSubChannelB());
-        HWP_ConfigByte rfSubChannelB_configByte(0x07, rfSubChannelB, 0xFF);
-        configBytes.push_back(rfSubChannelB_configByte);
+      
+      if (dpaVer < 0x0400) {
+        // Main RF channel A of the optional subordinate network
+        if (comWriteConfig.isSetRfSubChannelA()) {
+          uint8_t rfSubChannelA = checkRfChannel(comWriteConfig.getRfSubChannelA());
+          HWP_ConfigByte rfSubChannelA_configByte(0x06, rfSubChannelA, 0xFF);
+          configBytes.push_back(rfSubChannelA_configByte);
+        }
+
+        // Main RF channel B of the optional subordinate network
+        if (comWriteConfig.isSetRfSubChannelB()) {
+          uint8_t rfSubChannelB = checkRfChannel(comWriteConfig.getRfSubChannelB());
+          HWP_ConfigByte rfSubChannelB_configByte(0x07, rfSubChannelB, 0xFF);
+          configBytes.push_back(rfSubChannelB_configByte);
+        }
       }
 
       // RF output power
@@ -2549,9 +2556,7 @@ namespace iqrf {
         isSetByte05ConfigBits = true;
       }
 
-      // getting DPA version
-      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
+      
 
       if (comWriteConfig.isSetNodeDpaInterface()) {
         if (dpaVer < 0x0400) {

@@ -1497,8 +1497,12 @@ namespace iqrf {
       // bytes fields
       Pointer("/data/rsp/trConfiguration/rfChannelA").Set(response, configuration[0x10]);
       Pointer("/data/rsp/trConfiguration/rfChannelB").Set(response, configuration[0x11]);
-      Pointer("/data/rsp/trConfiguration/rfSubChannelA").Set(response, configuration[0x05]);
-      Pointer("/data/rsp/trConfiguration/rfSubChannelB").Set(response, configuration[0x06]);
+
+      if (dpaVer < 0x0400) {
+        Pointer("/data/rsp/trConfiguration/rfSubChannelA").Set(response, configuration[0x05]);
+        Pointer("/data/rsp/trConfiguration/rfSubChannelB").Set(response, configuration[0x06]);
+      }
+
       Pointer("/data/rsp/trConfiguration/txPower").Set(response, configuration[0x07]);
       Pointer("/data/rsp/trConfiguration/rxFilter").Set(response, configuration[0x08]);
       Pointer("/data/rsp/trConfiguration/lpRxTimeout").Set(response, configuration[0x09]);
