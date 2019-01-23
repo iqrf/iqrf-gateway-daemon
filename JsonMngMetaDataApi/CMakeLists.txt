@@ -2,6 +2,7 @@ project(JsonMngMetaDataApi)
 
 set(COMPONENT iqrf::JsonMngMetaDataApi)
 DeclareShapeComponent(${COMPONENT})
+AddShapeProvidedInterface(${COMPONENT} iqrf::IMetaDataApi)
 AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)

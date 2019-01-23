@@ -166,6 +166,8 @@ namespace iqrf {
     uniqueMidMetaIdMap m_midMetaIdMap;
     uniqueNadrMidMap m_nadrMidMap;
 
+    std::recursive_mutex m_mux;
+
     static const nadr nadrEmpty = 0xFFFF;
 
     const std::string mType_ExportMetaDataAll = "mngMetaData_ExportMetaDataAll";
@@ -269,6 +271,8 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        std::lock_guard<std::recursive_mutex> lock(imp->getMux());
+
         if (m_nonUniquePairsMap.size() == 0) {
           imp->getNadrMidMap() = m_myMap;
           //update file
@@ -302,6 +306,8 @@ namespace iqrf {
 
       void createResponsePayload(rapidjson::Document& doc) override
       {
+        std::lock_guard<std::recursive_mutex> lock(m_imp->getMux());
+
         if (m_imp) {
           Value arr;
           arr.SetArray();
@@ -402,6 +408,8 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        std::lock_guard<std::recursive_mutex> lock(imp->getMux());
+
         if (m_nonUniquePairsMap.size() != 0 || m_duplicitMetaId.size() != 0) {
           setErr(mngMetaDataMsgStatus::st_duplicitParams);
         }
@@ -440,6 +448,7 @@ namespace iqrf {
       void createResponsePayload(rapidjson::Document& doc) override
       {
         if (m_imp) {
+          std::lock_guard<std::recursive_mutex> lock(m_imp->getMux());
           {
             Value arr;
             arr.SetArray();
@@ -546,6 +555,8 @@ namespace iqrf {
       void handleMsg(JsonMngMetaDataApi::Imp* imp) override
       {
         TRC_FUNCTION_ENTER("");
+
+        std::lock_guard<std::recursive_mutex> lock(imp->getMux());
 
         auto & nadrMidMap = imp->getNadrMidMap();
         auto & midMetaIdMap = imp->getMidMetaIdMap();
@@ -669,6 +680,8 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        std::lock_guard<std::recursive_mutex> lock(imp->getMux());
+
         if (m_metaId.empty()) { // add MetaData
           if (!m_metaData->empty()) {
             while (true) {
@@ -751,6 +764,8 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        std::lock_guard<std::recursive_mutex> lock(imp->getMux());
+
         if (!m_mid.empty()) {
           m_metaId = imp->getMidMetaIdMap().myFind(m_mid, m_metaId);
           if (!m_metaId.empty()) {
@@ -807,6 +822,8 @@ namespace iqrf {
       void handleMsg(JsonMngMetaDataApi::Imp* imp) override
       {
         TRC_FUNCTION_ENTER("");
+
+        std::lock_guard<std::recursive_mutex> lock(imp->getMux());
 
         if (!m_mid.empty()) {
           if (!m_metaId.empty()) {
@@ -886,6 +903,9 @@ namespace iqrf {
       void handleMsg(JsonMngMetaDataApi::Imp* imp) override
       {
         TRC_FUNCTION_ENTER("");
+        
+        std::lock_guard<std::recursive_mutex> lock(imp->getMux());
+
         m_mid = imp->getNadrMidMap().myFind(m_nadr, m_mid);
         if (!m_mid.empty()) {
           m_metaId = imp->getMidMetaIdMap().myFind(m_mid, m_metaId);
@@ -925,6 +945,7 @@ namespace iqrf {
     shape::ILaunchService* m_iLaunchService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     
+    bool m_metaDataToMessages = false;
     std::string m_cacheDir;
     std::string m_metaDataFile;
     std::string m_schemaMetaDataFile;
@@ -979,6 +1000,8 @@ namespace iqrf {
     void loadMetaData()
     {
       TRC_FUNCTION_ENTER("");
+
+      std::lock_guard<std::recursive_mutex> lock(getMux());
 
       std::ifstream ifs(m_metaDataFile);
       if (!ifs.is_open()) {
@@ -1074,6 +1097,8 @@ namespace iqrf {
 
       Document doc;
       
+      std::lock_guard<std::recursive_mutex> lock(getMux());
+
       { // update nadrMidMap
         Value arr;
         arr.SetArray();
@@ -1118,6 +1143,11 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    std::recursive_mutex& getMux()
+    {
+      return m_mux;
+    }
+
     uniqueMidMetaIdMap& getMidMetaIdMap()
     {
       return m_midMetaIdMap;
@@ -1133,6 +1163,34 @@ namespace iqrf {
       return m_metaIdMetaDataMap;
     }
 
+    bool iSmetaDataToMessages() const
+    {
+      return m_metaDataToMessages;
+    }
+
+    rapidjson::Document getMetaDataImpl(uint16_t nAdr)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::lock_guard<std::recursive_mutex> lock(m_mux);
+
+      rapidjson::Document retval;
+      retval.SetObject();
+      std::string lmid = getNadrMidMap().myFind(nAdr, lmid);
+      if (!lmid.empty()) {
+        std::string lmetaId = getMidMetaIdMap().myFind(lmid, lmetaId);
+        if (!lmetaId.empty()) {
+          auto md = getMetaData(lmetaId);
+          if (md) {
+            retval.CopyFrom(md->getValue(), retval.GetAllocator());
+          }
+        }
+      }
+      
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
     ///////////////////
 
     void activate(const shape::Properties *props)
@@ -1143,6 +1201,8 @@ namespace iqrf {
         "JsonMngMetaDataApi instance activate" << std::endl <<
         "******************************"
       );
+
+      props->getMemberAsBool("metaDataToMessages", m_metaDataToMessages);
 
       m_cacheDir = m_iLaunchService->getCacheDir();
       m_cacheDir += "/metaData";
@@ -1246,6 +1306,16 @@ namespace iqrf {
   void JsonMngMetaDataApi::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  bool JsonMngMetaDataApi::iSmetaDataToMessages() const
+  {
+    return m_imp->iSmetaDataToMessages();
+  }
+
+  rapidjson::Document JsonMngMetaDataApi::getMetaData(uint16_t nAdr) const
+  {
+    return m_imp->getMetaDataImpl(nAdr);
   }
 
   void JsonMngMetaDataApi::attachInterface(shape::ILaunchService* iface)

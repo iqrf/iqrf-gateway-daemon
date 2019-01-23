@@ -63,6 +63,7 @@ namespace iqrf {
   class JsonDpaApiRaw::Imp
   {
   private:
+    IMetaDataApi* m_iMetaDataApi = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::string m_name = "JsonDpaApiRaw";
@@ -75,7 +76,7 @@ namespace iqrf {
       "iqrfRawHdp",
     };
 
-    ObjectFactory<ComBase, rapidjson::Document&> m_objectFactory;
+    ObjectFactory<ComNadr, rapidjson::Document&> m_objectFactory;
 
   public:
     Imp()
@@ -96,7 +97,13 @@ namespace iqrf {
         NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
 
 
-      std::unique_ptr<ComBase> com = m_objectFactory.createObject(msgType.m_type, doc);
+      std::unique_ptr<ComNadr> com = m_objectFactory.createObject(msgType.m_type, doc);
+
+      if (m_iMetaDataApi) {
+        if (m_iMetaDataApi->iSmetaDataToMessages()) {
+          com->setMetaData(m_iMetaDataApi->getMetaData(com->getNadr()));
+        }
+      }
 
       auto trn = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest(), com->getTimeout());
       auto res = trn->get();
@@ -116,10 +123,14 @@ namespace iqrf {
 
     void handleAsyncDpaMessage(const DpaMessage& msg)
     {
-      std::string fakeRequestStr =
-        "{\"mType\": \"iqrfRaw\",\"data\":{\"msgId\": \"async\",\"req\":{\"rData\":\"00.00.00.00.00.00\"}}}";
+      using namespace rapidjson;
+
       Document fakeRequest;
-      fakeRequest.Parse(fakeRequestStr);
+      Pointer("/mType").Set(fakeRequest, "iqrfRaw");
+      Pointer("/data/msgId").Set(fakeRequest, "async");
+      std::string rData = encodeBinary(msg.DpaPacket().Buffer, msg.GetLength());
+      //Pointer("/data/req/rData").Set(fakeRequest, "00.00.00.00.00.00");
+      Pointer("/data/req/rData").Set(fakeRequest, rData);
       Document respDoc;
 
       ComRaw asyncResp(fakeRequest);
@@ -188,17 +199,17 @@ namespace iqrf {
     {
     }
 
-    //void attachInterface(IJsCacheService* iface)
-    //{
-    //  m_iJsCacheService = iface;
-    //}
+    void attachInterface(IMetaDataApi* iface)
+    {
+      m_iMetaDataApi = iface;
+    }
 
-    //void detachInterface(IJsCacheService* iface)
-    //{
-    //  if (m_iJsCacheService == iface) {
-    //    m_iJsCacheService = nullptr;
-    //  }
-    //}
+    void detachInterface(IMetaDataApi* iface)
+    {
+      if (m_iMetaDataApi == iface) {
+        m_iMetaDataApi = nullptr;
+      }
+    }
 
     void attachInterface(IIqrfDpaService* iface)
     {
@@ -253,15 +264,15 @@ namespace iqrf {
     m_imp->modify(props);
   }
 
-  //void JsonDpaApiRaw::attachInterface(iqrf::IJsCacheService* iface)
-  //{
-  //  m_imp->attachInterface(iface);
-  //}
+  void JsonDpaApiRaw::attachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
 
-  //void JsonDpaApiRaw::detachInterface(iqrf::IJsCacheService* iface)
-  //{
-  //  m_imp->detachInterface(iface);
-  //}
+  void JsonDpaApiRaw::detachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
 
   void JsonDpaApiRaw::attachInterface(IIqrfDpaService* iface)
   {

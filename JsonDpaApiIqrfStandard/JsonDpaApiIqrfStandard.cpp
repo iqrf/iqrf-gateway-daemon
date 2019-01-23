@@ -50,7 +50,8 @@ namespace iqrf {
   {
   private:
 
-    iqrf::IJsRenderService* m_iJsRenderService = nullptr;
+    IMetaDataApi* m_iMetaDataApi = nullptr;
+    IJsRenderService* m_iJsRenderService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     //just to be able to abort
@@ -180,6 +181,12 @@ namespace iqrf {
       Document allResponseDoc;
       std::unique_ptr<ComIqrfStandard> com(shape_new ComIqrfStandard(doc));
 
+      if (m_iMetaDataApi) {
+        if (m_iMetaDataApi->iSmetaDataToMessages()) {
+          com->setMetaData(m_iMetaDataApi->getMetaData(com->getNadr()));
+        }
+      }
+
       std::string methodRequestName = msgType.m_possibleDriverFunction;
       std::string methodResponseName = msgType.m_possibleDriverFunction;
       methodRequestName += "_Request_req";
@@ -202,7 +209,7 @@ namespace iqrf {
         //provide error response
         Document rDataError;
         rDataError.SetString(errStrReq, rDataError.GetAllocator());
-        com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
+        com->setPayload("/data/rsp/errorStr", rDataError, true);
         FakeTransactionResult fr;
         com->setStatus(fr.getErrorString(), fr.getErrorCode());
         com->createResponse(allResponseDoc, fr);
@@ -258,7 +265,7 @@ namespace iqrf {
               //provide error response
               Document rDataError;
               rDataError.SetString(errStrRes.c_str(), rDataError.GetAllocator());
-              com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
+              com->setPayload("/data/rsp/errorStr", rDataError, true);
               res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);
               com->setStatus(res->getErrorString(), res->getErrorCode());
               com->createResponse(allResponseDoc, *res);
@@ -268,7 +275,7 @@ namespace iqrf {
               Document rspObj;
               rspObj.Parse(rspObjStr);
               TRC_DEBUG("result object: " << std::endl << JsonToStr(&rspObj));
-              com->setPayload("/data/rsp/result", std::move(rspObj), false);
+              com->setPayload("/data/rsp/result", rspObj, false);
               com->setStatus(res->getErrorString(), res->getErrorCode());
               com->createResponse(allResponseDoc, *res);
             }
@@ -276,7 +283,7 @@ namespace iqrf {
           else {
             Document rDataError;
             rDataError.SetString("rcode error", rDataError.GetAllocator());
-            com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
+            com->setPayload("/data/rsp/errorStr", rDataError, true);
             com->setStatus(res->getErrorString(), res->getErrorCode());
             com->createResponse(allResponseDoc, *res);
           }
@@ -285,7 +292,7 @@ namespace iqrf {
           if (res->getErrorCode() != 0) {
             Document rDataError;
             rDataError.SetString("rcode error", rDataError.GetAllocator());
-            com->setPayload("/data/rsp/errorStr", std::move(rDataError), true);
+            com->setPayload("/data/rsp/errorStr", rDataError, true);
             com->setStatus(res->getErrorString(), res->getErrorCode());
             com->createResponse(allResponseDoc, *res);
           }
@@ -293,7 +300,7 @@ namespace iqrf {
             //no response but not considered as an error
             Document rspObj;
             Pointer("/response").Set(rspObj, "unrequired");
-            com->setPayload("/data/rsp/result", std::move(rspObj), false);
+            com->setPayload("/data/rsp/result", rspObj, false);
             com->setStatus(res->getErrorString(), res->getErrorCode());
             com->createResponse(allResponseDoc, *res);
           }
@@ -347,6 +354,18 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+    }
+
+    void attachInterface(IMetaDataApi* iface)
+    {
+      m_iMetaDataApi = iface;
+    }
+
+    void detachInterface(IMetaDataApi* iface)
+    {
+      if (m_iMetaDataApi == iface) {
+        m_iMetaDataApi = nullptr;
+      }
     }
 
     void attachInterface(IJsRenderService* iface)
@@ -413,6 +432,16 @@ namespace iqrf {
   void JsonDpaApiIqrfStandard::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsonDpaApiIqrfStandard::attachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonDpaApiIqrfStandard::detachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsonDpaApiIqrfStandard::attachInterface(iqrf::IJsRenderService* iface)

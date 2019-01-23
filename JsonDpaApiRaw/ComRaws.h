@@ -4,17 +4,56 @@
 #include "JsonUtils.h"
 
 namespace iqrf {
-  class ComRaw : public ComBase
+  class ComNadr : public ComBase
+  {
+  public:
+    ComNadr() = delete;
+    ComNadr(rapidjson::Document& doc)
+      :ComBase(doc)
+    {
+    }
+
+    virtual uint16_t getNadr() const = 0;
+
+    virtual void setMetaData(const rapidjson::Value& val)
+    {
+      m_appendMetaData = true;
+      m_metaData.CopyFrom(val, m_metaData.GetAllocator());
+    }
+
+    virtual ~ComNadr()
+    {
+    }
+
+  protected:
+
+    bool m_appendMetaData = false;
+    rapidjson::Document m_metaData;
+
+  };
+
+  class ComRaw : public ComNadr
   {
   public:
     ComRaw() = delete;
     ComRaw(rapidjson::Document& doc)
-      :ComBase(doc)
+      :ComNadr(doc)
     {
       int len = parseBinary(m_request.DpaPacket().Buffer,
         rapidjson::Pointer("/data/req/rData").Get(doc)->GetString(),
         DPA_MAX_DATA_LENGTH);
       m_request.SetLength(len);
+    }
+
+    uint16_t getNadr() const override
+    {
+      return m_request.DpaPacket().DpaRequestPacket_t.NADR;
+    }
+
+    void setMetaData(const std::string& metaDataKey, rapidjson::Value& val)
+    {
+      m_appendMetaData = true;
+      m_metaData.CopyFrom(val, m_metaData.GetAllocator());
     }
 
     virtual ~ComRaw()
@@ -25,17 +64,19 @@ namespace iqrf {
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
       rapidjson::Pointer("/data/rsp/rData").Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
+      if (m_appendMetaData) {
+        rapidjson::Pointer("/data/rsp/metaData").Set(doc, m_metaData);
+      }
     }
 
-  private:
   };
 
-  class ComRawHdp : public ComBase
+  class ComRawHdp : public ComNadr
   {
   public:
     ComRawHdp() = delete;
     ComRawHdp(rapidjson::Document& doc)
-      :ComBase(doc)
+      :ComNadr(doc)
     {
       m_request.DpaPacket().DpaRequestPacket_t.NADR = rapidjson::Pointer("/data/req/nAdr").Get(doc)->GetInt();
       m_request.DpaPacket().DpaRequestPacket_t.PNUM = rapidjson::Pointer("/data/req/pNum").Get(doc)->GetInt();
@@ -57,10 +98,11 @@ namespace iqrf {
         }
         m_request.SetLength(sizeof(TDpaIFaceHeader) + sz);
       }
-      //int len = parseBinary(m_request.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData,
-      //  rapidjson::Pointer("/data/req/rData").Get(doc)->GetString(),
-      //  DPA_MAX_DATA_LENGTH);
-      //m_request.SetLength(sizeof(TDpaIFaceHeader) + len);
+    }
+
+    uint16_t getNadr() const override
+    {
+      return m_request.DpaPacket().DpaRequestPacket_t.NADR;
     }
 
     virtual ~ComRawHdp()
@@ -91,9 +133,12 @@ namespace iqrf {
         req->AddMember("pData", rdata, allocator);
       }
 
-      //rapidjson::Pointer("/data/rsp/rData").Set(doc, r ? encodeBinary(res.getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData,
-      //  res.getResponse().GetLength() - sizeof(TDpaIFaceHeader) - 2) : "");
+      if (m_appendMetaData) {
+        rapidjson::Pointer("/data/rsp/metaData").Set(doc, m_metaData);
+      }
+
     }
+
   };
 
 }

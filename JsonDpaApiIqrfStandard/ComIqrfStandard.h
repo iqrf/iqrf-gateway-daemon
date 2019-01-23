@@ -6,6 +6,8 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
+#include "rapidjson/prettywriter.h"
+
 namespace iqrf {
   //-------------------------------------------------------
   class ComIqrfStandard : public ComBase
@@ -53,11 +55,17 @@ namespace iqrf {
       }
     }
 
-    void setPayload(const std::string& payloadKey, rapidjson::Value&& val, bool onlyForVerbose)
+    void setPayload(const std::string& payloadKey, const rapidjson::Value& val, bool onlyForVerbose)
     {
       m_payloadKey = payloadKey;
       m_payload.CopyFrom(val, m_payload.GetAllocator());
       m_payloadOnlyForVerbose = onlyForVerbose;
+    }
+
+    void setMetaData(const rapidjson::Value& val)
+    {
+      m_appendMetaData = true;
+      m_metaData.CopyFrom(val, m_metaData.GetAllocator());
     }
 
     virtual ~ComIqrfStandard()
@@ -76,6 +84,9 @@ namespace iqrf {
       if (!m_payloadOnlyForVerbose || getVerbose()) {
         Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
       }
+      if (m_appendMetaData) {
+        Pointer("/data/rsp/metaData").Set(doc, m_metaData);
+      }
     }
 
   private:
@@ -85,6 +96,8 @@ namespace iqrf {
     std::string m_payloadKey;
     rapidjson::Document m_payload;
     bool m_payloadOnlyForVerbose = true;
+    bool m_appendMetaData = false;
+    rapidjson::Document m_metaData;
   };
 
 }

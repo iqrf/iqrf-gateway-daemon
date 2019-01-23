@@ -361,6 +361,9 @@ namespace iqrf {
 
     getIqrfNetworkParams();
 
+    // unregister asyn reset - not needed  after getIqrfNetworkParams()
+    unregisterAsyncMessageHandler("  IqrfDpa");
+
     IDpaTransaction2::TimingParams timingParams;
     timingParams.bondedNodes = m_bondedNodes;
     timingParams.discoveredNodes = m_discoveredNodes;

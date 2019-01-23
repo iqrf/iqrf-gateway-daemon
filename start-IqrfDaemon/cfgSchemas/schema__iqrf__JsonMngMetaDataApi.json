@@ -20,6 +20,11 @@
             "description": "Recomended iqrf::JsonMngMetaDataApi-(id)",
             "default": "iqrf::JsonMngMetaDataApi-1"
         },
+        "metaDataToMessages": {
+            "type": "boolean",
+            "description": "Append MetaData to outcomming messages",
+            "default": false
+        },
         "RequiredInterfaces": {
             "type": "array",
             "description": "Array of required interfaces.",

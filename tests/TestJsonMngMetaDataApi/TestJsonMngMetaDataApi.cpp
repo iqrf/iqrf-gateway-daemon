@@ -31,7 +31,8 @@ namespace iqrf {
 
   public:
     shape::ILaunchService* m_iLaunchService = nullptr;
-    iqrf::ITestSimulationMessaging* m_iTestSimulationMessaging = nullptr;
+    ITestSimulationMessaging* m_iTestSimulationMessaging = nullptr;
+    IMetaDataApi* m_iMetaDataApi = nullptr;
 
     shape::GTestStaticRunner m_gtest;
 
@@ -68,6 +69,18 @@ namespace iqrf {
         "******************************"
       );
       TRC_FUNCTION_LEAVE("")
+    }
+
+    void attachInterface(iqrf::IMetaDataApi* iface)
+    {
+      m_iMetaDataApi = iface;
+    }
+
+    void detachInterface(iqrf::IMetaDataApi* iface)
+    {
+      if (m_iMetaDataApi == iface) {
+        m_iMetaDataApi = nullptr;
+      }
     }
 
     void attachInterface(iqrf::ITestSimulationMessaging* iface)
@@ -117,6 +130,16 @@ namespace iqrf {
 
   void TestJsonMngMetaDataApi::modify(const shape::Properties *props)
   {
+  }
+
+  void TestJsonMngMetaDataApi::attachInterface(iqrf::IMetaDataApi* iface)
+  {
+    Imp::get().attachInterface(iface);
+  }
+
+  void TestJsonMngMetaDataApi::detachInterface(iqrf::IMetaDataApi* iface)
+  {
+    Imp::get().detachInterface(iface);
   }
 
   void TestJsonMngMetaDataApi::attachInterface(iqrf::ITestSimulationMessaging* iface)
@@ -1063,4 +1086,25 @@ namespace iqrf {
     EXPECT_EQ(0, status);
   }
 
+  TEST_F(TestMetaData, GetNadrMetaData_iface)
+  {
+    using namespace rapidjson;
+
+    int sn = -1;
+    std::string pname;
+
+    if (Imp::get().m_iMetaDataApi->iSmetaDataToMessages()) {
+      auto doc = Imp::get().m_iMetaDataApi->getMetaData(1);
+      std::string md = jsonToStr(doc);
+      //md = "{\n    \"sn\": 1,\n    \"pname\": \"sensor1\"\n}"
+      getVal("/sn", &doc, sn);
+      getVal("/pname", &doc, pname);
+    }
+
+    //int status = -1;
+    //getVal("/data/status", &jmoDoc, status);
+
+    EXPECT_EQ(1, sn);
+    EXPECT_EQ("sensor1", pname);
+  }
 }

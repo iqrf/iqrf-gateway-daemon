@@ -4,6 +4,7 @@ find_package(GoogleTest REQUIRED)
 
 set(COMPONENT iqrf::TestJsonMngMetaDataApi)
 DeclareShapeComponent(${COMPONENT})
+AddShapeRequiredInterface(${COMPONENT} iqrf::IMetaDataApi MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::ITestSimulationMessaging MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
