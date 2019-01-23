@@ -170,32 +170,34 @@ namespace iqrf {
 
   void ScheduleRecord::parseCron(const std::string& cronTime)
   {
-    std::string tmr = cronTime;
+    if (!m_periodic) {
+      std::string tmr = cronTime;
 
-    tmr = solveNickname(tmr);
+      tmr = solveNickname(tmr);
 
-    if (!m_exactTime) {
+      if (!m_exactTime) {
 
-      std::istringstream is(tmr);
+        std::istringstream is(tmr);
 
-      std::string sec("*");
-      std::string mnt("*");
-      std::string hrs("*");
-      std::string day("*");
-      std::string mon("*");
-      std::string yer("*");
-      std::string dow("*");
+        std::string sec("*");
+        std::string mnt("*");
+        std::string hrs("*");
+        std::string day("*");
+        std::string mon("*");
+        std::string yer("*");
+        std::string dow("*");
 
-      is >> sec >> mnt >> hrs >> day >> mon >> yer >> dow;
+        is >> sec >> mnt >> hrs >> day >> mon >> yer >> dow;
 
-      parseItem(sec, 0, 59, m_vsec);
-      parseItem(mnt, 0, 59, m_vmin);
-      parseItem(hrs, 0, 23, m_vhour);
-      parseItem(day, 1, 31, m_vmday);
-      parseItem(mon, 1, 12, m_vmon, -1);
-      parseItem(yer, 0, 9000, m_vyear); //TODO maximum?
-      parseItem(dow, 0, 6, m_vwday);
+        parseItem(sec, 0, 59, m_vsec);
+        parseItem(mnt, 0, 59, m_vmin);
+        parseItem(hrs, 0, 23, m_vhour);
+        parseItem(day, 1, 31, m_vmday);
+        parseItem(mon, 1, 12, m_vmon, -1);
+        parseItem(yer, 0, 9000, m_vyear); //TODO maximum?
+        parseItem(dow, 0, 6, m_vwday);
 
+      }
     }
   }
 
@@ -232,7 +234,9 @@ namespace iqrf {
     parseTimeSpec(*Pointer("/timeSpec").Get(rec));
     m_task.CopyFrom(*Pointer("/task").Get(rec), m_task.GetAllocator());
 
-    parseCron(m_cronTime);
+    if (!m_exactTime) {
+      parseCron(m_cronTime);
+    }
   }
 
   rapidjson::Value ScheduleRecord::serialize(rapidjson::Document::AllocatorType& a) const

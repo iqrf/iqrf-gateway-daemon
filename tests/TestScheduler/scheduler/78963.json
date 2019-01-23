@@ -1,0 +1,25 @@
+{
+    "taskId": 78963,
+    "clientId": "TestSchedulerPersistPeriodic",
+    "timeSpec": {
+        "cronTime": "",
+        "exactTime": false,
+        "periodic": true,
+        "period": 2000,
+        "startTime": ""
+    },
+    "task": {
+        "messaging": "WebsocketMessaging",
+        "message": {
+            "mType": "iqmeshNetwork_EnumerateDevice",
+            "data": {
+                "msgId": "f726ecb9-ee7c-433a-9aa4-3fb21cae2d4d",
+                "repeat": 1,
+                "req": {
+                    "deviceAddr": 1
+                },
+                "returnVerbose": true
+            }
+        }
+    }
+}

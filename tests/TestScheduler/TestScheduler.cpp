@@ -147,6 +147,7 @@ namespace iqrf {
   protected:
     const std::string CLIENT_ID = "TestScheduler";
     const std::string CLIENT_ID_PERSIST = "TestSchedulerPersist";
+    const std::string CLIENT_ID_PERSIST_PERIODIC = "TestSchedulerPersistPeriodic";
     const int VAL1 = 1;
     const int VAL2 = 2;
     const std::string CRON1 = "*/1 * * * * * *"; //every 1sec
@@ -284,8 +285,10 @@ namespace iqrf {
 
     const int TID1 = 1736;
     const int TID2 = 25828;
+    const int TID3 = 78963;
     const std::string MSG_ID1 = "b726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
     const std::string MSG_ID2 = "a726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
+    const std::string MSG_ID3 = "f726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
 
     //verify empty result as we haven't any tasks yet
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID_PERSIST);
@@ -319,6 +322,29 @@ namespace iqrf {
     ASSERT_NE(nullptr, val2);
     ASSERT_TRUE(val2->IsString());
     EXPECT_EQ(MSG_ID2, val2->GetString());
+  }
+
+  TEST_F(SchedulerTesting, persistPeriodic)
+  {
+    using namespace rapidjson;
+
+    const int TID3 = 78963;
+    const std::string MSG_ID3 = "f726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
+
+    //verify empty result as we haven't any tasks yet
+    std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID_PERSIST_PERIODIC);
+    ASSERT_EQ(1, taskHandleVect.size());
+
+    ISchedulerService::TaskHandle th3 = taskHandleVect[0];
+
+    EXPECT_TRUE(TID3 == th3);
+
+    //verify returned task3
+    const rapidjson::Value *task3 = m_iSchedulerService->getMyTask(CLIENT_ID_PERSIST_PERIODIC, th3);
+    const rapidjson::Value *val3 = Pointer("/message/data/msgId").Get(*task3);
+    ASSERT_NE(nullptr, val3);
+    ASSERT_TRUE(val3->IsString());
+    EXPECT_EQ(MSG_ID3, val3->GetString());
   }
 
   TEST_F(SchedulerTesting, addTaskPersist)
