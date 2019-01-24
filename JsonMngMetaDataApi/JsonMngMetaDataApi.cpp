@@ -1254,6 +1254,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      props->getMemberAsBool("metaDataToMessages", m_metaDataToMessages);
     }
 
     void attachInterface(shape::ILaunchService* iface)

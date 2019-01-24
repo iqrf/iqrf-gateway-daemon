@@ -148,9 +148,9 @@
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsonMngApi",
+      "name": "iqrf::JsonCfgApi",
       "libraryPath": "IqrfDaemon/bin",
-      "libraryName": "JsonMngApi",
+      "libraryName": "JsonCfgApi",
       "enabled": true,
       "startlevel": 2
     },
