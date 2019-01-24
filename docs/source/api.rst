@@ -700,6 +700,19 @@ Daemon Management
 .. _`Version response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngDaemon_Version-response-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngDaemon_Version-response-1-0-0-example.json
 
+Daemon Configuration
+--------------------
+
+**Since v2.1.0**
+
+- `Component request v1-0-0`_ and `example`__
+- `Component response v1-0-0`_ and `example`__
+
+.. _`Component request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/cfgDaemon_Component-request-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/cfgDaemon_Component-request-1-0-0-example.json
+.. _`Component response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/cfgDaemon_Component-response-1-0-0.json
+.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/cfgDaemon_Component-response-1-0-0-example.json
+
 Daemon Scheduler
 ----------------
 
