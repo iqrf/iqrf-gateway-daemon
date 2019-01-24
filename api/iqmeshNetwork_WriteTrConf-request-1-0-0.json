@@ -127,7 +127,7 @@
 						},
 						"rfSubChannelA": {
 							"type": "integer",
-							"description": "Main RF channel A of the optional subordinate network in case the node also plays a role of the coordinator of such network. Valid numbers depend on used RF band."
+							"description": "Main RF channel A of the optional subordinate network in case the node also plays a role of the coordinator of such network. Valid numbers depend on used RF band. Available for DPA<400."
 						},
 						"rfSubChannelB": {
 							"type": "integer",
