@@ -1592,8 +1592,8 @@ namespace iqrf {
       // Set pData fields
       uns8* pData = checkNewNodesPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
 
-      // FRC command - Prebonding
-      pData[0] = FRC_Prebonding;
+      // FRC command - Ping
+      pData[0] = FRC_Ping;
 
       // user data
       pData[1] = 0x01;

@@ -264,7 +264,7 @@ namespace iqrf {
       bondNodePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.ReqAddr = uint8_t( nodeAddr & 0xFF );
-      bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.BondingMask = bondingMask;
+      bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.BondNode.Previous.BondingMask = bondingMask;
 
       bondNodeRequest.DataToBuffer( bondNodePacket.Buffer, sizeof( TDpaIFaceHeader ) + 2 );
 
