@@ -129,6 +129,11 @@ stages:
   - cmake --build iqrf-daemon-build
   - tar czvf iqrf-daemon-source_${ARCH}.tar.gz iqrf-daemon-source
   - tar czvf iqrf-daemon-build_${ARCH}.tar.gz iqrf-daemon-build
+#RM previous artifacts from server
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  - ssh www-deploy@iqrfsdk.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel/*"
   artifacts:
     paths:
     - iqrf-daemon-source_*.tar.gz
@@ -194,7 +199,6 @@ stages:
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
-  - ssh www-deploy@iqrfsdk.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel/*"
   - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
   artifacts:
     paths:
