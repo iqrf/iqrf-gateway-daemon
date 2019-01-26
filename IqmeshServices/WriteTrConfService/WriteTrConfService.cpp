@@ -1544,9 +1544,6 @@ namespace iqrf {
       }
     }
 
-    // for usage in the next function
-    //RF_ChannelBand parseAndCheckRfChannelBand(const uint8_t rfBandInt);
-
     // updates coordinator's RF channel band
     void updateCoordRfChannelBand(WriteResult& writeResult, const uint16_t hwpId)
     {
@@ -1598,7 +1595,7 @@ namespace iqrf {
 
           // updating RF Channel band
           uns8 rfChannelBandInt =
-            dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[CONFIG_BYTES_COORD_RF_CHANNEL_BAND_ADDR];
+            dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[33] & 0b11;
           m_coordRfChannelBand = parseAndCheckRfChannelBand(rfChannelBandInt);
 
           TRC_FUNCTION_LEAVE("");
@@ -1679,7 +1676,7 @@ namespace iqrf {
                 updateCoordRfChannelBand(writeResult, hwpId);
               }
               catch (std::exception& ex) {
-                THROW_EXC(std::logic_error, "Cannot update coordinator RF channel band");
+                THROW_EXC(std::logic_error, "Cannot update coordinator RF channel band" << ex.what());
               }
               isRfBandActual = true;
             }
