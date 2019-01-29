@@ -1934,7 +1934,7 @@ namespace iqrf {
     }
 
     void setFreeNodes(
-      std::bitset<MAX_ADDRESS + 1> bondedNodes, 
+      std::bitset<MAX_ADDRESS + 1>& bondedNodes, 
       const std::vector<uint8_t>& notRespondedNewNodes
     )
     {
