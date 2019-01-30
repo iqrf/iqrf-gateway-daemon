@@ -20,8 +20,8 @@ SHAPE loader
 ============
 
 mkdir iqrf-gw-daemon \
-cd iqrf-gw-daemon \
-git clone https://github.com/logimic/shape.git \
+&& cd iqrf-gw-daemon \
+&& git clone https://github.com/logimic/shape.git \
 && cd shape \
 && ./buildMake.sh
 
@@ -42,8 +42,8 @@ git clone https://github.com/logimic/shapeware.git \
 IQRF
 ====
 mkdir iqrftech \
-cd iqrftech \
-git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git \
+&& cd iqrftech \
+&& git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git \
 && cd iqrf-daemon \
 && git submodule init \
 && git submodule update \
