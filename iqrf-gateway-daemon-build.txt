@@ -11,10 +11,10 @@ Copy your created public key ~/.ssh/id_rsa and add it here:
 https://github.com/settings/keys
 https://gitlab.iqrfsdk.org/profile/keys
 
-CMAKE
-=====
+CMAKE & SSL & MQTT & CURL
+=========================
 
-sudo apt-get install cmake
+sudo apt-get install cmake libssl-dev zlib1g-dev libcurl4-openssl-dev libcpaho-mqtt-dev
 
 SHAPE loader
 ============
@@ -23,15 +23,12 @@ mkdir iqrf-gw-daemon \
 && cd iqrf-gw-daemon \
 && git clone https://github.com/logimic/shape.git \
 && cd shape \
+&& git submodule init \
+&& git submodule update \
 && ./buildMake.sh
 
-SSL & MQTT & CURL
+SHAPEWARE modules
 =================
-
-sudo apt-get install libssl-dev zlib1g-dev libcurl4-openssl-dev libcpaho-mqtt-dev 
-
-SHAPEWARE
-=========
 
 git clone https://github.com/logimic/shapeware.git \
 && cd shapeware \
@@ -39,8 +36,9 @@ git clone https://github.com/logimic/shapeware.git \
 && git submodule update \
 && ./buildMake.sh
 
-IQRF
-====
+IQRF GW daemon
+==============
+
 mkdir iqrftech \
 && cd iqrftech \
 && git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git \
