@@ -46,3 +46,22 @@ mkdir iqrftech \
 && git submodule init \
 && git submodule update \
 && ./buildMake.sh 
+
+Stop the systemd service
+========================
+
+sudo systemctl stop iqrf-gateway-daemon
+
+Configure the daemon
+====================
+
+cd shape/deploy/Unix_Makefiles/Debug/IqrfDaemon/runcfg/iqrfgd2-LinDeployDevel/configuration
+nano iqrf__IqrfSpi.json ... OPI /dev/spidev1.0 + mapovani pinů z clibspi pro OPI
+nano iqrf__NativeUploadService.json ... nastavit uploadPath, vytvořit adresař a nahrát IQRF, HEX
+...
+
+Running the daemon
+==================
+
+cd shape/deploy/Unix_Makefiles/Debug/IqrfDaemon/runcfg/iqrfgd2-LinDeployDevel
+sudo ./StartUp.sh
