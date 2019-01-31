@@ -1091,7 +1091,7 @@ namespace iqrf {
     void setFRCSelectedNodes(uns8* pData, const std::vector<uint8_t>& selectedNodes)
     {
       // initialize to zero values
-      memset(pData+1, 0, 30 * sizeof(uns8));
+      memset(pData, 0, 30 * sizeof(uns8));
 
       for (uint16_t i : selectedNodes) {
         uns8 byteIndex = i / 8;
@@ -2129,12 +2129,14 @@ namespace iqrf {
             }
 
             // remove not responded nodes
-            removeNotRespondedNewNodes(autonetworkResult, notRespondedNewNodes);
+            if (!notRespondedNewNodes.empty()) {
+              removeNotRespondedNewNodes(autonetworkResult, notRespondedNewNodes);
 
-            // return not responded nodes into free nodes available for bond
-            setFreeNodes(bondedNodes, notRespondedNewNodes);
+              // return not responded nodes into free nodes available for bond
+              setFreeNodes(bondedNodes, notRespondedNewNodes);
 
-            notRespondedNewNodes.clear();
+              notRespondedNewNodes.clear();
+            }
           }
 
           // no new nodes - go to next iteration
