@@ -14,7 +14,18 @@ https://gitlab.iqrfsdk.org/profile/keys
 CMAKE & SSL & MQTT & CURL
 =========================
 
-sudo apt-get install cmake libssl-dev zlib1g-dev libcurl4-openssl-dev libcpaho-mqtt-dev
+sudo apt-get install dirmngr apt-transport-https \
+&& sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
+&& echo "deb https://repos.iqrf.org/testing/debian stretch testing" | sudo tee -a /etc/apt/sources.list \
+&& sudo apt-get update \
+&& sudo apt-get install cmake libssl-dev zlib1g-dev libcurl4-openssl-dev libcpaho-mqtt-dev
+
+FOLDERS STRUCTURE
+=================
+
+iqrf-gw-daemon/shape
+iqrf-gw-daemon/shapeware
+iqrf-gw-daemon/iqrftech/iqrf-daemon
 
 SHAPE loader
 ============
@@ -30,7 +41,8 @@ mkdir iqrf-gw-daemon \
 SHAPEWARE modules
 =================
 
-git clone https://github.com/logimic/shapeware.git \
+cd .. \
+&& git clone https://github.com/logimic/shapeware.git \
 && cd shapeware \
 && git submodule init \
 && git submodule update \
@@ -39,7 +51,8 @@ git clone https://github.com/logimic/shapeware.git \
 IQRF GW daemon
 ==============
 
-mkdir iqrftech \
+cd .. \
+&& mkdir iqrftech \
 && cd iqrftech \
 && git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git \
 && cd iqrf-daemon \
