@@ -349,11 +349,11 @@ namespace iqrf {
         std::map<int, std::map<int, std::vector<std::pair<int, int>>>> drivers;
 
         drivers = getDrivers(osSel, dpaSel);
-        
+
         if (drivers.size() == 0) {
           TRC_WARNING("Cannot get drivers");
         }
-          
+
         // analyze and selected drivers
         std::string str2load; // agregated scripts
         std::ostringstream osel;
@@ -379,7 +379,7 @@ namespace iqrf {
                 for (auto & hwpidPair : drvVer.second) {
                   os <<
                     "      " << std::hex << std::uppercase << std::setw(4) << hwpidPair.first << '.' <<
-                      std::hex << std::uppercase << std::setw(2) << hwpidPair.second << std::endl;
+                    std::hex << std::uppercase << std::setw(2) << hwpidPair.second << std::endl;
                 }
                 os << std::dec;
               }
@@ -667,7 +667,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    ServerState getCacheServer()
+    ServerState getCacheServer(const std::string & dataFile = "data.json")
     {
       TRC_FUNCTION_ENTER("");
 
@@ -676,7 +676,7 @@ namespace iqrf {
 
       ServerState retval;
 
-      std::string fname = getDataLocalFileName(SERVER_URL);
+      std::string fname = getDataLocalFileName(SERVER_URL, dataFile);
 
       if (filesystem::exists(fname)) {
         Document doc;
@@ -699,12 +699,15 @@ namespace iqrf {
           POINTER_GET_STRING(SERVER_URL, &doc, "/databaseChangeDateTime", retval.m_databaseChangeDateTime, fname);
         }
         else {
-          THROW_EXC(std::logic_error, "parse error file " << PAR(fname));
+          THROW_EXC(std::logic_error, "parse error file: " << PAR(fname));
         }
       }
+      else {
+        THROW_EXC(std::logic_error, "cannot find file: " << PAR(fname));
+      }
 
-      TRC_FUNCTION_LEAVE("")
-        return retval;
+      TRC_FUNCTION_LEAVE("");
+      return retval;
     }
 
     void checkCache()
@@ -720,19 +723,10 @@ namespace iqrf {
 
       ServerState serverStateOld = getCacheServer();
 
-      std::string fname = getDataLocalFileName(SERVER_URL);
-      downloadData(SERVER_URL);
+      downloadData(SERVER_URL, "dataCheck.json");
 
-      if (m_upToDate) {
-        if (!filesystem::exists(fname)) {
-          TRC_WARNING("file not exist " << PAR(fname));
-          m_upToDate = false;
-        }
-        else {
-          m_serverState = getCacheServer();
-          m_upToDate = m_serverState.m_databaseChecksum == serverStateOld.m_databaseChecksum;
-        }
-      }
+      m_serverState = getCacheServer("dataCheck.json");
+      m_upToDate = m_serverState.m_databaseChecksum == serverStateOld.m_databaseChecksum;
 
       if (!m_upToDate) {
         TRC_INFORMATION("Iqrf Repo has been changed => reload");
@@ -883,30 +877,6 @@ namespace iqrf {
         } // for 3
       } // for 2
 
-      //// daemon wrapper workaround
-      //{
-      //  std::string fname = m_iLaunchService->getDataDir();
-      //  fname += "/javaScript/DaemonWrapper.js";
-      //  std::ifstream file(fname);
-      //  if (file.is_open()) {
-      //    std::ostringstream strStream;
-      //    strStream << file.rdbuf();
-      //    std::string dwString = strStream.str();
-
-      //    StdDriver dwStdDriver(0, "DaemonWrapper", 0, dwString, "", 0);
-
-      //    StdItem dwStdItem("DaemonWrapper");
-      //    dwStdItem.m_valid = true;
-      //    dwStdItem.m_drivers.insert(std::make_pair(0, dwStdDriver));
-
-      //    m_standardMap.insert(std::make_pair(1000, dwStdItem));
-
-      //  }
-      //  else {
-      //    THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
-      //  }
-      //}
-
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -1055,7 +1025,16 @@ namespace iqrf {
       std::string pathLoading = getDataLocalFileName(relativeUrl, fname);
       createPathFile(pathLoading);
 
-      std::string urlLoading = getDataAbsoluteUrl(relativeUrl);
+      std::string urlLoading;
+
+      //using repo undocumented feature for test
+      //if (relativeUrl == "server") {
+      //  urlLoading = getDataAbsoluteUrl("debug/httpstatus/503");
+      //}
+      //else {
+      //  urlLoading = getDataAbsoluteUrl(relativeUrl);
+      //}
+      urlLoading = getDataAbsoluteUrl(relativeUrl);
 
       TRC_DEBUG("Getting: " << PAR(urlLoading));
       //std::cout << "Getting: " << urlLoading << std::endl;
@@ -1174,7 +1153,7 @@ namespace iqrf {
       m_cacheDir = m_iLaunchService->getCacheDir() + "/" + m_iqrfRepoCache;
       TRC_DEBUG("Using cache directory: " << PAR(m_cacheDir))
 
-      m_iSchedulerService->registerTaskHandler(m_name, [=](const rapidjson::Value & task)
+        m_iSchedulerService->registerTaskHandler(m_name, [=](const rapidjson::Value & task)
       {
         if (task.IsString() && std::string(task.GetString()) == CHECK_CACHE) {
           try {
