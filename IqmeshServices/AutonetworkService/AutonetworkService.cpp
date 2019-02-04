@@ -1091,7 +1091,7 @@ namespace iqrf {
     void setFRCSelectedNodes(uns8* pData, const std::vector<uint8_t>& selectedNodes)
     {
       // initialize to zero values
-      memset(pData, 0, 30 * sizeof(uns8));
+      memset(pData + 1, 0, 30 * sizeof(uns8));
 
       for (uint16_t i : selectedNodes) {
         uns8 byteIndex = i / 8;
@@ -1182,7 +1182,7 @@ namespace iqrf {
           // check status
           uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
           if ((status < 0xFD) ) {
-            TRC_INFORMATION("FRC FRC Prebonded Memory Read status ok." << NAME_PAR_HEX("Status", status));
+            TRC_INFORMATION("FRC Prebonded Memory Read status ok." << NAME_PAR_HEX("Status", (int)status));
             mids1.append(
               dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData,
               DPA_MAX_DATA_LENGTH - sizeof(uns8)
@@ -1190,12 +1190,12 @@ namespace iqrf {
             TRC_DEBUG("Size of FRC data: " << PAR(mids1.size()));
           }
           else {
-            TRC_WARNING("FRC FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX("Status", status));
+            TRC_WARNING("FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX("Status", (int)status));
 
             AutonetworkError error(AutonetworkError::Type::PrebondedMemoryRead, "Bad FRC status.");
             autonetworkResult.setError(error);
 
-            THROW_EXC(std::logic_error, "Bad FRC status: " << PAR(status));
+            THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
           }
         }
         else {
@@ -1665,6 +1665,19 @@ namespace iqrf {
       }
     }
 
+    // sets selected nodes to OS Selective Batch command
+    void setSelectedBatchNodes(uns8* pData, const std::vector<uint8_t>& selectedNodes)
+    {
+      // initialize to zero values
+      memset(pData, 0, 30 * sizeof(uns8));
+
+      for (uint16_t i : selectedNodes) {
+        uns8 byteIndex = i / 8;
+        uns8 bitIndex = i % 8;
+        pData[1 + byteIndex] |= (uns8)pow(2, bitIndex);
+      }
+    }
+
     // removes new nodes, which not responded to control FRC
     void removeNotRespondedNewNodes(
       AutonetworkResult& autonetworkResult, 
@@ -1684,7 +1697,7 @@ namespace iqrf {
       uns8* pData = removeBondAndRestartPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
 
       // selected nodes
-      setFRCSelectedNodes(pData, notRespondedNewNodes);
+      setSelectedBatchNodes(pData, notRespondedNewNodes);
 
       // remove bond at the node side
       pData[30] = 0x05;
