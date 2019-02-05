@@ -334,13 +334,13 @@ namespace iqrf {
     }
 
     // pings specified node using OS::Read command
-    void pingNode( BondResult& bondResult, const uint8_t nodeAddr )
+    void pingNode( BondResult& bondResult )
     {
       TRC_FUNCTION_ENTER( "" );
 
       DpaMessage readInfoRequest;
       DpaMessage::DpaPacket_t readInfoPacket;
-      readInfoPacket.DpaRequestPacket_t.NADR = nodeAddr;
+      readInfoPacket.DpaRequestPacket_t.NADR = bondResult.getBondedAddr();
       readInfoPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
       readInfoPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ;
       readInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
@@ -427,7 +427,7 @@ namespace iqrf {
     }
 
     // removes specified address from coordinator's list of bonded addresses
-    void removeBondedNode( BondResult& bondResult, const uint8_t nodeAddr )
+    void removeBondedNode( BondResult& bondResult )
     {
       TRC_FUNCTION_ENTER( "" );
 
@@ -439,7 +439,7 @@ namespace iqrf {
       removeBondPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       uns8* pData = removeBondPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
-      pData[0] = uns8(nodeAddr & 0xFF);
+      pData[0] = uns8(bondResult.getBondedAddr() & 0xFF);
 
       removeBondRequest.DataToBuffer( removeBondPacket.Buffer, sizeof( TDpaIFaceHeader ) + 1 );
 
@@ -764,11 +764,11 @@ namespace iqrf {
       std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
 
       // ping newly bonded node and stores its OS Read info into the result
-      pingNode( bondResult, nodeAddr );
+      pingNode( bondResult );
       if ( bondResult.getError().getType() != BondError::Type::NoError ) 
       {
         // if ping failed, remove bonded node from the coordinator's list
-        removeBondedNode(bondResult, nodeAddr);
+        removeBondedNode( bondResult );
 
         // and return Ping Failed error
         return bondResult;
