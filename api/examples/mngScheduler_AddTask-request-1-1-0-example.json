@@ -29,7 +29,7 @@
         ],
         "periodic": false,
         "period": 0,
-        "exactTime": true,
+        "exactTime": false,
         "startTime": ""
       },
       "persist":true
