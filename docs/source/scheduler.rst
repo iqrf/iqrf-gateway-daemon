@@ -128,8 +128,25 @@ v2.1.0
       }
   }
 
-If *exactTime* set it is one shot timer fired at StartTime. If *periodic* is set it starts ticking at *startTime*.
-If *exactTime* or *periodic* is set *cronTime* is not used.
+- cron time
+  - exactTime = false
+  - periodic = false
+  - cronTime valid
+
+- periodic time
+  - exactTime = false
+  - periodic = true
+  - period > 0
+  - if startTime valid > now => delayed start else now
+
+- one shot time
+  - exactTime = true
+  - periodic = false
+  - if startTime valid > now => delayed one shot time else ignored
+
+- N/A
+  - exactTime = true
+  - periodic = true
 
 API
 ---
