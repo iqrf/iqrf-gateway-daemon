@@ -129,22 +129,26 @@ v2.1.0
   }
 
 - cron time
+
   - exactTime = false
   - periodic = false
   - cronTime valid
 
 - periodic time
+
   - exactTime = false
   - periodic = true
   - period > 0
   - if startTime valid > now => delayed start else now
 
 - one shot time
+
   - exactTime = true
   - periodic = false
   - if startTime valid > now => delayed one shot time else ignored
 
 - N/A
+
   - exactTime = true
   - periodic = true
 
