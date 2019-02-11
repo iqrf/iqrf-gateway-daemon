@@ -178,7 +178,9 @@ namespace iqrf {
     uint8_t m_vrn;
     uint8_t m_zone;
     uint8_t m_parent;
+    uint16_t m_enumeratedNodeHwpIdVer;
     std::vector<uns8> m_osRead;
+    uint16_t m_osBuild;
     TEnumPeripheralsAnswer m_perEnum;
     TPerOSReadCfg_Response m_hwpConfig;
     std::vector<TPeripheralInfoAnswer> m_morePersInfo;
@@ -186,6 +188,8 @@ namespace iqrf {
     uint16_t m_nodeHwpId;
     std::string m_manufacturer = "";
     std::string m_product = "";
+
+    std::list<std::string> m_standards = { "" };
 
     // transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
@@ -273,6 +277,15 @@ namespace iqrf {
       m_product = product;
     }
 
+    // sets HwpId version of enumerated node
+    void setEnumeratedNodeHwpIdVer(const uint16_t hwpIdVer) {
+      m_enumeratedNodeHwpIdVer = hwpIdVer;
+    }
+
+    // returns HwpId version of enumerated node
+    uint16_t getEnumeratedNodeHwpIdVer() const {
+      return m_enumeratedNodeHwpIdVer;
+    }
 
     bool isDiscovered() const {
       return m_discovered;
@@ -315,6 +328,14 @@ namespace iqrf {
       m_osRead.insert(m_osRead.begin(), osRead, osRead + DPA_MAX_DATA_LENGTH);
     }
 
+    uint16_t getOsBuild() const {
+      return m_osBuild;
+    }
+
+    void setOsBuild(uint16_t osBuild) {
+      m_osBuild = osBuild;
+    }
+
     TEnumPeripheralsAnswer getPerEnum() const {
       return m_perEnum;
     }
@@ -340,6 +361,13 @@ namespace iqrf {
       m_morePersInfo = morePersInfo;
     }
 
+    std::list<std::string> getStandards() {
+      return m_standards;
+    }
+
+    void setStandards(std::list<std::string> standards) {
+      m_standards = standards;
+    }
 
     // adds transaction result into the list of results
     void addTransactionResult(std::unique_ptr<IDpaTransactionResult2>& transResult) {
@@ -375,7 +403,6 @@ namespace iqrf {
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
-
 
     // number of repeats
     uint8_t m_repeat;
@@ -604,6 +631,9 @@ namespace iqrf {
           uns8* osData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
           deviceEnumerateResult.setOsRead(osData);
 
+          TPerOSRead_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
+          deviceEnumerateResult.setOsBuild(resp.OsBuild);
+
           deviceEnumerateResult.setEnumeratedNodeHwpId(dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID);
 
           TRC_FUNCTION_LEAVE("");
@@ -693,6 +723,13 @@ namespace iqrf {
           // get peripheral enumeration
           TEnumPeripheralsAnswer perEnum = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
           deviceEnumerateResult.setPerEnum(perEnum);
+
+          // parsing response pdata
+          uns8* respData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+          uint8_t minorHwpIdVer = respData[9];
+          uint8_t majorHwpIdVer = respData[10];
+
+          deviceEnumerateResult.setEnumeratedNodeHwpIdVer(minorHwpIdVer + (majorHwpIdVer << 8));
 
           TRC_FUNCTION_LEAVE("");
           return;
@@ -1787,7 +1824,6 @@ namespace iqrf {
       }
     }
 
-
     void handleMsg(
       const std::string& messagingId,
       const IMessagingSplitterService::MsgType& msgType,
@@ -1882,6 +1918,34 @@ namespace iqrf {
       
       // AFTER OS READ - obtains hwpId, which in turn is needed to get manufacturer and product
       getManufacturerAndProduct(deviceEnumerateResult);
+
+      //uint8_t osVersion = ...Result.getOsRead()[4];
+      //std::string osVersionStr = std::to_string((osVersion >> 4) & 0xFF) + "." + std::to_string(osVersion & 0x0F);
+      std::string osBuildStr;
+      {
+        std::ostringstream os;
+        os.fill('0');
+        os << std::hex << std::uppercase << std::setw(4) << (int)deviceEnumerateResult.getOsBuild();
+        osBuildStr = os.str();
+      }
+
+      // fill standards
+      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
+        deviceEnumerateResult.getEnumeratedNodeHwpId(),
+        deviceEnumerateResult.getEnumeratedNodeHwpIdVer(),
+        osBuildStr, //TODO m_iIqrfDpaService->getCoordinatorParameters().osBuild ?
+        m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr
+      );
+      if (package != nullptr) {
+        std::list<std::string> standards;
+        for (const IJsCacheService::StdDriver* driver : package->m_stdDriverVect) {
+          standards.push_back(driver->getName());
+        }
+        deviceEnumerateResult.setStandards(standards);
+      }
+      else {
+        TRC_INFORMATION("Package not found");
+      }
 
       // peripheral enumeration
       peripheralEnumeration(deviceEnumerateResult);
