@@ -17,15 +17,21 @@
           }
         }
       },
-      "cronTime": [
-        "*/10",
-        "*",
-        "*",
-        "*",
-        "*",
-        "*",
-        "*"
-      ],
+      "timeSpec": {
+        "cronTime": [
+          "*/10",
+          "*",
+          "*",
+          "*",
+          "*",
+          "*",
+          "*"
+        ],
+        "periodic": false,
+        "period": 0,
+        "exactTime": true,
+        "startTime": ""
+      },
       "persist":true
     },
     "returnVerbose": true

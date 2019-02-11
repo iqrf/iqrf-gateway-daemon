@@ -33,16 +33,44 @@
                             "type": "object",
                             "description": "Scheduled task."
                         },
-                        "cronTime": {
-                            "type": "array",
-                            "minItems": 7,
-                            "maxItems": 7,
-                            "items": {
-                                "type": "string"
+                        "timeSpec": {
+                            "type": "object",
+                            "properties": {
+                                "cronTime": {
+                                    "type": "array",
+                                    "minItems": 7,
+                                    "maxItems": 7,
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "description": "7 items of cron syntax..."
+                                },
+                                "periodic": {
+                                    "type": "boolean",
+                                    "description": "Periodic timer with defined period."
+                                },
+                                "period": {
+                                    "type": "integer",
+                                    "description": "Period in miliseconds."
+                                },
+                                "exactTime": {
+                                    "type": "boolean",
+                                    "description": "One shot timer starting now or delayed ast startTime."
+                                },
+                                "startTime": {
+                                    "type": "string",
+                                    "description": "Delayed start in seconds in timestamp format '2018-01-03T16:00:09.859515'"
+                                }
                             },
-                            "description": "7 items of cron syntax..."
+                            "required": [
+                                "cronTime",
+                                "periodic",
+                                "period",
+                                "exactTime",
+                                "startTime"
+                            ]
                         },
-						"persist": { 
+                        "persist": { 
                             "type": "boolean",
                             "description": "Task will stay after daemon restart."
                         }
@@ -50,7 +78,7 @@
                     "required": [
                         "clientId",
                         "task",
-                        "cronTime"
+                        "timeSpec"
                     ]
                 },
                 "returnVerbose": {
