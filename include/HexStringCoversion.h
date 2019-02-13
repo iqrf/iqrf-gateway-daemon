@@ -81,8 +81,6 @@ namespace iqrf {
 
       time_t tt = mktime(tm1);
 
-      std::chrono::time_point<std::chrono::system_clock> retval = std::chrono::system_clock::now();
-
       if (tt >= 0) {
         retval = std::chrono::system_clock::from_time_t(tt);
       }

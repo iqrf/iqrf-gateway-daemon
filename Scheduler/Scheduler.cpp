@@ -226,6 +226,12 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
+  Scheduler::TaskHandle Scheduler::scheduleTask(const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist)
+  {
+    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, cronTime, persist));
+    return addScheduleRecord(s);
+  }
+
   Scheduler::TaskHandle Scheduler::scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist)
   {
     std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, cronTime, persist));
@@ -241,14 +247,8 @@ namespace iqrf {
   Scheduler::TaskHandle Scheduler::scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
     const std::chrono::system_clock::time_point& tp, bool persist)
   {
-    try {
-      std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, sec, tp, persist));
-      return addScheduleRecord(s);
-    }
-    catch (std::exception &e) {
-      CATCH_EXC_TRC_WAR(std::exception, e, "Cannot schedule task " << PAR(clientId));
-    }
-    return 0;
+    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, sec, tp, persist));
+    return addScheduleRecord(s);
   }
 
   int Scheduler::handleScheduledRecord(const ScheduleRecord& record)
@@ -406,7 +406,7 @@ namespace iqrf {
           }
           else {
             //expired one shot task - remove from m_scheduledTasksByHandle
-            m_scheduledTasksByHandle.erase(record->getTaskHandle());
+            removeScheduleRecordUnlocked(record);
           }
 
           nextWakeupAndUnlock(timePoint);
@@ -506,6 +506,13 @@ namespace iqrf {
     std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
     for (auto it = m_scheduledTasksByTime.begin(); it != m_scheduledTasksByTime.end(); ) {
       if (it->second->getClientId() == clientId) {
+        //remove persist file
+        if (it->second->isPersist()) {
+          std::ostringstream os;
+          os << m_cacheDir << '/' << it->second->getTaskHandle() << ".json";
+          std::string fname = os.str();
+          std::remove(fname.c_str());
+        }
         m_scheduledTasksByHandle.erase(it->second->getTaskHandle());
         it = m_scheduledTasksByTime.erase(it);
       }

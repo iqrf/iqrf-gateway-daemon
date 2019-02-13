@@ -2,7 +2,7 @@
     "taskId": 78963,
     "clientId": "TestSchedulerPersistPeriodic",
     "timeSpec": {
-        "cronTime": "",
+        "cronTime": [ "", "", "", "", "", "", "" ],
         "exactTime": false,
         "periodic": true,
         "period": 2000,

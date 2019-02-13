@@ -23,6 +23,7 @@
 #include <functional>
 #include <vector>
 #include <chrono>
+#include <array>
 
 #ifdef ISchedulerService_EXPORTS
 #define ISchedulerService_DECLSPEC SHAPE_ABI_EXPORT
@@ -85,6 +86,8 @@ namespace iqrf {
     // if exists and is persist return true
     virtual bool isPersist(const std::string& clientId, const TaskHandle& hndl) const = 0;
 
+    typedef std::array<std::string, 7> CronType;
+    virtual TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist = false) = 0;
     virtual TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist = false) = 0;
 
     /// \brief Schedule task at time point

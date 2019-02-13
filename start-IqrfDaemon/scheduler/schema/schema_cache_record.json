@@ -14,9 +14,13 @@
             "type": "object",
             "properties": {
                 "cronTime": {
-                    "type": "string",
-                    "description": "Cron like string.",
-                    "default": "0 */1 * * * * *"
+                  "type": "array",
+                  "minItems": 7,
+                  "maxItems": 7,
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "7 items of cron syntax..."
                 },
                 "exactTime": {
                     "type": "boolean",

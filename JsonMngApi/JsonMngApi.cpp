@@ -164,19 +164,23 @@ namespace iqrf {
     SchedAddTaskMsg(const rapidjson::Document& doc)
       :MngMsg(doc)
     {
-      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
-      
-      std::ostringstream os;
-      os <<
-        rapidjson::Pointer("/data/req/cronTime/0").Get(doc)->GetString() << ' ' <<
-        rapidjson::Pointer("/data/req/cronTime/1").Get(doc)->GetString() << ' ' <<
-        rapidjson::Pointer("/data/req/cronTime/2").Get(doc)->GetString() << ' ' <<
-        rapidjson::Pointer("/data/req/cronTime/3").Get(doc)->GetString() << ' ' <<
-        rapidjson::Pointer("/data/req/cronTime/4").Get(doc)->GetString() << ' ' <<
-        rapidjson::Pointer("/data/req/cronTime/5").Get(doc)->GetString() << ' ' <<
-        rapidjson::Pointer("/data/req/cronTime/6").Get(doc)->GetString();
+      using namespace rapidjson;
 
-      m_cronTime = os.str();
+      m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
+      
+      const Value* cron = Pointer("/data/req/timeSpec/cronTime").Get(doc);
+      auto it = cron->Begin();
+      for (int i = 0; i < 7; i++) {
+        m_cron[i] = it->GetString();
+        it++;
+      }
+
+      m_periodic = Pointer("/data/req/timeSpec/periodic").Get(doc)->GetBool();
+      m_period = Pointer("/data/req/timeSpec/period").Get(doc)->GetInt();
+      m_exactTime = Pointer("/data/req/timeSpec/exactTime").Get(doc)->GetBool();
+
+      const Value *tpVal = Pointer("/data/req/timeSpec/startTime").Get(doc);
+      m_startTime = parseTimestamp(tpVal->GetString());
 
       const Value *taskVal = Pointer("/data/req/task").Get(doc);
       if (taskVal && taskVal->IsObject()) {
@@ -186,11 +190,7 @@ namespace iqrf {
         TRC_WARNING("Expected object: /data/req/task")
       }
 
-      const Value *persistVal = Pointer("/data/req/persist").Get(doc);
-      if (persistVal && persistVal->IsBool()) {
-        m_persist = persistVal->GetBool();
-      }
-
+      m_persist = Pointer("/data/req/persist").Get(doc)->GetBool();
     }
 
     virtual ~SchedAddTaskMsg()
@@ -202,83 +202,14 @@ namespace iqrf {
       return m_clientId;
     }
 
-    const std::string& getCronTime() const
+    const ISchedulerService::CronType& getCron() const
     {
-      return m_cronTime;
+      return m_cron;
     }
 
-    const rapidjson::Document& getTask() const
+    bool isPeriodic() const
     {
-      return m_task;
-    }
-
-    int64_t getTaskId() const
-    {
-      return m_taskId;
-    }
-
-    void setTaskId(int64_t taskId)
-    {
-      m_taskId = taskId;
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      Pointer("/data/rsp/clientId").Set(doc, m_clientId);
-      Pointer("/data/rsp/taskId").Set(doc, m_taskId);
-      MngMsg::createResponsePayload(doc);
-    }
-
-    bool getPersist() const { return m_persist; }
-
-  private:
-    std::string m_clientId;
-    std::string m_cronTime;
-    rapidjson::Document m_task;
-    int64_t m_taskId;
-    bool m_persist = false;
-  };
-
-  class SchedPeriodicTaskMsg : public MngMsg
-  {
-  public:
-    SchedPeriodicTaskMsg() = delete;
-    SchedPeriodicTaskMsg(const rapidjson::Document& doc)
-      :MngMsg(doc)
-    {
-      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
-      m_period = rapidjson::Pointer("/data/req/timePeriod").Get(doc)->GetInt();
-
-      const Value *tpVal = Pointer("/data/req/timePoint").Get(doc);
-      if (tpVal && tpVal->IsString()) {
-        m_point = parseTimestamp(tpVal->GetString());
-      }
-      else {
-        TRC_WARNING("Expected string: /data/req/timePoint")
-      }
-
-      const Value *taskVal = Pointer("/data/req/task").Get(doc);
-      if (taskVal && taskVal->IsObject()) {
-        m_task.CopyFrom(*taskVal, m_task.GetAllocator());
-      }
-      else {
-        TRC_WARNING("Expected object: /data/req/task")
-      }
-
-      const Value *persistVal = Pointer("/data/req/persist").Get(doc);
-      if (persistVal && persistVal->IsBool()) {
-        m_persist = persistVal->GetBool();
-      }
-
-    }
-
-    virtual ~SchedPeriodicTaskMsg()
-    {
-    }
-
-    const std::string& getClientId() const
-    {
-      return m_clientId;
+      return m_periodic;
     }
 
     int getPeriod() const
@@ -286,9 +217,14 @@ namespace iqrf {
       return m_period;
     }
 
-    const std::chrono::system_clock::time_point& getPoint() const
+    bool isExactTime() const
     {
-      return m_point;
+      return m_exactTime;
+    }
+
+    const std::chrono::system_clock::time_point& getStartTime() const
+    {
+      return m_startTime;
     }
 
     const rapidjson::Document& getTask() const
@@ -317,10 +253,13 @@ namespace iqrf {
 
   private:
     std::string m_clientId;
-    int m_period;
-    std::chrono::system_clock::time_point m_point;
+    ISchedulerService::CronType m_cron;
+    bool m_periodic = false;
+    int m_period = 0;
+    bool m_exactTime = false;
+    std::chrono::system_clock::time_point m_startTime;
     rapidjson::Document m_task;
-    int64_t m_taskId;
+    int64_t m_taskId = 0;
     bool m_persist = false;
   };
 
@@ -584,25 +523,31 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       SchedAddTaskMsg msg(reqDoc);
-
-      int64_t taskId = m_iSchedulerService->scheduleTask(
-        msg.getClientId(), msg.getTask(), msg.getCronTime(), msg.getPersist() );
       
-      msg.setTaskId(taskId);
+      int64_t taskId = 0;
 
-      msg.createResponse(respDoc);
+      try {
+        if (msg.isPeriodic()) {
+          taskId = m_iSchedulerService->scheduleTaskPeriodic(
+            msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()), msg.getStartTime(), msg.getPersist());
+        }
+        else if (msg.isExactTime()) {
+          taskId = m_iSchedulerService->scheduleTaskAt(
+            msg.getClientId(), msg.getTask(), msg.getStartTime(), msg.getPersist());
+        }
+        else {
+          //cron
+          taskId = m_iSchedulerService->scheduleTask(
+            msg.getClientId(), msg.getTask(), msg.getCron(), msg.getPersist());
+        }
+      }
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Cannot schedule task " << NAME_PAR(msg.getClientId, msg.getClientId()));
+        std::ostringstream os;
+        os << "Cannot schedule task: " << e.what();
+        msg.setErr(os.str());
+      }
 
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    void handleMsg_mngScheduler_PeriodicTask(const rapidjson::Document& reqDoc, Document& respDoc)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      SchedPeriodicTaskMsg msg(reqDoc);
-
-      uint64_t taskId = m_iSchedulerService->scheduleTaskPeriodic(
-        msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()/1000), msg.getPoint(), msg.getPersist());
       msg.setTaskId(taskId);
 
       msg.createResponse(respDoc);
@@ -691,9 +636,6 @@ namespace iqrf {
       }
       else if (msgType.m_type == "mngScheduler_AddTask") {
         handleMsg_mngScheduler_AddTask(doc, respDoc);
-      }
-      else if (msgType.m_type == "mngScheduler_PeriodicTask") {
-        handleMsg_mngScheduler_PeriodicTask(doc, respDoc);
       }
       else if (msgType.m_type == "mngScheduler_GetTask") {
         handleMsg_mngScheduler_GetTask(doc, respDoc);

@@ -25,8 +25,7 @@
 
 #include <string>
 #include <chrono>
-#include <map>
-#include <memory>
+#include <array>
 
 namespace iqrf {
   /// \class SchedulerRecord
@@ -34,11 +33,32 @@ namespace iqrf {
   class ScheduleRecord {
   public:
     ScheduleRecord() = delete;
-    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist);
-    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
-      const std::chrono::system_clock::time_point& tp, bool persist);
+
+    //one shot
+    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& startTime, bool persist);
+    
+    //periodic
+    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& period,
+      const std::chrono::system_clock::time_point& startTime, bool persist);
+    
+    //cron
+    //These special time specification "nicknames" which replace initial time and date fields,
+    //and are prefixed with the '@' character, are supported :
+    //  @reboot : Run once after reboot.
+    //  @yearly : Run once a year, ie.  "0 0 0 0 1 1 *".
+    //  @annually : Run once a year, ie.  "0 0 0 0 1 1 *".
+    //  @monthly : Run once a month, ie. "0 0 0 0 1 * *".
+    //  @weekly : Run once a week, ie.  "0 0 0 * * * 0".
+    //  @daily : Run once a day, ie.   "0 0 0 * * * *".
+    //  @hourly : Run once an hour, ie. "0 0 * * * * *".
+    //  @minutely : Run once a minute, ie. "0 * * * * * *".
+    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const ISchedulerService::CronType& cronTime, bool persist);
     ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist);
+    
+    //from persist file
     ScheduleRecord(const rapidjson::Value& rec);
+    
+    //copy
     ScheduleRecord(const ScheduleRecord& other);
 
     ISchedulerService::TaskHandle getTaskHandle() const { return m_taskHandle; }
@@ -57,27 +77,12 @@ namespace iqrf {
     rapidjson::Value serialize(rapidjson::Document::AllocatorType& a) const;
 
   private:
-    void parseCron(const std::string& cronTime);
-
-    void init(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime);
-
-    //These special time specification "nicknames" which replace the 5 initial time and date fields,
-    //and are prefixed with the '@' character, are supported :
-    //  @reboot : Run once after reboot.
-    //  @yearly : Run once a year, ie.  "0 0 0 0 1 1 *".
-    //  @annually : Run once a year, ie.  "0 0 0 0 1 1 *".
-    //  @monthly : Run once a month, ie. "0 0 0 0 1 * *".
-    //  @weekly : Run once a week, ie.  "0 0 0 * * * 0".
-    //  @daily : Run once a day, ie.   "0 0 0 * * * *".
-    //  @hourly : Run once an hour, ie. "0 0 * * * * *".
-    //  @minutely : Run once a minute, ie. "0 * * * * * *".
-    std::string solveNickname(const std::string& timeSpec);
-
+    void parseCron();
     //Change handle it if duplicit detected by Scheduler
     void shuffleHandle(); //change handle it if duplicit exists
     //The only method can do it
     friend void shuffleDuplicitHandle(ScheduleRecord& rec);
-    void init();
+    void init(const rapidjson::Value & task);
     int parseItem(const std::string& item, int mnm, int mxm, std::vector<int>& vec, int offset = 0);
     void setTimeSpec();
     void parseTimeSpec(const rapidjson::Value &v);
@@ -102,10 +107,8 @@ namespace iqrf {
     std::chrono::seconds m_period = std::chrono::seconds(0);
     std::chrono::system_clock::time_point m_startTime;
     bool m_persist = false;
-
     ISchedulerService::TaskHandle m_taskHandle;
-
-    std::string m_cronTime;
     rapidjson::Document m_timeSpec;
+    ISchedulerService::CronType m_cron;
   };
 }

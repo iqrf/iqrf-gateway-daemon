@@ -221,13 +221,24 @@ namespace iqrf {
       ASSERT_NE(nullptr, period);
       ASSERT_NE(nullptr, startTime);
 
-      ASSERT_TRUE(cronTime->IsString());
+      ASSERT_TRUE(cronTime->IsArray());
       ASSERT_TRUE(exactTime->IsBool());
       ASSERT_TRUE(periodic->IsBool());
       ASSERT_TRUE(period->IsInt());
       ASSERT_TRUE(startTime->IsString());
 
-      EXPECT_EQ(cronTimeStr, cronTime->GetString());
+      std::ostringstream os;
+      os <<
+        Pointer("/cronTime/0").Get(*timeSpec)->GetString() << ' ' <<
+        Pointer("/cronTime/1").Get(*timeSpec)->GetString() << ' ' <<
+        Pointer("/cronTime/2").Get(*timeSpec)->GetString() << ' ' <<
+        Pointer("/cronTime/3").Get(*timeSpec)->GetString() << ' ' <<
+        Pointer("/cronTime/4").Get(*timeSpec)->GetString() << ' ' <<
+        Pointer("/cronTime/5").Get(*timeSpec)->GetString() << ' ' <<
+        Pointer("/cronTime/6").Get(*timeSpec)->GetString();
+
+      //EXPECT_EQ(cronTimeStr, cronTime->GetString());
+      EXPECT_EQ(cronTimeStr, os.str());
       EXPECT_EQ(exactTimeB, exactTime->GetBool());
       EXPECT_EQ(periodicB, periodic->GetBool());
       EXPECT_EQ(periodI, period->GetInt());
@@ -290,7 +301,7 @@ namespace iqrf {
     const std::string MSG_ID2 = "a726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
     const std::string MSG_ID3 = "f726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
 
-    //verify empty result as we haven't any tasks yet
+    //verify result
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID_PERSIST);
     ASSERT_EQ(2, taskHandleVect.size());
 
@@ -331,7 +342,7 @@ namespace iqrf {
     const int TID3 = 78963;
     const std::string MSG_ID3 = "f726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
 
-    //verify empty result as we haven't any tasks yet
+    //verify result
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID_PERSIST_PERIODIC);
     ASSERT_EQ(1, taskHandleVect.size());
 
@@ -353,7 +364,7 @@ namespace iqrf {
     Document doc1;
     Pointer("/item").Set(doc1, VAL1);
 
-    //schedule two tasks by cron time
+    //schedule task by cron time
     ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTask(CLIENT_ID, doc1, CRON1, true);
 
     //expected one handler
@@ -390,6 +401,62 @@ namespace iqrf {
     ASSERT_TRUE(val2->IsInt());
     EXPECT_EQ(VAL1, val2->GetInt());
     
+    ifs.close();
+
+    //remove tasks
+    m_iSchedulerService->removeTask(CLIENT_ID, th1);
+
+    //verify remove file
+    ifs1.open(fname);
+    ASSERT_FALSE(ifs1.good());
+    ifs1.close();
+  }
+
+  TEST_F(SchedulerTesting, addTaskAtPersist)
+  {
+    
+    using namespace rapidjson;
+    using namespace chrono;
+
+    Document doc1;
+    Pointer("/item").Set(doc1, VAL1);
+
+    //prepare expiration time
+    system_clock::time_point tp = system_clock::now();
+    tp += milliseconds(10000); //expire in 10 sec
+    string tpStr = encodeTimestamp(tp);
+
+    //schedule
+    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(CLIENT_ID, doc1, tp, true);
+    const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
+
+    //verify returned task1
+    const rapidjson::Value *val1 = Pointer("/item").Get(*task1);
+    ASSERT_NE(nullptr, val1);
+    ASSERT_TRUE(val1->IsInt());
+    EXPECT_EQ(VAL1, val1->GetInt());
+
+    //verify returned task1 timeSpec
+    const rapidjson::Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, th1);
+    SchedulerTesting::checkTimeSpec(timeSpec, "      ", true, false, 0, tpStr); //expiration time as str in tpStr
+
+    //verify created persistent file
+    std::ostringstream os;
+    os << "scheduler/" << th1 << ".json";
+    std::string fname = os.str();
+
+    std::ifstream ifs(fname), ifs1;
+    ASSERT_TRUE(ifs.is_open());
+
+    //verify file written correctly
+    Document d;
+    IStreamWrapper isw(ifs);
+    d.ParseStream(isw);
+    const rapidjson::Value *val2 = Pointer("/task/item").Get(d);
+    ASSERT_NE(nullptr, val2);
+    ASSERT_TRUE(val2->IsInt());
+    EXPECT_EQ(VAL1, val2->GetInt());
+
     ifs.close();
 
     //remove tasks
@@ -472,7 +539,7 @@ namespace iqrf {
 
     //verify returned task1 timeSpec
     const rapidjson::Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, th1);
-    SchedulerTesting::checkTimeSpec(timeSpec, "", true, false, 0, tpStr); //expiration time as str in tpStr
+    SchedulerTesting::checkTimeSpec(timeSpec, "      ", true, false, 0, tpStr); //expiration time as str in tpStr
 
     //remove tasks by id
     m_iSchedulerService->removeAllMyTasks(CLIENT_ID);
@@ -507,8 +574,7 @@ namespace iqrf {
 
     //verify returned task1 timeSpec
     const rapidjson::Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, th1);
-    SchedulerTesting::checkTimeSpec(timeSpec, "", false, true, PERIOD1 * 1000, tpStr);
-
+    SchedulerTesting::checkTimeSpec(timeSpec, "      ", false, true, PERIOD1 * 1000, tpStr);
 
     //remove tasks by id, hndl
     m_iSchedulerService->removeTask(CLIENT_ID, th1);
