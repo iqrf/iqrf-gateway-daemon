@@ -1705,6 +1705,22 @@ namespace iqrf {
         ) {
         Pointer("/data/rsp/manufacturer").Set(response, deviceEnumResult.getManufacturer());
         Pointer("/data/rsp/product").Set(response, deviceEnumResult.getProduct());
+
+        // Enum was correct - to get HWP ID ver
+        if (
+        deviceEnumResult.getPerEnumError().getType() == DeviceEnumerateError::Type::NoError
+        ) {
+          // standards - array of strings
+          rapidjson::Value standardsJsonArray(kArrayType);
+          Document::AllocatorType &allocator = response.GetAllocator();
+          for (std::string standard : deviceEnumResult.getStandards())
+          {
+            rapidjson::Value standardJsonString;
+            standardJsonString.SetString(standard.c_str(), standard.length(), allocator);
+            standardsJsonArray.PushBack(standardJsonString, allocator);
+          }
+          Pointer("/data/rsp/standards").Set(response, standardsJsonArray);
+        }
       }
 
       bool isError = false;
