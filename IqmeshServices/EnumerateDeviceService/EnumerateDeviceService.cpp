@@ -1935,6 +1935,9 @@ namespace iqrf {
       // AFTER OS READ - obtains hwpId, which in turn is needed to get manufacturer and product
       getManufacturerAndProduct(deviceEnumerateResult);
 
+      // peripheral enumeration
+      peripheralEnumeration(deviceEnumerateResult);
+
       //uint8_t osVersion = ...Result.getOsRead()[4];
       //std::string osVersionStr = std::to_string((osVersion >> 4) & 0xFF) + "." + std::to_string(osVersion & 0x0F);
       std::string osBuildStr;
@@ -1962,9 +1965,6 @@ namespace iqrf {
       else {
         TRC_INFORMATION("Package not found");
       }
-
-      // peripheral enumeration
-      peripheralEnumeration(deviceEnumerateResult);
 
       // read Hwp configuration
       readHwpConfiguration(deviceEnumerateResult);
