@@ -190,7 +190,10 @@ namespace iqrf {
         TRC_WARNING("Expected object: /data/req/task")
       }
 
-      m_persist = Pointer("/data/req/persist").Get(doc)->GetBool();
+      const Value* persistVal = Pointer("/data/req/persist").Get(doc);
+      if (persistVal && persistVal->IsBool()) {
+        m_persist = persistVal->GetBool();
+      }
     }
 
     virtual ~SchedAddTaskMsg()
