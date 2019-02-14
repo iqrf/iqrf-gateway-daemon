@@ -5,7 +5,7 @@
         "cronTime": [ "", "", "", "", "", "", "" ],
         "exactTime": false,
         "periodic": true,
-        "period": 2000,
+        "period": 2,
         "startTime": ""
     },
     "task": {

@@ -170,7 +170,7 @@ namespace iqrf {
 
     m_exactTime = Pointer("/exactTime").Get(m_timeSpec)->GetBool();
     m_periodic = Pointer("/periodic").Get(m_timeSpec)->GetBool();
-    m_period = std::chrono::seconds(Pointer("/period").Get(m_timeSpec)->GetInt() / 1000);
+    m_period = std::chrono::seconds(Pointer("/period").Get(m_timeSpec)->GetInt());
     m_startTime = parseTimestamp(Pointer("/startTime").Get(m_timeSpec)->GetString());
   }
 
