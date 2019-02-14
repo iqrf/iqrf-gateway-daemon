@@ -650,6 +650,7 @@ namespace iqrf {
         handleMsg_mngScheduler_List(doc, respDoc);
       }
       else {
+        THROW_EXC_TRC_WAR(std::logic_error, "unknown type: " << msgType.m_type)
         //TODO not support
       }
 
