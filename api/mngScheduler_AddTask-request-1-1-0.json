@@ -43,7 +43,7 @@
                                     "items": {
                                         "type": "string"
                                     },
-                                    "description": "7 items of cron syntax..."
+                                    "description": "7 items of cron-like syntax. All required."
                                 },
                                 "periodic": {
                                     "type": "boolean",
