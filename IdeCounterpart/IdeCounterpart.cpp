@@ -68,6 +68,7 @@ namespace iqrf {
 
     m_messaging->registerMessageHandler([&](const std::string& messagingId, const std::vector<uint8_t>& msg)
     {
+      (void)messagingId;  //silence -Wunused-parameter
       return handleMessageFromUdp(msg);
     });
 
@@ -94,6 +95,7 @@ namespace iqrf {
 
   void IdeCounterpart::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void IdeCounterpart::attachInterface(shape::ITraceService* iface)
@@ -259,7 +261,7 @@ namespace iqrf {
 
     std::basic_string<uint8_t> udpMessage(msg.data(), msg.size());
 
-    size_t msgSize = udpMessage.size();
+    //size_t msgSize = udpMessage.size();
     std::basic_string<unsigned char> message;
 
     try {
@@ -366,7 +368,7 @@ namespace iqrf {
     dlen = (udpMessage[dlen_H] << 8) + udpMessage[dlen_L];
 
     // Max. packet length check
-    if ((dlen + IQRF_UDP_HEADER_SIZE + IQRF_UDP_CRC_SIZE) > IQRF_UDP_BUFFER_SIZE)
+    if (static_cast<unsigned>((dlen + IQRF_UDP_HEADER_SIZE + IQRF_UDP_CRC_SIZE)) > IQRF_UDP_BUFFER_SIZE)
       THROW_EXC_TRC_WAR(std::logic_error, "Message is too long: " << PAR(dlen));
 
     // CRC check
