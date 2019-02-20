@@ -52,6 +52,8 @@ namespace iqrf {
 
   void Scheduler::activate(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
+
     TRC_FUNCTION_ENTER("");
     TRC_INFORMATION(std::endl <<
       "******************************" << std::endl <<
@@ -392,7 +394,7 @@ namespace iqrf {
 
         auto begin = m_scheduledTasksByTime.begin();
         std::shared_ptr<ScheduleRecord> record = begin->second;
-        auto diff = begin->first.time_since_epoch().count() - timePoint.time_since_epoch().count();
+        //auto diff = begin->first.time_since_epoch().count() - timePoint.time_since_epoch().count();
 
         if (begin->first < timePoint) {
 
@@ -473,7 +475,7 @@ namespace iqrf {
     auto found = m_scheduledTasksByHandle.find(hndl);
     if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId()) {
       retval = &found->second->getTask();
-      const rapidjson::Value& vvv = found->second->getTask();
+      //const rapidjson::Value& vvv = found->second->getTask();
     }
     return retval;
   }

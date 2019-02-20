@@ -63,8 +63,8 @@ namespace iqrf {
   //one shot
   ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task,
     const std::chrono::system_clock::time_point& startTime, bool persist)
-    : m_exactTime(true)
-    , m_clientId(clientId)
+    : m_clientId(clientId)
+    , m_exactTime(true)
     , m_startTime(startTime)
     , m_persist(persist)
   {
