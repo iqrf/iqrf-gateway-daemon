@@ -28,9 +28,9 @@ Install:
 - `vcpkg install paho-mqtt:x64-windows`
 - `vcpkg install boost-filesystem:x64-windows`
 - `vcpkg install curl:x64-windows`
-- [shape](https://github.com/logimic/shape) (basic components launcher, logging, ...) start `build64_2017.bat` (change MSVC version to your MSVC)
-- [shapeware](https://github.com/logimic/shapeware) (additional components websockets, ...) start `build64_2017.bat` (change MSVC version to your MSVC)
-- from this director  start one of `build64_2017.bat` (change MSVC version to your MSVC)
+- [shape](https://github.com/logimic/shape) (basic components launcher, logging, ...) start `build64_2017.bat` (change MSVC2017 version to your MSVC if necessary)
+- [shapeware](https://github.com/logimic/shapeware) (additional components websockets, ...) start `build64_2017.bat` (change MSVC2017 version to your MSVC if necessary)
+- from this directory  start one of `build64_2017.bat` (change MSVC2017 version to your MSVC if necessary)
 
 # Lin developement instalation
 
@@ -41,10 +41,10 @@ Install:
   - paho
 - [shape](https://github.com/logimic/shape) (basic components launcher, logging, ...) start `buildMake.sh`
 - [shapeware](https://github.com/logimic/shapeware) (additional components websockets, ...) start `buildMake.sh`
-- from this director  start one of `buildMake.sh`
+- from this director  start one of `buildMake.sh` or `buildEclipse.sh`
 
 # Deploy structure
-Deploy directory can be specified in Shape build script `build*.bat` resp. `buildMake.sh` or is defaulted to `.../shape/deploy`. The directory is passed to dependent projects via cmake variable during configuration/generation phase.
+Deploy directory can be specified in Shape build script `build*.bat` resp. `buildMake.sh` or is defaulted to `.../shape/deploy`. The directory is passed to dependent projects via cmake variables during configuration/generation phase.
 
 The deploy directory is created by cmake install by build script and it can be re-run by INSTALL target in MSVC, resp. `make install`
 

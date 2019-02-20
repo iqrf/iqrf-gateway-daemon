@@ -33,4 +33,4 @@ cmake -G "Eclipse CDT4 - Unix Makefiles" -DBUILD_TESTING:BOOL=true -Dshape_DIR:P
 popd
 
 #build from generated build environment
-cmake --build ${builddir}
+cmake --build ${builddir} --config Debug --target install
