@@ -28,7 +28,7 @@ namespace iqrf {
   private:
     RandomTaskHandleGenerator() {
       //init random seed:
-      srand(time(NULL));
+      srand(static_cast<unsigned int>(time(NULL)));
     }
   public:
     static ISchedulerService::TaskHandle getTaskHandle() {
@@ -176,9 +176,9 @@ namespace iqrf {
 
   const std::map<std::string, std::string> NICKNAMES = {
     {"@reboot", ""},
-    {"@yearly", "0 0 0 0 1 1 *" },
-    {"@annually", "0 0 0 0 1 1 *" },
-    {"@monthly", "0 0 0 0 1 * *" },
+    {"@yearly", "0 0 0 1 1 * *" },
+    {"@annually", "0 0 0 1 1 * *" },
+    {"@monthly", "0 0 0 1 * * *" },
     {"@weekly", "0 0 0 * * 0 *" },
     {"@daily", "0 0 0 * * * *" },
     {"@hourly", "0 0 * * * * *" },

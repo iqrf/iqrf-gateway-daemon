@@ -318,6 +318,7 @@ namespace iqrf {
       if (!res)
         return res;
 
+      return res;
     }
   };
 
@@ -362,6 +363,7 @@ namespace iqrf {
       Imp::get().m_iJsRenderService->call(functionName, par, ret);
     }
     catch (std::exception &e) {
+      (void)e; //cope unref var
       EXPECT_EQ("\"asdfgh\"", par);
     }
   }

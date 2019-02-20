@@ -80,7 +80,7 @@ namespace iqrf {
           }
 
           if (status.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM) {
-            int retval = spi_iqrf_write((void*)message.data(), message.size());
+            int retval = spi_iqrf_write((void*)message.data(), static_cast<unsigned int>(message.size()));
             if (BASE_TYPES_OPER_OK == retval) {
               m_accessControl.sniff(message); //send to sniffer if set
             }
@@ -256,10 +256,10 @@ namespace iqrf {
           addressAndData += (address >> 8) & 0xFF;
           addressAndData += data;
 
-          uploadRes = spi_iqrf_upload(targetInt, addressAndData.data(), addressAndData.size());
+          uploadRes = spi_iqrf_upload(targetInt, addressAndData.data(), static_cast<unsigned int>(addressAndData.size()));
         }
         else {
-          uploadRes = spi_iqrf_upload(targetInt, data.data(), data.size());
+          uploadRes = spi_iqrf_upload(targetInt, data.data(), static_cast<unsigned int>(data.size()));
         }
       }
 
@@ -474,7 +474,7 @@ namespace iqrf {
 
             if (status.isDataReady) {
 
-              if (status.dataReady > m_bufsize) {
+              if (status.dataReady > 0 && static_cast<unsigned>(status.dataReady) > m_bufsize) {
                 THROW_EXC_TRC_WAR(std::logic_error, "Received data too long: " << NAME_PAR(len, status.dataReady) << PAR(m_bufsize));
               }
 

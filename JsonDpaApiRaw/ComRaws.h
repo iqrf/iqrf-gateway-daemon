@@ -91,7 +91,7 @@ namespace iqrf {
       rapidjson::Value* req = rapidjson::Pointer("/data/req").Get(doc);
       if (req) {
         std::vector<int> rdata = jutils::getPossibleMemberAsVector<int>("pData", *req);
-        int sz = rdata.size() <= DPA_MAX_DATA_LENGTH ? rdata.size() : DPA_MAX_DATA_LENGTH;
+        int sz = rdata.size() <= DPA_MAX_DATA_LENGTH ? static_cast<int>(rdata.size()) : DPA_MAX_DATA_LENGTH;
         uint8_t* pdata = m_request.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData;
         for (int i = 0; i < sz; i++) {
           *(pdata + i) = (uint8_t)rdata[i];

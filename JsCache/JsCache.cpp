@@ -687,7 +687,7 @@ namespace iqrf {
           std::string buildDateTime;
           std::string startDateTime;
           std::string dateTime;
-          int64_t databaseChecksum;
+          //int64_t databaseChecksum;
           std::string databaseChangeDateTime;
           POINTER_GET_INT(SERVER_URL, &doc, "/apiVersion", retval.m_apiVersion, fname);
           POINTER_GET_STRING(SERVER_URL, &doc, "/hostname", retval.m_hostname, fname);
@@ -942,11 +942,11 @@ namespace iqrf {
             if (Value* standardArray = Pointer("/standards").Get(doc)) {
               if (standardArray->IsArray()) {
                 int standardId = -10;
-                int version = -1;
+                double version = -1;
                 for (auto itr = standardArray->Begin(); itr != standardArray->End(); ++itr) {
                   POINTER_GET_INT("", itr, "/standardID", standardId, fname);
                   POINTER_GET_DOUBLE("", itr, "/version", version, fname);
-                  const StdDriver* stdDrv = getStandard(standardId, version);
+                  const StdDriver* stdDrv = getStandard(standardId, static_cast<int>(version));
                   if (stdDrv) {
                     pck.second.m_stdDriverVect.push_back(stdDrv);
                   }
@@ -1170,7 +1170,7 @@ namespace iqrf {
       });
 
       if (m_checkPeriodInMinutes > 0) {
-        int checkPeriodInSeconds = m_checkPeriodInMinutes * 60;
+        int checkPeriodInSeconds = static_cast<int>(m_checkPeriodInMinutes * 60);
         Document task;
         task.SetString(CHECK_CACHE.c_str(), task.GetAllocator());
         auto tp = std::chrono::system_clock::now();

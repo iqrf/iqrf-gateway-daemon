@@ -314,7 +314,6 @@ namespace iqrf {
     void connect()
     {
       TRC_FUNCTION_ENTER("");
-      int retval;
 
       m_stopAutoConnect = false;
       m_connected = false;

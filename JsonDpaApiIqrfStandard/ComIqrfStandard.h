@@ -48,7 +48,7 @@ namespace iqrf {
     {
       if (!dpaVect.empty()) {
         std::copy(dpaVect.data(), dpaVect.data() + dpaVect.size(), m_request.DpaPacket().Buffer);
-        m_request.SetLength(dpaVect.size());
+        m_request.SetLength(static_cast<int>(dpaVect.size()));
       }
       else {
         THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format of data");

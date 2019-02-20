@@ -162,7 +162,7 @@ namespace iqrf {
         Pointer("/dpaval").Set(doc, rcodeStr);
 
         if (dpaResponse.size() > 8) {
-          Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, dpaResponse.size() - 8));
+          Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, static_cast<int>(dpaResponse.size()) - 8));
         }
 
         rawHdpResponse = JsonToStr(&doc);

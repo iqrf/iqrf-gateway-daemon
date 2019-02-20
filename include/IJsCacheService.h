@@ -75,7 +75,7 @@ namespace iqrf {
       const std::string& getDriver() const { return m_driver; }
       const std::string& getNotes() const { return m_notes; }
       int getVersionFlags() const { return m_versionFlags; }
-      int getVersion() const { return m_version; }
+      int getVersion() const { return static_cast<int>(m_version); }
       int getId() const { return m_id; }
     private:
       bool m_valid = false;
