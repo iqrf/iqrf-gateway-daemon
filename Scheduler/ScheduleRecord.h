@@ -48,7 +48,7 @@ namespace iqrf {
     //  @yearly : Run once a year, ie.  "0 0 0 0 1 1 *".
     //  @annually : Run once a year, ie.  "0 0 0 0 1 1 *".
     //  @monthly : Run once a month, ie. "0 0 0 0 1 * *".
-    //  @weekly : Run once a week, ie.  "0 0 0 * * * 0".
+    //  @weekly : Run once a week, ie.  "0 0 0 * * 0 *".
     //  @daily : Run once a day, ie.   "0 0 0 * * * *".
     //  @hourly : Run once an hour, ie. "0 0 * * * * *".
     //  @minutely : Run once a minute, ie. "0 * * * * * *".
@@ -97,8 +97,8 @@ namespace iqrf {
     std::vector<int> m_vhour;
     std::vector<int> m_vmday;
     std::vector<int> m_vmon;
-    std::vector<int> m_vyear;
     std::vector<int> m_vwday;
+    std::vector<int> m_vyear;
 
     //explicit timing
     bool m_exactTime = false;

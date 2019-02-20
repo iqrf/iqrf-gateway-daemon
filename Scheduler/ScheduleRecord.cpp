@@ -123,8 +123,8 @@ namespace iqrf {
     m_vhour = other.m_vhour;
     m_vmday = other.m_vmday;
     m_vmon = other.m_vmon;
-    m_vyear = other.m_vyear;
     m_vwday = other.m_vwday;
+    m_vyear = other.m_vyear;
 
     m_exactTime = other.m_exactTime;
     m_periodic = other.m_periodic;
@@ -179,7 +179,7 @@ namespace iqrf {
     {"@yearly", "0 0 0 0 1 1 *" },
     {"@annually", "0 0 0 0 1 1 *" },
     {"@monthly", "0 0 0 0 1 * *" },
-    {"@weekly", "0 0 0 * * * 0" },
+    {"@weekly", "0 0 0 * * 0 *" },
     {"@daily", "0 0 0 * * * *" },
     {"@hourly", "0 0 * * * * *" },
     {"@minutely", "0 * * * * * *" }
@@ -219,8 +219,8 @@ namespace iqrf {
         parseItem(tempCron[2], 0, 23, m_vhour);
         parseItem(tempCron[3], 1, 31, m_vmday);
         parseItem(tempCron[4], 1, 12, m_vmon, -1);
-        parseItem(tempCron[5], 0, 9000, m_vyear); //TODO maximum?
-        parseItem(tempCron[6], 0, 6, m_vwday);
+        parseItem(tempCron[5], 0, 6, m_vwday);
+        parseItem(tempCron[6], 0, 9999, m_vyear);
       }
     }
   }
@@ -358,8 +358,8 @@ namespace iqrf {
       if (!verifyTimePattern(actualTime.tm_hour, m_vhour)) return false;
       if (!verifyTimePattern(actualTime.tm_mday, m_vmday)) return false;
       if (!verifyTimePattern(actualTime.tm_mon, m_vmon)) return false;
-      if (!verifyTimePattern(actualTime.tm_year, m_vyear)) return false;
       if (!verifyTimePattern(actualTime.tm_wday, m_vwday)) return false;
+      if (!verifyTimePattern(actualTime.tm_year, m_vyear)) return false;
     }
     return true;
   }
