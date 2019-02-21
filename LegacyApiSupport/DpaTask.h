@@ -36,7 +36,10 @@ public:
   void handleResponse(const DpaMessage& response);
 
   virtual void parseResponse(const DpaMessage& response) = 0;
-  virtual std::string encodeResponse(const std::string& errStr) { return std::string(); }
+  virtual std::string encodeResponse(const std::string& errStr) { 
+    (void)errStr; //silence -Wunused-parameter
+    return std::string();
+  }
   virtual std::string encodeRequest() const { return std::string(); }
 
   virtual void parseCommand(const std::string& command) = 0;

@@ -306,7 +306,6 @@ void MqChannel::sendTo(const std::basic_string<unsigned char>& message)
 
   unsigned long toWrite = static_cast<unsigned long>(message.size());
   unsigned long written = 0;
-  bool reconnect = false;
   bool fSuccess;
 
   connect(); //open write channel if not connected yet

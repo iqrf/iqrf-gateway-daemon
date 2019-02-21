@@ -314,7 +314,6 @@ namespace iqrf {
           validate(msgType, doc, m_validatorMapRequest, REQS);
         }
 
-        bool found = false;
         std::map<std::string, FilteredMessageHandlerFunc > bestFitMap;
         { //lock scope
           std::lock_guard<std::mutex> lck(m_filterMessageHandlerFuncMapMux);
