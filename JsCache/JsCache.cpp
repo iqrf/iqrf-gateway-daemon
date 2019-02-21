@@ -636,7 +636,6 @@ namespace iqrf {
       if (filesystem::exists(fname)) {
         Document doc;
         if (parseFromFile(fname, doc)) {
-          int osdpaId = -1;
           std::string os;
           std::string dpa;
           std::string notes;
@@ -681,14 +680,6 @@ namespace iqrf {
       if (filesystem::exists(fname)) {
         Document doc;
         if (parseFromFile(fname, doc)) {
-          int apiVersion = -1;
-          std::string hostname;
-          std::string user;
-          std::string buildDateTime;
-          std::string startDateTime;
-          std::string dateTime;
-          //int64_t databaseChecksum;
-          std::string databaseChangeDateTime;
           POINTER_GET_INT(SERVER_URL, &doc, "/apiVersion", retval.m_apiVersion, fname);
           POINTER_GET_STRING(SERVER_URL, &doc, "/hostname", retval.m_hostname, fname);
           POINTER_GET_STRING(SERVER_URL, &doc, "/user", retval.m_user, fname);
