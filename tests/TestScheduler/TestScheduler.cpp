@@ -279,7 +279,7 @@ namespace iqrf {
   {
     //verify empty result as we haven't any tasks yet
     std::vector<ISchedulerService::TaskHandle> taskHandleVect =  m_iSchedulerService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
+    EXPECT_EQ((size_t)0, taskHandleVect.size());
 
     //verify empty result as we pass wrong handler
     const rapidjson::Value *val = m_iSchedulerService->getMyTask(CLIENT_ID, 0);
@@ -303,7 +303,7 @@ namespace iqrf {
 
     //verify result
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID_PERSIST);
-    ASSERT_EQ(2, taskHandleVect.size());
+    ASSERT_EQ((size_t)2, taskHandleVect.size());
 
     ISchedulerService::TaskHandle th1 = taskHandleVect[0];
     ISchedulerService::TaskHandle th2 = taskHandleVect[1];
@@ -344,7 +344,7 @@ namespace iqrf {
 
     //verify result
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID_PERSIST_PERIODIC);
-    ASSERT_EQ(1, taskHandleVect.size());
+    ASSERT_EQ((size_t)1, taskHandleVect.size());
 
     ISchedulerService::TaskHandle th3 = taskHandleVect[0];
 
@@ -369,7 +369,7 @@ namespace iqrf {
 
     //expected one handler
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
-    ASSERT_EQ(1, taskHandleVect.size());
+    ASSERT_EQ((size_t)1, taskHandleVect.size());
     //tasks ordered according scheduled time so no exact ordering expected
     EXPECT_TRUE(th1 == taskHandleVect[0]);
 
@@ -482,7 +482,7 @@ namespace iqrf {
 
     //expected two handlers
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
-    ASSERT_EQ(2, taskHandleVect.size());
+    ASSERT_EQ((size_t)2, taskHandleVect.size());
     //tasks ordered according scheduled time so no exact ordering expected
     EXPECT_TRUE(th1 == taskHandleVect[0] || th1 == taskHandleVect[1]);
     EXPECT_TRUE(th2 == taskHandleVect[0] || th2 == taskHandleVect[1]);
@@ -511,7 +511,7 @@ namespace iqrf {
     
     //verify removal
     taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
+    EXPECT_EQ((size_t)0, taskHandleVect.size());
   }
 
   TEST_F(SchedulerTesting, scheduleTaskAt)
@@ -546,7 +546,7 @@ namespace iqrf {
     
     //verify removal
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
+    EXPECT_EQ((size_t)0, taskHandleVect.size());
   }
 
   TEST_F(SchedulerTesting, scheduleTaskPeriodic)
@@ -581,7 +581,7 @@ namespace iqrf {
 
     //verify removal
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
+    EXPECT_EQ((size_t)0, taskHandleVect.size());
   }
 
   TEST_F(SchedulerTesting, scheduleTaskHandler)
@@ -621,7 +621,7 @@ namespace iqrf {
 
     //verify removal
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
+    EXPECT_EQ((size_t)0, taskHandleVect.size());
   }
 
   TEST_F(SchedulerTesting, scheduleTaskAtHandler)
@@ -655,7 +655,7 @@ namespace iqrf {
 
     //shall be empty now
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
+    EXPECT_EQ((size_t)0, taskHandleVect.size());
   }
 
   TEST_F(SchedulerTesting, scheduleTaskPeriodicHandler)
@@ -703,7 +703,7 @@ namespace iqrf {
 
     //verify removal
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
-    EXPECT_EQ(0, taskHandleVect.size());
+    EXPECT_EQ((size_t)0, taskHandleVect.size());
   }
 
 

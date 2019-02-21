@@ -421,7 +421,7 @@ namespace iqrf {
 
     if (!HasNonfatalFailure()) {
       EXPECT_EQ(rawDataJson->IsArray(), true);
-      EXPECT_EQ(rawDataJson->Size(), 1);
+      EXPECT_EQ(rawDataJson->Size(), (unsigned)1);
 
       // parsing and checking raw object
       EXPECT_EQ((*rawDataJson)[0].IsObject(), true);
