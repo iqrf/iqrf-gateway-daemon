@@ -361,7 +361,6 @@ namespace iqrf {
       using namespace rapidjson;
 
       try {
-        m_cfg = { {0}, POWER_ENABLE_GPIO, BUS_ENABLE_GPIO, PGM_SWITCH_GPIO };
 
         Document d;
         d.CopyFrom(props->getAsJson(), d.GetAllocator());
@@ -379,10 +378,14 @@ namespace iqrf {
         if (sz > sizeof(m_cfg.spiDev)) sz = sizeof(m_cfg.spiDev);
         std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, m_cfg.spiDev);
 
+        m_cfg.powerEnableGpioPin = POWER_ENABLE_GPIO;
+        m_cfg.busEnableGpioPin = BUS_ENABLE_GPIO;
+        m_cfg.pgmSwitchGpioPin = PGM_SWITCH_GPIO;
+        m_cfg.trModuleReset = TR_MODULE_RESET_ENABLE;
+
         m_cfg.powerEnableGpioPin = (uint8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)m_cfg.powerEnableGpioPin).GetInt();
         m_cfg.busEnableGpioPin = (uint8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)m_cfg.busEnableGpioPin).GetInt();
         m_cfg.pgmSwitchGpioPin = (uint8_t)Pointer("/pgmSwitchGpioPin").GetWithDefault(d, (int)m_cfg.pgmSwitchGpioPin).GetInt();
-        m_cfg.trModuleReset = TR_MODULE_RESET_ENABLE;
         Value* v = Pointer("/spiReset").Get(d);
         if (v && v->IsBool())
           m_cfg.trModuleReset = v->GetBool() ? TR_MODULE_RESET_ENABLE : TR_MODULE_RESET_DISABLE;
