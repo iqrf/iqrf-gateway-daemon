@@ -418,7 +418,7 @@ namespace iqrf {
     void onSubscribeFailure(MQTTAsync_failureData* response) {
 
       MQTTAsync_token token = 0;
-      int code;
+      int code = 0;
       std::string message;
 
       if (response) {
