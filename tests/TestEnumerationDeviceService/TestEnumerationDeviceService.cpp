@@ -43,6 +43,7 @@ namespace iqrf {
 
     void activate(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -125,6 +126,7 @@ namespace iqrf {
 
   void TestEnumerationDeviceService::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void TestEnumerationDeviceService::attachInterface(iqrf::ITestSimulationIqrfChannel* iface)
@@ -398,8 +400,8 @@ namespace iqrf {
     EXPECT_NE(embPersJsonVal, nullptr);
 
     if (!HasNonfatalFailure()) {
-      EXPECT_EQ(embPersJsonVal->IsArray(), true);
-      EXPECT_EQ(embPersJsonVal->Size(), 4);
+      EXPECT_TRUE(embPersJsonVal->IsArray());
+      EXPECT_EQ(embPersJsonVal->Size(), (unsigned)4);
 
       // parsing and checking raw object
       EXPECT_EQ((*embPersJsonVal)[0].GetInt(), 253);
