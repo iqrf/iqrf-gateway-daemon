@@ -132,7 +132,6 @@ namespace iqrf {
       int operResult = -1;
       uint32_t elapsedTime = 0;
       uint8_t buffer[64];
-      unsigned int dataLen = 0;
       uint16_t memStatus = 0x8000;
       uint16_t repStatCounter = 1;
 
@@ -362,7 +361,7 @@ namespace iqrf {
       using namespace rapidjson;
 
       try {
-        m_cfg = { {}, POWER_ENABLE_GPIO, BUS_ENABLE_GPIO, PGM_SWITCH_GPIO };
+        m_cfg = { {0}, POWER_ENABLE_GPIO, BUS_ENABLE_GPIO, PGM_SWITCH_GPIO };
 
         Document d;
         d.CopyFrom(props->getAsJson(), d.GetAllocator());
@@ -445,6 +444,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
     }
 
     void listen()
