@@ -56,7 +56,7 @@ namespace iqrf {
     void setCmd(Cmd cmd);
     Cmd m_cmd = Cmd::INFO;
 
-    TEnumPeripheralsAnswer m_resp = { 0 };
+    TEnumPeripheralsAnswer m_resp;
 
     uint16_t m_dpaVerWord;
     std::string m_dpaVerWordAsStr;

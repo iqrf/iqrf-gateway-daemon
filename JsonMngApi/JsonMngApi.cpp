@@ -286,7 +286,7 @@ namespace iqrf {
       return m_clientId;
     }
 
-    const int getTaskId() const
+    int getTaskId() const
     {
       return m_taskId;
     }
@@ -351,7 +351,7 @@ namespace iqrf {
       return m_clientId;
     }
 
-    const int getTaskId() const
+    int getTaskId() const
     {
       return m_taskId;
     }
@@ -664,6 +664,7 @@ namespace iqrf {
 
     void handleSchedulerMsg(const rapidjson::Value& val)
     {
+      (void)val; //silence -Wunused-parameter
       TRC_INFORMATION(std::endl << "Scheduled Exit ... " << std::endl);
       std::cout << std::endl << "Scheduled Exit ... " << std::endl;
       m_iLaunchService->exit();
@@ -671,6 +672,7 @@ namespace iqrf {
 
     void activate(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -709,6 +711,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
     }
 
     void attachInterface(shape::ILaunchService* iface)

@@ -234,7 +234,7 @@ namespace iqrf {
       int len = 0;
       const Value *rdataVal = Pointer("/rdata").Get(value);
       if (rdataVal && rdataVal->IsString()) {
-        uint8_t buf[DPA_MAX_DATA_LENGTH];
+        //uint8_t buf[DPA_MAX_DATA_LENGTH];
         len = parseBinary(m_dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, rdataVal->GetString(), DPA_MAX_DATA_LENGTH);
       }
       m_dpaRequest.SetLength(len + sizeof(TDpaIFaceHeader));

@@ -24,7 +24,7 @@
 #define GetLastError() errno
 #define WSAGetLastError() errno
 #define SOCKET_ERROR -1
-int closesocket(int filedes) { close(filedes); }
+int closesocket(int filedes) { return close(filedes); }
 typedef int opttype;
 #else
 #define SHUT_RD SD_RECEIVE
@@ -152,7 +152,7 @@ void UdpChannel::sendTo(const std::basic_string<unsigned char>& message)
 {
   //TRC_DEBUG("Send to UDP: " << std::endl << FORM_HEX(message.data(), message.size()));
 
-  int trmn = sendto(m_iqrfUdpSocket, (const char*)message.data(), message.size(), 0, (struct sockaddr *)&m_iqrfUdpTalker, sizeof(m_iqrfUdpTalker));
+  int trmn = sendto(m_iqrfUdpSocket, (const char*)message.data(), static_cast<int>(message.size()), 0, (struct sockaddr *)&m_iqrfUdpTalker, sizeof(m_iqrfUdpTalker));
 
   if (trmn < 0) {
     THROW_EXC_TRC_WAR(UdpChannelException, "sendto failed: " << WSAGetLastError());
@@ -181,7 +181,7 @@ void UdpChannel::getMyAddress()
   int attempts;
 
   //initialize random seed
-  srand(time(NULL));
+  srand(static_cast<unsigned int>(time(NULL)));
 
   //generate secret number
   int short secret = (int short)rand();
@@ -192,7 +192,7 @@ void UdpChannel::getMyAddress()
   msgTrm[3] = (unsigned char)(secret & 0xFF);
 
   sockaddr_in iqrfUdpMyself;
-  socklen_t iqrfUdpMyselfLength = sizeof(iqrfUdpMyself);
+  //socklen_t iqrfUdpMyselfLength = sizeof(iqrfUdpMyself);
   socklen_t iqrfUdpListenerLength = sizeof(m_iqrfUdpListener);
 
   memset(&iqrfUdpMyself, 0, sizeof(iqrfUdpMyself));
@@ -229,7 +229,7 @@ void UdpChannel::getMyAddress()
     int recn = -1;
 
     TRC_DEBUG("Send to UDP to myself: " << PAR(attempts) << std::endl << MEM_HEX(msgTrm.data(), msgTrm.size()));
-    int trmn = sendto(soc, (const char*)msgTrm.data(), msgTrm.size(), 0, (struct sockaddr *)&iqrfUdpMyself, sizeof(iqrfUdpMyself));
+    int trmn = sendto(soc, (const char*)msgTrm.data(), static_cast<int>(msgTrm.size()), 0, (struct sockaddr *)&iqrfUdpMyself, sizeof(iqrfUdpMyself));
     if (trmn < 0) {
       //THROW_EXC_TRC_WAR(UdpChannelException, "sendto failed: " << WSAGetLastError());
       TRC_WARNING("sendto failed: " << WSAGetLastError() << " => cannot specify my IP address.");

@@ -40,7 +40,10 @@ void DpaRaw::parseResponse(const DpaMessage& response)
 }
 
 //from Messaging
-void DpaRaw::parseCommand(const std::string& command) {}
+void DpaRaw::parseCommand(const std::string& command)
+{
+  (void)command; //silence -Wunused-parameter
+}
 
 const std::string& DpaRaw::encodeCommand() const {
   return STR_CMD_UNKNOWN;

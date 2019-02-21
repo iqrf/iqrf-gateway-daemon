@@ -198,6 +198,7 @@ namespace iqrf {
 
   void TestSimulationMessaging::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void TestSimulationMessaging::attachInterface(shape::ITraceService* iface)

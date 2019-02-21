@@ -23,6 +23,10 @@ namespace iqrf {
   void tracerStart(const std::string& filename, TrcLevel level, int filesize)
   {
     //not required
+    //silence -Wunused-parameter
+    (void)filename;
+    (void)level;
+    (void)filesize;
   }
 
   void tracerStop()

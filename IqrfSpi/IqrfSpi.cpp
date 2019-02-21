@@ -80,7 +80,7 @@ namespace iqrf {
           }
 
           if (status.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM) {
-            int retval = spi_iqrf_write((void*)message.data(), message.size());
+            int retval = spi_iqrf_write((void*)message.data(), static_cast<unsigned int>(message.size()));
             if (BASE_TYPES_OPER_OK == retval) {
               m_accessControl.sniff(message); //send to sniffer if set
             }
@@ -132,7 +132,6 @@ namespace iqrf {
       int operResult = -1;
       uint32_t elapsedTime = 0;
       uint8_t buffer[64];
-      unsigned int dataLen = 0;
       uint16_t memStatus = 0x8000;
       uint16_t repStatCounter = 1;
 
@@ -256,10 +255,10 @@ namespace iqrf {
           addressAndData += (address >> 8) & 0xFF;
           addressAndData += data;
 
-          uploadRes = spi_iqrf_upload(targetInt, addressAndData.data(), addressAndData.size());
+          uploadRes = spi_iqrf_upload(targetInt, addressAndData.data(), static_cast<unsigned int>(addressAndData.size()));
         }
         else {
-          uploadRes = spi_iqrf_upload(targetInt, data.data(), data.size());
+          uploadRes = spi_iqrf_upload(targetInt, data.data(), static_cast<unsigned int>(data.size()));
         }
       }
 
@@ -362,7 +361,6 @@ namespace iqrf {
       using namespace rapidjson;
 
       try {
-        m_cfg = { {}, POWER_ENABLE_GPIO, BUS_ENABLE_GPIO, PGM_SWITCH_GPIO };
 
         Document d;
         d.CopyFrom(props->getAsJson(), d.GetAllocator());
@@ -380,10 +378,14 @@ namespace iqrf {
         if (sz > sizeof(m_cfg.spiDev)) sz = sizeof(m_cfg.spiDev);
         std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, m_cfg.spiDev);
 
+        m_cfg.powerEnableGpioPin = POWER_ENABLE_GPIO;
+        m_cfg.busEnableGpioPin = BUS_ENABLE_GPIO;
+        m_cfg.pgmSwitchGpioPin = PGM_SWITCH_GPIO;
+        m_cfg.trModuleReset = TR_MODULE_RESET_ENABLE;
+
         m_cfg.powerEnableGpioPin = (uint8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)m_cfg.powerEnableGpioPin).GetInt();
         m_cfg.busEnableGpioPin = (uint8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)m_cfg.busEnableGpioPin).GetInt();
         m_cfg.pgmSwitchGpioPin = (uint8_t)Pointer("/pgmSwitchGpioPin").GetWithDefault(d, (int)m_cfg.pgmSwitchGpioPin).GetInt();
-        m_cfg.trModuleReset = TR_MODULE_RESET_ENABLE;
         Value* v = Pointer("/spiReset").Get(d);
         if (v && v->IsBool())
           m_cfg.trModuleReset = v->GetBool() ? TR_MODULE_RESET_ENABLE : TR_MODULE_RESET_DISABLE;
@@ -445,6 +447,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
     }
 
     void listen()
@@ -474,7 +477,7 @@ namespace iqrf {
 
             if (status.isDataReady) {
 
-              if (status.dataReady > m_bufsize) {
+              if (status.dataReady > 0 && static_cast<unsigned>(status.dataReady) > m_bufsize) {
                 THROW_EXC_TRC_WAR(std::logic_error, "Received data too long: " << NAME_PAR(len, status.dataReady) << PAR(m_bufsize));
               }
 

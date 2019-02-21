@@ -40,7 +40,7 @@ namespace iqrf {
       int attempt = 0;
       counter++;
 
-      TRC_INFORMATION("Sending to IQRF CDC: " << std::endl << MEM_HEX(message.data(), message.size()));
+      TRC_INFORMATION("Sending to IQRF CDC: " << std::endl << MEM_HEX(message.data(), static_cast<uint8_t>(message.size())));
       
       if (m_cdc) {
         while (attempt++ < 10) {

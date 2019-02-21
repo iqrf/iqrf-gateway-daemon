@@ -43,6 +43,7 @@ namespace iqrf {
 
     void activate(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -125,6 +126,7 @@ namespace iqrf {
 
   void TestEnumerationDeviceService::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void TestEnumerationDeviceService::attachInterface(iqrf::ITestSimulationIqrfChannel* iface)
@@ -398,8 +400,8 @@ namespace iqrf {
     EXPECT_NE(embPersJsonVal, nullptr);
 
     if (!HasNonfatalFailure()) {
-      EXPECT_EQ(embPersJsonVal->IsArray(), true);
-      EXPECT_EQ(embPersJsonVal->Size(), 4);
+      EXPECT_TRUE(embPersJsonVal->IsArray());
+      EXPECT_EQ(embPersJsonVal->Size(), (unsigned)4);
 
       // parsing and checking raw object
       EXPECT_EQ((*embPersJsonVal)[0].GetInt(), 253);
@@ -431,7 +433,7 @@ namespace iqrf {
 
     if (!HasNonfatalFailure()) {
       EXPECT_EQ(userPersJsonVal->IsArray(), true);
-      EXPECT_EQ(userPersJsonVal->Size(), 12);
+      EXPECT_EQ(userPersJsonVal->Size(), (unsigned)12);
 
       // parsing and checking raw object
       EXPECT_EQ((*userPersJsonVal)[0].GetInt(), 0);
@@ -455,7 +457,7 @@ namespace iqrf {
 
     if (!HasNonfatalFailure()) {
       EXPECT_EQ(trConfigEmbPersJsonVal->IsArray(), true);
-      EXPECT_EQ(trConfigEmbPersJsonVal->Size(), 4);
+      EXPECT_EQ(trConfigEmbPersJsonVal->Size(), (unsigned)4);
 
       // parsing and checking raw object
       EXPECT_EQ((*trConfigEmbPersJsonVal)[0].GetInt(), 253);
@@ -620,7 +622,7 @@ namespace iqrf {
 
     if (!HasNonfatalFailure()) {
       EXPECT_EQ(morePerInfoJson->IsArray(), true);
-      EXPECT_EQ(morePerInfoJson->Size(), 14);
+      EXPECT_EQ(morePerInfoJson->Size(), (unsigned)14);
 
       // parsing and checking More Per Info object
       EXPECT_EQ((*morePerInfoJson)[0].IsObject(), true);
@@ -701,7 +703,7 @@ namespace iqrf {
 
     if (!HasNonfatalFailure()) {
       EXPECT_EQ(rawDataJson->IsArray(), true);
-      EXPECT_EQ(rawDataJson->Size(), 8);
+      EXPECT_EQ(rawDataJson->Size(), (unsigned)8);
 
       // parsing and checking raw object
       EXPECT_EQ((*rawDataJson)[0].IsObject(), true);

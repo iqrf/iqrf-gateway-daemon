@@ -43,6 +43,7 @@ namespace iqrf {
 
     void activate(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -125,6 +126,7 @@ namespace iqrf {
 
   void TestJsonDpaApiIqrfStandard::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void TestJsonDpaApiIqrfStandard::attachInterface(iqrf::ITestSimulationIqrfChannel* iface)
@@ -261,7 +263,7 @@ namespace iqrf {
     
     //TODO check EXPECT jmo
     // parse jmo and replace timestamps as the time cannot be compared
-    // in tests with timestams from .../iqrf-daemon\tests\test-api-app\test-api-app\log\
+    // in tests with timestams from .../iqrf-daemon\tests\test-api-app/test-api-app/log/
     // after timestamps homogenization it shall be possible to compare jmo as string
 
     //just logout for now

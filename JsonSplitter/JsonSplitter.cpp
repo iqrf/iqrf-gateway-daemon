@@ -257,7 +257,7 @@ namespace iqrf {
 
       int queueLen = -1;
       if (m_splitterMessageQueue) {
-        queueLen = m_splitterMessageQueue->size();
+        queueLen = static_cast<int>(m_splitterMessageQueue->size());
         if (queueLen <= 32) { //TODO parameter
           queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messagingId, message));
         }
@@ -314,7 +314,6 @@ namespace iqrf {
           validate(msgType, doc, m_validatorMapRequest, REQS);
         }
 
-        bool found = false;
         std::map<std::string, FilteredMessageHandlerFunc > bestFitMap;
         { //lock scope
           std::lock_guard<std::mutex> lck(m_filterMessageHandlerFuncMapMux);

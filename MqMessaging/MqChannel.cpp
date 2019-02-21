@@ -304,9 +304,8 @@ void MqChannel::sendTo(const std::basic_string<unsigned char>& message)
 {
   TRC_INFORMATION("Send to MQ: " << std::endl << MEM_HEX(message.data(), message.size()));
 
-  unsigned long toWrite = message.size();
+  unsigned long toWrite = static_cast<unsigned long>(message.size());
   unsigned long written = 0;
-  bool reconnect = false;
   bool fSuccess;
 
   connect(); //open write channel if not connected yet

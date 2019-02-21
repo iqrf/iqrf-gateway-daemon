@@ -62,20 +62,20 @@ namespace iqrf {
         :m_valid(false)
       {}
       StdDriver(int id, const std::string& name, double version, const std::string& driver, const std::string& notes, int verFlags)
-        :m_id(id)
-        ,m_name(name)
+        : m_valid(true)
+        ,m_id(id)
         ,m_version(version)
+        ,m_versionFlags(verFlags)
+        ,m_name(name)
         ,m_driver(driver)
         ,m_notes(notes)
-        ,m_versionFlags(verFlags)
-        ,m_valid(true)
       {}
       bool isValid() const { return m_valid; }
       const std::string& getName() const { return m_name; }
       const std::string& getDriver() const { return m_driver; }
       const std::string& getNotes() const { return m_notes; }
       int getVersionFlags() const { return m_versionFlags; }
-      int getVersion() const { return m_version; }
+      int getVersion() const { return static_cast<int>(m_version); }
       int getId() const { return m_id; }
     private:
       bool m_valid = false;

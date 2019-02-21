@@ -136,7 +136,6 @@ namespace iqrf {
       Document doc;
 
       if (dpaResponse.size() >= 8) {
-        uint16_t nadr16 = 0, hwpid16 = 0;
         uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
         std::string pnumStr, pcmdStr, rcodeStr, dpavalStr;
 
@@ -162,7 +161,7 @@ namespace iqrf {
         Pointer("/dpaval").Set(doc, rcodeStr);
 
         if (dpaResponse.size() > 8) {
-          Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, dpaResponse.size() - 8));
+          Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, static_cast<int>(dpaResponse.size()) - 8));
         }
 
         rawHdpResponse = JsonToStr(&doc);
@@ -315,6 +314,7 @@ namespace iqrf {
 
     void activate(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -354,6 +354,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
     }
 
     void attachInterface(IMetaDataApi* iface)

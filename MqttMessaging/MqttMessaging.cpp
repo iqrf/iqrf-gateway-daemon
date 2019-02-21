@@ -314,7 +314,6 @@ namespace iqrf {
     void connect()
     {
       TRC_FUNCTION_ENTER("");
-      int retval;
 
       m_stopAutoConnect = false;
       m_connected = false;
@@ -333,7 +332,29 @@ namespace iqrf {
       ((MqttMessagingImpl*)context)->onConnect(response);
     }
     void onConnect(MQTTAsync_successData* response) {
-      TRC_INFORMATION("Connect succeded: " << PAR(m_mqttBrokerAddr) << PAR(m_mqttClientId));
+
+      MQTTAsync_token token = 0;
+      char* suri = nullptr;
+      std::string serverUri;
+      int MQTTVersion = 0;
+      int sessionPresent = 0;
+
+      if (response) {
+        token = response->token;
+        suri = response->alt.connect.serverURI;
+        serverUri = suri ? suri : "";
+        MQTTVersion = response->alt.connect.MQTTVersion;
+        sessionPresent = response->alt.connect.sessionPresent;
+      }
+
+      TRC_INFORMATION("Connect succeded: " <<
+        PAR(m_mqttBrokerAddr) <<
+        PAR(m_mqttClientId) <<
+        PAR(token) <<
+        PAR(serverUri) <<
+        PAR(MQTTVersion) <<
+        PAR(sessionPresent)
+      );
 
       {
         std::unique_lock<std::mutex> lck(m_connectionMutex);
@@ -372,7 +393,21 @@ namespace iqrf {
       ((MqttMessagingImpl*)context)->onSubscribe(response);
     }
     void onSubscribe(MQTTAsync_successData* response) {
-      TRC_INFORMATION("Subscribe succeded: " << PAR(m_mqttTopicRequest) << PAR(m_mqttQos));
+
+      MQTTAsync_token token = 0;
+      int qos = 0;
+
+      if (response) {
+        token = response->token;
+        qos = response->alt.qos;
+      }
+
+      TRC_INFORMATION("Subscribe succeded: " <<
+        PAR(m_mqttTopicRequest) <<
+        PAR(m_mqttQos) <<
+        PAR(token) <<
+        PAR(qos)
+      );
       m_subscribed = true;
     }
 
@@ -381,7 +416,24 @@ namespace iqrf {
       ((MqttMessagingImpl*)context)->onSubscribeFailure(response);
     }
     void onSubscribeFailure(MQTTAsync_failureData* response) {
-      TRC_WARNING("Subscribe failed: " << PAR(m_mqttTopicRequest) << PAR(m_mqttQos));
+
+      MQTTAsync_token token = 0;
+      int code = 0;
+      std::string message;
+
+      if (response) {
+        token = response->token;
+        code = response->code;
+        message = response->message ? response->message : "";
+      }
+
+      TRC_WARNING("Subscribe failed: " <<
+        PAR(m_mqttTopicRequest) <<
+        PAR(m_mqttQos) <<
+        PAR(token) <<
+        PAR(code) <<
+        PAR(message)
+      );
       m_subscribed = false;
     }
 
@@ -424,7 +476,7 @@ namespace iqrf {
       ((MqttMessagingImpl*)context)->onSend(response);
     }
     void onSend(MQTTAsync_successData* response) {
-      TRC_DEBUG("Message sent successfuly");
+      TRC_DEBUG("Message sent successfuly: " << NAME_PAR(token, (response ? response->token : 0)));
     }
 
     //------------------------
@@ -450,9 +502,9 @@ namespace iqrf {
       ((MqttMessagingImpl*)context)->onDisconnect(response);
     }
     void onDisconnect(MQTTAsync_successData* response) {
+      TRC_DEBUG(NAME_PAR(token, (response ? response->token : 0)));
       m_disconnect_promise.set_value(true);
     }
-
   };
 
   //////////////////
@@ -487,7 +539,7 @@ namespace iqrf {
 
   void MqttMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
   {
-    TRC_FUNCTION_ENTER("");
+    TRC_FUNCTION_ENTER(PAR(messagingId));
     m_impl->sendMessage(msg);
     TRC_FUNCTION_LEAVE("")
   }

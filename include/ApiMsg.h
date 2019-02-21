@@ -30,7 +30,7 @@ namespace iqrf {
     }
 
     const std::string& getMsgId() const { return m_msgId; }
-    const bool getVerbose() const { return m_verbose; }
+    bool getVerbose() const { return m_verbose; }
     const std::string& getInsId() const { return m_insId; }
     const std::string& getStatusStr() const { return m_statusStr; }
     int getStatus() const { return m_status; }

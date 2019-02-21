@@ -76,7 +76,7 @@ public:
     {
       std::unique_lock<std::mutex> lck(m_taskQueueMutex);
       m_taskQueue.push(task);
-      retval = m_taskQueue.size();
+      retval = static_cast<uint8_t>(m_taskQueue.size());
       m_taskPushed = true;
     }
     m_conditionVariable.notify_all();

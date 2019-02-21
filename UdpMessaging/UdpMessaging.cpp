@@ -61,7 +61,7 @@ namespace iqrf {
 
   void UdpMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
   {
-    TRC_FUNCTION_ENTER("");
+    TRC_FUNCTION_ENTER(PAR(messagingId));
     TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
     m_toUdpMessageQueue->pushToQueue(msg);
     TRC_FUNCTION_LEAVE("")
@@ -123,6 +123,7 @@ namespace iqrf {
 
   void UdpMessaging::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void UdpMessaging::attachInterface(shape::ITraceService* iface)

@@ -159,6 +159,7 @@ namespace iqrf {
     m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
       [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
     {
+      (void)msgType; //silence -Wunused-parameter
       rapidjson::StringBuffer buffer;
       rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
       doc.Accept(writer);
@@ -186,6 +187,7 @@ namespace iqrf {
 
   void LegacyApiSupport::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void LegacyApiSupport::attachInterface(iqrf::IMessagingSplitterService* iface)

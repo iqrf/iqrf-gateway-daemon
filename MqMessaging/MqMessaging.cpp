@@ -44,7 +44,7 @@ namespace iqrf {
 
   void MqMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
   {
-    TRC_FUNCTION_ENTER("");
+    TRC_FUNCTION_ENTER(PAR(messagingId));
     TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
     m_toMqMessageQueue->pushToQueue(msg);
     TRC_FUNCTION_LEAVE("")
@@ -106,6 +106,7 @@ namespace iqrf {
 
   void MqMessaging::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void MqMessaging::attachInterface(shape::ITraceService* iface)

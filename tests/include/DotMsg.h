@@ -60,7 +60,6 @@ namespace iqrf {
         std::ostringstream ostr;
         ostr.setf(std::ios::hex, std::ios::basefield);
         ostr.fill('0');
-        long i = 0;
         for (uint8_t c : m_msg) {
           ostr << std::setw(2) << (short int)c;
           ostr << '.';
