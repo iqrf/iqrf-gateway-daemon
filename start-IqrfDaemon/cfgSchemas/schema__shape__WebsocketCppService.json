@@ -25,6 +25,11 @@
             "description": "Number of port",
             "default": "1338"
         },
+        "acceptOnlyLocalhost": {
+            "type": "bool",
+            "description": "accepts only connections from localhost",
+            "default": "false"
+        },
         "RequiredInterfaces": {
             "type": "array",
             "description": "Array of required interfaces.",
