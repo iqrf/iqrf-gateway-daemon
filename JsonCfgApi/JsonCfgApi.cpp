@@ -176,6 +176,7 @@ namespace iqrf {
 
     void activate(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -208,6 +209,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
     }
 
     void attachInterface(shape::ILaunchService* iface)
