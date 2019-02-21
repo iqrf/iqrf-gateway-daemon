@@ -28,6 +28,7 @@ TRC_INIT_MODULE(iqrf::IqrfUart);
 
 const unsigned SPI_REC_BUFFER_SIZE = 1024;
 
+//TODO implement programming mode as in IqrfSpi
 namespace iqrf {
 
   class IqrfUart::Imp
@@ -150,6 +151,11 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
       TRC_WARNING("Not implemented");
+      //silence -Wunused-parameter
+      (void)target; 
+      (void)data;
+      (void)address;
+
 #if 0      
       // wait for TR module is ready
       spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(2000);
@@ -411,6 +417,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
     }
 
     void listen()
