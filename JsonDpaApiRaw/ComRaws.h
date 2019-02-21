@@ -50,12 +50,6 @@ namespace iqrf {
       return m_request.DpaPacket().DpaRequestPacket_t.NADR;
     }
 
-    void setMetaData(const std::string& metaDataKey, rapidjson::Value& val)
-    {
-      m_appendMetaData = true;
-      m_metaData.CopyFrom(val, m_metaData.GetAllocator());
-    }
-
     virtual ~ComRaw()
     {
     }

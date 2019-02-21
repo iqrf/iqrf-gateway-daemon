@@ -41,7 +41,9 @@ namespace iqrf {
     }
 
     int getErrorCode() const override { return STATUS_NO_ERROR; }
-    void overrideErrorCode(ErrorCode err) override {}
+    void overrideErrorCode(ErrorCode err) override {
+      (void)err; //silence -Wunused-parameter
+    }
     std::string getErrorString() const override { return "ok"; }
 
     virtual const DpaMessage& getRequest() const override { return m_request; }
@@ -197,6 +199,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
     }
 
     void attachInterface(IMetaDataApi* iface)
