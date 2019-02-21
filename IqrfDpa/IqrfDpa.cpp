@@ -395,6 +395,7 @@ namespace iqrf {
 
   void IqrfDpa::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void IqrfDpa::attachInterface(iqrf::IIqrfChannelService* iface)
