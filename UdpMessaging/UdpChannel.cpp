@@ -24,7 +24,7 @@
 #define GetLastError() errno
 #define WSAGetLastError() errno
 #define SOCKET_ERROR -1
-int closesocket(int filedes) { close(filedes); }
+int closesocket(int filedes) { return close(filedes); }
 typedef int opttype;
 #else
 #define SHUT_RD SD_RECEIVE
@@ -192,7 +192,7 @@ void UdpChannel::getMyAddress()
   msgTrm[3] = (unsigned char)(secret & 0xFF);
 
   sockaddr_in iqrfUdpMyself;
-  socklen_t iqrfUdpMyselfLength = sizeof(iqrfUdpMyself);
+  //socklen_t iqrfUdpMyselfLength = sizeof(iqrfUdpMyself);
   socklen_t iqrfUdpListenerLength = sizeof(m_iqrfUdpListener);
 
   memset(&iqrfUdpMyself, 0, sizeof(iqrfUdpMyself));

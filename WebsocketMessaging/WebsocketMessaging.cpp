@@ -142,6 +142,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
     }
 
     void attachInterface(shape::IWebsocketService* iface)
@@ -209,6 +210,7 @@ namespace iqrf {
 
   void WebsocketMessaging::modify(const shape::Properties *props)
   {
+    m_imp->modify(props);
   }
 
   void WebsocketMessaging::attachInterface(shape::IWebsocketService* iface)

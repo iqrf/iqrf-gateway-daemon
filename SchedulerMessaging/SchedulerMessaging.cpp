@@ -88,6 +88,7 @@ namespace iqrf {
 
     void sendMessage(const std::basic_string<uint8_t> & msg)
     {
+      (void)msg; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
       TRC_WARNING("This function shouldn't be called");
       TRC_FUNCTION_LEAVE("")
@@ -132,19 +133,8 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
     }
-
-    //void attachInterface(IMessagingSplitterService* iface)
-    //{
-    //  m_iMessagingSplitterService = iface;
-    //}
-
-    //void detachInterface(IMessagingSplitterService* iface)
-    //{
-    //  if (m_iMessagingSplitterService == iface) {
-    //    m_iMessagingSplitterService = nullptr;
-    //  }
-    //}
 
     void attachInterface(ISchedulerService* iface)
     {
@@ -185,6 +175,7 @@ namespace iqrf {
 
   void SchedulerMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
   {
+    (void)messagingId; //silence -Wunused-parameter
     m_imp->sendMessage(msg);
   }
 
@@ -212,17 +203,8 @@ namespace iqrf {
 
   void SchedulerMessaging::modify(const shape::Properties *props)
   {
+    m_imp->modify(props);
   }
-
-  //void SchedulerMessaging::attachInterface(IMessagingSplitterService* iface)
-  //{
-  //  m_imp->attachInterface(iface);
-  //}
-
-  //void SchedulerMessaging::detachInterface(IMessagingSplitterService* iface)
-  //{
-  //  m_imp->detachInterface(iface);
-  //}
 
   void SchedulerMessaging::attachInterface(ISchedulerService* iface)
   {
