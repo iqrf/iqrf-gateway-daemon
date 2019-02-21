@@ -49,10 +49,9 @@ namespace iqrf {
 
     void activate(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
-
       m_gtest.runAllTests(m_iLaunchService);
-
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -109,6 +108,7 @@ namespace iqrf {
 
   void TestJsRender::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void TestJsRender::attachInterface(iqrf::IJsRenderService* iface)

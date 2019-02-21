@@ -49,10 +49,9 @@ namespace iqrf {
 
     void activate(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
-
       m_gtest.runAllTests(m_iLaunchService);
-
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -109,6 +108,7 @@ namespace iqrf {
 
   void TestScheduler::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void TestScheduler::attachInterface(iqrf::ISchedulerService* iface)
@@ -296,10 +296,10 @@ namespace iqrf {
 
     const int TID1 = 1736;
     const int TID2 = 25828;
-    const int TID3 = 78963;
+    //const int TID3 = 78963;
     const std::string MSG_ID1 = "b726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
     const std::string MSG_ID2 = "a726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
-    const std::string MSG_ID3 = "f726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
+    //const std::string MSG_ID3 = "f726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
 
     //verify result
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID_PERSIST);
@@ -637,7 +637,7 @@ namespace iqrf {
     string tpStr = encodeTimestamp(tp);
 
     //schedule one shot task
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(CLIENT_ID, doc1, tp);
+    //ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(CLIENT_ID, doc1, tp);
 
     { //shouldn't expire yet
       Document doc = fetchTask(200); //200 ms
@@ -673,7 +673,7 @@ namespace iqrf {
 
     //schedule
     ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskPeriodic(CLIENT_ID, doc1, seconds(PERIOD1), tp);
-    const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
+    //const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
 
     { //shouldn't expire yet
       Document doc = fetchTask(200); //200 ms

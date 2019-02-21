@@ -142,6 +142,10 @@ namespace iqrf {
       )
     {
       // write data to TR module
+      (void)target; //silence -Wunused-parameter
+      (void)data; //silence -Wunused-parameter
+      (void)address; //silence -Wunused-parameter
+
       TRC_FUNCTION_ENTER("");
       TRC_FUNCTION_LEAVE("");
       return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
@@ -155,6 +159,7 @@ namespace iqrf {
 
     void activate(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -240,6 +245,7 @@ namespace iqrf {
 
   void TestSimulationIqrfChannel::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void TestSimulationIqrfChannel::attachInterface(shape::ITraceService* iface)

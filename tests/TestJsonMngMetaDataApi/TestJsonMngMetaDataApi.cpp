@@ -48,6 +48,7 @@ namespace iqrf {
 
     void activate(const shape::Properties *props)
     {
+      (void)props; //silence -Wunused-parameter
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -130,6 +131,7 @@ namespace iqrf {
 
   void TestJsonMngMetaDataApi::modify(const shape::Properties *props)
   {
+    (void)props; //silence -Wunused-parameter
   }
 
   void TestJsonMngMetaDataApi::attachInterface(iqrf::IMetaDataApi* iface)
@@ -198,13 +200,14 @@ namespace iqrf {
 
     static std::string loadJsonMsg(const std::string& fname)
     {
+      std::string msg;
       std::ifstream jsFile(fname);
       if (jsFile.is_open()) {
         std::ostringstream strStream;
         strStream << jsFile.rdbuf();
-        std::string msg = strStream.str();
-        return msg;
+        msg = strStream.str();
       }
+      return msg;
     }
 
     static std::string getOutAndParse(rapidjson::Document& jmoDoc)
