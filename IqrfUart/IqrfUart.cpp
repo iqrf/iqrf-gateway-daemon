@@ -303,7 +303,6 @@ namespace iqrf {
       using namespace rapidjson;
 
       try {
-        T_UART_IQRF_CONFIG_STRUCT cfg;
 
         Document d;
         d.CopyFrom(props->getAsJson(), d.GetAllocator());
@@ -324,16 +323,16 @@ namespace iqrf {
           THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /IqrfInterface");
         }
 
-        memset(cfg.uartDev, 0, sizeof(cfg.uartDev));
+        memset(m_cfg.uartDev, 0, sizeof(m_cfg.uartDev));
         auto sz = m_interfaceName.size();
-        if (sz > sizeof(cfg.uartDev)) sz = sizeof(cfg.uartDev);
-        std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, cfg.uartDev);
+        if (sz > sizeof(m_cfg.uartDev)) sz = sizeof(m_cfg.uartDev);
+        std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, m_cfg.uartDev);
 
-        cfg.baudRate = get_baud(m_baudRate);
+        m_cfg.baudRate = get_baud(m_baudRate);
 
-        cfg.powerEnableGpioPin = (uint8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)cfg.powerEnableGpioPin).GetInt();
-        cfg.busEnableGpioPin = (uint8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)cfg.busEnableGpioPin).GetInt();
-        cfg.pgmSwitchGpioPin = -1;
+        m_cfg.powerEnableGpioPin = (uint8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)m_cfg.powerEnableGpioPin).GetInt();
+        m_cfg.busEnableGpioPin = (uint8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)m_cfg.busEnableGpioPin).GetInt();
+        m_cfg.pgmSwitchGpioPin = -1;
 
         TRC_INFORMATION(PAR(m_interfaceName) << PAR(m_baudRate));
 
@@ -341,7 +340,7 @@ namespace iqrf {
         int res = BASE_TYPES_OPER_ERROR;
         while (attempts < 3) {
 
-          res = uart_iqrf_init(&cfg);
+          res = uart_iqrf_init(&m_cfg);
 
           if (BASE_TYPES_OPER_OK == res) {
             break;
@@ -471,6 +470,8 @@ namespace iqrf {
     unsigned m_bufsize = SPI_REC_BUFFER_SIZE;
 
     mutable std::mutex m_commMutex;
+
+    T_UART_IQRF_CONFIG_STRUCT m_cfg;
 
   };
 
