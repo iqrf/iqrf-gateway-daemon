@@ -49,19 +49,19 @@ const uint16_t EEPROM_ADDR_END = 0xF0FF;
 bool verify_record_csum(const std::string& str) {
     size_t len = str.length() - 1;
     unsigned int sum = 0;
-    
+
     std::string data = str.substr(1, len);
-    for (int i = 0; i < len / 2; i++) {
+    for (unsigned int i = 0; i < len / 2; i++) {
         sum += std::stoul(data.substr(i * 2, 2), nullptr, 16);
     }
-    
+
     return (sum & 0xff) == 0;
 }
 
 void generateRecordCsum(std::basic_string<unsigned char> &str) {
     unsigned int sum = 0;
     std::basic_string<unsigned char>::iterator itr;
-    
+
     for (itr = str.begin(); itr != str.end(); itr++) {
         sum += *itr;
     }
@@ -91,7 +91,7 @@ TrMemory getMemoryType(uint16_t address) {
 }
 
 // selects and returns lines according to specified memory type
-std::vector<HexDataRecord> selectLines(const TrMemory memType, const std::vector<HexDataRecord>& lines) 
+std::vector<HexDataRecord> selectLines(const TrMemory memType, const std::vector<HexDataRecord>& lines)
 {
   std::vector<HexDataRecord> selectedLines;
 
@@ -107,15 +107,15 @@ std::vector<HexDataRecord> selectLines(const TrMemory memType, const std::vector
 // split programming data lines into chunks according to the type of target memory
 // and put them into the specified result container
 void splitLines(
-  const TrMemory memType, 
-  std::vector<HexDataRecord>& lines, 
+  const TrMemory memType,
+  std::vector<HexDataRecord>& lines,
   std::vector<HexDataRecord>& result
 )
 {
   std::array<unsigned char, TR_MEMORY_SIZE> prgData;
   std::array<bool, TR_MEMORY_SIZE> prgDataValid;
-  
-  if ((memType == TrMemory::FLASH) || (memType == TrMemory::EXTERNAL_EEPROM)) 
+
+  if ((memType == TrMemory::FLASH) || (memType == TrMemory::EXTERNAL_EEPROM))
   {
     // Convert to Tr upload data
     // Init fake data memory for programming data grouping
@@ -178,9 +178,7 @@ void HexFmtParser::parse() {
     size_t position;
     bool finished = false;
     std::vector<HexDataRecord> variableLines;
-    std::array<unsigned char, TR_MEMORY_SIZE> prgData;
-    std::array<bool, TR_MEMORY_SIZE> prgDataValid;
-    
+
     // base address - segment
     uint16_t base = 0;
 
@@ -192,65 +190,65 @@ void HexFmtParser::parse() {
         size_t data_len;
         unsigned char type;
         std::basic_string<uint8_t> data;
-        
+
         line_no++;
-        
+
         // Trim whitespace
         line = trim(line);
-     
+
         len = line.length();
-        
+
         // Skip empty line
         if (len == 0)
             continue;
-        
+
         // Check if file continue after End Of File record
         if (finished) {
             TR_THROW_FMT_EXCEPTION(file_name, line_no, 0, "Hex file continues after End Of File record!");
         }
-        
+
         // Every line in hex file must be at least 11 characters long
         if (len < MIN_LINE_LEN) {
             TR_THROW_FMT_EXCEPTION(file_name, line_no, 0, "Invalid length of record in hex file - line is too short!");
         }
-        
+
         // Every line in hex file must be at most 521 characters long
         if (len > MAX_LINE_LEN) {
             TR_THROW_FMT_EXCEPTION(file_name, line_no, 0, "Invalid length of record in hex file - line is too long!");
         }
-        
+
         // Every line must be odd
         if (len % 2 != 1) {
             TR_THROW_FMT_EXCEPTION(file_name, line_no, 0, "Invalid length of record in hex file - line length is not odd!");
         }
-        
+
         // Check for invalid characters
         if ((position = line.find_first_not_of(":0123456789abcdefABCDEF")) != std::string::npos) {
             TR_THROW_FMT_EXCEPTION(file_name, line_no, position, "Invalid length character in hex file!");
         }
-        
+
         // Check for record start code
         if (line[0] != ':') {
             TR_THROW_FMT_EXCEPTION(file_name, line_no, 1, "Missing record start code : in hex file!");
         }
-        
+
         // Check checksum
         if (!verify_record_csum(line)) {
             TR_THROW_FMT_EXCEPTION(file_name, line_no, len - 2, "Invalid checksum of record in hex file!");
         }
-        
+
         // Get length
         data_len = std::stoul(line.substr(1, 2), nullptr, 16);
         // Get offset
         offset = std::stoul(line.substr(3, 4), nullptr, 16);
         // Get type
         type = std::stoul(line.substr(7, 2), nullptr, 16);
-        
+
         // Check data length of record
         if (2 * data_len + 11 != len) {
             TR_THROW_FMT_EXCEPTION(file_name, line_no, 2, "Actual length of record in hex file is different from indicated length!");
         }
-        
+
         // type of memory
         TrMemory memType;
 
@@ -261,7 +259,7 @@ void HexFmtParser::parse() {
                     data.push_back(std::stoul(line.substr(9 + i * 2, 2), nullptr, 16));
                 }
                 addr = base + offset;
-                
+
                 // each address in hex is x2!
                 addr /= 2;
 
@@ -316,7 +314,7 @@ void HexFmtParser::parse() {
                 break;
         }
     }
-    
+
     // put together data records of the same type of target memory
     std::vector<HexDataRecord> flashVariableLines = selectLines(TrMemory::FLASH, variableLines);
     std::vector<HexDataRecord> eepromVariableLines = selectLines(TrMemory::INTERNAL_EEPROM, variableLines);
@@ -328,8 +326,7 @@ void HexFmtParser::parse() {
     splitLines(TrMemory::EXTERNAL_EEPROM, eeepromVariableLines, blines);
 }
 
-void HexFmtParser::pushBack(const uint16_t addr, const std::basic_string<uint8_t>& data, const TrMemory mem) 
+void HexFmtParser::pushBack(const uint16_t addr, const std::basic_string<uint8_t>& data, const TrMemory mem)
 {
     blines.push_back(HexDataRecord(addr, data, mem));
 }
-
