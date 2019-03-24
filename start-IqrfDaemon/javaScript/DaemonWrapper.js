@@ -909,10 +909,10 @@ if (iqrf.sensor !== undefined) {
 		return iqrf.sensor.ReadSensorsWithTypes_Request(param.sensorIndexes);
 	};
 
-	iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {
+  iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {
 		var result =
 		{
-			sensors: iqrf.sensor.ReadSensorsWithTypes_Response(rawHdp)
+      sensors: iqrf.sensor.ReadSensorsWithTypes_Response(rawHdp, rawHdp.originalRequest)
 		};
 		return result;
 	};
@@ -929,7 +929,7 @@ if (iqrf.sensor !== undefined) {
 	iqrf.sensor.Frc_Response_rsp = function (param) {
 	   var result =
 	   {
-		   sensors: iqrf.sensor.Frc_Response(param.sensorType, param.frcCommand, param.responseFrcSend, param.responseFrcExtraResult)
+       sensors: iqrf.sensor.Frc_Response(param.sensorType, param.frcCommand, param.responseFrcSend, param.responseFrcExtraResult, param.frcSendRequest)
 	   };
 	   return result;
 	};

@@ -127,7 +127,7 @@ namespace iqrf {
 
     // nadr, hwpid, rcode not set for drivers
     //TODO rewrite with const DpaMessage& dpaResponse to avoid previous conversion DpaMessage -> vector
-    std::string dpaResponseToRawHdpResponse(int& nadr, int& hwpid, int& rcode, const std::vector<uint8_t>& dpaResponse)
+    std::string dpaResponseToRawHdpResponse(int& nadr, int& hwpid, int& rcode, const std::vector<uint8_t>& dpaResponse, const std::string& rawHdpRequest)
     {
       using namespace rapidjson;
 
@@ -163,6 +163,10 @@ namespace iqrf {
         if (dpaResponse.size() > 8) {
           Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, static_cast<int>(dpaResponse.size()) - 8));
         }
+
+        Document rawHdpRequestDoc;
+        rawHdpRequestDoc.Parse(rawHdpRequest);
+        Pointer("/originalRequest").Set(doc, rawHdpRequestDoc);
 
         rawHdpResponse = JsonToStr(&doc);
       }
@@ -243,7 +247,9 @@ namespace iqrf {
 
           // get rawHdpResponse in text form
           std::string rawHdpResponse;
-          rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, rcode, dpaResponse);
+          // original rawHdpRequest request passed for additional sensor breakdown parsing
+          // TODO it is not necessary for all other handling, may be optimized in future
+          rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, rcode, dpaResponse, rawHdpRequest);
           TRC_DEBUG(PAR(rawHdpResponse))
 
           if (0 == rcode) {
