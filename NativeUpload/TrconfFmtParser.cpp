@@ -27,14 +27,35 @@ const unsigned char RF_433 = 0x10; // TODO: Verify
 
 void TrconfFmtParser::parse() {
     char buffer[CFG_FILE_LEN];
+    char work_buffer[CFG_LEN];
+    uint8_t cnt;
+
     std::ifstream infile(file_name, std::ios::binary);
     data.resize(CFG_LEN);
+    cfg_data_1of2.resize(CFG_LEN);
+    cfg_data_2of2.resize(CFG_LEN);
 
     if (!infile.read (buffer, CFG_FILE_LEN)) {
         TR_THROW_FMT_EXCEPTION(file_name, 1, 0, "Can not load configuration data in TRCONF format!");
     }
 
+    // prepare first half of configuration data
+    for (cnt=0; cnt<16; cnt++) {
+        work_buffer[2*cnt] = buffer[cnt];
+        work_buffer[2*cnt + 1] = 0x34;
+    }
+    std::copy_n(work_buffer, CFG_LEN, cfg_data_1of2.begin());
+
+    // prepare second half of configuration data
+    for (cnt=0; cnt<16; cnt++) {
+        work_buffer[2*cnt] = buffer[cnt+16];
+        work_buffer[2*cnt + 1] = 0x34;
+    }
+    std::copy_n(work_buffer, CFG_LEN, cfg_data_2of2.begin());
+
+    // copy raw configuration data
     std::copy_n(buffer, CFG_LEN, data.begin());
+    // prepare rfpgm parameter
     rfpgm = static_cast<unsigned char>(buffer[32]);
     parsed = true;
 }
@@ -93,8 +114,20 @@ unsigned char TrconfFmtParser::getRFPMG(void) {
     return rfpgm;
 }
 
-std::basic_string<unsigned char> TrconfFmtParser::getData(void) {
+std::basic_string<unsigned char> TrconfFmtParser::getRawData(void) {
     if (!parsed)
         parse();
     return data;
+}
+
+std::basic_string<unsigned char> TrconfFmtParser::getCfgData1of2(void) {
+    if (!parsed)
+        parse();
+    return cfg_data_1of2;
+}
+
+std::basic_string<unsigned char> TrconfFmtParser::getCfgData2of2(void) {
+    if (!parsed)
+        parse();
+    return cfg_data_2of2;
 }

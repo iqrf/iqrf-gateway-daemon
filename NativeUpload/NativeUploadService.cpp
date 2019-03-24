@@ -68,6 +68,8 @@ namespace {
   static const size_t EXT_EEPROM_MODULO = 32;
   static const size_t EXT_EEPROM_LEN = 32;
   static const size_t SPECIAL_LEN = 18;
+  static const uint16_t TR_CFG_MEM_ADR_L = 0x37C0;
+  static const uint16_t TR_CFG_MEM_ADR_H = 0x37D0;
 
 
   // service general fail code - may and probably will be changed later in the future
@@ -629,22 +631,19 @@ namespace iqrf {
     }
 
     IIqrfChannelService::Accessor::UploadErrorCode
-      uploadCfg(const std::basic_string<uint8_t>& data)
+      uploadCfg(const std::basic_string<uint8_t>& data, uint16_t destinationAddr)
     {
       if (data.length() != CFG_LEN) {
         THROW_EXC(std::out_of_range, "Invalid length of the TR HWP configuration data!");
       }
-
+/*
       if (computeConfigChecksum(data) != data[0]) {
         THROW_EXC(std::out_of_range, "Invalid TR HWP configuration checksum!");
       }
-
-      // will not be used in special type of uploading
-      uint16_t addrNotUsed = 0;
-
+*/
       return m_iIqrfChannelService
         ->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)
-        ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_CFG, data, addrNotUsed);
+        ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_FLASH, data, destinationAddr);
     }
 
     IIqrfChannelService::Accessor::UploadErrorCode
@@ -666,8 +665,8 @@ namespace iqrf {
     {
       uint8_t rfpmg;
       TrconfFmtParser parser(fileName);
-      parser.parse();
 
+      parser.parse();
       rfpmg = parser.getRFPMG();
 
       // will be solved later
@@ -680,9 +679,12 @@ namespace iqrf {
         return;
       }
 
-      IIqrfChannelService::Accessor::UploadErrorCode errCode = uploadCfg(parser.getData());
+      IIqrfChannelService::Accessor::UploadErrorCode errCode = uploadCfg(parser.getCfgData1of2(), TR_CFG_MEM_ADR_L);
       if (errCode == IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR) {
-        errCode = uploadRFPMG(rfpmg);
+        errCode = uploadCfg(parser.getCfgData2of2(), TR_CFG_MEM_ADR_H);
+        if (errCode == IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR) {
+          errCode = uploadRFPMG(rfpmg);
+        }
       }
 
       uploadResult.setErrorCode(errCode);
