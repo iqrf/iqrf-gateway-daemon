@@ -1,61 +1,72 @@
 {
-    "type": "object",
-    "properties": {
-        "taskId": {
-            "type": "number",
-            "description": "Task ID number.",
-            "default": 25828
+  "type": "object",
+  "properties": {
+    "taskId": {
+      "type": "number",
+      "description": "Task ID number.",
+      "default": 25828
+    },
+    "clientId": {
+      "type": "string",
+      "description": "Client ID string."
+    },
+    "timeSpec": {
+      "type": "object",
+      "properties": {
+        "cronTime": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {
+            "type": "string"
+          },
+          "description": "7 items of cron syntax..."
         },
-        "clientId": {
-            "type": "string",
-            "description": "Client ID string."
+        "exactTime": {
+          "type": "boolean",
+          "default": false
         },
-        "timeSpec": {
-            "type": "object",
-            "properties": {
-                "cronTime": {
-                  "type": "array",
-                  "minItems": 7,
-                  "maxItems": 7,
-                  "items": {
-                    "type": "string"
-                  },
-                  "description": "7 items of cron syntax..."
-                },
-                "exactTime": {
-                    "type": "boolean",
-                    "default": false
-                },
-                "periodic": {
-                    "type": "boolean",
-                    "default": false
-                },
-                "period": {
-                    "type": "number",
-                    "default": 0
-                },
-                "startTime": {
-                    "type": "string",
-                    "default": "2018-11-21T21:21:16.103930"
-                }
-            },
-            "required": [
-                "cronTime",
-                "exactTime",
-                "periodic",
-                "period",
-                "startTime"
-            ]
+        "periodic": {
+          "type": "boolean",
+          "default": false
         },
-        "task": {
+        "period": {
+          "type": "number",
+          "default": 0
+        },
+        "startTime": {
+          "type": "string",
+          "default": "2018-11-21T21:21:16.103930"
+        }
+      },
+      "required": [
+        "cronTime",
+        "exactTime",
+        "periodic",
+        "period",
+        "startTime"
+      ]
+    },
+    "task": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {}
+        },
+        {
+          "type": "array",
+          "items": {
             "type": "object",
             "properties": {}
+          }
         }
-    },
-    "required": [
-        "taskId",
-        "clientId",
-        "timeSpec",
-        "task"
-    ]
+      ]
+    }
+  },
+  "required": [
+    "taskId",
+    "clientId",
+    "timeSpec",
+    "task"
+  ]
 }
