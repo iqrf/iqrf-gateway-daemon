@@ -12,15 +12,14 @@ namespace iqrf {
     JsRenderDuktape();
     virtual ~JsRenderDuktape();
 
+    void loadJsCodeFenced(int id, const std::string& js) override;
+    void callFenced(int id, const std::string& functionName, const std::string& par, std::string& ret) override;
     void loadJsCode(const std::string& js) override;
     void call(const std::string& functionName, const std::string& par, std::string& ret) override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
-
-    void attachInterface(IJsCacheService* iface);
-    void detachInterface(IJsCacheService* iface);
 
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);

@@ -82,6 +82,9 @@ namespace iqrf {
     ServerState m_serverState;
     std::map<int, Package> m_packageMap;
     std::map<int, StdItem> m_standardMap;
+
+    std::map<int, std::string>  m_customDrivers;
+
     bool m_upToDate = false;
 
   public:
@@ -164,7 +167,7 @@ namespace iqrf {
       return retval;
     }
 
-    std::map<int, std::map<int, std::vector<std::pair<int, int>>>> getDrivers(const std::string& os, const std::string& dpa) const
+    std::map<int, std::map<int, std::vector<std::pair<int, int>>>> getDrivers(const std::string& os, const std::string& dpa)
     {
       TRC_FUNCTION_ENTER(PAR(os) << PAR(dpa));
 
@@ -174,8 +177,11 @@ namespace iqrf {
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
       for (const auto & pck : m_packageMap) {
-        if (pck.second.m_os == os && pck.second.m_dpa == dpa) {
-          const Package& p = pck.second;
+        const Package& p = pck.second;
+        if (p.m_os == os && p.m_dpa == dpa) {
+          if (!p.m_driver.empty()) {
+            m_customDrivers.insert(std::make_pair(p.m_packageId, p.m_driver));
+          }
           for (const auto & drv : p.m_stdDriverVect) {
             map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
           }
