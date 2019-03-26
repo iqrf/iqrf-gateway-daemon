@@ -258,7 +258,8 @@ namespace iqrf {
             std::string errStrRes;
             bool driverResponseError = false;
             try {
-              m_iJsRenderService->call(methodResponseName, rawHdpResponse, rspObjStr);
+              //m_iJsRenderService->call(methodResponseName, rawHdpResponse, rspObjStr);
+              m_iJsRenderService->callFenced(hwpidRes, methodResponseName, rawHdpResponse, rspObjStr);
             }
             catch (std::exception &e) {
               //response driver func error

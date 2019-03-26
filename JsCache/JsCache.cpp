@@ -179,8 +179,8 @@ namespace iqrf {
       for (const auto & pck : m_packageMap) {
         const Package& p = pck.second;
         if (p.m_os == os && p.m_dpa == dpa) {
-          if (!p.m_driver.empty()) {
-            m_customDrivers.insert(std::make_pair(p.m_packageId, p.m_driver));
+          if (!p.m_driver.empty() && p.m_driver.size() > 20) {
+            m_customDrivers.insert(std::make_pair(p.m_hwpid, p.m_driver));
           }
           for (const auto & drv : p.m_stdDriverVect) {
             map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
@@ -439,6 +439,11 @@ namespace iqrf {
           }
         }
 
+        for (auto d : m_customDrivers) {
+          std::string js = str2load;
+          js += d.second;
+          m_iJsRenderService->loadJsCodeFenced(d.first, js);
+        }
         // load agregated scripts to JSE
         m_iJsRenderService->loadJsCode(str2load);
 

@@ -201,7 +201,8 @@ namespace iqrf {
       if (found != m_contexts.end()) {
         THROW_EXC_TRC_WAR(std::logic_error, "Already created JS context: " << PAR(id));
       }
-      m_contexts.insert(std::make_pair(id, std::shared_ptr<Context>(shape_new Context())));
+      auto res = m_contexts.insert(std::make_pair(id, std::shared_ptr<Context>(shape_new Context())));
+      res.first->second->loadJsCode(js);
       TRC_FUNCTION_LEAVE("");
       return 0;
     }
@@ -211,9 +212,11 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(id) << PAR(functionName));
       auto found = m_contexts.find(id);
       if (found == m_contexts.end()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Cannot find JS context: " << PAR(id));
+        call(functionName, par, ret);
       }
-      found->second->call(functionName, par, ret);
+      else {
+        found->second->call(functionName, par, ret);
+      }
       TRC_FUNCTION_LEAVE("");
     }
     //##########################################
