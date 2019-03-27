@@ -229,7 +229,10 @@ namespace iqrf {
           TRC_WARNING(PAR(methodRequestName) << " error " << PAR(errstr));
           throw HandleException(errstr, IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_REQUEST);
         }
-        iqrfSensorFrc.setDpaRequest(RawHdpRequest(*val0, iqrfSensorFrc.getNadr(), iqrfSensorFrc.getHwpid()).getDpaRequest());
+        
+        RawHdpRequest rawHdpRequest(*val0, iqrfSensorFrc.getNadr(), iqrfSensorFrc.getHwpid());
+        iqrfSensorFrc.setDpaRequest(rawHdpRequest.getDpaRequest());
+        //iqrfSensorFrc.setDpaRequest(RawHdpRequest(*val0, iqrfSensorFrc.getNadr(), iqrfSensorFrc.getHwpid()).getDpaRequest());
 
         if (iqrfSensorFrc.getExtraResult()) {
           // get FRC extra request
@@ -307,6 +310,10 @@ namespace iqrf {
         if (const DpaMessage* r = iqrfSensorFrc.getDpaResponseExtra()) {
           Pointer("/responseFrcExtraResult").Set(paramDoc, RawHdpResponse(*r).getDocument());
         }
+        
+        //TODO parse request
+        
+        Pointer("/frcSendRequest").Set(paramDoc, rawHdpRequest.getDocument());
 
         StringBuffer buffer;
         PrettyWriter<rapidjson::StringBuffer> writer(buffer);
