@@ -27,12 +27,12 @@ namespace iqrf {
   {
   private:
     std::string m_name;
-    
+
     //IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     ISchedulerService* m_iSchedulerService = nullptr;
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
 
-    void handleTaskFromScheduler(const rapidjson::Value & task)
+    void handleTaskObject(const rapidjson::Value & task)
     {
       using namespace rapidjson;
 
@@ -60,7 +60,23 @@ namespace iqrf {
       else {
         THROW_EXC_TRC_WAR(std::logic_error, "Expected string: /messaging")
       }
+    }
 
+    void handleTaskFromScheduler(const rapidjson::Value & task)
+    {
+      using namespace rapidjson;
+
+      if (task.IsObject()) {
+        handleTaskObject(task);
+      }
+      else if (task.IsArray()) {
+        for (auto it = task.Begin(); it != task.End(); it++) {
+          handleTaskObject(*it);
+        }
+      }
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Unexpected type: /task")
+      }
     }
 
   public:
