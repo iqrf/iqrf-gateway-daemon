@@ -1,6 +1,7 @@
 {
   "component": "iqrf::IdeCounterpart",
   "instance": "IdeCounterpart",
+  "gwIdentModeByte": 32,
   "gwIdentName": "iqrf-gateway-daemon",
   "gwIdentIpStack": "N/A",
   "gwIdentNetBios": "N/A",

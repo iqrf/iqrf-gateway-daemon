@@ -39,6 +39,13 @@ namespace iqrf {
     const Document& doc = props->getAsJson();
 
     {
+      const Value* val = rapidjson::Pointer("/gwIdentModeByte").Get(doc);
+      if (val && val->IsInt()) {
+        m_gwIdentModeByte = (uint8_t)val->GetInt();
+      }
+    }
+
+    {
       const Value* val = rapidjson::Pointer("/gwIdentName").Get(doc);
       if (val && val->IsString()) {
         m_gwIdentName = val->GetString();
@@ -340,7 +347,7 @@ namespace iqrf {
     unsigned short dlen = (unsigned short)message.size();
 
     udpMessage.resize(IQRF_UDP_HEADER_SIZE + IQRF_UDP_CRC_SIZE, '\0');
-    udpMessage[gwAddr] = IQRF_UDP_GW_ADR;
+    udpMessage[gwAddr] = m_gwIdentModeByte; //IQRF_UDP_GW_ADR;
     udpMessage[dlen_H] = (unsigned char)((dlen >> 8) & 0xFF);
     udpMessage[dlen_L] = (unsigned char)(dlen & 0xFF);
 
@@ -361,7 +368,7 @@ namespace iqrf {
       THROW_EXC_TRC_WAR(std::logic_error, "Message is too short: " << MEM_HEX_CHAR(udpMessage.data(), udpMessage.size()));
 
     // GW_ADR check
-    if (udpMessage[gwAddr] != IQRF_UDP_GW_ADR)
+    if (udpMessage[gwAddr] != m_gwIdentModeByte) //IQRF_UDP_GW_ADR)
       THROW_EXC_TRC_WAR(std::logic_error, "Message is has wrong GW_ADDR: " << PAR_HEX(udpMessage[gwAddr]));
 
     //iqrf data length

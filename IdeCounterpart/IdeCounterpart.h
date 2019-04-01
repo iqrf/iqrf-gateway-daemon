@@ -73,6 +73,7 @@ namespace iqrf {
     std::unique_ptr<IIqrfChannelService::Accessor> m_snifferAcessor;
     int sendMessageToIde(const std::basic_string<unsigned char>& message);
 
+    uint8_t m_gwIdentModeByte = 0x20;
     std::string m_gwIdentName = "iqrf-gateway-daemon";
     std::string m_gwIdentIpStack = "N/A";
     std::string m_gwIdentNetBios = "N/A";

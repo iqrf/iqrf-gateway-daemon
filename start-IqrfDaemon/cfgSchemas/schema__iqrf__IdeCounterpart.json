@@ -20,6 +20,11 @@
             "description": "Recomended iqrf::IdeCounterpart-(id)",
             "default": "iqrf::IdeCounterpart-1"
         },
+        "gwIdentModeByte": {
+            "type": "int",
+            "description": "GW ident Mode Byte",
+            "default": 32
+        },
         "gwIdentName": {
             "type": "string",
             "description": "GW ident Name",
