@@ -21,7 +21,7 @@
             "default": "iqrf::IdeCounterpart-1"
         },
         "gwIdentModeByte": {
-            "type": "int",
+            "type": "integer",
             "description": "GW ident Mode Byte",
             "default": 32
         },
