@@ -40,7 +40,7 @@
             "txPower": 3,
             "rxFilter": 5,
             "lpRxTimeout": 6,
-            "rfPgmAltChannel": 0,
+            "rfAltDsmChannel": 0,
             "uartBaudrate": 1200,
             "rfPgmDualChannel": true,
             "rfPgmLpMode": false,
