@@ -2303,11 +2303,11 @@ namespace iqrf {
       return lpRxTimeout;
     }
 
-    uint8_t checkRfPgmAltChannel(const int rfPgmAltChannel) {
-      if ((rfPgmAltChannel < 1) || (rfPgmAltChannel > 255)) {
-        THROW_EXC(std::out_of_range, "Alternative DPA service channel out of valid bounds. Value: " << PAR(rfPgmAltChannel));
+    uint8_t checkRfAltDsmChannel(const int rfAltDsmChannel ) {
+      if (( rfAltDsmChannel < 0) || ( rfAltDsmChannel > 255)) {
+        THROW_EXC(std::out_of_range, "Alternative DPA service channel out of valid bounds. Value: " << PAR( rfAltDsmChannel ));
       }
-      return rfPgmAltChannel;
+      return rfAltDsmChannel;
     }
 
     uint32_t checkUartBaudrate(const int uartBaudRate) {
@@ -2526,10 +2526,10 @@ namespace iqrf {
       }
 
       // an alternative DPA service mode channel
-      if (comWriteConfig.isSetRfPgmAltChannel()) {
-        uint8_t rfPgmAltChannel = checkRfPgmAltChannel(comWriteConfig.getRfPgmAltChannel());
-        HWP_ConfigByte rfPgmAltChannel_configByte(0x0C, rfPgmAltChannel, 0xFF);
-        configBytes.push_back(rfPgmAltChannel_configByte);
+      if (comWriteConfig.isSetRfAltDsmChannel()) {
+        uint8_t rfAltDsmChannel = checkRfAltDsmChannel(comWriteConfig.getRfAltDsmChannel());
+        HWP_ConfigByte rfAltDsmChannel_configByte(0x0C, rfAltDsmChannel, 0xFF);
+        configBytes.push_back( rfAltDsmChannel_configByte );
       }
 
       // Baud rate of the UART interface if one is used

@@ -1543,7 +1543,7 @@ namespace iqrf {
       Pointer("/data/rsp/trConfiguration/txPower").Set(response, configuration[0x07]);
       Pointer("/data/rsp/trConfiguration/rxFilter").Set(response, configuration[0x08]);
       Pointer("/data/rsp/trConfiguration/lpRxTimeout").Set(response, configuration[0x09]);
-      Pointer("/data/rsp/trConfiguration/rfPgmAltChannel").Set(response, configuration[0x0B]);
+      Pointer("/data/rsp/trConfiguration/rfAltDsmChannel").Set(response, configuration[0x0B]);
 
       try {
         uint32_t baudRate = parseBaudRate(configuration[0x0A]);

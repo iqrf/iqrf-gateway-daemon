@@ -39,7 +39,7 @@ namespace iqrf {
 
     const int getHwpId() const
     {
-      return m_deviceAddr;
+      return m_hwpId;
     }
 
 

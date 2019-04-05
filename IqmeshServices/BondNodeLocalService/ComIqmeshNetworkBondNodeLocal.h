@@ -40,6 +40,10 @@ namespace iqrf {
       return m_bondingMask;
     }
 
+    const int getBondingTestRetries() const
+    {
+      return m_bondingTestRetries;
+    }
 
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
@@ -50,11 +54,12 @@ namespace iqrf {
   private:
     bool m_isSetDeviceAddr = false;
     bool m_isSetBondingMask = false;
+    bool m_isSetBondingTestRetries = false;
 
     int m_repeat = 1;
     int m_deviceAddr;
-    int m_bondingMask = 0x00;
-
+    int m_bondingMask = 0;
+    int m_bondingTestRetries = 1;
 
     void parseRepeat(rapidjson::Document& doc) {
       if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc)) {
@@ -72,6 +77,11 @@ namespace iqrf {
         m_bondingMask = repeatJsonVal->GetInt();
       }
       m_isSetBondingMask = true;
+
+      if ( rapidjson::Value* repeatJsonVal = rapidjson::Pointer( "/data/req/bondingTestRetries" ).Get( doc ) ) {
+        m_bondingTestRetries = repeatJsonVal->GetInt();
+      }
+      m_isSetBondingTestRetries = true;
     }
 
     // parses document into data fields

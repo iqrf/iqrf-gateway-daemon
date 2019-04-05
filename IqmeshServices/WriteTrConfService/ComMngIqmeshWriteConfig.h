@@ -100,12 +100,12 @@ namespace iqrf {
       return m_lpRxTimeout;
     }
 
-    bool isSetRfPgmAltChannel() {
-      return m_isSetRfPgmAltChannel;
+    bool isSetRfAltDsmChannel() {
+      return m_isSetRfAltDsmChannel;
     }
 
-    const int getRfPgmAltChannel() {
-      return m_rfPgmAltChannel;
+    const int getRfAltDsmChannel() {
+      return m_rfAltDsmChannel;
     }
 
     bool isSetUartBaudrate() {
@@ -393,7 +393,7 @@ namespace iqrf {
     bool m_isSetTxPower = false;
     bool m_isSetRxFilter = false;
     bool m_isSetLpRxTimeout = false;
-    bool m_isSetRfPgmAltChannel = false;
+    bool m_isSetRfAltDsmChannel = false;
     bool m_isSetUartBaudrate = false;
 
     bool m_isSetRfPgmEnableAfterReset = false;
@@ -426,7 +426,7 @@ namespace iqrf {
     int m_txPower;
     int m_rxFilter;
     int m_lpRxTimeout;
-    int m_rfPgmAltChannel;
+    int m_rfAltDsmChannel;
     int m_uartBaudrate;
 
     bool m_rfPgmEnableAfterReset;
@@ -607,9 +607,9 @@ namespace iqrf {
         m_isSetLpRxTimeout = true;
       }
 
-      if (rapidjson::Value* rfPgmAltChannelJsonVal = rapidjson::Pointer("/data/req/rfPgmAltChannel").Get(doc)) {
-        m_rfPgmAltChannel = rfPgmAltChannelJsonVal->GetInt();
-        m_isSetRfPgmAltChannel = true;
+      if (rapidjson::Value* rfPgmAltChannelJsonVal = rapidjson::Pointer("/data/req/rfAltDsmChannel").Get(doc)) {
+        m_rfAltDsmChannel = rfPgmAltChannelJsonVal->GetInt();
+        m_isSetRfAltDsmChannel = true;
       }
 
       if (rapidjson::Value* uartBaudrateJsonVal = rapidjson::Pointer("/data/req/uartBaudrate").Get(doc)) {

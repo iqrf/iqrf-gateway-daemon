@@ -588,12 +588,12 @@ namespace iqrf {
         Pointer("/data/rsp/rfSubChannelA").Set(response, configuration[0x05]);
         Pointer("/data/rsp/rfSubChannelB").Set(response, configuration[0x06]);
       }
-
+      
       Pointer("/data/rsp/txPower").Set(response, configuration[0x07]);
       Pointer("/data/rsp/rxFilter").Set(response, configuration[0x08]);
       Pointer("/data/rsp/lpRxTimeout").Set(response, configuration[0x09]);
-      Pointer("/data/rsp/rfPgmAltChannel").Set(response, configuration[0x0B]);
-
+      Pointer("/data/rsp/rfAltDsmChannel").Set(response, configuration[0x0B]);
+      
       try {
         uint32_t baudRate = parseBaudRate(configuration[0x0A]);
         Pointer("/data/rsp/uartBaudrate").Set(response, baudRate);
@@ -624,7 +624,6 @@ namespace iqrf {
       bool rfPgmTerminateMcuPin = ((rfpgm & 0b10000000) == 0b10000000) ? true : false;
       Pointer("/data/rsp/rfPgmTerminateMcuPin").Set(response, rfPgmTerminateMcuPin);
 
-
       // RF band - undocumented byte
       std::string rfBand;
       try {
@@ -634,7 +633,6 @@ namespace iqrf {
         rfBand = "";
       }
       Pointer("/data/rsp/rfBand").Set(response, rfBand);
-
 
       // set raw fields, if verbose mode is active
       if (comReadTrConf.getVerbose()) {

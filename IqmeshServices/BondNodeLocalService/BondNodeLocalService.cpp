@@ -252,7 +252,7 @@ namespace iqrf {
     }
 
     // tries to bonds node and returns result
-    void _bondNode( BondResult& bondResult, const uint8_t nodeAddr, const uint8_t bondingMask )
+    void _bondNode( BondResult& bondResult, const uint8_t nodeAddr, const uint8_t bondingMask, const uint8_t bondingTestRetries )
     {
       TRC_FUNCTION_ENTER( "" );
 
@@ -262,10 +262,12 @@ namespace iqrf {
       bondNodePacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
       bondNodePacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BOND_NODE;
       bondNodePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-
       bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.ReqAddr = uint8_t( nodeAddr & 0xFF );
-      bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.BondNode.Previous.BondingMask = bondingMask;
-
+      // Put bondingTestRetries for DPA >= 4.00, bondingMask for DPA < 4.00
+      if ( m_iIqrfDpaService->getCoordinatorParameters().dpaVerWord >= 0x400 )
+        bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.BondNode.Current.BondingTestRetries = bondingTestRetries;
+      else
+        bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.BondNode.Previous.BondingMask = bondingMask;
       bondNodeRequest.DataToBuffer( bondNodePacket.Buffer, sizeof( TDpaIFaceHeader ) + 2 );
 
       // issue the DPA request
@@ -718,7 +720,7 @@ namespace iqrf {
     }
 
     // Bond the requested node
-    BondResult bondNode( const uint8_t nodeAddr, const uint8_t bondingMask )
+    BondResult bondNode( const uint8_t nodeAddr, const uint8_t bondingMask, const uint8_t bondingTestRetries )
     {
       TRC_FUNCTION_ENTER( "" );
 
@@ -753,7 +755,7 @@ namespace iqrf {
       }
 
       // bond a node
-      _bondNode( bondResult, nodeAddr, bondingMask );
+      _bondNode( bondResult, nodeAddr, bondingMask, bondingTestRetries );
 
       // bonding node failed
       if ( bondResult.getError().getType() != BondError::Type::NoError ) {
@@ -1171,6 +1173,14 @@ namespace iqrf {
       }
     }
 
+    uint8_t parseAndCheckBondingTestRetries( int bondingTestRetries ) {
+      if ( ( bondingTestRetries < 0 ) || ( bondingTestRetries > 0xFF ) ) {
+        THROW_EXC(
+          std::out_of_range, "bondingTestRetries outside of valid range. " << NAME_PAR_HEX( "bondingTestRetries", bondingTestRetries )
+        );
+      }
+      return bondingTestRetries;
+    }
 
     void handleMsg(
       const std::string& messagingId,
@@ -1195,7 +1205,7 @@ namespace iqrf {
       ComIqmeshNetworkBondNodeLocal comBondNodeLocal( doc );
 
       // service input parameters
-      uint8_t deviceAddr, bondingMask;
+      uint8_t deviceAddr, bondingMask, bondingTestRetries;
 
       // parsing and checking service parameters
       try {
@@ -1207,6 +1217,7 @@ namespace iqrf {
         
         deviceAddr = parseAndCheckDeviceAddr( comBondNodeLocal.getDeviceAddr() );
         bondingMask = parseAndCheckBondingMask( comBondNodeLocal.getBondingMask() );
+        bondingTestRetries = parseAndCheckBondingTestRetries( comBondNodeLocal.getBondingTestRetries() );
 
         m_returnVerbose = comBondNodeLocal.getVerbose();
       }
@@ -1234,7 +1245,7 @@ namespace iqrf {
         return;
       }
 
-      BondResult bondResult = bondNode( deviceAddr, bondingMask );
+      BondResult bondResult = bondNode( deviceAddr, bondingMask, bondingTestRetries );
 
       // release exclusive access
       m_exclusiveAccess.reset();
