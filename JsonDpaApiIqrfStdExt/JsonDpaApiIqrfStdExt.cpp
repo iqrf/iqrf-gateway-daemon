@@ -313,7 +313,7 @@ namespace iqrf {
         
         //TODO parse request
         
-        Pointer("/frcSendRequest").Set(paramDoc, rawHdpRequest.getDocument());
+        Pointer("/frcSendRequest").Set(paramDoc, rawHdpRequest.encode());
 
         StringBuffer buffer;
         PrettyWriter<rapidjson::StringBuffer> writer(buffer);

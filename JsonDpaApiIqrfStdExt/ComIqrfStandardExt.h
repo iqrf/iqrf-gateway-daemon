@@ -246,6 +246,32 @@ namespace iqrf {
     {}
 
     const DpaMessage& getDpaRequest() { return m_dpaRequest; }
+
+    const rapidjson::Document& encode()
+    {
+      using namespace rapidjson;
+
+      uint16_t nadr16 = 0, hwpid16 = 0;
+      uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
+      std::string nadrStr, pnumStr, pcmdStr, hwpidStr, rcodeStr, dpavalStr;
+
+      nadr16 = m_dpaRequest.DpaPacket().DpaResponsePacket_t.NADR;
+      pnum = m_dpaRequest.DpaPacket().DpaResponsePacket_t.PNUM;
+      pcmd = m_dpaRequest.DpaPacket().DpaResponsePacket_t.PCMD;
+      hwpid16 = m_dpaRequest.DpaPacket().DpaResponsePacket_t.HWPID;
+
+      Pointer("/nadr").Set(m_doc, nadrStr);
+      Pointer("/pnum").Set(m_doc, pnumStr);
+      Pointer("/pcmd").Set(m_doc, pcmdStr);
+      Pointer("/hwpid").Set(m_doc, hwpidStr);
+
+      if (m_dpaRequest.GetLength() > 8) {
+        Pointer("/rdata").Set(m_doc, encodeBinary(m_dpaRequest.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, m_dpaRequest.GetLength() - 8));
+      }
+      
+      return m_doc;
+    }
+
   private:
     DpaMessage m_dpaRequest;
   };
