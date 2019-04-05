@@ -38,6 +38,13 @@
 						  "type": "string",
 						  "description": "Product name."
 						},
+						"standards": {
+							"type": "array",
+							"description": "Supported standards by the device.",
+							"items": {
+							  "type": "string"
+							}
+						},			  
 						"discovery": {
 							"type": "object",
 							"description": "First response.",
@@ -336,7 +343,7 @@
 									"type": "integer",
 									"description": "Timeout for receiving RF packets at LP mode at N device."
 								},
-								"rfPgmAltChannel": {
+								"rfAltDsmChannel": {
 									"type": "integer",
 									"description": "A nonzero value specifies an alternative DPA service mode channel."
 								},

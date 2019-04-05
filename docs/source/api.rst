@@ -1,8 +1,9 @@
 Application Programming Interface
 =================================
 
-JSON messages for communication via `MQ`_/`WS`_/`MQTT`_ channels. Messages are compatible from OS v4.02D and 
-DPA v3.02 at TR-7xD and higher. It is always highly recommended to use latest OS/DPA FW on the modules. 
+JSON messages for communication via `MQ`_/`WS`_/`MQTT`_ channels. Messages has been tested with OS v4.02D and 
+DPA v3.02 at TR-7xD and higher. Check with `DPA`_ release page the relevance of particular DPA cmds. Some DPA
+cmds were updated/added/removed in later versions of DPA.
 
 IQRF Gateway Daemon API categories:
 
@@ -15,6 +16,7 @@ IQRF Gateway Daemon API categories:
 .. _`MQ`: https://en.wikipedia.org/wiki/Message_queue
 .. _`WS`: https://en.wikipedia.org/wiki/WebSocket
 .. _`MQTT`: https://cs.wikipedia.org/wiki/MQTT
+.. _`DPA`: https://www.iqrf.org/DpaTechGuide/400/pages/dpa-302.html
 
 IQRF Generic
 ------------
@@ -624,8 +626,6 @@ IQRF Bonding
 
 **Since v2.1.0**
 
-- `AutoNetwork request v1-0-0`_ and `example`__
-- `AutoNetwork response v1-0-0`_ and `example`__
 - `RemoveBond request v1-0-0`_ and `example`__
 - `RemoveBond response v1-0-0`_ and `example`__
 
@@ -637,10 +637,6 @@ IQRF Bonding
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_SmartConnect-request-1-0-0-example.json
 .. _`SmartConnect response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_SmartConnect-response-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_SmartConnect-response-1-0-0-example.json
-.. _`AutoNetwork request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_AutoNetwork-request-1-0-0.json
-.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_AutoNetwork-request-1-0-0-example.json
-.. _`AutoNetwork response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_AutoNetwork-response-1-0-0.json
-.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_AutoNetwork-response-1-0-0-example.json
 .. _`RemoveBond request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_RemoveBond-request-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/iqmeshNetwork_RemoveBond-request-1-0-0-example.json
 .. _`RemoveBond response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/iqmeshNetwork_RemoveBond-response-1-0-0.json

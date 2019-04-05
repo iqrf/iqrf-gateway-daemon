@@ -145,7 +145,7 @@
 							"type": "integer",
 							"description": "Timeout for receiving RF packets at LP mode at N device."
 						},
-						"rfPgmAltChannel": {
+						"rfAltDsmChannel": {
 							"type": "integer",
 							"description": "A nonzero value specifies an alternative DPA service mode channel."
 						},

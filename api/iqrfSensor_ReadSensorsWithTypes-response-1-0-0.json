@@ -69,14 +69,54 @@
                                             },
                                             "value": {
                                                 "oneOf": [
-                                                    { "type": "number" },
-                                                    { "type": "null" }
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "null"
+                                                    }
                                                 ],
                                                 "description": "Value of the sensor."
                                             },
                                             "unit": {
                                                 "type": "string",
                                                 "description": "Unit of the quantity. Dimensionless quantities has \"\"."
+                                            },
+                                            "breakdown": {
+                                                "type": "array",
+                                                "description": "Parsed generic types if present in device response.",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "integer",
+                                                            "description": "Value type of the sensor (quantity)."
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "description": "Name of the sensor (quantity)."
+                                                        },
+                                                        "shortName": {
+                                                            "type": "string",
+                                                            "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
+                                                        },
+                                                        "value": {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "null"
+                                                                }
+                                                            ],
+                                                            "description": "Value of the sensor."
+                                                        },
+                                                        "unit": {
+                                                            "type": "string",
+                                                            "description": "Unit of the quantity. Dimensionless quantities has \"\"."
+                                                        }
+                                                    }
+                                                }
                                             }
                                         },
                                         "required": [
