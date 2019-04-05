@@ -4,37 +4,157 @@
         "msgId": "testEmbedSensor",
         "rsp": {
             "nAdr": 1,
-            "hwpId": 2,
+            "hwpId": 4117,
             "rCode": 0,
-            "dpaVal": 68,
+            "dpaVal": 88,
             "result": {
                 "sensors": [
                     {
-                        "type": 1,
-                        "name": "Temperature",
-                        "shortName": "T",
+                        "type": 20,
+                        "name": "Altitude",
+                        "shortName": "h",
+                        "value": 410.5,
+                        "unit": "m"
+                    },
+                    {
+                        "type": 2,
+                        "name": "Carbon dioxide",
+                        "shortName": "CO2",
+                        "value": 232,
+                        "unit": "ppm"
+                    },
+                    {
+                        "type": 128,
+                        "name": "Relative humidity",
+                        "shortName": "RH",
+                        "value": 46,
+                        "unit": "%"
+                    },
+                    {
+                        "type": 11,
+                        "name": "Illuminance",
+                        "shortName": "Ev",
+                        "value": 28,
+                        "unit": "lx"
+                    },
+                    {
+                        "type": 160,
+                        "name": "Binary data30",
+                        "shortName": "bin30",
                         "value": null,
-                        "unit": "°C"
+                        "unit": "?",
+                        "breakdown": [
+                            {
+                                "type": 160,
+                                "name": "Counter",
+                                "shortName": "cnt",
+                                "unit": "",
+                                "value": null
+                            }
+                        ]
+                    },
+                    {
+                        "type": 129,
+                        "name": "Binary data7",
+                        "shortName": "bin7",
+                        "value": 2,
+                        "unit": "?",
+                        "breakdown": [
+                            {
+                                "type": 129,
+                                "name": "Orientation",
+                                "shortName": "ori",
+                                "unit": "",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    {
+                        "type": 21,
+                        "name": "Acceleration",
+                        "shortName": "a",
+                        "value": 9.76953125,
+                        "unit": "m/s²"
+                    },
+                    {
+                        "type": 21,
+                        "name": "Acceleration",
+                        "shortName": "a",
+                        "value": -0.03515625,
+                        "unit": "m/s²"
+                    },
+                    {
+                        "type": 21,
+                        "name": "Acceleration",
+                        "shortName": "a",
+                        "value": 0.171875,
+                        "unit": "m/s²"
+                    },
+                    {
+                        "type": 160,
+                        "name": "Binary data30",
+                        "shortName": "bin30",
+                        "value": 0,
+                        "unit": "?",
+                        "breakdown": [
+                            {
+                                "type": 160,
+                                "name": "Counter",
+                                "shortName": "cnt",
+                                "unit": "",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "type": 16,
+                        "name": "Atmospheric pressure",
+                        "shortName": "p",
+                        "value": 964,
+                        "unit": "hPa"
+                    },
+                    {
+                        "type": 19,
+                        "name": "Sound pressure level",
+                        "shortName": "Lp",
+                        "value": 25,
+                        "unit": "dB"
                     },
                     {
                         "type": 1,
                         "name": "Temperature",
                         "shortName": "T",
-                        "value": 29.5,
+                        "value": 21.625,
                         "unit": "°C"
+                    },
+                    {
+                        "type": 3,
+                        "name": "Volatile organic compound",
+                        "shortName": "VOC",
+                        "value": 6,
+                        "unit": "ppm"
+                    },
+                    {
+                        "type": 4,
+                        "name": "Extra-low voltage",
+                        "shortName": "U",
+                        "value": 4.422,
+                        "unit": "V"
                     }
                 ]
             }
         },
-        "raw": {
-            "request": "01.00.5e.01.ff.ff.03.00.00.00",
-            "requestTs": "2018-07-24T15:33:30.654551",
-            "confirmation": "01.00.5e.01.ff.ff.ff.3f.01.04.01",
-            "confirmationTs": "2018-07-24T15:33:30.686905",
-            "response": "01.00.5e.81.02.00.00.44.01.00.80.01.d8.01",
-            "responseTs": "2018-07-24T15:33:30.819994"
-        },
-        "insId": "iqrfgd2-1",
+        "raw": [
+            {
+                "request": "01.00.5e.01.ff.ff.ff.ff.ff.ff",
+                "requestTs": "2019-04-05T15:01:33.494786",
+                "confirmation": "01.00.5e.01.ff.ff.ff.50.01.08.01",
+                "confirmationTs": "2019-04-05T15:01:33.534786",
+                "response": "01.00.5e.81.15.10.00.58.14.6a.16.02.e8.00.80.5c.0b.1c.00.a0.00.00.00.80.81.02.15.c5.09.15.f7.ff.15.2c.00.a0.00.00.00.00.10.40.3c.13.90.01.01.5a.01.03.06.00.04.46.11",
+                "responseTs": "2019-04-05T15:01:33.814787"
+            }
+        ],
+        "insId": "iqrfgd2-default",
         "statusStr": "ok",
         "status": 0
     }

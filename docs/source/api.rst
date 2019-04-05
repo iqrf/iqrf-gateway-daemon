@@ -2,8 +2,8 @@ Application Programming Interface
 =================================
 
 JSON messages for communication via `MQ`_/`WS`_/`MQTT`_ channels. Messages has been tested with OS v4.02D and 
-DPA v3.02 at TR-7xD and higher. Check with `DPA`_ release page the relevance of particular DPA cmds. Some DPA
-cmds were updated/added/removed in later versions of DPA.
+DPA v3.02 at TR-7xD and higher. Check with `DPA release`_ pages the relevance of particular DPA cmds. Some DPA
+cmds were updated/added/removed in further versions of DPA.
 
 IQRF Gateway Daemon API categories:
 
@@ -16,7 +16,7 @@ IQRF Gateway Daemon API categories:
 .. _`MQ`: https://en.wikipedia.org/wiki/Message_queue
 .. _`WS`: https://en.wikipedia.org/wiki/WebSocket
 .. _`MQTT`: https://cs.wikipedia.org/wiki/MQTT
-.. _`DPA`: https://www.iqrf.org/DpaTechGuide/400/pages/dpa-302.html
+.. _`DPA release`: https://www.iqrf.org/DpaTechGuide/pages/document-revisions.html
 
 IQRF Generic
 ------------
