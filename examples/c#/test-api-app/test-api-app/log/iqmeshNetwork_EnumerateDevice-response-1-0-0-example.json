@@ -1,0 +1,186 @@
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "testIqmeshEnumerate",
+        "rsp": {
+            "deviceAddr": 12,
+            "discovery": {
+                "discovered": true,
+                "vrn": 11,
+                "zone": 2,
+                "parent": 1
+            },
+            "osRead": {
+                "mid": "81102D61",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-101 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 16,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": false,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                }
+            },
+            "peripheralEnumeration": {
+                "dpaVer": "3.03",
+                "perNr": 0,
+                "embPers": [
+                    254,
+                    38,
+                    0,
+                    0
+                ],
+                "hwpId": 0,
+                "hwpIdVer": 0,
+                "flags": {
+                    "value": 2,
+                    "rfMode": "LP"
+                },
+                "userPers": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "trConfiguration": {
+                "embPers": {
+                    "values": [
+                        254,
+                        38,
+                        0,
+                        0
+                    ],
+                    "coordinator": false,
+                    "node": true,
+                    "os": true,
+                    "eeprom": true,
+                    "eeeprom": true,
+                    "ram": true,
+                    "ledr": true,
+                    "ledg": true,
+                    "spi": false,
+                    "io": true,
+                    "thermometer": true,
+                    "pwm": false,
+                    "uart": false,
+                    "frc": true
+                },
+                "customDpaHandler": false,
+                "nodeDpaInterface": false,
+                "dpaAutoexec": false,
+                "routingOff": false,
+                "ioSetup": false,
+                "peerToPeer": false,
+                "neverSleep": false,
+                "rfChannelA": 25,
+                "rfChannelB": 2,
+                "rfSubChannelA": 42,
+                "rfSubChannelB": 0,
+                "txPower": 3,
+                "rxFilter": 5,
+                "lpRxTimeout": 6,
+                "rfPgmAltChannel": 0,
+                "uartBaudrate": 1200,
+                "rfPgmDualChannel": true,
+                "rfPgmLpMode": false,
+                "rfPgmIncorrectUpload": false,
+                "rfPgmEnableAfterReset": true,
+                "rfPgmTerminateAfter1Min": true,
+                "rfPgmTerminateMcuPin": true,
+                "rfBand": "868"
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-10-29T16:38:21.515224",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.4c.fe.ff.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-10-29T16:38:21.545537"
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.20.00",
+                "requestTs": "2018-10-29T16:38:21.546073",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.8a.00.00.00.4c.43.50.43.20.00.00.3e.38.44.50.44.20.00.00.3e.38.45.50.45.30.00.00.3e.38.46.50.46.30.00.00.3e.38.3e.50.3e.40.00.00.3d.38.22.50.22.40.00.00.39.38",
+                "responseTs": "2018-10-29T16:38:21.615848"
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.0c.50",
+                "requestTs": "2018-10-29T16:38:21.616283",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.8a.00.00.00.4c.0b.0d.0e.0c.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-10-29T16:38:21.683752"
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.0c.52",
+                "requestTs": "2018-10-29T16:38:21.684191",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.8a.00.00.00.4c.02.02.03.02.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-10-29T16:38:21.740745"
+            },
+            {
+                "request": "00.00.00.0a.ff.ff.0c.53",
+                "requestTs": "2018-10-29T16:38:21.741205",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.8a.00.00.00.4c.01.06.0c.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-10-29T16:38:21.809558"
+            },
+            {
+                "request": "0c.00.02.00.ff.ff",
+                "requestTs": "2018-10-29T16:38:21.810001",
+                "confirmation": "0c.00.02.00.ff.ff.ff.4c.0d.08.0d",
+                "confirmationTs": "2018-10-29T16:38:21.845876",
+                "response": "0c.00.02.80.00.00.00.1d.61.2d.10.81.43.24.c8.08.1d.28.10.75.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32",
+                "responseTs": "2018-10-29T16:38:23.173130"
+            },
+            {
+                "request": "0c.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-29T16:38:25.593828",
+                "confirmation": "0c.00.ff.3f.ff.ff.ff.4c.0d.08.0d",
+                "confirmationTs": "2018-10-29T16:38:25.625393",
+                "response": "0c.00.ff.bf.00.00.00.1d.03.03.00.fe.26.00.00.00.00.00.00.02",
+                "responseTs": "2018-10-29T16:38:27.73694"
+            },
+            {
+                "request": "0c.00.02.02.ff.ff",
+                "requestTs": "2018-10-29T16:38:29.354611",
+                "confirmation": "0c.00.02.02.ff.ff.ff.4c.0d.08.0d",
+                "confirmationTs": "2018-10-29T16:38:29.388299",
+                "response": "0c.00.02.82.00.00.00.1d.b5.fe.26.00.00.00.2a.00.03.05.06.00.00.00.00.00.00.19.02.00.00.00.00.00.00.00.00.00.00.00.03.00.d3.30",
+                "responseTs": "2018-10-29T16:38:30.705766"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}

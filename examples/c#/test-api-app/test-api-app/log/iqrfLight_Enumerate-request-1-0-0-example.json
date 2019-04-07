@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfLight_Enumerate",
+  "data": {
+    "msgId": "testEmbedLight",
+    "req": {
+      "nAdr": 4,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

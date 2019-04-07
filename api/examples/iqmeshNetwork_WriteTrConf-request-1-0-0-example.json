@@ -1,0 +1,13 @@
+{
+  "mType": "iqmeshNetwork_WriteTrConf",
+  "data": {
+    "msgId": "testIqmeshWrite",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1,
+      "txPower": 3,
+      "rxFilter": 5
+    },
+    "returnVerbose": true
+  }
+}

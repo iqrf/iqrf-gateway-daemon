@@ -1,0 +1,45 @@
+{
+    "mType": "iqrfEmbedExplore_Enumerate",
+    "data": {
+        "msgId": "testEmbedExplore",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 63,
+            "result": {
+                "dpaVer": 771,
+                "perNr": 0,
+                "embeddedPers": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    9,
+                    10,
+                    13
+                ],
+                "hwpid": 0,
+                "hwpidVer": 0,
+                "flags": 2,
+                "userPer": []
+            }
+        },
+        "raw": [
+            {
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-17T10:07:11.382687",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.3c.01.08.01",
+                "confirmationTs": "2018-10-17T10:07:11.416593",
+                "response": "01.00.ff.bf.00.00.00.3f.03.03.00.fe.26.00.00.00.00.00.00.02",
+                "responseTs": "2018-10-17T10:07:11.676108"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

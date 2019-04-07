@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedLedr_Set",
+    "data": {
+        "msgId": "testEmbedLedr",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 75,
+            "result": {}
+        },
+        "raw": {
+            "request": "01.00.06.01.ff.ff",
+            "requestTs": "2018-07-17T16:54:38.112445",
+            "confirmation": "01.00.06.01.ff.ff.ff.3b.01.04.01",
+            "confirmationTs": "2018-07-17T16:54:38.135078",
+            "response": "01.00.06.81.02.00.00.4b",
+            "responseTs": "2018-07-17T16:54:38.277356"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

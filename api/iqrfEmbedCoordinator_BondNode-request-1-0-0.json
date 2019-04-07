@@ -1,0 +1,75 @@
+{
+    "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfEmbedCoordinator_BondNode-request",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Embedded peripheral Coordinator - Bond Node request.",
+            "enum": [
+                "iqrfEmbedCoordinator_BondNode"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "Timeout to wait for IQRF DPA response."
+                },
+                "req": {
+                    "type": "object",
+                    "properties": {
+                        "nAdr": {
+                            "type": "integer",
+                            "description": "Network device address."
+                        },
+                        "hwpId": {
+                            "type": "integer",
+                            "description": "Hardware profile identification."
+                        },
+                        "param": {
+                            "type": "object",
+                            "properties": {
+                                "reqAddr": {
+                                    "type": "integer",
+                                    "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node.",
+                                    "default": 0
+                                },
+                                "bondingMask": {
+                                    "type": "integer",
+                                    "description": "See IQRF OS User's and Reference guides (remote bonding, function bondNewNode)."
+                                }
+                            }
+						}
+                    },
+                    "required": [
+                        "nAdr",
+                        "param"
+                    ]
+                },
+                "returnVerbose": {
+                    "type": "boolean",
+                    "description": "Flag that includes additional parameters in the response."
+                }
+            },
+            "required": [
+                "msgId",
+                "req"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

@@ -1,0 +1,39 @@
+{
+  "mType": "mngScheduler_AddTask",
+  "data": {
+    "msgId": "testSchedulerAdd",
+    "req": {
+      "clientId": "SchedulerMessaging",
+      "task": {
+        "messaging": "WebsocketMessaging",
+        "message": {
+          "mType": "iqrfRaw",
+          "data": {
+            "msgId": "testRaw",
+            "req": {
+              "rData": "00.00.06.03.FF.FF"
+            },
+            "returnVerbose": true
+          }
+        }
+      },
+      "timeSpec": {
+        "cronTime": [
+          "*/10",
+          "*",
+          "*",
+          "*",
+          "*",
+          "*",
+          "*"
+        ],
+        "periodic": false,
+        "period": 0,
+        "exactTime": false,
+        "startTime": ""
+      },
+      "persist":true
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,52 @@
+{
+    "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "mngDaemon_Exit-request",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Daemon runtime management - restart the daemon request.",
+            "enum": [
+                "mngDaemon_Exit"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "req": {
+                    "type": "object",
+                    "properties": {
+                        "timeToExit": {
+                            "type": "number",
+                            "description": "Time to exit the daemon in ms."
+                        }
+                    },
+                    "required": [
+                        "timeToExit"
+                    ]
+                },
+                "returnVerbose": {
+                    "type": "boolean",
+                    "description": "Flag that includes additional parameters in the response."
+                }
+            },
+            "required": [
+                "msgId",
+                "req"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

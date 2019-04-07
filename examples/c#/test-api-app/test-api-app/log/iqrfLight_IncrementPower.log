@@ -1,0 +1,52 @@
+==================================
+Sending to WebSocket: 2018-07-18 14:59:41.465
+{
+  "mType": "iqrfLight_IncrementPower",
+  "data": {
+    "msgId": "testEmbedLight",
+    "req": {
+      "nAdr": 4,
+      "param": {
+        "lights": [
+          {
+            "index": 0,
+            "power": 10
+          }
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-18 14:59:42.058
+{
+    "mType": "iqrfLight_IncrementPower",
+    "data": {
+        "msgId": "testEmbedLight",
+        "rsp": {
+            "nAdr": 4,
+            "hwpId": 4098,
+            "rCode": 0,
+            "dpaVal": 64,
+            "result": {
+                "prevVals": [
+                    100
+                ]
+            }
+        },
+        "raw": {
+            "request": "04.00.71.01.ff.ff.01.00.00.00.0a",
+            "requestTs": "2018-07-18T14:59:42.704166",
+            "confirmation": "04.00.71.01.ff.ff.ff.38.01.04.01",
+            "confirmationTs": "2018-07-18T14:59:42.733590",
+            "response": "04.00.71.81.02.10.00.40.64",
+            "responseTs": "2018-07-18T14:59:42.876147"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-18 14:59:42.564
+==================================
+

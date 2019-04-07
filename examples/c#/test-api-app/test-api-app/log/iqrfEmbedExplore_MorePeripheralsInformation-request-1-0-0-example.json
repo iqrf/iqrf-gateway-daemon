@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfEmbedExplore_MorePeripheralsInformation",
+  "data": {
+    "msgId": "testEmbedExplore",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "per": 1
+      }
+    },
+    "returnVerbose": true
+  }
+}

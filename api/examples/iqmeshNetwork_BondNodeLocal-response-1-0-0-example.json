@@ -1,0 +1,119 @@
+{
+    "mType": "iqmeshNetwork_BondNodeLocal",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 1,
+            "hwpId": 2,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "DDC-SE-01 sensor example",
+            "standards": [
+                "Driver Library",
+                "IQRF: Sensor",
+                "Embed: Coordinator",
+                "Embed: Node",
+                "Embed: OS",
+                "Embed: EEPROM",
+                "Embed: EEEPROM",
+                "Embed: RAM",
+                "Embed: Red LED",
+                "Embed: Green LED",
+                "Embed: SPI",
+                "Embed: IO",
+                "Embed: Thermometer",
+                "Embed: UART",
+                "Embed: FRC",
+                "Embed: DPA Exploration"
+            ],
+            "osRead": {
+                "mid": "81103000",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-38 dBm",
+                "supplyVoltage": "2.97 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    59,
+                    74,
+                    82,
+                    191,
+                    254,
+                    53,
+                    210,
+                    44,
+                    86,
+                    242,
+                    55,
+                    243,
+                    204,
+                    23,
+                    213,
+                    187
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-11-05T14:09:16.126566",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.fc.ff.30.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.03.00",
+                "responseTs": "2018-11-05T14:09:16.155380"
+            },
+            {
+                "request": "00.00.00.04.ff.ff.01.00",
+                "requestTs": "2018-11-05T14:09:16.155918",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.84.00.00.00.00.01.11",
+                "responseTs": "2018-11-05T14:09:19.47330"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T14:09:19.304917",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.0b.08.0b",
+                "confirmationTs": "2018-11-05T14:09:19.334298",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-05T14:09:21.906113",
+                "confirmation": "01.00.02.00.ff.ff.ff.00.0b.08.0b",
+                "confirmationTs": "2018-11-05T14:09:21.935715",
+                "response": "01.00.02.80.02.00.00.5c.00.30.10.81.43.24.c8.08.5c.27.14.75.3b.4a.52.bf.fe.35.d2.2c.56.f2.37.f3.cc.17.d5.bb",
+                "responseTs": "2018-11-05T14:09:22.994645"
+            },
+            {
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-11-05T14:09:25.76340",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.4b.0b.08.0b",
+                "confirmationTs": "2018-11-05T14:09:25.282047",
+                "response": "01.00.ff.bf.02.00.00.5c.03.03.01.fe.26.00.00.02.00.01.00.02.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-11-05T14:09:26.174569"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}

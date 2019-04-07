@@ -1,0 +1,12 @@
+{
+    "mType": "mngMetaData_ImportNadrMidMap",
+    "data": {
+        "msgId": "ImportNadrMidMap",
+        "rsp": {
+            "duplicityNadrMid": []
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

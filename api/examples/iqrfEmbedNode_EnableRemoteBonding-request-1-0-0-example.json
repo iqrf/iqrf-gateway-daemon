@@ -1,0 +1,20 @@
+{
+  "mType": "iqrfEmbedNode_EnableRemoteBonding",
+  "data": {
+    "msgId": "testEmbedNode",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "bondingMask": 0,
+        "control": 0,
+        "userData": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,56 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "mngMetaData_SetMetaData-request",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Daemon metadata - Set daemon metadata.",
+            "enum": [
+                "mngMetaData_SetMetaData"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "req": {
+                    "type": "object",
+                    "properties": {
+                        "metaId": {
+                            "type": "string",
+                            "description": "Metadata ID."
+                        },                   
+                        "metaData": {
+                            "type": "object",
+                            "description": "Metadata Json."
+                        }
+                    },
+                    "required": [
+                        "metaId", 
+                        "metaData"
+                    ]
+                },
+                "returnVerbose": {
+                    "type": "boolean",
+                    "description": "Flag that includes additional parameters in the response."
+                }
+            },
+            "required": [
+                "msgId"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

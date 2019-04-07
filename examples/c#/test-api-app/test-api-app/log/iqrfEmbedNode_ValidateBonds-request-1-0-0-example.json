@@ -1,0 +1,18 @@
+{
+  "mType": "iqrfEmbedNode_ValidateBonds",
+  "data": {
+    "msgId": "testEmbedNode",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "nodes": [
+          {
+            "bondAddr": 10,
+            "mid": 0
+          }
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

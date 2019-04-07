@@ -1,0 +1,160 @@
+{
+    "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfEmbedExplore_Enumerate-response",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Embedded peripheral Explore - Enumeration response.",
+            "enum": [
+                "iqrfEmbedExplore_Enumerate"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "Timeout to wait for IQRF DPA response."
+                },
+                "rsp": {
+                    "type": "object",
+                    "properties": {
+                        "nAdr": {
+                            "type": "integer",
+                            "description": "Network device address."
+                        },
+                        "hwpId": {
+                            "type": "integer",
+                            "description": "Hardware profile identification."
+                        },
+                        "rCode": {
+                            "type": "integer",
+                            "description": "DPA error code."
+                        },
+                        "dpaVal": {
+                            "type": "integer",
+                            "description": "DPA value."
+                        },
+                        "result": {
+                            "type": "object",
+                            "properties": {
+                                "dpaVer": {
+                                    "type": "integer",
+                                    "description": "DPA version."
+                                },
+                                "perNr": {
+                                    "type": "integer",
+                                    "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
+                                },
+                                "embPers": {
+                                    "type": "array",
+                                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the HWP Configuration.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "hwpIdVer": {
+                                    "type": "integer",
+                                    "description": "Hardware profile version."
+                                },
+                                "flags": {
+                                    "type": "integer",
+                                    "description": "Various flags."
+                                },
+                                "userPers": {
+                                    "type": "array",
+                                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }        
+                            }
+                        },
+                        "errorStr": {
+                            "type": "string",
+                            "description": "Error description from JS drivers."
+                        }
+                    },
+                    "required": [
+                        "nAdr",
+                        "hwpId",
+                        "rCode",
+                        "dpaVal"
+                    ]
+                },
+                "raw": {
+					"type": "array",
+					"description": "Returns array of objects req-cnf-rsp, see its description.",
+					"items": {
+						"type": "object",
+						"properties": {
+							"request": {
+								"type": "string",
+								"description": "Binary buffer with DPA request."
+							},
+							"requestTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+							},
+							"confirmation": {
+								"type": "string",
+								"description": "Binary buffer with DPA confirmation."
+							},
+							"confirmationTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+							},
+							"response": {
+								"type": "string",
+								"description": "Binary buffer with DPA response."
+							},
+							"responseTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+							}
+						},
+						"required": [
+							"request",
+							"requestTs",
+							"confirmation",
+							"confirmationTs",
+							"response",
+							"responseTs"
+						]
+					}
+                },
+                "insId": {
+                    "type": "string",
+                    "description": "IQRF GW daemon instance identification."
+                },
+                "status": {
+                    "type": "integer",
+                    "description": "IQRF GW daemon API (general or mType) status."
+                },
+                "statusStr": {
+                    "type": "string",
+                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                }
+            },
+            "required": [
+                "msgId",
+                "rsp",
+                "status"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

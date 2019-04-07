@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfEmbedFrc_ExtraResult",
+  "data": {
+    "msgId": "testEmbedFrc",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

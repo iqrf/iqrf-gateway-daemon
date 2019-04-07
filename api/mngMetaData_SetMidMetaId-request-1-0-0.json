@@ -1,0 +1,56 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "mngMetaData_SetMidMetaId-request",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Daemon metadata - Set MID to metadata.",
+            "enum": [
+                "mngMetaData_SetMidMetaId"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "req": {
+                    "type": "object",
+                    "properties": {
+                        "mid": {
+                            "type": "string",
+                            "description": "Module ID."
+                        },
+                        "metaId": {
+                            "type": "string",
+                            "description": "Metadata ID."
+                        }
+                    },
+                    "required": [
+                        "mid", 
+                        "metaId"
+                    ]
+                },
+                "returnVerbose": {
+                    "type": "boolean",
+                    "description": "Flag that includes additional parameters in the response."
+                }
+            },
+            "required": [
+                "msgId"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

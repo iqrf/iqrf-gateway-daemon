@@ -1,0 +1,41 @@
+{
+    "mType": "iqrfSensor_ReadSensorsWithTypes",
+    "data": {
+        "msgId": "testEmbedSensor",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 69,
+            "result": {
+                "sensors": [
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 27,
+                        "unit": "°C"
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 26,
+                        "unit": "°C"
+                    }
+                ]
+            }
+        },
+        "raw": {
+            "request": "01.00.5e.01.ff.ff.03.00.00.00",
+            "requestTs": "2018-09-06T17:40:08.969640",
+            "confirmation": "01.00.5e.01.ff.ff.ff.00.01.04.01",
+            "confirmationTs": "2018-09-06T17:40:09.2382",
+            "response": "01.00.5e.81.02.00.00.45.01.b0.01.01.a0.01",
+            "responseTs": "2018-09-06T17:40:09.141185"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

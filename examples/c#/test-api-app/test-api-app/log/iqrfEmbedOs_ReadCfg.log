@@ -1,0 +1,302 @@
+==================================
+Sending to WebSocket: 2018-07-16 17:10:42.341
+{
+  "mType": "iqrfEmbedOs_ReadCfg",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 17:10:42.9
+{
+    "mType": "iqrfEmbedOs_ReadCfg",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 58,
+            "result": {
+                "mid": 2165321048,
+                "osVersion": 67,
+                "trMcuType": 36,
+                "osBuild": 2239,
+                "rssi": 58,
+                "supplyVoltage": 3.0013793103448278,
+                "flags": 0,
+                "slotLimits": 49,
+                "ibk": [
+                    174,
+                    139,
+                    167,
+                    28,
+                    168,
+                    20,
+                    155,
+                    17,
+                    202,
+                    85,
+                    8,
+                    227,
+                    202,
+                    145,
+                    49,
+                    104
+                ]
+            }
+        },
+        "raw": {
+            "request": "00.00.02.00.ff.ff",
+            "requestTs": "2018-07-16T17:10:44.441048",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.02.80.00.00.00.3a.58.2d.10.81.43.24.bf.08.3a.28.00.31.ae.8b.a7.1c.a8.14.9b.11.ca.55.08.e3.ca.91.31.68",
+            "responseTs": "2018-07-16T17:10:44.472603"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-16 17:10:43.464
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-16 17:14:54.188
+{
+  "mType": "iqrfEmbedOs_ReadCfg",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 17:14:54.363
+{
+    "mType": "iqrfEmbedOs_ReadCfg",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 58,
+            "result": {
+                "checksum": 129,
+                "configuration": [
+                    201,
+                    18,
+                    52,
+                    52,
+                    52,
+                    30,
+                    52,
+                    55,
+                    49,
+                    50,
+                    55,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    45,
+                    54,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    55,
+                    52
+                ],
+                "rfpgm": 195,
+                "undocumented": 48
+            }
+        },
+        "raw": {
+            "request": "00.00.02.02.ff.ff",
+            "requestTs": "2018-07-16T17:14:55.926137",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.02.82.00.00.00.3a.81.c9.12.34.34.34.1e.34.37.31.32.37.34.34.34.34.34.2d.36.34.34.34.34.34.34.34.34.34.34.34.37.34.c3.30",
+            "responseTs": "2018-07-16T17:14:55.965006"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-16 17:14:54.803
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-16 17:17:45.549
+{
+  "mType": "iqrfEmbedOs_ReadCfg",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 17:17:46.066
+{
+    "mType": "iqrfEmbedOs_ReadCfg",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 62,
+            "result": {
+                "checksum": 131,
+                "configuration": [
+                    202,
+                    18,
+                    52,
+                    52,
+                    53,
+                    30,
+                    52,
+                    55,
+                    49,
+                    50,
+                    55,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    45,
+                    54,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    55,
+                    52
+                ],
+                "rfpgm": 211,
+                "undocumented": 32
+            }
+        },
+        "raw": {
+            "request": "01.00.02.02.ff.ff",
+            "requestTs": "2018-07-16T17:17:47.272023",
+            "confirmation": "01.00.02.02.ff.ff.ff.3a.01.04.01",
+            "confirmationTs": "2018-07-16T17:17:47.304395",
+            "response": "01.00.02.82.02.00.00.3e.83.ca.12.34.34.35.1e.34.37.31.32.37.34.34.34.34.34.2d.36.34.34.34.34.34.34.34.34.34.34.34.37.34.d3.20",
+            "responseTs": "2018-07-16T17:17:47.445320"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-16 17:17:46.554
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-16 17:31:55.103
+{
+  "mType": "iqrfEmbedOs_ReadCfg",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 17:31:55.314
+{
+    "mType": "iqrfEmbedOs_ReadCfg",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 56,
+            "result": {
+                "checksum": 129,
+                "configuration": [
+                    201,
+                    18,
+                    52,
+                    52,
+                    52,
+                    30,
+                    52,
+                    55,
+                    49,
+                    50,
+                    55,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    45,
+                    54,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    52,
+                    55,
+                    52
+                ],
+                "rfpgm": 195,
+                "undocumented": 48
+            }
+        },
+        "raw": {
+            "request": "00.00.02.02.ff.ff",
+            "requestTs": "2018-07-16T17:31:56.880281",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.02.82.00.00.00.38.81.c9.12.34.34.34.1e.34.37.31.32.37.34.34.34.34.34.2d.36.34.34.34.34.34.34.34.34.34.34.34.37.34.c3.30",
+            "responseTs": "2018-07-16T17:31:56.917215"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-16 17:31:55.842
+==================================
+

@@ -1,0 +1,113 @@
+# type:   1=Temperature
+# index:  0=TR 
+#         1=DS18B20
+# cmd:    144=1B
+{
+    "mType": "iqrfSensor_Frc",
+    "data": {
+        "msgId": "EmbedSensors",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 44,
+            "result": {
+                "sensors": [
+                    null,
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 24,
+                        "unit": "°C"
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 24,
+                        "unit": "°C"
+                    }
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.0d.00.ff.ff.90.5e.01.01.00",
+                "requestTs": "2018-11-01T13:47:31.843912",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.0d.80.00.00.00.2c.08.00.5c.5c.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-11-01T13:47:32.911522"
+            },
+            {
+                "request": "00.00.0d.01.ff.ff",
+                "requestTs": "2018-11-01T13:47:32.912178",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.0d.81.00.00.00.2c.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-11-01T13:47:32.952604"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+
+# type:   1=Temperature
+# index:  0=TR 
+#         1=DS18B20
+# cmd:    224=2B
+{
+    "mType": "iqrfSensor_Frc",
+    "data": {
+        "msgId": "EmbedSensors",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 44,
+            "result": {
+                "sensors": [
+                    null,
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 24,
+                        "unit": "°C"
+                    },
+                    {
+                        "type": 1,
+                        "name": "Temperature",
+                        "shortName": "T",
+                        "value": 24,
+                        "unit": "°C"
+                    }
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.0d.00.ff.ff.e0.5e.01.01.00",
+                "requestTs": "2018-11-01T13:41:56.669705",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.0d.80.00.00.00.2c.06.00.00.80.81.80.81.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-11-01T13:41:57.727262"
+            },
+            {
+                "request": "00.00.0d.01.ff.ff",
+                "requestTs": "2018-11-01T13:41:57.727910",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.0d.81.00.00.00.2c.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-11-01T13:41:57.769039"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

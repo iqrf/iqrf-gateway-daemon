@@ -1,0 +1,26 @@
+{
+    "mType": "iqrfEmbedLedg_Flashing",
+    "data": {
+        "msgId": "testEmbedLedg",
+        "rsp": {
+            "nAdr": 15,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 76,
+            "result": {}
+        },
+        "raw": [
+            {
+                "request": "0f.00.07.04.ff.ff",
+                "requestTs": "2018-10-19T11:57:07.89188",
+                "confirmation": "0f.00.07.04.ff.ff.ff.4a.0e.08.0e",
+                "confirmationTs": "2018-10-19T11:57:07.119983",
+                "response": "0f.00.07.84.00.00.00.4c",
+                "responseTs": "2018-10-19T11:57:08.416878"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

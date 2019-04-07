@@ -1,0 +1,111 @@
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "IqmeshSmartConnect1",
+        "rsp": {
+            "assignedAddr": 1,
+            "nodesNr": 1,
+            "hwpId": 2,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "DDC-SE-01 sensor example",
+            "standards": [
+                "Driver Library",
+                "IQRF: Sensor",
+                "Embed: Coordinator",
+                "Embed: Node",
+                "Embed: OS",
+                "Embed: EEPROM",
+                "Embed: EEEPROM",
+                "Embed: RAM",
+                "Embed: Red LED",
+                "Embed: Green LED",
+                "Embed: SPI",
+                "Embed: IO",
+                "Embed: Thermometer",
+                "Embed: UART",
+                "Embed: FRC",
+                "Embed: DPA Exploration"
+            ],
+            "osRead": {
+                "mid": "81102D55",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-91 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    154,
+                    105,
+                    31,
+                    26,
+                    33,
+                    1,
+                    33,
+                    101,
+                    3,
+                    229,
+                    197,
+                    136,
+                    255,
+                    231,
+                    246,
+                    194
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.01.01.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2.55.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-11-01T10:41:54.603610",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.29.01.01",
+                "responseTs": "2018-11-01T10:41:57.180851"
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-01T10:41:57.682178",
+                "confirmation": "01.00.02.00.ff.ff.ff.29.00.08.00",
+                "confirmationTs": "2018-11-01T10:41:57.718119",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "01.00.02.00.ff.ff",
+                "requestTs": "2018-11-01T10:41:58.219537",
+                "confirmation": "01.00.02.00.ff.ff.ff.29.00.08.00",
+                "confirmationTs": "2018-11-01T10:41:58.254727",
+                "response": "01.00.02.80.02.00.00.27.55.2d.10.81.43.24.c8.08.27.28.14.75.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2",
+                "responseTs": "2018-11-01T10:41:58.442727"
+            },
+            {
+                "request": "01.00.ff.3f.ff.ff",
+                "requestTs": "2018-11-01T10:41:58.654100",
+                "confirmation": "01.00.ff.3f.ff.ff.ff.26.00.08.00",
+                "confirmationTs": "2018-11-01T10:41:58.683286",
+                "response": "01.00.ff.bf.02.00.00.27.03.03.01.fe.26.00.00.02.00.01.00.02.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-11-01T10:41:58.878038"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}

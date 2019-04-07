@@ -1,0 +1,99 @@
+{
+    "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "mngScheduler_GetTask-response",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Scheduler management - Get Task response.",
+            "enum": [
+                "mngScheduler_GetTask"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "rsp": {
+                    "type": "object",
+                    "properties": {
+                        "clientId": {
+                            "type": "string",
+                            "description": "Client identifier."
+                        },
+                        "taskId": {
+                            "type": "integer",
+                            "description": "Task identifier."
+                        },
+                        "timeSpec": {
+                            "type": "object",
+							"properties": {
+								"cronTime": {
+									"type": "string",
+									"description": "Cron time expresion."
+								},
+								"exactTime": {
+									"type": "boolean",
+									"description": "Ignore Cron time and gets start time."
+								},
+								"periodic": {
+									"type": "boolean",
+									"description": "Is periodic."
+								},
+								"period": {
+									"type": "integer",
+									"description": "If periodic, use period in sec and ignore Cron time."
+								},
+								"startTime": {
+									"type": "string",
+									"description": "Exact time of start."
+								}
+							}
+                        },
+                        "task": {
+                            "type": "object",
+                            "description": "Task."
+                        }
+                    },
+                    "required": [
+                        "clientId",
+                        "taskId"
+                    ]
+                },
+                "insId": {
+					"type": "string",
+					"description": "IQRF GW daemon instance identification."
+				},
+                "status": {
+                    "type": "integer",
+                    "description": "Status of operation."
+                },
+                "statusStr": {
+                    "type": "string",
+                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                },
+                "errorStr": {
+                    "type": "string",
+                    "description": "reason of error in string form."
+                }
+            },
+            "required": [
+                "msgId",
+                "rsp",
+                "status"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

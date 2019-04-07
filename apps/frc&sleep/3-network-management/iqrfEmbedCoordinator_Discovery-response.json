@@ -1,0 +1,28 @@
+{
+    "mType": "iqrfEmbedCoordinator_Discovery",
+    "data": {
+        "msgId": "EmbedCoordinatorD",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 43,
+            "result": {
+                "discNr": 2
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.07.ff.ff.06.00",
+                "requestTs": "2018-11-01T11:09:31.136362",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.87.00.00.00.2b.02",
+                "responseTs": "2018-11-01T11:09:32.303292"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

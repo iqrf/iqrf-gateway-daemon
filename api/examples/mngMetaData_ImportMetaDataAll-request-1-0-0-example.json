@@ -1,0 +1,35 @@
+{
+  "mType": "mngMetaData_ImportMetaDataAll",
+  "data": {
+    "msgId": "ImportMetaDataAll",
+    "req": {
+      "metaIdMetaDataMap": [
+        {
+          "metaId": "1",
+          "metaData": {
+            "sn": 1,
+            "sname": "sensor1"
+          }
+        },
+        {
+          "metaId": "2",
+          "metaData": {
+            "sn": 2,
+            "sname": "sensor2"
+          }
+        }
+      ],
+      "midMetaIdMap": [
+        {
+          "mid": "11111111",
+          "metaId": "1"
+        },
+        {
+          "mid": "22222222",
+          "metaId": "2"
+        }
+      ]
+    },
+    "returnVerbose": true
+  }
+}

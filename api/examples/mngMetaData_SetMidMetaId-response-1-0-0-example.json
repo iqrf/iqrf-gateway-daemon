@@ -1,0 +1,14 @@
+{
+    "mType": "mngMetaData_SetMidMetaId",
+    "data": {
+        "msgId": "SetMidMetaId",
+        "rsp": {
+            "mid": "81102D61",
+            "metaId": "52642014",
+            "metaIdMid": ""
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

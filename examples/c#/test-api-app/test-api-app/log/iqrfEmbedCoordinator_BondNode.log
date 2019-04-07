@@ -1,0 +1,179 @@
+==================================
+Sending to WebSocket: 2018-07-07 19:50:40.022
+{
+  "mType": "iqrfEmbedCoordinator_BondNode",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "reqAddr": 6
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 19:50:40.133
+{
+    "mType": "iqrfEmbedCoordinator_BondNode",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "Error: iqrf.ToHexStringByte: Parameter value is not number but undefined"
+        },
+        "raw": {
+            "request": "",
+            "requestTs": "",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_REQUEST",
+        "status": -6
+    }
+}
+2018-07-07 19:50:40.611
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-07 19:53:27.81
+{
+  "mType": "iqrfEmbedCoordinator_BondNode",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "reqAddr": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 19:53:27.899
+{
+    "mType": "iqrfEmbedCoordinator_BondNode",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": -1,
+            "rCode": 0,
+            "dpaVal": 0,
+            "errorStr": "Error: iqrf.ToHexStringByte: Parameter value is not number but undefined"
+        },
+        "raw": {
+            "request": "",
+            "requestTs": "",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "",
+            "responseTs": ""
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_REQUEST",
+        "status": -6
+    }
+}
+2018-07-07 19:53:28.374
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-07 19:58:26.077
+{
+  "mType": "iqrfEmbedCoordinator_BondNode",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "reqAddr": 6,
+        "bondingMask": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 19:58:36.287
+{
+    "mType": "iqrfEmbedCoordinator_BondNode",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 1,
+            "dpaVal": 64,
+            "errorStr": "rcode error"
+        },
+        "raw": {
+            "request": "00.00.00.04.ff.ff.06.00",
+            "requestTs": "2018-07-07T19:58:26.485803",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.84.00.00.01.40",
+            "responseTs": "2018-07-07T19:58:36.551473"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ERROR_FAIL",
+        "status": 1
+    }
+}
+2018-07-07 19:58:36.71
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-14 22:20:46.12
+{
+  "mType": "iqrfEmbedCoordinator_BondNode",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "timeout": 11000,
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "reqAddr": 1,
+        "bondingMask": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-14 22:20:48.929
+{
+    "mType": "iqrfEmbedCoordinator_BondNode",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "timeout": 11000,
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 53,
+            "result": {
+                "bondAddr": 1,
+                "devNr": 2
+            }
+        },
+        "raw": {
+            "request": "00.00.00.04.ff.ff.01.00",
+            "requestTs": "2018-07-14T22:20:46.394429",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.84.00.00.00.35.01.02",
+            "responseTs": "2018-07-14T22:20:49.28458"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-14 22:20:49.356
+==================================
+

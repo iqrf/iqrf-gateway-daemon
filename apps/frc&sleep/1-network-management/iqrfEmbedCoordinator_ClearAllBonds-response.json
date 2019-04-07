@@ -1,0 +1,26 @@
+{
+    "mType": "iqrfEmbedCoordinator_ClearAllBonds",
+    "data": {
+        "msgId": "EmbedCoordinatorCaB",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 41,
+            "result": {}
+        },
+        "raw": [
+            {
+                "request": "00.00.00.03.ff.ff",
+                "requestTs": "2018-11-01T10:31:11.703856",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.83.00.00.00.29",
+                "responseTs": "2018-11-01T10:31:11.907313"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

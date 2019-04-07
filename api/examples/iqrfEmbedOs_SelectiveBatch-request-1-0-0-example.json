@@ -1,0 +1,25 @@
+{
+  "mType": "iqrfEmbedOs_SelectiveBatch",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 255,
+      "param": {
+        "selectedNodes": [
+          1,
+          2
+        ],
+        "requests": [
+          {
+            "ctype": "dpa",
+            "type": "raw-hdp",
+            "pnum": "06",
+            "pcmd": "01",
+            "hwpid": "ffff"
+          }
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

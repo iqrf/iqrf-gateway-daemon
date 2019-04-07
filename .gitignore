@@ -1,0 +1,48 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Source for now
+src
+_*
+
+examples/java/iqrfraw/target/
+
+examples/c#/test-api-app/packages/
+examples/c#/test-api-app/test-api-app/bin/
+examples/c#/test-api-app/test-api-app/obj/
+examples/c#/test-api-app/.vs/
+
+utils/c#/schemas-to-classes/packages/
+utils/c#/schemas-to-classes/schemas-to-classes/bin/
+utils/c#/schemas-to-classes/schemas-to-classes/obj/
+utils/c#/schemas-to-classes/.vs/

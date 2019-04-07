@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfEmbedCoordinator_BondedDevices",
+  "data": {
+    "msgId": "EmbedCoordinatorBD",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

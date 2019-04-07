@@ -1,0 +1,5 @@
+drwxr-xr-x 1 E520 197121 0 srp  2 23:01 DotLiquid.2.0.254/
+drwxr-xr-x 1 E520 197121 0 srp  2 23:01 Newtonsoft.Json.9.0.1/
+drwxr-xr-x 1 E520 197121 0 srp  2 23:01 NJsonSchema.9.10.56/
+drwxr-xr-x 1 E520 197121 0 srp  2 23:01 NJsonSchema.CodeGeneration.9.10.56/
+drwxr-xr-x 1 E520 197121 0 srp  2 23:01 NJsonSchema.CodeGeneration.CSharp.9.10.56/

@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfEmbedCoordinator_DiscoveredDevices",
+  "data": {
+    "msgId": "EmbedCoordinatorDD",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

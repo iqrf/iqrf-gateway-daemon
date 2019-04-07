@@ -1,0 +1,13 @@
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1,
+      "smartConnectCode": "YqZ5BUEcFP4ZyaUB36iRC6Ab4WxmYBGGU2",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,7 @@
+{
+    "mType": "mngDaemon_Version",
+    "data": {
+        "msgId": "testMngMode",
+        "returnVerbose": true
+    }
+}

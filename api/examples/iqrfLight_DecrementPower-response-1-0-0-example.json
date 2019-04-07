@@ -1,0 +1,28 @@
+{
+    "mType": "iqrfLight_DecrementPower",
+    "data": {
+        "msgId": "testEmbedLight",
+        "rsp": {
+            "nAdr": 4,
+            "hwpId": 4098,
+            "rCode": 0,
+            "dpaVal": 59,
+            "result": {
+                "prevVals": [
+                    90
+                ]
+            }
+        },
+        "raw": {
+            "request": "04.00.71.02.ff.ff.01.00.00.00.0a",
+            "requestTs": "2018-07-18T15:02:30.18309",
+            "confirmation": "04.00.71.02.ff.ff.ff.3c.01.04.01",
+            "confirmationTs": "2018-07-18T15:02:30.48488",
+            "response": "04.00.71.82.02.10.00.3b.5a",
+            "responseTs": "2018-07-18T15:02:30.180082"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

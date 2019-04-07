@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedNode_Restore",
+    "data": {
+        "msgId": "testEmbedNode",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 64,
+            "result": {}
+        },
+        "raw": {
+            "request": "01.00.01.07.ff.ff.8d.6c.51.ab.6a.f0.f7.c8.3d.50.36.5e.26.e1.3d.5a.46.83.20.bc.d5.23.62.74.00.f5.80.e2.b4.63.a6.ad.df.b8.5a.79.ad.f4.12.5b.55.06.a9.17.ea.1b.e1.29.06",
+            "requestTs": "2018-07-17T12:47:38.6468",
+            "confirmation": "01.00.01.07.ff.ff.ff.38.01.06.01",
+            "confirmationTs": "2018-07-17T12:47:38.47335",
+            "response": "01.00.01.87.02.00.00.40",
+            "responseTs": "2018-07-17T12:47:38.210494"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

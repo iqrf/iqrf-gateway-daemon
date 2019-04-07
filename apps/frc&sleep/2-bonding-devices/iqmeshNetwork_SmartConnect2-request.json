@@ -1,0 +1,13 @@
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "IqmeshSmartConnect2",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 2,
+      "smartConnectCode": "iYHZMT6cFP4bd4KZdoaCjjT6gz1sKfSiNG",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}

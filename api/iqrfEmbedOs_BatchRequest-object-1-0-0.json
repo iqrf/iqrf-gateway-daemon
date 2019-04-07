@@ -1,0 +1,33 @@
+{
+    "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfEmbedOs_BatchRequest-object",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "description": "Single request for batch.",
+    "properties": {
+        "pnum": {
+            "type": "string",
+            "description": "Peripheral Number."
+        },
+        "pcmd": {
+            "type": "string",
+            "description": "Peripheral Command."
+        },
+        "hwpid": {
+            "type": "string",
+            "description": "Hardware Profile ID."
+        },
+        "rdata": {
+            "type": "string",
+            "description": "Request Data."
+        }
+    },
+    "required": [
+        "pnum",
+        "pcmd"
+    ]
+}

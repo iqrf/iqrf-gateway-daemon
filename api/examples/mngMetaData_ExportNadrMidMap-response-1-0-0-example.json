@@ -1,0 +1,21 @@
+{
+    "mType": "mngMetaData_ExportNadrMidMap",
+    "data": {
+        "msgId": "ExportNadrMidMap",
+        "rsp": {
+            "nadrMidMap": [
+                {
+                    "nAdr": 0,
+                    "mid": "81111E6F"
+                },
+                {
+                    "nAdr": 1,
+                    "mid": "81102D61"
+                }
+            ]
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

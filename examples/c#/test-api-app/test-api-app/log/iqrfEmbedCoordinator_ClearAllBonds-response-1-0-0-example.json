@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedCoordinator_ClearAllBonds",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 76,
+            "result": {}
+        },
+        "raw": {
+            "request": "00.00.00.03.ff.ff",
+            "requestTs": "2018-07-11T16:20:33.479102",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.83.00.00.00.4c",
+            "responseTs": "2018-07-11T16:20:33.722364"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

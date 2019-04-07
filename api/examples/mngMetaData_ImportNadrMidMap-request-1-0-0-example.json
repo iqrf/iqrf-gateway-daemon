@@ -1,0 +1,19 @@
+{
+  "mType": "mngMetaData_ImportNadrMidMap",
+  "data": {
+    "msgId": "ImportNadrMidMap",
+    "req": {
+      "nadrMidMap": [
+        {
+          "nAdr": 0,
+          "mid": "81111E6F"
+        },
+        {
+          "nAdr": 1,
+          "mid": "81102D61"
+        }
+      ]
+    },
+    "returnVerbose": true
+  }
+}

@@ -1,0 +1,41 @@
+==================================
+Sending to WebSocket: 2018-07-07 20:12:28.342
+{
+  "mType": "iqrfEmbedCoordinator_ClearRemotelyBondedMid",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-07 20:12:28.497
+{
+    "mType": "iqrfEmbedCoordinator_ClearRemotelyBondedMid",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 64,
+            "result": {}
+        },
+        "raw": {
+            "request": "00.00.00.10.ff.ff",
+            "requestTs": "2018-07-07T20:12:28.752920",
+            "confirmation": "",
+            "confirmationTs": "",
+            "response": "00.00.00.90.00.00.00.40",
+            "responseTs": "2018-07-07T20:12:28.782472"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-07 20:12:28.921
+==================================
+

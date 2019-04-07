@@ -1,0 +1,66 @@
+{
+    "mType": "iqmeshNetwork_ReadTrConf",
+    "data": {
+        "msgId": "testIqmeshRead",
+        "rsp": {
+            "deviceAddr": 1,
+            "embPers": {
+                "values": [
+                    254,
+                    38,
+                    0,
+                    0
+                ],
+                "coordinator": false,
+                "node": true,
+                "os": true,
+                "eeprom": true,
+                "eeeprom": true,
+                "ram": true,
+                "ledr": true,
+                "ledg": true,
+                "spi": false,
+                "io": true,
+                "thermometer": true,
+                "pwm": false,
+                "uart": false,
+                "frc": true
+            },
+            "customDpaHandler": false,
+            "nodeDpaInterface": false,
+            "dpaAutoexec": false,
+            "routingOff": false,
+            "ioSetup": false,
+            "peerToPeer": false,
+            "neverSleep": false,
+            "rfChannelA": 25,
+            "rfChannelB": 2,
+            "rfSubChannelA": 42,
+            "rfSubChannelB": 0,
+            "txPower": 3,
+            "rxFilter": 5,
+            "lpRxTimeout": 6,
+            "rfPgmAltChannel": 0,
+            "uartBaudrate": 1200,
+            "rfPgmDualChannel": true,
+            "rfPgmLpMode": false,
+            "rfPgmIncorrectUpload": false,
+            "rfPgmEnableAfterReset": true,
+            "rfPgmTerminateAfter1Min": true,
+            "rfPgmTerminateMcuPin": true,
+            "rfBand": "868"
+        },
+        "raw": [
+            {
+                "request": "01.00.02.02.ff.ff",
+                "requestTs": "2018-10-19T12:09:03.64366",
+                "confirmation": "01.00.02.02.ff.ff.ff.42.0d.08.0d",
+                "confirmationTs": "2018-10-19T12:09:03.90162",
+                "response": "01.00.02.82.00.00.00.4d.b5.fe.26.00.00.00.2a.00.03.05.06.00.00.00.00.00.00.19.02.00.00.00.00.00.00.00.00.00.00.00.03.00.d3.20",
+                "responseTs": "2018-10-19T12:09:04.332086"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}

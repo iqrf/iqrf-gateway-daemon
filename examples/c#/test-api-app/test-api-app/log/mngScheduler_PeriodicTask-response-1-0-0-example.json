@@ -1,0 +1,11 @@
+{
+    "mType": "mngScheduler_PeriodicTask",
+    "data": {
+        "msgId": "testSchedulerPeriodic",
+        "rsp": {
+            "clientId": "SchedulerMessaging",
+            "taskId": 974702513
+        },
+        "status": 0
+    }
+}

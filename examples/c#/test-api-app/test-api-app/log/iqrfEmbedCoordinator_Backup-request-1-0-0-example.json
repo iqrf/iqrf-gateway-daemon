@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfEmbedCoordinator_Backup",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "index": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}

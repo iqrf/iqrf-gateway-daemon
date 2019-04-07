@@ -1,0 +1,29 @@
+{
+    "mType": "iqrfEmbedCoordinator_SmartConnect",
+    "data": {
+        "msgId": "testEmbedCoordinator",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 0,
+            "result": {
+                "bondAddr": 11,
+                "devNr": 15
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0b.01.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2.55.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-22T14:23:31.41212",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.00.0b.0f",
+                "responseTs": "2018-10-22T14:23:39.779640"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

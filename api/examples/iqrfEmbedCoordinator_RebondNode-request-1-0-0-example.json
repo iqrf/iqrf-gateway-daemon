@@ -1,0 +1,14 @@
+{
+  "mType": "iqrfEmbedCoordinator_RebondNode",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "timeout": 11000,
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "bondAddr": 6
+      }
+    },
+    "returnVerbose": true
+  }
+}

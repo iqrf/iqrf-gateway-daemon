@@ -1,0 +1,128 @@
+==================================
+Sending to WebSocket: 2018-07-14 19:37:57.83
+{
+  "mType": "iqrfEmbedNode_EnableRemoteBonding",
+  "data": {
+    "msgId": "testEmbedNode",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "bondingMask": 0,
+        "control": 0,
+        "userData": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-14 19:37:58.298
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqrfEmbedNode_EnableRemoteBonding\",\r\n  \"data\": {\r\n    \"msgId\": \"testEmbedNode\",\r\n    \"req\": {\r\n      \"nAdr\": 1,\r\n      \"param\": {\r\n        \"bondingMask\": 0,\r\n        \"control\": 0,\r\n        \"userData\": [\r\n          0,\r\n          1,\r\n          2,\r\n          3\r\n        ]\r\n      }\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqrfEmbedNode_EnableRemoteBonding\"  cannot find validator"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-14 19:37:58.803
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-14 22:09:59.767
+{
+  "mType": "iqrfEmbedNode_EnableRemoteBonding",
+  "data": {
+    "msgId": "testEmbedNode",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "bondingMask": 0,
+        "control": 0,
+        "userData": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-14 22:10:04.712
+{
+    "mType": "messageError",
+    "data": {
+        "msgId": "undefined",
+        "rsp": {
+            "wrongMsg": "{\r\n  \"mType\": \"iqrfEmbedNode_EnableRemoteBonding\",\r\n  \"data\": {\r\n    \"msgId\": \"testEmbedNode\",\r\n    \"req\": {\r\n      \"nAdr\": 1,\r\n      \"param\": {\r\n        \"bondingMask\": 0,\r\n        \"control\": 0,\r\n        \"userData\": [\r\n          0,\r\n          1,\r\n          2,\r\n          3\r\n        ]\r\n      }\r\n    },\r\n    \"returnVerbose\": true\r\n  }\r\n}",
+            "errorStr": "Unhandled exception: Invalid response: mType=\"iqrfEmbedNode_EnableRemoteBonding\"  cannot find validator"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "err",
+        "status": -1
+    }
+}
+2018-07-14 22:10:05.143
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-14 22:11:48.798
+{
+  "mType": "iqrfEmbedNode_EnableRemoteBonding",
+  "data": {
+    "msgId": "testEmbedNode",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "bondingMask": 0,
+        "control": 0,
+        "userData": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-14 22:11:49.26
+{
+    "mType": "iqrfEmbedNode_EnableRemoteBonding",
+    "data": {
+        "msgId": "testEmbedNode",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 52,
+            "result": {}
+        },
+        "raw": {
+            "request": "01.00.01.04.ff.ff.00.00.00.01.02.03",
+            "requestTs": "2018-07-14T22:11:49.14466",
+            "confirmation": "01.00.01.04.ff.ff.ff.2f.01.04.01",
+            "confirmationTs": "2018-07-14T22:11:49.44522",
+            "response": "01.00.01.84.02.00.00.34",
+            "responseTs": "2018-07-14T22:11:49.176166"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-14 22:11:49.673
+==================================
+

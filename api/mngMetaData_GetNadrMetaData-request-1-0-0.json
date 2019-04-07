@@ -1,0 +1,51 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "mngMetaData_GetNadrMetaData-request",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Daemon metadata - Get NADR to metadata.",
+            "enum": [
+                "mngMetaData_GetNadrMetaData"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "req": {
+                    "type": "object",
+                    "properties": {
+                        "nAdr": {
+                            "type": "integer",
+                            "description": "Network address."
+                        }
+                    },
+                    "required": [
+                        "nAdr"
+                    ]
+                },
+                "returnVerbose": {
+                    "type": "boolean",
+                    "description": "Flag that includes additional parameters in the response."
+                }
+            },
+            "required": [
+                "msgId"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

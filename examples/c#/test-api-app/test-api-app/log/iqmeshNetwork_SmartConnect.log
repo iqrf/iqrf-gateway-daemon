@@ -1,0 +1,1058 @@
+==================================
+Sending to WebSocket: 2018-10-18 12:11:33.397
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 11,
+      "smartConnectCode": "YqZ5BUEcFP4ZyaUB36iRC6Ab4WxmYBGGU2",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-18 12:11:49.121
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "statusStr": "Transaction error.",
+        "status": 1004,
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0b.01.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2.55.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-18T12:11:33.368393",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.38.0b.0f",
+                "responseTs": "2018-10-18T12:11:42.389335"
+            },
+            {
+                "request": "0b.00.02.00.ff.ff",
+                "requestTs": "2018-10-18T12:11:42.890307",
+                "confirmation": "0b.00.02.00.ff.ff.ff.38.0e.08.0e",
+                "confirmationTs": "2018-10-18T12:11:42.918532",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "0b.00.02.00.ff.ff",
+                "requestTs": "2018-10-18T12:11:45.809223",
+                "confirmation": "0b.00.02.00.ff.ff.ff.38.0e.08.0e",
+                "confirmationTs": "2018-10-18T12:11:45.841507",
+                "response": "",
+                "responseTs": ""
+            }
+        ]
+    }
+}
+2018-10-18 12:11:49.563
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-18 13:12:34.099
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 11,
+      "smartConnectCode": "YqZ5BUEcFP4ZyaUB36iRC6Ab4WxmYBGGU2",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-18 13:12:48.148
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 11,
+            "nodesNr": 15,
+            "hwpId": 65535,
+            "manufacturer": "",
+            "product": "",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "81102d55",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08c8",
+                "rssi": "-63 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 16,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": false,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    154,
+                    105,
+                    31,
+                    26,
+                    33,
+                    1,
+                    33,
+                    101,
+                    3,
+                    229,
+                    197,
+                    136,
+                    255,
+                    231,
+                    246,
+                    194
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0b.01.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2.55.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-18T13:12:34.300982",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.00.0b.0f",
+                "responseTs": "2018-10-18T13:12:43.314926"
+            },
+            {
+                "request": "0b.00.02.00.ff.ff",
+                "requestTs": "2018-10-18T13:12:43.815975",
+                "confirmation": "0b.00.02.00.ff.ff.ff.00.0e.08.0e",
+                "confirmationTs": "2018-10-18T13:12:43.850360",
+                "response": "0b.00.02.80.00.00.00.43.55.2d.10.81.43.24.c8.08.43.28.10.75.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2",
+                "responseTs": "2018-10-18T13:12:45.166488"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-18 13:12:48.587
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-29 02:50:06.255
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 11,
+      "smartConnectCode": "YqZ5BUEcFP4ZyaUB36iRC6Ab4WxmYBGGU2",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-29 02:50:24.25
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 11,
+            "nodesNr": 15,
+            "hwpId": 2,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "DDC-SE-01 sensor example",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "81102D55",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-93 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 20,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    154,
+                    105,
+                    31,
+                    26,
+                    33,
+                    1,
+                    33,
+                    101,
+                    3,
+                    229,
+                    197,
+                    136,
+                    255,
+                    231,
+                    246,
+                    194
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0b.01.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2.55.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-29T02:50:05.914426",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.00.0b.0f",
+                "responseTs": "2018-10-29T02:50:14.632917"
+            },
+            {
+                "request": "0b.00.02.00.ff.ff",
+                "requestTs": "2018-10-29T02:50:15.134618",
+                "confirmation": "0b.00.02.00.ff.ff.ff.00.0e.08.0e",
+                "confirmationTs": "2018-10-29T02:50:15.167422",
+                "response": "0b.00.02.80.02.00.00.25.55.2d.10.81.43.24.c8.08.25.28.14.75.9a.69.1f.1a.21.01.21.65.03.e5.c5.88.ff.e7.f6.c2",
+                "responseTs": "2018-10-29T02:50:16.558754"
+            },
+            {
+                "request": "0b.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-29T02:50:19.150768",
+                "confirmation": "0b.00.ff.3f.ff.ff.ff.4c.0e.08.0e",
+                "confirmationTs": "2018-10-29T02:50:19.180447",
+                "response": "0b.00.ff.bf.02.00.00.25.03.03.01.fe.26.00.00.02.00.00.00.02.00.00.00.00.00.00.00.40",
+                "responseTs": "2018-10-29T02:50:20.569451"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-29 02:50:24.706
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-29 15:37:34.347
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 12,
+      "smartConnectCode": "iYHZMT6cFP4bd4KZdoaCjjT6gz1sKfSiNG",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-29 15:37:52.006
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 12,
+            "nodesNr": 15,
+            "hwpId": 0,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "Plain DPA without Custom DPA Handler",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "81102D61",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-101 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 16,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": false,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    132,
+                    81,
+                    117,
+                    214,
+                    188,
+                    191,
+                    169,
+                    178,
+                    73,
+                    25,
+                    229,
+                    109,
+                    41,
+                    138,
+                    141,
+                    50
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0c.01.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32.61.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-29T15:37:34.455278",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.00.0c.0f",
+                "responseTs": "2018-10-29T15:37:43.23964"
+            },
+            {
+                "request": "0c.00.02.00.ff.ff",
+                "requestTs": "2018-10-29T15:37:43.524434",
+                "confirmation": "0c.00.02.00.ff.ff.ff.00.0d.08.0d",
+                "confirmationTs": "2018-10-29T15:37:43.550647",
+                "response": "0c.00.02.80.00.00.00.1d.61.2d.10.81.43.24.c8.08.1d.28.10.75.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32",
+                "responseTs": "2018-10-29T15:37:44.865749"
+            },
+            {
+                "request": "0c.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-29T15:37:47.286549",
+                "confirmation": "0c.00.ff.3f.ff.ff.ff.4c.0d.08.0d",
+                "confirmationTs": "2018-10-29T15:37:47.319175",
+                "response": "0c.00.ff.bf.00.00.00.1d.03.03.00.fe.26.00.00.00.00.00.00.02",
+                "responseTs": "2018-10-29T15:37:48.623883"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-29 15:37:52.464
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-29 16:28:58.071
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 12,
+      "smartConnectCode": "iYHZMT6cFP4bd4KZdoaCjjT6gz1sKfSiNG",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-29 16:29:15.043
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 12,
+            "nodesNr": 15,
+            "hwpId": 0,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "Plain DPA without Custom DPA Handler",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "81102D61",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-102 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 16,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": false,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    132,
+                    81,
+                    117,
+                    214,
+                    188,
+                    191,
+                    169,
+                    178,
+                    73,
+                    25,
+                    229,
+                    109,
+                    41,
+                    138,
+                    141,
+                    50
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0c.01.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32.61.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-29T16:28:57.737415",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.00.0c.0f",
+                "responseTs": "2018-10-29T16:29:06.17653"
+            },
+            {
+                "request": "0c.00.02.00.ff.ff",
+                "requestTs": "2018-10-29T16:29:06.518289",
+                "confirmation": "0c.00.02.00.ff.ff.ff.00.0d.08.0d",
+                "confirmationTs": "2018-10-29T16:29:06.543141",
+                "response": "0c.00.02.80.00.00.00.1c.61.2d.10.81.43.24.c8.08.1c.28.10.75.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32",
+                "responseTs": "2018-10-29T16:29:07.866955"
+            },
+            {
+                "request": "0c.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-29T16:29:10.288232",
+                "confirmation": "0c.00.ff.3f.ff.ff.ff.4c.0d.08.0d",
+                "confirmationTs": "2018-10-29T16:29:10.322705",
+                "response": "0c.00.ff.bf.00.00.00.1c.03.03.00.fe.26.00.00.00.00.00.00.02",
+                "responseTs": "2018-10-29T16:29:11.614473"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-29 16:29:15.507
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-29 20:18:40.409
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 12,
+      "smartConnectCode": "iYHZMT6cFP4bd4KZdoaCjjT6gz1sKfSiNG",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-29 20:18:58.146
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 12,
+            "nodesNr": 15,
+            "hwpId": 0,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "Plain DPA without Custom DPA Handler",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "81102D61",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-101 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 16,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": false,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    132,
+                    81,
+                    117,
+                    214,
+                    188,
+                    191,
+                    169,
+                    178,
+                    73,
+                    25,
+                    229,
+                    109,
+                    41,
+                    138,
+                    141,
+                    50
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0c.01.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32.61.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-29T20:18:40.86019",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.00.0c.0f",
+                "responseTs": "2018-10-29T20:18:48.362779"
+            },
+            {
+                "request": "0c.00.02.00.ff.ff",
+                "requestTs": "2018-10-29T20:18:48.864487",
+                "confirmation": "0c.00.02.00.ff.ff.ff.00.0d.08.0d",
+                "confirmationTs": "2018-10-29T20:18:48.896346",
+                "response": "0c.00.02.80.00.00.00.1d.61.2d.10.81.43.24.c8.08.1d.28.10.75.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32",
+                "responseTs": "2018-10-29T20:18:50.217627"
+            },
+            {
+                "request": "0c.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-29T20:18:52.640021",
+                "confirmation": "0c.00.ff.3f.ff.ff.ff.4c.0d.08.0d",
+                "confirmationTs": "2018-10-29T20:18:52.667067",
+                "response": "0c.00.ff.bf.00.00.00.1e.03.03.00.fe.26.00.00.00.00.00.00.02",
+                "responseTs": "2018-10-29T20:18:53.964931"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-29 20:18:58.587
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-30 11:10:32.561
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 12,
+      "smartConnectCode": "iYHZMT6cFP4bd4KZdoaCjjT6gz1sKfSiNG",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-30 11:10:34.97
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0c.01.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32.61.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-30T11:10:34.340791",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.01.00",
+                "responseTs": "2018-10-30T11:10:34.380215"
+            },
+            {
+                "request": "00.00.00.12.ff.ff.0c.01.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32.61.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-30T11:10:34.380625",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.01.00",
+                "responseTs": "2018-10-30T11:10:34.433966"
+            }
+        ],
+        "status": 1003,
+        "statusStr": "Dpa error."
+    }
+}
+2018-10-30 11:10:35.469
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-30 11:21:30.168
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 12,
+      "smartConnectCode": "iYHZMT6cFP4bd4KZdoaCjjT6gz1sKfSiNG",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-30 11:21:31.114
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0c.01.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32.61.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-30T11:21:30.610179",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.01.00",
+                "responseTs": "2018-10-30T11:21:30.653415"
+            },
+            {
+                "request": "00.00.00.12.ff.ff.0c.01.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32.61.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-30T11:21:30.653655",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.01.00",
+                "responseTs": "2018-10-30T11:21:30.706120"
+            }
+        ],
+        "status": 1003,
+        "statusStr": "Dpa error."
+    }
+}
+2018-10-30 11:21:31.536
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-30 11:27:34.971
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 12,
+      "smartConnectCode": "iYHZMT6cFP4bd4KZdoaCjjT6gz1sKfSiNG",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-30 11:27:51.368
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 12,
+            "nodesNr": 15,
+            "hwpId": 0,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "Plain DPA without Custom DPA Handler",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "81102D61",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-101 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 16,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": false,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    132,
+                    81,
+                    117,
+                    214,
+                    188,
+                    191,
+                    169,
+                    178,
+                    73,
+                    25,
+                    229,
+                    109,
+                    41,
+                    138,
+                    141,
+                    50
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0c.01.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32.61.2d.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-30T11:27:34.804352",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.00.0c.0f",
+                "responseTs": "2018-10-30T11:27:43.95345"
+            },
+            {
+                "request": "0c.00.02.00.ff.ff",
+                "requestTs": "2018-10-30T11:27:43.595914",
+                "confirmation": "0c.00.02.00.ff.ff.ff.00.0d.08.0d",
+                "confirmationTs": "2018-10-30T11:27:43.624917",
+                "response": "0c.00.02.80.00.00.00.1d.61.2d.10.81.43.24.c8.08.1d.28.10.75.84.51.75.d6.bc.bf.a9.b2.49.19.e5.6d.29.8a.8d.32",
+                "responseTs": "2018-10-30T11:27:44.938885"
+            },
+            {
+                "request": "0c.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-30T11:27:47.359568",
+                "confirmation": "0c.00.ff.3f.ff.ff.ff.4c.0d.08.0d",
+                "confirmationTs": "2018-10-30T11:27:47.383850",
+                "response": "0c.00.ff.bf.00.00.00.1d.03.03.00.fe.26.00.00.00.00.00.00.02",
+                "responseTs": "2018-10-30T11:27:48.678643"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-30 11:27:51.821
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-30 13:07:50.64
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 13,
+      "smartConnectCode": "5feZJ5UmFP4kKZCMWQJZFixnd5wH1eyPEo",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-30 13:07:51.423
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0d.01.60.19.a2.cf.46.ed.f0.24.0b.a2.70.43.57.11.8c.1c.db.fe.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-30T13:07:50.455645",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.01.00",
+                "responseTs": "2018-10-30T13:07:50.496963"
+            },
+            {
+                "request": "00.00.00.12.ff.ff.0d.01.60.19.a2.cf.46.ed.f0.24.0b.a2.70.43.57.11.8c.1c.db.fe.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-30T13:07:50.497879",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.01.00",
+                "responseTs": "2018-10-30T13:07:50.549881"
+            }
+        ],
+        "status": 1003,
+        "statusStr": "Dpa error."
+    }
+}
+2018-10-30 13:07:51.89
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-30 13:08:31.209
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 13,
+      "smartConnectCode": "5feZJ5UmFP4kKZCMWQJZFixnd5wH1eyPEo",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-30 13:08:49.384
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 13,
+            "nodesNr": 15,
+            "hwpId": 0,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "Plain DPA without Custom DPA Handler",
+            "standards": [
+                ""
+            ],
+            "osRead": {
+                "mid": "8110FEDB",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-100 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 16,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": false,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    96,
+                    25,
+                    162,
+                    207,
+                    70,
+                    237,
+                    240,
+                    36,
+                    11,
+                    162,
+                    112,
+                    67,
+                    87,
+                    17,
+                    140,
+                    28
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0d.01.60.19.a2.cf.46.ed.f0.24.0b.a2.70.43.57.11.8c.1c.db.fe.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-30T13:08:30.446126",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.00.0d.0f",
+                "responseTs": "2018-10-30T13:08:38.567849"
+            },
+            {
+                "request": "0d.00.02.00.ff.ff",
+                "requestTs": "2018-10-30T13:08:39.69093",
+                "confirmation": "0d.00.02.00.ff.ff.ff.00.0c.08.0c",
+                "confirmationTs": "2018-10-30T13:08:39.96576",
+                "response": "0d.00.02.80.00.00.00.1e.db.fe.10.81.43.24.c8.08.1e.28.10.75.60.19.a2.cf.46.ed.f0.24.0b.a2.70.43.57.11.8c.1c",
+                "responseTs": "2018-10-30T13:08:40.338744"
+            },
+            {
+                "request": "0d.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-30T13:08:42.590557",
+                "confirmation": "0d.00.ff.3f.ff.ff.ff.4c.0c.08.0c",
+                "confirmationTs": "2018-10-30T13:08:42.622317",
+                "response": "",
+                "responseTs": ""
+            },
+            {
+                "request": "0d.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-30T13:08:45.133097",
+                "confirmation": "0d.00.ff.3f.ff.ff.ff.4c.0c.08.0c",
+                "confirmationTs": "2018-10-30T13:08:45.162663",
+                "response": "0d.00.ff.bf.00.00.00.1a.03.03.00.fe.26.00.00.00.00.00.00.02",
+                "responseTs": "2018-10-30T13:08:46.375967"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-30 13:08:49.883
+==================================
+
+==================================
+Sending to WebSocket: 2018-10-30 16:02:08.488
+{
+  "mType": "iqmeshNetwork_SmartConnect",
+  "data": {
+    "msgId": "testIqmeshBondNodeLocal",
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 13,
+      "smartConnectCode": "5feZJ5UmFP4kKZCMWQJZFixnd5wH1eyPEo",
+      "bondingTestRetries": 1
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-10-30 16:02:24.555
+{
+    "mType": "iqmeshNetwork_SmartConnect",
+    "data": {
+        "msgId": "testIqmeshBondNodeLocal",
+        "rsp": {
+            "assignedAddr": 13,
+            "nodesNr": 15,
+            "hwpId": 0,
+            "manufacturer": "IQRF Tech s.r.o.",
+            "product": "Plain DPA without Custom DPA Handler",
+            "standards": [
+                "Driver Library",
+                "Embed: Coordinator",
+                "Embed: Node",
+                "Embed: OS",
+                "Embed: EEPROM",
+                "Embed: EEEPROM",
+                "Embed: RAM",
+                "Embed: Red LED",
+                "Embed: Green LED",
+                "Embed: SPI",
+                "Embed: IO",
+                "Embed: Thermometer",
+                "Embed: UART",
+                "Embed: FRC",
+                "Embed: DPA Exploration"
+            ],
+            "osRead": {
+                "mid": "8110FEDB",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 36,
+                    "trType": "(DC)TR-72Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "-97 dBm",
+                "supplyVoltage": "3.00 V",
+                "flags": {
+                    "value": 16,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": false,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": true
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                },
+                "ibk": [
+                    96,
+                    25,
+                    162,
+                    207,
+                    70,
+                    237,
+                    240,
+                    36,
+                    11,
+                    162,
+                    112,
+                    67,
+                    87,
+                    17,
+                    140,
+                    28
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.00.12.ff.ff.0d.01.60.19.a2.cf.46.ed.f0.24.0b.a2.70.43.57.11.8c.1c.db.fe.10.81.00.00.ff.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "requestTs": "2018-10-30T16:02:08.524081",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.92.00.00.00.00.0d.0f",
+                "responseTs": "2018-10-30T16:02:16.371535"
+            },
+            {
+                "request": "0d.00.02.00.ff.ff",
+                "requestTs": "2018-10-30T16:02:16.873069",
+                "confirmation": "0d.00.02.00.ff.ff.ff.00.0c.08.0c",
+                "confirmationTs": "2018-10-30T16:02:16.904706",
+                "response": "0d.00.02.80.00.00.00.21.db.fe.10.81.43.24.c8.08.21.28.10.75.60.19.a2.cf.46.ed.f0.24.0b.a2.70.43.57.11.8c.1c",
+                "responseTs": "2018-10-30T16:02:18.136729"
+            },
+            {
+                "request": "0d.00.ff.3f.ff.ff",
+                "requestTs": "2018-10-30T16:02:20.388269",
+                "confirmation": "0d.00.ff.3f.ff.ff.ff.4c.0c.08.0c",
+                "confirmationTs": "2018-10-30T16:02:20.423064",
+                "response": "0d.00.ff.bf.00.00.00.20.03.03.00.fe.26.00.00.00.00.00.00.02",
+                "responseTs": "2018-10-30T16:02:21.626337"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}
+2018-10-30 16:02:25.022
+==================================
+

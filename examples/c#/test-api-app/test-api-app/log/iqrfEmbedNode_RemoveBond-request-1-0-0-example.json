@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfEmbedNode_RemoveBond",
+  "data": {
+    "msgId": "testEmbedNode",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

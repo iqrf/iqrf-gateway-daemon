@@ -1,0 +1,88 @@
+==================================
+Sending to WebSocket: 2018-07-16 19:53:57.82
+{
+  "mType": "iqrfEmbedOs_Sleep",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "time": 1,
+        "control": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 19:53:58.304
+{
+    "mType": "iqrfEmbedOs_Sleep",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 2,
+            "rCode": 0,
+            "dpaVal": 62,
+            "result": {}
+        },
+        "raw": {
+            "request": "01.00.02.04.ff.ff.01.00.00",
+            "requestTs": "2018-07-16T19:53:59.643893",
+            "confirmation": "01.00.02.04.ff.ff.ff.36.01.04.01",
+            "confirmationTs": "2018-07-16T19:53:59.669162",
+            "response": "01.00.02.84.02.00.00.3e",
+            "responseTs": "2018-07-16T19:53:59.801272"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-16 19:53:58.825
+==================================
+
+==================================
+Sending to WebSocket: 2018-07-16 19:54:26.846
+{
+  "mType": "iqrfEmbedOs_Sleep",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 2,
+      "param": {
+        "time": 1,
+        "control": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}
+Received from WebSocket: 2018-07-16 19:54:27.555
+{
+    "mType": "iqrfEmbedOs_Sleep",
+    "data": {
+        "msgId": "testEmbedOs",
+        "rsp": {
+            "nAdr": 2,
+            "hwpId": 3074,
+            "rCode": 0,
+            "dpaVal": 68,
+            "result": {}
+        },
+        "raw": {
+            "request": "02.00.02.04.ff.ff.01.00.00",
+            "requestTs": "2018-07-16T19:54:28.652859",
+            "confirmation": "02.00.02.04.ff.ff.ff.37.02.04.02",
+            "confirmationTs": "2018-07-16T19:54:28.678066",
+            "response": "02.00.02.84.02.0c.00.44",
+            "responseTs": "2018-07-16T19:54:28.973724"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+2018-07-16 19:54:28.029
+==================================
+

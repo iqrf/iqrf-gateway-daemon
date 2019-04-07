@@ -1,0 +1,10 @@
+{
+  "mType": "mngMetaData_GetMidMetaId",
+  "data": {
+    "msgId": "GetMidMetaId",
+    "req": {
+      "mid": "81102D61"
+    },
+    "returnVerbose": true
+  }
+}

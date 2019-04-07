@@ -1,0 +1,242 @@
+{
+  "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqmeshNetwork_SmartConnect-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQMESH Network management - Smart connect response.",
+      "enum": [
+        "iqmeshNetwork_SmartConnect"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "rsp": {
+          "type": "object",
+          "description": "Returns following values, see its description.",
+          "properties": {
+            "assignedAddr": {
+              "type": "integer",
+              "description": "Assigned address to the node."
+            },
+            "nodesNr": {
+              "type": "integer",
+              "description": "Number of nodes in the network."
+            },
+            "hwpId": {
+              "type": "integer",
+              "description": "Hardware profile identification."
+            },
+            "manufacturer": {
+              "type": "string",
+              "description": "Manufacture name."
+            },
+            "product": {
+              "type": "string",
+              "description": "Product name."
+            },
+              "standards": {
+              "type": "array",
+              "description": "Supported standards by the device.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "osRead": {
+              "type": "object",
+              "description": "Returns Embedded peripheral OS - Read response.",
+              "properties": {
+                "mid": {
+                  "type": "string",
+                  "description": "TR Module ID."
+                },
+                "osVersion": {
+                  "type": "string",
+                  "description": "IQRF OS version."
+                },
+                "trMcuType": {
+                  "type": "object",
+                  "description": "See DPA guide.",
+                  "properties": {
+                    "value": {
+                      "type": "integer",
+                      "description": "TR&McuType value."
+                    },
+                    "trType": {
+                      "type": "string",
+                      "description": "TR module type."
+                    },
+                    "fccCertified": {
+                      "type": "boolean",
+                      "description": "TR module is FCC certified."
+                    },
+                    "mcuType": {
+                      "type": "string",
+                      "description": "TR module MCU type."
+                    }
+                  }
+                },
+                "osBuild": {
+                  "type": "string",
+                  "description": "IQRF OS build."
+                },
+                "rssi": {
+                  "type": "string",
+                  "description": "See lastRSSI at IQRF OS Reference Guide."
+                },
+                "supplyVoltage": {
+                  "type": "string",
+                  "description": "Module supply voltage"
+                },
+                "flags": {
+                  "type": "object",
+                  "description": "See DPA guide.",
+                  "properties": {
+                    "value": {
+                      "type": "integer",
+                      "description": "Flags value."
+                    },
+                    "insufficientOsBuild": {
+                      "type": "boolean",
+                      "description": "Flags.0 - Insufficient OsBuild."
+                    },
+                    "interface": {
+                      "type": "string",
+                      "description": "Flags.1 - Interface type."
+                    },
+                    "dpaHandlerDetected": {
+                      "type": "boolean",
+                      "description": "Flags.2 - Custom DPA handler was detected."
+                    },
+                    "dpaHandlerNotDetectedButEnabled": {
+                      "type": "boolean",
+                      "description": "Flags.3 - Custom DPA Handler is not detected but enabled."
+                    },
+                    "noInterfaceSupported": {
+                      "type": "boolean",
+                      "description": "Flags.4 - No interface supported."
+                    }
+                  }
+                },
+                "slotLimits": {
+                  "type": "object",
+                  "description": "See DPA guide.",
+                  "properties": {
+                    "value": {
+                      "type": "integer",
+                      "description": "Slot limits value."
+                    },
+                    "shortestTimeslot": {
+                      "type": "string",
+                      "description": "Shortest timeslot length in 10 ms units."
+                    },
+                    "longestTimeslot": {
+                      "type": "string",
+                      "description": "Longets timeslot length in 10 ms units."
+                    }
+                  }
+                },
+                "ibk": {
+                  "type": "array",
+                  "description": "Individual Bonding Key.",
+                  "items": {
+                    "type": "integer",
+                    "minItems": 16,
+                    "maxItems": 16,
+                    "default": 0
+                  }
+                }
+              },
+              "required": [
+                "mid",
+                "osVersion",
+                "trMcuType",
+                "osBuild",
+                "rssi",
+                "supplyVoltage",
+                "flags",
+                "slotLimits"
+              ]
+            }
+          },
+          "required": [
+            "assignedAddr",
+            "nodesNr"
+          ]
+        },
+        "raw": {
+          "type": "array",
+          "description": "Returns array of objects req-cnf-rsp, see its description.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "request": {
+                "type": "string",
+                "description": "Binary buffer with DPA request."
+              },
+              "requestTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+              },
+              "confirmation": {
+                "type": "string",
+                "description": "Binary buffer with DPA confirmation."
+              },
+              "confirmationTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+              },
+              "response": {
+                "type": "string",
+                "description": "Binary buffer with DPA response."
+              },
+              "responseTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+              }
+            },
+            "required": [
+              "request",
+              "requestTs",
+              "confirmation",
+              "confirmationTs",
+              "response",
+              "responseTs"
+            ]
+          }
+        },
+        "insId": {
+          "type": "string",
+          "description": "IQRF GW daemon instance identification."
+        },
+        "status": {
+          "type": "integer",
+          "description": "IQRF GW daemon API (general or mType) status."
+        },
+        "statusStr": {
+          "type": "string",
+          "description": "IQRF GW daemon API (general or mType) status in string form."
+        }
+      },
+      "required": [
+        "msgId",
+        "status"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+    "mType": "iqmeshNetwork_WriteTrConf",
+    "data": {
+        "msgId": "IqmeshWrite",
+        "rsp": {
+            "deviceAddr": 0,
+            "writeSuccess": true,
+            "restartNeeded": true
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2018-11-01T13:06:59.357369",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.2b.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2018-11-01T13:06:59.400258"
+            },
+            {
+                "request": "00.00.02.09.ff.ff.02.20.20.09.05.ff",
+                "requestTs": "2018-11-01T13:06:59.401589",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.02.89.00.00.00.2b",
+                "responseTs": "2018-11-01T13:06:59.459127"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok"
+    }
+}

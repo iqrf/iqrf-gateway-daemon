@@ -1,0 +1,24 @@
+{
+    "mType": "iqrfEmbedThermometer_Read",
+    "data": {
+        "msgId": "testEmbedThermometer",
+        "rsp": {
+            "nAdr": 3,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 64,
+            "errorStr": "Error: iqrf.embed.thermometer.Read_Response: Temperature sensor missing"
+        },
+        "raw": {
+            "request": "03.00.0a.00.ff.ff",
+            "requestTs": "2018-07-17T17:18:30.750507",
+            "confirmation": "03.00.0a.00.ff.ff.ff.35.01.04.01",
+            "confirmationTs": "2018-07-17T17:18:30.774930",
+            "response": "03.00.0a.80.00.00.00.40.80.04.00",
+            "responseTs": "2018-07-17T17:18:30.907359"
+        },
+        "insId": "iqrfgd2-1",
+        "statusStr": "BAD_RESPONSE",
+        "status": -7
+    }
+}

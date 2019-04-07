@@ -1,0 +1,21 @@
+{
+  "mType": "iqrfEmbedOs_Batch",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "requests": [
+          {
+            "ctype": "dpa",
+            "type": "raw-hdp",
+            "nadr": "01",
+            "pnum": "06",
+            "pcmd": "01"
+          }
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

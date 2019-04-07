@@ -1,0 +1,24 @@
+image: iqrfsdk/iqrf-gateway-webapp:tests
+
+stages:
+    - deploy-docs
+
+.ssh_template: &ssh_template
+    stage: deploy-docs
+    only:
+        - master
+    before_script:
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        - chmod 644 ~/.ssh/known_hosts
+
+deploy-user-docs:
+    script:
+        - cd docs/; make html
+        - rsync -hrvz --delete -e ssh build/html/ www-deploy@iqrfsdk.org:/data/nginx/docs/iqrf-gateway-daemon/
+        - cd ../
+        - rsync -hrvz --delete -e ssh api/ www-deploy@iqrfsdk.org:/data/nginx/apidocs/iqrf-gateway-daemon/json/iqrf/
+    <<: *ssh_template

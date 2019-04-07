@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfSensor_Enumerate",
+  "data": {
+    "msgId": "EmbedSensor1",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

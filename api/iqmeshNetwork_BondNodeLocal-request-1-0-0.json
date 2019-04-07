@@ -1,0 +1,65 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqmeshNetwork_BondNodeLocal-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQMESH Network management - Bond Node Local request.",
+      "enum": [
+        "iqmeshNetwork_BondNodeLocal"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "repeat": {
+          "type": "integer",
+          "description": "Number of repetitions of DPA messages.",
+          "default": 1
+        },
+        "req": {
+          "type": "object",
+          "properties": {
+            "deviceAddr": {
+              "type": "integer",
+              "description": "Address to bond the device to."
+            },
+            "bondingMask": {
+              "type": "integer",
+              "description": "See IQRF OS User's and Reference guides (remote bonding, function bondNewNode)."
+            },
+            "bondingTestRetries": {
+              "type": "integer",
+              "description": " Maximum number of FRCs used to test whether the [N] was successfully bonded. If the [N] does not respond, it is unbonded at the Coordinator’s side. If the value is 0, then no test is performed. If the [N] is connected to and bonded from DSM then this testing never succeeds."
+            }
+          },
+          "required": [
+            "deviceAddr"
+          ]
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
+        }
+      },
+      "required": [
+        "msgId",
+        "req"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}

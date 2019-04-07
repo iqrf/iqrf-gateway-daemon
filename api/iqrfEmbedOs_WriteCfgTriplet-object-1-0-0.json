@@ -1,0 +1,30 @@
+{
+    "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "iqrfEmbedOs_WriteCfgTriplet-object",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "description": "Single triplet for configuration.",
+    "properties": {
+        "address": {
+            "type": "integer",
+            "description": "Address of the item at configuration memory block. The valid address range is 0x01-0x1F for configuration values. Also, address 0x20 is a valid value for RFPGM settings. See parameter of setupRFPGM IQRF OS function.",
+        },
+        "value": {
+            "type": "integer",
+            "description": "Value of the configuration item to write."
+        },
+        "mask": {
+            "type": "integer",
+            "description": "Specifies bits of the configuration byte to be modified by the corresponding bits of the Value parameter. Only bits that are set at the Mask will be written to the configuration byte i.e. when Mask equals to 0xFF then the whole Value will be written to the configuration byte. For example, when Mask equals to 0x12 then only bit.1 and bit.4 from Value will be written to the configuration byte."
+        }
+    },
+    "required": [
+        "address",
+        "value",
+        "mask"
+    ]
+}

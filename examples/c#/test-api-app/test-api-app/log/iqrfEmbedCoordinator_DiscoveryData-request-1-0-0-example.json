@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfEmbedCoordinator_DiscoveryData",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "address": 0
+      }
+    },
+    "returnVerbose": true
+  }
+}

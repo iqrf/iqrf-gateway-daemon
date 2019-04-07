@@ -1,0 +1,89 @@
+{
+    "mType": "iqrfEmbedExplore_MorePeripheralsInformation",
+    "data": {
+        "msgId": "testEmbedExplore",
+        "rsp": {
+            "nAdr": 1,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 62,
+            "result": {
+                "peripherals": [
+                    {
+                        "perTe": 3,
+                        "perT": 2,
+                        "par1": 56,
+                        "par2": 0
+                    },
+                    {
+                        "perTe": 3,
+                        "perT": 3,
+                        "par1": 16,
+                        "par2": 138
+                    },
+                    {
+                        "perTe": 3,
+                        "perT": 4,
+                        "par1": 192,
+                        "par2": 55
+                    },
+                    {
+                        "perTe": 3,
+                        "perT": 5,
+                        "par1": 128,
+                        "par2": 0
+                    },
+                    {
+                        "perTe": 3,
+                        "perT": 6,
+                        "par1": 48,
+                        "par2": 48
+                    },
+                    {
+                        "perTe": 3,
+                        "perT": 7,
+                        "par1": 0,
+                        "par2": 0
+                    },
+                    {
+                        "perTe": 3,
+                        "perT": 7,
+                        "par1": 1,
+                        "par2": 0
+                    },
+                    {
+                        "perTe": 3,
+                        "perT": 0,
+                        "par1": 0,
+                        "par2": 0
+                    },
+                    {
+                        "perTe": 3,
+                        "perT": 9,
+                        "par1": 23,
+                        "par2": 0
+                    },
+                    {
+                        "perTe": 1,
+                        "perT": 11,
+                        "par1": 0,
+                        "par2": 0
+                    }
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "01.00.ff.01.ff.ff",
+                "requestTs": "2018-10-17T10:10:46.666598",
+                "confirmation": "01.00.ff.01.ff.ff.ff.38.01.08.01",
+                "confirmationTs": "2018-10-17T10:10:46.698603",
+                "response": "01.00.ff.81.00.00.00.3e.03.02.38.00.03.03.10.8a.03.04.c0.37.03.05.80.00.03.06.30.30.03.07.00.00.03.07.01.00.03.00.00.00.03.09.17.00.01.0b.00.00",
+                "responseTs": "2018-10-17T10:10:46.965567"
+            }
+        ],
+        "insId": "iqrfgd2-1",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
