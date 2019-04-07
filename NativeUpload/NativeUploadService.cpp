@@ -17,6 +17,9 @@
 #include <math.h>
 #include <bitset>
 
+#include <iostream>
+
+
 TRC_INIT_MODULE(iqrf::NativeUploadService);
 
 
@@ -67,7 +70,7 @@ namespace {
   static const uint16_t EXT_EEPROM_DOWN_HIGH = 0x7fe0;
   static const size_t EXT_EEPROM_MODULO = 32;
   static const size_t EXT_EEPROM_LEN = 32;
-  static const size_t SPECIAL_LEN = 18;
+  static const size_t SPECIAL_LEN = 20;
   static const uint16_t TR_CFG_MEM_ADR_L = 0x37C0;
   static const uint16_t TR_CFG_MEM_ADR_H = 0x37D0;
 
@@ -524,8 +527,9 @@ namespace iqrf {
     IIqrfChannelService::Accessor::UploadErrorCode
       uploadSpecial(const std::basic_string<uint8_t>& data)
     {
+
       if (data.length() != SPECIAL_LEN) {
-        THROW_EXC(std::out_of_range, "Data to be programmed by the special upload must be 18B long!");
+        THROW_EXC(std::out_of_range, "Data to be programmed by the special upload must be 20B long!");
       }
 
       // will not be used in special type of uploading
@@ -593,13 +597,13 @@ namespace iqrf {
       IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
       TrModuleInfo trModuleInfo = toTrModuleInfo(coordParams);
 
+      parser.parse();
+
       if (!parser.check(trModuleInfo)) {
         THROW_EXC(
           std::out_of_range, "IQRF file " << PAR(fileName) << " can not be upload to TR! TR is not in supported types specified in the IQRF file. This message is caused by incopatible type of TR, OS version or OS build."
         );
       }
-
-      parser.parse();
 
       IIqrfChannelService::Accessor::UploadErrorCode errCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
 
@@ -608,10 +612,11 @@ namespace iqrf {
 
         // if some error occured, break uploading
         if (errCode != IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR) {
-          uploadResult.setErrorCode(errCode);
           break;
         }
       }
+
+      uploadResult.setErrorCode(errCode);
 
       // terminate programming state
       if (!m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)->terminateProgrammingState()) {
