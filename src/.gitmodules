@@ -1,15 +1,15 @@
 [submodule "libraries/clibdpa"]
-	path = libraries/clibdpa
+	path = src/libraries/clibdpa
 	url = git@github.com:iqrfsdk/clibdpa.git
 [submodule "libraries/iqrf-daemon-api"]
-	path = libraries/iqrf-daemon-api
+	path = src/libraries/iqrf-daemon-api
 	url = ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon-api.git
 [submodule "libraries/clibcdc"]
-	path = libraries/clibcdc
+	path = src/libraries/clibcdc
 	url = git@github.com:iqrfsdk/clibcdc.git
 [submodule "libraries/clibspi"]
-	path = libraries/clibspi
+	path = src/libraries/clibspi
 	url = git@github.com:iqrfsdk/clibspi.git
 [submodule "libraries/clibuart"]
-	path = libraries/clibuart
+	path = src/libraries/clibuart
 	url = git@github.com:iqrfsdk/clibuart.git
