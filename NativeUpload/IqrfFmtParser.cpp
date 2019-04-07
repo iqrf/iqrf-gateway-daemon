@@ -31,18 +31,14 @@ static std::string getHeader(const std::string& str) {
     size_t last = str.length() - 1;
     int i;
     std::locale loc;
-    
+
     for (i = last; i >= 0; i--) {
         if (!std::isspace(str[i], loc)) {
             break;
         }
     }
-    
-    return str.substr(pos + 2, i - (pos + 2) + 1);
-}
 
-static std::string stripLineCounter(const std::string& str) {
-    return str.substr(0, str.length() - 4);
+    return str.substr(pos + 2, i - (pos + 2) + 1);
 }
 
 static int getLineCounter(const std::string& str) {
@@ -53,9 +49,9 @@ void IqrfPrgHeader::add(std::string line) {
     if (!isCommentHeader(line)) {
         return;
     }
-    
+
     std::string header = getHeader(line);
-    
+
     index++;
     switch (index) {
         case 1: {
@@ -124,7 +120,7 @@ void IqrfPrgHeader::add(std::string line) {
             std::cerr << "Note: Description: " << header << "\n";
             break;
         default:
-            std::cerr << "Warning: Unrecognized programming header: \n" << "[" << index << "] " << header << " is ignored!\n"; 
+            std::cerr << "Warning: Unrecognized programming header: \n" << "[" << index << "] " << header << " is ignored!\n";
             break;
     }
 }
@@ -155,56 +151,55 @@ void IqrfFmtParser::parse() {
     std::ifstream infile(file_name);
     size_t line_no = 0;
     size_t position;
-    size_t len;
     int last_cnt = -1;
     int cnt;
-    
+
     while (std::getline(infile, line))
     {
         std::basic_string<unsigned char> bdata;
-        
+
         line_no++;
-        
+
         // Check for programming header in comments
         if (isCommentHeader(line)) {
             prgHeader.add(line);
             continue;
         }
-        
+
         // Remove comments and trim whitespace
         line = trim(uncomment(line));
-        
+
         // Skip empty line
         if (line.length() == 0)
             continue;
-        
+
         // Get line counter
         cnt = getLineCounter(line);
-                
+
         // Every line in iqrf file which is not a comment has exactly LINE_LEN (40) chars
         if (line.length() != LINE_LEN) {
             TR_THROW_FMT_EXCEPTION(file_name, line_no, 0, "Invalid line length in iqrf file - expected 36!");
         }
-        
+
         // Check for invalid characters
         if ((position = line.find_first_not_of("0123456789abcdefABCDEF")) != std::string::npos) {
             TR_THROW_FMT_EXCEPTION(file_name,  line_no, position, "Invalid character in iqrf file!");
         }
-        
+
         // Check line counter sequence
         if (last_cnt + 1 != cnt) {
             TR_THROW_FMT_EXCEPTION(file_name, line_no, 0, "Invalid line counter sequence!");
         } else {
             last_cnt = cnt;
         }
-        
+
         bdata.resize(LINE_LEN / 2);
-        
+
         // Convert hexadecimal values to bytes
-        for (int i = 0; i < LINE_LEN / 2; i++) {
+        for (unsigned int i = 0; i < LINE_LEN / 2; i++) {
             bdata[i] = std::stoul(line.substr(i * 2, 2), nullptr, 16);
         }
-        
+
         // Store data
         blines.push_back(bdata);
     }

@@ -637,7 +637,7 @@ namespace iqrf {
     string tpStr = encodeTimestamp(tp);
 
     //schedule one shot task
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(CLIENT_ID, doc1, tp);
+    //ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(CLIENT_ID, doc1, tp);
 
     { //shouldn't expire yet
       Document doc = fetchTask(200); //200 ms

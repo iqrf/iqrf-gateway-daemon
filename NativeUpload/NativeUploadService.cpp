@@ -17,6 +17,9 @@
 #include <math.h>
 #include <bitset>
 
+#include <iostream>
+
+
 TRC_INIT_MODULE(iqrf::NativeUploadService);
 
 
@@ -67,7 +70,9 @@ namespace {
   static const uint16_t EXT_EEPROM_DOWN_HIGH = 0x7fe0;
   static const size_t EXT_EEPROM_MODULO = 32;
   static const size_t EXT_EEPROM_LEN = 32;
-  static const size_t SPECIAL_LEN = 18;
+  static const size_t SPECIAL_LEN = 20;
+  static const uint16_t TR_CFG_MEM_ADR_L = 0x37C0;
+  static const uint16_t TR_CFG_MEM_ADR_H = 0x37D0;
 
 
   // service general fail code - may and probably will be changed later in the future
@@ -190,10 +195,12 @@ namespace iqrf {
     // upload receive function
     IIqrfChannelService::ReceiveFromFunc recvFunction;
 
+/*
     int uploadRecvFunction(const std::basic_string<unsigned char>& msg) {
       return 0;
     }
-    
+*/
+
   public:
     Imp(NativeUploadService& parent) : m_parent(parent)
     {
@@ -202,7 +209,7 @@ namespace iqrf {
         = new IMessagingSplitterService::MsgType(m_mTypeName_mngIqmeshWriteConfig, 1, 0, 0);
         */
       //recvFunction = uploadRecvFunction;
-      recvFunction = [](const std::basic_string<unsigned char>& msg) { return 0; };
+      //recvFunction = [](const std::basic_string<unsigned char>& msg) { return 0; };
     }
 
     ~Imp()
@@ -211,7 +218,7 @@ namespace iqrf {
 
 
   private:
-    
+
     // creates error response about service general fail
     Document createCheckParamsFailedResponse(
       const std::string& msgId,
@@ -307,12 +314,12 @@ namespace iqrf {
     // sets error status for specified response
     void setResponseStatus(
       rapidjson::Document& response, int32_t errorCode, const std::string& msg
-    ) 
+    )
     {
       Pointer("/status").Set(response, errorCode);
       Pointer("/statusStr").Set(response, msg);
     }
-    
+
     uint8_t parseAndCheckRepeat(const int repeat) {
       if (repeat < 0) {
         TRC_WARNING("repeat cannot be less than 0. It will be set to 0.");
@@ -338,7 +345,8 @@ namespace iqrf {
     enum class TargetType {
       Hex,
       Iqrf,
-      Config
+      Config,
+      Unknown
     };
 
     TargetType parseAndCheckTarget(const std::string& targetStr) {
@@ -391,17 +399,17 @@ namespace iqrf {
 
 
     void insertAddressAndData(
-      std::basic_string<uint8_t> &msg, 
+      std::basic_string<uint8_t> &msg,
       const uint16_t addr,
       const std::basic_string<uint8_t>& data
-    ) 
+    )
     {
       msg += addr & 0xff;
       msg += (addr >> 8) & 0xff;
       msg += data;
     }
 
-    IIqrfChannelService::Accessor::UploadErrorCode 
+    IIqrfChannelService::Accessor::UploadErrorCode
       uploadFlash(const uint16_t addr, const std::basic_string<uint8_t>& data)
     {
       std::basic_string<uint8_t> msg;
@@ -430,7 +438,7 @@ namespace iqrf {
     {
       std::basic_string<uint8_t> msg;
 
-      if (!((addr >= INT_EEPROM_UP_LOW) && (addr <= INT_EEPROM_UP_HIGH))) {
+      if (addr > INT_EEPROM_UP_HIGH) {
         THROW_EXC(std::out_of_range, "Address in internal eeprom memory is outside of addressable range!");
       }
 
@@ -454,7 +462,7 @@ namespace iqrf {
     {
       std::basic_string<uint8_t> msg;
 
-      if (!((addr >= EXT_EEPROM_LOW) && (addr <= EXT_EEPROM_UP_HIGH))) {
+      if (addr > EXT_EEPROM_UP_HIGH) {
         THROW_EXC(std::out_of_range, "Address in external eeprom memory is outside of addressable range!");
       }
 
@@ -472,9 +480,9 @@ namespace iqrf {
         ->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)
         ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM, data, addr);
     }
-    
 
-    void uploadFromHex(NativeUploadResult& uploadResult, const std::string& fileName) 
+
+    void uploadFromHex(NativeUploadResult& uploadResult, const std::string& fileName)
     {
       HexFmtParser parser(fileName);
       parser.parse();
@@ -502,6 +510,7 @@ namespace iqrf {
         case TrMemory::EXTERNAL_EEPROM:
           errCode = uploadExternalEeprom((*itr).addr, (*itr).data);
           break;
+        default:;
         }
       }
 
@@ -518,8 +527,9 @@ namespace iqrf {
     IIqrfChannelService::Accessor::UploadErrorCode
       uploadSpecial(const std::basic_string<uint8_t>& data)
     {
+
       if (data.length() != SPECIAL_LEN) {
-        THROW_EXC(std::out_of_range, "Data to be programmed by the special upload must be 18B long!");
+        THROW_EXC(std::out_of_range, "Data to be programmed by the special upload must be 20B long!");
       }
 
       // will not be used in special type of uploading
@@ -536,7 +546,7 @@ namespace iqrf {
       TrModuleInfo trModuleInfo;
 
       // Tr MCU
-      if (coordParams.mcuType.compare("PIC16F1938") == 0) 
+      if (coordParams.mcuType.compare("PIC16F1938") == 0)
       {
         trModuleInfo.mcu = TrMcu::PIC16F1938;
       }
@@ -563,8 +573,7 @@ namespace iqrf {
       std::string majorOsVer = coordParams.osVersion.substr(0, dotPos);
       std::string minorOsVer = coordParams.osVersion.substr(dotPos+1, 2);
 
-      trModuleInfo.osVersion = (std::stoi(majorOsVer) << 4 + (std::stoi(minorOsVer) & 0xF)) & 0xFF;
-
+      trModuleInfo.osVersion = ((std::stoi(majorOsVer) << 4) + (std::stoi(minorOsVer) & 0xF)) & 0xFF;
 
       // OS Build
       trModuleInfo.osBuild = (std::stoi(coordParams.osBuild, nullptr, 16)) & 0xFFFF;
@@ -582,19 +591,19 @@ namespace iqrf {
         uploadResult.setError(error);
         return;
       }
-      
+
       IqrfFmtParser parser(fileName);
 
       IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
       TrModuleInfo trModuleInfo = toTrModuleInfo(coordParams);
+
+      parser.parse();
 
       if (!parser.check(trModuleInfo)) {
         THROW_EXC(
           std::out_of_range, "IQRF file " << PAR(fileName) << " can not be upload to TR! TR is not in supported types specified in the IQRF file. This message is caused by incopatible type of TR, OS version or OS build."
         );
       }
-     
-      parser.parse();  
 
       IIqrfChannelService::Accessor::UploadErrorCode errCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
 
@@ -603,11 +612,12 @@ namespace iqrf {
 
         // if some error occured, break uploading
         if (errCode != IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR) {
-          uploadResult.setErrorCode(errCode);
           break;
         }
       }
-      
+
+      uploadResult.setErrorCode(errCode);
+
       // terminate programming state
       if (!m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)->terminateProgrammingState()) {
         NativeUploadError error(NativeUploadError::Type::TerminateProgState, "Could not terminate programming state.");
@@ -618,30 +628,27 @@ namespace iqrf {
     uint8_t computeConfigChecksum(const std::basic_string<uint8_t>& data) {
       uint8_t chksum = CFG_CHKSUM_INIT;
 
-      for (int i = 1; i < data.length(); i++) {
+      for (unsigned int i = 1; i < data.length(); i++) {
         chksum ^= data[i];
       }
 
       return chksum;
     }
 
-    IIqrfChannelService::Accessor::UploadErrorCode 
-      uploadCfg(const std::basic_string<uint8_t>& data)
+    IIqrfChannelService::Accessor::UploadErrorCode
+      uploadCfg(const std::basic_string<uint8_t>& data, uint16_t destinationAddr)
     {
       if (data.length() != CFG_LEN) {
         THROW_EXC(std::out_of_range, "Invalid length of the TR HWP configuration data!");
       }
-
+/*
       if (computeConfigChecksum(data) != data[0]) {
         THROW_EXC(std::out_of_range, "Invalid TR HWP configuration checksum!");
       }
-
-      // will not be used in special type of uploading
-      uint16_t addrNotUsed = 0;
-
+*/
       return m_iIqrfChannelService
         ->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)
-        ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_CFG, data, addrNotUsed);
+        ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_FLASH, data, destinationAddr);
     }
 
     IIqrfChannelService::Accessor::UploadErrorCode
@@ -663,8 +670,8 @@ namespace iqrf {
     {
       uint8_t rfpmg;
       TrconfFmtParser parser(fileName);
-      parser.parse();
 
+      parser.parse();
       rfpmg = parser.getRFPMG();
 
       // will be solved later
@@ -677,11 +684,14 @@ namespace iqrf {
         return;
       }
 
-      IIqrfChannelService::Accessor::UploadErrorCode errCode = uploadCfg(parser.getData());
+      IIqrfChannelService::Accessor::UploadErrorCode errCode = uploadCfg(parser.getCfgData1of2(), TR_CFG_MEM_ADR_L);
       if (errCode == IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR) {
-        errCode = uploadRFPMG(rfpmg);
+        errCode = uploadCfg(parser.getCfgData2of2(), TR_CFG_MEM_ADR_H);
+        if (errCode == IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR) {
+          errCode = uploadRFPMG(rfpmg);
+        }
       }
-      
+
       uploadResult.setErrorCode(errCode);
 
       // terminate programming state
@@ -694,8 +704,8 @@ namespace iqrf {
 
     // do native upload
     NativeUploadResult doNativeUpload(
-      const std::string& fileName, 
-      TargetType target, 
+      const std::string& fileName,
+      TargetType target,
       bool isSetTarget
     )
     {
@@ -774,21 +784,21 @@ namespace iqrf {
       Pointer("/data/msgId").Set(response, msgId);
 
       /*
-      "Result of upload. 
-      0 - upload successfull, 
-      1 - general error, 
-      2 - incorrect target memory, 
-      3 - incorrect data length, 
-      4 - incorrect memory address, 
-      5 - target memory is write only, 
-      6 - communication failure, 
-      7 - operation is not supported by TR module, 
+      "Result of upload.
+      0 - upload successfull,
+      1 - general error,
+      2 - incorrect target memory,
+      3 - incorrect data length,
+      4 - incorrect memory address,
+      5 - target memory is write only,
+      6 - communication failure,
+      7 - operation is not supported by TR module,
       8 - SPI bus is busy or TR module is not in programming mode"
       */
 
       // checking of error
       NativeUploadError error = uploadResult.getError();
-      
+
       Pointer("/data/statusStr").Set(response, error.getMessage());
 
       switch (error.getType()) {
@@ -812,7 +822,7 @@ namespace iqrf {
       if (comNativeUpload.getVerbose()) {
         setVerboseData(response, uploadResult);
       }
-      
+
       // status - ok
       Pointer("/data/status").Set(response, 0);
       Pointer("/data/statusStr").Set(response, "ok");
@@ -892,13 +902,13 @@ namespace iqrf {
       std::string fileName;
 
       // target of upload
-      TargetType target;
+      TargetType target = TargetType::Unknown;
       bool isSetTarget = false;
 
       // parsing and checking service parameters
       try {
         m_repeat = parseAndCheckRepeat(comNativeUpload.getRepeat());
-       
+
         if (!comNativeUpload.isSetFileName()) {
           THROW_EXC(std::logic_error, "fileName not set");
         }
@@ -911,7 +921,7 @@ namespace iqrf {
 
         m_returnVerbose = comNativeUpload.getVerbose();
       }
-      // parsing and checking service parameters failed 
+      // parsing and checking service parameters failed
       catch (std::exception& ex) {
         Document failResponse = createCheckParamsFailedResponse(comNativeUpload.getMsgId(), msgType, ex.what());
         m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
@@ -919,7 +929,7 @@ namespace iqrf {
         TRC_FUNCTION_LEAVE("");
         return;
       }
-      
+
       // construct full file name
       std::string fullFileName = getFullFileName(m_uploadPath, fileName);
 
@@ -960,7 +970,7 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
     }
-    
+
 
   public:
     void activate(const shape::Properties *props)
@@ -979,7 +989,7 @@ namespace iqrf {
         TRC_ERROR("Upload path is empty.");
       }
 
-      // for the sake of register function parameters 
+      // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_mngDaemonUpload
@@ -1004,7 +1014,7 @@ namespace iqrf {
         "**************************************"
       );
 
-      // for the sake of unregister function parameters 
+      // for the sake of unregister function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_mngDaemonUpload
@@ -1017,6 +1027,13 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+        if (props != NULL) {
+            TRC_INFORMATION(std::endl <<
+              "**************************************" << std::endl <<
+              "               props exists           " << std::endl <<
+              "**************************************"
+            );
+        }
     }
 
     void attachInterface(IIqrfDpaService* iface)
@@ -1056,8 +1073,6 @@ namespace iqrf {
     }
 
   };
-
-
 
   NativeUploadService::NativeUploadService()
   {
