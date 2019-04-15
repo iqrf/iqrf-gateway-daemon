@@ -15,13 +15,13 @@ builddir=./${buildexp}
 mkdir -p ${builddir}
 
 #get path to shape libs
-shape=../../shape/${buildexp}
+shape=../../../shape/${buildexp}
 pushd ${shape}
 shape=$PWD
 popd
 
 #get path to shapeware libs
-shapeware=../../shapeware/${buildexp}
+shapeware=../../../shapeware/${buildexp}
 pushd ${shapeware}
 shapeware=$PWD
 popd

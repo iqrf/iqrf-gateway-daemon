@@ -9,7 +9,7 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 Copy your created public key ~/.ssh/id_rsa and add it here: 
 
 https://github.com/settings/keys
-https://gitlab.iqrfsdk.org/profile/keys
+https://gitlab.iqrf.org/profile/keys
 
 CMAKE & SSL & MQTT & CURL
 =========================
@@ -25,7 +25,7 @@ FOLDERS STRUCTURE
 
 iqrf-gw-daemon/shape
 iqrf-gw-daemon/shapeware
-iqrf-gw-daemon/iqrftech/iqrf-daemon
+iqrf-gw-daemon/iqrftech/iqrf-gateway-daemon
 
 SHAPE loader
 ============
@@ -54,8 +54,8 @@ IQRF GW daemon
 cd .. \
 && mkdir iqrftech \
 && cd iqrftech \
-&& git clone ssh://git@gitlab.iqrfsdk.org:2222/gateway/iqrf-daemon.git \
-&& cd iqrf-daemon \
+&& git clone ssh://git@gitlab.iqrf.org:2222/open-source/iqrf-gateway-daemon.git \
+&& cd iqrf-gateway-daemon \
 && git submodule init \
 && git submodule update \
 && ./buildMake.sh 
