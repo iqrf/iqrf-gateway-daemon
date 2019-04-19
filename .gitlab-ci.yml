@@ -52,7 +52,7 @@ stages:
   - mkdir shape-build shape-libs
   - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
   - cmake --build shape-build
-  - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
+  - bash src/.gitlab_build_files/copy_shape_libs.sh shape-libs
   - tar czvf shape-source_${ARCH}.tar.gz shape-source
   - tar czvf shape-build_${ARCH}.tar.gz shape-build
   - tar czvf shape-libs_${ARCH}.tar.gz shape-libs
@@ -62,7 +62,7 @@ stages:
   - mkdir shapeware-build shapeware-libs
   - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
   - cmake --build shapeware-build
-  - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
+  - bash src/.gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
   - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
   - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
   - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs
@@ -84,7 +84,7 @@ stages:
   - mkdir shape-build shape-libs
   - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
   - cmake --build shape-build
-  - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
+  - bash src/.gitlab_build_files/copy_shape_libs.sh shape-libs
   - tar czvf shape-source_${ARCH}.tar.gz shape-source
   - tar czvf shape-build_${ARCH}.tar.gz shape-build
   - tar czvf shape-libs_${ARCH}.tar.gz shape-libs
@@ -94,7 +94,7 @@ stages:
   - mkdir shapeware-build shapeware-libs
   - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
   - cmake --build shapeware-build
-  - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
+  - bash src/.gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
   - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
   - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
   - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs
