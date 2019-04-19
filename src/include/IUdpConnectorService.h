@@ -39,10 +39,12 @@ namespace iqrf {
   public:
     /// \brief operational mode
     /// \details
+    /// Unknown no change
     /// Operational is used for normal work
     /// Service the only UDP Messaging is used to communicate with IQRF IDE
     /// Forwarding normal work but all DPA messages are forwarded to IQRF IDE to me monitored there
     enum class Mode {
+      Unknown,
       Operational,
       Service,
       Forwarding
@@ -57,6 +59,8 @@ namespace iqrf {
     /// Forwarding normal work but all DPA messages are forwarded to IQRF IDE to me monitored there
     virtual void setMode(Mode mode) = 0;
 
+    virtual Mode getMode() const = 0;
+
     inline virtual ~IUdpConnectorService() {};
   };
 
@@ -66,6 +70,7 @@ namespace iqrf {
     static const std::vector<std::pair<IUdpConnectorService::Mode, std::string>>& table()
     {
       static std::vector <std::pair<IUdpConnectorService::Mode, std::string>> table = {
+        { IUdpConnectorService::Mode::Unknown, "unknown" },
         { IUdpConnectorService::Mode::Forwarding, "forwarding" },
         { IUdpConnectorService::Mode::Operational, "operational" },
         { IUdpConnectorService::Mode::Service, "service" }
@@ -74,7 +79,7 @@ namespace iqrf {
     }
     static IUdpConnectorService::Mode defaultEnum()
     {
-      return IUdpConnectorService::Mode::Operational;
+      return IUdpConnectorService::Mode::Unknown;
     }
     static const std::string& defaultStr()
     {
