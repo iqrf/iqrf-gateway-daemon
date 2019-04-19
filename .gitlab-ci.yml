@@ -1,24 +1,598 @@
-image: iqrfsdk/iqrf-gateway-webapp:tests
-
 stages:
-    - deploy-docs
+- dependencies
+- build
+- build-package
+- deploy-api
 
-.ssh_template: &ssh_template
-    stage: deploy-docs
-    only:
-        - master
-    before_script:
-        - eval $(ssh-agent -s)
-        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-        - mkdir -p ~/.ssh
-        - chmod 700 ~/.ssh
-        - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-        - chmod 644 ~/.ssh/known_hosts
+.arch_stretch-amd64-template: &arch_stretch-amd64-template
+  image: iqrfsdk/iqrf-gateway-daemon-build:latest-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "stretch"
+  tags:
+  - linux, amd64
 
-deploy-user-docs:
-    script:
-        - cd docs/; make html
-        - rsync -hrvz --delete -e ssh build/html/ www-deploy@iqrfsdk.org:/data/nginx/docs/iqrf-gateway-daemon/
-        - cd ../
-        - rsync -hrvz --delete -e ssh api/ www-deploy@iqrfsdk.org:/data/nginx/apidocs/iqrf-gateway-daemon/json/iqrf/
-    <<: *ssh_template
+.arch_xenial-amd64-template: &arch_xenial-amd64-template
+  image: iqrfsdk/iqrf-gateway-daemon-build:xenial-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "xenial"
+  tags:
+  - linux, amd64
+
+.arch_bionic-amd64-template: &arch_bionic-amd64-template
+  image: iqrfsdk/iqrf-gateway-daemon-build:bionic-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "bionic"
+  tags:
+  - linux, amd64
+
+.arch_arm64-template: &arch_arm64-template
+  image: iqrfsdk/iqrf-gateway-daemon-build:latest-arm64
+  variables:
+    ARCH: "arm64"
+    DIST: "stretch"
+  tags:
+  - linux, arm64
+
+.arch_armhf-template: &arch_armhf-template
+  image: iqrfsdk/iqrf-gateway-daemon-build:latest-armhf
+  variables:
+    ARCH: "armhf"
+    DIST: "stretch"
+  tags:
+  - linux, armhf
+
+.shape_shapeware-template: &shape_shapeware-template
+  stage: dependencies
+  dependencies: []
+  script:
+  - git clone https://github.com/logimic/shape.git shape-source
+  - mkdir shape-build shape-libs
+  - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
+  - cmake --build shape-build
+  - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
+  - tar czvf shape-source_${ARCH}.tar.gz shape-source
+  - tar czvf shape-build_${ARCH}.tar.gz shape-build
+  - tar czvf shape-libs_${ARCH}.tar.gz shape-libs
+  - git clone https://github.com/logimic/shapeware.git shapeware-source
+  - git -C shapeware-source submodule init
+  - git -C shapeware-source submodule update
+  - mkdir shapeware-build shapeware-libs
+  - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
+  - cmake --build shapeware-build
+  - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
+  - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
+  - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
+  - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs
+  artifacts:
+    paths:
+    - shape-source_*.tar.gz
+    - shape-build_*.tar.gz
+    - shape-libs_*.tar.gz
+    - shapeware-source_*.tar.gz
+    - shapeware-build_*.tar.gz
+    - shapeware-libs_*.tar.gz
+    expire_in: 2 days
+
+.shape_shapeware_debug-template: &shape_shapeware_debug-template
+  stage: dependencies
+  dependencies: []
+  script:
+  - git clone https://github.com/logimic/shape.git shape-source
+  - mkdir shape-build shape-libs
+  - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
+  - cmake --build shape-build
+  - bash .gitlab_build_files/copy_shape_libs.sh shape-libs
+  - tar czvf shape-source_${ARCH}.tar.gz shape-source
+  - tar czvf shape-build_${ARCH}.tar.gz shape-build
+  - tar czvf shape-libs_${ARCH}.tar.gz shape-libs
+  - git clone https://github.com/logimic/shapeware.git shapeware-source
+  - git -C shapeware-source submodule init
+  - git -C shapeware-source submodule update
+  - mkdir shapeware-build shapeware-libs
+  - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=true -DLWS_WITH_SSL:BOOL=false -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
+  - cmake --build shapeware-build
+  - bash .gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
+  - tar czvf shapeware-source_${ARCH}.tar.gz shapeware-source
+  - tar czvf shapeware-build_${ARCH}.tar.gz shapeware-build
+  - tar czvf shapeware-libs_${ARCH}.tar.gz shapeware-libs
+  artifacts:
+    paths:
+    - shape-source_*.tar.gz
+    - shape-build_*.tar.gz
+    - shape-libs_*.tar.gz
+    - shapeware-source_*.tar.gz
+    - shapeware-build_*.tar.gz
+    - shapeware-libs_*.tar.gz
+    expire_in: 2 days
+
+.daemon-template: &daemon-template
+  stage: build
+  before_script:
+  - eval $(ssh-agent -s)
+  - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  script:
+  - export DAEMON_VERSION=v2.1.0
+  - git clone ssh://git@gitlab.iqrf.org:2222/open-source/iqrf-gateway-daemon.git iqrf-gateway-daemon
+  - mv iqrf-gateway-daemon/src iqrf-daemon-source
+  - git -C iqrf-daemon-source submodule init
+  - git -C iqrf-daemon-source submodule update
+  - mkdir iqrf-daemon-build
+  - tar xzvf shape-source_${ARCH}.tar.gz
+  - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-source_${ARCH}.tar.gz
+  - tar xzvf shapeware-build_${ARCH}.tar.gz
+  - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION}
+  - cmake --build iqrf-daemon-build
+  - tar czvf iqrf-daemon-source_${ARCH}.tar.gz iqrf-daemon-source
+  - tar czvf iqrf-daemon-build_${ARCH}.tar.gz iqrf-daemon-build
+#RM previous artifacts from server
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  - ssh www-deploy@iqrfsdk.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel/*"
+  artifacts:
+    paths:
+    - iqrf-daemon-source_*.tar.gz
+    - iqrf-daemon-build_*.tar.gz
+    expire_in: 2 days
+
+.daemon_debug-template: &daemon_debug-template
+  stage: build
+  before_script:
+  - eval $(ssh-agent -s)
+  - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  script:
+  - export DAEMON_VERSION=v2.1.0
+  - git clone ssh://git@gitlab.iqrf.org:2222/gateway/iqrf-gateway-daemon.git iqrf-gateway-daemon
+  - mv iqrf-gateway-daemon/src iqrf-daemon-source
+  - git -C iqrf-daemon-source submodule init
+  - git -C iqrf-daemon-source submodule update
+  - mkdir iqrf-daemon-build
+  - tar xzvf shape-source_${ARCH}.tar.gz
+  - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-source_${ARCH}.tar.gz
+  - tar xzvf shapeware-build_${ARCH}.tar.gz
+  - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION} -DCMAKE_BUILD_TYPE=Debug
+  - cmake --build iqrf-daemon-build
+  - tar czvf iqrf-daemon-source_${ARCH}.tar.gz iqrf-daemon-source
+  - tar czvf iqrf-daemon-build_${ARCH}.tar.gz iqrf-daemon-build
+  artifacts:
+    paths:
+    - iqrf-daemon-source_*.tar.gz
+    - iqrf-daemon-build_*.tar.gz
+    expire_in: 2 weeks
+
+.package-template: &package-template
+  stage: build-package
+  only:
+  - master
+  before_script:
+  - eval $(ssh-agent -s)
+  - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+  - git submodule init
+  - git submodule update
+  script:
+  - export DAEMON_VERSION=v2.1.0-beta~${CI_PIPELINE_ID}
+  - tar xzvf shape-source_${ARCH}.tar.gz
+  - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shape-libs_${ARCH}.tar.gz  
+  - tar xzvf shapeware-source_${ARCH}.tar.gz
+  - tar xzvf shapeware-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+  - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
+  - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
+  - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+  - mv ../iqrf-gateway-daemon*.deb .
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
+  artifacts:
+    paths:
+    - iqrf-gateway-daemon*.deb
+    - iqrf-gateway-daemon*.tar.gz
+    expire_in: 2 weeks
+
+.package_debug-template: &package_debug-template
+  stage: build-package
+  only:
+  - master
+  before_script:
+  - eval $(ssh-agent -s)
+  - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+  - git submodule init
+  - git submodule update
+  script:
+  - export DAEMON_VERSION=v2.1.0-beta~${CI_PIPELINE_ID}
+  - tar xzvf shape-source_${ARCH}.tar.gz
+  - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shape-libs_${ARCH}.tar.gz
+  - tar xzvf shapeware-source_${ARCH}.tar.gz
+  - tar xzvf shapeware-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+  - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
+# - export DEB_BUILD_OPTIONS=nostrip,noopt
+# - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+# - mv ../iqrf-gateway-daemon*.deb .
+  - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+  - bash .gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "devel"
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon-dbg*.deb iqrf-gateway-daemon-dbg*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
+  artifacts:
+    paths:
+    - iqrf-gateway-daemon-dbg*.deb
+    - iqrf-gateway-daemon-dbg*.tar.gz
+    expire_in: 2 weeks
+
+.package-release-template: &package-release-template
+  stage: build-package
+  only:
+  - tags
+  before_script:
+  - eval $(ssh-agent -s)
+  - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+  - git submodule init
+  - git submodule update
+  script:
+  - export DAEMON_VERSION="$CI_COMMIT_TAG"
+  - tar xzvf shape-source_${ARCH}.tar.gz
+  - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shape-libs_${ARCH}.tar.gz  
+  - tar xzvf shapeware-source_${ARCH}.tar.gz
+  - tar xzvf shapeware-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz  
+  - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
+#CHANGELOG generated manually
+# - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
+  - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+  - mv ../iqrf-gateway-daemon*.deb .
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+  artifacts:
+    paths:
+    - iqrf-gateway-daemon*.deb
+    - iqrf-gateway-daemon*.tar.gz
+    expire_in: 2 weeks
+
+.package_debug-release-template: &package_debug-release-template
+  stage: build-package
+  only:
+  - tags
+  before_script:
+  - eval $(ssh-agent -s)
+  - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+  - git submodule init
+  - git submodule update
+  script:
+  - export DAEMON_VERSION="$CI_COMMIT_TAG"
+  - tar xzvf shape-source_${ARCH}.tar.gz
+  - tar xzvf shape-build_${ARCH}.tar.gz
+  - tar xzvf shape-libs_${ARCH}.tar.gz
+  - tar xzvf shapeware-source_${ARCH}.tar.gz
+  - tar xzvf shapeware-build_${ARCH}.tar.gz
+  - tar xzvf shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+#CHANGELOG generated manually
+# - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
+# - export DEB_BUILD_OPTIONS=nostrip,noopt
+# - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+# - mv ../iqrf-gateway-daemon*.deb .
+  - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+  - bash .gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "release"
+  - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon-dbg*.deb iqrf-gateway-daemon-dbg*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+  artifacts:
+    paths:
+    - iqrf-gateway-daemon-dbg*.deb
+    - iqrf-gateway-daemon-dbg*.tar.gz
+    expire_in: 2 weeks
+
+.api-template: &api-template
+  stage: deploy-api
+  before_script:
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  script:
+  - rsync -hrvz --delete -e ssh api/ www-deploy@iqrfsdk.org:/data/nginx/apidocs/iqrf-gateway-daemon/json/iqrf/
+
+#AMD64 STRETCH
+
+shape_&_shapeware-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *shape_shapeware-template
+
+shape_&_shapeware_debug-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *shape_shapeware_debug-template
+
+daemon-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *daemon-template
+  dependencies:
+  - shape_&_shapeware-stretch-amd64
+
+daemon_debug-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-stretch-amd64
+
+package-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *package-template
+  dependencies:
+  - shape_&_shapeware-stretch-amd64
+  - daemon-stretch-amd64
+
+package_debug-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-stretch-amd64
+  - daemon_debug-stretch-amd64
+
+package-release-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *package-release-template
+  dependencies:
+  - shape_&_shapeware-stretch-amd64
+  - daemon-stretch-amd64
+
+package_debug-release-stretch-amd64:
+  <<: *arch_stretch-amd64-template
+  <<: *package_debug-release-template
+  dependencies:
+  - shape_&_shapeware_debug-stretch-amd64
+  - daemon_debug-stretch-amd64
+
+#AMD64 XENIAL
+
+shape_&_shapeware-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *shape_shapeware-template
+
+shape_&_shapeware_debug-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *shape_shapeware_debug-template
+
+daemon-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *daemon-template
+  dependencies:
+  - shape_&_shapeware-xenial-amd64
+
+daemon_debug-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-xenial-amd64
+
+package-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *package-template
+  dependencies:
+  - shape_&_shapeware-xenial-amd64
+  - daemon-xenial-amd64
+
+package_debug-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-xenial-amd64
+  - daemon_debug-xenial-amd64
+
+package-release-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *package-release-template
+  dependencies:
+  - shape_&_shapeware-xenial-amd64
+  - daemon-xenial-amd64
+
+package_debug-release_debug-xenial-amd64:
+  <<: *arch_xenial-amd64-template
+  <<: *package_debug-release-template
+  dependencies:
+  - shape_&_shapeware_debug-xenial-amd64
+  - daemon_debug-xenial-amd64
+
+#AMD64 BIONIC
+
+shape_&_shapeware-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *shape_shapeware-template
+
+shape_&_shapeware_debug-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *shape_shapeware_debug-template
+
+daemon-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *daemon-template
+  dependencies:
+  - shape_&_shapeware-bionic-amd64
+
+daemon_debug-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-bionic-amd64
+
+package-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *package-template
+  dependencies:
+  - shape_&_shapeware-bionic-amd64
+  - daemon-bionic-amd64
+
+package_debug-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-bionic-amd64
+  - daemon_debug-bionic-amd64
+
+package-release-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *package-release-template
+  dependencies:
+  - shape_&_shapeware-bionic-amd64
+  - daemon-bionic-amd64
+
+package_debug-release-bionic-amd64:
+  <<: *arch_bionic-amd64-template
+  <<: *package_debug-release-template
+  dependencies:
+  - shape_&_shapeware_debug-bionic-amd64
+  - daemon_debug-bionic-amd64
+
+#ARMHF
+
+shape_&_shapeware-armhf:
+  <<: *arch_armhf-template
+  <<: *shape_shapeware-template
+
+shape_&_shapeware_debug-armhf:
+  <<: *arch_armhf-template
+  <<: *shape_shapeware_debug-template
+
+daemon-armhf:
+  <<: *arch_armhf-template
+  <<: *daemon-template
+  dependencies:
+  - shape_&_shapeware-armhf
+
+daemon_debug-armhf:
+  <<: *arch_armhf-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-armhf
+
+package-armhf:
+  <<: *arch_armhf-template
+  <<: *package-template
+  dependencies:
+  - shape_&_shapeware-armhf
+  - daemon-armhf
+
+package_debug-armhf:
+  <<: *arch_armhf-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-armhf
+  - daemon_debug-armhf
+
+package-release-armhf:
+  <<: *arch_armhf-template
+  <<: *package-release-template
+  dependencies:
+  - shape_&_shapeware-armhf
+  - daemon-armhf
+
+package_debug-release-armhf:
+  <<: *arch_armhf-template
+  <<: *package_debug-release-template
+  dependencies:
+  - shape_&_shapeware_debug-armhf
+  - daemon_debug-armhf
+
+#ARM64
+
+shape_&_shapeware-arm64:
+  <<: *arch_arm64-template
+  <<: *shape_shapeware-template
+
+shape_&_shapeware_debug-arm64:
+  <<: *arch_arm64-template
+  <<: *shape_shapeware_debug-template
+
+daemon-arm64:
+  <<: *arch_arm64-template
+  <<: *daemon-template
+  dependencies:
+  - shape_&_shapeware-arm64
+
+daemon_debug-arm64:
+  <<: *arch_arm64-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-arm64
+
+package-arm64:
+  <<: *arch_arm64-template
+  <<: *package-template
+  dependencies:
+  - shape_&_shapeware-arm64
+  - daemon-arm64
+
+package_debug-arm64:
+  <<: *arch_arm64-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-arm64
+  - daemon_debug-arm64
+
+package-release-arm64:
+  <<: *arch_arm64-template
+  <<: *package-release-template
+  dependencies:
+  - shape_&_shapeware-arm64
+  - daemon-arm64
+
+package_debug-release-arm64:
+  <<: *arch_arm64-template
+  <<: *package_debug-release-template
+  dependencies:
+  - shape_&_shapeware_debug-arm64
+  - daemon_debug-arm64
+
+#API
+
+api-deploy:
+  <<: *arch_stretch-amd64-template
+  <<: *api-template
