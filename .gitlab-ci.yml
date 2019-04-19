@@ -119,9 +119,9 @@ stages:
   script:
   - export DAEMON_VERSION=v2.1.0
   - git clone ssh://git@gitlab.iqrf.org:2222/open-source/iqrf-gateway-daemon.git iqrf-gateway-daemon
+  - git -C iqrf-daemon-daemon/src submodule init
+  - git -C iqrf-daemon-daemon/src submodule update
   - mv iqrf-gateway-daemon/src iqrf-daemon-source
-  - git -C iqrf-daemon-source submodule init
-  - git -C iqrf-daemon-source submodule update
   - mkdir iqrf-daemon-build
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
@@ -153,9 +153,9 @@ stages:
   script:
   - export DAEMON_VERSION=v2.1.0
   - git clone ssh://git@gitlab.iqrf.org:2222/gateway/iqrf-gateway-daemon.git iqrf-gateway-daemon
+  - git -C iqrf-daemon-daemon/src submodule init
+  - git -C iqrf-daemon-daemon/src submodule update
   - mv iqrf-gateway-daemon/src iqrf-daemon-source
-  - git -C iqrf-daemon-source submodule init
-  - git -C iqrf-daemon-source submodule update
   - mkdir iqrf-daemon-build
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
