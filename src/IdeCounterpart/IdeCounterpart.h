@@ -39,7 +39,8 @@ namespace iqrf {
     /// Operational is used for normal work
     /// Service the only UDP Messaging is used to communicate with IQRF IDE
     /// Forwarding normal work but all DPA messages are forwarded to IQRF IDE to me monitored there
-    void setMode(Mode mode);
+    void setMode(Mode mode) override;
+    Mode getMode() const override;
 
   private:
     /// \brief Get GW identification for IQRF IDE
@@ -67,7 +68,7 @@ namespace iqrf {
     IUdpMessagingService *m_messaging = nullptr;
     IIqrfChannelService *m_iqrfChannelService = nullptr;
     IIqrfDpaService *m_iqrfDpaService = nullptr;
-    std::mutex m_modeMtx;
+    mutable std::mutex m_modeMtx;
     Mode m_mode;
     std::unique_ptr<IIqrfChannelService::Accessor> m_exclusiveAcessor;
     std::unique_ptr<IIqrfChannelService::Accessor> m_snifferAcessor;

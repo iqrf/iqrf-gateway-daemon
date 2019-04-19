@@ -90,6 +90,11 @@ namespace iqrf {
       return m_mode;
     }
 
+    void setMode(IUdpConnectorService::Mode mode)
+    {
+      m_mode = mode;
+    }
+
     void createResponsePayload(rapidjson::Document& doc) override
     {
       Pointer("/data/rsp/operMode").Set(doc, ModeStringConvertor::enum2str(m_mode));
@@ -476,7 +481,11 @@ namespace iqrf {
       try {
         if (m_iUdpConnectorService) { // interface is UNREQUIRED
           // switch mode
-          m_iUdpConnectorService->setMode(msg.getMode());
+          IUdpConnectorService::Mode mode = msg.getMode();
+          if (mode != IUdpConnectorService::Mode::Unknown) {
+            m_iUdpConnectorService->setMode(msg.getMode());
+          }
+          msg.setMode(m_iUdpConnectorService->getMode());
         }
         else {
           THROW_EXC_TRC_WAR(std::logic_error, "UdpConnectorService not active");
@@ -486,6 +495,7 @@ namespace iqrf {
         CATCH_EXC_TRC_WAR(std::exception, e, "Cannot handle MngModeMsg");
         msg.setErr(e.what());
       }
+
       msg.createResponse(respDoc);
 
       TRC_FUNCTION_LEAVE("");

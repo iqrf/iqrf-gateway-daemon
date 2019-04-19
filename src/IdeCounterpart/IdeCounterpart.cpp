@@ -204,6 +204,12 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
+  IUdpConnectorService::Mode IdeCounterpart::getMode() const
+  {
+    std::lock_guard<std::mutex> lck(m_modeMtx);
+    return m_mode;
+  }
+
   int IdeCounterpart::sendMessageToIde(const std::basic_string<unsigned char>& message)
   {
     std::basic_string<unsigned char> udpMessage(IQRF_UDP_HEADER_SIZE + IQRF_UDP_CRC_SIZE, '\0');
