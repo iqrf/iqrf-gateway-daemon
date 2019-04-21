@@ -152,7 +152,7 @@ stages:
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   script:
   - export DAEMON_VERSION=v2.1.0
-  - git clone ssh://git@gitlab.iqrf.org:2222/gateway/iqrf-gateway-daemon.git iqrf-gateway-daemon
+  - git clone ssh://git@gitlab.iqrf.org:2222/open-source/iqrf-gateway-daemon.git iqrf-gateway-daemon
   - git -C iqrf-gateway-daemon/src submodule init
   - git -C iqrf-gateway-daemon/src submodule update
   - mv iqrf-gateway-daemon/src iqrf-daemon-source
