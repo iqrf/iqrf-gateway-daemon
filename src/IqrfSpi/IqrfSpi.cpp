@@ -177,13 +177,13 @@ namespace iqrf {
     }
 
     IIqrfChannelService::Accessor::UploadErrorCode upload(
-      const Accessor::UploadTarget target, 
+      const Accessor::UploadTarget target,
       const std::basic_string<uint8_t>& data,
       const uint16_t address
     )
     {
       TRC_FUNCTION_ENTER("");
-      
+
       // wait for TR module is ready
       spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(1000);
 
@@ -256,8 +256,7 @@ namespace iqrf {
           addressAndData += data;
 
           uploadRes = spi_iqrf_upload(targetInt, addressAndData.data(), static_cast<unsigned int>(addressAndData.size()));
-        }
-        else {
+        } else {
           uploadRes = spi_iqrf_upload(targetInt, data.data(), static_cast<unsigned int>(data.size()));
         }
       }

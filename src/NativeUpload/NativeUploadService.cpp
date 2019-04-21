@@ -53,27 +53,18 @@ namespace {
   static const size_t FLASH_UP_MODULO = 16;
   static const size_t FLASH_DOWN_MODULO = 32;
   static const uint16_t FLASH_APP_LOW = 0x3a00;
-  static const uint16_t FLASH_APP_HIGH = 0x3fff; // TODO: Fix upper limit
+  static const uint16_t FLASH_APP_HIGH = 0x3fff;
   static const uint16_t FLASH_EXT_LOW = 0x2c00;
-  static const uint16_t FLASH_EXT_HIGH = 0x37bf; // TODO: Fix upper limits
+  static const uint16_t FLASH_EXT_HIGH = 0x37bf;
   static const size_t FLASH_LEN = 32;
   static const uint16_t INT_EEPROM_UP_LOW = 0x0000;
   static const uint16_t INT_EEPROM_UP_HIGH = 0x00bf;
   static const size_t INT_EEPROM_UP_ADDR_LEN_MAX = 0x00c0;
   static const size_t INT_EEPROM_UP_LEN_MIN = 1;
   static const size_t INT_EEPROM_UP_LEN_MAX = 32;
-  static const uint16_t INT_EEPROM_DOWN_LOW = 0x0000;
-  static const uint16_t INT_EEPROM_DOWN_HIGH = 0x00a0;
-  static const size_t INT_EEPROM_DOWN_LEN = 32;
-  static const uint16_t EXT_EEPROM_LOW = 0x0000;
-  static const uint16_t EXT_EEPROM_UP_HIGH = 0x3fe0;
-  static const uint16_t EXT_EEPROM_DOWN_HIGH = 0x7fe0;
-  static const size_t EXT_EEPROM_MODULO = 32;
-  static const size_t EXT_EEPROM_LEN = 32;
   static const size_t SPECIAL_LEN = 20;
   static const uint16_t TR_CFG_MEM_ADR_L = 0x37C0;
   static const uint16_t TR_CFG_MEM_ADR_H = 0x37D0;
-
 
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
@@ -414,14 +405,6 @@ namespace iqrf {
     {
       std::basic_string<uint8_t> msg;
 
-      if (addr % FLASH_UP_MODULO != 0) {
-        THROW_EXC(std::out_of_range, "Address in flash memory should be modulo 16!");
-      }
-
-      if (!(((addr >= FLASH_APP_LOW) && (addr <= FLASH_APP_HIGH)) || ((addr >= FLASH_EXT_LOW) && (addr <= FLASH_EXT_HIGH)))) {
-        THROW_EXC(std::out_of_range, "Address in flash memory is outside application or extended flash memory!");
-      }
-
       if (data.length() != FLASH_LEN) {
         THROW_EXC(std::out_of_range, "Data to be programmed into the flash memory must be 32B long!");
       }
@@ -438,11 +421,11 @@ namespace iqrf {
     {
       std::basic_string<uint8_t> msg;
 
-      if (addr > INT_EEPROM_UP_HIGH) {
+      if (addr & 0x00FF > INT_EEPROM_UP_HIGH) {
         THROW_EXC(std::out_of_range, "Address in internal eeprom memory is outside of addressable range!");
       }
 
-      if (addr + data.length() >= INT_EEPROM_UP_ADDR_LEN_MAX) {
+      if ((addr & 0x00FF) + data.length() > INT_EEPROM_UP_ADDR_LEN_MAX) {
         THROW_EXC(std::out_of_range, "End of write is out of the addressable range of the internal eeprom!");
       }
 
@@ -456,31 +439,6 @@ namespace iqrf {
         ->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)
         ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM, data, addr);
     }
-
-    IIqrfChannelService::Accessor::UploadErrorCode
-      uploadExternalEeprom(const uint16_t addr, const std::basic_string<uint8_t>& data)
-    {
-      std::basic_string<uint8_t> msg;
-
-      if (addr > EXT_EEPROM_UP_HIGH) {
-        THROW_EXC(std::out_of_range, "Address in external eeprom memory is outside of addressable range!");
-      }
-
-      if (addr % EXT_EEPROM_MODULO != 0) {
-        THROW_EXC(std::out_of_range, "Address in external eeprom memory should be modulo 32!");
-      }
-
-      if (data.length() != EXT_EEPROM_LEN) {
-        THROW_EXC(std::out_of_range, "Data to be programmed into the external eeprom memory must be 32B long!");
-      }
-
-      insertAddressAndData(msg, addr, data);
-
-      return m_iIqrfChannelService
-        ->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)
-        ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM, data, addr);
-    }
-
 
     void uploadFromHex(NativeUploadResult& uploadResult, const std::string& fileName)
     {
@@ -504,14 +462,16 @@ namespace iqrf {
         case TrMemory::FLASH:
           errCode = uploadFlash((*itr).addr, (*itr).data);
           break;
+
         case TrMemory::INTERNAL_EEPROM:
           errCode = uploadInternalEeprom((*itr).addr, (*itr).data);
           break;
-        case TrMemory::EXTERNAL_EEPROM:
-          errCode = uploadExternalEeprom((*itr).addr, (*itr).data);
-          break;
+
         default:;
         }
+
+        if (errCode != IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR)
+            break;
       }
 
       uploadResult.setErrorCode(errCode);

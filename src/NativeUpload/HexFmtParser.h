@@ -35,7 +35,6 @@ public:
     typedef std::vector<HexDataRecord>::const_iterator const_iterator;
     iterator begin() { return blines.begin(); }
     iterator end() { return blines.end(); }
-    void pushBack(const uint16_t addr, const std::basic_string<uint8_t>& data, const TrMemory mem);
 };
 
 #endif // __HEXFMTPARSER_H__
