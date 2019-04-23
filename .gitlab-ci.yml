@@ -188,14 +188,14 @@ stages:
   - export DAEMON_VERSION=v2.1.0-beta~${CI_PIPELINE_ID}
 # RUN IT ALL IN SRC FOLDER
   - cd src
-  - tar xzvf shape-source_${ARCH}.tar.gz
-  - tar xzvf shape-build_${ARCH}.tar.gz
-  - tar xzvf shape-libs_${ARCH}.tar.gz  
-  - tar xzvf shapeware-source_${ARCH}.tar.gz
-  - tar xzvf shapeware-build_${ARCH}.tar.gz
-  - tar xzvf shapeware-libs_${ARCH}.tar.gz
-  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
-  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+  - tar xzvf ../shape-source_${ARCH}.tar.gz
+  - tar xzvf ../shape-build_${ARCH}.tar.gz
+  - tar xzvf ../shape-libs_${ARCH}.tar.gz  
+  - tar xzvf ../shapeware-source_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-build_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf ../iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf ../iqrf-daemon-build_${ARCH}.tar.gz
   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}~${CI_PIPELINE_ID}_${ARCH}.tar.gz .
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
@@ -230,14 +230,14 @@ stages:
   - export DAEMON_VERSION=v2.1.0-beta~${CI_PIPELINE_ID}
 # RUN IT ALL IN SRC FOLDER
   - cd src
-  - tar xzvf shape-source_${ARCH}.tar.gz
-  - tar xzvf shape-build_${ARCH}.tar.gz
-  - tar xzvf shape-libs_${ARCH}.tar.gz
-  - tar xzvf shapeware-source_${ARCH}.tar.gz
-  - tar xzvf shapeware-build_${ARCH}.tar.gz
-  - tar xzvf shapeware-libs_${ARCH}.tar.gz
-  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
-  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+  - tar xzvf ../shape-source_${ARCH}.tar.gz
+  - tar xzvf ../shape-build_${ARCH}.tar.gz
+  - tar xzvf ../shape-libs_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-source_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-build_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf ../iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf ../iqrf-daemon-build_${ARCH}.tar.gz
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
 # - export DEB_BUILD_OPTIONS=nostrip,noopt
 # - dpkg-buildpackage -b -rfakeroot -us -uc -tc
@@ -275,14 +275,14 @@ stages:
   - export DAEMON_VERSION="$CI_COMMIT_TAG"
 # RUN IT ALL IN SRC FOLDER
   - cd src
-  - tar xzvf shape-source_${ARCH}.tar.gz
-  - tar xzvf shape-build_${ARCH}.tar.gz
-  - tar xzvf shape-libs_${ARCH}.tar.gz
-  - tar xzvf shapeware-source_${ARCH}.tar.gz
-  - tar xzvf shapeware-build_${ARCH}.tar.gz
-  - tar xzvf shapeware-libs_${ARCH}.tar.gz
-  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
-  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+  - tar xzvf ../shape-source_${ARCH}.tar.gz
+  - tar xzvf ../shape-build_${ARCH}.tar.gz
+  - tar xzvf ../shape-libs_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-source_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-build_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf ../iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf ../iqrf-daemon-build_${ARCH}.tar.gz
   - bash .gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
 #CHANGELOG generated manually
@@ -318,14 +318,14 @@ stages:
   - export DAEMON_VERSION="$CI_COMMIT_TAG"
 # RUN IT ALL IN SRC FOLDER
   - cd src
-  - tar xzvf shape-source_${ARCH}.tar.gz
-  - tar xzvf shape-build_${ARCH}.tar.gz
-  - tar xzvf shape-libs_${ARCH}.tar.gz
-  - tar xzvf shapeware-source_${ARCH}.tar.gz
-  - tar xzvf shapeware-build_${ARCH}.tar.gz
-  - tar xzvf shapeware-libs_${ARCH}.tar.gz
-  - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
-  - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+  - tar xzvf ../shape-source_${ARCH}.tar.gz
+  - tar xzvf ../shape-build_${ARCH}.tar.gz
+  - tar xzvf ../shape-libs_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-source_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-build_${ARCH}.tar.gz
+  - tar xzvf ../shapeware-libs_${ARCH}.tar.gz
+  - tar xzvf ../iqrf-daemon-source_${ARCH}.tar.gz
+  - tar xzvf ../iqrf-daemon-build_${ARCH}.tar.gz
 #CHANGELOG generated manually
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
 # - export DEB_BUILD_OPTIONS=nostrip,noopt
