@@ -5,7 +5,7 @@ stages:
 - deploy-api
 
 .arch_stretch-amd64-template: &arch_stretch-amd64-template
-  image: iqrfsdk/iqrf-gateway-daemon-build:latest-amd64
+  image: iqrftech/iqrf-gateway-daemon-builder:stretch-amd64
   variables:
     ARCH: "amd64"
     DIST: "stretch"
@@ -13,7 +13,7 @@ stages:
   - linux, amd64
 
 .arch_xenial-amd64-template: &arch_xenial-amd64-template
-  image: iqrfsdk/iqrf-gateway-daemon-build:xenial-amd64
+  image: iqrftech/iqrf-gateway-daemon-builder:xenial-amd64
   variables:
     ARCH: "amd64"
     DIST: "xenial"
@@ -21,7 +21,7 @@ stages:
   - linux, amd64
 
 .arch_bionic-amd64-template: &arch_bionic-amd64-template
-  image: iqrfsdk/iqrf-gateway-daemon-build:bionic-amd64
+  image: iqrftech/iqrf-gateway-daemon-builder:bionic-amd64
   variables:
     ARCH: "amd64"
     DIST: "bionic"
@@ -29,7 +29,7 @@ stages:
   - linux, amd64
 
 .arch_arm64-template: &arch_arm64-template
-  image: iqrfsdk/iqrf-gateway-daemon-build:latest-arm64
+  image: iqrftech/iqrf-gateway-daemon-builder:stretch-arm64
   variables:
     ARCH: "arm64"
     DIST: "stretch"
@@ -37,12 +37,20 @@ stages:
   - linux, arm64
 
 .arch_armhf-template: &arch_armhf-template
-  image: iqrfsdk/iqrf-gateway-daemon-build:latest-armhf
+  image: iqrftech/iqrf-gateway-daemon-builder:stretch-armhf
   variables:
     ARCH: "armhf"
     DIST: "stretch"
   tags:
   - linux, armhf
+
+.arch_armel-template: &arch_armel-template
+  image: iqrftech/iqrf-gateway-daemon-builder:stretch-armel
+  variables:
+    ARCH: "armel"
+    DIST: "stretch"
+  tags:
+  - linux, armel
 
 .shape_shapeware-template: &shape_shapeware-template
   stage: dependencies
@@ -187,6 +195,7 @@ stages:
   script:
   - export DAEMON_VERSION=v2.1.0-beta~${CI_PIPELINE_ID}
 # RUN IT ALL IN SRC FOLDER
+  - cp -r .git src
   - cd src
   - tar xzvf ../shape-source_${ARCH}.tar.gz
   - tar xzvf ../shape-build_${ARCH}.tar.gz
@@ -229,6 +238,7 @@ stages:
   script:
   - export DAEMON_VERSION=v2.1.0-beta~${CI_PIPELINE_ID}
 # RUN IT ALL IN SRC FOLDER
+  - cp -r .git src
   - cd src
   - tar xzvf ../shape-source_${ARCH}.tar.gz
   - tar xzvf ../shape-build_${ARCH}.tar.gz
@@ -274,6 +284,7 @@ stages:
   script:
   - export DAEMON_VERSION="$CI_COMMIT_TAG"
 # RUN IT ALL IN SRC FOLDER
+  - cp -r .git src
   - cd src
   - tar xzvf ../shape-source_${ARCH}.tar.gz
   - tar xzvf ../shape-build_${ARCH}.tar.gz
@@ -317,6 +328,7 @@ stages:
   script:
   - export DAEMON_VERSION="$CI_COMMIT_TAG"
 # RUN IT ALL IN SRC FOLDER
+  - cp -r .git src
   - cd src
   - tar xzvf ../shape-source_${ARCH}.tar.gz
   - tar xzvf ../shape-build_${ARCH}.tar.gz
@@ -608,6 +620,56 @@ package_debug-release-arm64:
   dependencies:
   - shape_&_shapeware_debug-arm64
   - daemon_debug-arm64
+
+#ARMEL
+
+shape_&_shapeware-armel:
+  <<: *arch_armel-template
+  <<: *shape_shapeware-template
+
+shape_&_shapeware_debug-armel:
+  <<: *arch_armel-template
+  <<: *shape_shapeware_debug-template
+
+daemon-armel:
+  <<: *arch_armel-template
+  <<: *daemon-template
+  dependencies:
+  - shape_&_shapeware-armel
+
+daemon_debug-armel:
+  <<: *arch_armel-template
+  <<: *daemon_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-armel
+
+package-armel:
+  <<: *arch_armel-template
+  <<: *package-template
+  dependencies:
+  - shape_&_shapeware-armel
+  - daemon-armel
+
+package_debug-armel:
+  <<: *arch_armel-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_&_shapeware_debug-armel
+  - daemon_debug-armel
+
+package-release-armel:
+  <<: *arch_armel-template
+  <<: *package-release-template
+  dependencies:
+  - shape_&_shapeware-armel
+  - daemon-armel
+
+package_debug-release-armel:
+  <<: *arch_armel-template
+  <<: *package_debug-release-template
+  dependencies:
+  - shape_&_shapeware_debug-armel
+  - daemon_debug-armel
 
 #API
 
