@@ -51,7 +51,7 @@ then
         -s dir \
         -C iqrf-daemon-deploy \
         --name "iqrf-gateway-daemon-dbg" \
-        --version ${DAEMON_VERSION:1}"~"${CI_PIPELINE_ID} \
+        --version ${DAEMON_VERSION:1} \
         --license "Apache License, Version 2.0" \
         --vendor "IQRF Tech s.r.o." \
         --category "debug" \
@@ -111,7 +111,7 @@ then
         -s dir \
         -C iqrf-daemon-deploy \
         --name "iqrf-gateway-daemon-dbg" \
-        --version ${DAEMON_VERSION:1}"~"${CI_PIPELINE_ID} \
+        --version ${DAEMON_VERSION:1} \
         --license "Apache License, Version 2.0" \
         --vendor "IQRF Tech s.r.o." \
         --category "debug" \
@@ -169,7 +169,7 @@ then
         -s dir \
         -C iqrf-daemon-deploy \
         --name "iqrf-gateway-daemon-dbg" \
-        --version ${DAEMON_VERSION:1}"~"${CI_PIPELINE_ID} \
+        --version ${DAEMON_VERSION:1} \
         --license "Apache License, Version 2.0" \
         --vendor "IQRF Tech s.r.o." \
         --category "debug" \
