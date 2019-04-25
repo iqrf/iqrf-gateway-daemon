@@ -233,7 +233,8 @@ void UdpChannel::getMyAddress()
     if (trmn < 0) {
       //THROW_EXC_TRC_WAR(UdpChannelException, "sendto failed: " << WSAGetLastError());
       TRC_WARNING("sendto failed: " << WSAGetLastError() << " => cannot specify my IP address.");
-      break;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      continue;
     }
 
     unsigned char rx[16];
