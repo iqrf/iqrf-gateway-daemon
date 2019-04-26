@@ -46,3 +46,13 @@ utils/c#/schemas-to-classes/packages/
 utils/c#/schemas-to-classes/schemas-to-classes/bin/
 utils/c#/schemas-to-classes/schemas-to-classes/obj/
 utils/c#/schemas-to-classes/.vs/
+
+# shape and shapeware files
+shape-source/
+shape-build/
+shapeware-source/
+shapeware-build/
+
+# CLion files
+.idea/
+cmake-build-debug/
