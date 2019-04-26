@@ -50,7 +50,7 @@ cp iqrf-daemon-build/bin/*.so ${DEPLOY}${IQRFGD2_LIBS}
 rm ${DEPLOY}${IQRFGD2_LIBS}/libOtaUploadService.so
 
 # SHARE
-cp -r iqrf-daemon-source/src/libraries/iqrf-daemon-api/JsonSchemas ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas
+cp -r iqrf-daemon-source/libraries/iqrf-daemon-api/JsonSchemas ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas
 # NOT YET UPLOAD
 rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/iqmeshNetwork_OtaUpload*.json
 
