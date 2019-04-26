@@ -199,6 +199,7 @@ stages:
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+  - mv ../iqrf-gateway-daemon*.deb .
   - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
   artifacts:
     paths:
@@ -236,7 +237,7 @@ stages:
 # - export DEB_BUILD_OPTIONS=nostrip,noopt
 # - dpkg-buildpackage -b -rfakeroot -us -uc -tc
 # - mv ../iqrf-gateway-daemon*.deb .
-  - bash src.gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+  - bash src/gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
   - bash src/.gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "devel"
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon-dbg_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
   - rsync -hrvz --delete -e ssh iqrf-gateway-daemon-dbg*.deb iqrf-gateway-daemon-dbg*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
@@ -277,6 +278,7 @@ stages:
 #CHANGELOG generated manually
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+  - mv ../iqrf-gateway-daemon*.deb .
   - rsync -hrvz --delete -e ssh iqrf-gateway-daemon*.deb iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
   artifacts:
     paths:
