@@ -1,1 +1,1 @@
-../start-IqrfDaemon/systemd/iqrf-gateway-daemon.service
+../src/start-IqrfDaemon/systemd/iqrf-gateway-daemon.service
