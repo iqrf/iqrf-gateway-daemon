@@ -1,5 +1,5 @@
 {
-    "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "iqrfEmbedCoordinator_DiscoveredDevices-response",
@@ -50,11 +50,10 @@
                             "properties": {
                                 "discoveredDevices": {
                                     "type": "array",
-                                    "description": "Bit array indicating discovered nodes (addresses). Address 0 at bit0 of PData0, Address 1 at bit1 of PData0 etc.",
+                                    "description": "Array indicating discovered nodes (addresses).",
                                     "items": {
                                         "type": "integer"
-                                    },
-                                    "maxItems": 31
+                                    }
                                 }        
                             }
                         },

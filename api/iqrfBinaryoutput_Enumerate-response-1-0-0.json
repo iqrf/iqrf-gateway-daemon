@@ -1,5 +1,5 @@
 {
-    "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "iqrfBinaryoutput_Enumerate-response",
@@ -48,7 +48,7 @@
                         "result": {
                             "type": "object",
                             "properties": {
-                                "binouts": {
+                                "binOuts": {
                                     "type": "integer",
                                     "description": "Number of implemented binary outputs."
                                 }

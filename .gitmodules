@@ -1,9 +1,6 @@
 [submodule "src/libraries/clibdpa"]
 	path = libraries/clibdpa
 	url = https://github.com/iqrfsdk/clibdpa.git
-[submodule "src/libraries/iqrf-daemon-api"]
-	path = libraries/iqrf-daemon-api
-	url = https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon-api.git
 [submodule "src/libraries/clibcdc"]
 	path = libraries/clibcdc
 	url = https://github.com/iqrfsdk/clibcdc.git

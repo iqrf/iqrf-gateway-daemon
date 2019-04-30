@@ -1,0 +1,160 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqmeshNetwork_OtaUpload-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQMESH Network management - Upload hex or iqrf file response.",
+      "enum": [
+        "iqmeshNetwork_OtaUpload"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "rsp": {
+          "type": "object",
+          "description": "Returns following values, see its description.",
+          "properties": {
+            "deviceAddr": {
+              "type": "integer",
+              "description": "Device address to load the code to. Broadcast address is also allowed."
+            },
+            "hwpId": {
+              "type": "integer",
+              "description": "Hardware profile ID of the devices to write the hex or iqrf file."
+            },
+            "loadingAction": {
+              "type": "string",
+              "description": "Loading action - WithoutCodeLoading, WithCodeLoading."
+            },
+            "uploadResult": {
+              "type": "boolean",
+              "description": "If sets, then selected file has been successfully loaded."
+            },
+            "verifyResult": {
+              "type": "array",
+              "description": "Returns result of verify action.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "integer",
+                    "description": "Device address."
+                  },
+                  "result": {
+                    "type": "boolean",
+                    "description": "Result."
+                  }
+                },
+                "required": [
+                  "address",
+                  "result"
+                ],
+                "maxItems": 239
+              }
+            },
+            "loadResult": {
+              "type": "array",
+              "description": "Returns result of verify action.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "integer",
+                    "description": "Device address."
+                  },
+                  "result": {
+                    "type": "boolean",
+                    "description": "Result."
+                  }
+                },
+                "required": [
+                  "address",
+                  "result"
+                ],
+                "maxItems": 239
+              }
+            }
+          },
+          "required": [
+            "deviceAddr",
+            "hwpId",
+            "loadingAction"
+          ]
+        },
+        "raw": {
+          "type": "array",
+          "description": "Returns array of objects req-cnf-rsp, see its description.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "request": {
+                "type": "string",
+                "description": "Binary buffer with DPA request."
+              },
+              "requestTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+              },
+              "confirmation": {
+                "type": "string",
+                "description": "Binary buffer with DPA confirmation."
+              },
+              "confirmationTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+              },
+              "response": {
+                "type": "string",
+                "description": "Binary buffer with DPA response."
+              },
+              "responseTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+              }
+            },
+            "required": [
+              "request",
+              "requestTs",
+              "confirmation",
+              "confirmationTs",
+              "response",
+              "responseTs"
+            ]
+          }
+        },
+        "insId": {
+          "type": "string",
+          "description": "IQRF GW daemon instance identification."
+        },
+        "status": {
+          "type": "integer",
+          "description": "IQRF GW daemon API (general or mType) status."
+        },
+        "statusStr": {
+          "type": "string",
+          "description": "IQRF GW daemon API (general or mType) status in string form."
+        }
+      },
+      "required": [
+        "msgId",
+        "status"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}

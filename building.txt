@@ -1,16 +1,6 @@
 DEBIAN STRETCH (UBUNTU XENIAL)
 ------------------------------
 
-Create your SSH key and add it to GITHUB and GITLAB:
-https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
-
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
-
-Copy your created public key ~/.ssh/id_rsa and add it here: 
-
-https://github.com/settings/keys
-https://gitlab.iqrf.org/profile/keys
-
 CMAKE & SSL & MQTT & CURL
 =========================
 
