@@ -152,6 +152,20 @@ v2.1.0
   - exactTime = true
   - periodic = true
 
+CRON nicknames
+--------------
+
+It is possible to use CRON nicknames for time pattern.
+
+- "@reboot": Run once after reboot.
+- "@yearly": Run once a year, ie.  "0 0 0 0 1 1 *".
+- "@annually": Run once a year, ie.  "0 0 0 0 1 1 *".
+- "@monthly": Run once a month, ie. "0 0 0 0 1 * *".
+- "@weekly": Run once a week, ie.  "0 0 0 * * * 0".
+- "@daily": Run once a day, ie.   "0 0 0 * * * *".
+- "@hourly": Run once an hour, ie. "0 0 * * * * *".
+- "@minutely": Run once a minute, ie. "0 * * * * * *".
+
 API
 ---
 

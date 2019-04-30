@@ -53,8 +53,9 @@
                                     "description": "Values corresponding to the addresses of the bonded devices",
                                     "items": {
                                         "type": "integer"
-                                    }
-                                }        
+                                    },
+                                    "maxItems": 239
+                                }
                             }
                         },
                         "errorStr": {

@@ -725,10 +725,6 @@ Daemon Scheduler
 - `RemoveTask request v1-0-0`_ and `example`__
 - `RemoveTask response v1-0-0`_ and `example`__
 
-**Since v2.1.0**
-
-- `AddTask request v1-1-0`_ and `example`__
-
 .. _`AddTask request v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngScheduler_AddTask-request-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngScheduler_AddTask-request-1-0-0-example.json
 .. _`AddTask response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngScheduler_AddTask-response-1-0-0.json
@@ -753,8 +749,6 @@ Daemon Scheduler
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngScheduler_RemoveTask-request-1-0-0-example.json
 .. _`RemoveTask response v1-0-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngScheduler_RemoveTask-response-1-0-0.json
 .. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngScheduler_RemoveTask-response-1-0-0-example.json
-.. _`AddTask request v1-1-0`: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/#iqrf/mngScheduler_AddTask-request-1-1-0.json
-.. __: https://apidocs.iqrf.org/iqrf-gateway-daemon/json/iqrf/examples/mngScheduler_AddTask-request-1-1-0-example.json
 
 Daemon Metadata
 ---------------

@@ -57,6 +57,10 @@
                                             {
                                                 "type": "object",
                                                 "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "description": "Value type as text id."
+                                                    },
                                                     "type": {
                                                         "type": "integer",
                                                         "description": "Value type of the sensor (quantity)."
@@ -122,6 +126,7 @@
                                                     }
                                                 },
                                                 "required": [
+                                                    "id",
                                                     "type",
                                                     "name",
                                                     "shortName",
