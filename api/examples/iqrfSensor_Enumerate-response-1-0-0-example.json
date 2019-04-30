@@ -10,6 +10,7 @@
             "result": {
                 "sensors": [
                     {
+                        "id": "ALTITUDE",
                         "type": 20,
                         "name": "Altitude",
                         "shortName": "h",
@@ -19,6 +20,7 @@
                         ]
                     },
                     {
+                        "id":"CARBON_DIOXIDE",
                         "type": 2,
                         "name": "Carbon dioxide",
                         "shortName": "CO2",
@@ -29,6 +31,7 @@
                         ]
                     },
                     {
+                        "id":"RELATIVE_HUMIDITY",
                         "type": 128,
                         "name": "Relative humidity",
                         "shortName": "RH",
@@ -38,6 +41,7 @@
                         ]
                     },
                     {
+                        "id":"ILLUMINANCE",
                         "type": 11,
                         "name": "Illuminance",
                         "shortName": "Ev",
@@ -47,6 +51,7 @@
                         ]
                     },
                     {
+                        "id":"BINARY_DATA30",
                         "type": 160,
                         "name": "Binary data30",
                         "shortName": "bin30",
@@ -57,6 +62,7 @@
                         ],
                         "breakdown": [
                             {
+                                "id":"COUNTER",
                                 "type": 160,
                                 "name": "Counter",
                                 "shortName": "cnt",
@@ -65,6 +71,7 @@
                         ]
                     },
                     {
+                        "id":"BINARY_DATA7",
                         "type": 129,
                         "name": "Binary data7",
                         "shortName": "bin7",
@@ -75,6 +82,7 @@
                         ],
                         "breakdown": [
                             {
+                                "id":"ORIENTATION",
                                 "type": 129,
                                 "name": "Orientation",
                                 "shortName": "ori",
@@ -83,6 +91,7 @@
                         ]
                     },
                     {
+                        "id":"ACCELERATION",
                         "type": 21,
                         "name": "Acceleration",
                         "shortName": "a",
@@ -92,6 +101,7 @@
                         ]
                     },
                     {
+                        "id":"ACCELERATION",
                         "type": 21,
                         "name": "Acceleration",
                         "shortName": "a",
@@ -101,6 +111,7 @@
                         ]
                     },
                     {
+                        "id":"ACCELERATION",
                         "type": 21,
                         "name": "Acceleration",
                         "shortName": "a",
@@ -110,6 +121,7 @@
                         ]
                     },
                     {
+                        "id":"BINARY_DATA30",
                         "type": 160,
                         "name": "Binary data30",
                         "shortName": "bin30",
@@ -120,6 +132,7 @@
                         ],
                         "breakdown": [
                             {
+                                "id":"COUNTER",
                                 "type": 160,
                                 "name": "Counter",
                                 "shortName": "cnt",
@@ -128,6 +141,7 @@
                         ]
                     },
                     {
+                        "id":"ATMOSPHERIC_PRESSURE",
                         "type": 16,
                         "name": "Atmospheric pressure",
                         "shortName": "p",
@@ -137,6 +151,7 @@
                         ]
                     },
                     {
+                        "id":"SOUND_PRESSURE_LEVEL",
                         "type": 19,
                         "name": "Sound pressure level",
                         "shortName": "Lp",
@@ -146,6 +161,7 @@
                         ]
                     },
                     {
+                        "id":"TEMPERATURE",
                         "type": 1,
                         "name": "Temperature",
                         "shortName": "T",
@@ -156,6 +172,7 @@
                         ]
                     },
                     {
+                        "id":"VOLATILE_ORGANIC_COMPOUND",
                         "type": 3,
                         "name": "Volatile organic compound",
                         "shortName": "VOC",
@@ -166,6 +183,7 @@
                         ]
                     },
                     {
+                        "id":"EXTRA-LOW_VOLTAGE",
                         "type": 4,
                         "name": "Extra-low voltage",
                         "shortName": "U",

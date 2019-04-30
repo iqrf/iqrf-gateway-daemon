@@ -56,6 +56,7 @@ rm ${DEPLOY}${IQRFGD2_LIBS}/libOtaUploadService.so
 rm ${DEPLOY}${IQRFGD2_LIBS}/libAutonetworkService.so
 
 # SHARE
+mkdir -p ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas
 cp -r iqrf-daemon-source/api/*.json ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas
 # NOT YET TO RELEASE
 rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/iqmeshNetwork_OtaUpload*.json
