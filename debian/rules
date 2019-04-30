@@ -5,7 +5,8 @@
 
 override_dh_auto_configure:
 	dh_auto_configure -- -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE \
-	-Dshapeware_DIR:PATH=`pwd`/shapeware-build -Dshape_DIR:PATH=`pwd`/shape-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION}
+	-Dshapeware_DIR:PATH=`pwd`/shapeware-build -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING=false \
+	-DDAEMON_VERSION:STRING=${DAEMON_VERSION}
 
 override_dh_fixperms:
 	dh_fixperms

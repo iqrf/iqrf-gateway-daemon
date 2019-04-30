@@ -36,7 +36,7 @@ DeployShapeComponent(${PROJECT_NAME})
 
 DeployShapeConfiguration(${PROJECT_NAME}
 	${CMAKE_CURRENT_SOURCE_DIR}/configuration	configuration
-	${CMAKE_SOURCE_DIR}/libraries/iqrf-daemon-api/JsonSchemas configuration/da-ta-dir-share/apiSchemas
+	${CMAKE_SOURCE_DIR}/api configuration/da-ta-dir-share/apiSchemas
 	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/javaScript configuration/da-ta-dir-share/javaScript
 	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/scheduler configuration/scheduler
 	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/iqrfRepoCache configuration/iqrfRepoCache
