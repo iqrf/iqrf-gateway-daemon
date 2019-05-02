@@ -35,6 +35,8 @@
 src
 _*
 
+[Bb]uild/
+
 examples/java/iqrfraw/target/
 
 examples/c#/test-api-app/packages/

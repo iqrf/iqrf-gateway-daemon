@@ -10,13 +10,13 @@ set libsdir=..\\
 mkdir %builddir%
 
 rem //get path to to Shape libs
-set shape=..\\..\\..\\shape\\%buildexp%
+set shape=..\\..\\shape\\%buildexp%
 pushd %shape%
 set shape=%cd%
 popd
 
 rem //get path to to Shape libs
-set shapeware=..\\..\\..\\shapeware\\%buildexp%
+set shapeware=..\\..\\shapeware\\%buildexp%
 pushd %shapeware%
 set shaparts=%cd%
 popd
