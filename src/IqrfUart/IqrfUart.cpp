@@ -56,7 +56,7 @@ namespace iqrf {
 
         // lock scope
         {
-          std::lock_guard<std::mutex> lck(m_commMutex);
+          //std::lock_guard<std::mutex> lck(m_commMutex);
 
           int retval = uart_iqrf_write((uint8_t*)message.data(), static_cast<unsigned int>(message.size()));
           if (BASE_TYPES_OPER_OK == retval) {
@@ -430,7 +430,7 @@ namespace iqrf {
 
           // lock scope
           {
-            std::lock_guard<std::mutex> lck(m_commMutex);
+            //std::lock_guard<std::mutex> lck(m_commMutex);
             // reading
             uint8_t reclen = 0;
             int retval = uart_iqrf_read(m_rx, &reclen, 100); //waits for 100 ms
@@ -469,7 +469,7 @@ namespace iqrf {
     unsigned char* m_rx = nullptr;
     unsigned m_bufsize = SPI_REC_BUFFER_SIZE;
 
-    mutable std::mutex m_commMutex;
+    //mutable std::mutex m_commMutex;
 
     T_UART_IQRF_CONFIG_STRUCT m_cfg;
 
