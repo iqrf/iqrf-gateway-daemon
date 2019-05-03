@@ -10,3 +10,6 @@
 [submodule "libraries/clibuart"]
 	path = libraries/clibuart
 	url = https://github.com/iqrfsdk/clibuart.git
+[submodule "libraries/sqlite_modern_cpp"]
+	path = libraries/sqlite_modern_cpp
+	url = https://github.com/SqliteModernCpp/sqlite_modern_cpp.git

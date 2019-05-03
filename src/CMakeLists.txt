@@ -31,6 +31,7 @@ add_subdirectory(JsRenderDuktape)
 add_subdirectory(JsonDpaApiIqrfStandard)
 add_subdirectory(JsonDpaApiIqrfStdExt)
 add_subdirectory(SchedulerMessaging)
+add_subdirectory(IqrfInfo)
 
 
 # IDE folder for IQMesh services
