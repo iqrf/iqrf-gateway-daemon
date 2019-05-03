@@ -124,7 +124,7 @@ stages:
   - chmod 644 ~/.ssh/known_hosts
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   script:
-  - export DAEMON_VERSION=v2.1.0
+  - export DAEMON_VERSION=v2.2.0-beta
   - git clone --recurse-submodules ssh://git@gitlab.iqrf.org:2222/open-source/iqrf-gateway-daemon.git iqrf-daemon-source
   - mkdir iqrf-daemon-build
   - tar xzvf shape-source_${ARCH}.tar.gz
@@ -152,7 +152,7 @@ stages:
   - echo "$GIT_SSH_PRIVATE" | tr -d '\r' | ssh-add - > /dev/null
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   script:
-  - export DAEMON_VERSION=v2.1.0
+  - export DAEMON_VERSION=v2.2.0-beta
   - git clone --recurse-submodules ssh://git@gitlab.iqrf.org:2222/open-source/iqrf-gateway-daemon.git iqrf-daemon-source
   - mkdir iqrf-daemon-build
   - tar xzvf shape-source_${ARCH}.tar.gz
@@ -186,7 +186,7 @@ stages:
   - git submodule init
   - git submodule update
   script:
-  - export DAEMON_VERSION=v2.1.0-beta~${CI_PIPELINE_ID}
+  - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
   - tar xzvf shape-libs_${ARCH}.tar.gz
@@ -224,7 +224,7 @@ stages:
   - git submodule init
   - git submodule update
   script:
-  - export DAEMON_VERSION=v2.1.0-beta~${CI_PIPELINE_ID}
+  - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
   - tar xzvf shape-source_${ARCH}.tar.gz
   - tar xzvf shape-build_${ARCH}.tar.gz
   - tar xzvf shape-libs_${ARCH}.tar.gz
