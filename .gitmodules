@@ -1,12 +1,12 @@
-[submodule "src/libraries/clibdpa"]
+[submodule "libraries/clibdpa"]
 	path = libraries/clibdpa
 	url = https://github.com/iqrfsdk/clibdpa.git
-[submodule "src/libraries/clibcdc"]
+[submodule "libraries/clibcdc"]
 	path = libraries/clibcdc
 	url = https://github.com/iqrfsdk/clibcdc.git
-[submodule "src/libraries/clibspi"]
+[submodule "libraries/clibspi"]
 	path = libraries/clibspi
 	url = https://github.com/iqrfsdk/clibspi.git
-[submodule "src/libraries/clibuart"]
+[submodule "libraries/clibuart"]
 	path = libraries/clibuart
 	url = https://github.com/iqrfsdk/clibuart.git
