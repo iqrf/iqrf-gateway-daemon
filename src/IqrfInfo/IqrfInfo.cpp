@@ -113,6 +113,8 @@ namespace iqrf {
       //  }
       //}
 
+      initDb();
+
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -134,7 +136,7 @@ namespace iqrf {
       try
       {
         std::string dataDir = m_iLaunchService->getDataDir();
-        std::string fname = dataDir + "/DataBase/dbfile.db";
+        std::string fname = dataDir + "/DB/IqrfInfo.db";
 
         std::ifstream f(fname);
         bool dbExists = f.is_open();
@@ -147,21 +149,12 @@ namespace iqrf {
         if (!dbExists) {
 
           std::string sqlpath = dataDir;
-          sqlpath += "/DataBase/sql/";
+          sqlpath += "/DB/";
           //create tables
-          SqlFile::makeSqlFile(db, sqlpath + "init/lersengw.db.sql");
+          SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
 
           //insert data
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_Sensors.sql");
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_HeaterTypes.sql");
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_Heaters.sql");
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_Temperatures.sql");
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_Programs.sql");
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_ProgramTemperature.sql");
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_Zones.sql");
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_ZoneHeaters.sql");
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_ZoneSensor.sql");
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_ZoneProgram.sql");
+          SqlFile::makeSqlFile(db, sqlpath + "init/insert_Nodes.sql");
         }
       }
       catch (sqlite_exception &e)

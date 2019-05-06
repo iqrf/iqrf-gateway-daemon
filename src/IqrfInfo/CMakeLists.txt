@@ -18,6 +18,7 @@ DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfInfo)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
 file(GLOB_RECURSE _HDRFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h  ${COMPONENT_HXX})
@@ -41,3 +42,19 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE sqlite3)
 
 DeployShapeComponent(${PROJECT_NAME})
+
+if(WIN32)
+	install(
+		FILES
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/sqlite3.dll"
+		CONFIGURATIONS Debug
+		DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	)
+
+	install(
+		FILES
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/sqlite3.dll"
+		CONFIGURATIONS Release
+		DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	)
+endif()
