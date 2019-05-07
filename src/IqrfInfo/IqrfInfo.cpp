@@ -132,6 +132,9 @@ namespace iqrf {
 
       initDb();
 
+      IEnumerateDeviceService::NodeEnumeration nde0 = m_iEnumerateDeviceService->getEnumerateResult(0);
+      IEnumerateDeviceService::NodeEnumeration nde3 = m_iEnumerateDeviceService->getEnumerateResult(3);
+
       TRC_FUNCTION_LEAVE("")
     }
 
