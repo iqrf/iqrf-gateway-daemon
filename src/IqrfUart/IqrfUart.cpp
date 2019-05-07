@@ -428,20 +428,25 @@ namespace iqrf {
         {
           int recData = 0;
 
-          // lock scope
-          {
-            //std::lock_guard<std::mutex> lck(m_commMutex);
-            // reading
-            uint8_t reclen = 0;
-            int retval = uart_iqrf_read(m_rx, &reclen, 100); //waits for 100 ms
-            if (BASE_TYPES_OPER_OK != retval && UART_IQRF_ERROR_TIMEOUT != retval) {
-              THROW_EXC_TRC_WAR(std::logic_error, "uart_iqrf_read() failed: " << PAR(retval));
-            }
+          // reading
+          uint8_t reclen = 0;
+          int retval = uart_iqrf_read(m_rx, &reclen, 100); //waits for 100 ms
+            
+          switch (retval) {
+          case BASE_TYPES_OPER_OK:
+          case UART_IQRF_ERROR_TIMEOUT:
             recData = reclen;
+            break;
+          case BASE_TYPES_OPER_ERROR:
+          case UART_IQRF_ERROR_CRC:
+            TRC_WARNING("uart_iqrf_read() failed: " << PAR(retval));
+            break;
+          case BASE_TYPES_LIB_NOT_INITIALIZED:
+          default:
+            THROW_EXC_TRC_WAR(std::logic_error, "uart_iqrf_read() failed: " << PAR(retval));
           }
 
-          // unlocked - possible to write in receiveFromFunc
-          if (recData) {
+          if (recData > 0) {
             TRC_DEBUG(PAR(recData));
             std::basic_string<unsigned char> message(m_rx, recData);
             m_accessControl.messageHandler(message);
