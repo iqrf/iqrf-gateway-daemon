@@ -17,8 +17,12 @@ namespace iqrf {
   class IEnumerateDeviceService_DECLSPEC IEnumerateDeviceService
   {
   public:
-    struct NodeEnumeration
+    class NodeEnumeration
     {
+    public:
+      NodeEnumeration() {}
+      ~NodeEnumeration() {}
+
       uint8_t m_deviceAddr = 0;
       bool m_discovered = false;
       uint8_t m_vrn = 0;
@@ -34,7 +38,7 @@ namespace iqrf {
       bool m_fccCertified = false;
       std::string m_mcuType;
       bool m_insufficientOsBuild = false;
-      std::string m_interface = false;
+      std::string m_interface;
       bool m_dpaHandlerDetected = false;
       bool m_dpaHandlerNotDetectedButEnabled = false;
       bool m_noInterfaceSupported = false;
