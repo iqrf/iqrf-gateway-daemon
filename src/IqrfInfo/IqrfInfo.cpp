@@ -51,6 +51,7 @@ namespace iqrf {
   {
   private:
 
+    IEnumerateDeviceService* m_iEnumerateDeviceService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     shape::ILaunchService* m_iLaunchService = nullptr;
 
@@ -64,6 +65,22 @@ namespace iqrf {
 
     ~Imp()
     {
+    }
+
+    void attachInterface(iqrf::IEnumerateDeviceService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      m_iEnumerateDeviceService = iface;
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void detachInterface(iqrf::IEnumerateDeviceService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      if (m_iEnumerateDeviceService == iface) {
+        m_iEnumerateDeviceService = nullptr;
+      }
+      TRC_FUNCTION_LEAVE("")
     }
 
     void attachInterface(iqrf::IIqrfDpaService* iface)
@@ -197,14 +214,14 @@ namespace iqrf {
     (void)props; //silence -Wunused-parameter
   }
 
-  void IqrfInfo::attachInterface(shape::ITraceService* iface)
+  void IqrfInfo::attachInterface(iqrf::IEnumerateDeviceService* iface)
   {
-    shape::Tracer::get().addTracerService(iface);
+    m_imp->attachInterface(iface);
   }
 
-  void IqrfInfo::detachInterface(shape::ITraceService* iface)
+  void IqrfInfo::detachInterface(iqrf::IEnumerateDeviceService* iface)
   {
-    shape::Tracer::get().removeTracerService(iface);
+    m_imp->detachInterface(iface);
   }
 
   void IqrfInfo::attachInterface(iqrf::IIqrfDpaService* iface)
@@ -225,6 +242,16 @@ namespace iqrf {
   void IqrfInfo::detachInterface(shape::ILaunchService* iface)
   {
     m_imp->detachInterface(iface);
+  }
+
+  void IqrfInfo::attachInterface(shape::ITraceService* iface)
+  {
+    shape::Tracer::get().addTracerService(iface);
+  }
+
+  void IqrfInfo::detachInterface(shape::ITraceService* iface)
+  {
+    shape::Tracer::get().removeTracerService(iface);
   }
 
 }
