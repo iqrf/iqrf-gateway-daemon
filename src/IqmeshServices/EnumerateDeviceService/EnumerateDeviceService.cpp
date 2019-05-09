@@ -158,6 +158,7 @@ namespace iqrf {
     std::string m_message;
   };
 
+
   // holds information about result of device enumeration
   class DeviceEnumerateResult {
   private:
@@ -426,6 +427,8 @@ namespace iqrf {
     }
 
 
+  private:
+    
     // returns 1 byte of discovery data read from the coordinator private external EEPROM storage
     uint8_t readDiscoveryByte(
       DeviceEnumerateResult& deviceEnumerateResult, 
@@ -1886,60 +1889,6 @@ namespace iqrf {
       
       // result
       DeviceEnumerateResult deviceEnumerateResult;
-      try {
-        
-        getEnumerateResult(deviceAddr, deviceEnumerateResult);
-        
-        if (deviceEnumerateResult.getBondedError().getType() != DeviceEnumerateError::Type::NoError)
-        {
-          Document nodeNotBondedResponse = getNodeNotBondedResponse(
-            comEnumerateDevice.getMsgId(),
-            msgType,
-            deviceEnumerateResult,
-            comEnumerateDevice,
-            deviceEnumerateResult.getBondedError().getMessage()
-          );
-          m_iMessagingSplitterService->sendMessage(messagingId, std::move(nodeNotBondedResponse));
-
-          TRC_FUNCTION_LEAVE("Not bonded");
-          return;
-        }
-      }
-      catch (std::exception &e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Error while establishing exclusive DPA access ")
-        Document failResponse = getExclusiveAccessFailedResponse(comEnumerateDevice.getMsgId(), msgType, e.what());
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
-
-        TRC_FUNCTION_LEAVE("Cannot get exclusive access");
-        return;
-      }
-
-      // create and send FINAL response
-      Document responseDoc = createResponse(comEnumerateDevice.getMsgId(), msgType, deviceEnumerateResult, comEnumerateDevice);
-      m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
-    
-      TRC_FUNCTION_LEAVE("");
-    }
-    
-
-    NodeEnumeration getEnumerateResult(uint16_t deviceAddr)
-    {
-      DeviceEnumerateResult deviceEnumerateResult;
-      try {
-        return getEnumerateResult(deviceAddr, deviceEnumerateResult);
-      }
-      catch (std::exception &e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Error while establishing exclusive DPA access ");
-        return NodeEnumeration();
-      }
-    }
-
-    NodeEnumeration getEnumerateResult(uint16_t deviceAddr, DeviceEnumerateResult & deviceEnumerateResult)
-    {
-      TRC_FUNCTION_ENTER(deviceAddr);
-
-      NodeEnumeration nde;
-
       deviceEnumerateResult.setDeviceAddr(deviceAddr);
 
       // check, if the address is bonded
@@ -1947,21 +1896,42 @@ namespace iqrf {
         checkBond(deviceEnumerateResult, deviceAddr);
       }
 
-      if (deviceEnumerateResult.getBondedError().getType() != DeviceEnumerateError::Type::NoError)
+      if (deviceEnumerateResult.getBondedError().getType() != DeviceEnumerateError::Type::NoError) 
       {
-        TRC_FUNCTION_LEAVE("Not Bonded");
-        return nde;
+        Document nodeNotBondedResponse = getNodeNotBondedResponse(
+          comEnumerateDevice.getMsgId(),
+          msgType,
+          deviceEnumerateResult,
+          comEnumerateDevice,
+          deviceEnumerateResult.getBondedError().getMessage()
+        );
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(nodeNotBondedResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
       }
 
       // try to establish exclusive access
-      m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      try {
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      }
+      catch (std::exception &e) {
+        const char* errorStr = e.what();
+        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
+       
+        Document failResponse = getExclusiveAccessFailedResponse(comEnumerateDevice.getMsgId(), msgType, errorStr);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
 
       // discovery data
       discoveryData(deviceEnumerateResult);
-
+      
       // OS read info
       osRead(deviceEnumerateResult);
-
+      
       // AFTER OS READ - obtains hwpId, which in turn is needed to get manufacturer and product
       getManufacturerAndProduct(deviceEnumerateResult);
 
@@ -2006,115 +1976,14 @@ namespace iqrf {
 
       // release exclusive access
       m_exclusiveAccess.reset();
+
+      // create and send FINAL response
+      Document responseDoc = createResponse(comEnumerateDevice.getMsgId(), msgType, deviceEnumerateResult, comEnumerateDevice);
+      m_iMessagingSplitterService->sendMessage(messagingId, std::move(responseDoc));
     
-      fillEnumeration(deviceEnumerateResult, nde);
-      
       TRC_FUNCTION_LEAVE("");
-      return nde;
     }
-
-    // creates response on the basis of write result
-    void fillEnumeration(DeviceEnumerateResult& deviceEnumResult, NodeEnumeration& nde)
-    {
-      Document response;
-      bool isError = false;
-
-      nde.m_deviceAddr = deviceEnumResult.getDeviceAddr();
-      nde.m_manufacturer = deviceEnumResult.getManufacturer();
-      nde.m_product = deviceEnumResult.getProduct();
-      nde.m_standards = deviceEnumResult.getStandards();
-      nde.m_discovered = deviceEnumResult.isDiscovered();
-      nde.m_vrn = deviceEnumResult.getVrn();
-      nde.m_zone = deviceEnumResult.getZone();
-      nde.m_parent = deviceEnumResult.getParent();
-
-      OsReadObject osReadObject = parseOsReadResponse(deviceEnumResult.getOsRead());
-
-      nde.m_mid = osReadObject.mid;
-      nde.m_osVersion = osReadObject.osVersion;
-      nde.m_trMcuTypeVal = osReadObject.trMcuType.value;
-      nde.m_trType = osReadObject.trMcuType.trType;
-      nde.m_fccCertified = osReadObject.trMcuType.fccCertified;
-      nde.m_mcuType = osReadObject.trMcuType.mcuType;
-      nde.m_osBuild = osReadObject.osBuild;
-      nde.m_rssi = osReadObject.rssi;
-      nde.m_supplyVoltage = osReadObject.supplyVoltage;
-      nde.m_flagsVal = osReadObject.flags.value;
-      nde.m_insufficientOsBuild = osReadObject.flags.insufficientOsBuild;
-      nde.m_interface = osReadObject.flags.interface;
-      nde.m_dpaHandlerDetected = osReadObject.flags.dpaHandlerDetected;
-      nde.m_dpaHandlerNotDetectedButEnabled = osReadObject.flags.dpaHandlerNotDetectedButEnabled;
-      nde.m_noInterfaceSupported = osReadObject.flags.noInterfaceSupported;
-      nde.m_slotLimitsVal = osReadObject.slotLimits.value;
-      nde.m_shortestTimeslot = osReadObject.slotLimits.shortestTimeslot;
-      nde.m_longestTimeslot = osReadObject.slotLimits.longestTimeslot;
-
-      // per enum object
-      TEnumPeripheralsAnswer perEnum = deviceEnumResult.getPerEnum();
-
-      // dpa version - string
-      //std::string dpaVerStr = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
-      //  + "." + encodeHexaNum((uint8_t)(perEnum.DpaVersion & 0xFF));
-        
-      nde.m_DpaVersion = perEnum.DpaVersion;
-      nde.m_UserPerNr = perEnum.UserPerNr;
-
-      for (int i = 0; i < EMBEDDED_PERS_LEN; i++) {
-        nde.m_EmbeddedPers.push_back(perEnum.EmbeddedPers[i]);
-      }
-
-      nde.m_HWPID = perEnum.HWPID;
-      nde.m_HWPIDver = perEnum.HWPIDver;
-      nde.m_rfModeStd = ((perEnum.Flags & 0b1) == 0b1) ? true : false;
-      nde.m_rfModeLp = !nde.m_rfModeStd;
-
-      // getting DPA version
-      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
-      // STD+LP network is running, otherwise STD network.
-      if (dpaVer >= 0x0400) {
-        nde.m_stdAndLpNetwork = ((perEnum.Flags & 0b100) == 0b100) ? true : false;
-      }
-      else {
-        nde.m_stdAndLpNetwork = false;
-      }
-
-      TPerOSReadCfg_Response hwpConfig = deviceEnumResult.getHwpConfig();
-      uns8* configuration = hwpConfig.Configuration;
-
-      // userPers
-      for (int i = 0; i < USER_PER_LEN; i++) {
-        nde.m_UserPer.push_back(perEnum.UserPer[i]);
-      }
-
-      ////////////////////////////// TODO really interesting here?
-      //if (
-      //  deviceEnumResult.getPerEnumError().getType() == DeviceEnumerateError::Type::NoError
-      //  )
-      //{
-      //  setReadHwpConfigurationResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, response);
-      //}
-      //else {
-      //  isError = true;
-      //}
-
-      //// result of more peripherals info according to request
-      //if (m_morePeripheralsInfo) {
-      //  if (
-      //    deviceEnumResult.getPerEnumError().getType() == DeviceEnumerateError::Type::NoError
-      //    )
-      //  {
-      //    setInfoForMorePeripheralsResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, response);
-      //  }
-      //  else {
-      //    isError = true;
-      //  }
-      //}
-
-      // removed also from JSON api - will be implemented next year
-      //setValidationAndUpdatesResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, osReadObject, response);
-
-    }
+    
 
   public:
     void activate(const shape::Properties *props)
@@ -2216,10 +2085,6 @@ namespace iqrf {
     delete m_imp;
   }
 
-  IEnumerateDeviceService::NodeEnumeration EnumerateDeviceService::getEnumerateResult(uint16_t deviceAddr)
-  {
-    return m_imp->getEnumerateResult(deviceAddr);
-  }
 
   void EnumerateDeviceService::attachInterface(iqrf::IIqrfDpaService* iface)
   {
