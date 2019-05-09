@@ -51,7 +51,7 @@ namespace iqrf {
   {
   private:
 
-    IEnumerateDeviceService* m_iEnumerateDeviceService = nullptr;
+    IEnumerateService* m_iEnumerateService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     shape::ILaunchService* m_iLaunchService = nullptr;
 
@@ -67,18 +67,18 @@ namespace iqrf {
     {
     }
 
-    void attachInterface(iqrf::IEnumerateDeviceService* iface)
+    void attachInterface(iqrf::IEnumerateService* iface)
     {
       TRC_FUNCTION_ENTER(PAR(iface));
-      m_iEnumerateDeviceService = iface;
+      m_iEnumerateService = iface;
       TRC_FUNCTION_LEAVE("")
     }
 
-    void detachInterface(iqrf::IEnumerateDeviceService* iface)
+    void detachInterface(iqrf::IEnumerateService* iface)
     {
       TRC_FUNCTION_ENTER(PAR(iface));
-      if (m_iEnumerateDeviceService == iface) {
-        m_iEnumerateDeviceService = nullptr;
+      if (m_iEnumerateService == iface) {
+        m_iEnumerateService = nullptr;
       }
       TRC_FUNCTION_LEAVE("")
     }
@@ -132,8 +132,8 @@ namespace iqrf {
 
       initDb();
 
-      IEnumerateDeviceService::NodeEnumeration nde0 = m_iEnumerateDeviceService->getEnumerateResult(0);
-      IEnumerateDeviceService::NodeEnumeration nde3 = m_iEnumerateDeviceService->getEnumerateResult(3);
+      IEnumerateService::NodeEnumeration nde0 = m_iEnumerateService->getEnumerateResult(0);
+      IEnumerateService::NodeEnumeration nde3 = m_iEnumerateService->getEnumerateResult(3);
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -217,12 +217,12 @@ namespace iqrf {
     (void)props; //silence -Wunused-parameter
   }
 
-  void IqrfInfo::attachInterface(iqrf::IEnumerateDeviceService* iface)
+  void IqrfInfo::attachInterface(iqrf::IEnumerateService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void IqrfInfo::detachInterface(iqrf::IEnumerateDeviceService* iface)
+  void IqrfInfo::detachInterface(iqrf::IEnumerateService* iface)
   {
     m_imp->detachInterface(iface);
   }

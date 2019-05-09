@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::EnumerateService",
+  "instance": "iqrf::EnumerateService"
+}
