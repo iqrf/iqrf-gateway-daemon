@@ -3,7 +3,7 @@
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 #include "IIqrfDpaService.h"
-#include "IEnumerateDeviceService.h"
+#include "IEnumerateService.h"
 #include "ILaunchService.h"
 
 namespace iqrf {
@@ -24,8 +24,8 @@ namespace iqrf {
     void deactivate();
     void modify(const shape::Properties *props);
 
-    void attachInterface(iqrf::IEnumerateDeviceService* iface);
-    void detachInterface(iqrf::IEnumerateDeviceService* iface);
+    void attachInterface(iqrf::IEnumerateService* iface);
+    void detachInterface(iqrf::IEnumerateService* iface);
 
     void attachInterface(iqrf::IIqrfDpaService* iface);
     void detachInterface(iqrf::IIqrfDpaService* iface);

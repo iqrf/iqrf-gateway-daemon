@@ -246,6 +246,13 @@
       "startlevel": 3
     },
     {
+      "name": "iqrf::EnumerateService",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "EnumerateService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
       "name": "iqrf::NativeUploadService",
       "libraryPath": "IqrfDaemon/bin",
       "libraryName": "NativeUploadService",
