@@ -13,7 +13,7 @@ RUN apt-get update \
   && apt-get install --no-install-recommends -y build-essential fakeroot devscripts dh-make lsb-release \
      cmake gcc git g++ zlib1g-dev libcpprest-dev libssl-dev libcurl4-openssl-dev libgtest-dev libcpaho-mqtt-dev \
      google-mock mlocate unzip wget openssh-client rsync git-buildpackage python3-recommonmark python3-sphinx \
-     ruby ruby-dev libwww-perl \
+     ruby ruby-dev libwww-perl sqlite3 libsqlite3-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && gem install --no-rdoc --no-ri fpm
