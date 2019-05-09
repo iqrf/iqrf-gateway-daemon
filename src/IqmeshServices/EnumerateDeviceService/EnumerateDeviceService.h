@@ -22,8 +22,6 @@ namespace iqrf {
     /// \brief Destructor
     virtual ~EnumerateDeviceService();
 
-    IEnumerateDeviceService::NodeEnumeration getEnumerateResult(uint16_t deviceAddr) override;
-
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
