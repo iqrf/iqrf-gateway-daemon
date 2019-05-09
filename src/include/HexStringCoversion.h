@@ -35,6 +35,28 @@ namespace iqrf {
     return retval;
   }
 
+  int parseBinary(std::vector<uint8_t> & to, const std::string& from, int maxlen)
+  {
+    int retval = 0;
+    if (!from.empty()) {
+      std::string buf = from;
+      std::replace(buf.begin(), buf.end(), '.', ' ');
+      std::istringstream istr(buf);
+
+      int val;
+      while (retval < maxlen) {
+        if (!(istr >> std::hex >> val)) {
+          if (istr.eof()) break;
+          THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format: " << PAR(from));
+
+        }
+        to.push_back((uint8_t)val);
+        retval++;
+      }
+    }
+    return retval;
+  }
+
   /// \brief Parse templated ordinary type T encoded hexa
   /// \param [out] to result binary data
   /// \param [in] from hexadecimal string
