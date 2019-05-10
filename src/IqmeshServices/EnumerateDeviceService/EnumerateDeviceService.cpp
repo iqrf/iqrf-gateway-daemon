@@ -430,11 +430,9 @@ namespace iqrf {
   private:
     
     // returns 1 byte of discovery data read from the coordinator private external EEPROM storage
-    uint8_t readDiscoveryByte(
-      DeviceEnumerateResult& deviceEnumerateResult, 
-      uint16_t address 
-    ) {
-      TRC_FUNCTION_ENTER("");
+    uint8_t readDiscoveryByte( DeviceEnumerateResult& deviceEnumerateResult, uint16_t address )
+    {
+      TRC_FUNCTION_ENTER( "" );
 
       DpaMessage eeepromReadRequest;
       DpaMessage::DpaPacket_t eeepromReadPacket;
@@ -446,75 +444,26 @@ namespace iqrf {
       // read data from specified address
       uns8* pData = eeepromReadPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
       pData[0] = address & 0xFF;
-      pData[1] = (address >> 8) & 0xFF;
-
+      pData[1] = ( address >> 8 ) & 0xFF;
       // length of data to read[in bytes]
       pData[2] = 1;
+      eeepromReadRequest.DataToBuffer( eeepromReadPacket.Buffer, sizeof( TDpaIFaceHeader ) + 3 );
 
-      eeepromReadRequest.DataToBuffer(eeepromReadPacket.Buffer, sizeof(TDpaIFaceHeader) + 3);
+      // make DPA transaction
+      std::unique_ptr<IDpaTransactionResult2> transResult = m_exclusiveAccess->dpaRepeat( eeepromReadRequest, m_repeat );
+      TRC_DEBUG( "Result from EEEPROM X read transaction as string:" << PAR( transResult->getErrorString() ) );
+      // because of the move-semantics
+      DpaMessage dpaResponse = transResult->getResponse();
+      deviceEnumerateResult.addTransactionResult( transResult );
+      TRC_INFORMATION( "EEEPROM X read successful!" );
+      TRC_DEBUG(
+        "DPA transaction: "
+        << NAME_PAR( eeepromReadRequest.PeripheralType(), eeepromReadRequest.NodeAddress() )
+        << PAR( eeepromReadRequest.PeripheralCommand() )
+      );
 
-      // issue the DPA request
-      std::shared_ptr<IDpaTransaction2> eeepromReadTransaction;
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-
-      for (int rep = 0; rep <= m_repeat; rep++) {
-        try {
-          //discoveryDataTransaction = m_iIqrfDpaService->executeDpaTransaction(discoveryDataRequest);
-          eeepromReadTransaction = m_exclusiveAccess->executeDpaTransaction(eeepromReadRequest);
-          transResult = eeepromReadTransaction->get();
-        }
-        catch (std::exception& e) {
-          TRC_WARNING("DPA transaction error : " << e.what());
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          THROW_EXC(std::logic_error, "DPA transaction error : " << e.what());
-        }
-
-        TRC_DEBUG("Result from EEEPROM X read transaction as string:" << PAR(transResult->getErrorString()));
-
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
-        // because of the move-semantics
-        DpaMessage dpaResponse = transResult->getResponse();
-        deviceEnumerateResult.addTransactionResult(transResult);
-
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("EEEPROM X read successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(eeepromReadRequest.PeripheralType(), eeepromReadRequest.NodeAddress())
-            << PAR(eeepromReadRequest.PeripheralCommand())
-          );
-
-          TRC_FUNCTION_LEAVE("");
-          return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
-        }
-
-        // transaction error
-        if (errorCode < 0) {
-          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          THROW_EXC(std::logic_error, "Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-        }
-
-        // DPA error
-        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-        if (rep < m_repeat) {
-          continue;
-        }
-
-        THROW_EXC(std::logic_error, "DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-      }
-
-      THROW_EXC(std::logic_error, "Internal error ");
+      TRC_FUNCTION_LEAVE( "" );
+      return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
     }
 
     // read discovery data
@@ -574,476 +523,230 @@ namespace iqrf {
         deviceEnumerateResult.setParentError(error);
       }
     }
-
     
     // reads OS info about smart connected node
-    void osRead(DeviceEnumerateResult& deviceEnumerateResult) {
-      TRC_FUNCTION_ENTER("");
+    void osRead( DeviceEnumerateResult& deviceEnumerateResult )
+    {
+      TRC_FUNCTION_ENTER( "" );
+      try
+      {
+        // Prepare DPA request
+        DpaMessage osReadRequest;
+        DpaMessage::DpaPacket_t osReadPacket;
+        osReadPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
+        osReadPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
+        osReadPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ;
+        osReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        osReadRequest.DataToBuffer( osReadPacket.Buffer, sizeof( TDpaIFaceHeader ) );
 
-      DpaMessage osReadRequest;
-      DpaMessage::DpaPacket_t osReadPacket;
-      osReadPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
-      osReadPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
-      osReadPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ;
-      osReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      osReadRequest.DataToBuffer(osReadPacket.Buffer, sizeof(TDpaIFaceHeader));
-
-      // issue the DPA request
-      std::shared_ptr<IDpaTransaction2> osReadTransaction;
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-
-      for (int rep = 0; rep <= m_repeat; rep++) {
-        try {
-          osReadTransaction = m_exclusiveAccess->executeDpaTransaction(osReadRequest);
-          transResult = osReadTransaction->get();
-        }
-        catch (std::exception& e) {
-          TRC_WARNING("DPA transaction error : " << e.what());
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          DeviceEnumerateError error(DeviceEnumerateError::Type::OsRead, e.what());
-          deviceEnumerateResult.setOsReadError(error);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        TRC_DEBUG("Result from OS read transaction as string:" << PAR(transResult->getErrorString()));
-
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
+        // Make DPA transaction
+        std::unique_ptr<IDpaTransactionResult2> transResult = m_exclusiveAccess->dpaRepeat( osReadRequest, m_repeat );
+        TRC_DEBUG( "Result from OS read transaction as string:" << PAR( transResult->getErrorString() ) );
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
-        deviceEnumerateResult.addTransactionResult(transResult);
+        deviceEnumerateResult.addTransactionResult( transResult );
+        TRC_INFORMATION( "OS read successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( osReadRequest.PeripheralType(), osReadRequest.NodeAddress() )
+          << PAR( (unsigned)osReadRequest.PeripheralCommand() )
+        );
 
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("OS read successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(osReadRequest.PeripheralType(), osReadRequest.NodeAddress())
-            << PAR((unsigned)osReadRequest.PeripheralCommand())
-          );
-
-          // get OS data
-          uns8* osData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-          deviceEnumerateResult.setOsRead(osData);
-
-          TPerOSRead_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
-          deviceEnumerateResult.setOsBuild(resp.OsBuild);
-
-          deviceEnumerateResult.setEnumeratedNodeHwpId(dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // transaction error
-        if (errorCode < 0) {
-          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          DeviceEnumerateError error(DeviceEnumerateError::Type::OsRead, "Transaction error.");
-          deviceEnumerateResult.setOsReadError(error);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // DPA error
-        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-        if (rep < m_repeat) {
-          continue;
-        }
-
-        DeviceEnumerateError error(DeviceEnumerateError::Type::OsRead, "Dpa error.");
-        deviceEnumerateResult.setOsReadError(error);
-
-        TRC_FUNCTION_LEAVE("");
+        // Get OS data
+        uns8* osData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+        deviceEnumerateResult.setOsRead( osData );
+        TPerOSRead_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
+        deviceEnumerateResult.setOsBuild( resp.OsBuild );
+        deviceEnumerateResult.setEnumeratedNodeHwpId( dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID );
       }
+      catch ( std::exception& e )
+      {
+        DeviceEnumerateError error( DeviceEnumerateError::Type::OsRead, e.what() );
+        deviceEnumerateResult.setOsReadError( error );
+      }
+
+      TRC_FUNCTION_LEAVE( "" );
     }
     
-    void peripheralEnumeration(DeviceEnumerateResult& deviceEnumerateResult) {
-      TRC_FUNCTION_ENTER("");
+    void peripheralEnumeration( DeviceEnumerateResult& deviceEnumerateResult )
+    {
+      TRC_FUNCTION_ENTER( "" );
 
-      DpaMessage perEnumRequest;
-      DpaMessage::DpaPacket_t perEnumPacket;
-      perEnumPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
-      perEnumPacket.DpaRequestPacket_t.PNUM = 0xFF;
-      perEnumPacket.DpaRequestPacket_t.PCMD = 0x3F;
-      perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      perEnumRequest.DataToBuffer(perEnumPacket.Buffer, sizeof(TDpaIFaceHeader));
+      try
+      {
+        // Prepare DPA request
+        DpaMessage perEnumRequest;
+        DpaMessage::DpaPacket_t perEnumPacket;
+        perEnumPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
+        perEnumPacket.DpaRequestPacket_t.PNUM = 0xFF;
+        perEnumPacket.DpaRequestPacket_t.PCMD = 0x3F;
+        perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        perEnumRequest.DataToBuffer( perEnumPacket.Buffer, sizeof( TDpaIFaceHeader ) );
 
-      // issue the DPA request
-      std::shared_ptr<IDpaTransaction2> perEnumTransaction;
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-
-      for (int rep = 0; rep <= m_repeat; rep++) {
-        try {
-          //perEnumTransaction = m_iIqrfDpaService->executeDpaTransaction(perEnumRequest);
-          perEnumTransaction = m_exclusiveAccess->executeDpaTransaction(perEnumRequest);
-          transResult = perEnumTransaction->get();
-        }
-        catch (std::exception& e) {
-          TRC_WARNING("DPA transaction error : " << e.what());
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          DeviceEnumerateError error(DeviceEnumerateError::Type::PerEnum, e.what());
-          deviceEnumerateResult.setPerEnumError(error);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        TRC_DEBUG("Result from peripheral enumeration transaction as string:" << PAR(transResult->getErrorString()));
-
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
+        // Make DPA transaction
+        std::unique_ptr<IDpaTransactionResult2> transResult = m_exclusiveAccess->dpaRepeat( perEnumRequest, m_repeat );
+        TRC_DEBUG( "Result from peripheral enumeration transaction as string:" << PAR( transResult->getErrorString() ) );
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
-        deviceEnumerateResult.addTransactionResult(transResult);
+        deviceEnumerateResult.addTransactionResult( transResult );
+        TRC_INFORMATION( "Peripheral enumeration successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( perEnumRequest.PeripheralType(), perEnumRequest.NodeAddress() )
+          << PAR( perEnumRequest.PeripheralCommand() )
+        );
 
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("Peripheral enumeration successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(perEnumRequest.PeripheralType(), perEnumRequest.NodeAddress())
-            << PAR(perEnumRequest.PeripheralCommand())
-          );
-
-          // get peripheral enumeration
-          TEnumPeripheralsAnswer perEnum = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
-          deviceEnumerateResult.setPerEnum(perEnum);
-
-          // parsing response pdata
-          uns8* respData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-          uint8_t minorHwpIdVer = respData[9];
-          uint8_t majorHwpIdVer = respData[10];
-
-          deviceEnumerateResult.setEnumeratedNodeHwpIdVer(minorHwpIdVer + (majorHwpIdVer << 8));
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // transaction error
-        if (errorCode < 0) {
-          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          DeviceEnumerateError error(DeviceEnumerateError::Type::PerEnum, "Transaction error.");
-          deviceEnumerateResult.setPerEnumError(error);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // DPA error
-        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-        if (rep < m_repeat) {
-          continue;
-        }
-
-        DeviceEnumerateError error(DeviceEnumerateError::Type::PerEnum, "Dpa error.");
-        deviceEnumerateResult.setPerEnumError(error);
-
-        TRC_FUNCTION_LEAVE("");
+        // get peripheral enumeration
+        TEnumPeripheralsAnswer perEnum = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
+        deviceEnumerateResult.setPerEnum( perEnum );
+        // parsing response pdata
+        uns8* respData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+        uint8_t minorHwpIdVer = respData[9];
+        uint8_t majorHwpIdVer = respData[10];
+        deviceEnumerateResult.setEnumeratedNodeHwpIdVer( minorHwpIdVer + ( majorHwpIdVer << 8 ) );
       }
+      catch ( std::exception& e )
+      {
+        DeviceEnumerateError error( DeviceEnumerateError::Type::PerEnum, e.what() );
+        deviceEnumerateResult.setPerEnumError( error );
+      }
+
+      TRC_FUNCTION_LEAVE( "" );
     }
 
-    void readHwpConfiguration(DeviceEnumerateResult& deviceEnumerateResult) {
-      TRC_FUNCTION_ENTER("");
+    void readHwpConfiguration( DeviceEnumerateResult& deviceEnumerateResult )
+    {
+      TRC_FUNCTION_ENTER( "" );
 
-      DpaMessage readHwpRequest;
-      DpaMessage::DpaPacket_t readHwpPacket;
-      readHwpPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
-      readHwpPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
-      readHwpPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
-      readHwpPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      readHwpRequest.DataToBuffer(readHwpPacket.Buffer, sizeof(TDpaIFaceHeader));
+      try
+      {
+        // Prepare DPA request
+        DpaMessage readHwpRequest;
+        DpaMessage::DpaPacket_t readHwpPacket;
+        readHwpPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
+        readHwpPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
+        readHwpPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
+        readHwpPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        readHwpRequest.DataToBuffer( readHwpPacket.Buffer, sizeof( TDpaIFaceHeader ) );
 
-      // issue the DPA request
-      std::shared_ptr<IDpaTransaction2> readHwpTransaction;
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-
-      for (int rep = 0; rep <= m_repeat; rep++) {
-        try {
-          //readHwpTransaction = m_iIqrfDpaService->executeDpaTransaction(readHwpRequest);
-          readHwpTransaction = m_exclusiveAccess->executeDpaTransaction(readHwpRequest);
-          transResult = readHwpTransaction->get();
-        }
-        catch (std::exception& e) {
-          TRC_WARNING("DPA transaction error : " << e.what());
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          DeviceEnumerateError error(DeviceEnumerateError::Type::ReadHwp, e.what());
-          deviceEnumerateResult.setReadHwpConfigError(error);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        TRC_DEBUG("Result from read HWP config transaction as string:" << PAR(transResult->getErrorString()));
-
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
+        // Make DPA transaction
+        std::unique_ptr<IDpaTransactionResult2> transResult = m_exclusiveAccess->dpaRepeat( readHwpRequest, m_repeat );
+        TRC_DEBUG( "Result from read HWP config transaction as string:" << PAR( transResult->getErrorString() ) );
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
-        deviceEnumerateResult.addTransactionResult(transResult);
+        deviceEnumerateResult.addTransactionResult( transResult );
+        TRC_INFORMATION( "Read HWP configuration successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( readHwpRequest.PeripheralType(), readHwpRequest.NodeAddress() )
+          << PAR( (unsigned)readHwpRequest.PeripheralCommand() )
+        );
 
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("Read HWP configuration successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(readHwpRequest.PeripheralType(), readHwpRequest.NodeAddress())
-            << PAR((unsigned)readHwpRequest.PeripheralCommand())
-          );
-
-          // get HWP configuration 
-          TPerOSReadCfg_Response readHwpConfig = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSReadCfg_Response;
-          deviceEnumerateResult.setHwpConfig(readHwpConfig);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // transaction error
-        if (errorCode < 0) {
-          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          DeviceEnumerateError error(DeviceEnumerateError::Type::ReadHwp, "Transaction error.");
-          deviceEnumerateResult.setReadHwpConfigError(error);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // DPA error
-        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-        if (rep < m_repeat) {
-          continue;
-        }
-
-        DeviceEnumerateError error(DeviceEnumerateError::Type::ReadHwp, "Dpa error.");
-        deviceEnumerateResult.setReadHwpConfigError(error);
-
-        TRC_FUNCTION_LEAVE("");
+        // Get HWP configuration 
+        TPerOSReadCfg_Response readHwpConfig = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSReadCfg_Response;
+        deviceEnumerateResult.setHwpConfig( readHwpConfig );
       }
+      catch ( std::exception& e )
+      {
+        DeviceEnumerateError error( DeviceEnumerateError::Type::ReadHwp, e.what() );
+        deviceEnumerateResult.setReadHwpConfigError( error );
+      }
+
+      TRC_FUNCTION_LEAVE( "" );
     }
     
-    void getInfoForMorePeripherals(DeviceEnumerateResult& deviceEnumerateResult) {
-      TRC_FUNCTION_ENTER("");
+    void getInfoForMorePeripherals( DeviceEnumerateResult& deviceEnumerateResult )
+    {
+      TRC_FUNCTION_ENTER( "" );
 
-      DpaMessage morePersInfoRequest;
-      DpaMessage::DpaPacket_t morePersInfoPacket;
-      morePersInfoPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
-      morePersInfoPacket.DpaRequestPacket_t.PNUM = 0xFF;
-      morePersInfoPacket.DpaRequestPacket_t.PCMD = 0x3F;
-      morePersInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      morePersInfoRequest.DataToBuffer(morePersInfoPacket.Buffer, sizeof(TDpaIFaceHeader));
+      try
+      {
+        // Prepare DPA request
+        DpaMessage morePersInfoRequest;
+        DpaMessage::DpaPacket_t morePersInfoPacket;
+        morePersInfoPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
+        morePersInfoPacket.DpaRequestPacket_t.PNUM = 0xFF;
+        morePersInfoPacket.DpaRequestPacket_t.PCMD = 0x3F;
+        morePersInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        morePersInfoRequest.DataToBuffer( morePersInfoPacket.Buffer, sizeof( TDpaIFaceHeader ) );
 
-      // issue the DPA request
-      std::shared_ptr<IDpaTransaction2> morePersInfoTransaction;
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-
-      for (int rep = 0; rep <= m_repeat; rep++) {
-        try {
-          //morePersInfoTransaction = m_iIqrfDpaService->executeDpaTransaction(morePersInfoRequest);
-          morePersInfoTransaction = m_exclusiveAccess->executeDpaTransaction(morePersInfoRequest);
-          transResult = morePersInfoTransaction->get();
-        }
-        catch (std::exception& e) {
-          TRC_WARNING("DPA transaction error : " << e.what());
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          DeviceEnumerateError error(DeviceEnumerateError::Type::MorePersInfo, e.what());
-          deviceEnumerateResult.setMorePersInfoError(error);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        TRC_DEBUG("Result from get info for more peripherals transaction as string:" << PAR(transResult->getErrorString()));
-
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
+        // Make DPA transaction
+        std::unique_ptr<IDpaTransactionResult2> transResult = m_exclusiveAccess->dpaRepeat( morePersInfoRequest, m_repeat );
+        TRC_DEBUG( "Result from get info for more peripherals transaction as string:" << PAR( transResult->getErrorString() ) );
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
-        deviceEnumerateResult.addTransactionResult(transResult);
+        deviceEnumerateResult.addTransactionResult( transResult );
+        TRC_INFORMATION( "Get info for more peripherals successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( morePersInfoRequest.PeripheralType(), morePersInfoRequest.NodeAddress() )
+          << PAR( morePersInfoRequest.PeripheralCommand() )
+        );
 
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("Get info for more peripherals successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(morePersInfoRequest.PeripheralType(), morePersInfoRequest.NodeAddress())
-            << PAR(morePersInfoRequest.PeripheralCommand())
-          );
-
-          // get info for more peripherals
-          TPeripheralInfoAnswer* persInfoArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PeripheralInfoAnswers;
-          
-          std::vector<TPeripheralInfoAnswer> persInfoList;
-          for (int i = 0; i < PERIPHERALS_NUM; i++) {
-            persInfoList.push_back(persInfoArr[i]);
-          }
-          
-          deviceEnumerateResult.setMorePersInfo(persInfoList);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // transaction error
-        if (errorCode < 0) {
-          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          DeviceEnumerateError error(DeviceEnumerateError::Type::MorePersInfo, "Transaction error.");
-          deviceEnumerateResult.setMorePersInfoError(error);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // DPA error
-        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-        if (rep < m_repeat) {
-          continue;
-        }
-
-        DeviceEnumerateError error(DeviceEnumerateError::Type::MorePersInfo, "Dpa error.");
-        deviceEnumerateResult.setMorePersInfoError(error);
+        // Get info for more peripherals
+        TPeripheralInfoAnswer* persInfoArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PeripheralInfoAnswers;
+        std::vector<TPeripheralInfoAnswer> persInfoList;
+        for ( int i = 0; i < PERIPHERALS_NUM; i++ )
+          persInfoList.push_back( persInfoArr[i] );
+        deviceEnumerateResult.setMorePersInfo( persInfoList );
+      }
+      catch ( std::exception& e )
+      {
+        DeviceEnumerateError error( DeviceEnumerateError::Type::MorePersInfo, e.what() );
+        deviceEnumerateResult.setMorePersInfoError( error );
       }
 
-      TRC_FUNCTION_LEAVE("");
+      TRC_FUNCTION_LEAVE( "" );
     }
     
     // checks, if the specified address is bonded
-    void checkBond(DeviceEnumerateResult& deviceEnumerateResult, const uint8_t deviceAddr)
+    void checkBond( DeviceEnumerateResult& deviceEnumerateResult, const uint8_t deviceAddr )
     {
-      TRC_FUNCTION_ENTER("");
-
-      DpaMessage bondedNodesRequest;
-      DpaMessage::DpaPacket_t bondedNodesPacket;
-      bondedNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      bondedNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
-      bondedNodesPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
-      bondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      bondedNodesRequest.DataToBuffer(bondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
-
-      // issue the DPA request
-      std::shared_ptr<IDpaTransaction2> bondedNodesTransaction;
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-
-      for (int rep = 0; rep <= m_repeat; rep++) {
-        try {
-          bondedNodesTransaction = m_iIqrfDpaService->executeDpaTransaction(bondedNodesRequest);
-          transResult = bondedNodesTransaction->get();
-        }
-        catch (std::exception& e) {
-          TRC_WARNING("DPA transaction error : " << e.what());
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          DeviceEnumerateError error(DeviceEnumerateError::Type::NotBonded, e.what());
-          deviceEnumerateResult.setBondedError(error);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
-
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
+      TRC_FUNCTION_ENTER( "" );
+      
+      try
+      {
+        // Prepare DPA request
+        DpaMessage bondedNodesRequest;
+        DpaMessage::DpaPacket_t bondedNodesPacket;
+        bondedNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        bondedNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+        bondedNodesPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
+        bondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        bondedNodesRequest.DataToBuffer( bondedNodesPacket.Buffer, sizeof( TDpaIFaceHeader ) );
+        // Make DPA transaction
+        std::unique_ptr<IDpaTransactionResult2> transResult = m_exclusiveAccess->dpaRepeat( bondedNodesRequest, m_repeat );
+        TRC_DEBUG( "Result from get bonded nodes transaction as string:" << PAR( transResult->getErrorString() ) );
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
-        deviceEnumerateResult.addTransactionResult(transResult);
+        deviceEnumerateResult.addTransactionResult( transResult );
+        TRC_INFORMATION( "Get bonded nodes successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( bondedNodesRequest.PeripheralType(), bondedNodesRequest.NodeAddress() )
+          << PAR( (unsigned)bondedNodesRequest.PeripheralCommand() )
+        );
 
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("Get bonded nodes successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(bondedNodesRequest.PeripheralType(), bondedNodesRequest.NodeAddress())
-            << PAR((unsigned)bondedNodesRequest.PeripheralCommand())
-          );
+        // Get bonded nodes
+        uns8* bondedNodesArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+        uint8_t byteIndex = deviceAddr / 8;
+        uint8_t bitIndex = deviceAddr % 8;
+        uint8_t compareByte = uint8_t( pow( 2, bitIndex ) );
 
-          // get bonded nodes
-          uns8* bondedNodesArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-          
-          uint8_t byteIndex = deviceAddr / 8;
-          uint8_t bitIndex = deviceAddr % 8;
-          uint8_t compareByte = uint8_t(pow(2, bitIndex));
-
-          if (!((bondedNodesArr[byteIndex] & compareByte) == compareByte)) {
-            DeviceEnumerateError error(DeviceEnumerateError::Type::NotBonded, "Not bonded.");
-            deviceEnumerateResult.setBondedError(error);
-          }
-
-          TRC_FUNCTION_LEAVE("");
-          return;
+        if ( !( ( bondedNodesArr[byteIndex] & compareByte ) == compareByte ) ) {
+          DeviceEnumerateError error( DeviceEnumerateError::Type::NotBonded, "Not bonded." );
+          deviceEnumerateResult.setBondedError( error );
         }
-
-        // transaction error
-        if (errorCode < 0) {
-          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-
-          if (rep < m_repeat) {
-            continue;
-          }
-
-          DeviceEnumerateError error(DeviceEnumerateError::Type::NotBonded, "Transaction error.");
-          deviceEnumerateResult.setBondedError(error);
-
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-
-        // DPA error
-        TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-
-        if (rep < m_repeat) {
-          continue;
-        }
-
-        DeviceEnumerateError error(DeviceEnumerateError::Type::NotBonded, "Dpa error.");
-        deviceEnumerateResult.setBondedError(error);
-
-        TRC_FUNCTION_LEAVE("");
       }
+      catch ( std::exception& e )
+      {
+        DeviceEnumerateError error( DeviceEnumerateError::Type::NotBonded, e.what() );
+        deviceEnumerateResult.setBondedError( error );
+      }
+
+      TRC_FUNCTION_LEAVE( "" );
     }
-    
-    
+        
     // creates error response about service general fail
     rapidjson::Document getCheckParamsFailedResponse(
       const std::string& msgId,
@@ -1492,13 +1195,11 @@ namespace iqrf {
       bool frcPresent = ((byte02 & 0b100000) == 0b100000) ? true : false;
       Pointer("/data/rsp/trConfiguration/embPers/frc").Set(response, frcPresent);
 
-
       // byte 0x05
       uint8_t byte05 = configuration[0x04];
 
       bool customDpaHandler = ((byte05 & 0b1) == 0b1) ? true : false;
       Pointer("/data/rsp/trConfiguration/customDpaHandler").Set(response, customDpaHandler);
-
 
       // for DPA v4.00 downwards
       if (dpaVer < 0x0400) {
@@ -1633,7 +1334,6 @@ namespace iqrf {
       }
       Pointer("/data/rsp/morePeripheralsInfo").Set(response, perInfoJsonArray);
     }
-
 
     // field "valid" is set to "true" for now
     // ma se poslat vsechno, co bylo v predchozich DPA responses dostupne anebo
@@ -1891,12 +1591,28 @@ namespace iqrf {
       DeviceEnumerateResult deviceEnumerateResult;
       deviceEnumerateResult.setDeviceAddr(deviceAddr);
 
-      // check, if the address is bonded
-      if (deviceAddr != COORDINATOR_ADDRESS) {
-        checkBond(deviceEnumerateResult, deviceAddr);
+      // try to establish exclusive access
+      try
+      {
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      }
+      catch (std::exception &e) 
+      {
+        const char* errorStr = e.what();
+        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
+       
+        Document failResponse = getExclusiveAccessFailedResponse(comEnumerateDevice.getMsgId(), msgType, errorStr);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
+
+        TRC_FUNCTION_LEAVE("");
+        return;
       }
 
-      if (deviceEnumerateResult.getBondedError().getType() != DeviceEnumerateError::Type::NoError) 
+      // check, if the address is bonded
+      if ( deviceAddr != COORDINATOR_ADDRESS ) 
+        checkBond( deviceEnumerateResult, deviceAddr );
+
+      if ( deviceEnumerateResult.getBondedError().getType() != DeviceEnumerateError::Type::NoError )
       {
         Document nodeNotBondedResponse = getNodeNotBondedResponse(
           comEnumerateDevice.getMsgId(),
@@ -1905,24 +1621,9 @@ namespace iqrf {
           comEnumerateDevice,
           deviceEnumerateResult.getBondedError().getMessage()
         );
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(nodeNotBondedResponse));
+        m_iMessagingSplitterService->sendMessage( messagingId, std::move( nodeNotBondedResponse ) );
 
-        TRC_FUNCTION_LEAVE("");
-        return;
-      }
-
-      // try to establish exclusive access
-      try {
-        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-      }
-      catch (std::exception &e) {
-        const char* errorStr = e.what();
-        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
-       
-        Document failResponse = getExclusiveAccessFailedResponse(comEnumerateDevice.getMsgId(), msgType, errorStr);
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
-
-        TRC_FUNCTION_LEAVE("");
+        TRC_FUNCTION_LEAVE( "" );
         return;
       }
 

@@ -62,6 +62,14 @@ namespace iqrf {
       return result;
     }
 
+    std::unique_ptr<IDpaTransactionResult2> dpaRepeat( DpaMessage & request, int repeat, int32_t timeout = -1 ) override
+    {
+      TRC_FUNCTION_ENTER( "" );
+      auto result = m_iqrfDpa->dpaRepeat(request, repeat, timeout );
+      TRC_FUNCTION_LEAVE( "" );
+      return result;
+    }
+
     virtual ~ExclusiveAccessImpl()
     {
       m_iqrfDpa->resetExclusiveAccess();
@@ -119,6 +127,42 @@ namespace iqrf {
     auto result = m_dpaHandler->executeDpaTransaction(request, timeout, defaultError);
     TRC_FUNCTION_LEAVE("");
     return result;
+  }
+
+  std::unique_ptr<IDpaTransactionResult2> IqrfDpa::dpaRepeat(DpaMessage & request, int repeat, int32_t timeout )
+  {
+    TRC_FUNCTION_ENTER( "" );
+
+    std::unique_ptr<IDpaTransactionResult2> transResult;
+    for ( int rep = 0; rep <= repeat; rep++ ) {
+      std::shared_ptr<IDpaTransaction2> transaction;
+      try {
+        transaction = m_dpaHandler->executeDpaTransaction( request, timeout );
+        transResult = transaction->get();
+
+        TRC_DEBUG( "Result from read transaction as string:" << PAR( transResult->getErrorString() ) );
+        IDpaTransactionResult2::ErrorCode errorCode = ( IDpaTransactionResult2::ErrorCode )transResult->getErrorCode();
+
+        if ( errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK ) {
+          break;
+        }
+        else if ( errorCode < 0 ) {
+          TRC_WARNING( "Transaction error. " << NAME_PAR_HEX( "Error code", errorCode ) );
+        }
+        else {
+          TRC_WARNING( "DPA error. " << NAME_PAR_HEX( "Error code", errorCode ) );
+        }
+      }
+      catch ( std::exception& e ) {
+        CATCH_EXC_TRC_WAR( std::logic_error, e, "DPA transaction error : " << e.what() );
+        if ( rep == repeat ) {
+          THROW_EXC_TRC_WAR( std::logic_error, "DPA transaction error : " << e.what() )
+        }
+      }
+    }
+
+    TRC_FUNCTION_LEAVE( "" );
+    return transResult;
   }
 
   IIqrfDpaService::CoordinatorParameters IqrfDpa::getCoordinatorParameters() const
