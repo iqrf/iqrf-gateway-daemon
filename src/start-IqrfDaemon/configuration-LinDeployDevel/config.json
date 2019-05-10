@@ -86,7 +86,7 @@
     },
     {
       "name": "iqrf::IqrfInfo",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "",
       "libraryName": "IqrfInfo",
       "enabled": true,
       "startlevel": 0
