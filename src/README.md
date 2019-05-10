@@ -1,26 +1,3 @@
-# Structure
-
-- **Documets:** Anything related to official documentation (md files, images, uml, ...)
-
-
-# Requirements
-
-- Product specification [product_specification.md](Documents/01-Requirements/product-specification.md)
-- API requirements [api-requirements.md](Documents/01-Requirements/api-requirements.md)
-- Software Requirements [sw-requirements.md](Documents/01-Requirements/sw-requirements.md)
-
-# Design documents
-
-- software design document [api-design.md](Documents/02-Design/sw-design.md)
-
-# Tools and Guidelines
-
-- Document flow [README.md](Documents/03-Tools&Guidelines/README.md)
-
-# Project status
-
-- We use **GitLab Board** for driving API definition project: https://gitlab.iqrfsdk.org/gateway/iqrf-daemon/boards
-
 # Win developement instalation
 
 Install:
@@ -28,6 +5,7 @@ Install:
 - `vcpkg install paho-mqtt:x64-windows`
 - `vcpkg install boost-filesystem:x64-windows`
 - `vcpkg install curl:x64-windows`
+- `vcpkg install sqlite3:x64-windows`
 - [shape](https://github.com/logimic/shape) (basic components launcher, logging, ...) start `build64_2017.bat` (change MSVC2017 version to your MSVC if necessary)
 - [shapeware](https://github.com/logimic/shapeware) (additional components websockets, ...) start `build64_2017.bat` (change MSVC2017 version to your MSVC if necessary)
 - from this directory  start one of `build64_2017.bat` (change MSVC2017 version to your MSVC if necessary)
@@ -39,6 +17,8 @@ Install:
   - boost-filesystem
   - curl
   - paho
+  - sqlite3
+  - libsqlite3-dev
 - [shape](https://github.com/logimic/shape) (basic components launcher, logging, ...) start `buildMake.sh`
 - [shapeware](https://github.com/logimic/shapeware) (additional components websockets, ...) start `buildMake.sh`
 - from this director  start one of `buildMake.sh` or `buildEclipse.sh`
