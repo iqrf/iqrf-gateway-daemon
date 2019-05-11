@@ -580,7 +580,6 @@ namespace iqrf {
       }
     }
 
-#if 0
     void JsRead(
       const std::string & rqName
       , uint16_t nadr
@@ -591,137 +590,77 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      //void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
-      {
+      using namespace rapidjson;
 
-        using namespace rapidjson;
+      // call request driver func, it returns rawHdpRequest format in text form
+      std::string rawHdpRequest;
+      std::string errStrReq;
+      bool driverRequestError = false;
+      try {
+        m_iJsRenderService->call(rqName, param, rawHdpRequest);
+      }
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Driver request failure: ");
+        //TODO special request error exc
+        THROW_EXC_TRC_WAR(std::exception, "Driver request failure: " << e.what());
+      }
 
-        // call request driver func, it returns rawHdpRequest format in text form
-        std::string rawHdpRequest;
-        std::string errStrReq;
-        bool driverRequestError = false;
-        try {
-          m_iJsRenderService->call(rqName, param, rawHdpRequest);
-        }
-        catch (std::exception &e) {
-          //request driver func error
-          errStrReq = e.what();
-          driverRequestError = true;
-        }
+      TRC_DEBUG(PAR(rawHdpRequest));
 
-        if (driverRequestError) {
-          //provide error response
-          //Document rDataError;
-          //rDataError.SetString(errStrReq, rDataError.GetAllocator());
-          //com->setPayload("/data/rsp/errorStr", rDataError, true);
-          //FakeTransactionResult fr;
-          //com->setStatus(fr.getErrorString(), fr.getErrorCode());
-          //com->createResponse(allResponseDoc, fr);
-        }
-        else {
-          TRC_DEBUG(PAR(rawHdpRequest));
-          // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
-          std::vector<uint8_t> dpaRequest = JsdConversion::rawHdpRequestToDpaRequest(nadr, hwpid, rawHdpRequest);
+      // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
+      DpaMessage dpaRequest = JsdConversion::rawHdpRequestToDpaRequest(nadr, hwpid, rawHdpRequest);
 
-          // setDpaRequest as DpaMessage in com object 
-          com->setDpaMessage(dpaRequest);
+      // send to coordinator
+      auto dpaTransaction = m_iIqrfDpaService->executeDpaTransaction(dpaRequest);
+      // and wait for transaction result
+      auto res = dpaTransaction->get();
 
-          // send to coordinator and wait for transaction result
-          {
-            std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
-            m_iDpaTransaction = m_iIqrfDpaService->executeDpaTransaction(com->getDpaRequest(), com->getTimeout());
-          }
-          auto res = m_iDpaTransaction->get();
+      //process response
+      int nadrRes = nadr;
+      int hwpidRes = 0;
+      int rcode = -1;
 
+      if (!res->isResponded()) {
+        //TODO special no response error exc
+        THROW_EXC_TRC_WAR(std::exception, "No response");
+      }
+        //we have some response
+      DpaMessage dpaResponse = res->getResponse();
 
-          //process response
-          int nadrRes = com->getNadr();
-          int hwpidRes = 0;
-          int rcode = -1;
+      // get rawHdpResponse in text form
+      std::string rawHdpResponse;
+      // original rawHdpRequest request passed for additional driver processing, e.g. sensor breakdown parsing
+      rawHdpResponse = JsdConversion::dpaResponseToRawHdpResponse(nadrRes, hwpidRes, rcode, dpaResponse, rawHdpRequest);
 
-          if (res->isResponded()) {
-            //we have some response
-            const uint8_t *buf = res->getResponse().DpaPacket().Buffer;
-            int sz = res->getResponse().GetLength();
-            std::vector<uint8_t> dpaResponse(buf, buf + sz);
+      TRC_DEBUG(PAR(rawHdpResponse))
 
-            // get rawHdpResponse in text form
-            std::string rawHdpResponse;
-            // original rawHdpRequest request passed for additional sensor breakdown parsing
-            // TODO it is not necessary for all other handling, may be optimized in future
-            rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, rcode, dpaResponse, rawHdpRequest);
-            TRC_DEBUG(PAR(rawHdpResponse))
+      if (0 == rcode) {
+        //TODO special rcode error exc
+        THROW_EXC_TRC_WAR(std::exception, "No response");
+      }
+            
+      // call response driver func, it returns rsp{} in text form
+      std::string rspObjStr;
+      std::string errStrRes;
+      bool driverResponseError = false;
 
-              if (0 == rcode) {
-                // call response driver func, it returns rsp{} in text form
-                std::string rspObjStr;
-                std::string errStrRes;
-                bool driverResponseError = false;
-                try {
-                  //m_iJsRenderService->call(methodResponseName, rawHdpResponse, rspObjStr);
-                  m_iJsRenderService->callFenced(hwpidRes, methodResponseName, rawHdpResponse, rspObjStr);
-                }
-                catch (std::exception &e) {
-                  //response driver func error
-                  errStrRes = e.what();
-                  driverResponseError = true;
-                }
-
-                if (driverResponseError) {
-                  //provide error response
-                  Document rDataError;
-                  rDataError.SetString(errStrRes.c_str(), rDataError.GetAllocator());
-                  com->setPayload("/data/rsp/errorStr", rDataError, true);
-                  res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);
-                  com->setStatus(res->getErrorString(), res->getErrorCode());
-                  com->createResponse(allResponseDoc, *res);
-                }
-                else {
-                  // get json from its text representation
-                  Document rspObj;
-                  rspObj.Parse(rspObjStr);
-                  TRC_DEBUG("result object: " << std::endl << JsonToStr(&rspObj));
-                  com->setPayload("/data/rsp/result", rspObj, false);
-                  com->setStatus(res->getErrorString(), res->getErrorCode());
-                  com->createResponse(allResponseDoc, *res);
-                }
-              }
-              else {
-                Document rDataError;
-                rDataError.SetString("rcode error", rDataError.GetAllocator());
-                com->setPayload("/data/rsp/errorStr", rDataError, true);
-                com->setStatus(res->getErrorString(), res->getErrorCode());
-                com->createResponse(allResponseDoc, *res);
-              }
-          }
-          else {
-            if (res->getErrorCode() != 0) {
-              Document rDataError;
-              rDataError.SetString("rcode error", rDataError.GetAllocator());
-              com->setPayload("/data/rsp/errorStr", rDataError, true);
-              com->setStatus(res->getErrorString(), res->getErrorCode());
-              com->createResponse(allResponseDoc, *res);
-            }
-            else {
-              //no response but not considered as an error
-              Document rspObj;
-              Pointer("/response").Set(rspObj, "unrequired");
-              com->setPayload("/data/rsp/result", rspObj, false);
-              com->setStatus(res->getErrorString(), res->getErrorCode());
-              com->createResponse(allResponseDoc, *res);
-            }
-          }
-        }
-        TRC_DEBUG("response object: " << std::endl << JsonToStr(&allResponseDoc));
-
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(allResponseDoc));
-
-        TRC_FUNCTION_LEAVE("");
+      try {
+        //m_iJsRenderService->call(methodResponseName, rawHdpResponse, rspObjStr);
+        m_iJsRenderService->callFenced(hwpidRes, rspName, rawHdpResponse, rsp);
+      }
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Driver response failure: ");
+        //TODO special response error exc
+        THROW_EXC_TRC_WAR(std::exception, "Driver response failure: " << e.what());
       }
 
       TRC_FUNCTION_LEAVE("");
     }
-#endif
+
+    void osRead1(DeviceEnumerateResult& deviceEnumerateResult) {
+      TRC_FUNCTION_ENTER("");
+      TRC_FUNCTION_LEAVE("");
+    }
 
     // reads OS info about smart connected node
     void osRead(DeviceEnumerateResult& deviceEnumerateResult) {
@@ -1225,9 +1164,6 @@ namespace iqrf {
               getInfoForMorePeripherals(deviceEnumerateResult);
             }
 
-            // release exclusive access
-            m_exclusiveAccess.reset();
-
             fillEnumeration(deviceEnumerateResult, nde);
 
           }
@@ -1238,10 +1174,12 @@ namespace iqrf {
         else {
           TRC_WARNING("Cannot get exclusive DPA access");
         }
+      
+        m_exclusiveAccess.reset();
       }
       catch (std::exception & e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Cannot enumerate: ");
-        if (m_exclusiveAccess) m_exclusiveAccess.reset();
+        m_exclusiveAccess.reset();
       }
 
       TRC_FUNCTION_LEAVE("");

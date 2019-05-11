@@ -27,11 +27,55 @@ namespace iqrf {
 
     // nadr, hwpid not set from drivers
     //TODO return directly DpaMessage to avoid later conversion vector -> DpaMessage
-    static std::vector<uint8_t> rawHdpRequestToDpaRequest(int nadr, int hwpid, const std::string& rawHdpRequest)
+    //static std::vector<uint8_t> rawHdpRequestToDpaRequest(int nadr, int hwpid, const std::string& rawHdpRequest)
+    //{
+    //  using namespace rapidjson;
+
+    //  std::vector<uint8_t> retvect;
+
+    //  Document doc;
+    //  doc.Parse(rawHdpRequest);
+
+    //  uint8_t pnum = 0, pcmd = 0;
+
+    //  if (Value *val = Pointer("/pnum").Get(doc)) {
+    //    parseHexaNum(pnum, val->GetString());
+    //  }
+    //  if (Value *val = Pointer("/pcmd").Get(doc)) {
+    //    parseHexaNum(pcmd, val->GetString());
+    //  }
+
+    //  retvect.push_back(nadr & 0xff);
+    //  retvect.push_back((nadr >> 8) & 0xff);
+    //  retvect.push_back(pnum);
+    //  retvect.push_back(pcmd);
+    //  retvect.push_back(hwpid & 0xff);
+    //  retvect.push_back((hwpid >> 8) & 0xff);
+
+    //  if (Value *val = Pointer("/rdata").Get(doc)) {
+    //    int len = parseBinary(retvect, val->GetString(), 0xFF);
+    //  }
+
+    //  void setDpaMessage(std::vector<uint8_t> dpaVect)
+    //  {
+    //    if (!dpaVect.empty()) {
+    //      std::copy(dpaVect.data(), dpaVect.data() + dpaVect.size(), m_request.DpaPacket().Buffer);
+    //      m_request.SetLength(static_cast<int>(dpaVect.size()));
+    //    }
+    //    else {
+    //      THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format of data");
+    //    }
+    //  }
+
+
+    //  return retvect;
+    //}
+
+    static DpaMessage rawHdpRequestToDpaRequest(int nadr, int hwpid, const std::string& rawHdpRequest)
     {
       using namespace rapidjson;
 
-      std::vector<uint8_t> retvect;
+      DpaMessage retval;
 
       Document doc;
       doc.Parse(rawHdpRequest);
@@ -45,43 +89,50 @@ namespace iqrf {
         parseHexaNum(pcmd, val->GetString());
       }
 
-      retvect.push_back(nadr & 0xff);
-      retvect.push_back((nadr >> 8) & 0xff);
-      retvect.push_back(pnum);
-      retvect.push_back(pcmd);
-      retvect.push_back(hwpid & 0xff);
-      retvect.push_back((hwpid >> 8) & 0xff);
+      uint8_t* p0 = retval.DpaPacket().Buffer;
+      uint8_t* p = p0;
+
+      *p++ = nadr & 0xff;
+      *p++ = nadr & 0xff;
+      *p++ = (nadr >> 8) & 0xff;
+      *p++ = pnum;
+      *p++ = pcmd;
+      *p++ = hwpid & 0xff;
+      *p++ = (hwpid >> 8) & 0xff;
 
       if (Value *val = Pointer("/rdata").Get(doc)) {
-        int len = parseBinary(retvect, val->GetString(), 0xFF);
+        int len = parseBinary(p, val->GetString(), 0xFF);
+        p += len;
       }
 
-      return retvect;
+      retval.SetLength(p - p0);
+
+      return retval;
     }
 
-    // nadr, hwpid, rcode not set for drivers
-    //TODO rewrite with const DpaMessage& dpaResponse to avoid previous conversion DpaMessage -> vector
-    static std::string dpaResponseToRawHdpResponse(int& nadr, int& hwpid, int& rcode, const std::vector<uint8_t>& dpaResponse, const std::string& rawHdpRequest)
+    static std::string dpaResponseToRawHdpResponse(int& nadr, int& hwpid, int& rcode, const DpaMessage & dpaResponse, const std::string & rawHdpRequest)
     {
       using namespace rapidjson;
 
       std::string rawHdpResponse;
-
       Document doc;
 
-      if (dpaResponse.size() >= 8) {
+      const uint8_t* p = dpaResponse.DpaPacket().Buffer;
+      int len = dpaResponse.GetLength();
+
+      if (len >= 8) {
         uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
         std::string pnumStr, pcmdStr, rcodeStr, dpavalStr;
 
-        nadr = dpaResponse[0];
-        nadr += dpaResponse[1] << 8;
-        pnum = dpaResponse[2];
-        pcmd = dpaResponse[3];
-        hwpid = dpaResponse[4];
-        hwpid += dpaResponse[5] << 8;
-        rcode8 = dpaResponse[6];
+        nadr = p[0];
+        nadr += p[1] << 8;
+        pnum = p[2];
+        pcmd = p[3];
+        hwpid = p[4];
+        hwpid += p[5] << 8;
+        rcode8 = p[6];
         rcode = rcode8;
-        dpaval = dpaResponse[7];
+        dpaval = p[7];
 
         pnumStr = encodeHexaNum(pnum);
         pcmdStr = encodeHexaNum(pcmd);
@@ -94,18 +145,21 @@ namespace iqrf {
         Pointer("/rcode").Set(doc, rcodeStr);
         Pointer("/dpaval").Set(doc, rcodeStr);
 
-        if (dpaResponse.size() > 8) {
-          Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, static_cast<int>(dpaResponse.size()) - 8));
+        if (len > 8) {
+          Pointer("/rdata").Set(doc, encodeBinary(p + 8, static_cast<int>(len) - 8));
         }
 
-        Document rawHdpRequestDoc;
-        rawHdpRequestDoc.Parse(rawHdpRequest);
-        Pointer("/originalRequest").Set(doc, rawHdpRequestDoc);
+        if (rawHdpRequest.size() > 0) {
+          Document rawHdpRequestDoc;
+          rawHdpRequestDoc.Parse(rawHdpRequest);
+          Pointer("/originalRequest").Set(doc, rawHdpRequestDoc);
+        }
 
         rawHdpResponse = JsonToStr(&doc);
       }
 
       return rawHdpResponse;
     }
+
   };
 }
