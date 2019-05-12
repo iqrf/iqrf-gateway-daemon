@@ -2,10 +2,13 @@
 
 #include "EnumerateService.h"
 #include "Trace.h"
+#include "JsonUtils.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "JsdConversion.h"
+
+#include "OsReadData.h"
 
 #include "iqrf__EnumerateService.hxx"
 
@@ -580,24 +583,28 @@ namespace iqrf {
       }
     }
 
-    void JsRead(
-      const std::string & rqName
-      , uint16_t nadr
-      , uint16_t hwpid
-      , const std::string & param
-      , const std::string & rspName
-      , std::string & rsp)
+    void JsRead(uint16_t nadr, uint16_t hwpid, const std::string & functionName, const Document & param, Document & jsonRsp)
     {
       TRC_FUNCTION_ENTER("");
 
       using namespace rapidjson;
+
+      std::string functionNameReq(functionName);
+      std::string functionNameRsp(functionName);
+      functionNameReq += "_Request_req";
+      functionNameRsp += "_Response_rsp";
+
 
       // call request driver func, it returns rawHdpRequest format in text form
       std::string rawHdpRequest;
       std::string errStrReq;
       bool driverRequestError = false;
       try {
-        m_iJsRenderService->call(rqName, param, rawHdpRequest);
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        param.Accept(writer);
+
+        m_iJsRenderService->call(functionNameReq, buffer.GetString(), rawHdpRequest);
       }
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Driver request failure: ");
@@ -611,7 +618,7 @@ namespace iqrf {
       DpaMessage dpaRequest = JsdConversion::rawHdpRequestToDpaRequest(nadr, hwpid, rawHdpRequest);
 
       // send to coordinator
-      auto dpaTransaction = m_iIqrfDpaService->executeDpaTransaction(dpaRequest);
+      auto dpaTransaction = m_exclusiveAccess->executeDpaTransaction(dpaRequest);
       // and wait for transaction result
       auto res = dpaTransaction->get();
 
@@ -634,7 +641,7 @@ namespace iqrf {
 
       TRC_DEBUG(PAR(rawHdpResponse))
 
-      if (0 == rcode) {
+      if (0 != rcode) {
         //TODO special rcode error exc
         THROW_EXC_TRC_WAR(std::exception, "No response");
       }
@@ -645,8 +652,10 @@ namespace iqrf {
       bool driverResponseError = false;
 
       try {
+        std::string rsp;
         //m_iJsRenderService->call(methodResponseName, rawHdpResponse, rspObjStr);
-        m_iJsRenderService->callFenced(hwpidRes, rspName, rawHdpResponse, rsp);
+        m_iJsRenderService->callFenced(hwpidRes, functionNameRsp, rawHdpResponse, rsp);
+        jsonRsp.Parse(rsp);
       }
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Driver response failure: ");
@@ -657,9 +666,111 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void osRead1(DeviceEnumerateResult& deviceEnumerateResult) {
-      TRC_FUNCTION_ENTER("");
+    void callJsDriverRequest(
+      uint16_t nadr, uint16_t hwpid, const std::string & functionName, const Document & param, DpaMessage & dpaRequest, std::string & rawHdpRequest)
+    {
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(hwpid) << PAR(functionName))
+
+      using namespace rapidjson;
+
+      std::string functionNameReq(functionName);
+      functionNameReq += "_Request_req";
+
+
+      // call request driver func, it returns rawHdpRequest format in text form
+      std::string errStrReq;
+      bool driverRequestError = false;
+      try {
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        param.Accept(writer);
+
+        m_iJsRenderService->call(functionNameReq, buffer.GetString(), rawHdpRequest);
+      }
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Driver request failure: ");
+        //TODO special request error exc
+        THROW_EXC_TRC_WAR(std::exception, "Driver request failure: " << e.what());
+      }
+
+      TRC_DEBUG(PAR(rawHdpRequest));
+
+      // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
+      dpaRequest = JsdConversion::rawHdpRequestToDpaRequest(nadr, hwpid, rawHdpRequest);
+
       TRC_FUNCTION_LEAVE("");
+    }
+
+    void callJsDriverResponse(
+      std::unique_ptr<IDpaTransactionResult2> & result, const std::string & functionName, Document & jsonRsp, const std::string& rawHdpRequest)
+    {
+      TRC_FUNCTION_ENTER(PAR(functionName));
+      
+      std::string functionNameRsp(functionName);
+      functionNameRsp += "_Response_rsp";
+
+      //process response
+      int nadrRes = 0;
+      int hwpidRes = 0;
+      int rcode = -1;
+
+      if (!result->isResponded()) {
+        //TODO special no response error exc
+        THROW_EXC_TRC_WAR(std::exception, "No response");
+      }
+      //we have some response
+      DpaMessage dpaResponse = result->getResponse();
+
+      // get rawHdpResponse in text form
+      std::string rawHdpResponse;
+      // original rawHdpRequest request passed for additional driver processing, e.g. sensor breakdown parsing
+      rawHdpResponse = JsdConversion::dpaResponseToRawHdpResponse(nadrRes, hwpidRes, rcode, dpaResponse, rawHdpRequest);
+
+      TRC_DEBUG(PAR(rawHdpResponse))
+
+      if (0 != rcode) {
+        //TODO special rcode error exc
+        THROW_EXC_TRC_WAR(std::exception, "No response");
+      }
+
+      try {
+        std::string rsp;
+        //m_iJsRenderService->call(methodResponseName, rawHdpResponse, rspObjStr);
+        m_iJsRenderService->callFenced(hwpidRes, functionNameRsp, rawHdpResponse, rsp);
+        jsonRsp.Parse(rsp);
+      }
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Driver response failure: ");
+        //TODO special response error exc
+        THROW_EXC_TRC_WAR(std::exception, "Driver response failure: " << e.what());
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void osRead1(uint8_t nadr, uint16_t hwpid, OsReadData & osd)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      try {
+        std::string functionName("iqrf.embed.os.Read");
+        Document param;
+        param.SetObject(); // empty object - no params
+        DpaMessage dpaRequest;
+        std::string rawHdpRequest;
+
+        callJsDriverRequest(nadr, hwpid, functionName, param, dpaRequest, rawHdpRequest);
+        
+        auto transResult = dpaRepeat(m_exclusiveAccess, dpaRequest, m_repeat);
+
+        Document jsonRsp;
+        callJsDriverResponse(transResult, functionName, jsonRsp, rawHdpRequest);
+        osd.parse(jsonRsp);
+      }
+      catch (std::exception & e)
+      {
+        TRC_WARNING("Cannot read OsData")
+      }
     }
 
     // reads OS info about smart connected node
@@ -1121,6 +1232,29 @@ namespace iqrf {
 
             // OS read info
             osRead(deviceEnumerateResult);
+            //osRead1(deviceEnumerateResult);
+            OsReadData osd;
+            osRead1(3, 0xffff, osd);
+            ////////////
+            std::string mid = osd.getMidAsString();
+            std::string os = osd.getOsVersionAsString();
+            std::string tr = osd.getTrTypeAsString();
+            bool fcc = osd.isFccCertified();
+            int rssiC = osd.getRssiComputed();
+            std::string rssiS = osd.getRssiAsString();
+            std::string voltageS = osd.getSupplyVoltageAsString();
+            bool flInsOs = osd.isInsufficientOsBuild();
+            bool flIf = osd.getInterface();
+            std::string flIfS = osd.getInterfaceAsString();
+            bool flDpaH = osd.isDpaHandlerDetected();
+            bool flDpaHnE = osd.isDpaHandlerNotDetectedButEnabled();
+            bool flNoIf = osd.isNoInterfaceSupported();
+            int sSlot = osd.getShortestTimeSlot();
+            std::string sSloS = osd.getShortestTimeSlotAsString();
+            int lSlot = osd.getLongestTimeSlot();
+            std::string lSloS = osd.getLongestTimeSlotAsString();
+            ////////////
+
 
             // AFTER OS READ - obtains hwpId, which in turn is needed to get manufacturer and product
             //getManufacturerAndProduct(deviceEnumerateResult);

@@ -14,7 +14,6 @@ namespace iqrf {
 
   class JsdConversion {
   public:
-    //for debug only
     static std::string JsonToStr(const rapidjson::Value* val)
     {
       rapidjson::Document doc;
@@ -24,52 +23,6 @@ namespace iqrf {
       doc.Accept(writer);
       return buffer.GetString();
     }
-
-    // nadr, hwpid not set from drivers
-    //TODO return directly DpaMessage to avoid later conversion vector -> DpaMessage
-    //static std::vector<uint8_t> rawHdpRequestToDpaRequest(int nadr, int hwpid, const std::string& rawHdpRequest)
-    //{
-    //  using namespace rapidjson;
-
-    //  std::vector<uint8_t> retvect;
-
-    //  Document doc;
-    //  doc.Parse(rawHdpRequest);
-
-    //  uint8_t pnum = 0, pcmd = 0;
-
-    //  if (Value *val = Pointer("/pnum").Get(doc)) {
-    //    parseHexaNum(pnum, val->GetString());
-    //  }
-    //  if (Value *val = Pointer("/pcmd").Get(doc)) {
-    //    parseHexaNum(pcmd, val->GetString());
-    //  }
-
-    //  retvect.push_back(nadr & 0xff);
-    //  retvect.push_back((nadr >> 8) & 0xff);
-    //  retvect.push_back(pnum);
-    //  retvect.push_back(pcmd);
-    //  retvect.push_back(hwpid & 0xff);
-    //  retvect.push_back((hwpid >> 8) & 0xff);
-
-    //  if (Value *val = Pointer("/rdata").Get(doc)) {
-    //    int len = parseBinary(retvect, val->GetString(), 0xFF);
-    //  }
-
-    //  void setDpaMessage(std::vector<uint8_t> dpaVect)
-    //  {
-    //    if (!dpaVect.empty()) {
-    //      std::copy(dpaVect.data(), dpaVect.data() + dpaVect.size(), m_request.DpaPacket().Buffer);
-    //      m_request.SetLength(static_cast<int>(dpaVect.size()));
-    //    }
-    //    else {
-    //      THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format of data");
-    //    }
-    //  }
-
-
-    //  return retvect;
-    //}
 
     static DpaMessage rawHdpRequestToDpaRequest(int nadr, int hwpid, const std::string& rawHdpRequest)
     {
@@ -92,7 +45,6 @@ namespace iqrf {
       uint8_t* p0 = retval.DpaPacket().Buffer;
       uint8_t* p = p0;
 
-      *p++ = nadr & 0xff;
       *p++ = nadr & 0xff;
       *p++ = (nadr >> 8) & 0xff;
       *p++ = pnum;
