@@ -39,11 +39,18 @@ echo "Daemon folders created."
 # CFG
 cp iqrf-daemon-source/src/start-IqrfDaemon/configuration/*.json ${DEPLOY}${IQRFGD2_CFG}
 cp iqrf-daemon-source/src/start-IqrfDaemon/configuration-LinDeployDevel/*.json ${DEPLOY}${IQRFGD2_CFG}
+# NOT YET BETA
+rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__IqrfInfo.json
+
 cp -r iqrf-daemon-source/src/start-IqrfDaemon/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
+# NOT YET BETA
+rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__IqrfInfo.json
 
 # BIN
 cp iqrf-daemon-build/bin/iqrfgd2 ${DEPLOY}${IQRFGD2_BIN}/iqrfgd2
 cp iqrf-daemon-build/bin/*.so ${DEPLOY}${IQRFGD2_LIBS}
+# NOT YET BETA
+rm ${DEPLOY}${IQRFGD2_LIBS}/libIqrfInfo.so
 
 # SHARE
 mkdir -p ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas

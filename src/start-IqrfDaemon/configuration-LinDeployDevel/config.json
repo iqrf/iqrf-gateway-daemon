@@ -85,13 +85,6 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::IqrfInfo",
-      "libraryPath": "",
-      "libraryName": "IqrfInfo",
-      "enabled": true,
-      "startlevel": 0
-    },
-    {
       "name": "iqrf::LegacyApiSupport",
       "libraryPath": "",
       "libraryName": "LegacyApiSupport",
@@ -249,6 +242,13 @@
       "name": "iqrf::EnumerateDeviceService",
       "libraryPath": "",
       "libraryName": "EnumerateDeviceService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::EnumerateService",
+      "libraryPath": "",
+      "libraryName": "EnumerateService",
       "enabled": true,
       "startlevel": 3
     },

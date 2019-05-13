@@ -42,11 +42,13 @@ cp iqrf-daemon-source/src/start-IqrfDaemon/configuration-LinDeployRelease/*.json
 # NOT YET TO RELEASE
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__OtaUploadService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__AutonetworkService.json
+rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__IqrfInfo.json
 
 cp -r iqrf-daemon-source/src/start-IqrfDaemon/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
 # NOT YET TO RELEASE
 rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__OtaUploadService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__AutonetworkService.json
+rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__IqrfInfo.json
 
 # BIN
 cp iqrf-daemon-build/bin/iqrfgd2 ${DEPLOY}${IQRFGD2_BIN}/iqrfgd2
@@ -54,6 +56,7 @@ cp iqrf-daemon-build/bin/*.so ${DEPLOY}${IQRFGD2_LIBS}
 # NOT YET TO RELEASE
 rm ${DEPLOY}${IQRFGD2_LIBS}/libOtaUploadService.so
 rm ${DEPLOY}${IQRFGD2_LIBS}/libAutonetworkService.so
+rm ${DEPLOY}${IQRFGD2_LIBS}/libIqrfInfo.so
 
 # SHARE
 mkdir -p ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas
