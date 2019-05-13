@@ -1,13 +1,16 @@
-# IQRF GW image for the UP board
+# IQRF GW daemon image for the UP2 board
+# Edit config/* files and set accordingly for your target
 
-FROM resin/up-board-debian:stretch
+FROM multiarch/debian-debootstrap:amd64-stretch
 
 MAINTAINER Rostislav Spinar <rostislav.spinar@iqrf.com>
 LABEL maintainer="rostislav.spinar@iqrf.com"
 
 # add iqrf repo
-RUN echo "deb http://repos.iqrf.org/debian stretch stable" | sudo tee -a /etc/apt/sources.list.d/iqrf-daemon.list \
- && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E
+RUN apt-get update \
+ && apt-get install --no-install-recommends -y apt-transport-https dirmngr gnupg2 \
+ && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
+ && echo "deb http://repos.iqrf.org/debian stretch stable" | tee -a /etc/apt/sources.list
 
 # install daemon
 RUN apt-get update \
@@ -17,7 +20,7 @@ RUN apt-get update \
 
 # copy custom config
 WORKDIR /etc/iqrf-gateway-daemon
-COPY config/iqrf-gateway-daemon/. .
+COPY config-up2/iqrf-gateway-daemon/. .
 
 # expose ports
 EXPOSE 1338 55000/udp 55300/udp
