@@ -190,6 +190,13 @@
       "startlevel": 2
     },
     {
+      "name": "iqrf::JsDriverService",
+      "libraryPath": "",
+      "libraryName": "JsDriverService",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
       "name": "iqrf::JsonDpaApiIqrfStandard",
       "libraryPath": "",
       "libraryName": "JsonDpaApiIqrfStandard",
