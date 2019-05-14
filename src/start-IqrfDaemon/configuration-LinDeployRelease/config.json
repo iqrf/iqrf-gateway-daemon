@@ -85,13 +85,6 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::IqrfInfo",
-      "libraryPath": "",
-      "libraryName": "IqrfInfo",
-      "enabled": true,
-      "startlevel": 0
-    },
-    {
       "name": "iqrf::LegacyApiSupport",
       "libraryPath": "",
       "libraryName": "LegacyApiSupport",
@@ -190,13 +183,6 @@
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsDriverService",
-      "libraryPath": "",
-      "libraryName": "JsDriverService",
-      "enabled": true,
-      "startlevel": 2
-    },
-    {
       "name": "iqrf::JsonDpaApiIqrfStandard",
       "libraryPath": "",
       "libraryName": "JsonDpaApiIqrfStandard",
@@ -253,26 +239,6 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::EnumerateService",
-      "libraryPath": "",
-      "libraryName": "EnumerateService",
-      "enabled": true,
-      "startlevel": 3
-    },
-    {
-      "name": "iqrf::EnumerateService",
-      "libraryPath": "",
-      "libraryName": "EnumerateService",
-      "enabled": true,
-      "startlevel": 3
-    },
-      "name": "iqrf::AutonetworkService",
-      "libraryPath": "",
-      "libraryName": "AutonetworkService",
-      "enabled": true,
-      "startlevel": 3
-    },
-	{
       "name": "iqrf::RemoveBondService",
       "libraryPath": "",
       "libraryName": "RemoveBondService",
