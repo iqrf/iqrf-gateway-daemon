@@ -1,6 +1,10 @@
 #pragma once
 
-#include "JsDriver.h"
+#include "JsDriverRequest.h"
+#include "JsonUtils.h"
+#include <vector>
+#include <sstream>
+#include <iomanip>
 
 namespace iqrf
 {
@@ -9,7 +13,7 @@ namespace iqrf
     namespace os
     {
       ////////////////
-      class Read : public JsDpaRequest
+      class Read : public JsDriverRequest
       {
       private:
         unsigned m_mid = 0;
@@ -23,12 +27,12 @@ namespace iqrf
         std::vector<int> m_ibk;
 
       public:
-        Read(uint16_t nadr, uint16_t hwpid, IJsRenderService* iJsRenderService)
-          :JsDpaRequest(nadr, hwpid, iJsRenderService)
+        Read(uint16_t nadr)
+          :JsDriverRequest(nadr)
         {
         }
 
-        std::string getFunctionName() const override
+        std::string functionName() const override
         {
           return "iqrf.embed.os.Read";
         }
@@ -36,28 +40,21 @@ namespace iqrf
         void parseResponse(const rapidjson::Value& v) override
         {
           using namespace rapidjson;
-          try {
-            //TODO use rapidjson::pointers ?
-            //{
-            //  const Value *val = Pointer("/mid").Get(v);
-            //  if (val && val->IsInt()) {
-            //    m_mid = val->GetInt();
-            //  }
-            //}
-            m_mid = jutils::getMemberAs<unsigned>("mid", v);
-            m_osVersion = jutils::getMemberAs<int>("osVersion", v);
-            m_trMcuType = jutils::getMemberAs<int>("trMcuType", v);
-            m_osBuild = jutils::getMemberAs<int>("osBuild", v);
-            m_rssi = jutils::getMemberAs<int>("rssi", v);
-            m_supplyVoltage = jutils::getMemberAs<double>("supplyVoltage", v);
-            m_flags = jutils::getMemberAs<int>("flags", v);
-            m_ibk = jutils::getPossibleMemberAsVector<int>("ibk", v, m_ibk);
-            m_valid = true;
-          }
-          catch (std::exception & e) {
-            TRC_WARNING("invalid data: " << e.what());
-            m_valid = false;
-          }
+          //TODO use rapidjson::pointers ?
+          //{
+          //  const Value *val = Pointer("/mid").Get(v);
+          //  if (val && val->IsInt()) {
+          //    m_mid = val->GetInt();
+          //  }
+          //}
+          m_mid = jutils::getMemberAs<unsigned>("mid", v);
+          m_osVersion = jutils::getMemberAs<int>("osVersion", v);
+          m_trMcuType = jutils::getMemberAs<int>("trMcuType", v);
+          m_osBuild = jutils::getMemberAs<int>("osBuild", v);
+          m_rssi = jutils::getMemberAs<int>("rssi", v);
+          m_supplyVoltage = jutils::getMemberAs<double>("supplyVoltage", v);
+          m_flags = jutils::getMemberAs<int>("flags", v);
+          m_ibk = jutils::getPossibleMemberAsVector<int>("ibk", v, m_ibk);
         }
 
         // get data as returned from driver
@@ -177,7 +174,7 @@ namespace iqrf
       };
 
       ////////////////
-      class ReadCfg : public JsDpaRequest
+      class ReadCfg : public JsDriverRequest
       {
       private:
         unsigned m_checkum = 0;
@@ -186,31 +183,22 @@ namespace iqrf
         int m_undocumented = 0;
 
       public:
-        ReadCfg(uint16_t nadr, uint16_t hwpid, IJsRenderService* iJsRenderService)
-          :JsDpaRequest(nadr, hwpid, iJsRenderService)
+        ReadCfg(uint16_t nadr)
+          :JsDriverRequest(nadr)
         {
         }
 
-        std::string getFunctionName() const override
+        std::string functionName() const override
         {
           return "iqrf.embed.os.ReadCfg";
         }
 
         void parseResponse(const rapidjson::Value& v) override
         {
-          using namespace rapidjson;
-          try {
-            //TODO use rapidjson::pointers ?
-            m_checkum = jutils::getMemberAs<int>("checksum", v);
-            m_configuration = jutils::getMemberAsVector<int>("configuration", v);
-            m_rfpgm = jutils::getMemberAs<int>("rfpgm", v);
-            m_undocumented = jutils::getMemberAs<int>("undocumented", v);
-            m_valid = true;
-          }
-          catch (std::exception & e) {
-            TRC_WARNING("invalid data: " << e.what());
-            m_valid = false;
-          }
+          m_checkum = jutils::getMemberAs<int>("checksum", v);
+          m_configuration = jutils::getMemberAsVector<int>("configuration", v);
+          m_rfpgm = jutils::getMemberAs<int>("rfpgm", v);
+          m_undocumented = jutils::getMemberAs<int>("undocumented", v);
         }
 
         // get data as returned from driver
@@ -218,7 +206,6 @@ namespace iqrf
         std::vector<int> getConfiguration() const { return m_configuration; }
         int getRfpgm() const { return m_rfpgm; }
         int getUndocumented() const { return m_undocumented; }
-        bool getValid() const { return m_valid; }
 
         // get more detailed data parsing
         // TODO

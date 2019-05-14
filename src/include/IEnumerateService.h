@@ -11,52 +11,35 @@ namespace iqrf {
   class IEnumerateService
   {
   public:
-    class NodeEnumeration
+    class CoordinatorData
     {
+      //TODO getters, setters
     public:
-      NodeEnumeration() {}
-      ~NodeEnumeration() {}
-
-      uint8_t m_deviceAddr = 0;
-      bool m_discovered = false;
-      uint8_t m_vrn = 0;
-      uint8_t m_zone = 0;
-      uint8_t m_parent = 0;
-      uint16_t m_enumeratedNodeHwpIdVer = 0;
-      std::string m_osBuild;
-      uint16_t m_nodeHwpId = 0;
-      std::string m_manufacturer;
-      std::string m_product;
-      std::list<std::string> m_standards;
-      std::string m_trType;
-      bool m_fccCertified = false;
-      std::string m_mcuType;
-      bool m_insufficientOsBuild = false;
-      std::string m_interface;
-      bool m_dpaHandlerDetected = false;
-      bool m_dpaHandlerNotDetectedButEnabled = false;
-      bool m_noInterfaceSupported = false;
-      std::string m_shortestTimeslot;
-      std::string m_longestTimeslot;
-      std::string m_mid;
-      std::string m_osVersion;
-      uint8_t m_trMcuTypeVal = 0;
-      std::string m_rssi;
-      std::string m_supplyVoltage;
-      uint8_t m_flagsVal = 0;
-      uint8_t m_slotLimitsVal = 0;
-      uint16_t m_DpaVersion = 0;
-      uint8_t m_UserPerNr = 0;
-      std::vector<uint8_t> m_EmbeddedPers;
-      std::vector<uint8_t> m_UserPer;
-      uint16_t m_HWPID = 0;
-      uint16_t m_HWPIDver = 0;
-      bool m_rfModeStd = false;
-      bool m_rfModeLp = false;
-      bool m_stdAndLpNetwork = false;
+      std::vector<int> m_bonded;
+      std::vector<int> m_discovered;
+      bool m_valid = false;
+      //TODO VRN, Zone, Parent
     };
 
-    NodeEnumeration virtual getEnumerateResult(uint16_t deviceAddr) = 0;
+    class NodeData
+    {
+      //TODO getters, setters
+    public:
+      int m_hwpid = 0;
+      int m_hwpidVer = 0;
+      int m_osBuild = 0;
+      int m_osVer = 0;
+      unsigned m_mid = 0;
+      int m_dpaVersion = 0;
+      bool m_modeStd = true;
+      bool m_stdAndLpNetwork = false;
+      bool m_valid = false;
+      //TODO others
+    };
+
+    CoordinatorData virtual getCoordinatorData() const = 0;
+    NodeData virtual getNodeData(uint16_t nadr) const = 0;
+    
     virtual ~IEnumerateService() {}
   };
 }

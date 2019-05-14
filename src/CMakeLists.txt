@@ -32,7 +32,7 @@ add_subdirectory(JsonDpaApiIqrfStandard)
 add_subdirectory(JsonDpaApiIqrfStdExt)
 add_subdirectory(SchedulerMessaging)
 add_subdirectory(IqrfInfo)
-
+add_subdirectory(JsDriverService)
 
 # IDE folder for IQMesh services
 set(IQMESH_SERVICES_FOLDER "iqmesh")

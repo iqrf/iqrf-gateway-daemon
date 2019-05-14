@@ -1,10 +1,9 @@
-project(EnumerateService)
+project(JsDriverService)
 
-set(COMPONENT iqrf::EnumerateService)
+set(COMPONENT iqrf::JsDriverService)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IEnumerateService)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IJsDriverService MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IJsDriverService)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IJsRenderService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -31,7 +30,5 @@ endif()
 target_link_libraries(${PROJECT_NAME}
 	Dpa
 )
-
-set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${IQMESH_SERVICES_FOLDER})
 
 DeployShapeComponent(${PROJECT_NAME})

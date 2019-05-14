@@ -6,11 +6,11 @@
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
-#include "JsdConversion.h"
 
-#include "EmbedOS.h"
-#include "EmbedEEEPROM.h"
-#include "EmbedDpaExploration.h"
+#include "JsDriverEmbedOS.h"
+#include "JsDriverEmbedEEEPROM.h"
+#include "JsDriverEmbedDpaExploration.h"
+#include "JsDriverEmbedCoordinator.h"
 
 #include "iqrf__EnumerateService.hxx"
 
@@ -341,7 +341,7 @@ namespace iqrf {
     // parent object
     EnumerateService& m_parent;
 
-    iqrf::IJsRenderService* m_iJsRenderService = nullptr;
+    iqrf::IJsDriverService* m_iJsDriverService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
 
@@ -363,7 +363,7 @@ namespace iqrf {
     {
     }
 
-    std::unique_ptr<IDpaTransactionResult2> dpaRepeat(std::unique_ptr<IIqrfDpaService::ExclusiveAccess> & exclusiveAccess, const DpaMessage & request, int repeat)
+    std::unique_ptr<IDpaTransactionResult2> dpaRepeat(std::unique_ptr<IIqrfDpaService::ExclusiveAccess> & exclusiveAccess, const DpaMessage & request, int repeat) const
     {
       TRC_FUNCTION_ENTER("");
 
@@ -400,151 +400,25 @@ namespace iqrf {
       return transResult;
     }
 
-    //void callJsDriverRequest(
-    //  uint16_t nadr, uint16_t hwpid, const std::string & functionName, const Document & param, DpaMessage & dpaRequest, std::string & rawHdpRequest)
-    //{
-    //  TRC_FUNCTION_ENTER(PAR(nadr) << PAR(hwpid) << PAR(functionName))
+    //TODO use for detect network topology
+#if 0
+    uint8_t readDiscoveryByte(uint16_t address)
+    {
+      TRC_FUNCTION_ENTER(PAR(address));
 
-    //  using namespace rapidjson;
-
-    //  std::string functionNameReq(functionName);
-    //  functionNameReq += "_Request_req";
-
-
-    //  // call request driver func, it returns rawHdpRequest format in text form
-    //  std::string errStrReq;
-    //  bool driverRequestError = false;
-    //  try {
-    //    rapidjson::StringBuffer buffer;
-    //    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    //    param.Accept(writer);
-
-    //    m_iJsRenderService->call(functionNameReq, buffer.GetString(), rawHdpRequest);
-    //  }
-    //  catch (std::exception &e) {
-    //    CATCH_EXC_TRC_WAR(std::exception, e, "Driver request failure: ");
-    //    //TODO special request error exc
-    //    THROW_EXC_TRC_WAR(std::exception, "Driver request failure: " << e.what());
-    //  }
-
-    //  TRC_DEBUG(PAR(rawHdpRequest));
-
-    //  // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
-    //  dpaRequest = JsdConversion::rawHdpRequestToDpaRequest(nadr, hwpid, rawHdpRequest);
-
-    //  TRC_FUNCTION_LEAVE("");
-    //}
-
-    //void callJsDriverResponse(
-    //  std::unique_ptr<IDpaTransactionResult2> & result, const std::string & functionName, Document & jsonRsp, const std::string& rawHdpRequest)
-    //{
-    //  TRC_FUNCTION_ENTER(PAR(functionName));
-    //  
-    //  std::string functionNameRsp(functionName);
-    //  functionNameRsp += "_Response_rsp";
-
-    //  //process response
-    //  int nadrRes = 0;
-    //  int hwpidRes = 0;
-    //  int rcode = -1;
-
-    //  if (!result->isResponded()) {
-    //    //TODO special no response error exc
-    //    THROW_EXC_TRC_WAR(std::exception, "No response");
-    //  }
-    //  //we have some response
-    //  DpaMessage dpaResponse = result->getResponse();
-
-    //  // get rawHdpResponse in text form
-    //  std::string rawHdpResponse;
-    //  // original rawHdpRequest request passed for additional driver processing, e.g. sensor breakdown parsing
-    //  rawHdpResponse = JsdConversion::dpaResponseToRawHdpResponse(nadrRes, hwpidRes, rcode, dpaResponse, rawHdpRequest);
-
-    //  TRC_DEBUG(PAR(rawHdpResponse))
-
-    //  if (0 != rcode) {
-    //    //TODO special rcode error exc
-    //    THROW_EXC_TRC_WAR(std::exception, "No response");
-    //  }
-
-    //  try {
-    //    std::string rsp;
-    //    //m_iJsRenderService->call(methodResponseName, rawHdpResponse, rspObjStr);
-    //    m_iJsRenderService->callFenced(hwpidRes, functionNameRsp, rawHdpResponse, rsp);
-    //    jsonRsp.Parse(rsp);
-    //  }
-    //  catch (std::exception &e) {
-    //    CATCH_EXC_TRC_WAR(std::exception, e, "Driver response failure: ");
-    //    //TODO special response error exc
-    //    THROW_EXC_TRC_WAR(std::exception, "Driver response failure: " << e.what());
-    //  }
-
-    //  TRC_FUNCTION_LEAVE("");
-    //}
-///////////////
-    // returns 1 byte of discovery data read from the coordinator private external EEPROM storage
-    uint8_t readDiscoveryByte(
-      DeviceEnumerateResult& deviceEnumerateResult,
-      uint16_t address
-    ) {
-      TRC_FUNCTION_ENTER("");
-
-      DpaMessage eeepromReadRequest;
-      DpaMessage::DpaPacket_t eeepromReadPacket;
-      eeepromReadPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      eeepromReadPacket.DpaRequestPacket_t.PNUM = PNUM_EEEPROM;
-      eeepromReadPacket.DpaRequestPacket_t.PCMD = CMD_EEEPROM_XREAD;
-      eeepromReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-
-      // read data from specified address
-      uns8* pData = eeepromReadPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
-      pData[0] = address & 0xFF;
-      pData[1] = (address >> 8) & 0xFF;
-
-      // length of data to read[in bytes]
-      pData[2] = 1;
-
-      eeepromReadRequest.DataToBuffer(eeepromReadPacket.Buffer, sizeof(TDpaIFaceHeader) + 3);
-
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-      uint8_t retval = 0;
+      iqrf::embed::eeeprom::Read iqrfEmbedEeepromRead(0, 0x20, 1);
 
       try {
-
-        // make DPA transaction
-        transResult = dpaRepeat(m_exclusiveAccess, eeepromReadRequest, m_repeat);
-
-        TRC_DEBUG("Result from EEEPROM X read transaction as string:" << PAR(transResult->getErrorString()));
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
-        DpaMessage dpaResponse = transResult->getResponse();
-        deviceEnumerateResult.addTransactionResult(transResult);
-
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("EEEPROM X read successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(eeepromReadRequest.PeripheralType(), eeepromReadRequest.NodeAddress())
-            << PAR(eeepromReadRequest.PeripheralCommand())
-          );
-
-          retval = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
-
-        }
-        else if (errorCode < 0) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-        }
-        else {
-          THROW_EXC_TRC_WAR(std::logic_error, "DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-        }
-
+        auto transResult = dpaRepeat(m_exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedEeepromRead), m_repeat);
+        m_iJsDriverService->processDpaTransactionResult(iqrfEmbedEeepromRead, std::move(transResult));
       }
-      catch (std::exception& e) {
-        CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot read EEEPROM X: " << e.what());
-        THROW_EXC_TRC_WAR(std::logic_error, "Cannot read EEEPROM X : " << e.what());
+      catch (std::exception & e)
+      {
+        TRC_WARNING("Cannot read EeeProm")
       }
 
-      TRC_FUNCTION_LEAVE("");
+      uint8_t retval = iqrfEmbedEeepromRead.getPdata()[0];
+      TRC_FUNCTION_LEAVE(PAR((int)retval));
       return retval;
     }
 
@@ -554,11 +428,7 @@ namespace iqrf {
       // get discovered indicator
       try {
         uint16_t address = 0x20 + deviceEnumerateResult.getDeviceAddr() / 8;
-
-        uint8_t discoveredDevicesByte = readDiscoveryByte(deviceEnumerateResult, address);
-
-        uint8_t discoveredDevicesByte1 = readDiscoveryByte(address);
-
+        uint8_t discoveredDevicesByte = readDiscoveryByte(address);
         uint8_t bitIndex = deviceEnumerateResult.getDeviceAddr() % 8;
         uint8_t compareByte = uint8_t(pow(2, bitIndex));
 
@@ -575,7 +445,7 @@ namespace iqrf {
       try {
         uint16_t address = 0x5000 + deviceEnumerateResult.getDeviceAddr();
 
-        uint8_t vrnByte = readDiscoveryByte(deviceEnumerateResult, address);
+        uint8_t vrnByte = readDiscoveryByte(address);
         deviceEnumerateResult.setVrn(vrnByte);
       }
       catch (std::exception& ex) {
@@ -587,7 +457,7 @@ namespace iqrf {
       try {
         uint16_t address = 0x5200 + deviceEnumerateResult.getDeviceAddr();
 
-        uint8_t zoneByte = readDiscoveryByte(deviceEnumerateResult, address);
+        uint8_t zoneByte = readDiscoveryByte(address);
         deviceEnumerateResult.setZone(zoneByte);
       }
       catch (std::exception& ex) {
@@ -599,7 +469,7 @@ namespace iqrf {
       try {
         uint16_t address = 0x5300 + deviceEnumerateResult.getDeviceAddr();
 
-        uint8_t parentByte = readDiscoveryByte(deviceEnumerateResult, address);
+        uint8_t parentByte = readDiscoveryByte(address);
         deviceEnumerateResult.setParent(parentByte);
       }
       catch (std::exception& ex) {
@@ -607,499 +477,77 @@ namespace iqrf {
         deviceEnumerateResult.setParentError(error);
       }
     }
+#endif
 
-
-///////////////
-    uint8_t readDiscoveryByte(uint16_t address)
+    IEnumerateService::CoordinatorData getCoordinatorData() const
     {
-      TRC_FUNCTION_ENTER(PAR(address));
+      TRC_FUNCTION_ENTER("");
 
-      iqrf::embed::eeeprom::Read iqrfEmbedEeepromRead(0, 0xffff, 0x20, 1, m_iJsRenderService);
-      
-      try {
-        auto transResult = dpaRepeat(m_exclusiveAccess, iqrfEmbedEeepromRead.dpaRequest(), m_repeat);
+      IEnumerateService::CoordinatorData coordinatorData;
+      coordinatorData.m_valid = false;
 
-        if (!transResult->isResponded()) {
-          THROW_EXC_TRC_WAR(std::exception, "No response");
-        }
+      auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
 
-        //we have some response
-        //DpaMessage dpaResponse = result->getResponse();
-
-        iqrfEmbedEeepromRead.dpaResponse(transResult->getResponse());
-
-      }
-      catch (std::exception & e)
       {
-        TRC_WARNING("Cannot read EeeProm")
+        iqrf::embed::coordinator::BondedDevices iqrfEmbedCoordinatorBondedDevices;
+        auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorBondedDevices), m_repeat);
+        m_iJsDriverService->processDpaTransactionResult(iqrfEmbedCoordinatorBondedDevices, std::move(transResult));
+
+        coordinatorData.m_bonded = iqrfEmbedCoordinatorBondedDevices.getBondedDevices();
       }
 
-      uint8_t retval = iqrfEmbedEeepromRead.getPdata()[0];
-      TRC_FUNCTION_LEAVE(PAR((int)retval));
-    }
+      {
+        iqrf::embed::coordinator::DiscoveredDevices iqrfEmbedCoordinatorDiscoveredDevices;
+        auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorDiscoveredDevices), m_repeat);
+        m_iJsDriverService->processDpaTransactionResult(iqrfEmbedCoordinatorDiscoveredDevices, std::move(transResult));
 
-    void readHwpConfiguration(DeviceEnumerateResult& deviceEnumerateResult) {
-      TRC_FUNCTION_ENTER("");
-
-      DpaMessage readHwpRequest;
-      DpaMessage::DpaPacket_t readHwpPacket;
-      readHwpPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
-      readHwpPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
-      readHwpPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
-      readHwpPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      readHwpRequest.DataToBuffer(readHwpPacket.Buffer, sizeof(TDpaIFaceHeader));
-
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-
-      try {
-
-        // make DPA transaction
-        transResult = dpaRepeat(m_exclusiveAccess, readHwpRequest, m_repeat);
-
-        TRC_DEBUG("Result from read HWP transaction as string:" << PAR(transResult->getErrorString()));
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
-        DpaMessage dpaResponse = transResult->getResponse();
-        deviceEnumerateResult.addTransactionResult(transResult);
-
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("Read HWP configuration successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(readHwpRequest.PeripheralType(), readHwpRequest.NodeAddress())
-            << PAR((unsigned)readHwpRequest.PeripheralCommand())
-          );
-
-          // get HWP configuration 
-          TPerOSReadCfg_Response readHwpConfig = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSReadCfg_Response;
-          deviceEnumerateResult.setHwpConfig(readHwpConfig);
-
-
-        }
-        else if (errorCode < 0) {
-          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-          DeviceEnumerateError error(DeviceEnumerateError::Type::ReadHwp, "Transaction error.");
-          deviceEnumerateResult.setReadHwpConfigError(error);
-        }
-        else {
-          TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-          DeviceEnumerateError error(DeviceEnumerateError::Type::ReadHwp, "Dpa error.");
-          deviceEnumerateResult.setReadHwpConfigError(error);
-        }
-
-      }
-      catch (std::exception& e) {
-        CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot read HWP cfg: " << e.what());
-        DeviceEnumerateError error(DeviceEnumerateError::Type::ReadHwp, e.what());
-        deviceEnumerateResult.setReadHwpConfigError(error);
+        coordinatorData.m_discovered = iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices();
       }
 
+      //TODO other params
+
+      coordinatorData.m_valid = true;
+       
       TRC_FUNCTION_LEAVE("");
+      return coordinatorData;
     }
 
-    void getInfoForMorePeripherals(DeviceEnumerateResult& deviceEnumerateResult) {
-      TRC_FUNCTION_ENTER("");
-
-      DpaMessage morePersInfoRequest;
-      DpaMessage::DpaPacket_t morePersInfoPacket;
-      morePersInfoPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
-      morePersInfoPacket.DpaRequestPacket_t.PNUM = 0xFF;
-      morePersInfoPacket.DpaRequestPacket_t.PCMD = 0x3F;
-      morePersInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      morePersInfoRequest.DataToBuffer(morePersInfoPacket.Buffer, sizeof(TDpaIFaceHeader));
-
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-
-      try {
-
-        // make DPA transaction
-        transResult = dpaRepeat(m_exclusiveAccess, morePersInfoRequest, m_repeat);
-
-        TRC_DEBUG("Result from get info for more peripherals transaction as string:" << PAR(transResult->getErrorString()));
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
-        DpaMessage dpaResponse = transResult->getResponse();
-        deviceEnumerateResult.addTransactionResult(transResult);
-
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("Get info for more peripherals successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(morePersInfoRequest.PeripheralType(), morePersInfoRequest.NodeAddress())
-            << PAR(morePersInfoRequest.PeripheralCommand())
-          );
-
-          // get info for more peripherals
-          TPeripheralInfoAnswer* persInfoArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PeripheralInfoAnswers;
-
-          std::vector<TPeripheralInfoAnswer> persInfoList;
-          for (int i = 0; i < PERIPHERALS_NUM; i++) {
-            persInfoList.push_back(persInfoArr[i]);
-          }
-
-          deviceEnumerateResult.setMorePersInfo(persInfoList);
-        }
-        else if (errorCode < 0) {
-          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-          DeviceEnumerateError error(DeviceEnumerateError::Type::MorePersInfo, "Transaction error.");
-          deviceEnumerateResult.setMorePersInfoError(error);
-        }
-        else {
-          TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-          DeviceEnumerateError error(DeviceEnumerateError::Type::MorePersInfo, "Transaction error.");
-          deviceEnumerateResult.setMorePersInfoError(error);
-        }
-
-      }
-      catch (std::exception& e) {
-        CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot read more peripherals: " << e.what());
-        DeviceEnumerateError error(DeviceEnumerateError::Type::MorePersInfo, e.what());
-        deviceEnumerateResult.setReadHwpConfigError(error);
-      }
-
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    // checks, if the specified address is bonded
-    void checkBond(DeviceEnumerateResult& deviceEnumerateResult, const uint8_t deviceAddr)
+    IEnumerateService::NodeData getNodeData(uint16_t nadr) const
     {
-      TRC_FUNCTION_ENTER("");
+      TRC_FUNCTION_ENTER(nadr);
 
-      DpaMessage bondedNodesRequest;
-      DpaMessage::DpaPacket_t bondedNodesPacket;
-      bondedNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      bondedNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
-      bondedNodesPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
-      bondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      bondedNodesRequest.DataToBuffer(bondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
+      IEnumerateService::NodeData nodeData;
 
-      std::unique_ptr<IDpaTransactionResult2> transResult;
+      auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
 
-      try {
+      {
+        iqrf::embed::os::Read iqrfEmbedOsRead(nadr);
+        auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedOsRead), m_repeat);
+        m_iJsDriverService->processDpaTransactionResult(iqrfEmbedOsRead, std::move(transResult));
 
-        // make DPA transaction
-        transResult = dpaRepeat(m_exclusiveAccess, bondedNodesRequest, m_repeat);
-
-        TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
-
-        DpaMessage dpaResponse = transResult->getResponse();
-        deviceEnumerateResult.addTransactionResult(transResult);
-
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          TRC_INFORMATION("Get bonded nodes successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(bondedNodesRequest.PeripheralType(), bondedNodesRequest.NodeAddress())
-            << PAR((unsigned)bondedNodesRequest.PeripheralCommand())
-          );
-
-          // get bonded nodes
-          uns8* bondedNodesArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-
-          uint8_t byteIndex = deviceAddr / 8;
-          uint8_t bitIndex = deviceAddr % 8;
-          uint8_t compareByte = uint8_t(pow(2, bitIndex));
-
-          if (!((bondedNodesArr[byteIndex] & compareByte) == compareByte)) {
-            DeviceEnumerateError error(DeviceEnumerateError::Type::NotBonded, "Not bonded.");
-            deviceEnumerateResult.setBondedError(error);
-          }
-        }
-        else if (errorCode < 0) {
-          TRC_WARNING("Transaction error. " << NAME_PAR_HEX("Error code", errorCode));
-          DeviceEnumerateError error(DeviceEnumerateError::Type::NotBonded, "Transaction error.");
-          deviceEnumerateResult.setBondedError(error);
-        }
-        else {
-          TRC_WARNING("DPA error. " << NAME_PAR_HEX("Error code", errorCode));
-          DeviceEnumerateError error(DeviceEnumerateError::Type::NotBonded, "Dpa error.");
-          deviceEnumerateResult.setBondedError(error);
-        }
-
+        nodeData.m_hwpid = iqrfEmbedOsRead.getHwpid();
+        nodeData.m_osBuild = iqrfEmbedOsRead.getOsBuild();
+        nodeData.m_osVer = iqrfEmbedOsRead.getOsVersion();
+        nodeData.m_mid = iqrfEmbedOsRead.getMid();
       }
-      catch (std::exception& e) {
-        CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot read bonded nodes: " << e.what());
-        DeviceEnumerateError error(DeviceEnumerateError::Type::NotBonded, e.what());
-        deviceEnumerateResult.setReadHwpConfigError(error);
-      }
-
-      TRC_FUNCTION_LEAVE("");
-
-    }
-
-    // parses RF band
-    std::string parseRfBand(const uint8_t rfBand) {
-      switch (rfBand) {
-      case 0b00:
-        return "868";
-      case 0b01:
-        return "916";
-      case 0b10:
-        return "433";
-      default:
-        THROW_EXC(std::out_of_range, "Unsupported coordinator RF band: " << PAR(rfBand));
-      }
-    }
-
-    NodeEnumeration getEnumerateResult(uint16_t deviceAddr)
-    {
-      DeviceEnumerateResult deviceEnumerateResult;
-      try {
-        return getEnumerateResult(deviceAddr, deviceEnumerateResult);
-      }
-      catch (std::exception &e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Error while establishing exclusive DPA access ");
-        return NodeEnumeration();
-      }
-    }
-
-    NodeEnumeration getEnumerateResult(uint16_t deviceAddr, DeviceEnumerateResult & deviceEnumerateResult)
-    {
-      TRC_FUNCTION_ENTER(deviceAddr);
-
-      NodeEnumeration nde;
-
-      deviceEnumerateResult.setDeviceAddr(deviceAddr);
-
-      try {
-        // try to establish exclusive access
-        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-
-        if (m_exclusiveAccess) {
-
-          // check, if the address is bonded
-          if (deviceAddr != COORDINATOR_ADDRESS) {
-            checkBond(deviceEnumerateResult, deviceAddr);
-          }
-
-          if (deviceEnumerateResult.getBondedError().getType() == DeviceEnumerateError::Type::NoError) {
-
-            // discovery data
-            discoveryData(deviceEnumerateResult);
-
-            ////////////
-            iqrf::embed::os::Read iqrfEmbedOsRead(deviceAddr, 0xffff, m_iJsRenderService);
-
-            try {
-              auto transResult = dpaRepeat(m_exclusiveAccess, iqrfEmbedOsRead.dpaRequest(), m_repeat);
-
-              if (!transResult->isResponded()) {
-                THROW_EXC_TRC_WAR(std::exception, "No response");
-              }
-
-              iqrfEmbedOsRead.dpaResponse(transResult->getResponse());
-            }
-            catch (std::exception & e)
-            {
-              TRC_WARNING("Cannot iqrfEmbedOsRead")
-            }
-            ////////////
-            std::string mid = iqrfEmbedOsRead.getMidAsString();
-            std::string os = iqrfEmbedOsRead.getOsVersionAsString();
-            std::string tr = iqrfEmbedOsRead.getTrTypeAsString();
-            bool fcc = iqrfEmbedOsRead.isFccCertified();
-            int rssiC = iqrfEmbedOsRead.getRssiComputed();
-            std::string rssiS = iqrfEmbedOsRead.getRssiAsString();
-            std::string voltageS = iqrfEmbedOsRead.getSupplyVoltageAsString();
-            bool flInsOs = iqrfEmbedOsRead.isInsufficientOsBuild();
-            bool flIf = iqrfEmbedOsRead.getInterface();
-            std::string flIfS = iqrfEmbedOsRead.getInterfaceAsString();
-            bool flDpaH = iqrfEmbedOsRead.isDpaHandlerDetected();
-            bool flDpaHnE = iqrfEmbedOsRead.isDpaHandlerNotDetectedButEnabled();
-            bool flNoIf = iqrfEmbedOsRead.isNoInterfaceSupported();
-            int sSlot = iqrfEmbedOsRead.getShortestTimeSlot();
-            std::string sSloS = iqrfEmbedOsRead.getShortestTimeSlotAsString();
-            int lSlot = iqrfEmbedOsRead.getLongestTimeSlot();
-            std::string lSloS = iqrfEmbedOsRead.getLongestTimeSlotAsString();
-
-            ////////////
-
-            // AFTER OS READ - obtains hwpId, which in turn is needed to get manufacturer and product
-            //getManufacturerAndProduct(deviceEnumerateResult);
-
-            ////////////
-            iqrf::embed::explore::Enumerate iqrfEmbedExploreEnumerate(deviceAddr, 0xffff, m_iJsRenderService);
-
-            try {
-              auto transResult = dpaRepeat(m_exclusiveAccess, iqrfEmbedExploreEnumerate.dpaRequest(), m_repeat);
-
-              if (!transResult->isResponded()) {
-                THROW_EXC_TRC_WAR(std::exception, "No response");
-              }
-
-              iqrfEmbedExploreEnumerate.dpaResponse(transResult->getResponse());
-            }
-            catch (std::exception & e)
-            {
-              TRC_WARNING("Cannot Enumerate")
-            }
-
-            std::string dpaVerS = iqrfEmbedExploreEnumerate.getDpaVerAsString();
-            bool std = iqrfEmbedExploreEnumerate.isModeStd();
-            bool lp = iqrfEmbedExploreEnumerate.isModeLp();
-            bool lpStd = iqrfEmbedExploreEnumerate.isStdAndLpSupport();
-            ////////////
-
-            //uint8_t osVersion = ...Result.getOsRead()[4];
-            //std::string osVersionStr = std::to_string((osVersion >> 4) & 0xFF) + "." + std::to_string(osVersion & 0x0F);
-            //std::string osBuildStr;
-            //{
-            //  std::ostringstream os;
-            //  os.fill('0');
-            //  os << std::hex << std::uppercase << std::setw(4) << (int)deviceEnumerateResult.getOsBuild();
-            //  osBuildStr = os.str();
-            //}
-
-            // fill standards
-            //const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
-            //  deviceEnumerateResult.getEnumeratedNodeHwpId(),
-            //  deviceEnumerateResult.getEnumeratedNodeHwpIdVer(),
-            //  osBuildStr, //TODO m_iIqrfDpaService->getCoordinatorParameters().osBuild ?
-            //  m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr
-            //);
-            //if (package != nullptr) {
-            //  std::list<std::string> standards;
-            //  for (const IJsCacheService::StdDriver* driver : package->m_stdDriverVect) {
-            //    standards.push_back(driver->getName());
-            //  }
-            //  deviceEnumerateResult.setStandards(standards);
-            //}
-            //else {
-            //  TRC_INFORMATION("Package not found");
-            //}
-
-            // read Hwp configuration
-            readHwpConfiguration(deviceEnumerateResult);
-
-            // get info for more peripherals
-            if (m_morePeripheralsInfo) {
-              getInfoForMorePeripherals(deviceEnumerateResult);
-            }
-
-            fillEnumeration(deviceEnumerateResult, nde);
-
-          }
-          else {
-            TRC_WARNING("Not Bonded");
-          }
-        }
-        else {
-          TRC_WARNING("Cannot get exclusive DPA access");
-        }
       
-        m_exclusiveAccess.reset();
+      {
+        iqrf::embed::explore::Enumerate iqrfEmbedExploreEnumerate(nadr);
+        auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedExploreEnumerate), m_repeat);
+        m_iJsDriverService->processDpaTransactionResult(iqrfEmbedExploreEnumerate, std::move(transResult));
+      
+        nodeData.m_hwpidVer = iqrfEmbedExploreEnumerate.getHwpidVer();
+        nodeData.m_dpaVersion = iqrfEmbedExploreEnumerate.getDpaVer();
+        nodeData.m_modeStd = iqrfEmbedExploreEnumerate.isModeStd();
+        nodeData.m_stdAndLpNetwork = iqrfEmbedExploreEnumerate.isStdAndLpSupport();
       }
-      catch (std::exception & e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Cannot enumerate: ");
-        m_exclusiveAccess.reset();
-      }
+
+      //TODO other params
+
+      nodeData.m_valid = true;
 
       TRC_FUNCTION_LEAVE("");
-      return nde;
-    }
-
-    // creates response on the basis of write result
-    void fillEnumeration(DeviceEnumerateResult& deviceEnumResult, NodeEnumeration& nde)
-    {
-      Document response;
-      bool isError = false;
-
-      nde.m_deviceAddr = deviceEnumResult.getDeviceAddr();
-      nde.m_manufacturer = deviceEnumResult.getManufacturer();
-      nde.m_product = deviceEnumResult.getProduct();
-      nde.m_standards = deviceEnumResult.getStandards();
-      nde.m_discovered = deviceEnumResult.isDiscovered();
-      nde.m_vrn = deviceEnumResult.getVrn();
-      nde.m_zone = deviceEnumResult.getZone();
-      nde.m_parent = deviceEnumResult.getParent();
-
-      //OsReadObject osReadObject = parseOsReadResponse(deviceEnumResult.getOsRead());
-
-      //nde.m_mid = osReadObject.mid;
-      //nde.m_osVersion = osReadObject.osVersion;
-      //nde.m_trMcuTypeVal = osReadObject.trMcuType.value;
-      //nde.m_trType = osReadObject.trMcuType.trType;
-      //nde.m_fccCertified = osReadObject.trMcuType.fccCertified;
-      //nde.m_mcuType = osReadObject.trMcuType.mcuType;
-      //nde.m_osBuild = osReadObject.osBuild;
-      //nde.m_rssi = osReadObject.rssi;
-      //nde.m_supplyVoltage = osReadObject.supplyVoltage;
-      //nde.m_flagsVal = osReadObject.flags.value;
-      //nde.m_insufficientOsBuild = osReadObject.flags.insufficientOsBuild;
-      //nde.m_interface = osReadObject.flags.interface;
-      //nde.m_dpaHandlerDetected = osReadObject.flags.dpaHandlerDetected;
-      //nde.m_dpaHandlerNotDetectedButEnabled = osReadObject.flags.dpaHandlerNotDetectedButEnabled;
-      //nde.m_noInterfaceSupported = osReadObject.flags.noInterfaceSupported;
-      //nde.m_slotLimitsVal = osReadObject.slotLimits.value;
-      //nde.m_shortestTimeslot = osReadObject.slotLimits.shortestTimeslot;
-      //nde.m_longestTimeslot = osReadObject.slotLimits.longestTimeslot;
-
-      // per enum object
-      TEnumPeripheralsAnswer perEnum = deviceEnumResult.getPerEnum();
-
-      // dpa version - string
-      //std::string dpaVerStr = std::to_string((perEnum.DpaVersion >> 8) & 0xFF)
-      //  + "." + encodeHexaNum((uint8_t)(perEnum.DpaVersion & 0xFF));
-
-      nde.m_DpaVersion = perEnum.DpaVersion;
-      nde.m_UserPerNr = perEnum.UserPerNr;
-
-      for (int i = 0; i < EMBEDDED_PERS_LEN; i++) {
-        nde.m_EmbeddedPers.push_back(perEnum.EmbeddedPers[i]);
-      }
-
-      nde.m_HWPID = perEnum.HWPID;
-      nde.m_HWPIDver = perEnum.HWPIDver;
-      nde.m_rfModeStd = ((perEnum.Flags & 0b1) == 0b1) ? true : false;
-      nde.m_rfModeLp = !nde.m_rfModeStd;
-
-      // getting DPA version
-      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
-      // STD+LP network is running, otherwise STD network.
-      if (dpaVer >= 0x0400) {
-        nde.m_stdAndLpNetwork = ((perEnum.Flags & 0b100) == 0b100) ? true : false;
-      }
-      else {
-        nde.m_stdAndLpNetwork = false;
-      }
-
-      TPerOSReadCfg_Response hwpConfig = deviceEnumResult.getHwpConfig();
-      uns8* configuration = hwpConfig.Configuration;
-
-      // userPers
-      for (int i = 0; i < USER_PER_LEN; i++) {
-        nde.m_UserPer.push_back(perEnum.UserPer[i]);
-      }
-
-      ////////////////////////////// TODO really interesting here?
-      //if (
-      //  deviceEnumResult.getPerEnumError().getType() == DeviceEnumerateError::Type::NoError
-      //  )
-      //{
-      //  setReadHwpConfigurationResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, response);
-      //}
-      //else {
-      //  isError = true;
-      //}
-
-      //// result of more peripherals info according to request
-      //if (m_morePeripheralsInfo) {
-      //  if (
-      //    deviceEnumResult.getPerEnumError().getType() == DeviceEnumerateError::Type::NoError
-      //    )
-      //  {
-      //    setInfoForMorePeripheralsResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, response);
-      //  }
-      //  else {
-      //    isError = true;
-      //  }
-      //}
-
-      // removed also from JSON api - will be implemented next year
-      //setValidationAndUpdatesResponse(messagingId, msgType, deviceEnumResult, comEnumerateDevice, osReadObject, response);
-
+      return nodeData;
     }
 
   public:
@@ -1143,15 +591,15 @@ namespace iqrf {
       }
     }
 
-    void attachInterface(IJsRenderService* iface)
+    void attachInterface(IJsDriverService* iface)
     {
-      m_iJsRenderService = iface;
+      m_iJsDriverService = iface;
     }
 
-    void detachInterface(IJsRenderService* iface)
+    void detachInterface(IJsDriverService* iface)
     {
-      if (m_iJsRenderService == iface) {
-        m_iJsRenderService = nullptr;
+      if (m_iJsDriverService == iface) {
+        m_iJsDriverService = nullptr;
       }
     }
 
@@ -1167,9 +615,14 @@ namespace iqrf {
     delete m_imp;
   }
 
-  IEnumerateService::NodeEnumeration EnumerateService::getEnumerateResult(uint16_t deviceAddr)
+  IEnumerateService::CoordinatorData EnumerateService::getCoordinatorData() const
   {
-    return m_imp->getEnumerateResult(deviceAddr);
+    return m_imp->getCoordinatorData();
+  }
+
+  IEnumerateService::NodeData EnumerateService::getNodeData(uint16_t nadr) const
+  {
+    return m_imp->getNodeData(nadr);
   }
 
   void EnumerateService::attachInterface(iqrf::IIqrfDpaService* iface)
@@ -1182,12 +635,12 @@ namespace iqrf {
     m_imp->detachInterface(iface);
   }
 
-  void EnumerateService::attachInterface(iqrf::IJsRenderService* iface)
+  void EnumerateService::attachInterface(iqrf::IJsDriverService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void EnumerateService::detachInterface(iqrf::IJsRenderService* iface)
+  void EnumerateService::detachInterface(iqrf::IJsDriverService* iface)
   {
     m_imp->detachInterface(iface);
   }

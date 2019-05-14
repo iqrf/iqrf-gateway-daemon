@@ -1,6 +1,10 @@
 #pragma once
 
-#include "JsDriver.h"
+#include "JsDriverRequest.h"
+#include "JsonUtils.h"
+#include <vector>
+#include <sstream>
+#include <iomanip>
 
 namespace iqrf
 {
@@ -9,7 +13,7 @@ namespace iqrf
     namespace explore
     {
       ////////////////
-      class Enumerate : public JsDpaRequest
+      class Enumerate : public JsDriverRequest
       {
       private:
         int m_dpaVer = 0;
@@ -21,34 +25,26 @@ namespace iqrf
         std::vector<int> m_userPer;
 
       public:
-        Enumerate(uint16_t nadr, uint16_t hwpid, IJsRenderService* iJsRenderService)
-          :JsDpaRequest(nadr, hwpid, iJsRenderService)
+        Enumerate(uint16_t nadr)
+          :JsDriverRequest(nadr)
         {
         }
 
-        std::string getFunctionName() const override
+        std::string functionName() const override
         {
           return "iqrf.embed.explore.Enumerate";
         }
 
         void parseResponse(const rapidjson::Value& v) override
         {
-          using namespace rapidjson;
-          try {
-            //TODO use rapidjson::pointers ?
-            m_dpaVer = jutils::getMemberAs<int>("dpaVer", v);
-            m_perNr = jutils::getMemberAs<int>("perNr", v);
-            m_embeddedPers = jutils::getMemberAsVector<int>("embeddedPers", v);
-            m_hwpid = jutils::getMemberAs<int>("hwpid", v);
-            m_hwpidVer = jutils::getMemberAs<int>("hwpidVer", v);
-            m_flags = jutils::getMemberAs<int>("flags", v);
-            m_userPer = jutils::getMemberAsVector<int>("userPer", v);
-            m_valid = true;
-          }
-          catch (std::exception & e) {
-            TRC_WARNING("invalid data: " << e.what());
-            m_valid = false;
-          }
+          //TODO use rapidjson::pointers
+          m_dpaVer = jutils::getMemberAs<int>("dpaVer", v);
+          m_perNr = jutils::getMemberAs<int>("perNr", v);
+          m_embeddedPers = jutils::getMemberAsVector<int>("embeddedPers", v);
+          m_hwpid = jutils::getMemberAs<int>("hwpid", v);
+          m_hwpidVer = jutils::getMemberAs<int>("hwpidVer", v);
+          m_flags = jutils::getMemberAs<int>("flags", v);
+          m_userPer = jutils::getMemberAsVector<int>("userPer", v);
         }
 
         // get data as returned from driver
