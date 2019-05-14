@@ -98,7 +98,7 @@ namespace iqrf {
       jsDriverRequest.setResult(std::move(res));
 
       if (!jsDriverRequest.getResult()->isResponded()) {
-        THROW_EXC_TRC_WAR(std::exception, "No response");
+        THROW_EXC_TRC_WAR(std::logic_error, "No response");
       }
 
       std::string functionNameRsp(jsDriverRequest.functionName());
@@ -114,7 +114,7 @@ namespace iqrf {
       int len = dpaResponse.GetLength();
 
       if (len < 8) {
-        THROW_EXC_TRC_WAR(std::exception, "Invalid dpaResponse");
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid dpaResponse");
       }
       uint16_t nadr = 0, hwpid = 0;
       uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
@@ -124,7 +124,7 @@ namespace iqrf {
       nadr += p[1] << 8;
 
       if (nadr != jsDriverRequest.getNadr()) {
-        THROW_EXC_TRC_WAR(std::exception, "Invalid nadr:" << NAME_PAR(expected, jsDriverRequest.getNadr()) << NAME_PAR(delivered, nadr));
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid nadr:" << NAME_PAR(expected, jsDriverRequest.getNadr()) << NAME_PAR(delivered, nadr));
       }
 
       pnum = p[2];
@@ -169,7 +169,7 @@ namespace iqrf {
 
       if (0 != rcode) {
         //TODO special rcode error exc
-        THROW_EXC_TRC_WAR(std::exception, "No response");
+        THROW_EXC_TRC_WAR(std::logic_error, "No response");
       }
 
       try {
