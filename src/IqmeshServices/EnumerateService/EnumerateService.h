@@ -4,7 +4,7 @@
 #include "ShapeProperties.h"
 #include "IIqrfDpaService.h"
 #include "ITraceService.h"
-#include "IJsRenderService.h"
+#include "IJsDriverService.h"
 #include <string>
 
 
@@ -21,7 +21,8 @@ namespace iqrf {
     /// \brief Destructor
     virtual ~EnumerateService();
 
-    IEnumerateService::NodeEnumeration getEnumerateResult(uint16_t deviceAddr) override;
+    CoordinatorData getCoordinatorData() const override;
+    NodeData getNodeData(uint16_t nadr) const override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
@@ -33,8 +34,8 @@ namespace iqrf {
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
 
-    void attachInterface(iqrf::IJsRenderService* iface);
-    void detachInterface(iqrf::IJsRenderService* iface);
+    void attachInterface(iqrf::IJsDriverService* iface);
+    void detachInterface(iqrf::IJsDriverService* iface);
 
   private:
     class Imp;

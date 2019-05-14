@@ -117,6 +117,20 @@ namespace jutils
       THROW_EXC_TRC_WAR(std::logic_error, "Expected: " << typeid(std::string).name() << ", detected: " << PAR(name) << NAME_PAR(type, v.GetType()));
   }
 
+  /// \brief Assert json value holds double type
+  /// \param [in] name json item name (key)
+  /// \param [in] v json value to be checked
+  /// \throws std::logic_error in case of assert failure
+  /// \details
+  /// Json value named name is checked if its content is number
+  /// else the exception std::logic_error is thrown.
+  /// It is template specialization for double.
+  template<>
+  inline void assertIs<double>(const std::string& name, const rapidjson::Value& v) {
+    if (!v.IsNumber())
+      THROW_EXC_TRC_WAR(std::logic_error, "Expected: " << typeid(std::string).name() << ", detected: " << PAR(name) << NAME_PAR(type, v.GetType()));
+  }
+
   /// \brief Assert json value holds Json object
   /// \param [in] name json item name (key)
   /// \param [in] v json value to be checked

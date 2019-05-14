@@ -132,8 +132,9 @@ namespace iqrf {
 
       initDb();
 
-      IEnumerateService::NodeEnumeration nde0 = m_iEnumerateService->getEnumerateResult(0);
-      IEnumerateService::NodeEnumeration nde3 = m_iEnumerateService->getEnumerateResult(3);
+      //TODO tmp just for test now
+      IEnumerateService::CoordinatorData coordinatorData = m_iEnumerateService->getCoordinatorData();
+      IEnumerateService::NodeData odeData = m_iEnumerateService->getNodeData(0);
 
       TRC_FUNCTION_LEAVE("")
     }

@@ -85,6 +85,13 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::IqrfInfo",
+      "libraryPath": "",
+      "libraryName": "IqrfInfo",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::LegacyApiSupport",
       "libraryPath": "",
       "libraryName": "LegacyApiSupport",
@@ -179,6 +186,13 @@
       "name": "iqrf::JsRenderDuktape",
       "libraryPath": "",
       "libraryName": "JsRenderDuktape",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsDriverService",
+      "libraryPath": "IqrfDaemon/bin",
+      "libraryName": "JsDriverService",
       "enabled": true,
       "startlevel": 2
     },
