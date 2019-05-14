@@ -1,7 +1,7 @@
-# IQRF GW daemon image for the UP2 board
+# IQRF GW daemon image for the RPI board
 # Edit config/* files and set accordingly for your target
 
-FROM multiarch/debian-debootstrap:amd64-stretch
+FROM multiarch/debian-debootstrap:armhf-stretch
 
 MAINTAINER Rostislav Spinar <rostislav.spinar@iqrf.com>
 LABEL maintainer="rostislav.spinar@iqrf.com"
@@ -20,7 +20,7 @@ RUN apt-get update \
 
 # copy custom config
 WORKDIR /etc/iqrf-gateway-daemon
-COPY config-up2/iqrf-gateway-daemon/. .
+COPY config-rpi/iqrf-gateway-daemon/. .
 
 # expose ports
 EXPOSE 1338 55000/udp 55300/udp

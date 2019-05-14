@@ -266,14 +266,14 @@
       "enabled": true,
       "startlevel": 3
     },
-	{
+    {
       "name": "iqrf::AutonetworkService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "AutonetworkService",
       "enabled": true,
       "startlevel": 3
     },
-	{
+    {
       "name": "iqrf::RemoveBondService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "RemoveBondService",

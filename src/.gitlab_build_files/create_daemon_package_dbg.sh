@@ -43,7 +43,7 @@ then
         --depends libboost-filesystem1.62.0 \
         --depends libboost-system1.62.0 \
         --depends zlib1g \
-        --depends sqlite3 \
+        --depends libsqlite3-0 \
         --verbose \
         .
     else
@@ -55,7 +55,7 @@ then
         --version ${DAEMON_VERSION:1} \
         --license "Apache License, Version 2.0" \
         --vendor "IQRF Tech s.r.o." \
-        --category "debug" \
+        --category "testing" \
         --architecture ${ARCH} \
         --maintainer "Rostislav Spinar <rostislav.spinar@iqrf.com>" \
         --url "https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon" \
@@ -72,7 +72,7 @@ then
         --depends libboost-filesystem1.62.0 \
         --depends libboost-system1.62.0 \
         --depends zlib1g \
-        --depends sqlite3 \
+        --depends libsqlite3-0 \
         --verbose \
         .
     fi
@@ -105,7 +105,7 @@ then
         --depends libboost-filesystem1.58.0 \
         --depends libboost-system1.58.0 \
         --depends zlib1g \
-        --depends sqlite3 \
+        --depends libsqlite3-0 \
         --verbose \
         .
     else
@@ -117,7 +117,7 @@ then
         --version ${DAEMON_VERSION:1} \
         --license "Apache License, Version 2.0" \
         --vendor "IQRF Tech s.r.o." \
-        --category "debug" \
+        --category "testing" \
         --architecture ${ARCH} \
         --maintainer "Rostislav Spinar <rostislav.spinar@iqrf.com>" \
         --url "https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon" \
@@ -134,7 +134,7 @@ then
         --depends libboost-filesystem1.58.0 \
         --depends libboost-system1.58.0 \
         --depends zlib1g \
-        --depends sqlite3 \
+        --depends libsqlite3-0 \
         --verbose \
         .
     fi    
@@ -165,7 +165,7 @@ then
         --depends libcurl4 \
         --depends libboost-filesystem1.65.0 \
         --depends libboost-system1.65.0 \
-        --depends sqlite3 \
+        --depends libsqlite3-0 \
         --verbose \
         .
     else
@@ -177,7 +177,7 @@ then
         --version ${DAEMON_VERSION:1} \
         --license "Apache License, Version 2.0" \
         --vendor "IQRF Tech s.r.o." \
-        --category "debug" \
+        --category "testing" \
         --architecture ${ARCH} \
         --maintainer "Rostislav Spinar <rostislav.spinar@iqrf.com>" \
         --url "https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon" \
@@ -192,7 +192,7 @@ then
         --depends libcurl4 \
         --depends libboost-filesystem1.65.0 \
         --depends libboost-system1.65.0 \
-        --depends sqlite3 \
+        --depends libsqlite3-0 \
         --verbose \
         .
     fi

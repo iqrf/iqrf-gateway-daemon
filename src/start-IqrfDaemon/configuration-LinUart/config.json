@@ -266,6 +266,13 @@
       "enabled": true,
       "startlevel": 3
     },
+    {
+      "name": "iqrf::EnumerateService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "EnumerateService",
+      "enabled": true,
+      "startlevel": 3
+    },
 	  {
       "name": "iqrf::AutonetworkService",
       "libraryPath": "iqrf-gateway-daemon/bin",

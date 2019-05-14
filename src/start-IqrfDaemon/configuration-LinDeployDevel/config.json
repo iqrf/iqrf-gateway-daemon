@@ -86,7 +86,7 @@
     },
     {
       "name": "iqrf::IqrfInfo",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "",
       "libraryName": "IqrfInfo",
       "enabled": true,
       "startlevel": 0
@@ -232,13 +232,6 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::OtaUploadService",
-      "libraryPath": "",
-      "libraryName": "OtaUploadService",
-      "enabled": true,
-      "startlevel": 3
-    },
-    {
       "name": "iqrf::SmartConnectService",
       "libraryPath": "",
       "libraryName": "SmartConnectService",
@@ -256,6 +249,13 @@
       "name": "iqrf::EnumerateDeviceService",
       "libraryPath": "",
       "libraryName": "EnumerateDeviceService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::EnumerateService",
+      "libraryPath": "",
+      "libraryName": "EnumerateService",
       "enabled": true,
       "startlevel": 3
     },
