@@ -46,7 +46,7 @@ namespace iqrf {
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Driver request failure: ");
         //TODO special request error exc
-        THROW_EXC_TRC_WAR(std::exception, "Driver request failure: " << e.what());
+        THROW_EXC_TRC_WAR(std::logic_error, "Driver request failure: " << e.what());
       }
 
       TRC_DEBUG(PAR(jsDriverRequest.storeRequest()));
@@ -185,7 +185,7 @@ namespace iqrf {
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Driver response failure: ");
         //TODO special response error exc
-        THROW_EXC_TRC_WAR(std::exception, "Driver response failure: " << e.what());
+        THROW_EXC_TRC_WAR(std::logic_error, "Driver response failure: " << e.what());
       }
 
       TRC_FUNCTION_LEAVE("");
