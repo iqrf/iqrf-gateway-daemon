@@ -4,7 +4,7 @@
     "msgId": "testSchedulerPeriodic",
     "req": {
       "clientId": "SchedulerMessaging",
-      "timePeriod": 10000,
+      "timePeriod": 10,
       "task": {
         "messaging": "WebsocketMessaging",
         "message": {
