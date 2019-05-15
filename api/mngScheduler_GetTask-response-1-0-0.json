@@ -37,8 +37,13 @@
                             "type": "object",
 							"properties": {
 								"cronTime": {
-									"type": "string",
-									"description": "Cron time expresion."
+									"type": "array",
+                                    "minItems": 7,
+                                    "maxItems": 7,
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "description": "7 items of cron-like syntax. All required."
 								},
 								"exactTime": {
 									"type": "boolean",
