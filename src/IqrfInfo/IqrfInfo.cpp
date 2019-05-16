@@ -132,10 +132,6 @@ namespace iqrf {
 
       initDb();
 
-      //TODO tmp just for test now
-      IEnumerateService::CoordinatorData coordinatorData = m_iEnumerateService->getCoordinatorData();
-      IEnumerateService::NodeData odeData = m_iEnumerateService->getNodeData(0);
-
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -175,7 +171,55 @@ namespace iqrf {
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
 
           //insert data
-          SqlFile::makeSqlFile(db, sqlpath + "init/insert_Nodes.sql");
+          //SqlFile::makeSqlFile(db, sqlpath + "init/insert_Nodes.sql");
+        }
+      }
+      catch (sqlite_exception &e)
+      {
+        CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+      }
+      catch (std::logic_error &e)
+      {
+        CATCH_EXC_TRC_WAR(std::logic_error, e, "Unexpected error ");
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void daemonEnumerate()
+    {
+      TRC_FUNCTION_ENTER("");
+      
+      IEnumerateService::CoordinatorData coordinatorData = m_iEnumerateService->getCoordinatorData();
+
+      m_db 
+
+      for (auto nadr : coordinatorData.m_discovered) {
+        IEnumerateService::NodeData nodeData = m_iEnumerateService->getNodeData(nadr);
+      }
+
+      try
+      {
+        std::string dataDir = m_iLaunchService->getDataDir();
+        std::string fname = dataDir + "/DB/IqrfInfo.db";
+
+        std::ifstream f(fname);
+        bool dbExists = f.is_open();
+        f.close();
+
+        m_db.reset(shape_new database(fname));
+        database &db = *m_db;
+        db << "PRAGMA foreign_keys=ON";
+
+        if (!dbExists) {
+
+          std::string sqlpath = dataDir;
+          sqlpath += "/DB/";
+          //create tables
+          SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
+
+          //insert data
+          //SqlFile::makeSqlFile(db, sqlpath + "init/insert_Nodes.sql");
         }
       }
       catch (sqlite_exception &e)
