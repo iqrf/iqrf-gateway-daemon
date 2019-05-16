@@ -329,6 +329,9 @@ stages:
 
 .api-template: &api-template
   stage: deploy-api
+  only:
+    - master
+  dependencies: []
   before_script:
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
