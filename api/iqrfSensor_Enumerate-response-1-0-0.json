@@ -74,6 +74,10 @@
                                                 "type": "string",
                                                 "description": "Unit of the quantity. Dimensionless quantities has \"\"."
                                             },
+                                            "decimalPlaces": {
+                                                "type": "number",
+                                                "description": "Number of valid decimal places."
+                                            },
                                             "frcs": {
                                                 "type": "array",
                                                 "description": "Array of FRC commands supported by the sensor.",
@@ -101,14 +105,28 @@
                                                         },
                                                         "value": {
                                                             "oneOf": [
-                                                                { "type": "number" },
-                                                                { "type": "null" }
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "null"
+                                                                },
+                                                                {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                }
                                                             ],
                                                             "description": "Value of the sensor."
                                                         },
                                                         "unit": {
                                                             "type": "string",
                                                             "description": "Unit of the quantity. Dimensionless quantities has \"\"."
+                                                        },
+                                                        "decimalPlaces": {
+                                                            "type": "number",
+                                                            "description": "Number of valid decimal places."
                                                         }
                                                     }   
                                                 }  
@@ -120,6 +138,7 @@
                                         "name",
                                         "shortName",
                                         "unit",
+                                        "decimalPlaces",
                                         "frcs"
                                     ]
                                 }

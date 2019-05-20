@@ -78,6 +78,12 @@
                                                     },
                                                     {
                                                         "type": "null"
+                                                    },
+                                                    {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "integer"
+                                                        }
                                                     }
                                                 ],
                                                 "description": "Value of the sensor."
@@ -85,6 +91,10 @@
                                             "unit": {
                                                 "type": "string",
                                                 "description": "Unit of the quantity. Dimensionless quantities has \"\"."
+                                            },
+                                            "decimalPlaces": {
+                                                "type": "number",
+                                                "description": "Number of valid decimal places."
                                             },
                                             "breakdown": {
                                                 "type": "array",
@@ -111,6 +121,12 @@
                                                                 },
                                                                 {
                                                                     "type": "null"
+                                                                },
+                                                                {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "integer"
+                                                                    }
                                                                 }
                                                             ],
                                                             "description": "Value of the sensor."
@@ -118,6 +134,10 @@
                                                         "unit": {
                                                             "type": "string",
                                                             "description": "Unit of the quantity. Dimensionless quantities has \"\"."
+                                                        },
+                                                        "decimalPlaces": {
+                                                            "type": "number",
+                                                            "description": "Number of valid decimal places."
                                                         }
                                                     }
                                                 }
@@ -128,7 +148,8 @@
                                             "type",
                                             "name",
                                             "shortName",
-                                            "unit"
+                                            "unit",
+                                            "decimalPlaces"
                                         ]
                                     }
                                 }
