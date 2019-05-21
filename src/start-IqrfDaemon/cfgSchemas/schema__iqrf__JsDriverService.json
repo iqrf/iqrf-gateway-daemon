@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "schema__shape__ConfigurationService",
+        "name": "schema__iqrf__JsDriverService",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,13 +12,13 @@
             "type": "string",
             "description": "Name of component.",
             "enum": [
-                "shape::ConfigurationService"
+                "iqrf::JsDriverService"
             ]
         },
         "instance": {
             "type": "string",
-            "description": "Recomended shape::ConfigurationService-(id)",
-            "default": "shape::ConfigurationService-1"
+            "description": "Recomended iqrf::JsDriverService-(id)",
+            "default": "iqrf::JsDriverService-1"
         },
         "RequiredInterfaces": {
             "type": "array",

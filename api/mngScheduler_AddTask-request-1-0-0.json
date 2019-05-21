@@ -51,7 +51,7 @@
                                 },
                                 "period": {
                                     "type": "integer",
-                                    "description": "Period in miliseconds."
+                                    "description": "Period in seconds."
                                 },
                                 "exactTime": {
                                     "type": "boolean",
