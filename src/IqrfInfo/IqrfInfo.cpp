@@ -192,7 +192,7 @@ namespace iqrf {
       
       IEnumerateService::CoordinatorData coordinatorData = m_iEnumerateService->getCoordinatorData();
 
-      m_db 
+      //m_db 
 
       for (auto nadr : coordinatorData.m_discovered) {
         IEnumerateService::NodeData nodeData = m_iEnumerateService->getNodeData(nadr);
