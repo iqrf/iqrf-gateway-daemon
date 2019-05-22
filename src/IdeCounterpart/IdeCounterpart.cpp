@@ -73,13 +73,21 @@ namespace iqrf {
       }
     }
 
+    IUdpConnectorService::Mode startupMode = IdeCounterpart::Mode::Operational;
+    {
+      const Value* val = rapidjson::Pointer("/operMode").Get(doc);
+      if (val && val->IsString()) {
+        startupMode = ModeStringConvertor::str2enum(val->GetString());
+      }
+    }
+
     m_messaging->registerMessageHandler([&](const std::string& messagingId, const std::vector<uint8_t>& msg)
     {
       (void)messagingId;  //silence -Wunused-parameter
       return handleMessageFromUdp(msg);
     });
 
-    setMode(IdeCounterpart::Mode::Operational);
+    setMode(startupMode);
 
     TRC_FUNCTION_LEAVE("")
   }
