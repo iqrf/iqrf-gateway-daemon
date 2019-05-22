@@ -45,6 +45,17 @@
             "description": "GW ident Public IP",
             "default": "N/A"
         },
+        "operMode": {
+            "type": "string",
+            "description": "startup Operation mode.",
+            "enum": [
+                "operational",
+                "service",
+                "forwarding",
+                ""
+            ],
+            "default": "operational"
+        },
         "RequiredInterfaces": {
             "type": "array",
             "description": "Array of required interfaces.",
