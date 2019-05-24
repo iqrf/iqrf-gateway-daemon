@@ -62,12 +62,14 @@ namespace iqrf {
       return result;
     }
 
-    std::unique_ptr<IDpaTransactionResult2> dpaRepeat( DpaMessage & request, int repeat, int32_t timeout = -1 ) override
+    //std::unique_ptr<IDpaTransactionResult2> executeDpaTransactionRepeat( DpaMessage & request, int repeat, int32_t timeout = -1 ) override
+    void executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) override
     {
       TRC_FUNCTION_ENTER( "" );
-      auto result = m_iqrfDpa->dpaRepeat(request, repeat, timeout );
+      //auto result =
+      m_iqrfDpa->executeDpaTransactionRepeat(request, result, repeat, timeout );
       TRC_FUNCTION_LEAVE( "" );
-      return result;
+      //return result;
     }
 
     virtual ~ExclusiveAccessImpl()
@@ -129,40 +131,44 @@ namespace iqrf {
     return result;
   }
 
-  std::unique_ptr<IDpaTransactionResult2> IqrfDpa::dpaRepeat(DpaMessage & request, int repeat, int32_t timeout )
+  void IqrfDpa::executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 )
   {
     TRC_FUNCTION_ENTER( "" );
-
-    std::unique_ptr<IDpaTransactionResult2> transResult;
-    for ( int rep = 0; rep <= repeat; rep++ ) {
-      std::shared_ptr<IDpaTransaction2> transaction;
-      try {
-        transaction = m_dpaHandler->executeDpaTransaction( request, timeout );
-        transResult = transaction->get();
-
-        TRC_DEBUG( "Result from read transaction as string:" << PAR( transResult->getErrorString() ) );
-        IDpaTransactionResult2::ErrorCode errorCode = ( IDpaTransactionResult2::ErrorCode )transResult->getErrorCode();
-
-        if ( errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK ) {
-          break;
+    
+    for ( int rep = 0; rep <= repeat; rep++ )
+    {
+      try
+      {
+        std::shared_ptr<IDpaTransaction2> transaction = m_dpaHandler->executeDpaTransaction( request, timeout );
+        result = std::move(transaction->get());
+        TRC_DEBUG( "Result from read transaction as string:" << PAR( result->getErrorString() ) );
+        IDpaTransactionResult2::ErrorCode errorCode = ( IDpaTransactionResult2::ErrorCode )result->getErrorCode();
+        if ( errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK )
+        {
+          TRC_FUNCTION_LEAVE( "" );
+          return;
         }
-        else if ( errorCode < 0 ) {
-          TRC_WARNING( "Transaction error. " << NAME_PAR_HEX( "Error code", errorCode ) );
-        }
-        else {
-          TRC_WARNING( "DPA error. " << NAME_PAR_HEX( "Error code", errorCode ) );
+        else
+        {
+          std::string errorStr;
+          if ( errorCode < 0 )
+            errorStr = "Transaction error: ";
+          else
+            errorStr = "DPA error: ";
+          errorStr += result->getErrorString();
+          THROW_EXC_TRC_WAR( std::logic_error, errorStr );
         }
       }
       catch ( std::exception& e ) {
-        CATCH_EXC_TRC_WAR( std::logic_error, e, "DPA transaction error : " << e.what() );
-        if ( rep == repeat ) {
-          THROW_EXC_TRC_WAR( std::logic_error, "DPA transaction error : " << e.what() )
+        CATCH_EXC_TRC_WAR( std::logic_error, e, e.what() );
+        if ( rep == repeat )
+        {
+          TRC_FUNCTION_LEAVE( "" );
+          THROW_EXC_TRC_WAR( std::logic_error, e.what() )
         }
+        std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
       }
     }
-
-    TRC_FUNCTION_LEAVE( "" );
-    return transResult;
   }
 
   IIqrfDpaService::CoordinatorParameters IqrfDpa::getCoordinatorParameters() const
