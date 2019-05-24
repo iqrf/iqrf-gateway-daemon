@@ -7,8 +7,8 @@
 #include "PrfEnum.h"
 #include "Trace.h"
 #include "rapidjson/pointer.h"
-
 #include "iqrf__IqrfDpa.hxx"
+#include <thread>
 
 TRC_INIT_MODULE(iqrf::IqrfDpa);
 
