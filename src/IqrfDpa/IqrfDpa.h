@@ -20,7 +20,7 @@ namespace iqrf {
     std::unique_ptr<ExclusiveAccess> getExclusiveAccess() override;
     std::shared_ptr<IDpaTransaction2> executeExclusiveDpaTransaction(const DpaMessage& request, int32_t timeout);
     std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout) override;
-    std::unique_ptr<IDpaTransactionResult2> dpaRepeat( DpaMessage & request, int repeat, int32_t timeout = -1 ) override;
+    void executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout ) override;
     IIqrfDpaService::CoordinatorParameters getCoordinatorParameters() const override;
     int getTimeout() const override;
     void setTimeout(int timeout) override;

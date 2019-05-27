@@ -47,17 +47,17 @@ namespace iqrf {
 
 
   private:
-    bool m_isSetDeviceAddr = false;
-    
+    bool m_isSetDeviceAddr = false;    
     int m_repeat = 1;
     int m_deviceAddr;
     bool m_morePeripheralsInfo = false;
     
 
-    void parseRepeat(rapidjson::Document& doc) {
-      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc)) {
+    void parseRepeat( rapidjson::Document& doc ) {
+      if ( rapidjson::Value* repeatJsonVal = rapidjson::Pointer( "/data/repeat" ).Get( doc ) )
         m_repeat = repeatJsonVal->GetInt();
-      }
+      if ( m_repeat < 1 || m_repeat > 10 )
+        m_repeat = 1;
     }
 
     void parseRequest(rapidjson::Document& doc) {

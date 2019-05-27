@@ -61,9 +61,10 @@ namespace iqrf {
 
 
     void parseRepeat(rapidjson::Document& doc) {
-      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc)) {
+      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc))
         m_repeat = repeatJsonVal->GetInt();
-      }
+      if ( m_repeat < 1 || m_repeat > 10 )
+        m_repeat = 1;
     }
 
     void parseRequest(rapidjson::Document& doc) {
