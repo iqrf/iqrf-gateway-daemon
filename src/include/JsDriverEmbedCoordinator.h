@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <set>
 
 namespace iqrf
 {
@@ -16,7 +17,7 @@ namespace iqrf
       class BondedDevices : public JsDriverRequest
       {
       private:
-        std::vector<int> m_bondedDevices;
+        std::set<int> m_bondedDevices;
 
       public:
         BondedDevices()
@@ -32,11 +33,12 @@ namespace iqrf
         void parseResponse(const rapidjson::Value& v) override
         {
           using namespace rapidjson;
-          m_bondedDevices = jutils::getMemberAsVector<int>("bondedDevices", v);
+          auto vect = jutils::getMemberAsVector<int>("bondedDevices", v);
+          m_bondedDevices = std::set<int>(vect.begin(), vect.end());
         }
 
         // get data as returned from driver
-        const std::vector<int> & getBondedDevices() const { return m_bondedDevices; }
+        const std::set<int> & getBondedDevices() const { return m_bondedDevices; }
 
         // get more detailed data parsing
         bool isBonded(uint16_t nadr)
@@ -52,7 +54,7 @@ namespace iqrf
       class DiscoveredDevices : public JsDriverRequest
       {
       private:
-        std::vector<int> m_discoveredDevices;
+        std::set<int> m_discoveredDevices;
 
       public:
         DiscoveredDevices()
@@ -68,11 +70,12 @@ namespace iqrf
         void parseResponse(const rapidjson::Value& v) override
         {
           using namespace rapidjson;
-          m_discoveredDevices = jutils::getMemberAsVector<int>("discoveredDevices", v);
+          auto vect = jutils::getMemberAsVector<int>("discoveredDevices", v);
+          m_discoveredDevices = std::set<int>(vect.begin(), vect.end());
         }
 
         // get data as returned from driver
-        const std::vector<int> & getDiscoveredDevices() const { return m_discoveredDevices; }
+        const std::set<int> & getDiscoveredDevices() const { return m_discoveredDevices; }
 
         // get more detailed data parsing
         bool isDiscovered(uint16_t nadr)

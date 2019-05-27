@@ -346,7 +346,7 @@ namespace iqrf {
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
 
     // number of repeats
-    uint8_t m_repeat;
+    int m_repeat = 3;
 
     // if is set Verbose mode
     bool m_returnVerbose = false;
@@ -368,7 +368,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       std::unique_ptr<IDpaTransactionResult2> transResult;
-
+      IDpaTransactionResult2::ErrorCode errorCode = IDpaTransactionResult2::ErrorCode::TRN_ERROR_TIMEOUT;
       for (int rep = 0; rep <= repeat; rep++) {
         std::shared_ptr<IDpaTransaction2> transaction;
         try {
@@ -376,7 +376,7 @@ namespace iqrf {
           transResult = transaction->get();
 
           TRC_DEBUG("Result from read transaction as string:" << PAR(transResult->getErrorString()));
-          IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
+          errorCode = (IDpaTransactionResult2::ErrorCode)transResult->getErrorCode();
 
           if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
             break;
@@ -390,10 +390,11 @@ namespace iqrf {
         }
         catch (std::exception& e) {
           CATCH_EXC_TRC_WAR(std::logic_error, e, "DPA transaction error : " << e.what());
-          if (rep == m_repeat) {
-            THROW_EXC_TRC_WAR(std::logic_error, "DPA transaction error : " << e.what())
-          }
         }
+      }
+
+      if (errorCode != IDpaTransactionResult2::ErrorCode::TRN_OK) {
+        THROW_EXC_TRC_WAR(std::logic_error, "DPA transaction error : " << PAR(errorCode))
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -493,7 +494,7 @@ namespace iqrf {
         auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorBondedDevices), m_repeat);
         m_iJsDriverService->processDpaTransactionResult(iqrfEmbedCoordinatorBondedDevices, std::move(transResult));
 
-        coordinatorData.m_bonded = iqrfEmbedCoordinatorBondedDevices.getBondedDevices();
+        coordinatorData.m_bonded =  iqrfEmbedCoordinatorBondedDevices.getBondedDevices();
       }
 
       {
@@ -525,10 +526,11 @@ namespace iqrf {
         auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedOsRead), m_repeat);
         m_iJsDriverService->processDpaTransactionResult(iqrfEmbedOsRead, std::move(transResult));
 
-        nodeData.m_hwpid = iqrfEmbedOsRead.getHwpid();
-        nodeData.m_osBuild = iqrfEmbedOsRead.getOsBuild();
-        nodeData.m_osVer = iqrfEmbedOsRead.getOsVersion();
-        nodeData.m_mid = iqrfEmbedOsRead.getMid();
+        nodeData.setNadr((int)nadr);
+        nodeData.setHwpid(iqrfEmbedOsRead.getHwpid());
+        nodeData.setOsBuild(iqrfEmbedOsRead.getOsBuild());
+        nodeData.setOsVer(iqrfEmbedOsRead.getOsVersion());
+        nodeData.setMid(iqrfEmbedOsRead.getMid());
       }
       
       {
@@ -536,15 +538,15 @@ namespace iqrf {
         auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedExploreEnumerate), m_repeat);
         m_iJsDriverService->processDpaTransactionResult(iqrfEmbedExploreEnumerate, std::move(transResult));
       
-        nodeData.m_hwpidVer = iqrfEmbedExploreEnumerate.getHwpidVer();
-        nodeData.m_dpaVersion = iqrfEmbedExploreEnumerate.getDpaVer();
-        nodeData.m_modeStd = iqrfEmbedExploreEnumerate.isModeStd();
-        nodeData.m_stdAndLpNetwork = iqrfEmbedExploreEnumerate.isStdAndLpSupport();
+        nodeData.setHwpidVer(iqrfEmbedExploreEnumerate.getHwpidVer());
+        nodeData.setDpaVer(iqrfEmbedExploreEnumerate.getDpaVer());
+        nodeData.setModeStd(iqrfEmbedExploreEnumerate.isModeStd());
+        nodeData.setStdAndLpNet(iqrfEmbedExploreEnumerate.isStdAndLpSupport());
       }
 
       //TODO other params
 
-      nodeData.m_valid = true;
+      nodeData.setValid(true);
 
       TRC_FUNCTION_LEAVE("");
       return nodeData;
