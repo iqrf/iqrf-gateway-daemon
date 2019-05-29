@@ -255,10 +255,15 @@ namespace iqrf {
       uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
       std::string nadrStr, pnumStr, pcmdStr, hwpidStr, rcodeStr, dpavalStr;
 
-      nadr16 = m_dpaRequest.DpaPacket().DpaResponsePacket_t.NADR;
-      pnum = m_dpaRequest.DpaPacket().DpaResponsePacket_t.PNUM;
-      pcmd = m_dpaRequest.DpaPacket().DpaResponsePacket_t.PCMD;
-      hwpid16 = m_dpaRequest.DpaPacket().DpaResponsePacket_t.HWPID;
+      nadr16 = m_dpaRequest.DpaPacket().DpaRequestPacket_t.NADR;
+      pnum = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM;
+      pcmd = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD;
+      hwpid16 = m_dpaRequest.DpaPacket().DpaRequestPacket_t.HWPID;
+
+      nadrStr = encodeHexaNum(nadr16);
+      pnumStr = encodeHexaNum(pnum);
+      pcmdStr = encodeHexaNum(pcmd);
+      hwpidStr = encodeHexaNum(hwpid16);
 
       Pointer("/nadr").Set(m_doc, nadrStr);
       Pointer("/pnum").Set(m_doc, pnumStr);
@@ -266,7 +271,7 @@ namespace iqrf {
       Pointer("/hwpid").Set(m_doc, hwpidStr);
 
       if (m_dpaRequest.GetLength() > 8) {
-        Pointer("/rdata").Set(m_doc, encodeBinary(m_dpaRequest.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, m_dpaRequest.GetLength() - 8));
+        Pointer("/rdata").Set(m_doc, encodeBinary(m_dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, m_dpaRequest.GetLength() - 8));
       }
       
       return m_doc;
