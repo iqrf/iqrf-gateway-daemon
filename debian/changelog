@@ -1,3 +1,14 @@
+iqrf-gateway-daemon (2.1.3) RELEASED; urgency=medium
+
+  [ Rostislav Spinar ]
+
+  * Fixed Scheduler's schemas
+  * Fixed Sensor's FRC service
+  * Updated Sensor's schemas
+  * Updated IQRF repository cache
+   
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Thu, 30 May 2019 14:00:00 +0000
+
 iqrf-gateway-daemon (2.1.2) RELEASED; urgency=medium
 
   [ Rostislav Spinar ]
