@@ -601,49 +601,6 @@ namespace iqrf {
       deviceEnumerateResult.addTransactionResult( transResult );
       TRC_FUNCTION_LEAVE( "" );
     }
-    
-    // Get Info fro more peripherls
-    /*
-    void getInfoForMorePeripherals( DeviceEnumerateResult& deviceEnumerateResult )
-    {
-      TRC_FUNCTION_ENTER( "" );
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-      try
-      {
-        // Prepare DPA request
-        DpaMessage morePersInfoRequest;
-        DpaMessage::DpaPacket_t morePersInfoPacket;
-        morePersInfoPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
-        morePersInfoPacket.DpaRequestPacket_t.PNUM = 0xFF;
-        morePersInfoPacket.DpaRequestPacket_t.PCMD = 0x3F;
-        morePersInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        morePersInfoRequest.DataToBuffer( morePersInfoPacket.Buffer, sizeof( TDpaIFaceHeader ) );
-        // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( morePersInfoRequest, transResult, m_repeat );
-        TRC_DEBUG( "Result from get info for more peripherals transaction as string:" << PAR( transResult->getErrorString() ) );
-        DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION( "Get info for more peripherals successful!" );
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR( morePersInfoRequest.PeripheralType(), morePersInfoRequest.NodeAddress() )
-          << PAR( morePersInfoRequest.PeripheralCommand() )
-        );
-        // Parse response pdata
-        TPeripheralInfoAnswer* persInfoArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PeripheralInfoAnswers;
-        std::vector<TPeripheralInfoAnswer> persInfoList;
-        for ( int i = 0; i < PERIPHERALS_NUM; i++ )
-          persInfoList.push_back( persInfoArr[i] );
-        deviceEnumerateResult.setMorePersInfo( persInfoList );
-      }
-      catch ( std::exception& e )
-      {
-        DeviceEnumerateError error( DeviceEnumerateError::Type::MorePersInfo, e.what() );
-        deviceEnumerateResult.setMorePersInfoError( error );
-      }
-      deviceEnumerateResult.addTransactionResult( transResult );
-      TRC_FUNCTION_LEAVE( "" );
-    }
-    */
 
     // Check the specified node is bonded (in the future read from DB)
     bool isNodeBonded( DeviceEnumerateResult& deviceEnumerateResult, const uint16_t deviceAddr )
