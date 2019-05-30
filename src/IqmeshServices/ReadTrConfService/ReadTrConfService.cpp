@@ -309,7 +309,7 @@ namespace iqrf {
       ReadTrConfigResult readTrConfigResult;
 
       // Check node is bonded
-      if ( isNodeBonded( readTrConfigResult, deviceAddr ) )
+      if ( deviceAddr == COORDINATOR_ADDRESS || isNodeBonded( readTrConfigResult, deviceAddr ) )
       {
         // Read HWP configuration
         readTrConfig( readTrConfigResult, deviceAddr, hwpId );
