@@ -363,6 +363,7 @@ namespace iqrf {
     {
     }
 
+    /*
     std::unique_ptr<IDpaTransactionResult2> dpaRepeat(std::unique_ptr<IIqrfDpaService::ExclusiveAccess> & exclusiveAccess, const DpaMessage & request, int repeat) const
     {
       TRC_FUNCTION_ENTER("");
@@ -400,6 +401,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
       return transResult;
     }
+    */
 
     //TODO use for detect network topology
 #if 0
@@ -491,7 +493,9 @@ namespace iqrf {
 
       {
         iqrf::embed::coordinator::BondedDevices iqrfEmbedCoordinatorBondedDevices;
-        auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorBondedDevices), m_repeat);
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorBondedDevices), transResult, m_repeat);
+        //auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorBondedDevices), m_repeat);
         m_iJsDriverService->processDpaTransactionResult(iqrfEmbedCoordinatorBondedDevices, std::move(transResult));
 
         coordinatorData.m_bonded =  iqrfEmbedCoordinatorBondedDevices.getBondedDevices();
@@ -499,7 +503,9 @@ namespace iqrf {
 
       {
         iqrf::embed::coordinator::DiscoveredDevices iqrfEmbedCoordinatorDiscoveredDevices;
-        auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorDiscoveredDevices), m_repeat);
+        //auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorDiscoveredDevices), m_repeat);
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorDiscoveredDevices), transResult, m_repeat);
         m_iJsDriverService->processDpaTransactionResult(iqrfEmbedCoordinatorDiscoveredDevices, std::move(transResult));
 
         coordinatorData.m_discovered = iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices();
@@ -523,7 +529,9 @@ namespace iqrf {
 
       {
         iqrf::embed::os::Read iqrfEmbedOsRead(nadr);
-        auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedOsRead), m_repeat);
+        //auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedOsRead), m_repeat);
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfEmbedOsRead), transResult, m_repeat);
         m_iJsDriverService->processDpaTransactionResult(iqrfEmbedOsRead, std::move(transResult));
 
         nodeData.setNadr((int)nadr);
@@ -535,13 +543,17 @@ namespace iqrf {
       
       {
         iqrf::embed::explore::Enumerate iqrfEmbedExploreEnumerate(nadr);
-        auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedExploreEnumerate), m_repeat);
+        //auto transResult = dpaRepeat(exclusiveAccess, m_iJsDriverService->createDpaRequest(iqrfEmbedExploreEnumerate), m_repeat);
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfEmbedExploreEnumerate), transResult, m_repeat);
         m_iJsDriverService->processDpaTransactionResult(iqrfEmbedExploreEnumerate, std::move(transResult));
       
         nodeData.setHwpidVer(iqrfEmbedExploreEnumerate.getHwpidVer());
         nodeData.setDpaVer(iqrfEmbedExploreEnumerate.getDpaVer());
         nodeData.setModeStd(iqrfEmbedExploreEnumerate.isModeStd());
         nodeData.setStdAndLpNet(iqrfEmbedExploreEnumerate.isStdAndLpSupport());
+        nodeData.setEmbedPer(iqrfEmbedExploreEnumerate.getEmbedPer());
+        nodeData.setUserPer(iqrfEmbedExploreEnumerate.getUserPer());
       }
 
       //TODO other params

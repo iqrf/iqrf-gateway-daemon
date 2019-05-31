@@ -429,6 +429,19 @@ namespace iqrf {
                   << nadr
                   ;
 
+                db << "delete from Perifery "
+                  " where "
+                  " Mid = ?"
+                  ";"
+                  << nd.getMid();
+
+                for (auto per : nd.getEmbedPer()) {
+                  insertPerifery(nd.getMid(), per);
+                }
+                for (auto per : nd.getUserPer()) {
+                  insertPerifery(nd.getMid(), per);
+                }
+
                 db << "commit;";
               }
               catch (sqlite_exception &e)
@@ -446,6 +459,21 @@ namespace iqrf {
       }
 
       TRC_FUNCTION_LEAVE("");
+    }
+
+    void insertPerifery(unsigned mid, int per)
+    {
+      database & db = *m_db;
+      db << "insert into Perifery ("
+        "Mid"
+        ", Per"
+        ")  values ( "
+        "?"
+        ", ?"
+        ");"
+        << mid
+        << per
+        ;
     }
 
     bool midExistsInDb(unsigned mid)

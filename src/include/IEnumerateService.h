@@ -43,6 +43,9 @@ namespace iqrf {
       int getDpaVer() const { return m_dpaVer; }
       bool getModeStd() const { return m_modeStd; }
       bool getStdAndLpNet() const { return m_stdAndLpNet; }
+      std::set<int> getEmbedPer() { return m_embedPer; }
+      std::set<int> getUserPer() { return m_userPer; }
+      
       bool isValid() const { return m_valid; }
 
       void setMid(unsigned v) { m_mid = v; }
@@ -54,6 +57,9 @@ namespace iqrf {
       void setDpaVer(int v) { m_dpaVer = v; }
       void setModeStd(bool v) { m_modeStd = v; }
       void setStdAndLpNet(bool v) { m_stdAndLpNet = v; }
+      void setEmbedPer(const std::set<int> & v) { m_embedPer = v; }
+      void setUserPer(const std::set<int> & v) { m_userPer = v; }
+
       void setValid(bool v) { m_valid = v; }
 
     private:
@@ -67,6 +73,10 @@ namespace iqrf {
       bool m_modeStd = true;
       bool m_stdAndLpNet = false;
       bool m_valid = false;
+
+      std::set<int> m_embedPer;
+      std::set<int> m_userPer;
+      
       //TODO others
     };
 
