@@ -508,6 +508,8 @@ namespace iqrf {
       if (PERIF_STANDARD_SENSOR != per)
         return;
 
+      IEnumerateService::IPeripheralInformationDataPtr pi = m_iEnumerateService->getPeripheralInformationData(nadr, PERIF_STANDARD_SENSOR);
+
       IEnumerateService::IStandardSensorDataPtr sen = m_iEnumerateService->getStandardSensorData(nadr);
       auto const & sensors = sen->getSensors();
 

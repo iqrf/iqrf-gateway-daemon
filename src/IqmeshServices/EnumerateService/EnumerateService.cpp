@@ -547,6 +547,16 @@ namespace iqrf {
       return retval;
     }
 
+    IEnumerateService::IPeripheralInformationDataPtr getPeripheralInformationData(uint16_t nadr, int per) const
+    {
+      std::unique_ptr<iqrf::embed::explore::PeripheralInformation> retval(shape_new iqrf::embed::explore::PeripheralInformation(nadr, per));
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      m_iIqrfDpaService->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(*retval), transResult, m_repeat);
+      m_iJsDriverService->processDpaTransactionResult(*retval, std::move(transResult));
+      return retval;
+    }
+
+
   public:
     void activate(const shape::Properties *props)
     {
@@ -630,6 +640,11 @@ namespace iqrf {
   IEnumerateService::IStandardBinaryOutputDataPtr EnumerateService::getStandardBinaryOutputData(uint16_t nadr) const
   {
     return m_imp->getStandardBinaryOutputData(nadr);
+  }
+
+  IEnumerateService::IPeripheralInformationDataPtr EnumerateService::getPeripheralInformationData(uint16_t nadr, int per) const
+  {
+    return m_imp->getPeripheralInformationData(nadr, per);
   }
 
   void EnumerateService::attachInterface(iqrf::IIqrfDpaService* iface)

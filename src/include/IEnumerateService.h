@@ -112,6 +112,16 @@ namespace iqrf {
       virtual ~IStandardBinaryOutputData() {}
     };
 
+    class IPeripheralInformationData
+    {
+    public:
+      virtual int getPerTe() const = 0;
+      virtual int getPerT() const = 0;
+      virtual int getPar1() const = 0;
+      virtual int getPar2() const = 0;
+      virtual ~IPeripheralInformationData() {}
+    };
+
     virtual CoordinatorData getCoordinatorData() const = 0;
 
     virtual NodeData getNodeData(uint16_t nadr) const = 0;
@@ -121,6 +131,9 @@ namespace iqrf {
 
     typedef std::unique_ptr<IStandardBinaryOutputData> IStandardBinaryOutputDataPtr;
     virtual IStandardBinaryOutputDataPtr getStandardBinaryOutputData(uint16_t nadr) const = 0;
+
+    typedef std::unique_ptr<IPeripheralInformationData> IPeripheralInformationDataPtr;
+    virtual IPeripheralInformationDataPtr getPeripheralInformationData(uint16_t nadr, int per) const = 0;
 
     virtual ~IEnumerateService() {}
   };

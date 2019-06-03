@@ -78,6 +78,66 @@ namespace iqrf
 
       };
 
+      ////////////////
+      class PeripheralInformation : public JsDriverRequest, public IEnumerateService::IPeripheralInformationData
+      {
+      private:
+        //params
+        int m_per = 0;
+
+        //response
+        int m_perTe = 0;
+        int m_perT = 0;
+        int m_par1 = 0;
+        int m_par2 = 0;
+
+      public:
+        PeripheralInformation(uint16_t nadr, int per)
+          :JsDriverRequest(nadr)
+          , m_per(per)
+        {
+        }
+
+        std::string functionName() const override
+        {
+          return "iqrf.embed.explore.PeripheralInformation";
+        }
+
+        std::string requestParameter() const override
+        {
+          using namespace rapidjson;
+          Document par;
+
+          Pointer("/per").Set(par, (int)m_per);
+
+          std::string parStr;
+          StringBuffer buffer;
+          Writer<rapidjson::StringBuffer> writer(buffer);
+          par.Accept(writer);
+          parStr = buffer.GetString();
+
+          return parStr;
+        }
+
+        void parseResponse(const rapidjson::Value& v) override
+        {
+          using namespace rapidjson;
+
+          m_perTe = jutils::getMemberAs<int>("perTe", v);
+          m_perT = jutils::getMemberAs<int>("perT", v);
+          m_par1 = jutils::getMemberAs<int>("par1", v);
+          m_par2 = jutils::getMemberAs<int>("par2", v);
+        }
+
+        // get data as returned from driver
+        int getPerTe() const override { return m_perTe; }
+        int getPerT() const override { return m_perT; }
+        int getPar1() const override { return m_par1; }
+        int getPar2() const override { return m_par2; }
+
+        // get more detailed data parsing
+
+      };
     } //namespace explore
   } //namespace embed
 } //namespace iqrf

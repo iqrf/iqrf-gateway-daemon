@@ -25,6 +25,8 @@ namespace iqrf {
     NodeData getNodeData(uint16_t nadr) const override;
     IStandardSensorDataPtr getStandardSensorData(uint16_t nadr) const override;
     IStandardBinaryOutputDataPtr getStandardBinaryOutputData(uint16_t nadr) const override;
+    IPeripheralInformationDataPtr getPeripheralInformationData(uint16_t nadr, int per) const override;
+
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
