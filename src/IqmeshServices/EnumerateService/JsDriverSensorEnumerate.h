@@ -18,7 +18,7 @@ namespace iqrf
       class Sensor : public IEnumerateService::IStandardSensorData::ISensor
       {
       private:
-        std::string m_id;
+        std::string m_sid;
         int m_type;
         std::string m_name;
         std::string m_shortName;
@@ -32,18 +32,19 @@ namespace iqrf
         {
           using namespace rapidjson;
 
+          m_sid = jutils::getMemberAs<std::string>("id", v);
           m_type = jutils::getMemberAs<int>("type", v);
           m_name = jutils::getMemberAs<std::string>("name", v);
           m_shortName = jutils::getMemberAs<std::string>("shortName", v);
-          m_decimalPlaces = jutils::getMemberAs<int>("type", v);
           m_unit = jutils::getMemberAs<std::string>("unit", v);
+          m_decimalPlaces = jutils::getMemberAs<int>("decimalPlaces", v);
           {
             auto vect = jutils::getMemberAsVector<int>("frcs", v);
             m_frcs = std::set<int>(vect.begin(), vect.end());
           }
         }
 
-        const std::string & getId() const override { return m_id; }
+        const std::string & getSid() const override { return m_sid; }
         int getType() const  override { return m_type; }
         const std::string & getName() const  override { return m_name; }
         const std::string & getShortName() const  override { return m_shortName; }

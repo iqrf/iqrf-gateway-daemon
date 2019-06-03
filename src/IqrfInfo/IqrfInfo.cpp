@@ -14,6 +14,20 @@ TRC_INIT_MODULE(iqrf::IqrfInfo);
 using namespace  sqlite;
 
 namespace iqrf {
+
+  const int PERIF_STANDARD_SENSOR = 94;
+
+  namespace sensor {
+    //FRC command to return 2 - bits sensor data of the supporting sensor types.
+    const int STD_SENSOR_FRC_2BITS = 0x10;
+    //FRC command to return 1-byte wide sensor data of the supporting sensor types.
+    const int STD_SENSOR_FRC_1BYTE = 0x90;
+    //FRC command to return 2-bytes wide sensor data of the supporting sensor types.
+    const int STD_SENSOR_FRC_2BYTES = 0xE0;
+    //FRC command to return 4-bytes wide sensor data of the supporting sensor types.
+    const int STD_SENSOR_FRC_4BYTES = 0xF9;
+  }
+
   class SqlFile
   {
   public:
@@ -365,10 +379,6 @@ namespace iqrf {
           try {
             IEnumerateService::NodeData nd = m_iEnumerateService->getNodeData(nadr); //TODO full
 
-            IEnumerateService::IStandardSensorDataPtr sen = m_iEnumerateService->getStandardSensorData(nadr);
-            auto const & d = sen->getSensors();
-            auto ss = d[0]->getName();
-
             db << "begin transaction;";
             if (!midExistsInDb(b.m_mid)) {
               // mid doesn't exist in DB
@@ -439,11 +449,18 @@ namespace iqrf {
               ";"
               << nd.getMid();
 
+            db << "delete from Sensor "
+              " where "
+              " Mid = ?"
+              ";"
+              << nd.getMid();
+
             for (auto per : nd.getEmbedPer()) {
               insertPerifery(nd.getMid(), per);
             }
             for (auto per : nd.getUserPer()) {
               insertPerifery(nd.getMid(), per);
+              insertSensor(nd.getMid(), nadr, per);
             }
 
             db << "commit;";
@@ -476,6 +493,48 @@ namespace iqrf {
         << mid
         << per
         ;
+    }
+
+    void insertSensor(unsigned mid, int nadr, int per)
+    {
+      if (PERIF_STANDARD_SENSOR != per)
+        return;
+
+      IEnumerateService::IStandardSensorDataPtr sen = m_iEnumerateService->getStandardSensorData(nadr);
+      auto const & sensors = sen->getSensors();
+
+      database & db = *m_db;
+      int idx = 0;
+
+      for (auto const & sen : sensors) {
+        const auto & f = sen->getFrcs();
+        const auto & e = sen->getFrcs().end();
+
+        int frc2bit = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BITS));
+        int frc1byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_1BYTE));
+        int frc2byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BYTES));
+        int frc4byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_4BYTES));
+        
+        db << "insert into Sensor ("
+          "Mid"
+          ", Idx"
+          ", Sid"
+          ", Stype"
+          ", Name"
+          ", SName"
+          ", Unit"
+          ", Dplac"
+          ", Frc2bit"
+          ", Frc1byte"
+          ", Frc2byte"
+          ", Frc4byte"
+          ")  values ( "
+          "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
+          ");"
+          << mid << idx++ << sen->getSid() << sen->getType() << sen->getName() << sen->getShortName() << sen->getUnit() << sen->getDecimalPlaces()
+          << frc2bit << frc1byte << frc2byte << frc4byte;
+          ;
+      }
     }
 
     bool midExistsInDb(unsigned mid)

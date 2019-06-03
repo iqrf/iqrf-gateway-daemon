@@ -24,4 +24,20 @@ CREATE TABLE IF NOT EXISTS `Perifery` (
 	FOREIGN KEY(`Mid`) REFERENCES `Node`(`Mid`)
 );
 
+CREATE TABLE IF NOT EXISTS `Sensor` (
+	`Mid`	INTEGER NOT NULL,
+	`Idx`	INTEGER NOT NULL,
+    `Sid`	TEXT NOT NULL,
+    `Stype`	INTEGER NOT NULL,
+    `Name`	TEXT NOT NULL,
+    `SName`	TEXT NOT NULL,
+    `Unit`	TEXT NOT NULL,
+    `Dplac`	INTEGER NOT NULL,
+	`Frc2bit`	INTEGER NOT NULL,
+	`Frc1byte`	INTEGER NOT NULL,
+	`Frc2byte`	INTEGER NOT NULL,
+	`Frc4byte`	INTEGER NOT NULL,
+	FOREIGN KEY(`Mid`) REFERENCES `Node`(`Mid`)
+);
+
 COMMIT;
