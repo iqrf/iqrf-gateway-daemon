@@ -4,6 +4,7 @@
 #include "stdint.h"
 #include <string>
 #include <set>
+#include <vector>
 
 namespace iqrf {
   /// \class IEnumerateService
@@ -22,7 +23,6 @@ namespace iqrf {
 
     class NodeData
     {
-      //TODO getters, setters
     public:
       NodeData()
       {}
@@ -80,9 +80,37 @@ namespace iqrf {
       //TODO others
     };
 
-    CoordinatorData virtual getCoordinatorData() const = 0;
-    NodeData virtual getNodeData(uint16_t nadr) const = 0;
-    
+    class IStandardSensorData
+    {
+    public:
+      class ISensor
+      {
+      public:
+        virtual const std::string & getId() const = 0;
+        virtual int getType() const = 0;
+        virtual const std::string & getName() const = 0;
+        virtual const std::string & getShortName() const = 0;
+        virtual const std::string & getUnit() const = 0;
+        virtual int getDecimalPlaces() const = 0;
+        virtual const std::set<int> & getFrcs() const = 0;
+        //TODO breakdown - array : [optional] see <iqrf.sensor.ReadSensorsWithTypes_Response> for more information.
+      
+        virtual ~ISensor() {}
+      };
+
+      typedef std::unique_ptr< ISensor> ISensorPtr;
+
+      // get data as returned from driver
+      virtual const std::vector<ISensorPtr> & getSensors() const = 0;
+      virtual ~IStandardSensorData() {}
+    };
+
+    virtual CoordinatorData getCoordinatorData() const = 0;
+    virtual NodeData getNodeData(uint16_t nadr) const = 0;
+
+    typedef std::unique_ptr<IStandardSensorData> IStandardSensorDataPtr;
+    virtual IStandardSensorDataPtr getStandardSensorData(uint16_t nadr) const = 0;
+
     virtual ~IEnumerateService() {}
   };
 }

@@ -528,6 +528,15 @@ namespace iqrf {
       return nodeData;
     }
 
+    IEnumerateService::IStandardSensorDataPtr getStandardSensorData(uint16_t nadr) const
+    {
+      std::unique_ptr<iqrf::sensor::Enumerate> retval(shape_new iqrf::sensor::Enumerate(nadr));
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      m_iIqrfDpaService->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(*retval), transResult, m_repeat);
+      m_iJsDriverService->processDpaTransactionResult(*retval, std::move(transResult));
+      return retval;
+    }
+
   public:
     void activate(const shape::Properties *props)
     {
@@ -601,6 +610,11 @@ namespace iqrf {
   IEnumerateService::NodeData EnumerateService::getNodeData(uint16_t nadr) const
   {
     return m_imp->getNodeData(nadr);
+  }
+
+  IEnumerateService::IStandardSensorDataPtr EnumerateService::getStandardSensorData(uint16_t nadr) const
+  {
+    return m_imp->getStandardSensorData(nadr);
   }
 
   void EnumerateService::attachInterface(iqrf::IIqrfDpaService* iface)

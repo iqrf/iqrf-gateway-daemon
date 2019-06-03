@@ -23,6 +23,7 @@ namespace iqrf {
 
     CoordinatorData getCoordinatorData() const override;
     NodeData getNodeData(uint16_t nadr) const override;
+    IStandardSensorDataPtr getStandardSensorData(uint16_t nadr) const override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

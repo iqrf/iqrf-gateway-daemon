@@ -19,6 +19,7 @@ namespace iqrf {
     std::unique_ptr<IDpaTransactionResult2> m_dpaTransactionResult2;
 
   public:
+    virtual ~JsDriverRequest() {}
     virtual std::string functionName() const = 0;
     //must override if request function requires parameter
     virtual std::string requestParameter() const { return "{}"; }

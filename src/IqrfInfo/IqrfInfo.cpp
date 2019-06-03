@@ -359,101 +359,103 @@ namespace iqrf {
         for (auto & bondIt : bonded) {
           int nadr = bondIt.first;
           Bond & b = bondIt.second;
+          if (!b.m_fullEnum)
+            continue;
 
-          if (b.m_fullEnum) {
-            try {
-              IEnumerateService::NodeData nd = m_iEnumerateService->getNodeData(nadr); //TODO full
+          try {
+            IEnumerateService::NodeData nd = m_iEnumerateService->getNodeData(nadr); //TODO full
 
-              try {
-                db << "begin transaction;";
-                if (!midExistsInDb(b.m_mid)) {
-                  // mid doesn't exist in DB
-                  db << "insert into Node ("
-                    "Mid"
-                    ", Hwpid"
-                    ", HwpidVer"
-                    ", OsBuild"
-                    ", OsVer"
-                    ", DpaVer"
-                    ", ModeStd"
-                    ", StdAndLpNet"
-                    ")  values ( "
-                    "?"
-                    ", ?"
-                    ", ?"
-                    ", ?"
-                    ", ?"
-                    ", ?"
-                    ", ?"
-                    ", ?"
-                    ");"
-                    << nd.getMid()
-                    << nd.getHwpid()
-                    << nd.getHwpidVer()
-                    << nd.getOsBuild()
-                    << nd.getOsVer()
-                    << nd.getDpaVer()
-                    << nd.getModeStd()
-                    << nd.getStdAndLpNet()
-                    ;
-                }
-                else {
-                  db << "update Node set "
-                    "Hwpid = ?"
-                    ", HwpidVer = ?"
-                    ", OsBuild = ?"
-                    ", OsVer = ?"
-                    ", DpaVer = ?"
-                    ", ModeStd = ?"
-                    ", StdAndLpNet = ?"
-                    " where Mid = ?;"
-                    << nd.getHwpid()
-                    << nd.getHwpidVer()
-                    << nd.getOsBuild()
-                    << nd.getOsVer()
-                    << nd.getDpaVer()
-                    << nd.getModeStd()
-                    << nd.getStdAndLpNet()
-                    << nd.getMid()
-                    ;
-                }
+            IEnumerateService::IStandardSensorDataPtr sen = m_iEnumerateService->getStandardSensorData(nadr);
+            auto const & d = sen->getSensors();
+            auto ss = d[0]->getName();
 
-                db << "update Bonded set "
-                  "Mid = ?"
-                  ", Enm = ?"
-                  " where "
-                  " Nadr = ?"
-                  ";"
-                  << nd.getMid()
-                  << 1
-                  << nadr
-                  ;
-
-                db << "delete from Perifery "
-                  " where "
-                  " Mid = ?"
-                  ";"
-                  << nd.getMid();
-
-                for (auto per : nd.getEmbedPer()) {
-                  insertPerifery(nd.getMid(), per);
-                }
-                for (auto per : nd.getUserPer()) {
-                  insertPerifery(nd.getMid(), per);
-                }
-
-                db << "commit;";
-              }
-              catch (sqlite_exception &e)
-              {
-                CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
-                db << "rollback;";
-              }
+            db << "begin transaction;";
+            if (!midExistsInDb(b.m_mid)) {
+              // mid doesn't exist in DB
+              db << "insert into Node ("
+                "Mid"
+                ", Hwpid"
+                ", HwpidVer"
+                ", OsBuild"
+                ", OsVer"
+                ", DpaVer"
+                ", ModeStd"
+                ", StdAndLpNet"
+                ")  values ( "
+                "?"
+                ", ?"
+                ", ?"
+                ", ?"
+                ", ?"
+                ", ?"
+                ", ?"
+                ", ?"
+                ");"
+                << nd.getMid()
+                << nd.getHwpid()
+                << nd.getHwpidVer()
+                << nd.getOsBuild()
+                << nd.getOsVer()
+                << nd.getDpaVer()
+                << nd.getModeStd()
+                << nd.getStdAndLpNet()
+                ;
             }
-            catch (std::exception &e)
-            {
-              CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
+            else {
+              db << "update Node set "
+                "Hwpid = ?"
+                ", HwpidVer = ?"
+                ", OsBuild = ?"
+                ", OsVer = ?"
+                ", DpaVer = ?"
+                ", ModeStd = ?"
+                ", StdAndLpNet = ?"
+                " where Mid = ?;"
+                << nd.getHwpid()
+                << nd.getHwpidVer()
+                << nd.getOsBuild()
+                << nd.getOsVer()
+                << nd.getDpaVer()
+                << nd.getModeStd()
+                << nd.getStdAndLpNet()
+                << nd.getMid()
+                ;
             }
+
+            db << "update Bonded set "
+              "Mid = ?"
+              ", Enm = ?"
+              " where "
+              " Nadr = ?"
+              ";"
+              << nd.getMid()
+              << 1
+              << nadr
+              ;
+
+            db << "delete from Perifery "
+              " where "
+              " Mid = ?"
+              ";"
+              << nd.getMid();
+
+            for (auto per : nd.getEmbedPer()) {
+              insertPerifery(nd.getMid(), per);
+            }
+            for (auto per : nd.getUserPer()) {
+              insertPerifery(nd.getMid(), per);
+            }
+
+            db << "commit;";
+          }
+          catch (sqlite_exception &e)
+          {
+            CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+            db << "rollback;";
+          }
+          catch (std::exception &e)
+          {
+            CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
           }
         }
       }
