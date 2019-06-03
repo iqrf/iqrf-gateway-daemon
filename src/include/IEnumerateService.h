@@ -105,12 +105,24 @@ namespace iqrf {
       virtual ~IStandardSensorData() {}
     };
 
+    class IStandardBinaryOutputData
+    {
+    public:
+      virtual int getBinaryOutputsNum() const = 0;
+      virtual ~IStandardBinaryOutputData() {}
+    };
+
     virtual CoordinatorData getCoordinatorData() const = 0;
+
     virtual NodeData getNodeData(uint16_t nadr) const = 0;
 
     typedef std::unique_ptr<IStandardSensorData> IStandardSensorDataPtr;
     virtual IStandardSensorDataPtr getStandardSensorData(uint16_t nadr) const = 0;
 
+    typedef std::unique_ptr<IStandardBinaryOutputData> IStandardBinaryOutputDataPtr;
+    virtual IStandardBinaryOutputDataPtr getStandardBinaryOutputData(uint16_t nadr) const = 0;
+
     virtual ~IEnumerateService() {}
   };
+
 }

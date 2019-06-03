@@ -16,6 +16,7 @@ using namespace  sqlite;
 namespace iqrf {
 
   const int PERIF_STANDARD_SENSOR = 94;
+  const int PERIF_STANDARD_BINOUT = 75;
 
   namespace sensor {
     //FRC command to return 2 - bits sensor data of the supporting sensor types.
@@ -455,12 +456,19 @@ namespace iqrf {
               ";"
               << nd.getMid();
 
+            db << "delete from Binout "
+              " where "
+              " Mid = ?"
+              ";"
+              << nd.getMid();
+
             for (auto per : nd.getEmbedPer()) {
               insertPerifery(nd.getMid(), per);
             }
             for (auto per : nd.getUserPer()) {
               insertPerifery(nd.getMid(), per);
               insertSensor(nd.getMid(), nadr, per);
+              insertBinout(nd.getMid(), nadr, per);
             }
 
             db << "commit;";
@@ -535,6 +543,24 @@ namespace iqrf {
           << frc2bit << frc1byte << frc2byte << frc4byte;
           ;
       }
+    }
+
+    void insertBinout(unsigned mid, int nadr, int per)
+    {
+      if (PERIF_STANDARD_BINOUT != per)
+        return;
+
+      IEnumerateService::IStandardBinaryOutputDataPtr bout = m_iEnumerateService->getStandardBinaryOutputData(nadr);
+
+      database & db = *m_db;
+
+      db << "insert into Binout ("
+        "Mid"
+        ", Num"
+        ")  values ( "
+        "?, ?"
+        ");"
+        << mid << bout->getBinaryOutputsNum();
     }
 
     bool midExistsInDb(unsigned mid)

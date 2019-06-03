@@ -1,6 +1,7 @@
 #pragma once
 
 #include "JsDriverRequest.h"
+#include "IEnumerateService.h"
 #include "JsonUtils.h"
 #include <vector>
 #include <sstream>
@@ -23,7 +24,7 @@ namespace iqrf
         std::string m_name;
         std::string m_shortName;
         std::string m_unit;
-        int m_decimalPlaces;
+        int m_decimalPlaces = 1;
         std::set<int> m_frcs;
         //TODO breakdown - array : [optional] see <iqrf.sensor.ReadSensorsWithTypes_Response> for more information.
       
@@ -32,12 +33,14 @@ namespace iqrf
         {
           using namespace rapidjson;
 
-          m_sid = jutils::getMemberAs<std::string>("id", v);
+          //TODO id is not set by driver
+          m_sid = jutils::getPossibleMemberAs<std::string>("id", v, m_sid);
           m_type = jutils::getMemberAs<int>("type", v);
           m_name = jutils::getMemberAs<std::string>("name", v);
           m_shortName = jutils::getMemberAs<std::string>("shortName", v);
           m_unit = jutils::getMemberAs<std::string>("unit", v);
-          m_decimalPlaces = jutils::getMemberAs<int>("decimalPlaces", v);
+          //TODO id is not set by driver
+          m_decimalPlaces = jutils::getPossibleMemberAs<int>("decimalPlaces", v, m_decimalPlaces);
           {
             auto vect = jutils::getMemberAsVector<int>("frcs", v);
             m_frcs = std::set<int>(vect.begin(), vect.end());
