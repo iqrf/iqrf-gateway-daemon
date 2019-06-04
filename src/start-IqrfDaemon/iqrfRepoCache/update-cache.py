@@ -59,7 +59,7 @@ for dir in dirsName:
             with open('data.json', 'w') as outfile:
                 json.dump(data, outfile)
 
-	    # loop via ver of std ids
+	        # loop via ver of std ids
             for ver in data['versions']:
 
                 ver = int(ver)

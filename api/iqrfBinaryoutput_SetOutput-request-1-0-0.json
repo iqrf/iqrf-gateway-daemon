@@ -40,7 +40,7 @@
                         "param": {
                             "type": "object",
                             "properties": {
-                                "binouts": {
+                                "binOuts": {
                                     "type": "array",
                                     "description": "Array of objects with the following fields.",
                                     "items": {

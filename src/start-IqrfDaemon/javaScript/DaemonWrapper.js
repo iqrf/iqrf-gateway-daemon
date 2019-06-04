@@ -816,13 +816,13 @@ if (iqrf.binaryoutput !== undefined) {
 	iqrf.binaryoutput.Enumerate_Response_rsp = function (rawhdp) {
 		var result =
 		{
-			binouts: iqrf.binaryoutput.Enumerate_Response(rawhdp)
+			binOuts: iqrf.binaryoutput.Enumerate_Response(rawhdp)
 		};
 		return result;
 	};
 
 	iqrf.binaryoutput.SetOutput_Request_req = function (param) {
-		return iqrf.binaryoutput.SetOutput_Request(param.binouts);
+		return iqrf.binaryoutput.SetOutput_Request(param.binOuts);
 	};
 
 	iqrf.binaryoutput.SetOutput_Response_rsp = function (rawhdp) {
