@@ -42,11 +42,11 @@
               "properties": {
                 "sensorType": {
                   "type": "integer",
-                  "description": "Type of sensor (quantity) to read values of. Use iqrf.sensor.STD_SENSOR_TYPE_* constant. Use 0 to specify the sensor only by sensorIndex parameter."
+                  "description": "Type of sensor (quantity) to read values of. Use iqrf.sensor.STD_SENSOR_TYPE_* constant."
                 },
                 "sensorIndex": {
                   "type": "integer",
-                  "description": "Index of the sensor. If the sensor type is specified, then its is an index among of all sensors of the specified type. If sensorType is 0 then it is overall sensor index. Some FRC commands might use top 3 bits of this parameter for passing additional data."
+                  "description": "Index of the sensor. If the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data."
                 },
                 "frcCommand": {
                   "type": "integer",
