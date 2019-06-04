@@ -196,6 +196,11 @@ stages:
   - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
   - bash src/.gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
+#cache update
+  - cd src/start-IqrfDaemon/iqrfRepoCache
+  - python update-cache.py
+  - cd ../../../
+#end
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dpkg-buildpackage -b -rfakeroot -us -uc -tc
@@ -233,6 +238,11 @@ stages:
   - tar xzvf shapeware-libs_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+#cache update
+  - cd src/start-IqrfDaemon/iqrfRepoCache
+  - python update-cache.py
+  - cd ../../../
+#end
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
 # - export DEB_BUILD_OPTIONS=nostrip,noopt
 # - dpkg-buildpackage -b -rfakeroot -us -uc -tc
@@ -274,6 +284,11 @@ stages:
   - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
   - bash src/.gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+#cache update
+  - cd src/start-IqrfDaemon/iqrfRepoCache
+  - python update-cache.py
+  - cd ../../../
+#end
   - tar -C iqrf-daemon-deploy -czvf iqrf-gateway-daemon_${DAEMON_VERSION:1}_${ARCH}.tar.gz .
 #CHANGELOG generated manually
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
@@ -312,6 +327,11 @@ stages:
   - tar xzvf shapeware-libs_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-source_${ARCH}.tar.gz
   - tar xzvf iqrf-daemon-build_${ARCH}.tar.gz
+#cache update
+  - cd src/start-IqrfDaemon/iqrfRepoCache
+  - python update-cache.py
+  - cd ../../../
+#end
 #CHANGELOG generated manually
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
 # - export DEB_BUILD_OPTIONS=nostrip,noopt
