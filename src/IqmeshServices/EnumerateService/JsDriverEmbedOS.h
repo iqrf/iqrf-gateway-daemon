@@ -1,6 +1,6 @@
 #pragma once
 
-#include "JsDriverRequest.h"
+#include "JsDriverDpaCommandSolver.h"
 #include "JsonUtils.h"
 #include <vector>
 #include <sstream>
@@ -13,7 +13,7 @@ namespace iqrf
     namespace os
     {
       ////////////////
-      class Read : public JsDriverRequest
+      class Read : public JsDriverDpaCommandSolver
       {
       private:
         unsigned m_mid = 0;
@@ -28,7 +28,7 @@ namespace iqrf
 
       public:
         Read(uint16_t nadr)
-          :JsDriverRequest(nadr)
+          :JsDriverDpaCommandSolver(nadr)
         {
         }
 
@@ -174,7 +174,7 @@ namespace iqrf
       };
 
       ////////////////
-      class ReadCfg : public JsDriverRequest
+      class ReadCfg : public JsDriverDpaCommandSolver
       {
       private:
         unsigned m_checkum = 0;
@@ -184,7 +184,7 @@ namespace iqrf
 
       public:
         ReadCfg(uint16_t nadr)
-          :JsDriverRequest(nadr)
+          :JsDriverDpaCommandSolver(nadr)
         {
         }
 

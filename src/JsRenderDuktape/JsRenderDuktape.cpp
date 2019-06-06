@@ -194,6 +194,33 @@ namespace iqrf {
     }
 
     //##########################################
+    int loadJsCodeContext(int contextId, const std::string& js)
+    {
+      TRC_FUNCTION_ENTER(PAR(contextId));
+      auto found = m_contexts.find(contextId);
+      if (found != m_contexts.end()) {
+        //THROW_EXC_TRC_WAR(std::logic_error, "Already created JS context: " << PAR(id));
+        m_contexts.erase(contextId);
+      }
+      auto res = m_contexts.insert(std::make_pair(contextId, std::shared_ptr<Context>(shape_new Context())));
+      res.first->second->loadJsCode(js);
+      TRC_FUNCTION_LEAVE("");
+      return 0;
+    }
+
+    void callContext(int contextId, const std::string& functionName, const std::string& par, std::string& ret)
+    {
+      TRC_FUNCTION_ENTER(PAR(contextId) << PAR(functionName));
+      auto found = m_contexts.find(contextId);
+      if (found != m_contexts.end()) {
+        found->second->call(functionName, par, ret);
+      }
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Cannot find context: " << PAR_HEX(contextId) << PAR(functionName));
+      }
+      TRC_FUNCTION_LEAVE("");
+    }
+
     int loadJsCodeFenced(int id, const std::string& js)
     {
       TRC_FUNCTION_ENTER("");
@@ -365,6 +392,16 @@ namespace iqrf {
   JsRenderDuktape::~JsRenderDuktape()
   {
     delete m_imp;
+  }
+
+  void JsRenderDuktape::loadJsCodeContext(int contextId, const std::string& js)
+  {
+    m_imp->loadJsCodeContext(contextId, js);
+  }
+
+  void JsRenderDuktape::callContext(int contextId, const std::string& functionName, const std::string& par, std::string& ret)
+  {
+    m_imp->callContext(contextId, functionName, par, ret);
   }
 
   void JsRenderDuktape::loadJsCodeFenced(int id, const std::string& js)

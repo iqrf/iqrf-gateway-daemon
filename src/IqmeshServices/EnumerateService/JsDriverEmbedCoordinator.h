@@ -1,6 +1,7 @@
 #pragma once
 
-#include "JsDriverRequest.h"
+#include "JsDriverDpaCommandSolver.h"
+#include "EmbedCoordinator.h"
 #include "JsonUtils.h"
 #include <vector>
 #include <sstream>
@@ -14,14 +15,11 @@ namespace iqrf
     namespace coordinator
     {
       ////////////////
-      class BondedDevices : public JsDriverRequest
+      class JsDriverBondedDevices : public BondedDevices, public JsDriverDpaCommandSolver
       {
-      private:
-        std::set<int> m_bondedDevices;
-
       public:
-        BondedDevices()
-          :JsDriverRequest(0)
+        JsDriverBondedDevices()
+          :JsDriverDpaCommandSolver(0)
         {
         }
 
@@ -37,28 +35,14 @@ namespace iqrf
           m_bondedDevices = std::set<int>(vect.begin(), vect.end());
         }
 
-        // get data as returned from driver
-        const std::set<int> & getBondedDevices() const { return m_bondedDevices; }
-
-        // get more detailed data parsing
-        bool isBonded(uint16_t nadr)
-        {
-          for (int i : m_bondedDevices) {
-            if (i == (uint16_t)nadr) return true;
-          }
-          return false;
-        }
       };
 
       ////////////////
-      class DiscoveredDevices : public JsDriverRequest
+      class JsDriverDiscoveredDevices : public DiscoveredDevices, public JsDriverDpaCommandSolver
       {
-      private:
-        std::set<int> m_discoveredDevices;
-
       public:
-        DiscoveredDevices()
-          :JsDriverRequest(0)
+        JsDriverDiscoveredDevices()
+          :JsDriverDpaCommandSolver(0)
         {
         }
 
@@ -74,17 +58,6 @@ namespace iqrf
           m_discoveredDevices = std::set<int>(vect.begin(), vect.end());
         }
 
-        // get data as returned from driver
-        const std::set<int> & getDiscoveredDevices() const { return m_discoveredDevices; }
-
-        // get more detailed data parsing
-        bool isDiscovered(uint16_t nadr)
-        {
-          for (int i : m_discoveredDevices) {
-            if (i == (uint16_t)nadr) return true;
-          }
-          return false;
-        }
       };
 
     } //namespace coordinator

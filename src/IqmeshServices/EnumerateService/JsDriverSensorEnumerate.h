@@ -1,6 +1,6 @@
 #pragma once
 
-#include "JsDriverRequest.h"
+#include "JsDriverDpaCommandSolver.h"
 #include "IEnumerateService.h"
 #include "JsonUtils.h"
 #include <vector>
@@ -13,7 +13,7 @@ namespace iqrf
   namespace sensor
   {
     ////////////////
-    class Enumerate : public JsDriverRequest, public IEnumerateService::IStandardSensorData
+    class Enumerate : public JsDriverDpaCommandSolver, public IEnumerateService::IStandardSensorData
     {
     public:
       class Sensor : public IEnumerateService::IStandardSensorData::ISensor
@@ -64,7 +64,7 @@ namespace iqrf
 
     public:
       Enumerate(uint16_t nadr)
-        :JsDriverRequest(nadr)
+        :JsDriverDpaCommandSolver(nadr)
       {
       }
 

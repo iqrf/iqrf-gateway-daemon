@@ -1,6 +1,6 @@
 #pragma once
 
-#include "JsDriverRequest.h"
+#include "JsDriverDpaCommandSolver.h"
 #include "IEnumerateService.h"
 #include "JsonUtils.h"
 #include <vector>
@@ -13,14 +13,14 @@ namespace iqrf
   namespace binaryoutput
   {
     ////////////////
-    class Enumerate : public JsDriverRequest, public IEnumerateService::IStandardBinaryOutputData
+    class Enumerate : public JsDriverDpaCommandSolver, public IEnumerateService::IStandardBinaryOutputData
     {
     private:
       int m_outputsNum;
 
     public:
       Enumerate(uint16_t nadr)
-        :JsDriverRequest(nadr)
+        :JsDriverDpaCommandSolver(nadr)
       {
       }
 

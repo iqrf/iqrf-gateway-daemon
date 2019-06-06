@@ -1,6 +1,6 @@
 #pragma once
 
-#include "JsDriverRequest.h"
+#include "JsDriverDpaCommandSolver.h"
 #include "JsonUtils.h"
 #include <set>
 #include <sstream>
@@ -13,7 +13,7 @@ namespace iqrf
     namespace explore
     {
       ////////////////
-      class Enumerate : public JsDriverRequest
+      class Enumerate : public JsDriverDpaCommandSolver
       {
       private:
         int m_dpaVer = 0;
@@ -26,7 +26,7 @@ namespace iqrf
 
       public:
         Enumerate(uint16_t nadr)
-          :JsDriverRequest(nadr)
+          :JsDriverDpaCommandSolver(nadr)
         {
         }
 
@@ -79,7 +79,7 @@ namespace iqrf
       };
 
       ////////////////
-      class PeripheralInformation : public JsDriverRequest, public IEnumerateService::IPeripheralInformationData
+      class PeripheralInformation : public JsDriverDpaCommandSolver, public IEnumerateService::IPeripheralInformationData
       {
       private:
         //params
@@ -93,7 +93,7 @@ namespace iqrf
 
       public:
         PeripheralInformation(uint16_t nadr, int per)
-          :JsDriverRequest(nadr)
+          :JsDriverDpaCommandSolver(nadr)
           , m_per(per)
         {
         }

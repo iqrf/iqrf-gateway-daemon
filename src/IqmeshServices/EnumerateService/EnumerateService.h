@@ -3,8 +3,9 @@
 #include "IEnumerateService.h"
 #include "ShapeProperties.h"
 #include "IIqrfDpaService.h"
-#include "ITraceService.h"
+#include "IJsCacheService.h"
 #include "IJsDriverService.h"
+#include "ITraceService.h"
 #include <string>
 
 
@@ -21,6 +22,7 @@ namespace iqrf {
     /// \brief Destructor
     virtual ~EnumerateService();
 
+    IFastEnumerationPtr getFastEnumeration() const override;
     CoordinatorData getCoordinatorData() const override;
     NodeData getNodeData(uint16_t nadr) const override;
     IStandardSensorDataPtr getStandardSensorData(uint16_t nadr) const override;
@@ -35,12 +37,15 @@ namespace iqrf {
     void attachInterface(iqrf::IIqrfDpaService* iface);
     void detachInterface(iqrf::IIqrfDpaService* iface);
 
-    void attachInterface(shape::ITraceService* iface);
-    void detachInterface(shape::ITraceService* iface);
+    void attachInterface(iqrf::IJsCacheService* iface);
+    void detachInterface(iqrf::IJsCacheService* iface);
 
     void attachInterface(iqrf::IJsDriverService* iface);
     void detachInterface(iqrf::IJsDriverService* iface);
 
+    void attachInterface(shape::ITraceService* iface);
+    void detachInterface(shape::ITraceService* iface);
+  
   private:
     class Imp;
     Imp* m_imp;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "JsDriverRequest.h"
+#include "JsDriverDpaCommandSolver.h"
 #include "JsonUtils.h"
 #include <vector>
 #include <sstream>
@@ -14,14 +14,14 @@ namespace iqrf
     namespace coordinator
     {
       ////////////////
-      class BondedDevices : public JsDriverRequest
+      class BondedDevices : public JsDriverDpaCommandSolver
       {
       private:
         std::set<int> m_bondedDevices;
 
       public:
         BondedDevices()
-          :JsDriverRequest(0)
+          :JsDriverDpaCommandSolver(0)
         {
         }
 
@@ -51,14 +51,14 @@ namespace iqrf
       };
 
       ////////////////
-      class DiscoveredDevices : public JsDriverRequest
+      class DiscoveredDevices : public JsDriverDpaCommandSolver
       {
       private:
         std::set<int> m_discoveredDevices;
 
       public:
         DiscoveredDevices()
-          :JsDriverRequest(0)
+          :JsDriverDpaCommandSolver(0)
         {
         }
 

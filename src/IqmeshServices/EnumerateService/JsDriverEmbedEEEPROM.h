@@ -1,6 +1,6 @@
 #pragma once
 
-#include "JsDriverRequest.h"
+#include "JsDriverDpaCommandSolver.h"
 #include "JsonUtils.h"
 #include <vector>
 
@@ -11,7 +11,7 @@ namespace iqrf
     namespace eeeprom
     {
       ////////////////
-      class Read : public JsDriverRequest
+      class Read : public JsDriverDpaCommandSolver
       {
       private:
         //params
@@ -23,7 +23,7 @@ namespace iqrf
 
       public:
         Read(uint16_t nadr, uint16_t address, uint8_t len)
-          :JsDriverRequest(nadr)
+          :JsDriverDpaCommandSolver(nadr)
           ,m_address(address)
           ,m_len(len)
         {

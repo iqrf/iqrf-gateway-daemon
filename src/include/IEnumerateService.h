@@ -5,12 +5,30 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <map>
 
 namespace iqrf {
   /// \class IEnumerateService
   class IEnumerateService
   {
   public:
+    class IFastEnumeration
+    {
+    public:
+      class Item
+      {
+      public:
+        virtual unsigned getMid() const = 0;
+        virtual int getNadr() const = 0;
+        virtual int getHwpid() const = 0;
+        virtual int getHwpidVer() const = 0;
+        virtual ~Item() {}
+      };
+      typedef std::unique_ptr<Item> ItemPtr;
+      virtual const std::map<int, ItemPtr> & getItems() const = 0;
+      virtual ~IFastEnumeration() {}
+    };
+
     class CoordinatorData
     {
       //TODO getters, setters
@@ -121,6 +139,9 @@ namespace iqrf {
       virtual int getPar2() const = 0;
       virtual ~IPeripheralInformationData() {}
     };
+
+    typedef std::unique_ptr<IFastEnumeration> IFastEnumerationPtr;
+    virtual IFastEnumerationPtr getFastEnumeration() const = 0;
 
     virtual CoordinatorData getCoordinatorData() const = 0;
 

@@ -30,18 +30,18 @@ namespace iqrf {
     {
     }
 
-    DpaMessage createDpaRequest(JsDriverRequest & jsDriverRequest)
+    DpaMessage createDpaRequest(JsDriverDpaCommandSolver & jsd)
     {
       TRC_FUNCTION_ENTER("");
 
       using namespace rapidjson;
 
-      std::string functionNameReq(jsDriverRequest.functionName());
+      std::string functionNameReq(jsd.functionName());
       functionNameReq += "_Request_req";
 
       // call request driver func, it returns rawHdpRequest format in text form
       try {
-        m_iJsRenderService->call(functionNameReq, jsDriverRequest.requestParameter(), jsDriverRequest.storeRequest());
+        m_iJsRenderService->call(functionNameReq, jsd.requestParameter(), jsd.storeRequest());
       }
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Driver request failure: ");
@@ -49,11 +49,11 @@ namespace iqrf {
         THROW_EXC_TRC_WAR(std::logic_error, "Driver request failure: " << e.what());
       }
 
-      TRC_DEBUG(PAR(jsDriverRequest.storeRequest()));
+      TRC_DEBUG(PAR(jsd.storeRequest()));
 
       // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
       Document doc;
-      doc.Parse(jsDriverRequest.storeRequest());
+      doc.Parse(jsd.storeRequest());
 
       uint8_t pnum = 0, pcmd = 0;
 
@@ -68,8 +68,8 @@ namespace iqrf {
 
       uint8_t* p0 = dpaRequest.DpaPacket().Buffer;
       uint8_t* p = p0;
-      uint16_t nadr = jsDriverRequest.getNadr();
-      uint16_t hwpid = jsDriverRequest.getHwpid();
+      uint16_t nadr = jsd.getNadr();
+      uint16_t hwpid = jsd.getHwpid();
 
       *p++ = nadr & 0xff;
       *p++ = (nadr >> 8) & 0xff;
@@ -89,57 +89,24 @@ namespace iqrf {
       return dpaRequest;
     }
 
-    void processDpaTransactionResult(JsDriverRequest & jsDriverRequest, std::unique_ptr<IDpaTransactionResult2> res)
+    void processDpaTransactionResult(JsDriverDpaCommandSolver & jsd, std::unique_ptr<IDpaTransactionResult2> res)
     {
       TRC_FUNCTION_ENTER("");
 
       using namespace rapidjson;
 
-      jsDriverRequest.setResult(std::move(res));
+      jsd.processResult(std::move(res));
 
-      if (!jsDriverRequest.getResult()->isResponded()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "No response");
-      }
+      Document doc;
 
-      std::string functionNameRsp(jsDriverRequest.functionName());
+      std::string functionNameRsp(jsd.functionName());
       functionNameRsp += "_Response_rsp";
 
-      //process response
-      int rcode = -1;
-
-      // get rawHdpResponse in text form
-      Document doc;
-      const DpaMessage & dpaResponse = jsDriverRequest.getResult()->getResponse();
-      const uint8_t* p = dpaResponse.DpaPacket().Buffer;
-      int len = dpaResponse.GetLength();
-
-      if (len < 8) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Invalid dpaResponse");
-      }
-      uint16_t nadr = 0, hwpid = 0;
-      uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
       std::string pnumStr, pcmdStr, rcodeStr, dpavalStr;
-
-      nadr = p[0];
-      nadr += p[1] << 8;
-
-      if (nadr != jsDriverRequest.getNadr()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Invalid nadr:" << NAME_PAR(expected, jsDriverRequest.getNadr()) << NAME_PAR(delivered, nadr));
-      }
-
-      pnum = p[2];
-      pcmd = p[3];
-      hwpid = p[4];
-      hwpid += p[5] << 8;
-      jsDriverRequest.setHwpid(hwpid);
-      rcode8 = p[6];
-      rcode = rcode8;
-      dpaval = p[7];
-
-      pnumStr = encodeHexaNum(pnum);
-      pcmdStr = encodeHexaNum(pcmd);
-      rcodeStr = encodeHexaNum(rcode8);
-      dpavalStr = encodeHexaNum(dpaval);
+      pnumStr = encodeHexaNum(jsd.getPnum());
+      pcmdStr = encodeHexaNum(jsd.getPcmd());
+      rcodeStr = encodeHexaNum(jsd.getRcode());
+      dpavalStr = encodeHexaNum(jsd.getDpaval());
 
       //nadr, hwpid is not interesting for drivers
       Pointer("/pnum").Set(doc, pnumStr);
@@ -147,14 +114,14 @@ namespace iqrf {
       Pointer("/rcode").Set(doc, rcodeStr);
       Pointer("/dpaval").Set(doc, rcodeStr);
 
-      if (len > 8) {
-        Pointer("/rdata").Set(doc, encodeBinary(p + 8, static_cast<int>(len) - 8));
+      if (jsd.getRdata().size() > 0) {
+        Pointer("/rdata").Set(doc, encodeBinary(jsd.getRdata().data(), jsd.getRdata().size()));
       }
 
       // original rawHdpRequest request passed for additional driver processing, e.g. sensor breakdown parsing
-      if (jsDriverRequest.storeRequest().size() > 0) {
+      if (jsd.storeRequest().size() > 0) {
         Document rawHdpRequestDoc;
-        rawHdpRequestDoc.Parse(jsDriverRequest.storeRequest());
+        rawHdpRequestDoc.Parse(jsd.storeRequest());
         const Value & val = rawHdpRequestDoc;
         Pointer("/originalRequest").Set(doc, val);
       }
@@ -167,20 +134,15 @@ namespace iqrf {
 
       TRC_DEBUG(PAR(rawHdpResponse))
 
-      if (0 != rcode) {
-        //TODO special rcode error exc
-        THROW_EXC_TRC_WAR(std::logic_error, "No response");
-      }
-
       try {
         std::string rsp;
         //m_iJsRenderService->call(methodResponseName, rawHdpResponse, rspObjStr);
-        m_iJsRenderService->callFenced(jsDriverRequest.getHwpid(), functionNameRsp, rawHdpResponse, rsp);
+        m_iJsRenderService->callFenced(jsd.getHwpid(), functionNameRsp, rawHdpResponse, rsp);
 
         Document rspDoc;
         rspDoc.Parse(rsp);
 
-        jsDriverRequest.parseResponse(rspDoc);
+        jsd.parseResponse(rspDoc);
       }
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Driver response failure: ");
@@ -245,14 +207,14 @@ namespace iqrf {
     delete m_imp;
   }
 
-  DpaMessage JsDriverService::createDpaRequest(JsDriverRequest & jsDriverRequest)
+  DpaMessage JsDriverService::createDpaRequest(JsDriverDpaCommandSolver & JsDriverDpaCommandSolver)
   {
-    return m_imp->createDpaRequest(jsDriverRequest);
+    return m_imp->createDpaRequest(JsDriverDpaCommandSolver);
   }
 
-  void JsDriverService::processDpaTransactionResult(JsDriverRequest & jsDriverRequest, std::unique_ptr<IDpaTransactionResult2> res)
+  void JsDriverService::processDpaTransactionResult(JsDriverDpaCommandSolver & JsDriverDpaCommandSolver, std::unique_ptr<IDpaTransactionResult2> res)
   {
-    return m_imp->processDpaTransactionResult(jsDriverRequest, std::move(res));
+    return m_imp->processDpaTransactionResult(JsDriverDpaCommandSolver, std::move(res));
   }
 
   void JsDriverService::attachInterface(iqrf::IJsRenderService* iface)

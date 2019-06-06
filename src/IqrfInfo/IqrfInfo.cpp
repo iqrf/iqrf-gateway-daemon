@@ -225,9 +225,19 @@ namespace iqrf {
       bool m_fullEnum;
     };
 
+    // get key info without JS driver support to load proper coordinator driver
+    void initCoordinatorInfo()
+    {
+      TRC_FUNCTION_ENTER("");
+      IEnumerateService::CoordinatorData coordinatorData = m_iEnumerateService->getCoordinatorData();
+      TRC_FUNCTION_LEAVE("");
+    }
+
     void syncDatabaseWithCoordinator()
     {
       TRC_FUNCTION_ENTER("");
+
+      IEnumerateService::IFastEnumerationPtr fastEnum = m_iEnumerateService->getFastEnumeration();
 
       IEnumerateService::CoordinatorData coordinatorData = m_iEnumerateService->getCoordinatorData();
 
@@ -508,7 +518,8 @@ namespace iqrf {
       if (PERIF_STANDARD_SENSOR != per)
         return;
 
-      IEnumerateService::IPeripheralInformationDataPtr pi = m_iEnumerateService->getPeripheralInformationData(nadr, PERIF_STANDARD_SENSOR);
+      //TODO per1 holds Standard version
+      //IEnumerateService::IPeripheralInformationDataPtr pi = m_iEnumerateService->getPeripheralInformationData(nadr, PERIF_STANDARD_SENSOR);
 
       IEnumerateService::IStandardSensorDataPtr sen = m_iEnumerateService->getStandardSensorData(nadr);
       auto const & sensors = sen->getSensors();

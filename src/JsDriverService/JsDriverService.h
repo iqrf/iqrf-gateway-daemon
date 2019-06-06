@@ -18,8 +18,8 @@ namespace iqrf {
     /// \brief Destructor
     virtual ~JsDriverService();
 
-    DpaMessage createDpaRequest(JsDriverRequest & jsRequest) override;
-    void processDpaTransactionResult(JsDriverRequest & jsDriverRequest, std::unique_ptr<IDpaTransactionResult2> res) override;
+    DpaMessage createDpaRequest(JsDriverDpaCommandSolver & jsRequest) override;
+    void processDpaTransactionResult(JsDriverDpaCommandSolver & JsDriverDpaCommandSolver, std::unique_ptr<IDpaTransactionResult2> res) override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

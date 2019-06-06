@@ -12,6 +12,9 @@ namespace iqrf {
     JsRenderDuktape();
     virtual ~JsRenderDuktape();
 
+    void loadJsCodeContext(int contextId, const std::string& js) override;
+    void callContext(int contextId, const std::string& functionName, const std::string& par, std::string& ret) override;
+
     void loadJsCodeFenced(int id, const std::string& js) override;
     void callFenced(int id, const std::string& functionName, const std::string& par, std::string& ret) override;
     void loadJsCode(const std::string& js) override;
