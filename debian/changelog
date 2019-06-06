@@ -1,3 +1,13 @@
+iqrf-gateway-daemon (2.1.4) RELEASED; urgency=medium
+
+  [ Rostislav Spinar ]
+
+  * Improved: Auto update of IQRF repository cache during package build
+  * Updated: Sensor's FRC API doc
+  * Fixed: IQRF BO's schemas
+   
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Thu, 6 Jun 2019 5:00:00 +0000
+
 iqrf-gateway-daemon (2.1.3) RELEASED; urgency=medium
 
   [ Rostislav Spinar ]
