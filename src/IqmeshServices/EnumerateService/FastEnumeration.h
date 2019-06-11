@@ -8,11 +8,11 @@ namespace iqrf
   class FastEnumeration : public IEnumerateService::IFastEnumeration
   {
   public:
-    class Item : public IEnumerateService::IFastEnumeration::Item
+    class Enumerated : public IEnumerateService::IFastEnumeration::Enumerated
     {
     public:
-      Item() = delete;
-      Item(int nadr, unsigned mid, int hwpid, int hwpidVer)
+      Enumerated() = delete;
+      Enumerated(int nadr, unsigned mid, int hwpid, int hwpidVer)
         :m_nadr(nadr)
         , m_mid(mid)
         , m_hwpid(hwpid)
@@ -28,12 +28,18 @@ namespace iqrf
       int m_hwpid;
       int m_hwpidVer;
     };
-    const std::map<int, ItemPtr> & getItems() const override { return m_items; }
+    const std::map<int, EnumeratedPtr> & getEnumerated() const override { return m_enumeratedMap; }
+    const std::set<int> & getBonded() const override { return m_bonded; }
+    const std::set<int> & getDiscovered() const override { return m_discovered; }
+    void setBonded(const std::set<int> &bonded) { m_bonded = bonded; }
+    void setDiscovered(const std::set<int> &discovered) { m_discovered = discovered; }
     void addItem(int nadr, unsigned mid, int hwpid, int hwpidVer)
     {
-      m_items.insert(std::make_pair(nadr, ItemPtr(shape_new Item(nadr, mid, hwpid, hwpidVer))));
+      m_enumeratedMap.insert(std::make_pair(nadr, EnumeratedPtr(shape_new Enumerated(nadr, mid, hwpid, hwpidVer))));
     }
   private:
-    std::map<int, ItemPtr> m_items;
+    std::map<int, EnumeratedPtr> m_enumeratedMap;
+    std::set<int> m_bonded;
+    std::set<int> m_discovered;
   };
 }

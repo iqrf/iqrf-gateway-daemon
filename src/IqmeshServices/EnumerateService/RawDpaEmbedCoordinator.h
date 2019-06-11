@@ -50,16 +50,13 @@ namespace iqrf
       ////////////////
       class RawDpaDiscoveredDevices : public DiscoveredDevices, public RawDpaCommandSolver
       {
-      private:
-        std::set<int> m_discoveredDevices;
-
       public:
         RawDpaDiscoveredDevices()
           :RawDpaCommandSolver(COORDINATOR_ADDRESS, PNUM_COORDINATOR, CMD_COORDINATOR_DISCOVERED_DEVICES)
         {
         }
 
-        void parseResponse(const DpaMessage& msg)
+        void parseResponse() override
         {
           const uint8_t* discovered = m_dpaTransactionResult2->getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
           m_discoveredDevices = bitmapToIndexes(discovered, 0, 29, 0);

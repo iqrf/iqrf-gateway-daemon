@@ -86,16 +86,34 @@ namespace iqrf {
       
       auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
 
+      iqrf::embed::coordinator::RawDpaBondedDevices iqrfEmbedCoordinatorBondedDevices;
+      iqrf::embed::coordinator::RawDpaDiscoveredDevices iqrfEmbedCoordinatorDiscoveredDevices;
+      
       {
-        iqrf::embed::coordinator::RawDpaBondedDevices iqrfEmbedCoordinatorBondedDevices;
         std::unique_ptr<IDpaTransactionResult2> transResult;
         exclusiveAccess->executeDpaTransactionRepeat(createDpaRequest(iqrfEmbedCoordinatorBondedDevices), transResult, m_repeat);
         processDpaTransactionResult(iqrfEmbedCoordinatorBondedDevices, std::move(transResult));
+        retval->setBonded(iqrfEmbedCoordinatorBondedDevices.getBondedDevices());
+      }
 
-        auto bonded = iqrfEmbedCoordinatorBondedDevices.getBondedDevices();
-        
-        for (auto it : bonded) {
-          retval->addItem(it, 0, 0, 0);
+      {
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        exclusiveAccess->executeDpaTransactionRepeat(createDpaRequest(iqrfEmbedCoordinatorDiscoveredDevices), transResult, m_repeat);
+        processDpaTransactionResult(iqrfEmbedCoordinatorDiscoveredDevices, std::move(transResult));
+        retval->setDiscovered(iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices());
+      }
+
+      std::set<int> evaluated = retval->getDiscovered();
+      evaluated.insert(0); //eval coordinator
+
+      for (auto nadr : evaluated) {
+        //TODO do it by FRC for DPA > 4.02
+        try {
+          auto nd = getNodeDataPriv((uint16_t)nadr, exclusiveAccess);
+          retval->addItem(nadr, nd.getMid(), nd.getHwpid(), nd.getHwpidVer());
+        }
+        catch (std::logic_error &e) {
+          CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot fast enum: " << PAR(nadr));
         }
       }
 
@@ -138,16 +156,14 @@ namespace iqrf {
       return coordinatorData;
     }
 
-    IEnumerateService::NodeData getNodeData(uint16_t nadr) const
+    IEnumerateService::NodeData getNodeDataPriv(uint16_t nadr, std::unique_ptr<iqrf::IIqrfDpaService::ExclusiveAccess> & exclusiveAccess) const
     {
       TRC_FUNCTION_ENTER(nadr);
 
       IEnumerateService::NodeData nodeData;
 
-      auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-
       {
-        iqrf::embed::os::Read iqrfEmbedOsRead(nadr);
+        iqrf::embed::os::RawDpaRead iqrfEmbedOsRead(nadr);
         std::unique_ptr<IDpaTransactionResult2> transResult;
         exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfEmbedOsRead), transResult, m_repeat);
         m_iJsDriverService->processDpaTransactionResult(iqrfEmbedOsRead, std::move(transResult));
@@ -158,13 +174,13 @@ namespace iqrf {
         nodeData.setOsVer(iqrfEmbedOsRead.getOsVersion());
         nodeData.setMid(iqrfEmbedOsRead.getMid());
       }
-      
+
       {
         iqrf::embed::explore::Enumerate iqrfEmbedExploreEnumerate(nadr);
         std::unique_ptr<IDpaTransactionResult2> transResult;
         exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfEmbedExploreEnumerate), transResult, m_repeat);
         m_iJsDriverService->processDpaTransactionResult(iqrfEmbedExploreEnumerate, std::move(transResult));
-      
+
         nodeData.setHwpidVer(iqrfEmbedExploreEnumerate.getHwpidVer());
         nodeData.setDpaVer(iqrfEmbedExploreEnumerate.getDpaVer());
         nodeData.setModeStd(iqrfEmbedExploreEnumerate.isModeStd());
@@ -173,12 +189,28 @@ namespace iqrf {
         nodeData.setUserPer(iqrfEmbedExploreEnumerate.getUserPer());
       }
 
-      {
-        iqrf::sensor::Enumerate iqrfSensorEnumerate(nadr);
-        std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfSensorEnumerate), transResult, m_repeat);
-        m_iJsDriverService->processDpaTransactionResult(iqrfSensorEnumerate, std::move(transResult));
-      }
+      nodeData.setValid(true);
+
+      TRC_FUNCTION_LEAVE("");
+      return nodeData;
+    }
+
+    IEnumerateService::NodeData getNodeData(uint16_t nadr) const
+    {
+      TRC_FUNCTION_ENTER(nadr);
+
+      IEnumerateService::NodeData nodeData;
+
+      auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+
+      getNodeDataPriv(nadr, exclusiveAccess);
+
+      //{
+      //  iqrf::sensor::Enumerate iqrfSensorEnumerate(nadr);
+      //  std::unique_ptr<IDpaTransactionResult2> transResult;
+      //  exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfSensorEnumerate), transResult, m_repeat);
+      //  m_iJsDriverService->processDpaTransactionResult(iqrfSensorEnumerate, std::move(transResult));
+      //}
 
       //TODO other params
 

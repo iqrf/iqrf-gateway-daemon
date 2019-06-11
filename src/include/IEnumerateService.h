@@ -15,17 +15,19 @@ namespace iqrf {
     class IFastEnumeration
     {
     public:
-      class Item
+      class Enumerated
       {
       public:
         virtual unsigned getMid() const = 0;
         virtual int getNadr() const = 0;
         virtual int getHwpid() const = 0;
         virtual int getHwpidVer() const = 0;
-        virtual ~Item() {}
+        virtual ~Enumerated() {}
       };
-      typedef std::unique_ptr<Item> ItemPtr;
-      virtual const std::map<int, ItemPtr> & getItems() const = 0;
+      typedef std::unique_ptr<Enumerated> EnumeratedPtr;
+      virtual const std::map<int, EnumeratedPtr> & getEnumerated() const = 0;
+      virtual const std::set<int> & getBonded() const = 0;
+      virtual const std::set<int> & getDiscovered() const = 0;
       virtual ~IFastEnumeration() {}
     };
 

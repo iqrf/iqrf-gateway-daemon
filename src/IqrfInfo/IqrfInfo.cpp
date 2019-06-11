@@ -239,8 +239,6 @@ namespace iqrf {
 
       IEnumerateService::IFastEnumerationPtr fastEnum = m_iEnumerateService->getFastEnumeration();
 
-      IEnumerateService::CoordinatorData coordinatorData = m_iEnumerateService->getCoordinatorData();
-
       database & db = *m_db;
 
       // get bonded map according nadr from DB
@@ -259,7 +257,7 @@ namespace iqrf {
       };
 
       // check if coord bonded exist in db bonded
-      for (auto nadr : coordinatorData.m_bonded) {
+      for (auto nadr : fastEnum->getBonded()) {
         auto found = bonded.find(nadr);
         if (found == bonded.end())
         {
@@ -285,7 +283,7 @@ namespace iqrf {
       // check if db bonded exist in coord bonded
       {
         std::map<int, Bond> ::iterator bondIt = bonded.begin();
-        std::set<int> & coordBonded = coordinatorData.m_bonded;
+        const std::set<int> & coordBonded = fastEnum->getBonded();
 
         while (bondIt != bonded.end()) {
           int nadr = bondIt->first;
@@ -306,7 +304,7 @@ namespace iqrf {
 
       // check if db bonded discovery fit with coord discovery
       {
-        std::set<int> & coordDisc = coordinatorData.m_discovered;
+        const std::set<int> & coordDisc = fastEnum->getDiscovered();
 
         for (auto & bondIt : bonded) {
           int nadr = bondIt.first;
@@ -351,7 +349,7 @@ namespace iqrf {
         }
       }
 
-      // fast enumerate
+      // check fast enumerate result
       std::map<unsigned, Bond*> bondedMid;
       {
         for (auto & bondIt : bonded) {
@@ -359,9 +357,14 @@ namespace iqrf {
           Bond & b = bondIt.second;
 
           try {
-            IEnumerateService::NodeData nd = m_iEnumerateService->getNodeData(nadr); //TODO fast
+            //IEnumerateService::NodeData nd = m_iEnumerateService->getNodeData(nadr); //TODO fast
+            auto found = fastEnum->getEnumerated().find(nadr);
+            if (found == fastEnum->getEnumerated().end()) {
+              THROW_EXC_TRC_WAR(std::logic_error, "Cannot find bonded: " << PAR(nadr));
+            }
+            const IEnumerateService::IFastEnumeration::Enumerated & nd = *(found->second.get());
             b.m_fullEnum = false;
-            if (!nd.isValid() || nd.getMid() != b.m_mid || nd.getHwpid() != b.m_hwpid || nd.getHwpidVer() != b.m_hwpidVer) {
+            if (nd.getMid() != b.m_mid || nd.getHwpid() != b.m_hwpid || nd.getHwpidVer() != b.m_hwpidVer) {
               b.m_fullEnum = true;
             }
             auto ins = bondedMid.insert(std::make_pair(nd.getMid(), &b));

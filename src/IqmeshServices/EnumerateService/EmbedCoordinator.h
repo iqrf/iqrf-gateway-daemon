@@ -16,8 +16,10 @@ namespace iqrf
 
       public:
         BondedDevices()
-        {
-        }
+        {}
+
+        virtual ~BondedDevices()
+        {}
 
         const std::set<int> & getBondedDevices() const { return m_bondedDevices; }
 
@@ -35,8 +37,10 @@ namespace iqrf
 
       public:
         DiscoveredDevices()
-        {
-        }
+        {}
+
+        virtual ~DiscoveredDevices()
+        {}
 
         const std::set<int> & getDiscoveredDevices() const { return m_discoveredDevices; }
 
