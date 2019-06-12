@@ -15,8 +15,9 @@ namespace iqrf
       public:
         RawDpaRead(uint16_t nadr)
           :RawDpaCommandSolver(nadr, PNUM_OS, CMD_OS_READ)
-        {
-        }
+        {}
+
+        virtual ~RawDpaRead() {}
 
         void parseResponse() override
         {
@@ -33,6 +34,7 @@ namespace iqrf
           m_ibk = std::vector<uint8_t>(resp.IBK, resp.IBK + 16);
         }
       };
+      typedef std::unique_ptr<RawDpaRead> RawDpaReadPtr;
 
       ////////////////
       class RawDpaReadCfg : public ReadCfg, public RawDpaCommandSolver
@@ -40,8 +42,9 @@ namespace iqrf
       public:
         RawDpaReadCfg(uint16_t nadr)
           :RawDpaCommandSolver(nadr, PNUM_OS, CMD_OS_READ_CFG)
-        {
-        }
+        {}
+
+        virtual ~RawDpaReadCfg() {}
 
         void parseResponse() override
         {
@@ -53,6 +56,7 @@ namespace iqrf
           m_undocumented = (int)resp.Undocumented;
         }
       };
+      typedef std::unique_ptr<RawDpaReadCfg> RawDpaReadCfgPtr;
 
     } //namespace os
   } //namespace embed

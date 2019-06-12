@@ -24,10 +24,10 @@ namespace iqrf
         int m_slotLimits = 0;
         std::vector<uint8_t> m_ibk;
 
-      public:
         Read()
         {}
 
+      public:
         virtual ~Read() {}
 
         unsigned getMid() const { return m_mid; }
@@ -81,7 +81,7 @@ namespace iqrf
           return trTypeStr;
         }
 
-        bool isFccCertified() const { return m_trMcuType & 0x08 != 0; }
+        bool isFccCertified() const { return (m_trMcuType & 0x08) != 0; }
 
         std::string getTrMcuTypeAsString() const { return ((m_trMcuType & 0x07) == 0x04) ? "PIC16LF1938" : "UNKNOWN"; }
 
@@ -109,12 +109,12 @@ namespace iqrf
           return os.str();
         }
 
-        bool isInsufficientOsBuild() const { return m_flags & 0x01 != 0; }
-        bool getInterface() const { return m_flags & 0x02 != 0; }
+        bool isInsufficientOsBuild() const { return (m_flags & 0x01) != 0; }
+        bool getInterface() const { return (m_flags & 0x02) != 0; }
         std::string getInterfaceAsString() const { return (m_flags & 0x02) != 0 ? "UART" : "SPI"; }
-        bool isDpaHandlerDetected() const { return m_flags & 0x04 != 0; }
-        bool isDpaHandlerNotDetectedButEnabled() const { return m_flags & 0x08 != 0; }
-        bool isNoInterfaceSupported() const { return m_flags & 0x10 != 0; }
+        bool isDpaHandlerDetected() const { return (m_flags & 0x04) != 0; }
+        bool isDpaHandlerNotDetectedButEnabled() const { return (m_flags & 0x08) != 0; }
+        bool isNoInterfaceSupported() const { return (m_flags & 0x10) != 0; }
 
         int getShortestTimeSlot() const
         {
@@ -143,6 +143,7 @@ namespace iqrf
         }
 
       };
+      typedef std::unique_ptr<Read> ReadPtr;
 
       ////////////////
       class ReadCfg

@@ -9,9 +9,11 @@
 
 #include "FastEnumeration.h"
 #include "RawDpaEmbedCoordinator.h"
+#include "RawDpaEmbedOS.h"
+#include "RawDpaEmbedExplore.h"
 #include "JsDriverEmbedOS.h"
 #include "JsDriverEmbedEEEPROM.h"
-#include "JsDriverEmbedDpaExploration.h"
+#include "JsDriverEmbedExploration.h"
 #include "JsDriverEmbedCoordinator.h"
 #include "JsDriverSensorEnumerate.h"
 #include "JsDriverBinaryOutputEnumerate.h"
@@ -29,6 +31,55 @@ TRC_INIT_MODULE(iqrf::EnumerateService);
 using namespace rapidjson;
 
 namespace iqrf {
+  class NodeDataImpl : public IEnumerateService::INodeData
+  {
+  public:
+    NodeDataImpl() = delete;
+
+    NodeDataImpl(int nadr, int hwpid, embed::explore::RawDpaEnumeratePtr & e, embed::os::RawDpaReadPtr & r)
+      :m_nadr(nadr)
+      , m_hwpid(hwpid)
+      , m_exploreEnumerate(std::move(e))
+      ,m_osRead(std::move(r))
+    {}
+
+    const embed::explore::EnumeratePtr & getEmbedExploreEnumerate() const override
+    {
+      return m_exploreEnumerate;
+    }
+
+    const embed::os::ReadPtr & getEmbedOsRead() const override
+    {
+      return m_osRead;
+    }
+
+    int getNadr() const override
+    {
+      return m_nadr;
+    }
+
+    int getHwpid() const override
+    {
+      return m_hwpid;
+    }
+
+    //unsigned getMid() const override { return m_osRead->getMid(); }
+    ////int getNadr() const { return m_osRead->gm_nadr; }
+    ////int getHwpid() const { return m_hwpid; }
+    //int getHwpidVer() const { return m_exploreEnumerate->getHwpidVer(); }
+    //int getOsBuild() const { return m_osRead->getOsBuild(); }
+    //int getOsVer() const { return m_osRead->getOsVersion(); }
+    //int getDpaVer() const { return m_exploreEnumerate->getDpaVer(); }
+    //bool getModeStd() const { return m_modeStd; }
+    //bool getStdAndLpNet() const { return m_stdAndLpNet; }
+    //const std::set<int> & getEmbedPer() { return m_embedPer; }
+    //const std::set<int> & getUserPer() { return m_userPer; }
+  private:
+    int m_nadr;
+    int m_hwpid;
+    embed::explore::EnumeratePtr m_exploreEnumerate;
+    embed::os::ReadPtr m_osRead;
+  };
 
   // implementation class
   class EnumerateService::Imp {
@@ -110,7 +161,7 @@ namespace iqrf {
         //TODO do it by FRC for DPA > 4.02
         try {
           auto nd = getNodeDataPriv((uint16_t)nadr, exclusiveAccess);
-          retval->addItem(nadr, nd.getMid(), nd.getHwpid(), nd.getHwpidVer());
+          retval->addItem(nd->getNadr(), nd->getEmbedOsRead()->getMid(), nd->getHwpid(), nd->getEmbedExploreEnumerate()->getHwpidVer());
         }
         catch (std::logic_error &e) {
           CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot fast enum: " << PAR(nadr));
@@ -121,89 +172,42 @@ namespace iqrf {
       return retval;
     }
 
-    IEnumerateService::CoordinatorData getCoordinatorData() const
-    {
-      TRC_FUNCTION_ENTER("");
-
-      IEnumerateService::CoordinatorData coordinatorData;
-      coordinatorData.m_valid = false;
-
-      auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-
-      {
-        iqrf::embed::coordinator::JsDriverBondedDevices iqrfEmbedCoordinatorBondedDevices;
-        std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorBondedDevices), transResult, m_repeat);
-        m_iJsDriverService->processDpaTransactionResult(iqrfEmbedCoordinatorBondedDevices, std::move(transResult));
-
-        coordinatorData.m_bonded =  iqrfEmbedCoordinatorBondedDevices.getBondedDevices();
-      }
-
-      {
-        iqrf::embed::coordinator::JsDriverDiscoveredDevices iqrfEmbedCoordinatorDiscoveredDevices;
-        std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfEmbedCoordinatorDiscoveredDevices), transResult, m_repeat);
-        m_iJsDriverService->processDpaTransactionResult(iqrfEmbedCoordinatorDiscoveredDevices, std::move(transResult));
-
-        coordinatorData.m_discovered = iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices();
-      }
-
-      //TODO other params
-
-      coordinatorData.m_valid = true;
-       
-      TRC_FUNCTION_LEAVE("");
-      return coordinatorData;
-    }
-
-    IEnumerateService::NodeData getNodeDataPriv(uint16_t nadr, std::unique_ptr<iqrf::IIqrfDpaService::ExclusiveAccess> & exclusiveAccess) const
+    IEnumerateService::INodeDataPtr getNodeDataPriv(uint16_t nadr, std::unique_ptr<iqrf::IIqrfDpaService::ExclusiveAccess> & exclusiveAccess) const
     {
       TRC_FUNCTION_ENTER(nadr);
 
-      IEnumerateService::NodeData nodeData;
+      IEnumerateService::INodeDataPtr nodeData;
+
+      std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+      std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(nadr));
 
       {
-        iqrf::embed::os::RawDpaRead iqrfEmbedOsRead(nadr);
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfEmbedOsRead), transResult, m_repeat);
-        m_iJsDriverService->processDpaTransactionResult(iqrfEmbedOsRead, std::move(transResult));
-
-        nodeData.setNadr((int)nadr);
-        nodeData.setHwpid(iqrfEmbedOsRead.getHwpid());
-        nodeData.setOsBuild(iqrfEmbedOsRead.getOsBuild());
-        nodeData.setOsVer(iqrfEmbedOsRead.getOsVersion());
-        nodeData.setMid(iqrfEmbedOsRead.getMid());
+        exclusiveAccess->executeDpaTransactionRepeat(createDpaRequest(*osReadPtr), transResult, m_repeat);
+        processDpaTransactionResult(*osReadPtr, std::move(transResult));
       }
 
       {
-        iqrf::embed::explore::Enumerate iqrfEmbedExploreEnumerate(nadr);
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfEmbedExploreEnumerate), transResult, m_repeat);
-        m_iJsDriverService->processDpaTransactionResult(iqrfEmbedExploreEnumerate, std::move(transResult));
-
-        nodeData.setHwpidVer(iqrfEmbedExploreEnumerate.getHwpidVer());
-        nodeData.setDpaVer(iqrfEmbedExploreEnumerate.getDpaVer());
-        nodeData.setModeStd(iqrfEmbedExploreEnumerate.isModeStd());
-        nodeData.setStdAndLpNet(iqrfEmbedExploreEnumerate.isStdAndLpSupport());
-        nodeData.setEmbedPer(iqrfEmbedExploreEnumerate.getEmbedPer());
-        nodeData.setUserPer(iqrfEmbedExploreEnumerate.getUserPer());
+        exclusiveAccess->executeDpaTransactionRepeat(createDpaRequest(*exploreEnumeratePtr), transResult, m_repeat);
+        processDpaTransactionResult(*exploreEnumeratePtr, std::move(transResult));
       }
 
-      nodeData.setValid(true);
+      nodeData.reset(shape_new NodeDataImpl(nadr, osReadPtr->getHwpid(), exploreEnumeratePtr, osReadPtr));
 
       TRC_FUNCTION_LEAVE("");
       return nodeData;
     }
 
-    IEnumerateService::NodeData getNodeData(uint16_t nadr) const
+    IEnumerateService::INodeDataPtr getNodeData(uint16_t nadr) const
     {
       TRC_FUNCTION_ENTER(nadr);
 
-      IEnumerateService::NodeData nodeData;
+      IEnumerateService::INodeDataPtr nodeData;
 
       auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
 
-      getNodeDataPriv(nadr, exclusiveAccess);
+      nodeData = getNodeDataPriv(nadr, exclusiveAccess);
 
       //{
       //  iqrf::sensor::Enumerate iqrfSensorEnumerate(nadr);
@@ -213,8 +217,6 @@ namespace iqrf {
       //}
 
       //TODO other params
-
-      nodeData.setValid(true);
 
       TRC_FUNCTION_LEAVE("");
       return nodeData;
@@ -238,12 +240,12 @@ namespace iqrf {
       return retval;
     }
 
-    IEnumerateService::IPeripheralInformationDataPtr getPeripheralInformationData(uint16_t nadr, int per) const
+    embed::explore::PeripheralInformationPtr getPeripheralInformationData(uint16_t nadr, int per) const
     {
-      std::unique_ptr<iqrf::embed::explore::PeripheralInformation> retval(shape_new iqrf::embed::explore::PeripheralInformation(nadr, per));
+      std::unique_ptr<iqrf::embed::explore::RawDpaPeripheralInformation> retval(shape_new iqrf::embed::explore::RawDpaPeripheralInformation(nadr, per));
       std::unique_ptr<IDpaTransactionResult2> transResult;
-      m_iIqrfDpaService->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(*retval), transResult, m_repeat);
-      m_iJsDriverService->processDpaTransactionResult(*retval, std::move(transResult));
+      m_iIqrfDpaService->executeDpaTransactionRepeat(createDpaRequest(*retval), transResult, m_repeat);
+      processDpaTransactionResult(*retval, std::move(transResult));
       return retval;
     }
 
@@ -330,12 +332,12 @@ namespace iqrf {
     return m_imp->getFastEnumeration();
   }
 
-  IEnumerateService::CoordinatorData EnumerateService::getCoordinatorData() const
-  {
-    return m_imp->getCoordinatorData();
-  }
+  //IEnumerateService::CoordinatorData EnumerateService::getCoordinatorData() const
+  //{
+  //  return m_imp->getCoordinatorData();
+  //}
 
-  IEnumerateService::NodeData EnumerateService::getNodeData(uint16_t nadr) const
+  IEnumerateService::INodeDataPtr EnumerateService::getNodeData(uint16_t nadr) const
   {
     return m_imp->getNodeData(nadr);
   }
@@ -350,7 +352,7 @@ namespace iqrf {
     return m_imp->getStandardBinaryOutputData(nadr);
   }
 
-  IEnumerateService::IPeripheralInformationDataPtr EnumerateService::getPeripheralInformationData(uint16_t nadr, int per) const
+  embed::explore::PeripheralInformationPtr EnumerateService::getPeripheralInformationData(uint16_t nadr, int per) const
   {
     return m_imp->getPeripheralInformationData(nadr, per);
   }

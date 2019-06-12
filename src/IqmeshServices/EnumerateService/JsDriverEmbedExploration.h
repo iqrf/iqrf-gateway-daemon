@@ -1,8 +1,8 @@
 #pragma once
 
 #include "JsDriverDpaCommandSolver.h"
+#include "EmbedExplore.h"
 #include "JsonUtils.h"
-#include <set>
 #include <sstream>
 #include <iomanip>
 
@@ -13,19 +13,11 @@ namespace iqrf
     namespace explore
     {
       ////////////////
-      class Enumerate : public JsDriverDpaCommandSolver
+      class JsDriverEnumerate : public Enumerate, public JsDriverDpaCommandSolver
       {
-      private:
-        int m_dpaVer = 0;
-        int m_perNr = 0;;
-        std::set<int> m_embedPer;
-        int m_hwpid = 0;
-        int m_hwpidVer = 0;
-        int m_flags = 0;
-        std::set<int> m_userPer;
 
       public:
-        Enumerate(uint16_t nadr)
+        JsDriverEnumerate(uint16_t nadr)
           :JsDriverDpaCommandSolver(nadr)
         {
         }
@@ -37,7 +29,6 @@ namespace iqrf
 
         void parseResponse(const rapidjson::Value& v) override
         {
-          //TODO use rapidjson::pointers
           m_dpaVer = jutils::getMemberAs<int>("dpaVer", v);
           m_perNr = jutils::getMemberAs<int>("perNr", v);
           {
@@ -53,50 +44,16 @@ namespace iqrf
           }
         }
 
-        // get data as returned from driver
-        int getDpaVer() const { return m_dpaVer; }
-        int getPerNr() const { return m_perNr; }
-        std::set<int> getEmbedPer() const { return m_embedPer; }
-        int getHwpid() const { return m_hwpid; }
-        int getHwpidVer() const { return m_hwpidVer; }
-        int getFlags() const { return m_flags; }
-        std::set<int> getUserPer() const { return m_userPer; }
-
-        // get more detailed data parsing
-        std::string getDpaVerAsString() const
-        {
-          std::ostringstream os;
-          os.fill('0');
-          os << std::hex <<
-            std::setw(2) << ((m_dpaVer & 0xefff) >> 8) << '.' << std::setw(2) << (m_dpaVer & 0xff);
-          return os.str();
-        }
-
-        bool isModeStd() const { return (m_flags & 1) != 0; }
-        bool isModeLp() const { return (m_flags & 1) == 0; }
-        bool isStdAndLpSupport() const { return (m_flags & 0b100) != 0; }
-
       };
 
       ////////////////
-      class PeripheralInformation : public JsDriverDpaCommandSolver, public IEnumerateService::IPeripheralInformationData
+      class JsDriverPeripheralInformation : public PeripheralInformation, public JsDriverDpaCommandSolver
       {
-      private:
-        //params
-        int m_per = 0;
-
-        //response
-        int m_perTe = 0;
-        int m_perT = 0;
-        int m_par1 = 0;
-        int m_par2 = 0;
-
       public:
-        PeripheralInformation(uint16_t nadr, int per)
-          :JsDriverDpaCommandSolver(nadr)
-          , m_per(per)
-        {
-        }
+        JsDriverPeripheralInformation(uint16_t nadr, int per)
+          :PeripheralInformation(per)
+          , JsDriverDpaCommandSolver(nadr)
+        {}
 
         std::string functionName() const override
         {
@@ -128,15 +85,6 @@ namespace iqrf
           m_par1 = jutils::getMemberAs<int>("par1", v);
           m_par2 = jutils::getMemberAs<int>("par2", v);
         }
-
-        // get data as returned from driver
-        int getPerTe() const override { return m_perTe; }
-        int getPerT() const override { return m_perT; }
-        int getPar1() const override { return m_par1; }
-        int getPar2() const override { return m_par2; }
-
-        // get more detailed data parsing
-
       };
     } //namespace explore
   } //namespace embed

@@ -14,10 +14,10 @@ namespace iqrf
       protected:
         std::set<int> m_bondedDevices;
 
-      public:
         BondedDevices()
         {}
 
+      public:
         virtual ~BondedDevices()
         {}
 

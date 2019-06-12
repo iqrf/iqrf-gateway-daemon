@@ -23,11 +23,10 @@ namespace iqrf {
     virtual ~EnumerateService();
 
     IFastEnumerationPtr getFastEnumeration() const override;
-    CoordinatorData getCoordinatorData() const override;
-    NodeData getNodeData(uint16_t nadr) const override;
+    INodeDataPtr getNodeData(uint16_t nadr) const override;
     IStandardSensorDataPtr getStandardSensorData(uint16_t nadr) const override;
     IStandardBinaryOutputDataPtr getStandardBinaryOutputData(uint16_t nadr) const override;
-    IPeripheralInformationDataPtr getPeripheralInformationData(uint16_t nadr, int per) const override;
+    embed::explore::PeripheralInformationPtr getPeripheralInformationData(uint16_t nadr, int per) const override;
 
 
     void activate(const shape::Properties *props = 0);

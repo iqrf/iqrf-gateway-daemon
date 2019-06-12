@@ -226,12 +226,12 @@ namespace iqrf {
     };
 
     // get key info without JS driver support to load proper coordinator driver
-    void initCoordinatorInfo()
-    {
-      TRC_FUNCTION_ENTER("");
-      IEnumerateService::CoordinatorData coordinatorData = m_iEnumerateService->getCoordinatorData();
-      TRC_FUNCTION_LEAVE("");
-    }
+    //void initCoordinatorInfo()
+    //{
+    //  TRC_FUNCTION_ENTER("");
+    //  IEnumerateService::CoordinatorData coordinatorData = m_iEnumerateService->getCoordinatorData();
+    //  TRC_FUNCTION_LEAVE("");
+    //}
 
     void syncDatabaseWithCoordinator()
     {
@@ -357,7 +357,6 @@ namespace iqrf {
           Bond & b = bondIt.second;
 
           try {
-            //IEnumerateService::NodeData nd = m_iEnumerateService->getNodeData(nadr); //TODO fast
             auto found = fastEnum->getEnumerated().find(nadr);
             if (found == fastEnum->getEnumerated().end()) {
               THROW_EXC_TRC_WAR(std::logic_error, "Cannot find bonded: " << PAR(nadr));
@@ -391,7 +390,7 @@ namespace iqrf {
             continue;
 
           try {
-            IEnumerateService::NodeData nd = m_iEnumerateService->getNodeData(nadr); //TODO full
+            IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr); //TODO full
 
             db << "begin transaction;";
             if (!midExistsInDb(b.m_mid)) {
@@ -415,14 +414,14 @@ namespace iqrf {
                 ", ?"
                 ", ?"
                 ");"
-                << nd.getMid()
-                << nd.getHwpid()
-                << nd.getHwpidVer()
-                << nd.getOsBuild()
-                << nd.getOsVer()
-                << nd.getDpaVer()
-                << nd.getModeStd()
-                << nd.getStdAndLpNet()
+                << nd->getEmbedOsRead()->getMid()
+                << nd->getHwpid()
+                << nd->getEmbedExploreEnumerate()->getHwpidVer()
+                << nd->getEmbedOsRead()->getOsBuild()
+                << nd->getEmbedOsRead()->getOsVersion()
+                << nd->getEmbedExploreEnumerate()->getDpaVer()
+                << nd->getEmbedExploreEnumerate()->getModeStd()
+                << nd->getEmbedExploreEnumerate()->getStdAndLpSupport()
                 ;
             }
             else {
@@ -435,14 +434,14 @@ namespace iqrf {
                 ", ModeStd = ?"
                 ", StdAndLpNet = ?"
                 " where Mid = ?;"
-                << nd.getHwpid()
-                << nd.getHwpidVer()
-                << nd.getOsBuild()
-                << nd.getOsVer()
-                << nd.getDpaVer()
-                << nd.getModeStd()
-                << nd.getStdAndLpNet()
-                << nd.getMid()
+                << nd->getHwpid()
+                << nd->getEmbedExploreEnumerate()->getHwpidVer()
+                << nd->getEmbedOsRead()->getOsBuild()
+                << nd->getEmbedOsRead()->getOsVersion()
+                << nd->getEmbedExploreEnumerate()->getDpaVer()
+                << nd->getEmbedExploreEnumerate()->getModeStd()
+                << nd->getEmbedExploreEnumerate()->getStdAndLpSupport()
+                << nd->getEmbedOsRead()->getMid()
                 ;
             }
 
@@ -452,7 +451,7 @@ namespace iqrf {
               " where "
               " Nadr = ?"
               ";"
-              << nd.getMid()
+              << nd->getEmbedOsRead()->getMid()
               << 1
               << nadr
               ;
@@ -461,27 +460,30 @@ namespace iqrf {
               " where "
               " Mid = ?"
               ";"
-              << nd.getMid();
+              << nd->getEmbedOsRead()->getMid()
+              ;
 
             db << "delete from Sensor "
               " where "
               " Mid = ?"
               ";"
-              << nd.getMid();
+              << nd->getEmbedOsRead()->getMid()
+              ;
 
             db << "delete from Binout "
               " where "
               " Mid = ?"
               ";"
-              << nd.getMid();
+              << nd->getEmbedOsRead()->getMid()
+              ;
 
-            for (auto per : nd.getEmbedPer()) {
-              insertPerifery(nd.getMid(), per);
+            for (auto per : nd->getEmbedExploreEnumerate()->getEmbedPer()) {
+              insertPerifery(nd->getEmbedOsRead()->getMid(), per);
             }
-            for (auto per : nd.getUserPer()) {
-              insertPerifery(nd.getMid(), per);
-              insertSensor(nd.getMid(), nadr, per);
-              insertBinout(nd.getMid(), nadr, per);
+            for (auto per : nd->getEmbedExploreEnumerate()->getUserPer()) {
+              insertPerifery(nd->getEmbedOsRead()->getMid(), per);
+              insertSensor(nd->getEmbedOsRead()->getMid(), nadr, per);
+              insertBinout(nd->getEmbedOsRead()->getMid(), nadr, per);
             }
 
             db << "commit;";

@@ -14,10 +14,10 @@ namespace iqrf
     namespace os
     {
       ////////////////
-      class RawDpaRead : public Read, public JsDriverDpaCommandSolver
+      class JsDriverRead : public Read, public JsDriverDpaCommandSolver
       {
       public:
-        RawDpaRead(uint16_t nadr)
+        JsDriverRead(uint16_t nadr)
           :JsDriverDpaCommandSolver(nadr)
         {
         }
@@ -44,10 +44,10 @@ namespace iqrf
       };
 
       ////////////////
-      class RawDpaReadCfg : public ReadCfg, public JsDriverDpaCommandSolver
+      class JsDriverReadCfg : public ReadCfg, public JsDriverDpaCommandSolver
       {
       public:
-        RawDpaReadCfg(uint16_t nadr)
+        JsDriverReadCfg(uint16_t nadr)
           :JsDriverDpaCommandSolver(nadr)
         {}
 
