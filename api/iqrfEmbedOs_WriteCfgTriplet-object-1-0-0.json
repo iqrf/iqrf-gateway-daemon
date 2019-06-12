@@ -11,7 +11,7 @@
     "properties": {
         "address": {
             "type": "integer",
-            "description": "Address of the item at configuration memory block. The valid address range is 0x01-0x1F for configuration values. Also, address 0x20 is a valid value for RFPGM settings. See parameter of setupRFPGM IQRF OS function.",
+            "description": "Address of the item at configuration memory block. The valid address range is 0x01-0x1F for configuration values. Also, address 0x20 is a valid value for RFPGM settings. See parameter of setupRFPGM IQRF OS function."
         },
         "value": {
             "type": "integer",
