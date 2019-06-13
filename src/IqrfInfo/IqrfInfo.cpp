@@ -330,18 +330,34 @@ namespace iqrf {
           int nadr = bondIt.first;
           Bond & b = bondIt.second;
           int hwpid = -1, hwpidVer = -1;
+          //db << "select "
+          //  "n.Hwpid "
+          //  ", n.HwpidVer "
+          //  " from "
+          //  " Node as n"
+          //  ", Bonded as b"
+          //  " where "
+          //  " b.Nadr = ? and "
+          //  " n.Mid = b.Mid"
+          //  ";"
+          //  << nadr
+          //  >> [&](int lhwpid, int lhwpidVer)
+
           db << "select "
-            "n.Hwpid "
-            ", n.HwpidVer "
+            "d.Hwpid "
+            ", d.HwpidVer "
             " from "
             " Node as n"
             ", Bonded as b"
+            ", Device as d"
             " where "
             " b.Nadr = ? and "
-            " n.Mid = b.Mid"
+            " n.Mid = b.Mid and "
+            " n.DeviceId = d.Id "
             ";"
             << nadr
             >> [&](int lhwpid, int lhwpidVer)
+
           {
             b.m_hwpid = lhwpid;
             b.m_hwpidVer = lhwpidVer;
@@ -390,61 +406,20 @@ namespace iqrf {
             continue;
 
           try {
-            IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr); //TODO full
+            IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr);
 
             db << "begin transaction;";
-            if (!midExistsInDb(b.m_mid)) {
-              // mid doesn't exist in DB
-              db << "insert into Node ("
-                "Mid"
-                ", Hwpid"
-                ", HwpidVer"
-                ", OsBuild"
-                ", OsVer"
-                ", DpaVer"
-                ", ModeStd"
-                ", StdAndLpNet"
-                ")  values ( "
-                "?"
-                ", ?"
-                ", ?"
-                ", ?"
-                ", ?"
-                ", ?"
-                ", ?"
-                ", ?"
-                ");"
-                << nd->getEmbedOsRead()->getMid()
-                << nd->getHwpid()
-                << nd->getEmbedExploreEnumerate()->getHwpidVer()
-                << nd->getEmbedOsRead()->getOsBuild()
-                << nd->getEmbedOsRead()->getOsVersion()
-                << nd->getEmbedExploreEnumerate()->getDpaVer()
-                << nd->getEmbedExploreEnumerate()->getModeStd()
-                << nd->getEmbedExploreEnumerate()->getStdAndLpSupport()
-                ;
-            }
-            else {
-              db << "update Node set "
-                "Hwpid = ?"
-                ", HwpidVer = ?"
-                ", OsBuild = ?"
-                ", OsVer = ?"
-                ", DpaVer = ?"
-                ", ModeStd = ?"
-                ", StdAndLpNet = ?"
-                " where Mid = ?;"
-                << nd->getHwpid()
-                << nd->getEmbedExploreEnumerate()->getHwpidVer()
-                << nd->getEmbedOsRead()->getOsBuild()
-                << nd->getEmbedOsRead()->getOsVersion()
-                << nd->getEmbedExploreEnumerate()->getDpaVer()
-                << nd->getEmbedExploreEnumerate()->getModeStd()
-                << nd->getEmbedExploreEnumerate()->getStdAndLpSupport()
-                << nd->getEmbedOsRead()->getMid()
-                ;
-            }
 
+            int mid = nd->getEmbedOsRead()->getMid();
+            int hwpid = nd->getHwpid();
+            int hwpidVer = nd->getEmbedExploreEnumerate()->getHwpidVer();
+            int osBuild = nd->getEmbedOsRead()->getOsBuild();
+            int osVer = nd->getEmbedOsRead()->getOsVersion();
+            int dpaVer = nd->getEmbedExploreEnumerate()->getDpaVer();
+
+            int deviceId = deviceInDb(hwpid, hwpidVer, osBuild, osVer, dpaVer);
+            nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
+            
             db << "update Bonded set "
               "Mid = ?"
               ", Enm = ?"
@@ -482,8 +457,8 @@ namespace iqrf {
             }
             for (auto per : nd->getEmbedExploreEnumerate()->getUserPer()) {
               insertPerifery(nd->getEmbedOsRead()->getMid(), per);
-              insertSensor(nd->getEmbedOsRead()->getMid(), nadr, per);
-              insertBinout(nd->getEmbedOsRead()->getMid(), nadr, per);
+              //insertSensor(nd->getEmbedOsRead()->getMid(), nadr, per);
+              //insertBinout(nd->getEmbedOsRead()->getMid(), nadr, per);
             }
 
             db << "commit;";
@@ -596,6 +571,134 @@ namespace iqrf {
         >> count;
       return count > 0;
     }
+
+    // check id device exist and if not insert and return id
+    int deviceInDb(int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer)
+    {
+      TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(osVer) << PAR(dpaVer))
+
+      std::unique_ptr<int> id;
+      database & db = *m_db;
+      db << "select "
+        "d.Id "
+        "from "
+        "Device as d "
+        "where "
+        "d.Hwpid = ? and "
+        "d.HwpidVer = ? and "
+        "d.OsBuild = ? and "
+        "d.DpaVer = ? "
+        ";"
+        << hwpid
+        << hwpidVer
+        << osBuild
+        << dpaVer
+        >> [&](std::unique_ptr<int> d)
+      {
+        id = std::move(d);
+      };
+      
+      if (!id) {
+        // device doesn't exist in DB
+        db << "insert into Device ("
+          "Hwpid"
+          ", HwpidVer"
+          ", OsBuild"
+          ", OsVer"
+          ", DpaVer"
+          ")  values ( "
+          "?"
+          ", ?"
+          ", ?"
+          ", ?"
+          ", ?"
+          ");"
+          << hwpid
+          << hwpidVer
+          << osBuild
+          << osVer
+          << dpaVer
+          ;
+      }
+
+      db << "select "
+        "d.Id "
+        "from "
+        "Device as d "
+        "where "
+        "d.Hwpid = ? and "
+        "d.HwpidVer = ? and "
+        "d.OsBuild = ? and "
+        "d.DpaVer = ? "
+        ";"
+        << hwpid
+        << hwpidVer
+        << osBuild
+        << dpaVer
+        >> [&](std::unique_ptr<int> d)
+      {
+        id = std::move(d);
+      };
+
+      if (!id) {
+        THROW_EXC_TRC_WAR(std::logic_error, "insert failed: " << PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(osVer) << PAR(dpaVer))
+      }
+      
+      TRC_FUNCTION_LEAVE("")
+
+      return *id;
+    }
+
+    // check if node with mid exist and if not insert
+    void nodeInDb(unsigned mid, int deviceId, int modeStd, int stdAndLpSupport)
+    {
+      TRC_FUNCTION_ENTER(PAR(mid) << PAR(deviceId) << PAR(modeStd) PAR(stdAndLpSupport))
+
+      int count = 0;
+      database & db = *m_db;
+      db << "select "
+        "count(*) "
+        "from "
+        "Node as n "
+        "where "
+        "n.Mid = ?"
+        ";"
+        << mid
+        >> count;
+
+      if (0 == count) {
+        // mid doesn't exist in DB
+        db << "insert into Node ("
+          "Mid"
+          ", DeviceId "
+          ", ModeStd "
+          ", StdAndLpSupport "
+          ")  values ( "
+          "?"
+          ", ?"
+          ", ?"
+          ", ?"
+          ");"
+          << mid
+          << deviceId
+          << modeStd
+          << stdAndLpSupport
+          ;
+      }
+      else {
+        db << "update Node set "
+          "ModeStd = ?"
+          ", StdAndLpSupport = ?"
+          " where Mid = ?;"
+          << modeStd
+          << stdAndLpSupport
+          << mid
+          ;
+      }
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
 
   };
 
