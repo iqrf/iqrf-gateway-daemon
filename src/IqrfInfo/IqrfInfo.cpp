@@ -67,6 +67,7 @@ namespace iqrf {
   {
   private:
 
+    IJsCacheService* m_iJsCacheService = nullptr;
     IEnumerateService* m_iEnumerateService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     shape::ILaunchService* m_iLaunchService = nullptr;
@@ -81,6 +82,22 @@ namespace iqrf {
 
     ~Imp()
     {
+    }
+
+    void attachInterface(iqrf::IJsCacheService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      m_iJsCacheService = iface;
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void detachInterface(iqrf::IJsCacheService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      if (m_iJsCacheService == iface) {
+        m_iJsCacheService = nullptr;
+      }
+      TRC_FUNCTION_LEAVE("")
     }
 
     void attachInterface(iqrf::IEnumerateService* iface)
@@ -410,12 +427,14 @@ namespace iqrf {
 
             db << "begin transaction;";
 
-            int mid = nd->getEmbedOsRead()->getMid();
+            unsigned mid = nd->getEmbedOsRead()->getMid();
             int hwpid = nd->getHwpid();
             int hwpidVer = nd->getEmbedExploreEnumerate()->getHwpidVer();
             int osBuild = nd->getEmbedOsRead()->getOsBuild();
             int osVer = nd->getEmbedOsRead()->getOsVersion();
             int dpaVer = nd->getEmbedExploreEnumerate()->getDpaVer();
+            std::string osBuildStr = nd->getEmbedOsRead()->getOsBuildAsString();
+            std::string dpaVerStr = nd->getEmbedExploreEnumerate()->getDpaVerAsHexaString();
 
             int deviceId = deviceInDb(hwpid, hwpidVer, osBuild, osVer, dpaVer);
             nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
@@ -426,7 +445,7 @@ namespace iqrf {
               " where "
               " Nadr = ?"
               ";"
-              << nd->getEmbedOsRead()->getMid()
+              << mid
               << 1
               << nadr
               ;
@@ -435,31 +454,68 @@ namespace iqrf {
               " where "
               " Mid = ?"
               ";"
-              << nd->getEmbedOsRead()->getMid()
+              << mid
               ;
 
             db << "delete from Sensor "
               " where "
               " Mid = ?"
               ";"
-              << nd->getEmbedOsRead()->getMid()
+              << mid
               ;
 
             db << "delete from Binout "
               " where "
               " Mid = ?"
               ";"
-              << nd->getEmbedOsRead()->getMid()
+              << mid
               ;
 
-            for (auto per : nd->getEmbedExploreEnumerate()->getEmbedPer()) {
-              insertPerifery(nd->getEmbedOsRead()->getMid(), per);
+            // get drivers from JsCache
+            const iqrf::IJsCacheService::Package *pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, osBuildStr, dpaVerStr);
+            
+            const std::set<int> & embedPer = nd->getEmbedExploreEnumerate()->getEmbedPer();
+            const std::set<int> & userPer = nd->getEmbedExploreEnumerate()->getUserPer();
+
+            std::map<int, int> perVerMap;
+
+            for (auto per : embedPer) {
+              perVerMap[per] = -1;
             }
-            for (auto per : nd->getEmbedExploreEnumerate()->getUserPer()) {
-              insertPerifery(nd->getEmbedOsRead()->getMid(), per);
-              //insertSensor(nd->getEmbedOsRead()->getMid(), nadr, per);
-              //insertBinout(nd->getEmbedOsRead()->getMid(), nadr, per);
+            for (auto per : userPer) {
+              perVerMap[per] = -1;
             }
+
+            if (!pckg) {
+              // device not supported by repo
+              if (embedPer.size() > 0) {
+                //TODO Get information for more peripherals to get embed drivers
+              }
+              //Get peripheral information for sensor, binout and TODO other std if presented
+              for (auto per : userPer) {
+                if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per) {
+                  embed::explore::PeripheralInformationPtr peripheralInformationPtr = m_iEnumerateService->getPeripheralInformationData(nadr, per);
+                  int version = peripheralInformationPtr->getPar1();
+                  perVerMap[per] = version;
+                }
+              }
+            }
+            else {
+              //Get all driver info from repo package
+            }
+
+            for (auto it : perVerMap) {
+              insertPerifery(mid, it.first, it.second);
+            }
+
+            //for (auto per : embedPer) {
+            //  insertPerifery(mid, per, perVer);
+            //}
+            //for (auto per : userPer) {
+            //  insertPerifery(mid, per);
+            //  //insertSensor(nd->getEmbedOsRead()->getMid(), nadr, per);
+            //  //insertBinout(nd->getEmbedOsRead()->getMid(), nadr, per);
+            //}
 
             db << "commit;";
           }
@@ -478,18 +534,21 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void insertPerifery(unsigned mid, int per)
+    void insertPerifery(unsigned mid, int per, int stdVer)
     {
       database & db = *m_db;
       db << "insert into Perifery ("
         "Mid"
         ", Per"
+        ", StdVer"
         ")  values ( "
         "?"
+        ", ?"
         ", ?"
         ");"
         << mid
         << per
+        << stdVer
         ;
     }
 
@@ -726,6 +785,16 @@ namespace iqrf {
   void IqrfInfo::modify(const shape::Properties *props)
   {
     (void)props; //silence -Wunused-parameter
+  }
+
+  void IqrfInfo::attachInterface(iqrf::IJsCacheService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void IqrfInfo::detachInterface(iqrf::IJsCacheService* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void IqrfInfo::attachInterface(iqrf::IEnumerateService* iface)

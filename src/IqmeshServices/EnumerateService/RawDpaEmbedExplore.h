@@ -59,6 +59,11 @@ namespace iqrf
 
         void parseResponse() override
         {
+          TPeripheralInfoAnswer resp = m_dpaTransactionResult2->getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.PeripheralInfoAnswer;
+          m_perTe = (int)resp.PerTE;
+          m_perT = (int)resp.PerT;
+          m_par1 = (int)resp.Par1;
+          m_par2 = (int)resp.Par2;
         }
 
       };

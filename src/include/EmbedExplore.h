@@ -35,13 +35,20 @@ namespace iqrf
         int getFlags() const { return m_flags; }
         const std::set<int> & getUserPer() const { return m_userPer; }
 
-        // get more detailed data parsing
         std::string getDpaVerAsString() const
         {
           std::ostringstream os;
           os.fill('0');
           os << std::hex <<
             std::setw(2) << ((m_dpaVer & 0xefff) >> 8) << '.' << std::setw(2) << (m_dpaVer & 0xff);
+          return os.str();
+        }
+
+        std::string getDpaVerAsHexaString() const
+        {
+          std::ostringstream os;
+          os.fill('0');
+          os << std::hex << std::setw(4) << m_dpaVer;
           return os.str();
         }
 
