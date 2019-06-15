@@ -88,6 +88,7 @@ namespace iqrf {
     virtual IStandardBinaryOutputDataPtr getStandardBinaryOutputData(uint16_t nadr) const = 0;
 
     virtual embed::explore::PeripheralInformationPtr getPeripheralInformationData(uint16_t nadr, int per) const = 0;
+    virtual embed::explore::MorePeripheralInformationPtr getMorePeripheralInformationData(uint16_t nadr, int per) const = 0;
 
     virtual ~IEnumerateService() {}
   };

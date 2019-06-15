@@ -87,6 +87,56 @@ namespace iqrf
       };
       typedef std::unique_ptr<PeripheralInformation> PeripheralInformationPtr;
 
+      ////////////////
+      class MorePeripheralInformation
+      {
+      public:
+        class Param
+        {
+        public:
+          Param() = delete;
+          Param(int aperTe, int aperT, int apar1, int apar2)
+            :perTe(aperTe)
+            , perT(aperT)
+            , par1(apar1)
+            , par2(apar2)
+          {}
+
+          int perTe = 0;
+          int perT = 0;
+          int par1 = 0;
+          int par2 = 0;
+        };
+      protected:
+        //params
+        int m_per = 0;
+
+        //response
+        std::vector<Param> m_params;
+        std::map<int, Param> m_perParamsMap;
+
+        MorePeripheralInformation(int per)
+          : m_per(per)
+        {}
+
+      public:
+        virtual ~MorePeripheralInformation() {}
+        int getPer() const { return m_per; }
+        const std::vector<Param> getParams() const { return m_params; }
+        
+        std::map<int, Param> getPerParamsMap() const
+        {
+          std::map<int, Param> perParamsMap;
+          for (int i = 0; i < (int)m_params.size(); i++) {
+            if (m_params[i].perTe != PERIPHERAL_TYPE_DUMMY) {
+              perParamsMap.insert(std::make_pair(i + m_per, m_params[i]));
+            }
+          }
+          return perParamsMap;
+        }
+      };
+      typedef std::unique_ptr<MorePeripheralInformation> MorePeripheralInformationPtr;
+
     } //namespace explore
   } //namespace embed
 } //namespace iqrf

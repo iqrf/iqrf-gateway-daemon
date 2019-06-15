@@ -273,8 +273,8 @@ namespace iqrf {
         bonded.insert(std::make_pair(nadr, Bond(nadr, mid, bdisc)));
       };
 
-      // check if coord bonded exist in db bonded
-      for (auto nadr : fastEnum->getBonded()) {
+      for (const auto & en : fastEnum->getEnumerated()) {
+        int nadr = en.first;
         auto found = bonded.find(nadr);
         if (found == bonded.end())
         {
@@ -297,10 +297,9 @@ namespace iqrf {
         }
       }
 
-      // check if db bonded exist in coord bonded
       {
         std::map<int, Bond> ::iterator bondIt = bonded.begin();
-        const std::set<int> & coordBonded = fastEnum->getBonded();
+        const auto & coordBonded = fastEnum->getEnumerated();
 
         while (bondIt != bonded.end()) {
           int nadr = bondIt->first;
@@ -347,18 +346,6 @@ namespace iqrf {
           int nadr = bondIt.first;
           Bond & b = bondIt.second;
           int hwpid = -1, hwpidVer = -1;
-          //db << "select "
-          //  "n.Hwpid "
-          //  ", n.HwpidVer "
-          //  " from "
-          //  " Node as n"
-          //  ", Bonded as b"
-          //  " where "
-          //  " b.Nadr = ? and "
-          //  " n.Mid = b.Mid"
-          //  ";"
-          //  << nadr
-          //  >> [&](int lhwpid, int lhwpidVer)
 
           db << "select "
             "d.Hwpid "
@@ -438,7 +425,7 @@ namespace iqrf {
 
             int deviceId = deviceInDb(hwpid, hwpidVer, osBuild, osVer, dpaVer);
             nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
-            
+
             db << "update Bonded set "
               "Mid = ?"
               ", Enm = ?"
@@ -473,35 +460,49 @@ namespace iqrf {
 
             // get drivers from JsCache
             const iqrf::IJsCacheService::Package *pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, osBuildStr, dpaVerStr);
-            
+
             const std::set<int> & embedPer = nd->getEmbedExploreEnumerate()->getEmbedPer();
             const std::set<int> & userPer = nd->getEmbedExploreEnumerate()->getUserPer();
 
             std::map<int, int> perVerMap;
 
-            for (auto per : embedPer) {
-              perVerMap[per] = -1;
-            }
-            for (auto per : userPer) {
-              perVerMap[per] = -1;
-            }
-
             if (!pckg) {
-              // device not supported by repo
-              if (embedPer.size() > 0) {
-                //TODO Get information for more peripherals to get embed drivers
+              // Get for hwpid 0 plain DPA plugin
+              pckg = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, osBuildStr, dpaVerStr);
+              for (auto per : embedPer) {
+                for (auto drv : pckg->m_stdDriverVect) {
+                  if (drv->getId() == -1 ) {
+                    perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
+                  }
+                  if (drv->getId() == per) {
+                    perVerMap.insert(std::make_pair(per, drv->getVersion()));
+                  }
+                }
               }
-              //Get peripheral information for sensor, binout and TODO other std if presented
               for (auto per : userPer) {
+                //Get peripheral information for sensor, binout and TODO other std if presented
                 if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per) {
                   embed::explore::PeripheralInformationPtr peripheralInformationPtr = m_iEnumerateService->getPeripheralInformationData(nadr, per);
                   int version = peripheralInformationPtr->getPar1();
-                  perVerMap[per] = version;
+                  perVerMap.insert(std::make_pair(per, version));
+                }
+                else {
+                  perVerMap.insert(std::make_pair(per, -1));
                 }
               }
             }
             else {
               //Get all driver info from repo package
+              for (auto per : embedPer) {
+                for (auto drv : pckg->m_stdDriverVect) {
+                  if (drv->getId() == -1) {
+                    perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
+                  }
+                  if (drv->getId() == per) {
+                    perVerMap.insert(std::make_pair(per, drv->getVersion()));
+                  }
+                }
+              }
             }
 
             for (auto it : perVerMap) {
@@ -574,7 +575,7 @@ namespace iqrf {
         int frc1byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_1BYTE));
         int frc2byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BYTES));
         int frc4byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_4BYTES));
-        
+
         db << "insert into Sensor ("
           "Mid"
           ", Idx"
@@ -593,7 +594,7 @@ namespace iqrf {
           ");"
           << mid << idx++ << sen->getSid() << sen->getType() << sen->getName() << sen->getShortName() << sen->getUnit() << sen->getDecimalPlaces()
           << frc2bit << frc1byte << frc2byte << frc4byte;
-          ;
+        ;
       }
     }
 
@@ -636,7 +637,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(osVer) << PAR(dpaVer))
 
-      std::unique_ptr<int> id;
+        std::unique_ptr<int> id;
       database & db = *m_db;
       db << "select "
         "d.Id "
@@ -656,7 +657,7 @@ namespace iqrf {
       {
         id = std::move(d);
       };
-      
+
       if (!id) {
         // device doesn't exist in DB
         db << "insert into Device ("
@@ -702,10 +703,10 @@ namespace iqrf {
       if (!id) {
         THROW_EXC_TRC_WAR(std::logic_error, "insert failed: " << PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(osVer) << PAR(dpaVer))
       }
-      
+
       TRC_FUNCTION_LEAVE("")
 
-      return *id;
+        return *id;
     }
 
     // check if node with mid exist and if not insert
@@ -713,7 +714,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(mid) << PAR(deviceId) << PAR(modeStd) PAR(stdAndLpSupport))
 
-      int count = 0;
+        int count = 0;
       database & db = *m_db;
       db << "select "
         "count(*) "

@@ -69,6 +69,30 @@ namespace iqrf
       };
       typedef std::unique_ptr<RawDpaPeripheralInformation> RawDpaPeripheralInformationPtr;
 
+      ////////////////
+      class RawDpaMorePeripheralInformation : public MorePeripheralInformation, public RawDpaCommandSolver
+      {
+      public:
+        RawDpaMorePeripheralInformation(uint16_t nadr, int per)
+          :MorePeripheralInformation(per)
+          , RawDpaCommandSolver(nadr, 0xFF, (uint8_t)per)
+        {
+        }
+
+        virtual ~RawDpaMorePeripheralInformation() {}
+
+        void parseResponse() override
+        {
+          const std::vector<uint8_t> & r = getRdata();
+          auto len = r.size();
+          for (int i = 3; i < len; i += 4) {
+            m_params.push_back(MorePeripheralInformation::Param(r[i - 3], r[i - 2], r[i - 1], r[i]));
+          }
+        }
+
+      };
+      typedef std::unique_ptr<RawDpaPeripheralInformation> RawDpaPeripheralInformationPtr;
+
     } //namespace explore
   } //namespace embed
 } //namespace iqrf
