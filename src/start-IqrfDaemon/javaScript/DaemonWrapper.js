@@ -935,6 +935,30 @@ if (iqrf.sensor !== undefined) {
 	};
 }
 
+///////////////////
+// IqrfStandardDALI
+///////////////////
+if (iqrf.DALI !== undefined) {
+	
+	iqrf.DALI.SendCommands_Request_req = function (param) {
+		return iqrf.DALI.SendCommands_Request(param.commands);
+	};
+
+	iqrf.DALI.SendCommands_Response_rsp = function (rawHdp) {
+		var result = iqrf.DALI.Enumerate_Response(rawHdp)
+		return result;
+	};
+
+	iqrf.DALI.SendCommandsAsync_Request_req = function (param) {
+		return iqrf.DALI.SendCommandsAsync_Request(param.commands);
+	};
+
+    iqrf.DALI.SendCommandsAsync_Response_rsp = function (rawHdp) {
+		var result = iqrf.DALI.SendCommandsAsync_Response(rawHdp)
+		return result;
+	};
+}
+
 ////////////////////////
 // EXPLORE
 ////////////////////////
