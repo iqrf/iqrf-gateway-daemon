@@ -58,7 +58,7 @@ sudo systemctl stop iqrf-gateway-daemon
 Configure the daemon
 ====================
 
-cd shape/deploy/Unix_Makefiles/Debug/IqrfDaemon/runcfg/iqrfgd2-LinSpi/configuration
+cd shape/deploy/Unix_Makefiles/Debug/iqrf-gateway-daemon/runcfg/iqrfgd2-LinSpi/configuration
 nano iqrf__IqrfSpi.json ... OPI /dev/spidev1.0 + mapovani pinů z clibspi pro OPI
                         ... UP /dev/spidev2.0 + mapovani pinu je default pro UP
 nano iqrf__NativeUploadService.json ... nastavit uploadPath, vytvořit adresař a nahrát IQRF, HEX
@@ -67,5 +67,14 @@ nano iqrf__NativeUploadService.json ... nastavit uploadPath, vytvořit adresař 
 Running the daemon
 ==================
 
-cd shape/deploy/Unix_Makefiles/Debug/IqrfDaemon/runcfg/iqrfgd2-LinSpi
+cd shape/deploy/Unix_Makefiles/Debug/iqrf-gateway-daemon/runcfg/iqrfgd2-LinSpi
 sudo ./StartUp.sh
+
+Docker builder
+==============
+
+Build and run for Linux and USB IQRF CDC coordinator (e.g. server hw): 
+
+docker build -f build.dockerfile.stretch.amd64 -t iqrftech/iqrf-gateway-daemon:test-amd64 .
+
+docker container run -d --name iqrf-gateway-daemon-tester -p 1338:1338 -p 55000:55000/udp -p 55300:55300/udp --device /dev/ttyACM0:/dev/ttyACM0 --privileged --restart=always iqrftech/iqrf-gateway-daemon:test-amd64
