@@ -1,4 +1,6 @@
-# BUILD IQRF GW daemon from source code
+# BUILDS IQRF GW daemon from source code
+# RUNS IQRF GW daemon with USB IQRF CDC coordinator
+
 FROM multiarch/debian-debootstrap:amd64-stretch
 
 MAINTAINER Rostislav Spinar <rostislav.spinar@iqrf.com>
@@ -36,8 +38,10 @@ RUN mkdir iqrf \
   && git submodule update \
   && ./buildMake.sh
 
-WORKDIR /root/iqrf/shape
+WORKDIR $HOME/iqrf/shape/deploy/Unix_Makefiles/Debug/iqrf-gateway-daemon/runcfg/iqrfgd2-LinCdc
+
+ENV PATH="$HOME/iqrf/shape/deploy/Unix_Makefiles/Debug/iqrf-gateway-daemon/bin:${PATH}"
 
 EXPOSE 1338 55000/udp 55300/udp
 
-CMD ["deploy/Unix_Makefiles/Debug/iqrf-gateway-daemon/runcfg/iqrfgd2-LinCdc/StartUp.sh"]
+CMD ["iqrfgd2","configuration/config.json"]
