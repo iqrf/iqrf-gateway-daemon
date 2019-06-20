@@ -64,7 +64,8 @@ namespace iqrf {
       "iqrfEmbed",
       "iqrfLight",
       "iqrfSensor",
-      "iqrfBinaryoutput"
+      "iqrfBinaryoutput",
+      "iqrfDALI"
     };
 
   public:
