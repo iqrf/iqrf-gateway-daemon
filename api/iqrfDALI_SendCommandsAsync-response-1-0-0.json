@@ -10,7 +10,7 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Standard peripheral DALI - Send DALI commands and returns answers synchronously.",
+            "description": "Standard peripheral DALI - Send DALI commands and returns answers asynchronously.",
             "enum": [
                 "iqrfDALI_SendCommandsAsync"
             ]
