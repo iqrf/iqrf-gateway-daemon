@@ -4,6 +4,7 @@
         "vendor": "com.iqrftech.self-desc",
         "name": "iqrfEmbedLedg_Pulse-response",
         "format": "jsonschema",
+        "jsDriverVersion": [0, 1],
         "version": "1-0-0"
     },
     "type": "object",
