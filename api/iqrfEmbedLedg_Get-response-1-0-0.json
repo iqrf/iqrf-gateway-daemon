@@ -4,7 +4,7 @@
         "vendor": "com.iqrftech.self-desc",
         "name": "iqrfEmbedLedg_Get-response",
         "format": "jsonschema",
-        "jsDriverVersion": [0],
+        "jsDriverVersions": [0],
         "version": "1-0-0"
     },
     "type": "object",

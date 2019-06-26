@@ -4,7 +4,7 @@
         "vendor": "com.iqrftech.self-desc",
         "name": "iqrfEmbedLedr_Flashing-response",
         "format": "jsonschema",
-        "jsDriverVersion": [1],
+        "jsDriverVersions": [1],
         "version": "1-0-0"
     },
     "type": "object",
