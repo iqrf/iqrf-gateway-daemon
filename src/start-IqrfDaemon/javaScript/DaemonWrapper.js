@@ -935,6 +935,46 @@ if (iqrf.sensor !== undefined) {
 	};
 }
 
+///////////////////
+// IqrfStandardDALI
+///////////////////
+if (iqrf.DALI !== undefined) {
+	
+	iqrf.DALI.SendCommands_Request_req = function (param) {
+		return iqrf.DALI.SendCommands_Request(param.commands);
+	};
+
+	iqrf.DALI.SendCommands_Response_rsp = function (rawHdp) {
+    var result = iqrf.DALI.SendCommands_Response(rawHdp)
+		return result;
+	};
+
+	iqrf.DALI.SendCommandsAsync_Request_req = function (param) {
+		return iqrf.DALI.SendCommandsAsync_Request(param.commands);
+	};
+
+    iqrf.DALI.SendCommandsAsync_Response_rsp = function (rawHdp) {
+		var result = iqrf.DALI.SendCommandsAsync_Response(rawHdp)
+		return result;
+  };
+
+  iqrf.DALI.Frc_Request_req = function (param) {
+    var result =
+    {
+      retpars: iqrf.DALI.Frc_Request(param.command, param.selectedNodes)
+    };
+    return result;
+  };
+
+  iqrf.DALI.Frc_Response_rsp = function (param) {
+    var result =
+    {
+      items: iqrf.DALI.Frc_Response(param.responseFrcSend, param.responseFrcExtraResult)
+    };
+    return result;
+  };
+}
+
 ////////////////////////
 // EXPLORE
 ////////////////////////

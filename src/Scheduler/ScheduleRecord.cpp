@@ -268,7 +268,7 @@ namespace iqrf {
 
       val = mnm % divid;
       val = val == 0 ? mnm : mnm - val + divid;
-      while (val < mxm) {
+      while (val <= mxm) {
         vec.push_back(val + offset);
         val += divid;
       }
