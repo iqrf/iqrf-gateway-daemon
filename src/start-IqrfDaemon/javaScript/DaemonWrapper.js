@@ -938,41 +938,41 @@ if (iqrf.sensor !== undefined) {
 ///////////////////
 // IqrfStandardDALI
 ///////////////////
-if (iqrf.DALI !== undefined) {
-	
-	iqrf.DALI.SendCommands_Request_req = function (param) {
-		return iqrf.DALI.SendCommands_Request(param.commands);
-	};
+if (iqrf.dali !== undefined) {
 
-	iqrf.DALI.SendCommands_Response_rsp = function (rawHdp) {
-    var result = iqrf.DALI.SendCommands_Response(rawHdp)
-		return result;
-	};
-
-	iqrf.DALI.SendCommandsAsync_Request_req = function (param) {
-		return iqrf.DALI.SendCommandsAsync_Request(param.commands);
-	};
-
-    iqrf.DALI.SendCommandsAsync_Response_rsp = function (rawHdp) {
-		var result = iqrf.DALI.SendCommandsAsync_Response(rawHdp)
-		return result;
-  };
-
-  iqrf.DALI.Frc_Request_req = function (param) {
-    var result =
-    {
-      retpars: iqrf.DALI.Frc_Request(param.command, param.selectedNodes)
+    iqrf.dali.SendCommands_Request_req = function (param) {
+        return iqrf.dali.SendCommands_Request(param.commands);
     };
-    return result;
-  };
 
-  iqrf.DALI.Frc_Response_rsp = function (param) {
-    var result =
-    {
-      items: iqrf.DALI.Frc_Response(param.responseFrcSend, param.responseFrcExtraResult)
+    iqrf.dali.SendCommands_Response_rsp = function (rawHdp) {
+        var result = iqrf.dali.SendCommands_Response(rawHdp)
+        return result;
     };
-    return result;
-  };
+
+    iqrf.dali.SendCommandsAsync_Request_req = function (param) {
+        return iqrf.dali.SendCommandsAsync_Request(param.commands);
+    };
+
+    iqrf.dali.SendCommandsAsync_Response_rsp = function (rawHdp) {
+        var result = iqrf.dali.SendCommandsAsync_Response(rawHdp)
+        return result;
+    };
+
+    iqrf.dali.Frc_Request_req = function (param) {
+        var result =
+        {
+            retpars: iqrf.dali.Frc_Request(param.command, param.selectedNodes)
+        };
+        return result;
+    };
+
+    iqrf.dali.Frc_Response_rsp = function (param) {
+        var result =
+        {
+            items: iqrf.dali.Frc_Response(param.responseFrcSend, param.responseFrcExtraResult)
+        };
+        return result;
+    };
 }
 
 ////////////////////////

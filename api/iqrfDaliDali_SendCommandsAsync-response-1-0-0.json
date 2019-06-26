@@ -2,7 +2,7 @@
     "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfDALI_SendCommands-response",
+        "name": "iqrfDali_SendCommandsAsync-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Standard peripheral DALI - Send DALI commands and returns answers synchronously.",
+            "description": "Standard peripheral DALI - Send DALI commands and returns answers asynchronously.",
             "enum": [
-                "iqrfDALI_SendCommands"
+                "iqrfDali_SendCommandsAsync"
             ]
         },
         "data": {
@@ -46,25 +46,8 @@
                             "description": "DPA value."
                         },
                         "result": {
-                            "type": "array",
-                            "description": "Returns array of objects for every DALI 2B command.",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "status": {
-                                        "type": "integer",
-                                        "description": "DALI status: See IQRF DALI standard for details."
-                                    },
-                                    "value": {
-                                        "type": "integer",
-                                        "description": "DALI value: See IQRF DALI standard for details."
-                                    }
-                                },
-                                "required": [
-                                    "status",
-                                    "value"
-                                ]
-                            }
+                            "type": "object",
+                            "properties": {}
                         },
                         "errorStr": {
                             "type": "string",
