@@ -471,7 +471,7 @@ namespace iqrf {
               pckg = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, osBuildStr, dpaVerStr);
               for (auto per : embedPer) {
                 for (auto drv : pckg->m_stdDriverVect) {
-                  if (drv->getId() == -1 ) {
+                  if (drv->getId() == -1) {
                     perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
                   }
                   if (drv->getId() == per) {
@@ -530,6 +530,31 @@ namespace iqrf {
             CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
           }
         }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void enumStandard()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      database & db = *m_db;
+
+      try {
+        IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr);
+
+        db << "begin transaction;";
+        db << "commit;";
+      }
+      catch (sqlite_exception &e)
+      {
+        CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+        db << "rollback;";
+      }
+      catch (std::exception &e)
+      {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
       }
 
       TRC_FUNCTION_LEAVE("");
