@@ -421,16 +421,16 @@ namespace iqrf {
     {
       std::basic_string<uint8_t> msg;
 
-      if (addr & 0x00FF > INT_EEPROM_UP_HIGH) {
-        THROW_EXC(std::out_of_range, "Address in internal eeprom memory is outside of addressable range!");
+      if ((addr & 0x00FF) > INT_EEPROM_UP_HIGH) {
+        THROW_EXC(std::out_of_range, "Address in internal EEPROM memory is outside of addressable range!");
       }
 
       if ((addr & 0x00FF) + data.length() > INT_EEPROM_UP_ADDR_LEN_MAX) {
-        THROW_EXC(std::out_of_range, "End of write is out of the addressable range of the internal eeprom!");
+        THROW_EXC(std::out_of_range, "End of write is out of the addressable range of the internal EEPROM!");
       }
 
       if ((data.length() < INT_EEPROM_UP_LEN_MIN) || (data.length() > INT_EEPROM_UP_LEN_MAX)) {
-        THROW_EXC(std::out_of_range, "Data to be programmed into the internal eeprom memory must be 1-32B long!");
+        THROW_EXC(std::out_of_range, "Data to be programmed into the internal EEPROM memory must be 1-32B long!");
       }
 
       insertAddressAndData(msg, addr, data);
@@ -561,7 +561,7 @@ namespace iqrf {
 
       if (!parser.check(trModuleInfo)) {
         THROW_EXC(
-          std::out_of_range, "IQRF file " << PAR(fileName) << " can not be upload to TR! TR is not in supported types specified in the IQRF file. This message is caused by incopatible type of TR, OS version or OS build."
+          std::out_of_range, "IQRF file " << PAR(fileName) << " can not be upload to TR! TR is not in supported types specified in the IQRF file. This message is caused by incompatible type of TR, OS version or OS build."
         );
       }
 
@@ -570,7 +570,7 @@ namespace iqrf {
       for (itr = parser.begin(); itr != parser.end(); itr++) {
         errCode = uploadSpecial(*itr);
 
-        // if some error occured, break uploading
+        // if some error occurred, break uploading
         if (errCode != IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR) {
           break;
         }
@@ -745,7 +745,7 @@ namespace iqrf {
 
       /*
       "Result of upload.
-      0 - upload successfull,
+      0 - upload successful,
       1 - general error,
       2 - incorrect target memory,
       3 - incorrect data length,
@@ -764,6 +764,7 @@ namespace iqrf {
       switch (error.getType()) {
         case NativeUploadError::Type::NoError:
           Pointer("/data/status").Set(response, 0);
+          Pointer("/data/statusStr").Set(response, "ok");
           break;
         case NativeUploadError::Type::DataPrepare:
           Pointer("/data/status").Set(response, SERVICE_ERROR_DATA_PREPARE);
@@ -782,10 +783,6 @@ namespace iqrf {
       if (comNativeUpload.getVerbose()) {
         setVerboseData(response, uploadResult);
       }
-
-      // status - ok
-      Pointer("/data/status").Set(response, 0);
-      Pointer("/data/statusStr").Set(response, "ok");
 
       return response;
     }

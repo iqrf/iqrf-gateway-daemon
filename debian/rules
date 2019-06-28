@@ -10,13 +10,14 @@ override_dh_auto_configure:
 
 override_dh_fixperms:
 	dh_fixperms
-	chmod -R 666 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/
-	chmod 777 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/
-	chmod 777 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/cfgSchemas/
-	chmod -R 666 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler/
-	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler/
-	chmod -R 666 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/metaData/
-	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/metaData/
+	chmod -R 666 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon
+	chmod 777 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon
+	chmod 777 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/certs
+	chmod 777 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/cfgSchemas
+	chmod -R 666 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler
+	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler
+	chmod -R 666 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/upload
+	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/upload
 
 override_dh_install:
 	dh_install

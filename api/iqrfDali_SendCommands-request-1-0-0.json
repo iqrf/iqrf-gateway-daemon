@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfDALI_SendCommands-request",
+        "name": "iqrfDali_SendCommands-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -12,7 +12,7 @@
             "type": "string",
             "description": "Standard peripheral DALI - Send DALI commands and returns answers synchronously.",
             "enum": [
-                "iqrfDALI_SendCommands"
+                "iqrfDali_SendCommands"
             ]
         },
         "data": {
