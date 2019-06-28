@@ -24,12 +24,16 @@ namespace iqrf {
         virtual int getNadr() const = 0;
         virtual int getHwpid() const = 0;
         virtual int getHwpidVer() const = 0;
+        virtual int getOsBuild() const = 0;
+        virtual int getOsVer() const = 0;
+        virtual int getDpaVer() const = 0;
         virtual ~Enumerated() {}
       };
       typedef std::unique_ptr<Enumerated> EnumeratedPtr;
       virtual const std::map<int, EnumeratedPtr> & getEnumerated() const = 0;
       virtual const std::set<int> & getBonded() const = 0;
       virtual const std::set<int> & getDiscovered() const = 0;
+      virtual const std::set<int> & getNonDiscovered() const = 0;
       virtual ~IFastEnumeration() {}
     };
 

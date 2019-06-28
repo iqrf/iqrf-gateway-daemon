@@ -2,6 +2,8 @@
 #define ISchedulerService_EXPORTS
 
 #include "JsCache.h"
+#include "EmbedExplore.h"
+#include "EmbedOs.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
@@ -158,6 +160,26 @@ namespace iqrf {
       for (const auto & pck : m_packageMap) {
         const Package& pckp = pck.second;
         if (pckp.m_hwpid == hwpid && pckp.m_hwpidVer == hwpidVer && pckp.m_os == os && pckp.m_dpa == dpa) {
+          retval = &(pck.second);
+          break;
+        }
+      }
+
+      TRC_FUNCTION_LEAVE(PAR(retval));
+      return retval;
+    }
+
+    const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
+    {
+      TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(os) << PAR(dpa));
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      const Package* retval = nullptr;
+      for (const auto & pck : m_packageMap) {
+        const Package& pckp = pck.second;
+        if (pckp.m_hwpid == hwpid && pckp.m_hwpidVer == hwpidVer &&
+          pckp.m_os == embed::os::Read::getOsBuildAsString(os) && pckp.m_dpa == embed::explore::Enumerate::getDpaVerAsHexaString(dpa)) {
           retval = &(pck.second);
           break;
         }
@@ -1276,6 +1298,11 @@ namespace iqrf {
   }
 
   const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
+  {
+    return m_imp->getPackage(hwpid, hwpidVer, os, dpa);
+  }
+
+  const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
   {
     return m_imp->getPackage(hwpid, hwpidVer, os, dpa);
   }

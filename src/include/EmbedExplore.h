@@ -35,21 +35,31 @@ namespace iqrf
         int getFlags() const { return m_flags; }
         const std::set<int> & getUserPer() const { return m_userPer; }
 
-        std::string getDpaVerAsString() const
+        static std::string getDpaVerAsString(int dpaVer)
         {
           std::ostringstream os;
           os.fill('0');
           os << std::hex <<
-            std::setw(2) << ((m_dpaVer & 0xefff) >> 8) << '.' << std::setw(2) << (m_dpaVer & 0xff);
+            std::setw(2) << ((dpaVer & 0xefff) >> 8) << '.' << std::setw(2) << (dpaVer & 0xff);
+          return os.str();
+        }
+
+        std::string getDpaVerAsString() const
+        {
+          return getDpaVerAsString(m_dpaVer);
+        }
+
+        static std::string getDpaVerAsHexaString(int dpaVer)
+        {
+          std::ostringstream os;
+          os.fill('0');
+          os << std::hex << std::setw(4) << dpaVer;
           return os.str();
         }
 
         std::string getDpaVerAsHexaString() const
         {
-          std::ostringstream os;
-          os.fill('0');
-          os << std::hex << std::setw(4) << m_dpaVer;
-          return os.str();
+          return getDpaVerAsHexaString(m_dpaVer);
         }
 
         int getModeStd() const { return (m_flags & 1)? 1:0; }

@@ -140,6 +140,7 @@ namespace iqrf {
     virtual const Manufacturer* getManufacturer(uint16_t hwpid) const = 0;
     virtual const Product* getProduct(uint16_t hwpid) const = 0;
     virtual const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const = 0;
+    virtual const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const = 0;
     virtual std::map<int, std::map<int, std::vector<std::pair<int,int>>>> getDrivers(const std::string& os, const std::string& dpa) const = 0;
     virtual const OsDpa* getOsDpa(int id) const = 0;
     virtual const OsDpa* getOsDpa(const std::string& os, const std::string& dpa) const = 0;

@@ -144,16 +144,15 @@ namespace iqrf {
         std::unique_ptr<IDpaTransactionResult2> transResult;
         exclusiveAccess->executeDpaTransactionRepeat(createDpaRequest(iqrfEmbedCoordinatorBondedDevices), transResult, m_repeat);
         processDpaTransactionResult(iqrfEmbedCoordinatorBondedDevices, std::move(transResult));
-        retval->setBonded(iqrfEmbedCoordinatorBondedDevices.getBondedDevices());
       }
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
         exclusiveAccess->executeDpaTransactionRepeat(createDpaRequest(iqrfEmbedCoordinatorDiscoveredDevices), transResult, m_repeat);
         processDpaTransactionResult(iqrfEmbedCoordinatorDiscoveredDevices, std::move(transResult));
-        retval->setDiscovered(iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices());
       }
 
+      retval->setBondedDiscovered(iqrfEmbedCoordinatorBondedDevices.getBondedDevices(), iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices());
       std::set<int> evaluated = retval->getDiscovered();
       evaluated.insert(0); //eval coordinator
 
@@ -161,7 +160,9 @@ namespace iqrf {
         //TODO do it by FRC for DPA > 4.02
         try {
           auto nd = getNodeDataPriv((uint16_t)nadr, exclusiveAccess);
-          retval->addItem(nd->getNadr(), nd->getEmbedOsRead()->getMid(), nd->getHwpid(), nd->getEmbedExploreEnumerate()->getHwpidVer());
+          retval->addItem(
+            nd->getNadr(), nd->getEmbedOsRead()->getMid(), nd->getHwpid(), nd->getEmbedExploreEnumerate()->getHwpidVer()
+            , nd->getEmbedOsRead()->getOsBuild(), nd->getEmbedOsRead()->getOsVersion(), nd->getEmbedExploreEnumerate()->getDpaVer());
         }
         catch (std::logic_error &e) {
           CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot fast enum: " << PAR(nadr));

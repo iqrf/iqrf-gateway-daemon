@@ -52,13 +52,18 @@ namespace iqrf
           return moduleId.str();
         }
 
-        std::string getOsVersionAsString() const
+        static std::string getOsVersionAsString(int osVersion)
         {
           std::ostringstream os;
-          os << std::hex << (int)(m_osVersion >> 4) << '.';
+          os << std::hex << (int)(osVersion >> 4) << '.';
           os.fill('0');
-          os << std::setw(2) << (int)(m_osVersion & 0xf) << 'D';
+          os << std::setw(2) << (int)(osVersion & 0xf) << 'D';
           return os.str();
+        }
+
+        std::string getOsVersionAsString() const
+        {
+          return getOsVersionAsString(m_osVersion);
         }
 
         std::string getTrTypeAsString() const
@@ -85,12 +90,17 @@ namespace iqrf
 
         std::string getTrMcuTypeAsString() const { return ((m_trMcuType & 0x07) == 0x04) ? "PIC16LF1938" : "UNKNOWN"; }
 
-        std::string getOsBuildAsString() const
+        static std::string getOsBuildAsString(int osBuild)
         {
           std::ostringstream os;
           os.fill('0'); os.width(4);
-          os << std::hex << std::uppercase << m_osBuild;
+          os << std::hex << std::uppercase << osBuild;
           return os.str();
+        }
+
+        std::string getOsBuildAsString() const
+        {
+          return getOsBuildAsString(m_osBuild);
         }
 
         int getRssiComputed() const { return m_rssi - 130; }

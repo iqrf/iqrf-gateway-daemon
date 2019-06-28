@@ -65,6 +65,100 @@ namespace iqrf {
 
   class IqrfInfo::Imp
   {
+    //aux class initiated from DB to compare with fast enum result
+    class BondNodeDb
+    {
+    public:
+      BondNodeDb() = delete;
+      BondNodeDb(
+        int nadr,
+        unsigned mid,
+        int discovered,
+        int hwpid,
+        int hwpidVer,
+        int osBuild,
+        int osVer,
+        int dpaVer
+      )
+        : m_nadr(nadr)
+        , m_mid(mid)
+        , m_discovered(discovered)
+        , m_hwpid(hwpid)
+        , m_hwpidVer(hwpidVer)
+        , m_osBuild(osBuild)
+        , m_osVer(osVer)
+        , m_dpaVer(dpaVer)
+      {}
+
+      int m_nadr;
+      unsigned m_mid;
+      int m_discovered;
+      int m_hwpid;
+      int m_hwpidVer;
+      int m_osBuild;
+      int m_osVer;
+      int m_dpaVer;
+    };
+
+    class Bond
+    {
+    public:
+      Bond(int nadr, unsigned mid, bool dis)
+        : m_nadr(nadr)
+        , m_mid(mid)
+        , m_dis(dis)
+        , m_hwpid(-1)
+        , m_hwpidVer(-1)
+        , m_fullEnum(true)
+      {}
+
+      int m_nadr;
+      unsigned m_mid;
+      bool m_dis;
+      int m_hwpid;
+      int m_hwpidVer;
+      bool m_fullEnum;
+    };
+
+    class Device
+    {
+    public:
+      Device(
+        int hwpid,
+        int hwpidVer,
+        int osBuild,
+        int osVer,
+        int dpaVer,
+        int repoPackageId,
+        std::string notes,
+        std::string handlerhash,
+        std::string handlerUrl,
+        std::string customDriver
+      )
+        : m_hwpid(hwpid)
+        , m_hwpidVer(hwpidVer)
+        , m_osBuild(osBuild)
+        , m_osVer(osVer)
+        , m_dpaVer(dpaVer)
+        , m_repoPackageId(repoPackageId)
+        , m_notes(notes)
+        , m_handlerhash(handlerhash)
+        , m_handlerUrl(handlerUrl)
+        , m_customDriver(customDriver)
+      {}
+
+      int m_hwpid;
+      int m_hwpidVer;
+      int m_osBuild;
+      int m_osVer;
+      int m_dpaVer;
+      int m_repoPackageId;
+      std::string m_notes;
+      std::string m_handlerhash;
+      std::string m_handlerUrl;
+      std::string m_customDriver;
+    };
+
   private:
 
     IJsCacheService* m_iJsCacheService = nullptr;
@@ -74,6 +168,13 @@ namespace iqrf {
 
     std::unique_ptr<database> m_db;
 
+    IEnumerateService::IFastEnumerationPtr m_fastEnum;
+
+    // get m_bonded map according nadr from DB
+    std::map<int, Bond> m_bonded;
+    std::map<int, BondNodeDb> m_mapNadrBondNodeDb;
+    // need full enum
+    std::set<int> m_nadrFullEnum;
 
   public:
     Imp()
@@ -82,102 +183,6 @@ namespace iqrf {
 
     ~Imp()
     {
-    }
-
-    void attachInterface(iqrf::IJsCacheService* iface)
-    {
-      TRC_FUNCTION_ENTER(PAR(iface));
-      m_iJsCacheService = iface;
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void detachInterface(iqrf::IJsCacheService* iface)
-    {
-      TRC_FUNCTION_ENTER(PAR(iface));
-      if (m_iJsCacheService == iface) {
-        m_iJsCacheService = nullptr;
-      }
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void attachInterface(iqrf::IEnumerateService* iface)
-    {
-      TRC_FUNCTION_ENTER(PAR(iface));
-      m_iEnumerateService = iface;
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void detachInterface(iqrf::IEnumerateService* iface)
-    {
-      TRC_FUNCTION_ENTER(PAR(iface));
-      if (m_iEnumerateService == iface) {
-        m_iEnumerateService = nullptr;
-      }
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void attachInterface(iqrf::IIqrfDpaService* iface)
-    {
-      TRC_FUNCTION_ENTER(PAR(iface));
-      m_iIqrfDpaService = iface;
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void detachInterface(iqrf::IIqrfDpaService* iface)
-    {
-      TRC_FUNCTION_ENTER(PAR(iface));
-      if (m_iIqrfDpaService == iface) {
-        m_iIqrfDpaService = nullptr;
-      }
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void attachInterface(shape::ILaunchService* iface)
-    {
-      m_iLaunchService = iface;
-    }
-
-    void detachInterface(shape::ILaunchService* iface)
-    {
-      if (m_iLaunchService == iface) {
-        m_iLaunchService = nullptr;
-      }
-    }
-
-    void activate(const shape::Properties *props)
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "IqrfInfo instance activate" << std::endl <<
-        "******************************"
-      );
-
-      using namespace rapidjson;
-      const Document& doc = props->getAsJson();
-
-      //{
-      //  const Value* val = rapidjson::Pointer("/gwIdentModeByte").Get(doc);
-      //  if (val && val->IsInt()) {
-      //    m_gwIdentModeByte = (uint8_t)val->GetInt();
-      //  }
-      //}
-
-      initDb();
-
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void deactivate()
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "IqrfInfo instance deactivate" << std::endl <<
-        "******************************"
-      );
-
-      TRC_FUNCTION_LEAVE("")
     }
 
     void initDb()
@@ -208,7 +213,7 @@ namespace iqrf {
         }
 
         syncDatabaseWithCoordinator();
-        //daemonEnumerate();
+        fullEnum1();
       }
       catch (sqlite_exception &e)
       {
@@ -222,188 +227,241 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    class Bond
-    {
-    public:
-      Bond(int nadr, unsigned mid, bool dis)
-        : m_nadr(nadr)
-        , m_mid(mid)
-        , m_dis(dis)
-        , m_hwpid(-1)
-        , m_hwpidVer(-1)
-        , m_fullEnum(true)
-      {}
-
-      int m_nadr;
-      unsigned m_mid;
-      bool m_dis;
-      int m_hwpid;
-      int m_hwpidVer;
-      bool m_fullEnum;
-    };
-
-    // get key info without JS driver support to load proper coordinator driver
-    //void initCoordinatorInfo()
-    //{
-    //  TRC_FUNCTION_ENTER("");
-    //  IEnumerateService::CoordinatorData coordinatorData = m_iEnumerateService->getCoordinatorData();
-    //  TRC_FUNCTION_LEAVE("");
-    //}
-
     void syncDatabaseWithCoordinator()
     {
       TRC_FUNCTION_ENTER("");
 
-      IEnumerateService::IFastEnumerationPtr fastEnum = m_iEnumerateService->getFastEnumeration();
+      m_fastEnum = m_iEnumerateService->getFastEnumeration();
 
       database & db = *m_db;
 
-      // get bonded map according nadr from DB
-      std::map<int, Bond> bonded;
+      int m_nadr;
+      unsigned m_mid;
+      int discovery;
+      int m_hwpid;
+      int m_hwpidVer;
+      int m_osBuild;
+      int m_osVer;
+      int m_dpaVer;
+
       db << "select "
         "b.Nadr "
-        ", b.Dis "
         ", b.Mid "
+        ", b.Dis "
+        ", d.Hwpid "
+        ", d.HwpidVer "
+        ", d.OsBuild "
+        ", d.OsVer "
+        ", d.DpaVer "
         "from "
-        "Bonded as b"
+        "Bonded as b "
+        ", Device as d "
+        " where "
+        " d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) "
         ";"
-        >> [&](int nadr, int dis, unsigned mid)
+        >> [&](
+          int nadr,
+          unsigned mid,
+          int discovery,
+          int hwpid,
+          int hwpidVer,
+          int osBuild,
+          int osVer,
+          int dpaVer
+          )
       {
-        bool bdisc = dis != 0;
-        bonded.insert(std::make_pair(nadr, Bond(nadr, mid, bdisc)));
+        m_mapNadrBondNodeDb.insert(std::make_pair(nadr, BondNodeDb(
+          nadr,
+          mid,
+          discovery,
+          hwpid,
+          hwpidVer,
+          osBuild,
+          osVer,
+          dpaVer
+        )));
       };
 
-      for (const auto & en : fastEnum->getEnumerated()) {
-        int nadr = en.first;
-        auto found = bonded.find(nadr);
-        if (found == bonded.end())
+      auto const & enums = m_fastEnum->getEnumerated();
+
+      // sync non discovered Nadrs
+      for (auto nadr : m_fastEnum->getNonDiscovered()) {
+
+        std::unique_ptr<int> nadrPtrRes, disPtrRes, midPtrRes;
+        int dis = 0, mid = 0;
+
+        db << "select Nadr, Dis, Mid from Bonded where nadr = ? ;" << nadr
+          >> [&](std::unique_ptr<int> nadrPtr, std::unique_ptr<int> disPtr, std::unique_ptr<int> midPtr)
         {
-          // Nadr not found in db bonded => insert
-          Bond b(nadr, 0, false);
-          db << "insert into Bonded ("
-            "Nadr"
-            ", Dis"
-            ", Enm"
-            ")  values ( "
-            "?"
-            ", ?"
-            ", ?"
-            ");"
-            << nadr
-            << (b.m_dis ? 1 : 0)
-            << 0
-            ;
-          bonded.insert(std::make_pair(nadr, b));
+          nadrPtrRes = std::move(nadrPtr);
+          disPtrRes = std::move(disPtr);
+          midPtrRes = std::move(midPtr);
+        };
+
+        if (nadrPtrRes) {
+          if (*disPtrRes != 0 || !midPtrRes) {
+            // Nadr exists in DB and is set as discovered or has mid => set to nondiscovered and null mid in Bonded
+            TRC_INFORMATION(PAR(nadr) << " set to nondiscovered in bonded list");
+            db << "update Bonded set Dis = ? , Mid = ?, Enm = ? where Nadr = ?;" << 0 << nullptr << nadr << 0;
+          }
+        }
+        else {
+          // Nadr does not exist in DB => insert and set to nondiscovered and null mid in Bonded
+          TRC_INFORMATION(PAR(nadr) << " insert and set to nondiscovered in bonded list");
+          db << "insert into Bonded (Nadr, Dis, Enm)  values (?, ?, ?);" << nadr << 0 << 0;
         }
       }
 
-      {
-        std::map<int, Bond> ::iterator bondIt = bonded.begin();
-        const auto & coordBonded = fastEnum->getEnumerated();
+      // delete Nadr from DB if it doesnt exist in Net
+      for (const auto & bo : m_mapNadrBondNodeDb) {
+        int nadr = bo.first;
+        const auto & b = bo.second;
+        auto found = enums.find(nadr);
+        if (found == enums.end()) {
+          // Nadr not found in Net => delete from Bonded
+          TRC_INFORMATION(PAR(nadr) << " remove from bonded list")
+            db << "delete from Bonded where Nadr = ?;" << nadr;
+        }
+      }
 
-        while (bondIt != bonded.end()) {
-          int nadr = bondIt->first;
-          auto found = coordBonded.find(nadr);
-          if (found == coordBonded.end())
-          {
-            // Nadr not found in coord bonded => delete from db bonded
-            db << "delete from Bonded where nadr = ?;"
-              << nadr
-              ;
-            bonded.erase(bondIt++);
+      // compare fast enum and DB
+      for (const auto & en : enums) {
+        const auto & e = *(en.second);
+        int nadr = en.first;
+        auto found = m_mapNadrBondNodeDb.find(nadr);
+        if (found == m_mapNadrBondNodeDb.end()) {
+          // Nadr from Net not found in DB => provide full enum
+          m_nadrFullEnum.insert(nadr);
+        }
+        else {
+          auto const & n = found->second;
+          if (e.getMid() != n.m_mid || e.getHwpid() != n.m_hwpid || e.getHwpidVer() != n.m_hwpidVer ||
+            e.getOsBuild() != n.m_osBuild || e.getOsVer() != n.m_osVer || e.getDpaVer() != n.m_dpaVer) {
+            // Nadr from Net is already in DB, but fast enum comparison failed => provide full enum
+            TRC_INFORMATION(PAR(nadr) << " fast enum does not fit => schedule full enum")
+              m_nadrFullEnum.insert(nadr);
+          }
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void fullEnum1()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      database & db = *m_db;
+
+      for (auto nadr : m_nadrFullEnum) {
+
+        try {
+
+          IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr);
+
+          unsigned mid = nd->getEmbedOsRead()->getMid();
+          int hwpid = nd->getHwpid();
+          int hwpidVer = nd->getEmbedExploreEnumerate()->getHwpidVer();
+          int osBuild = nd->getEmbedOsRead()->getOsBuild();
+          int osVer = nd->getEmbedOsRead()->getOsVersion();
+          int dpaVer = nd->getEmbedExploreEnumerate()->getDpaVer();
+
+          //int deviceId = deviceInDb(hwpid, hwpidVer, osBuild, osVer, dpaVer);
+          //nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
+
+          // get package from JsCache
+          const iqrf::IJsCacheService::Package *pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, (uint16_t)osBuild, (uint16_t)dpaVer);
+          std::vector<const IJsCacheService::StdDriver *> drivers;
+
+          if (!pckg) {
+            // no package in IqrfRepo => get drivers by enumeration
+            std::map<int, int> perVerMap;
+            const std::set<int> & embedPer = nd->getEmbedExploreEnumerate()->getEmbedPer();
+            const std::set<int> & userPer = nd->getEmbedExploreEnumerate()->getUserPer();
+
+            // Get for hwpid 0 plain DPA plugin
+            const iqrf::IJsCacheService::Package *pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)osBuild, (uint16_t)dpaVer);
+            for (auto per : embedPer) {
+              for (auto drv : pckg0->m_stdDriverVect) {
+                if (drv->getId() == -1) {
+                  perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
+                }
+                if (drv->getId() == per) {
+                  perVerMap.insert(std::make_pair(per, drv->getVersion()));
+                }
+              }
+            }
+            for (auto per : userPer) {
+              //Get peripheral information for sensor, binout and TODO other std if presented
+              if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per) {
+                //TODO temp workaround
+                embed::explore::PeripheralInformationPtr peripheralInformationPtr = m_iEnumerateService->getPeripheralInformationData(nadr, per);
+                int version = peripheralInformationPtr->getPar1();
+                //TODO temp workaround
+                if (PERIF_STANDARD_SENSOR == per) version = 15;
+                perVerMap.insert(std::make_pair(per, version));
+              }
+              else {
+                perVerMap.insert(std::make_pair(per, -1));
+              }
+            }
+
+            for (auto pv : perVerMap) {
+              const IJsCacheService::StdDriver *sd =  m_iJsCacheService->getDriver((uint16_t)pv.first, (uint16_t)pv.second);
+              if (sd) {
+                drivers.push_back(sd);
+              }
+            }
           }
           else {
-            ++bondIt;
+            drivers = pckg->m_stdDriverVect;
           }
-        }
-      }
 
-      // check if db bonded discovery fit with coord discovery
-      {
-        const std::set<int> & coordDisc = fastEnum->getDiscovered();
+          db << "begin transaction;";
 
-        for (auto & bondIt : bonded) {
-          int nadr = bondIt.first;
-          Bond & b = bondIt.second;
-          auto found = coordDisc.find(nadr);
-          bool disc = found != coordDisc.end();
-          if (disc != b.m_dis) {
-            // Discovery state differ => update in DB
-            b.m_dis = disc;
-            db << "update Bonded set "
-              " Dis = ?"
-              " where Nadr = ?;"
-              << (b.m_dis ? 1 : 0)
-              << nadr
-              ;
-          }
-        }
-      }
+          int deviceId = deviceInDb(hwpid, hwpidVer, osBuild, osVer, dpaVer);
 
-      // get bonded hwpid for assigned mid if exist
-      {
-        for (auto & bondIt : bonded) {
-          int nadr = bondIt.first;
-          Bond & b = bondIt.second;
-          int hwpid = -1, hwpidVer = -1;
-
-          db << "select "
-            "d.Hwpid "
-            ", d.HwpidVer "
-            " from "
-            " Node as n"
-            ", Bonded as b"
-            ", Device as d"
-            " where "
-            " b.Nadr = ? and "
-            " n.Mid = b.Mid and "
-            " n.DeviceId = d.Id "
-            ";"
-            << nadr
-            >> [&](int lhwpid, int lhwpidVer)
-
-          {
-            b.m_hwpid = lhwpid;
-            b.m_hwpidVer = lhwpidVer;
-          };
-        }
-      }
-
-      // check fast enumerate result
-      std::map<unsigned, Bond*> bondedMid;
-      {
-        for (auto & bondIt : bonded) {
-          int nadr = bondIt.first;
-          Bond & b = bondIt.second;
-
-          try {
-            auto found = fastEnum->getEnumerated().find(nadr);
-            if (found == fastEnum->getEnumerated().end()) {
-              THROW_EXC_TRC_WAR(std::logic_error, "Cannot find bonded: " << PAR(nadr));
-            }
-            const IEnumerateService::IFastEnumeration::Enumerated & nd = *(found->second.get());
-            b.m_fullEnum = false;
-            if (nd.getMid() != b.m_mid || nd.getHwpid() != b.m_hwpid || nd.getHwpidVer() != b.m_hwpidVer) {
-              b.m_fullEnum = true;
-            }
-            auto ins = bondedMid.insert(std::make_pair(nd.getMid(), &b));
-            if (!ins.second) {
-              // detected duplicit mid
-              ins.first->second->m_fullEnum = true;
-              b.m_fullEnum = true;
+          // store drivers in DB if doesn't exists already
+          for (auto d : drivers) {
+            int driverId = driverInDb(d);
+            int count = 0;
+            db << "select count(*) from DeviceDriver where DeviceId = ? and DriverId = ? ;" << deviceId << driverId >> count;
+            if (count == 0) {
+              db << "insert into DeviceDriver (DeviceId, DriverId) values (?, ?);" << deviceId << driverId;
             }
           }
-          catch (std::exception &e)
-          {
-            CATCH_EXC_TRC_WAR(std::exception, e, "Cannot fast enumerate " << PAR(nadr));
-            b.m_fullEnum = true;
-          }
+          nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
+
+          // Nadr does not exist in DB => insert and set to nondiscovered and null mid in Bonded
+          TRC_INFORMATION(PAR(nadr) << " insert and set to discovered in bonded list");
+          db << "insert into Bonded (Nadr, Dis, Mid, Enm)  values (?, ?, ?, ?);" << nadr << 1 << mid << 1;
+
+          db << "commit;";
+        }
+        catch (sqlite_exception &e)
+        {
+          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+          db << "rollback;";
+        }
+        catch (std::exception &e)
+        {
+          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
+          db << "rollback;";
         }
       }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void fullEnum()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      database & db = *m_db;
 
       // full enumerate
       {
-        for (auto & bondIt : bonded) {
+        for (auto & bondIt : m_bonded) {
           int nadr = bondIt.first;
           Bond & b = bondIt.second;
           if (!b.m_fullEnum)
@@ -509,6 +567,7 @@ namespace iqrf {
               insertPerifery(mid, it.first, it.second);
             }
 
+            //m_iJsCacheService->
             //for (auto per : embedPer) {
             //  insertPerifery(mid, per, perVer);
             //}
@@ -535,16 +594,44 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void enumStandard()
+    /*
+    void syncDatabaseWithRepoDrivers()
     {
       TRC_FUNCTION_ENTER("");
 
       database & db = *m_db;
 
       try {
-        IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr);
-
         db << "begin transaction;";
+
+        int hwpid,
+        int hwpidVer,
+        int osBuild,
+        int osVer,
+        int dpaVer,
+        int repoPackageId,
+        std::string notes,
+        std::string handlerhash,
+        std::string handlerUrl,
+        std::string customDriver
+
+        std::unique_ptr<int> id;
+        db << "select "
+          "d.Id "
+          "from "
+          "Driver as d "
+          "where "
+          "d.StandardId = ? and "
+          "d.Version = ? "
+          ";"
+          << drv->getId()
+          << drv->getVersion()
+          >> [&](std::unique_ptr<int> d)
+        {
+          id = std::move(d);
+        };
+
+
         db << "commit;";
       }
       catch (sqlite_exception &e)
@@ -559,6 +646,7 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
     }
+    */
 
     void insertPerifery(unsigned mid, int per, int stdVer)
     {
@@ -576,6 +664,77 @@ namespace iqrf {
         << per
         << stdVer
         ;
+    }
+
+    std::unique_ptr<int> selectDriver(const IJsCacheService::StdDriver* drv)
+    {
+      std::unique_ptr<int> id;
+
+      *m_db << "select "
+        "d.Id "
+        "from "
+        "Driver as d "
+        "where "
+        "d.StandardId = ? and "
+        "d.Version = ? "
+        ";"
+        << drv->getId()
+        << drv->getVersion()
+        >> [&](std::unique_ptr<int> d)
+      {
+        id = std::move(d);
+      };
+      
+      return id;
+    }
+
+    // check id device exist and if not insert and return id
+    int driverInDb(const IJsCacheService::StdDriver* drv)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::string name = drv->getName();
+      int standardId = drv->getId();
+      int version = drv->getVersion();
+
+      database & db = *m_db;
+
+      std::unique_ptr<int> id = selectDriver(drv);
+
+      if (!id) {
+        TRC_INFORMATION(PAR(name) << PAR(standardId) << PAR(version) << " insert driver to DB");
+
+        db << "insert into Driver ("
+        "Notes"
+        ", Name"
+        ", Version"
+        ", StandardId"
+        ", VersionFlag"
+        ", Driver"
+        ")  values ( "
+        "?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ");"
+        << drv->getNotes()
+        << name
+        << version
+        << standardId
+        << drv->getVersionFlags()
+        << drv->getDriver()
+        ;
+      }
+
+      id = selectDriver(drv);
+      if (!id) {
+        THROW_EXC_TRC_WAR(std::logic_error, PAR(name) << PAR(standardId) << PAR(version) << " shall be selected from DB")
+      }
+
+      TRC_FUNCTION_ENTER("");
+      return *id;
     }
 
     void insertSensor(unsigned mid, int nadr, int per)
@@ -660,9 +819,9 @@ namespace iqrf {
     // check id device exist and if not insert and return id
     int deviceInDb(int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer)
     {
-      TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(osVer) << PAR(dpaVer))
+      TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(osVer) << PAR(dpaVer));
 
-        std::unique_ptr<int> id;
+      std::unique_ptr<int> id;
       database & db = *m_db;
       db << "select "
         "d.Id "
@@ -729,9 +888,9 @@ namespace iqrf {
         THROW_EXC_TRC_WAR(std::logic_error, "insert failed: " << PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(osVer) << PAR(dpaVer))
       }
 
-      TRC_FUNCTION_LEAVE("")
+      TRC_FUNCTION_LEAVE("");
 
-        return *id;
+      return *id;
     }
 
     // check if node with mid exist and if not insert
@@ -784,6 +943,101 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    void attachInterface(iqrf::IJsCacheService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      m_iJsCacheService = iface;
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void detachInterface(iqrf::IJsCacheService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      if (m_iJsCacheService == iface) {
+        m_iJsCacheService = nullptr;
+      }
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void attachInterface(iqrf::IEnumerateService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      m_iEnumerateService = iface;
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void detachInterface(iqrf::IEnumerateService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      if (m_iEnumerateService == iface) {
+        m_iEnumerateService = nullptr;
+      }
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void attachInterface(iqrf::IIqrfDpaService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      m_iIqrfDpaService = iface;
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void detachInterface(iqrf::IIqrfDpaService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      if (m_iIqrfDpaService == iface) {
+        m_iIqrfDpaService = nullptr;
+      }
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void attachInterface(shape::ILaunchService* iface)
+    {
+      m_iLaunchService = iface;
+    }
+
+    void detachInterface(shape::ILaunchService* iface)
+    {
+      if (m_iLaunchService == iface) {
+        m_iLaunchService = nullptr;
+      }
+    }
+
+    void activate(const shape::Properties *props)
+    {
+      TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION(std::endl <<
+        "******************************" << std::endl <<
+        "IqrfInfo instance activate" << std::endl <<
+        "******************************"
+      );
+
+      using namespace rapidjson;
+      const Document& doc = props->getAsJson();
+
+      //{
+      //  const Value* val = rapidjson::Pointer("/gwIdentModeByte").Get(doc);
+      //  if (val && val->IsInt()) {
+      //    m_gwIdentModeByte = (uint8_t)val->GetInt();
+      //  }
+      //}
+
+      initDb();
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void deactivate()
+    {
+      TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION(std::endl <<
+        "******************************" << std::endl <<
+        "IqrfInfo instance deactivate" << std::endl <<
+        "******************************"
+      );
+
+      TRC_FUNCTION_LEAVE("")
+    }
 
   };
 
