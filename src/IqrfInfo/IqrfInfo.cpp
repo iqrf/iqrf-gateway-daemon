@@ -100,6 +100,22 @@ namespace iqrf {
       int m_dpaVer;
     };
 
+    class Driver
+    {
+    public:
+      Driver() = delete;
+      Driver(std::string name, int stdId, int ver, std::string drv)
+        : m_name(name)
+        , m_stdId(stdId)
+        , m_ver(ver)
+        , m_drv(drv)
+      {}
+      std::string m_name;
+      int m_stdId;
+      int m_ver;
+      std::string m_drv;
+    };
+
     class Bond
     {
     public:
@@ -213,7 +229,8 @@ namespace iqrf {
         }
 
         syncDatabaseWithCoordinator();
-        fullEnum1();
+        fullEnum();
+        loadDrivers();
       }
       catch (sqlite_exception &e)
       {
@@ -347,7 +364,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void fullEnum1()
+    void fullEnum()
     {
       TRC_FUNCTION_ENTER("");
 
@@ -453,217 +470,48 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void fullEnum()
+    void loadDrivers()
     {
       TRC_FUNCTION_ENTER("");
-
       database & db = *m_db;
 
-      // full enumerate
-      {
-        for (auto & bondIt : m_bonded) {
-          int nadr = bondIt.first;
-          Bond & b = bondIt.second;
-          if (!b.m_fullEnum)
-            continue;
-
-          try {
-            IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr);
-
-            db << "begin transaction;";
-
-            unsigned mid = nd->getEmbedOsRead()->getMid();
-            int hwpid = nd->getHwpid();
-            int hwpidVer = nd->getEmbedExploreEnumerate()->getHwpidVer();
-            int osBuild = nd->getEmbedOsRead()->getOsBuild();
-            int osVer = nd->getEmbedOsRead()->getOsVersion();
-            int dpaVer = nd->getEmbedExploreEnumerate()->getDpaVer();
-            std::string osBuildStr = nd->getEmbedOsRead()->getOsBuildAsString();
-            std::string dpaVerStr = nd->getEmbedExploreEnumerate()->getDpaVerAsHexaString();
-
-            int deviceId = deviceInDb(hwpid, hwpidVer, osBuild, osVer, dpaVer);
-            nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
-
-            db << "update Bonded set "
-              "Mid = ?"
-              ", Enm = ?"
-              " where "
-              " Nadr = ?"
-              ";"
-              << mid
-              << 1
-              << nadr
-              ;
-
-            db << "delete from Perifery "
-              " where "
-              " Mid = ?"
-              ";"
-              << mid
-              ;
-
-            db << "delete from Sensor "
-              " where "
-              " Mid = ?"
-              ";"
-              << mid
-              ;
-
-            db << "delete from Binout "
-              " where "
-              " Mid = ?"
-              ";"
-              << mid
-              ;
-
-            // get drivers from JsCache
-            const iqrf::IJsCacheService::Package *pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, osBuildStr, dpaVerStr);
-
-            const std::set<int> & embedPer = nd->getEmbedExploreEnumerate()->getEmbedPer();
-            const std::set<int> & userPer = nd->getEmbedExploreEnumerate()->getUserPer();
-
-            std::map<int, int> perVerMap;
-
-            if (!pckg) {
-              // Get for hwpid 0 plain DPA plugin
-              pckg = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, osBuildStr, dpaVerStr);
-              for (auto per : embedPer) {
-                for (auto drv : pckg->m_stdDriverVect) {
-                  if (drv->getId() == -1) {
-                    perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
-                  }
-                  if (drv->getId() == per) {
-                    perVerMap.insert(std::make_pair(per, drv->getVersion()));
-                  }
-                }
-              }
-              for (auto per : userPer) {
-                //Get peripheral information for sensor, binout and TODO other std if presented
-                if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per) {
-                  embed::explore::PeripheralInformationPtr peripheralInformationPtr = m_iEnumerateService->getPeripheralInformationData(nadr, per);
-                  int version = peripheralInformationPtr->getPar1();
-                  perVerMap.insert(std::make_pair(per, version));
-                }
-                else {
-                  perVerMap.insert(std::make_pair(per, -1));
-                }
-              }
-            }
-            else {
-              //Get all driver info from repo package
-              for (auto per : embedPer) {
-                for (auto drv : pckg->m_stdDriverVect) {
-                  if (drv->getId() == -1) {
-                    perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
-                  }
-                  if (drv->getId() == per) {
-                    perVerMap.insert(std::make_pair(per, drv->getVersion()));
-                  }
-                }
-              }
-            }
-
-            for (auto it : perVerMap) {
-              insertPerifery(mid, it.first, it.second);
-            }
-
-            //m_iJsCacheService->
-            //for (auto per : embedPer) {
-            //  insertPerifery(mid, per, perVer);
-            //}
-            //for (auto per : userPer) {
-            //  insertPerifery(mid, per);
-            //  //insertSensor(nd->getEmbedOsRead()->getMid(), nadr, per);
-            //  //insertBinout(nd->getEmbedOsRead()->getMid(), nadr, per);
-            //}
-
-            db << "commit;";
-          }
-          catch (sqlite_exception &e)
-          {
-            CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
-            db << "rollback;";
-          }
-          catch (std::exception &e)
-          {
-            CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
-          }
-        }
-      }
-
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    /*
-    void syncDatabaseWithRepoDrivers()
-    {
-      TRC_FUNCTION_ENTER("");
-
-      database & db = *m_db;
+      std::map<int, std::vector<Driver>> mapDeviceDrivers;
 
       try {
-        db << "begin transaction;";
 
-        int hwpid,
-        int hwpidVer,
-        int osBuild,
-        int osVer,
-        int dpaVer,
-        int repoPackageId,
-        std::string notes,
-        std::string handlerhash,
-        std::string handlerUrl,
-        std::string customDriver
-
-        std::unique_ptr<int> id;
-        db << "select "
-          "d.Id "
-          "from "
-          "Driver as d "
-          "where "
-          "d.StandardId = ? and "
-          "d.Version = ? "
+        db << "SELECT "
+          "Device.Id "
+          ", Driver.Name "
+          ", Driver.StandardId "
+          ", Driver.Version "
+          ", Driver.Driver "
+          " FROM Driver "
+          " INNER JOIN DeviceDriver "
+          " ON Driver.Id = DeviceDriver.DriverId "
+          " INNER JOIN Device "
+          " ON DeviceDriver.DeviceId = Device.Id "
           ";"
-          << drv->getId()
-          << drv->getVersion()
-          >> [&](std::unique_ptr<int> d)
+          >> [&](int id, std::string name, int sid, int ver, std::string drv)
         {
-          id = std::move(d);
+          mapDeviceDrivers[id].push_back(Driver(name, sid, ver, drv));
         };
 
-
-        db << "commit;";
+        db << "select Id, CustomDriver from Device;" 
+          >> [&](int id, std::string drv)
+        {
+          mapDeviceDrivers[id].push_back(Driver("custom", -100, 0, drv));
+        };
       }
       catch (sqlite_exception &e)
       {
         CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
-        db << "rollback;";
       }
       catch (std::exception &e)
       {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
+        CATCH_EXC_TRC_WAR(std::exception, e, "Cannot load drivers ");
       }
 
       TRC_FUNCTION_LEAVE("");
-    }
-    */
-
-    void insertPerifery(unsigned mid, int per, int stdVer)
-    {
-      database & db = *m_db;
-      db << "insert into Perifery ("
-        "Mid"
-        ", Per"
-        ", StdVer"
-        ")  values ( "
-        "?"
-        ", ?"
-        ", ?"
-        ");"
-        << mid
-        << per
-        << stdVer
-        ;
     }
 
     std::unique_ptr<int> selectDriver(const IJsCacheService::StdDriver* drv)
