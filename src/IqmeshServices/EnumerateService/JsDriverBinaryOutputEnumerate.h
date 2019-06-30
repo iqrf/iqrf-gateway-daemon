@@ -33,7 +33,7 @@ namespace iqrf
 
       void parseResponse(const rapidjson::Value& v) override
       {
-        m_outputsNum = jutils::getMemberAs<int>("binouts", v);
+        m_outputsNum = jutils::getMemberAs<int>("binOuts", v);
       }
 
       int getBinaryOutputsNum() const override { return m_outputsNum; }

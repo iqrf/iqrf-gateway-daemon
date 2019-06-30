@@ -194,9 +194,10 @@ namespace iqrf {
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
         }
 
-        syncDatabaseWithCoordinator();
+        fastEnum();
         fullEnum();
         loadDrivers();
+        deepEnum();
       }
       catch (sqlite_exception &e)
       {
@@ -210,7 +211,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void syncDatabaseWithCoordinator()
+    void fastEnum()
     {
       TRC_FUNCTION_ENTER("");
 
@@ -438,6 +439,8 @@ namespace iqrf {
 
           bondedInDb(nadr, 1, mid, 1);
 
+          //deepEnum(device);
+
           db << "commit;";
         }
         catch (sqlite_exception &e)
@@ -539,7 +542,7 @@ namespace iqrf {
       }
       catch (sqlite_exception &e)
       {
-        CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+        CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected DB error load drivers failed " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
       }
       catch (std::exception &e)
       {
@@ -639,70 +642,6 @@ namespace iqrf {
       return *id;
     }
 
-/*
-    void insertSensor(unsigned mid, int nadr, int per)
-    {
-      if (PERIF_STANDARD_SENSOR != per)
-        return;
-
-      //TODO per1 holds Standard version
-      //IEnumerateService::IPeripheralInformationDataPtr pi = m_iEnumerateService->getPeripheralInformationData(nadr, PERIF_STANDARD_SENSOR);
-
-      IEnumerateService::IStandardSensorDataPtr sen = m_iEnumerateService->getStandardSensorData(nadr);
-      auto const & sensors = sen->getSensors();
-
-      database & db = *m_db;
-      int idx = 0;
-
-      for (auto const & sen : sensors) {
-        const auto & f = sen->getFrcs();
-        const auto & e = sen->getFrcs().end();
-
-        int frc2bit = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BITS));
-        int frc1byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_1BYTE));
-        int frc2byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BYTES));
-        int frc4byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_4BYTES));
-
-        db << "insert into Sensor ("
-          "Mid"
-          ", Idx"
-          ", Sid"
-          ", Stype"
-          ", Name"
-          ", SName"
-          ", Unit"
-          ", Dplac"
-          ", Frc2bit"
-          ", Frc1byte"
-          ", Frc2byte"
-          ", Frc4byte"
-          ")  values ( "
-          "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
-          ");"
-          << mid << idx++ << sen->getSid() << sen->getType() << sen->getName() << sen->getShortName() << sen->getUnit() << sen->getDecimalPlaces()
-          << frc2bit << frc1byte << frc2byte << frc4byte;
-        ;
-      }
-    }
-
-    void insertBinout(unsigned mid, int nadr, int per)
-    {
-      if (PERIF_STANDARD_BINOUT != per)
-        return;
-
-      IEnumerateService::IStandardBinaryOutputDataPtr bout = m_iEnumerateService->getStandardBinaryOutputData(nadr);
-
-      database & db = *m_db;
-
-      db << "insert into Binout ("
-        "Mid"
-        ", Num"
-        ")  values ( "
-        "?, ?"
-        ");"
-        << mid << bout->getBinaryOutputsNum();
-    }
-*/
     std::unique_ptr<int> selectDevice(const Device& dev)
     {
       std::unique_ptr<int> id;
@@ -743,8 +682,10 @@ namespace iqrf {
         ", HandlerHash"
         ", HandlerUrl"
         ", CustomDriver"
+        ", DeepEnum"
         ")  values ( "
         "?"
+        ", ?"
         ", ?"
         ", ?"
         ", ?"
@@ -763,6 +704,7 @@ namespace iqrf {
         << dev.m_handlerhash
         << dev.m_handlerUrl
         << dev.m_customDriver
+        << 0
         ;
 
       std::unique_ptr<int> id = selectDevice(dev);
@@ -825,6 +767,233 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("")
     }
+
+    void deepEnum()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      database & db = *m_db;
+
+      // map device nadrs for devices to deep enum
+      std::map<int, std::vector<int >> mapDeviceVectNadr;
+      db << "SELECT"
+        " Device.Id"
+        ", Bonded.Nadr"
+        " FROM Bonded"
+        " INNER JOIN Node"
+        " ON Bonded.Mid = Node.Mid"
+        " INNER JOIN Device"
+        " ON Node.DeviceId = Device.Id"
+        " WHERE Device.DeepEnum = 0"
+        ";"
+        >> [&](int dev, int nadr)
+      {
+        mapDeviceVectNadr[dev].push_back(nadr);
+      };
+
+      // deep enum according first bonded nadr of the device
+      for (auto it : mapDeviceVectNadr) {
+
+        int deviceId = it.first;
+        int nadr = -1;
+        if (it.second.size() > 0) {
+          // get first
+          nadr = it.second[0];
+        }
+        else {
+          TRC_WARNING("Cannot deep eval: " << PAR(deviceId) << " as there is no bonded nadr");
+          continue;
+        }
+        
+        try {
+          std::vector<int> vectDrivers;
+
+          db << "begin transaction;";
+
+          db << "SELECT "
+            "Driver.StandardId"
+            " FROM Driver"
+            " INNER JOIN DeviceDriver"
+            " ON Driver.Id = DeviceDriver.DriverId"
+            " INNER JOIN Device"
+            " ON DeviceDriver.DeviceId = Device.Id"
+            " WHERE Device.Id = ?"
+            " ;"
+            << deviceId
+            >> [&](int drv)
+          {
+            vectDrivers.push_back(drv);
+          };
+
+          for (auto d : vectDrivers) {
+            switch (d) {
+            case PERIF_STANDARD_BINOUT:
+              stdBinoutEnum(nadr, deviceId);
+              break;
+            case PERIF_STANDARD_SENSOR:
+              stdSensorEnum(nadr, deviceId);
+              break;
+            default:;
+            }
+          }
+
+          db << "update Device set "
+          "DeepEnum = ?"
+          " where Id = ?;"
+            << 1
+            << deviceId
+            ;
+
+          db << "commit;";
+        }
+        catch (sqlite_exception &e)
+        {
+          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store deep enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+          db << "rollback;";
+        }
+        catch (std::exception &e)
+        {
+          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot deep enumerate " << PAR(nadr));
+          db << "rollback;";
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void stdBinoutEnum(int nadr, int deviceId)
+    {
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
+
+      IEnumerateService::IStandardBinaryOutputDataPtr bout = m_iEnumerateService->getStandardBinaryOutputData(nadr);
+
+      database & db = *m_db;
+
+      db << "delete from Binout where DeviceId = ?;"
+        << deviceId;
+
+      db << "insert into Binout ("
+        "DeviceId"
+        ", Num"
+        ")  values ( "
+        "?, ?"
+        ");"
+        << deviceId << bout->getBinaryOutputsNum();
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void stdSensorEnum(int nadr, int deviceId)
+    {
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
+
+      IEnumerateService::IStandardSensorDataPtr sen = m_iEnumerateService->getStandardSensorData(nadr);
+      auto const & sensors = sen->getSensors();
+      int idx = 0;
+
+      database & db = *m_db;
+
+      db << "delete from Sensor where DeviceId = ?;"
+        << deviceId;
+
+      for (auto const & sen : sensors) {
+        const auto & f = sen->getFrcs();
+        const auto & e = sen->getFrcs().end();
+
+        int frc2bit = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BITS));
+        int frc1byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_1BYTE));
+        int frc2byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BYTES));
+        int frc4byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_4BYTES));
+
+        db << "insert into Sensor ("
+          "DeviceId"
+          ", Idx"
+          ", Sid"
+          ", Stype"
+          ", Name"
+          ", SName"
+          ", Unit"
+          ", Dplac"
+          ", Frc2bit"
+          ", Frc1byte"
+          ", Frc2byte"
+          ", Frc4byte"
+          ")  values ( "
+          "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
+          ");"
+          << deviceId << idx++ << sen->getSid() << sen->getType() << sen->getName() << sen->getShortName() << sen->getUnit() << sen->getDecimalPlaces()
+          << frc2bit << frc1byte << frc2byte << frc4byte;
+        ;
+      }
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+
+    /*
+        void insertSensor(unsigned mid, int nadr, int per)
+        {
+          if (PERIF_STANDARD_SENSOR != per)
+            return;
+
+          //TODO per1 holds Standard version
+          //IEnumerateService::IPeripheralInformationDataPtr pi = m_iEnumerateService->getPeripheralInformationData(nadr, PERIF_STANDARD_SENSOR);
+
+          IEnumerateService::IStandardSensorDataPtr sen = m_iEnumerateService->getStandardSensorData(nadr);
+          auto const & sensors = sen->getSensors();
+
+          database & db = *m_db;
+          int idx = 0;
+
+          for (auto const & sen : sensors) {
+            const auto & f = sen->getFrcs();
+            const auto & e = sen->getFrcs().end();
+
+            int frc2bit = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BITS));
+            int frc1byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_1BYTE));
+            int frc2byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BYTES));
+            int frc4byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_4BYTES));
+
+            db << "insert into Sensor ("
+              "Mid"
+              ", Idx"
+              ", Sid"
+              ", Stype"
+              ", Name"
+              ", SName"
+              ", Unit"
+              ", Dplac"
+              ", Frc2bit"
+              ", Frc1byte"
+              ", Frc2byte"
+              ", Frc4byte"
+              ")  values ( "
+              "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
+              ");"
+              << mid << idx++ << sen->getSid() << sen->getType() << sen->getName() << sen->getShortName() << sen->getUnit() << sen->getDecimalPlaces()
+              << frc2bit << frc1byte << frc2byte << frc4byte;
+            ;
+          }
+        }
+
+        void insertBinout(unsigned mid, int nadr, int per)
+        {
+          if (PERIF_STANDARD_BINOUT != per)
+            return;
+
+          IEnumerateService::IStandardBinaryOutputDataPtr bout = m_iEnumerateService->getStandardBinaryOutputData(nadr);
+
+          database & db = *m_db;
+
+          db << "insert into Binout ("
+            "Mid"
+            ", Num"
+            ")  values ( "
+            "?, ?"
+            ");"
+            << mid << bout->getBinaryOutputsNum();
+        }
+    */
 
     void attachInterface(iqrf::IJsRenderService* iface)
     {

@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS `Device` (
 	`Notes`	TEXT,
 	`HandlerHash`	TEXT,
 	`HandlerUrl`	TEXT,
-	`CustomDriver`	TEXT
+	`CustomDriver`	TEXT,
+	`DeepEnum` INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `Driver` (
@@ -46,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `Node` (
 );
 
 CREATE TABLE IF NOT EXISTS `Sensor` (
-	`Mid`	INTEGER NOT NULL,
+	`DeviceId`	INTEGER NOT NULL,
 	`Idx`	INTEGER NOT NULL,
     `Sid`	TEXT NOT NULL,
     `Stype`	INTEGER NOT NULL,
@@ -58,13 +59,13 @@ CREATE TABLE IF NOT EXISTS `Sensor` (
 	`Frc1byte`	INTEGER NOT NULL,
 	`Frc2byte`	INTEGER NOT NULL,
 	`Frc4byte`	INTEGER NOT NULL,
-	FOREIGN KEY(`Mid`) REFERENCES `Node`(`Mid`)
+	FOREIGN KEY(`DeviceId`) REFERENCES `Device`(`Id`)
 );
 
 CREATE TABLE IF NOT EXISTS `Binout` (
-	`Mid`	INTEGER NOT NULL,
+	`DeviceId`	INTEGER NOT NULL,
 	`Num`	INTEGER NOT NULL,
-	FOREIGN KEY(`Mid`) REFERENCES `Node`(`Mid`)
+	FOREIGN KEY(`DeviceId`) REFERENCES `Device`(`Id`)
 );
 
 
