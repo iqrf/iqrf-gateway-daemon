@@ -116,67 +116,9 @@ namespace iqrf {
       std::string m_drv;
     };
 
-    class Bond
-    {
-    public:
-      Bond(int nadr, unsigned mid, bool dis)
-        : m_nadr(nadr)
-        , m_mid(mid)
-        , m_dis(dis)
-        , m_hwpid(-1)
-        , m_hwpidVer(-1)
-        , m_fullEnum(true)
-      {}
-
-      int m_nadr;
-      unsigned m_mid;
-      bool m_dis;
-      int m_hwpid;
-      int m_hwpidVer;
-      bool m_fullEnum;
-    };
-
-    class Device
-    {
-    public:
-      Device(
-        int hwpid,
-        int hwpidVer,
-        int osBuild,
-        int osVer,
-        int dpaVer,
-        int repoPackageId,
-        std::string notes,
-        std::string handlerhash,
-        std::string handlerUrl,
-        std::string customDriver
-      )
-        : m_hwpid(hwpid)
-        , m_hwpidVer(hwpidVer)
-        , m_osBuild(osBuild)
-        , m_osVer(osVer)
-        , m_dpaVer(dpaVer)
-        , m_repoPackageId(repoPackageId)
-        , m_notes(notes)
-        , m_handlerhash(handlerhash)
-        , m_handlerUrl(handlerUrl)
-        , m_customDriver(customDriver)
-      {}
-
-      int m_hwpid;
-      int m_hwpidVer;
-      int m_osBuild;
-      int m_osVer;
-      int m_dpaVer;
-      int m_repoPackageId;
-      std::string m_notes;
-      std::string m_handlerhash;
-      std::string m_handlerUrl;
-      std::string m_customDriver;
-    };
-
   private:
 
+    IJsRenderService* m_iJsRenderService = nullptr;
     IJsCacheService* m_iJsCacheService = nullptr;
     IEnumerateService* m_iEnumerateService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
@@ -187,7 +129,6 @@ namespace iqrf {
     IEnumerateService::IFastEnumerationPtr m_fastEnum;
 
     // get m_bonded map according nadr from DB
-    std::map<int, Bond> m_bonded;
     std::map<int, BondNodeDb> m_mapNadrBondNodeDb;
     // need full enum
     std::set<int> m_nadrFullEnum;
@@ -319,7 +260,7 @@ namespace iqrf {
           if (*disPtrRes != 0 || !midPtrRes) {
             // Nadr exists in DB and is set as discovered or has mid => set to nondiscovered and null mid in Bonded
             TRC_INFORMATION(PAR(nadr) << " set to nondiscovered in bonded list");
-            db << "update Bonded set Dis = ? , Mid = ?, Enm = ? where Nadr = ?;" << 0 << nullptr << nadr << 0;
+            db << "update Bonded set Dis = ? , Mid = ?, Enm = ? where Nadr = ?;" << 0 << nullptr << 0 << nadr;
           }
         }
         else {
@@ -398,6 +339,12 @@ namespace iqrf {
 
             // Get for hwpid 0 plain DPA plugin
             const iqrf::IJsCacheService::Package *pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)osBuild, (uint16_t)dpaVer);
+            
+            //TODO we need to load everything because of DeamonWrapper.js workaround now
+            //for (auto drv : pckg0->m_stdDriverVect) {
+            //  perVerMap.insert(std::make_pair(drv->getId(), drv->getVersion()));
+            //}
+
             for (auto per : embedPer) {
               for (auto drv : pckg0->m_stdDriverVect) {
                 if (drv->getId() == -1) {
@@ -424,7 +371,7 @@ namespace iqrf {
             }
 
             for (auto pv : perVerMap) {
-              const IJsCacheService::StdDriver *sd =  m_iJsCacheService->getDriver((uint16_t)pv.first, (uint16_t)pv.second);
+              const IJsCacheService::StdDriver *sd =  m_iJsCacheService->getDriver(pv.first, pv.second);
               if (sd) {
                 drivers.push_back(sd);
               }
@@ -449,9 +396,7 @@ namespace iqrf {
           }
           nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
 
-          // Nadr does not exist in DB => insert and set to nondiscovered and null mid in Bonded
-          TRC_INFORMATION(PAR(nadr) << " insert and set to discovered in bonded list");
-          db << "insert into Bonded (Nadr, Dis, Mid, Enm)  values (?, ?, ?, ?);" << nadr << 1 << mid << 1;
+          bondedInDb(nadr, 1, mid, 1);
 
           db << "commit;";
         }
@@ -479,6 +424,8 @@ namespace iqrf {
 
       try {
 
+        database & db = *m_db;
+
         db << "SELECT "
           "Device.Id "
           ", Driver.Name "
@@ -501,6 +448,54 @@ namespace iqrf {
         {
           mapDeviceDrivers[id].push_back(Driver("custom", -100, 0, drv));
         };
+
+        
+        // daemon wrapper workaround
+        std::string wrapperStr;
+        std::string fname = m_iLaunchService->getDataDir();
+        fname += "/javaScript/DaemonWrapper.js";
+        std::ifstream file(fname);
+        if (!file.is_open()) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
+        }
+        std::ostringstream strStream;
+        strStream << file.rdbuf();
+        wrapperStr = strStream.str();
+
+        // load drivers to device dedicated context
+        for (auto devIt : mapDeviceDrivers) {
+          int deviceId = devIt.first;
+          std::string str2load;
+          auto const & drvs = devIt.second;
+          for (auto drv : drvs) {
+            str2load += drv.m_drv;
+          }
+          str2load += wrapperStr;
+          m_iJsRenderService->loadJsCodeFenced(deviceId, str2load);
+
+          // map nadrs to device dedicated context
+          std::vector<int> nadrs;
+          db << "SELECT "
+            "Device.Id "
+            ", Bonded.Nadr "
+            " FROM Bonded "
+            " INNER JOIN Node "
+            " ON Bonded.Mid = Node.Mid "
+            " INNER JOIN Device "
+            " ON Node.DeviceId = Device.Id "
+            " WHERE Node.DeviceId = ?"
+            ";"
+            << deviceId
+            >> [&](int id, int nadr)
+          {
+            nadrs.push_back(nadr);
+          };
+
+          for (auto nadr : nadrs) {
+            m_iJsRenderService->mapNadrToFenced(nadr, deviceId);
+          }
+
+        }
       }
       catch (sqlite_exception &e)
       {
@@ -512,6 +507,22 @@ namespace iqrf {
       }
 
       TRC_FUNCTION_LEAVE("");
+    }
+
+    void bondedInDb(int nadr, int dis, unsigned mid, int enm)
+    {
+      database & db = *m_db;
+
+      int count = 0;
+      db << "select count(*) from Bonded where Nadr = ?" << nadr >> count;
+
+      if (count == 0) {
+        TRC_INFORMATION(PAR(nadr) << " insert and set to discovered in bonded list");
+        db << "insert into Bonded (Nadr, Dis, Mid, Enm)  values (?, ?, ?, ?);" << nadr << dis << mid << enm;
+      }
+      else {
+        db << "update Bonded  set Dis = ? , Mid = ?, Enm = ? where Nadr = ?; " << dis << mid << enm << nadr;
+      }
     }
 
     std::unique_ptr<int> selectDriver(const IJsCacheService::StdDriver* drv)
@@ -791,6 +802,22 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    void attachInterface(iqrf::IJsRenderService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      m_iJsRenderService = iface;
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void detachInterface(iqrf::IJsRenderService* iface)
+    {
+      TRC_FUNCTION_ENTER(PAR(iface));
+      if (m_iJsRenderService == iface) {
+        m_iJsCacheService = nullptr;
+      }
+      TRC_FUNCTION_LEAVE("")
+    }
+
     void attachInterface(iqrf::IJsCacheService* iface)
     {
       TRC_FUNCTION_ENTER(PAR(iface));
@@ -913,6 +940,16 @@ namespace iqrf {
   void IqrfInfo::modify(const shape::Properties *props)
   {
     (void)props; //silence -Wunused-parameter
+  }
+
+  void IqrfInfo::attachInterface(iqrf::IJsRenderService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void IqrfInfo::detachInterface(iqrf::IJsRenderService* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void IqrfInfo::attachInterface(iqrf::IJsCacheService* iface)

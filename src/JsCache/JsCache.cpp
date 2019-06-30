@@ -353,6 +353,7 @@ namespace iqrf {
         updateCacheStandard();
         updateCachePackage();
 
+        /*
         std::string osAct = m_iIqrfDpaService->getCoordinatorParameters().osBuild;
         std::string dpaAct = m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr;
         std::string osSel = osAct;
@@ -443,31 +444,33 @@ namespace iqrf {
         }
 
         TRC_INFORMATION("Loaded drivers for: " PAR(osSel) << PAR(dpaSel) << std::endl << osel.str());
+        */
 
-        // daemon wrapper workaround
-        {
-          std::string fname = m_iLaunchService->getDataDir();
-          fname += "/javaScript/DaemonWrapper.js";
-          std::ifstream file(fname);
-          if (file.is_open()) {
-            std::ostringstream strStream;
-            strStream << file.rdbuf();
-            std::string dwString = strStream.str();
+        //// daemon wrapper workaround
+        //{
+        //  std::string fname = m_iLaunchService->getDataDir();
+        //  fname += "/javaScript/DaemonWrapper.js";
+        //  std::ifstream file(fname);
+        //  if (file.is_open()) {
+        //    std::ostringstream strStream;
+        //    strStream << file.rdbuf();
+        //    std::string dwString = strStream.str();
 
-            str2load += dwString;
-          }
-          else {
-            THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
-          }
-        }
+        //    str2load += dwString;
+        //  }
+        //  else {
+        //    THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
+        //  }
+        //}
 
-        for (auto d : m_customDrivers) {
-          std::string js = str2load;
-          js += d.second;
-          m_iJsRenderService->loadJsCodeFenced(d.first, js);
-        }
-        // load agregated scripts to JSE
-        m_iJsRenderService->loadJsCode(str2load);
+        //for (auto d : m_customDrivers) {
+        //  std::string js = str2load;
+        //  js += d.second;
+        //  m_iJsRenderService->loadJsCodeFenced(d.first, js);
+        //}
+        //// load agregated scripts to JSE
+        ////m_iJsRenderService->loadJsCode(str2load);
+        //m_iJsRenderService->loadJsCodeFenced(0xFFFFFF, str2load);
 
         m_upToDate = true;
         TRC_INFORMATION("Loading cache success");

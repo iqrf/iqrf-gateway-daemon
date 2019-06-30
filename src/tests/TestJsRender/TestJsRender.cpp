@@ -178,7 +178,8 @@ namespace iqrf {
     strStream << jsFile.rdbuf();
     std::string jsString = strStream.str();
     ASSERT_FALSE(jsString.empty());
-    Imp::get().m_iJsRenderService->loadJsCode(jsString);
+    Imp::get().m_iJsRenderService->loadJsCodeFenced(0xFFFFFF, jsString);
+    Imp::get().m_iJsRenderService->mapNadrToFenced(0xFFFFFF, 0xFFFFFF); 
   }
 
   TEST_F(JsRenderTesting, callFunction)
@@ -186,7 +187,7 @@ namespace iqrf {
     std::string input = "\"qwerty\"";
     std::string output;
     std::string expect = "{\"out\":\"QWERTY\"}";
-    Imp::get().m_iJsRenderService->call("test.convertUpperCase", input, output);
+    Imp::get().m_iJsRenderService->callFenced(0xFFFFFF, "test.convertUpperCase", input, output);
     ASSERT_EQ(expect, output);
   }
 
