@@ -210,15 +210,6 @@ namespace iqrf {
 
       nodeData = getNodeDataPriv(nadr, exclusiveAccess);
 
-      //{
-      //  iqrf::sensor::Enumerate iqrfSensorEnumerate(nadr);
-      //  std::unique_ptr<IDpaTransactionResult2> transResult;
-      //  exclusiveAccess->executeDpaTransactionRepeat(m_iJsDriverService->createDpaRequest(iqrfSensorEnumerate), transResult, m_repeat);
-      //  m_iJsDriverService->processDpaTransactionResult(iqrfSensorEnumerate, std::move(transResult));
-      //}
-
-      //TODO other params
-
       TRC_FUNCTION_LEAVE("");
       return nodeData;
     }

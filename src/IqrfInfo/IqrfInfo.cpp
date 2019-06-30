@@ -77,7 +77,6 @@ namespace iqrf {
         int hwpid,
         int hwpidVer,
         int osBuild,
-        int osVer,
         int dpaVer
       )
         : m_nadr(nadr)
@@ -86,7 +85,6 @@ namespace iqrf {
         , m_hwpid(hwpid)
         , m_hwpidVer(hwpidVer)
         , m_osBuild(osBuild)
-        , m_osVer(osVer)
         , m_dpaVer(dpaVer)
       {}
 
@@ -96,7 +94,6 @@ namespace iqrf {
       int m_hwpid;
       int m_hwpidVer;
       int m_osBuild;
-      int m_osVer;
       int m_dpaVer;
     };
 
@@ -114,6 +111,37 @@ namespace iqrf {
       int m_stdId;
       int m_ver;
       std::string m_drv;
+    };
+
+    class Device
+    {
+    public:
+      Device() = delete;
+      Device(
+        int hwpid,
+        int hwpidVer,
+        int osBuild,
+        int dpaVer
+      )
+        : m_hwpid(hwpid)
+        , m_hwpidVer(hwpidVer)
+        , m_osBuild(osBuild)
+        , m_dpaVer(dpaVer)
+        , m_repoPackageId(0)
+        , m_inRepo(false)
+      {}
+
+      int m_hwpid;
+      int m_hwpidVer;
+      int m_osBuild;
+      int m_dpaVer;
+      int m_repoPackageId;
+      std::string m_notes;
+      std::string m_handlerhash;
+      std::string m_handlerUrl;
+      std::string m_customDriver;
+      bool m_inRepo;
+      std::vector<const IJsCacheService::StdDriver *> m_drivers;
     };
 
   private:
@@ -164,9 +192,6 @@ namespace iqrf {
           sqlpath += "/DB/";
           //create tables
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
-
-          //insert data
-          //SqlFile::makeSqlFile(db, sqlpath + "init/insert_Nodes.sql");
         }
 
         syncDatabaseWithCoordinator();
@@ -199,7 +224,6 @@ namespace iqrf {
       int m_hwpid;
       int m_hwpidVer;
       int m_osBuild;
-      int m_osVer;
       int m_dpaVer;
 
       db << "select "
@@ -209,7 +233,6 @@ namespace iqrf {
         ", d.Hwpid "
         ", d.HwpidVer "
         ", d.OsBuild "
-        ", d.OsVer "
         ", d.DpaVer "
         "from "
         "Bonded as b "
@@ -224,7 +247,6 @@ namespace iqrf {
           int hwpid,
           int hwpidVer,
           int osBuild,
-          int osVer,
           int dpaVer
           )
       {
@@ -235,7 +257,6 @@ namespace iqrf {
           hwpid,
           hwpidVer,
           osBuild,
-          osVer,
           dpaVer
         )));
       };
@@ -294,7 +315,7 @@ namespace iqrf {
         else {
           auto const & n = found->second;
           if (e.getMid() != n.m_mid || e.getHwpid() != n.m_hwpid || e.getHwpidVer() != n.m_hwpidVer ||
-            e.getOsBuild() != n.m_osBuild || e.getOsVer() != n.m_osVer || e.getDpaVer() != n.m_dpaVer) {
+            e.getOsBuild() != n.m_osBuild || e.getDpaVer() != n.m_dpaVer) {
             // Nadr from Net is already in DB, but fast enum comparison failed => provide full enum
             TRC_INFORMATION(PAR(nadr) << " fast enum does not fit => schedule full enum")
               m_nadrFullEnum.insert(nadr);
@@ -321,29 +342,44 @@ namespace iqrf {
           int hwpid = nd->getHwpid();
           int hwpidVer = nd->getEmbedExploreEnumerate()->getHwpidVer();
           int osBuild = nd->getEmbedOsRead()->getOsBuild();
-          int osVer = nd->getEmbedOsRead()->getOsVersion();
           int dpaVer = nd->getEmbedExploreEnumerate()->getDpaVer();
 
-          //int deviceId = deviceInDb(hwpid, hwpidVer, osBuild, osVer, dpaVer);
-          //nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
+          Device device(hwpid, hwpidVer, osBuild, dpaVer);
+          {
+            // get package from JsCache if exists
+            const iqrf::IJsCacheService::Package *pckg = nullptr;
+            if (hwpid != 0) { // no custom handler => use default pckg0 to resolve periferies
+              pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, (uint16_t)osBuild, (uint16_t)dpaVer);
+            }
 
-          // get package from JsCache
-          const iqrf::IJsCacheService::Package *pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, (uint16_t)osBuild, (uint16_t)dpaVer);
-          std::vector<const IJsCacheService::StdDriver *> drivers;
+            if (pckg) {
+              device.m_repoPackageId = pckg->m_packageId;
+              device.m_notes = pckg->m_notes;
+              device.m_handlerhash = pckg->m_handlerHash;
+              device.m_handlerUrl = pckg->m_handlerUrl;
+              device.m_customDriver = pckg->m_driver;
+              device.m_inRepo = true;
+              device.m_drivers = pckg->m_stdDriverVect;
+            }
+            else {
+              device.m_repoPackageId = 0;
+              device.m_inRepo = false;
+            }
+          }
 
-          if (!pckg) {
-            // no package in IqrfRepo => get drivers by enumeration
+          // find if such a device already stored in DB
+          std::unique_ptr<int> deviceIdPtr = selectDevice(device);
+          int deviceId = -1;
+
+          if (!deviceIdPtr && !device.m_inRepo) {
+            // no device in DB and no package in IqrfRepo => get drivers by enumeration at first
+
             std::map<int, int> perVerMap;
             const std::set<int> & embedPer = nd->getEmbedExploreEnumerate()->getEmbedPer();
             const std::set<int> & userPer = nd->getEmbedExploreEnumerate()->getUserPer();
 
             // Get for hwpid 0 plain DPA plugin
             const iqrf::IJsCacheService::Package *pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)osBuild, (uint16_t)dpaVer);
-            
-            //TODO we need to load everything because of DeamonWrapper.js workaround now
-            //for (auto drv : pckg0->m_stdDriverVect) {
-            //  perVerMap.insert(std::make_pair(drv->getId(), drv->getVersion()));
-            //}
 
             for (auto per : embedPer) {
               for (auto drv : pckg0->m_stdDriverVect) {
@@ -371,29 +407,33 @@ namespace iqrf {
             }
 
             for (auto pv : perVerMap) {
-              const IJsCacheService::StdDriver *sd =  m_iJsCacheService->getDriver(pv.first, pv.second);
+              const IJsCacheService::StdDriver *sd = m_iJsCacheService->getDriver(pv.first, pv.second);
               if (sd) {
-                drivers.push_back(sd);
+                device.m_drivers.push_back(sd);
               }
             }
-          }
-          else {
-            drivers = pckg->m_stdDriverVect;
-          }
+          } // if (!deviceIdPtr && !device.m_inRepo)
 
           db << "begin transaction;";
 
-          int deviceId = deviceInDb(hwpid, hwpidVer, osBuild, osVer, dpaVer);
+          if (!deviceIdPtr) {
+            // no device in DB => store at first
 
-          // store drivers in DB if doesn't exists already
-          for (auto d : drivers) {
-            int driverId = driverInDb(d);
-            int count = 0;
-            db << "select count(*) from DeviceDriver where DeviceId = ? and DriverId = ? ;" << deviceId << driverId >> count;
-            if (count == 0) {
+            // insert device to DB
+            deviceId = insertDevice(device);
+
+            // store drivers in DB if doesn't exists already
+            for (auto d : device.m_drivers) {
+              int driverId = driverInDb(d);
+              // store relation to junction table
               db << "insert into DeviceDriver (DeviceId, DriverId) values (?, ?);" << deviceId << driverId;
             }
           }
+          else {
+            // device already in DB => get deviceId
+            deviceId = *deviceIdPtr;
+          }
+
           nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
 
           bondedInDb(nadr, 1, mid, 1);
@@ -402,7 +442,7 @@ namespace iqrf {
         }
         catch (sqlite_exception &e)
         {
-          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
           db << "rollback;";
         }
         catch (std::exception &e)
@@ -511,18 +551,21 @@ namespace iqrf {
 
     void bondedInDb(int nadr, int dis, unsigned mid, int enm)
     {
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(dis) << PAR(enm) );
       database & db = *m_db;
 
       int count = 0;
       db << "select count(*) from Bonded where Nadr = ?" << nadr >> count;
 
       if (count == 0) {
-        TRC_INFORMATION(PAR(nadr) << " insert and set to discovered in bonded list");
+        TRC_INFORMATION(PAR(nadr) << " insert into Bonded: " << PAR(nadr) << PAR(dis) << PAR(enm));
         db << "insert into Bonded (Nadr, Dis, Mid, Enm)  values (?, ?, ?, ?);" << nadr << dis << mid << enm;
       }
       else {
+        TRC_INFORMATION(PAR(nadr) << " update Bonded: " << PAR(nadr) << PAR(dis) << PAR(enm));
         db << "update Bonded  set Dis = ? , Mid = ?, Enm = ? where Nadr = ?; " << dis << mid << enm << nadr;
       }
+      TRC_FUNCTION_LEAVE("");
     }
 
     std::unique_ptr<int> selectDriver(const IJsCacheService::StdDriver* drv)
@@ -550,7 +593,7 @@ namespace iqrf {
     // check id device exist and if not insert and return id
     int driverInDb(const IJsCacheService::StdDriver* drv)
     {
-      TRC_FUNCTION_ENTER("");
+      TRC_FUNCTION_ENTER(NAME_PAR(standardId, drv->getId()) << NAME_PAR(version, drv->getVersion()) << NAME_PAR(name, drv->getName()));
 
       std::string name = drv->getName();
       int standardId = drv->getId();
@@ -561,7 +604,7 @@ namespace iqrf {
       std::unique_ptr<int> id = selectDriver(drv);
 
       if (!id) {
-        TRC_INFORMATION(PAR(name) << PAR(standardId) << PAR(version) << " insert driver to DB");
+        TRC_INFORMATION(" insert into Driver: " << PAR(standardId) << PAR(version) << PAR(name));
 
         db << "insert into Driver ("
         "Notes"
@@ -589,13 +632,14 @@ namespace iqrf {
 
       id = selectDriver(drv);
       if (!id) {
-        THROW_EXC_TRC_WAR(std::logic_error, PAR(name) << PAR(standardId) << PAR(version) << " shall be selected from DB")
+        THROW_EXC_TRC_WAR(std::logic_error, " insert into Driver failed: " << PAR(standardId) << PAR(version) << PAR(name))
       }
 
       TRC_FUNCTION_ENTER("");
       return *id;
     }
 
+/*
     void insertSensor(unsigned mid, int nadr, int per)
     {
       if (PERIF_STANDARD_SENSOR != per)
@@ -658,93 +702,73 @@ namespace iqrf {
         ");"
         << mid << bout->getBinaryOutputsNum();
     }
-
-    bool midExistsInDb(unsigned mid)
+*/
+    std::unique_ptr<int> selectDevice(const Device& dev)
     {
-      int count = 0;
-      database & db = *m_db;
-      db << "select "
-        "count(*) "
+      std::unique_ptr<int> id;
+
+      *m_db << "select "
+        "d.Id "
         "from "
-        "Node as n "
+        "Device as d "
         "where "
-        "n.Mid = ?"
+        "d.Hwpid = ? and "
+        "d.HwpidVer = ? and "
+        "d.OsBuild = ? and "
+        "d.DpaVer = ? "
         ";"
-        << mid
-        >> count;
-      return count > 0;
+        << dev.m_hwpid
+        << dev.m_hwpidVer
+        << dev.m_osBuild
+        << dev.m_dpaVer
+        >> [&](std::unique_ptr<int> d)
+      {
+        id = std::move(d);
+      };
+
+      return id;
     }
 
-    // check id device exist and if not insert and return id
-    int deviceInDb(int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer)
+    int insertDevice(const Device& dev)
     {
-      TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(osVer) << PAR(dpaVer));
+      TRC_FUNCTION_ENTER(NAME_PAR(hwpid, dev.m_hwpid) << NAME_PAR(hwpidVer, dev.m_hwpidVer) << NAME_PAR(osBuild, dev.m_osBuild) << NAME_PAR(dpaVer, dev.m_dpaVer));
 
-      std::unique_ptr<int> id;
-      database & db = *m_db;
-      db << "select "
-        "d.Id "
-        "from "
-        "Device as d "
-        "where "
-        "d.Hwpid = ? and "
-        "d.HwpidVer = ? and "
-        "d.OsBuild = ? and "
-        "d.DpaVer = ? "
-        ";"
-        << hwpid
-        << hwpidVer
-        << osBuild
-        << dpaVer
-        >> [&](std::unique_ptr<int> d)
-      {
-        id = std::move(d);
-      };
+      *m_db << "insert into Device ("
+        "Hwpid"
+        ", HwpidVer"
+        ", OsBuild"
+        ", DpaVer"
+        ", RepoPackageId"
+        ", Notes"
+        ", HandlerHash"
+        ", HandlerUrl"
+        ", CustomDriver"
+        ")  values ( "
+        "?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ");"
+        << dev.m_hwpid
+        << dev.m_hwpidVer
+        << dev.m_osBuild
+        << dev.m_dpaVer
+        << dev.m_repoPackageId
+        << dev.m_notes
+        << dev.m_handlerhash
+        << dev.m_handlerUrl
+        << dev.m_customDriver
+        ;
 
+      std::unique_ptr<int> id = selectDevice(dev);
       if (!id) {
-        // device doesn't exist in DB
-        db << "insert into Device ("
-          "Hwpid"
-          ", HwpidVer"
-          ", OsBuild"
-          ", OsVer"
-          ", DpaVer"
-          ")  values ( "
-          "?"
-          ", ?"
-          ", ?"
-          ", ?"
-          ", ?"
-          ");"
-          << hwpid
-          << hwpidVer
-          << osBuild
-          << osVer
-          << dpaVer
-          ;
-      }
-
-      db << "select "
-        "d.Id "
-        "from "
-        "Device as d "
-        "where "
-        "d.Hwpid = ? and "
-        "d.HwpidVer = ? and "
-        "d.OsBuild = ? and "
-        "d.DpaVer = ? "
-        ";"
-        << hwpid
-        << hwpidVer
-        << osBuild
-        << dpaVer
-        >> [&](std::unique_ptr<int> d)
-      {
-        id = std::move(d);
-      };
-
-      if (!id) {
-        THROW_EXC_TRC_WAR(std::logic_error, "insert failed: " << PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(osVer) << PAR(dpaVer))
+        THROW_EXC_TRC_WAR(std::logic_error, "insert into Device failed: " << 
+          NAME_PAR(hwpid, dev.m_hwpid) << NAME_PAR(hwpidVer, dev.m_hwpidVer) << NAME_PAR(osBuild, dev.m_osBuild) << NAME_PAR(dpaVer, dev.m_dpaVer))
       }
 
       TRC_FUNCTION_LEAVE("");
