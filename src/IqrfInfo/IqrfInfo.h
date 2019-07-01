@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ShapeProperties.h"
+#include "IIqrfInfo.h"
 #include "IJsRenderService.h"
 #include "IJsCacheService.h"
 #include "IIqrfDpaService.h"
@@ -9,13 +10,6 @@
 #include "ITraceService.h"
 
 namespace iqrf {
-  //TODO
-  class IIqrfInfo
-  {
-  public:
-    virtual ~IIqrfInfo() {}
-  };
-
   class IqrfInfo : public IIqrfInfo
   {
   public:

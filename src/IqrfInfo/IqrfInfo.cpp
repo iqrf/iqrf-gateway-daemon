@@ -194,10 +194,12 @@ namespace iqrf {
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
         }
 
-        fastEnum();
-        fullEnum();
-        loadDrivers();
-        deepEnum();
+        loadProvisoryDrivers();
+
+        //fastEnum();
+        //fullEnum();
+        //loadDrivers();
+        //deepEnum();
       }
       catch (sqlite_exception &e)
       {
@@ -454,6 +456,60 @@ namespace iqrf {
           db << "rollback;";
         }
       }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void loadProvisoryDrivers()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      IEnumerateService::INodeDataPtr cd = m_iEnumerateService->getNodeData(0);
+
+      int hwpid = cd->getHwpid();
+      int hwpidVar = cd->getEmbedExploreEnumerate()->getHwpidVer();
+      int osBuild = cd->getEmbedOsRead()->getOsBuild();
+      int dpaVer = cd->getEmbedExploreEnumerate()->getDpaVer();
+
+      std::string str2load;
+
+      //DriverId, DriverVersion, hwpid, hwpidVer
+      std::map<int, std::map<int, std::vector<std::pair<int, int>>>> drivers =
+      m_iJsCacheService->getDrivers(embed::os::Read::getOsBuildAsString(osBuild), embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
+
+      for (auto & drv : drivers) {
+        int driverId = drv.first;
+        int driverVer = 0;
+        if (drv.second.size() > 0) {
+          driverVer = drv.second.rbegin()->first; // get the highest one from reverse end
+        }
+        else {
+          TRC_WARNING("Inconsistency in driver versions: " <<PAR(driverId) << " no version");
+        }
+        const IJsCacheService::StdDriver* driver = nullptr;
+        driver = m_iJsCacheService->getDriver(driverId, driverVer);
+        if (driver) {
+          str2load += driver->getDriver();
+        }
+        else {
+          TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << PAR(driverVer) << " no driver found");
+        }
+      }
+
+      // daemon wrapper workaround
+      std::string wrapperStr;
+      std::string fname = m_iLaunchService->getDataDir();
+      fname += "/javaScript/DaemonWrapper.js";
+      std::ifstream file(fname);
+      if (!file.is_open()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
+      }
+      std::ostringstream strStream;
+      strStream << file.rdbuf();
+      wrapperStr = strStream.str();
+
+      str2load += wrapperStr;
+      m_iJsRenderService->loadJsCodeFenced(-1, str2load); // provisional context
 
       TRC_FUNCTION_LEAVE("");
     }

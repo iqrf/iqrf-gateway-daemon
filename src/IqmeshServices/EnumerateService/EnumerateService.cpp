@@ -63,17 +63,6 @@ namespace iqrf {
       return m_hwpid;
     }
 
-    //unsigned getMid() const override { return m_osRead->getMid(); }
-    ////int getNadr() const { return m_osRead->gm_nadr; }
-    ////int getHwpid() const { return m_hwpid; }
-    //int getHwpidVer() const { return m_exploreEnumerate->getHwpidVer(); }
-    //int getOsBuild() const { return m_osRead->getOsBuild(); }
-    //int getOsVer() const { return m_osRead->getOsVersion(); }
-    //int getDpaVer() const { return m_exploreEnumerate->getDpaVer(); }
-    //bool getModeStd() const { return m_modeStd; }
-    //bool getStdAndLpNet() const { return m_stdAndLpNet; }
-    //const std::set<int> & getEmbedPer() { return m_embedPer; }
-    //const std::set<int> & getUserPer() { return m_userPer; }
   private:
     int m_nadr;
     int m_hwpid;

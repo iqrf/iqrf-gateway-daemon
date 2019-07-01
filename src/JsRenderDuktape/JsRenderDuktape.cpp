@@ -231,7 +231,16 @@ namespace iqrf {
         }
       }
       else {
-        THROW_EXC_TRC_WAR(std::logic_error, "cannot find nadr to contextId mapping: " << PAR(nadr) << PAR(functionName))
+        // try to find provisional drivers context
+        int contextId = -1;
+        auto found = m_contexts.find(contextId);
+        if (found != m_contexts.end()) {
+          TRC_DEBUG("Processed by provisional drivers set with highest version");
+          found->second->call(functionName, par, ret);
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "cannot find JS provisional context: " << PAR(nadr) << PAR(contextId) << PAR(functionName))
+        }
       }
 
       TRC_FUNCTION_LEAVE("");
