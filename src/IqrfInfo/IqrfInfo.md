@@ -98,11 +98,20 @@ During this phase:
 TODO:
 - Is the principle correct - all devices has the same sensors?
 - It wouldn't work if particular sensor of a device can be set in SW or HW (e.g. jumpers) way. In this case we need to deep eval not per device, but per node (all NADRs).
-  
+ 
+## Configuration
+DB feature is on `feature/DB` branch. The component **IqrfInfo** has simple optional configuration parameter:
+```json
+"enumAtStartUp": {
+            "type": "boolean",
+            "description": "Flag to initiate network full enumaration just after startup",
+            "default": "false"
+        }
+```
+If set to false, the application **iqrfgd2** behaves as previous versions with respect to drivers load (provisory load drivers). If set to true, all phases of feature are processed.  
 
 ## Next possible development steps
 
-- configurable enum phases - switchable on/off
 - download only detected drivers from Iqrf Repo
 - provide event system of finished enum phases
 - move enum phases to standalone thread to do it asynchronously, not to block iqrfgd2 start-up 
