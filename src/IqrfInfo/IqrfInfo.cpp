@@ -160,6 +160,7 @@ namespace iqrf {
     std::map<int, BondNodeDb> m_mapNadrBondNodeDb;
     // need full enum
     std::set<int> m_nadrFullEnum;
+    bool m_enumAtStartUp = false;
 
   public:
     Imp()
@@ -193,13 +194,6 @@ namespace iqrf {
           //create tables
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
         }
-
-        loadProvisoryDrivers();
-
-        //fastEnum();
-        //fullEnum();
-        //loadDrivers();
-        //deepEnum();
       }
       catch (sqlite_exception &e)
       {
@@ -209,6 +203,18 @@ namespace iqrf {
       {
         CATCH_EXC_TRC_WAR(std::logic_error, e, "Unexpected error ");
       }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void runEnum()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      fastEnum();
+      fullEnum();
+      loadDrivers();
+      deepEnum();
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -1136,17 +1142,32 @@ namespace iqrf {
         "******************************"
       );
 
+      modify(props);
+
+      initDb();
+
+      loadProvisoryDrivers();
+
+      if (m_enumAtStartUp) {
+        runEnum();
+      }
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void modify(const shape::Properties *props)
+    {
+      TRC_FUNCTION_ENTER("");
+
       using namespace rapidjson;
       const Document& doc = props->getAsJson();
 
-      //{
-      //  const Value* val = rapidjson::Pointer("/gwIdentModeByte").Get(doc);
-      //  if (val && val->IsInt()) {
-      //    m_gwIdentModeByte = (uint8_t)val->GetInt();
-      //  }
-      //}
-
-      initDb();
+      {
+        const Value* val = Pointer("/enumAtStartUp").Get(doc);
+        if (val && val->IsBool()) {
+          m_enumAtStartUp = (uint8_t)val->GetBool();
+        }
+      }
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -1188,7 +1209,7 @@ namespace iqrf {
 
   void IqrfInfo::modify(const shape::Properties *props)
   {
-    (void)props; //silence -Wunused-parameter
+    m_imp->modify(props);
   }
 
   void IqrfInfo::attachInterface(iqrf::IJsRenderService* iface)
