@@ -1,3 +1,7 @@
+# DB feature
+This is description of the DB feature. The feature is under construction. This document may change to reflect ongoing work.
+It is meant for developement purposes only to share information within team. It can be removed later, transformed to set of developement issues or evolve to official documentation later.
+
 ## Terms
 ### IqrfInfo
 Is componet responsible for DB
