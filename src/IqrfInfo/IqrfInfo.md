@@ -80,6 +80,26 @@ Now we have all data necessary for JS drivers to load:
 - load JS engine - there is one JS engine related to device
 - associate NADRs handled by this engine. When request comes to NADR it is routed to correct JS engine.
 
+### Deep enum
+
+This is continuation of full enum, but after JS drivers load. Previous full enum was done only by raw DPA usage. Now the drivers are used. This phase take care only of Standards enumeration with usage of proper driver's versions
+- Sensor
+- Binaryouput
+- Light (not implemented yet)
+- Dali (not implemented yet)
+
+During this phase:
+- select devices without deep enum (DeepEnum flag in Device table)
+- for all these devices:
+  - select lowest NADR with discovered device instance
+  - send enum  request (e.g. *iqrf.sensor.Enumerate*)
+  - store result to DB
+
+TODO:
+- Is the principle correct - all devices has the same sensors?
+- It wouldn't work if particular sensor of a device can be set in SW or HW (e.g. jumpers) way. In this case we need to deep eval not per device, but per node (all NADRs).
+  
+
 ## Next possible development steps
 
 - configurable enum phases - switchable on/off
