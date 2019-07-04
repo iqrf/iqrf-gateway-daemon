@@ -1,11 +1,13 @@
 #include "GwMonitorService.h"
-#include "HexStringCoversion.h"
 
 #include "Trace.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/writer.h"
+
+#include <thread>
+#include <condition_variable>
 
 #include "iqrf__GwMonitorService.hxx"
 
