@@ -1,0 +1,5 @@
+{
+  "component": "shape::WebsocketCppService",
+  "instance": "WebsocketCppService_GwMonitor",
+  "WebsocketPort": 1438
+}

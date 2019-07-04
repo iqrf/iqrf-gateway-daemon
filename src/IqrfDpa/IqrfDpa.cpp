@@ -425,6 +425,16 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
+  int IqrfDpa::getDpaQueueLen() const
+  {
+    return m_dpaHandler->getDpaQueueLen();
+  }
+
+  IIqrfChannelService::State IqrfDpa::getIqrfChannelState()
+  {
+    return m_iqrfChannelService->getState();
+  }
+
   void IqrfDpa::deactivate()
   {
     TRC_FUNCTION_ENTER("");

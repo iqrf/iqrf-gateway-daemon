@@ -1,0 +1,13 @@
+{
+  "component": "iqrf::GwMonitorService",
+  "instance": "iqrf::GwMonitorService",
+  "reportPeriod": 10,
+  "RequiredInterfaces": [
+    {
+      "name": "shape::IWebsocketService",
+      "target": {
+        "WebsocketPort": 1438
+      }
+    }
+  ]
+}
