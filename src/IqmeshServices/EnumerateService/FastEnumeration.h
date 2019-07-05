@@ -21,7 +21,7 @@ namespace iqrf
         , m_osVer(osVer)
         , m_dpaVer(dpaVer)
       {}
-      unsigned getMid() const const override { return m_mid; }
+      unsigned getMid() const override { return m_mid; }
       int getNadr() const override { return m_nadr; }
       int getHwpid() const override { return m_hwpid; }
       int getHwpidVer() const override { return m_hwpidVer; }

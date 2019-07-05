@@ -53,7 +53,7 @@ namespace iqrf
           m_checkum = (unsigned)resp.Checksum;
           m_configuration = std::vector<uint8_t>(resp.Configuration, resp.Configuration + 31);
           m_rfpgm = (int)resp.RFPGM;
-          m_undocumented = (int)resp.Undocumented;
+          m_undocumented = (int)resp.Undocumented[0];
         }
       };
       typedef std::unique_ptr<RawDpaReadCfg> RawDpaReadCfgPtr;
