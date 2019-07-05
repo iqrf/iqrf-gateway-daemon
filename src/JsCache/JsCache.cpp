@@ -3,7 +3,7 @@
 
 #include "JsCache.h"
 #include "EmbedExplore.h"
-#include "EmbedOs.h"
+#include "EmbedOS.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
