@@ -63,7 +63,7 @@ namespace iqrf {
     }
 
     //std::unique_ptr<IDpaTransactionResult2> executeDpaTransactionRepeat( DpaMessage & request, int repeat, int32_t timeout = -1 ) override
-    void executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) override
+    void executeDpaTransactionRepeat( const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) override
     {
       TRC_FUNCTION_ENTER( "" );
       //auto result =
@@ -131,7 +131,7 @@ namespace iqrf {
     return result;
   }
 
-  void IqrfDpa::executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 )
+  void IqrfDpa::executeDpaTransactionRepeat( const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 )
   {
     TRC_FUNCTION_ENTER( "" );
     
