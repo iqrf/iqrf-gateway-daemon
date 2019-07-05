@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RawDpaCommandSolver.h"
-#include "EmbedOs.h"
+#include "EmbedOS.h"
 
 namespace iqrf
 {

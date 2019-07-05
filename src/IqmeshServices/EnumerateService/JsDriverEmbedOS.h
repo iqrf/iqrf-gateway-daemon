@@ -1,7 +1,7 @@
 #pragma once
 
 #include "JsDriverDpaCommandSolver.h"
-#include "EmbedOs.h"
+#include "EmbedOS.h"
 #include "JsonUtils.h"
 #include <vector>
 #include <sstream>
