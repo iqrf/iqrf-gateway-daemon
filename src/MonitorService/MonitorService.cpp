@@ -1,4 +1,4 @@
-#include "GwMonitorService.h"
+#include "MonitorService.h"
 
 #include "Trace.h"
 #include "rapidjson/rapidjson.h"
@@ -9,14 +9,14 @@
 #include <thread>
 #include <condition_variable>
 
-#include "iqrf__GwMonitorService.hxx"
+#include "iqrf__MonitorService.hxx"
 
-TRC_INIT_MODULE(iqrf::GwMonitorService);
+TRC_INIT_MODULE(iqrf::MonitorService);
 
 namespace iqrf {
 
   // implementation class
-  class GwMonitorService::Imp
+  class MonitorService::Imp
   {
   private:
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
@@ -106,7 +106,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************************" << std::endl <<
-        "GwMonitorService instance activate" << std::endl <<
+        "MonitorService instance activate" << std::endl <<
         "******************************************"
       );
 
@@ -125,7 +125,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "**************************************" << std::endl <<
-        "GwMonitorService instance deactivate" << std::endl <<
+        "MonitorService instance deactivate" << std::endl <<
         "**************************************"
       );
 
@@ -203,88 +203,88 @@ namespace iqrf {
 
   };
 
-  GwMonitorService::GwMonitorService()
+  MonitorService::MonitorService()
   {
     m_imp = shape_new Imp();
   }
 
-  GwMonitorService::~GwMonitorService()
+  MonitorService::~MonitorService()
   {
     delete m_imp;
   }
 
-  int GwMonitorService::getDpaQueueLen() const
+  int MonitorService::getDpaQueueLen() const
   {
     return m_imp->getDpaQueueLen();
   }
 
-  IIqrfChannelService::State GwMonitorService::getIqrfChannelState()
+  IIqrfChannelService::State MonitorService::getIqrfChannelState()
   {
     return m_imp->getIqrfChannelState();
   }
 
-  void GwMonitorService::attachInterface(IIqrfDpaService* iface)
+  void MonitorService::attachInterface(IIqrfDpaService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void GwMonitorService::detachInterface(IIqrfDpaService* iface)
+  void MonitorService::detachInterface(IIqrfDpaService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void GwMonitorService::attachInterface(IMessagingSplitterService* iface)
+  void MonitorService::attachInterface(IMessagingSplitterService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void GwMonitorService::detachInterface(IMessagingSplitterService* iface)
+  void MonitorService::detachInterface(IMessagingSplitterService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void GwMonitorService::attachInterface(IUdpConnectorService* iface)
+  void MonitorService::attachInterface(IUdpConnectorService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void GwMonitorService::detachInterface(IUdpConnectorService* iface)
+  void MonitorService::detachInterface(IUdpConnectorService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void GwMonitorService::attachInterface(shape::IWebsocketService* iface)
+  void MonitorService::attachInterface(shape::IWebsocketService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void GwMonitorService::detachInterface(shape::IWebsocketService* iface)
+  void MonitorService::detachInterface(shape::IWebsocketService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void GwMonitorService::attachInterface(shape::ITraceService* iface)
+  void MonitorService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void GwMonitorService::detachInterface(shape::ITraceService* iface)
+  void MonitorService::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }
 
 
-  void GwMonitorService::activate(const shape::Properties *props)
+  void MonitorService::activate(const shape::Properties *props)
   {
     m_imp->activate(props);
   }
 
-  void GwMonitorService::deactivate()
+  void MonitorService::deactivate()
   {
     m_imp->deactivate();
   }
 
-  void GwMonitorService::modify(const shape::Properties *props)
+  void MonitorService::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
   }

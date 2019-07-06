@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IGwMonitorService.h"
+#include "IMonitorService.h"
 #include "ShapeProperties.h"
 #include "IIqrfDpaService.h"
 #include "IMessagingSplitterService.h"
@@ -12,13 +12,13 @@
 
 namespace iqrf {
 
-  class GwMonitorService : public IGwMonitorService
+  class MonitorService : public IMonitorService
   {
   public:
-    GwMonitorService();
+    MonitorService();
 
     /// \brief Destructor
-    virtual ~GwMonitorService();
+    virtual ~MonitorService();
 
     int getDpaQueueLen() const override;
     virtual IIqrfChannelService::State getIqrfChannelState() override;

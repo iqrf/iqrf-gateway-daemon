@@ -1,10 +1,10 @@
-project(GwMonitorService)
+project(MonitorService)
 
 FIND_PACKAGE(shapeware REQUIRED)
 
-set(COMPONENT iqrf::GwMonitorService)
+set(COMPONENT iqrf::MonitorService)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IGwMonitorService)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IMonitorService)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IUdpConnectorService UNREQUIRED SINGLE)

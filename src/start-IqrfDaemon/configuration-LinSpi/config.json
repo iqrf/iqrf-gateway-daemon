@@ -288,9 +288,9 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::GwMonitorService",
+      "name": "iqrf::MonitorService",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "GwMonitorService",
+      "libraryName": "MonitorService",
       "enabled": true,
       "startlevel": 0
     }

@@ -6,12 +6,12 @@
 
 namespace iqrf {
 
-  class IGwMonitorService
+  class IMonitorService
   {
   public:
     virtual int getDpaQueueLen() const = 0;
     virtual IIqrfChannelService::State getIqrfChannelState() = 0;
 
-    virtual ~IGwMonitorService() {}
+    virtual ~IMonitorService() {}
   };
 }
