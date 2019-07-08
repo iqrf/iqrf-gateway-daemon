@@ -80,7 +80,7 @@ namespace iqrf {
         auto ts = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
         Document doc;
-        Pointer("/mType").Set(doc, "gwMonitor");
+        Pointer("/mType").Set(doc, "ntfDaemon_Monitor");
         Pointer("/data/num").Set(doc, num++);
         Pointer("/data/timestamp").Set(doc, ts);
         Pointer("/data/dpaQueueLen").Set(doc, dpaQueueLen);

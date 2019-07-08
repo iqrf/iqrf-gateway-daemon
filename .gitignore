@@ -1,5 +1,6 @@
 # build
 [Bb]uild/
+.vscode
 
 # ci build
 shape-source/

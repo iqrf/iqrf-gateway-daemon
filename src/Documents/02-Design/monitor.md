@@ -1,6 +1,6 @@
-# GwMonitor component design
+# Monitor component design
 
-The GwMonitor component gets periodically an information about key components of running **iqrfgd2** It forms Json message with the information and sends it via websocket.
+The Monitor component gets periodically an information about key components of running **iqrfgd2** It forms Json message with the information and sends it via websocket.
 
 ## General features
 It monitors:
@@ -10,7 +10,7 @@ It monitors:
 - **dpaChannelState** state of DPA channel (one of CDC, SPI or UART interface)
  - Ready,
  - NotReady,
- - ExclusiveAcess
+ - ExclusiveAccess
 - **msgQueueLen** length of pending API msg queue (32 is maximum)
 - **operMode** is operational mode
   - operational
@@ -26,7 +26,7 @@ The messages are sent periodically to connected clients.
 Message content:
 ``` json
 {
-  "mType":"gwMonitor",
+  "mType":"ntfDaemon_Monitor",
   "data":{
     "num":24,
     "timestamp":1562256558,
@@ -46,8 +46,8 @@ If you want to change WS port it has to be specified in configuration of referen
 
 ```json
 {
-  "component": "iqrf::GwMonitorService",
-  "instance": "iqrf::GwMonitorService",
+  "component": "iqrf::MonitorService",
+  "instance": "iqrf::MonitorService",
   "reportPeriod": 10,
   "RequiredInterfaces": [
     {
