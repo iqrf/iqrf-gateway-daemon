@@ -40,14 +40,12 @@ echo "Daemon folders created."
 cp iqrf-daemon-source/src/start-IqrfDaemon/configuration/*.json ${DEPLOY}${IQRFGD2_CFG}
 cp iqrf-daemon-source/src/start-IqrfDaemon/configuration-LinDeployDevel/*.json ${DEPLOY}${IQRFGD2_CFG}
 # NOT YET BETA
-rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__OtaUploadService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__IqrfInfo.json
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__JsDriverService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__EnumerateService.json
 
 cp -r iqrf-daemon-source/src/start-IqrfDaemon/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
 # NOT YET BETA
-rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__OtaUploadService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__IqrfInfo.json
 rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__JsDriverService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__EnumerateService.json
@@ -56,7 +54,6 @@ rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__EnumerateService.json
 cp iqrf-daemon-build/bin/iqrfgd2 ${DEPLOY}${IQRFGD2_BIN}/iqrfgd2
 cp iqrf-daemon-build/bin/*.so ${DEPLOY}${IQRFGD2_LIBS}
 # NOT YET BETA
-rm ${DEPLOY}${IQRFGD2_LIBS}/libOtaUploadService.so
 rm ${DEPLOY}${IQRFGD2_LIBS}/libIqrfInfo.so
 rm ${DEPLOY}${IQRFGD2_LIBS}/libJsDriverService.so
 rm ${DEPLOY}${IQRFGD2_LIBS}/libEnumerateService.so
@@ -65,7 +62,6 @@ rm ${DEPLOY}${IQRFGD2_LIBS}/libEnumerateService.so
 mkdir -p ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas
 cp -r iqrf-daemon-source/api/*.json ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/
 # NOT YET BETA
-rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/iqmeshNetwork_OtaUpload*.json
 
 cp -r iqrf-daemon-source/src/start-IqrfDaemon/javaScript ${DEPLOY}${IQRFGD2_SHARE}
 
