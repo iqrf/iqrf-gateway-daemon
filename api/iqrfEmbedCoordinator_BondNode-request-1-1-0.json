@@ -2,18 +2,18 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_LoadCode-request",
+        "name": "iqrfEmbedCoordinator_BondNode-request",
         "format": "jsonschema",
-        "jsDriverVersions": [0, 1],
-        "version": "1-0-0"
+        "jsDriverVersions": [2],
+        "version": "1-1-0"
     },
     "type": "object",
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Embedded peripheral OS - Load Code request.",
+            "description": "Embedded peripheral Coordinator - Bond Node request.",
             "enum": [
-                "iqrfEmbedOs_LoadCode"
+                "iqrfEmbedCoordinator_BondNode"
             ]
         },
         "data": {
@@ -41,24 +41,17 @@
                         "param": {
                             "type": "object",
                             "properties": {
-                                "flags": {
+                                "reqAddr": {
                                     "type": "integer",
-                                    "description": "Action flags."
+                                    "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node.",
+                                    "default": 0
                                 },
-                                "address": {
+                                "bondingTestRetries": {
                                     "type": "integer",
-                                    "description": "A physical address at external EEPROM memory to load the code image from."
-                                },
-                                "length": {
-                                    "type": "integer",
-                                    "description": "Length of the code image in bytes at the external EEPROM."
-                                },
-                                "checkSum": {
-                                    "type": "integer",
-                                    "description":"One’s complement Fletcher-16 checksum of the code image."
+                                    "description": "Maximum number of FRCs used to test whether the [N] was successfully bonded. If the [N] does not respond, it is unbonded at the Coordinator’s side. If the value is 0, then no test is performed. If the [N] is connected to and bonded from DSM then this testing never succeeds."
                                 }
                             }
-                        }
+						}
                     },
                     "required": [
                         "nAdr",

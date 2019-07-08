@@ -2,18 +2,18 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_LoadCode-request",
+        "name": "iqrfEmbedOs_WriteCfg-request",
         "format": "jsonschema",
-        "jsDriverVersions": [0, 1],
-        "version": "1-0-0"
+        "jsDriverVersions": [1],
+        "version": "1-1-0"
     },
     "type": "object",
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Embedded peripheral OS - Load Code request.",
+            "description": "Embedded peripheral OS - Write Configuration request.",
             "enum": [
-                "iqrfEmbedOs_LoadCode"
+                "iqrfEmbedOs_WriteCfg"
             ]
         },
         "data": {
@@ -41,21 +41,16 @@
                         "param": {
                             "type": "object",
                             "properties": {
-                                "flags": {
-                                    "type": "integer",
-                                    "description": "Action flags."
+                                "configuration": {
+                                    "type": "array",
+                                    "description": "Content the configuration memory block from address 0x01 to 0x1F.",    
+                                    "items": {
+                                        "type": "integer"
+                                    }
                                 },
-                                "address": {
+                                "rfpgm": {
                                     "type": "integer",
-                                    "description": "A physical address at external EEPROM memory to load the code image from."
-                                },
-                                "length": {
-                                    "type": "integer",
-                                    "description": "Length of the code image in bytes at the external EEPROM."
-                                },
-                                "checkSum": {
-                                    "type": "integer",
-                                    "description":"One’s complement Fletcher-16 checksum of the code image."
+                                    "description":"See parameter of setupRFPGM IQRF OS function."
                                 }
                             }
                         }

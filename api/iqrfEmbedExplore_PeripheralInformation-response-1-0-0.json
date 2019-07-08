@@ -1,9 +1,10 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "iqrfEmbedExplore_PeripheralInformation-response",
         "format": "jsonschema",
+        "jsDriverVersions": [0],
         "version": "1-0-0"
     },
     "type": "object",

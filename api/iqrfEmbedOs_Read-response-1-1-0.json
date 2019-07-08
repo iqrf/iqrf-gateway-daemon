@@ -2,18 +2,18 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedUart_Close-response",
+        "name": "iqrfEmbedOs_Read-response",
         "format": "jsonschema",
-        "jsDriverVersions": [0],
-        "version": "1-0-0"
+        "jsDriverVersions": [1],
+        "version": "1-1-0"
     },
     "type": "object",
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Embedded peripheral UART - Close request.",
+            "description": "Embedded peripheral OS - Read response.",
             "enum": [
-                "iqrfEmbedUart_Close"
+                "iqrfEmbedOs_Read"
             ]
         },
         "data": {
@@ -48,7 +48,50 @@
                         },
                         "result": {
                             "type": "object",
-                            "properties": {}
+                            "properties": {
+                                "mid": {
+                                    "type": "number",
+                                    "description": "TR Module ID."
+                                },
+                                "osVersion": {
+                                    "type": "integer",
+                                    "description": "IQRF OS version."
+                                },
+                                "trMcuType": {
+                                    "type": "integer",
+                                    "description": "TR MCU type."
+                                },
+                                "osBuild": {
+                                    "type": "integer",
+                                    "description": "IQRF OS build."
+                                },
+                                "rssi": {
+                                    "type": "integer",
+                                    "description": "See lastRSSI at IQRF OS Reference Guide."
+                                },
+                                "supplyVoltage": {
+                                    "type": "number",
+                                    "description": "Module supply voltage, contains real voltage value."
+                                },
+                                "flags": {
+                                    "type": "integer",
+                                    "description": "See DPA guide."
+                                },
+                                "slotLimits": {
+                                    "type": "integer",
+                                    "description": "See DPA guide."
+                                },
+                                "ibk": {
+                                    "type": "array",
+                                    "description": "Individual Bonding Key.",
+                                    "items": {
+                                        "type": "integer",
+                                        "minItems": 16,
+                                        "maxItems": 16,
+                                        "default": 0
+                                    }
+                                }
+                            }
                         },
                         "errorStr": {
                             "type": "string",

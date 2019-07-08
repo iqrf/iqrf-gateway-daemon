@@ -1,9 +1,10 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "iqrfEmbedOs_Read-response",
         "format": "jsonschema",
+        "jsDriverVersions": [0],
         "version": "1-0-0"
     },
     "type": "object",
@@ -79,16 +80,6 @@
                                 "slotLimits": {
                                     "type": "integer",
                                     "description": "See DPA guide."
-                                },
-                                "ibk": {
-                                    "type": "array",
-                                    "description": "Individual Bonding Key.",
-                                    "items": {
-                                        "type": "integer",
-                                        "minItems": 16,
-                                        "maxItems": 16,
-                                        "default": 0
-                                    }
                                 }
                             }
                         },
