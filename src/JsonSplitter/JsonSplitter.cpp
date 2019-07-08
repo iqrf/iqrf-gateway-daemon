@@ -284,6 +284,11 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE(PAR(queueLen))
     }
 
+    int getMsgQueueLen() const
+    {
+      return (int)m_splitterMessageQueue->size();
+    }
+
     void handleMessageFromSplitterQueue(const std::string& messagingId, const std::vector<uint8_t>& message) const
     {
       using namespace rapidjson;
@@ -646,6 +651,11 @@ namespace iqrf {
   void JsonSplitter::unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters)
   {
     m_imp->unregisterFilteredMsgHandler(msgTypeFilters);
+  }
+
+  int JsonSplitter::getMsgQueueLen() const
+  {
+   return m_imp->getMsgQueueLen();
   }
 
   void JsonSplitter::activate(const shape::Properties *props)

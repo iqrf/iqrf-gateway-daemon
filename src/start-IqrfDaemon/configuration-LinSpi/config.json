@@ -292,6 +292,13 @@
       "libraryName": "RemoveBondService",
       "enabled": true,
       "startlevel": 3
+    },
+    {
+      "name": "iqrf::MonitorService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "MonitorService",
+      "enabled": true,
+      "startlevel": 0
     }
   ]
 }
