@@ -6,6 +6,7 @@
 #include "rapidjson/pointer.h"
 #include <fstream>
 #include <set>
+#include <thread>
 
 #include "iqrf__IqrfInfo.hxx"
 
