@@ -161,8 +161,8 @@ namespace iqrf {
     // need full enum
     std::set<int> m_nadrFullEnum;
     bool m_enumAtStartUp = false;
-
-    std::set<int> m_provisionalContexts;
+    std::thread m_enumThread;
+    bool m_enumThreadRun;
 
   public:
     Imp()
@@ -347,6 +347,9 @@ namespace iqrf {
 
         try {
 
+          // enum thread stopped
+          if (!m_enumThreadRun) break;
+
           IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr);
 
           unsigned mid = nd->getEmbedOsRead()->getMid();
@@ -403,9 +406,11 @@ namespace iqrf {
               }
             }
             for (auto per : userPer) {
+              // enum thread stopped
+              if (!m_enumThreadRun) break;
+
               //Get peripheral information for sensor, binout and TODO other std if presented
               if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per) {
-                //TODO temp workaround
                 embed::explore::PeripheralInformationPtr peripheralInformationPtr = m_iEnumerateService->getPeripheralInformationData(nadr, per);
                 int version = peripheralInformationPtr->getPar1();
                 //TODO temp workaround
@@ -876,6 +881,9 @@ namespace iqrf {
       // deep enum according first bonded nadr of the device
       for (auto it : mapDeviceVectNadr) {
 
+        // enum thread stopped
+        if (!m_enumThreadRun) break;
+
         int deviceId = it.first;
         int nadr = -1;
         if (it.second.size() > 0) {
@@ -1169,7 +1177,8 @@ namespace iqrf {
       loadProvisoryDrivers();
 
       if (m_enumAtStartUp) {
-        runEnum();
+        m_enumThreadRun = true;
+        m_enumThread = std::thread([&]() { runEnum(); });
       }
 
       TRC_FUNCTION_LEAVE("")
@@ -1200,6 +1209,11 @@ namespace iqrf {
         "IqrfInfo instance deactivate" << std::endl <<
         "******************************"
       );
+
+      m_enumThreadRun = false;
+      if (m_enumThread.joinable()) {
+        m_enumThread.join();
+      }
 
       TRC_FUNCTION_LEAVE("")
     }
