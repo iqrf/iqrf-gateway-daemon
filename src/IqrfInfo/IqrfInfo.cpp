@@ -217,6 +217,8 @@ namespace iqrf {
       fullEnum();
       loadDrivers();
       deepEnum();
+      
+      m_fastEnum.release();
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -350,7 +352,18 @@ namespace iqrf {
           // enum thread stopped
           if (!m_enumThreadRun) break;
 
-          IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr);
+          IEnumerateService::INodeDataPtr nd;
+
+          // try to get node data from fast enum
+          auto found = m_fastEnum->getEnumerated().find(nadr);
+          if (found != m_fastEnum->getEnumerated().end()) {
+            nd = found->second->getNodeData();
+          }
+
+          if (!nd) {
+            // node data nullptr - fast enum was done by other means (FRC) => we need to get data explicitely
+            IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr);
+          }
 
           unsigned mid = nd->getEmbedOsRead()->getMid();
           int hwpid = nd->getHwpid();

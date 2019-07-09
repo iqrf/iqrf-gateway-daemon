@@ -12,7 +12,7 @@ namespace iqrf
     {
     public:
       Enumerated() = delete;
-      Enumerated(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer)
+      Enumerated(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer, IEnumerateService::INodeDataPtr nodeDataPtr)
         :m_nadr(nadr)
         , m_mid(mid)
         , m_hwpid(hwpid)
@@ -20,6 +20,7 @@ namespace iqrf
         , m_osBuild(osBuild)
         , m_osVer(osVer)
         , m_dpaVer(dpaVer)
+        , m_nodeDataPtr(std::move(nodeDataPtr))
       {}
       unsigned getMid() const override { return m_mid; }
       int getNadr() const override { return m_nadr; }
@@ -28,6 +29,8 @@ namespace iqrf
       int getOsBuild() const override { return m_osBuild; }
       int getOsVer() const override { return m_osVer; }
       int getDpaVer() const override { return m_dpaVer; }
+      IEnumerateService::INodeDataPtr getNodeData() override { return std::move(m_nodeDataPtr); }
+      virtual ~Enumerated() {}
 
     private:
       int m_nadr;
@@ -37,6 +40,7 @@ namespace iqrf
       int m_osBuild;
       int m_osVer;
       int m_dpaVer;
+      IEnumerateService::INodeDataPtr m_nodeDataPtr;
     };
     const std::map<int, EnumeratedPtr> & getEnumerated() const override { return m_enumeratedMap; }
     const std::set<int> & getBonded() const override { return m_bonded; }
@@ -52,10 +56,11 @@ namespace iqrf
         }
       }
     }
-    void addItem(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer)
+    void addItem(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer, IEnumerateService::INodeDataPtr nodeDataPtr)
     {
-      m_enumeratedMap.insert(std::make_pair(nadr, EnumeratedPtr(shape_new Enumerated(nadr, mid, hwpid, hwpidVer, osBuild, osVer, dpaVer))));
+      m_enumeratedMap.insert(std::make_pair(nadr, EnumeratedPtr(shape_new Enumerated(nadr, mid, hwpid, hwpidVer, osBuild, osVer, dpaVer, std::move(nodeDataPtr)))));
     }
+    virtual ~FastEnumeration() {}
   private:
     std::map<int, EnumeratedPtr> m_enumeratedMap;
     std::set<int> m_bonded;

@@ -14,6 +14,17 @@ namespace iqrf {
   class IEnumerateService
   {
   public:
+    class INodeData
+    {
+    public:
+      virtual int getNadr() const = 0;
+      virtual int getHwpid() const = 0;
+      virtual const embed::explore::EnumeratePtr & getEmbedExploreEnumerate() const = 0;
+      virtual const embed::os::ReadPtr & getEmbedOsRead() const = 0;
+      virtual ~INodeData() {}
+    };
+    typedef std::unique_ptr<INodeData> INodeDataPtr;
+
     class IFastEnumeration
     {
     public:
@@ -27,6 +38,7 @@ namespace iqrf {
         virtual int getOsBuild() const = 0;
         virtual int getOsVer() const = 0;
         virtual int getDpaVer() const = 0;
+        virtual INodeDataPtr getNodeData() = 0;
         virtual ~Enumerated() {}
       };
       typedef std::unique_ptr<Enumerated> EnumeratedPtr;
@@ -36,16 +48,7 @@ namespace iqrf {
       virtual const std::set<int> & getNonDiscovered() const = 0;
       virtual ~IFastEnumeration() {}
     };
-
-    class INodeData
-    {
-    public:
-      virtual ~INodeData() {}
-      virtual int getNadr() const = 0;
-      virtual int getHwpid() const = 0;
-      virtual const embed::explore::EnumeratePtr & getEmbedExploreEnumerate() const = 0;
-      virtual const embed::os::ReadPtr & getEmbedOsRead() const = 0;
-    };
+    typedef std::unique_ptr<IFastEnumeration> IFastEnumerationPtr;
 
     class IStandardSensorData
     {
@@ -71,6 +74,7 @@ namespace iqrf {
       virtual const std::vector<ISensorPtr> & getSensors() const = 0;
       virtual ~IStandardSensorData() {}
     };
+    typedef std::unique_ptr<IStandardSensorData> IStandardSensorDataPtr;
 
     class IStandardBinaryOutputData
     {
@@ -78,19 +82,12 @@ namespace iqrf {
       virtual int getBinaryOutputsNum() const = 0;
       virtual ~IStandardBinaryOutputData() {}
     };
-
-    typedef std::unique_ptr<IFastEnumeration> IFastEnumerationPtr;
-    virtual IFastEnumerationPtr getFastEnumeration() const = 0;
-
-    typedef std::unique_ptr<INodeData> INodeDataPtr;
-    virtual INodeDataPtr getNodeData(uint16_t nadr) const = 0;
-
-    typedef std::unique_ptr<IStandardSensorData> IStandardSensorDataPtr;
-    virtual IStandardSensorDataPtr getStandardSensorData(uint16_t nadr) const = 0;
-
     typedef std::unique_ptr<IStandardBinaryOutputData> IStandardBinaryOutputDataPtr;
-    virtual IStandardBinaryOutputDataPtr getStandardBinaryOutputData(uint16_t nadr) const = 0;
 
+    virtual IFastEnumerationPtr getFastEnumeration() const = 0;
+    virtual INodeDataPtr getNodeData(uint16_t nadr) const = 0;
+    virtual IStandardSensorDataPtr getStandardSensorData(uint16_t nadr) const = 0;
+    virtual IStandardBinaryOutputDataPtr getStandardBinaryOutputData(uint16_t nadr) const = 0;
     virtual embed::explore::PeripheralInformationPtr getPeripheralInformationData(uint16_t nadr, int per) const = 0;
     virtual embed::explore::MorePeripheralInformationPtr getMorePeripheralInformationData(uint16_t nadr, int per) const = 0;
 

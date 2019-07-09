@@ -151,7 +151,7 @@ namespace iqrf {
           auto nd = getNodeDataPriv((uint16_t)nadr, exclusiveAccess);
           retval->addItem(
             nd->getNadr(), nd->getEmbedOsRead()->getMid(), nd->getHwpid(), nd->getEmbedExploreEnumerate()->getHwpidVer()
-            , nd->getEmbedOsRead()->getOsBuild(), nd->getEmbedOsRead()->getOsVersion(), nd->getEmbedExploreEnumerate()->getDpaVer());
+            , nd->getEmbedOsRead()->getOsBuild(), nd->getEmbedOsRead()->getOsVersion(), nd->getEmbedExploreEnumerate()->getDpaVer(), std::move(nd));
         }
         catch (std::logic_error &e) {
           CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot fast enum: " << PAR(nadr));
