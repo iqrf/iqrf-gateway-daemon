@@ -187,7 +187,7 @@ namespace iqrf {
     std::string input = "\"qwerty\"";
     std::string output;
     std::string expect = "{\"out\":\"QWERTY\"}";
-    Imp::get().m_iJsRenderService->callFenced(0xFFFFFF, "test.convertUpperCase", input, output);
+    Imp::get().m_iJsRenderService->callFenced(0xFFFFFF, 0xFFFF, "test.convertUpperCase", input, output);
     ASSERT_EQ(expect, output);
   }
 

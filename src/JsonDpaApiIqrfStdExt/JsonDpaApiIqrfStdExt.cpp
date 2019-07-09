@@ -72,7 +72,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(methodRequestName) << PAR(params) << PAR(nadr) << PAR(hwpid));
 
-      GenericDriverRequestResult gresult = callDriverRequest(nadr, methodRequestName, params);
+      GenericDriverRequestResult gresult = callDriverRequest(nadr, hwpid, methodRequestName, params);
       StandardDriverRequestResult result;
       result.success = gresult.success;
       result.errStr = gresult.errStr;
@@ -93,7 +93,7 @@ namespace iqrf {
       std::string errStr;
     };
 
-    GenericDriverRequestResult callDriverRequest(uint16_t nadr, const std::string & methodRequestName, const std::string & params)
+    GenericDriverRequestResult callDriverRequest(uint16_t nadr, int hwpid, const std::string & methodRequestName, const std::string & params)
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(methodRequestName) << PAR(params));
 
@@ -102,7 +102,7 @@ namespace iqrf {
 
       // call requestdriver func, it returns result params in text form
       try {
-        m_iJsRenderService->callFenced(nadr, methodRequestName, params, result.resultStr);
+        m_iJsRenderService->callFenced(nadr, hwpid, methodRequestName, params, result.resultStr);
       }
       catch (std::exception &e) {
         result.errStr = e.what();
@@ -133,7 +133,7 @@ namespace iqrf {
       RawHdpResponse rawHdpResponse(dpaMessage);
 
       if (0 == result.rcode) {
-        GenericDriverResponseResult gresult = callDriverResponse(rawHdpResponse.getNadr(), methodResponseName, rawHdpResponse.getString());
+        GenericDriverResponseResult gresult = callDriverResponse(rawHdpResponse.getNadr(), rawHdpResponse.getHwpid(), methodResponseName, rawHdpResponse.getString());
         result.success = gresult.success;
         result.errStr = gresult.errStr;
         result.rspObjStr = gresult.rspObjStr;
@@ -154,7 +154,7 @@ namespace iqrf {
       std::string errStr;
     };
 
-    GenericDriverResponseResult callDriverResponse(uint16_t nadr, const std::string & methodResponseName, const std::string& param)
+    GenericDriverResponseResult callDriverResponse(uint16_t nadr, int hwpid, const std::string & methodResponseName, const std::string& param)
     {
       TRC_FUNCTION_ENTER(PAR(methodResponseName) << PAR(param));
 
@@ -163,7 +163,7 @@ namespace iqrf {
 
       // call response driver func, it returns rsp{} in text form
       try {
-        m_iJsRenderService->callFenced(nadr, methodResponseName, param, result.rspObjStr);
+        m_iJsRenderService->callFenced(nadr, hwpid, methodResponseName, param, result.rspObjStr);
       }
       catch (std::exception &e) {
         result.errStr = e.what();
@@ -211,7 +211,7 @@ namespace iqrf {
 
         // call request driver func with param as string
         GenericDriverRequestResult requestRes =
-          callDriverRequest(iqrfSensorFrc.getNadr(), methodRequestName, iqrfSensorFrc.getParamAsString());
+          callDriverRequest(iqrfSensorFrc.getNadr(), iqrfSensorFrc.getHwpid(), methodRequestName, iqrfSensorFrc.getParamAsString());
 
         if (!requestRes.success) {
           TRC_WARNING(PAR(methodRequestName) << " error " << PAR(requestRes.errStr));
@@ -321,7 +321,7 @@ namespace iqrf {
         std::string param = buffer.GetString();
         TRC_DEBUG(param);
 
-        GenericDriverResponseResult responseResult = callDriverResponse(iqrfSensorFrc.getNadr(), methodResponseName, param);
+        GenericDriverResponseResult responseResult = callDriverResponse(iqrfSensorFrc.getNadr(), iqrfSensorFrc.getHwpid(), methodResponseName, param);
         if (!responseResult.success) {
           TRC_WARNING(PAR(methodRequestName) << " error " << PAR(responseResult.errStr));
           throw HandleException(responseResult.errStr, IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);

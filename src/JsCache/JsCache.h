@@ -24,6 +24,7 @@ namespace iqrf {
     const IJsCacheService::Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const override;
     virtual const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const override;
     std::map<int, std::map<int, std::vector<std::pair<int, int>>>> getDrivers(const std::string& os, const std::string& dpa) const override;
+    std::map<int, std::map<int, std::string>> getCustomDrivers(const std::string& os, const std::string& dpa) const override;
     const OsDpa* getOsDpa(int id) const override;
     const OsDpa* getOsDpa(const std::string& os, const std::string& dpa) const override;
     IJsCacheService::ServerState getServerState() const override;

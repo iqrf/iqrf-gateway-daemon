@@ -85,7 +85,7 @@ namespace iqrf {
     std::map<int, Package> m_packageMap;
     std::map<int, StdItem> m_standardMap;
 
-    std::map<int, std::string>  m_customDrivers;
+    //std::map<int, std::string>  m_customDrivers;
 
     bool m_upToDate = false;
 
@@ -201,11 +201,34 @@ namespace iqrf {
       for (const auto & pck : m_packageMap) {
         const Package& p = pck.second;
         if (p.m_os == os && p.m_dpa == dpa) {
-          if (!p.m_driver.empty() && p.m_driver.size() > 20) {
-            m_customDrivers.insert(std::make_pair(p.m_hwpid, p.m_driver));
-          }
+          //if (!p.m_driver.empty() && p.m_driver.size() > 20) {
+          //  m_customDrivers.insert(std::make_pair(p.m_hwpid, p.m_driver));
+          //}
           for (const auto & drv : p.m_stdDriverVect) {
             map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
+          }
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return map2;
+    }
+
+    // get non empty custom drivers
+    std::map<int, std::map<int,std::string>> getCustomDrivers(const std::string& os, const std::string& dpa)
+    {
+      TRC_FUNCTION_ENTER(PAR(os) << PAR(dpa));
+
+      //hwpid, hwpidVer, driver
+      std::map<int, std::map<int, std::string>> map2;
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      for (const auto & pck : m_packageMap) {
+        const Package& p = pck.second;
+        if (p.m_os == os && p.m_dpa == dpa) {
+          if (!p.m_driver.empty() && p.m_driver.size() > 20) {
+            map2[p.m_hwpid].insert(std::make_pair(p.m_hwpidVer, p.m_driver));
           }
         }
       }
@@ -1194,6 +1217,11 @@ namespace iqrf {
   std::map<int, std::map<int, std::vector<std::pair<int, int>>>> JsCache::getDrivers(const std::string& os, const std::string& dpa) const
   {
     return m_imp->getDrivers(os, dpa);
+  }
+
+  std::map<int, std::map<int, std::string>> JsCache::getCustomDrivers(const std::string& os, const std::string& dpa) const
+  {
+    return m_imp->getCustomDrivers(os, dpa);
   }
 
   const IJsCacheService::OsDpa* JsCache::getOsDpa(int id) const

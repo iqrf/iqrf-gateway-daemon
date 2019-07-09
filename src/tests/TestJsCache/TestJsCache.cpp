@@ -362,7 +362,7 @@ namespace iqrf {
     std::string par = "\"asdfgh\"";
     std::string ret;
     try {
-      Imp::get().m_iJsRenderService->callFenced(0xFFFFFF, functionName, par, ret);
+      Imp::get().m_iJsRenderService->callFenced(0xFFFFFF, 0xFFFF, functionName, par, ret);
     }
     catch (std::exception &e) {
       (void)e; //cope unref var
@@ -446,7 +446,7 @@ namespace iqrf {
     std::string par = "\"asdfgh\"";
     std::string ret;
     try {
-      Imp::get().m_iJsRenderService->callFenced(0xFFFFFF, functionName, par, ret);
+      Imp::get().m_iJsRenderService->callFenced(0xFFFFFF, 0xFFFF, functionName, par, ret);
     }
     catch (std::exception &e) {
       EXPECT_EQ("\"asdfgh\"", std::string(e.what()));

@@ -41,7 +41,7 @@ namespace iqrf {
 
       // call request driver func, it returns rawHdpRequest format in text form
       try {
-        m_iJsRenderService->callFenced(jsd.getNadr(), functionNameReq, jsd.requestParameter(), jsd.storeRequest());
+        m_iJsRenderService->callFenced(jsd.getNadr(), jsd.getHwpid(), functionNameReq, jsd.requestParameter(), jsd.storeRequest());
       }
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Driver request failure: ");
@@ -136,7 +136,7 @@ namespace iqrf {
 
       try {
         std::string rsp;
-        m_iJsRenderService->callFenced(jsd.getNadr(), functionNameRsp, rawHdpResponse, rsp);
+        m_iJsRenderService->callFenced(jsd.getNadr(), jsd.getHwpid(), functionNameRsp, rawHdpResponse, rsp);
 
         Document rspDoc;
         rspDoc.Parse(rsp);

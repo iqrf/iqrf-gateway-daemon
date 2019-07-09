@@ -162,6 +162,7 @@ namespace iqrf {
     int m_relativeStack = 0;
 
     int m_ctxCounter = 0;
+    std::mutex m_contextMtx;
     std::map<int, std::shared_ptr<Context>> m_contexts;
     std::map<int, int> m_mapNadrContext;
 
@@ -197,6 +198,9 @@ namespace iqrf {
     int loadJsCodeFenced(int contextId, const std::string& js)
     {
       TRC_FUNCTION_ENTER("");
+
+      std::unique_lock<std::mutex> lck(m_contextMtx);
+
       auto found = m_contexts.find(contextId);
       if (found != m_contexts.end()) {
         //THROW_EXC_TRC_WAR(std::logic_error, "Already created JS context: " << PAR(contextId));
@@ -204,6 +208,7 @@ namespace iqrf {
       }
       auto res = m_contexts.insert(std::make_pair(contextId, std::shared_ptr<Context>(shape_new Context())));
       res.first->second->loadJsCode(js);
+
       TRC_FUNCTION_LEAVE("");
       return 0;
     }
@@ -215,34 +220,71 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void callFenced(int nadr, const std::string& functionName, const std::string& par, std::string& ret)
+    void callFenced(int nadr, int hwpid, const std::string& functionName, const std::string& par, std::string& ret)
     {
-      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(functionName));
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(hwpid) << PAR(functionName));
 
+      int contextId = 0;
+
+      std::unique_lock<std::mutex> lck(m_contextMtx);
+
+      // get drivers context according nadr
       auto fctx = m_mapNadrContext.find(nadr);
       if (fctx != m_mapNadrContext.end()) {
-        int contextId = fctx->second;
+        // found in nadr mapping
+        contextId = fctx->second;
         auto found = m_contexts.find(contextId);
         if (found != m_contexts.end()) {
+          TRC_DEBUG("found according naddr mapping: " << PAR(nadr) << PAR(contextId) << PAR(functionName));
           found->second->call(functionName, par, ret);
         }
         else {
-          THROW_EXC_TRC_WAR(std::logic_error, "cannot find JS context: " << PAR(nadr) << PAR(contextId) << PAR(functionName))
+          THROW_EXC_TRC_WAR(std::logic_error, "cannot find JS context based on naddr mapping: " << PAR(nadr) << PAR(contextId) << PAR(functionName))
         }
       }
       else {
-        // try to find provisional drivers context
-        int contextId = -1;
+        // get provisonal driver context according hwpid
+        uint16_t uhwpid = (uint16_t)hwpid;
+        contextId = HWPID_MAPPING_SPACE - (int)uhwpid;
         auto found = m_contexts.find(contextId);
         if (found != m_contexts.end()) {
-          TRC_DEBUG("Processed by provisional drivers set with highest version");
+          // found according exact hwpid
+          TRC_DEBUG("found according provisional hwpid mapping: " << PAR(uhwpid) << PAR(contextId) << PAR(functionName));
           found->second->call(functionName, par, ret);
         }
         else {
-          THROW_EXC_TRC_WAR(std::logic_error, "cannot find JS provisional context: " << PAR(nadr) << PAR(contextId) << PAR(functionName))
+          // found default provisional context
+          contextId = HWPID_DEFAULT_MAPPING;
+          found = m_contexts.find(contextId);
+          if (found != m_contexts.end()) {
+            // found in default provisional context
+            TRC_DEBUG("found according provisional hwpid default mapping: " << PAR(uhwpid) << PAR(contextId) << PAR(functionName));
+            found->second->call(functionName, par, ret);
+          }
+          else {
+            THROW_EXC_TRC_WAR(std::logic_error, "cannot find any context: " << PAR(nadr) << PAR(uhwpid) << PAR(contextId) << PAR(functionName))
+          }
         }
       }
 
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void unloadProvisionalContexts()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::unique_lock<std::mutex> lck(m_contextMtx);
+
+      auto it = m_contexts.begin();
+      while (it != m_contexts.end()) {
+        if (it->first < 0) {
+          it = m_contexts.erase(it);
+        }
+        else {
+          ++it;
+        }
+      }
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -309,11 +351,16 @@ namespace iqrf {
     m_imp->mapNadrToFenced(nadr, contextId);
   }
 
-  void JsRenderDuktape::callFenced(int nadr, const std::string& functionName, const std::string& par, std::string& ret)
+  void JsRenderDuktape::callFenced(int nadr, int hwpid, const std::string& functionName, const std::string& par, std::string& ret)
   {
-    m_imp->callFenced(nadr, functionName, par, ret);
+    m_imp->callFenced(nadr, hwpid, functionName, par, ret);
   }
 
+  void JsRenderDuktape::unloadProvisionalContexts()
+  {
+    m_imp->unloadProvisionalContexts();
+  }
+  
   void JsRenderDuktape::activate(const shape::Properties *props)
   {
     m_imp->activate(props);

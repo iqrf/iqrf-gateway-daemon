@@ -162,6 +162,8 @@ namespace iqrf {
     std::set<int> m_nadrFullEnum;
     bool m_enumAtStartUp = false;
 
+    std::set<int> m_provisionalContexts;
+
   public:
     Imp()
     {
@@ -470,6 +472,19 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
+      // daemon wrapper workaround
+      std::string wrapperStr;
+      std::string fname = m_iLaunchService->getDataDir();
+      fname += "/javaScript/DaemonWrapper.js";
+      std::ifstream file(fname);
+      if (!file.is_open()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
+      }
+      std::ostringstream strStream;
+      strStream << file.rdbuf();
+      wrapperStr = strStream.str();
+
+      // get parameters of coordinator - used to select drivers for all other nodes
       IEnumerateService::INodeDataPtr cd = m_iEnumerateService->getNodeData(0);
 
       int hwpid = cd->getHwpid();
@@ -479,7 +494,8 @@ namespace iqrf {
 
       std::string str2load;
 
-      //DriverId, DriverVersion, hwpid, hwpidVer
+      // get standard drivers refferenced by all hwpid, hwpidVer
+      // DriverId, DriverVersion, hwpid, hwpidVer
       std::map<int, std::map<int, std::vector<std::pair<int, int>>>> drivers =
       m_iJsCacheService->getDrivers(embed::os::Read::getOsBuildAsString(osBuild), embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
 
@@ -502,20 +518,20 @@ namespace iqrf {
         }
       }
 
-      // daemon wrapper workaround
-      std::string wrapperStr;
-      std::string fname = m_iLaunchService->getDataDir();
-      fname += "/javaScript/DaemonWrapper.js";
-      std::ifstream file(fname);
-      if (!file.is_open()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
-      }
-      std::ostringstream strStream;
-      strStream << file.rdbuf();
-      wrapperStr = strStream.str();
-
       str2load += wrapperStr;
-      m_iJsRenderService->loadJsCodeFenced(-1, str2load); // provisional context
+      m_iJsRenderService->loadJsCodeFenced(IJsRenderService::HWPID_DEFAULT_MAPPING, str2load); // provisional context for all with empty custom drivers
+
+      // get all non empty custom drivers because of breakdown
+      // hwpid, hwpidVer, driver
+      std::map<int, std::map<int, std::string>> customDrivers =
+      m_iJsCacheService->getCustomDrivers(embed::os::Read::getOsBuildAsString(osBuild), embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
+      
+      for (auto d : customDrivers) {
+        std::string js = str2load;
+        std::string driver = d.second.rbegin()->second; // get the highest hwpidVer one from reverse end
+        js += driver;
+        m_iJsRenderService->loadJsCodeFenced(IJsRenderService::HWPID_MAPPING_SPACE - d.first, js);
+      }
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -601,6 +617,10 @@ namespace iqrf {
           }
 
         }
+
+        //now we have all mappings => get rid of provisional contexts
+        m_iJsRenderService->unloadProvisionalContexts();
+
       }
       catch (sqlite_exception &e)
       {

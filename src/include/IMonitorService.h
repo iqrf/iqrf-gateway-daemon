@@ -1,6 +1,5 @@
 #pragma once
 
-#include "JsDriverRequest.h"
 #include "IDpaTransactionResult2.h"
 #include "IIqrfChannelService.h"
 
