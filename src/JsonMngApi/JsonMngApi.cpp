@@ -140,7 +140,6 @@ namespace iqrf {
     MngVersionMsg() = delete;
     MngVersionMsg(const rapidjson::Document& doc)
       :MngMsg(doc)
-      , m_buildTimestamp(BUILD_TIMESTAMP)
       , m_daemonVersion(DAEMON_VERSION)
     {
     }
@@ -151,14 +150,11 @@ namespace iqrf {
 
     void createResponsePayload(rapidjson::Document& doc) override
     {
-      std::stringstream os;
-      os << m_daemonVersion << ' ' << m_buildTimestamp;
-      Pointer("/data/rsp/version").Set(doc, os.str());
+      Pointer("/data/rsp/version").Set(doc, m_daemonVersion);
       MngMsg::createResponsePayload(doc);
     }
 
   private:
-    std::string m_buildTimestamp;
     std::string m_daemonVersion;
   };
 
