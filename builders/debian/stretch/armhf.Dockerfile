@@ -24,8 +24,8 @@ RUN apt-get update \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
   && echo "deb https://repos.iqrf.org/debian stretch stable" | tee -a /etc/apt/sources.list \
   && apt-get update \
-  && apt-get install --no-install-recommends -y google-mock libcurl4-openssl-dev libgtest-dev \
-     libpaho-mqtt-dev libsqlite3-dev mlocate ruby ruby-dev zlib1g-dev \
+  && apt-get install --no-install-recommends -y google-mock libboost-filesystem-dev libcurl4-openssl-dev \
+     libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate ruby ruby-dev zlib1g-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
