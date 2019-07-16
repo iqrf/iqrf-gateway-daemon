@@ -355,6 +355,7 @@ stages:
   - rsync -hrvz --delete -e ssh api/ www-deploy@iqrfsdk.org:/data/nginx/apidocs/iqrf-gateway-daemon/json/iqrf/
 
 clean:
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-amd64
   stage: clean-dirs
   only:
     - master
