@@ -236,10 +236,15 @@ stages:
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dch-add-distro -d "${DIST}"
   - debuild -b -uc -us -tc
-  - 'mv ../*.deb .'
-  - 'mv ../*.ddeb . 2>/dev/null || :'
-  - 'mv ../*.changes .'
-  - rsync -hrvz --delete -e ssh *.deb *.ddeb *.changes iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
+  - mv ../*.deb .
+  - mv ../*.changes .
+  - >
+    if [ "${DIST}" == "bionic" ]; then
+      mv ../*.ddeb .
+      rsync -hrvz --delete -e ssh *.deb *.ddeb *.changes iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+    else
+      rsync -hrvz --delete -e ssh *.deb *.changes iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+    fi
   artifacts:
     paths:
       - ./*.deb
@@ -301,10 +306,15 @@ stages:
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
   - dch-add-distro -d "${DIST}"
   - debuild -b -uc -us -tc
-  - 'mv ../*.deb .'
-  - 'mv ../*.ddeb . 2>/dev/null || :'
-  - 'mv ../*.changes .'
-  - rsync -hrvz --delete -e ssh *.deb *.ddeb *.changes iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+  - mv ../*.deb .
+  - mv ../*.changes .
+  - >
+    if [ "${DIST}" == "bionic" ]; then
+      mv ../*.ddeb .
+      rsync -hrvz --delete -e ssh *.deb *.ddeb *.changes iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+    else
+      rsync -hrvz --delete -e ssh *.deb *.changes iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+    fi
   artifacts:
     paths:
     - ./*.deb
@@ -360,6 +370,7 @@ clean:
   only:
     - master
   extends: .ssh_template
+  dependencies: []
   script:
     - ssh www-deploy@iqrfsdk.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel/*"
 
