@@ -25,7 +25,7 @@ RUN apt-get update \
   && echo "deb https://repos.iqrf.org/ubuntu/bionic bionic stable" | tee -a /etc/apt/sources.list \
   && apt-get update \
   && apt-get install --no-install-recommends -y googletest libboost-filesystem-dev libcurl4-openssl-dev \
-     libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate ruby ruby-dev zlib1g-dev \
+     libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate python3-requests ruby ruby-dev zlib1g-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
