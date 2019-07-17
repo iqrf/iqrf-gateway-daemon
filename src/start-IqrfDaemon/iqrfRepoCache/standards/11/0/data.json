@@ -1,1 +1,1 @@
-{"name": "Embed: PWM", "versionFlags": 0, "notes": "<none>", "driver": "/* <none> */", "version": 0.0, "standardID": 11}
+{"driver": "/* <none> */", "name": "Embed: PWM", "notes": "<none>", "standardID": 11, "version": 0.0, "versionFlags": 0}
