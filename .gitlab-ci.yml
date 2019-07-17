@@ -372,7 +372,7 @@ clean:
   extends: .ssh_template
   dependencies: []
   script:
-    - ssh www-deploy@iqrfsdk.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel/*"
+    - ssh www-deploy@iqrfsdk.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/*/*/devel/*"
 
 # Debian buster
 ## amd64
