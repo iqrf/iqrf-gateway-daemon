@@ -241,9 +241,9 @@ stages:
   - >
     if [ "${DIST}" == "bionic" ]; then
       mv ../*.ddeb .
-      rsync -hrvz --delete -e ssh *.deb *.ddeb *.changes iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+      rsync -hrvz --delete -e ssh *.deb *.ddeb *.changes iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
     else
-      rsync -hrvz --delete -e ssh *.deb *.changes iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+      rsync -hrvz --delete -e ssh *.deb *.changes iqrf-gateway-daemon*.tar.gz www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
     fi
   artifacts:
     paths:
@@ -403,12 +403,12 @@ package-buster-amd64:
     - shape_shapeware-buster-amd64
     - daemon-buster-amd64
 
-package_debug-buster-amd64:
-  <<: *debian-buster-amd64-template
-  <<: *package_debug-template
-  dependencies:
-  - shape_shapeware_debug-buster-amd64
-  - daemon_debug-buster-amd64
+#package_debug-buster-amd64:
+#  <<: *debian-buster-amd64-template
+#  <<: *package_debug-template
+#  dependencies:
+#  - shape_shapeware_debug-buster-amd64
+#  - daemon_debug-buster-amd64
 
 package_release-buster-amd64:
   <<: *debian-buster-amd64-template
@@ -417,12 +417,12 @@ package_release-buster-amd64:
   - shape_shapeware-buster-amd64
   - daemon-buster-amd64
 
-package_debug_release-buster-amd64:
-  <<: *debian-buster-amd64-template
-  <<: *package_debug-release-template
-  dependencies:
-  - shape_shapeware_debug-buster-amd64
-  - daemon_debug-buster-amd64
+#package_debug_release-buster-amd64:
+#  <<: *debian-buster-amd64-template
+#  <<: *package_debug-release-template
+#  dependencies:
+#  - shape_shapeware_debug-buster-amd64
+#  - daemon_debug-buster-amd64
 
 ## arm64
 shape_shapeware-buster-arm64:
@@ -466,12 +466,12 @@ package_release-buster-arm64:
     - shape_shapeware-buster-arm64
     - daemon-buster-arm64
 
-package_debug_release-buster-arm64:
-  <<: *debian-buster-arm64-template
-  <<: *package_debug-release-template
-  dependencies:
-    - shape_shapeware_debug-buster-arm64
-    - daemon_debug-buster-arm64
+#package_debug_release-buster-arm64:
+#  <<: *debian-buster-arm64-template
+#  <<: *package_debug-release-template
+#  dependencies:
+#    - shape_shapeware_debug-buster-arm64
+#    - daemon_debug-buster-arm64
 
 ## armel
 shape_shapeware-buster-armel:
@@ -515,12 +515,12 @@ package_release-buster-armel:
     - shape_shapeware-buster-armel
     - daemon-buster-armel
 
-package_debug_release-buster-armel:
-  <<: *debian-buster-armel-template
-  <<: *package_debug-release-template
-  dependencies:
-    - shape_shapeware_debug-buster-armel
-    - daemon_debug-buster-armel
+#package_debug_release-buster-armel:
+#  <<: *debian-buster-armel-template
+#  <<: *package_debug-release-template
+#  dependencies:
+#    - shape_shapeware_debug-buster-armel
+#    - daemon_debug-buster-armel
 
 ## armhf
 shape_shapeware-buster-armhf:
@@ -564,12 +564,12 @@ package_release-buster-armhf:
     - shape_shapeware-buster-armhf
     - daemon-buster-armhf
 
-package_debug_release-buster-armhf:
-  <<: *debian-buster-armhf-template
-  <<: *package_debug-release-template
-  dependencies:
-    - shape_shapeware_debug-buster-armhf
-    - daemon_debug-buster-armhf
+#package_debug_release-buster-armhf:
+#  <<: *debian-buster-armhf-template
+#  <<: *package_debug-release-template
+#  dependencies:
+#    - shape_shapeware_debug-buster-armhf
+#    - daemon_debug-buster-armhf
 
 ## i386
 shape_shapeware-buster-i386:
@@ -613,12 +613,12 @@ package_release-buster-i386:
     - shape_shapeware-buster-i386
     - daemon-buster-i386
 
-package_debug_release-buster-i386:
-  <<: *debian-buster-i386-template
-  <<: *package_debug-release-template
-  dependencies:
-    - shape_shapeware_debug-buster-i386
-    - daemon_debug-buster-i386
+#package_debug_release-buster-i386:
+#  <<: *debian-buster-i386-template
+#  <<: *package_debug-release-template
+#  dependencies:
+#    - shape_shapeware_debug-buster-i386
+#    - daemon_debug-buster-i386
 
 # Debian stretch
 ## amd64
