@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # #############################################################################
 # Author: 2019                                                                #
 #         Rostislav Spinar <rostislav.spinar@iqrf.com>                        #
@@ -7,115 +8,106 @@
 
 import os
 import json
-import urllib2
+import requests
 
-serverUrl = 'server'
-companiesUrl = 'companies'
-manufacturersUrl = 'manufacturers'
-osdpaUrl = 'osdpa'
-productsUrl = 'products'
-standardsUrl = 'standards'
-packagesUrl = 'packages'
+server_url = 'server'
+companies_url = 'companies'
+manufacturers_url = 'manufacturers'
+osdpa_url = 'osdpa'
+products_url = 'products'
+standards_url = 'standards'
+packages_url = 'packages'
 
-dirsName = [serverUrl, companiesUrl, manufacturersUrl,
-            osdpaUrl, productsUrl, standardsUrl, packagesUrl]
+api_endpoint = 'https://repository.iqrfalliance.org/api/'
+
+directories = [server_url, companies_url, manufacturers_url,
+               osdpa_url, products_url, standards_url, packages_url]
 
 # loop via api/folders
-for dir in dirsName:
+for directory in directories:
 
-    if not os.path.exists(dir):
-        os.mkdir(dir)
-        print("Directory ", dir,  " created.")
+    if not os.path.exists(directory):
+        os.mkdir(directory)
+        print("Directory " + directory + " created.")
     else:
-        print("Directory ", dir,  " already exists.")
+        print("Directory " + directory + " already exists.")
 
-    os.chdir(dir)
+    os.chdir(directory)
 
-    data = json.load(urllib2.urlopen(
-        'https://repository.iqrfalliance.org/api/' + dir))
+    data = requests.get(api_endpoint + directory).json()
 
-    with open('data.json', 'w') as outfile:
-        json.dump(data, outfile)
+    with open('data.json', 'w') as output_file:
+        json.dump(data, output_file, sort_keys=True)
 
     # loop via std ids
-    if dir == standardsUrl:
+    if directory == standards_url:
 
-        for object in data:
+        for json_object in data:
 
-            std = object['standardID']
-            std = str(std)
+            std = str(json_object['standardID'])
 
             if not os.path.exists(std):
                 os.mkdir(std)
-                print("Directory standards/stdId ", std,  " created.")
+                print("Directory standards/stdId " + std + " created.")
             else:
-                print("Directory standards/stdId ", std,  " already exists.")
+                print("Directory standards/stdId " + std + " already exists.")
 
             os.chdir(std)
 
-            data = json.load(urllib2.urlopen(
-                'https://repository.iqrfalliance.org/api/' + dir + '/' + std))
+            data = requests.get(api_endpoint + directory + '/' + std).json()
 
-            with open('data.json', 'w') as outfile:
-                json.dump(data, outfile)
+            with open('data.json', 'w') as output_file:
+                json.dump(data, output_file, sort_keys=True)
 
-	        # loop via ver of std ids
+            # loop via ver of std ids
             for ver in data['versions']:
 
-                ver = int(ver)
-                ver = str(ver)
+                ver = str(int(ver))
 
                 if not os.path.exists(ver):
                     os.mkdir(ver)
-                    print("Directory standards/stdId/ver ", ver,  " created.")
+                    print("Directory standards/stdId/ver " + ver + " created.")
                 else:
-                    print("Directory standards/stdId/ver ",
-                          ver,  " already exists.")
+                    print("Directory standards/stdId/ver " + ver +
+                          " already exists.")
 
                 os.chdir(ver)
 
-                data = json.load(urllib2.urlopen(
-                    'https://repository.iqrfalliance.org/api/' + dir + '/' + std + '/' + ver))
+                data = requests.get(api_endpoint + directory + '/' + std +
+                                    '/' + ver).json()
 
-                with open('data.json', 'w') as outfile:
-                    json.dump(data, outfile)
+                with open('data.json', 'w') as output_file:
+                    json.dump(data, output_file, sort_keys=True)
 
                 os.chdir('..')
 
             os.chdir('..')
 
     # loop via packages ids
-    if dir == packagesUrl:
+    if directory == packages_url:
 
-        for object in data:
+        for json_object in data:
 
-            pkg = object['packageID']
-            pkg = str(pkg)
+            pkg = str(json_object['packageID'])
 
             if not os.path.exists(pkg):
                 os.mkdir(pkg)
-                print("Directory packages/pkgId ", pkg,  " created.")
+                print("Directory packages/pkgId " + pkg + " created.")
             else:
-                print("Directory packages/pkgId ", pkg,  " already exists.")
+                print("Directory packages/pkgId " + pkg + " already exists.")
 
             os.chdir(pkg)
 
-            data = json.load(urllib2.urlopen(
-                'https://repository.iqrfalliance.org/api/' + dir + '/' + pkg))
+            data = requests.get(api_endpoint + directory + '/' + pkg).json()
 
-            with open('data.json', 'w') as outfile:
-            	json.dump(data, outfile)
+            with open('data.json', 'w') as output_file:
+                json.dump(data, output_file, sort_keys=True)
 
-	    hdlUrl = object['handlerUrl']
-	    hdlUrl = str(hdlUrl)
-	    if (hdlUrl.find('hex') != -1):
-
-		    hex = urllib2.urlopen(hdlUrl)
-
-		    f = open('handler.hex', 'w+b')
-		    f.write(hex.read())
-		    f.close()
-
-	    os.chdir('..')
+            handler_url = str(json_object['handlerUrl'])
+            if handler_url.find('hex') != -1:
+                file = open('handler.hex', 'w+b')
+                file.write(requests.get(handler_url).content)
+                file.close()
+            os.chdir('..')
 
     os.chdir('..')
