@@ -145,14 +145,14 @@ stages:
     expire_in: 2 days
 
 .shape_shapeware_release-template: &shape_shapeware_release-template
-  variables:
-    BUILD_TYPE: "RelWithDebInfo"
   extends: .shape_shapeware-template
+  before_script:
+    - export BUILD_TYPE=RelWithDebInfo
 
 .shape_shapeware_debug-template: &shape_shapeware_debug-template
-  variables:
-    BUILD_TYPE: "Debug"
   extends: .shape_shapeware-template
+  before_script:
+    - export BUILD_TYPE=Debug
 
 .daemon_debug-template: &daemon_debug-template
   stage: build
