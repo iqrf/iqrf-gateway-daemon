@@ -236,8 +236,13 @@ stages:
   only:
   - tags
   extends: .ssh_template
+  dependencies: []
   script:
   - export DAEMON_VERSION="$CI_COMMIT_TAG"
+  - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
+  - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
+  - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
+  - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
   - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
 #CHANGELOG generated manually
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
@@ -811,5 +816,5 @@ package_debug_release-xenial-amd64:
 
 # API
 api-deploy:
-  <<: *debian-buster-i386-template
+  <<: *debian-buster-amd64-template
   <<: *api-template
