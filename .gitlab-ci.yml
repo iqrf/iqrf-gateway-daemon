@@ -182,6 +182,10 @@ stages:
   dependencies: []
   script:
   - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
+  - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
+  - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
+  - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
+  - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
   - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dch-add-distro -d "${DIST}"
