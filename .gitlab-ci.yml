@@ -333,12 +333,12 @@ package-buster-amd64:
   dependencies:
     - shape_shapeware-buster-amd64
 
-#package_debug-buster-amd64:
-#  <<: *debian-buster-amd64-template
-#  <<: *package_debug-template
-#  dependencies:
-#  - shape_shapeware_debug-buster-amd64
-#  - daemon_debug-buster-amd64
+package_debug-buster-amd64:
+  <<: *debian-buster-amd64-template
+  <<: *package_debug-template
+  dependencies:
+  - shape_shapeware_debug-buster-amd64
+  - daemon_debug-buster-amd64
 
 package_release-buster-amd64:
   <<: *debian-buster-amd64-template
@@ -346,12 +346,12 @@ package_release-buster-amd64:
   dependencies:
     - shape_shapeware-buster-amd64
 
-#package_debug_release-buster-amd64:
-#  <<: *debian-buster-amd64-template
-#  <<: *package_debug-release-template
-#  dependencies:
-#  - shape_shapeware_debug-buster-amd64
-#  - daemon_debug-buster-amd64
+package_debug_release-buster-amd64:
+  <<: *debian-buster-amd64-template
+  <<: *package_debug-release-template
+  dependencies:
+  - shape_shapeware_debug-buster-amd64
+  - daemon_debug-buster-amd64
 
 ## arm64
 shape_shapeware-buster-arm64:
