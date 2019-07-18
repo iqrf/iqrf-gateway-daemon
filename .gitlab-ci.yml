@@ -114,13 +114,13 @@ stages:
     - git submodule init
     - git submodule update
 
-.shape_shapeware-template: &shape_shapeware-template
+.shape_shapeware-template:
   stage: dependencies
   dependencies: []
   script:
   - git clone https://github.com/logimic/shape.git shape-source
   - mkdir shape-build shape-libs
-  - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
+  - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH= -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
   - cmake --build shape-build
   - bash src/.gitlab_build_files/copy_shape_libs.sh shape-libs
   - tar czf shape-source_${DIST}_${ARCH}.tar.gz shape-source
@@ -128,7 +128,7 @@ stages:
   - tar czf shape-libs_${DIST}_${ARCH}.tar.gz shape-libs
   - git clone --recurse-submodules https://github.com/logimic/shapeware.git shapeware-source
   - mkdir shapeware-build shapeware-libs
-  - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
+  - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
   - cmake --build shapeware-build
   - bash src/.gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
   - tar czf shapeware-source_${DIST}_${ARCH}.tar.gz shapeware-source
@@ -143,6 +143,16 @@ stages:
     - shapeware-build_*.tar.gz
     - shapeware-libs_*.tar.gz
     expire_in: 2 days
+
+.shape_shapeware_release-template: &shape_shapeware_release-template
+  variables:
+    BUILD_TYPE: "RelWithDebInfo"
+  extends: .shape_shapeware-template
+
+.shape_shapeware_debug-template: &shape_shapeware_debug-template
+  variables:
+    BUILD_TYPE: "Debug"
+  extends: .shape_shapeware-template
 
 .daemon_debug-template: &daemon_debug-template
   stage: build
@@ -303,9 +313,13 @@ clean-release:
 
 # Debian buster
 ## amd64
+shape_shapeware-buster-amd64:
+  <<: *debian-buster-amd64-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-buster-amd64:
   <<: *debian-buster-amd64-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-buster-amd64:
   <<: *debian-buster-amd64-template
@@ -316,6 +330,8 @@ daemon_debug-buster-amd64:
 package-buster-amd64:
   <<: *debian-buster-amd64-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-buster-amd64
 
 #package_debug-buster-amd64:
 #  <<: *debian-buster-amd64-template
@@ -327,6 +343,8 @@ package-buster-amd64:
 package_release-buster-amd64:
   <<: *debian-buster-amd64-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-buster-amd64
 
 #package_debug_release-buster-amd64:
 #  <<: *debian-buster-amd64-template
@@ -336,9 +354,13 @@ package_release-buster-amd64:
 #  - daemon_debug-buster-amd64
 
 ## arm64
+shape_shapeware-buster-arm64:
+  <<: *debian-buster-arm64-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-buster-arm64:
   <<: *debian-buster-arm64-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-buster-arm64:
   <<: *debian-buster-arm64-template
@@ -349,6 +371,8 @@ daemon_debug-buster-arm64:
 package-buster-arm64:
   <<: *debian-buster-arm64-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-buster-arm64
 
 #package_debug-buster-arm64:
 #  <<: *debian-buster-arm64-template
@@ -360,6 +384,8 @@ package-buster-arm64:
 package_release-buster-arm64:
   <<: *debian-buster-arm64-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-buster-arm64
 
 #package_debug_release-buster-arm64:
 #  <<: *debian-buster-arm64-template
@@ -369,9 +395,13 @@ package_release-buster-arm64:
 #    - daemon_debug-buster-arm64
 
 ## armel
+shape_shapeware-buster-armel:
+  <<: *debian-buster-armel-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-buster-armel:
   <<: *debian-buster-armel-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-buster-armel:
   <<: *debian-buster-armel-template
@@ -382,6 +412,8 @@ daemon_debug-buster-armel:
 package-buster-armel:
   <<: *debian-buster-armel-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-buster-armel
 
 #package_debug-buster-armel:
 #  <<: *debian-buster-armel-template
@@ -393,6 +425,8 @@ package-buster-armel:
 package_release-buster-armel:
   <<: *debian-buster-armel-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-buster-armel
 
 #package_debug_release-buster-armel:
 #  <<: *debian-buster-armel-template
@@ -402,9 +436,13 @@ package_release-buster-armel:
 #    - daemon_debug-buster-armel
 
 ## armhf
+shape_shapeware-buster-armhf:
+  <<: *debian-buster-armhf-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-buster-armhf:
   <<: *debian-buster-armhf-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-buster-armhf:
   <<: *debian-buster-armhf-template
@@ -415,6 +453,8 @@ daemon_debug-buster-armhf:
 package-buster-armhf:
   <<: *debian-buster-armhf-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-buster-armhf
 
 #package_debug-buster-armhf:
 #  <<: *debian-buster-armhf-template
@@ -426,6 +466,8 @@ package-buster-armhf:
 package_release-buster-armhf:
   <<: *debian-buster-armhf-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-buster-armhf
 
 #package_debug_release-buster-armhf:
 #  <<: *debian-buster-armhf-template
@@ -435,9 +477,13 @@ package_release-buster-armhf:
 #    - daemon_debug-buster-armhf
 
 ## i386
+shape_shapeware-buster-i386:
+  <<: *debian-buster-i386-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-buster-i386:
   <<: *debian-buster-i386-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-buster-i386:
   <<: *debian-buster-i386-template
@@ -448,6 +494,8 @@ daemon_debug-buster-i386:
 package-buster-i386:
   <<: *debian-buster-i386-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-buster-i386
 
 #package_debug-buster-i386:
 #  <<: *debian-buster-i386-template
@@ -469,9 +517,13 @@ package_release-buster-i386:
 
 # Debian stretch
 ## amd64
+shape_shapeware_-stretch-amd64:
+  <<: *debian-stretch-amd64-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-stretch-amd64:
   <<: *debian-stretch-amd64-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-stretch-amd64:
   <<: *debian-stretch-amd64-template
@@ -482,6 +534,8 @@ daemon_debug-stretch-amd64:
 package-stretch-amd64:
   <<: *debian-stretch-amd64-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-stretch-amd64
 
 package_debug-stretch-amd64:
   <<: *debian-stretch-amd64-template
@@ -493,6 +547,8 @@ package_debug-stretch-amd64:
 package_release-stretch-amd64:
   <<: *debian-stretch-amd64-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-stretch-amd64
 
 package_debug_release-stretch-amd64:
   <<: *debian-stretch-amd64-template
@@ -502,9 +558,13 @@ package_debug_release-stretch-amd64:
     - daemon_debug-stretch-amd64
 
 ## arm64
+shape_shapeware-stretch-arm64:
+  <<: *debian-stretch-arm64-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-stretch-arm64:
   <<: *debian-stretch-arm64-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-stretch-arm64:
   <<: *debian-stretch-arm64-template
@@ -515,6 +575,8 @@ daemon_debug-stretch-arm64:
 package-stretch-arm64:
   <<: *debian-stretch-arm64-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-stretch-arm64
 
 package_debug-stretch-arm64:
   <<: *debian-stretch-arm64-template
@@ -526,6 +588,8 @@ package_debug-stretch-arm64:
 package_release-stretch-arm64:
   <<: *debian-stretch-arm64-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-stretch-arm64
 
 package_debug_release-stretch-arm64:
   <<: *debian-stretch-arm64-template
@@ -535,9 +599,13 @@ package_debug_release-stretch-arm64:
     - daemon_debug-stretch-arm64
 
 ## armel
+shape_shapeware-stretch-armel:
+  <<: *debian-stretch-armel-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-stretch-armel:
   <<: *debian-stretch-armel-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-stretch-armel:
   <<: *debian-stretch-armel-template
@@ -548,6 +616,8 @@ daemon_debug-stretch-armel:
 package-stretch-armel:
   <<: *debian-stretch-armel-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-stretch-armel
 
 package_debug-stretch-armel:
   <<: *debian-stretch-armel-template
@@ -559,6 +629,9 @@ package_debug-stretch-armel:
 package_release-stretch-armel:
   <<: *debian-stretch-armel-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-stretch-armel
+
 package_debug_release-stretch-armel:
   <<: *debian-stretch-armel-template
   <<: *package_debug-release-template
@@ -567,9 +640,13 @@ package_debug_release-stretch-armel:
     - daemon_debug-stretch-armel
 
 ## armhf
+shape_shapeware-stretch-armhf:
+  <<: *debian-stretch-armhf-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-stretch-armhf:
   <<: *debian-stretch-armhf-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-stretch-armhf:
   <<: *debian-stretch-armhf-template
@@ -580,6 +657,8 @@ daemon_debug-stretch-armhf:
 package-stretch-armhf:
   <<: *debian-stretch-armhf-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-stretch-armhf
 
 package_debug-stretch-armhf:
   <<: *debian-stretch-armhf-template
@@ -591,6 +670,8 @@ package_debug-stretch-armhf:
 package_release-stretch-armhf:
   <<: *debian-stretch-armhf-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-stretch-armhf
 
 package_debug_release-stretch-armhf:
   <<: *debian-stretch-armhf-template
@@ -600,19 +681,25 @@ package_debug_release-stretch-armhf:
     - daemon_debug-stretch-armhf
 
 ## i386
+shape_shapeware-stretch-i386:
+  <<: *debian-stretch-i386-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-stretch-i386:
   <<: *debian-stretch-i386-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-stretch-i386:
   <<: *debian-stretch-i386-template
   <<: *daemon_debug-template
   dependencies:
-    - shape_shapeware_debug-stretch-i386
+    - shape_shapeware-stretch-i386
 
 package-stretch-i386:
   <<: *debian-stretch-i386-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware_debug-stretch-i386
 
 package_debug-stretch-i386:
   <<: *debian-stretch-i386-template
@@ -624,6 +711,8 @@ package_debug-stretch-i386:
 package_release-stretch-i386:
   <<: *debian-stretch-i386-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-stretch-i386
 
 package_debug_release-stretch-i386:
   <<: *debian-stretch-i386-template
@@ -634,9 +723,13 @@ package_debug_release-stretch-i386:
 
 # Ubuntu bionic
 ## amd64
+shape_shapeware-bionic-amd64:
+  <<: *ubuntu-bionic-amd64-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-bionic-amd64:
   <<: *ubuntu-bionic-amd64-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-bionic-amd64:
   <<: *ubuntu-bionic-amd64-template
@@ -647,6 +740,8 @@ daemon_debug-bionic-amd64:
 package-bionic-amd64:
   <<: *ubuntu-bionic-amd64-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-bionic-amd64
 
 package_debug-bionic-amd64:
   <<: *ubuntu-bionic-amd64-template
@@ -658,6 +753,8 @@ package_debug-bionic-amd64:
 package_release-bionic-amd64:
   <<: *ubuntu-bionic-amd64-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-bionic-amd64
 
 package_debug_release-bionic-amd64:
   <<: *ubuntu-bionic-amd64-template
@@ -668,9 +765,13 @@ package_debug_release-bionic-amd64:
 
 # Ubuntu xenial
 ## amd64
+shape_shapeware-xenial-amd64:
+  <<: *ubuntu-xenial-amd64-template
+  <<: *shape_shapeware_release-template
+
 shape_shapeware_debug-xenial-amd64:
   <<: *ubuntu-xenial-amd64-template
-  <<: *shape_shapeware-template
+  <<: *shape_shapeware_debug-template
 
 daemon_debug-xenial-amd64:
   <<: *ubuntu-xenial-amd64-template
@@ -681,6 +782,8 @@ daemon_debug-xenial-amd64:
 package-xenial-amd64:
   <<: *ubuntu-xenial-amd64-template
   <<: *package-template
+  dependencies:
+    - shape_shapeware-xenial-amd64
 
 package_debug-xenial-amd64:
   <<: *ubuntu-xenial-amd64-template
@@ -692,6 +795,8 @@ package_debug-xenial-amd64:
 package_release-xenial-amd64:
   <<: *ubuntu-xenial-amd64-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-xenial-amd64
 
 package_debug_release-xenial-amd64:
   <<: *ubuntu-xenial-amd64-template
