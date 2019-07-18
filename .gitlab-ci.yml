@@ -517,7 +517,7 @@ package_release-buster-i386:
 
 # Debian stretch
 ## amd64
-shape_shapeware_-stretch-amd64:
+shape_shapeware-stretch-amd64:
   <<: *debian-stretch-amd64-template
   <<: *shape_shapeware_release-template
 
