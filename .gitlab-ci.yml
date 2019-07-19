@@ -189,13 +189,13 @@ stages:
     - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
     - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
     - dch-add-distro -d "${DIST}"
-    - debuild -b -uc -us -tc -e DAEMON_VERSION
+    - debuild -e DAEMON_VERSION -b -uc -us -tc
     - mv ../*.deb .
     - 'mv ../*.ddeb . 2>/dev/null || :'
     - mv ../*.changes .
     - sed -i "s/.ddeb/.deb/g" *.changes
     - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-    - rsync -hrvz --delete -e ssh *.deb *.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
+    - rsync -hrvz --delete -e ssh *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
   artifacts:
     paths:
       - ./*.deb
@@ -236,6 +236,7 @@ stages:
   only:
     - tags
   extends: .ssh_template
+  dependencies: []
   script:
     - export DAEMON_VERSION="$CI_COMMIT_TAG"
     - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
@@ -246,13 +247,13 @@ stages:
     #CHANGELOG generated manually
     # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
     - dch-add-distro -d "${DIST}"
-    - debuild -b -uc -us -tc -e DAEMON_VERSION
+    - debuild -e DAEMON_VERSION -b -uc -us -tc
     - mv ../*.deb .
     - 'mv ../*.ddeb . 2>/dev/null || :'
     - mv ../*.changes .
     - sed -i "s/.ddeb/.deb/g" *.changes
     - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-    - rsync -hrvz --delete -e ssh *.deb *.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
+    - rsync -hrvz --delete -e ssh *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
   artifacts:
     paths:
       - ./*.deb
@@ -701,7 +702,7 @@ daemon_debug-stretch-i386:
   <<: *debian-stretch-i386-template
   <<: *daemon_debug-template
   dependencies:
-    - shape_shapeware-stretch-i386
+    - shape_shapeware_debug-stretch-i386
 
 package-stretch-i386:
   <<: *debian-stretch-i386-template
