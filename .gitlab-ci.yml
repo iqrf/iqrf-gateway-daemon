@@ -1,9 +1,9 @@
 stages:
-- dependencies
-- build
-- clean-dirs
-- build-package
-- deploy-api
+  - dependencies
+  - build
+  - clean-dirs
+  - build-package
+  - deploy-api
 
 .debian-buster-amd64-template: &debian-buster-amd64-template
   image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-amd64
@@ -118,30 +118,30 @@ stages:
   stage: dependencies
   dependencies: []
   script:
-  - git clone https://github.com/logimic/shape.git shape-source
-  - mkdir shape-build shape-libs
-  - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH= -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-  - cmake --build shape-build
-  - bash src/.gitlab_build_files/copy_shape_libs.sh shape-libs
-  - tar czf shape-source_${DIST}_${ARCH}.tar.gz shape-source
-  - tar czf shape-build_${DIST}_${ARCH}.tar.gz shape-build
-  - tar czf shape-libs_${DIST}_${ARCH}.tar.gz shape-libs
-  - git clone --recurse-submodules https://github.com/logimic/shapeware.git shapeware-source
-  - mkdir shapeware-build shapeware-libs
-  - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-  - cmake --build shapeware-build
-  - bash src/.gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
-  - tar czf shapeware-source_${DIST}_${ARCH}.tar.gz shapeware-source
-  - tar czf shapeware-build_${DIST}_${ARCH}.tar.gz shapeware-build
-  - tar czf shapeware-libs_${DIST}_${ARCH}.tar.gz shapeware-libs
+    - git clone https://github.com/logimic/shape.git shape-source
+    - mkdir shape-build shape-libs
+    - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH= -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    - cmake --build shape-build
+    - bash src/.gitlab_build_files/copy_shape_libs.sh shape-libs
+    - tar czf shape-source_${DIST}_${ARCH}.tar.gz shape-source
+    - tar czf shape-build_${DIST}_${ARCH}.tar.gz shape-build
+    - tar czf shape-libs_${DIST}_${ARCH}.tar.gz shape-libs
+    - git clone --recurse-submodules https://github.com/logimic/shapeware.git shapeware-source
+    - mkdir shapeware-build shapeware-libs
+    - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    - cmake --build shapeware-build
+    - bash src/.gitlab_build_files/copy_shapeware_libs.sh shapeware-libs
+    - tar czf shapeware-source_${DIST}_${ARCH}.tar.gz shapeware-source
+    - tar czf shapeware-build_${DIST}_${ARCH}.tar.gz shapeware-build
+    - tar czf shapeware-libs_${DIST}_${ARCH}.tar.gz shapeware-libs
   artifacts:
     paths:
-    - shape-source_*.tar.gz
-    - shape-build_*.tar.gz
-    - shape-libs_*.tar.gz
-    - shapeware-source_*.tar.gz
-    - shapeware-build_*.tar.gz
-    - shapeware-libs_*.tar.gz
+      - shape-source_*.tar.gz
+      - shape-build_*.tar.gz
+      - shape-libs_*.tar.gz
+      - shapeware-source_*.tar.gz
+      - shapeware-build_*.tar.gz
+      - shapeware-libs_*.tar.gz
     expire_in: 2 days
 
 .shape_shapeware_release-template: &shape_shapeware_release-template
@@ -157,45 +157,45 @@ stages:
 .daemon_debug-template: &daemon_debug-template
   stage: build
   script:
-  - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
-  - git clone --recurse-submodules https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon.git iqrf-daemon-source
-  - mkdir iqrf-daemon-build
-  - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
-  - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION} -DCMAKE_BUILD_TYPE=Debug
-  - cmake --build iqrf-daemon-build
-  - tar czf iqrf-daemon-source_${DIST}_${ARCH}.tar.gz iqrf-daemon-source
-  - tar czf iqrf-daemon-build_${DIST}_${ARCH}.tar.gz iqrf-daemon-build
+    - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
+    - git clone --recurse-submodules https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon.git iqrf-daemon-source
+    - mkdir iqrf-daemon-build
+    - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
+    - cmake -Biqrf-daemon-build -Hiqrf-daemon-source -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DDAEMON_VERSION:STRING=${DAEMON_VERSION} -DCMAKE_BUILD_TYPE=Debug
+    - cmake --build iqrf-daemon-build
+    - tar czf iqrf-daemon-source_${DIST}_${ARCH}.tar.gz iqrf-daemon-source
+    - tar czf iqrf-daemon-build_${DIST}_${ARCH}.tar.gz iqrf-daemon-build
   artifacts:
     paths:
-    - iqrf-daemon-source_*.tar.gz
-    - iqrf-daemon-build_*.tar.gz
+      - iqrf-daemon-source_*.tar.gz
+      - iqrf-daemon-build_*.tar.gz
     expire_in: 2 weeks
 
 .package-template: &package-template
   stage: build-package
   only:
-  - master
+    - master
   extends: .ssh_template
   dependencies: []
   script:
-  - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
-  - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
-  - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
-  - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
-  - dch-add-distro -d "${DIST}"
-  - debuild -e DAEMON_VERSION -b -uc -us -tc
-  - mv ../*.deb .
-  - 'mv ../*.ddeb . 2>/dev/null || :'
-  - mv ../*.changes .
-  - sed -i "s/.ddeb/.deb/g" *.changes
-  - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-  - rsync -hrvz --delete -e ssh *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
+    - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
+    - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
+    - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
+    - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
+    - dch-add-distro -d "${DIST}"
+    - debuild -e DAEMON_VERSION -b -uc -us -tc
+    - mv ../*.deb .
+    - 'mv ../*.ddeb . 2>/dev/null || :'
+    - mv ../*.changes .
+    - sed -i "s/.ddeb/.deb/g" *.changes
+    - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
+    - rsync -hrvz --delete -e ssh *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
   artifacts:
     paths:
       - ./*.deb
@@ -205,55 +205,55 @@ stages:
 .package_debug-template: &package_debug-template
   stage: build-package
   only:
-  - master
+    - master
   extends: .ssh_template
   script:
-  - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
-  - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
-  - tar xzf shape-libs_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-libs_${DIST}_${ARCH}.tar.gz
-  - tar xzf iqrf-daemon-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf iqrf-daemon-build_${DIST}_${ARCH}.tar.gz
-  - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
-  - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
-  - dch-add-distro -d "${DIST}"
-# - export DEB_BUILD_OPTIONS=nostrip,noopt
-# - dpkg-buildpackage -b -rfakeroot -us -uc -tc
-# - mv ../iqrf-gateway-daemon*.deb .
-  - bash src/.gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
-  - bash src/.gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "devel"
-  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon-dbg*.deb www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
+    - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
+    - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
+    - tar xzf shape-libs_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-libs_${DIST}_${ARCH}.tar.gz
+    - tar xzf iqrf-daemon-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf iqrf-daemon-build_${DIST}_${ARCH}.tar.gz
+    - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
+    - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
+    - dch-add-distro -d "${DIST}"
+    # - export DEB_BUILD_OPTIONS=nostrip,noopt
+    # - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+    # - mv ../iqrf-gateway-daemon*.deb .
+    - bash src/.gitlab_build_files/copy_daemon_files_devel.sh iqrf-daemon-deploy
+    - bash src/.gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "devel"
+    - rsync -hrvz --delete -e ssh iqrf-gateway-daemon-dbg*.deb www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
   artifacts:
     paths:
-    - iqrf-gateway-daemon-dbg*.deb
+      - iqrf-gateway-daemon-dbg*.deb
     expire_in: 2 weeks
 
 .package-release-template: &package-release-template
   stage: build-package
   only:
-  - tags
+    - tags
   extends: .ssh_template
   dependencies: []
   script:
-  - export DAEMON_VERSION="$CI_COMMIT_TAG"
-  - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
-  - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
-#CHANGELOG generated manually
-# - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
-  - dch-add-distro -d "${DIST}"
-  - debuild -e DAEMON_VERSION -b -uc -us -tc
-  - mv ../*.deb .
-  - 'mv ../*.ddeb . 2>/dev/null || :'
-  - mv ../*.changes .
-  - sed -i "s/.ddeb/.deb/g" *.changes
-  - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-  - rsync -hrvz --delete -e ssh *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+    - export DAEMON_VERSION="$CI_COMMIT_TAG"
+    - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
+    - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
+    #CHANGELOG generated manually
+    # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
+    - dch-add-distro -d "${DIST}"
+    - debuild -e DAEMON_VERSION -b -uc -us -tc
+    - mv ../*.deb .
+    - 'mv ../*.ddeb . 2>/dev/null || :'
+    - mv ../*.changes .
+    - sed -i "s/.ddeb/.deb/g" *.changes
+    - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
+    - rsync -hrvz --delete -e ssh *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
   artifacts:
     paths:
       - ./*.deb
@@ -263,31 +263,31 @@ stages:
 .package_debug-release-template: &package_debug-release-template
   stage: build-package
   only:
-  - tags
+    - tags
   extends: .ssh_template
   script:
-  - export DAEMON_VERSION="$CI_COMMIT_TAG"
-  - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
-  - tar xzf shape-libs_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
-  - tar xzf shapeware-libs_${DIST}_${ARCH}.tar.gz
-  - tar xzf iqrf-daemon-source_${DIST}_${ARCH}.tar.gz
-  - tar xzf iqrf-daemon-build_${DIST}_${ARCH}.tar.gz
-  - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
-#CHANGELOG generated manually
-# - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
-# - export DEB_BUILD_OPTIONS=nostrip,noopt
-# - dpkg-buildpackage -b -rfakeroot -us -uc -tc
-# - mv ../iqrf-gateway-daemon*.deb .
-  - dch-add-distro -d "${DIST}"
-  - bash src/.gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
-  - bash src/.gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "release"
-  - rsync -hrvz --delete -e ssh iqrf-gateway-daemon-dbg*.deb www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
+    - export DAEMON_VERSION="$CI_COMMIT_TAG"
+    - tar xzf shape-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf shape-build_${DIST}_${ARCH}.tar.gz
+    - tar xzf shape-libs_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-build_${DIST}_${ARCH}.tar.gz
+    - tar xzf shapeware-libs_${DIST}_${ARCH}.tar.gz
+    - tar xzf iqrf-daemon-source_${DIST}_${ARCH}.tar.gz
+    - tar xzf iqrf-daemon-build_${DIST}_${ARCH}.tar.gz
+    - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
+    #CHANGELOG generated manually
+    # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
+    # - export DEB_BUILD_OPTIONS=nostrip,noopt
+    # - dpkg-buildpackage -b -rfakeroot -us -uc -tc
+    # - mv ../iqrf-gateway-daemon*.deb .
+    - dch-add-distro -d "${DIST}"
+    - bash src/.gitlab_build_files/copy_daemon_files_release.sh iqrf-daemon-deploy
+    - bash src/.gitlab_build_files/create_daemon_package_dbg.sh ${DIST} "release"
+    - rsync -hrvz --delete -e ssh iqrf-gateway-daemon-dbg*.deb www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
   artifacts:
     paths:
-    - iqrf-gateway-daemon-dbg*.deb
+      - iqrf-gateway-daemon-dbg*.deb
     expire_in: 2 weeks
 
 .api-template: &api-template
@@ -297,7 +297,7 @@ stages:
   extends: .ssh_template
   dependencies: []
   script:
-  - rsync -hrvz --delete -e ssh api/ www-deploy@iqrfsdk.org:/data/nginx/apidocs/iqrf-gateway-daemon/json/iqrf/
+    - rsync -hrvz --delete -e ssh api/ www-deploy@iqrfsdk.org:/data/nginx/apidocs/iqrf-gateway-daemon/json/iqrf/
 
 clean:
   image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-amd64
@@ -346,8 +346,8 @@ package_debug-buster-amd64:
   <<: *debian-buster-amd64-template
   <<: *package_debug-template
   dependencies:
-  - shape_shapeware_debug-buster-amd64
-  - daemon_debug-buster-amd64
+    - shape_shapeware_debug-buster-amd64
+    - daemon_debug-buster-amd64
 
 package_release-buster-amd64:
   <<: *debian-buster-amd64-template
@@ -359,8 +359,8 @@ package_debug_release-buster-amd64:
   <<: *debian-buster-amd64-template
   <<: *package_debug-release-template
   dependencies:
-  - shape_shapeware_debug-buster-amd64
-  - daemon_debug-buster-amd64
+    - shape_shapeware_debug-buster-amd64
+    - daemon_debug-buster-amd64
 
 ## arm64
 shape_shapeware-buster-arm64:
@@ -516,6 +516,8 @@ package-buster-i386:
 package_release-buster-i386:
   <<: *debian-buster-i386-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-buster-i386
 
 #package_debug_release-buster-i386:
 #  <<: *debian-buster-i386-template
