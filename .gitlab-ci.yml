@@ -189,7 +189,7 @@ stages:
   - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
   - gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch
   - dch-add-distro -d "${DIST}"
-  - debuild -b -uc -us -tc -e DAEMON_VERSION
+  - debuild -e DAEMON_VERSION -b -uc -us -tc
   - mv ../*.deb .
   - 'mv ../*.ddeb . 2>/dev/null || :'
   - mv ../*.changes .
@@ -247,7 +247,7 @@ stages:
 #CHANGELOG generated manually
 # - gbp dch -a -R --new-version="${CI_COMMIT_TAG//v}" --ignore-branch --spawn-editor=never
   - dch-add-distro -d "${DIST}"
-  - debuild -b -uc -us -tc -e DAEMON_VERSION
+  - debuild -e DAEMON_VERSION -b -uc -us -tc
   - mv ../*.deb .
   - 'mv ../*.ddeb . 2>/dev/null || :'
   - mv ../*.changes .
