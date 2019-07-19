@@ -195,7 +195,7 @@ stages:
   - mv ../*.changes .
   - sed -i "s/.ddeb/.deb/g" *.changes
   - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-  - rsync -hrvz --delete -e ssh *.deb *.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
+  - rsync -hrvz --delete -e ssh *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
   artifacts:
     paths:
       - ./*.deb
@@ -253,7 +253,7 @@ stages:
   - mv ../*.changes .
   - sed -i "s/.ddeb/.deb/g" *.changes
   - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-  - rsync -hrvz --delete -e ssh *.deb *.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/devel
+  - rsync -hrvz --delete -e ssh *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH}/stable
   artifacts:
     paths:
       - ./*.deb
@@ -702,7 +702,7 @@ daemon_debug-stretch-i386:
   <<: *debian-stretch-i386-template
   <<: *daemon_debug-template
   dependencies:
-    - shape_shapeware-stretch-i386
+    - shape_shapeware_debug-stretch-i386
 
 package-stretch-i386:
   <<: *debian-stretch-i386-template
