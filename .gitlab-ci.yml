@@ -516,6 +516,8 @@ package-buster-i386:
 package_release-buster-i386:
   <<: *debian-buster-i386-template
   <<: *package-release-template
+  dependencies:
+    - shape_shapeware-buster-i386
 
 #package_debug_release-buster-i386:
 #  <<: *debian-buster-i386-template
