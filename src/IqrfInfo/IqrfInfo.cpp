@@ -232,13 +232,13 @@ namespace iqrf {
 
       database & db = *m_db;
 
-      int m_nadr;
-      unsigned m_mid;
-      int discovery;
-      int m_hwpid;
-      int m_hwpidVer;
-      int m_osBuild;
-      int m_dpaVer;
+      //int m_nadr;
+      //unsigned m_mid;
+      //int discovery;
+      //int m_hwpid;
+      //int m_hwpidVer;
+      //int m_osBuild;
+      //int m_dpaVer;
 
       db << "select "
         "b.Nadr "

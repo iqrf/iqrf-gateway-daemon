@@ -1,6 +1,6 @@
 #pragma once
 
-#include "JsDriverDpaCommandSolver.h"
+#include "RawDpaCommandSolver.h"
 #include "EmbedExplore.h"
 #include "JsonUtils.h"
 #include <set>
@@ -33,7 +33,7 @@ namespace iqrf
           m_hwpidVer = (int)resp.HWPIDver;
           m_flags = (int)resp.Flags;
           int len = m_dpaTransactionResult2->getResponse().GetLength() - sizeof(TDpaIFaceHeader);
-          m_userPer = bitmapToIndexes(getRdata().data(), 12, getRdata().size()-1, 0x20);
+          m_userPer = bitmapToIndexes(getRdata().data(), 12, (int)getRdata().size()-1, 0x20);
         }
 
       };

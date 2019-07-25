@@ -83,7 +83,7 @@ namespace iqrf {
         p += len;
       }
 
-      dpaRequest.SetLength(p - p0);
+      dpaRequest.SetLength((int)(p - p0));
 
       TRC_FUNCTION_LEAVE("");
       return dpaRequest;
@@ -115,7 +115,7 @@ namespace iqrf {
       Pointer("/dpaval").Set(doc, rcodeStr);
 
       if (jsd.getRdata().size() > 0) {
-        Pointer("/rdata").Set(doc, encodeBinary(jsd.getRdata().data(), jsd.getRdata().size()));
+        Pointer("/rdata").Set(doc, encodeBinary(jsd.getRdata().data(), (int)jsd.getRdata().size()));
       }
 
       // original rawHdpRequest request passed for additional driver processing, e.g. sensor breakdown parsing
