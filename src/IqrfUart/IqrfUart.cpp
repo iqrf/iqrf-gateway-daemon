@@ -143,8 +143,8 @@ namespace iqrf {
     }
 #endif
 
-    IIqrfChannelService::Accessor::UploadErrorCode upload(
-      const Accessor::UploadTarget target,
+    IIqrfChannelService::UploadErrorCode upload(
+      const UploadTarget target,
       const std::basic_string<uint8_t>& data,
       const uint16_t address
     )
@@ -247,7 +247,7 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
       //return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
-      return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
+      return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
     }
 
     bool terminateProgrammingState() {
