@@ -98,6 +98,7 @@ add_subdirectory(src/SchedulerMessaging)
 add_subdirectory(src/IqrfInfo)
 add_subdirectory(src/JsDriverService)
 add_subdirectory(src/MonitorService)
+add_subdirectory(src/DpaParser)
 
 # IDE folder for IQMesh services
 set(IQMESH_SERVICES_FOLDER "iqmesh")
