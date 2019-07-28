@@ -5,6 +5,7 @@
 #include "stdint.h"
 #include <memory>
 #include <vector>
+#include <set>
 
 namespace iqrf {
 
@@ -18,8 +19,8 @@ namespace iqrf {
     uint8_t m_rcode;
     uint8_t m_dpaval;
     std::vector<uint8_t> m_rdata;
-
     std::unique_ptr<IDpaTransactionResult2> m_dpaTransactionResult2;
+    DpaMessage m_request;
 
   public:
     virtual ~DpaCommandSolver() {}
@@ -67,6 +68,7 @@ namespace iqrf {
     uint8_t getPnum() const { return m_pnum; }
     uint8_t getPcmd() const { return m_pcmd; }
     uint8_t getRcode() const { return m_rcode; }
+    bool isAsyncRcode() const { return (m_rcode & STATUS_ASYNC_RESPONSE) != 0; }
     uint8_t getDpaval() const { return m_dpaval; }
     const std::vector<uint8_t> & getRdata() const { return m_rdata; }
 
@@ -75,7 +77,18 @@ namespace iqrf {
       return m_dpaTransactionResult2;
     }
     
-    void processResult(std::unique_ptr<IDpaTransactionResult2> res)
+    virtual DpaMessage encodeRequest() = 0;
+
+    void processAsyncResponse(const DpaMessage & dpaResponse)
+    {
+      if (!isAsyncRcode()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid async response code:"
+          << NAME_PAR(expected, (int)STATUS_ASYNC_RESPONSE) << NAME_PAR(delivered, getRcode()));
+      }
+      processResponse(dpaResponse);
+    }
+
+    void processDpaTransactionResult(std::unique_ptr<IDpaTransactionResult2> res)
     {
       m_dpaTransactionResult2 = std::move(res);
 
@@ -84,37 +97,82 @@ namespace iqrf {
       }
 
       const DpaMessage & dpaResponse = m_dpaTransactionResult2->getResponse();
-      const uint8_t* p = dpaResponse.DpaPacket().Buffer;
+      processResponse(dpaResponse);
+    }
+
+    static std::set<int> bitmapToIndexes(const uint8_t* bitmap, int indexFrom, int indexTo, int offset)
+    {
+      std::set<int> retval;
+
+      for (int index = indexFrom; index <= indexTo; index++) {
+        unsigned bitmapByte = bitmap[index];
+        if (0 == bitmapByte) {
+          offset += 8;
+        }
+        else {
+          for (unsigned bitMask = 0x01; bitMask != 0x100; bitMask <<= 1) {
+            if ((bitmapByte & bitMask) != 0) {
+              retval.insert(offset);
+            }
+            offset++;
+          }
+        }
+      }
+      return retval;
+    }
+
+  protected:
+    virtual void parseResponse(const DpaMessage & dpaResponse) = 0;
+
+    void initRequestHeader(DpaMessage & request) const
+    {
+      request.DpaPacket().DpaRequestPacket_t.NADR = m_nadr;
+      request.DpaPacket().DpaRequestPacket_t.PNUM = m_pnum;
+      request.DpaPacket().DpaRequestPacket_t.PCMD = m_pcmd;
+      request.DpaPacket().DpaRequestPacket_t.HWPID = m_hwpid;
+      request.SetLength(sizeof(TDpaIFaceHeader));
+    }
+
+  private:
+    void processResponse(const DpaMessage & dpaResponse)
+    {
       int len = dpaResponse.GetLength();
 
-      if (len < 8) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Invalid dpaResponse");
+      if (len < sizeof(TDpaIFaceHeader) || len > sizeof(TDpaIFaceHeader) + DPA_MAX_DATA_LENGTH) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid dpaResponse lenght: " << PAR(len));
       }
 
-      uint16_t nadr = p[0];
-      nadr += p[1] << 8;
+      const auto & rp = dpaResponse.DpaPacket().DpaResponsePacket_t;
 
+      uint16_t nadr = rp.NADR;
       if (nadr != m_nadr) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Invalid nadr:" << NAME_PAR(expected, m_nadr) << NAME_PAR(delivered, nadr));
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid nadr:" << NAME_PAR(expected, (int)m_nadr) << NAME_PAR(delivered, (int)nadr));
       }
 
-      //TODO check pnum, pcmd
+      uint8_t pnum = rp.PNUM;
+      if (pnum != m_pnum) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid pnum:" << NAME_PAR(expected, (int)m_pnum) << NAME_PAR(delivered, (int)pnum));
+      }
 
-      m_pnum = p[2];
-      m_pcmd = p[3];
-      m_hwpid = p[4];
-      m_hwpid += p[5] << 8;
-      m_rcode = p[6];
-      m_dpaval = p[7];
+      uint8_t pcmd = rp.PCMD & 0x7F; // mask highest bit set by response
+      if (pcmd != m_pcmd) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid pnum:" << NAME_PAR(expected, (int)m_pcmd) << NAME_PAR(delivered, (int)pcmd));
+      }
+
+      m_hwpid = rp.HWPID;
+      m_rcode = rp.ResponseCode;
+      m_dpaval = rp.DpaValue;
 
       if (0 != m_rcode) {
         THROW_EXC_TRC_WAR(std::logic_error, "Bad response: " << NAME_PAR(rcode, m_rcode));
       }
 
-      if (len > 8) {
-        m_rdata = std::vector<uint8_t>(p + 8, p + static_cast<int>(len));
+      if (len > sizeof(TDpaIFaceHeader) + 2) { //+ rcode + dpaval
+        m_rdata = std::vector<uint8_t>(rp.DpaMessage.Response.PData, rp.DpaMessage.Response.PData + static_cast<int>(len) - sizeof(TDpaIFaceHeader) - 2);
       }
 
+      parseResponse(dpaResponse);
     }
+
   };
 }

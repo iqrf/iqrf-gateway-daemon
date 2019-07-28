@@ -18,14 +18,22 @@ namespace iqrf
       class JsDriverBondedDevices : public BondedDevices, public JsDriverDpaCommandSolver
       {
       public:
-        JsDriverBondedDevices()
-          :JsDriverDpaCommandSolver(0)
-        {
-        }
+        JsDriverBondedDevices(IJsRenderService* iJsRenderService)
+          :JsDriverDpaCommandSolver(iJsRenderService, 0)
+        {}
 
+        virtual ~JsDriverBondedDevices()
+        {}
+
+      protected:
         std::string functionName() const override
         {
           return "iqrf.embed.coordinator.BondedDevices";
+        }
+
+        std::string requestParameter() const override
+        {
+          return "{}";
         }
 
         void parseResponse(const rapidjson::Value& v) override
@@ -41,14 +49,22 @@ namespace iqrf
       class JsDriverDiscoveredDevices : public DiscoveredDevices, public JsDriverDpaCommandSolver
       {
       public:
-        JsDriverDiscoveredDevices()
-          :JsDriverDpaCommandSolver(0)
-        {
-        }
+        JsDriverDiscoveredDevices(IJsRenderService* iJsRenderService)
+          :JsDriverDpaCommandSolver(iJsRenderService, 0)
+        {}
 
+        virtual ~JsDriverDiscoveredDevices()
+        {}
+      
+      protected:
         std::string functionName() const override
         {
           return "iqrf.embed.coordinator.DiscoveredDevices";
+        }
+
+        std::string requestParameter() const override
+        {
+          return "{}";
         }
 
         void parseResponse(const rapidjson::Value& v) override

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "JsDriverDpaCommandSolver.h"
-#include "JsonUtils.h"
+#include "DpaMessage.h"
 #include <set>
+#include <map>
+#include <vector>
 #include <sstream>
 #include <iomanip>
 
@@ -28,7 +29,8 @@ namespace iqrf
 
       public:
         virtual ~Enumerate() {}
-        int getDpaVer() const { return m_dpaVer; }
+        
+        int getDpaVer() const { return m_dpaVer & 0x3fff; }
         int getPerNr() const { return m_perNr; }
         const std::set<int> & getEmbedPer() const { return m_embedPer; }
         int getHwpidVer() const { return m_hwpidVer; }
@@ -40,7 +42,7 @@ namespace iqrf
           std::ostringstream os;
           os.fill('0');
           os << std::hex <<
-            std::setw(2) << ((dpaVer & 0xefff) >> 8) << '.' << std::setw(2) << (dpaVer & 0xff);
+            std::setw(2) << ((dpaVer & 0x3fff) >> 8) << '.' << std::setw(2) << (dpaVer & 0xff);
           return os.str();
         }
 
@@ -62,6 +64,10 @@ namespace iqrf
           return getDpaVerAsHexaString(m_dpaVer);
         }
 
+        // TODO obsolete use int getDpaVer()
+        int getDpaVerMajor() const { return (m_dpaVer >> 8) & 0xFF; }
+        int getDpaVerMinor() const { return m_dpaVer & 0xFF; }
+        bool getDemoFlag() const { return (m_dpaVer & 0x8000) != 0; }
         int getModeStd() const { return (m_flags & 1)? 1:0; }
         bool isModeStd() const { return (m_flags & 1) != 0; }
         bool isModeLp() const { return (m_flags & 1) == 0; }

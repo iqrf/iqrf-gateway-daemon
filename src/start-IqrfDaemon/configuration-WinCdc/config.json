@@ -190,13 +190,6 @@
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsDriverService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "JsDriverService",
-      "enabled": true,
-      "startlevel": 2
-    },
-    {
       "name": "iqrf::JsonDpaApiIqrfStandard",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsonDpaApiIqrfStandard",
@@ -249,13 +242,6 @@
       "name": "iqrf::EnumerateDeviceService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "EnumerateDeviceService",
-      "enabled": true,
-      "startlevel": 3
-    },
-    {
-      "name": "iqrf::EnumerateService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "EnumerateService",
       "enabled": true,
       "startlevel": 3
     },

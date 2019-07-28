@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RawDpaCommandSolver.h"
+#include "DpaCommandSolver.h"
 #include "EmbedOS.h"
 
 namespace iqrf
@@ -10,18 +10,26 @@ namespace iqrf
     namespace os
     {
       ////////////////
-      class RawDpaRead : public Read, public RawDpaCommandSolver
+      class RawDpaRead : public Read, public DpaCommandSolver
       {
       public:
         RawDpaRead(uint16_t nadr)
-          :RawDpaCommandSolver(nadr, PNUM_OS, CMD_OS_READ)
+          :DpaCommandSolver(nadr, PNUM_OS, CMD_OS_READ)
         {}
 
         virtual ~RawDpaRead() {}
 
-        void parseResponse() override
+        DpaMessage encodeRequest() override
         {
-          TPerOSRead_Response resp = m_dpaTransactionResult2->getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
+          DpaMessage request;
+          initRequestHeader(request);
+          return request;
+        }
+
+      protected:
+        void parseResponse(const DpaMessage & dpaResponse) override
+        {
+          TPerOSRead_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
 
           m_mid = (unsigned)resp.MID[0] + ((unsigned)resp.MID[1] << 8) + ((unsigned)resp.MID[2] << 16) + ((unsigned)resp.MID[3] << 24);
           m_osVersion = (int)resp.OsVersion;
@@ -37,18 +45,26 @@ namespace iqrf
       typedef std::unique_ptr<RawDpaRead> RawDpaReadPtr;
 
       ////////////////
-      class RawDpaReadCfg : public ReadCfg, public RawDpaCommandSolver
+      class RawDpaReadCfg : public ReadCfg, public DpaCommandSolver
       {
       public:
         RawDpaReadCfg(uint16_t nadr)
-          :RawDpaCommandSolver(nadr, PNUM_OS, CMD_OS_READ_CFG)
+          :DpaCommandSolver(nadr, PNUM_OS, CMD_OS_READ_CFG)
         {}
 
         virtual ~RawDpaReadCfg() {}
 
-        void parseResponse() override
+        DpaMessage encodeRequest() override
         {
-          TPerOSReadCfg_Response resp = m_dpaTransactionResult2->getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSReadCfg_Response;
+          DpaMessage request;
+          initRequestHeader(request);
+          return request;
+        }
+
+      protected:
+        void parseResponse(const DpaMessage & dpaResponse) override
+        {
+          TPerOSReadCfg_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSReadCfg_Response;
 
           m_checkum = (unsigned)resp.Checksum;
           m_configuration = std::vector<uint8_t>(resp.Configuration, resp.Configuration + 31);
@@ -57,6 +73,30 @@ namespace iqrf
         }
       };
       typedef std::unique_ptr<RawDpaReadCfg> RawDpaReadCfgPtr;
+
+      ////////////////
+      class RawDpaRestart : public ReadCfg, public DpaCommandSolver
+      {
+      public:
+        RawDpaRestart(uint16_t nadr)
+          :DpaCommandSolver(nadr, PNUM_OS, CMD_OS_RESTART)
+        {}
+
+        virtual ~RawDpaRestart() {}
+
+        DpaMessage encodeRequest() override
+        {
+          DpaMessage request;
+          initRequestHeader(request);
+          return request;
+        }
+
+      protected:
+        void parseResponse(const DpaMessage & dpaResponse) override
+        {
+        }
+      };
+      typedef std::unique_ptr<RawDpaRestart> RawDpaRestartPtr;
 
     } //namespace os
   } //namespace embed

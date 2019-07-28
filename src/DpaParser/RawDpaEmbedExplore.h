@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RawDpaCommandSolver.h"
+#include "DpaCommandSolver.h"
 #include "EmbedExplore.h"
 #include "JsonUtils.h"
 #include <set>
@@ -14,52 +14,62 @@ namespace iqrf
     namespace explore
     {
       ////////////////
-      class RawDpaEnumerate : public Enumerate, public RawDpaCommandSolver
+      class RawDpaEnumerate : public Enumerate, public DpaCommandSolver
       {
       public:
         RawDpaEnumerate(uint16_t nadr)
-          :RawDpaCommandSolver(nadr, PNUM_ENUMERATION, CMD_GET_PER_INFO)
+          :DpaCommandSolver(nadr, PNUM_ENUMERATION, CMD_GET_PER_INFO)
         {}
 
-        virtual ~RawDpaEnumerate() {}
-
-        void parseResponse() override
+        virtual ~RawDpaEnumerate() 
         {
-          TEnumPeripheralsAnswer resp = m_dpaTransactionResult2->getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
+        }
+
+        DpaMessage encodeRequest() override
+        {
+          DpaMessage request;
+          initRequestHeader(request);
+          return request;
+        }
+
+      protected:
+        void parseResponse(const DpaMessage & dpaResponse) override
+        {
+          const TEnumPeripheralsAnswer & resp = m_dpaTransactionResult2->getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
 
           m_dpaVer = (int)resp.DpaVersion;
           m_perNr = (int)resp.UserPerNr;
           m_embedPer = bitmapToIndexes(resp.EmbeddedPers, 0, 3, 0);
           m_hwpidVer = (int)resp.HWPIDver;
           m_flags = (int)resp.Flags;
-          int len = m_dpaTransactionResult2->getResponse().GetLength() - sizeof(TDpaIFaceHeader);
-          m_userPer = bitmapToIndexes(getRdata().data(), 12, (int)getRdata().size()-1, 0x20);
+          m_userPer = bitmapToIndexes(getRdata().data(), 12, (int)getRdata().size() - 1, 0x20);
         }
-
       };
       typedef std::unique_ptr<RawDpaEnumerate> RawDpaEnumeratePtr;
 
       ////////////////
-      class RawDpaPeripheralInformation : public PeripheralInformation, public RawDpaCommandSolver
+      class RawDpaPeripheralInformation : public PeripheralInformation, public DpaCommandSolver
       {
       public:
         RawDpaPeripheralInformation(uint16_t nadr, int per)
           :PeripheralInformation(per)
-          , RawDpaCommandSolver(nadr, (uint8_t)per, CMD_GET_PER_INFO)
-        {
-        }
+          , DpaCommandSolver(nadr, (uint8_t)per, CMD_GET_PER_INFO)
+        {}
 
         virtual ~RawDpaPeripheralInformation() {}
 
         DpaMessage encodeRequest() override
         {
-          m_request.DpaPacket().DpaRequestPacket_t.PNUM = (uint8_t)getPer();
-          return m_request;
+          DpaMessage request;
+          initRequestHeader(request);
+          request.DpaPacket().DpaRequestPacket_t.PNUM = (uint8_t)getPer();
+          return request;
         }
 
-        void parseResponse() override
+      protected:
+        void parseResponse(const DpaMessage & dpaResponse) override
         {
-          TPeripheralInfoAnswer resp = m_dpaTransactionResult2->getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.PeripheralInfoAnswer;
+          TPeripheralInfoAnswer resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PeripheralInfoAnswer;
           m_perTe = (int)resp.PerTE;
           m_perT = (int)resp.PerT;
           m_par1 = (int)resp.Par1;
@@ -70,18 +80,24 @@ namespace iqrf
       typedef std::unique_ptr<RawDpaPeripheralInformation> RawDpaPeripheralInformationPtr;
 
       ////////////////
-      class RawDpaMorePeripheralInformation : public MorePeripheralInformation, public RawDpaCommandSolver
+      class RawDpaMorePeripheralInformation : public MorePeripheralInformation, public DpaCommandSolver
       {
       public:
         RawDpaMorePeripheralInformation(uint16_t nadr, int per)
           :MorePeripheralInformation(per)
-          , RawDpaCommandSolver(nadr, 0xFF, (uint8_t)per)
-        {
-        }
+          , DpaCommandSolver(nadr, 0xFF, (uint8_t)per)
+        {}
 
         virtual ~RawDpaMorePeripheralInformation() {}
 
-        void parseResponse() override
+        DpaMessage encodeRequest() override
+        {
+          DpaMessage request;
+          initRequestHeader(request);
+          return request;
+        }
+
+        void parseResponse(const DpaMessage & dpaResponse) override
         {
           const std::vector<uint8_t> & r = getRdata();
           auto len = r.size();

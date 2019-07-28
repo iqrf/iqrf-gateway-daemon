@@ -5,7 +5,6 @@
 #include "IJsRenderService.h"
 #include "IJsCacheService.h"
 #include "IIqrfDpaService.h"
-#include "IEnumerateService.h"
 #include "ILaunchService.h"
 #include "ITraceService.h"
 
@@ -25,9 +24,6 @@ namespace iqrf {
 
     void attachInterface(iqrf::IJsCacheService* iface);
     void detachInterface(iqrf::IJsCacheService* iface);
-
-    void attachInterface(iqrf::IEnumerateService* iface);
-    void detachInterface(iqrf::IEnumerateService* iface);
 
     void attachInterface(iqrf::IIqrfDpaService* iface);
     void detachInterface(iqrf::IIqrfDpaService* iface);

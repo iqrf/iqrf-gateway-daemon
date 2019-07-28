@@ -164,10 +164,10 @@ namespace iqrf
         int m_rfpgm = 0;
         int m_undocumented = 0;
 
-      public:
         ReadCfg()
         {}
 
+      public:
         virtual ~ReadCfg() {}
 
         unsigned getCheckum() const { return m_checkum; }
@@ -175,6 +175,61 @@ namespace iqrf
         int getRfpgm() const { return m_rfpgm; }
         int getUndocumented() const { return m_undocumented; }
       };
+
+      ////////////////
+      class Restart
+      {
+      protected:
+        Restart()
+        {}
+      public:
+        virtual ~Restart() {}
+      };
+
+      //TODO
+      /*
+      void PrfOs::setSleepCmd(const std::chrono::seconds& sec, uint8_t ctrl)
+      {
+        using namespace std::chrono;
+
+        setCmd(Cmd::SLEEP);
+
+        ctrl &= 0x0F; //reset milis flag
+
+        milis2097 ms2097 = duration_cast<milis2097>(sec);
+        uint16_t tm = (uint16_t)ms2097.count();
+
+        m_request.DpaPacket().DpaRequestPacket_t.DpaMessage.PerOSSleep_Request.Time = tm;
+        m_request.DpaPacket().DpaRequestPacket_t.DpaMessage.PerOSSleep_Request.Control = ctrl;
+        m_request.SetLength(sizeof(TDpaIFaceHeader) + 3);
+      }
+
+      void PrfOs::setSleepCmd(const std::chrono::milliseconds& milis, uint8_t ctrl)
+      {
+        using namespace std::chrono;
+
+        setCmd(Cmd::SLEEP);
+
+        ctrl &= 0x0F; //reset other flags
+        ctrl |= 0x10; //set milis flags
+
+        micros32768 mc32768 = duration_cast<micros32768>(milis);
+        uint16_t tm = (uint16_t)mc32768.count();
+
+        m_request.DpaPacket().DpaRequestPacket_t.DpaMessage.PerOSSleep_Request.Time = tm;
+        m_request.DpaPacket().DpaRequestPacket_t.DpaMessage.PerOSSleep_Request.Control = ctrl;
+        m_request.SetLength(sizeof(TDpaIFaceHeader) + 3);
+      }
+
+      void PrfOs::setSleepCmd()
+      {
+        setCmd(Cmd::SLEEP);
+
+        m_request.DpaPacket().DpaRequestPacket_t.DpaMessage.PerOSSleep_Request.Time = 0;
+        m_request.DpaPacket().DpaRequestPacket_t.DpaMessage.PerOSSleep_Request.Control = (uint8_t)TimeControl::RUN_CALIB;
+      }
+      */
+
 
     } //namespace os
   } //namespace embed

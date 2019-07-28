@@ -17,14 +17,22 @@ namespace iqrf
       class JsDriverRead : public Read, public JsDriverDpaCommandSolver
       {
       public:
-        JsDriverRead(uint16_t nadr)
-          :JsDriverDpaCommandSolver(nadr)
-        {
-        }
+        JsDriverRead(IJsRenderService* iJsRenderService, uint16_t nadr)
+          :JsDriverDpaCommandSolver(iJsRenderService, nadr)
+        {}
 
+        virtual ~JsDriverRead()
+        {}
+
+      protected:
         std::string functionName() const override
         {
           return "iqrf.embed.os.Read";
+        }
+
+        std::string requestParameter() const override
+        {
+          return "{}";
         }
 
         void parseResponse(const rapidjson::Value& v) override
@@ -47,13 +55,22 @@ namespace iqrf
       class JsDriverReadCfg : public ReadCfg, public JsDriverDpaCommandSolver
       {
       public:
-        JsDriverReadCfg(uint16_t nadr)
-          :JsDriverDpaCommandSolver(nadr)
+        JsDriverReadCfg(IJsRenderService* iJsRenderService, uint16_t nadr)
+          :JsDriverDpaCommandSolver(iJsRenderService, nadr)
         {}
 
+        virtual ~JsDriverReadCfg()
+        {}
+
+      protected:
         std::string functionName() const override
         {
           return "iqrf.embed.os.ReadCfg";
+        }
+
+        std::string requestParameter() const override
+        {
+          return "{}";
         }
 
         void parseResponse(const rapidjson::Value& v) override
@@ -65,6 +82,33 @@ namespace iqrf
           m_rfpgm = jutils::getMemberAs<int>("rfpgm", v);
           m_undocumented = jutils::getMemberAs<int>("undocumented", v);
         }
+
+      };
+
+      ////////////////
+      class JsDriverRestart : public ReadCfg, public JsDriverDpaCommandSolver
+      {
+      public:
+        JsDriverRestart(IJsRenderService* iJsRenderService, uint16_t nadr)
+          :JsDriverDpaCommandSolver(iJsRenderService, nadr)
+        {}
+
+        virtual ~JsDriverRestart()
+        {}
+
+      protected:
+        std::string functionName() const override
+        {
+          return "iqrf.embed.os.Restart";
+        }
+
+        std::string requestParameter() const override
+        {
+          return "{}";
+        }
+
+        void parseResponse(const rapidjson::Value& v) override
+        {}
 
       };
 

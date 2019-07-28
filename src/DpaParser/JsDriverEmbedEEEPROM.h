@@ -11,7 +11,7 @@ namespace iqrf
     namespace eeeprom
     {
       ////////////////
-      class Read : public JsDriverDpaCommandSolver
+      class JsDriverRead : public JsDriverDpaCommandSolver
       {
       private:
         //params
@@ -22,12 +22,14 @@ namespace iqrf
         std::vector<int> m_pdata;
 
       public:
-        Read(uint16_t nadr, uint16_t address, uint8_t len)
-          :JsDriverDpaCommandSolver(nadr)
+        JsDriverRead(IJsRenderService* iJsRenderService, uint16_t nadr, uint16_t address, uint8_t len)
+          :JsDriverDpaCommandSolver(iJsRenderService, nadr)
           ,m_address(address)
           ,m_len(len)
-        {
-        }
+        {}
+
+        virtual ~JsDriverRead()
+        {}
 
         std::string functionName() const override
         {

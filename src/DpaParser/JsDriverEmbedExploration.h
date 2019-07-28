@@ -17,14 +17,22 @@ namespace iqrf
       {
 
       public:
-        JsDriverEnumerate(uint16_t nadr)
-          :JsDriverDpaCommandSolver(nadr)
-        {
-        }
+        JsDriverEnumerate(IJsRenderService* iJsRenderService, uint16_t nadr)
+          :JsDriverDpaCommandSolver(iJsRenderService, nadr)
+        {}
 
+        virtual ~JsDriverEnumerate()
+        {}
+
+      protected:
         std::string functionName() const override
         {
           return "iqrf.embed.explore.Enumerate";
+        }
+
+        std::string requestParameter() const override
+        {
+          return "{}";
         }
 
         void parseResponse(const rapidjson::Value& v) override
@@ -50,11 +58,15 @@ namespace iqrf
       class JsDriverPeripheralInformation : public PeripheralInformation, public JsDriverDpaCommandSolver
       {
       public:
-        JsDriverPeripheralInformation(uint16_t nadr, int per)
+        JsDriverPeripheralInformation(IJsRenderService* iJsRenderService, uint16_t nadr, int per)
           :PeripheralInformation(per)
-          , JsDriverDpaCommandSolver(nadr)
+          , JsDriverDpaCommandSolver(iJsRenderService, nadr)
         {}
 
+        virtual ~JsDriverPeripheralInformation()
+        {}
+
+      protected:
         std::string functionName() const override
         {
           return "iqrf.embed.explore.PeripheralInformation";

@@ -2,6 +2,12 @@
 
 #include <sqlite_modern_cpp.h>
 
+#include "RawDpaEmbedExplore.h"
+#include "RawDpaEmbedCoordinator.h"
+#include "RawDpaEmbedOS.h"
+#include "JsDriverBinaryOutput.h"
+#include "JsDriverSensor.h"
+
 #include "Trace.h"
 #include "rapidjson/pointer.h"
 #include <fstream>
@@ -149,13 +155,10 @@ namespace iqrf {
 
     IJsRenderService* m_iJsRenderService = nullptr;
     IJsCacheService* m_iJsCacheService = nullptr;
-    IEnumerateService* m_iEnumerateService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     shape::ILaunchService* m_iLaunchService = nullptr;
 
     std::unique_ptr<database> m_db;
-
-    IEnumerateService::IFastEnumerationPtr m_fastEnum;
 
     // get m_bonded map according nadr from DB
     std::map<int, BondNodeDb> m_mapNadrBondNodeDb;
@@ -224,21 +227,221 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    // TODO siplify
+    class NodeData
+    {
+    public:
+      NodeData() = delete;
+
+      NodeData(int nadr, int hwpid, embed::explore::RawDpaEnumeratePtr & e, embed::os::RawDpaReadPtr & r)
+        :m_nadr(nadr)
+        , m_hwpid(hwpid)
+        , m_exploreEnumerate(std::move(e))
+        , m_osRead(std::move(r))
+      {}
+
+      const embed::explore::EnumeratePtr & getEmbedExploreEnumerate() const
+      {
+        return m_exploreEnumerate;
+      }
+
+      const embed::os::ReadPtr & getEmbedOsRead() const
+      {
+        return m_osRead;
+      }
+
+      int getNadr() const
+      {
+        return m_nadr;
+      }
+
+      int getHwpid() const
+      {
+        return m_hwpid;
+      }
+
+    private:
+      int m_nadr;
+      int m_hwpid;
+      embed::explore::EnumeratePtr m_exploreEnumerate;
+      embed::os::ReadPtr m_osRead;
+    };
+    typedef std::unique_ptr<NodeData> NodeDataPtr;
+
+    class FastEnumeration
+    {
+    public:
+      class Enumerated
+      {
+      public:
+        Enumerated() = delete;
+        Enumerated(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer, NodeDataPtr nodeDataPtr)
+          :m_nadr(nadr)
+          , m_mid(mid)
+          , m_hwpid(hwpid)
+          , m_hwpidVer(hwpidVer)
+          , m_osBuild(osBuild)
+          , m_osVer(osVer)
+          , m_dpaVer(dpaVer)
+          , m_nodeDataPtr(std::move(nodeDataPtr))
+        {}
+        unsigned getMid() const { return m_mid; }
+        int getNadr() const { return m_nadr; }
+        int getHwpid() const { return m_hwpid; }
+        int getHwpidVer() const { return m_hwpidVer; }
+        int getOsBuild() const { return m_osBuild; }
+        int getOsVer() const { return m_osVer; }
+        int getDpaVer() const { return m_dpaVer; }
+        NodeDataPtr getNodeData() { return std::move(m_nodeDataPtr); }
+        virtual ~Enumerated() {}
+
+      private:
+        int m_nadr;
+        unsigned m_mid;
+        int m_hwpid;
+        int m_hwpidVer;
+        int m_osBuild;
+        int m_osVer;
+        int m_dpaVer;
+        NodeDataPtr m_nodeDataPtr;
+      };
+      typedef std::unique_ptr<Enumerated> EnumeratedPtr;
+
+      const std::map<int, EnumeratedPtr> & getEnumerated() const { return m_enumeratedMap; }
+      const std::set<int> & getBonded() const { return m_bonded; }
+      const std::set<int> & getDiscovered() const { return m_discovered; }
+      const std::set<int> & getNonDiscovered() const { return m_nonDiscovered; }
+      
+      void setBondedDiscovered(const std::set<int> &bonded, const std::set<int> &discovered)
+      {
+        m_bonded = bonded;
+        m_discovered = discovered;
+        for (auto i : m_bonded) {
+          if (m_discovered.find(i) == m_discovered.end()) {
+            m_nonDiscovered.insert(i);
+          }
+        }
+      }
+      void addItem(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer, NodeDataPtr nodeDataPtr)
+      {
+        m_enumeratedMap.insert(std::make_pair(nadr, EnumeratedPtr(shape_new Enumerated(nadr, mid, hwpid, hwpidVer, osBuild, osVer, dpaVer, std::move(nodeDataPtr)))));
+      }
+      virtual ~FastEnumeration() {}
+    private:
+      std::map<int, EnumeratedPtr> m_enumeratedMap;
+      std::set<int> m_bonded;
+      std::set<int> m_discovered;
+      std::set<int> m_nonDiscovered;
+    };
+    typedef std::unique_ptr<FastEnumeration> FastEnumerationPtr;
+
+    FastEnumerationPtr m_fastEnum;
+
+    FastEnumerationPtr getFastEnumeration() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::unique_ptr<FastEnumeration> retval(shape_new FastEnumeration);
+
+      auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+
+      iqrf::embed::coordinator::RawDpaBondedDevices iqrfEmbedCoordinatorBondedDevices;
+      iqrf::embed::coordinator::RawDpaDiscoveredDevices iqrfEmbedCoordinatorDiscoveredDevices;
+
+      {
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorBondedDevices.encodeRequest(), transResult, 3);
+        iqrfEmbedCoordinatorBondedDevices.processDpaTransactionResult(std::move(transResult));
+      }
+
+      {
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorDiscoveredDevices.encodeRequest(), transResult, 3);
+        iqrfEmbedCoordinatorDiscoveredDevices.processDpaTransactionResult(std::move(transResult));
+      }
+
+      retval->setBondedDiscovered(iqrfEmbedCoordinatorBondedDevices.getBondedDevices(), iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices());
+      std::set<int> evaluated = retval->getDiscovered();
+      evaluated.insert(0); //eval coordinator
+
+      for (auto nadr : evaluated) {
+        //TODO do it by FRC for DPA > 4.02
+        try {
+          auto nd = getNodeDataPriv((uint16_t)nadr, exclusiveAccess);
+
+          int p1 = nd->getNadr();
+          unsigned p2 = nd->getEmbedOsRead()->getMid();
+          int p3 = nd->getHwpid();
+          int p4 = nd->getEmbedExploreEnumerate()->getHwpidVer();
+          int p5 = nd->getEmbedOsRead()->getOsBuild();
+          int p6 = nd->getEmbedOsRead()->getOsVersion();
+          int p7 = nd->getEmbedExploreEnumerate()->getDpaVer();
+
+          //retval->addItem(
+          //  nd->getNadr(), nd->getEmbedOsRead()->getMid(), nd->getHwpid(), nd->getEmbedExploreEnumerate()->getHwpidVer()
+          //  , nd->getEmbedOsRead()->getOsBuild(), nd->getEmbedOsRead()->getOsVersion(), nd->getEmbedExploreEnumerate()->getDpaVer(), std::move(nd));
+
+          retval->addItem(p1, p2, p3, p4, p5, p6, p7, std::move(nd));
+
+        }
+        catch (std::logic_error &e) {
+          CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot fast enum: " << PAR(nadr));
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+    
+    NodeDataPtr getNodeDataPriv(uint16_t nadr, std::unique_ptr<iqrf::IIqrfDpaService::ExclusiveAccess> & exclusiveAccess) const
+    {
+      TRC_FUNCTION_ENTER(nadr);
+
+      NodeDataPtr nodeData;
+
+      std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+      std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(nadr));
+
+      {
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        exclusiveAccess->executeDpaTransactionRepeat(osReadPtr->encodeRequest(), transResult, 3);
+        osReadPtr->processDpaTransactionResult(std::move(transResult));
+      }
+
+      {
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->encodeRequest(), transResult, 3);
+        exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
+      }
+
+      nodeData.reset(shape_new NodeData(nadr, osReadPtr->getHwpid(), exploreEnumeratePtr, osReadPtr));
+
+      TRC_FUNCTION_LEAVE("");
+      return nodeData;
+    }
+
+    NodeDataPtr getNodeData(uint16_t nadr) const
+    {
+      TRC_FUNCTION_ENTER(nadr);
+
+      NodeDataPtr nodeData;
+
+      auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+
+      nodeData = getNodeDataPriv(nadr, exclusiveAccess);
+
+      TRC_FUNCTION_LEAVE("");
+      return nodeData;
+    }
+
+
     void fastEnum()
     {
       TRC_FUNCTION_ENTER("");
 
-      m_fastEnum = m_iEnumerateService->getFastEnumeration();
+      m_fastEnum = getFastEnumeration();
 
       database & db = *m_db;
-
-      //int m_nadr;
-      //unsigned m_mid;
-      //int discovery;
-      //int m_hwpid;
-      //int m_hwpidVer;
-      //int m_osBuild;
-      //int m_dpaVer;
 
       db << "select "
         "b.Nadr "
@@ -353,7 +556,7 @@ namespace iqrf {
           // enum thread stopped
           if (!m_enumThreadRun) break;
 
-          IEnumerateService::INodeDataPtr nd;
+          NodeDataPtr nd;
 
           // try to get node data from fast enum
           auto found = m_fastEnum->getEnumerated().find(nadr);
@@ -363,7 +566,7 @@ namespace iqrf {
 
           if (!nd) {
             // node data nullptr - fast enum was done by other means (FRC) => we need to get data explicitely
-            IEnumerateService::INodeDataPtr nd = m_iEnumerateService->getNodeData(nadr);
+            NodeDataPtr nd = getNodeData(nadr);
           }
 
           unsigned mid = nd->getEmbedOsRead()->getMid();
@@ -425,8 +628,11 @@ namespace iqrf {
 
               //Get peripheral information for sensor, binout and TODO other std if presented
               if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per) {
-                embed::explore::PeripheralInformationPtr peripheralInformationPtr = m_iEnumerateService->getPeripheralInformationData(nadr, per);
-                int version = peripheralInformationPtr->getPar1();
+                
+                embed::explore::RawDpaPeripheralInformation perInfo(nadr, per);
+                perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.encodeRequest())->get());
+                
+                int version = perInfo.getPar1();
                 //TODO temp workaround
                 if (PERIF_STANDARD_SENSOR == per) version = 15;
                 perVerMap.insert(std::make_pair(per, version));
@@ -504,7 +710,7 @@ namespace iqrf {
       wrapperStr = strStream.str();
 
       // get parameters of coordinator - used to select drivers for all other nodes
-      IEnumerateService::INodeDataPtr cd = m_iEnumerateService->getNodeData(0);
+      NodeDataPtr cd = getNodeData(0);
 
       int hwpid = cd->getHwpid();
       int hwpidVar = cd->getEmbedExploreEnumerate()->getHwpidVer();
@@ -969,7 +1175,8 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
 
-      IEnumerateService::IStandardBinaryOutputDataPtr bout = m_iEnumerateService->getStandardBinaryOutputData(nadr);
+      binaryoutput::JsDriverEnumerate binoutEnum(m_iJsRenderService, nadr);
+      binoutEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(binoutEnum.encodeRequest())->get());
 
       database & db = *m_db;
 
@@ -982,7 +1189,7 @@ namespace iqrf {
         ")  values ( "
         "?, ?"
         ");"
-        << deviceId << bout->getBinaryOutputsNum();
+        << deviceId << binoutEnum.getBinaryOutputsNum();
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -991,8 +1198,10 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
 
-      IEnumerateService::IStandardSensorDataPtr sen = m_iEnumerateService->getStandardSensorData(nadr);
-      auto const & sensors = sen->getSensors();
+      sensor::JsDriverEnumerate sensorEnum(m_iJsRenderService, nadr);
+      sensorEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(sensorEnum.encodeRequest())->get());
+      
+      auto const & sensors = sensorEnum.getSensors();
       int idx = 0;
 
       database & db = *m_db;
@@ -1033,72 +1242,6 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-
-    /*
-        void insertSensor(unsigned mid, int nadr, int per)
-        {
-          if (PERIF_STANDARD_SENSOR != per)
-            return;
-
-          //TODO per1 holds Standard version
-          //IEnumerateService::IPeripheralInformationDataPtr pi = m_iEnumerateService->getPeripheralInformationData(nadr, PERIF_STANDARD_SENSOR);
-
-          IEnumerateService::IStandardSensorDataPtr sen = m_iEnumerateService->getStandardSensorData(nadr);
-          auto const & sensors = sen->getSensors();
-
-          database & db = *m_db;
-          int idx = 0;
-
-          for (auto const & sen : sensors) {
-            const auto & f = sen->getFrcs();
-            const auto & e = sen->getFrcs().end();
-
-            int frc2bit = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BITS));
-            int frc1byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_1BYTE));
-            int frc2byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_2BYTES));
-            int frc4byte = (int)(e != f.find(iqrf::sensor::STD_SENSOR_FRC_4BYTES));
-
-            db << "insert into Sensor ("
-              "Mid"
-              ", Idx"
-              ", Sid"
-              ", Stype"
-              ", Name"
-              ", SName"
-              ", Unit"
-              ", Dplac"
-              ", Frc2bit"
-              ", Frc1byte"
-              ", Frc2byte"
-              ", Frc4byte"
-              ")  values ( "
-              "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
-              ");"
-              << mid << idx++ << sen->getSid() << sen->getType() << sen->getName() << sen->getShortName() << sen->getUnit() << sen->getDecimalPlaces()
-              << frc2bit << frc1byte << frc2byte << frc4byte;
-            ;
-          }
-        }
-
-        void insertBinout(unsigned mid, int nadr, int per)
-        {
-          if (PERIF_STANDARD_BINOUT != per)
-            return;
-
-          IEnumerateService::IStandardBinaryOutputDataPtr bout = m_iEnumerateService->getStandardBinaryOutputData(nadr);
-
-          database & db = *m_db;
-
-          db << "insert into Binout ("
-            "Mid"
-            ", Num"
-            ")  values ( "
-            "?, ?"
-            ");"
-            << mid << bout->getBinaryOutputsNum();
-        }
-    */
-
     void attachInterface(iqrf::IJsRenderService* iface)
     {
       TRC_FUNCTION_ENTER(PAR(iface));
@@ -1127,22 +1270,6 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(iface));
       if (m_iJsCacheService == iface) {
         m_iJsCacheService = nullptr;
-      }
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void attachInterface(iqrf::IEnumerateService* iface)
-    {
-      TRC_FUNCTION_ENTER(PAR(iface));
-      m_iEnumerateService = iface;
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void detachInterface(iqrf::IEnumerateService* iface)
-    {
-      TRC_FUNCTION_ENTER(PAR(iface));
-      if (m_iEnumerateService == iface) {
-        m_iEnumerateService = nullptr;
       }
       TRC_FUNCTION_LEAVE("")
     }
@@ -1276,16 +1403,6 @@ namespace iqrf {
   }
 
   void IqrfInfo::detachInterface(iqrf::IJsCacheService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
-  void IqrfInfo::attachInterface(iqrf::IEnumerateService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void IqrfInfo::detachInterface(iqrf::IEnumerateService* iface)
   {
     m_imp->detachInterface(iface);
   }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RawDpaCommandSolver.h"
+#include "DpaCommandSolver.h"
 #include "EmbedCoordinator.h"
 
 namespace iqrf
@@ -10,38 +10,59 @@ namespace iqrf
     namespace coordinator
     {
       ////////////////
-      class RawDpaBondedDevices : public BondedDevices, public RawDpaCommandSolver
+      class RawDpaBondedDevices : public BondedDevices, public DpaCommandSolver
       {
       public:
         RawDpaBondedDevices()
-          :RawDpaCommandSolver(COORDINATOR_ADDRESS, PNUM_COORDINATOR, CMD_COORDINATOR_BONDED_DEVICES)
+          :DpaCommandSolver(COORDINATOR_ADDRESS, PNUM_COORDINATOR, CMD_COORDINATOR_BONDED_DEVICES)
+        {}
+
+        virtual ~RawDpaBondedDevices()
+        {}
+
+        DpaMessage encodeRequest() override
         {
+          DpaMessage request;
+          initRequestHeader(request);
+          return request;
         }
 
-        void parseResponse() override
+      protected:
+        void parseResponse(const DpaMessage & dpaResponse) override
         {
-          const uint8_t* bonded = m_dpaTransactionResult2->getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+          const uint8_t* bonded = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
           m_bondedDevices = bitmapToIndexes(bonded, 0, 29, 0);
         }
-
       };
+      typedef std::unique_ptr<RawDpaBondedDevices> RawDpaBondedDevicesPtr;
 
       ////////////////
-      class RawDpaDiscoveredDevices : public DiscoveredDevices, public RawDpaCommandSolver
+      class RawDpaDiscoveredDevices : public DiscoveredDevices, public DpaCommandSolver
       {
       public:
         RawDpaDiscoveredDevices()
-          :RawDpaCommandSolver(COORDINATOR_ADDRESS, PNUM_COORDINATOR, CMD_COORDINATOR_DISCOVERED_DEVICES)
+          :DpaCommandSolver(COORDINATOR_ADDRESS, PNUM_COORDINATOR, CMD_COORDINATOR_DISCOVERED_DEVICES)
         {
         }
 
-        void parseResponse() override
+        virtual ~RawDpaDiscoveredDevices()
+        {}
+
+        DpaMessage encodeRequest() override
         {
-          const uint8_t* discovered = m_dpaTransactionResult2->getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+          DpaMessage request;
+          initRequestHeader(request);
+          return request;
+        }
+
+      protected:
+        void parseResponse(const DpaMessage & dpaResponse) override
+        {
+          const uint8_t* discovered = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
           m_discoveredDevices = bitmapToIndexes(discovered, 0, 29, 0);
         }
-
       };
+      typedef std::unique_ptr<RawDpaDiscoveredDevices> RawDpaDiscoveredDevicesPtr;
 
     } //namespace coordinator
   } //namespace embed

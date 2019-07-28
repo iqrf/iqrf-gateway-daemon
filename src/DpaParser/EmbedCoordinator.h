@@ -35,10 +35,10 @@ namespace iqrf
       protected:
         std::set<int> m_discoveredDevices;
 
-      public:
         DiscoveredDevices()
         {}
 
+      public:
         virtual ~DiscoveredDevices()
         {}
 
