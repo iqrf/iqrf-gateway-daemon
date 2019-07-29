@@ -7,6 +7,8 @@
 #include "RawDpaEmbedOS.h"
 #include "JsDriverBinaryOutput.h"
 #include "JsDriverSensor.h"
+#include "InfoSensor.h"
+#include "InfoBinaryOutput.h"
 
 #include "Trace.h"
 #include "rapidjson/pointer.h"
@@ -25,16 +27,16 @@ namespace iqrf {
   const int PERIF_STANDARD_SENSOR = 94;
   const int PERIF_STANDARD_BINOUT = 75;
 
-  namespace sensor {
-    //FRC command to return 2 - bits sensor data of the supporting sensor types.
-    const int STD_SENSOR_FRC_2BITS = 0x10;
-    //FRC command to return 1-byte wide sensor data of the supporting sensor types.
-    const int STD_SENSOR_FRC_1BYTE = 0x90;
-    //FRC command to return 2-bytes wide sensor data of the supporting sensor types.
-    const int STD_SENSOR_FRC_2BYTES = 0xE0;
-    //FRC command to return 4-bytes wide sensor data of the supporting sensor types.
-    const int STD_SENSOR_FRC_4BYTES = 0xF9;
-  }
+  //namespace sensor {
+  //  //FRC command to return 2 - bits sensor data of the supporting sensor types.
+  //  const int STD_SENSOR_FRC_2BITS = 0x10;
+  //  //FRC command to return 1-byte wide sensor data of the supporting sensor types.
+  //  const int STD_SENSOR_FRC_1BYTE = 0x90;
+  //  //FRC command to return 2-bytes wide sensor data of the supporting sensor types.
+  //  const int STD_SENSOR_FRC_2BYTES = 0xE0;
+  //  //FRC command to return 4-bytes wide sensor data of the supporting sensor types.
+  //  const int STD_SENSOR_FRC_4BYTES = 0xF9;
+  //}
 
   class SqlFile
   {
@@ -1242,6 +1244,79 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    ////////////////////////////////////////
+    // Interface Implementation
+    ////////////////////////////////////////
+
+    std::map<int, sensor::EnumeratePtr> getSensors() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::map<int, sensor::EnumeratePtr> retval;
+      database & db = *m_db;
+
+      db <<
+        "select "
+        "b.Nadr "
+        ", s.Sid, s.Stype, s.Name, s.Sname, s.Unit, s.Dplac, s.Frc2bit, s.Frc1byte, s.Frc2byte, s.Frc4byte "
+        "from "
+        "Bonded as b "
+        ", Device as d "
+        ", Sensor as s "
+        "where "
+        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) and "
+        "d.Id = s.DeviceId "
+        ";"
+        >> [&](int nadr,
+          std::string sid, int stype, std::string name, std::string sname, std::string unit, int dplac,
+          int frc2bit, int frc1byte, int frc2byte, int frc4byte)
+      {
+        std::set<int> frcs;
+        if (frc2bit == 1) frcs.insert(iqrf::sensor::STD_SENSOR_FRC_2BITS);
+        if (frc1byte == 1) frcs.insert(iqrf::sensor::STD_SENSOR_FRC_1BYTE);
+        if (frc2byte == 1) frcs.insert(iqrf::sensor::STD_SENSOR_FRC_2BYTES);
+        if (frc4byte == 1) frcs.insert(iqrf::sensor::STD_SENSOR_FRC_4BYTES);
+
+        sensor::InfoEnumerate::InfoSensorPtr infoSensorPtr(shape_new sensor::InfoEnumerate::InfoSensor(sid, stype, name, sname, unit, dplac, frcs));
+        sensor::EnumeratePtr & enumeratePtr = retval[nadr];
+        if (!enumeratePtr) {
+          enumeratePtr.reset(shape_new sensor::InfoEnumerate());
+        }
+        dynamic_cast<sensor::InfoEnumerate*>(enumeratePtr.get())->addInfoSensor(std::move(infoSensorPtr));
+      };
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    std::map<int, binaryoutput::EnumeratePtr> getBinaryOutputs() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::map<int, binaryoutput::EnumeratePtr> retval;
+      database & db = *m_db;
+
+      db <<
+        "select "
+        "b.Nadr "
+        ", o.Num "
+        "from "
+        "Bonded as b "
+        ", Device as d "
+        ", Binout as o "
+        "where "
+        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) and "
+        "d.Id = o.DeviceId "
+        ";"
+        >> [&](int nadr, int num)
+      {
+        retval.insert(std::make_pair(nadr, binaryoutput::InfoEnumeratePtr(shape_new binaryoutput::InfoEnumerate(num))));
+      };
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
     void attachInterface(iqrf::IJsRenderService* iface)
     {
       TRC_FUNCTION_ENTER(PAR(iface));
@@ -1370,6 +1445,16 @@ namespace iqrf {
   IqrfInfo::~IqrfInfo()
   {
     delete m_imp;
+  }
+
+  std::map<int, sensor::EnumeratePtr> IqrfInfo::getSensors() const
+  {
+    return m_imp->getSensors();
+  }
+
+  std::map<int, binaryoutput::EnumeratePtr> IqrfInfo::getBinaryOutputs() const
+  {
+    return m_imp->getBinaryOutputs();
   }
 
   void IqrfInfo::activate(const shape::Properties *props)

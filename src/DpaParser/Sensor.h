@@ -8,6 +8,15 @@ namespace iqrf
 {
   namespace sensor
   {
+    //FRC command to return 2 - bits sensor data of the supporting sensor types.
+    const int STD_SENSOR_FRC_2BITS = 0x10;
+    //FRC command to return 1-byte wide sensor data of the supporting sensor types.
+    const int STD_SENSOR_FRC_1BYTE = 0x90;
+    //FRC command to return 2-bytes wide sensor data of the supporting sensor types.
+    const int STD_SENSOR_FRC_2BYTES = 0xE0;
+    //FRC command to return 4-bytes wide sensor data of the supporting sensor types.
+    const int STD_SENSOR_FRC_4BYTES = 0xF9;
+
     ////////////////
     class Enumerate
     {
@@ -33,6 +42,17 @@ namespace iqrf
         int getDecimalPlaces() const { return m_decimalPlaces; }
         const std::set<int> & getFrcs() const { return m_frcs; }
         //TODO breakdown - array : [optional] see <iqrf.sensor.ReadSensorsWithTypes_Response> for more information.
+
+        //const Sensor & operator = (const Sensor & o)
+        //{
+        //  m_sid;
+        //  m_type;
+        //  m_name;
+        //  m_shortName;
+        //  m_unit;
+        //  m_decimalPlaces = 1;
+        //  m_frcs;
+        //}
 
         virtual ~Sensor() {}
       };
