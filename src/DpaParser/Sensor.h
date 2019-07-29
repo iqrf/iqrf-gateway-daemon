@@ -3,6 +3,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <memory>
 
 namespace iqrf
 {
@@ -42,17 +43,6 @@ namespace iqrf
         int getDecimalPlaces() const { return m_decimalPlaces; }
         const std::set<int> & getFrcs() const { return m_frcs; }
         //TODO breakdown - array : [optional] see <iqrf.sensor.ReadSensorsWithTypes_Response> for more information.
-
-        //const Sensor & operator = (const Sensor & o)
-        //{
-        //  m_sid;
-        //  m_type;
-        //  m_name;
-        //  m_shortName;
-        //  m_unit;
-        //  m_decimalPlaces = 1;
-        //  m_frcs;
-        //}
 
         virtual ~Sensor() {}
       };
