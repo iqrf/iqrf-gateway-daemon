@@ -58,8 +58,6 @@ namespace iqrf {
       Document doc;
       doc.Parse(m_rawHdpRequestAsStr);
 
-      //uint8_t pnum = 0, pcmd = 0;
-
       if (Value *val = Pointer("/pnum").Get(doc)) {
         parseHexaNum(m_pnum, val->GetString());
       }
@@ -120,7 +118,6 @@ namespace iqrf {
         Document rawHdpRequestDoc;
         rawHdpRequestDoc.Parse(m_rawHdpRequestAsStr);
         const Value & val = rawHdpRequestDoc;
-        //Pointer("/originalRequest").Set(doc, val);
         Pointer("/originalRequest").Set(doc, rawHdpRequestDoc);
       }
 

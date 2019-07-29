@@ -151,82 +151,6 @@ namespace iqrf {
       std::vector<const IJsCacheService::StdDriver *> m_drivers;
     };
 
-  private:
-
-    IJsRenderService* m_iJsRenderService = nullptr;
-    IJsCacheService* m_iJsCacheService = nullptr;
-    IIqrfDpaService* m_iIqrfDpaService = nullptr;
-    shape::ILaunchService* m_iLaunchService = nullptr;
-
-    std::unique_ptr<database> m_db;
-
-    // get m_bonded map according nadr from DB
-    std::map<int, BondNodeDb> m_mapNadrBondNodeDb;
-    // need full enum
-    std::set<int> m_nadrFullEnum;
-    bool m_enumAtStartUp = false;
-    std::thread m_enumThread;
-    bool m_enumThreadRun;
-
-  public:
-    Imp()
-    {
-    }
-
-    ~Imp()
-    {
-    }
-
-    void initDb()
-    {
-      TRC_FUNCTION_ENTER("");
-      try
-      {
-        std::string dataDir = m_iLaunchService->getDataDir();
-        std::string fname = dataDir + "/DB/IqrfInfo.db";
-
-        std::ifstream f(fname);
-        bool dbExists = f.is_open();
-        f.close();
-
-        m_db.reset(shape_new database(fname));
-        database &db = *m_db;
-        db << "PRAGMA foreign_keys=ON";
-
-        if (!dbExists) {
-
-          std::string sqlpath = dataDir;
-          sqlpath += "/DB/";
-          //create tables
-          SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
-        }
-      }
-      catch (sqlite_exception &e)
-      {
-        CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
-      }
-      catch (std::logic_error &e)
-      {
-        CATCH_EXC_TRC_WAR(std::logic_error, e, "Unexpected error ");
-      }
-
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    void runEnum()
-    {
-      TRC_FUNCTION_ENTER("");
-
-      fastEnum();
-      fullEnum();
-      loadDrivers();
-      deepEnum();
-      
-      m_fastEnum.release();
-
-      TRC_FUNCTION_LEAVE("");
-    }
-
     // TODO siplify
     class NodeData
     {
@@ -311,7 +235,7 @@ namespace iqrf {
       const std::set<int> & getBonded() const { return m_bonded; }
       const std::set<int> & getDiscovered() const { return m_discovered; }
       const std::set<int> & getNonDiscovered() const { return m_nonDiscovered; }
-      
+
       void setBondedDiscovered(const std::set<int> &bonded, const std::set<int> &discovered)
       {
         m_bonded = bonded;
@@ -335,7 +259,83 @@ namespace iqrf {
     };
     typedef std::unique_ptr<FastEnumeration> FastEnumerationPtr;
 
+  private:
+
+    IJsRenderService* m_iJsRenderService = nullptr;
+    IJsCacheService* m_iJsCacheService = nullptr;
+    IIqrfDpaService* m_iIqrfDpaService = nullptr;
+    shape::ILaunchService* m_iLaunchService = nullptr;
+
+    std::unique_ptr<database> m_db;
+
+    // get m_bonded map according nadr from DB
+    std::map<int, BondNodeDb> m_mapNadrBondNodeDb;
+    // need full enum
+    std::set<int> m_nadrFullEnum;
+    bool m_enumAtStartUp = false;
+    std::thread m_enumThread;
+    bool m_enumThreadRun;
+
     FastEnumerationPtr m_fastEnum;
+
+  public:
+    Imp()
+    {
+    }
+
+    ~Imp()
+    {
+    }
+
+    void initDb()
+    {
+      TRC_FUNCTION_ENTER("");
+      try
+      {
+        std::string dataDir = m_iLaunchService->getDataDir();
+        std::string fname = dataDir + "/DB/IqrfInfo.db";
+
+        std::ifstream f(fname);
+        bool dbExists = f.is_open();
+        f.close();
+
+        m_db.reset(shape_new database(fname));
+        database &db = *m_db;
+        db << "PRAGMA foreign_keys=ON";
+
+        if (!dbExists) {
+
+          std::string sqlpath = dataDir;
+          sqlpath += "/DB/";
+          //create tables
+          SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
+        }
+      }
+      catch (sqlite_exception &e)
+      {
+        CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+      }
+      catch (std::logic_error &e)
+      {
+        CATCH_EXC_TRC_WAR(std::logic_error, e, "Unexpected error ");
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void runEnum()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      fastEnum();
+      fullEnum();
+      loadDrivers();
+      deepEnum();
+      
+      m_fastEnum.release();
+
+      TRC_FUNCTION_LEAVE("");
+    }
 
     FastEnumerationPtr getFastEnumeration() const
     {
