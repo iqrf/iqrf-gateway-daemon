@@ -1,5 +1,5 @@
 {
   "component": "iqrf::IqrfInfo",
   "instance": "iqrf::IqrfInfo",
-  "enumAtStartUp":  false
+  "enumAtStartUp":  true
 }
