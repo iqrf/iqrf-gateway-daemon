@@ -26,6 +26,7 @@ namespace iqrf {
   class JsonIqrfInfoApi::Imp
   {
   public:
+    ////////////// status conversion
     enum class MsgStatus {
       st_ok,
       st_noDb,
@@ -57,9 +58,11 @@ namespace iqrf {
 
     typedef shape::EnumStringConvertor<MsgStatus, MsgStatusConvertTable> MsgStatusConvertor;
 
-    // msg types as string
+    /////////// msg types as string
     const std::string mType_GetSensors = "infoDaemon_GetSensors";
+    const std::string mType_GetBinaryOutputs = "infoDaemon_GetBinaryOutputs";
 
+    /////////// message classes deklarations
     class InfoDaemonMsg : public ApiMsg
     {
     public:
@@ -123,26 +126,6 @@ namespace iqrf {
       {
       }
 
-      /*
-      sensorDevices [
-      {
-        nadr: 1,
-        sensors: [
-          m_sid = jutils::getPossibleMemberAs<std::string>("id", v, m_sid);
-          m_type = jutils::getMemberAs<int>("type", v);
-          m_name = jutils::getMemberAs<std::string>("name", v);
-          m_shortName = jutils::getMemberAs<std::string>("shortName", v);
-          m_unit = jutils::getMemberAs<std::string>("unit", v);
-          //TODO id is not set by driver
-          m_decimalPlaces = jutils::getPossibleMemberAs<int>("decimalPlaces", v, m_decimalPlaces);
-          {
-            auto vect = jutils::getMemberAsVector<int>("frcs", v);
-
-        ]
-      }
-      ]
-      */
-
       void createResponsePayload(rapidjson::Document& doc) override
       {
         Document::AllocatorType & a = doc.GetAllocator();
@@ -199,7 +182,55 @@ namespace iqrf {
       std::map<int, sensor::EnumeratePtr> m_enmMap;
     };
 
-  
+    //////////////////////////////////////////////
+    class InfoDaemonMsgGetBinaryOutputs : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgGetBinaryOutputs() = delete;
+      InfoDaemonMsgGetBinaryOutputs(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+      }
+
+      virtual ~InfoDaemonMsgGetBinaryOutputs()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        Document::AllocatorType & a = doc.GetAllocator();
+
+        Value devicesVal;
+        devicesVal.SetArray();
+
+        for (auto & enm : m_enmMap) {
+          Value devVal;
+
+          Pointer("/nadr").Set(devVal, enm.first, a);
+          Pointer("/binOuts").Set(devVal, enm.second->getBinaryOutputsNum(), a);
+
+          devicesVal.PushBack(devVal, a);
+        }
+
+        Pointer("/data/rsp/binOutsDevices").Set(doc, devicesVal, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        m_enmMap = imp->getBinaryOutputs();
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      std::map<int, binaryoutput::EnumeratePtr> m_enmMap;
+    };
+
+  ///////////////////// Imp members
   private:
 
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
@@ -216,6 +247,7 @@ namespace iqrf {
     Imp()
     {
       m_objectFactory.registerClass<InfoDaemonMsgGetSensors>(mType_GetSensors);
+      m_objectFactory.registerClass<InfoDaemonMsgGetBinaryOutputs>(mType_GetBinaryOutputs);
     }
 
     ~Imp()
