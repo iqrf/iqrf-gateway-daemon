@@ -1,8 +1,8 @@
 #pragma once
 
 #include "JsDriverDpaCommandSolver.h"
+#include "EmbedEEEPROM.h"
 #include "JsonUtils.h"
-#include <vector>
 
 namespace iqrf 
 {
@@ -11,21 +11,12 @@ namespace iqrf
     namespace eeeprom
     {
       ////////////////
-      class JsDriverRead : public JsDriverDpaCommandSolver
+      class JsDriverRead : public Read, public JsDriverDpaCommandSolver
       {
-      private:
-        //params
-        uint16_t m_address;
-        uint8_t m_len;
-
-        //response
-        std::vector<int> m_pdata;
-
       public:
         JsDriverRead(IJsRenderService* iJsRenderService, uint16_t nadr, uint16_t address, uint8_t len)
           :JsDriverDpaCommandSolver(iJsRenderService, nadr)
-          ,m_address(address)
-          ,m_len(len)
+          ,Read(address, len)
         {}
 
         virtual ~JsDriverRead()
@@ -58,11 +49,6 @@ namespace iqrf
           //TODO use rapidjson::pointers ?
           m_pdata = jutils::getMemberAsVector<int>("pData", v);
         }
-
-        // get data as returned from driver
-        const std::vector<int> & getPdata() const { return m_pdata; }
-
-        // get more detailed data parsing
 
       };
 
