@@ -18,6 +18,7 @@ namespace iqrf {
     uint16_t m_hwpid;
     uint8_t m_rcode;
     uint8_t m_dpaval;
+    bool m_asyncResponse;
     std::vector<uint8_t> m_rdata;
     std::unique_ptr<IDpaTransactionResult2> m_dpaTransactionResult2;
     DpaMessage m_request;
@@ -34,6 +35,7 @@ namespace iqrf {
       , m_hwpid(0xFFFF)
       , m_rcode(0)
       , m_dpaval(0)
+      , m_asyncResponse(false)
     {}
 
     DpaCommandSolver(uint16_t nadr, uint16_t hwpid)
@@ -43,6 +45,7 @@ namespace iqrf {
       , m_hwpid(hwpid)
       , m_rcode(0)
       , m_dpaval(0)
+      , m_asyncResponse(false)
     {}
 
     DpaCommandSolver(uint16_t nadr, uint8_t pnum, uint8_t pcmd)
@@ -52,6 +55,7 @@ namespace iqrf {
       , m_hwpid(0xFFFF)
       , m_rcode(0)
       , m_dpaval(0)
+      , m_asyncResponse(false)
     {}
 
     DpaCommandSolver(uint16_t nadr, uint8_t pnum, uint8_t pcmd, uint16_t hwpid)
@@ -61,6 +65,7 @@ namespace iqrf {
       , m_hwpid(hwpid)
       , m_rcode(0)
       , m_dpaval(0)
+      , m_asyncResponse(false)
     {}
 
     uint16_t getNadr() const { return m_nadr; }
@@ -68,7 +73,8 @@ namespace iqrf {
     uint8_t getPnum() const { return m_pnum; }
     uint8_t getPcmd() const { return m_pcmd; }
     uint8_t getRcode() const { return m_rcode; }
-    bool isAsyncRcode() const { return (m_rcode & STATUS_ASYNC_RESPONSE) != 0; }
+    bool isAsyncRcode() const { return m_asyncResponse; }
+  
     uint8_t getDpaval() const { return m_dpaval; }
     const std::vector<uint8_t> & getRdata() const { return m_rdata; }
 
@@ -81,11 +87,11 @@ namespace iqrf {
 
     void processAsyncResponse(const DpaMessage & dpaResponse)
     {
+      processResponse(dpaResponse);
       if (!isAsyncRcode()) {
         THROW_EXC_TRC_WAR(std::logic_error, "Invalid async response code:"
           << NAME_PAR(expected, (int)STATUS_ASYNC_RESPONSE) << NAME_PAR(delivered, getRcode()));
       }
-      processResponse(dpaResponse);
     }
 
     void processDpaTransactionResult(std::unique_ptr<IDpaTransactionResult2> res)
@@ -161,6 +167,8 @@ namespace iqrf {
 
       m_hwpid = rp.HWPID;
       m_rcode = rp.ResponseCode;
+      m_asyncResponse = (m_rcode & STATUS_ASYNC_RESPONSE) != 0;
+      m_rcode &= (uint8_t)0x7F;
       m_dpaval = rp.DpaValue;
 
       if (0 != m_rcode) {

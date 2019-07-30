@@ -35,7 +35,7 @@ namespace iqrf
       protected:
         void parseResponse(const DpaMessage & dpaResponse) override
         {
-          const TEnumPeripheralsAnswer & resp = m_dpaTransactionResult2->getResponse().DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
+          const TEnumPeripheralsAnswer & resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
 
           m_dpaVer = (int)resp.DpaVersion;
           m_perNr = (int)resp.UserPerNr;
