@@ -5,7 +5,6 @@
 #include "IqrfDpa.h"
 #include "RawDpaEmbedOS.h"
 #include "RawDpaEmbedExplore.h"
-#include "PrfEnum.h"
 #include "Trace.h"
 #include "rapidjson/pointer.h"
 #include "iqrf__IqrfDpa.hxx"
