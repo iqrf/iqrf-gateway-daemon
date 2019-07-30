@@ -27,17 +27,6 @@ namespace iqrf {
   const int PERIF_STANDARD_SENSOR = 94;
   const int PERIF_STANDARD_BINOUT = 75;
 
-  //namespace sensor {
-  //  //FRC command to return 2 - bits sensor data of the supporting sensor types.
-  //  const int STD_SENSOR_FRC_2BITS = 0x10;
-  //  //FRC command to return 1-byte wide sensor data of the supporting sensor types.
-  //  const int STD_SENSOR_FRC_1BYTE = 0x90;
-  //  //FRC command to return 2-bytes wide sensor data of the supporting sensor types.
-  //  const int STD_SENSOR_FRC_2BYTES = 0xE0;
-  //  //FRC command to return 4-bytes wide sensor data of the supporting sensor types.
-  //  const int STD_SENSOR_FRC_4BYTES = 0xF9;
-  //}
-
   class SqlFile
   {
   public:
