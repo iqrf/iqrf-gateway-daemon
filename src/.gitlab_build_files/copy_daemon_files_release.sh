@@ -43,16 +43,12 @@ cp iqrf-daemon-source/src/start-IqrfDaemon/configuration-LinDeployRelease/*.json
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__OtaUploadService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__AutonetworkService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__IqrfInfo.json
-rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__JsDriverService.json
-rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__EnumerateService.json
 
 cp -r iqrf-daemon-source/src/start-IqrfDaemon/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
 # NOT YET TO RELEASE
 rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__OtaUploadService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__AutonetworkService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__IqrfInfo.json
-rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__JsDriverService.json
-rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__EnumerateService.json
 
 # BIN
 cp iqrf-daemon-build/bin/iqrfgd2 ${DEPLOY}${IQRFGD2_BIN}/iqrfgd2
@@ -61,8 +57,6 @@ cp iqrf-daemon-build/bin/*.so ${DEPLOY}${IQRFGD2_LIBS}
 rm ${DEPLOY}${IQRFGD2_LIBS}/libOtaUploadService.so
 rm ${DEPLOY}${IQRFGD2_LIBS}/libAutonetworkService.so
 rm ${DEPLOY}${IQRFGD2_LIBS}/libIqrfInfo.so
-rm ${DEPLOY}${IQRFGD2_LIBS}/libJsDriverService.so
-rm ${DEPLOY}${IQRFGD2_LIBS}/libEnumerateService.so
 
 # SHARE
 mkdir -p ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas

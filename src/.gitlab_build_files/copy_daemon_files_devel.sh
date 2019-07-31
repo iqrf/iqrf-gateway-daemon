@@ -38,32 +38,18 @@ echo "Daemon folders created."
 
 # CFG
 cp iqrf-daemon-source/src/start-IqrfDaemon/configuration/*.json ${DEPLOY}${IQRFGD2_CFG}
-cp iqrf-daemon-source/src/start-IqrfDaemon/configuration-LinDeployDevel/*.json ${DEPLOY}${IQRFGD2_CFG}
-# NOT YET BETA
-rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__IqrfInfo.json
-rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__JsDriverService.json
-rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__EnumerateService.json
-
+cp iqrf-daemon-source/src/start-IqrfDaemon/configuration-LinDeploy/*.json ${DEPLOY}${IQRFGD2_CFG}
 cp -r iqrf-daemon-source/src/start-IqrfDaemon/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
-# NOT YET BETA
-rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__IqrfInfo.json
-rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__JsDriverService.json
-rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__EnumerateService.json
 
 # BIN
 cp iqrf-daemon-build/bin/iqrfgd2 ${DEPLOY}${IQRFGD2_BIN}/iqrfgd2
 cp iqrf-daemon-build/bin/*.so ${DEPLOY}${IQRFGD2_LIBS}
-# NOT YET BETA
-rm ${DEPLOY}${IQRFGD2_LIBS}/libIqrfInfo.so
-rm ${DEPLOY}${IQRFGD2_LIBS}/libJsDriverService.so
-rm ${DEPLOY}${IQRFGD2_LIBS}/libEnumerateService.so
 
 # SHARE
 mkdir -p ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas
 cp -r iqrf-daemon-source/api/*.json ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/
-# NOT YET BETA
-
 cp -r iqrf-daemon-source/src/start-IqrfDaemon/javaScript ${DEPLOY}${IQRFGD2_SHARE}
+cp -r iqrf-daemon-source/src/start-IqrfDaemon/DB ${DEPLOY}${IQRFGD2_SHARE}
 
 # CACHE
 cp -r iqrf-daemon-source/src/start-IqrfDaemon/scheduler ${DEPLOY}${IQRFGD2_CACHE}
