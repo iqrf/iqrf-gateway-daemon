@@ -85,6 +85,13 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::IqrfInfo",
+      "libraryPath": "",
+      "libraryName": "IqrfInfo",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::MonitorService",
       "libraryPath": "",
       "libraryName": "MonitorService",
@@ -165,6 +172,13 @@
       "name": "iqrf::JsonMngMetaDataApi",
       "libraryPath": "",
       "libraryName": "JsonMngMetaDataApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsonIqrfInfoApi",
+      "libraryPath": "",
+      "libraryName": "JsonIqrfInfoApi",
       "enabled": true,
       "startlevel": 2
     },
