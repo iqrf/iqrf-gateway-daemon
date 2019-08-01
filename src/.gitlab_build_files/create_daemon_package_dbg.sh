@@ -16,7 +16,7 @@ fi
 
 if [ ${DIST} == "buster" ];
 then
-    if [ ${VER} == "release"];
+    if [ ${VER} == "release" ];
     then
         fpm \
         -t deb \
@@ -78,7 +78,7 @@ then
     fi
 elif [ ${DIST} == "stretch" ];
 then
-    if [ ${VER} == "release"];
+    if [ ${VER} == "release" ];
     then
         fpm \
         -t deb \
@@ -140,7 +140,7 @@ then
     fi
 elif [ ${DIST} == "xenial" ];
 then
-    if [ ${VER} == "release"];
+    if [ ${VER} == "release" ];
     then
         fpm \
         -t deb \
@@ -202,7 +202,7 @@ then
     fi    
 elif [ ${DIST} == "bionic" ];
 then
-    if [ ${VER} == "release"];
+    if [ ${VER} == "release" ];
     then
         fpm \
         -t deb \

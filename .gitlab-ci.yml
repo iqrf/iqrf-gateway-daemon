@@ -90,8 +90,8 @@ stages:
     ARCH: "armhf"
     ARCH_PREFIX: "rpi-"
     DIST: "buster"
-    CFLAGS: "-march=armv6 -mfpu=vfp -mfloat-abi=hard"
-    CXXFLAGS: "-march=armv6 -mfpu=vfp -mfloat-abi=hard"
+    CFLAGS: "-marm -march=armv6 -mfpu=vfp -mfloat-abi=hard"
+    CXXFLAGS: "-marm -march=armv6 -mfpu=vfp -mfloat-abi=hard"
   tags:
     - linux, armhf
 
@@ -101,8 +101,8 @@ stages:
     ARCH: "armhf"
     ARCH_PREFIX: "rpi-"
     DIST: "stretch"
-    CFLAGS: "-march=armv6 -mfpu=vfp -mfloat-abi=hard"
-    CXXFLAGS: "-march=armv6 -mfpu=vfp -mfloat-abi=hard"
+    CFLAGS: "-marm -march=armv6 -mfpu=vfp -mfloat-abi=hard"
+    CXXFLAGS: "-marm -march=armv6 -mfpu=vfp -mfloat-abi=hard"
   tags:
     - linux, armhf
 
@@ -137,7 +137,6 @@ stages:
 
 .package-template:
   stage: build-package
-  extends: .ssh_template
   dependencies: []
   script:
     - git clone https://github.com/logimic/shape.git shape-source
@@ -170,6 +169,16 @@ stages:
   before_script:
     - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
     - export STABULITY=devel
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+    - git submodule init
+    - git submodule update
 
 .package-release-template: &package-release-template
   only:
@@ -177,10 +186,19 @@ stages:
   extends: .package-template
   before_script:
     - export STABULITY=stable
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+    - git submodule init
+    - git submodule update
 
 .package_debug-template:
   stage: build-package
-  extends: .ssh_template
   dependencies: []
   script:
     - git clone https://github.com/logimic/shape.git shape-source
@@ -213,6 +231,16 @@ stages:
     - export BUILD_TYPE=devel
     - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
     - export STABULITY=devel
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+    - git submodule init
+    - git submodule update
 
 .package_debug-release-template: &package_debug-release-template
   only:
@@ -222,6 +250,16 @@ stages:
     - export BUILD_TYPE=release
     - export DAEMON_VERSION="$CI_COMMIT_TAG"
     - export STABULITY=stable
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+    - git submodule init
+    - git submodule update
 
 .api-template: &api-template
   stage: deploy-api

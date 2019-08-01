@@ -37,14 +37,14 @@ mkdir -p ${DEPLOY}${IQRFGD2_SERVICE}
 echo "Daemon folders created."
 
 # CFG
-cp iqrf-daemon-source/src/start-IqrfDaemon/configuration/*.json ${DEPLOY}${IQRFGD2_CFG}
-cp iqrf-daemon-source/src/start-IqrfDaemon/configuration-LinDeployRelease/*.json ${DEPLOY}${IQRFGD2_CFG}
+cp src/start-IqrfDaemon/configuration/*.json ${DEPLOY}${IQRFGD2_CFG}
+cp src/start-IqrfDaemon/configuration-LinDeployRelease/*.json ${DEPLOY}${IQRFGD2_CFG}
 # NOT YET TO RELEASE
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__OtaUploadService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__AutonetworkService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__IqrfInfo.json
 
-cp -r iqrf-daemon-source/src/start-IqrfDaemon/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
+cp -r src/start-IqrfDaemon/cfgSchemas ${DEPLOY}${IQRFGD2_CFG}
 # NOT YET TO RELEASE
 rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__OtaUploadService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/cfgSchemas/schema__iqrf__AutonetworkService.json
@@ -60,20 +60,20 @@ rm ${DEPLOY}${IQRFGD2_LIBS}/libIqrfInfo.so
 
 # SHARE
 mkdir -p ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas
-cp -r iqrf-daemon-source/api/*.json ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas
+cp -r api/*.json ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas
 # NOT YET TO RELEASE
 rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/iqmeshNetwork_OtaUpload*.json
 rm ${DEPLOY}${IQRFGD2_SHARE}/apiSchemas/iqmeshNetwork_AutoNetwork*.json
 
-cp -r iqrf-daemon-source/src/start-IqrfDaemon/javaScript ${DEPLOY}${IQRFGD2_SHARE}
+cp -r src/start-IqrfDaemon/javaScript ${DEPLOY}${IQRFGD2_SHARE}
 
 # CACHE
-cp -r iqrf-daemon-source/src/start-IqrfDaemon/scheduler ${DEPLOY}${IQRFGD2_CACHE}
-cp -r iqrf-daemon-source/src/start-IqrfDaemon/metaData ${DEPLOY}${IQRFGD2_CACHE}
-cp -r iqrf-daemon-source/src/start-IqrfDaemon/iqrfRepoCache ${DEPLOY}${IQRFGD2_CACHE}
+cp -r src/start-IqrfDaemon/scheduler ${DEPLOY}${IQRFGD2_CACHE}
+cp -r src/start-IqrfDaemon/metaData ${DEPLOY}${IQRFGD2_CACHE}
+cp -r src/start-IqrfDaemon/iqrfRepoCache ${DEPLOY}${IQRFGD2_CACHE}
 
 # SERVICE
-cp iqrf-daemon-source/src/start-IqrfDaemon/systemd/*.service ${DEPLOY}${IQRFGD2_SERVICE}
+cp src/start-IqrfDaemon/systemd/*.service ${DEPLOY}${IQRFGD2_SERVICE}
 
 # SHAPE
 cp shape-libs${IQRFGD2_LIBS}/* ${DEPLOY}${IQRFGD2_LIBS}
