@@ -168,7 +168,7 @@ stages:
   extends: .package-template
   before_script:
     - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
-    - export STABULITY=devel
+    - export STABILITY=devel
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - eval $(ssh-agent -s)
@@ -185,7 +185,7 @@ stages:
     - tags
   extends: .package-template
   before_script:
-    - export STABULITY=stable
+    - export STABILITY=stable
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - eval $(ssh-agent -s)
@@ -230,7 +230,7 @@ stages:
   before_script:
     - export BUILD_TYPE=devel
     - export DAEMON_VERSION=v2.2.0-beta~${CI_PIPELINE_ID}
-    - export STABULITY=devel
+    - export STABILITY=devel
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - eval $(ssh-agent -s)
@@ -249,7 +249,7 @@ stages:
   before_script:
     - export BUILD_TYPE=release
     - export DAEMON_VERSION="$CI_COMMIT_TAG"
-    - export STABULITY=stable
+    - export STABILITY=stable
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - eval $(ssh-agent -s)
