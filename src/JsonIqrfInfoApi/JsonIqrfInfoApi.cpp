@@ -62,7 +62,7 @@ namespace iqrf {
     const std::string mType_GetSensors = "infoDaemon_GetSensors";
     const std::string mType_GetBinaryOutputs = "infoDaemon_GetBinaryOutputs";
 
-    /////////// message classes deklarations
+    /////////// message classes declarations
     class InfoDaemonMsg : public ApiMsg
     {
     public:
@@ -141,6 +141,7 @@ namespace iqrf {
           for (auto & s : enm.second->getSensors()) {
             // particular sensor
             Value senVal;
+            Pointer("/idx").Set(senVal, s->getIdx(), a);
             Pointer("/id").Set(senVal, s->getSid(), a);
             Pointer("/type").Set(senVal, s->getType(), a);
             Pointer("/name").Set(senVal, s->getName(), a);

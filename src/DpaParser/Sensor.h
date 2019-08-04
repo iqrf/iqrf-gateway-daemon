@@ -25,6 +25,7 @@ namespace iqrf
       class Sensor
       {
       protected:
+        int m_idx;
         std::string m_sid;
         int m_type;
         std::string m_name;
@@ -35,6 +36,7 @@ namespace iqrf
         //TODO breakdown - array : [optional] see <iqrf.sensor.ReadSensorsWithTypes_Response> for more information.
 
       public:
+        int getIdx() const { return m_idx; }
         const std::string & getSid() const { return m_sid; }
         int getType() const { return m_type; }
         const std::string & getName() const { return m_name; }

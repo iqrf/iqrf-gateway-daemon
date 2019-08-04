@@ -1247,7 +1247,7 @@ namespace iqrf {
       db <<
         "select "
         "b.Nadr "
-        ", s.Sid, s.Stype, s.Name, s.Sname, s.Unit, s.Dplac, s.Frc2bit, s.Frc1byte, s.Frc2byte, s.Frc4byte "
+        ", s.Idx, s.Sid, s.Stype, s.Name, s.Sname, s.Unit, s.Dplac, s.Frc2bit, s.Frc1byte, s.Frc2byte, s.Frc4byte "
         "from "
         "Bonded as b "
         ", Device as d "
@@ -1255,9 +1255,10 @@ namespace iqrf {
         "where "
         "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) and "
         "d.Id = s.DeviceId "
+        "order by s.Idx "
         ";"
         >> [&](int nadr,
-          std::string sid, int stype, std::string name, std::string sname, std::string unit, int dplac,
+          int idx, std::string sid, int stype, std::string name, std::string sname, std::string unit, int dplac,
           int frc2bit, int frc1byte, int frc2byte, int frc4byte)
       {
         std::set<int> frcs;
@@ -1266,7 +1267,7 @@ namespace iqrf {
         if (frc2byte == 1) frcs.insert(iqrf::sensor::STD_SENSOR_FRC_2BYTES);
         if (frc4byte == 1) frcs.insert(iqrf::sensor::STD_SENSOR_FRC_4BYTES);
 
-        sensor::InfoEnumerate::InfoSensorPtr infoSensorPtr(shape_new sensor::InfoEnumerate::InfoSensor(sid, stype, name, sname, unit, dplac, frcs));
+        sensor::InfoEnumerate::InfoSensorPtr infoSensorPtr(shape_new sensor::InfoEnumerate::InfoSensor(idx, sid, stype, name, sname, unit, dplac, frcs));
         sensor::EnumeratePtr & enumeratePtr = retval[nadr];
         if (!enumeratePtr) {
           enumeratePtr.reset(shape_new sensor::InfoEnumerate());

@@ -13,9 +13,10 @@ namespace iqrf
       class InfoSensor : public Sensor
       {
       public:
-        InfoSensor(std::string sid, int stype, std::string name, std::string sname, std::string unit, int dplac, std::set<int> frcs)
+        InfoSensor(int idx, std::string sid, int stype, std::string name, std::string sname, std::string unit, int dplac, std::set<int> frcs)
           : Sensor()
         {
+          m_idx = idx;
           m_sid = sid;
           m_type = stype;
           m_name = name;
