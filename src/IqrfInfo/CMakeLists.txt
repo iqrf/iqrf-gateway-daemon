@@ -11,7 +11,7 @@ if(UNIX)
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 endif()
 
-FIND_PACKAGE(SQLite3 REQUIRED)
+FIND_PACKAGE(sqlite3 CONFIG REQUIRED)
 
 set(COMPONENT iqrf::IqrfInfo)
 DeclareShapeComponent(${COMPONENT})

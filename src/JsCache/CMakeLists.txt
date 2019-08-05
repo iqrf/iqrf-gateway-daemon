@@ -45,16 +45,16 @@ DeployShapeComponent(${PROJECT_NAME})
 if(WIN32)
 	install(
 		FILES
-			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc140-mt-gd-x64-1_66.dll"
-			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_system-vc140-mt-gd-x64-1_66.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc142-mt-gd-x64-1_70.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_system-vc142-mt-gd-x64-1_70.dll"
 		CONFIGURATIONS Debug
 		DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
 	)
 
 	install(
 		FILES
-			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc140-mt-x64-1_66.dll"
-			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_system-vc140-mt-x64-1_66.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc142-mt-x64-1_70.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_system-vc142-mt-x64-1_70.dll"
 		CONFIGURATIONS Release
 		DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
 	)
