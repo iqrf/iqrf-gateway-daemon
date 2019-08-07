@@ -25,21 +25,30 @@
         "req": {
           "type": "object",
           "properties": {
-            "waves": {
+            "actionRetries": {
               "type": "integer",
-              "description": "Number of waves."
-            },
-            "emptyWaves": {
-              "type": "integer",
-              "description": "Number of consecutive waves, i which no new nodes were added into network."
-            },
-            "authorizeRetries": {
-              "type": "integer",
-              "description": "Number of retries to authorize new node."
+              "description": "Number of retries DPA transactions.",
+              "default": 1
             },
             "discoveryTxPower": {
               "type": "integer",
-              "description": "TX power to use in discovery process."
+              "description": "TX power to use in discovery process.",
+              "default": 7
+            },
+            "discoveryBeforeStart": {
+              "type": "boolean",
+              "description": "Run discovery before start.",
+              "default": false
+            },
+            "waves": {
+              "type": "integer",
+              "description": "Maximum number of waves.",
+              "default": 2
+            },
+            "emptyWaves": {
+              "type": "integer",
+              "description": "Number of consecutive waves, i which no new nodes were added into network.",
+              "default": 2
             }
           },
           "required": [
