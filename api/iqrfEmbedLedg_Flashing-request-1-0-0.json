@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedLedr_Flashing-request",
+        "name": "iqrfEmbedLedg_Flashing-request",
         "format": "jsonschema",
         "jsDriverVersions": [1],
         "version": "1-0-0"

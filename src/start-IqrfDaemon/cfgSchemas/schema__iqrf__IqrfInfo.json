@@ -40,6 +40,11 @@
                     "target"
                 ]
             }
+        },
+        "enumAtStartUp": {
+            "type": "boolean",
+            "description": "Flag to initiate network full enumaration just after startup",
+            "default": "false"
         }
     },
     "required": [

@@ -127,8 +127,8 @@ namespace iqrf {
 
     // 'address' parameter is NOT used, if upload target has already defined its own address, 
     // which to upload code into, e.g. RF band or RFPGM
-    IIqrfChannelService::Accessor::UploadErrorCode upload(
-      const IIqrfChannelService::Accessor::UploadTarget target,
+    IIqrfChannelService::UploadErrorCode upload(
+      const IIqrfChannelService::UploadTarget target,
       const std::basic_string<uint8_t>& data,
       const uint16_t address
     )
@@ -182,8 +182,8 @@ namespace iqrf {
       return m_accessControl->enterProgrammingState();
     }
 
-    UploadErrorCode upload(
-      const UploadTarget target, const std::basic_string<uint8_t>& data, const uint16_t address
+    IIqrfChannelService::UploadErrorCode upload(
+      const IIqrfChannelService::UploadTarget target, const std::basic_string<uint8_t>& data, const uint16_t address
     ) override
     {
       return m_accessControl->upload(target, data, address);

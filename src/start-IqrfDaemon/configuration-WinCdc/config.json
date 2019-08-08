@@ -176,6 +176,13 @@
       "startlevel": 2
     },
     {
+      "name": "iqrf::JsonIqrfInfoApi",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonIqrfInfoApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
       "name": "iqrf::JsCache",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsCache",
@@ -186,13 +193,6 @@
       "name": "iqrf::JsRenderDuktape",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsRenderDuktape",
-      "enabled": true,
-      "startlevel": 2
-    },
-    {
-      "name": "iqrf::JsDriverService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "JsDriverService",
       "enabled": true,
       "startlevel": 2
     },
@@ -253,13 +253,6 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::EnumerateService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "EnumerateService",
-      "enabled": true,
-      "startlevel": 3
-    },
-    {
       "name": "iqrf::NativeUploadService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "NativeUploadService",
@@ -279,6 +272,13 @@
       "libraryName": "RemoveBondService",
       "enabled": true,
       "startlevel": 3
+    },
+    {
+      "name": "iqrf::MonitorService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "MonitorService",
+      "enabled": true,
+      "startlevel": 0
     }
   ]
 }

@@ -162,7 +162,9 @@ namespace iqrf {
     int m_relativeStack = 0;
 
     int m_ctxCounter = 0;
+    std::mutex m_contextMtx;
     std::map<int, std::shared_ptr<Context>> m_contexts;
+    std::map<int, int> m_mapNadrContext;
 
   public:
     Imp()
@@ -193,48 +195,96 @@ namespace iqrf {
       return buffer.GetString();
     }
 
-    //##########################################
-    int loadJsCodeFenced(int id, const std::string& js)
+    int loadJsCodeFenced(int contextId, const std::string& js)
     {
       TRC_FUNCTION_ENTER("");
-      auto found = m_contexts.find(id);
+
+      std::unique_lock<std::mutex> lck(m_contextMtx);
+
+      auto found = m_contexts.find(contextId);
       if (found != m_contexts.end()) {
-        //THROW_EXC_TRC_WAR(std::logic_error, "Already created JS context: " << PAR(id));
-        m_contexts.erase(id);
+        //THROW_EXC_TRC_WAR(std::logic_error, "Already created JS context: " << PAR(contextId));
+        m_contexts.erase(contextId);
       }
-      auto res = m_contexts.insert(std::make_pair(id, std::shared_ptr<Context>(shape_new Context())));
+      auto res = m_contexts.insert(std::make_pair(contextId, std::shared_ptr<Context>(shape_new Context())));
       res.first->second->loadJsCode(js);
+
       TRC_FUNCTION_LEAVE("");
       return 0;
     }
 
-    void callFenced(int id, const std::string& functionName, const std::string& par, std::string& ret)
+    void mapNadrToFenced(int nadr, int contextId)
     {
-      TRC_FUNCTION_ENTER(PAR(id) << PAR(functionName));
-      auto found = m_contexts.find(id);
-      if (found == m_contexts.end()) {
-        call(functionName, par, ret);
-      }
-      else {
-        found->second->call(functionName, par, ret);
-      }
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(contextId));
+      m_mapNadrContext[nadr] = contextId;
       TRC_FUNCTION_LEAVE("");
     }
-    //##########################################
 
-    void loadJsCode(const std::string& js)
+    void callFenced(int nadr, int hwpid, const std::string& functionName, const std::string& par, std::string& ret)
+    {
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(hwpid) << PAR(functionName));
+
+      int contextId = 0;
+
+      std::unique_lock<std::mutex> lck(m_contextMtx);
+
+      // get drivers context according nadr
+      auto fctx = m_mapNadrContext.find(nadr);
+      if (fctx != m_mapNadrContext.end()) {
+        // found in nadr mapping
+        contextId = fctx->second;
+        auto found = m_contexts.find(contextId);
+        if (found != m_contexts.end()) {
+          TRC_DEBUG("found according naddr mapping: " << PAR(nadr) << PAR(contextId) << PAR(functionName));
+          found->second->call(functionName, par, ret);
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "cannot find JS context based on naddr mapping: " << PAR(nadr) << PAR(contextId) << PAR(functionName))
+        }
+      }
+      else {
+        // get provisonal driver context according hwpid
+        uint16_t uhwpid = (uint16_t)hwpid;
+        contextId = HWPID_MAPPING_SPACE - (int)uhwpid;
+        auto found = m_contexts.find(contextId);
+        if (found != m_contexts.end()) {
+          // found according exact hwpid
+          TRC_DEBUG("found according provisional hwpid mapping: " << PAR(uhwpid) << PAR(contextId) << PAR(functionName));
+          found->second->call(functionName, par, ret);
+        }
+        else {
+          // found default provisional context
+          contextId = HWPID_DEFAULT_MAPPING;
+          found = m_contexts.find(contextId);
+          if (found != m_contexts.end()) {
+            // found in default provisional context
+            TRC_DEBUG("found according provisional hwpid default mapping: " << PAR(uhwpid) << PAR(contextId) << PAR(functionName));
+            found->second->call(functionName, par, ret);
+          }
+          else {
+            THROW_EXC_TRC_WAR(std::logic_error, "cannot find any context: " << PAR(nadr) << PAR(uhwpid) << PAR(contextId) << PAR(functionName))
+          }
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void unloadProvisionalContexts()
     {
       TRC_FUNCTION_ENTER("");
 
-      duk_push_string(m_ctx, js.c_str());
-      if (duk_peval(m_ctx) != 0) {
-        std::string errstr = duk_safe_to_string(m_ctx, -1);
-        std::cerr << "Error in driver scripts: " << errstr << std::endl;
-        THROW_EXC_TRC_WAR(std::logic_error, errstr);
-      }
-      duk_pop(m_ctx);  // ignore result
+      std::unique_lock<std::mutex> lck(m_contextMtx);
 
-      m_init = true;
+      auto it = m_contexts.begin();
+      while (it != m_contexts.end()) {
+        if (it->first < 0) {
+          it = m_contexts.erase(it);
+        }
+        else {
+          ++it;
+        }
+      }
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -243,82 +293,6 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       //TODO duk_pop()
       m_init = false;
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    bool findFunc(const std::string& functionName)
-    {
-      TRC_FUNCTION_ENTER(PAR(functionName));
-      bool retval = false;
-      if (m_init && !functionName.empty()) {
-
-        std::string buf = functionName;
-        std::replace(buf.begin(), buf.end(), '.', ' ');
-        std::istringstream istr(buf);
-
-        std::vector<std::string> items;
-        while (true) {
-          std::string item;
-          if (!(istr >> item)) {
-            if (istr.eof()) break;
-          }
-          items.push_back(item);
-        }
-
-        retval = true;
-        m_relativeStack = 0;
-        for (const auto & item : items) {
-          ++m_relativeStack;
-          bool res = duk_get_prop_string(m_ctx, -1, item.c_str());
-          if (!res) {
-            duk_pop_n(m_ctx, m_relativeStack);
-            THROW_EXC_TRC_WAR(std::logic_error, "Not found:: " << PAR(item));
-            retval = false;
-            break;
-          }
-        }
-
-      }
-      else {
-        duk_pop_n(m_ctx, m_relativeStack);
-        THROW_EXC_TRC_WAR(std::logic_error, "JS engine is not initiated");
-      }
-      TRC_FUNCTION_LEAVE("");
-      return retval;
-    }
-
-    void call(const std::string& functionName, const std::string& par, std::string& ret)
-    {
-      TRC_FUNCTION_ENTER(PAR(functionName));
-
-      if (findFunc(functionName)) {
-
-        duk_push_string(m_ctx, par.c_str());
-        duk_json_decode(m_ctx, -1);
-
-        int res = duk_pcall(m_ctx, 1);
-
-        std::string err;
-        if (res != 0) {
-          duk_dup(m_ctx, -1);
-          err = duk_safe_to_string(m_ctx, -1);
-          duk_pop(m_ctx);
-        }
-
-        ret = duk_json_encode(m_ctx, -1);
-        if (res != 0) {
-          duk_pop_n(m_ctx, m_relativeStack);
-          THROW_EXC_TRC_WAR(std::logic_error, err);
-        }
-
-      }
-      else {
-        duk_pop_n(m_ctx, m_relativeStack);
-        THROW_EXC_TRC_WAR(std::logic_error, "Cannot find driver function: " << functionName);
-      }
-
-      duk_pop_n(m_ctx, m_relativeStack);
-
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -367,26 +341,26 @@ namespace iqrf {
     delete m_imp;
   }
 
-  void JsRenderDuktape::loadJsCodeFenced(int id, const std::string& js)
+  void JsRenderDuktape::loadJsCodeFenced(int contextId, const std::string& js)
   {
-    m_imp->loadJsCodeFenced(id, js);
+    m_imp->loadJsCodeFenced(contextId, js);
   }
 
-  void JsRenderDuktape::callFenced(int context, const std::string& functionName, const std::string& par, std::string& ret)
+  void JsRenderDuktape::mapNadrToFenced(int nadr, int contextId)
   {
-    m_imp->callFenced(context, functionName, par, ret);
+    m_imp->mapNadrToFenced(nadr, contextId);
   }
 
-  void JsRenderDuktape::loadJsCode(const std::string& js)
+  void JsRenderDuktape::callFenced(int nadr, int hwpid, const std::string& functionName, const std::string& par, std::string& ret)
   {
-    m_imp->loadJsCode(js);
+    m_imp->callFenced(nadr, hwpid, functionName, par, ret);
   }
 
-  void JsRenderDuktape::call(const std::string& functionName, const std::string& par, std::string& ret)
+  void JsRenderDuktape::unloadProvisionalContexts()
   {
-    m_imp->call(functionName, par, ret);
+    m_imp->unloadProvisionalContexts();
   }
-
+  
   void JsRenderDuktape::activate(const shape::Properties *props)
   {
     m_imp->activate(props);

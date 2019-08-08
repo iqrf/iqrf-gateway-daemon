@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IDpaTransaction2.h"
+#include "IIqrfChannelService.h"
 #include "ShapeDefines.h"
 #include <string>
 #include <functional>
@@ -43,7 +44,7 @@ namespace iqrf {
     {
     public:
       virtual std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) = 0;
-      virtual void executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) = 0;
+      virtual void executeDpaTransactionRepeat( const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) = 0;
       virtual ~ExclusiveAccess() {}
     };
 
@@ -53,7 +54,7 @@ namespace iqrf {
 
     /// 0 > timeout - use default, 0 == timeout - use infinit, 0 < timeout - user value
     virtual std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) = 0;
-    virtual void executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) = 0;
+    virtual void executeDpaTransactionRepeat( const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) = 0;
     virtual CoordinatorParameters getCoordinatorParameters() const = 0;
     virtual int getTimeout() const = 0;
     virtual void setTimeout(int timeout) = 0;
@@ -65,6 +66,8 @@ namespace iqrf {
     virtual void setFrcResponseTime( IDpaTransaction2::FrcResponseTime frcResponseTime ) = 0;
     virtual void registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun) = 0;
     virtual void unregisterAsyncMessageHandler(const std::string& serviceId) = 0;
+    virtual int getDpaQueueLen() const = 0;
+    virtual IIqrfChannelService::State getIqrfChannelState() = 0;
 
     virtual ~IIqrfDpaService() {}
   };

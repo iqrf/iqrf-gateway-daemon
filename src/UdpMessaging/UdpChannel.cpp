@@ -338,10 +338,11 @@ void UdpChannel::getMyMacAddress(SOCKET soc)
 
       // Get IPv4 address
       ioctl(soc, SIOCGIFADDR, &ifr);
-      std::string ip(inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+      if (((struct sockaddr *)&ifr.ifr_addr)->sa_family == AF_INET) {
+        std::string ip(inet_ntoa(((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr));
 
-      m_adapters.insert(std::make_pair(ip, MyAdapter(ip, macStr)));
-
+        m_adapters.insert(std::make_pair(ip, MyAdapter(ip, macStr)));
+      }
     }
   }
   if_freenameindex(if_nidxs);

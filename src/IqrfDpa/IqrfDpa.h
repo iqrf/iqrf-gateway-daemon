@@ -20,7 +20,7 @@ namespace iqrf {
     std::unique_ptr<ExclusiveAccess> getExclusiveAccess() override;
     std::shared_ptr<IDpaTransaction2> executeExclusiveDpaTransaction(const DpaMessage& request, int32_t timeout);
     std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout) override;
-    void executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout ) override;
+    void executeDpaTransactionRepeat( const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout ) override;
     IIqrfDpaService::CoordinatorParameters getCoordinatorParameters() const override;
     int getTimeout() const override;
     void setTimeout(int timeout) override;
@@ -32,7 +32,9 @@ namespace iqrf {
     void setFrcResponseTime( IDpaTransaction2::FrcResponseTime frcResponseTime ) override;
     void registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun) override;
     void unregisterAsyncMessageHandler(const std::string& serviceId) override;
-    
+    int getDpaQueueLen() const override;
+    IIqrfChannelService::State getIqrfChannelState() override;
+
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
