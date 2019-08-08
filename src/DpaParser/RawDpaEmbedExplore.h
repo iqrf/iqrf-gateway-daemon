@@ -107,7 +107,7 @@ namespace iqrf
         }
 
       };
-      typedef std::unique_ptr<RawDpaPeripheralInformation> RawDpaPeripheralInformationPtr;
+      typedef std::unique_ptr<RawDpaMorePeripheralInformation> RawDpaMorePeripheralInformationPtr;
 
     } //namespace explore
   } //namespace embed

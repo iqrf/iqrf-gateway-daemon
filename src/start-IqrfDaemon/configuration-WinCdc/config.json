@@ -1,5 +1,5 @@
 {
-  "applicationName": "IqrfDaemon",
+  "applicationName": "IqrfGatewayDaemon",
   "resourceDir": "",
   "dataDir": "configuration",
   "cacheDir": "configuration",
@@ -51,7 +51,7 @@
     },
     {
       "name": "iqrf::Scheduler",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "Scheduler",
       "enabled": true,
       "startlevel": 1

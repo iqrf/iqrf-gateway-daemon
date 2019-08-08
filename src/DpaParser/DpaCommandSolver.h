@@ -83,6 +83,11 @@ namespace iqrf {
       return m_dpaTransactionResult2;
     }
     
+    std::unique_ptr<IDpaTransactionResult2> getResultMove()
+    {
+      return std::move(m_dpaTransactionResult2);
+    }
+
     virtual DpaMessage encodeRequest() = 0;
 
     void processAsyncResponse(const DpaMessage & dpaResponse)
@@ -144,7 +149,7 @@ namespace iqrf {
     {
       int len = dpaResponse.GetLength();
 
-      if (len < sizeof(TDpaIFaceHeader) || len > sizeof(TDpaIFaceHeader) + DPA_MAX_DATA_LENGTH) {
+      if (len < sizeof(TDpaIFaceHeader) || len > sizeof(TDpaIFaceHeader) + 2 + DPA_MAX_DATA_LENGTH) {
         THROW_EXC_TRC_WAR(std::logic_error, "Invalid dpaResponse lenght: " << PAR(len));
       }
 
