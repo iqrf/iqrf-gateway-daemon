@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedEeprom_Read",
+        "name": "iqrfEmbedEeprom_Read-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
