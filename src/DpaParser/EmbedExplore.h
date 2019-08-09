@@ -140,7 +140,7 @@ namespace iqrf
         int getPer() const { return m_per; }
         const std::vector<Param> & getParams() const { return m_params; }
         
-        std::map<int, Param> & getPerParamsMap() const
+        std::map<int, Param> getPerParamsMap()
         {
           std::map<int, Param> perParamsMap;
           for (int i = 0; i < (int)m_params.size(); i++) {
