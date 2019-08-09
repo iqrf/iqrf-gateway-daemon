@@ -49,11 +49,6 @@ namespace iqrf
         return "iqrf.sensor.Enumerate";
       }
 
-      std::string requestParameter() const override
-      {
-        return "{}";
-      }
-
       void parseResponse(const rapidjson::Value& v) override
       {
         using namespace rapidjson;

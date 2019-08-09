@@ -30,11 +30,6 @@ namespace iqrf
           return "iqrf.embed.explore.Enumerate";
         }
 
-        std::string requestParameter() const override
-        {
-          return "{}";
-        }
-
         void parseResponse(const rapidjson::Value& v) override
         {
           m_dpaVer = jutils::getMemberAs<int>("dpaVer", v);
@@ -72,20 +67,10 @@ namespace iqrf
           return "iqrf.embed.explore.PeripheralInformation";
         }
 
-        std::string requestParameter() const override
+        void requestParameter(rapidjson::Document& par) const override
         {
           using namespace rapidjson;
-          Document par;
-
           Pointer("/per").Set(par, (int)m_per);
-
-          std::string parStr;
-          StringBuffer buffer;
-          Writer<rapidjson::StringBuffer> writer(buffer);
-          par.Accept(writer);
-          parStr = buffer.GetString();
-
-          return parStr;
         }
 
         void parseResponse(const rapidjson::Value& v) override
