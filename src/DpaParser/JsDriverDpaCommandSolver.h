@@ -263,197 +263,108 @@ namespace iqrf {
       
   };
 
-  class RawHdp
+  class JsDriverSolver
   {
-  public:
-    RawHdp()
-    {}
-    int getNadr() const { return m_nadr; }
-    int getPnum() const { return m_pnum; }
-    int getPcmd() const { return m_pcmd; }
-    int getHwpid() const { return m_hwpid; }
-    const rapidjson::Document& getDocument() const { return m_doc; }
-    const std::string& getString() const { return m_str; }
-    bool empty() const { return m_empty; }
   protected:
-    int m_nadr = 0;
-    int m_pnum = 0;
-    int m_pcmd = 0;
-    int m_hwpid = 0;
-    rapidjson::Document m_doc;
-    std::string m_str;
-    bool m_empty = true;
-  };
+    
+    IJsRenderService* m_iJsRenderService = nullptr;
 
-  class RawHdpRequest : public RawHdp
-  {
   public:
-    RawHdpRequest()
-    {}
+    virtual std::string functionNameDrv() const = 0;
+    virtual uint16_t getNadrDrv() const = 0;
+    virtual uint16_t getHwpidDrv() const = 0;
 
-    RawHdpRequest(const std::string& str, uint16_t inadr, uint16_t ihwpid)
-    {
-      rapidjson::Document doc;
-      doc.Parse(str);
-      parse(doc, inadr, ihwpid);
-    }
+    virtual void preRequest(rapidjson::Document & requestParamDoc) = 0;
+    virtual void postRequest(rapidjson::Document & requestResultDoc) = 0;
 
-    RawHdpRequest(const rapidjson::Value& value, uint16_t inadr, uint16_t ihwpid)
+    void processRequest()
     {
-      parse(value, inadr, ihwpid);
-    }
+      TRC_FUNCTION_ENTER("");
 
-    void parse(const rapidjson::Value& value, uint16_t inadr, uint16_t ihwpid)
-    {
       using namespace rapidjson;
 
-      uint16_t nadr16 = inadr, hwpid16 = ihwpid;
-      uint8_t pnum = 0, pcmd = 0;
+      std::string functionNameReq(functionNameDrv());
+      functionNameReq += "_Request_req";
+      TRC_DEBUG(PAR(functionNameReq));
 
-      //set explicitly by param
-      //const Value *nadrVal = Pointer("/nadr").Get(value);
-      //if (nadrVal && nadrVal->IsString()) {
-      //  parseHexaNum(nadr16, nadrVal->GetString());
-      //}
-      const Value *pnumVal = Pointer("/pnum").Get(value);
-      if (pnumVal && pnumVal->IsString()) {
-        parseHexaNum(pnum, pnumVal->GetString());
+      Document requestParamDoc;
+      
+      preRequest(requestParamDoc);
+
+      std::string requestParamStr;
+      StringBuffer buffer;
+      Writer<rapidjson::StringBuffer> writer(buffer);
+      requestParamDoc.Accept(writer);
+      requestParamStr = buffer.GetString();
+      
+      TRC_DEBUG(PAR(requestParamStr));
+
+      std::string requestResultStr;
+      try {
+        m_iJsRenderService->callFenced(getNadrDrv(), getHwpidDrv(), functionNameReq, requestParamStr, requestResultStr);
       }
-      const Value *pcmdVal = Pointer("/pcmd").Get(value);
-      if (pcmdVal && pcmdVal->IsString()) {
-        parseHexaNum(pcmd, pcmdVal->GetString());
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Driver request failure: ");
+        //TODO special request error exc
+        THROW_EXC_TRC_WAR(std::logic_error, "Driver request failure: " << e.what());
       }
-      //set explicitly by param
-      //const Value *hwpidVal = Pointer("/hwpid").Get(value);
-      //if (hwpidVal && hwpidVal->IsString()) {
-      //  parseHexaNum(hwpid16, hwpidVal->GetString());
-      //}
 
-      m_nadr = nadr16;
-      m_pnum = pnum;
-      m_pcmd = pcmd;
-      m_hwpid = hwpid16;
+      TRC_DEBUG(PAR(requestResultStr));
 
-      m_dpaRequest.DpaPacket().DpaRequestPacket_t.NADR = nadr16;
-      m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM = pnum;
-      m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD = pcmd;
-      m_dpaRequest.DpaPacket().DpaRequestPacket_t.HWPID = hwpid16;
+      Document requestResultDoc;
+      requestResultDoc.Parse(requestResultStr);
+      
+      postRequest(requestResultDoc);
 
-      int len = 0;
-      const Value *rdataVal = Pointer("/rdata").Get(value);
-      if (rdataVal && rdataVal->IsString()) {
-        //uint8_t buf[DPA_MAX_DATA_LENGTH];
-        len = parseBinary(m_dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, rdataVal->GetString(), DPA_MAX_DATA_LENGTH);
-      }
-      m_dpaRequest.SetLength(len + sizeof(TDpaIFaceHeader));
-
-      m_empty = false;
+      TRC_FUNCTION_LEAVE("");
     }
+    
+    virtual void preResponse(rapidjson::Document & responseParamDoc) = 0;
+    virtual void postResponse(rapidjson::Document & responseResultDoc) = 0;
 
-    virtual ~RawHdpRequest()
-    {}
-
-    const DpaMessage& getDpaRequest() { return m_dpaRequest; }
-
-    const rapidjson::Document& encode()
+    void processResponse()
     {
+      TRC_FUNCTION_ENTER("");
+
       using namespace rapidjson;
 
-      uint16_t nadr16 = 0, hwpid16 = 0;
-      uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
-      std::string nadrStr, pnumStr, pcmdStr, hwpidStr, rcodeStr, dpavalStr;
+      std::string functionNameRsp(functionNameDrv());
+      functionNameRsp += "_Response_rsp";
+      TRC_DEBUG(PAR(functionNameRsp));
 
-      nadr16 = m_dpaRequest.DpaPacket().DpaRequestPacket_t.NADR;
-      pnum = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM;
-      pcmd = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD;
-      hwpid16 = m_dpaRequest.DpaPacket().DpaRequestPacket_t.HWPID;
+      Document responseParamDoc;
 
-      nadrStr = encodeHexaNum(nadr16);
-      pnumStr = encodeHexaNum(pnum);
-      pcmdStr = encodeHexaNum(pcmd);
-      hwpidStr = encodeHexaNum(hwpid16);
+      preResponse(responseParamDoc);
 
-      Pointer("/nadr").Set(m_doc, nadrStr);
-      Pointer("/pnum").Set(m_doc, pnumStr);
-      Pointer("/pcmd").Set(m_doc, pcmdStr);
-      Pointer("/hwpid").Set(m_doc, hwpidStr);
+      std::string responseParamStr;
+      StringBuffer buffer;
+      Writer<rapidjson::StringBuffer> writer(buffer);
+      responseParamDoc.Accept(writer);
+      responseParamStr = buffer.GetString();
 
-      if (m_dpaRequest.GetLength() > 8) {
-        Pointer("/rdata").Set(m_doc, encodeBinary(m_dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, m_dpaRequest.GetLength() - 8));
+      TRC_DEBUG(PAR(responseParamStr));
+
+      std::string responseResultStr;
+      try {
+        std::string rsp;
+        m_iJsRenderService->callFenced(getNadrDrv(), getHwpidDrv(), functionNameRsp, responseParamStr, responseResultStr);
+
+      }
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Driver response failure: ");
+        //TODO special response error exc
+        THROW_EXC_TRC_WAR(std::logic_error, "Driver response failure: " << e.what());
       }
 
-      return m_doc;
+      TRC_DEBUG(PAR(responseResultStr));
+
+      Document responseResultDoc;
+      responseResultDoc.Parse(responseResultStr);
+
+      postRequest(responseResultDoc);
+
+      TRC_FUNCTION_LEAVE("");
     }
 
-  private:
-    DpaMessage m_dpaRequest;
   };
-
-  class RawHdpResponse : public RawHdp
-  {
-  public:
-    RawHdpResponse()
-    {}
-
-    RawHdpResponse(const DpaMessage& dpaMessage)
-    {
-      using namespace rapidjson;
-
-      if (dpaMessage.GetLength() >= 8) {
-        uint16_t nadr16 = 0, hwpid16 = 0;
-        uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
-        std::string nadrStr, pnumStr, pcmdStr, hwpidStr, rcodeStr, dpavalStr;
-
-        nadr16 = dpaMessage.DpaPacket().DpaResponsePacket_t.NADR;
-        pnum = dpaMessage.DpaPacket().DpaResponsePacket_t.PNUM;
-        pcmd = dpaMessage.DpaPacket().DpaResponsePacket_t.PCMD;
-        hwpid16 = dpaMessage.DpaPacket().DpaResponsePacket_t.HWPID;
-        rcode8 = dpaMessage.DpaPacket().DpaResponsePacket_t.ResponseCode;
-        dpaval = dpaMessage.DpaPacket().DpaResponsePacket_t.DpaValue;
-
-        m_nadr = nadr16;
-        m_pnum = pnum;
-        m_pcmd = pcmd;
-        m_hwpid = hwpid16;
-        m_rcode = rcode8;
-        m_dpaval = m_dpaval;
-
-        nadrStr = encodeHexaNum(nadr16);
-        pnumStr = encodeHexaNum(pnum);
-        pcmdStr = encodeHexaNum(pcmd);
-        hwpidStr = encodeHexaNum(hwpid16);
-        rcodeStr = encodeHexaNum(rcode8);
-        dpavalStr = encodeHexaNum(dpaval);
-
-        Pointer("/nadr").Set(m_doc, nadrStr);
-        Pointer("/pnum").Set(m_doc, pnumStr);
-        Pointer("/pcmd").Set(m_doc, pcmdStr);
-        Pointer("/hwpid").Set(m_doc, hwpidStr);
-        Pointer("/rcode").Set(m_doc, rcodeStr);
-        Pointer("/dpaval").Set(m_doc, dpavalStr);
-
-        if (dpaMessage.GetLength() > 8) {
-          Pointer("/rdata").Set(m_doc, encodeBinary(dpaMessage.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, dpaMessage.GetLength() - 8));
-        }
-
-        rapidjson::StringBuffer buffer;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        m_doc.Accept(writer);
-        m_str = buffer.GetString();
-
-        m_empty = false;
-      }
-    }
-
-    virtual ~RawHdpResponse()
-    {}
-
-    int getRcode() const { return m_rcode; }
-    int getDpaval() const { return m_dpaval; }
-
-  private:
-    int m_rcode = 0;
-    int m_dpaval = 0;
-  };
-
 }

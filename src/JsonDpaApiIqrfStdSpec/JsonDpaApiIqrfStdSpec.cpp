@@ -269,11 +269,11 @@ namespace iqrf {
 
       //std::vector<std::unique_ptr<IDpaTransactionResult2>> transResults;
 
-      //for (const DpaMessage & dpaMessage : dpaMessageVect) {
-      //  std::unique_ptr<IDpaTransactionResult2> transResult = exclusiveAccess->executeDpaTransaction(dpaMessage)->get();
-      //  transResults.push_back(transResult);
-      //  //daliFrc.processMultiDpaTransactionResult(transResults);
-      //}
+      for (const DpaMessage & dpaMessage : dpaMessageVect) {
+        std::unique_ptr<IDpaTransactionResult2> transResult = exclusiveAccess->executeDpaTransaction(dpaMessage)->get();
+        //transResults.push_back(transResult);
+        //daliFrc.processMultiDpaTransactionResult(transResults);
+      }
 
         //daliFrc.processDpaTransactionResult(std::move(transResult));
 

@@ -155,197 +155,197 @@ namespace iqrf {
     std::unique_ptr<IDpaTransactionResult2> m_extraRes;
   };
 
-  //class RawHdp
-  //{
-  //public:
-  //  RawHdp()
-  //  {}
-  //  int getNadr() const { return m_nadr;  }
-  //  int getPnum() const { return m_pnum; }
-  //  int getPcmd() const { return m_pcmd; }
-  //  int getHwpid() const { return m_hwpid; }
-  //  const rapidjson::Document& getDocument() const { return m_doc; }
-  //  const std::string& getString() const { return m_str; }
-  //  bool empty() const { return m_empty; }
-  //protected:
-  //  int m_nadr = 0;
-  //  int m_pnum = 0;
-  //  int m_pcmd = 0;
-  //  int m_hwpid = 0;
-  //  rapidjson::Document m_doc;
-  //  std::string m_str;
-  //  bool m_empty = true;
-  //};
+  class RawHdp
+  {
+  public:
+    RawHdp()
+    {}
+    int getNadr() const { return m_nadr;  }
+    int getPnum() const { return m_pnum; }
+    int getPcmd() const { return m_pcmd; }
+    int getHwpid() const { return m_hwpid; }
+    const rapidjson::Document& getDocument() const { return m_doc; }
+    const std::string& getString() const { return m_str; }
+    bool empty() const { return m_empty; }
+  protected:
+    int m_nadr = 0;
+    int m_pnum = 0;
+    int m_pcmd = 0;
+    int m_hwpid = 0;
+    rapidjson::Document m_doc;
+    std::string m_str;
+    bool m_empty = true;
+  };
 
-  //class RawHdpRequest : public RawHdp
-  //{
-  //public:
-  //  RawHdpRequest()
-  //  {}
+  class RawHdpRequest : public RawHdp
+  {
+  public:
+    RawHdpRequest()
+    {}
 
-  //  RawHdpRequest(const std::string& str, uint16_t inadr, uint16_t ihwpid)
-  //  {
-  //    rapidjson::Document doc;
-  //    doc.Parse(str);
-  //    parse(doc, inadr, ihwpid);
-  //  }
+    RawHdpRequest(const std::string& str, uint16_t inadr, uint16_t ihwpid)
+    {
+      rapidjson::Document doc;
+      doc.Parse(str);
+      parse(doc, inadr, ihwpid);
+    }
 
-  //  RawHdpRequest(const rapidjson::Value& value, uint16_t inadr, uint16_t ihwpid)
-  //  {
-  //    parse(value, inadr, ihwpid);
-  //  }
+    RawHdpRequest(const rapidjson::Value& value, uint16_t inadr, uint16_t ihwpid)
+    {
+      parse(value, inadr, ihwpid);
+    }
 
-  //  void parse(const rapidjson::Value& value, uint16_t inadr, uint16_t ihwpid)
-  //  {
-  //    using namespace rapidjson;
+    void parse(const rapidjson::Value& value, uint16_t inadr, uint16_t ihwpid)
+    {
+      using namespace rapidjson;
 
-  //    uint16_t nadr16 = inadr, hwpid16 = ihwpid;
-  //    uint8_t pnum = 0, pcmd = 0;
+      uint16_t nadr16 = inadr, hwpid16 = ihwpid;
+      uint8_t pnum = 0, pcmd = 0;
 
-  //    //set explicitly by param
-  //    //const Value *nadrVal = Pointer("/nadr").Get(value);
-  //    //if (nadrVal && nadrVal->IsString()) {
-  //    //  parseHexaNum(nadr16, nadrVal->GetString());
-  //    //}
-  //    const Value *pnumVal = Pointer("/pnum").Get(value);
-  //    if (pnumVal && pnumVal->IsString()) {
-  //      parseHexaNum(pnum, pnumVal->GetString());
-  //    }
-  //    const Value *pcmdVal = Pointer("/pcmd").Get(value);
-  //    if (pcmdVal && pcmdVal->IsString()) {
-  //      parseHexaNum(pcmd, pcmdVal->GetString());
-  //    }
-  //    //set explicitly by param
-  //    //const Value *hwpidVal = Pointer("/hwpid").Get(value);
-  //    //if (hwpidVal && hwpidVal->IsString()) {
-  //    //  parseHexaNum(hwpid16, hwpidVal->GetString());
-  //    //}
+      //set explicitly by param
+      //const Value *nadrVal = Pointer("/nadr").Get(value);
+      //if (nadrVal && nadrVal->IsString()) {
+      //  parseHexaNum(nadr16, nadrVal->GetString());
+      //}
+      const Value *pnumVal = Pointer("/pnum").Get(value);
+      if (pnumVal && pnumVal->IsString()) {
+        parseHexaNum(pnum, pnumVal->GetString());
+      }
+      const Value *pcmdVal = Pointer("/pcmd").Get(value);
+      if (pcmdVal && pcmdVal->IsString()) {
+        parseHexaNum(pcmd, pcmdVal->GetString());
+      }
+      //set explicitly by param
+      //const Value *hwpidVal = Pointer("/hwpid").Get(value);
+      //if (hwpidVal && hwpidVal->IsString()) {
+      //  parseHexaNum(hwpid16, hwpidVal->GetString());
+      //}
 
-  //    m_nadr = nadr16;
-  //    m_pnum = pnum;
-  //    m_pcmd = pcmd;
-  //    m_hwpid = hwpid16;
+      m_nadr = nadr16;
+      m_pnum = pnum;
+      m_pcmd = pcmd;
+      m_hwpid = hwpid16;
 
-  //    m_dpaRequest.DpaPacket().DpaRequestPacket_t.NADR = nadr16;
-  //    m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM = pnum;
-  //    m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD = pcmd;
-  //    m_dpaRequest.DpaPacket().DpaRequestPacket_t.HWPID = hwpid16;
+      m_dpaRequest.DpaPacket().DpaRequestPacket_t.NADR = nadr16;
+      m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM = pnum;
+      m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD = pcmd;
+      m_dpaRequest.DpaPacket().DpaRequestPacket_t.HWPID = hwpid16;
 
-  //    int len = 0;
-  //    const Value *rdataVal = Pointer("/rdata").Get(value);
-  //    if (rdataVal && rdataVal->IsString()) {
-  //      //uint8_t buf[DPA_MAX_DATA_LENGTH];
-  //      len = parseBinary(m_dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, rdataVal->GetString(), DPA_MAX_DATA_LENGTH);
-  //    }
-  //    m_dpaRequest.SetLength(len + sizeof(TDpaIFaceHeader));
+      int len = 0;
+      const Value *rdataVal = Pointer("/rdata").Get(value);
+      if (rdataVal && rdataVal->IsString()) {
+        //uint8_t buf[DPA_MAX_DATA_LENGTH];
+        len = parseBinary(m_dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, rdataVal->GetString(), DPA_MAX_DATA_LENGTH);
+      }
+      m_dpaRequest.SetLength(len + sizeof(TDpaIFaceHeader));
 
-  //    m_empty = false;
-  //  }
+      m_empty = false;
+    }
 
-  //  virtual ~RawHdpRequest()
-  //  {}
+    virtual ~RawHdpRequest()
+    {}
 
-  //  const DpaMessage& getDpaRequest() { return m_dpaRequest; }
+    const DpaMessage& getDpaRequest() { return m_dpaRequest; }
 
-  //  const rapidjson::Document& encode()
-  //  {
-  //    using namespace rapidjson;
+    const rapidjson::Document& encode()
+    {
+      using namespace rapidjson;
 
-  //    uint16_t nadr16 = 0, hwpid16 = 0;
-  //    uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
-  //    std::string nadrStr, pnumStr, pcmdStr, hwpidStr, rcodeStr, dpavalStr;
+      uint16_t nadr16 = 0, hwpid16 = 0;
+      uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
+      std::string nadrStr, pnumStr, pcmdStr, hwpidStr, rcodeStr, dpavalStr;
 
-  //    nadr16 = m_dpaRequest.DpaPacket().DpaRequestPacket_t.NADR;
-  //    pnum = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM;
-  //    pcmd = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD;
-  //    hwpid16 = m_dpaRequest.DpaPacket().DpaRequestPacket_t.HWPID;
+      nadr16 = m_dpaRequest.DpaPacket().DpaRequestPacket_t.NADR;
+      pnum = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM;
+      pcmd = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD;
+      hwpid16 = m_dpaRequest.DpaPacket().DpaRequestPacket_t.HWPID;
 
-  //    nadrStr = encodeHexaNum(nadr16);
-  //    pnumStr = encodeHexaNum(pnum);
-  //    pcmdStr = encodeHexaNum(pcmd);
-  //    hwpidStr = encodeHexaNum(hwpid16);
+      nadrStr = encodeHexaNum(nadr16);
+      pnumStr = encodeHexaNum(pnum);
+      pcmdStr = encodeHexaNum(pcmd);
+      hwpidStr = encodeHexaNum(hwpid16);
 
-  //    Pointer("/nadr").Set(m_doc, nadrStr);
-  //    Pointer("/pnum").Set(m_doc, pnumStr);
-  //    Pointer("/pcmd").Set(m_doc, pcmdStr);
-  //    Pointer("/hwpid").Set(m_doc, hwpidStr);
+      Pointer("/nadr").Set(m_doc, nadrStr);
+      Pointer("/pnum").Set(m_doc, pnumStr);
+      Pointer("/pcmd").Set(m_doc, pcmdStr);
+      Pointer("/hwpid").Set(m_doc, hwpidStr);
 
-  //    if (m_dpaRequest.GetLength() > 8) {
-  //      Pointer("/rdata").Set(m_doc, encodeBinary(m_dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, m_dpaRequest.GetLength() - 8));
-  //    }
-  //    
-  //    return m_doc;
-  //  }
+      if (m_dpaRequest.GetLength() > 8) {
+        Pointer("/rdata").Set(m_doc, encodeBinary(m_dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, m_dpaRequest.GetLength() - 8));
+      }
+      
+      return m_doc;
+    }
 
-  //private:
-  //  DpaMessage m_dpaRequest;
-  //};
+  private:
+    DpaMessage m_dpaRequest;
+  };
 
-  //class RawHdpResponse : public RawHdp
-  //{
-  //public:
-  //  RawHdpResponse()
-  //  {}
+  class RawHdpResponse : public RawHdp
+  {
+  public:
+    RawHdpResponse()
+    {}
 
-  //  RawHdpResponse(const DpaMessage& dpaMessage)
-  //  {
-  //    using namespace rapidjson;
+    RawHdpResponse(const DpaMessage& dpaMessage)
+    {
+      using namespace rapidjson;
 
-  //    if (dpaMessage.GetLength() >= 8) {
-  //      uint16_t nadr16 = 0, hwpid16 = 0;
-  //      uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
-  //      std::string nadrStr, pnumStr, pcmdStr, hwpidStr, rcodeStr, dpavalStr;
+      if (dpaMessage.GetLength() >= 8) {
+        uint16_t nadr16 = 0, hwpid16 = 0;
+        uint8_t pnum = 0, pcmd = 0, rcode8 = 0, dpaval = 0;
+        std::string nadrStr, pnumStr, pcmdStr, hwpidStr, rcodeStr, dpavalStr;
 
-  //      nadr16 = dpaMessage.DpaPacket().DpaResponsePacket_t.NADR;
-  //      pnum = dpaMessage.DpaPacket().DpaResponsePacket_t.PNUM;
-  //      pcmd = dpaMessage.DpaPacket().DpaResponsePacket_t.PCMD;
-  //      hwpid16 = dpaMessage.DpaPacket().DpaResponsePacket_t.HWPID;
-  //      rcode8 = dpaMessage.DpaPacket().DpaResponsePacket_t.ResponseCode;
-  //      dpaval = dpaMessage.DpaPacket().DpaResponsePacket_t.DpaValue;
+        nadr16 = dpaMessage.DpaPacket().DpaResponsePacket_t.NADR;
+        pnum = dpaMessage.DpaPacket().DpaResponsePacket_t.PNUM;
+        pcmd = dpaMessage.DpaPacket().DpaResponsePacket_t.PCMD;
+        hwpid16 = dpaMessage.DpaPacket().DpaResponsePacket_t.HWPID;
+        rcode8 = dpaMessage.DpaPacket().DpaResponsePacket_t.ResponseCode;
+        dpaval = dpaMessage.DpaPacket().DpaResponsePacket_t.DpaValue;
 
-  //      m_nadr = nadr16;
-  //      m_pnum = pnum;
-  //      m_pcmd = pcmd;
-  //      m_hwpid = hwpid16;
-  //      m_rcode = rcode8;
-  //      m_dpaval = m_dpaval;
+        m_nadr = nadr16;
+        m_pnum = pnum;
+        m_pcmd = pcmd;
+        m_hwpid = hwpid16;
+        m_rcode = rcode8;
+        m_dpaval = m_dpaval;
 
-  //      nadrStr = encodeHexaNum(nadr16);
-  //      pnumStr = encodeHexaNum(pnum);
-  //      pcmdStr = encodeHexaNum(pcmd);
-  //      hwpidStr = encodeHexaNum(hwpid16);
-  //      rcodeStr = encodeHexaNum(rcode8);
-  //      dpavalStr = encodeHexaNum(dpaval);
+        nadrStr = encodeHexaNum(nadr16);
+        pnumStr = encodeHexaNum(pnum);
+        pcmdStr = encodeHexaNum(pcmd);
+        hwpidStr = encodeHexaNum(hwpid16);
+        rcodeStr = encodeHexaNum(rcode8);
+        dpavalStr = encodeHexaNum(dpaval);
 
-  //      Pointer("/nadr").Set(m_doc, nadrStr);
-  //      Pointer("/pnum").Set(m_doc, pnumStr);
-  //      Pointer("/pcmd").Set(m_doc, pcmdStr);
-  //      Pointer("/hwpid").Set(m_doc, hwpidStr);
-  //      Pointer("/rcode").Set(m_doc, rcodeStr);
-  //      Pointer("/dpaval").Set(m_doc, dpavalStr);
+        Pointer("/nadr").Set(m_doc, nadrStr);
+        Pointer("/pnum").Set(m_doc, pnumStr);
+        Pointer("/pcmd").Set(m_doc, pcmdStr);
+        Pointer("/hwpid").Set(m_doc, hwpidStr);
+        Pointer("/rcode").Set(m_doc, rcodeStr);
+        Pointer("/dpaval").Set(m_doc, dpavalStr);
 
-  //      if (dpaMessage.GetLength() > 8) {
-  //        Pointer("/rdata").Set(m_doc, encodeBinary(dpaMessage.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, dpaMessage.GetLength() - 8));
-  //      }
+        if (dpaMessage.GetLength() > 8) {
+          Pointer("/rdata").Set(m_doc, encodeBinary(dpaMessage.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, dpaMessage.GetLength() - 8));
+        }
 
-  //      rapidjson::StringBuffer buffer;
-  //      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-  //      m_doc.Accept(writer);
-  //      m_str = buffer.GetString();
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        m_doc.Accept(writer);
+        m_str = buffer.GetString();
 
-  //      m_empty = false;
-  //    }
-  //  }
+        m_empty = false;
+      }
+    }
 
-  //  virtual ~RawHdpResponse()
-  //  {}
+    virtual ~RawHdpResponse()
+    {}
 
-  //  int getRcode() const { return m_rcode; }
-  //  int getDpaval() const { return m_dpaval; }
+    int getRcode() const { return m_rcode; }
+    int getDpaval() const { return m_dpaval; }
 
-  //private:
-  //  int m_rcode = 0;
-  //  int m_dpaval = 0;
-  //};
+  private:
+    int m_rcode = 0;
+    int m_dpaval = 0;
+  };
 
 }
