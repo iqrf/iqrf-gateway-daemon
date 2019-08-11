@@ -256,24 +256,24 @@ namespace iqrf {
       std::vector<int> selectedNodes = jutils::getPossibleMemberAsVector<int>("selectedNodes", *paramVal);
 
       dali::JsDriverFrc daliFrc(m_iJsRenderService, command, selectedNodes);
-      std::vector<DpaMessage> dpaMessageVect = daliFrc.encodeMultiRequest();
+      //std::vector<DpaMessage> dpaMessageVect = daliFrc.encodeMultiRequest();
       
       auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
 
       //iqrf::embed::coordinator::RawDpaBondedDevices iqrfEmbedCoordinatorBondedDevices;
       //iqrf::embed::coordinator::RawDpaDiscoveredDevices iqrfEmbedCoordinatorDiscoveredDevices;
 
-      if (dpaMessageVect.size() < 1 || dpaMessageVect.size() > 2) {
-        //TODO THROW
-      }
+      //if (dpaMessageVect.size() < 1 || dpaMessageVect.size() > 2) {
+      //  //TODO THROW
+      //}
 
       //std::vector<std::unique_ptr<IDpaTransactionResult2>> transResults;
 
-      for (const DpaMessage & dpaMessage : dpaMessageVect) {
-        std::unique_ptr<IDpaTransactionResult2> transResult = exclusiveAccess->executeDpaTransaction(dpaMessage)->get();
-        //transResults.push_back(transResult);
-        //daliFrc.processMultiDpaTransactionResult(transResults);
-      }
+      //for (const DpaMessage & dpaMessage : dpaMessageVect) {
+      //  std::unique_ptr<IDpaTransactionResult2> transResult = exclusiveAccess->executeDpaTransaction(dpaMessage)->get();
+      //  //transResults.push_back(transResult);
+      //  //daliFrc.processMultiDpaTransactionResult(transResults);
+      //}
 
         //daliFrc.processDpaTransactionResult(std::move(transResult));
 
