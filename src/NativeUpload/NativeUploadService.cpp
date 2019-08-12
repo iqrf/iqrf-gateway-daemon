@@ -509,13 +509,9 @@ namespace iqrf {
       }
 
       // Tr Serie
-      std::string seriePrefix = coordParams.trType.substr(0, 6);
+      std::string seriePrefix = coordParams.trType.substr(0, 8);
 
-      if (seriePrefix.compare("DCTR-5") == 0)
-      {
-        trModuleInfo.serie = TrSerie::DCTR_5xD;
-      }
-      else if (seriePrefix.compare("DCTR-7") == 0) {
+      if (seriePrefix.compare("(DC)TR-7") == 0) {
         trModuleInfo.serie = TrSerie::DCTR_7xD;
       }
       else {
@@ -548,7 +544,7 @@ namespace iqrf {
 
       IqrfFmtParser parser(fileName);
 
-      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      iqrf::IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
       TrModuleInfo trModuleInfo = toTrModuleInfo(coordParams);
 
       parser.parse();
@@ -680,26 +676,34 @@ namespace iqrf {
         }
       }
 
-      switch (fileType) {
-        case TargetType::Hex:
-          m_exclusiveAccessor = m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Exclusive);
-          uploadFromHex(uploadResult, fileName);
-          m_exclusiveAccessor.reset();
-          break;
-        case TargetType::Iqrf:
-          m_exclusiveAccessor = m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Exclusive);
-          uploadFromIqrf(uploadResult, fileName);
-          m_exclusiveAccessor.reset();
-          break;
-        case TargetType::Config:
-          m_exclusiveAccessor = m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Exclusive);
-          uploadFromConfig(uploadResult, fileName);
-          m_exclusiveAccessor.reset();
-          break;
-        default:
-          NativeUploadError error(NativeUploadError::Type::DataPrepare, "Unsupported type source code file.");
-          uploadResult.setError(error);
-          return uploadResult;
+      try {
+        switch (fileType) {
+          case TargetType::Hex:
+            m_exclusiveAccessor = m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Exclusive);
+            uploadFromHex(uploadResult, fileName);
+            m_exclusiveAccessor.reset();
+            break;
+          case TargetType::Iqrf:
+            m_exclusiveAccessor = m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Exclusive);
+            uploadFromIqrf(uploadResult, fileName);
+            m_exclusiveAccessor.reset();
+            break;
+          case TargetType::Config:
+            m_exclusiveAccessor = m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Exclusive);
+            uploadFromConfig(uploadResult, fileName);
+            m_exclusiveAccessor.reset();
+            break;
+          default:
+            NativeUploadError error(NativeUploadError::Type::DataPrepare, "Unsupported type source code file.");
+            uploadResult.setError(error);
+            return uploadResult;
+        }
+      }
+      catch (std::out_of_range& ex) {
+        NativeUploadError error(NativeUploadError::Type::DataPrepare, ex.what());
+        uploadResult.setError(error);
+        m_exclusiveAccessor.reset();
+        return uploadResult;
       }
 
       TRC_FUNCTION_LEAVE("");
