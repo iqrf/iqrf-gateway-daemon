@@ -500,7 +500,7 @@ namespace iqrf {
       TrModuleInfo trModuleInfo;
 
       // Tr MCU
-      if (coordParams.mcuType.compare("PIC16F1938") == 0)
+      if (coordParams.mcuType.compare("PIC16LF1938") == 0)
       {
         trModuleInfo.mcu = TrMcu::PIC16F1938;
       }
