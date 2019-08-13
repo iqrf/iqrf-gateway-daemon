@@ -341,13 +341,13 @@ namespace iqrf {
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorBondedDevices.encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorBondedDevices.getRequest(), transResult, 3);
         iqrfEmbedCoordinatorBondedDevices.processDpaTransactionResult(std::move(transResult));
       }
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorDiscoveredDevices.encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorDiscoveredDevices.getRequest(), transResult, 3);
         iqrfEmbedCoordinatorDiscoveredDevices.processDpaTransactionResult(std::move(transResult));
       }
 
@@ -395,13 +395,13 @@ namespace iqrf {
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(osReadPtr->encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(osReadPtr->getRequest(), transResult, 3);
         osReadPtr->processDpaTransactionResult(std::move(transResult));
       }
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, 3);
         exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
       }
 
@@ -621,7 +621,7 @@ namespace iqrf {
               if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per) {
                 
                 embed::explore::RawDpaPeripheralInformation perInfo(nadr, per);
-                perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.encodeRequest())->get());
+                perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.getRequest())->get());
                 
                 int version = perInfo.getPar1();
                 //TODO temp workaround
@@ -1167,7 +1167,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
 
       binaryoutput::JsDriverEnumerate binoutEnum(m_iJsRenderService, nadr);
-      binoutEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(binoutEnum.encodeRequest())->get());
+      binoutEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(binoutEnum.getRequest())->get());
 
       database & db = *m_db;
 
@@ -1190,7 +1190,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
 
       sensor::JsDriverEnumerate sensorEnum(m_iJsRenderService, nadr);
-      sensorEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(sensorEnum.encodeRequest())->get());
+      sensorEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(sensorEnum.getRequest())->get());
       
       auto const & sensors = sensorEnum.getSensors();
       int idx = 0;

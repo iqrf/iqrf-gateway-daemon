@@ -71,20 +71,6 @@ namespace iqrf
           return "iqrf.embed.frc.SendSelective";
         }
 
-        void requestParameter(rapidjson::Document& par) const override
-        {
-          using namespace rapidjson;
-
-          Value selectedNodesArr;
-          selectedNodesArr.SetArray();
-          for (auto n : m_selectedNodes) {
-            Value nVal;
-            nVal.SetInt(n);
-            selectedNodesArr.PushBack(nVal, par.GetAllocator());
-          }
-          Pointer("/selectedNodes").Set(par, selectedNodesArr);
-        }
-
         void parseResponse(const rapidjson::Value& v) override
         {
           using namespace rapidjson;
@@ -94,6 +80,32 @@ namespace iqrf
         }
       };
       typedef std::unique_ptr<JsDriverSend> JsDriverSendPtr;
+
+      ////////////////
+      class JsDriverExtraResult : public ExtraResult, public JsDriverDpaCommandSolver
+      {
+      public:
+        JsDriverExtraResult(IJsRenderService* iJsRenderService)
+          :JsDriverDpaCommandSolver(iJsRenderService)
+          , ExtraResult()
+        {}
+
+        virtual ~JsDriverExtraResult() {}
+
+      protected:
+        std::string functionName() const override
+        {
+          return "iqrf.embed.frc.ExtraResult";
+        }
+
+        void parseResponse(const rapidjson::Value& v) override
+        {
+          using namespace rapidjson;
+
+          m_frcData = jutils::getMemberAsVector<int>("frcData", v);
+        }
+      };
+      typedef std::unique_ptr<JsDriverExtraResult> JsDriverExtraResultPtr;
 
     } //namespace frc
   } //namespace embed

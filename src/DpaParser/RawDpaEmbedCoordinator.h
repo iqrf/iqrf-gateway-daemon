@@ -20,14 +20,11 @@ namespace iqrf
         virtual ~RawDpaBondedDevices()
         {}
 
-        DpaMessage encodeRequest() override
+      protected:
+        void encodeRequest(DpaMessage & dpaRequest) override
         {
-          DpaMessage request;
-          initRequestHeader(request);
-          return request;
         }
 
-      protected:
         void parseResponse(const DpaMessage & dpaResponse) override
         {
           const uint8_t* bonded = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
@@ -48,14 +45,11 @@ namespace iqrf
         virtual ~RawDpaDiscoveredDevices()
         {}
 
-        DpaMessage encodeRequest() override
+      protected:
+        void encodeRequest(DpaMessage & dpaRequest) override
         {
-          DpaMessage request;
-          initRequestHeader(request);
-          return request;
         }
 
-      protected:
         void parseResponse(const DpaMessage & dpaResponse) override
         {
           const uint8_t* discovered = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;

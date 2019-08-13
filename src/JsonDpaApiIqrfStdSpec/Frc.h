@@ -30,14 +30,18 @@ namespace iqrf
           , m_status(0)
         {}
 
-      public:
         Send(uint8_t frcCommand, const std::vector<uint8_t> & userData)
           :m_frcCommand(frcCommand)
           , m_userData(userData)
           , m_status(0)
         {}
 
+      public:
         virtual ~Send() {}
+
+        // get param data passes by ctor
+        uint8_t getFrcCommand() const { m_frcCommand; };
+        const std::vector<uint8_t> & getUserData() const { return m_userData; }
 
         // get data as returned from driver
         uint8_t getStatus() const { return m_status; }
@@ -59,13 +63,16 @@ namespace iqrf
           :Send()
         {}
 
-      public:
         SendSelective(uint8_t frcCommand, const std::vector<int> & selectedNodes, const std::vector<uint8_t> & userData)
           :Send(frcCommand, userData)
           , m_selectedNodes(selectedNodes)
         {}
 
+      public:
         virtual ~SendSelective() {}
+
+        // get param data passes by ctor
+        const std::vector<int> & getSelectedNodes() const { return m_selectedNodes; }
 
       };
       typedef std::unique_ptr<SendSelective> SendSelectivePtr;
@@ -77,16 +84,16 @@ namespace iqrf
         //params
 
         //response
-        std::vector<int> m_remainFrcData;
+        std::vector<int> m_frcData;
 
-      public:
         ExtraResult()
         {}
 
+      public:
         virtual ~ExtraResult() {}
 
         // get data as returned from driver
-        const std::vector<int> & getRemainFrcData() const { return m_remainFrcData; }
+        const std::vector<int> & getFrcData() const { return m_frcData; }
 
       };
       typedef std::unique_ptr<ExtraResult> ExtraResultPtr;
