@@ -3,8 +3,11 @@
     "data": {
         "msgId": "testIqmeshAutoNetwork",
         "req": {
-            "waves": 5,
-            "emptyWaves": 2
+            "actionRetries": 1,
+            "discoveryTxPower": 6,
+            "discoveryBeforeStart": true,
+            "waves": 1,
+            "emptyWaves": 0
         },
         "returnVerbose": true
     }
