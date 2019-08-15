@@ -20,10 +20,9 @@ namespace iqrf {
   ///////////////////////////
   class JsDriverDpaCommandSolver : public JsDriverSolver, public DpaCommandSolver
   {
-  protected:
+  private:
     IJsRenderService* m_iJsRenderService = nullptr;
     DpaMessage m_dpaRequest;
-    rapidjson::Document m_originalRawHdpRequestDoc;
 
   public:
     virtual ~JsDriverDpaCommandSolver() {}
@@ -53,13 +52,10 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
     
-    void postRequest(rapidjson::Document & requestResultDoc) override
+    void postRequest(const rapidjson::Document & requestResultDoc) override
     {
       TRC_FUNCTION_ENTER("");
-
       rawHdp2dpaRequest(m_dpaRequest, getNadrDrv(), m_pnum, m_pcmd, getHwpidDrv(), requestResultDoc);
-      m_originalRawHdpRequestDoc.Swap(requestResultDoc);
-
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -70,12 +66,12 @@ namespace iqrf {
       dpa2rawHdpResponse(m_dpaTransactionResult2->getResponse(), responseParamDoc, responseParamDoc.GetAllocator());
 
       // original rawHdpRequest request passed for additional driver processing, e.g. sensor breakdown parsing
-      rapidjson::Pointer("/originalRequest").Set(responseParamDoc, m_originalRawHdpRequestDoc);
+      rapidjson::Pointer("/originalRequest").Set(responseParamDoc, getRequestResultDoc());
 
       TRC_FUNCTION_LEAVE("");
     }
 
-    void postResponse(rapidjson::Document & responseResultDoc) override
+    void postResponse(const rapidjson::Document & responseResultDoc) override
     {
       TRC_FUNCTION_ENTER("");
       parseResponse(responseResultDoc);

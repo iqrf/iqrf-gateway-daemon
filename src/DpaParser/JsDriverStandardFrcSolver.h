@@ -8,23 +8,32 @@
 
 namespace iqrf
 {
-  // use to handle API msg to cope with Standard FRC (iqrf.sensor.Frc, iqrf.dali.Frc, ...)
+  // use as common functionality predecessor for JsDriverDali, JsDriverSensor
   class JsDriverStandardFrcSolver : public JsDriverSolver
   {
   private:
+    std::string m_functionName;
     DpaMessage m_frcRequest;
     DpaMessage m_frcExtraRequest;
     DpaMessage m_frcResponse;
     DpaMessage m_frcExtraResponse;
     std::unique_ptr<IDpaTransactionResult2> m_frcDpaTransactionResult;
     std::unique_ptr<IDpaTransactionResult2> m_frcExtraDpaTransactionResult;
-    rapidjson::Document m_responseResultDoc;
+    rapidjson::Document m_frcRequestDoc;
 
-  public:
-
+  protected:
+    // used by sensor::JsDriverFrc, dali::JsDriverFrc
     JsDriverStandardFrcSolver(IJsRenderService* iJsRenderService)
       :JsDriverSolver(iJsRenderService)
     {}
+
+  public:
+    JsDriverStandardFrcSolver(IJsRenderService* iJsRenderService, const std::string & functionName, const rapidjson::Value & val)
+      :JsDriverSolver(iJsRenderService)
+      , m_functionName(functionName)
+    {
+      setRequestParamDoc(val);
+    }
 
     virtual ~JsDriverStandardFrcSolver() {}
 
@@ -65,23 +74,7 @@ namespace iqrf
 
     const rapidjson::Document & getResponseResultDoc() { return m_responseResultDoc; }
 
-    //// TODO function name
-    //void setFunctionName(const std::string& functionName)
-    //{
-    //  //set function name to be used by driver *_Request, *_Response
-    //}
-
-    //// TODO function name
-    //void setParam()
-    //{
-    //  //set param to be passed to driver _Request
-    //}
-
   protected:
-    //std::string functionName() const override
-    //{
-    //  return "iqrf.dali.Frc";
-    //}
 
     uint16_t getNadrDrv() const override
     {
@@ -93,20 +86,24 @@ namespace iqrf
       return (uint16_t)0xFFFF; // any
     }
 
-    //void preRequest(rapidjson::Document& requestParamDoc) override
-    //{
-    //  using namespace rapidjson;
+    std::string functionName() const override
+    {
+      return m_functionName;
+    }
 
-    //  // set passed params
-    //}
+    void preRequest(rapidjson::Document& requestResultDoc) override
+    {
+      // set in ctor by setRequestParamDoc(val);
+    }
 
-    void postRequest(rapidjson::Document& requestResultDoc) override
+    void postRequest(const rapidjson::Document& requestResultDoc) override
     {
       using namespace rapidjson;
 
       if (const Value *val0 = Pointer("/retpars/0").Get(requestResultDoc)) {
         uint8_t pnum, pcmd;
         rawHdp2dpaRequest(m_frcRequest, getNadrDrv(), pnum, pcmd, getHwpidDrv(), *val0);
+        m_frcRequestDoc.CopyFrom(*val0, m_frcRequestDoc.GetAllocator());
       }
       else {
         THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array .../retpars[0]");
@@ -125,6 +122,9 @@ namespace iqrf
     {
       using namespace rapidjson;
 
+      // some std FRC needs requestParam to parse response
+      responseParamDoc.CopyFrom(getRequestParamDoc(), responseParamDoc.GetAllocator());
+
       if (!m_frcDpaTransactionResult->isResponded()) {
         THROW_EXC_TRC_WAR(std::logic_error, "No Frc response");
       }
@@ -142,13 +142,13 @@ namespace iqrf
         dpa2rawHdpResponse(m_frcExtraResponse, val, responseParamDoc.GetAllocator());
         Pointer("/responseFrcExtraResult").Set(responseParamDoc, val);
       }
+
+      Pointer("/frcSendRequest").Set(responseParamDoc, m_frcRequestDoc);
     }
 
-    void postResponse(rapidjson::Document& responseResultDoc) override
+    void postResponse(const rapidjson::Document& responseResultDoc) override
     {
-      using namespace rapidjson;
-
-      m_responseResultDoc.CopyFrom(responseResultDoc, m_responseResultDoc.GetAllocator());
+      // nothing todo here
     }
 
   };

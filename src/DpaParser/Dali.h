@@ -55,7 +55,7 @@ namespace iqrf
       const std::vector<int> & getSelectedNodes() const { return m_selectedNodes; }
 
       // get data as returned from driver
-      const std::vector<CommandResponse> & getItems() const { return m_items; }
+      const std::vector<CommandResponse> & getCommandResponses() const { return m_items; }
 
     };
     typedef std::unique_ptr<Frc> FrcPtr;

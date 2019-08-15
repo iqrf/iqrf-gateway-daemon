@@ -1,7 +1,8 @@
 #pragma once
 
 #include "ApiMsg.h"
-#include "DpaMessage.h"
+#include "IDpaTransactionResult2.h"
+#include "HexStringCoversion.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/stringbuffer.h"
@@ -12,6 +13,19 @@ namespace iqrf {
   //-------------------------------------------------------
   class ApiMsgIqrfStandard : public ApiMsg
   {
+  protected:
+    std::unique_ptr<IDpaTransactionResult2> m_res;
+    std::string m_payloadKey;
+    rapidjson::Document m_payload;
+
+  private:
+    int m_timeout = -1;
+    int m_nadr = -1;
+    int m_hwpid = 0;
+    rapidjson::Document m_requestParamDoc;
+    std::string m_requestParamStr;
+    DpaMessage m_dpaRequest;
+
   public:
     ApiMsgIqrfStandard() = delete;
     ApiMsgIqrfStandard(const rapidjson::Document& doc)
@@ -29,21 +43,22 @@ namespace iqrf {
         m_hwpid = hwpidVal->GetInt();
       
       const Value* reqParamObj = Pointer("/data/req/param").Get(doc);
-      Document param;
-      param.CopyFrom(*reqParamObj, param.GetAllocator());
+      m_requestParamDoc.CopyFrom(*reqParamObj, m_requestParamDoc.GetAllocator());
       StringBuffer buffer;
       Writer<rapidjson::StringBuffer> writer(buffer);
-      param.Accept(writer);
-      m_param = buffer.GetString();
+      m_requestParamDoc.Accept(writer);
+      m_requestParamStr = buffer.GetString();
     }
 
     int getTimeout() const { return m_timeout; }
     int getNadr() const { return m_nadr; }
     int getHwpid() const { return m_hwpid; }
-    std::string getParamAsString() const { return m_param; }
+    
+    const rapidjson::Document & getRequestParamDoc() { return m_requestParamDoc; }
+    std::string getRequestParamStr() const { return m_requestParamStr; }
     
     const DpaMessage& getDpaRequest() const { return m_dpaRequest; }
-    void setDpaRequest(const DpaMessage& dpaRequest) { m_dpaRequest = dpaRequest; }
+    //void setDpaRequest(const DpaMessage& dpaRequest) { m_dpaRequest = dpaRequest; }
     
     void setPayload(const std::string& payloadKey, const rapidjson::Value& val)
     {
@@ -52,8 +67,7 @@ namespace iqrf {
     }
 
     virtual ~ApiMsgIqrfStandard()
-    {
-    }
+    {}
 
     void setDpaTransactionResult(std::unique_ptr<IDpaTransactionResult2> res)
     {
@@ -89,17 +103,6 @@ namespace iqrf {
       }
     }
 
-  protected:
-    std::unique_ptr<IDpaTransactionResult2> m_res;
-    std::string m_payloadKey;
-    rapidjson::Document m_payload;
-
-  private:
-    int m_timeout = -1;
-    int m_nadr = -1;
-    int m_hwpid = 0;
-    std::string m_param;
-    DpaMessage m_dpaRequest;
   };
 
 }

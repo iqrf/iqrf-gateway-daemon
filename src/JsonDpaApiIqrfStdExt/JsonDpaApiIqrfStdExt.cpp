@@ -37,7 +37,7 @@ namespace iqrf {
     // TODO from cfg
     std::vector<std::string> m_filters =
     {
-      "iqrfSensor_Frc",
+      "iqrfSensor_Fr1",
     };
 
   public:

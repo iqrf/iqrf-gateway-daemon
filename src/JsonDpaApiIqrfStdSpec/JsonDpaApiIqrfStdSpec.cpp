@@ -1,8 +1,5 @@
-#include "JsDriverFrc.h"
-#include "JsDriverDali.h"
-#include "ApiMsgIqrfStandard.h"
-#include "IqrfSensorFrc.h"
-//#include "IDpaTransactionResult2.h"
+#include "ApiMsgIqrfStandardFrc.h"
+#include "JsDriverStandardFrcSolver.h"
 #include "JsonDpaApiIqrfStdSpec.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -41,6 +38,7 @@ namespace iqrf {
     std::vector<std::string> m_filters =
     {
       "iqrfDali_Frc",
+      "iqrfSensor_Frc"
     };
 
   public:
@@ -52,32 +50,6 @@ namespace iqrf {
     {
     }
 
-    //for debug only
-    static std::string JsonToStr(const rapidjson::Value* val)
-    {
-      rapidjson::Document doc;
-      doc.CopyFrom(*val, doc.GetAllocator());
-      rapidjson::StringBuffer buffer;
-      rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-      doc.Accept(writer);
-      return buffer.GetString();
-    }
-
-    // aux exception to handle error situations
-    class HandleException : public std::logic_error
-    {
-    public:
-      HandleException() = delete;
-      HandleException(const std::string& errStr, int status)
-        :std::logic_error(errStr.c_str())
-        ,m_status(status)
-      {
-      }
-      int getStatus() const { return m_status; }
-    private:
-      int m_status = 1;
-    };
-
     void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document dc)
     {
       TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
@@ -87,76 +59,50 @@ namespace iqrf {
 
       Document allResponseDoc;
 
-      IqrfDaliFrc iqrfDaliFrc(dc);
+      // solves api msg processing
+      ApiMsgIqrfStandardFrc apiMsgIqrfStandardFrc(dc);
 
-      if (msgType.m_type == "iqrfDali_Frc") {
-        try {
-          dali::JsDriverFrc daliFrc(m_iJsRenderService, iqrfDaliFrc.getCommand(), iqrfDaliFrc.getSelectedNodes());
+      try {
+        // solves JsDriver processing
+        JsDriverStandardFrcSolver jsDriverStandardFrcSolver(m_iJsRenderService, msgType.m_possibleDriverFunction, apiMsgIqrfStandardFrc.getRequestParamDoc());
 
-          daliFrc.processRequestDrv();
+        // process *_Request
+        jsDriverStandardFrcSolver.processRequestDrv();
 
-          auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+        auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
 
-          std::unique_ptr<IDpaTransactionResult2> transResultFrc = exclusiveAccess->executeDpaTransaction(daliFrc.getFrcRequest())->get();
-          daliFrc.setFrcDpaTransactionResult(std::move(transResultFrc));
+        // FRC transaction
+        std::unique_ptr<IDpaTransactionResult2> transResultFrc = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcRequest())->get();
+        jsDriverStandardFrcSolver.setFrcDpaTransactionResult(std::move(transResultFrc));
 
-          std::unique_ptr<IDpaTransactionResult2> transResultFrcExtra = exclusiveAccess->executeDpaTransaction(daliFrc.getFrcExtraRequest())->get();
-          daliFrc.setFrcExtraDpaTransactionResult(std::move(transResultFrcExtra));
-
-          daliFrc.processResponseDrv();
-
-          auto items = daliFrc.getItems();
-
-          iqrfDaliFrc.setPayload("/data/rsp/result", daliFrc.getResponseResultDoc());
-          iqrfDaliFrc.setDpaTransactionResult(daliFrc.moveFrcDpaTransactionResult());
-          iqrfDaliFrc.setDpaTransactionExtraResult(daliFrc.moveFrcExtraDpaTransactionResult());
-          IDpaTransactionResult2::ErrorCode status = IDpaTransactionResult2::ErrorCode::TRN_OK;
-          iqrfDaliFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
-          iqrfDaliFrc.createResponse(allResponseDoc);
+        if (apiMsgIqrfStandardFrc.getExtraResult()) {
+          // FRC extra result transaction
+          std::unique_ptr<IDpaTransactionResult2> transResultFrcExtra = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcExtraRequest())->get();
+          jsDriverStandardFrcSolver.setFrcExtraDpaTransactionResult(std::move(transResultFrcExtra));
         }
-        catch (HandleException & e) {
-          //provide error response
-          Document rDataError;
-          rDataError.SetString(e.what(), rDataError.GetAllocator());
-          iqrfDaliFrc.setPayload("/data/rsp/errorStr", std::move(rDataError));
-          iqrfDaliFrc.setStatus(IDpaTransactionResult2::errorCode(e.getStatus()), e.getStatus());
-          iqrfDaliFrc.createResponse(allResponseDoc);
-        }
+
+        // process *_Response
+        jsDriverStandardFrcSolver.processResponseDrv();
+
+        // finalize api response
+        apiMsgIqrfStandardFrc.setPayload("/data/rsp/result", jsDriverStandardFrcSolver.getResponseResultDoc());
+        apiMsgIqrfStandardFrc.setDpaTransactionResult(jsDriverStandardFrcSolver.moveFrcDpaTransactionResult());
+        apiMsgIqrfStandardFrc.setDpaTransactionExtraResult(jsDriverStandardFrcSolver.moveFrcExtraDpaTransactionResult());
+        IDpaTransactionResult2::ErrorCode status = IDpaTransactionResult2::ErrorCode::TRN_OK;
+        apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
+        apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
       }
-      if (msgType.m_type == "iqrfSensor_Frc") {
-        //try {
-        //  dali::JsDriverFrc daliFrc(m_iJsRenderService, iqrfDaliFrc.getCommand(), iqrfDaliFrc.getSelectedNodes());
-
-        //  daliFrc.processRequestDrv();
-
-        //  auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-
-        //  std::unique_ptr<IDpaTransactionResult2> transResultFrc = exclusiveAccess->executeDpaTransaction(daliFrc.getFrcRequest())->get();
-        //  daliFrc.setFrcDpaTransactionResult(std::move(transResultFrc));
-
-        //  std::unique_ptr<IDpaTransactionResult2> transResultFrcExtra = exclusiveAccess->executeDpaTransaction(daliFrc.getFrcExtraRequest())->get();
-        //  daliFrc.setFrcExtraDpaTransactionResult(std::move(transResultFrcExtra));
-
-        //  daliFrc.processResponseDrv();
-
-        //  auto items = daliFrc.getItems();
-
-        //  iqrfDaliFrc.setPayload("/data/rsp/result", daliFrc.getResponseResultDoc());
-        //  IDpaTransactionResult2::ErrorCode status = IDpaTransactionResult2::ErrorCode::TRN_OK;
-        //  iqrfDaliFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
-        //  iqrfDaliFrc.createResponse(allResponseDoc);
-        //}
-        //catch (HandleException & e) {
-        //  //provide error response
-        //  Document rDataError;
-        //  rDataError.SetString(e.what(), rDataError.GetAllocator());
-        //  iqrfDaliFrc.setPayload("/data/rsp/errorStr", std::move(rDataError));
-        //  iqrfDaliFrc.setStatus(IDpaTransactionResult2::errorCode(e.getStatus()), e.getStatus());
-        //  iqrfDaliFrc.createResponse(allResponseDoc);
-        //}
+      catch (std::exception & e) {
+        //provide error response
+        Document rDataError;
+        rDataError.SetString(e.what(), rDataError.GetAllocator());
+        apiMsgIqrfStandardFrc.setPayload("/data/rsp/errorStr", std::move(rDataError));
+        //apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(e.getStatus()), e.getStatus());
+        apiMsgIqrfStandardFrc.setStatus(
+          IDpaTransactionResult2::errorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_FAIL), IDpaTransactionResult2::ErrorCode::TRN_ERROR_FAIL);
+        apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
       }
 
-      TRC_DEBUG("response object: " << std::endl << JsonToStr(&allResponseDoc));
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(allResponseDoc));
 
       TRC_FUNCTION_LEAVE("");

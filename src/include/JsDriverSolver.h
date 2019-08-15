@@ -19,14 +19,42 @@ namespace iqrf {
   protected:
     IJsRenderService* m_iJsRenderService = nullptr;
 
+    // request processing
+    rapidjson::Document m_requestParamDoc;
+    std::string m_requestParamStr;
+    rapidjson::Document m_requestResultDoc;
+    std::string m_requestResultStr;
+
+    // response processing
+    rapidjson::Document m_responseParamDoc;
+    std::string m_responseParamStr;
+    rapidjson::Document m_responseResultDoc;
+    std::string m_responseResultStr;
+
   public:
     virtual std::string functionName() const = 0;
     virtual uint16_t getNadrDrv() const = 0;
     virtual uint16_t getHwpidDrv() const = 0;
     virtual void preRequest(rapidjson::Document & requestParamDoc) = 0;
-    virtual void postRequest(rapidjson::Document & requestResultDoc) = 0;
+    virtual void postRequest(const rapidjson::Document & requestResultDoc) = 0;
     virtual void preResponse(rapidjson::Document & responseParamDoc) = 0;
-    virtual void postResponse(rapidjson::Document & responseResultDoc) = 0;
+    virtual void postResponse(const rapidjson::Document & responseResultDoc) = 0;
+    
+    // request processing
+  protected:
+    // used by JsDriverStandardFrcSolver
+    void setRequestParamDoc(const rapidjson::Value & requestParamVal) { m_requestParamDoc.CopyFrom(requestParamVal, m_requestParamDoc.GetAllocator()); }
+  public:
+    const rapidjson::Document & getRequestParamDoc() const { return m_requestParamDoc; }
+    const std::string & getRequestParamStr() const { return m_requestParamStr; }
+    const rapidjson::Document & getRequestResultDoc() const { return m_requestResultDoc; }
+    const std::string & getRequestResultStr() const { return m_requestResultStr; }
+
+    // response processing
+    const rapidjson::Document & getResponseParamDoc() const { return m_responseParamDoc; }
+    const std::string & getResponseParamStr() const { return m_responseParamStr; }
+    const rapidjson::Document & getResponseResultDoc() const { return m_responseResultDoc; }
+    const std::string & getResponseResultStr() const { return m_responseResultStr; }
 
     JsDriverSolver() = delete;
     JsDriverSolver(IJsRenderService* iJsRenderService)
@@ -43,33 +71,29 @@ namespace iqrf {
       functionNameReq += "_Request_req";
       TRC_DEBUG(PAR(functionNameReq));
 
-      Document requestParamDoc;
+      preRequest(m_requestParamDoc);
 
-      preRequest(requestParamDoc);
-
-      std::string requestParamStr;
       StringBuffer buffer;
       Writer<rapidjson::StringBuffer> writer(buffer);
-      requestParamDoc.Accept(writer);
-      requestParamStr = buffer.GetString();
+      m_requestParamDoc.Accept(writer);
+      m_requestParamStr = buffer.GetString();
 
-      TRC_DEBUG(PAR(requestParamStr));
+      TRC_DEBUG(PAR(m_requestParamStr));
 
-      std::string requestResultStr;
       try {
-        m_iJsRenderService->callFenced(getNadrDrv(), getHwpidDrv(), functionNameReq, requestParamStr, requestResultStr);
+        m_iJsRenderService->callFenced(getNadrDrv(), getHwpidDrv(), functionNameReq, m_requestParamStr, m_requestResultStr);
       }
       catch (std::exception &e) {
+        //TODO use dedicated exception to distinguish driver error (BAD_REQUEST)
         CATCH_EXC_TRC_WAR(std::exception, e, "Driver request failure: ");
         THROW_EXC_TRC_WAR(std::logic_error, "Driver request failure: " << e.what());
       }
 
-      TRC_DEBUG(PAR(requestResultStr));
+      TRC_DEBUG(PAR(m_requestResultStr));
 
-      Document requestResultDoc;
-      requestResultDoc.Parse(requestResultStr);
+      m_requestResultDoc.Parse(m_requestResultStr);
 
-      postRequest(requestResultDoc);
+      postRequest(m_requestResultDoc);
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -84,34 +108,30 @@ namespace iqrf {
       functionNameRsp += "_Response_rsp";
       TRC_DEBUG(PAR(functionNameRsp));
 
-      Document responseParamDoc;
+      preResponse(m_responseParamDoc);
 
-      preResponse(responseParamDoc);
-
-      std::string responseParamStr;
       StringBuffer buffer;
       Writer<rapidjson::StringBuffer> writer(buffer);
-      responseParamDoc.Accept(writer);
-      responseParamStr = buffer.GetString();
+      m_responseParamDoc.Accept(writer);
+      m_responseParamStr = buffer.GetString();
 
-      TRC_DEBUG(PAR(responseParamStr));
+      TRC_DEBUG(PAR(m_responseParamStr));
 
-      std::string responseResultStr;
       try {
-        m_iJsRenderService->callFenced(getNadrDrv(), getHwpidDrv(), functionNameRsp, responseParamStr, responseResultStr);
+        m_iJsRenderService->callFenced(getNadrDrv(), getHwpidDrv(), functionNameRsp, m_responseParamStr, m_responseResultStr);
 
       }
       catch (std::exception &e) {
+        //TODO use dedicated exception to distinguish driver error (BAD_RESPONSE)
         CATCH_EXC_TRC_WAR(std::exception, e, "Driver response failure: ");
         THROW_EXC_TRC_WAR(std::logic_error, "Driver response failure: " << e.what());
       }
 
-      TRC_DEBUG(PAR(responseResultStr));
+      TRC_DEBUG(PAR(m_responseResultStr));
 
-      Document responseResultDoc;
-      responseResultDoc.Parse(responseResultStr);
+      m_responseResultDoc.Parse(m_responseResultStr);
 
-      postResponse(responseResultDoc);
+      postResponse(m_responseResultDoc);
 
       TRC_FUNCTION_LEAVE("");
     }
