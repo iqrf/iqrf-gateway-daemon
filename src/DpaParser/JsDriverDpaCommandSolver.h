@@ -1,11 +1,14 @@
 #pragma once
 
 #include "IJsRenderService.h"
+#include "JsDriverSolver.h"
 #include "DpaCommandSolver.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
 
 #include "HexStringCoversion.h"
 #include "Trace.h"
@@ -14,137 +17,99 @@
 
 namespace iqrf {
 
-  class JsDriverDpaCommandSolver : public DpaCommandSolver
+  ///////////////////////////
+  class JsDriverDpaCommandSolver : public JsDriverSolver, public DpaCommandSolver
   {
-  protected:
-    std::string m_rawHdpRequestAsStr;
+  private:
     IJsRenderService* m_iJsRenderService = nullptr;
+    DpaMessage m_dpaRequest;
 
   public:
     virtual ~JsDriverDpaCommandSolver() {}
 
-    JsDriverDpaCommandSolver(IJsRenderService* iJsRenderService, uint16_t nadr)
+    JsDriverDpaCommandSolver(IJsRenderService* iJsRenderService, uint16_t nadr = -1)
       :DpaCommandSolver(nadr)
+      ,JsDriverSolver(iJsRenderService)
       , m_iJsRenderService(iJsRenderService)
     {}
 
     JsDriverDpaCommandSolver(IJsRenderService* iJsRenderService, uint16_t nadr, uint16_t hwpid)
       :DpaCommandSolver(nadr, hwpid)
+      , JsDriverSolver(iJsRenderService)
       , m_iJsRenderService(iJsRenderService)
     {}
 
-    DpaMessage encodeRequest() override
+  protected:
+    // overrides from JsDriverSolver
+    //////////
+    virtual uint16_t getNadrDrv() const { return getNadr(); }
+    virtual uint16_t getHwpidDrv() const { return getHwpid(); }
+    
+    void preRequest(rapidjson::Document & requestParamDoc) override
+    {
+      TRC_FUNCTION_ENTER("");
+      requestParameter(requestParamDoc);
+      TRC_FUNCTION_LEAVE("");
+    }
+    
+    void postRequest(const rapidjson::Document & requestResultDoc) override
+    {
+      TRC_FUNCTION_ENTER("");
+      rawHdp2dpaRequest(m_dpaRequest, getNadrDrv(), m_pnum, m_pcmd, getHwpidDrv(), requestResultDoc);
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void preResponse(rapidjson::Document & responseParamDoc) override
     {
       TRC_FUNCTION_ENTER("");
 
-      using namespace rapidjson;
+      dpa2rawHdpResponse(m_dpaTransactionResult2->getResponse(), responseParamDoc, responseParamDoc.GetAllocator());
 
-      std::string functionNameReq(functionName());
-      functionNameReq += "_Request_req";
-
-      // call request driver func, it returns rawHdpRequest format in text form
-      try {
-        m_iJsRenderService->callFenced(getNadr(), getHwpid(), functionNameReq, requestParameter(), m_rawHdpRequestAsStr);
-      }
-      catch (std::exception &e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Driver request failure: ");
-        //TODO special request error exc
-        THROW_EXC_TRC_WAR(std::logic_error, "Driver request failure: " << e.what());
-      }
-
-      TRC_DEBUG(PAR(m_rawHdpRequestAsStr));
-
-      // convert from rawHdpRequest to dpaRequest and pass nadr and hwpid to be in dapaRequest (driver doesn't set them)
-      Document doc;
-      doc.Parse(m_rawHdpRequestAsStr);
-
-      if (Value *val = Pointer("/pnum").Get(doc)) {
-        parseHexaNum(m_pnum, val->GetString());
-      }
-      if (Value *val = Pointer("/pcmd").Get(doc)) {
-        parseHexaNum(m_pcmd, val->GetString());
-      }
-
-      DpaMessage dpaRequest;
-      initRequestHeader(dpaRequest);
-
-      int len = (int)sizeof(TDpaIFaceHeader);
-      if (Value *val = Pointer("/rdata").Get(doc)) {
-        len += parseBinary(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData, val->GetString(), DPA_MAX_DATA_LENGTH);
-        dpaRequest.SetLength(sizeof(TDpaIFaceHeader) + len);
-      }
-      dpaRequest.SetLength(len);
+      // original rawHdpRequest request passed for additional driver processing, e.g. sensor breakdown parsing
+      rapidjson::Pointer("/originalRequest").Set(responseParamDoc, getRequestResultDoc());
 
       TRC_FUNCTION_LEAVE("");
-      return dpaRequest;
+    }
+
+    void postResponse(const rapidjson::Document & responseResultDoc) override
+    {
+      TRC_FUNCTION_ENTER("");
+      parseResponse(responseResultDoc);
+      TRC_FUNCTION_LEAVE("");
     }
 
   protected:
-    virtual std::string functionName() const = 0;
+    // overrides from DpaCommandSolver
+    ////////
+    // uses driver function *_Request function to get RawHdp and convert to DpaMessage
+    void encodeRequest(DpaMessage & dpaRequest) override
+    {
+      TRC_FUNCTION_ENTER("");
+      processRequestDrv();
+      TRC_FUNCTION_LEAVE("");
+      dpaRequest = m_dpaRequest;
+    }
 
-    virtual std::string requestParameter() const = 0;
-
-    virtual void parseResponse(const rapidjson::Value& v) = 0;
-
+    // convert DpaMessage to RawHdp and uses driver function *_Response function to process
     void parseResponse(const DpaMessage & dpaResponse) override
     {
       TRC_FUNCTION_ENTER("");
-
-      using namespace rapidjson;
-
-      Document doc;
-
-      std::string functionNameRsp(functionName());
-      functionNameRsp += "_Response_rsp";
-
-      std::string pnumStr, pcmdStr, rcodeStr, dpavalStr;
-      pnumStr = encodeHexaNum(getPnum());
-      pcmdStr = encodeHexaNum(uint8_t(getPcmd() | 0x80));  // set highest bit to satisfy driver checker
-      rcodeStr = encodeHexaNum(getRcode());
-      dpavalStr = encodeHexaNum(getDpaval());
-
-      //nadr, hwpid is not interesting for drivers
-      Pointer("/pnum").Set(doc, pnumStr);
-      Pointer("/pcmd").Set(doc, pcmdStr);
-      Pointer("/rcode").Set(doc, rcodeStr);
-      Pointer("/dpaval").Set(doc, rcodeStr);
-
-      if (getRdata().size() > 0) {
-        Pointer("/rdata").Set(doc, encodeBinary(getRdata().data(), (int)getRdata().size()));
-      }
-
-      // original rawHdpRequest request passed for additional driver processing, e.g. sensor breakdown parsing
-      if (m_rawHdpRequestAsStr.size() > 0) {
-        Document rawHdpRequestDoc;
-        rawHdpRequestDoc.Parse(m_rawHdpRequestAsStr);
-        const Value & val = rawHdpRequestDoc;
-        Pointer("/originalRequest").Set(doc, rawHdpRequestDoc);
-      }
-
-      std::string rawHdpResponse;
-      StringBuffer buffer;
-      Writer<rapidjson::StringBuffer> writer(buffer);
-      doc.Accept(writer);
-      rawHdpResponse = buffer.GetString();
-
-      TRC_DEBUG(PAR(rawHdpResponse));
-
-      try {
-        std::string rsp;
-        m_iJsRenderService->callFenced(getNadr(), getHwpid(), functionNameRsp, rawHdpResponse, rsp);
-
-        Document rspDoc;
-        rspDoc.Parse(rsp);
-
-        parseResponse(rspDoc);
-      }
-      catch (std::exception &e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Driver response failure: ");
-        //TODO special response error exc
-        THROW_EXC_TRC_WAR(std::logic_error, "Driver response failure: " << e.what());
-      }
-
+      processResponseDrv();
       TRC_FUNCTION_LEAVE("");
     }
+
+  protected:
+    // virtuals to be overriden by successor classes
+    ////////
+    
+    // override if non empty par is required
+    virtual void requestParameter(rapidjson::Document& par) const
+    {
+      par.SetObject();
+    }
+
+    // provide parsing from Json after driver *_Response processing
+    virtual void parseResponse(const rapidjson::Value& v) = 0;
+
   };
 }

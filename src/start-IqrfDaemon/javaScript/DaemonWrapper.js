@@ -989,7 +989,7 @@ if (iqrf.dali !== undefined) {
   iqrf.dali.Frc_Response_rsp = function (param) {
     var result =
     {
-      items: iqrf.dali.Frc_Response(param.responseFrcSend, param.responseFrcExtraResult)
+      answers: iqrf.dali.Frc_Response(param.responseFrcSend, param.responseFrcExtraResult)
     };
     return result;
   };

@@ -42,7 +42,7 @@
               "properties": {
                 "command": {
                   "type": "integer",
-                  "description": "2 bytes (16 bits) wide values, each representing one DALI command at the standard DALI format YAAAAAAS+DDDDDDDD.",
+                  "description": "2 bytes (16 bits) wide values, each representing one DALI command at the standard DALI format YAAAAAAS+DDDDDDDD."
                 },
                 "selectedNodes": {
                   "type": "array",

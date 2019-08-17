@@ -10,7 +10,7 @@ namespace iqrf
     class InfoEnumerate : public Enumerate
     {
     public:
-      class InfoSensor : public Sensor
+      class InfoSensor : public item::Sensor
       {
       public:
         InfoSensor(int idx, std::string sid, int stype, std::string name, std::string sname, std::string unit, int dplac, std::set<int> frcs)

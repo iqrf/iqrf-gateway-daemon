@@ -30,11 +30,6 @@ namespace iqrf
           return "iqrf.embed.os.Read";
         }
 
-        std::string requestParameter() const override
-        {
-          return "{}";
-        }
-
         void parseResponse(const rapidjson::Value& v) override
         {
           using namespace rapidjson;
@@ -68,11 +63,6 @@ namespace iqrf
           return "iqrf.embed.os.ReadCfg";
         }
 
-        std::string requestParameter() const override
-        {
-          return "{}";
-        }
-
         void parseResponse(const rapidjson::Value& v) override
         {
           m_checkum = jutils::getMemberAs<int>("checksum", v);
@@ -100,11 +90,6 @@ namespace iqrf
         std::string functionName() const override
         {
           return "iqrf.embed.os.Restart";
-        }
-
-        std::string requestParameter() const override
-        {
-          return "{}";
         }
 
         void parseResponse(const rapidjson::Value& v) override

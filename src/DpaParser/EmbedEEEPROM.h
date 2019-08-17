@@ -22,12 +22,12 @@ namespace iqrf
         Read()
         {}
 
-      public:
         Read(uint16_t address, uint8_t len)
           : m_address(address)
           , m_len(len)
         {}
 
+      public:
         virtual ~Read()
         {}
 

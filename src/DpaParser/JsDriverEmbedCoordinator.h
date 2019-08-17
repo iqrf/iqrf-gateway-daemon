@@ -31,11 +31,6 @@ namespace iqrf
           return "iqrf.embed.coordinator.BondedDevices";
         }
 
-        std::string requestParameter() const override
-        {
-          return "{}";
-        }
-
         void parseResponse(const rapidjson::Value& v) override
         {
           using namespace rapidjson;

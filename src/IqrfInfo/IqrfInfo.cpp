@@ -341,13 +341,13 @@ namespace iqrf {
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorBondedDevices.encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorBondedDevices.getRequest(), transResult, 3);
         iqrfEmbedCoordinatorBondedDevices.processDpaTransactionResult(std::move(transResult));
       }
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorDiscoveredDevices.encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorDiscoveredDevices.getRequest(), transResult, 3);
         iqrfEmbedCoordinatorDiscoveredDevices.processDpaTransactionResult(std::move(transResult));
       }
 
@@ -367,10 +367,6 @@ namespace iqrf {
           int p5 = nd->getEmbedOsRead()->getOsBuild();
           int p6 = nd->getEmbedOsRead()->getOsVersion();
           int p7 = nd->getEmbedExploreEnumerate()->getDpaVer();
-
-          //retval->addItem(
-          //  nd->getNadr(), nd->getEmbedOsRead()->getMid(), nd->getHwpid(), nd->getEmbedExploreEnumerate()->getHwpidVer()
-          //  , nd->getEmbedOsRead()->getOsBuild(), nd->getEmbedOsRead()->getOsVersion(), nd->getEmbedExploreEnumerate()->getDpaVer(), std::move(nd));
 
           retval->addItem(p1, p2, p3, p4, p5, p6, p7, std::move(nd));
 
@@ -395,13 +391,13 @@ namespace iqrf {
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(osReadPtr->encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(osReadPtr->getRequest(), transResult, 3);
         osReadPtr->processDpaTransactionResult(std::move(transResult));
       }
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, 3);
         exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
       }
 
@@ -621,7 +617,7 @@ namespace iqrf {
               if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per) {
                 
                 embed::explore::RawDpaPeripheralInformation perInfo(nadr, per);
-                perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.encodeRequest())->get());
+                perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.getRequest())->get());
                 
                 int version = perInfo.getPar1();
                 //TODO temp workaround
@@ -752,17 +748,17 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+
     void loadDrivers()
     {
       TRC_FUNCTION_ENTER("");
-      database & db = *m_db;
-
-      std::map<int, std::vector<Driver>> mapDeviceDrivers;
 
       try {
 
         database & db = *m_db;
+        std::map<int, std::map<int, Driver>> mapDeviceDrivers;
 
+        // get drivers according DeviceId
         db << "SELECT "
           "Device.Id "
           ", Driver.Name "
@@ -777,16 +773,47 @@ namespace iqrf {
           ";"
           >> [&](int id, std::string name, int sid, int ver, std::string drv)
         {
-          mapDeviceDrivers[id].push_back(Driver(name, sid, ver, drv));
+          mapDeviceDrivers[id].insert(std::make_pair(sid, Driver(name, sid, ver, drv)));
         };
 
         db << "select Id, CustomDriver from Device;" 
           >> [&](int id, std::string drv)
         {
-          mapDeviceDrivers[id].push_back(Driver("custom", -100, 0, drv));
+          int sid = -100;
+          mapDeviceDrivers[id].insert(std::make_pair(sid, Driver("custom", -100, 0, drv)));
         };
 
-        
+        /////////// special coord handling - gets all highest ver drivers not assigned in previous steps
+        // get [C] device by Nadr = 0 to add later some std FRC drivers to coordinator
+        int coordDeviceId = 0;
+        db << "SELECT "
+          "Device.Id "
+          " FROM Bonded "
+          " INNER JOIN Node "
+          " ON Bonded.Mid = Node.Mid "
+          " INNER JOIN Device "
+          " ON Node.DeviceId = Device.Id "
+          " WHERE Bonded.Nadr = 0"
+          ";"
+          >> coordDeviceId;
+
+        std::map<int, Driver> & coordDriversMap = mapDeviceDrivers[coordDeviceId];
+        db << "SELECT "
+          "Name "
+          ", StandardId "
+          ", Version "
+          ", Driver "
+          ", MAX(Version) as MaxVersion "
+          "FROM Driver "
+          "GROUP BY StandardId "
+          ";"
+          >> [&](std::string name, int sid, int ver, std::string drv, int maxVer)
+        {
+          // it doesn't insert if sid already there => inserted just not presented
+          coordDriversMap.insert(std::make_pair(sid, Driver(name, sid, ver, drv)));
+        };
+        ////////// end of special coord handling
+
         // daemon wrapper workaround
         std::string wrapperStr;
         std::string fname = m_iLaunchService->getDataDir();
@@ -805,7 +832,7 @@ namespace iqrf {
           std::string str2load;
           auto const & drvs = devIt.second;
           for (auto drv : drvs) {
-            str2load += drv.m_drv;
+            str2load += drv.second.m_drv;
           }
           str2load += wrapperStr;
           m_iJsRenderService->loadJsCodeFenced(deviceId, str2load);
@@ -820,7 +847,7 @@ namespace iqrf {
             " ON Bonded.Mid = Node.Mid "
             " INNER JOIN Device "
             " ON Node.DeviceId = Device.Id "
-            " WHERE Node.DeviceId = ?"
+            " WHERE Node.DeviceId = ? "
             ";"
             << deviceId
             >> [&](int id, int nadr)
@@ -1167,7 +1194,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
 
       binaryoutput::JsDriverEnumerate binoutEnum(m_iJsRenderService, nadr);
-      binoutEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(binoutEnum.encodeRequest())->get());
+      binoutEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(binoutEnum.getRequest())->get());
 
       database & db = *m_db;
 
@@ -1190,7 +1217,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
 
       sensor::JsDriverEnumerate sensorEnum(m_iJsRenderService, nadr);
-      sensorEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(sensorEnum.encodeRequest())->get());
+      sensorEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(sensorEnum.getRequest())->get());
       
       auto const & sensors = sensorEnum.getSensors();
       int idx = 0;

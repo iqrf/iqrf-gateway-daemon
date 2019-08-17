@@ -323,7 +323,7 @@ namespace iqrf {
           TRC_INFORMATION("No async TR reset response => Send explicit request");
 
           iqrf::embed::os::RawDpaRestart iqrfEmbedOsRestart(0); // restart coordinator
-          auto trn = executeDpaTransaction(iqrfEmbedOsRestart.encodeRequest(), -1);
+          auto trn = executeDpaTransaction(iqrfEmbedOsRestart.getRequest(), -1);
           // don't care about result => interested in async reset response
         }
         else {
@@ -343,7 +343,7 @@ namespace iqrf {
     iqrf::embed::os::RawDpaRead iqrfEmbedOsRead(0);
     try {
       std::unique_ptr<IDpaTransactionResult2> transResult;
-      exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedOsRead.encodeRequest(), transResult, 3);
+      exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedOsRead.getRequest(), transResult, 3);
       iqrfEmbedOsRead.processDpaTransactionResult(std::move(transResult));
 
       m_cPar.moduleId = iqrfEmbedOsRead.getMidAsString();

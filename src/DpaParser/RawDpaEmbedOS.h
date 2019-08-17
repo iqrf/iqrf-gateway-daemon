@@ -19,14 +19,11 @@ namespace iqrf
 
         virtual ~RawDpaRead() {}
 
-        DpaMessage encodeRequest() override
+      protected:
+        void encodeRequest(DpaMessage & dpaRequest) override
         {
-          DpaMessage request;
-          initRequestHeader(request);
-          return request;
         }
 
-      protected:
         void parseResponse(const DpaMessage & dpaResponse) override
         {
           TPerOSRead_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
@@ -54,14 +51,11 @@ namespace iqrf
 
         virtual ~RawDpaReadCfg() {}
 
-        DpaMessage encodeRequest() override
+      protected:
+        void encodeRequest(DpaMessage & dpaRequest) override
         {
-          DpaMessage request;
-          initRequestHeader(request);
-          return request;
         }
 
-      protected:
         void parseResponse(const DpaMessage & dpaResponse) override
         {
           TPerOSReadCfg_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSReadCfg_Response;
@@ -84,14 +78,11 @@ namespace iqrf
 
         virtual ~RawDpaRestart() {}
 
-        DpaMessage encodeRequest() override
+      protected:
+        void encodeRequest(DpaMessage & dpaRequest) override
         {
-          DpaMessage request;
-          initRequestHeader(request);
-          return request;
         }
 
-      protected:
         void parseResponse(const DpaMessage & dpaResponse) override
         {
         }
