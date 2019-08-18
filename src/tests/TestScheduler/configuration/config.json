@@ -30,14 +30,14 @@
     },
     {
       "name": "iqrf::Scheduler",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "Scheduler",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::TestScheduler",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "TestScheduler",
       "enabled": true,
       "startlevel": 1

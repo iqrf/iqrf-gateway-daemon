@@ -89,22 +89,25 @@ namespace iqrf {
       auto retval = m_accessControl.getAccess(receiveFromFunc, access);
       
       //simulate IqrfDpa activate procedure
-      m_thd = std::thread([&]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        //simulate send async response after TR reset
-        //pushOutgoingMessage("00.00.ff.3f.00.00.00.00.28.02.00.fd.26.00.00.00.00.00.00.01", 0);
-        pushOutgoingMessage("00.00.ff.3f.00.00.80.00.02.03.00.fd.26.00.00.00.00.00.00.01", 0);
+      static bool simulateReset = true;
+      if (simulateReset) {
+        simulateReset = false;
+        m_thd = std::thread([&]() {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          //simulate send async response after TR reset
+          //pushOutgoingMessage("00.00.ff.3f.00.00.00.00.28.02.00.fd.26.00.00.00.00.00.00.01", 0);
+          pushOutgoingMessage("00.00.ff.3f.00.00.80.00.02.03.00.fd.26.00.00.00.00.00.00.01", 0);
 
-        //simulate send OS read transaction handling
-        //get OS read request
-        std::string osRead = popIncomingMessage(1000);
-        if (osRead == "00.00.02.00.ff.ff") {
-          //OS read response
-          //pushOutgoingMessage("00.00.02.80.00.00.00.00.8a.52.00.81.38.24.79.08.00.28.00.c0", 20);
-          pushOutgoingMessage("00.00.02.80.00.00.00.00.8a.52.00.81.38.24.B8.08.00.28.00.c0", 20);
-        }
-      });
-
+          //simulate send OS read transaction handling
+          //get OS read request
+          std::string osRead = popIncomingMessage(1000);
+          if (osRead == "00.00.02.00.ff.ff") {
+            //OS read response
+            //pushOutgoingMessage("00.00.02.80.00.00.00.00.8a.52.00.81.38.24.79.08.00.28.00.c0", 20);
+            pushOutgoingMessage("00.00.02.80.00.00.00.00.8a.52.00.81.38.24.B8.08.00.28.00.c0", 20);
+          }
+        });
+      }
       return retval;
     }
 
