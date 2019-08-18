@@ -496,7 +496,7 @@ namespace iqrf {
       std::unique_ptr<IDpaTransactionResult2> transResult;
       try
       {
-        m_exclusiveAccess->executeDpaTransactionRepeat( osReadPtr->encodeRequest(), transResult, m_repeat );
+        m_exclusiveAccess->executeDpaTransactionRepeat( osReadPtr->getRequest(), transResult, m_repeat );
         osReadPtr->processDpaTransactionResult( std::move(transResult) );
         TRC_DEBUG("Result from OS read transaction as string:" << PAR( osReadPtr->getResult()->getErrorString()) );
         deviceEnumerateResult.setOsBuild( osReadPtr->getOsBuild() );
@@ -524,7 +524,7 @@ namespace iqrf {
       try
       {
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( exploreEnumeratePtr->encodeRequest(), transResultPerEnum, m_repeat );
+        m_exclusiveAccess->executeDpaTransactionRepeat( exploreEnumeratePtr->getRequest(), transResultPerEnum, m_repeat );
         exploreEnumeratePtr->processDpaTransactionResult( std::move(transResultPerEnum) );
         TRC_DEBUG( "Result from peripheral enumeration transaction as string:" << PAR( exploreEnumeratePtr->getResult()->getErrorString() ) );
         deviceEnumerateResult.setEnumeratedNodeHwpIdVer( exploreEnumeratePtr->getHwpidVer() );
@@ -543,7 +543,7 @@ namespace iqrf {
       try
       {
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( exploreMorePeripheralInformationPtr->encodeRequest(), transResultMorePerInfo, m_repeat );
+        m_exclusiveAccess->executeDpaTransactionRepeat( exploreMorePeripheralInformationPtr->getRequest(), transResultMorePerInfo, m_repeat );
         exploreMorePeripheralInformationPtr->processDpaTransactionResult( std::move(transResultMorePerInfo) );
         TRC_DEBUG( "Result from more peripheral information transaction as string:" << PAR( exploreMorePeripheralInformationPtr->getResult()->getErrorString() ) );
         deviceEnumerateResult.addTransactionResult( exploreMorePeripheralInformationPtr->getResultMove() );
