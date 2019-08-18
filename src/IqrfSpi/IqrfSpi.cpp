@@ -471,11 +471,15 @@ namespace iqrf {
             spi_iqrf_SPIStatus status;
             int retval = spi_iqrf_getSPIStatus(&status);
             if (BASE_TYPES_OPER_OK != retval) {
-              THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
+              // report status failure
+              TRC_WARNING("SPI status failure: " << PAR(retval));
+              // stop listen thread only here
+              if (BASE_TYPES_OPER_ERROR == retval) {
+                THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
+              }
             }
 
             if (status.isDataReady) {
-
               if (status.dataReady > 0 && static_cast<unsigned>(status.dataReady) > m_bufsize) {
                 THROW_EXC_TRC_WAR(std::logic_error, "Received data too long: " << NAME_PAR(len, status.dataReady) << PAR(m_bufsize));
               }

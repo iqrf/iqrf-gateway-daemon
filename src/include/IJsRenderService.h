@@ -1,16 +1,11 @@
 #pragma once
 
 #include "IJsCacheService.h"
+#include "Trace.h"
 #include <string>
 
-#ifdef IJsRenderService_EXPORTS
-#define IJsRenderService_DECLSPEC SHAPE_ABI_EXPORT
-#else
-#define IJsRenderService_DECLSPEC SHAPE_ABI_IMPORT
-#endif
-
 namespace iqrf {
-  class IJsRenderService_DECLSPEC IJsRenderService
+  class IJsRenderService
   {
   public:
     // used to map provisionalDrivers load per HWPID
