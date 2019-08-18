@@ -258,7 +258,7 @@ namespace iqrf {
       }
 
       // Get coordinator parameters
-      m_cPar.dpaVerWord = iqrfEmbedExploreEnumerate.getDpaVer();
+      m_cPar.dpaVerWord = (uint16_t)iqrfEmbedExploreEnumerate.getDpaVer();
       m_cPar.dpaVerWordAsStr = iqrfEmbedExploreEnumerate.getDpaVerAsHexaString();
       m_cPar.dpaVer = iqrfEmbedExploreEnumerate.getDpaVerAsString();
       m_cPar.dpaVerMajor = iqrfEmbedExploreEnumerate.getDpaVerMajor();
@@ -350,12 +350,14 @@ namespace iqrf {
       m_cPar.osVersion = iqrfEmbedOsRead.getOsVersionAsString();
       m_cPar.trType = iqrfEmbedOsRead.getTrTypeAsString();
       m_cPar.mcuType = iqrfEmbedOsRead.getTrMcuTypeAsString();
+      m_cPar.osBuildWord = (uint16_t)iqrfEmbedOsRead.getOsBuild();
       m_cPar.osBuild = iqrfEmbedOsRead.getOsBuildAsString();
       TRC_INFORMATION("TR params: " << std::endl <<
         NAME_PAR(moduleId, m_cPar.moduleId) <<
         NAME_PAR(osVersion, m_cPar.osVersion) <<
         NAME_PAR(trType, m_cPar.trType) <<
         NAME_PAR(mcuType, m_cPar.mcuType) <<
+        NAME_PAR(osBuildWord, m_cPar.osBuildWord) <<
         NAME_PAR(osBuild, m_cPar.osBuild) <<
         std::endl
       );

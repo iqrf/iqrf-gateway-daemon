@@ -697,12 +697,29 @@ namespace iqrf {
       wrapperStr = strStream.str();
 
       // get parameters of coordinator - used to select drivers for all other nodes
-      NodeDataPtr cd = getNodeData(0);
+      int hwpid = 0;
+      int hwpidVar = 0;
+      int osBuild = 0;
+      int dpaVer = 0;
 
-      int hwpid = cd->getHwpid();
-      int hwpidVar = cd->getEmbedExploreEnumerate()->getHwpidVer();
-      int osBuild = cd->getEmbedOsRead()->getOsBuild();
-      int dpaVer = cd->getEmbedExploreEnumerate()->getDpaVer();
+      //try {
+      //  NodeDataPtr cd = getNodeData(0);
+
+      //  hwpid = cd->getHwpid();
+      //  hwpidVar = cd->getEmbedExploreEnumerate()->getHwpidVer();
+      //  osBuild = cd->getEmbedOsRead()->getOsBuild();
+      //  dpaVer = cd->getEmbedExploreEnumerate()->getDpaVer();
+      //}
+      //catch (std::exception & e) {
+      //  CATCH_EXC_TRC_WAR(std::exception, e, "cannot get coordinator params");
+      //  auto cpars = m_iIqrfDpaService->getCoordinatorParameters();
+      //  osBuild = cpars.osBuildWord;
+      //  dpaVer = cpars.dpaVerWord;
+      //}
+
+      auto cpars = m_iIqrfDpaService->getCoordinatorParameters();
+      osBuild = cpars.osBuildWord;
+      dpaVer = cpars.dpaVerWord;
 
       std::string str2load;
 
