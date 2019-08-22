@@ -339,20 +339,23 @@ namespace iqrf {
 
     to.clear();
     if (from.time_since_epoch() != system_clock::duration()) {
-      auto fromUs = std::chrono::duration_cast<std::chrono::microseconds>(from.time_since_epoch()).count() % 1000000;
+      auto fromMs = std::chrono::duration_cast<std::chrono::milliseconds>(from.time_since_epoch()).count() % 1000;
       auto time = std::chrono::system_clock::to_time_t(from);
       //auto tm = *std::gmtime(&time);
       auto tm = *std::localtime(&time);
 
       char buf[80];
-      strftime(buf, sizeof(buf), "%FT%T", &tm);
+      strftime(buf, sizeof(buf), "%FT%T,mmm%z", &tm);
+      std::string str(buf);
 
+      // convert to ISO8601 Date (Extend) format
       std::ostringstream os;
-      os.fill('0'); os.width(6);
-      //os << std::put_time(&tm, "%F %T.") <<  fromUs; // << std::put_time(&tm, " %Z\n");
-      os << buf << "." << fromUs;
+      os.fill('0'); os.width(3);
+      os << fromMs;
+      str.replace(str.find("mmm"), 3, os.str());
+      str.insert(str.size() - 2, 1, ':');
 
-      to = os.str();
+      to = str;
     }
   }
 
