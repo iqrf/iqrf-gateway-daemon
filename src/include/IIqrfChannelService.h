@@ -20,7 +20,7 @@ namespace iqrf {
     {
       Ready,
       NotReady,
-      ExclusiveAcess
+      ExclusiveAccess
     };
 
     enum class AccesType
@@ -95,7 +95,7 @@ namespace iqrf {
         static std::vector <std::pair<State, std::string>> table = {
           { State::Ready, "Ready" },
           { State::NotReady, "NotReady" },
-          { State::ExclusiveAcess, "ExclusiveAcess" }
+          { State::ExclusiveAccess, "ExclusiveAccess" }
         };
         return table;
       }

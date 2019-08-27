@@ -274,7 +274,7 @@ namespace iqrf {
     {
       IIqrfChannelService::State state = State::NotReady;
       if (m_accessControl.hasExclusiveAccess())
-        state = State::ExclusiveAcess;
+        state = State::ExclusiveAccess;
       else if (m_runListenThread)
         state = State::Ready;
 
