@@ -127,7 +127,156 @@ Component **JsonIqrfInfoApi** provides JSON API to get iformation about all node
 - infoDaemon_GetBinaryOutputs
 - infoDaemon_GetSensors
 
-Related API schemes are not complete yet as the content of messages may change. It will be finished for first stable version. 
+### Schemes
+Related API schemes are not complete yet as the content of messages may change. It will be finished for first 
+stable version.
+- infoDaemon_GetBinaryOutputs-request-1-0-0.json
+- infoDaemon_GetBinaryOutputs-response-1-0-0.json
+- infoDaemon_GetSensors-request-1-0-0.json
+- infoDaemon_GetSensors-response-1-0-0.json
+
+### Message examples
+The responses are aggregated data as it would be gotten from enumeration but constructed from DB. So they are returned in milliseconds. 
+
+Request:
+```json
+{
+    "mType": "infoDaemon_GetBinaryOutputs",
+    "data": {
+      "msgId": "test",
+      "req": {
+      },
+      "returnVerbose": true
+    }
+}
+```
+Is responded by (note breakdown is not supported yet):
+```json
+{
+  "mType": "infoDaemon_GetBinaryOutputs",
+  "data": {
+    "msgId": "test",
+    "rsp": {
+      "binOutsDevices": [
+        {
+          "nadr": 3,
+          "binOuts": 3
+        },
+        {
+          "nadr": 5,
+          "binOuts": 3
+        },
+        {
+          "nadr": 6,
+          "binOuts": 3
+        }
+      ]
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}
+```
+
+Request:
+```json
+{
+    "mType": "infoDaemon_GetSensors",
+    "data": {
+      "msgId": "test",
+      "req": {
+      },
+      "returnVerbose": true
+    }
+}
+```
+Is responded by (note breakdown is not supported yet):
+```json
+{
+  "mType": "infoDaemon_GetSensors",
+  "data": {
+    "msgId": "test",
+    "rsp": {
+      "sensorDevices": [
+        {
+          "nadr": 1,
+          "sensors": [
+            {
+              "idx": 0,
+              "id": "TEMPERATURE",
+              "type": 1,
+              "name": "Temperature",
+              "shortName": "T",
+              "unit": "°C",
+              "decimalPlaces": 4,
+              "frcs": [ 144, 224 ]
+            },
+            {
+              "idx": 1,
+              "id": "EXTRA_LOW_VOLTAGE",
+              "type": 4,
+              "name": "Extra-low voltage",
+              "shortName": "U",
+              "unit": "V",
+              "decimalPlaces": 3,
+              "frcs": [ 224 ]
+            }
+          ]
+        },
+        {
+          "nadr": 3,
+          "sensors": [
+            {
+              "idx": 0,
+              "id": "BINARYDATA7",
+              "type": 129,
+              "name": "Binary data7",
+              "shortName": "bin7",
+              "unit": "?",
+              "decimalPlaces": 0,
+              "frcs": [ 16, 144 ]
+            }
+          ]
+        },
+        {
+          "nadr": 5,
+          "sensors": [
+            {
+              "idx": 0,
+              "id": "BINARYDATA7",
+              "type": 129,
+              "name": "Binary data7",
+              "shortName": "bin7",
+              "unit": "?",
+              "decimalPlaces": 0,
+              "frcs": [ 16, 144 ]
+            }
+          ]
+        },
+        {
+          "nadr": 6,
+          "sensors": [
+            {
+              "idx": 0,
+              "id": "BINARYDATA7",
+              "type": 129,
+              "name": "Binary data7",
+              "shortName": "bin7",
+              "unit": "?",
+              "decimalPlaces": 0,
+              "frcs": [ 16, 144 ]
+            }
+          ]
+        }
+      ]
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}
+```
 
 ## Next possible development steps
 
