@@ -54,6 +54,9 @@
                   "items": {
                     "oneOf": [
                       {
+                        "type": "null"
+                      },
+                      {
                         "type": "object",
                         "properties": {
                           "status": {
@@ -71,12 +74,52 @@
                         ]
                       },
                       {
-                        "type": "null"
+                        "type": "object",
+                        "properties": {
+                          "nadr": {
+                            "type": "integer",
+                            "description": "Node address."
+                          },
+                          "metaData": {
+                            "type": "object",
+                            "description": "Arbitrary user defined meta data."
+                          },
+                          "answer": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "status": {
+                                    "type": "integer",
+                                    "description": "DALI status: See IQRF DALI standard for details."
+                                  },
+                                  "value": {
+                                    "type": "integer",
+                                    "description": "DALI value: See IQRF DALI standard for details."
+                                  }
+                                },
+                                "required": [
+                                  "status",
+                                  "value"
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "answer"
+                        ]
                       }
                     ]
                   }
                 }
-              }
+              },
+              "required": [
+                "answers"
+              ]
             },
             "errorStr": {
               "type": "string",

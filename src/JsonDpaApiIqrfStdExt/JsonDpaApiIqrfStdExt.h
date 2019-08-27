@@ -2,9 +2,9 @@
 
 #include "IJsRenderService.h"
 #include "IIqrfDpaService.h"
+#include "IMetaDataApi.h"
 #include "IMessagingSplitterService.h"
 #include "ShapeProperties.h"
-#include "IMessagingService.h"
 #include "ITraceService.h"
 #include <map>
 
@@ -18,6 +18,9 @@ namespace iqrf {
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
+
+    void attachInterface(IMetaDataApi* iface);
+    void detachInterface(IMetaDataApi* iface);
 
     void attachInterface(IJsRenderService* iface);
     void detachInterface(IJsRenderService* iface);

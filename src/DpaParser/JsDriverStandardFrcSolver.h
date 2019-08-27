@@ -19,7 +19,8 @@ namespace iqrf
     DpaMessage m_frcExtraResponse;
     std::unique_ptr<IDpaTransactionResult2> m_frcDpaTransactionResult;
     std::unique_ptr<IDpaTransactionResult2> m_frcExtraDpaTransactionResult;
-    rapidjson::Document m_frcRequestDoc;
+    rapidjson::Document m_frcRequestResult0Doc;
+    rapidjson::Document m_frcResponseResultDoc;
 
   protected:
     // used by sensor::JsDriverFrc, dali::JsDriverFrc
@@ -39,6 +40,9 @@ namespace iqrf
 
     const DpaMessage & getFrcRequest() const { return m_frcRequest; }
     const DpaMessage & getFrcExtraRequest() const { return m_frcExtraRequest; }
+
+    const rapidjson::Document & getRequestResult0Doc() const { return m_frcRequestResult0Doc; }
+    const rapidjson::Document & getResponseResultDoc() const { return m_frcResponseResultDoc; }
 
     void setFrcDpaTransactionResult(std::unique_ptr<IDpaTransactionResult2> res)
     {
@@ -73,6 +77,56 @@ namespace iqrf
     }
 
     const rapidjson::Document & getResponseResultDoc() { return m_responseResultDoc; }
+    
+    // partial JSON parse to get nadrs of returned results
+    rapidjson::Document getResponseResultWithNadr(const std::string & resultArrayKey, const std::string & resultItemKey)
+    {
+      using namespace rapidjson;
+      Document doc;
+      doc.SetArray();
+      
+      // get nadrs from selectedNodes if applied
+      std::vector<int> nadrVect;
+      const Value *selectedNodesVal = Pointer("/selectedNodes").Get(getRequestParamDoc());
+      if (selectedNodesVal && selectedNodesVal->IsArray()) {
+        for (const Value *nadrVal = selectedNodesVal->Begin(); nadrVal != selectedNodesVal->End(); nadrVal++) {
+          if (nadrVal->IsInt()) {
+            nadrVect.push_back(nadrVal->GetInt());
+          }
+          else {
+            THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array of Int .../selectedNodes[]");
+          }
+        }
+      }
+
+      Value *arrayVal = Pointer(resultArrayKey).Get(m_frcResponseResultDoc);
+      if (!(arrayVal && arrayVal->IsArray())) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array ..." << resultArrayKey << "[]");
+      }
+      int nadr = 0;
+      int idx = 0;
+      if (arrayVal->Size() > 0) { // is there something it the array?
+        for (Value *itemVal = arrayVal->Begin() + 1; //skip index 0 as driver returns from index 1
+          itemVal != arrayVal->End(); itemVal++) {
+          if (nadrVect.size() > 0) {
+            // optional selectedNodes
+            if (idx >= nadrVect.size()) {
+              THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent .../selectedNodes[] and ..." << resultArrayKey << "[]");
+            }
+            nadr = nadrVect[idx++];
+          }
+          else {
+            nadr = idx++;
+          }
+          Value sensorWithNadr;
+          Pointer("/nadr").Set(sensorWithNadr, nadr, doc.GetAllocator());
+          Pointer(resultItemKey).Set(sensorWithNadr, *itemVal, doc.GetAllocator());
+          doc.PushBack(sensorWithNadr, doc.GetAllocator());
+        }
+      }
+
+      return doc;
+    }
 
   protected:
 
@@ -103,7 +157,7 @@ namespace iqrf
       if (const Value *val0 = Pointer("/retpars/0").Get(requestResultDoc)) {
         uint8_t pnum, pcmd;
         rawHdp2dpaRequest(m_frcRequest, getNadrDrv(), pnum, pcmd, getHwpidDrv(), *val0);
-        m_frcRequestDoc.CopyFrom(*val0, m_frcRequestDoc.GetAllocator());
+        m_frcRequestResult0Doc.CopyFrom(*val0, m_frcRequestResult0Doc.GetAllocator());
       }
       else {
         THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array .../retpars[0]");
@@ -134,21 +188,24 @@ namespace iqrf
         Pointer("/responseFrcSend").Set(responseParamDoc, val);
       }
 
-      if (!m_frcExtraDpaTransactionResult->isResponded()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "No Frc response");
-      }
-      {
-        Value val;
-        dpa2rawHdpResponse(m_frcExtraResponse, val, responseParamDoc.GetAllocator());
-        Pointer("/responseFrcExtraResult").Set(responseParamDoc, val);
+      if (m_frcExtraDpaTransactionResult) {
+        // optional extra result
+        if (!m_frcExtraDpaTransactionResult->isResponded()) {
+          THROW_EXC_TRC_WAR(std::logic_error, "No Frc response");
+        }
+        {
+          Value val;
+          dpa2rawHdpResponse(m_frcExtraResponse, val, responseParamDoc.GetAllocator());
+          Pointer("/responseFrcExtraResult").Set(responseParamDoc, val);
+        }
       }
 
-      Pointer("/frcSendRequest").Set(responseParamDoc, m_frcRequestDoc);
+      Pointer("/frcSendRequest").Set(responseParamDoc, m_frcRequestResult0Doc);
     }
 
     void postResponse(const rapidjson::Document& responseResultDoc) override
     {
-      // nothing todo here
+      m_frcResponseResultDoc.CopyFrom(responseResultDoc, m_frcResponseResultDoc.GetAllocator());
     }
 
   };

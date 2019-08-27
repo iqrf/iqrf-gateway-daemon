@@ -27,6 +27,7 @@ namespace iqrf {
   {
   private:
 
+    IMetaDataApi* m_iMetaDataApi = nullptr;
     iqrf::IJsRenderService* m_iJsRenderService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
@@ -85,12 +86,57 @@ namespace iqrf {
         jsDriverStandardFrcSolver.processResponseDrv();
 
         // finalize api response
-        apiMsgIqrfStandardFrc.setPayload("/data/rsp/result", jsDriverStandardFrcSolver.getResponseResultDoc());
+        if (!apiMsgIqrfStandardFrc.getNadrWithMetaData()) {
+          apiMsgIqrfStandardFrc.setPayload("/data/rsp/result", jsDriverStandardFrcSolver.getResponseResultDoc());
+        }
+        else {
+          std::string arrayKey, itemKey;
+
+          // TODO maybe better to virtualize getResponseResultWithNadr() 
+          if (msgType.m_type == "iqrfDali_Frc") {
+            arrayKey = "/answers";
+            itemKey = "/answer";
+          }
+          else if (msgType.m_type == "iqrfSensor_Frc") {
+            arrayKey = "/sensors";
+            itemKey = "/sensor";
+          }
+          else {
+            THROW_EXC_TRC_WAR(std::logic_error, "Unexected: " << NAME_PAR(messageType, msgType.m_type));
+          }
+
+          rapidjson::Document doc = jsDriverStandardFrcSolver.getResponseResultWithNadr(arrayKey, itemKey);
+
+          for (Value * senVal = doc.Begin(); senVal != doc.End(); senVal++) {
+            Value *nadrVal = Pointer("/nadr").Get(*senVal);
+            if (!(nadrVal && nadrVal->IsInt())) {
+              THROW_EXC_TRC_WAR(std::logic_error, "Expected: .../nadr of type integer");
+            }
+            int nadr = nadrVal->GetInt();
+            if (m_iMetaDataApi && m_iMetaDataApi->iSmetaDataToMessages()) {
+              // anotate with metada
+              Pointer("/metaData").Set(*senVal, m_iMetaDataApi->getMetaData(nadr), doc.GetAllocator());
+            }
+          }
+
+          //TODO right key here
+          std::string fullArrayKey = "/data/rsp/result";
+          fullArrayKey += arrayKey;
+          apiMsgIqrfStandardFrc.setPayload(fullArrayKey, doc);
+        }
         apiMsgIqrfStandardFrc.setDpaTransactionResult(jsDriverStandardFrcSolver.moveFrcDpaTransactionResult());
         apiMsgIqrfStandardFrc.setDpaTransactionExtraResult(jsDriverStandardFrcSolver.moveFrcExtraDpaTransactionResult());
         IDpaTransactionResult2::ErrorCode status = IDpaTransactionResult2::ErrorCode::TRN_OK;
         apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
         apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
+
+        //{ //TODO debug  only
+        //  rapidjson::StringBuffer buffer;
+        //  rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        //  allResponseDoc.Accept(writer);
+        //  std::string allResponseDocStr = buffer.GetString();
+        //}
+
       }
       catch (std::exception & e) {
         //provide error response
@@ -151,6 +197,18 @@ namespace iqrf {
     void modify(const shape::Properties *props)
     {
       (void)props; //silence -Wunused-parameter
+    }
+
+    void attachInterface(IMetaDataApi* iface)
+    {
+      m_iMetaDataApi = iface;
+    }
+
+    void detachInterface(IMetaDataApi* iface)
+    {
+      if (m_iMetaDataApi == iface) {
+        m_iMetaDataApi = nullptr;
+      }
     }
 
     void attachInterface(IJsRenderService* iface)
@@ -217,6 +275,16 @@ namespace iqrf {
   void JsonDpaApiIqrfStdExt::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsonDpaApiIqrfStdExt::attachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonDpaApiIqrfStdExt::detachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsonDpaApiIqrfStdExt::attachInterface(iqrf::IJsRenderService* iface)
