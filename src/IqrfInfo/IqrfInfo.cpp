@@ -360,7 +360,7 @@ namespace iqrf {
       }
 
       retval->setBondedDiscovered(iqrfEmbedCoordinatorBondedDevices.getBondedDevices(), iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices());
-      std::set<int> evaluated = retval->getDiscovered();
+      std::set<int> evaluated = retval->getBonded();
       evaluated.insert(0); //eval coordinator
 
       for (auto nadr : evaluated) {
@@ -475,35 +475,7 @@ namespace iqrf {
 
       auto const & enums = m_fastEnum->getEnumerated();
 
-      // sync non discovered Nadrs
-      for (auto nadr : m_fastEnum->getNonDiscovered()) {
-
-        std::unique_ptr<int> nadrPtrRes, disPtrRes, midPtrRes;
-        int dis = 0, mid = 0;
-
-        db << "select Nadr, Dis, Mid from Bonded where nadr = ? ;" << nadr
-          >> [&](std::unique_ptr<int> nadrPtr, std::unique_ptr<int> disPtr, std::unique_ptr<int> midPtr)
-        {
-          nadrPtrRes = std::move(nadrPtr);
-          disPtrRes = std::move(disPtr);
-          midPtrRes = std::move(midPtr);
-        };
-
-        if (nadrPtrRes) {
-          if (*disPtrRes != 0 || !midPtrRes) {
-            // Nadr exists in DB and is set as discovered or has mid => set to nondiscovered and null mid in Bonded
-            TRC_INFORMATION(PAR(nadr) << " set to nondiscovered in bonded list");
-            db << "update Bonded set Dis = ? , Mid = ?, Enm = ? where Nadr = ?;" << 0 << nullptr << 0 << nadr;
-          }
-        }
-        else {
-          // Nadr does not exist in DB => insert and set to nondiscovered and null mid in Bonded
-          TRC_INFORMATION(PAR(nadr) << " insert and set to nondiscovered in bonded list");
-          db << "insert into Bonded (Nadr, Dis, Enm)  values (?, ?, ?);" << nadr << 0 << 0;
-        }
-      }
-
-      // delete Nadr from DB if it doesnt exist in Net
+      // delete Nadr from DB if it doesn't exist in Net
       for (const auto & bo : m_mapNadrBondNodeDb) {
         int nadr = bo.first;
         const auto & b = bo.second;
@@ -565,6 +537,7 @@ namespace iqrf {
           }
 
           unsigned mid = nd->getEmbedOsRead()->getMid();
+          bool dis = (m_fastEnum->getDiscovered().find(nadr) != m_fastEnum->getDiscovered().end());
           int hwpid = nd->getHwpid();
           int hwpidVer = nd->getEmbedExploreEnumerate()->getHwpidVer();
           int osBuild = nd->getEmbedOsRead()->getOsBuild();
@@ -667,9 +640,7 @@ namespace iqrf {
 
           nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
 
-          bondedInDb(nadr, 1, mid, 1);
-
-          //deepEnum(device);
+          bondedInDb(nadr, dis ? 1 : 0, mid, 1);
 
           db << "commit;";
         }
