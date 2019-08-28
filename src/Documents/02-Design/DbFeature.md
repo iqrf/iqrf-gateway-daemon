@@ -123,7 +123,8 @@ The component **IqrfInfo** has simple optional configuration parameter:
 If set to false, the application **iqrfgd2** behaves as previous versions with respect to drivers load (provisory load drivers). If set to true, all phases of feature are processed at start-up.  
 
 ## Info API
-Component **JsonIqrfInfoApi** provides JSON API to get iformation about all nodes implementing standard Sensor and BinaryOutput (Dali and Ligth support is not ready yet). The component uses **IIqrfInfo** interface implemented by **IqrfInfo** component. It is the very first implementation and may be changed significantly in future (set and names of messages, filter/select options, etc)
+Component **JsonIqrfInfoApi** provides JSON API. It allows explicit starting of Enumeration (even if not configured to start at starup). It has requests to get information about all nodes implementing standard Sensor and BinaryOutput (Dali and Ligth support is not ready yet). The component uses **IIqrfInfo** interface implemented by **IqrfInfo** component. It is the very first implementation and may be changed significantly in future (set and names of messages, filter/select options, etc)
+- infoDaemon_StartEnumeration.json
 - infoDaemon_GetBinaryOutputs
 - infoDaemon_GetSensors
 
@@ -134,6 +135,8 @@ stable version.
 - infoDaemon_GetBinaryOutputs-response-1-0-0.json
 - infoDaemon_GetSensors-request-1-0-0.json
 - infoDaemon_GetSensors-response-1-0-0.json
+- infoDaemon_StartEnumeration-request-1-0-0.json
+- infoDaemon_StartEnumeration-response-1-0-0.json
 
 ### Message examples
 The responses are aggregated data as it would be gotten from enumeration but constructed from DB. So they are returned in milliseconds. 
