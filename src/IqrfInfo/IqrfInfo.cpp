@@ -9,12 +9,14 @@
 #include "JsDriverSensor.h"
 #include "InfoSensor.h"
 #include "InfoBinaryOutput.h"
+#include "HexStringCoversion.h"
 
 #include "Trace.h"
 #include "rapidjson/pointer.h"
 #include <fstream>
 #include <set>
 #include <thread>
+#include <atomic>
 
 #include "iqrf__IqrfInfo.hxx"
 
@@ -265,13 +267,14 @@ namespace iqrf {
     std::set<int> m_nadrFullEnum;
     bool m_enumAtStartUp = false;
     std::thread m_enumThread;
-    bool m_enumThreadRun;
+    std::atomic_bool m_enumThreadRun;
 
     FastEnumerationPtr m_fastEnum;
 
   public:
     Imp()
     {
+      m_enumThreadRun = false;
     }
 
     ~Imp()
@@ -318,12 +321,17 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
+      std::cout << std::endl << "Fast Enumeration started at:             " << encodeTimestamp(std::chrono::system_clock::now());
       fastEnum();
+      std::cout << std::endl << "Full Enumeration started at:             " << encodeTimestamp(std::chrono::system_clock::now());
       fullEnum();
       loadDrivers();
+      std::cout << std::endl << "Standard Devices Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
       deepEnum();
-      
+      std::cout << std::endl << "Enumeration finished at:                 " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+
       m_fastEnum.release();
+      m_enumThreadRun = false;
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -1351,6 +1359,22 @@ namespace iqrf {
       return retval;
     }
 
+    void startEnumeration()
+    {
+      TRC_FUNCTION_ENTER("");
+      if (!m_enumThreadRun) {
+        if (m_enumThread.joinable()) {
+          m_enumThread.join();
+        }
+        m_enumThreadRun = true;
+        m_enumThread = std::thread([&]() { runEnum(); });
+      }
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Enumeration is already running");
+      }
+      TRC_FUNCTION_LEAVE("")
+    }
+
     void attachInterface(iqrf::IJsRenderService* iface)
     {
       TRC_FUNCTION_ENTER(PAR(iface));
@@ -1427,8 +1451,7 @@ namespace iqrf {
       loadProvisoryDrivers();
 
       if (m_enumAtStartUp) {
-        m_enumThreadRun = true;
-        m_enumThread = std::thread([&]() { runEnum(); });
+        startEnumeration();
       }
 
       TRC_FUNCTION_LEAVE("")
@@ -1489,6 +1512,11 @@ namespace iqrf {
   std::map<int, binaryoutput::EnumeratePtr> IqrfInfo::getBinaryOutputs() const
   {
     return m_imp->getBinaryOutputs();
+  }
+
+  void IqrfInfo::startEnumeration()
+  {
+    return m_imp->startEnumeration();
   }
 
   void IqrfInfo::activate(const shape::Properties *props)

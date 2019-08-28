@@ -17,6 +17,7 @@ namespace iqrf {
 
     std::map<int, sensor::EnumeratePtr> getSensors() const override;
     std::map<int, binaryoutput::EnumeratePtr> getBinaryOutputs() const override;
+    void startEnumeration() override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

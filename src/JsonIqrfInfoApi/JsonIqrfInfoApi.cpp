@@ -61,6 +61,7 @@ namespace iqrf {
     /////////// msg types as string
     const std::string mType_GetSensors = "infoDaemon_GetSensors";
     const std::string mType_GetBinaryOutputs = "infoDaemon_GetBinaryOutputs";
+    const std::string mType_StartEnumeration = "infoDaemon_StartEnumeration";
 
     /////////// message classes declarations
     class InfoDaemonMsg : public ApiMsg
@@ -94,6 +95,13 @@ namespace iqrf {
 
       void createResponsePayload(rapidjson::Document& doc) override
       {
+        Value *notEmpty = Pointer("/data/rsp").Get(doc);
+        if (!(notEmpty)) {
+          // set empty rsp if not exists to satisfy validator
+          Value empty;
+          empty.SetObject();
+          Pointer("/data/rsp").Set(doc, empty);
+        }
         if (m_success) {
           setStatus("ok", 0);
         }
@@ -231,6 +239,36 @@ namespace iqrf {
       std::map<int, binaryoutput::EnumeratePtr> m_enmMap;
     };
 
+    //////////////////////////////////////////////
+    class InfoDaemonMsgStartEnumeration : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgStartEnumeration() = delete;
+      InfoDaemonMsgStartEnumeration(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+      }
+
+      virtual ~InfoDaemonMsgStartEnumeration()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+        imp->startEnumeration();
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      std::map<int, binaryoutput::EnumeratePtr> m_enmMap;
+    };
+
   ///////////////////// Imp members
   private:
 
@@ -249,6 +287,7 @@ namespace iqrf {
     {
       m_objectFactory.registerClass<InfoDaemonMsgGetSensors>(mType_GetSensors);
       m_objectFactory.registerClass<InfoDaemonMsgGetBinaryOutputs>(mType_GetBinaryOutputs);
+      m_objectFactory.registerClass<InfoDaemonMsgStartEnumeration>(mType_StartEnumeration);
     }
 
     ~Imp()
@@ -292,6 +331,11 @@ namespace iqrf {
     std::map<int, binaryoutput::EnumeratePtr> getBinaryOutputs() const
     {
       return m_iIqrfInfo->getBinaryOutputs();
+    }
+
+    void startEnumeration()
+    {
+      m_iIqrfInfo->startEnumeration();
     }
 
     void activate(const shape::Properties *props)
