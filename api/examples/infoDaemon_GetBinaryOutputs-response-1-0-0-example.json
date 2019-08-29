@@ -1,0 +1,25 @@
+{
+    "mType": "infoDaemon_GetBinaryOutputs",
+    "data": {
+        "msgId": "test",
+        "rsp": {
+            "binOutsDevices": [
+                {
+                    "nadr": 3,
+                    "binOuts": 3
+                },
+                {
+                    "nadr": 5,
+                    "binOuts": 3
+                },
+                {
+                    "nadr": 6,
+                    "binOuts": 3
+                }
+            ]
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

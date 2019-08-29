@@ -1,0 +1,97 @@
+{
+    "mType": "infoDaemon_GetSensors",
+    "data": {
+        "msgId": "test",
+        "rsp": {
+            "sensorDevices": [
+                {
+                    "nadr": 1,
+                    "sensors": [
+                        {
+                            "idx": 0,
+                            "id": "TEMPERATURE",
+                            "type": 1,
+                            "name": "Temperature",
+                            "shortName": "T",
+                            "unit": "°C",
+                            "decimalPlaces": 4,
+                            "frcs": [
+                                144,
+                                224
+                            ]
+                        },
+                        {
+                            "idx": 1,
+                            "id": "EXTRA_LOW_VOLTAGE",
+                            "type": 4,
+                            "name": "Extra-low voltage",
+                            "shortName": "U",
+                            "unit": "V",
+                            "decimalPlaces": 3,
+                            "frcs": [
+                                224
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "nadr": 3,
+                    "sensors": [
+                        {
+                            "idx": 0,
+                            "id": "BINARYDATA7",
+                            "type": 129,
+                            "name": "Binary data7",
+                            "shortName": "bin7",
+                            "unit": "?",
+                            "decimalPlaces": 0,
+                            "frcs": [
+                                16,
+                                144
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "nadr": 5,
+                    "sensors": [
+                        {
+                            "idx": 0,
+                            "id": "BINARYDATA7",
+                            "type": 129,
+                            "name": "Binary data7",
+                            "shortName": "bin7",
+                            "unit": "?",
+                            "decimalPlaces": 0,
+                            "frcs": [
+                                16,
+                                144
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "nadr": 6,
+                    "sensors": [
+                        {
+                            "idx": 0,
+                            "id": "BINARYDATA7",
+                            "type": 129,
+                            "name": "Binary data7",
+                            "shortName": "bin7",
+                            "unit": "?",
+                            "decimalPlaces": 0,
+                            "frcs": [
+                                16,
+                                144
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
