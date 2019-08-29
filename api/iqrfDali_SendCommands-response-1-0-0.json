@@ -48,7 +48,7 @@
                         "result": {
                             "type": "array",
                             "description": "Returns array of objects for every DALI 2B command.",
-                            "items": {
+                            "answers": {
                                 "type": "object",
                                 "properties": {
                                     "status": {
