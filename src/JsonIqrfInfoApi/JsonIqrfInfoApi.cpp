@@ -163,7 +163,7 @@ namespace iqrf {
           devicesVal.PushBack(devVal, a);
         }
 
-        Pointer("/data/rsp/binOutsDevices").Set(doc, devicesVal, a);
+        Pointer("/data/rsp/binOutDevices").Set(doc, devicesVal, a);
 
         InfoDaemonMsg::createResponsePayload(doc);
       }
@@ -210,7 +210,7 @@ namespace iqrf {
           devicesVal.PushBack(devVal, a);
         }
 
-        Pointer("/data/rsp/dalisDevices").Set(doc, devicesVal, a);
+        Pointer("/data/rsp/daliDevices").Set(doc, devicesVal, a);
 
         InfoDaemonMsg::createResponsePayload(doc);
       }
@@ -258,7 +258,7 @@ namespace iqrf {
           devicesVal.PushBack(devVal, a);
         }
 
-        Pointer("/data/rsp/lightsDevices").Set(doc, devicesVal, a);
+        Pointer("/data/rsp/lightDevices").Set(doc, devicesVal, a);
 
         InfoDaemonMsg::createResponsePayload(doc);
       }

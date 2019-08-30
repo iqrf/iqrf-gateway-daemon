@@ -600,7 +600,7 @@ namespace iqrf {
               if (!m_enumThreadRun) break;
 
               //Get peripheral information for sensor, binout and TODO other std if presented
-              if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per) {
+              if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per || PERIF_STANDARD_DALI == per || PERIF_STANDARD_LIGHT == per) {
                 
                 embed::explore::RawDpaPeripheralInformation perInfo(nadr, per);
                 perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.getRequest())->get());
