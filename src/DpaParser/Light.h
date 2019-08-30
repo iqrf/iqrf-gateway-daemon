@@ -32,7 +32,6 @@ namespace iqrf
         int m_power = 0;
         int m_time = 0;
       };
-      typedef std::unique_ptr<Light> LightPtr;
     }
 
     ////////////////
@@ -56,20 +55,20 @@ namespace iqrf
     {
     protected:
       //param
-      std::vector<item::LightPtr> m_lights;
+      std::vector<item::Light> m_lights;
       //response
       std::vector<int> m_prevVals;
 
       SetPower()
       {}
 
-      SetPower(const std::vector<item::LightPtr> & lights)
+      SetPower(const std::vector<item::Light> & lights)
         :m_lights(lights)
       {}
 
     public:
       // get param data passes by ctor
-      const std::vector<item::LightPtr> & getLights() const { return m_lights; }
+      const std::vector<item::Light> & getLights() const { return m_lights; }
 
       // get data as returned from driver
       const std::vector<int> & getPrevVals() const { return m_prevVals; }
@@ -86,7 +85,7 @@ namespace iqrf
         :SetPower()
       {}
 
-      IncrementPower(const std::vector<item::LightPtr> & lights)
+      IncrementPower(const std::vector<item::Light> & lights)
         :SetPower(lights)
       {}
 
@@ -103,7 +102,7 @@ namespace iqrf
         :SetPower()
       {}
 
-      DecrementPower(const std::vector<item::LightPtr> & lights)
+      DecrementPower(const std::vector<item::Light> & lights)
         :SetPower(lights)
       {}
 

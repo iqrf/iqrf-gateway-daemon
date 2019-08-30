@@ -109,7 +109,7 @@
       "name": "iqrf::MqttMessaging",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MqttMessaging",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 10
     },
     {

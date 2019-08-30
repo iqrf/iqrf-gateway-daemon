@@ -26,41 +26,11 @@ namespace iqrf {
   class JsonIqrfInfoApi::Imp
   {
   public:
-    ////////////// status conversion
-    //enum class MsgStatus {
-    //  st_ok,
-    //  st_noDb,
-    //  st_badParams
-    //};
-
-    //class MsgStatusConvertTable
-    //{
-    //public:
-    //  static const std::vector<std::pair<MsgStatus, std::string>>& table()
-    //  {
-    //    static std::vector <std::pair<MsgStatus, std::string>> table = {
-    //      { MsgStatus::st_ok, "ok" },
-    //      { MsgStatus::st_noDb, "no DB" },
-    //      { MsgStatus::st_badParams, "bad parameters" }
-    //    };
-    //    return table;
-    //  }
-    //  static MsgStatus defaultEnum()
-    //  {
-    //    return MsgStatus::st_badParams;
-    //  }
-    //  static const std::string& defaultStr()
-    //  {
-    //    static std::string u("unknown");
-    //    return u;
-    //  }
-    //};
-
-    //typedef shape::EnumStringConvertor<MsgStatus, MsgStatusConvertTable> MsgStatusConvertor;
-
     /////////// msg types as string
     const std::string mType_GetSensors = "infoDaemon_GetSensors";
     const std::string mType_GetBinaryOutputs = "infoDaemon_GetBinaryOutputs";
+    const std::string mType_GetDalis = "infoDaemon_GetDalis";
+    const std::string mType_GetLights = "infoDaemon_GetLights";
     const std::string mType_StartEnumeration = "infoDaemon_StartEnumeration";
 
     /////////// message classes declarations
@@ -77,22 +47,6 @@ namespace iqrf {
       {
       }
 
-      //MsgStatus getErr()
-      //{
-      //  return m_st;
-      //}
-
-      //void setErr(MsgStatus st)
-      //{
-      //  m_st = st;
-      //  m_success = false;
-      //}
-
-      //bool isSuccess()
-      //{
-      //  return m_success;
-      //}
-
       void createResponsePayload(rapidjson::Document& doc) override
       {
         Value *notEmpty = Pointer("/data/rsp").Get(doc);
@@ -102,22 +56,10 @@ namespace iqrf {
           empty.SetObject();
           Pointer("/data/rsp").Set(doc, empty);
         }
-        //if (m_success) {
-        //  setStatus("ok", 0);
-        //}
-        //else {
-        //  //if (getVerbose()) {
-        //  //  Pointer("/data/errorStr").Set(doc, MsgStatusConvertor::enum2str(m_st));
-        //  //}
-        //  setStatus("err", -1);
-        //}
       }
 
       virtual void handleMsg(JsonIqrfInfoApi::Imp* imp) = 0;
 
-    private:
-      //MsgStatus m_st = MsgStatus::st_ok;
-      //bool m_success = true;
     };
 
     //////////////////////////////////////////////
@@ -221,7 +163,7 @@ namespace iqrf {
           devicesVal.PushBack(devVal, a);
         }
 
-        Pointer("/data/rsp/binOutsDevices").Set(doc, devicesVal, a);
+        Pointer("/data/rsp/binOutDevices").Set(doc, devicesVal, a);
 
         InfoDaemonMsg::createResponsePayload(doc);
       }
@@ -237,6 +179,101 @@ namespace iqrf {
 
     private:
       std::map<int, binaryoutput::EnumeratePtr> m_enmMap;
+    };
+
+    //////////////////////////////////////////////
+    class InfoDaemonMsgGetDalis : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgGetDalis() = delete;
+      InfoDaemonMsgGetDalis(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+      }
+
+      virtual ~InfoDaemonMsgGetDalis()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        Document::AllocatorType & a = doc.GetAllocator();
+
+        Value devicesVal;
+        devicesVal.SetArray();
+
+        for (auto & enm : m_enmMap) {
+          Value devVal;
+
+          Pointer("/nadr").Set(devVal, enm.first, a);
+
+          devicesVal.PushBack(devVal, a);
+        }
+
+        Pointer("/data/rsp/daliDevices").Set(doc, devicesVal, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        m_enmMap = imp->getDalis();
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      std::map<int, dali::EnumeratePtr> m_enmMap;
+    };
+    
+    //////////////////////////////////////////////
+    class InfoDaemonMsgGetLights : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgGetLights() = delete;
+      InfoDaemonMsgGetLights(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+      }
+
+      virtual ~InfoDaemonMsgGetLights()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        Document::AllocatorType & a = doc.GetAllocator();
+
+        Value devicesVal;
+        devicesVal.SetArray();
+
+        for (auto & enm : m_enmMap) {
+          Value devVal;
+
+          Pointer("/nadr").Set(devVal, enm.first, a);
+          Pointer("/lights").Set(devVal, enm.second->getLightsNum(), a);
+
+          devicesVal.PushBack(devVal, a);
+        }
+
+        Pointer("/data/rsp/lightDevices").Set(doc, devicesVal, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        m_enmMap = imp->getLights();
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      std::map<int, light::EnumeratePtr> m_enmMap;
     };
 
     //////////////////////////////////////////////
@@ -287,6 +324,8 @@ namespace iqrf {
     {
       m_objectFactory.registerClass<InfoDaemonMsgGetSensors>(mType_GetSensors);
       m_objectFactory.registerClass<InfoDaemonMsgGetBinaryOutputs>(mType_GetBinaryOutputs);
+      m_objectFactory.registerClass<InfoDaemonMsgGetDalis>(mType_GetDalis);
+      m_objectFactory.registerClass<InfoDaemonMsgGetLights>(mType_GetLights);
       m_objectFactory.registerClass<InfoDaemonMsgStartEnumeration>(mType_StartEnumeration);
     }
 
@@ -337,6 +376,16 @@ namespace iqrf {
     std::map<int, binaryoutput::EnumeratePtr> getBinaryOutputs() const
     {
       return m_iIqrfInfo->getBinaryOutputs();
+    }
+
+    std::map<int, dali::EnumeratePtr> getDalis() const
+    {
+      return m_iIqrfInfo->getDalis();
+    }
+
+    std::map<int, light::EnumeratePtr> getLights() const
+    {
+      return m_iIqrfInfo->getLights();
     }
 
     void startEnumeration()

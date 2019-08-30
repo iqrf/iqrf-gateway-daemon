@@ -1,21 +1,25 @@
 #pragma once
 
-#include "Dali.h"
+#include "Light.h"
 
 namespace iqrf
 {
-  namespace dali
+  namespace light
   {
     ////////////////
     class InfoEnumerate : public Enumerate
     {
     public:
-      InfoEnumerate()
+      InfoEnumerate(int lightsNum)
         :Enumerate()
-      {}
+      {
+        m_lightsNum = lightsNum;
+      }
+
       virtual ~InfoEnumerate() {}
     };
+
     typedef std::unique_ptr<InfoEnumerate> InfoEnumeratePtr;
 
-  } //namespace dali
+  } //namespace light
 } //namespace iqrf
