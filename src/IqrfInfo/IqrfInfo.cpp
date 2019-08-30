@@ -1165,7 +1165,7 @@ namespace iqrf {
                 break;
               case PERIF_STANDARD_SENSOR:
                 stdSensorEnum(nadr, deviceId);
-                //break;
+                break;
               case PERIF_STANDARD_DALI:
                 stdDaliEnum(nadr, deviceId);
                 break;
