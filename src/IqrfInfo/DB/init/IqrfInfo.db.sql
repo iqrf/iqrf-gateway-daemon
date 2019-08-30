@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `Device` (
 	`HandlerHash`	TEXT,
 	`HandlerUrl`	TEXT,
 	`CustomDriver`	TEXT,
-	`DeepEnum` INTEGER NOT NULL
+	`StdEnum` INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `Driver` (

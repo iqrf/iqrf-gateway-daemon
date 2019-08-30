@@ -29,6 +29,8 @@ namespace iqrf {
     /////////// msg types as string
     const std::string mType_GetSensors = "infoDaemon_GetSensors";
     const std::string mType_GetBinaryOutputs = "infoDaemon_GetBinaryOutputs";
+    const std::string mType_GetDalis = "infoDaemon_GetDalis";
+    const std::string mType_GetLights = "infoDaemon_GetLights";
     const std::string mType_StartEnumeration = "infoDaemon_StartEnumeration";
 
     /////////// message classes declarations
@@ -180,6 +182,101 @@ namespace iqrf {
     };
 
     //////////////////////////////////////////////
+    class InfoDaemonMsgGetDalis : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgGetDalis() = delete;
+      InfoDaemonMsgGetDalis(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+      }
+
+      virtual ~InfoDaemonMsgGetDalis()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        Document::AllocatorType & a = doc.GetAllocator();
+
+        Value devicesVal;
+        devicesVal.SetArray();
+
+        for (auto & enm : m_enmMap) {
+          Value devVal;
+
+          Pointer("/nadr").Set(devVal, enm.first, a);
+
+          devicesVal.PushBack(devVal, a);
+        }
+
+        Pointer("/data/rsp/dalisDevices").Set(doc, devicesVal, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        m_enmMap = imp->getDalis();
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      std::map<int, dali::EnumeratePtr> m_enmMap;
+    };
+    
+    //////////////////////////////////////////////
+    class InfoDaemonMsgGetLights : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgGetLights() = delete;
+      InfoDaemonMsgGetLights(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+      }
+
+      virtual ~InfoDaemonMsgGetLights()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        Document::AllocatorType & a = doc.GetAllocator();
+
+        Value devicesVal;
+        devicesVal.SetArray();
+
+        for (auto & enm : m_enmMap) {
+          Value devVal;
+
+          Pointer("/nadr").Set(devVal, enm.first, a);
+          Pointer("/lights").Set(devVal, enm.second->getLightsNum(), a);
+
+          devicesVal.PushBack(devVal, a);
+        }
+
+        Pointer("/data/rsp/lightsDevices").Set(doc, devicesVal, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        m_enmMap = imp->getLights();
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      std::map<int, light::EnumeratePtr> m_enmMap;
+    };
+
+    //////////////////////////////////////////////
     class InfoDaemonMsgStartEnumeration : public InfoDaemonMsg
     {
     public:
@@ -227,6 +324,8 @@ namespace iqrf {
     {
       m_objectFactory.registerClass<InfoDaemonMsgGetSensors>(mType_GetSensors);
       m_objectFactory.registerClass<InfoDaemonMsgGetBinaryOutputs>(mType_GetBinaryOutputs);
+      m_objectFactory.registerClass<InfoDaemonMsgGetDalis>(mType_GetDalis);
+      m_objectFactory.registerClass<InfoDaemonMsgGetLights>(mType_GetLights);
       m_objectFactory.registerClass<InfoDaemonMsgStartEnumeration>(mType_StartEnumeration);
     }
 
@@ -277,6 +376,16 @@ namespace iqrf {
     std::map<int, binaryoutput::EnumeratePtr> getBinaryOutputs() const
     {
       return m_iIqrfInfo->getBinaryOutputs();
+    }
+
+    std::map<int, dali::EnumeratePtr> getDalis() const
+    {
+      return m_iIqrfInfo->getDalis();
+    }
+
+    std::map<int, light::EnumeratePtr> getLights() const
+    {
+      return m_iIqrfInfo->getLights();
     }
 
     void startEnumeration()

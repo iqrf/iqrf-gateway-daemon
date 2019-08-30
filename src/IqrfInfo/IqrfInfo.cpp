@@ -10,6 +10,7 @@
 #include "JsDriverLight.h"
 #include "InfoSensor.h"
 #include "InfoBinaryOutput.h"
+#include "InfoDali.h"
 #include "InfoLight.h"
 #include "HexStringCoversion.h"
 
@@ -325,14 +326,14 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      std::cout << std::endl << "Fast Enumeration started at:             " << encodeTimestamp(std::chrono::system_clock::now());
+      std::cout << std::endl << "Fast Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
       fastEnum();
-      std::cout << std::endl << "Full Enumeration started at:             " << encodeTimestamp(std::chrono::system_clock::now());
+      std::cout << std::endl << "Full Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
       fullEnum();
       loadDrivers();
-      std::cout << std::endl << "Standard Devices Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
-      deepEnum();
-      std::cout << std::endl << "Enumeration finished at:                 " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+      std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
+      stdEnum();
+      std::cout << std::endl << "Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
 
       m_fastEnum.release();
       m_enumThreadRun = false;
@@ -1007,7 +1008,7 @@ namespace iqrf {
         ", HandlerHash"
         ", HandlerUrl"
         ", CustomDriver"
-        ", DeepEnum"
+        ", StdEnum"
         ")  values ( "
         "?"
         ", ?"
@@ -1093,13 +1094,13 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void deepEnum()
+    void stdEnum()
     {
       TRC_FUNCTION_ENTER("");
 
       database & db = *m_db;
 
-      // map device nadrs for devices to deep enum
+      // map device nadrs for devices to std enum
       std::map<int, std::vector<int >> mapDeviceVectNadr;
       db << "SELECT"
         " Device.Id"
@@ -1109,14 +1110,14 @@ namespace iqrf {
         " ON Bonded.Mid = Node.Mid"
         " INNER JOIN Device"
         " ON Node.DeviceId = Device.Id"
-        " WHERE Device.DeepEnum = 0"
+        " WHERE Device.StdEnum = 0"
         ";"
         >> [&](int dev, int nadr)
       {
         mapDeviceVectNadr[dev].push_back(nadr);
       };
 
-      // deep enum according first bonded nadr of the device
+      // std enum according first bonded nadr of the device
       for (auto it : mapDeviceVectNadr) {
 
         // enum thread stopped
@@ -1129,7 +1130,7 @@ namespace iqrf {
           nadr = it.second[0];
         }
         else {
-          TRC_WARNING("Cannot deep eval: " << PAR(deviceId) << " as there is no bonded nadr");
+          TRC_WARNING("Cannot std eval: " << PAR(deviceId) << " as there is no bonded nadr");
           continue;
         }
         
@@ -1154,25 +1155,30 @@ namespace iqrf {
           };
 
           for (auto d : vectDrivers) {
-            switch (d) {
-            case PERIF_STANDARD_BINOUT:
-              stdBinoutEnum(nadr, deviceId);
-              //break;
-            case PERIF_STANDARD_LIGHT:
-              stdLightEnum(nadr, deviceId);
-              break;
-            case PERIF_STANDARD_SENSOR:
-              stdSensorEnum(nadr, deviceId);
-              //break;
-            case PERIF_STANDARD_DALI:
-              stdDaliEnum(nadr, deviceId);
-              break;
-            default:;
+            try {
+              switch (d) {
+              case PERIF_STANDARD_BINOUT:
+                stdBinoutEnum(nadr, deviceId);
+                break;
+              case PERIF_STANDARD_LIGHT:
+                stdLightEnum(nadr, deviceId);
+                break;
+              case PERIF_STANDARD_SENSOR:
+                stdSensorEnum(nadr, deviceId);
+                //break;
+              case PERIF_STANDARD_DALI:
+                stdDaliEnum(nadr, deviceId);
+                break;
+              default:;
+              }
+            }
+            catch (std::exception &e) {
+              CATCH_EXC_TRC_WAR(std::exception, e, "Cannot std enumerate " << PAR(nadr) << NAME_PAR(perif, d));
             }
           }
 
           db << "update Device set "
-          "DeepEnum = ?"
+          "StdEnum = ?"
           " where Id = ?;"
             << 1
             << deviceId
@@ -1182,12 +1188,12 @@ namespace iqrf {
         }
         catch (sqlite_exception &e)
         {
-          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store deep enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store std enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
           db << "rollback;";
         }
         catch (std::exception &e)
         {
-          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot deep enumerate " << PAR(nadr));
+          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot std enumerate " << PAR(nadr));
           db << "rollback;";
         }
       }
@@ -1239,7 +1245,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
 
-      binaryoutput::JsDriverEnumerate binoutEnum(m_iJsRenderService, nadr);
+      binaryoutput::jsdriver::Enumerate binoutEnum(m_iJsRenderService, nadr);
       binoutEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(binoutEnum.getRequest())->get());
 
       database & db = *m_db;
@@ -1262,7 +1268,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
 
-      sensor::JsDriverEnumerate sensorEnum(m_iJsRenderService, nadr);
+      sensor::jsdriver::Enumerate sensorEnum(m_iJsRenderService, nadr);
       sensorEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(sensorEnum.getRequest())->get());
       
       auto const & sensors = sensorEnum.getSensors();
@@ -1374,6 +1380,61 @@ namespace iqrf {
         >> [&](int nadr, int num)
       {
         retval.insert(std::make_pair(nadr, binaryoutput::InfoEnumeratePtr(shape_new binaryoutput::InfoEnumerate(num))));
+      };
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    std::map<int, dali::EnumeratePtr> getDalis() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::map<int, dali::EnumeratePtr> retval;
+      database & db = *m_db;
+
+      db <<
+        "select "
+        "b.Nadr "
+        "from "
+        "Bonded as b "
+        ", Device as d "
+        ", Dali as o "
+        "where "
+        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) and "
+        "d.Id = o.DeviceId "
+        ";"
+        >> [&](int nadr)
+      {
+        retval.insert(std::make_pair(nadr, dali::InfoEnumeratePtr(shape_new dali::InfoEnumerate())));
+      };
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    std::map<int, light::EnumeratePtr> getLights() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::map<int, light::EnumeratePtr> retval;
+      database & db = *m_db;
+
+      db <<
+        "select "
+        "b.Nadr "
+        ", o.Num "
+        "from "
+        "Bonded as b "
+        ", Device as d "
+        ", Light as o "
+        "where "
+        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) and "
+        "d.Id = o.DeviceId "
+        ";"
+        >> [&](int nadr, int num)
+      {
+        retval.insert(std::make_pair(nadr, light::InfoEnumeratePtr(shape_new light::InfoEnumerate(num))));
       };
 
       TRC_FUNCTION_LEAVE("");
@@ -1533,6 +1594,16 @@ namespace iqrf {
   std::map<int, binaryoutput::EnumeratePtr> IqrfInfo::getBinaryOutputs() const
   {
     return m_imp->getBinaryOutputs();
+  }
+
+  std::map<int, dali::EnumeratePtr> IqrfInfo::getDalis() const
+  {
+    return m_imp->getDalis();
+  }
+
+  std::map<int, light::EnumeratePtr> IqrfInfo::getLights() const
+  {
+    return m_imp->getLights();
   }
 
   void IqrfInfo::startEnumeration()
