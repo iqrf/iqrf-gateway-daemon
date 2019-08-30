@@ -7,8 +7,10 @@
 #include "RawDpaEmbedOS.h"
 #include "JsDriverBinaryOutput.h"
 #include "JsDriverSensor.h"
+#include "JsDriverLight.h"
 #include "InfoSensor.h"
 #include "InfoBinaryOutput.h"
+#include "InfoLight.h"
 #include "HexStringCoversion.h"
 
 #include "Trace.h"
@@ -28,6 +30,8 @@ namespace iqrf {
 
   const int PERIF_STANDARD_SENSOR = 94;
   const int PERIF_STANDARD_BINOUT = 75;
+  const int PERIF_STANDARD_DALI = 74;
+  const int PERIF_STANDARD_LIGHT = 113;
 
   class SqlFile
   {
@@ -1153,9 +1157,15 @@ namespace iqrf {
             switch (d) {
             case PERIF_STANDARD_BINOUT:
               stdBinoutEnum(nadr, deviceId);
+              //break;
+            case PERIF_STANDARD_LIGHT:
+              stdLightEnum(nadr, deviceId);
               break;
             case PERIF_STANDARD_SENSOR:
               stdSensorEnum(nadr, deviceId);
+              //break;
+            case PERIF_STANDARD_DALI:
+              stdDaliEnum(nadr, deviceId);
               break;
             default:;
             }
@@ -1183,6 +1193,46 @@ namespace iqrf {
       }
 
       TRC_FUNCTION_LEAVE("");
+    }
+
+    void stdDaliEnum(int nadr, int deviceId)
+    {
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
+
+      //no enum
+
+      database & db = *m_db;
+
+      db << "delete from Dali where DeviceId = ?;"
+        << deviceId;
+
+      db << "insert into Dali (DeviceId)  values (?);"
+        << deviceId;
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void stdLightEnum(int nadr, int deviceId)
+    {
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
+
+      light::jsdriver::Enumerate lightEnum(m_iJsRenderService, nadr);
+      lightEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(lightEnum.getRequest())->get());
+
+      database & db = *m_db;
+
+      db << "delete from Light where DeviceId = ?;"
+        << deviceId;
+
+      db << "insert into Light ("
+        "DeviceId"
+        ", Num"
+        ")  values ( "
+        "?, ?"
+        ");"
+        << deviceId << lightEnum.getLightsNum();
+
+      TRC_FUNCTION_LEAVE("")
     }
 
     void stdBinoutEnum(int nadr, int deviceId)

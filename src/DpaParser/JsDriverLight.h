@@ -12,19 +12,6 @@ namespace iqrf
   {
     namespace jsdriver
     {
-      namespace item {
-        class Light : public light::item::Light
-        {
-        public:
-          Light(const rapidjson::Value& v)
-            : light::item::Light()
-          {
-            m_index = (int)jutils::getMemberAs<int>("index", v);
-            m_power = (uint8_t)jutils::getMemberAs<int>("power", v);
-            m_time = (uint8_t)jutils::getMemberAs<int>("time", v);
-          }
-        };
-      } //namespace item
 
       ////////////////
       class Enumerate : public light::Enumerate, public JsDriverDpaCommandSolver
@@ -53,7 +40,7 @@ namespace iqrf
       class SetPower : public light::SetPower, public JsDriverDpaCommandSolver
       {
       public:
-        SetPower(IJsRenderService* iJsRenderService, const std::vector<light::item::LightPtr> & lights)
+        SetPower(IJsRenderService* iJsRenderService, const std::vector<light::item::Light> & lights)
           :JsDriverDpaCommandSolver(iJsRenderService)
           , light::SetPower(lights)
         {}
@@ -94,7 +81,7 @@ namespace iqrf
       class IncrementPower : public light::IncrementPower, public JsDriverDpaCommandSolver
       {
       public:
-        IncrementPower(IJsRenderService* iJsRenderService, const std::vector<light::item::LightPtr> & lights)
+        IncrementPower(IJsRenderService* iJsRenderService, const std::vector<light::item::Light> & lights)
           :JsDriverDpaCommandSolver(iJsRenderService)
           , light::IncrementPower(lights)
         {}
@@ -118,7 +105,7 @@ namespace iqrf
       class DecrementPower : public light::DecrementPower, public JsDriverDpaCommandSolver
       {
       public:
-        DecrementPower(IJsRenderService* iJsRenderService, const std::vector<light::item::LightPtr> & lights)
+        DecrementPower(IJsRenderService* iJsRenderService, const std::vector<light::item::Light> & lights)
           :JsDriverDpaCommandSolver(iJsRenderService)
           , light::DecrementPower(lights)
         {}

@@ -63,7 +63,6 @@ namespace iqrf
         using namespace rapidjson;
 
         const auto val = Pointer("/sensors").Get(v)->GetArray();
-        int index = 0; //use index in name as there may be more sensors of the same type;
         for (auto itr = val.Begin(); itr != val.End(); ++itr) {
           item::SensorPtr sen;
           if (!itr->IsNull()) {
@@ -156,26 +155,8 @@ namespace iqrf
           uint8_t status, value;
           status = jutils::getMemberAs<int>("status", *itemVal);
           value = jutils::getMemberAs<int>("value", *itemVal);
-
-          //CommandResponse commandResponse(status, value);
-          //m_items.push_back(commandResponse);
         }
       }
-
-      //void parseResponse(const rapidjson::Value& v) override
-      //{
-      //  using namespace rapidjson;
-
-      //  const auto val = Pointer("/sensors").Get(v)->GetArray();
-      //  int index = 0; //use index in name as there may be more sensors of the same type;
-      //  for (auto itr = val.Begin(); itr != val.End(); ++itr) {
-      //    SensorPtr sen;
-      //    if (!itr->IsNull()) {
-      //      sen.reset(shape_new JsDriverSensor(*itr));
-      //    }
-      //    m_sensors.push_back(std::move(sen));
-      //  }
-      //}
     };
     typedef std::unique_ptr<JsDriverFrc> JsDriverFrcPtr;
 

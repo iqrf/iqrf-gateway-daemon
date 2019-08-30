@@ -962,7 +962,10 @@ if (iqrf.dali !== undefined) {
   };
 
   iqrf.dali.SendCommands_Response_rsp = function (rawHdp) {
-    var result = iqrf.dali.SendCommands_Response(rawHdp)
+    var result =
+    {
+      answers: iqrf.dali.SendCommands_Response(rawHdp)
+    };
     return result;
   };
 

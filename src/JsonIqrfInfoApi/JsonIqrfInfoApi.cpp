@@ -26,38 +26,6 @@ namespace iqrf {
   class JsonIqrfInfoApi::Imp
   {
   public:
-    ////////////// status conversion
-    //enum class MsgStatus {
-    //  st_ok,
-    //  st_noDb,
-    //  st_badParams
-    //};
-
-    //class MsgStatusConvertTable
-    //{
-    //public:
-    //  static const std::vector<std::pair<MsgStatus, std::string>>& table()
-    //  {
-    //    static std::vector <std::pair<MsgStatus, std::string>> table = {
-    //      { MsgStatus::st_ok, "ok" },
-    //      { MsgStatus::st_noDb, "no DB" },
-    //      { MsgStatus::st_badParams, "bad parameters" }
-    //    };
-    //    return table;
-    //  }
-    //  static MsgStatus defaultEnum()
-    //  {
-    //    return MsgStatus::st_badParams;
-    //  }
-    //  static const std::string& defaultStr()
-    //  {
-    //    static std::string u("unknown");
-    //    return u;
-    //  }
-    //};
-
-    //typedef shape::EnumStringConvertor<MsgStatus, MsgStatusConvertTable> MsgStatusConvertor;
-
     /////////// msg types as string
     const std::string mType_GetSensors = "infoDaemon_GetSensors";
     const std::string mType_GetBinaryOutputs = "infoDaemon_GetBinaryOutputs";
@@ -77,22 +45,6 @@ namespace iqrf {
       {
       }
 
-      //MsgStatus getErr()
-      //{
-      //  return m_st;
-      //}
-
-      //void setErr(MsgStatus st)
-      //{
-      //  m_st = st;
-      //  m_success = false;
-      //}
-
-      //bool isSuccess()
-      //{
-      //  return m_success;
-      //}
-
       void createResponsePayload(rapidjson::Document& doc) override
       {
         Value *notEmpty = Pointer("/data/rsp").Get(doc);
@@ -102,22 +54,10 @@ namespace iqrf {
           empty.SetObject();
           Pointer("/data/rsp").Set(doc, empty);
         }
-        //if (m_success) {
-        //  setStatus("ok", 0);
-        //}
-        //else {
-        //  //if (getVerbose()) {
-        //  //  Pointer("/data/errorStr").Set(doc, MsgStatusConvertor::enum2str(m_st));
-        //  //}
-        //  setStatus("err", -1);
-        //}
       }
 
       virtual void handleMsg(JsonIqrfInfoApi::Imp* imp) = 0;
 
-    private:
-      //MsgStatus m_st = MsgStatus::st_ok;
-      //bool m_success = true;
     };
 
     //////////////////////////////////////////////
