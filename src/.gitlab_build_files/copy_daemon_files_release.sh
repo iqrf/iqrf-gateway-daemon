@@ -38,7 +38,7 @@ echo "Daemon folders created."
 
 # CFG
 cp iqrf-daemon-source/src/start-IqrfDaemon/configuration/*.json ${DEPLOY}${IQRFGD2_CFG}
-cp iqrf-daemon-source/src/start-IqrfDaemon/configuration-LinDeployRelease/*.json ${DEPLOY}${IQRFGD2_CFG}
+cp iqrf-daemon-source/src/start-IqrfDaemon/configuration-LinDeploy/*.json ${DEPLOY}${IQRFGD2_CFG}
 # NOT YET TO RELEASE
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__OtaUploadService.json
 rm ${DEPLOY}${IQRFGD2_CFG}/iqrf__AutonetworkService.json

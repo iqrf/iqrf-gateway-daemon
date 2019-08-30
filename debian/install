@@ -1,5 +1,5 @@
 src/start-IqrfDaemon/configuration/*.json                   etc/iqrf-gateway-daemon
-src/start-IqrfDaemon/configuration-LinDeployRelease/*.json  etc/iqrf-gateway-daemon
+src/start-IqrfDaemon/configuration-LinDeploy/*.json         etc/iqrf-gateway-daemon
 src/start-IqrfDaemon/cfgSchemas                             etc/iqrf-gateway-daemon
 build/bin/iqrfgd2                                           usr/bin
 build/bin/*.so                                              usr/lib/iqrf-gateway-daemon

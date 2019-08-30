@@ -50,7 +50,6 @@
                             "properties": {
                                 "sensors": {
                                     "type": "array",
-                                    "maxItems": 31,
                                     "description": "Returns array of objects for every sensor, see its description.",
                                     "items": {
                                         "oneOf": [
