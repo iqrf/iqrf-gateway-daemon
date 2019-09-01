@@ -199,15 +199,22 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      std::unique_lock<std::mutex> lck(m_contextMtx);
+      try {
+        std::unique_lock<std::mutex> lck(m_contextMtx);
 
-      auto found = m_contexts.find(contextId);
-      if (found != m_contexts.end()) {
-        //THROW_EXC_TRC_WAR(std::logic_error, "Already created JS context: " << PAR(contextId));
-        m_contexts.erase(contextId);
+        auto found = m_contexts.find(contextId);
+        if (found != m_contexts.end()) {
+          //THROW_EXC_TRC_WAR(std::logic_error, "Already created JS context: " << PAR(contextId));
+          m_contexts.erase(contextId);
+        }
+        auto res = m_contexts.insert(std::make_pair(contextId, std::shared_ptr<Context>(shape_new Context())));
+        res.first->second->loadJsCode(js);
       }
-      auto res = m_contexts.insert(std::make_pair(contextId, std::shared_ptr<Context>(shape_new Context())));
-      res.first->second->loadJsCode(js);
+      catch (std::exception & e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "cannot load passed JS code");
+        // JsCache has TRC_CHANNEL 33 => write to its trace channel
+        shape::Tracer::get().writeMsg((int)shape::TraceLevel::Warning, 33, TRC_MNAME, __FILE__, __LINE__, __FUNCTION__, js);
+      }
 
       TRC_FUNCTION_LEAVE("");
       return 0;
