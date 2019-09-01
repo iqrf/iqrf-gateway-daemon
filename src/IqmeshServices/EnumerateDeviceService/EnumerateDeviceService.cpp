@@ -1045,12 +1045,15 @@ namespace iqrf {
         // Peripheral enumeration
         peripheralEnumeration( deviceEnumerateResult );
 
-        const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
-          deviceEnumerateResult.getEnumeratedNodeHwpId(),
-          deviceEnumerateResult.getEnumeratedNodeHwpIdVer(),
-          deviceEnumerateResult.getOsRead()->getOsBuildAsString(),
-          deviceEnumerateResult.getPerEnum()->getDpaVerAsHexaString()
-        );
+        const IJsCacheService::Package* package = nullptr;
+        if (deviceEnumerateResult.getPerEnum() && deviceEnumerateResult.getOsRead()) {
+          package = m_iJsCacheService->getPackage(
+            deviceEnumerateResult.getEnumeratedNodeHwpId(),
+            deviceEnumerateResult.getEnumeratedNodeHwpIdVer(),
+            deviceEnumerateResult.getOsRead()->getOsBuildAsString(),
+            deviceEnumerateResult.getPerEnum()->getDpaVerAsHexaString()
+          );
+        }
         if ( package != nullptr )
         {
           std::list<std::string> standards;
