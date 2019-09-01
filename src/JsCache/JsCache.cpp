@@ -198,18 +198,18 @@ namespace iqrf {
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
+      std::ostringstream ostr;
       for (const auto & pck : m_packageMap) {
         const Package& p = pck.second;
         if (p.m_os == os && p.m_dpa == dpa) {
-          //if (!p.m_driver.empty() && p.m_driver.size() > 20) {
-          //  m_customDrivers.insert(std::make_pair(p.m_hwpid, p.m_driver));
-          //}
           for (const auto & drv : p.m_stdDriverVect) {
             map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
+            ostr << '[' << drv->getId() << ',' << drv->getVersion() << "] ";
           }
         }
       }
 
+      TRC_INFORMATION("Loading drivers: " << ostr.str());
       TRC_FUNCTION_LEAVE("");
       return map2;
     }
