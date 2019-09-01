@@ -59,6 +59,10 @@ else()
   set(BUILD_TIMESTAMP ${DEFAULT_BUILD_TIMESTAMP})
 endif()
 
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  add_link_options(-Wl,-z,relro -Wl,-z,now)
+endif()
+
 add_subdirectory(libraries/clibspi  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibcdc  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
