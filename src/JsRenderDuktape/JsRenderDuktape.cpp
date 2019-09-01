@@ -197,7 +197,7 @@ namespace iqrf {
 
     int loadJsCodeFenced(int contextId, const std::string& js)
     {
-      TRC_FUNCTION_ENTER("");
+      TRC_FUNCTION_ENTER(PAR(contextId));
 
       try {
         std::unique_lock<std::mutex> lck(m_contextMtx);
