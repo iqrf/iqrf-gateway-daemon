@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `Device` (
 	`HandlerHash`	TEXT,
 	`HandlerUrl`	TEXT,
 	`CustomDriver`	TEXT,
-	`DeepEnum` INTEGER NOT NULL
+	`StdEnum` INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `Driver` (
@@ -68,5 +68,15 @@ CREATE TABLE IF NOT EXISTS `Binout` (
 	FOREIGN KEY(`DeviceId`) REFERENCES `Device`(`Id`)
 );
 
+CREATE TABLE IF NOT EXISTS `Dali` (
+	`DeviceId`	INTEGER NOT NULL,
+	FOREIGN KEY(`DeviceId`) REFERENCES `Device`(`Id`)
+);
+
+CREATE TABLE IF NOT EXISTS `Light` (
+	`DeviceId`	INTEGER NOT NULL,
+	`Num`	INTEGER NOT NULL,
+	FOREIGN KEY(`DeviceId`) REFERENCES `Device`(`Id`)
+);
 
 COMMIT;
