@@ -22,7 +22,21 @@ namespace iqrf
         double m_supplyVoltage = 0;
         int m_flags = 0;
         int m_slotLimits = 0;
+
+        //member read for dpa > 3.03 only
+        bool m_is303Compliant = false;
         std::vector<uint8_t> m_ibk;
+
+        //enum members
+        //members read for dpa > 4.10 only
+        bool m_is410Compliant = false;
+        int m_dpaVer = 0;
+        int m_perNr = 0;;
+        std::set<int> m_embedPer;
+        int m_hwpidValEnum = 0;
+        int m_hwpidVer = 0;
+        int m_flagsEnum = 0;
+        std::set<int> m_userPer;
 
         Read()
         {}
@@ -38,7 +52,19 @@ namespace iqrf
         double getSupplyVoltage() const { return m_supplyVoltage; }
         int getFlags() const { return m_flags; }
         int getSlotLimits() const { return m_slotLimits; }
+
+        bool is303Compliant() const { return m_is303Compliant; }
+        bool is410Compliant() const { return m_is410Compliant; }
+
         const std::vector<uint8_t> & getIbk() const { return m_ibk; }
+
+        int getDpaVer() const { return m_dpaVer & 0x3fff; }
+        int getPerNr() const { return m_perNr; }
+        const std::set<int> & getEmbedPer() const { return m_embedPer; }
+        int getHwpidValFromOs() const { return m_hwpidValEnum; }
+        int getHwpidVer() const { return m_hwpidVer; }
+        int getFlagsEnum() const { return m_flagsEnum; }
+        const std::set<int> & getUserPer() const { return m_userPer; }
 
         std::string getMidAsString() const
         {
@@ -151,6 +177,41 @@ namespace iqrf
           os << getLongestTimeSlot() << " ms";
           return os.str();
         }
+
+        //enum functions for dpa > 4.10 only
+        static std::string getDpaVerAsString(int dpaVer)
+        {
+          std::ostringstream os;
+          os.fill('0');
+          os << std::hex <<
+            std::setw(2) << ((dpaVer & 0x3fff) >> 8) << '.' << std::setw(2) << (dpaVer & 0xff);
+          return os.str();
+        }
+
+        std::string getDpaVerAsString() const
+        {
+          return getDpaVerAsString(m_dpaVer);
+        }
+
+        static std::string getDpaVerAsHexaString(int dpaVer)
+        {
+          std::ostringstream os;
+          os.fill('0');
+          os << std::hex << std::setw(4) << dpaVer;
+          return os.str();
+        }
+
+        std::string getDpaVerAsHexaString() const
+        {
+          return getDpaVerAsHexaString(m_dpaVer);
+        }
+
+        bool getDemoFlag() const { return (m_dpaVer & 0x8000) != 0; }
+        int getModeStd() const { return (m_flagsEnum & 1) ? 1 : 0; }
+        bool isModeStd() const { return (m_flagsEnum & 1) != 0; }
+        bool isModeLp() const { return (m_flagsEnum & 1) == 0; }
+        int getStdAndLpSupport() const { return (m_flagsEnum & 0b100) ? 1 : 0; }
+        bool isStdAndLpSupport() const { return (m_flagsEnum & 0b100) != 0; }
 
       };
       typedef std::unique_ptr<Read> ReadPtr;
