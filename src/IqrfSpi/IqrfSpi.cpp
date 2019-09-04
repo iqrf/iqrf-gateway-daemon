@@ -338,7 +338,7 @@ namespace iqrf {
       return state;
     }
 
-    std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
+    std::unique_ptr<IIqrfChannelService::Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
     {
       return m_accessControl.getAccess(receiveFromFunc, access);
     }
@@ -346,6 +346,35 @@ namespace iqrf {
     bool hasExclusiveAccess() const
     {
       return m_accessControl.hasExclusiveAccess();
+    }
+
+    IIqrfChannelService::osInfo getTrModuleInfo()
+    {
+      TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION("Reading TR module identification.");
+
+      IIqrfChannelService::osInfo myOsInfo;
+      memset(&myOsInfo, 0, sizeof(myOsInfo));
+
+      //only OS version and build
+      uint8_t idfBuffer[32];
+      uint8_t idfResult;
+
+      idfResult = spi_iqrf_get_tr_module_info(idfBuffer, sizeof(idfBuffer));
+
+      if (idfResult == BASE_TYPES_OPER_OK)
+      {
+        myOsInfo.osVersionMajor = idfBuffer[4] / 16;
+        myOsInfo.osVersionMinor = idfBuffer[4] % 16;
+        myOsInfo.osBuild = (uint16_t)idfBuffer[7] << 8 | idfBuffer[6];
+      }
+      else
+      {
+        TRC_ERROR("TR module identification ERROR: " << PAR(idfResult));
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return myOsInfo;
     }
 
     void activate(const shape::Properties *props)

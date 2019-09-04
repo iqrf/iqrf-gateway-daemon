@@ -57,6 +57,11 @@ namespace iqrf {
       UPLOAD_ERROR_BUSY
     };
 
+    struct osInfo {
+      uint16_t osBuild;
+      uint8_t osVersionMajor, osVersionMinor;
+    };
+
     // receive data handler
     typedef std::function<int(const std::basic_string<unsigned char>&)> ReceiveFromFunc;
 
@@ -79,12 +84,15 @@ namespace iqrf {
         const std::basic_string<uint8_t>& data,
         const uint16_t address
       ) = 0;
+
+      virtual IIqrfChannelService::osInfo getTrModuleInfo() = 0;
     };
 
     virtual void startListen() = 0;
     virtual State getState() const = 0;
     virtual std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) = 0;
     virtual bool hasExclusiveAccess() const = 0;
+
     virtual ~IIqrfChannelService() {}
 
     class StateConvertTable

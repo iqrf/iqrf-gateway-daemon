@@ -291,6 +291,18 @@ namespace iqrf {
       return m_accessControl.hasExclusiveAccess();
     }
 
+    IIqrfChannelService::osInfo getTrModuleInfo()
+    {
+      TRC_FUNCTION_ENTER("");
+      TRC_WARNING("Reading TR module identification - not implemented.");
+
+      IIqrfChannelService::osInfo myOsInfo;
+      memset(&myOsInfo, 0, sizeof(myOsInfo));
+
+      TRC_FUNCTION_LEAVE("");
+      return myOsInfo;
+    }
+
     void activate(const shape::Properties *props)
     {
       TRC_FUNCTION_ENTER("");

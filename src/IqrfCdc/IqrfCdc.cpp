@@ -287,6 +287,37 @@ namespace iqrf {
       return m_accessControl.hasExclusiveAccess();
     }
 
+    IIqrfChannelService::osInfo getTrModuleInfo() {
+
+      TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION("Reading TR module identification.");
+
+      ModuleInfo *myModuleInfoData;
+      IIqrfChannelService::osInfo myOsInfo;
+      memset(&myOsInfo, 0, sizeof(myOsInfo));
+
+      try {
+        if (m_cdc) {
+          myModuleInfoData = m_cdc->getTRModuleInfo();
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "CDC not active");
+        }
+      }
+      catch (std::exception& ex) {
+        CATCH_EXC_TRC_WAR(std::exception, ex, "Reading TR module identification failed.");
+        TRC_FUNCTION_LEAVE("");
+        return myOsInfo;
+      }
+
+      myOsInfo.osVersionMajor = myModuleInfoData->osVersion / 16;
+      myOsInfo.osVersionMinor = myModuleInfoData->osVersion % 16;
+      myOsInfo.osBuild = (uint16_t)myModuleInfoData->osBuild[1] << 8 | myModuleInfoData->osBuild[0];
+
+      TRC_FUNCTION_LEAVE("");
+      return myOsInfo;
+    }
+
     void activate(const shape::Properties *props)
     {
       TRC_FUNCTION_ENTER("");

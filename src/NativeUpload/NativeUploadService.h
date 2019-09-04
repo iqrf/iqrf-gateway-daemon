@@ -8,7 +8,6 @@
 #include "ITraceService.h"
 #include <string>
 
-
 namespace iqrf {
 
   /// \class NativeUploadService
