@@ -30,45 +30,6 @@ namespace {
     return os.str();
   }
 
-  // holds parsed data from OS read response
-  class OsReadObject {
-  public:
-    class TrMcuType {
-    public:
-      uint8_t value;
-      std::string trType;
-      bool fccCertified;
-      std::string mcuType;
-    };
-
-    class Flags {
-    public:
-      uint8_t value;
-      bool insufficientOsBuild;
-      std::string interface;
-      bool dpaHandlerDetected;
-      bool dpaHandlerNotDetectedButEnabled;
-      bool noInterfaceSupported;
-    };
-
-    class SlotLimits {
-    public:
-      uint8_t value;
-      std::string shortestTimeslot;
-      std::string longestTimeslot;
-    };
-
-    std::string mid;
-    std::string osVersion;
-    TrMcuType trMcuType;
-    std::string osBuild;
-    std::string rssi;
-    std::string supplyVoltage;
-    Flags flags;
-    SlotLimits slotLimits;
-
-  };
-
   // maximum number of repeats
   static const uint8_t REPEAT_MAX = 3;
 
@@ -89,7 +50,6 @@ namespace {
 
   // number of peripherals in DPA response: get info for more peripherals
   static const uint8_t PERIPHERALS_NUM = 14;
-
 
   // baud rates
   static uint8_t BAUD_RATES_SIZE = 9;
@@ -148,6 +108,7 @@ namespace iqrf {
 
   // holds information about result of device enumeration
   class DeviceEnumerateResult {
+
   private:
     // results of partial DPA requests
     DeviceEnumerateError m_bondedError;
@@ -205,7 +166,6 @@ namespace iqrf {
     void setMorePersInfoError(const DeviceEnumerateError& error) {
       m_morePersInfoError = error;
     }
-
 
     uint16_t getDeviceAddr() const {
       return m_deviceAddr;

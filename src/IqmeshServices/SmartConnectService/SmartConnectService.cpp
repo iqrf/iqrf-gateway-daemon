@@ -1157,7 +1157,7 @@ namespace iqrf {
         hwpId = checkHwpId(IqrfCodeDecoder::getHwpId());
 
         // logs decoded values
-        logDecodedValues(mid, ibk, hwpId );
+        logDecodedValues(mid, ibk, hwpId);
        
         m_returnVerbose = comSmartConnect.getVerbose();
       }

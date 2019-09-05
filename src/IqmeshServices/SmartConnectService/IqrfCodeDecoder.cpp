@@ -3,7 +3,6 @@
 #include "DPA.h"
 #include <algorithm> 
 
-
 namespace {
 
   // Base (number of characters in the alphabet) used to encode.
@@ -59,13 +58,15 @@ namespace {
     MID = 0x1,
     IBK = 0x2,
     HWPID = 0x3,
+    BondingChannel = 0x4,
+    Nop = 0x5,
+    DataBlock = 0x6,
+    Text = 0x7,
 
     // For future tags count expansion.
     TAG_RESERVED = 0xF
   };
-
 }
-
 
 namespace iqrf {
 
@@ -117,7 +118,6 @@ namespace iqrf {
   std::basic_string<uint8_t> IqrfCodeDecoder::m_mid;
   std::basic_string<uint8_t> IqrfCodeDecoder::m_ibk;
   uint16_t IqrfCodeDecoder::m_hwpId = HWPID_Default;
-
 
   void IqrfCodeDecoder::decode(const std::string& iqrfCodeOrig) {
     if (iqrfCodeOrig.empty()) {
@@ -180,6 +180,22 @@ namespace iqrf {
 
       case Tags::HWPID:
         m_hwpId = nibbleReader.readByte() << 8 | nibbleReader.readByte();
+        break;
+
+      case Tags::BondingChannel:
+        // obsolete
+        break;
+
+      case Tags::Nop:
+        // no data
+        break;
+
+      case Tags::DataBlock:
+        // non IQRF data
+        break;
+
+      case Tags::Text:
+        // non IQRF data
         break;
 
       default:
