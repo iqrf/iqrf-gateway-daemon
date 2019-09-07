@@ -168,7 +168,7 @@ namespace iqrf {
       auto tm = *std::localtime(&time);
 
       char buf[80];
-      strftime(buf, sizeof(buf), "%FT%T,mmm%z", &tm);
+      strftime(buf, sizeof(buf), "%FT%T.mmm%z", &tm);
       std::string str(buf);
 
       // convert to ISO8601 Date (Extend) format

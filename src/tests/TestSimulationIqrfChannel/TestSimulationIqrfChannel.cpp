@@ -160,6 +160,12 @@ namespace iqrf {
       return true;
     }
 
+    IIqrfChannelService::osInfo getTrModuleInfo()
+    {
+      IIqrfChannelService::osInfo inf;
+      return inf;
+    }
+
     void activate(const shape::Properties *props)
     {
       (void)props; //silence -Wunused-parameter
