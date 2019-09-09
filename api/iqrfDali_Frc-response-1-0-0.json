@@ -110,6 +110,8 @@
                           }
                         },
                         "required": [
+						  "nAdr",
+						  "metaData",
                           "answer"
                         ]
                       }

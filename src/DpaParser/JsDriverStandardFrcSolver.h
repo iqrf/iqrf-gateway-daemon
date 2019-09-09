@@ -119,7 +119,7 @@ namespace iqrf
             nadr = idx++;
           }
           Value sensorWithNadr;
-          Pointer("/nadr").Set(sensorWithNadr, nadr, doc.GetAllocator());
+          Pointer("/nAdr").Set(sensorWithNadr, nadr, doc.GetAllocator());
           Pointer(resultItemKey).Set(sensorWithNadr, *itemVal, doc.GetAllocator());
           doc.PushBack(sensorWithNadr, doc.GetAllocator());
         }

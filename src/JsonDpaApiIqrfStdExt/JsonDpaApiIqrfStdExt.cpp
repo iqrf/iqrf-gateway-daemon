@@ -108,9 +108,9 @@ namespace iqrf {
           rapidjson::Document doc = jsDriverStandardFrcSolver.getResponseResultWithNadr(arrayKey, itemKey);
 
           for (Value * senVal = doc.Begin(); senVal != doc.End(); senVal++) {
-            Value *nadrVal = Pointer("/nadr").Get(*senVal);
+            Value *nadrVal = Pointer("/nAdr").Get(*senVal);
             if (!(nadrVal && nadrVal->IsInt())) {
-              THROW_EXC_TRC_WAR(std::logic_error, "Expected: .../nadr of type integer");
+              THROW_EXC_TRC_WAR(std::logic_error, "Expected: .../nAdr of type integer");
             }
             int nadr = nadrVal->GetInt();
             if (m_iMetaDataApi && m_iMetaDataApi->iSmetaDataToMessages()) {

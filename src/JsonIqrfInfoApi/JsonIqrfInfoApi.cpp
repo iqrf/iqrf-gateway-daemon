@@ -109,7 +109,7 @@ namespace iqrf {
             sensorsVal.PushBack(senVal, a);
           }
 
-          Pointer("/nadr").Set(devVal, enm.first, a);
+          Pointer("/nAdr").Set(devVal, enm.first, a);
           Pointer("/sensors").Set(devVal, sensorsVal, a);
 
           devicesVal.PushBack(devVal, a);
@@ -157,7 +157,7 @@ namespace iqrf {
         for (auto & enm : m_enmMap) {
           Value devVal;
 
-          Pointer("/nadr").Set(devVal, enm.first, a);
+          Pointer("/nAdr").Set(devVal, enm.first, a);
           Pointer("/binOuts").Set(devVal, enm.second->getBinaryOutputsNum(), a);
 
           devicesVal.PushBack(devVal, a);
@@ -205,7 +205,7 @@ namespace iqrf {
         for (auto & enm : m_enmMap) {
           Value devVal;
 
-          Pointer("/nadr").Set(devVal, enm.first, a);
+          Pointer("/nAdr").Set(devVal, enm.first, a);
 
           devicesVal.PushBack(devVal, a);
         }
@@ -252,7 +252,7 @@ namespace iqrf {
         for (auto & enm : m_enmMap) {
           Value devVal;
 
-          Pointer("/nadr").Set(devVal, enm.first, a);
+          Pointer("/nAdr").Set(devVal, enm.first, a);
           Pointer("/lights").Set(devVal, enm.second->getLightsNum(), a);
 
           devicesVal.PushBack(devVal, a);

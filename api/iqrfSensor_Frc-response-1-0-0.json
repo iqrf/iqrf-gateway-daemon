@@ -138,7 +138,7 @@
                       {
                         "type": "object",
                         "properties": {
-                          "nadr": {
+                          "nAdr": {
                             "type": "integer",
                             "description": "Node address."
                           },
@@ -234,6 +234,8 @@
                           }
                         },
                         "required": [
+						  "nAdr",
+						  "metaData",
                           "sensor"
                         ]
                       }
