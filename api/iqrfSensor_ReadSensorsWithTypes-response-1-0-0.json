@@ -179,7 +179,7 @@
                             },
                             "requestTs": {
                                 "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
                             },
                             "confirmation": {
                                 "type": "string",
@@ -187,7 +187,7 @@
                             },
                             "confirmationTs": {
                                 "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
                             },
                             "response": {
                                 "type": "string",
@@ -195,7 +195,7 @@
                             },
                             "responseTs": {
                                 "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
                             }
                         },
                         "required": [
