@@ -1,6 +1,7 @@
 #define IBondNodeLocalService_EXPORTS
 
 #include "BondNodeLocalService.h"
+#include "RawDpaEmbedOS.h"
 #include "Trace.h"
 #include "ComIqmeshNetworkBondNodeLocal.h"
 #include "iqrf__BondNodeLocalService.hxx"
@@ -96,7 +97,8 @@ namespace iqrf {
     uint8_t m_bondedNodesNum;
     uint16_t m_bondedNodeHwpId;
     uint16_t m_bondedNodeHwpIdVer;
-    std::vector<uns8> m_osRead; //TODO parse instead of maintain response data in raw form
+    
+    embed::os::RawDpaReadPtr m_osRead;
     uint16_t m_osBuild;
 
     std::string m_manufacturer = "";
@@ -127,14 +129,14 @@ namespace iqrf {
     // returns number of bonded network nodes.
     uint8_t getBondedNodesNum() const { return m_bondedNodesNum; };
 
-    // sets OS Read info about device
-    void setOsRead( const uns8* readInfo ) {
-      m_osRead.insert(m_osRead.begin(), readInfo, readInfo + DPA_MAX_DATA_LENGTH);
+    // os read parsed
+    const embed::os::RawDpaReadPtr& getOsRead() const
+    {
+      return m_osRead;
     }
 
-    // returns OS Read info about device
-    const std::vector<uns8> getOsRead() const {
-      return m_osRead;
+    void setOsRead(embed::os::RawDpaReadPtr &osReadPtr) {
+      m_osRead = std::move(osReadPtr);
     }
 
     uint16_t getOsBuild() const {
@@ -340,92 +342,25 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER( "" );
 
-      DpaMessage readInfoRequest;
-      DpaMessage::DpaPacket_t readInfoPacket;
-      readInfoPacket.DpaRequestPacket_t.NADR = bondResult.getBondedAddr();
-      readInfoPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
-      readInfoPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ;
-      readInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-      readInfoRequest.DataToBuffer( readInfoPacket.Buffer, sizeof( TDpaIFaceHeader ) );
+      std::unique_ptr<embed::os::RawDpaRead> osReadPtr( shape_new embed::os::RawDpaRead(bondResult.getBondedAddr()) );
+      std::unique_ptr<IDpaTransactionResult2> transResultPtr;
 
-      // issue the DPA request
-      std::shared_ptr<IDpaTransaction2> readInfoTransaction;
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-
-      for ( int rep = 0; rep <= m_repeat; rep++ ) {
-        try {
-          //readInfoTransaction = m_iIqrfDpaService->executeDpaTransaction( readInfoRequest );
-          readInfoTransaction = m_exclusiveAccess->executeDpaTransaction(readInfoRequest);
-          transResult = readInfoTransaction->get();
-        }
-        catch ( std::exception& e ) {
-          TRC_WARNING( "DPA transaction error : " << e.what() );
-
-          if ( rep < m_repeat ) {
-            std::this_thread::sleep_for( std::chrono::milliseconds( 250 ));
-            continue;
-          }
-
-          BondError error( BondError::Type::PingFailed, e.what() );
-          bondResult.setError( error );
-
-          TRC_FUNCTION_LEAVE( "" );
-          return;
-        }
-
-        TRC_DEBUG( "Result from read node's info transaction as string:" << PAR( transResult->getErrorString() ) );
-
-        IDpaTransactionResult2::ErrorCode errorCode = ( IDpaTransactionResult2::ErrorCode )transResult->getErrorCode();
-
-        // because of the move-semantics
-        DpaMessage dpaResponse = transResult->getResponse();
-        bondResult.addTransactionResult( transResult );
-
-        if ( errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK ) {
-          TRC_INFORMATION( "Read node's info successful!" );
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR( readInfoRequest.PeripheralType(), readInfoRequest.NodeAddress() )
-            << PAR( readInfoRequest.PeripheralCommand() )
-          );
-
-          bondResult.setOsRead(
-            dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData
-          );
-
-          TPerOSRead_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
-          bondResult.setOsBuild(resp.OsBuild);
-
-          bondResult.setBondedNodeHwpId( dpaResponse.DpaPacket().DpaResponsePacket_t.HWPID );
-
-          TRC_FUNCTION_LEAVE( "" );
-          return;
-        }
-
-        // transaction error
-        if ( errorCode < 0 ) {
-          TRC_WARNING( "Transaction error. " << NAME_PAR_HEX( "Error code", errorCode ) );
-
-          if ( rep < m_repeat ) {
-            std::this_thread::sleep_for( std::chrono::milliseconds( 250 ));
-            continue;
-          }
-
-          BondError error( BondError::Type::PingFailed, "Transaction error" );
-          bondResult.setError( error );
-        } // DPA error
-        else {
-          TRC_WARNING( "Dpa error. " << NAME_PAR_HEX( "Error code", errorCode ) );
-
-          if ( rep < m_repeat ) {
-            std::this_thread::sleep_for( std::chrono::milliseconds( 250 ));
-            continue;
-          }
-
-          BondError error( BondError::Type::PingFailed, "Dpa error" );
-          bondResult.setError( error );
-        }
+      try
+      {
+        m_exclusiveAccess->executeDpaTransactionRepeat( osReadPtr->getRequest(), transResultPtr, m_repeat );
+        osReadPtr->processDpaTransactionResult( std::move(transResultPtr) );
+        TRC_DEBUG("Result from OS read transaction as string:" << PAR( osReadPtr->getResult()->getErrorString()) );
+        bondResult.setOsBuild( osReadPtr->getOsBuild() );
+        bondResult.addTransactionResult( osReadPtr->getResultMove() );
+        bondResult.setOsRead( osReadPtr );
+        TRC_INFORMATION( "OS read successful!" );
       }
+      catch (std::exception &e) {
+        BondError error(BondError::Type::PingFailed, e.what());
+        bondResult.setError(error);
+      }
+
+      TRC_FUNCTION_LEAVE("");
     }
 
     // removes specified address from coordinator's list of bonded addresses
@@ -926,104 +861,96 @@ namespace iqrf {
     }
 
     // sets OS Read data to specified JSON message
-    void setOsReadSection(
-      Document& response,
-      const std::vector<uns8>& readInfo
-    )
+    void setOsReadSection( const iqrf::embed::os::RawDpaReadPtr& osReadObject, Document& response ) 
     {
-      // MID - hex string without separator
-      std::ostringstream moduleId;
-      moduleId.fill('0');
-      moduleId << std::hex << std::uppercase <<
-        std::setw(2) << (int)readInfo[3] <<
-        std::setw(2) << (int)readInfo[2] <<
-        std::setw(2) << (int)readInfo[1] <<
-        std::setw(2) << (int)readInfo[0];
-      rapidjson::Pointer("/data/rsp/osRead/mid").Set(response, moduleId.str());
+      rapidjson::Pointer( "/data/rsp/osRead/mid" ).Set( response, osReadObject->getMidAsString() );
+      rapidjson::Pointer( "/data/rsp/osRead/osVersion" ).Set( response, osReadObject->getOsVersionAsString() );
 
-      // OS version - string
-      std::ostringstream osVer;
-      osVer << std::hex << (int)(readInfo[4] >> 4) << '.';
-      osVer.fill('0');
-      osVer << std::setw(2) << (int)(readInfo[4] & 0xf) << 'D';
-      rapidjson::Pointer("/data/rsp/osRead/osVersion").Set(response, osVer.str());
+      rapidjson::Pointer( "/data/rsp/osRead/trMcuType/value" ).Set( response, osReadObject->getTrMcuType() );
+      rapidjson::Pointer( "/data/rsp/osRead/trMcuType/trType" ).Set( response, osReadObject->getTrTypeAsString() );
+      rapidjson::Pointer( "/data/rsp/osRead/trMcuType/fccCertified" ).Set( response, osReadObject->isFccCertified() );
+      rapidjson::Pointer( "/data/rsp/osRead/trMcuType/mcuType" ).Set( response, osReadObject->getTrMcuTypeAsString() );
 
-      // trMcuType
-      uns8 trMcuType = readInfo[5];
-
-      rapidjson::Pointer("/data/rsp/osRead/trMcuType/value").Set(response, trMcuType);
-      std::string trTypeStr = "(DC)TR-";
-      switch (trMcuType >> 4) {
-      case 2: trTypeStr += "72Dx";
-        break;
-      case 4: trTypeStr += "78Dx";
-        break;
-      case 11: trTypeStr += "76Dx";
-        break;
-      case 12: trTypeStr += "77Dx";
-        break;
-      case 13: trTypeStr += "75Dx";
-        break;
-      default: trTypeStr += "???";
-        break;
-      }
-      rapidjson::Pointer("/data/rsp/osRead/trMcuType/trType").Set(response, trTypeStr);
-      bool fccCertified = ((trMcuType & 0x08) == 0x08) ? true : false;
-      rapidjson::Pointer("/data/rsp/osRead/trMcuType/fccCertified").Set(response, fccCertified);
-      std::string mcuTypeStr = ((trMcuType & 0x07) == 0x04) ? "PIC16LF1938" : "UNKNOWN";
-      rapidjson::Pointer("/data/rsp/osRead/trMcuType/mcuType").Set(response, mcuTypeStr);
-
-      // OS build - string
-      uint16_t osBuild = (readInfo[7] << 8) + readInfo[6];
-      rapidjson::Pointer("/data/rsp/osRead/osBuild").Set(response, encodeHexaNum_CapitalLetters(osBuild));
+      rapidjson::Pointer( "/data/rsp/osRead/osBuild" ).Set( response, osReadObject->getOsBuildAsString() );
 
       // RSSI [dBm]
-      int8_t rssi = readInfo[8] - 130;
-      std::string rssiStr = std::to_string(rssi) + " dBm";
-      rapidjson::Pointer("/data/rsp/osRead/rssi").Set(response, rssiStr);
+      rapidjson::Pointer( "/data/rsp/osRead/rssi" ).Set( response, osReadObject->getRssiAsString() );
 
       // Supply voltage [V]
-      float supplyVoltage = 261.12f / (float)(127 - readInfo[9]);
-      char supplyVoltageStr[8];
-      std::sprintf(supplyVoltageStr, "%1.2f V", supplyVoltage);
-      rapidjson::Pointer("/data/rsp/osRead/supplyVoltage").Set(response, supplyVoltageStr);
+      rapidjson::Pointer( "/data/rsp/osRead/supplyVoltage" ).Set( response, osReadObject->getSupplyVoltageAsString() );
 
       // Flags
-      uns8 flags = readInfo[10];
+      rapidjson::Pointer( "/data/rsp/osRead/flags/value" ).Set( response, osReadObject->getFlags() );
+      rapidjson::Pointer( "/data/rsp/osRead/flags/insufficientOsBuild" ).Set( response, osReadObject->isInsufficientOsBuild() );
+      rapidjson::Pointer( "/data/rsp/osRead/flags/interfaceType" ).Set( response, osReadObject->getInterfaceAsString() );
+      rapidjson::Pointer( "/data/rsp/osRead/flags/dpaHandlerDetected" ).Set( response, osReadObject->isDpaHandlerDetected() );
+      rapidjson::Pointer( "/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled" ).Set( response, osReadObject->isDpaHandlerNotDetectedButEnabled() );
+      rapidjson::Pointer( "/data/rsp/osRead/flags/noInterfaceSupported" ).Set( response, osReadObject->isNoInterfaceSupported() );
 
-      rapidjson::Pointer("/data/rsp/osRead/flags/value").Set(response, flags);
-      bool insufficientOsBuild = ((flags & 0x01) == 0x01) ? true : false;
-      rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsBuild").Set(response, insufficientOsBuild);
-      std::string iface = ((flags & 0x02) == 0x02) ? "UART" : "SPI";
-      rapidjson::Pointer("/data/rsp/osRead/flags/interfaceType").Set(response, iface);
-      bool dpaHandlerDetected = ((flags & 0x04) == 0x04) ? true : false;
-      rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, dpaHandlerDetected);
-      bool dpaHandlerNotDetectedButEnabled = ((flags & 0x08) == 0x08) ? true : false;
-      rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, dpaHandlerNotDetectedButEnabled);
-      bool noInterfaceSupported = ((flags & 0x10) == 0x10) ? true : false;
-      rapidjson::Pointer("/data/rsp/osRead/flags/noInterfaceSupported").Set(response, noInterfaceSupported);
+      // Slot limits
+      rapidjson::Pointer( "/data/rsp/osRead/slotLimits/value" ).Set( response, osReadObject->getSlotLimits() );
+      rapidjson::Pointer( "/data/rsp/osRead/slotLimits/shortestTimeslot" ).Set( response, osReadObject->getShortestTimeSlotAsString() );
+      rapidjson::Pointer( "/data/rsp/osRead/slotLimits/longestTimeslot" ).Set( response, osReadObject->getLongestTimeSlotAsString() );
 
-      // SlotLimits
-      uns8 slotLimits = readInfo[11];
+      if ( osReadObject->is410Compliant() )
+      {
+        // dpaVer, perNr
+        Pointer("/data/rsp/osRead/dpaVer").Set(response, osReadObject->getDpaVerAsHexaString());
+        Pointer("/data/rsp/osRead/perNr").Set(response, osReadObject->getPerNr());
 
-      rapidjson::Pointer("/data/rsp/osRead/slotLimits/value").Set(response, slotLimits);
-      uint8_t shortestTimeSlot = ((slotLimits & 0x0f) + 3) * 10;
-      uint8_t longestTimeSlot = (((slotLimits >> 0x04) & 0x0f) + 3) * 10;
-      rapidjson::Pointer("/data/rsp/osRead/slotLimits/shortestTimeslot").Set(response, std::to_string(shortestTimeSlot) + " ms");
-      rapidjson::Pointer("/data/rsp/osRead/slotLimits/longestTimeslot").Set(response, std::to_string(longestTimeSlot) + " ms");
-
-      // ibk - only if DPA version is >= 3.03
-      // getting DPA version
-      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-      uint16_t dpaVer = (coordParams.dpaVerMajor << 8) + coordParams.dpaVerMinor;
-
-      if (dpaVer >= 0x0303) {
         Document::AllocatorType& allocator = response.GetAllocator();
-        rapidjson::Value ibkBitsJsonArray(kArrayType);
-        for (int i = 0; i < 16; i++) {
-          ibkBitsJsonArray.PushBack(readInfo[12 + i], allocator);
+
+        // embPers
+        rapidjson::Value embPersJsonArray(kArrayType);
+        for (std::set<int>::iterator it = osReadObject->getEmbedPer().begin(); it != osReadObject->getEmbedPer().end(); it++)
+        {
+          embPersJsonArray.PushBack(*it, allocator);
         }
-        Pointer("/data/rsp/osRead/ibk").Set(response, ibkBitsJsonArray);
+        Pointer("/data/rsp/osRead/embPers").Set(response, embPersJsonArray);
+
+        // hwpId
+        Pointer("/data/rsp/osRead/hwpId").Set(response, osReadObject->getHwpid());
+
+        // hwpIdVer
+        Pointer("/data/rsp/osRead/hwpIdVer").Set(response, osReadObject->getHwpidVer());
+
+        // flags - int value
+        Pointer("/data/rsp/osRead/enumFlags/value").Set(response, osReadObject->getFlags());
+
+        // flags - parsed
+        bool stdModeSupported = ((osReadObject->getFlags() & 0b1) == 0b1) ? true : false;
+        if (stdModeSupported)
+        {
+          Pointer("/data/rsp/osRead/enumFlags/rfModeStd").Set(response, true);
+          Pointer("/data/rsp/osRead/enumFlags/rfModeLp").Set(response, false);
+        }
+        else
+        {
+          Pointer("/data/rsp/osRead/enumFlags/rfModeStd").Set(response, false);
+          Pointer("/data/rsp/osRead/enumFlags/rfModeLp").Set(response, true);
+        }
+
+        // STD+LP network is running, otherwise STD network.
+        if (osReadObject->getDpaVer() >= 0x0400)
+        {
+          bool stdAndLpModeNetwork = ((osReadObject->getFlags() & 0b100) == 0b100) ? true : false;
+          if (stdAndLpModeNetwork)
+          {
+            Pointer("/data/rsp/osRead/enumFlags/stdAndLpNetwork").Set(response, true);
+          }
+          else
+          {
+            Pointer("/data/rsp/osRead/enumFlags/stdAndLpNetwork").Set(response, false);
+          }
+        }
+
+        // UserPers
+        rapidjson::Value userPerJsonArray(kArrayType);
+        for (std::set<int>::iterator it = osReadObject->getUserPer().begin(); it != osReadObject->getUserPer().end(); it++)
+        {
+          userPerJsonArray.PushBack(*it, allocator);
+        }
+        Pointer("/data/rsp/osRead/userPers").Set(response, userPerJsonArray);
       }
     }
 
@@ -1117,7 +1044,7 @@ namespace iqrf {
       Pointer("/data/rsp/standards").Set(response, standardsJsonArray);
 
       // osRead object
-      setOsReadSection(response, bondResult.getOsRead());
+      setOsReadSection(bondResult.getOsRead(), response);
 
       // set raw fields, if verbose mode is active
       if ( comBondNodeLocal.getVerbose() ) {

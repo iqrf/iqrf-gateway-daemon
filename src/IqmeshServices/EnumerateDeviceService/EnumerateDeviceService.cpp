@@ -21,15 +21,6 @@ using namespace rapidjson;
 
 namespace {
 
-  // helper functions
-  std::string encodeHexaNum_CapitalLetters(uint16_t from)
-  {
-    std::ostringstream os;
-    os.fill('0'); os.width(4);
-    os << std::hex << std::uppercase << (int)from;
-    return os.str();
-  }
-
   // maximum number of repeats
   static const uint8_t REPEAT_MAX = 3;
 
@@ -782,6 +773,12 @@ namespace iqrf {
       if ( dpaVer < 0x0400 ) {
         bool nodeDpaInterface = ( ( byte05 & 0b00000010 ) == 0b00000010 ) ? true : false;
         Pointer( "/data/rsp/trConfiguration/nodeDpaInterface" ).Set( response, nodeDpaInterface );
+      }
+
+      // for DPA v4.10 upwards
+      if ( dpaVer >= 0x0410 ) {
+        bool dpaPeerToPeer = ( ( byte05 & 0b00000010 ) == 0b00000010 ) ? true : false;
+        Pointer( "/data/rsp/trConfiguration/dpaPeerToPeer" ).Set( response, dpaPeerToPeer );
       }
 
       bool dpaAutoexec = ( ( byte05 & 0b100 ) == 0b100 ) ? true : false;
