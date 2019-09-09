@@ -220,22 +220,22 @@
                                         }
                                       }
                                     }
-                                  },
-                                  "required": [
-                                    "id",
-                                    "type",
-                                    "name",
-                                    "shortName",
-                                    "unit"
-                                  ]
-                                }
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "type",
+                                  "name",
+                                  "shortName",
+                                  "unit"
+                                ]
                               }
                             ]
                           }
                         },
                         "required": [
-						  "nAdr",
-						  "metaData",
+						              "nAdr",
+						              "metaData",
                           "sensor"
                         ]
                       }
