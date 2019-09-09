@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_Read-response",
+        "name": "iqrfEmbedOs_FactorySettings-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Embedded peripheral OS - Read response.",
+            "description": "Embedded peripheral OS - Factory settings response.",
             "enum": [
-                "iqrfEmbedOs_Read"
+                "iqrfEmbedOs_FactorySettings"
             ]
         },
         "data": {
@@ -47,82 +47,7 @@
                         },
                         "result": {
                             "type": "object",
-                            "properties": {
-                                "mid": {
-                                    "type": "number",
-                                    "description": "TR Module ID."
-                                },
-                                "osVersion": {
-                                    "type": "integer",
-                                    "description": "IQRF OS version."
-                                },
-                                "trMcuType": {
-                                    "type": "integer",
-                                    "description": "TR MCU type."
-                                },
-                                "osBuild": {
-                                    "type": "integer",
-                                    "description": "IQRF OS build."
-                                },
-                                "rssi": {
-                                    "type": "integer",
-                                    "description": "See lastRSSI at IQRF OS Reference Guide."
-                                },
-                                "supplyVoltage": {
-                                    "type": "number",
-                                    "description": "Module supply voltage, contains real voltage value."
-                                },
-                                "flags": {
-                                    "type": "integer",
-                                    "description": "See DPA guide."
-                                },
-                                "slotLimits": {
-                                    "type": "integer",
-                                    "description": "See DPA guide."
-                                },
-                                "ibk": {
-                                    "type": "array",
-                                    "description": "Individual Bonding Key.",
-                                    "items": {
-                                        "type": "integer",
-                                        "minItems": 16,
-                                        "maxItems": 16,
-                                        "default": 0
-                                    }
-                                },
-                                "dpaVer": {
-                                    "type": "integer",
-                                    "description": "DPA protocol version."
-                                },
-                                "perNr": {
-                                    "type": "integer",
-                                    "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
-                                },
-                                "embeddedPers": {
-                                    "type": "integer",
-                                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the TR Configuration."
-                                },
-                                "hwpid": {
-                                    "type": "integer",
-                                    "description": "Hardware profile ID, 0x0000 if default. At Enumerate Peripherals event the field is prefilled by 0x0000."
-                                },
-                                "hwpidVer": {
-                                    "type": "integer",
-                                    "description": "Hardware profile version, 1st byte = minor version, 2nd byte = major version. At Enumerate Peripherals event the field is prefilled by 0x0000."
-                                },
-                                "flagsEnum": {
-                                    "type": "integer",
-                                    "description": "Various flags: bit 0 - Device works in STD-RX mode, bit 1 - Device works in LP-RX mode, bit 2 - STD+LP network is running, otherwise STD network."
-                                },
-                                "userPer": {
-                                    "type": "array",
-                                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
-                                    "items": {
-                                        "type": "integer",
-                                        "maxItems": 12
-                                    }
-                                }
-                            }
+                            "properties": {}
                         },
                         "errorStr": {
                             "type": "string",

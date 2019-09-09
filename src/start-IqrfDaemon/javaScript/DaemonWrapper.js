@@ -406,6 +406,31 @@ if (iqrf.embed.os !== undefined) {
     };
     return result;
   };
+
+  iqrf.embed.os.TestRfSignal_Request_req = function (param) {
+    return iqrf.embed.os.TestRfSignal_Request(param.channel, param.rxFilter, param.time);
+  };
+
+  iqrf.embed.os.TestRfSignal_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.TestRfSignal_Response(rawHdp);
+    var result =
+    {
+      counter: iqrf.embed.os.TestRfSignal_Response(rawHdp)
+    };
+    return result;
+  };
+
+  iqrf.embed.os.FactorySettings_Request_req = function (param) {
+    return iqrf.embed.os.FactorySettings_Request();
+  };
+
+  iqrf.embed.os.FactorySettings_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.FactorySettings_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+  };
 }
 
 ////////////////////////
