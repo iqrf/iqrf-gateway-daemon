@@ -2553,8 +2553,6 @@ namespace iqrf {
         isSetByte05ConfigBits = true;
       }
 
-      
-
       if (comWriteConfig.isSetNodeDpaInterface()) {
         if (dpaVer < 0x0400) {
           if (comWriteConfig.getNodeDpaInterface()) {
@@ -2564,7 +2562,20 @@ namespace iqrf {
           isSetByte05ConfigBits = true;
         }
         else {
-          THROW_EXC(std::logic_error, "NodeDpaInterface parameter accessible from DPA version < 4.00");
+          THROW_EXC(std::logic_error, "NodeDpaInterface parameter is accessible from DPA version < 4.00");
+        }
+      }
+
+      if (comWriteConfig.isSetDpaPeerToPeer()) {
+        if (dpaVer >= 0x0410) {
+          if (comWriteConfig.getDpaPeerToPeer()) {
+            byte05ConfigBits |= 0b00000010;
+          }
+          byte05ConfigBitsMask |= 0b00000010;
+          isSetByte05ConfigBits = true;
+        }
+        else {
+          THROW_EXC(std::logic_error, "DpaPeerToPeer parameter is accessible from DPA version >= 4.10");
         }
       }
 

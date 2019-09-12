@@ -4,7 +4,7 @@
     "msgId": "8375b64d-9320-421e-9b2c-d913c4e3db2d",
     "repeat": 1,
     "req": {
-      "deviceAddr": 1
+      "deviceAddr": 0
     },
     "returnVerbose": true
   }
