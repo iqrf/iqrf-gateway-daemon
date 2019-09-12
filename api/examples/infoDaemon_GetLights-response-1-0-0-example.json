@@ -1,20 +1,24 @@
 {
-    "mType": "infoDaemon_GetBinaryOutputs",
+    "mType": "infoDaemon_GetLights",
     "data": {
         "msgId": "test",
         "rsp": {
-            "binOutsDevices": [
+            "lightDevices": [
                 {
                     "nAdr": 3,
-                    "binOuts": 3
+                    "lights": 7
+                },
+                {
+                    "nAdr": 4,
+                    "lights": 7
                 },
                 {
                     "nAdr": 5,
-                    "binOuts": 3
+                    "lights": 7
                 },
                 {
                     "nAdr": 6,
-                    "binOuts": 3
+                    "lights": 7
                 }
             ]
         },

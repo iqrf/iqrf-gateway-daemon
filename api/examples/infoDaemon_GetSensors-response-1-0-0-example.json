@@ -5,7 +5,7 @@
         "rsp": {
             "sensorDevices": [
                 {
-                    "nadr": 1,
+                    "nAdr": 1,
                     "sensors": [
                         {
                             "idx": 0,
@@ -35,7 +35,7 @@
                     ]
                 },
                 {
-                    "nadr": 3,
+                    "nAdr": 3,
                     "sensors": [
                         {
                             "idx": 0,
@@ -53,7 +53,7 @@
                     ]
                 },
                 {
-                    "nadr": 5,
+                    "nAdr": 5,
                     "sensors": [
                         {
                             "idx": 0,
@@ -71,7 +71,7 @@
                     ]
                 },
                 {
-                    "nadr": 6,
+                    "nAdr": 6,
                     "sensors": [
                         {
                             "idx": 0,
