@@ -1,11 +1,11 @@
 {
-  "mType": "iqrfDali_SendCommands",
+  "mType": "iqrfDali_Frc",
   "data": {
     "msgId": "testDali",
     "req": {
-      "nAdr": 1,
+      "nAdr": 0,
       "param": {
-        "commands": [49409,65521]
+        "command": 65433
       }
     },
     "returnVerbose": true
