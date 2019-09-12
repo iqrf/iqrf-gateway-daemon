@@ -1,0 +1,16 @@
+{
+  "mType": "iqrfEmbedOs_TestRfSignal",
+  "data": {
+    "msgId": "testEmbedOs",
+    "timeout": 1000,
+    "req": {
+      "nAdr": 0,
+      "param": {
+        "channel": 25,
+        "rxFilter": 7,
+        "time": 10
+      }
+    },
+    "returnVerbose": true
+  }
+}
