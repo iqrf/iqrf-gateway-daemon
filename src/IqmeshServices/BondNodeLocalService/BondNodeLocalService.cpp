@@ -15,15 +15,6 @@ using namespace rapidjson;
 
 namespace {
 
-  // helper functions
-  std::string encodeHexaNum_CapitalLetters(uint16_t from)
-  {
-    std::ostringstream os;
-    os.fill('0'); os.width(4);
-    os << std::hex << std::uppercase << (int)from;
-    return os.str();
-  }
-
   // maximum number of repeats
   static const uint8_t REPEAT_MAX = 3;
 
@@ -351,6 +342,7 @@ namespace iqrf {
         osReadPtr->processDpaTransactionResult( std::move(transResultPtr) );
         TRC_DEBUG("Result from OS read transaction as string:" << PAR( osReadPtr->getResult()->getErrorString()) );
         bondResult.setOsBuild( osReadPtr->getOsBuild() );
+        bondResult.setBondedNodeHwpId( osReadPtr->getHwpid() );
         bondResult.addTransactionResult( osReadPtr->getResultMove() );
         bondResult.setOsRead( osReadPtr );
         TRC_INFORMATION( "OS read successful!" );
