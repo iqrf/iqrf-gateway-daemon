@@ -7,7 +7,7 @@
             "embPers": {
                 "values": [
                     254,
-                    38,
+                    6,
                     0,
                     0
                 ],
@@ -24,43 +24,51 @@
                 "thermometer": true,
                 "pwm": false,
                 "uart": false,
-                "frc": true
+                "frc": false
             },
-            "customDpaHandler": false,
-            "nodeDpaInterface": false,
+            "customDpaHandler": true,
+            "dpaPeerToPeer": true,
             "dpaAutoexec": false,
             "routingOff": false,
             "ioSetup": false,
             "peerToPeer": false,
             "neverSleep": false,
+            "stdAndLpNetwork": true,
             "rfChannelA": 25,
             "rfChannelB": 2,
-            "rfSubChannelA": 42,
-            "rfSubChannelB": 0,
-            "txPower": 3,
+            "txPower": 7,
             "rxFilter": 5,
             "lpRxTimeout": 6,
             "rfAltDsmChannel": 0,
-            "uartBaudrate": 1200,
+            "uartBaudrate": 115200,
             "rfPgmDualChannel": true,
             "rfPgmLpMode": false,
             "rfPgmIncorrectUpload": false,
-            "rfPgmEnableAfterReset": true,
+            "rfPgmEnableAfterReset": false,
             "rfPgmTerminateAfter1Min": true,
             "rfPgmTerminateMcuPin": true,
             "rfBand": "868"
         },
         "raw": [
             {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2019-09-12T11:52:08.614+02:00",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2019-09-12T11:52:08.648+02:00"
+            },
+            {
                 "request": "01.00.02.02.ff.ff",
-                "requestTs": "2018-10-19T12:09:03.64366",
-                "confirmation": "01.00.02.02.ff.ff.ff.42.0d.08.0d",
-                "confirmationTs": "2018-10-19T12:09:03.90162",
-                "response": "01.00.02.82.00.00.00.4d.b5.fe.26.00.00.00.2a.00.03.05.06.00.00.00.00.00.00.19.02.00.00.00.00.00.00.00.00.00.00.00.03.00.d3.20",
-                "responseTs": "2018-10-19T12:09:04.332086"
+                "requestTs": "2019-09-12T11:52:08.650+02:00",
+                "confirmation": "01.00.02.02.ff.ff.ff.00.01.08.01",
+                "confirmationTs": "2019-09-12T11:52:08.780+02:00",
+                "response": "01.00.02.82.02.44.00.56.38.fe.06.00.00.83.00.00.07.05.06.07.00.00.00.00.00.19.02.00.00.00.00.00.00.00.00.00.00.00.04.00.c3.30",
+                "responseTs": "2019-09-12T11:52:09.048+02:00"
             }
         ],
         "status": 0,
-        "statusStr": "ok"
+        "statusStr": "ok",
+        "insId": "iqrfgd2-default"
     }
 }
