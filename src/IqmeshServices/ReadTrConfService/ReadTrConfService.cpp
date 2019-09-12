@@ -417,7 +417,7 @@ namespace iqrf {
           // for DPA v4.10 upwards
           if ( dpaVer >= 0x0410 ) {
             bool dpaPeerToPeer = ( ( byte05 & 0b00000010 ) == 0b00000010 ) ? true : false;
-            Pointer( "/data/rsp/trConfiguration/dpaPeerToPeer" ).Set( response, dpaPeerToPeer );
+            Pointer( "/data/rsp/dpaPeerToPeer" ).Set( response, dpaPeerToPeer );
           }
 
           bool dpaAutoexec = ( ( byte05 & 0b00000100 ) == 0b00000100 ) ? true : false;
