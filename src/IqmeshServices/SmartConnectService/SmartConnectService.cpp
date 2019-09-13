@@ -183,8 +183,16 @@ namespace iqrf {
     }
 
     // adds transaction result into the list of results
-    void addTransactionResult(std::unique_ptr<IDpaTransactionResult2>& transResult) {
-      m_transResults.push_back(std::move(transResult));
+    void addTransactionResult(std::unique_ptr<IDpaTransactionResult2> transResult) {
+      if( transResult != nullptr )
+        m_transResults.push_back(std::move(transResult));
+    }
+
+    // adds transaction result into the list of results
+    void addTransactionResultRef(std::unique_ptr<IDpaTransactionResult2> &transResult)
+    {
+      if( transResult != nullptr )
+        m_transResults.push_back(std::move(transResult));
     }
 
     bool isNextTransactionResult() {
@@ -314,7 +322,7 @@ namespace iqrf {
 
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
-        smartConnectResult.addTransactionResult(transResult);
+        smartConnectResult.addTransactionResultRef( transResult );
 
         if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
           TRC_INFORMATION("Smart connect successful!");
@@ -409,7 +417,7 @@ namespace iqrf {
 
         // because of the move-semantics
         DpaMessage dpaResponse = transResult->getResponse();
-        smartConnectResult.addTransactionResult(transResult);
+        smartConnectResult.addTransactionResultRef( transResult );
 
         if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK) {
           TRC_INFORMATION("Device exploration successful!");
