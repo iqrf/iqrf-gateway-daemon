@@ -1,0 +1,34 @@
+# test_mqtt.tavern.yaml
+---
+
+test_name: Test mqtt message - embed leds pulse
+
+paho-mqtt:
+  client:
+    transport: tcp
+    client_id: tavern-tester
+  connect:
+    host: 10.0.1.29
+    port: 1883
+    timeout: 5
+
+stages:
+  - name: ledg pulse
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include iqrfEmbedLedg_Pulse-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include iqrfEmbedLedg_Pulse-response-1-0-0.yaml
+      timeout: 1
+
+#  - name: ledr pulse
+#    mqtt_publish:
+#      topic: Iqrf/DpaRequest
+#      json: !include iqrfEmbedLedr_Pulse-request-1-0-0.yaml
+#
+#    mqtt_response:
+#      topic: Iqrf/DpaResponse
+#      json: !include iqrfEmbedLedr_Pulse-response-1-0-0
+#      timeout: 1
