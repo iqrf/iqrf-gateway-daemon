@@ -1,0 +1,80 @@
+# test_mqtt.tavern.yaml
+---
+
+test_name: Test mqtt message - embed coordinator
+
+paho-mqtt: &mqtt_spec
+  client:
+    transport: tcp
+    client_id: tavern-tester
+  connect:
+#    host: 10.0.1.29
+    host: 10.11.18.100
+#    port: 1883
+    port: 1884
+    timeout: 5
+
+# node 0
+stages:
+  - name: bonded devices
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include iqrfEmbedCoordinator_BondedDevices-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include iqrfEmbedCoordinator_BondedDevices-response-1-0-0.yaml
+      timeout: 1
+
+  - name: discovered devices
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include iqrfEmbedCoordinator_DiscoveredDevices-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include iqrfEmbedCoordinator_DiscoveredDevices-response-1-0-0.yaml
+      timeout: 1
+
+---
+
+test_name: Test mqtt message - embed leds
+paho-mqtt: *mqtt_spec
+stages:
+
+  - name: ledg pulse
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include iqrfEmbedLedg_Pulse-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include iqrfEmbedLedg_Pulse-response-1-0-0.yaml
+      timeout: 1
+
+  - name: ledr pulse
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include iqrfEmbedLedr_Pulse-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include iqrfEmbedLedr_Pulse-response-1-0-0.yaml
+      timeout: 1
+
+---
+
+#node 1
+test_name: Test mqtt message - embed explore
+paho-mqtt: *mqtt_spec
+stages:
+
+  - name: explore enum
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include iqrfEmbedExplore_Enumerate-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include iqrfEmbedExplore_Enumerate-response-1-0-0.yaml
+      timeout: 3

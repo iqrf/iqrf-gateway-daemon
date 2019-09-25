@@ -7,7 +7,7 @@ data:
     rCode: 0
     dpaVal: !anyint
     result:
-      discoveredDevices: []
+      discoveredDevices: !anything
   raw:
   - request: 00.00.00.01.ff.ff
     requestTs: !anystr
