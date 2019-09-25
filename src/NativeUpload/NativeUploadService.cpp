@@ -117,7 +117,7 @@ namespace iqrf {
   class NativeUploadResult {
   private:
     // result of upload
-    IIqrfChannelService::Accessor::UploadErrorCode m_errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
+    IIqrfChannelService::UploadErrorCode m_errorCode = IIqrfChannelService::UploadErrorCode::UPLOAD_NO_ERROR;
 
     NativeUploadError m_error;
 
@@ -126,11 +126,11 @@ namespace iqrf {
 
 
   public:
-    IIqrfChannelService::Accessor::UploadErrorCode getErrorCode() {
+    IIqrfChannelService::UploadErrorCode getErrorCode() {
       return m_errorCode;
     }
 
-    void setErrorCode(IIqrfChannelService::Accessor::UploadErrorCode errCode) {
+    void setErrorCode(IIqrfChannelService::UploadErrorCode errCode) {
       m_errorCode = errCode;
     }
 
@@ -172,7 +172,7 @@ namespace iqrf {
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     IIqrfChannelService* m_iIqrfChannelService = nullptr;
-    std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
+    std::unique_ptr<IIqrfChannelService::Accessor> m_exclusiveAccessor;
 
     // number of repeats
     uint8_t m_repeat;
@@ -400,7 +400,7 @@ namespace iqrf {
       msg += data;
     }
 
-    IIqrfChannelService::Accessor::UploadErrorCode
+    IIqrfChannelService::UploadErrorCode
       uploadFlash(const uint16_t addr, const std::basic_string<uint8_t>& data)
     {
       std::basic_string<uint8_t> msg;
@@ -411,12 +411,10 @@ namespace iqrf {
 
       insertAddressAndData(msg, addr, data);
 
-      return m_iIqrfChannelService
-        ->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)
-        ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_FLASH, data, addr);
+      return m_exclusiveAccessor->upload(IIqrfChannelService::UploadTarget::UPLOAD_TARGET_FLASH, data, addr);
     }
 
-    IIqrfChannelService::Accessor::UploadErrorCode
+    IIqrfChannelService::UploadErrorCode
       uploadInternalEeprom(uint16_t addr, const std::basic_string<uint8_t>& data)
     {
       std::basic_string<uint8_t> msg;
@@ -435,9 +433,7 @@ namespace iqrf {
 
       insertAddressAndData(msg, addr, data);
 
-      return m_iIqrfChannelService
-        ->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)
-        ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM, data, addr);
+      return m_exclusiveAccessor->upload(IIqrfChannelService::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM, data, addr);
     }
 
     void uploadFromHex(NativeUploadResult& uploadResult, const std::string& fileName)
@@ -446,13 +442,13 @@ namespace iqrf {
       parser.parse();
 
       // enter into programming state
-      if (!m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)->enterProgrammingState()) {
+      if (!m_exclusiveAccessor->enterProgrammingState()) {
         NativeUploadError error(NativeUploadError::Type::EnterProgState, "Could not enter into programming state.");
         uploadResult.setError(error);
         return;
       }
 
-      IIqrfChannelService::Accessor::UploadErrorCode errCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
+      IIqrfChannelService::UploadErrorCode errCode = IIqrfChannelService::UploadErrorCode::UPLOAD_NO_ERROR;
 
       // parse hex file
       HexFmtParser::iterator itr;
@@ -470,21 +466,21 @@ namespace iqrf {
         default:;
         }
 
-        if (errCode != IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR)
+        if (errCode != IIqrfChannelService::UploadErrorCode::UPLOAD_NO_ERROR)
             break;
       }
 
       uploadResult.setErrorCode(errCode);
 
       // terminate programming state
-      if (!m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)->terminateProgrammingState()) {
+      if (!m_exclusiveAccessor->terminateProgrammingState()) {
         NativeUploadError error(NativeUploadError::Type::TerminateProgState, "Could not terminate programming state.");
         uploadResult.setError(error);
         return;
       }
     }
 
-    IIqrfChannelService::Accessor::UploadErrorCode
+    IIqrfChannelService::UploadErrorCode
       uploadSpecial(const std::basic_string<uint8_t>& data)
     {
 
@@ -495,18 +491,17 @@ namespace iqrf {
       // will not be used in special type of uploading
       uint16_t addrNotUsed = 0;
 
-      return m_iIqrfChannelService
-        ->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)
-        ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_SPECIAL, data, addrNotUsed);
+      return m_exclusiveAccessor->upload(IIqrfChannelService::UploadTarget::UPLOAD_TARGET_SPECIAL, data, addrNotUsed);
     }
 
     // returns TrModule info  equivalent to specified Coordinator parameters
     TrModuleInfo toTrModuleInfo(const IIqrfDpaService::CoordinatorParameters& coordParams)
     {
       TrModuleInfo trModuleInfo;
+      IIqrfChannelService::osInfo trOsInfo;
 
       // Tr MCU
-      if (coordParams.mcuType.compare("PIC16F1938") == 0)
+      if (coordParams.mcuType.compare("PIC16LF1938") == 0)
       {
         trModuleInfo.mcu = TrMcu::PIC16F1938;
       }
@@ -515,28 +510,35 @@ namespace iqrf {
       }
 
       // Tr Serie
-      std::string seriePrefix = coordParams.trType.substr(0, 6);
+      std::string seriePrefix = coordParams.trType.substr(0, 8);
 
-      if (seriePrefix.compare("DCTR-5") == 0)
-      {
-        trModuleInfo.serie = TrSerie::DCTR_5xD;
-      }
-      else if (seriePrefix.compare("DCTR-7") == 0) {
+      if (seriePrefix.compare("(DC)TR-7") == 0) {
         trModuleInfo.serie = TrSerie::DCTR_7xD;
       }
       else {
         trModuleInfo.serie = TrSerie::NONE;
       }
 
-      // OS Version
       size_t dotPos = coordParams.osVersion.find_first_of('.');
       std::string majorOsVer = coordParams.osVersion.substr(0, dotPos);
       std::string minorOsVer = coordParams.osVersion.substr(dotPos+1, 2);
 
+      // OS Version
       trModuleInfo.osVersion = ((std::stoi(majorOsVer) << 4) + (std::stoi(minorOsVer) & 0xF)) & 0xFF;
 
       // OS Build
       trModuleInfo.osBuild = (std::stoi(coordParams.osBuild, nullptr, 16)) & 0xFFFF;
+
+      // OS info from IQRF interface
+      trOsInfo = m_exclusiveAccessor->getTrModuleInfo();
+      if (trOsInfo.osVersionMajor != 0 && trOsInfo.osVersionMajor != 0 && trOsInfo.osBuild != 0 ) {
+        trModuleInfo.osVersion = ((trOsInfo.osVersionMajor << 4) + (trOsInfo.osVersionMinor & 0x0F)) & 0xFF;
+        trModuleInfo.osBuild = trOsInfo.osBuild;
+      }
+      else
+      {
+        TRC_WARNING("Could not get TR module info from IQRF interface, used info from DPA channel.");
+      }
 
       return trModuleInfo;
     }
@@ -546,7 +548,7 @@ namespace iqrf {
       IqrfFmtParser::iterator itr;
 
       // enter into programming state
-      if (!m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)->enterProgrammingState()) {
+      if (!m_exclusiveAccessor->enterProgrammingState()) {
         NativeUploadError error(NativeUploadError::Type::EnterProgState, "Could not enter into programming state.");
         uploadResult.setError(error);
         return;
@@ -554,7 +556,8 @@ namespace iqrf {
 
       IqrfFmtParser parser(fileName);
 
-      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+      iqrf::IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+
       TrModuleInfo trModuleInfo = toTrModuleInfo(coordParams);
 
       parser.parse();
@@ -565,13 +568,13 @@ namespace iqrf {
         );
       }
 
-      IIqrfChannelService::Accessor::UploadErrorCode errCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
+      IIqrfChannelService::UploadErrorCode errCode = IIqrfChannelService::UploadErrorCode::UPLOAD_NO_ERROR;
 
       for (itr = parser.begin(); itr != parser.end(); itr++) {
         errCode = uploadSpecial(*itr);
 
         // if some error occurred, break uploading
-        if (errCode != IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR) {
+        if (errCode != IIqrfChannelService::UploadErrorCode::UPLOAD_NO_ERROR) {
           break;
         }
       }
@@ -579,7 +582,7 @@ namespace iqrf {
       uploadResult.setErrorCode(errCode);
 
       // terminate programming state
-      if (!m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)->terminateProgrammingState()) {
+      if (!m_exclusiveAccessor->terminateProgrammingState()) {
         NativeUploadError error(NativeUploadError::Type::TerminateProgState, "Could not terminate programming state.");
         uploadResult.setError(error);
       }
@@ -595,7 +598,7 @@ namespace iqrf {
       return chksum;
     }
 
-    IIqrfChannelService::Accessor::UploadErrorCode
+    IIqrfChannelService::UploadErrorCode
       uploadCfg(const std::basic_string<uint8_t>& data, uint16_t destinationAddr)
     {
       if (data.length() != CFG_LEN) {
@@ -606,12 +609,10 @@ namespace iqrf {
         THROW_EXC(std::out_of_range, "Invalid TR HWP configuration checksum!");
       }
 */
-      return m_iIqrfChannelService
-        ->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)
-        ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_FLASH, data, destinationAddr);
+      return m_exclusiveAccessor->upload(IIqrfChannelService::UploadTarget::UPLOAD_TARGET_FLASH, data, destinationAddr);
     }
 
-    IIqrfChannelService::Accessor::UploadErrorCode
+    IIqrfChannelService::UploadErrorCode
       uploadRFPMG(uint8_t rfpmg)
     {
       std::basic_string<uint8_t> data;
@@ -621,9 +622,7 @@ namespace iqrf {
       // will not be used in special type of uploading
       uint16_t addrNotUsed = 0;
 
-      return m_iIqrfChannelService
-        ->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)
-        ->upload(IIqrfChannelService::Accessor::UploadTarget::UPLOAD_TARGET_RFPMG, data, addrNotUsed);
+      return m_exclusiveAccessor->upload(IIqrfChannelService::UploadTarget::UPLOAD_TARGET_RFPMG, data, addrNotUsed);
     }
 
     void uploadFromConfig(NativeUploadResult& uploadResult, const std::string& fileName)
@@ -638,16 +637,16 @@ namespace iqrf {
       //parser.checkChannels(downloadRFBAND());
 
       // enter into programming state
-      if (!m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)->enterProgrammingState()) {
+      if (!m_exclusiveAccessor->enterProgrammingState()) {
         NativeUploadError error(NativeUploadError::Type::EnterProgState, "Could not enter into programming state.");
         uploadResult.setError(error);
         return;
       }
 
-      IIqrfChannelService::Accessor::UploadErrorCode errCode = uploadCfg(parser.getCfgData1of2(), TR_CFG_MEM_ADR_L);
-      if (errCode == IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR) {
+      IIqrfChannelService::UploadErrorCode errCode = uploadCfg(parser.getCfgData1of2(), TR_CFG_MEM_ADR_L);
+      if (errCode == IIqrfChannelService::UploadErrorCode::UPLOAD_NO_ERROR) {
         errCode = uploadCfg(parser.getCfgData2of2(), TR_CFG_MEM_ADR_H);
-        if (errCode == IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR) {
+        if (errCode == IIqrfChannelService::UploadErrorCode::UPLOAD_NO_ERROR) {
           errCode = uploadRFPMG(rfpmg);
         }
       }
@@ -655,7 +654,7 @@ namespace iqrf {
       uploadResult.setErrorCode(errCode);
 
       // terminate programming state
-      if (!m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Normal)->terminateProgrammingState()) {
+      if (!m_exclusiveAccessor->terminateProgrammingState()) {
         NativeUploadError error(NativeUploadError::Type::TerminateProgState, "Could not terminate programming state.");
         uploadResult.setError(error);
       }
@@ -690,43 +689,38 @@ namespace iqrf {
         }
       }
 
-      switch (fileType) {
-        case TargetType::Hex:
-          uploadFromHex(uploadResult, fileName);
-          break;
-        case TargetType::Iqrf:
-          uploadFromIqrf(uploadResult, fileName);
-          break;
-        case TargetType::Config:
-          uploadFromConfig(uploadResult, fileName);
-          break;
-        default:
-          NativeUploadError error(NativeUploadError::Type::DataPrepare, "Unsupported type source code file.");
-          uploadResult.setError(error);
-          return uploadResult;
+      try {
+        switch (fileType) {
+          case TargetType::Hex:
+            m_exclusiveAccessor = m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Exclusive);
+            uploadFromHex(uploadResult, fileName);
+            m_exclusiveAccessor.reset();
+            break;
+          case TargetType::Iqrf:
+            m_exclusiveAccessor = m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Exclusive);
+            uploadFromIqrf(uploadResult, fileName);
+            m_exclusiveAccessor.reset();
+            break;
+          case TargetType::Config:
+            m_exclusiveAccessor = m_iIqrfChannelService->getAccess(recvFunction, IIqrfChannelService::AccesType::Exclusive);
+            uploadFromConfig(uploadResult, fileName);
+            m_exclusiveAccessor.reset();
+            break;
+          default:
+            NativeUploadError error(NativeUploadError::Type::DataPrepare, "Unsupported type source code file.");
+            uploadResult.setError(error);
+            return uploadResult;
+        }
+      }
+      catch (std::out_of_range& ex) {
+        NativeUploadError error(NativeUploadError::Type::DataPrepare, ex.what());
+        uploadResult.setError(error);
+        m_exclusiveAccessor.reset();
+        return uploadResult;
       }
 
       TRC_FUNCTION_LEAVE("");
       return uploadResult;
-    }
-
-
-    // creates error response about failed exclusive access
-    rapidjson::Document getExclusiveAccessFailedResponse(
-      const std::string& msgId,
-      const IMessagingSplitterService::MsgType& msgType,
-      const std::string& errorMsg
-    )
-    {
-      rapidjson::Document response;
-
-      Pointer("/mType").Set(response, msgType.m_type);
-      Pointer("/data/msgId").Set(response, msgId);
-
-      Pointer("/data/status").Set(response, SERVICE_ERROR_INTERNAL);
-      Pointer("/data/statusStr").Set(response, errorMsg);
-
-      return response;
     }
 
     // creates response on the basis of read TR config result
@@ -899,27 +893,8 @@ namespace iqrf {
         return;
       }
 
-
-      // try to establish exclusive access
-      try {
-        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-      }
-      catch (std::exception &e) {
-        const char* errorStr = e.what();
-        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
-
-        Document failResponse = getExclusiveAccessFailedResponse(comNativeUpload.getMsgId(), msgType, errorStr);
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
-
-        TRC_FUNCTION_LEAVE("");
-        return;
-      }
-
       // call service and get result
       NativeUploadResult nativeUploadResult = doNativeUpload(fullFileName, target, isSetTarget);
-
-      // release exclusive access
-      m_exclusiveAccess.reset();
 
       // create and send response
       Document responseDoc = createResponse(comNativeUpload.getMsgId(), msgType, nativeUploadResult, comNativeUpload);

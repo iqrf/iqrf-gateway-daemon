@@ -2,6 +2,8 @@
 #define ISchedulerService_EXPORTS
 
 #include "JsCache.h"
+#include "EmbedExplore.h"
+#include "EmbedOS.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
@@ -83,7 +85,7 @@ namespace iqrf {
     std::map<int, Package> m_packageMap;
     std::map<int, StdItem> m_standardMap;
 
-    std::map<int, std::string>  m_customDrivers;
+    //std::map<int, std::string>  m_customDrivers;
 
     bool m_upToDate = false;
 
@@ -167,6 +169,26 @@ namespace iqrf {
       return retval;
     }
 
+    const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
+    {
+      TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(os) << PAR(dpa));
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      const Package* retval = nullptr;
+      for (const auto & pck : m_packageMap) {
+        const Package& pckp = pck.second;
+        if (pckp.m_hwpid == hwpid && pckp.m_hwpidVer == hwpidVer &&
+          pckp.m_os == embed::os::Read::getOsBuildAsString(os) && pckp.m_dpa == embed::explore::Enumerate::getDpaVerAsHexaString(dpa)) {
+          retval = &(pck.second);
+          break;
+        }
+      }
+
+      TRC_FUNCTION_LEAVE(PAR(retval));
+      return retval;
+    }
+
     std::map<int, std::map<int, std::vector<std::pair<int, int>>>> getDrivers(const std::string& os, const std::string& dpa)
     {
       TRC_FUNCTION_ENTER(PAR(os) << PAR(dpa));
@@ -176,14 +198,37 @@ namespace iqrf {
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
+      std::ostringstream ostr;
+      for (const auto & pck : m_packageMap) {
+        const Package& p = pck.second;
+        if (p.m_os == os && p.m_dpa == dpa) {
+          for (const auto & drv : p.m_stdDriverVect) {
+            map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
+            ostr << '[' << drv->getId() << ',' << drv->getVersion() << "] ";
+          }
+        }
+      }
+
+      TRC_INFORMATION("Loading drivers: " << ostr.str());
+      TRC_FUNCTION_LEAVE("");
+      return map2;
+    }
+
+    // get non empty custom drivers
+    std::map<int, std::map<int,std::string>> getCustomDrivers(const std::string& os, const std::string& dpa)
+    {
+      TRC_FUNCTION_ENTER(PAR(os) << PAR(dpa));
+
+      //hwpid, hwpidVer, driver
+      std::map<int, std::map<int, std::string>> map2;
+
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
       for (const auto & pck : m_packageMap) {
         const Package& p = pck.second;
         if (p.m_os == os && p.m_dpa == dpa) {
           if (!p.m_driver.empty() && p.m_driver.size() > 20) {
-            m_customDrivers.insert(std::make_pair(p.m_hwpid, p.m_driver));
-          }
-          for (const auto & drv : p.m_stdDriverVect) {
-            map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
+            map2[p.m_hwpid].insert(std::make_pair(p.m_hwpidVer, p.m_driver));
           }
         }
       }
@@ -330,122 +375,6 @@ namespace iqrf {
         updateCacheOsdpa();
         updateCacheStandard();
         updateCachePackage();
-
-        std::string osAct = m_iIqrfDpaService->getCoordinatorParameters().osBuild;
-        std::string dpaAct = m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr;
-        std::string osSel = osAct;
-        std::string dpaSel = dpaAct;
-
-        auto osdpa = getOsDpa(osAct, dpaAct);
-        if (!osdpa) {
-          //loading lowest supported version
-          osdpa = getOsDpa(3);
-          if (osdpa) {
-            osSel = osdpa->m_os;
-            dpaSel = osdpa->m_dpa;
-            TRC_WARNING("Cannot find actual OS/DPA: " << NAME_PAR(OS, osAct) << NAME_PAR(DPA, dpaAct) << std::endl <<
-              "  loading minimal IqrfRepo supported OS/DPA: " << NAME_PAR(OS, osSel) << NAME_PAR(DPA, dpaSel));
-          }
-        }
-        if (!osdpa) {
-          //still nothing?
-          TRC_WARNING("Cannot get OS/DPA information");
-        }
-
-        std::map<int, std::map<int, std::vector<std::pair<int, int>>>> drivers;
-
-        drivers = getDrivers(osSel, dpaSel);
-
-        if (drivers.size() == 0) {
-          TRC_WARNING("Cannot get drivers");
-        }
-
-        // analyze and selected drivers
-        std::string str2load; // agregated scripts
-        std::ostringstream osel;
-
-        for (auto & drv : drivers) {
-          int driverId = drv.first;
-          int version = 0;
-          const IJsCacheService::StdDriver* driver = nullptr;
-
-          if (drv.second.size() > 1) {
-            // driver version conflict => prepare WARNING
-            std::ostringstream os;
-
-            // iterate via versions
-            for (auto & drvVer : drv.second) {
-              version = drvVer.first;
-              driver = getDriver(driverId, version);
-              if (driver) {
-                os <<
-                  " Required " << NAME_PAR(Driver, driver->getId()) << NAME_PAR(Version, driver->getVersion()) << NAME_PAR(Name, driver->getName()) << std::endl <<
-                  "   hwpid:" << std::endl;
-                // iterate via hwpid
-                for (auto & hwpidPair : drvVer.second) {
-                  os <<
-                    "      " << std::hex << std::uppercase << std::setw(4) << hwpidPair.first << '.' <<
-                    std::hex << std::uppercase << std::setw(2) << hwpidPair.second << std::endl;
-                }
-                os << std::dec;
-              }
-              else {
-                TRC_WARNING("Inconsistency in driver versions: " << NAME_PAR(Driver, driverId) << NAME_PAR(Version, version) << " no driver found");
-              }
-            }
-            if (driver) {
-              // selected the last one => last version
-              os << "  Selected: " << NAME_PAR(Driver, driverId) << NAME_PAR(Version, version) << std::endl;
-              TRC_WARNING("Driver version conflict (only one version supported for now): " << std::endl << os.str());
-            }
-          }
-          else if (drv.second.size() == 1) {
-            // no conflict
-            version = drv.second.begin()->first;
-            driver = getDriver(driverId, version);
-          }
-          else {
-            // unexpected error here
-            TRC_WARNING("Inconsistency in driver versions: " << NAME_PAR(Driver, driverId) << " no version");
-          }
-
-          if (driver) {
-            // got selected driver add to agregated scripts
-            str2load += driver->getDriver();
-            osel << NAME_PAR(Driver, driverId) << NAME_PAR(Version, version) << NAME_PAR(Name, driver->getName()) << std::endl;
-          }
-          else {
-            TRC_WARNING("Inconsistency in driver versions: " << NAME_PAR(Driver, driverId) << NAME_PAR(Version, version) << " no driver found");
-          }
-
-        }
-
-        TRC_INFORMATION("Loaded drivers for: " PAR(osSel) << PAR(dpaSel) << std::endl << osel.str());
-
-        // daemon wrapper workaround
-        {
-          std::string fname = m_iLaunchService->getDataDir();
-          fname += "/javaScript/DaemonWrapper.js";
-          std::ifstream file(fname);
-          if (file.is_open()) {
-            std::ostringstream strStream;
-            strStream << file.rdbuf();
-            std::string dwString = strStream.str();
-
-            str2load += dwString;
-          }
-          else {
-            THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
-          }
-        }
-
-        for (auto d : m_customDrivers) {
-          std::string js = str2load;
-          js += d.second;
-          m_iJsRenderService->loadJsCodeFenced(d.first, js);
-        }
-        // load agregated scripts to JSE
-        m_iJsRenderService->loadJsCode(str2load);
 
         m_upToDate = true;
         TRC_INFORMATION("Loading cache success");
@@ -1280,9 +1209,19 @@ namespace iqrf {
     return m_imp->getPackage(hwpid, hwpidVer, os, dpa);
   }
 
+  const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
+  {
+    return m_imp->getPackage(hwpid, hwpidVer, os, dpa);
+  }
+
   std::map<int, std::map<int, std::vector<std::pair<int, int>>>> JsCache::getDrivers(const std::string& os, const std::string& dpa) const
   {
     return m_imp->getDrivers(os, dpa);
+  }
+
+  std::map<int, std::map<int, std::string>> JsCache::getCustomDrivers(const std::string& os, const std::string& dpa) const
+  {
+    return m_imp->getCustomDrivers(os, dpa);
   }
 
   const IJsCacheService::OsDpa* JsCache::getOsDpa(int id) const

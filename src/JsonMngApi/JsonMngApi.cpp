@@ -184,11 +184,11 @@ namespace iqrf {
       m_startTime = parseTimestamp(tpVal->GetString());
 
       const Value *taskVal = Pointer("/data/req/task").Get(doc);
-      if (taskVal && taskVal->IsObject()) {
+      if (taskVal && (taskVal->IsObject() || taskVal->IsArray())) {
         m_task.CopyFrom(*taskVal, m_task.GetAllocator());
       }
       else {
-        TRC_WARNING("Expected object: /data/req/task")
+        TRC_WARNING("Unexpected type: /data/req/task")
       }
 
       const Value* persistVal = Pointer("/data/req/persist").Get(doc);

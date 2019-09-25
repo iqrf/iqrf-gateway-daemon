@@ -3,8 +3,8 @@
 #include "EnumStringConvertor.h"
 #include "DpaHandler2.h"
 #include "IqrfDpa.h"
-#include "PrfOs.h"
-#include "PrfEnum.h"
+#include "RawDpaEmbedOS.h"
+#include "RawDpaEmbedExplore.h"
 #include "Trace.h"
 #include "rapidjson/pointer.h"
 #include "iqrf__IqrfDpa.hxx"
@@ -13,7 +13,7 @@
 TRC_INIT_MODULE(iqrf::IqrfDpa);
 
 namespace iqrf {
-  
+
   class FrcResponseTimeConvertTable
   {
   public:
@@ -62,14 +62,11 @@ namespace iqrf {
       return result;
     }
 
-    //std::unique_ptr<IDpaTransactionResult2> executeDpaTransactionRepeat( DpaMessage & request, int repeat, int32_t timeout = -1 ) override
-    void executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) override
+    void executeDpaTransactionRepeat(const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1) override
     {
-      TRC_FUNCTION_ENTER( "" );
-      //auto result =
-      m_iqrfDpa->executeDpaTransactionRepeat(request, result, repeat, timeout );
-      TRC_FUNCTION_LEAVE( "" );
-      //return result;
+      TRC_FUNCTION_ENTER("");
+      m_iqrfDpa->executeDpaTransactionRepeat(request, result, repeat, timeout);
+      TRC_FUNCTION_LEAVE("");
     }
 
     virtual ~ExclusiveAccessImpl()
@@ -131,42 +128,42 @@ namespace iqrf {
     return result;
   }
 
-  void IqrfDpa::executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 )
+  void IqrfDpa::executeDpaTransactionRepeat(const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1)
   {
-    TRC_FUNCTION_ENTER( "" );
-    
-    for ( int rep = 0; rep <= repeat; rep++ )
+    TRC_FUNCTION_ENTER("");
+
+    for (int rep = 0; rep <= repeat; rep++)
     {
       try
       {
-        std::shared_ptr<IDpaTransaction2> transaction = m_dpaHandler->executeDpaTransaction( request, timeout );
+        std::shared_ptr<IDpaTransaction2> transaction = m_dpaHandler->executeDpaTransaction(request, timeout);
         result = std::move(transaction->get());
-        TRC_DEBUG( "Result from read transaction as string:" << PAR( result->getErrorString() ) );
-        IDpaTransactionResult2::ErrorCode errorCode = ( IDpaTransactionResult2::ErrorCode )result->getErrorCode();
-        if ( errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK )
+        TRC_DEBUG("Result from read transaction as string:" << PAR(result->getErrorString()));
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)result->getErrorCode();
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK)
         {
-          TRC_FUNCTION_LEAVE( "" );
+          TRC_FUNCTION_LEAVE("");
           return;
         }
         else
         {
           std::string errorStr;
-          if ( errorCode < 0 )
+          if (errorCode < 0)
             errorStr = "Transaction error: ";
           else
             errorStr = "DPA error: ";
           errorStr += result->getErrorString();
-          THROW_EXC_TRC_WAR( std::logic_error, errorStr );
+          THROW_EXC_TRC_WAR(std::logic_error, errorStr);
         }
       }
-      catch ( std::exception& e ) {
-        CATCH_EXC_TRC_WAR( std::logic_error, e, e.what() );
-        if ( rep == repeat )
+      catch (std::exception& e) {
+        CATCH_EXC_TRC_WAR(std::logic_error, e, e.what());
+        if (rep == repeat)
         {
-          TRC_FUNCTION_LEAVE( "" );
-          THROW_EXC_TRC_WAR( std::logic_error, e.what() )
+          TRC_FUNCTION_LEAVE("");
+          THROW_EXC_TRC_WAR(std::logic_error, e.what())
         }
-        std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
       }
     }
   }
@@ -205,11 +202,11 @@ namespace iqrf {
     return m_dpaHandler->getTimingParams();
   }
 
-  void IqrfDpa::setTimingParams( IDpaTransaction2::TimingParams params )
+  void IqrfDpa::setTimingParams(IDpaTransaction2::TimingParams params)
   {
-    TRC_FUNCTION_ENTER( "" );
-    m_dpaHandler->setTimingParams( params );
-    TRC_FUNCTION_LEAVE( "" )
+    TRC_FUNCTION_ENTER("");
+    m_dpaHandler->setTimingParams(params);
+    TRC_FUNCTION_LEAVE("")
   }
 
   IDpaTransaction2::FrcResponseTime IqrfDpa::getFrcResponseTime() const
@@ -217,11 +214,11 @@ namespace iqrf {
     return m_dpaHandler->getFrcResponseTime();
   }
 
-  void IqrfDpa::setFrcResponseTime( IDpaTransaction2::FrcResponseTime frcResponseTime )
+  void IqrfDpa::setFrcResponseTime(IDpaTransaction2::FrcResponseTime frcResponseTime)
   {
-    TRC_FUNCTION_ENTER( "" );
-    m_dpaHandler->setFrcResponseTime( frcResponseTime );
-    TRC_FUNCTION_LEAVE( "" )
+    TRC_FUNCTION_ENTER("");
+    m_dpaHandler->setFrcResponseTime(frcResponseTime);
+    TRC_FUNCTION_LEAVE("")
   }
 
   void IqrfDpa::registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun)
@@ -241,7 +238,7 @@ namespace iqrf {
   void IqrfDpa::asyncDpaMessageHandler(const DpaMessage& dpaMessage)
   {
     std::lock_guard<std::mutex> lck(m_asyncMessageHandlersMutex);
-    
+
     for (auto & hndl : m_asyncMessageHandlers)
       hndl.second(dpaMessage);
   }
@@ -250,59 +247,56 @@ namespace iqrf {
   {
     TRC_FUNCTION_ENTER("");
 
-    const DpaMessage::DpaPacket_t& p = dpaMessage.DpaPacket();
-    
-    if (p.DpaResponsePacket_t.NADR == 0 &&
-      p.DpaResponsePacket_t.PNUM == PNUM_ENUMERATION &&
-      p.DpaResponsePacket_t.PCMD == CMD_GET_PER_INFO &&
-      p.DpaResponsePacket_t.ResponseCode == STATUS_ASYNC_RESPONSE
-      )
-    { // shall be TR reset result async msg
+    // shall be TR reset result async msg
+    try {
+      iqrf::embed::explore::RawDpaEnumerate iqrfEmbedExploreEnumerate(0);
+      iqrfEmbedExploreEnumerate.processAsyncResponse(dpaMessage);
+      TRC_DEBUG("Parsed TR reset result async msg");
+      if (!iqrfEmbedExploreEnumerate.isAsyncRcode()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid async response code:"
+          << NAME_PAR(expected, (int)STATUS_ASYNC_RESPONSE) << NAME_PAR(delivered, (int)iqrfEmbedExploreEnumerate.getRcode()));
+      }
 
-      PrfEnum prfEnum;
-      if (prfEnum.parseCoordinatorResetAsyncResponse(dpaMessage)) {
-        TRC_DEBUG("Parsed TR reset result async msg");
-        // Get coordinator parameters
-        m_cPar.dpaVerWord = prfEnum.getDpaVerWord();
-        m_cPar.dpaVerWordAsStr = prfEnum.getDpaVerWordAsStr();
-        m_cPar.dpaVer = prfEnum.getDpaVer();
-        m_cPar.dpaVerMajor = prfEnum.getDpaVerMajor();
-        m_cPar.dpaVerMinor = prfEnum.getDpaVerMinor();
-        m_cPar.demoFlag = prfEnum.getDemoFlag();
-        m_cPar.stdModeSupportFlag = prfEnum.getStdModeSupportFlag();
-        m_cPar.lpModeSupportFlag = prfEnum.getLpModeSupportFlag();
-        m_cPar.lpModeRunningFlag = prfEnum.getLpModeRunningFlag();
-        TRC_INFORMATION("DPA params: " << std::endl <<
-          NAME_PAR(dpaVer, m_cPar.dpaVer) <<
-          NAME_PAR(demoFlag, m_cPar.demoFlag) <<
-          NAME_PAR(stdModeSupportFlag, m_cPar.stdModeSupportFlag) <<
-          NAME_PAR(lpModeSupportFlag, m_cPar.lpModeSupportFlag) <<
-          NAME_PAR(lpModeRunningFlag, m_cPar.lpModeRunningFlag) <<
-          std::endl
-        );
-        if (m_cPar.stdModeSupportFlag && m_cPar.lpModeSupportFlag) { //dual support of DPA 4.00
-          m_rfMode = m_cPar.lpModeRunningFlag ? IDpaTransaction2::kLp : IDpaTransaction2::kStd;
-        }
-        else {
-          if (m_cPar.stdModeSupportFlag) {
-            m_rfMode = IDpaTransaction2::kStd;
-          }
-          if (m_cPar.lpModeSupportFlag) {
-            m_rfMode = IDpaTransaction2::kLp;
-          }
-        }
-        m_dpaHandler->setRfCommunicationMode(m_rfMode);
+      // Get coordinator parameters
+      m_cPar.dpaVerWord = (uint16_t)iqrfEmbedExploreEnumerate.getDpaVer();
+      m_cPar.dpaVerWordAsStr = iqrfEmbedExploreEnumerate.getDpaVerAsHexaString();
+      m_cPar.dpaVer = iqrfEmbedExploreEnumerate.getDpaVerAsString();
+      m_cPar.dpaVerMajor = iqrfEmbedExploreEnumerate.getDpaVerMajor();
+      m_cPar.dpaVerMinor = iqrfEmbedExploreEnumerate.getDpaVerMinor();
+      m_cPar.demoFlag = iqrfEmbedExploreEnumerate.getDemoFlag();
+      m_cPar.stdModeSupportFlag = iqrfEmbedExploreEnumerate.getModeStd();
+      m_cPar.lpModeSupportFlag = !iqrfEmbedExploreEnumerate.getModeStd();
+      m_cPar.lpModeRunningFlag = iqrfEmbedExploreEnumerate.getStdAndLpSupport();
+      TRC_INFORMATION("DPA params: " << std::endl <<
+        NAME_PAR(dpaVerWord, m_cPar.dpaVerWord) <<
+        NAME_PAR(dpaVerWordAsStr, m_cPar.dpaVerWordAsStr) <<
+        NAME_PAR(dpaVer, m_cPar.dpaVer) <<
+        NAME_PAR(dpaVerMajor, m_cPar.dpaVerMajor) <<
+        NAME_PAR(dpaVerMinor, m_cPar.dpaVerMinor) <<
+        NAME_PAR(demoFlag, m_cPar.demoFlag) <<
+        NAME_PAR(stdModeSupportFlag, m_cPar.stdModeSupportFlag) <<
+        NAME_PAR(lpModeSupportFlag, m_cPar.lpModeSupportFlag) <<
+        NAME_PAR(lpModeRunningFlag, m_cPar.lpModeRunningFlag) <<
+        std::endl
+      );
+      if (m_cPar.stdModeSupportFlag && m_cPar.lpModeSupportFlag) { //dual support of DPA 4.00
+        m_rfMode = m_cPar.lpModeRunningFlag ? IDpaTransaction2::kLp : IDpaTransaction2::kStd;
       }
       else {
-        TRC_WARNING("Wrong format of TR reset result async msg");
+        if (m_cPar.stdModeSupportFlag) {
+          m_rfMode = IDpaTransaction2::kStd;
+        }
+        if (m_cPar.lpModeSupportFlag) {
+          m_rfMode = IDpaTransaction2::kLp;
+        }
       }
-
-      m_asyncRestartCv.notify_all();
-
+      m_dpaHandler->setRfCommunicationMode(m_rfMode);
     }
-    else {
-      TRC_DEBUG("Not a TR reset async response")
+    catch (std::exception & e) {
+      CATCH_EXC_TRC_WAR(std::exception, e, "Wrong format of TR reset result async msg");
     }
+
+    m_asyncRestartCv.notify_all();
 
     TRC_FUNCTION_LEAVE("")
   }
@@ -327,11 +321,10 @@ namespace iqrf {
         if (!sentExplicitRestart) {
           sentExplicitRestart = true;
           TRC_INFORMATION("No async TR reset response => Send explicit request");
-          PrfOs prfOs;
-          prfOs.setRestartCmd(); //restart only to skip RFPGM
-          auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
+
+          iqrf::embed::os::RawDpaRestart iqrfEmbedOsRestart(0); // restart coordinator
+          auto trn = executeDpaTransaction(iqrfEmbedOsRestart.getRequest(), -1);
           // don't care about result => interested in async reset response
-          //auto res = trn->get();
         }
         else {
           TRC_WARNING("Cannot get TR reset async msg");
@@ -345,31 +338,33 @@ namespace iqrf {
     }
 
     // Get coordinator parameters
-    PrfOs prfOs;
-    prfOs.setReadCmd();
+    auto exclusiveAccess = getExclusiveAccess();
 
-    TRC_DEBUG("Send TR OS Read");
-    auto trn = executeDpaTransaction(prfOs.getDpaRequest(), -1);
-    auto res = trn->get();
+    iqrf::embed::os::RawDpaRead iqrfEmbedOsRead(0);
+    try {
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedOsRead.getRequest(), transResult, 3);
+      iqrfEmbedOsRead.processDpaTransactionResult(std::move(transResult));
 
-    if (res->getErrorCode() == 0) {
-      prfOs.parseResponse(res->getResponse());
-      m_cPar.moduleId = prfOs.getModuleId();
-      m_cPar.osVersion = prfOs.getOsVersion();
-      m_cPar.trType = prfOs.getTrType();
-      m_cPar.mcuType = prfOs.getMcuType();
-      m_cPar.osBuild = prfOs.getOsBuild();
+      m_cPar.moduleId = iqrfEmbedOsRead.getMidAsString();
+      m_cPar.osVersion = iqrfEmbedOsRead.getOsVersionAsString();
+      m_cPar.trType = iqrfEmbedOsRead.getTrTypeAsString();
+      m_cPar.mcuType = iqrfEmbedOsRead.getTrMcuTypeAsString();
+      m_cPar.osBuildWord = (uint16_t)iqrfEmbedOsRead.getOsBuild();
+      m_cPar.osBuild = iqrfEmbedOsRead.getOsBuildAsString();
       TRC_INFORMATION("TR params: " << std::endl <<
         NAME_PAR(moduleId, m_cPar.moduleId) <<
         NAME_PAR(osVersion, m_cPar.osVersion) <<
         NAME_PAR(trType, m_cPar.trType) <<
         NAME_PAR(mcuType, m_cPar.mcuType) <<
+        NAME_PAR(osBuildWord, m_cPar.osBuildWord) <<
         NAME_PAR(osBuild, m_cPar.osBuild) <<
         std::endl
       );
+
     }
-    else {
-      TRC_WARNING("Cannot get TR parameters");
+    catch (std::exception & e) {
+      CATCH_EXC_TRC_WAR(std::exception, e, "Cannot get TR parameters")
     }
 
     TRC_FUNCTION_LEAVE("")
@@ -387,7 +382,7 @@ namespace iqrf {
     m_dpaHandler = shape_new DpaHandler2(m_iqrfDpaChannel);
 
     const rapidjson::Document& doc = props->getAsJson();
-    
+
     {
       const rapidjson::Value* val = rapidjson::Pointer("/DpaHandlerTimeout").Get(doc);
       if (val && val->IsInt()) {
@@ -420,7 +415,7 @@ namespace iqrf {
     timingParams.frcResponseTime = m_responseTime;
     timingParams.dpaVersion = m_cPar.dpaVerWord;
     timingParams.osVersion = m_cPar.osVersion;
-    m_dpaHandler->setTimingParams( timingParams );
+    m_dpaHandler->setTimingParams(timingParams);
 
     TRC_FUNCTION_LEAVE("")
   }
@@ -482,5 +477,5 @@ namespace iqrf {
   {
     shape::Tracer::get().removeTracerService(iface);
   }
-  
+
 }

@@ -93,9 +93,9 @@ namespace iqrf {
       return true;
     }
 
-    IIqrfChannelService::Accessor::UploadErrorCode 
+    IIqrfChannelService::UploadErrorCode 
       upload(
-        const Accessor::UploadTarget target, 
+        const UploadTarget target, 
         const std::basic_string<uint8_t>& data,
         const uint16_t address
     )
@@ -108,34 +108,34 @@ namespace iqrf {
 
       unsigned char targetInt = 0;
       switch (target) {
-        case Accessor::UploadTarget::UPLOAD_TARGET_CFG:
+        case UploadTarget::UPLOAD_TARGET_CFG:
           targetInt = 0x80;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_RFPMG:
+        case UploadTarget::UPLOAD_TARGET_RFPMG:
           targetInt = 0x81;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_RFBAND:
+        case UploadTarget::UPLOAD_TARGET_RFBAND:
           targetInt = 0x82;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_ACCESS_PWD:
+        case UploadTarget::UPLOAD_TARGET_ACCESS_PWD:
           targetInt = 0x83;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_USER_KEY:
+        case UploadTarget::UPLOAD_TARGET_USER_KEY:
           targetInt = 0x84;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_FLASH:
+        case UploadTarget::UPLOAD_TARGET_FLASH:
           targetInt = 0x85;
           useAddress = true;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM:
+        case UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM:
           targetInt = 0x86;
           useAddress = true;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM:
+        case UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM:
           targetInt = 0x87;
           useAddress = true;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_SPECIAL:
+        case UploadTarget::UPLOAD_TARGET_SPECIAL:
           targetInt = 0x88;
           break;
         default:
@@ -146,7 +146,7 @@ namespace iqrf {
       if (targetInt == 0) {
         TRC_WARNING("Unsupported target: " << PAR((int)target));
         TRC_FUNCTION_LEAVE("");
-        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
+        return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
       }
       
       PMResponse response;
@@ -172,40 +172,40 @@ namespace iqrf {
       catch (std::exception& ex) {
         TRC_WARNING("Uploading failed: " << ex.what());
         TRC_FUNCTION_LEAVE("");
-        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_COMMUNICATION;
+        return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_COMMUNICATION;
       }
 
       if (response == PMResponse::OK) {
         TRC_FUNCTION_LEAVE("");
-        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
+        return IIqrfChannelService::UploadErrorCode::UPLOAD_NO_ERROR;
       }
 
-      IIqrfChannelService::Accessor::UploadErrorCode errorCode;
+      IIqrfChannelService::UploadErrorCode errorCode;
       switch (response)
       {
         case PMResponse::ERR2:
-          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_TARGET_MEMORY;
+          errorCode = IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_TARGET_MEMORY;
           break;
         case PMResponse::ERR3:
-          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_DATA_LEN;
+          errorCode = IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_DATA_LEN;
           break;
         case PMResponse::ERR4:
-          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_ADDRESS;
+          errorCode = IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_ADDRESS;
           break;
         case PMResponse::ERR5:
-          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_WRITE_ONLY;
+          errorCode = IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_WRITE_ONLY;
           break;
         case PMResponse::ERR6:
-          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_COMMUNICATION;
+          errorCode = IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_COMMUNICATION;
           break;
         case PMResponse::ERR7:
-          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
+          errorCode = IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
           break;
         case PMResponse::BUSY:
-          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_BUSY;
+          errorCode = IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_BUSY;
           break;
         default:
-          errorCode = IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_GENERAL;
+          errorCode = IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_GENERAL;
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -285,6 +285,37 @@ namespace iqrf {
     bool hasExclusiveAccess() const
     {
       return m_accessControl.hasExclusiveAccess();
+    }
+
+    IIqrfChannelService::osInfo getTrModuleInfo() {
+
+      TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION("Reading TR module identification.");
+
+      ModuleInfo *myModuleInfoData;
+      IIqrfChannelService::osInfo myOsInfo;
+      memset(&myOsInfo, 0, sizeof(myOsInfo));
+
+      try {
+        if (m_cdc) {
+          myModuleInfoData = m_cdc->getTRModuleInfo();
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "CDC not active");
+        }
+      }
+      catch (std::exception& ex) {
+        CATCH_EXC_TRC_WAR(std::exception, ex, "Reading TR module identification failed.");
+        TRC_FUNCTION_LEAVE("");
+        return myOsInfo;
+      }
+
+      myOsInfo.osVersionMajor = myModuleInfoData->osVersion / 16;
+      myOsInfo.osVersionMinor = myModuleInfoData->osVersion % 16;
+      myOsInfo.osBuild = (uint16_t)myModuleInfoData->osBuild[1] << 8 | myModuleInfoData->osBuild[0];
+
+      TRC_FUNCTION_LEAVE("");
+      return myOsInfo;
     }
 
     void activate(const shape::Properties *props)

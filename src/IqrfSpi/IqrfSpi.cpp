@@ -176,8 +176,8 @@ namespace iqrf {
       return spiStatus;
     }
 
-    IIqrfChannelService::Accessor::UploadErrorCode upload(
-      const Accessor::UploadTarget target,
+    IIqrfChannelService::UploadErrorCode upload(
+      const UploadTarget target,
       const std::basic_string<uint8_t>& data,
       const uint16_t address
     )
@@ -191,7 +191,7 @@ namespace iqrf {
       if (spiStatus.dataNotReadyStatus != SPI_IQRF_SPI_READY_PROG) {
         TRC_WARNING("Waiting for ready state failed." << NAME_PAR_HEX(SPI status, spiStatus.dataNotReadyStatus));
         TRC_FUNCTION_LEAVE("");
-        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_GENERAL;
+        return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_GENERAL;
       }
 
       // write data to TR module
@@ -201,34 +201,34 @@ namespace iqrf {
 
       int targetInt = 0;
       switch (target) {
-        case Accessor::UploadTarget::UPLOAD_TARGET_CFG:
+        case UploadTarget::UPLOAD_TARGET_CFG:
           targetInt = CFG_TARGET;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_RFPMG:
+        case UploadTarget::UPLOAD_TARGET_RFPMG:
           targetInt = RFPMG_TARGET;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_RFBAND:
+        case UploadTarget::UPLOAD_TARGET_RFBAND:
           targetInt = RFBAND_TARGET;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_ACCESS_PWD:
+        case UploadTarget::UPLOAD_TARGET_ACCESS_PWD:
           targetInt = ACCESS_PWD_TARGET;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_USER_KEY:
+        case UploadTarget::UPLOAD_TARGET_USER_KEY:
           targetInt = USER_KEY_TARGET;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_FLASH:
+        case UploadTarget::UPLOAD_TARGET_FLASH:
           targetInt = FLASH_TARGET;
           useAddress = true;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM:
+        case UploadTarget::UPLOAD_TARGET_INTERNAL_EEPROM:
           targetInt = INTERNAL_EEPROM_TARGET;
           useAddress = true;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM:
+        case UploadTarget::UPLOAD_TARGET_EXTERNAL_EEPROM:
           targetInt = EXTERNAL_EEPROM_TARGET;
           useAddress = true;
           break;
-        case Accessor::UploadTarget::UPLOAD_TARGET_SPECIAL:
+        case UploadTarget::UPLOAD_TARGET_SPECIAL:
           targetInt = SPECIAL_TARGET;
           break;
         default:
@@ -239,7 +239,7 @@ namespace iqrf {
       if (targetInt == -1) {
         TRC_WARNING("Unsupported target: " << PAR((int)target));
         TRC_FUNCTION_LEAVE("");
-        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
+        return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
       }
 
       int uploadRes = BASE_TYPES_OPER_ERROR;
@@ -268,14 +268,14 @@ namespace iqrf {
       if (uploadRes != BASE_TYPES_OPER_OK) {
         TRC_WARNING("Data programming failed. " << NAME_PAR_HEX(Result, uploadRes));
         TRC_FUNCTION_LEAVE("");
-        return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_GENERAL;
+        return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_GENERAL;
       }
       else {
         TRC_INFORMATION("Upload OK");
       }
 
       TRC_FUNCTION_LEAVE("");
-      return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
+      return IIqrfChannelService::UploadErrorCode::UPLOAD_NO_ERROR;
     }
 
     bool terminateProgrammingState() {
@@ -338,7 +338,7 @@ namespace iqrf {
       return state;
     }
 
-    std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
+    std::unique_ptr<IIqrfChannelService::Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
     {
       return m_accessControl.getAccess(receiveFromFunc, access);
     }
@@ -346,6 +346,35 @@ namespace iqrf {
     bool hasExclusiveAccess() const
     {
       return m_accessControl.hasExclusiveAccess();
+    }
+
+    IIqrfChannelService::osInfo getTrModuleInfo()
+    {
+      TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION("Reading TR module identification.");
+
+      IIqrfChannelService::osInfo myOsInfo;
+      memset(&myOsInfo, 0, sizeof(myOsInfo));
+
+      //only OS version and build
+      uint8_t idfBuffer[32];
+      uint8_t idfResult;
+
+      idfResult = spi_iqrf_get_tr_module_info(idfBuffer, sizeof(idfBuffer));
+
+      if (idfResult == BASE_TYPES_OPER_OK)
+      {
+        myOsInfo.osVersionMajor = idfBuffer[4] / 16;
+        myOsInfo.osVersionMinor = idfBuffer[4] % 16;
+        myOsInfo.osBuild = (uint16_t)idfBuffer[7] << 8 | idfBuffer[6];
+      }
+      else
+      {
+        TRC_ERROR("TR module identification ERROR: " << PAR(idfResult));
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return myOsInfo;
     }
 
     void activate(const shape::Properties *props)
@@ -471,11 +500,15 @@ namespace iqrf {
             spi_iqrf_SPIStatus status;
             int retval = spi_iqrf_getSPIStatus(&status);
             if (BASE_TYPES_OPER_OK != retval) {
-              THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
+              // report status failure
+              TRC_WARNING("SPI status failure: " << PAR(retval));
+              // stop listen thread only here
+              if (BASE_TYPES_OPER_ERROR == retval) {
+                THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
+              }
             }
 
             if (status.isDataReady) {
-
               if (status.dataReady > 0 && static_cast<unsigned>(status.dataReady) > m_bufsize) {
                 THROW_EXC_TRC_WAR(std::logic_error, "Received data too long: " << NAME_PAR(len, status.dataReady) << PAR(m_bufsize));
               }

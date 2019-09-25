@@ -5,6 +5,7 @@ usr/lib/iqrf-gateway-daemon
 usr/share/iqrf-gateway-daemon
 usr/share/iqrf-gateway-daemon/apiSchemas
 usr/share/iqrf-gateway-daemon/javaScript
+usr/share/iqrf-gateway-daemon/DB
 var/cache/iqrf-gateway-daemon
 var/cache/iqrf-gateway-daemon/iqrfRepoCache
 var/cache/iqrf-gateway-daemon/metaData

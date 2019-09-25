@@ -1,5 +1,5 @@
-#include "ComIqrfStandardExt.h"
-#include "IDpaTransactionResult2.h"
+#include "ApiMsgIqrfStandardFrc.h"
+#include "JsDriverStandardFrcSolver.h"
 #include "JsonDpaApiIqrfStdExt.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -27,6 +27,7 @@ namespace iqrf {
   {
   private:
 
+    IMetaDataApi* m_iMetaDataApi = nullptr;
     iqrf::IJsRenderService* m_iJsRenderService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
@@ -37,7 +38,8 @@ namespace iqrf {
     // TODO from cfg
     std::vector<std::string> m_filters =
     {
-      "iqrfSensor_Frc",
+      "iqrfDali_Frc",
+      "iqrfSensor_Frc"
     };
 
   public:
@@ -49,147 +51,7 @@ namespace iqrf {
     {
     }
 
-    //for debug only
-    static std::string JsonToStr(const rapidjson::Value* val)
-    {
-      rapidjson::Document doc;
-      doc.CopyFrom(*val, doc.GetAllocator());
-      rapidjson::StringBuffer buffer;
-      rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-      doc.Accept(writer);
-      return buffer.GetString();
-    }
-
-    struct StandardDriverRequestResult
-    {
-      bool success;
-      DpaMessage dpaRequest;
-      std::string errStr;
-    };
-
-    //TODO not used here, ready for redesign JsonDpaApiIqrfStandard to publih JsDriver interface
-    StandardDriverRequestResult callDriverRequest(const std::string & methodRequestName, const std::string & params, uint16_t nadr, uint16_t hwpid)
-    {
-      TRC_FUNCTION_ENTER(PAR(methodRequestName) << PAR(params) << PAR(nadr) << PAR(hwpid));
-
-      GenericDriverRequestResult gresult = callDriverRequest(methodRequestName, params);
-      StandardDriverRequestResult result;
-      result.success = gresult.success;
-      result.errStr = gresult.errStr;
-
-      if (result.success) {
-        RawHdpRequest rawHdpRequest(gresult.resultStr, nadr, hwpid);
-        result.dpaRequest = rawHdpRequest.getDpaRequest();
-      }
-
-      TRC_FUNCTION_LEAVE(PAR(result.success) << PAR(result.errStr) << MEM_HEX(result.dpaRequest.DpaPacket().Buffer, result.dpaRequest.GetLength()));
-      return result;
-    }
-
-    struct GenericDriverRequestResult
-    {
-      bool success;
-      std::string resultStr;
-      std::string errStr;
-    };
-
-    GenericDriverRequestResult callDriverRequest(const std::string & methodRequestName, const std::string & params)
-    {
-      TRC_FUNCTION_ENTER(PAR(methodRequestName) << PAR(params));
-
-      GenericDriverRequestResult result;
-      result.success = true;
-
-      // call requestdriver func, it returns result params in text form
-      try {
-        m_iJsRenderService->call(methodRequestName, params, result.resultStr);
-      }
-      catch (std::exception &e) {
-        result.errStr = e.what();
-        result.success = false;
-      }
-
-      TRC_FUNCTION_LEAVE(PAR(result.success) << PAR(result.errStr) << PAR(result.resultStr));
-      return result;
-    }
-
-    struct StandardDriverResponseResult
-    {
-      bool success;
-      int nadr;
-      int hwpid;
-      int rcode;
-      std::string rspObjStr;
-      std::string errStr;
-    };
-
-    StandardDriverResponseResult callDriverResponse(const std::string & methodResponseName, const DpaMessage dpaMessage)
-    {
-      TRC_FUNCTION_ENTER(PAR(methodResponseName));
-
-      StandardDriverResponseResult result;
-      result.success = true;
-
-      RawHdpResponse rawHdpResponse(dpaMessage);
-
-      if (0 == result.rcode) {
-        GenericDriverResponseResult gresult = callDriverResponse(methodResponseName, rawHdpResponse.getString());
-        result.success = gresult.success;
-        result.errStr = gresult.errStr;
-        result.rspObjStr = gresult.rspObjStr;
-      }
-      else {
-        result.errStr = "rcode error";
-        result.success = false;
-      }
-
-      TRC_FUNCTION_LEAVE(PAR(result.success) << PAR(result.errStr) << PAR(result.rspObjStr));
-      return result;
-    }
-
-    struct GenericDriverResponseResult
-    {
-      bool success;
-      std::string rspObjStr;
-      std::string errStr;
-    };
-
-    GenericDriverResponseResult callDriverResponse(const std::string & methodResponseName, const std::string& param)
-    {
-      TRC_FUNCTION_ENTER(PAR(methodResponseName) << PAR(param));
-
-      GenericDriverResponseResult result;
-      result.success = true;
-
-      // call response driver func, it returns rsp{} in text form
-      try {
-        m_iJsRenderService->call(methodResponseName, param, result.rspObjStr);
-      }
-      catch (std::exception &e) {
-        result.errStr = e.what();
-        result.success = false;
-      }
-
-      TRC_FUNCTION_LEAVE(PAR(result.success) << PAR(result.errStr) << PAR(result.rspObjStr));
-      return result;
-    }
-
-    // aux exception to handle error situations
-    class HandleException : public std::logic_error
-    {
-    public:
-      HandleException() = delete;
-      HandleException(const std::string& errStr, int status)
-        :std::logic_error(errStr.c_str())
-        ,m_status(status)
-      {
-      }
-      int getStatus() const { return m_status; }
-    private:
-      int m_status = 1;
-    };
-
-    void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
+    void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document dc)
     {
       TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
         NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
@@ -198,154 +60,95 @@ namespace iqrf {
 
       Document allResponseDoc;
 
-      std::string methodRequestName = msgType.m_possibleDriverFunction;
-      std::string methodResponseName = msgType.m_possibleDriverFunction;
-      methodRequestName += "_Request_req";
-      methodResponseName += "_Response_rsp";
-
-      IqrfSensorFrc iqrfSensorFrc(doc);
+      // solves api msg processing
+      ApiMsgIqrfStandardFrc apiMsgIqrfStandardFrc(dc);
 
       try {
-        //if (msgType.m_type == "iqrfSensor_Frc") {
-        //IqrfSensorFrc iqrfSensorFrc(doc);
+        // solves JsDriver processing
+        JsDriverStandardFrcSolver jsDriverStandardFrcSolver(m_iJsRenderService, msgType.m_possibleDriverFunction, apiMsgIqrfStandardFrc.getRequestParamDoc());
 
-        // call request driver func with param as string
-        GenericDriverRequestResult requestRes =
-          callDriverRequest(methodRequestName, iqrfSensorFrc.getParamAsString());
+        // process *_Request
+        jsDriverStandardFrcSolver.processRequestDrv();
 
-        if (!requestRes.success) {
-          TRC_WARNING(PAR(methodRequestName) << " error " << PAR(requestRes.errStr));
-          throw HandleException(requestRes.errStr, IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_REQUEST);
+        auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+
+        // FRC transaction
+        std::unique_ptr<IDpaTransactionResult2> transResultFrc = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcRequest())->get();
+        jsDriverStandardFrcSolver.setFrcDpaTransactionResult(std::move(transResultFrc));
+
+        if (apiMsgIqrfStandardFrc.getExtraResult()) {
+          // FRC extra result transaction
+          std::unique_ptr<IDpaTransactionResult2> transResultFrcExtra = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcExtraRequest())->get();
+          jsDriverStandardFrcSolver.setFrcExtraDpaTransactionResult(std::move(transResultFrcExtra));
         }
 
-        // parse result
-        Document doc;
-        doc.Parse(requestRes.resultStr);
+        // process *_Response
+        jsDriverStandardFrcSolver.processResponseDrv();
 
-        // get FRC request
-        Value *val0 = Pointer("/retpars/0").Get(doc);
-        if (!val0 || !val0->IsObject()) {
-          const char* errstr = "invalid format from JS driver /retpars/0";
-          TRC_WARNING(PAR(methodRequestName) << " error " << PAR(errstr));
-          throw HandleException(errstr, IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_REQUEST);
+        // finalize api response
+        if (!apiMsgIqrfStandardFrc.getNadrWithMetaData()) {
+          apiMsgIqrfStandardFrc.setPayload("/data/rsp/result", jsDriverStandardFrcSolver.getResponseResultDoc());
         }
-        
-        RawHdpRequest rawHdpRequest(*val0, iqrfSensorFrc.getNadr(), iqrfSensorFrc.getHwpid());
-        iqrfSensorFrc.setDpaRequest(rawHdpRequest.getDpaRequest());
-        //iqrfSensorFrc.setDpaRequest(RawHdpRequest(*val0, iqrfSensorFrc.getNadr(), iqrfSensorFrc.getHwpid()).getDpaRequest());
+        else {
+          std::string arrayKey, itemKey;
 
-        if (iqrfSensorFrc.getExtraResult()) {
-          // get FRC extra request
-          Value *val1 = Pointer("/retpars/1").Get(doc);
-          if (!val1 && !val1->IsObject()) {
-            const char* errstr = "invalid format from JS driver /retpars/1";
-            TRC_WARNING(PAR(methodRequestName) << " error " << PAR(errstr));
-            throw HandleException(errstr, IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_REQUEST);
+          // TODO maybe better to virtualize getResponseResultWithNadr() 
+          if (msgType.m_type == "iqrfDali_Frc") {
+            arrayKey = "/answers";
+            itemKey = "/answer";
           }
-          iqrfSensorFrc.setDpaRequestExtra(RawHdpRequest(*val1, iqrfSensorFrc.getNadr(), iqrfSensorFrc.getHwpid()).getDpaRequest());
-        }
-
-        std::unique_ptr<IIqrfDpaService::ExclusiveAccess> exclusiveAccess;
-        try {
-          exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-        }
-        catch (std::exception &e) {
-          const char* errstr = e.what();
-          TRC_WARNING(PAR(methodRequestName) << " error " << PAR(errstr));
-          throw HandleException(errstr, IDpaTransactionResult2::ErrorCode::TRN_ERROR_IFACE_EXCLUSIVE_ACCESS);
-        }
-
-        // send to coordinator DpaRequest and wait for transaction result
-        {
-          TRC_DEBUG("Sending FRC request");
-          std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
-          //m_iDpaTransaction = m_iIqrfDpaService->executeDpaTransaction(iqrfSensorFrc.getDpaRequest(), iqrfSensorFrc.getTimeout());
-          m_iDpaTransaction = exclusiveAccess->executeDpaTransaction(iqrfSensorFrc.getDpaRequest(), iqrfSensorFrc.getTimeout());
-        }
-        auto resultDpaRequest = m_iDpaTransaction->get();
-
-        // get necessary data from DpaRequest result and move
-        bool isResponded = resultDpaRequest->isResponded();
-        int errCode = resultDpaRequest->getErrorCode();
-        iqrfSensorFrc.setDpaTransactionResult(std::move(resultDpaRequest));
-        
-        if (!isResponded || errCode != IDpaTransactionResult2::ErrorCode::TRN_OK) {
-          const char* errstr = "no FRC response";
-          TRC_WARNING("Error: " << PAR(errstr));
-          throw HandleException(errstr, errCode);
-        }
-
-        if (iqrfSensorFrc.getExtraResult()) {
-          // send to coordinator DpaRequestExtra wait for transaction result
-          {
-            TRC_DEBUG("Sending FRC extra request");
-            std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
-            //m_iDpaTransaction = m_iIqrfDpaService->executeDpaTransaction(iqrfSensorFrc.getDpaRequestExtra(), iqrfSensorFrc.getTimeout());
-            m_iDpaTransaction = exclusiveAccess->executeDpaTransaction(iqrfSensorFrc.getDpaRequestExtra(), iqrfSensorFrc.getTimeout());
+          else if (msgType.m_type == "iqrfSensor_Frc") {
+            arrayKey = "/sensors";
+            itemKey = "/sensor";
           }
-          auto resultDpaRequestExtra = m_iDpaTransaction->get();
-
-          // get necessary data from DpaRequestExtra result and move
-          isResponded = resultDpaRequestExtra->isResponded();
-          errCode = resultDpaRequestExtra->getErrorCode();
-          iqrfSensorFrc.setDpaTransactionExtraResult(std::move(resultDpaRequestExtra));
-
-          if (!isResponded || errCode != IDpaTransactionResult2::ErrorCode::TRN_OK) {
-            const char* errstr = "no FRC Extra response";
-            TRC_WARNING("Error: " << PAR(errstr));
-            throw HandleException(errstr, errCode);
+          else {
+            THROW_EXC_TRC_WAR(std::logic_error, "Unexected: " << NAME_PAR(messageType, msgType.m_type));
           }
+
+          rapidjson::Document doc = jsDriverStandardFrcSolver.getResponseResultWithNadr(arrayKey, itemKey);
+
+          for (Value * senVal = doc.Begin(); senVal != doc.End(); senVal++) {
+            Value *nadrVal = Pointer("/nAdr").Get(*senVal);
+            if (!(nadrVal && nadrVal->IsInt())) {
+              THROW_EXC_TRC_WAR(std::logic_error, "Expected: .../nAdr of type integer");
+            }
+            int nadr = nadrVal->GetInt();
+            if (m_iMetaDataApi && m_iMetaDataApi->iSmetaDataToMessages()) {
+              // anotate with metada
+              Pointer("/metaData").Set(*senVal, m_iMetaDataApi->getMetaData(nadr), doc.GetAllocator());
+            }
+          }
+
+          //TODO right key here
+          std::string fullArrayKey = "/data/rsp/result";
+          fullArrayKey += arrayKey;
+          apiMsgIqrfStandardFrc.setPayload(fullArrayKey, doc);
         }
-
-        exclusiveAccess.reset();
-
-        // prepare params for driver
-        Document paramDoc;
-
-        Pointer("/sensorType").Set(paramDoc, iqrfSensorFrc.getSensorType());
-        Pointer("/frcCommand").Set(paramDoc, iqrfSensorFrc.getFrcCommand());
-        if (const DpaMessage* r = iqrfSensorFrc.getDpaResponse()) {
-          Pointer("/responseFrcSend").Set(paramDoc, RawHdpResponse(*r).getDocument());
-        }
-        if (const DpaMessage* r = iqrfSensorFrc.getDpaResponseExtra()) {
-          Pointer("/responseFrcExtraResult").Set(paramDoc, RawHdpResponse(*r).getDocument());
-        }
-        
-        //TODO parse request
-        
-        Pointer("/frcSendRequest").Set(paramDoc, rawHdpRequest.encode());
-
-        StringBuffer buffer;
-        PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-        paramDoc.Accept(writer);
-        std::string param = buffer.GetString();
-        TRC_DEBUG(param);
-
-        GenericDriverResponseResult responseResult = callDriverResponse(methodResponseName, param);
-        if (!responseResult.success) {
-          TRC_WARNING(PAR(methodRequestName) << " error " << PAR(responseResult.errStr));
-          throw HandleException(responseResult.errStr, IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);
-        }
-
-        // get json from its text representation
-        Document rspObj;
-        rspObj.Parse(responseResult.rspObjStr);
-        TRC_DEBUG("result object: " << std::endl << JsonToStr(&rspObj));
-        iqrfSensorFrc.setPayload("/data/rsp/result", std::move(rspObj));
+        apiMsgIqrfStandardFrc.setDpaTransactionResult(jsDriverStandardFrcSolver.moveFrcDpaTransactionResult());
+        apiMsgIqrfStandardFrc.setDpaTransactionExtraResult(jsDriverStandardFrcSolver.moveFrcExtraDpaTransactionResult());
         IDpaTransactionResult2::ErrorCode status = IDpaTransactionResult2::ErrorCode::TRN_OK;
-        iqrfSensorFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
-        iqrfSensorFrc.createResponse(allResponseDoc);
+        apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
+        apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
+
+        //{ //TODO debug  only
+        //  rapidjson::StringBuffer buffer;
+        //  rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        //  allResponseDoc.Accept(writer);
+        //  std::string allResponseDocStr = buffer.GetString();
+        //}
+
       }
-      catch (HandleException & e) {
+      catch (std::exception & e) {
         //provide error response
         Document rDataError;
         rDataError.SetString(e.what(), rDataError.GetAllocator());
-        iqrfSensorFrc.setPayload("/data/rsp/errorStr", std::move(rDataError));
-        iqrfSensorFrc.setStatus(IDpaTransactionResult2::errorCode(e.getStatus()), e.getStatus());
-        iqrfSensorFrc.createResponse(allResponseDoc);
+        apiMsgIqrfStandardFrc.setPayload("/data/rsp/errorStr", std::move(rDataError));
+        //apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(e.getStatus()), e.getStatus());
+        apiMsgIqrfStandardFrc.setStatus(
+          IDpaTransactionResult2::errorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_FAIL), IDpaTransactionResult2::ErrorCode::TRN_ERROR_FAIL);
+        apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
       }
 
-      TRC_DEBUG("response object: " << std::endl << JsonToStr(&allResponseDoc));
       m_iMessagingSplitterService->sendMessage(messagingId, std::move(allResponseDoc));
 
       TRC_FUNCTION_LEAVE("");
@@ -394,6 +197,18 @@ namespace iqrf {
     void modify(const shape::Properties *props)
     {
       (void)props; //silence -Wunused-parameter
+    }
+
+    void attachInterface(IMetaDataApi* iface)
+    {
+      m_iMetaDataApi = iface;
+    }
+
+    void detachInterface(IMetaDataApi* iface)
+    {
+      if (m_iMetaDataApi == iface) {
+        m_iMetaDataApi = nullptr;
+      }
     }
 
     void attachInterface(IJsRenderService* iface)
@@ -460,6 +275,16 @@ namespace iqrf {
   void JsonDpaApiIqrfStdExt::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsonDpaApiIqrfStdExt::attachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonDpaApiIqrfStdExt::detachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsonDpaApiIqrfStdExt::attachInterface(iqrf::IJsRenderService* iface)

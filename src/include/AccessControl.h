@@ -5,7 +5,7 @@
 
 namespace iqrf {
 
-  template<class IqrfChannel>  class AccessorImpl;
+  template<class IqrfChannel> class AccessorImpl;
 
   template<class IqrfChannel>
   class AccessControl
@@ -52,7 +52,7 @@ namespace iqrf {
       return (bool)m_exclusiveReceiveFromFunc;
     }
 
-    std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(IIqrfChannelService::ReceiveFromFunc receiveFromFunc, IIqrfChannelService::AccesType access)
+    std::unique_ptr<IIqrfChannelService::Accessor> getAccess(IIqrfChannelService::ReceiveFromFunc receiveFromFunc, IIqrfChannelService::AccesType access)
     {
       TRC_FUNCTION_ENTER("");
       std::unique_lock<std::mutex> lck(m_mtx);
@@ -127,8 +127,8 @@ namespace iqrf {
 
     // 'address' parameter is NOT used, if upload target has already defined its own address, 
     // which to upload code into, e.g. RF band or RFPGM
-    IIqrfChannelService::Accessor::UploadErrorCode upload(
-      const IIqrfChannelService::Accessor::UploadTarget target,
+    IIqrfChannelService::UploadErrorCode upload(
+      const IIqrfChannelService::UploadTarget target,
       const std::basic_string<uint8_t>& data,
       const uint16_t address
     )
@@ -139,6 +139,11 @@ namespace iqrf {
     bool terminateProgrammingState()
     {
       return m_iqrfChannel->terminateProgrammingState();
+    }
+
+    IIqrfChannelService::osInfo getTrModuleInfo()
+    {
+      return m_iqrfChannel->getTrModuleInfo();
     }
 
   private:
@@ -182,8 +187,8 @@ namespace iqrf {
       return m_accessControl->enterProgrammingState();
     }
 
-    UploadErrorCode upload(
-      const UploadTarget target, const std::basic_string<uint8_t>& data, const uint16_t address
+    IIqrfChannelService::UploadErrorCode upload(
+      const IIqrfChannelService::UploadTarget target, const std::basic_string<uint8_t>& data, const uint16_t address
     ) override
     {
       return m_accessControl->upload(target, data, address);
@@ -192,6 +197,11 @@ namespace iqrf {
     bool terminateProgrammingState() override
     {
       return m_accessControl->terminateProgrammingState();
+    }
+
+    IIqrfChannelService::osInfo getTrModuleInfo()
+    {
+      return m_accessControl->getTrModuleInfo();
     }
 
   private:

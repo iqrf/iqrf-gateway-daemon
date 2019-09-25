@@ -1,0 +1,43 @@
+# tests_coordinator.tavern.yaml
+---
+
+test_name: Test mqtt message - embed coordinator bonded devices
+
+includes:
+  - !include common.yaml
+
+paho-mqtt: &mqtt_spec
+  client:
+    transport: tcp
+    client_id: tavern-tester
+  connect:
+    host: "{mqtt_host:s}"
+    port: !int "{mqtt_port:d}"
+    timeout: 5
+
+stages:
+  - name: bonded devices
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/iqrfEmbedCoordinator_BondedDevices-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/iqrfEmbedCoordinator_BondedDevices-response-1-0-0.yaml
+      timeout: 1
+
+---
+
+test_name: Test mqtt message - embed coordinator discovered devices
+paho-mqtt: *mqtt_spec
+stages:
+
+  - name: discovered devices
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/iqrfEmbedCoordinator_DiscoveredDevices-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/iqrfEmbedCoordinator_DiscoveredDevices-response-1-0-0.yaml
+      timeout: 1

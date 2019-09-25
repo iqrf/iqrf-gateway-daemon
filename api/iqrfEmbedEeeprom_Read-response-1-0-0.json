@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedEeeprom_Read",
+        "name": "iqrfEmbedEeeprom_Read-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -81,7 +81,7 @@
 							},
 							"requestTs": {
 								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
 							},
 							"confirmation": {
 								"type": "string",
@@ -89,7 +89,7 @@
 							},
 							"confirmationTs": {
 								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
 							},
 							"response": {
 								"type": "string",
@@ -97,7 +97,7 @@
 							},
 							"responseTs": {
 								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
 							}
 						},
 						"required": [

@@ -143,8 +143,8 @@ namespace iqrf {
     }
 #endif
 
-    IIqrfChannelService::Accessor::UploadErrorCode upload(
-      const Accessor::UploadTarget target,
+    IIqrfChannelService::UploadErrorCode upload(
+      const UploadTarget target,
       const std::basic_string<uint8_t>& data,
       const uint16_t address
     )
@@ -247,7 +247,7 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
       //return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_NO_ERROR;
-      return IIqrfChannelService::Accessor::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
+      return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
     }
 
     bool terminateProgrammingState() {
@@ -274,7 +274,7 @@ namespace iqrf {
     {
       IIqrfChannelService::State state = State::NotReady;
       if (m_accessControl.hasExclusiveAccess())
-        state = State::ExclusiveAcess;
+        state = State::ExclusiveAccess;
       else if (m_runListenThread)
         state = State::Ready;
 
@@ -289,6 +289,18 @@ namespace iqrf {
     bool hasExclusiveAccess() const
     {
       return m_accessControl.hasExclusiveAccess();
+    }
+
+    IIqrfChannelService::osInfo getTrModuleInfo()
+    {
+      TRC_FUNCTION_ENTER("");
+      TRC_WARNING("Reading TR module identification - not implemented.");
+
+      IIqrfChannelService::osInfo myOsInfo;
+      memset(&myOsInfo, 0, sizeof(myOsInfo));
+
+      TRC_FUNCTION_LEAVE("");
+      return myOsInfo;
     }
 
     void activate(const shape::Properties *props)

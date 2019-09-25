@@ -82,10 +82,6 @@
 									"type": "boolean",
 									"description": "If LEDG is enabled."
 								},
-								"ledg": {
-									"type": "boolean",
-									"description": "If LEDG is enabled."
-								},
 								"spi": {
 									"type": "boolean",
 									"description": "If SPI is enabled."
@@ -176,6 +172,10 @@
 						"customDpaHandler": {
 							"type": "boolean",
 							"description": "If set, then a Custom DPA handler is called in case of an event."
+						},
+						"dpaPeerToPeer": {
+							"type": "boolean",
+							"description": "If set, then DP2P is enabled at [N]."
 						},
 						"nodeDpaInterface": {
 							"type": "boolean",

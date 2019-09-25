@@ -12,10 +12,11 @@ namespace iqrf {
     JsRenderDuktape();
     virtual ~JsRenderDuktape();
 
-    void loadJsCodeFenced(int id, const std::string& js) override;
-    void callFenced(int id, const std::string& functionName, const std::string& par, std::string& ret) override;
-    void loadJsCode(const std::string& js) override;
-    void call(const std::string& functionName, const std::string& par, std::string& ret) override;
+    void loadJsCodeFenced(int contextId, const std::string& js) override;
+    // set driver mapping according nadr
+    void mapNadrToFenced(int nadr, int contextId) override;
+    void callFenced(int nadr, int hwpid, const std::string& functionName, const std::string& par, std::string& ret) override;
+    void unloadProvisionalContexts() override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

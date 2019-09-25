@@ -46,7 +46,7 @@
               "type": "string",
               "description": "Product name."
             },
-              "standards": {
+            "standards": {
               "type": "array",
               "description": "Supported standards by the device.",
               "items": {
@@ -156,7 +156,55 @@
                     "maxItems": 16,
                     "default": 0
                   }
-                }
+                },
+                "dpaVer": {
+									"type": "string",
+									"description": "DPA version."
+								},
+								"perNr": {
+									"type": "integer",
+									"description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
+								},
+								"embPers": {
+									"type": "array",
+									"description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the HWP Configuration.",
+									"items": {
+										"type": "integer"
+									}
+								},
+								"hwpId": {
+									"type": "integer",
+									"description": "Hardware profile identification."
+								},
+								"hwpIdVer": {
+									"type": "integer",
+									"description": "Hardware profile version."
+								},
+								"enumFlags": {
+									"type": "object",
+									"description": "Various flags.",
+									"properties":  {
+										"value": {
+											"type": "integer"
+										},
+										"rfModeStd": {
+											"type": "boolean"
+										},
+										"rfModeLp": {
+											"type": "boolean"
+										},
+										"stdAndLpNetwork": {
+											"type": "boolean"
+										}
+									}
+								},
+								"userPers": {
+									"type": "array",
+									"description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
+									"items": {
+										"type": "integer"
+									}
+								}
               },
               "required": [
                 "mid",
@@ -187,7 +235,7 @@
               },
               "requestTs": {
                 "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
               },
               "confirmation": {
                 "type": "string",
@@ -195,7 +243,7 @@
               },
               "confirmationTs": {
                 "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
               },
               "response": {
                 "type": "string",
@@ -203,7 +251,7 @@
               },
               "responseTs": {
                 "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
               }
             },
             "required": [

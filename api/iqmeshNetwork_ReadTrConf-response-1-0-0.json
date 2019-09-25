@@ -74,10 +74,6 @@
 									"type": "boolean",
 									"description": "If LEDG is enabled."
 								},
-								"ledg": {
-									"type": "boolean",
-									"description": "If LEDG is enabled."
-								},
 								"spi": {
 									"type": "boolean",
 									"description": "If SPI is enabled."
@@ -168,6 +164,10 @@
 							"type": "boolean",
 							"description": "If set, then a Custom DPA handler is called in case of an event."
 						},
+						"dpaPeerToPeer": {
+							"type": "boolean",
+							"description": "If set, then DP2P is enabled at [N]."
+						},
 						"nodeDpaInterface": {
 							"type": "boolean",
 							"description": "If set, then Node device can be controlled by a SPI or UART interface. Valid only in DPA version < 4.00"
@@ -217,7 +217,7 @@
 							},
 							"requestTs": {
 								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
 							},
 							"confirmation": {
 								"type": "string",
@@ -225,7 +225,7 @@
 							},
 							"confirmationTs": {
 								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
 							},
 							"response": {
 								"type": "string",
@@ -233,7 +233,7 @@
 							},
 							"responseTs": {
 								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
 							}
 						},
 						"required": [

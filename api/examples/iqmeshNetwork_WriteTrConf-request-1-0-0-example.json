@@ -5,8 +5,9 @@
     "repeat": 1,
     "req": {
       "deviceAddr": 1,
-      "txPower": 3,
-      "rxFilter": 5
+      "txPower": 7,
+      "rxFilter": 5,
+      "dpaPeerToPeer": true
     },
     "returnVerbose": true
   }

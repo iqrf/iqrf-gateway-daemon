@@ -77,6 +77,11 @@
                   "type": "boolean",
                   "description": "If set Extra result DPA message is sent and processed",
                   "default": true
+                },
+                "getNadrWithMetaData": {
+                  "type": "boolean",
+                  "description": "Sensors get node address and assigned meta data",
+                  "default": false
                 }
               },
               "required": [

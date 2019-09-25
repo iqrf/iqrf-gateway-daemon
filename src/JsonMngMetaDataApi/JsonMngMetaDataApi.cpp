@@ -1176,7 +1176,8 @@ namespace iqrf {
 
       rapidjson::Document retval;
       retval.SetObject();
-      std::string lmid = getNadrMidMap().myFind(nAdr, lmid);
+      std::string lmid;
+      lmid = getNadrMidMap().myFind(nAdr, lmid);
       if (!lmid.empty()) {
         std::string lmetaId = getMidMetaIdMap().myFind(lmid, lmetaId);
         if (!lmetaId.empty()) {

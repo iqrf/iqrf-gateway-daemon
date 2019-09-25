@@ -1,0 +1,19 @@
+mType: iqrfEmbedLedg_Pulse
+data:
+  msgId: testEmbedLedg
+  rsp:
+    nAdr: 0
+    hwpId: !anyint
+    rCode: 0
+    dpaVal: !anyint
+    result: {}
+  raw:
+  - request: 00.00.07.03.ff.ff
+    requestTs: !anystr
+    confirmation: ''
+    confirmationTs: ''
+    response: !anystr
+    responseTs: !anystr
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0

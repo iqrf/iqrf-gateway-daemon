@@ -32,6 +32,7 @@ namespace iqrf {
       std::string dpaVer;
       std::string dpaVerWordAsStr;
       uint16_t dpaVerWord;
+      uint16_t osBuildWord;
       int dpaVerMajor = 0;
       int dpaVerMinor = 0;
       bool demoFlag = false;
@@ -44,7 +45,7 @@ namespace iqrf {
     {
     public:
       virtual std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) = 0;
-      virtual void executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) = 0;
+      virtual void executeDpaTransactionRepeat( const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) = 0;
       virtual ~ExclusiveAccess() {}
     };
 
@@ -54,7 +55,7 @@ namespace iqrf {
 
     /// 0 > timeout - use default, 0 == timeout - use infinit, 0 < timeout - user value
     virtual std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) = 0;
-    virtual void executeDpaTransactionRepeat( DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) = 0;
+    virtual void executeDpaTransactionRepeat( const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) = 0;
     virtual CoordinatorParameters getCoordinatorParameters() const = 0;
     virtual int getTimeout() const = 0;
     virtual void setTimeout(int timeout) = 0;

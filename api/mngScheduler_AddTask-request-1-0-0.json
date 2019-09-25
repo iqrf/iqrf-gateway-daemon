@@ -30,8 +30,20 @@
                             "description": "Client identifier."
                         },
                         "task": {
-                            "type": "object",
-                            "description": "Scheduled task."
+							"oneOf": [
+								{
+								  "type": "object",
+								  "properties": {}
+								},
+								{
+								  "type": "array",
+								  "items": {
+									"type": "object",
+									"properties": {}
+								  }
+								}
+							],
+                            "description": "Scheduled task or array of tasks."
                         },
                         "timeSpec": {
                             "type": "object",

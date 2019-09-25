@@ -1,5 +1,5 @@
 {
-    "$schema": "http://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "iqrfDali_SendCommands-response",
@@ -46,25 +46,33 @@
                             "description": "DPA value."
                         },
                         "result": {
-                            "type": "array",
-                            "description": "Returns array of objects for every DALI 2B command.",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "status": {
-                                        "type": "integer",
-                                        "description": "DALI status: See IQRF DALI standard for details."
-                                    },
-                                    "value": {
-                                        "type": "integer",
-                                        "description": "DALI value: See IQRF DALI standard for details."
+                            "type": "object",
+                            "properties": {
+                                "answers": {
+                                    "type": "array",
+                                    "description": "Returns array of objects for every DALI 2B command.",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "integer",
+                                                "description": "DALI status: See IQRF DALI standard for details."
+                                            },
+                                            "value": {
+                                                "type": "integer",
+                                                "description": "DALI value: See IQRF DALI standard for details."
+                                            }
+                                        },
+                                        "required": [
+                                            "status",
+                                            "value"
+                                        ]
                                     }
-                                },
-                                "required": [
-                                    "status",
-                                    "value"
-                                ]
-                            }
+                                }
+                            },
+                            "required": [
+                                "answers"
+                            ]
                         },
                         "errorStr": {
                             "type": "string",
@@ -90,7 +98,7 @@
                             },
                             "requestTs": {
                                 "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
                             },
                             "confirmation": {
                                 "type": "string",
@@ -98,7 +106,7 @@
                             },
                             "confirmationTs": {
                                 "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
                             },
                             "response": {
                                 "type": "string",
@@ -106,7 +114,7 @@
                             },
                             "responseTs": {
                                 "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
                             }
                         },
                         "required": [

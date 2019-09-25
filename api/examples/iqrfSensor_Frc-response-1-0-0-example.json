@@ -11,7 +11,7 @@
                 "sensors": [
                     null,
                     {
-                        "id":"TEMPERATURE",
+                        "id": "TEMPERATURE",
                         "type": 1,
                         "name": "Temperature",
                         "shortName": "T",
@@ -19,7 +19,7 @@
                         "unit": "°C"
                     },
                     {
-                        "id":"TEMPERATURE",
+                        "id": "TEMPERATURE",
                         "type": 1,
                         "name": "Temperature",
                         "shortName": "T",
@@ -27,7 +27,7 @@
                     },
                     null,
                     {
-                        "id":"TEMPERATURE",
+                        "id": "TEMPERATURE",
                         "type": 1,
                         "name": "Temperature",
                         "shortName": "T",
@@ -54,6 +54,68 @@
         },
         "insId": "iqrfgd2-1",
         "statusStr": "ok",
+        "status": 0
+    }
+}
+
+{
+    "mType": "iqrfSensor_Frc",
+    "data": {
+        "msgId": "testEmbedSensor",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 88,
+            "result": {
+                "sensors": [
+                    {
+                        "nadr": 3,
+                        "sensor": {
+                            "id": "BINARYDATA7",
+                            "type": 129,
+                            "name": "Binary data7",
+                            "shortName": "bin7",
+                            "value": 7,
+                            "unit": "?",
+                            "decimalPlaces": 0
+                        },
+                        "metaData": {}
+                    },
+                    {
+                        "nadr": 4,
+                        "sensor": null,
+                        "metaData": {}
+                    },
+                    {
+                        "nadr": 5,
+                        "sensor": {
+                            "id": "BINARYDATA7",
+                            "type": 129,
+                            "name": "Binary data7",
+                            "shortName": "bin7",
+                            "value": 7,
+                            "unit": "?",
+                            "decimalPlaces": 0
+                        },
+                        "metaData": {}
+                    },
+                    {
+                        "nadr": 6,
+                        "sensor": {
+                            "id": "BINARYDATA7",
+                            "type": 129,
+                            "name": "Binary data7",
+                            "shortName": "bin7",
+                            "value": 7,
+                            "unit": "?",
+                            "decimalPlaces": 0
+                        },
+                        "metaData": {}
+                    }
+                ]
+            }
+        },
         "status": 0
     }
 }
