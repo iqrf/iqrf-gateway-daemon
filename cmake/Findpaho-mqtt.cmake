@@ -9,7 +9,7 @@
 # To find and use catch
 find_path(paho-mqtt_INCLUDE_DIR MQTTAsync.h
   PATHS
-  c:/devel/vcpkg/installed/x64-windows/include
+  c:/devel/vcpkg/installed/x64-windows/include/paho-mqtt
   DOC "paho-mqtt - Headers"
 )
 
