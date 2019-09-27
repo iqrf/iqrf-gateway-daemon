@@ -1,0 +1,7 @@
+mType: iqrfBinaryoutput_Enumerate
+data:
+  msgId: testEmbedBout
+  req:
+    nAdr: 2
+    param: {}
+  returnVerbose: true

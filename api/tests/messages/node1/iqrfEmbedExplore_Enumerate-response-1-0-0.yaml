@@ -7,7 +7,7 @@ data:
     rCode: 0
     dpaVal: !anyint
     result:
-      dpaVer: 1025
+      dpaVer: !anyint
       perNr: 1
       embeddedPers:
       - 1
@@ -21,7 +21,7 @@ data:
       - 10
       hwpid: 2050
       hwpidVer: 1
-      flags: 5
+      flags: !anyint
       userPer:
       - 94
   raw:

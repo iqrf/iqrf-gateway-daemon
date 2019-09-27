@@ -1,0 +1,52 @@
+mType: iqrfBinaryoutput_SetOutput
+data:
+  msgId: testEmbedBout
+  rsp:
+    nAdr: 2
+    hwpId: 17410
+    rCode: 0
+    dpaVal: !anyint
+    result:
+      prevVals:
+      - true
+      - true
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+      - false
+  raw:
+  - request: 02.00.4b.00.ff.ff.00.00.00.00
+    requestTs: !anystr
+    confirmation: !anystr
+    confirmationTs: !anystr
+    response: !anystr
+    responseTs: !anystr
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0

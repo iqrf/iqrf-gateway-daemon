@@ -1,0 +1,58 @@
+# tests-node2_bo.tavern.yaml
+---
+
+test_name: Test mqtt message - std bo enum
+
+includes:
+  - !include common.yaml
+
+paho-mqtt: &mqtt_spec
+  client:
+    transport: tcp
+    client_id: tavern-tester
+  connect:
+    host: "{mqtt_host:s}"
+    port: !int "{mqtt_port:d}"
+    timeout: 5
+
+#node2 - std microrisc ddc-se+re
+stages:
+  - name: bo enum
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node2/iqrfBinaryoutput_Enumerate-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node2/iqrfBinaryoutput_Enumerate-response-1-0-0.yaml
+      timeout: 5
+
+---
+
+test_name: Test mqtt message - std bo set output
+paho-mqtt: *mqtt_spec
+
+#node1 - std microrisc ddc-se+re
+stages:
+  - name: bo so write
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node2/iqrfBinaryoutput_SetOutput1-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node2/iqrfBinaryoutput_SetOutput1-response-1-0-0.yaml
+      timeout: 5
+
+  - name: sensor so read
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node2/iqrfBinaryoutput_SetOutput2-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node2/iqrfBinaryoutput_SetOutput2-response-1-0-0.yaml
+      timeout: 5

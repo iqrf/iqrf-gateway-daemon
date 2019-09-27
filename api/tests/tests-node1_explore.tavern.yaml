@@ -1,4 +1,4 @@
-# tests_explore.tavern.yaml
+# tests-node1_explore.tavern.yaml
 ---
 
 test_name: Test mqtt message - embed explore enum
@@ -15,13 +15,15 @@ paho-mqtt: &mqtt_spec
     port: !int "{mqtt_port:d}"
     timeout: 5
 
+#node1 - std tr temp
 stages:
   - name: explore enum
+    max_retries: 1
     mqtt_publish:
       topic: Iqrf/DpaRequest
-      json: !include messages/iqrfEmbedExplore_Enumerate-request-1-0-0.yaml
+      json: !include messages/node1/iqrfEmbedExplore_Enumerate-request-1-0-0.yaml
 
     mqtt_response:
       topic: Iqrf/DpaResponse
-      json: !include messages/iqrfEmbedExplore_Enumerate-response-1-0-0.yaml
-      timeout: 3
+      json: !include messages/node1/iqrfEmbedExplore_Enumerate-response-1-0-0.yaml
+      timeout: 5

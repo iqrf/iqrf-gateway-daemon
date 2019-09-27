@@ -1,0 +1,7 @@
+mType: iqrfSensor_Enumerate
+data:
+  msgId: testEmbedSensor
+  req:
+    nAdr: 2
+    param: {}
+  returnVerbose: true
