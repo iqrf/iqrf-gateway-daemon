@@ -5,15 +5,15 @@
         "rsp": {
             "binOutsDevices": [
                 {
-                    "nadr": 3,
+                    "nAdr": 3,
                     "binOuts": 3
                 },
                 {
-                    "nadr": 5,
+                    "nAdr": 5,
                     "binOuts": 3
                 },
                 {
-                    "nadr": 6,
+                    "nAdr": 6,
                     "binOuts": 3
                 }
             ]

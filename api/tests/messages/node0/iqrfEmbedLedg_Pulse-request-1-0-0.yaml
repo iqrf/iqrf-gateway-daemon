@@ -1,0 +1,7 @@
+mType: iqrfEmbedLedg_Pulse
+data:
+  msgId: testEmbedLedg
+  req:
+    nAdr: 0
+    param: {}
+  returnVerbose: true

@@ -1,0 +1,165 @@
+{
+    "mType": "iqrfDali_Frc",
+    "data": {
+        "msgId": "testDali",
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 82,
+            "result": {
+                "answers": [
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 129,
+                        "value": 6
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 129,
+                        "value": 6
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 128,
+                        "value": 0
+                    },
+                    {
+                        "status": 131,
+                        "value": 0
+                    },
+                    {
+                        "status": 129,
+                        "value": 1
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    },
+                    {
+                        "status": 0,
+                        "value": 0
+                    }
+                ]
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.0d.00.ff.ff.e0.4a.ff.99.00",
+                "requestTs": "2019-09-11T13:02:47,425+00:00",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.0d.80.00.00.00.52.16.00.00.00.80.00.80.00.80.06.81.00.80.00.80.06.81.00.80.00.80.00.80.00.80.00.80.00.80.00.83.01.81.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2019-09-11T13:02:50,939+00:00"
+            },
+            {
+                "request": "00.00.0d.01.ff.ff",
+                "requestTs": "2019-09-11T13:02:50,939+00:00",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.0d.81.00.00.00.52.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2019-09-11T13:02:50,977+00:00"
+            }
+        ],
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

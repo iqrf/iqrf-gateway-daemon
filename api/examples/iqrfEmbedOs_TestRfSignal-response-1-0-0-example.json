@@ -1,0 +1,29 @@
+{
+    "mType": "iqrfEmbedOs_TestRfSignal",
+    "data": {
+        "msgId": "testEmbedOs",
+        "timeout": 1000,
+        "rsp": {
+            "nAdr": 0,
+            "hwpId": 0,
+            "rCode": 0,
+            "dpaVal": 0,
+            "result": {
+                "counter": 1
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.02.0c.ff.ff.19.07.14.00",
+                "requestTs": "2019-09-12T10:51:48.934+02:00",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.02.8c.00.00.00.00.01",
+                "responseTs": "2019-09-12T10:51:49.168+02:00"
+            }
+        ],
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

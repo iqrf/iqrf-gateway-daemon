@@ -1,0 +1,184 @@
+{
+    "mType": "iqmeshNetwork_EnumerateDevice",
+    "data": {
+        "msgId": "testIqmeshEnumerate",
+        "rsp": {
+            "deviceAddr": 0,
+            "manufacturer": "",
+            "product": "",
+            "standards": [
+                ""
+            ],
+            "discovery": {
+                "discovered": true,
+                "vrn": 0,
+                "zone": 0,
+                "parent": 0
+            },
+            "osRead": {
+                "mid": "81111E6D",
+                "osVersion": "4.03D",
+                "trMcuType": {
+                    "value": 180,
+                    "trType": "(DC)TR-76Dx",
+                    "fccCertified": false,
+                    "mcuType": "PIC16LF1938"
+                },
+                "osBuild": "08C8",
+                "rssi": "126 dBm",
+                "supplyVoltage": "3.39 V",
+                "flags": {
+                    "value": 4,
+                    "insufficientOsBuild": false,
+                    "interfaceType": "SPI",
+                    "dpaHandlerDetected": true,
+                    "dpaHandlerNotDetectedButEnabled": false,
+                    "noInterfaceSupported": false
+                },
+                "slotLimits": {
+                    "value": 117,
+                    "shortestTimeslot": "80 ms",
+                    "longestTimeslot": "100 ms"
+                }
+            },
+            "peripheralEnumeration": {
+                "dpaVer": "4.01",
+                "perNr": 1,
+                "embPers": [
+                    253,
+                    38,
+                    0,
+                    0
+                ],
+                "hwpId": 4671,
+                "hwpIdVer": 1,
+                "flags": {
+                    "value": 5,
+                    "rfModeStd": true,
+                    "rfModeLp": false,
+                    "stdAndLpNetwork": true
+                },
+                "userPers": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "trConfiguration": {
+                "embPers": {
+                    "values": [
+                        253,
+                        38,
+                        0,
+                        0
+                    ],
+                    "coordinator": true,
+                    "node": false,
+                    "os": true,
+                    "eeprom": true,
+                    "eeeprom": true,
+                    "ram": true,
+                    "ledr": true,
+                    "ledg": true,
+                    "spi": false,
+                    "io": true,
+                    "thermometer": true,
+                    "pwm": false,
+                    "uart": false,
+                    "frc": true
+                },
+                "customDpaHandler": true,
+                "dpaAutoexec": false,
+                "routingOff": false,
+                "ioSetup": false,
+                "peerToPeer": false,
+                "neverSleep": false,
+                "stdAndLpNetwork": true,
+                "rfChannelA": 60,
+                "rfChannelB": 2,
+                "txPower": 1,
+                "rxFilter": 15,
+                "lpRxTimeout": 6,
+                "rfAltDsmChannel": 0,
+                "uartBaudrate": 57600,
+                "rfPgmDualChannel": true,
+                "rfPgmLpMode": false,
+                "rfPgmIncorrectUpload": false,
+                "rfPgmEnableAfterReset": false,
+                "rfPgmTerminateAfter1Min": true,
+                "rfPgmTerminateMcuPin": true,
+                "rfBand": "868"
+            }
+        },
+        "raw": [
+            {
+                "request": "00.00.04.02.ff.ff.20.00.01",
+                "requestTs": "2019-08-17T00:13:25.782410",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.04.82.3f.12.00.80.ff",
+                "responseTs": "2019-08-17T00:13:25.824490"
+            },
+            {
+                "request": "00.00.04.02.ff.ff.00.50.01",
+                "requestTs": "2019-08-17T00:13:25.825223",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.04.82.3f.12.00.00.00",
+                "responseTs": "2019-08-17T00:13:25.881731"
+            },
+            {
+                "request": "00.00.04.02.ff.ff.00.52.01",
+                "requestTs": "2019-08-17T00:13:25.882412",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.04.82.3f.12.00.80.00",
+                "responseTs": "2019-08-17T00:13:25.938780"
+            },
+            {
+                "request": "00.00.04.02.ff.ff.00.53.01",
+                "requestTs": "2019-08-17T00:13:25.939404",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.04.82.3f.12.00.00.00",
+                "responseTs": "2019-08-17T00:13:25.995905"
+            },
+            {
+                "request": "00.00.02.00.ff.ff",
+                "requestTs": "2019-08-17T00:13:25.996772",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.02.80.3f.12.00.80.6d.1e.11.81.43.b4.c8.08.00.32.04.75.44.7f.9a.95.7f.5e.1b.36.f7.2a.c8.6f.ff.5d.63.7a",
+                "responseTs": "2019-08-17T00:13:26.52210"
+            },
+            {
+                "request": "00.00.ff.3f.ff.ff",
+                "requestTs": "2019-08-17T00:13:26.52973",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.ff.bf.3f.12.00.80.01.04.01.fd.26.00.00.3f.12.01.00.05.01",
+                "responseTs": "2019-08-17T00:13:26.92707"
+            },
+            {
+                "request": "00.00.02.02.ff.ff",
+                "requestTs": "2019-08-17T00:13:26.93998",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.02.82.3f.12.00.80.31.fd.26.00.00.81.00.00.01.0f.06.06.00.00.00.00.00.3c.02.00.00.00.00.00.00.00.00.00.00.00.04.00.c3.30",
+                "responseTs": "2019-08-17T00:13:26.140595"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok",
+        "insId": "iqrfgd2-default"
+    }
+}

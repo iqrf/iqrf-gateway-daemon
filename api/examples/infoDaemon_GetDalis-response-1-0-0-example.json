@@ -1,0 +1,28 @@
+{
+    "mType": "infoDaemon_GetDalis",
+    "data": {
+        "msgId": "test",
+        "rsp": {
+            "daliDevices": [
+                {
+                    "nAdr": 1
+                },
+                {
+                    "nAdr": 3
+                },
+                {
+                    "nAdr": 4
+                },
+                {
+                    "nAdr": 5
+                },
+                {
+                    "nAdr": 6
+                }
+            ]
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

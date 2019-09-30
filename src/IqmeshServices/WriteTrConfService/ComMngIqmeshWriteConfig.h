@@ -180,6 +180,14 @@ namespace iqrf {
       return m_nodeDpaInterface;
     }
 
+    bool isSetDpaPeerToPeer() {
+      return m_isSetDpaPeerToPeer;
+    }
+
+    const bool getDpaPeerToPeer() {
+      return m_dpaPeerToPeer;
+    }
+
     bool isSetDpaAutoexec() {
       return m_isSetDpaAutoexec;
     }
@@ -404,6 +412,7 @@ namespace iqrf {
     bool m_isSetRfPgmIncorrectUpload = false;
     bool m_isSetCustomDpaHandler = false;
     bool m_isSetNodeDpaInterface = false;
+    bool m_isSetDpaPeerToPeer = false;
     bool m_isSetDpaAutoexec = false;
     bool m_isSetRoutingOff = false;
     bool m_isSetIoSetup = false;
@@ -437,6 +446,7 @@ namespace iqrf {
     bool m_rfPgmIncorrectUpload;
     bool m_customDpaHandler;
     bool m_nodeDpaInterface;
+    bool m_dpaPeerToPeer;
     bool m_dpaAutoexec;
     bool m_routingOff;
     bool m_ioSetup;
@@ -626,6 +636,11 @@ namespace iqrf {
       if (rapidjson::Value* nodeDpaInterfaceJsonVal = rapidjson::Pointer("/data/req/nodeDpaInterface").Get(doc)) {
         m_nodeDpaInterface = nodeDpaInterfaceJsonVal->GetBool();
         m_isSetNodeDpaInterface = true;
+      }
+
+      if (rapidjson::Value* dpaPeerToPeerJsonVal = rapidjson::Pointer("/data/req/dpaPeerToPeer").Get(doc)) {
+        m_dpaPeerToPeer = dpaPeerToPeerJsonVal->GetBool();
+        m_isSetDpaPeerToPeer = true;
       }
 
       if (rapidjson::Value* dpaAutoexecJsonVal = rapidjson::Pointer("/data/req/dpaAutoexec").Get(doc)) {

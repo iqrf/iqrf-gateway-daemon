@@ -1,0 +1,58 @@
+# tests-node2_sensor.tavern.yaml
+---
+
+test_name: Test mqtt message - std sensor enum
+
+includes:
+  - !include common.yaml
+
+paho-mqtt: &mqtt_spec
+  client:
+    transport: tcp
+    client_id: tavern-tester
+  connect:
+    host: "{mqtt_host:s}"
+    port: !int "{mqtt_port:d}"
+    timeout: 5
+
+#node2 - std microrisc ddc-se+re
+stages:
+  - name: sensor enum
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node2/iqrfSensor_Enumerate-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node2/iqrfSensor_Enumerate-response-1-0-0.yaml
+      timeout: 5
+
+---
+
+test_name: Test mqtt message - std sensor rswt
+paho-mqtt: *mqtt_spec
+
+#node1 - std microrisc ddc-se+re
+stages:
+  - name: sensor rswt int
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node2/iqrfSensor_ReadSensorsWithTypes1-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node2/iqrfSensor_ReadSensorsWithTypes1-response-1-0-0.yaml
+      timeout: 5
+
+  - name: sensor rswt array
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node2/iqrfSensor_ReadSensorsWithTypes2-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node2/iqrfSensor_ReadSensorsWithTypes2-response-1-0-0.yaml
+      timeout: 5

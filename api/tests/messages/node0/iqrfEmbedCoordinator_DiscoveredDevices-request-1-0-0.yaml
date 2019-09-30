@@ -1,0 +1,7 @@
+mType: iqrfEmbedCoordinator_DiscoveredDevices
+data:
+  msgId: testEmbedCoordinator
+  req:
+    nAdr: 0
+    param: {}
+  returnVerbose: true

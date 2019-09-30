@@ -99,8 +99,11 @@
                                     "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
                                 },
                                 "embeddedPers": {
-                                    "type": "integer",
-                                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the TR Configuration."
+                                    "type": "array",
+                                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the TR Configuration.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
                                 },
                                 "hwpid": {
                                     "type": "integer",
@@ -118,8 +121,7 @@
                                     "type": "array",
                                     "description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
                                     "items": {
-                                        "type": "integer",
-                                        "maxItems": 12
+                                        "type": "integer"
                                     }
                                 }
                             }

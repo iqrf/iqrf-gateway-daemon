@@ -1,0 +1,57 @@
+mType: iqrfSensor_ReadSensorsWithTypes
+data:
+  msgId: testEmbedSensor
+  rsp:
+    nAdr: 2
+    hwpId: 17410
+    rCode: 0
+    dpaVal: !anyint
+    result:
+      sensors:
+      - id: TEMPERATURE
+        type: 1
+        name: Temperature
+        shortName: T
+        value: !anything
+        unit: !anystr
+        decimalPlaces: 4
+      - id: BINARYDATA7
+        type: 129
+        name: Binary data7
+        shortName: bin7
+        value: !anyint
+        unit: '?'
+        decimalPlaces: 0
+        breakdown:
+        - id: BINARYDATA7
+          type: 129
+          name: Light indicator
+          shortName: light
+          unit: '%'
+          decimalPlaces: 1
+          value: !anything
+      - id: BINARYDATA7
+        type: 129
+        name: Binary data7
+        shortName: bin7
+        value: !anyint
+        unit: '?'
+        decimalPlaces: 0
+        breakdown:
+        - id: BINARYDATA7
+          type: 129
+          name: Potentiometer
+          shortName: pot
+          unit: '%'
+          decimalPlaces: 1
+          value: !anything
+  raw:
+  - request: 02.00.5e.01.ff.ff.ff.ff.ff.ff
+    requestTs: !anystr
+    confirmation: !anystr
+    confirmationTs: !anystr
+    response: !anystr
+    responseTs: !anystr
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0
