@@ -1,0 +1,20 @@
+mType: iqrfLight_Enumerate
+data:
+  msgId: testEmbedLight
+  rsp:
+    nAdr: 3
+    hwpId: 4098
+    rCode: 0
+    dpaVal: !anyint
+    result:
+      lights: 2
+  raw:
+  - request: 03.00.71.3e.ff.ff
+    requestTs: !anystr
+    confirmation: !anystr
+    confirmationTs: !anystr
+    response: !anystr
+    responseTs: !anystr
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0
