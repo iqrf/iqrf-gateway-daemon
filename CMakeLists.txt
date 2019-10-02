@@ -42,7 +42,7 @@ add_definitions(
   -D_CRT_SECURE_NO_WARNINGS
 )
 
-set(DEFAULT_DAEMON_VERSION v2.1.0dev)
+set(DEFAULT_DAEMON_VERSION v2.2.0-beta)
 string(TIMESTAMP DEFAULT_BUILD_TIMESTAMP)
 
 if(DEFINED DAEMON_VERSION)
@@ -92,6 +92,7 @@ add_subdirectory(src/IqrfDpa)
 add_subdirectory(src/LegacyApiSupport)
 add_subdirectory(src/MqMessaging)
 add_subdirectory(src/MqttMessaging)
+add_subdirectory(src/IbmMessaging)
 add_subdirectory(src/WebsocketMessaging)
 add_subdirectory(src/UdpMessaging)
 add_subdirectory(src/IdeCounterpart)
@@ -118,13 +119,12 @@ add_subdirectory(src/IqmeshServices/OtaUploadService)
 add_subdirectory(src/IqmeshServices/ReadTrConfService)
 add_subdirectory(src/IqmeshServices/WriteTrConfService)
 add_subdirectory(src/IqmeshServices/EnumerateDeviceService)
-add_subdirectory(src/NativeUpload)
 add_subdirectory(src/IqmeshServices/AutonetworkService)
 add_subdirectory(src/IqmeshServices/RemoveBondService)
+add_subdirectory(src/NativeUpload)
 
 if(${BUILD_TESTING})
   add_subdirectory(src/tests)
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/VersionInfo.h.in ${CMAKE_BINARY_DIR}/VersionInfo.h @ONLY)
-

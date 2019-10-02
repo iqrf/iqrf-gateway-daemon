@@ -1,0 +1,8 @@
+{
+  "component": "iqrf::IbmMessaging",
+  "instance": "IbmMessaging",
+  "ClientId": "IqrfIbmMessaging",
+  "TopicRequest": "Iqrf/DpaRequest",
+  "TopicResponse": "Iqrf/DpaResponse",
+  "acceptAsyncMsg": true
+}
