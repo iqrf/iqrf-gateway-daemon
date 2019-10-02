@@ -1,0 +1,22 @@
+mType: iqrfLight_IncrementPower
+data:
+  msgId: testEmbedLight
+  rsp:
+    nAdr: 3
+    hwpId: 4098
+    rCode: 0
+    dpaVal: !anyint
+    result:
+      prevVals:
+      - 90
+      - 90
+  raw:
+  - request: 03.00.71.01.ff.ff.03.00.00.00.0a.0a
+    requestTs: !anystr
+    confirmation: !anystr
+    confirmationTs: !anystr
+    response: !anystr
+    responseTs: !anystr
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0

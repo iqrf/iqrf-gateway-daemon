@@ -8,6 +8,7 @@ failure |= run('tests-node1_explore.tavern.yaml', pytest_args=["-x"])
 failure |= run('tests-node1_sensor.tavern.yaml', pytest_args=["-x"])
 failure |= run('tests-node2_bo.tavern.yaml', pytest_args=["-x"])
 failure |= run('tests-node2_sensor.tavern.yaml', pytest_args=["-x"])
+failure |= run('tests-node3_light.tavern.yaml', pytest_args=["-x"])
 
 if failure:
     print("Error running tests.")
