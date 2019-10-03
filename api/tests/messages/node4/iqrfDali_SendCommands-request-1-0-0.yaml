@@ -1,0 +1,9 @@
+mType: iqrfDali_SendCommands
+data:
+  msgId: testDali
+  req:
+    nAdr: 4
+    param:
+      commands:
+      - 65424
+  returnVerbose: true
