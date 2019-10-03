@@ -12,6 +12,7 @@
 #include "InfoBinaryOutput.h"
 #include "InfoDali.h"
 #include "InfoLight.h"
+#include "InfoNode.h"
 #include "HexStringCoversion.h"
 
 #include "Trace.h"
@@ -193,38 +194,18 @@ namespace iqrf {
     class FastEnumeration
     {
     public:
-      class Enumerated
+      class Enumerated : public embed::node::info::BriefInfo 
       {
       public:
         Enumerated() = delete;
-        Enumerated(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer, NodeDataPtr nodeDataPtr)
-          :m_nadr(nadr)
-          , m_mid(mid)
-          , m_hwpid(hwpid)
-          , m_hwpidVer(hwpidVer)
-          , m_osBuild(osBuild)
-          , m_osVer(osVer)
-          , m_dpaVer(dpaVer)
+        Enumerated(unsigned mid, int hwpid, int hwpidVer, int osBuild, int dpaVer, NodeDataPtr nodeDataPtr)
+          :embed::node::info::BriefInfo(mid, hwpid, hwpidVer, osBuild, dpaVer)
           , m_nodeDataPtr(std::move(nodeDataPtr))
         {}
-        unsigned getMid() const { return m_mid; }
-        int getNadr() const { return m_nadr; }
-        int getHwpid() const { return m_hwpid; }
-        int getHwpidVer() const { return m_hwpidVer; }
-        int getOsBuild() const { return m_osBuild; }
-        int getOsVer() const { return m_osVer; }
-        int getDpaVer() const { return m_dpaVer; }
         NodeDataPtr getNodeData() { return std::move(m_nodeDataPtr); }
         virtual ~Enumerated() {}
 
       private:
-        int m_nadr;
-        unsigned m_mid;
-        int m_hwpid;
-        int m_hwpidVer;
-        int m_osBuild;
-        int m_osVer;
-        int m_dpaVer;
         NodeDataPtr m_nodeDataPtr;
       };
       typedef std::unique_ptr<Enumerated> EnumeratedPtr;
@@ -244,9 +225,9 @@ namespace iqrf {
           }
         }
       }
-      void addItem(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer, NodeDataPtr nodeDataPtr)
+      void addItem(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int dpaVer, NodeDataPtr nodeDataPtr)
       {
-        m_enumeratedMap.insert(std::make_pair(nadr, EnumeratedPtr(shape_new Enumerated(nadr, mid, hwpid, hwpidVer, osBuild, osVer, dpaVer, std::move(nodeDataPtr)))));
+        m_enumeratedMap.insert(std::make_pair(nadr, EnumeratedPtr(shape_new Enumerated(mid, hwpid, hwpidVer, osBuild, dpaVer, std::move(nodeDataPtr)))));
       }
       virtual ~FastEnumeration() {}
     private:
@@ -385,10 +366,9 @@ namespace iqrf {
           int p3 = nd->getHwpid();
           int p4 = nd->getEmbedExploreEnumerate()->getHwpidVer();
           int p5 = nd->getEmbedOsRead()->getOsBuild();
-          int p6 = nd->getEmbedOsRead()->getOsVersion();
-          int p7 = nd->getEmbedExploreEnumerate()->getDpaVer();
+          int p6 = nd->getEmbedExploreEnumerate()->getDpaVer();
 
-          retval->addItem(p1, p2, p3, p4, p5, p6, p7, std::move(nd));
+          retval->addItem(p1, p2, p3, p4, p5, p6, std::move(nd));
 
         }
         catch (std::logic_error &e) {
@@ -1448,6 +1428,39 @@ namespace iqrf {
       return retval;
     }
 
+    std::map<int, embed::node::BriefInfoPtr> getNodes() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::map<int, embed::node::BriefInfoPtr> retval;
+      database & db = *m_db;
+
+      //TODO
+      db <<
+        "select "
+        "b.Nadr "
+        ", b.Mid "
+        ", d.Hwpid "
+        ", d.HwpidVer "
+        ", d.OsBuild "
+        ", d.DpaVer "
+        "from "
+        "Bonded as b "
+        ", Device as d "
+        "where "
+        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) "
+        ";"
+        >> [&](int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int dpaVer)
+      {
+        retval.insert(std::make_pair(nadr, embed::node::BriefInfoPtr(
+          shape_new embed::node::info::BriefInfo(mid, hwpid, hwpidVer, osBuild, dpaVer)
+        )));
+      };
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
     void startEnumeration()
     {
       TRC_FUNCTION_ENTER("");
@@ -1611,6 +1624,11 @@ namespace iqrf {
   std::map<int, light::EnumeratePtr> IqrfInfo::getLights() const
   {
     return m_imp->getLights();
+  }
+
+  std::map<int, embed::node::BriefInfoPtr> IqrfInfo::getNodes() const
+  {
+    return m_imp->getNodes();
   }
 
   void IqrfInfo::startEnumeration()

@@ -19,6 +19,7 @@ namespace iqrf {
     std::map<int, binaryoutput::EnumeratePtr> getBinaryOutputs() const override;
     std::map<int, dali::EnumeratePtr> getDalis() const override;
     std::map<int, light::EnumeratePtr> getLights() const override;
+    std::map<int, embed::node::BriefInfoPtr> getNodes() const override;
     void startEnumeration() override;
 
     void activate(const shape::Properties *props = 0);

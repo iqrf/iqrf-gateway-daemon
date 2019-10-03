@@ -31,6 +31,7 @@ namespace iqrf {
     const std::string mType_GetBinaryOutputs = "infoDaemon_GetBinaryOutputs";
     const std::string mType_GetDalis = "infoDaemon_GetDalis";
     const std::string mType_GetLights = "infoDaemon_GetLights";
+    const std::string mType_GetNodes = "infoDaemon_GetNodes";
     const std::string mType_StartEnumeration = "infoDaemon_StartEnumeration";
 
     /////////// message classes declarations
@@ -277,6 +278,57 @@ namespace iqrf {
     };
 
     //////////////////////////////////////////////
+    class InfoDaemonMsgGetNodes : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgGetNodes() = delete;
+      InfoDaemonMsgGetNodes(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+      }
+
+      virtual ~InfoDaemonMsgGetNodes()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        Document::AllocatorType & a = doc.GetAllocator();
+
+        Value devicesVal;
+        devicesVal.SetArray();
+
+        for (auto & enm : m_enmMap) {
+          Value devVal;
+
+          Pointer("/nAdr").Set(devVal, enm.first, a);
+          Pointer("/hwpid").Set(devVal, enm.second->getHwpid(), a);
+          Pointer("/hwpidVer").Set(devVal, enm.second->getHwpidVer(), a);
+          Pointer("/osBuild").Set(devVal, enm.second->getOsBuild(), a);
+          Pointer("/dpaVer").Set(devVal, enm.second->getDpaVer(), a);
+
+          devicesVal.PushBack(devVal, a);
+        }
+
+        Pointer("/data/rsp/nodes").Set(doc, devicesVal, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        m_enmMap = imp->getNodes();
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      std::map<int, embed::node::BriefInfoPtr> m_enmMap;
+    };
+
+    //////////////////////////////////////////////
     class InfoDaemonMsgStartEnumeration : public InfoDaemonMsg
     {
     public:
@@ -326,6 +378,7 @@ namespace iqrf {
       m_objectFactory.registerClass<InfoDaemonMsgGetBinaryOutputs>(mType_GetBinaryOutputs);
       m_objectFactory.registerClass<InfoDaemonMsgGetDalis>(mType_GetDalis);
       m_objectFactory.registerClass<InfoDaemonMsgGetLights>(mType_GetLights);
+      m_objectFactory.registerClass <InfoDaemonMsgGetNodes>(mType_GetNodes);
       m_objectFactory.registerClass<InfoDaemonMsgStartEnumeration>(mType_StartEnumeration);
     }
 
@@ -386,6 +439,11 @@ namespace iqrf {
     std::map<int, light::EnumeratePtr> getLights() const
     {
       return m_iIqrfInfo->getLights();
+    }
+
+    std::map<int, embed::node::BriefInfoPtr> getNodes() const
+    {
+      return m_iIqrfInfo->getNodes();
     }
 
     void startEnumeration()
