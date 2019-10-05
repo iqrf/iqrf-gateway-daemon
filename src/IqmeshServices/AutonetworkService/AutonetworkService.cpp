@@ -126,7 +126,6 @@ namespace iqrf {
     std::vector<NewNode> m_newNodes;
     bool m_lastWave = false;
 
-
     // transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
@@ -173,7 +172,6 @@ namespace iqrf {
     void clearNewNodes() {
       m_newNodes.clear();
     }
-
     
     void setLastWave(bool lastWave) {
       m_lastWave = lastWave;
@@ -199,17 +197,92 @@ namespace iqrf {
       m_transResults.pop_front();
       return std::move( tranResult );
     }
-
   };
 
-  // implementation class
-  class AutonetworkService::Imp {
+  // Implementation class
+  class AutonetworkService::Imp 
+  {
   private:
-    // parent object
+
+    // Node authorization error definition
+    enum class TAuthorizeErr
+    {
+      eNo,
+      eMIDFiltering,
+      eHWPIDFiltering,
+      eFRC,
+      eAddress,
+      eNetworkNum,
+      eNodeBonded
+    };
+
+    // MID union
+    typedef union
+    {
+      uint8_t bytes[sizeof( uint32_t )];
+      uint32_t value;
+    }TMID;
+
+    // Prebonded node
+    typedef struct
+    {
+      uint8_t node;
+      TMID mid;
+      uint32_t userData;
+      uint8_t addrBond;
+      uint16_t HWPID;
+      uint16_t HWPIDVer;
+      bool authorize;
+      TAuthorizeErr authorizeErr;
+    }TPrebondedNode;
+
+    // Autonetwork input paramaters
+    typedef struct
+    {
+      uint8_t actionRetries;
+      uint8_t discoveryTxPower;
+      bool discoveryBeforeStart;
+      uint8_t maxNodes;
+      uint8_t maxWaves;
+      uint8_t maxEmptyWaves;
+      bool filteringHWPID;
+      bool filteringMID;
+    }TAutonetworkInputParams;
+
+    // Autonetwork process paramaters
+    typedef struct
+    {
+      // Bonded nodes map
+      std::bitset<MAX_ADDRESS + 1> bondedNodes;
+      uint8_t initialBondedNodesNr, bondedNodesNr;
+      // Discovered nodes map
+      std::bitset<MAX_ADDRESS + 1> discoveredNodes;
+      uint8_t discoveredNodesNr;
+      // Nodes, which successfully responded to FRC check -> for to be available in the error response
+      std::vector<AutonetworkResult::NewNode> respondedNewNodes;
+      // Duplicit MIDs map
+      std::map<uint8_t, uint32_t> duplicidMID;
+      // Prebonded nodes map
+      std::map<uint8_t, TPrebondedNode> prebondedNodes;
+
+      // FRC param value
+      uint8_t FrcResponseTime;
+      // DPA param value
+      uint8_t DpaParam;
+      // TX and RX hops
+      uint8_t RequestHops, ResponseHops;
+    }TAutonetworkProcessParams;
+
+    // Parent object
     AutonetworkService & m_parent;
 
-    // message type: autonetwork
-    // for temporal reasons
+    // Service input parameters
+    TAutonetworkInputParams antwInputParams;
+
+    // Service process parameters
+    TAutonetworkProcessParams antwProcessParams;
+
+    // Message type
     const std::string m_mTypeName_Autonetwork = "iqmeshNetwork_AutoNetwork";
 
     iqrf::IJsCacheService* m_iJsCacheService = nullptr;
@@ -219,7 +292,6 @@ namespace iqrf {
 
     uint8_t MAX_WAVES = MAX_ADDRESS;
     uint8_t MAX_EMPTY_WAVES = MAX_ADDRESS;
-    uint8_t m_actionRetries = 0;
 
   public:
     Imp( AutonetworkService& parent ) : m_parent( parent )
@@ -250,7 +322,6 @@ namespace iqrf {
           bitComp <<= 1;
         }
       }
-
       return nodesMap;
     }
 
@@ -270,7 +341,7 @@ namespace iqrf {
         perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         perEnumRequest.DataToBuffer( perEnumPacket.Buffer, sizeof( TDpaIFaceHeader ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( perEnumRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( perEnumRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Device Exploration transaction as string:" << PAR( transResult->getErrorString() ) );
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "Device exploration successful!" );
@@ -300,8 +371,8 @@ namespace iqrf {
       }
     }
 
-    // Set FRC Param
-    void setFrcParam( AutonetworkResult& autonetworkResult )
+    // Set FRC response time
+    uint8_t setFrcReponseTime( AutonetworkResult& autonetworkResult, uint8_t FRCresponseTime )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -314,11 +385,12 @@ namespace iqrf {
         setFrcParamPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
         setFrcParamPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SET_PARAMS;
         setFrcParamPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        setFrcParamPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime = 0;
+        setFrcParamPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime = FRCresponseTime;
         setFrcParamRequest.DataToBuffer( setFrcParamPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerFrcSetParams_RequestResponse ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( setFrcParamRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( setFrcParamRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Set Hops transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "Set Hops successful!" );
         TRC_DEBUG(
           "DPA transaction: "
@@ -328,6 +400,7 @@ namespace iqrf {
         );
         autonetworkResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime;
       }
       catch ( std::exception& e )
       {
@@ -339,7 +412,7 @@ namespace iqrf {
     }
 
     // Sets no LED indication and optimal timeslot
-    void setNoLedAndOptimalTimeslot( AutonetworkResult& autonetworkResult )
+    uint8_t setNoLedAndOptimalTimeslot( AutonetworkResult& autonetworkResult, uint8_t DpaParam )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -352,11 +425,12 @@ namespace iqrf {
         setDpaParamsPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
         setDpaParamsPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_SET_DPAPARAMS;
         setDpaParamsPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        setDpaParamsPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetDpaParams_Request_Response.DpaParam = 0x00;
+        setDpaParamsPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetDpaParams_Request_Response.DpaParam = DpaParam;
         setDpaParamsRequest.DataToBuffer( setDpaParamsPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerCoordinatorSetDpaParams_Request_Response ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( setDpaParamsRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( setDpaParamsRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Set DPA params transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "Set DPA params successful!" );
         TRC_DEBUG(
           "DPA transaction: "
@@ -366,6 +440,7 @@ namespace iqrf {
         );
         autonetworkResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorSetDpaParams_Request_Response.DpaParam;
       }
       catch ( std::exception& e )
       {
@@ -377,7 +452,7 @@ namespace iqrf {
     }
 
     // Sets DPA hops to the number of routers
-    void setDpaHopsToTheNumberOfRouters( AutonetworkResult& autonetworkResult )
+    TPerCoordinatorSetHops_Request_Response setDpaHopsToTheNumberOfRouters( AutonetworkResult& autonetworkResult, uint8_t RequestHops, uint8_t ResponseHops )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -390,12 +465,13 @@ namespace iqrf {
         setHopsPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
         setHopsPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_SET_HOPS;
         setHopsPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        setHopsPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetHops_Request_Response.RequestHops = 0xff;
-        setHopsPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetHops_Request_Response.ResponseHops = 0xff;
+        setHopsPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetHops_Request_Response.RequestHops = RequestHops;
+        setHopsPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetHops_Request_Response.ResponseHops = ResponseHops;
         setHopsRequest.DataToBuffer( setHopsPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerCoordinatorSetHops_Request_Response ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( setHopsRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( setHopsRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Set Hops transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "Set Hops successful!" );
         TRC_DEBUG(
           "DPA transaction: "
@@ -404,7 +480,8 @@ namespace iqrf {
           << NAME_PAR( Command, (int)setHopsRequest.PeripheralCommand() )
         );
         autonetworkResult.addTransactionResult( transResult );
-        TRC_FUNCTION_LEAVE( "" );
+        TRC_FUNCTION_LEAVE( "" );        
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorSetHops_Request_Response;
       }
       catch ( std::exception& e )
       {
@@ -431,7 +508,7 @@ namespace iqrf {
         addrInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         addrInfoRequest.DataToBuffer( addrInfoPacket.Buffer, sizeof( TDpaIFaceHeader ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( addrInfoRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( addrInfoRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Get addressing information transaction as string:" << PAR( transResult->getErrorString() ) );
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "Get addressing information successful!" );
@@ -470,7 +547,7 @@ namespace iqrf {
         getBondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         getBondedNodesRequest.DataToBuffer( getBondedNodesPacket.Buffer, sizeof( TDpaIFaceHeader ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( getBondedNodesRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( getBondedNodesRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from get bonded nodes transaction as string:" << PAR( transResult->getErrorString() ) );
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "Get bonded nodes successful!" );
@@ -511,7 +588,7 @@ namespace iqrf {
         getDiscoveredNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         getDiscoveredNodesRequest.DataToBuffer( getDiscoveredNodesPacket.Buffer, sizeof( TDpaIFaceHeader ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( getDiscoveredNodesRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( getDiscoveredNodesRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Get discovered nodes transaction as string:" << PAR( transResult->getErrorString() ) );
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "Get discovered nodes successful!" );
@@ -537,30 +614,27 @@ namespace iqrf {
     }
 
     // Update node info
-    void updateNodesInfo( AutonetworkResult& autonetworkResult, uint8_t& bondedNodesNr, std::bitset<MAX_ADDRESS + 1>& bondedNodes, uint8_t& discoveredNodesNr, std::bitset<MAX_ADDRESS + 1>& discoveredNodes )
+    void updateNodesInfo( AutonetworkResult& autonetworkResult )
     {
+      // Get addressing info
       TPerCoordinatorAddrInfo_Response addressingInfo = getAddressingInfo( autonetworkResult );
-
-      bondedNodesNr = addressingInfo.DevNr;
-      bondedNodes = getBondedNodes( autonetworkResult );
-
-      discoveredNodes = getDiscoveredNodes( autonetworkResult );
-      discoveredNodesNr = discoveredNodes.count();
+      // Bonded nodes
+      antwProcessParams.bondedNodesNr = addressingInfo.DevNr;
+      antwProcessParams.bondedNodes = getBondedNodes( autonetworkResult );
+      // Discovered nodes
+      antwProcessParams.discoveredNodes = getDiscoveredNodes( autonetworkResult );
+      antwProcessParams.discoveredNodesNr = (uint8_t)antwProcessParams.discoveredNodes.count();
     }
 
     // Returns comma-separated list of nodes, whose bits are set to 1 in the bitmap
     std::string toNodesListStr( const std::bitset<MAX_ADDRESS + 1>& nodes )
     {
       std::string nodesListStr;
-
-      for ( uint8_t nodeAddr = 1; nodeAddr <= MAX_ADDRESS; nodeAddr++ ) {
-        if ( nodes[nodeAddr] ) {
-          if ( !nodesListStr.empty() ) {
-            nodesListStr += ", ";
-          }
-
-          nodesListStr += nodeAddr;
-        }
+      for ( uint8_t nodeAddr = 1; nodeAddr <= MAX_ADDRESS; nodeAddr++ )
+      {
+        if ( nodes[nodeAddr] && nodesListStr.empty() == false )
+          nodesListStr += ", ";
+        nodesListStr += nodeAddr;
       }
 
       return nodesListStr;
@@ -586,7 +660,7 @@ namespace iqrf {
     }
 
     // SmartConnect
-    void smartConnect( AutonetworkResult& autonetworkResult )
+    TPerCoordinatorBondNodeSmartConnect_Response smartConnect( AutonetworkResult& autonetworkResult )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -610,8 +684,8 @@ namespace iqrf {
         // Set res0 to zero
         smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved0[0x00] = 0x00;
         smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved0[0x01] = 0x00;
-        // Virtual Device Address - must be 0 like all other parameters see https://www.iqrf.org/DpaTechGuide/#3.2.19%20Smart%20Connect
-        smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.VirtualDeviceAddress = 0x00;
+        // Virtual Device Address - must equal 0xFF if not used.
+        smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.VirtualDeviceAddress = 0xff;
         // Fill res1 with zeros
         std::fill_n( smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved1, 9, 0 );
         // User data - zeroes
@@ -619,17 +693,19 @@ namespace iqrf {
         // Data to buffer
         smartConnectRequest.DataToBuffer( smartConnectPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerCoordinatorSmartConnect_Request ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( smartConnectRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( smartConnectRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Smart Connect transaction as string:" << PAR( transResult->getErrorString() ) );
-        TRC_INFORMATION( "Smart Connect ok!" );
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION( "Smart Connect successful!" );
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR( Peripheral type, smartConnectRequest.PeripheralType() )
           << NAME_PAR( Node address, smartConnectRequest.NodeAddress() )
-          << NAME_PAR( Command, (int)smartConnectRequest.PeripheralCommand() )
+          << NAME_PAR( Command, smartConnectRequest.PeripheralCommand() )
         );
         autonetworkResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorBondNodeSmartConnect_Response;
       }
       catch ( std::exception& e )
       {
@@ -640,31 +716,21 @@ namespace iqrf {
       }
     }
 
-    std::vector<uint8_t> toPrebondedAliveNodes(const std::basic_string<uns8>& frcData)
+    // Get list of nodes responded (sets bit0 in FrcData) to the FRC
+    std::vector<uint8_t> getActiveNodes( const std::basic_string<uint8_t>& frcData )
     {
-      std::vector<uint8_t> aliveNodes;
+      std::vector<uint8_t> activeNodes;
 
-      uint16_t nodeId = 0;
+      activeNodes.clear();
+      for ( uint8_t nodeAddr = 1; nodeAddr <= MAX_ADDRESS; nodeAddr++ )
+        if ( frcData[nodeAddr / 8] & (uint8_t)( 1 << ( nodeAddr % 8 ) ) )
+          activeNodes.push_back( nodeAddr );
 
-      for (int byteId = 0; byteId <= 29; byteId++) {
-        int bitComp = 1;
-        for (int bitId = 0; bitId < 8; bitId++) {
-          uint8_t bit0 = ((frcData[byteId] & bitComp) == bitComp) ? 1 : 0;
-
-          if (bit0 == 1) {
-            aliveNodes.push_back(nodeId);
-          }
-
-          nodeId++;
-          bitComp *= 2;
-        }
-      }
-
-      return aliveNodes;
+      return activeNodes;
     }
 
     // Returns prebonded nodes, which are alive
-    std::vector<uint8_t> getPrebondedAliveNodes( AutonetworkResult& autonetworkResult, const uint8_t nodeSeed )
+    TPerFrcSend_Response getPrebondedAliveNodes( AutonetworkResult& autonetworkResult, const uint8_t nodeSeed )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -685,9 +751,9 @@ namespace iqrf {
         prebondedAlivePacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x01] = 0;
         prebondedAliveRequest.DataToBuffer( prebondedAlivePacket.Buffer, sizeof( TDpaIFaceHeader ) + 3 );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( prebondedAliveRequest, transResult, m_actionRetries );
-        DpaMessage dpaResponse = transResult->getResponse();
+        m_exclusiveAccess->executeDpaTransactionRepeat( prebondedAliveRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from FRC Prebonded Alive transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "FRC Prebonded Alive successful!" );
         TRC_DEBUG(
           "DPA transaction: "
@@ -695,46 +761,22 @@ namespace iqrf {
           << NAME_PAR( Node address, prebondedAliveRequest.NodeAddress() )
           << NAME_PAR( Command, (int)prebondedAliveRequest.PeripheralCommand() )
         );
-        // Data from FRC
-        std::basic_string<uns8> frcData;
-        // Check status
-        uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if ( ( status >= 0x00 ) && ( status <= 0xEF ) )
+        autonetworkResult.addTransactionResult( transResult );
+        // Check FRC status
+        uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if ( status <= 0xEF )
         {
-          TRC_INFORMATION( "FRC Prebonded Alive status ok." << NAME_PAR_HEX( "Status", status ) );
-          frcData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, DPA_MAX_DATA_LENGTH - sizeof( uns8 ) );
-          TRC_DEBUG( "Size of FRC data: " << PAR( frcData.size() ) );
-          autonetworkResult.addTransactionResult( transResult );
+          TRC_INFORMATION( "FRC Prebonded Alive status OK." << NAME_PAR_HEX( "Status", status ) );
+          TRC_FUNCTION_LEAVE( "" );
+          return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
         }
         else
         {
-          TRC_WARNING( "FRC Prebonded Alive NOT ok." << NAME_PAR_HEX( "Status", status ) );
+          TRC_WARNING( "FRC Prebonded Alive NOK!" << NAME_PAR_HEX( "Status", status ) );
           AutonetworkError error( AutonetworkError::Type::PrebondedAlive, "Bad FRC status." );
           autonetworkResult.setError( error );
           THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( status ) );
-        }
-        // Get extra results
-        DpaMessage extraResultRequest;
-        DpaMessage::DpaPacket_t extraResultPacket;
-        extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-        extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
-        extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-        extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        extraResultRequest.DataToBuffer( extraResultPacket.Buffer, sizeof( TDpaIFaceHeader ) );
-        // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( extraResultRequest, transResult, m_actionRetries );
-        TRC_DEBUG( "Result from FRC write config extra result transaction as string:" << PAR( transResult->getErrorString() ) );
-        TRC_INFORMATION( "FRC write config extra result successful!" );
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR( Peripheral type, extraResultRequest.PeripheralType() )
-          << NAME_PAR( Node address, extraResultRequest.NodeAddress() )
-          << NAME_PAR( Command, (int)extraResultRequest.PeripheralCommand() )
-        );
-        frcData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, 64 - frcData.size() );
-        autonetworkResult.addTransactionResult( transResult );
-        TRC_FUNCTION_LEAVE( "" );
-        return toPrebondedAliveNodes( frcData );
+        }        
       }
       catch ( std::exception& e )
       {
@@ -758,72 +800,69 @@ namespace iqrf {
       }
     }
 
-    // Returns list of prebonded MIDS for specified prebonded alive nodes
-    std::list<uint32_t> getPrebondedMIDs( AutonetworkResult& autonetworkResult, const std::vector<uint8_t>& prebondedAliveNodes, const uint8_t nodeSeed )
+    // FRC_PrebondedMemoryReadPlus1 (used to read MIDs and HWPID)
+    std::basic_string<uint8_t> prebondedMemoryRead( AutonetworkResult& autonetworkResult, const std::vector<uint8_t>& prebondedNodes, const uint8_t nodeSeed, const uint8_t offset, const uint16_t address, const uint8_t PNUM, const uint8_t PCMD )
     {
       TRC_FUNCTION_ENTER( "" );
-      std::list<uint32_t> prebondedMIDs;
       std::unique_ptr<IDpaTransactionResult2> transResult;
-      for ( uint8_t offset = 0; offset < prebondedAliveNodes.size(); offset += 15 )
+      try
       {
-        try
+        // Prepare DPA request
+        DpaMessage prebondedMemoryRequest;
+        DpaMessage::DpaPacket_t prebondedMemoryPacket;
+        prebondedMemoryPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        prebondedMemoryPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        prebondedMemoryPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
+        prebondedMemoryPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // FRC Command
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_PrebondedMemoryReadPlus1;
+        // Selected nodes - prebonded alive nodes
+        setFRCSelectedNodes( prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes, prebondedNodes );
+        // Node seed, offset
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x00] = nodeSeed;
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x01] = offset;
+        // OS Read command
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x02] = address & 0xff;
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x03] = address >> 0x08;
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x04] = PNUM;
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x05] = PCMD;
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x06] = 0x00;
+        prebondedMemoryRequest.DataToBuffer( prebondedMemoryPacket.Buffer, sizeof( TDpaIFaceHeader ) + 38 );
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat( prebondedMemoryRequest, transResult, antwInputParams.actionRetries );
+        TRC_DEBUG( "Result from FRC Prebonded Memory Read transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION( "FRC FRC Prebonded Memory Read successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( Peripheral type, prebondedMemoryRequest.PeripheralType() )
+          << NAME_PAR( Node address, prebondedMemoryRequest.NodeAddress() )
+          << NAME_PAR( Command, (int)prebondedMemoryRequest.PeripheralCommand() )
+        );
+        // Data from FRC
+        std::basic_string<uint8_t> prebondedMemoryData;
+        // Check status
+        uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if ( status < 0xFD )
         {
-          // Prepare DPA request
-          DpaMessage prebondedMemoryRequest;
-          DpaMessage::DpaPacket_t prebondedMemoryPacket;
-          prebondedMemoryPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-          prebondedMemoryPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
-          prebondedMemoryPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
-          prebondedMemoryPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-          // FRC Command
-          prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_PrebondedMemoryReadPlus1;
-          // Selected nodes - prebonded alive nodes
-          setFRCSelectedNodes( prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes, prebondedAliveNodes );
-          // Node seed
-          prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x00] = nodeSeed;
-          prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x01] = offset;
-          // OS Read command
-          prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x02] = 0xa0;
-          prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x03] = 0x04;
-          prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x04] = PNUM_OS;
-          prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x05] = CMD_OS_READ;
-          prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x06] = 0x00;
-          prebondedMemoryRequest.DataToBuffer( prebondedMemoryPacket.Buffer, sizeof( TDpaIFaceHeader ) + 38 );
-          // Execute the DPA request
-          m_exclusiveAccess->executeDpaTransactionRepeat( prebondedMemoryRequest, transResult, m_actionRetries );
-          TRC_DEBUG( "Result from FRC Prebonded Memory Read transaction as string:" << PAR( transResult->getErrorString() ) );
-          DpaMessage dpaResponse = transResult->getResponse();
-          TRC_INFORMATION( "FRC FRC Prebonded Memory Read successful!" );
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR( Peripheral type, prebondedMemoryRequest.PeripheralType() )
-            << NAME_PAR( Node address, prebondedMemoryRequest.NodeAddress() )
-            << NAME_PAR( Command, (int)prebondedMemoryRequest.PeripheralCommand() )
-          );
-          // Data from FRC
-          std::basic_string<uns8> mids1;
-          // Check status
-          uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-          if ( status < 0xFD ) 
-          {
-            TRC_INFORMATION( "FRC Prebonded Memory Read status ok." << NAME_PAR_HEX( "Status", (int)status ) );
-            mids1.append(
-              dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData,
-              DPA_MAX_DATA_LENGTH - sizeof( uns8 )
-            );
-            TRC_DEBUG( "Size of FRC data: " << PAR( mids1.size() ) );
-          }
-          else
-          {
-            TRC_WARNING( "FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX( "Status", (int)status ) );
-            AutonetworkError error( AutonetworkError::Type::PrebondedMemoryRead, "Bad FRC status." );
-            autonetworkResult.setError( error );
-            THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( (int)status ) );
-          }
-          // Add FRC result
-          autonetworkResult.addTransactionResult( transResult );
+          TRC_INFORMATION( "FRC Prebonded Memory Read status ok." << NAME_PAR_HEX( "Status", status ) );
+          prebondedMemoryData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, DPA_MAX_DATA_LENGTH - sizeof( uns8 ) );
+          TRC_DEBUG( "Size of FRC data: " << PAR( prebondedMemoryData.size() ) );
+        }
+        else
+        {
+          TRC_WARNING( "FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX( "Status", (int)status ) );
+          AutonetworkError error( AutonetworkError::Type::PrebondedMemoryRead, "Bad FRC status." );
+          autonetworkResult.setError( error );
+          THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( (int)status ) );
+        }
+        // Add FRC result
+        autonetworkResult.addTransactionResult( transResult );
 
-          // Get extra results
+        // Read FRC extra result (if needed)
+        if ( prebondedNodes.size() > 12 )
+        {
+          // Read FRC extra results
           DpaMessage extraResultRequest;
           DpaMessage::DpaPacket_t extraResultPacket;
           extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
@@ -832,53 +871,31 @@ namespace iqrf {
           extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
           extraResultRequest.DataToBuffer( extraResultPacket.Buffer, sizeof( TDpaIFaceHeader ) );
           // Execute the DPA request
-          m_exclusiveAccess->executeDpaTransactionRepeat( extraResultRequest, transResult, m_actionRetries );
-          TRC_DEBUG( "Result from FRC write config extra result transaction as string:" << PAR( transResult->getErrorString() ) );
+          m_exclusiveAccess->executeDpaTransactionRepeat( extraResultRequest, transResult, antwInputParams.actionRetries );
+          TRC_DEBUG( "Result from FRC CMD_FRC_EXTRARESULT transaction as string:" << PAR( transResult->getErrorString() ) );
           dpaResponse = transResult->getResponse();
-          TRC_INFORMATION( "FRC write config extra result successful!" );
+          TRC_INFORMATION( "FRC CMD_FRC_EXTRARESULT successful!" );
           TRC_DEBUG(
             "DPA transaction: "
             << NAME_PAR( Peripheral type, extraResultRequest.PeripheralType() )
             << NAME_PAR( Node address, extraResultRequest.NodeAddress() )
             << NAME_PAR( Command, (int)extraResultRequest.PeripheralCommand() )
           );
+          // Append FRC data
+          prebondedMemoryData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, sizeofBufferCOM - ( DPA_MAX_DATA_LENGTH - sizeof( uns8 ) ) );
           // Add FRC extra result
           autonetworkResult.addTransactionResult( transResult );
-          std::basic_string<uns8> mids2;
-          mids2.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, 64 - mids1.size() );
-          std::basic_string<uint8_t> mids;
-          mids.append( mids1 );
-          mids.append( mids2 );
-          std::stringstream midsSstream;
-          for ( int midIndex = 0; midIndex <= mids.size() - 4; midIndex += 4 )
-          {
-            uint32_t mid = 0;
-            mid = mids[midIndex + 0];
-            mid += mids[midIndex + 1] << 8;
-            mid += mids[midIndex + 2] << 16;
-            mid += mids[midIndex + 3] << 24;
-
-            if ( mid != 0 )
-            {
-              // FRC_PrebondedMemoryReadPlus1 returns +1
-              mid--;
-              prebondedMIDs.push_back( mid );
-              midsSstream << std::hex << std::uppercase << mid;
-              midsSstream << ",";
-            }
-          }
-          TRC_INFORMATION( "Prebonded MIDS: " << midsSstream.str() );
-        }
-        catch ( std::exception& e )
-        {
-          AutonetworkError error( AutonetworkError::Type::PrebondedMemoryRead, e.what() );
-          autonetworkResult.setError( error );
-          autonetworkResult.addTransactionResult( transResult );
-          THROW_EXC( std::logic_error, e.what() );
-        }
+        }        
+        TRC_FUNCTION_LEAVE( "" );
+        return prebondedMemoryData;
       }
-      TRC_FUNCTION_LEAVE( "" );
-      return prebondedMIDs;
+      catch ( std::exception& e )
+      {
+        AutonetworkError error( AutonetworkError::Type::PrebondedMemoryRead, e.what() );
+        autonetworkResult.setError( error );
+        autonetworkResult.addTransactionResult( transResult );
+        THROW_EXC( std::logic_error, e.what() );
+      }
     }
 
     // Returns next free address 
@@ -924,7 +941,7 @@ namespace iqrf {
         // Data to buffer
         authorizeBondRequest.DataToBuffer( authorizeBondPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerCoordinatorAuthorizeBond_Request ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( authorizeBondRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( authorizeBondRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Authorize Bond transaction as string:" << PAR( transResult->getErrorString() ) );
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "Authorize Bond ok!" );
@@ -945,52 +962,6 @@ namespace iqrf {
         autonetworkResult.addTransactionResult( transResult );
         THROW_EXC( std::logic_error, e.what() );
       }
-    }
-
-    // Authorize MIDs
-    void authorizeMIDs(
-      AutonetworkResult& autonetworkResult,
-      const std::list<uint32_t>& prebondedMIDs,
-      uint8_t& bondedNodesNr,
-      std::bitset<MAX_ADDRESS + 1>& bondedNodes,
-      uint8_t& discoveredNodesNr,
-      std::bitset<MAX_ADDRESS + 1>& discoveredNodes,
-      uint8_t& nextAddr,
-      std::map<uint8_t, uint32_t>& authorizedNodes
-    )
-    {
-      TRC_FUNCTION_ENTER( "" );
-      for ( uint32_t moduleId : prebondedMIDs )
-      {
-        nextAddr = getNextFreeAddr( bondedNodes, nextAddr );
-        uint8_t newAddr = 0xff;
-        try
-        {
-          TPerCoordinatorAuthorizeBond_Response response = authorizeBond( autonetworkResult, nextAddr, moduleId );
-          newAddr = response.BondAddr;
-          uint8_t newDevicesCount = response.DevNr;
-          TRC_INFORMATION(
-            "Authorizing node: " << PAR( moduleId ) << ", address: " << PAR( (int)newAddr )
-            << ", devices count: " << PAR( (int)newDevicesCount )
-          );
-          authorizedNodes.insert( std::pair<uint8_t, uint32_t>( newAddr, moduleId ) );
-          updateNodesInfo( autonetworkResult, bondedNodesNr, bondedNodes, discoveredNodesNr, discoveredNodes );
-        }
-        catch ( std::exception& ex )
-        {
-          TRC_WARNING( "Authorizing node " << PAR( moduleId ) << " error" );
-          try
-          {
-            removeBondAtCoordinator( autonetworkResult, nextAddr );
-          }
-          catch ( std::exception& ex )
-          {
-            TRC_WARNING( "Error remove bond: " << PAR( nextAddr ) );
-          }
-        }
-      }
-
-      TRC_FUNCTION_LEAVE( "" );
     }
 
     // Checks new nodes
@@ -1015,7 +986,7 @@ namespace iqrf {
         // Data to buffer
         checkNewNodesRequest.DataToBuffer( checkNewNodesPacket.Buffer, sizeof( TDpaIFaceHeader ) + 3 );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( checkNewNodesRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( checkNewNodesRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Check new nodes transaction as string:" << PAR( transResult->getErrorString() ) );
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "Check new nodes ok!" );
@@ -1103,7 +1074,7 @@ namespace iqrf {
         // Data to buffer
         frcAckBroadcastRequest.DataToBuffer( frcAckBroadcastPacket.Buffer, requestLength );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( frcAckBroadcastRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( frcAckBroadcastRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Remove bond and restart (SELECTIVE BROADCAST BATCH) transaction as string:" << PAR( transResult->getErrorString() ) );
         TRC_INFORMATION( "Selective BATCH Remove bond and restart ok!" );
         TRC_DEBUG(
@@ -1143,7 +1114,7 @@ namespace iqrf {
         // Data to buffer
         removeBondAtCoordinatorRequest.DataToBuffer( removeBondAtCoordinatorPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerCoordinatorRemoveBond_Request ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( removeBondAtCoordinatorRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( removeBondAtCoordinatorRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Remove bond at Coordinator transaction as string:" << PAR( transResult->getErrorString() ) );
         TRC_INFORMATION( "Remove bond and restart ok!" );
         TRC_DEBUG(
@@ -1165,7 +1136,7 @@ namespace iqrf {
     }
 
     // Run discovery process
-    void runDiscovery( AutonetworkResult& autonetworkResult, const uint8_t txPower, uint8_t&  discoveredNodesCnt )
+    uint8_t runDiscovery( AutonetworkResult& autonetworkResult, const uint8_t txPower )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -1181,9 +1152,10 @@ namespace iqrf {
         runDiscoveryPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorDiscovery_Request.TxPower = txPower;
         // Max address
         runDiscoveryPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorDiscovery_Request.MaxAddr = 0x00;
+        // Data to buffer
         runDiscoveryRequest.DataToBuffer( runDiscoveryPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerCoordinatorDiscovery_Request ) );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( runDiscoveryRequest, transResult, m_actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat( runDiscoveryRequest, transResult, antwInputParams.actionRetries );
         TRC_INFORMATION( "Run discovery ok!" );
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_DEBUG(
@@ -1193,10 +1165,70 @@ namespace iqrf {
           << NAME_PAR( Command, (int)runDiscoveryRequest.PeripheralCommand() )
         );
         TRC_DEBUG( "Result from Run discovery transaction as string:" << PAR( transResult->getErrorString() ) );
-        TPerCoordinatorDiscovery_Response response = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorDiscovery_Response;
-        discoveredNodesCnt = response.DiscNr;
         autonetworkResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
+        return  dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorDiscovery_Response.DiscNr;
+      }
+      catch ( std::exception& e )
+      {
+        AutonetworkError error( AutonetworkError::Type::RunDiscovery, e.what() );
+        autonetworkResult.setError( error );
+        autonetworkResult.addTransactionResult( transResult );
+        THROW_EXC( std::logic_error, e.what() );
+      }
+    }
+
+    // Clear duplicid MID
+    void clearDuplicidMID( AutonetworkResult& autonetworkResult )
+    {
+      TRC_FUNCTION_ENTER( "" );
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Any duplicidMIDs ?
+        if ( antwProcessParams.duplicidMID.empty() == false )
+        {
+          DpaMessage validateBondRequest;
+          DpaMessage::DpaPacket_t validateBondPacket;
+          validateBondPacket.DpaRequestPacket_t.NADR = BROADCAST_ADDRESS;
+          validateBondPacket.DpaRequestPacket_t.PNUM = PNUM_NODE;
+          validateBondPacket.DpaRequestPacket_t.PCMD = CMD_NODE_VALIDATE_BONDS;
+          validateBondPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+          uint8_t index = 0;
+          for ( uint8_t address = 1; address <= MAX_ADDRESS; address++ )
+          {
+            auto node = antwProcessParams.duplicidMID.find( address );
+            if ( node != antwProcessParams.duplicidMID.end() )
+            {
+              uint8_t addr = node->first;
+              uint32_t mid = node->second;
+              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].Address = address;
+              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x00] = mid & 0xff;
+              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x01] = ( mid >> 8 ) & 0xff;
+              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x02] = ( mid >> 16 ) & 0xff;
+              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x03] = ( mid >> 24 ) & 0xff;
+              antwProcessParams.duplicidMID.erase( address );
+              index += sizeof( TPerNodeValidateBondsItem );
+            }
+
+            if ( ( index == 11 ) || ( address == MAX_ADDRESS ) )
+            {
+              if ( ( index != 11 ) && ( address == MAX_ADDRESS ) )
+              {
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].Address = TEMPORARY_ADDRESS;
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x00] = 0;
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x01] = 0;
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x02] = 0;
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x03] = 0;
+                index += sizeof( TPerNodeValidateBondsItem );
+              }
+              // Data to buffer
+              validateBondRequest.DataToBuffer( validateBondPacket.Buffer, sizeof( TDpaIFaceHeader ) + index * sizeof( TPerNodeValidateBondsItem ) );
+              // Execute the DPA request
+              m_exclusiveAccess->executeDpaTransactionRepeat( validateBondRequest, transResult, antwInputParams.actionRetries );
+            }
+          }
+        }
       }
       catch ( std::exception& e )
       {
@@ -1214,44 +1246,34 @@ namespace iqrf {
       }
     }
 
+    // Authorize control
+    bool authorizeControl( uint32_t MID, uint16_t HWPID, uint8_t& bondAddr, TAuthorizeErr& authorizeErr )
+    {
+
+      return true;
+    }
+
     // Process the autonetwork algorithm
-    void runAutonetwork(
-      const uint8_t actionRetries,
-      const uint8_t discoveryTxPower,
-      const bool discoveryBeforeStart,
-      const uint8_t waves,
-      const uint8_t emptyWaves,
-      const ComAutonetwork& comAutonetwork,
-      const IMessagingSplitterService::MsgType& msgType,
-      const std::string& messagingId
-    )
+    void runAutonetwork( const ComAutonetwork& comAutonetwork, const IMessagingSplitterService::MsgType& msgType, const std::string& messagingId )
     {
       TRC_FUNCTION_ENTER( "" );
+
+      // Autonetwork result
       AutonetworkResult autonetworkResult;
-      m_actionRetries = actionRetries;
-      autonetworkResult.setLastWave( false );
-
-      std::bitset<MAX_ADDRESS + 1> bondedNodes;
-      uint8_t bondedNodesNr = 0;
-
-      std::bitset<MAX_ADDRESS + 1> discoveredNodes;
-      uint8_t discoveredNodesNr = 0;
-
-      // Nodes, which successfully responded to FRC check -> for to be available in the error response
-      std::vector<AutonetworkResult::NewNode> respondedNewNodes;
+      autonetworkResult.setLastWave( false );      
 
       try
       {
-        // Check, if Coordinator and OS peripherals are present at coordinator's node
+        // Check, if Coordinator and OS peripherals are present at coordinator's
         checkPresentCoordAndCoordOs( autonetworkResult );
         TRC_INFORMATION( "Initial network check." );
 
         // Update network info
-        updateNodesInfo( autonetworkResult, bondedNodesNr, bondedNodes, discoveredNodesNr, discoveredNodes );
-        TRC_INFORMATION( NAME_PAR( Bonded nodes, toNodesListStr( bondedNodes ) ) );
-        TRC_INFORMATION( NAME_PAR( Discovered nodes, toNodesListStr( discoveredNodes ) ) );
+        updateNodesInfo( autonetworkResult );
+        TRC_INFORMATION( NAME_PAR( Bonded nodes, toNodesListStr( antwProcessParams.bondedNodes ) ) );
+        TRC_INFORMATION( NAME_PAR( Discovered nodes, toNodesListStr( antwProcessParams.discoveredNodes ) ) );
         // Check max address
-        if ( bondedNodes == MAX_ADDRESS )
+        if ( antwProcessParams.bondedNodes == MAX_ADDRESS )
         {
           TRC_INFORMATION( "All available network addresses are already allocated." )
           AutonetworkError error( AutonetworkError::Type::AllAddressAllocated, "All available network addresses are already allocated." );
@@ -1259,46 +1281,302 @@ namespace iqrf {
           THROW_EXC( std::logic_error, "All available network addresses are already allocated." );
         }
 
-        // Set FRC param to 0x00
-        setFrcParam( autonetworkResult );
-        TRC_INFORMATION( "Set FRC Param 0x00" );
+        // Set FRC param to 0, store previous value
+        antwProcessParams.FrcResponseTime = 0;
+        antwProcessParams.FrcResponseTime = setFrcReponseTime( autonetworkResult, antwProcessParams.FrcResponseTime );
+        TRC_INFORMATION( "Set FRC Response time to 0x00 (_FRC_RESPONSE_TIME_40_MS)" );
 
-        // Set DPA param to 0x00
-        setNoLedAndOptimalTimeslot( autonetworkResult );
+        // Set DPA param to 0, store previous value
+        antwProcessParams.DpaParam = 0;
+        antwProcessParams.DpaParam = setNoLedAndOptimalTimeslot( autonetworkResult, antwProcessParams.DpaParam );
         TRC_INFORMATION( "No LED indication and use of optimal time slot length" );
 
-        // Set DPA Hops Param to 0xff, 0xff
-        setDpaHopsToTheNumberOfRouters( autonetworkResult );
+        // Set DPA Hops Param to 0xff, 0xff and store previous values
+        antwProcessParams.RequestHops = 0xff;
+        antwProcessParams.ResponseHops = 0xff;
+        TPerCoordinatorSetHops_Request_Response response = setDpaHopsToTheNumberOfRouters( autonetworkResult, antwProcessParams.RequestHops, antwProcessParams.ResponseHops );
+        antwProcessParams.RequestHops = response.RequestHops;
+        antwProcessParams.ResponseHops = response.ResponseHops;
         TRC_INFORMATION( "Number of hops set to the number of routers" );
 
         // Start autonetwork 
         TRC_INFORMATION( "Automatic network construction in progress" );
-        uint8_t origNodesCount = bondedNodesNr;
+        antwProcessParams.initialBondedNodesNr = antwProcessParams.bondedNodesNr;
         int round = 1;
         int emptyRounds = 0;
         uint8_t nextAddr = MAX_ADDRESS;
         using std::chrono::system_clock;
 
-        // Main cycle
-        for ( ; ( bondedNodesNr != MAX_ADDRESS ) && ( round <= waves ); round++ )
+        bool waveRun = true;
+        uint8_t countNewNodes = 0;
+        uint8_t countWaves = 0;
+        uint8_t countEmpty = 0;
+        std::basic_string<uint8_t> FrcSelectMask;
+        std::vector<uint8_t> FrcSelect;
+        bool MIDUnbondOnlyC;
+        uint8_t maxStep;
+        
+        // Initialize random seed
+        srand( static_cast<unsigned int>( time( NULL ) ) );
+        // Generate random seed
+        uint8_t nodeSeed = (uint8_t)rand();
+
+        // Main loop
+        while ( waveRun )
         {
-          TRC_INFORMATION( NAME_PAR( Orig nodes count, (int)origNodesCount ) );
+          // Maximum waves reached ?
+          if ( ( antwInputParams.maxWaves != 0 ) && ( countWaves == antwInputParams.maxWaves ) )
+          {
+            TRC_INFORMATION( "Maximum number of waves reached." );
+            break;
+          }
+
+          // Maximum nodes bonded ?
+          if ( ( antwInputParams.maxNodes != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.maxNodes ) )
+            break;
+
+          // Maximum empty waves reached ?
+          if ( ( antwInputParams.maxEmptyWaves != 0 ) && ( countEmpty >= antwInputParams.maxEmptyWaves ) )
+          {
+            TRC_INFORMATION( "Maximum number of consecutive empty waves reached." );
+            AutonetworkError error( AutonetworkError::Type::EmptyWaves, "Maximum number of consecutive empty waves reached." );
+            autonetworkResult.setError( error );
+            break;
+          }
+
+          // Increment nodeSeed and countWave
+          nodeSeed++;
+          countWaves++;
+
+          // Run Discovery before start ?
+          if ( ( countWaves == 1 ) && ( antwInputParams.discoveryBeforeStart == true ) && ( antwProcessParams.bondedNodesNr > 0 ) )
+          {
+            TRC_INFORMATION( "Running Discovery before start." );
+            runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower );
+          }
+
+          // SmartConnect
+          antwProcessParams.respondedNewNodes.clear();
+          TRC_INFORMATION( "SmartConnect." );
+          smartConnect( autonetworkResult );
+
+          // Get pre-bonded alive nodes
+          TPerFrcSend_Response response = getPrebondedAliveNodes( autonetworkResult, nodeSeed );
+          // Copy FrcData to FrcSelectMask
+          FrcSelectMask.clear();
+          FrcSelectMask.append( response.FrcData, DPA_MAX_DATA_LENGTH - sizeof( uns8 ) );
+          // Get list of nodes responded FRC_PrebondedAlive
+          FrcSelect = getActiveNodes( FrcSelectMask );
+
+          // Clear prebondedNodes map
+          antwProcessParams.prebondedNodes.clear();
+          maxStep = 0;
+
+          // Empty wave ?
+          if ( FrcSelect.size() == 0 )
+          {
+            // Clear duplicid MIDs
+            clearDuplicidMID( autonetworkResult );
+            // Increase empty wave counter
+            countEmpty++;
+            // Send results
+            Document responseDoc = createResponse( msgType, autonetworkResult, comAutonetwork, antwProcessParams.respondedNewNodes );
+            m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
+            // Clear new nodes for the next wave
+            autonetworkResult.clearNewNodes();
+            // Next wave
+            continue;
+          }
+
+          // Read MIDs of prebonded alive nodes
+          MIDUnbondOnlyC = false;
+          TRC_INFORMATION( NAME_PAR( Prebonded alive nodes, FrcSelect.size() ) );
+          uint8_t offset = 0x00;
+          do
+          {
+            // Prebonded memory read plus 1 - read MIDs
+            std::basic_string<uint8_t> prebondedMemoryData = prebondedMemoryRead( autonetworkResult, FrcSelect, nodeSeed, offset, 0x04a0, PNUM_OS, CMD_OS_READ );
+            uint8_t i = 0;
+            do
+            {
+              // TPrebondedNode structure
+              TPrebondedNode node;
+              node.addrBond = 0;
+              node.authorize = false;
+              node.authorizeErr = TAuthorizeErr::eNo;
+              node.node = FrcSelect[( i / 4 ) + offset];
+              node.mid.bytes[0] = prebondedMemoryData[i];
+              node.mid.bytes[1] = prebondedMemoryData[i + 1];
+              node.mid.bytes[2] = prebondedMemoryData[i + 2];
+              node.mid.bytes[3] = prebondedMemoryData[i + 3];
+              // Node responded to prebondedMemoryRead plus 1 ?
+              if ( node.mid.value != 0 )
+              {
+                // Yes, decrease MID
+                node.mid.value--;
+                // HWPID filtering active ?
+                if ( antwInputParams.filteringHWPID == false )
+                {
+                  // No, authorize control
+                  if ( authorizeControl( node.mid.value, 0, node.addrBond, node.authorizeErr ) == true )
+                  {
+                    node.authorize = true;
+                    maxStep++;
+                  }
+                }
+              }
+              else
+              {
+                // Node didn't respond to prebondedMemoryRead plus 1 
+                node.authorizeErr = TAuthorizeErr::eFRC;
+                MIDUnbondOnlyC = true;
+              }
+
+              //  Add (or set) node to prebondedNodes map
+              antwProcessParams.prebondedNodes.insert_or_assign( node.node, node );
+
+              // Next Node
+              i += sizeof( TMID );
+              offset += 15;
+            } while ( ( i < 60 ) && ( FrcSelect.size() > antwProcessParams.prebondedNodes.size() ) );
+          } while ( FrcSelect.size() > antwProcessParams.prebondedNodes.size() );
+
+          // Read HWPID of prebonded alive nodes if HWPID filtering active
+          if ( antwInputParams.filteringHWPID == true )
+          {
+            uint8_t offset = 0x00;
+            uint8_t prebondedNodesCount = 0;
+            do
+            {
+              // Prebonded memory read plus 1 - read HWPID and HWPVer
+              std::basic_string<uint8_t> prebondedMemoryData = prebondedMemoryRead( autonetworkResult, FrcSelect, nodeSeed, offset, 0x04a7, PNUM_ENUMERATION, CMD_GET_PER_INFO );
+              uint8_t i = 0;
+              do
+              {
+                // TPrebondedNode structure
+                TPrebondedNode node;
+                uint8_t addr = FrcSelect[( i / 4 ) + offset];                
+                auto n = antwProcessParams.prebondedNodes.find( addr );
+                if ( n != antwProcessParams.prebondedNodes.end() )
+                {
+                  node = n->second;
+                  node.node = addr;
+                  node.authorize = false;
+                  // Node responded to prebondedMemoryRead plus 1 ?
+                  uint32_t HWPID_HWPVer = prebondedMemoryData[i];
+                  HWPID_HWPVer |= ( prebondedMemoryData[i + 1] << 8 );
+                  HWPID_HWPVer |= ( prebondedMemoryData[i + 2] << 16 );
+                  HWPID_HWPVer |= ( prebondedMemoryData[i + 3] << 24 );
+                  if ( HWPID_HWPVer != 0 )
+                  {
+                    // Yes, decrease HWPID_HWPVer
+                    HWPID_HWPVer--;
+                    node.HWPID = HWPID_HWPVer & 0xffff;
+                    node.HWPIDVer = HWPID_HWPVer > 16;
+                    // Authorize control
+                    if ( authorizeControl( node.mid.value, node.HWPID, node.addrBond, node.authorizeErr ) == true )
+                    {
+                      node.authorize = true;
+                      maxStep++;
+                    }
+                  }
+                  else
+                  {
+                    // Node didn't respond to prebondedMemoryRead plus 1 
+                    node.authorizeErr = TAuthorizeErr::eFRC;
+                    MIDUnbondOnlyC = true;
+                  }
+
+                  // Add (or set) node to prebondedNodes map
+                  antwProcessParams.prebondedNodes.insert_or_assign( node.node, node );
+                }
+
+                // Next Node
+                i += sizeof( TMID );
+                prebondedNodesCount++;
+              } while ( ( i < 60 ) && ( FrcSelect.size() > prebondedNodesCount ) );
+            } while ( FrcSelect.size() > prebondedNodesCount );
+          }
+
+          // Authorize prebonded alive nodes
+          FrcSelect.clear();
+          for ( std::pair<uint8_t, TPrebondedNode> node : antwProcessParams.prebondedNodes )
+          {
+            if ( antwProcessParams.bondedNodesNr > MAX_ADDRESS )
+            {
+              TRC_INFORMATION( "All available network addresses are already allocated." );
+              break;
+            }
+
+            // Node passed the authorizeControl (is intended to authorize) ?
+            if ( node.second.authorize )
+            {
+              // Yes, authorize the node
+              try
+              {
+                TPerCoordinatorAuthorizeBond_Response response = authorizeBond( autonetworkResult, node.second.addrBond, node.second.mid.value );
+                FrcSelect.push_back( response.BondAddr );
+              }
+              catch ( std::exception& ex )
+              {
+                TRC_WARNING( "Authorizing node " << PAR( node.second.mid.value ) << " error." );
+                try
+                {
+                  removeBondAtCoordinator( autonetworkResult, node.second.addrBond );
+                }
+                catch ( std::exception& ex )
+                {
+                  TRC_WARNING( "Removing the bond: " << PAR( node.second.addrBond ) << " error.");
+                }
+              }
+            }
+
+            if ( ( FrcSelect.size() == 0 ) && ( MIDUnbondOnlyC == false ) )
+            {
+              try
+              {
+                clearDuplicidMID( autonetworkResult );
+              }
+              catch ( std::exception& ex )
+              {
+                TRC_WARNING( "Clear Duplicit MID error." );
+              }
+              countEmpty++;
+              continue;
+            }
+            else
+              countEmpty = 0;
+          }       
+
+          // Ping authorized nodes
+          do
+          {
+
+          } while ( FrcSelect.size() != 0 );
+        }
+
+        // Puvodni alg.
+        /*
+        // Main cycle
+        for ( ; ( antwProcessParams.bondedNodesNr != MAX_ADDRESS ) && ( round <= antwInputParams.maxWaves ); round++ )
+        {
+          TRC_INFORMATION( NAME_PAR( Orig nodes count, antwProcessParams.initialBondedNodesNr ) );
           TRC_INFORMATION( NAME_PAR( Round, round ) );
 
           time_t now = system_clock::to_time_t( system_clock::now() );
           TRC_INFORMATION( NAME_PAR( Start time, ctime( &now ) ) );
 
           // Run Discovery before start 
-          if ( ( round == 1 ) && ( discoveryBeforeStart == true ) && ( bondedNodesNr > 0 ) )
+          if ( ( round == 1 ) && ( antwInputParams.discoveryBeforeStart == true ) && ( antwProcessParams.bondedNodesNr > 0 ) )
           {
             uns8 discoveredNodes;
-            runDiscovery( autonetworkResult, discoveryTxPower, discoveredNodes );
+            runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower, discoveredNodes );
           }
 
           // Preset params
           autonetworkResult.setWave( round );
-          autonetworkResult.setNodesNr( bondedNodesNr );
-          respondedNewNodes.clear();
+          autonetworkResult.setNodesNr( antwProcessParams.bondedNodesNr );
+          antwProcessParams.respondedNewNodes.clear();
 
           // SmartConnect
           TRC_INFORMATION( "SmartConnect" );
@@ -1312,7 +1590,7 @@ namespace iqrf {
           // Check empty wave
           if ( prebondedAliveNodes.empty() )
           {
-            if ( ++emptyRounds == emptyWaves )
+            if ( ++emptyRounds == antwInputParams.maxEmptyWaves )
             {
               TRC_INFORMATION( "Maximum number of consecutive empty waves reached." );
               AutonetworkError error( AutonetworkError::Type::EmptyWaves, "Maximum number of consecutive empty waves reached 1." );
@@ -1321,7 +1599,7 @@ namespace iqrf {
             }
 
             // Send NOT last results
-            Document responseDoc = createResponse( comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, respondedNewNodes );
+            Document responseDoc = createResponse( comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, antwProcessParams.respondedNewNodes );
             m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
 
             // Clear new nodes for the next wave
@@ -1335,12 +1613,12 @@ namespace iqrf {
           prebondedMIDs = getPrebondedMIDs( autonetworkResult, prebondedAliveNodes, virtFrcId );
           // Authorize MIDs
           std::map<uint8_t, uint32_t> newNodes;
-          authorizeMIDs( autonetworkResult, prebondedMIDs, bondedNodesNr, bondedNodes, discoveredNodesNr, discoveredNodes, nextAddr, newNodes );
+          authorizeMIDs( autonetworkResult, prebondedMIDs, antwProcessParams.bondedNodesNr, antwProcessParams.bondedNodes, antwProcessParams.discoveredNodesNr, antwProcessParams.discoveredNodes, nextAddr, newNodes );
 
           // Check new nodes
           if ( newNodes.size() == 0 )
           {
-            if ( ++emptyRounds == emptyWaves )
+            if ( ++emptyRounds == antwInputParams.maxEmptyWaves )
             {
               TRC_INFORMATION( "Maximum number of consecutive empty waves reached." );
               AutonetworkError error( AutonetworkError::Type::EmptyWaves, "Maximum number of consecutive empty waves reached 2." );
@@ -1349,7 +1627,7 @@ namespace iqrf {
             }
 
             // Send NOT last results
-            Document responseDoc = createResponse( comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, respondedNewNodes );
+            Document responseDoc = createResponse( comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, antwProcessParams.respondedNewNodes );
             m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
 
             // Clear new nodes for the next wave
@@ -1375,13 +1653,13 @@ namespace iqrf {
               if ( !( ( ( frcDataCheck[0 + authorizedNode.first / 8] >> ( authorizedNode.first % 8 ) ) & 0x01 ) == 0x00 ) )
               {
                 AutonetworkResult::NewNode respNode = { authorizedNode.first, authorizedNode.second };
-                respondedNewNodes.push_back( respNode );
+                antwProcessParams.respondedNewNodes.push_back( respNode );
               }
               else
               {
                 notRespondedNewNodes.push_back( authorizedNode.first );
                 // Wait for sure - it is still valid ?
-                std::this_thread::sleep_for( std::chrono::microseconds( ( bondedNodesNr + 1 ) * ( 2 * ( MIN_TIMESLOT + 10 ) ) ) );
+                std::this_thread::sleep_for( std::chrono::microseconds( ( antwProcessParams.bondedNodesNr + 1 ) * ( 2 * ( MIN_TIMESLOT + 10 ) ) ) );
                 removeBondAtCoordinator( autonetworkResult, authorizedNode.first );
                 // Delete removed node from newNodes
                 newNodes.erase( authorizedNode.first );
@@ -1393,7 +1671,7 @@ namespace iqrf {
             {
               removeNotRespondedNewNodes( autonetworkResult, notRespondedNewNodes );
               // Return not responded nodes into free nodes available for bond
-              setFreeNodes( bondedNodes, notRespondedNewNodes );
+              setFreeNodes( antwProcessParams.bondedNodes, notRespondedNewNodes );
               notRespondedNewNodes.clear();
             }
           }
@@ -1401,8 +1679,8 @@ namespace iqrf {
           // No new nodes - go to next iteration
           if ( newNodes.size() == 0 )
           {
-            updateNodesInfo( autonetworkResult, bondedNodesNr, bondedNodes, discoveredNodesNr, discoveredNodes );
-            if ( ++emptyRounds == emptyWaves )
+            updateNodesInfo( autonetworkResult );
+            if ( ++emptyRounds == antwInputParams.maxEmptyWaves )
             {
               TRC_INFORMATION( "Maximum number of consecutive empty waves reached." )
                 AutonetworkError error( AutonetworkError::Type::EmptyWaves, "Maximum number of consecutive empty waves reached 3." );
@@ -1410,7 +1688,7 @@ namespace iqrf {
               goto SendResponse;
             }
             // Send NOT last results
-            Document responseDoc = createResponse( comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, respondedNewNodes );
+            Document responseDoc = createResponse( comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, antwProcessParams.respondedNewNodes );
             m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
 
             // Clear new nodes for the next wave
@@ -1425,7 +1703,7 @@ namespace iqrf {
           try
           {
             uint8_t discoveredNodesCnt = 0;
-            runDiscovery( autonetworkResult, discoveryTxPower, discoveredNodesCnt );
+            runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower, discoveredNodesCnt );
             TRC_INFORMATION( NAME_PAR( Discovered nodes, (int)discoveredNodesCnt ) );
           }
           catch ( std::exception& ex )
@@ -1434,22 +1712,23 @@ namespace iqrf {
           }
 
           TRC_INFORMATION( "Waiting for coordinator to finish discovery" );
-          updateNodesInfo( autonetworkResult, bondedNodesNr, bondedNodes, discoveredNodesNr, discoveredNodes );
+          updateNodesInfo( autonetworkResult );
 
           for ( std::pair<uint8_t, uint32_t> newNode : newNodes )
             autonetworkResult.putNewNode( newNode.first, newNode.second );
 
           // Last iteration ?
-          if ( ( bondedNodesNr == MAX_ADDRESS ) || ( round == waves ) )
+          if ( ( antwProcessParams.bondedNodesNr == MAX_ADDRESS ) || ( round == antwInputParams.maxWaves ) )
             goto SendResponse;
 
           // Send NOT last results
-          Document responseDoc = createResponse( comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, respondedNewNodes );
+          Document responseDoc = createResponse( comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, antwProcessParams.respondedNewNodes );
           m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
 
           // Clear new nodes for the next wave
           autonetworkResult.clearNewNodes();
         }
+        */
       }
       catch ( std::exception& ex )
       {
@@ -1466,7 +1745,7 @@ namespace iqrf {
       // Creating and sending of message
 SendResponse:
       autonetworkResult.setLastWave( true );
-      Document responseDoc = createResponse( comAutonetwork.getMsgId(), msgType, autonetworkResult, comAutonetwork, respondedNewNodes );
+      Document responseDoc = createResponse( msgType, autonetworkResult, comAutonetwork, antwProcessParams.respondedNewNodes );
       m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
       TRC_FUNCTION_LEAVE( "" );
     }
@@ -1565,7 +1844,6 @@ SendResponse:
 
     // creates response on the basis of bond result
     Document createResponse(
-      const std::string& msgId,
       const IMessagingSplitterService::MsgType& msgType,
       AutonetworkResult& autonetworkResult,
       const ComAutonetwork& comAutonetwork,
@@ -1576,7 +1854,7 @@ SendResponse:
 
       // set common parameters
       Pointer( "/mType" ).Set( response, msgType.m_type );
-      Pointer( "/data/msgId" ).Set( response, msgId );
+      Pointer( "/data/msgId" ).Set( response, comAutonetwork.getMsgId() );
 
       // checking of error
       AutonetworkError error = autonetworkResult.getError();
@@ -1761,19 +2039,9 @@ SendResponse:
       return emptyWaves;
     }
 
-    void handleMsg(
-      const std::string& messagingId,
-      const IMessagingSplitterService::MsgType& msgType,
-      rapidjson::Document doc
-    )
+    void handleMsg( const std::string& messagingId, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc )
     {
-      TRC_FUNCTION_ENTER(
-        PAR( messagingId ) <<
-        NAME_PAR( mType, msgType.m_type ) <<
-        NAME_PAR( major, msgType.m_major ) <<
-        NAME_PAR( minor, msgType.m_minor ) <<
-        NAME_PAR( micro, msgType.m_micro )
-      );
+      TRC_FUNCTION_ENTER( PAR( messagingId ) << NAME_PAR( mType, msgType.m_type ) << NAME_PAR( major, msgType.m_major ) << NAME_PAR( minor, msgType.m_minor ) << NAME_PAR( micro, msgType.m_micro ) );
 
       // Unsupported type of request
       if ( msgType.m_type != m_mTypeName_Autonetwork )
@@ -1782,33 +2050,28 @@ SendResponse:
       // Creating representation object
       ComAutonetwork comAutonetwork( doc );
 
-      // Service input parameters
-      uint8_t actionRetries;
-      uint8_t discoveryTxPower;
-      bool discoveryBeforeStart;
-      uint8_t waves;
-      uint8_t emptyWaves;
       bool returnVerbose = false;
 
       // Parsing and checking service parameters
       try
       {
-        actionRetries = comAutonetwork.getActionRetries();
-        discoveryTxPower = comAutonetwork.getDiscoveryTxPower();
-        discoveryBeforeStart = comAutonetwork.getDiscoveryBeforeStart();
+        antwInputParams.actionRetries = comAutonetwork.getActionRetries();
+        antwInputParams.discoveryTxPower = comAutonetwork.getDiscoveryTxPower();
+        antwInputParams.discoveryBeforeStart = comAutonetwork.getDiscoveryBeforeStart();
 
-        if (!comAutonetwork.isSetWaves())
-          THROW_EXC(std::logic_error, "waves not set");        
-        waves = parseAndCheckWaves(comAutonetwork.getWaves());
+        if ( !comAutonetwork.isSetWaves() )
+          THROW_EXC( std::logic_error, "Waves not set" );
+        antwInputParams.maxWaves = parseAndCheckWaves( comAutonetwork.getWaves() );
 
-        if (!comAutonetwork.isSetEmptyWaves()) 
-          THROW_EXC(std::logic_error, "emptyWaves not set");        
-        emptyWaves = parseAndCheckEmptyWaves(comAutonetwork.getEmptyWaves());
+        if ( !comAutonetwork.isSetEmptyWaves() )
+          THROW_EXC( std::logic_error, "EmptyWaves not set" );
+        antwInputParams.maxEmptyWaves = parseAndCheckEmptyWaves( comAutonetwork.getEmptyWaves() );
 
-        returnVerbose = comAutonetwork.getVerbose();
+        antwInputParams.maxNodes = 0;
+
+        //returnVerbose = comAutonetwork.getVerbose();
       }
-      // parsing and checking service parameters failed 
-      catch ( std::exception& ex ) 
+      catch ( std::exception& ex )
       {
         Document failResponse = createCheckParamsFailedResponse( comAutonetwork.getMsgId(), msgType, ex.what() );
         m_iMessagingSplitterService->sendMessage( messagingId, std::move( failResponse ) );
@@ -1821,18 +2084,20 @@ SendResponse:
       {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
-      catch (std::exception &e)
+      catch ( std::exception &e )
       {
         const char* errorStr = e.what();
-        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
-        Document failResponse = getExclusiveAccessFailedResponse(comAutonetwork.getMsgId(), msgType, errorStr);
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
-        TRC_FUNCTION_LEAVE("");
+        TRC_WARNING( "Error while establishing exclusive DPA access: " << PAR( errorStr ) );
+        Document failResponse = getExclusiveAccessFailedResponse( comAutonetwork.getMsgId(), msgType, errorStr );
+        m_iMessagingSplitterService->sendMessage( messagingId, std::move( failResponse ) );
+        TRC_FUNCTION_LEAVE( "" );
         return;
       }
 
       // Run the Autonetwork process
-      runAutonetwork( actionRetries, discoveryTxPower, discoveryBeforeStart, waves, emptyWaves, comAutonetwork, msgType, messagingId );
+      //runAutonetwork( const antwInputParams, comAutonetwork, msgType, messagingId );
+      // Run the Autonetwork process
+      runAutonetwork( comAutonetwork, msgType, messagingId );
 
       // Release exclusive access
       m_exclusiveAccess.reset();
@@ -1994,5 +2259,4 @@ SendResponse:
   {
     m_imp->modify( props );
   }
-
 }
