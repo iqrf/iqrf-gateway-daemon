@@ -1,0 +1,20 @@
+mType: iqrfEmbedCoordinator_DiscoveredDevices
+data:
+  msgId: testEmbedCoordinator
+  rsp:
+    nAdr: 0
+    hwpId: !anyint
+    rCode: 0
+    dpaVal: !anyint
+    result:
+      discoveredDevices: !anything
+  raw:
+  - request: 00.00.00.01.ff.ff
+    requestTs: !anystr
+    confirmation: ''
+    confirmationTs: ''
+    response: !anystr
+    responseTs: !anystr
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0

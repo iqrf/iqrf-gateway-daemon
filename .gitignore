@@ -8,9 +8,11 @@ shape-build/
 shapeware-source/
 shapeware-build/
 
+# api/tests
+.pytest_cache
+
 # examples
-examples/java/iqrfraw/target/
-examples/c#/test-api-app/packages/
-examples/c#/test-api-app/test-api-app/bin/
-examples/c#/test-api-app/test-api-app/obj/
-examples/c#/test-api-app/.vs/
+examples/java/iqrf-raw/bin/
+examples/java/iqrf-raw/target/
+examples/c#/iqrf-gw-api/bin/
+examples/c#/iqrf-gw-api/obj/

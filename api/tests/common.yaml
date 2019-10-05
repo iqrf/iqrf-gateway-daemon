@@ -1,0 +1,7 @@
+---
+name: mqtt includes
+description: used for testing against mqtt broker
+
+variables:
+  mqtt_host: 10.0.1.29
+  mqtt_port: 1883

@@ -42,7 +42,7 @@
               "properties": {
                 "command": {
                   "type": "integer",
-                  "description": "2 bytes (16 bits) wide values, each representing one DALI command at the standard DALI format YAAAAAAS+DDDDDDDD.",
+                  "description": "2 bytes (16 bits) wide values, each representing one DALI command at the standard DALI format YAAAAAAS+DDDDDDDD."
                 },
                 "selectedNodes": {
                   "type": "array",
@@ -55,6 +55,11 @@
                   "type": "boolean",
                   "description": "If set Extra result DPA message is sent and processed",
                   "default": true
+                },
+                "getNadrWithMetaData": {
+                  "type": "boolean",
+                  "description": "Sensors get node address and assigned meta data",
+                  "default": false
                 }
               },
               "required": [

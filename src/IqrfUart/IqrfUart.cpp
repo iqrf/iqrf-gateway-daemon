@@ -274,7 +274,7 @@ namespace iqrf {
     {
       IIqrfChannelService::State state = State::NotReady;
       if (m_accessControl.hasExclusiveAccess())
-        state = State::ExclusiveAcess;
+        state = State::ExclusiveAccess;
       else if (m_runListenThread)
         state = State::Ready;
 
@@ -289,6 +289,18 @@ namespace iqrf {
     bool hasExclusiveAccess() const
     {
       return m_accessControl.hasExclusiveAccess();
+    }
+
+    IIqrfChannelService::osInfo getTrModuleInfo()
+    {
+      TRC_FUNCTION_ENTER("");
+      TRC_WARNING("Reading TR module identification - not implemented.");
+
+      IIqrfChannelService::osInfo myOsInfo;
+      memset(&myOsInfo, 0, sizeof(myOsInfo));
+
+      TRC_FUNCTION_LEAVE("");
+      return myOsInfo;
     }
 
     void activate(const shape::Properties *props)

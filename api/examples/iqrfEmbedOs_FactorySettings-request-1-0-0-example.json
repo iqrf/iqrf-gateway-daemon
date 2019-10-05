@@ -1,0 +1,11 @@
+{
+  "mType": "iqrfEmbedOs_FactorySettings",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 1,
+      "param": {}
+    },
+    "returnVerbose": true
+  }
+}

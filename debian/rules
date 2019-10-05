@@ -1,12 +1,12 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@  --buildsystem=cmake --builddirectory=build
+	dh $@  --buildsystem=cmake --builddirectory=build --with=systemd
 
 override_dh_auto_configure:
 	dh_auto_configure -- -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE \
 	-Dshapeware_DIR:PATH=`pwd`/shapeware-build -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING=false \
-	-DDAEMON_VERSION:STRING=${DAEMON_VERSION}
+	-DDAEMON_VERSION:STRING=${DAEMON_VERSION} -DCMAKE_BUILD_TYPE=Debug
 
 override_dh_fixperms:
 	dh_fixperms
@@ -18,6 +18,9 @@ override_dh_fixperms:
 	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler
 	chmod -R 666 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/upload
 	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/upload
+
+override_dh_auto_install:
+	echo "skip make install"
 
 override_dh_install:
 	dh_install

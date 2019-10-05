@@ -79,7 +79,7 @@ For all NADR from full enum list:
 - tries to find Iqrf Repo package according fingerprint
 - if a package is not found (not certified device) prepare virtual ad hoc package 
   - gets Package 0 => plain DPA to get embed periferies drivers for the fingerprint 
-  - gets via raw dpa *iqrf.embed.exprore.PeripheralInformation* for Standars Sensor, Binaryout (Light, Dali not implemented yet) to find standard versions from *Par1*
+  - gets via raw dpa *iqrf.embed.exprore.PeripheralInformation* for Standars Sensor, Binaryout, Light, Dali to find standard versions from *Par1*
 - select device with fingerprint from DB
 - if device is not in DB then insert into Device
 - insert into Driver if any of the drivers from package are missing in DB
@@ -97,8 +97,8 @@ Now we have all data necessary for JS drivers to load:
 This phase take care only of Standards enumeration with usage of proper JS drivers versions
 - Sensor
 - Binaryouput
-- Light (not implemented yet)
-- Dali (not implemented yet)
+- Light
+- Dali
 
 During this phase:
 - select devices without std enum (StdEnum flag in Device table)
@@ -123,16 +123,287 @@ The component **IqrfInfo** has simple optional configuration parameter:
 If set to false, the application **iqrfgd2** behaves as previous versions with respect to drivers load (provisory load drivers). If set to true, all phases of feature are processed at start-up.  
 
 ## Info API
-Component **JsonIqrfInfoApi** provides JSON API to get iformation about all nodes implementing standard Sensor and BinaryOutput (Dali and Ligth support is not ready yet). The component uses **IIqrfInfo** interface implemented by **IqrfInfo** component. It is the very first implementation and may be changed significantly in future (set and names of messages, filter/select options, etc)
+Component **JsonIqrfInfoApi** provides JSON API. It allows explicit starting of Enumeration (even if not configured to start at starup). It has requests to get information about all nodes implementing standard Sensor, BinaryOutput, Dali, Ligth (Breakdown for sensor is not ready yet). The component uses **IIqrfInfo** interface implemented by **IqrfInfo** component. It is the very first implementation and may be changed significantly in future (set and names of messages, filter/select options, etc)
+- infoDaemon_StartEnumeration
 - infoDaemon_GetBinaryOutputs
 - infoDaemon_GetSensors
+- infoDaemon_GetDalis
+- infoDaemon_GetLights
 
-Related API schemes are not complete yet as the content of messages may change. It will be finished for first stable version. 
+### Schemes
+Related API schemes are not complete yet as the content of messages may change. It will be finished for first 
+stable version.
+- infoDaemon_StartEnumeration-request-1-0-0.json
+- infoDaemon_StartEnumeration-response-1-0-0.json
+- infoDaemon_GetBinaryOutputs-request-1-0-0.json
+- infoDaemon_GetBinaryOutputs-response-1-0-0.json
+- infoDaemon_GetSensors-request-1-0-0.json
+- infoDaemon_GetSensors-response-1-0-0.json
+- infoDaemon_GetDalis-request-1-0-0.json
+- infoDaemon_GetDalis-response-1-0-0.json
+- infoDaemon_GetLights-request-1-0-0.json
+- infoDaemon_GetLights-response-1-0-0.json
+
+### Message examples
+The responses are aggregated data as it would be gotten from enumeration but constructed from DB. So they are returned in milliseconds. 
+
+#### GetBinaryOutputs
+Request:
+```json
+{
+    "mType": "infoDaemon_GetBinaryOutputs",
+    "data": {
+      "msgId": "test",
+      "req": {
+      },
+      "returnVerbose": true
+    }
+}
+```
+Response (schema has to be enhanced to validate all items if needed):
+```json
+{
+  "mType": "infoDaemon_GetBinaryOutputs",
+  "data": {
+    "msgId": "test",
+    "rsp": {
+      "binOutDevices": [
+        {
+          "nadr": 3,
+          "binOuts": 3
+        },
+        {
+          "nadr": 5,
+          "binOuts": 3
+        },
+        {
+          "nadr": 6,
+          "binOuts": 3
+        }
+      ]
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}
+```
+
+#### GetBinarySensors
+Request:
+```json
+{
+    "mType": "infoDaemon_GetSensors",
+    "data": {
+      "msgId": "test",
+      "req": {
+      },
+      "returnVerbose": true
+    }
+}
+```
+Response (schema has to be enhanced to validate all items if needed):
+```json
+{
+  "mType": "infoDaemon_GetSensors",
+  "data": {
+    "msgId": "test",
+    "rsp": {
+      "sensorDevices": [
+        {
+          "nadr": 1,
+          "sensors": [
+            {
+              "idx": 0,
+              "id": "TEMPERATURE",
+              "type": 1,
+              "name": "Temperature",
+              "shortName": "T",
+              "unit": "°C",
+              "decimalPlaces": 4,
+              "frcs": [ 144, 224 ]
+            },
+            {
+              "idx": 1,
+              "id": "EXTRA_LOW_VOLTAGE",
+              "type": 4,
+              "name": "Extra-low voltage",
+              "shortName": "U",
+              "unit": "V",
+              "decimalPlaces": 3,
+              "frcs": [ 224 ]
+            }
+          ]
+        },
+        {
+          "nadr": 3,
+          "sensors": [
+            {
+              "idx": 0,
+              "id": "BINARYDATA7",
+              "type": 129,
+              "name": "Binary data7",
+              "shortName": "bin7",
+              "unit": "?",
+              "decimalPlaces": 0,
+              "frcs": [ 16, 144 ]
+            }
+          ]
+        },
+        {
+          "nadr": 5,
+          "sensors": [
+            {
+              "idx": 0,
+              "id": "BINARYDATA7",
+              "type": 129,
+              "name": "Binary data7",
+              "shortName": "bin7",
+              "unit": "?",
+              "decimalPlaces": 0,
+              "frcs": [ 16, 144 ]
+            }
+          ]
+        },
+        {
+          "nadr": 6,
+          "sensors": [
+            {
+              "idx": 0,
+              "id": "BINARYDATA7",
+              "type": 129,
+              "name": "Binary data7",
+              "shortName": "bin7",
+              "unit": "?",
+              "decimalPlaces": 0,
+              "frcs": [ 16, 144 ]
+            }
+          ]
+        }
+      ]
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}
+```
+
+#### GetDalis
+Request:
+```json
+{
+    "mType": "infoDaemon_GetDalis",
+    "data": {
+      "msgId": "test",
+      "req": {
+      },
+      "returnVerbose": true
+    }
+}
+```
+
+Response (schema has to be enhanced to validate all items if needed):
+```json
+{
+  "mType": "infoDaemon_GetDalis",
+  "data": {
+    "msgId": "test",
+    "rsp": {
+      "daliDevices": [
+        { "nadr": 1 },
+        { "nadr": 3 },
+        { "nadr": 4 },
+        { "nadr": 5 },
+        { "nadr": 6 }
+      ]
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}
+```
+
+#### GetLights
+Request:
+```json
+{
+    "mType": "infoDaemon_GetLights",
+    "data": {
+      "msgId": "test",
+      "req": {
+      },
+      "returnVerbose": true
+    }
+}
+```
+
+Response (schema has to be enhanced to validate all items if needed):
+```json
+{
+  "mType": "infoDaemon_GetLights",
+  "data": {
+    "msgId": "test",
+    "rsp": {
+      "lightDevices": [
+        {
+          "nadr": 3,
+          "lights": 7
+        },
+        {
+          "nadr": 4,
+          "lights": 7
+        },
+        {
+          "nadr": 5,
+          "lights": 7
+        },
+        {
+          "nadr": 6,
+          "lights": 7
+        }
+      ]
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}
+```
+
+#### StartEnumeration
+Request:
+```json
+{
+    "mType": "infoDaemon_StartEnumeration",
+    "data": {
+      "msgId": "test",
+      "req": {
+      },
+      "returnVerbose": true
+    }
+}
+```
+
+Response:
+```json
+{
+  "mType": "infoDaemon_StartEnumeration",
+  "data": {
+    "msgId": "test",
+    "rsp": {},
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}
+```
 
 ## Next possible development steps
 
 - download only detected drivers from Iqrf Repo (makes sense only if provisory load skipped)
 - provide event system of finished enum phases and correct drivers load
-- provide API to invoke enum phases explicitly
 - integrate enum phases and DB info with Autonetwork, Discovery, Bond/Unbond, SmartConnect, OTA, etc ...
 - provide user an info what's going on - e.g. percentage
+- dynamic Frc timing (known number of nodes and topology) 

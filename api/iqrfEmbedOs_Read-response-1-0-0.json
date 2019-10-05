@@ -89,6 +89,40 @@
                                         "maxItems": 16,
                                         "default": 0
                                     }
+                                },
+                                "dpaVer": {
+                                    "type": "integer",
+                                    "description": "DPA protocol version."
+                                },
+                                "perNr": {
+                                    "type": "integer",
+                                    "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
+                                },
+                                "embeddedPers": {
+                                    "type": "array",
+                                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the TR Configuration.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "hwpid": {
+                                    "type": "integer",
+                                    "description": "Hardware profile ID, 0x0000 if default. At Enumerate Peripherals event the field is prefilled by 0x0000."
+                                },
+                                "hwpidVer": {
+                                    "type": "integer",
+                                    "description": "Hardware profile version, 1st byte = minor version, 2nd byte = major version. At Enumerate Peripherals event the field is prefilled by 0x0000."
+                                },
+                                "flagsEnum": {
+                                    "type": "integer",
+                                    "description": "Various flags: bit 0 - Device works in STD-RX mode, bit 1 - Device works in LP-RX mode, bit 2 - STD+LP network is running, otherwise STD network."
+                                },
+                                "userPer": {
+                                    "type": "array",
+                                    "description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
+                                    "items": {
+                                        "type": "integer"
+                                    }
                                 }
                             }
                         },
@@ -116,7 +150,7 @@
                             },
                             "requestTs": {
                                 "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
                             },
                             "confirmation": {
                                 "type": "string",
@@ -124,7 +158,7 @@
                             },
                             "confirmationTs": {
                                 "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
                             },
                             "response": {
                                 "type": "string",
@@ -132,7 +166,7 @@
                             },
                             "responseTs": {
                                 "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.MS"
+                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
                             }
                         },
                         "required": [

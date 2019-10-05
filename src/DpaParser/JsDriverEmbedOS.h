@@ -30,11 +30,6 @@ namespace iqrf
           return "iqrf.embed.os.Read";
         }
 
-        std::string requestParameter() const override
-        {
-          return "{}";
-        }
-
         void parseResponse(const rapidjson::Value& v) override
         {
           using namespace rapidjson;
@@ -45,9 +40,32 @@ namespace iqrf
           m_rssi = jutils::getMemberAs<int>("rssi", v);
           m_supplyVoltage = jutils::getMemberAs<double>("supplyVoltage", v);
           m_flags = jutils::getMemberAs<int>("flags", v);
-          std::vector<int> arr;
-          arr = jutils::getPossibleMemberAsVector<int>("ibk", v, arr);
-          m_ibk = std::vector<uint8_t>(arr.begin(), arr.end());
+          
+          //TODO check 303
+          if (Pointer("/dpaVer").Get(v)) {
+            auto vect = jutils::getPossibleMemberAsVector<int>("ibk", v);
+            m_ibk = std::vector<uint8_t>(vect.begin(), vect.end());
+            m_is303Compliant = true;
+          }
+
+          //TODO check 410
+          if (Pointer("/dpaVer").Get(v)) {
+            m_dpaVer = jutils::getPossibleMemberAs<int>("dpaVer", v, m_dpaVer);
+            m_perNr = jutils::getPossibleMemberAs<int>("perNr", v, m_perNr);
+            {
+              auto vect = jutils::getPossibleMemberAsVector<int>("embeddedPers", v);
+              m_embedPer = std::set<int>(vect.begin(), vect.end());
+            }
+            m_hwpidValEnum = jutils::getPossibleMemberAs<int>("hwpid", v, m_hwpidValEnum);
+            m_hwpidVer = jutils::getPossibleMemberAs<int>("hwpidVer", v, m_hwpidVer);
+            m_flagsEnum = jutils::getPossibleMemberAs<int>("flagsEnum", v, m_flagsEnum);
+            {
+              auto vect = jutils::getPossibleMemberAsVector<int>("userPer", v);
+              m_userPer = std::set<int>(vect.begin(), vect.end());
+            }
+            m_is410Compliant = true;
+          }
+
         }
       };
 
@@ -66,11 +84,6 @@ namespace iqrf
         std::string functionName() const override
         {
           return "iqrf.embed.os.ReadCfg";
-        }
-
-        std::string requestParameter() const override
-        {
-          return "{}";
         }
 
         void parseResponse(const rapidjson::Value& v) override
@@ -100,11 +113,6 @@ namespace iqrf
         std::string functionName() const override
         {
           return "iqrf.embed.os.Restart";
-        }
-
-        std::string requestParameter() const override
-        {
-          return "{}";
         }
 
         void parseResponse(const rapidjson::Value& v) override

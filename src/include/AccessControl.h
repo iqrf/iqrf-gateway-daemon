@@ -5,7 +5,7 @@
 
 namespace iqrf {
 
-  template<class IqrfChannel>  class AccessorImpl;
+  template<class IqrfChannel> class AccessorImpl;
 
   template<class IqrfChannel>
   class AccessControl
@@ -52,7 +52,7 @@ namespace iqrf {
       return (bool)m_exclusiveReceiveFromFunc;
     }
 
-    std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(IIqrfChannelService::ReceiveFromFunc receiveFromFunc, IIqrfChannelService::AccesType access)
+    std::unique_ptr<IIqrfChannelService::Accessor> getAccess(IIqrfChannelService::ReceiveFromFunc receiveFromFunc, IIqrfChannelService::AccesType access)
     {
       TRC_FUNCTION_ENTER("");
       std::unique_lock<std::mutex> lck(m_mtx);
@@ -141,6 +141,11 @@ namespace iqrf {
       return m_iqrfChannel->terminateProgrammingState();
     }
 
+    IIqrfChannelService::osInfo getTrModuleInfo()
+    {
+      return m_iqrfChannel->getTrModuleInfo();
+    }
+
   private:
     IIqrfChannelService::ReceiveFromFunc m_normalReceiveFromFunc;
     IIqrfChannelService::ReceiveFromFunc m_exclusiveReceiveFromFunc;
@@ -192,6 +197,11 @@ namespace iqrf {
     bool terminateProgrammingState() override
     {
       return m_accessControl->terminateProgrammingState();
+    }
+
+    IIqrfChannelService::osInfo getTrModuleInfo()
+    {
+      return m_accessControl->getTrModuleInfo();
     }
 
   private:

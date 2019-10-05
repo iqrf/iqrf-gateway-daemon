@@ -30,28 +30,28 @@
     },
     {
       "name": "iqrf::TestSimulationMessaging",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "TestSimulationMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsonSplitter",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsonSplitter",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::JsonMngMetaDataApi",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsonMngMetaDataApi",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::TestJsonMngMetaDataApi",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "TestJsonMngMetaDataApi",
       "enabled": true,
       "startlevel": 4

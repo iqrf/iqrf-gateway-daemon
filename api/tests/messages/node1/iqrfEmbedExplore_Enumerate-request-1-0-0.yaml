@@ -1,0 +1,7 @@
+mType: iqrfEmbedExplore_Enumerate
+data:
+  msgId: testEmbedExplore
+  req:
+    nAdr: 1
+    param: {}
+  returnVerbose: true

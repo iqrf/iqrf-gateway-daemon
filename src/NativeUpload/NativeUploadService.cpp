@@ -498,6 +498,7 @@ namespace iqrf {
     TrModuleInfo toTrModuleInfo(const IIqrfDpaService::CoordinatorParameters& coordParams)
     {
       TrModuleInfo trModuleInfo;
+      IIqrfChannelService::osInfo trOsInfo;
 
       // Tr MCU
       if (coordParams.mcuType.compare("PIC16LF1938") == 0)
@@ -518,15 +519,26 @@ namespace iqrf {
         trModuleInfo.serie = TrSerie::NONE;
       }
 
-      // OS Version
       size_t dotPos = coordParams.osVersion.find_first_of('.');
       std::string majorOsVer = coordParams.osVersion.substr(0, dotPos);
       std::string minorOsVer = coordParams.osVersion.substr(dotPos+1, 2);
 
+      // OS Version
       trModuleInfo.osVersion = ((std::stoi(majorOsVer) << 4) + (std::stoi(minorOsVer) & 0xF)) & 0xFF;
 
       // OS Build
       trModuleInfo.osBuild = (std::stoi(coordParams.osBuild, nullptr, 16)) & 0xFFFF;
+
+      // OS info from IQRF interface
+      trOsInfo = m_exclusiveAccessor->getTrModuleInfo();
+      if (trOsInfo.osVersionMajor != 0 && trOsInfo.osVersionMajor != 0 && trOsInfo.osBuild != 0 ) {
+        trModuleInfo.osVersion = ((trOsInfo.osVersionMajor << 4) + (trOsInfo.osVersionMinor & 0x0F)) & 0xFF;
+        trModuleInfo.osBuild = trOsInfo.osBuild;
+      }
+      else
+      {
+        TRC_WARNING("Could not get TR module info from IQRF interface, used info from DPA channel.");
+      }
 
       return trModuleInfo;
     }
@@ -545,6 +557,7 @@ namespace iqrf {
       IqrfFmtParser parser(fileName);
 
       iqrf::IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+
       TrModuleInfo trModuleInfo = toTrModuleInfo(coordParams);
 
       parser.parse();

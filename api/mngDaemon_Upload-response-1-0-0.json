@@ -34,7 +34,7 @@
 							},
 							"requestTs": {
 								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.MS"
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
 							}
 						},
 						"required": [

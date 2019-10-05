@@ -1,8 +1,0 @@
-{
-  "component": "iqrf::IqrfUart",
-  "instance": "iqrf::IqrfUart-/dev/ttyS0",
-  "IqrfInterface": "/dev/ttyS0",
-  "baudRate": 57600,
-  "powerEnableGpioPin": 18,
-  "busEnableGpioPin": -1
-}

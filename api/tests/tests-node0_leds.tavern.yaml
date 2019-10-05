@@ -1,0 +1,40 @@
+# tests-node0_leds.tavern.yaml
+---
+
+test_name: Test mqtt message - embed coordinator bonded devices
+
+includes:
+  - !include common.yaml
+
+paho-mqtt: &mqtt_spec
+  client:
+    transport: tcp
+    client_id: tavern-tester
+  connect:
+    host: "{mqtt_host:s}"
+    port: !int "{mqtt_port:d}"
+    timeout: 5
+
+#node0 - dpa coordinator
+stages:
+  - name: ledg pulse
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node0/iqrfEmbedLedg_Pulse-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node0/iqrfEmbedLedg_Pulse-response-1-0-0.yaml
+      timeout: 1
+
+  - name: ledr pulse
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node0/iqrfEmbedLedr_Pulse-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node0/iqrfEmbedLedr_Pulse-response-1-0-0.yaml
+      timeout: 1

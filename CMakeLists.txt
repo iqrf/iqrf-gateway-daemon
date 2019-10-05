@@ -59,6 +59,16 @@ else()
   set(BUILD_TIMESTAMP ${DEFAULT_BUILD_TIMESTAMP})
 endif()
 
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  if(${CMAKE_VERSION} VERSION_LESS 3.13)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,relro -Wl,-z,now")
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,relro -Wl,-z,now")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,relro -Wl,-z,now")
+  else()
+    add_link_options(-Wl,-z,relro -Wl,-z,now)
+  endif()
+endif()
+
 add_subdirectory(libraries/clibspi  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibcdc  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
@@ -116,5 +126,6 @@ if(${BUILD_TESTING})
   add_subdirectory(src/tests)
 endif()
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/VersionInfo.h.in ${CMAKE_BINARY_DIR}/VersionInfo.h @ONLY)
 

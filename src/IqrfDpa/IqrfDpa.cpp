@@ -258,7 +258,7 @@ namespace iqrf {
       }
 
       // Get coordinator parameters
-      m_cPar.dpaVerWord = iqrfEmbedExploreEnumerate.getDpaVer();
+      m_cPar.dpaVerWord = (uint16_t)iqrfEmbedExploreEnumerate.getDpaVer();
       m_cPar.dpaVerWordAsStr = iqrfEmbedExploreEnumerate.getDpaVerAsHexaString();
       m_cPar.dpaVer = iqrfEmbedExploreEnumerate.getDpaVerAsString();
       m_cPar.dpaVerMajor = iqrfEmbedExploreEnumerate.getDpaVerMajor();
@@ -323,7 +323,7 @@ namespace iqrf {
           TRC_INFORMATION("No async TR reset response => Send explicit request");
 
           iqrf::embed::os::RawDpaRestart iqrfEmbedOsRestart(0); // restart coordinator
-          auto trn = executeDpaTransaction(iqrfEmbedOsRestart.encodeRequest(), -1);
+          auto trn = executeDpaTransaction(iqrfEmbedOsRestart.getRequest(), -1);
           // don't care about result => interested in async reset response
         }
         else {
@@ -343,19 +343,21 @@ namespace iqrf {
     iqrf::embed::os::RawDpaRead iqrfEmbedOsRead(0);
     try {
       std::unique_ptr<IDpaTransactionResult2> transResult;
-      exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedOsRead.encodeRequest(), transResult, 3);
+      exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedOsRead.getRequest(), transResult, 3);
       iqrfEmbedOsRead.processDpaTransactionResult(std::move(transResult));
 
       m_cPar.moduleId = iqrfEmbedOsRead.getMidAsString();
       m_cPar.osVersion = iqrfEmbedOsRead.getOsVersionAsString();
       m_cPar.trType = iqrfEmbedOsRead.getTrTypeAsString();
       m_cPar.mcuType = iqrfEmbedOsRead.getTrMcuTypeAsString();
+      m_cPar.osBuildWord = (uint16_t)iqrfEmbedOsRead.getOsBuild();
       m_cPar.osBuild = iqrfEmbedOsRead.getOsBuildAsString();
       TRC_INFORMATION("TR params: " << std::endl <<
         NAME_PAR(moduleId, m_cPar.moduleId) <<
         NAME_PAR(osVersion, m_cPar.osVersion) <<
         NAME_PAR(trType, m_cPar.trType) <<
         NAME_PAR(mcuType, m_cPar.mcuType) <<
+        NAME_PAR(osBuildWord, m_cPar.osBuildWord) <<
         NAME_PAR(osBuild, m_cPar.osBuild) <<
         std::endl
       );

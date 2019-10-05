@@ -1,0 +1,7 @@
+mType: iqrfEmbedCoordinator_BondedDevices
+data:
+  msgId: testEmbedCoordinator
+  req:
+    nAdr: 0
+    param: {}
+  returnVerbose: true

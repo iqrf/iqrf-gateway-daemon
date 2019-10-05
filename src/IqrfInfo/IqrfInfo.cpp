@@ -7,14 +7,19 @@
 #include "RawDpaEmbedOS.h"
 #include "JsDriverBinaryOutput.h"
 #include "JsDriverSensor.h"
+#include "JsDriverLight.h"
 #include "InfoSensor.h"
 #include "InfoBinaryOutput.h"
+#include "InfoDali.h"
+#include "InfoLight.h"
+#include "HexStringCoversion.h"
 
 #include "Trace.h"
 #include "rapidjson/pointer.h"
 #include <fstream>
 #include <set>
 #include <thread>
+#include <atomic>
 
 #include "iqrf__IqrfInfo.hxx"
 
@@ -26,6 +31,8 @@ namespace iqrf {
 
   const int PERIF_STANDARD_SENSOR = 94;
   const int PERIF_STANDARD_BINOUT = 75;
+  const int PERIF_STANDARD_DALI = 74;
+  const int PERIF_STANDARD_LIGHT = 113;
 
   class SqlFile
   {
@@ -265,13 +272,14 @@ namespace iqrf {
     std::set<int> m_nadrFullEnum;
     bool m_enumAtStartUp = false;
     std::thread m_enumThread;
-    bool m_enumThreadRun;
+    std::atomic_bool m_enumThreadRun;
 
     FastEnumerationPtr m_fastEnum;
 
   public:
     Imp()
     {
+      m_enumThreadRun = false;
     }
 
     ~Imp()
@@ -318,12 +326,24 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      fastEnum();
-      fullEnum();
-      loadDrivers();
-      deepEnum();
-      
+      try {
+        std::cout << std::endl << "Fast Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
+        fastEnum();
+        std::cout << std::endl << "Full Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
+        fullEnum();
+        loadDrivers();
+        std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
+        stdEnum();
+        std::cout << std::endl << "Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+      }
+      catch (std::exception & e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Enumeration failure");
+        std::cout << std::endl << "Enumeration failure at:      " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl <<
+          e.what() << std::endl;
+      }
+
       m_fastEnum.release();
+      m_enumThreadRun = false;
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -341,18 +361,18 @@ namespace iqrf {
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorBondedDevices.encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorBondedDevices.getRequest(), transResult, 3);
         iqrfEmbedCoordinatorBondedDevices.processDpaTransactionResult(std::move(transResult));
       }
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorDiscoveredDevices.encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorDiscoveredDevices.getRequest(), transResult, 3);
         iqrfEmbedCoordinatorDiscoveredDevices.processDpaTransactionResult(std::move(transResult));
       }
 
       retval->setBondedDiscovered(iqrfEmbedCoordinatorBondedDevices.getBondedDevices(), iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices());
-      std::set<int> evaluated = retval->getDiscovered();
+      std::set<int> evaluated = retval->getBonded();
       evaluated.insert(0); //eval coordinator
 
       for (auto nadr : evaluated) {
@@ -367,10 +387,6 @@ namespace iqrf {
           int p5 = nd->getEmbedOsRead()->getOsBuild();
           int p6 = nd->getEmbedOsRead()->getOsVersion();
           int p7 = nd->getEmbedExploreEnumerate()->getDpaVer();
-
-          //retval->addItem(
-          //  nd->getNadr(), nd->getEmbedOsRead()->getMid(), nd->getHwpid(), nd->getEmbedExploreEnumerate()->getHwpidVer()
-          //  , nd->getEmbedOsRead()->getOsBuild(), nd->getEmbedOsRead()->getOsVersion(), nd->getEmbedExploreEnumerate()->getDpaVer(), std::move(nd));
 
           retval->addItem(p1, p2, p3, p4, p5, p6, p7, std::move(nd));
 
@@ -395,13 +411,13 @@ namespace iqrf {
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(osReadPtr->encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(osReadPtr->getRequest(), transResult, 3);
         osReadPtr->processDpaTransactionResult(std::move(transResult));
       }
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->encodeRequest(), transResult, 3);
+        exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, 3);
         exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
       }
 
@@ -471,35 +487,7 @@ namespace iqrf {
 
       auto const & enums = m_fastEnum->getEnumerated();
 
-      // sync non discovered Nadrs
-      for (auto nadr : m_fastEnum->getNonDiscovered()) {
-
-        std::unique_ptr<int> nadrPtrRes, disPtrRes, midPtrRes;
-        int dis = 0, mid = 0;
-
-        db << "select Nadr, Dis, Mid from Bonded where nadr = ? ;" << nadr
-          >> [&](std::unique_ptr<int> nadrPtr, std::unique_ptr<int> disPtr, std::unique_ptr<int> midPtr)
-        {
-          nadrPtrRes = std::move(nadrPtr);
-          disPtrRes = std::move(disPtr);
-          midPtrRes = std::move(midPtr);
-        };
-
-        if (nadrPtrRes) {
-          if (*disPtrRes != 0 || !midPtrRes) {
-            // Nadr exists in DB and is set as discovered or has mid => set to nondiscovered and null mid in Bonded
-            TRC_INFORMATION(PAR(nadr) << " set to nondiscovered in bonded list");
-            db << "update Bonded set Dis = ? , Mid = ?, Enm = ? where Nadr = ?;" << 0 << nullptr << 0 << nadr;
-          }
-        }
-        else {
-          // Nadr does not exist in DB => insert and set to nondiscovered and null mid in Bonded
-          TRC_INFORMATION(PAR(nadr) << " insert and set to nondiscovered in bonded list");
-          db << "insert into Bonded (Nadr, Dis, Enm)  values (?, ?, ?);" << nadr << 0 << 0;
-        }
-      }
-
-      // delete Nadr from DB if it doesnt exist in Net
+      // delete Nadr from DB if it doesn't exist in Net
       for (const auto & bo : m_mapNadrBondNodeDb) {
         int nadr = bo.first;
         const auto & b = bo.second;
@@ -561,6 +549,7 @@ namespace iqrf {
           }
 
           unsigned mid = nd->getEmbedOsRead()->getMid();
+          bool dis = (m_fastEnum->getDiscovered().find(nadr) != m_fastEnum->getDiscovered().end());
           int hwpid = nd->getHwpid();
           int hwpidVer = nd->getEmbedExploreEnumerate()->getHwpidVer();
           int osBuild = nd->getEmbedOsRead()->getOsBuild();
@@ -618,10 +607,10 @@ namespace iqrf {
               if (!m_enumThreadRun) break;
 
               //Get peripheral information for sensor, binout and TODO other std if presented
-              if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per) {
+              if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per || PERIF_STANDARD_DALI == per || PERIF_STANDARD_LIGHT == per) {
                 
                 embed::explore::RawDpaPeripheralInformation perInfo(nadr, per);
-                perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.encodeRequest())->get());
+                perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.getRequest())->get());
                 
                 int version = perInfo.getPar1();
                 //TODO temp workaround
@@ -663,9 +652,7 @@ namespace iqrf {
 
           nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
 
-          bondedInDb(nadr, 1, mid, 1);
-
-          //deepEnum(device);
+          bondedInDb(nadr, dis ? 1 : 0, mid, 1);
 
           db << "commit;";
         }
@@ -701,12 +688,29 @@ namespace iqrf {
       wrapperStr = strStream.str();
 
       // get parameters of coordinator - used to select drivers for all other nodes
-      NodeDataPtr cd = getNodeData(0);
+      int hwpid = 0;
+      int hwpidVar = 0;
+      int osBuild = 0;
+      int dpaVer = 0;
 
-      int hwpid = cd->getHwpid();
-      int hwpidVar = cd->getEmbedExploreEnumerate()->getHwpidVer();
-      int osBuild = cd->getEmbedOsRead()->getOsBuild();
-      int dpaVer = cd->getEmbedExploreEnumerate()->getDpaVer();
+      //try {
+      //  NodeDataPtr cd = getNodeData(0);
+
+      //  hwpid = cd->getHwpid();
+      //  hwpidVar = cd->getEmbedExploreEnumerate()->getHwpidVer();
+      //  osBuild = cd->getEmbedOsRead()->getOsBuild();
+      //  dpaVer = cd->getEmbedExploreEnumerate()->getDpaVer();
+      //}
+      //catch (std::exception & e) {
+      //  CATCH_EXC_TRC_WAR(std::exception, e, "cannot get coordinator params");
+      //  auto cpars = m_iIqrfDpaService->getCoordinatorParameters();
+      //  osBuild = cpars.osBuildWord;
+      //  dpaVer = cpars.dpaVerWord;
+      //}
+
+      auto cpars = m_iIqrfDpaService->getCoordinatorParameters();
+      osBuild = cpars.osBuildWord;
+      dpaVer = cpars.dpaVerWord;
 
       std::string str2load;
 
@@ -752,17 +756,17 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+
     void loadDrivers()
     {
       TRC_FUNCTION_ENTER("");
-      database & db = *m_db;
-
-      std::map<int, std::vector<Driver>> mapDeviceDrivers;
 
       try {
 
         database & db = *m_db;
+        std::map<int, std::map<int, Driver>> mapDeviceDrivers;
 
+        // get drivers according DeviceId
         db << "SELECT "
           "Device.Id "
           ", Driver.Name "
@@ -777,16 +781,47 @@ namespace iqrf {
           ";"
           >> [&](int id, std::string name, int sid, int ver, std::string drv)
         {
-          mapDeviceDrivers[id].push_back(Driver(name, sid, ver, drv));
+          mapDeviceDrivers[id].insert(std::make_pair(sid, Driver(name, sid, ver, drv)));
         };
 
         db << "select Id, CustomDriver from Device;" 
           >> [&](int id, std::string drv)
         {
-          mapDeviceDrivers[id].push_back(Driver("custom", -100, 0, drv));
+          int sid = -100;
+          mapDeviceDrivers[id].insert(std::make_pair(sid, Driver("custom", -100, 0, drv)));
         };
 
-        
+        /////////// special coord handling - gets all highest ver drivers not assigned in previous steps
+        // get [C] device by Nadr = 0 to add later some std FRC drivers to coordinator
+        int coordDeviceId = 0;
+        db << "SELECT "
+          "Device.Id "
+          " FROM Bonded "
+          " INNER JOIN Node "
+          " ON Bonded.Mid = Node.Mid "
+          " INNER JOIN Device "
+          " ON Node.DeviceId = Device.Id "
+          " WHERE Bonded.Nadr = 0"
+          ";"
+          >> coordDeviceId;
+
+        std::map<int, Driver> & coordDriversMap = mapDeviceDrivers[coordDeviceId];
+        db << "SELECT "
+          "Name "
+          ", StandardId "
+          ", Version "
+          ", Driver "
+          ", MAX(Version) as MaxVersion "
+          "FROM Driver "
+          "GROUP BY StandardId "
+          ";"
+          >> [&](std::string name, int sid, int ver, std::string drv, int maxVer)
+        {
+          // it doesn't insert if sid already there => inserted just not presented
+          coordDriversMap.insert(std::make_pair(sid, Driver(name, sid, ver, drv)));
+        };
+        ////////// end of special coord handling
+
         // daemon wrapper workaround
         std::string wrapperStr;
         std::string fname = m_iLaunchService->getDataDir();
@@ -805,7 +840,7 @@ namespace iqrf {
           std::string str2load;
           auto const & drvs = devIt.second;
           for (auto drv : drvs) {
-            str2load += drv.m_drv;
+            str2load += drv.second.m_drv;
           }
           str2load += wrapperStr;
           m_iJsRenderService->loadJsCodeFenced(deviceId, str2load);
@@ -820,7 +855,7 @@ namespace iqrf {
             " ON Bonded.Mid = Node.Mid "
             " INNER JOIN Device "
             " ON Node.DeviceId = Device.Id "
-            " WHERE Node.DeviceId = ?"
+            " WHERE Node.DeviceId = ? "
             ";"
             << deviceId
             >> [&](int id, int nadr)
@@ -980,7 +1015,7 @@ namespace iqrf {
         ", HandlerHash"
         ", HandlerUrl"
         ", CustomDriver"
-        ", DeepEnum"
+        ", StdEnum"
         ")  values ( "
         "?"
         ", ?"
@@ -1066,13 +1101,13 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void deepEnum()
+    void stdEnum()
     {
       TRC_FUNCTION_ENTER("");
 
       database & db = *m_db;
 
-      // map device nadrs for devices to deep enum
+      // map device nadrs for devices to std enum
       std::map<int, std::vector<int >> mapDeviceVectNadr;
       db << "SELECT"
         " Device.Id"
@@ -1082,14 +1117,14 @@ namespace iqrf {
         " ON Bonded.Mid = Node.Mid"
         " INNER JOIN Device"
         " ON Node.DeviceId = Device.Id"
-        " WHERE Device.DeepEnum = 0"
+        " WHERE Device.StdEnum = 0"
         ";"
         >> [&](int dev, int nadr)
       {
         mapDeviceVectNadr[dev].push_back(nadr);
       };
 
-      // deep enum according first bonded nadr of the device
+      // std enum according first bonded nadr of the device
       for (auto it : mapDeviceVectNadr) {
 
         // enum thread stopped
@@ -1102,7 +1137,7 @@ namespace iqrf {
           nadr = it.second[0];
         }
         else {
-          TRC_WARNING("Cannot deep eval: " << PAR(deviceId) << " as there is no bonded nadr");
+          TRC_WARNING("Cannot std eval: " << PAR(deviceId) << " as there is no bonded nadr");
           continue;
         }
         
@@ -1127,19 +1162,30 @@ namespace iqrf {
           };
 
           for (auto d : vectDrivers) {
-            switch (d) {
-            case PERIF_STANDARD_BINOUT:
-              stdBinoutEnum(nadr, deviceId);
-              break;
-            case PERIF_STANDARD_SENSOR:
-              stdSensorEnum(nadr, deviceId);
-              break;
-            default:;
+            try {
+              switch (d) {
+              case PERIF_STANDARD_BINOUT:
+                stdBinoutEnum(nadr, deviceId);
+                break;
+              case PERIF_STANDARD_LIGHT:
+                stdLightEnum(nadr, deviceId);
+                break;
+              case PERIF_STANDARD_SENSOR:
+                stdSensorEnum(nadr, deviceId);
+                break;
+              case PERIF_STANDARD_DALI:
+                stdDaliEnum(nadr, deviceId);
+                break;
+              default:;
+              }
+            }
+            catch (std::exception &e) {
+              CATCH_EXC_TRC_WAR(std::exception, e, "Cannot std enumerate " << PAR(nadr) << NAME_PAR(perif, d));
             }
           }
 
           db << "update Device set "
-          "DeepEnum = ?"
+          "StdEnum = ?"
           " where Id = ?;"
             << 1
             << deviceId
@@ -1149,12 +1195,12 @@ namespace iqrf {
         }
         catch (sqlite_exception &e)
         {
-          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store deep enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store std enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
           db << "rollback;";
         }
         catch (std::exception &e)
         {
-          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot deep enumerate " << PAR(nadr));
+          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot std enumerate " << PAR(nadr));
           db << "rollback;";
         }
       }
@@ -1162,12 +1208,52 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    void stdDaliEnum(int nadr, int deviceId)
+    {
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
+
+      //no enum
+
+      database & db = *m_db;
+
+      db << "delete from Dali where DeviceId = ?;"
+        << deviceId;
+
+      db << "insert into Dali (DeviceId)  values (?);"
+        << deviceId;
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void stdLightEnum(int nadr, int deviceId)
+    {
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
+
+      light::jsdriver::Enumerate lightEnum(m_iJsRenderService, nadr);
+      lightEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(lightEnum.getRequest())->get());
+
+      database & db = *m_db;
+
+      db << "delete from Light where DeviceId = ?;"
+        << deviceId;
+
+      db << "insert into Light ("
+        "DeviceId"
+        ", Num"
+        ")  values ( "
+        "?, ?"
+        ");"
+        << deviceId << lightEnum.getLightsNum();
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
     void stdBinoutEnum(int nadr, int deviceId)
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
 
-      binaryoutput::JsDriverEnumerate binoutEnum(m_iJsRenderService, nadr);
-      binoutEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(binoutEnum.encodeRequest())->get());
+      binaryoutput::jsdriver::Enumerate binoutEnum(m_iJsRenderService, nadr);
+      binoutEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(binoutEnum.getRequest())->get());
 
       database & db = *m_db;
 
@@ -1189,8 +1275,8 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
 
-      sensor::JsDriverEnumerate sensorEnum(m_iJsRenderService, nadr);
-      sensorEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(sensorEnum.encodeRequest())->get());
+      sensor::jsdriver::Enumerate sensorEnum(m_iJsRenderService, nadr);
+      sensorEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(sensorEnum.getRequest())->get());
       
       auto const & sensors = sensorEnum.getSensors();
       int idx = 0;
@@ -1307,6 +1393,77 @@ namespace iqrf {
       return retval;
     }
 
+    std::map<int, dali::EnumeratePtr> getDalis() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::map<int, dali::EnumeratePtr> retval;
+      database & db = *m_db;
+
+      db <<
+        "select "
+        "b.Nadr "
+        "from "
+        "Bonded as b "
+        ", Device as d "
+        ", Dali as o "
+        "where "
+        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) and "
+        "d.Id = o.DeviceId "
+        ";"
+        >> [&](int nadr)
+      {
+        retval.insert(std::make_pair(nadr, dali::InfoEnumeratePtr(shape_new dali::InfoEnumerate())));
+      };
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    std::map<int, light::EnumeratePtr> getLights() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::map<int, light::EnumeratePtr> retval;
+      database & db = *m_db;
+
+      db <<
+        "select "
+        "b.Nadr "
+        ", o.Num "
+        "from "
+        "Bonded as b "
+        ", Device as d "
+        ", Light as o "
+        "where "
+        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) and "
+        "d.Id = o.DeviceId "
+        ";"
+        >> [&](int nadr, int num)
+      {
+        retval.insert(std::make_pair(nadr, light::InfoEnumeratePtr(shape_new light::InfoEnumerate(num))));
+      };
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    void startEnumeration()
+    {
+      TRC_FUNCTION_ENTER("");
+      if (!m_enumThreadRun) {
+        if (m_enumThread.joinable()) {
+          m_enumThread.join();
+        }
+        m_enumThreadRun = true;
+        m_enumThread = std::thread([&]() { runEnum(); });
+      }
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Enumeration is already running");
+      }
+      TRC_FUNCTION_LEAVE("")
+    }
+
     void attachInterface(iqrf::IJsRenderService* iface)
     {
       TRC_FUNCTION_ENTER(PAR(iface));
@@ -1383,8 +1540,7 @@ namespace iqrf {
       loadProvisoryDrivers();
 
       if (m_enumAtStartUp) {
-        m_enumThreadRun = true;
-        m_enumThread = std::thread([&]() { runEnum(); });
+        startEnumeration();
       }
 
       TRC_FUNCTION_LEAVE("")
@@ -1445,6 +1601,21 @@ namespace iqrf {
   std::map<int, binaryoutput::EnumeratePtr> IqrfInfo::getBinaryOutputs() const
   {
     return m_imp->getBinaryOutputs();
+  }
+
+  std::map<int, dali::EnumeratePtr> IqrfInfo::getDalis() const
+  {
+    return m_imp->getDalis();
+  }
+
+  std::map<int, light::EnumeratePtr> IqrfInfo::getLights() const
+  {
+    return m_imp->getLights();
+  }
+
+  void IqrfInfo::startEnumeration()
+  {
+    return m_imp->startEnumeration();
   }
 
   void IqrfInfo::activate(const shape::Properties *props)

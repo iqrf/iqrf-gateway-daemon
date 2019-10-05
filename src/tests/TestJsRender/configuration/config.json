@@ -30,14 +30,14 @@
     },
     {
       "name": "iqrf::JsRenderDuktape",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsRenderDuktape",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::TestJsRender",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "TestJsRender",
       "enabled": true,
       "startlevel": 2

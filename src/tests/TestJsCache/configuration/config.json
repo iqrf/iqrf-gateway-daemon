@@ -37,35 +37,35 @@
     },
     {
       "name": "iqrf::Scheduler",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "Scheduler",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::TestSimulationIqrfChannel",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "TestSimulationIqrfChannel",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfDpa",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsCache",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsCache",
       "enabled": true,
       "startlevel": 2
     },
     {
       "name": "iqrf::JsRenderDuktape",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsRenderDuktape",
       "enabled": true,
       "startlevel": 1
@@ -79,7 +79,7 @@
     },
     {
       "name": "iqrf::TestJsCache",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "TestJsCache",
       "enabled": true,
       "startlevel": 1

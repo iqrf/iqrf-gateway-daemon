@@ -1,0 +1,29 @@
+mType: iqrfSensor_Enumerate
+data:
+  msgId: testEmbedSensor
+  rsp:
+    nAdr: 1
+    hwpId: 2050
+    rCode: 0
+    dpaVal: !anyint
+    result:
+      sensors:
+      - id: TEMPERATURE
+        type: 1
+        name: Temperature
+        shortName: T
+        unit: !anystr
+        decimalPlaces: 4
+        frcs:
+        - 144
+        - 224
+  raw:
+  - request: 01.00.5e.3e.ff.ff
+    requestTs: !anystr
+    confirmation: !anystr
+    confirmationTs: !anystr
+    response: !anystr
+    responseTs: !anystr
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0

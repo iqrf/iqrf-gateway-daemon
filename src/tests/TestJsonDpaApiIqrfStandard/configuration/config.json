@@ -37,63 +37,70 @@
     },
     {
       "name": "iqrf::Scheduler",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "Scheduler",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::TestSimulationIqrfChannel",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "TestSimulationIqrfChannel",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfDpa",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "IqrfDpa",
       "enabled": true,
       "startlevel": 0
     },
     {
+      "name": "iqrf::IqrfInfo",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfInfo",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::JsCache",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsCache",
       "enabled": true,
       "startlevel": 2
     },
     {
       "name": "iqrf::JsRenderDuktape",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsRenderDuktape",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::TestSimulationMessaging",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "TestSimulationMessaging",
       "enabled": true,
       "startlevel": 0
     },
     {
       "name": "iqrf::JsonSplitter",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsonSplitter",
       "enabled": true,
       "startlevel": 1
     },
     {
       "name": "iqrf::JsonDpaApiIqrfStandard",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsonDpaApiIqrfStandard",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::TestJsonDpaApiIqrfStandard",
-      "libraryPath": "IqrfDaemon/bin",
+      "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "TestJsonDpaApiIqrfStandard",
       "enabled": true,
       "startlevel": 4

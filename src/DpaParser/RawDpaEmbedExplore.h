@@ -25,14 +25,11 @@ namespace iqrf
         {
         }
 
-        DpaMessage encodeRequest() override
+      protected:
+        void encodeRequest(DpaMessage & dpaRequest) override
         {
-          DpaMessage request;
-          initRequestHeader(request);
-          return request;
         }
 
-      protected:
         void parseResponse(const DpaMessage & dpaResponse) override
         {
           const TEnumPeripheralsAnswer & resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
@@ -58,15 +55,12 @@ namespace iqrf
 
         virtual ~RawDpaPeripheralInformation() {}
 
-        DpaMessage encodeRequest() override
+      protected:
+        void encodeRequest(DpaMessage & dpaRequest) override
         {
-          DpaMessage request;
-          initRequestHeader(request);
-          request.DpaPacket().DpaRequestPacket_t.PNUM = (uint8_t)getPer();
-          return request;
+          dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM = (uint8_t)getPer();
         }
 
-      protected:
         void parseResponse(const DpaMessage & dpaResponse) override
         {
           TPeripheralInfoAnswer resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PeripheralInfoAnswer;
@@ -90,11 +84,9 @@ namespace iqrf
 
         virtual ~RawDpaMorePeripheralInformation() {}
 
-        DpaMessage encodeRequest() override
+      protected:
+        void encodeRequest(DpaMessage & dpaRequest) override
         {
-          DpaMessage request;
-          initRequestHeader(request);
-          return request;
         }
 
         void parseResponse(const DpaMessage & dpaResponse) override
@@ -107,7 +99,7 @@ namespace iqrf
         }
 
       };
-      typedef std::unique_ptr<RawDpaPeripheralInformation> RawDpaPeripheralInformationPtr;
+      typedef std::unique_ptr<RawDpaMorePeripheralInformation> RawDpaMorePeripheralInformationPtr;
 
     } //namespace explore
   } //namespace embed
