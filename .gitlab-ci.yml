@@ -114,6 +114,14 @@ stages:
   tags:
     - linux, amd64
 
+.ubuntu-disco-amd64-template: &ubuntu-disco-amd64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-disco-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "disco"
+  tags:
+    - linux, amd64
+
 .ubuntu-xenial-amd64-template: &ubuntu-xenial-amd64-template
   image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-amd64
   variables:
@@ -341,7 +349,7 @@ rpi-package_release-stretch-armhf:
   <<: *raspbian-stretch-armhf-template
   <<: *package-release-template
 
-# Ubuntu bionic
+# Ubuntu 18.04 bionic
 ## amd64
 package-bionic-amd64:
   <<: *ubuntu-bionic-amd64-template
@@ -351,7 +359,17 @@ package_release-bionic-amd64:
   <<: *ubuntu-bionic-amd64-template
   <<: *package-release-template
 
-# Ubuntu xenial
+# Ubuntu 19.04 disco
+## amd64
+package-disco-amd64:
+  <<: *ubuntu-disco-amd64-template
+  <<: *package-devel-template
+
+package_release-disco-amd64:
+  <<: *ubuntu-disco-amd64-template
+  <<: *package-release-template
+
+# Ubuntu 16.04 xenial
 ## amd64
 package-xenial-amd64:
   <<: *ubuntu-xenial-amd64-template
