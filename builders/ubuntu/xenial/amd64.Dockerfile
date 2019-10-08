@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM iqrftech/package-builders:ubuntu-bionic-amd64
+FROM iqrftech/package-builders:ubuntu-xenial-amd64
 
 MAINTAINER Roman Ondráček <roman.ondracek@iqrf.com>
 LABEL maintainer="roman.ondracek@iqrf.com"
