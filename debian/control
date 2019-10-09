@@ -13,5 +13,7 @@ Package: iqrf-gateway-daemon
 Architecture: any
 Multi-Arch: foreign
 Depends: ${misc:Depends}, ${shlibs:Depends}
+Replaces: iqrf-daemon (<< 2.0.0)
+Breaks: iqrf-daemon (<< 2.0.0)
 Description: IQRF Gateway Daemon
  IQRF Gateway Daemon with UDP/MQ/MQTT/WS communication channels.
