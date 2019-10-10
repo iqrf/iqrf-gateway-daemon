@@ -249,7 +249,7 @@ namespace iqrf {
 
       std::string msgStr((char*)message.data(), message.size());
       
-      TRC_INFORMATION("Incomming message:\n"
+      TRC_INFORMATION("Incoming message:\n"
         << NAME_PAR(Messaging ID, messagingId)
         << "\n"
         << NAME_PAR(Message, msgStr)
@@ -279,7 +279,7 @@ namespace iqrf {
         }
       }
       else {
-        TRC_WARNING("Not activated yet => message is droped ");
+        TRC_WARNING("Not activated yet => message is dropped.");
       }
       TRC_FUNCTION_LEAVE(PAR(queueLen))
     }
@@ -340,7 +340,7 @@ namespace iqrf {
             // invoke handling
             try {
               selected(messagingId, msgType, std::move(doc));
-              TRC_INFORMATION("Incomming message successfully handled.");
+              TRC_INFORMATION("Incoming message successfully handled.");
             }
             catch (std::exception &e) {
               THROW_EXC_TRC_WAR(std::logic_error, "Unhandled exception: " << e.what());
@@ -353,7 +353,7 @@ namespace iqrf {
 
       }
       catch (std::logic_error &e) {
-        TRC_WARNING("Error while handling incomming message:" << e.what());
+        TRC_WARNING("Error while handling incoming message:" << e.what());
 
         Document rspDoc;
         MessageErrorMsg msg(msgId, str, e.what());

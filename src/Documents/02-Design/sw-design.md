@@ -52,7 +52,7 @@ Is abstraction of specific messaging protocol
 - get flag if accepts async DPA message
 
 #### IMessagingSplitterService
-Is abstraction of messaging splitter. Incomming message is preparsed and the message is routed to proper handler according registered message type filters. When a message (response) is sent an implementation has to assure that it is routed back to proper messaging according messagingId 
+Is abstraction of messaging splitter. Incoming message is preparsed and the message is routed to proper handler according registered message type filters. When a message (response) is sent an implementation has to assure that it is routed back to proper messaging according messagingId 
 - send message (messagingId, message)
 - register/unregister message handler (vector< message filter>, handleFunction)
 - handleFunction(messagingId, address, message) 
