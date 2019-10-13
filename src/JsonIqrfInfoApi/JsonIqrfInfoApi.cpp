@@ -302,6 +302,8 @@ namespace iqrf {
           Value devVal;
 
           Pointer("/nAdr").Set(devVal, enm.first, a);
+          Pointer("/mid").Set(devVal, enm.second->getMid(), a);
+          Pointer("/disc").Set(devVal, enm.second->getDisc(), a);
           Pointer("/hwpid").Set(devVal, enm.second->getHwpid(), a);
           Pointer("/hwpidVer").Set(devVal, enm.second->getHwpidVer(), a);
           Pointer("/osBuild").Set(devVal, enm.second->getOsBuild(), a);

@@ -198,8 +198,8 @@ namespace iqrf {
       {
       public:
         Enumerated() = delete;
-        Enumerated(unsigned mid, int hwpid, int hwpidVer, int osBuild, int dpaVer, NodeDataPtr nodeDataPtr)
-          :embed::node::info::BriefInfo(mid, hwpid, hwpidVer, osBuild, dpaVer)
+        Enumerated(unsigned mid, bool disc, int hwpid, int hwpidVer, int osBuild, int dpaVer, NodeDataPtr nodeDataPtr)
+          :embed::node::info::BriefInfo(mid, disc, hwpid, hwpidVer, osBuild, dpaVer)
           , m_nodeDataPtr(std::move(nodeDataPtr))
         {}
         NodeDataPtr getNodeData() { return std::move(m_nodeDataPtr); }
@@ -225,9 +225,9 @@ namespace iqrf {
           }
         }
       }
-      void addItem(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int dpaVer, NodeDataPtr nodeDataPtr)
+      void addItem(int nadr, unsigned mid, bool disc, int hwpid, int hwpidVer, int osBuild, int dpaVer, NodeDataPtr nodeDataPtr)
       {
-        m_enumeratedMap.insert(std::make_pair(nadr, EnumeratedPtr(shape_new Enumerated(mid, hwpid, hwpidVer, osBuild, dpaVer, std::move(nodeDataPtr)))));
+        m_enumeratedMap.insert(std::make_pair(nadr, EnumeratedPtr(shape_new Enumerated(mid, disc, hwpid, hwpidVer, osBuild, dpaVer, std::move(nodeDataPtr)))));
       }
       virtual ~FastEnumeration() {}
     private:
@@ -354,6 +354,7 @@ namespace iqrf {
 
       retval->setBondedDiscovered(iqrfEmbedCoordinatorBondedDevices.getBondedDevices(), iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices());
       std::set<int> evaluated = retval->getBonded();
+      std::set<int> discovered = retval->getDiscovered();
       evaluated.insert(0); //eval coordinator
 
       for (auto nadr : evaluated) {
@@ -363,12 +364,15 @@ namespace iqrf {
 
           int p1 = nd->getNadr();
           unsigned p2 = nd->getEmbedOsRead()->getMid();
-          int p3 = nd->getHwpid();
-          int p4 = nd->getEmbedExploreEnumerate()->getHwpidVer();
-          int p5 = nd->getEmbedOsRead()->getOsBuild();
-          int p6 = nd->getEmbedExploreEnumerate()->getDpaVer();
+          bool p3 = false;
+          if (discovered.find(p1) != discovered.end())
+            p3 = true;
+          int p4 = nd->getHwpid();
+          int p5 = nd->getEmbedExploreEnumerate()->getHwpidVer();
+          int p6 = nd->getEmbedOsRead()->getOsBuild();
+          int p7 = nd->getEmbedExploreEnumerate()->getDpaVer();
 
-          retval->addItem(p1, p2, p3, p4, p5, p6, std::move(nd));
+          retval->addItem(p1, p2, p3, p4, p5, p6, p7, std::move(nd));
 
         }
         catch (std::logic_error &e) {
@@ -1439,6 +1443,7 @@ namespace iqrf {
       db <<
         "select "
         "b.Nadr "
+        ", b.Dis "
         ", b.Mid "
         ", d.Hwpid "
         ", d.HwpidVer "
@@ -1450,10 +1455,10 @@ namespace iqrf {
         "where "
         "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) "
         ";"
-        >> [&](int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int dpaVer)
+        >> [&](int nadr, int dis, unsigned mid, int hwpid, int hwpidVer, int osBuild, int dpaVer)
       {
         retval.insert(std::make_pair(nadr, embed::node::BriefInfoPtr(
-          shape_new embed::node::info::BriefInfo(mid, hwpid, hwpidVer, osBuild, dpaVer)
+          shape_new embed::node::info::BriefInfo(mid, (dis == 0 ? false : true), hwpid, hwpidVer, osBuild, dpaVer)
         )));
       };
 
