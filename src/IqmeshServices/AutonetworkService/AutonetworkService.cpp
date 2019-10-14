@@ -236,6 +236,20 @@ namespace iqrf {
       TAuthorizeErr authorizeErr;
     }TPrebondedNode;
 
+    // Network node 
+    typedef struct
+    {
+      uint8_t address;
+      TMID mid;
+      uint16_t HWPID;
+      uint16_t HWPIDVer;
+      uint16_t OSVer;
+      uint16_t DPAVer;
+      bool bonded;
+      bool discovered;
+      bool online;
+    }TNode;
+
     // Autonetwork input paramaters
     typedef struct
     {
@@ -264,7 +278,8 @@ namespace iqrf {
       std::map<uint8_t, uint32_t> duplicidMID;
       // Prebonded nodes map
       std::map<uint8_t, TPrebondedNode> prebondedNodes;
-
+      // Network nodes map
+      std::map<uint8_t, TNode> networkNodes;
       // FRC param value
       uint8_t FrcResponseTime;
       // DPA param value
@@ -492,6 +507,52 @@ namespace iqrf {
       }
     }
 
+    // Read from coordinator extended eeprom
+    std::basic_string<uint8_t> readCoordXMemory( AutonetworkResult& autonetworkResult, uint16_t address, uint8_t length )
+    {
+      TRC_FUNCTION_ENTER( "" );
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage XMemoryReadRequest;
+        DpaMessage::DpaPacket_t XMemoryReadPacket;
+        XMemoryReadPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        XMemoryReadPacket.DpaRequestPacket_t.PNUM = PNUM_EEEPROM;
+        XMemoryReadPacket.DpaRequestPacket_t.PCMD = CMD_EEEPROM_XREAD;
+        XMemoryReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // Set address and length 
+        XMemoryReadPacket.DpaRequestPacket_t.DpaMessage.XMemoryRequest.Address = address;
+        XMemoryReadPacket.DpaRequestPacket_t.DpaMessage.XMemoryRequest.ReadWrite.Read.Length = length;
+        // Data to buffer
+        XMemoryReadRequest.DataToBuffer( XMemoryReadPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( uint16_t ) + sizeof( uint8_t ) );
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat( XMemoryReadRequest, transResult, antwInputParams.actionRetries );
+        TRC_DEBUG( "Result from XMemoryRequest transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION( "Read XMemoryRequest successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( Peripheral type, XMemoryReadRequest.PeripheralType() )
+          << NAME_PAR( Node address, XMemoryReadRequest.NodeAddress() )
+          << NAME_PAR( Command, XMemoryReadRequest.PeripheralCommand() )
+        );
+        autonetworkResult.addTransactionResult( transResult );
+        // Get response data
+        std::basic_string<uint8_t> XMemoryData;
+        XMemoryData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, length );
+        TRC_FUNCTION_LEAVE( "" );
+        return XMemoryData;
+      }
+      catch ( std::exception& e )
+      {
+        AutonetworkError error( AutonetworkError::Type::GetDiscoveredNodes, e.what() );
+        autonetworkResult.setError( error );
+        autonetworkResult.addTransactionResult( transResult );
+        THROW_EXC( std::logic_error, e.what() );
+      }
+    }
+
     // Returns addressing info 
     TPerCoordinatorAddrInfo_Response getAddressingInfo( AutonetworkResult& autonetworkResult )
     {
@@ -613,8 +674,8 @@ namespace iqrf {
       }
     }
 
-    // Update node info
-    void updateNodesInfo( AutonetworkResult& autonetworkResult )
+    // Update network info
+    void updateNetworkInfo( AutonetworkResult& autonetworkResult )
     {
       // Get addressing info
       TPerCoordinatorAddrInfo_Response addressingInfo = getAddressingInfo( autonetworkResult );
@@ -624,6 +685,33 @@ namespace iqrf {
       // Discovered nodes
       antwProcessParams.discoveredNodes = getDiscoveredNodes( autonetworkResult );
       antwProcessParams.discoveredNodesNr = (uint8_t)antwProcessParams.discoveredNodes.count();
+
+      // Update networkNodes structure      
+      for ( uint8_t addr = 1; addr <= MAX_ADDRESS; addr++ )
+      {
+        // Node bonded ?
+        antwProcessParams.networkNodes[addr].bonded = antwProcessParams.bondedNodes[addr];
+        if ( antwProcessParams.networkNodes[addr].bonded == true )
+        {
+          antwProcessParams.networkNodes[addr].discovered = antwProcessParams.discoveredNodes[addr];
+          // Node MID known ?
+          if ( antwProcessParams.networkNodes[addr].mid.value == 0 )
+          {
+            // Read MIDs from Coordinator eeprom
+            uint16_t address = 0x4000 + addr * 0x08;
+            std::basic_string<uint8_t> mid = readCoordXMemory( autonetworkResult, address, sizeof( TMID ) );
+            antwProcessParams.networkNodes[addr].mid.bytes[0] = mid[0];
+            antwProcessParams.networkNodes[addr].mid.bytes[1] = mid[1];
+            antwProcessParams.networkNodes[addr].mid.bytes[2] = mid[2];
+            antwProcessParams.networkNodes[addr].mid.bytes[3] = mid[3];
+          }
+        }
+        else
+        {
+          antwProcessParams.networkNodes[addr].discovered = false;
+          antwProcessParams.networkNodes[addr].mid.value = 0;
+        }
+      }
     }
 
     // Returns comma-separated list of nodes, whose bits are set to 1 in the bitmap
@@ -730,7 +818,7 @@ namespace iqrf {
     }
 
     // Returns prebonded nodes, which are alive
-    TPerFrcSend_Response getPrebondedAliveNodes( AutonetworkResult& autonetworkResult, const uint8_t nodeSeed )
+    TPerFrcSend_Response FrcPrebondedAliveNodes( AutonetworkResult& autonetworkResult, const uint8_t nodeSeed )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -801,7 +889,7 @@ namespace iqrf {
     }
 
     // FRC_PrebondedMemoryReadPlus1 (used to read MIDs and HWPID)
-    std::basic_string<uint8_t> prebondedMemoryRead( AutonetworkResult& autonetworkResult, const std::vector<uint8_t>& prebondedNodes, const uint8_t nodeSeed, const uint8_t offset, const uint16_t address, const uint8_t PNUM, const uint8_t PCMD )
+    std::basic_string<uint8_t> FrcPrebondedMemoryRead( AutonetworkResult& autonetworkResult, const std::vector<uint8_t>& prebondedNodes, const uint8_t nodeSeed, const uint8_t offset, const uint16_t address, const uint8_t PNUM, const uint8_t PCMD )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -964,8 +1052,8 @@ namespace iqrf {
       }
     }
 
-    // Checks new nodes
-    std::vector<uint8_t> checkNewNodes( AutonetworkResult& autonetworkResult, uint8_t& frcStatusCheck )
+    // Ping new nodes
+    TPerFrcSend_Response FrcPingNodes( AutonetworkResult& autonetworkResult )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -996,12 +1084,22 @@ namespace iqrf {
           << NAME_PAR( Node address, checkNewNodesRequest.NodeAddress() )
           << NAME_PAR( Command, (int)checkNewNodesRequest.PeripheralCommand() )
         );
-        TPerFrcSend_Response response = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
-        frcStatusCheck = response.Status;
-        autonetworkResult.addTransactionResult( transResult );        
-        std::vector<uint8_t> frcDataVector( response.FrcData, response.FrcData + DPA_MAX_DATA_LENGTH - sizeof( uns8 ) );
-        TRC_FUNCTION_LEAVE( "" );
-        return frcDataVector;
+        autonetworkResult.addTransactionResult( transResult );
+        // Check FRC status
+        uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if ( status <= 0xEF )
+        {
+          TRC_INFORMATION( "FRC_Ping: status OK." << NAME_PAR_HEX( "Status", status ) );
+          TRC_FUNCTION_LEAVE( "" );
+          return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
+        }
+        else
+        {
+          TRC_WARNING( "FRC_Ping: status NOK!" << NAME_PAR_HEX( "Status", status ) );
+          AutonetworkError error( AutonetworkError::Type::PrebondedAlive, "Bad FRC status." );
+          autonetworkResult.setError( error );
+          THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( status ) );
+        }
       }
       catch ( std::exception& e )
       {
@@ -1013,7 +1111,7 @@ namespace iqrf {
     }
 
     // Removes new nodes, which not responded to control FRC (Ping)
-    void removeNotRespondedNewNodes( AutonetworkResult& autonetworkResult, const std::vector<uint8_t>& notRespondedNewNodes )
+    TPerFrcSend_Response removeNotRespondedNewNodes( AutonetworkResult& autonetworkResult, const std::vector<uint8_t>& notRespondedNewNodes )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -1050,7 +1148,7 @@ namespace iqrf {
         else
         {
           // DPA < 0x0400 - send Batch command (Remove bond + restart)
-          frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x00] = 16;
+          frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x00] = 15;
           frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x01] = PNUM_OS;
           frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x02] = CMD_OS_BATCH;
           frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x03] = HWPID_DoNotCheck >> 0x08;;
@@ -1076,6 +1174,7 @@ namespace iqrf {
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat( frcAckBroadcastRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from Remove bond and restart (SELECTIVE BROADCAST BATCH) transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "Selective BATCH Remove bond and restart ok!" );
         TRC_DEBUG(
           "DPA transaction: "
@@ -1084,7 +1183,21 @@ namespace iqrf {
           << NAME_PAR( Command, (int)frcAckBroadcastRequest.PeripheralCommand() )
         );
         autonetworkResult.addTransactionResult( transResult );
-        TRC_FUNCTION_LEAVE( "" );
+        // Check FRC status
+        uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if ( status <= 0xEF )
+        {
+          TRC_INFORMATION( "FRC Prebonded Alive status OK." << NAME_PAR_HEX( "Status", status ) );
+          TRC_FUNCTION_LEAVE( "" );
+          return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
+        }
+        else
+        {
+          TRC_WARNING( "FRC Prebonded Alive status NOK!" << NAME_PAR_HEX( "Status", status ) );
+          AutonetworkError error( AutonetworkError::Type::PrebondedAlive, "Bad FRC status." );
+          autonetworkResult.setError( error );
+          THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( status ) );
+        }
       }
       catch ( std::exception& e )
       {
@@ -1096,7 +1209,7 @@ namespace iqrf {
     }
 
     // Removes specified node address at the coordinator side
-    void removeBondAtCoordinator( AutonetworkResult& autonetworkResult, const uint8_t addrToRemove )
+    void removeBondAtCoordinator( AutonetworkResult& autonetworkResult, const uint8_t nodeAddress )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -1110,7 +1223,7 @@ namespace iqrf {
         removeBondAtCoordinatorPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_REMOVE_BOND;
         removeBondAtCoordinatorPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         // BondAddr
-        removeBondAtCoordinatorPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorRemoveBond_Request.BondAddr = addrToRemove;
+        removeBondAtCoordinatorPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorRemoveBond_Request.BondAddr = nodeAddress;
         // Data to buffer
         removeBondAtCoordinatorRequest.DataToBuffer( removeBondAtCoordinatorPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerCoordinatorRemoveBond_Request ) );
         // Execute the DPA request
@@ -1268,10 +1381,24 @@ namespace iqrf {
         checkPresentCoordAndCoordOs( autonetworkResult );
         TRC_INFORMATION( "Initial network check." );
 
+        // Initialize networkNodes structure
+        antwProcessParams.networkNodes.clear();
+        TNode node;
+        node.mid.value = 0;
+        node.discovered = false;
+        node.bonded = false;
+        node.online = false;
+        for ( uint8_t addr = 0; addr <= MAX_ADDRESS; addr++ )
+        {
+          node.address = addr;
+          antwProcessParams.networkNodes.insert_or_assign( addr, node );
+        }
+
         // Update network info
-        updateNodesInfo( autonetworkResult );
+        updateNetworkInfo( autonetworkResult );
         TRC_INFORMATION( NAME_PAR( Bonded nodes, toNodesListStr( antwProcessParams.bondedNodes ) ) );
         TRC_INFORMATION( NAME_PAR( Discovered nodes, toNodesListStr( antwProcessParams.discoveredNodes ) ) );
+
         // Check max address
         if ( antwProcessParams.bondedNodes == MAX_ADDRESS )
         {
@@ -1312,14 +1439,13 @@ namespace iqrf {
         uint8_t countWaves = 0;
         uint8_t countEmpty = 0;
         std::basic_string<uint8_t> FrcSelectMask;
-        std::vector<uint8_t> FrcSelect;
+        std::vector<uint8_t> FrcSelect, FrcOnlineNodes, FrcOfflineNodes;
         bool MIDUnbondOnlyC;
-        uint8_t maxStep;
-        
+        uint8_t maxStep, retryAction;
+
         // Initialize random seed
-        srand( static_cast<unsigned int>( time( NULL ) ) );
-        // Generate random seed
-        uint8_t nodeSeed = (uint8_t)rand();
+        std::srand( std::time( nullptr ) );
+        uint8_t nodeSeed = (uint8_t)std::rand();  
 
         // Main loop
         while ( waveRun )
@@ -1361,7 +1487,7 @@ namespace iqrf {
           smartConnect( autonetworkResult );
 
           // Get pre-bonded alive nodes
-          TPerFrcSend_Response response = getPrebondedAliveNodes( autonetworkResult, nodeSeed );
+          TPerFrcSend_Response response = FrcPrebondedAliveNodes( autonetworkResult, nodeSeed );
           // Copy FrcData to FrcSelectMask
           FrcSelectMask.clear();
           FrcSelectMask.append( response.FrcData, DPA_MAX_DATA_LENGTH - sizeof( uns8 ) );
@@ -1395,7 +1521,7 @@ namespace iqrf {
           do
           {
             // Prebonded memory read plus 1 - read MIDs
-            std::basic_string<uint8_t> prebondedMemoryData = prebondedMemoryRead( autonetworkResult, FrcSelect, nodeSeed, offset, 0x04a0, PNUM_OS, CMD_OS_READ );
+            std::basic_string<uint8_t> prebondedMemoryData = FrcPrebondedMemoryRead( autonetworkResult, FrcSelect, nodeSeed, offset, 0x04a0, PNUM_OS, CMD_OS_READ );
             uint8_t i = 0;
             do
             {
@@ -1449,13 +1575,13 @@ namespace iqrf {
             do
             {
               // Prebonded memory read plus 1 - read HWPID and HWPVer
-              std::basic_string<uint8_t> prebondedMemoryData = prebondedMemoryRead( autonetworkResult, FrcSelect, nodeSeed, offset, 0x04a7, PNUM_ENUMERATION, CMD_GET_PER_INFO );
+              std::basic_string<uint8_t> prebondedMemoryData = FrcPrebondedMemoryRead( autonetworkResult, FrcSelect, nodeSeed, offset, 0x04a7, PNUM_ENUMERATION, CMD_GET_PER_INFO );
               uint8_t i = 0;
               do
               {
                 // TPrebondedNode structure
                 TPrebondedNode node;
-                uint8_t addr = FrcSelect[( i / 4 ) + offset];                
+                uint8_t addr = FrcSelect[( i / 4 ) + offset];
                 auto n = antwProcessParams.prebondedNodes.find( addr );
                 if ( n != antwProcessParams.prebondedNodes.end() )
                 {
@@ -1515,7 +1641,12 @@ namespace iqrf {
               try
               {
                 TPerCoordinatorAuthorizeBond_Response response = authorizeBond( autonetworkResult, node.second.addrBond, node.second.mid.value );
+                // Add authorized node to FrcSelect
                 FrcSelect.push_back( response.BondAddr );
+                // Actualize networkNodes 
+                antwProcessParams.networkNodes[response.BondAddr].bonded = true;
+                antwProcessParams.networkNodes[response.BondAddr].discovered = false;
+                antwProcessParams.networkNodes[response.BondAddr].mid.value = antwProcessParams.prebondedNodes[response.BondAddr].mid.value;
               }
               catch ( std::exception& ex )
               {
@@ -1526,33 +1657,139 @@ namespace iqrf {
                 }
                 catch ( std::exception& ex )
                 {
-                  TRC_WARNING( "Removing the bond: " << PAR( node.second.addrBond ) << " error.");
+                  TRC_WARNING( "Removing the bond: " << PAR( node.second.addrBond ) << " error." );
                 }
               }
             }
+          }
 
-            if ( ( FrcSelect.size() == 0 ) && ( MIDUnbondOnlyC == false ) )
-            {
-              try
-              {
-                clearDuplicidMID( autonetworkResult );
-              }
-              catch ( std::exception& ex )
-              {
-                TRC_WARNING( "Clear Duplicit MID error." );
-              }
-              countEmpty++;
-              continue;
-            }
-            else
-              countEmpty = 0;
-          }       
-
-          // Ping authorized nodes
-          do
+          if ( ( FrcSelect.size() == 0 ) && ( MIDUnbondOnlyC == false ) )
           {
+            try
+            {
+              clearDuplicidMID( autonetworkResult );
+            }
+            catch ( std::exception& ex )
+            {
+              TRC_WARNING( "Clear Duplicit MID error." );
+            }
+            countEmpty++;
+            continue;
+          }
+          else
+            countEmpty = 0;
 
-          } while ( FrcSelect.size() != 0 );
+          // Ping nodes
+          FrcOnlineNodes.clear();
+          retryAction = antwInputParams.actionRetries + 1;
+          while ( ( FrcSelect.size() != 0 ) && ( retryAction-- != 0 ) )
+          {
+            try
+            {
+              // FRC_Ping
+              TPerFrcSend_Response response = FrcPingNodes( autonetworkResult );
+              // Clear FrcPingOfflineNodes
+              FrcOfflineNodes.clear();
+              // Check the response
+              for ( uint8_t addr = 1; addr <= MAX_ADDRESS; addr++ )
+              {
+                // Node bonded ?
+                if ( antwProcessParams.networkNodes[addr].bonded == true )
+                {
+                  // Node acknowledged to FRC_Ping (Bit0 is set) ?
+                  bool nodeOnline = ( response.FrcData[addr / 8] & (uint8_t)( 1 << ( addr % 8 ) ) ) != 0;
+                  antwProcessParams.networkNodes[addr].online = nodeOnline;
+                  // Is node in authorized nodes list 
+                  bool nodeInAuthList = std::find( FrcSelect.begin(), FrcSelect.end(), addr ) != FrcSelect.end();
+                  // Is node in online nodes list 
+                  bool nodeInOnlineList = std::find( FrcOnlineNodes.begin(), FrcOnlineNodes.end(), addr ) != FrcOnlineNodes.end();
+                  // Node is online and is in authorized nodes list ?
+                  if ( ( nodeOnline == true ) && ( nodeInAuthList == true ) )
+                  {
+                    // Remove the node from FrcSelect
+                    FrcSelect.erase( FrcSelect.begin() + addr );
+                    // Add node to FrcOnlineNodes list
+                    FrcOnlineNodes.push_back( addr );
+                  }
+                  else
+                  {
+                    if ( ( nodeOnline == false ) && ( nodeInAuthList == false ) && ( nodeInOnlineList == false ) )
+                    {
+                      // Add node to FrcOnlineNodes list
+                      FrcOnlineNodes.push_back( addr );
+                    }
+                    else
+                      antwProcessParams.networkNodes[addr].online = true;
+                  }
+                }
+              }
+            }
+            catch ( std::exception& ex )
+            {
+              TRC_WARNING( "FRC_Ping: error!" );
+            }
+          }
+
+          // Unbonding
+          retryAction = antwInputParams.actionRetries + 1;
+          while ( ( FrcSelect.size() != 0 ) && ( retryAction-- != 0 ) )
+          {
+            // FRC_AcknowledgedBroadcastBits remove bond (for DPA < 0x0400 - send Batch command Remove bond + Restart)
+            TPerFrcSend_Response response = removeNotRespondedNewNodes( autonetworkResult, FrcSelect );
+            // Check the nodes contained in FrcSelect list acknowledged FRC_AcknowledgedBroadcastBits
+            for ( uint8_t addr = 1; addr < MAX_ADDRESS; addr++ )
+            {
+              if ( std::find( FrcSelect.begin(), FrcSelect.end(), addr ) != FrcSelect.end() )
+              {
+                // Bit0 is set
+                if ( response.FrcData[addr / 8] & (uint8_t)( 1 << ( addr % 8 ) ) != 0 )
+                {
+                  // Remove node at [C] side too
+                  try
+                  {
+                    removeBondAtCoordinator( autonetworkResult, addr );
+                    // Remove the node from FrcSelect
+                    FrcSelect.erase( FrcSelect.begin() + addr );
+                    // Actualize networkNodes 
+                    antwProcessParams.networkNodes[addr].bonded = false;
+                    antwProcessParams.networkNodes[addr].discovered = false;
+                    antwProcessParams.networkNodes[addr].mid.value = 0;
+                  }
+                  catch ( std::exception& ex )
+                  {
+                    TRC_WARNING( "Removing the bond " << PAR( addr ) << " at [C] error!" );
+                  }
+                }
+              }
+            }
+          }
+
+          // Unbond node at coordinator only ?
+          if ( ( FrcSelect.size() != 0 ) || ( MIDUnbondOnlyC ) )
+          {
+            TRC_INFORMATION( "Unbonding Nodes only at Coordinator." );
+            for ( uint8_t addr = 1; addr < MAX_ADDRESS; addr++ )
+            {
+              if ( std::find( FrcSelect.begin(), FrcSelect.end(), addr ) != FrcSelect.end() )
+              {
+                // Remove node at [C] side only
+                try
+                {
+                  removeBondAtCoordinator( autonetworkResult, addr );
+                  // Remove the node from FrcSelect
+                  FrcSelect.erase( FrcSelect.begin() + addr );
+                  // Actualize networkNodes 
+                  antwProcessParams.networkNodes[addr].bonded = false;
+                  antwProcessParams.networkNodes[addr].discovered = false;
+                  antwProcessParams.networkNodes[addr].mid.value = 0;
+                }
+                catch ( std::exception& ex )
+                {
+                  TRC_WARNING( "Removing the bond " << PAR( addr ) << " at [C] error!" );
+                }
+              }
+            }
+          }
         }
 
         // Puvodni alg.
