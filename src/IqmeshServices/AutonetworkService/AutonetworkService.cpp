@@ -274,8 +274,8 @@ namespace iqrf {
       uint8_t discoveredNodesNr;
       // Nodes, which successfully responded to FRC check -> for to be available in the error response
       std::vector<AutonetworkResult::NewNode> respondedNewNodes;
-      // Duplicit MIDs map
-      std::map<uint8_t, uint32_t> duplicidMID;
+      // Duplicit MIDs
+      std::vector<uint8_t> duplicitMID;
       // Prebonded nodes map
       std::map<uint8_t, TPrebondedNode> prebondedNodes;
       // Network nodes map
@@ -1291,15 +1291,15 @@ namespace iqrf {
       }
     }
 
-    // Clear duplicid MID
-    void clearDuplicidMID( AutonetworkResult& autonetworkResult )
+    // Clear duplicit MID
+    void clearDuplicitMID( AutonetworkResult& autonetworkResult )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
       try
       {
-        // Any duplicidMIDs ?
-        if ( antwProcessParams.duplicidMID.empty() == false )
+        // Any duplicitMIDs ?
+        if ( antwProcessParams.duplicitMID.empty() == false )
         {
           DpaMessage validateBondRequest;
           DpaMessage::DpaPacket_t validateBondPacket;
@@ -1310,17 +1310,14 @@ namespace iqrf {
           uint8_t index = 0;
           for ( uint8_t address = 1; address <= MAX_ADDRESS; address++ )
           {
-            auto node = antwProcessParams.duplicidMID.find( address );
-            if ( node != antwProcessParams.duplicidMID.end() )
+            if ( std::find( antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address ) != antwProcessParams.duplicitMID.end() )
             {
-              uint8_t addr = node->first;
-              uint32_t mid = node->second;
               validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].Address = address;
-              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x00] = mid & 0xff;
-              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x01] = ( mid >> 8 ) & 0xff;
-              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x02] = ( mid >> 16 ) & 0xff;
-              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x03] = ( mid >> 24 ) & 0xff;
-              antwProcessParams.duplicidMID.erase( address );
+              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x00] = antwProcessParams.networkNodes[address].mid.bytes[0x00];
+              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x01] = antwProcessParams.networkNodes[address].mid.bytes[0x01];
+              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x02] = antwProcessParams.networkNodes[address].mid.bytes[0x02];
+              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x03] = antwProcessParams.networkNodes[address].mid.bytes[0x03];
+              antwProcessParams.duplicitMID.erase( antwProcessParams.duplicitMID.begin() + address );
               index += sizeof( TPerNodeValidateBondsItem );
             }
 
@@ -1352,18 +1349,33 @@ namespace iqrf {
       }
     }
 
-    void setFreeNodes( std::bitset<MAX_ADDRESS + 1>& bondedNodes, const std::vector<uint8_t>& notRespondedNewNodes )
-    {
-      for ( uint8_t addrToFree : notRespondedNewNodes ) {
-        bondedNodes.reset( addrToFree );
-      }
-    }
-
     // Authorize control
     bool authorizeControl( uint32_t MID, uint16_t HWPID, uint8_t& bondAddr, TAuthorizeErr& authorizeErr )
     {
+      bondAddr = 0;
 
+      // Check duplicit MID
+      for ( uint8_t address = 1; address <= MAX_ADDRESS; address++ )
+      {
+        if ( antwProcessParams.networkNodes[address].mid.value == MID )
+        {         
+          authorizeErr = TAuthorizeErr::eNodeBonded;
+          bondAddr = address;
+          return false;
+        }
+      }
       return true;
+    }
+
+    // Unbond prebonded node ?
+    bool unbondPrebondedNodes( uint8_t address )
+    {
+      for ( std::pair<uint8_t, TPrebondedNode> node : antwProcessParams.prebondedNodes )
+      {
+        if ( ( node.second.addrBond == address ) && ( node.second.authorizeErr == TAuthorizeErr::eNodeBonded ) )
+          return true;
+      }
+      return false;
     }
 
     // Process the autonetwork algorithm
@@ -1441,7 +1453,7 @@ namespace iqrf {
         std::basic_string<uint8_t> FrcSelectMask;
         std::vector<uint8_t> FrcSelect, FrcOnlineNodes, FrcOfflineNodes;
         bool MIDUnbondOnlyC;
-        uint8_t maxStep, retryAction;
+        uint8_t maxStep, retryAction, countWaveNewNodes, countDisNodes = 0;
 
         // Initialize random seed
         std::srand( std::time( nullptr ) );
@@ -1482,6 +1494,7 @@ namespace iqrf {
           }
 
           // SmartConnect
+          countWaveNewNodes = 0;
           antwProcessParams.respondedNewNodes.clear();
           TRC_INFORMATION( "SmartConnect." );
           smartConnect( autonetworkResult );
@@ -1501,8 +1514,8 @@ namespace iqrf {
           // Empty wave ?
           if ( FrcSelect.size() == 0 )
           {
-            // Clear duplicid MIDs
-            clearDuplicidMID( autonetworkResult );
+            // Clear duplicit MIDs
+            clearDuplicitMID( autonetworkResult );
             // Increase empty wave counter
             countEmpty++;
             // Send results
@@ -1568,61 +1581,61 @@ namespace iqrf {
           } while ( FrcSelect.size() > antwProcessParams.prebondedNodes.size() );
 
           // Read HWPID of prebonded alive nodes if HWPID filtering active
-          if ( antwInputParams.filteringHWPID == true )
+          //if ( antwInputParams.filteringHWPID == true )
+          //{
+          offset = 0x00;
+          uint8_t prebondedNodesCount = 0;
+          do
           {
-            uint8_t offset = 0x00;
-            uint8_t prebondedNodesCount = 0;
+            // Prebonded memory read plus 1 - read HWPID and HWPVer
+            std::basic_string<uint8_t> prebondedMemoryData = FrcPrebondedMemoryRead( autonetworkResult, FrcSelect, nodeSeed, offset, 0x04a7, PNUM_ENUMERATION, CMD_GET_PER_INFO );
+            uint8_t i = 0;
             do
             {
-              // Prebonded memory read plus 1 - read HWPID and HWPVer
-              std::basic_string<uint8_t> prebondedMemoryData = FrcPrebondedMemoryRead( autonetworkResult, FrcSelect, nodeSeed, offset, 0x04a7, PNUM_ENUMERATION, CMD_GET_PER_INFO );
-              uint8_t i = 0;
-              do
+              // TPrebondedNode structure
+              TPrebondedNode node;
+              uint8_t addr = FrcSelect[( i / 4 ) + offset];
+              auto n = antwProcessParams.prebondedNodes.find( addr );
+              if ( n != antwProcessParams.prebondedNodes.end() )
               {
-                // TPrebondedNode structure
-                TPrebondedNode node;
-                uint8_t addr = FrcSelect[( i / 4 ) + offset];
-                auto n = antwProcessParams.prebondedNodes.find( addr );
-                if ( n != antwProcessParams.prebondedNodes.end() )
+                node = n->second;
+                node.node = addr;
+                node.authorize = false;
+                // Node responded to prebondedMemoryRead plus 1 ?
+                uint32_t HWPID_HWPVer = prebondedMemoryData[i];
+                HWPID_HWPVer |= ( prebondedMemoryData[i + 1] << 8 );
+                HWPID_HWPVer |= ( prebondedMemoryData[i + 2] << 16 );
+                HWPID_HWPVer |= ( prebondedMemoryData[i + 3] << 24 );
+                if ( HWPID_HWPVer != 0 )
                 {
-                  node = n->second;
-                  node.node = addr;
-                  node.authorize = false;
-                  // Node responded to prebondedMemoryRead plus 1 ?
-                  uint32_t HWPID_HWPVer = prebondedMemoryData[i];
-                  HWPID_HWPVer |= ( prebondedMemoryData[i + 1] << 8 );
-                  HWPID_HWPVer |= ( prebondedMemoryData[i + 2] << 16 );
-                  HWPID_HWPVer |= ( prebondedMemoryData[i + 3] << 24 );
-                  if ( HWPID_HWPVer != 0 )
+                  // Yes, decrease HWPID_HWPVer
+                  HWPID_HWPVer--;
+                  node.HWPID = HWPID_HWPVer & 0xffff;
+                  node.HWPIDVer = HWPID_HWPVer > 16;
+                  // Authorize control
+                  if ( ( antwInputParams.filteringHWPID == true ) && ( authorizeControl( node.mid.value, node.HWPID, node.addrBond, node.authorizeErr ) == true ) )
                   {
-                    // Yes, decrease HWPID_HWPVer
-                    HWPID_HWPVer--;
-                    node.HWPID = HWPID_HWPVer & 0xffff;
-                    node.HWPIDVer = HWPID_HWPVer > 16;
-                    // Authorize control
-                    if ( authorizeControl( node.mid.value, node.HWPID, node.addrBond, node.authorizeErr ) == true )
-                    {
-                      node.authorize = true;
-                      maxStep++;
-                    }
+                    node.authorize = true;
+                    maxStep++;
                   }
-                  else
-                  {
-                    // Node didn't respond to prebondedMemoryRead plus 1 
-                    node.authorizeErr = TAuthorizeErr::eFRC;
+                }
+                else
+                {
+                  // Node didn't respond to prebondedMemoryRead plus 1 
+                  node.authorizeErr = TAuthorizeErr::eFRC;
                     MIDUnbondOnlyC = true;
-                  }
-
-                  // Add (or set) node to prebondedNodes map
-                  antwProcessParams.prebondedNodes.insert_or_assign( node.node, node );
                 }
 
-                // Next Node
-                i += sizeof( TMID );
-                prebondedNodesCount++;
-              } while ( ( i < 60 ) && ( FrcSelect.size() > prebondedNodesCount ) );
-            } while ( FrcSelect.size() > prebondedNodesCount );
-          }
+                // Add (or set) node to prebondedNodes map
+                antwProcessParams.prebondedNodes.insert_or_assign( node.node, node );
+              }
+
+              // Next Node
+              i += sizeof( TMID );
+              prebondedNodesCount++;
+            } while ( ( i < 60 ) && ( FrcSelect.size() > prebondedNodesCount ) );
+          } while ( FrcSelect.size() > prebondedNodesCount );
+          //}
 
           // Authorize prebonded alive nodes
           FrcSelect.clear();
@@ -1647,6 +1660,7 @@ namespace iqrf {
                 antwProcessParams.networkNodes[response.BondAddr].bonded = true;
                 antwProcessParams.networkNodes[response.BondAddr].discovered = false;
                 antwProcessParams.networkNodes[response.BondAddr].mid.value = antwProcessParams.prebondedNodes[response.BondAddr].mid.value;
+                countWaveNewNodes++;
               }
               catch ( std::exception& ex )
               {
@@ -1667,7 +1681,7 @@ namespace iqrf {
           {
             try
             {
-              clearDuplicidMID( autonetworkResult );
+              clearDuplicitMID( autonetworkResult );
             }
             catch ( std::exception& ex )
             {
@@ -1754,6 +1768,7 @@ namespace iqrf {
                     antwProcessParams.networkNodes[addr].bonded = false;
                     antwProcessParams.networkNodes[addr].discovered = false;
                     antwProcessParams.networkNodes[addr].mid.value = 0;
+                    countWaveNewNodes--;
                   }
                   catch ( std::exception& ex )
                   {
@@ -1768,28 +1783,62 @@ namespace iqrf {
           if ( ( FrcSelect.size() != 0 ) || ( MIDUnbondOnlyC ) )
           {
             TRC_INFORMATION( "Unbonding Nodes only at Coordinator." );
-            for ( uint8_t addr = 1; addr < MAX_ADDRESS; addr++ )
+            for ( uint8_t address = 1; address < MAX_ADDRESS; address++ )
             {
-              if ( std::find( FrcSelect.begin(), FrcSelect.end(), addr ) != FrcSelect.end() )
+              bool unbondPrebondedNode = false;
+              if ( MIDUnbondOnlyC == true )
               {
-                // Remove node at [C] side only
+                unbondPrebondedNode = unbondPrebondedNodes( address );
+              }
+
+              if ( ( std::find( FrcSelect.begin(), FrcSelect.end(), address ) != FrcSelect.end() ) || ( MIDUnbondOnlyC && unbondPrebondedNode ) )
+              {
+                if ( std::find( antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address ) != antwProcessParams.duplicitMID.end() )
+                  antwProcessParams.duplicitMID.push_back( address );
                 try
                 {
-                  removeBondAtCoordinator( autonetworkResult, addr );
+                  // Remove node at [C] side only
+                  removeBondAtCoordinator( autonetworkResult, address );
                   // Remove the node from FrcSelect
-                  FrcSelect.erase( FrcSelect.begin() + addr );
+                  FrcSelect.erase( FrcSelect.begin() + address );
                   // Actualize networkNodes 
-                  antwProcessParams.networkNodes[addr].bonded = false;
-                  antwProcessParams.networkNodes[addr].discovered = false;
-                  antwProcessParams.networkNodes[addr].mid.value = 0;
+                  antwProcessParams.networkNodes[address].bonded = false;
+                  antwProcessParams.networkNodes[address].discovered = false;
+                  if ( unbondPrebondedNode == false )
+                  {
+                    countWaveNewNodes--;
+                  }
                 }
                 catch ( std::exception& ex )
                 {
-                  TRC_WARNING( "Removing the bond " << PAR( addr ) << " at [C] error!" );
+                  TRC_WARNING( "Removing the bond " << PAR( address ) << " at [C] error!" );
                 }
               }
             }
           }
+
+          // Clear duplicit MIDs
+          clearDuplicitMID( autonetworkResult );
+
+          // Discovery
+          if ( ( countWaveNewNodes != 0 ) || ( MIDUnbondOnlyC == true ) )
+          {
+            retryAction = antwInputParams.actionRetries + 1;
+            do
+            { 
+              try
+              {
+                runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower );
+                if ( ( countDisNodes <= antwProcessParams.discoveredNodesNr ) || ( MIDUnbondOnlyC == true ) )
+                  break;
+              }
+              catch ( std::exception& ex )
+              {
+                TRC_WARNING( "Discovery failed!" );
+              }
+            } while ( --retryAction != 0 );
+
+            updateNetworkInfo( autonetworkResult );
         }
 
         // Puvodni alg.
