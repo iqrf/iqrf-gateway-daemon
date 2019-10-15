@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM iqrftech/package-builders:ubuntu-bionic-amd64
+FROM iqrftech/package-builders:ubuntu-xenial-amd64
 
 MAINTAINER Roman Ondráček <roman.ondracek@iqrf.com>
 LABEL maintainer="roman.ondracek@iqrf.com"
@@ -22,11 +22,9 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
   && apt-get install --no-install-recommends -y apt-transport-https dirmngr gnupg2 \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
-  && echo "deb https://repos.iqrf.org/ubuntu/xenial xenial stable" | tee -a /etc/apt/sources.list \
+  && echo "deb https://repos.iqrf.org/ubuntu xenial stable" | tee -a /etc/apt/sources.list \
   && apt-get update \
-  && apt-get install --no-install-recommends -y google-mock libboost-filesystem-dev libcurl4-openssl-dev \
-     libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate python3-requests ruby ruby-dev zlib1g-dev \
+  && apt-get install --no-install-recommends -y google-mock libcurl4-openssl-dev \
+     libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate python3-requests zlib1g-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
-
-RUN gem install --no-rdoc --no-ri fpm

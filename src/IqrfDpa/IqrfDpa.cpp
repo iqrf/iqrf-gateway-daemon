@@ -9,6 +9,7 @@
 #include "rapidjson/pointer.h"
 #include "iqrf__IqrfDpa.hxx"
 #include <thread>
+#include <iostream>
 
 TRC_INIT_MODULE(iqrf::IqrfDpa);
 
@@ -403,6 +404,11 @@ namespace iqrf {
     });
 
     m_iqrfChannelService->startListen();
+    
+    IIqrfChannelService::State st = m_iqrfChannelService->getState();
+    if (st == IIqrfChannelService::State::NotReady) {
+      std::cout << std::endl << "Error: Interface to IQRF Coordinator is not ready - verify (CDC or SPI or UART) configuration" << std::endl;
+    }
 
     getIqrfNetworkParams();
 

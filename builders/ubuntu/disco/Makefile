@@ -12,26 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+DISTRIBUTION := ubuntu
+REPOSITORY := iqrftech/iqrf-gateway-daemon-builder
+VERSION := disco
+
 all: build-all push-all
 
-build-all: build-xenial build-bionic build-disco
+build-all: build-amd64
 
-build-bionic:
-	$(MAKE) -C bionic/ build-all
+build-amd64:
+	docker build -f amd64.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-amd64 .
 
-build-xenial:
-	$(MAKE) -C xenial/ build-all
+push-all: push-amd64
 
-build-disco:
-	$(MAKE) -C disco/ build-all
-
-push-all: push-xenial push-bionic push-disco
-
-push-bionic:
-	$(MAKE) -C bionic/ push-all
-
-push-disco:
-	$(MAKE) -C disco/ push-all
-
-push-xenial:
-	$(MAKE) -C xenial/ push-all
+push-amd64:
+	docker push $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-amd64
