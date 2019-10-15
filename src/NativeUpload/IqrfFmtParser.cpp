@@ -68,13 +68,13 @@ void IqrfPrgHeader::add(std::string line) {
             }
             switch(header[1]) {
                 case '0':
-                    serie = TrSerie::DCTR_5xD;
+                    series = TrSeries::DCTR_5xD;
                     break;
                 case '1':
-                    serie = TrSerie::DCTR_7xD;
+                    series = TrSeries::DCTR_7xD;
                     break;
                 default:
-                    TR_THROW_EXCEPTION(TrException, "Invalid type of Tr serie in first programming header - " + std::string(1, header[1]) + "!");
+                    TR_THROW_EXCEPTION(TrException, "Invalid type of Tr series in first programming header - " + std::string(1, header[1]) + "!");
                     break;
             }
             break;
@@ -130,7 +130,7 @@ bool IqrfPrgHeader::check(TrModuleInfo& info) {
     if (mcu != info.mcu) {
         return false;
     }
-    if (serie != info.serie) {
+    if (series != info.series) {
         return false;
     }
     itr = supportedOs.find(info.osVersion);

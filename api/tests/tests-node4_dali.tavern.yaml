@@ -1,0 +1,40 @@
+# tests-node4_dali.tavern.yaml
+---
+
+test_name: Test mqtt message - std dali
+
+includes:
+  - !include common.yaml
+
+paho-mqtt: &mqtt_spec
+  client:
+    transport: tcp
+    client_id: tavern-tester
+  connect:
+    host: "{mqtt_host:s}"
+    port: !int "{mqtt_port:d}"
+    timeout: 5
+
+#node4 - std microrisc dali template
+stages:
+  - name: dali sc async
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node4/iqrfDali_SendCommandsAsync-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node4/iqrfDali_SendCommandsAsync-response-1-0-0.yaml
+      timeout: 5
+
+  - name: dali sc
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node4/iqrfDali_SendCommands-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node4/iqrfDali_SendCommands-response-1-0-0.yaml
+      timeout: 5

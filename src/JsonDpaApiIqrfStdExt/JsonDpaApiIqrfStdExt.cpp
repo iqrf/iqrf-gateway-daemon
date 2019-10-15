@@ -102,7 +102,7 @@ namespace iqrf {
             itemKey = "/sensor";
           }
           else {
-            THROW_EXC_TRC_WAR(std::logic_error, "Unexected: " << NAME_PAR(messageType, msgType.m_type));
+            THROW_EXC_TRC_WAR(std::logic_error, "Unexpected: " << NAME_PAR(messageType, msgType.m_type));
           }
 
           rapidjson::Document doc = jsDriverStandardFrcSolver.getResponseResultWithNadr(arrayKey, itemKey);

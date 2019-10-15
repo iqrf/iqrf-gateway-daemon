@@ -14,7 +14,7 @@ namespace iqrf {
 
     // decodes specified IQRF Code
     // must be called BEFORE getters of decoded values
-    // throws exception, if some error occured during decoding
+    // throws exception, if some error occurred during decoding
     static void decode(const std::string& iqrfCode);
 
     // returns decoded MID

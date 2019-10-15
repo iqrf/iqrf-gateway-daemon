@@ -347,7 +347,7 @@ namespace iqrf {
         sessionPresent = response->alt.connect.sessionPresent;
       }
 
-      TRC_INFORMATION("Connect succeded: " <<
+      TRC_INFORMATION("Connect succeeded: " <<
         PAR(m_mqttBrokerAddr) <<
         PAR(m_mqttClientId) <<
         PAR(token) <<
@@ -402,7 +402,7 @@ namespace iqrf {
         qos = response->alt.qos;
       }
 
-      TRC_INFORMATION("Subscribe succeded: " <<
+      TRC_INFORMATION("Subscribe succeeded: " <<
         PAR(m_mqttTopicRequest) <<
         PAR(m_mqttQos) <<
         PAR(token) <<
@@ -476,7 +476,7 @@ namespace iqrf {
       ((MqttMessagingImpl*)context)->onSend(response);
     }
     void onSend(MQTTAsync_successData* response) {
-      TRC_DEBUG("Message sent successfuly: " << NAME_PAR(token, (response ? response->token : 0)));
+      TRC_DEBUG("Message sent successfully: " << NAME_PAR(token, (response ? response->token : 0)));
     }
 
     //------------------------

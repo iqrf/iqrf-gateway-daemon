@@ -1,17 +1,14 @@
-mType: iqrfLight_IncrementPower
+mType: iqrfDali_SendCommandsAsync
 data:
-  msgId: testEmbedLight
+  msgId: testDaliAsync
   rsp:
-    nAdr: 3
-    hwpId: 4098
+    nAdr: 4
+    hwpId: 22530
     rCode: 0
     dpaVal: !anyint
-    result:
-      prevVals:
-      - 90
-      - 100
+    result: {}
   raw:
-  - request: 03.00.71.01.ff.ff.03.00.00.00.0a.0a
+  - request: 04.00.4a.01.ff.ff.ff.90
     requestTs: !anystr
     confirmation: !anystr
     confirmationTs: !anystr
