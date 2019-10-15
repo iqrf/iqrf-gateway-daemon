@@ -55,7 +55,8 @@ namespace iqrf {
     /// \param [in] msg message to be sent 
     /// \details
     /// The message is send outside
-    virtual void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) = 0;
+    virtual void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t>& msg) = 0;
+    virtual void sendMessageExt(const std::string& messagingId, const int nodeAdr, const std::basic_string<uint8_t>& msg) = 0;
     virtual const std::string & getName() const = 0;
     virtual bool acceptAsyncMsg() const = 0;
 
