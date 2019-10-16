@@ -16,6 +16,7 @@ override_dh_fixperms:
 	chmod 777 debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/cfgSchemas
 	chmod -R 666 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler
 	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler
+	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/scheduler/schema
 	chmod -R 666 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/upload
 	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/upload
 
@@ -26,3 +27,4 @@ override_dh_install:
 	dh_install
 	#release: rm components from package: IqrfInfo, AutoNetwork, OTA
 	rm -rf debian/iqrf-gateway-daemon/builds
+	rm debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/iqrfRepoCache/update-cache.py
