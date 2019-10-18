@@ -59,8 +59,15 @@ namespace iqrf {
         }
       }
 
+      void setMetaDataApi(JsonIqrfInfoApi::Imp* imp) // store for later use in response
+      {
+        m_iMetaDataApi = imp->getMetadataApi();
+      }
+
       virtual void handleMsg(JsonIqrfInfoApi::Imp* imp) = 0;
 
+    protected:
+      IMetaDataApi* m_iMetaDataApi = nullptr;
     };
 
     //////////////////////////////////////////////
@@ -110,8 +117,15 @@ namespace iqrf {
             sensorsVal.PushBack(senVal, a);
           }
 
-          Pointer("/nAdr").Set(devVal, enm.first, a);
+          int nadr = enm.first;
+          Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/sensors").Set(devVal, sensorsVal, a);
+
+          if (m_iMetaDataApi) {
+            if (m_iMetaDataApi->iSmetaDataToMessages()) {
+              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
 
           devicesVal.PushBack(devVal, a);
         }
@@ -125,6 +139,7 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        setMetaDataApi(imp); //can be used in response
         m_enmMap = imp->getSensors();
 
         TRC_FUNCTION_LEAVE("");
@@ -158,8 +173,15 @@ namespace iqrf {
         for (auto & enm : m_enmMap) {
           Value devVal;
 
-          Pointer("/nAdr").Set(devVal, enm.first, a);
+          int nadr = enm.first;
+          Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/binOuts").Set(devVal, enm.second->getBinaryOutputsNum(), a);
+
+          if (m_iMetaDataApi) {
+            if (m_iMetaDataApi->iSmetaDataToMessages()) {
+              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
 
           devicesVal.PushBack(devVal, a);
         }
@@ -173,6 +195,7 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        setMetaDataApi(imp); //can be used in response
         m_enmMap = imp->getBinaryOutputs();
 
         TRC_FUNCTION_LEAVE("");
@@ -206,7 +229,14 @@ namespace iqrf {
         for (auto & enm : m_enmMap) {
           Value devVal;
 
-          Pointer("/nAdr").Set(devVal, enm.first, a);
+          int nadr = enm.first;
+          Pointer("/nAdr").Set(devVal, nadr, a);
+
+          if (m_iMetaDataApi) {
+            if (m_iMetaDataApi->iSmetaDataToMessages()) {
+              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
 
           devicesVal.PushBack(devVal, a);
         }
@@ -220,6 +250,7 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        setMetaDataApi(imp); //can be used in response
         m_enmMap = imp->getDalis();
 
         TRC_FUNCTION_LEAVE("");
@@ -253,8 +284,15 @@ namespace iqrf {
         for (auto & enm : m_enmMap) {
           Value devVal;
 
-          Pointer("/nAdr").Set(devVal, enm.first, a);
+          int nadr = enm.first;
+          Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/lights").Set(devVal, enm.second->getLightsNum(), a);
+
+          if (m_iMetaDataApi) {
+            if (m_iMetaDataApi->iSmetaDataToMessages()) {
+              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
 
           devicesVal.PushBack(devVal, a);
         }
@@ -268,6 +306,7 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        setMetaDataApi(imp); //can be used in response
         m_enmMap = imp->getLights();
 
         TRC_FUNCTION_LEAVE("");
@@ -301,13 +340,20 @@ namespace iqrf {
         for (auto & enm : m_enmMap) {
           Value devVal;
 
-          Pointer("/nAdr").Set(devVal, enm.first, a);
+          int nadr = enm.first;
+          Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/mid").Set(devVal, enm.second->getMid(), a);
           Pointer("/disc").Set(devVal, enm.second->getDisc(), a);
           Pointer("/hwpid").Set(devVal, enm.second->getHwpid(), a);
           Pointer("/hwpidVer").Set(devVal, enm.second->getHwpidVer(), a);
           Pointer("/osBuild").Set(devVal, enm.second->getOsBuild(), a);
           Pointer("/dpaVer").Set(devVal, enm.second->getDpaVer(), a);
+
+          if (m_iMetaDataApi) {
+            if (m_iMetaDataApi->iSmetaDataToMessages()) {
+              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
 
           devicesVal.PushBack(devVal, a);
         }
@@ -320,7 +366,8 @@ namespace iqrf {
       void handleMsg(JsonIqrfInfoApi::Imp* imp) override
       {
         TRC_FUNCTION_ENTER("");
-
+        
+        setMetaDataApi(imp); //can be used in response
         m_enmMap = imp->getNodes();
 
         TRC_FUNCTION_LEAVE("");
@@ -363,6 +410,7 @@ namespace iqrf {
   ///////////////////// Imp members
   private:
 
+    IMetaDataApi* m_iMetaDataApi = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfInfo* m_iIqrfInfo = nullptr;
     ObjectFactory<InfoDaemonMsg, rapidjson::Document&> m_objectFactory;
@@ -421,6 +469,11 @@ namespace iqrf {
       }
 
       TRC_FUNCTION_LEAVE("");
+    }
+
+    IMetaDataApi* getMetadataApi()
+    {
+      return m_iMetaDataApi;
     }
 
     std::map<int, sensor::EnumeratePtr> getSensors() const
@@ -491,6 +544,18 @@ namespace iqrf {
       (void)props; //silence -Wunused-parameter
     }
 
+    void attachInterface(IMetaDataApi* iface)
+    {
+      m_iMetaDataApi = iface;
+    }
+
+    void detachInterface(IMetaDataApi* iface)
+    {
+      if (m_iMetaDataApi == iface) {
+        m_iMetaDataApi = nullptr;
+      }
+    }
+
     void attachInterface(IIqrfInfo* iface)
     {
       m_iIqrfInfo = iface;
@@ -543,6 +608,16 @@ namespace iqrf {
   void JsonIqrfInfoApi::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsonIqrfInfoApi::attachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonIqrfInfoApi::detachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsonIqrfInfoApi::attachInterface(IIqrfInfo* iface)

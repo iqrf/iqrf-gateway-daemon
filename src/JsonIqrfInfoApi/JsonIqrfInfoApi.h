@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IMetaDataApi.h"
 #include "IIqrfInfo.h"
 #include "IMessagingSplitterService.h"
 #include "ShapeProperties.h"
@@ -16,6 +17,9 @@ namespace iqrf {
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
+
+    void attachInterface(IMetaDataApi* iface);
+    void detachInterface(IMetaDataApi* iface);
 
     void attachInterface(IIqrfInfo* iface);
     void detachInterface(IIqrfInfo* iface);
