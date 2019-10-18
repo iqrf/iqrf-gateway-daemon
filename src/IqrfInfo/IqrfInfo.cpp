@@ -283,13 +283,24 @@ namespace iqrf {
         database &db = *m_db;
         db << "PRAGMA foreign_keys=ON";
 
-        if (!dbExists) {
+        std::string sqlpath = dataDir;
+        sqlpath += "/DB/";
 
-          std::string sqlpath = dataDir;
-          sqlpath += "/DB/";
+        if (!dbExists) {
           //create tables
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
         }
+
+        //update DB
+        try {
+          SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo_update1.db.sql");
+        }
+        catch (sqlite_exception &e)
+        {
+          db << "rollback;";
+          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Update DB: " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+        }
+
       }
       catch (sqlite_exception &e)
       {
@@ -1482,6 +1493,43 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    std::string getNodeMetaData(int nadr) const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::string retval;
+      database & db = *m_db;
+
+      //TODO
+      db <<
+        "select "
+        "n.metaData "
+        "from "
+        "Bonded as b "
+        ", Node as n "
+        "where "
+        "n.mid = b.mid "
+        "and b.nadr = ? "
+        ";"
+        << nadr
+        >> tie(retval)
+        ;
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    void setNodeMetaData(int nadr, const std::string & metaData)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::string retval;
+      
+      *m_db << "update Node set metaData = ? where mid = (select mid from Bonded where nadr = ?);" << metaData << nadr;
+      
+      TRC_FUNCTION_LEAVE("");
+    }
+
     void attachInterface(iqrf::IJsRenderService* iface)
     {
       TRC_FUNCTION_ENTER(PAR(iface));
@@ -1639,6 +1687,16 @@ namespace iqrf {
   void IqrfInfo::startEnumeration()
   {
     return m_imp->startEnumeration();
+  }
+
+  std::string IqrfInfo::getNodeMetaData(int nadr) const
+  {
+    return m_imp->getNodeMetaData(nadr);
+  }
+
+  void IqrfInfo::setNodeMetaData(int nadr, const std::string & metaData)
+  {
+    m_imp->setNodeMetaData(nadr, metaData);
   }
 
   void IqrfInfo::activate(const shape::Properties *props)

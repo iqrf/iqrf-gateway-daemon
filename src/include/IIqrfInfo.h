@@ -18,6 +18,8 @@ namespace iqrf
     virtual std::map<int, light::EnumeratePtr> getLights() const = 0;
     virtual std::map<int, embed::node::BriefInfoPtr> getNodes() const = 0;
     virtual void startEnumeration() = 0;
+    virtual std::string getNodeMetaData(int nadr) const = 0;
+    virtual void setNodeMetaData(int nadr, const std::string & metaData) = 0;
 
     virtual ~IIqrfInfo() {}
   };
