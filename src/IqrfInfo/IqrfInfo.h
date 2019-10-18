@@ -21,8 +21,8 @@ namespace iqrf {
     std::map<int, light::EnumeratePtr> getLights() const override;
     std::map<int, embed::node::BriefInfoPtr> getNodes() const override;
     void startEnumeration() override;
-    std::string getNodeMetaData(int nadr) const override;
-    void setNodeMetaData(int nadr, const std::string & metaData) override;
+    rapidjson::Document getNodeMetaData(int nadr) const override;
+    void setNodeMetaData(int nadr, const rapidjson::Value & metaData) override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

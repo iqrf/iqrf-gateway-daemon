@@ -1493,11 +1493,11 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    std::string getNodeMetaData(int nadr) const
+    rapidjson::Document getNodeMetaData(int nadr) const
     {
       TRC_FUNCTION_ENTER("");
 
-      std::string retval;
+      std::string metaData;
       database & db = *m_db;
 
       //TODO
@@ -1512,20 +1512,31 @@ namespace iqrf {
         "and b.nadr = ? "
         ";"
         << nadr
-        >> tie(retval)
+        >> tie(metaData)
         ;
 
+      rapidjson::Document doc;
+      doc.Parse(metaData);
+      
+      if (doc.HasParseError()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Json parse error: " << NAME_PAR(emsg, doc.GetParseError()) <<
+          NAME_PAR(eoffset, doc.GetErrorOffset()));
+      }
+
       TRC_FUNCTION_LEAVE("");
-      return retval;
+      return doc;
     }
 
-    void setNodeMetaData(int nadr, const std::string & metaData)
+    void setNodeMetaData(int nadr, const rapidjson::Value & metaData)
     {
       TRC_FUNCTION_ENTER("");
 
-      std::string retval;
-      
-      *m_db << "update Node set metaData = ? where mid = (select mid from Bonded where nadr = ?);" << metaData << nadr;
+      rapidjson::StringBuffer buffer;
+      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+      metaData.Accept(writer);
+      std::string md = buffer.GetString();
+
+      *m_db << "update Node set metaData = ? where mid = (select mid from Bonded where nadr = ?);" << md << nadr;
       
       TRC_FUNCTION_LEAVE("");
     }
@@ -1689,12 +1700,12 @@ namespace iqrf {
     return m_imp->startEnumeration();
   }
 
-  std::string IqrfInfo::getNodeMetaData(int nadr) const
+  rapidjson::Document IqrfInfo::getNodeMetaData(int nadr) const
   {
     return m_imp->getNodeMetaData(nadr);
   }
 
-  void IqrfInfo::setNodeMetaData(int nadr, const std::string & metaData)
+  void IqrfInfo::setNodeMetaData(int nadr, const rapidjson::Value & metaData)
   {
     m_imp->setNodeMetaData(nadr, metaData);
   }

@@ -430,13 +430,7 @@ namespace iqrf {
         using namespace rapidjson;
         Document::AllocatorType & a = doc.GetAllocator();
         Pointer("/data/rsp/nAdr").Set(doc, m_nadr, a);
-
-        Document metaDataDoc;
-        metaDataDoc.Parse(m_metaData);
-        Value md;
-        md.CopyFrom(metaDataDoc, a);
-
-        Pointer("/data/rsp/metaData").Set(doc, md, a);
+        Pointer("/data/rsp/metaData").Set(doc, m_metaData, a);
 
         InfoDaemonMsg::createResponsePayload(doc);
       }
@@ -444,13 +438,13 @@ namespace iqrf {
       void handleMsg(JsonIqrfInfoApi::Imp* imp) override
       {
         TRC_FUNCTION_ENTER("");
-        m_metaData = imp->getNodeMetaData(m_nadr);
+        m_metaData.CopyFrom(imp->getNodeMetaData(m_nadr), m_metaData.GetAllocator());
         TRC_FUNCTION_LEAVE("");
       }
 
     private:
       int m_nadr;
-      std::string m_metaData;
+      rapidjson::Document m_metaData;
     };
 
     //////////////////////////////////////////////
@@ -465,11 +459,6 @@ namespace iqrf {
         m_nadr = Pointer("/data/req/nAdr").Get(doc)->GetInt();
         const Value *val = Pointer("/data/req/metaData").Get(doc);
         m_metaDataDoc.CopyFrom(*val, m_metaDataDoc.GetAllocator());
-
-        StringBuffer buffer;
-        Writer<StringBuffer> writer(buffer);
-        m_metaDataDoc.Accept(writer);
-        m_metaData = buffer.GetString();
       }
 
       virtual ~InfoDaemonMsgSetNodeMetaData()
@@ -489,14 +478,13 @@ namespace iqrf {
       void handleMsg(JsonIqrfInfoApi::Imp* imp) override
       {
         TRC_FUNCTION_ENTER("");
-        imp->setNodeMetaData(m_nadr, m_metaData);
+        imp->setNodeMetaData(m_nadr, m_metaDataDoc);
         TRC_FUNCTION_LEAVE("");
       }
 
     private:
       int m_nadr;
       rapidjson::Document m_metaDataDoc;
-      std::string m_metaData;
     };
 
   ///////////////////// Imp members
@@ -600,12 +588,12 @@ namespace iqrf {
       m_iIqrfInfo->startEnumeration();
     }
 
-    std::string getNodeMetaData(int nadr) const
+    rapidjson::Document getNodeMetaData(int nadr) const
     {
       return m_iIqrfInfo->getNodeMetaData(nadr);
     }
 
-    void setNodeMetaData(int nadr, const std::string & metaData)
+    void setNodeMetaData(int nadr, const rapidjson::Value & metaData)
     {
       m_iIqrfInfo->setNodeMetaData(nadr, metaData);
     }
