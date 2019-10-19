@@ -236,7 +236,7 @@ test:
     - cmake --build shapeware-build --target install
     - cmake -Bbuild -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug
     - cmake --build build --target install
-    - cd build/ && ctest
+    - cd build/ && ctest -V
   <<: *debian-buster-amd64-template
 
 clean-devel:
