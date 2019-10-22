@@ -16,4 +16,11 @@ Depends: ${misc:Depends}, ${shlibs:Depends}
 Replaces: iqrf-daemon (<< 2.0.0)
 Breaks: iqrf-daemon (<< 2.0.0)
 Description: IQRF Gateway Daemon
- IQRF Gateway Daemon with UDP/MQ/MQTT/WS communication channels.
+ IQRF Gateway Daemon is a powerful open source software allowing to easily
+ create an IQRF gateway with Internet connectivity from a Linux machine.
+ .
+ It can be connected to a TR via SPI, UART or USB CDC. The TR implements an
+ IQMESH network Coordinator under the DPA layer.
+ .
+ The Daemon utilizes multiple communication channels UDP, MQ, WebSocket and MQTT
+ and can be managed through the IQRF Gateway Webapp.
