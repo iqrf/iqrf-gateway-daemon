@@ -84,6 +84,24 @@ stages:
   tags:
     - linux, i386
 
+.raspbian-buster-armhf-template: &raspbian-buster-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:raspbian-buster-armhf
+  variables:
+    ARCH: "armhf"
+    ARCH_PREFIX: "rpi-"
+    DIST: "buster"
+  tags:
+    - linux, armhf
+
+.raspbian-stretch-armhf-template: &raspbian-stretch-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:raspbian-stretch-armhf
+  variables:
+    ARCH: "armhf"
+    ARCH_PREFIX: "rpi-"
+    DIST: "stretch"
+  tags:
+    - linux, armhf
+
 .ubuntu-bionic-amd64-template: &ubuntu-bionic-amd64-template
   image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-bionic-amd64
   variables:
@@ -305,6 +323,26 @@ package-stretch-i386:
 
 package_release-stretch-i386:
   <<: *debian-stretch-i386-template
+  <<: *package-release-template
+
+# Raspbian buster
+## armhf
+package-rpi-buster-armhf:
+  <<: *raspbian-buster-armhf-template
+  <<: *package-devel-template
+
+package_release-rpi-buster-armhf:
+  <<: *raspbian-buster-armhf-template
+  <<: *package-release-template
+
+# Debian stretch
+## armhf
+package-rpi-stretch-armhf:
+  <<: *raspbian-stretch-armhf-template
+  <<: *package-devel-template
+
+package_release-rpi-stretch-armhf:
+  <<: *raspbian-stretch-armhf-template
   <<: *package-release-template
 
 # Ubuntu 18.04 bionic
