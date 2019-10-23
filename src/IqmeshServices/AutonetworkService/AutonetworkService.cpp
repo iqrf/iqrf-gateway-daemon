@@ -709,6 +709,7 @@ namespace iqrf {
           if ( antwProcessParams.networkNodes[addr].mid.value == 0 )
           {
             // Read MIDs from Coordinator eeprom
+            // SQLDB - nahradit cteni MID z eeprom [C] nactenim z databaze
             uint16_t address = 0x4000 + addr * 0x08;
             std::basic_string<uint8_t> mid = readCoordXMemory( autonetworkResult, address, sizeof( TMID ) );
             antwProcessParams.networkNodes[addr].mid.bytes[0] = mid[0];
@@ -1832,6 +1833,7 @@ namespace iqrf {
                   // Add authorized node to FrcSelect
                   FrcSelect.push_back( response.BondAddr );
                   // Actualize networkNodes 
+                  // SQLDB - ulozit MID, DPAVerm HWPID, HWPIDVer, OSVersion a OSBuild uspesne autorizovanych nodu do databaze
                   antwProcessParams.networkNodes[response.BondAddr].bonded = true;
                   antwProcessParams.networkNodes[response.BondAddr].discovered = false;
                   antwProcessParams.networkNodes[response.BondAddr].mid.value = node.second.mid.value;
@@ -1853,6 +1855,7 @@ namespace iqrf {
             }
           }
 
+          // TestCase - overit chovani clearDuplicitMID
           if ( ( FrcSelect.size() == 0 ) && ( MIDUnbondOnlyC == false ) )
           {
             try
@@ -1876,6 +1879,8 @@ namespace iqrf {
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
           // Ping nodes
+          // TestCase - v prubehu ping odpojit uspesne autorizovany [N], overit, ze se odbonduje
+          // TestCase - behem jednotlivych cyklu ping [N] odpojovat/zapojovat, overit, jak probehne odbondovani
           FrcOnlineNodes.clear();
           retryAction = antwInputParams.actionRetries + 1;
           while ( ( FrcSelect.size() != 0 ) && ( retryAction-- != 0 ) )
@@ -1959,6 +1964,7 @@ namespace iqrf {
                     antwProcessParams.networkNodes[address].mid.value = 0;
                     antwProcessParams.countWaveNewNodes--;
                     antwProcessParams.countNewNodes--;
+                    // SQLDB - odebrat odbondovany [N] z databaze
                   }
                   catch ( std::exception& ex )
                   {
@@ -1973,6 +1979,7 @@ namespace iqrf {
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
           // Unbond node at coordinator only ?
+          // TestCase - overit odbondovani na strane [C] (zamerne nasimulovat FrcSelect.size() != 0, MIDUnbondOnlyC == true)
           if ( ( FrcSelect.size() != 0 ) || ( MIDUnbondOnlyC == true ) )
           {
             TRC_INFORMATION( "Unbonding Nodes only at Coordinator." );
@@ -1998,6 +2005,8 @@ namespace iqrf {
                   // Actualize networkNodes 
                   antwProcessParams.networkNodes[address].bonded = false;
                   antwProcessParams.networkNodes[address].discovered = false;
+                  antwProcessParams.networkNodes[address].mid.value = 0;
+                  // SQLDB - odebrat odbondovany [N] z databaze
                   if ( unbondPrebondedNode == false )
                   {
                     antwProcessParams.countWaveNewNodes--;
@@ -2016,6 +2025,7 @@ namespace iqrf {
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
           // Clear duplicit MIDs
+          // TestCase - overit chovani clearDuplicitMID
           clearDuplicitMID( autonetworkResult );
 
           // Discovery
