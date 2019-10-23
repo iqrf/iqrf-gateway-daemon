@@ -98,7 +98,6 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
         NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
 
-
       std::unique_ptr<ComNadr> com = m_objectFactory.createObject(msgType.m_type, doc);
 
       if (m_iMetaDataApi) {
@@ -118,7 +117,8 @@ namespace iqrf {
       Pointer("/mType").Set(respDoc, msgType.m_type);
 
       //TODO validate response in debug
-      m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
+      //m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
+      m_iMessagingSplitterService->sendMessageExt(messagingId, res->getResponse().DpaPacket().DpaResponsePacket_t.NADR, std::move(respDoc));
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -144,7 +144,8 @@ namespace iqrf {
       //update message type - type is the same for request/response
       Pointer("/mType").Set(respDoc, "iqrfRaw");
 
-      m_iMessagingSplitterService->sendMessage("", std::move(respDoc));
+      //m_iMessagingSplitterService->sendMessage("", std::move(respDoc));
+      m_iMessagingSplitterService->sendMessageExt("", msg.DpaPacket().DpaResponsePacket_t.NADR , std::move(respDoc));
     }
 
     void activate(const shape::Properties *props)

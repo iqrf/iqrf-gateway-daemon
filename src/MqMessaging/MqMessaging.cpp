@@ -50,6 +50,14 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
+  void MqMessaging::sendMessageExt(const std::string& messagingId, const int nodeAdr, const std::basic_string<uint8_t> & msg)
+  {
+    TRC_FUNCTION_ENTER(PAR(messagingId));
+    TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
+    m_toMqMessageQueue->pushToQueue(msg);
+    TRC_FUNCTION_LEAVE("")
+  }
+
   int MqMessaging::handleMessageFromMq(const ustring& message)
   {
     TRC_DEBUG("==================================" << std::endl <<

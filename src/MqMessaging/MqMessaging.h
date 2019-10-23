@@ -17,6 +17,7 @@ namespace iqrf {
     void registerMessageHandler(MessageHandlerFunc hndl) override;
     void unregisterMessageHandler() override;
     void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) override;
+    void sendMessageExt(const std::string& messagingId, const int nodeAdr, const std::basic_string<uint8_t>& msg) override;
     const std::string & getName() const override { return m_name; }
     bool acceptAsyncMsg() const override { return m_acceptAsyncMsg; }
 

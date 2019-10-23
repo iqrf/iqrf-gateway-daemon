@@ -67,6 +67,14 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
+  void UdpMessaging::sendMessageExt(const std::string& messagingId, const int nodeAdr, const std::basic_string<uint8_t> & msg)
+  {
+    TRC_FUNCTION_ENTER(PAR(messagingId));
+    TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
+    m_toUdpMessageQueue->pushToQueue(msg);
+    TRC_FUNCTION_LEAVE("")
+  }
+
   int UdpMessaging::handleMessageFromUdp(const std::basic_string<uint8_t> & message)
   {
     TRC_DEBUG("==================================" << std::endl <<

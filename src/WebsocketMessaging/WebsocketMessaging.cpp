@@ -187,6 +187,11 @@ namespace iqrf {
     m_imp->sendMessage(messagingId, msg);
   }
 
+  void WebsocketMessaging::sendMessageExt(const std::string& messagingId, const int nodeAdr, const std::basic_string<uint8_t>& msg)
+  {
+    m_imp->sendMessage(messagingId, msg);
+  }
+
   const std::string& WebsocketMessaging::getName() const
   {
     return m_imp->getName();

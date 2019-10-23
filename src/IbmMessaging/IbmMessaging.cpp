@@ -580,8 +580,27 @@ namespace iqrf {
     }
 
     //------------------------
-    void sendMessage(const ustring& msg) {
+    void sendMessage(const int nodeAdr, const ustring& msg) {
       TRC_FUNCTION_ENTER("");
+
+      if (nodeAdr != -1) {
+        //iot-2/type/iqrf-device/id/+/evt/iqrf/fmt/json
+        //... find and replace "+" ...
+        //iot-2/type/iqrf-device/id/device0/evt/iqrf/fmt/json
+        //iot-2/type/iqrf-device/id/device1/evt/iqrf/fmt/json
+
+        std::string toSearch = "+";
+        std::string toReplace = "device" + std::to_string(nodeAdr);
+                
+        // Get the first occurrence, only one
+        size_t pos = m_mqttTopicResponse.find(toSearch);
+        m_mqttTopicResponse.replace(pos, toSearch.size(), toReplace);
+
+        TRC_INFORMATION("MQTT topic rsp: " << PAR(m_mqttTopicResponse));
+      } else {
+        TRC_ERROR("NodeAdr: " << PAR(nodeAdr));
+      }
+
       m_iMqttService->publish(m_mqttTopicResponse, std::vector<uint8_t>(msg.data(), msg.data() + msg.size()));
       TRC_FUNCTION_LEAVE("");
     }
@@ -619,6 +638,7 @@ namespace iqrf {
     void modify(const shape::Properties *props)
     {
       TRC_FUNCTION_ENTER("");
+      props->getMemberAsString("instance", m_name);
       props->getMemberAsString("ClientId", m_mqttClientId);
       props->getMemberAsString("TopicRequest", m_mqttTopicRequest);
       props->getMemberAsString("TopicResponse", m_mqttTopicResponse);
@@ -676,7 +696,13 @@ namespace iqrf {
 
   void IbmMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t>& msg)
   {
-    m_impl->sendMessage(msg);
+    int nodeAdr = -1;
+    m_impl->sendMessage(nodeAdr, msg);
+  }
+
+  void IbmMessaging::sendMessageExt(const std::string& messagingId, const int nodeAdr, const std::basic_string<uint8_t>& msg)
+  {
+    m_impl->sendMessage(nodeAdr, msg);
   }
 
   const std::string& IbmMessaging::getName() const

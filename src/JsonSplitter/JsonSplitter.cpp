@@ -136,7 +136,7 @@ namespace iqrf {
       return MsgType(mType, major, minor, micro);
     }
 
-    void sendMessage(const std::string& messagingId, rapidjson::Document doc) const
+    void sendMessage(const std::string& messagingId, const int nodeAdr, rapidjson::Document doc) const
     {
       using namespace rapidjson;
 
@@ -180,7 +180,11 @@ namespace iqrf {
         std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
         auto found = m_iMessagingServiceMap.find(messagingId2);
         if (found != m_iMessagingServiceMap.end()) {
-          found->second->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+          if (nodeAdr == -1) {
+            found->second->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+          } else {
+            found->second->sendMessageExt(messagingId, nodeAdr, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+          }
           TRC_INFORMATION("Outcomming message successfully sent.");
         }
         else {
@@ -190,7 +194,11 @@ namespace iqrf {
       else {
         std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
         for (auto m : m_iMessagingServiceSetAcceptAsync) {
-          m->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+          if (nodeAdr == -1) {
+            m->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+          } else {
+            m->sendMessageExt(messagingId, nodeAdr, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+          }
           TRC_INFORMATION("Outcomming message successfully sent.");
         }
       }
@@ -271,7 +279,8 @@ namespace iqrf {
           MessageErrorMsg msg("ignored", str, oser.str());
           msg.createResponse(rspDoc);
           try {
-            sendMessage(messagingId, std::move(rspDoc));
+            int nodeAdr = -1;
+            sendMessage(messagingId, nodeAdr, std::move(rspDoc));
           }
           catch (std::logic_error &ee) {
             TRC_WARNING("Cannot create error response:" << ee.what());
@@ -359,7 +368,8 @@ namespace iqrf {
         MessageErrorMsg msg(msgId, str, e.what());
         msg.createResponse(rspDoc);
         try {
-          sendMessage(messagingId, std::move(rspDoc));
+          int nodeAdr = -1;
+          sendMessage(messagingId, nodeAdr, std::move(rspDoc));
         }
         catch (std::logic_error &ee) {
           TRC_WARNING("Cannot create error response:" << ee.what());
@@ -640,7 +650,13 @@ namespace iqrf {
 
   void JsonSplitter::sendMessage(const std::string& messagingId, rapidjson::Document doc) const
   {
-    m_imp->sendMessage(messagingId, std::move(doc));
+    int nodeAdr = -1;
+    m_imp->sendMessage(messagingId, nodeAdr, std::move(doc));
+  }
+
+  void JsonSplitter::sendMessageExt(const std::string& messagingId, const int nodeAdr, rapidjson::Document doc) const
+  {
+    m_imp->sendMessage(messagingId, nodeAdr, std::move(doc));
   }
 
   void JsonSplitter::registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc)

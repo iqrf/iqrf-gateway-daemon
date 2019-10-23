@@ -195,6 +195,12 @@ namespace iqrf {
     m_imp->sendMessage(msg);
   }
 
+  void SchedulerMessaging::sendMessageExt(const std::string& messagingId, const int nodeAdr, const std::basic_string<uint8_t> & msg)
+  {
+    (void)messagingId; //silence -Wunused-parameter
+    m_imp->sendMessage(msg);
+  }
+
   const std::string& SchedulerMessaging::getName() const
   {
     return m_imp->getName();

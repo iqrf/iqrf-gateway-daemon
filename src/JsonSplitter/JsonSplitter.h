@@ -14,6 +14,7 @@ namespace iqrf {
     JsonSplitter();
     virtual ~JsonSplitter();
     void sendMessage(const std::string& messagingId, rapidjson::Document doc) const override;
+    void sendMessageExt(const std::string& messagingId, const int nodeAdr, rapidjson::Document doc) const override;
     void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) override;
     void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) override;
     int getMsgQueueLen() const override;
