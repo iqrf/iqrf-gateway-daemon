@@ -63,7 +63,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void sendMessageExt(const std::string& messagingId, const int nodeAdr, const std::basic_string<uint8_t>& msg) override;
+    void sendMessageExt(const std::string& messagingId, const int nodeAdr, const std::basic_string<uint8_t>& msg)
     {
       TRC_FUNCTION_ENTER("");
       {
