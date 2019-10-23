@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM iqrftech/package-builders:debian-buster-i386
+FROM iqrftech/package-builders:raspbian-buster-armhf
 
 MAINTAINER Roman Ondráček <roman.ondracek@iqrf.com>
 LABEL maintainer="roman.ondracek@iqrf.com"
@@ -22,7 +22,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
   && apt-get install --no-install-recommends -y apt-transport-https dirmngr gnupg2 \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
-  && echo "deb http://repos.iqrf.org/debian buster stable" | tee -a /etc/apt/sources.list \
+  && echo "deb http://repos.iqrf.org/raspbian buster stable" | tee -a /etc/apt/sources.list \
   && apt-get update \
   && apt-get install --no-install-recommends -y googletest libcurl4-openssl-dev \
      libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate python3-requests zlib1g-dev \

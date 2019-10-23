@@ -28,6 +28,3 @@ RUN apt-get update \
      libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate python3-requests zlib1g-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
-
-# Workaround for unfunctional ca-certificates on 32-bit in QEMU
-#RUN gem install --no-rdoc --no-ri fpm
