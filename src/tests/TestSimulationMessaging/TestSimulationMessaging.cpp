@@ -63,6 +63,17 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    void sendMessageExt(const std::string& messagingId, const int nodeAdr, const std::basic_string<uint8_t>& msg) override;
+    {
+      TRC_FUNCTION_ENTER("");
+      {
+        std::unique_lock<std::mutex> lck(m_queueMux);
+        m_outgoingMsgQueue.push(std::make_pair(messagingId, std::string((char*)msg.data(), msg.size())));
+      }
+      m_cv.notify_one();
+      TRC_FUNCTION_LEAVE("")
+    }
+
     const std::string & getName() const
     {
       TRC_FUNCTION_ENTER("");
