@@ -311,7 +311,8 @@ namespace iqrf {
     // Message type
     const std::string m_mTypeName_Autonetwork = "iqmeshNetwork_AutoNetwork";
 
-    iqrf::IJsCacheService* m_iJsCacheService = nullptr;
+    //iqrf::IJsCacheService* m_iJsCacheService = nullptr;
+    IIqrfInfo* m_iIqrfInfo = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
@@ -697,6 +698,9 @@ namespace iqrf {
       antwProcessParams.discoveredNodes = getDiscoveredNodes( autonetworkResult );
       antwProcessParams.discoveredNodesNr = (uint8_t)antwProcessParams.discoveredNodes.count();
 
+      //gets existing nodes from DB
+      std::map<int, embed::node::BriefInfoPtr> nadrNodeMap = m_iIqrfInfo->getNodes();
+
       // Update networkNodes structure      
       for ( uint8_t addr = 1; addr <= MAX_ADDRESS; addr++ )
       {
@@ -710,12 +714,25 @@ namespace iqrf {
           {
             // Read MIDs from Coordinator eeprom
             // SQLDB - nahradit cteni MID z eeprom [C] nactenim z databaze
-            uint16_t address = 0x4000 + addr * 0x08;
-            std::basic_string<uint8_t> mid = readCoordXMemory( autonetworkResult, address, sizeof( TMID ) );
-            antwProcessParams.networkNodes[addr].mid.bytes[0] = mid[0];
-            antwProcessParams.networkNodes[addr].mid.bytes[1] = mid[1];
-            antwProcessParams.networkNodes[addr].mid.bytes[2] = mid[2];
-            antwProcessParams.networkNodes[addr].mid.bytes[3] = mid[3];
+            auto found = nadrNodeMap.find(addr);
+            if (found == nadrNodeMap.end()) {
+              TRC_WARNING("Inconsistent DB cannot read MID for: " << PAR(addr) << " => going to read from [C])");
+              uint16_t address = 0x4000 + addr * 0x08;
+              std::basic_string<uint8_t> mid = readCoordXMemory(autonetworkResult, address, sizeof(TMID));
+              antwProcessParams.networkNodes[addr].mid.bytes[0] = mid[0];
+              antwProcessParams.networkNodes[addr].mid.bytes[1] = mid[1];
+              antwProcessParams.networkNodes[addr].mid.bytes[2] = mid[2];
+              antwProcessParams.networkNodes[addr].mid.bytes[3] = mid[3];
+            }
+            else {
+              // store MID according DB
+              unsigned dbMid = found->second->getMid();
+              //TODO correct endian?
+              antwProcessParams.networkNodes[addr].mid.bytes[0] = dbMid & 0xFF;
+              antwProcessParams.networkNodes[addr].mid.bytes[1] = (dbMid >>= 8) & 0xFF;
+              antwProcessParams.networkNodes[addr].mid.bytes[2] = (dbMid >>= 8) & 0xFF;;
+              antwProcessParams.networkNodes[addr].mid.bytes[3] = (dbMid >>= 8) & 0xFF;;
+            }
           }
         }
         else
@@ -1812,6 +1829,9 @@ namespace iqrf {
 
           // Authorize prebonded alive nodes
           FrcSelect.clear();
+          // Nodes to be inserted to DB mapped according NADR
+          std::map<int, embed::node::BriefInfoPtr> insertNadrNodeMap;
+
           for ( std::pair<uint8_t, TPrebondedNode> node : antwProcessParams.prebondedNodes )
           {
             if ( antwProcessParams.bondedNodesNr > MAX_ADDRESS )
@@ -1834,6 +1854,11 @@ namespace iqrf {
                   FrcSelect.push_back( response.BondAddr );
                   // Actualize networkNodes 
                   // SQLDB - ulozit MID, DPAVerm HWPID, HWPIDVer, OSVersion a OSBuild uspesne autorizovanych nodu do databaze
+
+                  // add to map to be inserted to DB
+                  insertNadrNodeMap[response.BondAddr] = embed::node::BriefInfoPtr(shape_new embed::node::BriefInfo(
+                    node.second.mid.value, false, node.second.HWPID, node.second.HWPIDVer, node.second.OSBuild, node.second.DPAVer));
+
                   antwProcessParams.networkNodes[response.BondAddr].bonded = true;
                   antwProcessParams.networkNodes[response.BondAddr].discovered = false;
                   antwProcessParams.networkNodes[response.BondAddr].mid.value = node.second.mid.value;
@@ -1854,6 +1879,9 @@ namespace iqrf {
               } while ( --retryAction != 0 );
             }
           }
+
+          //insert to DB
+          m_iIqrfInfo->insertNodes(insertNadrNodeMap);
 
           // TestCase - overit chovani clearDuplicitMID
           if ( ( FrcSelect.size() == 0 ) && ( MIDUnbondOnlyC == false ) )
@@ -1938,6 +1966,9 @@ namespace iqrf {
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
           // Unbonding
+          // Nodes to be removed from DB as set of NADR
+          std::set<int> removeNadrSet;
+
           retryAction = antwInputParams.actionRetries + 1;
           while ( ( FrcSelect.size() != 0 ) && ( retryAction-- != 0 ) )
           {
@@ -1965,6 +1996,7 @@ namespace iqrf {
                     antwProcessParams.countWaveNewNodes--;
                     antwProcessParams.countNewNodes--;
                     // SQLDB - odebrat odbondovany [N] z databaze
+                    removeNadrSet.insert(address);
                   }
                   catch ( std::exception& ex )
                   {
@@ -2011,6 +2043,8 @@ namespace iqrf {
                   {
                     antwProcessParams.countWaveNewNodes--;
                     antwProcessParams.countNewNodes--;
+                    
+                    removeNadrSet.insert(address);
                   }
                 }
                 catch ( std::exception& ex )
@@ -2021,6 +2055,9 @@ namespace iqrf {
             }
           }
 
+          // remove nodes from DB
+          m_iIqrfInfo->removeNodes(removeNadrSet);
+
           // ToDo
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
@@ -2029,6 +2066,7 @@ namespace iqrf {
           clearDuplicitMID( autonetworkResult );
 
           // Discovery
+          // TODO SQLDB update discovered nodes in DB
           if ( ( antwProcessParams.countWaveNewNodes != 0 ) || ( MIDUnbondOnlyC == true ) )
           {
             retryAction = antwInputParams.actionRetries + 1;
@@ -2508,17 +2546,30 @@ namespace iqrf {
       }
     }
 
-    void attachInterface( IJsCacheService* iface )
+    void attachInterface(IIqrfInfo* iface)
     {
-      m_iJsCacheService = iface;
+      m_iIqrfInfo = iface;
     }
 
-    void detachInterface( IJsCacheService* iface )
+    void detachInterface(IIqrfInfo* iface)
     {
-      if ( m_iJsCacheService == iface ) {
-        m_iJsCacheService = nullptr;
+      if (m_iIqrfInfo == iface) {
+        m_iIqrfInfo = nullptr;
       }
+
     }
+
+    //void attachInterface( IJsCacheService* iface )
+    //{
+    //  m_iJsCacheService = iface;
+    //}
+
+    //void detachInterface( IJsCacheService* iface )
+    //{
+    //  if ( m_iJsCacheService == iface ) {
+    //    m_iJsCacheService = nullptr;
+    //  }
+    //}
 
     void attachInterface( IMessagingSplitterService* iface )
     {
@@ -2543,33 +2594,42 @@ namespace iqrf {
     delete m_imp;
   }
 
+  void AutonetworkService::attachInterface(IIqrfInfo* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
 
-  void AutonetworkService::attachInterface( iqrf::IIqrfDpaService* iface )
+  void AutonetworkService::detachInterface(IIqrfInfo* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void AutonetworkService::attachInterface( IIqrfDpaService* iface )
   {
     m_imp->attachInterface( iface );
   }
 
-  void AutonetworkService::detachInterface( iqrf::IIqrfDpaService* iface )
+  void AutonetworkService::detachInterface( IIqrfDpaService* iface )
   {
     m_imp->detachInterface( iface );
   }
 
-  void AutonetworkService::attachInterface( iqrf::IJsCacheService* iface )
+  //void AutonetworkService::attachInterface( IJsCacheService* iface )
+  //{
+  //  m_imp->attachInterface( iface );
+  //}
+
+  //void AutonetworkService::detachInterface( IJsCacheService* iface )
+  //{
+  //  m_imp->detachInterface( iface );
+  //}
+
+  void AutonetworkService::attachInterface( IMessagingSplitterService* iface )
   {
     m_imp->attachInterface( iface );
   }
 
-  void AutonetworkService::detachInterface( iqrf::IJsCacheService* iface )
-  {
-    m_imp->detachInterface( iface );
-  }
-
-  void AutonetworkService::attachInterface( iqrf::IMessagingSplitterService* iface )
-  {
-    m_imp->attachInterface( iface );
-  }
-
-  void AutonetworkService::detachInterface( iqrf::IMessagingSplitterService* iface )
+  void AutonetworkService::detachInterface( IMessagingSplitterService* iface )
   {
     m_imp->detachInterface( iface );
   }

@@ -1477,6 +1477,20 @@ namespace iqrf {
       return retval;
     }
 
+    void insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes)
+    {
+      TRC_FUNCTION_ENTER("");
+      //TODO
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void removeNodes(const std::set<int> & nodes)
+    {
+      TRC_FUNCTION_ENTER("");
+      //TODO
+      TRC_FUNCTION_LEAVE("")
+    }
+
     void startEnumeration()
     {
       TRC_FUNCTION_ENTER("");
@@ -1693,6 +1707,16 @@ namespace iqrf {
   std::map<int, embed::node::BriefInfoPtr> IqrfInfo::getNodes() const
   {
     return m_imp->getNodes();
+  }
+
+  void IqrfInfo::insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes)
+  {
+    return m_imp->insertNodes(nodes);
+  }
+
+  void IqrfInfo::removeNodes(const std::set<int> & nodes)
+  {
+    return m_imp->removeNodes(nodes);
   }
 
   void IqrfInfo::startEnumeration()

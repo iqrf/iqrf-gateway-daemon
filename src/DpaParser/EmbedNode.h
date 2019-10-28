@@ -23,6 +23,7 @@ namespace iqrf
         BriefInfo()
         {}
 
+      public:
         BriefInfo(unsigned mid, bool disc, int hwpid, int hwpidVer, int osBuild, int dpaVer)
           :m_mid(mid)
           , m_disc(disc)
@@ -32,7 +33,6 @@ namespace iqrf
           , m_dpaVer(dpaVer)
         {}
 
-      public:
         virtual ~BriefInfo() {}
 
         unsigned getMid() const { return m_mid; }

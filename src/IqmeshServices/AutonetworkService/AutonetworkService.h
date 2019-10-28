@@ -2,8 +2,9 @@
 
 #include "IAutonetworkService.h"
 #include "ShapeProperties.h"
+#include "IIqrfInfo.h"
 #include "IMessagingSplitterService.h"
-#include "IJsCacheService.h"
+//#include "IJsCacheService.h"
 #include "IIqrfDpaService.h"
 #include "ITraceService.h"
 #include <string>
@@ -26,14 +27,17 @@ namespace iqrf {
     void deactivate();
     void modify(const shape::Properties *props);
 
-    void attachInterface(iqrf::IIqrfDpaService* iface);
-    void detachInterface(iqrf::IIqrfDpaService* iface);
+    void attachInterface(IIqrfInfo* iface);
+    void detachInterface(IIqrfInfo* iface);
 
-    void attachInterface(iqrf::IJsCacheService* iface);
-    void detachInterface(iqrf::IJsCacheService* iface);
+    void attachInterface(IIqrfDpaService* iface);
+    void detachInterface(IIqrfDpaService* iface);
 
-    void attachInterface(iqrf::IMessagingSplitterService* iface);
-    void detachInterface(iqrf::IMessagingSplitterService* iface);
+    //void attachInterface(IJsCacheService* iface);
+    //void detachInterface(IJsCacheService* iface);
+
+    void attachInterface(IMessagingSplitterService* iface);
+    void detachInterface(IMessagingSplitterService* iface);
 
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
