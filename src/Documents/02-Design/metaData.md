@@ -214,7 +214,7 @@ Response with parameters:
   - ok
   - badParams
   - metaIdUnknown
-  - 
+  
 ### mngDaemon-setMidMetaId
 Request with parameters:
 - required **mid: integer**

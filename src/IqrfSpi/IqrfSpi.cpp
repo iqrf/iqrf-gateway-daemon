@@ -310,29 +310,31 @@ namespace iqrf {
       spi_iqrf_SPIStatus spiStatus1, spiStatus2;
       int ret = 1;
 
+      std::unique_lock<std::mutex> lck(m_commMutex);
       {
-        std::unique_lock<std::mutex> lck(m_commMutex);
+        // Multiple times to clear 0x3F state
+        for (size_t i = 0; i < 3; i++)
+        {
+          ret = spi_iqrf_getSPIStatus(&spiStatus1);
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+          ret = spi_iqrf_getSPIStatus(&spiStatus2);
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-        ret = spi_iqrf_getSPIStatus(&spiStatus1);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        ret = spi_iqrf_getSPIStatus(&spiStatus2);
-      }
+          switch (ret) {
+            case BASE_TYPES_OPER_OK:
+              if (spiStatus1.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM 
+                  && spiStatus2.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM) {
+                return state = State::Ready;
+              }
+              else {
+                TRC_INFORMATION("GetState() SPI status: " << PAR(spiStatus1.dataNotReadyStatus) << PAR(spiStatus2.dataNotReadyStatus));
+              }
+            break;
 
-      switch (ret) {
-      case BASE_TYPES_OPER_OK:
-        if (spiStatus1.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM && spiStatus2.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM) {
-          state = State::Ready;
+            default:
+            break;
+          }
         }
-        else {
-          TRC_INFORMATION("SPI status1: " << PAR(spiStatus1.dataNotReadyStatus));
-          TRC_INFORMATION("SPI status2: " << PAR(spiStatus2.dataNotReadyStatus));
-          state = State::NotReady;
-        }
-        break;
-
-      default:
-        state = State::NotReady;
-        break;
       }
 
       return state;

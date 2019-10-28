@@ -85,24 +85,24 @@ stages:
     - linux, i386
 
 .raspbian-buster-armhf-template: &raspbian-buster-armhf-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-armhf
+  image: iqrftech/iqrf-gateway-daemon-builder:raspbian-buster-armhf
   variables:
     ARCH: "armhf"
     ARCH_PREFIX: "rpi-"
+    CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
+    CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
     DIST: "buster"
-    CFLAGS: "-marm -march=armv6 -mfpu=vfp -mfloat-abi=hard"
-    CXXFLAGS: "-marm -march=armv6 -mfpu=vfp -mfloat-abi=hard"
   tags:
     - linux, armhf
 
 .raspbian-stretch-armhf-template: &raspbian-stretch-armhf-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-armhf
+  image: iqrftech/iqrf-gateway-daemon-builder:raspbian-stretch-armhf
   variables:
     ARCH: "armhf"
     ARCH_PREFIX: "rpi-"
+    CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
+    CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
     DIST: "stretch"
-    CFLAGS: "-marm -march=armv6 -mfpu=vfp -mfloat-abi=hard"
-    CXXFLAGS: "-marm -march=armv6 -mfpu=vfp -mfloat-abi=hard"
   tags:
     - linux, armhf
 
@@ -331,21 +331,21 @@ package_release-stretch-i386:
 
 # Raspbian buster
 ## armhf
-rpi-package-buster-armhf:
+package-rpi-buster-armhf:
   <<: *raspbian-buster-armhf-template
   <<: *package-devel-template
 
-rpi-package_release-buster-armhf:
+package_release-rpi-buster-armhf:
   <<: *raspbian-buster-armhf-template
   <<: *package-release-template
 
-# Raspbian stretch
+# Debian stretch
 ## armhf
-rpi-package-stretch-armhf:
+package-rpi-stretch-armhf:
   <<: *raspbian-stretch-armhf-template
   <<: *package-devel-template
 
-rpi-package_release-stretch-armhf:
+package_release-rpi-stretch-armhf:
   <<: *raspbian-stretch-armhf-template
   <<: *package-release-template
 

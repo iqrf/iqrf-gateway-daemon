@@ -734,7 +734,7 @@ namespace iqrf {
       {
         if ( nodes[nodeAddr] && nodesListStr.empty() == false )
           nodesListStr += ", ";
-        nodesListStr += nodeAddr;
+          nodesListStr += std::to_string((int)nodeAddr);
       }
 
       return nodesListStr;

@@ -1,0 +1,73 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "infoDaemon_SetNodeMetaData-response",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Set MetaData assigned to bonded node.",
+            "enum": [
+                "infoDaemon_SetNodeMetaData"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "rsp": {
+                    "type": "object",
+                    "properties": {
+                        "nAdr": {
+                            "type": "integer",
+                            "description": "Node address."
+                        },
+                        "metaData": {
+							"oneOf": [
+								{
+									"type": "object",
+									"description": "Metadata Json."
+								},
+								{
+									"type": "null"
+								}
+							]
+                        }
+                    },
+                    "required": [
+                        "nAdr",
+                        "metaData"
+                    ]
+                },
+                "insId": {
+					"type": "string",
+					"description": "IQRF GW daemon instance identification."
+				},
+                "status": {
+                    "type": "integer",
+                    "description": "Status of operation."
+                },
+                "statusStr": {
+                    "type": "string",
+                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                }
+            },
+            "required": [
+                "msgId",
+                "rsp",
+                "status"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

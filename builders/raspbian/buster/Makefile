@@ -12,26 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+DISTRIBUTION := raspbian
+REPOSITORY := iqrftech/iqrf-gateway-daemon-builder
+VERSION := buster
+
 all: build-all push-all
 
-build-all: build-debian build-raspbian build-ubuntu
+build-all: build-armhf
 
-build-debian:
-	$(MAKE) -C debian/ build-all
+build-armhf:
+	docker build -f armhf.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armhf .
 
-build-raspbian:
-	$(MAKE) -C raspbian/ build-all
+push-all: push-armhf
 
-build-ubuntu:
-	$(MAKE) -C ubuntu/ build-all
-
-push-all: push-debian push-raspbian push-ubuntu
-
-push-debian:
-	$(MAKE) -C debian/ push-all
-
-push-raspbian:
-	$(MAKE) -C raspbian/ push-all
-
-push-ubuntu:
-	$(MAKE) -C ubuntu/ push-all
+push-armhf:
+	docker push $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armhf

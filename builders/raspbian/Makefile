@@ -14,24 +14,18 @@
 
 all: build-all push-all
 
-build-all: build-debian build-raspbian build-ubuntu
+build-all: build-stretch build-buster
 
-build-debian:
-	$(MAKE) -C debian/ build-all
+build-buster:
+	$(MAKE) -C buster/ build-all
 
-build-raspbian:
-	$(MAKE) -C raspbian/ build-all
+build-stretch:
+	$(MAKE) -C stretch/ build-all
 
-build-ubuntu:
-	$(MAKE) -C ubuntu/ build-all
+push-all: push-stretch push-buster
 
-push-all: push-debian push-raspbian push-ubuntu
+push-buster:
+	$(MAKE) -C buster/ push-all
 
-push-debian:
-	$(MAKE) -C debian/ push-all
-
-push-raspbian:
-	$(MAKE) -C raspbian/ push-all
-
-push-ubuntu:
-	$(MAKE) -C ubuntu/ push-all
+push-stretch:
+	$(MAKE) -C stretch/ push-all

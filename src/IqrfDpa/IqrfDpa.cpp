@@ -405,11 +405,6 @@ namespace iqrf {
 
     m_iqrfChannelService->startListen();
     
-    IIqrfChannelService::State st = m_iqrfChannelService->getState();
-    if (st == IIqrfChannelService::State::NotReady) {
-      std::cout << std::endl << "Error: Interface to IQRF Coordinator is not ready - verify (CDC or SPI or UART) configuration" << std::endl;
-    }
-
     getIqrfNetworkParams();
 
     // unregister asyn reset - not needed  after getIqrfNetworkParams()
@@ -422,6 +417,11 @@ namespace iqrf {
     timingParams.dpaVersion = m_cPar.dpaVerWord;
     timingParams.osVersion = m_cPar.osVersion;
     m_dpaHandler->setTimingParams(timingParams);
+
+    IIqrfChannelService::State st = m_iqrfChannelService->getState();
+    if (st == IIqrfChannelService::State::NotReady) {
+      std::cout << std::endl << "Error: Interface to DPA coordinator is not ready - verify (CDC or SPI or UART) configuration" << std::endl;
+    }
 
     TRC_FUNCTION_LEAVE("")
   }

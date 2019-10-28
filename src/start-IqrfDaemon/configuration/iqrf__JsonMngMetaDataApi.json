@@ -1,5 +1,5 @@
 {
   "component": "iqrf::JsonMngMetaDataApi",
   "instance": "JsonMngMetaDataApi",
-  "metaDataToMessages": false
+  "metaDataToMessages": true
 }
