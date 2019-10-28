@@ -37,6 +37,7 @@ namespace iqrf
 
         unsigned getMid() const { return m_mid; }
         bool getDisc() const { return m_disc; }
+        void setDisc(bool val) { m_disc = val; }
         int getHwpid() const { return m_hwpid; }
         int getHwpidVer() const { return m_hwpidVer; }
         int getOsBuild() const { return m_osBuild; }

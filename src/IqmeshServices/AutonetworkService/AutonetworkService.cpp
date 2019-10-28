@@ -311,11 +311,12 @@ namespace iqrf {
     // Message type
     const std::string m_mTypeName_Autonetwork = "iqmeshNetwork_AutoNetwork";
 
-    //iqrf::IJsCacheService* m_iJsCacheService = nullptr;
     IIqrfInfo* m_iIqrfInfo = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
+    // Nodes to be inserted to DB mapped according NADR
+    std::map<int, embed::node::BriefInfoPtr> m_insertNadrNodeMap;
 
     uint8_t MAX_WAVES = MAX_ADDRESS;
     uint8_t MAX_EMPTY_WAVES = MAX_ADDRESS;
@@ -1829,8 +1830,6 @@ namespace iqrf {
 
           // Authorize prebonded alive nodes
           FrcSelect.clear();
-          // Nodes to be inserted to DB mapped according NADR
-          std::map<int, embed::node::BriefInfoPtr> insertNadrNodeMap;
 
           for ( std::pair<uint8_t, TPrebondedNode> node : antwProcessParams.prebondedNodes )
           {
@@ -1854,9 +1853,8 @@ namespace iqrf {
                   FrcSelect.push_back( response.BondAddr );
                   // Actualize networkNodes 
                   // SQLDB - ulozit MID, DPAVerm HWPID, HWPIDVer, OSVersion a OSBuild uspesne autorizovanych nodu do databaze
-
                   // add to map to be inserted to DB
-                  insertNadrNodeMap[response.BondAddr] = embed::node::BriefInfoPtr(shape_new embed::node::BriefInfo(
+                  m_insertNadrNodeMap[response.BondAddr] = embed::node::BriefInfoPtr(shape_new embed::node::BriefInfo(
                     node.second.mid.value, false, node.second.HWPID, node.second.HWPIDVer, node.second.OSBuild, node.second.DPAVer));
 
                   antwProcessParams.networkNodes[response.BondAddr].bonded = true;
@@ -1881,7 +1879,8 @@ namespace iqrf {
           }
 
           //insert to DB
-          m_iIqrfInfo->insertNodes(insertNadrNodeMap);
+          // TODO why to insert and then delete later?
+          //m_iIqrfInfo->insertNodes(insertNadrNodeMap);
 
           // TestCase - overit chovani clearDuplicitMID
           if ( ( FrcSelect.size() == 0 ) && ( MIDUnbondOnlyC == false ) )
@@ -1967,7 +1966,8 @@ namespace iqrf {
 
           // Unbonding
           // Nodes to be removed from DB as set of NADR
-          std::set<int> removeNadrSet;
+          // TODO shouldn't we just remove from insertNadrNodeMap
+          //std::set<int> removeNadrSet;
 
           retryAction = antwInputParams.actionRetries + 1;
           while ( ( FrcSelect.size() != 0 ) && ( retryAction-- != 0 ) )
@@ -1996,7 +1996,7 @@ namespace iqrf {
                     antwProcessParams.countWaveNewNodes--;
                     antwProcessParams.countNewNodes--;
                     // SQLDB - odebrat odbondovany [N] z databaze
-                    removeNadrSet.insert(address);
+                    m_insertNadrNodeMap.erase(address);
                   }
                   catch ( std::exception& ex )
                   {
@@ -2044,7 +2044,8 @@ namespace iqrf {
                     antwProcessParams.countWaveNewNodes--;
                     antwProcessParams.countNewNodes--;
                     
-                    removeNadrSet.insert(address);
+                    m_insertNadrNodeMap.erase(address);
+
                   }
                 }
                 catch ( std::exception& ex )
@@ -2055,9 +2056,6 @@ namespace iqrf {
             }
           }
 
-          // remove nodes from DB
-          m_iIqrfInfo->removeNodes(removeNadrSet);
-
           // ToDo
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
@@ -2067,6 +2065,17 @@ namespace iqrf {
 
           // Discovery
           // TODO SQLDB update discovered nodes in DB
+          // update discovered nodes before m_iIqrfInfo->insertNodes(insertNadrNodeMap);
+          /*
+          auto found = insertNadrNodeMap.find(1);
+          if (found == insertNadrNodeMap.end()) {
+            //TODO handle inconsistency
+          }
+          else {
+            found->second->setDisc(true);
+          }
+          */
+
           if ( ( antwProcessParams.countWaveNewNodes != 0 ) || ( MIDUnbondOnlyC == true ) )
           {
             retryAction = antwInputParams.actionRetries + 1;
@@ -2094,6 +2103,7 @@ namespace iqrf {
             m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
           }
         }
+        // TODO SQLDB release exclusive access to DPA and store IqrfInfo here before last response => allows enum to complete some DPA msgs
       }
       catch ( std::exception& ex )
       {
@@ -2481,6 +2491,10 @@ namespace iqrf {
 
       // Release exclusive access
       m_exclusiveAccess.reset();
+
+      // SQLDB
+      // TODO do it here? It allows IqrfInfo to complete enum with DPA messages
+      m_iIqrfInfo->insertNodes(m_insertNadrNodeMap);
 
       TRC_FUNCTION_LEAVE( "" );
     }

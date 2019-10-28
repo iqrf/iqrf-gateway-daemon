@@ -1450,7 +1450,6 @@ namespace iqrf {
       std::map<int, embed::node::BriefInfoPtr> retval;
       database & db = *m_db;
 
-      //TODO
       db <<
         "select "
         "b.Nadr "
@@ -1480,7 +1479,9 @@ namespace iqrf {
     void insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes)
     {
       TRC_FUNCTION_ENTER("");
+
       //TODO
+
       TRC_FUNCTION_LEAVE("")
     }
 
