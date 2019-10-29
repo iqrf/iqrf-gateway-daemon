@@ -709,15 +709,33 @@ namespace iqrf {
         antwProcessParams.networkNodes[addr].bonded = antwProcessParams.bondedNodes[addr];
         if ( antwProcessParams.networkNodes[addr].bonded == true )
         {
-          antwProcessParams.networkNodes[addr].discovered = antwProcessParams.discoveredNodes[addr];
+          // TODO SQLDB update discovered nodes in DB
+          bool disc = antwProcessParams.discoveredNodes[addr];
+          unsigned dbMid = 0;
+
+          {
+            antwProcessParams.networkNodes[addr].discovered = disc;
+            auto found = m_insertNadrNodeMap.find(addr);
+            if (found != m_insertNadrNodeMap.end()) {
+              found->second->setDisc(disc);
+              dbMid = found->second->getMid();
+            }
+          }
+
           // Node MID known ?
           if ( antwProcessParams.networkNodes[addr].mid.value == 0 )
           {
             // Read MIDs from Coordinator eeprom
             // SQLDB - nahradit cteni MID z eeprom [C] nactenim z databaze
-            auto found = nadrNodeMap.find(addr);
-            if (found == nadrNodeMap.end()) {
-              TRC_WARNING("Inconsistent DB cannot read MID for: " << PAR(addr) << " => going to read from [C])");
+            if (dbMid == 0) {
+              auto found = nadrNodeMap.find(addr);
+              if (found != nadrNodeMap.end()) {
+                dbMid = found->second->getMid();
+              }
+            }
+
+            if (dbMid == 0) {
+              TRC_WARNING("Cannot read MID from DB for: " << PAR(addr) << " => going to read from [C])");
               uint16_t address = 0x4000 + addr * 0x08;
               std::basic_string<uint8_t> mid = readCoordXMemory(autonetworkResult, address, sizeof(TMID));
               antwProcessParams.networkNodes[addr].mid.bytes[0] = mid[0];
@@ -727,7 +745,6 @@ namespace iqrf {
             }
             else {
               // store MID according DB
-              unsigned dbMid = found->second->getMid();
               //TODO correct endian?
               antwProcessParams.networkNodes[addr].mid.bytes[0] = dbMid & 0xFF;
               antwProcessParams.networkNodes[addr].mid.bytes[1] = (dbMid >>= 8) & 0xFF;
@@ -1841,8 +1858,6 @@ namespace iqrf {
             offset += 15;
           } while ( FrcSelect.size() > prebondedNodesCount );
 
-          // SQLDB possible to read here? nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport()
-
           // ToDo
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
@@ -1871,7 +1886,7 @@ namespace iqrf {
                   FrcSelect.push_back( response.BondAddr );
                   // Actualize networkNodes 
                   // SQLDB - ulozit MID, DPAVerm HWPID, HWPIDVer, OSVersion a OSBuild uspesne autorizovanych nodu do databaze
-                  // add to map to be inserted to DB
+                  // add to map to be inserted to DB at the end of AutoNw
                   m_insertNadrNodeMap[response.BondAddr] = embed::node::BriefInfoPtr(shape_new embed::node::BriefInfo(
                     node.second.mid.value, false, node.second.HWPID, node.second.HWPIDVer, node.second.OSBuild, node.second.DPAVer));
 
@@ -2057,13 +2072,11 @@ namespace iqrf {
                   antwProcessParams.networkNodes[address].discovered = false;
                   antwProcessParams.networkNodes[address].mid.value = 0;
                   // SQLDB - odebrat odbondovany [N] z databaze
+                  m_insertNadrNodeMap.erase(address);
                   if ( unbondPrebondedNode == false )
                   {
                     antwProcessParams.countWaveNewNodes--;
                     antwProcessParams.countNewNodes--;
-                    
-                    m_insertNadrNodeMap.erase(address);
-
                   }
                 }
                 catch ( std::exception& ex )
@@ -2082,18 +2095,7 @@ namespace iqrf {
           clearDuplicitMID( autonetworkResult );
 
           // Discovery
-          // TODO SQLDB update discovered nodes in DB
-          // update discovered nodes before m_iIqrfInfo->insertNodes(insertNadrNodeMap);
-          /*
-          auto found = insertNadrNodeMap.find(1);
-          if (found == insertNadrNodeMap.end()) {
-            //TODO handle inconsistency
-          }
-          else {
-            found->second->setDisc(true);
-          }
-          */
-
+          // TODO SQLDB update discovered nodes in DB see in runDiscovery()
           if ( ( antwProcessParams.countWaveNewNodes != 0 ) || ( MIDUnbondOnlyC == true ) )
           {
             retryAction = antwInputParams.actionRetries + 1;

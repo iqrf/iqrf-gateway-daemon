@@ -689,84 +689,89 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
      
-      std::cout << std::endl << "AutoNw Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
-      //fullEnum();
+      if (nodes.size() > 0) {
+        std::cout << std::endl << "AutoNw Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
+        //fullEnum();
 
-      TRC_INFORMATION("Wait for enumeration ...")
-      std::lock_guard<std::mutex> lck(m_enumMtx);
-      TRC_INFORMATION("Wait for enumeration finished")
+        TRC_INFORMATION("Wait for enumeration ...")
+          std::lock_guard<std::mutex> lck(m_enumMtx);
+        TRC_INFORMATION("Wait for enumeration finished")
 
-      auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+          auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
 
-      database & db = *m_db;
+        database & db = *m_db;
 
-      for (const auto & it : nodes) {
+        for (const auto & it : nodes) {
 
-        const embed::node::BriefInfoPtr & ndPtr = it.second;
-        int nadr = it.first;
+          const embed::node::BriefInfoPtr & ndPtr = it.second;
+          int nadr = it.first;
 
-        try {
+          try {
 
-          std::unique_ptr<int> deviceIdPtr;
-          int deviceId = 0;
-          Device device(ndPtr->getHwpid(), ndPtr->getHwpidVer(), ndPtr->getOsBuild(), ndPtr->getDisc());
+            std::unique_ptr<int> deviceIdPtr;
+            int deviceId = 0;
+            Device device(ndPtr->getHwpid(), ndPtr->getHwpidVer(), ndPtr->getOsBuild(), ndPtr->getDisc());
 
-          // get package from JsCache if exists
-          const iqrf::IJsCacheService::Package *pckg = nullptr;
-          if (device.m_hwpid != 0) { // no custom handler => use default pckg0 to resolve periferies
-            pckg = m_iJsCacheService->getPackage((uint16_t)device.m_hwpid, (uint16_t)device.m_hwpidVer, (uint16_t)device.m_osBuild, (uint16_t)device.m_dpaVer);
+            // get package from JsCache if exists
+            const iqrf::IJsCacheService::Package *pckg = nullptr;
+            if (device.m_hwpid != 0) { // no custom handler => use default pckg0 to resolve periferies
+              pckg = m_iJsCacheService->getPackage((uint16_t)device.m_hwpid, (uint16_t)device.m_hwpidVer, (uint16_t)device.m_osBuild, (uint16_t)device.m_dpaVer);
+            }
+
+            // TODO only for enumerateDeviceOutsideRepo if we know here nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport()
+            std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+            std::unique_ptr<IDpaTransactionResult2> transResult;
+            exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, 3);
+            exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
+
+            bool modeStd = exploreEnumeratePtr->getModeStd();
+            bool stdAndLpSupport = exploreEnumeratePtr->getStdAndLpSupport();
+
+            if (pckg) {
+              deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
+            }
+            else {
+              deviceIdPtr = enumerateDeviceOutsideRepo(nadr, device, exploreEnumeratePtr->getEmbedPer(), exploreEnumeratePtr->getUserPer());
+            }
+
+            db << "begin transaction;";
+
+            if (!deviceIdPtr) {
+              // no device in DB => insert
+              deviceId = insertDeviceWithDrv(device);
+            }
+            else {
+              // device already in DB => get deviceId
+              deviceId = *deviceIdPtr;
+            }
+
+            // insert node if not exists
+            nodeInDb(ndPtr->getMid(), deviceId, modeStd, stdAndLpSupport);
+            // insert bonded
+            bondedInDb(nadr, ndPtr->getDisc() ? 1 : 0, ndPtr->getMid(), 1);
+
+            db << "commit;";
           }
-
-          // TODO only for enumerateDeviceOutsideRepo if we know here nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport()
-          std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
-          std::unique_ptr<IDpaTransactionResult2> transResult;
-          exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, 3);
-          exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
-          
-          bool modeStd = exploreEnumeratePtr->getModeStd();
-          bool stdAndLpSupport = exploreEnumeratePtr->getStdAndLpSupport();
-
-          if (pckg) {
-            deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
+          catch (sqlite_exception &e)
+          {
+            CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+            db << "rollback;";
           }
-          else {
-            deviceIdPtr = enumerateDeviceOutsideRepo(nadr, device, exploreEnumeratePtr->getEmbedPer(), exploreEnumeratePtr->getUserPer());
+          catch (std::exception &e)
+          {
+            CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
+            db << "rollback;";
           }
-
-          db << "begin transaction;";
-
-          if (!deviceIdPtr) {
-            // no device in DB => insert
-            deviceId = insertDeviceWithDrv(device);
-          }
-          else {
-            // device already in DB => get deviceId
-            deviceId = *deviceIdPtr;
-          }
-
-          // insert node if not exists
-          nodeInDb(ndPtr->getMid(), deviceId, modeStd, stdAndLpSupport);
-          // insert bonded
-          bondedInDb(nadr, ndPtr->getDisc() ? 1 : 0, ndPtr->getMid(), 1);
-
-          db << "commit;";
         }
-        catch (sqlite_exception &e)
-        {
-          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
-          db << "rollback;";
-        }
-        catch (std::exception &e)
-        {
-          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
-          db << "rollback;";
-        }
+
+        loadDrivers();
+        std::cout << std::endl << "AutoNw Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
+        stdEnum();
+        std::cout << std::endl << "AutoNw Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
       }
-
-      loadDrivers();
-      std::cout << std::endl << "AutoNw Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
-      stdEnum();
-      std::cout << std::endl << "AutoNw Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+      else {
+        std::cout << std::endl << "AutoNw noe nne nodes to be added at:  " << encodeTimestamp(std::chrono::system_clock::now());
+      }
 
       TRC_FUNCTION_LEAVE("")
     }
