@@ -1727,6 +1727,22 @@ namespace iqrf {
             offset += 15;
           } while ( FrcSelect.size() > prebondedNodesCount );
 
+          /*
+          // SQLDB possible to read here? nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport()
+          // or is it necessary to store them in DB at all? => necessary for FRC timing estimation?
+          // Enumerate peripherals structure
+          typedef struct
+          {
+            uns16	DpaVersion;
+            uns8	UserPerNr;
+            uns8	EmbeddedPers[PNUM_USER / 8];
+            uns16	HWPID;
+            uns16	HWPIDver;
+        >>>>> uns8	Flags;
+            uns8	UserPer[( PNUM_MAX - PNUM_USER + 1 + 7 ) / 8];
+          } STRUCTATTR TEnumPeripheralsAnswer;
+          */
+
           // ToDo
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
@@ -1824,6 +1840,8 @@ namespace iqrf {
             } while ( ( i < 60 ) && ( FrcSelect.size() > ++prebondedNodesCount ) );
             offset += 15;
           } while ( FrcSelect.size() > prebondedNodesCount );
+
+          // SQLDB possible to read here? nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport()
 
           // ToDo
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );

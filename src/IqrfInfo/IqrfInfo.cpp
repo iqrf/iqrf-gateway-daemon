@@ -254,6 +254,7 @@ namespace iqrf {
     bool m_enumAtStartUp = false;
     std::thread m_enumThread;
     std::atomic_bool m_enumThreadRun;
+    std::mutex m_enumMtx;
 
     FastEnumerationPtr m_fastEnum;
 
@@ -317,6 +318,8 @@ namespace iqrf {
     void runEnum()
     {
       TRC_FUNCTION_ENTER("");
+
+      std::lock_guard<std::mutex> lck(m_enumMtx);
 
       try {
         std::cout << std::endl << "Fast Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
@@ -517,6 +520,265 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    // return deviceId
+    std::unique_ptr<int> enumerateDeviceInRepo(Device & d, const iqrf::IJsCacheService::Package & pckg)
+    {
+      TRC_FUNCTION_ENTER(PAR(d.m_hwpid) << PAR(d.m_hwpidVer) << PAR(d.m_osBuild) << PAR(d.m_dpaVer));
+
+      d.m_repoPackageId = pckg.m_packageId;
+      d.m_notes = pckg.m_notes;
+      d.m_handlerhash = pckg.m_handlerHash;
+      d.m_handlerUrl = pckg.m_handlerUrl;
+      d.m_customDriver = pckg.m_driver;
+      d.m_inRepo = true;
+      d.m_drivers = pckg.m_stdDriverVect;
+
+      // find if such a device already stored in DB
+      std::unique_ptr<int> deviceIdPtr = selectDevice(d);
+
+      TRC_FUNCTION_LEAVE(NAME_PAR(deviceId, (deviceIdPtr ? *deviceIdPtr : 0)));
+      return deviceIdPtr;
+    }
+
+    // return deviceId
+    std::unique_ptr<int> enumerateDeviceOutsideRepo(int nadr, Device & d, const std::set<int> & embedPer, const std::set<int> & userPer)
+    {
+      TRC_FUNCTION_ENTER(PAR(d.m_hwpid) << PAR(d.m_hwpidVer) << PAR(d.m_osBuild) << PAR(d.m_dpaVer));
+
+      d.m_repoPackageId = 0;
+      d.m_inRepo = false;
+
+      // find if such a device already stored in DB
+      std::unique_ptr<int> deviceIdPtr = selectDevice(d);
+
+      if (!deviceIdPtr) {
+        // no device in DB and no package in IqrfRepo => get drivers by enumeration at first
+
+        std::map<int, int> perVerMap;
+        //const std::set<int> & embedPer = nd->getEmbedExploreEnumerate()->getEmbedPer();
+        //const std::set<int> & userPer = nd->getEmbedExploreEnumerate()->getUserPer();
+
+        // Get for hwpid 0 plain DPA plugin
+        const iqrf::IJsCacheService::Package *pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, (uint16_t)d.m_dpaVer);
+
+        for (auto per : embedPer) {
+          for (auto drv : pckg0->m_stdDriverVect) {
+            if (drv->getId() == -1) {
+              perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
+            }
+            if (drv->getId() == per) {
+              perVerMap.insert(std::make_pair(per, drv->getVersion()));
+            }
+          }
+        }
+        for (auto per : userPer) {
+          // enum thread stopped
+          if (!m_enumThreadRun) break;
+
+          //Get peripheral information for sensor, binout and TODO other std if presented
+          if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per || PERIF_STANDARD_DALI == per || PERIF_STANDARD_LIGHT == per) {
+
+            embed::explore::RawDpaPeripheralInformation perInfo(nadr, per);
+            perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.getRequest())->get());
+
+            int version = perInfo.getPar1();
+            //TODO temp workaround
+            if (PERIF_STANDARD_SENSOR == per) version = 15;
+            perVerMap.insert(std::make_pair(per, version));
+          }
+          else {
+            perVerMap.insert(std::make_pair(per, -1));
+          }
+        }
+
+        for (auto pv : perVerMap) {
+          const IJsCacheService::StdDriver *sd = m_iJsCacheService->getDriver(pv.first, pv.second);
+          if (sd) {
+            d.m_drivers.push_back(sd);
+          }
+        }
+      }
+
+      TRC_FUNCTION_LEAVE(NAME_PAR(deviceId, (deviceIdPtr ? *deviceIdPtr : 0)));
+      return deviceIdPtr;
+    }
+
+    void fullEnum()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      database & db = *m_db;
+
+      for (auto nadr : m_nadrFullEnum) {
+
+        try {
+
+          // enum thread stopped
+          if (!m_enumThreadRun) break;
+
+          NodeDataPtr nd;
+
+          // try to get node data from fast enum
+          auto found = m_fastEnum->getEnumerated().find(nadr);
+          if (found != m_fastEnum->getEnumerated().end()) {
+            nd = found->second->getNodeData();
+          }
+          else {
+            // node not found - fast enum was done by other means (FRC) => we need to get data explicitely
+            nd = getNodeData(nadr);
+          }
+
+          unsigned mid = nd->getEmbedOsRead()->getMid();
+          bool dis = (m_fastEnum->getDiscovered().find(nadr) != m_fastEnum->getDiscovered().end());
+          int hwpid = nd->getHwpid();
+          int hwpidVer = nd->getEmbedExploreEnumerate()->getHwpidVer();
+          int osBuild = nd->getEmbedOsRead()->getOsBuild();
+          int dpaVer = nd->getEmbedExploreEnumerate()->getDpaVer();
+
+          std::unique_ptr<int> deviceIdPtr;
+          int deviceId = 0;
+          Device device(hwpid, hwpidVer, osBuild, dpaVer);
+
+          // get package from JsCache if exists
+          const iqrf::IJsCacheService::Package *pckg = nullptr;
+          if (hwpid != 0) { // no custom handler => use default pckg0 to resolve periferies
+            pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, (uint16_t)osBuild, (uint16_t)dpaVer);
+          }
+
+          if (pckg) {
+            deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
+          }
+          else {
+            deviceIdPtr = enumerateDeviceOutsideRepo(nadr, device, nd->getEmbedExploreEnumerate()->getEmbedPer(), nd->getEmbedExploreEnumerate()->getUserPer());
+          }
+
+          db << "begin transaction;";
+
+          if (!deviceIdPtr) {
+            // no device in DB => insert
+            deviceId = insertDeviceWithDrv(device);
+          }
+          else {
+            // device already in DB => get deviceId
+            deviceId = *deviceIdPtr;
+          }
+
+          // insert node if not exists
+          nodeInDb(mid, deviceId, nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport());
+          // insert bonded
+          bondedInDb(nadr, dis ? 1 : 0, mid, 1);
+
+          db << "commit;";
+        }
+        catch (sqlite_exception &e)
+        {
+          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+          db << "rollback;";
+        }
+        catch (std::exception &e)
+        {
+          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
+          db << "rollback;";
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes)
+    {
+      TRC_FUNCTION_ENTER("");
+     
+      std::cout << std::endl << "AutoNw Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
+      //fullEnum();
+
+      TRC_INFORMATION("Wait for enumeration ...")
+      std::lock_guard<std::mutex> lck(m_enumMtx);
+      TRC_INFORMATION("Wait for enumeration finished")
+
+      auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+
+      database & db = *m_db;
+
+      for (const auto & it : nodes) {
+
+        const embed::node::BriefInfoPtr & ndPtr = it.second;
+        int nadr = it.first;
+
+        try {
+
+          std::unique_ptr<int> deviceIdPtr;
+          int deviceId = 0;
+          Device device(ndPtr->getHwpid(), ndPtr->getHwpidVer(), ndPtr->getOsBuild(), ndPtr->getDisc());
+
+          // get package from JsCache if exists
+          const iqrf::IJsCacheService::Package *pckg = nullptr;
+          if (device.m_hwpid != 0) { // no custom handler => use default pckg0 to resolve periferies
+            pckg = m_iJsCacheService->getPackage((uint16_t)device.m_hwpid, (uint16_t)device.m_hwpidVer, (uint16_t)device.m_osBuild, (uint16_t)device.m_dpaVer);
+          }
+
+          // TODO only for enumerateDeviceOutsideRepo if we know here nd->getEmbedExploreEnumerate()->getModeStd(), nd->getEmbedExploreEnumerate()->getStdAndLpSupport()
+          std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+          std::unique_ptr<IDpaTransactionResult2> transResult;
+          exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, 3);
+          exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
+          
+          bool modeStd = exploreEnumeratePtr->getModeStd();
+          bool stdAndLpSupport = exploreEnumeratePtr->getStdAndLpSupport();
+
+          if (pckg) {
+            deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
+          }
+          else {
+            deviceIdPtr = enumerateDeviceOutsideRepo(nadr, device, exploreEnumeratePtr->getEmbedPer(), exploreEnumeratePtr->getUserPer());
+          }
+
+          db << "begin transaction;";
+
+          if (!deviceIdPtr) {
+            // no device in DB => insert
+            deviceId = insertDeviceWithDrv(device);
+          }
+          else {
+            // device already in DB => get deviceId
+            deviceId = *deviceIdPtr;
+          }
+
+          // insert node if not exists
+          nodeInDb(ndPtr->getMid(), deviceId, modeStd, stdAndLpSupport);
+          // insert bonded
+          bondedInDb(nadr, ndPtr->getDisc() ? 1 : 0, ndPtr->getMid(), 1);
+
+          db << "commit;";
+        }
+        catch (sqlite_exception &e)
+        {
+          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+          db << "rollback;";
+        }
+        catch (std::exception &e)
+        {
+          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
+          db << "rollback;";
+        }
+      }
+
+      loadDrivers();
+      std::cout << std::endl << "AutoNw Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
+      stdEnum();
+      std::cout << std::endl << "AutoNw Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    void removeNodes(const std::set<int> & nodes)
+    {
+      TRC_FUNCTION_ENTER("");
+      //TODO
+      TRC_FUNCTION_LEAVE("")
+    }
+
+#if 0
     void fullEnum()
     {
       TRC_FUNCTION_ENTER("");
@@ -665,6 +927,7 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
     }
+#endif
 
     void loadProvisoryDrivers()
     {
@@ -1044,6 +1307,61 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
 
       return *id;
+    }
+
+    // call in "begin transaction - commit/rollback"
+    // return deviceId
+    int insertDeviceWithDrv(const Device& dev)
+    {
+      TRC_FUNCTION_ENTER(NAME_PAR(hwpid, dev.m_hwpid) << NAME_PAR(hwpidVer, dev.m_hwpidVer) << NAME_PAR(osBuild, dev.m_osBuild) << NAME_PAR(dpaVer, dev.m_dpaVer));
+
+      *m_db << "insert into Device ("
+        "Hwpid"
+        ", HwpidVer"
+        ", OsBuild"
+        ", DpaVer"
+        ", RepoPackageId"
+        ", Notes"
+        ", HandlerHash"
+        ", HandlerUrl"
+        ", CustomDriver"
+        ", StdEnum"
+        ")  values ( "
+        "?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ", ?"
+        ");"
+        << dev.m_hwpid
+        << dev.m_hwpidVer
+        << dev.m_osBuild
+        << dev.m_dpaVer
+        << dev.m_repoPackageId
+        << dev.m_notes
+        << dev.m_handlerhash
+        << dev.m_handlerUrl
+        << dev.m_customDriver
+        << 0
+        ;
+
+      int deviceId = 0;
+      *m_db << "select last_insert_rowid();" >> deviceId;
+
+      // store drivers in DB if doesn't exists already
+      for (auto d : dev.m_drivers) {
+        int driverId = driverInDb(d);
+        // store relation to junction table
+        *m_db << "insert into DeviceDriver (DeviceId, DriverId) values (?, ?);" << deviceId << driverId;
+      }
+
+      TRC_FUNCTION_LEAVE(PAR(deviceId));
+      return deviceId;
     }
 
     // check if node with mid exist and if not insert
@@ -1474,22 +1792,6 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
       return retval;
-    }
-
-    void insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      //TODO
-
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void removeNodes(const std::set<int> & nodes)
-    {
-      TRC_FUNCTION_ENTER("");
-      //TODO
-      TRC_FUNCTION_LEAVE("")
     }
 
     void startEnumeration()
