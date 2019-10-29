@@ -30,6 +30,10 @@
               "type": "integer",
               "description": "Wave number."
             },
+            "waveState": {
+              "type": "string",
+              "description": "Wave state description notification."
+            },
             "nodesNr": {
               "type": "integer",
               "description": "Number of nodes in the network."
@@ -66,8 +70,6 @@
           },
           "required": [
             "wave",
-            "nodesNr",
-            "newNodesNr",
             "lastWave"
           ]
         },
