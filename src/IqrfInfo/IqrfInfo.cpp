@@ -560,17 +560,35 @@ namespace iqrf {
 
         // Get for hwpid 0 plain DPA plugin
         const iqrf::IJsCacheService::Package *pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, (uint16_t)d.m_dpaVer);
+        if (nullptr == pckg0) {
+          TRC_WARNING("Cannot find package for:" << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, d.m_osBuild) << NAME_PAR(dpaVer, d.m_dpaVer)
+          << std::endl << "trying to find the package for previous version of DPA");
 
-        for (auto per : embedPer) {
-          for (auto drv : pckg0->m_stdDriverVect) {
-            if (drv->getId() == -1) {
-              perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
-            }
-            if (drv->getId() == per) {
-              perVerMap.insert(std::make_pair(per, drv->getVersion()));
+          for (uint16_t dpa = (uint16_t)d.m_dpaVer - 1; dpa > 300; dpa--) {
+            pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, dpa);
+            if (nullptr != pckg0) {
+              TRC_WARNING("Found and loading package for:" << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, d.m_osBuild) << NAME_PAR(dpaVer, dpa));
+              break;
             }
           }
         }
+
+        if (nullptr != pckg0) {
+          for (auto per : embedPer) {
+            for (auto drv : pckg0->m_stdDriverVect) {
+              if (drv->getId() == -1) {
+                perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
+              }
+              if (drv->getId() == per) {
+                perVerMap.insert(std::make_pair(per, drv->getVersion()));
+              }
+            }
+          }
+        }
+        else {
+          TRC_WARNING("Cannot find package for:" << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, d.m_osBuild) << " any DPA")
+        }
+
         for (auto per : userPer) {
           // enum thread stopped
           if (!m_enumThreadRun) break;
@@ -710,7 +728,7 @@ namespace iqrf {
 
             std::unique_ptr<int> deviceIdPtr;
             int deviceId = 0;
-            Device device(ndPtr->getHwpid(), ndPtr->getHwpidVer(), ndPtr->getOsBuild(), ndPtr->getDisc());
+            Device device(ndPtr->getHwpid(), ndPtr->getHwpidVer(), ndPtr->getOsBuild(), ndPtr->getDpaVer());
 
             // get package from JsCache if exists
             const iqrf::IJsCacheService::Package *pckg = nullptr;
@@ -770,7 +788,7 @@ namespace iqrf {
         std::cout << std::endl << "AutoNw Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
       }
       else {
-        std::cout << std::endl << "AutoNw noe nne nodes to be added at:  " << encodeTimestamp(std::chrono::system_clock::now());
+        std::cout << std::endl << "AutoNw no nodes to be added at:  " << encodeTimestamp(std::chrono::system_clock::now());
       }
 
       TRC_FUNCTION_LEAVE("")
