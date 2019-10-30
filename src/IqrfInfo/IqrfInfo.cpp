@@ -553,10 +553,7 @@ namespace iqrf {
 
       if (!deviceIdPtr) {
         // no device in DB and no package in IqrfRepo => get drivers by enumeration at first
-
         std::map<int, int> perVerMap;
-        //const std::set<int> & embedPer = nd->getEmbedExploreEnumerate()->getEmbedPer();
-        //const std::set<int> & userPer = nd->getEmbedExploreEnumerate()->getUserPer();
 
         // Get for hwpid 0 plain DPA plugin
         const iqrf::IJsCacheService::Package *pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, (uint16_t)d.m_dpaVer);

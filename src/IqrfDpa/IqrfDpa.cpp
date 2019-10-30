@@ -328,7 +328,8 @@ namespace iqrf {
           // don't care about result => interested in async reset response
         }
         else {
-          TRC_WARNING("Cannot get TR reset async msg");
+          TRC_ERROR("Cannot get TR reset async msg");
+          std::cout << std::endl << "Error: Cannot get TR reset msg => interface to DPA coordinator is not working - verify (CDC or SPI or UART) configuration" << std::endl;
           break;
         }
       }
@@ -366,6 +367,7 @@ namespace iqrf {
     }
     catch (std::exception & e) {
       CATCH_EXC_TRC_WAR(std::exception, e, "Cannot get TR parameters")
+      std::cout << std::endl << "Error: Cannot get TR parameters msg => interface to DPA coordinator is not working - verify (CDC or SPI or UART) configuration" << std::endl;
     }
 
     TRC_FUNCTION_LEAVE("")
