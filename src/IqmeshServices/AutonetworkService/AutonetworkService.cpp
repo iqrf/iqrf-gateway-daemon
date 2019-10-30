@@ -1433,7 +1433,7 @@ namespace iqrf {
           "DPA transaction: "
           << NAME_PAR( Peripheral type, validateBondRequest.PeripheralType() )
           << NAME_PAR( Node address, validateBondRequest.NodeAddress() )
-          << NAME_PAR( Command, validateBondRequest.PeripheralCommand() )
+          << NAME_PAR( Command, (unsigned)validateBondRequest.PeripheralCommand() )
         );
         TRC_FUNCTION_LEAVE( "" );
       }
@@ -2123,7 +2123,11 @@ namespace iqrf {
             m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
           }
         }
-        // TODO SQLDB release exclusive access to DPA and store IqrfInfo here before last response => allows enum to complete some DPA msgs
+
+        // SQLDB
+        // TODO do it here after every wave? Seems it is not the right place
+        m_iIqrfInfo->insertNodes(m_insertNadrNodeMap, m_exclusiveAccess);
+
       }
       catch ( std::exception& ex )
       {
@@ -2511,10 +2515,6 @@ namespace iqrf {
 
       // Release exclusive access
       m_exclusiveAccess.reset();
-
-      // SQLDB
-      // TODO do it here? It allows IqrfInfo to complete enum with DPA messages
-      m_iIqrfInfo->insertNodes(m_insertNadrNodeMap);
 
       TRC_FUNCTION_LEAVE( "" );
     }

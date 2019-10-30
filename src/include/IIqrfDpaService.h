@@ -48,10 +48,11 @@ namespace iqrf {
       virtual void executeDpaTransactionRepeat( const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1 ) = 0;
       virtual ~ExclusiveAccess() {}
     };
+    typedef std::unique_ptr<IIqrfDpaService::ExclusiveAccess> ExclusiveAccessPtr;
 
     /// returns empty pointer if exclusiveAccess already assigned
     /// explicit unique_ptr::reset() or just get it out of scope of returned ptr releases exclusive access
-    virtual std::unique_ptr<ExclusiveAccess> getExclusiveAccess() = 0;
+    virtual ExclusiveAccessPtr getExclusiveAccess() = 0;
 
     /// 0 > timeout - use default, 0 == timeout - use infinit, 0 < timeout - user value
     virtual std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) = 0;
