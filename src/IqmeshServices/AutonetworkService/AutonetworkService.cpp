@@ -1500,7 +1500,7 @@ namespace iqrf {
         for ( uint8_t addr = 0; addr <= MAX_ADDRESS; addr++ )
         {
           node.address = addr;
-          antwProcessParams.networkNodes.insert_or_assign( addr, node );
+          antwProcessParams.networkNodes[addr] = node;
         }
 
         // Update network info
@@ -1678,7 +1678,7 @@ namespace iqrf {
                 MIDUnbondOnlyC = true;
 
               //  Add (or set) node to prebondedNodes map
-              antwProcessParams.prebondedNodes.insert_or_assign( node.node, node );
+              antwProcessParams.prebondedNodes[node.node] = node;
 
               // Next Node
               i += sizeof( TMID );
@@ -1735,7 +1735,7 @@ namespace iqrf {
                   MIDUnbondOnlyC = true;
 
                 // Add (or set) node to prebondedNodes map
-                antwProcessParams.prebondedNodes.insert_or_assign( node.node, node );
+                antwProcessParams.prebondedNodes[node.node] = node;
               }
 
               // Next Node
@@ -1799,7 +1799,7 @@ namespace iqrf {
                 }
 
                 // Add (or set) node to prebondedNodes map
-                antwProcessParams.prebondedNodes.insert_or_assign( node.node, node );
+                antwProcessParams.prebondedNodes[node.node] = node;
               }
 
               // Next Node
@@ -1849,7 +1849,7 @@ namespace iqrf {
                 }
 
                 // Add (or set) node to prebondedNodes map
-                antwProcessParams.prebondedNodes.insert_or_assign( node.node, node );
+                antwProcessParams.prebondedNodes[node.node] = node;
               }
 
               // Next Node
