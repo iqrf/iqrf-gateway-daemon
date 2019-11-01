@@ -35,11 +35,6 @@
               "description": "Run discovery before start.",
               "default": false
             },
-            "enumerate": {
-              "type": "boolean",
-              "description": "Run enumeration to fill in daemon DB.",
-              "default": false
-            },
             "actionRetries": {
               "type": "integer",
               "description": "Number of retries DPA transactions.",
