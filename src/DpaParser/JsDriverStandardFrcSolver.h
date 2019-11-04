@@ -106,18 +106,18 @@ namespace iqrf
       int nadr = 0;
       int idx = 0;
       if (arrayVal->Size() > 0) { // is there something it the array?
-        for (Value *itemVal = arrayVal->Begin() + 1; //skip index 0 as driver returns from index 1
+        for (Value *itemVal = arrayVal->Begin(); //skip index 0 as driver returns from index 1
           itemVal != arrayVal->End(); itemVal++) {
-          if (nadrVect.size() > 0) {
-            // optional selectedNodes
-            if (idx >= nadrVect.size()) {
-              THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent .../selectedNodes[] and ..." << resultArrayKey << "[]");
-            }
-            nadr = nadrVect[idx++];
-          }
-          else {
+          //if (nadrVect.size() > 0) {
+          //  // optional selectedNodes
+          //  if (idx >= nadrVect.size()) {
+          //    THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent .../selectedNodes[] and ..." << resultArrayKey << "[]");
+          //  }
+          //  nadr = nadrVect[idx++];
+          //}
+          //else {
             nadr = idx++;
-          }
+          //}
           Value sensorWithNadr;
           Pointer("/nAdr").Set(sensorWithNadr, nadr, doc.GetAllocator());
           Pointer(resultItemKey).Set(sensorWithNadr, *itemVal, doc.GetAllocator());
