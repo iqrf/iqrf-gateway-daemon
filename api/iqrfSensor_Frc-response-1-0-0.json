@@ -234,8 +234,7 @@
                           }
                         },
                         "required": [
-						              "nAdr",
-						              "metaData",
+                          "nAdr",
                           "sensor"
                         ]
                       }
