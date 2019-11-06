@@ -2,6 +2,7 @@ project(JsonIqrfInfoApi)
 
 set(COMPONENT iqrf::JsonIqrfInfoApi)
 DeclareShapeComponent(${COMPONENT})
+AddShapeRequiredInterface(${COMPONENT} iqrf::IMetaDataApi UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfInfo MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)

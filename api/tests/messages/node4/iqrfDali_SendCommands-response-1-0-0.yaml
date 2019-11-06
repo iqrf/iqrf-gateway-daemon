@@ -1,0 +1,22 @@
+mType: iqrfDali_SendCommands
+data:
+  msgId: testDali
+  rsp:
+    nAdr: 4
+    hwpId: 22530
+    rCode: 0
+    dpaVal: !anyint
+    result:
+      answers:
+      - status: 128
+        value: 0
+  raw:
+  - request: 04.00.4a.00.ff.ff.ff.90
+    requestTs: !anystr
+    confirmation: !anystr
+    confirmationTs: !anystr
+    response: !anystr
+    responseTs: !anystr
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0

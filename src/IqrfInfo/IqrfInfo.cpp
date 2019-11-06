@@ -12,6 +12,7 @@
 #include "InfoBinaryOutput.h"
 #include "InfoDali.h"
 #include "InfoLight.h"
+#include "InfoNode.h"
 #include "HexStringCoversion.h"
 
 #include "Trace.h"
@@ -193,38 +194,18 @@ namespace iqrf {
     class FastEnumeration
     {
     public:
-      class Enumerated
+      class Enumerated : public embed::node::info::BriefInfo 
       {
       public:
         Enumerated() = delete;
-        Enumerated(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer, NodeDataPtr nodeDataPtr)
-          :m_nadr(nadr)
-          , m_mid(mid)
-          , m_hwpid(hwpid)
-          , m_hwpidVer(hwpidVer)
-          , m_osBuild(osBuild)
-          , m_osVer(osVer)
-          , m_dpaVer(dpaVer)
+        Enumerated(unsigned mid, bool disc, int hwpid, int hwpidVer, int osBuild, int dpaVer, NodeDataPtr nodeDataPtr)
+          :embed::node::info::BriefInfo(mid, disc, hwpid, hwpidVer, osBuild, dpaVer)
           , m_nodeDataPtr(std::move(nodeDataPtr))
         {}
-        unsigned getMid() const { return m_mid; }
-        int getNadr() const { return m_nadr; }
-        int getHwpid() const { return m_hwpid; }
-        int getHwpidVer() const { return m_hwpidVer; }
-        int getOsBuild() const { return m_osBuild; }
-        int getOsVer() const { return m_osVer; }
-        int getDpaVer() const { return m_dpaVer; }
         NodeDataPtr getNodeData() { return std::move(m_nodeDataPtr); }
         virtual ~Enumerated() {}
 
       private:
-        int m_nadr;
-        unsigned m_mid;
-        int m_hwpid;
-        int m_hwpidVer;
-        int m_osBuild;
-        int m_osVer;
-        int m_dpaVer;
         NodeDataPtr m_nodeDataPtr;
       };
       typedef std::unique_ptr<Enumerated> EnumeratedPtr;
@@ -244,9 +225,9 @@ namespace iqrf {
           }
         }
       }
-      void addItem(int nadr, unsigned mid, int hwpid, int hwpidVer, int osBuild, int osVer, int dpaVer, NodeDataPtr nodeDataPtr)
+      void addItem(int nadr, unsigned mid, bool disc, int hwpid, int hwpidVer, int osBuild, int dpaVer, NodeDataPtr nodeDataPtr)
       {
-        m_enumeratedMap.insert(std::make_pair(nadr, EnumeratedPtr(shape_new Enumerated(nadr, mid, hwpid, hwpidVer, osBuild, osVer, dpaVer, std::move(nodeDataPtr)))));
+        m_enumeratedMap.insert(std::make_pair(nadr, EnumeratedPtr(shape_new Enumerated(mid, disc, hwpid, hwpidVer, osBuild, dpaVer, std::move(nodeDataPtr)))));
       }
       virtual ~FastEnumeration() {}
     private:
@@ -302,13 +283,24 @@ namespace iqrf {
         database &db = *m_db;
         db << "PRAGMA foreign_keys=ON";
 
-        if (!dbExists) {
+        std::string sqlpath = dataDir;
+        sqlpath += "/DB/";
 
-          std::string sqlpath = dataDir;
-          sqlpath += "/DB/";
+        if (!dbExists) {
           //create tables
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
         }
+
+        //update DB
+        try {
+          SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo_update1.db.sql");
+        }
+        catch (sqlite_exception &e)
+        {
+          db << "rollback;";
+          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Update DB: " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+        }
+
       }
       catch (sqlite_exception &e)
       {
@@ -373,6 +365,7 @@ namespace iqrf {
 
       retval->setBondedDiscovered(iqrfEmbedCoordinatorBondedDevices.getBondedDevices(), iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices());
       std::set<int> evaluated = retval->getBonded();
+      std::set<int> discovered = retval->getDiscovered();
       evaluated.insert(0); //eval coordinator
 
       for (auto nadr : evaluated) {
@@ -382,10 +375,12 @@ namespace iqrf {
 
           int p1 = nd->getNadr();
           unsigned p2 = nd->getEmbedOsRead()->getMid();
-          int p3 = nd->getHwpid();
-          int p4 = nd->getEmbedExploreEnumerate()->getHwpidVer();
-          int p5 = nd->getEmbedOsRead()->getOsBuild();
-          int p6 = nd->getEmbedOsRead()->getOsVersion();
+          bool p3 = false;
+          if (discovered.find(p1) != discovered.end())
+            p3 = true;
+          int p4 = nd->getHwpid();
+          int p5 = nd->getEmbedExploreEnumerate()->getHwpidVer();
+          int p6 = nd->getEmbedOsRead()->getOsBuild();
           int p7 = nd->getEmbedExploreEnumerate()->getDpaVer();
 
           retval->addItem(p1, p2, p3, p4, p5, p6, p7, std::move(nd));
@@ -1448,6 +1443,40 @@ namespace iqrf {
       return retval;
     }
 
+    std::map<int, embed::node::BriefInfoPtr> getNodes() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::map<int, embed::node::BriefInfoPtr> retval;
+      database & db = *m_db;
+
+      //TODO
+      db <<
+        "select "
+        "b.Nadr "
+        ", b.Dis "
+        ", b.Mid "
+        ", d.Hwpid "
+        ", d.HwpidVer "
+        ", d.OsBuild "
+        ", d.DpaVer "
+        "from "
+        "Bonded as b "
+        ", Device as d "
+        "where "
+        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) "
+        ";"
+        >> [&](int nadr, int dis, unsigned mid, int hwpid, int hwpidVer, int osBuild, int dpaVer)
+      {
+        retval.insert(std::make_pair(nadr, embed::node::BriefInfoPtr(
+          shape_new embed::node::info::BriefInfo(mid, (dis == 0 ? false : true), hwpid, hwpidVer, osBuild, dpaVer)
+        )));
+      };
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
     void startEnumeration()
     {
       TRC_FUNCTION_ENTER("");
@@ -1462,6 +1491,54 @@ namespace iqrf {
         THROW_EXC_TRC_WAR(std::logic_error, "Enumeration is already running");
       }
       TRC_FUNCTION_LEAVE("")
+    }
+
+    rapidjson::Document getNodeMetaData(int nadr) const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::string metaData;
+      database & db = *m_db;
+
+      //TODO
+      db <<
+        "select "
+        "n.metaData "
+        "from "
+        "Bonded as b "
+        ", Node as n "
+        "where "
+        "n.mid = b.mid "
+        "and b.nadr = ? "
+        ";"
+        << nadr
+        >> tie(metaData)
+        ;
+
+      rapidjson::Document doc;
+      doc.Parse(metaData);
+      
+      if (doc.HasParseError()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Json parse error: " << NAME_PAR(emsg, doc.GetParseError()) <<
+          NAME_PAR(eoffset, doc.GetErrorOffset()));
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return doc;
+    }
+
+    void setNodeMetaData(int nadr, const rapidjson::Value & metaData)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      rapidjson::StringBuffer buffer;
+      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+      metaData.Accept(writer);
+      std::string md = buffer.GetString();
+
+      *m_db << "update Node set metaData = ? where mid = (select mid from Bonded where nadr = ?);" << md << nadr;
+      
+      TRC_FUNCTION_LEAVE("");
     }
 
     void attachInterface(iqrf::IJsRenderService* iface)
@@ -1613,9 +1690,24 @@ namespace iqrf {
     return m_imp->getLights();
   }
 
+  std::map<int, embed::node::BriefInfoPtr> IqrfInfo::getNodes() const
+  {
+    return m_imp->getNodes();
+  }
+
   void IqrfInfo::startEnumeration()
   {
     return m_imp->startEnumeration();
+  }
+
+  rapidjson::Document IqrfInfo::getNodeMetaData(int nadr) const
+  {
+    return m_imp->getNodeMetaData(nadr);
+  }
+
+  void IqrfInfo::setNodeMetaData(int nadr, const rapidjson::Value & metaData)
+  {
+    m_imp->setNodeMetaData(nadr, metaData);
   }
 
   void IqrfInfo::activate(const shape::Properties *props)

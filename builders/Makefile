@@ -14,18 +14,24 @@
 
 all: build-all push-all
 
-build-all: build-debian build-ubuntu
+build-all: build-debian build-raspbian build-ubuntu
 
 build-debian:
 	$(MAKE) -C debian/ build-all
 
+build-raspbian:
+	$(MAKE) -C raspbian/ build-all
+
 build-ubuntu:
 	$(MAKE) -C ubuntu/ build-all
 
-push-all: push-debian push-ubuntu
+push-all: push-debian push-raspbian push-ubuntu
 
 push-debian:
 	$(MAKE) -C debian/ push-all
+
+push-raspbian:
+	$(MAKE) -C raspbian/ push-all
 
 push-ubuntu:
 	$(MAKE) -C ubuntu/ push-all

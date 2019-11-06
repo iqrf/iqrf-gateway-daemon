@@ -19,7 +19,7 @@ enum class TrMcu {
     PIC16F1938
 };
 
-enum class TrSerie {
+enum class TrSeries {
     NONE,
     DCTR_5xD,
     DCTR_7xD
@@ -30,7 +30,7 @@ typedef unsigned int  TrOsBuild;
 
 struct TrModuleInfo {
     TrMcu       mcu;
-    TrSerie     serie;
+    TrSeries     series;
     TrOsVersion osVersion;
     TrOsBuild   osBuild;
 };

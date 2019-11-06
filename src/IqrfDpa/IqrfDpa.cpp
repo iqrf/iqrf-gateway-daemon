@@ -9,6 +9,7 @@
 #include "rapidjson/pointer.h"
 #include "iqrf__IqrfDpa.hxx"
 #include <thread>
+#include <iostream>
 
 TRC_INIT_MODULE(iqrf::IqrfDpa);
 
@@ -403,7 +404,7 @@ namespace iqrf {
     });
 
     m_iqrfChannelService->startListen();
-
+    
     getIqrfNetworkParams();
 
     // unregister asyn reset - not needed  after getIqrfNetworkParams()
@@ -416,6 +417,11 @@ namespace iqrf {
     timingParams.dpaVersion = m_cPar.dpaVerWord;
     timingParams.osVersion = m_cPar.osVersion;
     m_dpaHandler->setTimingParams(timingParams);
+
+    IIqrfChannelService::State st = m_iqrfChannelService->getState();
+    if (st == IIqrfChannelService::State::NotReady) {
+      std::cout << std::endl << "Error: Interface to DPA coordinator is not ready - verify (CDC or SPI or UART) configuration" << std::endl;
+    }
 
     TRC_FUNCTION_LEAVE("")
   }

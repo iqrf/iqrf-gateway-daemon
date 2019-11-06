@@ -509,14 +509,14 @@ namespace iqrf {
         trModuleInfo.mcu = TrMcu::NONE;
       }
 
-      // Tr Serie
-      std::string seriePrefix = coordParams.trType.substr(0, 8);
+      // Tr Series
+      std::string seriesPrefix = coordParams.trType.substr(0, 8);
 
-      if (seriePrefix.compare("(DC)TR-7") == 0) {
-        trModuleInfo.serie = TrSerie::DCTR_7xD;
+      if (seriesPrefix.compare("(DC)TR-7") == 0) {
+        trModuleInfo.series = TrSeries::DCTR_7xD;
       }
       else {
-        trModuleInfo.serie = TrSerie::NONE;
+        trModuleInfo.series = TrSeries::NONE;
       }
 
       size_t dotPos = coordParams.osVersion.find_first_of('.');

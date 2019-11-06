@@ -24,9 +24,7 @@ RUN apt-get update \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
   && echo "deb https://repos.iqrf.org/ubuntu/bionic bionic stable" | tee -a /etc/apt/sources.list \
   && apt-get update \
-  && apt-get install --no-install-recommends -y googletest libboost-filesystem-dev libcurl4-openssl-dev \
-     libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate python3-requests ruby ruby-dev zlib1g-dev \
+  && apt-get install --no-install-recommends -y googletest libcurl4-openssl-dev \
+     libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate python3-requests zlib1g-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
-
-RUN gem install --no-rdoc --no-ri fpm

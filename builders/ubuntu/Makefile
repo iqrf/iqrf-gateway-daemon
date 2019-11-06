@@ -14,7 +14,7 @@
 
 all: build-all push-all
 
-build-all: build-xenial build-bionic
+build-all: build-xenial build-bionic build-disco
 
 build-bionic:
 	$(MAKE) -C bionic/ build-all
@@ -22,10 +22,16 @@ build-bionic:
 build-xenial:
 	$(MAKE) -C xenial/ build-all
 
-push-all: push-xenial push-bionic
+build-disco:
+	$(MAKE) -C disco/ build-all
+
+push-all: push-xenial push-bionic push-disco
 
 push-bionic:
 	$(MAKE) -C bionic/ push-all
+
+push-disco:
+	$(MAKE) -C disco/ push-all
 
 push-xenial:
 	$(MAKE) -C xenial/ push-all

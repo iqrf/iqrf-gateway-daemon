@@ -559,7 +559,7 @@ namespace iqrf {
             nodesListStr += ", ";
           }
 
-          nodesListStr += nodeAddr;
+          nodesListStr += std::to_string((int)nodeAddr);
         }
       }
 
@@ -701,7 +701,7 @@ namespace iqrf {
         uns8 status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if ( ( status >= 0x00 ) && ( status <= 0xEF ) )
         {
-          TRC_INFORMATION( "FRC Prebonded Alive status ok." << NAME_PAR_HEX( "Status", status ) );
+          TRC_INFORMATION( "FRC Prebonded Alive status ok." << NAME_PAR_HEX( "Status", (int)status ) );
           frcData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, DPA_MAX_DATA_LENGTH - sizeof( uns8 ) );
           TRC_DEBUG( "Size of FRC data: " << PAR( frcData.size() ) );
           autonetworkResult.addTransactionResult( transResult );

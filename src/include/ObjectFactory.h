@@ -25,7 +25,7 @@
 /// \brief Create object based on data representation
 /// \details
 /// Allows registering object creator functions for classes created from their representations.
-/// Typically used for parsing incomming messages. The messages are preparsed to get type of class
+/// Typically used for parsing incoming messages. The messages are preparsed to get type of class
 /// to be parsed and the type is passed together with the message to createObject method. The method
 /// creates an object via matching object creator and message data representation
 template<typename T, typename R>

@@ -31,7 +31,10 @@ namespace iqrf {
     const std::string mType_GetBinaryOutputs = "infoDaemon_GetBinaryOutputs";
     const std::string mType_GetDalis = "infoDaemon_GetDalis";
     const std::string mType_GetLights = "infoDaemon_GetLights";
+    const std::string mType_GetNodes = "infoDaemon_GetNodes";
     const std::string mType_StartEnumeration = "infoDaemon_StartEnumeration";
+    const std::string mType_GetNodeMetaData = "infoDaemon_GetNodeMetaData";
+    const std::string mType_SetNodeMetaData = "infoDaemon_SetNodeMetaData";
 
     /////////// message classes declarations
     class InfoDaemonMsg : public ApiMsg
@@ -58,8 +61,15 @@ namespace iqrf {
         }
       }
 
+      void setMetaDataApi(JsonIqrfInfoApi::Imp* imp) // store for later use in response
+      {
+        m_iMetaDataApi = imp->getMetadataApi();
+      }
+
       virtual void handleMsg(JsonIqrfInfoApi::Imp* imp) = 0;
 
+    protected:
+      IMetaDataApi* m_iMetaDataApi = nullptr;
     };
 
     //////////////////////////////////////////////
@@ -109,8 +119,15 @@ namespace iqrf {
             sensorsVal.PushBack(senVal, a);
           }
 
-          Pointer("/nAdr").Set(devVal, enm.first, a);
+          int nadr = enm.first;
+          Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/sensors").Set(devVal, sensorsVal, a);
+
+          if (m_iMetaDataApi) {
+            if (m_iMetaDataApi->iSmetaDataToMessages()) {
+              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
 
           devicesVal.PushBack(devVal, a);
         }
@@ -124,6 +141,7 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        setMetaDataApi(imp); //can be used in response
         m_enmMap = imp->getSensors();
 
         TRC_FUNCTION_LEAVE("");
@@ -157,8 +175,15 @@ namespace iqrf {
         for (auto & enm : m_enmMap) {
           Value devVal;
 
-          Pointer("/nAdr").Set(devVal, enm.first, a);
+          int nadr = enm.first;
+          Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/binOuts").Set(devVal, enm.second->getBinaryOutputsNum(), a);
+
+          if (m_iMetaDataApi) {
+            if (m_iMetaDataApi->iSmetaDataToMessages()) {
+              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
 
           devicesVal.PushBack(devVal, a);
         }
@@ -172,6 +197,7 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        setMetaDataApi(imp); //can be used in response
         m_enmMap = imp->getBinaryOutputs();
 
         TRC_FUNCTION_LEAVE("");
@@ -205,7 +231,14 @@ namespace iqrf {
         for (auto & enm : m_enmMap) {
           Value devVal;
 
-          Pointer("/nAdr").Set(devVal, enm.first, a);
+          int nadr = enm.first;
+          Pointer("/nAdr").Set(devVal, nadr, a);
+
+          if (m_iMetaDataApi) {
+            if (m_iMetaDataApi->iSmetaDataToMessages()) {
+              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
 
           devicesVal.PushBack(devVal, a);
         }
@@ -219,6 +252,7 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        setMetaDataApi(imp); //can be used in response
         m_enmMap = imp->getDalis();
 
         TRC_FUNCTION_LEAVE("");
@@ -252,8 +286,15 @@ namespace iqrf {
         for (auto & enm : m_enmMap) {
           Value devVal;
 
-          Pointer("/nAdr").Set(devVal, enm.first, a);
+          int nadr = enm.first;
+          Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/lights").Set(devVal, enm.second->getLightsNum(), a);
+
+          if (m_iMetaDataApi) {
+            if (m_iMetaDataApi->iSmetaDataToMessages()) {
+              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
 
           devicesVal.PushBack(devVal, a);
         }
@@ -267,6 +308,7 @@ namespace iqrf {
       {
         TRC_FUNCTION_ENTER("");
 
+        setMetaDataApi(imp); //can be used in response
         m_enmMap = imp->getLights();
 
         TRC_FUNCTION_LEAVE("");
@@ -274,6 +316,67 @@ namespace iqrf {
 
     private:
       std::map<int, light::EnumeratePtr> m_enmMap;
+    };
+
+    //////////////////////////////////////////////
+    class InfoDaemonMsgGetNodes : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgGetNodes() = delete;
+      InfoDaemonMsgGetNodes(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+      }
+
+      virtual ~InfoDaemonMsgGetNodes()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        Document::AllocatorType & a = doc.GetAllocator();
+
+        Value devicesVal;
+        devicesVal.SetArray();
+
+        for (auto & enm : m_enmMap) {
+          Value devVal;
+
+          int nadr = enm.first;
+          Pointer("/nAdr").Set(devVal, nadr, a);
+          Pointer("/mid").Set(devVal, enm.second->getMid(), a);
+          Pointer("/disc").Set(devVal, enm.second->getDisc(), a);
+          Pointer("/hwpid").Set(devVal, enm.second->getHwpid(), a);
+          Pointer("/hwpidVer").Set(devVal, enm.second->getHwpidVer(), a);
+          Pointer("/osBuild").Set(devVal, enm.second->getOsBuild(), a);
+          Pointer("/dpaVer").Set(devVal, enm.second->getDpaVer(), a);
+
+          if (m_iMetaDataApi) {
+            if (m_iMetaDataApi->iSmetaDataToMessages()) {
+              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
+
+          devicesVal.PushBack(devVal, a);
+        }
+
+        Pointer("/data/rsp/nodes").Set(doc, devicesVal, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+        
+        setMetaDataApi(imp); //can be used in response
+        m_enmMap = imp->getNodes();
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      std::map<int, embed::node::BriefInfoPtr> m_enmMap;
     };
 
     //////////////////////////////////////////////
@@ -306,9 +409,88 @@ namespace iqrf {
       std::map<int, binaryoutput::EnumeratePtr> m_enmMap;
     };
 
+    //////////////////////////////////////////////
+    class InfoDaemonMsgGetNodeMetaData : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgGetNodeMetaData() = delete;
+      InfoDaemonMsgGetNodeMetaData(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+        using namespace rapidjson;
+        m_nadr = Pointer("/data/req/nAdr").Get(doc)->GetInt();
+      }
+
+      virtual ~InfoDaemonMsgGetNodeMetaData()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        using namespace rapidjson;
+        Document::AllocatorType & a = doc.GetAllocator();
+        Pointer("/data/rsp/nAdr").Set(doc, m_nadr, a);
+        Pointer("/data/rsp/metaData").Set(doc, m_metaData, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+        m_metaData.CopyFrom(imp->getNodeMetaData(m_nadr), m_metaData.GetAllocator());
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      int m_nadr;
+      rapidjson::Document m_metaData;
+    };
+
+    //////////////////////////////////////////////
+    class InfoDaemonMsgSetNodeMetaData : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgSetNodeMetaData() = delete;
+      InfoDaemonMsgSetNodeMetaData(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+        using namespace rapidjson;
+        m_nadr = Pointer("/data/req/nAdr").Get(doc)->GetInt();
+        const Value *val = Pointer("/data/req/metaData").Get(doc);
+        m_metaDataDoc.CopyFrom(*val, m_metaDataDoc.GetAllocator());
+      }
+
+      virtual ~InfoDaemonMsgSetNodeMetaData()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        using namespace rapidjson;
+        Document::AllocatorType & a = doc.GetAllocator();
+        Pointer("/data/rsp/nAdr").Set(doc, m_nadr, a);
+        Pointer("/data/rsp/metaData").Set(doc, m_metaDataDoc, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+        imp->setNodeMetaData(m_nadr, m_metaDataDoc);
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      int m_nadr;
+      rapidjson::Document m_metaDataDoc;
+    };
+
   ///////////////////// Imp members
   private:
 
+    IMetaDataApi* m_iMetaDataApi = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfInfo* m_iIqrfInfo = nullptr;
     ObjectFactory<InfoDaemonMsg, rapidjson::Document&> m_objectFactory;
@@ -326,7 +508,10 @@ namespace iqrf {
       m_objectFactory.registerClass<InfoDaemonMsgGetBinaryOutputs>(mType_GetBinaryOutputs);
       m_objectFactory.registerClass<InfoDaemonMsgGetDalis>(mType_GetDalis);
       m_objectFactory.registerClass<InfoDaemonMsgGetLights>(mType_GetLights);
+      m_objectFactory.registerClass <InfoDaemonMsgGetNodes>(mType_GetNodes);
       m_objectFactory.registerClass<InfoDaemonMsgStartEnumeration>(mType_StartEnumeration);
+      m_objectFactory.registerClass<InfoDaemonMsgGetNodeMetaData>(mType_GetNodeMetaData);
+      m_objectFactory.registerClass<InfoDaemonMsgSetNodeMetaData>(mType_SetNodeMetaData);
     }
 
     ~Imp()
@@ -368,6 +553,11 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    IMetaDataApi* getMetadataApi()
+    {
+      return m_iMetaDataApi;
+    }
+
     std::map<int, sensor::EnumeratePtr> getSensors() const
     {
       return m_iIqrfInfo->getSensors();
@@ -388,9 +578,24 @@ namespace iqrf {
       return m_iIqrfInfo->getLights();
     }
 
+    std::map<int, embed::node::BriefInfoPtr> getNodes() const
+    {
+      return m_iIqrfInfo->getNodes();
+    }
+
     void startEnumeration()
     {
       m_iIqrfInfo->startEnumeration();
+    }
+
+    rapidjson::Document getNodeMetaData(int nadr) const
+    {
+      return m_iIqrfInfo->getNodeMetaData(nadr);
+    }
+
+    void setNodeMetaData(int nadr, const rapidjson::Value & metaData)
+    {
+      m_iIqrfInfo->setNodeMetaData(nadr, metaData);
     }
 
     void activate(const shape::Properties *props)
@@ -429,6 +634,18 @@ namespace iqrf {
     void modify(const shape::Properties *props)
     {
       (void)props; //silence -Wunused-parameter
+    }
+
+    void attachInterface(IMetaDataApi* iface)
+    {
+      m_iMetaDataApi = iface;
+    }
+
+    void detachInterface(IMetaDataApi* iface)
+    {
+      if (m_iMetaDataApi == iface) {
+        m_iMetaDataApi = nullptr;
+      }
     }
 
     void attachInterface(IIqrfInfo* iface)
@@ -483,6 +700,16 @@ namespace iqrf {
   void JsonIqrfInfoApi::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
+  }
+
+  void JsonIqrfInfoApi::attachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonIqrfInfoApi::detachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void JsonIqrfInfoApi::attachInterface(IIqrfInfo* iface)

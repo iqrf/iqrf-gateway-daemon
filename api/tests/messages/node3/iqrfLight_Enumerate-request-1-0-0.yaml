@@ -1,0 +1,7 @@
+mType: iqrfLight_Enumerate
+data:
+  msgId: testEmbedLight
+  req:
+    nAdr: 3
+    param: {}
+  returnVerbose: true

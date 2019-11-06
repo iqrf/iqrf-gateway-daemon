@@ -17,10 +17,10 @@ class IqrfPrgHeader {
 private:
     int index;
     TrMcu mcu;
-    TrSerie serie;
+    TrSeries series;
     std::map<TrOsVersion, std::pair<TrOsBuild, TrOsBuild>> supportedOs;
 public:
-    IqrfPrgHeader() {index = 0; mcu = TrMcu::NONE; serie = TrSerie::NONE;}
+    IqrfPrgHeader() {index = 0; mcu = TrMcu::NONE; series = TrSeries::NONE;}
     void add(std::string line);
     bool check(TrModuleInfo& info);
 };

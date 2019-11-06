@@ -155,7 +155,7 @@ namespace iqrf {
       int len = m_dpaResponse.GetLength();
 
       if (len < sizeof(TDpaIFaceHeader) || len > sizeof(TDpaIFaceHeader) + 2 + DPA_MAX_DATA_LENGTH) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Invalid dpaResponse lenght: " << PAR(len));
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid dpaResponse length: " << PAR(len));
       }
 
       const auto & rp = m_dpaResponse.DpaPacket().DpaResponsePacket_t;
