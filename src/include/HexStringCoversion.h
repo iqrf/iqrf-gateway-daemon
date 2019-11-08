@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <sstream>
 #include <chrono>
+#include <set>
+#include <vector>
 
 namespace iqrf {
   /// \brief Parse binary data encoded hexa
@@ -183,4 +185,106 @@ namespace iqrf {
     }
     return to;
   }
+
+  /// \brief Returns an set of indexes of set bits in the bitmap
+  /// \param [in] bitmap - array of bytes
+  /// \param [in] indexFrom - starting index of the byte in the bitmap
+  /// \param [in] indexTo - ending index of the byte in the bitmap
+  /// \param [in] offset - value to start indexing from
+  /// \return set of integers specifying the offset indexes of bits set in the bitmap
+  std::set<int> bitmapToIndexes(const uint8_t* bitmap, int indexFrom, int indexTo, int offset)
+  {
+    std::set<int> retval;
+
+    for (int index = indexFrom; index <= indexTo; index++) {
+      unsigned bitmapByte = bitmap[index];
+      if (0 == bitmapByte) {
+        offset += 8;
+      }
+      else {
+        for (unsigned bitMask = 0x01; bitMask != 0x100; bitMask <<= 1) {
+          if ((bitmapByte & bitMask) != 0) {
+            retval.insert(offset);
+          }
+          offset++;
+        }
+      }
+    }
+    return retval;
+  }
+
+  /// \brief Returns a vector of bytes with the selected indexes
+  /// \param [in] indexes - set of integers each specifying the index of bit to set in the bitmap
+  /// \return vector of bytes with the bit set according to the indexes parameter
+  std::vector<uint8_t> indexesToBitmap(const std::set<int> & indexes, int bitmapSize)
+  {
+    std::vector<uint8_t> retval(bitmapSize, 0);
+    for (int idx : indexes) {
+      int bitmapIdx = idx / (int)8;
+      if (bitmapIdx >= bitmapSize) {
+        THROW_EXC_TRC_WAR(std::logic_error, PAR(idx) << " is out of size: " << PAR(bitmapSize))
+      }
+      retval[bitmapIdx] |= 1 << (bitmapIdx % 8);
+    }
+    return retval;
+  };
+
+  //aux class to convert from dot notation to ustring and back
+  class DotMsg
+  {
+  public:
+    DotMsg(std::basic_string<unsigned char> msg)
+      :m_msg(msg)
+    {}
+
+    DotMsg(std::string dotMsg)
+    {
+      if (!dotMsg.empty()) {
+        std::string buf = dotMsg;
+        std::replace(buf.begin(), buf.end(), '.', ' ');
+
+        std::istringstream istr(buf);
+
+        int val;
+        while (true) {
+          if (!(istr >> std::hex >> val)) {
+            if (istr.eof()) break;
+            THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format: " << PAR(dotMsg));
+          }
+          m_msg.push_back((uint8_t)val);
+        }
+      }
+    }
+
+    operator std::basic_string<unsigned char>() { return m_msg; }
+
+    operator std::vector<unsigned char>() { return std::vector<unsigned char>(m_msg.begin(), m_msg.end()); }
+
+    operator std::string() const
+    {
+      std::string to;
+      if (!m_msg.empty()) {
+        std::ostringstream ostr;
+        ostr.setf(std::ios::hex, std::ios::basefield);
+        ostr.fill('0');
+        for (uint8_t c : m_msg) {
+          ostr << std::setw(2) << (short int)c;
+          ostr << '.';
+        }
+        to = ostr.str();
+        to.pop_back();
+      }
+      return to;
+    }
+
+    friend std::ostream & operator << (std::ostream &o, const DotMsg &a)
+    {
+      o << (std::string)a;
+      return o;
+    }
+
+  private:
+    std::basic_string<unsigned char> m_msg;
+  };
+
 }

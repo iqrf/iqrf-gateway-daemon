@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IDpaTransactionResult2.h"
+#include "HexStringCoversion.h"
 #include "Trace.h"
 #include "stdint.h"
 #include <memory>
@@ -121,27 +122,6 @@ namespace iqrf {
 
       m_dpaResponse = m_dpaTransactionResult2->getResponse();
       processResponse();
-    }
-
-    static std::set<int> bitmapToIndexes(const uint8_t* bitmap, int indexFrom, int indexTo, int offset)
-    {
-      std::set<int> retval;
-
-      for (int index = indexFrom; index <= indexTo; index++) {
-        unsigned bitmapByte = bitmap[index];
-        if (0 == bitmapByte) {
-          offset += 8;
-        }
-        else {
-          for (unsigned bitMask = 0x01; bitMask != 0x100; bitMask <<= 1) {
-            if ((bitmapByte & bitMask) != 0) {
-              retval.insert(offset);
-            }
-            offset++;
-          }
-        }
-      }
-      return retval;
     }
 
   protected:
