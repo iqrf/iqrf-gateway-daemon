@@ -33,7 +33,7 @@ stages:
 test_name: Test mqtt message - std sensor rswt
 paho-mqtt: *mqtt_spec
 
-#node1 - std microrisc ddc-se+re
+#node2 - std microrisc ddc-se+re
 stages:
   - name: sensor rswt int
     max_retries: 1

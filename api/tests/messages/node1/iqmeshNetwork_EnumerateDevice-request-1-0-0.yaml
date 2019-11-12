@@ -1,0 +1,7 @@
+mType: iqmeshNetwork_EnumerateDevice
+data:
+  msgId: testEnumerateDevice
+  repeat: 1
+  req:
+    deviceAddr: 1
+  returnVerbose: true

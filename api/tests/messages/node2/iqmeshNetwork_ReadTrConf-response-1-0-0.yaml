@@ -1,0 +1,63 @@
+mType: iqmeshNetwork_ReadTrConf
+data:
+  msgId: testReadTrConf
+  rsp:
+    deviceAddr: 2
+    embPers:
+      values:
+      - 254
+      - 6
+      - 0
+      - 0
+      coordinator: false
+      node: true
+      os: true
+      eeprom: true
+      eeeprom: true
+      ram: true
+      ledr: true
+      ledg: true
+      spi: false
+      io: true
+      thermometer: true
+      pwm: false
+      uart: false
+      frc: false
+    customDpaHandler: true
+    dpaPeerToPeer: false
+    dpaAutoexec: false
+    routingOff: false
+    ioSetup: false
+    peerToPeer: false
+    neverSleep: false
+    stdAndLpNetwork: true
+    rfChannelA: 25
+    rfChannelB: 2
+    txPower: 7
+    rxFilter: 5
+    lpRxTimeout: 6
+    rfAltDsmChannel: 0
+    uartBaudrate: 115200
+    rfPgmDualChannel: true
+    rfPgmLpMode: false
+    rfPgmIncorrectUpload: false
+    rfPgmEnableAfterReset: false
+    rfPgmTerminateAfter1Min: true
+    rfPgmTerminateMcuPin: true
+    rfBand: '868'
+  raw:
+  - request: 00.00.00.02.ff.ff
+    requestTs: !anystr
+    confirmation: ''
+    confirmationTs: ''
+    response: !anystr
+    responseTs: !anystr
+  - request: 02.00.02.02.ff.ff
+    requestTs: !anystr
+    confirmation: !anystr
+    confirmationTs: !anystr
+    response: !anystr
+    responseTs: !anystr
+  status: 0
+  statusStr: ok
+  insId: iqrfgd2-default

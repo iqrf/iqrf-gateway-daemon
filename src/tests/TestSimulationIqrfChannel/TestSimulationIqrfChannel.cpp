@@ -2,7 +2,6 @@
 #define IIqrfChannelService_EXPORTS
 
 #include "TestSimulationIqrfChannel.h"
-#include "DotMsg.h"
 #include "AccessControl.h"
 #include "Trace.h"
 #include "HexStringCoversion.h"
