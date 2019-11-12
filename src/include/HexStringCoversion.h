@@ -224,7 +224,7 @@ namespace iqrf {
       if (bitmapIdx >= bitmapSize) {
         THROW_EXC_TRC_WAR(std::logic_error, PAR(idx) << " is out of size: " << PAR(bitmapSize))
       }
-      retval[bitmapIdx] |= 1 << (bitmapIdx % 8);
+      retval[bitmapIdx] |= 1 << (idx % 8);
     }
     return retval;
   };
