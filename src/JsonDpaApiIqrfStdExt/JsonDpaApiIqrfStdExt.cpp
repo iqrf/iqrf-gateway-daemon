@@ -86,13 +86,13 @@ namespace iqrf {
         jsDriverStandardFrcSolver.processResponseDrv();
 
         // finalize api response
-        if (!apiMsgIqrfStandardFrc.getNadrWithMetaData()) {
+        if (!apiMsgIqrfStandardFrc.getExtFormat()) {
           apiMsgIqrfStandardFrc.setPayload("/data/rsp/result", jsDriverStandardFrcSolver.getResponseResultDoc());
         }
         else {
           std::string arrayKey, itemKey;
 
-          // TODO maybe better to virtualize getResponseResultWithNadr() 
+          // TODO maybe better to virtualize getExtFormat() 
           if (msgType.m_type == "iqrfDali_Frc") {
             arrayKey = "/answers";
             itemKey = "/answer";
@@ -105,7 +105,7 @@ namespace iqrf {
             THROW_EXC_TRC_WAR(std::logic_error, "Unexpected: " << NAME_PAR(messageType, msgType.m_type));
           }
 
-          rapidjson::Document doc = jsDriverStandardFrcSolver.getResponseResultWithNadr(arrayKey, itemKey);
+          rapidjson::Document doc = jsDriverStandardFrcSolver.getExtFormat(arrayKey, itemKey);
 
           for (Value * senVal = doc.Begin(); senVal != doc.End(); senVal++) {
             Value *nadrVal = Pointer("/nAdr").Get(*senVal);

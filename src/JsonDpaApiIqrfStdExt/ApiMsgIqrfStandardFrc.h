@@ -10,7 +10,7 @@ namespace iqrf {
   private:
     bool m_getExtraResult = true;
     bool m_getNadr = false;
-    bool m_getNadrWithMetaData = false;
+    bool m_getExtFormat = false;
     DpaMessage m_dpaRequestExtra;
     std::unique_ptr<IDpaTransactionResult2> m_extraRes;
 
@@ -28,15 +28,15 @@ namespace iqrf {
         }
       }
       {
-        const Value *val = Pointer("/data/req/param/getNadrWithMetaData").Get(doc);
+        const Value *val = Pointer("/data/req/param/extFormat").Get(doc);
         if (val && val->IsBool()) {
-          m_getNadrWithMetaData = val->GetBool();
+          m_getExtFormat = val->GetBool();
         }
       }
     }
 
     bool getExtraResult() const { return m_getExtraResult; }
-    bool getNadrWithMetaData() const { return m_getNadrWithMetaData; }
+    bool getExtFormat() const { return m_getExtFormat; }
 
     void setDpaTransactionExtraResult(std::unique_ptr<IDpaTransactionResult2> extraRes)
     {
