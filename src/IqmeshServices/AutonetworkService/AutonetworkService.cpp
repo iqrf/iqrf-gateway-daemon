@@ -261,6 +261,7 @@ namespace iqrf {
     }TNode;
 
     // Autonetwork input paramaters
+    /*
     typedef struct
     {
       uint8_t actionRetries;
@@ -272,6 +273,7 @@ namespace iqrf {
       bool filteringHWPID;
       bool filteringMID;
     }TAutonetworkInputParams;
+    */
 
     // Autonetwork process paramaters
     typedef struct
@@ -711,15 +713,12 @@ namespace iqrf {
         {
           // TODO SQLDB update discovered nodes in DB
           bool disc = antwProcessParams.discoveredNodes[addr];
-          unsigned dbMid = 0;
-
-          {
-            antwProcessParams.networkNodes[addr].discovered = disc;
-            auto found = m_insertNadrNodeMap.find(addr);
-            if (found != m_insertNadrNodeMap.end()) {
-              found->second->setDisc(disc);
-              dbMid = found->second->getMid();
-            }
+          uint32_t dbMid = 0;
+          antwProcessParams.networkNodes[addr].discovered = disc;
+          auto found = m_insertNadrNodeMap.find( addr );
+          if ( found != m_insertNadrNodeMap.end() ) {
+            found->second->setDisc( disc );
+            dbMid = found->second->getMid();
           }
 
           // Node MID known ?
@@ -727,17 +726,17 @@ namespace iqrf {
           {
             // Read MIDs from Coordinator eeprom
             // SQLDB - nahradit cteni MID z eeprom [C] nactenim z databaze
-            if (dbMid == 0) {
-              auto found = nadrNodeMap.find(addr);
-              if (found != nadrNodeMap.end()) {
+            if ( dbMid == 0 ) {
+              auto found = nadrNodeMap.find( addr );
+              if ( found != nadrNodeMap.end() ) {
                 dbMid = found->second->getMid();
               }
             }
 
-            if (dbMid == 0) {
-              TRC_WARNING("Cannot read MID from DB for: " << PAR(addr) << " => going to read from [C])");
+            if ( dbMid == 0 ) {
+              TRC_WARNING( "Cannot read MID from DB for: " << PAR( addr ) << " => going to read from [C])" );
               uint16_t address = 0x4000 + addr * 0x08;
-              std::basic_string<uint8_t> mid = readCoordXMemory(autonetworkResult, address, sizeof(TMID));
+              std::basic_string<uint8_t> mid = readCoordXMemory( autonetworkResult, address, sizeof( TMID ) );
               antwProcessParams.networkNodes[addr].mid.bytes[0] = mid[0];
               antwProcessParams.networkNodes[addr].mid.bytes[1] = mid[1];
               antwProcessParams.networkNodes[addr].mid.bytes[2] = mid[2];
@@ -747,9 +746,9 @@ namespace iqrf {
               // store MID according DB
               //TODO correct endian?
               antwProcessParams.networkNodes[addr].mid.bytes[0] = dbMid & 0xFF;
-              antwProcessParams.networkNodes[addr].mid.bytes[1] = (dbMid >>= 8) & 0xFF;
-              antwProcessParams.networkNodes[addr].mid.bytes[2] = (dbMid >>= 8) & 0xFF;;
-              antwProcessParams.networkNodes[addr].mid.bytes[3] = (dbMid >>= 8) & 0xFF;;
+              antwProcessParams.networkNodes[addr].mid.bytes[1] = ( dbMid >>= 8 ) & 0xFF;
+              antwProcessParams.networkNodes[addr].mid.bytes[2] = ( dbMid >>= 8 ) & 0xFF;;
+              antwProcessParams.networkNodes[addr].mid.bytes[3] = ( dbMid >>= 8 ) & 0xFF;;
             }
           }
         }
@@ -1560,18 +1559,21 @@ namespace iqrf {
         while ( waveRun )
         {
           // Maximum waves reached ?
-          if ( ( antwInputParams.maxWaves != 0 ) && ( antwProcessParams.countWaves == antwInputParams.maxWaves ) )
+          if ( ( antwInputParams.stopConditions.waves != 0 ) && ( antwProcessParams.countWaves == antwInputParams.stopConditions.waves ) )
           {
             TRC_INFORMATION( "Maximum number of waves reached." );
             break;
           }
 
           // Maximum nodes bonded ?
-          if ( ( antwInputParams.maxNodes != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.maxNodes ) )
+          if ( ( antwInputParams.stopConditions.networkSize != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.networkSize ) )
+          {
+            TRC_INFORMATION( "Maximum nodes is bonded." );
             break;
+          }
 
           // Maximum empty waves reached ?
-          if ( ( antwInputParams.maxEmptyWaves != 0 ) && ( antwProcessParams.countEmpty >= antwInputParams.maxEmptyWaves ) )
+          if ( ( antwInputParams.stopConditions.emptyWaves != 0 ) && ( antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves ) )
           {
             TRC_INFORMATION( "Maximum number of consecutive empty waves reached." );
             AutonetworkError error( AutonetworkError::Type::EmptyWaves, "Maximum number of consecutive empty waves reached." );
@@ -1631,7 +1633,6 @@ namespace iqrf {
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
           // Read MIDs of prebonded alive nodes
-          antwInputParams.filteringHWPID = false;
           MIDUnbondOnlyC = false;
           TRC_INFORMATION( NAME_PAR( Prebonded alive nodes, FrcSelect.size() ) );
           uint8_t offset = 0x00;
@@ -1658,7 +1659,7 @@ namespace iqrf {
                 // Yes, decrease MID
                 node.mid.value--;
                 // HWPID filtering active ?
-                if ( antwInputParams.filteringHWPID == false )
+                if ( antwInputParams.hwpidFiltering.active == false )
                 {
                   // No, authorize control
                   if ( authorizeControl( node.mid.value, 0, node.addrBond, node.authorizeErr ) == true )
@@ -1719,7 +1720,7 @@ namespace iqrf {
                   node.HWPID = HWPID_HWPVer & 0xffff;
                   node.HWPIDVer = HWPID_HWPVer > 16;
                   // Authorize control
-                  if ( ( antwInputParams.filteringHWPID == true ) && ( authorizeControl( node.mid.value, node.HWPID, node.addrBond, node.authorizeErr ) == true ) )
+                  if ( ( antwInputParams.hwpidFiltering.active == true ) && ( authorizeControl( node.mid.value, node.HWPID, node.addrBond, node.authorizeErr ) == true ) )
                   {
                     node.authorize = true;
                     maxStep++;
@@ -2174,44 +2175,6 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE( "" );
     }
 
-    // Creates error response about service general fail   
-    Document createCheckParamsFailedResponse(
-      const std::string& msgId,
-      const IMessagingSplitterService::MsgType& msgType,
-      const std::string& errorMsg
-    )
-    {
-      Document response;
-
-      // set common parameters
-      Pointer( "/mType" ).Set( response, msgType.m_type );
-      Pointer( "/data/msgId" ).Set( response, msgId );
-
-      // set result
-      Pointer( "/data/status" ).Set( response, SERVICE_ERROR );
-      Pointer( "/data/statusStr" ).Set( response, errorMsg );
-
-      return response;
-    }
-
-    // creates error response about failed exclusive access
-    rapidjson::Document getExclusiveAccessFailedResponse(
-      const std::string& msgId,
-      const IMessagingSplitterService::MsgType& msgType,
-      const std::string& errorMsg
-    )
-    {
-      rapidjson::Document response;
-
-      Pointer("/mType").Set(response, msgType.m_type);
-      Pointer("/data/msgId").Set(response, msgId);
-
-      Pointer("/data/status").Set(response, SERVICE_ERROR_INTERNAL);
-      Pointer("/data/statusStr").Set(response, errorMsg);
-
-      return response;
-    }
-
     // sets response VERBOSE data
     void setVerboseData( rapidjson::Document& response, AutonetworkResult& bondResult )
     {
@@ -2435,24 +2398,6 @@ namespace iqrf {
       return response;
     }
 
-    uint8_t parseAndCheckWaves(const int waves) {
-      if ((waves < 0x00) || (waves > MAX_WAVES)) {
-        THROW_EXC(
-          std::out_of_range, "Waves outside of valid range. " << NAME_PAR_HEX("waves", waves)
-        );
-      }
-      return waves;
-    }
-
-    uint8_t parseAndCheckEmptyWaves(const int emptyWaves) {
-      if ((emptyWaves < 0x00) || (emptyWaves > MAX_EMPTY_WAVES)) {
-        THROW_EXC(
-          std::out_of_range, "emptyWaves outside of valid range. " << NAME_PAR_HEX("emptyWaves", emptyWaves)
-        );
-      }
-      return emptyWaves;
-    }
-
     void handleMsg( const std::string& messagingId, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc )
     {
       TRC_FUNCTION_ENTER( PAR( messagingId ) << NAME_PAR( mType, msgType.m_type ) << NAME_PAR( major, msgType.m_major ) << NAME_PAR( minor, msgType.m_minor ) << NAME_PAR( micro, msgType.m_micro ) );
@@ -2469,26 +2414,21 @@ namespace iqrf {
       // Parsing and checking service parameters
       try
       {
-        antwInputParams.actionRetries = comAutonetwork.getActionRetries();
-        antwInputParams.discoveryTxPower = comAutonetwork.getDiscoveryTxPower();
-        antwInputParams.discoveryBeforeStart = comAutonetwork.getDiscoveryBeforeStart();
-
-        if ( !comAutonetwork.isSetWaves() )
-          THROW_EXC( std::logic_error, "Waves not set" );
-        antwInputParams.maxWaves = parseAndCheckWaves( comAutonetwork.getWaves() );
-
-        if ( !comAutonetwork.isSetEmptyWaves() )
-          THROW_EXC( std::logic_error, "EmptyWaves not set" );
-        antwInputParams.maxEmptyWaves = parseAndCheckEmptyWaves( comAutonetwork.getEmptyWaves() );
-
-        antwInputParams.maxNodes = 0;
-
-        //returnVerbose = comAutonetwork.getVerbose();
+        antwInputParams = comAutonetwork.getAnutonetworkParams();
       }
-      catch ( std::exception& ex )
+      catch ( std::exception& e )
       {
-        Document failResponse = createCheckParamsFailedResponse( comAutonetwork.getMsgId(), msgType, ex.what() );
-        m_iMessagingSplitterService->sendMessage( messagingId, std::move( failResponse ) );
+        const char* errorStr = e.what();
+        TRC_WARNING( "Error while parsing service input parameters: " << PAR( errorStr ) );
+        // Create error response
+        Document response;
+        Pointer( "/mType" ).Set( response, msgType.m_type );
+        Pointer( "/data/msgId" ).Set( response, comAutonetwork.getMsgId() );
+        // Set result
+        Pointer( "/data/status" ).Set( response, SERVICE_ERROR );
+        Pointer( "/data/statusStr" ).Set( response, errorStr );
+        m_iMessagingSplitterService->sendMessage( messagingId, std::move( response ) );
+
         TRC_FUNCTION_LEAVE( "" );
         return;
       }
@@ -2502,14 +2442,19 @@ namespace iqrf {
       {
         const char* errorStr = e.what();
         TRC_WARNING( "Error while establishing exclusive DPA access: " << PAR( errorStr ) );
-        Document failResponse = getExclusiveAccessFailedResponse( comAutonetwork.getMsgId(), msgType, errorStr );
-        m_iMessagingSplitterService->sendMessage( messagingId, std::move( failResponse ) );
+        // Create error response
+        Document response;
+        Pointer( "/mType" ).Set( response, msgType.m_type );
+        Pointer( "/data/msgId" ).Set( response, comAutonetwork.getMsgId() );
+        // Set result
+        Pointer( "/data/status" ).Set( response, SERVICE_ERROR );
+        Pointer( "/data/statusStr" ).Set( response, errorStr );
+        m_iMessagingSplitterService->sendMessage( messagingId, std::move( response ) );
+
         TRC_FUNCTION_LEAVE( "" );
         return;
       }
 
-      // Run the Autonetwork process
-      //runAutonetwork( const antwInputParams, comAutonetwork, msgType, messagingId );
       // Run the Autonetwork process
       runAutonetwork( comAutonetwork, msgType, messagingId );
 
