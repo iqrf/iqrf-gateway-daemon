@@ -105,19 +105,21 @@ namespace iqrf
       }
 
       if (arrayVal->Size() > 0) { // is there something in the array?
-        if (selectedNodesSet.size() <= 0) {
+        if (selectedNodesSet.size() > 0) {
           // selective FRC
-          auto nadrIt = selectedNodesSet.begin();
-          for (Value *itemVal = arrayVal->Begin() + 1; //skip index 0 as driver returns first null as a result of general FRC 
-            itemVal != arrayVal->End(); itemVal++) {
+          
+          // check size
+          if ((selectedNodesSet.size() + 1)  > arrayVal->Size()) {
+            THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent .../selectedNodes[] and ..." << resultArrayKey << "[]");
+          }
 
-            if (nadrIt == selectedNodesSet.end()) {
-              THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent .../selectedNodes[] and ..." << resultArrayKey << "[]");
-            }
-
+          // iterate via selected nodes
+          int i = 1; //skip index 0 as driver returns first null as a result of general FRC 
+          for (auto nadr : selectedNodesSet) {
+            const Value & itemVal = arrayVal[i++];
             Value sensorVal;
-            Pointer("/nAdr").Set(sensorVal, *nadrIt++, doc.GetAllocator());
-            Pointer(resultItemKey).Set(sensorVal, *itemVal, doc.GetAllocator());
+            Pointer("/nAdr").Set(sensorVal, nadr, doc.GetAllocator());
+            Pointer(resultItemKey).Set(sensorVal, itemVal, doc.GetAllocator());
             doc.PushBack(sensorVal, doc.GetAllocator());
           }
         }
