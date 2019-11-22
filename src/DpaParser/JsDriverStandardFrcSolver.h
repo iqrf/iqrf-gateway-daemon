@@ -114,12 +114,11 @@ namespace iqrf
           }
 
           // iterate via selected nodes
-          int i = 1; //skip index 0 as driver returns first null as a result of general FRC 
+          const Value *itemVal = arrayVal->Begin() + 1; //skip index 0 as driver returns first null as a result of general FRC
           for (auto nadr : selectedNodesSet) {
-            const Value & itemVal = arrayVal[i++];
             Value sensorVal;
             Pointer("/nAdr").Set(sensorVal, nadr, doc.GetAllocator());
-            Pointer(resultItemKey).Set(sensorVal, itemVal, doc.GetAllocator());
+            Pointer(resultItemKey).Set(sensorVal, *itemVal++, doc.GetAllocator());
             doc.PushBack(sensorVal, doc.GetAllocator());
           }
         }
