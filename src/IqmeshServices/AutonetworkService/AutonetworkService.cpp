@@ -15,16 +15,6 @@ TRC_INIT_MODULE(iqrf::AutonetworkService);
 using namespace rapidjson;
 
 namespace {
-
-  // helper functions
-  std::string encodeHexaNum_CapitalLetters(uint16_t from)
-  {
-    std::ostringstream os;
-    os.fill('0'); os.width(4);
-    os << std::hex << std::uppercase << (int)from;
-    return os.str();
-  }
-
   // ToDo Timeout step
   const int TIMEOUT_STEP = 500;
 
@@ -34,7 +24,6 @@ namespace {
   // values of result error codes
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
-
   static const int SERVICE_ERROR_INTERNAL = SERVICE_ERROR + 1;
   static const int SERVICE_ERROR_NO_COORD_OR_COORD_OS = SERVICE_ERROR + 2;
   static const int SERVICE_ERROR_GET_ADDRESSING_INFO = SERVICE_ERROR + 3;
@@ -52,9 +41,8 @@ namespace {
   static const int SERVICE_ERROR_CHECK_NEW_NODES = SERVICE_ERROR + 15;
   static const int SERVICE_ERROR_REMOVE_BOND_AT_COORDINATOR = SERVICE_ERROR + 16;
   static const int SERVICE_ERROR_RUN_DISCOVERY = SERVICE_ERROR + 17;
-  static const int SERVICE_ERROR_EMPTY_WAWES = SERVICE_ERROR + 18;
-  static const int SERVICE_ERROR_ALL_ADDRESS_ALLOCATED = SERVICE_ERROR + 19;
-  static const int SERVICE_ERROR_VALIDATE_BONDS = SERVICE_ERROR + 20;
+  static const int SERVICE_ERROR_ALL_ADDRESS_ALLOCATED = SERVICE_ERROR + 18;
+  static const int SERVICE_ERROR_VALIDATE_BONDS = SERVICE_ERROR + 19;
 };
 
 
@@ -83,12 +71,11 @@ namespace iqrf {
       CheckNewNodes,
       RemoveBondAtCoordinator,
       RunDiscovery,
-      EmptyWaves,
       AllAddressAllocated,
       ValidateBonds
     };
 
-    AutonetworkError() : m_type( Type::NoError ), m_message( "" ) {};
+    AutonetworkError() : m_type( Type::NoError ), m_message( "ok" ) {};
     AutonetworkError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
     AutonetworkError( Type errorType, const std::string& message ) : m_type( errorType ), m_message( message ) {};
 
@@ -111,11 +98,10 @@ namespace iqrf {
     std::string m_message;
   };
 
-  /// \class BondResult
-  /// \brief Result of bonding of a node.
+  // Result of AutonetworkResult algorithm
   class AutonetworkResult {
   public:
-    // information related to node newly added into the network
+    // Information related to node newly added into the network
     struct NewNode {
       uint8_t address;
       uint32_t MID;
@@ -128,9 +114,8 @@ namespace iqrf {
     uint8_t m_nodesNr;
     uint8_t m_newNodesNr;
     std::vector<NewNode> m_newNodes;
-    bool m_lastWave = false;
 
-    // transaction results
+    // Transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
   public:
@@ -177,15 +162,7 @@ namespace iqrf {
       m_newNodes.clear();
     }
     
-    void setLastWave(bool lastWave) {
-      m_lastWave = lastWave;
-    }
-    
-    bool isLastWave() {
-      return m_lastWave;
-    }
-
-    // adds transaction result into the list of results
+    // Adds transaction result into the list of results
     void addTransactionResult( std::unique_ptr<IDpaTransactionResult2>& transResult ) {
       m_transResults.push_back( std::move( transResult ) );
     }
@@ -194,7 +171,7 @@ namespace iqrf {
       return ( m_transResults.size() > 0 );
     }
 
-    // consumes the first element in the transaction results list
+    // Consumes the first element in the transaction results list
     std::unique_ptr<IDpaTransactionResult2> consumeNextTransactionResult() {
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move( *iter );
@@ -260,21 +237,6 @@ namespace iqrf {
       bool online;
     }TNode;
 
-    // Autonetwork input paramaters
-    /*
-    typedef struct
-    {
-      uint8_t actionRetries;
-      uint8_t discoveryTxPower;
-      bool discoveryBeforeStart;
-      uint8_t maxNodes;
-      uint8_t maxWaves;
-      uint8_t maxEmptyWaves;
-      bool filteringHWPID;
-      bool filteringMID;
-    }TAutonetworkInputParams;
-    */
-
     // Autonetwork process paramaters
     typedef struct
     {
@@ -319,6 +281,10 @@ namespace iqrf {
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
     // Nodes to be inserted to DB mapped according NADR
     std::map<int, embed::node::BriefInfoPtr> m_insertNadrNodeMap;
+
+    const std::string* m_messagingId = nullptr;
+    const IMessagingSplitterService::MsgType* m_msgType = nullptr;
+    const ComAutonetwork* m_comAutonetwork = nullptr;
 
     uint8_t MAX_WAVES = MAX_ADDRESS;
     uint8_t MAX_EMPTY_WAVES = MAX_ADDRESS;
@@ -925,7 +891,7 @@ namespace iqrf {
     {
       // Initialize to zero values
       memset(pData, 0, 30 * sizeof(uns8));
-      for (uint16_t i : selectedNodes) 
+      for (uint8_t i : selectedNodes) 
       {
         uns8 byteIndex = i / 8;
         uns8 bitIndex = i % 8;
@@ -1031,25 +997,6 @@ namespace iqrf {
       }
     }
 
-    // Returns next free address 
-    uint8_t getNextFreeAddr( const std::bitset<MAX_ADDRESS + 1>& bondedNodes, const uint8_t fromAddr )
-    {
-      uint8_t origAddr = fromAddr;
-      uint8_t checkAddr = fromAddr;
-
-      for ( ; ; )
-      {
-        if ( ++checkAddr > MAX_ADDRESS )
-          checkAddr = 1;
-
-        if ( bondedNodes[checkAddr] == 0 )
-          return checkAddr;
-
-        if ( checkAddr == origAddr )
-          THROW_EXC( std::logic_error, "NextFreeAddr: no free address" );
-      }
-    }
-
     // Bond authorization
     TPerCoordinatorAuthorizeBond_Response authorizeBond( AutonetworkResult& autonetworkResult, const uint8_t reqAddr, const uint32_t mid )
     {
@@ -1084,7 +1031,6 @@ namespace iqrf {
           << NAME_PAR( Node address, authorizeBondRequest.NodeAddress() )
           << NAME_PAR( Command, (int)authorizeBondRequest.PeripheralCommand() )
         );
-        std::unique_ptr<IDpaTransactionResult2> transResult;
         TRC_FUNCTION_LEAVE( "" );
         return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorAuthorizeBond_Response;
       }
@@ -1449,6 +1395,7 @@ namespace iqrf {
     bool authorizeControl( uint32_t MID, uint16_t HWPID, uint8_t& bondAddr, TAuthorizeErr& authorizeErr )
     {
       bondAddr = 0;
+      authorizeErr = TAuthorizeErr::eNo;
 
       // Check duplicit MID
       for ( uint8_t address = 1; address <= MAX_ADDRESS; address++ )
@@ -1460,6 +1407,29 @@ namespace iqrf {
           return false;
         }
       }
+
+      // Overlapping networks
+      if ( ( antwInputParams.overlappingNetworks.networks != 0 ) && ( antwInputParams.overlappingNetworks.network != 0 ) )
+      {
+        uint32_t rem = MID % antwInputParams.overlappingNetworks.networks;
+        if ( ( rem ) != (uint8_t)( antwInputParams.overlappingNetworks.network - 1 ) )
+        {
+          authorizeErr = TAuthorizeErr::eNetworkNum;
+          return false;
+        }
+      }
+
+      // HWPID filtering
+      if ( antwInputParams.hwpidFiltering.empty() == false )
+      {
+        // HWPID filtering
+        if ( std::find( antwInputParams.hwpidFiltering.begin(), antwInputParams.hwpidFiltering.end(), HWPID ) == antwInputParams.hwpidFiltering.end() )
+        {
+          authorizeErr = TAuthorizeErr::eHWPIDFiltering;
+          return false;
+        }
+      }
+
       return true;
     }
 
@@ -1474,14 +1444,130 @@ namespace iqrf {
       return false;
     }
 
+    // Send autonetwok algorithm state
+    void sendWaveState( const std::string state )
+    {
+      Document waveState;
+      // Set common parameters
+      Pointer( "/mType" ).Set( waveState, m_msgType->m_type );
+      Pointer( "/data/msgId" ).Set( waveState, m_comAutonetwork->getMsgId() );
+      // Fill response
+      rapidjson::Pointer( "/data/rsp/wave" ).Set( waveState, antwProcessParams.countWaves );
+      rapidjson::Pointer( "/data/rsp/waveState" ).Set( waveState, state );
+      // Set result
+      Pointer( "/data/status" ).Set( waveState, 0 );
+      Pointer( "/data/statusStr" ).Set( waveState, "ok" );
+      // Send message      
+      m_iMessagingSplitterService->sendMessage( *m_messagingId, std::move( waveState ) );
+    }
+
+    // Send wave result
+    void sendWaveResult( AutonetworkResult& autonetworkResult )
+    {
+      Document waveResult;
+      // Set common parameters
+      Pointer( "/mType" ).Set( waveResult, m_msgType->m_type );
+      Pointer( "/data/msgId" ).Set( waveResult, m_comAutonetwork->getMsgId() );
+
+      // Add wave result
+      rapidjson::Pointer( "/data/rsp/wave" ).Set( waveResult, antwProcessParams.countWaves );
+      rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( waveResult, antwProcessParams.bondedNodesNr );
+      rapidjson::Pointer( "/data/rsp/newNodesNr" ).Set( waveResult, antwProcessParams.countWaveNewNodes );
+      if ( antwProcessParams.respondedNewNodes.empty() == false )
+      {
+        // Rsp object
+        rapidjson::Pointer( "/data/rsp/wave" ).Set( waveResult, antwProcessParams.countWaves );
+        rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( waveResult, antwProcessParams.bondedNodesNr );
+        rapidjson::Pointer( "/data/rsp/newNodesNr" ).Set( waveResult, antwProcessParams.countWaveNewNodes );
+        rapidjson::Value newNodesJsonArray( kArrayType );
+        Document::AllocatorType& allocator = waveResult.GetAllocator();
+        for ( AutonetworkResult::NewNode newNode : antwProcessParams.respondedNewNodes )
+        {
+          rapidjson::Value newNodeObject( kObjectType );
+          std::stringstream stream;
+          stream << std::hex << newNode.MID;
+          newNodeObject.AddMember( "mid", stream.str(), allocator );
+          newNodeObject.AddMember( "address", newNode.address, allocator );
+          newNodesJsonArray.PushBack( newNodeObject, allocator );
+        }
+        Pointer( "/data/rsp/newNodes" ).Set( waveResult, newNodesJsonArray );
+      }
+
+      // Set status
+      AutonetworkError error = autonetworkResult.getError();
+      int status = 0;
+      if ( error.getType() != AutonetworkError::Type::NoError )
+        status = SERVICE_ERROR + (int)error.getType();
+
+      // Set raw fields, if verbose mode is active
+      if ( m_comAutonetwork->getVerbose() == true )
+      {
+        rapidjson::Value rawArray( kArrayType );
+        Document::AllocatorType& allocator = waveResult.GetAllocator();
+
+        while ( autonetworkResult.isNextTransactionResult() ) {
+          std::unique_ptr<IDpaTransactionResult2> transResult = autonetworkResult.consumeNextTransactionResult();
+          rapidjson::Value rawObject( kObjectType );
+
+          rawObject.AddMember(
+            "request",
+            encodeBinary( transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength() ),
+            allocator
+          );
+
+          rawObject.AddMember(
+            "requestTs",
+            encodeTimestamp( transResult->getRequestTs() ),
+            allocator
+          );
+
+          rawObject.AddMember(
+            "confirmation",
+            encodeBinary( transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength() ),
+            allocator
+          );
+
+          rawObject.AddMember(
+            "confirmationTs",
+            encodeTimestamp( transResult->getConfirmationTs() ),
+            allocator
+          );
+
+          rawObject.AddMember(
+            "response",
+            encodeBinary( transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength() ),
+            allocator
+          );
+
+          rawObject.AddMember(
+            "responseTs",
+            encodeTimestamp( transResult->getResponseTs() ),
+            allocator
+          );
+
+          // add object into array
+          rawArray.PushBack( rawObject, allocator );
+        }
+
+        // Add array into response document
+        Pointer( "/data/raw" ).Set( waveResult, rawArray );
+      }
+
+      // Set status
+      Pointer( "/data/status" ).Set( waveResult, status );
+      Pointer( "/data/statusStr" ).Set( waveResult, error.getMessage() );
+
+      // Send message      
+      m_iMessagingSplitterService->sendMessage( *m_messagingId, std::move( waveResult ) );
+    }
+
     // Process the autonetwork algorithm
-    void runAutonetwork( const ComAutonetwork& comAutonetwork, const IMessagingSplitterService::MsgType& msgType, const std::string& messagingId )
+    void runAutonetwork( void )
     {
       TRC_FUNCTION_ENTER( "" );
 
       // Autonetwork result
-      AutonetworkResult autonetworkResult;
-      autonetworkResult.setLastWave( false );      
+      AutonetworkResult autonetworkResult;    
 
       try
       {
@@ -1537,15 +1623,12 @@ namespace iqrf {
         // Start autonetwork 
         TRC_INFORMATION( "Automatic network construction in progress" );
         antwProcessParams.initialBondedNodesNr = antwProcessParams.bondedNodesNr;
-        int round = 1;
-        int emptyRounds = 0;
-        uint8_t nextAddr = MAX_ADDRESS;
         using std::chrono::system_clock;
         bool waveRun = true;
         std::basic_string<uint8_t> FrcSelectMask;
         std::vector<uint8_t> FrcSelect, FrcOnlineNodes, FrcOfflineNodes;
         bool MIDUnbondOnlyC;
-        uint8_t maxStep, retryAction, countDisNodes = 0;
+        uint8_t maxStep, retryAction, countDisNodes = antwProcessParams.discoveredNodesNr;
 
         // Initialize random seed
         std::srand( std::time( nullptr ) );
@@ -1562,6 +1645,7 @@ namespace iqrf {
           if ( ( antwInputParams.stopConditions.waves != 0 ) && ( antwProcessParams.countWaves == antwInputParams.stopConditions.waves ) )
           {
             TRC_INFORMATION( "Maximum number of waves reached." );
+            sendWaveState( "Maximum number of waves reached." );
             break;
           }
 
@@ -1569,6 +1653,7 @@ namespace iqrf {
           if ( ( antwInputParams.stopConditions.networkSize != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.networkSize ) )
           {
             TRC_INFORMATION( "Maximum nodes is bonded." );
+            sendWaveState( "Maximum nodes is bonded." );
             break;
           }
 
@@ -1576,8 +1661,7 @@ namespace iqrf {
           if ( ( antwInputParams.stopConditions.emptyWaves != 0 ) && ( antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves ) )
           {
             TRC_INFORMATION( "Maximum number of consecutive empty waves reached." );
-            AutonetworkError error( AutonetworkError::Type::EmptyWaves, "Maximum number of consecutive empty waves reached." );
-            autonetworkResult.setError( error );
+            sendWaveState( "Maximum number of consecutive empty waves reached." );
             break;
           }
 
@@ -1596,6 +1680,7 @@ namespace iqrf {
           antwProcessParams.countWaveNewNodes = 0;
           antwProcessParams.respondedNewNodes.clear();
           TRC_INFORMATION( "SmartConnect." );
+          sendWaveState( "SmartConnect." );
           smartConnect( autonetworkResult );
 
           // ToDo
@@ -1622,9 +1707,8 @@ namespace iqrf {
             clearDuplicitMID( autonetworkResult );
             // Increase empty wave counter
             antwProcessParams.countEmpty++;
-            // Send results
-            Document responseDoc = createResponse( msgType, autonetworkResult, comAutonetwork );
-            m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
+            // Send result
+            sendWaveResult( autonetworkResult );
             // Next wave
             continue;
           }
@@ -1635,6 +1719,7 @@ namespace iqrf {
           // Read MIDs of prebonded alive nodes
           MIDUnbondOnlyC = false;
           TRC_INFORMATION( NAME_PAR( Prebonded alive nodes, FrcSelect.size() ) );
+          sendWaveState( "Reading MIDs of prebonded alive nodes." );
           uint8_t offset = 0x00;
           do
           {
@@ -1645,7 +1730,6 @@ namespace iqrf {
             {
               // TPrebondedNode structure
               TPrebondedNode node;
-              node.addrBond = 0;
               node.authorize = false;
               node.authorizeErr = TAuthorizeErr::eNo;
               node.node = FrcSelect[( i / 4 ) + offset];
@@ -1659,7 +1743,7 @@ namespace iqrf {
                 // Yes, decrease MID
                 node.mid.value--;
                 // HWPID filtering active ?
-                if ( antwInputParams.hwpidFiltering.active == false )
+                if ( antwInputParams.hwpidFiltering.empty() == true )
                 {
                   // No, authorize control
                   if ( authorizeControl( node.mid.value, 0, node.addrBond, node.authorizeErr ) == true )
@@ -1691,6 +1775,7 @@ namespace iqrf {
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
           // Read HWPID of prebonded alive nodes
+          sendWaveState( "Reading HWPID of prebonded alive nodes." );
           offset = 0x00;
           uint8_t prebondedNodesCount = 0;
           do
@@ -1720,7 +1805,7 @@ namespace iqrf {
                   node.HWPID = HWPID_HWPVer & 0xffff;
                   node.HWPIDVer = HWPID_HWPVer > 16;
                   // Authorize control
-                  if ( ( antwInputParams.hwpidFiltering.active == true ) && ( authorizeControl( node.mid.value, node.HWPID, node.addrBond, node.authorizeErr ) == true ) )
+                  if ( ( antwInputParams.hwpidFiltering.empty() == false ) && ( authorizeControl( node.mid.value, node.HWPID, node.addrBond, node.authorizeErr ) == true ) )
                   {
                     node.authorize = true;
                     maxStep++;
@@ -1765,6 +1850,7 @@ namespace iqrf {
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
           // Read DPA version of prebonded alive nodes
+          sendWaveState( "Reading DPA version of prebonded alive nodes." );
           offset = 0x00;
           prebondedNodesCount = 0;
           do
@@ -1813,6 +1899,7 @@ namespace iqrf {
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
           // Read OS version of prebonded alive nodes
+          sendWaveState( "Reading OS version of prebonded alive nodes." );
           offset = 0x00;
           prebondedNodesCount = 0;
           do
@@ -1840,7 +1927,7 @@ namespace iqrf {
                   // Yes, decrease moduleInfo
                   moduleInfo--;
                   node.OSVersion = moduleInfo & 0xff;
-                  node.McuType = moduleInfo >> 8;
+                  node.McuType = (uint8_t)( moduleInfo >> 8 );
                   node.OSBuild = moduleInfo >> 16;
                 }
                 else
@@ -1864,7 +1951,7 @@ namespace iqrf {
 
           // Authorize prebonded alive nodes
           FrcSelect.clear();
-
+          sendWaveState( "Authorizing prebonded alive nodes." );
           for ( std::pair<uint8_t, TPrebondedNode> node : antwProcessParams.prebondedNodes )
           {
             if ( antwProcessParams.bondedNodesNr > MAX_ADDRESS )
@@ -1874,7 +1961,7 @@ namespace iqrf {
             }
 
             // Node passed the authorizeControl (is intended to authorize) ?
-            if ( node.second.authorize )
+            if ( node.second.authorize == true)
             {
               // Yes, authorize the node
               retryAction = antwInputParams.actionRetries + 1;
@@ -1928,9 +2015,8 @@ namespace iqrf {
               TRC_WARNING( "Clear Duplicit MID error: " << ex.what() );
             }
             antwProcessParams.countEmpty++;
-            // Send results
-            Document responseDoc = createResponse( msgType, autonetworkResult, comAutonetwork );
-            m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
+            // Send result
+            sendWaveResult( autonetworkResult );
             continue;
           }
           else
@@ -1942,6 +2028,7 @@ namespace iqrf {
           // Ping nodes
           // TestCase - v prubehu ping odpojit uspesne autorizovany [N], overit, ze se odbonduje
           // TestCase - behem jednotlivych cyklu ping [N] odpojovat/zapojovat, overit, jak probehne odbondovani
+          sendWaveState( "Pinging nodes." );
           FrcOnlineNodes.clear();
           retryAction = antwInputParams.actionRetries + 1;
           while ( ( FrcSelect.size() != 0 ) && ( retryAction-- != 0 ) )
@@ -2006,6 +2093,7 @@ namespace iqrf {
           retryAction = antwInputParams.actionRetries + 1;
           while ( ( FrcSelect.size() != 0 ) && ( retryAction-- != 0 ) )
           {
+            sendWaveState( "Removing not responded nodes." );
             // FRC_AcknowledgedBroadcastBits remove bond (for DPA < 0x0400 - send Batch command Remove bond + Restart)
             TPerFrcSend_Response response = removeNotRespondedNewNodes( autonetworkResult, FrcSelect );
             // Check the nodes contained in FrcSelect list acknowledged FRC_AcknowledgedBroadcastBits
@@ -2058,7 +2146,7 @@ namespace iqrf {
               }
 
               auto node = std::find( FrcSelect.begin(), FrcSelect.end(), address );
-              if ( ( node != FrcSelect.end() ) || ( MIDUnbondOnlyC && unbondPrebondedNode == true ) )
+              if ( ( node != FrcSelect.end() ) || ( MIDUnbondOnlyC == true && unbondPrebondedNode == true ) )
               {
                 if ( std::find( antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address ) != antwProcessParams.duplicitMID.end() )
                   antwProcessParams.duplicitMID.push_back( address );
@@ -2099,13 +2187,14 @@ namespace iqrf {
           // TODO SQLDB update discovered nodes in DB see in runDiscovery()
           if ( ( antwProcessParams.countWaveNewNodes != 0 ) || ( MIDUnbondOnlyC == true ) )
           {
+            sendWaveState( "Running discovery." );
             retryAction = antwInputParams.actionRetries + 1;
             do
             {
               try
               {
-                runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower );
-                if ( ( countDisNodes <= antwProcessParams.discoveredNodesNr ) || ( MIDUnbondOnlyC == true ) )
+                uint8_t disNodes = runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower );
+                if ( ( countDisNodes <= disNodes ) || ( MIDUnbondOnlyC == true ) )
                   break;
               }
               catch ( std::exception& ex )
@@ -2115,31 +2204,30 @@ namespace iqrf {
             } while ( --retryAction != 0 );
 
             updateNetworkInfo( autonetworkResult );
+            countDisNodes = antwProcessParams.discoveredNodesNr;
+          }
 
+          if ( antwProcessParams.countWaveNewNodes != 0 )
+          {
             for ( auto node : antwProcessParams.respondedNewNodes )
               autonetworkResult.putNewNode( node.address, node.MID );
 
-            // Send results
-            Document responseDoc = createResponse( msgType, autonetworkResult, comAutonetwork );
-            m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
+            // SQLDB add nodes
+            m_iIqrfInfo->insertNodes( m_insertNadrNodeMap, m_exclusiveAccess );
+
+            // Send result
+            sendWaveResult( autonetworkResult );
           }
         }
-
-        // SQLDB
-        // TODO do it here after every wave? Seems it is not the right place
-        m_iIqrfInfo->insertNodes(m_insertNadrNodeMap, m_exclusiveAccess);
-
       }
       catch ( std::exception& ex )
       {
+        // Set error
         TRC_WARNING( "Error during algorithm run: " << ex.what() );
         AutonetworkError error( AutonetworkError::Type::Internal, ex.what() );
         autonetworkResult.setError( error );
-        if ( autonetworkResult.getError().getType() == AutonetworkError::Type::NoError )
-        {
-          AutonetworkError error( AutonetworkError::Type::Internal, ex.what() );
-          autonetworkResult.setError( error );
-        }
+        // Send result
+        sendWaveResult( autonetworkResult );
       }
 
       // Unbond temporary address, set initial FRC param, DPA param and DPA Hops param
@@ -2153,251 +2241,24 @@ namespace iqrf {
         // Set initial DPA
         if ( antwProcessParams.DpaParam != 0 )
           antwProcessParams.DpaParam = setNoLedAndOptimalTimeslot( autonetworkResult, antwProcessParams.DpaParam );
-        // Set initil DPA Hops Param
+        // Set initial DPA Hops Param
         if ( ( antwProcessParams.RequestHops != 0xff ) || ( antwProcessParams.ResponseHops != 0xff ) )
           TPerCoordinatorSetHops_Request_Response response = setDpaHopsToTheNumberOfRouters( autonetworkResult, antwProcessParams.RequestHops, antwProcessParams.ResponseHops );
       }
       catch ( std::exception& ex )
       {
-        TRC_WARNING( "Error during algorithm run: " << ex.what() );
+        // Set error
+        TRC_WARNING( "Error during algorithm run: " << ex.what() );        
         AutonetworkError error( AutonetworkError::Type::Internal, ex.what() );
         autonetworkResult.setError( error );
-        if ( autonetworkResult.getError().getType() == AutonetworkError::Type::NoError )
-        {
-          AutonetworkError error( AutonetworkError::Type::Internal, ex.what() );
-          autonetworkResult.setError( error );
-        }
+        // Send result
+        sendWaveResult( autonetworkResult );
       }
 
-      // Send results
-      Document responseDoc = createResponse( msgType, autonetworkResult, comAutonetwork );
-      m_iMessagingSplitterService->sendMessage( messagingId, std::move( responseDoc ) );
       TRC_FUNCTION_LEAVE( "" );
     }
 
-    // sets response VERBOSE data
-    void setVerboseData( rapidjson::Document& response, AutonetworkResult& bondResult )
-    {
-      rapidjson::Value rawArray( kArrayType );
-      Document::AllocatorType& allocator = response.GetAllocator();
-
-      while ( bondResult.isNextTransactionResult() ) {
-        std::unique_ptr<IDpaTransactionResult2> transResult = bondResult.consumeNextTransactionResult();
-        rapidjson::Value rawObject( kObjectType );
-
-        rawObject.AddMember(
-          "request",
-          encodeBinary( transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength() ),
-          allocator
-        );
-
-        rawObject.AddMember(
-          "requestTs",
-          encodeTimestamp( transResult->getRequestTs() ),
-          allocator
-        );
-
-        rawObject.AddMember(
-          "confirmation",
-          encodeBinary( transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength() ),
-          allocator
-        );
-
-        rawObject.AddMember(
-          "confirmationTs",
-          encodeTimestamp( transResult->getConfirmationTs() ),
-          allocator
-        );
-
-        rawObject.AddMember(
-          "response",
-          encodeBinary( transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength() ),
-          allocator
-        );
-
-        rawObject.AddMember(
-          "responseTs",
-          encodeTimestamp( transResult->getResponseTs() ),
-          allocator
-        );
-
-        // add object into array
-        rawArray.PushBack( rawObject, allocator );
-      }
-
-      // add array into response document
-      Pointer( "/data/raw" ).Set( response, rawArray );
-    }
-
-    // Create response on the basis of bond result
-    Document createResponse( const IMessagingSplitterService::MsgType& msgType, AutonetworkResult& autonetworkResult, const ComAutonetwork& comAutonetwork )
-    {
-      Document response;
-
-      // Set common parameters
-      Pointer( "/mType" ).Set( response, msgType.m_type );
-      Pointer( "/data/msgId" ).Set( response, comAutonetwork.getMsgId() );
-
-      // Check error
-      AutonetworkError error = autonetworkResult.getError();
-
-      if ( error.getType() != AutonetworkError::Type::NoError )
-      {
-        int status = SERVICE_ERROR;
-
-        switch ( error.getType() ) {
-          case AutonetworkError::Type::Internal:
-            status = SERVICE_ERROR_INTERNAL;
-            break;
-
-          case AutonetworkError::Type::NoCoordOrCoordOs:
-            status = SERVICE_ERROR_NO_COORD_OR_COORD_OS;
-            break;
-
-          case AutonetworkError::Type::GetAddressingInfo:
-            status = SERVICE_ERROR_GET_ADDRESSING_INFO;
-            break;
-
-          case AutonetworkError::Type::GetBondedNodes:
-            status = SERVICE_ERROR_GET_BONDED_NODES;
-            break;
-
-          case AutonetworkError::Type::GetDiscoveredNodes:
-            status = SERVICE_ERROR_GET_DISCOVERED_NODES;
-            break;
-
-          case AutonetworkError::Type::UnbondedNodes:
-            status = SERVICE_ERROR_UNBONDED_NODES;
-            break;
-
-          case AutonetworkError::Type::SetHops:
-            status = SERVICE_ERROR_SET_HOPS;
-            break;
-
-          case AutonetworkError::Type::SetDpaParams:
-            status = SERVICE_ERROR_SET_DPA_PARAMS;
-            break;
-
-          case AutonetworkError::Type::Prebond:
-            status = SERVICE_ERROR_PREBOND;
-            break;
-
-          case AutonetworkError::Type::PrebondedAlive:
-            status = SERVICE_ERROR_PREBONDED_ALIVE;
-            break;
-
-          case AutonetworkError::Type::PrebondedMemoryRead:
-            status = SERVICE_ERROR_PREBONDED_MEMORY_READ;
-            break;
-
-          case AutonetworkError::Type::AuthorizeBond:
-            status = SERVICE_ERROR_AUTHORIZE_BOND;
-            break;
-
-          case AutonetworkError::Type::RemoveBond:
-            status = SERVICE_ERROR_REMOVE_BOND;
-            break;
-
-          case AutonetworkError::Type::RemoveBondAndRestart:
-            status = SERVICE_ERROR_REMOVE_BOND_AND_RESTART;
-            break;
-
-          case AutonetworkError::Type::CheckNewNodes:
-            status = SERVICE_ERROR_CHECK_NEW_NODES;
-            break;
-
-          case AutonetworkError::Type::RemoveBondAtCoordinator:
-            status = SERVICE_ERROR_REMOVE_BOND_AT_COORDINATOR;
-            break;
-
-          case AutonetworkError::Type::RunDiscovery:
-            status = SERVICE_ERROR_RUN_DISCOVERY;
-            break;
-
-          case AutonetworkError::Type::ValidateBonds:
-            status = SERVICE_ERROR_VALIDATE_BONDS;
-            break;
-
-          case AutonetworkError::Type::EmptyWaves:
-            status = SERVICE_ERROR_EMPTY_WAWES;
-            rapidjson::Pointer( "/data/rsp/wave" ).Set( response, antwProcessParams.countWaves );
-            rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( response, antwProcessParams.bondedNodesNr );
-            rapidjson::Pointer( "/data/rsp/newNodesNr" ).Set( response, antwProcessParams.countWaveNewNodes );
-            rapidjson::Pointer( "/data/rsp/lastWave" ).Set( response, true );
-            break;
-
-          case AutonetworkError::Type::AllAddressAllocated:
-            status = SERVICE_ERROR_ALL_ADDRESS_ALLOCATED;
-            break;
-
-          default:
-            status = SERVICE_ERROR;
-            break;
-        }
-
-        // Add newly added nodes - even in the error response
-        if ( ( antwProcessParams.respondedNewNodes.empty() != false) && ( status != SERVICE_ERROR_EMPTY_WAWES ) )
-        {
-          // Rsp object
-          rapidjson::Pointer( "/data/rsp/wave" ).Set( response, antwProcessParams.countWaves );
-          rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( response, antwProcessParams.bondedNodesNr );
-          rapidjson::Pointer( "/data/rsp/newNodesNr" ).Set( response, antwProcessParams.countWaveNewNodes );
-
-          rapidjson::Value newNodesJsonArray( kArrayType );
-          Document::AllocatorType& allocator = response.GetAllocator();
-          for ( AutonetworkResult::NewNode newNode : antwProcessParams.respondedNewNodes ) {
-            rapidjson::Value newNodeObject( kObjectType );
-
-            std::stringstream stream;
-            stream << std::hex << newNode.MID;
-
-            newNodeObject.AddMember( "mid", stream.str(), allocator );
-            newNodeObject.AddMember( "address", newNode.address, allocator );
-            newNodesJsonArray.PushBack( newNodeObject, allocator );
-          }
-          Pointer( "/data/rsp/newNodes" ).Set( response, newNodesJsonArray );
-        }
-
-        // Set raw fields, if verbose mode is active
-        if ( comAutonetwork.getVerbose() )
-          setVerboseData( response, autonetworkResult );     
-        // Set staus
-        Pointer( "/data/status" ).Set( response, status );
-        Pointer( "/data/statusStr" ).Set( response, error.getMessage() );
-
-        return response;
-      }
-
-      // No error
-      rapidjson::Pointer( "/data/rsp/wave" ).Set( response, antwProcessParams.countWaves );
-      rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( response, antwProcessParams.bondedNodesNr );
-      rapidjson::Pointer( "/data/rsp/newNodesNr" ).Set( response, antwProcessParams.countWaveNewNodes );
-
-      rapidjson::Value newNodesJsonArray( kArrayType );
-      Document::AllocatorType& allocator = response.GetAllocator();
-      for ( AutonetworkResult::NewNode newNode : autonetworkResult.getNewNodes() ) {
-        rapidjson::Value newNodeObject( kObjectType );
-
-        std::stringstream stream;
-        stream << std::hex << newNode.MID;
-
-        newNodeObject.AddMember( "mid", stream.str(), allocator );
-        newNodeObject.AddMember( "address", newNode.address, allocator );
-        newNodesJsonArray.PushBack( newNodeObject, allocator );
-      }
-      Pointer( "/data/rsp/newNodes" ).Set( response, newNodesJsonArray );
-      rapidjson::Pointer( "/data/rsp/lastWave" ).Set( response, false );
-
-      // Set raw fields, if verbose mode is active
-      if ( comAutonetwork.getVerbose() )
-        setVerboseData( response, autonetworkResult );
-      // Status
-      Pointer( "/data/status" ).Set( response, 0 );
-      Pointer( "/data/statusStr" ).Set( response, "ok" );
-
-      return response;
-    }
-
+    // Process request
     void handleMsg( const std::string& messagingId, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc )
     {
       TRC_FUNCTION_ENTER( PAR( messagingId ) << NAME_PAR( mType, msgType.m_type ) << NAME_PAR( major, msgType.m_major ) << NAME_PAR( minor, msgType.m_minor ) << NAME_PAR( micro, msgType.m_micro ) );
@@ -2406,15 +2267,13 @@ namespace iqrf {
       if ( msgType.m_type != m_mTypeName_Autonetwork )
         THROW_EXC( std::logic_error, "Unsupported message type: " << PAR( msgType.m_type ) );
 
-      // Creating representation object
+      // Create representation object
       ComAutonetwork comAutonetwork( doc );
-
-      bool returnVerbose = false;
 
       // Parsing and checking service parameters
       try
       {
-        antwInputParams = comAutonetwork.getAnutonetworkParams();
+        antwInputParams = comAutonetwork.getAutonetworkParams();
       }
       catch ( std::exception& e )
       {
@@ -2454,9 +2313,12 @@ namespace iqrf {
         TRC_FUNCTION_LEAVE( "" );
         return;
       }
-
-      // Run the Autonetwork process
-      runAutonetwork( comAutonetwork, msgType, messagingId );
+       
+      // Run autonetwork
+      m_msgType = &msgType;
+      m_messagingId = &messagingId;
+      m_comAutonetwork = &comAutonetwork;
+      runAutonetwork();
 
       // Release exclusive access
       m_exclusiveAccess.reset();
@@ -2538,18 +2400,6 @@ namespace iqrf {
 
     }
 
-    //void attachInterface( IJsCacheService* iface )
-    //{
-    //  m_iJsCacheService = iface;
-    //}
-
-    //void detachInterface( IJsCacheService* iface )
-    //{
-    //  if ( m_iJsCacheService == iface ) {
-    //    m_iJsCacheService = nullptr;
-    //  }
-    //}
-
     void attachInterface( IMessagingSplitterService* iface )
     {
       m_iMessagingSplitterService = iface;
@@ -2592,16 +2442,6 @@ namespace iqrf {
   {
     m_imp->detachInterface( iface );
   }
-
-  //void AutonetworkService::attachInterface( IJsCacheService* iface )
-  //{
-  //  m_imp->attachInterface( iface );
-  //}
-
-  //void AutonetworkService::detachInterface( IJsCacheService* iface )
-  //{
-  //  m_imp->detachInterface( iface );
-  //}
 
   void AutonetworkService::attachInterface( IMessagingSplitterService* iface )
   {

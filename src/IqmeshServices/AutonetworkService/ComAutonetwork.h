@@ -15,11 +15,7 @@ namespace iqrf {
       uint8_t networks;
       uint8_t network;
     }overlappingNetworks;
-    struct
-    {
-      bool active;
-      uint16_t hwpid[256];
-    }hwpidFiltering;
+    std::vector<uint16_t> hwpidFiltering;
     struct 
     {
       uint8_t waves;
@@ -41,7 +37,7 @@ namespace iqrf {
     {
     }
 
-    const TAutonetworkInputParams getAnutonetworkParams() const
+    const TAutonetworkInputParams getAutonetworkParams() const
     {
       return m_autonetworkParams;
     }
@@ -67,7 +63,7 @@ namespace iqrf {
         uint32_t txPower = jsonValue->GetInt();
         if ( txPower > 7 )
           txPower = 7;
-        m_autonetworkParams.discoveryTxPower = txPower;
+        m_autonetworkParams.discoveryTxPower = (uint8_t)txPower;
       }
 
       // discoveryBeforeStart
@@ -78,46 +74,49 @@ namespace iqrf {
 
       // actionRetries
       if ( jsonValue = rapidjson::Pointer( "/data/req/actionRetries" ).Get( doc ) )
-        m_autonetworkParams.actionRetries = jsonValue->GetInt();
+        m_autonetworkParams.actionRetries = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.actionRetries = 1;
 
       // overlappingNetworks/networks
       if ( jsonValue = rapidjson::Pointer( "/data/req/overlappingNetworks/networks" ).Get( doc ) )
-        m_autonetworkParams.overlappingNetworks.networks = jsonValue->GetInt();
+        m_autonetworkParams.overlappingNetworks.networks = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.overlappingNetworks.networks = 0;
 
       // overlappingNetworks/network
       if ( jsonValue = rapidjson::Pointer( "/data/req/overlappingNetworks/network" ).Get( doc ) )
-        m_autonetworkParams.overlappingNetworks.network = jsonValue->GetInt();
+        m_autonetworkParams.overlappingNetworks.network = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.overlappingNetworks.network = 0;
 
       // hwpidFiltering
+      m_autonetworkParams.hwpidFiltering.clear();
       if ( jsonValue = rapidjson::Pointer( "/data/req/hwpidFiltering" ).Get( doc ) )
       {
-        //m_autonetworkParams.hwpidFiltering.hwpid = jsonValue->GetArray();
-        m_autonetworkParams.hwpidFiltering.active = true;
+        const auto val = jsonValue->GetArray();
+        for ( auto itr = val.Begin(); itr != val.End(); ++itr )
+        {
+          if ( itr->IsNull() == false )
+            m_autonetworkParams.hwpidFiltering.push_back((uint16_t)itr->GetUint());
+        }
       }
-      else
-        m_autonetworkParams.hwpidFiltering.active = false;
 
       // stopConditions/waves
       if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/waves" ).Get( doc ) )
-        m_autonetworkParams.stopConditions.waves = jsonValue->GetInt();
+        m_autonetworkParams.stopConditions.waves = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.stopConditions.waves = 0;
 
       // stopConditions/emptyWaves
       if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/emptyWaves" ).Get( doc ) )
-        m_autonetworkParams.stopConditions.emptyWaves = jsonValue->GetInt();
+        m_autonetworkParams.stopConditions.emptyWaves = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.stopConditions.emptyWaves = 1;
 
       // stopConditions/networkSize
       if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/networkSize" ).Get( doc ) )
-        m_autonetworkParams.stopConditions.networkSize = jsonValue->GetInt();
+        m_autonetworkParams.stopConditions.networkSize = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.stopConditions.networkSize = 0;
     }
