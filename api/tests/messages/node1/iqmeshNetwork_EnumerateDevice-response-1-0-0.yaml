@@ -23,7 +23,7 @@ data:
     - 'Embed: FRC'
     - 'Embed: DPA Exploration'
     discovery:
-      discovered: true
+      discovered: !anybool
       vrn: !anyint
       zone: !anyint
       parent: !anyint

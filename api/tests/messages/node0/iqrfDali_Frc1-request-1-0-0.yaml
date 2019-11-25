@@ -1,0 +1,9 @@
+mType: iqrfDali_Frc
+data:
+  msgId: testDali
+  req:
+    nAdr: 0
+    param:
+      command: 65433
+      extFormat: true
+  returnVerbose: true

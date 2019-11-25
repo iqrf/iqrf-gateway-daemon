@@ -1,0 +1,15 @@
+mType: iqrfSensor_Frc
+data:
+  msgId: testEmbedSensor
+  req:
+    nAdr: 0
+    param:
+      sensorType: 1
+      sensorIndex: 0
+      frcCommand: 144
+      selectedNodes:
+      - 1
+      - 2
+      getExtraResult: true
+      extFormat: true
+  returnVerbose: true

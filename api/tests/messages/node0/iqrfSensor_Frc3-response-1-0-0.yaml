@@ -1,0 +1,168 @@
+mType: iqrfSensor_Frc
+data:
+  msgId: testEmbedSensor
+  rsp:
+    nAdr: 0
+    hwpId: 0
+    rCode: 0
+    dpaVal: !anyint
+    result:
+      sensors:
+      - nAdr: 0
+        sensor: null
+      - nAdr: 1
+        sensor:
+          id: TEMPERATURE
+          type: 1
+          name: Temperature
+          shortName: T
+          value: !anything
+          unit: !anystr
+          decimalPlaces: 4
+      - nAdr: 2
+        sensor:
+          id: TEMPERATURE
+          type: 1
+          name: Temperature
+          shortName: T
+          value: !anything
+          unit: !anystr
+          decimalPlaces: 4
+      - nAdr: 3
+        sensor: null
+      - nAdr: 4
+        sensor: null
+      - nAdr: 5
+        sensor: null
+      - nAdr: 6
+        sensor: null
+      - nAdr: 7
+        sensor: null
+      - nAdr: 8
+        sensor: null
+      - nAdr: 9
+        sensor: null
+      - nAdr: 10
+        sensor: null
+      - nAdr: 11
+        sensor: null
+      - nAdr: 12
+        sensor: null
+      - nAdr: 13
+        sensor: null
+      - nAdr: 14
+        sensor: null
+      - nAdr: 15
+        sensor: null
+      - nAdr: 16
+        sensor: null
+      - nAdr: 17
+        sensor: null
+      - nAdr: 18
+        sensor: null
+      - nAdr: 19
+        sensor: null
+      - nAdr: 20
+        sensor: null
+      - nAdr: 21
+        sensor: null
+      - nAdr: 22
+        sensor: null
+      - nAdr: 23
+        sensor: null
+      - nAdr: 24
+        sensor: null
+      - nAdr: 25
+        sensor: null
+      - nAdr: 26
+        sensor: null
+      - nAdr: 27
+        sensor: null
+      - nAdr: 28
+        sensor: null
+      - nAdr: 29
+        sensor: null
+      - nAdr: 30
+        sensor: null
+      - nAdr: 31
+        sensor: null
+      - nAdr: 32
+        sensor: null
+      - nAdr: 33
+        sensor: null
+      - nAdr: 34
+        sensor: null
+      - nAdr: 35
+        sensor: null
+      - nAdr: 36
+        sensor: null
+      - nAdr: 37
+        sensor: null
+      - nAdr: 38
+        sensor: null
+      - nAdr: 39
+        sensor: null
+      - nAdr: 40
+        sensor: null
+      - nAdr: 41
+        sensor: null
+      - nAdr: 42
+        sensor: null
+      - nAdr: 43
+        sensor: null
+      - nAdr: 44
+        sensor: null
+      - nAdr: 45
+        sensor: null
+      - nAdr: 46
+        sensor: null
+      - nAdr: 47
+        sensor: null
+      - nAdr: 48
+        sensor: null
+      - nAdr: 49
+        sensor: null
+      - nAdr: 50
+        sensor: null
+      - nAdr: 51
+        sensor: null
+      - nAdr: 52
+        sensor: null
+      - nAdr: 53
+        sensor: null
+      - nAdr: 54
+        sensor: null
+      - nAdr: 55
+        sensor: null
+      - nAdr: 56
+        sensor: null
+      - nAdr: 57
+        sensor: null
+      - nAdr: 58
+        sensor: null
+      - nAdr: 59
+        sensor: null
+      - nAdr: 60
+        sensor: null
+      - nAdr: 61
+        sensor: null
+      - nAdr: 62
+        sensor: null
+      - nAdr: 63
+        sensor: null
+  raw:
+  - request: 00.00.0d.00.ff.ff.90.5e.01.00.00
+    requestTs: !anystr
+    confirmation: ''
+    confirmationTs: ''
+    response: !anystr
+    responseTs: !anystr
+  - request: 00.00.0d.01.ff.ff
+    requestTs: !anystr
+    confirmation: ''
+    confirmationTs: ''
+    response: !anystr
+    responseTs: !anystr
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0

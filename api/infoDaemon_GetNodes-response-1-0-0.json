@@ -24,12 +24,12 @@
                 },
                 "rsp": {
                     "type": "object",
-                    "description": "TODO parameters to select sensor types."
+                    "description": "Response object."
                 },
                 "insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
-				},
+		    "type": "string",
+		    "description": "IQRF GW daemon instance identification."
+		},
                 "status": {
                     "type": "integer",
                     "description": "Status of operation."
