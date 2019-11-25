@@ -176,6 +176,13 @@
       "startlevel": 2
     },
     {
+      "name": "iqrf::JsonIqrfInfoApi",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonIqrfInfoApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
       "name": "iqrf::JsCache",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsCache",
