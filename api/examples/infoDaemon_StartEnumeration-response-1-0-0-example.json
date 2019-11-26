@@ -1,0 +1,9 @@
+{
+    "mType": "infoDaemon_StartEnumeration",
+    "data": {
+        "msgId": "testStartEnum",
+        "rsp": {},
+        "status": 0,
+        "insId": "iqrfgd2-default"
+    }
+}
