@@ -592,6 +592,9 @@ namespace iqrf {
                 if (drv->getId() == -1) {
                   perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
                 }
+                if (drv->getId() == 255) {
+                  perVerMap.insert(std::make_pair(255, drv->getVersion())); // embedExplore library
+                }
                 if (drv->getId() == per) {
                   perVerMap.insert(std::make_pair(per, drv->getVersion()));
                 }
