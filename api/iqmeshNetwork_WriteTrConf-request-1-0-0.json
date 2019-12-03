@@ -209,9 +209,9 @@
 							"type": "boolean",
 							"description": "If the bit is set, then the [C] controls the STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00"
 						},
-						"securityPassword": {
+						"accessPassword": {
 							"type": "string",
-							"description": "It sets security password. If the field is left completely empty (no characters filled), the default password (16x number 0x00) is used (the same as the default set from the factory."
+							"description": "It sets access password. If the field is left completely empty (no characters filled), the default password (16x number 0x00) is used (the same as the default set from the factory."
 						},
 						"securityUserKey": {
 							"type": "string",
