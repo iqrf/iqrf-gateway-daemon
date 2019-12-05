@@ -3248,7 +3248,8 @@ private:
     for (HWP_ConfigByte configByte : configBytes)
     {
       if (
-          configByte.address == 0x05 || configByte.address == 0x09 || configByte.address == 0x0A || configByte.address == 0x0B)
+          configByte.address == 0x05 || configByte.address == 0x09 || configByte.address == 0x0A || configByte.address == 0x0B
+          || configByte.address == 0x11 || configByte.address == 0x12)
       {
         return true;
       }
