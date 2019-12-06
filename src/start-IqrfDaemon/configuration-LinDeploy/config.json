@@ -272,13 +272,6 @@
       "libraryName": "AutonetworkService",
       "enabled": true,
       "startlevel": 3
-    },
-    {
-      "name": "iqrf::OtaUploadService",
-      "libraryPath": "",
-      "libraryName": "OtaUploadService",
-      "enabled": true,
-      "startlevel": 3
     }
   ]
 }

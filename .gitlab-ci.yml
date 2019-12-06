@@ -196,6 +196,7 @@ stages:
     - tags
   extends: .package-template
   before_script:
+    - export DAEMON_VERSION="$CI_COMMIT_TAG"
     - export STABILITY=stable
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
