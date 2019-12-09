@@ -46,3 +46,22 @@ stages:
       topic: Iqrf/DpaResponse
       json: !include messages/node0/iqrfEmbedCoordinator_DiscoveredDevices-response-1-0-0.yaml
       timeout: 1
+
+---
+
+test_name: Test mqtt message - embed coordinator discovery
+paho-mqtt: *mqtt_spec
+
+#node0 - dpa coordinator
+stages:
+
+  - name: discovered devices
+    max_retries: 1
+    mqtt_publish:
+      topic: Iqrf/DpaRequest
+      json: !include messages/node0/iqrfEmbedCoordinator_Discovery-request-1-0-0.yaml
+
+    mqtt_response:
+      topic: Iqrf/DpaResponse
+      json: !include messages/node0/iqrfEmbedCoordinator_Discovery-response-1-0-0.yaml
+      timeout: 30

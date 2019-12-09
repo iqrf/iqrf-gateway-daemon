@@ -5,7 +5,7 @@
   "path": "/var/log/iqrf-gateway-daemon",
   "filename": "iqrf-gateway-daemon.log",
   "maxSizeMB": 1048576,
-  "timestampFiles": true,
+  "timestampFiles": false,
 
   "VerbosityLevels": [
     {

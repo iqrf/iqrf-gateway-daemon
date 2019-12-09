@@ -24,7 +24,7 @@
                 },
                 "req": {
                     "type": "object",
-                    "description": "TODO parameters to select ..."
+                    "description": "Parameters to select ..."
                 },
                 "returnVerbose": {
                     "type": "boolean",

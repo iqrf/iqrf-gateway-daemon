@@ -708,7 +708,7 @@ namespace iqrf {
     }
 
     void parseSecuritySettings(rapidjson::Document& doc) {
-      if (rapidjson::Value* securityPasswordJsonVal = rapidjson::Pointer("/data/req/securityPassword").Get(doc)) {
+      if (rapidjson::Value* securityPasswordJsonVal = rapidjson::Pointer("/data/req/accessPassword").Get(doc)) {
         m_securityPassword = securityPasswordJsonVal->GetString();
         m_isSetSecurityPassword = true;
       }

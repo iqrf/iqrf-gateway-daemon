@@ -280,17 +280,18 @@ namespace iqrf {
         NAME_PAR(lpModeRunningFlag, m_cPar.lpModeRunningFlag) <<
         std::endl
       );
-      if (m_cPar.stdModeSupportFlag && m_cPar.lpModeSupportFlag) { //dual support of DPA 4.00
+
+      if (m_cPar.stdModeSupportFlag)
+      {
+        //dual support from DPA 4.00
         m_rfMode = m_cPar.lpModeRunningFlag ? IDpaTransaction2::kLp : IDpaTransaction2::kStd;
       }
-      else {
-        if (m_cPar.stdModeSupportFlag) {
-          m_rfMode = IDpaTransaction2::kStd;
-        }
-        if (m_cPar.lpModeSupportFlag) {
-          m_rfMode = IDpaTransaction2::kLp;
-        }
+
+      if (m_cPar.lpModeSupportFlag)
+      {
+        m_rfMode = IDpaTransaction2::kLp;
       }
+
       m_dpaHandler->setRfCommunicationMode(m_rfMode);
     }
     catch (std::exception & e) {

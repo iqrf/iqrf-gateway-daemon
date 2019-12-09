@@ -1,0 +1,15 @@
+mType: iqrfRaw
+data:
+  msgId: testRaw
+  rsp:
+    rData: ''
+  raw:
+  - request: ff.00.06.03.ff.ff
+    requestTs: !anystr
+    confirmation: !anystr
+    confirmationTs: !anystr
+    response: ''
+    responseTs: ''
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0

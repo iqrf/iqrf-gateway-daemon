@@ -1,0 +1,154 @@
+mType: iqrfDali_Frc
+data:
+  msgId: testDali
+  rsp:
+    nAdr: 0
+    hwpId: 0
+    rCode: 0
+    dpaVal: !anyint
+    result:
+      answers:
+      - nAdr: 0
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 1
+        answer:
+          status: 0
+          value: 1
+      - nAdr: 2
+        answer:
+          status: 0
+          value: 1
+      - nAdr: 3
+        answer:
+          status: 0
+          value: 1
+      - nAdr: 4
+        answer:
+          status: 128
+          value: 0
+      - nAdr: 5
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 6
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 7
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 8
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 9
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 10
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 11
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 12
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 13
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 14
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 15
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 16
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 17
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 18
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 19
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 20
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 21
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 22
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 23
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 24
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 25
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 26
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 27
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 28
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 29
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 30
+        answer:
+          status: 0
+          value: 0
+      - nAdr: 31
+        answer:
+          status: 0
+          value: 0
+  raw:
+  - request: 00.00.0d.00.ff.ff.e0.4a.ff.99.00
+    requestTs: !anystr
+    confirmation: ''
+    confirmationTs: ''
+    response: !anystr
+    responseTs: !anystr
+  - request: 00.00.0d.01.ff.ff
+    requestTs: !anystr
+    confirmation: ''
+    confirmationTs: ''
+    response: !anystr
+    responseTs: !anystr
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0

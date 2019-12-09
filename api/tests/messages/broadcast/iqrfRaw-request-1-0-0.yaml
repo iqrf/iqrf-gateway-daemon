@@ -1,0 +1,6 @@
+mType: iqrfRaw
+data:
+  msgId: testRaw
+  req:
+    rData: FF.00.06.03.FF.FF
+  returnVerbose: true

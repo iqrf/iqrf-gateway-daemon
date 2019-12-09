@@ -1,0 +1,7 @@
+mType: iqmeshNetwork_ReadTrConf
+data:
+  msgId: testReadTrConf
+  repeat: 1
+  req:
+    deviceAddr: 2
+  returnVerbose: true

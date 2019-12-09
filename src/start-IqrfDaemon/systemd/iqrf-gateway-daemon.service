@@ -1,5 +1,6 @@
 [Unit]
 Description=IQRF Gateway Daemon
+Documentation=man:iqrfgd2(1) https://docs.iqrf.org/iqrf-gateway/
 After=network.target
 
 [Service]

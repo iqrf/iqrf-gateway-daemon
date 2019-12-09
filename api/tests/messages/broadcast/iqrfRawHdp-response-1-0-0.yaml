@@ -1,0 +1,21 @@
+mType: iqrfRawHdp
+data:
+  msgId: testRawHdp
+  rsp:
+    nAdr: 0
+    pNum: 0
+    pCmd: 0
+    hwpId: !anyint
+    rCode: 0
+    dpaVal: !anyint
+    pData: []
+  raw:
+  - request: ff.00.06.03.ff.ff
+    requestTs: !anystr
+    confirmation: !anystr
+    confirmationTs: !anystr
+    response: ''
+    responseTs: ''
+  insId: iqrfgd2-default
+  statusStr: ok
+  status: 0

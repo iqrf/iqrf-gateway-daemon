@@ -14,8 +14,7 @@
 
 FROM iqrftech/package-builders:ubuntu-bionic-amd64
 
-MAINTAINER Roman Ondráček <roman.ondracek@iqrf.com>
-LABEL maintainer="roman.ondracek@iqrf.com"
+LABEL maintainer="Roman Ondráček <roman.ondracek@iqrf.com>"
 
 ENV DEBIAN_FRONTEND noninteractive
 

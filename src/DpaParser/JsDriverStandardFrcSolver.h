@@ -79,19 +79,19 @@ namespace iqrf
     const rapidjson::Document & getResponseResultDoc() { return m_responseResultDoc; }
     
     // partial JSON parse to get nadrs of returned results
-    rapidjson::Document getResponseResultWithNadr(const std::string & resultArrayKey, const std::string & resultItemKey)
+    rapidjson::Document getExtFormat(const std::string & resultArrayKey, const std::string & resultItemKey)
     {
       using namespace rapidjson;
       Document doc;
       doc.SetArray();
       
       // get nadrs from selectedNodes if applied
-      std::vector<int> nadrVect;
+      std::set<int> selectedNodesSet;
       const Value *selectedNodesVal = Pointer("/selectedNodes").Get(getRequestParamDoc());
       if (selectedNodesVal && selectedNodesVal->IsArray()) {
         for (const Value *nadrVal = selectedNodesVal->Begin(); nadrVal != selectedNodesVal->End(); nadrVal++) {
           if (nadrVal->IsInt()) {
-            nadrVect.push_back(nadrVal->GetInt());
+            selectedNodesSet.insert(nadrVal->GetInt());
           }
           else {
             THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array of Int .../selectedNodes[]");
@@ -103,25 +103,34 @@ namespace iqrf
       if (!(arrayVal && arrayVal->IsArray())) {
         THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array ..." << resultArrayKey << "[]");
       }
-      int nadr = 0;
-      int idx = 0;
-      if (arrayVal->Size() > 0) { // is there something it the array?
-        for (Value *itemVal = arrayVal->Begin(); //skip index 0 as driver returns from index 1
-          itemVal != arrayVal->End(); itemVal++) {
-          //if (nadrVect.size() > 0) {
-          //  // optional selectedNodes
-          //  if (idx >= nadrVect.size()) {
-          //    THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent .../selectedNodes[] and ..." << resultArrayKey << "[]");
-          //  }
-          //  nadr = nadrVect[idx++];
-          //}
-          //else {
-            nadr = idx++;
-          //}
-          Value sensorWithNadr;
-          Pointer("/nAdr").Set(sensorWithNadr, nadr, doc.GetAllocator());
-          Pointer(resultItemKey).Set(sensorWithNadr, *itemVal, doc.GetAllocator());
-          doc.PushBack(sensorWithNadr, doc.GetAllocator());
+
+      if (arrayVal->Size() > 0) { // is there something in the array?
+        if (selectedNodesSet.size() > 0) {
+          // selective FRC
+          
+          // check size
+          if ((selectedNodesSet.size() + 1)  > arrayVal->Size()) {
+            THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent .../selectedNodes[] and ..." << resultArrayKey << "[]");
+          }
+
+          // iterate via selected nodes
+          const Value *itemVal = arrayVal->Begin() + 1; //skip index 0 as driver returns first null as a result of general FRC
+          for (auto nadr : selectedNodesSet) {
+            Value sensorVal;
+            Pointer("/nAdr").Set(sensorVal, nadr, doc.GetAllocator());
+            Pointer(resultItemKey).Set(sensorVal, *itemVal++, doc.GetAllocator());
+            doc.PushBack(sensorVal, doc.GetAllocator());
+          }
+        }
+        else {
+          // non-selective FRC //TODO does FRC always starts from nadr=0?
+          int nadr = 0;
+          for (Value *itemVal = arrayVal->Begin(); itemVal != arrayVal->End(); itemVal++) {
+            Value sensorVal;
+            Pointer("/nAdr").Set(sensorVal, nadr++, doc.GetAllocator());
+            Pointer(resultItemKey).Set(sensorVal, *itemVal, doc.GetAllocator());
+            doc.PushBack(sensorVal, doc.GetAllocator());
+          }
         }
       }
 
