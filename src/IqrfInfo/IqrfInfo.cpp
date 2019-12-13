@@ -665,7 +665,6 @@ namespace iqrf {
             pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, (uint16_t)osBuild, (uint16_t)dpaVer);
           }
 
-<<<<<<< HEAD
           if (pckg) {
             deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
           }
@@ -673,62 +672,6 @@ namespace iqrf {
             deviceIdPtr = enumerateDeviceOutsideRepo(nadr, device, nd->getEmbedExploreEnumerate()->getEmbedPer(), nd->getEmbedExploreEnumerate()->getUserPer()
               , exclusiveAccess);
           }
-=======
-          // find if such a device already stored in DB
-          std::unique_ptr<int> deviceIdPtr = selectDevice(device);
-          int deviceId = -1;
-
-          if (!deviceIdPtr && !device.m_inRepo) {
-            // no device in DB and no package in IqrfRepo => get drivers by enumeration at first
-
-            std::map<int, int> perVerMap;
-            const std::set<int> & embedPer = nd->getEmbedExploreEnumerate()->getEmbedPer();
-            const std::set<int> & userPer = nd->getEmbedExploreEnumerate()->getUserPer();
-
-            // Get for hwpid 0 plain DPA plugin
-            const iqrf::IJsCacheService::Package *pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)osBuild, (uint16_t)dpaVer);
-
-            for (auto per : embedPer) {
-              for (auto drv : pckg0->m_stdDriverVect) {
-                if (drv->getId() == -1) {
-                  perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
-                }
-                if (drv->getId() == 255) {
-                  perVerMap.insert(std::make_pair(255, drv->getVersion())); // embedExplore library
-                }
-                if (drv->getId() == per) {
-                  perVerMap.insert(std::make_pair(per, drv->getVersion()));
-                }
-              }
-            }
-            for (auto per : userPer) {
-              // enum thread stopped
-              if (!m_enumThreadRun) break;
-
-              //Get peripheral information for sensor, binout and TODO other std if presented
-              if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per || PERIF_STANDARD_DALI == per || PERIF_STANDARD_LIGHT == per) {
-                
-                embed::explore::RawDpaPeripheralInformation perInfo(nadr, per);
-                perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.getRequest())->get());
-                
-                int version = perInfo.getPar1();
-                //TODO temp workaround
-                if (PERIF_STANDARD_SENSOR == per) version = 15;
-                perVerMap.insert(std::make_pair(per, version));
-              }
-              else {
-                perVerMap.insert(std::make_pair(per, -1));
-              }
-            }
-
-            for (auto pv : perVerMap) {
-              const IJsCacheService::StdDriver *sd = m_iJsCacheService->getDriver(pv.first, pv.second);
-              if (sd) {
-                device.m_drivers.push_back(sd);
-              }
-            }
-          } // if (!deviceIdPtr && !device.m_inRepo)
->>>>>>> master
 
           db << "begin transaction;";
 
@@ -751,6 +694,9 @@ namespace iqrf {
         catch (sqlite_exception &e)
         {
           CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+//                if (drv->getId() == 255) {
+//                  perVerMap.insert(std::make_pair(255, drv->getVersion())); // embedExplore library
+//                }
           db << "rollback;";
         }
         catch (std::exception &e)
