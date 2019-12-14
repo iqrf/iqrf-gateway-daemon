@@ -10,7 +10,7 @@
     "properties": {
         "component": {
             "type": "string",
-            "description": "Name of component.",
+            "description": "Name of the component.",
             "enum": [
                 "shape::TraceFileService"
             ]
@@ -22,39 +22,55 @@
         },
         "path": {
             "type": "string",
-            "description": "...",
+            "description": "Path to the trace files",
             "default": ""
         },
         "filename": {
             "type": "string",
-            "description": "...",
+            "description": "Name of the trace file",
             "default": "IqrfDaemon.txt"
         },
-        "maxSizeMB": {
+        "maxSize": {
             "type": "integer",
-            "description": "...",
+            "description": "Maximum size of the file",
             "default": 1048576
         },
         "timestampFiles": {
             "type": "boolean",
-            "description": "...",
+            "description": "The file is timestamped in format YYY-MM-DD-hh-mm-ss-mss-<filename> to avoid overwrite",
             "default": false
+        },
+        "maxAgeMinutes": {
+            "type": "integer",
+            "description": "Maximum age of the timestamped files in minutes. If set to zero or not present it is not applied",
+            "default": 0
+        },
+        "maxNumber": {
+            "type": "integer",
+            "description": "Maximum number of the timestamped files. If set to zero or not present it is not applied",
+            "default": 0
         },
         "VerbosityLevels": {
             "type": "array",
-            "description": "Array of verbosity levels.",
+            "description": "Array of pairs channel and verbosity level",
             "items": {
                 "type": "object",
                 "properties": {
                     "channel": {
                         "type": "integer",
                         "default": 0,
-                        "description": "..."
+                        "description": "The channel to be routed to the file"
                     },
                     "level": {
                         "type": "string",
                         "default": "DBG",
-                        "description": "Masks pins of the port."
+                        "description": "Set level of trace"
+                        "enum": [
+                            "DBG",
+                            "INF",
+                            "WAR",
+                            "ERR"
+                        ]
                     }
                 },
                 "required": [
