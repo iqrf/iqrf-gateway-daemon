@@ -64,6 +64,11 @@
                 "type": "integer"
               }
             },
+            "enumeration": {
+              "type": "boolean",
+              "description": "Enumerate bonded nodes.",
+              "default": false
+            },
             "stopConditions": {
               "type": "object",
               "properties": {

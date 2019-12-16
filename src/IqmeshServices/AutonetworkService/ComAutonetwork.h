@@ -16,6 +16,7 @@ namespace iqrf {
       uint8_t network;
     }overlappingNetworks;
     std::vector<uint16_t> hwpidFiltering;
+    bool enumeration;
     struct 
     {
       uint8_t waves;
@@ -101,6 +102,12 @@ namespace iqrf {
             m_autonetworkParams.hwpidFiltering.push_back((uint16_t)itr->GetUint());
         }
       }
+
+      // enumeration
+      if ( jsonValue = rapidjson::Pointer( "/data/req/enumeration" ).Get( doc ) )
+        m_autonetworkParams.enumeration = jsonValue->GetBool();
+      else
+        m_autonetworkParams.enumeration = false;
 
       // stopConditions/waves
       if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/waves" ).Get( doc ) )
