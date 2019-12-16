@@ -583,6 +583,9 @@ namespace iqrf {
               if (drv->getId() == -1) {
                 perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
               }
+              if (drv->getId() == 255) {
+                perVerMap.insert(std::make_pair(255, drv->getVersion())); // embedExplore library
+              }
               if (drv->getId() == per) {
                 perVerMap.insert(std::make_pair(per, drv->getVersion()));
               }
@@ -694,9 +697,6 @@ namespace iqrf {
         catch (sqlite_exception &e)
         {
           CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
-//                if (drv->getId() == 255) {
-//                  perVerMap.insert(std::make_pair(255, drv->getVersion())); // embedExplore library
-//                }
           db << "rollback;";
         }
         catch (std::exception &e)
