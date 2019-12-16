@@ -1,11 +1,14 @@
-iqrf-gateway-daemon (2.2.0-rc.2) RELEASED; urgency=medium
+iqrf-gateway-daemon (2.2.0-rc2) RELEASED; urgency=medium
 
  [ Rostislav Spinar ]
+ 
+ * Improved:
+  * Load the closest DPA package if required is not in the IQRF repository
 
  * Fixed: 
   * LP timing for STD+LP networks
 
- -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Mon, 9 Dec 2019 19:30:00 +0100
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Mon, 16 Dec 2019 20:00:00 +0100
  
 iqrf-gateway-daemon (2.2.0-rc) RELEASED; urgency=medium
 
