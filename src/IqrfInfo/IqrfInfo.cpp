@@ -717,6 +717,31 @@ namespace iqrf {
       std::map<int, std::map<int, std::vector<std::pair<int, int>>>> drivers =
       m_iJsCacheService->getDrivers(embed::os::Read::getOsBuildAsString(osBuild), embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
 
+      if (drivers.size() == 0) {
+        std::ostringstream os;
+        os << std::endl << "Cannot load required package for: "
+          << NAME_PAR(os, embed::os::Read::getOsBuildAsString(osBuild))
+          << NAME_PAR(dpa,embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
+        
+        std::cout << os.str() << std::endl;
+        TRC_WARNING(os.str());
+        
+        for (int dpa = dpaVer - 1; dpa > 300; dpa--) {
+          drivers = m_iJsCacheService->getDrivers(embed::os::Read::getOsBuildAsString(osBuild), embed::explore::Enumerate::getDpaVerAsHexaString(dpa));
+          if (drivers.size() > 0) {
+            std::ostringstream os1;
+            os1 << std::endl << "Loaded package for: "
+              << NAME_PAR(os, embed::os::Read::getOsBuildAsString(osBuild))
+              << NAME_PAR(dpa, embed::explore::Enumerate::getDpaVerAsHexaString(dpa));
+
+            std::cout << os1.str() << std::endl;
+            TRC_WARNING(os1.str());
+
+            break;
+          }
+        }
+      }
+
       for (auto & drv : drivers) {
         int driverId = drv.first;
         int driverVer = 0;
