@@ -2096,7 +2096,7 @@ namespace iqrf {
                   }
                   else
                   {
-                    // ToDo - proverit s Petrem
+                    // ToDo - ???
                     if ( ( nodeOnline == false ) && ( nodeInAuthList == false ) && ( nodeInOnlineList == false ) )
                     {
                       // Add node to FrcOnlineNodes list
@@ -2161,7 +2161,7 @@ namespace iqrf {
 
           // Unbond node at coordinator only ?
           // TestCase - overit odbondovani na strane [C] (zamerne nasimulovat FrcSelect.size() != 0, MIDUnbondOnlyC == true)
-          // ToDo - proverit s Petrem
+          // ToDo - ???
           if ( ( FrcSelect.size() != 0 ) || ( MIDUnbondOnlyC == true ) )
           {
             TRC_INFORMATION( "Unbonding Nodes only at Coordinator." );
@@ -2207,7 +2207,7 @@ namespace iqrf {
 
           // Clear duplicit MIDs
           // TestCase - overit chovani clearDuplicitMID
-          // ToDo - proverit s Petrem clearDuplicitMID
+          // ToDo - ???
           clearDuplicitMID( autonetworkResult );
 
           // Discovery
