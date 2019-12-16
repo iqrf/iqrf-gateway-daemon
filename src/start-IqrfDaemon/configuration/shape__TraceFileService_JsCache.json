@@ -4,8 +4,10 @@
 
   "path": "",
   "filename": "IqrfDaemonJsCache.txt",
-  "maxSizeMB": 1048576,
-  "timestampFiles": false,
+  "maxSize": 2097152,
+  "timestampFiles": true,
+  "maxAgeMinutes": 480,
+  "maxNumber": 20,
 
   "VerbosityLevels": [
     {
