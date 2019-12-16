@@ -1,3 +1,12 @@
+iqrf-gateway-daemon (2.2.0-rc.2) RELEASED; urgency=medium
+
+ [ Rostislav Spinar ]
+
+ * Fixed: 
+  * LP timing for STD+LP networks
+
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Mon, 9 Dec 2019 19:30:00 +0100
+ 
 iqrf-gateway-daemon (2.2.0-rc) RELEASED; urgency=medium
 
   * Added: DPA 4.1x support
