@@ -128,13 +128,16 @@ namespace iqrf {
     virtual void encodeRequest(DpaMessage & dpaRequest) = 0;
     virtual void parseResponse(const DpaMessage & dpaResponse) = 0;
 
+    unsigned getRequestHeaderLen() const { return (unsigned)sizeof(TDpaIFaceHeader); }
+    unsigned getResponseHeaderLen() const { return (unsigned)(sizeof(TDpaIFaceHeader) + 2); }
+
   private:
     void processResponse()
     {
 
       int len = m_dpaResponse.GetLength();
 
-      if (len < sizeof(TDpaIFaceHeader) || len > sizeof(TDpaIFaceHeader) + 2 + DPA_MAX_DATA_LENGTH) {
+      if (len < getResponseHeaderLen() || len > getResponseHeaderLen() + DPA_MAX_DATA_LENGTH) {
         THROW_EXC_TRC_WAR(std::logic_error, "Invalid dpaResponse length: " << PAR(len));
       }
 

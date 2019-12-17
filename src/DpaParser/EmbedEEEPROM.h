@@ -31,7 +31,7 @@ namespace iqrf
         virtual ~Read()
         {}
 
-        // get data as returned from driver
+        // get read data
         const std::vector<int> & getPdata() const { return m_pdata; }
       };
 
