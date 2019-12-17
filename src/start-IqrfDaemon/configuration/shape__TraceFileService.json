@@ -5,7 +5,7 @@
   "path": "",
   "filename": "IqrfDaemon.txt",
   "maxSize": 2097152,
-  "timestampFiles": true,
+  "timestampFiles": false,
   "maxAgeMinutes": 480,
   "maxNumber": 20,
 
