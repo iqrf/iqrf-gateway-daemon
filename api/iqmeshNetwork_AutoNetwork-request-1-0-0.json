@@ -25,11 +25,6 @@
         "req": {
           "type": "object",
           "properties": {
-            "actionRetries": {
-              "type": "integer",
-              "description": "Number of retries DPA transactions.",
-              "default": 1
-            },
             "discoveryTxPower": {
               "type": "integer",
               "description": "TX power to use in discovery process.",
@@ -40,20 +35,59 @@
               "description": "Run discovery before start.",
               "default": false
             },
-            "waves": {
+            "actionRetries": {
               "type": "integer",
-              "description": "Maximum number of waves.",
-              "default": 2
+              "description": "Number of retries DPA transactions.",
+              "default": 1
             },
-            "emptyWaves": {
-              "type": "integer",
-              "description": "Number of consecutive waves, i which no new nodes were added into network.",
-              "default": 2
+            "overlappingNetworks": {
+              "type": "object",
+              "properties": {
+                "networks": {
+                  "type": "integer",
+                  "description": "Number of the networks to be built."
+                },
+                "network": {
+                  "type": "integer",
+                  "description": "Network number that will be build."
+                }
+              },
+              "required": [
+                "networks",
+                "network"
+              ]
+            },
+            "hwpidFiltering": {
+              "type": "array",
+              "description": "Allows to add only nodes with specified HWPID to the network.",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "stopConditions": {
+              "type": "object",
+              "properties": {
+                "waves": {
+                  "type": "integer",
+                  "description": "Maximum number of waves."
+                },
+                "networkSize": {
+                  "type": "integer",
+                  "description": "Number of nodes in the network."
+                },
+                "emptyWaves": {
+                  "type": "integer",
+                  "description": "Number of consecutive waves, i which no new nodes were added into network.",
+                  "default": 2
+                }
+              },
+              "required": [
+                "emptyWaves"
+              ]
             }
           },
           "required": [
-            "waves",
-            "emptyWaves"
+            "stopConditions"
           ]
         },
         "returnVerbose": {

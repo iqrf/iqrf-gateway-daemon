@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IIqrfDpaService.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "Sensor.h"
@@ -19,6 +20,8 @@ namespace iqrf
     virtual std::map<int, dali::EnumeratePtr> getDalis() const = 0;
     virtual std::map<int, light::EnumeratePtr> getLights() const = 0;
     virtual std::map<int, embed::node::BriefInfoPtr> getNodes() const = 0;
+    // for AutoNetwork usage
+    virtual void insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes, IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess) = 0;
     virtual void startEnumeration() = 0;
     virtual rapidjson::Document getNodeMetaData(int nadr) const = 0;
     virtual void setNodeMetaData(int nadr, const rapidjson::Value & metaData) = 0;
