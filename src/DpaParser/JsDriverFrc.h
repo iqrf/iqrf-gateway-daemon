@@ -1,7 +1,7 @@
 #pragma once
 
 #include "JsDriverDpaCommandSolver.h"
-#include "Frc.h"
+#include "EmbedFRC.h"
 #include "JsonUtils.h"
 
 namespace iqrf
@@ -58,7 +58,7 @@ namespace iqrf
       class JsDriverSendSelective : public SendSelective, public JsDriverDpaCommandSolver
       {
       public:
-        JsDriverSendSelective(IJsRenderService* iJsRenderService, uint8_t frcCommand, const std::vector<int> & selectedNodes, const std::vector<uint8_t> & userData)
+        JsDriverSendSelective(IJsRenderService* iJsRenderService, uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
           :JsDriverDpaCommandSolver(iJsRenderService)
           , SendSelective(frcCommand, selectedNodes, userData)
         {}
