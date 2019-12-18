@@ -64,7 +64,7 @@
                     "level": {
                         "type": "string",
                         "default": "DBG",
-                        "description": "Set level of trace"
+                        "description": "Set level of trace",
                         "enum": [
                             "DBG",
                             "INF",
