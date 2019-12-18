@@ -6,6 +6,7 @@
 #include "RawDpaEmbedCoordinator.h"
 #include "RawDpaEmbedOS.h"
 #include "RawDpaEmbedEEEPROM.h"
+#include "RawDpaEmbedFRC.h"
 #include "JsDriverBinaryOutput.h"
 #include "JsDriverSensor.h"
 #include "JsDriverLight.h"
@@ -447,9 +448,170 @@ namespace iqrf {
         bondedMidMap[nadr] = mid;
       }
 
+      auto mids1 = getBondedDpaVer(exclusiveAccess, bonded);
+      
       TRC_FUNCTION_LEAVE("");
       return bondedMidMap;
     }
+
+    // read bonded mid for coordinator eeeprom
+    std::map<int, uint32_t> getBondedDpaVer(IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess, const std::set<int> & bonded) const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      uint16_t address = 0x04a0; //mid hardcoded ???
+      //TPerOSRead_Response osRead;
+      //void * relative = &(osRead.OsBuild) - &osRead;
+
+      //PNUM_ENUMERATION, CMD_GET_PER_INFO
+
+      //uint16_t address = 0x4A4; //os
+      uint8_t pnum = PNUM_OS;
+      uint8_t pcmd = CMD_OS_READ;
+      
+      std::set<int> bondedTest;
+      for (int i = 0; i < 64; i++) {
+        bondedTest.insert(i);
+      }
+      bondedTest.insert(bonded.begin(), bonded.end());
+
+      iqrf::embed::frc::rawdpa::MemoryRead4B_SendSelective frc(address, pnum, pcmd);
+      std::vector<std::set<int>> setVect = frc.splitSelectedNode(bondedTest);
+      std::map<int, uint32_t> mids;
+
+      for (const auto & s : setVect) {
+        frc.setSelectedNodes(s);
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        exclusiveAccess->executeDpaTransactionRepeat(frc.getRequest(), transResult, 3);
+        frc.processDpaTransactionResult(std::move(transResult));
+        frc.getFrcDataAs(mids);
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return mids;
+    }
+
+    //////////////////////////////////////////////////////
+    // Sets selected nodes to specified PData of FRC command
+    void setFRCSelectedNodes(uns8* pData, const std::vector<uint8_t>& selectedNodes)
+    {
+      // Initialize to zero values
+      memset(pData, 0, 30 * sizeof(uns8));
+      for (uint8_t i : selectedNodes)
+      {
+        uns8 byteIndex = i / 8;
+        uns8 bitIndex = i % 8;
+        pData[byteIndex] |= (0x01 << bitIndex);
+      }
+    }
+
+    // FRC_PrebondedMemoryReadPlus1 (used to read MIDs and HWPID)
+    std::basic_string<uint8_t> FrcPrebondedMemoryRead(
+      IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess
+      , const std::vector<uint8_t>& prebondedNodes
+      , const uint8_t nodeSeed
+      , const uint8_t offset
+      , const uint16_t address
+      , const uint8_t PNUM
+      , const uint8_t PCMD
+    )
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage prebondedMemoryRequest;
+        DpaMessage::DpaPacket_t prebondedMemoryPacket;
+        prebondedMemoryPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        prebondedMemoryPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        prebondedMemoryPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
+        prebondedMemoryPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // FRC Command
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_PrebondedMemoryReadPlus1;
+        // Selected nodes - prebonded alive nodes
+        setFRCSelectedNodes(prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes, prebondedNodes);
+        // Node seed, offset
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x00] = nodeSeed;
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x01] = offset;
+        // OS Read command
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x02] = address & 0xff;
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x03] = address >> 0x08;
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x04] = PNUM;
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x05] = PCMD;
+        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x06] = 0x00;
+        prebondedMemoryRequest.DataToBuffer(prebondedMemoryPacket.Buffer, sizeof(TDpaIFaceHeader) + 38);
+        // Execute the DPA request
+        exclusiveAccess->executeDpaTransactionRepeat(prebondedMemoryRequest, transResult, 3);
+        TRC_DEBUG("Result from FRC Prebonded Memory Read transaction as string:" << PAR(transResult->getErrorString()));
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION("FRC FRC Prebonded Memory Read successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(Peripheral type, prebondedMemoryRequest.PeripheralType())
+          << NAME_PAR(Node address, prebondedMemoryRequest.NodeAddress())
+          << NAME_PAR(Command, (int)prebondedMemoryRequest.PeripheralCommand())
+        );
+        // Data from FRC
+        std::basic_string<uint8_t> prebondedMemoryData;
+        // Check status
+        uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if (status < 0xFD)
+        {
+          TRC_INFORMATION("FRC Prebonded Memory Read status ok." << NAME_PAR_HEX("Status", status));
+          //prebondedMemoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + sizeof(TMID), 51);
+          prebondedMemoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + sizeof(uint32_t), 51);
+          TRC_DEBUG("Size of FRC data: " << PAR(prebondedMemoryData.size()));
+        }
+        else
+        {
+          TRC_WARNING("FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX("Status", (int)status));
+          //AutonetworkError error(AutonetworkError::Type::PrebondedMemoryRead, "Bad FRC status.");
+          //autonetworkResult.setError(error);
+          THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
+        }
+        // Add FRC result
+        //autonetworkResult.addTransactionResult(transResult);
+
+        // Read FRC extra result (if needed)
+        if (prebondedNodes.size() > 12)
+        {
+          // Read FRC extra results
+          DpaMessage extraResultRequest;
+          DpaMessage::DpaPacket_t extraResultPacket;
+          extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+          extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+          extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
+          extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+          extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
+          // Execute the DPA request
+          exclusiveAccess->executeDpaTransactionRepeat(extraResultRequest, transResult, 3);
+          TRC_DEBUG("Result from FRC CMD_FRC_EXTRARESULT transaction as string:" << PAR(transResult->getErrorString()));
+          dpaResponse = transResult->getResponse();
+          TRC_INFORMATION("FRC CMD_FRC_EXTRARESULT successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(Peripheral type, extraResultRequest.PeripheralType())
+            << NAME_PAR(Node address, extraResultRequest.NodeAddress())
+            << NAME_PAR(Command, (int)extraResultRequest.PeripheralCommand())
+          );
+          // Append FRC data
+          prebondedMemoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, 9);
+          // Add FRC extra result
+          //autonetworkResult.addTransactionResult(transResult);
+        }
+        TRC_FUNCTION_LEAVE("");
+        return prebondedMemoryData;
+      }
+      catch (std::exception& e)
+      {
+        //AutonetworkError error(AutonetworkError::Type::PrebondedMemoryRead, e.what());
+        //autonetworkResult.setError(error);
+        //autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+    //////////////////////////////////////////////////////
 
 
     // performs fast enumeration
@@ -481,31 +643,6 @@ namespace iqrf {
       std::set<int> evaluated = retval->getBonded();
       std::set<int> discovered = retval->getDiscovered();
       evaluated.insert(0); //eval coordinator
-
-      /*
-      for (auto nadr : evaluated) {
-        //TODO do it by FRC for DPA > 4.02
-        try {
-          auto nd = getNodeDataPriv((uint16_t)nadr, exclusiveAccess);
-
-          int p1 = nd->getNadr();
-          unsigned p2 = nd->getEmbedOsRead()->getMid();
-          bool p3 = false;
-          if (discovered.find(p1) != discovered.end())
-            p3 = true;
-          int p4 = nd->getHwpid();
-          int p5 = nd->getEmbedExploreEnumerate()->getHwpidVer();
-          int p6 = nd->getEmbedOsRead()->getOsBuild();
-          int p7 = nd->getEmbedExploreEnumerate()->getDpaVer();
-
-          retval->addItem(p1, p2, p3, p4, p5, p6, p7, std::move(nd));
-
-        }
-        catch (std::logic_error &e) {
-          CATCH_EXC_TRC_WAR(std::logic_error, e, "Cannot fast enum: " << PAR(nadr));
-        }
-      }
-      */
 
       TRC_FUNCTION_LEAVE("");
       return retval;
@@ -580,42 +717,6 @@ namespace iqrf {
           dpaVer
         )));
       };
-
-      /*
-      auto const & enums = m_fastEnum->getEnumerated();
-
-      // delete Nadr from DB if it doesn't exist in Net
-      for (const auto & bo : m_mapNadrBondNodeDb) {
-        int nadr = bo.first;
-        const auto & b = bo.second;
-        auto found = enums.find(nadr);
-        if (found == enums.end()) {
-          // Nadr not found in Net => delete from Bonded
-          TRC_INFORMATION(PAR(nadr) << " remove from bonded list")
-            db << "delete from Bonded where Nadr = ?;" << nadr;
-        }
-      }
-
-      // compare fast enum and DB
-      for (const auto & en : enums) {
-        const auto & e = *(en.second);
-        int nadr = en.first;
-        auto found = m_mapNadrBondNodeDb.find(nadr);
-        if (found == m_mapNadrBondNodeDb.end()) {
-          // Nadr from Net not found in DB => provide full enum
-          m_nadrFullEnum.insert(nadr);
-        }
-        else {
-          auto const & n = found->second;
-          if (e.getMid() != n.m_mid || e.getHwpid() != n.m_hwpid || e.getHwpidVer() != n.m_hwpidVer ||
-            e.getOsBuild() != n.m_osBuild || e.getDpaVer() != n.m_dpaVer) {
-            // Nadr from Net is already in DB, but fast enum comparison failed => provide full enum
-            TRC_INFORMATION(PAR(nadr) << " fast enum does not fit => schedule full enum")
-              m_nadrFullEnum.insert(nadr);
-          }
-        }
-      }
-      */
 
       auto const & bondedMidMap = m_fastEnum->getBondedMidMap();
 
@@ -778,6 +879,8 @@ namespace iqrf {
           //}
 
           // enumerate node - fast enum was done by other means (FRC) => we need to get data explicitely
+
+
           nd = getNodeDataPriv(nadr, exclusiveAccess);
 
           unsigned mid = nd->getMid();

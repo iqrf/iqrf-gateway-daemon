@@ -37,6 +37,14 @@ namespace iqrf
         {}
 
       public:
+
+        enum class FrcCmdType {
+          FRC_BIT = 0,
+          FRC_BYTE = 1,
+          FRC_2BYTE = 2,
+          FRC_4BYTE = 4
+        };
+
         virtual ~Send() {}
 
         // get param data passes by ctor
@@ -92,6 +100,51 @@ namespace iqrf
           }
         }
 
+        std::vector<std::set<int>> splitSelectedNode(const std::set<int> & selectedNodeAll)
+        {
+          size_t cnt = 0;
+          switch (getFrcCmdType()) {
+          case FrcCmdType::FRC_BIT: cnt = 239;
+            break;
+          case FrcCmdType::FRC_BYTE: cnt = 63;
+            break;
+          case FrcCmdType::FRC_2BYTE: cnt = 31;
+            break;
+          case FrcCmdType::FRC_4BYTE: cnt = 15;
+            break;
+          default:;
+          }
+
+          std::vector<std::set<int>> resVect;
+          size_t resVectSize = selectedNodeAll.size() / cnt;
+          size_t remains = selectedNodeAll.size() % cnt;
+          auto snIt = selectedNodeAll.begin();
+
+          for (size_t sz = 0; sz <= resVectSize; sz++) {
+            std::set<int> resSet;
+            if (sz != resVectSize) {
+              //resSet.insert(snIt, snIt + cnt);
+              resSet.insert(snIt, std::next(snIt, cnt));
+              std::advance(snIt, cnt);
+            }
+            else {
+              // remains
+              resSet.insert(snIt, std::next(snIt, remains));
+            }
+
+            resVect.push_back(resSet);
+          }
+          return resVect;
+        }
+
+        FrcCmdType getFrcCmdType()
+        {
+          if (m_frcCommand < FRC_USER_BIT_TO) return FrcCmdType::FRC_BIT;
+          if (m_frcCommand < FRC_USER_BYTE_TO) return FrcCmdType::FRC_BYTE;
+          if (m_frcCommand < FRC_USER_2BYTE_TO) return FrcCmdType::FRC_2BYTE;
+          if (m_frcCommand < FRC_USER_4BYTE_TO) return FrcCmdType::FRC_4BYTE;
+        }
+
       };
       typedef std::unique_ptr<Send> SendPtr;
 
@@ -102,9 +155,12 @@ namespace iqrf
         //params
         std::set<int> m_selectedNodes;
 
-        SendSelective(uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
+        SendSelective()
+          :Send()
+        {}
+
+        SendSelective(uint8_t frcCommand, const std::vector<uint8_t> & userData)
           :Send(frcCommand, userData)
-          , m_selectedNodes(selectedNodes)
         {}
 
         SendSelective(const std::set<int> & selectedNodes)
@@ -112,10 +168,17 @@ namespace iqrf
           , m_selectedNodes(selectedNodes)
         {}
 
+        SendSelective(uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
+          :Send(frcCommand, userData)
+          , m_selectedNodes(selectedNodes)
+        {}
+
       public:
         virtual ~SendSelective() {}
 
         virtual std::set<int> getSelectedNodes() override { return m_selectedNodes; }
+
+        void setSelectedNodes(const std::set<int> & val) { m_selectedNodes = val; }
 
       };
       typedef std::unique_ptr<SendSelective> SendSelectivePtr;

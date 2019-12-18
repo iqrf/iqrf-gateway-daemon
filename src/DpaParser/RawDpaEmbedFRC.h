@@ -53,6 +53,7 @@ namespace iqrf
 
           void parseResponse(const DpaMessage & dpaResponse) override
           {
+            m_frcData.clear();
             m_status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
             int frcDataLen = sizeof(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData) / sizeof(uint8_t);
             m_frcData.assign(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData,
@@ -70,10 +71,20 @@ namespace iqrf
             , frc::SendSelective(frcCommand, selectedNodes, userData)
           {}
 
+          SendSelective(uint8_t frcCommand, const std::vector<uint8_t> & userData)
+            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
+            , frc::SendSelective(frcCommand, userData)
+          {}
+
           virtual ~SendSelective()
           {}
 
         protected:
+          SendSelective()
+            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
+            , frc::SendSelective()
+          {}
+
           SendSelective(const std::set<int> & selectedNodes)
             :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
             , frc::SendSelective(selectedNodes)
@@ -111,6 +122,7 @@ namespace iqrf
 
           void parseResponse(const DpaMessage & dpaResponse) override
           {
+            m_frcData.clear();
             m_status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
             int frcDataLen = sizeof(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData) / sizeof(uint8_t);
             m_frcData.assign(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData,
@@ -138,6 +150,7 @@ namespace iqrf
 
           void parseResponse(const DpaMessage & dpaResponse) override
           {
+            m_frcData.clear();
             m_frcData.assign(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData,
               dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + 9);
           }
@@ -219,6 +232,18 @@ namespace iqrf
             m_userData.push_back(0); // required zero
             MemoryRead_Send::initUserData(m_userData, address, pnum, pcmd, pdata, (sizeof(TPerFrcSendSelective_Request::UserData) / sizeof(uint8_t)));
           }
+
+          MemoryRead4B_SendSelective(uint16_t address, uint8_t pnum, uint8_t pcmd
+            , std::vector<uint8_t> pdata = std::vector<uint8_t>()
+          )
+            :SendSelective()
+          {
+            m_frcCommand = FRC_MemoryRead4B;
+            m_userData.push_back(0); //original
+            m_userData.push_back(0); // required zero
+            MemoryRead_Send::initUserData(m_userData, address, pnum, pcmd, pdata, (sizeof(TPerFrcSendSelective_Request::UserData) / sizeof(uint8_t)));
+          }
+
         };
 
       } //namespace rawdpa
