@@ -36,64 +36,6 @@ namespace iqrf
           , m_status(0)
         {}
 
-        virtual std::map<int, uint8_t> getFrcDataAs1B(std::vector<uint8_t> extResult = std::vector<uint8_t>()) 
-        {
-          m_frcData.insert(m_frcData.end(), extResult.begin(), extResult.end());
-          int i = 0;
-          std::map<int, uint8_t> ret;
-          auto it = m_frcData.begin();
-          
-          while (true) {
-            if (it == m_frcData.end()) break;
-            ret.insert(std::make_pair(i++, *it++));
-          }
-          return ret;
-        }
-
-        virtual std::map<int, uint16_t> getFrcDataAs2B(std::vector<uint8_t> extResult = std::vector<uint8_t>())
-        {
-          m_frcData.insert(m_frcData.end(), extResult.begin(), extResult.end());
-          int i = 0;
-          std::map<int, uint16_t> ret;
-          auto it = m_frcData.begin();
-          
-          while (true) {
-            if (it == m_frcData.end()) break;
-            uint16_t val = (uint16_t)*it++;
-
-            if (it == m_frcData.end()) break;
-            val |= ((uint16_t)*it++) << 8;
-
-            ret.insert(std::make_pair(i++, val));
-          }
-          return ret;
-        }
-
-        virtual std::map<int, uint32_t> getFrcDataAs4B(std::vector<uint8_t> extResult = std::vector<uint8_t>())
-        {
-          m_frcData.insert(m_frcData.end(), extResult.begin(), extResult.end());
-          int i = 0;
-          std::map<int, uint32_t> ret;
-          auto it = m_frcData.begin();
-          
-          while (true) {
-            if (it == m_frcData.end()) break;
-            uint32_t val = (uint32_t)*it++;
-
-            if (it == m_frcData.end()) break;
-            val |= ((uint32_t)*it++) << 8;
-
-            if (it == m_frcData.end()) break;
-            val |= ((uint32_t)*it++) << 16;
-
-            if (it == m_frcData.end()) break;
-            val |= ((uint32_t)*it++) << 24;
-
-            ret.insert(std::make_pair(i++, val));
-          }
-          return ret;
-        }
-
       public:
         virtual ~Send() {}
 
@@ -101,9 +43,54 @@ namespace iqrf
         uint8_t getFrcCommand() const { m_frcCommand; };
         const std::vector<uint8_t> & getUserData() const { return m_userData; }
 
-        // get data as returned from driver
+        // get data as returned from frc
         uint8_t getStatus() const { return m_status; }
         const std::vector<uint8_t> & getFrcData() const { return m_frcData; }
+
+        // get selected nodes => empty here created according type in getFrcDataAs
+        virtual std::set<int> getSelectedNodes() { return std::set<int>(); }
+
+        // typed data parser according selected nadrs
+        // in case of non-selective it fill nadrs row according type
+        template <typename T>
+        void getFrcDataAs(
+          std::map<int, T> & map2Insert
+          , const std::vector<uint8_t> & extResult = std::vector<uint8_t>()
+        )
+        {
+          std::set<int> selectedNodes = getSelectedNodes();
+          if (0 == selectedNodes.size()) {
+            switch (sizeof(T)) {
+            case 1: for (int i = 0; i < 64; i++) selectedNodes.insert(i);
+              break;
+            case 2: for (int i = 0; i < 32; i++) selectedNodes.insert(i);
+              break;
+            case 4: for (int i = 0; i < 16; i++) selectedNodes.insert(i);
+            default:;
+            }
+          }
+          else {
+            selectedNodes.insert(0); //FRC always returns result for 0
+          }
+
+          m_frcData.insert(m_frcData.end(), extResult.begin(), extResult.end());
+
+          auto it = m_frcData.begin();
+          auto sit = selectedNodes.begin();
+          size_t typelen = sizeof(T);
+          size_t reslen = m_frcData.size() / typelen;
+
+          for (size_t rl = 0; rl < reslen; rl++) {
+            if (sit == selectedNodes.end()) break;
+
+            uint32_t val = 0;
+            for (size_t tl = 0; tl < typelen; tl++) {
+              val |= ((uint32_t)*it++) << tl * 8;
+            }
+
+            map2Insert.insert(std::make_pair(*sit++, val));
+          }
+        }
 
       };
       typedef std::unique_ptr<Send> SendPtr;
@@ -128,97 +115,20 @@ namespace iqrf
       public:
         virtual ~SendSelective() {}
 
-        // get param data passes by ctor
-        const std::set<int> & getSelectedNodes() const { return m_selectedNodes; }
-
-        virtual std::map<int, uint8_t> getFrcDataAs1B(std::vector<uint8_t> extResult = std::vector<uint8_t>())
-        {
-          m_frcData.insert(m_frcData.end(), extResult.begin(), extResult.end());
-          std::map<int, uint8_t> ret;
-          auto it = m_frcData.begin();
-          auto sit = m_selectedNodes.begin();
-          
-          while (true) {
-            if (sit == m_selectedNodes.end()) break;
-            
-            if (it == m_frcData.end()) break;
-            ret.insert(std::make_pair(*sit++, *it++));
-          }
-          return ret;
-        }
-
-        virtual std::map<int, uint16_t> getFrcDataAs2B(std::vector<uint8_t> extResult = std::vector<uint8_t>())
-        {
-          m_frcData.insert(m_frcData.end(), extResult.begin(), extResult.end());
-          std::map<int, uint16_t> ret;
-          auto it = m_frcData.begin();
-          auto sit = m_selectedNodes.begin();
-          
-          while (true) {
-            if (sit == m_selectedNodes.end()) break;
-            
-            if (it == m_frcData.end()) break;
-            uint16_t val = (uint16_t)*it++;
-
-            if (it == m_frcData.end()) break;
-            val |= ((uint16_t)*it++) << 8;
-
-            ret.insert(std::make_pair(*sit++, *it));
-          }
-          return ret;
-        }
-
-        virtual std::map<int, uint32_t> getFrcDataAs4B(std::vector<uint8_t> extResult = std::vector<uint8_t>())
-        {
-          std::vector<int> pom;
-          pom.insert(pom.begin(), m_frcData.begin(), m_frcData.end());
-
-          m_frcData.insert(m_frcData.end(), extResult.begin(), extResult.end());
-          std::map<int, uint32_t> ret;
-          auto it = m_frcData.begin();
-          auto sit = m_selectedNodes.begin();
-
-          while (true) {
-            if (sit == m_selectedNodes.end()) break;
-
-            if (it == m_frcData.end()) break;
-            uint32_t val = (uint32_t)*it++;
-
-            if (it == m_frcData.end()) break;
-            val |= ((uint32_t)*it++) << 8;
-
-            if (it == m_frcData.end()) break;
-            val |= ((uint32_t)*it++) << 16;
-
-            if (it == m_frcData.end()) break;
-            val |= ((uint32_t)*it++) << 24;
-
-            ret.insert(std::make_pair(*sit++, val));
-          }
-          return ret;
-        }
+        virtual std::set<int> getSelectedNodes() override { return m_selectedNodes; }
 
       };
       typedef std::unique_ptr<SendSelective> SendSelectivePtr;
 
       ////////////////
-      class ExtraResult
+      class ExtraResult : public Send
       {
       protected:
-        //params
-
-        //response
-        std::vector<int> m_frcData;
-
         ExtraResult()
         {}
 
       public:
         virtual ~ExtraResult() {}
-
-        // get data as returned from driver
-        const std::vector<int> & getFrcData() const { return m_frcData; }
-
       };
       typedef std::unique_ptr<ExtraResult> ExtraResultPtr;
 
