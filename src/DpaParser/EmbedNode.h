@@ -13,12 +13,12 @@ namespace iqrf
       class BriefInfo
       {
       protected:
-        unsigned m_mid = 0;
+        uint32_t m_mid = 0;
         bool m_disc = false;
-        int m_hwpid = 0;
-        int m_hwpidVer = 0;
-        int m_osBuild = 0;
-        int m_dpaVer = 0;
+        int m_hwpid = -1;
+        int m_hwpidVer = -1;
+        int m_osBuild = -1;
+        int m_dpaVer = -1;
 
         BriefInfo()
         {}

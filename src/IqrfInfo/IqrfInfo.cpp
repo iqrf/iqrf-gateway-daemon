@@ -941,7 +941,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes, IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    void insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -989,11 +989,11 @@ namespace iqrf {
               deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
             }
             else {
-              std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
-              std::unique_ptr<IDpaTransactionResult2> transResult;
-              exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, 3);
-              exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
-              deviceIdPtr = enumerateDeviceOutsideRepo(nadr, device, exploreEnumeratePtr->getEmbedPer(), exploreEnumeratePtr->getUserPer(), exclusiveAccess);
+              //std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+              //std::unique_ptr<IDpaTransactionResult2> transResult;
+              //exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, 3);
+              //exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
+              //deviceIdPtr = enumerateDeviceOutsideRepo(nadr, device, exploreEnumeratePtr->getEmbedPer(), exploreEnumeratePtr->getUserPer(), exclusiveAccess);
             }
 
             db << "begin transaction;";
@@ -1028,7 +1028,7 @@ namespace iqrf {
 
         loadDrivers();
         std::cout << std::endl << "AutoNw Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
-        stdEnum(exclusiveAccess);
+        //stdEnum(exclusiveAccess);
         std::cout << std::endl << "AutoNw Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
       }
       else {
@@ -2128,9 +2128,9 @@ namespace iqrf {
     return m_imp->getNodes();
   }
 
-  void IqrfInfo::insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes, IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+  void IqrfInfo::insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes)
   {
-    return m_imp->insertNodes(nodes, exclusiveAccess);
+    return m_imp->insertNodes(nodes);
   }
 
   void IqrfInfo::startEnumeration()
