@@ -941,10 +941,11 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes)
+    void insertNodes(const std::map<int, embed::node::AnInfo> & nodes)
     {
       TRC_FUNCTION_ENTER("");
-
+      //TODO reimplement
+#if 0
       if (nodes.size() > 0) {
         std::cout << std::endl << "AutoNw Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
         //fullEnum();
@@ -957,7 +958,7 @@ namespace iqrf {
 
         for (const auto & it : nodes) {
 
-          const embed::node::BriefInfoPtr & ndPtr = it.second;
+          const embed::node::BriefInfo & nd = it.second;
           int nadr = it.first;
 
           try {
@@ -1034,7 +1035,7 @@ namespace iqrf {
       else {
         std::cout << std::endl << "AutoNw no nodes to be added at:  " << encodeTimestamp(std::chrono::system_clock::now());
       }
-
+#endif
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -2128,7 +2129,7 @@ namespace iqrf {
     return m_imp->getNodes();
   }
 
-  void IqrfInfo::insertNodes(const std::map<int, embed::node::BriefInfoPtr> & nodes)
+  void IqrfInfo::insertNodes(const std::map<int, embed::node::AnInfo> & nodes)
   {
     return m_imp->insertNodes(nodes);
   }
