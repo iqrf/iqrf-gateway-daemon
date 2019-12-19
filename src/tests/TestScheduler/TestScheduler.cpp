@@ -574,7 +574,7 @@ namespace iqrf {
 
     //verify returned task1 timeSpec
     const rapidjson::Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, th1);
-    SchedulerTesting::checkTimeSpec(timeSpec, "      ", false, true, PERIOD1 * 1000, tpStr);
+    SchedulerTesting::checkTimeSpec(timeSpec, "      ", false, true, PERIOD1, tpStr);
 
     //remove tasks by id, hndl
     m_iSchedulerService->removeTask(CLIENT_ID, th1);
