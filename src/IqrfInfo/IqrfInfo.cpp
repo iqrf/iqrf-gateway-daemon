@@ -733,9 +733,102 @@ namespace iqrf {
       return deviceIdPtr;
     }
 
+    // TODO
+    void fullEnumByFrc(IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      //typedef struct
+      //{
+      //  uns16	DpaVersion;
+      //  uns8	UserPerNr;
+      //  uns8	EmbeddedPers[PNUM_USER / 8];
+      //  uns16	HWPID;
+      //  uns16	HWPIDver;
+      //  uns8	Flags;
+      //  uns8	UserPer[(PNUM_MAX - PNUM_USER + 1 + 7) / 8];
+      //} STRUCTATTR TEnumPeripheralsAnswer;
+
+      // Structure returned by CMD_OS_READ
+      //typedef struct
+      //{
+      //  uns8	MID[4];
+      //  uns8	OsVersion;
+      //  uns8	McuType;
+      //  uns16	OsBuild;
+      //  uns8	Rssi;
+      //  uns8	SupplyVoltage;
+      //  uns8	Flags;
+      //  uns8	SlotLimits;
+      //  uns8  IBK[16];
+      //  // Enumerate peripherals part, variable length because of UserPer field
+      //  uns16	DpaVersion;
+      //  uns8	UserPerNr;
+      //  uns8	EmbeddedPers[PNUM_USER / 8];
+      //  uns16	HWPID;
+      //  uns16	HWPIDver;
+      //  uns8	FlagsEnum;
+      //  uns8	UserPer[(PNUM_MAX - PNUM_USER + 1 + 7) / 8];
+      //} STRUCTATTR TPerOSRead_Response;
+
+
+      std::map<int, uint32_t> midMap;
+      std::map<int, uint32_t> hwpidMap;
+      std::map<int, uint32_t> osBuildMap;
+      std::map<int, uint32_t> dpaVerMap;
+
+      const uint16_t CBUFFER = 0x04a0; // msg buffer in node
+      
+      { // read HWPID, HWPIDVer
+        uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, HWPID);
+        iqrf::embed::frc::rawdpa::MemoryRead4B_SendSelective frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO);
+        std::vector<std::set<int>> setVect = frc.splitSelectedNode(m_nadrFullEnum);
+
+        for (const auto & s : setVect) {
+          frc.setSelectedNodes(s);
+          std::unique_ptr<IDpaTransactionResult2> transResult;
+          exclusiveAccess->executeDpaTransactionRepeat(frc.getRequest(), transResult, 3);
+          frc.processDpaTransactionResult(std::move(transResult));
+          frc.getFrcDataAs(hwpidMap);
+        }
+      }
+
+      { // read DpaVersion + 2B
+        uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, DpaVersion);
+        iqrf::embed::frc::rawdpa::MemoryRead4B_SendSelective frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO);
+        std::vector<std::set<int>> setVect = frc.splitSelectedNode(m_nadrFullEnum);
+
+        for (const auto & s : setVect) {
+          frc.setSelectedNodes(s);
+          std::unique_ptr<IDpaTransactionResult2> transResult;
+          exclusiveAccess->executeDpaTransactionRepeat(frc.getRequest(), transResult, 3);
+          frc.processDpaTransactionResult(std::move(transResult));
+          frc.getFrcDataAs(dpaVerMap);
+        }
+      }
+
+      { // read OsBuild + 2B 
+        uint16_t address = CBUFFER + (uint16_t)offsetof(TPerOSRead_Response, OsBuild);
+        iqrf::embed::frc::rawdpa::MemoryRead4B_SendSelective frc(address, PNUM_OS, CMD_OS_READ);
+        std::vector<std::set<int>> setVect = frc.splitSelectedNode(m_nadrFullEnum);
+
+        for (const auto & s : setVect) {
+          frc.setSelectedNodes(s);
+          std::unique_ptr<IDpaTransactionResult2> transResult;
+          exclusiveAccess->executeDpaTransactionRepeat(frc.getRequest(), transResult, 3);
+          frc.processDpaTransactionResult(std::move(transResult));
+          frc.getFrcDataAs(osBuildMap);
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
     void fullEnum(IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
     {
       TRC_FUNCTION_ENTER("");
+
+      fullEnumByFrc(exclusiveAccess);
 
       database & db = *m_db;
 

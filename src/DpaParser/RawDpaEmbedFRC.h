@@ -174,7 +174,6 @@ namespace iqrf
             userData.push_back((uint8_t)(address >> 8));
             userData.push_back(pnum);
             userData.push_back(pcmd);
-            userData.push_back(pcmd);
 
             // set userData
             int frcUserDataLen = maxUserDataLen;
