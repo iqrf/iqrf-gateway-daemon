@@ -108,10 +108,6 @@ namespace iqrf {
 
   private:
     AutonetworkError m_error;
-
-    uint8_t m_wave;
-    uint8_t m_nodesNr;
-    uint8_t m_newNodesNr;
     std::vector<NewNode> m_newNodes;
 
     // Transaction results
@@ -122,30 +118,6 @@ namespace iqrf {
 
     void setError( const AutonetworkError& error ) {
       m_error = error;
-    }
-
-    void setWave(uint8_t wave) {
-      m_wave = wave;
-    }
-
-    uint8_t getWave() {
-      return m_wave;
-    }
-    
-    void setNodesNr(uint8_t nodesNr) {
-      m_nodesNr = nodesNr;
-    }
-    
-    uint8_t getNodesNr() {
-      return m_nodesNr;
-    }
-    
-    void setNewNodesNr(uint8_t newNodesNr) {
-      m_newNodesNr = newNodesNr;
-    }
-
-    uint8_t getNewNodesNr() {
-      return m_newNodes.size();
     }
 
     void putNewNode(uint8_t address, uint32_t MID) {
@@ -238,12 +210,8 @@ namespace iqrf {
     {
       uint8_t address;
       TMID mid;
-      uint16_t DPAVer;
       uint16_t HWPID;
       uint16_t HWPIDVer;
-      uint8_t OSVersion;
-      uint8_t McuType;
-      uint16_t OSBuild;
       bool bonded;
       bool discovered;
       bool online;
@@ -286,14 +254,10 @@ namespace iqrf {
 
     // Message type
     const std::string m_mTypeName_Autonetwork = "iqmeshNetwork_AutoNetwork";
-
     IIqrfInfo* m_iIqrfInfo = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
-    // Nodes to be inserted to DB mapped according NADR
-    std::map<int, embed::node::BriefInfoPtr> m_insertNadrNodeMap;
-
     const std::string* m_messagingId = nullptr;
     const IMessagingSplitterService::MsgType* m_msgType = nullptr;
     const ComAutonetwork* m_comAutonetwork = nullptr;
@@ -678,6 +642,12 @@ namespace iqrf {
       // Discovered nodes
       antwProcessParams.discoveredNodes = getDiscoveredNodes( autonetworkResult );
       antwProcessParams.discoveredNodesNr = (uint8_t)antwProcessParams.discoveredNodes.count();
+      // Clear discoveredNodes bitmap and discoveredNodesNr if no node is bonded
+      if ( antwProcessParams.bondedNodesNr == 0 )
+      {
+        antwProcessParams.discoveredNodes.reset();
+        antwProcessParams.discoveredNodesNr = 0;
+      }
 
       // Update networkNodes structure      
       for ( uint8_t addr = 1; addr <= MAX_ADDRESS; addr++ )
@@ -689,7 +659,7 @@ namespace iqrf {
           // Yes, node MID known ?
           if ( antwProcessParams.networkNodes[addr].mid.value == 0 )
           {
-            // Not, read MID from Coordinator eeprom
+            // No, read MID from Coordinator eeprom
             uint16_t address = 0x4000 + addr * 0x08;
             std::basic_string<uint8_t> mid = readCoordXMemory( autonetworkResult, address, sizeof( TMID ) );
             antwProcessParams.networkNodes[addr].mid.bytes[0] = mid[0];
@@ -698,11 +668,12 @@ namespace iqrf {
             antwProcessParams.networkNodes[addr].mid.bytes[3] = mid[3];
             antwProcessParams.networkNodes[addr].discovered = antwProcessParams.discoveredNodes[addr];
           }
-          else
-          {
-            antwProcessParams.networkNodes[addr].discovered = false;
-            antwProcessParams.networkNodes[addr].mid.value = 0;
-          }
+        }
+        else
+        {
+          // No, node isn't bondes, clear discovered flag and MID
+          antwProcessParams.networkNodes[addr].discovered = false;
+          antwProcessParams.networkNodes[addr].mid.value = 0;
         }
       }
     }
@@ -962,7 +933,7 @@ namespace iqrf {
             << NAME_PAR( Command, (int)extraResultRequest.PeripheralCommand() )
           );
           // Append FRC data
-          prebondedMemoryData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, 9 );
+          prebondedMemoryData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, 9 );
           // Add FRC extra result
           autonetworkResult.addTransactionResult( transResult );
         }        
@@ -1060,7 +1031,7 @@ namespace iqrf {
             << NAME_PAR( Command, (int)extraResultRequest.PeripheralCommand() )
           );
           // Append FRC data
-          memoryData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, 9 );
+          memoryData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, 9 );
           // Add FRC extra result
           autonetworkResult.addTransactionResult( transResult );
         }
@@ -1110,6 +1081,8 @@ namespace iqrf {
           << NAME_PAR( Node address, authorizeBondRequest.NodeAddress() )
           << NAME_PAR( Command, (int)authorizeBondRequest.PeripheralCommand() )
         );
+        // Add FRC extra result
+        autonetworkResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
         return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorAuthorizeBond_Response;
       }
@@ -1694,6 +1667,8 @@ namespace iqrf {
 
       // Autonetwork result
       AutonetworkResult autonetworkResult;    
+      // List of new nodes passed to IqrfInfo when AN finishes
+      std::map<int, embed::node::AnInfo> newNodes;
 
       try
       {
@@ -1754,7 +1729,7 @@ namespace iqrf {
         std::basic_string<uint8_t> FrcSelectMask;
         std::vector<uint8_t> FrcSelect, FrcOnlineNodes, FrcOfflineNodes;
         bool MIDUnbondOnlyC;
-        uint8_t retryAction, countDisNodes = antwProcessParams.discoveredNodesNr;
+        uint8_t retryAction, countDiscNodes = antwProcessParams.discoveredNodesNr;
 
         // Initialize random seed
         std::srand( std::time( nullptr ) );
@@ -1763,6 +1738,7 @@ namespace iqrf {
         antwProcessParams.countNewNodes = 0;
         antwProcessParams.countWaves = 0;
         antwProcessParams.countEmpty = 0;
+        newNodes.clear();
 
         // Main loop
         while ( waveRun )
@@ -1922,7 +1898,7 @@ namespace iqrf {
             // Check prebonded nodes
             for ( auto n : antwProcessParams.prebondedNodes )
             {
-              // MID reading error (or duplicid MID) ?
+              // MID reading error (or duplicit MID) ?
               if ( n.second.authorizeErr == TAuthorizeErr::eFRC )
               {
                 // Yes, remove node from FrcSelect vector - don't read HWPID
@@ -1961,7 +1937,7 @@ namespace iqrf {
                     // Yes, decrease HWPID_HWPVer
                     HWPID_HWPVer--;
                     node.HWPID = HWPID_HWPVer & 0xffff;
-                    node.HWPIDVer = HWPID_HWPVer > 16;
+                    node.HWPIDVer = HWPID_HWPVer >> 16;
                     // Authorize control
                     node.authorize = authorizeControl( node.mid.value, node.HWPID, node.addrBond, node.authorizeErr );
                   }
@@ -2018,10 +1994,6 @@ namespace iqrf {
                   antwProcessParams.networkNodes[response.BondAddr].mid.value = node.second.mid.value;
                   antwProcessParams.networkNodes[response.BondAddr].HWPID = node.second.HWPID;
                   antwProcessParams.networkNodes[response.BondAddr].HWPIDVer = node.second.HWPIDVer;
-                  antwProcessParams.networkNodes[response.BondAddr].DPAVer = 0;
-                  antwProcessParams.networkNodes[response.BondAddr].OSVersion = 0;
-                  antwProcessParams.networkNodes[response.BondAddr].OSBuild = 0;
-                  antwProcessParams.networkNodes[response.BondAddr].McuType = 0;
                   antwProcessParams.countWaveNewNodes++;
                   antwProcessParams.countNewNodes++;
                   break;
@@ -2096,14 +2068,17 @@ namespace iqrf {
                   }
                   else
                   {
-                    // ToDo - ???
+                    // Add offline nodes to FrcOfflineNodes list
                     if ( ( nodeOnline == false ) && ( nodeInAuthList == false ) && ( nodeInOnlineList == false ) )
                     {
                       // Add node to FrcOnlineNodes list
                       FrcOfflineNodes.push_back( address );
                     }
                     else
+                    {
+                      // If node is online a subsequent FRC, mark it as online
                       antwProcessParams.networkNodes[address].online = true;
+                    }
                   }
                 }
               }
@@ -2161,13 +2136,13 @@ namespace iqrf {
 
           // Unbond node at coordinator only ?
           // TestCase - overit odbondovani na strane [C] (zamerne nasimulovat FrcSelect.size() != 0, MIDUnbondOnlyC == true)
-          // ToDo - ???
           if ( ( FrcSelect.size() != 0 ) || ( MIDUnbondOnlyC == true ) )
           {
             TRC_INFORMATION( "Unbonding Nodes only at Coordinator." );
             for ( uint8_t address = 1; address < MAX_ADDRESS; address++ )
             {
               bool unbondPrebondedNode = false;
+              // Duplicit MID (prebonded node list contains a node with MID that is already bonded) ?
               if ( MIDUnbondOnlyC == true )
               {
                 unbondPrebondedNode = unbondPrebondedNodes( address );
@@ -2176,6 +2151,7 @@ namespace iqrf {
               auto node = std::find( FrcSelect.begin(), FrcSelect.end(), address );
               if ( ( node != FrcSelect.end() ) || ( MIDUnbondOnlyC == true && unbondPrebondedNode == true ) )
               {
+                // Insert duplicit node to duplicitMID 
                 if ( std::find( antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address ) != antwProcessParams.duplicitMID.end() )
                   antwProcessParams.duplicitMID.push_back( address );
                 try
@@ -2207,173 +2183,56 @@ namespace iqrf {
 
           // Clear duplicit MIDs
           // TestCase - overit chovani clearDuplicitMID
-          // ToDo - ???
           clearDuplicitMID( autonetworkResult );
 
-          // Discovery
-          if ( ( antwProcessParams.countWaveNewNodes != 0 ) || ( MIDUnbondOnlyC == true ) )
+          // Discovery requested ?
+          if ( antwInputParams.discovery == true )
           {
-            TRC_INFORMATION( "Running discovery." );
-            sendWaveState( TWaveStateCode::sDiscovery );
-            retryAction = antwInputParams.actionRetries + 1;
-            do
+            if ( ( antwProcessParams.countWaveNewNodes != 0 ) || ( MIDUnbondOnlyC == true ) )
             {
-              try
+              retryAction = antwInputParams.actionRetries + 1;
+              do
               {
-                uint8_t disNodes = runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower );
-                if ( ( countDisNodes <= disNodes ) || ( MIDUnbondOnlyC == true ) )
-                  break;
-              }
-              catch ( std::exception& ex )
-              {
-                TRC_WARNING( "Discovery failed: " << ex.what() );
-              }
-            } while ( --retryAction != 0 );
+                TRC_INFORMATION( "Running discovery." );
+                sendWaveState( TWaveStateCode::sDiscovery );
+                try
+                {
+                  uint8_t discNodes = runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower );
+                  if ( ( countDiscNodes <= discNodes ) || ( MIDUnbondOnlyC == true ) )
+                    break;
+                }
+                catch ( std::exception& ex )
+                {
+                  TRC_WARNING( "Discovery failed: " << ex.what() );
+                }
+              } while ( --retryAction != 0 );
 
-            updateNetworkInfo( autonetworkResult );
-            countDisNodes = antwProcessParams.discoveredNodesNr;
+              updateNetworkInfo( autonetworkResult );
+              countDiscNodes = antwProcessParams.discoveredNodesNr;
+            }
           }
+          else
+            updateNetworkInfo( autonetworkResult );
 
           // New nodes bonded ?
           if ( antwProcessParams.countWaveNewNodes != 0 )
           {
             // Copy new nodes to response
             for ( auto node : antwProcessParams.respondedNewNodes )
-              autonetworkResult.putNewNode( node.address, node.MID );
-
-            // Enumerate new nodes            
-            if ( antwInputParams.enumeration == true )
             {
-              TRC_INFORMATION( "Enumerating authorized nodes." );
-              sendWaveState( TWaveStateCode::sEnumeration );
-
-              // Read HWPID if HWPID filtering not requested
+              autonetworkResult.putNewNode( node.address, node.MID );
+              // HWPID filtering requested ?
               if ( antwInputParams.hwpidFiltering.empty() == true )
               {
-                // Copy respondedNewNodes nodes to FrcSelect
-                FrcSelect.clear();
-                std::copy( FrcOnlineNodes.begin(), FrcOnlineNodes.end(), std::back_inserter( FrcSelect ) );
-                // Read HWPID
-                retryAction = antwInputParams.actionRetries + 1;
-                do
-                {
-                  std::vector<uint8_t> nodes;
-                  nodes.clear();
-                  uint8_t nodeCount = FrcSelect.size() > 15 ? 15 : FrcSelect.size();
-                  std::copy( FrcSelect.begin(), FrcSelect.begin() + nodeCount, std::back_inserter( nodes ) );
-                  // FrcMemoryRead4B plus 1 - read DPA version
-                  std::basic_string<uint8_t> memoryData = FrcMemoryRead4B( autonetworkResult, nodes, 0x01, 0x04a7, PNUM_ENUMERATION, CMD_GET_PER_INFO );
-                  uint8_t offset = 0;
-                  for ( auto node : nodes )
-                  {
-                    // Node responded to FrcMemoryRead4B plus 1 ?
-                    uint32_t HWPID_HWPVer = memoryData[offset++];
-                    HWPID_HWPVer |= ( memoryData[offset++] << 8 );
-                    HWPID_HWPVer |= ( memoryData[offset++] << 16 );
-                    HWPID_HWPVer |= ( memoryData[offset++] << 24 );
-                    if ( HWPID_HWPVer != 0 )
-                    {
-                      // Yes, decrease HWPID_HWPVer
-                      HWPID_HWPVer--;
-                      antwProcessParams.networkNodes[node].HWPID = HWPID_HWPVer & 0xffff;
-                      antwProcessParams.networkNodes[node].HWPIDVer = HWPID_HWPVer > 16;
-                      // Erase node from list
-                      FrcSelect.erase( std::find( FrcSelect.begin(), FrcSelect.end(), node ) );
-                      retryAction = antwInputParams.actionRetries + 1;
-                    }
-                  }
-                } while ( ( FrcSelect.size() != 0 ) && ( --retryAction != 0 ) );
+                // No, pass only MIDs
+                newNodes.insert( std::pair<int, embed::node::AnInfo>( node.address, embed::node::AnInfo( node.MID ) ) );
               }
-
-              // Copy online nodes to FrcSelect
-              FrcSelect.clear();
-              std::copy( FrcOnlineNodes.begin(), FrcOnlineNodes.end(), std::back_inserter( FrcSelect ) );
-              // Read DPA version
-              retryAction = antwInputParams.actionRetries + 1;
-              do
+              else
               {
-                std::vector<uint8_t> nodes;
-                nodes.clear();
-                uint8_t nodeCount = FrcSelect.size() > 15 ? 15 : FrcSelect.size();
-                std::copy( FrcSelect.begin(), FrcSelect.begin() + nodeCount, std::back_inserter( nodes ) );
-                // FrcMemoryRead4B plus 1 - read DPA version
-                std::basic_string<uint8_t> memoryData = FrcMemoryRead4B( autonetworkResult, nodes, 0x01, 0x04a0, PNUM_ENUMERATION, CMD_GET_PER_INFO );
-                uint8_t offset = 0;
-                for ( auto node : nodes )
-                {
-                  // Node responded to FrcMemoryRead4B plus 1 ?
-                  uint32_t dpaVersion = memoryData[offset++];
-                  dpaVersion |= ( memoryData[offset++] << 8 );
-                  dpaVersion |= ( memoryData[offset++] << 16 );
-                  dpaVersion |= ( memoryData[offset++] << 24 );
-                  if ( dpaVersion != 0 )
-                  {
-                    // Yes, decrease dpaVersion
-                    dpaVersion--;
-                    // Set DPA version
-                    antwProcessParams.networkNodes[node].DPAVer = dpaVersion & 0xffff;
-                    // Erase node from list
-                    FrcSelect.erase( std::find( FrcSelect.begin(), FrcSelect.end(), node ) );
-                    retryAction = antwInputParams.actionRetries + 1;
-                  }
-                }
-              } while ( ( FrcSelect.size() != 0 ) && ( --retryAction != 0 ) );
-
-              // ToDo
-              std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
-
-              // Read OS version
-              // Copy online nodes to FrcSelect
-              FrcSelect.clear();
-              std::copy( FrcOnlineNodes.begin(), FrcOnlineNodes.end(), std::back_inserter( FrcSelect ) );
-              // Read OS version
-              retryAction = antwInputParams.actionRetries + 1;
-              do
-              {
-                std::vector<uint8_t> nodes;
-                nodes.clear();
-                uint8_t nodeCount = FrcSelect.size() > 15 ? 15 : FrcSelect.size();
-                std::copy( FrcSelect.begin(), FrcSelect.begin() + nodeCount, std::back_inserter( nodes ) );
-                // FrcMemoryRead4B plus 1 - read OS version
-                std::basic_string<uint8_t> memoryData = FrcMemoryRead4B( autonetworkResult, nodes, 0x01, 0x04a4, PNUM_OS, CMD_OS_READ );
-                uint8_t offset = 0;
-                for ( auto node : nodes )
-                {
-                  // Node responded to FrcMemoryRead4B plus 1 ?
-                  uint32_t moduleInfo = memoryData[offset++];
-                  moduleInfo |= ( memoryData[offset++] << 8 );
-                  moduleInfo |= ( memoryData[offset++] << 16 );
-                  moduleInfo |= ( memoryData[offset++] << 24 );
-                  if ( moduleInfo != 0 )
-                  {
-                    // Yes, decrease moduleInfo
-                    moduleInfo--;
-                    antwProcessParams.networkNodes[node].OSVersion = moduleInfo & 0xff;
-                    antwProcessParams.networkNodes[node].McuType = (uint8_t)( moduleInfo >> 8 );
-                    antwProcessParams.networkNodes[node].OSBuild = moduleInfo >> 16;
-                    // Erase node from list
-                    FrcSelect.erase( std::find( FrcSelect.begin(), FrcSelect.end(), node ) );
-                    retryAction = antwInputParams.actionRetries + 1;
-                  }
-                }
-              } while ( ( FrcSelect.size() != 0 ) && ( --retryAction != 0 ) );
+                // Yes, pass MID, HWPID and HWPID version
+                newNodes.insert( std::pair<int, embed::node::AnInfo>( node.address, embed::node::AnInfo( node.MID, antwProcessParams.networkNodes[node.address].HWPID, antwProcessParams.networkNodes[node.address].HWPIDVer ) ) );
+              }
             }
-            
-            // SQLDB add nodes
-            /*
-            try
-            {
-                  // SQLDB - ulozit MID, DPAVerm HWPID, HWPIDVer, OSVersion a OSBuild uspesne autorizovanych nodu do databaze
-                  // add to map to be inserted to DB at the end of AutoNw
-                  //m_insertNadrNodeMap[response.BondAddr] = embed::node::BriefInfoPtr(shape_new embed::node::BriefInfo(
-                  //  node.second.mid.value, false, node.second.HWPID, node.second.HWPIDVer, node.second.OSBuild, node.second.DPAVer));
-              m_iIqrfInfo->insertNodes( m_insertNadrNodeMap, m_exclusiveAccess );
-            }
-            catch ( std::exception& ex )
-            {
-              TRC_ERROR( "Error inserting nodes to DB: " << ex.what() );
-            }
-            */
 
             // Send result
             sendWaveResult( autonetworkResult );
@@ -2414,6 +2273,21 @@ namespace iqrf {
         // Send result
         sendWaveResult( autonetworkResult );
       }
+
+      // Release exclusive access
+      m_exclusiveAccess.reset();
+
+      // SQLDB add nodes
+      /*
+      try
+      {
+        // SQLDB - predat MID, pokud je aktivni filtrovani HWPID, predat take HWPID a HWPIDVer
+      }
+      catch ( std::exception& ex )
+      {
+        TRC_ERROR( "Error inserting nodes to DB: " << ex.what() );
+      }
+      */
 
       TRC_FUNCTION_LEAVE( "" );
     }
@@ -2479,9 +2353,6 @@ namespace iqrf {
       m_messagingId = &messagingId;
       m_comAutonetwork = &comAutonetwork;
       runAutonetwork();
-
-      // Release exclusive access
-      m_exclusiveAccess.reset();
 
       TRC_FUNCTION_LEAVE( "" );
     }

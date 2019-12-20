@@ -35,6 +35,11 @@
               "description": "Run discovery before start.",
               "default": false
             },
+            "discovery": {
+              "type": "boolean",
+              "description": "Run discovery in each wave.",
+              "default": false
+            },
             "actionRetries": {
               "type": "integer",
               "description": "Number of retries DPA transactions.",
@@ -64,11 +69,6 @@
                 "type": "integer"
               }
             },
-            "enumeration": {
-              "type": "boolean",
-              "description": "Enumerate bonded nodes.",
-              "default": false
-            },
             "stopConditions": {
               "type": "object",
               "properties": {
@@ -78,11 +78,15 @@
                 },
                 "networkSize": {
                   "type": "integer",
-                  "description": "Number of nodes in the network."
+                  "description": "Number of nodes (existing + new) in the network."
+                },
+                "newNetworkNodes": {
+                  "type": "integer",
+                  "description": "Number of new nodes bonded into the network."
                 },
                 "emptyWaves": {
                   "type": "integer",
-                  "description": "Number of consecutive waves, i which no new nodes were added into network.",
+                  "description": "Number of consecutive waves, in which no new nodes were added into network.",
                   "default": 2
                 }
               },

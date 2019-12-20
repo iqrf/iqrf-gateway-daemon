@@ -9,6 +9,7 @@ namespace iqrf {
   {
     uint8_t discoveryTxPower;
     bool discoveryBeforeStart;
+    bool discovery;
     uint8_t actionRetries;
     struct 
     {
@@ -16,11 +17,11 @@ namespace iqrf {
       uint8_t network;
     }overlappingNetworks;
     std::vector<uint16_t> hwpidFiltering;
-    bool enumeration;
     struct 
     {
       uint8_t waves;
       uint8_t networkSize;
+      uint8_t newNetworkNodes;
       uint8_t emptyWaves;
     }stopConditions;
   }TAutonetworkInputParams;
@@ -73,6 +74,12 @@ namespace iqrf {
       else
         m_autonetworkParams.discoveryBeforeStart = false;
 
+      // discovery
+      if ( jsonValue = rapidjson::Pointer( "/data/req/discovery" ).Get( doc ) )
+        m_autonetworkParams.discovery = jsonValue->GetBool();
+      else
+        m_autonetworkParams.discovery = false;
+
       // actionRetries
       if ( jsonValue = rapidjson::Pointer( "/data/req/actionRetries" ).Get( doc ) )
         m_autonetworkParams.actionRetries = (uint8_t)jsonValue->GetInt();
@@ -103,12 +110,6 @@ namespace iqrf {
         }
       }
 
-      // enumeration
-      if ( jsonValue = rapidjson::Pointer( "/data/req/enumeration" ).Get( doc ) )
-        m_autonetworkParams.enumeration = jsonValue->GetBool();
-      else
-        m_autonetworkParams.enumeration = false;
-
       // stopConditions/waves
       if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/waves" ).Get( doc ) )
         m_autonetworkParams.stopConditions.waves = (uint8_t)jsonValue->GetInt();
@@ -126,6 +127,12 @@ namespace iqrf {
         m_autonetworkParams.stopConditions.networkSize = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.stopConditions.networkSize = 0;
+
+      // stopConditions/networkSize
+      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/newNetworkNodes" ).Get( doc ) )
+        m_autonetworkParams.stopConditions.newNetworkNodes = (uint8_t)jsonValue->GetInt();
+      else
+        m_autonetworkParams.stopConditions.newNetworkNodes = 0;
     }
 
     // Parses document into data fields
