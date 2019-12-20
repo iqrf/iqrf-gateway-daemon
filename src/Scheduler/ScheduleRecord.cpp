@@ -151,7 +151,7 @@ namespace iqrf {
     Pointer("/cronTime/6").Set(m_timeSpec, m_cron[6]);
     Pointer("/exactTime").Set(m_timeSpec, m_exactTime);
     Pointer("/periodic").Set(m_timeSpec, m_periodic);
-    Pointer("/period").Set(m_timeSpec, (uint64_t)(m_period.count() * 1000));
+    Pointer("/period").Set(m_timeSpec, (uint64_t)(m_period.count()));
     Pointer("/startTime").Set(m_timeSpec, ScheduleRecord::asString(m_startTime));
   }
 

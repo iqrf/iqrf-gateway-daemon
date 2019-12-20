@@ -292,6 +292,9 @@ namespace iqrf {
       std::set<int> m_discovered;
       std::set<int> m_nonDiscovered;
       std::map<int, uint32_t> m_bondedMidMap;
+
+      std::map<int, embed::node::info::BriefInfo> m_mapNadrBriefInfo;
+
     };
     typedef std::unique_ptr<FastEnumeration> FastEnumerationPtr;
 
@@ -490,129 +493,6 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
       return mids;
     }
-
-    //////////////////////////////////////////////////////
-    // Sets selected nodes to specified PData of FRC command
-    void setFRCSelectedNodes(uns8* pData, const std::vector<uint8_t>& selectedNodes)
-    {
-      // Initialize to zero values
-      memset(pData, 0, 30 * sizeof(uns8));
-      for (uint8_t i : selectedNodes)
-      {
-        uns8 byteIndex = i / 8;
-        uns8 bitIndex = i % 8;
-        pData[byteIndex] |= (0x01 << bitIndex);
-      }
-    }
-
-    // FRC_PrebondedMemoryReadPlus1 (used to read MIDs and HWPID)
-    std::basic_string<uint8_t> FrcPrebondedMemoryRead(
-      IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess
-      , const std::vector<uint8_t>& prebondedNodes
-      , const uint8_t nodeSeed
-      , const uint8_t offset
-      , const uint16_t address
-      , const uint8_t PNUM
-      , const uint8_t PCMD
-    )
-    {
-      TRC_FUNCTION_ENTER("");
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-      try
-      {
-        // Prepare DPA request
-        DpaMessage prebondedMemoryRequest;
-        DpaMessage::DpaPacket_t prebondedMemoryPacket;
-        prebondedMemoryPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-        prebondedMemoryPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
-        prebondedMemoryPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
-        prebondedMemoryPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        // FRC Command
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_PrebondedMemoryReadPlus1;
-        // Selected nodes - prebonded alive nodes
-        setFRCSelectedNodes(prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes, prebondedNodes);
-        // Node seed, offset
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x00] = nodeSeed;
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x01] = offset;
-        // OS Read command
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x02] = address & 0xff;
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x03] = address >> 0x08;
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x04] = PNUM;
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x05] = PCMD;
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x06] = 0x00;
-        prebondedMemoryRequest.DataToBuffer(prebondedMemoryPacket.Buffer, sizeof(TDpaIFaceHeader) + 38);
-        // Execute the DPA request
-        exclusiveAccess->executeDpaTransactionRepeat(prebondedMemoryRequest, transResult, 3);
-        TRC_DEBUG("Result from FRC Prebonded Memory Read transaction as string:" << PAR(transResult->getErrorString()));
-        DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION("FRC FRC Prebonded Memory Read successful!");
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR(Peripheral type, prebondedMemoryRequest.PeripheralType())
-          << NAME_PAR(Node address, prebondedMemoryRequest.NodeAddress())
-          << NAME_PAR(Command, (int)prebondedMemoryRequest.PeripheralCommand())
-        );
-        // Data from FRC
-        std::basic_string<uint8_t> prebondedMemoryData;
-        // Check status
-        uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status < 0xFD)
-        {
-          TRC_INFORMATION("FRC Prebonded Memory Read status ok." << NAME_PAR_HEX("Status", status));
-          //prebondedMemoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + sizeof(TMID), 51);
-          prebondedMemoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + sizeof(uint32_t), 51);
-          TRC_DEBUG("Size of FRC data: " << PAR(prebondedMemoryData.size()));
-        }
-        else
-        {
-          TRC_WARNING("FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX("Status", (int)status));
-          //AutonetworkError error(AutonetworkError::Type::PrebondedMemoryRead, "Bad FRC status.");
-          //autonetworkResult.setError(error);
-          THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
-        }
-        // Add FRC result
-        //autonetworkResult.addTransactionResult(transResult);
-
-        // Read FRC extra result (if needed)
-        if (prebondedNodes.size() > 12)
-        {
-          // Read FRC extra results
-          DpaMessage extraResultRequest;
-          DpaMessage::DpaPacket_t extraResultPacket;
-          extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-          extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
-          extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
-          extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-          extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
-          // Execute the DPA request
-          exclusiveAccess->executeDpaTransactionRepeat(extraResultRequest, transResult, 3);
-          TRC_DEBUG("Result from FRC CMD_FRC_EXTRARESULT transaction as string:" << PAR(transResult->getErrorString()));
-          dpaResponse = transResult->getResponse();
-          TRC_INFORMATION("FRC CMD_FRC_EXTRARESULT successful!");
-          TRC_DEBUG(
-            "DPA transaction: "
-            << NAME_PAR(Peripheral type, extraResultRequest.PeripheralType())
-            << NAME_PAR(Node address, extraResultRequest.NodeAddress())
-            << NAME_PAR(Command, (int)extraResultRequest.PeripheralCommand())
-          );
-          // Append FRC data
-          prebondedMemoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, 9);
-          // Add FRC extra result
-          //autonetworkResult.addTransactionResult(transResult);
-        }
-        TRC_FUNCTION_LEAVE("");
-        return prebondedMemoryData;
-      }
-      catch (std::exception& e)
-      {
-        //AutonetworkError error(AutonetworkError::Type::PrebondedMemoryRead, e.what());
-        //autonetworkResult.setError(error);
-        //autonetworkResult.addTransactionResult(transResult);
-        THROW_EXC(std::logic_error, e.what());
-      }
-    }
-    //////////////////////////////////////////////////////
-
 
     // performs fast enumeration
     // it gets nadr, mid, os, hwpid, hwpidVer => if differ from DB states add to candidates for full enum
