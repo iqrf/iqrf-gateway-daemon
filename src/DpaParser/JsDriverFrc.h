@@ -55,15 +55,15 @@ namespace iqrf
       typedef std::unique_ptr<JsDriverSend> JsDriverSendPtr;
 
       ////////////////
-      class JsDriverSendSelective : public SendSelective, public JsDriverDpaCommandSolver
+      class JsDriverSendSelective1 : public SendSelective, public JsDriverDpaCommandSolver
       {
       public:
-        JsDriverSendSelective(IJsRenderService* iJsRenderService, uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
+        JsDriverSendSelective1(IJsRenderService* iJsRenderService, uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
           :JsDriverDpaCommandSolver(iJsRenderService)
           , SendSelective(frcCommand, selectedNodes, userData)
         {}
 
-        virtual ~JsDriverSendSelective() {}
+        virtual ~JsDriverSendSelective1() {}
 
       protected:
         std::string functionName() const override

@@ -20,6 +20,11 @@ namespace iqrf
             , frc::Send(frcCommand, userData)
           {}
 
+          Send(uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
+            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
+            , frc::Send(frcCommand, selectedNodes, userData)
+          {}
+
           virtual ~Send()
           {}
 
@@ -29,26 +34,67 @@ namespace iqrf
             , frc::Send()
           {}
 
-          void encodeRequest(DpaMessage & dpaRequest) override
-          {
-            dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand = m_frcCommand;
+          Send(const std::set<int> & selectedNodes)
+            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
+            , frc::Send()
+          {}
 
-            // set userData
-            int frcUserDataLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData) / sizeof(uint8_t);
-            if (frcUserDataLen >= m_userData.size()) {
-              frcUserDataLen = m_userData.size();
+          virtual void encodeRequest(DpaMessage & dpaRequest) override
+          {
+            if (m_selectedNodes.size() > 0) {
+              // fix pcmd according selectedNodes if set later after ctor by setSelectedNodes()
+              m_pcmd = CMD_FRC_SEND_SELECTIVE;
+              dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD = m_pcmd;
+
+              dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = m_frcCommand;
+
+              // set selectedNodes
+              int selNodesLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes) / sizeof(uint8_t);
+              std::vector<uint8_t> snBytes = indexesToBitmap(m_selectedNodes, selNodesLen);
+              std::copy(snBytes.data(), snBytes.data() + selNodesLen
+                , dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes);
+
+              // set userData
+              int frcUserDataLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData) / sizeof(uint8_t);
+              if (frcUserDataLen >= m_userData.size()) {
+                frcUserDataLen = m_userData.size();
+              }
+              else {
+                TRC_WARNING(PAR(m_userData.size()) << "cut off to: " << PAR(frcUserDataLen));
+              }
+              std::copy(m_userData.data(), m_userData.data() + frcUserDataLen
+                , dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData);
+
+              // set len
+              dpaRequest.SetLength(getRequestHeaderLen()
+                + sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand)
+                + selNodesLen
+                + m_userData.size()
+              );
             }
             else {
-              TRC_WARNING(PAR(m_userData.size()) << "cut off to: " << PAR(frcUserDataLen));
+              m_pcmd = CMD_FRC_SEND;
+              dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD = m_pcmd;
+
+              dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand = m_frcCommand;
+
+              // set userData
+              int frcUserDataLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData) / sizeof(uint8_t);
+              if (frcUserDataLen >= m_userData.size()) {
+                frcUserDataLen = m_userData.size();
+              }
+              else {
+                TRC_WARNING(PAR(m_userData.size()) << "cut off to: " << PAR(frcUserDataLen));
+              }
+              std::copy(m_userData.data(), m_userData.data() + frcUserDataLen
+                , dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData);
+
+              // set len
+              dpaRequest.SetLength(getRequestHeaderLen()
+                + sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand)
+                + m_userData.size()
+              );
             }
-            std::copy(m_userData.data(), m_userData.data() + frcUserDataLen
-              , dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData);
-          
-            // set len
-            dpaRequest.SetLength(getRequestHeaderLen()
-              + sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand)
-              + m_userData.size()
-            );
           }
 
           void parseResponse(const DpaMessage & dpaResponse) override
@@ -62,75 +108,6 @@ namespace iqrf
         };
         typedef std::unique_ptr<Send> SendPtr;
         
-        ////////////////
-        class SendSelective : public frc::SendSelective, public DpaCommandSolver
-        {
-        public:
-          SendSelective(uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
-            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
-            , frc::SendSelective(frcCommand, selectedNodes, userData)
-          {}
-
-          SendSelective(uint8_t frcCommand, const std::vector<uint8_t> & userData)
-            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
-            , frc::SendSelective(frcCommand, userData)
-          {}
-
-          virtual ~SendSelective()
-          {}
-
-        protected:
-          SendSelective()
-            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
-            , frc::SendSelective()
-          {}
-
-          SendSelective(const std::set<int> & selectedNodes)
-            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
-            , frc::SendSelective(selectedNodes)
-          {}
-
-          void encodeRequest(DpaMessage & dpaRequest) override
-          {
-            dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = m_frcCommand;
-
-            // set userData
-            int frcUserDataLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData) / sizeof(uint8_t);
-            if (frcUserDataLen >= m_userData.size()) {
-              frcUserDataLen = m_userData.size();
-            }
-            else {
-              TRC_WARNING(PAR(m_userData.size()) << "cut off to: " << PAR(frcUserDataLen));
-            }
-            std::copy(m_userData.data(), m_userData.data() + frcUserDataLen
-              , dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData);
-
-            // set selectedNodes
-            int selNodesLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes) / sizeof(uint8_t);
-            std::vector<uint8_t> snBytes = indexesToBitmap(m_selectedNodes, selNodesLen);
-            std::copy(snBytes.data(), snBytes.data() + selNodesLen
-              , dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes);
-          
-            // set len
-            dpaRequest.SetLength(getRequestHeaderLen()
-              + sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand)
-              + selNodesLen
-              + m_userData.size()
-            );
-
-          }
-
-          void parseResponse(const DpaMessage & dpaResponse) override
-          {
-            m_frcData.clear();
-            m_status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-            int frcDataLen = sizeof(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData) / sizeof(uint8_t);
-            m_frcData.assign(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData,
-              dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + frcDataLen);
-          }
-        };
-        typedef std::unique_ptr<SendSelective> SendSelectivePtr;
-
         ////////////////
         class ExtraResult : public frc::ExtraResult, public DpaCommandSolver
         {
@@ -157,90 +134,120 @@ namespace iqrf
         };
 
         ////////////////
-        class MemoryRead_Send : public Send
+        class MemReadBase : public Send
         {
-        public:
-          MemoryRead_Send(uint16_t address, uint8_t pnum, uint8_t pcmd, std::vector<uint8_t> pdata = std::vector<uint8_t>())
+        protected:
+          uint16_t m_address;
+          uint8_t m_nodePnum;
+          uint8_t m_nodePcmd;
+          bool m_inc;
+          std::vector<uint8_t> m_pdata;
+        
+          MemReadBase() = delete;
+
+          MemReadBase(uint16_t address, uint8_t pnum, uint8_t pcmd, bool inc, std::vector<uint8_t> pdata )
             :Send()
+            , m_address(address)
+            , m_nodePnum(pnum)
+            , m_nodePcmd(pcmd)
+            , m_inc(inc)
+            , m_pdata(pdata)
           {
-            m_frcCommand = FRC_MemoryRead;
-            initUserData(m_userData, address, pnum, pcmd, pdata, (sizeof(TPerFrcSend_Request::UserData) / sizeof(uint8_t)));
           }
 
-          static void initUserData(std::vector<uint8_t> & userData, uint16_t address, uint8_t pnum, uint8_t pcmd
-            , const std::vector<uint8_t> & pdata, int maxUserDataLen)
+          MemReadBase(const std::set<int> & selectedNodes, uint16_t address, uint8_t pnum, bool inc, uint8_t pcmd, std::vector<uint8_t> pdata)
+            :Send(selectedNodes)
+            , m_address(address)
+            , m_nodePnum(pnum)
+            , m_nodePcmd(pcmd)
+            , m_inc(inc)
+            , m_pdata(pdata)
           {
-            userData.push_back((uint8_t)(address & 0xff));
-            userData.push_back((uint8_t)(address >> 8));
-            userData.push_back(pnum);
-            userData.push_back(pcmd);
+          }
 
-            // set userData
+          virtual ~MemReadBase()
+          {}
+
+          void userDataNodeDpa()
+          {
+            m_userData.push_back((uint8_t)(m_address & 0xff));
+            m_userData.push_back((uint8_t)(m_address >> 8));
+            m_userData.push_back(m_nodePnum);
+            m_userData.push_back(m_nodePcmd);
+          }
+
+          void userDataPdata()
+          {
+            // len according selectedNodes
+            size_t maxUserDataLen = m_selectedNodes.size() > 0 ? sizeof(TPerFrcSendSelective_Request::UserData) : sizeof(TPerFrcSend_Request::UserData);
+
             int frcUserDataLen = maxUserDataLen;
-            if (frcUserDataLen >= pdata.size()) {
-              frcUserDataLen = pdata.size();
+            if (frcUserDataLen >= m_pdata.size()) {
+              frcUserDataLen = m_pdata.size();
             }
             else {
-              TRC_WARNING(PAR(pdata.size()) << "cut off to: " << PAR(frcUserDataLen));
+              TRC_WARNING(PAR(m_pdata.size()) << "cut off to: " << PAR(frcUserDataLen));
             }
-            
-            userData.push_back(frcUserDataLen);
-            userData.insert(userData.end(), pdata.data(), pdata.data() + frcUserDataLen);
+
+            m_userData.push_back(frcUserDataLen);
+            m_userData.insert(m_userData.end(), m_pdata.data(), m_pdata.data() + frcUserDataLen);
           }
+
         };
 
         ////////////////
-        class MemoryRead_SendSelective : public SendSelective
+        class MemoryRead : public MemReadBase
         {
         public:
-          MemoryRead_SendSelective(const std::set<int> & selectedNodes, uint16_t address, uint8_t pnum, uint8_t pcmd
-            , std::vector<uint8_t> pdata = std::vector<uint8_t>()
-          )
-            :SendSelective(selectedNodes)
+          MemoryRead(uint16_t address, uint8_t pnum, uint8_t pcmd, bool inc, std::vector<uint8_t> pdata = std::vector<uint8_t>())
+            :MemReadBase(address, pnum, pcmd, inc, pdata)
           {
-            m_frcCommand = FRC_MemoryRead;
-            MemoryRead_Send::initUserData(m_userData, address, pnum, pcmd, pdata, (sizeof(TPerFrcSendSelective_Request::UserData) / sizeof(uint8_t)));
           }
+
+          MemoryRead(const std::set<int> & selectedNodes, uint16_t address, uint8_t pnum, uint8_t pcmd, bool inc, std::vector<uint8_t> pdata = std::vector<uint8_t>())
+            :MemReadBase(selectedNodes, address, pnum, pcmd, inc, pdata)
+          {
+          }
+
+          void encodeRequest(DpaMessage & dpaRequest) override
+          {
+            //FRC command according inc
+            m_frcCommand = m_inc ? FRC_MemoryReadPlus1 : FRC_MemoryRead;
+
+            m_userData.clear(); //clear to be reusable
+            userDataNodeDpa();
+            userDataPdata();
+
+            Send::encodeRequest(dpaRequest);
+          }
+
         };
 
         ////////////////
-        class MemoryRead4B_Send : public Send
+        class MemoryRead4B : public MemReadBase
         {
         public:
-          MemoryRead4B_Send(uint16_t address, uint8_t pnum, uint8_t pcmd, std::vector<uint8_t> pdata = std::vector<uint8_t>())
-            :Send()
+          MemoryRead4B(uint16_t address, uint8_t pnum, uint8_t pcmd, bool inc, std::vector<uint8_t> pdata = std::vector<uint8_t>())
+            :MemReadBase(address, pnum, pcmd, inc, pdata)
           {
-            m_frcCommand = FRC_MemoryRead4B;
-            m_userData.push_back(0); //original
-            m_userData.push_back(0); // required zero
-            MemoryRead_Send::initUserData(m_userData, address, pnum, pcmd, pdata, (sizeof(TPerFrcSend_Request::UserData) / sizeof(uint8_t)));
-          }
-        };
-
-        ////////////////
-        class MemoryRead4B_SendSelective : public SendSelective
-        {
-        public:
-          MemoryRead4B_SendSelective(const std::set<int> & selectedNodes, uint16_t address, uint8_t pnum, uint8_t pcmd
-            , std::vector<uint8_t> pdata = std::vector<uint8_t>()
-          )
-            :SendSelective(selectedNodes)
-          {
-            m_frcCommand = FRC_MemoryRead4B;
-            m_userData.push_back(0); //original
-            m_userData.push_back(0); // required zero
-            MemoryRead_Send::initUserData(m_userData, address, pnum, pcmd, pdata, (sizeof(TPerFrcSendSelective_Request::UserData) / sizeof(uint8_t)));
           }
 
-          MemoryRead4B_SendSelective(uint16_t address, uint8_t pnum, uint8_t pcmd
-            , std::vector<uint8_t> pdata = std::vector<uint8_t>()
-          )
-            :SendSelective()
+          MemoryRead4B(const std::set<int> & selectedNodes, uint16_t address, uint8_t pnum, uint8_t pcmd, bool inc, std::vector<uint8_t> pdata = std::vector<uint8_t>())
+            :MemReadBase(selectedNodes, address, pnum, pcmd, inc, pdata)
+          {
+          }
+
+          void encodeRequest(DpaMessage & dpaRequest) override
           {
             m_frcCommand = FRC_MemoryRead4B;
-            m_userData.push_back(0); //original
+
+            m_userData.clear(); //clear to be reusable
+            m_userData.push_back(m_inc ? 1 : 0); //inc 0 - value original, 1- value += 1
             m_userData.push_back(0); // required zero
-            MemoryRead_Send::initUserData(m_userData, address, pnum, pcmd, pdata, (sizeof(TPerFrcSendSelective_Request::UserData) / sizeof(uint8_t)));
+            userDataNodeDpa();
+            userDataPdata();
+
+            Send::encodeRequest(dpaRequest);
           }
 
         };

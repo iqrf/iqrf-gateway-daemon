@@ -20,6 +20,7 @@ namespace iqrf
         int m_dpaVer = 0;
         int m_perNr = 0;;
         std::set<int> m_embedPer;
+        int m_hwpidEnm = 0;
         int m_hwpidVer = 0;
         int m_flags = 0;
         std::set<int> m_userPer;
@@ -33,6 +34,7 @@ namespace iqrf
         int getDpaVer() const { return m_dpaVer & 0x3fff; }
         int getPerNr() const { return m_perNr; }
         const std::set<int> & getEmbedPer() const { return m_embedPer; }
+        int getHwpidEnm() const { return m_hwpidEnm; }
         int getHwpidVer() const { return m_hwpidVer; }
         int getFlags() const { return m_flags; }
         const std::set<int> & getUserPer() const { return m_userPer; }
