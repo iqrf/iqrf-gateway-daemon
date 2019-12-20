@@ -2278,17 +2278,15 @@ namespace iqrf {
       m_exclusiveAccess.reset();
 
       // SQLDB add nodes
-      /*
       try
       {
         // SQLDB - predat MID, pokud je aktivni filtrovani HWPID, predat take HWPID a HWPIDVer
+        m_iIqrfInfo->insertNodes( newNodes );
       }
       catch ( std::exception& ex )
       {
         TRC_ERROR( "Error inserting nodes to DB: " << ex.what() );
       }
-      */
-
       TRC_FUNCTION_LEAVE( "" );
     }
 
