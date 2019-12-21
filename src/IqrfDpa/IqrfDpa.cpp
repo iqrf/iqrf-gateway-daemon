@@ -350,6 +350,7 @@ namespace iqrf {
       iqrfEmbedOsRead.processDpaTransactionResult(std::move(transResult));
 
       m_cPar.moduleId = iqrfEmbedOsRead.getMidAsString();
+      m_cPar.mid = iqrfEmbedOsRead.getMid();
       m_cPar.osVersion = iqrfEmbedOsRead.getOsVersionAsString();
       m_cPar.trType = iqrfEmbedOsRead.getTrTypeAsString();
       m_cPar.mcuType = iqrfEmbedOsRead.getTrMcuTypeAsString();

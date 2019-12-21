@@ -33,6 +33,7 @@ namespace iqrf {
       std::string dpaVerWordAsStr;
       uint16_t dpaVerWord = 0;
       uint16_t osBuildWord = 0;
+      uint32_t mid = 0;
       int dpaVerMajor = 0;
       int dpaVerMinor = 0;
       bool demoFlag = false;

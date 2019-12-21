@@ -237,13 +237,11 @@ namespace iqrf {
     std::thread m_enumThread;
     std::atomic_bool m_enumThreadRun;
     std::mutex m_enumMtx;
-
-    //FastEnumerationPtr m_fastEnum;
+    std::condition_variable m_enumCv;
 
   public:
     Imp()
     {
-      m_enumThreadRun = false;
     }
 
     ~Imp()
@@ -301,40 +299,59 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      std::lock_guard<std::mutex> lck(m_enumMtx);
+      bool once = true; //only once now TODO calling of loadDrivers only for new devices
 
-      try {
-        std::cout << std::endl << "Fast Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
-
-        auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-        if (!exclusiveAccess) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Cannot get exclusive access to IqrfDpa");
+      while (m_enumThreadRun) {
+        std::unique_lock<std::mutex> lck(m_enumMtx);
+        if (!once) {
+          m_enumCv.wait_for(lck, std::chrono::seconds(5));
         }
 
-        fastEnum(exclusiveAccess);
-        std::cout << std::endl << "Full Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
-        fullEnum(exclusiveAccess);
-        loadDrivers();
-        std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
-        stdEnum(exclusiveAccess);
-        std::cout << std::endl << "Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+        try {
+          std::cout << std::endl << "Fast Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
 
-        exclusiveAccess.reset();
-      }
-      catch (std::exception & e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Enumeration failure");
-        std::cout << std::endl << "Enumeration failure at:      " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl <<
-          e.what() << std::endl;
-      }
+          if (once) {
+            // eval coordinator
+            checkCoordinator();
+          }
 
-      //m_fastEnum.release();
-      m_enumThreadRun = false;
+          checkEnum();
+
+          if (m_nadrFullEnum.size() > 0) {
+
+            std::cout << std::endl << "Full Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
+
+            fullEnum();
+            if (once) {
+              loadDrivers();
+              // if we have all mappings => get rid of provisional contexts, maybe keep it for added devices
+              // m_iJsRenderService->unloadProvisionalContexts();
+            }
+
+            std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
+            // stdEnum(exclusiveAccess);
+
+            std::cout << std::endl << "Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+
+            //exclusiveAccess.reset();
+
+            m_nadrFullEnum.clear();
+          }
+
+          once = false;
+        }
+        catch (std::exception & e) {
+          CATCH_EXC_TRC_WAR(std::exception, e, "Enumeration failure");
+          std::cout << std::endl << "Enumeration failure at:      " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl <<
+            e.what() << std::endl;
+        }
+      }
 
       TRC_FUNCTION_LEAVE("");
     }
 
     // read bonded mid for coordinator eeeprom
-    std::map<int, uint32_t> getBondedMids(IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess, const std::set<int> & bonded) const
+    std::map<int, uint32_t> getBondedMids(const std::set<int> & bonded) const
     {
       TRC_FUNCTION_ENTER("");
 
@@ -359,8 +376,8 @@ namespace iqrf {
         if (len > 0) {
           uint16_t adr = (uint16_t)(0x4000 + i * maxlen);
           iqrf::embed::eeeprom::rawdpa::Read eeepromRead(0, adr, len);
-          std::unique_ptr<IDpaTransactionResult2> trnResult;
-          exclusiveAccess->executeDpaTransactionRepeat(eeepromRead.getRequest(), trnResult, 3);
+          auto trn = m_iIqrfDpaService->executeDpaTransaction(eeepromRead.getRequest());
+          auto trnResult = trn->get();
           eeepromRead.processDpaTransactionResult(std::move(trnResult));
           pdataVec.insert(pdataVec.end(), eeepromRead.getPdata().begin(), eeepromRead.getPdata().end());
         }
@@ -369,7 +386,7 @@ namespace iqrf {
       // parse stored mids TODO vrn data?
       for (int nadr : bonded) {
         int m = nadr * 8;
-        uint32_t mid = (unsigned)pdataVec[m] | ((unsigned)pdataVec[m+1] << 8) | ((unsigned)pdataVec[m+2] << 16) | ((unsigned)pdataVec[m+3] << 24);
+        uint32_t mid = (unsigned)pdataVec[m] | ((unsigned)pdataVec[m + 1] << 8) | ((unsigned)pdataVec[m + 2] << 16) | ((unsigned)pdataVec[m + 3] << 24);
         bondedMidMap[nadr] = mid;
       }
 
@@ -404,7 +421,13 @@ namespace iqrf {
       return nodeData;
     }
 
-    void fastEnum(IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    void checkCoordinator()
+    {
+      auto cp = m_iIqrfDpaService->getCoordinatorParameters();
+
+    }
+
+    void checkEnum()
     {
       TRC_FUNCTION_ENTER("");
 
@@ -412,12 +435,14 @@ namespace iqrf {
 
       {
         std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorBondedDevices.getRequest(), transResult, 3);
-        iqrfEmbedCoordinatorBondedDevices.processDpaTransactionResult(std::move(transResult));
+        auto trn = m_iIqrfDpaService->executeDpaTransaction(iqrfEmbedCoordinatorBondedDevices.getRequest());
+        iqrfEmbedCoordinatorBondedDevices.processDpaTransactionResult(trn->get());
       }
 
       m_bonded = iqrfEmbedCoordinatorBondedDevices.getBondedDevices();
-      m_bondedNadrMidMap = getBondedMids(exclusiveAccess, m_bonded);
+      m_bondedNadrMidMap = getBondedMids(m_bonded);
+      // get coordinator mid already taken by IqrfDpa
+      m_bondedNadrMidMap[0] = m_iIqrfDpaService->getCoordinatorParameters().mid;
 
       database & db = *m_db;
 
@@ -442,7 +467,7 @@ namespace iqrf {
         int nadr = bo.first;
         const auto & b = bo.second;
         auto found = m_bondedNadrMidMap.find(nadr);
-        if (found == m_bondedNadrMidMap.end()) {
+        if (found == m_bondedNadrMidMap.end() ) {
           // Nadr not found in Net => delete from Bonded
           TRC_INFORMATION(PAR(nadr) << " remove from bonded list")
             db << "delete from Bonded where Nadr = ?;" << nadr;
@@ -490,7 +515,7 @@ namespace iqrf {
       return deviceIdPtr;
     }
 
-    std::unique_ptr<int> enumerateDeviceOutsideRepo(int nadr, const NodeDataPtr & nd, Device & d, IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    std::unique_ptr<int> enumerateDeviceOutsideRepo(int nadr, const NodeDataPtr & nd, Device & d)
     {
       TRC_FUNCTION_ENTER(PAR(d.m_hwpid) << PAR(d.m_hwpidVer) << PAR(d.m_osBuild) << PAR(d.m_dpaVer));
 
@@ -499,9 +524,8 @@ namespace iqrf {
         // wasn't enumerated yet => done by FRC
         std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
         {
-          std::unique_ptr<IDpaTransactionResult2> transResult;
-          exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, 3);
-          exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
+          auto trn = m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest());
+          exploreEnumeratePtr->processDpaTransactionResult(trn->get());
           nd->setEmbedExploreEnumerate(exploreEnumeratePtr);
         }
       }
@@ -556,7 +580,7 @@ namespace iqrf {
           if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per || PERIF_STANDARD_DALI == per || PERIF_STANDARD_LIGHT == per) {
 
             embed::explore::RawDpaPeripheralInformation perInfo(nadr, per);
-            perInfo.processDpaTransactionResult(exclusiveAccess->executeDpaTransaction(perInfo.getRequest())->get());
+            perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.getRequest())->get());
 
             int version = perInfo.getPar1();
             perVerMap.insert(std::make_pair(per, version));
@@ -578,46 +602,45 @@ namespace iqrf {
       return deviceIdPtr;
     }
 
-    // TODO
-    void fullEnumByFrc(IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    void fullEnumByFrc()
     {
       TRC_FUNCTION_ENTER("");
 
-      if (m_nadrFullEnum.size() > 0) {
+      //auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      //if (!exclusiveAccess) {
+      //  THROW_EXC_TRC_WAR(std::logic_error, "Cannot get exclusive access to IqrfDpa");
+      //}
 
-        for (auto nadr : m_nadrFullEnum) {
-          auto found = m_bondedNadrMidMap.find(nadr);
-          if (found == m_bondedNadrMidMap.end()) {
-            THROW_EXC_TRC_WAR(std::logic_error, PAR(nadr) << " inconsistent bonded nadr with nadr/mid map both from coordinator");
-          }
-          m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(found->second))));
+      for (auto nadr : m_nadrFullEnum) {
+        auto found = m_bondedNadrMidMap.find(nadr);
+        if (found == m_bondedNadrMidMap.end()) {
+          THROW_EXC_TRC_WAR(std::logic_error, PAR(nadr) << " inconsistent bonded nadr with nadr/mid map both from coordinator");
         }
+        m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(found->second))));
+      }
 
-        // frc results
-        std::map<int, uint32_t> hwpidMap;
-        std::map<int, uint32_t> osBuildMap;
-        std::map<int, uint32_t> dpaVerMap;
+      // frc results
+      std::map<int, uint32_t> hwpidMap;
+      std::map<int, uint32_t> osBuildMap;
+      std::map<int, uint32_t> dpaVerMap;
+      bool anyValid = false;
 
-        const uint16_t CBUFFER = 0x04a0; // msg buffer in node
+      const uint16_t CBUFFER = 0x04a0; // msg buffer in node
 
-        std::vector<std::set<int>> setVect = iqrf::embed::frc::Send::splitSelectedNode<uint32_t>(m_nadrFullEnum);
-        iqrf::embed::frc::rawdpa::ExtraResult extra;
+      std::vector<std::set<int>> setVect = iqrf::embed::frc::Send::splitSelectedNode<uint32_t>(m_nadrFullEnum);
+      iqrf::embed::frc::rawdpa::ExtraResult extra;
 
+      while (true) {
         { // read HWPID, HWPIDVer
           uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, HWPID);
           iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO, true); //value += 1
 
           for (const auto & s : setVect) {
             frc.setSelectedNodes(s);
-            std::unique_ptr<IDpaTransactionResult2> transResult;
-            exclusiveAccess->executeDpaTransactionRepeat(frc.getRequest(), transResult, 3);
-            frc.processDpaTransactionResult(std::move(transResult));
+            frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
             //TODO check status
-
             // get extra result
-            std::unique_ptr<IDpaTransactionResult2> transResultExtra;
-            exclusiveAccess->executeDpaTransactionRepeat(extra.getRequest(), transResultExtra, 3);
-            extra.processDpaTransactionResult(std::move(transResultExtra));
+            extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
 
             frc.getFrcDataAs(hwpidMap, extra.getFrcData());
 
@@ -625,6 +648,7 @@ namespace iqrf {
               int nadr = it.first;
               uint32_t hwpidw = it.second;
               if (0 != hwpidw) {
+                anyValid = true;
                 // correct value from FRC => store it
                 --hwpidw;
                 m_nadrFullEnumNodeMap[nadr]->setHwpid(hwpidw & 0xffff);
@@ -633,22 +657,21 @@ namespace iqrf {
             }
           }
         }
+        if (!anyValid) {
+          break; //no sense to continue now
+        }
 
+        anyValid = true;
         { // read DpaVersion + 2B
           uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, DpaVersion);
           iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO, false);
 
           for (const auto & s : setVect) {
             frc.setSelectedNodes(s);
-            std::unique_ptr<IDpaTransactionResult2> transResult;
-            exclusiveAccess->executeDpaTransactionRepeat(frc.getRequest(), transResult, 3);
-            frc.processDpaTransactionResult(std::move(transResult));
+            frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
             //TODO check status
-
             // get extra result
-            std::unique_ptr<IDpaTransactionResult2> transResultExtra;
-            exclusiveAccess->executeDpaTransactionRepeat(extra.getRequest(), transResultExtra, 3);
-            extra.processDpaTransactionResult(std::move(transResultExtra));
+            extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
 
             frc.getFrcDataAs(dpaVerMap, extra.getFrcData());
 
@@ -656,11 +679,15 @@ namespace iqrf {
               int nadr = it.first;
               uint32_t dpaVer = it.second;
               if (0 != dpaVer) {
+                anyValid = true;
                 // correct value from FRC => store it
                 m_nadrFullEnumNodeMap[nadr]->setDpaVer(dpaVer & 0x3fff);
               }
             }
           }
+        }
+        if (!anyValid) {
+          break; //no sense to continue now
         }
 
         { // read OsBuild + 2B 
@@ -669,15 +696,10 @@ namespace iqrf {
 
           for (const auto & s : setVect) {
             frc.setSelectedNodes(s);
-            std::unique_ptr<IDpaTransactionResult2> transResult;
-            exclusiveAccess->executeDpaTransactionRepeat(frc.getRequest(), transResult, 3);
-            frc.processDpaTransactionResult(std::move(transResult));
+            frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
             //TODO check status
-
             // get extra result
-            std::unique_ptr<IDpaTransactionResult2> transResultExtra;
-            exclusiveAccess->executeDpaTransactionRepeat(extra.getRequest(), transResultExtra, 3);
-            extra.processDpaTransactionResult(std::move(transResultExtra));
+            extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
 
             frc.getFrcDataAs(osBuildMap, extra.getFrcData());
 
@@ -691,7 +713,7 @@ namespace iqrf {
             }
           }
         }
-
+        break;
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -702,8 +724,6 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       for (auto nadr : m_nadrFullEnum) {
-        // enum thread stopped
-        if (!m_enumThreadRun) break;
 
         m_nadrFullEnumNodeMap[nadr] = getNodeDataPriv(nadr, exclusiveAccess);
         //TODO
@@ -714,26 +734,35 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void fullEnum(IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    void fullEnum()
     {
       TRC_FUNCTION_ENTER("");
 
-      iqrf::embed::coordinator::RawDpaDiscoveredDevices iqrfEmbedCoordinatorDiscoveredDevices;
-
+      // get discovered from C
+      iqrf::embed::coordinator::RawDpaDiscoveredDevices dd;
       {
-        std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedCoordinatorDiscoveredDevices.getRequest(), transResult, 3);
-        iqrfEmbedCoordinatorDiscoveredDevices.processDpaTransactionResult(std::move(transResult));
+        auto trn = m_iIqrfDpaService->executeDpaTransaction(dd.getRequest());
+        dd.processDpaTransactionResult(trn->get());
+      }
+      auto & discovered = dd.getDiscoveredDevices();
+
+      if (0 == m_bondedNadrMidMap.begin()->first && *(m_nadrFullEnum.begin()) == 0) {
+        // coordinator
+        auto cp = m_iIqrfDpaService->getCoordinatorParameters();
+        auto it = m_nadrFullEnumNodeMap.insert(std::make_pair(0, shape_new NodeData(cp.mid)));
+        NodeDataPtr & c = it.first->second;
+        c->setHwpid(0);
+        c->setHwpidVer(0);
+        c->setOsBuild(cp.osBuildWord);
+        c->setDpaVer(cp.dpaVerWord);
       }
 
-      auto & discovered = iqrfEmbedCoordinatorDiscoveredDevices.getDiscoveredDevices();
-
       if (true) {
-        fullEnumByFrc(exclusiveAccess);
+        fullEnumByFrc();
       }
       else {
         // TODO if cannot FRC - older dpa (according [C])
-        fullEnumByPoll(exclusiveAccess);
+        //fullEnumByPoll(exclusiveAccess);
       }
 
       database & db = *m_db;
@@ -770,7 +799,7 @@ namespace iqrf {
             deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
           }
           else {
-            deviceIdPtr = enumerateDeviceOutsideRepo(nadr, nd, device, exclusiveAccess);
+            deviceIdPtr = enumerateDeviceOutsideRepo(nadr, nd, device);
           }
 
           db << "begin transaction;";
@@ -812,7 +841,7 @@ namespace iqrf {
       //TODO reimplement
 
       m_nadrAnInfoMap = nodes;
-      
+
       // TODO make procesing in thd
       //runEnum();
 
@@ -856,11 +885,11 @@ namespace iqrf {
         std::ostringstream os;
         os << std::endl << "Cannot load required package for: "
           << NAME_PAR(os, embed::os::Read::getOsBuildAsString(osBuild))
-          << NAME_PAR(dpa,embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
-        
+          << NAME_PAR(dpa, embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
+
         std::cout << os.str() << std::endl;
         TRC_WARNING(os.str());
-        
+
         for (int dpa = dpaVer - 1; dpa > 300; dpa--) {
           drivers = m_iJsCacheService->getDrivers(embed::os::Read::getOsBuildAsString(osBuild), embed::explore::Enumerate::getDpaVerAsHexaString(dpa));
           if (drivers.size() > 0) {
@@ -1028,7 +1057,7 @@ namespace iqrf {
         }
 
         //now we have all mappings => get rid of provisional contexts
-        m_iJsRenderService->unloadProvisionalContexts();
+        //m_iJsRenderService->unloadProvisionalContexts();
 
       }
       catch (sqlite_exception &e)
@@ -1830,6 +1859,7 @@ namespace iqrf {
 
       loadProvisoryDrivers();
 
+      m_enumThreadRun = false;
       if (m_enumAtStartUp) {
         startEnumeration();
       }
