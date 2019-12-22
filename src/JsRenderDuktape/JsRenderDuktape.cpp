@@ -162,9 +162,10 @@ namespace iqrf {
     int m_relativeStack = 0;
 
     int m_ctxCounter = 0;
-    std::mutex m_contextMtx;
+    mutable std::mutex m_contextMtx;
     std::map<int, std::shared_ptr<Context>> m_contexts;
     std::map<int, int> m_mapNadrContext;
+    std::map<int, std::set<int>> m_mapNadrDriversId;
 
   public:
     Imp()
@@ -195,7 +196,7 @@ namespace iqrf {
       return buffer.GetString();
     }
 
-    int loadJsCodeFenced(int contextId, const std::string& js)
+    int loadJsCodeFenced(int contextId, const std::string& js, const std::set<int> & driverIdSet)
     {
       TRC_FUNCTION_ENTER(PAR(contextId));
 
@@ -204,11 +205,13 @@ namespace iqrf {
 
         auto found = m_contexts.find(contextId);
         if (found != m_contexts.end()) {
-          //THROW_EXC_TRC_WAR(std::logic_error, "Already created JS context: " << PAR(contextId));
           m_contexts.erase(contextId);
         }
         auto res = m_contexts.insert(std::make_pair(contextId, std::shared_ptr<Context>(shape_new Context())));
         res.first->second->loadJsCode(js);
+
+        m_mapNadrDriversId[contextId] = driverIdSet;
+
       }
       catch (std::exception & e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "cannot load passed JS code");
@@ -220,9 +223,22 @@ namespace iqrf {
       return 0;
     }
 
+    std::set<int> getDriverIdSet(int contextId) const
+    {
+      std::unique_lock<std::mutex> lck(m_contextMtx);
+      auto found = m_mapNadrDriversId.find(contextId);
+      if (found != m_mapNadrDriversId.end()) {
+        return found->second;
+      }
+      else {
+        return std::set<int>();
+      }
+    }
+
     void mapNadrToFenced(int nadr, int contextId)
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(contextId));
+      std::unique_lock<std::mutex> lck(m_contextMtx);
       m_mapNadrContext[nadr] = contextId;
       TRC_FUNCTION_LEAVE("");
     }
@@ -348,9 +364,14 @@ namespace iqrf {
     delete m_imp;
   }
 
-  void JsRenderDuktape::loadJsCodeFenced(int contextId, const std::string& js)
+  void JsRenderDuktape::loadJsCodeFenced(int contextId, const std::string& js, const std::set<int> & driverIdSet)
   {
-    m_imp->loadJsCodeFenced(contextId, js);
+    m_imp->loadJsCodeFenced(contextId, js, driverIdSet);
+  }
+
+  std::set<int> JsRenderDuktape::getDriverIdSet(int contextId) const
+  {
+    return m_imp->getDriverIdSet(contextId);
   }
 
   void JsRenderDuktape::mapNadrToFenced(int nadr, int contextId)

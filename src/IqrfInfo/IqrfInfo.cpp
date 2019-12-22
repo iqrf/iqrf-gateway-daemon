@@ -120,7 +120,6 @@ namespace iqrf {
       std::vector<const IJsCacheService::StdDriver *> m_drivers;
     };
 
-
     class NodeData : public embed::node::BriefInfo
     {
     private:
@@ -230,9 +229,12 @@ namespace iqrf {
     std::set<int> m_nadrFullEnum;
     // nadrs of nodes data to be fully enumerated
     std::map<int, NodeDataPtr> m_nadrFullEnumNodeMap;
+    // inserted devices to load drivers
+    //std::set<int> m_insertedDeviceIds;
+    
     // set by AutoNw
     std::map<int, embed::node::AnInfo> m_nadrAnInfoMap;
-
+    
     bool m_enumAtStartUp = false;
     std::thread m_enumThread;
     std::atomic_bool m_enumThreadRun;
@@ -310,11 +312,6 @@ namespace iqrf {
         try {
           std::cout << std::endl << "Fast Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
 
-          if (once) {
-            // eval coordinator
-            checkCoordinator();
-          }
-
           checkEnum();
 
           if (m_nadrFullEnum.size() > 0) {
@@ -322,21 +319,16 @@ namespace iqrf {
             std::cout << std::endl << "Full Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
 
             fullEnum();
-            if (once) {
-              loadDrivers();
-              // if we have all mappings => get rid of provisional contexts, maybe keep it for added devices
-              // m_iJsRenderService->unloadProvisionalContexts();
-            }
 
-            std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
+            //std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
             // stdEnum(exclusiveAccess);
 
             std::cout << std::endl << "Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
 
-            //exclusiveAccess.reset();
-
             m_nadrFullEnum.clear();
           }
+
+          loadDeviceDrivers();
 
           once = false;
         }
@@ -421,12 +413,6 @@ namespace iqrf {
       return nodeData;
     }
 
-    void checkCoordinator()
-    {
-      auto cp = m_iIqrfDpaService->getCoordinatorParameters();
-
-    }
-
     void checkEnum()
     {
       TRC_FUNCTION_ENTER("");
@@ -467,7 +453,7 @@ namespace iqrf {
         int nadr = bo.first;
         const auto & b = bo.second;
         auto found = m_bondedNadrMidMap.find(nadr);
-        if (found == m_bondedNadrMidMap.end() ) {
+        if (found == m_bondedNadrMidMap.end()) {
           // Nadr not found in Net => delete from Bonded
           TRC_INFORMATION(PAR(nadr) << " remove from bonded list")
             db << "delete from Bonded where Nadr = ?;" << nadr;
@@ -906,9 +892,15 @@ namespace iqrf {
         }
       }
 
+      // drivers id to be loaded
+      std::set<int> driversIdSet;
+
       for (auto & drv : drivers) {
         int driverId = drv.first;
         int driverVer = 0;
+
+        driversIdSet.insert(driverId);
+
         if (drv.second.size() > 0) {
           driverVer = drv.second.rbegin()->first; // get the highest one from reverse end
         }
@@ -926,7 +918,7 @@ namespace iqrf {
       }
 
       str2load += wrapperStr;
-      m_iJsRenderService->loadJsCodeFenced(IJsRenderService::HWPID_DEFAULT_MAPPING, str2load); // provisional context for all with empty custom drivers
+      m_iJsRenderService->loadJsCodeFenced(IJsRenderService::HWPID_DEFAULT_MAPPING, str2load, driversIdSet); // provisional context for all with empty custom drivers
 
       // get all non empty custom drivers because of breakdown
       // hwpid, hwpidVer, driver
@@ -937,13 +929,196 @@ namespace iqrf {
         std::string js = str2load;
         std::string driver = d.second.rbegin()->second; // get the highest hwpidVer one from reverse end
         js += driver;
-        m_iJsRenderService->loadJsCodeFenced(IJsRenderService::HWPID_MAPPING_SPACE - d.first, js);
+        m_iJsRenderService->loadJsCodeFenced(IJsRenderService::HWPID_MAPPING_SPACE - d.first, js, driversIdSet);
       }
 
       TRC_FUNCTION_LEAVE("");
     }
 
+    void loadDeviceDrivers()
+    {
+      TRC_FUNCTION_ENTER("");
 
+      ////////// daemon wrapper workaround
+      static std::string wrapperStr;
+      if (wrapperStr.size() == 0) {
+        std::string fname = m_iLaunchService->getDataDir();
+        fname += "/javaScript/DaemonWrapper.js";
+        std::ifstream file(fname);
+        if (!file.is_open()) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
+        }
+        std::ostringstream strStream;
+        strStream << file.rdbuf();
+        wrapperStr = strStream.str();
+      }
+      ////////// end daemon wrapper workaround
+
+      database & db = *m_db;
+
+      try {
+        // get [C] device by Nadr = 0
+        int coordDeviceId = 0;
+
+        db << "SELECT "
+          "Device.Id "
+          " FROM Bonded "
+          " INNER JOIN Node "
+          " ON Bonded.Mid = Node.Mid "
+          " INNER JOIN Device "
+          " ON Node.DeviceId = Device.Id "
+          " WHERE Bonded.Nadr = 0"
+          ";"
+          >> coordDeviceId;
+
+        // get DeviceId map of DriversId set
+        std::map<int, std::set<int>> mapDeviceIdDriverIdSet;
+        // devices to reload in JsRender
+        std::set<int> reloadDeviceIdSet;
+
+        db << "SELECT "
+          "Device.Id "
+          ", Driver.Id "
+          " FROM Driver "
+          " INNER JOIN DeviceDriver "
+          " ON Driver.Id = DeviceDriver.DriverId "
+          " INNER JOIN Device "
+          " ON DeviceDriver.DeviceId = Device.Id "
+          ";"
+          >> [&](int deviceId, int driverId)
+        {
+          mapDeviceIdDriverIdSet[deviceId].insert(driverId);
+        };
+
+        // check devices if some is to be reloade
+        for (auto it : mapDeviceIdDriverIdSet) {
+          int deviceId = it.first;
+          const std::set<int> & driversIdSet = it.second;
+          if (deviceId == coordDeviceId) continue; // don't compare [C] will be reloaded anyway in case of reload any device
+
+          // drivers reload only if set of drivers differs from previous one
+          auto origDriversIdSet = m_iJsRenderService->getDriverIdSet(deviceId);
+          bool reload = false;
+          if (origDriversIdSet.size() != driversIdSet.size()) {
+            reloadDeviceIdSet.insert(deviceId);
+          }
+          else {
+            auto nid = driversIdSet.begin();
+            for (auto oid : origDriversIdSet) {
+              if (*nid++ != oid) {
+                reloadDeviceIdSet.insert(deviceId);
+                break;
+              }
+            }
+          }
+        }
+
+        // now reload devices if any
+        if (reloadDeviceIdSet.size() > 0) {
+          reloadDeviceIdSet.insert(coordDeviceId); //reload [C] in any case
+
+          for (int deviceId : reloadDeviceIdSet) {
+
+            std::string customDrv;
+            std::map<int, Driver> driverIdDriverMap;
+            // get drivers according DeviceId
+            db << "SELECT "
+              " Driver.Id "
+              ", Driver.Name "
+              ", Driver.StandardId "
+              ", Driver.Version "
+              ", Driver.Driver "
+              " FROM Driver "
+              " INNER JOIN DeviceDriver "
+              " ON Driver.Id = DeviceDriver.DriverId "
+              " INNER JOIN Device "
+              " ON DeviceDriver.DeviceId = Device.Id "
+              " WHERE DeviceId = ?"
+              ";"
+              << deviceId
+              >> [&](int driverId, std::string name, int sid, int ver, std::string drv)
+            {
+              driverIdDriverMap.insert(std::make_pair(driverId, Driver(name, sid, ver, drv)));
+            };
+
+            // get custom driver
+            db << "select CustomDriver from Device "
+              " WHERE Id = ?"
+              ";"
+              << deviceId
+              >> customDrv;
+
+            /////////// special [C] handling
+            if (deviceId == coordDeviceId) {
+              // add the highest standard version as their FRC shall be backward compatible to handle their FRC by [C] context
+              // if not compatible we cannot cope with FRC over different device versions of the same standard 
+              db << "SELECT "
+                " Id "
+                ", Name "
+                ", StandardId "
+                ", Version "
+                ", Driver "
+                ", MAX(Version) as MaxVersion "
+                "FROM Driver "
+                "GROUP BY StandardId "
+                ";"
+                >> [&](int driverId, std::string name, int sid, int ver, std::string drv, int maxVer)
+              {
+                driverIdDriverMap.insert(std::make_pair(driverId, Driver(name, sid, ver, drv)));
+              };
+            }
+
+            std::string str2load;
+            std::set<int> driverIdSet;
+            for (auto it : driverIdDriverMap) {
+              driverIdSet.insert(it.first);
+              str2load += it.second.m_drv;
+            }
+            str2load += customDrv;
+            str2load += wrapperStr; // add wrapper
+            m_iJsRenderService->loadJsCodeFenced(deviceId, str2load, driverIdSet);
+          
+            // map nadrs to device dedicated context
+            std::vector<int> nadrs;
+            db << "SELECT "
+              "Device.Id "
+              ", Bonded.Nadr "
+              " FROM Bonded "
+              " INNER JOIN Node "
+              " ON Bonded.Mid = Node.Mid "
+              " INNER JOIN Device "
+              " ON Node.DeviceId = Device.Id "
+              " WHERE Node.DeviceId = ? "
+              ";"
+              << deviceId
+              >> [&](int id, int nadr)
+            {
+              nadrs.push_back(nadr);
+            };
+
+            // map according nadr
+            for (auto nadr : nadrs) {
+              m_iJsRenderService->mapNadrToFenced(nadr, deviceId);
+            }
+
+          }
+        
+        }
+
+      }
+      catch (sqlite_exception &e)
+      {
+        CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected DB error load drivers failed " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+      }
+      catch (std::exception &e)
+      {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Cannot load drivers ");
+      }
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    /*
     void loadDrivers()
     {
       TRC_FUNCTION_ENTER("");
@@ -1071,6 +1246,7 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
     }
+    */
 
     void bondedInDb(int nadr, int dis, unsigned mid, int enm)
     {

@@ -178,8 +178,15 @@ namespace iqrf {
     strStream << jsFile.rdbuf();
     std::string jsString = strStream.str();
     ASSERT_FALSE(jsString.empty());
-    Imp::get().m_iJsRenderService->loadJsCodeFenced(0xFFFFFF, jsString);
+    std::set<int> driverIds = { 1, 2, 3 };
+    Imp::get().m_iJsRenderService->loadJsCodeFenced(0xFFFFFF, jsString, driverIds);
     Imp::get().m_iJsRenderService->mapNadrToFenced(0xFFFFFF, 0xFFFFFF); 
+    std::set<int> driverIdsExp = Imp::get().m_iJsRenderService->getDriverIdSet(0xFFFFFF);
+    EXPECT_EQ(driverIdsExp.size(), driverIds.size());
+    auto it = driverIdsExp.begin();
+    for (auto i : driverIds) {
+      EXPECT_EQ(i, *it++);
+    }
   }
 
   TEST_F(JsRenderTesting, callFunction)
