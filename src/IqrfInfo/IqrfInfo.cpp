@@ -229,8 +229,6 @@ namespace iqrf {
     std::set<int> m_nadrFullEnum;
     // nadrs of nodes data to be fully enumerated
     std::map<int, NodeDataPtr> m_nadrFullEnumNodeMap;
-    // inserted devices to load drivers
-    //std::set<int> m_insertedDeviceIds;
     
     // set by AutoNw
     std::map<int, embed::node::AnInfo> m_nadrAnInfoMap;
@@ -320,8 +318,8 @@ namespace iqrf {
 
             fullEnum();
 
-            //std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
-            // stdEnum(exclusiveAccess);
+            std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
+            stdEnum();
 
             std::cout << std::endl << "Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
 
@@ -1081,8 +1079,7 @@ namespace iqrf {
             // map nadrs to device dedicated context
             std::vector<int> nadrs;
             db << "SELECT "
-              "Device.Id "
-              ", Bonded.Nadr "
+              " Bonded.Nadr "
               " FROM Bonded "
               " INNER JOIN Node "
               " ON Bonded.Mid = Node.Mid "
@@ -1091,7 +1088,7 @@ namespace iqrf {
               " WHERE Node.DeviceId = ? "
               ";"
               << deviceId
-              >> [&](int id, int nadr)
+              >> [&](int nadr)
             {
               nadrs.push_back(nadr);
             };
@@ -1117,136 +1114,6 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
     }
-
-    /*
-    void loadDrivers()
-    {
-      TRC_FUNCTION_ENTER("");
-
-      try {
-
-        database & db = *m_db;
-        std::map<int, std::map<int, Driver>> mapDeviceDrivers;
-
-        // get drivers according DeviceId
-        db << "SELECT "
-          "Device.Id "
-          ", Driver.Name "
-          ", Driver.StandardId "
-          ", Driver.Version "
-          ", Driver.Driver "
-          " FROM Driver "
-          " INNER JOIN DeviceDriver "
-          " ON Driver.Id = DeviceDriver.DriverId "
-          " INNER JOIN Device "
-          " ON DeviceDriver.DeviceId = Device.Id "
-          ";"
-          >> [&](int id, std::string name, int sid, int ver, std::string drv)
-        {
-          mapDeviceDrivers[id].insert(std::make_pair(sid, Driver(name, sid, ver, drv)));
-        };
-
-        db << "select Id, CustomDriver from Device;"
-          >> [&](int id, std::string drv)
-        {
-          int sid = -100;
-          mapDeviceDrivers[id].insert(std::make_pair(sid, Driver("custom", -100, 0, drv)));
-        };
-
-        /////////// special coord handling - gets all highest ver drivers not assigned in previous steps
-        // get [C] device by Nadr = 0 to add later some std FRC drivers to coordinator
-        int coordDeviceId = 0;
-        db << "SELECT "
-          "Device.Id "
-          " FROM Bonded "
-          " INNER JOIN Node "
-          " ON Bonded.Mid = Node.Mid "
-          " INNER JOIN Device "
-          " ON Node.DeviceId = Device.Id "
-          " WHERE Bonded.Nadr = 0"
-          ";"
-          >> coordDeviceId;
-
-        std::map<int, Driver> & coordDriversMap = mapDeviceDrivers[coordDeviceId];
-        db << "SELECT "
-          "Name "
-          ", StandardId "
-          ", Version "
-          ", Driver "
-          ", MAX(Version) as MaxVersion "
-          "FROM Driver "
-          "GROUP BY StandardId "
-          ";"
-          >> [&](std::string name, int sid, int ver, std::string drv, int maxVer)
-        {
-          // it doesn't insert if sid already there => inserted just not presented
-          coordDriversMap.insert(std::make_pair(sid, Driver(name, sid, ver, drv)));
-        };
-        ////////// end of special coord handling
-
-        // daemon wrapper workaround
-        std::string wrapperStr;
-        std::string fname = m_iLaunchService->getDataDir();
-        fname += "/javaScript/DaemonWrapper.js";
-        std::ifstream file(fname);
-        if (!file.is_open()) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
-        }
-        std::ostringstream strStream;
-        strStream << file.rdbuf();
-        wrapperStr = strStream.str();
-
-        // load drivers to device dedicated context
-        for (auto devIt : mapDeviceDrivers) {
-          int deviceId = devIt.first;
-          std::string str2load;
-          auto const & drvs = devIt.second;
-          for (auto drv : drvs) {
-            str2load += drv.second.m_drv;
-          }
-          str2load += wrapperStr;
-          m_iJsRenderService->loadJsCodeFenced(deviceId, str2load);
-
-          // map nadrs to device dedicated context
-          std::vector<int> nadrs;
-          db << "SELECT "
-            "Device.Id "
-            ", Bonded.Nadr "
-            " FROM Bonded "
-            " INNER JOIN Node "
-            " ON Bonded.Mid = Node.Mid "
-            " INNER JOIN Device "
-            " ON Node.DeviceId = Device.Id "
-            " WHERE Node.DeviceId = ? "
-            ";"
-            << deviceId
-            >> [&](int id, int nadr)
-          {
-            nadrs.push_back(nadr);
-          };
-
-          for (auto nadr : nadrs) {
-            m_iJsRenderService->mapNadrToFenced(nadr, deviceId);
-          }
-
-        }
-
-        //now we have all mappings => get rid of provisional contexts
-        //m_iJsRenderService->unloadProvisionalContexts();
-
-      }
-      catch (sqlite_exception &e)
-      {
-        CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected DB error load drivers failed " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
-      }
-      catch (std::exception &e)
-      {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Cannot load drivers ");
-      }
-
-      TRC_FUNCTION_LEAVE("");
-    }
-    */
 
     void bondedInDb(int nadr, int dis, unsigned mid, int enm)
     {
@@ -1519,7 +1386,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void stdEnum(IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    void stdEnum()
     {
       TRC_FUNCTION_ENTER("");
 
@@ -1547,6 +1414,7 @@ namespace iqrf {
 
         int deviceId = it.first;
         int nadr = -1;
+
         if (it.second.size() > 0) {
           // get first
           nadr = it.second[0];
@@ -1580,13 +1448,13 @@ namespace iqrf {
             try {
               switch (d) {
               case PERIF_STANDARD_BINOUT:
-                stdBinoutEnum(nadr, deviceId, exclusiveAccess);
+                stdBinoutEnum(nadr, deviceId);
                 break;
               case PERIF_STANDARD_LIGHT:
-                stdLightEnum(nadr, deviceId, exclusiveAccess);
+                stdLightEnum(nadr, deviceId);
                 break;
               case PERIF_STANDARD_SENSOR:
-                stdSensorEnum(nadr, deviceId, exclusiveAccess);
+                stdSensorEnum(nadr, deviceId);
                 break;
               case PERIF_STANDARD_DALI:
                 stdDaliEnum(nadr, deviceId);
@@ -1640,12 +1508,12 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void stdLightEnum(int nadr, int deviceId, IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    void stdLightEnum(int nadr, int deviceId)
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
 
       light::jsdriver::Enumerate lightEnum(m_iJsRenderService, nadr);
-      lightEnum.processDpaTransactionResult(exclusiveAccess->executeDpaTransaction(lightEnum.getRequest())->get());
+      lightEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(lightEnum.getRequest())->get());
 
       database & db = *m_db;
 
@@ -1663,12 +1531,12 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void stdBinoutEnum(int nadr, int deviceId, IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    void stdBinoutEnum(int nadr, int deviceId)
     {
-      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId))
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
 
-        binaryoutput::jsdriver::Enumerate binoutEnum(m_iJsRenderService, nadr);
-      binoutEnum.processDpaTransactionResult(exclusiveAccess->executeDpaTransaction(binoutEnum.getRequest())->get());
+      binaryoutput::jsdriver::Enumerate binoutEnum(m_iJsRenderService, nadr);
+      binoutEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(binoutEnum.getRequest())->get());
 
       database & db = *m_db;
 
@@ -1686,12 +1554,12 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void stdSensorEnum(int nadr, int deviceId, IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    void stdSensorEnum(int nadr, int deviceId)
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
 
       sensor::jsdriver::Enumerate sensorEnum(m_iJsRenderService, nadr);
-      sensorEnum.processDpaTransactionResult(exclusiveAccess->executeDpaTransaction(sensorEnum.getRequest())->get());
+      sensorEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(sensorEnum.getRequest())->get());
 
       auto const & sensors = sensorEnum.getSensors();
       int idx = 0;
