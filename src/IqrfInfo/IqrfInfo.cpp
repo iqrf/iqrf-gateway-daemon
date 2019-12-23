@@ -23,6 +23,7 @@
 #include <set>
 #include <thread>
 #include <atomic>
+#include <random>
 
 #include "iqrf__IqrfInfo.hxx"
 
@@ -142,22 +143,6 @@ namespace iqrf {
         setMid(mid);
       }
 
-      NodeData(embed::explore::RawDpaEnumeratePtr & e, embed::os::RawDpaReadPtr & r)
-        : m_exploreEnumerate(std::move(e))
-        , m_osRead(std::move(r))
-        , m_midValid(false)
-        , m_hwpidValid(false)
-        , m_hwpidVerValid(false)
-        , m_osBuildValid(false)
-        , m_dpaVerValid(false)
-      {
-        setHwpid(m_exploreEnumerate->getHwpidEnm());
-        setHwpidVer(m_exploreEnumerate->getHwpidVer());
-        setMid(m_osRead->getMid());
-        setOsBuild(m_osRead->getOsBuild());
-        setDpaVer(m_exploreEnumerate->getDpaVer());
-      }
-
       bool isValid() const
       {
         return m_midValid && m_hwpidValid && m_hwpidVerValid && m_osBuildValid && m_dpaVerValid;
@@ -188,14 +173,29 @@ namespace iqrf {
         return m_exploreEnumerate;
       }
 
-      void setEmbedExploreEnumerate(embed::explore::RawDpaEnumeratePtr & e)
+      void setEmbedExploreEnumerate(embed::explore::RawDpaEnumeratePtr & ee)
       {
-        m_exploreEnumerate = std::move(e);
+        m_exploreEnumerate = std::move(ee);
+        setDpaVer(m_exploreEnumerate->getDpaVer());
+        setHwpid(m_exploreEnumerate->getHwpidEnm());
+        setHwpidVer(m_exploreEnumerate->getHwpidVer());
       }
 
       const embed::os::ReadPtr & getEmbedOsRead() const
       {
         return m_osRead;
+      }
+
+      void setEmbedOsRead(embed::os::RawDpaReadPtr & or)
+      {
+        m_osRead = std::move(or);
+        setMid(m_osRead->getMid());
+        setOsBuild(m_osRead->getOsBuild());
+        if (m_osRead->is410Compliant()) {
+          setDpaVer(m_osRead->getDpaVer());
+          setHwpid(m_osRead->getHwpidValFromOs());
+          setHwpidVer(m_osRead->getHwpidVer());
+        }
       }
 
       int getModeStd() const
@@ -225,14 +225,14 @@ namespace iqrf {
     // bonded nadrs mid map according EEEPROM [C]
     std::map<int, uint32_t> m_bondedNadrMidMap;
 
-    // nadrs to be fully enumerated => dosn't exist nor fit to DB state
+    // nadrs to be fully enumerated => doesn't exist nor fit to DB state
     std::set<int> m_nadrFullEnum;
     // nadrs of nodes data to be fully enumerated
     std::map<int, NodeDataPtr> m_nadrFullEnumNodeMap;
-    
+
     // set by AutoNw
     std::map<int, embed::node::AnInfo> m_nadrAnInfoMap;
-    
+
     bool m_enumAtStartUp = false;
     std::thread m_enumThread;
     std::atomic_bool m_enumThreadRun;
@@ -299,42 +299,23 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      bool once = true; //only once now TODO calling of loadDrivers only for new devices
-
       while (m_enumThreadRun) {
-        std::unique_lock<std::mutex> lck(m_enumMtx);
-        if (!once) {
-          m_enumCv.wait_for(lck, std::chrono::seconds(5));
-        }
 
         try {
-          std::cout << std::endl << "Fast Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
-
           checkEnum();
-
-          if (m_nadrFullEnum.size() > 0) {
-
-            std::cout << std::endl << "Full Enumeration started at: " << encodeTimestamp(std::chrono::system_clock::now());
-
-            fullEnum();
-
-            std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
-            stdEnum();
-
-            std::cout << std::endl << "Enumeration finished at:     " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
-
-            m_nadrFullEnum.clear();
-          }
-
+          fullEnum();
           loadDeviceDrivers();
-
-          once = false;
+          stdEnum();
         }
         catch (std::exception & e) {
           CATCH_EXC_TRC_WAR(std::exception, e, "Enumeration failure");
           std::cout << std::endl << "Enumeration failure at:      " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl <<
             e.what() << std::endl;
         }
+
+        std::unique_lock<std::mutex> lck(m_enumMtx);
+        m_enumCv.wait_for(lck, std::chrono::seconds(5));
+
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -382,33 +363,6 @@ namespace iqrf {
 
       TRC_FUNCTION_LEAVE("");
       return bondedMidMap;
-    }
-
-    NodeDataPtr getNodeDataPriv(uint16_t nadr, std::unique_ptr<iqrf::IIqrfDpaService::ExclusiveAccess> & exclusiveAccess) const
-    {
-      TRC_FUNCTION_ENTER(nadr);
-
-      NodeDataPtr nodeData;
-
-      std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
-      std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(nadr));
-
-      {
-        std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(osReadPtr->getRequest(), transResult, 3);
-        osReadPtr->processDpaTransactionResult(std::move(transResult));
-      }
-
-      {
-        std::unique_ptr<IDpaTransactionResult2> transResult;
-        exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, 3);
-        exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
-      }
-
-      nodeData.reset(shape_new NodeData(exploreEnumeratePtr, osReadPtr));
-
-      TRC_FUNCTION_LEAVE("");
-      return nodeData;
     }
 
     void checkEnum()
@@ -590,18 +544,13 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      //auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-      //if (!exclusiveAccess) {
-      //  THROW_EXC_TRC_WAR(std::logic_error, "Cannot get exclusive access to IqrfDpa");
+      //for (auto nadr : m_nadrFullEnum) {
+      //  auto found = m_bondedNadrMidMap.find(nadr);
+      //  if (found == m_bondedNadrMidMap.end()) {
+      //    THROW_EXC_TRC_WAR(std::logic_error, PAR(nadr) << " inconsistent bonded nadr with nadr/mid map both from coordinator");
+      //  }
+      //  m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(found->second))));
       //}
-
-      for (auto nadr : m_nadrFullEnum) {
-        auto found = m_bondedNadrMidMap.find(nadr);
-        if (found == m_bondedNadrMidMap.end()) {
-          THROW_EXC_TRC_WAR(std::logic_error, PAR(nadr) << " inconsistent bonded nadr with nadr/mid map both from coordinator");
-        }
-        m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(found->second))));
-      }
 
       // frc results
       std::map<int, uint32_t> hwpidMap;
@@ -703,16 +652,25 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void fullEnumByPoll(IIqrfDpaService::ExclusiveAccessPtr & exclusiveAccess)
+    void fullEnumByPoll()
     {
       TRC_FUNCTION_ENTER("");
 
-      for (auto nadr : m_nadrFullEnum) {
+      for (auto & it : m_nadrFullEnumNodeMap) {
 
-        m_nadrFullEnumNodeMap[nadr] = getNodeDataPriv(nadr, exclusiveAccess);
-        //TODO
-        //NodeDataPtr nd;
-        //nd = getNodeDataPriv(nadr, exclusiveAccess);
+        int nadr = it.first;
+        NodeDataPtr & nodeData = it.second;
+
+        std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(nadr));
+        osReadPtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(osReadPtr->getRequest())->get());
+        nodeData->setEmbedOsRead(osReadPtr);
+
+        if (!nodeData->getEmbedOsRead()->is410Compliant()) {
+          std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+          exploreEnumeratePtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest())->get());
+          nodeData->setEmbedExploreEnumerate(exploreEnumeratePtr);
+        }
+
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -720,7 +678,14 @@ namespace iqrf {
 
     void fullEnum()
     {
-      TRC_FUNCTION_ENTER("");
+      TRC_FUNCTION_ENTER(PAR(m_nadrFullEnum.size()));
+
+      if (m_nadrFullEnum.size() == 0) {
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
+      std::cout << std::endl << "Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
 
       // get discovered from C
       iqrf::embed::coordinator::RawDpaDiscoveredDevices dd;
@@ -730,9 +695,10 @@ namespace iqrf {
       }
       auto & discovered = dd.getDiscoveredDevices();
 
+      auto cp = m_iIqrfDpaService->getCoordinatorParameters();
+
       if (0 == m_bondedNadrMidMap.begin()->first && *(m_nadrFullEnum.begin()) == 0) {
         // coordinator
-        auto cp = m_iIqrfDpaService->getCoordinatorParameters();
         auto it = m_nadrFullEnumNodeMap.insert(std::make_pair(0, shape_new NodeData(cp.mid)));
         NodeDataPtr & c = it.first->second;
         c->setHwpid(0);
@@ -741,12 +707,21 @@ namespace iqrf {
         c->setDpaVer(cp.dpaVerWord);
       }
 
-      if (true) {
+      for (auto nadr : m_nadrFullEnum) {
+        auto found = m_bondedNadrMidMap.find(nadr);
+        if (found == m_bondedNadrMidMap.end()) {
+          THROW_EXC_TRC_WAR(std::logic_error, PAR(nadr) << " inconsistent bonded nadr with nadr/mid map both from coordinator");
+        }
+        m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(found->second))));
+      }
+
+      if (m_nadrFullEnumNodeMap.size() > 1 && cp.dpaVerWord >= 0x400) {
+        // enumerate by FRC
         fullEnumByFrc();
       }
       else {
-        // TODO if cannot FRC - older dpa (according [C])
-        //fullEnumByPoll(exclusiveAccess);
+        // only one or obsolete DPA acoording [C]
+        fullEnumByPoll();
       }
 
       database & db = *m_db;
@@ -811,10 +786,14 @@ namespace iqrf {
         }
         catch (std::exception &e)
         {
-          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot full enumerate " << PAR(nadr));
+          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot Drv enumerate " << PAR(nadr));
           db << "rollback;";
         }
       }
+
+      m_nadrFullEnumNodeMap.clear();
+      m_nadrFullEnum.clear();
+      std::cout << std::endl << "Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now());
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -1075,7 +1054,7 @@ namespace iqrf {
             str2load += customDrv;
             str2load += wrapperStr; // add wrapper
             m_iJsRenderService->loadJsCodeFenced(deviceId, str2load, driverIdSet);
-          
+
             // map nadrs to device dedicated context
             std::vector<int> nadrs;
             db << "SELECT "
@@ -1099,7 +1078,7 @@ namespace iqrf {
             }
 
           }
-        
+
         }
 
       }
@@ -1402,90 +1381,101 @@ namespace iqrf {
         " ON Bonded.Mid = Node.Mid"
         " INNER JOIN Device"
         " ON Node.DeviceId = Device.Id"
-        " WHERE Device.StdEnum = 0"
+        " WHERE Device.StdEnum = 0 "
+        " ORDER BY Bonded.Nadr "
         ";"
         >> [&](int dev, int nadr)
       {
         mapDeviceVectNadr[dev].push_back(nadr);
       };
 
-      // std enum according first bonded nadr of the device
-      for (auto it : mapDeviceVectNadr) {
+      if (mapDeviceVectNadr.size() > 0) {
+        std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
+        
+        // std enum according first bonded nadr of the device
+        for (auto it : mapDeviceVectNadr) {
 
-        int deviceId = it.first;
-        int nadr = -1;
+          int deviceId = it.first;
+          int nadr = -1;
+          std::vector<int> & nadrVect = it.second;
 
-        if (it.second.size() > 0) {
-          // get first
-          nadr = it.second[0];
-        }
-        else {
-          TRC_WARNING("Cannot std eval: " << PAR(deviceId) << " as there is no bonded nadr");
-          continue;
-        }
-
-        try {
-          std::vector<int> vectDrivers;
-
-          db << "begin transaction;";
-
-          db << "SELECT "
-            "Driver.StandardId"
-            " FROM Driver"
-            " INNER JOIN DeviceDriver"
-            " ON Driver.Id = DeviceDriver.DriverId"
-            " INNER JOIN Device"
-            " ON DeviceDriver.DeviceId = Device.Id"
-            " WHERE Device.Id = ?"
-            " ;"
-            << deviceId
-            >> [&](int drv)
-          {
-            vectDrivers.push_back(drv);
-          };
-
-          for (auto d : vectDrivers) {
-            try {
-              switch (d) {
-              case PERIF_STANDARD_BINOUT:
-                stdBinoutEnum(nadr, deviceId);
-                break;
-              case PERIF_STANDARD_LIGHT:
-                stdLightEnum(nadr, deviceId);
-                break;
-              case PERIF_STANDARD_SENSOR:
-                stdSensorEnum(nadr, deviceId);
-                break;
-              case PERIF_STANDARD_DALI:
-                stdDaliEnum(nadr, deviceId);
-                break;
-              default:;
-              }
-            }
-            catch (std::exception &e) {
-              CATCH_EXC_TRC_WAR(std::exception, e, "Cannot std enumerate " << PAR(nadr) << NAME_PAR(perif, d));
-            }
+          if (nadrVect.size() > 0) {
+            // get random nadr
+            int maxnadr = *nadrVect.rbegin();
+            static std::random_device rd;
+            unsigned idx = rd() % nadrVect.size();
+            nadr = nadrVect[idx];
+          }
+          else {
+            TRC_WARNING("Cannot std eval: " << PAR(deviceId) << " as there is no bonded nadr");
+            continue;
           }
 
-          db << "update Device set "
-            "StdEnum = ?"
-            " where Id = ?;"
-            << 1
-            << deviceId
-            ;
+          try {
+            std::vector<int> vectDrivers;
 
-          db << "commit;";
+            db << "begin transaction;";
+
+            db << "SELECT "
+              "Driver.StandardId"
+              " FROM Driver"
+              " INNER JOIN DeviceDriver"
+              " ON Driver.Id = DeviceDriver.DriverId"
+              " INNER JOIN Device"
+              " ON DeviceDriver.DeviceId = Device.Id"
+              " WHERE Device.Id = ?"
+              " ;"
+              << deviceId
+              >> [&](int drv)
+            {
+              vectDrivers.push_back(drv);
+            };
+
+            for (auto d : vectDrivers) {
+              try {
+                switch (d) {
+                case PERIF_STANDARD_BINOUT:
+                  stdBinoutEnum(nadr, deviceId);
+                  break;
+                case PERIF_STANDARD_LIGHT:
+                  stdLightEnum(nadr, deviceId);
+                  break;
+                case PERIF_STANDARD_SENSOR:
+                  stdSensorEnum(nadr, deviceId);
+                  break;
+                case PERIF_STANDARD_DALI:
+                  stdDaliEnum(nadr, deviceId);
+                  break;
+                default:;
+                }
+              }
+              catch (std::exception &e) {
+                CATCH_EXC_TRC_WAR(std::exception, e, "Cannot std enumerate " << PAR(nadr) << NAME_PAR(perif, d));
+              }
+            }
+
+            db << "update Device set "
+              "StdEnum = ?"
+              " where Id = ?;"
+              << 1
+              << deviceId
+              ;
+
+            db << "commit;";
+          }
+          catch (sqlite_exception &e)
+          {
+            CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store std enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+            db << "rollback;";
+          }
+          catch (std::exception &e)
+          {
+            CATCH_EXC_TRC_WAR(std::exception, e, "Cannot std enumerate " << PAR(nadr));
+            db << "rollback;";
+          }
         }
-        catch (sqlite_exception &e)
-        {
-          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Unexpected error to store std enumeration" << PAR(nadr) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
-          db << "rollback;";
-        }
-        catch (std::exception &e)
-        {
-          CATCH_EXC_TRC_WAR(std::exception, e, "Cannot std enumerate " << PAR(nadr));
-          db << "rollback;";
-        }
+
+        std::cout << std::endl << "Std Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now());
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -1764,6 +1754,7 @@ namespace iqrf {
       return retval;
     }
 
+    //TODO API
     void startEnumeration()
     {
       TRC_FUNCTION_ENTER("");
@@ -1774,9 +1765,40 @@ namespace iqrf {
         m_enumThreadRun = true;
         m_enumThread = std::thread([&]() { runEnum(); });
       }
-      else {
-        THROW_EXC_TRC_WAR(std::logic_error, "Enumeration is already running");
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    //TODO API
+    void stopEnumeration()
+    {
+      TRC_FUNCTION_ENTER("");
+      m_enumThreadRun = false;
+      m_enumCv.notify_all();
+
+      if (m_enumThread.joinable()) {
+        m_enumThread.join();
       }
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    //TODO API
+    void enumerate()
+    {
+      TRC_FUNCTION_ENTER("");
+      startEnumeration();
+      {
+        std::unique_lock<std::mutex> lck(m_enumMtx);
+        m_enumCv.notify_all();
+      }
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    //TODO API
+    void refreshEnumerate()
+    {
+      TRC_FUNCTION_ENTER("");
+      stopEnumeration();
+      //TODO implement, API
       TRC_FUNCTION_LEAVE("")
     }
 
