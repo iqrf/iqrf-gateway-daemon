@@ -544,14 +544,6 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      //for (auto nadr : m_nadrFullEnum) {
-      //  auto found = m_bondedNadrMidMap.find(nadr);
-      //  if (found == m_bondedNadrMidMap.end()) {
-      //    THROW_EXC_TRC_WAR(std::logic_error, PAR(nadr) << " inconsistent bonded nadr with nadr/mid map both from coordinator");
-      //  }
-      //  m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(found->second))));
-      //}
-
       // frc results
       std::map<int, uint32_t> hwpidMap;
       std::map<int, uint32_t> osBuildMap;
@@ -565,33 +557,54 @@ namespace iqrf {
 
       while (true) {
         { // read HWPID, HWPIDVer
-          uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, HWPID);
-          iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO, true); //value += 1
 
-          for (const auto & s : setVect) {
-            frc.setSelectedNodes(s);
-            frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
-            //TODO check status
-            // get extra result
-            extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
-
-            frc.getFrcDataAs(hwpidMap, extra.getFrcData());
-
-            for (const auto & it : hwpidMap) {
-              int nadr = it.first;
-              uint32_t hwpidw = it.second;
-              if (0 != hwpidw) {
-                anyValid = true;
-                // correct value from FRC => store it
-                --hwpidw;
-                m_nadrFullEnumNodeMap[nadr]->setHwpid(hwpidw & 0xffff);
-                m_nadrFullEnumNodeMap[nadr]->setHwpidVer(hwpidw >> 16);
+          // reuse data from AutoNetwork if any
+          std::set<int> leftHwpidEnum(m_nadrFullEnum);
+          if (m_nadrAnInfoMap.size() > 0) {
+            for (auto nadr : m_nadrFullEnum) {
+              auto found = m_nadrAnInfoMap.find(nadr);
+              if (m_nadrAnInfoMap.end() != found) {
+                int hwpid = found->second.getHwpid();
+                int hwpidVer = found->second.getHwpidVer();
+                if (hwpid >= 0 && hwpidVer >= 0) {
+                  m_nadrFullEnumNodeMap[nadr]->setHwpid(hwpid);
+                  m_nadrFullEnumNodeMap[nadr]->setHwpidVer(hwpidVer);
+                  leftHwpidEnum.erase(nadr);
+                }
               }
             }
           }
-        }
-        if (!anyValid) {
-          break; //no sense to continue now
+
+          if (leftHwpidEnum.size() > 0) { // nothing to reuse go for FRC
+
+            uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, HWPID);
+            iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO, true); //value += 1
+
+            for (const auto & s : setVect) {
+              frc.setSelectedNodes(s);
+              frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
+              //TODO check status
+              // get extra result
+              extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
+
+              frc.getFrcDataAs(hwpidMap, extra.getFrcData());
+
+              for (const auto & it : hwpidMap) {
+                int nadr = it.first;
+                uint32_t hwpidw = it.second;
+                if (0 != hwpidw) {
+                  anyValid = true;
+                  // correct value from FRC => store it
+                  --hwpidw;
+                  m_nadrFullEnumNodeMap[nadr]->setHwpid(hwpidw & 0xffff);
+                  m_nadrFullEnumNodeMap[nadr]->setHwpidVer(hwpidw >> 16);
+                }
+              }
+            }
+          }
+          if (!anyValid) {
+            break; //no sense to continue now
+          }
         }
 
         anyValid = true;
