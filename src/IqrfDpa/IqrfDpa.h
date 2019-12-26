@@ -18,6 +18,7 @@ namespace iqrf {
     virtual ~IqrfDpa();
 
     std::unique_ptr<ExclusiveAccess> getExclusiveAccess() override;
+    bool hasExclusiveAccess() const override;
     std::shared_ptr<IDpaTransaction2> executeExclusiveDpaTransaction(const DpaMessage& request, int32_t timeout);
     std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout) override;
     void executeDpaTransactionRepeat( const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout ) override;
@@ -34,6 +35,8 @@ namespace iqrf {
     void unregisterAsyncMessageHandler(const std::string& serviceId) override;
     int getDpaQueueLen() const override;
     IIqrfChannelService::State getIqrfChannelState() override;
+    void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) override;
+    void unregisterAnyMessageHandler(const std::string& serviceId) override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
@@ -50,7 +53,7 @@ namespace iqrf {
   private:
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     IqrfDpaChannel *m_iqrfDpaChannel = nullptr;  //temporary workaround, see comment in IqrfDpaChannel.h
-    std::recursive_mutex m_exclusiveAccessMutex;
+    mutable std::recursive_mutex m_exclusiveAccessMutex;
     IDpaHandler2* m_dpaHandler = nullptr;
     IDpaTransaction2::RfMode m_rfMode = IDpaTransaction2::RfMode::kStd;
     int m_dpaHandlerTimeout = IDpaTransaction2::DEFAULT_TIMEOUT;

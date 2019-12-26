@@ -20,7 +20,9 @@ namespace iqrf {
   public:
     /// Asynchronous DPA message handler functional type
     typedef std::function<void(const DpaMessage& dpaMessage)> AsyncMessageHandlerFunc;
-    
+    typedef std::function<void(const DpaMessage& dpaMessage)> AnyMessageHandlerFunc;
+    typedef std::function<void(uint8_t pnum, uint8_t pcmd)> DpaCommandHookHandlerFunc;
+
     /// Some coordinator parameters acquired during initialization
     struct CoordinatorParameters
     {
@@ -54,6 +56,7 @@ namespace iqrf {
     /// returns empty pointer if exclusiveAccess already assigned
     /// explicit unique_ptr::reset() or just get it out of scope of returned ptr releases exclusive access
     virtual ExclusiveAccessPtr getExclusiveAccess() = 0;
+    virtual bool hasExclusiveAccess() const = 0;
 
     /// 0 > timeout - use default, 0 == timeout - use infinit, 0 < timeout - user value
     virtual std::shared_ptr<IDpaTransaction2> executeDpaTransaction(const DpaMessage& request, int32_t timeout = -1) = 0;
@@ -71,6 +74,8 @@ namespace iqrf {
     virtual void unregisterAsyncMessageHandler(const std::string& serviceId) = 0;
     virtual int getDpaQueueLen() const = 0;
     virtual IIqrfChannelService::State getIqrfChannelState() = 0;
+    virtual void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) = 0;
+    virtual void unregisterAnyMessageHandler(const std::string& serviceId) = 0;
 
     virtual ~IIqrfDpaService() {}
   };

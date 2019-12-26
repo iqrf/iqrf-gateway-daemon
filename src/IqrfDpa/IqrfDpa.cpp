@@ -85,6 +85,11 @@ namespace iqrf {
     return std::unique_ptr<IIqrfDpaService::ExclusiveAccess>(shape_new ExclusiveAccessImpl(this));
   }
 
+  bool IqrfDpa::hasExclusiveAccess() const
+  {
+    return m_iqrfDpaChannel->hasExclusiveAccess();
+  }
+
   void IqrfDpa::setExclusiveAccess()
   {
     std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
@@ -438,6 +443,16 @@ namespace iqrf {
   IIqrfChannelService::State IqrfDpa::getIqrfChannelState()
   {
     return m_iqrfChannelService->getState();
+  }
+
+  void IqrfDpa::registerAnyMessageHandler(const std::string& serviceId, IDpaHandler2::AsyncMessageHandlerFunc fun)
+  {
+    m_dpaHandler->registerAnyMessageHandler(serviceId, fun);
+  }
+
+  void IqrfDpa::unregisterAnyMessageHandler(const std::string& serviceId)
+  {
+    m_dpaHandler->unregisterAnyMessageHandler(serviceId);
   }
 
   void IqrfDpa::deactivate()

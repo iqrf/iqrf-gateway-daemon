@@ -233,11 +233,14 @@ namespace iqrf {
     // set by AutoNw
     std::map<int, embed::node::AnInfo> m_nadrAnInfoMap;
 
+    std::string m_instanceName;
+
     bool m_enumAtStartUp = false;
     std::thread m_enumThread;
     std::atomic_bool m_enumThreadRun;
     std::mutex m_enumMtx;
     std::condition_variable m_enumCv;
+    std::atomic<bool> m_repeatEnum;
 
   public:
     Imp()
@@ -301,7 +304,12 @@ namespace iqrf {
 
       while (m_enumThreadRun) {
 
+        std::cout << std::endl << "run enum";
+
         try {
+          if (m_iIqrfDpaService->hasExclusiveAccess()) {
+            THROW_EXC_TRC_WAR(std::logic_error, "DPA has exclusive access");
+          }
           checkEnum();
           fullEnum();
           loadDeviceDrivers();
@@ -314,7 +322,10 @@ namespace iqrf {
         }
 
         std::unique_lock<std::mutex> lck(m_enumMtx);
-        m_enumCv.wait_for(lck, std::chrono::seconds(5));
+        if (!m_repeatEnum) {
+          m_enumCv.wait_for(lck, std::chrono::seconds(5));
+        }
+        m_repeatEnum = false;
 
       }
 
@@ -814,12 +825,13 @@ namespace iqrf {
     void insertNodes(const std::map<int, embed::node::AnInfo> & nodes)
     {
       TRC_FUNCTION_ENTER("");
-      //TODO reimplement
 
-      m_nadrAnInfoMap = nodes;
-
-      // TODO make procesing in thd
-      //runEnum();
+      {
+        
+        std::unique_lock<std::mutex> lck(m_enumMtx);
+        m_nadrAnInfoMap = nodes;
+        m_enumCv.notify_all();
+      }
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -1815,6 +1827,49 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    // analyze incoming DPA responses. If there is a msg with influence to DB cahed data it starts enum
+    // it is hooked to IqrfDpa via callback
+    void analyzeAnyMessage(const DpaMessage & msg)
+    {
+      auto messageDirection = msg.MessageDirection();
+
+      if (messageDirection != DpaMessage::MessageType::kResponse ||
+        (msg.DpaPacket().DpaResponsePacket_t.ResponseCode & STATUS_ASYNC_RESPONSE)) {
+        return;
+      }
+
+      if (msg.NodeAddress() != 0) {
+        return; //just coord addr
+      }
+
+      if (msg.PeripheralType() != 0) {
+        return; //just coord perif
+      }
+
+      int cmd = msg.PeripheralCommand() & ~0x80;
+
+      if (
+        cmd == 0x03 //Clear all bonds
+        || cmd == 0x04 //Bond Node
+        || cmd == 0x05 //Remove bonded 
+        || cmd == 0x07 //Discovery
+        || cmd == 0x0C //Restore
+        || cmd == 0x12 //Smart
+        || cmd == 0x13 //Set MID
+        ) {
+        m_repeatEnum = true; //repeat if just running
+        std::cout << std::endl << "detected: " << PAR(cmd);
+        TRC_DEBUG("detected: " << PAR(cmd));
+        if (!m_iIqrfDpaService->hasExclusiveAccess()) {
+          m_enumCv.notify_all();
+        }
+        else {
+          std::cout << std::endl << "enum blocked: " << PAR(cmd);
+          TRC_DEBUG("enum blocked: " << PAR(cmd));
+        }
+      }
+    }
+
     rapidjson::Document getNodeMetaData(int nadr) const
     {
       TRC_FUNCTION_ENTER("");
@@ -1934,10 +1989,17 @@ namespace iqrf {
 
       modify(props);
 
+      m_iIqrfDpaService->registerAnyMessageHandler(m_instanceName, [&](const DpaMessage & msg)
+      {
+        analyzeAnyMessage(msg);
+      }
+      );
+
       initDb();
 
       loadProvisoryDrivers();
 
+      m_repeatEnum = false;
       m_enumThreadRun = false;
       if (m_enumAtStartUp) {
         startEnumeration();
@@ -1953,10 +2015,12 @@ namespace iqrf {
       using namespace rapidjson;
       const Document& doc = props->getAsJson();
 
+      m_instanceName = Pointer("/instance").Get(doc)->GetString();
+
       {
         const Value* val = Pointer("/enumAtStartUp").Get(doc);
         if (val && val->IsBool()) {
-          m_enumAtStartUp = (uint8_t)val->GetBool();
+          m_enumAtStartUp = val->GetBool();
         }
       }
 

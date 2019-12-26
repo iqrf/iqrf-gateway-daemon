@@ -18,7 +18,7 @@ namespace iqrf {
 
     void sendTo(const std::basic_string<unsigned char>& message, IIqrfChannelService::AccesType access)
     {
-      std::unique_lock<std::mutex> lck(m_mtx);
+      std::unique_lock<std::recursive_mutex> lck(m_mtx);
       switch (access)
       {
       case IIqrfChannelService::AccesType::Normal:
@@ -48,14 +48,14 @@ namespace iqrf {
 
     bool hasExclusiveAccess() const
     {
-      std::unique_lock<std::mutex> lck(m_mtx);
+      std::unique_lock<std::recursive_mutex> lck(m_mtx);
       return (bool)m_exclusiveReceiveFromFunc;
     }
 
     std::unique_ptr<IIqrfChannelService::Accessor> getAccess(IIqrfChannelService::ReceiveFromFunc receiveFromFunc, IIqrfChannelService::AccesType access)
     {
       TRC_FUNCTION_ENTER("");
-      std::unique_lock<std::mutex> lck(m_mtx);
+      std::unique_lock<std::recursive_mutex> lck(m_mtx);
       std::unique_ptr<IIqrfChannelService::Accessor> retval;
       switch (access)
       {
@@ -85,7 +85,7 @@ namespace iqrf {
     void resetAccess(IIqrfChannelService::AccesType access)
     {
       TRC_FUNCTION_ENTER("");
-      std::unique_lock<std::mutex> lck(m_mtx);
+      std::unique_lock<std::recursive_mutex> lck(m_mtx);
       switch (access)
       {
       case IIqrfChannelService::AccesType::Normal:
@@ -104,7 +104,7 @@ namespace iqrf {
 
     void messageHandler(const std::basic_string<unsigned char>& message)
     {
-      std::unique_lock<std::mutex> lck(m_mtx);
+      std::unique_lock<std::recursive_mutex> lck(m_mtx);
       if (!m_exclusiveReceiveFromFunc && m_normalReceiveFromFunc) {
         m_normalReceiveFromFunc(message);
       }
@@ -151,7 +151,7 @@ namespace iqrf {
     IIqrfChannelService::ReceiveFromFunc m_exclusiveReceiveFromFunc;
     IIqrfChannelService::ReceiveFromFunc m_snifferReceiveFromFunc;
     IqrfChannel * m_iqrfChannel = nullptr;
-    mutable std::mutex m_mtx;
+    mutable std::recursive_mutex m_mtx;
   };
 
   ///////////////////////////

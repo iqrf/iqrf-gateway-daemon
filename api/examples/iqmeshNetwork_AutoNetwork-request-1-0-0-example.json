@@ -6,8 +6,10 @@
             "actionRetries": 1,
             "discoveryTxPower": 6,
             "discoveryBeforeStart": true,
-            "waves": 1,
-            "emptyWaves": 0
+            "stopConditions": {
+              "waves": 3,
+              "emptyWaves": 2
+            }
         },
         "returnVerbose": true
     }
