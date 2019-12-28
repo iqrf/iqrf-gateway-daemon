@@ -210,6 +210,8 @@ namespace iqrf {
     std::string m_instanceName;
 
     bool m_enumAtStartUp = false;
+    bool m_enumUniformDpaVer = false;
+
     bool m_enumPeriod = 0;
     std::thread m_enumThread;
     std::atomic_bool m_enumThreadRun;
@@ -280,8 +282,6 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       while (m_enumThreadRun) {
-
-        std::cout << std::endl << "run enum";
 
         try {
           if (m_iIqrfDpaService->hasExclusiveAccess()) {
@@ -616,6 +616,16 @@ namespace iqrf {
           }
         }
 
+        if (m_enumUniformDpaVer) {
+          // dpaVer and osBuild set according C
+          auto cp = m_iIqrfDpaService->getCoordinatorParameters();
+          for (auto & it : m_nadrFullEnumNodeMap) {
+            it.second->getNode().setOsBuild(cp.osBuildWord);
+            it.second->getNode().setDpaVer(cp.dpaVerWord);
+          }
+          break; // not necessary to continue
+        }
+
         anyValid = true;
         { // read DpaVersion + 2B
           uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, DpaVersion);
@@ -678,21 +688,37 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      for (auto & it : m_nadrFullEnumNodeMap) {
+      if (m_enumUniformDpaVer) {
+        // dpaVer and osBuild set according C
+        auto cp = m_iIqrfDpaService->getCoordinatorParameters();
+        for (auto & it : m_nadrFullEnumNodeMap) {
+          int nadr = it.first;
+          NodeDataPtr & nodeData = it.second;
 
-        int nadr = it.first;
-        NodeDataPtr & nodeData = it.second;
-
-        std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(nadr));
-        osReadPtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(osReadPtr->getRequest())->get());
-        nodeData->setEmbedOsRead(osReadPtr);
-
-        if (!nodeData->getEmbedOsRead()->is410Compliant()) {
           std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
           exploreEnumeratePtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest())->get());
           nodeData->setEmbedExploreEnumerate(exploreEnumeratePtr);
-        }
 
+          nodeData->getNode().setOsBuild(cp.osBuildWord);
+          nodeData->getNode().setDpaVer(cp.dpaVerWord);
+        }
+      }
+      else {
+        for (auto & it : m_nadrFullEnumNodeMap) {
+
+          int nadr = it.first;
+          NodeDataPtr & nodeData = it.second;
+
+          std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(nadr));
+          osReadPtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(osReadPtr->getRequest())->get());
+          nodeData->setEmbedOsRead(osReadPtr);
+
+          if (!nodeData->getEmbedOsRead()->is410Compliant()) {
+            std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+            exploreEnumeratePtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest())->get());
+            nodeData->setEmbedExploreEnumerate(exploreEnumeratePtr);
+          }
+        }
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -1810,8 +1836,12 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       stopEnumeration();
       //TODO implement, API
+      //delete and recreate DB
       TRC_FUNCTION_LEAVE("")
     }
+
+    //TODO API
+    // remove unbond nodes from DB - nodes are not by default deleted if unbonded
 
     // analyze incoming DPA responses. If there is a msg with influence to DB cahed data it starts enum
     // it is hooked to IqrfDpa via callback
@@ -1845,13 +1875,11 @@ namespace iqrf {
         ) {
 
         m_repeatEnum = true; //repeat if just running
-        std::cout << std::endl << "detected: " << PAR(cmd);
         TRC_INFORMATION("detected: " << PAR(cmd));
         if (!m_iIqrfDpaService->hasExclusiveAccess()) {
           m_enumCv.notify_all();
         }
         else {
-          std::cout << std::endl << "exclusive access detected => enum waits ... ";
           TRC_INFORMATION("exclusive access detected => enum waits ... ");
         }
       }
@@ -2014,6 +2042,13 @@ namespace iqrf {
         const Value* val = Pointer("/enumPeriod").Get(doc);
         if (val && val->IsInt()) {
           m_enumPeriod = val->GetInt();
+        }
+      }
+
+      {
+        const Value* val = Pointer("/enumUniformDpaVer").Get(doc);
+        if (val && val->IsBool()) {
+          m_enumUniformDpaVer = val->GetBool();
         }
       }
 
