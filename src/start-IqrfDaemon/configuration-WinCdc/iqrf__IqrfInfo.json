@@ -1,5 +1,6 @@
 {
   "component": "iqrf::IqrfInfo",
   "instance": "iqrf::IqrfInfo",
-  "enumAtStartUp":  true
+  "enumAtStartUp": true,
+  "enumPeriod": 1
 }

@@ -1668,7 +1668,7 @@ namespace iqrf {
       // Autonetwork result
       AutonetworkResult autonetworkResult;    
       // List of new nodes passed to IqrfInfo when AN finishes
-      std::map<int, embed::node::AnInfo> newNodes;
+      std::map<int, embed::node::BriefInfo> newNodes;
 
       try
       {
@@ -2225,12 +2225,12 @@ namespace iqrf {
               if ( antwInputParams.hwpidFiltering.empty() == true )
               {
                 // No, pass only MIDs
-                newNodes.insert( std::pair<int, embed::node::AnInfo>( node.address, embed::node::AnInfo( node.MID ) ) );
+                newNodes.insert(std::make_pair(node.address, embed::node::BriefInfo(node.MID)));
               }
               else
               {
                 // Yes, pass MID, HWPID and HWPID version
-                newNodes.insert( std::pair<int, embed::node::AnInfo>( node.address, embed::node::AnInfo( node.MID, antwProcessParams.networkNodes[node.address].HWPID, antwProcessParams.networkNodes[node.address].HWPIDVer ) ) );
+                newNodes.insert(std::make_pair(node.address, embed::node::BriefInfo(node.MID, antwProcessParams.networkNodes[node.address].HWPID, antwProcessParams.networkNodes[node.address].HWPIDVer)));
               }
             }
 

@@ -23,6 +23,7 @@
 #include <set>
 #include <thread>
 #include <atomic>
+#include <condition_variable>
 #include <random>
 
 #include "iqrf__IqrfInfo.hxx"
@@ -74,6 +75,7 @@ namespace iqrf {
 
   class IqrfInfo::Imp
   {
+    // Driver DB structure
     class Driver
     {
     public:
@@ -90,6 +92,7 @@ namespace iqrf {
       std::string m_drv;
     };
 
+    // Device DB structure
     class Device
     {
     public:
@@ -121,52 +124,28 @@ namespace iqrf {
       std::vector<const IJsCacheService::StdDriver *> m_drivers;
     };
 
-    class NodeData : public embed::node::BriefInfo
+    // aux class for enumeration
+    class NodeData
     {
     private:
+      embed::node::BriefInfo m_node;
       embed::explore::EnumeratePtr m_exploreEnumerate;
       embed::os::ReadPtr m_osRead;
-      bool m_midValid;
-      bool m_hwpidValid;
-      bool m_hwpidVerValid;
-      bool m_osBuildValid;
-      bool m_dpaVerValid;
 
     public:
-      NodeData(uint32_t mid)
-        :m_midValid(false)
-        , m_hwpidValid(false)
-        , m_hwpidVerValid(false)
-        , m_osBuildValid(false)
-        , m_dpaVerValid(false)
+      NodeData(const embed::node::BriefInfo & node)
+      : m_node(node)
+      {}
+
+      embed::node::BriefInfo & getNode()
       {
-        setMid(mid);
+        return m_node;
       }
 
-      bool isValid() const
+      void setNode(const embed::node::BriefInfo & node)
       {
-        return m_midValid && m_hwpidValid && m_hwpidVerValid && m_osBuildValid && m_dpaVerValid;
+        m_node = node;
       }
-
-      uint32_t getMid() const { return m_mid; }
-      void setMid(uint32_t mid) { m_mid = mid; m_midValid = true; }
-      bool isMidValid() const { return m_midValid; }
-
-      int getHwpid() const { return m_hwpid; }
-      void setHwpid(int hwpid) { m_hwpid = hwpid; m_hwpidValid = true; }
-      bool isHwpidValid() const { return m_hwpidValid; }
-
-      int getHwpidVer() const { return m_hwpidVer; }
-      void setHwpidVer(int hwpidVer) { m_hwpidVer = hwpidVer; m_hwpidVerValid = true; }
-      bool isHwpidVerValid() const { return m_hwpidVerValid; }
-
-      int getOsBuild() const { return m_osBuild; }
-      void setOsBuild(int osBuild) { m_osBuild = osBuild; m_osBuildValid = true; }
-      bool isOsBuildValid() const { return m_osBuildValid; }
-
-      int getDpaVer() const { return m_dpaVer; }
-      void setDpaVer(int dpaVer) { m_dpaVer = dpaVer; m_dpaVerValid = true; }
-      bool isDpaVerValid() const { return m_dpaVerValid; }
 
       const embed::explore::EnumeratePtr & getEmbedExploreEnumerate() const
       {
@@ -176,9 +155,9 @@ namespace iqrf {
       void setEmbedExploreEnumerate(embed::explore::RawDpaEnumeratePtr & ee)
       {
         m_exploreEnumerate = std::move(ee);
-        setDpaVer(m_exploreEnumerate->getDpaVer());
-        setHwpid(m_exploreEnumerate->getHwpidEnm());
-        setHwpidVer(m_exploreEnumerate->getHwpidVer());
+        m_node.setDpaVer(m_exploreEnumerate->getDpaVer());
+        m_node.setHwpid(m_exploreEnumerate->getHwpidEnm());
+        m_node.setHwpidVer(m_exploreEnumerate->getHwpidVer());
       }
 
       const embed::os::ReadPtr & getEmbedOsRead() const
@@ -189,24 +168,26 @@ namespace iqrf {
       void setEmbedOsRead(embed::os::RawDpaReadPtr & or)
       {
         m_osRead = std::move(or);
-        setMid(m_osRead->getMid());
-        setOsBuild(m_osRead->getOsBuild());
+        m_node.setMid(m_osRead->getMid());
+        m_node.setOsBuild(m_osRead->getOsBuild());
         if (m_osRead->is410Compliant()) {
-          setDpaVer(m_osRead->getDpaVer());
-          setHwpid(m_osRead->getHwpidValFromOs());
-          setHwpidVer(m_osRead->getHwpidVer());
+          m_node.setDpaVer(m_osRead->getDpaVer());
+          m_node.setHwpid(m_osRead->getHwpidValFromOs());
+          m_node.setHwpidVer(m_osRead->getHwpidVer());
         }
       }
 
-      int getModeStd() const
-      {
-        return m_exploreEnumerate->getModeStd();
-      }
+      //int getModeStd() const
+      //{
+      //  //TODO set member
+      //  return m_exploreEnumerate->getModeStd();
+      //}
 
-      int getStdAndLpSupport() const
-      {
-        return m_exploreEnumerate->getStdAndLpSupport();
-      }
+      //int getStdAndLpSupport() const
+      //{
+      //  //TODO set member
+      //  return m_exploreEnumerate->getStdAndLpSupport();
+      //}
 
     };
     typedef std::unique_ptr<NodeData> NodeDataPtr;
@@ -220,26 +201,22 @@ namespace iqrf {
 
     std::unique_ptr<database> m_db;
 
-    // bonded nadrs according EEEPROM [C]
-    std::set<int> m_bonded;
-    // bonded nadrs mid map according EEEPROM [C]
-    std::map<int, uint32_t> m_bondedNadrMidMap;
-
-    // nadrs to be fully enumerated => doesn't exist nor fit to DB state
-    std::set<int> m_nadrFullEnum;
     // nadrs of nodes data to be fully enumerated
     std::map<int, NodeDataPtr> m_nadrFullEnumNodeMap;
 
     // set by AutoNw
-    std::map<int, embed::node::AnInfo> m_nadrAnInfoMap;
+    std::map<int, embed::node::BriefInfo> m_nadrInsertNodeMap;
 
     std::string m_instanceName;
 
     bool m_enumAtStartUp = false;
+    bool m_enumPeriod = 0;
     std::thread m_enumThread;
     std::atomic_bool m_enumThreadRun;
     std::mutex m_enumMtx;
     std::condition_variable m_enumCv;
+    
+    // rerun enum
     std::atomic<bool> m_repeatEnum;
 
   public:
@@ -321,9 +298,15 @@ namespace iqrf {
             e.what() << std::endl;
         }
 
+        // wait for next iteration
         std::unique_lock<std::mutex> lck(m_enumMtx);
         if (!m_repeatEnum) {
-          m_enumCv.wait_for(lck, std::chrono::seconds(5));
+          if (m_enumPeriod > 0) {
+            m_enumCv.wait_for(lck, std::chrono::minutes(m_enumPeriod));
+          }
+          else {
+            m_enumCv.wait(lck);
+          }
         }
         m_repeatEnum = false;
 
@@ -332,10 +315,30 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    // read bonded mid for coordinator eeeprom
-    std::map<int, uint32_t> getBondedMids(const std::set<int> & bonded) const
+    void checkEnum()
     {
       TRC_FUNCTION_ENTER("");
+
+      // prepare nadr bond node map
+      std::map<int, embed::node::BriefInfo> nadrBondNodeMap;
+      
+      // get bonded nadrs from C
+      iqrf::embed::coordinator::RawDpaBondedDevices iqrfEmbedCoordinatorBondedDevices;
+      {
+        std::unique_ptr<IDpaTransactionResult2> transResult;
+        auto trn = m_iIqrfDpaService->executeDpaTransaction(iqrfEmbedCoordinatorBondedDevices.getRequest());
+        iqrfEmbedCoordinatorBondedDevices.processDpaTransactionResult(trn->get());
+      }
+      std::set<int> bonded = iqrfEmbedCoordinatorBondedDevices.getBondedDevices();
+
+      // get discovered nadrs from C
+      iqrf::embed::coordinator::RawDpaDiscoveredDevices dd;
+      {
+        auto trn = m_iIqrfDpaService->executeDpaTransaction(dd.getRequest());
+        dd.processDpaTransactionResult(trn->get());
+      }
+      std::set<int> discovered = dd.getDiscoveredDevices();
+
 
       // eeeprom read parms for bonded
       const uint8_t maxlen = 54;
@@ -348,9 +351,6 @@ namespace iqrf {
       int remain = maxdata % maxlen;
       std::vector<uint8_t> pdataVec;
       pdataVec.reserve(maxdata);
-
-      // retval
-      std::map<int, uint32_t> bondedMidMap;
 
       // read C eeeprom up to nadr storage
       for (int i = 0; i < maxhit + 1; i++) {
@@ -369,54 +369,44 @@ namespace iqrf {
       for (int nadr : bonded) {
         int m = nadr * 8;
         uint32_t mid = (unsigned)pdataVec[m] | ((unsigned)pdataVec[m + 1] << 8) | ((unsigned)pdataVec[m + 2] << 16) | ((unsigned)pdataVec[m + 3] << 24);
-        bondedMidMap[nadr] = mid;
+
+        auto found = discovered.find(nadr);
+        bool dis = found != discovered.end();
+        nadrBondNodeMap[nadr] = embed::node::BriefInfo(mid, dis);
       }
 
-      TRC_FUNCTION_LEAVE("");
-      return bondedMidMap;
-    }
 
-    void checkEnum()
-    {
-      TRC_FUNCTION_ENTER("");
 
-      iqrf::embed::coordinator::RawDpaBondedDevices iqrfEmbedCoordinatorBondedDevices;
-
-      {
-        std::unique_ptr<IDpaTransactionResult2> transResult;
-        auto trn = m_iIqrfDpaService->executeDpaTransaction(iqrfEmbedCoordinatorBondedDevices.getRequest());
-        iqrfEmbedCoordinatorBondedDevices.processDpaTransactionResult(trn->get());
-      }
-
-      m_bonded = iqrfEmbedCoordinatorBondedDevices.getBondedDevices();
-      m_bondedNadrMidMap = getBondedMids(m_bonded);
       // get coordinator mid already taken by IqrfDpa
-      m_bondedNadrMidMap[0] = m_iIqrfDpaService->getCoordinatorParameters().mid;
+      nadrBondNodeMap[0] = embed::node::BriefInfo(m_iIqrfDpaService->getCoordinatorParameters().mid, false);
 
       database & db = *m_db;
 
-      std::map<int, uint32_t> nadrMidDbMap;
+      // to be filled from DB
+      std::map<int, embed::node::BriefInfo> nadrBondNodeDbMap;
 
       db << "select "
         "b.Nadr "
+        ", b.Dis "
         ", b.Mid "
         "from "
         "Bonded as b "
         ";"
         >> [&](
           int nadr,
+          int dis,
           uint32_t mid
           )
       {
-        nadrMidDbMap.insert(std::make_pair(nadr, mid));
+        nadrBondNodeDbMap.insert(std::make_pair(nadr, embed::node::BriefInfo(mid, dis > 0 ? true : false)));
       };
 
       // delete Nadr from DB if it doesn't exist in Net
-      for (const auto & bo : nadrMidDbMap) {
+      for (const auto & bo : nadrBondNodeDbMap) {
         int nadr = bo.first;
         const auto & b = bo.second;
-        auto found = m_bondedNadrMidMap.find(nadr);
-        if (found == m_bondedNadrMidMap.end()) {
+        auto found = nadrBondNodeMap.find(nadr);
+        if (found == nadrBondNodeMap.end()) {
           // Nadr not found in Net => delete from Bonded
           TRC_INFORMATION(PAR(nadr) << " remove from bonded list")
             db << "delete from Bonded where Nadr = ?;" << nadr;
@@ -424,19 +414,21 @@ namespace iqrf {
       }
 
       // compare fast enum and DB
-      for (const auto & p : m_bondedNadrMidMap) {
+      for (const auto & p : nadrBondNodeMap) {
         int nadr = p.first;
-        uint32_t mid = p.second;
-        auto found = nadrMidDbMap.find(nadr);
-        if (found == nadrMidDbMap.end()) {
-          // Nadr from Net not found in DB => provide full enum
-          m_nadrFullEnum.insert(nadr);
+        uint32_t mid = p.second.getMid();
+        auto found = nadrBondNodeDbMap.find(nadr);
+
+        if (found == nadrBondNodeDbMap.end() || mid != found->second.getMid()) {
+          // Nadr from Net not found in DB or comparison failed => provide full enum
+          m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(p.second))));
+          TRC_INFORMATION(PAR(nadr) << "check enum does not fit => schedule full enum")
         }
-        else {
-          if (mid != found->second) {
-            // Nadr from Net is already in DB, but fast enum comparison failed => provide full enum
-            TRC_INFORMATION(PAR(nadr) << " fast enum does not fit => schedule full enum")
-              m_nadrFullEnum.insert(nadr);
+        else if (found != nadrBondNodeDbMap.end()) {
+          // compare and update discovery status
+          bool dis = p.second.getDisc();
+          if (dis != found->second.getDisc()) {
+            db << "update Bonded  set Dis = ? where Nadr = ?; " << (dis ? 1 : 0) << nadr;
           }
         }
       }
@@ -563,23 +555,29 @@ namespace iqrf {
 
       const uint16_t CBUFFER = 0x04a0; // msg buffer in node
 
-      std::vector<std::set<int>> setVect = iqrf::embed::frc::Send::splitSelectedNode<uint32_t>(m_nadrFullEnum);
+      std::set<int> nadrEnumSet;
+      for (auto & it : m_nadrFullEnumNodeMap) {
+        nadrEnumSet.insert(it.first);
+      }
+      std::vector<std::set<int>> setVect = iqrf::embed::frc::Send::splitSelectedNode<uint32_t>(nadrEnumSet);
+      
       iqrf::embed::frc::rawdpa::ExtraResult extra;
 
       while (true) {
         { // read HWPID, HWPIDVer
-
           // reuse data from AutoNetwork if any
-          std::set<int> leftHwpidEnum(m_nadrFullEnum);
-          if (m_nadrAnInfoMap.size() > 0) {
-            for (auto nadr : m_nadrFullEnum) {
-              auto found = m_nadrAnInfoMap.find(nadr);
-              if (m_nadrAnInfoMap.end() != found) {
+          std::set<int> leftHwpidEnum(nadrEnumSet);
+
+          if (m_nadrInsertNodeMap.size() > 0) {
+            for (auto & it : m_nadrFullEnumNodeMap) {
+              int nadr = it.first;
+              auto found = m_nadrInsertNodeMap.find(nadr);
+              if (m_nadrInsertNodeMap.end() != found) {
                 int hwpid = found->second.getHwpid();
                 int hwpidVer = found->second.getHwpidVer();
                 if (hwpid >= 0 && hwpidVer >= 0) {
-                  m_nadrFullEnumNodeMap[nadr]->setHwpid(hwpid);
-                  m_nadrFullEnumNodeMap[nadr]->setHwpidVer(hwpidVer);
+                  m_nadrFullEnumNodeMap[nadr]->getNode().setHwpid(hwpid);
+                  m_nadrFullEnumNodeMap[nadr]->getNode().setHwpidVer(hwpidVer);
                   leftHwpidEnum.erase(nadr);
                 }
               }
@@ -607,8 +605,8 @@ namespace iqrf {
                   anyValid = true;
                   // correct value from FRC => store it
                   --hwpidw;
-                  m_nadrFullEnumNodeMap[nadr]->setHwpid(hwpidw & 0xffff);
-                  m_nadrFullEnumNodeMap[nadr]->setHwpidVer(hwpidw >> 16);
+                  m_nadrFullEnumNodeMap[nadr]->getNode().setHwpid(hwpidw & 0xffff);
+                  m_nadrFullEnumNodeMap[nadr]->getNode().setHwpidVer(hwpidw >> 16);
                 }
               }
             }
@@ -638,7 +636,7 @@ namespace iqrf {
               if (0 != dpaVer) {
                 anyValid = true;
                 // correct value from FRC => store it
-                m_nadrFullEnumNodeMap[nadr]->setDpaVer(dpaVer & 0x3fff);
+                m_nadrFullEnumNodeMap[nadr]->getNode().setDpaVer(dpaVer & 0x3fff);
               }
             }
           }
@@ -665,7 +663,7 @@ namespace iqrf {
               uint32_t osBuild = it.second;
               if (0 != osBuild) {
                 // correct value from FRC => store it
-                m_nadrFullEnumNodeMap[nadr]->setOsBuild(osBuild & 0xffff);
+                m_nadrFullEnumNodeMap[nadr]->getNode().setOsBuild(osBuild & 0xffff);
               }
             }
           }
@@ -702,50 +700,38 @@ namespace iqrf {
 
     void fullEnum()
     {
-      TRC_FUNCTION_ENTER(PAR(m_nadrFullEnum.size()));
+      TRC_FUNCTION_ENTER(PAR(m_nadrFullEnumNodeMap.size()));
 
-      if (m_nadrFullEnum.size() == 0) {
+      if (m_nadrFullEnumNodeMap.size() == 0) {
         TRC_FUNCTION_LEAVE("");
         return;
       }
 
       std::cout << std::endl << "Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
 
-      // get discovered from C
-      iqrf::embed::coordinator::RawDpaDiscoveredDevices dd;
-      {
-        auto trn = m_iIqrfDpaService->executeDpaTransaction(dd.getRequest());
-        dd.processDpaTransactionResult(trn->get());
-      }
-      auto & discovered = dd.getDiscoveredDevices();
-
       auto cp = m_iIqrfDpaService->getCoordinatorParameters();
 
-      if (0 == m_bondedNadrMidMap.begin()->first && *(m_nadrFullEnum.begin()) == 0) {
-        // coordinator
-        auto it = m_nadrFullEnumNodeMap.insert(std::make_pair(0, shape_new NodeData(cp.mid)));
-        NodeDataPtr & c = it.first->second;
-        c->setHwpid(0);
-        c->setHwpidVer(0);
-        c->setOsBuild(cp.osBuildWord);
-        c->setDpaVer(cp.dpaVerWord);
+      bool enumCoord = (0 == m_nadrFullEnumNodeMap.begin()->first);
+      int enumNodeCount = m_nadrFullEnumNodeMap.size();
+      if (enumCoord) {
+        --enumNodeCount; //C is enumed separately
+        // coordinator enumeration
+        NodeDataPtr & c = m_nadrFullEnumNodeMap.begin()->second;
+        c->getNode().setHwpid(0);
+        c->getNode().setHwpidVer(0);
+        c->getNode().setOsBuild(cp.osBuildWord);
+        c->getNode().setDpaVer(cp.dpaVerWord);
       }
-
-      for (auto nadr : m_nadrFullEnum) {
-        auto found = m_bondedNadrMidMap.find(nadr);
-        if (found == m_bondedNadrMidMap.end()) {
-          THROW_EXC_TRC_WAR(std::logic_error, PAR(nadr) << " inconsistent bonded nadr with nadr/mid map both from coordinator");
-        }
-        m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(found->second))));
-      }
-
-      if (m_nadrFullEnumNodeMap.size() > 1 && cp.dpaVerWord >= 0x400) {
+      
+      if (enumNodeCount > 1 && cp.dpaVerWord >= 0x400) {
         // enumerate by FRC
         fullEnumByFrc();
       }
       else {
-        // only one or obsolete DPA acoording [C]
-        fullEnumByPoll();
+        if (enumNodeCount > 0) {
+          // only one or obsolete DPA acoording [C]
+          fullEnumByPoll();
+        }
       }
 
       database & db = *m_db;
@@ -755,18 +741,18 @@ namespace iqrf {
         int nadr = it.first;
         auto & nd = it.second;
 
-        if (!nd->isValid()) {
-          //TODO save only to bonded if valid mid, don't save device, mark as non enumed in DB
+        if (!nd->getNode().isValid()) {
+          // don't save to DB if invalid
           continue;
         }
 
         try {
-          uint32_t mid = nd->getMid();
-          bool dis = discovered.find(nadr) != discovered.end();
-          int hwpid = nd->getHwpid();
-          int hwpidVer = nd->getHwpidVer();
-          int osBuild = nd->getOsBuild();
-          int dpaVer = nd->getDpaVer();
+          uint32_t mid = nd->getNode().getMid();
+          bool dis = nd->getNode().getDisc();
+          int hwpid = nd->getNode().getHwpid();
+          int hwpidVer = nd->getNode().getHwpidVer();
+          int osBuild = nd->getNode().getOsBuild();
+          int dpaVer = nd->getNode().getDpaVer();
 
           std::unique_ptr<int> deviceIdPtr;
           int deviceId = 0;
@@ -797,7 +783,8 @@ namespace iqrf {
           }
 
           // insert node if not exists
-          nodeInDb(mid, deviceId, nd->getModeStd(), nd->getStdAndLpSupport());
+          //nodeInDb(mid, deviceId, nd->getModeStd(), nd->getStdAndLpSupport());
+          nodeInDb(mid, deviceId, 0, 0);
           // insert bonded
           bondedInDb(nadr, dis ? 1 : 0, mid, 1);
 
@@ -816,20 +803,19 @@ namespace iqrf {
       }
 
       m_nadrFullEnumNodeMap.clear();
-      m_nadrFullEnum.clear();
       std::cout << std::endl << "Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now());
 
       TRC_FUNCTION_LEAVE("");
     }
 
-    void insertNodes(const std::map<int, embed::node::AnInfo> & nodes)
+    void insertNodes(const std::map<int, embed::node::BriefInfo> & nodes)
     {
       TRC_FUNCTION_ENTER("");
 
       {
         
         std::unique_lock<std::mutex> lck(m_enumMtx);
-        m_nadrAnInfoMap = nodes;
+        m_nadrInsertNodeMap = nodes;
         m_enumCv.notify_all();
       }
 
@@ -1849,23 +1835,24 @@ namespace iqrf {
       int cmd = msg.PeripheralCommand() & ~0x80;
 
       if (
-        cmd == 0x03 //Clear all bonds
-        || cmd == 0x04 //Bond Node
-        || cmd == 0x05 //Remove bonded 
-        || cmd == 0x07 //Discovery
-        || cmd == 0x0C //Restore
-        || cmd == 0x12 //Smart
-        || cmd == 0x13 //Set MID
+        cmd == CMD_COORDINATOR_CLEAR_ALL_BONDS
+        || cmd == CMD_COORDINATOR_BOND_NODE
+        || cmd == CMD_COORDINATOR_REMOVE_BOND
+        || cmd == CMD_COORDINATOR_DISCOVERY
+        || cmd == CMD_COORDINATOR_RESTORE
+        || cmd == CMD_COORDINATOR_SMART_CONNECT
+        || cmd == CMD_COORDINATOR_SET_MID
         ) {
+
         m_repeatEnum = true; //repeat if just running
         std::cout << std::endl << "detected: " << PAR(cmd);
-        TRC_DEBUG("detected: " << PAR(cmd));
+        TRC_INFORMATION("detected: " << PAR(cmd));
         if (!m_iIqrfDpaService->hasExclusiveAccess()) {
           m_enumCv.notify_all();
         }
         else {
-          std::cout << std::endl << "enum blocked: " << PAR(cmd);
-          TRC_DEBUG("enum blocked: " << PAR(cmd));
+          std::cout << std::endl << "exclusive access detected => enum waits ... ";
+          TRC_INFORMATION("exclusive access detected => enum waits ... ");
         }
       }
     }
@@ -1877,7 +1864,6 @@ namespace iqrf {
       std::string metaData;
       database & db = *m_db;
 
-      //TODO
       db <<
         "select "
         "n.metaData "
@@ -2024,6 +2010,13 @@ namespace iqrf {
         }
       }
 
+      {
+        const Value* val = Pointer("/enumPeriod").Get(doc);
+        if (val && val->IsInt()) {
+          m_enumPeriod = val->GetInt();
+        }
+      }
+
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -2040,6 +2033,8 @@ namespace iqrf {
       if (m_enumThread.joinable()) {
         m_enumThread.join();
       }
+
+      m_iIqrfDpaService->unregisterAnyMessageHandler(m_instanceName);
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -2082,7 +2077,7 @@ namespace iqrf {
     return m_imp->getNodes();
   }
 
-  void IqrfInfo::insertNodes(const std::map<int, embed::node::AnInfo> & nodes)
+  void IqrfInfo::insertNodes(const std::map<int, embed::node::BriefInfo> & nodes)
   {
     return m_imp->insertNodes(nodes);
   }
