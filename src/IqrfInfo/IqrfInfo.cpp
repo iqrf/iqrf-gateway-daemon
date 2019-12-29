@@ -1867,6 +1867,9 @@ namespace iqrf {
     }
 
     //TODO API
+    // get non enumerated nodes
+
+    //TODO API
     // remove unbond nodes from DB - nodes are not by default deleted if unbonded
 
     // analyze incoming DPA responses. If there is a msg with influence to DB cahed data it starts enum

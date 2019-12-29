@@ -45,6 +45,16 @@
             "type": "boolean",
             "description": "Flag to initiate network full enumaration just after startup",
             "default": "false"
+        },
+        "enumPeriod": {
+            "type": "integer",
+            "description": "Period in minutes of regular check enumeration",
+            "default": "false"
+        },
+        "enumUniformDpaVer": {
+            "type": "boolean",
+            "description": "If set just Hwpid and HwpidVer is obtained from nodes. DpaVer and osBuild is set according coordinator",
+            "default": "false"
         }
     },
     "required": [
