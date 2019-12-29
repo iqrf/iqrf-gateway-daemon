@@ -14,8 +14,8 @@ namespace iqrf
         class BriefInfo : public node::BriefInfo
         {
         public:
-          BriefInfo(unsigned mid, bool disc, int hwpid, int hwpidVer, int osBuild, int dpaVer)
-            :node::BriefInfo(mid, disc, hwpid, hwpidVer, osBuild, dpaVer)
+          BriefInfo(unsigned mid, bool disc, int hwpid, int hwpidVer, int osBuild, int dpaVer, bool enm)
+            :node::BriefInfo(mid, disc, hwpid, hwpidVer, osBuild, dpaVer, enm)
           {}
 
           virtual ~BriefInfo() {}

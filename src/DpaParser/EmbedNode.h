@@ -19,6 +19,7 @@ namespace iqrf
         int m_osBuild;
         int m_dpaVer;
         bool m_disc;
+        bool m_enm;
 
       public:
         BriefInfo()
@@ -28,6 +29,7 @@ namespace iqrf
           , m_osBuild(-1)
           , m_dpaVer(-1)
           , m_disc(false)
+          , m_enm(false)
         {}
 
         BriefInfo(uint32_t mid)
@@ -37,6 +39,7 @@ namespace iqrf
           , m_osBuild(-1)
           , m_dpaVer(-1)
           , m_disc(false)
+          , m_enm(false)
         {}
 
         BriefInfo(uint32_t mid, int hwpid, int hwpidVer)
@@ -46,24 +49,27 @@ namespace iqrf
           , m_osBuild(-1)
           , m_dpaVer(-1)
           , m_disc(false)
+          , m_enm(false)
         {}
 
-        BriefInfo(unsigned mid, bool disc)
+        BriefInfo(unsigned mid, bool disc, bool enm)
           :m_mid(mid)
           , m_hwpid(-1)
           , m_hwpidVer(-1)
           , m_osBuild(-1)
           , m_dpaVer(-1)
           , m_disc(disc)
+          , m_enm(enm)
         {}
 
-        BriefInfo(unsigned mid, bool disc, int hwpid, int hwpidVer, int osBuild, int dpaVer)
+        BriefInfo(unsigned mid, bool disc, int hwpid, int hwpidVer, int osBuild, int dpaVer, bool enm)
           :m_mid(mid)
           , m_hwpid(hwpid)
           , m_hwpidVer(hwpidVer)
           , m_osBuild(osBuild)
           , m_dpaVer(dpaVer)
           , m_disc(disc)
+          , m_enm(enm)
         {}
 
         virtual ~BriefInfo() {}
@@ -96,6 +102,8 @@ namespace iqrf
         void setDpaVer(int dpaVer) { m_dpaVer = dpaVer; }
         bool isDpaVerValid() const { return m_dpaVer > 0; }
 
+        bool getEnm() const { return m_enm; }
+        void setEnm(bool val) { m_enm = val; }
 
       };
       typedef std::unique_ptr<BriefInfo> BriefInfoPtr;

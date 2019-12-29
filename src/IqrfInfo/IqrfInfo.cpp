@@ -177,18 +177,6 @@ namespace iqrf {
         }
       }
 
-      //int getModeStd() const
-      //{
-      //  //TODO set member
-      //  return m_exploreEnumerate->getModeStd();
-      //}
-
-      //int getStdAndLpSupport() const
-      //{
-      //  //TODO set member
-      //  return m_exploreEnumerate->getStdAndLpSupport();
-      //}
-
     };
     typedef std::unique_ptr<NodeData> NodeDataPtr;
 
@@ -254,6 +242,7 @@ namespace iqrf {
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
         }
 
+        /*
         //update DB
         try {
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo_update1.db.sql");
@@ -261,8 +250,26 @@ namespace iqrf {
         catch (sqlite_exception &e)
         {
           db << "rollback;";
-          CATCH_EXC_TRC_WAR(sqlite_exception, e, "Update DB: " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+          TRC_DEBUG("Update DB: " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
         }
+
+        //update DB
+        int maxVal = -1;
+        try {
+          // test column existence
+          int maxVal = -1;
+          db << "select max(ModeStd) from node;"
+            >> maxVal;
+        }
+        catch (sqlite_exception &e)
+        {
+          TRC_DEBUG("Node.ModeStd doesn't exists");
+        }
+        if (maxVal > -1) {
+          // column exists => delete
+          SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo_update2.db.sql");
+        }
+        */
 
       }
       catch (sqlite_exception &e)
@@ -372,13 +379,13 @@ namespace iqrf {
 
         auto found = discovered.find(nadr);
         bool dis = found != discovered.end();
-        nadrBondNodeMap[nadr] = embed::node::BriefInfo(mid, dis);
+        nadrBondNodeMap[nadr] = embed::node::BriefInfo(mid, dis, false);
       }
 
 
 
       // get coordinator mid already taken by IqrfDpa
-      nadrBondNodeMap[0] = embed::node::BriefInfo(m_iIqrfDpaService->getCoordinatorParameters().mid, false);
+      nadrBondNodeMap[0] = embed::node::BriefInfo(m_iIqrfDpaService->getCoordinatorParameters().mid, false, false);
 
       database & db = *m_db;
 
@@ -389,16 +396,18 @@ namespace iqrf {
         "b.Nadr "
         ", b.Dis "
         ", b.Mid "
+        ", b.Enm "
         "from "
         "Bonded as b "
         ";"
         >> [&](
           int nadr,
           int dis,
-          uint32_t mid
+          uint32_t mid,
+          int enm
           )
       {
-        nadrBondNodeDbMap.insert(std::make_pair(nadr, embed::node::BriefInfo(mid, dis > 0 ? true : false)));
+        auto it = nadrBondNodeDbMap.insert(std::make_pair(nadr, embed::node::BriefInfo(mid, dis != 0, enm != 0)));
       };
 
       // delete Nadr from DB if it doesn't exist in Net
@@ -419,7 +428,7 @@ namespace iqrf {
         uint32_t mid = p.second.getMid();
         auto found = nadrBondNodeDbMap.find(nadr);
 
-        if (found == nadrBondNodeDbMap.end() || mid != found->second.getMid()) {
+        if (found == nadrBondNodeDbMap.end() || mid != found->second.getMid() || !found->second.getEnm() ) {
           // Nadr from Net not found in DB or comparison failed => provide full enum
           m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(p.second))));
           TRC_INFORMATION(PAR(nadr) << "check enum does not fit => schedule full enum")
@@ -592,6 +601,13 @@ namespace iqrf {
             for (const auto & s : setVect) {
               frc.setSelectedNodes(s);
               frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
+              // Check FRC status
+              uint8_t status = frc.getStatus();
+              if (status > 0xEF) {
+                TRC_WARNING("FRC to get HWPID failed: " << PAR(status));
+                break; //no sense to continue now
+              }
+
               //TODO check status
               // get extra result
               extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
@@ -634,7 +650,12 @@ namespace iqrf {
           for (const auto & s : setVect) {
             frc.setSelectedNodes(s);
             frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
-            //TODO check status
+            // Check FRC status
+            uint8_t status = frc.getStatus();
+            if (status > 0xEF) {
+              TRC_WARNING("FRC to get DpaVer failed: " << PAR(status));
+              break; //no sense to continue now
+            }
             // get extra result
             extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
 
@@ -662,7 +683,11 @@ namespace iqrf {
           for (const auto & s : setVect) {
             frc.setSelectedNodes(s);
             frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
-            //TODO check status
+            uint8_t status = frc.getStatus();
+            if (status > 0xEF) {
+              TRC_WARNING("FRC to get OsBuild failed: " << PAR(status));
+              break; //no sense to continue now
+            }
             // get extra result
             extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
 
@@ -709,9 +734,15 @@ namespace iqrf {
           int nadr = it.first;
           NodeDataPtr & nodeData = it.second;
 
-          std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(nadr));
-          osReadPtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(osReadPtr->getRequest())->get());
-          nodeData->setEmbedOsRead(osReadPtr);
+          try {
+            std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(nadr));
+            osReadPtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(osReadPtr->getRequest())->get());
+            nodeData->setEmbedOsRead(osReadPtr);
+          }
+          catch (std::exception & e) {
+            TRC_INFORMATION("No response => cannot evaluate: " << PAR(nadr));
+            continue;
+          }
 
           if (!nodeData->getEmbedOsRead()->is410Compliant()) {
             std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
@@ -767,54 +798,63 @@ namespace iqrf {
         int nadr = it.first;
         auto & nd = it.second;
 
-        if (!nd->getNode().isValid()) {
-          // don't save to DB if invalid
-          continue;
-        }
+        //if (!nd->getNode().isValid()) {
+        //  // don't save to DB if invalid
+        //  continue;
+        //}
 
         try {
           uint32_t mid = nd->getNode().getMid();
           bool dis = nd->getNode().getDisc();
-          int hwpid = nd->getNode().getHwpid();
-          int hwpidVer = nd->getNode().getHwpidVer();
-          int osBuild = nd->getNode().getOsBuild();
-          int dpaVer = nd->getNode().getDpaVer();
 
-          std::unique_ptr<int> deviceIdPtr;
-          int deviceId = 0;
-          Device device(hwpid, hwpidVer, osBuild, dpaVer);
+          if (nd->getNode().isValid()) {
+            // valid hwpid, hwpidVer, dpaVer, osBuild => load appropriate drivers and use or create device 
+            int hwpid = nd->getNode().getHwpid();
+            int hwpidVer = nd->getNode().getHwpidVer();
+            int osBuild = nd->getNode().getOsBuild();
+            int dpaVer = nd->getNode().getDpaVer();
 
-          // get package from JsCache if exists
-          const iqrf::IJsCacheService::Package *pckg = nullptr;
-          if (hwpid != 0) { // no custom handler => use default pckg0 to resolve periferies
-            pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, (uint16_t)osBuild, (uint16_t)dpaVer);
-          }
+            std::unique_ptr<int> deviceIdPtr;
+            int deviceId = 0;
+            Device device(hwpid, hwpidVer, osBuild, dpaVer);
 
-          if (pckg) {
-            deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
+            // get package from JsCache if exists
+            const iqrf::IJsCacheService::Package *pckg = nullptr;
+            if (hwpid != 0) { // no custom handler => use default pckg0 to resolve periferies
+              pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, (uint16_t)osBuild, (uint16_t)dpaVer);
+            }
+
+            if (pckg) {
+              deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
+            }
+            else {
+              deviceIdPtr = enumerateDeviceOutsideRepo(nadr, nd, device);
+            }
+
+            db << "begin transaction;";
+
+            if (!deviceIdPtr) {
+              // no device in DB => insert
+              deviceId = insertDeviceWithDrv(device);
+            }
+            else {
+              // device already in DB => get deviceId
+              deviceId = *deviceIdPtr;
+            }
+
+            // insert node if not exists
+            nodeInDb(mid, deviceId);
+            // insert bonded
+            bondedInDb(nadr, dis ? 1 : 0, mid, 1);
+
+            db << "commit;";
           }
           else {
-            deviceIdPtr = enumerateDeviceOutsideRepo(nadr, nd, device);
+            // insert node if not exists
+            nodeInDb(mid, 0);
+            // insert bonded
+            bondedInDb(nadr, dis ? 1 : 0, mid, 0);
           }
-
-          db << "begin transaction;";
-
-          if (!deviceIdPtr) {
-            // no device in DB => insert
-            deviceId = insertDeviceWithDrv(device);
-          }
-          else {
-            // device already in DB => get deviceId
-            deviceId = *deviceIdPtr;
-          }
-
-          // insert node if not exists
-          //nodeInDb(mid, deviceId, nd->getModeStd(), nd->getStdAndLpSupport());
-          nodeInDb(mid, deviceId, 0, 0);
-          // insert bonded
-          bondedInDb(nadr, dis ? 1 : 0, mid, 1);
-
-          db << "commit;";
         }
         catch (sqlite_exception &e)
         {
@@ -1353,9 +1393,9 @@ namespace iqrf {
     }
 
     // check if node with mid exist and if not insert
-    void nodeInDb(unsigned mid, int deviceId, int modeStd, int stdAndLpSupport)
+    void nodeInDb(unsigned mid, int deviceId)
     {
-      TRC_FUNCTION_ENTER(PAR(mid) << PAR(deviceId) << PAR(modeStd) PAR(stdAndLpSupport))
+      TRC_FUNCTION_ENTER(PAR(mid) << PAR(deviceId))
 
         int count = 0;
       database & db = *m_db;
@@ -1371,31 +1411,16 @@ namespace iqrf {
 
       if (0 == count) {
         // mid doesn't exist in DB
+        std::unique_ptr<int> did = deviceId != 0 ? std::make_unique<int>(deviceId) : nullptr;
         db << "insert into Node ("
           "Mid"
           ", DeviceId "
-          ", ModeStd "
-          ", StdAndLpSupport "
           ")  values ( "
           "?"
           ", ?"
-          ", ?"
-          ", ?"
           ");"
           << mid
-          << deviceId
-          << modeStd
-          << stdAndLpSupport
-          ;
-      }
-      else {
-        db << "update Node set "
-          "ModeStd = ?"
-          ", StdAndLpSupport = ?"
-          " where Mid = ?;"
-          << modeStd
-          << stdAndLpSupport
-          << mid
+          << did
           ;
       }
 
@@ -1770,6 +1795,7 @@ namespace iqrf {
         "b.Nadr "
         ", b.Dis "
         ", b.Mid "
+        ", b.Enm "
         ", d.Hwpid "
         ", d.HwpidVer "
         ", d.OsBuild "
@@ -1780,10 +1806,10 @@ namespace iqrf {
         "where "
         "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) "
         ";"
-        >> [&](int nadr, int dis, unsigned mid, int hwpid, int hwpidVer, int osBuild, int dpaVer)
+        >> [&](int nadr, int dis, unsigned mid, int enm, int hwpid, int hwpidVer, int osBuild, int dpaVer)
       {
         retval.insert(std::make_pair(nadr, embed::node::BriefInfoPtr(
-          shape_new embed::node::info::BriefInfo(mid, (dis == 0 ? false : true), hwpid, hwpidVer, osBuild, dpaVer)
+          shape_new embed::node::info::BriefInfo(mid, dis != 0, hwpid, hwpidVer, osBuild, dpaVer, enm != 0)
         )));
       };
 
