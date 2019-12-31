@@ -91,6 +91,7 @@ namespace iqrf
       };
       typedef std::unique_ptr<SendCommands> SendCommandsPtr;
 
+      /*
       ////////////////
       class Frc : public dali::Frc, public JsDriverStandardFrcSolver
       {
@@ -138,6 +139,8 @@ namespace iqrf
 
       };
       typedef std::unique_ptr<Frc> FrcPtr;
+      */
+
     } //namespace jsdriver
   } //namespace dali
 } //namespace iqrf

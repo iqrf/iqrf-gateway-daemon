@@ -77,6 +77,7 @@ namespace iqrf
       };
       typedef std::unique_ptr<Enumerate> EnumeratePtr;
 
+      /*
       ////////////////
       class JsDriverFrc : public Frc, public JsDriverStandardFrcSolver
       {
@@ -164,6 +165,7 @@ namespace iqrf
         }
       };
       typedef std::unique_ptr<JsDriverFrc> JsDriverFrcPtr;
+      */
 
     } //namespace jsdriver
   } //namespace sensor
