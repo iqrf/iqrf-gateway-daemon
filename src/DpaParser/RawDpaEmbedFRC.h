@@ -16,13 +16,13 @@ namespace iqrf
         {
         public:
           Send(uint8_t frcCommand, const std::vector<uint8_t> & userData)
-            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND)
-            , frc::Send(frcCommand, userData)
+            :frc::Send(frcCommand, userData)
+            , DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND)
           {}
 
           Send(uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
-            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
-            , frc::Send(frcCommand, selectedNodes, userData)
+            :frc::Send(frcCommand, selectedNodes, userData)
+            , DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
           {}
 
           virtual ~Send()
@@ -30,14 +30,16 @@ namespace iqrf
 
         protected:
           Send()
-            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND)
-            , frc::Send()
+            :frc::Send()
+            , DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND)
           {}
 
           Send(const std::set<int> & selectedNodes)
-            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
-            , frc::Send()
-          {}
+            :frc::Send()
+            , DpaCommandSolver(0, PNUM_FRC, CMD_FRC_SEND_SELECTIVE)
+          {
+            (void)selectedNodes; //silence -Wunused-parameter
+          }
 
           virtual void encodeRequest(DpaMessage & dpaRequest) override
           {
@@ -55,7 +57,7 @@ namespace iqrf
                 , dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes);
 
               // set userData
-              int frcUserDataLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData) / sizeof(uint8_t);
+              size_t frcUserDataLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData) / sizeof(uint8_t);
               if (frcUserDataLen >= m_userData.size()) {
                 frcUserDataLen = m_userData.size();
               }
@@ -79,7 +81,7 @@ namespace iqrf
               dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand = m_frcCommand;
 
               // set userData
-              int frcUserDataLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData) / sizeof(uint8_t);
+              size_t frcUserDataLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData) / sizeof(uint8_t);
               if (frcUserDataLen >= m_userData.size()) {
                 frcUserDataLen = m_userData.size();
               }
@@ -113,8 +115,8 @@ namespace iqrf
         {
         public:
           ExtraResult()
-            :DpaCommandSolver(0, PNUM_FRC, CMD_FRC_EXTRARESULT)
-            , frc::ExtraResult()
+            :frc::ExtraResult()
+            , DpaCommandSolver(0, PNUM_FRC, CMD_FRC_EXTRARESULT)
           {}
 
           virtual ~ExtraResult()
@@ -123,6 +125,7 @@ namespace iqrf
         protected:
           void encodeRequest(DpaMessage & dpaRequest) override
           {
+            (void)dpaRequest; //silence -Wunused-parameter
           }
 
           void parseResponse(const DpaMessage & dpaResponse) override
@@ -181,7 +184,7 @@ namespace iqrf
             // len according selectedNodes
             size_t maxUserDataLen = m_selectedNodes.size() > 0 ? sizeof(TPerFrcSendSelective_Request::UserData) : sizeof(TPerFrcSend_Request::UserData);
 
-            int frcUserDataLen = maxUserDataLen;
+            size_t frcUserDataLen = maxUserDataLen;
             if (frcUserDataLen >= m_pdata.size()) {
               frcUserDataLen = m_pdata.size();
             }
@@ -189,7 +192,7 @@ namespace iqrf
               TRC_WARNING(PAR(m_pdata.size()) << "cut off to: " << PAR(frcUserDataLen));
             }
 
-            m_userData.push_back(frcUserDataLen);
+            m_userData.push_back((uint8_t)frcUserDataLen);
             m_userData.insert(m_userData.end(), m_pdata.data(), m_pdata.data() + frcUserDataLen);
           }
 

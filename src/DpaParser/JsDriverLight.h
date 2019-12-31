@@ -41,8 +41,8 @@ namespace iqrf
       {
       public:
         SetPower(IJsRenderService* iJsRenderService, const std::vector<light::item::Light> & lights)
-          :JsDriverDpaCommandSolver(iJsRenderService)
-          , light::SetPower(lights)
+          :light::SetPower(lights)
+          , JsDriverDpaCommandSolver(iJsRenderService)
         {}
 
         virtual ~SetPower() {}
@@ -82,8 +82,8 @@ namespace iqrf
       {
       public:
         IncrementPower(IJsRenderService* iJsRenderService, const std::vector<light::item::Light> & lights)
-          :JsDriverDpaCommandSolver(iJsRenderService)
-          , light::IncrementPower(lights)
+          :light::IncrementPower(lights)
+          , JsDriverDpaCommandSolver(iJsRenderService)
         {}
 
         virtual ~IncrementPower() {}
@@ -106,8 +106,8 @@ namespace iqrf
       {
       public:
         DecrementPower(IJsRenderService* iJsRenderService, const std::vector<light::item::Light> & lights)
-          :JsDriverDpaCommandSolver(iJsRenderService)
-          , light::DecrementPower(lights)
+          :light::DecrementPower(lights)
+          , JsDriverDpaCommandSolver(iJsRenderService)
         {}
 
         virtual ~DecrementPower() {}

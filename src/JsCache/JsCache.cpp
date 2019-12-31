@@ -309,15 +309,16 @@ namespace iqrf {
       std::ifstream ifs(path);
       IStreamWrapper isw(ifs);
       doc.ParseStream(isw);
+      bool retval = false;
       if (doc.HasParseError()) {
         TRC_WARNING("Json parse error: " << NAME_PAR(emsg, doc.GetParseError()) <<
           NAME_PAR(eoffset, doc.GetErrorOffset()));
-        return false;
       }
       else {
-        return true;
+        retval = true;
       }
-      TRC_FUNCTION_LEAVE("")
+      TRC_FUNCTION_LEAVE(PAR(retval))
+      return retval;
     }
 
     void createPathFile(const std::string& path)

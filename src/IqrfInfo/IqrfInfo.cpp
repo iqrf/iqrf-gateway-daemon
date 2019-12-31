@@ -25,6 +25,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <random>
+#include <cstddef>
 
 #include "iqrf__IqrfInfo.hxx"
 
@@ -165,9 +166,9 @@ namespace iqrf {
         return m_osRead;
       }
 
-      void setEmbedOsRead(embed::os::RawDpaReadPtr & or)
+      void setEmbedOsRead(embed::os::RawDpaReadPtr & osr)
       {
-        m_osRead = std::move(or);
+        m_osRead = std::move(osr);
         m_node.setMid(m_osRead->getMid());
         m_node.setOsBuild(m_osRead->getOsBuild());
         if (m_osRead->is410Compliant()) {
@@ -363,7 +364,7 @@ namespace iqrf {
       for (int i = 0; i < maxhit + 1; i++) {
         uint8_t len = i <= maxhit ? maxlen : remain;
         if (len > 0) {
-          uint16_t adr = (uint16_t)(0x4000 + i * maxlen);
+          uint16_t adr = (uint16_t)(baddress + i * maxlen);
           iqrf::embed::eeeprom::rawdpa::Read eeepromRead(0, adr, len);
           auto trn = m_iIqrfDpaService->executeDpaTransaction(eeepromRead.getRequest());
           auto trnResult = trn->get();
@@ -407,13 +408,12 @@ namespace iqrf {
           int enm
           )
       {
-        auto it = nadrBondNodeDbMap.insert(std::make_pair(nadr, embed::node::BriefInfo(mid, dis != 0, enm != 0)));
+        nadrBondNodeDbMap.insert(std::make_pair(nadr, embed::node::BriefInfo(mid, dis != 0, enm != 0)));
       };
 
       // delete Nadr from DB if it doesn't exist in Net
       for (const auto & bo : nadrBondNodeDbMap) {
         int nadr = bo.first;
-        const auto & b = bo.second;
         auto found = nadrBondNodeMap.find(nadr);
         if (found == nadrBondNodeMap.end()) {
           // Nadr not found in Net => delete from Bonded
@@ -905,8 +905,6 @@ namespace iqrf {
       wrapperStr = strStream.str();
 
       // get parameters of coordinator - used to select drivers for all other nodes
-      int hwpid = 0;
-      int hwpidVar = 0;
       int osBuild = 0;
       int dpaVer = 0;
 
@@ -1052,7 +1050,6 @@ namespace iqrf {
 
           // drivers reload only if set of drivers differs from previous one
           auto origDriversIdSet = m_iJsRenderService->getDriverIdSet(deviceId);
-          bool reload = false;
           if (origDriversIdSet.size() != driversIdSet.size()) {
             reloadDeviceIdSet.insert(deviceId);
           }
@@ -1118,6 +1115,7 @@ namespace iqrf {
                 ";"
                 >> [&](int driverId, std::string name, int sid, int ver, std::string drv, int maxVer)
               {
+                (void)maxVer; //silence -Wunused-parameter
                 driverIdDriverMap.insert(std::make_pair(driverId, Driver(name, sid, ver, drv)));
               };
             }
@@ -1463,7 +1461,6 @@ namespace iqrf {
 
           if (nadrVect.size() > 0) {
             // get random nadr
-            int maxnadr = *nadrVect.rbegin();
             static std::random_device rd;
             unsigned idx = rd() % nadrVect.size();
             nadr = nadrVect[idx];

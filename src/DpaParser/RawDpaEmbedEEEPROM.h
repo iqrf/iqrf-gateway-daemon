@@ -16,8 +16,8 @@ namespace iqrf
         {
         public:
           Read(uint16_t nadr, uint16_t address, uint8_t len)
-            :DpaCommandSolver(nadr, PNUM_EEEPROM, CMD_EEEPROM_XREAD)
-            , eeeprom::Read(address, len)
+            :eeeprom::Read(address, len)
+            , DpaCommandSolver(nadr, PNUM_EEEPROM, CMD_EEEPROM_XREAD)
           {}
 
           virtual ~Read()
@@ -33,7 +33,7 @@ namespace iqrf
 
           void parseResponse(const DpaMessage & dpaResponse) override
           {
-            if (dpaResponse.GetLength() < getResponseHeaderLen() + m_len) {
+            if (dpaResponse.GetLength() < (int)getResponseHeaderLen() + m_len) {
               THROW_EXC_TRC_WAR(std::logic_error, "Unexpected response length");
             }
             m_pdata.assign(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData,

@@ -28,14 +28,14 @@ namespace iqrf {
     virtual ~JsDriverDpaCommandSolver() {}
 
     JsDriverDpaCommandSolver(IJsRenderService* iJsRenderService, uint16_t nadr = -1)
-      :DpaCommandSolver(nadr)
-      ,JsDriverSolver(iJsRenderService)
+      :JsDriverSolver(iJsRenderService)
+      , DpaCommandSolver(nadr)
       , m_iJsRenderService(iJsRenderService)
     {}
 
     JsDriverDpaCommandSolver(IJsRenderService* iJsRenderService, uint16_t nadr, uint16_t hwpid)
-      :DpaCommandSolver(nadr, hwpid)
-      , JsDriverSolver(iJsRenderService)
+      :JsDriverSolver(iJsRenderService)
+      , DpaCommandSolver(nadr, hwpid)
       , m_iJsRenderService(iJsRenderService)
     {}
 
@@ -94,6 +94,7 @@ namespace iqrf {
     void parseResponse(const DpaMessage & dpaResponse) override
     {
       TRC_FUNCTION_ENTER("");
+      (void)dpaResponse; //silence -Wunused-parameter
       processResponseDrv();
       TRC_FUNCTION_LEAVE("");
     }

@@ -135,7 +135,7 @@ namespace iqrf {
     void processResponse()
     {
 
-      int len = m_dpaResponse.GetLength();
+      unsigned len = (unsigned)m_dpaResponse.GetLength();
 
       if (len < getResponseHeaderLen() || len > getResponseHeaderLen() + DPA_MAX_DATA_LENGTH) {
         THROW_EXC_TRC_WAR(std::logic_error, "Invalid dpaResponse length: " << PAR(len));

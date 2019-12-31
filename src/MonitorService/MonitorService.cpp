@@ -60,7 +60,7 @@ namespace iqrf {
       while (m_runThreadFlag) {
 
         std::unique_lock<std::mutex> lck(m_mtx);
-        auto reason = m_cond.wait_for(lck, std::chrono::seconds(m_reportPeriod));
+        m_cond.wait_for(lck, std::chrono::seconds(m_reportPeriod));
 
         using namespace rapidjson;
         

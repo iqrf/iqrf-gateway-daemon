@@ -33,8 +33,8 @@ namespace iqrf
         Send(uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
           :m_frcCommand(frcCommand)
           , m_userData(userData)
-          , m_status(0)
           , m_selectedNodes(selectedNodes)
+          , m_status(0)
         {}
 
         Send()
@@ -44,15 +44,15 @@ namespace iqrf
 
         Send(const std::set<int> & selectedNodes)
           :m_frcCommand(0xFF)
-          , m_status(0)
           , m_selectedNodes(selectedNodes)
+          , m_status(0)
         {}
 
       public:
         virtual ~Send() {}
 
         // get param data passes by ctor
-        uint8_t getFrcCommand() const { m_frcCommand; };
+        uint8_t getFrcCommand() const { return m_frcCommand; };
         const std::vector<uint8_t> & getUserData() const { return m_userData; }
 
         // get data as returned from frc
@@ -60,7 +60,7 @@ namespace iqrf
         const std::vector<uint8_t> & getFrcData() const { return m_frcData; }
 
         // get selected nodes
-        const std::set<int> & getSelectedNodes() const { return std::set<int>(); }
+        const std::set<int> & getSelectedNodes() const { return m_selectedNodes; }
 
         // makes selected cmd
         void setSelectedNodes(const std::set<int> & val)

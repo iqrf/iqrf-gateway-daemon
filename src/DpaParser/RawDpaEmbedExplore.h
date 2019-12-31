@@ -28,6 +28,7 @@ namespace iqrf
       protected:
         void encodeRequest(DpaMessage & dpaRequest) override
         {
+          (void)dpaRequest; //silence -Wunused-parameter
         }
 
         void parseResponse(const DpaMessage & dpaResponse) override
@@ -88,13 +89,15 @@ namespace iqrf
       protected:
         void encodeRequest(DpaMessage & dpaRequest) override
         {
+          (void)dpaRequest; //silence -Wunused-parameter
         }
 
         void parseResponse(const DpaMessage & dpaResponse) override
         {
+          (void)dpaResponse; //silence -Wunused-parameter
           const std::vector<uint8_t> & r = getRdata();
           auto len = r.size();
-          for (int i = 3; i < len; i += 4) {
+          for (size_t i = 3; i < len; i += 4) {
             m_params.push_back(MorePeripheralInformation::Param(r[i - 3], r[i - 2], r[i - 1], r[i]));
           }
         }

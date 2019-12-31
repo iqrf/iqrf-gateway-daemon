@@ -23,6 +23,7 @@ namespace iqrf
       protected:
         void encodeRequest(DpaMessage & dpaRequest) override
         {
+          (void)dpaRequest; //silence -Wunused-parameter
         }
 
         void parseResponse(const DpaMessage & dpaResponse) override
@@ -48,6 +49,7 @@ namespace iqrf
       protected:
         void encodeRequest(DpaMessage & dpaRequest) override
         {
+          (void)dpaRequest; //silence -Wunused-parameter
         }
 
         void parseResponse(const DpaMessage & dpaResponse) override

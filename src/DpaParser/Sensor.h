@@ -101,28 +101,28 @@ namespace iqrf
         :m_sensorType(sensorType)
         , m_sensorIndex(sensorIndex)
         , m_frcCommand(frcCommand)
-        , m_selectedNodes(selectedNodes)
         , m_selectedNodesSet(true)
+        , m_selectedNodes(selectedNodes)
       {}
 
       Frc(int sensorType, int sensorIndex, uint8_t frcCommand, const std::vector<int> & selectedNodes, int time, int control)
         :m_sensorType(sensorType)
         , m_sensorIndex(sensorIndex)
         , m_frcCommand(frcCommand)
-        , m_selectedNodes(selectedNodes)
         , m_selectedNodesSet(true)
+        , m_selectedNodes(selectedNodes)
+        , m_sleepAfterFrcSet(true)
         , m_time(time)
         , m_control(control)
-        , m_sleepAfterFrcSet(true)
       {}
 
       Frc(int sensorType, int sensorIndex, uint8_t frcCommand, int time, int control)
         :m_sensorType(sensorType)
         , m_sensorIndex(sensorIndex)
         , m_frcCommand(frcCommand)
+        , m_sleepAfterFrcSet(true)
         , m_time(time)
         , m_control(control)
-        , m_sleepAfterFrcSet(true)
       {}
 
     public:

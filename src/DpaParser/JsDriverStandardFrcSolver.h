@@ -157,6 +157,7 @@ namespace iqrf
     void preRequest(rapidjson::Document& requestResultDoc) override
     {
       // set in ctor by setRequestParamDoc(val);
+      (void)requestResultDoc; //silence -Wunused-parameter
     }
 
     void postRequest(const rapidjson::Document& requestResultDoc) override

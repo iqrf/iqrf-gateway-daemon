@@ -58,7 +58,9 @@ namespace iqrf
       {}
 
       SendCommands(const std::vector<uint16_t> & commands)
-      {}
+      {
+        (void)commands; //silence -Wunused-parameter
+      }
 
     public:
       // get param data passes by ctor

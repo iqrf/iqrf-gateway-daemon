@@ -82,30 +82,32 @@ namespace iqrf
       {
       public:
         JsDriverFrc(IJsRenderService* iJsRenderService, int sensorType, int sensorIndex, uint8_t frcCommand)
-          :JsDriverStandardFrcSolver(iJsRenderService)
-          , Frc(sensorType, sensorIndex, frcCommand)
+          :Frc(sensorType, sensorIndex, frcCommand)
+          , JsDriverStandardFrcSolver(iJsRenderService)
         {}
 
         JsDriverFrc(IJsRenderService* iJsRenderService, int sensorType, int sensorIndex, uint8_t frcCommand, const std::vector<int> & selectedNodes)
-          :JsDriverStandardFrcSolver(iJsRenderService)
-          , Frc(sensorType, sensorIndex, frcCommand, selectedNodes)
+          :Frc(sensorType, sensorIndex, frcCommand, selectedNodes)
+          , JsDriverStandardFrcSolver(iJsRenderService)
         {}
 
         JsDriverFrc(IJsRenderService* iJsRenderService, int sensorType, int sensorIndex, uint8_t frcCommand, const std::vector<int> & selectedNodes, int time, int control)
-          :JsDriverStandardFrcSolver(iJsRenderService)
-          , Frc(sensorType, sensorIndex, frcCommand, selectedNodes, time, control)
+          :Frc(sensorType, sensorIndex, frcCommand, selectedNodes, time, control)
+          , JsDriverStandardFrcSolver(iJsRenderService)
         {}
 
         JsDriverFrc(IJsRenderService* iJsRenderService, int sensorType, int sensorIndex, uint8_t frcCommand, int time, int control)
-          :JsDriverStandardFrcSolver(iJsRenderService)
-          , Frc(sensorType, sensorIndex, frcCommand, time, control)
+          :Frc(sensorType, sensorIndex, frcCommand, time, control)
+          , JsDriverStandardFrcSolver(iJsRenderService)
         {}
 
         // for using with ApiMsgIqrfSensorFrc - members are not interpreted
         JsDriverFrc(IJsRenderService* iJsRenderService, const rapidjson::Value & val)
-          :JsDriverStandardFrcSolver(iJsRenderService)
-          , Frc()
-        {}
+          :Frc()
+          , JsDriverStandardFrcSolver(iJsRenderService)
+        {
+          (void)val; //silence -Wunused-parameter
+        }
 
         virtual ~JsDriverFrc() {}
 
