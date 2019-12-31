@@ -780,7 +780,7 @@ namespace iqrf {
         c->getNode().setDpaVer(cp.dpaVerWord);
       }
       
-      if (enumNodeCount > 1 && cp.dpaVerWord >= 0x400) {
+      if (enumNodeCount > 1 && cp.dpaVerWord >= 0x402) {
         // enumerate by FRC
         fullEnumByFrc();
       }
