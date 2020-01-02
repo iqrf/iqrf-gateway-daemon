@@ -143,7 +143,8 @@ namespace iqrf
               resSet.insert(snIt, std::next(snIt, remains));
             }
 
-            resVect.push_back(resSet);
+            if (resSet.size() > 0)
+              resVect.push_back(resSet);
           }
           return resVect;
         }

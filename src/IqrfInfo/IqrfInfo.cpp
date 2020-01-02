@@ -564,20 +564,30 @@ namespace iqrf {
 
       const uint16_t CBUFFER = 0x04a0; // msg buffer in node
 
+      //TODO for test
+      //m_nadrFullEnumNodeMap.clear();
+      //for (int i = 3; i < 198; i++) {
+      //  m_nadrFullEnumNodeMap.insert(std::make_pair(i, NodeDataPtr(shape_new NodeData(0))));
+      //}
+
       std::set<int> nadrEnumSet;
       for (auto & it : m_nadrFullEnumNodeMap) {
         nadrEnumSet.insert(it.first);
       }
       std::vector<std::set<int>> setVect = iqrf::embed::frc::Send::splitSelectedNode<uint32_t>(nadrEnumSet);
+      TRC_DEBUG("FRC handling split to: " << PAR(setVect.size()));
       
       iqrf::embed::frc::rawdpa::ExtraResult extra;
 
       while (true) {
         { // read HWPID, HWPIDVer
+          TRC_DEBUG("Getting Hwpid, HwpidVer")
           // reuse data from AutoNetwork if any
           std::set<int> leftHwpidEnum(nadrEnumSet);
 
           if (m_nadrInsertNodeMap.size() > 0) {
+            TRC_DEBUG("Detected nadr map of nodes from AN: " << PAR(m_nadrInsertNodeMap.size()))
+
             for (auto & it : m_nadrFullEnumNodeMap) {
               int nadr = it.first;
               auto found = m_nadrInsertNodeMap.find(nadr);
@@ -591,14 +601,20 @@ namespace iqrf {
                 }
               }
             }
+
+            TRC_DEBUG("Something left to be Hwpid enumerated after AN: " << PAR(leftHwpidEnum.size()))
           }
 
           if (leftHwpidEnum.size() > 0) { // nothing to reuse go for FRC
+
+            TRC_DEBUG("Start Hwpid enumeration");
 
             uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, HWPID);
             iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO, true); //value += 1
 
             for (const auto & s : setVect) {
+              TRC_DEBUG("Preparing 4B FRC for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
+
               frc.setSelectedNodes(s);
               frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
               // Check FRC status
@@ -621,18 +637,27 @@ namespace iqrf {
                   anyValid = true;
                   // correct value from FRC => store it
                   --hwpidw;
-                  m_nadrFullEnumNodeMap[nadr]->getNode().setHwpid(hwpidw & 0xffff);
-                  m_nadrFullEnumNodeMap[nadr]->getNode().setHwpidVer(hwpidw >> 16);
+                  auto found = m_nadrFullEnumNodeMap.find(nadr);
+                  if (found != m_nadrFullEnumNodeMap.end()) {
+                    found->second->getNode().setHwpid(hwpidw & 0xffff);
+                    found->second->getNode().setHwpidVer(hwpidw >> 16);
+                  }
+                  else {
+                    THROW_EXC_TRC_WAR(std::logic_error, "Inconsistence in get HWPID FRC processing");
+                  }
                 }
               }
             }
           }
           if (!anyValid) {
+            TRC_WARNING("FRC doesn't return any valid HWPID => no sense to continue and nothing is enumerated");
             break; //no sense to continue now
           }
         }
 
         if (m_enumUniformDpaVer) {
+          TRC_WARNING("Detected enumUniformDpaVer cfg par => DpaVer and OsBuild fill according coordinator for all nodes");
+
           // dpaVer and osBuild set according C
           auto cp = m_iIqrfDpaService->getCoordinatorParameters();
           for (auto & it : m_nadrFullEnumNodeMap) {
@@ -644,10 +669,15 @@ namespace iqrf {
 
         anyValid = true;
         { // read DpaVersion + 2B
+
+          TRC_DEBUG("Start DpaVer enumeration");
+
           uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, DpaVersion);
           iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO, false);
 
           for (const auto & s : setVect) {
+            TRC_DEBUG("Preparing 4B FRC for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
+
             frc.setSelectedNodes(s);
             frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
             // Check FRC status
@@ -667,20 +697,33 @@ namespace iqrf {
               if (0 != dpaVer) {
                 anyValid = true;
                 // correct value from FRC => store it
-                m_nadrFullEnumNodeMap[nadr]->getNode().setDpaVer(dpaVer & 0x3fff);
+                auto found = m_nadrFullEnumNodeMap.find(nadr);
+                if (found != m_nadrFullEnumNodeMap.end()) {
+                  found->second->getNode().setDpaVer(dpaVer & 0x3fff);
+                }
+                else {
+                  THROW_EXC_TRC_WAR(std::logic_error, "Inconsistence in get DpaVer FRC processing");
+                }
               }
             }
           }
         }
         if (!anyValid) {
+          TRC_WARNING("FRC doesn't return any valid DpaVer => no sense to continue and nothing is enumerated");
           break; //no sense to continue now
         }
 
+        anyValid = true;
         { // read OsBuild + 2B 
+
+          TRC_DEBUG("Start OsBuild enumeration");
+
           uint16_t address = CBUFFER + (uint16_t)offsetof(TPerOSRead_Response, OsBuild);
           iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_OS, CMD_OS_READ, false);
 
           for (const auto & s : setVect) {
+            TRC_DEBUG("Preparing 4B FRC for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
+
             frc.setSelectedNodes(s);
             frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
             uint8_t status = frc.getStatus();
@@ -698,10 +741,19 @@ namespace iqrf {
               uint32_t osBuild = it.second;
               if (0 != osBuild) {
                 // correct value from FRC => store it
-                m_nadrFullEnumNodeMap[nadr]->getNode().setOsBuild(osBuild & 0xffff);
+                auto found = m_nadrFullEnumNodeMap.find(nadr);
+                if (found != m_nadrFullEnumNodeMap.end()) {
+                  found->second->getNode().setOsBuild(osBuild & 0xffff);
+                }
+                else {
+                  THROW_EXC_TRC_WAR(std::logic_error, "Inconsistence in get OsBuild FRC processing");
+                }
               }
             }
           }
+        }
+        if (!anyValid) {
+          TRC_WARNING("FRC doesn't return any valid OsBuild => nothing is enumerated");
         }
         break;
       }
