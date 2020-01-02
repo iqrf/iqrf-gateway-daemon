@@ -1473,6 +1473,14 @@ namespace iqrf {
           << did
           ;
       }
+      else {
+        db << "update Node set "
+          "DeviceId = ?"
+          " where Mid = ?;"
+          << deviceId
+          << mid
+          ;
+      }
 
       TRC_FUNCTION_LEAVE("")
     }
