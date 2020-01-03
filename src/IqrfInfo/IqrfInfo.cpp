@@ -292,31 +292,40 @@ namespace iqrf {
       while (m_enumThreadRun) {
 
         try {
-          if (m_iIqrfDpaService->hasExclusiveAccess()) {
-            THROW_EXC_TRC_WAR(std::logic_error, "DPA has exclusive access");
+          if (!m_iIqrfDpaService->hasExclusiveAccess()) {
+            checkEnum();
+            fullEnum();
+            loadDeviceDrivers();
+            stdEnum();
+            m_repeatEnum = false;
           }
-          checkEnum();
-          fullEnum();
-          loadDeviceDrivers();
-          stdEnum();
+          else {
+            TRC_DEBUG("DPA has exclusive access");
+          }
         }
         catch (std::exception & e) {
           CATCH_EXC_TRC_WAR(std::exception, e, "Enumeration failure");
-          std::cout << std::endl << "Enumeration failure at:      " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl <<
-            e.what() << std::endl;
         }
 
         // wait for next iteration
         std::unique_lock<std::mutex> lck(m_enumMtx);
         if (!m_repeatEnum) {
           if (m_enumPeriod > 0) {
+            TRC_DEBUG("Going to sleep up to next period: " << PAR(m_enumPeriod));
             m_enumCv.wait_for(lck, std::chrono::minutes(m_enumPeriod));
+            TRC_DEBUG("Wake up from periodic sleeping => going to do periodic enumeration: " << PAR(m_enumPeriod))
           }
           else {
+            TRC_DEBUG("Going to sleep up to next enumeration request or network change DPA command");
             m_enumCv.wait(lck);
+            TRC_DEBUG("Wake up by enumeration request or network change DPA command => going to do enumeration: " << PAR(m_enumPeriod))
           }
         }
-        m_repeatEnum = false;
+        else {
+          TRC_DEBUG("Enumeration has to be repeated: " << PAR(m_repeatEnum) << " => wait for 3 sec to continue");
+          m_enumCv.wait_for(lck, std::chrono::seconds(3));
+          TRC_DEBUG("Weke up and repeat enumeration");
+        }
 
       }
 
@@ -431,7 +440,7 @@ namespace iqrf {
         if (found == nadrBondNodeDbMap.end() || mid != found->second.getMid() || !found->second.getEnm() ) {
           // Nadr from Net not found in DB or comparison failed => provide full enum
           m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(p.second))));
-          TRC_INFORMATION(PAR(nadr) << "check enum does not fit => schedule full enum")
+          TRC_INFORMATION(PAR(nadr) << "check enum does not fit => assigned to full enum")
         }
         else if (found != nadrBondNodeDbMap.end()) {
           // compare and update discovery status
@@ -1962,12 +1971,12 @@ namespace iqrf {
 
         m_repeatEnum = true; //repeat if just running
         TRC_INFORMATION("detected: " << PAR(cmd));
-        if (!m_iIqrfDpaService->hasExclusiveAccess()) {
+        //if (!m_iIqrfDpaService->hasExclusiveAccess()) {
           m_enumCv.notify_all();
-        }
-        else {
-          TRC_INFORMATION("exclusive access detected => enum waits ... ");
-        }
+        //}
+        //else {
+        //  TRC_INFORMATION("exclusive access detected => enum waits ... ");
+        //}
       }
     }
 
