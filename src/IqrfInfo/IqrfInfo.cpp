@@ -825,7 +825,7 @@ namespace iqrf {
         return;
       }
 
-      std::cout << std::endl << "Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
+      std::cout << "Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
 
       auto cp = m_iIqrfDpaService->getCoordinatorParameters();
 
@@ -930,7 +930,7 @@ namespace iqrf {
       }
 
       m_nadrFullEnumNodeMap.clear();
-      std::cout << std::endl << "Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now());
+      std::cout << "Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -1519,7 +1519,7 @@ namespace iqrf {
       };
 
       if (mapDeviceVectNadr.size() > 0) {
-        std::cout << std::endl << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now());
+        std::cout << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
         
         // std enum according first bonded nadr of the device
         for (auto it : mapDeviceVectNadr) {
@@ -1603,7 +1603,7 @@ namespace iqrf {
           }
         }
 
-        std::cout << std::endl << "Std Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now());
+        std::cout << "Std Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
       }
 
       TRC_FUNCTION_LEAVE("");
