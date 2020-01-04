@@ -294,8 +294,14 @@ namespace iqrf {
         try {
           if (!m_iIqrfDpaService->hasExclusiveAccess()) {
             checkEnum();
+
+            if (!m_enumThreadRun) break;
             fullEnum();
+
+            if (!m_enumThreadRun) break;
             loadDeviceDrivers();
+
+            if (!m_enumThreadRun) break;
             stdEnum();
             m_repeatEnum = false;
           }
@@ -632,6 +638,7 @@ namespace iqrf {
                 TRC_WARNING("FRC to get HWPID failed: " << PAR(status));
                 break; //no sense to continue now
               }
+              if (!m_enumThreadRun) break;
 
               //TODO check status
               // get extra result
@@ -656,12 +663,14 @@ namespace iqrf {
                   }
                 }
               }
+              if (!m_enumThreadRun) break;
             }
           }
           if (!anyValid) {
             TRC_WARNING("FRC doesn't return any valid HWPID => no sense to continue and nothing is enumerated");
             break; //no sense to continue now
           }
+          if (!m_enumThreadRun) break;
         }
 
         if (m_enumUniformDpaVer) {
@@ -676,7 +685,7 @@ namespace iqrf {
           break; // not necessary to continue
         }
 
-        anyValid = true;
+        anyValid = false;
         { // read DpaVersion + 2B
 
           TRC_DEBUG("Start DpaVer enumeration");
@@ -695,6 +704,8 @@ namespace iqrf {
               TRC_WARNING("FRC to get DpaVer failed: " << PAR(status));
               break; //no sense to continue now
             }
+            if (!m_enumThreadRun) break;
+
             // get extra result
             extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
 
@@ -715,14 +726,16 @@ namespace iqrf {
                 }
               }
             }
+            if (!m_enumThreadRun) break;
           }
         }
         if (!anyValid) {
           TRC_WARNING("FRC doesn't return any valid DpaVer => no sense to continue and nothing is enumerated");
           break; //no sense to continue now
         }
+        if (!m_enumThreadRun) break;
 
-        anyValid = true;
+        anyValid = false;
         { // read OsBuild + 2B 
 
           TRC_DEBUG("Start OsBuild enumeration");
@@ -740,6 +753,8 @@ namespace iqrf {
               TRC_WARNING("FRC to get OsBuild failed: " << PAR(status));
               break; //no sense to continue now
             }
+            if (!m_enumThreadRun) break;
+
             // get extra result
             extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
 
@@ -759,6 +774,7 @@ namespace iqrf {
                 }
               }
             }
+            if (!m_enumThreadRun) break;
           }
         }
         if (!anyValid) {
@@ -778,6 +794,9 @@ namespace iqrf {
         // dpaVer and osBuild set according C
         auto cp = m_iIqrfDpaService->getCoordinatorParameters();
         for (auto & it : m_nadrFullEnumNodeMap) {
+
+          if (!m_enumThreadRun) break;
+
           int nadr = it.first;
           NodeDataPtr & nodeData = it.second;
 
@@ -791,6 +810,8 @@ namespace iqrf {
       }
       else {
         for (auto & it : m_nadrFullEnumNodeMap) {
+
+          if (!m_enumThreadRun) break;
 
           int nadr = it.first;
           NodeDataPtr & nodeData = it.second;
@@ -855,6 +876,8 @@ namespace iqrf {
       database & db = *m_db;
 
       for (const auto & it : m_nadrFullEnumNodeMap) {
+
+        if (!m_enumThreadRun) break;
 
         int nadr = it.first;
         auto & nd = it.second;
@@ -1524,6 +1547,8 @@ namespace iqrf {
         // std enum according first bonded nadr of the device
         for (auto it : mapDeviceVectNadr) {
 
+          if (!m_enumThreadRun) break;
+
           int deviceId = it.first;
           int nadr = -1;
           std::vector<int> & nadrVect = it.second;
@@ -2160,6 +2185,7 @@ namespace iqrf {
       );
 
       m_enumThreadRun = false;
+      m_enumCv.notify_all();
       if (m_enumThread.joinable()) {
         m_enumThread.join();
       }
