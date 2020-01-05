@@ -1295,15 +1295,22 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(dis) << PAR(enm));
       database & db = *m_db;
 
-      int d = -1, m = 0, e = -1;
-      db << "select Dis, Mid, Enm from Bonded where Nadr = ?" << nadr >> std::tie(d, m, e);
+      int disDb = -1, midDb = 0, enmDb = -1;
+      db << "select Dis, Mid, Enm from Bonded where Nadr = ?"
+        << nadr
+        >> [&](int d, int m, int e)
+      {
+          disDb = d;
+          midDb = m;
+          enmDb = e;
+      };
 
-      if (m == 0) {
+      if (midDb == 0) {
         TRC_INFORMATION(PAR(nadr) << " insert into Bonded: " << PAR(nadr) << PAR(dis) << PAR(mid) << PAR(enm));
         db << "insert into Bonded (Nadr, Dis, Mid, Enm)  values (?, ?, ?, ?);" << nadr << dis << mid << enm;
       }
       else {
-        if (mid != m || dis != d || enm != e) {
+        if (mid != (unsigned)midDb || dis != disDb || enm != enmDb) {
           TRC_INFORMATION(PAR(nadr) << " update Bonded: " << PAR(nadr) << PAR(dis) << PAR(mid) << PAR(enm));
           db << "update Bonded  set Dis = ? , Mid = ?, Enm = ? where Nadr = ?; " << dis << mid << enm << nadr;
         }
@@ -1522,7 +1529,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(mid) << PAR(deviceId));
 
       database & db = *m_db;
-      int m = 0, d = 0;
+      int midDb = 0, didDb = 0;
       db << "select "
         " Mid "
         ", DeviceId "
@@ -1532,9 +1539,13 @@ namespace iqrf {
         " Mid = ?"
         ";"
         << mid
-        >> std::tie(m, d);
+      >> [&](int m, int d)
+      {
+        midDb = m;
+        didDb = d;
+      };
 
-      if (0 == m) {
+      if (0 == midDb) {
         TRC_INFORMATION("node not exists => insert: " << PAR(mid) << PAR(deviceId))
         // mid doesn't exist in DB
         std::unique_ptr<int> did = deviceId != 0 ? std::make_unique<int>(deviceId) : nullptr;
@@ -1550,7 +1561,7 @@ namespace iqrf {
           ;
       }
       else {
-        if (d != deviceId) {
+        if (didDb != deviceId) {
           TRC_INFORMATION("updated: " << PAR(mid) << PAR(deviceId))
             db << "update Node set "
             "DeviceId = ?"
