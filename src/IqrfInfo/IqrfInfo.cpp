@@ -1646,7 +1646,7 @@ namespace iqrf {
             };
 
             for (auto d : vectDrivers) {
-              try {
+              //try {
                 switch (d) {
                 case PERIF_STANDARD_BINOUT:
                   stdBinoutEnum(nadr, deviceId);
@@ -1662,10 +1662,10 @@ namespace iqrf {
                   break;
                 default:;
                 }
-              }
-              catch (std::exception &e) {
-                CATCH_EXC_TRC_WAR(std::exception, e, "Cannot std enumerate " << PAR(nadr) << NAME_PAR(perif, d));
-              }
+              //}
+              //catch (std::exception &e) {
+              //  CATCH_EXC_TRC_WAR(std::exception, e, "Cannot std enumerate " << PAR(nadr) << NAME_PAR(perif, d));
+              //}
             }
 
             db << "update Device set "
