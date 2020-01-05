@@ -131,8 +131,10 @@ namespace iqrf
           void parseResponse(const DpaMessage & dpaResponse) override
           {
             m_frcData.clear();
-            m_frcData.assign(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData,
-              dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + 9);
+            m_frcData.assign(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData,
+              dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData + 9);
+              //m_frcData.assign(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData,
+            //  dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + 9);
           }
         };
 
