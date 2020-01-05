@@ -649,6 +649,7 @@ namespace iqrf {
               // get extra result
               extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
 
+              hwpidMap.clear();
               frc.getFrcDataAs(hwpidMap, extra.getFrcData());
 
               for (const auto & it : hwpidMap) {
@@ -719,6 +720,7 @@ namespace iqrf {
             // get extra result
             extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
 
+            dpaVerMap.clear();
             frc.getFrcDataAs(dpaVerMap, extra.getFrcData());
 
             for (const auto & it : dpaVerMap) {
@@ -772,6 +774,7 @@ namespace iqrf {
             // get extra result
             extra.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(extra.getRequest())->get());
 
+            osBuildMap.clear();
             frc.getFrcDataAs(osBuildMap, extra.getFrcData());
 
             for (const auto & it : osBuildMap) {
