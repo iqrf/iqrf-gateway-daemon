@@ -580,7 +580,7 @@ namespace iqrf {
 
       //TODO for test
       //m_nadrFullEnumNodeMap.clear();
-      //for (int i = 3; i < 198; i++) {
+      //for (int i = 3; i < 192; i++) {
       //  m_nadrFullEnumNodeMap.insert(std::make_pair(i, NodeDataPtr(shape_new NodeData(0))));
       //}
 
@@ -627,7 +627,7 @@ namespace iqrf {
             iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO, true); //value += 1
 
             for (const auto & s : setVect) {
-              TRC_DEBUG("Preparing 4B FRC for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
+              TRC_DEBUG("Preparing 4B FRC to get HWPID for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
 
               frc.setSelectedNodes(s);
               frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
@@ -693,7 +693,7 @@ namespace iqrf {
           iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO, false);
 
           for (const auto & s : setVect) {
-            TRC_DEBUG("Preparing 4B FRC for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
+            TRC_DEBUG("Preparing 4B FRC to get DpaVer for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
 
             frc.setSelectedNodes(s);
             frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
@@ -743,7 +743,7 @@ namespace iqrf {
           iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_OS, CMD_OS_READ, false);
 
           for (const auto & s : setVect) {
-            TRC_DEBUG("Preparing 4B FRC for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
+            TRC_DEBUG("Preparing 4B FRC to get OsBuild for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
 
             frc.setSelectedNodes(s);
             frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
@@ -763,6 +763,7 @@ namespace iqrf {
               int nadr = it.first;
               uint32_t osBuild = it.second;
               if (0 != osBuild) {
+                anyValid = true;
                 // correct value from FRC => store it
                 auto found = m_nadrFullEnumNodeMap.find(nadr);
                 if (found != m_nadrFullEnumNodeMap.end()) {
