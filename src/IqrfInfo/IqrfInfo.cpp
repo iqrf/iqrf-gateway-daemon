@@ -444,8 +444,14 @@ namespace iqrf {
 
         if (found == nadrBondNodeDbMap.end() || mid != found->second.getMid() || !found->second.getEnm()) {
           // Nadr from Net not found in DB or comparison failed => provide full enum
-          m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(p.second))));
-          TRC_INFORMATION(PAR(nadr) << "check enum does not fit => assigned to full enum")
+          auto res = m_nadrFullEnumNodeMap.insert(std::make_pair(nadr, NodeDataPtr(shape_new NodeData(p.second))));
+          NodeDataPtr & nd = res.first->second;
+          TRC_INFORMATION(PAR(nadr)
+            << NAME_PAR(hwpid, nd->getNode().getHwpid())
+            << NAME_PAR(hwpidVer, nd->getNode().getHwpidVer())
+            << NAME_PAR(dpaVer, nd->getNode().getDpaVer())
+            << NAME_PAR(osBuild, nd->getNode().getOsBuild())
+            <<  "check enum does not fit => assigned to full enum")
         }
         else if (found != nadrBondNodeDbMap.end()) {
           // compare and update discovery status
@@ -481,7 +487,7 @@ namespace iqrf {
 
     std::unique_ptr<int> enumerateDeviceOutsideRepo(int nadr, const NodeDataPtr & nd, Device & d)
     {
-      TRC_FUNCTION_ENTER(PAR(d.m_hwpid) << PAR(d.m_hwpidVer) << PAR(d.m_osBuild) << PAR(d.m_dpaVer));
+      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(d.m_hwpid) << PAR(d.m_hwpidVer) << PAR(d.m_osBuild) << PAR(d.m_dpaVer));
 
       const auto & exEnum = nd->getEmbedExploreEnumerate();
       if (!exEnum) {
@@ -656,6 +662,11 @@ namespace iqrf {
                   if (found != m_nadrFullEnumNodeMap.end()) {
                     found->second->getNode().setHwpid(hwpidw & 0xffff);
                     found->second->getNode().setHwpidVer(hwpidw >> 16);
+                    TRC_DEBUG("assigned: "
+                      << NAME_PAR(nadr, nadr)
+                      << NAME_PAR(hwpid, found->second->getNode().getHwpid())
+                      << NAME_PAR(hwpidVer, found->second->getNode().getHwpidVer())
+                      );
                   }
                   else {
                     THROW_EXC_TRC_WAR(std::logic_error, "Inconsistence in get HWPID FRC processing");
@@ -719,6 +730,10 @@ namespace iqrf {
                 auto found = m_nadrFullEnumNodeMap.find(nadr);
                 if (found != m_nadrFullEnumNodeMap.end()) {
                   found->second->getNode().setDpaVer(dpaVer & 0x3fff);
+                  TRC_DEBUG("assigned: "
+                    << NAME_PAR(nadr, nadr)
+                    << NAME_PAR(dpaVer, found->second->getNode().getDpaVer())
+                  );
                 }
                 else {
                   THROW_EXC_TRC_WAR(std::logic_error, "Inconsistence in get DpaVer FRC processing");
@@ -768,6 +783,10 @@ namespace iqrf {
                 auto found = m_nadrFullEnumNodeMap.find(nadr);
                 if (found != m_nadrFullEnumNodeMap.end()) {
                   found->second->getNode().setOsBuild(osBuild & 0xffff);
+                  TRC_DEBUG("assigned: "
+                    << NAME_PAR(nadr, nadr)
+                    << NAME_PAR(osBuild, found->second->getNode().getOsBuild())
+                  );
                 }
                 else {
                   THROW_EXC_TRC_WAR(std::logic_error, "Inconsistence in get OsBuild FRC processing");
@@ -898,6 +917,8 @@ namespace iqrf {
             int osBuild = nd->getNode().getOsBuild();
             int dpaVer = nd->getNode().getDpaVer();
 
+            TRC_DEBUG("enum valid node: " << PAR(nadr) << PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(dpaVer));
+
             std::unique_ptr<int> deviceIdPtr;
             int deviceId = 0;
             Device device(hwpid, hwpidVer, osBuild, dpaVer);
@@ -934,6 +955,7 @@ namespace iqrf {
             db << "commit;";
           }
           else {
+            TRC_DEBUG("insert invalid node: " << PAR(nadr) << PAR(mid) << PAR(dis));
             // insert node if not exists
             nodeInDb(mid, 0);
             // insert bonded
