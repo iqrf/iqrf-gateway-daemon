@@ -1295,16 +1295,21 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(dis) << PAR(enm));
       database & db = *m_db;
 
-      int count = 0;
-      db << "select count(*) from Bonded where Nadr = ?" << nadr >> count;
+      int d = -1, m = 0, e = -1;
+      db << "select Dis, Mid, Enm from Bonded where Nadr = ?" << nadr >> std::tie(d, m, e);
 
-      if (count == 0) {
-        TRC_INFORMATION(PAR(nadr) << " insert into Bonded: " << PAR(nadr) << PAR(dis) << PAR(enm));
+      if (m == 0) {
+        TRC_INFORMATION(PAR(nadr) << " insert into Bonded: " << PAR(nadr) << PAR(dis) << PAR(mid) << PAR(enm));
         db << "insert into Bonded (Nadr, Dis, Mid, Enm)  values (?, ?, ?, ?);" << nadr << dis << mid << enm;
       }
       else {
-        TRC_INFORMATION(PAR(nadr) << " update Bonded: " << PAR(nadr) << PAR(dis) << PAR(enm));
-        db << "update Bonded  set Dis = ? , Mid = ?, Enm = ? where Nadr = ?; " << dis << mid << enm << nadr;
+        if (mid != m || dis != d || enm != e) {
+          TRC_INFORMATION(PAR(nadr) << " update Bonded: " << PAR(nadr) << PAR(dis) << PAR(mid) << PAR(enm));
+          db << "update Bonded  set Dis = ? , Mid = ?, Enm = ? where Nadr = ?; " << dis << mid << enm << nadr;
+        }
+        else {
+          TRC_DEBUG("bonded already exists in db => nothing to update: " << PAR(nadr) << PAR(dis) << PAR(mid) << PAR(enm))
+        }
       }
       TRC_FUNCTION_LEAVE("");
     }
@@ -1530,7 +1535,7 @@ namespace iqrf {
         >> std::tie(m, d);
 
       if (0 == m) {
-        TRC_DEBUG("node not exists => insert: " << PAR(mid) << PAR(deviceId))
+        TRC_INFORMATION("node not exists => insert: " << PAR(mid) << PAR(deviceId))
         // mid doesn't exist in DB
         std::unique_ptr<int> did = deviceId != 0 ? std::make_unique<int>(deviceId) : nullptr;
         db << "insert into Node ("
@@ -1546,13 +1551,16 @@ namespace iqrf {
       }
       else {
         if (d != deviceId) {
-          TRC_DEBUG("updated: " << PAR(mid) << PAR(deviceId))
+          TRC_INFORMATION("updated: " << PAR(mid) << PAR(deviceId))
             db << "update Node set "
             "DeviceId = ?"
             " where Mid = ?;"
             << deviceId
             << mid
             ;
+        }
+        else {
+          TRC_DEBUG("already exists in db => nothing to update: " << PAR(mid) << PAR(deviceId))
         }
       }
 
