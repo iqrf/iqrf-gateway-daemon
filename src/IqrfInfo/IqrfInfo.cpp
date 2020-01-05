@@ -912,8 +912,9 @@ namespace iqrf {
         try {
           uint32_t mid = nd->getNode().getMid();
           bool dis = nd->getNode().getDisc();
+          bool validNode = nd->getNode().isValid();
 
-          if (nd->getNode().isValid()) {
+          if (validNode) {
             // valid hwpid, hwpidVer, dpaVer, osBuild => load appropriate drivers and use or create device 
             int hwpid = nd->getNode().getHwpid();
             int hwpidVer = nd->getNode().getHwpidVer();
@@ -936,28 +937,37 @@ namespace iqrf {
               deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
             }
             else {
-              deviceIdPtr = enumerateDeviceOutsideRepo(nadr, nd, device);
+              try {
+                deviceIdPtr = enumerateDeviceOutsideRepo(nadr, nd, device);
+              }
+              catch (std::logic_error &e) {
+                validNode = false;
+                CATCH_EXC_TRC_WAR(std::logic_error, e, " Cannot enumerate device ");
+              }
             }
 
-            db << "begin transaction;";
+            if (validNode) {
+              db << "begin transaction;";
 
-            if (!deviceIdPtr) {
-              // no device in DB => insert
-              deviceId = insertDeviceWithDrv(device);
+              if (!deviceIdPtr) {
+                // no device in DB => insert
+                deviceId = insertDeviceWithDrv(device);
+              }
+              else {
+                // device already in DB => get deviceId
+                deviceId = *deviceIdPtr;
+              }
+
+              // insert node if not exists
+              nodeInDb(mid, deviceId);
+              // insert bonded
+              bondedInDb(nadr, dis ? 1 : 0, mid, 1);
+
+              db << "commit;";
             }
-            else {
-              // device already in DB => get deviceId
-              deviceId = *deviceIdPtr;
-            }
-
-            // insert node if not exists
-            nodeInDb(mid, deviceId);
-            // insert bonded
-            bondedInDb(nadr, dis ? 1 : 0, mid, 1);
-
-            db << "commit;";
           }
-          else {
+          
+          if (!validNode) {
             TRC_DEBUG("insert invalid node: " << PAR(nadr) << PAR(mid) << PAR(dis));
             // insert node if not exists
             nodeInDb(mid, 0);
