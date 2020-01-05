@@ -26,6 +26,7 @@
 #include <condition_variable>
 #include <random>
 #include <cstddef>
+#include <tuple>
 
 #include "iqrf__IqrfInfo.hxx"
 
@@ -488,17 +489,6 @@ namespace iqrf {
     std::unique_ptr<int> enumerateDeviceOutsideRepo(int nadr, const NodeDataPtr & nd, Device & d)
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(d.m_hwpid) << PAR(d.m_hwpidVer) << PAR(d.m_osBuild) << PAR(d.m_dpaVer));
-
-      //const auto & exEnum = nd->getEmbedExploreEnumerate();
-      //if (!exEnum) {
-      //  // wasn't enumerated yet => done by FRC
-      //  std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
-      //  {
-      //    auto trn = m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest());
-      //    exploreEnumeratePtr->processDpaTransactionResult(trn->get());
-      //    nd->setEmbedExploreEnumerate(exploreEnumeratePtr);
-      //  }
-      //}
 
       d.m_repoPackageId = 0;
       d.m_inRepo = false;
@@ -980,7 +970,7 @@ namespace iqrf {
           }
           
           if (!validNode) {
-            TRC_DEBUG("insert invalid node: " << PAR(nadr) << PAR(mid) << PAR(dis));
+            TRC_DEBUG("handle invalid node: " << PAR(nadr) << PAR(mid) << PAR(dis));
             // insert node if not exists
             nodeInDb(mid, 0);
             // insert bonded
@@ -1524,21 +1514,23 @@ namespace iqrf {
     // check if node with mid exist and if not insert
     void nodeInDb(unsigned mid, int deviceId)
     {
-      TRC_FUNCTION_ENTER(PAR(mid) << PAR(deviceId))
+      TRC_FUNCTION_ENTER(PAR(mid) << PAR(deviceId));
 
-        int count = 0;
       database & db = *m_db;
+      int m = 0, d = 0;
       db << "select "
-        "count(*) "
-        "from "
-        "Node as n "
-        "where "
-        "n.Mid = ?"
+        " Mid "
+        ", DeviceId "
+        " from "
+        " Node "
+        " where "
+        " Mid = ?"
         ";"
         << mid
-        >> count;
+        >> std::tie(m, d);
 
-      if (0 == count) {
+      if (0 == m) {
+        TRC_DEBUG("node not exists => insert: " << PAR(mid) << PAR(deviceId))
         // mid doesn't exist in DB
         std::unique_ptr<int> did = deviceId != 0 ? std::make_unique<int>(deviceId) : nullptr;
         db << "insert into Node ("
@@ -1553,12 +1545,15 @@ namespace iqrf {
           ;
       }
       else {
-        db << "update Node set "
-          "DeviceId = ?"
-          " where Mid = ?;"
-          << deviceId
-          << mid
-          ;
+        if (d != deviceId) {
+          TRC_DEBUG("updated: " << PAR(mid) << PAR(deviceId))
+            db << "update Node set "
+            "DeviceId = ?"
+            " where Mid = ?;"
+            << deviceId
+            << mid
+            ;
+        }
       }
 
       TRC_FUNCTION_LEAVE("")
