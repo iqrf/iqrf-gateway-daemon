@@ -489,16 +489,16 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(d.m_hwpid) << PAR(d.m_hwpidVer) << PAR(d.m_osBuild) << PAR(d.m_dpaVer));
 
-      const auto & exEnum = nd->getEmbedExploreEnumerate();
-      if (!exEnum) {
-        // wasn't enumerated yet => done by FRC
-        std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
-        {
-          auto trn = m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest());
-          exploreEnumeratePtr->processDpaTransactionResult(trn->get());
-          nd->setEmbedExploreEnumerate(exploreEnumeratePtr);
-        }
-      }
+      //const auto & exEnum = nd->getEmbedExploreEnumerate();
+      //if (!exEnum) {
+      //  // wasn't enumerated yet => done by FRC
+      //  std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+      //  {
+      //    auto trn = m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest());
+      //    exploreEnumeratePtr->processDpaTransactionResult(trn->get());
+      //    nd->setEmbedExploreEnumerate(exploreEnumeratePtr);
+      //  }
+      //}
 
       d.m_repoPackageId = 0;
       d.m_inRepo = false;
@@ -507,6 +507,18 @@ namespace iqrf {
       std::unique_ptr<int> deviceIdPtr = selectDevice(d);
 
       if (!deviceIdPtr) {
+        
+        const auto & exEnum = nd->getEmbedExploreEnumerate();
+        if (!exEnum) {
+          // wasn't enumerated yet => done by FRC
+          std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+          {
+            auto trn = m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest());
+            exploreEnumeratePtr->processDpaTransactionResult(trn->get());
+            nd->setEmbedExploreEnumerate(exploreEnumeratePtr);
+          }
+        }
+
         // no device in DB and no package in IqrfRepo => get drivers by enumeration at first
         std::map<int, int> perVerMap;
 
