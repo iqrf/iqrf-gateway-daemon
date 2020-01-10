@@ -216,7 +216,7 @@ stages:
   extends: .ssh_template
   dependencies: []
   script:
-    - rsync -hrvz --delete -e ssh api/ www-deploy@iqrfsdk.org:/data/nginx/apidocs/iqrf-gateway-daemon/json/iqrf/
+    - rsync -hrvz --delete -e ssh api/ www-deploy@iqrfsdk.org:/data/nginx/apidocs/iqrf-gateway-daemon/latest/json/iqrf/
 
 .clean-template:
   image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-amd64
