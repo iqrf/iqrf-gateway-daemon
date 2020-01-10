@@ -1,14 +1,14 @@
 {
     "mType": "iqmeshNetwork_AutoNetwork",
     "data": {
-        "msgId": "testIqmeshAutoNetwork",
+        "msgId": "e794e526-cfbf-4876-bf89-784e72058754",
         "req": {
+            "discoveryTxPower": 1,
+            "discoveryBeforeStart": false,
             "actionRetries": 1,
-            "discoveryTxPower": 6,
-            "discoveryBeforeStart": true,
             "stopConditions": {
-              "waves": 3,
-              "emptyWaves": 2
+                "waves": 2,
+                "emptyWaves": 1
             }
         },
         "returnVerbose": true
