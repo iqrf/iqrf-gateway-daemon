@@ -1,0 +1,10 @@
+{
+    "mType": "infoDaemon_GetNodeMetaData",
+    "data": {
+        "msgId": "testGetNodeMetaData",
+        "req": {
+          "nAdr":1
+        },
+        "returnVerbose": true
+    }
+}

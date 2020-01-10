@@ -30,20 +30,20 @@
                             "description": "Node address."
                         },
                         "metaData": {
-							"oneOf": [
-								{
-									"type": "object",
-									"description": "Metadata Json."
-								},
-								{
-									"type": "null"
-								}
-							]
+                            "oneOf": [
+                                {
+                                    "type": "object",
+                                    "description": "Metadata Json."
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
                         }
                     },
                     "required": [
                         "nAdr",
-						"metaData"
+                        "metaData"
                     ]
                 },
                 "returnVerbose": {

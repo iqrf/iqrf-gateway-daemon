@@ -30,15 +30,15 @@
                             "description": "Node address."
                         },
                         "metaData": {
-							"oneOf": [
-								{
-									"type": "object",
-									"description": "Metadata Json."
-								},
-								{
-									"type": "null"
-								}
-							]
+                            "oneOf": [
+                                {
+                                    "type": "object",
+                                    "description": "Metadata Json."
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
                         }
                     },
                     "required": [
@@ -47,9 +47,9 @@
                     ]
                 },
                 "insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
-				},
+                    "type": "string",
+                    "description": "IQRF GW daemon instance identification."
+                },
                 "status": {
                     "type": "integer",
                     "description": "Status of operation."
