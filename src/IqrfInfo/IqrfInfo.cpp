@@ -2070,12 +2070,14 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      std::string metaData;
+      std::unique_ptr<std::string> metaDataPtr;
+      int count;
       database & db = *m_db;
 
       db <<
         "select "
         "n.metaData "
+        ", count(*) "
         "from "
         "Bonded as b "
         ", Node as n "
@@ -2084,15 +2086,24 @@ namespace iqrf {
         "and b.nadr = ? "
         ";"
         << nadr
-        >> tie(metaData)
+        >> tie(metaDataPtr, count)
         ;
 
       rapidjson::Document doc;
-      doc.Parse(metaData);
 
-      if (doc.HasParseError()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Json parse error: " << NAME_PAR(emsg, doc.GetParseError()) <<
-          NAME_PAR(eoffset, doc.GetErrorOffset()));
+      if (count > 0) {
+        if (metaDataPtr) {
+
+          doc.Parse(*metaDataPtr);
+
+          if (doc.HasParseError()) {
+            THROW_EXC_TRC_WAR(std::logic_error, "Json parse error in metadata: " << NAME_PAR(emsg, doc.GetParseError()) <<
+              NAME_PAR(eoffset, doc.GetErrorOffset()));
+          }
+        }
+      }
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Nadr is not bonded: " << PAR(nadr));
       }
 
       TRC_FUNCTION_LEAVE("");

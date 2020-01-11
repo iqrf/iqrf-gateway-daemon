@@ -30,15 +30,6 @@
               "description": "Node address."
             },
             "metaData": {
-              "oneOf": [
-                {
-                  "type": "object",
-                  "description": "Metadata Json."
-                },
-                {
-                  "type": "null"
-                }
-              ]
             }
           },
           "required": [
