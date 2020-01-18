@@ -147,11 +147,11 @@ Component **JsonIqrfInfoApi** provides JSON API. See schemes at https://gitlab.i
 - infoDaemon_GetSensors - returns nodes implementing Sensor standard (for breakdown use iqrfSensor_Enumerate - it is not supported by DB) 
 - infoDaemon_GetDalis - returns nodes implementing Dali standard
 - infoDaemon_GetLights - returns nodes implementing Light standard
-- infoDaemon_GetMidMetaData
-- infoDaemon_SetMidMetaData
-- infoDaemon_GetNodeMetaData
-- infoDaemon_SetNodeMetaData
-- infoDaemon_MidMetaDataAnnotate
+- infoDaemon_GetMidMetaData - returns metadata associated to MID
+- infoDaemon_SetMidMetaData - sets metadata for MID
+- infoDaemon_GetNodeMetaData - returns metadata associated to MID bonded to NADR
+- infoDaemon_SetNodeMetaData - sets metadata for MID bonded to NADR
+- infoDaemon_MidMetaDataAnnotate - set/reset API messages annotation with metada
 - infoDaemon_OrphanedMids - commands to handle orpaned mids - the mids used to be bonded but not bonded now
   - get - returns orphaned mids 
   - remove - remove orphaned mids 
