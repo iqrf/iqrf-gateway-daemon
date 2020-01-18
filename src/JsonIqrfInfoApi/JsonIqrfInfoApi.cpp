@@ -39,7 +39,7 @@ namespace iqrf {
     const std::string mType_SetMidMetaData = "infoDaemon_SetMidMetaData";
     const std::string mType_GetNodeMetaData = "infoDaemon_GetNodeMetaData";
     const std::string mType_SetNodeMetaData = "infoDaemon_SetNodeMetaData";
-    const std::string mType_RemoveUnbondMid = "infoDaemon_RemoveUnbondMid";
+    const std::string mType_OrphanedMids = "infoDaemon_OrphanedMids";
 
     /////////// message classes declarations
     class InfoDaemonMsg : public ApiMsg
@@ -456,11 +456,11 @@ namespace iqrf {
         }
         static Cmd defaultEnum()
         {
-          return Cmd::Start;
+          return Cmd::Unknown;
         }
         static const std::string& defaultStr()
         {
-          static std::string u("start");
+          static std::string u("unknown");
           return u;
         }
       };
@@ -723,25 +723,64 @@ namespace iqrf {
     };
 
     //////////////////////////////////////////////
-    class InfoDaemonMsgRemoveUnbondMid : public InfoDaemonMsg
+    class InfoDaemonMsgOrphanedMids : public InfoDaemonMsg
     {
     public:
-      InfoDaemonMsgRemoveUnbondMid() = delete;
-      InfoDaemonMsgRemoveUnbondMid(const rapidjson::Document& doc)
+      enum class Cmd {
+        Unknown,
+        Get,
+        Remove,
+      };
+
+      class CmdConvertTable
+      {
+      public:
+        static const std::vector<std::pair<Cmd, std::string>>& table()
+        {
+          static std::vector <std::pair<Cmd, std::string>> table = {
+            { Cmd::Unknown, "unknown" },
+            { Cmd::Get, "get" },
+            { Cmd::Remove, "remove" },
+          };
+          return table;
+        }
+        static Cmd defaultEnum()
+        {
+          return Cmd::Unknown;
+        }
+        static const std::string& defaultStr()
+        {
+          static std::string u("unknown");
+          return u;
+        }
+      };
+      typedef shape::EnumStringConvertor<Cmd, CmdConvertTable> CmdStringConvertor;
+
+      InfoDaemonMsgOrphanedMids() = delete;
+      InfoDaemonMsgOrphanedMids(const rapidjson::Document& doc)
         :InfoDaemonMsg(doc)
       {
         using namespace rapidjson;
+
+        std::string cmd = Pointer("/data/req/command").Get(doc)->GetString();
+        m_command = CmdStringConvertor::str2enum(cmd);
+        if (m_command == Cmd::Unknown) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Unknown command: " << cmd);
+        }
+
         const Value * midsVal = Pointer("/data/req/mids").Get(doc);
-        for (auto itr = midsVal->Begin(); itr != midsVal->End(); ++itr) {
-          if (!itr->IsUint()) {
-            int64_t bad_mid = itr->GetInt64();
-            THROW_EXC_TRC_WAR(std::logic_error, "Passed value is not valid: " << PAR(bad_mid));
+        if (midsVal && midsVal->IsArray()) {
+          for (auto itr = midsVal->Begin(); itr != midsVal->End(); ++itr) {
+            if (!itr->IsUint()) {
+              int64_t bad_mid = itr->GetInt64();
+              THROW_EXC_TRC_WAR(std::logic_error, "Passed value is not valid: " << PAR(bad_mid));
+            }
+            m_mids.push_back(itr->GetUint());
           }
-          m_mids.push_back(itr->GetUint());
         }
       }
 
-      virtual ~InfoDaemonMsgRemoveUnbondMid()
+      virtual ~InfoDaemonMsgOrphanedMids()
       {
       }
 
@@ -749,6 +788,9 @@ namespace iqrf {
       {
         using namespace rapidjson;
         Document::AllocatorType & a = doc.GetAllocator();
+
+        Pointer("/data/rsp/command").Set(doc, CmdStringConvertor::enum2str(m_command), a);
+
         Value midsVal;
         midsVal.SetArray();
         for (auto mid : m_mids) {
@@ -762,12 +804,22 @@ namespace iqrf {
       void handleMsg(JsonIqrfInfoApi::Imp* imp) override
       {
         TRC_FUNCTION_ENTER("");
-        imp->removeUnbondNodes(m_mids);
+        switch (m_command) {
+        case Cmd::Get:
+          m_mids = imp->getUnbondMids();
+          break;
+        case Cmd::Remove:
+          imp->removeUnbondMids(m_mids);
+          break;
+        default:
+          ;
+        }
         TRC_FUNCTION_LEAVE("");
       }
 
     private:
       std::vector<uint32_t> m_mids;
+      Cmd m_command;
     };
 
   ///////////////////// Imp members
@@ -797,7 +849,7 @@ namespace iqrf {
       m_objectFactory.registerClass<InfoDaemonMsgSetMidMetaData>(mType_SetMidMetaData);
       m_objectFactory.registerClass<InfoDaemonMsgGetNodeMetaData>(mType_GetNodeMetaData);
       m_objectFactory.registerClass<InfoDaemonMsgSetNodeMetaData>(mType_SetNodeMetaData);
-      m_objectFactory.registerClass<InfoDaemonMsgRemoveUnbondMid>(mType_RemoveUnbondMid);
+      m_objectFactory.registerClass<InfoDaemonMsgOrphanedMids>(mType_OrphanedMids);
     }
 
     ~Imp()
@@ -899,9 +951,9 @@ namespace iqrf {
       return m_iIqrfInfo->getUnbondMids();
     }
 
-    void removeUnbondNodes(std::vector<uint32_t> unbondVec)
+    void removeUnbondMids(std::vector<uint32_t> unbondVec)
     {
-      m_iIqrfInfo->removeUnbondNodes(unbondVec);
+      m_iIqrfInfo->removeUnbondMids(unbondVec);
     }
 
     bool getMidMetaDataAnnotate() const

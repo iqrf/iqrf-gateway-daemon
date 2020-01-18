@@ -2034,7 +2034,7 @@ namespace iqrf {
       return retval;
     }
 
-    void removeUnbondNodes(const std::vector<uint32_t> & unbondVec)
+    void removeUnbondMids(const std::vector<uint32_t> & unbondVec)
     {
       TRC_FUNCTION_ENTER("");
 
@@ -2450,9 +2450,9 @@ namespace iqrf {
     return m_imp->getUnbondMids();
   }
   
-  void IqrfInfo::removeUnbondNodes(const std::vector<uint32_t> & unbondVec)
+  void IqrfInfo::removeUnbondMids(const std::vector<uint32_t> & unbondVec)
   {
-    m_imp->removeUnbondNodes(unbondVec);
+    m_imp->removeUnbondMids(unbondVec);
   }
 
   bool IqrfInfo::getMidMetaDataToMessages() const

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "infoDaemon_OrphanedMids-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Command to handle orphaned mids in DB",
+      "enum": [
+        "infoDaemon_OrphanedMids"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "req": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "command to handle",
+              "enum": [
+                "get",
+                "remove"
+              ]
+            },
+            "mids": {
+              "type": "array",
+              "description": "mid values to be handled",
+              "items": {
+                "type": "integer"
+              }
+            }
+          },
+          "required": [
+            "command"
+          ]
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
+        }
+      },
+      "required": [
+        "msgId"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}

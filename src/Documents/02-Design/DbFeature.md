@@ -72,6 +72,8 @@ Enumeration phases are done:
 
 All enumeration phases are done in a standalone thread at the background.
 
+When a node is unbonded its MID is kept in DB as it can holds associated metada. It is so called orphaned MID. There is dedicated API to handle this situation.
+
 #### Check enum
 The phase collects bonded MIDs from [C] EEEPROM and compares with stored DB MIDs. If there are differences or some nodes were not enumerated yet the next phases continue.
 
@@ -134,20 +136,25 @@ If set getting of DpaVer and OsBuild is omitted and set according [C]. The proce
 ## Info API
 Component **JsonIqrfInfoApi** provides JSON API. See schemes at https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon/tree/master/api
 
-- infoDaemon_StartEnumeration - starts enumeration thread (as it would be started at stratup)
+- infoDaemon_Enumeration - commands enumeration thread (as it would be started at stratup)
+  - start - starts the thread (as it would be started at stratup)
+  - stop - stops the thread
+  - getPeriod - gets period of periodic enumeration check in minutes
+  - setPeriod - sets period of periodic enumeration check in minutes
+  - now - makes enumeration check now
 - infoDaemon_GetNodes - returns enumerated nodes
 - infoDaemon_GetBinaryOutputs - returns nodes implementing Binaryoutput standard
 - infoDaemon_GetSensors - returns nodes implementing Sensor standard (for breakdown use iqrfSensor_Enumerate - it is not supported by DB) 
 - infoDaemon_GetDalis - returns nodes implementing Dali standard
 - infoDaemon_GetLights - returns nodes implementing Light standard
-
-TODO (not implemented yet)
-- infoDaemon_StopEnumeration - stops enumeration thread (complement to StartEnumeration)
-- infoDaemon_MakeEnumeration - make enumeration just now
-- infoDaemon_RefreshEnumerate - delete DB and crate it from scratch
-- infoDaemon_GetNodesNonEnum - returns bonded but non enumerated nodes (off, sleeping, out of range)
-- infoDaemon_GetNodesNonBond - returns non bonded nodes (used to be bonded - DB keeps them as it may have associated metadata)
-- infoDaemon_RemoveNonBond - remove non bonded nodes
+- infoDaemon_GetMidMetaData
+- infoDaemon_SetMidMetaData
+- infoDaemon_GetNodeMetaData
+- infoDaemon_SetNodeMetaData
+- infoDaemon_MidMetaDataAnnotate
+- infoDaemon_OrphanedMids - commands to handle orpaned mids - the mids used to be bonded but not bonded now
+  - get - returns orphaned mids 
+  - remove - remove orphaned mids 
 
 
 ## Next possible development steps

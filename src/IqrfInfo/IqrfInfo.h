@@ -36,7 +36,7 @@ namespace iqrf {
     // get non bonded nodes
     std::vector<uint32_t> getUnbondMids() const override;
     // remove unbond nodes from DB - nodes are not by default deleted if unbonded
-    void removeUnbondNodes(const std::vector<uint32_t> & unbondVec) override;
+    void removeUnbondMids(const std::vector<uint32_t> & unbondVec) override;
 
     bool getMidMetaDataToMessages() const override;
     void setMidMetaDataToMessages(bool val) override;

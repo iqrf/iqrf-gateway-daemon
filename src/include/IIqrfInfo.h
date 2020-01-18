@@ -37,7 +37,7 @@ namespace iqrf
     // get non bonded nodes
     virtual std::vector<uint32_t> getUnbondMids() const = 0;
     // remove unbond nodes from DB - nodes are not by default deleted if unbonded
-    virtual void removeUnbondNodes(const std::vector<uint32_t> & unbondVec) = 0;
+    virtual void removeUnbondMids(const std::vector<uint32_t> & unbondVec) = 0;
 
     // for Mid meta data
     // gets the flag to control if messages are anotaded by metadata 
