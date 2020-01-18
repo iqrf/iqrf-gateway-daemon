@@ -575,7 +575,12 @@ namespace iqrf {
         :InfoDaemonMsg(doc)
       {
         using namespace rapidjson;
-        m_mid = Pointer("/data/req/mid").Get(doc)->GetInt();
+        const Value * midVal = Pointer("/data/req/mid").Get(doc);
+        if (!midVal->IsUint()) {
+          int64_t bad_mid = midVal->GetInt64();
+          THROW_EXC_TRC_WAR(std::logic_error, "Passed value is not valid: " << PAR(bad_mid));
+        }
+        m_mid = midVal->GetUint();
       }
 
       virtual ~InfoDaemonMsgGetMidMetaData()
@@ -600,7 +605,7 @@ namespace iqrf {
       }
 
     private:
-      int m_mid;
+      uint32_t m_mid;
       rapidjson::Document m_metaData;
     };
 
@@ -613,7 +618,13 @@ namespace iqrf {
         :InfoDaemonMsg(doc)
       {
         using namespace rapidjson;
-        m_mid = Pointer("/data/req/mid").Get(doc)->GetInt();
+        const Value * midVal = Pointer("/data/req/mid").Get(doc);
+        if (!midVal->IsUint()) {
+          int64_t bad_mid = midVal->GetInt64();
+          THROW_EXC_TRC_WAR(std::logic_error, "Passed value is not valid: " << PAR(bad_mid));
+        }
+        m_mid = midVal->GetUint();
+
         const Value *val = Pointer("/data/req/metaData").Get(doc);
         m_metaDataDoc.CopyFrom(*val, m_metaDataDoc.GetAllocator());
       }
@@ -640,7 +651,7 @@ namespace iqrf {
       }
 
     private:
-      int m_mid;
+      uint32_t m_mid;
       rapidjson::Document m_metaDataDoc;
     };
 

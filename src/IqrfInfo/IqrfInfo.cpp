@@ -2171,7 +2171,20 @@ namespace iqrf {
       metaData.Accept(writer);
       std::string md = buffer.GetString();
 
-      *m_db << "update Node set metaData = ? where mid = ?);" << md << mid;
+      int count;
+      database & db = *m_db;
+
+      db << "select count(*) from Node where mid = ? ;"
+        << mid
+        >> count
+        ;
+
+      if (count > 0) {
+        *m_db << "update Node set metaData = ? where mid = ?;" << md << mid;
+      }
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Mid does not exist: " << PAR(mid));
+      }
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -2229,7 +2242,29 @@ namespace iqrf {
       metaData.Accept(writer);
       std::string md = buffer.GetString();
 
-      *m_db << "update Node set metaData = ? where mid = (select mid from Bonded where nadr = ?);" << md << nadr;
+      int count;
+      database & db = *m_db;
+
+      db <<
+        "select "
+        " count(*) "
+        "from "
+        "Bonded as b "
+        ", Node as n "
+        "where "
+        "n.mid = b.mid "
+        "and b.nadr = ? "
+        ";"
+        << nadr
+        >> count
+        ;
+
+      if (count > 0) {
+        *m_db << "update Node set metaData = ? where mid = (select mid from Bonded where nadr = ?);" << md << nadr;
+      }
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Nadr is not bonded: " << PAR(nadr));
+      }
 
       TRC_FUNCTION_LEAVE("");
     }
