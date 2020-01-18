@@ -1,0 +1,63 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "infoDaemon_SetMidMetaData-request",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "mType": {
+            "type": "string",
+            "description": "Set MetaData assigned to mid.",
+            "enum": [
+                "infoDaemon_SetMidMetaData"
+            ]
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "msgId": {
+                    "type": "string",
+                    "description": "Message identification for binding request with response."
+                },
+                "req": {
+                    "type": "object",
+                    "properties": {
+                        "mid": {
+                            "type": "integer",
+                            "description": "mid value."
+                        },
+                        "metaData": {
+                            "oneOf": [
+                                {
+                                    "type": "object",
+                                    "description": "Metadata Json."
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "mid",
+                        "metaData"
+                    ]
+                },
+                "returnVerbose": {
+                    "type": "boolean",
+                    "description": "Flag that includes additional parameters in the response."
+                }
+            },
+            "required": [
+                "msgId"
+            ]
+        }
+    },
+    "required": [
+        "mType",
+        "data"
+    ]
+}

@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "infoDaemon_StartEnumeration-request",
+        "name": "infoDaemon_GetMidMetaData-request",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Daemon information - explicit start of enumeration of all network to be stored in DB.",
+            "description": "Get MetaData assigned to mid",
             "enum": [
-                "infoDaemon_StartEnumeration"
+                "infoDaemon_GetMidMetaData"
             ]
         },
         "data": {
@@ -24,7 +24,15 @@
                 },
                 "req": {
                     "type": "object",
-                    "description": "TODO parameters to select ..."
+                    "properties": {
+                        "mid": {
+                            "type": "integer",
+                            "description": "mid value."
+                        }
+                    },
+                    "required": [
+                        "mid"
+                    ]
                 },
                 "returnVerbose": {
                     "type": "boolean",
@@ -32,8 +40,7 @@
                 }
             },
             "required": [
-                "msgId",
-                "req"
+                "msgId"
             ]
         }
     },

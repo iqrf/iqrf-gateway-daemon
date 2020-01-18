@@ -28,6 +28,7 @@ namespace iqrf {
   private:
 
     IMetaDataApi* m_iMetaDataApi = nullptr;
+    IIqrfInfo* m_iIqrfInfo = nullptr;
     iqrf::IJsRenderService* m_iJsRenderService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
@@ -113,9 +114,17 @@ namespace iqrf {
               THROW_EXC_TRC_WAR(std::logic_error, "Expected: .../nAdr of type integer");
             }
             int nadr = nadrVal->GetInt();
+
+            // old metadata
             if (m_iMetaDataApi && m_iMetaDataApi->iSmetaDataToMessages()) {
               // anotate with metada
               Pointer("/metaData").Set(*senVal, m_iMetaDataApi->getMetaData(nadr), doc.GetAllocator());
+            }
+
+            // db metadata
+            if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
+              // anotate with metada
+              Pointer("/midMetaData").Set(*senVal, m_iIqrfInfo->getNodeMetaData(nadr), doc.GetAllocator());
             }
           }
 
@@ -211,6 +220,18 @@ namespace iqrf {
       }
     }
 
+    void attachInterface(IIqrfInfo* iface)
+    {
+      m_iIqrfInfo = iface;
+    }
+
+    void detachInterface(IIqrfInfo* iface)
+    {
+      if (m_iIqrfInfo == iface) {
+        m_iIqrfInfo = nullptr;
+      }
+    }
+
     void attachInterface(IJsRenderService* iface)
     {
       m_iJsRenderService = iface;
@@ -283,6 +304,16 @@ namespace iqrf {
   }
 
   void JsonDpaApiIqrfStdExt::detachInterface(iqrf::IMetaDataApi* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void JsonDpaApiIqrfStdExt::attachInterface(IIqrfInfo* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonDpaApiIqrfStdExt::detachInterface(IIqrfInfo* iface)
   {
     m_imp->detachInterface(iface);
   }

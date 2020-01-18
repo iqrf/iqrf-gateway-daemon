@@ -21,15 +21,21 @@ namespace iqrf {
       m_metaData.CopyFrom(val, m_metaData.GetAllocator());
     }
 
+    virtual void setMidMetaData(const rapidjson::Value& val)
+    {
+      m_appendMidMetaData = true;
+      m_midMetaData.CopyFrom(val, m_midMetaData.GetAllocator());
+    }
+
     virtual ~ComNadr()
     {
     }
 
   protected:
-
     bool m_appendMetaData = false;
     rapidjson::Document m_metaData;
-
+    bool m_appendMidMetaData = false;
+    rapidjson::Document m_midMetaData;
   };
 
   class ComRaw : public ComNadr
@@ -60,6 +66,9 @@ namespace iqrf {
       rapidjson::Pointer("/data/rsp/rData").Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
       if (m_appendMetaData) {
         rapidjson::Pointer("/data/rsp/metaData").Set(doc, m_metaData);
+      }
+      if (m_appendMidMetaData) {
+        rapidjson::Pointer("/data/rsp/midMetaData").Set(doc, m_midMetaData);
       }
     }
 

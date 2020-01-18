@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "infoDaemon_StartEnumeration-response",
+        "name": "infoDaemon_MidMetaDataAnnotate-response",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -10,9 +10,9 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Daemon information - explicit start of enumeration of all network to be stored in DB.",
+            "description": "Set/reset messages to be annotated by MetaData.",
             "enum": [
-                "infoDaemon_StartEnumeration"
+                "infoDaemon_MidMetaDataAnnotate"
             ]
         },
         "data": {
@@ -24,12 +24,20 @@
                 },
                 "rsp": {
                     "type": "object",
-                    "description": "TODO parameters to select sensor types."
+                    "properties": {
+                        "annotate": {
+                            "type": "boolean",
+                            "description": "annotate value."
+                        }
+                    },
+                    "required": [
+                        "annotate"
+                    ]
                 },
                 "insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
-				},
+                    "type": "string",
+                    "description": "IQRF GW daemon instance identification."
+                },
                 "status": {
                     "type": "integer",
                     "description": "Status of operation."
