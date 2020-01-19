@@ -306,7 +306,7 @@ namespace iqrf {
 
     IIqrfChannelService::State getState() const
     {
-      IIqrfChannelService::State state = State::NotReady;
+      IIqrfChannelService::State state = State::Ready;
       spi_iqrf_SPIStatus spiStatus1, spiStatus2;
       int ret = 1;
 
@@ -322,17 +322,16 @@ namespace iqrf {
 
           switch (ret) {
             case BASE_TYPES_OPER_OK:
-              if (spiStatus1.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM 
-                  && spiStatus2.dataNotReadyStatus == SPI_IQRF_SPI_READY_COMM) {
-                return state = State::Ready;
-              }
-              else {
+              if ((spiStatus1.dataNotReadyStatus == SPI_IQRF_SPI_DISABLED 
+                  && spiStatus2.dataNotReadyStatus == SPI_IQRF_SPI_DISABLED) 
+                  || (spiStatus1.dataNotReadyStatus == SPI_IQRF_SPI_HW_ERROR 
+                  && spiStatus2.dataNotReadyStatus == SPI_IQRF_SPI_HW_ERROR)) {
                 TRC_INFORMATION("GetState() SPI status: " << PAR(spiStatus1.dataNotReadyStatus) << PAR(spiStatus2.dataNotReadyStatus));
+                return state = State::NotReady;
               }
-            break;
-
+              break;
             default:
-            break;
+              break;
           }
         }
       }
