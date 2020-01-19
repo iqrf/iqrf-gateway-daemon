@@ -1,0 +1,24 @@
+{
+    "mType": "infoDaemon_OrphanedMids",
+    "data": {
+        "msgId": "testOrphanedMids",
+        "req": {
+            "command":"get"
+        },
+	"returnVerbose": true
+    }
+}
+
+{
+    "mType": "infoDaemon_OrphanedMids",
+    "data": {
+        "msgId": "testOrphanedMids",
+        "req": {
+            "command":"remove",
+	    "mids": [
+                2165398592
+            ]
+        },
+	"returnVerbose": true
+    }
+}

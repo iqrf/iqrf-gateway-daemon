@@ -1,0 +1,12 @@
+{
+    "mType": "infoDaemon_MidMetaDataAnnotate",
+    "data": {
+        "msgId": "testMidMetaDataAnnotate",
+        "rsp": {
+            "annotate": true
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

@@ -1,0 +1,55 @@
+{
+    "mType": "infoDaemon_Enumeration",
+    "data": {
+        "msgId": "testInfoEnum",
+        "req": {
+            "command":"start"
+        },
+	"returnVerbose": true
+    }
+}
+
+{
+    "mType": "infoDaemon_Enumeration",
+    "data": {
+        "msgId": "testInfoEnum",
+        "req": {
+            "command":"now"
+        },
+	"returnVerbose": true
+    }
+}
+
+{
+    "mType": "infoDaemon_Enumeration",
+    "data": {
+        "msgId": "testInfoEnum",
+        "req": {
+            "command":"getPeriod"
+        },
+	"returnVerbose": true
+    }
+}
+
+{
+    "mType": "infoDaemon_Enumeration",
+    "data": {
+        "msgId": "testInfoEnum",
+        "req": {
+            "command":"setPeriod",
+            "period": 10
+        },
+	"returnVerbose": true
+    }
+}
+
+{
+    "mType": "infoDaemon_Enumeration",
+    "data": {
+        "msgId": "testInfoEnum",
+        "req": {
+            "command":"stop"
+        },
+	"returnVerbose": true
+    }
+}

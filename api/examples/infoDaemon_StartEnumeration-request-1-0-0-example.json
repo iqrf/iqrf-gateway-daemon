@@ -1,7 +1,0 @@
-{
-    "mType": "infoDaemon_StartEnumeration",
-    "data": {
-        "msgId": "testStartEnum",
-        "req": {}
-    }
-}
