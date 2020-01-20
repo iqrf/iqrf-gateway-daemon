@@ -9,7 +9,7 @@ namespace iqrf {
   {
     uint8_t discoveryTxPower;
     bool discoveryBeforeStart;
-    bool discovery;
+    bool skipDiscoveryEachWave;
     uint8_t actionRetries;
     struct 
     {
@@ -74,11 +74,11 @@ namespace iqrf {
       else
         m_autonetworkParams.discoveryBeforeStart = false;
 
-      // discovery
-      if ( jsonValue = rapidjson::Pointer( "/data/req/discovery" ).Get( doc ) )
-        m_autonetworkParams.discovery = jsonValue->GetBool();
+      // skipDiscoveryEachWave
+      if ( jsonValue = rapidjson::Pointer( "/data/req/skipDiscoveryEachWave" ).Get( doc ) )
+        m_autonetworkParams.skipDiscoveryEachWave = jsonValue->GetBool();
       else
-        m_autonetworkParams.discovery = false;
+        m_autonetworkParams.skipDiscoveryEachWave = false;
 
       // actionRetries
       if ( jsonValue = rapidjson::Pointer( "/data/req/actionRetries" ).Get( doc ) )

@@ -183,7 +183,8 @@ namespace iqrf {
       sDiscovery,
       sMaxNumWaves,
       sMaxNodes,
-      sMaxEmptyWaves
+      sMaxEmptyWaves,
+      sMaxNewNodes
     };
 
     // MID union
@@ -492,7 +493,7 @@ namespace iqrf {
           "DPA transaction: "
           << NAME_PAR( Peripheral type, XMemoryReadRequest.PeripheralType() )
           << NAME_PAR( Node address, XMemoryReadRequest.NodeAddress() )
-          << NAME_PAR( Command, XMemoryReadRequest.PeripheralCommand() )
+          << NAME_PAR( Command, (int)XMemoryReadRequest.PeripheralCommand() )
         );
         autonetworkResult.addTransactionResult( transResult );
         // Get response data
@@ -752,7 +753,7 @@ namespace iqrf {
           "DPA transaction: "
           << NAME_PAR( Peripheral type, smartConnectRequest.PeripheralType() )
           << NAME_PAR( Node address, smartConnectRequest.NodeAddress() )
-          << NAME_PAR( Command, smartConnectRequest.PeripheralCommand() )
+          << NAME_PAR( Command, (int)smartConnectRequest.PeripheralCommand() )
         );
         autonetworkResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
@@ -817,16 +818,16 @@ namespace iqrf {
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if ( status <= 0xEF )
         {
-          TRC_INFORMATION( "FRC Prebonded Alive status OK." << NAME_PAR_HEX( "Status", status ) );
+          TRC_INFORMATION( "FRC Prebonded Alive status OK." << NAME_PAR_HEX( "Status", (int)status ) );
           TRC_FUNCTION_LEAVE( "" );
           return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
         }
         else
         {
-          TRC_WARNING( "FRC Prebonded Alive NOK!" << NAME_PAR_HEX( "Status", status ) );
+          TRC_WARNING( "FRC Prebonded Alive NOK!" << NAME_PAR_HEX( "Status", (int)status ) );
           AutonetworkError error( AutonetworkError::Type::PrebondedAlive, "Bad FRC status." );
           autonetworkResult.setError( error );
-          THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( status ) );
+          THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( (int)status ) );
         }        
       }
       catch ( std::exception& e )
@@ -896,7 +897,7 @@ namespace iqrf {
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if ( status < 0xFD )
         {
-          TRC_INFORMATION( "FRC Prebonded Memory Read status ok." << NAME_PAR_HEX( "Status", status ) );
+          TRC_INFORMATION( "FRC Prebonded Memory Read status ok." << NAME_PAR_HEX( "Status", (int)status ) );
           prebondedMemoryData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + sizeof(TMID), 51 );
           TRC_DEBUG( "Size of FRC data: " << PAR( prebondedMemoryData.size() ) );
         }
@@ -994,7 +995,7 @@ namespace iqrf {
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if ( status < 0xFD )
         {
-          TRC_INFORMATION( "FRC Prebonded Memory Read status ok." << NAME_PAR_HEX( "Status", status ) );
+          TRC_INFORMATION( "FRC Prebonded Memory Read status ok." << NAME_PAR_HEX( "Status", (int)status ) );
           memoryData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + sizeof( TMID ), 51 );
           TRC_DEBUG( "Size of FRC data: " << PAR( memoryData.size() ) );
         }
@@ -1132,16 +1133,16 @@ namespace iqrf {
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if ( status <= 0xEF )
         {
-          TRC_INFORMATION( "FRC_Ping: status OK." << NAME_PAR_HEX( "Status", status ) );
+          TRC_INFORMATION( "FRC_Ping: status OK." << NAME_PAR_HEX( "Status", (int)status ) );
           TRC_FUNCTION_LEAVE( "" );
           return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
         }
         else
         {
-          TRC_WARNING( "FRC_Ping: status NOK!" << NAME_PAR_HEX( "Status", status ) );
+          TRC_WARNING( "FRC_Ping: status NOK!" << NAME_PAR_HEX( "Status", (int)status ) );
           AutonetworkError error( AutonetworkError::Type::PrebondedAlive, "Bad FRC status." );
           autonetworkResult.setError( error );
-          THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( status ) );
+          THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( (int)status ) );
         }
       }
       catch ( std::exception& e )
@@ -1230,16 +1231,16 @@ namespace iqrf {
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if ( status <= 0xEF )
         {
-          TRC_INFORMATION( "FRC Prebonded Alive status OK." << NAME_PAR_HEX( "Status", status ) );
+          TRC_INFORMATION( "FRC Prebonded Alive status OK." << NAME_PAR_HEX( "Status", (int)status ) );
           TRC_FUNCTION_LEAVE( "" );
           return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
         }
         else
         {
-          TRC_WARNING( "FRC Prebonded Alive status NOK!" << NAME_PAR_HEX( "Status", status ) );
+          TRC_WARNING( "FRC Prebonded Alive status NOK!" << NAME_PAR_HEX( "Status", (int)status ) );
           AutonetworkError error( AutonetworkError::Type::PrebondedAlive, "Bad FRC status." );
           autonetworkResult.setError( error );
-          THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( status ) );
+          THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( (int)status ) );
         }
       }
       catch ( std::exception& e )
@@ -1318,7 +1319,7 @@ namespace iqrf {
           "DPA transaction: "
           << NAME_PAR( Peripheral type, runDiscoveryRequest.PeripheralType() )
           << NAME_PAR( Node address, runDiscoveryRequest.NodeAddress() )
-          << NAME_PAR( Command, runDiscoveryRequest.PeripheralCommand() )
+          << NAME_PAR( Command, (int)runDiscoveryRequest.PeripheralCommand() )
         );
         TRC_DEBUG( "Result from Run discovery transaction as string:" << PAR( transResult->getErrorString() ) );
         autonetworkResult.addTransactionResult( transResult );
@@ -1386,7 +1387,7 @@ namespace iqrf {
                 "DPA transaction: "
                 << NAME_PAR( Peripheral type, validateBondRequest.PeripheralType() )
                 << NAME_PAR( Node address, validateBondRequest.NodeAddress() )
-                << NAME_PAR( Command, validateBondRequest.PeripheralCommand() )
+                << NAME_PAR( Command, (int)validateBondRequest.PeripheralCommand() )
               );
             }
           }
@@ -1430,7 +1431,7 @@ namespace iqrf {
           "DPA transaction: "
           << NAME_PAR( Peripheral type, validateBondRequest.PeripheralType() )
           << NAME_PAR( Node address, validateBondRequest.NodeAddress() )
-          << NAME_PAR( Command, (unsigned)validateBondRequest.PeripheralCommand() )
+          << NAME_PAR( Command, (int)validateBondRequest.PeripheralCommand() )
         );
         TRC_FUNCTION_LEAVE( "" );
       }
@@ -1454,6 +1455,7 @@ namespace iqrf {
       {
         if ( antwProcessParams.networkNodes[address].mid.value == MID )
         {         
+          TRC_WARNING( "authorizeControl: duplicit MID found " << PAR( (int)antwProcessParams.networkNodes[address].mid.value ) );
           authorizeErr = TAuthorizeErr::eNodeBonded;
           bondAddr = address;
           return false;
@@ -1549,6 +1551,9 @@ namespace iqrf {
             break;
           case TWaveStateCode::sMaxEmptyWaves:
             sWaveState = "Maximum number of consecutive empty waves reached.";
+            break;
+          case TWaveStateCode::sMaxNewNodes:
+            sWaveState = "New nodes count were added into network.";
             break;
         }
         rapidjson::Pointer( "/data/rsp/waveState" ).Set( waveState, sWaveState );
@@ -1743,10 +1748,6 @@ namespace iqrf {
         // Main loop
         while ( waveRun )
         {
-          // Increment nodeSeed and countWave
-          nodeSeed++;
-          antwProcessParams.countWaves++;
-
           // Maximum waves reached ?
           if ( ( antwInputParams.stopConditions.waves != 0 ) && ( antwProcessParams.countWaves == antwInputParams.stopConditions.waves ) )
           {
@@ -1755,19 +1756,31 @@ namespace iqrf {
             break;
           }
 
-          // Maximum nodes bonded ?
-          if ( ( antwInputParams.stopConditions.networkSize != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.networkSize ) )
-          {
-            TRC_INFORMATION( "Maximum nodes is bonded." );
-            sendWaveState( TWaveStateCode::sMaxNodes );
-            break;
-          }
-
           // Maximum empty waves reached ?
           if ( ( antwInputParams.stopConditions.emptyWaves != 0 ) && ( antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves ) )
           {
             TRC_INFORMATION( "Maximum number of consecutive empty waves reached." );
             sendWaveState( TWaveStateCode::sMaxEmptyWaves );
+            break;
+          }
+           
+          // New nodes count added to into network ?
+          if ( ( antwInputParams.stopConditions.newNetworkNodes != 0 ) && ( antwProcessParams.countNewNodes >= antwInputParams.stopConditions.newNetworkNodes ) )
+          {
+            TRC_INFORMATION( "New nodes count were added into network." );
+            sendWaveState( TWaveStateCode::sMaxNewNodes );
+            break;
+          }
+
+          // Increment nodeSeed and countWaves
+          nodeSeed++;
+          antwProcessParams.countWaves++;
+
+          // Maximum nodes bonded ?
+          if ( ( antwInputParams.stopConditions.networkSize != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.networkSize ) )
+          {
+            TRC_INFORMATION( "Maximum nodes is bonded." );
+            sendWaveState( TWaveStateCode::sMaxNodes );
             break;
           }
 
@@ -1812,7 +1825,7 @@ namespace iqrf {
             // Increase empty wave counter
             antwProcessParams.countEmpty++;
             // Send result
-            sendWaveResult( autonetworkResult );
+            sendWaveResult( autonetworkResult );            
             // Next wave
             continue;
           }
@@ -1860,6 +1873,7 @@ namespace iqrf {
                       node.authorizeErr = TAuthorizeErr::eFRC;
                       n.second.authorizeErr = TAuthorizeErr::eFRC;
                       n.second.authorize = false;
+                      TRC_WARNING( "Reading prebonded MID: Duplicit MID " << PAR( node.mid.value ) << " detected." );
                     }
                   }
                 }
@@ -1875,6 +1889,7 @@ namespace iqrf {
               {
                 // Node didn't respond to prebondedMemoryRead plus 1 
                 node.authorizeErr = TAuthorizeErr::eFRC;
+                TRC_WARNING( "Reading prebonded MID: Node " << PAR( (int)node.node ) << " doesn't respond to FRC." );
               }
 
               if ( node.authorizeErr == TAuthorizeErr::eNodeBonded )
@@ -1945,6 +1960,7 @@ namespace iqrf {
                   {
                     // Node didn't respond to prebondedMemoryRead plus 1 
                     node.authorizeErr = TAuthorizeErr::eFRC;
+                    TRC_WARNING( "Reading prebonded HWPID: Node " << PAR( (int)node.node ) << " doesn't respond to FRC." );
                   }
 
                   if ( node.authorizeErr == TAuthorizeErr::eNodeBonded )
@@ -2073,6 +2089,7 @@ namespace iqrf {
                     {
                       // Add node to FrcOnlineNodes list
                       FrcOfflineNodes.push_back( address );
+                      TRC_WARNING( "FRC_Ping: Node " << PAR( (int)address ) << " is offline." );
                     }
                     else
                     {
@@ -2124,8 +2141,12 @@ namespace iqrf {
                   }
                   catch ( std::exception& ex )
                   {
-                    TRC_WARNING( "Removing the bond " << PAR( address ) << " at [C] error: " << ex.what() );
+                    TRC_WARNING( "Removing the bond " << PAR( (int)address ) << " at [C] error: " << ex.what() );
                   }
+                }
+                else
+                {
+                  TRC_WARNING( "Remove not responded nodes: Node " << PAR( (int)address ) << " doesn't respond to FRC." );
                 }
               }
             }
@@ -2172,7 +2193,7 @@ namespace iqrf {
                 }
                 catch ( std::exception& ex )
                 {
-                  TRC_WARNING( "Removing the bond " << PAR( address ) << " at [C] error: " << ex.what() );
+                  TRC_WARNING( "Removing the bond " << PAR( (int)address ) << " at [C] error: " << ex.what() );
                 }
               }
             }
@@ -2185,8 +2206,8 @@ namespace iqrf {
           // TestCase - overit chovani clearDuplicitMID
           clearDuplicitMID( autonetworkResult );
 
-          // Discovery requested ?
-          if ( antwInputParams.discovery == true )
+          // Skip discovery in each wave ?
+          if ( antwInputParams.skipDiscoveryEachWave == false )
           {
             if ( ( antwProcessParams.countWaveNewNodes != 0 ) || ( MIDUnbondOnlyC == true ) )
             {
