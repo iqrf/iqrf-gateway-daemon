@@ -35,9 +35,9 @@
               "description": "Run discovery before start.",
               "default": false
             },
-            "discovery": {
+            "skipDiscoveryEachWave": {
               "type": "boolean",
-              "description": "Run discovery in each wave.",
+              "description": "Skip discovery in each wave.",
               "default": false
             },
             "actionRetries": {
