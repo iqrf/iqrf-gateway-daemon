@@ -8,7 +8,7 @@ sudo apt-get install dirmngr apt-transport-https \
 && sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
 && echo "deb https://repos.iqrf.org/debian stretch stable testing" | sudo tee -a /etc/apt/sources.list \
 && sudo apt-get update \
-&& sudo apt-get install cmake libssl-dev zlib1g-dev libcurl4-openssl-dev libcpaho-mqtt-dev libboost-filesystem-dev libsqlite3-dev
+&& sudo apt-get install cmake libssl-dev zlib1g-dev libcurl4-openssl-dev libcpaho-mqtt-dev libboost-filesystem-dev libsqlite3-dev libzmqpp-dev
 
 FOLDERS STRUCTURE
 =================

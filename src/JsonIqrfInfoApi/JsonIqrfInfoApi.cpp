@@ -6,6 +6,7 @@
 #include "rapidjson/istreamwrapper.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/prettywriter.h"
+#include "JsonUtils.h"
 #include "Trace.h"
 #include <algorithm>
 #include <fstream>
@@ -32,9 +33,13 @@ namespace iqrf {
     const std::string mType_GetDalis = "infoDaemon_GetDalis";
     const std::string mType_GetLights = "infoDaemon_GetLights";
     const std::string mType_GetNodes = "infoDaemon_GetNodes";
-    const std::string mType_StartEnumeration = "infoDaemon_StartEnumeration";
+    const std::string mType_Enumeration = "infoDaemon_Enumeration";
+    const std::string mType_MidMetaDataAnnotate = "infoDaemon_MidMetaDataAnnotate";
+    const std::string mType_GetMidMetaData = "infoDaemon_GetMidMetaData";
+    const std::string mType_SetMidMetaData = "infoDaemon_SetMidMetaData";
     const std::string mType_GetNodeMetaData = "infoDaemon_GetNodeMetaData";
     const std::string mType_SetNodeMetaData = "infoDaemon_SetNodeMetaData";
+    const std::string mType_OrphanedMids = "infoDaemon_OrphanedMids";
 
     /////////// message classes declarations
     class InfoDaemonMsg : public ApiMsg
@@ -64,12 +69,14 @@ namespace iqrf {
       void setMetaDataApi(JsonIqrfInfoApi::Imp* imp) // store for later use in response
       {
         m_iMetaDataApi = imp->getMetadataApi();
+        m_imp = imp;
       }
 
       virtual void handleMsg(JsonIqrfInfoApi::Imp* imp) = 0;
 
     protected:
       IMetaDataApi* m_iMetaDataApi = nullptr;
+      Imp * m_imp = nullptr;
     };
 
     //////////////////////////////////////////////
@@ -123,9 +130,17 @@ namespace iqrf {
           Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/sensors").Set(devVal, sensorsVal, a);
 
+          // old metadata
           if (m_iMetaDataApi) {
             if (m_iMetaDataApi->iSmetaDataToMessages()) {
               Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
+
+          // db metadata
+          if (m_imp) {
+            if (m_imp->getMidMetaDataAnnotate()) {
+              Pointer("/midMetaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
             }
           }
 
@@ -179,9 +194,17 @@ namespace iqrf {
           Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/binOuts").Set(devVal, enm.second->getBinaryOutputsNum(), a);
 
+          // old metadata
           if (m_iMetaDataApi) {
             if (m_iMetaDataApi->iSmetaDataToMessages()) {
               Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
+
+          // db metadata
+          if (m_imp) {
+            if (m_imp->getMidMetaDataAnnotate()) {
+              Pointer("/midMetaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
             }
           }
 
@@ -234,9 +257,17 @@ namespace iqrf {
           int nadr = enm.first;
           Pointer("/nAdr").Set(devVal, nadr, a);
 
+          // old metadata
           if (m_iMetaDataApi) {
             if (m_iMetaDataApi->iSmetaDataToMessages()) {
               Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
+
+          // db metadata
+          if (m_imp) {
+            if (m_imp->getMidMetaDataAnnotate()) {
+              Pointer("/midMetaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
             }
           }
 
@@ -290,9 +321,17 @@ namespace iqrf {
           Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/lights").Set(devVal, enm.second->getLightsNum(), a);
 
+          // old metadata
           if (m_iMetaDataApi) {
             if (m_iMetaDataApi->iSmetaDataToMessages()) {
               Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
+
+          // db metadata
+          if (m_imp) {
+            if (m_imp->getMidMetaDataAnnotate()) {
+              Pointer("/midMetaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
             }
           }
 
@@ -351,9 +390,17 @@ namespace iqrf {
           Pointer("/osBuild").Set(devVal, enm.second->getOsBuild(), a);
           Pointer("/dpaVer").Set(devVal, enm.second->getDpaVer(), a);
 
+          // old metadata
           if (m_iMetaDataApi) {
             if (m_iMetaDataApi->iSmetaDataToMessages()) {
               Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
+            }
+          }
+
+          // db metadata
+          if (m_imp) {
+            if (m_imp->getMidMetaDataAnnotate()) {
+              Pointer("/midMetaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
             }
           }
 
@@ -380,33 +427,232 @@ namespace iqrf {
     };
 
     //////////////////////////////////////////////
-    class InfoDaemonMsgStartEnumeration : public InfoDaemonMsg
+    class InfoDaemonMsgEnumeration : public InfoDaemonMsg
     {
     public:
-      InfoDaemonMsgStartEnumeration() = delete;
-      InfoDaemonMsgStartEnumeration(const rapidjson::Document& doc)
+      enum class Cmd {
+        Unknown,
+        Start,
+        Stop,
+        GetPeriod,
+        SetPeriod,
+        Now
+      };
+
+      class CmdConvertTable
+      {
+      public:
+        static const std::vector<std::pair<Cmd, std::string>>& table()
+        {
+          static std::vector <std::pair<Cmd, std::string>> table = {
+            { Cmd::Unknown, "unknown" },
+            { Cmd::Start, "start" },
+            { Cmd::Stop, "stop" },
+            { Cmd::GetPeriod, "getPeriod" },
+            { Cmd::SetPeriod, "setPeriod" },
+            { Cmd::Now, "now" }
+          };
+          return table;
+        }
+        static Cmd defaultEnum()
+        {
+          return Cmd::Unknown;
+        }
+        static const std::string& defaultStr()
+        {
+          static std::string u("unknown");
+          return u;
+        }
+      };
+      typedef shape::EnumStringConvertor<Cmd, CmdConvertTable> CmdStringConvertor;
+
+      InfoDaemonMsgEnumeration() = delete;
+      InfoDaemonMsgEnumeration(const rapidjson::Document& doc)
         :InfoDaemonMsg(doc)
       {
+        using namespace rapidjson;
+        std::string cmd = Pointer("/data/req/command").Get(doc)->GetString();
+        m_command = CmdStringConvertor::str2enum(cmd);
+        if (m_command == Cmd::Unknown) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Unknown command: " << cmd);
+        }
+
+        const Value *val = Pointer("/data/req/period").Get(doc);
+        if (val && val->IsInt()) {
+          m_period = val->GetInt();
+        }
       }
 
-      virtual ~InfoDaemonMsgStartEnumeration()
+      virtual ~InfoDaemonMsgEnumeration()
       {
       }
 
       void createResponsePayload(rapidjson::Document& doc) override
       {
         InfoDaemonMsg::createResponsePayload(doc);
+        Document::AllocatorType & a = doc.GetAllocator();
+        Pointer("/data/rsp/command").Set(doc, CmdStringConvertor::enum2str(m_command), a);
+        if (m_command == Cmd::GetPeriod || m_command == Cmd::SetPeriod) {
+          Pointer("/data/rsp/period").Set(doc, m_period, a);
+        }
       }
 
       void handleMsg(JsonIqrfInfoApi::Imp* imp) override
       {
         TRC_FUNCTION_ENTER("");
-        imp->startEnumeration();
+        switch (m_command) {
+        case Cmd::Start:
+          imp->startEnumeration();
+          break;
+        case Cmd::Stop:
+          imp->stopEnumeration();
+          break;
+        case Cmd::GetPeriod:
+          m_period = imp->getPeriodEnumeration();
+          break;
+        case Cmd::SetPeriod:
+          imp->setPeriodEnumeration(m_period);
+          break;
+        case Cmd::Now:
+          imp->enumerate();
+          break;
+        default: 
+          ;
+        }
+        TRC_FUNCTION_LEAVE("");
+      }
+
+      Cmd getCommand() const { return m_command; }
+      int getPeriod() const { return m_period; }
+
+    private:
+      Cmd m_command = Cmd::Start;
+      int m_period = 0;
+    };
+
+    //////////////////////////////////////////////
+    class InfoDaemonMsgMidMetaDataAnnotate : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgMidMetaDataAnnotate() = delete;
+      InfoDaemonMsgMidMetaDataAnnotate(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+        using namespace rapidjson;
+        m_annotate = Pointer("/data/req/annotate").Get(doc)->GetBool();
+      }
+
+      virtual ~InfoDaemonMsgMidMetaDataAnnotate()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        using namespace rapidjson;
+        Document::AllocatorType & a = doc.GetAllocator();
+        Pointer("/data/rsp/annotate").Set(doc, m_annotate, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+        imp->setMidMetaDataAnnotate(m_annotate);
         TRC_FUNCTION_LEAVE("");
       }
 
     private:
-      std::map<int, binaryoutput::EnumeratePtr> m_enmMap;
+      bool m_annotate;
+    };
+
+    //////////////////////////////////////////////
+    class InfoDaemonMsgGetMidMetaData : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgGetMidMetaData() = delete;
+      InfoDaemonMsgGetMidMetaData(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+        using namespace rapidjson;
+        const Value * midVal = Pointer("/data/req/mid").Get(doc);
+        if (!midVal->IsUint()) {
+          int64_t bad_mid = midVal->GetInt64();
+          THROW_EXC_TRC_WAR(std::logic_error, "Passed value is not valid: " << PAR(bad_mid));
+        }
+        m_mid = midVal->GetUint();
+      }
+
+      virtual ~InfoDaemonMsgGetMidMetaData()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        using namespace rapidjson;
+        Document::AllocatorType & a = doc.GetAllocator();
+        Pointer("/data/rsp/mid").Set(doc, m_mid, a);
+        Pointer("/data/rsp/metaData").Set(doc, m_metaData, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+        m_metaData.CopyFrom(imp->getMidMetaData(m_mid), m_metaData.GetAllocator());
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      uint32_t m_mid;
+      rapidjson::Document m_metaData;
+    };
+
+    //////////////////////////////////////////////
+    class InfoDaemonMsgSetMidMetaData : public InfoDaemonMsg
+    {
+    public:
+      InfoDaemonMsgSetMidMetaData() = delete;
+      InfoDaemonMsgSetMidMetaData(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+        using namespace rapidjson;
+        const Value * midVal = Pointer("/data/req/mid").Get(doc);
+        if (!midVal->IsUint()) {
+          int64_t bad_mid = midVal->GetInt64();
+          THROW_EXC_TRC_WAR(std::logic_error, "Passed value is not valid: " << PAR(bad_mid));
+        }
+        m_mid = midVal->GetUint();
+
+        const Value *val = Pointer("/data/req/metaData").Get(doc);
+        m_metaDataDoc.CopyFrom(*val, m_metaDataDoc.GetAllocator());
+      }
+
+      virtual ~InfoDaemonMsgSetMidMetaData()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        using namespace rapidjson;
+        Document::AllocatorType & a = doc.GetAllocator();
+        Pointer("/data/rsp/mid").Set(doc, m_mid, a);
+        Pointer("/data/rsp/metaData").Set(doc, m_metaDataDoc, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+        imp->setMidMetaData(m_mid, m_metaDataDoc);
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      uint32_t m_mid;
+      rapidjson::Document m_metaDataDoc;
     };
 
     //////////////////////////////////////////////
@@ -487,6 +733,106 @@ namespace iqrf {
       rapidjson::Document m_metaDataDoc;
     };
 
+    //////////////////////////////////////////////
+    class InfoDaemonMsgOrphanedMids : public InfoDaemonMsg
+    {
+    public:
+      enum class Cmd {
+        Unknown,
+        Get,
+        Remove,
+      };
+
+      class CmdConvertTable
+      {
+      public:
+        static const std::vector<std::pair<Cmd, std::string>>& table()
+        {
+          static std::vector <std::pair<Cmd, std::string>> table = {
+            { Cmd::Unknown, "unknown" },
+            { Cmd::Get, "get" },
+            { Cmd::Remove, "remove" },
+          };
+          return table;
+        }
+        static Cmd defaultEnum()
+        {
+          return Cmd::Unknown;
+        }
+        static const std::string& defaultStr()
+        {
+          static std::string u("unknown");
+          return u;
+        }
+      };
+      typedef shape::EnumStringConvertor<Cmd, CmdConvertTable> CmdStringConvertor;
+
+      InfoDaemonMsgOrphanedMids() = delete;
+      InfoDaemonMsgOrphanedMids(const rapidjson::Document& doc)
+        :InfoDaemonMsg(doc)
+      {
+        using namespace rapidjson;
+
+        std::string cmd = Pointer("/data/req/command").Get(doc)->GetString();
+        m_command = CmdStringConvertor::str2enum(cmd);
+        if (m_command == Cmd::Unknown) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Unknown command: " << cmd);
+        }
+
+        const Value * midsVal = Pointer("/data/req/mids").Get(doc);
+        if (midsVal && midsVal->IsArray()) {
+          for (auto itr = midsVal->Begin(); itr != midsVal->End(); ++itr) {
+            if (!itr->IsUint()) {
+              int64_t bad_mid = itr->GetInt64();
+              THROW_EXC_TRC_WAR(std::logic_error, "Passed value is not valid: " << PAR(bad_mid));
+            }
+            m_mids.push_back(itr->GetUint());
+          }
+        }
+      }
+
+      virtual ~InfoDaemonMsgOrphanedMids()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        using namespace rapidjson;
+        Document::AllocatorType & a = doc.GetAllocator();
+
+        Pointer("/data/rsp/command").Set(doc, CmdStringConvertor::enum2str(m_command), a);
+
+        Value midsVal;
+        midsVal.SetArray();
+        for (auto mid : m_mids) {
+          midsVal.PushBack(mid, a);
+        }
+        Pointer("/data/rsp/mids").Set(doc, midsVal, a);
+
+        InfoDaemonMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonIqrfInfoApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+        switch (m_command) {
+        case Cmd::Get:
+          m_mids = imp->getUnbondMids();
+          break;
+        case Cmd::Remove:
+          imp->removeUnbondMids(m_mids);
+          break;
+        default:
+          ;
+        }
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      std::vector<uint32_t> m_mids;
+      Cmd m_command;
+    };
+
   ///////////////////// Imp members
   private:
 
@@ -495,7 +841,6 @@ namespace iqrf {
     IIqrfInfo* m_iIqrfInfo = nullptr;
     ObjectFactory<InfoDaemonMsg, rapidjson::Document&> m_objectFactory;
 
-    // TODO from cfg
     std::vector<std::string> m_filters =
     {
       "infoDaemon_",
@@ -509,9 +854,13 @@ namespace iqrf {
       m_objectFactory.registerClass<InfoDaemonMsgGetDalis>(mType_GetDalis);
       m_objectFactory.registerClass<InfoDaemonMsgGetLights>(mType_GetLights);
       m_objectFactory.registerClass <InfoDaemonMsgGetNodes>(mType_GetNodes);
-      m_objectFactory.registerClass<InfoDaemonMsgStartEnumeration>(mType_StartEnumeration);
+      m_objectFactory.registerClass<InfoDaemonMsgEnumeration>(mType_Enumeration);
+      m_objectFactory.registerClass<InfoDaemonMsgMidMetaDataAnnotate>(mType_MidMetaDataAnnotate);
+      m_objectFactory.registerClass<InfoDaemonMsgGetMidMetaData>(mType_GetMidMetaData);
+      m_objectFactory.registerClass<InfoDaemonMsgSetMidMetaData>(mType_SetMidMetaData);
       m_objectFactory.registerClass<InfoDaemonMsgGetNodeMetaData>(mType_GetNodeMetaData);
       m_objectFactory.registerClass<InfoDaemonMsgSetNodeMetaData>(mType_SetNodeMetaData);
+      m_objectFactory.registerClass<InfoDaemonMsgOrphanedMids>(mType_OrphanedMids);
     }
 
     ~Imp()
@@ -586,6 +935,56 @@ namespace iqrf {
     void startEnumeration()
     {
       m_iIqrfInfo->startEnumeration();
+    }
+
+    void stopEnumeration()
+    {
+      m_iIqrfInfo->stopEnumeration();
+    }
+
+    int getPeriodEnumeration()
+    {
+      return m_iIqrfInfo->getPeriodEnumerate();
+    }
+
+    void setPeriodEnumeration(int period)
+    {
+      m_iIqrfInfo->setPeriodEnumerate(period);
+    }
+    
+    void enumerate()
+    {
+      m_iIqrfInfo->enumerate();
+    }
+
+    std::vector<uint32_t> getUnbondMids() const
+    {
+      return m_iIqrfInfo->getUnbondMids();
+    }
+
+    void removeUnbondMids(std::vector<uint32_t> unbondVec)
+    {
+      m_iIqrfInfo->removeUnbondMids(unbondVec);
+    }
+
+    bool getMidMetaDataAnnotate() const
+    {
+      return m_iIqrfInfo->getMidMetaDataToMessages();
+    }
+
+    void setMidMetaDataAnnotate(bool val) const
+    {
+      return m_iIqrfInfo->setMidMetaDataToMessages(val);
+    }
+
+    rapidjson::Document getMidMetaData(uint32_t mid) const
+    {
+      return m_iIqrfInfo->getMidMetaData(mid);
+    }
+
+    void setMidMetaData(uint32_t mid, const rapidjson::Value & metaData)
+    {
+      m_iIqrfInfo->setMidMetaData(mid, metaData);
     }
 
     rapidjson::Document getNodeMetaData(int nadr) const

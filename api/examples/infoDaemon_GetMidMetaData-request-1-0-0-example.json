@@ -1,0 +1,10 @@
+{
+    "mType": "infoDaemon_GetMidMetaData",
+    "data": {
+        "msgId": "testGetMidMetaData",
+        "req": {
+          "mid":2165408701
+        },
+        "returnVerbose": true
+    }
+}

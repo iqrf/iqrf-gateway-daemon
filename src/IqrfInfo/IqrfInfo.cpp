@@ -202,7 +202,7 @@ namespace iqrf {
     bool m_enumAtStartUp = false;
     bool m_enumUniformDpaVer = false;
 
-    bool m_enumPeriod = 0;
+    int m_enumPeriod = 0;
     std::thread m_enumThread;
     std::atomic_bool m_enumThreadRun;
     std::mutex m_enumMtx;
@@ -210,6 +210,9 @@ namespace iqrf {
 
     // rerun enum
     std::atomic<bool> m_repeatEnum;
+
+    // flag to control if messages are anotaded by metadata 
+    bool m_midMetaDataToMessages = false;
 
   public:
     Imp()
@@ -1969,7 +1972,6 @@ namespace iqrf {
       return retval;
     }
 
-    //TODO API
     void startEnumeration()
     {
       TRC_FUNCTION_ENTER("");
@@ -1983,7 +1985,6 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    //TODO API
     void stopEnumeration()
     {
       TRC_FUNCTION_ENTER("");
@@ -1996,7 +1997,6 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    //TODO API
     void enumerate()
     {
       TRC_FUNCTION_ENTER("");
@@ -2008,21 +2008,65 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    //TODO API
-    void refreshEnumerate()
+    int getPeriodEnumerate()
     {
-      TRC_FUNCTION_ENTER("");
-      stopEnumeration();
-      //TODO implement, API
-      //delete and recreate DB
-      TRC_FUNCTION_LEAVE("")
+      return m_enumPeriod;
     }
 
-    //TODO API
-    // get non enumerated nodes
+    void setPeriodEnumerate(int period)
+    {
+      m_enumPeriod = period;
+    }
+    
+    std::vector<uint32_t> getUnbondMids() const
+    {
+      TRC_FUNCTION_ENTER("");
 
-    //TODO API
-    // remove unbond nodes from DB - nodes are not by default deleted if unbonded
+      std::vector<uint32_t> retval;
+
+      *m_db << "select n.mid from Node as n where n.mid not in(select b.mid from Bonded as b);"
+        >> [&](int mid)
+      {
+        retval.push_back(mid);
+      };
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
+    void removeUnbondMids(const std::vector<uint32_t> & unbondVec)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      database & db = *m_db;
+      uint32_t mid = 0;
+      try {
+        db << "begin;";
+
+        for (uint32_t m : unbondVec) {
+          mid = m;
+          int cnt = 0;
+          db << "select count(*) from node where mid = ?;" << mid >> cnt;
+          if (cnt == 0) {
+            THROW_EXC_TRC_WAR(std::logic_error, "Passed mid value does not exist: " << mid);
+          }
+          db << "delete from Node where mid = ?;" << mid;
+        }
+
+        db << "commit;";
+      }
+      catch (sqlite::sqlite_exception &e)
+      {
+        db << "rollback;";
+        CATCH_EXC_TRC_WAR(sqlite_exception, e, "Cannot delete: " << PAR(mid) << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+        throw;
+      }
+      catch (...) {
+        db << "rollback;";
+        throw;
+      }
+      TRC_FUNCTION_LEAVE("");
+    }
 
     // analyze incoming DPA responses. If there is a msg with influence to DB cahed data it starts enum
     // it is hooked to IqrfDpa via callback
@@ -2064,6 +2108,85 @@ namespace iqrf {
         //  TRC_INFORMATION("exclusive access detected => enum waits ... ");
         //}
       }
+    }
+
+    bool getMidMetaDataToMessages() const
+    {
+      return m_midMetaDataToMessages;
+    }
+
+    void setMidMetaDataToMessages(bool val)
+    {
+      m_midMetaDataToMessages = val;
+    }
+
+    rapidjson::Document getMidMetaData(uint32_t mid) const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      std::unique_ptr<std::string> metaDataPtr;
+      int count;
+      database & db = *m_db;
+
+      db <<
+        "select "
+        " n.metaData "
+        " , count(*) "
+        " from "
+        " Node as n "
+        " where "
+        " n.mid = ? "
+        ";"
+        << mid
+        >> tie(metaDataPtr, count)
+        ;
+
+      rapidjson::Document doc;
+
+      if (count > 0) {
+        if (metaDataPtr) {
+
+          doc.Parse(*metaDataPtr);
+
+          if (doc.HasParseError()) {
+            THROW_EXC_TRC_WAR(std::logic_error, "Json parse error in metadata: " << NAME_PAR(emsg, doc.GetParseError()) <<
+              NAME_PAR(eoffset, doc.GetErrorOffset()));
+          }
+        }
+      }
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Mid does not exist: " << PAR(mid));
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return doc;
+    }
+
+    void setMidMetaData(uint32_t mid, const rapidjson::Value & metaData)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      rapidjson::StringBuffer buffer;
+      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+      metaData.Accept(writer);
+      std::string md = buffer.GetString();
+
+      int count;
+      database & db = *m_db;
+
+      db << "select count(*) from Node where mid = ? ;"
+        << mid
+        >> count
+        ;
+
+      if (count > 0) {
+        *m_db << "update Node set metaData = ? where mid = ?;" << md << mid;
+      }
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Mid does not exist: " << PAR(mid));
+      }
+
+      TRC_FUNCTION_LEAVE("");
     }
 
     rapidjson::Document getNodeMetaData(int nadr) const
@@ -2119,7 +2242,29 @@ namespace iqrf {
       metaData.Accept(writer);
       std::string md = buffer.GetString();
 
-      *m_db << "update Node set metaData = ? where mid = (select mid from Bonded where nadr = ?);" << md << nadr;
+      int count;
+      database & db = *m_db;
+
+      db <<
+        "select "
+        " count(*) "
+        "from "
+        "Bonded as b "
+        ", Node as n "
+        "where "
+        "n.mid = b.mid "
+        "and b.nadr = ? "
+        ";"
+        << nadr
+        >> count
+        ;
+
+      if (count > 0) {
+        *m_db << "update Node set metaData = ? where mid = (select mid from Bonded where nadr = ?);" << md << nadr;
+      }
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Nadr is not bonded: " << PAR(nadr));
+      }
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -2312,7 +2457,57 @@ namespace iqrf {
 
   void IqrfInfo::startEnumeration()
   {
-    return m_imp->startEnumeration();
+    m_imp->startEnumeration();
+  }
+
+  void IqrfInfo::stopEnumeration()
+  {
+    m_imp->stopEnumeration();
+  }
+  
+  void IqrfInfo::enumerate()
+  {
+    m_imp->enumerate();
+  }
+
+  int IqrfInfo::getPeriodEnumerate() const
+  {
+    return m_imp->getPeriodEnumerate();
+  }
+
+  void IqrfInfo::setPeriodEnumerate(int period)
+  {
+    m_imp->setPeriodEnumerate(period);
+  }
+  
+  std::vector<uint32_t> IqrfInfo::getUnbondMids() const
+  {
+    return m_imp->getUnbondMids();
+  }
+  
+  void IqrfInfo::removeUnbondMids(const std::vector<uint32_t> & unbondVec)
+  {
+    m_imp->removeUnbondMids(unbondVec);
+  }
+
+  bool IqrfInfo::getMidMetaDataToMessages() const
+  {
+    return m_imp->getMidMetaDataToMessages();
+  }
+
+  void IqrfInfo::setMidMetaDataToMessages(bool val)
+  {
+    m_imp->setMidMetaDataToMessages(val);
+  }
+
+  rapidjson::Document IqrfInfo::getMidMetaData(uint32_t mid) const
+  {
+    return m_imp->getMidMetaData(mid);
+  }
+
+  void IqrfInfo::setMidMetaData(uint32_t mid, const rapidjson::Value & metaData)
+  {
+    m_imp->setMidMetaData(mid, metaData);
   }
 
   rapidjson::Document IqrfInfo::getNodeMetaData(int nadr) const

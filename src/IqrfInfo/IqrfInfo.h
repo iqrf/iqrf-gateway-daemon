@@ -20,8 +20,30 @@ namespace iqrf {
     std::map<int, dali::EnumeratePtr> getDalis() const override;
     std::map<int, light::EnumeratePtr> getLights() const override;
     std::map<int, embed::node::BriefInfoPtr> getNodes() const override;
+    
     void insertNodes(const std::map<int, embed::node::BriefInfo> & nodes) override;
+
+    // start enumeration thread
     void startEnumeration() override;
+    // stop enumeration thread
+    void stopEnumeration() override;
+    // stop enumerate now (must be started to take effect)
+    void enumerate() override;
+    // get enumeration period
+    int getPeriodEnumerate() const override;
+    // set enumeration period (must be started to take periodic effect)
+    void setPeriodEnumerate(int period) override;
+    // get non bonded nodes
+    std::vector<uint32_t> getUnbondMids() const override;
+    // remove unbond nodes from DB - nodes are not by default deleted if unbonded
+    void removeUnbondMids(const std::vector<uint32_t> & unbondVec) override;
+
+    bool getMidMetaDataToMessages() const override;
+    void setMidMetaDataToMessages(bool val) override;
+
+    rapidjson::Document getMidMetaData(uint32_t mid) const override;
+    void setMidMetaData(uint32_t mid, const rapidjson::Value & metaData) override;
+
     rapidjson::Document getNodeMetaData(int nadr) const override;
     void setNodeMetaData(int nadr, const rapidjson::Value & metaData) override;
 

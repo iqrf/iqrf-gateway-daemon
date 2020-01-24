@@ -62,10 +62,18 @@ namespace iqrf {
       m_payloadOnlyForVerbose = onlyForVerbose;
     }
 
+    // old metdata
     void setMetaData(const rapidjson::Value& val)
     {
       m_appendMetaData = true;
       m_metaData.CopyFrom(val, m_metaData.GetAllocator());
+    }
+
+    //db metadata
+    void setMidMetaData(const rapidjson::Value& val)
+    {
+      m_appendMidMetaData = true;
+      m_midMetaData.CopyFrom(val, m_midMetaData.GetAllocator());
     }
 
     virtual ~ComIqrfStandard()
@@ -87,6 +95,9 @@ namespace iqrf {
       if (m_appendMetaData) {
         Pointer("/data/rsp/metaData").Set(doc, m_metaData);
       }
+      if (m_appendMidMetaData) {
+        Pointer("/data/rsp/midMetaData").Set(doc, m_midMetaData);
+      }
     }
 
   private:
@@ -97,7 +108,9 @@ namespace iqrf {
     rapidjson::Document m_payload;
     bool m_payloadOnlyForVerbose = true;
     bool m_appendMetaData = false;
+    bool m_appendMidMetaData = false;
     rapidjson::Document m_metaData;
+    rapidjson::Document m_midMetaData;
   };
 
 }

@@ -1,0 +1,32 @@
+{
+    "mType": "infoDaemon_GetMidMetaData",
+    "data": {
+        "msgId": "testGetMidMetaData",
+        "rsp": {
+            "mid": 2165408701,
+            "metaData": {
+                "sensor": {
+                    "user": {
+                        "name": "manager"
+                    },
+                    "location": {
+                        "building": "a1",
+                        "floor": 1,
+                        "room": 1,
+                        "gw": 1
+                    },
+                    "identification": {
+                        "name": "s1",
+                        "measure_number": 159,
+                        "manufacturer": "xyz",
+                        "serial_number": 753
+                    }
+                }
+            }
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
+

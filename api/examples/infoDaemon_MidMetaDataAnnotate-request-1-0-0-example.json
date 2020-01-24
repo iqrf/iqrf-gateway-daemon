@@ -1,0 +1,10 @@
+{
+    "mType": "infoDaemon_MidMetaDataAnnotate",
+    "data": {
+        "msgId": "testMidMetaDataAnnotate",
+        "req": {
+	    "annotate": true
+	},
+        "returnVerbose": true
+    }
+}
