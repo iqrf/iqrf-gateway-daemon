@@ -854,7 +854,14 @@ namespace iqrf {
         THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
       }
 
+      std::ostringstream auxtrc;
+
       for (auto & pck : m_packageMap) { // 1
+
+        auxtrc << std::endl
+          << NAME_PAR(package, pck.first) << NAME_PAR(os, pck.second.m_os) << NAME_PAR(dpa, pck.second.m_dpa)
+          << NAME_PAR(hwpid, pck.second.m_hwpid) << NAME_PAR(hwpidVer, pck.second.m_hwpidVer)
+          << std::endl << "    standards: ";
 
         std::ostringstream os;
         os << PACKAGES_URL << '/' << pck.first;
@@ -880,6 +887,10 @@ namespace iqrf {
                   const StdDriver* stdDrv = getStandard(standardId, static_cast<int>(version));
                   if (stdDrv) {
                     pck.second.m_stdDriverVect.push_back(stdDrv);
+                    auxtrc << '[' << standardId << ',' << (int)version << "], ";
+                  }
+                  else {
+                    auxtrc << '[' << standardId << ',' << (int)version << ", N/F], ";
                   }
                 }
                 pck.second.m_valid = true;
@@ -900,6 +911,8 @@ namespace iqrf {
           THROW_EXC(std::logic_error, "file not exist " << PAR(fname));
         }
       } // for 1
+
+      TRC_INFORMATION("loaded packages: " << std::endl << auxtrc.str());
 
       for (auto & pck : m_packageMap) { // 2
 
