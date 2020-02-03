@@ -38,6 +38,7 @@ namespace iqrf
           m_dpaVer = (int)resp.DpaVersion;
           m_perNr = (int)resp.UserPerNr;
           m_embedPer = bitmapToIndexes(resp.EmbeddedPers, 0, 3, 0);
+          m_hwpidEnm = (int)resp.HWPID;
           m_hwpid = (int)resp.HWPID;
           m_hwpidVer = (int)resp.HWPIDver;
           m_flags = (int)resp.Flags;

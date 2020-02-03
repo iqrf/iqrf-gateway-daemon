@@ -611,7 +611,7 @@ namespace iqrf {
             std::set<int> leftHwpidEnum(nadrEnumSet);
 
           if (m_nadrInsertNodeMap.size() > 0) {
-            TRC_DEBUG("Detected nadr map of nodes from AN: " << PAR(m_nadrInsertNodeMap.size()))
+            TRC_INFORMATION("Detected nadr map of nodes from AN: " << PAR(m_nadrInsertNodeMap.size()))
 
               for (auto & it : m_nadrFullEnumNodeMap) {
                 int nadr = it.first;
@@ -627,18 +627,18 @@ namespace iqrf {
                 }
               }
 
-            TRC_DEBUG("Something left to be Hwpid enumerated after AN: " << PAR(leftHwpidEnum.size()))
+            TRC_INFORMATION("Something left to be Hwpid enumerated after AN: " << PAR(leftHwpidEnum.size()))
           }
 
           if (leftHwpidEnum.size() > 0) { // nothing to reuse go for FRC
 
-            TRC_DEBUG("Start Hwpid enumeration");
+            TRC_INFORMATION("Start Hwpid enumeration");
 
             uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, HWPID);
             iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO, true); //value += 1
 
             for (const auto & s : setVect) {
-              TRC_DEBUG("Preparing 4B FRC to get HWPID for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
+              TRC_INFORMATION("Preparing 4B FRC to get HWPID for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
 
               frc.setSelectedNodes(s);
               frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
@@ -704,13 +704,13 @@ namespace iqrf {
         anyValid = false;
         { // read DpaVersion + 2B
 
-          TRC_DEBUG("Start DpaVer enumeration");
+          TRC_INFORMATION("Start DpaVer enumeration");
 
           uint16_t address = CBUFFER + (uint16_t)offsetof(TEnumPeripheralsAnswer, DpaVersion);
           iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_ENUMERATION, CMD_GET_PER_INFO, false);
 
           for (const auto & s : setVect) {
-            TRC_DEBUG("Preparing 4B FRC to get DpaVer for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
+            TRC_INFORMATION("Preparing 4B FRC to get DpaVer for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
 
             frc.setSelectedNodes(s);
             frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
@@ -759,13 +759,13 @@ namespace iqrf {
         anyValid = false;
         { // read OsBuild + 2B 
 
-          TRC_DEBUG("Start OsBuild enumeration");
+          TRC_INFORMATION("Start OsBuild enumeration");
 
           uint16_t address = CBUFFER + (uint16_t)offsetof(TPerOSRead_Response, OsBuild);
           iqrf::embed::frc::rawdpa::MemoryRead4B frc(address, PNUM_OS, CMD_OS_READ, false);
 
           for (const auto & s : setVect) {
-            TRC_DEBUG("Preparing 4B FRC to get OsBuild for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
+            TRC_INFORMATION("Preparing 4B FRC to get OsBuild for selected nodes: " << NAME_PAR(first, *s.begin()) << NAME_PAR(last, *s.rbegin()));
 
             frc.setSelectedNodes(s);
             frc.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(frc.getRequest())->get());
@@ -820,11 +820,15 @@ namespace iqrf {
       if (m_enumUniformDpaVer) {
         // dpaVer and osBuild set according C
         auto cp = m_iIqrfDpaService->getCoordinatorParameters();
+        TRC_INFORMATION(PAR(m_enumUniformDpaVer) << "set dpaVer and osBuild set according [C] " << PAR(cp.osBuild) << PAR(cp.dpaVer));
+
         for (auto & it : m_nadrFullEnumNodeMap) {
 
           if (!m_enumThreadRun) break;
 
           int nadr = it.first;
+          TRC_INFORMATION("Enumerate: " << PAR(nadr));
+
           NodeDataPtr & nodeData = it.second;
 
           std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
@@ -844,19 +848,27 @@ namespace iqrf {
           NodeDataPtr & nodeData = it.second;
 
           try {
+            TRC_INFORMATION("Getting os.Read: " << PAR(nadr));
             std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(nadr));
             osReadPtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(osReadPtr->getRequest())->get());
             nodeData->setEmbedOsRead(osReadPtr);
           }
           catch (std::exception & e) {
-            TRC_INFORMATION("No response => cannot evaluate: " << PAR(nadr));
+            TRC_WARNING("No response os.Read => cannot evaluate: " << PAR(nadr));
             continue;
           }
 
           if (!nodeData->getEmbedOsRead()->is410Compliant()) {
-            std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
-            exploreEnumeratePtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest())->get());
-            nodeData->setEmbedExploreEnumerate(exploreEnumeratePtr);
+            try {
+              TRC_INFORMATION("os.Read !is410Compliant() => getting explore.Enumerate: " << PAR(nadr));
+              std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+              exploreEnumeratePtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest())->get());
+              nodeData->setEmbedExploreEnumerate(exploreEnumeratePtr);
+            }
+            catch (std::exception & e) {
+              TRC_WARNING("No response explore.Enumerate => cannot evaluate: " << PAR(nadr));
+              continue;
+            }
           }
         }
       }
@@ -874,6 +886,7 @@ namespace iqrf {
       }
 
       std::cout << "Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+      TRC_INFORMATION("Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()));
 
       auto cp = m_iIqrfDpaService->getCoordinatorParameters();
 
@@ -891,11 +904,13 @@ namespace iqrf {
 
       if (enumNodeCount > 1 && cp.dpaVerWord >= 0x402) {
         // enumerate by FRC
+        TRC_INFORMATION(PAR(enumNodeCount) << PAR(cp.dpaVerWord) << " => enumerate by FRC");
         fullEnumByFrc();
       }
       else {
         if (enumNodeCount > 0) {
           // only one or obsolete DPA acoording [C]
+          TRC_INFORMATION(PAR(enumNodeCount) << PAR(cp.dpaVerWord) << " => enumerate by pool");
           fullEnumByPoll();
         }
       }
@@ -994,6 +1009,7 @@ namespace iqrf {
 
       m_nadrFullEnumNodeMap.clear();
       std::cout << "Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+      TRC_INFORMATION("Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()));
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -1607,6 +1623,7 @@ namespace iqrf {
 
       if (mapDeviceVectNadr.size() > 0) {
         std::cout << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+        TRC_INFORMATION("Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()));
 
         // std enum according first bonded nadr of the device
         for (auto it : mapDeviceVectNadr) {
@@ -1693,6 +1710,7 @@ namespace iqrf {
         }
 
         std::cout << "Std Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+        TRC_INFORMATION("Std Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()));
       }
 
       TRC_FUNCTION_LEAVE("");
