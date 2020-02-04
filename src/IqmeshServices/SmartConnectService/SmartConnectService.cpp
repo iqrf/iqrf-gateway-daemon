@@ -724,7 +724,7 @@ namespace iqrf {
       if ( osReadObject->is410Compliant() )
       {
         // dpaVer, perNr
-        Pointer("/data/rsp/osRead/dpaVer").Set(response, osReadObject->getDpaVerAsHexaString());
+        Pointer("/data/rsp/osRead/dpaVer").Set(response, osReadObject->getDpaVerAsString());
         Pointer("/data/rsp/osRead/perNr").Set(response, osReadObject->getPerNr());
 
         Document::AllocatorType& allocator = response.GetAllocator();
