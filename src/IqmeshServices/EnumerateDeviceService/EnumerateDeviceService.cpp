@@ -642,7 +642,7 @@ namespace iqrf {
     void setPeripheralEnumerationResponse( const DeviceEnumerateResult& deviceEnumerateResult, rapidjson::Document& response ) 
     { 
       // dpaVer, perNr
-      Pointer("/data/rsp/peripheralEnumeration/dpaVer").Set(response, deviceEnumerateResult.getPerEnum()->getDpaVerAsHexaString());
+      Pointer("/data/rsp/peripheralEnumeration/dpaVer").Set(response, deviceEnumerateResult.getPerEnum()->getDpaVerAsString());
       Pointer("/data/rsp/peripheralEnumeration/perNr").Set(response, deviceEnumerateResult.getPerEnum()->getPerNr());
 
       Document::AllocatorType& allocator = response.GetAllocator();
