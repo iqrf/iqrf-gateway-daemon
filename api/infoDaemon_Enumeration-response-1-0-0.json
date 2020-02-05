@@ -40,6 +40,21 @@
               "type": "integer",
               "description": "Period of enumeration checks in minutes",
               "default": 0
+            },
+            "enumPhase": {
+              "type": "integer",
+              "description": "enumeration phase",
+              "default": 0
+            },
+            "step": {
+              "type": "integer",
+              "description": "step order of the enumeration phase steps",
+              "default": 0
+            },
+            "steps": {
+              "type": "integer",
+              "description": "number of the enumeration phase steps",
+              "default": 0
             }
           },
           "required": [

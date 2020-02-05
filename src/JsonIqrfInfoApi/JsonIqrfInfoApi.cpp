@@ -45,11 +45,13 @@ namespace iqrf {
     class InfoDaemonMsg : public ApiMsg
     {
     public:
-      InfoDaemonMsg() = delete;
+      InfoDaemonMsg()
+        :ApiMsg()
+      {}
+
       InfoDaemonMsg(const rapidjson::Document& doc)
         :ApiMsg(doc)
-      {
-      }
+      {}
 
       virtual ~InfoDaemonMsg()
       {
@@ -74,9 +76,13 @@ namespace iqrf {
 
       virtual void handleMsg(JsonIqrfInfoApi::Imp* imp) = 0;
 
+      const std::string & getMessagingId() { return m_messagingId; }
+      void setMessagingId(const std::string & messagingId) { m_messagingId = messagingId; }
+
     protected:
       IMetaDataApi* m_iMetaDataApi = nullptr;
       Imp * m_imp = nullptr;
+      std::string m_messagingId;
     };
 
     //////////////////////////////////////////////
@@ -466,7 +472,10 @@ namespace iqrf {
       };
       typedef shape::EnumStringConvertor<Cmd, CmdConvertTable> CmdStringConvertor;
 
-      InfoDaemonMsgEnumeration() = delete;
+      InfoDaemonMsgEnumeration()
+        :InfoDaemonMsg()
+      {}
+
       InfoDaemonMsgEnumeration(const rapidjson::Document& doc)
         :InfoDaemonMsg(doc)
       {
@@ -495,6 +504,11 @@ namespace iqrf {
         if (m_command == Cmd::GetPeriod || m_command == Cmd::SetPeriod) {
           Pointer("/data/rsp/period").Set(doc, m_period, a);
         }
+        if (m_command == Cmd::Now) {
+          Pointer("/data/rsp/enumPhase").Set(doc, (int)m_estate.m_phase, a);
+          Pointer("/data/rsp/step").Set(doc, m_estate.m_step, a);
+          Pointer("/data/rsp/steps").Set(doc, m_estate.m_steps, a);
+        }
       }
 
       void handleMsg(JsonIqrfInfoApi::Imp* imp) override
@@ -514,9 +528,9 @@ namespace iqrf {
           imp->setPeriodEnumeration(m_period);
           break;
         case Cmd::Now:
-          imp->enumerate();
+          imp->enumerate(*this);
           break;
-        default: 
+        default:
           ;
         }
         TRC_FUNCTION_LEAVE("");
@@ -524,10 +538,12 @@ namespace iqrf {
 
       Cmd getCommand() const { return m_command; }
       int getPeriod() const { return m_period; }
+      void setEnumerationState(IIqrfInfo::EnumerationState estate) { m_estate = estate; }
 
     private:
       Cmd m_command = Cmd::Start;
       int m_period = 0;
+      IIqrfInfo::EnumerationState m_estate;
     };
 
     //////////////////////////////////////////////
@@ -846,6 +862,10 @@ namespace iqrf {
       "infoDaemon_",
     };
 
+    // async enumeration reporting
+    std::unique_ptr<InfoDaemonMsgEnumeration> m_infoDaemonMsgEnumeration;
+    std::mutex m_infoDaemonMsgEnumerationMtx;
+
   public:
     Imp()
     {
@@ -887,6 +907,7 @@ namespace iqrf {
 
       try {
         Document respDoc;
+        msg->setMessagingId(messagingId);
         msg->handleMsg(this);
         msg->setStatus("ok", 0);
         msg->createResponse(respDoc);
@@ -949,12 +970,44 @@ namespace iqrf {
 
     void setPeriodEnumeration(int period)
     {
-      m_iIqrfInfo->setPeriodEnumerate(period);
+      m_iIqrfInfo->setPeriodEnumerate(period); 
     }
     
-    void enumerate()
+    void enumerate(InfoDaemonMsgEnumeration & msg)
     {
+      std::unique_lock<std::mutex> lck(m_infoDaemonMsgEnumerationMtx);
+      if (m_infoDaemonMsgEnumeration) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Enumeration transaction is already running");
+      }
+      m_infoDaemonMsgEnumeration = std::unique_ptr<InfoDaemonMsgEnumeration>(shape_new InfoDaemonMsgEnumeration(msg));
       m_iIqrfInfo->enumerate();
+    }
+
+    //async handler of enumeration events
+    void handleEnumEvent(IIqrfInfo::EnumerationState estate)
+    {
+      std::unique_lock<std::mutex> lck(m_infoDaemonMsgEnumerationMtx);
+      if (m_infoDaemonMsgEnumeration) {
+        rapidjson::Document rspDoc;
+        m_infoDaemonMsgEnumeration->setEnumerationState(estate);
+        m_infoDaemonMsgEnumeration->setStatus("ok", 0);
+        m_infoDaemonMsgEnumeration->createResponse(rspDoc);
+        m_iMessagingSplitterService->sendMessage(m_infoDaemonMsgEnumeration->getMessagingId(), std::move(rspDoc));
+        if (estate.m_phase == IIqrfInfo::EnumerationState::Phase::finish) {
+          //final state destroy handling
+          m_infoDaemonMsgEnumeration.reset();
+        }
+      }
+    }
+
+    void registerCb(InfoDaemonMsgEnumeration & msg)
+    {
+      //TODO remove
+    }
+
+    void unRegisterCb(InfoDaemonMsgEnumeration & msg)
+    {
+      //TODO remove
     }
 
     std::vector<uint32_t> getUnbondMids() const
@@ -1013,6 +1066,12 @@ namespace iqrf {
         handleMsg(messagingId, msgType, std::move(doc));
       });
 
+      m_iIqrfInfo->registerEnumerateHandler("kkk",
+        [&](IIqrfInfo::EnumerationState estate)
+      {
+        handleEnumEvent(estate);
+      });
+
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -1026,6 +1085,7 @@ namespace iqrf {
       );
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
+      m_iIqrfInfo->unregisterEnumerateHandler("kkk");
 
       TRC_FUNCTION_LEAVE("")
     }
