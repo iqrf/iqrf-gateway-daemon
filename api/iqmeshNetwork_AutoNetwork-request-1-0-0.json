@@ -76,18 +76,23 @@
                   "type": "integer",
                   "description": "Maximum number of waves."
                 },
-                "networkSize": {
-                  "type": "integer",
-                  "description": "Number of nodes (existing + new) in the network."
-                },
-                "newNetworkNodes": {
-                  "type": "integer",
-                  "description": "Number of new nodes bonded into the network."
-                },
                 "emptyWaves": {
                   "type": "integer",
                   "description": "Number of consecutive waves, in which no new nodes were added into network.",
                   "default": 2
+                },
+                "numberOfTotalNodes": {
+                  "type": "integer",
+                  "description": "Number of total nodes bonded into the network."
+                },
+                "numberOfNewNodes": {
+                  "type": "integer",
+                  "description": "Number of new nodes bonded into the network."
+                },
+                "abortOnTooManyNodesFound": {
+                  "type": "boolean",
+                  "description": "Abort the Autonetwork if too many nodes were found.",
+                  "default": false
                 }
               },
               "required": [
