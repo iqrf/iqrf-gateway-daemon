@@ -208,6 +208,8 @@ namespace iqrf {
     std::mutex m_enumMtx;
     std::condition_variable m_enumCv;
 
+    std::map<std::string, EnumerateHandlerFunc> m_enumHandlers;
+
     // rerun enum
     std::atomic<bool> m_repeatEnum;
 
@@ -247,35 +249,6 @@ namespace iqrf {
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
         }
 
-        /*
-        //update DB
-        try {
-          SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo_update1.db.sql");
-        }
-        catch (sqlite_exception &e)
-        {
-          db << "rollback;";
-          TRC_DEBUG("Update DB: " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
-        }
-
-        //update DB
-        int maxVal = -1;
-        try {
-          // test column existence
-          int maxVal = -1;
-          db << "select max(ModeStd) from node;"
-            >> maxVal;
-        }
-        catch (sqlite_exception &e)
-        {
-          TRC_DEBUG("Node.ModeStd doesn't exists");
-        }
-        if (maxVal > -1) {
-          // column exists => delete
-          SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo_update2.db.sql");
-        }
-        */
-
       }
       catch (sqlite_exception &e)
       {
@@ -307,7 +280,10 @@ namespace iqrf {
 
             if (!m_enumThreadRun) break;
             stdEnum();
+
             m_repeatEnum = false;
+
+            handleEnumEvent(EnumerationState(EnumerationState::Phase::finish, 1, 1));
           }
           else {
             TRC_DEBUG("DPA has exclusive access");
@@ -340,6 +316,18 @@ namespace iqrf {
       }
 
       TRC_FUNCTION_LEAVE("");
+    }
+
+    void handleEnumEvent(EnumerationState estate)
+    {
+      try {
+        for (auto & hnd : m_enumHandlers) {
+          hnd.second(estate);
+        }
+      }
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "untreated enum handler exception");
+      }
     }
 
     void checkEnum()
@@ -465,6 +453,8 @@ namespace iqrf {
           }
         }
       }
+
+      handleEnumEvent(EnumerationState(EnumerationState::Phase::check, 1, 1));
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -689,6 +679,8 @@ namespace iqrf {
           if (!m_enumThreadRun) break;
         }
 
+        handleEnumEvent(EnumerationState(EnumerationState::Phase::fullNode, 1, 3));
+
         if (m_enumUniformDpaVer) {
           TRC_WARNING("Detected enumUniformDpaVer cfg par => DpaVer and OsBuild fill according coordinator for all nodes");
 
@@ -698,6 +690,7 @@ namespace iqrf {
             it.second->getNode().setOsBuild(cp.osBuildWord);
             it.second->getNode().setDpaVer(cp.dpaVerWord);
           }
+          
           break; // not necessary to continue
         }
 
@@ -756,6 +749,8 @@ namespace iqrf {
         }
         if (!m_enumThreadRun) break;
 
+        handleEnumEvent(EnumerationState(EnumerationState::Phase::fullNode, 2, 3));
+
         anyValid = false;
         { // read OsBuild + 2B 
 
@@ -810,6 +805,8 @@ namespace iqrf {
         break;
       }
 
+      handleEnumEvent(EnumerationState(EnumerationState::Phase::fullNode, 3, 3));
+
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -838,8 +835,12 @@ namespace iqrf {
           nodeData->getNode().setOsBuild(cp.osBuildWord);
           nodeData->getNode().setDpaVer(cp.dpaVerWord);
         }
+      
+        handleEnumEvent(EnumerationState(EnumerationState::Phase::fullNode, 1, 1));
+
       }
       else {
+        int cnt = 0;
         for (auto & it : m_nadrFullEnumNodeMap) {
 
           if (!m_enumThreadRun) break;
@@ -870,19 +871,23 @@ namespace iqrf {
               continue;
             }
           }
+
+          handleEnumEvent(EnumerationState(EnumerationState::Phase::fullNode, ++cnt, (int)m_nadrFullEnumNodeMap.size()));
         }
       }
 
       TRC_FUNCTION_LEAVE("");
     }
 
-    void fullEnum()
+    bool fullEnum()
     {
       TRC_FUNCTION_ENTER(PAR(m_nadrFullEnumNodeMap.size()));
 
+      bool retval = false;
+
       if (m_nadrFullEnumNodeMap.size() == 0) {
-        TRC_FUNCTION_LEAVE("");
-        return;
+        TRC_FUNCTION_LEAVE(PAR(retval));
+        return retval;
       }
 
       std::cout << "Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
@@ -1005,13 +1010,15 @@ namespace iqrf {
           CATCH_EXC_TRC_WAR(std::exception, e, "Cannot Drv enumerate " << PAR(nadr));
           db << "rollback;";
         }
+
       }
 
       m_nadrFullEnumNodeMap.clear();
       std::cout << "Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
       TRC_INFORMATION("Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()));
 
-      TRC_FUNCTION_LEAVE("");
+      TRC_FUNCTION_LEAVE(PAR(retval));
+      return retval;
     }
 
     void insertNodes(const std::map<int, embed::node::BriefInfo> & nodes)
@@ -1597,7 +1604,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void stdEnum()
+    bool stdEnum()
     {
       TRC_FUNCTION_ENTER("");
 
@@ -1621,6 +1628,8 @@ namespace iqrf {
         mapDeviceVectNadr[dev].push_back(nadr);
       };
 
+      bool retval = false;
+
       if (mapDeviceVectNadr.size() > 0) {
         std::cout << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
         TRC_INFORMATION("Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()));
@@ -1631,6 +1640,8 @@ namespace iqrf {
           if (!m_enumThreadRun) break;
 
           int deviceId = it.first;
+          TRC_INFORMATION("Std Enumeration for: " << PAR(deviceId));
+
           int nadr = -1;
           std::vector<int> & nadrVect = it.second;
 
@@ -1639,6 +1650,7 @@ namespace iqrf {
             static std::random_device rd;
             unsigned idx = rd() % nadrVect.size();
             nadr = nadrVect[idx];
+            TRC_INFORMATION("Std Enumeration for: " << PAR(deviceId) << "with random: " << PAR(nadr) );
           }
           else {
             TRC_WARNING("Cannot std eval: " << PAR(deviceId) << " as there is no bonded nadr");
@@ -1696,6 +1708,8 @@ namespace iqrf {
               ;
 
             db << "commit;";
+
+            retval = true;
           }
           catch (sqlite_exception &e)
           {
@@ -1713,7 +1727,8 @@ namespace iqrf {
         TRC_INFORMATION("Std Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()));
       }
 
-      TRC_FUNCTION_LEAVE("");
+      TRC_FUNCTION_LEAVE(PAR(retval));
+      return retval;
     }
 
     void stdDaliEnum(int nadr, int deviceId)
@@ -2084,6 +2099,18 @@ namespace iqrf {
         throw;
       }
       TRC_FUNCTION_LEAVE("");
+    }
+
+    void registerEnumerateHandler(const std::string& clientId, EnumerateHandlerFunc fun)
+    {
+      std::lock_guard<std::mutex> lck(m_enumMtx);
+      m_enumHandlers.insert(make_pair(clientId, fun));
+    }
+
+    void unregisterEnumerateHandler(const std::string& clientId)
+    {
+      std::lock_guard<std::mutex> lck(m_enumMtx);
+      m_enumHandlers.erase(clientId);
     }
 
     // analyze incoming DPA responses. If there is a msg with influence to DB cahed data it starts enum
@@ -2506,6 +2533,16 @@ namespace iqrf {
   void IqrfInfo::removeUnbondMids(const std::vector<uint32_t> & unbondVec)
   {
     m_imp->removeUnbondMids(unbondVec);
+  }
+
+  void IqrfInfo::registerEnumerateHandler(const std::string& clientId, EnumerateHandlerFunc fun)
+  {
+    m_imp->registerEnumerateHandler(clientId, fun);
+  }
+
+  void IqrfInfo::unregisterEnumerateHandler(const std::string& clientId)
+  {
+    m_imp->unregisterEnumerateHandler(clientId);
   }
 
   bool IqrfInfo::getMidMetaDataToMessages() const

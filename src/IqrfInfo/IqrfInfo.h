@@ -38,6 +38,9 @@ namespace iqrf {
     // remove unbond nodes from DB - nodes are not by default deleted if unbonded
     void removeUnbondMids(const std::vector<uint32_t> & unbondVec) override;
 
+    void registerEnumerateHandler(const std::string& clientId, EnumerateHandlerFunc fun) override;
+    void unregisterEnumerateHandler(const std::string& clientId) override;
+
     bool getMidMetaDataToMessages() const override;
     void setMidMetaDataToMessages(bool val) override;
 

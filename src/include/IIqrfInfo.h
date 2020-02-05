@@ -39,6 +39,36 @@ namespace iqrf
     // remove unbond nodes from DB - nodes are not by default deleted if unbonded
     virtual void removeUnbondMids(const std::vector<uint32_t> & unbondVec) = 0;
 
+    class EnumerationState {
+    public:
+      enum class Phase
+      {
+        start,
+        check,
+        fullNode,
+        fullDevice,
+        standard,
+        finish
+      };
+
+      EnumerationState()
+      {}
+
+      EnumerationState(Phase phase, int step, int steps)
+        :m_phase(phase)
+        ,m_step(step)
+        ,m_steps(steps)
+      {}
+
+      Phase m_phase = Phase::start;
+      int m_step = 1; // step order in steps
+      int m_steps = 1; // number of steps of the phase
+    };
+
+    typedef std::function<void(EnumerationState es)> EnumerateHandlerFunc;
+    virtual void registerEnumerateHandler(const std::string& clientId, EnumerateHandlerFunc fun) = 0;
+    virtual void unregisterEnumerateHandler(const std::string& clientId) = 0;
+
     // for Mid meta data
     // gets the flag to control if messages are anotaded by metadata 
     virtual bool getMidMetaDataToMessages() const = 0;
