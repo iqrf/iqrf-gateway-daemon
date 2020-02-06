@@ -20,9 +20,10 @@ namespace iqrf {
     struct 
     {
       uint8_t waves;
-      uint8_t networkSize;
-      uint8_t newNetworkNodes;
       uint8_t emptyWaves;
+      uint8_t numberOfTotalNodes;
+      uint8_t numberOfNewNodes;
+      bool abortOnTooManyNodesFound;
     }stopConditions;
   }TAutonetworkInputParams;
 
@@ -122,17 +123,23 @@ namespace iqrf {
       else
         m_autonetworkParams.stopConditions.emptyWaves = 1;
 
-      // stopConditions/networkSize
-      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/networkSize" ).Get( doc ) )
-        m_autonetworkParams.stopConditions.networkSize = (uint8_t)jsonValue->GetInt();
+      // stopConditions/numberOfTotalNodes
+      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/numberOfTotalNodes" ).Get( doc ) )
+        m_autonetworkParams.stopConditions.numberOfTotalNodes = (uint8_t)jsonValue->GetInt();
       else
-        m_autonetworkParams.stopConditions.networkSize = 0;
+        m_autonetworkParams.stopConditions.numberOfTotalNodes = 0;
 
-      // stopConditions/networkSize
-      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/newNetworkNodes" ).Get( doc ) )
-        m_autonetworkParams.stopConditions.newNetworkNodes = (uint8_t)jsonValue->GetInt();
+      // stopConditions/numberOfNewNodes
+      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/numberOfNewNodes" ).Get( doc ) )
+        m_autonetworkParams.stopConditions.numberOfNewNodes = (uint8_t)jsonValue->GetInt();
       else
-        m_autonetworkParams.stopConditions.newNetworkNodes = 0;
+        m_autonetworkParams.stopConditions.numberOfNewNodes = 0;
+
+      // abortOnTooManyNodesFound
+      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/abortOnTooManyNodesFound" ).Get( doc ) )
+        m_autonetworkParams.stopConditions.abortOnTooManyNodesFound = jsonValue->GetBool();
+      else
+        m_autonetworkParams.stopConditions.abortOnTooManyNodesFound = false;
     }
 
     // Parses document into data fields

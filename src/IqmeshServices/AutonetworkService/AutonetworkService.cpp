@@ -43,6 +43,8 @@ namespace {
   static const int SERVICE_ERROR_RUN_DISCOVERY = SERVICE_ERROR + 17;
   static const int SERVICE_ERROR_ALL_ADDRESS_ALLOCATED = SERVICE_ERROR + 18;
   static const int SERVICE_ERROR_VALIDATE_BONDS = SERVICE_ERROR + 19;
+  static const int SERVICE_ERROR_INCORRECT_STOP_CONDITION = SERVICE_ERROR + 20;
+  static const int SERVICE_ERROR_TOO_MANY_NODES_FOUND = SERVICE_ERROR + 21;
 };
 
 namespace iqrf {
@@ -71,7 +73,9 @@ namespace iqrf {
       RemoveBondAtCoordinator,
       RunDiscovery,
       AllAddressAllocated,
-      ValidateBonds
+      ValidateBonds,
+      IncorrectStopCondition,
+      TooManyNodesFound
     };
 
     AutonetworkError() : m_type( Type::NoError ), m_message( "ok" ) {};
@@ -182,9 +186,11 @@ namespace iqrf {
       sRemoveNotResponded,
       sDiscovery,
       sMaxNumWaves,
-      sMaxNodes,
+      sNumberOfTotalNodes,
       sMaxEmptyWaves,
-      sMaxNewNodes
+      sNumberOfNewNodes,
+      sAbortOnTooManyNodesFound,
+      sAbortOnAllAddresseAllocated
     };
 
     // MID union
@@ -961,7 +967,7 @@ namespace iqrf {
         DpaMessage memoryRead4BRequest;
         DpaMessage::DpaPacket_t memoryRead4BPacket;
         memoryRead4BPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-        memoryRead4BPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        memoryRead4BPacket.DpaRequestPacket_t.PNUM = PNUM_FRC; 
         memoryRead4BPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
         memoryRead4BPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         // FRC Command
@@ -1358,12 +1364,22 @@ namespace iqrf {
             if ( node != antwProcessParams.duplicitMID.end() )
             {
               validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].Address = address;
-              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x00] = antwProcessParams.networkNodes[address].mid.bytes[0x00];
-              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x01] = antwProcessParams.networkNodes[address].mid.bytes[0x01];
-              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x02] = antwProcessParams.networkNodes[address].mid.bytes[0x02];
-              validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x03] = antwProcessParams.networkNodes[address].mid.bytes[0x03];
-              antwProcessParams.duplicitMID.erase( node );
-              index += sizeof( TPerNodeValidateBondsItem );
+              if ( antwProcessParams.networkNodes[address].bonded == true )
+              {
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x00] = antwProcessParams.networkNodes[address].mid.bytes[0x00];
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x01] = antwProcessParams.networkNodes[address].mid.bytes[0x01];
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x02] = antwProcessParams.networkNodes[address].mid.bytes[0x02];
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x03] = antwProcessParams.networkNodes[address].mid.bytes[0x03];
+                antwProcessParams.duplicitMID.erase( node );
+              }
+              else
+              {
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x00] = 0;
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x01] = 0;
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x02] = 0;
+                validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x03] = 0;
+              }
+              index++;
             }
 
             if ( ( index == 11 ) || ( address == MAX_ADDRESS ) )
@@ -1375,8 +1391,9 @@ namespace iqrf {
                 validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x01] = 0;
                 validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x02] = 0;
                 validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x03] = 0;
-                index += sizeof( TPerNodeValidateBondsItem );
+                index++;
               }
+
               // Data to buffer
               validateBondRequest.DataToBuffer( validateBondPacket.Buffer, sizeof( TDpaIFaceHeader ) + index * sizeof( TPerNodeValidateBondsItem ) );
               // Execute the DPA request
@@ -1389,6 +1406,7 @@ namespace iqrf {
                 << NAME_PAR( Node address, validateBondRequest.NodeAddress() )
                 << NAME_PAR( Command, (int)validateBondRequest.PeripheralCommand() )
               );
+              index = 0;
             }
           }
         }
@@ -1473,10 +1491,10 @@ namespace iqrf {
         }
       }
 
-      // HWPID filtering
+      // HWPID filtering ?
       if ( antwInputParams.hwpidFiltering.empty() == false )
       {
-        // HWPID filtering
+        // Check HWPID
         if ( std::find( antwInputParams.hwpidFiltering.begin(), antwInputParams.hwpidFiltering.end(), HWPID ) == antwInputParams.hwpidFiltering.end() )
         {
           authorizeErr = TAuthorizeErr::eHWPIDFiltering;
@@ -1485,17 +1503,6 @@ namespace iqrf {
       }
 
       return true;
-    }
-
-    // Unbond prebonded node ?
-    bool unbondPrebondedNodes( uint8_t address )
-    {
-      for ( std::pair<uint8_t, TPrebondedNode> node : antwProcessParams.prebondedNodes )
-      {
-        if ( ( node.second.addrBond == address ) && ( node.second.authorizeErr == TAuthorizeErr::eNodeBonded ) )
-          return true;
-      }
-      return false;
     }
 
     // Send autonetwok algorithm state
@@ -1546,14 +1553,17 @@ namespace iqrf {
           case TWaveStateCode::sMaxNumWaves:
             sWaveState = "Maximum number of waves reached.";
             break;
-          case TWaveStateCode::sMaxNodes:
-            sWaveState = "Maximum nodes is bonded.";
+          case TWaveStateCode::sNumberOfTotalNodes:
+            sWaveState = "Number of total nodes bonded into network.";
             break;
           case TWaveStateCode::sMaxEmptyWaves:
             sWaveState = "Maximum number of consecutive empty waves reached.";
             break;
-          case TWaveStateCode::sMaxNewNodes:
-            sWaveState = "New nodes count were added into network.";
+          case TWaveStateCode::sNumberOfNewNodes:
+            sWaveState = "Number of new nodes bonded into network.";
+            break;
+          case TWaveStateCode::sAbortOnTooManyNodesFound:
+            sWaveState = "Too many nodes found - Autonetwork process aborted.";
             break;
         }
         rapidjson::Pointer( "/data/rsp/waveState" ).Set( waveState, sWaveState );
@@ -1699,6 +1709,14 @@ namespace iqrf {
         TRC_INFORMATION( NAME_PAR( Bonded nodes, toNodesListStr( antwProcessParams.bondedNodes ) ) );
         TRC_INFORMATION( NAME_PAR( Discovered nodes, toNodesListStr( antwProcessParams.discoveredNodes ) ) );
 
+        // Initialize process params
+        antwProcessParams.countNewNodes = 0;
+        antwProcessParams.countWaves = 1;
+        antwProcessParams.countEmpty = 0;
+        newNodes.clear();
+        antwProcessParams.countWaveNewNodes = 0;
+        antwProcessParams.respondedNewNodes.clear();
+
         // Check max address
         if ( antwProcessParams.bondedNodes == MAX_ADDRESS )
         {
@@ -1706,6 +1724,24 @@ namespace iqrf {
             AutonetworkError error( AutonetworkError::Type::AllAddressAllocated, "All available network addresses are already allocated." );
           autonetworkResult.setError( error );
           THROW_EXC( std::logic_error, "All available network addresses are already allocated." );
+        }
+
+        // Check stop conditions - number of total nodes
+        if ( ( antwInputParams.stopConditions.numberOfTotalNodes != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes ) )
+        {
+          TRC_INFORMATION( "The AutoNetwork process cannot be started because the Number of total Nodes is equal or lower than the size of the existing network." )
+            AutonetworkError error( AutonetworkError::Type::IncorrectStopCondition, "The AutoNetwork process cannot be started because the Number of total Nodes is equal or lower than the size of the existing network." );
+          autonetworkResult.setError( error );
+          THROW_EXC( std::logic_error, "The AutoNetwork process cannot be started because the Number of total Nodes is equal or lower than the size of the existing network." );
+        }
+
+        // Check stop conditions - number of new nodes          
+        if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && ( ( antwInputParams.stopConditions.numberOfNewNodes + antwProcessParams.bondedNodesNr ) > MAX_ADDRESS ) )
+        {
+          TRC_INFORMATION( "The AutoNetwork process cannot be started because the number of existing nodes plus Number of new Nodes exceeds the maximum network size of 239." )
+            AutonetworkError error( AutonetworkError::Type::IncorrectStopCondition, "The AutoNetwork process cannot be started because the number of existing nodes plus Number of new Nodes exceeds the maximum network size of 239." );
+          autonetworkResult.setError( error );
+          THROW_EXC( std::logic_error, "The AutoNetwork process cannot be started because the number of existing nodes plus Number of new Nodes exceeds the maximum network size of 239." );
         }
 
         // Set FRC param to 0, store previous value
@@ -1728,22 +1764,19 @@ namespace iqrf {
 
         // Start autonetwork 
         TRC_INFORMATION( "Automatic network construction in progress" );
+        antwProcessParams.countWaves = 0;
         antwProcessParams.initialBondedNodesNr = antwProcessParams.bondedNodesNr;
         using std::chrono::system_clock;
         bool waveRun = true;
         std::basic_string<uint8_t> FrcSelectMask;
         std::vector<uint8_t> FrcSelect, FrcOnlineNodes, FrcOfflineNodes;
-        bool MIDUnbondOnlyC;
         uint8_t retryAction, countDiscNodes = antwProcessParams.discoveredNodesNr;
+        uint8_t maxStep, step;
+        bool stepBreak;
 
         // Initialize random seed
         std::srand( std::time( nullptr ) );
         uint8_t nodeSeed = (uint8_t)std::rand();
-        // Initialize process params
-        antwProcessParams.countNewNodes = 0;
-        antwProcessParams.countWaves = 0;
-        antwProcessParams.countEmpty = 0;
-        newNodes.clear();
 
         // Main loop
         while ( waveRun )
@@ -1764,25 +1797,33 @@ namespace iqrf {
             break;
           }
            
-          // New nodes count added to into network ?
-          if ( ( antwInputParams.stopConditions.newNetworkNodes != 0 ) && ( antwProcessParams.countNewNodes >= antwInputParams.stopConditions.newNetworkNodes ) )
+          // Number of new nodes bonded into network ?
+          if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && ( antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes ) )
           {
-            TRC_INFORMATION( "New nodes count were added into network." );
-            sendWaveState( TWaveStateCode::sMaxNewNodes );
+            TRC_INFORMATION( "Number of new nodes bonded into network." );
+            sendWaveState( TWaveStateCode::sNumberOfNewNodes );
+            break;
+          }
+
+          // Number of total nodes bonded into network ?
+          if ( ( antwInputParams.stopConditions.numberOfTotalNodes != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes ) )
+          {
+            TRC_INFORMATION( "Number of total nodes bonded into network." );
+            sendWaveState( TWaveStateCode::sNumberOfTotalNodes );
+            break;
+          }
+
+          // Check max address
+          if ( antwProcessParams.bondedNodes == MAX_ADDRESS )
+          {
+            TRC_INFORMATION( "All available network addresses are already allocated - Autonetwork process aborted." );
+            sendWaveState( TWaveStateCode::sAbortOnAllAddresseAllocated );
             break;
           }
 
           // Increment nodeSeed and countWaves
           nodeSeed++;
           antwProcessParams.countWaves++;
-
-          // Maximum nodes bonded ?
-          if ( ( antwInputParams.stopConditions.networkSize != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.networkSize ) )
-          {
-            TRC_INFORMATION( "Maximum nodes is bonded." );
-            sendWaveState( TWaveStateCode::sMaxNodes );
-            break;
-          }
 
           // Run Discovery before start ?
           if ( ( antwProcessParams.countWaves == 1 ) && ( antwInputParams.discoveryBeforeStart == true ) && ( antwProcessParams.bondedNodesNr > 0 ) )
@@ -1826,18 +1867,42 @@ namespace iqrf {
             antwProcessParams.countEmpty++;
             // Send result
             sendWaveResult( autonetworkResult );            
-            // Next wave
             continue;
+          }
+
+          // Break the wave when requested number of nodes (total/new) is found
+          if ( antwInputParams.stopConditions.abortOnTooManyNodesFound == true )
+          {
+            // Check number of total nodes
+            if ( ( antwInputParams.stopConditions.numberOfTotalNodes != 0 ) && ( antwProcessParams.bondedNodesNr + FrcSelect.size() > antwInputParams.stopConditions.numberOfTotalNodes ) )
+            {
+              TRC_INFORMATION( "Too many nodes found - Autonetwork process aborted." )
+                AutonetworkError error( AutonetworkError::Type::TooManyNodesFound, "Too many nodes found - Autonetwork process aborted." );
+              autonetworkResult.setError( error );
+              THROW_EXC( std::logic_error, "Too many nodes found - Autonetwork process aborted." );
+              break;
+            }
+
+            // Check number of new nodes
+            if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && ( antwProcessParams.countNewNodes + FrcSelect.size() > antwInputParams.stopConditions.numberOfNewNodes ) )
+            {
+              TRC_INFORMATION( "Too many nodes found - Autonetwork process aborted." )
+                AutonetworkError error( AutonetworkError::Type::TooManyNodesFound, "Too many nodes found - Autonetwork process aborted." );
+              autonetworkResult.setError( error );
+              THROW_EXC( std::logic_error, "Too many nodes found - Autonetwork process aborted." );
+              break;
+            }
           }
 
           // ToDo
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
 
           // Read MIDs of prebonded alive nodes
-          MIDUnbondOnlyC = false;
           TRC_INFORMATION( NAME_PAR( Prebonded alive nodes, FrcSelect.size() ) );
           sendWaveState( TWaveStateCode::sReadPrebondedMID );
           uint8_t offset = 0x00;
+          maxStep = 0x00;
+          stepBreak = false;
           do
           {
             // Prebonded memory read plus 1 - read MIDs
@@ -1867,13 +1932,15 @@ namespace iqrf {
                   for ( auto n : antwProcessParams.prebondedNodes )
                   {
                     // Duplicit MID ?
-                    if ( n.second.mid.value == node.mid.value )
+                    if ( ( n.second.mid.value == node.mid.value ) && ( n.second.authorize == true ) )
                     {
-                      // Yes, duplicit nodes must not be authorized
+                      // Duplicit nodes must not be authorized
+                      TRC_WARNING( "Reading prebonded MID: Duplicit MID " << PAR( node.mid.value ) << " detected." );
                       node.authorizeErr = TAuthorizeErr::eFRC;
                       n.second.authorizeErr = TAuthorizeErr::eFRC;
                       n.second.authorize = false;
-                      TRC_WARNING( "Reading prebonded MID: Duplicit MID " << PAR( node.mid.value ) << " detected." );
+                      maxStep--;
+                      break;
                     }
                   }
                 }
@@ -1883,6 +1950,20 @@ namespace iqrf {
                 {
                   // Authorize control
                   node.authorize = authorizeControl( node.mid.value, 0, node.addrBond, node.authorizeErr );
+                  if ( node.authorize == true )
+                  {
+                    maxStep++;
+                    if ( maxStep + antwProcessParams.bondedNodesNr >= MAX_ADDRESS )
+                      stepBreak = true;
+
+                    // Check number of total nodes
+                    if ( ( antwInputParams.stopConditions.numberOfTotalNodes != 0 ) && ( maxStep + antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes ) )
+                      stepBreak = true;
+
+                    // Check number of new nodes
+                    if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && (maxStep + antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes ) )
+                      stepBreak = true;
+                  }
                 }
               }
               else
@@ -1891,18 +1972,15 @@ namespace iqrf {
                 node.authorizeErr = TAuthorizeErr::eFRC;
                 TRC_WARNING( "Reading prebonded MID: Node " << PAR( (int)node.node ) << " doesn't respond to FRC." );
               }
-
-              if ( node.authorizeErr == TAuthorizeErr::eNodeBonded )
-                MIDUnbondOnlyC = true;
-
+              
               //  Add (or set) node to prebondedNodes map
               antwProcessParams.prebondedNodes[node.node] = node;
 
               // Next Node
               i += sizeof( TMID );
-            } while ( ( i < 60 ) && ( FrcSelect.size() > antwProcessParams.prebondedNodes.size() ) );
+            } while ( ( i < 60 ) && ( FrcSelect.size() > antwProcessParams.prebondedNodes.size() ) && ( stepBreak == false ) );
             offset += 15;
-          } while ( FrcSelect.size() > antwProcessParams.prebondedNodes.size() );
+          } while ( FrcSelect.size() > antwProcessParams.prebondedNodes.size() && ( stepBreak == false ) );
 
           // ToDo
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
@@ -1927,6 +2005,8 @@ namespace iqrf {
             sendWaveState( TWaveStateCode::sReadPrebondedHWPID );
             offset = 0x00;
             uint8_t prebondedNodesCount = 0;
+            maxStep = 0x00;
+            stepBreak = false;
             do
             {
               // Prebonded memory read plus 1 - read HWPID and HWPVer
@@ -1934,15 +2014,13 @@ namespace iqrf {
               uint8_t i = 0;
               do
               {
-                // TPrebondedNode structure
-                TPrebondedNode node;
                 uint8_t addr = FrcSelect[( i / 4 ) + offset];
                 auto n = antwProcessParams.prebondedNodes.find( addr );
                 if ( n != antwProcessParams.prebondedNodes.end() )
                 {
-                  node = n->second;
-                  node.node = addr;
                   // Node responded to prebondedMemoryRead plus 1 ?
+                  TPrebondedNode node = n->second;
+                  node.authorize = false;
                   uint32_t HWPID_HWPVer = prebondedMemoryData[i];
                   HWPID_HWPVer |= ( prebondedMemoryData[i + 1] << 8 );
                   HWPID_HWPVer |= ( prebondedMemoryData[i + 2] << 16 );
@@ -1955,6 +2033,20 @@ namespace iqrf {
                     node.HWPIDVer = HWPID_HWPVer >> 16;
                     // Authorize control
                     node.authorize = authorizeControl( node.mid.value, node.HWPID, node.addrBond, node.authorizeErr );
+                    if ( node.authorize == true )
+                    {
+                      maxStep++;
+                      if ( maxStep + antwProcessParams.bondedNodesNr >= MAX_ADDRESS )
+                        stepBreak = true;
+
+                      // Check number of total nodes
+                      if ( ( antwInputParams.stopConditions.numberOfTotalNodes != 0 ) && ( maxStep + antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes ) )
+                        stepBreak = true;
+
+                      // Check number of new nodes
+                      if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && ( maxStep + antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes ) )
+                        stepBreak = true;
+                    }
                   }
                   else
                   {
@@ -1963,34 +2055,35 @@ namespace iqrf {
                     TRC_WARNING( "Reading prebonded HWPID: Node " << PAR( (int)node.node ) << " doesn't respond to FRC." );
                   }
 
-                  if ( node.authorizeErr == TAuthorizeErr::eNodeBonded )
-                    MIDUnbondOnlyC = true;
-
                   // Add (or set) node to prebondedNodes map
                   antwProcessParams.prebondedNodes[node.node] = node;
                 }
 
                 // Next Node
-                i += sizeof( TMID );
-              } while ( ( i < 60 ) && ( FrcSelect.size() > ++prebondedNodesCount ) );
+                i += 2 * sizeof( uint16_t );
+              } while ( ( i < 60 ) && ( FrcSelect.size() > ++prebondedNodesCount ) && ( stepBreak == false ) );
               offset += 15;
-            } while ( FrcSelect.size() > prebondedNodesCount );
+            } while ( ( FrcSelect.size() > prebondedNodesCount ) && ( stepBreak == false ) );
           }
 
           // ToDo
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
-
           // Authorize prebonded alive nodes
           FrcSelect.clear();
+          step = 0x00;
           TRC_INFORMATION( "Authorizing prebonded alive nodes." );
           sendWaveState( TWaveStateCode::sAuthorize );
           for ( std::pair<uint8_t, TPrebondedNode> node : antwProcessParams.prebondedNodes )
           {
-            if ( antwProcessParams.bondedNodesNr > MAX_ADDRESS )
+            if ( antwProcessParams.bondedNodesNr + antwProcessParams.countWaveNewNodes >= MAX_ADDRESS )
             {
               TRC_INFORMATION( "All available network addresses are already allocated." );
               break;
             }
+
+            // Check number of authorized nodes
+            if ( step >= maxStep )
+              break;
 
             // Node passed the authorizeControl (is intended to authorize) ?
             if ( node.second.authorize == true)
@@ -2012,6 +2105,8 @@ namespace iqrf {
                   antwProcessParams.networkNodes[response.BondAddr].HWPIDVer = node.second.HWPIDVer;
                   antwProcessParams.countWaveNewNodes++;
                   antwProcessParams.countNewNodes++;
+                  // Increase number of authorizd nodes
+                  step++;
                   break;
                 }
                 catch ( std::exception& ex )
@@ -2023,7 +2118,7 @@ namespace iqrf {
           }
 
           // TestCase - overit chovani clearDuplicitMID
-          if ( ( FrcSelect.size() == 0 ) && ( MIDUnbondOnlyC == false ) )
+          if ( FrcSelect.size() == 0 )
           {
             try
             {
@@ -2036,6 +2131,7 @@ namespace iqrf {
             antwProcessParams.countEmpty++;
             // Send result
             sendWaveResult( autonetworkResult );
+            // Next wave
             continue;
           }
           else
@@ -2157,20 +2253,13 @@ namespace iqrf {
 
           // Unbond node at coordinator only ?
           // TestCase - overit odbondovani na strane [C] (zamerne nasimulovat FrcSelect.size() != 0, MIDUnbondOnlyC == true)
-          if ( ( FrcSelect.size() != 0 ) || ( MIDUnbondOnlyC == true ) )
+          if ( FrcSelect.size() != 0 )
           {
             TRC_INFORMATION( "Unbonding Nodes only at Coordinator." );
             for ( uint8_t address = 1; address < MAX_ADDRESS; address++ )
             {
-              bool unbondPrebondedNode = false;
-              // Duplicit MID (prebonded node list contains a node with MID that is already bonded) ?
-              if ( MIDUnbondOnlyC == true )
-              {
-                unbondPrebondedNode = unbondPrebondedNodes( address );
-              }
-
               auto node = std::find( FrcSelect.begin(), FrcSelect.end(), address );
-              if ( ( node != FrcSelect.end() ) || ( MIDUnbondOnlyC == true && unbondPrebondedNode == true ) )
+              if ( node != FrcSelect.end() )
               {
                 // Insert duplicit node to duplicitMID 
                 if ( std::find( antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address ) != antwProcessParams.duplicitMID.end() )
@@ -2185,11 +2274,8 @@ namespace iqrf {
                   antwProcessParams.networkNodes[address].bonded = false;
                   antwProcessParams.networkNodes[address].discovered = false;
                   antwProcessParams.networkNodes[address].mid.value = 0;
-                  if ( unbondPrebondedNode == false )
-                  {
-                    antwProcessParams.countWaveNewNodes--;
-                    antwProcessParams.countNewNodes--;
-                  }
+                  antwProcessParams.countWaveNewNodes--;
+                  antwProcessParams.countNewNodes--;
                 }
                 catch ( std::exception& ex )
                 {
@@ -2209,7 +2295,7 @@ namespace iqrf {
           // Skip discovery in each wave ?
           if ( antwInputParams.skipDiscoveryEachWave == false )
           {
-            if ( ( antwProcessParams.countWaveNewNodes != 0 ) || ( MIDUnbondOnlyC == true ) )
+            if ( antwProcessParams.countWaveNewNodes != 0 )
             {
               retryAction = antwInputParams.actionRetries + 1;
               do
@@ -2219,7 +2305,7 @@ namespace iqrf {
                 try
                 {
                   uint8_t discNodes = runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower );
-                  if ( ( countDiscNodes <= discNodes ) || ( MIDUnbondOnlyC == true ) )
+                  if ( countDiscNodes <= discNodes )
                     break;
                 }
                 catch ( std::exception& ex )
@@ -2264,8 +2350,12 @@ namespace iqrf {
       {
         // Set error
         TRC_WARNING( "Error during algorithm run: " << ex.what() );
-        AutonetworkError error( AutonetworkError::Type::Internal, ex.what() );
-        autonetworkResult.setError( error );
+        AutonetworkError error = autonetworkResult.getError();
+        if ( error.getType() == AutonetworkError::Type::NoError )
+        {
+          AutonetworkError error( AutonetworkError::Type::Internal, ex.what() );
+          autonetworkResult.setError( error );
+        }
         // Send result
         sendWaveResult( autonetworkResult );
       }
@@ -2278,10 +2368,10 @@ namespace iqrf {
         // Set initial FRC param
         if ( antwProcessParams.FrcResponseTime != 0 )
           antwProcessParams.FrcResponseTime = setFrcReponseTime( autonetworkResult, antwProcessParams.FrcResponseTime );
-        // Set initial DPA
+        // Set initial DPA param
         if ( antwProcessParams.DpaParam != 0 )
           antwProcessParams.DpaParam = setNoLedAndOptimalTimeslot( autonetworkResult, antwProcessParams.DpaParam );
-        // Set initial DPA Hops Param
+        // Set initial DPA Hops param
         if ( ( antwProcessParams.RequestHops != 0xff ) || ( antwProcessParams.ResponseHops != 0xff ) )
           TPerCoordinatorSetHops_Request_Response response = setDpaHopsToTheNumberOfRouters( autonetworkResult, antwProcessParams.RequestHops, antwProcessParams.ResponseHops );
       }

@@ -1000,6 +1000,16 @@ namespace iqrf {
       }
     }
 
+    void registerCb(InfoDaemonMsgEnumeration & msg)
+    {
+      //TODO remove
+    }
+
+    void unRegisterCb(InfoDaemonMsgEnumeration & msg)
+    {
+      //TODO remove
+    }
+
     std::vector<uint32_t> getUnbondMids() const
     {
       return m_iIqrfInfo->getUnbondMids();
