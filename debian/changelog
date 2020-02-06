@@ -1,3 +1,12 @@
+iqrf-gateway-daemon (2.2.0-rc4) RELEASED; urgency=medium
+
+ * Improved:
+  * IQRF SPI status handling
+  * DPAVer formating in IQMESH services
+  * Enhanced JsCache tracing 
+
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Thu, 6 Feb 2020 14:30:00 +0100
+
 iqrf-gateway-daemon (2.2.0-rc3) RELEASED; urgency=medium
 
   * Fixed: Period setting via mngScheduler_AddTask
@@ -5,8 +14,6 @@ iqrf-gateway-daemon (2.2.0-rc3) RELEASED; urgency=medium
  -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Mon, 20 Dec 2019 15:00:00 +0100
 
 iqrf-gateway-daemon (2.2.0-rc2) RELEASED; urgency=medium
-
- [ Rostislav Spinar ]
  
  * Improved:
   * Load the closest DPA package if required is not in the IQRF repository
