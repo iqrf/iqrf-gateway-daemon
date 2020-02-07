@@ -369,7 +369,7 @@ namespace iqrf {
 
         // read C eeeprom up to nadr storage
         for (int i = 0; i < maxhit + 1; i++) {
-          uint8_t len = i <= maxhit ? maxlen : remain;
+          uint8_t len = (uint8_t)(i <= maxhit ? maxlen : remain);
           if (len > 0) {
             uint16_t adr = (uint16_t)(baddress + i * maxlen);
             iqrf::embed::eeeprom::rawdpa::Read eeepromRead(0, adr, len);
@@ -494,7 +494,7 @@ namespace iqrf {
         const auto & exEnum = nd->getEmbedExploreEnumerate();
         if (!exEnum) {
           // wasn't enumerated yet => done by FRC
-          std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+          std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate((uint16_t)nadr));
           {
             auto trn = m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest());
             exploreEnumeratePtr->processDpaTransactionResult(trn->get());
@@ -544,7 +544,7 @@ namespace iqrf {
           //Get peripheral information for sensor, binout, dali, light and TODO other std if presented
           if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per || PERIF_STANDARD_DALI == per || PERIF_STANDARD_LIGHT == per) {
 
-            embed::explore::RawDpaPeripheralInformation perInfo(nadr, per);
+            embed::explore::RawDpaPeripheralInformation perInfo((uint16_t)nadr, per);
             perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.getRequest())->get());
 
             int version = perInfo.getPar1();
@@ -828,7 +828,7 @@ namespace iqrf {
 
           NodeDataPtr & nodeData = it.second;
 
-          std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+          std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate((uint16_t)nadr));
           exploreEnumeratePtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest())->get());
           nodeData->setEmbedExploreEnumerate(exploreEnumeratePtr);
 
@@ -850,19 +850,19 @@ namespace iqrf {
 
           try {
             TRC_INFORMATION("Getting os.Read: " << PAR(nadr));
-            std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(nadr));
+            std::unique_ptr <embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead((uint16_t)nadr));
             osReadPtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(osReadPtr->getRequest())->get());
             nodeData->setEmbedOsRead(osReadPtr);
           }
           catch (std::exception & e) {
-            TRC_WARNING("No response os.Read => cannot evaluate: " << PAR(nadr));
+            CATCH_EXC_TRC_WAR(std::exception, e, "No response os.Read => cannot evaluate: " << PAR(nadr));
             continue;
           }
 
           if (!nodeData->getEmbedOsRead()->is410Compliant()) {
             try {
               TRC_INFORMATION("os.Read !is410Compliant() => getting explore.Enumerate: " << PAR(nadr));
-              std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(nadr));
+              std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate((uint16_t)nadr));
               exploreEnumeratePtr->processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(exploreEnumeratePtr->getRequest())->get());
               nodeData->setEmbedExploreEnumerate(exploreEnumeratePtr);
             }
@@ -896,7 +896,7 @@ namespace iqrf {
       auto cp = m_iIqrfDpaService->getCoordinatorParameters();
 
       bool enumCoord = (0 == m_nadrFullEnumNodeMap.begin()->first);
-      int enumNodeCount = m_nadrFullEnumNodeMap.size();
+      int enumNodeCount = (int)m_nadrFullEnumNodeMap.size();
       if (enumCoord) {
         --enumNodeCount; //C is enumed separately
         // coordinator enumeration
@@ -1267,11 +1267,16 @@ namespace iqrf {
               };
             }
 
+            std::ostringstream ostrDrv;
+
             std::string str2load;
             std::set<int> driverIdSet;
             for (auto it : driverIdDriverMap) {
               driverIdSet.insert(it.first);
               str2load += it.second.m_drv;
+
+              ostrDrv << '[' << it.second.m_stdId << ',' << it.second.m_ver << "] ";
+
             }
             str2load += customDrv;
             str2load += wrapperStr; // add wrapper
@@ -1295,9 +1300,36 @@ namespace iqrf {
             };
 
             // map according nadr
+            std::ostringstream ostrNadr;
+
             for (auto nadr : nadrs) {
               m_iJsRenderService->mapNadrToFenced(nadr, deviceId);
+              ostrNadr << nadr << ", ";
             }
+
+            int hwpid, hwpidVer, osBuild, dpaVer;
+            db << "SELECT "
+              " Hwpid "
+              " , HwpidVer "
+              " , OsBuild "
+              " , DpaVer "
+              " FROM Device "
+              " WHERE Id = ? "
+              ";"
+              << deviceId
+              >> std::tie(hwpid, hwpidVer, osBuild, dpaVer);
+
+            // tracing to JsCache special trace channel to have all load drv trace info in one file
+            TRC_INFORMATION_CHN(33, "iqrf::JsCache", "Loading drivers for context: "
+              << PAR(deviceId) << PAR(hwpid) << PAR(hwpidVer) << PAR(osBuild) << PAR(dpaVer)
+              << std::endl << "nadr: " << ostrNadr.str()
+              << std::endl << "drv:  " << ostrDrv.str()
+              << (deviceId != coordDeviceId ? "" :
+                "\nNote: This is context of [C] device. We added the highest standard version drivers to handle their FRC by this context.\n"
+                "We cannot cope with the standard FRC over devices with different standard versions here if the FRC is not backward compatible."
+                )
+              << std::endl
+            );
 
           }
 
@@ -1752,7 +1784,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
 
-      light::jsdriver::Enumerate lightEnum(m_iJsRenderService, nadr);
+      light::jsdriver::Enumerate lightEnum(m_iJsRenderService, (uint16_t)nadr);
       lightEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(lightEnum.getRequest())->get());
 
       database & db = *m_db;
@@ -1775,7 +1807,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
 
-      binaryoutput::jsdriver::Enumerate binoutEnum(m_iJsRenderService, nadr);
+      binaryoutput::jsdriver::Enumerate binoutEnum(m_iJsRenderService, (uint16_t)nadr);
       binoutEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(binoutEnum.getRequest())->get());
 
       database & db = *m_db;
@@ -1798,7 +1830,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
 
-      sensor::jsdriver::Enumerate sensorEnum(m_iJsRenderService, nadr);
+      sensor::jsdriver::Enumerate sensorEnum(m_iJsRenderService, (uint16_t)nadr);
       sensorEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(sensorEnum.getRequest())->get());
 
       auto const & sensors = sensorEnum.getSensors();

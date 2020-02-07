@@ -56,7 +56,7 @@ namespace iqrf
         const std::vector<uint8_t> & getUserData() const { return m_userData; }
 
         // get data as returned from frc
-        uint8_t getStatus() const { return m_status; }
+        uint8_t getStatus() const { return (uint8_t)m_status; }
         const std::vector<uint8_t> & getFrcData() const { return m_frcData; }
 
         // get selected nodes

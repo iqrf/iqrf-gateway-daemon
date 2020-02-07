@@ -209,7 +209,8 @@ namespace iqrf {
         }
       }
 
-      TRC_INFORMATION("Loading drivers: " << ostr.str());
+      TRC_INFORMATION("Loading provisory drivers (no context): "
+        << std::endl << ostr.str());
       TRC_FUNCTION_LEAVE("");
       return map2;
     }

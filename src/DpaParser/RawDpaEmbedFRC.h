@@ -51,7 +51,7 @@ namespace iqrf
               dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = m_frcCommand;
 
               // set selectedNodes
-              int selNodesLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes) / sizeof(uint8_t);
+              size_t selNodesLen = sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes) / sizeof(uint8_t);
               std::vector<uint8_t> snBytes = indexesToBitmap(m_selectedNodes, selNodesLen);
               std::copy(snBytes.data(), snBytes.data() + selNodesLen
                 , dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes);
@@ -93,8 +93,8 @@ namespace iqrf
 
               // set len
               dpaRequest.SetLength(getRequestHeaderLen()
-                + sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand)
-                + m_userData.size()
+                + (int)sizeof(dpaRequest.DpaPacket().DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand)
+                + (int)m_userData.size()
               );
             }
           }
