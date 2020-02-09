@@ -55,6 +55,11 @@
               "type": "integer",
               "description": "number of the enumeration phase steps",
               "default": 0
+            },
+            "percentage": {
+              "type": "integer",
+              "description": "very rough percentage of enum overall procedure usable for gui progress bar",
+              "default": 0
             }
           },
           "required": [

@@ -508,6 +508,7 @@ namespace iqrf {
           Pointer("/data/rsp/enumPhase").Set(doc, (int)m_estate.m_phase, a);
           Pointer("/data/rsp/step").Set(doc, m_estate.m_step, a);
           Pointer("/data/rsp/steps").Set(doc, m_estate.m_steps, a);
+          Pointer("/data/rsp/percentage").Set(doc, m_estate.m_percentage, a);
         }
       }
 

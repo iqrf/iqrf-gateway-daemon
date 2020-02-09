@@ -94,8 +94,8 @@ This is done by:
 - JS driver identification is done by an existing package from IqrfRepo
 - if the device is not registered in IqrfRepo the drivers are evaluated according DPA requests *iqrf.embed.exprore.PeripheralInformation* and *iqrf.embed.exprore.MorePeripheralInformationn* 
 
-#### Load drivers
-This loads JS drivers from IqrfRepo to standalone JS engine per device.
+#### Device enum
+This selects and loads JS drivers from IqrfRepo to standalone JS engine per device.
 
 #### Std enum
 This phase take care only of Iqrf Standards enumeration with usage of matching JS drivers versions loaded in previous versions
@@ -156,10 +156,43 @@ Component **JsonIqrfInfoApi** provides JSON API. See schemes at https://gitlab.i
   - get - returns orphaned mids 
   - remove - remove orphaned mids 
 
+The request **infoDaemon_Enumeration** with command **now** provides more responses with an information about running enumeration phases. These items (see complete schema) provides the information:
+```json
+{
+            "enumPhase": {
+              "type": "integer",
+              "description": "enumeration phase",
+              "default": 0
+            },
+            "step": {
+              "type": "integer",
+              "description": "step order of the enumeration phase steps",
+              "default": 0
+            },
+            "steps": {
+              "type": "integer",
+              "description": "number of the enumeration phase steps",
+              "default": 0
+            },
+            "percentage": {
+              "type": "integer",
+              "description": "very rough percentage of enum overall procedure usable for gui progress bar",
+              "default": 0
+            }
+}
+```
+enumeration phase:
+- start = 0 just started
+- check = 1 running check enum phase 
+- fullNode = 2 running full enum phase 
+- fullDevice = 3 running device enum phase
+- standard = 4 running standard enum phase
+- finish = 5 all phases finished - this is last response
+
+All pfases provides actual **step** from **steps** number. The percentage is rough guess but good enough for GUI progress bar.  
 
 ## Next possible development steps
 
 - download only detected drivers from Iqrf Repo (makes sense only if provisory load skipped)
 - provide event system of finished enum phases and correct drivers load
-- provide user an info what's going on - e.g. percentage
  

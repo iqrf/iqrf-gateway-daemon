@@ -58,11 +58,13 @@ namespace iqrf
         :m_phase(phase)
         ,m_step(step)
         ,m_steps(steps)
+        ,m_percentage(0)
       {}
 
       Phase m_phase = Phase::start;
       int m_step = 1; // step order in steps
       int m_steps = 1; // number of steps of the phase
+      int m_percentage = 0; // rough percetage estimation of overall enumeration procedure
     };
 
     typedef std::function<void(EnumerationState es)> EnumerateHandlerFunc;

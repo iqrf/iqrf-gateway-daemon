@@ -27,6 +27,7 @@
 #include <random>
 #include <cstddef>
 #include <tuple>
+#include <cmath>
 
 #include "iqrf__IqrfInfo.hxx"
 
@@ -262,6 +263,48 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    // percentage estimate
+    void percentageEstimate(IIqrfInfo::EnumerationState & estate)
+    {
+      const int estimateCheck = 5;
+      const int estimatefullNode = 70;
+      const int estimatefullDevice = 85;
+      const int estimateStandard = 99;
+
+      switch (estate.m_phase) {
+        case IIqrfInfo::EnumerationState::Phase::start:
+          estate.m_percentage = 0;
+          break;
+        case IIqrfInfo::EnumerationState::Phase::check:
+          estate.m_percentage = estimateCheck;
+          break;
+        case IIqrfInfo::EnumerationState::Phase::fullNode:
+        {
+          double span = estimatefullNode - estimateCheck;
+          estate.m_percentage = floor(estimateCheck + (span / (double)estate.m_steps) * estate.m_step);
+          break;
+        }
+        case IIqrfInfo::EnumerationState::Phase::fullDevice:
+        {
+          double span = estimatefullDevice - estimatefullNode;
+          estate.m_percentage = floor(estimatefullNode + (span / (double)estate.m_steps) * estate.m_step);
+          break;
+        }
+        case IIqrfInfo::EnumerationState::Phase::standard:
+        {
+          double span = estimateStandard - estimatefullDevice;
+          estate.m_percentage = floor(estimatefullDevice + (span / (double)estate.m_steps) * estate.m_step);
+          break;
+        }
+        case IIqrfInfo::EnumerationState::Phase::finish:
+          estate.m_percentage = 100;
+          break;
+        default:
+          ;
+      }
+    }
+
+
     void runEnum()
     {
       TRC_FUNCTION_ENTER("");
@@ -320,6 +363,7 @@ namespace iqrf {
 
     void handleEnumEvent(EnumerationState estate)
     {
+      percentageEstimate(estate);
       try {
         for (auto & hnd : m_enumHandlers) {
           hnd.second(estate);
