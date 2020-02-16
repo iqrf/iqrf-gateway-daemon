@@ -114,6 +114,14 @@ stages:
   tags:
     - linux, amd64
 
+.ubuntu-bionic-arm64-template: &ubuntu-bionic-arm64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-bionic-arm64
+  variables:
+    ARCH: "arm64"
+    DIST: "bionic"
+  tags:
+    - linux, arm64
+
 .ubuntu-bionic-armhf-template: &ubuntu-bionic-armhf-template
   image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-bionic-armhf
   variables:
@@ -137,6 +145,14 @@ stages:
     DIST: "xenial"
   tags:
     - linux, amd64
+
+.ubuntu-xenial-arm64-template: &ubuntu-xenial-arm64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-arm64
+  variables:
+    ARCH: "arm64"
+    DIST: "xenial"
+  tags:
+    - linux, arm64
 
 .ubuntu-xenial-armhf-template: &ubuntu-xenial-armhf-template
   image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-armhf
@@ -391,7 +407,15 @@ package-bionic-amd64:
 package_release-bionic-amd64:
   <<: *ubuntu-bionic-amd64-template
   <<: *package-release-template
-## amd64
+## arm64
+package-bionic-arm64:
+  <<: *ubuntu-bionic-arm64-template
+  <<: *package-devel-template
+
+package_release-bionic-arm64:
+  <<: *ubuntu-bionic-arm64-template
+  <<: *package-release-template
+## armhf
 package-bionic-armhf:
   <<: *ubuntu-bionic-armhf-template
   <<: *package-devel-template
@@ -418,6 +442,14 @@ package-xenial-amd64:
 
 package_release-xenial-amd64:
   <<: *ubuntu-xenial-amd64-template
+  <<: *package-release-template
+## arm64
+package-xenial-arm64:
+  <<: *ubuntu-xenial-arm64-template
+  <<: *package-devel-template
+
+package_release-xenial-arm64:
+  <<: *ubuntu-xenial-arm64-template
   <<: *package-release-template
 ## armhf
 package-xenial-armhf:
