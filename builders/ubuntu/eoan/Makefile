@@ -14,7 +14,7 @@
 
 DISTRIBUTION := ubuntu
 REPOSITORY := iqrftech/iqrf-gateway-daemon-builder
-VERSION := disco
+VERSION := eoan
 
 all: build-all push-all
 

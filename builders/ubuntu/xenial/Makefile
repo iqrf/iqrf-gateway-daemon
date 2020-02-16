@@ -18,12 +18,18 @@ VERSION := xenial
 
 all: build-all push-all
 
-build-all: build-amd64
+build-all: build-amd64 build-armhf
 
 build-amd64:
 	docker build -f amd64.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-amd64 .
 
-push-all: push-amd64
+build-armhf:
+	docker build -f armhf.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armhf .
+
+push-all: push-amd64 push-armhf
 
 push-amd64:
 	docker push $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-amd64
+
+push-armhf:
+	docker push $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armhf

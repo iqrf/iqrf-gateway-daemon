@@ -114,11 +114,19 @@ stages:
   tags:
     - linux, amd64
 
-.ubuntu-disco-amd64-template: &ubuntu-disco-amd64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-disco-amd64
+.ubuntu-bionic-armhf-template: &ubuntu-bionic-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-bionic-armhf
+  variables:
+    ARCH: "armhf"
+    DIST: "bionic"
+  tags:
+    - linux, armhf
+
+.ubuntu-eoan-amd64-template: &ubuntu-eoan-amd64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-eoan-amd64
   variables:
     ARCH: "amd64"
-    DIST: "disco"
+    DIST: "eoan"
   tags:
     - linux, amd64
 
@@ -129,6 +137,14 @@ stages:
     DIST: "xenial"
   tags:
     - linux, amd64
+
+.ubuntu-xenial-armhf-template: &ubuntu-xenial-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-armhf
+  variables:
+    ARCH: "armhf"
+    DIST: "xenial"
+  tags:
+    - linux, armhf
 
 .ssh_template:
   before_script:
@@ -375,15 +391,23 @@ package-bionic-amd64:
 package_release-bionic-amd64:
   <<: *ubuntu-bionic-amd64-template
   <<: *package-release-template
-
-# Ubuntu 19.04 disco
 ## amd64
-package-disco-amd64:
-  <<: *ubuntu-disco-amd64-template
+package-bionic-armhf:
+  <<: *ubuntu-bionic-armhf-template
   <<: *package-devel-template
 
-package_release-disco-amd64:
-  <<: *ubuntu-disco-amd64-template
+package_release-bionic-armhf:
+  <<: *ubuntu-bionic-armhf-template
+  <<: *package-release-template
+
+# Ubuntu 19.10 eoan
+## amd64
+package-eoan-amd64:
+  <<: *ubuntu-eoan-amd64-template
+  <<: *package-devel-template
+
+package_release-eoan-amd64:
+  <<: *ubuntu-eoan-amd64-template
   <<: *package-release-template
 
 # Ubuntu 16.04 xenial
@@ -394,6 +418,14 @@ package-xenial-amd64:
 
 package_release-xenial-amd64:
   <<: *ubuntu-xenial-amd64-template
+  <<: *package-release-template
+## armhf
+package-xenial-armhf:
+  <<: *ubuntu-xenial-armhf-template
+  <<: *package-devel-template
+
+package_release-xenial-armhf:
+  <<: *ubuntu-xenial-armhf-template
   <<: *package-release-template
 
 # API
