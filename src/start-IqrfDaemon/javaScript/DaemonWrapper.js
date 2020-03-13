@@ -431,6 +431,18 @@ if (iqrf.embed.os !== undefined) {
     };
     return result;
   };
+
+  iqrf.embed.os.Indicate_Request_req = function (param) {
+    return iqrf.embed.os.Indicate_Request(param.control);
+  };
+
+  iqrf.embed.os.Indicate_Response_rsp = function (rawHdp) {
+    iqrf.embed.os.Indicate_Response(rawHdp);
+    var result =
+    {
+    };
+    return result;
+  };
 }
 
 ////////////////////////
