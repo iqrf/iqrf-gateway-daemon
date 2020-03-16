@@ -232,6 +232,8 @@ namespace iqrf {
       uint8_t RequestHops, ResponseHops;
       uint8_t countWaves, countEmpty, countNewNodes, countWaveNewNodes;
       TWaveStateCode waveStateCode;
+      int progress;
+      int progressStep;
     }TAutonetworkProcessParams;
 
     // Parent object
@@ -1572,6 +1574,7 @@ namespace iqrf {
       // Fill response
       rapidjson::Pointer( "/data/rsp/wave" ).Set( waveState, antwProcessParams.countWaves );
       rapidjson::Pointer( "/data/rsp/waveStateCode" ).Set( waveState, (int)antwProcessParams.waveStateCode );
+      rapidjson::Pointer( "/data/rsp/progress" ).Set( waveState, (int)antwProcessParams.progress );
       if ( m_comAutonetwork->getVerbose() == true )
         rapidjson::Pointer( "/data/rsp/waveState" ).Set( waveState, getWaveState() );
       // Set status
@@ -1579,11 +1582,16 @@ namespace iqrf {
       Pointer( "/data/statusStr" ).Set( waveState, "ok" );
       // Send message      
       m_iMessagingSplitterService->sendMessage( *m_messagingId, std::move( waveState ) );
+
+      // Update progress
+      if( antwProcessParams.progress < 100)
+        antwProcessParams.progress += ( 100 / antwProcessParams.progressStep );
     }
 
     // Send wave result
     bool sendWaveResult( AutonetworkResult& autonetworkResult )
     {
+      antwProcessParams.progress = 100;
       if ( antwProcessParams.waveStateCode == TWaveStateCode::waveFinished )
       {
         // Maximum waves reached ?
@@ -1633,6 +1641,7 @@ namespace iqrf {
       rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( waveResult, antwProcessParams.bondedNodesNr );
       rapidjson::Pointer( "/data/rsp/newNodesNr" ).Set( waveResult, antwProcessParams.countWaveNewNodes );
       rapidjson::Pointer( "/data/rsp/waveStateCode" ).Set( waveResult, (int)antwProcessParams.waveStateCode );
+      rapidjson::Pointer( "/data/rsp/progress" ).Set( waveResult, (int)antwProcessParams.progress );
       if ( m_comAutonetwork->getVerbose() == true )
         rapidjson::Pointer( "/data/rsp/waveState" ).Set( waveResult, getWaveState() );
       rapidjson::Pointer( "/data/rsp/lastWave" ).Set( waveResult, stopCondReached );
@@ -1722,7 +1731,7 @@ namespace iqrf {
 
       // Send message      
       m_iMessagingSplitterService->sendMessage( *m_messagingId, std::move( waveResult ) );
-
+      
       return stopCondReached;
     }
 
@@ -1832,12 +1841,22 @@ namespace iqrf {
         std::srand( std::time( nullptr ) );
         uint8_t nodeSeed = (uint8_t)std::rand();
 
+        // Calculate progress step per wave
+        antwProcessParams.progressStep = 6;
+        if ( antwInputParams.skipDiscoveryEachWave == false )
+          antwProcessParams.progressStep++;
+        if ( antwInputParams.hwpidFiltering.empty() == false )
+          antwProcessParams.progressStep++;
+
         // Main loop
         while ( waveRun )
         {
           // Increment nodeSeed and countWaves
           nodeSeed++;
           antwProcessParams.countWaves++;
+
+          // Clear progress
+          antwProcessParams.progress = 0;
 
           // Run Discovery before start ?
           if ( ( antwProcessParams.countWaves == 1 ) && ( antwInputParams.discoveryBeforeStart == true ) && ( antwProcessParams.bondedNodesNr > 0 ) )
@@ -2400,8 +2419,6 @@ namespace iqrf {
       {
         // Set error
         TRC_WARNING( "Error during algorithm run: " << ex.what() );
-        // Send result
-        sendWaveResult( autonetworkResult );
       }
 
       // SQLDB add nodes
