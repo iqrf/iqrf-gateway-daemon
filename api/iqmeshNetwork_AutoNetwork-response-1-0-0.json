@@ -38,6 +38,10 @@
               "type": "integer",
               "description": "Wave state description notification code."
             },
+            "progress": {
+              "type": "integer",
+              "description": "Algorithm progress estimation [%]."
+            },
             "nodesNr": {
               "type": "integer",
               "description": "Number of nodes in the network."

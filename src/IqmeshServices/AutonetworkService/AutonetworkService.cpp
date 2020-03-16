@@ -24,27 +24,6 @@ namespace {
   // values of result error codes
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
-  static const int SERVICE_ERROR_INTERNAL = SERVICE_ERROR + 1;
-  static const int SERVICE_ERROR_NO_COORD_OR_COORD_OS = SERVICE_ERROR + 2;
-  static const int SERVICE_ERROR_GET_ADDRESSING_INFO = SERVICE_ERROR + 3;
-  static const int SERVICE_ERROR_GET_BONDED_NODES = SERVICE_ERROR + 4;
-  static const int SERVICE_ERROR_GET_DISCOVERED_NODES = SERVICE_ERROR + 5;
-  static const int SERVICE_ERROR_UNBONDED_NODES = SERVICE_ERROR + 6;
-  static const int SERVICE_ERROR_SET_HOPS = SERVICE_ERROR + 7;
-  static const int SERVICE_ERROR_SET_DPA_PARAMS = SERVICE_ERROR + 8;
-  static const int SERVICE_ERROR_PREBOND = SERVICE_ERROR + 9;
-  static const int SERVICE_ERROR_PREBONDED_ALIVE = SERVICE_ERROR + 10;
-  static const int SERVICE_ERROR_PREBONDED_MEMORY_READ = SERVICE_ERROR + 11;
-  static const int SERVICE_ERROR_AUTHORIZE_BOND = SERVICE_ERROR + 12;
-  static const int SERVICE_ERROR_REMOVE_BOND = SERVICE_ERROR + 13;
-  static const int SERVICE_ERROR_REMOVE_BOND_AND_RESTART = SERVICE_ERROR + 14;
-  static const int SERVICE_ERROR_CHECK_NEW_NODES = SERVICE_ERROR + 15;
-  static const int SERVICE_ERROR_REMOVE_BOND_AT_COORDINATOR = SERVICE_ERROR + 16;
-  static const int SERVICE_ERROR_RUN_DISCOVERY = SERVICE_ERROR + 17;
-  static const int SERVICE_ERROR_ALL_ADDRESS_ALLOCATED = SERVICE_ERROR + 18;
-  static const int SERVICE_ERROR_VALIDATE_BONDS = SERVICE_ERROR + 19;
-  static const int SERVICE_ERROR_INCORRECT_STOP_CONDITION = SERVICE_ERROR + 20;
-  static const int SERVICE_ERROR_TOO_MANY_NODES_FOUND = SERVICE_ERROR + 21;
 };
 
 namespace iqrf {
@@ -175,22 +154,26 @@ namespace iqrf {
     // waveState codes definition
     enum class TWaveStateCode
     {
-      sDiscoveryBeforeStart,
-      sSmartConnect,
-      sCheckProbondedAlive,
-      sReadPrebondedMID,
-      sReadPrebondedHWPID,
-      sEnumeration,
-      sAuthorize,
-      sPing,
-      sRemoveNotResponded,
-      sDiscovery,
-      sMaxNumWaves,
-      sNumberOfTotalNodes,
-      sMaxEmptyWaves,
-      sNumberOfNewNodes,
-      sAbortOnTooManyNodesFound,
-      sAbortOnAllAddresseAllocated
+      discoveryBeforeStart,
+      smartConnect,
+      checkProbondedAlive,
+      readPrebondedMID,
+      readPrebondedHWPID,
+      enumeration,
+      authorize,
+      ping,
+      removeNotResponded,
+      discovery,
+      stopOnMaxNumWaves,
+      stopOnNumberOfTotalNodes,
+      stopOnMaxEmptyWaves,
+      stopOnNumberOfNewNodes,
+      abortOnTooManyNodesFound,
+      abortOnAllAddresseAllocated,
+      waveFinished,
+      cannotStartProcessMaxAddress,
+      cannotStartProcessTotalNodesNr,
+      cannotStartProcessNewNodesNr,
     };
 
     // MID union
@@ -248,6 +231,9 @@ namespace iqrf {
       // TX and RX hops
       uint8_t RequestHops, ResponseHops;
       uint8_t countWaves, countEmpty, countNewNodes, countWaveNewNodes;
+      TWaveStateCode waveStateCode;
+      int progress;
+      int progressStep;
     }TAutonetworkProcessParams;
 
     // Parent object
@@ -1505,8 +1491,81 @@ namespace iqrf {
       return true;
     }
 
+    // Get string description of the wave state
+    const std::string getWaveState( void )
+    {
+      std::string strWaveState = "";
+      switch ( antwProcessParams.waveStateCode )
+      {
+        case TWaveStateCode::discoveryBeforeStart:
+          strWaveState = "Running discovery before start.";
+          break;
+        case TWaveStateCode::smartConnect:
+          strWaveState = "SmartConnect.";
+          break;
+        case TWaveStateCode::checkProbondedAlive:
+          strWaveState = "Reading prebonded alive nodes.";
+          break;
+        case TWaveStateCode::readPrebondedMID:
+          strWaveState = "Reading MIDs of prebonded alive nodes.";
+          break;
+        case TWaveStateCode::readPrebondedHWPID:
+          strWaveState = "Reading HWPID of prebonded alive nodes.";
+          break;
+        case TWaveStateCode::enumeration:
+          strWaveState = "Enumerating authorized nodes.";
+          break;
+        case TWaveStateCode::authorize:
+          strWaveState = "Authorizing nodes.";
+          break;
+        case TWaveStateCode::ping:
+          strWaveState = "Pinging nodes.";
+          break;
+        case TWaveStateCode::removeNotResponded:
+          strWaveState = "Removing not responded nodes.";
+          break;
+        case TWaveStateCode::discovery:
+          strWaveState = "Running discovery.";
+          break;
+        case TWaveStateCode::stopOnMaxNumWaves:
+          strWaveState = "Maximum number of waves reached.";
+          break;
+        case TWaveStateCode::stopOnNumberOfTotalNodes:
+          strWaveState = "Number of total nodes bonded into network.";
+          break;
+        case TWaveStateCode::stopOnMaxEmptyWaves:
+          strWaveState = "Maximum number of consecutive empty waves reached.";
+          break;
+        case TWaveStateCode::stopOnNumberOfNewNodes:
+          strWaveState = "Number of new nodes bonded into network.";
+          break;
+        case TWaveStateCode::abortOnTooManyNodesFound:
+          strWaveState = "Too many nodes found - Autonetwork process aborted.";
+          break;
+        case TWaveStateCode::abortOnAllAddresseAllocated:
+          strWaveState = "All available network addresses are already allocated - Autonetwork process aborted.";
+          break;
+        case TWaveStateCode::waveFinished:
+          strWaveState = "Wave finished.";
+          break;     
+        case TWaveStateCode::cannotStartProcessMaxAddress:
+          strWaveState = "The AutoNetwork process cannot be started because all available network addresses are already allocated.";
+          break;
+        case TWaveStateCode::cannotStartProcessTotalNodesNr:
+          strWaveState = "The AutoNetwork process cannot be started because the number of total nodes is equal or lower than the size of the existing network.";
+          break;
+        case TWaveStateCode::cannotStartProcessNewNodesNr:
+          strWaveState = "The AutoNetwork process cannot be started because the number of existing nodes plus number of new nodes exceeds the maximum network size.";
+          break;
+        default:
+          THROW_EXC( std::logic_error, "Unknown waveStateCode." );
+      }
+
+      return strWaveState;
+    }
+
     // Send autonetwok algorithm state
-    void sendWaveState( const TWaveStateCode state )
+    void sendWaveState( void )
     {
       Document waveState;
       // Set common parameters
@@ -1514,70 +1573,64 @@ namespace iqrf {
       Pointer( "/data/msgId" ).Set( waveState, m_comAutonetwork->getMsgId() );
       // Fill response
       rapidjson::Pointer( "/data/rsp/wave" ).Set( waveState, antwProcessParams.countWaves );
-      rapidjson::Pointer( "/data/rsp/waveStateCode" ).Set( waveState, (int)state );
+      rapidjson::Pointer( "/data/rsp/waveStateCode" ).Set( waveState, (int)antwProcessParams.waveStateCode );
+      rapidjson::Pointer( "/data/rsp/progress" ).Set( waveState, (int)antwProcessParams.progress );
       if ( m_comAutonetwork->getVerbose() == true )
-      {
-        std::string sWaveState = "";
-        switch ( state )
-        {
-          case TWaveStateCode::sDiscoveryBeforeStart:
-            sWaveState = "Running discovery before start.";
-            break;
-          case TWaveStateCode::sSmartConnect:
-            sWaveState = "SmartConnect.";
-            break;
-          case TWaveStateCode::sCheckProbondedAlive:
-            sWaveState = "Reading prebonded alive nodes.";
-            break;
-          case TWaveStateCode::sReadPrebondedMID:
-            sWaveState = "Reading MIDs of prebonded alive nodes.";
-            break;
-          case TWaveStateCode::sReadPrebondedHWPID:
-            sWaveState = "Reading HWPID of prebonded alive nodes.";
-            break;
-          case TWaveStateCode::sEnumeration:
-            sWaveState = "Enumerating authorized nodes.";
-            break;
-          case TWaveStateCode::sAuthorize:
-            sWaveState = "Authorizing nodes.";
-            break;
-          case TWaveStateCode::sPing:
-            sWaveState = "Pinging nodes.";
-            break;
-          case TWaveStateCode::sRemoveNotResponded:
-            sWaveState = "Removing not responded nodes.";
-            break;
-          case TWaveStateCode::sDiscovery:
-            sWaveState = "Running discovery.";
-            break;
-          case TWaveStateCode::sMaxNumWaves:
-            sWaveState = "Maximum number of waves reached.";
-            break;
-          case TWaveStateCode::sNumberOfTotalNodes:
-            sWaveState = "Number of total nodes bonded into network.";
-            break;
-          case TWaveStateCode::sMaxEmptyWaves:
-            sWaveState = "Maximum number of consecutive empty waves reached.";
-            break;
-          case TWaveStateCode::sNumberOfNewNodes:
-            sWaveState = "Number of new nodes bonded into network.";
-            break;
-          case TWaveStateCode::sAbortOnTooManyNodesFound:
-            sWaveState = "Too many nodes found - Autonetwork process aborted.";
-            break;
-        }
-        rapidjson::Pointer( "/data/rsp/waveState" ).Set( waveState, sWaveState );
-      }
+        rapidjson::Pointer( "/data/rsp/waveState" ).Set( waveState, getWaveState() );
       // Set status
       Pointer( "/data/status" ).Set( waveState, 0 );
       Pointer( "/data/statusStr" ).Set( waveState, "ok" );
       // Send message      
       m_iMessagingSplitterService->sendMessage( *m_messagingId, std::move( waveState ) );
+
+      // Update progress
+      if( antwProcessParams.progress < 100)
+        antwProcessParams.progress += ( 100 / antwProcessParams.progressStep );
     }
 
     // Send wave result
-    void sendWaveResult( AutonetworkResult& autonetworkResult )
+    bool sendWaveResult( AutonetworkResult& autonetworkResult )
     {
+      antwProcessParams.progress = 100;
+      if ( antwProcessParams.waveStateCode == TWaveStateCode::waveFinished )
+      {
+        // Maximum waves reached ?
+        if ( ( antwInputParams.stopConditions.waves != 0 ) && ( antwProcessParams.countWaves == antwInputParams.stopConditions.waves ) )
+        {
+          TRC_INFORMATION( "Maximum number of waves reached." );
+          antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxNumWaves;
+        }
+
+        // Maximum empty waves reached ?
+        if ( ( antwInputParams.stopConditions.emptyWaves != 0 ) && ( antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves ) )
+        {
+          TRC_INFORMATION( "Maximum number of consecutive empty waves reached." );
+          antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxEmptyWaves;
+        }
+
+        // Number of new nodes bonded into network ?
+        if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && ( antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes ) )
+        {
+          TRC_INFORMATION( "Number of new nodes bonded into network." );
+          antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfNewNodes;
+        }
+
+        // Number of total nodes bonded into network ?
+        if ( ( antwInputParams.stopConditions.numberOfTotalNodes != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes ) )
+        {
+          TRC_INFORMATION( "Number of total nodes bonded into network." );
+          antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfTotalNodes;
+        }
+
+        // Check max address
+        if ( antwProcessParams.bondedNodes == MAX_ADDRESS )
+        {
+          TRC_INFORMATION( "All available network addresses are already allocated - Autonetwork process aborted." );
+          antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddresseAllocated;
+        }
+      }
+
+      bool stopCondReached = antwProcessParams.waveStateCode != TWaveStateCode::waveFinished;
       Document waveResult;
       // Set common parameters
       Pointer( "/mType" ).Set( waveResult, m_msgType->m_type );
@@ -1587,6 +1640,11 @@ namespace iqrf {
       rapidjson::Pointer( "/data/rsp/wave" ).Set( waveResult, antwProcessParams.countWaves );
       rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( waveResult, antwProcessParams.bondedNodesNr );
       rapidjson::Pointer( "/data/rsp/newNodesNr" ).Set( waveResult, antwProcessParams.countWaveNewNodes );
+      rapidjson::Pointer( "/data/rsp/waveStateCode" ).Set( waveResult, (int)antwProcessParams.waveStateCode );
+      rapidjson::Pointer( "/data/rsp/progress" ).Set( waveResult, (int)antwProcessParams.progress );
+      if ( m_comAutonetwork->getVerbose() == true )
+        rapidjson::Pointer( "/data/rsp/waveState" ).Set( waveResult, getWaveState() );
+      rapidjson::Pointer( "/data/rsp/lastWave" ).Set( waveResult, stopCondReached );
       if ( antwProcessParams.respondedNewNodes.empty() == false )
       {
         // Rsp object
@@ -1673,6 +1731,8 @@ namespace iqrf {
 
       // Send message      
       m_iMessagingSplitterService->sendMessage( *m_messagingId, std::move( waveResult ) );
+      
+      return stopCondReached;
     }
 
     // Process the autonetwork algorithm
@@ -1681,7 +1741,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER( "" );
 
       // Autonetwork result
-      AutonetworkResult autonetworkResult;    
+      AutonetworkResult autonetworkResult;
       // List of new nodes passed to IqrfInfo when AN finishes
       std::map<int, embed::node::BriefInfo> newNodes;
 
@@ -1720,28 +1780,31 @@ namespace iqrf {
         // Check max address
         if ( antwProcessParams.bondedNodes == MAX_ADDRESS )
         {
-          TRC_INFORMATION( "All available network addresses are already allocated." )
-            AutonetworkError error( AutonetworkError::Type::AllAddressAllocated, "All available network addresses are already allocated." );
-          autonetworkResult.setError( error );
-          THROW_EXC( std::logic_error, "All available network addresses are already allocated." );
+          TRC_INFORMATION( "The AutoNetwork process cannot be started because all available network addresses are already allocated." )
+          antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessMaxAddress;
+          sendWaveResult( autonetworkResult );
+          TRC_FUNCTION_LEAVE( "" );
+          return;
         }
 
         // Check stop conditions - number of total nodes
         if ( ( antwInputParams.stopConditions.numberOfTotalNodes != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes ) )
         {
-          TRC_INFORMATION( "The AutoNetwork process cannot be started because the Number of total Nodes is equal or lower than the size of the existing network." )
-            AutonetworkError error( AutonetworkError::Type::IncorrectStopCondition, "The AutoNetwork process cannot be started because the Number of total Nodes is equal or lower than the size of the existing network." );
-          autonetworkResult.setError( error );
-          THROW_EXC( std::logic_error, "The AutoNetwork process cannot be started because the Number of total Nodes is equal or lower than the size of the existing network." );
+          TRC_INFORMATION( "The AutoNetwork process cannot be started because the number of total nodes is equal or lower than the size of the existing network." );
+          antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessTotalNodesNr;
+          sendWaveResult( autonetworkResult );
+          TRC_FUNCTION_LEAVE( "" );
+          return;
         }
 
         // Check stop conditions - number of new nodes          
         if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && ( ( antwInputParams.stopConditions.numberOfNewNodes + antwProcessParams.bondedNodesNr ) > MAX_ADDRESS ) )
         {
-          TRC_INFORMATION( "The AutoNetwork process cannot be started because the number of existing nodes plus Number of new Nodes exceeds the maximum network size of 239." )
-            AutonetworkError error( AutonetworkError::Type::IncorrectStopCondition, "The AutoNetwork process cannot be started because the number of existing nodes plus Number of new Nodes exceeds the maximum network size of 239." );
-          autonetworkResult.setError( error );
-          THROW_EXC( std::logic_error, "The AutoNetwork process cannot be started because the number of existing nodes plus Number of new Nodes exceeds the maximum network size of 239." );
+          TRC_INFORMATION( "The AutoNetwork process cannot be started because the number of existing nodes plus number of new nodes exceeds the maximum network size." );
+          antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessNewNodesNr;
+          sendWaveResult( autonetworkResult );
+          TRC_FUNCTION_LEAVE( "" );
+          return;
         }
 
         // Set FRC param to 0, store previous value
@@ -1778,58 +1841,29 @@ namespace iqrf {
         std::srand( std::time( nullptr ) );
         uint8_t nodeSeed = (uint8_t)std::rand();
 
+        // Calculate progress step per wave
+        antwProcessParams.progressStep = 6;
+        if ( antwInputParams.skipDiscoveryEachWave == false )
+          antwProcessParams.progressStep++;
+        if ( antwInputParams.hwpidFiltering.empty() == false )
+          antwProcessParams.progressStep++;
+
         // Main loop
         while ( waveRun )
         {
-          // Maximum waves reached ?
-          if ( ( antwInputParams.stopConditions.waves != 0 ) && ( antwProcessParams.countWaves == antwInputParams.stopConditions.waves ) )
-          {
-            TRC_INFORMATION( "Maximum number of waves reached." );
-            sendWaveState( TWaveStateCode::sMaxNumWaves );
-            break;
-          }
-
-          // Maximum empty waves reached ?
-          if ( ( antwInputParams.stopConditions.emptyWaves != 0 ) && ( antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves ) )
-          {
-            TRC_INFORMATION( "Maximum number of consecutive empty waves reached." );
-            sendWaveState( TWaveStateCode::sMaxEmptyWaves );
-            break;
-          }
-           
-          // Number of new nodes bonded into network ?
-          if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && ( antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes ) )
-          {
-            TRC_INFORMATION( "Number of new nodes bonded into network." );
-            sendWaveState( TWaveStateCode::sNumberOfNewNodes );
-            break;
-          }
-
-          // Number of total nodes bonded into network ?
-          if ( ( antwInputParams.stopConditions.numberOfTotalNodes != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes ) )
-          {
-            TRC_INFORMATION( "Number of total nodes bonded into network." );
-            sendWaveState( TWaveStateCode::sNumberOfTotalNodes );
-            break;
-          }
-
-          // Check max address
-          if ( antwProcessParams.bondedNodes == MAX_ADDRESS )
-          {
-            TRC_INFORMATION( "All available network addresses are already allocated - Autonetwork process aborted." );
-            sendWaveState( TWaveStateCode::sAbortOnAllAddresseAllocated );
-            break;
-          }
-
           // Increment nodeSeed and countWaves
           nodeSeed++;
           antwProcessParams.countWaves++;
+
+          // Clear progress
+          antwProcessParams.progress = 0;
 
           // Run Discovery before start ?
           if ( ( antwProcessParams.countWaves == 1 ) && ( antwInputParams.discoveryBeforeStart == true ) && ( antwProcessParams.bondedNodesNr > 0 ) )
           {
             TRC_INFORMATION( "Running Discovery before start." );
-            sendWaveState( TWaveStateCode::sDiscoveryBeforeStart );
+            antwProcessParams.waveStateCode = TWaveStateCode::discoveryBeforeStart;
+            sendWaveState();
             runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower );
           }
 
@@ -1837,7 +1871,8 @@ namespace iqrf {
           antwProcessParams.countWaveNewNodes = 0;
           antwProcessParams.respondedNewNodes.clear();
           TRC_INFORMATION( "SmartConnect." );
-          sendWaveState( TWaveStateCode::sSmartConnect );
+          antwProcessParams.waveStateCode = TWaveStateCode::smartConnect;
+          sendWaveState();
           smartConnect( autonetworkResult );
 
           // ToDo
@@ -1845,7 +1880,8 @@ namespace iqrf {
 
           // Get pre-bonded alive nodes
           TRC_INFORMATION( "Reading prebonded alive nodes." );
-          sendWaveState( TWaveStateCode::sCheckProbondedAlive );
+          antwProcessParams.waveStateCode = TWaveStateCode::checkProbondedAlive;
+          sendWaveState();
           TPerFrcSend_Response response = FrcPrebondedAliveNodes( autonetworkResult, nodeSeed );
           // Copy FrcData to FrcSelectMask
           FrcSelectMask.clear();
@@ -1866,30 +1902,31 @@ namespace iqrf {
             // Increase empty wave counter
             antwProcessParams.countEmpty++;
             // Send result
-            sendWaveResult( autonetworkResult );            
-            continue;
+            antwProcessParams.waveStateCode = TWaveStateCode::waveFinished;
+            if ( sendWaveResult( autonetworkResult ) == true )
+              break;
+            else
+              continue;
           }
 
-          // Break the wave when requested number of nodes (total/new) is found
+          // Abort the autonetwork process when requested number of nodes (total/new) is found
           if ( antwInputParams.stopConditions.abortOnTooManyNodesFound == true )
           {
             // Check number of total nodes
             if ( ( antwInputParams.stopConditions.numberOfTotalNodes != 0 ) && ( antwProcessParams.bondedNodesNr + FrcSelect.size() > antwInputParams.stopConditions.numberOfTotalNodes ) )
             {
-              TRC_INFORMATION( "Too many nodes found - Autonetwork process aborted." )
-                AutonetworkError error( AutonetworkError::Type::TooManyNodesFound, "Too many nodes found - Autonetwork process aborted." );
-              autonetworkResult.setError( error );
-              THROW_EXC( std::logic_error, "Too many nodes found - Autonetwork process aborted." );
+              TRC_INFORMATION( "Too many nodes found - Autonetwork process aborted." );
+              antwProcessParams.waveStateCode = TWaveStateCode::abortOnTooManyNodesFound;
+              sendWaveResult( autonetworkResult );
               break;
             }
 
             // Check number of new nodes
             if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && ( antwProcessParams.countNewNodes + FrcSelect.size() > antwInputParams.stopConditions.numberOfNewNodes ) )
             {
-              TRC_INFORMATION( "Too many nodes found - Autonetwork process aborted." )
-                AutonetworkError error( AutonetworkError::Type::TooManyNodesFound, "Too many nodes found - Autonetwork process aborted." );
-              autonetworkResult.setError( error );
-              THROW_EXC( std::logic_error, "Too many nodes found - Autonetwork process aborted." );
+              TRC_INFORMATION( "Too many nodes found - Autonetwork process aborted." );
+              antwProcessParams.waveStateCode = TWaveStateCode::abortOnTooManyNodesFound;
+              sendWaveResult( autonetworkResult );
               break;
             }
           }
@@ -1899,7 +1936,8 @@ namespace iqrf {
 
           // Read MIDs of prebonded alive nodes
           TRC_INFORMATION( NAME_PAR( Prebonded alive nodes, FrcSelect.size() ) );
-          sendWaveState( TWaveStateCode::sReadPrebondedMID );
+          antwProcessParams.waveStateCode = TWaveStateCode::readPrebondedMID;
+          sendWaveState();
           uint8_t offset = 0x00;
           maxStep = 0x00;
           stepBreak = false;
@@ -1961,7 +1999,7 @@ namespace iqrf {
                       stepBreak = true;
 
                     // Check number of new nodes
-                    if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && (maxStep + antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes ) )
+                    if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && ( maxStep + antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes ) )
                       stepBreak = true;
                   }
                 }
@@ -1972,7 +2010,7 @@ namespace iqrf {
                 node.authorizeErr = TAuthorizeErr::eFRC;
                 TRC_WARNING( "Reading prebonded MID: Node " << PAR( (int)node.node ) << " doesn't respond to FRC." );
               }
-              
+
               //  Add (or set) node to prebondedNodes map
               antwProcessParams.prebondedNodes[node.node] = node;
 
@@ -2002,7 +2040,8 @@ namespace iqrf {
             }
             // Read HWPID of prebonded alive nodes
             TRC_INFORMATION( "Reading HWPID of prebonded alive nodes." );
-            sendWaveState( TWaveStateCode::sReadPrebondedHWPID );
+            antwProcessParams.waveStateCode = TWaveStateCode::readPrebondedHWPID;
+            sendWaveState();
             offset = 0x00;
             uint8_t prebondedNodesCount = 0;
             maxStep = 0x00;
@@ -2072,7 +2111,8 @@ namespace iqrf {
           FrcSelect.clear();
           step = 0x00;
           TRC_INFORMATION( "Authorizing prebonded alive nodes." );
-          sendWaveState( TWaveStateCode::sAuthorize );
+          antwProcessParams.waveStateCode = TWaveStateCode::authorize;
+          sendWaveState();
           for ( std::pair<uint8_t, TPrebondedNode> node : antwProcessParams.prebondedNodes )
           {
             if ( antwProcessParams.bondedNodesNr + antwProcessParams.countWaveNewNodes >= MAX_ADDRESS )
@@ -2086,7 +2126,7 @@ namespace iqrf {
               break;
 
             // Node passed the authorizeControl (is intended to authorize) ?
-            if ( node.second.authorize == true)
+            if ( node.second.authorize == true )
             {
               // Yes, authorize the node
               retryAction = antwInputParams.actionRetries + 1;
@@ -2130,9 +2170,11 @@ namespace iqrf {
             }
             antwProcessParams.countEmpty++;
             // Send result
-            sendWaveResult( autonetworkResult );
-            // Next wave
-            continue;
+            antwProcessParams.waveStateCode = TWaveStateCode::waveFinished;
+            if ( sendWaveResult( autonetworkResult ) == true )
+              break;
+            else
+              continue;
           }
           else
             antwProcessParams.countEmpty = 0;
@@ -2144,7 +2186,8 @@ namespace iqrf {
           // TestCase - v prubehu ping odpojit uspesne autorizovany [N], overit, ze se odbonduje
           // TestCase - behem jednotlivych cyklu ping [N] odpojovat/zapojovat, overit, jak probehne odbondovani
           TRC_INFORMATION( "Pinging nodes." );
-          sendWaveState( TWaveStateCode::sPing );
+          antwProcessParams.waveStateCode = TWaveStateCode::ping;
+          sendWaveState();
           FrcOnlineNodes.clear();
           retryAction = antwInputParams.actionRetries + 1;
           while ( ( FrcSelect.size() != 0 ) && ( retryAction-- != 0 ) )
@@ -2210,7 +2253,8 @@ namespace iqrf {
           while ( ( FrcSelect.size() != 0 ) && ( retryAction-- != 0 ) )
           {
             TRC_INFORMATION( "Removing not responded nodes." );
-            sendWaveState( TWaveStateCode::sRemoveNotResponded );
+            antwProcessParams.waveStateCode = TWaveStateCode::removeNotResponded;
+            sendWaveState();
             // FRC_AcknowledgedBroadcastBits remove bond (for DPA < 0x0400 - send Batch command Remove bond + Restart)
             TPerFrcSend_Response response = removeNotRespondedNewNodes( autonetworkResult, FrcSelect );
             // Check the nodes contained in FrcSelect list acknowledged FRC_AcknowledgedBroadcastBits
@@ -2301,7 +2345,8 @@ namespace iqrf {
               do
               {
                 TRC_INFORMATION( "Running discovery." );
-                sendWaveState( TWaveStateCode::sDiscovery );
+                antwProcessParams.waveStateCode = TWaveStateCode::discovery;
+                sendWaveState();
                 try
                 {
                   uint8_t discNodes = runDiscovery( autonetworkResult, antwInputParams.discoveryTxPower );
@@ -2332,30 +2377,25 @@ namespace iqrf {
               if ( antwInputParams.hwpidFiltering.empty() == true )
               {
                 // No, pass only MIDs
-                newNodes.insert(std::make_pair(node.address, embed::node::BriefInfo(node.MID)));
+                newNodes.insert( std::make_pair( node.address, embed::node::BriefInfo( node.MID ) ) );
               }
               else
               {
                 // Yes, pass MID, HWPID and HWPID version
-                newNodes.insert(std::make_pair(node.address, embed::node::BriefInfo(node.MID, antwProcessParams.networkNodes[node.address].HWPID, antwProcessParams.networkNodes[node.address].HWPIDVer)));
+                newNodes.insert( std::make_pair( node.address, embed::node::BriefInfo( node.MID, antwProcessParams.networkNodes[node.address].HWPID, antwProcessParams.networkNodes[node.address].HWPIDVer ) ) );
               }
             }
-
-            // Send result
-            sendWaveResult( autonetworkResult );
           }
+
+          // Send result
+          antwProcessParams.waveStateCode = TWaveStateCode::waveFinished;
+          if ( sendWaveResult( autonetworkResult ) == true )
+            break;
         }
       }
       catch ( std::exception& ex )
       {
-        // Set error
         TRC_WARNING( "Error during algorithm run: " << ex.what() );
-        AutonetworkError error = autonetworkResult.getError();
-        if ( error.getType() == AutonetworkError::Type::NoError )
-        {
-          AutonetworkError error( AutonetworkError::Type::Internal, ex.what() );
-          autonetworkResult.setError( error );
-        }
         // Send result
         sendWaveResult( autonetworkResult );
       }
@@ -2378,15 +2418,8 @@ namespace iqrf {
       catch ( std::exception& ex )
       {
         // Set error
-        TRC_WARNING( "Error during algorithm run: " << ex.what() );        
-        AutonetworkError error( AutonetworkError::Type::Internal, ex.what() );
-        autonetworkResult.setError( error );
-        // Send result
-        sendWaveResult( autonetworkResult );
+        TRC_WARNING( "Error during algorithm run: " << ex.what() );
       }
-
-      // Release exclusive access
-      m_exclusiveAccess.reset();
 
       // SQLDB add nodes
       try
@@ -2398,6 +2431,7 @@ namespace iqrf {
       {
         TRC_ERROR( "Error inserting nodes to DB: " << ex.what() );
       }
+
       TRC_FUNCTION_LEAVE( "" );
     }
 
@@ -2462,6 +2496,8 @@ namespace iqrf {
       m_messagingId = &messagingId;
       m_comAutonetwork = &comAutonetwork;
       runAutonetwork();
+      // Release exclusive access
+      m_exclusiveAccess.reset();
 
       TRC_FUNCTION_LEAVE( "" );
     }
