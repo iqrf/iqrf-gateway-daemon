@@ -952,11 +952,11 @@ namespace iqrf {
     EXPECT_EQ(m_midOver, metaIdMid);
   }
 
-  TEST_F(TestMetaData, GetMidMetaId_MidMetaIdValid)
+  TEST_F(TestMetaData, GetMidMetaData_MidMetaIdValid)
   {
     using namespace rapidjson;
 
-    std::string msg = loadJsonMsg("./configuration/json/GetMidMetaId_midMetaIdValid.json");
+    std::string msg = loadJsonMsg("./configuration/json/GetMidMetaData_midMetaIdValid.json");
 
     //set valid metaData
     Document jmi;
@@ -977,11 +977,11 @@ namespace iqrf {
     EXPECT_EQ(m_snOver, sn);
   }
 
-  TEST_F(TestMetaData, GetMidMetaId_unknownMid)
+  TEST_F(TestMetaData, GetMidMetaData_unknownMid)
   {
     using namespace rapidjson;
 
-    std::string msg = loadJsonMsg("./configuration/json/GetMidMetaId_unknownMid.json");
+    std::string msg = loadJsonMsg("./configuration/json/GetMidMetaData_unknownMid.json");
 
     //set valid metaData
     Document jmi;
@@ -997,11 +997,11 @@ namespace iqrf {
     EXPECT_EQ(mngMetaDataMsgStatusConvertor::enum2str(mngMetaDataMsgStatus::st_midUnknown), estr);
   }
 
-  TEST_F(TestMetaData, GetMidMetaId_emptyMid)
+  TEST_F(TestMetaData, GetMidMetaData_emptyMid)
   {
     using namespace rapidjson;
 
-    std::string msg = loadJsonMsg("./configuration/json/GetMidMetaId_emptyMid.json");
+    std::string msg = loadJsonMsg("./configuration/json/GetMidMetaData_emptyMid.json");
 
     //set valid metaData
     Document jmi;

@@ -1,7 +1,7 @@
 {
-  "mType": "mngMetaData_GetMidMetaId",
+  "mType": "mngMetaData_GetMidMetaData",
   "data": {
-    "msgId": "test_GetMidMetaId_unknownValid",
+    "msgId": "test_GetMidMetaData_unknownValid",
     "req": {
       "mid": "unknown mid"
     },
