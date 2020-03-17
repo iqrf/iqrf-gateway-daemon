@@ -177,7 +177,7 @@ namespace iqrf {
     const std::string mType_ImportNadrMidMap = "mngMetaData_ImportNadrMidMap";
     const std::string mType_VerifyMetaDataAll = "mngMetaData_VerifyMetaDataAll";
     const std::string mType_GetMetaData = "mngMetaData_GetMetaData";
-    const std::string mType_GetMidMetaId = "mngMetaData_GetMidMetaId";
+    const std::string mType_GetMidMetaData = "mngMetaData_GetMidMetaData";
     const std::string mType_SetMetaData = "mngMetaData_SetMetaData";
     const std::string mType_SetMidMetaId = "mngMetaData_SetMidMetaId";
 
@@ -737,18 +737,18 @@ namespace iqrf {
     };
 
     //////////////////////////////////////////////
-    class GetMidMetaId : public MetaDataMsg
+    class GetMidMetaData : public MetaDataMsg
     {
     public:
-      GetMidMetaId() = delete;
-      GetMidMetaId(const rapidjson::Document& doc)
+      GetMidMetaData() = delete;
+      GetMidMetaData(const rapidjson::Document& doc)
         :MetaDataMsg(doc)
       {
         m_mid = Pointer("/data/req/mid").Get(doc)->GetString();
         m_metaData.reset(shape_new Imp::MetaData());
       }
 
-      virtual ~GetMidMetaId()
+      virtual ~GetMidMetaData()
       {
       }
 
@@ -963,7 +963,7 @@ namespace iqrf {
       m_objectFactory.registerClass <ImportNadrMidMap>(mType_ImportNadrMidMap);
       m_objectFactory.registerClass <VerifyMetaDataAll>(mType_VerifyMetaDataAll);
       m_objectFactory.registerClass <GetMetaData>(mType_GetMetaData);
-      m_objectFactory.registerClass <GetMidMetaId>(mType_GetMidMetaId);
+      m_objectFactory.registerClass <GetMidMetaData>(mType_GetMidMetaData);
       m_objectFactory.registerClass <SetMetaData>(mType_SetMetaData);
       m_objectFactory.registerClass <SetMidMetaId>(mType_SetMidMetaId);
     }

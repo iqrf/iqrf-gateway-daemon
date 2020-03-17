@@ -1,7 +1,7 @@
 {
-  "mType": "mngMetaData_GetMidMetaId",
+  "mType": "mngMetaData_GetMidMetaData",
   "data": {
-    "msgId": "GetMidMetaId",
+    "msgId": "GetMidMetaData",
     "req": {
       "mid": "81102D61"
     },
