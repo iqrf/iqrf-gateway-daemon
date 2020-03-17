@@ -1,5 +1,6 @@
 etc/iqrf-gateway-daemon
 etc/iqrf-gateway-daemon/certs
+etc/iqrf-gateway-daemon/certs/core
 etc/iqrf-gateway-daemon/cfgSchemas
 usr/lib/iqrf-gateway-daemon
 usr/share/iqrf-gateway-daemon

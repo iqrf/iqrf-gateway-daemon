@@ -1,0 +1,18 @@
+#!/bin/sh
+# preinst script for iqrf-gateway-daemon
+
+set -e
+
+openssl_create_ca() {
+  CA_DIR="/etc/iqrf-gateway-daemon/certs/core";
+	if [ ! -f ${CA_DIR}/cert.pem ] || [ ! -f ${CA_DIR}/privkey.pem ] ; then
+		openssl ecparam -name secp384r1 -genkey -param_enc explicit \
+		  -out ${CA_DIR}/privkey.pem
+    openssl req -new -x509 -days 3650 \
+      -subj "/C=CZ/ST=Hradec Kralove Region/L=Jicin/O=IQRF Tech s.r.o." \
+      -key ${CA_DIR}/privkey.pem -out ${CA_DIR}/cert.pem
+		chmod 600 ${CA_DIR}/*.pem
+	fi
+}
+
+openssl_create_ca
