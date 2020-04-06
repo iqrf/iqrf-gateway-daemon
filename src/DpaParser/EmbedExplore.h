@@ -30,7 +30,7 @@ namespace iqrf
 
       public:
         virtual ~Enumerate() {}
-        
+
         int getDpaVer() const { return m_dpaVer & 0x3fff; }
         int getPerNr() const { return m_perNr; }
         const std::set<int> & getEmbedPer() const { return m_embedPer; }
@@ -39,42 +39,40 @@ namespace iqrf
         int getFlags() const { return m_flags; }
         const std::set<int> & getUserPer() const { return m_userPer; }
 
-        static std::string getDpaVerAsString(int dpaVer)
+        static std::string getDpaVerAsString( int dpaVer )
         {
           std::ostringstream os;
-          os.fill('0');
-          os << std::hex <<
-            std::setw(2) << ((dpaVer & 0x3fff) >> 8) << '.' << std::setw(2) << (dpaVer & 0xff);
+          os << std::hex << std::setw( 1 ) << ( ( dpaVer & 0x3fff ) >> 8 ) << '.' << std::setw( 2 ) << ( dpaVer & 0xff );
           return os.str();
         }
 
         std::string getDpaVerAsString() const
         {
-          return getDpaVerAsString(m_dpaVer);
+          return getDpaVerAsString( m_dpaVer );
         }
 
-        static std::string getDpaVerAsHexaString(int dpaVer)
+        static std::string getDpaVerAsHexaString( int dpaVer )
         {
           std::ostringstream os;
-          os.fill('0');
-          os << std::hex << std::setw(4) << dpaVer;
+          os.fill( '0' );
+          os << std::hex << std::setw( 4 ) << dpaVer;
           return os.str();
         }
 
         std::string getDpaVerAsHexaString() const
         {
-          return getDpaVerAsHexaString(m_dpaVer);
+          return getDpaVerAsHexaString( m_dpaVer );
         }
 
         // TODO obsolete use int getDpaVer()
-        int getDpaVerMajor() const { return (m_dpaVer >> 8) & 0xFF; }
+        int getDpaVerMajor() const { return ( m_dpaVer >> 8 ) & 0xFF; }
         int getDpaVerMinor() const { return m_dpaVer & 0xFF; }
-        bool getDemoFlag() const { return (m_dpaVer & 0x8000) != 0; }
-        int getModeStd() const { return (m_flags & 1)? 1:0; }
-        bool isModeStd() const { return (m_flags & 1) != 0; }
-        bool isModeLp() const { return (m_flags & 1) == 0; }
-        int getStdAndLpSupport() const { return (m_flags & 0b100)? 1:0; }
-        bool isStdAndLpSupport() const { return (m_flags & 0b100) != 0; }
+        bool getDemoFlag() const { return ( m_dpaVer & 0x8000 ) != 0; }
+        int getModeStd() const { return ( m_flags & 1 ) ? 1 : 0; }
+        bool isModeStd() const { return ( m_flags & 1 ) != 0; }
+        bool isModeLp() const { return ( m_flags & 1 ) == 0; }
+        int getStdAndLpSupport() const { return ( m_flags & 0b100 ) ? 1 : 0; }
+        bool isStdAndLpSupport() const { return ( m_flags & 0b100 ) != 0; }
       };
       typedef std::unique_ptr<Enumerate> EnumeratePtr;
 
@@ -91,8 +89,8 @@ namespace iqrf
         int m_par1 = 0;
         int m_par2 = 0;
 
-        PeripheralInformation(int per)
-          : m_per(per)
+        PeripheralInformation( int per )
+          : m_per( per )
         {}
 
       public:
@@ -113,11 +111,11 @@ namespace iqrf
         {
         public:
           Param() = delete;
-          Param(int aperTe, int aperT, int apar1, int apar2)
-            :perTe(aperTe)
-            , perT(aperT)
-            , par1(apar1)
-            , par2(apar2)
+          Param( int aperTe, int aperT, int apar1, int apar2 )
+            :perTe( aperTe )
+            , perT( aperT )
+            , par1( apar1 )
+            , par2( apar2 )
           {}
 
           int perTe = 0;
@@ -133,21 +131,21 @@ namespace iqrf
         std::vector<Param> m_params;
         std::map<int, Param> m_perParamsMap;
 
-        MorePeripheralInformation(int per)
-          : m_per(per)
+        MorePeripheralInformation( int per )
+          : m_per( per )
         {}
 
       public:
         virtual ~MorePeripheralInformation() {}
         int getPer() const { return m_per; }
         const std::vector<Param> & getParams() const { return m_params; }
-        
+
         std::map<int, Param> getPerParamsMap()
         {
           std::map<int, Param> perParamsMap;
-          for (int i = 0; i < (int)m_params.size(); i++) {
-            if (m_params[i].perTe != PERIPHERAL_TYPE_DUMMY) {
-              perParamsMap.insert(std::make_pair(i + m_per, m_params[i]));
+          for ( int i = 0; i < (int)m_params.size(); i++ ) {
+            if ( m_params[i].perTe != PERIPHERAL_TYPE_DUMMY ) {
+              perParamsMap.insert( std::make_pair( i + m_per, m_params[i] ) );
             }
           }
           return perParamsMap;

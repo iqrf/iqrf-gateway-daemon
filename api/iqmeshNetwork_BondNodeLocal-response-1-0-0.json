@@ -126,6 +126,10 @@
                     "noInterfaceSupported": {
                       "type": "boolean",
                       "description": "Flags.4 - No interface supported."
+                    },
+                    "iqrfOsChanged": {
+                      "type": "boolean",
+                      "description": "Flags.5 - IQRF OS is changed from the originally manufactured version."
                     }
                   }
                 },
@@ -157,54 +161,54 @@
                     "default": 0
                   }
                 },
-								"dpaVer": {
-									"type": "string",
-									"description": "DPA version."
-								},
-								"perNr": {
-									"type": "integer",
-									"description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
-								},
-								"embPers": {
-									"type": "array",
-									"description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the HWP Configuration.",
-									"items": {
-										"type": "integer"
-									}
-								},
-								"hwpId": {
-									"type": "integer",
-									"description": "Hardware profile identification."
-								},
-								"hwpIdVer": {
-									"type": "integer",
-									"description": "Hardware profile version."
-								},
-								"enumFlags": {
-									"type": "object",
-									"description": "Various flags.",
-									"properties":  {
-										"value": {
-											"type": "integer"
-										},
-										"rfModeStd": {
-											"type": "boolean"
-										},
-										"rfModeLp": {
-											"type": "boolean"
-										},
-										"stdAndLpNetwork": {
-											"type": "boolean"
-										}
-									}
-								},
-								"userPers": {
-									"type": "array",
-									"description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
-									"items": {
-										"type": "integer"
-									}
-								}
+                "dpaVer": {
+                  "type": "string",
+                  "description": "DPA version."
+                },
+                "perNr": {
+                  "type": "integer",
+                  "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
+                },
+                "embPers": {
+                  "type": "array",
+                  "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the HWP Configuration.",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "hwpId": {
+                  "type": "integer",
+                  "description": "Hardware profile identification."
+                },
+                "hwpIdVer": {
+                  "type": "integer",
+                  "description": "Hardware profile version."
+                },
+                "enumFlags": {
+                  "type": "object",
+                  "description": "Various flags.",
+                  "properties": {
+                    "value": {
+                      "type": "integer"
+                    },
+                    "rfModeStd": {
+                      "type": "boolean"
+                    },
+                    "rfModeLp": {
+                      "type": "boolean"
+                    },
+                    "stdAndLpNetwork": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "userPers": {
+                  "type": "array",
+                  "description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
               },
               "required": [
                 "mid",
