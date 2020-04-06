@@ -886,6 +886,8 @@ namespace iqrf {
       rapidjson::Pointer( "/data/rsp/osRead/flags/dpaHandlerDetected" ).Set( response, osReadObject->isDpaHandlerDetected() );
       rapidjson::Pointer( "/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled" ).Set( response, osReadObject->isDpaHandlerNotDetectedButEnabled() );
       rapidjson::Pointer( "/data/rsp/osRead/flags/noInterfaceSupported" ).Set( response, osReadObject->isNoInterfaceSupported() );
+      if ( m_iIqrfDpaService->getCoordinatorParameters().dpaVerWord >= 0x0413 )
+        rapidjson::Pointer( "/data/rsp/osRead/flags/iqrfOsChanged" ).Set( response, osReadObject->isIqrfOsChanges() );
 
       // Slot limits
       rapidjson::Pointer( "/data/rsp/osRead/slotLimits/value" ).Set( response, osReadObject->getSlotLimits() );
