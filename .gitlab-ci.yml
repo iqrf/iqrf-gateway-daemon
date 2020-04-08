@@ -479,10 +479,12 @@ package_release-focal-arm64:
 package-focal-armhf:
   <<: *ubuntu-focal-armhf-template
   <<: *package-devel-template
+  allow_failure: true
 
 package_release-focal-armhf:
   <<: *ubuntu-focal-armhf-template
   <<: *package-release-template
+  allow_failure: true
 
 # Ubuntu 16.04 xenial
 ## amd64
