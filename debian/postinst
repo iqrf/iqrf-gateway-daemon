@@ -10,10 +10,15 @@ openssl_create_ca() {
   if [ ! -d ${CA_DIR} ] ; then
     mkdir -p ${CA_DIR}
   fi
+
+  if ! find /etc/iqrf-gateway-daemon/certs/core/ -type f -not -newermt "2020-04-12T00:00:00" -exec false {} + ; then
+    rm -rf "${CA_DIR}/cert.pem" "${CA_DIR}/privkey.pem"
+  fi
+
 	if [ ! -f ${CA_DIR}/cert.pem ] || [ ! -f ${CA_DIR}/privkey.pem ] ; then
-		openssl ecparam -name secp384r1 -genkey -param_enc explicit \
+		openssl ecparam -name secp384r1 -genkey -param_enc named_curve \
 		  -out ${CA_DIR}/privkey.pem
-    openssl req -new -x509 -days 3650 \
+    openssl req -new -x509 -sha256 -nodes -days 3650 \
       -subj "/CN=IQRF Gateway/C=CZ/ST=Hradec Kralove Region/L=Jicin/O=IQRF Tech s.r.o." \
       -key ${CA_DIR}/privkey.pem -out ${CA_DIR}/cert.pem
 		chmod 600 ${CA_DIR}/*.pem
