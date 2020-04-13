@@ -735,7 +735,7 @@ namespace iqrf
         }
 
         // Main RF channel A and RF output power needs restart for DPA < 3.02
-        if ( ( coordParams.dpaVerWord < 0x0300 ) || ( coordParams.dpaVerWord < 0x0301 ) )
+        if ( ( coordParams.dpaVerWord == 0x0300 ) || ( coordParams.dpaVerWord == 0x0301 ) )
         {
           if ( ( m_writeTrConfParams.rfSettings.rfChannelA != -1 ) || ( m_writeTrConfParams.rfSettings.txPower != -1 ) )
             m_writeTrConfParams.restartNeeded = true;
