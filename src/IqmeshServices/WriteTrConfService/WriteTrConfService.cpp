@@ -28,21 +28,8 @@ namespace
     BAND_916
   };
 
-  // baud rates
+  // Baud rates
   static uint8_t BAUD_RATES_SIZE = 9;
-
-  static uint32_t BaudRates[] =
-  {
-      1200,
-      2400,
-      4800,
-      9600,
-      19200,
-      38400,
-      57600,
-      115200,
-      230400
-  };
 
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
@@ -59,16 +46,13 @@ namespace iqrf
     enum class Type
     {
       NoError,
-      GetBondedNodes,
-      NoBondedNodes,
-      UpdateCoordChannelBand,
-      NodeNotBonded,
+      CheckPerCoordAndOS,
+      SetFrcParams,
       EnableFrc,
       DisableFrc,
       WriteTrConfByte,
-      SecurityPassword,
-      SecurityUserKey,
-      NoConfigBytes
+      FrcAcknowledgedBroadcastBits,
+      SetSecurity
     };
 
     WriteTrConfError() : m_type( Type::NoError ), m_message( "ko" ) {};
@@ -96,7 +80,7 @@ namespace iqrf
     std::string m_message;
   };
 
-  // Configuration byte - according to DPA spec
+  // Configuration byte - according to DPA spec. - TPerOSWriteCfgByteTriplet
   struct TrConfigByte
   {
     uint8_t address;
@@ -118,25 +102,35 @@ namespace iqrf
     }
   };
 
-  // holds information about configuration writing result for each node
+  // Holds information about configuration writing result
   class WriteTrConfResult
   {
   private:
+    // Error type
     WriteTrConfError m_error;
 
-    // transaction results
+    // Nodes list
+    std::basic_string<uint8_t> m_RespondedNodes;
+
+    // Transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
   public:
-
+    // Error type
     WriteTrConfError getError() const { return m_error; };
-
     void setError( const WriteTrConfError &error )
     {
       m_error = error;
     }
 
-    // adds transaction result into the list of results
+    // Nodes list
+    std::basic_string<uint8_t> getRespondedNodes() const { return m_RespondedNodes; };
+    void setRespondedNodes( const std::basic_string<uint8_t> nodes )
+    {
+      m_RespondedNodes = nodes;
+    }
+
+    // Adds transaction result into the list of results
     void addTransactionResult( std::unique_ptr<IDpaTransactionResult2> &transResult )
     {
       m_transResults.push_back( std::move( transResult ) );
@@ -147,7 +141,7 @@ namespace iqrf
       return ( m_transResults.size() > 0 );
     }
 
-    // consumes the first element in the transaction results list
+    // Consumes the first element in the transaction results list
     std::unique_ptr<IDpaTransactionResult2> consumeNextTransactionResult()
     {
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
@@ -197,6 +191,143 @@ namespace iqrf
 
   private:
 
+    // Check presence of Coordinator and OS peripherals on coordinator node
+    void checkPresentCoordAndCoordOs( WriteTrConfResult& writeTrConfResult )
+    {
+      TRC_FUNCTION_ENTER( "" );
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage perEnumRequest;
+        DpaMessage::DpaPacket_t perEnumPacket;
+        perEnumPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        perEnumPacket.DpaRequestPacket_t.PNUM = PNUM_ENUMERATION;
+        perEnumPacket.DpaRequestPacket_t.PCMD = CMD_GET_PER_INFO;
+        perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // Data to buffer
+        perEnumRequest.DataToBuffer( perEnumPacket.Buffer, sizeof( TDpaIFaceHeader ) );
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat( perEnumRequest, transResult, m_writeTrConfParams.repeat );
+        TRC_DEBUG( "Result from Device Exploration transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION( "Device exploration successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( Peripheral type, perEnumRequest.PeripheralType() )
+          << NAME_PAR( Node address, perEnumRequest.NodeAddress() )
+          << NAME_PAR( Command, (int)perEnumRequest.PeripheralCommand() )
+        );
+        // Check Coordinator and OS peripherals
+        if ( ( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.EmbeddedPers[0] & ( 1 << PNUM_FRC ) ) != ( 1 << PNUM_FRC ) )
+          THROW_EXC( std::logic_error, "Coordinator peripheral NOT found." );
+        if ( ( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.EmbeddedPers[0] & ( 1 << PNUM_OS ) ) != ( 1 << PNUM_OS ) )
+          THROW_EXC( std::logic_error, "OS peripheral NOT found." );
+        writeTrConfResult.addTransactionResult( transResult );
+        TRC_FUNCTION_LEAVE( "" );
+      }
+      catch ( std::exception& e )
+      {
+        WriteTrConfError error( WriteTrConfError::Type::CheckPerCoordAndOS, e.what() );
+        writeTrConfResult.setError( error );
+        writeTrConfResult.addTransactionResult( transResult );
+        THROW_EXC( std::logic_error, e.what() );
+      }
+    }
+
+    // Set FRC response time
+    uint8_t setFrcReponseTime( WriteTrConfResult& writeTrConfResult, uint8_t FRCresponseTime )
+    {
+      TRC_FUNCTION_ENTER( "" );
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage setFrcParamRequest;
+        DpaMessage::DpaPacket_t setFrcParamPacket;
+        setFrcParamPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        setFrcParamPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        setFrcParamPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SET_PARAMS;
+        setFrcParamPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        setFrcParamPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime = FRCresponseTime;
+        setFrcParamRequest.DataToBuffer( setFrcParamPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerFrcSetParams_RequestResponse ) );
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat( setFrcParamRequest, transResult, m_writeTrConfParams.repeat );
+        TRC_DEBUG( "Result from Set Hops transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION( "Set Hops successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( Peripheral type, setFrcParamRequest.PeripheralType() )
+          << NAME_PAR( Node address, setFrcParamRequest.NodeAddress() )
+          << NAME_PAR( Command, (int)setFrcParamRequest.PeripheralCommand() )
+        );
+        writeTrConfResult.addTransactionResult( transResult );
+        TRC_FUNCTION_LEAVE( "" );
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime;
+      }
+      catch ( std::exception& e )
+      {
+        WriteTrConfError error( WriteTrConfError::Type::SetFrcParams, e.what() );
+        writeTrConfResult.setError( error );
+        writeTrConfResult.addTransactionResult( transResult );
+        THROW_EXC( std::logic_error, e.what() );
+      }
+    }
+
+    // FRC_AcknowledgedBroadcastBits
+    TPerFrcSend_Response FrcAcknowledgedBroadcastBits( WriteTrConfResult& writeTrConfResult, const std::basic_string<uint8_t> userData )
+    {
+      TRC_FUNCTION_ENTER( "" );
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage frcAckBroadcastBitsRequest;
+        DpaMessage::DpaPacket_t frcAckBroadcastBitsPacket;
+        frcAckBroadcastBitsPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        frcAckBroadcastBitsPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        frcAckBroadcastBitsPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND;
+        frcAckBroadcastBitsPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // FRC Command
+        frcAckBroadcastBitsPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
+        // Set FRC user data
+        std::copy( userData.begin(), userData.end(), frcAckBroadcastBitsPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData );
+        // Data to buffer
+        frcAckBroadcastBitsRequest.DataToBuffer( frcAckBroadcastBitsPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerFrcSend_Request ) );
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat( frcAckBroadcastBitsRequest, transResult, m_writeTrConfParams.repeat );
+        TRC_DEBUG( "Result from FRC Acknowledged Broadcast Bits transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION( "FRC Acknowledged Broadcast Bits successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( Peripheral type, frcAckBroadcastBitsRequest.PeripheralType() )
+          << NAME_PAR( Node address, frcAckBroadcastBitsRequest.NodeAddress() )
+          << NAME_PAR( Command, (int)frcAckBroadcastBitsRequest.PeripheralCommand() )
+        );
+        // Check status
+        uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if ( status > 0xef )
+        {
+          TRC_WARNING( "FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX( "Status", (int)status ) );
+          THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( (int)status ) );
+        }
+        // Add FRC result
+        TRC_INFORMATION( "FRC Prebonded Memory Read status ok." << NAME_PAR_HEX( "Status", (int)status ) );
+        writeTrConfResult.addTransactionResult( transResult );
+        TRC_FUNCTION_LEAVE( "" );
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
+      }
+      catch ( std::exception& e )
+      {
+        WriteTrConfError error( WriteTrConfError::Type::FrcAcknowledgedBroadcastBits, e.what() );
+        writeTrConfResult.setError( error );
+        writeTrConfResult.addTransactionResult( transResult );
+        THROW_EXC( std::logic_error, e.what() );
+      }
+    }
+
     // Write TR config by unicast request
     void writeTrConfUnicast( WriteTrConfResult &writeTrConfResult, const uint16_t deviceAddr, const uint16_t hwpId, const std::vector<TrConfigByte> &trConfigBytes )
     {
@@ -223,9 +354,9 @@ namespace iqrf
         writeCfgByteRequest.DataToBuffer( writeCfgBytePacket.Buffer, sizeof( TDpaIFaceHeader ) + index * sizeof( TPerOSWriteCfgByteTriplet ) );
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat( writeCfgByteRequest, transResult, m_writeTrConfParams.repeat );
-        TRC_DEBUG( "Result from Authorize Bond transaction as string:" << PAR( transResult->getErrorString() ) );
+        TRC_DEBUG( "Result from Write TR Configuration byte transaction as string:" << PAR( transResult->getErrorString() ) );
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION( "Write TR Configuration byte ok!" );
+        TRC_INFORMATION( "Write TR Configuration byte successful!" );
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR( Peripheral type, writeCfgByteRequest.PeripheralType() )
@@ -243,6 +374,60 @@ namespace iqrf
         writeTrConfResult.addTransactionResult( transResult );
         THROW_EXC( std::logic_error, e.what() );
       }
+    }
+
+    // Set security unicat
+    void setSecurityUnicast( WriteTrConfResult &writeTrConfResult, const uint16_t deviceAddr, const uint16_t hwpId, const uint8_t type, const std::basic_string<uint8_t> key )
+    {
+      TRC_FUNCTION_ENTER( "" );
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage setSecurityRequest;
+        DpaMessage::DpaPacket_t setSecurityPacket;
+        setSecurityPacket.DpaRequestPacket_t.NADR = deviceAddr;
+        setSecurityPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
+        setSecurityPacket.DpaRequestPacket_t.PCMD = CMD_OS_SET_SECURITY;
+        setSecurityPacket.DpaRequestPacket_t.HWPID = hwpId;
+        // Fill security type and key
+        setSecurityPacket.DpaRequestPacket_t.DpaMessage.PerOSSetSecurity_Request.Type = type;
+        std::copy( key.begin(), key.end(), setSecurityPacket.DpaRequestPacket_t.DpaMessage.PerOSSetSecurity_Request.Data );
+        // Data to buffer
+        setSecurityRequest.DataToBuffer( setSecurityPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerOSSetSecurity_Request ) );
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat( setSecurityRequest, transResult, m_writeTrConfParams.repeat );
+        TRC_DEBUG( "Result from Set security transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION( "Set security successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( Peripheral type, setSecurityRequest.PeripheralType() )
+          << NAME_PAR( Node address, setSecurityRequest.NodeAddress() )
+          << NAME_PAR( Command, (int)setSecurityRequest.PeripheralCommand() )
+        );
+        // Add transaction
+        writeTrConfResult.addTransactionResult( transResult );
+        TRC_FUNCTION_LEAVE( "" );
+      }
+      catch ( std::exception& e )
+      {
+        WriteTrConfError error( WriteTrConfError::Type::WriteTrConfByte, e.what() );
+        writeTrConfResult.setError( error );
+        writeTrConfResult.addTransactionResult( transResult );
+        THROW_EXC( std::logic_error, e.what() );
+      }
+    }
+
+    // Convert bitmap returned by FrcAcknowledgedBroadcastBits to Node address array (containing Nodes that set bit0)
+    std::basic_string<uint8_t> bitmapToNodes( const TPerFrcSend_Response frcResponse )
+    {
+      std::basic_string<uint8_t> nodesListBit0;
+      nodesListBit0.clear();
+      for ( uint8_t i = 1; i < MAX_ADDRESS; i++ )
+        if ( frcResponse.FrcData[i / 8] & ( 1 << ( i % 8 ) ) )
+          nodesListBit0.push_back( i );
+      return nodesListBit0;
     }
 
     // Send WriteTrConfResult
@@ -359,9 +544,9 @@ namespace iqrf
           trConfigBytes.push_back( dpaConfigBits );
         }
 
-        // ToDO proverit 6, 7 asi pro DPA < 3.03 projid dok.
+        // Subordinate network channels for DPA 3.03 and DPA 3.04
         IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-        if ( coordParams.dpaVerWord < 0x0400 )
+        if ( ( coordParams.dpaVerWord == 0x0303 ) || ( coordParams.dpaVerWord == 0x0304 ) )
         {
           // Main RF channel A of the optional subordinate network
           if ( m_writeTrConfParams.rfSettings.rfSubChannelA != -1 )
@@ -434,37 +619,131 @@ namespace iqrf
           trConfigBytes.push_back( RFPGM );
         }
 
+        // Check, if Coordinator and OS peripherals are present at coordinator's
+        checkPresentCoordAndCoordOs( writeTrConfResult );
+
+        // Set FRC param to 0, store previous value
+        uint8_t frcResponseTime = 0;
+        frcResponseTime = setFrcReponseTime( writeTrConfResult, frcResponseTime );
+
         // Unicats address ?
         if ( m_writeTrConfParams.deviceAddress != BROADCAST_ADDRESS )
         {
-          writeTrConfUnicast( writeTrConfResult, m_writeTrConfParams.deviceAddress, m_writeTrConfParams.hwpId, trConfigBytes );
+          // Any TR configuration byte to set ?
+          if ( trConfigBytes.size() != 0 )
+            writeTrConfUnicast( writeTrConfResult, m_writeTrConfParams.deviceAddress, m_writeTrConfParams.hwpId, trConfigBytes );
+
+          // Set Access pasword
+          if ( m_writeTrConfParams.security.accessPassword.length() != 0 )
+            setSecurityUnicast( writeTrConfResult, m_writeTrConfParams.deviceAddress, m_writeTrConfParams.hwpId, 0x00, m_writeTrConfParams.security.accessPassword );
+
+          // Set User key
+          if ( m_writeTrConfParams.security.userKey.length() != 0 )
+            setSecurityUnicast( writeTrConfResult, m_writeTrConfParams.deviceAddress, m_writeTrConfParams.hwpId, 0x01, m_writeTrConfParams.security.userKey );
+        }
+        else
+        {
+          // Broadcast address, any TR configuration byte ?
+          if ( trConfigBytes.size() != 0 )
+          {
+            uint8_t confBytesIndex = 0;
+            std::basic_string<uint8_t> frcUserData;
+            do
+            {
+              // Fill OS Write Configuration byte request
+              frcUserData.clear();
+              frcUserData.push_back( 0x05 );
+              frcUserData.push_back( PNUM_OS );
+              frcUserData.push_back( CMD_OS_WRITE_CFG_BYTE );
+              frcUserData.push_back( m_writeTrConfParams.hwpId & 0xff );
+              frcUserData.push_back( m_writeTrConfParams.hwpId > 0x08 );
+              do
+              {
+                // Fill current TPerOSWriteCfgByteTriplet
+                frcUserData.push_back( trConfigBytes[confBytesIndex].address );
+                frcUserData.push_back( trConfigBytes[confBytesIndex].value );
+                frcUserData.push_back( trConfigBytes[confBytesIndex].mask );
+                // Add TPerOSWriteCfgByteTriplet length
+                frcUserData[0x00] += sizeof( TPerOSWriteCfgByteTriplet );
+                // Erase consumed TrConfigByte
+                trConfigBytes.erase( trConfigBytes.begin() );
+              } while ( ( ++confBytesIndex < 8 ) && ( trConfigBytes.size() != 0 ) );
+              // Send FrcAcknowledgedBroadcastBits
+              FrcAcknowledgedBroadcastBits( writeTrConfResult, frcUserData );
+            } while ( trConfigBytes.size() != 0 );
+          }
+
+          // Set Access pasword
+          if ( m_writeTrConfParams.security.accessPassword.length() != 0 )
+          {
+            // Fill OS Set security request
+            std::basic_string<uint8_t> frcUserData;
+            frcUserData.clear();
+            frcUserData.push_back( 0x06 + m_writeTrConfParams.security.accessPassword.length() );
+            frcUserData.push_back( PNUM_OS );
+            frcUserData.push_back( CMD_OS_SET_SECURITY );
+            frcUserData.push_back( m_writeTrConfParams.hwpId & 0xff );
+            frcUserData.push_back( m_writeTrConfParams.hwpId > 0x08 );
+            // Type 0x00 - Sets an access password
+            frcUserData.push_back( 0x00 );
+            std::copy( m_writeTrConfParams.security.accessPassword.begin(), m_writeTrConfParams.security.accessPassword.end(), frcUserData.begin() + frcUserData.size() );
+            // Send FrcAcknowledgedBroadcastBits
+            FrcAcknowledgedBroadcastBits( writeTrConfResult, frcUserData );
+          }
+
+          // Set User key
+          if ( m_writeTrConfParams.security.userKey.length() != 0 )
+          {
+            // Fill OS Set security request
+            std::basic_string<uint8_t> frcUserData;
+            frcUserData.clear();
+            frcUserData.push_back( 0x06 + m_writeTrConfParams.security.accessPassword.length() );
+            frcUserData.push_back( PNUM_OS );
+            frcUserData.push_back( CMD_OS_SET_SECURITY );
+            frcUserData.push_back( m_writeTrConfParams.hwpId & 0xff );
+            frcUserData.push_back( m_writeTrConfParams.hwpId > 0x08 );
+            // Type 0x01 - Sets a user key
+            frcUserData.push_back( 0x01 );
+            std::copy( m_writeTrConfParams.security.userKey.begin(), m_writeTrConfParams.security.userKey.end(), frcUserData.begin() + frcUserData.size() );
+            // Send FrcAcknowledgedBroadcastBits
+            FrcAcknowledgedBroadcastBits( writeTrConfResult, frcUserData );
+          }
         }
 
-        // Evaluate restartNeeded flag for DPA >= 4.00
-        if ( coordParams.dpaVerWord >= 0x0400 )
+        // Set initial FRC param
+        if ( frcResponseTime != 0 )
+          frcResponseTime = setFrcReponseTime( writeTrConfResult, frcResponseTime );
+
+        // Evaluate restartNeeded flag
+        // SPI and UART peripherals need restart
+        if ( m_writeTrConfParams.embPers.mask & ( ( 1 << PNUM_SPI ) | ( 1 << PNUM_UART ) ) != 0 )
+          m_writeTrConfParams.restartNeeded = true;
+
+        // dpaConfigBits need restart
+        if ( m_writeTrConfParams.dpaConfigBits.mask != 0 )
+          m_writeTrConfParams.restartNeeded = true;
+
+        // lpRxTimeout and uartBaudRate need restart
+        if ( ( m_writeTrConfParams.rfSettings.lpRxTimeout != -1 ) || ( m_writeTrConfParams.uartBaudRate != -1 ) )
+          m_writeTrConfParams.restartNeeded = true;
+
+        // RF signal filter needs restart for DPA < 4.12
+        if ( coordParams.dpaVerWord < 0x0412 )
         {
-          // SPI and UART peripherals need restart
-          if ( m_writeTrConfParams.embPers.mask & ( ( 1 << PNUM_SPI ) | ( 1 << PNUM_UART ) ) != 0 )
+          if ( m_writeTrConfParams.rfSettings.rxFilter != -1 )
             m_writeTrConfParams.restartNeeded = true;
-          
-          // dpaConfigBits need restart
-          if ( m_writeTrConfParams.dpaConfigBits.mask != 0 )
-            m_writeTrConfParams.restartNeeded = true;
+        }
 
-          // lpRxTimeout and uartBaudRate need restart
-          if ( ( m_writeTrConfParams.rfSettings.lpRxTimeout != -1 ) || ( m_writeTrConfParams.uartBaudRate != -1 ) )
+        // Main RF channel A and RF output power needs restart for DPA < 3.02
+        if ( ( coordParams.dpaVerWord < 0x0300 ) || ( coordParams.dpaVerWord < 0x0301 ) )
+        {
+          if ( ( m_writeTrConfParams.rfSettings.rfChannelA != -1 ) || ( m_writeTrConfParams.rfSettings.txPower != -1 ) )
             m_writeTrConfParams.restartNeeded = true;
-
-          // RF signal filter needs restart for DPA < 4.12
-          if ( coordParams.dpaVerWord < 0x0412 )
-          {
-            if ( m_writeTrConfParams.rfSettings.rxFilter != -1 )
-              m_writeTrConfParams.restartNeeded = true;
-          }
         }
 
         // Send result
         sendResult( writeTrConfResult );
+        TRC_FUNCTION_LEAVE( "" );
       }
       catch ( std::exception& ex )
       {
@@ -472,8 +751,6 @@ namespace iqrf
         // Send result
         sendResult( writeTrConfResult );
       }
-
-      TRC_FUNCTION_LEAVE( "" );
     }
 
     // Handle message

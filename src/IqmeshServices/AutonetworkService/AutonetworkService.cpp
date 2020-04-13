@@ -271,7 +271,7 @@ namespace iqrf {
     std::bitset<MAX_ADDRESS + 1> toNodesBitmap( const unsigned char* pData ) {
       std::bitset<MAX_ADDRESS + 1> nodesMap;
 
-      for ( int byteId = 0; byteId < 29; byteId++ ) {
+      for ( int byteId = 0; byteId <= 29; byteId++ ) {
         uint8_t bitComp = 1;
 
         for ( int bitId = 0; bitId < 8; bitId++ ) {
@@ -300,9 +300,9 @@ namespace iqrf {
         // Prepare DPA request
         DpaMessage perEnumRequest;
         DpaMessage::DpaPacket_t perEnumPacket;
-        perEnumPacket.DpaRequestPacket_t.NADR = 0x00;
-        perEnumPacket.DpaRequestPacket_t.PNUM = 0xFF;
-        perEnumPacket.DpaRequestPacket_t.PCMD = 0x3F;
+        perEnumPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        perEnumPacket.DpaRequestPacket_t.PNUM = PNUM_ENUMERATION;
+        perEnumPacket.DpaRequestPacket_t.PCMD = CMD_GET_PER_INFO;
         perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         perEnumRequest.DataToBuffer( perEnumPacket.Buffer, sizeof( TDpaIFaceHeader ) );
         // Execute the DPA request
@@ -316,14 +316,11 @@ namespace iqrf {
           << NAME_PAR( Node address, perEnumRequest.NodeAddress() )
           << NAME_PAR( Command, (int)perEnumRequest.PeripheralCommand() )
         );
-        // Parse response pdata
-        uns8* respData = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-        uint8_t embPers = respData[3];
-        // Check peripherals
-        if ( ( embPers & 0x01 ) != 0x01 )
+        // Check Coordinator and OS peripherals
+        if ( ( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.EmbeddedPers[0] & ( 1 << PNUM_FRC ) ) != ( 1 << PNUM_FRC ) )
           THROW_EXC( std::logic_error, "Coordinator peripheral NOT found." );
-        if ( ( embPers & 0x04 ) != 0x04 )
-          THROW_EXC( std::logic_error, "Coordinator OS peripheral NOT found." );
+        if ( ( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.EmbeddedPers[0] & ( 1 << PNUM_OS ) ) != ( 1 << PNUM_OS ) )
+          THROW_EXC( std::logic_error, "OS peripheral NOT found." );
         autonetworkResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
       }
@@ -808,19 +805,15 @@ namespace iqrf {
         autonetworkResult.addTransactionResult( transResult );
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if ( status <= 0xEF )
-        {
-          TRC_INFORMATION( "FRC Prebonded Alive status OK." << NAME_PAR_HEX( "Status", (int)status ) );
-          TRC_FUNCTION_LEAVE( "" );
-          return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
-        }
-        else
+        if ( status > 0xEF )     
         {
           TRC_WARNING( "FRC Prebonded Alive NOK!" << NAME_PAR_HEX( "Status", (int)status ) );
-          AutonetworkError error( AutonetworkError::Type::PrebondedAlive, "Bad FRC status." );
-          autonetworkResult.setError( error );
           THROW_EXC( std::logic_error, "Bad FRC status: " << PAR( (int)status ) );
         }        
+        // Add FRC result
+        TRC_INFORMATION( "FRC Prebonded Alive status OK." << NAME_PAR_HEX( "Status", (int)status ) );
+        TRC_FUNCTION_LEAVE( "" );
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
       }
       catch ( std::exception& e )
       {

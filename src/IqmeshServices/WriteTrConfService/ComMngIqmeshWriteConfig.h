@@ -304,11 +304,19 @@ namespace iqrf {
 
       // rxFilter
       if ( jsonVal = rapidjson::Pointer( "/data/req/rxFilter" ).Get( doc ) )
-        m_writeTrConfParams.rfSettings.rxFilter = jsonVal->GetInt();
+      {
+        int rxFilter = jsonVal->GetInt();
+        if ( ( rxFilter >= 0 ) && ( rxFilter <= 64 ) )
+          m_writeTrConfParams.rfSettings.rxFilter = rxFilter;
+      }
 
       // lpRxTimeout
       if ( jsonVal = rapidjson::Pointer( "/data/req/lpRxTimeout" ).Get( doc ) )
-        m_writeTrConfParams.rfSettings.lpRxTimeout = jsonVal->GetInt();
+      {
+        int lpRxTimeout = jsonVal->GetInt();
+        if ( ( lpRxTimeout >= 1 ) && ( lpRxTimeout <= 255 ) )
+          m_writeTrConfParams.rfSettings.lpRxTimeout = lpRxTimeout;
+      }
 
       // rfAltDsmChannel
       if ( jsonVal = rapidjson::Pointer( "/data/req/rfAltDsmChannel" ).Get( doc ) )
@@ -316,7 +324,51 @@ namespace iqrf {
 
       // uartBaudrate
       if ( jsonVal = rapidjson::Pointer( "/data/req/uartBaudrate" ).Get( doc ) )
-        m_writeTrConfParams.uartBaudRate = jsonVal->GetInt();
+      {
+        int baudRate = jsonVal->GetInt();
+        switch ( baudRate )
+        {
+          case 1200:
+            m_writeTrConfParams.uartBaudRate = 0;
+            break;
+
+          case 2400:
+            m_writeTrConfParams.uartBaudRate = 1;
+            break;
+
+          case 4800:
+            m_writeTrConfParams.uartBaudRate = 2;
+            break;
+
+          case 9600:
+            m_writeTrConfParams.uartBaudRate = 3;
+            break;
+
+          case 19200:
+            m_writeTrConfParams.uartBaudRate = 4;
+            break;
+
+          case 38400:
+            m_writeTrConfParams.uartBaudRate = 5;
+            break;
+
+          case 57600:
+            m_writeTrConfParams.uartBaudRate = 6;
+            break;
+
+          case 115200:
+            m_writeTrConfParams.uartBaudRate = 7;
+            break;
+
+          case 230400:
+            m_writeTrConfParams.uartBaudRate = 8;
+            break;
+
+          default:
+            m_writeTrConfParams.uartBaudRate = -1;
+            break;
+        }
+      }
 
       // customDpaHandler
       if ( jsonVal = rapidjson::Pointer( "/data/req/customDpaHandler" ).Get( doc ) )
@@ -434,7 +486,7 @@ namespace iqrf {
         m_writeTrConfParams.RFPGM.mask |= 0x80;
       }
 
-      // req / rfBand
+      // fBand
       if ( jsonVal = rapidjson::Pointer( "/data/req/rfBand" ).Get( doc ) )
       {
         std::string rfBandStr = jsonVal->GetString();
