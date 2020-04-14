@@ -30,6 +30,13 @@
               "type": "integer",
               "description": "Device address to write the configuration to. Broadcast address is also allowed."
             },
+            "respondedNodes": {
+              "type": "array",
+              "description": "Nodes that set bit0 in FrcAcknowledgedBroadcastBits response.",
+              "items": {
+                "type": "integer"
+              }
+            },
             "writeSuccess": {
               "type": "boolean",
               "description": "If sets, then configuration has been successfully written."

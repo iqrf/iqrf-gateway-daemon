@@ -317,9 +317,9 @@ namespace iqrf {
           << NAME_PAR( Command, (int)perEnumRequest.PeripheralCommand() )
         );
         // Check Coordinator and OS peripherals
-        if ( ( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.EmbeddedPers[0] & ( 1 << PNUM_FRC ) ) != ( 1 << PNUM_FRC ) )
+        if ( ( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.EmbeddedPers[PNUM_COORDINATOR / 8] & ( 1 << PNUM_COORDINATOR ) ) != ( 1 << PNUM_COORDINATOR ) )
           THROW_EXC( std::logic_error, "Coordinator peripheral NOT found." );
-        if ( ( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.EmbeddedPers[0] & ( 1 << PNUM_OS ) ) != ( 1 << PNUM_OS ) )
+        if ( ( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.EmbeddedPers[PNUM_OS / 8] & ( 1 << PNUM_OS ) ) != ( 1 << PNUM_OS ) )
           THROW_EXC( std::logic_error, "OS peripheral NOT found." );
         autonetworkResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
