@@ -505,7 +505,8 @@ namespace iqrf {
               TRC_WARNING("SPI status failure: " << PAR(retval));
               // stop listen thread only here
               if (BASE_TYPES_OPER_ERROR == retval) {
-                THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
+                //THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
+                TRC_WARNING("spi_iqrf_getSPIStatus() failed: " << PAR(retval) << " try to continue listening ...");
               }
             }
 
