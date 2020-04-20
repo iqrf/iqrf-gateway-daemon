@@ -90,14 +90,14 @@ namespace iqrf {
             
             for (int i = 0; i < 10; i++) {
               retval = spi_iqrf_getSPIStatus(&status);
-              TRC_INFORMATION("after write:" << PAR(i) << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus));
+              TRC_INFORMATION("after write:" << PAR(i) << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat));
               std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
             
             break;
           }
           else {
-            TRC_INFORMATION("wait to write: " << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus));
+            TRC_INFORMATION("wait to write:" << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat));
           }
         }
         //wait for next attempt
@@ -527,7 +527,7 @@ namespace iqrf {
               }
 
               // reading
-              TRC_INFORMATION("reading: " << PAR(status.dataReady))
+              TRC_INFORMATION("before reading:" << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat));
               int retval = spi_iqrf_read(m_rx, status.dataReady);
               if (BASE_TYPES_OPER_OK != retval) {
                 //THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_read() failed: " << PAR(retval));
