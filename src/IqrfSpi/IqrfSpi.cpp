@@ -531,7 +531,7 @@ namespace iqrf {
             }
             else {
               if ((int)status.dataNotReadyStatus != DataNotReady_prevVal) {
-                TRC_INFORMATION(PAR(status.dataNotReadyStatus) << PAR(DataNotReady_prevVal));
+                TRC_INFORMATION(PAR(status.dataNotReadyStatus) << PAR(DataNotReady_prevNum));
                 DataNotReady_prevVal = status.dataNotReadyStatus;
                 DataNotReady_prevNum = 0;
               }
