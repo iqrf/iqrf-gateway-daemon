@@ -18,26 +18,12 @@ using namespace rapidjson;
 
 namespace
 {
-
-  // RF channel band
-  enum class RF_ChannelBand
-  {
-    UNSPECIFIED,
-    BAND_433,
-    BAND_868,
-    BAND_916
-  };
-
-  // Baud rates
-  static uint8_t BAUD_RATES_SIZE = 9;
-
   // service general fail code - may and probably will be changed later in the future
   static const int SERVICE_ERROR = 1000;
 }; // namespace
 
 namespace iqrf
 {
-
   // Holds information about errors, which encounter during configuration write
   class WriteTrConfError
   {
@@ -48,14 +34,13 @@ namespace iqrf
       NoError,
       CheckPerCoordAndOS,
       SetFrcParams,
-      EnableFrc,
-      DisableFrc,
+      GetBondedNodes,
       WriteTrConfByte,
       FrcAcknowledgedBroadcastBits,
       SetSecurity
     };
 
-    WriteTrConfError() : m_type( Type::NoError ), m_message( "ko" ) {};
+    WriteTrConfError() : m_type( Type::NoError ), m_message( "ok" ) {};
     WriteTrConfError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
     WriteTrConfError( Type errorType, const std::string &message ) : m_type( errorType ), m_message( message ) {};
 
@@ -109,8 +94,17 @@ namespace iqrf
     // Error type
     WriteTrConfError m_error;
 
-    // Nodes list
-    std::basic_string<uint8_t> m_RespondedNodes;
+    // Bondes nodes list
+    std::basic_string<uint8_t> m_bondedNodes;
+      
+    // Nodes that didn't responded to FrcAcknowledgedBroadcastBits (bit0 = bit1 = 0)
+    std::basic_string<uint8_t> m_notRespondedNodes;
+
+    // Nodes their HWPID don't match the request (bit0 = 0, bit1 = 1)
+    std::basic_string<uint8_t> m_notMatchedNodes;
+
+    // Nodes their HWPID matched the request (bit0 = 1, bit1 = 0)
+    std::basic_string<uint8_t> m_matchedNodes;
 
     // Transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
@@ -123,12 +117,53 @@ namespace iqrf
       m_error = error;
     }
 
-    // Nodes list
-    std::basic_string<uint8_t> getRespondedNodes() const { return m_RespondedNodes; };
-    void setRespondedNodes( const std::basic_string<uint8_t> &nodes )
+    // Get bonded nodes
+    std::basic_string<uint8_t> getBondedNodes() const { return m_bondedNodes; };
+
+    // Set bonded nodes
+    void setBondedNodes( const std::basic_string<uint8_t> &bondedNodes )
     {
-      m_RespondedNodes = nodes;
+      m_bondedNodes = bondedNodes;
     }
+
+    // Get nodes that didn't responded (didn't set bit0 nor bit1) to FrcAcknowledgedBroadcastBits
+    std::basic_string<uint8_t> getNotRespondedNodes() const { return m_notRespondedNodes; };
+
+    // Check all bonded nodes responded (set bit0 or bit1) to FrcAcknowledgedBroadcastBits
+    void checkFrcResponse( const std::bitset<MAX_ADDRESS + 1> &frcDataBit0, const std::bitset<MAX_ADDRESS + 1> &frcDataBit1 )
+    {
+      // Check all bonded nodes
+      for ( uint8_t node : m_bondedNodes )
+      {
+        // HWPID matched the HWPID of the device ? 
+        if ( frcDataBit0[node] == true )
+        {
+          // Yes, node already added to m_notMatchedNodes list ?
+          if ( std::find( m_matchedNodes.begin(), m_matchedNodes.end(), node ) == m_matchedNodes.end() )
+            m_matchedNodes.push_back( node );
+          continue;
+        }
+
+        // HWPID did not match the HWPID of the device ? 
+        if ( frcDataBit1[node] == true )
+        {
+          // Yes, node already added to m_notMatchedNodes list ?
+          if ( std::find( m_notMatchedNodes.begin(), m_notMatchedNodes.end(), node ) == m_notMatchedNodes.end() )
+            m_notMatchedNodes.push_back( node );
+          continue;
+        }
+
+        // Node didn't respond (bit0 = bit1 = 0) 
+        if ( std::find( m_notRespondedNodes.begin(), m_notRespondedNodes.end(), node ) == m_notRespondedNodes.end() )
+          m_notRespondedNodes.push_back( node );
+      }
+    }
+
+    // Get not matched nodes
+    std::basic_string<uint8_t> getNotMatchedNodes() const { return m_notMatchedNodes; };
+
+    // Get matched nodes
+    std::basic_string<uint8_t> getMatchedNodes() const { return m_matchedNodes; };
 
     // Adds transaction result into the list of results
     void addTransactionResult( std::unique_ptr<IDpaTransactionResult2> &transResult )
@@ -170,21 +205,12 @@ namespace iqrf
     // Service input parameters
     TWriteTrConfInputParams m_writeTrConfParams;
 
-    uint8_t testik[64];
-
     // if is set Verbose mode
     bool m_returnVerbose = false;
-
-    // indication, if FRC has been temporarily enabled
-    bool m_frcEnabled = false;
 
   public:
     Imp( WriteTrConfService &parent ) : m_parent( parent )
     {
-      /*
-        m_msgType_mngIqmeshWriteConfig
-          = shape_new IMessagingSplitterService::MsgType(m_mTypeName_mngIqmeshWriteConfig, 1, 0, 0);
-          */
     }
 
     ~Imp()
@@ -193,8 +219,28 @@ namespace iqrf
 
   private:
 
+    // Convert nodes bitmap to Node address array
+    std::basic_string<uint8_t> bitmapToNodes( const uint8_t *nodesBitMap )
+    {
+      std::basic_string<uint8_t> nodesList;
+      nodesList.clear();
+      for ( uint8_t i = 0; i <= MAX_ADDRESS; i++ )
+        if ( nodesBitMap[i / 8] & ( 1 << ( i % 8 ) ) )
+          nodesList.push_back( i );
+      return ( nodesList );
+    }
+
+    // Convert FRC_AcknowledgedBroadcastBits response to nodes bitset
+    std::bitset<MAX_ADDRESS + 1> frcDataToNodesBitset( const uint8_t *frcData )
+    {
+      std::bitset<MAX_ADDRESS + 1> nodesBitset;
+      for ( uint8_t i = 0; i <= MAX_ADDRESS; i++ )
+        nodesBitset[i] = ( frcData[i / 8] & ( 1 << ( i % 8 ) ) ) == ( 1 << ( i % 8 ) );
+      return ( nodesBitset );
+    }
+
     // Check presence of Coordinator and OS peripherals on coordinator node
-    void checkPresentCoordAndCoordOs( WriteTrConfResult& writeTrConfResult )
+    TEnumPeripheralsAnswer checkPresentCoordAndCoordOs( WriteTrConfResult& writeTrConfResult )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -227,10 +273,53 @@ namespace iqrf
           THROW_EXC( std::logic_error, "OS peripheral NOT found." );
         writeTrConfResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
       }
       catch ( std::exception& e )
       {
         WriteTrConfError error( WriteTrConfError::Type::CheckPerCoordAndOS, e.what() );
+        writeTrConfResult.setError( error );
+        writeTrConfResult.addTransactionResult( transResult );
+        THROW_EXC( std::logic_error, e.what() );
+      }
+    }
+
+    // Returns list of bonded nodes
+    std::basic_string<uint8_t> getBondedNodes( WriteTrConfResult& writeTrConfResult )
+    {
+      TRC_FUNCTION_ENTER( "" );
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage getBondedNodesRequest;
+        DpaMessage::DpaPacket_t getBondedNodesPacket;
+        getBondedNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        getBondedNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+        getBondedNodesPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
+        getBondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        getBondedNodesRequest.DataToBuffer( getBondedNodesPacket.Buffer, sizeof( TDpaIFaceHeader ) );
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat( getBondedNodesRequest, transResult, m_writeTrConfParams.repeat );
+        TRC_DEBUG( "Result from get bonded nodes transaction as string:" << PAR( transResult->getErrorString() ) );
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION( "Get bonded nodes successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( Peripheral type, getBondedNodesRequest.PeripheralType() )
+          << NAME_PAR( Node address, getBondedNodesRequest.NodeAddress() )
+          << NAME_PAR( Command, (int)getBondedNodesRequest.PeripheralCommand() )
+        );
+        // Get response data
+        writeTrConfResult.addTransactionResult( transResult );
+        std::basic_string<uint8_t> bondedNodes = bitmapToNodes( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData );
+        writeTrConfResult.setBondedNodes( bondedNodes );
+        TRC_FUNCTION_LEAVE( "" );
+        return( bondedNodes );
+      }
+      catch ( std::exception& e )
+      {
+        WriteTrConfError error( WriteTrConfError::Type::GetBondedNodes, e.what() );
         writeTrConfResult.setError( error );
         writeTrConfResult.addTransactionResult( transResult );
         THROW_EXC( std::logic_error, e.what() );
@@ -278,7 +367,7 @@ namespace iqrf
     }
 
     // FRC_AcknowledgedBroadcastBits
-    TPerFrcSend_Response FrcAcknowledgedBroadcastBits( WriteTrConfResult& writeTrConfResult, const std::basic_string<uint8_t> userData )
+    std::basic_string<uint8_t> FrcAcknowledgedBroadcastBits( WriteTrConfResult& writeTrConfResult, const std::basic_string<uint8_t> userData )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -308,6 +397,7 @@ namespace iqrf
           << NAME_PAR( Node address, frcAckBroadcastBitsRequest.NodeAddress() )
           << NAME_PAR( Command, (int)frcAckBroadcastBitsRequest.PeripheralCommand() )
         );
+        writeTrConfResult.addTransactionResult( transResult );
         // Check status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if ( status > 0xef )
@@ -317,9 +407,34 @@ namespace iqrf
         }
         // Add FRC result
         TRC_INFORMATION( "FRC Prebonded Memory Read status ok." << NAME_PAR_HEX( "Status", (int)status ) );
+        std::basic_string<uint8_t> frcData;
+        frcData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, 55 );
+
+        // Read FRC extra results
+        DpaMessage extraResultRequest;
+        DpaMessage::DpaPacket_t extraResultPacket;
+        extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
+        extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        extraResultRequest.DataToBuffer( extraResultPacket.Buffer, sizeof( TDpaIFaceHeader ) );
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat( extraResultRequest, transResult, m_writeTrConfParams.repeat );
+        TRC_DEBUG( "Result from FRC CMD_FRC_EXTRARESULT transaction as string:" << PAR( transResult->getErrorString() ) );
+        dpaResponse = transResult->getResponse();
+        TRC_INFORMATION( "FRC CMD_FRC_EXTRARESULT successful!" );
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR( Peripheral type, extraResultRequest.PeripheralType() )
+          << NAME_PAR( Node address, extraResultRequest.NodeAddress() )
+          << NAME_PAR( Command, (int)extraResultRequest.PeripheralCommand() )
+        );
+        // Add FRC extra result
         writeTrConfResult.addTransactionResult( transResult );
+        // Append FRC data
+        frcData.append( dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, 7 );
         TRC_FUNCTION_LEAVE( "" );
-        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
+        return ( frcData );
       }
       catch ( std::exception& e )
       {
@@ -421,15 +536,15 @@ namespace iqrf
       }
     }
 
-    // Convert bitmap returned by FrcAcknowledgedBroadcastBits to Node address array (containing Nodes that set bit0)
-    std::basic_string<uint8_t> bitmapToNodes( const TPerFrcSend_Response frcResponse )
+    // Enable/disable FRC per. at [C]
+    void setFrcPerAtCoord( WriteTrConfResult &writeTrConfResult, bool perFrcState )
     {
-      std::basic_string<uint8_t> nodesListBit0;
-      nodesListBit0.clear();
-      for ( uint8_t i = 1; i <= MAX_ADDRESS; i++ )
-        if ( frcResponse.FrcData[i / 8] & ( 1 << ( i % 8 ) ) )
-          nodesListBit0.push_back( i );
-      return nodesListBit0;
+      std::vector<TrConfigByte> trConfigByteEmbPer;
+      trConfigByteEmbPer.clear();
+      uint8_t frcState = perFrcState == true ? 1 << ( PNUM_FRC % 8 ) : 0x00;
+      trConfigByteEmbPer.push_back( TrConfigByte( CFGIND_DPA_PERIPHERALS + ( PNUM_FRC / 8 ), frcState, 1 << ( PNUM_FRC % 8 ) ) );
+      writeTrConfUnicast( writeTrConfResult, COORDINATOR_ADDRESS, HWPID_DoNotCheck, trConfigByteEmbPer );
+      TRC_FUNCTION_LEAVE( "" );
     }
 
     // Send WriteTrConfResult
@@ -443,20 +558,45 @@ namespace iqrf
 
       // Add writeTrConf result
       Pointer( "/data/rsp/deviceAddr" ).Set( writeResult, m_writeTrConfParams.deviceAddress );
-      if ( writeTrConfResult.getError().getType() == WriteTrConfError::Type::NoError )
-        Pointer( "/data/rsp/writeSuccess" ).Set( writeResult, true );
-      else
-        Pointer( "/data/rsp/writeSuccess" ).Set( writeResult, false );
-      Pointer( "/data/rsp/restartNeeded" ).Set( writeResult, m_writeTrConfParams.restartNeeded );
-
-      // Add respondedNodes in case of BROADCAST_ADDRESS
+      // Broadcast address ?
       if ( m_writeTrConfParams.deviceAddress == BROADCAST_ADDRESS )
       {
-        rapidjson::Value jsonArray( kArrayType );
-        Document::AllocatorType& allocator = writeResult.GetAllocator();
-        for ( uint8_t node : writeTrConfResult.getRespondedNodes() )
-          jsonArray.PushBack( node, allocator );
-        Pointer( "/data/rsp/respondedNodes" ).Set( writeResult, jsonArray );
+        // Yes, check all bonded nodes responded to FRC
+        bool writeSuccess = ( writeTrConfResult.getNotRespondedNodes().size() == 0 ) && ( writeTrConfResult.getNotMatchedNodes().size() != writeTrConfResult.getBondedNodes().size() );
+        Pointer( "/data/rsp/writeSuccess" ).Set( writeResult, writeSuccess );
+
+        // Add restarNeeded (if at least one node sets bit0)
+        if ( writeTrConfResult.getMatchedNodes().size() != 0 )
+          Pointer( "/data/rsp/restartNeeded" ).Set( writeResult, m_writeTrConfParams.restartNeeded );
+
+        // Add notRespondedNodes
+        if ( writeTrConfResult.getNotRespondedNodes().size() != 0 )
+        {
+          rapidjson::Value jsonArray( kArrayType );
+          Document::AllocatorType& allocator = writeResult.GetAllocator();
+          for ( uint8_t node : writeTrConfResult.getNotRespondedNodes() )
+            jsonArray.PushBack( node, allocator );
+          Pointer( "/data/rsp/notRespondedNodes" ).Set( writeResult, jsonArray );
+        }
+
+        // Add notMatchedNodes
+        if ( writeTrConfResult.getNotMatchedNodes().size() != 0 )
+        {
+          rapidjson::Value jsonArray( kArrayType );
+          Document::AllocatorType& allocator = writeResult.GetAllocator();
+          for ( uint8_t node : writeTrConfResult.getNotMatchedNodes() )
+            jsonArray.PushBack( node, allocator );
+          Pointer( "/data/rsp/notMatchedNodes" ).Set( writeResult, jsonArray );
+        }
+      }
+      else
+      {
+        // Unicast address
+        bool writeSuccess = writeTrConfResult.getError().getType() == WriteTrConfError::Type::NoError;
+        Pointer( "/data/rsp/writeSuccess" ).Set( writeResult, writeSuccess );
+        // Restart needed
+        if ( writeSuccess == true )
+          Pointer( "/data/rsp/restartNeeded" ).Set( writeResult, m_writeTrConfParams.restartNeeded );
       }
 
       // Set raw fields, if verbose mode is active
@@ -531,14 +671,17 @@ namespace iqrf
       // WriteTrConfResult
       WriteTrConfResult writeTrConfResult;
 
-      // Test
-      std::basic_string<uint8_t> respondedNodes;
-
       try
       {
-        // Get configuration bytes from input parameters
+        // Configuration bytes from input parameters
         std::vector<TrConfigByte> trConfigBytes;
         trConfigBytes.clear();
+
+        // Check, if Coordinator and OS peripherals are present at [C]
+        TEnumPeripheralsAnswer coordEnum = checkPresentCoordAndCoordOs( writeTrConfResult );
+
+        // Get bonded nodes
+        getBondedNodes( writeTrConfResult );
 
         // Embedded peripherals (address 0x01 - 0x04)
         for ( uint8_t i = 0; i < PNUM_USER / 8; i++ )
@@ -560,8 +703,7 @@ namespace iqrf
         }
 
         // Subordinate network channels for DPA 3.03 and DPA 3.04
-        IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-        if ( ( coordParams.dpaVerWord == 0x0303 ) || ( coordParams.dpaVerWord == 0x0304 ) )
+        if ( ( coordEnum.DpaVersion == 0x0303 ) || ( coordEnum.DpaVersion == 0x0304 ) )
         {
           // Main RF channel A of the optional subordinate network
           if ( m_writeTrConfParams.rfSettings.rfSubChannelA != -1 )
@@ -634,9 +776,6 @@ namespace iqrf
           trConfigBytes.push_back( RFPGM );
         }
 
-        // Check, if Coordinator and OS peripherals are present at coordinator's
-        checkPresentCoordAndCoordOs( writeTrConfResult );
-
         // Unicats address ?
         if ( m_writeTrConfParams.deviceAddress != BROADCAST_ADDRESS )
         {
@@ -655,6 +794,22 @@ namespace iqrf
         else
         {
           // Broadcast address
+          bool perFrcInitiallyDisabled = false;
+
+          // Check [C] DPA version is < 4.00
+          if ( coordEnum.DpaVersion < 0x0400 )
+          {
+            // Yes, check the per. FRC is disabled at [C]
+            if ( ( coordEnum.EmbeddedPers[PNUM_FRC / 8] & ( 1 << ( PNUM_FRC % 8 ) ) ) == false )
+            {
+              TRC_INFORMATION( "DPA version is < 4.00 and per. FRC is disabled. Enable it at [C]." );
+              // Per. FRC is disabled - enable it
+              setFrcPerAtCoord( writeTrConfResult, true );
+              // Disable FRC aftrer conf. is written
+              perFrcInitiallyDisabled = true;
+            }
+          }
+
           // Set FRC param to 0, store previous value
           uint8_t frcResponseTime = 0;
           frcResponseTime = setFrcReponseTime( writeTrConfResult, frcResponseTime );
@@ -685,9 +840,8 @@ namespace iqrf
                 trConfigBytes.erase( trConfigBytes.begin() );
               } while ( ( ++confBytesIndex < 8 ) && ( trConfigBytes.size() != 0 ) );
               // Send FrcAcknowledgedBroadcastBits
-              TPerFrcSend_Response perFrcSend_Response = FrcAcknowledgedBroadcastBits( writeTrConfResult, frcUserData );
-              writeTrConfResult.setRespondedNodes( bitmapToNodes( perFrcSend_Response ) );
-              respondedNodes = writeTrConfResult.getRespondedNodes();
+              std::basic_string<uint8_t> frcData = FrcAcknowledgedBroadcastBits( writeTrConfResult, frcUserData );
+              writeTrConfResult.checkFrcResponse( frcDataToNodesBitset( frcData.data() ), frcDataToNodesBitset( &frcData.data()[32] ) );
             } while ( trConfigBytes.size() != 0 );
           }
 
@@ -706,9 +860,8 @@ namespace iqrf
             frcUserData.push_back( 0x00 );           
             frcUserData.append( m_writeTrConfParams.security.accessPassword );
             // Send FrcAcknowledgedBroadcastBits
-            TPerFrcSend_Response perFrcSend_Response = FrcAcknowledgedBroadcastBits( writeTrConfResult, frcUserData );
-            writeTrConfResult.setRespondedNodes( bitmapToNodes( perFrcSend_Response ) );
-            respondedNodes = writeTrConfResult.getRespondedNodes();
+            std::basic_string<uint8_t> frcData = FrcAcknowledgedBroadcastBits( writeTrConfResult, frcUserData );
+            writeTrConfResult.checkFrcResponse( frcDataToNodesBitset( frcData.data() ), frcDataToNodesBitset( &frcData.data()[32] ) );
           }
 
           // Set User key
@@ -726,17 +879,28 @@ namespace iqrf
             frcUserData.push_back( 0x01 );
             frcUserData.append( m_writeTrConfParams.security.userKey );
             // Send FrcAcknowledgedBroadcastBits
-            TPerFrcSend_Response perFrcSend_Response = FrcAcknowledgedBroadcastBits( writeTrConfResult, frcUserData );
-            writeTrConfResult.setRespondedNodes( bitmapToNodes( perFrcSend_Response ) );
-            respondedNodes = writeTrConfResult.getRespondedNodes();
+            std::basic_string<uint8_t> frcData = FrcAcknowledgedBroadcastBits( writeTrConfResult, frcUserData );
+            writeTrConfResult.checkFrcResponse( frcDataToNodesBitset( frcData.data() ), frcDataToNodesBitset( &frcData.data()[32] ) );
           }
 
           // Restore initial FRC param
           if ( frcResponseTime != 0 )
             frcResponseTime = setFrcReponseTime( writeTrConfResult, frcResponseTime );
+
+          // Check [C] DPA version is < 4.00
+          if ( coordEnum.DpaVersion < 0x0400 )
+          {
+            // Yes, check the per. FRC was initially disabled at [C]
+            if ( perFrcInitiallyDisabled == true )
+            {
+              // Per. FRC was disabled
+              TRC_INFORMATION( "DPA version is < 4.00 - disabling per. FRC." );              
+              setFrcPerAtCoord( writeTrConfResult, false );
+            }
+          }
         }
 
-        // Evaluate restartNeeded flag
+        // Evaluate restartNeeded flagy
         // SPI and UART peripherals need restart
         if ( m_writeTrConfParams.embPers.mask & ( ( 1 << PNUM_SPI ) | ( 1 << PNUM_UART ) ) != 0 )
           m_writeTrConfParams.restartNeeded = true;
@@ -750,14 +914,14 @@ namespace iqrf
           m_writeTrConfParams.restartNeeded = true;
 
         // RF signal filter needs restart for DPA < 4.12
-        if ( coordParams.dpaVerWord < 0x0412 )
+        if ( coordEnum.DpaVersion < 0x0412 )
         {
           if ( m_writeTrConfParams.rfSettings.rxFilter != -1 )
             m_writeTrConfParams.restartNeeded = true;
         }
 
         // Main RF channel A and RF output power needs restart for DPA < 3.02
-        if ( ( coordParams.dpaVerWord == 0x0300 ) || ( coordParams.dpaVerWord == 0x0301 ) )
+        if ( ( coordEnum.DpaVersion == 0x0300 ) || ( coordEnum.DpaVersion == 0x0301 ) )
         {
           if ( ( m_writeTrConfParams.rfSettings.rfChannelA != -1 ) || ( m_writeTrConfParams.rfSettings.txPower != -1 ) )
             m_writeTrConfParams.restartNeeded = true;

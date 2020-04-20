@@ -109,10 +109,6 @@
               },
               "additionalProperties": false
             },
-            "rfBand": {
-              "type": "string",
-              "description": "Used RF band."
-            },
             "rfChannelA": {
               "type": "integer",
               "description": "Main RF channel A of the main network. Valid numbers depend on used RF band."

@@ -83,7 +83,6 @@ namespace iqrf {
     // RF settings
     struct
     {
-      int rfBand;
       int rfChannelA;
       int rfChannelB;
       int rfSubChannelA;
@@ -484,18 +483,6 @@ namespace iqrf {
         if ( m_writeTrConfParams.RFPGM.rfPgmTerminateMcuPin == true )
           m_writeTrConfParams.RFPGM.value |= 0x80;
         m_writeTrConfParams.RFPGM.mask |= 0x80;
-      }
-
-      // fBand
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfBand" ).Get( doc ) )
-      {
-        std::string rfBandStr = jsonVal->GetString();
-        if ( rfBandStr == "433" )
-          m_writeTrConfParams.rfSettings.rfBand = 433;
-        if ( rfBandStr == "868" )
-          m_writeTrConfParams.rfSettings.rfBand = 868;
-        if ( rfBandStr == "916" )
-          m_writeTrConfParams.rfSettings.rfBand = 916;
       }
 
       // accessPassword
