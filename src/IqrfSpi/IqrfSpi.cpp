@@ -489,6 +489,8 @@ namespace iqrf {
         while (m_runListenThread)
         {
           int recData = 0;
+          int DataNotReady_prevVal = 0;
+          int DataNotReady_prevNum = 0;
 
           // lock scope
           {
@@ -525,6 +527,16 @@ namespace iqrf {
                 continue;
               }
               recData = status.dataReady;
+            }
+            else {
+              if ((int)status.dataNotReadyStatus != DataNotReady_prevVal) {
+                TRC_INFORMATION(PAR(status.dataNotReadyStatus) << PAR(DataNotReady_prevVal));
+                DataNotReady_prevVal = status.dataNotReadyStatus;
+                DataNotReady_prevNum = 0;
+              }
+              else {
+                ++DataNotReady_prevNum;
+              }
             }
           }
 
