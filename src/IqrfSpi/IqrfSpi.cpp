@@ -88,8 +88,11 @@ namespace iqrf {
               THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_write()() failed: " << PAR(retval));
             }
             
-            retval = spi_iqrf_getSPIStatus(&status);
-            TRC_INFORMATION("after write:" << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus));
+            for (int i = 0; i < 10; i++) {
+              retval = spi_iqrf_getSPIStatus(&status);
+              TRC_INFORMATION("after write:" << PAR(i) << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus));
+              std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
             
             break;
           }
