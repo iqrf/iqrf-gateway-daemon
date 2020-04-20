@@ -517,6 +517,7 @@ namespace iqrf {
               }
 
               // reading
+              TRC_INFORMATION("reading: " << PAR(status.dataReady))
               int retval = spi_iqrf_read(m_rx, status.dataReady);
               if (BASE_TYPES_OPER_OK != retval) {
                 //THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_read() failed: " << PAR(retval));
