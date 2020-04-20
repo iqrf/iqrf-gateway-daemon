@@ -138,6 +138,30 @@ stages:
   tags:
     - linux, amd64
 
+.ubuntu-focal-amd64-template: &ubuntu-focal-amd64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-focal-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "focal"
+  tags:
+    - linux, amd64
+
+.ubuntu-focal-arm64-template: &ubuntu-focal-arm64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-focal-arm64
+  variables:
+    ARCH: "arm64"
+    DIST: "focal"
+  tags:
+    - linux, arm64
+
+.ubuntu-focal-armhf-template: &ubuntu-focal-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-focal-armhf
+  variables:
+    ARCH: "armhf"
+    DIST: "focal"
+  tags:
+    - linux, armhf
+
 .ubuntu-xenial-amd64-template: &ubuntu-xenial-amd64-template
   image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-amd64
   variables:
@@ -433,6 +457,34 @@ package-eoan-amd64:
 package_release-eoan-amd64:
   <<: *ubuntu-eoan-amd64-template
   <<: *package-release-template
+
+# Ubuntu 20.04 focal
+## amd64
+package-focal-amd64:
+  <<: *ubuntu-focal-amd64-template
+  <<: *package-devel-template
+
+package_release-focal-amd64:
+  <<: *ubuntu-focal-amd64-template
+  <<: *package-release-template
+## arm64
+package-focal-arm64:
+  <<: *ubuntu-focal-arm64-template
+  <<: *package-devel-template
+
+package_release-focal-arm64:
+  <<: *ubuntu-focal-arm64-template
+  <<: *package-release-template
+## armhf
+package-focal-armhf:
+  <<: *ubuntu-focal-armhf-template
+  <<: *package-devel-template
+  allow_failure: true
+
+package_release-focal-armhf:
+  <<: *ubuntu-focal-armhf-template
+  <<: *package-release-template
+  allow_failure: true
 
 # Ubuntu 16.04 xenial
 ## amd64
