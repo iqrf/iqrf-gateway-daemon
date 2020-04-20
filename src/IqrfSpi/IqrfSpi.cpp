@@ -486,11 +486,12 @@ namespace iqrf {
       try {
         TRC_DEBUG("SPI is ready");
 
+        int DataNotReady_prevVal = 0;
+        int DataNotReady_prevNum = 0;
+
         while (m_runListenThread)
         {
           int recData = 0;
-          int DataNotReady_prevVal = 0;
-          int DataNotReady_prevNum = 0;
 
           // lock scope
           {
