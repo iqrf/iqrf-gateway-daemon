@@ -507,6 +507,7 @@ namespace iqrf {
               if (BASE_TYPES_OPER_ERROR == retval) {
                 //THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
                 TRC_WARNING("spi_iqrf_getSPIStatus() failed: " << PAR(retval) << " try to continue listening ...");
+                continue;
               }
             }
 
@@ -519,7 +520,7 @@ namespace iqrf {
               int retval = spi_iqrf_read(m_rx, status.dataReady);
               if (BASE_TYPES_OPER_OK != retval) {
                 //THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_read() failed: " << PAR(retval));
-                TRC_WARNING("spi_iqrf_read() failed: " << PAR(retval) << " try to continue listening ...");
+                TRC_WARNING("spi_iqrf_read() failed: " << PAR(retval) << PAR(status.dataReady) << " try to continue listening ...");
                 continue;
               }
               recData = status.dataReady;
