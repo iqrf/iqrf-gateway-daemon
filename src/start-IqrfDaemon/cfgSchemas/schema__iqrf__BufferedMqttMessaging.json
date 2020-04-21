@@ -1,0 +1,69 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__iqrf__BufferedMqttMessaging",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "iqrf::BufferedMqttMessaging"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended iqrf::BufferedMqttMessaging-(id)",
+            "default": "iqrf::BufferedMqttMessaging-1"
+        },
+        "ClientId": {
+            "type": "string",
+            "description": "...",
+            "default": "IqrfDpaBufferedMessaging1"
+        },
+        "TopicRequest": {
+            "type": "string",
+            "description": "...",
+            "default": "Iqrf/DpaRequest"
+        },
+        "TopicResponse": {
+            "type": "string",
+            "description": "...",
+            "default": "Iqrf/DpaResponse"
+        },
+        "acceptAsyncMsg": {
+            "type": "boolean",
+            "description": "...",
+            "default": true
+        },
+        "RequiredInterfaces": {
+            "type": "array",
+            "description": "Array of required interfaces.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "iqrf::IMessagingService",
+                        "description": "..."
+                    },
+                    "target": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "name",
+                    "target"
+                ]
+            }
+        }
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}

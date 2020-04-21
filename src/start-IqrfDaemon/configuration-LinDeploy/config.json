@@ -43,6 +43,13 @@
       "startlevel": 0
     },
     {
+      "name": "shape::MqttService",
+      "libraryPath": "",
+      "libraryName": "MqttService",
+      "enabled": false,
+      "startlevel": 0
+    },
+    {
       "name": "shape::CurlRestApiService",
       "libraryPath": "",
       "libraryName": "CurlRestApiService",
@@ -117,6 +124,13 @@
       "libraryPath": "",
       "libraryName": "MqttMessaging",
       "enabled": true,
+      "startlevel": 10
+    },
+    {
+      "name": "iqrf::BufferedMqttMessaging",
+      "libraryPath": "",
+      "libraryName": "BufferedMqttMessaging",
+      "enabled": false,
       "startlevel": 10
     },
     {

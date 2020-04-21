@@ -1,0 +1,139 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__shape__MqttService",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "shape::MqttService"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended shape::MqttService-(id)",
+            "default": "shape::MqttService-1"
+        },
+        "BrokerAddr": {
+            "type": "string",
+            "description": "...",
+            "default": "tcp://127.0.0.1:1883"
+        },
+        "Persistence": {
+            "type": "integer",
+            "description": "...",
+            "default": 1
+        },
+        "Qos": {
+            "type": "integer",
+            "description": "...",
+            "default": 1
+        },
+        "User": {
+            "type": "string",
+            "description": "...",
+            "default": ""
+        },
+        "Password": {
+            "type": "string",
+            "description": "...",
+            "default": ""
+        },
+        "EnabledSSL": {
+            "type": "boolean",
+            "description": "...",
+            "default": false
+        },
+        "KeepAliveInterval": {
+            "type": "integer",
+            "description": "...",
+            "default": 20
+        },
+        "ConnectTimeout": {
+            "type": "integer",
+            "description": "...",
+            "default": 5
+        },
+        "MinReconnect": {
+            "type": "integer",
+            "description": "...",
+            "default": 1
+        },
+        "MaxReconnect": {
+            "type": "integer",
+            "description": "...",
+            "default": 64
+        },
+        "TrustStore": {
+            "type": "string",
+            "description": "...",
+            "default": "server-ca.crt"
+        },
+        "KeyStore": {
+            "type": "string",
+            "description": "...",
+            "default": "client.pem"
+        },
+        "PrivateKey": {
+            "type": "string",
+            "description": "...",
+            "default": "client-privatekey.pem"
+        },
+        "PrivateKeyPassword": {
+            "type": "string",
+            "description": "...",
+            "default": ""
+        },
+        "EnabledCipherSuites": {
+            "type": "string",
+            "description": "...",
+            "default": ""
+        },
+        "EnableServerCertAuth": {
+            "type": "boolean",
+            "description": "...",
+            "default": true
+        },
+        "Buffered": {
+            "type": "boolean",
+            "description": "Controls buffering of published messages in case of disconnection",
+            "default": true
+        },
+        "BufferSize": {
+            "type": "integer",
+            "description": "Buffer size of published messages in case of disconnection",
+            "default": 1024
+        },
+        "RequiredInterfaces": {
+            "type": "array",
+            "description": "Array of required interfaces.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "iqrf::IMessagingService",
+                        "description": "..."
+                    },
+                    "target": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "name",
+                    "target"
+                ]
+            }
+        }
+    },
+    "required": [
+        "component",
+        "instance"
+    ]
+}

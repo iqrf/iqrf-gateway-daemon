@@ -1,0 +1,22 @@
+{
+  "component": "shape::MqttService",
+  "instance": "MqttService",
+  "BrokerAddr": "tcp://127.0.0.1:1883",
+  "Persistence": 1,
+  "Qos": 1,
+  "User": "",
+  "Password": "",
+  "EnabledSSL": false,
+  "KeepAliveInterval": 20,
+  "ConnectTimeout": 5,
+  "MinReconnect": 1,
+  "MaxReconnect": 64,
+  "TrustStore": "server-ca.crt",
+  "KeyStore": "client.pem",
+  "PrivateKey": "client-privatekey.pem",
+  "PrivateKeyPassword": "",
+  "EnabledCipherSuites": "",
+  "EnableServerCertAuth": true,
+  "Buffered": true,
+  "BufferSize": 1024
+}
