@@ -494,7 +494,7 @@ namespace iqrf {
         TRC_DEBUG("SPI is ready");
 
         int DataNotReady_prevVal = 0;
-        int DataNotReady_prevNum = 0;
+        int noDataCnt = 0;
 
         while (m_runListenThread)
         {
@@ -535,16 +535,22 @@ namespace iqrf {
                 continue;
               }
               recData = status.dataReady;
+              //noDataCnt = 0;
             }
             else {
-              //if ((int)status.dataNotReadyStatus != DataNotReady_prevVal) {
-              //  TRC_INFORMATION(PAR(status.dataNotReadyStatus) << PAR(DataNotReady_prevNum));
-              //  DataNotReady_prevVal = status.dataNotReadyStatus;
-              //  DataNotReady_prevNum = 0;
-              //}
-              //else {
-              //  ++DataNotReady_prevNum;
-              //}
+              if (noDataCnt++ > 20000) {
+                TRC_WARNING("No data for some time: " << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat) << "/n=> trying to restart SPI");
+                noDataCnt = 0;
+
+                // restart clibspi
+                int res = BASE_TYPES_OPER_ERROR;
+                res = spi_iqrf_destroy();
+
+                res = spi_iqrf_initAdvanced(&m_cfg);
+                if (BASE_TYPES_OPER_OK != res) {
+                  TRC_WARNING(PAR(m_interfaceName) << PAR(res) << " Restart IqrfInterface failure");
+                }
+              }
             }
           }
 
