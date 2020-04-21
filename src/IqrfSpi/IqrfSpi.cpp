@@ -535,11 +535,11 @@ namespace iqrf {
                 continue;
               }
               recData = status.dataReady;
-              //noDataCnt = 0;
+              noDataCnt = 0;
             }
             else {
-              if (noDataCnt++ > 20000) {
-                TRC_WARNING("No data for some time: " << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat) << "/n=> trying to restart SPI");
+              if (noDataCnt++ > 15000) {
+                TRC_WARNING("No data for some time: " << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat) << "\n=> trying to restart SPI");
                 noDataCnt = 0;
 
                 // restart clibspi
@@ -548,7 +548,10 @@ namespace iqrf {
 
                 res = spi_iqrf_initAdvanced(&m_cfg);
                 if (BASE_TYPES_OPER_OK != res) {
-                  TRC_WARNING(PAR(m_interfaceName) << PAR(res) << " Restart IqrfInterface failure");
+                  TRC_WARNING(PAR(m_interfaceName) << PAR(res) << "SPI Restart IqrfInterface failure");
+                }
+                else {
+                  TRC_INFORMATION("SPI Restart IqrfInterface success");
                 }
               }
             }
