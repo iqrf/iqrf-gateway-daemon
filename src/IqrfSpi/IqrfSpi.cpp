@@ -57,6 +57,14 @@ namespace iqrf {
     {
     }
 
+    int myGetSPIStatus(spi_iqrf_SPIStatus *spiStatus) const
+    {
+      for (int i = 0; i < 5; i++) {
+        int retval = spi_iqrf_getSPIStatus(spiStatus);
+      }
+      return spi_iqrf_getSPIStatus(spiStatus);
+    }
+
     void send(const std::basic_string<unsigned char>& message)
     {
       static int counter = 0;
@@ -74,7 +82,8 @@ namespace iqrf {
 
           // get status
           spi_iqrf_SPIStatus status;
-          int retval = spi_iqrf_getSPIStatus(&status);
+          //int retval = spi_iqrf_getSPIStatus(&status);
+          int retval = myGetSPIStatus(&status);
           if (BASE_TYPES_OPER_OK != retval) {
             THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
           }
@@ -88,11 +97,11 @@ namespace iqrf {
               THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_write()() failed: " << PAR(retval));
             }
             
-            for (int i = 0; i < 10; i++) {
-              retval = spi_iqrf_getSPIStatus(&status);
-              TRC_INFORMATION("after write:" << PAR(i) << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat));
-              std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            }
+            //for (int i = 0; i < 10; i++) {
+            //  retval = spi_iqrf_getSPIStatus(&status);
+            //  TRC_INFORMATION("after write:" << PAR(i) << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat));
+            //  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            //}
             
             break;
           }
@@ -322,9 +331,11 @@ namespace iqrf {
         // Multiple times to clear 0x3F state
         for (size_t i = 0; i < 3; i++)
         {
-          ret = spi_iqrf_getSPIStatus(&spiStatus1);
+          //ret = spi_iqrf_getSPIStatus(&spiStatus1);
+          ret = myGetSPIStatus(&spiStatus1);
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
-          ret = spi_iqrf_getSPIStatus(&spiStatus2);
+          //ret = spi_iqrf_getSPIStatus(&spiStatus2);
+          ret = myGetSPIStatus(&spiStatus2);
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
           switch (ret) {
@@ -509,7 +520,10 @@ namespace iqrf {
 
             // get status
             spi_iqrf_SPIStatus status;
-            int retval = spi_iqrf_getSPIStatus(&status);
+
+            //int retval = spi_iqrf_getSPIStatus(&status);
+            int retval = myGetSPIStatus(&status);
+
             if (BASE_TYPES_OPER_OK != retval) {
               // report status failure
               TRC_WARNING("SPI status failure: " << PAR(retval));
