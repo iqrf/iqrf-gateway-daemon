@@ -60,7 +60,7 @@ namespace iqrf {
     int myGetSPIStatus(spi_iqrf_SPIStatus *spiStatus) const
     {
       for (int i = 0; i < 5; i++) {
-        int retval = spi_iqrf_getSPIStatus(spiStatus);
+        spi_iqrf_getSPIStatus(spiStatus);
       }
       return spi_iqrf_getSPIStatus(spiStatus);
     }
