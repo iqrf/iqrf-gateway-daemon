@@ -57,7 +57,9 @@ namespace iqrf {
     {
       bool customDpaHandler;
       bool dpaPeerToPeer;
+      bool dpaPeerToPeerIsSet;
       bool nodeDpaInterface;
+      bool nodeDpaInterfaceIsSet;
       bool dpaAutoexec;
       bool routingOff;
       bool ioSetup;
@@ -380,11 +382,17 @@ namespace iqrf {
 
       // nodeDpaInterface
       if ( jsonVal = rapidjson::Pointer( "/data/req/nodeDpaInterface" ).Get( doc ) )
+      {
         m_writeTrConfParams.dpaConfigBits.nodeDpaInterface = jsonVal->GetBool();
+        m_writeTrConfParams.dpaConfigBits.nodeDpaInterfaceIsSet = true;
+      }
 
       // dpaPeerToPeer
       if ( jsonVal = rapidjson::Pointer( "/data/req/dpaPeerToPeer" ).Get( doc ) )
+      {
         m_writeTrConfParams.dpaConfigBits.dpaPeerToPeer = jsonVal->GetBool();
+        m_writeTrConfParams.dpaConfigBits.dpaPeerToPeerIsSet = true;
+      }
 
       // dpaAutoexec
       if ( jsonVal = rapidjson::Pointer( "/data/req/dpaAutoexec" ).Get( doc ) )
@@ -493,7 +501,7 @@ namespace iqrf {
           m_writeTrConfParams.security.accessPassword.push_back( 0x00 );
         size_t len = s.length() > 16 ? 16 : s.length();        
         for ( int i = 0; i < len; i++ )
-          m_writeTrConfParams.security.accessPassword.push_back( s[i] );
+          m_writeTrConfParams.security.accessPassword[i] = s[i];
       }
 
       // securityUserKey
@@ -504,7 +512,7 @@ namespace iqrf {
           m_writeTrConfParams.security.userKey.push_back( 0x00 );
         size_t len = s.length() > 16 ? 16 : s.length();
         for ( int i = 0; i < len; i++ )
-          m_writeTrConfParams.security.userKey.push_back( s[i] );
+          m_writeTrConfParams.security.userKey[i] = s[i];
       }
     }
   };

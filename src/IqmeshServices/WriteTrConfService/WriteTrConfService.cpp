@@ -367,7 +367,7 @@ namespace iqrf
     }
 
     // FRC_AcknowledgedBroadcastBits
-    std::basic_string<uint8_t> FrcAcknowledgedBroadcastBits( WriteTrConfResult& writeTrConfResult, const std::basic_string<uint8_t> userData )
+    std::basic_string<uint8_t> FrcAcknowledgedBroadcastBits( WriteTrConfResult& writeTrConfResult, const std::basic_string<uint8_t> &userData )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -494,7 +494,7 @@ namespace iqrf
     }
 
     // Set security unicat
-    void setSecurityUnicast( WriteTrConfResult &writeTrConfResult, const uint16_t deviceAddr, const uint16_t hwpId, const uint8_t type, const std::basic_string<uint8_t> key )
+    void setSecurityUnicast( WriteTrConfResult &writeTrConfResult, const uint16_t deviceAddr, const uint16_t hwpId, const uint8_t type, const std::basic_string<uint8_t> &key )
     {
       TRC_FUNCTION_ENTER( "" );
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -696,8 +696,50 @@ namespace iqrf
         }
 
         // DPA configuration bits (address 0x05)
-        if ( m_writeTrConfParams.dpaConfigBits.mask != 0x00 )
+        if ( ( m_writeTrConfParams.dpaConfigBits.mask != 0x00 ) || ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterfaceIsSet == true ) || ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeerIsSet == true ) )
         {
+          // DPA < 4.00
+          if ( coordEnum.DpaVersion < 0x0400 )
+          {
+            // Yes, nodeDpaInterface specified in request ?
+            if ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterfaceIsSet == true )
+            {
+              // Yes, write bit1
+              if ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterface == true )
+                m_writeTrConfParams.dpaConfigBits.value |= 0x02;
+              else
+                m_writeTrConfParams.dpaConfigBits.value &= ~0x02;
+              m_writeTrConfParams.dpaConfigBits.mask |= 0x02;
+            }
+
+            // Don't write bit7, it is reserved
+            m_writeTrConfParams.dpaConfigBits.value &= ~0x80;
+            m_writeTrConfParams.dpaConfigBits.mask &= ~0x80;
+
+            // DPA < 3.03
+            if ( coordEnum.DpaVersion < 0x0303 )
+            {
+              // Don't write bit6, it is reserved
+              m_writeTrConfParams.dpaConfigBits.value &= ~0x40;
+              m_writeTrConfParams.dpaConfigBits.mask &= ~0x40;
+            }
+          }
+
+          // DPA >= 4.10
+          if ( coordEnum.DpaVersion >= 0x0410 )
+          {
+            // dpaPeerToPeer specified in request ?
+            if ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeerIsSet == true )
+            {
+              // Yes, write bit1
+              if ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeer == true )
+                m_writeTrConfParams.dpaConfigBits.value |= 0x02;
+              else
+                m_writeTrConfParams.dpaConfigBits.value &= ~0x02;
+              m_writeTrConfParams.dpaConfigBits.mask |= 0x02;
+            }
+          }
+
           TrConfigByte dpaConfigBits( CFGIND_DPA_FLAGS, m_writeTrConfParams.dpaConfigBits.value, m_writeTrConfParams.dpaConfigBits.mask );
           trConfigBytes.push_back( dpaConfigBits );
         }
