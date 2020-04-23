@@ -105,9 +105,9 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "MqttMessaging instance activate" << std::endl <<
-        "******************************"
+        "***************************************" << std::endl <<
+        "BufferedMqttMessaging instance activate" << std::endl <<
+        "***************************************"
       );
 
       modify(props);
@@ -121,9 +121,9 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "MqttMessaging instance deactivate" << std::endl <<
-        "******************************"
+        "*****************************************" << std::endl <<
+        "BufferedMqttMessaging instance deactivate" << std::endl <<
+        "*****************************************"
       );
 
       stop();
