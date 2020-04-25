@@ -43,6 +43,13 @@
       "startlevel": 0
     },
     {
+      "name": "shape::MqttService",
+      "libraryPath": "shapeware/bin",
+      "libraryName": "MqttService",
+      "enabled": false,
+      "startlevel": 0
+    },
+    {
       "name": "shape::CurlRestApiService",
       "libraryPath": "shapeware/bin",
       "libraryName": "CurlRestApiService",
@@ -110,6 +117,13 @@
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MqttMessaging",
       "enabled": true,
+      "startlevel": 10
+    },
+    {
+      "name": "iqrf::BufferedMqttMessaging",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "BufferedMqttMessaging",
+      "enabled": false,
       "startlevel": 10
     },
     {

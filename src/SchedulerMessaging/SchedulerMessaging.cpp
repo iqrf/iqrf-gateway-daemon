@@ -37,28 +37,42 @@ namespace iqrf {
       using namespace rapidjson;
 
       const Value *messagingVal = Pointer("/messaging").Get(task);
-      std::string messaging;
+      std::vector<std::string> messagingVector;
+      // just string
       if (messagingVal && messagingVal->IsString()) {
-        std::string messaging = messagingVal->GetString();
-        const Value *messageVal = Pointer("/message").Get(task);
-        if (messageVal && messageVal->IsObject()) {
-          rapidjson::Document doc;
-          doc.CopyFrom(*messageVal, doc.GetAllocator());
-          rapidjson::StringBuffer buffer;
-          rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-          doc.Accept(writer);
-          std::string msgStr = buffer.GetString();
-          std::vector<uint8_t> msgVect((uint8_t*)msgStr.data(), (uint8_t*)msgStr.data() + msgStr.size());
-          if (m_messageHandlerFunc) {
+        messagingVector.push_back(messagingVal->GetString());
+      }
+      // array of strings
+      else if (messagingVal && messagingVal->IsArray()) {
+        for (const Value *val = messagingVal->Begin(); val != messagingVal->End(); val++) {
+          if (!val->IsString()) {
+            THROW_EXC_TRC_WAR(std::logic_error, "Expected: \"/message\" is array of strings");
+          }
+          messagingVector.push_back(val->GetString());
+        }
+      }
+      // unknown type
+      else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Unexpected: \"/messaging\" type");
+      }
+
+      const Value *messageVal = Pointer("/message").Get(task);
+      if (messageVal && messageVal->IsObject()) {
+        rapidjson::Document doc;
+        doc.CopyFrom(*messageVal, doc.GetAllocator());
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        doc.Accept(writer);
+        std::string msgStr = buffer.GetString();
+        std::vector<uint8_t> msgVect((uint8_t*)msgStr.data(), (uint8_t*)msgStr.data() + msgStr.size());
+        if (m_messageHandlerFunc) {
+          for (std::string & messaging : messagingVector) {
             m_messageHandlerFunc(messaging, msgVect);
           }
         }
-        else {
-          THROW_EXC_TRC_WAR(std::logic_error, "Expected object: /message")
-        }
       }
       else {
-        THROW_EXC_TRC_WAR(std::logic_error, "Expected string: /messaging")
+        THROW_EXC_TRC_WAR(std::logic_error, "Expected object: /message")
       }
     }
 

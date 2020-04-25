@@ -762,8 +762,11 @@ namespace iqrf {
       bool uartPresent = ( ( byte02 & 0b10000 ) == 0b10000 ) ? true : false;
       Pointer( "/data/rsp/trConfiguration/embPers/uart" ).Set( response, uartPresent );
 
-      bool frcPresent = ( ( byte02 & 0b100000 ) == 0b100000 ) ? true : false;
-      Pointer( "/data/rsp/trConfiguration/embPers/frc" ).Set( response, frcPresent );
+      if ( dpaVer < 0x0400 )
+      {
+        bool frcPresent = ( ( byte02 & 0b100000 ) == 0b100000 ) ? true : false;
+        Pointer( "/data/rsp/trConfiguration/embPers/frc" ).Set( response, frcPresent );
+      }
 
       // byte 0x05
       uint8_t byte05 = configuration[0x04];

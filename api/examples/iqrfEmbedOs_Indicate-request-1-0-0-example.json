@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfEmbedOs_Indicate",
+  "data": {
+    "msgId": "testEmbedOs",
+    "req": {
+      "nAdr": 1,
+      "param": {
+        "control": 3
+      }
+    },
+    "returnVerbose": true
+  }
+}
