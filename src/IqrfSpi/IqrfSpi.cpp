@@ -57,14 +57,6 @@ namespace iqrf {
     {
     }
 
-    int myGetSPIStatus(spi_iqrf_SPIStatus *spiStatus) const
-    {
-      for (int i = 0; i < 5; i++) {
-        spi_iqrf_getSPIStatus(spiStatus);
-      }
-      return spi_iqrf_getSPIStatus(spiStatus);
-    }
-
     void send(const std::basic_string<unsigned char>& message)
     {
       static int counter = 0;
@@ -82,8 +74,7 @@ namespace iqrf {
 
           // get status
           spi_iqrf_SPIStatus status;
-          //int retval = spi_iqrf_getSPIStatus(&status);
-          int retval = myGetSPIStatus(&status);
+          int retval = spi_iqrf_getSPIStatus(&status);
           if (BASE_TYPES_OPER_OK != retval) {
             THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
           }
@@ -96,12 +87,6 @@ namespace iqrf {
             else {
               THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_write()() failed: " << PAR(retval));
             }
-            
-            //for (int i = 0; i < 10; i++) {
-            //  retval = spi_iqrf_getSPIStatus(&status);
-            //  TRC_INFORMATION("after write:" << PAR(i) << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat));
-            //  std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            //}
             
             break;
           }
@@ -331,11 +316,9 @@ namespace iqrf {
         // Multiple times to clear 0x3F state
         for (size_t i = 0; i < 3; i++)
         {
-          //ret = spi_iqrf_getSPIStatus(&spiStatus1);
-          ret = myGetSPIStatus(&spiStatus1);
+          ret = spi_iqrf_getSPIStatus(&spiStatus1);
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
-          //ret = spi_iqrf_getSPIStatus(&spiStatus2);
-          ret = myGetSPIStatus(&spiStatus2);
+          ret = spi_iqrf_getSPIStatus(&spiStatus2);
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
           switch (ret) {
@@ -521,15 +504,12 @@ namespace iqrf {
             // get status
             spi_iqrf_SPIStatus status;
 
-            //int retval = spi_iqrf_getSPIStatus(&status);
-            int retval = myGetSPIStatus(&status);
+            int retval = spi_iqrf_getSPIStatus(&status);
 
             if (BASE_TYPES_OPER_OK != retval) {
               // report status failure
               TRC_WARNING("SPI status failure: " << PAR(retval));
-              // stop listen thread only here
               if (BASE_TYPES_OPER_ERROR == retval) {
-                //THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_getSPIStatus() failed: " << PAR(retval));
                 TRC_WARNING("spi_iqrf_getSPIStatus() failed: " << PAR(retval) << " try to continue listening ...");
                 continue;
               }
@@ -537,37 +517,19 @@ namespace iqrf {
 
             if (status.isDataReady) {
               if (status.dataReady > 0 && static_cast<unsigned>(status.dataReady) > m_bufsize) {
-                THROW_EXC_TRC_WAR(std::logic_error, "Received data too long: " << NAME_PAR(len, status.dataReady) << PAR(m_bufsize));
+                TRC_WARNING("Received data too long: " << NAME_PAR(len, status.dataReady) << PAR(m_bufsize));
+                continue;
               }
 
               // reading
               TRC_INFORMATION("before reading:" << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat));
               int retval = spi_iqrf_read(m_rx, status.dataReady);
               if (BASE_TYPES_OPER_OK != retval) {
-                //THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_read() failed: " << PAR(retval));
                 TRC_WARNING("spi_iqrf_read() failed: " << PAR(retval) << PAR(status.dataReady) << " try to continue listening ...");
                 continue;
               }
               recData = status.dataReady;
               noDataCnt = 0;
-            }
-            else {
-              if (noDataCnt++ > 15000) {
-                TRC_WARNING("No data for some time: " << PAR_HEX(status.isDataReady) << PAR_HEX(status.dataNotReadyStatus) << PAR_HEX(status.spiResultStat) << "\n=> trying to restart SPI");
-                noDataCnt = 0;
-
-                // restart clibspi
-                int res = BASE_TYPES_OPER_ERROR;
-                res = spi_iqrf_destroy();
-
-                res = spi_iqrf_initAdvanced(&m_cfg);
-                if (BASE_TYPES_OPER_OK != res) {
-                  TRC_WARNING(PAR(m_interfaceName) << PAR(res) << "SPI Restart IqrfInterface failure");
-                }
-                else {
-                  TRC_INFORMATION("SPI Restart IqrfInterface success");
-                }
-              }
             }
           }
 
