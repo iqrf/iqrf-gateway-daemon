@@ -129,7 +129,7 @@ namespace iqrf {
     // copied and slightly modified from: spi_example_pgm_hex.c
     spi_iqrf_SPIStatus tryToWaitForPgmReady(uint32_t timeout)
     {
-      spi_iqrf_SPIStatus spiStatus = { 0, SPI_IQRF_SPI_DISABLED };
+      spi_iqrf_SPIStatus spiStatus = { 0, 0, SPI_IQRF_SPI_DISABLED };
       int operResult = -1;
       uint32_t elapsedTime = 0;
       uint8_t buffer[64];
@@ -487,9 +487,6 @@ namespace iqrf {
       try {
         TRC_DEBUG("SPI is ready");
 
-        int DataNotReady_prevVal = 0;
-        int noDataCnt = 0;
-
         while (m_runListenThread)
         {
           int recData = 0;
@@ -529,7 +526,6 @@ namespace iqrf {
                 continue;
               }
               recData = status.dataReady;
-              noDataCnt = 0;
             }
           }
 
