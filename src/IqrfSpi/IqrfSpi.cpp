@@ -505,11 +505,8 @@ namespace iqrf {
 
             if (BASE_TYPES_OPER_OK != retval) {
               // report status failure
-              TRC_WARNING("SPI status failure: " << PAR(retval));
-              if (BASE_TYPES_OPER_ERROR == retval) {
-                TRC_WARNING("spi_iqrf_getSPIStatus() failed: " << PAR(retval) << " try to continue listening ...");
-                continue;
-              }
+              TRC_WARNING("spi_iqrf_getSPIStatus() failed: " << PAR(retval) << PAR_HEX(status.spiResultStat) << " try to continue listening ...");
+              continue;
             }
 
             if (status.isDataReady) {
