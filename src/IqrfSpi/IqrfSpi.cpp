@@ -98,6 +98,7 @@ namespace iqrf {
         TRC_DEBUG("Sleep for a while ... ");
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
       }
+      TRC_INFORMATION("Sending to IQRF SPI finished: " << counter << "." << attempt);
     }
 
     bool enterProgrammingState() {
