@@ -1,5 +1,5 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "schema__iqrf__WebsocketMessaging",
@@ -17,12 +17,13 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::WebsocketMessaging-(id)",
-            "default": "iqrf::WebsocketMessaging-1"
+            "description": "Recommended iqrf::WebsocketMessaging-(id)",
+            "default": "iqrf::WebsocketMessaging-1",
+            "minLength": 1
         },
         "acceptAsyncMsg": {
             "type": "boolean",
-            "description": "...",
+            "description": "Accept asynchronous messages",
             "default": true
         },
         "RequiredInterfaces": {

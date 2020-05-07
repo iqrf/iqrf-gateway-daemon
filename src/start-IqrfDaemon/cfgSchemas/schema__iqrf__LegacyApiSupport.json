@@ -1,5 +1,5 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "schema__iqrf__LegacyApiSupport",
@@ -17,8 +17,9 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::LegacyApiSupport-(id)",
-            "default": "iqrf::LegacyApiSupport-1"
+            "description": "Recommended iqrf::LegacyApiSupport-(id)",
+            "default": "iqrf::LegacyApiSupport-1",
+            "minLength": 1
         },
         "RequiredInterfaces": {
             "type": "array",

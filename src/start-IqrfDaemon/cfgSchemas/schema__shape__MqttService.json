@@ -1,5 +1,5 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "schema__shape__MqttService",
@@ -17,87 +17,89 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended shape::MqttService-(id)",
-            "default": "shape::MqttService-1"
+            "description": "Recommended shape::MqttService-(id)",
+            "default": "shape::MqttService-1",
+            "minLength": 1
         },
         "BrokerAddr": {
             "type": "string",
-            "description": "...",
+            "description": "Broker adddress",
             "default": "tcp://127.0.0.1:1883"
         },
         "Persistence": {
             "type": "integer",
-            "description": "...",
+            "description": "Persistence",
             "default": 1
         },
         "Qos": {
             "type": "integer",
-            "description": "...",
-            "default": 1
+            "description": "QoS",
+            "default": 1,
+            "enum": [0, 1, 2]
         },
         "User": {
             "type": "string",
-            "description": "...",
+            "description": "Username",
             "default": ""
         },
         "Password": {
             "type": "string",
-            "description": "...",
+            "description": "Password",
             "default": ""
         },
         "EnabledSSL": {
             "type": "boolean",
-            "description": "...",
+            "description": "Enable TLS",
             "default": false
         },
         "KeepAliveInterval": {
             "type": "integer",
-            "description": "...",
+            "description": "Keep alive interval",
             "default": 20
         },
         "ConnectTimeout": {
             "type": "integer",
-            "description": "...",
+            "description": "Connection timeout",
             "default": 5
         },
         "MinReconnect": {
             "type": "integer",
-            "description": "...",
+            "description": "Minimal count of reconnects",
             "default": 1
         },
         "MaxReconnect": {
             "type": "integer",
-            "description": "...",
+            "description": "Maximal count of reconnects",
             "default": 64
         },
         "TrustStore": {
             "type": "string",
-            "description": "...",
+            "description": "CA certificate path",
             "default": "server-ca.crt"
         },
         "KeyStore": {
             "type": "string",
-            "description": "...",
+            "description": "Certificate path",
             "default": "client.pem"
         },
         "PrivateKey": {
             "type": "string",
-            "description": "...",
+            "description": "Private key path",
             "default": "client-privatekey.pem"
         },
         "PrivateKeyPassword": {
             "type": "string",
-            "description": "...",
+            "description": "Private key password",
             "default": ""
         },
         "EnabledCipherSuites": {
             "type": "string",
-            "description": "...",
+            "description": "Enabled cipher suites",
             "default": ""
         },
         "EnableServerCertAuth": {
             "type": "boolean",
-            "description": "...",
+            "description": "Enable client certificate auth",
             "default": true
         },
         "Buffered": {

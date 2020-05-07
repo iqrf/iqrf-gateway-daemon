@@ -1,5 +1,5 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "schema__iqrf__JsonSplitter",
@@ -17,12 +17,13 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::JsonSplitter-(id)",
-            "default": "iqrf::JsonSplitter-1"
+            "description": "Recommended iqrf::JsonSplitter-(id)",
+            "default": "iqrf::JsonSplitter-1",
+            "minLength": 1
         },
         "validateJsonResponse": {
             "type": "boolean",
-            "description": "...",
+            "description": "Validate JSON response",
             "default": true
         },
         "insId": {

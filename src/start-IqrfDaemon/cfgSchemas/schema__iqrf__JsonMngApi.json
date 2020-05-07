@@ -1,5 +1,5 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "schema__iqrf__JsonMngApi",
@@ -17,8 +17,9 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::JsonMngApi-(id)",
-            "default": "iqrf::JsonMngApi-1"
+            "description": "Recommended iqrf::JsonMngApi-(id)",
+            "default": "iqrf::JsonMngApi-1",
+            "minLength": 1
         },
         "RequiredInterfaces": {
             "type": "array",

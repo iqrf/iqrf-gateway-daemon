@@ -1,5 +1,5 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "schema__iqrf__UdpMessaging",
@@ -17,18 +17,23 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::UdpMessaging-(id)",
-            "default": "iqrf::UdpMessaging-1"
+            "description": "Recommended iqrf::UdpMessaging-(id)",
+            "default": "iqrf::UdpMessaging-1",
+            "minLength": 1
         },
         "RemotePort": {
             "type": "integer",
-            "description": "...",
-            "default": 55000
+            "description": "Remote port",
+            "default": 55000,
+            "minimum": 0,
+            "maximum": 65536
         },
         "LocalPort": {
             "type": "integer",
-            "description": "...",
-            "default": 55300
+            "description": "Local port",
+            "default": 55300,
+            "minimum": 0,
+            "maximum": 65536
         },
         "RequiredInterfaces": {
             "type": "array",

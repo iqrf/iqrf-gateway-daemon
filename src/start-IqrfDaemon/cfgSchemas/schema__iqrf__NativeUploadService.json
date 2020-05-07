@@ -1,5 +1,5 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "schema__iqrf__NativeUploadService",
@@ -17,8 +17,9 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::NativeUploadService-(id)",
-            "default": "iqrf::NativeUploadService-1"
+            "description": "Recommended iqrf::NativeUploadService-(id)",
+            "default": "iqrf::NativeUploadService-1",
+            "minLength": 1
         },
         "RequiredInterfaces": {
             "type": "array",

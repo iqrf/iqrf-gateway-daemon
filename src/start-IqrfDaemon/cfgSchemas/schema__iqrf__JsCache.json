@@ -1,5 +1,5 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "schema__iqrf__JsCache",
@@ -17,8 +17,9 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::JsCache-(id)",
-            "default": "iqrf::JsCache-1"
+            "description": "Recommended iqrf::JsCache-(id)",
+            "default": "iqrf::JsCache-1",
+            "minLength": 1
         },
         "iqrfRepoCache": {
             "type": "string",
@@ -27,12 +28,12 @@
         },
 		"urlRepo": {
             "type": "string",
-            "description": "...",
+            "description": "IQRF Repository URL",
             "default": "https://repository.iqrfalliance.org/api"
         },
         "checkPeriodInMinutes": {
             "type": "number",
-            "description": "...",
+            "description": "Check period in minutes",
             "default": 0
         },
         "RequiredInterfaces": {

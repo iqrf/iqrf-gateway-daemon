@@ -1,5 +1,5 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "schema__iqrf__IqrfCdc",
@@ -17,13 +17,14 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::IqrfCdc-(id)",
-            "default": "iqrf::IqrfCdc-1"
+            "description": "Recommended iqrf::IqrfCdc-(id)",
+            "default": "iqrf::IqrfCdc-1",
+            "minLength": 1
         },
         "IqrfInterface": {
             "type": "string",
-            "description": "...",
-            "default": "COM6"
+            "description": "CDC interface",
+            "default": "/dev/ttyACM0"
         },
         "RequiredInterfaces": {
             "type": "array",

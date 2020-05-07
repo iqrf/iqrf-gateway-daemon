@@ -1,5 +1,5 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
         "name": "schema__iqrf__MqMessaging",
@@ -17,22 +17,23 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended iqrf::MqMessaging-(id)",
-            "default": "iqrf::MqMessaging-1"
+            "description": "Recommended iqrf::MqMessaging-(id)",
+            "default": "iqrf::MqMessaging-1",
+            "minLength": 1
         },
         "LocalMqName": {
             "type": "string",
-            "description": "...",
+            "description": "Local MQ name",
             "default": "iqrf-daemon-110"
         },
         "RemoteMqName": {
             "type": "string",
-            "description": "...",
+            "description": "Remote MQ name",
             "default": "iqrf-daemon-100"
         },
         "acceptAsyncMsg": {
             "type": "boolean",
-            "description": "...",
+            "description": "Accept async messages",
             "default": true
         },
         "RequiredInterfaces": {
