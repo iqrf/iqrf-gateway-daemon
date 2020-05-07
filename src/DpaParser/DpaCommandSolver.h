@@ -117,7 +117,7 @@ namespace iqrf {
       m_dpaTransactionResult2 = std::move(res);
 
       if (!m_dpaTransactionResult2->isResponded()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "No response");
+        THROW_EXC_TRC_WAR(std::logic_error, "No response " << NAME_PAR(errorCode, m_dpaTransactionResult2->getErrorCode()));
       }
 
       m_dpaResponse = m_dpaTransactionResult2->getResponse();

@@ -46,12 +46,12 @@ namespace iqrf {
     StdItem(const std::string& name)
       :m_name(name)
     {}
-    StdItem(const std::string& name, const std::map<int, IJsCacheService::StdDriver>& drvs)
+    StdItem(const std::string& name, const std::map<double, IJsCacheService::StdDriver>& drvs)
       :m_name(name), m_drivers(drvs)
     {}
     bool m_valid = false;
     std::string m_name;
-    std::map<int, IJsCacheService::StdDriver> m_drivers;
+    std::map<double, IJsCacheService::StdDriver> m_drivers;
   };
 
   class JsCache::Imp
@@ -98,9 +98,9 @@ namespace iqrf {
     {
     }
 
-    const StdDriver* getDriver(int id, int ver) const
+    const StdDriver* getDriver(int id, double ver) const
     {
-      TRC_FUNCTION_ENTER(PAR(id) << PAR(ver));
+      TRC_FUNCTION_ENTER(PAR(id) << std::fixed << std::setprecision(2) << PAR(ver));
       const StdDriver* drv = nullptr;
       auto foundDrv = m_standardMap.find(id);
       if (foundDrv != m_standardMap.end()) {
@@ -185,16 +185,16 @@ namespace iqrf {
         }
       }
 
-      TRC_FUNCTION_LEAVE(PAR(retval));
+      TRC_FUNCTION_LEAVE(PAR(retval) << NAME_PAR(packageId, (retval ? retval->m_packageId : -1)));
       return retval;
     }
 
-    std::map<int, std::map<int, std::vector<std::pair<int, int>>>> getDrivers(const std::string& os, const std::string& dpa)
+    std::map<int, std::map<double, std::vector<std::pair<int, int>>>> getDrivers(const std::string& os, const std::string& dpa)
     {
       TRC_FUNCTION_ENTER(PAR(os) << PAR(dpa));
 
       //DriverId, DriverVersion, hwpid, hwpidVer
-      std::map<int, std::map<int, std::vector<std::pair<int, int>>>> map2;
+      std::map<int, std::map<double, std::vector<std::pair<int, int>>>> map2;
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
@@ -204,7 +204,7 @@ namespace iqrf {
         if (p.m_os == os && p.m_dpa == dpa) {
           for (const auto & drv : p.m_stdDriverVect) {
             map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
-            ostr << '[' << drv->getId() << ',' << drv->getVersion() << "] ";
+            ostr << '[' << drv->getId() << ',' << std::fixed << std::setprecision(2) << drv->getVersion() << "] ";
           }
         }
       }
@@ -282,9 +282,9 @@ namespace iqrf {
       return m_serverState;
     }
 
-    const StdDriver* getStandard(int standardId, int version)
+    const StdDriver* getStandard(int standardId, double version)
     {
-      TRC_FUNCTION_ENTER(PAR(standardId) << PAR(version));
+      TRC_FUNCTION_ENTER(PAR(standardId) << std::fixed << std::setprecision(2) << PAR(version));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
@@ -755,7 +755,7 @@ namespace iqrf {
                   else {
                     THROW_EXC(std::logic_error, "parse error /versions[] item not double " << PAR(fname));
                   }
-                  stdItem.second.m_drivers.insert(std::make_pair((int)version, StdDriver()));
+                  stdItem.second.m_drivers.insert(std::make_pair(version, StdDriver()));
                 }
                 stdItem.second.m_valid = true;
               }
@@ -886,13 +886,13 @@ namespace iqrf {
                 for (auto itr = standardArray->Begin(); itr != standardArray->End(); ++itr) {
                   POINTER_GET_INT("", itr, "/standardID", standardId, fname);
                   POINTER_GET_DOUBLE("", itr, "/version", version, fname);
-                  const StdDriver* stdDrv = getStandard(standardId, static_cast<int>(version));
+                  const StdDriver* stdDrv = getStandard(standardId, version);
                   if (stdDrv) {
                     pck.second.m_stdDriverVect.push_back(stdDrv);
-                    auxtrc << '[' << standardId << ',' << (int)version << "], ";
+                    auxtrc << '[' << standardId << ',' << std::fixed << std::setprecision(2) << version << "], ";
                   }
                   else {
-                    auxtrc << '[' << standardId << ',' << (int)version << ", N/F], ";
+                    auxtrc << '[' << standardId << ',' << std::fixed << std::setprecision(2) << version << ", N/F], ";
                   }
                 }
                 pck.second.m_valid = true;
@@ -1204,7 +1204,7 @@ namespace iqrf {
     delete m_imp;
   }
 
-  const IJsCacheService::StdDriver* JsCache::getDriver(int id, int ver) const
+  const IJsCacheService::StdDriver* JsCache::getDriver(int id, double ver) const
   {
     return m_imp->getDriver(id, ver);
   }
@@ -1229,7 +1229,7 @@ namespace iqrf {
     return m_imp->getPackage(hwpid, hwpidVer, os, dpa);
   }
 
-  std::map<int, std::map<int, std::vector<std::pair<int, int>>>> JsCache::getDrivers(const std::string& os, const std::string& dpa) const
+  std::map<int, std::map<double, std::vector<std::pair<int, int>>>> JsCache::getDrivers(const std::string& os, const std::string& dpa) const
   {
     return m_imp->getDrivers(os, dpa);
   }

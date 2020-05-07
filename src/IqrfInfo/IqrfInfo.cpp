@@ -83,7 +83,7 @@ namespace iqrf {
     {
     public:
       Driver() = delete;
-      Driver(std::string name, int stdId, int ver, std::string drv)
+      Driver(std::string name, int stdId, double ver, std::string drv)
         : m_name(name)
         , m_stdId(stdId)
         , m_ver(ver)
@@ -91,7 +91,7 @@ namespace iqrf {
       {}
       std::string m_name;
       int m_stdId;
-      int m_ver;
+      double m_ver;
       std::string m_drv;
     };
 
@@ -248,6 +248,27 @@ namespace iqrf {
         if (!dbExists) {
           //create tables
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
+        }
+        
+        //update - TODO prepare migration scripts based on DB version in Info table in ver 2.4
+        bool existInfoTable = false;
+        try {
+          int count = 0;
+          db << "select count(*) from Info;" >> count; //if not exists the exception is generated
+          existInfoTable = true;
+        }
+        catch (sqlite_exception &e)
+        {
+          CATCH_EXC_TRC_WAR(sqlite_exception, e, "tried if Info table exists: " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+        }
+        if (!existInfoTable) {
+          try {
+            SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo_update3.db.sql");
+          }
+          catch (sqlite_exception &e)
+          {
+            CATCH_EXC_TRC_WAR(sqlite_exception, e, "tried DB version update problem: " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+          }
         }
 
       }
@@ -547,7 +568,7 @@ namespace iqrf {
         }
 
         // no device in DB and no package in IqrfRepo => get drivers by enumeration at first
-        std::map<int, int> perVerMap;
+        std::map<int, double> perVerMap;
 
         // Get for hwpid 0 plain DPA plugin
         const iqrf::IJsCacheService::Package *pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, (uint16_t)d.m_dpaVer);
@@ -1107,7 +1128,7 @@ namespace iqrf {
 
       // get standard drivers refferenced by all hwpid, hwpidVer
       // DriverId, DriverVersion, hwpid, hwpidVer
-      std::map<int, std::map<int, std::vector<std::pair<int, int>>>> drivers =
+      std::map<int, std::map<double, std::vector<std::pair<int, int>>>> drivers =
         m_iJsCacheService->getDrivers(embed::os::Read::getOsBuildAsString(osBuild), embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
 
       if (drivers.size() == 0) {
@@ -1140,7 +1161,7 @@ namespace iqrf {
 
       for (auto & drv : drivers) {
         int driverId = drv.first;
-        int driverVer = 0;
+        double driverVer = 0;
 
         driversIdSet.insert(driverId);
 
@@ -1278,7 +1299,7 @@ namespace iqrf {
               " WHERE DeviceId = ?"
               ";"
               << deviceId
-              >> [&](int driverId, std::string name, int sid, int ver, std::string drv)
+              >> [&](int driverId, std::string name, int sid, double ver, std::string drv)
             {
               driverIdDriverMap.insert(std::make_pair(driverId, Driver(name, sid, ver, drv)));
             };
@@ -1304,7 +1325,7 @@ namespace iqrf {
                 "FROM Driver "
                 "GROUP BY StandardId "
                 ";"
-                >> [&](int driverId, std::string name, int sid, int ver, std::string drv, int maxVer)
+                >> [&](int driverId, std::string name, int sid, double ver, std::string drv, int maxVer)
               {
                 (void)maxVer; //silence -Wunused-parameter
                 driverIdDriverMap.insert(std::make_pair(driverId, Driver(name, sid, ver, drv)));
@@ -1319,7 +1340,7 @@ namespace iqrf {
               driverIdSet.insert(it.first);
               str2load += it.second.m_drv;
 
-              ostrDrv << '[' << it.second.m_stdId << ',' << it.second.m_ver << "] ";
+              ostrDrv << '[' << it.second.m_stdId << ',' << std::fixed << std::setprecision(2) << it.second.m_ver << "] ";
 
             }
             str2load += customDrv;
@@ -1452,7 +1473,7 @@ namespace iqrf {
 
       std::string name = drv->getName();
       int standardId = drv->getId();
-      int version = drv->getVersion();
+      double version = drv->getVersion();
 
       database & db = *m_db;
 

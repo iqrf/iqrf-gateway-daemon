@@ -75,7 +75,7 @@ namespace iqrf {
       const std::string& getDriver() const { return m_driver; }
       const std::string& getNotes() const { return m_notes; }
       int getVersionFlags() const { return m_versionFlags; }
-      int getVersion() const { return static_cast<int>(m_version); }
+      double getVersion() const { return m_version; }
       int getId() const { return m_id; }
     private:
       bool m_valid = false;
@@ -136,12 +136,12 @@ namespace iqrf {
     typedef std::function<void(int statusCode, const std::string & data)> DataHandlerFunc;
 
     //TODO change to return by value as poineters are dangerous in case of cache update
-    virtual const StdDriver* getDriver(int id, int ver) const = 0;
+    virtual const StdDriver* getDriver(int id, double ver) const = 0;
     virtual const Manufacturer* getManufacturer(uint16_t hwpid) const = 0;
     virtual const Product* getProduct(uint16_t hwpid) const = 0;
     virtual const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const = 0;
     virtual const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const = 0;
-    virtual std::map<int, std::map<int, std::vector<std::pair<int,int>>>> getDrivers(const std::string& os, const std::string& dpa) const = 0;
+    virtual std::map<int, std::map<double, std::vector<std::pair<int,int>>>> getDrivers(const std::string& os, const std::string& dpa) const = 0;
     virtual std::map<int, std::map<int, std::string>> getCustomDrivers(const std::string& os, const std::string& dpa) const = 0;
     virtual const OsDpa* getOsDpa(int id) const = 0;
     virtual const OsDpa* getOsDpa(const std::string& os, const std::string& dpa) const = 0;

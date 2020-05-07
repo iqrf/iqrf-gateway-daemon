@@ -1,5 +1,12 @@
 BEGIN TRANSACTION;
 
+CREATE TABLE IF NOT EXISTS `Info` (
+	`VersionMajor`	INTEGER NOT NULL,
+	`VersionMinor`	INTEGER NOT NULL,
+	`Hash` INTEGER
+);
+INSERT INTO `Info` (`VersionMajor`, `VersionMinor`, `Hash`) VALUES (1, 0, 0);
+
 CREATE TABLE IF NOT EXISTS `Bonded` (
 	`Nadr` INTEGER NOT NULL PRIMARY KEY UNIQUE,
 	`Dis` INTEGER NOT NULL,
@@ -26,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `Driver` (
 	`Id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE ,
 	`Notes`	TEXT,
 	`Name`	TEXT,
-	`Version` INTEGER,
+	`Version` REAL,
 	`StandardId` INTEGER,
 	`VersionFlag` INTEGER,
 	`Driver`	TEXT
