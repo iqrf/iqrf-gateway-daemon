@@ -53,6 +53,10 @@ namespace iqrf {
     {
       TRC_INFORMATION("Sending to IQRF TCP: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
       
+      if (sockfd == -1) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Socket is not open.")
+      }
+
       if ((::send(sockfd, message.data(), message.size(), 0)) == -1) {
         TRC_WARNING("Cannot send message.");
       } else {
@@ -239,6 +243,10 @@ namespace iqrf {
         m_listenThread.join();
       TRC_DEBUG("listening thread joined");
 
+      if (sockfd == -1) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Socket is not open.")
+      }
+
       shutdown(sockfd, SHUT_RDWR);
       close(sockfd);
 
@@ -262,6 +270,10 @@ namespace iqrf {
       try {
         while (m_runListenThread)
         {
+          if (sockfd == -1) {
+            THROW_EXC_TRC_WAR(std::logic_error, "Socket is not open.")
+          }
+
           int recvlen;
 
           recvlen = recv(sockfd, buffer, BUFFER_SIZE-1, 0);
