@@ -174,7 +174,9 @@ namespace iqrf {
         resolve.ai_flags = 0;
         resolve.ai_protocol = 0;    
       
-        getaddrinfo(&(*addrStr.c_str()), nullptr, &resolve, &res);
+        if (getaddrinfo(&(*addrStr.c_str()), nullptr, &resolve, &res) != 0) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Failed to retrieve addr structures.");
+        }
         convertedPort = htons(portnum);
         struct sockaddr_in *addr;
         struct sockaddr_in6 *addr6;
