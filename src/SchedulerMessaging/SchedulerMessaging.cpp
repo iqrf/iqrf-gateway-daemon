@@ -37,19 +37,31 @@ namespace iqrf {
       using namespace rapidjson;
 
       const Value *messagingVal = Pointer("/messaging").Get(task);
+      // vector is now not needed since array is treated as a single messaging separated by &
+      // keep vector for time being
       std::vector<std::string> messagingVector;
+      
       // just string
       if (messagingVal && messagingVal->IsString()) {
         messagingVector.push_back(messagingVal->GetString());
       }
       // array of strings
       else if (messagingVal && messagingVal->IsArray()) {
+        // create messaging string messaging1&messaging2 out of input array...
+        std::stringstream ms;
         for (const Value *val = messagingVal->Begin(); val != messagingVal->End(); val++) {
           if (!val->IsString()) {
             THROW_EXC_TRC_WAR(std::logic_error, "Expected: \"/message\" is array of strings");
           }
-          messagingVector.push_back(val->GetString());
+
+          if((++val) != messagingVal->End()) {
+            ms << (--val)->GetString() << '&';
+          }
+          else {
+            ms << (--val)->GetString();
+          }
         }
+        messagingVector.push_back(ms.str());
       }
       // unknown type
       else {

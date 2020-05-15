@@ -167,24 +167,38 @@ namespace iqrf {
       doc.Accept(writer);
 
       if (!messagingId.empty()) {
-        std::string messagingId2(messagingId);
-        if (std::string::npos != messagingId2.find_first_of('/')) {
-          //preparse messageId to remove possible optional appended topic
-          //we need just clean massaging name to find in map
-          std::string buf(messagingId2);
-          std::replace(buf.begin(), buf.end(), '/', ' ');
-          std::istringstream is(buf);
-          is >> messagingId2;
-        }
+        //check for multiple messagings separated by &        
+        std::vector<std::string> messagingVector;
+        std::size_t current, previous = 0;
 
-        std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
-        auto found = m_iMessagingServiceMap.find(messagingId2);
-        if (found != m_iMessagingServiceMap.end()) {
-          found->second->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
-          TRC_INFORMATION("Outcomming message successfully sent.");
+        current = messagingId.find('&');
+        while (current != std::string::npos) {
+          messagingVector.push_back(messagingId.substr(previous, current - previous));
+          previous = current + 1;
+          current = messagingId.find('&', previous);
         }
-        else {
-          TRC_WARNING("Cannot find required: " << PAR(messagingId))
+        messagingVector.push_back(messagingId.substr(previous, current - previous));
+        
+        for (std::string& messagingIdv : messagingVector) {
+          std::string messagingId2(messagingIdv);
+          if (std::string::npos != messagingId2.find_first_of('/')) {
+            //preparse messageId to remove possible optional appended topic
+            //we need just clean massaging name to find in map
+            std::string buf(messagingId2);
+            std::replace(buf.begin(), buf.end(), '/', ' ');
+            std::istringstream is(buf);
+            is >> messagingId2;
+          }
+
+          std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
+          auto found = m_iMessagingServiceMap.find(messagingId2);
+          if (found != m_iMessagingServiceMap.end()) {
+            found->second->sendMessage(messagingIdv, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
+            TRC_INFORMATION("Outcomming message successfully sent.");
+          }
+          else {
+            TRC_WARNING("Cannot find required: " << PAR(messagingIdv))
+          }
         }
       }
       else {
