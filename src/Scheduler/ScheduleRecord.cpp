@@ -29,14 +29,19 @@ namespace iqrf {
     RandomTaskHandleGenerator() {
       //init random seed:
       srand(static_cast<unsigned int>(time(NULL)));
+      m_val = rand();
+      m_val = m_val ? m_val : m_val + 1;
     }
+    static int m_val;
   public:
     static ISchedulerService::TaskHandle getTaskHandle() {
       static RandomTaskHandleGenerator rt;
-      int val = rand();
+      int val = ++m_val;
       return (ISchedulerService::TaskHandle)(val ? val : val + 1);
     }
   };
+
+  int RandomTaskHandleGenerator::m_val = 0;
 
   void ScheduleRecord::init(const rapidjson::Value & task)
   {
