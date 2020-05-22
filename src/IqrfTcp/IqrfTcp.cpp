@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <errno.h>
 
 #ifndef SHAPE_PLATFORM_WINDOWS
 #include <termios.h>
@@ -278,8 +279,11 @@ namespace iqrf {
 
           recvlen = recv(sockfd, buffer, BUFFER_SIZE-1, 0);
           if (recvlen == -1) {
-            perror(NULL);
             TRC_WARNING("Cannot receive response.");
+            if (errno == ENOTCONN) {
+              fprintf(stderr, "Error receiving message: %s\n", strerror(errno))
+              THROW_EXC_TRC_WAR(std::logic_error, "Socket is not connected.")
+            }
             continue;
           }
 
