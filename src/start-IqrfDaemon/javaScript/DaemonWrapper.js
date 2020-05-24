@@ -396,7 +396,7 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.WriteCfg_Request_req = function (param) {
-    return iqrf.embed.os.WriteCfg_Request(param.checksum, param.configuration, param.rfpgm);
+    return iqrf.embed.os.WriteCfg_Request(param.configuration, param.rfpgm);
   };
 
   iqrf.embed.os.WriteCfg_Response_rsp = function (rawHdp) {
