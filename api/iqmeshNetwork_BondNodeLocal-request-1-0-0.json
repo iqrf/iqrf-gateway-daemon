@@ -1,5 +1,5 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
   "self": {
     "vendor": "com.iqrftech.self-desc",
     "name": "iqmeshNetwork_BondNodeLocal-request",
@@ -40,7 +40,7 @@
             },
             "bondingTestRetries": {
               "type": "integer",
-              "description": " Maximum number of FRCs used to test whether the [N] was successfully bonded. If the [N] does not respond, it is unbonded at the Coordinator’s side. If the value is 0, then no test is performed. If the [N] is connected to and bonded from DSM then this testing never succeeds."
+              "description": " Maximum number of FRCs used to test whether the [N] was successfully bonded. If the [N] does not respond, it is unbonded at the Coordinatorï¿½s side. If the value is 0, then no test is performed. If the [N] is connected to and bonded from DSM then this testing never succeeds."
             }
           },
           "required": [
