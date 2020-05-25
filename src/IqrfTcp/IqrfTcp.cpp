@@ -195,10 +195,6 @@ namespace iqrf {
               continue;
             }
 
-            if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option))) {
-              THROW_EXC_TRC_WAR(std::logic_error, "Address or port is already in use.");
-            }
-
             if (connect(sockfd, (struct sockaddr*) addr, sizeof(struct sockaddr_in)) != -1) {
               break;
             }
@@ -209,10 +205,6 @@ namespace iqrf {
            
             if (sockfd == -1) {
               continue;
-            }
-
-            if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option))) {
-              THROW_EXC_TRC_WAR(std::logic_error, "Address or port is already in use.");
             }
 
             if (connect(sockfd, (struct sockaddr *) addr6, sizeof(struct sockaddr_in6)) != -1) {
