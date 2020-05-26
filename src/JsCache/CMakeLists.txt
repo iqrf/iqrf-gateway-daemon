@@ -2,7 +2,7 @@ project(JsCache)
 
 find_package(Boost REQUIRED COMPONENTS filesystem )
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-find_package(libzip REQUIRED)
+find_package(LIBZIP REQUIRED)
 find_package(shapeware REQUIRED)
 
 set(COMPONENT iqrf::JsCache)
