@@ -2,5 +2,5 @@
   "component": "iqrf::JsCache",
   "instance": "JsCache",
   "urlRepo": "https://repository.iqrfalliance.org/api",
-  "checkPeriodInMinutes": 720
+  "checkPeriodInMinutes": 0
 }

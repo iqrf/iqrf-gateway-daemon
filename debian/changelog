@@ -1,3 +1,14 @@
+iqrf-gateway-daemon (2.2.0-rc6) RELEASED; urgency=medium
+
+ * Changed:
+  * Periodic downloads from IQRF repository disabled
+
+ * Fixed:
+  * iqrfEmbedOs_WriteCfg
+  * iqrfEmbedCoordinator_SetMID 
+
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Tue, 26 May 2020 13:30:00 +0200
+
 iqrf-gateway-daemon (2.2.0-rc5) RELEASED; urgency=medium
 
  * Improved:
@@ -7,7 +18,7 @@ iqrf-gateway-daemon (2.2.0-rc5) RELEASED; urgency=medium
  * Fixed:
   * GetMidMetaData metadata API 
 
- -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Thu, 3 May 2020 18:00:00 +0100
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Thu, 3 May 2020 18:00:00 +0200
 
 iqrf-gateway-daemon (2.2.0-rc4) RELEASED; urgency=medium
 
