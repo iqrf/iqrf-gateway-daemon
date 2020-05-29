@@ -85,6 +85,13 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::IqrfTcp",
+      "libraryPath": "",
+      "libraryName": "IqrfTcp",
+      "enabled": false,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::IqrfDpa",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "IqrfDpa",
