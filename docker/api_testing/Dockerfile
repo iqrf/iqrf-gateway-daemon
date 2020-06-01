@@ -18,7 +18,7 @@ ENV PATH="/deploy/Debug/iqrf-gateway-daemon/bin:${PATH}"
 
 WORKDIR /deploy/Debug/iqrf-gateway-daemon/runcfg/iqrfgd2-LinCdc
 
-COPY ./configuration ./configuration/
+COPY ./docker/api_testing/configuration ./configuration/
 
 EXPOSE 1338 55000/udp 55300/udp
 
