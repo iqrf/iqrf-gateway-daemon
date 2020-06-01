@@ -1,5 +1,6 @@
 stages:
   - tests
+  - api-tests
   - clean-dirs
   - build-package
   - deploy-api
@@ -295,6 +296,14 @@ test:
     - cmake --build build --target install
     - cd build/ && ctest -V
   <<: *debian-buster-amd64-template
+
+api-testing:
+  stage: api-tests
+  image: docker:dind
+  before_script:
+    - pip3 install docker-compose
+  script:
+    - docker-compose -f apitesting.docker-compose.yml up --build --abort-on-container-exit --exit-code-from tests
 
 clean-devel:
   extends: .clean-template

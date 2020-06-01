@@ -1,0 +1,291 @@
+{
+  "applicationName": "IqrfGatewayDaemon",
+  "resourceDir": "",
+  "dataDir": "configuration",
+  "cacheDir": "configuration",
+  "userDir": "",
+  "configurationDir": "configuration",
+  "deploymentDir": "../../..",
+  "components": [
+    {
+      "name": "shape::TraceFormatService",
+      "libraryPath": "shape/bin",
+      "libraryName": "TraceFormatService",
+      "enabled": true,
+      "startlevel": -4
+    },
+    {
+      "name": "shape::TraceFileService",
+      "libraryPath": "shape/bin",
+      "libraryName": "TraceFileService",
+      "enabled": true,
+      "startlevel": -3
+    },
+    {
+      "name": "shape::ConfigurationService",
+      "libraryPath": "",
+      "libraryName": "",
+      "enabled": true,
+      "startlevel": -2
+    },
+    {
+      "name": "shape::LauncherService",
+      "libraryPath": "",
+      "libraryName": "",
+      "enabled": true,
+      "startlevel": -2
+    },
+    {
+      "name": "shape::WebsocketCppService",
+      "libraryPath": "shapeware/bin",
+      "libraryName": "WebsocketCppService",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "shape::CurlRestApiService",
+      "libraryPath": "shapeware/bin",
+      "libraryName": "CurlRestApiService",
+      "enabled": true,
+      "startlevel": -1
+    },
+    {
+      "name": "iqrf::Scheduler",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "Scheduler",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::IqrfCdc",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfCdc",
+      "enabled": false,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfSpi",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfSpi",
+      "enabled": false,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfUart",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfUart",
+      "enabled": false,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfTcp",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfTcp",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfDpa",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfDpa",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfInfo",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfInfo",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::LegacyApiSupport",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "LegacyApiSupport",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::MqMessaging",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "MqMessaging",
+      "enabled": true,
+      "startlevel": 10
+    },
+    {
+      "name": "iqrf::MqttMessaging",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "MqttMessaging",
+      "enabled": true,
+      "startlevel": 10
+    },
+    {
+      "name": "iqrf::WebsocketMessaging",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "WebsocketMessaging",
+      "enabled": true,
+      "startlevel": 10
+    },
+    {
+      "name": "iqrf::UdpMessaging",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "UdpMessaging",
+      "enabled": true,
+      "startlevel": 10
+    },
+    {
+      "name": "iqrf::IdeCounterpart",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IdeCounterpart",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::JsonSplitter",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonSplitter",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "iqrf::SchedulerMessaging",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "SchedulerMessaging",
+      "enabled": true,
+      "startlevel": 10
+    },
+    {
+      "name": "iqrf::JsonDpaApiRaw",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonDpaApiRaw",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsonMngApi",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonMngApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsonMngMetaDataApi",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonMngMetaDataApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsonCfgApi",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonCfgApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsonIqrfInfoApi",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonIqrfInfoApi",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsCache",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsCache",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsRenderDuktape",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsRenderDuktape",
+      "enabled": true,
+      "startlevel": 2
+    },
+    {
+      "name": "iqrf::JsonDpaApiIqrfStandard",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonDpaApiIqrfStandard",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::JsonDpaApiIqrfStdExt",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonDpaApiIqrfStdExt",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::NativeUploadService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "NativeUploadService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::WriteTrConfService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "WriteTrConfService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::SmartConnectService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "SmartConnectService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::ReadTrConfService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "ReadTrConfService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::OtaUploadService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "OtaUploadService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::BondNodeLocalService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "BondNodeLocalService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::EnumerateDeviceService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "EnumerateDeviceService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::AutonetworkService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "AutonetworkService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::RemoveBondService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "RemoveBondService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::MonitorService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "MonitorService",
+      "enabled": true,
+      "startlevel": 0
+    }
+  ]
+}
