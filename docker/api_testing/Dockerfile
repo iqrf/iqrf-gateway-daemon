@@ -14,9 +14,9 @@ RUN mkdir deploy \
     && cmake -Biqrf-gateway-daemon-build -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DCMAKE_BUILD_TYPE=Debug \
     && cmake --build iqrf-gateway-daemon-build --target install
 
-ENV PATH="/deploy/Debug/iqrf-gateway-daemon/bin:${PATH}"
+ENV PATH="/iqrf/deploy/Debug/iqrf-gateway-daemon/bin:${PATH}"
 
-WORKDIR /deploy/Debug/iqrf-gateway-daemon/runcfg/iqrfgd2-LinCdc
+WORKDIR /iqrf/deploy/Debug/iqrf-gateway-daemon/runcfg/iqrfgd2-LinCdc
 
 COPY ./docker/api_testing/configuration ./configuration/
 
