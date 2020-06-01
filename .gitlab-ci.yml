@@ -299,9 +299,11 @@ test:
 
 api-testing:
   stage: api-tests
-  image: docker:dind
+  image: docker:latest
+  services:
+    - docker:dind
   before_script:
-    - pip3 install docker-compose
+    - apk add  --no-cache docker-compose
   script:
     - docker-compose -f apitesting.docker-compose.yml up --build --abort-on-container-exit --exit-code-from tests
 
