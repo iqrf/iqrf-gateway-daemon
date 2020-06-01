@@ -16,3 +16,5 @@ examples/java/iqrf-raw/bin/
 examples/java/iqrf-raw/target/
 examples/c#/iqrf-gw-api/bin/
 examples/c#/iqrf-gw-api/obj/
+
+.idea/
