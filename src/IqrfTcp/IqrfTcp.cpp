@@ -1,3 +1,26 @@
+/*
+* filename: IqrfTcp.cpp
+* author: Karel Hanák <xhanak34@stud.fit.vutbr.cz>
+* school: Brno University of Technology, Faculty of Information Technology
+* bachelor's thesis: Automatic Testing of Software 
+*
+* This file contains implementation a TCP communication component in the role of a client.
+*
+* Copyright 2020 Karel Hanák
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #define IIqrfChannelService_EXPORTS
 
 #include "IqrfTcp.h"
@@ -32,9 +55,8 @@
 TRC_INIT_MODULE(iqrf::IqrfTcp);
 
 const unsigned BUFFER_SIZE = 1024;
-int sockfd;
-//int clientfd;
-char buffer[BUFFER_SIZE];
+int sockfd; //client socket file descriptor
+char buffer[BUFFER_SIZE]; //buffer for incoming messages
 
 namespace iqrf {
 
@@ -50,6 +72,11 @@ namespace iqrf {
     {
     }
 
+    /**
+     * Sends DPA message to TCP server via the socket file descriptor.
+     * 
+     * @param message DPA message to send 
+     */
     void send(const std::basic_string<unsigned char>& message)
     {
       TRC_INFORMATION("Sending to IQRF TCP: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
@@ -66,7 +93,8 @@ namespace iqrf {
 
     }
 
-    bool enterProgrammingState() {
+    bool enterProgrammingState() 
+    {
       TRC_FUNCTION_ENTER("");
       //TRC_INFORMATION("Entering programming mode.");
       TRC_WARNING("Not implemented");
@@ -93,7 +121,8 @@ namespace iqrf {
       return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
     }
 
-    bool terminateProgrammingState() {
+    bool terminateProgrammingState() 
+    {
       TRC_INFORMATION("Terminating programming mode.");
       TRC_WARNING("Not implemented");
       //return true;
@@ -139,6 +168,14 @@ namespace iqrf {
       return myOsInfo;
     }
 
+    /**
+     * Reads information from component configuration used to establish a TCP connection.
+     * Retrieves all possible hosts from read configuration.
+     * Creates a socket on the file descriptor.
+     * Attempts to establish a connection.
+     *
+     * @param props shape component configuration
+     */
     void activate(const shape::Properties *props)
     {
       TRC_FUNCTION_ENTER("");
@@ -151,14 +188,14 @@ namespace iqrf {
       using namespace rapidjson;
 
       try {
-        int option = 1, portnum = 0;
-        uint16_t convertedPort;
+        uint16_t portnum = 0;
         std::string addrStr;
         struct addrinfo *dest, *res;
         struct addrinfo resolve;
         Document d;
         d.CopyFrom(props->getAsJson(), d.GetAllocator());
 
+        //read target server address from configuration
         Value* address = Pointer("/address").Get(d);
         if (address != nullptr && address->IsString()) {
           addrStr = address->GetString();
@@ -166,58 +203,84 @@ namespace iqrf {
           THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /address");
         }
 
+        //read target port from configuration
         Value* port = Pointer("/port").Get(d);
         if (port != nullptr && port->IsInt()) {
-          portnum = port->GetInt();
+          //convert port number to network byte order
+          portnum = htons(port->GetInt());
         } else {
           THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /port");
         }
 
+        /************************************** Beginning of citation ************************************
+         * The following section is inspired by a linux manual page for the getaddrinfo function.
+         * The original example has been altered.
+         * 
+         * Title: getaddrinfo(3) - linux manual page
+         * Author(s): Michael Kerrisk <mtk.manpages@gmail.com>, Ulrich Drepper <drepper@redhat.com>,
+         *            Sam Varshavchik <mrsam@courier-mta.com>
+         * Cited: 2020-06-02
+         * License: https://www.man7.org/linux/man-pages/man3/getaddrinfo.3.license.html
+         * Availability: https://www.man7.org/linux/man-pages/man3/getaddrinfo.3.html
+         */
+        //specify connection parameters for host resolution
         memset(&resolve, 0, sizeof(struct addrinfo));
         resolve.ai_family = AF_UNSPEC;
         resolve.ai_socktype = SOCK_STREAM;
         resolve.ai_flags = 0;
         resolve.ai_protocol = 0;    
-      
+
+        //retrieve hosts from address and specified connection parameters
         if (getaddrinfo(&(*addrStr.c_str()), nullptr, &resolve, &res) != 0) {
           THROW_EXC_TRC_WAR(std::logic_error, "Failed to retrieve addr structures.");
         }
-        convertedPort = htons(portnum);
         struct sockaddr_in *addr;
         struct sockaddr_in6 *addr6;
+        //iterate over retrieved results in attempt to establish a connection
         for(dest = res; dest != nullptr; dest = dest->ai_next) {
+          //IPv4 connection
           if (dest->ai_family == AF_INET) {
             addr = (struct sockaddr_in*) dest->ai_addr;
-            addr->sin_port = convertedPort;
+            addr->sin_port = portnum;
+            //create socket for ipv4 connection
             sockfd = socket(dest->ai_family, dest->ai_socktype, dest->ai_protocol);
             
+            //failed to create socket, continue with the next result
             if (sockfd == -1) {
               continue;
             }
 
+            //attempt to establish a connection, if successful, break the loop
             if (connect(sockfd, (struct sockaddr*) addr, sizeof(struct sockaddr_in)) != -1) {
               break;
             }
+          //IPv6 connection
           } else if (dest->ai_family == AF_INET6) {
             addr6 = (struct sockaddr_in6*) dest->ai_addr;
-            addr6->sin6_port = convertedPort;
+            addr6->sin6_port = portnum;
+            //create socket for ipv6 connection
             sockfd = socket(dest->ai_family, dest->ai_socktype, dest->ai_protocol);
            
+            //failed to create socket, continue with the next result
             if (sockfd == -1) {
               continue;
             }
 
+            //attempt to establish a connection, if successful, break the loop
             if (connect(sockfd, (struct sockaddr *) addr6, sizeof(struct sockaddr_in6)) != -1) {
               break;
             }
           }
         }
 
+        //free retreived results as they are no longer needed
         freeaddrinfo(res);
 
+        //connection could not be established with either result
         if (dest == nullptr) {
           THROW_EXC_TRC_WAR(std::logic_error, "Address property is not a valid ip address or hostname.");
         }
+        /************************************** End of citation ************************************/
 
         TRC_FUNCTION_LEAVE("")
       } catch (std::exception &e) {
@@ -225,6 +288,9 @@ namespace iqrf {
       }
     }
 
+    /**
+     * Deactivates the TCP component after closing the connection on socket file descriptor. 
+     */
     void deactivate()
     {
       TRC_FUNCTION_ENTER("");
@@ -256,6 +322,10 @@ namespace iqrf {
       (void)props; //silence -Wunused-parameter
     }
 
+    /**
+     * The client socket listens for incomming messages from a TCP server.
+     * Messages are received and handled by messageHandler.
+     */
     void listen()
     {
       TRC_FUNCTION_ENTER("thread starts");
@@ -269,9 +339,11 @@ namespace iqrf {
 
           int recvlen;
 
+          //receive a message from server
           recvlen = recv(sockfd, buffer, BUFFER_SIZE-1, 0);
           if (recvlen == -1) {
             TRC_WARNING("Cannot receive response.");
+            //connection closed
             if (errno == ENOTCONN) {
               fprintf(stderr, "Error receiving message: %s\n", strerror(errno));
               THROW_EXC_TRC_WAR(std::logic_error, "Socket is not connected.");
@@ -287,6 +359,7 @@ namespace iqrf {
             continue;
           }
 
+          //copy message content and clear buffer before another message is received
           memcpy(m_rec, buffer, recvlen);
           memset(buffer, 0, BUFFER_SIZE);
 
