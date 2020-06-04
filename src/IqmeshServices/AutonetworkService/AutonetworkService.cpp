@@ -2170,23 +2170,28 @@ namespace iqrf {
                 step++;
               }
 
-              // Multiple authorization              
-              if ( ( authrozireNodes.size() == 11 ) || ( ( step >= maxStep ) && ( authrozireNodes.size() != 0 ) ) || ( ( ++index == antwProcessParams.prebondedNodes.size() ) && ( authrozireNodes.size() != 0 ) ) )
+              // Multiple authorization    
+              index++;
+              if ( ( authrozireNodes.size() == 11 ) || ( step >= maxStep ) || ( index == antwProcessParams.prebondedNodes.size() ) )
               {
-                retryAction = antwInputParams.actionRetries + 1;
-                do
+                // Any nodes in the list ?
+                if ( authrozireNodes.size() != 0 )
                 {
-                  try
+                  retryAction = antwInputParams.actionRetries + 1;
+                  do
                   {
-                    TPerCoordinatorAuthorizeBond_Response response = authorizeBond( autonetworkResult, authrozireNodes );
-                    authrozireNodes.clear();
-                    break;
-                  }
-                  catch ( std::exception& ex )
-                  {
-                    TRC_WARNING( "Authorizing node " << PAR( node.second.mid.value ) << " error: " << ex.what() );
-                  }
-                } while ( --retryAction != 0 );
+                    try
+                    {
+                      TPerCoordinatorAuthorizeBond_Response response = authorizeBond( autonetworkResult, authrozireNodes );
+                      authrozireNodes.clear();
+                      break;
+                    }
+                    catch ( std::exception& ex )
+                    {
+                      TRC_WARNING( "Authorizing node " << PAR( node.second.mid.value ) << " error: " << ex.what() );
+                    }
+                  } while ( --retryAction != 0 );
+                }
               }
 
               // Check number of authorized nodes
