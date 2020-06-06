@@ -1,6 +1,7 @@
 stages:
   - tests
   - api-tests
+  - update-cache
   - clean-dirs
   - build-package
   - deploy-api
@@ -202,7 +203,8 @@ stages:
 
 .package-template:
   stage: build-package
-  dependencies: []
+  dependencies:
+    - update-cache
   script:
     - export CFLAGS="$(dpkg-buildflags --get CFLAGS) $(dpkg-buildflags --get CPPFLAGS)"
     - export CXXFLAGS="$(dpkg-buildflags --get CXXFLAGS) $(dpkg-buildflags --get CPPFLAGS)"
@@ -214,7 +216,6 @@ stages:
     - git clone --recurse-submodules https://github.com/logimic/shapeware.git shapeware-source
     - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
     - cmake --build shapeware-build
-    - cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../
     - if [ "${STABILITY}" == "devel" ]; then gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch; fi
     - dch-add-distro -d "${DIST}"
     - debuild -e DAEMON_VERSION -b -uc -us -tc
@@ -306,6 +307,16 @@ api-testing:
     - apk add  --no-cache docker-compose
   script:
     - docker-compose -f apitesting.docker-compose.yml up --build --abort-on-container-exit --exit-code-from tests
+
+update-cache:
+  stage: update-cache
+  script:
+    - python3 src/start-IqrfDaemon/iqrfRepoCache/update-cache.py
+  artifacts:
+    paths:
+      - src/start-IqrfDaemon/iqrfRepoCache/
+    expire_in: 1 day
+  <<: *debian-buster-amd64-template
 
 clean-devel:
   extends: .clean-template

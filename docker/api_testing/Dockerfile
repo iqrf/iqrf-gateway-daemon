@@ -10,7 +10,7 @@ RUN mkdir deploy \
     && git clone --recurse-submodules https://github.com/logimic/shapeware.git \
     && cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_BUILD_TYPE=Debug \
     && cmake --build shapeware-build --target install \
-    && cd src/start-IqrfDaemon/iqrfRepoCache/ && python3 update-cache.py && cd ../../../ \
+    && python3 src/start-IqrfDaemon/iqrfRepoCache/update-cache.py \
     && cmake -Biqrf-gateway-daemon-build -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DCMAKE_BUILD_TYPE=Debug \
     && cmake --build iqrf-gateway-daemon-build --target install
 
