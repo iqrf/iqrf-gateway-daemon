@@ -6,15 +6,18 @@ stages:
   - build-package
   - deploy-api
 
+.ccache-before_script-template: &ccache-before_script-template
+  - export CCACHE_COMPILERCHECK="content"
+  - export CCACHE_COMPRESS="true"
+  - export CCACHE_BASEDIR="$PWD"
+  - export CCACHE_DIR="${CCACHE_BASEDIR}/.ccache"
+  - ccache --zero-stats
+  - ccache --show-stats
+  - echo "CCACHEDIR=${CCACHE_BASEDIR}" > ~/.pbuilderrc
+
 .ccache-template: &ccache-template
   before_script:
-    - export CCACHE_COMPILERCHECK="content"
-    - export CCACHE_COMPRESS="true"
-    - export CCACHE_BASEDIR="$PWD"
-    - export CCACHE_DIR="${CCACHE_BASEDIR}/.ccache"
-    - ccache --zero-stats
-    - ccache --show-stats
-    - echo "CCACHEDIR=${CCACHE_BASEDIR}" > ~/.pbuilderrc
+    - *ccache-before_script-template
   after_script:
     - ccache --show-stats
   cache:
@@ -253,6 +256,7 @@ stages:
     - master
   extends: .package-template
   before_script:
+    - *ccache-before_script-template
     - export DAEMON_VERSION=v2.3.0-beta~${CI_PIPELINE_ID}
     - export STABILITY=devel
     - mkdir -p ~/.ssh
@@ -271,6 +275,7 @@ stages:
     - tags
   extends: .package-template
   before_script:
+    - *ccache-before_script-template
     - export DAEMON_VERSION="$CI_COMMIT_TAG"
     - export STABILITY=stable
     - mkdir -p ~/.ssh
@@ -305,12 +310,12 @@ test:
   script:
     - mkdir deploy
     - git clone --recurse-submodules https://github.com/logimic/shape.git
-    - cmake -Bshape-build -Hshape -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DSHAPE_DEPLOY:PATH=$PWD/deploy
+    - cmake -Bshape-build -Hshape -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DSHAPE_DEPLOY:PATH=$PWD/deploy -DUSE_CCACHE=TRUE
     - cmake --build shape-build --target install
     - git clone --recurse-submodules https://github.com/logimic/shapeware.git
-    - cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug
+    - cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
     - cmake --build shapeware-build --target install
-    - cmake -Bbuild -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug
+    - cmake -Bbuild -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
     - cmake --build build --target install
     - cd build/ && ctest -V
   <<: *debian-buster-amd64-template
