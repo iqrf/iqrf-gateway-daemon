@@ -1938,7 +1938,7 @@ namespace iqrf {
           std::this_thread::sleep_for( std::chrono::milliseconds( TIMEOUT_STEP ) );
          
           // DPA >= 4.14 ?
-          if ( coordParams.dpaVerWord >= 0x0414 )
+          if ( ( coordParams.dpaVerWord >= 0x0414 ) && ( FrcSelect.size() > 1 ) )
           {
             // Check the DPA version of prebonded nodes is >= 0x0414
             TRC_INFORMATION( "Reading prebonded alive nodes." );
