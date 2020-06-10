@@ -11,14 +11,14 @@ stages:
   - export CCACHE_COMPRESS="true"
   - export CCACHE_BASEDIR="$PWD"
   - export CCACHE_DIR="${CCACHE_BASEDIR}/.ccache"
-  - ccache --zero-stats
-  - ccache --show-stats
-  - echo "CCACHEDIR=${CCACHE_BASEDIR}" > ~/.pbuilderrc
+  - ccache --zero-stats --show-stats
+  - echo "CCACHEDIR=~/.ccache" > ~/.pbuilderrc
 
 .ccache-template: &ccache-template
   before_script:
     - *ccache-before_script-template
   after_script:
+    - export CCACHE_DIR="${CCACHE_BASEDIR}/.ccache"
     - ccache --show-stats
   cache:
     key: "$CI_JOB_NAME"
@@ -237,7 +237,7 @@ stages:
     - cmake --build shapeware-build
     - if [ "${STABILITY}" == "devel" ]; then gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch; fi
     - dch-add-distro -d "${DIST}"
-    - debuild -e DAEMON_VERSION -b -uc -us -tc
+    - debuild -e CCACHE_COMPILERCHECK -e CCACHE_COMPRESS -e CCACHE_BASEDIR -e CCACHE_DIR -e DAEMON_VERSION -b -uc -us -tc
     - mv ../*.deb .
     - 'mv ../*.ddeb . 2>/dev/null || :'
     - mv ../*.changes .
