@@ -15,12 +15,12 @@ git clone --recurse-submodules https://github.com/logimic/shape.git
 git clone --recurse-submodules https://github.com/logimic/shapeware.git
 
 # Build shape
-cmake -Bshape-build -Hshape -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
+cmake -Bshape-build -Hshape -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DUSE_CCACHE=TRUE
 cmake --build shape-build
 
 # Build shapeware
 cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DLWS_STATIC_PIC:BOOL=TRUE \
--DLWS_WITH_SSL:BOOL=FALSE -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE
+-DLWS_WITH_SSL:BOOL=FALSE -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DUSE_CCACHE=TRUE
 cmake --build shapeware-build
 
 # Generate Debian changelog
@@ -31,4 +31,4 @@ else
 fi
 
 # Build Debian package
-dpkg-buildpackage -b -rfakeroot -us -uc -tc
+debuild -e DAEMON_VERSION -b -rfakeroot -us -uc -tc

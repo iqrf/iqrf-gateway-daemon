@@ -8,6 +8,7 @@
 
 import os
 import json
+import pathlib
 import requests
 
 server_url = 'server'
@@ -23,91 +24,71 @@ api_endpoint = 'https://repository.iqrfalliance.org/api/'
 directories = [server_url, companies_url, manufacturers_url,
                osdpa_url, products_url, standards_url, packages_url]
 
-# loop via api/folders
-for directory in directories:
 
+def create_and_open_dir(directory, prefix=None):
+    prefix = "" if prefix is None else (prefix + " ")
     if not os.path.exists(directory):
         os.mkdir(directory)
-        print("Directory " + directory + " created.")
+        print("Directory " + prefix + directory + " created.")
     else:
-        print("Directory " + directory + " already exists.")
+        print("Directory " + prefix + directory + " already exists.")
 
     os.chdir(directory)
 
-    data = requests.get(api_endpoint + directory).json()
 
-    with open('data.json', 'w') as output_file:
-        json.dump(data, output_file, sort_keys=True)
+def download_and_save_json(path):
+    data = requests.get(api_endpoint + path).json()
+    with open('data.json', 'w') as file:
+        json.dump(data, file, sort_keys=True)
+    return data
+
+
+def update_packages(data):
+    for json_object in data:
+        pkg = str(json_object['packageID'])
+        create_and_open_dir(pkg, "packages/pkgId")
+        download_and_save_json(directory + '/' + pkg)
+        update_package_handler(str(json_object['handlerUrl']))
+        os.chdir('..')
+
+
+def update_package_handler(handler_url):
+    if handler_url.find('hex') != -1:
+        file = open('handler.hex', 'w+b')
+        file.write(requests.get(handler_url).content)
+        file.close()
+
+
+def update_standards(data):
+    for json_object in data:
+        std = str(json_object['standardID'])
+        create_and_open_dir(std, "standards/stdId")
+        data = download_and_save_json(directory + '/' + std)
+        update_standard_versions(std, data['versions'])
+        os.chdir('..')
+
+
+def update_standard_versions(standard, versions):
+    for ver in versions:
+        ver = str(int(ver))
+        create_and_open_dir(ver, "standards/stdId/ver")
+        download_and_save_json(directory + '/' + standard + '/' + ver)
+        os.chdir('..')
+
+
+os.chdir(pathlib.Path(__file__).parent)
+
+# loop via api/folders
+for directory in directories:
+    create_and_open_dir(directory)
+    data = download_and_save_json(directory)
 
     # loop via std ids
     if directory == standards_url:
-
-        for json_object in data:
-
-            std = str(json_object['standardID'])
-
-            if not os.path.exists(std):
-                os.mkdir(std)
-                print("Directory standards/stdId " + std + " created.")
-            else:
-                print("Directory standards/stdId " + std + " already exists.")
-
-            os.chdir(std)
-
-            data = requests.get(api_endpoint + directory + '/' + std).json()
-
-            with open('data.json', 'w') as output_file:
-                json.dump(data, output_file, sort_keys=True)
-
-            # loop via ver of std ids
-            for ver in data['versions']:
-
-                ver = str(int(ver))
-
-                if not os.path.exists(ver):
-                    os.mkdir(ver)
-                    print("Directory standards/stdId/ver " + ver + " created.")
-                else:
-                    print("Directory standards/stdId/ver " + ver +
-                          " already exists.")
-
-                os.chdir(ver)
-
-                data = requests.get(api_endpoint + directory + '/' + std +
-                                    '/' + ver).json()
-
-                with open('data.json', 'w') as output_file:
-                    json.dump(data, output_file, sort_keys=True)
-
-                os.chdir('..')
-
-            os.chdir('..')
+        update_standards(data)
 
     # loop via packages ids
     if directory == packages_url:
-
-        for json_object in data:
-
-            pkg = str(json_object['packageID'])
-
-            if not os.path.exists(pkg):
-                os.mkdir(pkg)
-                print("Directory packages/pkgId " + pkg + " created.")
-            else:
-                print("Directory packages/pkgId " + pkg + " already exists.")
-
-            os.chdir(pkg)
-
-            data = requests.get(api_endpoint + directory + '/' + pkg).json()
-
-            with open('data.json', 'w') as output_file:
-                json.dump(data, output_file, sort_keys=True)
-
-            handler_url = str(json_object['handlerUrl'])
-            if handler_url.find('hex') != -1:
-                file = open('handler.hex', 'w+b')
-                file.write(requests.get(handler_url).content)
-                file.close()
-            os.chdir('..')
+        update_packages(data)
 
     os.chdir('..')

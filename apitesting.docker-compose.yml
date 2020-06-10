@@ -1,0 +1,35 @@
+version: "3.3"
+
+services:
+
+  deamon:
+    image: deamon_test
+    container_name: iqrfgd-api-tests
+    build:
+      context: .
+      dockerfile: docker/api_testing/Dockerfile
+    depends_on:
+      - mosquitto
+      - emulator
+
+  mosquitto:
+    image: eclipse-mosquitto:1.5
+    container_name: mosquitto-api-test
+    expose:
+      - 1883
+
+  emulator:
+    image: iqrftech/iqrf-tr-emulator:latest
+    container_name: network_emulator
+    expose:
+      - 10000
+    depends_on:
+      - mosquitto
+
+  tests:
+    image: iqrftech/iqrf-gateway-daemon-api-testing:latest
+    container_name: tavern_test
+    depends_on:
+      - mosquitto
+      - emulator
+      - deamon

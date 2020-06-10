@@ -1,0 +1,40 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__iqrf__IqrfTcp",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of component.",
+            "enum": [
+                "iqrf::IqrfTcp"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended iqrf::IqrfTcp-(id)",
+            "default": "iqrf::IqrfTcp-1"
+        },
+        "address": {
+            "type": "string",
+            "description": "DPA TCP address",
+            "default": "127.0.0.1"
+        },
+        "port":  {
+			"type": "integer",
+            "description": "DPA TCP port",
+            "default": 10000
+		}
+    },
+    "required": [
+        "component",
+        "instance",
+        "address",
+        "port"  
+    ]
+}
