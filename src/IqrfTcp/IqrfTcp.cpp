@@ -31,7 +31,11 @@
 #include <thread>
 #include <atomic>
 #include <cstring>
+#ifdef SHAPE_PLATFORM_WINDOWS
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
