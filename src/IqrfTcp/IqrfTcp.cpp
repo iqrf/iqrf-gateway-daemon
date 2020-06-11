@@ -30,20 +30,20 @@
 #include <regex>
 #include <thread>
 #include <atomic>
+#include <cerrno>
 #include <cstring>
+
 #ifdef SHAPE_PLATFORM_WINDOWS
 #include <io.h>
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #else
-#include <unistd.h>
-#endif
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <netdb.h>
-#include <errno.h>
-
-#ifndef SHAPE_PLATFORM_WINDOWS
-#include <termios.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 #ifdef TRC_CHANNEL
@@ -191,6 +191,15 @@ namespace iqrf {
 
       using namespace rapidjson;
 
+#ifdef SHAPE_PLATFORM_WINDOWS
+      // Initialize Winsock
+      WSADATA wsaData = { 0 };
+      int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+      if (iResult != 0) {
+        THROW_EXC_TRC_WAR(UdpChannelException, "WSAStartup failed: " << GetLastError());
+      }
+#endif
+
       try {
         uint16_t portnum = 0;
         std::string addrStr;
@@ -302,8 +311,9 @@ namespace iqrf {
       m_runListenThread = false;
 
       TRC_DEBUG("joining udp listening thread");
-      if (m_listenThread.joinable())
-        m_listenThread.join();
+      if (m_listenThread.joinable()) {
+          m_listenThread.join();
+      }
       TRC_DEBUG("listening thread joined");
 
       if (sockfd == -1) {
@@ -311,7 +321,12 @@ namespace iqrf {
       }
 
       shutdown(sockfd, SHUT_RDWR);
+#ifdef SHAPE_PLATFORM_WINDOWS
+      closesocket(sockfd);
+      WSACleanup();
+#else
       close(sockfd);
+#endif
 
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
