@@ -1,6 +1,8 @@
 project(JsCache)
 
 find_package(Boost REQUIRED COMPONENTS filesystem )
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+find_package(LIBZIP REQUIRED)
 find_package(shapeware REQUIRED)
 
 set(COMPONENT iqrf::JsCache)
@@ -38,6 +40,7 @@ endif()
 target_link_libraries(${PROJECT_NAME}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  ${LIBZIP_LIBRARY}
 )
 
 DeployShapeComponent(${PROJECT_NAME})
@@ -45,16 +48,17 @@ DeployShapeComponent(${PROJECT_NAME})
 if(WIN32)
 	install(
 		FILES
-			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-gd-x64-1_70.dll"
-			#"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_system-vc140-mt-gd-x64-1_66.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-gd-x64-1_73.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/zip.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/bz2d.dll"
 		CONFIGURATIONS Debug
 		DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
 	)
 
 	install(
 		FILES
-			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-x64-1_70.dll"
-			#"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_system-vc140-mt-x64-1_66.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-x64-1_73.dll"
+			"$<TARGET_FILE_DIR:${PROJECT_NAME}>/zip.dll"
 		CONFIGURATIONS Release
 		DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
 	)

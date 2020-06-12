@@ -2,5 +2,6 @@
   "component": "iqrf::JsCache",
   "instance": "JsCache",
   "urlRepo": "https://repository.iqrfalliance.org/api",
-  "checkPeriodInMinutes": 0
+  "checkPeriodInMinutes": 1,
+  "downloadIfRepoCacheEmpty": true
 }
