@@ -34,8 +34,6 @@
 #include <cstring>
 
 #ifdef SHAPE_PLATFORM_WINDOWS
-#include <io.h>
-#include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
@@ -44,6 +42,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <unistd.h>
+typedef int SOCKET;
 #endif
 
 #ifdef TRC_CHANNEL
@@ -59,7 +58,7 @@
 TRC_INIT_MODULE(iqrf::IqrfTcp);
 
 const unsigned BUFFER_SIZE = 1024;
-int sockfd; //client socket file descriptor
+SOCKET sockfd; //client socket file descriptor
 char buffer[BUFFER_SIZE]; //buffer for incoming messages
 
 namespace iqrf {
@@ -89,7 +88,7 @@ namespace iqrf {
         THROW_EXC_TRC_WAR(std::logic_error, "Socket is not open.")
       }
 
-      if ((::send(sockfd, message.data(), message.size(), 0)) == -1) {
+      if ((::send(sockfd, (char *)message.c_str(), message.size(), 0)) == -1) {
         TRC_WARNING("Cannot send message.");
       } else {
         TRC_INFORMATION("Message successfully sent.");
@@ -196,7 +195,7 @@ namespace iqrf {
       WSADATA wsaData = { 0 };
       int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
       if (iResult != 0) {
-        THROW_EXC_TRC_WAR(UdpChannelException, "WSAStartup failed: " << GetLastError());
+        THROW_EXC_TRC_WAR(std::logic_error, "WSAStartup failed: " << GetLastError());
       }
 #endif
 
@@ -320,11 +319,12 @@ namespace iqrf {
         THROW_EXC_TRC_WAR(std::logic_error, "Socket is not open.")
       }
 
-      shutdown(sockfd, SHUT_RDWR);
 #ifdef SHAPE_PLATFORM_WINDOWS
+      shutdown(sockfd, SD_BOTH);
       closesocket(sockfd);
       WSACleanup();
 #else
+      shutdown(sockfd, SHUT_RDWR);
       close(sockfd);
 #endif
 
