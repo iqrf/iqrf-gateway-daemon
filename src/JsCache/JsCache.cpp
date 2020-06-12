@@ -703,6 +703,19 @@ namespace iqrf {
         std::string zipFname = "inflated/";
         zipFname += zip_get_name(zipArch, i, 0);
 
+        //convert from win \\ (escaped dir separator) to lin / 
+        //it is processed later with boost on both platforms correctly
+        
+        const std::string winSep("\\");
+        const std::string linSep("/");
+
+        size_t pos = zipFname.find(winSep);
+        while (pos != std::string::npos) {
+          zipFname.replace(pos, winSep.size(), linSep);
+          //get the next occurrence from the current position
+          pos = zipFname.find(winSep, pos + linSep.size());
+        }
+
         std::string pathInflate = getCachePath(zipFname);
         createPathFile(pathInflate);
 
