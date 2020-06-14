@@ -22,7 +22,7 @@ def download_zip():
     """
     response = requests.get(api_endpoint + 'zip').content
     zip_file = ZipFile(BytesIO(response))
-    zip_file.extractall()
+    zip_file.extractall('cache')
 
 
 def main():
