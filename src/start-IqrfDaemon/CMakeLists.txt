@@ -33,7 +33,7 @@ DeployShapeComponent(${PROJECT_NAME})
 if(UNIX)
 	list(APPEND CfgList "LinCdc" "LinSpi" "LinUart" "LinDeploy")
 else()
-	list(APPEND CfgList "WinCdc")
+	list(APPEND CfgList "WinCdc" "WinUartWin")
 endif()
 
 foreach(cfg ${CfgList})

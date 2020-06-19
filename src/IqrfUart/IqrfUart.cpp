@@ -332,7 +332,7 @@ namespace iqrf {
           m_baudRate = baudRate->GetInt();
         }
         else {
-          THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /IqrfInterface");
+          THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /baudRate");
         }
 
         memset(m_cfg.uartDev, 0, sizeof(m_cfg.uartDev));
