@@ -17,4 +17,12 @@ examples/java/iqrf-raw/target/
 examples/c#/iqrf-gw-api/bin/
 examples/c#/iqrf-gw-api/obj/
 
+# CLion
 .idea/
+cmake-build-debug/
+
+# ccache
+.ccache/
+
+# IQRF Repository cache
+src/start-IqrfDaemon/iqrfRepoCache/cache/
