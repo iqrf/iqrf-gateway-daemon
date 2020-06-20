@@ -3,75 +3,58 @@
 
 set -e
 
-OLD=iqrfgd2
-
 openssl_create_ca() {
-  CA_DIR="/etc/iqrf-gateway-daemon/certs/core";
-  if [ ! -d ${CA_DIR} ] ; then
+  CA_DIR="/etc/iqrf-gateway-daemon/certs/core"
+  if [ ! -d ${CA_DIR} ]; then
     mkdir -p ${CA_DIR}
   fi
 
-  if ! find /etc/iqrf-gateway-daemon/certs/core/ -type f -not -newermt "2020-04-12T00:00:00" -exec false {} + ; then
+  if ! find /etc/iqrf-gateway-daemon/certs/core/ -type f -not -newermt "2020-04-12T00:00:00" -exec false {} +; then
     rm -rf "${CA_DIR}/cert.pem" "${CA_DIR}/privkey.pem"
   fi
 
-	if [ ! -f ${CA_DIR}/cert.pem ] || [ ! -f ${CA_DIR}/privkey.pem ] ; then
-		openssl ecparam -name secp384r1 -genkey -param_enc named_curve \
-		  -out ${CA_DIR}/privkey.pem
+  if [ ! -f ${CA_DIR}/cert.pem ] || [ ! -f ${CA_DIR}/privkey.pem ]; then
+    openssl ecparam -name secp384r1 -genkey -param_enc named_curve \
+      -out ${CA_DIR}/privkey.pem
     openssl req -new -x509 -sha256 -nodes -days 3650 \
       -subj "/CN=IQRF Gateway/C=CZ/ST=Hradec Kralove Region/L=Jicin/O=IQRF Tech s.r.o." \
       -key ${CA_DIR}/privkey.pem -out ${CA_DIR}/cert.pem
-		chmod 600 ${CA_DIR}/*.pem
-	fi
+    chmod 600 ${CA_DIR}/*.pem
+  fi
 }
 
 remove_old_dirs() {
-    # CLEAN
-    if [ -d "/etc/${OLD}" ]; then
-        rm -rf /etc/${OLD:?}
-    fi
-
-    if [ -d "/var/cache/${OLD}" ]; then
-        rm -rf /var/cache/${OLD:?}
-    fi
-
-    if [ -d "/usr/lib/${OLD}" ]; then
-        rm -rf /usr/lib/${OLD:?}
-    fi
-
-    if [ -d "/usr/share/${OLD}" ]; then
-        rm -rf /usr/share/${OLD:?}
-    fi
-
-    if [ -f "/lib/systemd/system/${OLD}.service" ]; then
-        rm -f /lib/systemd/system/${OLD:?}.service
-    fi
+  # CLEAN
+  rm -rf /etc/iqrfgd2
+  rm -rf /var/cache/iqrfgd2
+  rm -rf /usr/lib/iqrfgd2
+  rm -rf /usr/share/iqrfgd2
+  rm -f /lib/systemd/system/iqrfgd2.service
 }
-
 
 if [ "$1" = "configure" ]; then
   openssl_create_ca
   remove_old_dirs
 fi
 
-if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
-	# This will only remove masks created by d-s-h on package removal.
-	deb-systemd-helper unmask iqrf-gateway-daemon.service >/dev/null || true
-	# was-enabled defaults to true, so new installations run enable.
-	if deb-systemd-helper --quiet was-enabled iqrf-gateway-daemon.service; then
-		# Enables the unit on first installation, creates new
-		# symlinks on upgrades if the unit file has changed.
-		deb-systemd-helper enable iqrf-gateway-daemon.service >/dev/null || true
-	else
-		# Update the statefile to add new symlinks (if any), which need to be
-		# cleaned up on purge. Also remove old symlinks.
-		deb-systemd-helper update-state iqrf-gateway-daemon.service >/dev/null || true
-	fi
-	systemctl --system daemon-reload >/dev/null || true
-	if [ -n "$2" ]; then
-		_dh_action=restart
-	else
-		_dh_action=start
-	fi
-	deb-systemd-invoke $_dh_action iqrf-gateway-daemon.service >/dev/null || true
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ]; then
+  # This will only remove masks created by d-s-h on package removal.
+  deb-systemd-helper unmask iqrf-gateway-daemon.service >/dev/null || true
+  # was-enabled defaults to true, so new installations run enable.
+  if deb-systemd-helper --quiet was-enabled iqrf-gateway-daemon.service; then
+    # Enables the unit on first installation, creates new
+    # symlinks on upgrades if the unit file has changed.
+    deb-systemd-helper enable iqrf-gateway-daemon.service >/dev/null || true
+  else
+    # Update the statefile to add new symlinks (if any), which need to be
+    # cleaned up on purge. Also remove old symlinks.
+    deb-systemd-helper update-state iqrf-gateway-daemon.service >/dev/null || true
+  fi
+  systemctl --system daemon-reload >/dev/null || true
+  if [ -n "$2" ]; then
+    _dh_action=restart
+  else
+    _dh_action=start
+  fi
+  deb-systemd-invoke $_dh_action iqrf-gateway-daemon.service >/dev/null || true
 fi

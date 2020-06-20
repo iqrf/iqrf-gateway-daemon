@@ -3,39 +3,29 @@
 
 set -e
 
-NAME=iqrf-gateway-daemon
-
-
 daemon_remove_config() {
-    if [ -d /etc/${NAME}/ ] ; then
-        rm -rf /etc/${NAME}/
-    fi
+  rm -rf /etc/iqrf-gateway-daemon/
 }
 
 daemon_remove_data() {
-    if [ -d /usr/share/${NAME}/ ] ; then
-        rm -rf /usr/share/${NAME}/
-    fi
-
-    if [ -d /var/cache/${NAME}/ ] ; then
-        rm -rf /var/cache/${NAME}/
-    fi
+  rm -rf /usr/share/iqrf-gateway-daemon/
+  rm -rf /var/cache/iqrf-gateway-daemon/
 }
 
 if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
-    daemon_remove_data
-    daemon_remove_config
+  daemon_remove_data
+  daemon_remove_config
 fi
 
 if [ "$1" = "remove" ]; then
-	if [ -x "/usr/bin/deb-systemd-helper" ]; then
-		deb-systemd-helper mask iqrf-gateway-daemon.service >/dev/null || true
-	fi
+  if [ -x "/usr/bin/deb-systemd-helper" ]; then
+    deb-systemd-helper mask iqrf-gateway-daemon.service >/dev/null || true
+  fi
 fi
 
 if [ "$1" = "purge" ]; then
-	if [ -x "/usr/bin/deb-systemd-helper" ]; then
-		deb-systemd-helper purge iqrf-gateway-daemon.service >/dev/null || true
-		deb-systemd-helper unmask iqrf-gateway-daemon.service >/dev/null || true
-	fi
+  if [ -x "/usr/bin/deb-systemd-helper" ]; then
+    deb-systemd-helper purge iqrf-gateway-daemon.service >/dev/null || true
+    deb-systemd-helper unmask iqrf-gateway-daemon.service >/dev/null || true
+  fi
 fi
