@@ -130,7 +130,7 @@ namespace iqrf {
         CATCH_EXC_TRC_WAR(std::exception, e, "UART failed: ");
       }
 
-      m_portHandle = openPort(m_interfaceName, m_baudRate);
+      //m_portHandle = openPort(m_interfaceName, m_baudRate);
 
       createMyEvent(m_readEndEvent);
       createMyEvent(m_readStartEvent);
@@ -224,7 +224,7 @@ namespace iqrf {
     int m_baudRate = 0;
     AccessControl<IqrfUartWin::Imp> m_accessControl;
 
-    HANDLE m_portHandle;		// handle to COM-port
+    HANDLE m_portHandle = INVALID_HANDLE_VALUE;		// handle to COM-port
 
     std::thread m_readMsgHandle;
 
@@ -329,7 +329,7 @@ namespace iqrf {
 
       // Handle the error.
       if (m_portHandle == INVALID_HANDLE_VALUE)
-        THROW_EXC_TRC_WAR(std::logic_error, "Port handle creation failed with error: " << GetLastError() << PAR(portName));
+        THROW_EXC_TRC_WAR(std::logic_error, "Port handle creation failed with error: " << GetLastError() << ' ' << PAR(portName));
 
       delete[] completePortName;
 
@@ -398,6 +398,8 @@ namespace iqrf {
       memset(&overlap, 0, sizeof(OVERLAPPED));
 
       try {
+        m_portHandle = openPort(m_interfaceName, m_baudRate);
+
         // critical initialization setting - if it fails, cannot continue
         if (!SetCommMask(m_portHandle, eventFlags))
           THROW_EXC_TRC_WAR(std::logic_error, "SetCommMask failed with error: " << GetLastError());
@@ -584,6 +586,7 @@ namespace iqrf {
       }
 
       //READ_END:
+      m_uartValid = false;
       CloseHandle(overlap.hEvent);
 
       TRC_FUNCTION_LEAVE("");
@@ -592,6 +595,10 @@ namespace iqrf {
     // Sends command stored in buffer to COM port.
     void sendCommand(std::vector<uint8_t> cmd)
     {
+      if (!m_uartValid) {
+        THROW_EXC_TRC_WAR(std::logic_error, "UART is not active: " << PAR(m_interfaceName));
+      }
+
       OVERLAPPED overlap;
       memset(&overlap, 0, sizeof(OVERLAPPED));
 
