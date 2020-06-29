@@ -1146,7 +1146,6 @@ namespace iqrf {
 
         const auto & osDpa = m_iJsCacheService->getOsDpa();
 
-        //try to find dpa for 
         auto osDpaIt = osDpa.find(osBuild);
 
         if (osDpaIt == osDpa.end()) {
@@ -1166,6 +1165,13 @@ namespace iqrf {
           }
           osBuild = proposedOsBuild;
         }
+
+        osDpaIt = osDpa.find(osBuild);
+        if (osDpaIt == osDpa.end()) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent osDpaMap: " << PAR(osBuild));
+        }
+
+        TRC_DEBUG("try to find dpaVer for " << PAR(osBuild) << PAR(osStr));
 
         //selected OS, find closest lower DPA
         auto dpaRevIt = osDpaIt->second.rbegin();
