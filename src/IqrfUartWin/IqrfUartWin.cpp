@@ -87,9 +87,14 @@ namespace iqrf {
       });
 
       // waiting for reading thread
-      waitForMyEvent(m_readStartEvent, TM_START_READ);
-
-      m_uartValid = true;
+      try {
+        waitForMyEvent(m_readStartEvent, TM_START_READ);
+        m_uartValid = true;
+      }
+      catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "error waiting to read ")
+        m_uartValid = false;
+      }
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -327,11 +332,11 @@ namespace iqrf {
         FILE_FLAG_OVERLAPPED, // overlapped operation
         NULL); //   must be NULL for comm devices
 
+       delete[] completePortName;
+
       // Handle the error.
       if (m_portHandle == INVALID_HANDLE_VALUE)
         THROW_EXC_TRC_WAR(std::logic_error, "Port handle creation failed with error: " << GetLastError() << ' ' << PAR(portName));
-
-      delete[] completePortName;
 
       DCB dcb;
       memset(&dcb, 0, sizeof(DCB));
