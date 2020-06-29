@@ -2,6 +2,7 @@
 
 #include "ShapeDefines.h"
 #include <map>
+#include <set>
 #include <string>
 #include <functional>
 #include <vector>
@@ -119,6 +120,9 @@ namespace iqrf {
       std::string m_notes;
     };
 
+    // get os map of dpa list as integers
+    typedef std::map<int, std::set<int>> MapOsListDpa;
+
     class ServerState
     {
     public:
@@ -143,6 +147,7 @@ namespace iqrf {
     virtual const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const = 0;
     virtual std::map<int, std::map<double, std::vector<std::pair<int,int>>>> getDrivers(const std::string& os, const std::string& dpa) const = 0;
     virtual std::map<int, std::map<int, std::string>> getCustomDrivers(const std::string& os, const std::string& dpa) const = 0;
+    virtual MapOsListDpa getOsDpa() const = 0;
     virtual const OsDpa* getOsDpa(int id) const = 0;
     virtual const OsDpa* getOsDpa(const std::string& os, const std::string& dpa) const = 0;
     virtual ServerState getServerState() const = 0;

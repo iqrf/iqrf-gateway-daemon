@@ -1132,27 +1132,60 @@ namespace iqrf {
         m_iJsCacheService->getDrivers(embed::os::Read::getOsBuildAsString(osBuild), embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
 
       if (drivers.size() == 0) {
+
+        std::string osStr = embed::os::Read::getOsBuildAsString(osBuild);
+        std::string dpaStr = embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer);
+
         std::ostringstream os;
         os << std::endl << "Cannot load required package for: "
-          << NAME_PAR(os, embed::os::Read::getOsBuildAsString(osBuild))
-          << NAME_PAR(dpa, embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
+          << NAME_PAR(os, osStr)
+          << NAME_PAR(dpa, dpaStr);
 
         std::cout << os.str() << std::endl;
         TRC_WARNING(os.str());
 
-        for (int dpa = dpaVer - 1; dpa > 300; dpa--) {
-          drivers = m_iJsCacheService->getDrivers(embed::os::Read::getOsBuildAsString(osBuild), embed::explore::Enumerate::getDpaVerAsHexaString(dpa));
-          if (drivers.size() > 0) {
-            std::ostringstream os1;
-            os1 << std::endl << "Loaded package for: "
-              << NAME_PAR(os, embed::os::Read::getOsBuildAsString(osBuild))
-              << NAME_PAR(dpa, embed::explore::Enumerate::getDpaVerAsHexaString(dpa));
+        const auto & osDpa = m_iJsCacheService->getOsDpa();
 
-            std::cout << os1.str() << std::endl;
-            TRC_WARNING(os1.str());
+        //try to find dpa for 
+        auto osDpaIt = osDpa.find(osBuild);
 
-            break;
+        if (osDpaIt == osDpa.end()) {
+          //not existing OS, find closest lower OS
+          int proposedOsBuild = -1;
+          auto osDpaRevIt = osDpa.rbegin();
+          while (osDpaRevIt != osDpa.rend()) {
+            if (osDpaRevIt->first <= osBuild) {
+              proposedOsBuild = osDpaRevIt->first;
+              break;
+            }
+            osDpaRevIt++;
           }
+          if (proposedOsBuild < 0) {
+            //not found lower => take lowest
+            proposedOsBuild = osDpa.begin()->first;
+          }
+          osBuild = proposedOsBuild;
+        }
+
+        //selected OS, find closest lower DPA
+        auto dpaRevIt = osDpaIt->second.rbegin();
+        while (dpaRevIt != osDpaIt->second.rend()) {
+          if (*dpaRevIt <= dpaVer) {
+            dpaVer = *dpaRevIt;
+
+            drivers = m_iJsCacheService->getDrivers(embed::os::Read::getOsBuildAsString(osBuild), embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
+            if (drivers.size() > 0) {
+              std::ostringstream os1;
+              os1 << std::endl << "Loaded package for: "
+                << NAME_PAR(os, embed::os::Read::getOsBuildAsString(osBuild))
+                << NAME_PAR(dpa, embed::explore::Enumerate::getDpaVerAsHexaString(dpaVer));
+
+              std::cout << os1.str() << std::endl;
+              TRC_WARNING(os1.str());
+              break;
+            }
+          }
+          dpaRevIt++;
         }
       }
 
