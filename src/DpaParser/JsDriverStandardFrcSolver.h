@@ -14,6 +14,7 @@ namespace iqrf
   private:
     std::string m_functionName;
     DpaMessage m_frcRequest;
+    uint16_t m_hwpid;
     DpaMessage m_frcExtraRequest;
     DpaMessage m_frcResponse;
     DpaMessage m_frcExtraResponse;
@@ -26,12 +27,14 @@ namespace iqrf
     // used by sensor::JsDriverFrc, dali::JsDriverFrc
     JsDriverStandardFrcSolver(IJsRenderService* iJsRenderService)
       :JsDriverSolver(iJsRenderService)
+      , m_hwpid(0xFFFF)
     {}
 
   public:
-    JsDriverStandardFrcSolver(IJsRenderService* iJsRenderService, const std::string & functionName, const rapidjson::Value & val)
+    JsDriverStandardFrcSolver(IJsRenderService* iJsRenderService, const std::string & functionName, const rapidjson::Value & val, uint16_t hwpid)
       :JsDriverSolver(iJsRenderService)
       , m_functionName(functionName)
+      , m_hwpid(hwpid)
     {
       setRequestParamDoc(val);
     }
@@ -146,7 +149,7 @@ namespace iqrf
 
     uint16_t getHwpidDrv() const
     {
-      return (uint16_t)0xFFFF; // any
+      return m_hwpid;
     }
 
     std::string functionName() const override
