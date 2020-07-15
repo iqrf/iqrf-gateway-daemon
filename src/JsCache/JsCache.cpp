@@ -237,6 +237,34 @@ namespace iqrf {
       return map2;
     }
 
+    IJsCacheService::MapOsListDpa getOsDpa() const
+    {
+      TRC_FUNCTION_ENTER("");
+
+      IJsCacheService::MapOsListDpa retval;
+      
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+
+      for (auto it : m_osDpaMap) {
+        int os = 0;
+        int dpa = 0;
+        std::string osStr = it.second.m_os;
+        std::string dpaStr = it.second.m_dpa;
+        try {
+          os = std::stoi(osStr, nullptr, 16);
+          dpa = std::stoi(dpaStr, nullptr, 16);
+          retval[os].insert(dpa);
+        }
+        catch (std::invalid_argument &e) {
+          CATCH_EXC_TRC_WAR(std::invalid_argument, e, "cannot convert: " << PAR(osStr) << PAR(dpaStr));
+          continue;
+        }
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return retval;
+    }
+
     const IJsCacheService::OsDpa* getOsDpa(int id) const
     {
       TRC_FUNCTION_ENTER(PAR(id));
@@ -1235,6 +1263,11 @@ namespace iqrf {
   std::map<int, std::map<int, std::string>> JsCache::getCustomDrivers(const std::string& os, const std::string& dpa) const
   {
     return m_imp->getCustomDrivers(os, dpa);
+  }
+
+  IJsCacheService::MapOsListDpa JsCache::getOsDpa() const
+  {
+    return m_imp->getOsDpa();
   }
 
   const IJsCacheService::OsDpa* JsCache::getOsDpa(int id) const
