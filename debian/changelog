@@ -1,3 +1,15 @@
+iqrf-gateway-daemon (2.2.1) RELEASED; urgency=medium
+
+ * Fixed:
+  * Websocket messaging parameter acceptOnlyLocalhost
+  * Custom hwpId for coordinator commands
+  * Selection of updated IQRF OS in JS drivers
+
+ * Info:
+  * Release version 2.2.1
+
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Wed, 15 Jul 2020 12:30:00 +0200
+
 iqrf-gateway-daemon (2.2.0) RELEASED; urgency=medium
 
  * Info:
