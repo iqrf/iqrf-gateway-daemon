@@ -65,7 +65,8 @@ namespace iqrf {
 
       try {
         // solves JsDriver processing
-        JsDriverStandardFrcSolver jsDriverStandardFrcSolver(m_iJsRenderService, msgType.m_possibleDriverFunction, apiMsgIqrfStandardFrc.getRequestParamDoc());
+        JsDriverStandardFrcSolver jsDriverStandardFrcSolver(m_iJsRenderService, msgType.m_possibleDriverFunction,
+          apiMsgIqrfStandardFrc.getRequestParamDoc(), apiMsgIqrfStandardFrc.getHwpid());
 
         // process *_Request
         jsDriverStandardFrcSolver.processRequestDrv();
