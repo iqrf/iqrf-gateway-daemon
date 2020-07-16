@@ -1,0 +1,6 @@
+{
+  "component": "shape::WebsocketCppService",
+  "instance": "WebsocketCppService_Monitor",
+  "WebsocketPort": 1438,
+  "acceptOnlyLocalhost": false
+}
