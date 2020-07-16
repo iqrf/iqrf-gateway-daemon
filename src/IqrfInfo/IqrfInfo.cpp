@@ -748,12 +748,18 @@ namespace iqrf {
           }
           if (proposedOsBuild < 0) {
             //not found lower => take lowest
+            osDpaIt = osDpa.begin();
             proposedOsBuild = osDpa.begin()->first;
           }
           osBuild = proposedOsBuild;
         }
 
         //selected OS, find closest lower DPA
+        if (dpaVer == 0) {
+          //dpaVer was not detected from C => init dpaVer to lowest supported by selected OS
+          dpaVer = *osDpaIt->second.begin();
+        }
+
         auto dpaRevIt = osDpaIt->second.rbegin();
         while (dpaRevIt != osDpaIt->second.rend()) {
           if (*dpaRevIt <= dpaVer) {
