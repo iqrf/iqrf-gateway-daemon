@@ -748,10 +748,13 @@ namespace iqrf {
           }
           if (proposedOsBuild < 0) {
             //not found lower => take lowest
-            osDpaIt = osDpa.begin();
             proposedOsBuild = osDpa.begin()->first;
           }
           osBuild = proposedOsBuild;
+          osDpaIt = osDpa.find(osBuild);
+          if (osDpaIt == osDpa.end()) {
+            THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent osDpaMap: " << PAR(osBuild));
+          }
         }
 
         //selected OS, find closest lower DPA
