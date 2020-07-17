@@ -4,6 +4,8 @@ COPY ./ /iqrf
 WORKDIR /iqrf
 
 RUN mkdir deploy \
+    && git submodule init \
+    && git submodule update \
     && git clone --recurse-submodules https://github.com/logimic/shape.git \
     && cmake -Bshape-build -Hshape -DCMAKE_BUILD_TYPE=Debug -DSHAPE_DEPLOY:PATH=$PWD/deploy \
     && cmake --build shape-build --target install \
