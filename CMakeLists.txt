@@ -94,7 +94,7 @@ add_definitions(
   -D_CRT_SECURE_NO_WARNINGS
 )
 
-set(DEFAULT_DAEMON_VERSION v2.1.0dev)
+set(DEFAULT_DAEMON_VERSION v2.3.0dev)
 
 if(DEFINED DAEMON_VERSION)
   message(STATUS "DAEMON_VERSION = " ${DAEMON_VERSION})
@@ -167,4 +167,3 @@ endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/VersionInfo.h.in ${CMAKE_BINARY_DIR}/VersionInfo.h @ONLY)
-
