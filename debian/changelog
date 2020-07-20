@@ -1,3 +1,13 @@
+iqrf-gateway-daemon (2.2.2) RELEASED; urgency=medium
+
+ * Fixed:
+  * Selection of updated IQRF OS in JS drivers
+
+ * Info:
+  * Release version 2.2.2
+
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Mon, 20 Jul 2020 12:00:00 +0200
+
 iqrf-gateway-daemon (2.2.1) RELEASED; urgency=medium
 
  * Fixed:
