@@ -335,6 +335,7 @@ namespace iqrf {
         }
         else {
           TRC_ERROR("Cannot get TR reset async msg");
+          state = IIqrfDpaService::DpaState::NotReady;
           std::cout << std::endl << "Error: Cannot get TR reset msg => interface to DPA coordinator is not working - verify (CDC or SPI or UART) configuration" << std::endl;
           break;
         }
@@ -374,6 +375,7 @@ namespace iqrf {
     }
     catch (std::exception & e) {
       CATCH_EXC_TRC_WAR(std::exception, e, "Cannot get TR parameters")
+      state = IIqrfDpaService::DpaState::NotReady;
       std::cout << std::endl << "Error: Cannot get TR parameters msg => interface to DPA coordinator is not working - verify (CDC or SPI or UART) configuration" << std::endl;
     }
 
@@ -445,6 +447,11 @@ namespace iqrf {
     return m_iqrfChannelService->getState();
   }
 
+  IIqrfDpaService::DpaState IqrfDpa::getDpaChannelState()
+  {
+    return state;
+  }
+
   void IqrfDpa::registerAnyMessageHandler(const std::string& serviceId, IDpaHandler2::AsyncMessageHandlerFunc fun)
   {
     m_dpaHandler->registerAnyMessageHandler(serviceId, fun);
@@ -502,5 +509,4 @@ namespace iqrf {
   {
     shape::Tracer::get().removeTracerService(iface);
   }
-
 }

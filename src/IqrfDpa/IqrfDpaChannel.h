@@ -78,7 +78,7 @@ namespace iqrf {
     {
       return m_iqrfChannelService->hasExclusiveAccess();
     }
-
+    
   private:
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     ReceiveFromFunc m_receiveFromFunc;

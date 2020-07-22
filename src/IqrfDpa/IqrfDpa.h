@@ -35,6 +35,7 @@ namespace iqrf {
     void unregisterAsyncMessageHandler(const std::string& serviceId) override;
     int getDpaQueueLen() const override;
     IIqrfChannelService::State getIqrfChannelState() override;
+    IIqrfDpaService::DpaState getDpaChannelState() override;
     void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) override;
     void unregisterAnyMessageHandler(const std::string& serviceId) override;
 
@@ -73,5 +74,6 @@ namespace iqrf {
 
     /// Coordinator parameters
     IIqrfDpaService::CoordinatorParameters m_cPar;
+    IIqrfDpaService::DpaState state = IIqrfDpaService::DpaState::Ready;
   };
 }

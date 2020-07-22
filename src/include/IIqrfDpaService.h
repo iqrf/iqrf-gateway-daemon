@@ -23,6 +23,12 @@ namespace iqrf {
     typedef std::function<void(const DpaMessage& dpaMessage)> AnyMessageHandlerFunc;
     typedef std::function<void(uint8_t pnum, uint8_t pcmd)> DpaCommandHookHandlerFunc;
 
+    enum class DpaState
+    {
+      Ready,
+      NotReady
+    };
+
     /// Some coordinator parameters acquired during initialization
     struct CoordinatorParameters
     {
@@ -53,6 +59,32 @@ namespace iqrf {
     };
     typedef std::unique_ptr<IIqrfDpaService::ExclusiveAccess> ExclusiveAccessPtr;
 
+    class DpaStateConvertTable
+    {
+    public:
+      static const std::vector<std::pair<DpaState, std::string>>& table()
+      {
+        static std::vector <std::pair<DpaState, std::string>> table = {
+          { DpaState::Ready, "Ready" },
+          { DpaState::NotReady, "NotReady" }
+        };
+
+        return table;
+      }
+
+      static DpaState defaultEnum()
+      {
+        return DpaState::NotReady;
+      }
+
+      static const std::string& defaultStr()
+      {
+        static std::string u("unknown");
+        return u;
+      }
+    };
+    typedef shape::EnumStringConvertor<DpaState, DpaStateConvertTable> DpaStateStringConvertor;
+
     /// returns empty pointer if exclusiveAccess already assigned
     /// explicit unique_ptr::reset() or just get it out of scope of returned ptr releases exclusive access
     virtual ExclusiveAccessPtr getExclusiveAccess() = 0;
@@ -74,6 +106,7 @@ namespace iqrf {
     virtual void unregisterAsyncMessageHandler(const std::string& serviceId) = 0;
     virtual int getDpaQueueLen() const = 0;
     virtual IIqrfChannelService::State getIqrfChannelState() = 0;
+    virtual DpaState getDpaChannelState() = 0;
     virtual void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) = 0;
     virtual void unregisterAnyMessageHandler(const std::string& serviceId) = 0;
 
