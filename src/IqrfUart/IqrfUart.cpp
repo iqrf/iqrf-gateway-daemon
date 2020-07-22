@@ -270,13 +270,14 @@ namespace iqrf {
       m_listenThread = std::thread(&IqrfUart::Imp::listen, this);
     }
 
-    IIqrfChannelService::State getState() const
+    IIqrfChannelService::State getState()
     {
-      IIqrfChannelService::State state = State::NotReady;
       if (m_accessControl.hasExclusiveAccess())
         state = State::ExclusiveAccess;
-      else if (m_runListenThread)
+      else if (m_runListenThread && (state == State::Ready))
         state = State::Ready;
+      else
+        state = State::NotReady;
 
       return state;
     }
@@ -324,6 +325,7 @@ namespace iqrf {
           m_interfaceName = comName->GetString();
         }
         else {
+          state = State::NotReady;
           THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /IqrfInterface");
         }
 
@@ -332,7 +334,8 @@ namespace iqrf {
           m_baudRate = baudRate->GetInt();
         }
         else {
-          THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /baudRate");
+          state = State::NotReady;
+          THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /IqrfInterface");
         }
 
         memset(m_cfg.uartDev, 0, sizeof(m_cfg.uartDev));
@@ -369,11 +372,12 @@ namespace iqrf {
           memset(m_rx, 0, m_bufsize);
         }
         else {
+          state = State::NotReady;
           TRC_WARNING(PAR(m_interfaceName) << " Cannot create IqrfInterface");
         }
-
       }
       catch (std::exception &e) {
+        state = State::NotReady;
         CATCH_EXC_TRC_WAR(std::exception, e, PAR(m_interfaceName) << " Cannot create IqrfInterface");
       }
 
@@ -478,6 +482,7 @@ namespace iqrf {
     std::string m_interfaceName;
     int m_baudRate = 0;
 
+    IIqrfChannelService::State state = State::Ready;
     std::atomic_bool m_runListenThread;
     std::thread m_listenThread;
 
@@ -489,7 +494,6 @@ namespace iqrf {
     //mutable std::mutex m_commMutex;
 
     T_UART_IQRF_CONFIG_STRUCT m_cfg;
-
   };
 
   //////////////////////////////////////////////////
