@@ -48,13 +48,19 @@ namespace iqrf {
       return m_iIqrfDpaService->getIqrfChannelState();
     }
 
+    IIqrfDpaService::DpaState getDpaChannelState()
+    {
+      return m_iIqrfDpaService->getDpaChannelState();
+    }
+
     void worker() {
       TRC_FUNCTION_ENTER("");
 
       static unsigned num = 0;
       int dpaQueueLen = -1;
       int msgQueueLen = -1;
-      IIqrfChannelService::State dpaChannelState = IIqrfChannelService::State::NotReady;
+      IIqrfChannelService::State iqrfChannelState = IIqrfChannelService::State::NotReady;
+      IIqrfDpaService::DpaState dpaChannelState = IIqrfDpaService::DpaState::NotReady;
       IUdpConnectorService::Mode operMode = IUdpConnectorService::Mode::Unknown;
 
       while (m_runThreadFlag) {
@@ -66,7 +72,8 @@ namespace iqrf {
         
         if (m_iIqrfDpaService) {
           dpaQueueLen = m_iIqrfDpaService->getDpaQueueLen();
-          dpaChannelState = m_iIqrfDpaService->getIqrfChannelState();
+          iqrfChannelState = m_iIqrfDpaService->getIqrfChannelState();
+          dpaChannelState = m_iIqrfDpaService->getDpaChannelState();
         }
 
         if (m_iMessagingSplitterService) {
@@ -84,7 +91,8 @@ namespace iqrf {
         Pointer("/data/num").Set(doc, num++);
         Pointer("/data/timestamp").Set(doc, ts);
         Pointer("/data/dpaQueueLen").Set(doc, dpaQueueLen);
-        Pointer("/data/dpaChannelState").Set(doc, IIqrfChannelService::StateStringConvertor::enum2str(dpaChannelState));
+        Pointer("/data/iqrfChannelState").Set(doc, IIqrfChannelService::StateStringConvertor::enum2str(iqrfChannelState));
+        Pointer("/data/dpaChannelState").Set(doc, IIqrfDpaService::DpaStateStringConvertor::enum2str(dpaChannelState));
         Pointer("/data/msgQueueLen").Set(doc, msgQueueLen);
         Pointer("/data/operMode").Set(doc, ModeStringConvertor::enum2str(operMode));
 
@@ -94,7 +102,7 @@ namespace iqrf {
         doc.Accept(writer);
         gwMonitorRecord = buffer.GetString();
 
-        m_iWebsocketService->sendMessage(gwMonitorRecord, ""); //send to all conected clients
+        m_iWebsocketService->sendMessage(gwMonitorRecord, ""); //send to all connected clients
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -223,6 +231,11 @@ namespace iqrf {
     return m_imp->getIqrfChannelState();
   }
 
+  IIqrfDpaService::DpaState MonitorService::getDpaChannelState()
+  {
+    return m_imp->getDpaChannelState();
+  }
+
   void MonitorService::attachInterface(IIqrfDpaService* iface)
   {
     m_imp->attachInterface(iface);
@@ -273,7 +286,6 @@ namespace iqrf {
     shape::Tracer::get().removeTracerService(iface);
   }
 
-
   void MonitorService::activate(const shape::Properties *props)
   {
     m_imp->activate(props);
@@ -288,5 +300,4 @@ namespace iqrf {
   {
     m_imp->modify(props);
   }
-
 }

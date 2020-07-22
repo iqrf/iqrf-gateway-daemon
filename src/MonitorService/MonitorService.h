@@ -9,7 +9,6 @@
 #include "ITraceService.h"
 #include <string>
 
-
 namespace iqrf {
 
   class MonitorService : public IMonitorService
@@ -22,6 +21,7 @@ namespace iqrf {
 
     int getDpaQueueLen() const override;
     virtual IIqrfChannelService::State getIqrfChannelState() override;
+    virtual IIqrfDpaService::DpaState getDpaChannelState() override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
