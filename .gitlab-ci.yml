@@ -151,14 +151,6 @@ stages:
   tags:
     - linux, armhf
 
-.ubuntu-eoan-amd64-template: &ubuntu-eoan-amd64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-eoan-amd64
-  variables:
-    ARCH: "amd64"
-    DIST: "eoan"
-  tags:
-    - linux, amd64
-
 .ubuntu-focal-amd64-template: &ubuntu-focal-amd64-template
   image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-focal-amd64
   variables:
@@ -493,16 +485,6 @@ package-bionic-armhf:
 
 package_release-bionic-armhf:
   <<: *ubuntu-bionic-armhf-template
-  <<: *package-release-template
-
-# Ubuntu 19.10 eoan
-## amd64
-package-eoan-amd64:
-  <<: *ubuntu-eoan-amd64-template
-  <<: *package-devel-template
-
-package_release-eoan-amd64:
-  <<: *ubuntu-eoan-amd64-template
   <<: *package-release-template
 
 # Ubuntu 20.04 focal
