@@ -398,6 +398,7 @@ package_release-buster-i386:
 # Debian stretch
 ## amd64
 package-stretch-amd64:
+  when: manual
   <<: *debian-stretch-amd64-template
   <<: *package-devel-template
 
@@ -407,6 +408,7 @@ package_release-stretch-amd64:
 
 ## arm64
 package-stretch-arm64:
+  when: manual
   <<: *debian-stretch-arm64-template
   <<: *package-devel-template
 
@@ -416,6 +418,7 @@ package_release-stretch-arm64:
 
 ## armel
 package-stretch-armel:
+  when: manual
   <<: *debian-stretch-armel-template
   <<: *package-devel-template
 
@@ -425,6 +428,7 @@ package_release-stretch-armel:
 
 ## armhf
 package-stretch-armhf:
+  when: manual
   <<: *debian-stretch-armhf-template
   <<: *package-devel-template
 
@@ -434,6 +438,7 @@ package_release-stretch-armhf:
 
 ## i386
 package-stretch-i386:
+  when: manual
   <<: *debian-stretch-i386-template
   <<: *package-devel-template
 
@@ -454,6 +459,7 @@ package_release-rpi-buster-armhf:
 # Debian stretch
 ## armhf
 package-rpi-stretch-armhf:
+  when: manual
   <<: *raspbian-stretch-armhf-template
   <<: *package-devel-template
 
