@@ -266,13 +266,13 @@ namespace iqrf {
     //TODO get channel status to Channel iface
     message[trStatus] = 0x80;   //SPI_IQRF_SPI_READY_COMM = 0x80, see spi_iqrf.h
     message[supplyExt] = 0x01;  //DB3 0x01 supplied from external source
-    message[timeSec] = (unsigned char)ltm->tm_sec;    //DB4 GW time – seconds(see Time and date coding)
-    message[timeMin] = (unsigned char)ltm->tm_min;    //DB5 GW time – minutes
-    message[timeHour] = (unsigned char)ltm->tm_hour;    //DB6 GW time – hours
-    message[timeWday] = (unsigned char)ltm->tm_wday;    //DB7 GW date – day of the week
-    message[timeMday] = (unsigned char)ltm->tm_mday;    //DB8 GW date – day
-    message[timeMon] = (unsigned char)ltm->tm_mon;    //DB9 GW date – month
-    message[timeYear] = (unsigned char)(ltm->tm_year % 100);   //DB10 GW date – year
+    message[timeSec] = (unsigned char)ltm->tm_sec;    //DB4 GW time â€“ seconds(see Time and date coding)
+    message[timeMin] = (unsigned char)ltm->tm_min;    //DB5 GW time â€“ minutes
+    message[timeHour] = (unsigned char)ltm->tm_hour;    //DB6 GW time â€“ hours
+    message[timeWday] = (unsigned char)ltm->tm_wday;    //DB7 GW date â€“ day of the week
+    message[timeMday] = (unsigned char)ltm->tm_mday;    //DB8 GW date â€“ day
+    message[timeMon] = (unsigned char)ltm->tm_mon;    //DB9 GW date â€“ month
+    message[timeYear] = (unsigned char)(ltm->tm_year % 100);   //DB10 GW date â€“ year
   }
 
   int IdeCounterpart::handleMessageFromUdp(const std::vector<uint8_t>& msg)
