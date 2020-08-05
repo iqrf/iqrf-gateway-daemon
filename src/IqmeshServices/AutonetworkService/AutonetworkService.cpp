@@ -66,6 +66,11 @@ namespace iqrf {
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
 
+    AutonetworkError(const AutonetworkError& other) {
+      m_type = other.getType();
+      m_message = other.getMessage();
+    }
+
     AutonetworkError& operator=( const AutonetworkError& error ) {
       if ( this == &error ) {
         return *this;
@@ -132,7 +137,7 @@ namespace iqrf {
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move( *iter );
       m_transResults.pop_front();
-      return std::move( tranResult );
+      return tranResult;
     }
   };
 
@@ -261,6 +266,8 @@ namespace iqrf {
 
     uint8_t MAX_WAVES = MAX_ADDRESS;
     uint8_t MAX_EMPTY_WAVES = MAX_ADDRESS;
+
+    uint8_t mZero = 0;
 
   public:
     Imp( AutonetworkService& parent ) : m_parent( parent )
@@ -663,9 +670,9 @@ namespace iqrf {
       std::string nodesListStr;
       for ( uint8_t nodeAddr = 1; nodeAddr <= MAX_ADDRESS; nodeAddr++ )
       {
-        if ( nodes[nodeAddr] && nodesListStr.empty() == false )
+        if ( nodes[nodeAddr] && !nodesListStr.empty() )
           nodesListStr += ", ";
-          nodesListStr += std::to_string((int)nodeAddr);
+        nodesListStr += std::to_string((int)nodeAddr);
       }
 
       return nodesListStr;
@@ -1151,7 +1158,7 @@ namespace iqrf {
         // Put selected nodes
         setFRCSelectedNodes( frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes, notRespondedNewNodes );
         // Clear UserData
-        memset( (void*)frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData, sizeof( frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData ), 0x00 );
+        memset( (void*)frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData, sizeof( frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData ), mZero );
         // Request length
         uint8_t requestLength = sizeof( TDpaIFaceHeader );
         requestLength += sizeof( frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand );
@@ -2182,7 +2189,7 @@ namespace iqrf {
                   {
                     try
                     {
-                      TPerCoordinatorAuthorizeBond_Response response = authorizeBond( autonetworkResult, authrozireNodes );
+                      authorizeBond( autonetworkResult, authrozireNodes );
                       authrozireNodes.clear();
                       break;
                     }
@@ -2520,7 +2527,7 @@ namespace iqrf {
           antwProcessParams.DpaParam = setNoLedAndOptimalTimeslot( autonetworkResult, antwProcessParams.DpaParam );
         // Set initial DPA Hops param
         if ( ( antwProcessParams.RequestHops != 0xff ) || ( antwProcessParams.ResponseHops != 0xff ) )
-          TPerCoordinatorSetHops_Request_Response response = setDpaHopsToTheNumberOfRouters( autonetworkResult, antwProcessParams.RequestHops, antwProcessParams.ResponseHops );
+          setDpaHopsToTheNumberOfRouters( autonetworkResult, antwProcessParams.RequestHops, antwProcessParams.ResponseHops );
       }
       catch ( std::exception& ex )
       {
@@ -2618,6 +2625,8 @@ namespace iqrf {
                        "************************************"
       );
 
+      (void)props;
+
       // for the sake of register function parameters 
       std::vector<std::string> supportedMsgTypes =
       {
@@ -2656,6 +2665,7 @@ namespace iqrf {
 
     void modify( const shape::Properties *props )
     {
+      (void)props;
     }
 
     void attachInterface( IIqrfDpaService* iface )

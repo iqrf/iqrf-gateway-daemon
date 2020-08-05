@@ -61,7 +61,7 @@ namespace iqrf {
 
       // discoveryTxPower
       m_autonetworkParams.discoveryTxPower = 7;
-      if ( jsonValue = rapidjson::Pointer( "/data/req/discoveryTxPower" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/discoveryTxPower" ).Get( doc )) )
       {
         uint32_t txPower = jsonValue->GetInt();
         if ( txPower > 7 )
@@ -70,38 +70,38 @@ namespace iqrf {
       }
 
       // discoveryBeforeStart
-      if ( jsonValue = rapidjson::Pointer( "/data/req/discoveryBeforeStart" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/discoveryBeforeStart" ).Get( doc )) )
         m_autonetworkParams.discoveryBeforeStart = jsonValue->GetBool();
       else
         m_autonetworkParams.discoveryBeforeStart = false;
 
       // skipDiscoveryEachWave
-      if ( jsonValue = rapidjson::Pointer( "/data/req/skipDiscoveryEachWave" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/skipDiscoveryEachWave" ).Get( doc )) )
         m_autonetworkParams.skipDiscoveryEachWave = jsonValue->GetBool();
       else
         m_autonetworkParams.skipDiscoveryEachWave = false;
 
       // actionRetries
-      if ( jsonValue = rapidjson::Pointer( "/data/req/actionRetries" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/actionRetries" ).Get( doc )) )
         m_autonetworkParams.actionRetries = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.actionRetries = 1;
 
       // overlappingNetworks/networks
-      if ( jsonValue = rapidjson::Pointer( "/data/req/overlappingNetworks/networks" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/overlappingNetworks/networks" ).Get( doc )) )
         m_autonetworkParams.overlappingNetworks.networks = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.overlappingNetworks.networks = 0;
 
       // overlappingNetworks/network
-      if ( jsonValue = rapidjson::Pointer( "/data/req/overlappingNetworks/network" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/overlappingNetworks/network" ).Get( doc )) )
         m_autonetworkParams.overlappingNetworks.network = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.overlappingNetworks.network = 0;
 
       // hwpidFiltering
       m_autonetworkParams.hwpidFiltering.clear();
-      if ( jsonValue = rapidjson::Pointer( "/data/req/hwpidFiltering" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/hwpidFiltering" ).Get( doc )) )
       {
         const auto val = jsonValue->GetArray();
         for ( auto itr = val.Begin(); itr != val.End(); ++itr )
@@ -112,31 +112,31 @@ namespace iqrf {
       }
 
       // stopConditions/waves
-      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/waves" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/stopConditions/waves" ).Get( doc )) )
         m_autonetworkParams.stopConditions.waves = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.stopConditions.waves = 0;
 
       // stopConditions/emptyWaves
-      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/emptyWaves" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/stopConditions/emptyWaves" ).Get( doc )) )
         m_autonetworkParams.stopConditions.emptyWaves = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.stopConditions.emptyWaves = 1;
 
       // stopConditions/numberOfTotalNodes
-      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/numberOfTotalNodes" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/stopConditions/numberOfTotalNodes" ).Get( doc )) )
         m_autonetworkParams.stopConditions.numberOfTotalNodes = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.stopConditions.numberOfTotalNodes = 0;
 
       // stopConditions/numberOfNewNodes
-      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/numberOfNewNodes" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/stopConditions/numberOfNewNodes" ).Get( doc )) )
         m_autonetworkParams.stopConditions.numberOfNewNodes = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.stopConditions.numberOfNewNodes = 0;
 
       // abortOnTooManyNodesFound
-      if ( jsonValue = rapidjson::Pointer( "/data/req/stopConditions/abortOnTooManyNodesFound" ).Get( doc ) )
+      if ( (jsonValue = rapidjson::Pointer( "/data/req/stopConditions/abortOnTooManyNodesFound" ).Get( doc )) )
         m_autonetworkParams.stopConditions.abortOnTooManyNodesFound = jsonValue->GetBool();
       else
         m_autonetworkParams.stopConditions.abortOnTooManyNodesFound = false;
