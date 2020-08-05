@@ -217,16 +217,6 @@ stages:
   dependencies:
     - update-cache
   script:
-    - export CFLAGS="$(dpkg-buildflags --get CFLAGS) $(dpkg-buildflags --get CPPFLAGS)"
-    - export CXXFLAGS="$(dpkg-buildflags --get CXXFLAGS) $(dpkg-buildflags --get CPPFLAGS)"
-    - export LDFLAGS="$(dpkg-buildflags --get LDFLAGS)"
-    - git clone https://github.com/logimic/shape.git shape-source
-    - mkdir shape-build shape-libs shapeware-build shapeware-libs
-    - cmake -Bshape-build -Hshape-source -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
-    - cmake --build shape-build
-    - git clone --recurse-submodules https://github.com/logimic/shapeware.git shapeware-source
-    - cmake -Bshapeware-build -Hshapeware-source -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug
-    - cmake --build shapeware-build
     - if [ "${STABILITY}" == "devel" ]; then gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch; fi
     - dch-add-distro -d "${DIST}"
     - debuild -e CCACHE_COMPILERCHECK -e CCACHE_COMPRESS -e CCACHE_BASEDIR -e CCACHE_DIR -e DAEMON_VERSION -b -uc -us -tc
