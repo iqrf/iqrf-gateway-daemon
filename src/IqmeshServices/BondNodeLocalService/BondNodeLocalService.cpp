@@ -60,6 +60,11 @@ namespace iqrf {
     BondError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
     BondError( Type errorType, const std::string& message ) : m_type( errorType ), m_message( message ) {};
 
+    BondError (const BondError& other) {
+      m_type = other.getType();
+      m_message = other.getMessage();
+    }
+
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
 
@@ -205,7 +210,7 @@ namespace iqrf {
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move( *iter );
       m_transResults.pop_front();
-      return std::move( tranResult );
+      return tranResult;
     }
 
   };
@@ -245,7 +250,7 @@ namespace iqrf {
 
     void checkNodeAddr( const uint16_t nodeAddr )
     {
-      if ( ( nodeAddr < 0 ) || ( nodeAddr > 0xEF ) ) {
+      if ( nodeAddr > 0xEF  ) {
         THROW_EXC(
           std::logic_error, "Node address outside of valid range. " << NAME_PAR_HEX( "Address", nodeAddr )
         );
@@ -920,7 +925,7 @@ namespace iqrf {
         Pointer("/data/rsp/osRead/enumFlags/value").Set(response, osReadObject->getFlags());
 
         // flags - parsed
-        bool stdModeSupported = ((osReadObject->getFlags() & 0b1) == 0b1) ? true : false;
+        bool stdModeSupported = ((osReadObject->getFlags() & 0b1) == 0b1);
         if (stdModeSupported)
         {
           Pointer("/data/rsp/osRead/enumFlags/rfModeStd").Set(response, true);
@@ -935,7 +940,7 @@ namespace iqrf {
         // STD+LP network is running, otherwise STD network.
         if (osReadObject->getDpaVer() >= 0x0400)
         {
-          bool stdAndLpModeNetwork = ((osReadObject->getFlags() & 0b100) == 0b100) ? true : false;
+          bool stdAndLpModeNetwork = ((osReadObject->getFlags() & 0b100) == 0b100);
           if (stdAndLpModeNetwork)
           {
             Pointer("/data/rsp/osRead/enumFlags/stdAndLpNetwork").Set(response, true);
@@ -1197,6 +1202,8 @@ namespace iqrf {
                        "************************************"
       );
 
+      (void)props;
+
       // for the sake of register function parameters 
       std::vector<std::string> supportedMsgTypes =
       {
@@ -1235,6 +1242,7 @@ namespace iqrf {
 
     void modify( const shape::Properties *props )
     {
+      (void)props;
     }
 
     void attachInterface( IIqrfDpaService* iface )
