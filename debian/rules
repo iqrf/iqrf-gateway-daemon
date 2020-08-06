@@ -4,6 +4,14 @@
 	dh $@  --buildsystem=cmake --builddirectory=build --with=systemd
 
 override_dh_auto_configure:
+	rm -rf shape shape-build shapeware shapeware-build
+	mkdir -p shape-build shapeware-build
+	git clone --recurse-submodules https://github.com/logimic/shape.git
+	git clone --recurse-submodules https://github.com/logimic/shapeware.git
+	cmake -Bshape-build -Hshape -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
+	cmake --build shape-build
+	cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
+	cmake --build shapeware-build
 	dh_auto_configure -- -DCMAKE_SKIP_INSTALL_RPATH=TRUE -DCMAKE_SKIP_BUILD_RPATH=TRUE -DCMAKE_SKIP_RPATH=TRUE \
 	-Dshapeware_DIR:PATH=`pwd`/shapeware-build -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING=false \
 	-DDAEMON_VERSION:STRING=${DAEMON_VERSION} -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE

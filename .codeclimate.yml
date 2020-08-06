@@ -1,0 +1,16 @@
+version: "2"
+plugins:
+  cppcheck:
+    enabled: true
+    config:
+      check: all
+      language: c++
+      stds:
+        - c++11
+      platform: unix64
+  fixme:
+    enabled: true
+  markdownlint:
+    enabled: true
+exclude_patterns:
+  - libraries/

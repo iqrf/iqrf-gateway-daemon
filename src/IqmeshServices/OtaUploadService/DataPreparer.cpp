@@ -384,7 +384,7 @@ namespace iqrf {
           }
         }
         
-        // One�s Complement Fletcher Checksum
+        // One’s Complement Fletcher Checksum
         uint16_t tempL = checksum & 0xff;
         tempL += oneByte;
 
