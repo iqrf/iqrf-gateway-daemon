@@ -65,6 +65,11 @@ namespace iqrf {
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
 
+    SmartConnectError(const SmartConnectError& other) {
+      m_type = other.getType();
+      m_message = other.getMessage();
+    }
+
     SmartConnectError& operator=(const SmartConnectError& error) {
       if (this == &error) {
         return *this;
@@ -204,7 +209,7 @@ namespace iqrf {
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move(*iter);
       m_transResults.pop_front();
-      return std::move(tranResult);
+      return tranResult;
     }
   };
 
@@ -1136,6 +1141,8 @@ namespace iqrf {
         "************************************"
       );
 
+      (void)props;
+
       // for the sake of register function parameters 
       std::vector<std::string> m_filters =
       {
@@ -1175,6 +1182,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props;
     }
 
     void attachInterface(IIqrfDpaService* iface)

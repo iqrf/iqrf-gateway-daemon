@@ -26,7 +26,7 @@ namespace iqrf {
       return m_isSetDeviceAddr;
     }
 
-    const int getDeviceAddr() const
+    int getDeviceAddr() const
     {
       return m_deviceAddr;
     }
@@ -35,7 +35,7 @@ namespace iqrf {
       return m_isSetHwpId;
     }
 
-    const int getHwpId() const
+    int getHwpId() const
     {
       return m_deviceAddr;
     }

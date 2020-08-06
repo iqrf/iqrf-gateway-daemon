@@ -47,6 +47,11 @@ namespace iqrf
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
 
+    WriteTrConfError(const WriteTrConfError& other) {
+      m_type = other.getType();
+      m_message = other.getMessage();
+    }
+
     WriteTrConfError &operator=( const WriteTrConfError &error )
     {
       if ( this == &error )
@@ -182,7 +187,7 @@ namespace iqrf
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move( *iter );
       m_transResults.pop_front();
-      return std::move( tranResult );
+      return tranResult;
     }
   };
 
@@ -944,7 +949,7 @@ namespace iqrf
 
         // Evaluate restartNeeded flagy
         // SPI and UART peripherals need restart
-        if ( m_writeTrConfParams.embPers.mask & ( ( 1 << PNUM_SPI ) | ( 1 << PNUM_UART ) ) != 0 )
+        if ( (m_writeTrConfParams.embPers.mask & ( ( 1 << PNUM_SPI ) | ( 1 << PNUM_UART ) )) != 0 )
           m_writeTrConfParams.restartNeeded = true;
 
         // dpaConfigBits need restart
@@ -1057,6 +1062,8 @@ namespace iqrf
                        << "WriteTrConfService instance activate" << std::endl
                        << "************************************" );
 
+      (void)props;
+
       // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
@@ -1091,6 +1098,7 @@ namespace iqrf
 
     void modify( const shape::Properties *props )
     {
+      (void)props;
     }
 
     void attachInterface( IIqrfDpaService *iface )

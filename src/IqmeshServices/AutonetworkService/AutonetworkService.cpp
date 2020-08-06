@@ -670,8 +670,9 @@ namespace iqrf {
       std::string nodesListStr;
       for ( uint8_t nodeAddr = 1; nodeAddr <= MAX_ADDRESS; nodeAddr++ )
       {
-        if ( nodes[nodeAddr] && !nodesListStr.empty() )
+        if ( nodes[nodeAddr] && !nodesListStr.empty() ) {
           nodesListStr += ", ";
+        }
         nodesListStr += std::to_string((int)nodeAddr);
       }
 

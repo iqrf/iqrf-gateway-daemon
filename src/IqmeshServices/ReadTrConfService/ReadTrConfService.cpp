@@ -56,6 +56,11 @@ namespace iqrf {
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
 
+    ReadTrConfigError(const ReadTrConfigError& other) {
+      m_type = other.getType();
+      m_message = other.getMessage();
+    }
+
     ReadTrConfigError& operator=( const ReadTrConfigError& error )
     {
       if ( this == &error )
@@ -119,7 +124,7 @@ namespace iqrf {
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move( *iter );
       m_transResults.pop_front();
-      return std::move( tranResult );
+      return tranResult;
     }
   };
 
@@ -357,94 +362,94 @@ namespace iqrf {
           // byte 0x01
           uint8_t byte01 = configuration[0x00];
 
-          bool coordPresent = ( ( byte01 & 0b1 ) == 0b1 ) ? true : false;
+          bool coordPresent = ( ( byte01 & 0b1 ) == 0b1 );
           Pointer( "/data/rsp/embPers/coordinator" ).Set( response, coordPresent );
 
-          bool nodePresent = ( ( byte01 & 0b10 ) == 0b10 ) ? true : false;
+          bool nodePresent = ( ( byte01 & 0b10 ) == 0b10 );
           Pointer( "/data/rsp/embPers/node" ).Set( response, nodePresent );
 
-          bool osPresent = ( ( byte01 & 0b100 ) == 0b100 ) ? true : false;
+          bool osPresent = ( ( byte01 & 0b100 ) == 0b100 );
           Pointer( "/data/rsp/embPers/os" ).Set( response, osPresent );
 
-          bool eepromPresent = ( ( byte01 & 0b1000 ) == 0b1000 ) ? true : false;
+          bool eepromPresent = ( ( byte01 & 0b1000 ) == 0b1000 );
           Pointer( "/data/rsp/embPers/eeprom" ).Set( response, eepromPresent );
 
-          bool eeepromPresent = ( ( byte01 & 0b10000 ) == 0b10000 ) ? true : false;
+          bool eeepromPresent = ( ( byte01 & 0b10000 ) == 0b10000 );
           Pointer( "/data/rsp/embPers/eeeprom" ).Set( response, eeepromPresent );
 
-          bool ramPresent = ( ( byte01 & 0b100000 ) == 0b100000 ) ? true : false;
+          bool ramPresent = ( ( byte01 & 0b100000 ) == 0b100000 );
           Pointer( "/data/rsp/embPers/ram" ).Set( response, ramPresent );
 
-          bool ledrPresent = ( ( byte01 & 0b1000000 ) == 0b1000000 ) ? true : false;
+          bool ledrPresent = ( ( byte01 & 0b1000000 ) == 0b1000000 );
           Pointer( "/data/rsp/embPers/ledr" ).Set( response, ledrPresent );
 
-          bool ledgPresent = ( ( byte01 & 0b10000000 ) == 0b10000000 ) ? true : false;
+          bool ledgPresent = ( ( byte01 & 0b10000000 ) == 0b10000000 );
           Pointer( "/data/rsp/embPers/ledg" ).Set( response, ledgPresent );
 
           // byte 0x02
           uint8_t byte02 = configuration[0x01];
 
-          bool spiPresent = ( ( byte02 & 0b1 ) == 0b1 ) ? true : false;
+          bool spiPresent = ( ( byte02 & 0b1 ) == 0b1 );
           Pointer( "/data/rsp/embPers/spi" ).Set( response, spiPresent );
 
-          bool ioPresent = ( ( byte02 & 0b10 ) == 0b10 ) ? true : false;
+          bool ioPresent = ( ( byte02 & 0b10 ) == 0b10 );
           Pointer( "/data/rsp/embPers/io" ).Set( response, ioPresent );
 
-          bool thermometerPresent = ( ( byte02 & 0b100 ) == 0b100 ) ? true : false;
+          bool thermometerPresent = ( ( byte02 & 0b100 ) == 0b100 );
           Pointer( "/data/rsp/embPers/thermometer" ).Set( response, thermometerPresent );
 
-          bool pwmPresent = ( ( byte02 & 0b1000 ) == 0b1000 ) ? true : false;
+          bool pwmPresent = ( ( byte02 & 0b1000 ) == 0b1000 );
           Pointer( "/data/rsp/embPers/pwm" ).Set( response, pwmPresent );
 
-          bool uartPresent = ( ( byte02 & 0b10000 ) == 0b10000 ) ? true : false;
+          bool uartPresent = ( ( byte02 & 0b10000 ) == 0b10000 );
           Pointer( "/data/rsp/embPers/uart" ).Set( response, uartPresent );
           
           if ( dpaVer < 0x0400 )
           {
-            bool frcPresent = ( ( byte02 & 0b100000 ) == 0b100000 ) ? true : false;
+            bool frcPresent = ( ( byte02 & 0b100000 ) == 0b100000 );
             Pointer( "/data/rsp/embPers/frc" ).Set( response, frcPresent );
           }
 
           // byte 0x05
           uint8_t byte05 = configuration[0x04];
 
-          bool customDpaHandler = ( ( byte05 & 0b00000001 ) == 0b00000001 ) ? true : false;
+          bool customDpaHandler = ( ( byte05 & 0b00000001 ) == 0b00000001 );
           Pointer( "/data/rsp/customDpaHandler" ).Set( response, customDpaHandler );
 
           // for DPA v4.00 downwards
           if ( dpaVer < 0x0400 ) {
-            bool nodeDpaInterface = ( ( byte05 & 0b00000010 ) == 0b00000010 ) ? true : false;
+            bool nodeDpaInterface = ( ( byte05 & 0b00000010 ) == 0b00000010 );
             Pointer( "/data/rsp/nodeDpaInterface" ).Set( response, nodeDpaInterface );
           }
 
           // for DPA v4.10 upwards
           if ( dpaVer >= 0x0410 ) {
-            bool dpaPeerToPeer = ( ( byte05 & 0b00000010 ) == 0b00000010 ) ? true : false;
+            bool dpaPeerToPeer = ( ( byte05 & 0b00000010 ) == 0b00000010 );
             Pointer( "/data/rsp/dpaPeerToPeer" ).Set( response, dpaPeerToPeer );
           }
 
-          bool dpaAutoexec = ( ( byte05 & 0b00000100 ) == 0b00000100 ) ? true : false;
+          bool dpaAutoexec = ( ( byte05 & 0b00000100 ) == 0b00000100 );
           Pointer( "/data/rsp/dpaAutoexec" ).Set( response, dpaAutoexec );
 
-          bool routingOff = ( ( byte05 & 0b00001000 ) == 0b00001000 ) ? true : false;
+          bool routingOff = ( ( byte05 & 0b00001000 ) == 0b00001000 );
           Pointer( "/data/rsp/routingOff" ).Set( response, routingOff );
 
-          bool ioSetup = ( ( byte05 & 0b00010000 ) == 0b00010000 ) ? true : false;
+          bool ioSetup = ( ( byte05 & 0b00010000 ) == 0b00010000 );
           Pointer( "/data/rsp/ioSetup" ).Set( response, ioSetup );
 
-          bool peerToPeer = ( ( byte05 & 0b00100000 ) == 0b00100000 ) ? true : false;
+          bool peerToPeer = ( ( byte05 & 0b00100000 ) == 0b00100000 );
           Pointer( "/data/rsp/peerToPeer" ).Set( response, peerToPeer );
 
 
           // for DPA v3.03 onwards
           if ( dpaVer >= 0x0303 ) {
-            bool neverSleep = ( ( byte05 & 0b01000000 ) == 0b01000000 ) ? true : false;
+            bool neverSleep = ( ( byte05 & 0b01000000 ) == 0b01000000 );
             Pointer( "/data/rsp/neverSleep" ).Set( response, neverSleep );
           }
 
           // for DPA v4.00 onwards
           if ( dpaVer >= 0x0400 ) {
-            bool stdAndLpNetwork = ( ( byte05 & 0b10000000 ) == 0b10000000 ) ? true : false;
+            bool stdAndLpNetwork = ( ( byte05 & 0b10000000 ) == 0b10000000 );
             Pointer( "/data/rsp/stdAndLpNetwork" ).Set( response, stdAndLpNetwork );
           }
 
@@ -475,22 +480,22 @@ namespace iqrf {
           // RFPGM byte
           uint8_t rfpgm = hwpConfig.RFPGM;
 
-          bool rfPgmDualChannel = ( ( rfpgm & 0b00000011 ) == 0b00000011 ) ? true : false;
+          bool rfPgmDualChannel = ( ( rfpgm & 0b00000011 ) == 0b00000011 );
           Pointer( "/data/rsp/rfPgmDualChannel" ).Set( response, rfPgmDualChannel );
 
-          bool rfPgmLpMode = ( ( rfpgm & 0b00000100 ) == 0b00000100 ) ? true : false;
+          bool rfPgmLpMode = ( ( rfpgm & 0b00000100 ) == 0b00000100 );
           Pointer( "/data/rsp/rfPgmLpMode" ).Set( response, rfPgmLpMode );
 
-          bool rfPgmIncorrectUpload = ( ( rfpgm & 0b00001000 ) == 0b00001000 ) ? true : false;
+          bool rfPgmIncorrectUpload = ( ( rfpgm & 0b00001000 ) == 0b00001000 );
           Pointer( "/data/rsp/rfPgmIncorrectUpload" ).Set( response, rfPgmIncorrectUpload );
 
-          bool enableAfterReset = ( ( rfpgm & 0b00010000 ) == 0b00010000 ) ? true : false;
+          bool enableAfterReset = ( ( rfpgm & 0b00010000 ) == 0b00010000 );
           Pointer( "/data/rsp/rfPgmEnableAfterReset" ).Set( response, enableAfterReset );
 
-          bool rfPgmTerminateAfter1Min = ( ( rfpgm & 0b01000000 ) == 0b01000000 ) ? true : false;
+          bool rfPgmTerminateAfter1Min = ( ( rfpgm & 0b01000000 ) == 0b01000000 );
           Pointer( "/data/rsp/rfPgmTerminateAfter1Min" ).Set( response, rfPgmTerminateAfter1Min );
 
-          bool rfPgmTerminateMcuPin = ( ( rfpgm & 0b10000000 ) == 0b10000000 ) ? true : false;
+          bool rfPgmTerminateMcuPin = ( ( rfpgm & 0b10000000 ) == 0b10000000 );
           Pointer( "/data/rsp/rfPgmTerminateMcuPin" ).Set( response, rfPgmTerminateMcuPin );
 
           // RF band - undocumented byte
@@ -577,6 +582,8 @@ namespace iqrf {
                        "ReadTrConfService instance activate" << std::endl <<
                        "************************************"
       );
+      
+      (void)props;
 
       // for the sake of register function parameters 
       std::vector<std::string> supportedMsgTypes =
@@ -616,6 +623,7 @@ namespace iqrf {
 
     void modify( const shape::Properties *props )
     {
+      (void)props;
     }
 
     void attachInterface( IIqrfDpaService* iface )

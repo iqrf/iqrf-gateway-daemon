@@ -59,6 +59,11 @@ namespace iqrf {
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
 
+    RemoveBondError(const RemoveBondError& other) {
+      m_type = other.getType();
+      m_message = other.getMessage();
+    }
+
     RemoveBondError& operator=( const RemoveBondError& error ) {
       if ( this == &error ) {
         return *this;
@@ -114,7 +119,7 @@ namespace iqrf {
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move( *iter );
       m_transResults.pop_front();
-      return std::move( tranResult );
+      return tranResult;
     }
 
   };
@@ -153,7 +158,7 @@ namespace iqrf {
 
     void checkNodeAddr( const uint16_t nodeAddr )
     {
-      if ( ( nodeAddr < 0 ) || ( nodeAddr > 0xEF ) ) {
+      if (nodeAddr > 0xEF) {
         THROW_EXC(
           std::logic_error, "Node address outside of valid range. " << NAME_PAR_HEX( "Address", nodeAddr )
         );
@@ -750,7 +755,7 @@ namespace iqrf {
         break;
       }
       rapidjson::Pointer("/data/rsp/osRead/trMcuType/trType").Set(response, trTypeStr);
-      bool fccCertified = ((trMcuType & 0x08) == 0x08) ? true : false;
+      bool fccCertified = ((trMcuType & 0x08) == 0x08);
       rapidjson::Pointer("/data/rsp/osRead/trMcuType/fccCertified").Set(response, fccCertified);
       std::string mcuTypeStr = ((trMcuType & 0x07) == 0x04) ? "PIC16LF1938" : "UNKNOWN";
       rapidjson::Pointer("/data/rsp/osRead/trMcuType/mcuType").Set(response, mcuTypeStr);
@@ -774,15 +779,15 @@ namespace iqrf {
       uns8 flags = readInfo[10];
 
       rapidjson::Pointer("/data/rsp/osRead/flags/value").Set(response, flags);
-      bool insufficientOsBuild = ((flags & 0x01) == 0x01) ? true : false;
+      bool insufficientOsBuild = ((flags & 0x01) == 0x01);
       rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsBuild").Set(response, insufficientOsBuild);
       std::string iface = ((flags & 0x02) == 0x02) ? "UART" : "SPI";
       rapidjson::Pointer("/data/rsp/osRead/flags/interfaceType").Set(response, iface);
-      bool dpaHandlerDetected = ((flags & 0x04) == 0x04) ? true : false;
+      bool dpaHandlerDetected = ((flags & 0x04) == 0x04);
       rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, dpaHandlerDetected);
-      bool dpaHandlerNotDetectedButEnabled = ((flags & 0x08) == 0x08) ? true : false;
+      bool dpaHandlerNotDetectedButEnabled = ((flags & 0x08) == 0x08);
       rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, dpaHandlerNotDetectedButEnabled);
-      bool noInterfaceSupported = ((flags & 0x10) == 0x10) ? true : false;
+      bool noInterfaceSupported = ((flags & 0x10) == 0x10);
       rapidjson::Pointer("/data/rsp/osRead/flags/noInterfaceSupported").Set(response, noInterfaceSupported);
 
       // SlotLimits
@@ -1001,6 +1006,8 @@ namespace iqrf {
                        "************************************"
       );
 
+      (void)props;
+
       // for the sake of register function parameters 
       std::vector<std::string> supportedMsgTypes =
       {
@@ -1039,6 +1046,7 @@ namespace iqrf {
 
     void modify( const shape::Properties *props )
     {
+      (void)props;
     }
 
     void attachInterface( IIqrfDpaService* iface )

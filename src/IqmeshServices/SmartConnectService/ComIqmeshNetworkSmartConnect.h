@@ -27,12 +27,12 @@ namespace iqrf {
       return m_isSetDeviceAddr;
     }
 
-    const int getDeviceAddr() const
+    int getDeviceAddr() const
     {
       return m_deviceAddr;
     }
 
-    const int getBondingTestRetries() const
+    int getBondingTestRetries() const
     {
       return m_bondingTestRetries;
     }

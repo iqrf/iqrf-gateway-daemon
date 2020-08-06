@@ -384,7 +384,7 @@ namespace iqrf {
           }
         }
         
-        // One’s Complement Fletcher Checksum
+        // Oneï¿½s Complement Fletcher Checksum
         uint16_t tempL = checksum & 0xff;
         tempL += oneByte;
 
@@ -490,6 +490,7 @@ namespace iqrf {
       const std::string& fileName, bool isForBroadcast
     )
     {
+      (void)isForBroadcast;
       std::list<CodeBlock> codeBlocks = IntelHexParser::parse(fileName);
 
       const CodeBlock* handlerBlock = findHandlerBlock(codeBlocks);

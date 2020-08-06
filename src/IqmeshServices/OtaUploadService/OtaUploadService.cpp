@@ -72,6 +72,11 @@ namespace iqrf
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
 
+    UploadError (const UploadError& other) {
+      m_type = other.getType();
+      m_message = other.getMessage();
+    }
+
     UploadError &operator=(const UploadError &error)
     {
       if (this != &error)
@@ -212,7 +217,7 @@ namespace iqrf
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move(*iter);
       m_transResults.pop_front();
-      return std::move(tranResult);
+      return tranResult;
     }
   };
 
@@ -430,7 +435,7 @@ namespace iqrf
       pData[0] = address & 0xFF;
       pData[1] = (address >> 8) & 0xFF;
 
-      for (int i = 0; i < data.size(); i++)
+      for (unsigned int i = 0; i < data.size(); i++)
         pData[i + 2] = data[i];
     }
 
@@ -464,7 +469,7 @@ namespace iqrf
       batchPacketPData[offset + 4] = (hwpId >> 8) & 0xFF;
       batchPacketPData[offset + 5] = address & 0xFF;
       batchPacketPData[offset + 6] = (address >> 8) & 0xFF;
-      for (int i = 0; i < data.size(); i++)
+      for (unsigned int i = 0; i < data.size(); i++)
         batchPacketPData[offset + EMB_WRITE_PACKET_HEADER_SIZE + i] = data[i];
     }
 
@@ -645,7 +650,7 @@ namespace iqrf
         DpaMessage readOSInfo = sendDPAcommand(frcPacket, sizeof(TDpaIFaceHeader) + 6, uploadResult);
         // Check FRC status
         frcStatus = readOSInfo.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if ((frcStatus >= 0x00) && (frcStatus <= 0xEF))
+        if (frcStatus <= 0xEF)
         {
           TRC_INFORMATION("FRC Read OS Info successful.");
           TRC_FUNCTION_LEAVE("");
@@ -733,7 +738,7 @@ namespace iqrf
         DpaMessage frcResult = sendDPAcommand(frcPacket, sizeof(TDpaIFaceHeader) + 1 + 30 + 12, uploadResult);
         // Check FRC status
         frcStatus = frcResult.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if ((frcStatus >= 0x00) && (frcStatus <= 0xEF))
+        if (frcStatus <= 0xEF)
         {
           // Process FRC data
           std::basic_string<uint8_t> frcData;
@@ -799,7 +804,7 @@ namespace iqrf
       DpaMessage frcResult = sendDPAcommand(frcPacket, sizeof(TDpaIFaceHeader) + 1 + frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0], uploadResult);
       // Check FRC status
       uint8_t status = frcResult.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-      if ((status >= 0x00) && (status <= 0xEF))
+      if (status <= 0xEF)
       {
         // Get extra result
         DpaMessage frcExtraResult = getFrcExtraResult(uploadResult);
@@ -1417,6 +1422,7 @@ namespace iqrf
 
     void modify(const shape::Properties *props)
     {
+      (void)props;
     }
 
     void attachInterface(shape::ILaunchService *iface)
