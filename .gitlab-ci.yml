@@ -1,6 +1,5 @@
 stages:
-  - tests
-  - api-tests
+  - test
   - update-cache
   - clean-dirs
   - build-package
@@ -287,7 +286,7 @@ stages:
   dependencies: []
 
 test:
-  stage: tests
+  stage: test
   extends: .ssh_template
   script:
     - mkdir deploy
@@ -306,7 +305,7 @@ test:
   <<: *ccache-template
 
 api-testing:
-  stage: api-tests
+  stage: test
   image: docker:latest
   services:
     - docker:dind
@@ -541,3 +540,6 @@ package_release-xenial-armhf:
 api-deploy:
   <<: *debian-buster-amd64-template
   <<: *api-template
+
+include:
+  - template: Code-Quality.gitlab-ci.yml
