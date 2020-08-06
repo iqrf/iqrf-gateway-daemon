@@ -10,7 +10,7 @@ namespace iqrf {
   {
   public:
     ComIqmeshNetworkReadTrConf() = delete;
-    ComIqmeshNetworkReadTrConf(rapidjson::Document& doc)
+    explicit ComIqmeshNetworkReadTrConf(rapidjson::Document& doc)
       :ComBase(doc)
     {
       parse(doc);

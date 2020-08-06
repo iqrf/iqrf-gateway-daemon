@@ -9,7 +9,7 @@ namespace iqrf {
   {
   public:
     ComIqmeshNetworkSmartConnect() = delete;
-    ComIqmeshNetworkSmartConnect(rapidjson::Document& doc)
+    explicit ComIqmeshNetworkSmartConnect(rapidjson::Document& doc)
       :ComBase(doc)
     {
       parse(doc);

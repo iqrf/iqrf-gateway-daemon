@@ -31,7 +31,7 @@ namespace iqrf {
   {
   public:
     ComAutonetwork() = delete;
-    ComAutonetwork( rapidjson::Document& doc ) : ComBase( doc )
+    explicit ComAutonetwork( rapidjson::Document& doc ) : ComBase( doc )
     {
       parse( doc );
     }

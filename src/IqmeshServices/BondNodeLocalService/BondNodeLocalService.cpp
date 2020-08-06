@@ -57,7 +57,7 @@ namespace iqrf {
     };
 
     BondError() : m_type( Type::NoError ), m_message( "" ) {};
-    BondError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
+    explicit BondError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
     BondError( Type errorType, const std::string& message ) : m_type( errorType ), m_message( message ) {};
 
     BondError (const BondError& other) {
@@ -183,7 +183,7 @@ namespace iqrf {
       return m_standards;
     }
 
-    void setStandards(std::list<std::string> standards) {
+    void setStandards(const std::list<std::string> &standards) {
       m_standards = standards;
     }
 
@@ -240,7 +240,7 @@ namespace iqrf {
 
 
   public:
-    Imp( BondNodeLocalService& parent ) : m_parent( parent )
+    explicit Imp( BondNodeLocalService& parent ) : m_parent( parent )
     {
     }
 
@@ -285,7 +285,7 @@ namespace iqrf {
         bondNodeTransaction = m_exclusiveAccess->executeDpaTransaction(bondNodeRequest);
         transResult = bondNodeTransaction->get();
       }
-      catch ( std::exception& e ) {
+      catch ( const std::exception& e ) {
         TRC_WARNING( "DPA transaction error : " << e.what() );
 
         BondError error( BondError::Type::BondError, e.what() );
@@ -360,7 +360,7 @@ namespace iqrf {
         bondResult.setOsRead( osReadPtr );
         TRC_INFORMATION( "OS read successful!" );
       }
-      catch (std::exception &e) {
+      catch (const std::exception &e) {
         BondError error(BondError::Type::PingFailed, e.what());
         bondResult.setError(error);
       }
@@ -395,7 +395,7 @@ namespace iqrf {
           removeBondTransaction = m_exclusiveAccess->executeDpaTransaction(removeBondRequest);
           transResult = removeBondTransaction->get();
         }
-        catch ( std::exception& e ) {
+        catch ( const std::exception& e ) {
           TRC_WARNING( "DPA transaction error : " << e.what() );
           THROW_EXC( std::logic_error, "Could not remove bond." );
         }
@@ -493,7 +493,7 @@ namespace iqrf {
           getBondedNodesTransaction = m_exclusiveAccess->executeDpaTransaction(getBondedNodesRequest);
           transResult = getBondedNodesTransaction->get();
         }
-        catch ( std::exception& e ) {
+        catch ( const std::exception& e ) {
           TRC_WARNING( "DPA transaction error : " << e.what() );
 
           if ( rep < m_repeat ) {
@@ -589,7 +589,7 @@ namespace iqrf {
           perEnumTransaction = m_exclusiveAccess->executeDpaTransaction(perEnumRequest);
           transResult = perEnumTransaction->get();
         }
-        catch (std::exception& e) {
+        catch (const std::exception& e) {
           TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
@@ -671,7 +671,7 @@ namespace iqrf {
         // get bonded nodes to check it against address to bond
         bondedNodes = getBondedNodes( bondResult );        
       }
-      catch ( std::exception& ex ) {
+      catch ( const std::exception& ex ) {
         TRC_FUNCTION_LEAVE( "" );
         return bondResult;
       }
@@ -909,7 +909,7 @@ namespace iqrf {
 
         // embPers
         rapidjson::Value embPersJsonArray(kArrayType);
-        for (std::set<int>::iterator it = osReadObject->getEmbedPer().begin(); it != osReadObject->getEmbedPer().end(); it++)
+        for (std::set<int>::iterator it = osReadObject->getEmbedPer().begin(); it != osReadObject->getEmbedPer().end(); ++it)
         {
           embPersJsonArray.PushBack(*it, allocator);
         }
@@ -953,7 +953,7 @@ namespace iqrf {
 
         // UserPers
         rapidjson::Value userPerJsonArray(kArrayType);
-        for (std::set<int>::iterator it = osReadObject->getUserPer().begin(); it != osReadObject->getUserPer().end(); it++)
+        for (std::set<int>::iterator it = osReadObject->getUserPer().begin(); it != osReadObject->getUserPer().end(); ++it)
         {
           userPerJsonArray.PushBack(*it, allocator);
         }
@@ -1156,7 +1156,7 @@ namespace iqrf {
         m_returnVerbose = comBondNodeLocal.getVerbose();
       }
       // parsing and checking service parameters failed 
-      catch ( std::exception& ex ) {
+      catch ( const std::exception& ex ) {
         Document failResponse = createCheckParamsFailedResponse( comBondNodeLocal.getMsgId(), msgType, ex.what() );
         m_iMessagingSplitterService->sendMessage( messagingId, std::move( failResponse ) );
 
@@ -1168,7 +1168,7 @@ namespace iqrf {
       try {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
-      catch (std::exception &e) {
+      catch (const std::exception &e) {
         const char* errorStr = e.what();
         TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
 

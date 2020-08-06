@@ -51,7 +51,7 @@ namespace iqrf {
       ReadHwp = 1002
     };
     ReadTrConfigError() : m_type( Type::NoError ), m_message( "ok" ) {};
-    ReadTrConfigError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
+    explicit ReadTrConfigError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
     ReadTrConfigError( Type errorType, const std::string& message ) : m_type( errorType ), m_message( message ) {};
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
@@ -147,7 +147,7 @@ namespace iqrf {
     bool m_returnVerbose = false;
 
   public:
-    Imp( ReadTrConfService& parent ) : m_parent( parent )
+    explicit Imp( ReadTrConfService& parent ) : m_parent( parent )
     {
     }
 
@@ -188,13 +188,13 @@ namespace iqrf {
         uint8_t byteIndex = deviceAddr / 8;
         uint8_t bitIndex = deviceAddr % 8;
         uint16_t compareByte = 1 << bitIndex;        
-        if ( (result = ( bondedNodesArr[byteIndex] & compareByte ) == compareByte) == false )
+        if ( !(result = (( bondedNodesArr[byteIndex] & compareByte ) == compareByte)) )
         {
           ReadTrConfigError error( ReadTrConfigError::Type::NotBonded, "Node not bonded." );
           readTrConfigResult.setBondedError( error );
         }
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         ReadTrConfigError error( ReadTrConfigError::Type::NotBonded, e.what() );
         readTrConfigResult.setBondedError( error );
@@ -232,7 +232,7 @@ namespace iqrf {
         TPerOSReadCfg_Response hwpConfig = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSReadCfg_Response;
         readTrConfigResult.setHwpConfig( hwpConfig );
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         ReadTrConfigError error( ReadTrConfigError::Type::ReadHwp, e.what() );
         readTrConfigResult.setReadTrConfigError( error );
@@ -282,7 +282,7 @@ namespace iqrf {
           hwpId = HWPID_DoNotCheck;
         m_returnVerbose = comReadTrConf.getVerbose();
       }
-      catch ( std::exception& ex )
+      catch ( const std::exception& ex )
       {
         // Parsing and checking service parameters failed 
         Pointer( "/data/status" ).Set( response, (int32_t)ReadTrConfigError::Type::ServiceError );
@@ -298,7 +298,7 @@ namespace iqrf {
       {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
-      catch ( std::exception &e )
+      catch ( const std::exception &e )
       {
         const char* errorStr = e.what();
         TRC_WARNING( "Error while establishing exclusive DPA access: " << PAR( errorStr ) );

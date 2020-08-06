@@ -251,7 +251,7 @@ namespace iqrf
     std::string m_uploadPath;
 
   public:
-    Imp(OtaUploadService &parent) : m_parent(parent)
+    explicit Imp(OtaUploadService &parent) : m_parent(parent)
     {
       /*
       m_msgType_mngIqmeshWriteConfig
@@ -368,7 +368,7 @@ namespace iqrf
             return dpaResponse;
           }
         }
-        catch (std::exception &e)
+        catch (const std::exception &e)
         {
           TRC_DEBUG("DPA transaction error : " << e.what());
           if (rep < m_repeat)
@@ -850,7 +850,7 @@ namespace iqrf
       {
         loadingContentType = parseLoadingContentType(fileName);
       }
-      catch (std::exception &ex)
+      catch (const std::exception &ex)
       {
         UploadError error(UploadError::Type::UnsupportedLoadingContent, ex.what());
         uploadResult.setError(error);
@@ -863,7 +863,7 @@ namespace iqrf
       {
         preparedData = DataPreparer::prepareData(loadingContentType, fileName, deviceAddress == BROADCAST_ADDRESS);
       }
-      catch (std::exception &ex)
+      catch (const std::exception &ex)
       {
         UploadError error(UploadError::Type::DataPrepare, ex.what());
         uploadResult.setError(error);
@@ -878,7 +878,7 @@ namespace iqrf
           // Initial version supports only one [N] (or [C]) or all Nodes
           writeDataToExtEEPROM(uploadResult, startMemAddr, preparedData->getData());
         }
-        catch (std::exception &ex)
+        catch (const std::exception &ex)
         {
           UploadError error(UploadError::Type::Upload, ex.what());
           uploadResult.setError(error);
@@ -906,7 +906,7 @@ namespace iqrf
             setFRCparams(frcResponseTime, uploadResult);
           }
         }
-        catch (std::exception &ex)
+        catch (const std::exception &ex)
         {
           UploadError error(UploadError::Type::Verify, ex.what());
           uploadResult.setError(error);
@@ -924,7 +924,7 @@ namespace iqrf
           else
             loadCodeBroadcast(startMemAddr, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
         }
-        catch (std::exception &ex)
+        catch (const std::exception &ex)
         {
           UploadError error(UploadError::Type::Load, ex.what());
           uploadResult.setError(error);
@@ -1111,7 +1111,7 @@ namespace iqrf
           Document::AllocatorType &allocator = response.GetAllocator();
           rapidjson::Value verifyResult(kArrayType);
           std::map<uint16_t, bool> verifyResultMap = uploadResult.getVerifyResultsMap();
-          for (std::map<uint16_t, bool>::iterator i = verifyResultMap.begin(); i != verifyResultMap.end(); i++)
+          for (std::map<uint16_t, bool>::iterator i = verifyResultMap.begin(); i != verifyResultMap.end(); ++i)
           {
             rapidjson::Value verifyResultItem(kObjectType);
             verifyResultItem.AddMember("address", i->first, allocator);
@@ -1126,7 +1126,7 @@ namespace iqrf
           Document::AllocatorType &allocator = response.GetAllocator();
           rapidjson::Value loadResult(kArrayType);
           std::map<uint16_t, bool> loadResultMap = uploadResult.getLoadResultsMap();
-          for (std::map<uint16_t, bool>::iterator i = loadResultMap.begin(); i != loadResultMap.end(); i++)
+          for (std::map<uint16_t, bool>::iterator i = loadResultMap.begin(); i != loadResultMap.end(); ++i)
           {
             rapidjson::Value loadResultItem(kObjectType);
             loadResultItem.AddMember("address", i->first, allocator);
@@ -1321,7 +1321,7 @@ namespace iqrf
         m_returnVerbose = comOtaUpload.getVerbose();
       }
       // parsing and checking service parameters failed
-      catch (std::exception &ex)
+      catch (const std::exception &ex)
       {
         Document failResponse = createCheckParamsFailedResponse(comOtaUpload.getMsgId(), msgType, ex.what());
         m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
@@ -1338,7 +1338,7 @@ namespace iqrf
       {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
-      catch (std::exception &e)
+      catch (const std::exception &e)
       {
         const char *errorStr = e.what();
         TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));

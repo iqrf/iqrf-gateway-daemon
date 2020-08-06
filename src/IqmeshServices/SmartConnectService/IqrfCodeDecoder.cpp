@@ -149,7 +149,7 @@ namespace iqrf {
       for (int inPiece57Index = piece57Length; --inPiece57Index >= 0; )
       {
         char char57 = iqrfCode[piece57Index + inPiece57Index];
-        unsigned int alphabet57Index = base57alphabet.find(char57);
+        size_t alphabet57Index = base57alphabet.find(char57);
         if (alphabet57Index == std::string::npos) {
           THROW_EXC(std::logic_error, "IQRF Code contains an incorrect character " << PAR(char57) << " at position: " << PAR(piece57Index + inPiece57Index));
         }

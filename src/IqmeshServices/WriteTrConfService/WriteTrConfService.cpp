@@ -41,7 +41,7 @@ namespace iqrf
     };
 
     WriteTrConfError() : m_type( Type::NoError ), m_message( "ok" ) {};
-    WriteTrConfError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
+    explicit WriteTrConfError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
     WriteTrConfError( Type errorType, const std::string &message ) : m_type( errorType ), m_message( message ) {};
 
     Type getType() const { return m_type; };
@@ -214,7 +214,7 @@ namespace iqrf
     bool m_returnVerbose = false;
 
   public:
-    Imp( WriteTrConfService &parent ) : m_parent( parent )
+    explicit Imp( WriteTrConfService &parent ) : m_parent( parent )
     {
     }
 
@@ -280,7 +280,7 @@ namespace iqrf
         TRC_FUNCTION_LEAVE( "" );
         return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer;
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         WriteTrConfError error( WriteTrConfError::Type::CheckPerCoordAndOS, e.what() );
         writeTrConfResult.setError( error );
@@ -322,7 +322,7 @@ namespace iqrf
         TRC_FUNCTION_LEAVE( "" );
         return( bondedNodes );
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         WriteTrConfError error( WriteTrConfError::Type::GetBondedNodes, e.what() );
         writeTrConfResult.setError( error );
@@ -362,7 +362,7 @@ namespace iqrf
         TRC_FUNCTION_LEAVE( "" );
         return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime;
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         WriteTrConfError error( WriteTrConfError::Type::SetFrcParams, e.what() );
         writeTrConfResult.setError( error );
@@ -441,7 +441,7 @@ namespace iqrf
         TRC_FUNCTION_LEAVE( "" );
         return ( frcData );
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         WriteTrConfError error( WriteTrConfError::Type::FrcAcknowledgedBroadcastBits, e.what() );
         writeTrConfResult.setError( error );
@@ -489,7 +489,7 @@ namespace iqrf
         writeTrConfResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         WriteTrConfError error( WriteTrConfError::Type::WriteTrConfByte, e.what() );
         writeTrConfResult.setError( error );
@@ -532,7 +532,7 @@ namespace iqrf
         writeTrConfResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         WriteTrConfError error( WriteTrConfError::Type::WriteTrConfByte, e.what() );
         writeTrConfResult.setError( error );
@@ -546,7 +546,7 @@ namespace iqrf
     {
       std::vector<TrConfigByte> trConfigByteEmbPer;
       trConfigByteEmbPer.clear();
-      uint8_t frcState = perFrcState == true ? 1 << ( PNUM_FRC % 8 ) : 0x00;
+      uint8_t frcState = perFrcState ? 1 << ( PNUM_FRC % 8 ) : 0x00;
       trConfigByteEmbPer.push_back( TrConfigByte( CFGIND_DPA_PERIPHERALS + ( PNUM_FRC / 8 ), frcState, 1 << ( PNUM_FRC % 8 ) ) );
       writeTrConfUnicast( writeTrConfResult, COORDINATOR_ADDRESS, HWPID_DoNotCheck, trConfigByteEmbPer );
       TRC_FUNCTION_LEAVE( "" );
@@ -600,7 +600,7 @@ namespace iqrf
         bool writeSuccess = writeTrConfResult.getError().getType() == WriteTrConfError::Type::NoError;
         Pointer( "/data/rsp/writeSuccess" ).Set( writeResult, writeSuccess );
         // Restart needed
-        if ( writeSuccess == true )
+        if ( writeSuccess )
           Pointer( "/data/rsp/restartNeeded" ).Set( writeResult, m_writeTrConfParams.restartNeeded );
       }
 
@@ -701,16 +701,16 @@ namespace iqrf
         }
 
         // DPA configuration bits (address 0x05)
-        if ( ( m_writeTrConfParams.dpaConfigBits.mask != 0x00 ) || ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterfaceIsSet == true ) || ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeerIsSet == true ) )
+        if ( ( m_writeTrConfParams.dpaConfigBits.mask != 0x00 ) || ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterfaceIsSet ) || ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeerIsSet ) )
         {
           // DPA < 4.00
           if ( coordEnum.DpaVersion < 0x0400 )
           {
             // Yes, nodeDpaInterface specified in request ?
-            if ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterfaceIsSet == true )
+            if ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterfaceIsSet )
             {
               // Yes, write bit1
-              if ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterface == true )
+              if ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterface )
                 m_writeTrConfParams.dpaConfigBits.value |= 0x02;
               else
                 m_writeTrConfParams.dpaConfigBits.value &= ~0x02;
@@ -734,10 +734,10 @@ namespace iqrf
           if ( coordEnum.DpaVersion >= 0x0410 )
           {
             // dpaPeerToPeer specified in request ?
-            if ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeerIsSet == true )
+            if ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeerIsSet )
             {
               // Yes, write bit1
-              if ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeer == true )
+              if ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeer )
                 m_writeTrConfParams.dpaConfigBits.value |= 0x02;
               else
                 m_writeTrConfParams.dpaConfigBits.value &= ~0x02;
@@ -938,7 +938,7 @@ namespace iqrf
           if ( coordEnum.DpaVersion < 0x0400 )
           {
             // Yes, check the per. FRC was initially disabled at [C]
-            if ( perFrcInitiallyDisabled == true )
+            if ( perFrcInitiallyDisabled )
             {
               // Per. FRC was disabled
               TRC_INFORMATION( "DPA version is < 4.00 - disabling per. FRC." );              
@@ -978,7 +978,7 @@ namespace iqrf
         sendResult( writeTrConfResult );
         TRC_FUNCTION_LEAVE( "" );
       }
-      catch ( std::exception& ex )
+      catch ( const std::exception& ex )
       {
         TRC_WARNING( "Error during algorithm run: " << ex.what() );
         // Send result
@@ -1003,7 +1003,7 @@ namespace iqrf
       {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
-      catch ( std::exception &e )
+      catch ( const std::exception &e )
       {
         const char* errorStr = e.what();
         TRC_WARNING( "Error while establishing exclusive DPA access: " << PAR( errorStr ) );
@@ -1025,7 +1025,7 @@ namespace iqrf
       {
         m_writeTrConfParams = comWriteConfig.getWriteTrConfParams();
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         const char* errorStr = e.what();
         TRC_WARNING( "Error while parsing service input parameters: " << PAR( errorStr ) );

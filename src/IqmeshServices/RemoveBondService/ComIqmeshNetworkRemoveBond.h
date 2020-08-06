@@ -8,7 +8,7 @@ namespace iqrf {
   {
   public:
     ComIqmeshNetworkRemoveBond() = delete;
-    ComIqmeshNetworkRemoveBond(rapidjson::Document& doc)
+    explicit ComIqmeshNetworkRemoveBond(rapidjson::Document& doc)
       :ComBase(doc)
     {
       parse(doc);

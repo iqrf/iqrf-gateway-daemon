@@ -10,7 +10,7 @@ namespace iqrf {
   {
   public:
     ComIqmeshNetworkOtaUpload() = delete;
-    ComIqmeshNetworkOtaUpload(rapidjson::Document& doc)
+    explicit ComIqmeshNetworkOtaUpload(rapidjson::Document& doc)
       :ComBase(doc)
     {
       parse(doc);

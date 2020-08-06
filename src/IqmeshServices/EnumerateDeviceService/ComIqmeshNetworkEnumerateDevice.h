@@ -10,7 +10,7 @@ namespace iqrf {
   {
   public:
     ComIqmeshNetworkEnumerateDevice() = delete;
-    ComIqmeshNetworkEnumerateDevice(rapidjson::Document& doc)
+    explicit ComIqmeshNetworkEnumerateDevice(rapidjson::Document& doc)
       :ComBase(doc)
     {
       parse(doc);

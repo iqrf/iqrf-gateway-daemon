@@ -53,7 +53,7 @@ namespace iqrf {
     };
 
     RemoveBondError() : m_type( Type::NoError ), m_message( "" ) {};
-    RemoveBondError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
+    explicit RemoveBondError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
     RemoveBondError( Type errorType, const std::string& message ) : m_type( errorType ), m_message( message ) {};
 
     Type getType() const { return m_type; };
@@ -148,7 +148,7 @@ namespace iqrf {
 
 
   public:
-    Imp( RemoveBondService& parent ) : m_parent( parent )
+    explicit Imp( RemoveBondService& parent ) : m_parent( parent )
     {
     }
 
@@ -222,7 +222,7 @@ namespace iqrf {
           batchRemoveBondAndRestartTransaction = m_exclusiveAccess->executeDpaTransaction(batchRemoveBondAndRestartRequest);
           transResult = batchRemoveBondAndRestartTransaction->get();
         }
-        catch (std::exception& e) {
+        catch (const std::exception& e) {
           TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
@@ -311,7 +311,7 @@ namespace iqrf {
           removeBondTransaction = m_exclusiveAccess->executeDpaTransaction(removeBondRequest);
           transResult = removeBondTransaction->get();
         }
-        catch (std::exception& e) {
+        catch (const std::exception& e) {
           TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
@@ -401,7 +401,7 @@ namespace iqrf {
           removeBondTransaction = m_exclusiveAccess->executeDpaTransaction(removeBondRequest);
           transResult = removeBondTransaction->get();
         }
-        catch ( std::exception& e ) {
+        catch ( const std::exception& e ) {
           TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
@@ -490,7 +490,7 @@ namespace iqrf {
           clearAllBondsTransaction = m_exclusiveAccess->executeDpaTransaction(clearAllBondsRequest);
           transResult = clearAllBondsTransaction->get();
         }
-        catch (std::exception& e) {
+        catch (const std::exception& e) {
           TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
@@ -960,7 +960,7 @@ namespace iqrf {
         m_returnVerbose = comRemoveBond.getVerbose();
       }
       // parsing and checking service parameters failed 
-      catch ( std::exception& ex ) {
+      catch ( const std::exception& ex ) {
         Document failResponse = createCheckParamsFailedResponse( comRemoveBond.getMsgId(), msgType, ex.what() );
         m_iMessagingSplitterService->sendMessage( messagingId, std::move( failResponse ) );
 
@@ -972,7 +972,7 @@ namespace iqrf {
       try {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
-      catch (std::exception &e) {
+      catch (const std::exception &e) {
         const char* errorStr = e.what();
         TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
 
