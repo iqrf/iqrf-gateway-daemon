@@ -347,33 +347,32 @@ namespace iqrf {
     uint8_t readDiscoveryByte( DeviceEnumerateResult& deviceEnumerateResult, uint16_t address )
     {
       TRC_FUNCTION_ENTER( "" );
-      DpaMessage eeepromReadRequest;
-      DpaMessage::DpaPacket_t eeepromReadPacket;
-      eeepromReadPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      eeepromReadPacket.DpaRequestPacket_t.PNUM = PNUM_EEEPROM;
-      eeepromReadPacket.DpaRequestPacket_t.PCMD = CMD_EEEPROM_XREAD;
-      eeepromReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+      DpaMessage eepromReadRequest;
+      DpaMessage::DpaPacket_t eepromReadPacket;
+      eepromReadPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+      eepromReadPacket.DpaRequestPacket_t.PNUM = PNUM_EEPROM;
+      eepromReadPacket.DpaRequestPacket_t.PCMD = CMD_EEPROM_READ;
+      eepromReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
 
       // read data from specified address
-      uns8* pData = eeepromReadPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
+      uns8* pData = eepromReadPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
       pData[0] = address & 0xFF;
-      pData[1] = ( address >> 8 ) & 0xFF;
       // length of data to read[in bytes]
-      pData[2] = 1;
-      eeepromReadRequest.DataToBuffer( eeepromReadPacket.Buffer, sizeof( TDpaIFaceHeader ) + 3 );
+      pData[1] = 1;
+      eepromReadRequest.DataToBuffer( eepromReadPacket.Buffer, sizeof( TDpaIFaceHeader ) + 2 );
 
       // Execute the DPA request
       std::unique_ptr<IDpaTransactionResult2> transResult;
-      m_exclusiveAccess->executeDpaTransactionRepeat( eeepromReadRequest, transResult, m_repeat );
-      TRC_DEBUG( "Result from EEEPROM X read transaction as string:" << PAR( transResult->getErrorString() ) );
+      m_exclusiveAccess->executeDpaTransactionRepeat( eepromReadRequest, transResult, m_repeat );
+      TRC_DEBUG( "Result from EEPROM read transaction as string:" << PAR( transResult->getErrorString() ) );
       // because of the move-semantics
       DpaMessage dpaResponse = transResult->getResponse();
       deviceEnumerateResult.addTransactionResultRef( transResult );
-      TRC_INFORMATION( "EEEPROM X read successful!" );
+      TRC_INFORMATION( "EEPROM read successful!" );
       TRC_DEBUG(
         "DPA transaction: "
-        << NAME_PAR( eeepromReadRequest.PeripheralType(), eeepromReadRequest.NodeAddress() )
-        << PAR( eeepromReadRequest.PeripheralCommand() )
+        << NAME_PAR( eepromReadRequest.PeripheralType(), eepromReadRequest.NodeAddress() )
+        << PAR( eepromReadRequest.PeripheralCommand() )
       );
       TRC_FUNCTION_LEAVE( "" );
       return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
