@@ -227,7 +227,6 @@ namespace iqrf {
           m_transResults.push_back(std::move(transResult));
           // Next index
           index++;
-          std::cout << (int)index << " " << backupData.size() << std::endl;
         } while (lastRequest == false);
         TRC_FUNCTION_LEAVE("");
         return backupData;

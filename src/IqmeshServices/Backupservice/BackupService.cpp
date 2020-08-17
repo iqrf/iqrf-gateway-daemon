@@ -186,10 +186,10 @@ namespace iqrf {
 
       // Backup selected devices
       double progress = 0;
-      std::string statusStr = "ok";
       for (uint16_t device : devices)
       {
         DeviceBackupData deviceBackupData(device);
+        std::string statusStr = "ok";
         try
         {
           // Backup device
