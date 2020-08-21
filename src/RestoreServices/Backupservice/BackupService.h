@@ -20,14 +20,17 @@ namespace iqrf {
     void deactivate();
     void modify(const shape::Properties *props);
 
-    void attachInterface(IIqrfBackup* iface);
-    void detachInterface(IIqrfBackup* iface);
+    void attachInterface(IIqrfDpaService* iface);
+    void detachInterface(IIqrfDpaService* iface);
 
     void attachInterface(IMessagingSplitterService* iface);
     void detachInterface(IMessagingSplitterService* iface);
 
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
+
+    void attachInterface(IIqrfBackup* iface);
+    void detachInterface(IIqrfBackup* iface);
 
   private:
     class Imp;

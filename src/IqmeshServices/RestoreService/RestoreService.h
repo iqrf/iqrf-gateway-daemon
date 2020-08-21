@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IBackupService.h"
-#include "IIqrfBackup.h"
+#include "IRestoreService.h"
+#include "IIqrfRestore.h"
 #include "ShapeProperties.h"
 #include "IMessagingSplitterService.h"
 #include "IIqrfDpaService.h"
@@ -10,18 +10,18 @@
 
 namespace iqrf {
 
-  class BackupService: public IBackupService
+  class RestoreService: public IRestoreService
   {
   public:
-    BackupService();
-    virtual ~BackupService();
+    RestoreService();
+    virtual ~RestoreService();
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
 
-    void attachInterface(IIqrfBackup* iface);
-    void detachInterface(IIqrfBackup* iface);
+    void attachInterface(IIqrfRestore* iface);
+    void detachInterface(IIqrfRestore* iface);
 
     void attachInterface(IMessagingSplitterService* iface);
     void detachInterface(IMessagingSplitterService* iface);

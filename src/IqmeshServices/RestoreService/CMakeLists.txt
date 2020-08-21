@@ -1,9 +1,9 @@
-project(BackupService)
+project(RestoreService)
 
-set(COMPONENT iqrf::BackupService)
+set(COMPONENT iqrf::RestoreService)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IBackupService)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfBackup MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IRestoreService)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfRestore MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)

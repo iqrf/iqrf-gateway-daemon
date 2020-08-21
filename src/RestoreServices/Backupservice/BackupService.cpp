@@ -30,6 +30,7 @@ namespace iqrf {
     // Message type
     const std::string m_mTypeName_Backup = "iqmeshNetwork_Backup";
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
+    IIqrfDpaService* m_iIqrfDpaService = nullptr;
     IIqrfBackup* m_iIqrfBackup = nullptr;
     const std::string* m_messagingId = nullptr;
     const IMessagingSplitterService::MsgType* m_msgType = nullptr;
@@ -71,9 +72,13 @@ namespace iqrf {
       if (deviceBackupData.getOnlineStatus() == true)
       {
         // Put MID
-        objDeviceBackup.AddMember("MID", deviceBackupData.getMID(), allocator);
+        std::stringstream strMID;
+        strMID << std::hex << deviceBackupData.getMID();
+        objDeviceBackup.AddMember("MID", strMID.str(), allocator);
         // Put DPA version
-        objDeviceBackup.AddMember("version", deviceBackupData.getDpaVersion() & 0x3fff, allocator);
+        std::ostringstream strDpaVer;
+        strDpaVer << std::hex << std::setw(1) << ((deviceBackupData.getDpaVersion() & 0x3fff) >> 8) << '.' << std::setw(2) << (deviceBackupData.getDpaVersion() & 0xff);
+        objDeviceBackup.AddMember("version", strDpaVer.str(), allocator);
         // Put backup data
         std::ostringstream strBackupData;
         std::basic_string<uint8_t> data = deviceBackupData.getBackupData();
@@ -221,7 +226,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Error while parsing service input parameters.")
+        CATCH_EXC_TRC_WAR(std::exception, e, "Backup algorithm error.")
         // Create error response
         Document response;
         Pointer("/mType").Set(response, msgType.m_type);
@@ -305,6 +310,18 @@ namespace iqrf {
     {
     }
 
+    void attachInterface(IIqrfDpaService* iface)
+    {
+      m_iIqrfDpaService = iface;
+    }
+
+    void detachInterface(IIqrfDpaService* iface)
+    {
+      if (m_iIqrfDpaService == iface) {
+        m_iIqrfDpaService = nullptr;
+      }
+    }
+
     void attachInterface(IIqrfBackup* iface)
     {
       m_iIqrfBackup = iface;
@@ -337,6 +354,16 @@ namespace iqrf {
   BackupService::~BackupService()
   {
     delete m_imp;
+  }
+
+  void BackupService::attachInterface(IIqrfDpaService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void BackupService::detachInterface(IIqrfDpaService* iface)
+  {
+    m_imp->detachInterface(iface);
   }
 
   void BackupService::attachInterface(IMessagingSplitterService* iface)

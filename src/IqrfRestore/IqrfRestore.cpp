@@ -1,8 +1,8 @@
-#define IIqrfBackup_EXPORTS
+#define IIqrfRestore_EXPORTS
 
-#include "IqrfBackup.h"
+#include "IqrfRestore.h"
 #include "Trace.h"
-#include "iqrf__IqrfBackup.hxx"
+#include "iqrf__IqrfRestore.hxx"
 #include <chrono>
 #include <iostream>
 #include <fstream>
@@ -17,22 +17,22 @@
 #include <list>
 #include <vector>
 
-TRC_INIT_MODULE(iqrf::IqrfBackup);
+TRC_INIT_MODULE(iqrf::IqrfRestore);
 
 using namespace rapidjson;
 
 namespace iqrf {
   // Implementation class
-  class IqrfBackup::Imp
+  class IqrfRestore::Imp
   {
   private:
     // Parent object
-    IqrfBackup & m_parent;
+    IqrfRestore & m_parent;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
   public:
-    Imp(IqrfBackup& parent) : m_parent(parent)
+    Imp(IqrfRestore& parent) : m_parent(parent)
     {
     }
 
@@ -166,64 +166,95 @@ namespace iqrf {
       }
     }
 
-    //--------------
-    // Backup device
-    //--------------
-    std::basic_string<uint8_t> readBackupData(const uint16_t deviceAddress)
+    //--------------------
+    // Restart coordinator
+    //--------------------
+    void restartDevice(const uint16_t deviceAddress)
     {
       TRC_FUNCTION_ENTER("");
       std::unique_ptr<IDpaTransactionResult2> transResult;
       try
       {
-        uint8_t index = 0;
-        bool lastRequest;
-        std::basic_string<uint8_t> backupData;
-        backupData.clear();
+        // Prepare DPA request
+        DpaMessage restartCoordRequest;
+        DpaMessage::DpaPacket_t restartCoordPacket;
+        restartCoordPacket.DpaRequestPacket_t.NADR = deviceAddress;
+        restartCoordPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
+        restartCoordPacket.DpaRequestPacket_t.PCMD = CMD_OS_RESET;
+        restartCoordPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        restartCoordRequest.DataToBuffer(restartCoordPacket.Buffer, sizeof(TDpaIFaceHeader));
+        // Execute the DPA request
+        m_iIqrfDpaService->executeDpaTransactionRepeat(restartCoordRequest, transResult, 2);
+        TRC_DEBUG("Result from CMD_OS_RESET transaction as string:" << PAR(transResult->getErrorString()));
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION("CMD_OS_RESET OK.");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(Peripheral type, restartCoordRequest.PeripheralType())
+          << NAME_PAR(Node address, restartCoordRequest.NodeAddress())
+          << NAME_PAR(Command, (int)restartCoordRequest.PeripheralCommand())
+        );
+        m_transResults.push_back(std::move(transResult));
+        TRC_FUNCTION_LEAVE("");
+      }
+      catch (std::exception& e)
+      {
+        m_transResults.push_back(std::move(transResult));
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
+    //---------------
+    // Restore device
+    //---------------
+    void writeBackupData(const uint16_t deviceAddress, std::basic_string<uint8_t>& networkData)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        int offset = 0;
+        int restoreCycles = networkData.size() / sizeof(TPerCoordinatorNodeRestore_Request);
         do
         {
           // Prepare DPA request
-          DpaMessage backupRequest;
-          DpaMessage::DpaPacket_t backupPacket;
-          backupPacket.DpaRequestPacket_t.NADR = deviceAddress;
+          DpaMessage restoreRequest;
+          DpaMessage::DpaPacket_t restorePacket;
+          restorePacket.DpaRequestPacket_t.NADR = deviceAddress;
           // [C] or [N] device ?
           if (deviceAddress == COORDINATOR_ADDRESS)
           {
             // [C] device
-            backupPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
-            backupPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BACKUP;
+            restorePacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+            restorePacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_RESTORE;
           }
           else
           {
             // [N] device
-            backupPacket.DpaRequestPacket_t.PNUM = PNUM_NODE;
-            backupPacket.DpaRequestPacket_t.PCMD = CMD_NODE_BACKUP;
+            restorePacket.DpaRequestPacket_t.PNUM = PNUM_NODE;
+            restorePacket.DpaRequestPacket_t.PCMD = CMD_NODE_RESTORE;
           }
-          backupPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-          // Put Index
-          backupPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorNodeBackup_Request.Index = index;
-          backupRequest.DataToBuffer(backupPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorNodeBackup_Request));
+          restorePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+          // Put NetworkData
+          networkData.copy(restorePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorNodeRestore_Request.NetworkData, sizeof(TPerCoordinatorNodeRestore_Request), offset);
+          restoreRequest.DataToBuffer(restorePacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorNodeRestore_Request));
           // Execute the DPA request
-          m_iIqrfDpaService->executeDpaTransactionRepeat(backupRequest, transResult, 3);
-          TRC_DEBUG("Result from CMD_COORDINATOR_BACKUP/CMD_NODE_BACKUP transaction as string:" << PAR(transResult->getErrorString()));
+          m_iIqrfDpaService->executeDpaTransactionRepeat(restoreRequest, transResult, 3);
+          TRC_DEBUG("Result from CMD_COORDINATOR_RESTORE/CMD_NODE_RESTORE transaction as string:" << PAR(transResult->getErrorString()));
           DpaMessage dpaResponse = transResult->getResponse();
           TRC_INFORMATION("Backup of device " << (int)deviceAddress << "OK.");
           TRC_DEBUG(
             "DPA transaction: "
-            << NAME_PAR(Peripheral type, backupRequest.PeripheralType())
-            << NAME_PAR(Node address, backupRequest.NodeAddress())
-            << NAME_PAR(Command, (int)backupRequest.PeripheralCommand())
+            << NAME_PAR(Peripheral type, restoreRequest.PeripheralType())
+            << NAME_PAR(Node address, restoreRequest.NodeAddress())
+            << NAME_PAR(Command, (int)restoreRequest.PeripheralCommand())
           );
-          // Get backup data
-          backupData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorNodeBackup_Response.NetworkData, sizeof(TPerCoordinatorNodeBackup_Response));
-          // Check last byte of backup data
-          lastRequest = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorNodeBackup_Response.NetworkData[sizeof(TPerCoordinatorNodeBackup_Response) - 1 * sizeof(uint8_t)] == 0;
           // Add transaction
           m_transResults.push_back(std::move(transResult));
-          // Next index
-          index++;
-        } while (lastRequest == false);
+          // Next block
+          offset += sizeof(TPerCoordinatorNodeRestore_Request);
+        } while (--restoreCycles != 0);
         TRC_FUNCTION_LEAVE("");
-        return backupData;
       }
       catch (std::exception& e)
       {
@@ -233,21 +264,32 @@ namespace iqrf {
     }
 
     //---------------------
-    // Backup single device
-    //---------------------
-    void backup(const uint16_t address, DeviceBackupData& backupData)
+    // Restore single device
+    //----------------------
+    void restore(const uint16_t deviceAddress, const uint16_t dpaVersion, std::basic_string<uint8_t>& backupData, const bool restartCoordinator)
     {
       TRC_FUNCTION_ENTER("");
       try
       {
+        // Todo - current version of IqrfRestore supports [C] device only
+        if (deviceAddress != COORDINATOR_ADDRESS)
+          THROW_EXC(std::logic_error, "Restore function of [N] device is currently not supported.");
+
         if (m_iIqrfDpaService->hasExclusiveAccess() == false)
         {
-          // Backup single device
+          // Restore single device
           m_transResults.clear();
           checkPresentCoordAndCoordOs();
-          TPerOSRead_Response osInfo = readOsInfo(address);
-          std::basic_string<uint8_t> data = readBackupData(address);
-          backupData = DeviceBackupData(address, true, *((uint32_t*)osInfo.MID), osInfo.DpaVersion, data);
+          TPerOSRead_Response osInfo = readOsInfo(deviceAddress);
+          // Check DPA version
+          if (osInfo.DpaVersion != dpaVersion)
+          {
+            THROW_EXC(std::logic_error, "DPA version doesn't match.");
+          }
+          writeBackupData(deviceAddress, backupData);
+          // Restart [C] after backup
+          if (restartCoordinator == true)
+            restartDevice(deviceAddress);
           TRC_FUNCTION_LEAVE("");
         }
         else
@@ -257,14 +299,13 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        backupData = DeviceBackupData(address);
         THROW_EXC(std::logic_error, e.what());
       }
     }
 
-    //----------------------------------------------------------
-    // Get all DPA transactions executed during backup algorithm
-    //----------------------------------------------------------
+    //-----------------------------------------------------------
+    // Get all DPA transactions executed during restore algorithm
+    //-----------------------------------------------------------
     void getTransResults(std::list<std::unique_ptr<IDpaTransactionResult2>>& transResult)
     {
       transResult.clear();
@@ -317,62 +358,62 @@ namespace iqrf {
     }
   };
 
-  IqrfBackup::IqrfBackup()
+  IqrfRestore::IqrfRestore()
   {
     m_imp = shape_new Imp(*this);
   }
 
-  IqrfBackup::~IqrfBackup()
+  IqrfRestore::~IqrfRestore()
   {
     delete m_imp;
   }
 
-  void IqrfBackup::backup(const uint16_t address, DeviceBackupData& backupData)
+  void IqrfRestore::restore(const uint16_t deviceAddress, const uint16_t dpaVersion, std::basic_string<uint8_t>& backupData, const bool restartCoordinator)
   {
-    m_imp->backup(address, backupData);
+    m_imp->restore(deviceAddress, dpaVersion, backupData, restartCoordinator);
   }
 
-  std::basic_string<uint16_t> IqrfBackup::getBondedNodes(void)
+  std::basic_string<uint16_t> IqrfRestore::getBondedNodes(void)
   {
     return m_imp->getBondedNodes();
   }
 
-  void IqrfBackup::getTransResults(std::list<std::unique_ptr<IDpaTransactionResult2>>& transResult)
+  void IqrfRestore::getTransResults(std::list<std::unique_ptr<IDpaTransactionResult2>>& transResult)
   {
     m_imp->getTransResults(transResult);
   }
 
-  void IqrfBackup::attachInterface(IIqrfDpaService* iface)
+  void IqrfRestore::attachInterface(IIqrfDpaService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void IqrfBackup::detachInterface(IIqrfDpaService* iface)
+  void IqrfRestore::detachInterface(IIqrfDpaService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void IqrfBackup::attachInterface(shape::ITraceService* iface)
+  void IqrfRestore::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void IqrfBackup::detachInterface(shape::ITraceService* iface)
+  void IqrfRestore::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }
 
-  void IqrfBackup::activate(const shape::Properties *props)
+  void IqrfRestore::activate(const shape::Properties *props)
   {
     m_imp->activate(props);
   }
 
-  void IqrfBackup::deactivate()
+  void IqrfRestore::deactivate()
   {
     m_imp->deactivate();
   }
 
-  void IqrfBackup::modify(const shape::Properties *props)
+  void IqrfRestore::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
   }

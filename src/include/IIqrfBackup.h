@@ -37,11 +37,11 @@ namespace iqrf {
     {
     }
 
-    DeviceBackupData(const uint16_t address, const bool online, const uint32_t MID, const uint16_t dpaVesrion, const std::basic_string<uint8_t> &data)
+    DeviceBackupData(const uint16_t address, const bool online, const uint32_t MID, const uint16_t dpaVersion, const std::basic_string<uint8_t> &data)
       : m_address(address),
       m_online(online),
       m_MID(MID),
-      m_dpaVersion(dpaVesrion),
+      m_dpaVersion(dpaVersion),
       m_data(data)
     {
     }

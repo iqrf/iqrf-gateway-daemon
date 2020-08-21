@@ -2,7 +2,7 @@
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
   "self": {
     "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_Backup-request",
+    "name": "iqmeshNetwork_Restore-request",
     "format": "jsonschema",
     "version": "1-0-0"
   },
@@ -10,9 +10,9 @@
   "properties": {
     "mType": {
       "type": "string",
-      "description": "IQMESH Network management - Backup request.",
+      "description": "IQMESH Network management - Restore request.",
       "enum": [
-        "iqmeshNetwork_Backup"
+        "iqmeshNetwork_Restore"
       ]
     },
     "data": {
@@ -27,18 +27,31 @@
           "properties": {
             "address": {
               "type": "integer",
-              "description": "Address of backuped device (0 - [C] device, 1..239 - [N] device)",
+              "description": "Address of restored device (0 - [C] device, 1..239 - [N] device)",
               "default": 0
             },
-            "wholeNetwork": {
+            "MID": {
+              "type": "integer",
+              "description": "Device MID."
+            },
+            "version": {
+              "type": "integer",
+              "description": "DPA version."
+            },
+            "data": {
+              "type": "string",
+              "description": "Device Backup Data (hex-string format)."
+            },
+            "restartCoordinator": {
               "type": "boolean",
-              "description": "Backup the whole Network ",
-              "default": false
+              "description": "Restart Coordinator after restore."
             }
           },
           "required": [
             "address",
-            "wholeNetwork"
+            "MID",
+            "version",  
+            "data"
           ]
         },
         "returnVerbose": {

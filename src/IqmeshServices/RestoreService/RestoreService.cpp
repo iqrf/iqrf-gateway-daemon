@@ -1,16 +1,16 @@
-#define IBackupService_EXPORTS
+#define IRestoreService_EXPORTS
 
-#include "BackupService.h"
+#include "RestoreService.h"
 #include "Trace.h"
-#include "ComBackup.h"
-#include "iqrf__BackupService.hxx"
+#include "ComRestore.h"
+#include "iqrf__RestoreService.hxx"
 #include <list>
 #include <cmath>
 #include <thread>
 #include <bitset>
 #include <chrono>
 
-TRC_INIT_MODULE(iqrf::BackupService);
+TRC_INIT_MODULE(iqrf::RestoreService);
 
 using namespace rapidjson;
 
@@ -21,22 +21,22 @@ namespace {
 
 namespace iqrf {
   // Implementation class
-  class BackupService::Imp
+  class RestoreService::Imp
   {
   private:
     // Parent object
-    BackupService & m_parent;
+    RestoreService & m_parent;
 
     // Message type
-    const std::string m_mTypeName_Backup = "iqmeshNetwork_Backup";
+    const std::string m_mTypeName_Restore = "iqmeshNetwork_Restore";
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
-    IIqrfBackup* m_iIqrfBackup = nullptr;
+    IIqrfRestore* m_iIqrfRestore = nullptr;
     const std::string* m_messagingId = nullptr;
     const IMessagingSplitterService::MsgType* m_msgType = nullptr;
-    const ComBackup* m_comBackup = nullptr;
+    const ComRestore* m_comRestore = nullptr;
 
   public:
-    Imp(BackupService& parent) : m_parent(parent)
+    Imp(RestoreService& parent) : m_parent(parent)
     {
     }
 
@@ -44,54 +44,40 @@ namespace iqrf {
     {
     }
 
-    //-------------------
-    // Send backup result
-    //-------------------
-    void sendBackupResult(const std::string statusStr, DeviceBackupData& deviceBackupData, const double progress)
+    //--------------------
+    // Send restore result
+    //--------------------
+    void sendRestoreResult(const std::string statusStr, const TRestoreInputParams& backupData, const double progress)
     {
-      Document docBackupResult;
+      Document docRestoreResult;
 
       // Set common parameters
-      Pointer("/mType").Set(docBackupResult, m_msgType->m_type);
-      Pointer("/data/msgId").Set(docBackupResult, m_comBackup->getMsgId());
+      Pointer("/mType").Set(docRestoreResult, m_msgType->m_type);
+      Pointer("/data/msgId").Set(docRestoreResult, m_comRestore->getMsgId());
 
       // Add progress
       int p = (int)round(progress);
-      Pointer("/data/rsp/progress").Set(docBackupResult, p);
+      Pointer("/data/rsp/progress").Set(docRestoreResult, p);
 
       // Add backup result
       rapidjson::Value arrayDevices(kArrayType);
-      Document::AllocatorType& allocator = docBackupResult.GetAllocator();
+      Document::AllocatorType& allocator = docRestoreResult.GetAllocator();
       rapidjson::Value objDeviceBackup(kObjectType);
       // Put node address
-      objDeviceBackup.AddMember("address", deviceBackupData.getAddress(), allocator);
-      // Put node online status
-      objDeviceBackup.AddMember("online", deviceBackupData.getOnlineStatus(), allocator);
-      // Device online ?
-      if (deviceBackupData.getOnlineStatus() == true)
-      {
-        // Put MID
-        objDeviceBackup.AddMember("MID", deviceBackupData.getMID(), allocator);
-        // Put DPA version
-        objDeviceBackup.AddMember("version", deviceBackupData.getDpaVersion() & 0x3fff, allocator);
-        // Put backup data
-        std::ostringstream strBackupData;
-        std::basic_string<uint8_t> data = deviceBackupData.getBackupData();
-        for (const uint8_t byte : data)
-          strBackupData << std::setfill('0') << std::setw(2) << std::hex << (int)byte;
-        objDeviceBackup.AddMember("data", strBackupData.str(), allocator);
-      }
+      objDeviceBackup.AddMember("address", backupData.deviceAddress, allocator);
+      // Put restoreStatus
+      objDeviceBackup.AddMember("restoreStatus", statusStr == "ok", allocator);
       // Put device
       arrayDevices.PushBack(objDeviceBackup, allocator);
-      Pointer("/data/rsp/devices").Set(docBackupResult, arrayDevices);
+      Pointer("/data/rsp/devices").Set(docRestoreResult, arrayDevices);
 
       // Set raw fields, if verbose mode is active
-      if (m_comBackup->getVerbose() == true)
+      if (m_comRestore->getVerbose() == true)
       {
         rapidjson::Value rawArray(kArrayType);
-        Document::AllocatorType& allocator = docBackupResult.GetAllocator();
+        Document::AllocatorType& allocator = docRestoreResult.GetAllocator();
         std::list<std::unique_ptr<IDpaTransactionResult2>> transResults;
-        m_iIqrfBackup->getTransResults(transResults);
+        m_iIqrfRestore->getTransResults(transResults);
         while(transResults.size() != 0)
         {
           std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = transResults.begin();
@@ -141,63 +127,48 @@ namespace iqrf {
         }
 
         // Add array into response document
-        Pointer("/data/raw").Set(docBackupResult, rawArray);
+        Pointer("/data/raw").Set(docRestoreResult, rawArray);
       }
 
       // Set status
       int statusCode = 0;
       if (statusStr != "ok")
         statusCode = SERVICE_ERROR;
-      Pointer("/data/status").Set(docBackupResult, statusCode);
-      Pointer("/data/statusStr").Set(docBackupResult, statusStr);
+      Pointer("/data/status").Set(docRestoreResult, statusCode);
+      Pointer("/data/statusStr").Set(docRestoreResult, statusStr);
 
       // Send message      
-      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docBackupResult));
+      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docRestoreResult));
     }
 
-    //-----------
-    // Run backup
-    //-----------
-    void runBackup(const bool wholeNetwork, const uint16_t deviceAddress)
+    //------------
+    // Run restore
+    //------------
+    void runRestore(TRestoreInputParams& backupData)
     {
       TRC_FUNCTION_ENTER("");
-
-      // Network devices
-      std::basic_string<uint16_t> devices;
-      devices.clear();
-      if (wholeNetwork == true)
+      // Restore selected devices
+      std::string statusStr = "ok";
+      try
       {
-        // Yes, add [C] device
-        devices.push_back(COORDINATOR_ADDRESS);
-        std::basic_string<uint16_t> bondedNodes = m_iIqrfBackup->getBondedNodes();
-        // Add all [N] devices
-        devices.append(bondedNodes);
-      }
-      else
-      {
-        // No, add single device
-        devices.push_back(deviceAddress);
-      }
-
-      // Backup selected devices
-      double progress = 0;
-      for (uint16_t device : devices)
-      {
-        DeviceBackupData deviceBackupData(device);
-        std::string statusStr = "ok";
-        try
+        // Parse backup data string 
+        std::basic_string<uint8_t> data;
+        data.clear();
+        for (int i = 0x00; i < backupData.data.size(); i += 0x02)
         {
-          // Backup device
-          m_iIqrfBackup->backup(device, deviceBackupData);
+          std::string byteString = backupData.data.substr(i, 2);
+          uint8_t byte = (uint8_t)strtol(byteString.c_str(), NULL, 16);
+          data.push_back(byte);
         }
-        catch (std::exception& e)
-        {
-          statusStr = e.what();
-          CATCH_EXC_TRC_WAR(std::exception, e, "Backup device [" << (int)device << "] error.");
-        }
-        progress += (100.0 / devices.size());
-        sendBackupResult(statusStr, deviceBackupData, progress);
+        // Restore device
+        m_iIqrfRestore->restore(backupData.deviceAddress, backupData.dpaVersion, data, backupData.restartCoodinator);
       }
+      catch (std::exception& e)
+      {
+        statusStr = e.what();
+        CATCH_EXC_TRC_WAR(std::exception, e, "Restore device [" << (int)backupData.deviceAddress << "] error.");
+      }
+      sendRestoreResult(statusStr, backupData, 100.0);
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -207,17 +178,17 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) << NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
 
       // Unsupported type of request
-      if (msgType.m_type != m_mTypeName_Backup)
+      if (msgType.m_type != m_mTypeName_Restore)
         THROW_EXC(std::logic_error, "Unsupported message type: " << PAR(msgType.m_type));
 
       // Create representation object
-      ComBackup comBackup(doc);
+      ComRestore comRestore(doc);
 
       // Parsing and checking service parameters
-      TBackupInputParams backupInputParams;
+      TRestoreInputParams restoreInputParams;
       try
       {
-        backupInputParams = comBackup.getBackupParams();
+        restoreInputParams = comRestore.getRestoreParams();       
       }
       catch (std::exception& e)
       {
@@ -225,7 +196,7 @@ namespace iqrf {
         // Create error response
         Document response;
         Pointer("/mType").Set(response, msgType.m_type);
-        Pointer("/data/msgId").Set(response, comBackup.getMsgId());
+        Pointer("/data/msgId").Set(response, comRestore.getMsgId());
         // Set result
         Pointer("/data/status").Set(response, SERVICE_ERROR);
         Pointer("/data/statusStr").Set(response, e.what());
@@ -234,13 +205,13 @@ namespace iqrf {
         return;
       }
 
-      // Run the Backup
+      // Run the Restore
       m_msgType = &msgType;
       m_messagingId = &messagingId;
-      m_comBackup = &comBackup;
+      m_comRestore = &comRestore;
       try
       {
-        runBackup(backupInputParams.wholeNetwork, backupInputParams.deviceAddress);
+        runRestore(restoreInputParams);
       }
       catch (std::exception& e)
       {
@@ -248,7 +219,7 @@ namespace iqrf {
         // Create error response
         Document response;
         Pointer("/mType").Set(response, msgType.m_type);
-        Pointer("/data/msgId").Set(response, comBackup.getMsgId());
+        Pointer("/data/msgId").Set(response, comRestore.getMsgId());
         // Set result
         Pointer("/data/status").Set(response, SERVICE_ERROR);
         Pointer("/data/statusStr").Set(response, e.what());
@@ -269,7 +240,7 @@ namespace iqrf {
       // for the sake of register function parameters 
       std::vector<std::string> supportedMsgTypes =
       {
-        m_mTypeName_Backup
+        m_mTypeName_Restore
       };
 
       m_iMessagingSplitterService->registerFilteredMsgHandler(
@@ -293,7 +264,7 @@ namespace iqrf {
 
       std::vector<std::string> supportedMsgTypes =
       {
-        m_mTypeName_Backup
+        m_mTypeName_Restore
       };
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(supportedMsgTypes);
@@ -305,15 +276,15 @@ namespace iqrf {
     {
     }
 
-    void attachInterface(IIqrfBackup* iface)
+    void attachInterface(IIqrfRestore* iface)
     {
-      m_iIqrfBackup = iface;
+      m_iIqrfRestore = iface;
     }
 
-    void detachInterface(IIqrfBackup* iface)
+    void detachInterface(IIqrfRestore* iface)
     {
       if (iface == iface)
-        m_iIqrfBackup = nullptr;
+        m_iIqrfRestore = nullptr;
     }
 
     void attachInterface(IMessagingSplitterService* iface)
@@ -329,57 +300,57 @@ namespace iqrf {
     }
   };
 
-  BackupService::BackupService()
+  RestoreService::RestoreService()
   {
     m_imp = shape_new Imp(*this);
   }
 
-  BackupService::~BackupService()
+  RestoreService::~RestoreService()
   {
     delete m_imp;
   }
 
-  void BackupService::attachInterface(IMessagingSplitterService* iface)
+  void RestoreService::attachInterface(IMessagingSplitterService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void BackupService::detachInterface(IMessagingSplitterService* iface)
+  void RestoreService::detachInterface(IMessagingSplitterService* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void BackupService::attachInterface(shape::ITraceService* iface)
+  void RestoreService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void BackupService::detachInterface(shape::ITraceService* iface)
+  void RestoreService::detachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().removeTracerService(iface);
   }
 
-  void BackupService::attachInterface(IIqrfBackup* iface)
+  void RestoreService::attachInterface(IIqrfRestore* iface)
   {
     m_imp->attachInterface(iface);
   }
 
-  void BackupService::detachInterface(IIqrfBackup* iface)
+  void RestoreService::detachInterface(IIqrfRestore* iface)
   {
     m_imp->detachInterface(iface);
   }
 
-  void BackupService::activate(const shape::Properties *props)
+  void RestoreService::activate(const shape::Properties *props)
   {
     m_imp->activate(props);
   }
 
-  void BackupService::deactivate()
+  void RestoreService::deactivate()
   {
     m_imp->deactivate();
   }
 
-  void BackupService::modify(const shape::Properties *props)
+  void RestoreService::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
   }

@@ -2,7 +2,7 @@
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
   "self": {
     "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_Backup-response",
+    "name": "iqmeshNetwork_Restore-response",
     "format": "jsonschema",
     "version": "1-0-0"
   },
@@ -10,9 +10,9 @@
   "properties": {
     "mType": {
       "type": "string",
-      "description": "IQMESH Network management - Backup response.",
+      "description": "IQMESH Network management - Restore response.",
       "enum": [
-        "iqmeshNetwork_Backup"
+        "iqmeshNetwork_Restore"
       ]
     },
     "data": {
@@ -28,11 +28,11 @@
           "properties": {
             "progress": {
               "type": "integer",
-              "description": "Backup algorithm progress [%]."
+              "description": "Restore algorithm progress [%]."
             },
             "devices": {
               "type": "array",
-              "description": "Device(s) Backup data.",
+              "description": "Device(s) Restore status.",
               "items": {
                 "type": "object",
                 "properties": {
@@ -40,26 +40,14 @@
                     "type": "integer",
                     "description": "Node address."
                   },
-                  "online": {
+                  "restoreStatus": {
                     "type": "boolean",
-                    "description": "Device online status."
-                  },
-                  "MID": {
-                    "type": "integer",
-                    "description": "Device MID."
-                  },
-                  "version": {
-                    "type": "integer",
-                    "description": "DPA version."
-                  },
-                  "data": {
-                    "type": "string",
-                    "description": "Device Backup Data (hex-string format)."
+                    "description": "Result of restore operation."
                   }
                 },
                 "required": [
                   "address",
-                  "online"
+                  "restoreStatus"
                 ]
               }
             }

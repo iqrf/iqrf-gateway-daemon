@@ -1,10 +1,9 @@
-project(BackupService)
+project(IqrfRestore)
 
-set(COMPONENT iqrf::BackupService)
+set(COMPONENT iqrf::IqrfRestore)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IBackupService)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfBackup MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfRestore)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 
@@ -26,7 +25,5 @@ if(SHAPE_STATIC_LIBS)
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
-
-set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${IQMESH_SERVICES_FOLDER})
 
 DeployShapeComponent(${PROJECT_NAME})

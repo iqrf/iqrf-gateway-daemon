@@ -2,7 +2,7 @@
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
   "self": {
     "vendor": "com.iqrftech.self-desc",
-    "name": "schema__iqrf__Backup",
+    "name": "schema__iqrf__Restore",
     "format": "jsonschema",
     "version": "1-0-0"
   },
@@ -12,13 +12,13 @@
       "type": "string",
       "description": "Name of component.",
       "enum": [
-        "iqrf::BackupService"
+        "iqrf::RestoreService"
       ]
     },
     "instance": {
       "type": "string",
-      "description": "Recomended iqrf::BackupService-(id)",
-      "default": "iqrf::BackupService-1"
+      "description": "Recomended iqrf::RestoreService-(id)",
+      "default": "iqrf::RestoreService-1"
     },
     "RequiredInterfaces": {
       "type": "array",
