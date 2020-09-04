@@ -214,7 +214,7 @@ namespace iqrf {
       try
       {
         int offset = 0;
-        int restoreCycles = networkData.size() / sizeof(TPerCoordinatorNodeRestore_Request);
+        int restoreCycles = (int)(networkData.size() / sizeof(TPerCoordinatorNodeRestore_Request));
         do
         {
           // Prepare DPA request
@@ -266,7 +266,7 @@ namespace iqrf {
     //---------------------
     // Restore single device
     //----------------------
-    void restore(const uint16_t deviceAddress, const uint16_t dpaVersion, std::basic_string<uint8_t>& backupData, const bool restartCoordinator)
+    void restore(const uint16_t deviceAddress, std::basic_string<uint8_t>& backupData, const bool restartCoordinator)
     {
       TRC_FUNCTION_ENTER("");
       try
@@ -275,17 +275,27 @@ namespace iqrf {
         if (deviceAddress != COORDINATOR_ADDRESS)
           THROW_EXC(std::logic_error, "Restore function of [N] device is currently not supported.");
 
+        // Check backupData length
+        int len = (backupData[0x01] << 0x08) | backupData[0x00];
+        // Get len[B] = block count * 49 
+        len *= sizeof(TPerCoordinatorNodeRestore_Request);
+        // Add length and crc8
+        len += 3 * sizeof(uint8_t);
+        if(len != backupData.size())
+          THROW_EXC(std::logic_error, "Incorrect backupData size.");
+        // Check backupData CRC8
+        uint8_t crc8 = 0x5f;
+        for (int i = 3; i < backupData.size(); i++)
+          crc8 ^= backupData[i];
+        if (crc8 != backupData[0x02])
+          THROW_EXC(std::logic_error, "BackupData CRC8 mismatch.");
+        backupData.erase(0x00, 3 * sizeof(uint8_t));
         if (m_iIqrfDpaService->hasExclusiveAccess() == false)
         {
           // Restore single device
           m_transResults.clear();
           checkPresentCoordAndCoordOs();
           TPerOSRead_Response osInfo = readOsInfo(deviceAddress);
-          // Check DPA version
-          if (osInfo.DpaVersion != dpaVersion)
-          {
-            THROW_EXC(std::logic_error, "DPA version doesn't match.");
-          }
           writeBackupData(deviceAddress, backupData);
           // Restart [C] after backup
           if (restartCoordinator == true)
@@ -368,9 +378,9 @@ namespace iqrf {
     delete m_imp;
   }
 
-  void IqrfRestore::restore(const uint16_t deviceAddress, const uint16_t dpaVersion, std::basic_string<uint8_t>& backupData, const bool restartCoordinator)
+  void IqrfRestore::restore(const uint16_t deviceAddress, std::basic_string<uint8_t>& backupData, const bool restartCoordinator)
   {
-    m_imp->restore(deviceAddress, dpaVersion, backupData, restartCoordinator);
+    m_imp->restore(deviceAddress, backupData, restartCoordinator);
   }
 
   std::basic_string<uint16_t> IqrfRestore::getBondedNodes(void)

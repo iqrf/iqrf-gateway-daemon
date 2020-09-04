@@ -161,7 +161,7 @@ namespace iqrf {
           data.push_back(byte);
         }
         // Restore device
-        m_iIqrfRestore->restore(backupData.deviceAddress, backupData.dpaVersion, data, backupData.restartCoodinator);
+        m_iIqrfRestore->restore(backupData.deviceAddress, data, backupData.restartCoodinator);
       }
       catch (std::exception& e)
       {

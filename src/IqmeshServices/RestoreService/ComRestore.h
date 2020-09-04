@@ -8,8 +8,6 @@ namespace iqrf {
   typedef struct
   {
     uint16_t deviceAddress;
-    uint32_t MID;
-    uint16_t dpaVersion;
     std::string data;
     bool restartCoodinator;
   }TRestoreInputParams;
@@ -53,19 +51,6 @@ namespace iqrf {
         uint32_t addr = jsonValue->GetInt();
         if (addr < MAX_ADDRESS)
           m_restoreParams.deviceAddress = (uint16_t)addr;
-      }
-
-      // MID
-      if (jsonValue = rapidjson::Pointer("/data/req/MID").Get(doc))
-      {
-        uint32_t addr = jsonValue->GetInt();
-        m_restoreParams.MID = jsonValue->GetInt();
-      }
-
-      // version
-      if (jsonValue = rapidjson::Pointer("/data/req/version").Get(doc))
-      {
-        m_restoreParams.dpaVersion = (uint16_t)jsonValue->GetInt();
       }
 
       // data

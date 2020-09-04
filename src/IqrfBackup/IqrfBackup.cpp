@@ -175,10 +175,12 @@ namespace iqrf {
       std::unique_ptr<IDpaTransactionResult2> transResult;
       try
       {
-        uint8_t index = 0;
+        uint16_t index = 0;
         bool lastRequest;
         std::basic_string<uint8_t> backupData;
         backupData.clear();
+        // Data block count Low8/High8 and crc8
+        backupData.append(3, 0);
         do
         {
           // Prepare DPA request
@@ -222,6 +224,14 @@ namespace iqrf {
           // Next index
           index++;
         } while (lastRequest == false);
+        // Insert block count
+        backupData[0x00] = (uint8_t)(index & 0xff);
+        backupData[0x01] = (uint8_t)(index >> 0x08);
+        // Insert CRC
+        uint8_t crc8 = 0x5f;
+        for (int i = 3; i < backupData.size(); i++)
+          crc8 ^= backupData[i];
+        backupData[0x02] = crc8;
         TRC_FUNCTION_LEAVE("");
         return backupData;
       }

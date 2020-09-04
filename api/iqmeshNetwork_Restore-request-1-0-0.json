@@ -30,14 +30,6 @@
               "description": "Address of restored device (0 - [C] device, 1..239 - [N] device)",
               "default": 0
             },
-            "MID": {
-              "type": "integer",
-              "description": "Device MID."
-            },
-            "version": {
-              "type": "integer",
-              "description": "DPA version."
-            },
             "data": {
               "type": "string",
               "description": "Device Backup Data (hex-string format)."
@@ -48,9 +40,7 @@
             }
           },
           "required": [
-            "address",
-            "MID",
-            "version",  
+            "address",  
             "data"
           ]
         },
