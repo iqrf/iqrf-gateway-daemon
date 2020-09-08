@@ -72,6 +72,11 @@ namespace iqrf
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
 
+    UploadError (const UploadError& other) {
+      m_type = other.getType();
+      m_message = other.getMessage();
+    }
+
     UploadError &operator=(const UploadError &error)
     {
       if (this != &error)
@@ -212,7 +217,7 @@ namespace iqrf
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move(*iter);
       m_transResults.pop_front();
-      return std::move(tranResult);
+      return tranResult;
     }
   };
 
@@ -246,7 +251,7 @@ namespace iqrf
     std::string m_uploadPath;
 
   public:
-    Imp(OtaUploadService &parent) : m_parent(parent)
+    explicit Imp(OtaUploadService &parent) : m_parent(parent)
     {
       /*
       m_msgType_mngIqmeshWriteConfig
@@ -363,7 +368,7 @@ namespace iqrf
             return dpaResponse;
           }
         }
-        catch (std::exception &e)
+        catch (const std::exception &e)
         {
           TRC_DEBUG("DPA transaction error : " << e.what());
           if (rep < m_repeat)
@@ -430,7 +435,7 @@ namespace iqrf
       pData[0] = address & 0xFF;
       pData[1] = (address >> 8) & 0xFF;
 
-      for (int i = 0; i < data.size(); i++)
+      for (unsigned int i = 0; i < data.size(); i++)
         pData[i + 2] = data[i];
     }
 
@@ -464,7 +469,7 @@ namespace iqrf
       batchPacketPData[offset + 4] = (hwpId >> 8) & 0xFF;
       batchPacketPData[offset + 5] = address & 0xFF;
       batchPacketPData[offset + 6] = (address >> 8) & 0xFF;
-      for (int i = 0; i < data.size(); i++)
+      for (unsigned int i = 0; i < data.size(); i++)
         batchPacketPData[offset + EMB_WRITE_PACKET_HEADER_SIZE + i] = data[i];
     }
 
@@ -645,7 +650,7 @@ namespace iqrf
         DpaMessage readOSInfo = sendDPAcommand(frcPacket, sizeof(TDpaIFaceHeader) + 6, uploadResult);
         // Check FRC status
         frcStatus = readOSInfo.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if ((frcStatus >= 0x00) && (frcStatus <= 0xEF))
+        if (frcStatus <= 0xEF)
         {
           TRC_INFORMATION("FRC Read OS Info successful.");
           TRC_FUNCTION_LEAVE("");
@@ -733,7 +738,7 @@ namespace iqrf
         DpaMessage frcResult = sendDPAcommand(frcPacket, sizeof(TDpaIFaceHeader) + 1 + 30 + 12, uploadResult);
         // Check FRC status
         frcStatus = frcResult.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if ((frcStatus >= 0x00) && (frcStatus <= 0xEF))
+        if (frcStatus <= 0xEF)
         {
           // Process FRC data
           std::basic_string<uint8_t> frcData;
@@ -799,7 +804,7 @@ namespace iqrf
       DpaMessage frcResult = sendDPAcommand(frcPacket, sizeof(TDpaIFaceHeader) + 1 + frcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0], uploadResult);
       // Check FRC status
       uint8_t status = frcResult.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-      if ((status >= 0x00) && (status <= 0xEF))
+      if (status <= 0xEF)
       {
         // Get extra result
         DpaMessage frcExtraResult = getFrcExtraResult(uploadResult);
@@ -845,7 +850,7 @@ namespace iqrf
       {
         loadingContentType = parseLoadingContentType(fileName);
       }
-      catch (std::exception &ex)
+      catch (const std::exception &ex)
       {
         UploadError error(UploadError::Type::UnsupportedLoadingContent, ex.what());
         uploadResult.setError(error);
@@ -858,7 +863,7 @@ namespace iqrf
       {
         preparedData = DataPreparer::prepareData(loadingContentType, fileName, deviceAddress == BROADCAST_ADDRESS);
       }
-      catch (std::exception &ex)
+      catch (const std::exception &ex)
       {
         UploadError error(UploadError::Type::DataPrepare, ex.what());
         uploadResult.setError(error);
@@ -873,7 +878,7 @@ namespace iqrf
           // Initial version supports only one [N] (or [C]) or all Nodes
           writeDataToExtEEPROM(uploadResult, startMemAddr, preparedData->getData());
         }
-        catch (std::exception &ex)
+        catch (const std::exception &ex)
         {
           UploadError error(UploadError::Type::Upload, ex.what());
           uploadResult.setError(error);
@@ -901,7 +906,7 @@ namespace iqrf
             setFRCparams(frcResponseTime, uploadResult);
           }
         }
-        catch (std::exception &ex)
+        catch (const std::exception &ex)
         {
           UploadError error(UploadError::Type::Verify, ex.what());
           uploadResult.setError(error);
@@ -919,7 +924,7 @@ namespace iqrf
           else
             loadCodeBroadcast(startMemAddr, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
         }
-        catch (std::exception &ex)
+        catch (const std::exception &ex)
         {
           UploadError error(UploadError::Type::Load, ex.what());
           uploadResult.setError(error);
@@ -1106,7 +1111,7 @@ namespace iqrf
           Document::AllocatorType &allocator = response.GetAllocator();
           rapidjson::Value verifyResult(kArrayType);
           std::map<uint16_t, bool> verifyResultMap = uploadResult.getVerifyResultsMap();
-          for (std::map<uint16_t, bool>::iterator i = verifyResultMap.begin(); i != verifyResultMap.end(); i++)
+          for (std::map<uint16_t, bool>::iterator i = verifyResultMap.begin(); i != verifyResultMap.end(); ++i)
           {
             rapidjson::Value verifyResultItem(kObjectType);
             verifyResultItem.AddMember("address", i->first, allocator);
@@ -1121,7 +1126,7 @@ namespace iqrf
           Document::AllocatorType &allocator = response.GetAllocator();
           rapidjson::Value loadResult(kArrayType);
           std::map<uint16_t, bool> loadResultMap = uploadResult.getLoadResultsMap();
-          for (std::map<uint16_t, bool>::iterator i = loadResultMap.begin(); i != loadResultMap.end(); i++)
+          for (std::map<uint16_t, bool>::iterator i = loadResultMap.begin(); i != loadResultMap.end(); ++i)
           {
             rapidjson::Value loadResultItem(kObjectType);
             loadResultItem.AddMember("address", i->first, allocator);
@@ -1316,7 +1321,7 @@ namespace iqrf
         m_returnVerbose = comOtaUpload.getVerbose();
       }
       // parsing and checking service parameters failed
-      catch (std::exception &ex)
+      catch (const std::exception &ex)
       {
         Document failResponse = createCheckParamsFailedResponse(comOtaUpload.getMsgId(), msgType, ex.what());
         m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
@@ -1333,7 +1338,7 @@ namespace iqrf
       {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
-      catch (std::exception &e)
+      catch (const std::exception &e)
       {
         const char *errorStr = e.what();
         TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
@@ -1417,6 +1422,7 @@ namespace iqrf
 
     void modify(const shape::Properties *props)
     {
+      (void)props;
     }
 
     void attachInterface(shape::ILaunchService *iface)

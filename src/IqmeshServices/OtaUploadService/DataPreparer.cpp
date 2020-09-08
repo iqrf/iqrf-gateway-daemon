@@ -58,7 +58,7 @@ namespace {
     try {
       return std::stoi(byteStr, nullptr, 16);
     }
-    catch (std::exception& ex) {
+    catch (const std::exception& ex) {
       std::stringstream errstream;
       errstream << "Invalid Intex HEX record: cannot parse string:  ";
       errstream << byteStr << " to hexa value.";
@@ -93,12 +93,12 @@ namespace {
 
     // constructs error string - puts together error msg with line and line number
     static std::string addLineInfo(
-      const std::string& msg, std::string& line, uint16_t lineNumber
+      const std::string& msg, const std::string& line, uint16_t lineNumber
     )
     {
       std::stringstream ss;
       ss << msg << ", line number : " << lineNumber << ", line : " << line;
-      return ss.str().c_str();
+      return ss.str();
     }
 
     // parses specified line
@@ -236,7 +236,7 @@ namespace {
           return;
         }
         else {
-          codeBlockIter++;
+          ++codeBlockIter;
         }
       }
       codeBlocks.push_back(newBlock);
@@ -256,7 +256,7 @@ namespace {
         try {
           pCodeBlock = parseLine(line);
         }
-        catch (std::exception& ex) {
+        catch (const std::exception& ex) {
           throw std::logic_error(addLineInfo(ex.what(), line, lineIndex).c_str());
         }
 
@@ -495,6 +495,7 @@ namespace iqrf {
       const std::string& fileName, bool isForBroadcast
     )
     {
+      (void)isForBroadcast;
       std::list<CodeBlock> codeBlocks = IntelHexParser::parse(fileName);
 
       const CodeBlock* handlerBlock = findHandlerBlock(codeBlocks);

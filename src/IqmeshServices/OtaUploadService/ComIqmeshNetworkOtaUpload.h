@@ -10,11 +10,12 @@ namespace iqrf {
   {
   public:
     ComIqmeshNetworkOtaUpload() = delete;
-    ComIqmeshNetworkOtaUpload(rapidjson::Document& doc)
+    explicit ComIqmeshNetworkOtaUpload(rapidjson::Document& doc)
       :ComBase(doc)
     {
       parse(doc);
     }
+
 
     virtual ~ComIqmeshNetworkOtaUpload()
     {
@@ -28,7 +29,7 @@ namespace iqrf {
       return m_isSetDeviceAddr;
     }
 
-    const int getDeviceAddr() const
+    int getDeviceAddr() const
     {
       return m_deviceAddr;
     }
@@ -37,7 +38,7 @@ namespace iqrf {
       return m_isSetHwpId;
     }
 
-    const int getHwpId() const
+    int getHwpId() const
     {
       return m_hwpId;
     }
@@ -55,7 +56,7 @@ namespace iqrf {
       return m_isSetStartMemAddr;
     }
 
-    const int getStartMemAddr() const
+    int getStartMemAddr() const
     {
       return m_startMemAddr;
     }
