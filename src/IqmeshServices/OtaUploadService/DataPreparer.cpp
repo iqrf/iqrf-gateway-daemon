@@ -301,7 +301,12 @@ namespace {
         }
 
         if (line.size() != LINE_LENGTH) {
-          throw std::logic_error("Illegal length of IQRF plugin file.");
+          if ((line.size() == (LINE_LENGTH + 1)) && (line.back() == '\r')) {
+            // CRLF
+            line.pop_back();
+          } else {
+            throw std::logic_error("Illegal length of IQRF plugin file.");
+          }
         }
 
         for (int i = 0; i < LINE_LENGTH; i += 2) {
@@ -383,8 +388,8 @@ namespace iqrf {
             lowerFillingByteOnRank = true;
           }
         }
-        
-        // One’s Complement Fletcher Checksum
+
+        // One's Complement Fletcher Checksum
         uint16_t tempL = checksum & 0xff;
         tempL += oneByte;
 

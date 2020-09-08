@@ -384,20 +384,51 @@ namespace iqrf {
       return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
     }
 
+    uint8_t nodeDiscovered(DeviceEnumerateResult& DeviceEnumerateResult, uint8_t address)
+    {
+      TRC_FUNCTION_ENTER("");
+      DpaMessage getDiscoveredRequest;
+      DpaMessage::DpaPacket_t getDiscoveredPacket;
+      getDiscoveredPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+      getDiscoveredPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+      getDiscoveredPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_DISCOVERED_DEVICES;
+      getDiscoveredPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+
+      getDiscoveredRequest.DataToBuffer(getDiscoveredPacket.Buffer, sizeof(TDpaIFaceHeader));
+
+      // Execute DPA request
+      std::unique_ptr<IDpaTransactionResult2> result;
+      m_exclusiveAccess->executeDpaTransactionRepeat(getDiscoveredRequest, result, m_repeat);
+      TRC_DEBUG("Result from Coordinator Get Discovered Nodes transaction as string:" << PAR(result->getErrorString()));
+
+      // Parse DPA response
+      DpaMessage response = result->getResponse();
+      DeviceEnumerateResult.addTransactionResultRef(result);
+      TRC_INFORMATION("Coordinator Get Discovered Nodes successful!");
+      TRC_DEBUG(
+        "DPA transaction: "
+        << NAME_PAR(getDiscoveredRequest.PeripheralType(), getDiscoveredRequest.NodeAddress())
+        << PAR(getDiscoveredRequest.PeripheralCommand())
+      );
+      TRC_FUNCTION_LEAVE("");
+      return response.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[address];
+    }
+
+
     // Read discovery data
     void discoveryData(DeviceEnumerateResult& deviceEnumerateResult) 
     {
       // get discovered indicator
       try {
-        uint16_t address = 0x20 + deviceEnumerateResult.getDeviceAddr() / 8;
-
-        uint8_t discoveredDevicesByte = readDiscoveryByte(deviceEnumerateResult, address);
+        uint8_t byteIndex = deviceEnumerateResult.getDeviceAddr() / 8;
+        
+        uint8_t nodeDiscoveryByte = nodeDiscovered(deviceEnumerateResult, byteIndex);
         
         uint8_t bitIndex = deviceEnumerateResult.getDeviceAddr() % 8;
         uint8_t compareByte = uint8_t(pow(2, bitIndex));
 
         deviceEnumerateResult.setDiscovered(
-          (discoveredDevicesByte & compareByte) == compareByte
+          (nodeDiscoveryByte & compareByte) == compareByte
         );
       }
       catch (const std::exception& ex) {
