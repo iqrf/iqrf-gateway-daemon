@@ -1,0 +1,124 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqmeshNetwork_Restore-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQMESH Network management - Restore response.",
+      "enum": [
+        "iqmeshNetwork_Restore"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "rsp": {
+          "type": "object",
+          "description": "Returns following values, see its description.",
+          "properties": {
+            "progress": {
+              "type": "integer",
+              "description": "Restore algorithm progress [%]."
+            },
+            "devices": {
+              "type": "array",
+              "description": "Device(s) Restore status.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "integer",
+                    "description": "Node address."
+                  },
+                  "restoreStatus": {
+                    "type": "boolean",
+                    "description": "Result of restore operation."
+                  }
+                },
+                "required": [
+                  "address",
+                  "restoreStatus"
+                ]
+              }
+            }
+          },
+          "required": [
+            "progress",
+            "devices"
+          ]
+        },
+        "raw": {
+          "type": "array",
+          "description": "Returns array of objects req-cnf-rsp, see its description.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "request": {
+                "type": "string",
+                "description": "Binary buffer with DPA request."
+              },
+              "requestTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+              },
+              "confirmation": {
+                "type": "string",
+                "description": "Binary buffer with DPA confirmation."
+              },
+              "confirmationTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+              },
+              "response": {
+                "type": "string",
+                "description": "Binary buffer with DPA response."
+              },
+              "responseTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+              }
+            },
+            "required": [
+              "request",
+              "requestTs",
+              "confirmation",
+              "confirmationTs",
+              "response",
+              "responseTs"
+            ]
+          }
+        },
+        "insId": {
+          "type": "string",
+          "description": "IQRF GW daemon instance identification."
+        },
+        "status": {
+          "type": "integer",
+          "description": "IQRF GW daemon API (general or mType) status."
+        },
+        "statusStr": {
+          "type": "string",
+          "description": "IQRF GW daemon API (general or mType) status in string form."
+        }
+      },
+      "required": [
+        "msgId",
+        "status"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}
