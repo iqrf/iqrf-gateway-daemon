@@ -18,7 +18,7 @@ namespace iqrf {
     JsCache();
     virtual ~JsCache();
 
-    const StdDriver* getDriver(int id, double ver) const override;
+    StdDriver getDriver(int id, double ver) const override;
     IJsCacheService::Manufacturer getManufacturer(uint16_t hwpid) const override;
     IJsCacheService::Product getProduct(uint16_t hwpid) const override;
     IJsCacheService::Package getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const override;

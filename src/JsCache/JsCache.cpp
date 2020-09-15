@@ -103,19 +103,19 @@ namespace iqrf {
     {
     }
 
-    const StdDriver* getDriver(int id, double ver) const
+    StdDriver getDriver(int id, double ver) const
     {
       TRC_FUNCTION_ENTER(PAR(id) << std::fixed << std::setprecision(2) << PAR(ver));
-      const StdDriver* drv = nullptr;
+      StdDriver drv;
       auto foundDrv = m_standardMap.find(id);
       if (foundDrv != m_standardMap.end()) {
         const StdItem& stdItem = foundDrv->second;
         auto foundVer = stdItem.m_drivers.find(ver);
         if (foundVer != stdItem.m_drivers.end()) {
-          drv = &foundVer->second;
+          drv = foundVer->second;
         }
       }
-      TRC_FUNCTION_LEAVE(PAR(drv));
+      TRC_FUNCTION_LEAVE(PAR(drv.isValid()));
       return drv;
     }
 
@@ -208,8 +208,8 @@ namespace iqrf {
         const Package& p = pck.second;
         if (p.m_os == os && p.m_dpa == dpa) {
           for (const auto & drv : p.m_stdDriverVect) {
-            map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
-            ostr << '[' << drv->getId() << ',' << std::fixed << std::setprecision(2) << drv->getVersion() << "] ";
+            map2[drv.getId()][drv.getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
+            ostr << '[' << drv.getId() << ',' << std::fixed << std::setprecision(2) << drv.getVersion() << "] ";
           }
         }
       }
@@ -315,23 +315,23 @@ namespace iqrf {
       return m_serverState;
     }
 
-    const StdDriver* getStandard(int standardId, double version)
+    StdDriver getStandard(int standardId, double version)
     {
       TRC_FUNCTION_ENTER(PAR(standardId) << std::fixed << std::setprecision(2) << PAR(version));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const StdDriver *retval = nullptr;
+      StdDriver stdDriver;
       auto found = m_standardMap.find(standardId);
       if (found != m_standardMap.end()) {
         auto foundVer = found->second.m_drivers.find(version);
         if (foundVer != found->second.m_drivers.end()) {
-          retval = &(foundVer->second);
+          stdDriver = foundVer->second;
         }
       }
 
-      TRC_FUNCTION_LEAVE("");
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(stdDriver.isValid()));
+      return stdDriver;
     }
 
     bool parseFromFile(const std::string& fname, rapidjson::Document& doc)
@@ -1033,8 +1033,8 @@ namespace iqrf {
         for (auto itr = standardArray->Begin(); itr != standardArray->End(); ++itr) {
           POINTER_GET_INT("", itr, "/standardID", standardId, fname);
           POINTER_GET_DOUBLE("", itr, "/version", version, fname);
-          const StdDriver* stdDrv = getStandard(standardId, version);
-          if (stdDrv) {
+          StdDriver stdDrv = getStandard(standardId, version);
+          if (stdDrv.isValid()) {
             pck.m_stdDriverVect.push_back(stdDrv);
             auxtrc << '[' << standardId << ',' << std::fixed << std::setprecision(2) << version << "], ";
           }
@@ -1343,7 +1343,7 @@ namespace iqrf {
     delete m_imp;
   }
 
-  const IJsCacheService::StdDriver* JsCache::getDriver(int id, double ver) const
+  IJsCacheService::StdDriver JsCache::getDriver(int id, double ver) const
   {
     return m_imp->getDriver(id, ver);
   }

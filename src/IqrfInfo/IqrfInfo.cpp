@@ -124,7 +124,7 @@ namespace iqrf {
       std::string m_handlerUrl;
       std::string m_customDriver;
       bool m_inRepo;
-      std::vector<const IJsCacheService::StdDriver *> m_drivers;
+      std::vector<IJsCacheService::StdDriver> m_drivers;
     };
 
     // aux class for enumeration
@@ -587,15 +587,15 @@ namespace iqrf {
 
         if (pckg0.m_packageId > -1) {
           for (auto per : nd->getEmbedExploreEnumerate()->getEmbedPer()) {
-            for (auto drv : pckg0.m_stdDriverVect) {
-              if (drv->getId() == -1) {
-                perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
+            for (const auto & drv : pckg0.m_stdDriverVect) {
+              if (drv.getId() == -1) {
+                perVerMap.insert(std::make_pair(-1, drv.getVersion())); // driver library
               }
-              if (drv->getId() == 255) {
-                perVerMap.insert(std::make_pair(255, drv->getVersion())); // embedExplore library
+              if (drv.getId() == 255) {
+                perVerMap.insert(std::make_pair(255, drv.getVersion())); // embedExplore library
               }
-              if (drv->getId() == per) {
-                perVerMap.insert(std::make_pair(per, drv->getVersion()));
+              if (drv.getId() == per) {
+                perVerMap.insert(std::make_pair(per, drv.getVersion()));
               }
             }
           }
@@ -621,8 +621,8 @@ namespace iqrf {
         }
 
         for (auto pv : perVerMap) {
-          const IJsCacheService::StdDriver *sd = m_iJsCacheService->getDriver(pv.first, pv.second);
-          if (sd) {
+          IJsCacheService::StdDriver sd = m_iJsCacheService->getDriver(pv.first, pv.second);
+          if (sd.isValid()) {
             d.m_drivers.push_back(sd);
           }
         }
@@ -1219,10 +1219,10 @@ namespace iqrf {
         else {
           TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << " no version");
         }
-        const IJsCacheService::StdDriver* driver = nullptr;
+        IJsCacheService::StdDriver driver;
         driver = m_iJsCacheService->getDriver(driverId, driverVer);
-        if (driver) {
-          str2load += driver->getDriver();
+        if (driver.isValid()) {
+          str2load += driver.getDriver();
         }
         else {
           TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << PAR(driverVer) << " no driver found");
@@ -1503,7 +1503,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    std::unique_ptr<int> selectDriver(const IJsCacheService::StdDriver* drv)
+    std::unique_ptr<int> selectDriver(const IJsCacheService::StdDriver & drv)
     {
       std::unique_ptr<int> id;
 
@@ -1515,8 +1515,8 @@ namespace iqrf {
         "d.StandardId = ? and "
         "d.Version = ? "
         ";"
-        << drv->getId()
-        << drv->getVersion()
+        << drv.getId()
+        << drv.getVersion()
         >> [&](std::unique_ptr<int> d)
       {
         id = std::move(d);
@@ -1526,13 +1526,13 @@ namespace iqrf {
     }
 
     // check id device exist and if not insert and return id
-    int driverInDb(const IJsCacheService::StdDriver* drv)
+    int driverInDb(const IJsCacheService::StdDriver & drv)
     {
-      TRC_FUNCTION_ENTER(NAME_PAR(standardId, drv->getId()) << NAME_PAR(version, drv->getVersion()) << NAME_PAR(name, drv->getName()));
+      TRC_FUNCTION_ENTER(NAME_PAR(standardId, drv.getId()) << NAME_PAR(version, drv.getVersion()) << NAME_PAR(name, drv.getName()));
 
-      std::string name = drv->getName();
-      int standardId = drv->getId();
-      double version = drv->getVersion();
+      std::string name = drv.getName();
+      int standardId = drv.getId();
+      double version = drv.getVersion();
 
       database & db = *m_db;
 
@@ -1556,12 +1556,12 @@ namespace iqrf {
           ", ?"
           ", ?"
           ");"
-          << drv->getNotes()
+          << drv.getNotes()
           << name
           << version
           << standardId
-          << drv->getVersionFlags()
-          << drv->getDriver()
+          << drv.getVersionFlags()
+          << drv.getDriver()
           ;
       }
 

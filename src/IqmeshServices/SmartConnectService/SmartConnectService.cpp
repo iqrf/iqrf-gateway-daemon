@@ -587,8 +587,8 @@ namespace iqrf {
       );
       if ( package.m_packageId > -1 ) {
         std::list<std::string> standards;
-        for ( const IJsCacheService::StdDriver* driver : package.m_stdDriverVect ) {
-          standards.push_back( driver->getName() );
+        for ( const IJsCacheService::StdDriver & driver : package.m_stdDriverVect ) {
+          standards.push_back( driver.getName() );
         }
         smartConnectResult.setStandards( standards );
       }
