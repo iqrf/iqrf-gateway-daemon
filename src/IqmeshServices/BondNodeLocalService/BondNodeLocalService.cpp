@@ -718,14 +718,14 @@ namespace iqrf {
 
 
       // manufacturer name and product name
-      const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(bondResult.getBondedNodeHwpId());
-      if (manufacturer != nullptr) {
-        bondResult.setManufacturer(manufacturer->m_name);
+      IJsCacheService::Manufacturer manufacturer = m_iJsCacheService->getManufacturer(bondResult.getBondedNodeHwpId());
+      if (manufacturer.m_manufacturerId > -1) {
+        bondResult.setManufacturer(manufacturer.m_name);
       }
       
-      const IJsCacheService::Product* product = m_iJsCacheService->getProduct(bondResult.getBondedNodeHwpId());
-      if (product != nullptr) {
-        bondResult.setProduct(product->m_name);
+      IJsCacheService::Product product = m_iJsCacheService->getProduct(bondResult.getBondedNodeHwpId());
+      if (product.m_manufacturerId > 1) {
+        bondResult.setProduct(product.m_name);
       }
 
       //uint8_t osVersion = bondResult.getOsRead()[4];
@@ -750,15 +750,15 @@ namespace iqrf {
         return bondResult;
       }
 
-      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
+      IJsCacheService::Package package = m_iJsCacheService->getPackage(
         bondResult.getBondedNodeHwpId(),
         bondResult.getBondedNodeHwpIdVer(),
         osBuildStr, //TODO m_iIqrfDpaService->getCoordinatorParameters().osBuild ?
         m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr
       );
-      if (package != nullptr) {
+      if (package.m_packageId > -1) {
         std::list<std::string> standards;
-        for (const IJsCacheService::StdDriver* driver : package->m_stdDriverVect) {
+        for (const IJsCacheService::StdDriver* driver : package.m_stdDriverVect) {
           standards.push_back(driver->getName());
         }
         bondResult.setStandards(standards);

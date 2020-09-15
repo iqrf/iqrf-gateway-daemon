@@ -21,7 +21,10 @@ namespace iqrf {
     class Company
     {
     public:
-      Company() = delete;
+      Company()
+        :m_companyId(-1)
+      {}
+
       Company(int companyId, const std::string& name, const std::string& homePage)
         :m_companyId(companyId), m_name(name), m_homePage(homePage)
       {}
@@ -33,7 +36,10 @@ namespace iqrf {
     class Manufacturer
     {
     public:
-      Manufacturer() = delete;
+      Manufacturer()
+        :m_manufacturerId(-1), m_companyId(-1)
+      {}
+
       Manufacturer(int manufacturerId, int companyId, const std::string& name)
         :m_manufacturerId(manufacturerId), m_companyId(companyId), m_name(name)
       {}
@@ -45,7 +51,10 @@ namespace iqrf {
     class Product
     {
     public:
-      Product() = delete;
+      Product()
+        :m_hwpid(-1), m_manufacturerId(-1)
+      {}
+
       Product(int hwpid, int manufacturerId, const std::string& name, const std::string& homePage, const std::string& picture)
         :m_hwpid(hwpid), m_manufacturerId(manufacturerId), m_name(name), m_homePage(homePage), m_picture(picture)
       {}
@@ -110,7 +119,10 @@ namespace iqrf {
     class OsDpa
     {
     public:
-      OsDpa() = delete;
+      OsDpa()
+        :m_osdpaId(0)
+      {}
+
       OsDpa(int osdpaId, const std::string& os, const std::string& dpa, const std::string& notes)
         :m_osdpaId(osdpaId), m_os(os), m_dpa(dpa), m_notes(notes)
       {}
@@ -139,15 +151,15 @@ namespace iqrf {
 
     //TODO change to return by value as poineters are dangerous in case of cache update
     virtual const StdDriver* getDriver(int id, double ver) const = 0;
-    virtual const Manufacturer* getManufacturer(uint16_t hwpid) const = 0;
-    virtual const Product* getProduct(uint16_t hwpid) const = 0;
-    virtual const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const = 0;
-    virtual const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const = 0;
+    virtual Manufacturer getManufacturer(uint16_t hwpid) const = 0;
+    virtual Product getProduct(uint16_t hwpid) const = 0;
+    virtual Package getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const = 0;
+    virtual Package getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const = 0;
     virtual std::map<int, std::map<double, std::vector<std::pair<int,int>>>> getDrivers(const std::string& os, const std::string& dpa) const = 0;
     virtual std::map<int, std::map<int, std::string>> getCustomDrivers(const std::string& os, const std::string& dpa) const = 0;
     virtual MapOsListDpa getOsDpa() const = 0;
-    virtual const OsDpa* getOsDpa(int id) const = 0;
-    virtual const OsDpa* getOsDpa(const std::string& os, const std::string& dpa) const = 0;
+    virtual OsDpa getOsDpa(int id) const = 0;
+    virtual OsDpa getOsDpa(const std::string& os, const std::string& dpa) const = 0;
     virtual ServerState getServerState() const = 0;
 
     typedef std::function<void()> CacheReloadedFunc;

@@ -571,23 +571,23 @@ namespace iqrf {
         std::map<int, double> perVerMap;
 
         // Get for hwpid 0 plain DPA plugin
-        const iqrf::IJsCacheService::Package *pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, (uint16_t)d.m_dpaVer);
-        if (nullptr == pckg0) {
+        iqrf::IJsCacheService::Package pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, (uint16_t)d.m_dpaVer);
+        if (pckg0.m_packageId < 0) {
           TRC_WARNING("Cannot find package for:" << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, d.m_osBuild) << NAME_PAR(dpaVer, d.m_dpaVer)
             << std::endl << "trying to find the package for previous version of DPA");
 
           for (uint16_t dpa = (uint16_t)d.m_dpaVer - 1; dpa > 300; dpa--) {
             pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, dpa);
-            if (nullptr != pckg0) {
+            if (pckg0.m_packageId > -1) {
               TRC_WARNING("Found and loading package for:" << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, d.m_osBuild) << NAME_PAR(dpaVer, dpa));
               break;
             }
           }
         }
 
-        if (nullptr != pckg0) {
+        if (pckg0.m_packageId > -1) {
           for (auto per : nd->getEmbedExploreEnumerate()->getEmbedPer()) {
-            for (auto drv : pckg0->m_stdDriverVect) {
+            for (auto drv : pckg0.m_stdDriverVect) {
               if (drv->getId() == -1) {
                 perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
               }
@@ -1018,13 +1018,13 @@ namespace iqrf {
             Device device(hwpid, hwpidVer, osBuild, dpaVer);
 
             // get package from JsCache if exists
-            const iqrf::IJsCacheService::Package *pckg = nullptr;
+            iqrf::IJsCacheService::Package pckg;
             if (hwpid != 0) { // no custom handler => use default pckg0 to resolve periferies
               pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, (uint16_t)osBuild, (uint16_t)dpaVer);
             }
 
-            if (pckg) {
-              deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
+            if (pckg.m_packageId > -1) {
+              deviceIdPtr = enumerateDeviceInRepo(device, pckg);
             }
             else {
               try {

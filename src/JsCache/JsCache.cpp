@@ -119,79 +119,79 @@ namespace iqrf {
       return drv;
     }
 
-    const Manufacturer* getManufacturer(uint16_t hwpid) const
+    Manufacturer getManufacturer(uint16_t hwpid) const
     {
       TRC_FUNCTION_ENTER(PAR(hwpid));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const Manufacturer* retval = nullptr;
+      Manufacturer manufacturer;
       auto found = m_productMap.find(hwpid);
       if (found != m_productMap.end()) {
         int manufacturerId = found->second.m_manufacturerId;
         auto foundManuf = m_manufacturerMap.find(manufacturerId);
         if (foundManuf != m_manufacturerMap.end()) {
-          retval = &(foundManuf->second);
+          manufacturer = foundManuf->second;
         }
       }
 
-      TRC_FUNCTION_LEAVE("");
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(manufacturer.m_manufacturerId));
+      return manufacturer;
     }
 
-    const Product* getProduct(uint16_t hwpid) const
+    Product getProduct(uint16_t hwpid) const
     {
       TRC_FUNCTION_ENTER(PAR(hwpid));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const Product* retval = nullptr;
+      Product product;
       auto found = m_productMap.find(hwpid);
       if (found != m_productMap.end()) {
-        retval = &(found->second);
+        product = found->second;
       }
 
-      TRC_FUNCTION_LEAVE("");
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(product.m_manufacturerId));
+      return product;
     }
 
-    const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
+    Package getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
     {
       TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(os) << PAR(dpa));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const Package* retval = nullptr;
+      Package package;
       for (const auto & pck : m_packageMap) {
         const Package& pckp = pck.second;
         if (pckp.m_hwpid == hwpid && pckp.m_hwpidVer == hwpidVer && pckp.m_os == os && pckp.m_dpa == dpa) {
-          retval = &(pck.second);
+          package = pck.second;
           break;
         }
       }
 
-      TRC_FUNCTION_LEAVE(PAR(retval));
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(package.m_packageId));
+      return package;
     }
 
-    const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
+    Package getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
     {
       TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(os) << PAR(dpa));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const Package* retval = nullptr;
+      Package package;
       for (const auto & pck : m_packageMap) {
         const Package& pckp = pck.second;
         if (pckp.m_hwpid == hwpid && pckp.m_hwpidVer == hwpidVer &&
           pckp.m_os == embed::os::Read::getOsBuildAsString(os) && pckp.m_dpa == embed::explore::Enumerate::getDpaVerAsHexaString(dpa)) {
-          retval = &(pck.second);
+          package = pck.second;
           break;
         }
       }
 
-      TRC_FUNCTION_LEAVE(PAR(retval) << NAME_PAR(packageId, (retval ? retval->m_packageId : -1)));
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(package.m_packageId));
+      return package;
     }
 
     std::map<int, std::map<double, std::vector<std::pair<int, int>>>> getDrivers(const std::string& os, const std::string& dpa)
@@ -271,32 +271,32 @@ namespace iqrf {
       return retval;
     }
 
-    const IJsCacheService::OsDpa* getOsDpa(int id) const
+    IJsCacheService::OsDpa getOsDpa(int id) const
     {
       TRC_FUNCTION_ENTER(PAR(id));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const OsDpa* retval = nullptr;
+      OsDpa retval;
       auto found = m_osDpaMap.find(id);
       if (found != m_osDpaMap.end()) {
-        retval = &(found->second);
+        retval = found->second;
       }
 
       TRC_FUNCTION_LEAVE("");
       return retval;
     }
 
-    const IJsCacheService::OsDpa* getOsDpa(const std::string& os, const std::string& dpa) const
+    IJsCacheService::OsDpa getOsDpa(const std::string& os, const std::string& dpa) const
     {
       TRC_FUNCTION_ENTER(PAR(os) << PAR(dpa));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const OsDpa* retval = nullptr;
+      OsDpa retval;
       for (auto & a : m_osDpaMap) {
         if (os == a.second.m_os && dpa == a.second.m_dpa) {
-          retval = &a.second;
+          retval = a.second;
           break;
         }
       }
@@ -1348,22 +1348,22 @@ namespace iqrf {
     return m_imp->getDriver(id, ver);
   }
 
-  const IJsCacheService::Manufacturer* JsCache::getManufacturer(uint16_t hwpid) const
+  IJsCacheService::Manufacturer JsCache::getManufacturer(uint16_t hwpid) const
   {
     return m_imp->getManufacturer(hwpid);
   }
 
-  const IJsCacheService::Product* JsCache::getProduct(uint16_t hwpid) const
+  IJsCacheService::Product JsCache::getProduct(uint16_t hwpid) const
   {
     return m_imp->getProduct(hwpid);
   }
 
-  const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
+  IJsCacheService::Package JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
   {
     return m_imp->getPackage(hwpid, hwpidVer, os, dpa);
   }
 
-  const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
+  IJsCacheService::Package JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
   {
     return m_imp->getPackage(hwpid, hwpidVer, os, dpa);
   }
@@ -1383,12 +1383,12 @@ namespace iqrf {
     return m_imp->getOsDpa();
   }
 
-  const IJsCacheService::OsDpa* JsCache::getOsDpa(int id) const
+  IJsCacheService::OsDpa JsCache::getOsDpa(int id) const
   {
     return m_imp->getOsDpa(id);
   }
 
-  const IJsCacheService::OsDpa* JsCache::getOsDpa(const std::string& os, const std::string& dpa) const
+  IJsCacheService::OsDpa JsCache::getOsDpa(const std::string& os, const std::string& dpa) const
   {
     return m_imp->getOsDpa(os, dpa);
   }
