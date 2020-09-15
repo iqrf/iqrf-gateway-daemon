@@ -149,7 +149,6 @@ namespace iqrf {
       std::string m_databaseChangeDateTime;
     };
 
-    //TODO change to return by value as poineters are dangerous in case of cache update
     virtual StdDriver getDriver(int id, double ver) const = 0;
     virtual Manufacturer getManufacturer(uint16_t hwpid) const = 0;
     virtual Product getProduct(uint16_t hwpid) const = 0;
