@@ -92,6 +92,8 @@ namespace iqrf {
 
     bool m_upToDate = false;
 
+    std::map<std::string, CacheReloadedFunc> m_cacheReloadedHndlMap;
+
   public:
     Imp()
     {
@@ -428,6 +430,17 @@ namespace iqrf {
         m_upToDate = true;
         TRC_INFORMATION("Loading IqrfRepo cache success");
         std::cout << "Loading IqrfRepo cache success" << std::endl;
+
+        //invoke call back
+        {
+          std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+          for (auto & hndlIt : m_cacheReloadedHndlMap) {
+            if (hndlIt.second) {
+              hndlIt.second();
+            }
+          }
+        }
+
       }
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::logic_error, e, "Loading IqrfRepo cache failed");
@@ -791,6 +804,18 @@ namespace iqrf {
       filesystem::rename(getCachePath("inflated"), cacheName);
 
       TRC_FUNCTION_LEAVE("")
+    }
+
+    void registerCacheReloadedHandler(const std::string & clientId, CacheReloadedFunc hndl)
+    {
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+      m_cacheReloadedHndlMap[clientId] = hndl;
+    }
+
+    void unregisterCacheReloadedHandler(const std::string & clientId)
+    {
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+      m_cacheReloadedHndlMap.erase(clientId);
     }
 
     void checkCache()
@@ -1371,6 +1396,16 @@ namespace iqrf {
   IJsCacheService::ServerState JsCache::getServerState() const
   {
     return m_imp->getServerState();
+  }
+
+  void JsCache::registerCacheReloadedHandler(const std::string & clientId, CacheReloadedFunc hndl)
+  {
+    m_imp->registerCacheReloadedHandler(clientId, hndl);
+  }
+
+  void JsCache::unregisterCacheReloadedHandler(const std::string & clientId)
+  {
+    m_imp->unregisterCacheReloadedHandler(clientId);
   }
 
   void JsCache::activate(const shape::Properties *props)

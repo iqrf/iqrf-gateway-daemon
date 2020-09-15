@@ -1461,6 +1461,17 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    void reloadDrivers()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      loadProvisoryDrivers();
+
+      //TODO
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
     void bondedInDb(int nadr, int dis, unsigned mid, int enm)
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(dis) << PAR(enm));
@@ -2530,13 +2541,15 @@ namespace iqrf {
 
       modify(props);
 
-      m_iIqrfDpaService->registerAnyMessageHandler(m_instanceName, [&](const DpaMessage & msg)
-      {
+      m_iIqrfDpaService->registerAnyMessageHandler(m_instanceName, [&](const DpaMessage & msg) {
         analyzeAnyMessage(msg);
-      }
-      );
+      });
 
       initDb();
+
+      m_iJsCacheService->registerCacheReloadedHandler(m_instanceName, [&]() {
+        reloadDrivers();
+      });
 
       loadProvisoryDrivers();
 
@@ -2596,6 +2609,8 @@ namespace iqrf {
       if (m_enumThread.joinable()) {
         m_enumThread.join();
       }
+
+      m_iJsCacheService->unregisterCacheReloadedHandler(m_instanceName);
 
       m_iIqrfDpaService->unregisterAnyMessageHandler(m_instanceName);
 

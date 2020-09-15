@@ -30,6 +30,9 @@ namespace iqrf {
     const OsDpa* getOsDpa(const std::string& os, const std::string& dpa) const override;
     IJsCacheService::ServerState getServerState() const override;
 
+    void registerCacheReloadedHandler(const std::string & clientId, CacheReloadedFunc hndl) override;
+    void unregisterCacheReloadedHandler(const std::string & clientId) override;
+
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
