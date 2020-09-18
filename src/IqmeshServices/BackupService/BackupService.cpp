@@ -73,7 +73,7 @@ namespace iqrf {
         // Put MID
         objDeviceBackup.AddMember("MID", deviceBackupData.getMID(), allocator);
         // Put DPA version
-        objDeviceBackup.AddMember("version", deviceBackupData.getDpaVersion() & 0x3fff, allocator);
+        objDeviceBackup.AddMember("dpaVer", deviceBackupData.getDpaVersion() & 0x3fff, allocator);
         // Put backup data
         std::ostringstream strBackupData;
         std::basic_string<uint8_t> data = deviceBackupData.getBackupData();

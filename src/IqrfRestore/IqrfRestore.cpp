@@ -16,6 +16,7 @@
 #include <cmath>
 #include <list>
 #include <vector>
+#include <mutex>
 
 TRC_INIT_MODULE(iqrf::IqrfRestore);
 
@@ -30,6 +31,8 @@ namespace iqrf {
     IqrfRestore & m_parent;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
+    std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
+    std::mutex m_restoreMutex;
 
   public:
     Imp(IqrfRestore& parent) : m_parent(parent)
@@ -57,7 +60,7 @@ namespace iqrf {
         perEnumPacket.DpaRequestPacket_t.PCMD = CMD_GET_PER_INFO;
         perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         perEnumRequest.DataToBuffer(perEnumPacket.Buffer, sizeof(TDpaIFaceHeader));
-        m_iIqrfDpaService->executeDpaTransactionRepeat(perEnumRequest, transResult, 1);
+        m_exclusiveAccess->executeDpaTransactionRepeat(perEnumRequest, transResult, 1);
         TRC_DEBUG("Result from Device Exploration transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Device exploration successful!");
@@ -100,7 +103,7 @@ namespace iqrf {
         readOSInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         reaodOSInfoRequest.DataToBuffer(readOSInfoPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_iIqrfDpaService->executeDpaTransactionRepeat(reaodOSInfoRequest, transResult, 3);
+        m_exclusiveAccess->executeDpaTransactionRepeat(reaodOSInfoRequest, transResult, 3);
         TRC_DEBUG("Result from CMD_OS_READ as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Device CMD_OS_READ successful!");
@@ -139,7 +142,7 @@ namespace iqrf {
         getBondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         getBondedNodesRequest.DataToBuffer(getBondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_iIqrfDpaService->executeDpaTransactionRepeat(getBondedNodesRequest, transResult, 2);
+        m_exclusiveAccess->executeDpaTransactionRepeat(getBondedNodesRequest, transResult, 2);
         TRC_DEBUG("Result from CMD_COORDINATOR_BONDED_DEVICES transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("GCMD_COORDINATOR_BONDED_DEVICES OK.");
@@ -184,7 +187,7 @@ namespace iqrf {
         restartCoordPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         restartCoordRequest.DataToBuffer(restartCoordPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_iIqrfDpaService->executeDpaTransactionRepeat(restartCoordRequest, transResult, 2);
+        m_exclusiveAccess->executeDpaTransactionRepeat(restartCoordRequest, transResult, 2);
         TRC_DEBUG("Result from CMD_OS_RESET transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("CMD_OS_RESET OK.");
@@ -239,10 +242,11 @@ namespace iqrf {
           networkData.copy(restorePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorNodeRestore_Request.NetworkData, sizeof(TPerCoordinatorNodeRestore_Request), offset);
           restoreRequest.DataToBuffer(restorePacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorNodeRestore_Request));
           // Execute the DPA request
-          m_iIqrfDpaService->executeDpaTransactionRepeat(restoreRequest, transResult, 3);
+          m_exclusiveAccess->executeDpaTransactionRepeat(restoreRequest, transResult, 3);
           TRC_DEBUG("Result from CMD_COORDINATOR_RESTORE/CMD_NODE_RESTORE transaction as string:" << PAR(transResult->getErrorString()));
           DpaMessage dpaResponse = transResult->getResponse();
-          TRC_INFORMATION("Backup of device " << (int)deviceAddress << "OK.");
+          TRC_INFORMATION("Restore of device " << (int)deviceAddress << " OK. Remaining blocks: " << (restoreCycles - 1));
+          //std::cout << "Restore of device " << (int)deviceAddress << " OK. Remaining blocks: " << (restoreCycles - 1) << std::endl;
           TRC_DEBUG(
             "DPA transaction: "
             << NAME_PAR(Peripheral type, restoreRequest.PeripheralType())
@@ -269,6 +273,8 @@ namespace iqrf {
     void restore(const uint16_t deviceAddress, std::basic_string<uint8_t>& backupData, const bool restartCoordinator)
     {
       TRC_FUNCTION_ENTER("");
+      std::lock_guard<std::mutex> lck(m_restoreMutex);
+
       try
       {
         // Todo - current version of IqrfRestore supports [C] device only
@@ -281,7 +287,7 @@ namespace iqrf {
         len *= sizeof(TPerCoordinatorNodeRestore_Request);
         // Add length and crc8
         len += 3 * sizeof(uint8_t);
-        if(len != backupData.size())
+        if (len != backupData.size())
           THROW_EXC(std::logic_error, "Incorrect backupData size.");
         // Check backupData CRC8
         uint8_t crc8 = 0x5f;
@@ -290,25 +296,30 @@ namespace iqrf {
         if (crc8 != backupData[0x02])
           THROW_EXC(std::logic_error, "BackupData CRC8 mismatch.");
         backupData.erase(0x00, 3 * sizeof(uint8_t));
-        if (m_iIqrfDpaService->hasExclusiveAccess() == false)
+
+        // Get exclusive access to DPA interface
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+        // Restore single device
+        m_transResults.clear();
+        checkPresentCoordAndCoordOs();
+        TPerOSRead_Response osInfo = readOsInfo(deviceAddress);
+        writeBackupData(deviceAddress, backupData);
+        // Restart [C] after backup
+        if (restartCoordinator == true)
         {
-          // Restore single device
-          m_transResults.clear();
+          restartDevice(deviceAddress);
+          // Wait for async DPA packet
+          std::this_thread::sleep_for(std::chrono::milliseconds(2000));
           checkPresentCoordAndCoordOs();
-          TPerOSRead_Response osInfo = readOsInfo(deviceAddress);
-          writeBackupData(deviceAddress, backupData);
-          // Restart [C] after backup
-          if (restartCoordinator == true)
-            restartDevice(deviceAddress);
-          TRC_FUNCTION_LEAVE("");
         }
-        else
-        {
-          THROW_EXC(std::logic_error, "DPA has exclusive access.");
-        }
+        // Release exclusive access
+        m_exclusiveAccess.reset();
+        TRC_FUNCTION_LEAVE("");
       }
       catch (std::exception& e)
       {
+        // Release exclusive access
+        m_exclusiveAccess.reset();
         THROW_EXC(std::logic_error, e.what());
       }
     }

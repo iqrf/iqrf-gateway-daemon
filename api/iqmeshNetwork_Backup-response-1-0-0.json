@@ -48,7 +48,7 @@
                     "type": "integer",
                     "description": "Device MID."
                   },
-                  "version": {
+                  "dpaVer": {
                     "type": "integer",
                     "description": "DPA version."
                   },

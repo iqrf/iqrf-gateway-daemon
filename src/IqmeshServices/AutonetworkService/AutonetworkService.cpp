@@ -941,42 +941,40 @@ namespace iqrf {
       try
       {
         // Prepare DPA request
-        DpaMessage prebondedMemoryRequest;
-        DpaMessage::DpaPacket_t prebondedMemoryPacket;
-        prebondedMemoryPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-        prebondedMemoryPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
-        prebondedMemoryPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
-        prebondedMemoryPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        DpaMessage prebondedMemoryCompare2BRequest;
+        DpaMessage::DpaPacket_t prebondedMemoryCompare2BPacket;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         // FRC Command - https://doc.iqrf.org/DpaTechGuide/414/
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_PrebondedMemoryCompare2B;
-        // Selected nodes - prebonded alive nodes
-        setFRCSelectedNodes( prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes, prebondedNodes );
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand = FRC_PrebondedMemoryCompare2B;
         // Node seed
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x00] = nodeSeed;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x00] = nodeSeed;
         // Zero
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x01] = 0x00;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x01] = 0x00;
         // Flags 
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x02] = 0x01;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x02] = 0x01;
         // Value to compare
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x03] = valueToCompare & 0xff;
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x04] = valueToCompare >> 0x08;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x03] = valueToCompare & 0xff;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x04] = valueToCompare >> 0x08;
         // 
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x05] = address & 0xff;
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x06] = address >> 0x08;
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x07] = PNUM;
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x08] = PCMD;
-        prebondedMemoryPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x09] = 0x00;
-        prebondedMemoryRequest.DataToBuffer( prebondedMemoryPacket.Buffer, sizeof( TDpaIFaceHeader ) + 41 );
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x05] = address & 0xff;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x06] = address >> 0x08;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x07] = PNUM;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x08] = PCMD;
+        prebondedMemoryCompare2BPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x09] = 0x00;
+        prebondedMemoryCompare2BRequest.DataToBuffer(prebondedMemoryCompare2BPacket.Buffer, sizeof( TDpaIFaceHeader ) + 11 );
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( prebondedMemoryRequest, transResult, antwInputParams.actionRetries );
+        m_exclusiveAccess->executeDpaTransactionRepeat(prebondedMemoryCompare2BRequest, transResult, antwInputParams.actionRetries );
         TRC_DEBUG( "Result from FRC Prebonded Memory Read transaction as string:" << PAR( transResult->getErrorString() ) );
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION( "FRC FRC Prebonded Memory Read successful!" );
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR( Peripheral type, prebondedMemoryRequest.PeripheralType() )
-          << NAME_PAR( Node address, prebondedMemoryRequest.NodeAddress() )
-          << NAME_PAR( Command, (int)prebondedMemoryRequest.PeripheralCommand() )
+          << NAME_PAR( Peripheral type, prebondedMemoryCompare2BRequest.PeripheralType() )
+          << NAME_PAR( Node address, prebondedMemoryCompare2BRequest.NodeAddress() )
+          << NAME_PAR( Command, (int)prebondedMemoryCompare2BRequest.PeripheralCommand() )
         );
         // Data from FRC
         std::basic_string<uint8_t> prebondedMemoryData;
@@ -1460,7 +1458,7 @@ namespace iqrf {
 
       // Overlapping networks
       IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-      if ( ( coordParams.dpaVerWord < 0x0414 ) && ( antwInputParams.overlappingNetworks.networks != 0 ) && ( antwInputParams.overlappingNetworks.network != 0 ) )
+      if ( ( antwInputParams.overlappingNetworks.networks != 0 ) && ( antwInputParams.overlappingNetworks.network != 0 ) )
       {
         // Applied only when DPA at [C] is < 0x414
         uint32_t rem = MID % antwInputParams.overlappingNetworks.networks;

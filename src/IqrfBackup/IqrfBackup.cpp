@@ -16,6 +16,7 @@
 #include <cmath>
 #include <list>
 #include <vector>
+#include <mutex>
 
 TRC_INIT_MODULE(iqrf::IqrfBackup);
 
@@ -30,6 +31,8 @@ namespace iqrf {
     IqrfBackup & m_parent;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
+    std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
+    std::mutex m_backupMutex;
 
   public:
     Imp(IqrfBackup& parent) : m_parent(parent)
@@ -57,7 +60,7 @@ namespace iqrf {
         perEnumPacket.DpaRequestPacket_t.PCMD = CMD_GET_PER_INFO;
         perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         perEnumRequest.DataToBuffer(perEnumPacket.Buffer, sizeof(TDpaIFaceHeader));
-        m_iIqrfDpaService->executeDpaTransactionRepeat(perEnumRequest, transResult, 1);
+        m_exclusiveAccess->executeDpaTransactionRepeat(perEnumRequest, transResult, 1);
         TRC_DEBUG("Result from Device Exploration transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Device exploration successful!");
@@ -100,7 +103,7 @@ namespace iqrf {
         readOSInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         reaodOSInfoRequest.DataToBuffer(readOSInfoPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_iIqrfDpaService->executeDpaTransactionRepeat(reaodOSInfoRequest, transResult, 3);
+        m_exclusiveAccess->executeDpaTransactionRepeat(reaodOSInfoRequest, transResult, 3);
         TRC_DEBUG("Result from CMD_OS_READ as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("Device CMD_OS_READ successful!");
@@ -175,8 +178,8 @@ namespace iqrf {
       std::unique_ptr<IDpaTransactionResult2> transResult;
       try
       {
-        uint16_t index = 0;
-        bool lastRequest;
+        uint8_t index = 0;
+        int remainingBlock;
         std::basic_string<uint8_t> backupData;
         backupData.clear();
         // Data block count Low8/High8 and crc8
@@ -205,10 +208,12 @@ namespace iqrf {
           backupPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorNodeBackup_Request.Index = index;
           backupRequest.DataToBuffer(backupPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorNodeBackup_Request));
           // Execute the DPA request
-          m_iIqrfDpaService->executeDpaTransactionRepeat(backupRequest, transResult, 3);
-          TRC_DEBUG("Result from CMD_COORDINATOR_BACKUP/CMD_NODE_BACKUP transaction as string:" << PAR(transResult->getErrorString()));
+          m_exclusiveAccess->executeDpaTransactionRepeat(backupRequest, transResult, 3);
           DpaMessage dpaResponse = transResult->getResponse();
-          TRC_INFORMATION("Backup of device " << (int)deviceAddress << "OK.");
+          remainingBlock = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorNodeBackup_Response.NetworkData[sizeof(TPerCoordinatorNodeBackup_Response) - 1 * sizeof(uint8_t)];
+          TRC_DEBUG("Result from CMD_COORDINATOR_BACKUP/CMD_NODE_BACKUP transaction as string:" << PAR(transResult->getErrorString()));
+          TRC_INFORMATION("Backup of device " << (int)deviceAddress << " OK. Remaining blocks: " << remainingBlock);
+          //std::cout << "Backup of device " << (int)deviceAddress << " OK. Remaining blocks: " << remainingBlock << std::endl;
           TRC_DEBUG(
             "DPA transaction: "
             << NAME_PAR(Peripheral type, backupRequest.PeripheralType())
@@ -217,13 +222,11 @@ namespace iqrf {
           );
           // Get backup data
           backupData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorNodeBackup_Response.NetworkData, sizeof(TPerCoordinatorNodeBackup_Response));
-          // Check last byte of backup data
-          lastRequest = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerCoordinatorNodeBackup_Response.NetworkData[sizeof(TPerCoordinatorNodeBackup_Response) - 1 * sizeof(uint8_t)] == 0;
           // Add transaction
           m_transResults.push_back(std::move(transResult));
           // Next index
           index++;
-        } while (lastRequest == false);
+        } while (remainingBlock != 0);
         // Insert block count
         backupData[0x00] = (uint8_t)(index & 0xff);
         backupData[0x01] = (uint8_t)(index >> 0x08);
@@ -248,26 +251,25 @@ namespace iqrf {
     void backup(const uint16_t address, DeviceBackupData& backupData)
     {
       TRC_FUNCTION_ENTER("");
+      std::lock_guard<std::mutex> lck(m_backupMutex);
       try
       {
-        if (m_iIqrfDpaService->hasExclusiveAccess() == false)
-        {
-          // Backup single device
-          m_transResults.clear();
-          checkPresentCoordAndCoordOs();
-          TPerOSRead_Response osInfo = readOsInfo(address);
-          std::basic_string<uint8_t> data = readBackupData(address);
-          backupData = DeviceBackupData(address, true, *((uint32_t*)osInfo.MID), osInfo.DpaVersion, data);
-          TRC_FUNCTION_LEAVE("");
-        }
-        else
-        {
-          THROW_EXC(std::logic_error, "DPA has exclusive access.");
-        }
+        // Get exclusive access to DPA interface
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+        // Backup single device
+        m_transResults.clear();
+        checkPresentCoordAndCoordOs();
+        TPerOSRead_Response osInfo = readOsInfo(address);
+        std::basic_string<uint8_t> data = readBackupData(address);
+        backupData = DeviceBackupData(address, true, *((uint32_t*)osInfo.MID), osInfo.DpaVersion, data);
+        // Release exclusive access
+        m_exclusiveAccess.reset();
+        TRC_FUNCTION_LEAVE("");
       }
       catch (std::exception& e)
       {
-        backupData = DeviceBackupData(address);
+        // Release exclusive access
+        m_exclusiveAccess.reset();
         THROW_EXC(std::logic_error, e.what());
       }
     }
