@@ -1,8 +1,13 @@
 {
   "component": "iqrf::IqrfUart",
-  "instance": "iqrf::IqrfUart-/dev/ttyS0",
-  "IqrfInterface": "/dev/ttyS0",
+  "instance": "iqrf::IqrfUart-/dev/ttyS1",
+  "IqrfInterface": "/dev/ttyS1",
   "baudRate": 57600,
-  "powerEnableGpioPin": 18,
-  "busEnableGpioPin": -1
+  "powerEnableGpioPin": 19,
+  "busEnableGpioPin": -1,
+  "uartEnableGpioPin": 6,
+  "spiEnableGpioPin": 10,
+  "i2cEnableGpioPin": 7,
+  "pgmSwitchGpioPin": -1,
+  "uartReset": true
 }
