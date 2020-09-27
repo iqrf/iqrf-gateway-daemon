@@ -63,8 +63,8 @@ namespace iqrf {
       rapidjson::Value arrayDevices(kArrayType);
       Document::AllocatorType& allocator = docRestoreResult.GetAllocator();
       rapidjson::Value objDeviceBackup(kObjectType);
-      // Put node address
-      objDeviceBackup.AddMember("address", backupData.deviceAddress, allocator);
+      // Put device address
+      objDeviceBackup.AddMember("deviceAddr", backupData.deviceAddress, allocator);
       // Put restoreStatus
       objDeviceBackup.AddMember("restoreStatus", statusStr == "ok", allocator);
       // Put device

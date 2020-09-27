@@ -32,11 +32,17 @@
           "properties": {
             "deviceAddr": {
               "type": "integer",
-              "description": "Address to node to remove. In the case of 0xFF, all bonded nodes are removed."
+              "description": "Address (1..239) of Node to remove, 255 to remove all bonded nodes."
             },
-			      "hwpId": {
+            "wholeNetwork": {
+              "type": "boolean",
+              "description": "Undobds all bonded Nodes.",
+              "default": false
+            },
+            "hwpId": {
               "type": "integer",
-              "description": "HWP id."
+              "description": "HWP ID of ode to remove.",
+              "default": 65535
             }
           },
           "required": [

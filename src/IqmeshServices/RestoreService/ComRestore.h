@@ -46,7 +46,7 @@ namespace iqrf {
 
       // deviceAddress
       m_restoreParams.deviceAddress = COORDINATOR_ADDRESS;
-      if (jsonValue = rapidjson::Pointer("/data/req/address").Get(doc))
+      if (jsonValue = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))
       {
         uint32_t addr = jsonValue->GetInt();
         if (addr < MAX_ADDRESS)

@@ -63,9 +63,9 @@ namespace iqrf {
       rapidjson::Value arrayDevices(kArrayType);
       Document::AllocatorType& allocator = docBackupResult.GetAllocator();
       rapidjson::Value objDeviceBackup(kObjectType);
-      // Put node address
-      objDeviceBackup.AddMember("address", deviceBackupData.getAddress(), allocator);
-      // Put node online status
+      // Put device address
+      objDeviceBackup.AddMember("deviceAddr", deviceBackupData.getAddress(), allocator);
+      // Put device online status
       objDeviceBackup.AddMember("online", deviceBackupData.getOnlineStatus(), allocator);
       // Device online ?
       if (deviceBackupData.getOnlineStatus() == true)

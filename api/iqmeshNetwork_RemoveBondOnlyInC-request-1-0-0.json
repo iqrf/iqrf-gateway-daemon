@@ -2,7 +2,7 @@
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
   "self": {
     "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_Restore-request",
+    "name": "iqmeshNetwork_RemoveBondOnlyInC-request",
     "format": "jsonschema",
     "version": "1-0-0"
   },
@@ -10,9 +10,9 @@
   "properties": {
     "mType": {
       "type": "string",
-      "description": "IQMESH Network management - Restore request.",
+      "description": "IQMESH Network management - remove bond.",
       "enum": [
-        "iqmeshNetwork_Restore"
+        "iqmeshNetwork_RemoveBondOnlyInC"
       ]
     },
     "data": {
@@ -22,26 +22,29 @@
           "type": "string",
           "description": "Message identification for binding request with response."
         },
+        "repeat": {
+          "type": "integer",
+          "description": "Number of repetitions of DPA messages.",
+          "default": 1
+        },
         "req": {
           "type": "object",
           "properties": {
             "deviceAddr": {
-              "type": "integer",
-              "description": "Address of device to restore (0 - [C] device, 1..239 - [N] device)",
-              "default": 0
+              "type": "array",
+              "description": "Array of Nodes to remove at [C]",
+              "items": {
+                "type": "integer"
+              }
             },
-            "data": {
-              "type": "string",
-              "description": "Device Backup Data (hex-string format)."
-            },
-            "restartCoordinator": {
+            "clearAllBonds": {
               "type": "boolean",
-              "description": "Restart Coordinator after restore."
+              "description": "Clears all bonds at [C] side.",
+              "default": false
             }
           },
           "required": [
-            "deviceAddr",
-            "data"
+            "deviceAddr"
           ]
         },
         "returnVerbose": {

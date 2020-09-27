@@ -25,9 +25,9 @@
         "req": {
           "type": "object",
           "properties": {
-            "address": {
+            "deviceAddr": {
               "type": "integer",
-              "description": "Address of backuped device (0 - [C] device, 1..239 - [N] device)",
+              "description": "Address of device to backup (0 - [C] device, 1..239 - [N] device)",
               "default": 0
             },
             "wholeNetwork": {
@@ -37,8 +37,7 @@
             }
           },
           "required": [
-            "address",
-            "wholeNetwork"
+            "deviceAddr"
           ]
         },
         "returnVerbose": {

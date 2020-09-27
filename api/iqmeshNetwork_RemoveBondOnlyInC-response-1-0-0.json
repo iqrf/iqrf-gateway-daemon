@@ -2,7 +2,7 @@
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
   "self": {
     "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_RemoveBond-response",
+    "name": "iqmeshNetwork_RemoveBondOnlyInC-response",
     "format": "jsonschema",
     "version": "1-0-0"
   },
@@ -12,7 +12,7 @@
       "type": "string",
       "description": "IQMESH Network management - Remove bond response.",
       "enum": [
-        "iqmeshNetwork_RemoveBond"
+        "iqmeshNetwork_RemoveBondOnlyInC"
       ]
     },
     "data": {
@@ -29,13 +29,6 @@
             "numNodes": {
               "type": "integer",
               "description": "Number of nodes in the network."
-            },
-            "removeBondFailedNodes": {
-              "type": "array",
-              "description": "Nodes that didn't set FRC Acknowledged broadcast bit0 (remove bond failed).",
-              "items": {
-                "type": "integer"
-              }
             }
           }
         },

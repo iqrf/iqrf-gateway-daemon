@@ -7,8 +7,8 @@ namespace iqrf {
   // BackupService input paramaters
   typedef struct
   {
-    uint16_t deviceAddress;
-    bool wholeNetwork;
+    uint16_t deviceAddress = 0;
+    bool wholeNetwork = false;
   }TBackupInputParams;
 
   class ComBackup : public ComBase
@@ -45,7 +45,7 @@ namespace iqrf {
 
       // deviceAddress
       m_backupParams.deviceAddress = COORDINATOR_ADDRESS;
-      if (jsonValue = rapidjson::Pointer("/data/req/address").Get(doc))
+      if (jsonValue = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))
       {
         uint32_t addr = jsonValue->GetInt();
         if (addr < MAX_ADDRESS)

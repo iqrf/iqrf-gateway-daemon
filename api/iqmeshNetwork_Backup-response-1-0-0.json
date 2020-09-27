@@ -36,9 +36,9 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "address": {
+                  "deviceAddr": {
                     "type": "integer",
-                    "description": "Node address."
+                    "description": "Device address."
                   },
                   "online": {
                     "type": "boolean",
@@ -58,7 +58,7 @@
                   }
                 },
                 "required": [
-                  "address",
+                  "deviceAddr",
                   "online"
                 ]
               }
