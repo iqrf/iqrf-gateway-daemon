@@ -64,8 +64,20 @@
 							}
                         },
                         "task": {
-                            "type": "object",
-                            "description": "Task."
+                        	"oneOf":[
+                        		{
+                        			"type": "array",
+                        			"description": "Tasks.",
+                        			"items": {
+                        				"type": "object"
+                        			}
+                        		},
+                        		{
+                        			"type": "object",
+                            		"description": "Task."
+                        		}
+                        	]
+                            
                         }
                     },
                     "required": [
