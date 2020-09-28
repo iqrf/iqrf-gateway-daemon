@@ -6,7 +6,7 @@
 
 namespace iqrf {
 
-  // WriteTrConf input paramaters
+  // WriteTrConf input parameters
   typedef struct TWriteTrConfInputParams
   {
     TWriteTrConfInputParams()
@@ -95,7 +95,7 @@ namespace iqrf {
       int rfAltDsmChannel;
     }rfSettings;
 
-    // Secutity
+    // Security
     struct
     {
       std::basic_string<uint8_t> accessPassword;
@@ -113,7 +113,7 @@ namespace iqrf {
   {
   public:
     ComMngIqmeshWriteConfig() = delete;
-    ComMngIqmeshWriteConfig( rapidjson::Document& doc ) : ComBase( doc )
+    explicit ComMngIqmeshWriteConfig( rapidjson::Document& doc ) : ComBase( doc )
     {
       parse( doc );
     }
@@ -142,161 +142,161 @@ namespace iqrf {
       rapidjson::Value* jsonVal;
 
       // Repeat
-      if ( jsonVal = rapidjson::Pointer( "/data/repeat" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/repeat" ).Get( doc )) )
         m_writeTrConfParams.repeat = jsonVal->GetInt();
 
       // Device address
-      if ( jsonVal = rapidjson::Pointer( "/data/req/deviceAddr" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/deviceAddr" ).Get( doc )) )
         m_writeTrConfParams.deviceAddress = (uint16_t)jsonVal->GetInt();
 
       // HWPID
-      if ( jsonVal = rapidjson::Pointer( "/data/req/hwpId" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/hwpId" ).Get( doc )) )
         m_writeTrConfParams.hwpId = (uint16_t)jsonVal->GetInt();
 
       // embPers/coordinator
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/coordinator" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/coordinator" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.coordinator = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.coordinator == true )
+        if ( m_writeTrConfParams.embPers.coordinator )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_COORDINATOR );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_COORDINATOR );
       }
 
       // embPers/node
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/node" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/node" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.node = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.node == true )
+        if ( m_writeTrConfParams.embPers.node )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_NODE );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_NODE );
       }
 
       // embPers/os
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/os" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/os" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.os = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.os == true )
+        if ( m_writeTrConfParams.embPers.os )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_OS );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_OS );
       }
 
       // embPers/eeprom
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/eeprom" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/eeprom" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.eeprom = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.eeprom == true )
+        if ( m_writeTrConfParams.embPers.eeprom )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_EEPROM );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_EEPROM );
       }
 
       // embPers/eeeprom
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/eeeprom" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/eeeprom" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.eeeprom = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.eeeprom == true )
+        if ( m_writeTrConfParams.embPers.eeeprom )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_EEEPROM );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_EEEPROM );
       }
 
       // embPers/ram
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/ram" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/ram" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.ram = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.ram == true )
+        if ( m_writeTrConfParams.embPers.ram )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_RAM );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_RAM );
       }
 
       // embPers/ledr
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/ledr" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/ledr" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.ledr = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.ledr == true )
+        if ( m_writeTrConfParams.embPers.ledr )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_LEDR );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_LEDR );
       }
 
       // embPers/ledg
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/ledg" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/ledg" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.ledg = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.ledg == true )
+        if ( m_writeTrConfParams.embPers.ledg )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_LEDG );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_LEDG );
       }
 
       // embPers/spi
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/spi" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/spi" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.spi = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.spi == true )
+        if ( m_writeTrConfParams.embPers.spi )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_SPI );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_SPI );
       }
 
       // embPers/io
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/io" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/io" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.io = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.io == true )
+        if ( m_writeTrConfParams.embPers.io )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_IO );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_IO );
       }
 
       // thermometer
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/thermometer" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/thermometer" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.thermometer = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.thermometer == true )
+        if ( m_writeTrConfParams.embPers.thermometer )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_THERMOMETER );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_THERMOMETER );
       }
 
       // embPers/pwm
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/pwm" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/pwm" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.pwm = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.pwm == true )
+        if ( m_writeTrConfParams.embPers.pwm )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_PWM );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_PWM );
       }
 
       // embPers/uart
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/uart" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/uart" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.uart = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.uart == true )
+        if ( m_writeTrConfParams.embPers.uart )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_UART );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_UART );
       }
 
       // embPers/frc
-      if ( jsonVal = rapidjson::Pointer( "/data/req/embPers/frc" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/embPers/frc" ).Get( doc )) )
       {
         m_writeTrConfParams.embPers.frc = jsonVal->GetBool();
-        if ( m_writeTrConfParams.embPers.frc == true )
+        if ( m_writeTrConfParams.embPers.frc )
           m_writeTrConfParams.embPers.value |= ( 1 << PNUM_FRC );
         m_writeTrConfParams.embPers.mask |= ( 1 << PNUM_FRC );
       }
 
       // rfChannelA
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfChannelA" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rfChannelA" ).Get( doc )) )
         m_writeTrConfParams.rfSettings.rfChannelA = jsonVal->GetInt();
 
       // rfChannelB
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfChannelB" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rfChannelB" ).Get( doc )) )
         m_writeTrConfParams.rfSettings.rfChannelB = jsonVal->GetInt();
 
       // rfSubChannelA
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfSubChannelA" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rfSubChannelA" ).Get( doc )) )
         m_writeTrConfParams.rfSettings.rfSubChannelA = jsonVal->GetInt();
 
       // rfSubChannelB
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfSubChannelB" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rfSubChannelB" ).Get( doc )) )
         m_writeTrConfParams.rfSettings.rfSubChannelB = jsonVal->GetInt();
 
       // txPower
-      if ( jsonVal = rapidjson::Pointer( "/data/req/txPower" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/txPower" ).Get( doc )) )
       {
         m_writeTrConfParams.rfSettings.txPower = jsonVal->GetInt();
         if ( m_writeTrConfParams.rfSettings.txPower > 7 )
@@ -304,7 +304,7 @@ namespace iqrf {
       }
 
       // rxFilter
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rxFilter" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rxFilter" ).Get( doc )) )
       {
         int rxFilter = jsonVal->GetInt();
         if ( ( rxFilter >= 0 ) && ( rxFilter <= 64 ) )
@@ -312,7 +312,7 @@ namespace iqrf {
       }
 
       // lpRxTimeout
-      if ( jsonVal = rapidjson::Pointer( "/data/req/lpRxTimeout" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/lpRxTimeout" ).Get( doc )) )
       {
         int lpRxTimeout = jsonVal->GetInt();
         if ( ( lpRxTimeout >= 1 ) && ( lpRxTimeout <= 255 ) )
@@ -320,11 +320,11 @@ namespace iqrf {
       }
 
       // rfAltDsmChannel
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfAltDsmChannel" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rfAltDsmChannel" ).Get( doc )) )
         m_writeTrConfParams.rfSettings.rfAltDsmChannel = jsonVal->GetInt();
 
       // uartBaudrate
-      if ( jsonVal = rapidjson::Pointer( "/data/req/uartBaudrate" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/uartBaudrate" ).Get( doc )) )
       {
         int baudRate = jsonVal->GetInt();
         switch ( baudRate )
@@ -372,146 +372,146 @@ namespace iqrf {
       }
 
       // customDpaHandler
-      if ( jsonVal = rapidjson::Pointer( "/data/req/customDpaHandler" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/customDpaHandler" ).Get( doc )) )
       {
         m_writeTrConfParams.dpaConfigBits.customDpaHandler = jsonVal->GetBool();
-        if ( m_writeTrConfParams.dpaConfigBits.customDpaHandler == true )
+        if ( m_writeTrConfParams.dpaConfigBits.customDpaHandler )
           m_writeTrConfParams.dpaConfigBits.value |= 0x01;
         m_writeTrConfParams.dpaConfigBits.mask |= 0x01;
       }
 
       // nodeDpaInterface
-      if ( jsonVal = rapidjson::Pointer( "/data/req/nodeDpaInterface" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/nodeDpaInterface" ).Get( doc )) )
       {
         m_writeTrConfParams.dpaConfigBits.nodeDpaInterface = jsonVal->GetBool();
         m_writeTrConfParams.dpaConfigBits.nodeDpaInterfaceIsSet = true;
       }
 
       // dpaPeerToPeer
-      if ( jsonVal = rapidjson::Pointer( "/data/req/dpaPeerToPeer" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/dpaPeerToPeer" ).Get( doc )) )
       {
         m_writeTrConfParams.dpaConfigBits.dpaPeerToPeer = jsonVal->GetBool();
         m_writeTrConfParams.dpaConfigBits.dpaPeerToPeerIsSet = true;
       }
 
       // dpaAutoexec
-      if ( jsonVal = rapidjson::Pointer( "/data/req/dpaAutoexec" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/dpaAutoexec" ).Get( doc )) )
       {
         m_writeTrConfParams.dpaConfigBits.dpaAutoexec = jsonVal->GetBool();
-        if ( m_writeTrConfParams.dpaConfigBits.dpaAutoexec == true )
+        if ( m_writeTrConfParams.dpaConfigBits.dpaAutoexec )
           m_writeTrConfParams.dpaConfigBits.value |= 0x04;
         m_writeTrConfParams.dpaConfigBits.mask |= 0x04;
       }
 
       // routingOff
-      if ( jsonVal = rapidjson::Pointer( "/data/req/routingOff" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/routingOff" ).Get( doc )) )
       {
         m_writeTrConfParams.dpaConfigBits.routingOff = jsonVal->GetBool();
-        if ( m_writeTrConfParams.dpaConfigBits.routingOff == true )
+        if ( m_writeTrConfParams.dpaConfigBits.routingOff )
           m_writeTrConfParams.dpaConfigBits.value |= 0x08;
         m_writeTrConfParams.dpaConfigBits.mask |= 0x08;
       }
 
       // ioSetup
-      if ( jsonVal = rapidjson::Pointer( "/data/req/ioSetup" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/ioSetup" ).Get( doc )) )
       {
         m_writeTrConfParams.dpaConfigBits.ioSetup = jsonVal->GetBool();
-        if ( m_writeTrConfParams.dpaConfigBits.ioSetup == true )
+        if ( m_writeTrConfParams.dpaConfigBits.ioSetup )
           m_writeTrConfParams.dpaConfigBits.value |= 0x10;
         m_writeTrConfParams.dpaConfigBits.mask |= 0x10;
       }
 
       // peerToPeer
-      if ( jsonVal = rapidjson::Pointer( "/data/req/peerToPeer" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/peerToPeer" ).Get( doc )) )
       {
         m_writeTrConfParams.dpaConfigBits.peerToPeer = jsonVal->GetBool();
-        if ( m_writeTrConfParams.dpaConfigBits.peerToPeer == true )
+        if ( m_writeTrConfParams.dpaConfigBits.peerToPeer )
           m_writeTrConfParams.dpaConfigBits.value |= 0x20;
         m_writeTrConfParams.dpaConfigBits.mask |= 0x20;
       }
 
       // neverSleep
-      if ( jsonVal = rapidjson::Pointer( "/data/req/neverSleep" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/neverSleep" ).Get( doc )) )
       {
         m_writeTrConfParams.dpaConfigBits.neverSleep = jsonVal->GetBool();
-        if ( m_writeTrConfParams.dpaConfigBits.neverSleep == true )
+        if ( m_writeTrConfParams.dpaConfigBits.neverSleep )
           m_writeTrConfParams.dpaConfigBits.value |= 0x40;
         m_writeTrConfParams.dpaConfigBits.mask |= 0x40;
       }
 
       // stdAndLpNetwork
-      if ( jsonVal = rapidjson::Pointer( "/data/req/stdAndLpNetwork" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/stdAndLpNetwork" ).Get( doc )) )
       {
         m_writeTrConfParams.dpaConfigBits.stdAndLpNetwork = jsonVal->GetBool();
-        if ( m_writeTrConfParams.dpaConfigBits.stdAndLpNetwork == true )
+        if ( m_writeTrConfParams.dpaConfigBits.stdAndLpNetwork )
           m_writeTrConfParams.dpaConfigBits.value |= 0x80;
         m_writeTrConfParams.dpaConfigBits.mask |= 0x80;
       }
 
       // rfPgmDualChannel
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfPgmDualChannel" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rfPgmDualChannel" ).Get( doc )) )
       {
         m_writeTrConfParams.RFPGM.rfPgmDualChannel = jsonVal->GetBool();
-        if ( m_writeTrConfParams.RFPGM.rfPgmDualChannel == true )
+        if ( m_writeTrConfParams.RFPGM.rfPgmDualChannel )
           m_writeTrConfParams.RFPGM.value |= 0x03;
         m_writeTrConfParams.RFPGM.mask |= 0x03;
       }
 
       // rfPgmLpMode
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfPgmLpMode" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rfPgmLpMode" ).Get( doc )) )
       {
         m_writeTrConfParams.RFPGM.rfPgmLpMode = jsonVal->GetBool();
-        if ( m_writeTrConfParams.RFPGM.rfPgmLpMode == true )
+        if ( m_writeTrConfParams.RFPGM.rfPgmLpMode )
           m_writeTrConfParams.RFPGM.value |= 0x04;
         m_writeTrConfParams.RFPGM.mask |= 0x04;
       }
 
       // rfPgmEnableAfterReset
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfPgmEnableAfterReset" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rfPgmEnableAfterReset" ).Get( doc )) )
       {
         m_writeTrConfParams.RFPGM.rfPgmEnableAfterReset = jsonVal->GetBool();
-        if ( m_writeTrConfParams.RFPGM.rfPgmEnableAfterReset == true )
+        if ( m_writeTrConfParams.RFPGM.rfPgmEnableAfterReset )
           m_writeTrConfParams.RFPGM.value |= 0x10;
         m_writeTrConfParams.RFPGM.mask |= 0x10;
       }
 
       // rfPgmTerminateAfter1Min
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfPgmTerminateAfter1Min" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rfPgmTerminateAfter1Min" ).Get( doc )) )
       {
         m_writeTrConfParams.RFPGM.rfPgmTerminateAfter1Min = jsonVal->GetBool();
-        if ( m_writeTrConfParams.RFPGM.rfPgmTerminateAfter1Min == true )
+        if ( m_writeTrConfParams.RFPGM.rfPgmTerminateAfter1Min )
           m_writeTrConfParams.RFPGM.value |= 0x40;
         m_writeTrConfParams.RFPGM.mask |= 0x40;
       }
 
       // rfPgmTerminateMcuPin
-      if ( jsonVal = rapidjson::Pointer( "/data/req/rfPgmTerminateMcuPin" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/rfPgmTerminateMcuPin" ).Get( doc )) )
       {
         m_writeTrConfParams.RFPGM.rfPgmTerminateMcuPin = jsonVal->GetBool();
-        if ( m_writeTrConfParams.RFPGM.rfPgmTerminateMcuPin == true )
+        if ( m_writeTrConfParams.RFPGM.rfPgmTerminateMcuPin )
           m_writeTrConfParams.RFPGM.value |= 0x80;
         m_writeTrConfParams.RFPGM.mask |= 0x80;
       }
 
       // accessPassword
-      if ( jsonVal = rapidjson::Pointer( "/data/req/accessPassword" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/accessPassword" ).Get( doc )) )
       {
         std::string s = jsonVal->GetString();
         for ( int i = 0; i < 16; i++ )
           m_writeTrConfParams.security.accessPassword.push_back( 0x00 );
         size_t len = s.length() > 16 ? 16 : s.length();        
-        for ( int i = 0; i < len; i++ )
+        for ( unsigned int i = 0; i < len; i++ )
           m_writeTrConfParams.security.accessPassword[i] = s[i];
       }
 
       // securityUserKey
-      if ( jsonVal = rapidjson::Pointer( "/data/req/securityUserKey" ).Get( doc ) )
+      if ( (jsonVal = rapidjson::Pointer( "/data/req/securityUserKey" ).Get( doc )) )
       {
         std::string s = jsonVal->GetString();
         for ( int i = 0; i < 16; i++ )
           m_writeTrConfParams.security.userKey.push_back( 0x00 );
         size_t len = s.length() > 16 ? 16 : s.length();
-        for ( int i = 0; i < len; i++ )
+        for ( unsigned int i = 0; i < len; i++ )
           m_writeTrConfParams.security.userKey[i] = s[i];
       }
     }

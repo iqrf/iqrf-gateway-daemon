@@ -26,14 +26,18 @@
           "type": "object",
           "description": "Returns following values, see its description.",
           "properties": {
-            "nodesNr": {
+            "numNodes": {
               "type": "integer",
-              "description": "Number of bonded nodes in the network."
+              "description": "Number of nodes in the network."
+            },
+            "removeBondFailedNodes": {
+              "type": "array",
+              "description": "Nodes that didn't set FRC Acknowledged broadcast bit0 (remove bond failed).",
+              "items": {
+                "type": "integer"
+              }
             }
-          },
-          "required": [
-            "nodesNr"
-          ]
+          }
         },
         "raw": {
           "type": "array",

@@ -59,11 +59,16 @@ namespace iqrf {
     };
 
     SmartConnectError() : m_type(Type::NoError), m_message("") {};
-    SmartConnectError(Type errorType) : m_type(errorType), m_message("") {};
+    explicit SmartConnectError(Type errorType) : m_type(errorType), m_message("") {};
     SmartConnectError(Type errorType, const std::string& message) : m_type(errorType), m_message(message) {};
 
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
+
+    SmartConnectError(const SmartConnectError& other) {
+      m_type = other.getType();
+      m_message = other.getMessage();
+    }
 
     SmartConnectError& operator=(const SmartConnectError& error) {
       if (this == &error) {
@@ -204,7 +209,7 @@ namespace iqrf {
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move(*iter);
       m_transResults.pop_front();
-      return std::move(tranResult);
+      return tranResult;
     }
   };
 
@@ -302,7 +307,7 @@ namespace iqrf {
           smartConnectTransaction = m_exclusiveAccess->executeDpaTransaction(smartConnectRequest, 0);
           transResult = smartConnectTransaction->get();
         }
-        catch (std::exception& e) {
+        catch (const std::exception& e) {
           TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
@@ -397,7 +402,7 @@ namespace iqrf {
           perEnumTransaction = m_exclusiveAccess->executeDpaTransaction(perEnumRequest);
           transResult = perEnumTransaction->get();
         }
-        catch (std::exception& e) {
+        catch (const std::exception& e) {
           TRC_WARNING("DPA transaction error : " << e.what());
 
           if (rep < m_repeat) {
@@ -485,7 +490,7 @@ namespace iqrf {
         smartConnectResult.setOsRead( osReadPtr );
         TRC_INFORMATION( "OS read successful!" );
       }
-      catch (std::exception &e) {
+      catch (const std::exception &e) {
         SmartConnectError error(SmartConnectError::Type::OsRead, e.what());
         smartConnectResult.setError(error);
       }
@@ -518,7 +523,7 @@ namespace iqrf {
           THROW_EXC( std::logic_error, "Old version of DPA: " << PAR( dpaVersion ) );
         }
       }
-      catch ( std::exception& ex ) {
+      catch ( const std::exception& ex ) {
         SmartConnectError error( SmartConnectError::Type::MinDpaVerUsed, ex.what() );
         smartConnectResult.setError( error );
         return smartConnectResult;
@@ -733,7 +738,7 @@ namespace iqrf {
 
         // embPers
         rapidjson::Value embPersJsonArray(kArrayType);
-        for (std::set<int>::iterator it = osReadObject->getEmbedPer().begin(); it != osReadObject->getEmbedPer().end(); it++)
+        for (std::set<int>::iterator it = osReadObject->getEmbedPer().begin(); it != osReadObject->getEmbedPer().end(); ++it)
         {
           embPersJsonArray.PushBack(*it, allocator);
         }
@@ -749,7 +754,7 @@ namespace iqrf {
         Pointer("/data/rsp/osRead/enumFlags/value").Set(response, osReadObject->getFlags());
 
         // flags - parsed
-        bool stdModeSupported = ((osReadObject->getFlags() & 0b1) == 0b1) ? true : false;
+        bool stdModeSupported = (osReadObject->getFlags() & 0b1) == 0b1;
         if (stdModeSupported)
         {
           Pointer("/data/rsp/osRead/enumFlags/rfModeStd").Set(response, true);
@@ -764,7 +769,7 @@ namespace iqrf {
         // STD+LP network is running, otherwise STD network.
         if (osReadObject->getDpaVer() >= 0x0400)
         {
-          bool stdAndLpModeNetwork = ((osReadObject->getFlags() & 0b100) == 0b100) ? true : false;
+          bool stdAndLpModeNetwork = (osReadObject->getFlags() & 0b100) == 0b100;
           if (stdAndLpModeNetwork)
           {
             Pointer("/data/rsp/osRead/enumFlags/stdAndLpNetwork").Set(response, true);
@@ -777,7 +782,7 @@ namespace iqrf {
 
         // UserPers
         rapidjson::Value userPerJsonArray(kArrayType);
-        for (std::set<int>::iterator it = osReadObject->getUserPer().begin(); it != osReadObject->getUserPer().end(); it++)
+        for (std::set<int>::iterator it = osReadObject->getUserPer().begin(); it != osReadObject->getUserPer().end(); ++it)
         {
           userPerJsonArray.PushBack(*it, allocator);
         }
@@ -1087,7 +1092,7 @@ namespace iqrf {
         m_returnVerbose = comSmartConnect.getVerbose();
       }
       // parsing and checking service parameters failed 
-      catch (std::exception& ex) {
+      catch (const std::exception& ex) {
         Document failResponse = createCheckParamsFailedResponse(comSmartConnect.getMsgId(), msgType, ex.what());
         m_iMessagingSplitterService->sendMessage(messagingId, std::move(failResponse));
 
@@ -1099,7 +1104,7 @@ namespace iqrf {
       try {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
-      catch (std::exception &e) {
+      catch (const std::exception &e) {
         const char* errorStr = e.what();
         TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
 
@@ -1135,6 +1140,8 @@ namespace iqrf {
         "SmartConnectService instance activate" << std::endl <<
         "************************************"
       );
+
+      (void)props;
 
       // for the sake of register function parameters 
       std::vector<std::string> m_filters =
@@ -1175,6 +1182,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props;
     }
 
     void attachInterface(IIqrfDpaService* iface)

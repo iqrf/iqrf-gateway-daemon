@@ -1,0 +1,65 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqmeshNetwork_RemoveBondOnlyInC-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQMESH Network management - remove bond.",
+      "enum": [
+        "iqmeshNetwork_RemoveBondOnlyInC"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "repeat": {
+          "type": "integer",
+          "description": "Number of repetitions of DPA messages.",
+          "default": 1
+        },
+        "req": {
+          "type": "object",
+          "properties": {
+            "deviceAddr": {
+              "type": "array",
+              "description": "Array of Nodes to remove at [C]",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "clearAllBonds": {
+              "type": "boolean",
+              "description": "Clears all bonds at [C] side.",
+              "default": false
+            }
+          },
+          "required": [
+            "deviceAddr"
+          ]
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
+        }
+      },
+      "required": [
+        "msgId",
+        "req"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}

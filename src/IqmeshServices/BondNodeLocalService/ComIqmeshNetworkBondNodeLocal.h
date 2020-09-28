@@ -8,7 +8,7 @@ namespace iqrf {
   {
   public:
     ComIqmeshNetworkBondNodeLocal() = delete;
-    ComIqmeshNetworkBondNodeLocal(rapidjson::Document& doc)
+    explicit ComIqmeshNetworkBondNodeLocal(rapidjson::Document& doc)
       :ComBase(doc)
     {
       parse(doc);
@@ -26,7 +26,7 @@ namespace iqrf {
       return m_isSetDeviceAddr;
     }
 
-    const int getDeviceAddr() const
+    int getDeviceAddr() const
     {
       return m_deviceAddr;
     }
@@ -35,12 +35,12 @@ namespace iqrf {
       return m_isSetBondingMask;
     }
 
-    const int getBondingMask() const
+    int getBondingMask() const
     {
       return m_bondingMask;
     }
 
-    const int getBondingTestRetries() const
+    int getBondingTestRetries() const
     {
       return m_bondingTestRetries;
     }

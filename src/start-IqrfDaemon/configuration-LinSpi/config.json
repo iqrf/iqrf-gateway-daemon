@@ -106,6 +106,20 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::IqrfBackup",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfBackup",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfRestore",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfRestore",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::LegacyApiSupport",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "LegacyApiSupport",
@@ -287,7 +301,21 @@
       "enabled": true,
       "startlevel": 3
     },
-	{
+    {
+      "name": "iqrf::BackupService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "BackupService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::RestoreService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "RestoreService",
+      "enabled": true,
+      "startlevel": 3
+    },
+	  {
       "name": "iqrf::RemoveBondService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "RemoveBondService",

@@ -85,7 +85,7 @@ namespace iqrf {
     // Reads one nibble.
     uint8_t readNibble()
     {
-      int streamIndex = m_nibbleIndex / 2;
+      unsigned int streamIndex = m_nibbleIndex / 2;
       if (streamIndex >= m_stream.length()) {
         THROW_EXC(std::logic_error, "No more data available to read.");
       }
@@ -141,7 +141,7 @@ namespace iqrf {
     std::basic_string<uint8_t> result;
     result.resize(sizeof(uint64_t) * (iqrfCode.length() / maximumPiece57Length) + lastPieceLenIndex);
  
-    for (int piece57Index = 0, pieceIndex = 0; piece57Index < iqrfCode.length(); piece57Index += maximumPiece57Length, pieceIndex += sizeof(uint64_t))
+    for (unsigned int piece57Index = 0, pieceIndex = 0; piece57Index < iqrfCode.length(); piece57Index += maximumPiece57Length, pieceIndex += sizeof(uint64_t))
     {
       int piece57Length = std::min((size_t)maximumPiece57Length, iqrfCode.length() - piece57Index);
 
@@ -149,7 +149,7 @@ namespace iqrf {
       for (int inPiece57Index = piece57Length; --inPiece57Index >= 0; )
       {
         char char57 = iqrfCode[piece57Index + inPiece57Index];
-        int alphabet57Index = base57alphabet.find(char57);
+        size_t alphabet57Index = base57alphabet.find(char57);
         if (alphabet57Index == std::string::npos) {
           THROW_EXC(std::logic_error, "IQRF Code contains an incorrect character " << PAR(char57) << " at position: " << PAR(piece57Index + inPiece57Index));
         }

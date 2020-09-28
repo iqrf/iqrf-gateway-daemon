@@ -106,6 +106,20 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::IqrfBackup",
+      "libraryPath": "",
+      "libraryName": "IqrfBackup",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfRestore",
+      "libraryPath": "",
+      "libraryName": "IqrfRestore",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::MonitorService",
       "libraryPath": "",
       "libraryName": "MonitorService",
@@ -291,6 +305,20 @@
       "name": "iqrf::AutonetworkService",
       "libraryPath": "",
       "libraryName": "AutonetworkService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::BackupService",
+      "libraryPath": "",
+      "libraryName": "BackupService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::RestoreService",
+      "libraryPath": "",
+      "libraryName": "RestoreService",
       "enabled": true,
       "startlevel": 3
     },

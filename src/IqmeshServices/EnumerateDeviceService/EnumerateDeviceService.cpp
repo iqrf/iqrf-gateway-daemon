@@ -75,11 +75,16 @@ namespace iqrf {
     };
 
     DeviceEnumerateError() : m_type(Type::NoError), m_message("ok") {};
-    DeviceEnumerateError(Type errorType) : m_type(errorType), m_message("") {};
+    explicit DeviceEnumerateError(Type errorType) : m_type(errorType), m_message("") {};
     DeviceEnumerateError(Type errorType, const std::string& message) : m_type(errorType), m_message(message) {};
 
     Type getType() const { return m_type; };
     std::string getMessage() const { return m_message; };
+
+    DeviceEnumerateError(const DeviceEnumerateError& other) {
+      m_type = other.getType();
+      m_message = other.getMessage();
+    }
 
     DeviceEnumerateError& operator=(const DeviceEnumerateError& error) {
       if (this == &error) {
@@ -280,7 +285,7 @@ namespace iqrf {
       return m_standards;
     }
 
-    void setStandards(std::list<std::string> standards) {
+    void setStandards(const std::list<std::string> &standards) {
       m_standards = standards;
     }
 
@@ -307,7 +312,7 @@ namespace iqrf {
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move(*iter);
       m_transResults.pop_front();
-      return std::move(tranResult);
+      return tranResult;
     }
   };
 
@@ -333,7 +338,7 @@ namespace iqrf {
     bool m_morePeripheralsInfo = false;
     
   public:
-    Imp( EnumerateDeviceService& parent ) : m_parent( parent )
+    explicit Imp( EnumerateDeviceService& parent ) : m_parent( parent )
     {
     }
 
@@ -426,7 +431,7 @@ namespace iqrf {
           (nodeDiscoveryByte & compareByte) == compareByte
         );
       }
-      catch (std::exception& ex) {
+      catch (const std::exception& ex) {
         DeviceEnumerateError error( DeviceEnumerateError::Type::ReadDiscoveryByte, ex.what() );
         deviceEnumerateResult.setDiscoveryByteReadError( error );
       }
@@ -438,7 +443,7 @@ namespace iqrf {
         uint8_t vrnByte = readDiscoveryByte(deviceEnumerateResult, address);
         deviceEnumerateResult.setVrn(vrnByte);
       }
-      catch (std::exception& ex) {
+      catch (const std::exception& ex) {
         DeviceEnumerateError error( DeviceEnumerateError::Type::ReadDiscoveryByte, ex.what() );
         deviceEnumerateResult.setDiscoveryByteReadError( error );
       }
@@ -450,7 +455,7 @@ namespace iqrf {
         uint8_t zoneByte = readDiscoveryByte(deviceEnumerateResult, address);
         deviceEnumerateResult.setZone(zoneByte);
       }
-      catch (std::exception& ex) {
+      catch (const std::exception& ex) {
         DeviceEnumerateError error( DeviceEnumerateError::Type::ReadDiscoveryByte, ex.what() );
         deviceEnumerateResult.setDiscoveryByteReadError( error );
       }
@@ -462,7 +467,7 @@ namespace iqrf {
         uint8_t parentByte = readDiscoveryByte(deviceEnumerateResult, address);
         deviceEnumerateResult.setParent(parentByte);
       }
-      catch (std::exception& ex) {
+      catch (const std::exception& ex) {
         DeviceEnumerateError error( DeviceEnumerateError::Type::ReadDiscoveryByte, ex.what() );
         deviceEnumerateResult.setDiscoveryByteReadError( error );
       }
@@ -487,7 +492,7 @@ namespace iqrf {
         deviceEnumerateResult.setOsRead( osReadPtr );
         TRC_INFORMATION( "OS read successful!" );
       }
-      catch (std::exception & e) {
+      catch (const std::exception & e) {
         DeviceEnumerateError error(DeviceEnumerateError::Type::OsRead, e.what());
         deviceEnumerateResult.setOsReadError(error);
       }
@@ -515,7 +520,7 @@ namespace iqrf {
 
         TRC_INFORMATION( "Peripheral enumeration successful!" );
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         DeviceEnumerateError error( DeviceEnumerateError::Type::PerEnum, e.what() );
         deviceEnumerateResult.setPerEnumError( error );
@@ -532,7 +537,7 @@ namespace iqrf {
         deviceEnumerateResult.setMorePersInfo( exploreMorePeripheralInformationPtr );
         TRC_INFORMATION( "More peripheral information successful!" );
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         DeviceEnumerateError error( DeviceEnumerateError::Type::MorePersInfo, e.what() );
         deviceEnumerateResult.setPerEnumError( error );
@@ -570,7 +575,7 @@ namespace iqrf {
         TPerOSReadCfg_Response readHwpConfig = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSReadCfg_Response;
         deviceEnumerateResult.setHwpConfig( readHwpConfig );
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         DeviceEnumerateError error( DeviceEnumerateError::Type::ReadHwp, e.what() );
         deviceEnumerateResult.setHwpConfigReadError( error );
@@ -610,13 +615,13 @@ namespace iqrf {
         uint8_t byteIndex = deviceAddr / 8;
         uint8_t bitIndex = deviceAddr % 8;
         uint16_t compareByte = 1 << bitIndex;
-        if ( ( result = ( bondedNodesArr[byteIndex] & compareByte ) == compareByte ) == false )
+        if ( !( result = ( ( bondedNodesArr[byteIndex] & compareByte ) == compareByte ) ) )
         {
           DeviceEnumerateError deviceEnumerateError( DeviceEnumerateError::Type::NotBonded, "Node not bonded." );
           deviceEnumerateResult.setBondedError( deviceEnumerateError );
         }
       }
-      catch ( std::exception& e )
+      catch ( const std::exception& e )
       {
         DeviceEnumerateError deviceEnumerateError( DeviceEnumerateError::Type::NotBonded, e.what() );
         deviceEnumerateResult.setBondedError( deviceEnumerateError );
@@ -627,7 +632,7 @@ namespace iqrf {
     }     
 
     // Sets data for discovery response
-    void setDiscoveryDataResponse( DeviceEnumerateResult& deviceEnumerateResult, rapidjson::Document& response )
+    void setDiscoveryDataResponse( const DeviceEnumerateResult& deviceEnumerateResult, rapidjson::Document& response )
     {
       // if no data was successfully read, return empty message
       Pointer( "/data/rsp/discovery/discovered" ).Set( response, deviceEnumerateResult.isDiscovered() );
@@ -682,7 +687,7 @@ namespace iqrf {
 
       // embPers
       rapidjson::Value embPersJsonArray(kArrayType);
-      for(std::set<int>::iterator it = deviceEnumerateResult.getPerEnum()->getEmbedPer().begin(); it != deviceEnumerateResult.getPerEnum()->getEmbedPer().end(); it++) {
+      for(std::set<int>::iterator it = deviceEnumerateResult.getPerEnum()->getEmbedPer().begin(); it != deviceEnumerateResult.getPerEnum()->getEmbedPer().end(); ++it) {
         embPersJsonArray.PushBack(*it, allocator);
       }
       Pointer("/data/rsp/peripheralEnumeration/embPers").Set(response, embPersJsonArray);
@@ -697,7 +702,7 @@ namespace iqrf {
       Pointer("/data/rsp/peripheralEnumeration/flags/value").Set(response, deviceEnumerateResult.getPerEnum()->getFlags());
 
       // flags - parsed
-      bool stdModeSupported = ((deviceEnumerateResult.getPerEnum()->getFlags() & 0b1) == 0b1) ? true : false;
+      bool stdModeSupported = (deviceEnumerateResult.getPerEnum()->getFlags() & 0b1);
       if (stdModeSupported) {
         Pointer("/data/rsp/peripheralEnumeration/flags/rfModeStd").Set(response, true);
         Pointer("/data/rsp/peripheralEnumeration/flags/rfModeLp").Set(response, false);
@@ -709,7 +714,7 @@ namespace iqrf {
 
       // STD+LP network is running, otherwise STD network.
       if (deviceEnumerateResult.getPerEnum()->getDpaVer() >= 0x0400) {
-        bool stdAndLpModeNetwork = ((deviceEnumerateResult.getPerEnum()->getFlags() & 0b100) == 0b100) ? true : false;
+        bool stdAndLpModeNetwork = (deviceEnumerateResult.getPerEnum()->getFlags() & 0b100);
         if (stdAndLpModeNetwork) {
           Pointer("/data/rsp/peripheralEnumeration/flags/stdAndLpNetwork").Set(response, true);
         }
@@ -720,7 +725,7 @@ namespace iqrf {
 
       // UserPers
       rapidjson::Value userPerJsonArray(kArrayType);
-      for(std::set<int>::iterator it = deviceEnumerateResult.getPerEnum()->getUserPer().begin(); it != deviceEnumerateResult.getPerEnum()->getUserPer().end(); it++) {
+      for(std::set<int>::iterator it = deviceEnumerateResult.getPerEnum()->getUserPer().begin(); it != deviceEnumerateResult.getPerEnum()->getUserPer().end(); ++it) {
         userPerJsonArray.PushBack(*it, allocator);
       }
       Pointer("/data/rsp/peripheralEnumeration/userPers").Set(response, userPerJsonArray);
@@ -750,94 +755,94 @@ namespace iqrf {
       // byte 0x01
       uint8_t byte01 = configuration[0x00];
 
-      bool coordPresent = ( ( byte01 & 0b1 ) == 0b1 ) ? true : false;
+      bool coordPresent = ( ( byte01 & 0b1 ) == 0b1 );
       Pointer( "/data/rsp/trConfiguration/embPers/coordinator" ).Set( response, coordPresent );
 
-      bool nodePresent = ( ( byte01 & 0b10 ) == 0b10 ) ? true : false;
+      bool nodePresent = ( ( byte01 & 0b10 ) == 0b10 );
       Pointer( "/data/rsp/trConfiguration/embPers/node" ).Set( response, nodePresent );
 
-      bool osPresent = ( ( byte01 & 0b100 ) == 0b100 ) ? true : false;
+      bool osPresent = ( ( byte01 & 0b100 ) == 0b100 );
       Pointer( "/data/rsp/trConfiguration/embPers/os" ).Set( response, osPresent );
 
-      bool eepromPresent = ( ( byte01 & 0b1000 ) == 0b1000 ) ? true : false;
+      bool eepromPresent = ( ( byte01 & 0b1000 ) == 0b1000 );
       Pointer( "/data/rsp/trConfiguration/embPers/eeprom" ).Set( response, eepromPresent );
 
-      bool eeepromPresent = ( ( byte01 & 0b10000 ) == 0b10000 ) ? true : false;
+      bool eeepromPresent = ( ( byte01 & 0b10000 ) == 0b10000 );
       Pointer( "/data/rsp/trConfiguration/embPers/eeeprom" ).Set( response, eeepromPresent );
 
-      bool ramPresent = ( ( byte01 & 0b100000 ) == 0b100000 ) ? true : false;
+      bool ramPresent = ( ( byte01 & 0b100000 ) == 0b100000 );
       Pointer( "/data/rsp/trConfiguration/embPers/ram" ).Set( response, ramPresent );
 
-      bool ledrPresent = ( ( byte01 & 0b1000000 ) == 0b1000000 ) ? true : false;
+      bool ledrPresent = ( ( byte01 & 0b1000000 ) == 0b1000000 );
       Pointer( "/data/rsp/trConfiguration/embPers/ledr" ).Set( response, ledrPresent );
 
-      bool ledgPresent = ( ( byte01 & 0b10000000 ) == 0b10000000 ) ? true : false;
+      bool ledgPresent = ( ( byte01 & 0b10000000 ) == 0b10000000 );
       Pointer( "/data/rsp/trConfiguration/embPers/ledg" ).Set( response, ledgPresent );
 
 
       // byte 0x02
       uint8_t byte02 = configuration[0x01];
 
-      bool spiPresent = ( ( byte02 & 0b1 ) == 0b1 ) ? true : false;
+      bool spiPresent = ( ( byte02 & 0b1 ) == 0b1 );
       Pointer( "/data/rsp/trConfiguration/embPers/spi" ).Set( response, spiPresent );
 
-      bool ioPresent = ( ( byte02 & 0b10 ) == 0b10 ) ? true : false;
+      bool ioPresent = ( ( byte02 & 0b10 ) == 0b10 );
       Pointer( "/data/rsp/trConfiguration/embPers/io" ).Set( response, ioPresent );
 
-      bool thermometerPresent = ( ( byte02 & 0b100 ) == 0b100 ) ? true : false;
+      bool thermometerPresent = ( ( byte02 & 0b100 ) == 0b100 );
       Pointer( "/data/rsp/trConfiguration/embPers/thermometer" ).Set( response, thermometerPresent );
 
-      bool pwmPresent = ( ( byte02 & 0b1000 ) == 0b1000 ) ? true : false;
+      bool pwmPresent = ( ( byte02 & 0b1000 ) == 0b1000 );
       Pointer( "/data/rsp/trConfiguration/embPers/pwm" ).Set( response, pwmPresent );
 
-      bool uartPresent = ( ( byte02 & 0b10000 ) == 0b10000 ) ? true : false;
+      bool uartPresent = ( ( byte02 & 0b10000 ) == 0b10000 );
       Pointer( "/data/rsp/trConfiguration/embPers/uart" ).Set( response, uartPresent );
 
       if ( dpaVer < 0x0400 )
       {
-        bool frcPresent = ( ( byte02 & 0b100000 ) == 0b100000 ) ? true : false;
+        bool frcPresent = ( ( byte02 & 0b100000 ) == 0b100000 );
         Pointer( "/data/rsp/trConfiguration/embPers/frc" ).Set( response, frcPresent );
       }
 
       // byte 0x05
       uint8_t byte05 = configuration[0x04];
 
-      bool customDpaHandler = ( ( byte05 & 0b1 ) == 0b1 ) ? true : false;
+      bool customDpaHandler = ( ( byte05 & 0b1 ) == 0b1 );
       Pointer( "/data/rsp/trConfiguration/customDpaHandler" ).Set( response, customDpaHandler );
 
       // for DPA v4.00 downwards
       if ( dpaVer < 0x0400 ) {
-        bool nodeDpaInterface = ( ( byte05 & 0b00000010 ) == 0b00000010 ) ? true : false;
+        bool nodeDpaInterface = ( ( byte05 & 0b00000010 ) == 0b00000010 );
         Pointer( "/data/rsp/trConfiguration/nodeDpaInterface" ).Set( response, nodeDpaInterface );
       }
 
       // for DPA v4.10 upwards
       if ( dpaVer >= 0x0410 ) {
-        bool dpaPeerToPeer = ( ( byte05 & 0b00000010 ) == 0b00000010 ) ? true : false;
+        bool dpaPeerToPeer = ( ( byte05 & 0b00000010 ) == 0b00000010 );
         Pointer( "/data/rsp/trConfiguration/dpaPeerToPeer" ).Set( response, dpaPeerToPeer );
       }
 
-      bool dpaAutoexec = ( ( byte05 & 0b100 ) == 0b100 ) ? true : false;
+      bool dpaAutoexec = ( ( byte05 & 0b100 ) == 0b100 );
       Pointer( "/data/rsp/trConfiguration/dpaAutoexec" ).Set( response, dpaAutoexec );
 
-      bool routingOff = ( ( byte05 & 0b1000 ) == 0b1000 ) ? true : false;
+      bool routingOff = ( ( byte05 & 0b1000 ) == 0b1000 );
       Pointer( "/data/rsp/trConfiguration/routingOff" ).Set( response, routingOff );
 
-      bool ioSetup = ( ( byte05 & 0b10000 ) == 0b10000 ) ? true : false;
+      bool ioSetup = ( ( byte05 & 0b10000 ) == 0b10000 );
       Pointer( "/data/rsp/trConfiguration/ioSetup" ).Set( response, ioSetup );
 
-      bool peerToPeer = ( ( byte05 & 0b100000 ) == 0b100000 ) ? true : false;
+      bool peerToPeer = ( ( byte05 & 0b100000 ) == 0b100000 );
       Pointer( "/data/rsp/trConfiguration/peerToPeer" ).Set( response, peerToPeer );
 
       // for DPA v3.03 onwards
       if ( dpaVer >= 0x0303 ) {
-        bool neverSleep = ( ( byte05 & 0b01000000 ) == 0b01000000 ) ? true : false;
+        bool neverSleep = ( ( byte05 & 0b01000000 ) == 0b01000000 );
         Pointer( "/data/rsp/trConfiguration/neverSleep" ).Set( response, neverSleep );
       }
 
       // for DPA v4.00 onwards
       if ( dpaVer >= 0x0400 ) {
-        bool stdAndLpNetwork = ( ( byte05 & 0b10000000 ) == 0b10000000 ) ? true : false;
+        bool stdAndLpNetwork = ( ( byte05 & 0b10000000 ) == 0b10000000 );
         Pointer( "/data/rsp/trConfiguration/stdAndLpNetwork" ).Set( response, stdAndLpNetwork );
       }
 
@@ -867,22 +872,22 @@ namespace iqrf {
       // RFPGM byte
       uint8_t rfpgm = hwpConfig.RFPGM;
 
-      bool rfPgmDualChannel = ( ( rfpgm & 0b00000011 ) == 0b00000011 ) ? true : false;
+      bool rfPgmDualChannel = ( ( rfpgm & 0b00000011 ) == 0b00000011 );
       Pointer( "/data/rsp/trConfiguration/rfPgmDualChannel" ).Set( response, rfPgmDualChannel );
 
-      bool rfPgmLpMode = ( ( rfpgm & 0b00000100 ) == 0b00000100 ) ? true : false;
+      bool rfPgmLpMode = ( ( rfpgm & 0b00000100 ) == 0b00000100 );
       Pointer( "/data/rsp/trConfiguration/rfPgmLpMode" ).Set( response, rfPgmLpMode );
 
-      bool rfPgmIncorrectUpload = ( ( rfpgm & 0b00001000 ) == 0b00001000 ) ? true : false;
+      bool rfPgmIncorrectUpload = ( ( rfpgm & 0b00001000 ) == 0b00001000 );
       Pointer( "/data/rsp/trConfiguration/rfPgmIncorrectUpload" ).Set( response, rfPgmIncorrectUpload );
 
-      bool enableAfterReset = ( ( rfpgm & 0b00010000 ) == 0b00010000 ) ? true : false;
+      bool enableAfterReset = ( ( rfpgm & 0b00010000 ) == 0b00010000 );
       Pointer( "/data/rsp/trConfiguration/rfPgmEnableAfterReset" ).Set( response, enableAfterReset );
 
-      bool rfPgmTerminateAfter1Min = ( ( rfpgm & 0b01000000 ) == 0b01000000 ) ? true : false;
+      bool rfPgmTerminateAfter1Min = ( ( rfpgm & 0b01000000 ) == 0b01000000 );
       Pointer( "/data/rsp/trConfiguration/rfPgmTerminateAfter1Min" ).Set( response, rfPgmTerminateAfter1Min );
 
-      bool rfPgmTerminateMcuPin = ( ( rfpgm & 0b10000000 ) == 0b10000000 ) ? true : false;
+      bool rfPgmTerminateMcuPin = ( ( rfpgm & 0b10000000 ) == 0b10000000 );
       Pointer( "/data/rsp/trConfiguration/rfPgmTerminateMcuPin" ).Set( response, rfPgmTerminateMcuPin );
 
       // RF band - undocumented byte
@@ -917,7 +922,7 @@ namespace iqrf {
       Document::AllocatorType& allocator = response.GetAllocator();
       rapidjson::Value perInfoJsonArray( kArrayType );
 
-      for (std::map<int, embed::explore::MorePeripheralInformation::Param>::iterator it = mParam.begin(); it != mParam.end(); it++)
+      for (std::map<int, embed::explore::MorePeripheralInformation::Param>::iterator it = mParam.begin(); it != mParam.end(); ++it)
       {
         rapidjson::Value perInfoObj( kObjectType );
         perInfoObj.AddMember(
@@ -983,7 +988,7 @@ namespace iqrf {
         m_morePeripheralsInfo = comEnumerateDevice.getMorePeripheralsInfo();
         m_returnVerbose = comEnumerateDevice.getVerbose();
       }
-      catch ( std::exception& ex )
+      catch ( const std::exception& ex )
       {
         // Parsing and checking service parameters failed 
         Pointer( "/data/status" ).Set( response, (int32_t)DeviceEnumerateError::Type::ServiceError );
@@ -999,7 +1004,7 @@ namespace iqrf {
       {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
-      catch ( std::exception &e )
+      catch ( const std::exception &e )
       {
         const char* errorStr = e.what();
         TRC_WARNING( "Error while establishing exclusive DPA access: " << PAR( errorStr ) );
@@ -1181,6 +1186,8 @@ namespace iqrf {
         "******************************************"
       );
 
+      (void)props;
+
       // for the sake of register function parameters 
       std::vector<std::string> supportedMsgTypes =
       {
@@ -1219,6 +1226,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props;
     }
 
     void attachInterface(IIqrfDpaService* iface)

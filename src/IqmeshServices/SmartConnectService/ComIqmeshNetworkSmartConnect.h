@@ -9,7 +9,7 @@ namespace iqrf {
   {
   public:
     ComIqmeshNetworkSmartConnect() = delete;
-    ComIqmeshNetworkSmartConnect(rapidjson::Document& doc)
+    explicit ComIqmeshNetworkSmartConnect(rapidjson::Document& doc)
       :ComBase(doc)
     {
       parse(doc);
@@ -27,12 +27,12 @@ namespace iqrf {
       return m_isSetDeviceAddr;
     }
 
-    const int getDeviceAddr() const
+    int getDeviceAddr() const
     {
       return m_deviceAddr;
     }
 
-    const int getBondingTestRetries() const
+    int getBondingTestRetries() const
     {
       return m_bondingTestRetries;
     }

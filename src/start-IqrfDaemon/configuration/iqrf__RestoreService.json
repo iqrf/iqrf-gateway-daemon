@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::RestoreService",
+  "instance": "iqrf::RestoreService-Instance1"
+}
