@@ -92,6 +92,8 @@ namespace iqrf {
 
     bool m_upToDate = false;
 
+    std::map<std::string, CacheReloadedFunc> m_cacheReloadedHndlMap;
+
   public:
     Imp()
     {
@@ -101,95 +103,95 @@ namespace iqrf {
     {
     }
 
-    const StdDriver* getDriver(int id, double ver) const
+    StdDriver getDriver(int id, double ver) const
     {
       TRC_FUNCTION_ENTER(PAR(id) << std::fixed << std::setprecision(2) << PAR(ver));
-      const StdDriver* drv = nullptr;
+      StdDriver drv;
       auto foundDrv = m_standardMap.find(id);
       if (foundDrv != m_standardMap.end()) {
         const StdItem& stdItem = foundDrv->second;
         auto foundVer = stdItem.m_drivers.find(ver);
         if (foundVer != stdItem.m_drivers.end()) {
-          drv = &foundVer->second;
+          drv = foundVer->second;
         }
       }
-      TRC_FUNCTION_LEAVE(PAR(drv));
+      TRC_FUNCTION_LEAVE(PAR(drv.isValid()));
       return drv;
     }
 
-    const Manufacturer* getManufacturer(uint16_t hwpid) const
+    Manufacturer getManufacturer(uint16_t hwpid) const
     {
       TRC_FUNCTION_ENTER(PAR(hwpid));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const Manufacturer* retval = nullptr;
+      Manufacturer manufacturer;
       auto found = m_productMap.find(hwpid);
       if (found != m_productMap.end()) {
         int manufacturerId = found->second.m_manufacturerId;
         auto foundManuf = m_manufacturerMap.find(manufacturerId);
         if (foundManuf != m_manufacturerMap.end()) {
-          retval = &(foundManuf->second);
+          manufacturer = foundManuf->second;
         }
       }
 
-      TRC_FUNCTION_LEAVE("");
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(manufacturer.m_manufacturerId));
+      return manufacturer;
     }
 
-    const Product* getProduct(uint16_t hwpid) const
+    Product getProduct(uint16_t hwpid) const
     {
       TRC_FUNCTION_ENTER(PAR(hwpid));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const Product* retval = nullptr;
+      Product product;
       auto found = m_productMap.find(hwpid);
       if (found != m_productMap.end()) {
-        retval = &(found->second);
+        product = found->second;
       }
 
-      TRC_FUNCTION_LEAVE("");
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(product.m_manufacturerId));
+      return product;
     }
 
-    const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
+    Package getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
     {
       TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(os) << PAR(dpa));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const Package* retval = nullptr;
+      Package package;
       for (const auto & pck : m_packageMap) {
         const Package& pckp = pck.second;
         if (pckp.m_hwpid == hwpid && pckp.m_hwpidVer == hwpidVer && pckp.m_os == os && pckp.m_dpa == dpa) {
-          retval = &(pck.second);
+          package = pck.second;
           break;
         }
       }
 
-      TRC_FUNCTION_LEAVE(PAR(retval));
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(package.m_packageId));
+      return package;
     }
 
-    const Package* getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
+    Package getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
     {
       TRC_FUNCTION_ENTER(PAR(hwpid) << PAR(hwpidVer) << PAR(os) << PAR(dpa));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const Package* retval = nullptr;
+      Package package;
       for (const auto & pck : m_packageMap) {
         const Package& pckp = pck.second;
         if (pckp.m_hwpid == hwpid && pckp.m_hwpidVer == hwpidVer &&
           pckp.m_os == embed::os::Read::getOsBuildAsString(os) && pckp.m_dpa == embed::explore::Enumerate::getDpaVerAsHexaString(dpa)) {
-          retval = &(pck.second);
+          package = pck.second;
           break;
         }
       }
 
-      TRC_FUNCTION_LEAVE(PAR(retval) << NAME_PAR(packageId, (retval ? retval->m_packageId : -1)));
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(package.m_packageId));
+      return package;
     }
 
     std::map<int, std::map<double, std::vector<std::pair<int, int>>>> getDrivers(const std::string& os, const std::string& dpa)
@@ -206,8 +208,8 @@ namespace iqrf {
         const Package& p = pck.second;
         if (p.m_os == os && p.m_dpa == dpa) {
           for (const auto & drv : p.m_stdDriverVect) {
-            map2[drv->getId()][drv->getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
-            ostr << '[' << drv->getId() << ',' << std::fixed << std::setprecision(2) << drv->getVersion() << "] ";
+            map2[drv.getId()][drv.getVersion()].push_back(std::make_pair(p.m_hwpid, p.m_hwpidVer));
+            ostr << '[' << drv.getId() << ',' << std::fixed << std::setprecision(2) << drv.getVersion() << "] ";
           }
         }
       }
@@ -269,32 +271,32 @@ namespace iqrf {
       return retval;
     }
 
-    const IJsCacheService::OsDpa* getOsDpa(int id) const
+    IJsCacheService::OsDpa getOsDpa(int id) const
     {
       TRC_FUNCTION_ENTER(PAR(id));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const OsDpa* retval = nullptr;
+      OsDpa retval;
       auto found = m_osDpaMap.find(id);
       if (found != m_osDpaMap.end()) {
-        retval = &(found->second);
+        retval = found->second;
       }
 
       TRC_FUNCTION_LEAVE("");
       return retval;
     }
 
-    const IJsCacheService::OsDpa* getOsDpa(const std::string& os, const std::string& dpa) const
+    IJsCacheService::OsDpa getOsDpa(const std::string& os, const std::string& dpa) const
     {
       TRC_FUNCTION_ENTER(PAR(os) << PAR(dpa));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const OsDpa* retval = nullptr;
+      OsDpa retval;
       for (auto & a : m_osDpaMap) {
         if (os == a.second.m_os && dpa == a.second.m_dpa) {
-          retval = &a.second;
+          retval = a.second;
           break;
         }
       }
@@ -313,23 +315,23 @@ namespace iqrf {
       return m_serverState;
     }
 
-    const StdDriver* getStandard(int standardId, double version)
+    StdDriver getStandard(int standardId, double version)
     {
       TRC_FUNCTION_ENTER(PAR(standardId) << std::fixed << std::setprecision(2) << PAR(version));
 
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-      const StdDriver *retval = nullptr;
+      StdDriver stdDriver;
       auto found = m_standardMap.find(standardId);
       if (found != m_standardMap.end()) {
         auto foundVer = found->second.m_drivers.find(version);
         if (foundVer != found->second.m_drivers.end()) {
-          retval = &(foundVer->second);
+          stdDriver = foundVer->second;
         }
       }
 
-      TRC_FUNCTION_LEAVE("");
-      return retval;
+      TRC_FUNCTION_LEAVE(PAR(stdDriver.isValid()));
+      return stdDriver;
     }
 
     bool parseFromFile(const std::string& fname, rapidjson::Document& doc)
@@ -428,6 +430,17 @@ namespace iqrf {
         m_upToDate = true;
         TRC_INFORMATION("Loading IqrfRepo cache success");
         std::cout << "Loading IqrfRepo cache success" << std::endl;
+
+        //invoke call back
+        {
+          std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+          for (auto & hndlIt : m_cacheReloadedHndlMap) {
+            if (hndlIt.second) {
+              hndlIt.second();
+            }
+          }
+        }
+
       }
       catch (std::exception &e) {
         CATCH_EXC_TRC_WAR(std::logic_error, e, "Loading IqrfRepo cache failed");
@@ -793,6 +806,18 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    void registerCacheReloadedHandler(const std::string & clientId, CacheReloadedFunc hndl)
+    {
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+      m_cacheReloadedHndlMap[clientId] = hndl;
+    }
+
+    void unregisterCacheReloadedHandler(const std::string & clientId)
+    {
+      std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
+      m_cacheReloadedHndlMap.erase(clientId);
+    }
+
     void checkCache()
     {
       TRC_FUNCTION_ENTER("");
@@ -1008,8 +1033,8 @@ namespace iqrf {
         for (auto itr = standardArray->Begin(); itr != standardArray->End(); ++itr) {
           POINTER_GET_INT("", itr, "/standardID", standardId, fname);
           POINTER_GET_DOUBLE("", itr, "/version", version, fname);
-          const StdDriver* stdDrv = getStandard(standardId, version);
-          if (stdDrv) {
+          StdDriver stdDrv = getStandard(standardId, version);
+          if (stdDrv.isValid()) {
             pck.m_stdDriverVect.push_back(stdDrv);
             auxtrc << '[' << standardId << ',' << std::fixed << std::setprecision(2) << version << "], ";
           }
@@ -1318,27 +1343,27 @@ namespace iqrf {
     delete m_imp;
   }
 
-  const IJsCacheService::StdDriver* JsCache::getDriver(int id, double ver) const
+  IJsCacheService::StdDriver JsCache::getDriver(int id, double ver) const
   {
     return m_imp->getDriver(id, ver);
   }
 
-  const IJsCacheService::Manufacturer* JsCache::getManufacturer(uint16_t hwpid) const
+  IJsCacheService::Manufacturer JsCache::getManufacturer(uint16_t hwpid) const
   {
     return m_imp->getManufacturer(hwpid);
   }
 
-  const IJsCacheService::Product* JsCache::getProduct(uint16_t hwpid) const
+  IJsCacheService::Product JsCache::getProduct(uint16_t hwpid) const
   {
     return m_imp->getProduct(hwpid);
   }
 
-  const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
+  IJsCacheService::Package JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const
   {
     return m_imp->getPackage(hwpid, hwpidVer, os, dpa);
   }
 
-  const IJsCacheService::Package* JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
+  IJsCacheService::Package JsCache::getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const
   {
     return m_imp->getPackage(hwpid, hwpidVer, os, dpa);
   }
@@ -1358,12 +1383,12 @@ namespace iqrf {
     return m_imp->getOsDpa();
   }
 
-  const IJsCacheService::OsDpa* JsCache::getOsDpa(int id) const
+  IJsCacheService::OsDpa JsCache::getOsDpa(int id) const
   {
     return m_imp->getOsDpa(id);
   }
 
-  const IJsCacheService::OsDpa* JsCache::getOsDpa(const std::string& os, const std::string& dpa) const
+  IJsCacheService::OsDpa JsCache::getOsDpa(const std::string& os, const std::string& dpa) const
   {
     return m_imp->getOsDpa(os, dpa);
   }
@@ -1371,6 +1396,16 @@ namespace iqrf {
   IJsCacheService::ServerState JsCache::getServerState() const
   {
     return m_imp->getServerState();
+  }
+
+  void JsCache::registerCacheReloadedHandler(const std::string & clientId, CacheReloadedFunc hndl)
+  {
+    m_imp->registerCacheReloadedHandler(clientId, hndl);
+  }
+
+  void JsCache::unregisterCacheReloadedHandler(const std::string & clientId)
+  {
+    m_imp->unregisterCacheReloadedHandler(clientId);
   }
 
   void JsCache::activate(const shape::Properties *props)

@@ -551,14 +551,14 @@ namespace iqrf {
         return smartConnectResult;
       }
 
-      const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer(smartConnectResult.getHwpId() );
-      if ( manufacturer != nullptr ) {
-        smartConnectResult.setManufacturer( manufacturer->m_name );
+      IJsCacheService::Manufacturer manufacturer = m_iJsCacheService->getManufacturer(smartConnectResult.getHwpId() );
+      if ( manufacturer.m_manufacturerId > -1) {
+        smartConnectResult.setManufacturer( manufacturer.m_name );
       }
 
-      const IJsCacheService::Product* product = m_iJsCacheService->getProduct(smartConnectResult.getHwpId());
-      if ( product != nullptr ) {
-        smartConnectResult.setProduct( product->m_name );
+      IJsCacheService::Product product = m_iJsCacheService->getProduct(smartConnectResult.getHwpId());
+      if ( product.m_manufacturerId > -1 ) {
+        smartConnectResult.setProduct( product.m_name );
       }
 
       //uint8_t osVersion = smartConnectResult.getOsRead()[4];
@@ -579,16 +579,16 @@ namespace iqrf {
         return smartConnectResult;
       }
 
-      const IJsCacheService::Package* package = m_iJsCacheService->getPackage(
+      IJsCacheService::Package package = m_iJsCacheService->getPackage(
         smartConnectResult.getHwpId(),
         smartConnectResult.getHwpIdVersion(),
         osBuildStr,
         m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr
       );
-      if ( package != nullptr ) {
+      if ( package.m_packageId > -1 ) {
         std::list<std::string> standards;
-        for ( const IJsCacheService::StdDriver* driver : package->m_stdDriverVect ) {
-          standards.push_back( driver->getName() );
+        for ( const IJsCacheService::StdDriver & driver : package.m_stdDriverVect ) {
+          standards.push_back( driver.getName() );
         }
         smartConnectResult.setStandards( standards );
       }

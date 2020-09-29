@@ -124,7 +124,7 @@ namespace iqrf {
       std::string m_handlerUrl;
       std::string m_customDriver;
       bool m_inRepo;
-      std::vector<const IJsCacheService::StdDriver *> m_drivers;
+      std::vector<IJsCacheService::StdDriver> m_drivers;
     };
 
     // aux class for enumeration
@@ -571,31 +571,31 @@ namespace iqrf {
         std::map<int, double> perVerMap;
 
         // Get for hwpid 0 plain DPA plugin
-        const iqrf::IJsCacheService::Package *pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, (uint16_t)d.m_dpaVer);
-        if (nullptr == pckg0) {
+        iqrf::IJsCacheService::Package pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, (uint16_t)d.m_dpaVer);
+        if (pckg0.m_packageId < 0) {
           TRC_WARNING("Cannot find package for:" << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, d.m_osBuild) << NAME_PAR(dpaVer, d.m_dpaVer)
             << std::endl << "trying to find the package for previous version of DPA");
 
           for (uint16_t dpa = (uint16_t)d.m_dpaVer - 1; dpa > 300; dpa--) {
             pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, dpa);
-            if (nullptr != pckg0) {
+            if (pckg0.m_packageId > -1) {
               TRC_WARNING("Found and loading package for:" << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, d.m_osBuild) << NAME_PAR(dpaVer, dpa));
               break;
             }
           }
         }
 
-        if (nullptr != pckg0) {
+        if (pckg0.m_packageId > -1) {
           for (auto per : nd->getEmbedExploreEnumerate()->getEmbedPer()) {
-            for (auto drv : pckg0->m_stdDriverVect) {
-              if (drv->getId() == -1) {
-                perVerMap.insert(std::make_pair(-1, drv->getVersion())); // driver library
+            for (const auto & drv : pckg0.m_stdDriverVect) {
+              if (drv.getId() == -1) {
+                perVerMap.insert(std::make_pair(-1, drv.getVersion())); // driver library
               }
-              if (drv->getId() == 255) {
-                perVerMap.insert(std::make_pair(255, drv->getVersion())); // embedExplore library
+              if (drv.getId() == 255) {
+                perVerMap.insert(std::make_pair(255, drv.getVersion())); // embedExplore library
               }
-              if (drv->getId() == per) {
-                perVerMap.insert(std::make_pair(per, drv->getVersion()));
+              if (drv.getId() == per) {
+                perVerMap.insert(std::make_pair(per, drv.getVersion()));
               }
             }
           }
@@ -621,8 +621,8 @@ namespace iqrf {
         }
 
         for (auto pv : perVerMap) {
-          const IJsCacheService::StdDriver *sd = m_iJsCacheService->getDriver(pv.first, pv.second);
-          if (sd) {
+          IJsCacheService::StdDriver sd = m_iJsCacheService->getDriver(pv.first, pv.second);
+          if (sd.isValid()) {
             d.m_drivers.push_back(sd);
           }
         }
@@ -1018,13 +1018,13 @@ namespace iqrf {
             Device device(hwpid, hwpidVer, osBuild, dpaVer);
 
             // get package from JsCache if exists
-            const iqrf::IJsCacheService::Package *pckg = nullptr;
+            iqrf::IJsCacheService::Package pckg;
             if (hwpid != 0) { // no custom handler => use default pckg0 to resolve periferies
               pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, (uint16_t)osBuild, (uint16_t)dpaVer);
             }
 
-            if (pckg) {
-              deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
+            if (pckg.m_packageId > -1) {
+              deviceIdPtr = enumerateDeviceInRepo(device, pckg);
             }
             else {
               try {
@@ -1219,10 +1219,10 @@ namespace iqrf {
         else {
           TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << " no version");
         }
-        const IJsCacheService::StdDriver* driver = nullptr;
+        IJsCacheService::StdDriver driver;
         driver = m_iJsCacheService->getDriver(driverId, driverVer);
-        if (driver) {
-          str2load += driver->getDriver();
+        if (driver.isValid()) {
+          str2load += driver.getDriver();
         }
         else {
           TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << PAR(driverVer) << " no driver found");
@@ -1461,6 +1461,17 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    void reloadDrivers()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      loadProvisoryDrivers();
+
+      //TODO
+
+      TRC_FUNCTION_LEAVE("");
+    }
+
     void bondedInDb(int nadr, int dis, unsigned mid, int enm)
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(dis) << PAR(enm));
@@ -1492,7 +1503,7 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    std::unique_ptr<int> selectDriver(const IJsCacheService::StdDriver* drv)
+    std::unique_ptr<int> selectDriver(const IJsCacheService::StdDriver & drv)
     {
       std::unique_ptr<int> id;
 
@@ -1504,8 +1515,8 @@ namespace iqrf {
         "d.StandardId = ? and "
         "d.Version = ? "
         ";"
-        << drv->getId()
-        << drv->getVersion()
+        << drv.getId()
+        << drv.getVersion()
         >> [&](std::unique_ptr<int> d)
       {
         id = std::move(d);
@@ -1515,13 +1526,13 @@ namespace iqrf {
     }
 
     // check id device exist and if not insert and return id
-    int driverInDb(const IJsCacheService::StdDriver* drv)
+    int driverInDb(const IJsCacheService::StdDriver & drv)
     {
-      TRC_FUNCTION_ENTER(NAME_PAR(standardId, drv->getId()) << NAME_PAR(version, drv->getVersion()) << NAME_PAR(name, drv->getName()));
+      TRC_FUNCTION_ENTER(NAME_PAR(standardId, drv.getId()) << NAME_PAR(version, drv.getVersion()) << NAME_PAR(name, drv.getName()));
 
-      std::string name = drv->getName();
-      int standardId = drv->getId();
-      double version = drv->getVersion();
+      std::string name = drv.getName();
+      int standardId = drv.getId();
+      double version = drv.getVersion();
 
       database & db = *m_db;
 
@@ -1545,12 +1556,12 @@ namespace iqrf {
           ", ?"
           ", ?"
           ");"
-          << drv->getNotes()
+          << drv.getNotes()
           << name
           << version
           << standardId
-          << drv->getVersionFlags()
-          << drv->getDriver()
+          << drv.getVersionFlags()
+          << drv.getDriver()
           ;
       }
 
@@ -2530,13 +2541,15 @@ namespace iqrf {
 
       modify(props);
 
-      m_iIqrfDpaService->registerAnyMessageHandler(m_instanceName, [&](const DpaMessage & msg)
-      {
+      m_iIqrfDpaService->registerAnyMessageHandler(m_instanceName, [&](const DpaMessage & msg) {
         analyzeAnyMessage(msg);
-      }
-      );
+      });
 
       initDb();
+
+      m_iJsCacheService->registerCacheReloadedHandler(m_instanceName, [&]() {
+        reloadDrivers();
+      });
 
       loadProvisoryDrivers();
 
@@ -2596,6 +2609,8 @@ namespace iqrf {
       if (m_enumThread.joinable()) {
         m_enumThread.join();
       }
+
+      m_iJsCacheService->unregisterCacheReloadedHandler(m_instanceName);
 
       m_iIqrfDpaService->unregisterAnyMessageHandler(m_instanceName);
 

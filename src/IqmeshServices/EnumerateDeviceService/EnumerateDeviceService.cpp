@@ -1033,17 +1033,17 @@ namespace iqrf {
         osRead( deviceEnumerateResult );
 
         // Obtains hwpId, which in turn is needed to get manufacturer and product
-        const IJsCacheService::Manufacturer* manufacturer = m_iJsCacheService->getManufacturer( deviceEnumerateResult.getEnumeratedNodeHwpId() );
-        if ( manufacturer != nullptr )
-          deviceEnumerateResult.setManufacturer( manufacturer->m_name );
-        const IJsCacheService::Product* product = m_iJsCacheService->getProduct( deviceEnumerateResult.getEnumeratedNodeHwpId() );
-        if ( product != nullptr )
-          deviceEnumerateResult.setProduct( product->m_name );
+        IJsCacheService::Manufacturer manufacturer = m_iJsCacheService->getManufacturer( deviceEnumerateResult.getEnumeratedNodeHwpId() );
+        if ( manufacturer.m_manufacturerId > -1)
+          deviceEnumerateResult.setManufacturer( manufacturer.m_name );
+        IJsCacheService::Product product = m_iJsCacheService->getProduct( deviceEnumerateResult.getEnumeratedNodeHwpId() );
+        if ( product.m_manufacturerId > -1)
+          deviceEnumerateResult.setProduct( product.m_name );
 
         // Peripheral enumeration
         peripheralEnumeration( deviceEnumerateResult );
 
-        const IJsCacheService::Package* package = nullptr;
+        IJsCacheService::Package package;
         if (deviceEnumerateResult.getPerEnum() && deviceEnumerateResult.getOsRead()) {
           package = m_iJsCacheService->getPackage(
             deviceEnumerateResult.getEnumeratedNodeHwpId(),
@@ -1052,11 +1052,11 @@ namespace iqrf {
             deviceEnumerateResult.getPerEnum()->getDpaVerAsHexaString()
           );
         }
-        if ( package != nullptr )
+        if ( package.m_packageId > -1)
         {
           std::list<std::string> standards;
-          for ( const IJsCacheService::StdDriver* driver : package->m_stdDriverVect ) {
-            standards.push_back( driver->getName() );
+          for ( const IJsCacheService::StdDriver& driver : package.m_stdDriverVect ) {
+            standards.push_back( driver.getName() );
           }
           deviceEnumerateResult.setStandards( standards );
         }
