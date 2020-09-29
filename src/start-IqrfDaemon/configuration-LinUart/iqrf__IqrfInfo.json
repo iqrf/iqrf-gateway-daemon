@@ -2,6 +2,6 @@
   "component": "iqrf::IqrfInfo",
   "instance": "iqrf::IqrfInfo",
   "enumAtStartUp": false,
-  "enumPeriod": 0,
+  "enumPeriod": 1,
   "enumUniformDpaVer": false
 }

@@ -412,10 +412,18 @@ namespace iqrf {
         m_cfg.powerEnableGpioPin = POWER_ENABLE_GPIO;
         m_cfg.busEnableGpioPin = BUS_ENABLE_GPIO;
         m_cfg.pgmSwitchGpioPin = PGM_SWITCH_GPIO;
-        m_cfg.trModuleReset = TR_MODULE_RESET_ENABLE;
+        m_cfg.trModuleReset = TR_MODULE_RESET_DISABLE;
 
         m_cfg.powerEnableGpioPin = (uint8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)m_cfg.powerEnableGpioPin).GetInt();
         m_cfg.busEnableGpioPin = (uint8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)m_cfg.busEnableGpioPin).GetInt();
+
+        // bus signal separated into more
+        if (m_cfg.busEnableGpioPin == -1) {
+          m_cfg.spiEnableGpioPin = (int8_t)Pointer("/spiEnableGpioPin").GetWithDefault(d, (int)m_cfg.spiEnableGpioPin).GetInt();
+          m_cfg.uartEnableGpioPin = (int8_t)Pointer("/uartEnableGpioPin").GetWithDefault(d, (int)m_cfg.uartEnableGpioPin).GetInt();
+          m_cfg.i2cEnableGpioPin = (int8_t)Pointer("/i2cEnableGpioPin").GetWithDefault(d, (int)m_cfg.i2cEnableGpioPin).GetInt();
+        }
+
         m_cfg.pgmSwitchGpioPin = (uint8_t)Pointer("/pgmSwitchGpioPin").GetWithDefault(d, (int)m_cfg.pgmSwitchGpioPin).GetInt();
         Value* v = Pointer("/spiReset").Get(d);
         if (v && v->IsBool())
