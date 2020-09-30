@@ -2,7 +2,9 @@
   "type": "object",
   "properties": {
     "taskId": {
-      "type": "number",
+      "type": "integer",
+      "min": 1,
+      "max": 2147483647,
       "description": "Task ID number.",
       "default": 25828
     },
