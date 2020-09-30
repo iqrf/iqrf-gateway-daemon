@@ -429,7 +429,7 @@ namespace iqrf {
             removeBondPacket.DpaRequestPacket_t.DpaMessage.Request.PData[index++] = HWPID_DoNotCheck & 0xFF;
             removeBondPacket.DpaRequestPacket_t.DpaMessage.Request.PData[index++] = (HWPID_DoNotCheck >> 0x08);
             removeBondPacket.DpaRequestPacket_t.DpaMessage.Request.PData[index++] = (uint8_t)nodes[nodeIndex++];
-          } while ((++numNodes < 8) && (nodeIndex < nodes.size()));
+          } while ((++numNodes < 9) && (nodeIndex < nodes.size()));
           removeBondPacket.DpaRequestPacket_t.DpaMessage.Request.PData[index++] = 0x00;
           removeBondRequest.DataToBuffer(removeBondPacket.Buffer, sizeof(TDpaIFaceHeader) + index);
           // Execute the DPA request

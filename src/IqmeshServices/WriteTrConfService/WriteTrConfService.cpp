@@ -390,7 +390,7 @@ namespace iqrf
         // Set FRC user data
         std::copy( userData.begin(), userData.end(), frcAckBroadcastBitsPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData );
         // Data to buffer
-        frcAckBroadcastBitsRequest.DataToBuffer( frcAckBroadcastBitsPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( uint8_t ) + userData.length() );
+        frcAckBroadcastBitsRequest.DataToBuffer( frcAckBroadcastBitsPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( uint8_t ) + (uint8_t)userData.length() );
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat( frcAckBroadcastBitsRequest, transResult, m_writeTrConfParams.repeat );
         TRC_DEBUG( "Result from FRC Acknowledged Broadcast Bits transaction as string:" << PAR( transResult->getErrorString() ) );
@@ -700,33 +700,33 @@ namespace iqrf
           }
         }
 
-        // DPA configuration bits (address 0x05)
-        if ( ( m_writeTrConfParams.dpaConfigBits.mask != 0x00 ) || ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterfaceIsSet ) || ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeerIsSet ) )
+        // DPA configuration bits #0 (address 0x05)
+        if ( ( m_writeTrConfParams.dpaConfigBits_0.mask != 0x00 ) || ( m_writeTrConfParams.dpaConfigBits_0.nodeDpaInterfaceIsSet ) || ( m_writeTrConfParams.dpaConfigBits_0.dpaPeerToPeerIsSet ) )
         {
           // DPA < 4.00
           if ( coordEnum.DpaVersion < 0x0400 )
           {
             // Yes, nodeDpaInterface specified in request ?
-            if ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterfaceIsSet )
+            if ( m_writeTrConfParams.dpaConfigBits_0.nodeDpaInterfaceIsSet )
             {
               // Yes, write bit1
-              if ( m_writeTrConfParams.dpaConfigBits.nodeDpaInterface )
-                m_writeTrConfParams.dpaConfigBits.value |= 0x02;
+              if ( m_writeTrConfParams.dpaConfigBits_0.nodeDpaInterface )
+                m_writeTrConfParams.dpaConfigBits_0.value |= 0x02;
               else
-                m_writeTrConfParams.dpaConfigBits.value &= ~0x02;
-              m_writeTrConfParams.dpaConfigBits.mask |= 0x02;
+                m_writeTrConfParams.dpaConfigBits_0.value &= ~0x02;
+              m_writeTrConfParams.dpaConfigBits_0.mask |= 0x02;
             }
 
             // Don't write bit7, it is reserved
-            m_writeTrConfParams.dpaConfigBits.value &= ~0x80;
-            m_writeTrConfParams.dpaConfigBits.mask &= ~0x80;
+            m_writeTrConfParams.dpaConfigBits_0.value &= ~0x80;
+            m_writeTrConfParams.dpaConfigBits_0.mask &= ~0x80;
 
             // DPA < 3.03
             if ( coordEnum.DpaVersion < 0x0303 )
             {
               // Don't write bit6, it is reserved
-              m_writeTrConfParams.dpaConfigBits.value &= ~0x40;
-              m_writeTrConfParams.dpaConfigBits.mask &= ~0x40;
+              m_writeTrConfParams.dpaConfigBits_0.value &= ~0x40;
+              m_writeTrConfParams.dpaConfigBits_0.mask &= ~0x40;
             }
           }
 
@@ -734,19 +734,30 @@ namespace iqrf
           if ( coordEnum.DpaVersion >= 0x0410 )
           {
             // dpaPeerToPeer specified in request ?
-            if ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeerIsSet )
+            if ( m_writeTrConfParams.dpaConfigBits_0.dpaPeerToPeerIsSet )
             {
               // Yes, write bit1
-              if ( m_writeTrConfParams.dpaConfigBits.dpaPeerToPeer )
-                m_writeTrConfParams.dpaConfigBits.value |= 0x02;
+              if ( m_writeTrConfParams.dpaConfigBits_0.dpaPeerToPeer )
+                m_writeTrConfParams.dpaConfigBits_0.value |= 0x02;
               else
-                m_writeTrConfParams.dpaConfigBits.value &= ~0x02;
-              m_writeTrConfParams.dpaConfigBits.mask |= 0x02;
+                m_writeTrConfParams.dpaConfigBits_0.value &= ~0x02;
+              m_writeTrConfParams.dpaConfigBits_0.mask |= 0x02;
             }
           }
 
-          TrConfigByte dpaConfigBits( CFGIND_DPA_FLAGS, m_writeTrConfParams.dpaConfigBits.value, m_writeTrConfParams.dpaConfigBits.mask );
-          trConfigBytes.push_back( dpaConfigBits );
+          TrConfigByte dpaConfigBits_0( CFGIND_DPA_FLAGS, m_writeTrConfParams.dpaConfigBits_0.value, m_writeTrConfParams.dpaConfigBits_0.mask );
+          trConfigBytes.push_back(dpaConfigBits_0);
+        }
+
+        // DPA configuration bits #1 for DPA > 4.14
+        if (coordEnum.DpaVersion > 0x0414)
+        {
+          // DPA configuration bits #1 (address 0x0d) - bit0 localFRCreception [N] only
+          if ((m_writeTrConfParams.deviceAddress != COORDINATOR_ADDRESS) && (m_writeTrConfParams.dpaConfigBits_1.mask == 0x01))
+          {
+            TrConfigByte dpaConfigBits_1(0x0d, m_writeTrConfParams.dpaConfigBits_1.value, m_writeTrConfParams.dpaConfigBits_1.mask);
+            trConfigBytes.push_back(dpaConfigBits_1);
+          }
         }
 
         // Subordinate network channels for DPA 3.03 and DPA 3.04
@@ -898,7 +909,7 @@ namespace iqrf
             // Fill OS Set security request
             std::basic_string<uint8_t> frcUserData;
             frcUserData.clear();
-            frcUserData.push_back( 0x06 + m_writeTrConfParams.security.accessPassword.length() );
+            frcUserData.push_back( 0x06 + (uint8_t)m_writeTrConfParams.security.accessPassword.length() );
             frcUserData.push_back( PNUM_OS );
             frcUserData.push_back( CMD_OS_SET_SECURITY );
             frcUserData.push_back( m_writeTrConfParams.hwpId & 0xff );
@@ -917,7 +928,7 @@ namespace iqrf
             // Fill OS Set security request
             std::basic_string<uint8_t> frcUserData;
             frcUserData.clear();
-            frcUserData.push_back( 0x06 + m_writeTrConfParams.security.accessPassword.length() );
+            frcUserData.push_back( 0x06 + (uint8_t)m_writeTrConfParams.security.accessPassword.length() );
             frcUserData.push_back( PNUM_OS );
             frcUserData.push_back( CMD_OS_SET_SECURITY );
             frcUserData.push_back( m_writeTrConfParams.hwpId & 0xff );
@@ -947,13 +958,13 @@ namespace iqrf
           }
         }
 
-        // Evaluate restartNeeded flagy
+        // Evaluate restartNeeded flag
         // SPI and UART peripherals need restart
         if ( (m_writeTrConfParams.embPers.mask & ( ( 1 << PNUM_SPI ) | ( 1 << PNUM_UART ) )) != 0 )
           m_writeTrConfParams.restartNeeded = true;
 
         // dpaConfigBits need restart
-        if ( m_writeTrConfParams.dpaConfigBits.mask != 0 )
+        if ( m_writeTrConfParams.dpaConfigBits_0.mask != 0 )
           m_writeTrConfParams.restartNeeded = true;
 
         // lpRxTimeout and uartBaudRate need restart

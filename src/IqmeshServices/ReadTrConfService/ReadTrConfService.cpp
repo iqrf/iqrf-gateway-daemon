@@ -141,7 +141,7 @@ namespace iqrf {
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
 
     // Number of repeats
-    uint8_t m_repeat;
+    int m_repeat;
 
     // Verbose mode
     bool m_returnVerbose = false;
@@ -172,26 +172,26 @@ namespace iqrf {
         bondedNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
         bondedNodesPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
         bondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        bondedNodesRequest.DataToBuffer( bondedNodesPacket.Buffer, sizeof( TDpaIFaceHeader ) );
+        bondedNodesRequest.DataToBuffer(bondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( bondedNodesRequest, transResult, m_repeat );
-        TRC_DEBUG( "Result from get bonded nodes transaction as string:" << PAR( transResult->getErrorString() ) );
+        m_exclusiveAccess->executeDpaTransactionRepeat(bondedNodesRequest, transResult, m_repeat);
+        TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION( "Get bonded nodes successful!" );
+        TRC_INFORMATION("Get bonded nodes successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR( bondedNodesRequest.PeripheralType(), bondedNodesRequest.NodeAddress() )
-          << PAR( (unsigned)bondedNodesRequest.PeripheralCommand() )
+          << NAME_PAR(bondedNodesRequest.PeripheralType(), bondedNodesRequest.NodeAddress())
+          << PAR((unsigned)bondedNodesRequest.PeripheralCommand())
         );
         // Parse response pdata
         uns8* bondedNodesArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-        uint8_t byteIndex = deviceAddr / 8;
+        uint8_t byteIndex = (uint8_t)( deviceAddr / 8);
         uint8_t bitIndex = deviceAddr % 8;
-        uint16_t compareByte = 1 << bitIndex;        
-        if ( !(result = (( bondedNodesArr[byteIndex] & compareByte ) == compareByte)) )
+        uint16_t compareByte = 1 << bitIndex;
+        if ((result = ((bondedNodesArr[byteIndex] & compareByte) == compareByte)) == false)
         {
-          ReadTrConfigError error( ReadTrConfigError::Type::NotBonded, "Node not bonded." );
-          readTrConfigResult.setBondedError( error );
+          ReadTrConfigError error(ReadTrConfigError::Type::NotBonded, "Node not bonded.");
+          readTrConfigResult.setBondedError(error);
         }
       }
       catch ( const std::exception& e )
@@ -273,11 +273,11 @@ namespace iqrf {
         m_repeat = comReadTrConf.getRepeat();
         if ( !comReadTrConf.isSetDeviceAddr() )
           THROW_EXC( std::logic_error, "deviceAddr not set" );
-        deviceAddr = comReadTrConf.getDeviceAddr();
+        deviceAddr = (uint16_t)comReadTrConf.getDeviceAddr();
         if ( deviceAddr > 239 )
           THROW_EXC( std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX( "Address", deviceAddr ) );
         if ( comReadTrConf.isSetHwpId() )
-          hwpId = comReadTrConf.getHwpId();
+          hwpId = (uint16_t)comReadTrConf.getHwpId();
         else
           hwpId = HWPID_DoNotCheck;
         m_returnVerbose = comReadTrConf.getVerbose();
@@ -339,7 +339,7 @@ namespace iqrf {
 
           // getting DPA version
           IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-          uint16_t dpaVer = ( coordParams.dpaVerMajor << 8 ) + coordParams.dpaVerMinor;
+          uint16_t dpaVer = coordParams.dpaVerWord;
 
           uns8* configuration = hwpConfig.Configuration;
 
@@ -389,8 +389,11 @@ namespace iqrf {
           // byte 0x02
           uint8_t byte02 = configuration[0x01];
 
-          bool spiPresent = ( ( byte02 & 0b1 ) == 0b1 );
-          Pointer( "/data/rsp/embPers/spi" ).Set( response, spiPresent );
+          if (dpaVer < 0x0415)
+          {
+            bool spiPresent = ((byte02 & 0b1) == 0b1);
+            Pointer("/data/rsp/embPers/spi").Set(response, spiPresent);
+          }
 
           bool ioPresent = ( ( byte02 & 0b10 ) == 0b10 );
           Pointer( "/data/rsp/embPers/io" ).Set( response, ioPresent );
@@ -398,8 +401,11 @@ namespace iqrf {
           bool thermometerPresent = ( ( byte02 & 0b100 ) == 0b100 );
           Pointer( "/data/rsp/embPers/thermometer" ).Set( response, thermometerPresent );
 
-          bool pwmPresent = ( ( byte02 & 0b1000 ) == 0b1000 );
-          Pointer( "/data/rsp/embPers/pwm" ).Set( response, pwmPresent );
+          if (dpaVer < 0x0415)
+          {
+            bool pwmPresent = ((byte02 & 0b1000) == 0b1000);
+            Pointer("/data/rsp/embPers/pwm").Set(response, pwmPresent);
+          }
 
           bool uartPresent = ( ( byte02 & 0b10000 ) == 0b10000 );
           Pointer( "/data/rsp/embPers/uart" ).Set( response, uartPresent );
@@ -440,7 +446,6 @@ namespace iqrf {
           bool peerToPeer = ( ( byte05 & 0b00100000 ) == 0b00100000 );
           Pointer( "/data/rsp/peerToPeer" ).Set( response, peerToPeer );
 
-
           // for DPA v3.03 onwards
           if ( dpaVer >= 0x0303 ) {
             bool neverSleep = ( ( byte05 & 0b01000000 ) == 0b01000000 );
@@ -475,6 +480,17 @@ namespace iqrf {
           {
             TRC_WARNING( "Unknown baud rate constant: " << PAR( configuration[0x0A] ) );
             Pointer( "/data/rsp/uartBaudrate" ).Set( response, 0 );
+          }
+
+          // for DPA >= v4.15
+          if (dpaVer >= 0x0415)
+          {
+            // localFRCreception at [N] only
+            if (deviceAddr != COORDINATOR_ADDRESS)
+            {
+              bool localFRCreception = ((configuration[0x0c] & 0b00000001) == 0b00000001);
+              Pointer("/data/rsp/localFRCreception").Set(response, localFRCreception);
+            }
           }
 
           // RFPGM byte

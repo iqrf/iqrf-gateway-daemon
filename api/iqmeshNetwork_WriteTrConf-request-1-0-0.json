@@ -141,6 +141,10 @@
               "type": "integer",
               "description": "A nonzero value specifies an alternative DPA service mode channel."
             },
+            "localFRCreception": {
+              "type": "boolean",
+              "description": "If set, then Local FRC reception is enabled at [N]."
+            },
             "rfPgmEnableAfterReset": {
               "type": "boolean",
               "description": "If sets, then activates RFPGM invoking by TR module reset."

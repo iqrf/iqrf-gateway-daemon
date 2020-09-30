@@ -332,7 +332,7 @@ namespace iqrf {
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
 
     // number of repeats
-    uint8_t m_repeat;
+    int m_repeat;
     // if is set Verbose mode
     bool m_returnVerbose = false;
     bool m_morePeripheralsInfo = false;
@@ -420,7 +420,7 @@ namespace iqrf {
     {
       // get discovered indicator
       try {
-        uint8_t byteIndex = deviceEnumerateResult.getDeviceAddr() / 8;
+        uint8_t byteIndex = (uint8_t)(deviceEnumerateResult.getDeviceAddr() / 8);
         
         uint8_t nodeDiscoveryByte = nodeDiscovered(deviceEnumerateResult, byteIndex);
         
@@ -486,7 +486,7 @@ namespace iqrf {
         m_exclusiveAccess->executeDpaTransactionRepeat( osReadPtr->getRequest(), transResult, m_repeat );
         osReadPtr->processDpaTransactionResult( std::move(transResult) );
         TRC_DEBUG("Result from OS read transaction as string:" << PAR( osReadPtr->getResult()->getErrorString()) );
-        deviceEnumerateResult.setOsBuild( osReadPtr->getOsBuild() );
+        deviceEnumerateResult.setOsBuild( (uint16_t)osReadPtr->getOsBuild() );
         deviceEnumerateResult.setEnumeratedNodeHwpId( osReadPtr->getHwpid() );
         deviceEnumerateResult.addTransactionResult( osReadPtr->getResultMove() );
         deviceEnumerateResult.setOsRead( osReadPtr );
@@ -514,7 +514,7 @@ namespace iqrf {
         m_exclusiveAccess->executeDpaTransactionRepeat( exploreEnumeratePtr->getRequest(), transResultPerEnum, m_repeat );
         exploreEnumeratePtr->processDpaTransactionResult( std::move(transResultPerEnum) );
         TRC_DEBUG( "Result from peripheral enumeration transaction as string:" << PAR( exploreEnumeratePtr->getResult()->getErrorString() ) );
-        deviceEnumerateResult.setEnumeratedNodeHwpIdVer( exploreEnumeratePtr->getHwpidVer() );
+        deviceEnumerateResult.setEnumeratedNodeHwpIdVer( (uint16_t)exploreEnumeratePtr->getHwpidVer() );
         deviceEnumerateResult.addTransactionResult( exploreEnumeratePtr->getResultMove() );
         deviceEnumerateResult.setPerEnum( exploreEnumeratePtr );
 
@@ -612,10 +612,10 @@ namespace iqrf {
         );
         // Parse response pdata
         uns8* bondedNodesArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-        uint8_t byteIndex = deviceAddr / 8;
+        uint8_t byteIndex = (uint8_t)(deviceAddr / 8);
         uint8_t bitIndex = deviceAddr % 8;
         uint16_t compareByte = 1 << bitIndex;
-        if ( !( result = ( ( bondedNodesArr[byteIndex] & compareByte ) == compareByte ) ) )
+        if ( ( result = ( ( bondedNodesArr[byteIndex] & compareByte ) == compareByte ) ) == false )
         {
           DeviceEnumerateError deviceEnumerateError( DeviceEnumerateError::Type::NotBonded, "Node not bonded." );
           deviceEnumerateResult.setBondedError( deviceEnumerateError );
@@ -783,8 +783,11 @@ namespace iqrf {
       // byte 0x02
       uint8_t byte02 = configuration[0x01];
 
-      bool spiPresent = ( ( byte02 & 0b1 ) == 0b1 );
-      Pointer( "/data/rsp/trConfiguration/embPers/spi" ).Set( response, spiPresent );
+      if (dpaVer < 0x0415)
+      {
+        bool spiPresent = ((byte02 & 0b1) == 0b1);
+        Pointer("/data/rsp/trConfiguration/embPers/spi").Set(response, spiPresent);
+      }
 
       bool ioPresent = ( ( byte02 & 0b10 ) == 0b10 );
       Pointer( "/data/rsp/trConfiguration/embPers/io" ).Set( response, ioPresent );
@@ -792,8 +795,11 @@ namespace iqrf {
       bool thermometerPresent = ( ( byte02 & 0b100 ) == 0b100 );
       Pointer( "/data/rsp/trConfiguration/embPers/thermometer" ).Set( response, thermometerPresent );
 
-      bool pwmPresent = ( ( byte02 & 0b1000 ) == 0b1000 );
-      Pointer( "/data/rsp/trConfiguration/embPers/pwm" ).Set( response, pwmPresent );
+      if (dpaVer < 0x0415)
+      {
+        bool pwmPresent = ((byte02 & 0b1000) == 0b1000);
+        Pointer("/data/rsp/trConfiguration/embPers/pwm").Set(response, pwmPresent);
+      }
 
       bool uartPresent = ( ( byte02 & 0b10000 ) == 0b10000 );
       Pointer( "/data/rsp/trConfiguration/embPers/uart" ).Set( response, uartPresent );
@@ -867,6 +873,17 @@ namespace iqrf {
       {
         TRC_WARNING( "Unknown baud rate constant: " << PAR( configuration[0x0A] ) );
         Pointer( "/data/rsp/trConfiguration/uartBaudrate" ).Set( response, 0 );
+      }
+
+      // for DPA >= v4.15
+      if (dpaVer >= 0x0415)
+      {
+        // localFRCreception at [N] only
+        if (deviceEnumerateResult.getDeviceAddr() != COORDINATOR_ADDRESS)
+        {
+          bool localFRCreception = ((configuration[0x0c] & 0b00000001) == 0b00000001);
+          Pointer("/data/rsp/trConfiguration/localFRCreception").Set(response, localFRCreception);
+        }
       }
 
       // RFPGM byte
@@ -982,7 +999,7 @@ namespace iqrf {
         m_repeat = comEnumerateDevice.getRepeat();
         if ( !comEnumerateDevice.isSetDeviceAddr() )
           THROW_EXC( std::logic_error, "Device address not set." );
-        deviceAddr = comEnumerateDevice.getDeviceAddr();
+        deviceAddr = (uint16_t)comEnumerateDevice.getDeviceAddr();
         if ( deviceAddr > 239 )
           THROW_EXC( std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX( "Address", deviceAddr ) );
         m_morePeripheralsInfo = comEnumerateDevice.getMorePeripheralsInfo();
