@@ -347,7 +347,7 @@
                   "type": "integer",
                   "description": "A nonzero value specifies an alternative DPA service mode channel."
                 },
-                "localFRCreception": {
+                "localFrcReception": {
                   "type": "boolean",
                   "description": "If set, then Local FRC reception is enabled at [N]."
                 },

@@ -71,7 +71,7 @@ namespace iqrf {
       if (deviceBackupData.getOnlineStatus() == true)
       {
         // Put MID
-        objDeviceBackup.AddMember("MID", deviceBackupData.getMID(), allocator);
+        objDeviceBackup.AddMember("mid", deviceBackupData.getMid(), allocator);
         // Put DPA version
         objDeviceBackup.AddMember("dpaVer", deviceBackupData.getDpaVersion() & 0x3fff, allocator);
         // Put backup data

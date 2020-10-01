@@ -752,7 +752,7 @@ namespace iqrf
         // DPA configuration bits #1 for DPA > 4.14
         if (coordEnum.DpaVersion > 0x0414)
         {
-          // DPA configuration bits #1 (address 0x0d) - bit0 localFRCreception [N] only
+          // DPA configuration bits #1 (address 0x0d) - bit0 localFrcReception [N] only
           if ((m_writeTrConfParams.deviceAddress != COORDINATOR_ADDRESS) && (m_writeTrConfParams.dpaConfigBits_1.mask == 0x01))
           {
             TrConfigByte dpaConfigBits_1(0x0d, m_writeTrConfParams.dpaConfigBits_1.value, m_writeTrConfParams.dpaConfigBits_1.mask);

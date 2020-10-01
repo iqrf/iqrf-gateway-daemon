@@ -24,7 +24,7 @@ namespace iqrf {
   private:
     uint16_t m_address;
     bool m_online;
-    uint32_t m_MID;
+    uint32_t m_mid;
     uint16_t m_dpaVersion;
     std::basic_string<uint8_t> m_data;
 
@@ -32,15 +32,15 @@ namespace iqrf {
     DeviceBackupData()
       : m_address(0),
       m_online(false),
-      m_MID(0),
+      m_mid(0),
       m_dpaVersion(0)
     {
     }
 
-    DeviceBackupData(const uint16_t address, const bool online, const uint32_t MID, const uint16_t dpaVersion, const std::basic_string<uint8_t> &data)
+    DeviceBackupData(const uint16_t address, const bool online, const uint32_t mid, const uint16_t dpaVersion, const std::basic_string<uint8_t> &data)
       : m_address(address),
       m_online(online),
-      m_MID(MID),
+      m_mid(mid),
       m_dpaVersion(dpaVersion),
       m_data(data)
     {
@@ -49,7 +49,7 @@ namespace iqrf {
     DeviceBackupData(const uint16_t address)
       : m_address(address),
       m_online(false),
-      m_MID(0),
+      m_mid(0),
       m_dpaVersion(0)
     {
     }
@@ -60,7 +60,7 @@ namespace iqrf {
     }
 
     bool getOnlineStatus() const { return m_online; }
-    uint32_t getMID() const { return m_MID; }
+    uint32_t getMid() const { return m_mid; }
     uint16_t getDpaVersion() const { return m_dpaVersion; }
     std::basic_string<uint8_t> getBackupData() const { return m_data; }
 
@@ -74,9 +74,9 @@ namespace iqrf {
       m_online = online;
     }
 
-    void setMID(const uint32_t MID)
+    void setMid(const uint32_t mid)
     {
-      m_MID = MID;
+      m_mid = mid;
     }
 
     void setDpaVersion(uint16_t dpaVersion)

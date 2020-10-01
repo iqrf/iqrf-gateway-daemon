@@ -878,11 +878,11 @@ namespace iqrf {
       // for DPA >= v4.15
       if (dpaVer >= 0x0415)
       {
-        // localFRCreception at [N] only
+        // localFrcReception at [N] only
         if (deviceEnumerateResult.getDeviceAddr() != COORDINATOR_ADDRESS)
         {
-          bool localFRCreception = ((configuration[0x0c] & 0b00000001) == 0b00000001);
-          Pointer("/data/rsp/trConfiguration/localFRCreception").Set(response, localFRCreception);
+          bool localFrcReception = ((configuration[0x0c] & 0b00000001) == 0b00000001);
+          Pointer("/data/rsp/trConfiguration/localFrcReception").Set(response, localFrcReception);
         }
       }
 

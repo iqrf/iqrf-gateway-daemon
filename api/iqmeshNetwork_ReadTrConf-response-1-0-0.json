@@ -176,7 +176,7 @@
               "type": "integer",
               "description": "Baud rate of the UART interface if one is used."
             },
-            "localFRCreception": {
+            "localFrcReception": {
               "type": "boolean",
               "description": "If set, then Local FRC reception is enabled at [N]."
             },

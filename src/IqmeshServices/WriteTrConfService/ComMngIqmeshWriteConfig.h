@@ -74,7 +74,7 @@ namespace iqrf {
     // DPA configuration bits #1
     struct
     {
-      bool localFRCreception;
+      bool localFrcReception;
       uint8_t mask;
       uint8_t value;
     }dpaConfigBits_1;
@@ -332,11 +332,11 @@ namespace iqrf {
       if ( (jsonVal = rapidjson::Pointer( "/data/req/rfAltDsmChannel" ).Get( doc )) )
         m_writeTrConfParams.rfSettings.rfAltDsmChannel = jsonVal->GetInt();
 
-      // localFRCreception
-      if ((jsonVal = rapidjson::Pointer("/data/req/localFRCreception").Get(doc)))
+      // localFrcReception
+      if ((jsonVal = rapidjson::Pointer("/data/req/localFrcReception").Get(doc)))
       {
-        m_writeTrConfParams.dpaConfigBits_1.localFRCreception = jsonVal->GetBool();
-        if (m_writeTrConfParams.dpaConfigBits_1.localFRCreception == true)
+        m_writeTrConfParams.dpaConfigBits_1.localFrcReception = jsonVal->GetBool();
+        if (m_writeTrConfParams.dpaConfigBits_1.localFrcReception == true)
           m_writeTrConfParams.dpaConfigBits_1.value = 0x01;
         m_writeTrConfParams.dpaConfigBits_1.mask = 0x01;
       }
