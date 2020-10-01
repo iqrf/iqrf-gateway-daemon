@@ -332,6 +332,9 @@ namespace iqrf {
                 return state = State::NotReady;
               }
               break;
+            case BASE_TYPES_LIB_NOT_INITIALIZED:
+              state = State::NotReady;
+              break;
             default:
               break;
           }
@@ -498,6 +501,10 @@ namespace iqrf {
 
         while (m_runListenThread)
         {
+          if (this->getState() == State::NotReady) {
+            THROW_EXC_TRC_WAR(std::logic_error, "SPI not initialized.");
+          }
+
           int recData = 0;
 
           // lock scope
