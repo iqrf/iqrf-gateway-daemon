@@ -17,18 +17,38 @@
         },
         "instance": {
             "type": "string",
-            "description": "Recomended shape::WebsocketCppService-(id)",
-            "default": "shape::WebsocketCppService-1"
+            "description": "Name of instance.",
+            "default": "shape::WebsocketCppService"
         },
         "WebsocketPort": {
             "type": "integer",
             "description": "Number of port",
-            "default": "1338"
+            "default": 1338
         },
         "acceptOnlyLocalhost": {
             "type": "boolean",
             "description": "accepts only connections from localhost",
             "default": "false"
+        },
+        "tlsEnabled": {
+            "type": "boolean",
+            "description": "TLS enablement",
+            "default": false
+        },
+        "tlsMode": {
+            "type": "string",
+            "description": "TLS mode",
+            "default": "intermediate"
+        },
+        "certificate": {
+            "type": "string",
+            "description": "Certificate path",
+            "default": ""
+        },
+        "privateKey": {
+            "type": "string",
+            "description": "Private key path",
+            "default": ""
         },
         "RequiredInterfaces": {
             "type": "array",
