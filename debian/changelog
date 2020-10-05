@@ -1,3 +1,19 @@
+iqrf-gateway-daemon (2.3.0~rc1) testing; urgency=medium
+
+  * Added: DPA 4.1x support
+           TLS over WebSocket channels
+           IQMESH Backup/Restore services
+           IQMESH RemoveBondOnlyInC service
+           Buffered MQTT channel
+
+  * Improved: IQMESH AutoNetwork service 
+              IQMESH RemoveBond service
+              Optimized IQRF Repository download and caching
+  
+  * Fixed: Minor repairs
+
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Mon, 5 Oct 2020 13:30:00 +0200
+
 iqrf-gateway-daemon (2.3.0-beta~1.gbp7735ae) UNRELEASED; urgency=medium
 
   * Version 2.3.0-beta

@@ -85,13 +85,6 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::IqrfTcp",
-      "libraryPath": "",
-      "libraryName": "IqrfTcp",
-      "enabled": false,
-      "startlevel": 0
-    },
-    {
       "name": "iqrf::IqrfDpa",
       "libraryPath": "",
       "libraryName": "IqrfDpa",
@@ -319,13 +312,6 @@
       "name": "iqrf::RestoreService",
       "libraryPath": "",
       "libraryName": "RestoreService",
-      "enabled": true,
-      "startlevel": 3
-    },
-    {
-      "name": "iqrf::OtaUploadService",
-      "libraryPath": "",
-      "libraryName": "OtaUploadService",
       "enabled": true,
       "startlevel": 3
     }
