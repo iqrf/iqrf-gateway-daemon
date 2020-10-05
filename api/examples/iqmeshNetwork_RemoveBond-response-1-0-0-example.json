@@ -1,26 +1,42 @@
 {
     "mType": "iqmeshNetwork_RemoveBond",
     "data": {
-        "msgId": "testIqmeshRemoveBond",
+        "msgId": "790f158c-c61b-466b-8a19-1de90563e748",
         "rsp": {
-            "nodesNr": 0
+            "nodesNr": 4
         },
         "raw": [
             {
-                "request": "ff.00.02.05.ff.ff.05.01.01.ff.ff.05.02.08.ff.ff.00",
-                "requestTs": "2019-01-11T10:56:46.694706",
-                "confirmation": "ff.00.02.05.ff.ff.ff.4e.4e.08.00",
-                "confirmationTs": "2019-01-11T10:56:46.720503",
-                "response": "",
-                "responseTs": ""
-            },
-            {
-                "request": "00.00.00.03.ff.ff",
-                "requestTs": "2019-01-11T10:56:53.193042",
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2020-09-27T09:54:25.215+02:00",
                 "confirmation": "",
                 "confirmationTs": "",
-                "response": "00.00.00.83.00.00.00.3d",
-                "responseTs": "2019-01-11T10:56:53.391830"
+                "response": "00.00.00.82.00.00.00.5a.3e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2020-09-27T09:54:25.275+02:00"
+            },
+            {
+                "request": "01.00.01.01.ff.ff",
+                "requestTs": "2020-09-27T09:54:25.277+02:00",
+                "confirmation": "01.00.01.01.ff.ff.ff.5a.01.08.01",
+                "confirmationTs": "2020-09-27T09:54:25.317+02:00",
+                "response": "01.00.01.81.00.00.00.67",
+                "responseTs": "2020-09-27T09:54:25.570+02:00"
+            },
+            {
+                "request": "00.00.00.05.ff.ff.01",
+                "requestTs": "2020-09-27T09:54:25.939+02:00",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.85.00.00.00.64.04",
+                "responseTs": "2020-09-27T09:54:25.978+02:00"
+            },
+            {
+                "request": "00.00.00.00.ff.ff",
+                "requestTs": "2020-09-27T09:54:25.981+02:00",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.80.00.00.00.64.04.d4",
+                "responseTs": "2020-09-27T09:54:26.021+02:00"
             }
         ],
         "status": 0,

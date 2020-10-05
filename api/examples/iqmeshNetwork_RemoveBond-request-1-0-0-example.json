@@ -1,11 +1,13 @@
 {
-    "mType": "iqmeshNetwork_RemoveBond",
-    "data": {
-        "msgId": "testIqmeshRemoveBond",
-        "repeat": 1,
-        "req": {
-            "deviceAddr": 255
-        },
-        "returnVerbose": true
-    }
+  "mType": "iqmeshNetwork_RemoveBond",
+  "data": {
+    "msgId": "790f158c-c61b-466b-8a19-1de90563e748",
+    "repeat": 2,
+    "req": {
+      "deviceAddr": 1,
+      "hwpId": 65535,
+      "wholeNetwork": false,
+    },
+    "returnVerbose": true
+  }
 }

@@ -1,0 +1,38 @@
+{
+    "mType": "iqmeshNetwork_RemoveBondOnlyInC",
+    "data": {
+        "msgId": "c50facb0-e21d-415a-b5f5-f28eb7e47c43",
+        "rsp": {
+            "nodesNr": 0
+        },
+        "raw": [
+            {
+                "request": "00.00.00.02.ff.ff",
+                "requestTs": "2020-09-27T10:23:46.765+02:00",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.82.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+                "responseTs": "2020-09-27T10:23:46.827+02:00"
+            },
+            {
+                "request": "00.00.00.03.ff.ff",
+                "requestTs": "2020-09-27T10:23:46.831+02:00",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.83.00.00.00.00",
+                "responseTs": "2020-09-27T10:23:47.043+02:00"
+            },
+            {
+                "request": "00.00.00.00.ff.ff",
+                "requestTs": "2020-09-27T10:23:47.046+02:00",
+                "confirmation": "",
+                "confirmationTs": "",
+                "response": "00.00.00.80.00.00.00.00.00.d4",
+                "responseTs": "2020-09-27T10:23:47.085+02:00"
+            }
+        ],
+        "status": 0,
+        "statusStr": "ok",
+        "insId": "iqrfgd2-default"
+    }
+}

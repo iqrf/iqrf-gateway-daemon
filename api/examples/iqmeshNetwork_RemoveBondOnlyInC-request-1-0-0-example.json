@@ -1,0 +1,18 @@
+{
+  "mType": "iqmeshNetwork_RemoveBondOnlyInC",
+  "data": {
+    "msgId": "c50facb0-e21d-415a-b5f5-f28eb7e47c43",
+    "repeat": 2,
+    "req": {
+      "deviceAddr": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "clearAllBonds": true
+    },
+    "returnVerbose": true
+  }
+}
