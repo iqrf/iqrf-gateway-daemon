@@ -290,10 +290,10 @@ test:
   extends: .ssh_template
   script:
     - mkdir deploy
-    - git clone --recurse-submodules https://github.com/logimic/shape.git
+    - git clone --branch v1.1.0 --recurse-submodules https://github.com/logimic/shape.git
     - cmake -Bshape-build -Hshape -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DSHAPE_DEPLOY:PATH=$PWD/deploy -DUSE_CCACHE=TRUE
     - cmake --build shape-build --target install
-    - git clone --recurse-submodules https://github.com/logimic/shapeware.git
+    - git clone --branch v1.1.0 --recurse-submodules https://github.com/logimic/shapeware.git
     - cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
     - cmake --build shapeware-build --target install
     - git submodule init
