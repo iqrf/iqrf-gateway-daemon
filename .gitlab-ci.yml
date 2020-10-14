@@ -238,7 +238,7 @@ stages:
   extends: .package-template
   before_script:
     - *ccache-before_script-template
-    - export DAEMON_VERSION=v2.3.0-beta~${CI_PIPELINE_ID}
+    - export DAEMON_VERSION=v2.4.0-beta~${CI_PIPELINE_ID}
     - export STABILITY=devel
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
