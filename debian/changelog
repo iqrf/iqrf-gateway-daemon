@@ -1,3 +1,9 @@
+iqrf-gateway-daemon (2.3.0~rc2) testing; urgency=medium
+
+  * Improved: IQMESH Read/WriteTrConf service  
+
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Fri, 16 Oct 2020 22:15:00 +0200
+
 iqrf-gateway-daemon (2.3.0~rc1) testing; urgency=medium
 
   * Added: DPA 4.1x support
