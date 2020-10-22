@@ -12,7 +12,7 @@ daemon_remove_data() {
   rm -rf /var/cache/iqrf-gateway-daemon/
 }
 
-if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+if [ "$1" = "purge" ]; then
   daemon_remove_data
   daemon_remove_config
 fi

@@ -1,0 +1,30 @@
+#!/bin/bash
+# After install script for iqrf-gateway-daemon-default-cfg
+
+set -e
+
+if [ "$1" = "configure" ]; then
+	confDir="/usr/share/iqrf-gateway/default/daemon/"
+	if [ -f /etc/iqrf-gateway.json ]
+	then
+		gwProduct=$(jq -r '.gwProduct' /etc/iqrf-gateway.json)
+		if [[ $gwProduct == "IQD-GW-01" || $gwProduct == "IQD-GW-01A" ]]; then
+			gwId=$(jq -r '.gwId' /etc/iqrf-gateway.json)
+			if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
+				jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 19 | .busEnableGpioPin = 10 | .pgmSwitchGpioPin = 3' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
+			fi
+			if [ -f "${confDir}iqrf__IqrfUart.json" ]; then
+				jq --unbuffered '.instance = "iqrf::IqrfUart-/dev/ttyS1" | .IqrfInterface = "/dev/ttyS1" | .powerEnableGpioPin = 19 | .busEnableGpioPin = 10 | .pgmSwitchGpioPin = -1 | .+ {spiReset: false}' "${confDir}iqrf__IqrfUart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfUart.json"
+			fi
+			if [ -f "${confDir}iqrf__JsonSplitter.json" ]; then
+				jq --unbuffered --arg gwId "$gwId" '.insId = "iqdgw01-" + $gwId' "${confDir}iqrf__JsonSplitter.json" > tmp.json && mv tmp.json "${confDir}iqrf__JsonSplitter.json"
+			fi
+			if [ -f "${confDir}iqrf__MqttMessaging.json" ]; then
+				jq --unbuffered --arg gwId "$gwId" '.ClientId = $gwId | .TopicRequest = "gateway/" + $gwId + "/iqrf/requests" | .TopicResponse = "gateway/" + $gwId + "/iqrf/responses"' "${confDir}iqrf__MqttMessaging.json" > tmp.json && mv tmp.json "${confDir}iqrf__MqttMessaging.json"
+			fi
+			if [ -f "${confDir}iqrf__IdeCounterpart.json" ]; then
+				jq --unbuffered --arg gwId "$gwId" '.gwIdentModeByte = 34 | .gwIdentName = "IQD-GW-01" | .gwIdentNetBios = "iqdgw01-" + $gwId' "${confDir}iqrf__IdeCounterpart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IdeCounterpart.json"
+			fi
+		fi
+	fi
+fi
