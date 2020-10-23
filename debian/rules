@@ -29,7 +29,6 @@ override_dh_fixperms:
 	chmod 777 debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/upload
 	chmod -R 666 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon
 	chmod 777 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon
-	chmod 777 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/certs
 	chmod 777 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/cfgSchemas
 	chmod 777 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/scheduler
 	chmod 777 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/scheduler/schema
