@@ -224,7 +224,7 @@ stages:
     - mv ../*.changes .
     - sed -i "s/.ddeb/.deb/g" *.changes
     - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-    - rsync -hrvz --delete -e ssh *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH_PREFIX}${ARCH}/${STABILITY}
+    - rsync -hrvz --delete -e ssh *_all.deb *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH_PREFIX}${ARCH}/${STABILITY}
   artifacts:
     paths:
       - ./*.deb
