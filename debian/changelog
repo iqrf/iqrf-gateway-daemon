@@ -1,3 +1,16 @@
+iqrf-gateway-daemon (2.3.0) stable; urgency=medium
+
+  [ Frantisek Mikulu ]
+  [ Vasek Hanak ]
+  [ Karel Hanak ]
+  [ Roman Ondracek ]
+  [ Rostislav Spinar ]
+
+  * Info: Release version
+  * Added: Debian package configuration for IQube devices 
+
+ -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Sun, 25 Oct 2020 23:15:00 +0100
+
 iqrf-gateway-daemon (2.3.0~rc2) testing; urgency=medium
 
   * Improved: IQMESH Read/WriteTrConf service  
