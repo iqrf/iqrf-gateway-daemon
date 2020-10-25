@@ -4,5 +4,7 @@
   "IqrfInterface": "/dev/ttyS0",
   "baudRate": 57600,
   "powerEnableGpioPin": 18,
-  "busEnableGpioPin": -1
+  "busEnableGpioPin": -1,
+  "pgmSwitchGpioPin": -1,
+  "uartReset": true
 }
