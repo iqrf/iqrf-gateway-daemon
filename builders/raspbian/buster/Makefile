@@ -21,7 +21,7 @@ all: build-all push-all
 build-all: build-armhf
 
 build-armhf:
-	docker build -f armhf.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armhf .
+	docker build --no-cache -f armhf.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armhf .
 
 push-all: push-armhf
 

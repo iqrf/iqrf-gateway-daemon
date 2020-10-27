@@ -21,19 +21,19 @@ all: build-all push-all
 build-all: build-amd64 build-arm64 build-armel build-armhf build-i386
 
 build-amd64:
-	docker build -f amd64.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-amd64 .
+	docker build --no-cache -f amd64.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-amd64 .
 
 build-arm64:
-	docker build -f arm64.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-arm64 .
+	docker build --no-cache -f arm64.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-arm64 .
 
 build-armel:
-	docker build -f armel.Dockerfile --no-cache -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armel .
+	docker build --no-cache -f armel.Dockerfile --no-cache -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armel .
 
 build-armhf:
-	docker build -f armhf.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armhf .
+	docker build --no-cache -f armhf.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armhf .
 
 build-i386:
-	docker build -f i386.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-i386 .
+	docker build --no-cache -f i386.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-i386 .
 
 push-all: push-amd64 push-arm64 push-armel push-armhf push-i386
 
