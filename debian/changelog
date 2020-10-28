@@ -1,3 +1,11 @@
+iqrf-gateway-daemon (2.3.1) stable; urgency=medium
+
+  * GitLab CI: use commit date as Debian change block date
+  * GitLab CI: fix Ubuntu 16.04 package build
+  * GitLab CI: unify access and modify times with commit creation time
+
+ -- Roman Ondráček <roman@romanondracek.cz>  Thu, 29 Oct 2020 00:20:00 +0100
+
 iqrf-gateway-daemon (2.3.0) stable; urgency=medium
 
   [ Frantisek Mikulu ]
