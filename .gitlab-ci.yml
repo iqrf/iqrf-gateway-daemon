@@ -216,8 +216,10 @@ stages:
   dependencies:
     - update-cache
   script:
+    - export DATE=`git show --no-patch --format=%cD ${CI_COMMIT_SHA}`
     - if [ "${STABILITY}" == "devel" ]; then gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch; fi
-    - dch-add-distro -d "${DIST}" -D "`git show --no-patch --format=%cD ${CI_COMMIT_SHA}`"
+    - dch-add-distro -d "${DIST}" -D "${DATE}"
+    - find . -exec touch -am -d "${DATE}" {} +
     - debuild -e CCACHE_COMPILERCHECK -e CCACHE_COMPRESS -e CCACHE_BASEDIR -e CCACHE_DIR -e DAEMON_VERSION -b -uc -us -tc
     - mv ../*.deb .
     - 'mv ../*.ddeb . 2>/dev/null || :'
