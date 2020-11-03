@@ -37,16 +37,16 @@ configure_gateway() {
 	if [ -f /etc/iqrf-gateway.json ]
 	then
 		gwProduct=$(jq -r '.gwProduct' /etc/iqrf-gateway.json)
-		if [[ $gwProduct == "IQD-GW-01" || $gwProduct == "IQD-GW-01A" || $gwProduct == "IQD-GW-01B" ]]; then
+		if [[ $gwProduct =~ ^IQD-GW-0[12].?$ ]]; then
 			gwId=$(jq -r '.gwId' /etc/iqrf-gateway.json | awk '{print tolower($0)}')
-			if [[ $gwProduct == "IQD-GW-01" || $gwProduct == "IQD-GW-01A" ]]; then
+			if [[ $gwProduct =~ ^IQD-GW-01.?$ ]]; then
 				if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
 					jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 19 | .busEnableGpioPin = 10 | .pgmSwitchGpioPin = 3' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
 				fi
 				if [ -f "${confDir}iqrf__IqrfUart.json" ]; then
 					jq --unbuffered '.instance = "iqrf::IqrfUart-/dev/ttyS1" | .IqrfInterface = "/dev/ttyS1" | .powerEnableGpioPin = 19 | .busEnableGpioPin = 10 | .pgmSwitchGpioPin = -1 | .+ {uartReset: true}' "${confDir}iqrf__IqrfUart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfUart.json"
 				fi
-			elif [[ $gwProduct == "IQD-GW-01B" ]]; then
+			elif [[ $gwProduct =~ ^IQD-GW-02.?$ ]]; then
 				if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
 					jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 19 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = 3 | .+ {spiEnableGpioPin: 10, uartEnableGpioPin: 6, i2cEnableGpioPin: 7}' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
 				fi
