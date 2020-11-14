@@ -278,11 +278,18 @@ namespace iqrf {
         else {
           TRC_WARNING("Error queue overload: " << PAR(queueLen));
 
+          std::string msgId("ignored");
           std::string str((char*)message.data(), message.size());
+          StringStream ss(str.data());
+          Document doc;
+          doc.ParseStream(ss);
+          if (!doc.HasParseError()) {
+            msgId = Pointer("/data/msgId").GetWithDefault(doc, "undefined").GetString();
+          }
           std::ostringstream oser;
           oser << "daemon overload: " << PAR(queueLen);
           Document rspDoc;
-          MessageErrorMsg msg("ignored", str, oser.str());
+          MessageErrorMsg msg(msgId, str, oser.str());
           msg.createResponse(rspDoc);
           try {
             sendMessage(messagingId, std::move(rspDoc));
@@ -307,11 +314,11 @@ namespace iqrf {
     {
       using namespace rapidjson;
 
-      std::string msgId("undefined");
       std::string str((char*)message.data(), message.size());
       StringStream sstr(str.data());
       Document doc;
       doc.ParseStream(sstr);
+      std::string msgId("undefined");
 
       try {
         if (doc.HasParseError()) {
@@ -320,6 +327,7 @@ namespace iqrf {
             NAME_PAR(eoffset, doc.GetErrorOffset()));
         }
 
+        msgId = Pointer("/data/msgId").GetWithDefault(doc, "undefined").GetString();
         MsgType msgType = getMessageType(doc);
 
         if (msgType.m_type != "dpaV1") { // dpaV1 is default legacy support
