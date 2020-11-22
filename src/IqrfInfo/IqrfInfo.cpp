@@ -1222,7 +1222,7 @@ namespace iqrf {
         IJsCacheService::StdDriver driver;
         driver = m_iJsCacheService->getDriver(driverId, driverVer);
         if (driver.isValid()) {
-          str2load += driver.getDriver();
+          str2load += *driver.getDriver();
         }
         else {
           TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << PAR(driverVer) << " no driver found");
@@ -1556,12 +1556,12 @@ namespace iqrf {
           ", ?"
           ", ?"
           ");"
-          << drv.getNotes()
+          << *drv.getNotes()
           << name
           << version
           << standardId
           << drv.getVersionFlags()
-          << drv.getDriver()
+          << *drv.getDriver()
           ;
       }
 
