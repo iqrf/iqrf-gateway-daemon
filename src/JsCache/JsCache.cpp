@@ -958,11 +958,12 @@ namespace iqrf {
 
           int versionFlag;
           double version;
-          std::string driver, notes;
+          std::shared_ptr<std::string> notes(shape_new std::string());
+          std::shared_ptr<std::string> driver(shape_new std::string());
           POINTER_GET_DOUBLE("", &doc, "/version", version, fname);
           POINTER_GET_INT("", &doc, "/versionFlags", versionFlag, fname);
-          POINTER_GET_STRING("", &doc, "/driver", driver, fname);
-          POINTER_GET_STRING("", &doc, "/notes", notes, fname);
+          POINTER_GET_STRING("", &doc, "/driver", *driver, fname);
+          POINTER_GET_STRING("", &doc, "/notes", *notes, fname);
           stdDriver.second = StdDriver(stdItem.first, stdItem.second.m_name, version, driver, notes, versionFlag);
         } // for 3
       } // for 2
