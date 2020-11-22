@@ -6,6 +6,7 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include <memory>
 
 #ifdef IJsCacheService_EXPORTS
 #define IJsCacheService_DECLSPEC SHAPE_ABI_EXPORT
