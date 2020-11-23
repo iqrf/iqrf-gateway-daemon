@@ -6,6 +6,7 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include <memory>
 
 #ifdef IJsCacheService_EXPORTS
 #define IJsCacheService_DECLSPEC SHAPE_ABI_EXPORT
@@ -71,7 +72,13 @@ namespace iqrf {
       StdDriver()
         :m_valid(false)
       {}
-      StdDriver(int id, const std::string& name, double version, const std::string& driver, const std::string& notes, int verFlags)
+      StdDriver(int id
+        , const std::string & name
+        , double version
+        , const std::shared_ptr<std::string> & driver
+        , const std::shared_ptr<std::string> & notes
+        , int verFlags
+      )
         : m_valid(true)
         ,m_id(id)
         ,m_version(version)
@@ -81,9 +88,9 @@ namespace iqrf {
         ,m_notes(notes)
       {}
       bool isValid() const { return m_valid; }
-      const std::string& getName() const { return m_name; }
-      const std::string& getDriver() const { return m_driver; }
-      const std::string& getNotes() const { return m_notes; }
+      const std::string & getName() const { return m_name; }
+      const std::shared_ptr<std::string> & getDriver() const { return m_driver; }
+      const std::shared_ptr<std::string> & getNotes() const { return m_notes; }
       int getVersionFlags() const { return m_versionFlags; }
       double getVersion() const { return m_version; }
       int getId() const { return m_id; }
@@ -93,8 +100,8 @@ namespace iqrf {
       double m_version = 0;
       int m_versionFlags = 0;
       std::string m_name;
-      std::string m_driver;
-      std::string m_notes;
+      std::shared_ptr<std::string> m_driver;
+      std::shared_ptr<std::string> m_notes;
     };
 
     class Package
