@@ -1,3 +1,11 @@
+iqrf-gateway-daemon (2.3.3) stable; urgency=medium
+
+  [ Frantisek Mikulu ]
+  * driver code in shared_ptr
+  * fix for Lin
+
+ -- Karel Hanák <karel.hanak@microrisc.com>  Mon, 23 Nov 2020 18:12:00 +0100
+
 iqrf-gateway-daemon (2.3.2) stable; urgency=medium
 
   [ Karel Hanák ]
