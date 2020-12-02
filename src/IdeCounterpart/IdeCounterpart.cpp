@@ -265,6 +265,17 @@ namespace iqrf {
     message.resize(UdpGwStatus::unused12 + 1, '\0');
     //TODO get channel status to Channel iface
     message[trStatus] = 0x80;   //SPI_IQRF_SPI_READY_COMM = 0x80, see spi_iqrf.h
+
+    if (m_exclusiveAcessor)
+    {                           // exclusiveAccess
+      message[trStatus] = 0x80; //SPI_IQRF_SPI_READY_COMM = 0x80, see spi_iqrf.h
+    }
+    else
+    {
+      //signal back to IDE not being in service mode
+      message[trStatus] = 0xFF; //SPI_IQRF_SPI_HW_ERROR = 0xFF, see spi_iqrf.h
+    }
+
     message[supplyExt] = 0x01;  //DB3 0x01 supplied from external source
     message[timeSec] = (unsigned char)ltm->tm_sec;    //DB4 GW time – seconds(see Time and date coding)
     message[timeMin] = (unsigned char)ltm->tm_min;    //DB5 GW time – minutes
