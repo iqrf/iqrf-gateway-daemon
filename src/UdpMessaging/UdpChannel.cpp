@@ -177,92 +177,66 @@ void UdpChannel::getMyAddress()
   m_myIpAdress = "0.0.0.0";
   m_myMacAdress = "00-00-00-00-00-00";
 
-  const int ATTEMPTS_CNT = 3;
-  int attempts;
-
-  //initialize random seed
-  srand(static_cast<unsigned int>(time(NULL)));
-
-  //generate secret number
-  int short secret = (int short)rand();
-
-  std::basic_string<unsigned char> msgTrm = { 0x66, 0x64, 0, 0 };
-
-  msgTrm[2] = (unsigned char)((secret >> 8) & 0xFF);
-  msgTrm[3] = (unsigned char)(secret & 0xFF);
-
-  sockaddr_in iqrfUdpMyself;
-  //socklen_t iqrfUdpMyselfLength = sizeof(iqrfUdpMyself);
-  socklen_t iqrfUdpListenerLength = sizeof(m_iqrfUdpListener);
-
-  memset(&iqrfUdpMyself, 0, sizeof(iqrfUdpMyself));
-  iqrfUdpMyself.sin_family = AF_INET;
-  iqrfUdpMyself.sin_port = htons(m_localPort);
-  iqrfUdpMyself.sin_addr.s_addr = htonl(INADDR_BROADCAST);
-
-  // Local server, packets are received from any IP
-  sockaddr_in iqrfUdpListener;
-  memset(&iqrfUdpListener, 0, sizeof(iqrfUdpListener));
-  iqrfUdpListener.sin_family = AF_INET;
-  iqrfUdpListener.sin_port = htons(m_localPort);
-  iqrfUdpListener.sin_addr.s_addr = htonl(INADDR_ANY);
-
-  SOCKET soc;
-  soc = socket(AF_INET, SOCK_DGRAM, 0);
-  if (soc == -1)
-    THROW_EXC_TRC_WAR(UdpChannelException, "socket failed: " << GetLastError());
-
-  opttype broadcastEnable = 1;                                // Enable sending broadcast packets
-  if (0 != setsockopt(soc, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable)))
-  {
-    closesocket(soc);
-    THROW_EXC_TRC_WAR(UdpChannelException, "setsockopt failed: " << GetLastError());
+  SOCKET sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0) {
+    THROW_EXC_TRC_WAR(UdpChannelException, "socket failed: " << GetLastError() << ": " << strerror(errno));
   }
 
-  if (SOCKET_ERROR == bind(soc, (struct sockaddr *)&iqrfUdpListener, sizeof(iqrfUdpListener)))
-  {
-    closesocket(soc);
-    THROW_EXC_TRC_WAR(UdpChannelException, "bind failed: " << GetLastError());
+  sockaddr_in hints;
+  memset(&hints, 0, sizeof(hints));
+  hints.sin_family = AF_INET;
+  hints.sin_port = htons(9);
+  hints.sin_addr.s_addr = INADDR_LOOPBACK;
+
+  int res;
+
+  res = connect(sockfd, (sockaddr *)&hints, sizeof(hints));
+  if (res < 0) {
+    close(sockfd);
+    THROW_EXC_TRC_WAR(UdpChannelException, "connect failed: " << GetLastError() << ": " << strerror(errno));
   }
 
-  for (attempts = ATTEMPTS_CNT; attempts > 0; attempts--) {
-    int recn = -1;
-
-    TRC_DEBUG("Send to UDP to myself: " << PAR(attempts) << std::endl << MEM_HEX(msgTrm.data(), msgTrm.size()));
-    int trmn = sendto(soc, (const char*)msgTrm.data(), static_cast<int>(msgTrm.size()), 0, (struct sockaddr *)&iqrfUdpMyself, sizeof(iqrfUdpMyself));
-    if (trmn < 0) {
-      //THROW_EXC_TRC_WAR(UdpChannelException, "sendto failed: " << WSAGetLastError());
-      TRC_WARNING("sendto failed: " << WSAGetLastError() << " => cannot specify my IP address.");
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      continue;
-    }
-
-    unsigned char rx[16];
-    memset(rx, 0, 16);
-
-    recn = recvfrom(soc, (char*)rx, 16, 0, (struct sockaddr *)&iqrfUdpListener, &iqrfUdpListenerLength);
-    if (recn == SOCKET_ERROR) {
-      //THROW_EXC_TRC_WAR(UdpChannelException, "recvfrom failed: " << WSAGetLastError());
-      TRC_WARNING("recvfrom failed: " << WSAGetLastError() << " => cannot specify my IP address.");
-      break;
-    }
-
-    if (recn > 0) {
-      TRC_DEBUG("Received from UDP: " << std::endl << MEM_HEX(rx, recn));
-      std::basic_string<unsigned char> msgRec(rx, recn);
-      if (msgTrm == msgRec) {
-        m_myIpAdress = inet_ntoa(iqrfUdpListener.sin_addr);    // my address is address of the last received packet
-        break;
-      }
-    }
+  socklen_t hintsLen = sizeof(hints);
+  res = getsockname(sockfd, (sockaddr *)&hints, &hintsLen);
+  if (res < 0) {
+    close(sockfd);
+    THROW_EXC_TRC_WAR(UdpChannelException, "getsockname failed: " << GetLastError() << ": " << strerror(errno));
   }
 
-  if (attempts <= 0) {
-    //THROW_EXC_TRC_WAR(UdpChannelException, "Failed listen myself => cannot specify my IP address.");
-    TRC_WARNING("Failed listen myself => cannot specify my IP address.");
+  close(sockfd);
+
+  char address[INET_ADDRSTRLEN];
+  if (inet_ntop(AF_INET, &hints.sin_addr, address, INET_ADDRSTRLEN) == NULL) {
+    THROW_EXC_TRC_WAR(UdpChannelException, "inet_ntop failed: " << GetLastError() << ": " << strerror(errno));
+  }
+  m_myIpAdress = std::string(address);
+
+  sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0) {
+    THROW_EXC_TRC_WAR(UdpChannelException, "socket failed: " << GetLastError() << ": " << strerror(errno));
   }
 
-  getMyMacAddress(soc);
+  memset(&hints, 0, sizeof(hints));
+  hints.sin_family = AF_INET;
+  hints.sin_port = htons(m_localPort);
+  hints.sin_addr.s_addr = htonl(INADDR_ANY);
+
+  opttype broadcastEnable = 1;
+  res = setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
+  if (res < 0) {
+    close(sockfd);
+    THROW_EXC_TRC_WAR(UdpChannelException, "setsockopt failed: " << GetLastError() << ": " << strerror(errno));
+  }
+
+  res = bind(sockfd, (struct sockaddr *)&hints, sizeof(hints));
+  if (res < 0) {
+    close(sockfd);
+    THROW_EXC_TRC_WAR(UdpChannelException, "bind failed: " << GetLastError() << ": " << strerror(errno));
+  }
+
+  TRC_INFORMATION("IP from inet_ntop: " << m_myIpAdress);
+
+  getMyMacAddress(sockfd);
 
   std::ostringstream os;
   for (auto adapter : m_adapters) {
@@ -275,8 +249,8 @@ void UdpChannel::getMyAddress()
     m_myMacAdress = found->second.mMac;
   }
 
-  shutdown(soc, SHUT_RD);
-  closesocket(soc);
+  shutdown(sockfd, SHUT_RD);
+  closesocket(sockfd);
 
   TRC_FUNCTION_LEAVE("");
 }
@@ -323,6 +297,7 @@ void UdpChannel::getMyMacAddress(SOCKET soc)
 
   if (if_nidxs != NULL) {
     for (intf = if_nidxs; intf->if_index != 0 || intf->if_name != NULL; intf++) {
+      memset(&ifr, 0, sizeof(ifr));
       //printf("%s\t", intf->if_name);
 
       // Type of address to retrieve - IPv4 IP address
@@ -331,13 +306,19 @@ void UdpChannel::getMyMacAddress(SOCKET soc)
       strncpy(ifr.ifr_name, intf->if_name, IFNAMSIZ - 1);
 
       // Get MAC address
-      ioctl(soc, SIOCGIFHWADDR, &ifr);
+      if (ioctl(soc, SIOCGIFHWADDR, &ifr) < 0) {
+        TRC_WARNING("MAC ioctl failed: " << GetLastError() << ": " << strerror(errno));
+        continue;
+      }
       unsigned char *mac = (unsigned char *)ifr.ifr_hwaddr.sa_data;
       sprintf(mac_addr, "%02X-%02X-%02X-%02X-%02X-%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
       std::string macStr(mac_addr);
 
       // Get IPv4 address
-      ioctl(soc, SIOCGIFADDR, &ifr);
+      if (ioctl(soc, SIOCGIFADDR, &ifr) < 0) {
+        TRC_WARNING("IPv4 ioctl failed: " << GetLastError() << ": " << strerror(errno));
+        continue;
+      }
       if (((struct sockaddr *)&ifr.ifr_addr)->sa_family == AF_INET) {
         std::string ip(inet_ntoa(((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr));
 
