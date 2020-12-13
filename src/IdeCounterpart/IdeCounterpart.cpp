@@ -264,15 +264,15 @@ namespace iqrf {
 
     message.resize(UdpGwStatus::unused12 + 1, '\0');
     //TODO get channel status to Channel iface
-    message[trStatus] = 0x80;   //SPI_IQRF_SPI_READY_COMM = 0x80, see spi_iqrf.h
+    message[trStatus] = 0x80;   //SPI_IQRF_SPI_READY_COMM = 0x80, see spi_iqrf.h  
 
-    if (m_exclusiveAcessor)
+    if (m_exclusiveAcessor || m_snifferAcessor)
     {                           // exclusiveAccess
       message[trStatus] = 0x80; //SPI_IQRF_SPI_READY_COMM = 0x80, see spi_iqrf.h
     }
     else
     {
-      //signal back to IDE not being in service mode
+      //signal back to IDE being in operational
       message[trStatus] = 0xFF; //SPI_IQRF_SPI_HW_ERROR = 0xFF, see spi_iqrf.h
     }
 
