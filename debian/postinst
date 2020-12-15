@@ -61,7 +61,7 @@ configure_gateway() {
 				jq --unbuffered --arg gwId "$gwId" '.ClientId = $gwId | .TopicRequest = "gateway/" + $gwId + "/iqrf/requests" | .TopicResponse = "gateway/" + $gwId + "/iqrf/responses"' "${confDir}iqrf__MqttMessaging.json" > tmp.json && mv tmp.json "${confDir}iqrf__MqttMessaging.json"
 			fi
 			if [ -f "${confDir}iqrf__IdeCounterpart.json" ]; then
-				jq --unbuffered --arg gwId "$gwId" '.gwIdentModeByte = 34 | .gwIdentName = "IQD-GW-01" | .gwIdentNetBios = "iqdgw01-" + $gwId' "${confDir}iqrf__IdeCounterpart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IdeCounterpart.json"
+				jq --unbuffered --arg gwProduct "$gwProduct" '.gwIdentModeByte = 34 | .gwIdentName = $gwProduct' "${confDir}iqrf__IdeCounterpart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IdeCounterpart.json"
 			fi
 		fi
 	fi
