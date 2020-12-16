@@ -324,6 +324,7 @@ namespace iqrf {
         OStreamWrapper osw(ofs);
         PrettyWriter<OStreamWrapper> writer(osw);
         d.Accept(writer);
+        ofs.close();
       }
     }
 
