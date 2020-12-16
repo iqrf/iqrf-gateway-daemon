@@ -27,7 +27,9 @@
 #include <windows.h>
 #else
 #include <dirent.h>
+#include <fcntl.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 #include "iqrf__Scheduler.hxx"
@@ -325,6 +327,17 @@ namespace iqrf {
         PrettyWriter<OStreamWrapper> writer(osw);
         d.Accept(writer);
         ofs.close();
+        #ifndef SHAPE_PLATFORM_WINDOWS
+          int fd = open(fname.c_str(), O_RDWR);
+          if (fd < 0) {
+            TRC_WARNING("Failed to open file " << fname << ". " << errno << ": " << strerror(errno));
+          } else {
+             if (fsync(fd) < 0) {
+              TRC_WARNING("Failed to sync file to filesystem." << errno << ": " << strerror(errno));
+            }
+            close(fd);
+          }
+        #endif
       }
     }
 
