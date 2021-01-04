@@ -192,18 +192,18 @@ void UdpChannel::getMyAddress()
 
   res = connect(sockfd, (sockaddr *)&hints, sizeof(hints));
   if (res < 0) {
-    close(sockfd);
+    closesocket(sockfd);
     THROW_EXC_TRC_WAR(UdpChannelException, "connect failed: " << GetLastError() << ": " << strerror(errno));
   }
 
   socklen_t hintsLen = sizeof(hints);
   res = getsockname(sockfd, (sockaddr *)&hints, &hintsLen);
   if (res < 0) {
-    close(sockfd);
+    closesocket(sockfd);
     THROW_EXC_TRC_WAR(UdpChannelException, "getsockname failed: " << GetLastError() << ": " << strerror(errno));
   }
 
-  close(sockfd);
+  closesocket(sockfd);
 
   char address[INET_ADDRSTRLEN];
   if (inet_ntop(AF_INET, &hints.sin_addr, address, INET_ADDRSTRLEN) == NULL) {
@@ -224,13 +224,13 @@ void UdpChannel::getMyAddress()
   opttype broadcastEnable = 1;
   res = setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
   if (res < 0) {
-    close(sockfd);
+    closesocket(sockfd);
     THROW_EXC_TRC_WAR(UdpChannelException, "setsockopt failed: " << GetLastError() << ": " << strerror(errno));
   }
 
   res = bind(sockfd, (struct sockaddr *)&hints, sizeof(hints));
   if (res < 0) {
-    close(sockfd);
+    closesocket(sockfd);
     THROW_EXC_TRC_WAR(UdpChannelException, "bind failed: " << GetLastError() << ": " << strerror(errno));
   }
 
