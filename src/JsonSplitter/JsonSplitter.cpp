@@ -278,13 +278,14 @@ namespace iqrf {
         else {
           TRC_WARNING("Error queue overload: " << PAR(queueLen));
 
-          std::string msgId("ignored");
           std::string str((char*)message.data(), message.size());
           StringStream ss(str.data());
           Document doc;
           doc.ParseStream(ss);
+          std::string msgId("ignored");
+
           if (!doc.HasParseError()) {
-            msgId = Pointer("/data/msgId").GetWithDefault(doc, "undefined").GetString();
+            msgId = Pointer("/data/msgId").GetWithDefault(doc, "ignored").GetString();
           }
           std::ostringstream oser;
           oser << "daemon overload: " << PAR(queueLen);
