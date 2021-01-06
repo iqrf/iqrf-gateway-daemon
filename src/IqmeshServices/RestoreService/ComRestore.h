@@ -4,7 +4,7 @@
 
 namespace iqrf {
 
-  // BackupService input paramaters
+  // Restore input paramaters
   typedef struct
   {
     uint16_t deviceAddress;

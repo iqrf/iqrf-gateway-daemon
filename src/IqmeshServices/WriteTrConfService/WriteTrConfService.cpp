@@ -18,59 +18,13 @@ using namespace rapidjson;
 
 namespace
 {
-  // service general fail code - may and probably will be changed later in the future
-  static const int SERVICE_ERROR = 1000;
-}; // namespace
+  static const int serviceError = 1000;
+  static const int parsingRequestError = 1001;
+  static const int exclusiveAccessError = 1002;
+};
 
 namespace iqrf
 {
-  // Holds information about errors, which encounter during configuration write
-  class WriteTrConfError
-  {
-  public:
-    // Type of error
-    enum class Type
-    {
-      NoError,
-      CheckPerCoordAndOS,
-      SetFrcParams,
-      GetBondedNodes,
-      WriteTrConfByte,
-      FrcAcknowledgedBroadcastBits,
-      SetSecurity,
-      PerEnum
-    };
-
-    WriteTrConfError() : m_type( Type::NoError ), m_message( "ok" ) {};
-    explicit WriteTrConfError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
-    WriteTrConfError( Type errorType, const std::string &message ) : m_type( errorType ), m_message( message ) {};
-
-    Type getType() const { return m_type; };
-    std::string getMessage() const { return m_message; };
-
-    WriteTrConfError(const WriteTrConfError& other) {
-      m_type = other.getType();
-      m_message = other.getMessage();
-    }
-
-    WriteTrConfError &operator=( const WriteTrConfError &error )
-    {
-      if ( this == &error )
-      {
-        return *this;
-      }
-
-      this->m_type = error.m_type;
-      this->m_message = error.m_message;
-
-      return *this;
-    }
-
-  private:
-    Type m_type;
-    std::string m_message;
-  };
-
   // Configuration byte - according to DPA spec. - TPerOSWriteCfgByteTriplet
   struct TrConfigByte
   {
@@ -97,8 +51,9 @@ namespace iqrf
   class WriteTrConfResult
   {
   private:
-    // Error type
-    WriteTrConfError m_error;
+    // Status
+    int m_status = 0;
+    std::string m_statusStr = "ok";
 
     // Bondes nodes list
     std::basic_string<uint8_t> m_bondedNodes;
@@ -119,11 +74,18 @@ namespace iqrf
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
   public:
-    // Error type
-    WriteTrConfError getError() const { return m_error; };
-    void setError( const WriteTrConfError &error )
-    {
-      m_error = error;
+    // Status
+    int getStatus() const { return m_status; };
+    std::string getStatusStr() const { return m_statusStr; };
+    void setStatus(const int status) {
+      m_status = status;
+    }
+    void setStatus(const int status, const std::string statusStr) {
+      m_status = status;
+      m_statusStr = statusStr;
+    }
+    void setStatusStr(const std::string statusStr) {
+      m_statusStr = statusStr;
     }
 
     // Get bonded nodes
@@ -147,7 +109,9 @@ namespace iqrf
       m_enumPer = enumPer;
     }
 
+    //------------------------------------------------------------------------------------
     // Check all bonded nodes responded (set bit0 or bit1) to FrcAcknowledgedBroadcastBits
+    //------------------------------------------------------------------------------------
     void checkFrcResponse( const std::bitset<MAX_ADDRESS + 1> &frcDataBit0, const std::bitset<MAX_ADDRESS + 1> &frcDataBit1 )
     {
       // Check all bonded nodes
@@ -223,9 +187,6 @@ namespace iqrf
     // Service input parameters
     TWriteTrConfInputParams m_writeTrConfParams;
 
-    // if is set Verbose mode
-    bool m_returnVerbose = false;
-
   public:
     explicit Imp(WriteTrConfService &parent) : m_parent(parent)
     {
@@ -275,9 +236,9 @@ namespace iqrf
         perEnumRequest.DataToBuffer(perEnumPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat(perEnumRequest, transResult, m_writeTrConfParams.repeat);
-        TRC_DEBUG("Result from Device Exploration transaction as string:" << PAR(transResult->getErrorString()));
+        TRC_DEBUG("Result from PNUM_ENUMERATION as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION("Device exploration successful!");
+        TRC_INFORMATION("PNUM_ENUMERATION successful!");
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR(Peripheral type, perEnumRequest.PeripheralType())
@@ -295,8 +256,7 @@ namespace iqrf
       }
       catch (const std::exception& e)
       {
-        WriteTrConfError error(WriteTrConfError::Type::CheckPerCoordAndOS, e.what());
-        writeTrConfResult.setError(error);
+        writeTrConfResult.setStatus(transResult->getErrorCode(), e.what());
         writeTrConfResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
@@ -319,9 +279,9 @@ namespace iqrf
         getBondedNodesRequest.DataToBuffer(getBondedNodesPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat(getBondedNodesRequest, transResult, m_writeTrConfParams.repeat);
-        TRC_DEBUG("Result from get bonded nodes transaction as string:" << PAR(transResult->getErrorString()));
+        TRC_DEBUG("Result from CMD_COORDINATOR_BONDED_DEVICES transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION("Get bonded nodes successful!");
+        TRC_INFORMATION("CMD_COORDINATOR_BONDED_DEVICES nodes successful!");
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR(Peripheral type, getBondedNodesRequest.PeripheralType())
@@ -337,8 +297,7 @@ namespace iqrf
       }
       catch (const std::exception& e)
       {
-        WriteTrConfError error(WriteTrConfError::Type::GetBondedNodes, e.what());
-        writeTrConfResult.setError(error);
+        writeTrConfResult.setStatus(transResult->getErrorCode(), e.what());
         writeTrConfResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
@@ -362,10 +321,10 @@ namespace iqrf
         getPerInfoPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         getPerInfoRequest.DataToBuffer(getPerInfoPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(getPerInfoRequest, transResult, 3);
-        TRC_DEBUG("Result from CMD_OS_READ as string:" << PAR(transResult->getErrorString()));
+        m_exclusiveAccess->executeDpaTransactionRepeat(getPerInfoRequest, transResult, m_writeTrConfParams.repeat);
+        TRC_DEBUG("Result from PNUM_ENUMERATION as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION("Device CMD_OS_READ successful!");
+        TRC_INFORMATION("Device PNUM_ENUMERATION successful!");
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR(Peripheral type, getPerInfoRequest.PeripheralType())
@@ -377,15 +336,16 @@ namespace iqrf
         writeTrConfResult.setEnumPer(enumPerAnswer);
       }
       catch (const std::exception& e)
-      {
-        WriteTrConfError error(WriteTrConfError::Type::PerEnum, e.what());
-        writeTrConfResult.setError(error);
+      {       
+        writeTrConfResult.setStatus(transResult->getErrorCode(), e.what());
         writeTrConfResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
     }
 
+    //----------------------
     // Set FRC response time
+    //----------------------
     uint8_t setFrcReponseTime(WriteTrConfResult& writeTrConfResult, uint8_t FRCresponseTime)
     {
       TRC_FUNCTION_ENTER("");
@@ -403,9 +363,9 @@ namespace iqrf
         setFrcParamRequest.DataToBuffer(setFrcParamPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerFrcSetParams_RequestResponse));
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat(setFrcParamRequest, transResult, m_writeTrConfParams.repeat);
-        TRC_DEBUG("Result from Set Hops transaction as string:" << PAR(transResult->getErrorString()));
+        TRC_DEBUG("Result from CMD_FRC_SET_PARAMS as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION("Set Hops successful!");
+        TRC_INFORMATION("CMD_FRC_SET_PARAMS successful!");
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR(Peripheral type, setFrcParamRequest.PeripheralType())
@@ -418,14 +378,15 @@ namespace iqrf
       }
       catch (const std::exception& e)
       {
-        WriteTrConfError error(WriteTrConfError::Type::SetFrcParams, e.what());
-        writeTrConfResult.setError(error);
+        writeTrConfResult.setStatus(transResult->getErrorCode(), e.what());
         writeTrConfResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
     }
 
+    //------------------------------
     // FRC_AcknowledgedBroadcastBits
+    //------------------------------
     std::basic_string<uint8_t> FrcAcknowledgedBroadcastBits(WriteTrConfResult& writeTrConfResult, const std::basic_string<uint8_t> &userData)
     {
       TRC_FUNCTION_ENTER("");
@@ -447,9 +408,9 @@ namespace iqrf
         frcAckBroadcastBitsRequest.DataToBuffer(frcAckBroadcastBitsPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(uint8_t) + (uint8_t)userData.length());
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat(frcAckBroadcastBitsRequest, transResult, m_writeTrConfParams.repeat);
-        TRC_DEBUG("Result from FRC Acknowledged Broadcast Bits transaction as string:" << PAR(transResult->getErrorString()));
+        TRC_DEBUG("Result from CMD_FRC_SEND transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION("FRC Acknowledged Broadcast Bits successful!");
+        TRC_INFORMATION("CMD_FRC_SEND successful!");
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR(Peripheral type, frcAckBroadcastBitsRequest.PeripheralType())
@@ -497,14 +458,15 @@ namespace iqrf
       }
       catch (const std::exception& e)
       {
-        WriteTrConfError error(WriteTrConfError::Type::FrcAcknowledgedBroadcastBits, e.what());
-        writeTrConfResult.setError(error);
+        writeTrConfResult.setStatus(transResult->getErrorCode(), e.what());
         writeTrConfResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
     }
 
+    //-----------------------------------
     // Write TR config by unicast request
+    //-----------------------------------
     void writeTrConfUnicast(WriteTrConfResult &writeTrConfResult, const uint16_t deviceAddr, const uint16_t hwpId, const std::vector<TrConfigByte> &trConfigBytes)
     {
       TRC_FUNCTION_ENTER("");
@@ -530,9 +492,9 @@ namespace iqrf
         writeCfgByteRequest.DataToBuffer(writeCfgBytePacket.Buffer, sizeof(TDpaIFaceHeader) + index * sizeof(TPerOSWriteCfgByteTriplet));
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat(writeCfgByteRequest, transResult, m_writeTrConfParams.repeat);
-        TRC_DEBUG("Result from Write TR Configuration byte transaction as string:" << PAR(transResult->getErrorString()));
+        TRC_DEBUG("Result from CMD_OS_WRITE_CFG_BYTE transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION("Write TR Configuration byte successful!");
+        TRC_INFORMATION("CMD_OS_WRITE_CFG_BYTE successful!");
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR(Peripheral type, writeCfgByteRequest.PeripheralType())
@@ -545,14 +507,15 @@ namespace iqrf
       }
       catch (const std::exception& e)
       {
-        WriteTrConfError error(WriteTrConfError::Type::WriteTrConfByte, e.what());
-        writeTrConfResult.setError(error);
+        writeTrConfResult.setStatus(transResult->getErrorCode(), e.what());
         writeTrConfResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
     }
 
-    // Set security unicat
+    //---------------------
+    // Set security unicast
+    //----------------------
     void setSecurityUnicast(WriteTrConfResult &writeTrConfResult, const uint16_t deviceAddr, const uint16_t hwpId, const uint8_t type, const std::basic_string<uint8_t> &key)
     {
       TRC_FUNCTION_ENTER("");
@@ -573,9 +536,9 @@ namespace iqrf
         setSecurityRequest.DataToBuffer(setSecurityPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerOSSetSecurity_Request));
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat(setSecurityRequest, transResult, m_writeTrConfParams.repeat);
-        TRC_DEBUG("Result from Set security transaction as string:" << PAR(transResult->getErrorString()));
+        TRC_DEBUG("Result from CMD_OS_SET_SECURITY as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION("Set security successful!");
+        TRC_INFORMATION("CMD_OS_SET_SECURITY successful!");
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR(Peripheral type, setSecurityRequest.PeripheralType())
@@ -588,16 +551,18 @@ namespace iqrf
       }
       catch (const std::exception& e)
       {
-        WriteTrConfError error(WriteTrConfError::Type::WriteTrConfByte, e.what());
-        writeTrConfResult.setError(error);
+        writeTrConfResult.setStatus(transResult->getErrorCode(), e.what());
         writeTrConfResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
     }
 
+    //-------------------------------
     // Enable/disable FRC per. at [C]
+    //-------------------------------
     void setFrcPerAtCoord(WriteTrConfResult &writeTrConfResult, bool perFrcState)
     {
+      TRC_FUNCTION_ENTER("");
       std::vector<TrConfigByte> trConfigByteEmbPer;
       trConfigByteEmbPer.clear();
       uint8_t frcState = perFrcState ? 1 << (PNUM_FRC % 8) : 0x00;
@@ -606,9 +571,31 @@ namespace iqrf
       TRC_FUNCTION_LEAVE("");
     }
 
-    // Send WriteTrConfResult
-    void sendResult(WriteTrConfResult &writeTrConfResult)
+    //--------------------------
+    // Creates and send response
+    //--------------------------
+    void createResponse(const int status, const std::string statusStr)
     {
+      Document response;
+
+      // Set common parameters
+      Pointer("/mType").Set(response, m_msgType->m_type);
+      Pointer("/data/msgId").Set(response, m_comWriteConfig->getMsgId());
+
+      // Set status
+      Pointer("/data/status").Set(response, status);
+      Pointer("/data/statusStr").Set(response, statusStr);
+
+      // Send message      
+      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
+    }
+
+    //--------------------------
+    // Creates and send response
+    //--------------------------
+    void createResponse(WriteTrConfResult &writeTrConfResult)
+    {
+      TRC_FUNCTION_ENTER("");
       Document writeResult;
 
       // Set common parameters
@@ -651,7 +638,7 @@ namespace iqrf
       else
       {
         // Unicast address
-        bool writeSuccess = writeTrConfResult.getError().getType() == WriteTrConfError::Type::NoError;
+        bool writeSuccess = (writeTrConfResult.getStatus() == 0);
         Pointer("/data/rsp/writeSuccess").Set(writeResult, writeSuccess);
         // Restart needed
         if (writeSuccess)
@@ -714,21 +701,20 @@ namespace iqrf
       }
 
       // Set status
-      int status = writeTrConfResult.getError().getType() == WriteTrConfError::Type::NoError ? 0 : SERVICE_ERROR + (int)writeTrConfResult.getError().getType();
-      Pointer("/data/status").Set(writeResult, status);
-      Pointer("/data/statusStr").Set(writeResult, writeTrConfResult.getError().getMessage());
+      Pointer("/data/status").Set(writeResult, writeTrConfResult.getStatus());
+      Pointer("/data/statusStr").Set(writeResult, writeTrConfResult.getStatusStr());
 
       // Send message      
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(writeResult));
+      TRC_FUNCTION_LEAVE("");
     }
 
+    //-----------------------
     // Write TR configuration
-    void writeTrConf(void)
+    //-----------------------
+    void writeTrConf(WriteTrConfResult &writeTrConfResult)
     {
       TRC_FUNCTION_ENTER("");
-
-      // WriteTrConfResult
-      WriteTrConfResult writeTrConfResult;
 
       try
       {
@@ -1049,20 +1035,17 @@ namespace iqrf
           if ((m_writeTrConfParams.rfSettings.rfChannelA != -1) || (m_writeTrConfParams.rfSettings.txPower != -1))
             m_writeTrConfParams.restartNeeded = true;
         }
-
-        // Send result
-        sendResult(writeTrConfResult);
         TRC_FUNCTION_LEAVE("");
       }
-      catch (const std::exception& ex)
+      catch (const std::exception& e)
       {
-        TRC_WARNING("Error during algorithm run: " << ex.what());
-        // Send result
-        sendResult(writeTrConfResult);
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
       }
     }
 
+    //---------------
     // Handle message
+    //---------------
     void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc)
     {
       TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) << NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
@@ -1073,28 +1056,9 @@ namespace iqrf
 
       // Creating representation object
       ComMngIqmeshWriteConfig comWriteConfig(doc);
-
-      // Try to establish exclusive access
-      try
-      {
-        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-      }
-      catch (const std::exception &e)
-      {
-        const char* errorStr = e.what();
-        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
-        // Create error response
-        Document response;
-        Pointer("/mType").Set(response, msgType.m_type);
-        Pointer("/data/msgId").Set(response, comWriteConfig.getMsgId());
-        // Set result
-        Pointer("/data/status").Set(response, SERVICE_ERROR);
-        Pointer("/data/statusStr").Set(response, errorStr);
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
-
-        TRC_FUNCTION_LEAVE("");
-        return;
-      }
+      m_msgType = &msgType;
+      m_messagingId = &messagingId;
+      m_comWriteConfig = &comWriteConfig;
 
       // Parsing and checking service parameters
       try
@@ -1103,29 +1067,43 @@ namespace iqrf
       }
       catch (const std::exception& e)
       {
-        const char* errorStr = e.what();
-        TRC_WARNING("Error while parsing service input parameters: " << PAR(errorStr));
-        // Create error response
-        Document response;
-        Pointer("/mType").Set(response, msgType.m_type);
-        Pointer("/data/msgId").Set(response, comWriteConfig.getMsgId());
-        // Set result
-        Pointer("/data/status").Set(response, SERVICE_ERROR);
-        Pointer("/data/statusStr").Set(response, errorStr);
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
-
+        CATCH_EXC_TRC_WAR(std::exception, e, "Error while parsing service input parameters.");
+        createResponse(parsingRequestError, e.what());
         TRC_FUNCTION_LEAVE("");
         return;
       }
 
-      // Write TR configuration
-      m_msgType = &msgType;
-      m_messagingId = &messagingId;
-      m_comWriteConfig = &comWriteConfig;
-      writeTrConf();
+      // Try to establish exclusive access
+      try
+      {
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      }
+      catch (const std::exception &e)
+      {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Exclusive access error.");
+        createResponse(exclusiveAccessError, e.what());
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
+      try
+      {
+        // Write TR config result
+        WriteTrConfResult writeTrConfResult;
+
+        // Write TR configuration
+        writeTrConf(writeTrConfResult);
+
+        // Create and send response
+        createResponse(writeTrConfResult);
+      }
+      catch (std::exception& e)
+      {
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+      }
+
       // Release exclusive access
       m_exclusiveAccess.reset();
-
       TRC_FUNCTION_LEAVE("");
     }
 

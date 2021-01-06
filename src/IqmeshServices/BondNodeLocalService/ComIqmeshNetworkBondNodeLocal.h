@@ -4,6 +4,21 @@
 
 namespace iqrf {
   
+  // SmartConnecy input parameters
+  typedef struct TBondNodetInputParams
+  {
+    TBondNodetInputParams()
+    {
+      bondingMask = 255;
+      bondingTestRetries = 1;
+      repeat = 1;
+    }
+    uint16_t deviceAddress;
+    int bondingMask;
+    int bondingTestRetries;
+    int repeat;
+  }TBondNodetInputParams;
+
   class ComIqmeshNetworkBondNodeLocal : public ComBase
   {
   public:
@@ -18,31 +33,9 @@ namespace iqrf {
     {
     }
 
-    int getRepeat() const {
-      return m_repeat;
-    }
-
-    bool isSetDeviceAddr() const {
-      return m_isSetDeviceAddr;
-    }
-
-    int getDeviceAddr() const
+    const TBondNodetInputParams getBondNodeInputParams() const
     {
-      return m_deviceAddr;
-    }
-    
-    bool isSetBondingMask() const {
-      return m_isSetBondingMask;
-    }
-
-    int getBondingMask() const
-    {
-      return m_bondingMask;
-    }
-
-    int getBondingTestRetries() const
-    {
-      return m_bondingTestRetries;
+      return m_bondNodeInputParams;
     }
 
   protected:
@@ -52,43 +45,28 @@ namespace iqrf {
     }
 
   private:
-    bool m_isSetDeviceAddr = false;
-    bool m_isSetBondingMask = false;
-    bool m_isSetBondingTestRetries = false;
-
-    int m_repeat = 1;
-    int m_deviceAddr;
-    int m_bondingMask = 0;
-    int m_bondingTestRetries = 1;
-
-    void parseRepeat(rapidjson::Document& doc) {
-      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc)) {
-        m_repeat = repeatJsonVal->GetInt();
-      }
-    }
-
-    void parseRequest(rapidjson::Document& doc) {
-      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
-        m_deviceAddr = repeatJsonVal->GetInt();
-      }
-      m_isSetDeviceAddr = true;
-
-      if ( rapidjson::Value* repeatJsonVal = rapidjson::Pointer( "/data/req/bondingMask" ).Get( doc ) ) {
-        m_bondingMask = repeatJsonVal->GetInt();
-      }
-      m_isSetBondingMask = true;
-
-      if ( rapidjson::Value* repeatJsonVal = rapidjson::Pointer( "/data/req/bondingTestRetries" ).Get( doc ) ) {
-        m_bondingTestRetries = repeatJsonVal->GetInt();
-      }
-      m_isSetBondingTestRetries = true;
-    }
+    TBondNodetInputParams m_bondNodeInputParams;
 
     // parses document into data fields
-    void parse(rapidjson::Document& doc) {
-      parseRepeat(doc);
-      parseRequest(doc);
-    }
+    void parse(rapidjson::Document& doc)
+    {
+      rapidjson::Value* jsonVal;
 
+      // Repeat
+      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc)))
+        m_bondNodeInputParams.repeat = jsonVal->GetInt();
+
+      // Device address
+      if (jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))
+        m_bondNodeInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
+
+      // bondingMak
+      if (jsonVal = rapidjson::Pointer("/data/req/bondingMak").Get(doc))
+        m_bondNodeInputParams.bondingMask = jsonVal->GetInt();
+
+      // bondingTestRetries
+      if (jsonVal = rapidjson::Pointer("/data/req/bondingTestRetries").Get(doc))
+        m_bondNodeInputParams.bondingTestRetries = jsonVal->GetInt();
+    }
   };
 }

@@ -6,6 +6,21 @@
 #include "JsonUtils.h"
 
 namespace iqrf {
+
+  // SmartConnect input parameters
+  typedef struct TEnumerateDeviceInputParams
+  {
+    TEnumerateDeviceInputParams()
+    {
+      deviceAddress = 0;
+      morePeripheralsInfo = false;
+      repeat = 1;
+    }
+    uint16_t deviceAddress;
+    bool morePeripheralsInfo = false;
+    int repeat;
+  }TEnumerateDeviceInputParams;
+
   class ComIqmeshNetworkEnumerateDevice : public ComBase
   {
   public:
@@ -20,23 +35,10 @@ namespace iqrf {
     {
     }
 
-    int getRepeat() const {
-      return m_repeat;
-    }
-
-    bool isSetDeviceAddr() const {
-      return m_isSetDeviceAddr;
-    }
-
-    int getDeviceAddr() const
+    const TEnumerateDeviceInputParams getEnumerateDevicefParams() const
     {
-      return m_deviceAddr;
+      return m_enumerateDeviceInputParams;
     }
-  
-    bool getMorePeripheralsInfo() {
-      return m_morePeripheralsInfo;
-    }
-
 
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
@@ -45,36 +47,25 @@ namespace iqrf {
         .Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
     }
 
-
   private:
-    bool m_isSetDeviceAddr = false;    
-    int m_repeat = 1;
-    int m_deviceAddr;
-    bool m_morePeripheralsInfo = false;
-    
+    TEnumerateDeviceInputParams m_enumerateDeviceInputParams;
 
-    void parseRepeat( rapidjson::Document& doc ) {
-      if ( rapidjson::Value* repeatJsonVal = rapidjson::Pointer( "/data/repeat" ).Get( doc ) )
-        m_repeat = repeatJsonVal->GetInt();
-      if ( m_repeat < 1 || m_repeat > 10 )
-        m_repeat = 1;
-    }
+    // Parses document into data fields
+    void parse(rapidjson::Document& doc) 
+    {
+      rapidjson::Value* jsonVal;
 
-    void parseRequest(rapidjson::Document& doc) {
-      if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
-        m_deviceAddr = deviceAddrJsonVal->GetInt();
-        m_isSetDeviceAddr = true;
-      }
+      // Repeat
+      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc)))
+        m_enumerateDeviceInputParams.repeat = jsonVal->GetInt();
 
-      if (rapidjson::Value* morePerInfoJsonVal = rapidjson::Pointer("/data/req/morePeripheralsInfo").Get(doc)) {
-        m_morePeripheralsInfo = morePerInfoJsonVal->GetBool();
-      }
-    }
+      // Device address
+      if ((jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)))
+        m_enumerateDeviceInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
 
-    // parses document into data fields
-    void parse(rapidjson::Document& doc) {
-      parseRepeat(doc);
-      parseRequest(doc);
+      // morePeripheralsInfo
+      if ((jsonVal = rapidjson::Pointer("/data/req/morePeripheralsInfo").Get(doc)))
+        m_enumerateDeviceInputParams.morePeripheralsInfo = jsonVal->GetBool();
     }
   };
 }

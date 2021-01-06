@@ -97,5 +97,6 @@ namespace iqrf {
     virtual void backup(const uint16_t address, DeviceBackupData& backupData) = 0;
     virtual void getTransResults(std::list<std::unique_ptr<IDpaTransactionResult2>>& transResult) = 0;
     virtual std::basic_string<uint16_t> getBondedNodes(void) = 0;
+    virtual int getErrorCode(void) = 0;
   };
 }

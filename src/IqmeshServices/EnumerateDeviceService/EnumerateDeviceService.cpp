@@ -45,6 +45,10 @@ namespace {
   // baud rates
   static uint8_t BAUD_RATES_SIZE = 9;
 
+  static const int serviceError = 1000;
+  static const int parsingRequestError = 1001;
+  static const int exclusiveAccessError = 1002;
+
   static uint32_t BaudRates[] = {
     1200,
     2400,
@@ -59,132 +63,62 @@ namespace {
 };
 
 namespace iqrf {
-  // Holds information about errors, which encounter during device enumerate service run
-  class DeviceEnumerateError {
-  public:
-    // Type of error
-    enum class Type {
-      NoError = 0,
-      ServiceError = 1000,
-      NotBonded = 1001,
-      ReadDiscoveryByte = 1002,
-      OsRead = 1003,
-      PerEnum = 1004,
-      ReadHwp = 1005,
-      MorePersInfo = 1006
-    };
-
-    DeviceEnumerateError() : m_type(Type::NoError), m_message("ok") {};
-    explicit DeviceEnumerateError(Type errorType) : m_type(errorType), m_message("") {};
-    DeviceEnumerateError(Type errorType, const std::string& message) : m_type(errorType), m_message(message) {};
-
-    Type getType() const { return m_type; };
-    std::string getMessage() const { return m_message; };
-
-    DeviceEnumerateError(const DeviceEnumerateError& other) {
-      m_type = other.getType();
-      m_message = other.getMessage();
-    }
-
-    DeviceEnumerateError& operator=(const DeviceEnumerateError& error) {
-      if (this == &error) {
-        return *this;
-      }
-
-      this->m_type = error.m_type;
-      this->m_message = error.m_message;
-
-      return *this;
-    }
-
-  private:
-    Type m_type;
-    std::string m_message;
-  };
-
-  // holds information about result of device enumeration
+  // Holds information about result of device enumeration
   class DeviceEnumerateResult {
-
   private:
-    // results of partial DPA requests
-    DeviceEnumerateError m_bondedError;
-    DeviceEnumerateError m_discoveryByteReadError;
-    DeviceEnumerateError m_osReadError;
-    DeviceEnumerateError m_perEnumError;
-    DeviceEnumerateError m_hwpConfigReadError;
-    DeviceEnumerateError m_morePersInfoError;
-    uint16_t m_deviceAddr;
+    // Status
+    int m_status = 0;
+    std::string m_statusStr = "ok";
+
     bool m_discovered;
     uint8_t m_vrn;
     uint8_t m_zone;
     uint8_t m_parent;
-    uint16_t m_enumeratedNodeHwpIdVer;
     embed::os::RawDpaReadPtr m_osRead;
     uint16_t m_osBuild;
     embed::explore::RawDpaEnumeratePtr m_perEnum;
     TPerOSReadCfg_Response m_hwpConfig;
     embed::explore::RawDpaMorePeripheralInformationPtr m_morePersInfo;
-    uint16_t m_nodeHwpId;
+    uint16_t m_hwpId;
+    uint16_t m_hwpIdVer;
     std::string m_manufacturer = "";
     std::string m_product = "";
     std::list<std::string> m_standards = { "" };
-    // transaction results
+    // Transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
   public:
-  
-    DeviceEnumerateError getBondedError() const { return m_bondedError; };
-    void setBondedError(const DeviceEnumerateError& error) {
-      m_bondedError = error;
+    // Status
+    int getStatus() const { return m_status; };
+    std::string getStatusStr() const { return m_statusStr; };
+    void setStatus(const int status) {
+      m_status = status;
+    }
+    void setStatus(const int status, const std::string statusStr) {
+      m_status = status;
+      m_statusStr = statusStr;
+    }
+    void setStatusStr(const std::string statusStr) {
+      m_statusStr = statusStr;
     }
 
-    DeviceEnumerateError getDiscoveryByteReadError() const { return m_discoveryByteReadError; };
-    void setDiscoveryByteReadError(const DeviceEnumerateError& error) {
-      m_discoveryByteReadError = error;
+    void setHwpId(const uint16_t hwpId) {
+      m_hwpId = hwpId;
+    }
+    uint16_t getHwpId() const {
+      return m_hwpId;
     }
 
-    DeviceEnumerateError getOsReadError() const { return m_osReadError; };
-    void setOsReadError(const DeviceEnumerateError& error) {
-      m_osReadError = error;
+    void setHwpIdVer(const uint16_t hwpIdVer) {
+      m_hwpIdVer = hwpIdVer;
     }
-
-    DeviceEnumerateError getPerEnumError() const { return m_perEnumError; };
-    void setPerEnumError(const DeviceEnumerateError& error) {
-      m_perEnumError = error;
-    }
-
-    DeviceEnumerateError getHwpConfigReadError() const { return m_hwpConfigReadError; };
-    void setHwpConfigReadError(const DeviceEnumerateError& error) {
-      m_hwpConfigReadError = error;
-    }
-
-    DeviceEnumerateError getMorePersInfoError() const { return m_morePersInfoError; };
-    void setMorePersInfoError(const DeviceEnumerateError& error) {
-      m_morePersInfoError = error;
-    }
-
-    uint16_t getDeviceAddr() const {
-      return m_deviceAddr;
-    }
-
-    void setDeviceAddr(const uint16_t deviceAddr) {
-      m_deviceAddr = deviceAddr;
-    }
-
-    // sets HwpId of enumerated node
-    void setEnumeratedNodeHwpId(const uint16_t hwpId) {
-      m_nodeHwpId = hwpId;
-    }
-
-    // returns HwpId of enumerated node
-    uint16_t getEnumeratedNodeHwpId() const {
-      return m_nodeHwpId;
+    uint16_t getHwpIdVer() const {
+      return m_hwpIdVer;
     }
 
     std::string getManufacturer() {
       return m_manufacturer;
     }
-
     void setManufacturer(const std::string& manufacturer) {
       m_manufacturer = manufacturer;
     }
@@ -192,25 +126,13 @@ namespace iqrf {
     std::string getProduct() {
       return m_product;
     }
-
     void setProduct(const std::string& product) {
       m_product = product;
-    }
-
-    // sets HwpId version of enumerated node
-    void setEnumeratedNodeHwpIdVer(const uint16_t hwpIdVer) {
-      m_enumeratedNodeHwpIdVer = hwpIdVer;
-    }
-
-    // returns HwpId version of enumerated node
-    uint16_t getEnumeratedNodeHwpIdVer() const {
-      return m_enumeratedNodeHwpIdVer;
     }
 
     bool isDiscovered() const {
       return m_discovered;
     }
-
     void setDiscovered(bool discovered) {
       m_discovered = discovered;
     }
@@ -218,7 +140,6 @@ namespace iqrf {
     uint8_t getVrn() const {
       return m_vrn;
     }
-
     void setVrn(uint8_t vrn) {
       m_vrn = vrn;
     }
@@ -226,7 +147,6 @@ namespace iqrf {
     uint8_t getZone() const {
       return m_zone;
     }
-
     void setZone(uint8_t zone) {
       m_zone = zone;
     }
@@ -234,7 +154,6 @@ namespace iqrf {
     uint8_t getParent() const {
       return m_parent;
     }
-
     void setParent(uint8_t parent) {
       m_parent = parent;
     }
@@ -243,7 +162,6 @@ namespace iqrf {
     {
       return m_osRead;
     }
-
     void setOsRead(embed::os::RawDpaReadPtr &osReadPtr) {
       m_osRead = std::move(osReadPtr);
     }
@@ -251,7 +169,6 @@ namespace iqrf {
     uint16_t getOsBuild() const {
       return m_osBuild;
     }
-
     void setOsBuild(uint16_t osBuild) {
       m_osBuild = osBuild;
     }
@@ -289,26 +206,26 @@ namespace iqrf {
       m_standards = standards;
     }
 
-    // adds transaction result into the list of results
+    // Adds transaction result into the list of results
     void addTransactionResult(std::unique_ptr<IDpaTransactionResult2> transResult)
     {
-      if( transResult != nullptr )
-        m_transResults.push_back(std::move(transResult));
+      m_transResults.push_back(std::move(transResult));
     }
 
-    // adds transaction result into the list of results
+    // Adds transaction result into the list of results
     void addTransactionResultRef(std::unique_ptr<IDpaTransactionResult2> &transResult)
     {
-      if( transResult != nullptr )
-        m_transResults.push_back(std::move(transResult));
+      m_transResults.push_back(std::move(transResult));
     }
 
-    bool isNextTransactionResult() {
+    bool isNextTransactionResult()
+    {
       return (m_transResults.size() > 0);
     }
 
-    // consumes the first element in the transaction results list
-    std::unique_ptr<IDpaTransactionResult2> consumeNextTransactionResult() {
+    // Consumes the first element in the transaction results list
+    std::unique_ptr<IDpaTransactionResult2> consumeNextTransactionResult()
+    {
       std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
       std::unique_ptr<IDpaTransactionResult2> tranResult = std::move(*iter);
       m_transResults.pop_front();
@@ -330,587 +247,525 @@ namespace iqrf {
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService *m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
+    const std::string* m_messagingId = nullptr;
+    const IMessagingSplitterService::MsgType* m_msgType = nullptr;
+    const ComIqmeshNetworkEnumerateDevice* m_comEnumerateDevice = nullptr;
 
-    // number of repeats
-    int m_repeat;
-    // if is set Verbose mode
-    bool m_returnVerbose = false;
-    bool m_morePeripheralsInfo = false;
-    
+    // Service input parameters
+    TEnumerateDeviceInputParams m_enumerateDeviceParams;
+
   public:
-    explicit Imp( EnumerateDeviceService& parent ) : m_parent( parent )
+    explicit Imp(EnumerateDeviceService& parent) : m_parent(parent)
     {
     }
 
     ~Imp()
     {
     }
-    
+
   private:
 
     // Returns 1 byte of discovery data read from the coordinator private external EEPROM storage
-    uint8_t readDiscoveryByte( DeviceEnumerateResult& deviceEnumerateResult, uint16_t address )
-    {
-      TRC_FUNCTION_ENTER( "" );
-      DpaMessage eeepromReadRequest;
-      DpaMessage::DpaPacket_t eeepromReadPacket;
-      eeepromReadPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      eeepromReadPacket.DpaRequestPacket_t.PNUM = PNUM_EEEPROM;
-      eeepromReadPacket.DpaRequestPacket_t.PCMD = CMD_EEEPROM_XREAD;
-      eeepromReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-
-      // read data from specified address
-      uns8* pData = eeepromReadPacket.DpaRequestPacket_t.DpaMessage.Request.PData;
-      pData[0] = address & 0xFF;
-      pData[1] = ( address >> 8 ) & 0xFF;
-      // length of data to read[in bytes]
-      pData[2] = 1;
-      eeepromReadRequest.DataToBuffer( eeepromReadPacket.Buffer, sizeof( TDpaIFaceHeader ) + 3 );
-
-      // Execute the DPA request
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-      m_exclusiveAccess->executeDpaTransactionRepeat( eeepromReadRequest, transResult, m_repeat );
-      TRC_DEBUG( "Result from EEEPROM X read transaction as string:" << PAR( transResult->getErrorString() ) );
-      // because of the move-semantics
-      DpaMessage dpaResponse = transResult->getResponse();
-      deviceEnumerateResult.addTransactionResultRef( transResult );
-      TRC_INFORMATION( "EEEPROM X read successful!" );
-      TRC_DEBUG(
-        "DPA transaction: "
-        << NAME_PAR( eeepromReadRequest.PeripheralType(), eeepromReadRequest.NodeAddress() )
-        << PAR( eeepromReadRequest.PeripheralCommand() )
-      );
-      TRC_FUNCTION_LEAVE( "" );
-      return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
-    }
-
-    uint8_t nodeDiscovered(DeviceEnumerateResult& DeviceEnumerateResult, uint8_t address)
+    uint8_t readDiscoveryByte(DeviceEnumerateResult& deviceEnumerateResult, const uint16_t address)
     {
       TRC_FUNCTION_ENTER("");
-      DpaMessage getDiscoveredRequest;
-      DpaMessage::DpaPacket_t getDiscoveredPacket;
-      getDiscoveredPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-      getDiscoveredPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
-      getDiscoveredPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_DISCOVERED_DEVICES;
-      getDiscoveredPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-
-      getDiscoveredRequest.DataToBuffer(getDiscoveredPacket.Buffer, sizeof(TDpaIFaceHeader));
-
-      // Execute DPA request
-      std::unique_ptr<IDpaTransactionResult2> result;
-      m_exclusiveAccess->executeDpaTransactionRepeat(getDiscoveredRequest, result, m_repeat);
-      TRC_DEBUG("Result from Coordinator Get Discovered Nodes transaction as string:" << PAR(result->getErrorString()));
-
-      // Parse DPA response
-      DpaMessage response = result->getResponse();
-      DeviceEnumerateResult.addTransactionResultRef(result);
-      TRC_INFORMATION("Coordinator Get Discovered Nodes successful!");
-      TRC_DEBUG(
-        "DPA transaction: "
-        << NAME_PAR(getDiscoveredRequest.PeripheralType(), getDiscoveredRequest.NodeAddress())
-        << PAR(getDiscoveredRequest.PeripheralCommand())
-      );
-      TRC_FUNCTION_LEAVE("");
-      return response.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[address];
-    }
-
-
-    // Read discovery data
-    void discoveryData(DeviceEnumerateResult& deviceEnumerateResult) 
-    {
-      // get discovered indicator
-      try {
-        uint8_t byteIndex = (uint8_t)(deviceEnumerateResult.getDeviceAddr() / 8);
-        
-        uint8_t nodeDiscoveryByte = nodeDiscovered(deviceEnumerateResult, byteIndex);
-        
-        uint8_t bitIndex = deviceEnumerateResult.getDeviceAddr() % 8;
-        uint8_t compareByte = uint8_t(pow(2, bitIndex));
-
-        deviceEnumerateResult.setDiscovered(
-          (nodeDiscoveryByte & compareByte) == compareByte
-        );
-      }
-      catch (const std::exception& ex) {
-        DeviceEnumerateError error( DeviceEnumerateError::Type::ReadDiscoveryByte, ex.what() );
-        deviceEnumerateResult.setDiscoveryByteReadError( error );
-      }
-
-      // VRN
-      try {
-        uint16_t address = 0x5000 + deviceEnumerateResult.getDeviceAddr();
-
-        uint8_t vrnByte = readDiscoveryByte(deviceEnumerateResult, address);
-        deviceEnumerateResult.setVrn(vrnByte);
-      }
-      catch (const std::exception& ex) {
-        DeviceEnumerateError error( DeviceEnumerateError::Type::ReadDiscoveryByte, ex.what() );
-        deviceEnumerateResult.setDiscoveryByteReadError( error );
-      }
-
-      // zone
-      try {
-        uint16_t address = 0x5200 + deviceEnumerateResult.getDeviceAddr();
-
-        uint8_t zoneByte = readDiscoveryByte(deviceEnumerateResult, address);
-        deviceEnumerateResult.setZone(zoneByte);
-      }
-      catch (const std::exception& ex) {
-        DeviceEnumerateError error( DeviceEnumerateError::Type::ReadDiscoveryByte, ex.what() );
-        deviceEnumerateResult.setDiscoveryByteReadError( error );
-      }
-
-      // parent
-      try {
-        uint16_t address = 0x5300 + deviceEnumerateResult.getDeviceAddr();
-
-        uint8_t parentByte = readDiscoveryByte(deviceEnumerateResult, address);
-        deviceEnumerateResult.setParent(parentByte);
-      }
-      catch (const std::exception& ex) {
-        DeviceEnumerateError error( DeviceEnumerateError::Type::ReadDiscoveryByte, ex.what() );
-        deviceEnumerateResult.setDiscoveryByteReadError( error );
-      }
-    }
-    
-    // Reads OS info about enumerated node
-    void osRead( DeviceEnumerateResult& deviceEnumerateResult )
-    {
-      TRC_FUNCTION_ENTER(deviceEnumerateResult.getDeviceAddr());
-
-      std::unique_ptr<embed::os::RawDpaRead> osReadPtr( shape_new embed::os::RawDpaRead(deviceEnumerateResult.getDeviceAddr()) );
-
       std::unique_ptr<IDpaTransactionResult2> transResult;
       try
       {
-        m_exclusiveAccess->executeDpaTransactionRepeat( osReadPtr->getRequest(), transResult, m_repeat );
-        osReadPtr->processDpaTransactionResult( std::move(transResult) );
-        TRC_DEBUG("Result from OS read transaction as string:" << PAR( osReadPtr->getResult()->getErrorString()) );
-        deviceEnumerateResult.setOsBuild( (uint16_t)osReadPtr->getOsBuild() );
-        deviceEnumerateResult.setEnumeratedNodeHwpId( osReadPtr->getHwpid() );
-        deviceEnumerateResult.addTransactionResult( osReadPtr->getResultMove() );
-        deviceEnumerateResult.setOsRead( osReadPtr );
-        TRC_INFORMATION( "OS read successful!" );
+        DpaMessage eeepromReadRequest;
+        DpaMessage::DpaPacket_t eeepromReadPacket;
+        eeepromReadPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        eeepromReadPacket.DpaRequestPacket_t.PNUM = PNUM_EEEPROM;
+        eeepromReadPacket.DpaRequestPacket_t.PCMD = CMD_EEEPROM_XREAD;
+        eeepromReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // Read the byte from specified address
+        eeepromReadPacket.DpaRequestPacket_t.DpaMessage.XMemoryRequest.Address = address;
+        eeepromReadPacket.DpaRequestPacket_t.DpaMessage.XMemoryRequest.ReadWrite.Read.Length = sizeof(uint8_t);
+        eeepromReadRequest.DataToBuffer(eeepromReadPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(uint16_t) + sizeof(uint8_t));
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(eeepromReadRequest, transResult, m_enumerateDeviceParams.repeat);
+        TRC_DEBUG("Result from CMD_EEEPROM_XREAD transaction as string:" << PAR(transResult->getErrorString()));
+        // because of the move-semantics
+        DpaMessage dpaResponse = transResult->getResponse();
+        deviceEnumerateResult.addTransactionResultRef(transResult);
+        TRC_INFORMATION("CMD_EEEPROM_XREAD successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(eeepromReadRequest.PeripheralType(), eeepromReadRequest.NodeAddress())
+          << PAR(eeepromReadRequest.PeripheralCommand())
+        );
+        TRC_FUNCTION_LEAVE("");
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
       }
-      catch (const std::exception & e) {
-        DeviceEnumerateError error(DeviceEnumerateError::Type::OsRead, e.what());
-        deviceEnumerateResult.setOsReadError(error);
+      catch (const std::exception& e)
+      {
+        deviceEnumerateResult.setStatus(transResult->getErrorCode(), e.what());
+        deviceEnumerateResult.addTransactionResultRef(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
-      TRC_FUNCTION_LEAVE("");
     }
-    
-    // Peripheral enumeration
-    void peripheralEnumeration( DeviceEnumerateResult& deviceEnumerateResult )
+
+    // Check the node is discovered
+    uint8_t nodeDiscovered(DeviceEnumerateResult& deviceEnumerateResult, const uint16_t deviceAddr)
     {
-      TRC_FUNCTION_ENTER( "" );
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        DpaMessage getDiscoveredRequest;
+        DpaMessage::DpaPacket_t getDiscoveredPacket;
+        getDiscoveredPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        getDiscoveredPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+        getDiscoveredPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_DISCOVERED_DEVICES;
+        getDiscoveredPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        getDiscoveredRequest.DataToBuffer(getDiscoveredPacket.Buffer, sizeof(TDpaIFaceHeader));
+        // Execute DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(getDiscoveredRequest, transResult, m_enumerateDeviceParams.repeat);
+        TRC_DEBUG("Result from CMD_COORDINATOR_DISCOVERED_DEVICES transaction as string:" << PAR(transResult->getErrorString()));
+        // Parse DPA response
+        DpaMessage response = transResult->getResponse();
+        deviceEnumerateResult.addTransactionResultRef(transResult);
+        TRC_INFORMATION("CMD_COORDINATOR_DISCOVERED_DEVICES successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(getDiscoveredRequest.PeripheralType(), getDiscoveredRequest.NodeAddress())
+          << PAR(getDiscoveredRequest.PeripheralCommand())
+        );
+        TRC_FUNCTION_LEAVE("");
+        return response.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[deviceAddr];
+      }
+      catch (const std::exception& e)
+      {
+        deviceEnumerateResult.setStatus(transResult->getErrorCode(), e.what());
+        deviceEnumerateResult.addTransactionResultRef(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
 
-      std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr( shape_new embed::explore::RawDpaEnumerate(deviceEnumerateResult.getDeviceAddr()) );
-      std::unique_ptr<embed::explore::RawDpaMorePeripheralInformation> exploreMorePeripheralInformationPtr( shape_new embed::explore::RawDpaMorePeripheralInformation(deviceEnumerateResult.getDeviceAddr(), 0) );
+    // Read discovery data
+    void discoveryData(DeviceEnumerateResult& deviceEnumerateResult, const uint16_t deviceAddr)
+    {
+      // Get discovered indicator
+      uint8_t byteIndex = (uint8_t)(deviceAddr / 8);
+      uint8_t nodeDiscoveryByte = nodeDiscovered(deviceEnumerateResult, byteIndex);
+      uint8_t bitIndex = deviceAddr % 8;
+      uint8_t compareByte = uint8_t(pow(2, bitIndex));
+      deviceEnumerateResult.setDiscovered((nodeDiscoveryByte & compareByte) == compareByte);
+      // VRN
+      uint16_t address = 0x5000 + deviceAddr;
+      uint8_t vrnByte = readDiscoveryByte(deviceEnumerateResult, address);
+      deviceEnumerateResult.setVrn(vrnByte);
+      // Zone
+      address = 0x5200 + deviceAddr;
+      uint8_t zoneByte = readDiscoveryByte(deviceEnumerateResult, address);
+      deviceEnumerateResult.setZone(zoneByte);
+      // Parent
+      address = 0x5300 + deviceAddr;
+      uint8_t parentByte = readDiscoveryByte(deviceEnumerateResult, address);
+      deviceEnumerateResult.setParent(parentByte);
+    }
 
-      std::unique_ptr<IDpaTransactionResult2> transResultPerEnum;
+    //--------------------------------------
+    // Reads OS info about enumerated device
+    //--------------------------------------
+    void osRead(DeviceEnumerateResult& deviceEnumerateResult, const uint16_t deviceAddr)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<embed::os::RawDpaRead> osReadPtr(shape_new embed::os::RawDpaRead(deviceAddr));
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        m_exclusiveAccess->executeDpaTransactionRepeat(osReadPtr->getRequest(), transResult, m_enumerateDeviceParams.repeat);
+        osReadPtr->processDpaTransactionResult(std::move(transResult));
+        TRC_DEBUG("Result from OS read transaction as string:" << PAR(osReadPtr->getResult()->getErrorString()));
+        deviceEnumerateResult.setOsBuild((uint16_t)osReadPtr->getOsBuild());
+        deviceEnumerateResult.setHwpId(osReadPtr->getHwpid());
+        deviceEnumerateResult.addTransactionResult(osReadPtr->getResultMove());
+        deviceEnumerateResult.setOsRead(osReadPtr);
+        TRC_INFORMATION("OS read successful!");
+        TRC_FUNCTION_LEAVE("");
+      }
+      catch (const std::exception &e)
+      {
+        deviceEnumerateResult.setStatus(transResult->getErrorCode(), e.what());
+        deviceEnumerateResult.addTransactionResultRef(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
+    //-----------------------
+    // Peripheral enumeration
+    //-----------------------
+    void peripheralEnumeration(DeviceEnumerateResult& deviceEnumerateResult, const uint16_t deviceAddr)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<embed::explore::RawDpaEnumerate> exploreEnumeratePtr(shape_new embed::explore::RawDpaEnumerate(deviceAddr));
+      std::unique_ptr<embed::explore::RawDpaMorePeripheralInformation> exploreMorePeripheralInformationPtr(shape_new embed::explore::RawDpaMorePeripheralInformation(deviceAddr, 0));
+      std::unique_ptr<IDpaTransactionResult2> transResult;
       try
       {
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( exploreEnumeratePtr->getRequest(), transResultPerEnum, m_repeat );
-        exploreEnumeratePtr->processDpaTransactionResult( std::move(transResultPerEnum) );
-        TRC_DEBUG( "Result from peripheral enumeration transaction as string:" << PAR( exploreEnumeratePtr->getResult()->getErrorString() ) );
-        deviceEnumerateResult.setEnumeratedNodeHwpIdVer( (uint16_t)exploreEnumeratePtr->getHwpidVer() );
-        deviceEnumerateResult.addTransactionResult( exploreEnumeratePtr->getResultMove() );
-        deviceEnumerateResult.setPerEnum( exploreEnumeratePtr );
+        m_exclusiveAccess->executeDpaTransactionRepeat(exploreEnumeratePtr->getRequest(), transResult, m_enumerateDeviceParams.repeat);
+        exploreEnumeratePtr->processDpaTransactionResult(std::move(transResult));
+        TRC_DEBUG("Result from peripheral enumeration transaction as string:" << PAR(exploreEnumeratePtr->getResult()->getErrorString()));
+        deviceEnumerateResult.setHwpIdVer((uint16_t)exploreEnumeratePtr->getHwpidVer());
+        deviceEnumerateResult.addTransactionResult(exploreEnumeratePtr->getResultMove());
+        deviceEnumerateResult.setPerEnum(exploreEnumeratePtr);
+        TRC_INFORMATION("Peripheral enumeration successful!");
 
-        TRC_INFORMATION( "Peripheral enumeration successful!" );
-      }
-      catch ( const std::exception& e )
-      {
-        DeviceEnumerateError error( DeviceEnumerateError::Type::PerEnum, e.what() );
-        deviceEnumerateResult.setPerEnumError( error );
-      }
-
-      std::unique_ptr<IDpaTransactionResult2> transResultMorePerInfo;
-      try
-      {
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( exploreMorePeripheralInformationPtr->getRequest(), transResultMorePerInfo, m_repeat );
-        exploreMorePeripheralInformationPtr->processDpaTransactionResult( std::move(transResultMorePerInfo) );
-        TRC_DEBUG( "Result from more peripheral information transaction as string:" << PAR( exploreMorePeripheralInformationPtr->getResult()->getErrorString() ) );
-        deviceEnumerateResult.addTransactionResult( exploreMorePeripheralInformationPtr->getResultMove() );
-        deviceEnumerateResult.setMorePersInfo( exploreMorePeripheralInformationPtr );
-        TRC_INFORMATION( "More peripheral information successful!" );
+        m_exclusiveAccess->executeDpaTransactionRepeat(exploreMorePeripheralInformationPtr->getRequest(), transResult, m_enumerateDeviceParams.repeat);
+        exploreMorePeripheralInformationPtr->processDpaTransactionResult(std::move(transResult));
+        TRC_DEBUG("Result from more peripheral information transaction as string:" << PAR(exploreMorePeripheralInformationPtr->getResult()->getErrorString()));
+        deviceEnumerateResult.addTransactionResult(exploreMorePeripheralInformationPtr->getResultMove());
+        deviceEnumerateResult.setMorePersInfo(exploreMorePeripheralInformationPtr);
+        TRC_INFORMATION("More peripheral information successful!");
       }
-      catch ( const std::exception& e )
+      catch (const std::exception& e)
       {
-        DeviceEnumerateError error( DeviceEnumerateError::Type::MorePersInfo, e.what() );
-        deviceEnumerateResult.setPerEnumError( error );
+        deviceEnumerateResult.setStatus(transResult->getErrorCode(), e.what());
+        deviceEnumerateResult.addTransactionResultRef(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
 
-      TRC_FUNCTION_LEAVE( "" );
+      TRC_FUNCTION_LEAVE("");
     }
 
     // Read HWP configuration
-    void readHwpConfiguration( DeviceEnumerateResult& deviceEnumerateResult )
+    void readHwpConfiguration(DeviceEnumerateResult& deviceEnumerateResult, const uint16_t deviceAddr)
     {
-      TRC_FUNCTION_ENTER( "" );
+      TRC_FUNCTION_ENTER("");
       std::unique_ptr<IDpaTransactionResult2> transResult;
       try
       {
         // Prepare DPA request
         DpaMessage readHwpRequest;
         DpaMessage::DpaPacket_t readHwpPacket;
-        readHwpPacket.DpaRequestPacket_t.NADR = deviceEnumerateResult.getDeviceAddr();
+        readHwpPacket.DpaRequestPacket_t.NADR = deviceAddr;
         readHwpPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
         readHwpPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ_CFG;
         readHwpPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        readHwpRequest.DataToBuffer( readHwpPacket.Buffer, sizeof( TDpaIFaceHeader ) );
+        readHwpRequest.DataToBuffer(readHwpPacket.Buffer, sizeof(TDpaIFaceHeader));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( readHwpRequest, transResult, m_repeat );
-        TRC_DEBUG( "Result from read HWP config transaction as string:" << PAR( transResult->getErrorString() ) );
+        m_exclusiveAccess->executeDpaTransactionRepeat(readHwpRequest, transResult, m_enumerateDeviceParams.repeat);
+        TRC_DEBUG("Result from CMD_OS_READ_CFG transaction as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION( "Read HWP configuration successful!" );
+        deviceEnumerateResult.addTransactionResultRef(transResult);
+        TRC_INFORMATION("CMD_OS_READ_CFG successful!");
         TRC_DEBUG(
           "DPA transaction: "
-          << NAME_PAR( readHwpRequest.PeripheralType(), readHwpRequest.NodeAddress() )
-          << PAR( (unsigned)readHwpRequest.PeripheralCommand() )
+          << NAME_PAR(readHwpRequest.PeripheralType(), readHwpRequest.NodeAddress())
+          << PAR((unsigned)readHwpRequest.PeripheralCommand())
         );
         // Parse response pdata
         TPerOSReadCfg_Response readHwpConfig = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSReadCfg_Response;
-        deviceEnumerateResult.setHwpConfig( readHwpConfig );
+        deviceEnumerateResult.setHwpConfig(readHwpConfig);
       }
-      catch ( const std::exception& e )
+      catch (const std::exception& e)
       {
-        DeviceEnumerateError error( DeviceEnumerateError::Type::ReadHwp, e.what() );
-        deviceEnumerateResult.setHwpConfigReadError( error );
+        deviceEnumerateResult.setStatus(transResult->getErrorCode(), e.what());
+        deviceEnumerateResult.addTransactionResultRef(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
-      deviceEnumerateResult.addTransactionResultRef( transResult );
-      TRC_FUNCTION_LEAVE( "" );
+
+      TRC_FUNCTION_LEAVE("");
     }
 
-    // Check the specified node is bonded (in the future read from DB)
-    bool isNodeBonded( DeviceEnumerateResult& deviceEnumerateResult, const uint16_t deviceAddr )
+    //-----------------
+    // Enumerate device
+    //-----------------
+    void enumerateDevice(DeviceEnumerateResult& deviceEnumerateResult)
     {
-      TRC_FUNCTION_ENTER( "" );
-      bool result = false;
-      std::unique_ptr<IDpaTransactionResult2> transResult;
+      TRC_FUNCTION_ENTER("");
       try
       {
-        // Prepare DPA request
-        DpaMessage bondedNodesRequest;
-        DpaMessage::DpaPacket_t bondedNodesPacket;
-        bondedNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
-        bondedNodesPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
-        bondedNodesPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
-        bondedNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        bondedNodesRequest.DataToBuffer( bondedNodesPacket.Buffer, sizeof( TDpaIFaceHeader ) );
-        // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat( bondedNodesRequest, transResult, m_repeat );
-        TRC_DEBUG( "Result from get bonded nodes transaction as string:" << PAR( transResult->getErrorString() ) );
-        DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION( "Get bonded nodes successful!" );
-        TRC_DEBUG(
-          "DPA transaction: "
-          << NAME_PAR( bondedNodesRequest.PeripheralType(), bondedNodesRequest.NodeAddress() )
-          << PAR( (unsigned)bondedNodesRequest.PeripheralCommand() )
-        );
-        // Parse response pdata
-        uns8* bondedNodesArr = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-        uint8_t byteIndex = (uint8_t)(deviceAddr / 8);
-        uint8_t bitIndex = deviceAddr % 8;
-        uint16_t compareByte = 1 << bitIndex;
-        if ( ( result = ( ( bondedNodesArr[byteIndex] & compareByte ) == compareByte ) ) == false )
+        // Discovery data
+        discoveryData(deviceEnumerateResult, m_enumerateDeviceParams.deviceAddress);
+
+        // OS read info
+        osRead(deviceEnumerateResult, m_enumerateDeviceParams.deviceAddress);
+
+        // Obtains HwpId, which in turn is needed to get manufacturer and product
+        IJsCacheService::Manufacturer manufacturer = m_iJsCacheService->getManufacturer(deviceEnumerateResult.getHwpId());
+        if (manufacturer.m_manufacturerId > -1)
+          deviceEnumerateResult.setManufacturer(manufacturer.m_name);
+        IJsCacheService::Product product = m_iJsCacheService->getProduct(deviceEnumerateResult.getHwpId());
+        if (product.m_manufacturerId > -1)
+          deviceEnumerateResult.setProduct(product.m_name);
+
+        // Peripheral enumeration
+        peripheralEnumeration(deviceEnumerateResult, m_enumerateDeviceParams.deviceAddress);
+
+        IJsCacheService::Package package;
+        package = m_iJsCacheService->getPackage(deviceEnumerateResult.getHwpId(), deviceEnumerateResult.getHwpIdVer(), deviceEnumerateResult.getOsRead()->getOsBuildAsString(), deviceEnumerateResult.getPerEnum()->getDpaVerAsHexaString());
+        if (package.m_packageId > -1)
         {
-          DeviceEnumerateError deviceEnumerateError( DeviceEnumerateError::Type::NotBonded, "Node not bonded." );
-          deviceEnumerateResult.setBondedError( deviceEnumerateError );
+          std::list<std::string> standards;
+          for (const IJsCacheService::StdDriver& driver : package.m_stdDriverVect)
+            standards.push_back(driver.getName());
+          deviceEnumerateResult.setStandards(standards);
         }
+        else
+          TRC_INFORMATION("Package not found");
+
+        // Read Hwp configuration
+        readHwpConfiguration(deviceEnumerateResult, m_enumerateDeviceParams.deviceAddress);
       }
-      catch ( const std::exception& e )
+      catch (std::exception& e)
       {
-        DeviceEnumerateError deviceEnumerateError( DeviceEnumerateError::Type::NotBonded, e.what() );
-        deviceEnumerateResult.setBondedError( deviceEnumerateError );
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
       }
-      deviceEnumerateResult.addTransactionResultRef( transResult );
-      TRC_FUNCTION_LEAVE( "" );
-      return result;
-    }     
-
-    // Sets data for discovery response
-    void setDiscoveryDataResponse( const DeviceEnumerateResult& deviceEnumerateResult, rapidjson::Document& response )
-    {
-      // if no data was successfully read, return empty message
-      Pointer( "/data/rsp/discovery/discovered" ).Set( response, deviceEnumerateResult.isDiscovered() );
-      Pointer( "/data/rsp/discovery/vrn" ).Set( response, deviceEnumerateResult.getVrn() );
-      Pointer( "/data/rsp/discovery/zone" ).Set( response, deviceEnumerateResult.getZone() );
-      Pointer( "/data/rsp/discovery/parent" ).Set( response, deviceEnumerateResult.getParent() );
-    }
-        
-    // Sets OS read part of the response
-    void setOsReadResponse( const iqrf::embed::os::RawDpaReadPtr& osReadObject, Document& response )
-    {
-      rapidjson::Pointer( "/data/rsp/osRead/mid" ).Set( response, osReadObject->getMidAsString() );
-      rapidjson::Pointer( "/data/rsp/osRead/osVersion" ).Set( response, osReadObject->getOsVersionAsString() );
-
-      rapidjson::Pointer( "/data/rsp/osRead/trMcuType/value" ).Set( response, osReadObject->getTrMcuType() );
-      rapidjson::Pointer( "/data/rsp/osRead/trMcuType/trType" ).Set( response, osReadObject->getTrTypeAsString() );
-      rapidjson::Pointer( "/data/rsp/osRead/trMcuType/fccCertified" ).Set( response, osReadObject->isFccCertified() );
-      rapidjson::Pointer( "/data/rsp/osRead/trMcuType/mcuType" ).Set( response, osReadObject->getTrMcuTypeAsString() );
-
-      rapidjson::Pointer( "/data/rsp/osRead/osBuild" ).Set( response, osReadObject->getOsBuildAsString() );
-
-      // RSSI [dBm]
-      rapidjson::Pointer( "/data/rsp/osRead/rssi" ).Set( response, osReadObject->getRssiAsString() );
-
-      // Supply voltage [V]
-      rapidjson::Pointer( "/data/rsp/osRead/supplyVoltage" ).Set( response, osReadObject->getSupplyVoltageAsString() );
-
-      // Flags
-      rapidjson::Pointer( "/data/rsp/osRead/flags/value" ).Set( response, osReadObject->getFlags() );
-      rapidjson::Pointer( "/data/rsp/osRead/flags/insufficientOsBuild" ).Set( response, osReadObject->isInsufficientOsBuild() );
-      rapidjson::Pointer( "/data/rsp/osRead/flags/interfaceType" ).Set( response, osReadObject->getInterfaceAsString() );
-      rapidjson::Pointer( "/data/rsp/osRead/flags/dpaHandlerDetected" ).Set( response, osReadObject->isDpaHandlerDetected() );
-      rapidjson::Pointer( "/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled" ).Set( response, osReadObject->isDpaHandlerNotDetectedButEnabled() );
-      rapidjson::Pointer( "/data/rsp/osRead/flags/noInterfaceSupported" ).Set( response, osReadObject->isNoInterfaceSupported() );
-      if ( m_iIqrfDpaService->getCoordinatorParameters().dpaVerWord >= 0x0413 )
-        rapidjson::Pointer( "/data/rsp/osRead/flags/iqrfOsChanged" ).Set( response, osReadObject->isIqrfOsChanges() );
-
-      // Slot limits
-      rapidjson::Pointer( "/data/rsp/osRead/slotLimits/value" ).Set( response, osReadObject->getSlotLimits() );
-      rapidjson::Pointer( "/data/rsp/osRead/slotLimits/shortestTimeslot" ).Set( response, osReadObject->getShortestTimeSlotAsString() );
-      rapidjson::Pointer( "/data/rsp/osRead/slotLimits/longestTimeslot" ).Set( response, osReadObject->getLongestTimeSlotAsString() );
+      TRC_FUNCTION_LEAVE("");
     }
 
-    // Sets peripheral enumeration part of the response
-    void setPeripheralEnumerationResponse( const DeviceEnumerateResult& deviceEnumerateResult, rapidjson::Document& response ) 
-    { 
-      // dpaVer, perNr
-      Pointer("/data/rsp/peripheralEnumeration/dpaVer").Set(response, deviceEnumerateResult.getPerEnum()->getDpaVerAsString());
-      Pointer("/data/rsp/peripheralEnumeration/perNr").Set(response, deviceEnumerateResult.getPerEnum()->getPerNr());
-
-      Document::AllocatorType& allocator = response.GetAllocator();
-
-      // embPers
-      rapidjson::Value embPersJsonArray(kArrayType);
-      for(std::set<int>::iterator it = deviceEnumerateResult.getPerEnum()->getEmbedPer().begin(); it != deviceEnumerateResult.getPerEnum()->getEmbedPer().end(); ++it) {
-        embPersJsonArray.PushBack(*it, allocator);
-      }
-      Pointer("/data/rsp/peripheralEnumeration/embPers").Set(response, embPersJsonArray);
-
-      // hwpId
-      Pointer("/data/rsp/peripheralEnumeration/hwpId").Set(response, deviceEnumerateResult.getPerEnum()->getHwpid());
-
-      // hwpIdVer
-      Pointer("/data/rsp/peripheralEnumeration/hwpIdVer").Set(response, deviceEnumerateResult.getPerEnum()->getHwpidVer());
-
-      // flags - int value
-      Pointer("/data/rsp/peripheralEnumeration/flags/value").Set(response, deviceEnumerateResult.getPerEnum()->getFlags());
-
-      // flags - parsed
-      bool stdModeSupported = (deviceEnumerateResult.getPerEnum()->getFlags() & 0b1);
-      if (stdModeSupported) {
-        Pointer("/data/rsp/peripheralEnumeration/flags/rfModeStd").Set(response, true);
-        Pointer("/data/rsp/peripheralEnumeration/flags/rfModeLp").Set(response, false);
-      }
-      else {
-        Pointer("/data/rsp/peripheralEnumeration/flags/rfModeStd").Set(response, false);
-        Pointer("/data/rsp/peripheralEnumeration/flags/rfModeLp").Set(response, true);
-      }
-
-      // STD+LP network is running, otherwise STD network.
-      if (deviceEnumerateResult.getPerEnum()->getDpaVer() >= 0x0400) {
-        bool stdAndLpModeNetwork = (deviceEnumerateResult.getPerEnum()->getFlags() & 0b100);
-        if (stdAndLpModeNetwork) {
-          Pointer("/data/rsp/peripheralEnumeration/flags/stdAndLpNetwork").Set(response, true);
-        }
-        else {
-          Pointer("/data/rsp/peripheralEnumeration/flags/stdAndLpNetwork").Set(response, false);
-        }
-      }
-
-      // UserPers
-      rapidjson::Value userPerJsonArray(kArrayType);
-      for(std::set<int>::iterator it = deviceEnumerateResult.getPerEnum()->getUserPer().begin(); it != deviceEnumerateResult.getPerEnum()->getUserPer().end(); ++it) {
-        userPerJsonArray.PushBack(*it, allocator);
-      }
-      Pointer("/data/rsp/peripheralEnumeration/userPers").Set(response, userPerJsonArray);
-    }
-
-    // Sets Read HWP Configuration part of the response
-    void setReadHwpConfigurationResponse( const DeviceEnumerateResult& deviceEnumerateResult, rapidjson::Document& response )
+    //--------------------------
+    // Creates and send response
+    //--------------------------
+    void createResponse(DeviceEnumerateResult& deviceEnumerateResult)
     {
-      TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
-      uns8* configuration = hwpConfig.Configuration;
+      Document response;
 
-      int dpaVer = deviceEnumerateResult.getPerEnum()->getDpaVer();
+      // set common parameters
+      Pointer("/mType").Set(response, m_msgType->m_type);
+      Pointer("/data/msgId").Set(response, m_comEnumerateDevice->getMsgId());
 
-      if ( dpaVer < 0x0303 )
-        for ( int i = 0; i < CONFIGURATION_LEN; i++ )
-          configuration[i] = configuration[i] ^ 0x34;
-
-      Document::AllocatorType& allocator = response.GetAllocator();
-
-      // Embedded periherals
-      rapidjson::Value embPerBitsJsonArray( kArrayType );
-      for ( int i = 0; i < 4; i++ )
-        embPerBitsJsonArray.PushBack( configuration[i], allocator );
-      Pointer( "/data/rsp/trConfiguration/embPers/values" ).Set( response, embPerBitsJsonArray );
-
-      // embedded peripherals bits - parsed
-      // byte 0x01
-      uint8_t byte01 = configuration[0x00];
-
-      bool coordPresent = ( ( byte01 & 0b1 ) == 0b1 );
-      Pointer( "/data/rsp/trConfiguration/embPers/coordinator" ).Set( response, coordPresent );
-
-      bool nodePresent = ( ( byte01 & 0b10 ) == 0b10 );
-      Pointer( "/data/rsp/trConfiguration/embPers/node" ).Set( response, nodePresent );
-
-      bool osPresent = ( ( byte01 & 0b100 ) == 0b100 );
-      Pointer( "/data/rsp/trConfiguration/embPers/os" ).Set( response, osPresent );
-
-      bool eepromPresent = ( ( byte01 & 0b1000 ) == 0b1000 );
-      Pointer( "/data/rsp/trConfiguration/embPers/eeprom" ).Set( response, eepromPresent );
-
-      bool eeepromPresent = ( ( byte01 & 0b10000 ) == 0b10000 );
-      Pointer( "/data/rsp/trConfiguration/embPers/eeeprom" ).Set( response, eeepromPresent );
-
-      bool ramPresent = ( ( byte01 & 0b100000 ) == 0b100000 );
-      Pointer( "/data/rsp/trConfiguration/embPers/ram" ).Set( response, ramPresent );
-
-      bool ledrPresent = ( ( byte01 & 0b1000000 ) == 0b1000000 );
-      Pointer( "/data/rsp/trConfiguration/embPers/ledr" ).Set( response, ledrPresent );
-
-      bool ledgPresent = ( ( byte01 & 0b10000000 ) == 0b10000000 );
-      Pointer( "/data/rsp/trConfiguration/embPers/ledg" ).Set( response, ledgPresent );
-
-
-      // byte 0x02
-      uint8_t byte02 = configuration[0x01];
-
-      if (dpaVer < 0x0415)
+      // Set status
+      int status = deviceEnumerateResult.getStatus();
+      if (status == 0)
       {
-        bool spiPresent = ((byte02 & 0b1) == 0b1);
-        Pointer("/data/rsp/trConfiguration/embPers/spi").Set(response, spiPresent);
-      }
+        Pointer("/data/rsp/deviceAddr").Set(response, m_enumerateDeviceParams.deviceAddress);
+        Pointer("/data/rsp/manufacturer").Set(response, deviceEnumerateResult.getManufacturer());
+        Pointer("/data/rsp/product").Set(response, deviceEnumerateResult.getProduct());
 
-      bool ioPresent = ( ( byte02 & 0b10 ) == 0b10 );
-      Pointer( "/data/rsp/trConfiguration/embPers/io" ).Set( response, ioPresent );
-
-      bool thermometerPresent = ( ( byte02 & 0b100 ) == 0b100 );
-      Pointer( "/data/rsp/trConfiguration/embPers/thermometer" ).Set( response, thermometerPresent );
-
-      if (dpaVer < 0x0415)
-      {
-        bool pwmPresent = ((byte02 & 0b1000) == 0b1000);
-        Pointer("/data/rsp/trConfiguration/embPers/pwm").Set(response, pwmPresent);
-      }
-
-      bool uartPresent = ( ( byte02 & 0b10000 ) == 0b10000 );
-      Pointer( "/data/rsp/trConfiguration/embPers/uart" ).Set( response, uartPresent );
-
-      if ( dpaVer < 0x0400 )
-      {
-        bool frcPresent = ( ( byte02 & 0b100000 ) == 0b100000 );
-        Pointer( "/data/rsp/trConfiguration/embPers/frc" ).Set( response, frcPresent );
-      }
-
-      // byte 0x05
-      uint8_t byte05 = configuration[0x04];
-
-      bool customDpaHandler = ( ( byte05 & 0b1 ) == 0b1 );
-      Pointer( "/data/rsp/trConfiguration/customDpaHandler" ).Set( response, customDpaHandler );
-
-      // for DPA v4.00 downwards
-      if ( dpaVer < 0x0400 ) {
-        bool nodeDpaInterface = ( ( byte05 & 0b00000010 ) == 0b00000010 );
-        Pointer( "/data/rsp/trConfiguration/nodeDpaInterface" ).Set( response, nodeDpaInterface );
-      }
-
-      // for DPA v4.10 upwards
-      if ( dpaVer >= 0x0410 ) {
-        bool dpaPeerToPeer = ( ( byte05 & 0b00000010 ) == 0b00000010 );
-        Pointer( "/data/rsp/trConfiguration/dpaPeerToPeer" ).Set( response, dpaPeerToPeer );
-      }
-
-      bool dpaAutoexec = ( ( byte05 & 0b100 ) == 0b100 );
-      Pointer( "/data/rsp/trConfiguration/dpaAutoexec" ).Set( response, dpaAutoexec );
-
-      bool routingOff = ( ( byte05 & 0b1000 ) == 0b1000 );
-      Pointer( "/data/rsp/trConfiguration/routingOff" ).Set( response, routingOff );
-
-      bool ioSetup = ( ( byte05 & 0b10000 ) == 0b10000 );
-      Pointer( "/data/rsp/trConfiguration/ioSetup" ).Set( response, ioSetup );
-
-      bool peerToPeer = ( ( byte05 & 0b100000 ) == 0b100000 );
-      Pointer( "/data/rsp/trConfiguration/peerToPeer" ).Set( response, peerToPeer );
-
-      // for DPA v3.03 onwards
-      if ( dpaVer >= 0x0303 ) {
-        bool neverSleep = ( ( byte05 & 0b01000000 ) == 0b01000000 );
-        Pointer( "/data/rsp/trConfiguration/neverSleep" ).Set( response, neverSleep );
-      }
-
-      // for DPA v4.00 onwards
-      if ( dpaVer >= 0x0400 ) {
-        bool stdAndLpNetwork = ( ( byte05 & 0b10000000 ) == 0b10000000 );
-        Pointer( "/data/rsp/trConfiguration/stdAndLpNetwork" ).Set( response, stdAndLpNetwork );
-      }
-
-      // bytes fields
-      Pointer( "/data/rsp/trConfiguration/rfChannelA" ).Set( response, configuration[0x10] );
-      Pointer( "/data/rsp/trConfiguration/rfChannelB" ).Set( response, configuration[0x11] );
-
-      if ( dpaVer < 0x0400 ) {
-        Pointer( "/data/rsp/trConfiguration/rfSubChannelA" ).Set( response, configuration[0x05] );
-        Pointer( "/data/rsp/trConfiguration/rfSubChannelB" ).Set( response, configuration[0x06] );
-      }
-
-      Pointer( "/data/rsp/trConfiguration/txPower" ).Set( response, configuration[0x07] );
-      Pointer( "/data/rsp/trConfiguration/rxFilter" ).Set( response, configuration[0x08] );
-      Pointer( "/data/rsp/trConfiguration/lpRxTimeout" ).Set( response, configuration[0x09] );
-      Pointer( "/data/rsp/trConfiguration/rfAltDsmChannel" ).Set( response, configuration[0x0B] );
-
-      // BaudRate
-      if ( configuration[0x0A] <= BAUD_RATES_SIZE )
-        Pointer( "/data/rsp/trConfiguration/uartBaudrate" ).Set( response, BaudRates[configuration[0x0A]] );
-      else
-      {
-        TRC_WARNING( "Unknown baud rate constant: " << PAR( configuration[0x0A] ) );
-        Pointer( "/data/rsp/trConfiguration/uartBaudrate" ).Set( response, 0 );
-      }
-
-      // for DPA >= v4.15
-      if (dpaVer >= 0x0415)
-      {
-        // localFrcReception at [N] only
-        if (deviceEnumerateResult.getDeviceAddr() != COORDINATOR_ADDRESS)
+        // Standards - array of strings
+        rapidjson::Value standardsJsonArray(kArrayType);
+        Document::AllocatorType &allocator = response.GetAllocator();
+        for (std::string standard : deviceEnumerateResult.getStandards())
         {
-          bool localFrcReception = ((configuration[0x0c] & 0b00000001) == 0b00000001);
-          Pointer("/data/rsp/trConfiguration/localFrcReception").Set(response, localFrcReception);
+          rapidjson::Value standardJsonString;
+          standardJsonString.SetString(standard.c_str(), (SizeType)standard.length(), allocator);
+          standardsJsonArray.PushBack(standardJsonString, allocator);
         }
-      }
+        Pointer("/data/rsp/standards").Set(response, standardsJsonArray);
 
-      // RFPGM byte
-      uint8_t rfpgm = hwpConfig.RFPGM;
+        // Discovery bytes read
+        if (m_enumerateDeviceParams.deviceAddress != COORDINATOR_ADDRESS)
+        {
+          Pointer("/data/rsp/discovery/discovered").Set(response, deviceEnumerateResult.isDiscovered());
+          Pointer("/data/rsp/discovery/vrn").Set(response, deviceEnumerateResult.getVrn());
+          Pointer("/data/rsp/discovery/zone").Set(response, deviceEnumerateResult.getZone());
+          Pointer("/data/rsp/discovery/parent").Set(response, deviceEnumerateResult.getParent());
+        }
 
-      bool rfPgmDualChannel = ( ( rfpgm & 0b00000011 ) == 0b00000011 );
-      Pointer( "/data/rsp/trConfiguration/rfPgmDualChannel" ).Set( response, rfPgmDualChannel );
+        // OS Read data
+        Pointer("/data/rsp/osRead/mid").Set(response, deviceEnumerateResult.getOsRead()->getMidAsString());
+        Pointer("/data/rsp/osRead/osVersion").Set(response, deviceEnumerateResult.getOsRead()->getOsVersionAsString());
+        Pointer("/data/rsp/osRead/trMcuType/value").Set(response, deviceEnumerateResult.getOsRead()->getTrMcuType());
+        Pointer("/data/rsp/osRead/trMcuType/trType").Set(response, deviceEnumerateResult.getOsRead()->getTrTypeAsString());
+        Pointer("/data/rsp/osRead/trMcuType/fccCertified").Set(response, deviceEnumerateResult.getOsRead()->isFccCertified());
+        Pointer("/data/rsp/osRead/trMcuType/mcuType").Set(response, deviceEnumerateResult.getOsRead()->getTrMcuTypeAsString());
+        Pointer("/data/rsp/osRead/osBuild").Set(response, deviceEnumerateResult.getOsRead()->getOsBuildAsString());
+        // RSSI [dBm]
+        Pointer("/data/rsp/osRead/rssi").Set(response, deviceEnumerateResult.getOsRead()->getRssiAsString());
+        // Supply voltage [V]
+        Pointer("/data/rsp/osRead/supplyVoltage").Set(response, deviceEnumerateResult.getOsRead()->getSupplyVoltageAsString());
+        // Flags
+        Pointer("/data/rsp/osRead/flags/value").Set(response, deviceEnumerateResult.getOsRead()->getFlags());
+        Pointer("/data/rsp/osRead/flags/insufficientOsBuild").Set(response, deviceEnumerateResult.getOsRead()->isInsufficientOsBuild());
+        Pointer("/data/rsp/osRead/flags/interfaceType").Set(response, deviceEnumerateResult.getOsRead()->getInterfaceAsString());
+        Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, deviceEnumerateResult.getOsRead()->isDpaHandlerDetected());
+        Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, deviceEnumerateResult.getOsRead()->isDpaHandlerNotDetectedButEnabled());
+        Pointer("/data/rsp/osRead/flags/noInterfaceSupported").Set(response, deviceEnumerateResult.getOsRead()->isNoInterfaceSupported());
+        if (m_iIqrfDpaService->getCoordinatorParameters().dpaVerWord >= 0x0413)
+          rapidjson::Pointer("/data/rsp/osRead/flags/iqrfOsChanged").Set(response, deviceEnumerateResult.getOsRead()->isIqrfOsChanges());
+        // Slot limits
+        rapidjson::Pointer("/data/rsp/osRead/slotLimits/value").Set(response, deviceEnumerateResult.getOsRead()->getSlotLimits());
+        rapidjson::Pointer("/data/rsp/osRead/slotLimits/shortestTimeslot").Set(response, deviceEnumerateResult.getOsRead()->getShortestTimeSlotAsString());
+        rapidjson::Pointer("/data/rsp/osRead/slotLimits/longestTimeslot").Set(response, deviceEnumerateResult.getOsRead()->getLongestTimeSlotAsString());
 
-      bool rfPgmLpMode = ( ( rfpgm & 0b00000100 ) == 0b00000100 );
-      Pointer( "/data/rsp/trConfiguration/rfPgmLpMode" ).Set( response, rfPgmLpMode );
+        // Peripheral enumeration
+        Pointer("/data/rsp/peripheralEnumeration/dpaVer").Set(response, deviceEnumerateResult.getPerEnum()->getDpaVerAsString());
+        Pointer("/data/rsp/peripheralEnumeration/perNr").Set(response, deviceEnumerateResult.getPerEnum()->getPerNr());
+        // embPers
+        rapidjson::Value embPersJsonArray(kArrayType);
+        for (std::set<int>::iterator it = deviceEnumerateResult.getPerEnum()->getEmbedPer().begin(); it != deviceEnumerateResult.getPerEnum()->getEmbedPer().end(); ++it)
+          embPersJsonArray.PushBack(*it, allocator);
+        Pointer("/data/rsp/peripheralEnumeration/embPers").Set(response, embPersJsonArray);
+        // hwpId
+        Pointer("/data/rsp/peripheralEnumeration/hwpId").Set(response, deviceEnumerateResult.getPerEnum()->getHwpid());
+        // hwpIdVer
+        Pointer("/data/rsp/peripheralEnumeration/hwpIdVer").Set(response, deviceEnumerateResult.getPerEnum()->getHwpidVer());
+        // flags - int value
+        Pointer("/data/rsp/peripheralEnumeration/flags/value").Set(response, deviceEnumerateResult.getPerEnum()->getFlags());
+        // flags - parsed
+        bool stdModeSupported = (deviceEnumerateResult.getPerEnum()->getFlags() & 0b1);
+        if (stdModeSupported)
+        {
+          Pointer("/data/rsp/peripheralEnumeration/flags/rfModeStd").Set(response, true);
+          Pointer("/data/rsp/peripheralEnumeration/flags/rfModeLp").Set(response, false);
+        }
+        else
+        {
+          Pointer("/data/rsp/peripheralEnumeration/flags/rfModeStd").Set(response, false);
+          Pointer("/data/rsp/peripheralEnumeration/flags/rfModeLp").Set(response, true);
+        }
 
-      bool rfPgmIncorrectUpload = ( ( rfpgm & 0b00001000 ) == 0b00001000 );
-      Pointer( "/data/rsp/trConfiguration/rfPgmIncorrectUpload" ).Set( response, rfPgmIncorrectUpload );
+        // STD+LP network is running, otherwise STD network.
+        if (deviceEnumerateResult.getPerEnum()->getDpaVer() >= 0x0400)
+        {
+          bool stdAndLpModeNetwork = (deviceEnumerateResult.getPerEnum()->getFlags() & 0b100);
+          if (stdAndLpModeNetwork)
+            Pointer("/data/rsp/peripheralEnumeration/flags/stdAndLpNetwork").Set(response, true);
+          else
+            Pointer("/data/rsp/peripheralEnumeration/flags/stdAndLpNetwork").Set(response, false);
+        }
 
-      bool enableAfterReset = ( ( rfpgm & 0b00010000 ) == 0b00010000 );
-      Pointer( "/data/rsp/trConfiguration/rfPgmEnableAfterReset" ).Set( response, enableAfterReset );
+        // UserPers
+        rapidjson::Value userPerJsonArray(kArrayType);
+        for (std::set<int>::iterator it = deviceEnumerateResult.getPerEnum()->getUserPer().begin(); it != deviceEnumerateResult.getPerEnum()->getUserPer().end(); ++it)
+          userPerJsonArray.PushBack(*it, allocator);
+        Pointer("/data/rsp/peripheralEnumeration/userPers").Set(response, userPerJsonArray);
 
-      bool rfPgmTerminateAfter1Min = ( ( rfpgm & 0b01000000 ) == 0b01000000 );
-      Pointer( "/data/rsp/trConfiguration/rfPgmTerminateAfter1Min" ).Set( response, rfPgmTerminateAfter1Min );
-
-      bool rfPgmTerminateMcuPin = ( ( rfpgm & 0b10000000 ) == 0b10000000 );
-      Pointer( "/data/rsp/trConfiguration/rfPgmTerminateMcuPin" ).Set( response, rfPgmTerminateMcuPin );
-
-      // RF band - undocumented byte
-      std::string rfBand = "";
-      switch ( hwpConfig.Undocumented[0] & 0x03 )
-      {
+        // HWP configuration
+        TPerOSReadCfg_Response hwpConfig = deviceEnumerateResult.getHwpConfig();
+        uns8* configuration = hwpConfig.Configuration;
+        int dpaVer = deviceEnumerateResult.getPerEnum()->getDpaVer();
+        if (dpaVer < 0x0303)
+        {
+          for (int i = 0; i < CONFIGURATION_LEN; i++)
+            configuration[i] = configuration[i] ^ 0x34;
+        }
+        // Embedded periherals
+        rapidjson::Value embPerBitsJsonArray(kArrayType);
+        for (int i = 0; i < 4; i++)
+          embPerBitsJsonArray.PushBack(configuration[i], allocator);
+        Pointer("/data/rsp/trConfiguration/embPers/values").Set(response, embPerBitsJsonArray);
+        // Embedded peripherals bits - parsed
+        // Byte 0x01
+        uint8_t byte01 = configuration[0x00];
+        bool coordPresent = ((byte01 & 0b1) == 0b1);
+        Pointer("/data/rsp/trConfiguration/embPers/coordinator").Set(response, coordPresent);
+        bool nodePresent = ((byte01 & 0b10) == 0b10);
+        Pointer("/data/rsp/trConfiguration/embPers/node").Set(response, nodePresent);
+        bool osPresent = ((byte01 & 0b100) == 0b100);
+        Pointer("/data/rsp/trConfiguration/embPers/os").Set(response, osPresent);
+        bool eepromPresent = ((byte01 & 0b1000) == 0b1000);
+        Pointer("/data/rsp/trConfiguration/embPers/eeprom").Set(response, eepromPresent);
+        bool eeepromPresent = ((byte01 & 0b10000) == 0b10000);
+        Pointer("/data/rsp/trConfiguration/embPers/eeeprom").Set(response, eeepromPresent);
+        bool ramPresent = ((byte01 & 0b100000) == 0b100000);
+        Pointer("/data/rsp/trConfiguration/embPers/ram").Set(response, ramPresent);
+        bool ledrPresent = ((byte01 & 0b1000000) == 0b1000000);
+        Pointer("/data/rsp/trConfiguration/embPers/ledr").Set(response, ledrPresent);
+        bool ledgPresent = ((byte01 & 0b10000000) == 0b10000000);
+        Pointer("/data/rsp/trConfiguration/embPers/ledg").Set(response, ledgPresent);
+        // Byte 0x02
+        uint8_t byte02 = configuration[0x01];
+        if (dpaVer < 0x0415)
+        {
+          bool spiPresent = ((byte02 & 0b1) == 0b1);
+          Pointer("/data/rsp/trConfiguration/embPers/spi").Set(response, spiPresent);
+        }
+        bool ioPresent = ((byte02 & 0b10) == 0b10);
+        Pointer("/data/rsp/trConfiguration/embPers/io").Set(response, ioPresent);
+        bool thermometerPresent = ((byte02 & 0b100) == 0b100);
+        Pointer("/data/rsp/trConfiguration/embPers/thermometer").Set(response, thermometerPresent);
+        if (dpaVer < 0x0415)
+        {
+          bool pwmPresent = ((byte02 & 0b1000) == 0b1000);
+          Pointer("/data/rsp/trConfiguration/embPers/pwm").Set(response, pwmPresent);
+        }
+        bool uartPresent = ((byte02 & 0b10000) == 0b10000);
+        Pointer("/data/rsp/trConfiguration/embPers/uart").Set(response, uartPresent);
+        if (dpaVer < 0x0400)
+        {
+          bool frcPresent = ((byte02 & 0b100000) == 0b100000);
+          Pointer("/data/rsp/trConfiguration/embPers/frc").Set(response, frcPresent);
+        }
+        // Byte 0x05
+        uint8_t byte05 = configuration[0x04];
+        bool customDpaHandler = ((byte05 & 0b1) == 0b1);
+        Pointer("/data/rsp/trConfiguration/customDpaHandler").Set(response, customDpaHandler);
+        // For DPA v4.00 downwards
+        if (dpaVer < 0x0400)
+        {
+          bool nodeDpaInterface = ((byte05 & 0b00000010) == 0b00000010);
+          Pointer("/data/rsp/trConfiguration/nodeDpaInterface").Set(response, nodeDpaInterface);
+        }
+        // For DPA v4.10 upwards
+        if (dpaVer >= 0x0410)
+        {
+          bool dpaPeerToPeer = ((byte05 & 0b00000010) == 0b00000010);
+          Pointer("/data/rsp/trConfiguration/dpaPeerToPeer").Set(response, dpaPeerToPeer);
+        }
+        bool dpaAutoexec = ((byte05 & 0b100) == 0b100);
+        Pointer("/data/rsp/trConfiguration/dpaAutoexec").Set(response, dpaAutoexec);
+        bool routingOff = ((byte05 & 0b1000) == 0b1000);
+        Pointer("/data/rsp/trConfiguration/routingOff").Set(response, routingOff);
+        bool ioSetup = ((byte05 & 0b10000) == 0b10000);
+        Pointer("/data/rsp/trConfiguration/ioSetup").Set(response, ioSetup);
+        bool peerToPeer = ((byte05 & 0b100000) == 0b100000);
+        Pointer("/data/rsp/trConfiguration/peerToPeer").Set(response, peerToPeer);
+        // For DPA v3.03 onwards
+        if (dpaVer >= 0x0303)
+        {
+          bool neverSleep = ((byte05 & 0b01000000) == 0b01000000);
+          Pointer("/data/rsp/trConfiguration/neverSleep").Set(response, neverSleep);
+        }
+        // For DPA v4.00 onwards
+        if (dpaVer >= 0x0400)
+        {
+          bool stdAndLpNetwork = ((byte05 & 0b10000000) == 0b10000000);
+          Pointer("/data/rsp/trConfiguration/stdAndLpNetwork").Set(response, stdAndLpNetwork);
+        }
+        // Bytes fields
+        Pointer("/data/rsp/trConfiguration/rfChannelA").Set(response, configuration[0x10]);
+        Pointer("/data/rsp/trConfiguration/rfChannelB").Set(response, configuration[0x11]);
+        if (dpaVer < 0x0400)
+        {
+          Pointer("/data/rsp/trConfiguration/rfSubChannelA").Set(response, configuration[0x05]);
+          Pointer("/data/rsp/trConfiguration/rfSubChannelB").Set(response, configuration[0x06]);
+        }
+        Pointer("/data/rsp/trConfiguration/txPower").Set(response, configuration[0x07]);
+        Pointer("/data/rsp/trConfiguration/rxFilter").Set(response, configuration[0x08]);
+        Pointer("/data/rsp/trConfiguration/lpRxTimeout").Set(response, configuration[0x09]);
+        Pointer("/data/rsp/trConfiguration/rfAltDsmChannel").Set(response, configuration[0x0B]);
+        // BaudRate
+        if (configuration[0x0A] <= BAUD_RATES_SIZE)
+          Pointer("/data/rsp/trConfiguration/uartBaudrate").Set(response, BaudRates[configuration[0x0A]]);
+        else
+        {
+          TRC_WARNING("Unknown baud rate constant: " << PAR(configuration[0x0A]));
+          Pointer("/data/rsp/trConfiguration/uartBaudrate").Set(response, 0);
+        }
+        // For DPA >= v4.15
+        if (dpaVer >= 0x0415)
+        {
+          // localFrcReception at [N] only
+          if (m_enumerateDeviceParams.deviceAddress != COORDINATOR_ADDRESS)
+          {
+            bool localFrcReception = ((configuration[0x0c] & 0b00000001) == 0b00000001);
+            Pointer("/data/rsp/trConfiguration/localFrcReception").Set(response, localFrcReception);
+          }
+        }
+        // RFPGM byte
+        uint8_t rfpgm = hwpConfig.RFPGM;
+        bool rfPgmDualChannel = ((rfpgm & 0b00000011) == 0b00000011);
+        Pointer("/data/rsp/trConfiguration/rfPgmDualChannel").Set(response, rfPgmDualChannel);
+        bool rfPgmLpMode = ((rfpgm & 0b00000100) == 0b00000100);
+        Pointer("/data/rsp/trConfiguration/rfPgmLpMode").Set(response, rfPgmLpMode);
+        bool rfPgmIncorrectUpload = ((rfpgm & 0b00001000) == 0b00001000);
+        Pointer("/data/rsp/trConfiguration/rfPgmIncorrectUpload").Set(response, rfPgmIncorrectUpload);
+        bool enableAfterReset = ((rfpgm & 0b00010000) == 0b00010000);
+        Pointer("/data/rsp/trConfiguration/rfPgmEnableAfterReset").Set(response, enableAfterReset);
+        bool rfPgmTerminateAfter1Min = ((rfpgm & 0b01000000) == 0b01000000);
+        Pointer("/data/rsp/trConfiguration/rfPgmTerminateAfter1Min").Set(response, rfPgmTerminateAfter1Min);
+        bool rfPgmTerminateMcuPin = ((rfpgm & 0b10000000) == 0b10000000);
+        Pointer("/data/rsp/trConfiguration/rfPgmTerminateMcuPin").Set(response, rfPgmTerminateMcuPin);
+        // RF band - undocumented byte
+        std::string rfBand = "";
+        switch (hwpConfig.Undocumented[0] & 0x03)
+        {
         case 0b00:
           rfBand = "868";
           break;
@@ -924,273 +779,171 @@ namespace iqrf {
           rfBand = "IL";
           break;
         default:
-          TRC_WARNING( "Unknown rf band constant: " << PAR( ( hwpConfig.Undocumented[0] & 0x03 ) ) );
-      }
-      Pointer( "/data/rsp/trConfiguration/rfBand" ).Set( response, rfBand );
-    }
-
-    // Sets Info for more peripherals part of the response
-    void setInfoForMorePeripheralsResponse( const DeviceEnumerateResult& deviceEnumerateResult, rapidjson::Document& response )
-    {
-      // per info objects
-      std::map<int, embed::explore::MorePeripheralInformation::Param> mParam = deviceEnumerateResult.getMorePersInfo()->getPerParamsMap();
-
-      // array of objects
-      Document::AllocatorType& allocator = response.GetAllocator();
-      rapidjson::Value perInfoJsonArray( kArrayType );
-
-      for (std::map<int, embed::explore::MorePeripheralInformation::Param>::iterator it = mParam.begin(); it != mParam.end(); ++it)
-      {
-        rapidjson::Value perInfoObj( kObjectType );
-        perInfoObj.AddMember(
-          "perTe",
-          it->second.perTe,
-          allocator
-        );
-        perInfoObj.AddMember(
-          "perT",
-          it->second.perT,
-          allocator
-        );
-        perInfoObj.AddMember(
-          "par1",
-          it->second.par1,
-          allocator
-        );
-        perInfoObj.AddMember(
-          "par2",
-          it->second.par2,
-          allocator
-        );
-        perInfoJsonArray.PushBack( perInfoObj, allocator );
-      }
-      Pointer( "/data/rsp/morePeripheralsInfo" ).Set( response, perInfoJsonArray );
-    }
-
-    // Handle the request
-    void handleMsg( const std::string& messagingId, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc )
-    {
-      TRC_FUNCTION_ENTER(
-        PAR( messagingId ) <<
-        NAME_PAR( mType, msgType.m_type ) <<
-        NAME_PAR( major, msgType.m_major ) <<
-        NAME_PAR( minor, msgType.m_minor ) <<
-        NAME_PAR( micro, msgType.m_micro )
-      );
-
-      // Unsupported type of request
-      if ( msgType.m_type != m_mTypeName_iqmeshNetworkEnumerateDevice )
-        THROW_EXC( std::logic_error, "Unsupported message type: " << PAR( msgType.m_type ) );
-
-      // creating representation object
-      ComIqmeshNetworkEnumerateDevice comEnumerateDevice( doc );
-
-      // Create response and set cpommon parameters
-      Document response;
-      Pointer( "/mType" ).Set( response, msgType.m_type );
-      Pointer( "/data/msgId" ).Set( response, comEnumerateDevice.getMsgId() );
-
-      // Service input parameters
-      uint16_t deviceAddr;
-
-      // Parsing and checking service input parameters
-      try
-      {
-        m_repeat = comEnumerateDevice.getRepeat();
-        if ( !comEnumerateDevice.isSetDeviceAddr() )
-          THROW_EXC( std::logic_error, "Device address not set." );
-        deviceAddr = (uint16_t)comEnumerateDevice.getDeviceAddr();
-        if ( deviceAddr > 239 )
-          THROW_EXC( std::out_of_range, "Device address outside of valid range. " << NAME_PAR_HEX( "Address", deviceAddr ) );
-        m_morePeripheralsInfo = comEnumerateDevice.getMorePeripheralsInfo();
-        m_returnVerbose = comEnumerateDevice.getVerbose();
-      }
-      catch ( const std::exception& ex )
-      {
-        // Parsing and checking service parameters failed 
-        Pointer( "/data/status" ).Set( response, (int32_t)DeviceEnumerateError::Type::ServiceError );
-        Pointer( "/data/statusStr" ).Set( response, ex.what() );
-        // Send response
-        m_iMessagingSplitterService->sendMessage( messagingId, std::move( response ) );
-        TRC_FUNCTION_LEAVE( "" );
-        return;
-      }
-
-      // Try to establish exclusive access
-      try
-      {
-        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-      }
-      catch ( const std::exception &e )
-      {
-        const char* errorStr = e.what();
-        TRC_WARNING( "Error while establishing exclusive DPA access: " << PAR( errorStr ) );
-        Pointer( "/data/status" ).Set( response, (int32_t)DeviceEnumerateError::Type::ServiceError );
-        Pointer( "/data/statusStr" ).Set( response, errorStr );
-        // Send response
-        m_iMessagingSplitterService->sendMessage( messagingId, std::move( response ) );
-        TRC_FUNCTION_LEAVE( "" );
-        return;
-      }
-
-      // Result
-      DeviceEnumerateResult deviceEnumerateResult;
-      deviceEnumerateResult.setDeviceAddr( deviceAddr );
-
-      // DeviceEnumerateError
-      DeviceEnumerateError deviceEnumerateError;
-
-      // Check the node is bonded
-      if ( deviceAddr == COORDINATOR_ADDRESS || isNodeBonded( deviceEnumerateResult, deviceAddr ) )
-      {
-        // Discovery data
-        discoveryData( deviceEnumerateResult );
-
-        // OS read info
-        osRead( deviceEnumerateResult );
-
-        // Obtains hwpId, which in turn is needed to get manufacturer and product
-        IJsCacheService::Manufacturer manufacturer = m_iJsCacheService->getManufacturer( deviceEnumerateResult.getEnumeratedNodeHwpId() );
-        if ( manufacturer.m_manufacturerId > -1)
-          deviceEnumerateResult.setManufacturer( manufacturer.m_name );
-        IJsCacheService::Product product = m_iJsCacheService->getProduct( deviceEnumerateResult.getEnumeratedNodeHwpId() );
-        if ( product.m_manufacturerId > -1)
-          deviceEnumerateResult.setProduct( product.m_name );
-
-        // Peripheral enumeration
-        peripheralEnumeration( deviceEnumerateResult );
-
-        IJsCacheService::Package package;
-        if (deviceEnumerateResult.getPerEnum() && deviceEnumerateResult.getOsRead()) {
-          package = m_iJsCacheService->getPackage(
-            deviceEnumerateResult.getEnumeratedNodeHwpId(),
-            deviceEnumerateResult.getEnumeratedNodeHwpIdVer(),
-            deviceEnumerateResult.getOsRead()->getOsBuildAsString(),
-            deviceEnumerateResult.getPerEnum()->getDpaVerAsHexaString()
-          );
+          TRC_WARNING("Unknown rf band constant: " << PAR((hwpConfig.Undocumented[0] & 0x03)));
         }
-        if ( package.m_packageId > -1)
-        {
-          std::list<std::string> standards;
-          for ( const IJsCacheService::StdDriver& driver : package.m_stdDriverVect ) {
-            standards.push_back( driver.getName() );
-          }
-          deviceEnumerateResult.setStandards( standards );
-        }
-        else
-          TRC_INFORMATION( "Package not found" );
-
-        // Read Hwp configuration
-        readHwpConfiguration( deviceEnumerateResult );
-
-        // Only one node - for the present time
-        Pointer( "/data/rsp/deviceAddr" ).Set( response, deviceEnumerateResult.getDeviceAddr() );
-
-        // Manufacturer and product - if OS Read was correct - to get HWP ID which is needed
-        if ( deviceEnumerateResult.getOsReadError().getType() == DeviceEnumerateError::Type::NoError )
-        {
-          Pointer( "/data/rsp/manufacturer" ).Set( response, deviceEnumerateResult.getManufacturer() );
-          Pointer( "/data/rsp/product" ).Set( response, deviceEnumerateResult.getProduct() );
-          if ( deviceEnumerateResult.getPerEnumError().getType() == DeviceEnumerateError::Type::NoError )
-          {
-            // Standards - array of strings
-            rapidjson::Value standardsJsonArray( kArrayType );
-            Document::AllocatorType &allocator = response.GetAllocator();
-            for ( std::string standard : deviceEnumerateResult.getStandards() )
-            {
-              rapidjson::Value standardJsonString;
-              standardJsonString.SetString( standard.c_str(), (SizeType)standard.length(), allocator );
-              standardsJsonArray.PushBack( standardJsonString, allocator );
-            }
-            Pointer( "/data/rsp/standards" ).Set( response, standardsJsonArray );
-          }
-        }
-
-        // Discovery bytes read
-        deviceEnumerateError = deviceEnumerateResult.getDiscoveryByteReadError();
-        if ( deviceEnumerateError.getType() == DeviceEnumerateError::Type::NoError )
-          setDiscoveryDataResponse( deviceEnumerateResult, response );
-
-        // OS Read data
-        deviceEnumerateError = deviceEnumerateResult.getOsReadError();
-        if ( deviceEnumerateError.getType() == DeviceEnumerateError::Type::NoError )
-        {
-          setOsReadResponse( deviceEnumerateResult.getOsRead(), response );
-        }
-
-        // Peripheral enumeration
-        deviceEnumerateError = deviceEnumerateResult.getPerEnumError();
-        if ( deviceEnumerateError.getType() == DeviceEnumerateError::Type::NoError )
-          setPeripheralEnumerationResponse( deviceEnumerateResult, response );
-
-        // HWP configuration
-        deviceEnumerateError = deviceEnumerateResult.getHwpConfigReadError();
-        if ( deviceEnumerateError.getType() == DeviceEnumerateError::Type::NoError )
-          setReadHwpConfigurationResponse( deviceEnumerateResult, response );
+        Pointer("/data/rsp/trConfiguration/rfBand").Set(response, rfBand);
 
         // Result of more peripherals info according to request
-        if ( m_morePeripheralsInfo && deviceEnumerateResult.getOsReadError().getType() == DeviceEnumerateError::Type::NoError ) 
-          setInfoForMorePeripheralsResponse( deviceEnumerateResult, response );
+        if (m_enumerateDeviceParams.morePeripheralsInfo == true)
+        {
+          // PerInfo objects
+          std::map<int, embed::explore::MorePeripheralInformation::Param> mParam = deviceEnumerateResult.getMorePersInfo()->getPerParamsMap();
+          // Array of objects
+          rapidjson::Value perInfoJsonArray(kArrayType);
+          for (std::map<int, embed::explore::MorePeripheralInformation::Param>::iterator it = mParam.begin(); it != mParam.end(); ++it)
+          {
+            rapidjson::Value perInfoObj(kObjectType);
+            perInfoObj.AddMember("perTe", it->second.perTe, allocator);
+            perInfoObj.AddMember("perT", it->second.perT, allocator);
+            perInfoObj.AddMember("par1", it->second.par1, allocator);
+            perInfoObj.AddMember("par2", it->second.par2, allocator);
+            perInfoJsonArray.PushBack(perInfoObj, allocator);
+          }
+          Pointer("/data/rsp/morePeripheralsInfo").Set(response, perInfoJsonArray);
+        }
       }
-      else
-        deviceEnumerateError = deviceEnumerateResult.getBondedError();
 
       // Set raw fields, if verbose mode is active
-      if ( comEnumerateDevice.getVerbose() )
+      if (m_comEnumerateDevice->getVerbose())
       {
-        rapidjson::Value rawArray( kArrayType );
+        rapidjson::Value rawArray(kArrayType);
         Document::AllocatorType& allocator = response.GetAllocator();
-        while ( deviceEnumerateResult.isNextTransactionResult() )
+        while (deviceEnumerateResult.isNextTransactionResult())
         {
           std::unique_ptr<IDpaTransactionResult2> transResult = deviceEnumerateResult.consumeNextTransactionResult();
-          rapidjson::Value rawObject( kObjectType );
+          rapidjson::Value rawObject(kObjectType);
           rawObject.AddMember(
             "request",
-            encodeBinary( transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength() ),
+            encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
             allocator
           );
           rawObject.AddMember(
             "requestTs",
-            encodeTimestamp( transResult->getRequestTs() ),
+            encodeTimestamp(transResult->getRequestTs()),
             allocator
           );
           rawObject.AddMember(
             "confirmation",
-            encodeBinary( transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength() ),
+            encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
             allocator
           );
           rawObject.AddMember(
             "confirmationTs",
-            encodeTimestamp( transResult->getConfirmationTs() ),
+            encodeTimestamp(transResult->getConfirmationTs()),
             allocator
           );
           rawObject.AddMember(
             "response",
-            encodeBinary( transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength() ),
+            encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
             allocator
           );
           rawObject.AddMember(
             "responseTs",
-            encodeTimestamp( transResult->getResponseTs() ),
+            encodeTimestamp(transResult->getResponseTs()),
             allocator
           );
           // Add object into array
-          rawArray.PushBack( rawObject, allocator );
+          rawArray.PushBack(rawObject, allocator);
         }
         // Add array into response document
-        Pointer( "/data/raw" ).Set( response, rawArray );
+        Pointer("/data/raw").Set(response, rawArray);
+      }
+
+      // Set status
+      Pointer("/data/status").Set(response, status);
+      Pointer("/data/statusStr").Set(response, deviceEnumerateResult.getStatusStr());
+
+      // Send message      
+      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
+    }
+
+    //--------------------------
+    // Creates and send response
+    //--------------------------
+    void createResponse(const int status, const std::string statusStr)
+    {
+      Document response;
+
+      // Set common parameters
+      Pointer("/mType").Set(response, m_msgType->m_type);
+      Pointer("/data/msgId").Set(response, m_comEnumerateDevice->getMsgId());
+
+      // Set status
+      Pointer("/data/status").Set(response, status);
+      Pointer("/data/statusStr").Set(response, statusStr);
+
+      // Send message      
+      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
+    }
+
+    //-------------------
+    // Handle the request
+    //-------------------
+    void handleMsg(const std::string& messagingId, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc)
+    {
+      TRC_FUNCTION_ENTER(
+        PAR(messagingId) <<
+        NAME_PAR(mType, msgType.m_type) <<
+        NAME_PAR(major, msgType.m_major) <<
+        NAME_PAR(minor, msgType.m_minor) <<
+        NAME_PAR(micro, msgType.m_micro)
+      );
+
+      // Unsupported type of request
+      if (msgType.m_type != m_mTypeName_iqmeshNetworkEnumerateDevice)
+        THROW_EXC(std::logic_error, "Unsupported message type: " << PAR(msgType.m_type));
+
+      // Creating representation object
+      ComIqmeshNetworkEnumerateDevice comEnumerateDevice(doc);
+      m_msgType = &msgType;
+      m_messagingId = &messagingId;
+      m_comEnumerateDevice = &comEnumerateDevice;
+
+      // Parsing and checking service parameters
+      try
+      {
+        m_enumerateDeviceParams = comEnumerateDevice.getEnumerateDevicefParams();
+      }
+      catch (const std::exception& e)
+      {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Error while parsing service input parameters.");
+        createResponse(parsingRequestError, e.what());
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
+      // Try to establish exclusive access%
+      try
+      {
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      }
+      catch (const std::exception& e)
+      {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Exclusive access error.");
+        createResponse(exclusiveAccessError, e.what());
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
+      try
+      {
+        // SmartConnect result
+        DeviceEnumerateResult deviceEnumerateResult;
+
+        // Enumerate device
+        enumerateDevice(deviceEnumerateResult);
+
+        // Create and send response
+        createResponse(deviceEnumerateResult);
+      }
+      catch (std::exception& e)
+      {
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
       }
 
       // Release exclusive access
       m_exclusiveAccess.reset();
-
-      // Set response status
-      Pointer( "/data/status" ).Set( response, (int32_t)deviceEnumerateError.getType() );
-      Pointer( "/data/statusStr" ).Set( response, deviceEnumerateError.getMessage() );
-
-      // Send response
-      m_iMessagingSplitterService->sendMessage( messagingId, std::move( response ) );
-      TRC_FUNCTION_LEAVE( "" );
+      TRC_FUNCTION_LEAVE("");
     }
 
   public:

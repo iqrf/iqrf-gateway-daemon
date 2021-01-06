@@ -14,9 +14,11 @@ TRC_INIT_MODULE(iqrf::BackupService);
 
 using namespace rapidjson;
 
-namespace {
-  // Service general fail code - may and probably will be changed later in the future
-  static const int SERVICE_ERROR = 1000;
+namespace
+{
+  static const int serviceError = 1000;
+  static const int parsingRequestError = 1001;
+  static const int exclusiveAccessError = 1002;
 };
 
 namespace iqrf {
@@ -47,7 +49,85 @@ namespace iqrf {
     //-------------------
     // Send backup result
     //-------------------
-    void sendBackupResult(const std::string statusStr, DeviceBackupData& deviceBackupData, const double progress)
+    void sendBackupResult(const int status, const std::string statusStr)
+    {
+      Document docBackupResult;
+
+      // Set common parameters
+      Pointer("/mType").Set(docBackupResult, m_msgType->m_type);
+      Pointer("/data/msgId").Set(docBackupResult, m_comBackup->getMsgId());
+
+      // Set raw fields, if verbose mode is active
+      if (m_comBackup->getVerbose() == true)
+      {
+        rapidjson::Value rawArray(kArrayType);
+        Document::AllocatorType& allocator = docBackupResult.GetAllocator();
+        std::list<std::unique_ptr<IDpaTransactionResult2>> transResults;
+        m_iIqrfBackup->getTransResults(transResults);
+        while (transResults.size() != 0)
+        {
+          std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = transResults.begin();
+          std::unique_ptr<IDpaTransactionResult2> tr = std::move(*iter);
+          transResults.pop_front();
+
+          rapidjson::Value rawObject(kObjectType);
+
+          rawObject.AddMember(
+            "request",
+            encodeBinary(tr->getRequest().DpaPacket().Buffer, tr->getRequest().GetLength()),
+            allocator
+          );
+
+          rawObject.AddMember(
+            "requestTs",
+            encodeTimestamp(tr->getRequestTs()),
+            allocator
+          );
+
+          rawObject.AddMember(
+            "confirmation",
+            encodeBinary(tr->getConfirmation().DpaPacket().Buffer, tr->getConfirmation().GetLength()),
+            allocator
+          );
+
+          rawObject.AddMember(
+            "confirmationTs",
+            encodeTimestamp(tr->getConfirmationTs()),
+            allocator
+          );
+
+          rawObject.AddMember(
+            "response",
+            encodeBinary(tr->getResponse().DpaPacket().Buffer, tr->getResponse().GetLength()),
+            allocator
+          );
+
+          rawObject.AddMember(
+            "responseTs",
+            encodeTimestamp(tr->getResponseTs()),
+            allocator
+          );
+
+          // add object into array
+          rawArray.PushBack(rawObject, allocator);
+        }
+
+        // Add array into response document
+        Pointer("/data/raw").Set(docBackupResult, rawArray);
+      }
+
+      // Set status
+      Pointer("/data/status").Set(docBackupResult, status);
+      Pointer("/data/statusStr").Set(docBackupResult, statusStr);
+
+      // Send message      
+      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docBackupResult));
+    }
+
+    //-------------------
+    // Send backup result
+    //-------------------
+    void sendBackupResult(const int status, const std::string statusStr, DeviceBackupData& deviceBackupData, const double progress)
     {
       Document docBackupResult;
 
@@ -145,10 +225,7 @@ namespace iqrf {
       }
 
       // Set status
-      int statusCode = 0;
-      if (statusStr != "ok")
-        statusCode = SERVICE_ERROR;
-      Pointer("/data/status").Set(docBackupResult, statusCode);
+      Pointer("/data/status").Set(docBackupResult, status);
       Pointer("/data/statusStr").Set(docBackupResult, statusStr);
 
       // Send message      
@@ -196,7 +273,7 @@ namespace iqrf {
           CATCH_EXC_TRC_WAR(std::exception, e, "Backup device [" << (int)device << "] error.");
         }
         progress += (100.0 / devices.size());
-        sendBackupResult(statusStr, deviceBackupData, progress);
+        sendBackupResult(m_iIqrfBackup->getErrorCode(), statusStr, deviceBackupData, progress);
       }
       TRC_FUNCTION_LEAVE("");
     }
@@ -212,6 +289,9 @@ namespace iqrf {
 
       // Create representation object
       ComBackup comBackup(doc);
+      m_msgType = &msgType;
+      m_messagingId = &messagingId;
+      m_comBackup = &comBackup;
 
       // Parsing and checking service parameters
       TBackupInputParams backupInputParams;
@@ -221,38 +301,21 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Error while parsing service input parameters.")
-        // Create error response
-        Document response;
-        Pointer("/mType").Set(response, msgType.m_type);
-        Pointer("/data/msgId").Set(response, comBackup.getMsgId());
-        // Set result
-        Pointer("/data/status").Set(response, SERVICE_ERROR);
-        Pointer("/data/statusStr").Set(response, e.what());
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        CATCH_EXC_TRC_WAR(std::exception, e, "Error while parsing service input parameters.");
+        sendBackupResult(parsingRequestError, e.what());
         TRC_FUNCTION_LEAVE("");
         return;
       }
 
       // Run the Backup
-      m_msgType = &msgType;
-      m_messagingId = &messagingId;
-      m_comBackup = &comBackup;
       try
       {
         runBackup(backupInputParams.wholeNetwork, backupInputParams.deviceAddress);
       }
       catch (std::exception& e)
       {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Backup algorithm error.")
-        // Create error response
-        Document response;
-        Pointer("/mType").Set(response, msgType.m_type);
-        Pointer("/data/msgId").Set(response, comBackup.getMsgId());
-        // Set result
-        Pointer("/data/status").Set(response, SERVICE_ERROR);
-        Pointer("/data/statusStr").Set(response, e.what());
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+        sendBackupResult(m_iIqrfBackup->getErrorCode(), e.what());
       }
       TRC_FUNCTION_LEAVE("");
     }
