@@ -12,80 +12,41 @@ TRC_INIT_MODULE(iqrf::RemoveBondService);
 
 using namespace rapidjson;
 
-namespace {
-  // Service general fail code
-  static const int SERVICE_ERROR = 1000;
+namespace 
+{
+  static const int serviceError = 1000;
+  static const int parsingRequestError = 1001;
+  static const int exclusiveAccessError = 1002;
 };
 
 namespace iqrf {
-  // Holds information about errors, which encounter during local bond service run
-  class RemoveBondError {
-  public:
-    // Type of error
-    enum class Type {
-      NoError,
-      RemoveBondAtNodeSideError,
-      RemoveBondAtCoordinatorSideError,
-      ClearAllBondsError,
-      BatchRemoveBondAndRestartNodeError,
-      BatchRemoveBondAtCoordinatorSideError,
-      GetBondedNodesError,
-      FrcRemoveBondError,
-      FrcSetParamsError,
-      GetAddressingInfoError
-    };
-
-    RemoveBondError() : m_type(Type::NoError), m_message("ok") {};
-    explicit RemoveBondError(Type errorType) : m_type(errorType), m_message("") {};
-    RemoveBondError(Type errorType, const std::string& message) : m_type(errorType), m_message(message) {};
-
-    Type getType() const { return m_type; };
-    std::string getMessage() const { return m_message; };
-
-    RemoveBondError(const RemoveBondError& other) {
-      m_type = other.getType();
-      m_message = other.getMessage();
-    }
-
-    RemoveBondError& operator=(const RemoveBondError& error) {
-      if (this == &error) {
-        return *this;
-      }
-
-      this->m_type = error.m_type;
-      this->m_message = error.m_message;
-
-      return *this;
-    }
-
-  private:
-    Type m_type;
-    std::string m_message;
-  };
-
-  /// \class BondResult
-  /// \brief Result of bonding of a node.
   class RemoveBondResult {
   private:
-    RemoveBondError m_error;
-
+    // Status
     uint8_t m_nodesNr = 0;
     std::basic_string<uint8_t> m_notRemovedNodes;
+    int m_status = 0;
+    std::string m_statusStr = "ok";
 
     // transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
   public:
-    RemoveBondError getError() const { return m_error; };
-
-    void setError(const RemoveBondError& error) {
-      m_error = error;
+    // Status
+    int getStatus() const { return m_status; };
+    std::string getStatusStr() const { return m_statusStr; };
+    void setStatus(const int status) {
+      m_status = status;
+    }
+    void setStatus(const int status, const std::string statusStr) {
+      m_status = status;
+      m_statusStr = statusStr;
+    }
+    void setStatusStr(const std::string statusStr) {
+      m_statusStr = statusStr;
     }
 
-    uint8_t getNodesNr() {
-      return m_nodesNr;
-    }
-
+    uint8_t getNodesNr() const { return m_nodesNr; };   
     void setNodesNr(const uint8_t nodesNr) {
       m_nodesNr = nodesNr;
     }
@@ -188,8 +149,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        RemoveBondError error(RemoveBondError::Type::GetBondedNodesError, e.what());
-        removeBondResult.setError(error);
+        removeBondResult.setStatus(transResult->getErrorCode(), e.what());
         removeBondResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
@@ -230,8 +190,7 @@ namespace iqrf {
       }
       catch (const std::exception& e)
       {
-        RemoveBondError error(RemoveBondError::Type::GetAddressingInfoError, e.what());
-        removeBondResult.setError(error);
+        removeBondResult.setStatus(transResult->getErrorCode(), e.what());
         removeBondResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
@@ -272,8 +231,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        RemoveBondError error(RemoveBondError::Type::FrcSetParamsError, e.what());
-        removeBondResult.setError(error);
+        removeBondResult.setStatus(transResult->getErrorCode(), e.what());
         removeBondResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
@@ -347,8 +305,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        RemoveBondError error(RemoveBondError::Type::FrcRemoveBondError, e.what());
-        removeBondResult.setError(error);
+        removeBondResult.setStatus(transResult->getErrorCode(), e.what());
         removeBondResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
@@ -388,8 +345,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        RemoveBondError error(RemoveBondError::Type::RemoveBondAtCoordinatorSideError, e.what());
-        removeBondResult.setError(error);
+        removeBondResult.setStatus(transResult->getErrorCode(), e.what());
         removeBondResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
@@ -449,8 +405,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        RemoveBondError error(RemoveBondError::Type::BatchRemoveBondAtCoordinatorSideError, e.what());
-        removeBondResult.setError(error);
+        removeBondResult.setStatus(transResult->getErrorCode(), e.what());
         removeBondResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
@@ -489,8 +444,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        RemoveBondError error(RemoveBondError::Type::ClearAllBondsError, e.what());
-        removeBondResult.setError(error);
+        removeBondResult.setStatus(transResult->getErrorCode(), e.what());
         removeBondResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
@@ -529,8 +483,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        RemoveBondError error(RemoveBondError::Type::RemoveBondAtNodeSideError, e.what());
-        removeBondResult.setError(error);
+        removeBondResult.setStatus(transResult->getErrorCode(), e.what());
         removeBondResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
@@ -580,11 +533,29 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        RemoveBondError error(RemoveBondError::Type::BatchRemoveBondAndRestartNodeError, e.what());
-        removeBondResult.setError(error);
+        removeBondResult.setStatus(transResult->getErrorCode(), e.what());
         removeBondResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
+    }
+
+    //--------------------------
+    // Creates and send response
+    //--------------------------
+    void createResponse(const int status, const std::string statusStr)
+    {
+      Document response;
+
+      // Set common parameters
+      Pointer("/mType").Set(response, m_msgType->m_type);
+      Pointer("/data/msgId").Set(response, m_comRemoveBond->getMsgId());
+
+      // Set status
+      Pointer("/data/status").Set(response, status);
+      Pointer("/data/statusStr").Set(response, statusStr);
+
+      // Send message      
+      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
     //--------------------------
@@ -599,9 +570,8 @@ namespace iqrf {
       Pointer("/data/msgId").Set(response, m_comRemoveBond->getMsgId());
 
       // Set status
-      RemoveBondError error = removeBondResult.getError();
-      int status = 0;
-      if (error.getType() == RemoveBondError::Type::NoError)
+      int status = removeBondResult.getStatus();
+      if (status == 0)
       {
         // Rsp object
         rapidjson::Pointer("/data/rsp/nodesNr").Set(response, removeBondResult.getNodesNr());
@@ -622,8 +592,6 @@ namespace iqrf {
           }
         }
       }
-      else
-        status = SERVICE_ERROR + (int)error.getType();
 
       // Set raw fields, if verbose mode is active
       if (m_comRemoveBond->getVerbose() == true)
@@ -682,7 +650,7 @@ namespace iqrf {
 
       // Set status
       Pointer("/data/status").Set(response, status);
-      Pointer("/data/statusStr").Set(response, error.getMessage());
+      Pointer("/data/statusStr").Set(response, removeBondResult.getStatusStr());
 
       // Send message      
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
@@ -728,7 +696,6 @@ namespace iqrf {
             bondedNodes = getBondedNodes(removeBondResult);
             removeBondResult.setNotRemovedNodes(bondedNodes);
           }
-          TRC_FUNCTION_LEAVE("");
         }
         else
         {
@@ -819,6 +786,9 @@ namespace iqrf {
 
       // Creating representation object
       ComIqmeshNetworkRemoveBond comRemoveBond(doc);
+      m_msgType = &msgType;
+      m_messagingId = &messagingId;
+      m_comRemoveBond = &comRemoveBond;
 
       // Parsing and checking service parameters
       try
@@ -827,15 +797,8 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Error while parsing service input parameters.")
-          // Create error response
-          Document response;
-        Pointer("/mType").Set(response, msgType.m_type);
-        Pointer("/data/msgId").Set(response, comRemoveBond.getMsgId());
-        // Set result
-        Pointer("/data/status").Set(response, SERVICE_ERROR);
-        Pointer("/data/statusStr").Set(response, e.what());
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        CATCH_EXC_TRC_WAR(std::exception, e, "Error while parsing service input parameters.");
+        createResponse(parsingRequestError, e.what());
         TRC_FUNCTION_LEAVE("");
         return;
       }
@@ -847,16 +810,8 @@ namespace iqrf {
       }
       catch (const std::exception &e)
       {
-        const char* errorStr = e.what();
-        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
-        // Create error response
-        Document response;
-        Pointer("/mType").Set(response, msgType.m_type);
-        Pointer("/data/msgId").Set(response, comRemoveBond.getMsgId());
-        // Set result
-        Pointer("/data/status").Set(response, SERVICE_ERROR);
-        Pointer("/data/statusStr").Set(response, errorStr);
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        CATCH_EXC_TRC_WAR(std::exception, e, "Exclusive access error.");
+        createResponse(exclusiveAccessError, e.what());
         TRC_FUNCTION_LEAVE("");
         return;
       }
@@ -865,9 +820,6 @@ namespace iqrf {
       {
         // Remove bond result
         RemoveBondResult removeBondResult;
-        m_msgType = &msgType;
-        m_messagingId = &messagingId;
-        m_comRemoveBond = &comRemoveBond;
 
         // iqmeshNetwork_RemoveBond ?
         if (msgType.m_type == m_mTypeName_iqmeshNetworkRemoveBond)
@@ -879,9 +831,7 @@ namespace iqrf {
 
         // iqmeshNetwork_RemoveBondOnlyInC ?
         if (msgType.m_type == m_mTypeName_iqmeshNetworkRemoveBondOnlyInC)
-        {
           removeBondOnlyInC(removeBondResult);
-        }
 
         // Create and send response
         createResponse(removeBondResult);
@@ -889,12 +839,10 @@ namespace iqrf {
       catch (std::exception& e)
       {
         CATCH_EXC_TRC_WAR(std::exception, e, e.what());
-        TRC_FUNCTION_LEAVE("");
       }
 
       // Release exclusive access
       m_exclusiveAccess.reset();
-
       TRC_FUNCTION_LEAVE("");
     }
 

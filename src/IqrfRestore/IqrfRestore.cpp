@@ -33,6 +33,7 @@ namespace iqrf {
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
     std::mutex m_restoreMutex;
+    int m_errorCode;
 
   public:
     Imp(IqrfRestore& parent) : m_parent(parent)
@@ -80,6 +81,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
+        m_errorCode = transResult->getErrorCode();
         m_transResults.push_back(std::move(transResult));
         THROW_EXC(std::logic_error, e.what());
       }
@@ -119,6 +121,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
+        m_errorCode = transResult->getErrorCode();
         m_transResults.push_back(std::move(transResult));
         THROW_EXC(std::logic_error, e.what());
       }
@@ -164,6 +167,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
+        m_errorCode = transResult->getErrorCode();
         m_transResults.push_back(std::move(transResult));
         THROW_EXC(std::logic_error, e.what());
       }
@@ -202,6 +206,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
+        m_errorCode = transResult->getErrorCode();
         m_transResults.push_back(std::move(transResult));
         THROW_EXC(std::logic_error, e.what());
       }
@@ -262,6 +267,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
+        m_errorCode = transResult->getErrorCode();
         m_transResults.push_back(std::move(transResult));
         THROW_EXC(std::logic_error, e.what());
       }
@@ -274,32 +280,52 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
       std::lock_guard<std::mutex> lck(m_restoreMutex);
+      m_errorCode = 0;
 
+      // Todo - current version of IqrfRestore supports [C] device only
+      if (deviceAddress != COORDINATOR_ADDRESS)
+      {
+        // Todo posunout 1010
+        m_errorCode = 1003;
+        THROW_EXC(std::logic_error, "Restore function of [N] device is currently not supported.");
+      }
+
+      // Check backupData length
+      int len = (backupData[0x01] << 0x08) | backupData[0x00];
+      // Get len[B] = block count * 49 
+      len *= sizeof(TPerCoordinatorNodeRestore_Request);
+      // Add length and crc8
+      len += 3 * sizeof(uint8_t);
+      if (len != backupData.size())
+      {
+        m_errorCode = 1004;
+        THROW_EXC(std::logic_error, "Incorrect backupData size.");
+      }
+      // Check backupData CRC8
+      uint8_t crc8 = 0x5f;
+      for (int i = 3; i < backupData.size(); i++)
+        crc8 ^= backupData[i];
+      if (crc8 != backupData[0x02])
+      {
+        m_errorCode = 1005;
+        THROW_EXC(std::logic_error, "BackupData CRC8 mismatch.");
+      }
+      // Remove length and CRC8
+      backupData.erase(0x00, 3 * sizeof(uint8_t));
+
+      // Get exclusive access to DPA interface
       try
       {
-        // Todo - current version of IqrfRestore supports [C] device only
-        if (deviceAddress != COORDINATOR_ADDRESS)
-          THROW_EXC(std::logic_error, "Restore function of [N] device is currently not supported.");
-
-        // Check backupData length
-        int len = (backupData[0x01] << 0x08) | backupData[0x00];
-        // Get len[B] = block count * 49 
-        len *= sizeof(TPerCoordinatorNodeRestore_Request);
-        // Add length and crc8
-        len += 3 * sizeof(uint8_t);
-        if (len != backupData.size())
-          THROW_EXC(std::logic_error, "Incorrect backupData size.");
-        // Check backupData CRC8
-        uint8_t crc8 = 0x5f;
-        for (int i = 3; i < backupData.size(); i++)
-          crc8 ^= backupData[i];
-        if (crc8 != backupData[0x02])
-          THROW_EXC(std::logic_error, "BackupData CRC8 mismatch.");
-        backupData.erase(0x00, 3 * sizeof(uint8_t));
-
-        // Get exclusive access to DPA interface
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-        // Restore single device
+      }
+      catch (std::exception& e)
+      {
+        m_errorCode = 1002;
+        THROW_EXC(std::logic_error, e.what());
+      }
+      // Restore single device
+      try
+      {
         m_transResults.clear();
         checkPresentCoordAndCoordOs();
         TPerOSRead_Response osInfo = readOsInfo(deviceAddress);
@@ -337,6 +363,14 @@ namespace iqrf {
         m_transResults.pop_front();
         transResult.push_back(std::move(tr));
       }
+    }
+
+    //---------------
+    // Get error code
+    //---------------
+    int getErrorCode(void)
+    {
+      return m_errorCode;
     }
 
     void activate(const shape::Properties *props)
@@ -402,6 +436,11 @@ namespace iqrf {
   void IqrfRestore::getTransResults(std::list<std::unique_ptr<IDpaTransactionResult2>>& transResult)
   {
     m_imp->getTransResults(transResult);
+  }
+
+  int IqrfRestore::getErrorCode(void)
+  {
+    return m_imp->getErrorCode();
   }
 
   void IqrfRestore::attachInterface(IIqrfDpaService* iface)

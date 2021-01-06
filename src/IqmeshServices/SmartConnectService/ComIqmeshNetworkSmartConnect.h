@@ -5,6 +5,28 @@
 #include <list>
 
 namespace iqrf {
+
+  // SmartConnect input parameters
+  typedef struct TSmartConnectInputParams
+  {
+    TSmartConnectInputParams()
+    {
+      userData.clear();
+      MID.clear();
+      IBK.clear();
+      bondingRetries = 1;
+      repeat = 1;
+    }
+    uint16_t deviceAddress;
+    std::string smartConnectCode;
+    int bondingRetries;
+    std::basic_string<uint8_t> userData;
+    std::basic_string<uint8_t> MID;
+    std::basic_string<uint8_t> IBK;
+    uint16_t hwpId;
+    int repeat;
+  }TSmartConnectInputParams;
+
   class ComIqmeshNetworkSmartConnect : public ComBase
   {
   public:
@@ -19,42 +41,10 @@ namespace iqrf {
     {
     }
 
-    int getRepeat() const {
-      return m_repeat;
-    }
-
-    bool isSetDeviceAddr() const {
-      return m_isSetDeviceAddr;
-    }
-
-    int getDeviceAddr() const
+    const TSmartConnectInputParams getSmartConnectInputParams() const
     {
-      return m_deviceAddr;
+      return m_smartConnectInputParams;
     }
-
-    int getBondingTestRetries() const
-    {
-      return m_bondingTestRetries;
-    }
-
-    bool isSetSmartConnectCode() const {
-      return m_isSetSmartConnectCode;
-    }
-
-    const std::string getSmartConnectCode() const
-    {
-      return m_smartConnectCode;
-    }
-
-    bool isSetUserData() const {
-      return m_isSetUserData;
-    }
-
-    const std::basic_string<uint8_t> getUserData() const
-    {
-      return m_userData;
-    }
-
 
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
@@ -65,54 +55,35 @@ namespace iqrf {
 
 
   private:
-    bool m_isSetDeviceAddr = false;
-    bool m_isSetSmartConnectCode = false;
-    bool m_isSetUserData = false;
-
-    int m_repeat = 1;
-
-    int m_deviceAddr;
-    int m_bondingTestRetries = 1;
-    std::string m_smartConnectCode;
-    std::basic_string<uint8_t> m_userData;
-
-
-    void parseRepeat(rapidjson::Document& doc) {
-      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc)) {
-        m_repeat = repeatJsonVal->GetInt();
-      }
-    }
-
-    void parseRequest(rapidjson::Document& doc) {
-      if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
-        m_deviceAddr = deviceAddrJsonVal->GetInt();
-        m_isSetDeviceAddr = true;
-      }
-
-      m_bondingTestRetries = rapidjson::Pointer("/data/req/bondingTestRetries").GetWithDefault(doc, 1).GetInt();
-       
-      if (rapidjson::Value* deviceAddrJsonVal = rapidjson::Pointer("/data/req/smartConnectCode").Get(doc)) {
-        m_smartConnectCode = deviceAddrJsonVal->GetString();
-        m_isSetSmartConnectCode = true;
-      }
-
-      if (rapidjson::Value* userDataJson = rapidjson::Pointer("/data/req/userData").Get(doc)) {
-        if (userDataJson->IsArray()) {
-          for (rapidjson::SizeType i = 0; i < userDataJson->Size(); i++) {
-            m_userData.push_back((*userDataJson)[i].GetInt());
-          }
-          m_isSetUserData = true;
-        }
-        else {
-          THROW_EXC(std::logic_error, "User data must be array.");
-        }
-      }
-    }
+    TSmartConnectInputParams m_smartConnectInputParams;
 
     // parses document into data fields
-    void parse(rapidjson::Document& doc) {
-      parseRepeat(doc);
-      parseRequest(doc);
+    void parse(rapidjson::Document& doc)
+    {
+      rapidjson::Value* jsonVal;
+
+      // Repeat
+      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc)))
+        m_smartConnectInputParams.repeat = jsonVal->GetInt();
+
+      // Device address
+      if (jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))
+        m_smartConnectInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
+
+      // smartConnectCode
+      if (jsonVal = rapidjson::Pointer("/data/req/smartConnectCode").Get(doc))
+        m_smartConnectInputParams.smartConnectCode = jsonVal->GetString();
+
+      // bondingTestRetries
+      if (jsonVal = rapidjson::Pointer("/data/req/bondingTestRetries").Get(doc))
+        m_smartConnectInputParams.bondingRetries = jsonVal->GetInt();
+
+      // userData
+      if (jsonVal = rapidjson::Pointer("/data/req/userData").Get(doc))
+      {
+        for (rapidjson::SizeType i = 0; i < jsonVal->Size(); i++)
+          m_smartConnectInputParams.userData.push_back((uint8_t)(*jsonVal)[i].GetInt());
+      }
     }
   };
 }

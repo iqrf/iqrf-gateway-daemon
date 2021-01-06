@@ -6,6 +6,15 @@
 #include "JsonUtils.h"
 
 namespace iqrf {
+
+  // ReadTrConf input paramaters
+  typedef struct
+  {
+    uint16_t deviceAddress = 0;
+    uint16_t hwpId = HWPID_DoNotCheck;
+    int repeat = 1;
+  }TReadTrConfInputParams;
+
   class ComIqmeshNetworkReadTrConf : public ComBase
   {
   public:
@@ -21,28 +30,10 @@ namespace iqrf {
     {
     }
 
-    int getRepeat() const {
-      return m_repeat;
-    }
-
-    bool isSetDeviceAddr() const {
-      return m_isSetDeviceAddr;
-    }
-
-    int getDeviceAddr() const
+    const TReadTrConfInputParams getReadTrConfParams() const
     {
-      return m_deviceAddr;
+      return m_readTrConfParams;
     }
-
-    bool isSetHwpId() const {
-      return m_isSetHwpId;
-    }
-
-    int getHwpId() const
-    {
-      return m_hwpId;
-    }
-
 
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
@@ -53,37 +44,24 @@ namespace iqrf {
 
 
   private:
-    bool m_isSetDeviceAddr = false;
-    bool m_isSetHwpId = false;
-
-    int m_repeat = 1;
-    int m_deviceAddr;
-    int m_hwpId;
-
-
-    void parseRepeat(rapidjson::Document& doc) {
-      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc))
-        m_repeat = repeatJsonVal->GetInt();
-      if ( m_repeat < 1 || m_repeat > 10 )
-        m_repeat = 1;
-    }
-
-    void parseRequest(rapidjson::Document& doc) {
-      if (rapidjson::Value* devAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
-        m_deviceAddr = devAddrJsonVal->GetInt();
-        m_isSetDeviceAddr = true;
-      }
-
-      if (rapidjson::Value* hwpIdJsonVal = rapidjson::Pointer("/data/req/hwpId").Get(doc)) {
-        m_hwpId = hwpIdJsonVal->GetInt();
-        m_isSetHwpId = true;
-      }
-    }
+    TReadTrConfInputParams m_readTrConfParams;
 
     // parses document into data fields
-    void parse(rapidjson::Document& doc) {
-      parseRepeat(doc);
-      parseRequest(doc);
+    void parse(rapidjson::Document& doc) 
+    {
+      rapidjson::Value* jsonVal;
+
+      // Repeat
+      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc)))
+        m_readTrConfParams.repeat = jsonVal->GetInt();
+
+      // Device address
+      if ((jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)))
+        m_readTrConfParams.deviceAddress = (uint16_t)jsonVal->GetInt();
+
+      // HWPID
+      if ((jsonVal = rapidjson::Pointer("/data/req/hwpId").Get(doc)))
+        m_readTrConfParams.hwpId = (uint16_t)jsonVal->GetInt();
     }
   };
 }
