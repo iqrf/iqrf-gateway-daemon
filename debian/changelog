@@ -1,3 +1,11 @@
+iqrf-gateway-daemon (2.3.5) stable; urgency=medium
+
+  [ Karel Hanák ]
+  * UdpChannel: fix socket close for windows
+  * UdpChannel: retry connection
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 08 Jan 2021 09:48:46 +0100
+
 iqrf-gateway-daemon (2.3.4) stable; urgency=medium
 
   [ Rostislav Spinar ]
