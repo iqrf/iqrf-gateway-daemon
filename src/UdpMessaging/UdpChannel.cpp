@@ -189,12 +189,24 @@ void UdpChannel::getMyAddress()
   hints.sin_addr.s_addr = INADDR_LOOPBACK;
 
   int res;
-
-  res = connect(sockfd, (sockaddr *)&hints, sizeof(hints));
-  if (res < 0) {
-    closesocket(sockfd);
-    THROW_EXC_TRC_WAR(UdpChannelException, "connect failed: " << GetLastError() << ": " << strerror(errno));
-  }
+  int attempts = 5;
+  int attempt = 0;
+  
+  do {
+    if (attempt > 0) {
+      std::this_thread::sleep_for(std::chrono::seconds(2 * (attempt - 1) + 1));
+      //sleep(2 * (attempt - 1) + 1);
+    } 
+    res = connect(sockfd, (sockaddr *)&hints, sizeof(hints));
+    if (res < 0) {
+      attempt++;
+      TRC_WARNING("connect failed: " << GetLastError() << ": " << strerror(errno));
+      if (attempt == 5) {
+        closesocket(sockfd);
+        THROW_EXC_TRC_WAR(UdpChannelException, "connect failed: " << GetLastError() << ": " << strerror(errno));
+      }
+    }
+  } while (attempt < attempts && res < 0);
 
   socklen_t hintsLen = sizeof(hints);
   res = getsockname(sockfd, (sockaddr *)&hints, &hintsLen);
