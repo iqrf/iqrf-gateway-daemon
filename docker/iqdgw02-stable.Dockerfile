@@ -5,7 +5,7 @@ FROM balenalib/orange-pi-zero-debian:latest
 
 # copy custom config
 WORKDIR /etc
-COPY config/iqrf-gateway.json iqrf-gateway.json
+COPY config-iqube/iqrf-gateway.json iqrf-gateway.json
 
 RUN apt-get update \
  && apt-get install --no-install-recommends -y dirmngr gnupg2 \
@@ -18,7 +18,7 @@ RUN apt-get update \
 
 # copy custom config
 WORKDIR /etc/iqrf-gateway-daemon
-COPY config/iqrf-gateway-daemon/. .
+COPY config-iqube/iqrf-gateway-daemon/. .
 
 # expose ports
 EXPOSE 1338 1438 55000/udp 55300/udp
