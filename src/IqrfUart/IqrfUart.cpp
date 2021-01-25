@@ -359,8 +359,7 @@ namespace iqrf {
         m_cfg.pgmSwitchGpioPin = (int8_t)Pointer("/pgmSwitchGpioPin").GetWithDefault(d, (int)m_cfg.pgmSwitchGpioPin).GetInt();
 
         // bus signal separated into more for iqube devices
-        // if both busEnableGpioPin and pgmSwitchGpioPin -1 => KON-RASP-01, do not set these
-        if (m_cfg.busEnableGpioPin == -1 && m_cfg.pgmSwitchGpioPin != -1) {
+        if (m_cfg.busEnableGpioPin == -1) {
           m_cfg.uartEnableGpioPin = (int8_t)Pointer("/uartEnableGpioPin").GetWithDefault(d, (int)m_cfg.uartEnableGpioPin).GetInt();
           m_cfg.spiEnableGpioPin = (int8_t)Pointer("/spiEnableGpioPin").GetWithDefault(d, (int)m_cfg.spiEnableGpioPin).GetInt();
           m_cfg.i2cEnableGpioPin = (int8_t)Pointer("/i2cEnableGpioPin").GetWithDefault(d, (int)m_cfg.i2cEnableGpioPin).GetInt();
