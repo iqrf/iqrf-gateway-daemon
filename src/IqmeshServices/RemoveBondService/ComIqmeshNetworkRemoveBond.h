@@ -5,11 +5,11 @@
 
 namespace iqrf {
 
-  // RemoveService input paramaters
+  // RemoveBond input paramaters
   typedef struct
   {
     uint8_t deviceAddr = 0;
-    uint16_t hwpId = 0xffff;
+    uint16_t hwpId = HWPID_DoNotCheck;
     bool wholeNetwork = false;
     int repeat = 1;
     std::basic_string<uint8_t> deviceAddrList;

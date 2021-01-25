@@ -22,70 +22,12 @@ namespace {
   // Default bonding mask. No masking effect.
   static const uint8_t DEFAULT_BONDING_MASK = 0;
 
-  // values of result error codes
-  // service general fail code - may and probably will be changed later in the future
-  static const int SERVICE_ERROR = 1000;
+  static const int serviceError = 1000;
+  static const int parsingRequestError = 1001;
+  static const int exclusiveAccessError = 1002;
 };
 
 namespace iqrf {
-
-  // Holds information about errors, which encounter during autonetwork run
-  class AutonetworkError {
-  public:
-    // Type of error
-    enum class Type {
-      Internal,
-      NoError,
-      NoCoordOrCoordOs,
-      GetAddressingInfo,
-      GetBondedNodes,
-      GetDiscoveredNodes,
-      UnbondedNodes,
-      SetHops,
-      SetDpaParams,
-      Prebond,
-      PrebondedAlive,
-      PrebondedMemoryRead,
-      PrebondedMemoryCompare,
-      AuthorizeBond,
-      RemoveBond,
-      RemoveBondAndRestart,
-      CheckNewNodes,
-      RemoveBondAtCoordinator,
-      RunDiscovery,
-      AllAddressAllocated,
-      ValidateBonds,
-      IncorrectStopCondition,
-      TooManyNodesFound
-    };
-
-    AutonetworkError() : m_type( Type::NoError ), m_message( "ok" ) {};
-    AutonetworkError( Type errorType ) : m_type( errorType ), m_message( "" ) {};
-    AutonetworkError( Type errorType, const std::string& message ) : m_type( errorType ), m_message( message ) {};
-
-    Type getType() const { return m_type; };
-    std::string getMessage() const { return m_message; };
-
-    AutonetworkError(const AutonetworkError& other) {
-      m_type = other.getType();
-      m_message = other.getMessage();
-    }
-
-    AutonetworkError& operator=( const AutonetworkError& error ) {
-      if ( this == &error ) {
-        return *this;
-      }
-
-      this->m_type = error.m_type;
-      this->m_message = error.m_message;
-
-      return *this;
-    }
-
-  private:
-    Type m_type;
-    std::string m_message;
-  };
 
   // Result of AutonetworkResult algorithm
   class AutonetworkResult {
@@ -97,17 +39,28 @@ namespace iqrf {
     };
 
   private:
-    AutonetworkError m_error;
+    // Status
+    int m_status = 0;
+    std::string m_statusStr = "ok";
+
     std::vector<NewNode> m_newNodes;
 
     // Transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
 
   public:
-    AutonetworkError getError() const { return m_error; };
-
-    void setError( const AutonetworkError& error ) {
-      m_error = error;
+    // Status
+    int getStatus() const { return m_status; };
+    std::string getStatusStr() const { return m_statusStr; };
+    void setStatus(const int status) {
+      m_status = status;
+    }
+    void setStatus(const int status, const std::string statusStr) {
+      m_status = status;
+      m_statusStr = statusStr;
+    }
+    void setStatusStr(const std::string statusStr) {
+      m_statusStr = statusStr;
     }
 
     void putNewNode(uint8_t address, uint32_t MID) {
@@ -264,11 +217,6 @@ namespace iqrf {
     const IMessagingSplitterService::MsgType* m_msgType = nullptr;
     const ComAutonetwork* m_comAutonetwork = nullptr;
 
-    uint8_t MAX_WAVES = MAX_ADDRESS;
-    uint8_t MAX_EMPTY_WAVES = MAX_ADDRESS;
-
-    uint8_t mZero = 0;
-
   public:
     Imp( AutonetworkService& parent ) : m_parent( parent )
     {
@@ -324,10 +272,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::NoCoordOrCoordOs, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -364,10 +311,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::SetHops, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -404,10 +350,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::SetDpaParams, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -445,10 +390,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::SetHops, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -491,10 +435,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::GetDiscoveredNodes, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -530,10 +473,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::GetAddressingInfo, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -570,10 +512,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::GetBondedNodes, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -610,10 +551,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::GetDiscoveredNodes, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -757,10 +697,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::Prebond, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -821,10 +760,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::PrebondedAlive, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -926,10 +864,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::PrebondedMemoryRead, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -1022,10 +959,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::PrebondedMemoryRead, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -1075,10 +1011,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::AuthorizeBond, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -1131,10 +1066,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::CheckNewNodes, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -1157,7 +1091,7 @@ namespace iqrf {
         // Put selected nodes
         setFRCSelectedNodes( frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes, notRespondedNewNodes );
         // Clear UserData
-        memset( (void*)frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData, sizeof( frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData ), mZero );
+        memset( (void*)frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData, 0, sizeof( frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData ) );
         // Request length
         uint8_t requestLength = sizeof( TDpaIFaceHeader );
         requestLength += sizeof( frcAckBroadcastPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand );
@@ -1227,10 +1161,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::RemoveBondAndRestart, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -1267,10 +1200,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::RemoveBondAtCoordinator, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -1310,10 +1242,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::RunDiscovery, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -1390,10 +1321,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::ValidateBonds, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -1431,10 +1361,9 @@ namespace iqrf {
       }
       catch ( const std::exception& e )
       {
-        AutonetworkError error( AutonetworkError::Type::ValidateBonds, e.what() );
-        autonetworkResult.setError( error );
-        autonetworkResult.addTransactionResult( transResult );
-        THROW_EXC( std::logic_error, e.what() );
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
       }
     }
 
@@ -1599,43 +1528,43 @@ namespace iqrf {
     }
 
     // Send wave result
-    bool sendWaveResult( AutonetworkResult& autonetworkResult )
+    bool sendWaveResult(AutonetworkResult& autonetworkResult)
     {
       antwProcessParams.progress = 100;
-      if ( antwProcessParams.waveStateCode == TWaveStateCode::waveFinished )
+      if (antwProcessParams.waveStateCode == TWaveStateCode::waveFinished)
       {
         // Maximum waves reached ?
-        if ( ( antwInputParams.stopConditions.waves != 0 ) && ( antwProcessParams.countWaves == antwInputParams.stopConditions.waves ) )
+        if ((antwInputParams.stopConditions.waves != 0) && (antwProcessParams.countWaves == antwInputParams.stopConditions.waves))
         {
-          TRC_INFORMATION( "Maximum number of waves reached." );
+          TRC_INFORMATION("Maximum number of waves reached.");
           antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxNumWaves;
         }
 
         // Maximum empty waves reached ?
-        if ( ( antwInputParams.stopConditions.emptyWaves != 0 ) && ( antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves ) )
+        if ((antwInputParams.stopConditions.emptyWaves != 0) && (antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves))
         {
-          TRC_INFORMATION( "Maximum number of consecutive empty waves reached." );
+          TRC_INFORMATION("Maximum number of consecutive empty waves reached.");
           antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxEmptyWaves;
         }
 
         // Number of new nodes bonded into network ?
-        if ( ( antwInputParams.stopConditions.numberOfNewNodes != 0 ) && ( antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes ) )
+        if ((antwInputParams.stopConditions.numberOfNewNodes != 0) && (antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes))
         {
-          TRC_INFORMATION( "Number of new nodes bonded into network." );
+          TRC_INFORMATION("Number of new nodes bonded into network.");
           antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfNewNodes;
         }
 
         // Number of total nodes bonded into network ?
-        if ( ( antwInputParams.stopConditions.numberOfTotalNodes != 0 ) && ( antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes ) )
+        if ((antwInputParams.stopConditions.numberOfTotalNodes != 0) && (antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes))
         {
-          TRC_INFORMATION( "Number of total nodes bonded into network." );
+          TRC_INFORMATION("Number of total nodes bonded into network.");
           antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfTotalNodes;
         }
 
         // Check max address
-        if ( antwProcessParams.bondedNodes == MAX_ADDRESS )
+        if (antwProcessParams.bondedNodes == MAX_ADDRESS)
         {
-          TRC_INFORMATION( "All available network addresses are already allocated - Autonetwork process aborted." );
+          TRC_INFORMATION("All available network addresses are already allocated - Autonetwork process aborted.");
           antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddresseAllocated;
         }
       }
@@ -1643,105 +1572,99 @@ namespace iqrf {
       bool stopCondReached = antwProcessParams.waveStateCode != TWaveStateCode::waveFinished;
       Document waveResult;
       // Set common parameters
-      Pointer( "/mType" ).Set( waveResult, m_msgType->m_type );
-      Pointer( "/data/msgId" ).Set( waveResult, m_comAutonetwork->getMsgId() );
+      Pointer("/mType").Set(waveResult, m_msgType->m_type);
+      Pointer("/data/msgId").Set(waveResult, m_comAutonetwork->getMsgId());
 
       // Add wave result
-      rapidjson::Pointer( "/data/rsp/wave" ).Set( waveResult, antwProcessParams.countWaves );
-      rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( waveResult, antwProcessParams.bondedNodesNr );
-      rapidjson::Pointer( "/data/rsp/newNodesNr" ).Set( waveResult, antwProcessParams.countWaveNewNodes );
-      rapidjson::Pointer( "/data/rsp/waveStateCode" ).Set( waveResult, (int)antwProcessParams.waveStateCode );
-      rapidjson::Pointer( "/data/rsp/progress" ).Set( waveResult, (int)antwProcessParams.progress );
-      if ( m_comAutonetwork->getVerbose() == true )
-        rapidjson::Pointer( "/data/rsp/waveState" ).Set( waveResult, getWaveState() );
-      rapidjson::Pointer( "/data/rsp/lastWave" ).Set( waveResult, stopCondReached );
-      if ( antwProcessParams.respondedNewNodes.empty() == false )
+      rapidjson::Pointer("/data/rsp/wave").Set(waveResult, antwProcessParams.countWaves);
+      rapidjson::Pointer("/data/rsp/nodesNr").Set(waveResult, antwProcessParams.bondedNodesNr);
+      rapidjson::Pointer("/data/rsp/newNodesNr").Set(waveResult, antwProcessParams.countWaveNewNodes);
+      rapidjson::Pointer("/data/rsp/waveStateCode").Set(waveResult, (int)antwProcessParams.waveStateCode);
+      rapidjson::Pointer("/data/rsp/progress").Set(waveResult, (int)antwProcessParams.progress);
+      if (m_comAutonetwork->getVerbose() == true)
+        rapidjson::Pointer("/data/rsp/waveState").Set(waveResult, getWaveState());
+      rapidjson::Pointer("/data/rsp/lastWave").Set(waveResult, stopCondReached);
+      if (antwProcessParams.respondedNewNodes.empty() == false)
       {
         // Rsp object
-        rapidjson::Pointer( "/data/rsp/wave" ).Set( waveResult, antwProcessParams.countWaves );
-        rapidjson::Pointer( "/data/rsp/nodesNr" ).Set( waveResult, antwProcessParams.bondedNodesNr );
-        rapidjson::Pointer( "/data/rsp/newNodesNr" ).Set( waveResult, antwProcessParams.countWaveNewNodes );
-        rapidjson::Value newNodesJsonArray( kArrayType );
+        rapidjson::Pointer("/data/rsp/wave").Set(waveResult, antwProcessParams.countWaves);
+        rapidjson::Pointer("/data/rsp/nodesNr").Set(waveResult, antwProcessParams.bondedNodesNr);
+        rapidjson::Pointer("/data/rsp/newNodesNr").Set(waveResult, antwProcessParams.countWaveNewNodes);
+        rapidjson::Value newNodesJsonArray(kArrayType);
         Document::AllocatorType& allocator = waveResult.GetAllocator();
-        for ( AutonetworkResult::NewNode newNode : antwProcessParams.respondedNewNodes )
+        for (AutonetworkResult::NewNode newNode : antwProcessParams.respondedNewNodes)
         {
-          rapidjson::Value newNodeObject( kObjectType );
+          rapidjson::Value newNodeObject(kObjectType);
           std::stringstream stream;
           stream << std::hex << newNode.MID;
-          newNodeObject.AddMember( "mid", stream.str(), allocator );
-          newNodeObject.AddMember( "address", newNode.address, allocator );
-          newNodesJsonArray.PushBack( newNodeObject, allocator );
+          newNodeObject.AddMember("mid", stream.str(), allocator);
+          newNodeObject.AddMember("address", newNode.address, allocator);
+          newNodesJsonArray.PushBack(newNodeObject, allocator);
         }
-        Pointer( "/data/rsp/newNodes" ).Set( waveResult, newNodesJsonArray );
+        Pointer("/data/rsp/newNodes").Set(waveResult, newNodesJsonArray);
       }
 
-      // Set status
-      AutonetworkError error = autonetworkResult.getError();
-      int status = 0;
-      if ( error.getType() != AutonetworkError::Type::NoError )
-        status = SERVICE_ERROR + (int)error.getType();
-
       // Set raw fields, if verbose mode is active
-      if ( m_comAutonetwork->getVerbose() == true )
+      if (m_comAutonetwork->getVerbose() == true)
       {
-        rapidjson::Value rawArray( kArrayType );
+        rapidjson::Value rawArray(kArrayType);
         Document::AllocatorType& allocator = waveResult.GetAllocator();
 
-        while ( autonetworkResult.isNextTransactionResult() ) {
+        while (autonetworkResult.isNextTransactionResult()) {
           std::unique_ptr<IDpaTransactionResult2> transResult = autonetworkResult.consumeNextTransactionResult();
-          rapidjson::Value rawObject( kObjectType );
+          rapidjson::Value rawObject(kObjectType);
 
           rawObject.AddMember(
             "request",
-            encodeBinary( transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength() ),
+            encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
             allocator
           );
 
           rawObject.AddMember(
             "requestTs",
-            encodeTimestamp( transResult->getRequestTs() ),
+            encodeTimestamp(transResult->getRequestTs()),
             allocator
           );
 
           rawObject.AddMember(
             "confirmation",
-            encodeBinary( transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength() ),
+            encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
             allocator
           );
 
           rawObject.AddMember(
             "confirmationTs",
-            encodeTimestamp( transResult->getConfirmationTs() ),
+            encodeTimestamp(transResult->getConfirmationTs()),
             allocator
           );
 
           rawObject.AddMember(
             "response",
-            encodeBinary( transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength() ),
+            encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
             allocator
           );
 
           rawObject.AddMember(
             "responseTs",
-            encodeTimestamp( transResult->getResponseTs() ),
+            encodeTimestamp(transResult->getResponseTs()),
             allocator
           );
 
           // add object into array
-          rawArray.PushBack( rawObject, allocator );
+          rawArray.PushBack(rawObject, allocator);
         }
 
         // Add array into response document
-        Pointer( "/data/raw" ).Set( waveResult, rawArray );
+        Pointer("/data/raw").Set(waveResult, rawArray);
       }
 
       // Set status
-      Pointer( "/data/status" ).Set( waveResult, status );
-      Pointer( "/data/statusStr" ).Set( waveResult, error.getMessage() );
+      Pointer("/data/status").Set(waveResult, autonetworkResult.getStatus());
+      Pointer("/data/statusStr").Set(waveResult, autonetworkResult.getStatusStr());
 
       // Send message      
-      m_iMessagingSplitterService->sendMessage( *m_messagingId, std::move( waveResult ) );
-      
+      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(waveResult));
+
       return stopCondReached;
     }
 
@@ -2574,7 +2497,7 @@ namespace iqrf {
         Pointer( "/mType" ).Set( response, msgType.m_type );
         Pointer( "/data/msgId" ).Set( response, comAutonetwork.getMsgId() );
         // Set result
-        Pointer( "/data/status" ).Set( response, SERVICE_ERROR );
+        Pointer( "/data/status" ).Set( response, parsingRequestError);
         Pointer( "/data/statusStr" ).Set( response, errorStr );
         m_iMessagingSplitterService->sendMessage( messagingId, std::move( response ) );
 
@@ -2596,7 +2519,7 @@ namespace iqrf {
         Pointer( "/mType" ).Set( response, msgType.m_type );
         Pointer( "/data/msgId" ).Set( response, comAutonetwork.getMsgId() );
         // Set result
-        Pointer( "/data/status" ).Set( response, SERVICE_ERROR );
+        Pointer( "/data/status" ).Set( response, exclusiveAccessError);
         Pointer( "/data/statusStr" ).Set( response, errorStr );
         m_iMessagingSplitterService->sendMessage( messagingId, std::move( response ) );
 
@@ -2766,9 +2689,9 @@ namespace iqrf {
     m_imp->deactivate();
   }
 
-  void AutonetworkService::modify( const shape::Properties *props )
+  void AutonetworkService::modify(const shape::Properties *props)
   {
-    m_imp->modify( props );
+    m_imp->modify(props);
   }
 }
 

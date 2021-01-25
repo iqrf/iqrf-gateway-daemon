@@ -33,6 +33,7 @@ namespace iqrf {
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
     std::mutex m_backupMutex;
+    int m_errorCode = 0;
 
   public:
     Imp(IqrfBackup& parent) : m_parent(parent)
@@ -80,6 +81,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
+        m_errorCode = transResult->getErrorCode();
         m_transResults.push_back(std::move(transResult));
         THROW_EXC(std::logic_error, e.what());
       }
@@ -119,6 +121,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
+        m_errorCode = transResult->getErrorCode();
         m_transResults.push_back(std::move(transResult));
         THROW_EXC(std::logic_error, e.what());
       }
@@ -164,6 +167,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
+        m_errorCode = transResult->getErrorCode();
         m_transResults.push_back(std::move(transResult));
         THROW_EXC(std::logic_error, e.what());
       }
@@ -240,6 +244,7 @@ namespace iqrf {
       }
       catch (std::exception& e)
       {
+        m_errorCode = transResult->getErrorCode();
         m_transResults.push_back(std::move(transResult));
         THROW_EXC(std::logic_error, e.what());
       }
@@ -252,10 +257,20 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
       std::lock_guard<std::mutex> lck(m_backupMutex);
+      m_errorCode = 0;
+
+      // Get exclusive access to DPA interface
       try
       {
-        // Get exclusive access to DPA interface
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      }
+      catch (std::exception& e)
+      {
+        m_errorCode = 1002;
+        THROW_EXC(std::logic_error, e.what());
+      }
+      try
+      {
         // Backup single device
         m_transResults.clear();
         checkPresentCoordAndCoordOs();
@@ -287,6 +302,14 @@ namespace iqrf {
         m_transResults.pop_front();
         transResult.push_back(std::move(tr));
       }
+    }
+
+    //---------------
+    // Get error code
+    //---------------
+    int getErrorCode(void)
+    {
+      return m_errorCode;
     }
 
     void activate(const shape::Properties *props)
@@ -352,6 +375,11 @@ namespace iqrf {
   void IqrfBackup::getTransResults(std::list<std::unique_ptr<IDpaTransactionResult2>>& transResult)
   {
     m_imp->getTransResults(transResult);
+  }
+
+  int IqrfBackup::getErrorCode(void)
+  {
+    return m_imp->getErrorCode();
   }
 
   void IqrfBackup::attachInterface(IIqrfDpaService* iface)

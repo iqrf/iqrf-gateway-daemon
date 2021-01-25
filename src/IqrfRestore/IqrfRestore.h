@@ -23,6 +23,7 @@ namespace iqrf {
     void restore(const uint16_t deviceAddress, std::basic_string<uint8_t>& backupData, const bool restartCoordinator) override;
     void getTransResults(std::list<std::unique_ptr<IDpaTransactionResult2>>& transResult) override;
     std::basic_string<uint16_t> getBondedNodes(void) override;
+    int getErrorCode(void) override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

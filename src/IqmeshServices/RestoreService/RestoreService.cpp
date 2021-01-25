@@ -14,9 +14,11 @@ TRC_INIT_MODULE(iqrf::RestoreService);
 
 using namespace rapidjson;
 
-namespace {
-  // Service general fail code - may and probably will be changed later in the future
-  static const int SERVICE_ERROR = 1000;
+namespace
+{
+  static const int serviceError = 1000;
+  static const int parsingRequestError = 1001;
+  static const int exclusiveAccessError = 1002;
 };
 
 namespace iqrf {
@@ -47,7 +49,26 @@ namespace iqrf {
     //--------------------
     // Send restore result
     //--------------------
-    void sendRestoreResult(const std::string statusStr, const TRestoreInputParams& backupData, const double progress)
+    void sendRestoreResult(const int status, const std::string statusStr)
+    {
+      Document docRestoreResult;
+
+      // Set common parameters
+      Pointer("/mType").Set(docRestoreResult, m_msgType->m_type);
+      Pointer("/data/msgId").Set(docRestoreResult, m_comRestore->getMsgId());
+
+      // Set status
+      Pointer("/data/status").Set(docRestoreResult, status);
+      Pointer("/data/statusStr").Set(docRestoreResult, statusStr);
+
+      // Send message      
+      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docRestoreResult));
+    }
+
+    //--------------------
+    // Send restore result
+    //--------------------
+    void sendRestoreResult(const int status, const std::string statusStr, const TRestoreInputParams& backupData, const double progress)
     {
       Document docRestoreResult;
 
@@ -131,10 +152,7 @@ namespace iqrf {
       }
 
       // Set status
-      int statusCode = 0;
-      if (statusStr != "ok")
-        statusCode = SERVICE_ERROR;
-      Pointer("/data/status").Set(docRestoreResult, statusCode);
+      Pointer("/data/status").Set(docRestoreResult, status);
       Pointer("/data/statusStr").Set(docRestoreResult, statusStr);
 
       // Send message      
@@ -168,7 +186,7 @@ namespace iqrf {
         statusStr = e.what();
         CATCH_EXC_TRC_WAR(std::exception, e, "Restore device [" << (int)backupData.deviceAddress << "] error.");
       }
-      sendRestoreResult(statusStr, backupData, 100.0);
+      sendRestoreResult(m_iIqrfRestore->getErrorCode(), statusStr, backupData, 100.0);
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -183,6 +201,9 @@ namespace iqrf {
 
       // Create representation object
       ComRestore comRestore(doc);
+      m_msgType = &msgType;
+      m_messagingId = &messagingId;
+      m_comRestore = &comRestore;
 
       // Parsing and checking service parameters
       TRestoreInputParams restoreInputParams;
@@ -193,37 +214,20 @@ namespace iqrf {
       catch (std::exception& e)
       {
         CATCH_EXC_TRC_WAR(std::exception, e, "Error while parsing service input parameters.")
-        // Create error response
-        Document response;
-        Pointer("/mType").Set(response, msgType.m_type);
-        Pointer("/data/msgId").Set(response, comRestore.getMsgId());
-        // Set result
-        Pointer("/data/status").Set(response, SERVICE_ERROR);
-        Pointer("/data/statusStr").Set(response, e.what());
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        sendRestoreResult(parsingRequestError, e.what());
         TRC_FUNCTION_LEAVE("");
         return;
       }
 
       // Run the Restore
-      m_msgType = &msgType;
-      m_messagingId = &messagingId;
-      m_comRestore = &comRestore;
       try
       {
         runRestore(restoreInputParams);
       }
       catch (std::exception& e)
       {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Backup algorithm error.")
-        // Create error response
-        Document response;
-        Pointer("/mType").Set(response, msgType.m_type);
-        Pointer("/data/msgId").Set(response, comRestore.getMsgId());
-        // Set result
-        Pointer("/data/status").Set(response, SERVICE_ERROR);
-        Pointer("/data/statusStr").Set(response, e.what());
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+        sendRestoreResult(m_iIqrfRestore->getErrorCode(), e.what());
       }
       TRC_FUNCTION_LEAVE("");
     }
