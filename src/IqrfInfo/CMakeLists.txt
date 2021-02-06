@@ -11,7 +11,16 @@ if(UNIX)
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 endif()
 
-FIND_PACKAGE(SQLite3 REQUIRED)
+if(UNIX)
+  FIND_PACKAGE(SQLite3 REQUIRED)
+else()
+  if(${VCPKG_VER} STREQUAL "2021-01-13-unknownhash")
+    message(WARNING "VCPKG_VER: ${VCPKG_VER}")
+    FIND_PACKAGE(unofficial-sqlite3 CONFIG REQUIRED)
+  else()
+    FIND_PACKAGE(SQLite3 REQUIRED)
+  endif()
+endif()
 
 set(COMPONENT iqrf::IqrfInfo)
 DeclareShapeComponent(${COMPONENT})
@@ -42,7 +51,17 @@ else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE sqlite3)
+if(UNIX)
+  target_link_libraries(${PROJECT_NAME} PRIVATE
+    sqlite3
+  )
+else()
+  if(${VCPKG_VER} STREQUAL "2021-01-13-unknownhash")
+    target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::sqlite3::sqlite3)
+  else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE sqlite3)
+  endif()
+endif()
 
 DeployShapeComponent(${PROJECT_NAME})
 
