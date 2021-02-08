@@ -28,5 +28,5 @@ docker container run -d --name mqtt1broker -p 1883:1883 -p 9001:9001 --network=b
 ## IQRF GW daemon
 
 ```bash
-docker container run -d --name iqrf-gateway-daemon -p 1338:1338 -p 55000:55000/udp -p 55300:55300/udp --device /dev/spidev0.0:/dev/spidev0.0 --privileged --net bridge01 --ip 10.1.1.2 --restart=always iqrftech/iqrf-gateway-daemon:latest-amd64
+docker container run -d --name iqrf-gateway-daemon -p 1338:1338 1438:1438 -p 55000:55000/udp -p 55300:55300/udp --device /dev/spidev0.0:/dev/spidev0.0 --privileged --net bridge01 --ip 10.1.1.2 --restart=always iqrftech/iqrf-gateway-daemon:latest-amd64
 ```
