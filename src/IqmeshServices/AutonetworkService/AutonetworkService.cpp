@@ -292,7 +292,7 @@ namespace iqrf {
         setFrcParamPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
         setFrcParamPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SET_PARAMS;
         setFrcParamPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        setFrcParamPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime = FRCresponseTime;
+        setFrcParamPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FrcParams = FRCresponseTime;
         setFrcParamRequest.DataToBuffer( setFrcParamPacket.Buffer, sizeof( TDpaIFaceHeader ) + sizeof( TPerFrcSetParams_RequestResponse ) );
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat( setFrcParamRequest, transResult, antwInputParams.actionRetries );
@@ -307,7 +307,7 @@ namespace iqrf {
         );
         autonetworkResult.addTransactionResult( transResult );
         TRC_FUNCTION_LEAVE( "" );
-        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime;
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FrcParams;
       }
       catch ( const std::exception& e )
       {
@@ -661,7 +661,7 @@ namespace iqrf {
         std::fill_n( smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID, 4, 0 );
         // Optimized bonding ?
         IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-        if ( ( coordParams.dpaVerWord >= 0x0414 ) && ( antwInputParams.overlappingNetworks.networks != 0 ) && ( antwInputParams.overlappingNetworks.network != 0 ) )
+        if ((coordParams.dpaVerWord >= 0x0414) && (antwInputParams.overlappingNetworks.networks != 0) && (antwInputParams.overlappingNetworks.network != 0))
         {
           // Optimize bonging (applied for DPA >= 0x414)
           smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID[0] = antwInputParams.overlappingNetworks.network - 1;
@@ -670,12 +670,11 @@ namespace iqrf {
           smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID[3] = 0xff;
         }
         // Set res0 to zero
-        smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved0[0x00] = 0x00;
-        smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved0[0x01] = 0x00;
+        smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved0 = 0x00;
         // Virtual Device Address - must equal 0xFF if not used.
         smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.VirtualDeviceAddress = 0xff;
         // Fill res1 with zeros
-        std::fill_n( smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved1, 9, 0 );
+        std::fill_n( smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved1, 10, 0 );
         // User data - zeroes
         std::fill_n( smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.UserData, 4, 0 );
         // Data to buffer
@@ -2472,36 +2471,36 @@ namespace iqrf {
     }
 
     // Process request
-    void handleMsg( const std::string& messagingId, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc )
+    void handleMsg(const std::string& messagingId, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc)
     {
-      TRC_FUNCTION_ENTER( PAR( messagingId ) << NAME_PAR( mType, msgType.m_type ) << NAME_PAR( major, msgType.m_major ) << NAME_PAR( minor, msgType.m_minor ) << NAME_PAR( micro, msgType.m_micro ) );
+      TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) << NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
 
       // Unsupported type of request
-      if ( msgType.m_type != m_mTypeName_Autonetwork )
-        THROW_EXC( std::logic_error, "Unsupported message type: " << PAR( msgType.m_type ) );
+      if (msgType.m_type != m_mTypeName_Autonetwork)
+        THROW_EXC(std::logic_error, "Unsupported message type: " << PAR(msgType.m_type));
 
       // Create representation object
-      ComAutonetwork comAutonetwork( doc );
+      ComAutonetwork comAutonetwork(doc);
 
       // Parsing and checking service parameters
       try
       {
         antwInputParams = comAutonetwork.getAutonetworkParams();
       }
-      catch ( const std::exception& e )
+      catch (const std::exception& e)
       {
         const char* errorStr = e.what();
-        TRC_WARNING( "Error while parsing service input parameters: " << PAR( errorStr ) );
+        TRC_WARNING("Error while parsing service input parameters: " << PAR(errorStr));
         // Create error response
         Document response;
-        Pointer( "/mType" ).Set( response, msgType.m_type );
-        Pointer( "/data/msgId" ).Set( response, comAutonetwork.getMsgId() );
+        Pointer("/mType").Set(response, msgType.m_type);
+        Pointer("/data/msgId").Set(response, comAutonetwork.getMsgId());
         // Set result
-        Pointer( "/data/status" ).Set( response, parsingRequestError);
-        Pointer( "/data/statusStr" ).Set( response, errorStr );
-        m_iMessagingSplitterService->sendMessage( messagingId, std::move( response ) );
+        Pointer("/data/status").Set(response, parsingRequestError);
+        Pointer("/data/statusStr").Set(response, errorStr);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
 
-        TRC_FUNCTION_LEAVE( "" );
+        TRC_FUNCTION_LEAVE("");
         return;
       }
 
@@ -2510,23 +2509,23 @@ namespace iqrf {
       {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
       }
-      catch ( const std::exception &e )
+      catch (const std::exception &e)
       {
         const char* errorStr = e.what();
-        TRC_WARNING( "Error while establishing exclusive DPA access: " << PAR( errorStr ) );
+        TRC_WARNING("Error while establishing exclusive DPA access: " << PAR(errorStr));
         // Create error response
         Document response;
-        Pointer( "/mType" ).Set( response, msgType.m_type );
-        Pointer( "/data/msgId" ).Set( response, comAutonetwork.getMsgId() );
+        Pointer("/mType").Set(response, msgType.m_type);
+        Pointer("/data/msgId").Set(response, comAutonetwork.getMsgId());
         // Set result
-        Pointer( "/data/status" ).Set( response, exclusiveAccessError);
-        Pointer( "/data/statusStr" ).Set( response, errorStr );
-        m_iMessagingSplitterService->sendMessage( messagingId, std::move( response ) );
+        Pointer("/data/status").Set(response, exclusiveAccessError);
+        Pointer("/data/statusStr").Set(response, errorStr);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(response));
 
-        TRC_FUNCTION_LEAVE( "" );
+        TRC_FUNCTION_LEAVE("");
         return;
       }
-       
+
       // Run autonetwork
       m_msgType = &msgType;
       m_messagingId = &messagingId;
@@ -2535,7 +2534,7 @@ namespace iqrf {
       // Release exclusive access
       m_exclusiveAccess.reset();
 
-      TRC_FUNCTION_LEAVE( "" );
+      TRC_FUNCTION_LEAVE("");
     }
 
     void activate( const shape::Properties *props )
@@ -2648,40 +2647,40 @@ namespace iqrf {
     m_imp->detachInterface(iface);
   }
 
-  void AutonetworkService::attachInterface( IIqrfDpaService* iface )
+  void AutonetworkService::attachInterface(IIqrfDpaService* iface)
   {
-    m_imp->attachInterface( iface );
+    m_imp->attachInterface(iface);
   }
 
-  void AutonetworkService::detachInterface( IIqrfDpaService* iface )
+  void AutonetworkService::detachInterface(IIqrfDpaService* iface)
   {
-    m_imp->detachInterface( iface );
+    m_imp->detachInterface(iface);
   }
 
-  void AutonetworkService::attachInterface( IMessagingSplitterService* iface )
+  void AutonetworkService::attachInterface(IMessagingSplitterService* iface)
   {
-    m_imp->attachInterface( iface );
+    m_imp->attachInterface(iface);
   }
 
-  void AutonetworkService::detachInterface( IMessagingSplitterService* iface )
+  void AutonetworkService::detachInterface(IMessagingSplitterService* iface)
   {
-    m_imp->detachInterface( iface );
+    m_imp->detachInterface(iface);
   }
 
-  void AutonetworkService::attachInterface( shape::ITraceService* iface )
+  void AutonetworkService::attachInterface(shape::ITraceService* iface)
   {
-    shape::Tracer::get().addTracerService( iface );
+    shape::Tracer::get().addTracerService(iface);
   }
 
-  void AutonetworkService::detachInterface( shape::ITraceService* iface )
+  void AutonetworkService::detachInterface(shape::ITraceService* iface)
   {
-    shape::Tracer::get().removeTracerService( iface );
+    shape::Tracer::get().removeTracerService(iface);
   }
 
 
-  void AutonetworkService::activate( const shape::Properties *props )
+  void AutonetworkService::activate(const shape::Properties *props)
   {
-    m_imp->activate( props );
+    m_imp->activate(props);
   }
 
   void AutonetworkService::deactivate()

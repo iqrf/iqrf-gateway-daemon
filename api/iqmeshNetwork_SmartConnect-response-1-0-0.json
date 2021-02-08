@@ -130,6 +130,10 @@
                     "iqrfOsChanged": {
                       "type": "boolean",
                       "description": "Flags.5 - IQRF OS is changed from the originally manufactured version."
+                    },
+                    "frcAggregationEnabled": {
+                      "type": "boolean",
+                      "description": "Flags.6 - is 1 if the FRC Aggregation feature is enabled by the TR manufacturer."
                     }
                   }
                 },

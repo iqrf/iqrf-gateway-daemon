@@ -152,6 +152,7 @@ namespace iqrf
         bool isDpaHandlerNotDetectedButEnabled() const { return ( m_flags & 0x08 ) != 0; }
         bool isNoInterfaceSupported() const { return ( m_flags & 0x10 ) != 0; }
         bool isIqrfOsChanges() const { return ( m_flags & 0x20 ) != 0; }
+        bool isFrcAggregationEnabled() const { return (m_flags & 0x40) != 0; }
 
         int getShortestTimeSlot() const
         {

@@ -359,7 +359,7 @@ namespace iqrf
         setFrcParamPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
         setFrcParamPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SET_PARAMS;
         setFrcParamPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        setFrcParamPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime = FRCresponseTime;
+        setFrcParamPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FrcParams = FRCresponseTime;
         setFrcParamRequest.DataToBuffer(setFrcParamPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerFrcSetParams_RequestResponse));
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat(setFrcParamRequest, transResult, m_writeTrConfParams.repeat);
@@ -374,7 +374,7 @@ namespace iqrf
         );
         writeTrConfResult.addTransactionResult(transResult);
         TRC_FUNCTION_LEAVE("");
-        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime;
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FrcParams;
       }
       catch (const std::exception& e)
       {
@@ -796,7 +796,7 @@ namespace iqrf
             }
           }
 
-          TrConfigByte dpaConfigBits_0(CFGIND_DPA_FLAGS, m_writeTrConfParams.dpaConfigBits_0.value, m_writeTrConfParams.dpaConfigBits_0.mask);
+          TrConfigByte dpaConfigBits_0(CFGIND_DPA_FLAGS0, m_writeTrConfParams.dpaConfigBits_0.value, m_writeTrConfParams.dpaConfigBits_0.mask);
           trConfigBytes.push_back(dpaConfigBits_0);
         }
 
