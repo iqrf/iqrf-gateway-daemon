@@ -576,8 +576,11 @@ namespace iqrf {
         Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, deviceEnumerateResult.getOsRead()->isDpaHandlerDetected());
         Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, deviceEnumerateResult.getOsRead()->isDpaHandlerNotDetectedButEnabled());
         Pointer("/data/rsp/osRead/flags/noInterfaceSupported").Set(response, deviceEnumerateResult.getOsRead()->isNoInterfaceSupported());
-        if (m_iIqrfDpaService->getCoordinatorParameters().dpaVerWord >= 0x0413)
+        if(deviceEnumerateResult.getOsRead()->getDpaVer() >= 0x0413)
           rapidjson::Pointer("/data/rsp/osRead/flags/iqrfOsChanged").Set(response, deviceEnumerateResult.getOsRead()->isIqrfOsChanges());
+        if((m_enumerateDeviceParams.deviceAddress != COORDINATOR_ADDRESS) && (deviceEnumerateResult.getOsRead()->getDpaVer() >= 0x0416))
+          rapidjson::Pointer("/data/rsp/osRead/flags/frcAggregationEnabled").Set(response, deviceEnumerateResult.getOsRead()->isFrcAggregationEnabled());
+
         // Slot limits
         rapidjson::Pointer("/data/rsp/osRead/slotLimits/value").Set(response, deviceEnumerateResult.getOsRead()->getSlotLimits());
         rapidjson::Pointer("/data/rsp/osRead/slotLimits/shortestTimeslot").Set(response, deviceEnumerateResult.getOsRead()->getShortestTimeSlotAsString());

@@ -4,10 +4,10 @@
 
 namespace iqrf {
   
-  // SmartConnecy input parameters
-  typedef struct TBondNodetInputParams
+  // SmartConnect input parameters
+  typedef struct TBondNodeInputParams
   {
-    TBondNodetInputParams()
+    TBondNodeInputParams()
     {
       bondingMask = 255;
       bondingTestRetries = 1;
@@ -17,7 +17,7 @@ namespace iqrf {
     int bondingMask;
     int bondingTestRetries;
     int repeat;
-  }TBondNodetInputParams;
+  }TBondNodeInputParams;
 
   class ComIqmeshNetworkBondNodeLocal : public ComBase
   {
@@ -33,7 +33,7 @@ namespace iqrf {
     {
     }
 
-    const TBondNodetInputParams getBondNodeInputParams() const
+    const TBondNodeInputParams getBondNodeInputParams() const
     {
       return m_bondNodeInputParams;
     }
@@ -45,7 +45,7 @@ namespace iqrf {
     }
 
   private:
-    TBondNodetInputParams m_bondNodeInputParams;
+    TBondNodeInputParams m_bondNodeInputParams;
 
     // parses document into data fields
     void parse(rapidjson::Document& doc)

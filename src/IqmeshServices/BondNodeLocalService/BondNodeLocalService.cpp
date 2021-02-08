@@ -14,13 +14,6 @@ TRC_INIT_MODULE(iqrf::BondNodeLocalService);
 using namespace rapidjson;
 
 namespace {
-
-  // maximum number of repeats
-  static const uint8_t REPEAT_MAX = 3;
-
-  // Default bonding mask. No masking effect.
-  static const uint8_t DEFAULT_BONDING_MASK = 0;
-
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
@@ -201,7 +194,7 @@ namespace iqrf {
     const ComIqmeshNetworkBondNodeLocal* m_comBondNode = nullptr;
 
     // Service input parameters
-    TBondNodetInputParams m_bondNodeParams;
+    TBondNodeInputParams m_bondNodeParams;
 
   public:
     explicit Imp( BondNodeLocalService& parent ) : m_parent( parent )
@@ -463,8 +456,10 @@ namespace iqrf {
         rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, bondResult.getOsRead()->isDpaHandlerDetected());
         rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, bondResult.getOsRead()->isDpaHandlerNotDetectedButEnabled());
         rapidjson::Pointer("/data/rsp/osRead/flags/noInterfaceSupported").Set(response, bondResult.getOsRead()->isNoInterfaceSupported());
-        if (m_iIqrfDpaService->getCoordinatorParameters().dpaVerWord >= 0x0413)
+        if (bondResult.getOsRead()->getDpaVer() >= 0x0413)
           rapidjson::Pointer("/data/rsp/osRead/flags/iqrfOsChanged").Set(response, bondResult.getOsRead()->isIqrfOsChanges());
+        if (bondResult.getOsRead()->getDpaVer() >= 0x0416)
+          rapidjson::Pointer("/data/rsp/osRead/flags/frcAggregationEnabled").Set(response, bondResult.getOsRead()->isFrcAggregationEnabled());
 
         // Slot limits
         rapidjson::Pointer("/data/rsp/osRead/slotLimits/value").Set(response, bondResult.getOsRead()->getSlotLimits());

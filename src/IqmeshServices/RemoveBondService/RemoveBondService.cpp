@@ -212,7 +212,7 @@ namespace iqrf {
         setFrcParamPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
         setFrcParamPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SET_PARAMS;
         setFrcParamPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        setFrcParamPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime = FRCresponseTime;
+        setFrcParamPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FrcParams = FRCresponseTime;
         setFrcParamRequest.DataToBuffer(setFrcParamPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerFrcSetParams_RequestResponse));
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat(setFrcParamRequest, transResult, m_removeBondInputParams.repeat);
@@ -227,7 +227,7 @@ namespace iqrf {
         );
         removeBondResult.addTransactionResult(transResult);
         TRC_FUNCTION_LEAVE("");
-        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FRCresponseTime;
+        return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FrcParams;
       }
       catch (std::exception& e)
       {
