@@ -63,7 +63,7 @@ namespace iqrf {
 
       // solves api msg processing
       ApiMsgIqrfStandardFrc apiMsgIqrfStandardFrc(dc);
-
+      
       try {
         // solves JsDriver processing
         JsDriverStandardFrcSolver jsDriverStandardFrcSolver(m_iJsRenderService, msgType.m_possibleDriverFunction,
@@ -74,8 +74,16 @@ namespace iqrf {
 
         auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
 
+        int timeOut = apiMsgIqrfStandardFrc.getTimeout();
+        if (timeOut <= 0) {
+          //TODO workaround to cope with infinit FRC time in case of default timeout
+          // 4 mins shall be OK for 100 nodes according https://doc.iqrf.org/DpaTechGuide/misc/IqMeshTiming.htm
+          timeOut = 4 * 60 * 1000;
+        }
+
         // FRC transaction
-        std::unique_ptr<IDpaTransactionResult2> transResultFrc = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcRequest())->get();
+        std::unique_ptr<IDpaTransactionResult2> transResultFrc =
+          exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcRequest(), timeOut)->get();
         jsDriverStandardFrcSolver.setFrcDpaTransactionResult(std::move(transResultFrc));
 
         if (apiMsgIqrfStandardFrc.getExtraResult()) {
