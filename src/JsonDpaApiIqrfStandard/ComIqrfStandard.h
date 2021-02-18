@@ -29,7 +29,10 @@ namespace iqrf {
   class ComIqrfStandard : public ComBase
   {
   public:
-    ComIqrfStandard() = delete;
+    ComIqrfStandard()
+      :ComBase()
+    {}
+
     ComIqrfStandard(rapidjson::Document& doc)
       :ComBase(doc)
     {

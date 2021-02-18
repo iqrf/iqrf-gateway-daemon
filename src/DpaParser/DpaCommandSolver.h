@@ -41,6 +41,41 @@ namespace iqrf {
   private:
     DpaMessage m_dpaResponse; // from async response or transactionResult
 
+  protected:
+    DpaCommandSolver(const DpaMessage & dpaResponse)
+      :m_nadr(-1)
+      , m_pnum(0)
+      , m_pcmd(0)
+      , m_hwpid(0xFFFF)
+      , m_rcode(0)
+      , m_dpaval(0)
+      , m_asyncResponse(false)
+    {
+      unsigned len = (unsigned)m_dpaResponse.GetLength();
+
+      if (len < getResponseHeaderLen() || len > getResponseHeaderLen() + DPA_MAX_DATA_LENGTH) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid dpaResponse length: " << PAR(len));
+      }
+
+      const auto & rp = m_dpaResponse.DpaPacket().DpaResponsePacket_t;
+
+      m_nadr = rp.NADR;
+      m_pnum = rp.PNUM;
+      if (!(rp.PCMD & 0x80)) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Passed DpaMessage is not response: " << NAME_PAR(PCMD, rp.PCMD));
+      }
+      m_pcmd = rp.PCMD & 0x7F; // mask highest bit set by response
+      m_hwpid = rp.HWPID;
+      m_rcode = rp.ResponseCode;
+      m_asyncResponse = (m_rcode & STATUS_ASYNC_RESPONSE) != 0;
+      m_rcode &= (uint8_t)0x7F;
+      m_dpaval = rp.DpaValue;
+
+      if (len > sizeof(TDpaIFaceHeader) + 2) { //+ rcode + dpaval
+        m_rdata = std::vector<uint8_t>(rp.DpaMessage.Response.PData, rp.DpaMessage.Response.PData + static_cast<int>(len) - sizeof(TDpaIFaceHeader) - 2);
+      }
+    }
+
   public:
     virtual ~DpaCommandSolver() {}
 
@@ -117,6 +152,8 @@ namespace iqrf {
       encodeRequest(dpaRequest);
       return dpaRequest;
     }
+
+    const DpaMessage & getResponse() const { return m_dpaResponse; }
 
     void processAsyncResponse(const DpaMessage & dpaResponse)
     {
