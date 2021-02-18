@@ -3,6 +3,7 @@
 #include "ComIqrfStandard.h"
 #include "IDpaTransactionResult2.h"
 #include "JsonDpaApiIqrfStandard.h"
+#include "RawAny.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
@@ -58,6 +59,7 @@ namespace iqrf {
     //just to be able to abort
     std::mutex m_iDpaTransactionMtx;
     std::shared_ptr<IDpaTransaction2> m_iDpaTransaction;
+    std::string m_instanceName;
 
     // TODO from cfg
     std::vector<std::string> m_filters =
@@ -328,6 +330,114 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    void asyncMsgHandler(const DpaMessage& dpaMessage)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      try {
+        using namespace rapidjson;
+
+        Document allResponseDoc;
+        std::unique_ptr<ComIqrfStandard> com(shape_new ComIqrfStandard());
+
+        // old metadata
+        if (m_iMetaDataApi) {
+          if (m_iMetaDataApi->iSmetaDataToMessages()) {
+            com->setMetaData(m_iMetaDataApi->getMetaData(com->getNadr()));
+          }
+        }
+
+        // db metadata
+        if (m_iIqrfInfo) {
+          if (m_iIqrfInfo->getMidMetaDataToMessages()) {
+            com->setMidMetaData(m_iIqrfInfo->getNodeMetaData(com->getNadr()));
+          }
+        }
+
+        iqrf::raw::AnyAsyncResponse anyAsyncResponse(dpaMessage);
+        const uint8_t *buf = anyAsyncResponse.getResponse().DpaPacket().Buffer;
+        int sz = anyAsyncResponse.getResponse().GetLength();
+        std::vector<uint8_t> dpaResponse(buf, buf + sz);
+
+        //TODO not known here => deduce from PNUM, PCMD
+        std::string methodResponseName; // = msgType.m_possibleDriverFunction;
+        methodResponseName += "_Response_rsp";
+
+        //to be filled
+        int nadrRes = 0;
+        int hwpidRes = 0;
+        int rcode = -1;
+         
+        //TODO not known here
+        std::string rawHdpRequest;
+
+        // get rawHdpResponse in text form
+        std::string rawHdpResponse;
+        // original rawHdpRequest request passed for additional sensor breakdown parsing
+        // TODO it is not necessary for all other handling, may be optimized in future
+        rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, rcode, dpaResponse, rawHdpRequest);
+        TRC_DEBUG(PAR(rawHdpResponse))
+
+        if (0 == rcode) {
+          // call response driver func, it returns rsp{} in text form
+          std::string rspObjStr;
+          std::string errStrRes;
+          bool driverResponseError = false;
+          try {
+            m_iJsRenderService->callFenced(nadrRes, hwpidRes, methodResponseName, rawHdpResponse, rspObjStr);
+          }
+          catch (std::exception &e) {
+            //response driver func error
+            errStrRes = e.what();
+            driverResponseError = true;
+          }
+
+          if (driverResponseError) {
+            //provide error response
+            Document rDataError;
+            rDataError.SetString(errStrRes.c_str(), rDataError.GetAllocator());
+            com->setPayload("/data/rsp/errorStr", rDataError, true);
+
+            //TODO fake transaction result
+            //res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);
+            //com->setStatus(res->getErrorString(), res->getErrorCode());
+            //com->createResponse(allResponseDoc, *res);
+          }
+          else {
+            // get json from its text representation
+            Document rspObj;
+            rspObj.Parse(rspObjStr);
+            TRC_DEBUG("result object: " << std::endl << JsonToStr(&rspObj));
+
+            //TODO fake transaction result
+            //com->setPayload("/data/rsp/result", rspObj, false);
+            //com->setStatus(res->getErrorString(), res->getErrorCode());
+            //com->createResponse(allResponseDoc, *res);
+          }
+        }
+        else {
+          Document rDataError;
+          rDataError.SetString("rcode error", rDataError.GetAllocator());
+          com->setPayload("/data/rsp/errorStr", rDataError, true);
+
+          //TODO fake transaction result
+          //com->setStatus(res->getErrorString(), res->getErrorCode());
+          //com->createResponse(allResponseDoc, *res);
+        }
+
+        TRC_DEBUG("response object: " << std::endl << JsonToStr(&allResponseDoc));
+
+        //empty messagingId => send to all messaging returning iface->acceptAsyncMsg() == true
+        m_iMessagingSplitterService->sendMessage("", std::move(allResponseDoc));
+
+      }
+      catch (std::exception & e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Wrong format of async response");
+      }
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
     void activate(const shape::Properties *props)
     {
       (void)props; //silence -Wunused-parameter
@@ -338,10 +448,16 @@ namespace iqrf {
         "******************************"
       );
 
+      modify(props);
+
       m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
         [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
       {
         handleMsg(messagingId, msgType, std::move(doc));
+      });
+
+      m_iIqrfDpaService->registerAsyncMessageHandler(m_instanceName, [&](const DpaMessage& dpaMessage) {
+        asyncMsgHandler(dpaMessage);
       });
 
       TRC_FUNCTION_LEAVE("")
@@ -364,13 +480,19 @@ namespace iqrf {
       }
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
+      
+      m_iIqrfDpaService->unregisterAsyncMessageHandler(m_instanceName);
 
       TRC_FUNCTION_LEAVE("")
     }
 
     void modify(const shape::Properties *props)
     {
-      (void)props; //silence -Wunused-parameter
+      TRC_FUNCTION_ENTER("");
+      using namespace rapidjson;
+      const Document& doc = props->getAsJson();
+      m_instanceName = Pointer("/instance").Get(doc)->GetString();
+      TRC_FUNCTION_LEAVE("")
     }
 
     void attachInterface(IMetaDataApi* iface)
