@@ -165,6 +165,7 @@ namespace iqrf {
     SchedAddTaskMsg(const rapidjson::Document& doc)
       :MngMsg(doc)
     {
+      TRC_INFORMATION("blbost");
       using namespace rapidjson;
 
       m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
@@ -236,12 +237,12 @@ namespace iqrf {
       return m_task;
     }
 
-    int64_t getTaskId() const
+    const std::string& getTaskId() const
     {
       return m_taskId;
     }
 
-    void setTaskId(int64_t taskId)
+    void setTaskId(const std::string& taskId)
     {
       m_taskId = taskId;
     }
@@ -263,7 +264,7 @@ namespace iqrf {
     bool m_exactTime = false;
     std::chrono::system_clock::time_point m_startTime;
     rapidjson::Document m_task;
-    int64_t m_taskId = 0;
+    std::string m_taskId = "00000000-0000-0000-0000-000000000000";
     bool m_persist = false;
   };
 
@@ -275,7 +276,7 @@ namespace iqrf {
       :MngMsg(doc)
     {
       m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
-      m_taskId = rapidjson::Pointer("/data/req/taskId").Get(doc)->GetInt();
+      m_taskId = rapidjson::Pointer("/data/req/taskId").Get(doc)->GetString();
     }
 
     virtual ~SchedGetTaskMsg()
@@ -287,7 +288,7 @@ namespace iqrf {
       return m_clientId;
     }
 
-    int getTaskId() const
+    const std::string& getTaskId() const
     {
       return m_taskId;
     }
@@ -327,7 +328,7 @@ namespace iqrf {
 
   private:
     std::string m_clientId;
-    int m_taskId;
+    std::string m_taskId;
     const rapidjson::Value* m_task = nullptr;
     const rapidjson::Value* m_timeSpec = nullptr;
   };
@@ -340,7 +341,7 @@ namespace iqrf {
       :MngMsg(doc)
     {
       m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
-      m_taskId = rapidjson::Pointer("/data/req/taskId").Get(doc)->GetInt();
+      m_taskId = rapidjson::Pointer("/data/req/taskId").Get(doc)->GetString();
     }
 
     virtual ~SchedRemoveTaskMsg()
@@ -352,7 +353,7 @@ namespace iqrf {
       return m_clientId;
     }
 
-    int getTaskId() const
+    const std::string& getTaskId() const
     {
       return m_taskId;
     }
@@ -366,7 +367,7 @@ namespace iqrf {
 
   private:
     std::string m_clientId;
-    int m_taskId;
+    std::string m_taskId;
     const rapidjson::Value* m_task = nullptr;
   };
 
@@ -397,7 +398,8 @@ namespace iqrf {
       Value arr;
       arr.SetArray();
       for (auto v : m_vect) {
-        arr.PushBack(v, doc.GetAllocator());
+        Value str(v.c_str(), doc.GetAllocator());
+        arr.PushBack(str, doc.GetAllocator());
       }
       Pointer("/data/rsp/tasks").Set(doc, arr);
 
@@ -533,7 +535,7 @@ namespace iqrf {
 
       SchedAddTaskMsg msg(reqDoc);
       
-      int64_t taskId = 0;
+      std::string taskId("00000000-0000-0000-0000-000000000000");
 
       try {
         if (msg.isPeriodic()) {

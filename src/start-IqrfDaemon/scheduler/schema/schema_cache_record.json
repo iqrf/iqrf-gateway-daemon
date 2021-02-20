@@ -2,11 +2,9 @@
   "type": "object",
   "properties": {
     "taskId": {
-      "type": "integer",
-      "min": 1,
-      "max": 2147483647,
-      "description": "Task ID number.",
-      "default": 25828
+      "type": "string",
+      "format": "uuid",
+      "description": "Task ID"
     },
     "clientId": {
       "type": "string",

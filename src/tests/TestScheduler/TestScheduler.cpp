@@ -294,8 +294,8 @@ namespace iqrf {
   {
     using namespace rapidjson;
 
-    const int TID1 = 1736;
-    const int TID2 = 25828;
+    const std::string TID1 = "b65ab3d2-f890-4bec-95bf-1669205f34e7";
+    const std::string TID2 = "e740728b-d85e-464a-8360-e3a8157f5fb8";
     //const int TID3 = 78963;
     const std::string MSG_ID1 = "b726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
     const std::string MSG_ID2 = "a726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
@@ -339,7 +339,7 @@ namespace iqrf {
   {
     using namespace rapidjson;
 
-    const int TID3 = 78963;
+    const std::string TID3 = "be6b43b6-a359-487e-bd77-63c0a010a96f";
     const std::string MSG_ID3 = "f726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
 
     //verify result

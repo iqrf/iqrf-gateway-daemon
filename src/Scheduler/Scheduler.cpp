@@ -232,26 +232,30 @@ namespace iqrf {
 
   Scheduler::TaskHandle Scheduler::scheduleTask(const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist)
   {
-    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, cronTime, persist));
+    std::string taskId = boost::uuids::to_string(m_uuidGenerator());
+    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(taskId, clientId, task, cronTime, persist));
     return addScheduleRecord(s);
   }
 
   Scheduler::TaskHandle Scheduler::scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist)
   {
-    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, cronTime, persist));
+    std::string taskId = boost::uuids::to_string(m_uuidGenerator());
+    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(taskId, clientId, task, cronTime, persist));
     return addScheduleRecord(s);
   }
 
   Scheduler::TaskHandle Scheduler::scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist)
   {
-    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, tp, persist));
+    std::string taskId = boost::uuids::to_string(m_uuidGenerator());
+    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(taskId, clientId, task, tp, persist));
     return addScheduleRecord(s);
   }
 
   Scheduler::TaskHandle Scheduler::scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
     const std::chrono::system_clock::time_point& tp, bool persist)
   {
-    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, task, sec, tp, persist));
+    std::string taskId = boost::uuids::to_string(m_uuidGenerator());
+    std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(taskId, clientId, task, sec, tp, persist));
     return addScheduleRecord(s);
   }
 
@@ -259,7 +263,6 @@ namespace iqrf {
   {
     //TRC_DEBUG("==================================" << std::endl <<
     //  "Scheduled msg: " << std::endl << FORM_HEX(record.getTask().data(), record.getTask().size()));
-
     {
       std::lock_guard<std::mutex> lck(m_messageHandlersMutex);
       try {
@@ -296,8 +299,6 @@ namespace iqrf {
       auto result = m_scheduledTasksByHandle.insert(std::make_pair(record->getTaskHandle(), record));
       if (result.second)
         break;
-      else
-        shuffleDuplicitHandle(*record);
     }
 
     return record->getTaskHandle();

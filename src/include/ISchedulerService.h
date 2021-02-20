@@ -40,10 +40,7 @@ namespace iqrf {
   {
   public:
     /// Task handle is task identification
-    typedef int32_t TaskHandle;
-
-    /// Invalid task handle
-    static const TaskHandle TASK_HANDLE_INVALID = 0;
+    typedef std::string TaskHandle;
 
     /// Task to be processed handler functional type
     typedef std::function<void(const rapidjson::Value &)> TaskHandlerFunc;

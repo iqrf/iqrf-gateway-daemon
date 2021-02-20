@@ -24,51 +24,23 @@ using namespace std::chrono;
 
 namespace iqrf {
 
-  class RandomTaskHandleGenerator {
-  private:
-    RandomTaskHandleGenerator() {
-      //init random seed:
-      srand(static_cast<unsigned int>(time(NULL)));
-      m_val = rand();
-      m_val = m_val ? m_val : m_val + 1;
-    }
-    static int m_val;
-  public:
-    static ISchedulerService::TaskHandle getTaskHandle() {
-      static RandomTaskHandleGenerator rt;
-      int val = ++m_val;
-      return (ISchedulerService::TaskHandle)(val ? val : val + 1);
-    }
-  };
-
-  int RandomTaskHandleGenerator::m_val = 0;
-
   void ScheduleRecord::init(const rapidjson::Value & task)
   {
-    m_taskHandle = RandomTaskHandleGenerator::getTaskHandle();
-    TRC_DEBUG("Created: " << PAR(m_taskHandle));
+    TRC_INFORMATION("NEW SCHEDULER TASK: " << PAR(m_taskHandle));
+    rapidjson::StringBuffer buffer;
+    buffer.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    task.Accept(writer);
     m_task.CopyFrom(task, m_task.GetAllocator());
     parseCron();
     setTimeSpec();
   }
 
-  //friend of ScheduleRecord
-  void shuffleDuplicitHandle(ScheduleRecord& rec)
-  {
-    rec.shuffleHandle();
-  }
-
-  void ScheduleRecord::shuffleHandle()
-  {
-    ISchedulerService::TaskHandle taskHandleOrig = m_taskHandle;
-    m_taskHandle = RandomTaskHandleGenerator::getTaskHandle();
-    TRC_DEBUG("Shuffled: " << PAR(m_taskHandle) << PAR(taskHandleOrig));
-  }
-
   //one shot
-  ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task,
+  ScheduleRecord::ScheduleRecord(const std::string& taskId, const std::string& clientId, const rapidjson::Value & task,
     const std::chrono::system_clock::time_point& startTime, bool persist)
-    : m_clientId(clientId)
+    : m_taskHandle(taskId),
+      m_clientId(clientId)
     , m_exactTime(true)
     , m_startTime(startTime)
     , m_persist(persist)
@@ -77,9 +49,10 @@ namespace iqrf {
   }
 
   //periodic
-  ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task,
+  ScheduleRecord::ScheduleRecord(const std::string& taskId, const std::string& clientId, const rapidjson::Value & task,
     const std::chrono::seconds& period, const std::chrono::system_clock::time_point& startTime, bool persist)
-    : m_clientId(clientId)
+    : m_taskHandle(taskId)
+    , m_clientId(clientId)
     , m_periodic(true)
     , m_period(period)
     , m_startTime(startTime)
@@ -92,16 +65,18 @@ namespace iqrf {
   }
 
   //cron
-  ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const ISchedulerService::CronType& cronTime, bool persist)
-    : m_clientId(clientId)
+  ScheduleRecord::ScheduleRecord(const std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const ISchedulerService::CronType& cronTime, bool persist)
+    : m_taskHandle(taskId)
+    , m_clientId(clientId)
     , m_persist(persist)
     , m_cron(cronTime)
   {
     init(task);
   }
 
-  ScheduleRecord::ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist)
-    : m_clientId(clientId)
+  ScheduleRecord::ScheduleRecord(const std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist)
+    : m_taskHandle(taskId)
+    , m_clientId(clientId)
     , m_persist(persist)
   {
     std::stringstream strstr(cronTime);

@@ -30,7 +30,8 @@
                             "description": "Client identifier."
                         },
                         "taskId": {
-                            "type": "integer",
+                            "type": "string",
+                            "format": "uuid",
                             "description": "Task identifier."
                         }
                     },

@@ -30,6 +30,9 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 /// \class Scheduler
 /// \brief Tasks scheduler
@@ -142,6 +145,7 @@ namespace iqrf {
 
     std::string m_cacheDir;
     std::string m_schemaFile;
+    boost::uuids::basic_random_generator<boost::mt19937> m_uuidGenerator;
 
     std::set<std::string> getTaskFiles(const std::string& dir) const;
 
