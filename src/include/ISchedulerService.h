@@ -84,10 +84,11 @@ namespace iqrf {
     virtual bool isPersist(const std::string& clientId, const TaskHandle& hndl) const = 0;
 
     typedef std::array<std::string, 7> CronType;
-    virtual TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist = false) = 0;
-    virtual TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist = false) = 0;
+    virtual TaskHandle scheduleTask(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist = false) = 0;
+    virtual TaskHandle scheduleTask(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist = false) = 0;
 
     /// \brief Schedule task at time point
+    /// \brief [in] taskId task identification
     /// \param [in] clientId client identification
     /// \param [in] task planned task
     /// \param [in] tp time point
@@ -95,9 +96,10 @@ namespace iqrf {
     /// \details
     /// Schedules task at exact time point. When the time point is reached the task is passed to its handler and released
     /// Use it for one shot tasks
-    virtual TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist = false) = 0;
+    virtual TaskHandle scheduleTaskAt(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist = false) = 0;
 
     /// \brief Schedule periodic task
+    /// \brief [in] taskId task identification
     /// \param [in] clientId client identification
     /// \param [in] task planned task
     /// \param [in] sec period in seconds
@@ -106,7 +108,7 @@ namespace iqrf {
     /// \details
     /// Schedules periodic task. It is started immediatelly by default, the first shot after one period.
     /// If the start shall be delayed use appropriate time point of start
-    virtual TaskHandle scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value &, const std::chrono::seconds& sec,
+    virtual TaskHandle scheduleTaskPeriodic(std::string& taskId, const std::string& clientId, const rapidjson::Value &, const std::chrono::seconds& sec,
       const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now(), bool persist = false) = 0;
 
     /// \brief Remove all task for client

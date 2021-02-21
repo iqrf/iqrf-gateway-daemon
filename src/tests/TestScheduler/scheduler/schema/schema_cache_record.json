@@ -2,9 +2,9 @@
   "type": "object",
   "properties": {
     "taskId": {
-      "type": "number",
-      "description": "Task ID number.",
-      "default": 25828
+      "type": "string",
+      "format": "uuid",
+      "description": "Task ID."
     },
     "clientId": {
       "type": "string",

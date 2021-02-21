@@ -165,8 +165,11 @@ namespace iqrf {
     SchedAddTaskMsg(const rapidjson::Document& doc)
       :MngMsg(doc)
     {
-      TRC_INFORMATION("blbost");
       using namespace rapidjson;
+
+      if (doc.HasMember("/data/req/taskId")) {
+        m_taskId = Pointer("/data/req/taskId").Get(doc)->GetString();
+      }
 
       m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
       
@@ -237,7 +240,7 @@ namespace iqrf {
       return m_task;
     }
 
-    const std::string& getTaskId() const
+    std::string& getTaskId()
     {
       return m_taskId;
     }
@@ -507,11 +510,12 @@ namespace iqrf {
 
       Document d;
       Pointer("/task/restart").Set(d, true);
+      std::string taskId("00000000-0000-0000-0000-000000000000");
 
       TRC_INFORMATION(std::endl << "Exit scheduled in: " << msg.getTimeToRestart() << " milliseconds");
       std::cout << std::endl << "Exit scheduled in: " << msg.getTimeToRestart() << " milliseconds" << std::endl;
 
-      m_iSchedulerService->scheduleTaskAt("JsonMngApi", d,
+      m_iSchedulerService->scheduleTaskAt(taskId, "JsonMngApi", d,
         std::chrono::system_clock::now() + std::chrono::milliseconds((unsigned)msg.getTimeToRestart()));
 
       msg.createResponse(respDoc);
@@ -540,16 +544,16 @@ namespace iqrf {
       try {
         if (msg.isPeriodic()) {
           taskId = m_iSchedulerService->scheduleTaskPeriodic(
-            msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()), msg.getStartTime(), msg.getPersist());
+            msg.getTaskId(), msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()), msg.getStartTime(), msg.getPersist());
         }
         else if (msg.isExactTime()) {
           taskId = m_iSchedulerService->scheduleTaskAt(
-            msg.getClientId(), msg.getTask(), msg.getStartTime(), msg.getPersist());
+            msg.getTaskId(), msg.getClientId(), msg.getTask(), msg.getStartTime(), msg.getPersist());
         }
         else {
           //cron
           taskId = m_iSchedulerService->scheduleTask(
-            msg.getClientId(), msg.getTask(), msg.getCron(), msg.getPersist());
+            msg.getTaskId(), msg.getClientId(), msg.getTask(), msg.getCron(), msg.getPersist());
         }
       }
       catch (std::exception &e) {

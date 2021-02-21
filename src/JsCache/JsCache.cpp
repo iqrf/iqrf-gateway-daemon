@@ -1259,10 +1259,11 @@ namespace iqrf {
         int checkPeriodInSeconds = static_cast<int>(m_checkPeriodInMinutes * 60);
         Document task;
         task.SetString(CHECK_CACHE.c_str(), task.GetAllocator());
+        std::string taskId("00000000-0000-0000-0000-000000000000");
         auto tp = std::chrono::system_clock::now();
         tp += std::chrono::seconds(checkPeriodInSeconds);
         //delay 1.st period
-        m_iSchedulerService->scheduleTaskPeriodic(m_name, task, std::chrono::seconds(checkPeriodInSeconds), tp);
+        m_iSchedulerService->scheduleTaskPeriodic(taskId, m_name, task, std::chrono::seconds(checkPeriodInSeconds), tp);
         TRC_INFORMATION("Cache update scheduled: " << PAR(m_checkPeriodInMinutes));
       }
       else {

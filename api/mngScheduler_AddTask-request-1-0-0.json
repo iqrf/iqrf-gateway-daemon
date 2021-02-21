@@ -25,6 +25,11 @@
                 "req": {
                     "type": "object",
                     "properties": {
+                        "taskId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "Task identifier"
+                        },
                         "clientId": {
                             "type": "string",
                             "description": "Client identifier."

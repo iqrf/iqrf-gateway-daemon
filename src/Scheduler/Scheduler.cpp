@@ -234,31 +234,39 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
-  Scheduler::TaskHandle Scheduler::scheduleTask(const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist)
+  Scheduler::TaskHandle Scheduler::scheduleTask(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist)
   {
-    std::string taskId = boost::uuids::to_string(m_uuidGenerator());
+    if (taskId == "00000000-0000-0000-0000-000000000000") {
+      taskId = boost::uuids::to_string(m_uuidGenerator());
+    }
     std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(taskId, clientId, task, cronTime, persist));
     return addScheduleRecord(s);
   }
 
-  Scheduler::TaskHandle Scheduler::scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist)
+  Scheduler::TaskHandle Scheduler::scheduleTask(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist)
   {
-    std::string taskId = boost::uuids::to_string(m_uuidGenerator());
+    if (taskId == "00000000-0000-0000-0000-000000000000") {
+      taskId = boost::uuids::to_string(m_uuidGenerator());
+    }
     std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(taskId, clientId, task, cronTime, persist));
     return addScheduleRecord(s);
   }
 
-  Scheduler::TaskHandle Scheduler::scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist)
+  Scheduler::TaskHandle Scheduler::scheduleTaskAt(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist)
   {
-    std::string taskId = boost::uuids::to_string(m_uuidGenerator());
+    if (taskId == "00000000-0000-0000-0000-000000000000") {
+      taskId = boost::uuids::to_string(m_uuidGenerator());
+    }
     std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(taskId, clientId, task, tp, persist));
     return addScheduleRecord(s);
   }
 
-  Scheduler::TaskHandle Scheduler::scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
+  Scheduler::TaskHandle Scheduler::scheduleTaskPeriodic(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
     const std::chrono::system_clock::time_point& tp, bool persist)
   {
-    std::string taskId = boost::uuids::to_string(m_uuidGenerator());
+    if (taskId == "00000000-0000-0000-0000-000000000000") {
+      taskId = boost::uuids::to_string(m_uuidGenerator());
+    }
     std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(taskId, clientId, task, sec, tp, persist));
     return addScheduleRecord(s);
   }

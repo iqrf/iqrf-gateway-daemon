@@ -119,10 +119,10 @@ namespace iqrf {
     const rapidjson::Value * getMyTaskTimeSpec(const std::string& clientId, const TaskHandle& hndl) const override;
     bool isPersist(const std::string& clientId, const TaskHandle& hndl) const override;
 
-    TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist) override;
-    TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist) override;
-    TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist) override;
-    TaskHandle scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
+    TaskHandle scheduleTask(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist) override;
+    TaskHandle scheduleTask(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist) override;
+    TaskHandle scheduleTaskAt(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist) override;
+    TaskHandle scheduleTaskPeriodic(std::string& taskId, const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
       const std::chrono::system_clock::time_point& tp, bool persist) override;
 
     void removeAllMyTasks(const std::string& clientId) override;
