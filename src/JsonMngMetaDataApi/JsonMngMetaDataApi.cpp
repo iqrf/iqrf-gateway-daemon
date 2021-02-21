@@ -1207,10 +1207,8 @@ namespace iqrf {
 
       m_cacheDir = m_iLaunchService->getCacheDir();
       m_cacheDir += "/metaData";
-      m_metaDataFile = m_cacheDir;
-      m_metaDataFile += "/meta_data.json";
-      m_schemaMetaDataFile = m_cacheDir;
-      m_schemaMetaDataFile += "/schema_meta_data.json";
+      m_metaDataFile = m_cacheDir + "/meta_data.json";
+      m_schemaMetaDataFile = m_iLaunchService->getDataDir() + "/metaDataSchemas/schema_meta_data.json";
       TRC_INFORMATION("Using: " << PAR(m_cacheDir) << PAR(m_metaDataFile) << PAR(m_schemaMetaDataFile));
 
       std::ifstream ifs(m_schemaMetaDataFile);
