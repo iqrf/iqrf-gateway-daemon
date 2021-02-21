@@ -36,6 +36,8 @@ else()
 	list(APPEND CfgList "WinCdc" "WinUartWin")
 endif()
 
+add_custom_target(build-time-scheduler-dir ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/scheduler)
+
 foreach(cfg ${CfgList})
 	DeployShapeConfiguration(${PROJECT_NAME}-${cfg}
 		${CMAKE_CURRENT_SOURCE_DIR}/configuration					configuration
