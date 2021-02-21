@@ -21,6 +21,7 @@
 #include "Trace.h"
 #include "ShapeDefines.h"
 #include <algorithm>
+#include <regex>
 #include <set>
 
 #ifdef SHAPE_PLATFORM_WINDOWS
@@ -177,7 +178,10 @@ namespace iqrf {
     try {
       auto tfiles = getTaskFiles(m_cacheDir);
 
-      for (const auto& fname : tfiles) {
+      for (std::string fname : tfiles) {
+        if (!std::regex_match(basename(fname.c_str()), std::regex("^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\.json$", std::regex_constants::icase))) {
+          fname = migrateTaskFile(fname);
+        }
         std::ifstream ifs(fname);
         IStreamWrapper isw(ifs);
 
@@ -586,7 +590,7 @@ namespace iqrf {
   }
 
 #else
-  std::set<std::string> Scheduler::getTaskFiles(const std::string& dirStr) const
+  std::set<std::string> Scheduler::getTaskFiles(const std::string& dirStr)
   {
     std::set<std::string> fileSet;
     std::string jsonExt = "json";
@@ -602,7 +606,7 @@ namespace iqrf {
     else {
       while ((ent = readdir(dir)) != NULL) {
         const std::string file_name = ent->d_name;
-        const std::string full_file_name(dirStr + "/" + file_name);
+        std::string full_file_name(dirStr + "/" + file_name);
 
         if (file_name[0] == '.')
           continue;
@@ -629,6 +633,53 @@ namespace iqrf {
     }
 
     return fileSet;
+  }
+
+  std::string Scheduler::migrateTaskFile(const std::string& taskFile) {
+    using namespace rapidjson;
+
+    // initialize auxiliary variables
+    
+    std::ifstream inputStream(taskFile);
+    IStreamWrapper inputwrapper(inputStream);
+
+    // read file
+    Document taskDoc;
+    taskDoc.ParseStream(inputwrapper);
+    if (taskDoc.HasParseError()) {
+      return taskFile;
+    }
+    inputStream.close();
+
+    std::string taskId;
+    if (taskDoc.HasMember("taskId")) {
+      // set new task
+      taskId = boost::uuids::to_string(m_uuidGenerator());
+      std::string newTaskFile = m_cacheDir + "/" + taskId + ".json";
+      SetValueByPointer(taskDoc, "/taskId", taskId);
+
+      // remove old file and add create new file
+      std::remove(taskFile.c_str());
+      std::ofstream outputStream(newTaskFile);
+      OStreamWrapper outputWrapper(outputStream);
+      PrettyWriter<OStreamWrapper> writer(outputWrapper);
+      taskDoc.Accept(writer);
+      outputStream.close();
+      #ifndef SHAPE_PLATFORM_WINDOWS
+        int fd = open(newTaskFile.c_str(), O_RDWR);
+        if (fd < 0) {
+          TRC_WARNING("Failed to open file " << newTaskFile << ". " << errno << ": " << strerror(errno));
+        } else {
+            if (fsync(fd) < 0) {
+            TRC_WARNING("Failed to sync file to filesystem." << errno << ": " << strerror(errno));
+          }
+          close(fd);
+        }
+      #endif
+      return newTaskFile;
+    } else {
+      return taskFile;
+    }
   }
 
 #endif

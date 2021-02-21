@@ -209,7 +209,7 @@ namespace iqrf {
   {
     using namespace rapidjson;
 
-    m_taskHandle = Pointer("/taskId").Get(rec)->GetInt();
+    m_taskHandle = Pointer("/taskId").Get(rec)->GetString();
     m_clientId = Pointer("/clientId").Get(rec)->GetString();
     parseTimeSpec(*Pointer("/timeSpec").Get(rec));
     m_task.CopyFrom(*Pointer("/task").Get(rec), m_task.GetAllocator());

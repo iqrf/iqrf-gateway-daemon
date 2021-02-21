@@ -147,7 +147,13 @@ namespace iqrf {
     std::string m_schemaFile;
     boost::uuids::basic_random_generator<boost::mt19937> m_uuidGenerator;
 
-    std::set<std::string> getTaskFiles(const std::string& dir) const;
+    std::set<std::string> getTaskFiles(const std::string& dir);
+    
+    /**
+     * Migrates task file from random integer to UUID
+     * @param taskFile Path to task file to be migrated
+     */
+    std::string migrateTaskFile(const std::string& taskFile);
 
     std::map<std::string, TaskHandlerFunc> m_messageHandlers;
     std::mutex m_messageHandlersMutex;
