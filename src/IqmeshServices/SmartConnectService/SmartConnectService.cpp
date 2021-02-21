@@ -208,8 +208,7 @@ namespace iqrf {
         std::reverse(reversed_mid.begin(), reversed_mid.end());
         std::copy(reversed_mid.begin(), reversed_mid.end(), smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID);
         // Set reserved0 to zero
-        for (int i = 0x00; i < sizeof(smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved0); i++)
-          smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved0[i] = 0x00;
+        smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved0 = 0x00;
         // VirtualDeviceAddress
         smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.VirtualDeviceAddress = 0xff;
         // Fill reserved1 with zeros
@@ -447,8 +446,10 @@ namespace iqrf {
         rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, smartConnectResult.getOsRead()->isDpaHandlerDetected());
         rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, smartConnectResult.getOsRead()->isDpaHandlerNotDetectedButEnabled());
         rapidjson::Pointer("/data/rsp/osRead/flags/noInterfaceSupported").Set(response, smartConnectResult.getOsRead()->isNoInterfaceSupported());
-        if (m_iIqrfDpaService->getCoordinatorParameters().dpaVerWord >= 0x0413)
+        if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0413)
           rapidjson::Pointer("/data/rsp/osRead/flags/iqrfOsChanged").Set(response, smartConnectResult.getOsRead()->isIqrfOsChanges());
+        if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0416)
+          rapidjson::Pointer("/data/rsp/osRead/flags/frcAggregationEnabled").Set(response, smartConnectResult.getOsRead()->isFrcAggregationEnabled());
 
         // Slot limits
         rapidjson::Pointer("/data/rsp/osRead/slotLimits/value").Set(response, smartConnectResult.getOsRead()->getSlotLimits());

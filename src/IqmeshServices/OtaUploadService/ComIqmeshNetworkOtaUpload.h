@@ -3,9 +3,25 @@
 #include "ComBase.h"
 #include "Trace.h"
 #include <list>
-#include "JsonUtils.h"
 
 namespace iqrf {
+
+  // OtaUpload input parameters
+  typedef struct TOtaUploadInputParams
+  {
+    TOtaUploadInputParams()
+    {
+      hwpId = HWPID_DoNotCheck;
+      repeat = 1;
+    }
+    uint16_t deviceAddress;
+    uint16_t hwpId;
+    std::string fileName;
+    uint16_t repeat;
+    uint16_t startMemAddr;
+    std::string loadingAction;
+  }TOtaUploadInputParams;
+
   class ComIqmeshNetworkOtaUpload : public ComBase
   {
   public:
@@ -16,61 +32,14 @@ namespace iqrf {
       parse(doc);
     }
 
-
     virtual ~ComIqmeshNetworkOtaUpload()
     {
     }
 
-    int getRepeat() const {
-      return m_repeat;
-    }
-
-    bool isSetDeviceAddr() const {
-      return m_isSetDeviceAddr;
-    }
-
-    int getDeviceAddr() const
+    const TOtaUploadInputParams getOtaUploadInputParams() const
     {
-      return m_deviceAddr;
+      return m_otaUploadInputParams;
     }
-
-    bool isSetHwpId() const {
-      return m_isSetHwpId;
-    }
-
-    int getHwpId() const
-    {
-      return m_hwpId;
-    }
-
-    bool isSetFileName() const {
-      return m_isSetFileName;
-    }
-
-    const std::string getFileName() const
-    {
-      return m_fileName;
-    }
-    
-    bool isSetStartMemAddr() const {
-      return m_isSetStartMemAddr;
-    }
-
-    int getStartMemAddr() const
-    {
-      return m_startMemAddr;
-    }
-
-
-    bool isSetLoadingAction() const {
-      return m_isSetLoadingAction;
-    }
-
-    const std::string getLoadingAction() const
-    {
-      return m_loadingAction;
-    }
-
 
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
@@ -81,58 +50,36 @@ namespace iqrf {
 
 
   private:
-    bool m_isSetDeviceAddr = false;
-    bool m_isSetHwpId = false;
-    bool m_isSetFileName = false;
-    bool m_isSetStartMemAddr = false;
-    bool m_isSetLoadingAction = false;
+    TOtaUploadInputParams m_otaUploadInputParams;
 
-    int m_repeat = 1;
-    int m_deviceAddr;
-    int m_hwpId;
-    std::string m_fileName;
-    int m_startMemAddr;
-    std::string m_loadingAction;
+    // Parses document into data fields
+    void parse(rapidjson::Document& doc)
+    {
+      rapidjson::Value* jsonVal;
 
+      // Repeat
+      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc)))
+        m_otaUploadInputParams.repeat = (uint16_t)jsonVal->GetInt();
 
-    void parseRepeat(rapidjson::Document& doc) {
-      if (rapidjson::Value* repeatJsonVal = rapidjson::Pointer("/data/repeat").Get(doc)) {
-        m_repeat = repeatJsonVal->GetInt();
-      }
-    }
+      // Device address
+      if (jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))
+        m_otaUploadInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
 
-    void parseRequest(rapidjson::Document& doc) {
-      if (rapidjson::Value* devAddrJsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)) {
-        m_deviceAddr = devAddrJsonVal->GetInt();
-        m_isSetDeviceAddr = true;
-      }
+      // hwpId
+      if (jsonVal = rapidjson::Pointer("/data/req/hwpId").Get(doc))
+        m_otaUploadInputParams.hwpId = (uint16_t)jsonVal->GetInt();
 
-      if ( rapidjson::Value* devAddrJsonVal = rapidjson::Pointer( "/data/req/hwpId" ).Get( doc ) ) {
-        m_hwpId = devAddrJsonVal->GetInt();
-        m_isSetHwpId = true;
-      }
+      // File name
+      if (jsonVal = rapidjson::Pointer("/data/req/fileName").Get(doc))
+        m_otaUploadInputParams.fileName = jsonVal->GetString();
 
-      if (rapidjson::Value* fileNameJsonVal = rapidjson::Pointer("/data/req/fileName").Get(doc)) {
-        m_fileName = fileNameJsonVal->GetString();
-        m_isSetFileName = true;
-      }
+      // Start memory address
+      if (jsonVal = rapidjson::Pointer("/data/req/startMemAddr").Get(doc))
+        m_otaUploadInputParams.startMemAddr = (uint16_t)jsonVal->GetInt();
 
-      if (rapidjson::Value* startMemAddrJsonVal = rapidjson::Pointer("/data/req/startMemAddr").Get(doc)) {
-        m_startMemAddr = startMemAddrJsonVal->GetInt();
-        m_isSetStartMemAddr = true;
-      }
-
-      if (rapidjson::Value* loadingActionJsonVal = rapidjson::Pointer("/data/req/loadingAction").Get(doc)) {
-        m_loadingAction = loadingActionJsonVal->GetString();
-        m_isSetLoadingAction = true;
-      }
-
-    }
-
-    // parses document into data fields
-    void parse(rapidjson::Document& doc) {
-      parseRepeat(doc);
-      parseRequest(doc);
+      // Loading action
+      if (jsonVal = rapidjson::Pointer("/data/req/loadingAction").Get(doc))
+        m_otaUploadInputParams.loadingAction = jsonVal->GetString();
     }
   };
 }

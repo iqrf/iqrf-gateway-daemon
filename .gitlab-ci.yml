@@ -226,7 +226,7 @@ stages:
     - mv ../*.changes .
     - sed -i "s/.ddeb/.deb/g" *.changes
     - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-    - rsync -hrvz --delete -e ssh *_all.deb *_${ARCH}.deb *_${ARCH}.changes www-deploy@iqrfsdk.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH_PREFIX}${ARCH}/${STABILITY}
+    - rsync -hrvz --delete -e ssh *_all.deb *_${ARCH}.deb *_${ARCH}.changes www-deploy@icinga.iqrf.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH_PREFIX}${ARCH}/${STABILITY}
   artifacts:
     paths:
       - ./*.deb
@@ -279,7 +279,7 @@ stages:
   extends: .ssh_template
   dependencies: []
   script:
-    - rsync -hrvz --delete -e ssh api/ www-deploy@iqrfsdk.org:/data/nginx/apidocs/iqrf-gateway-daemon/latest/json/iqrf/
+    - rsync -hrvz --delete -e ssh api/ www-deploy@icinga.iqrf.org:/data/nginx/apidocs/iqrf-gateway-daemon/latest/json/iqrf/
 
 .clean-template:
   image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-amd64
@@ -331,14 +331,14 @@ clean-devel:
   only:
     - master
   script:
-    - ssh www-deploy@iqrfsdk.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/*/*/devel/*"
+    - ssh www-deploy@icinga.iqrf.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/*/*/devel/*"
 
 clean-release:
   extends: .clean-template
   only:
     - tags
   script:
-    - ssh www-deploy@iqrfsdk.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/*/*/stable/*.changes"
+    - ssh www-deploy@icinga.iqrf.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/*/*/stable/*.changes"
 
 # Debian buster
 ## amd64
