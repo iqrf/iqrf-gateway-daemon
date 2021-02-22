@@ -1,0 +1,10 @@
+#!/bin/bash
+# Before install script
+
+if [ -d "/etc/iqrf-gateway-daemon/cfgSchemas" ]; then
+    rm -rf /etc/iqrf-gateway-daemon/cfgSchemas
+fi
+
+if [ -d "/var/cache/iqrf-gateway-daemon/scheduler/schema" ]; then
+    rm -rf /var/cache/iqrf-gateway-daemon/scheduler/schema
+fi

@@ -36,8 +36,9 @@ set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${TESTS_FOLDER})
 DeployShapeComponent(${PROJECT_NAME})
 
 DeployShapeConfiguration(${PROJECT_NAME}
-	${CMAKE_CURRENT_SOURCE_DIR}/configuration	configuration
-	${CMAKE_CURRENT_SOURCE_DIR}/scheduler		scheduler
+	${CMAKE_CURRENT_SOURCE_DIR}/configuration	    configuration
+	${CMAKE_CURRENT_SOURCE_DIR}/scheduler		    scheduler
+    ${CMAKE_CURRENT_SOURCE_DIR}/schedulerSchemas    schedulerSchemas
 )
 
 DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/iqrfgd2" ${PROJECT_NAME})
