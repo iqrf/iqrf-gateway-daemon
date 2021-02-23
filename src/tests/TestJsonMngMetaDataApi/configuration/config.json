@@ -1,7 +1,7 @@
 {
   "applicationName": "iqrfgd2",
   "resourceDir": "",
-  "dataDir": "configuration/da-ta-dir-share",
+  "dataDir": "configuration",
   "cacheDir": "configuration",
   "userDir": "",
   "configurationDir": "configuration",

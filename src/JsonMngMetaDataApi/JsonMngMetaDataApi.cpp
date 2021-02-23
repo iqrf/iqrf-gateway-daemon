@@ -1205,10 +1205,13 @@ namespace iqrf {
 
       props->getMemberAsBool("metaDataToMessages", m_metaDataToMessages);
 
-      m_cacheDir = m_iLaunchService->getCacheDir();
-      m_cacheDir += "/metaData";
-      m_metaDataFile = m_cacheDir + "/meta_data.json";
-      m_schemaMetaDataFile = m_iLaunchService->getDataDir() + "/metaDataSchemas/schema_meta_data.json";
+      std::string cacheDir = m_iLaunchService->getCacheDir();
+      m_cacheDir = cacheDir.empty() ? "." : cacheDir;
+      m_metaDataFile = m_cacheDir + "/metaData/meta_data.json";
+
+      std::string schemaDir = m_iLaunchService->getDataDir();
+      m_schemaMetaDataFile = schemaDir.empty() ? "." : schemaDir;      
+      m_schemaMetaDataFile += "/metaDataSchemas/schema_meta_data.json";
       TRC_INFORMATION("Using: " << PAR(m_cacheDir) << PAR(m_metaDataFile) << PAR(m_schemaMetaDataFile));
 
       std::ifstream ifs(m_schemaMetaDataFile);
