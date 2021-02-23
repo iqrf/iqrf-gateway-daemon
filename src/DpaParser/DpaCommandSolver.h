@@ -26,6 +26,7 @@ namespace iqrf {
     DpaMessage m_dpaResponse; // from async response or transactionResult
 
   protected:
+    // ctor by async response
     DpaCommandSolver(const DpaMessage & dpaResponse)
       :m_nadr(-1)
       , m_pnum(0)
@@ -34,7 +35,9 @@ namespace iqrf {
       , m_rcode(0)
       , m_dpaval(0)
       , m_asyncResponse(false)
+      , m_dpaResponse(dpaResponse)
     {
+      
       unsigned len = (unsigned)m_dpaResponse.GetLength();
 
       if (len < getResponseHeaderLen() || len > getResponseHeaderLen() + DPA_MAX_DATA_LENGTH) {
@@ -45,9 +48,9 @@ namespace iqrf {
 
       m_nadr = rp.NADR;
       m_pnum = rp.PNUM;
-      if (!(rp.PCMD & 0x80)) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Passed DpaMessage is not response: " << NAME_PAR(PCMD, rp.PCMD));
-      }
+      //if (!(rp.PCMD & 0x80)) {
+      //  THROW_EXC_TRC_WAR(std::logic_error, "Passed DpaMessage is not response: " << NAME_PAR(PCMD, rp.PCMD));
+      //}
       m_pcmd = rp.PCMD & 0x7F; // mask highest bit set by response
       m_hwpid = rp.HWPID;
       m_rcode = rp.ResponseCode;
