@@ -1,12 +1,14 @@
 etc/iqrf-gateway-daemon
 etc/iqrf-gateway-daemon/certs
 etc/iqrf-gateway-daemon/certs/core
-etc/iqrf-gateway-daemon/cfgSchemas
 usr/lib/iqrf-gateway-daemon
 usr/share/iqrf-gateway-daemon
 usr/share/iqrf-gateway-daemon/apiSchemas
+usr/share/iqrf-gateway-daemon/cfgSchemas
 usr/share/iqrf-gateway-daemon/javaScript
 usr/share/iqrf-gateway-daemon/DB
+usr/share/iqrf-gateway-daemon/metaDataSchemas
+usr/share/iqrf-gateway-daemon/schedulerSchemas
 var/cache/iqrf-gateway-daemon
 var/cache/iqrf-gateway-daemon/iqrfRepoCache
 var/cache/iqrf-gateway-daemon/metaData

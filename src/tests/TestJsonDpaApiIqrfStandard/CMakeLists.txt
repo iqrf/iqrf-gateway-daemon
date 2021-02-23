@@ -35,12 +35,13 @@ set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${TESTS_FOLDER})
 DeployShapeComponent(${PROJECT_NAME})
 
 DeployShapeConfiguration(${PROJECT_NAME}
-	${CMAKE_CURRENT_SOURCE_DIR}/configuration	configuration
-	${CMAKE_SOURCE_DIR}/api configuration/da-ta-dir-share/apiSchemas
-	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/javaScript configuration/da-ta-dir-share/javaScript
-	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/scheduler configuration/scheduler
-	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/DB/init configuration/da-ta-dir-share/DB/init
-	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/iqrfRepoCache configuration/iqrfRepoCache
+	${CMAKE_CURRENT_SOURCE_DIR}/configuration					configuration
+	${CMAKE_SOURCE_DIR}/api 									configuration/apiSchemas
+	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/javaScript 		configuration/javaScript
+	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/scheduler 			configuration/scheduler
+	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/schedulerSchema 	configuration/schedulerSchemas
+	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/DB/init 			configuration//DB/init
+	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/iqrfRepoCache 		configuration/iqrfRepoCache
 )
 
 DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/iqrfgd2" ${PROJECT_NAME})

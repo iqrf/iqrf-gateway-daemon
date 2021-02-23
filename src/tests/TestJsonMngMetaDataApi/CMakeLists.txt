@@ -39,10 +39,11 @@ set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${TESTS_FOLDER})
 DeployShapeComponent(${PROJECT_NAME})
 
 DeployShapeConfiguration(${PROJECT_NAME}
-	${CMAKE_CURRENT_SOURCE_DIR}/configuration	configuration
-	${CMAKE_SOURCE_DIR}/api configuration/da-ta-dir-share/apiSchemas
-	${CMAKE_CURRENT_SOURCE_DIR}/json	configuration/json
-	${CMAKE_CURRENT_SOURCE_DIR}/metaData	configuration/metaData
+	${CMAKE_CURRENT_SOURCE_DIR}/configuration					configuration
+	${CMAKE_SOURCE_DIR}/api 									configuration/apiSchemas
+	${CMAKE_CURRENT_SOURCE_DIR}/json							configuration/json
+	${CMAKE_CURRENT_SOURCE_DIR}/metaData/meta_data.json			configuration/metaData/meta_data.json
+	${CMAKE_CURRENT_SOURCE_DIR}/metaData/schema_meta_data.json	configuration/metaDataSchemas/schema_meta_data.json
 )
 
 DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/iqrfgd2" ${PROJECT_NAME})

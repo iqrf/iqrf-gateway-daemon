@@ -65,11 +65,16 @@ namespace iqrf {
 
     using namespace rapidjson;
 
-    m_cacheDir = m_iLaunchService->getCacheDir();
+    std::string cacheDir = m_iLaunchService->getCacheDir();
+    m_cacheDir = cacheDir.empty() ? "." : cacheDir;
     m_cacheDir += "/scheduler";
-    m_schemaFile = m_cacheDir;
-    m_schemaFile += "/schema/schema_cache_record.json";
+
+    std::string schemaDir = m_iLaunchService->getDataDir();
+    m_schemaFile = schemaDir.empty() ? "." : schemaDir;
+    m_schemaFile += "/schedulerSchemas/schema_cache_record.json";
+    
     TRC_INFORMATION("Using cache dir: " << PAR(m_cacheDir));
+    TRC_INFORMATION("Using record schema file: " << PAR(m_schemaFile));
     
     Document sd;
     std::ifstream ifs(m_schemaFile);

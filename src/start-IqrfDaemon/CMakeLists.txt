@@ -36,14 +36,18 @@ else()
 	list(APPEND CfgList "WinCdc" "WinUartWin")
 endif()
 
+add_custom_target(build-time-scheduler-dir ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/scheduler)
+
 foreach(cfg ${CfgList})
 	DeployShapeConfiguration(${PROJECT_NAME}-${cfg}
 		${CMAKE_CURRENT_SOURCE_DIR}/configuration					configuration
 		${CMAKE_CURRENT_SOURCE_DIR}/configuration-${cfg}			configuration
-		${CMAKE_SOURCE_DIR}/api	                                    configuration/apiSchemas
+		${CMAKE_SOURCE_DIR}/api										configuration/apiSchemas
 		${CMAKE_CURRENT_SOURCE_DIR}/scheduler						configuration/scheduler
-   	${CMAKE_CURRENT_SOURCE_DIR}/DB/init							configuration/DB/init
-		${CMAKE_CURRENT_SOURCE_DIR}/metaData						configuration/metaData
+		${CMAKE_CURRENT_SOURCE_DIR}/schedulerSchema					configuration/schedulerSchemas
+   		${CMAKE_CURRENT_SOURCE_DIR}/DB/init							configuration/DB/init
+		${CMAKE_CURRENT_SOURCE_DIR}/metaData/meta_data.json			configuration/metaData/meta_data.json
+		${CMAKE_CURRENT_SOURCE_DIR}/metaData/schema_meta_data.json	configuration/metaDataSchemas/schema_meta_data.json
 		${CMAKE_CURRENT_SOURCE_DIR}/iqrfRepoCache					configuration/iqrfRepoCache
 		${CMAKE_CURRENT_SOURCE_DIR}/javaScript						configuration/javaScript
 		${CMAKE_CURRENT_SOURCE_DIR}/cfgSchemas						configuration/cfgSchemas
