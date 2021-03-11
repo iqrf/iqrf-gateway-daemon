@@ -45,13 +45,23 @@ namespace iqrf {
   class FakeTransactionResult : public IDpaTransactionResult2
   {
   public:
+    FakeTransactionResult()
+      :IDpaTransactionResult2()
+    {}
+
+    FakeTransactionResult(const DpaMessage& dpaMessage)
+      :m_now(std::chrono::system_clock::now())
+      , m_response(dpaMessage)
+    {}
+
     int getErrorCode() const override { return m_errCode; }
     void overrideErrorCode(IDpaTransactionResult2::ErrorCode err) override { m_errCode = err; }
-    std::string getErrorString() const override { return "BAD_REQUEST"; }
+    std::string getErrorString() const override { return m_errorString; }
+    void setErrorString(const std::string & errStr) { m_errorString = errStr; }
 
-    virtual const DpaMessage& getRequest() const override { return m_fake; }
-    virtual const DpaMessage& getConfirmation() const override { return m_fake; }
-    virtual const DpaMessage& getResponse() const override { return m_fake; }
+    virtual const DpaMessage& getRequest() const override { return m_request; }
+    virtual const DpaMessage& getConfirmation() const override { return m_confirmation; }
+    virtual const DpaMessage& getResponse() const override { return m_response; }
     virtual const std::chrono::time_point<std::chrono::system_clock>& getRequestTs() const override { return m_now; }
     virtual const std::chrono::time_point<std::chrono::system_clock>& getConfirmationTs() const override { return m_now; }
     virtual const std::chrono::time_point<std::chrono::system_clock>& getResponseTs() const override { return m_now; }
@@ -61,7 +71,13 @@ namespace iqrf {
   private:
     DpaMessage m_fake;
     IDpaTransactionResult2::ErrorCode m_errCode = TRN_ERROR_BAD_REQUEST;
+    std::string m_errorString = "BAD_REQUEST";
+
     std::chrono::time_point<std::chrono::system_clock> m_now;
+    DpaMessage m_confirmation;
+    DpaMessage m_request;
+    DpaMessage m_response;
+
   };
 
   class JsonDpaApiIqrfStandard::Imp
@@ -347,45 +363,6 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    /////
-    class FakeAsyncTransactionResult : public IDpaTransactionResult2
-    {
-    public:
-      FakeAsyncTransactionResult(const DpaMessage& dpaMessage)
-        :m_now(std::chrono::system_clock::now())
-      {
-        switch (dpaMessage.MessageDirection()) {
-        case DpaMessage::MessageType::kRequest:
-          m_request = dpaMessage;
-        case DpaMessage::MessageType::kResponse:
-          m_response = dpaMessage;
-        default:;
-        }
-      }
-
-      int getErrorCode() const override { return STATUS_NO_ERROR; }
-      void overrideErrorCode(ErrorCode err) override {
-        (void)err; //silence -Wunused-parameter
-      }
-      std::string getErrorString() const override { return "ok"; }
-
-      virtual const DpaMessage& getRequest() const override { return m_request; }
-      virtual const DpaMessage& getConfirmation() const override { return m_confirmation; }
-      virtual const DpaMessage& getResponse() const override { return m_response; }
-      virtual const std::chrono::time_point<std::chrono::system_clock>& getRequestTs() const override { return m_now; }
-      virtual const std::chrono::time_point<std::chrono::system_clock>& getConfirmationTs() const override { return m_now; }
-      virtual const std::chrono::time_point<std::chrono::system_clock>& getResponseTs() const override { return m_now; }
-      virtual bool isConfirmed() const override { return false; }
-      virtual bool isResponded() const override { return false; }
-      virtual ~FakeAsyncTransactionResult() {};
-    private:
-      std::chrono::time_point<std::chrono::system_clock> m_now;
-      DpaMessage m_confirmation;
-      DpaMessage m_request;
-      DpaMessage m_response;
-    };
-    /////
-
     void asyncMsgHandler(const DpaMessage& dpaMessage)
     {
       TRC_FUNCTION_ENTER("");
@@ -393,22 +370,49 @@ namespace iqrf {
       try {
         using namespace rapidjson;
 
+        // parse raw data to basic response structure 
         iqrf::raw::AnyAsyncResponse anyAsyncResponse(dpaMessage);
         const uint8_t *buf = anyAsyncResponse.getResponse().DpaPacket().Buffer;
         int sz = anyAsyncResponse.getResponse().GetLength();
         std::vector<uint8_t> dpaResponse(buf, buf + sz);
 
+        // deduce driver function from PNUM, PCMD
+        std::string methodResponseName;
+        std::string mTypeName;
+        std::string payloadKey;
+
+        if (anyAsyncResponse.getPnum() == 0x5E) { //std sensor
+          if (anyAsyncResponse.getPcmd() == 0x7B) { //ReadSensorsWithTypes
+            methodResponseName = "iqrf.sensor.ReadSensorsWithTypesFrcValue_AsyncResponse";
+            mTypeName = "iqrfSensor_ReadSensorsWithTypes";
+            payloadKey = "/data/rsp/result/sensors";
+          }
+          // if (anyAsyncResponse.getPcmd() == ??) {} // add here possible other supported pcmd + matching driver function
+
+          else {
+            THROW_EXC(std::invalid_argument, "Unsupported " << NAME_PAR(PCMD, anyAsyncResponse.getPcmd()));
+          }
+        }
+        else {
+          THROW_EXC(std::invalid_argument, "Unsupported " << NAME_PAR(PNUM, anyAsyncResponse.getPnum()));
+        }
+
+        static int asyncCnt = 1;
+        std::ostringstream msgIdOs;
+        msgIdOs << "async-" << asyncCnt++;
+
         Document fakeRequest;
 
-        Pointer("/mType").Set(fakeRequest, "iqrfSensor_ReadSensorsWithTypes");
-        Pointer("/data/msgId").Set(fakeRequest, "async");
+        Pointer("/mType").Set(fakeRequest, mTypeName);
+        Pointer("/data/msgId").Set(fakeRequest, msgIdOs.str());
         Pointer("/data/req/nAdr").Set(fakeRequest, anyAsyncResponse.getNadr());
         Pointer("/data/req/hwpId").Set(fakeRequest, anyAsyncResponse.getHwpid());
         Pointer("/data/req/param").Set(fakeRequest, Value(kObjectType));
+        // hardcoded verbose
         Pointer("/data/returnVerbose").Set(fakeRequest, true);
 
         std::unique_ptr<ComIqrfStandard> com(shape_new ComIqrfStandard(fakeRequest));
-        std::unique_ptr<FakeAsyncTransactionResult> res(shape_new FakeAsyncTransactionResult(dpaMessage));
+        std::unique_ptr<FakeTransactionResult> res(shape_new FakeTransactionResult(dpaMessage));
 
         Document allResponseDoc;
 
@@ -426,21 +430,16 @@ namespace iqrf {
           }
         }
 
-        //TODO not known here => deduce from PNUM, PCMD
-        std::string methodResponseName; // = msgType.m_possibleDriverFunction;
-        methodResponseName += "iqrf.sensor.ReadSensorsWithTypesFrcValue_AsyncResponse";
-
         //to be filled
         int nadrRes = 0;
         int hwpidRes = 0;
         int rcode = -1;
          
-        std::string rawHdpRequest; //empty
+        std::string rawHdpRequest; //empty just to satisfy next method signature
 
         // get rawHdpResponse in text form
         std::string rawHdpResponse;
         // original rawHdpRequest request passed for additional sensor breakdown parsing
-        // TODO it is not necessary for all other handling, may be optimized in future
         rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, rcode, dpaResponse, rawHdpRequest);
         TRC_DEBUG(PAR(rawHdpResponse))
 
@@ -464,8 +463,10 @@ namespace iqrf {
             rDataError.SetString(errStrRes.c_str(), rDataError.GetAllocator());
             com->setPayload("/data/rsp/errorStr", rDataError, true);
 
-            //TODO fake transaction result
+            //fake transaction result
             res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);
+            res->setErrorString("BAD_RESPONSE");
+
             com->setStatus(res->getErrorString(), res->getErrorCode());
             com->createResponse(allResponseDoc, *res);
           }
@@ -475,8 +476,11 @@ namespace iqrf {
             rspObj.Parse(rspObjStr);
             TRC_DEBUG("result object: " << std::endl << JsonToStr(&rspObj));
 
-            //TODO fake transaction result
-            com->setPayload("/data/rsp/result/sensors", rspObj, false);
+            //fake transaction result
+            res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_OK);
+            res->setErrorString("ok");
+
+            com->setPayload(payloadKey, rspObj, false);
             com->setStatus(res->getErrorString(), res->getErrorCode());
             com->createResponse(allResponseDoc, *res);
           }
@@ -486,7 +490,10 @@ namespace iqrf {
           rDataError.SetString("rcode error", rDataError.GetAllocator());
           com->setPayload("/data/rsp/errorStr", rDataError, true);
 
-          //TODO fake transaction result
+          //fake transaction result
+          res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);
+          res->setErrorString("BAD_RESPONSE rcode");
+
           com->setStatus(res->getErrorString(), res->getErrorCode());
           com->createResponse(allResponseDoc, *res);
         }
@@ -496,6 +503,10 @@ namespace iqrf {
         //empty messagingId => send to all messaging returning iface->acceptAsyncMsg() == true
         m_iMessagingSplitterService->sendMessage("", std::move(allResponseDoc));
 
+      }
+      catch (std::invalid_argument & e) {
+        // unsupported PNUM, PCMD - just skip it, we don't care
+        TRC_DEBUG(e.what());
       }
       catch (std::exception & e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Wrong format of async response");
