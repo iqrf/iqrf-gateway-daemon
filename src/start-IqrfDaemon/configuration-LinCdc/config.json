@@ -22,6 +22,13 @@
       "startlevel": -3
     },
     {
+      "name": "shape::TraceSyslogService",
+      "libraryPath": "shape/bin",
+      "libraryName": "TraceSyslogService",
+      "enabled": true,
+      "startlevel": -3
+    },
+    {
       "name": "shape::LauncherService",
       "libraryPath": "",
       "libraryName": "",

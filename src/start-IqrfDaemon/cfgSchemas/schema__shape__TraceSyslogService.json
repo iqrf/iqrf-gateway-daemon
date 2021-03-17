@@ -1,0 +1,81 @@
+{
+    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+    "self": {
+        "vendor": "com.iqrftech.self-desc",
+        "name": "schema__shape__TraceSyslogService",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "required": [
+        "component",
+        "instance",
+        "VerbosityLevels"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "component": {
+            "type": "string",
+            "description": "Name of the component.",
+            "enum": [
+                "shape::TraceSyslogService"
+            ]
+        },
+        "instance": {
+            "type": "string",
+            "description": "Recomended shape::TraceSyslogService-(id)",
+            "default": "shape::TraceSyslogService-1"
+        },
+        "VerbosityLevels": {
+            "type": "array",
+            "description": "Array of pairs channel and verbosity level",
+            "additionalItems": false,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "channel": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "The channel to be routed to the file"
+                    },
+                    "level": {
+                        "type": "string",
+                        "default": "DBG",
+                        "description": "Set level of trace",
+                        "enum": [
+                            "DBG",
+                            "INF",
+                            "WAR",
+                            "ERR"
+                        ]
+                    }
+                },
+                "required": [
+                    "channel",
+                    "level"
+                ]
+            }
+        },
+        "RequiredInterfaces": {
+            "type": "array",
+            "description": "Array of required interfaces.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "iqrf::IMessagingService",
+                        "description": "..."
+                    },
+                    "target": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "name",
+                    "target"
+                ]
+            }
+        }
+    }
+}
