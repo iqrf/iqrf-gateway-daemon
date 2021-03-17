@@ -3,6 +3,7 @@
 #include "ComIqrfStandard.h"
 #include "IDpaTransactionResult2.h"
 #include "JsonDpaApiIqrfStandard.h"
+#include "RawAny.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
@@ -27,13 +28,23 @@ namespace iqrf {
   class FakeTransactionResult : public IDpaTransactionResult2
   {
   public:
+    FakeTransactionResult()
+      :IDpaTransactionResult2()
+    {}
+
+    FakeTransactionResult(const DpaMessage& dpaMessage)
+      :m_now(std::chrono::system_clock::now())
+      , m_response(dpaMessage)
+    {}
+
     int getErrorCode() const override { return m_errCode; }
     void overrideErrorCode(IDpaTransactionResult2::ErrorCode err) override { m_errCode = err; }
-    std::string getErrorString() const override { return "BAD_REQUEST"; }
+    std::string getErrorString() const override { return m_errorString; }
+    void setErrorString(const std::string & errStr) { m_errorString = errStr; }
 
-    virtual const DpaMessage& getRequest() const override { return m_fake; }
-    virtual const DpaMessage& getConfirmation() const override { return m_fake; }
-    virtual const DpaMessage& getResponse() const override { return m_fake; }
+    virtual const DpaMessage& getRequest() const override { return m_request; }
+    virtual const DpaMessage& getConfirmation() const override { return m_confirmation; }
+    virtual const DpaMessage& getResponse() const override { return m_response; }
     virtual const std::chrono::time_point<std::chrono::system_clock>& getRequestTs() const override { return m_now; }
     virtual const std::chrono::time_point<std::chrono::system_clock>& getConfirmationTs() const override { return m_now; }
     virtual const std::chrono::time_point<std::chrono::system_clock>& getResponseTs() const override { return m_now; }
@@ -43,7 +54,13 @@ namespace iqrf {
   private:
     DpaMessage m_fake;
     IDpaTransactionResult2::ErrorCode m_errCode = TRN_ERROR_BAD_REQUEST;
+    std::string m_errorString = "BAD_REQUEST";
+
     std::chrono::time_point<std::chrono::system_clock> m_now;
+    DpaMessage m_confirmation;
+    DpaMessage m_request;
+    DpaMessage m_response;
+
   };
 
   class JsonDpaApiIqrfStandard::Imp
@@ -58,6 +75,7 @@ namespace iqrf {
     //just to be able to abort
     std::mutex m_iDpaTransactionMtx;
     std::shared_ptr<IDpaTransaction2> m_iDpaTransaction;
+    std::string m_instanceName;
 
     // TODO from cfg
     std::vector<std::string> m_filters =
@@ -147,7 +165,7 @@ namespace iqrf {
         pcmd = dpaResponse[3];
         hwpid = dpaResponse[4];
         hwpid += dpaResponse[5] << 8;
-        rcode8 = dpaResponse[6];
+        rcode8 = dpaResponse[6] & 0x7F; //reset async flag
         rcode = rcode8;
         dpaval = dpaResponse[7];
 
@@ -328,6 +346,158 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    void asyncMsgHandler(const DpaMessage& dpaMessage)
+    {
+      TRC_FUNCTION_ENTER("");
+
+      try {
+        using namespace rapidjson;
+
+        // parse raw data to basic response structure 
+        iqrf::raw::AnyAsyncResponse anyAsyncResponse(dpaMessage);
+        const uint8_t *buf = anyAsyncResponse.getResponse().DpaPacket().Buffer;
+        int sz = anyAsyncResponse.getResponse().GetLength();
+        std::vector<uint8_t> dpaResponse(buf, buf + sz);
+
+        // deduce driver function from PNUM, PCMD
+        std::string methodResponseName;
+        std::string mTypeName;
+        std::string payloadKey;
+
+        if (anyAsyncResponse.getPnum() == 0x5E) { //std sensor
+          if (anyAsyncResponse.getPcmd() == 0x7B) { //ReadSensorsWithTypes
+            methodResponseName = "iqrf.sensor.ReadSensorsWithTypesFrcValue_AsyncResponse";
+            mTypeName = "iqrfSensor_ReadSensorsWithTypes";
+            payloadKey = "/data/rsp/result/sensors";
+          }
+          // if (anyAsyncResponse.getPcmd() == ??) {} // add here possible other supported pcmd + matching driver function
+
+          else {
+            THROW_EXC(std::invalid_argument, "Unsupported " << NAME_PAR(PCMD, anyAsyncResponse.getPcmd()));
+          }
+        }
+        else {
+          THROW_EXC(std::invalid_argument, "Unsupported " << NAME_PAR(PNUM, anyAsyncResponse.getPnum()));
+        }
+
+        static int asyncCnt = 1;
+        std::ostringstream msgIdOs;
+        msgIdOs << "async-" << asyncCnt++;
+
+        Document fakeRequest;
+
+        Pointer("/mType").Set(fakeRequest, mTypeName);
+        Pointer("/data/msgId").Set(fakeRequest, msgIdOs.str());
+        Pointer("/data/req/nAdr").Set(fakeRequest, anyAsyncResponse.getNadr());
+        Pointer("/data/req/hwpId").Set(fakeRequest, anyAsyncResponse.getHwpid());
+        Pointer("/data/req/param").Set(fakeRequest, Value(kObjectType));
+        // hardcoded verbose
+        Pointer("/data/returnVerbose").Set(fakeRequest, true);
+
+        std::unique_ptr<ComIqrfStandard> com(shape_new ComIqrfStandard(fakeRequest));
+        std::unique_ptr<FakeTransactionResult> res(shape_new FakeTransactionResult(dpaMessage));
+
+        Document allResponseDoc;
+
+        // old metadata
+        if (m_iMetaDataApi) {
+          if (m_iMetaDataApi->iSmetaDataToMessages()) {
+            com->setMetaData(m_iMetaDataApi->getMetaData(com->getNadr()));
+          }
+        }
+
+        // db metadata
+        if (m_iIqrfInfo) {
+          if (m_iIqrfInfo->getMidMetaDataToMessages()) {
+            com->setMidMetaData(m_iIqrfInfo->getNodeMetaData(com->getNadr()));
+          }
+        }
+
+        //to be filled
+        int nadrRes = 0;
+        int hwpidRes = 0;
+        int rcode = -1;
+         
+        std::string rawHdpRequest; //empty just to satisfy next method signature
+
+        // get rawHdpResponse in text form
+        std::string rawHdpResponse;
+        // original rawHdpRequest request passed for additional sensor breakdown parsing
+        rawHdpResponse = dpaResponseToRawHdpResponse(nadrRes, hwpidRes, rcode, dpaResponse, rawHdpRequest);
+        TRC_DEBUG(PAR(rawHdpResponse))
+
+        if (anyAsyncResponse.isAsyncRcode() && 0 == (rcode & 0x7f)) {
+          // call response driver func, it returns rsp{} in text form
+          std::string rspObjStr;
+          std::string errStrRes;
+          bool driverResponseError = false;
+          try {
+            m_iJsRenderService->callFenced(nadrRes, hwpidRes, methodResponseName, rawHdpResponse, rspObjStr);
+          }
+          catch (std::exception &e) {
+            //response driver func error
+            errStrRes = e.what();
+            driverResponseError = true;
+          }
+
+          if (driverResponseError) {
+            //provide error response
+            Document rDataError;
+            rDataError.SetString(errStrRes.c_str(), rDataError.GetAllocator());
+            com->setPayload("/data/rsp/errorStr", rDataError, true);
+
+            //fake transaction result
+            res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);
+            res->setErrorString("BAD_RESPONSE");
+
+            com->setStatus(res->getErrorString(), res->getErrorCode());
+            com->createResponse(allResponseDoc, *res);
+          }
+          else {
+            // get json from its text representation
+            Document rspObj;
+            rspObj.Parse(rspObjStr);
+            TRC_DEBUG("result object: " << std::endl << JsonToStr(&rspObj));
+
+            //fake transaction result
+            res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_OK);
+            res->setErrorString("ok");
+
+            com->setPayload(payloadKey, rspObj, false);
+            com->setStatus(res->getErrorString(), res->getErrorCode());
+            com->createResponse(allResponseDoc, *res);
+          }
+        }
+        else {
+          Document rDataError;
+          rDataError.SetString("rcode error", rDataError.GetAllocator());
+          com->setPayload("/data/rsp/errorStr", rDataError, true);
+
+          //fake transaction result
+          res->overrideErrorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_BAD_RESPONSE);
+          res->setErrorString("BAD_RESPONSE rcode");
+
+          com->setStatus(res->getErrorString(), res->getErrorCode());
+          com->createResponse(allResponseDoc, *res);
+        }
+
+        TRC_DEBUG("response object: " << std::endl << JsonToStr(&allResponseDoc));
+
+        //empty messagingId => send to all messaging returning iface->acceptAsyncMsg() == true
+        m_iMessagingSplitterService->sendMessage("", std::move(allResponseDoc));
+
+      }
+      catch (std::invalid_argument & e) {
+        // unsupported PNUM, PCMD - just skip it, we don't care
+        TRC_DEBUG(e.what());
+      }
+      catch (std::exception & e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Wrong format of async response");
+      }
+
+      TRC_FUNCTION_LEAVE("")
+    }
+
     void activate(const shape::Properties *props)
     {
       (void)props; //silence -Wunused-parameter
@@ -338,10 +508,16 @@ namespace iqrf {
         "******************************"
       );
 
+      modify(props);
+
       m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
         [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
       {
         handleMsg(messagingId, msgType, std::move(doc));
+      });
+
+      m_iIqrfDpaService->registerAsyncMessageHandler(m_instanceName, [&](const DpaMessage& dpaMessage) {
+        asyncMsgHandler(dpaMessage);
       });
 
       TRC_FUNCTION_LEAVE("")
@@ -364,13 +540,19 @@ namespace iqrf {
       }
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
+      
+      m_iIqrfDpaService->unregisterAsyncMessageHandler(m_instanceName);
 
       TRC_FUNCTION_LEAVE("")
     }
 
     void modify(const shape::Properties *props)
     {
-      (void)props; //silence -Wunused-parameter
+      TRC_FUNCTION_ENTER("");
+      using namespace rapidjson;
+      const Document& doc = props->getAsJson();
+      m_instanceName = Pointer("/instance").Get(doc)->GetString();
+      TRC_FUNCTION_LEAVE("")
     }
 
     void attachInterface(IMetaDataApi* iface)
