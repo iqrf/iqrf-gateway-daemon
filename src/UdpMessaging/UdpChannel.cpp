@@ -186,7 +186,7 @@ void UdpChannel::getMyAddress()
   memset(&hints, 0, sizeof(hints));
   hints.sin_family = AF_INET;
   hints.sin_port = htons(9);
-  hints.sin_addr.s_addr = INADDR_LOOPBACK;
+  hints.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
   int res;
   int attempts = 5;
