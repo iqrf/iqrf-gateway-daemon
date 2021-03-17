@@ -1,0 +1,10 @@
+{
+    "component": "shape::TraceSyslogService",
+    "instance": "shape::TraceSyslogService-daemon1",
+    "VerbosityLevels": [
+      {
+        "channel": 0,
+        "level": "INF"
+      }
+    ]
+  }
