@@ -22,9 +22,9 @@
       "startlevel": -3
     },
     {
-      "name": "shape::TraceSyslogService",
+      "name": "iqrf::SyslogLogger",
       "libraryPath": "",
-      "libraryName": "TraceSyslogService",
+      "libraryName": "SyslogLogger",
       "enabled": false,
       "startlevel": -3
     },

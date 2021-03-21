@@ -150,6 +150,7 @@ add_subdirectory(src/IqrfBackup)
 add_subdirectory(src/IqrfRestore)
 add_subdirectory(src/MonitorService)
 add_subdirectory(src/DpaParser)
+add_subdirectory(src/SyslogLogger)
 
 # IDE folder for IQMesh services
 set(IQMESH_SERVICES_FOLDER "iqmesh")
