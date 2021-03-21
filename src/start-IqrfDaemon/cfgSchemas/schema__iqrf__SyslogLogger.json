@@ -2,7 +2,7 @@
     "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
     "self": {
         "vendor": "com.iqrftech.self-desc",
-        "name": "schema__shape__TraceSyslogService",
+        "name": "schema__iqrf__SyslogLogger",
         "format": "jsonschema",
         "version": "1-0-0"
     },
@@ -18,13 +18,13 @@
             "type": "string",
             "description": "Name of the component.",
             "enum": [
-                "shape::TraceSyslogService"
+                "iqrf::SyslogLogger"
             ]
         },
         "instance": {
             "type": "string",
-            "description": "Recomended shape::TraceSyslogService-(id)",
-            "default": "shape::TraceSyslogService-1"
+            "description": "Recomended iqrf::SyslogLogger-(id)",
+            "default": "iqrf::SyslogLogger-1"
         },
         "VerbosityLevels": {
             "type": "array",
