@@ -58,8 +58,12 @@ configure_gateway() {
 				jq --unbuffered --arg gwId "$gwId" '.insId = "iqdgw01-" + $gwId' "${confDir}iqrf__JsonSplitter.json" > tmp.json && mv tmp.json "${confDir}iqrf__JsonSplitter.json"
 			fi
 			if [ -f "${confDir}iqrf__MqttMessaging.json" ]; then
-				jq --unbuffered --arg gwId "$gwId" '.ClientId = $gwId | .TopicRequest = "gateway/" + $gwId + "/iqrf/requests" | .TopicResponse = "gateway/" + $gwId + "/iqrf/responses"' "${confDir}iqrf__MqttMessaging.json" > tmp.json && mv tmp.json "${confDir}iqrf__MqttMessaging.json"
-			fi
+        rqTopic=$(jq -r '.TopicRequest' "${confDir}iqrf__MqttMessaging.json")
+        rspTopic=$(jq -r '.TopicResponse' "${confDir}iqrf__MqttMessaging.json")
+        if [ "$rqTopic" == "Iqrf/DpaRequest" ] && [ "$rspTopic" = "Iqrf/DpaResponse" ]; then
+				  jq --unbuffered --arg gwId "$gwId" '.ClientId = $gwId | .TopicRequest = "gateway/" + $gwId + "/iqrf/requests" | .TopicResponse = "gateway/" + $gwId + "/iqrf/responses"' "${confDir}iqrf__MqttMessaging.json" > tmp.json && mv tmp.json "${confDir}iqrf__MqttMessaging.json"
+        fi
+      fi
 			if [ -f "${confDir}iqrf__IdeCounterpart.json" ]; then
 				jq --unbuffered --arg gwProduct "$gwProduct" '.gwIdentModeByte = 34 | .gwIdentName = $gwProduct' "${confDir}iqrf__IdeCounterpart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IdeCounterpart.json"
 			fi
