@@ -22,6 +22,13 @@
       "startlevel": -3
     },
     {
+      "name": "iqrf::SyslogLogger",
+      "libraryPath": "",
+      "libraryName": "SyslogLogger",
+      "enabled": false,
+      "startlevel": -3
+    },
+    {
       "name": "shape::ConfigurationService",
       "libraryPath": "",
       "libraryName": "",
