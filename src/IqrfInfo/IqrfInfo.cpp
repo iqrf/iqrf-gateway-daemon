@@ -2591,6 +2591,13 @@ namespace iqrf {
           m_enumUniformDpaVer = val->GetBool();
         }
       }
+      //metaDataToMessages
+      {
+        const Value* val = Pointer("/metaDataToMessages").Get(doc);
+        if (val && val->IsBool()) {
+          m_midMetaDataToMessages = val->GetBool();
+        }
+      }
 
       TRC_FUNCTION_LEAVE("")
     }

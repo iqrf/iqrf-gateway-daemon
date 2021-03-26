@@ -65,13 +65,6 @@ namespace iqrf {
       m_payloadOnlyForVerbose = onlyForVerbose;
     }
 
-    // old metdata
-    void setMetaData(const rapidjson::Value& val)
-    {
-      m_appendMetaData = true;
-      m_metaData.CopyFrom(val, m_metaData.GetAllocator());
-    }
-
     //db metadata
     void setMidMetaData(const rapidjson::Value& val)
     {
@@ -95,11 +88,8 @@ namespace iqrf {
       if (!m_payloadOnlyForVerbose || getVerbose()) {
         Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
       }
-      if (m_appendMetaData) {
-        Pointer("/data/rsp/metaData").Set(doc, m_metaData);
-      }
       if (m_appendMidMetaData) {
-        Pointer("/data/rsp/midMetaData").Set(doc, m_midMetaData);
+        Pointer("/data/rsp/metaData").Set(doc, m_midMetaData);
       }
     }
 
@@ -110,9 +100,7 @@ namespace iqrf {
     std::string m_payloadKey;
     rapidjson::Document m_payload;
     bool m_payloadOnlyForVerbose = true;
-    bool m_appendMetaData = false;
     bool m_appendMidMetaData = false;
-    rapidjson::Document m_metaData;
     rapidjson::Document m_midMetaData;
   };
 

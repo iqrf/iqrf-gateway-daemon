@@ -55,6 +55,11 @@
             "type": "boolean",
             "description": "If set just Hwpid and HwpidVer is obtained from nodes. DpaVer and osBuild is set according coordinator",
             "default": "false"
+        },
+        "metaDataToMessages": {
+            "type": "boolean",
+            "description": "Append MetaData to outcomming messages",
+            "default": false
         }
     },
     "required": [
