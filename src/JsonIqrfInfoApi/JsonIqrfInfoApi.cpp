@@ -70,7 +70,6 @@ namespace iqrf {
 
       void setMetaDataApi(JsonIqrfInfoApi::Imp* imp) // store for later use in response
       {
-        m_iMetaDataApi = imp->getMetadataApi();
         m_imp = imp;
       }
 
@@ -80,7 +79,6 @@ namespace iqrf {
       void setMessagingId(const std::string & messagingId) { m_messagingId = messagingId; }
 
     protected:
-      IMetaDataApi* m_iMetaDataApi = nullptr;
       Imp * m_imp = nullptr;
       std::string m_messagingId;
     };
@@ -135,13 +133,6 @@ namespace iqrf {
           int nadr = enm.first;
           Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/sensors").Set(devVal, sensorsVal, a);
-
-          // old metadata
-          if (m_iMetaDataApi) {
-            if (m_iMetaDataApi->iSmetaDataToMessages()) {
-              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
-            }
-          }
 
           // db metadata
           if (m_imp) {
@@ -200,13 +191,6 @@ namespace iqrf {
           Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/binOuts").Set(devVal, enm.second->getBinaryOutputsNum(), a);
 
-          // old metadata
-          if (m_iMetaDataApi) {
-            if (m_iMetaDataApi->iSmetaDataToMessages()) {
-              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
-            }
-          }
-
           // db metadata
           if (m_imp) {
             if (m_imp->getMidMetaDataAnnotate()) {
@@ -262,13 +246,6 @@ namespace iqrf {
 
           int nadr = enm.first;
           Pointer("/nAdr").Set(devVal, nadr, a);
-
-          // old metadata
-          if (m_iMetaDataApi) {
-            if (m_iMetaDataApi->iSmetaDataToMessages()) {
-              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
-            }
-          }
 
           // db metadata
           if (m_imp) {
@@ -326,13 +303,6 @@ namespace iqrf {
           int nadr = enm.first;
           Pointer("/nAdr").Set(devVal, nadr, a);
           Pointer("/lights").Set(devVal, enm.second->getLightsNum(), a);
-
-          // old metadata
-          if (m_iMetaDataApi) {
-            if (m_iMetaDataApi->iSmetaDataToMessages()) {
-              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
-            }
-          }
 
           // db metadata
           if (m_imp) {
@@ -395,13 +365,6 @@ namespace iqrf {
           Pointer("/hwpidVer").Set(devVal, enm.second->getHwpidVer(), a);
           Pointer("/osBuild").Set(devVal, enm.second->getOsBuild(), a);
           Pointer("/dpaVer").Set(devVal, enm.second->getDpaVer(), a);
-
-          // old metadata
-          if (m_iMetaDataApi) {
-            if (m_iMetaDataApi->iSmetaDataToMessages()) {
-              Pointer("/metaData").Set(devVal, m_iMetaDataApi->getMetaData(nadr), a);
-            }
-          }
 
           // db metadata
           if (m_imp) {
@@ -853,7 +816,6 @@ namespace iqrf {
   ///////////////////// Imp members
   private:
 
-    IMetaDataApi* m_iMetaDataApi = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfInfo* m_iIqrfInfo = nullptr;
     ObjectFactory<InfoDaemonMsg, rapidjson::Document&> m_objectFactory;
@@ -922,11 +884,6 @@ namespace iqrf {
       }
 
       TRC_FUNCTION_LEAVE("");
-    }
-
-    IMetaDataApi* getMetadataApi()
-    {
-      return m_iMetaDataApi;
     }
 
     std::map<int, sensor::EnumeratePtr> getSensors() const
@@ -1086,18 +1043,6 @@ namespace iqrf {
       (void)props; //silence -Wunused-parameter
     }
 
-    void attachInterface(IMetaDataApi* iface)
-    {
-      m_iMetaDataApi = iface;
-    }
-
-    void detachInterface(IMetaDataApi* iface)
-    {
-      if (m_iMetaDataApi == iface) {
-        m_iMetaDataApi = nullptr;
-      }
-    }
-
     void attachInterface(IIqrfInfo* iface)
     {
       m_iIqrfInfo = iface;
@@ -1150,16 +1095,6 @@ namespace iqrf {
   void JsonIqrfInfoApi::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
-  }
-
-  void JsonIqrfInfoApi::attachInterface(iqrf::IMetaDataApi* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonIqrfInfoApi::detachInterface(iqrf::IMetaDataApi* iface)
-  {
-    m_imp->detachInterface(iface);
   }
 
   void JsonIqrfInfoApi::attachInterface(IIqrfInfo* iface)

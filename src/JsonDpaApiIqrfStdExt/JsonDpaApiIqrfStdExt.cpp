@@ -27,7 +27,6 @@ namespace iqrf {
   {
   private:
 
-    IMetaDataApi* m_iMetaDataApi = nullptr;
     IIqrfInfo* m_iIqrfInfo = nullptr;
     iqrf::IJsRenderService* m_iJsRenderService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
@@ -116,12 +115,6 @@ namespace iqrf {
             }
             int nadr = nadrVal->GetInt();
 
-            // old metadata
-            if (m_iMetaDataApi && m_iMetaDataApi->iSmetaDataToMessages()) {
-              // anotate with metada
-              Pointer("/metaData").Set(*senVal, m_iMetaDataApi->getMetaData(nadr), doc.GetAllocator());
-            }
-
             // db metadata
             if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
               // anotate with metada
@@ -209,18 +202,6 @@ namespace iqrf {
       (void)props; //silence -Wunused-parameter
     }
 
-    void attachInterface(IMetaDataApi* iface)
-    {
-      m_iMetaDataApi = iface;
-    }
-
-    void detachInterface(IMetaDataApi* iface)
-    {
-      if (m_iMetaDataApi == iface) {
-        m_iMetaDataApi = nullptr;
-      }
-    }
-
     void attachInterface(IIqrfInfo* iface)
     {
       m_iIqrfInfo = iface;
@@ -297,16 +278,6 @@ namespace iqrf {
   void JsonDpaApiIqrfStdExt::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
-  }
-
-  void JsonDpaApiIqrfStdExt::attachInterface(iqrf::IMetaDataApi* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonDpaApiIqrfStdExt::detachInterface(iqrf::IMetaDataApi* iface)
-  {
-    m_imp->detachInterface(iface);
   }
 
   void JsonDpaApiIqrfStdExt::attachInterface(IIqrfInfo* iface)

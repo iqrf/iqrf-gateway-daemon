@@ -2,7 +2,6 @@ project(JsonDpaApiIqrfStdExt)
 
 set(COMPONENT iqrf::JsonDpaApiIqrfStdExt)
 DeclareShapeComponent(${COMPONENT})
-AddShapeRequiredInterface(${COMPONENT} iqrf::IMetaDataApi UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfInfo MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IJsRenderService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)

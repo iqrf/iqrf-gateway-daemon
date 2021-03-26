@@ -65,7 +65,6 @@ namespace iqrf {
   class JsonDpaApiRaw::Imp
   {
   private:
-    IMetaDataApi* m_iMetaDataApi = nullptr;
     IIqrfInfo* m_iIqrfInfo = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
@@ -101,13 +100,6 @@ namespace iqrf {
 
 
       std::unique_ptr<ComNadr> com = m_objectFactory.createObject(msgType.m_type, doc);
-
-      // old metadata
-      if (m_iMetaDataApi) {
-        if (m_iMetaDataApi->iSmetaDataToMessages()) {
-          com->setMetaData(m_iMetaDataApi->getMetaData(com->getNadr()));
-        }
-      }
 
       // db metadata
       if (m_iIqrfInfo) {
@@ -211,18 +203,6 @@ namespace iqrf {
       (void)props; //silence -Wunused-parameter
     }
 
-    void attachInterface(IMetaDataApi* iface)
-    {
-      m_iMetaDataApi = iface;
-    }
-
-    void detachInterface(IMetaDataApi* iface)
-    {
-      if (m_iMetaDataApi == iface) {
-        m_iMetaDataApi = nullptr;
-      }
-    }
-
     void attachInterface(IIqrfInfo* iface)
     {
       m_iIqrfInfo = iface;
@@ -286,16 +266,6 @@ namespace iqrf {
   void JsonDpaApiRaw::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
-  }
-
-  void JsonDpaApiRaw::attachInterface(IMetaDataApi* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonDpaApiRaw::detachInterface(IMetaDataApi* iface)
-  {
-    m_imp->detachInterface(iface);
   }
 
   void JsonDpaApiRaw::attachInterface(IIqrfInfo* iface)

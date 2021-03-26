@@ -67,7 +67,6 @@ namespace iqrf {
   {
   private:
 
-    IMetaDataApi* m_iMetaDataApi = nullptr;
     IIqrfInfo* m_iIqrfInfo = nullptr;
     IJsRenderService* m_iJsRenderService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
@@ -203,13 +202,6 @@ namespace iqrf {
 
       Document allResponseDoc;
       std::unique_ptr<ComIqrfStandard> com(shape_new ComIqrfStandard(doc));
-
-      // old metadata
-      if (m_iMetaDataApi) {
-        if (m_iMetaDataApi->iSmetaDataToMessages()) {
-          com->setMetaData(m_iMetaDataApi->getMetaData(com->getNadr()));
-        }
-      }
 
       // db metadata
       if (m_iIqrfInfo) {
@@ -399,13 +391,6 @@ namespace iqrf {
 
         Document allResponseDoc;
 
-        // old metadata
-        if (m_iMetaDataApi) {
-          if (m_iMetaDataApi->iSmetaDataToMessages()) {
-            com->setMetaData(m_iMetaDataApi->getMetaData(com->getNadr()));
-          }
-        }
-
         // db metadata
         if (m_iIqrfInfo) {
           if (m_iIqrfInfo->getMidMetaDataToMessages()) {
@@ -555,18 +540,6 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void attachInterface(IMetaDataApi* iface)
-    {
-      m_iMetaDataApi = iface;
-    }
-
-    void detachInterface(IMetaDataApi* iface)
-    {
-      if (m_iMetaDataApi == iface) {
-        m_iMetaDataApi = nullptr;
-      }
-    }
-
     void attachInterface(IIqrfInfo* iface)
     {
       m_iIqrfInfo = iface;
@@ -643,16 +616,6 @@ namespace iqrf {
   void JsonDpaApiIqrfStandard::modify(const shape::Properties *props)
   {
     m_imp->modify(props);
-  }
-
-  void JsonDpaApiIqrfStandard::attachInterface(iqrf::IMetaDataApi* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonDpaApiIqrfStandard::detachInterface(iqrf::IMetaDataApi* iface)
-  {
-    m_imp->detachInterface(iface);
   }
 
   void JsonDpaApiIqrfStandard::attachInterface(IIqrfInfo* iface)
