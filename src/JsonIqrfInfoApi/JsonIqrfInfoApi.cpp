@@ -137,7 +137,7 @@ namespace iqrf {
           // db metadata
           if (m_imp) {
             if (m_imp->getMidMetaDataAnnotate()) {
-              Pointer("/midMetaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
+              Pointer("/metaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
             }
           }
 
@@ -194,7 +194,7 @@ namespace iqrf {
           // db metadata
           if (m_imp) {
             if (m_imp->getMidMetaDataAnnotate()) {
-              Pointer("/midMetaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
+              Pointer("/metaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
             }
           }
 
@@ -250,7 +250,7 @@ namespace iqrf {
           // db metadata
           if (m_imp) {
             if (m_imp->getMidMetaDataAnnotate()) {
-              Pointer("/midMetaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
+              Pointer("/metaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
             }
           }
 
@@ -307,7 +307,7 @@ namespace iqrf {
           // db metadata
           if (m_imp) {
             if (m_imp->getMidMetaDataAnnotate()) {
-              Pointer("/midMetaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
+              Pointer("/metaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
             }
           }
 
@@ -369,7 +369,7 @@ namespace iqrf {
           // db metadata
           if (m_imp) {
             if (m_imp->getMidMetaDataAnnotate()) {
-              Pointer("/midMetaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
+              Pointer("/metaData").Set(devVal, m_imp->getNodeMetaData(nadr), a);
             }
           }
 

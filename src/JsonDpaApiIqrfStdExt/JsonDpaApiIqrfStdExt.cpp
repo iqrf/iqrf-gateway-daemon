@@ -113,12 +113,18 @@ namespace iqrf {
             if (!(nadrVal && nadrVal->IsInt())) {
               THROW_EXC_TRC_WAR(std::logic_error, "Expected: .../nAdr of type integer");
             }
+
             int nadr = nadrVal->GetInt();
 
-            // db metadata
-            if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
-              // anotate with metada
-              Pointer("/midMetaData").Set(*senVal, m_iIqrfInfo->getNodeMetaData(nadr), doc.GetAllocator());
+            try {
+              // db metadata
+              if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
+                // anotate with metada
+                Pointer("/metaData").Set(*senVal, m_iIqrfInfo->getNodeMetaData(nadr), doc.GetAllocator());
+              }
+            }
+            catch (std::exception & e) {
+              CATCH_EXC_TRC_WAR(std::exception, e, "Cannot annotate by metadata");
             }
           }
 
