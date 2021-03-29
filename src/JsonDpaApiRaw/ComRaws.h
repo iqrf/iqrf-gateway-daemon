@@ -55,6 +55,8 @@ namespace iqrf {
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
+      auto response = res.getResponse();
+      rapidjson::Pointer("/data/rsp/rData").Set(doc, encodeBinary(response.DpaPacket().Buffer, response.GetLength()));
       if (m_appendMidMetaData) {
         rapidjson::Pointer("/data/rsp/metaData").Set(doc, m_midMetaData);
       }
@@ -110,7 +112,7 @@ namespace iqrf {
       rapidjson::Pointer("/data/rsp/hwpId").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.HWPID : 0);
       rapidjson::Pointer("/data/rsp/rCode").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
       rapidjson::Pointer("/data/rsp/dpaVal").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);
-      
+
       rapidjson::Value* req = rapidjson::Pointer("/data/rsp").Get(doc);
       if (req) {
         rapidjson::Value rdata;
