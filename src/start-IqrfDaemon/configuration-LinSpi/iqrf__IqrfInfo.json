@@ -3,5 +3,6 @@
   "instance": "iqrf::IqrfInfo",
   "enumAtStartUp": false,
   "enumPeriod": 0,
-  "enumUniformDpaVer": false
+  "enumUniformDpaVer": false,
+  "metaDataToMessages": false
 }
