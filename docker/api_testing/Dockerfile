@@ -24,4 +24,4 @@ COPY ./docker/api_testing/configuration ./configuration/
 
 EXPOSE 1338 55000/udp 55300/udp
 
-CMD ["iqrfgd2", "configuration/config.json"]
+CMD ["iqrfgd2", "-c", "configuration/config.json"]

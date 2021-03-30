@@ -1,21 +1,30 @@
 .TH IQRFGD2 1 2019-11-26 "IQRF Gateway Daemon v2.2.0" "IQRF GW Manual"
 .SH NAME
-iqrfgd2\- start IQRF Gateway Daemon
+iqrfgd2 \- start IQRF Gateway Daemon
 .SH DESCRIPTION
 The
 .B iqrfgd2
 command starts IQRF Gateway Daemon.
 .SH SYNOPSIS
-iqrfgd2 [command] [configuration]
-.SH COMMANDS
+\fBiqrfgd2\fP [\fIOPTION\fP...]
+.SH OPTIONS
 .nf
 .TP
-.BR iqrfgd2 " \fIversion\fP"
-Shows IQRF Gateway Daemon's version
+.BR "\fB-h\fP, \fB--help\fP"
+Shows help message and usage.
 .TP
-.BR iqrfgd2 " \fIconfig.json\fP"
-Starts IQRF Gateway Daemon
+.BR "\fB-v\fP, \fB--version\fP"
+Shows IQRF Gateway Daemon's version.
+.TP
+.BR "\fB-c\fP, \fB--configuration\fP"
+Specifies path to configuration, required to start.
+.TP
+.BR "\fB-p\fP, \fB--pidfile\fP"
+Specifies path to pidfile, if not used, default value is used.
 .fi
+.SH EXAMPLES
+.BR "iqrfgd2 -c config.json"
+Starts IQRF Gateway Daemon.
 .SH LICENCE
 This program is licensed under Apache License version 2.0.
 .SH COPYRIGHT
