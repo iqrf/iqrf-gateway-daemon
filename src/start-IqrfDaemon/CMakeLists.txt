@@ -6,11 +6,19 @@ file(GLOB_RECURSE _CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configuration/*)
 file(GLOB_RECURSE _CONFIG_WIN_CDC ${CMAKE_CURRENT_SOURCE_DIR}/configuration-WinCdc/*)
 file(GLOB_RECURSE _JAVA_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/javaScript/*)
 
+find_package(Boost REQUIRED COMPONENTS program_options)
+
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 source_group("Configuration" FILES ${_CONFIG})
 source_group("Configuration" FILES ${_CONFIG_WIN_CDC})
 source_group("javaScript" FILES ${_JAVA_SCRIPT})
+
+if (Boost_FOUND)
+	include_directories(${Boost_INCLUDE_DIRS})
+else()
+	message(FATAL_ERROR "Boost libraries not found.")
+endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
@@ -19,6 +27,7 @@ add_executable(${PROJECT_NAME} ${_HDRFILES} ${_SRCFILES} ${_CONFIG} ${_CONFIG_WI
 
 target_link_libraries(${PROJECT_NAME} 
   launcher
+  ${Boost_LIBRARIES}
 )
 
 if(UNIX)

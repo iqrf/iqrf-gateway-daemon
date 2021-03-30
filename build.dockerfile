@@ -37,4 +37,4 @@ ENV PATH="$HOME/iqrf/shape/deploy/Unix_Makefiles/Debug/iqrf-gateway-daemon/bin:$
 
 EXPOSE 1338 55000/udp 55300/udp
 
-CMD ["iqrfgd2","configuration/config.json"]
+CMD ["iqrfgd2", "-c", "configuration/config.json"]
