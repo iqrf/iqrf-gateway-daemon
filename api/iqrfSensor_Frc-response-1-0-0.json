@@ -142,9 +142,16 @@
                             "type": "integer",
                             "description": "Node address."
                           },
-                          "metaData": {
-                            "type": "object",
-                            "description": "Arbitrary user defined meta data."
+                          "metadata": {
+                            "oneOf":[
+                               {
+                                  "type":"object",
+                                  "description":"Arbitrary user defined meta data."
+                               },
+                               {
+                                  "type":"null"
+                               }
+                            ]
                           },
                           "sensor": {
                             "oneOf": [

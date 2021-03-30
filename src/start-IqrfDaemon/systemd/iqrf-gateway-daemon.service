@@ -9,8 +9,8 @@ User=root
 Group=root
 WorkingDirectory=/usr/bin
 ExecStart=/usr/bin/iqrfgd2 -c /etc/iqrf-gateway-daemon/config.json
-StandardOutput=syslog
-StandardError=syslog
+StandardOutput=journal
+StandardError=journal
 RestartSec=5
 Restart=always
 

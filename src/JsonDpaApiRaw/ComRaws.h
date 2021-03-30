@@ -15,12 +15,6 @@ namespace iqrf {
 
     virtual uint16_t getNadr() const = 0;
 
-    virtual void setMetaData(const rapidjson::Value& val)
-    {
-      m_appendMetaData = true;
-      m_metaData.CopyFrom(val, m_metaData.GetAllocator());
-    }
-
     virtual void setMidMetaData(const rapidjson::Value& val)
     {
       m_appendMidMetaData = true;
@@ -32,8 +26,6 @@ namespace iqrf {
     }
 
   protected:
-    bool m_appendMetaData = false;
-    rapidjson::Document m_metaData;
     bool m_appendMidMetaData = false;
     rapidjson::Document m_midMetaData;
   };
@@ -63,12 +55,10 @@ namespace iqrf {
   protected:
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
-      rapidjson::Pointer("/data/rsp/rData").Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
-      if (m_appendMetaData) {
-        rapidjson::Pointer("/data/rsp/metaData").Set(doc, m_metaData);
-      }
+      auto response = res.getResponse();
+      rapidjson::Pointer("/data/rsp/rData").Set(doc, encodeBinary(response.DpaPacket().Buffer, response.GetLength()));
       if (m_appendMidMetaData) {
-        rapidjson::Pointer("/data/rsp/midMetaData").Set(doc, m_midMetaData);
+        rapidjson::Pointer("/data/rsp/metaData").Set(doc, m_midMetaData);
       }
     }
 
@@ -122,7 +112,7 @@ namespace iqrf {
       rapidjson::Pointer("/data/rsp/hwpId").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.HWPID : 0);
       rapidjson::Pointer("/data/rsp/rCode").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
       rapidjson::Pointer("/data/rsp/dpaVal").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);
-      
+
       rapidjson::Value* req = rapidjson::Pointer("/data/rsp").Get(doc);
       if (req) {
         rapidjson::Value rdata;
@@ -136,8 +126,8 @@ namespace iqrf {
         req->AddMember("pData", rdata, allocator);
       }
 
-      if (m_appendMetaData) {
-        rapidjson::Pointer("/data/rsp/metaData").Set(doc, m_metaData);
+      if (m_appendMidMetaData) {
+        rapidjson::Pointer("/data/rsp/metaData").Set(doc, m_midMetaData);
       }
 
     }

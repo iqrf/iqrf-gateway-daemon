@@ -211,13 +211,6 @@
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsonMngMetaDataApi",
-      "libraryPath": "",
-      "libraryName": "JsonMngMetaDataApi",
-      "enabled": true,
-      "startlevel": 2
-    },
-    {
       "name": "iqrf::JsonIqrfInfoApi",
       "libraryPath": "",
       "libraryName": "JsonIqrfInfoApi",

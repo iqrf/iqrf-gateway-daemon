@@ -54,6 +54,7 @@ typedef size_t clientlen_t;
 #include <vector>
 #include <atomic>
 #include <map>
+#include <stdexcept>
 
 class UdpChannel : public IChannel
 {

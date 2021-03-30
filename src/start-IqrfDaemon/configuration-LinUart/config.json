@@ -197,13 +197,6 @@
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsonMngMetaDataApi",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "JsonMngMetaDataApi",
-      "enabled": true,
-      "startlevel": 2
-    },
-    {
       "name": "iqrf::JsonCfgApi",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsonCfgApi",
