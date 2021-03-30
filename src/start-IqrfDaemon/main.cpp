@@ -67,8 +67,8 @@ int main(int argc, char** argv) {
 			("help,h", "Show help and usage")
 			("version,v", "Show version")
 			("configuration,c",
-			 bpo::value<std::string>()->default_value("/etc/iqrf-gateway-daemon/config.json"),
-			 "Path to configuration file")
+			 bpo::value<std::string>(),
+			 "Path to configuration file, required to start")
 			("pidfile,p",
 			 bpo::value<std::string>()->default_value("/var/run/iqrf-gateway-daemon.pid"),
 			 "Path to PID file");
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 			std::cout << "Usage: iqrfgd2" << " [options]" << std::endl << description << std::endl;
 		} else if (vm.count("version")) {
 			std::cout << "IQRF Gateway Daemon " << DAEMON_VERSION << std::endl;
-		} else {
+		} else if (vm.count("configuration")) {
 			std::ostringstream header;
 			header <<
 				"============================================================================" << std::endl <<
@@ -100,6 +100,9 @@ int main(int argc, char** argv) {
 			shapeInit(2, args.data());
 			int retval = shapeRun();
 			return retval;
+		} else {
+			std::cout << "Invalid invocation, use option -h to show help message." << std::endl;
+			return EXIT_FAILURE;
 		}
 	} catch (const bpo::error &e) {
 		std::cerr << e.what() << std::endl;
