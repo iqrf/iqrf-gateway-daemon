@@ -22,7 +22,6 @@ namespace {
     Data getData() override { return m_data; };
     uint16_t getChecksum() override { return m_checksum; };
     uint16_t getLength() override { return m_length; };
-
   };
 
   // encapsulates block of code 
@@ -344,6 +343,10 @@ namespace iqrf {
     void checkFileName(const std::string& fileName) {
       if (fileName.empty()) {
         throw std::logic_error("Empty file name.");
+      }
+      std::ifstream fileStream(fileName);
+      if (!fileStream.good()) {
+        throw std::logic_error("File " + fileName + " not found.");
       }
     }
 

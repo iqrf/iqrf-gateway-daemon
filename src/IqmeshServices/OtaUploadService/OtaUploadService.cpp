@@ -41,6 +41,7 @@ namespace
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
   static const int emptyUploadPathError = 1003;
+  static const int uploadFileProcessingError = 1004;
 };
 
 namespace iqrf
@@ -849,13 +850,21 @@ namespace iqrf
     //-------
     void upload(UploadResult &uploadResult, const std::string fileName)
     {
+
       TRC_FUNCTION_ENTER("");
 
       LoadingAction loadingAction = uploadResult.getLoadingAction();
       IOtaUploadService::LoadingContentType loadingContentType = parseLoadingContentType(fileName);
 
       // prepare data to write and load
-      std::unique_ptr<PreparedData> preparedData = DataPreparer::prepareData(loadingContentType, fileName, m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS);
+      std::unique_ptr<PreparedData> preparedData;
+      try {
+        preparedData = DataPreparer::prepareData(loadingContentType, fileName, m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS);
+      } catch (const std::exception &e) {
+        uploadResult.setStatus(uploadFileProcessingError);
+        uploadResult.setStatusStr(e.what());
+        throw std::logic_error(e.what());
+      }
 
       // Upload - write prepared data into external eeprom memory
       if (loadingAction == LoadingAction::Upload)
@@ -1127,24 +1136,20 @@ namespace iqrf
         return;
       }
 
-      try
-      {
-        // Upload result
-        UploadResult uploadResult(loadingAction);
+      // Upload result
+      UploadResult uploadResult(loadingAction);
 
+      try {
         // Construct full file name
         std::string fullFileName = getFullFileName(m_uploadPath, m_otaUploadParams.fileName);
 
         // Upload
         upload(uploadResult, fullFileName);
-
-        // Create and send response
-        createResponse(uploadResult);
-      }
-      catch (std::exception& e)
-      {
+      } catch (std::exception& e) {
         CATCH_EXC_TRC_WAR(std::exception, e, e.what());
       }
+      // Create and send response
+      createResponse(uploadResult);
 
       // release exclusive access
       m_exclusiveAccess.reset();
