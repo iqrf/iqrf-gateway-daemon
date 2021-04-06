@@ -3,6 +3,7 @@
 #include "ShapeDefines.h"
 #include <StaticComponentMap.h>
 #include <Trace.h>
+#include <boost/program_options.hpp>
 
 TRC_INIT_MNAME("iqrfgd2");
 #ifdef TRC_CHANNEL
@@ -57,27 +58,57 @@ void pidInit(const std::string &fileName) {
 void pidInit(const std::string &fileName) {}
 #endif
 
+namespace bpo = boost::program_options;
+
 int main(int argc, char** argv) {
-	if (argc == 2 && argv[1] == std::string("version")) {
-		std::cout << DAEMON_VERSION << std::endl;
-		return 0;
+	try {
+		bpo::options_description description("Options");
+		description.add_options()
+			("help,h", "Show help and usage")
+			("version,v", "Show version")
+			("configuration,c",
+			 bpo::value<std::string>()->default_value("/etc/iqrf-gateway-daemon.json"),
+			 "Path to configuration file, required to start")
+			("pidfile,p",
+			 bpo::value<std::string>()->default_value("/var/run/iqrf-gateway-daemon.pid"),
+			 "Path to PID file");
+		bpo::variables_map vm;
+		bpo::store(bpo::parse_command_line(argc, argv, description), vm);
+		bpo::notify(vm);
+		if (argc == 1 || vm.count("help")) {
+			std::cout << "Usage: iqrfgd2" << " [options]" << std::endl << description << std::endl;
+		} else if (vm.count("version")) {
+			std::cout << "IQRF Gateway Daemon " << DAEMON_VERSION << std::endl;
+		} else {
+			std::vector<char *> args;
+			args.push_back(argv[0]);
+			if (argc == 2) {
+				args.push_back(argv[1]);
+			} else {
+				args.push_back(const_cast<char *>(vm["configuration"].as<std::string>().data()));
+			}
+
+			std::ostringstream header;
+			header <<
+				"============================================================================" << std::endl <<
+				PAR(DAEMON_VERSION) << std::endl << std::endl <<
+				"Copyright 2015 - 2017 MICRORISC s.r.o." << std::endl <<
+				"Copyright 2018 IQRF Tech s.r.o." << std::endl <<
+				"============================================================================" << std::endl;
+
+			std::cout << header.str();
+			TRC_INFORMATION(header.str());
+
+			pidInit(vm["pidfile"].as<std::string>());
+
+			std::cout << "startup ... " << std::endl;
+			shapeInit(2, args.data());
+			int retval = shapeRun();
+			return retval;
+		}
+	} catch (const bpo::error &e) {
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
 	}
-
-	std::ostringstream header;
-	header <<
-		"============================================================================" << std::endl <<
-		PAR(DAEMON_VERSION) << std::endl << std::endl <<
-		"Copyright 2015 - 2017 MICRORISC s.r.o." << std::endl <<
-		"Copyright 2018 IQRF Tech s.r.o." << std::endl <<
-		"============================================================================" << std::endl;
-
-	std::cout << header.str();
-	TRC_INFORMATION(header.str());
-
-	pidInit("/var/run/iqrf-gateway-daemon.pid");
-
-	std::cout << "startup ... " << std::endl;
-	shapeInit(argc, argv);
-	int retval = shapeRun();
-	return retval;
+	return EXIT_SUCCESS;
 }

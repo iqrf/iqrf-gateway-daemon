@@ -6,11 +6,19 @@ file(GLOB_RECURSE _CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/configuration/*)
 file(GLOB_RECURSE _CONFIG_WIN_CDC ${CMAKE_CURRENT_SOURCE_DIR}/configuration-WinCdc/*)
 file(GLOB_RECURSE _JAVA_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/javaScript/*)
 
+find_package(Boost REQUIRED COMPONENTS program_options)
+
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 source_group("Configuration" FILES ${_CONFIG})
 source_group("Configuration" FILES ${_CONFIG_WIN_CDC})
 source_group("javaScript" FILES ${_JAVA_SCRIPT})
+
+if (Boost_FOUND)
+	include_directories(${Boost_INCLUDE_DIRS})
+else()
+	message(FATAL_ERROR "Boost libraries not found.")
+endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})
@@ -19,6 +27,7 @@ add_executable(${PROJECT_NAME} ${_HDRFILES} ${_SRCFILES} ${_CONFIG} ${_CONFIG_WI
 
 target_link_libraries(${PROJECT_NAME} 
   launcher
+  ${Boost_LIBRARIES}
 )
 
 if(UNIX)
@@ -55,5 +64,37 @@ foreach(cfg ${CfgList})
 	)
 	DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/${PROJECT_NAME}" "${PROJECT_NAME}-${cfg}")
 endforeach()
+
+if(WIN32)
+  if(${VCPKG_VER} STREQUAL "2021-01-13-unknownhash")
+	  install(
+		  FILES
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-gd-x64-1_75.dll"
+		  CONFIGURATIONS Debug
+		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	  )
+
+	  install(
+		  FILES
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-x64-1_75.dll"
+		  CONFIGURATIONS Release
+		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	  )
+  else()
+	  install(
+		  FILES
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-gd-x64-1_73.dll"
+		  CONFIGURATIONS Debug
+		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	  )
+
+	  install(
+		  FILES
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-x64-1_73.dll"
+		  CONFIGURATIONS Release
+		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	  )
+  endif()
+endif()
 
 ConfigureMsvcProject("${PROJECT_INSTALL_PREFIX}/bin/${PROJECT_NAME}" "${PROJECT_NAME}-WinCdc")

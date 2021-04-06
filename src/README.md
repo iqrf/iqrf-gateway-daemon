@@ -4,6 +4,7 @@ Install:
 - install [vcpkg](https://github.com/Microsoft/vcpkg) to `c:\devel\vcpkg\`
 - `vcpkg install paho-mqtt:x64-windows`
 - `vcpkg install boost-filesystem:x64-windows`
+- `vcpkg install boost-program-options:x64-windows`
 - `vcpkg install curl:x64-windows`
 - `vcpkg install sqlite3:x64-windows`
 - [shape](https://github.com/logimic/shape) (basic components launcher, logging, ...) start `build64_2017.bat` (change MSVC2017 version to your MSVC if necessary)
