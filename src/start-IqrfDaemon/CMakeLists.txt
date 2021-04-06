@@ -62,7 +62,7 @@ foreach(cfg ${CfgList})
 		${CMAKE_CURRENT_SOURCE_DIR}/cfgSchemas						configuration/cfgSchemas
 		${CMAKE_CURRENT_SOURCE_DIR}/systemd							configuration/systemd
 	)
-	DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/${PROJECT_NAME}" "-c" "${PROJECT_NAME}-${cfg}")
+	DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/${PROJECT_NAME}" "${PROJECT_NAME}-${cfg}")
 endforeach()
 
 if(WIN32)
