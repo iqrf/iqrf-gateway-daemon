@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
 		if (argc == 1 || vm.count("help")) {
 			std::cout << "Usage: iqrfgd2" << " [options]" << std::endl << description << std::endl;
 		} else if (vm.count("version")) {
-			std::cout << "IQRF Gateway Daemon " << DAEMON_VERSION << std::endl;
+			std::cout << DAEMON_VERSION << std::endl;
 		} else {
 			std::vector<char *> args;
 			args.push_back(argv[0]);
