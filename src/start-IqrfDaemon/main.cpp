@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 			("help,h", "Show help and usage")
 			("version,v", "Show version")
 			("configuration,c",
-			 bpo::value<std::string>(),
+			 bpo::value<std::string>()->default_value("/etc/iqrf-gateway-daemon.json"),
 			 "Path to configuration file, required to start")
 			("pidfile,p",
 			 bpo::value<std::string>()->default_value("/var/run/iqrf-gateway-daemon.pid"),
