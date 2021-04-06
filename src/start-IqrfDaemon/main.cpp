@@ -79,7 +79,15 @@ int main(int argc, char** argv) {
 			std::cout << "Usage: iqrfgd2" << " [options]" << std::endl << description << std::endl;
 		} else if (vm.count("version")) {
 			std::cout << "IQRF Gateway Daemon " << DAEMON_VERSION << std::endl;
-		} else if (vm.count("configuration")) {
+		} else {
+			std::vector<char *> args;
+			args.push_back(argv[0]);
+			if (argc == 2) {
+				args.push_back(argv[1]);
+			} else {
+				args.push_back(const_cast<char *>(vm["configuration"].as<std::string>().data()));
+			}
+
 			std::ostringstream header;
 			header <<
 				"============================================================================" << std::endl <<
@@ -94,15 +102,9 @@ int main(int argc, char** argv) {
 			pidInit(vm["pidfile"].as<std::string>());
 
 			std::cout << "startup ... " << std::endl;
-			std::vector<char *> args;
-			args.push_back(argv[0]);
-			args.push_back(const_cast<char *>(vm["configuration"].as<std::string>().data()));
 			shapeInit(2, args.data());
 			int retval = shapeRun();
 			return retval;
-		} else {
-			std::cout << "Invalid invocation, use option -h to show help message." << std::endl;
-			return EXIT_FAILURE;
 		}
 	} catch (const bpo::error &e) {
 		std::cerr << e.what() << std::endl;
