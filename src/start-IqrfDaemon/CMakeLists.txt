@@ -62,7 +62,39 @@ foreach(cfg ${CfgList})
 		${CMAKE_CURRENT_SOURCE_DIR}/cfgSchemas						configuration/cfgSchemas
 		${CMAKE_CURRENT_SOURCE_DIR}/systemd							configuration/systemd
 	)
-	DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/${PROJECT_NAME}" "${PROJECT_NAME}-${cfg}")
+	DeployShapeConfigurationStartUp("${PROJECT_INSTALL_PREFIX}/bin/${PROJECT_NAME}" "-c" "${PROJECT_NAME}-${cfg}")
 endforeach()
+
+if(WIN32)
+  if(${VCPKG_VER} STREQUAL "2021-01-13-unknownhash")
+	  install(
+		  FILES
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-gd-x64-1_75.dll"
+		  CONFIGURATIONS Debug
+		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	  )
+
+	  install(
+		  FILES
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-x64-1_75.dll"
+		  CONFIGURATIONS Release
+		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	  )
+  else()
+	  install(
+		  FILES
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-gd-x64-1_73.dll"
+		  CONFIGURATIONS Debug
+		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	  )
+
+	  install(
+		  FILES
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-x64-1_73.dll"
+		  CONFIGURATIONS Release
+		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
+	  )
+  endif()
+endif()
 
 ConfigureMsvcProject("${PROJECT_INSTALL_PREFIX}/bin/${PROJECT_NAME}" "${PROJECT_NAME}-WinCdc")
