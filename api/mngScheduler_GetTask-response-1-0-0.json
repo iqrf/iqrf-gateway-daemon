@@ -1,49 +1,75 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "mngScheduler_GetTask-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Scheduler management - Get Task response.",
-            "enum": [
-                "mngScheduler_GetTask"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "clientId": {
-                            "type": "string",
-                            "description": "Client identifier."
-                        },
-                        "taskId": {
-                            "type": "integer",
-                            "description": "Task identifier."
-                        },
-                        "timeSpec": {
-                            "type": "object",
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "mngScheduler_GetTask-response",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Daemon API message type",
+			"description": "Scheduler management - Get Task response.",
+			"type": "string",
+			"enum": [
+				"mngScheduler_GetTask"
+			]
+		},
+		"data": {
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"type": "string",
+					"description": "Message identification for binding request with response."
+				},
+				"rsp": {
+					"type": "object",
+					"required": [
+						"clientId",
+						"taskId"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"clientId": {
+							"type": "string",
+							"description": "Client identifier."
+						},
+						"taskId": {
+							"type": "integer",
+							"description": "Task identifier."
+						},
+						"timeSpec": {
+							"type": "object",
+							"required": [
+								"cronTime",
+								"periodic",
+								"period",
+								"exactTime",
+								"startTime"
+							],
+							"additionalProperties": false,
 							"properties": {
 								"cronTime": {
 									"type": "array",
-                                    "minItems": 7,
-                                    "maxItems": 7,
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "description": "7 items of cron-like syntax. All required."
+									"minItems": 7,
+									"maxItems": 7,
+									"items": {
+										"type": "string"
+									},
+									"description": "7 items of cron-like syntax. All required."
 								},
 								"exactTime": {
 									"type": "boolean",
@@ -62,55 +88,85 @@
 									"description": "Exact time of start."
 								}
 							}
-                        },
-                        "task": {
-                        	"oneOf":[
-                        		{
-                        			"type": "array",
-                        			"description": "Tasks.",
-                        			"items": {
-                        				"type": "object"
-                        			}
-                        		},
-                        		{
-                        			"type": "object",
-                            		"description": "Task."
-                        		}
-                        	]
-                            
-                        }
-                    },
-                    "required": [
-                        "clientId",
-                        "taskId"
-                    ]
-                },
-                "insId": {
+						},
+						"task": {
+							"title": "Tasks",
+							"description": "Scheduled task or array of tasks.",
+							"oneOf": [
+								{
+									"$ref": "#/definitions/task"
+								},
+								{
+									"type": "array",
+									"items": {
+										"$id": "#/properties/data/properties/req/properties/task/items",
+										"$ref": "#/definitions/task"
+									},
+									"additionalItems": false
+								}
+							]
+						}
+					}
+				},
+				"insId": {
 					"type": "string",
 					"description": "IQRF GW daemon instance identification."
 				},
-                "status": {
-                    "type": "integer",
-                    "description": "Status of operation."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                },
-                "errorStr": {
-                    "type": "string",
-                    "description": "reason of error in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+				"status": {
+					"type": "integer",
+					"description": "Status of operation."
+				},
+				"statusStr": {
+					"type": "string",
+					"description": "IQRF GW daemon API (general or mType) status in string form."
+				},
+				"errorStr": {
+					"type": "string",
+					"description": "reason of error in string form."
+				}
+			}
+		}
+	},
+	"definitions": {
+		"task": {
+			"$id": "#/definitions/task",
+			"title": "Task object",
+			"type": "object",
+			"required": [
+				"message",
+				"messaging"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"messaging": {
+					"$id": "#/definitions/task/properties/messaging",
+					"title": "Task messaging(s)",
+					"oneOf":[
+						{
+							"type": "string",
+							"example": "MqttMessaging"
+						},
+						{
+							"type": "array",
+							"items": {
+								"$id": "#/definitions/task/properties/messaging/items",
+								"type": "string",
+								"pattern": "^[^&]+$"
+							},
+							"additionalItems": false,
+							"example": [
+								"MqMessaging",
+								"MqttMessaging"
+							]
+						}
+					]
+				},
+				"message": {
+					"$id": "#/definitions/task/properties/message",
+					"title": "Task message",
+					"type": "object"
+				}
+			}
+		}
+	}
 }

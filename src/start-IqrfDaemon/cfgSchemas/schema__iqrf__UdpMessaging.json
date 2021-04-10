@@ -18,6 +18,7 @@
         "instance": {
             "type": "string",
             "description": "Recomended iqrf::UdpMessaging-(id)",
+            "pattern": "^[^&]+$",
             "default": "iqrf::UdpMessaging-1"
         },
         "RemotePort": {

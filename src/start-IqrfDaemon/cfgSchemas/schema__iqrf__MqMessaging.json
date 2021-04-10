@@ -18,6 +18,7 @@
         "instance": {
             "type": "string",
             "description": "Recomended iqrf::MqMessaging-(id)",
+            "pattern": "^[^&]+$",
             "default": "iqrf::MqMessaging-1"
         },
         "LocalMqName": {

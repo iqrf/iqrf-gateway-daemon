@@ -1,111 +1,166 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "mngScheduler_AddTask-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Scheduler management - Add Task request.",
-            "enum": [
-                "mngScheduler_AddTask"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "clientId": {
-                            "type": "string",
-                            "description": "Client identifier."
-                        },
-                        "task": {
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "mngScheduler_AddTask-request",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Daemon API message type",
+			"description": "Scheduler management - Add Task request.",
+			"type": "string",
+			"enum": [
+				"mngScheduler_AddTask"
+			]
+		},
+		"data": {
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"type": "string",
+					"description": "Message identification for binding request with response."
+				},
+				"req": {
+					"type": "object",
+					"required": [
+						"clientId",
+						"task",
+						"timeSpec"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"clientId": {
+							"type": "string",
+							"description": "Client identifier."
+						},
+						"taskId": {
+							"$id": "#/properties/data/properties/req/properties/taskId",
+							"title": "Task identifier",
+							"type": "integer"
+						},
+						"task": {
+							"$id": "#/properties/data/properties/req/properties/task",
+							"title": "Tasks",
+							"description": "Scheduled task or array of tasks.",
 							"oneOf": [
 								{
-								  "type": "object",
-								  "properties": {}
+									"$ref": "#/definitions/task"
 								},
 								{
-								  "type": "array",
-								  "items": {
-									"type": "object",
-									"properties": {}
-								  }
+									"type": "array",
+									"items": {
+										"$id": "#/properties/data/properties/req/properties/task/items",
+										"$ref": "#/definitions/task"
+									},
+									"additionalItems": false
 								}
+							]
+						},
+						"timeSpec": {
+							"type": "object",
+							"required": [
+								"cronTime",
+								"periodic",
+								"period",
+								"exactTime",
+								"startTime"
 							],
-                            "description": "Scheduled task or array of tasks."
-                        },
-                        "timeSpec": {
-                            "type": "object",
-                            "properties": {
-                                "cronTime": {
-                                    "type": "array",
-                                    "minItems": 7,
-                                    "maxItems": 7,
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "description": "7 items of cron-like syntax. All required."
-                                },
-                                "periodic": {
-                                    "type": "boolean",
-                                    "description": "Periodic timer with defined period."
-                                },
-                                "period": {
-                                    "type": "integer",
-                                    "description": "Period in seconds."
-                                },
-                                "exactTime": {
-                                    "type": "boolean",
-                                    "description": "One shot timer starting now or delayed ast startTime."
-                                },
-                                "startTime": {
-                                    "type": "string",
-                                    "description": "Delayed start in seconds in timestamp format '2018-01-03T16:00:09.859515'"
-                                }
-                            },
-                            "required": [
-                                "cronTime",
-                                "periodic",
-                                "period",
-                                "exactTime",
-                                "startTime"
-                            ]
-                        },
-                        "persist": { 
-                            "type": "boolean",
-                            "description": "Task will stay after daemon restart."
-                        }
-                    },
-                    "required": [
-                        "clientId",
-                        "task",
-                        "timeSpec"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+							"additionalProperties": false,
+							"properties": {
+								"cronTime": {
+									"type": "array",
+									"minItems": 7,
+									"maxItems": 7,
+									"items": {
+										"type": "string"
+									},
+									"description": "7 items of cron-like syntax. All required."
+								},
+								"periodic": {
+									"type": "boolean",
+									"description": "Periodic timer with defined period."
+								},
+								"period": {
+									"type": "integer",
+									"description": "Period in seconds."
+								},
+								"exactTime": {
+									"type": "boolean",
+									"description": "One shot timer starting now or delayed ast startTime."
+								},
+								"startTime": {
+									"type": "string",
+									"description": "Delayed start in seconds in timestamp format '2018-01-03T16:00:09.859515'"
+								}
+							}
+						},
+						"persist": { 
+							"type": "boolean",
+							"description": "Task will stay after daemon restart."
+						}
+					}
+				},
+				"returnVerbose": {
+					"type": "boolean",
+					"description": "Flag that includes additional parameters in the response."
+				}
+			}
+		}
+	},
+	"definitions": {
+		"task": {
+			"$id": "#/definitions/task",
+			"title": "Task object",
+			"type": "object",
+			"required": [
+				"message",
+				"messaging"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"messaging": {
+					"$id": "#/definitions/task/properties/messaging",
+					"title": "Task messaging(s)",
+					"oneOf":[
+						{
+							"type": "string",
+							"example": "MqttMessaging"
+						},
+						{
+							"type": "array",
+							"items": {
+								"$id": "#/definitions/task/properties/messaging/items",
+								"type": "string",
+								"pattern": "^[^&]+$"
+							},
+							"additionalItems": false,
+							"example": [
+								"MqMessaging",
+								"MqttMessaging"
+							]
+						}
+					]
+				},
+				"message": {
+					"$id": "#/definitions/task/properties/message",
+					"title": "Task message",
+					"type": "object"
+				}
+			}
+		}
+	}
 }

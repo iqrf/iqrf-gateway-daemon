@@ -18,6 +18,7 @@
         "instance": {
             "type": "string",
             "description": "Recomended iqrf::MqttMessaging-(id)",
+            "pattern": "^[^&]+$",
             "default": "iqrf::MqttMessaging-1"
         },
         "BrokerAddr": {

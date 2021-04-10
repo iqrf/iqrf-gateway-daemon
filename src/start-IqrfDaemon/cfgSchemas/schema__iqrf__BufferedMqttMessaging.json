@@ -18,6 +18,7 @@
         "instance": {
             "type": "string",
             "description": "Recomended iqrf::BufferedMqttMessaging-(id)",
+            "pattern": "^[^&]+$",
             "default": "iqrf::BufferedMqttMessaging-1"
         },
         "ClientId": {

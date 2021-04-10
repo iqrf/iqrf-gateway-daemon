@@ -18,6 +18,7 @@
         "instance": {
             "type": "string",
             "description": "Recomended iqrf::WebsocketMessaging-(id)",
+            "pattern": "^[^&]+$",
             "default": "iqrf::WebsocketMessaging-1"
         },
         "acceptAsyncMsg": {
