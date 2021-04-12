@@ -352,6 +352,9 @@ namespace iqrf {
         m_cfg.powerEnableGpioPin = POWER_ENABLE_GPIO;
         m_cfg.busEnableGpioPin = BUS_ENABLE_GPIO;
         m_cfg.pgmSwitchGpioPin = PGM_SWITCH_GPIO;
+        m_cfg.i2cEnableGpioPin = I2C_ENABLE_GPIO;
+        m_cfg.spiEnableGpioPin = SPI_ENABLE_GPIO;
+        m_cfg.uartEnableGpioPin = UART_ENABLE_GPIO;
         m_cfg.trModuleReset = TR_MODULE_RESET_DISABLE;
 
         m_cfg.powerEnableGpioPin = (int8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)m_cfg.powerEnableGpioPin).GetInt();
