@@ -66,31 +66,31 @@ namespace iqrf {
         m_otaUploadInputParams.repeat = (uint16_t)jsonVal->GetInt();
 
       // Device address
-      if (jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)))
         m_otaUploadInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
 
       // hwpId
-      if (jsonVal = rapidjson::Pointer("/data/req/hwpId").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/hwpId").Get(doc)))
         m_otaUploadInputParams.hwpId = (uint16_t)jsonVal->GetInt();
 
       // File name
-      if (jsonVal = rapidjson::Pointer("/data/req/fileName").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/fileName").Get(doc)))
         m_otaUploadInputParams.fileName = jsonVal->GetString();
 
       // Start memory address
-      if (jsonVal = rapidjson::Pointer("/data/req/startMemAddr").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/startMemAddr").Get(doc)))
         m_otaUploadInputParams.startMemAddr = (uint16_t)jsonVal->GetInt();
 
       // Loading action
-      if (jsonVal = rapidjson::Pointer("/data/req/loadingAction").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/loadingAction").Get(doc)))
         m_otaUploadInputParams.loadingAction = jsonVal->GetString();
 
       // Upload eeprom data
-      if (jsonVal = rapidjson::Pointer("/data/req/uploadEepromData").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/uploadEepromData").Get(doc)))
         m_otaUploadInputParams.uploadEepromData = jsonVal->GetBool();
 
       // Upload eeeprom data
-      if (jsonVal = rapidjson::Pointer("/data/req/uploadEeepromData").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/uploadEeepromData").Get(doc)))
         m_otaUploadInputParams.uploadEeepromData = jsonVal->GetBool();
 
     }
