@@ -213,7 +213,7 @@ namespace iqrf
       size_t dotPos = fileName.find_last_of('.');
       if ((dotPos == std::string::npos) || (dotPos == (fileName.length() - 1)))
       {
-        THROW_EXC(std::logic_error, "Bad file name format - no suffix");
+        THROW_EXC(std::logic_error, "File has no suffix.");
       }
       return fileName.substr(dotPos + 1);
     }
@@ -235,7 +235,7 @@ namespace iqrf
         return IOtaUploadService::LoadingContentType::Iqrf_plugin;
       }
 
-      THROW_EXC(std::logic_error, "Not implemented.");
+      THROW_EXC(std::logic_error, "File is not a HEX or IQRF file.");
     }
 
     //-------------------------------------------
@@ -1349,8 +1349,8 @@ namespace iqrf
           THROW_EXC(std::logic_error, "Unsupported loading action: " << m_otaUploadParams.loadingAction);
 
         // External eeprom area 0x0000-0x0300 is protected (could be used for Autoexec or IO Setup)
-        if(m_otaUploadParams.startMemAddr < 0x0300)
-          THROW_EXC(std::logic_error, "Incorrect startMemAddr: " << m_otaUploadParams.startMemAddr);
+        if(m_otaUploadParams.startMemAddr < 0x0300 || m_otaUploadParams.startMemAddr > 0x3fff)
+          THROW_EXC(std::logic_error, "Incorrect startMemAddr: " << m_otaUploadParams.startMemAddr << ". startMemAddr should be between 768 and 16383.");
       }
       catch (const std::exception& e)
       {
