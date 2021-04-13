@@ -38,6 +38,14 @@ namespace iqrf {
       Iqrf_plugin
     };
 
+    // Node authorization error definition
+    enum MemoryType
+    {
+      flash,
+      eeprom,
+      eeeprom
+    };
+
 	/// \brief Destructor
     virtual ~IOtaUploadService() {};
 	};

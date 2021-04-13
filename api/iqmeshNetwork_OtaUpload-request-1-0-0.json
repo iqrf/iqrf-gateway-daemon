@@ -49,6 +49,14 @@
             "loadingAction": {
               "type": "string",
               "description": "Loading action - WithoutCodeLoading, WithCodeLoading."
+            },
+            "uploadEepromData": {
+              "type": "boolean",
+              "description": "Upload internal eeprom data from hex file."
+            },
+            "uploadEeepromData": {
+              "type": "boolean",
+              "description": "Upload external eeprom data from hex file."
             }
           },
           "required": [
