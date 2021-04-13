@@ -13,6 +13,8 @@ namespace iqrf {
     {
       hwpId = HWPID_DoNotCheck;
       repeat = 1;
+      uploadEepromData = false;
+      uploadEeepromData = false;
     }
     uint16_t deviceAddress;
     uint16_t hwpId;
@@ -20,6 +22,8 @@ namespace iqrf {
     uint16_t repeat;
     uint16_t startMemAddr;
     std::string loadingAction;
+    bool uploadEepromData;
+    bool uploadEeepromData;
   }TOtaUploadInputParams;
 
   class ComIqmeshNetworkOtaUpload : public ComBase
@@ -80,6 +84,15 @@ namespace iqrf {
       // Loading action
       if (jsonVal = rapidjson::Pointer("/data/req/loadingAction").Get(doc))
         m_otaUploadInputParams.loadingAction = jsonVal->GetString();
+
+      // Upload eeprom data
+      if (jsonVal = rapidjson::Pointer("/data/req/uploadEepromData").Get(doc))
+        m_otaUploadInputParams.uploadEepromData = jsonVal->GetBool();
+
+      // Upload eeeprom data
+      if (jsonVal = rapidjson::Pointer("/data/req/uploadEeepromData").Get(doc))
+        m_otaUploadInputParams.uploadEeepromData = jsonVal->GetBool();
+
     }
   };
 }

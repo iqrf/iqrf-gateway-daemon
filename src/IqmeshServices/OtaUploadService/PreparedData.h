@@ -2,8 +2,8 @@
 
 #include <vector>
 
-namespace iqrf {
-
+namespace iqrf
+{
   /// \class PreparedData
   /// \brief Holds data prepared for writing into external EEPROM and loading into
   /// MCU Flash memory on nodes.

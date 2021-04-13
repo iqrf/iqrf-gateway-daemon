@@ -41,6 +41,9 @@ namespace
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
   static const int emptyUploadPathError = 1003;
+  static const int uploadFileProcessingError = 1004;
+  static const int invalidEepromAddress = 1005;
+  static const int eepromContentNotUploaded = 1006;
 };
 
 namespace iqrf
@@ -370,6 +373,98 @@ namespace iqrf
         batchPacketPData[offset + EMB_WRITE_PACKET_HEADER_SIZE + i] = data[i];
     }
 
+    //----------------------
+    // Write internal eeprom 
+    //----------------------
+    void writeInternalEeprom(UploadResult& uploadResult, const uint8_t address, const std::basic_string<uint8_t> &data)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Use requested hwpId for broadcast packet
+        uint16_t hwpId = HWPID_DoNotCheck;
+        if (m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS)
+          hwpId = m_otaUploadParams.hwpId;
+        // Prepare DPA request
+        DpaMessage writeEepromRequest;
+        DpaMessage::DpaPacket_t writeEepromPacket;
+        writeEepromPacket.DpaRequestPacket_t.NADR = m_otaUploadParams.deviceAddress;
+        writeEepromPacket.DpaRequestPacket_t.PNUM = PNUM_EEPROM;
+        writeEepromPacket.DpaRequestPacket_t.PCMD = CMD_EEPROM_WRITE;
+        writeEepromPacket.DpaRequestPacket_t.HWPID = hwpId;
+        // Add address and copy data
+        writeEepromPacket.DpaRequestPacket_t.DpaMessage.MemoryRequest.Address = address;
+        data.copy(writeEepromPacket.DpaRequestPacket_t.DpaMessage.MemoryRequest.ReadWrite.Write.PData, data.size());
+        writeEepromRequest.DataToBuffer(writeEepromPacket.Buffer, sizeof(TDpaIFaceHeader) + (uint8_t)data.size() + MEMORY_WRITE_REQUEST_OVERHEAD);
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(writeEepromRequest, transResult, m_otaUploadParams.repeat);
+        TRC_DEBUG("Result from CMD_EEPROM_WRITE transaction as string:" << PAR(transResult->getErrorString()));
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION("CMD_EEPROM_WRITE successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(Peripheral type, writeEepromRequest.PeripheralType())
+          << NAME_PAR(Node address, writeEepromRequest.NodeAddress())
+          << NAME_PAR(Command, (int)writeEepromRequest.PeripheralCommand())
+        );
+        uploadResult.addTransactionResult(transResult);
+        TRC_FUNCTION_LEAVE("");
+      }
+      catch (const std::exception& e)
+      {
+        uploadResult.setStatus(transResult->getErrorCode(), e.what());
+        uploadResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
+    //----------------------
+    // Write external eeprom 
+    //----------------------
+    void writeExternalEeprom(UploadResult& uploadResult, const uint16_t address, const std::basic_string<uint8_t> &data)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Use requested hwpId for broadcast packet
+        uint16_t hwpId = HWPID_DoNotCheck;
+        if (m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS)
+          hwpId = m_otaUploadParams.hwpId;
+        // Prepare DPA request
+        DpaMessage writeEeepromRequest;
+        DpaMessage::DpaPacket_t writeEeepromPacket;
+        writeEeepromPacket.DpaRequestPacket_t.NADR = m_otaUploadParams.deviceAddress;
+        writeEeepromPacket.DpaRequestPacket_t.PNUM = PNUM_EEEPROM;
+        writeEeepromPacket.DpaRequestPacket_t.PCMD = CMD_EEEPROM_XWRITE;
+        writeEeepromPacket.DpaRequestPacket_t.HWPID = hwpId;
+        // Put address and copy data
+        writeEeepromPacket.DpaRequestPacket_t.DpaMessage.XMemoryRequest.Address = address;
+        data.copy(writeEeepromPacket.DpaRequestPacket_t.DpaMessage.XMemoryRequest.ReadWrite.Write.PData, data.size());
+        writeEeepromRequest.DataToBuffer(writeEeepromPacket.Buffer, sizeof(TDpaIFaceHeader) + (uint8_t)data.size() + XMEMORY_WRITE_REQUEST_OVERHEAD);
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(writeEeepromRequest, transResult, m_otaUploadParams.repeat);
+        TRC_DEBUG("Result from CMD_EEEPROM_XWRITE transaction as string:" << PAR(transResult->getErrorString()));
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION("CMD_EEEPROM_XWRITE successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(Peripheral type, writeEeepromRequest.PeripheralType())
+          << NAME_PAR(Node address, writeEeepromRequest.NodeAddress())
+          << NAME_PAR(Command, (int)writeEeepromRequest.PeripheralCommand())
+        );
+        uploadResult.addTransactionResult(transResult);
+        TRC_FUNCTION_LEAVE("");
+      }
+      catch (const std::exception& e)
+      {
+        uploadResult.setStatus(transResult->getErrorCode(), e.what());
+        uploadResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
     //---------------------
     // Write data to eeprom
     //---------------------
@@ -566,7 +661,7 @@ namespace iqrf
         loadCodePacket.DpaRequestPacket_t.DpaMessage.PerOSLoadCode_Request.Length = length;
         loadCodeRequest.DataToBuffer(loadCodePacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerOSLoadCode_Request));
         // Execute the DPA request
-        m_exclusiveAccess->executeDpaTransactionRepeat(loadCodeRequest, transResult, m_otaUploadParams.repeat);
+        m_exclusiveAccess->executeDpaTransactionRepeat(loadCodeRequest, transResult, m_otaUploadParams.repeat, 10000);
         TRC_DEBUG("Result from CMD_OS_LOAD_CODE as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
         TRC_INFORMATION("CMD_OS_LOAD_CODE successful!");
@@ -603,7 +698,6 @@ namespace iqrf
       {
         uint16_t hwpId = m_otaUploadParams.hwpId;
         std::basic_string<uint8_t> nodesList;
-        //std::list<uint8_t> nodesList;
         nodesList.clear();
         DpaMessage frcSendRequest;
         DpaMessage::DpaPacket_t frcSendPacket;
@@ -847,55 +941,203 @@ namespace iqrf
     //-------
     // Upload
     //-------
-    void upload(UploadResult &uploadResult, const std::string fileName)
+    void upload(UploadResult &uploadResult)
     {
       TRC_FUNCTION_ENTER("");
-
-      LoadingAction loadingAction = uploadResult.getLoadingAction();
-      IOtaUploadService::LoadingContentType loadingContentType = parseLoadingContentType(fileName);
-
-      // prepare data to write and load
-      std::unique_ptr<PreparedData> preparedData = DataPreparer::prepareData(loadingContentType, fileName, m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS);
-
-      // Upload - write prepared data into external eeprom memory
-      if (loadingAction == LoadingAction::Upload)
+      try
       {
-        // Initial version supports only one [N] (or [C]) or all Nodes
-        writeDataToExtEEPROM(uploadResult, m_otaUploadParams.startMemAddr, preparedData->getData());
-      }
+        std::string fileName;
+        IOtaUploadService::LoadingContentType loadingContentType;
+        LoadingAction loadingAction = uploadResult.getLoadingAction();
+        std::unique_ptr<PreparedData> preparedData;
+        std::list<CodeBlock> eepromData;
+        std::list<CodeBlock> eeepromData;
+        bool uploadEeprom = false;
+        bool uploadEeeprom = false;
+        uint8_t eepromBottomAddr = 0x00;
 
-      // Verify (or load) action - check the external eeprom content
-      if ((loadingAction == LoadingAction::Verify) || (loadingAction == LoadingAction::Load))
-      {
-        // Vefiry the external eeprom content
-        if (m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS)
+        // Prepare flash eeprom and eeepron data to upload
+        try 
         {
-          // Unicast address
-          loadCodeUnicast(LoadingAction::Verify, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
+          // Process the file
+          fileName = getFullFileName(m_uploadPath, m_otaUploadParams.fileName);
+          loadingContentType = parseLoadingContentType(fileName);
+          // Parse flash content
+          preparedData = DataPreparer::prepareData(loadingContentType, fileName, m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS);
+          // In case of uploading hex file check the hex also for eeprom and eeeprom content
+          if ((loadingAction == LoadingAction::Upload) && (loadingContentType == LoadingContentType::Hex))
+          {
+            // Parse internal eeprom content
+            eepromData = DataPreparer::getEepromData(fileName);
+            if (eepromData.empty() != true)
+            {
+              // Hex contains data for internal eeprom, upload eeprom data specified in request ?
+              if (m_otaUploadParams.uploadEepromData == true)
+              {
+                // Yes - check internal eeprom address ([N]: 0x00-0xbf, [C]: 0x80-0xbf)               
+                if (m_otaUploadParams.deviceAddress == COORDINATOR_ADDRESS)
+                  eepromBottomAddr = 0x80;
+                for (CodeBlock block : eepromData)
+                {
+                  // Check eeeprom address is dedicated to user
+                  if ((block.getStartAddress() < eepromBottomAddr) || (block.getEndAddress() > 0xbf))
+                  {
+                    std::stringstream strError;
+                    strError << "Internal Eeprom area 0x" << std::hex << (block.getStartAddress()) << "-0x" << block.getEndAddress() << " is not dedicated to user.";
+                    uploadResult.setStatus(invalidEepromAddress, strError.str());
+                    THROW_EXC(std::logic_error, uploadResult.getStatusStr());
+                  }
+                }
+                // OK - upload hex file eeprom content
+                uploadEeprom = true;
+              }
+              else
+              {
+                // Hex file contains eeprom data, but uploadEepromData is false - upload stopped
+                std::stringstream strError;
+                strError << "Hex file contains eeprom data, uploadEepromData is false, upload stopped.";
+                uploadResult.setStatus(eepromContentNotUploaded, strError.str());
+                THROW_EXC(std::logic_error, uploadResult.getStatusStr());
+              }
+            }
+
+            // Parse external eeprom content
+            eeepromData = DataPreparer::getEeepromData(fileName);           
+            // ToDo provest testy predem
+            if (eeepromData.empty() != true)
+            {
+              // Hex contains data for internal eeprom, upload eeprom data ?
+              if (m_otaUploadParams.uploadEeepromData == true)
+              {
+                // Check external eeprom address (0x0000-0x3fff)
+                for (CodeBlock block : eeepromData)
+                {
+                  if (block.getEndAddress() > 0x3fff)
+                  {
+                    std::stringstream strError;
+                    strError << "External Eeprom area 0x" << std::hex << (block.getStartAddress()) << "-0x" << block.getEndAddress() << " is not dedicated to user.";
+                    uploadResult.setStatus(invalidEepromAddress, strError.str());
+                    THROW_EXC(std::logic_error, uploadResult.getStatusStr());
+                  }
+
+                  // Check eeeprom content is not in the same space as startMemAddr
+                  if ((m_otaUploadParams.startMemAddr >= block.getStartAddress()) && (m_otaUploadParams.startMemAddr <= block.getEndAddress()))
+                  {
+                    std::stringstream strError;
+                    strError << "External Eeprom area 0x" << std::hex << (block.getStartAddress()) << "-0x" << block.getEndAddress() << " overlaps startMemAddr address.";
+                    uploadResult.setStatus(invalidEepromAddress, strError.str());
+                    THROW_EXC(std::logic_error, uploadResult.getStatusStr());
+                  }
+                }
+                // OK - upload hex file eeeprom content
+                uploadEeeprom = true;
+              }
+              else
+              {
+                std::stringstream strError;
+                strError << "Hex file contains eeeprom data, uploadEeepromData is false, upload stopped.";
+                uploadResult.setStatus(eepromContentNotUploaded, strError.str());
+                THROW_EXC(std::logic_error, uploadResult.getStatusStr());
+              }
+            }
+          }
         }
-        else
+        catch (const std::exception &e)
         {
-          // Save actual FRC params
-          IDpaTransaction2::FrcResponseTime frcResponseTime = m_iIqrfDpaService->getFrcResponseTime();
-          // Verify the external eeprom memory content
-          verifyCode(LoadingAction::Verify, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
-          // Finally set FRC param back to initial value
-          m_iIqrfDpaService->setFrcResponseTime(frcResponseTime);
-          setFrcReponseTime(uploadResult, frcResponseTime);
+          // Error parsing the file
+          uploadResult.setStatus(uploadFileProcessingError, e.what());
+          THROW_EXC(std::logic_error, e.what());
         }
-      }
+        
+        // Upload - write prepared data into external eeprom memory
+        if (loadingAction == LoadingAction::Upload)
+        {
+          // Upload eeprom data 
+          if (uploadEeprom == true)
+          {
+            // Write data to internal eeprom
+            for (CodeBlock block : eepromData)
+            {
+              uint8_t blockDataLen = (uint8_t)block.getLength();
+              uint8_t address = (uint8_t)block.getStartAddress();
+              uint8_t index = 0x00;
+              do
+              {
+                uint8_t len = (uint8_t)(blockDataLen > 54 ? 54 : blockDataLen);
+                std::basic_string<uint8_t> data;
+                data.append(block.getCode(), index, len);
+                writeInternalEeprom(uploadResult, address - eepromBottomAddr, data);
+                blockDataLen -= len;
+                index += len;
+                address += len;
+              } while (blockDataLen != 0);
+            }
+          }
 
-      // Load action - load external eeprom content to flash
-      if (loadingAction == LoadingAction::Load)
+          // Upload eeeprom data 
+          if (uploadEeeprom == true)
+          {
+            // Write data to external eeprom
+            for (CodeBlock block : eeepromData)
+            {
+              uint16_t blockDataLen = block.getLength();
+              uint16_t address = block.getStartAddress();
+              uint16_t index = 0x00;
+              do
+              {
+                uint8_t len = (uint8_t)(blockDataLen > 54 ? 54 : blockDataLen);
+                std::basic_string<uint8_t> data;
+                data.append(block.getCode(), index, len);
+                writeExternalEeprom(uploadResult, address, data);
+                blockDataLen -= len;
+                index += len;
+                address += len;
+              } while (blockDataLen != 0);
+            }
+          }
+
+          // Upload code to eeeprom
+          writeDataToExtEEPROM(uploadResult, m_otaUploadParams.startMemAddr, preparedData->getData());
+        }
+
+        // Verify (or load) action - check the external eeprom content
+        if ((loadingAction == LoadingAction::Verify) || (loadingAction == LoadingAction::Load))
+        {
+          // Vefiry the external eeprom content
+          if (m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS)
+          {
+            // Unicast address
+            loadCodeUnicast(LoadingAction::Verify, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
+          }
+          else
+          {
+            // Save actual FRC params
+            IDpaTransaction2::FrcResponseTime frcResponseTime = m_iIqrfDpaService->getFrcResponseTime();
+            // Verify the external eeprom memory content
+            verifyCode(LoadingAction::Verify, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
+            // Finally set FRC param back to initial value
+            m_iIqrfDpaService->setFrcResponseTime(frcResponseTime);
+            setFrcReponseTime(uploadResult, frcResponseTime);
+          }
+        }
+
+        // Load action - load external eeprom content to flash
+        if (loadingAction == LoadingAction::Load)
+        {
+          // Load the external eeprom content to flash
+          if (m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS)
+            loadCodeUnicast(LoadingAction::Load, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
+          else
+            loadCodeBroadcast(loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
+        }
+
+        TRC_FUNCTION_LEAVE("");
+      }
+      catch (std::exception& e)
       {
-        // Load the external eeprom content to flash
-        if (m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS)
-          loadCodeUnicast(LoadingAction::Load, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
-        else
-          loadCodeBroadcast(loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+        TRC_FUNCTION_LEAVE("");
       }
-
-      TRC_FUNCTION_LEAVE("");
     }
 
     //-----------------
@@ -1104,7 +1346,11 @@ namespace iqrf
           loadingAction = LoadingAction::Load;
 
         if(loadingAction == LoadingAction::Undefinded)
-          THROW_EXC(std::logic_error, "Unsupported loading action: " << PAR(m_otaUploadParams.loadingAction));
+          THROW_EXC(std::logic_error, "Unsupported loading action: " << m_otaUploadParams.loadingAction);
+
+        // External eeprom area 0x0000-0x0300 is protected (could be used for Autoexec or IO Setup)
+        if(m_otaUploadParams.startMemAddr < 0x0300)
+          THROW_EXC(std::logic_error, "Incorrect startMemAddr: " << m_otaUploadParams.startMemAddr);
       }
       catch (const std::exception& e)
       {
@@ -1132,11 +1378,8 @@ namespace iqrf
         // Upload result
         UploadResult uploadResult(loadingAction);
 
-        // Construct full file name
-        std::string fullFileName = getFullFileName(m_uploadPath, m_otaUploadParams.fileName);
-
         // Upload
-        upload(uploadResult, fullFileName);
+        upload(uploadResult);
 
         // Create and send response
         createResponse(uploadResult);
