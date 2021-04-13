@@ -961,14 +961,25 @@ namespace iqrf
         {
           // Process the file
           fileName = getFullFileName(m_uploadPath, m_otaUploadParams.fileName);
-          loadingContentType = parseLoadingContentType(fileName);
-          // Parse flash content
-          preparedData = DataPreparer::prepareData(loadingContentType, fileName, m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS);
+          try {
+            loadingContentType = parseLoadingContentType(fileName);
+            // Parse flash content
+            preparedData = DataPreparer::prepareData(loadingContentType, fileName, m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS);
+          } catch (const std::exception &e) {
+            uploadResult.setStatus(uploadFileProcessingError, e.what());
+            THROW_EXC(std::logic_error, e.what());
+          }
           // In case of uploading hex file check the hex also for eeprom and eeeprom content
           if ((loadingAction == LoadingAction::Upload) && (loadingContentType == LoadingContentType::Hex))
           {
-            // Parse internal eeprom content
-            eepromData = DataPreparer::getEepromData(fileName);
+            try {
+              // Parse internal eeprom content
+              eepromData = DataPreparer::getEepromData(fileName);
+            } catch (const std::exception &e) {
+              uploadResult.setStatus(uploadFileProcessingError, e.what());
+              THROW_EXC(std::logic_error, e.what());
+            }
+
             if (eepromData.empty() != true)
             {
               // Hex contains data for internal eeprom, upload eeprom data specified in request ?
@@ -1001,8 +1012,14 @@ namespace iqrf
               }
             }
 
-            // Parse external eeprom content
-            eeepromData = DataPreparer::getEeepromData(fileName);           
+            try {
+              // Parse external eeprom content
+              eeepromData = DataPreparer::getEeepromData(fileName);   
+            } catch (const std::exception &e) {
+              uploadResult.setStatus(uploadFileProcessingError, e.what());
+              THROW_EXC(std::logic_error, e.what());
+            }
+
             // ToDo provest testy predem
             if (eeepromData.empty() != true)
             {
@@ -1044,8 +1061,6 @@ namespace iqrf
         }
         catch (const std::exception &e)
         {
-          // Error parsing the file
-          uploadResult.setStatus(uploadFileProcessingError, e.what());
           THROW_EXC(std::logic_error, e.what());
         }
         
