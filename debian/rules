@@ -38,16 +38,10 @@ override_dh_auto_install:
 
 override_dh_install:
 	dh_install
-	#release: rm components from package: OTA, IqrfTcp
-	rm debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/iqrf__OtaUploadService.json
-	rm debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/cfgSchemas/schema__iqrf__OtaUploadService.json
-	rm debian/iqrf-gateway-daemon/usr/lib/iqrf-gateway-daemon/libOtaUploadService.so
-	rm debian/iqrf-gateway-daemon/usr/share/iqrf-gateway-daemon/apiSchemas/iqmeshNetwork_OtaUpload*.json
+	#release: rm components from package: IqrfTcp
 	rm debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/iqrf__IqrfTcp.json
 	rm debian/iqrf-gateway-daemon/etc/iqrf-gateway-daemon/cfgSchemas/schema__iqrf__IqrfTcp.json
 	rm debian/iqrf-gateway-daemon/usr/lib/iqrf-gateway-daemon/libIqrfTcp.so
-	rm debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/iqrf__OtaUploadService.json
-	rm debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/cfgSchemas/schema__iqrf__OtaUploadService.json
 	rm debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/iqrf__IqrfTcp.json
 	rm debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/cfgSchemas/schema__iqrf__IqrfTcp.json
   #builds, scripts
