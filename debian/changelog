@@ -1,3 +1,76 @@
+iqrf-gateway-daemon (2.3.6-rc1) testing; urgency=medium
+
+  [ Karel Hanák ]
+  * JsonSplitter: preserve msgId if validation fails or message queue is full
+  * JsonSplitter: ignored msgid fix
+
+  [ Vasek Hanak ]
+  * Unified error codes of Iqmesh Services.
+
+  [ Rostislav Spinar ]
+  * Enable proper setting for KON-RASP-01
+  * Fix setting for Uart, Pgm pin is always not used
+
+  [ Vasek Hanak ]
+  * DPA.h + OTA
+
+  [ Rostislav Spinar ]
+  * Update ref to clibdpa
+
+  [ Roman Ondráček ]
+  * GitLab CI: deploy to another server
+
+  [ Frantisek Mikulu ]
+  * omit timestamp in response result for empty request, confirm, response
+
+  [ Karel Hanák ]
+  * UdpChannel: use network byte order when fetching address
+  * added syslog trace component configuration
+  * Debian package: update MqttMessaging in postinst only if default topics are set
+  * API: fixed backup and restore examples
+  * added syslog logging component
+
+  [ Roman Ondráček ]
+  * GitLab CI: downgrade DinD
+  * GitLab CI: add testing version deployment, add tag for API testing
+
+  [ Frantisek Mikulu ]
+  * conditional build of SyslogLogger
+
+  [ Karel Hanák ]
+  * added pid fine initialization
+
+  [ Frantisek Mikulu ]
+  * Fix  pid for Win
+
+  [ Roman Ondráček ]
+  * systemd: send outputs to journal instead of deprecated syslog
+
+  [ Karel Hanák ]
+  * main: added boost program options parsing
+  * Main: handle a situation where non-option argument is specified
+
+  [ Frantisek Mikulu ]
+  * Add boost program-options build deps for Win
+  * doc upd
+
+  [ Karel Hanák ]
+  * updated PO parsing, fixed cmake config deployment
+  * main: support legacy launch for a few versions
+  * main: updated version output
+  * Main: nonexistent configuration path error handling
+  * IqrfSpi and IqrfUart: set default gpio pins
+  * updated clibspi and clibuart submodule references
+
+  [ Vasek Hanak ]
+  * OTA update
+
+  [ Karel Hanák ]
+  * OtaUpload: fixed compile time warnings, updated error messages
+  * OtaUpload: fixed file and content parsing error handling
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Wed, 14 Apr 2021 10:42:26 +0200
+
 iqrf-gateway-daemon (2.3.5) stable; urgency=medium
 
   [ Karel Hanák ]
