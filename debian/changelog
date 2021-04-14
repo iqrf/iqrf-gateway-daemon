@@ -1,3 +1,10 @@
+iqrf-gateway-daemon (2.3.6~rc2) testing; urgency=medium
+
+  [ Karel Hanák ]
+  * Debian package: include OtaUpload component
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Wed, 14 Apr 2021 15:08:41 +0200
+
 iqrf-gateway-daemon (2.3.6-rc1) testing; urgency=medium
 
   [ Karel Hanák ]
