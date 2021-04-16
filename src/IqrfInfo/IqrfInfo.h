@@ -66,6 +66,9 @@ namespace iqrf {
     rapidjson::Document getNodeMetaData(int nadr) const override;
     void setNodeMetaData(int nadr, const rapidjson::Value & metaData) override;
 
+    // resets database
+    void resetDb() override;
+
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);

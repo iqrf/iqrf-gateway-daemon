@@ -56,6 +56,7 @@ namespace iqrf {
     const std::string mType_GetNodeMetaData = "infoDaemon_GetNodeMetaData";
     const std::string mType_SetNodeMetaData = "infoDaemon_SetNodeMetaData";
     const std::string mType_OrphanedMids = "infoDaemon_OrphanedMids";
+	const std::string mType_Reset = "infoDaemon_Reset";
 
     /////////// message classes declarations
     class InfoDaemonMsg : public ApiMsg
@@ -866,6 +867,26 @@ namespace iqrf {
       Cmd m_command;
     };
 
+	/// Database reset message
+	class InfoDaemonMsgReset : public InfoDaemonMsg {
+	public:
+		InfoDaemonMsgReset() = delete;
+		InfoDaemonMsgReset(const rapidjson::Document& doc): InfoDaemonMsg(doc) {}
+		virtual ~InfoDaemonMsgReset() {}
+	
+		/**
+		 * Handles database reset message
+		 * @param imp IqrfInfo implementation object 
+		 */
+		void handleMsg(JsonIqrfInfoApi::Imp* imp) override {
+			TRC_FUNCTION_ENTER("");
+			imp->resetDb();
+			TRC_FUNCTION_LEAVE("");
+		}
+	private: 
+		int m_res;
+	};
+
   ///////////////////// Imp members
   private:
 
@@ -898,7 +919,8 @@ namespace iqrf {
       m_objectFactory.registerClass<InfoDaemonMsgGetNodeMetaData>(mType_GetNodeMetaData);
       m_objectFactory.registerClass<InfoDaemonMsgSetNodeMetaData>(mType_SetNodeMetaData);
       m_objectFactory.registerClass<InfoDaemonMsgOrphanedMids>(mType_OrphanedMids);
-    }
+	  m_objectFactory.registerClass<InfoDaemonMsgReset>(mType_Reset);
+	}
 
     ~Imp()
     {
@@ -1056,6 +1078,13 @@ namespace iqrf {
     {
       m_iIqrfInfo->setNodeMetaData(nadr, metaData);
     }
+
+	/**
+	 * Calls IqrfInfo reset database function
+	 */
+	void resetDb() {
+		m_iIqrfInfo->resetDb();
+	}
 
     void activate(const shape::Properties *props)
     {
