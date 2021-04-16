@@ -83,6 +83,8 @@ namespace iqrf
     virtual rapidjson::Document getNodeMetaData(int nadr) const = 0;
     virtual void setNodeMetaData(int nadr, const rapidjson::Value & metaData) = 0;
 
+    virtual void resetDb() = 0;
+
     virtual ~IIqrfInfo() {}
   };
 }
