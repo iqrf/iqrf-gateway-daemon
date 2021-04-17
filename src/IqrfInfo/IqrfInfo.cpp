@@ -284,6 +284,23 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
+    /**
+     * Resets database
+     * @return Op status code
+     */ 
+	void resetDb() {
+		std::string dbPath = m_iLaunchService->getDataDir() + "/DB/IqrfInfo.db";
+		std::ifstream dbFile(dbPath);
+		sqlite_config config;
+		config.flags = OpenFlags::READWRITE;
+		if (dbFile.is_open()) { // db file exists
+			if (std::remove(dbPath.c_str()) != 0) {
+				THROW_EXC_TRC_WAR(std::logic_error, "Failed to remove db file: " << strerror(errno));
+			};
+		}
+		initDb();
+	}
+
     // percentage estimate
     void percentageEstimate(IIqrfInfo::EnumerationState & estate)
     {
@@ -2740,6 +2757,10 @@ namespace iqrf {
   void IqrfInfo::setNodeMetaData(int nadr, const rapidjson::Value & metaData)
   {
     m_imp->setNodeMetaData(nadr, metaData);
+  }
+
+  void IqrfInfo::resetDb() {
+    m_imp->resetDb();
   }
 
   void IqrfInfo::activate(const shape::Properties *props)
