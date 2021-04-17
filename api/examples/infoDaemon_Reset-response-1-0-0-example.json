@@ -1,0 +1,10 @@
+{
+    "mType": "infoDaemon_Reset",
+    "data": {
+        "msgId": "testInfoReset",
+        "rsp": {},
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}

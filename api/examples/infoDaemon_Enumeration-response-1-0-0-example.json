@@ -1,66 +1,64 @@
-{
-    "mType": "infoDaemon_Enumeration",
-    "data": {
-        "msgId": "testInfoEnum",
-        "rsp": {
-            "command": "start"
-        },
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
-    }
-}
-
-{
-    "mType": "infoDaemon_Enumeration",
-    "data": {
-        "msgId": "testInfoEnum",
-        "rsp": {
-            "command": "now"
-        },
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
-    }
-}
-
-{
-    "mType": "infoDaemon_Enumeration",
-    "data": {
-        "msgId": "testInfoEnum",
-        "rsp": {
-            "command": "getPeriod",
-            "period": 0
-        },
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
-    }
-}
-
-{
-    "mType": "infoDaemon_Enumeration",
-    "data": {
-        "msgId": "testInfoEnum",
-        "rsp": {
-            "command": "setPeriod",
-            "period": 10
-        },
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
-    }
-}
-
-{
-    "mType": "infoDaemon_Enumeration",
-    "data": {
-        "msgId": "testInfoEnum",
-        "rsp": {
-            "command": "stop"
-        },
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
-    }
-}
+[
+	{
+		"mType": "infoDaemon_Enumeration",
+		"data": {
+			"msgId": "testInfoEnum",
+			"rsp": {
+				"command": "start"
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	},
+	{
+		"mType": "infoDaemon_Enumeration",
+		"data": {
+			"msgId": "testInfoEnum",
+			"rsp": {
+				"command": "now"
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	},
+	{
+		"mType": "infoDaemon_Enumeration",
+		"data": {
+			"msgId": "testInfoEnum",
+			"rsp": {
+				"command": "getPeriod",
+				"period": 0
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	},
+	{
+		"mType": "infoDaemon_Enumeration",
+		"data": {
+			"msgId": "testInfoEnum",
+			"rsp": {
+				"command": "setPeriod",
+				"period": 10
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	},
+	{
+		"mType": "infoDaemon_Enumeration",
+		"data": {
+			"msgId": "testInfoEnum",
+			"rsp": {
+				"command": "stop"
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	}
+]
