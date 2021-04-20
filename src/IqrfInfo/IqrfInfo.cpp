@@ -2301,11 +2301,22 @@ namespace iqrf {
         return; //just coord addr
       }
 
-      if (msg.PeripheralType() != 0) {
-        return; //just coord perif
+      TDpaPeripheralType per = msg.PeripheralType();
+      int cmd;
+      if (per == 0) { // coordinator peripheral
+        cmd = msg.PeripheralCommand() & ~0x80;
+      } else if (per == 2) { //os peripheral
+        cmd = msg.PeripheralCommand() & ~0x80;
+        if (cmd != CMD_OS_BATCH) {
+          return;
+        }
+        cmd = findBatchDbChange(msg.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData);
+        if (cmd == -1) {
+          return;
+        }
+      } else {
+        return;
       }
-
-      int cmd = msg.PeripheralCommand() & ~0x80;
 
       if (
         cmd == CMD_COORDINATOR_CLEAR_ALL_BONDS
@@ -2326,6 +2337,36 @@ namespace iqrf {
         //  TRC_INFORMATION("exclusive access detected => enum waits ... ");
         //}
       }
+    }
+
+    /**
+     * Checks OS batch command to find request that impacts DB
+     * @param pData DPA request packet data
+     * @return Coordinator command number or -1 if request has no effect on DB
+     */
+    int findBatchDbChange(const uns8 *pData) const {
+      int cmd = -1;
+      uint8_t idx = 0;
+      uint8_t bytes = pData[idx];
+      while (bytes != 0) {
+        if (pData[idx + 1] != 0) {
+          return -1;
+        }
+        uint8_t pcmd = pData[idx + 2];
+        if (pcmd == CMD_COORDINATOR_CLEAR_ALL_BONDS
+            || pcmd == CMD_COORDINATOR_BOND_NODE
+            || pcmd == CMD_COORDINATOR_REMOVE_BOND
+            || pcmd == CMD_COORDINATOR_DISCOVERY
+            || pcmd == CMD_COORDINATOR_RESTORE
+            || pcmd == CMD_COORDINATOR_SMART_CONNECT
+            || pcmd == CMD_COORDINATOR_SET_MID) {
+          cmd = pcmd;
+          break;
+        }
+        idx += bytes;
+        bytes = pData[idx];
+      }
+      return cmd;
     }
 
     bool getMidMetaDataToMessages() const
