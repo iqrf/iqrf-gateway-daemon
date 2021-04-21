@@ -1,0 +1,10 @@
+{
+	"mType":"mngScheduler_GetTask",
+	"data":{
+		"req":{
+			"clientId":"SchedulerMessaging",
+			"taskId": 233918545
+		},
+		"returnVerbose":true
+	}
+}

@@ -1,0 +1,46 @@
+{
+	"mType": "mngScheduler_GetTask",
+	"data": {
+		"msgId": "5c5c0eaf-bd29-4228-a0d1-f580bda94908",
+		"rsp": {
+			"clientId": "SchedulerMessaging",
+			"taskId": 233918545,
+			"task": [
+				{
+					"message": {
+						"mType": "iqrfRaw",
+						"data": {
+							"msgId": "testRaw",
+							"timeout": 1000,
+							"req": {
+								"rData": "00.00.06.03.FF.FF"
+							},
+							"returnVerbose": true
+						}
+					},
+					"messaging": [
+						"WebsocketMessaging"
+					]
+				}
+			],
+			"timeSpec": {
+				"cronTime": [
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					""
+				],
+				"exactTime": false,
+				"periodic": true,
+				"period": 60000,
+				"startTime": "2021-04-21T15:10:05.957+02:00"
+			}
+		},
+		"insId": "iqrfgd2-1",
+		"statusStr": "ok",
+		"status": 0
+	}
+}

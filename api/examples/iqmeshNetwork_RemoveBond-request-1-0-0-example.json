@@ -6,7 +6,7 @@
     "req": {
       "deviceAddr": 1,
       "hwpId": 65535,
-      "wholeNetwork": false,
+      "wholeNetwork": false
     },
     "returnVerbose": true
   }

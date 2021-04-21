@@ -1,0 +1,15 @@
+{
+	"mType": "mngScheduler_List",
+	"data": {
+		"msgId": "fd789102-5109-4081-95ca-68c9710cb0b5",
+		"rsp": {
+			"clientId": "SchedulerMessaging",
+			"tasks": [
+				233918545
+			]
+		},
+		"insId": "iqrfgd2-1",
+		"statusStr": "ok",
+		"status": 0
+	}
+}
