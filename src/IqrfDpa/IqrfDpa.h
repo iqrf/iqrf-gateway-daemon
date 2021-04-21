@@ -38,6 +38,8 @@ namespace iqrf {
     IIqrfDpaService::DpaState getDpaChannelState() override;
     void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) override;
     void unregisterAnyMessageHandler(const std::string& serviceId) override;
+    void registerInfoMessageHandler(InfoMessageHandlerFunc fun) override;
+    void unregisterInfoMessageHandler() override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
@@ -65,6 +67,8 @@ namespace iqrf {
     std::mutex m_asyncMessageHandlersMutex;
     std::map<std::string, AsyncMessageHandlerFunc> m_asyncMessageHandlers;
     void asyncDpaMessageHandler(const DpaMessage& dpaMessage);
+
+    InfoMessageHandlerFunc m_infoFunc;
 
     std::mutex m_asyncRestartMtx;
     std::condition_variable m_asyncRestartCv;

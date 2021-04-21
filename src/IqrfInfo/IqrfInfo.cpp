@@ -2288,7 +2288,7 @@ namespace iqrf {
 
     // analyze incoming DPA responses. If there is a msg with influence to DB cahed data it starts enum
     // it is hooked to IqrfDpa via callback
-    void analyzeAnyMessage(const DpaMessage & msg)
+    void analyzeInfoMessage(const DpaMessage & msg, const std::vector<uns8>& reqBuffer)
     {
       auto messageDirection = msg.MessageDirection();
 
@@ -2310,7 +2310,7 @@ namespace iqrf {
         if (cmd != CMD_OS_BATCH) {
           return;
         }
-        cmd = findBatchDbChange(msg.DpaPacket().DpaRequestPacket_t.DpaMessage.Request.PData);
+        cmd = findBatchDbChange(reqBuffer);
         if (cmd == -1) {
           return;
         }
@@ -2341,18 +2341,21 @@ namespace iqrf {
 
     /**
      * Checks OS batch command to find request that impacts DB
-     * @param pData DPA request packet data
+     * @param reqBuffer DPA request packet data
      * @return Coordinator command number or -1 if request has no effect on DB
      */
-    int findBatchDbChange(const uns8 *pData) const {
+    int findBatchDbChange(const std::vector<uns8>& reqBuffer) const {
       int cmd = -1;
-      uint8_t idx = 0;
-      uint8_t bytes = pData[idx];
+      if (reqBuffer.empty() || reqBuffer.size() < 7) {
+        return cmd;
+      }
+      uint8_t idx = 6;
+      uint8_t bytes = reqBuffer.at(idx);
       while (bytes != 0) {
-        if (pData[idx + 1] != 0) {
+        if (reqBuffer.at(idx + 1) != 0) {
           return -1;
         }
-        uint8_t pcmd = pData[idx + 2];
+        uint8_t pcmd = reqBuffer.at(idx + 2);
         if (pcmd == CMD_COORDINATOR_CLEAR_ALL_BONDS
             || pcmd == CMD_COORDINATOR_BOND_NODE
             || pcmd == CMD_COORDINATOR_REMOVE_BOND
@@ -2364,7 +2367,7 @@ namespace iqrf {
           break;
         }
         idx += bytes;
-        bytes = pData[idx];
+        bytes = reqBuffer.at(idx);
       }
       return cmd;
     }
@@ -2599,8 +2602,8 @@ namespace iqrf {
 
       modify(props);
 
-      m_iIqrfDpaService->registerAnyMessageHandler(m_instanceName, [&](const DpaMessage & msg) {
-        analyzeAnyMessage(msg);
+      m_iIqrfDpaService->registerInfoMessageHandler([&](const DpaMessage & msg, const std::vector<uns8>& reqBuffer) {
+        analyzeInfoMessage(msg, reqBuffer);
       });
 
       initDb();
@@ -2677,7 +2680,7 @@ namespace iqrf {
 
       m_iJsCacheService->unregisterCacheReloadedHandler(m_instanceName);
 
-      m_iIqrfDpaService->unregisterAnyMessageHandler(m_instanceName);
+      m_iIqrfDpaService->unregisterInfoMessageHandler();
 
       TRC_FUNCTION_LEAVE("")
     }
