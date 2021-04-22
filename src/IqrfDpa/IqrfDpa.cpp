@@ -452,14 +452,14 @@ namespace iqrf {
     return state;
   }
 
-  void IqrfDpa::registerAnyMessageHandler(const std::string& serviceId, IDpaHandler2::AsyncMessageHandlerFunc fun)
+  void IqrfDpa::registerInfoMessageHandler(IDpaHandler2::InfoMessageHandlerFunc fun)
   {
-    m_dpaHandler->registerAnyMessageHandler(serviceId, fun);
+    m_dpaHandler->registerInfoMessageHandler(fun);
   }
 
-  void IqrfDpa::unregisterAnyMessageHandler(const std::string& serviceId)
+  void IqrfDpa::unregisterInfoMessageHandler()
   {
-    m_dpaHandler->unregisterAnyMessageHandler(serviceId);
+    m_dpaHandler->unregisterInfoMessageHandler();
   }
 
   void IqrfDpa::deactivate()

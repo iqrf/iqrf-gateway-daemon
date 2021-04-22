@@ -20,7 +20,7 @@ namespace iqrf {
   public:
     /// Asynchronous DPA message handler functional type
     typedef std::function<void(const DpaMessage& dpaMessage)> AsyncMessageHandlerFunc;
-    typedef std::function<void(const DpaMessage& dpaMessage)> AnyMessageHandlerFunc;
+    typedef std::function<void()> InfoMessageHandlerFunc;
     typedef std::function<void(uint8_t pnum, uint8_t pcmd)> DpaCommandHookHandlerFunc;
 
     enum class DpaState
@@ -107,8 +107,8 @@ namespace iqrf {
     virtual int getDpaQueueLen() const = 0;
     virtual IIqrfChannelService::State getIqrfChannelState() = 0;
     virtual DpaState getDpaChannelState() = 0;
-    virtual void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) = 0;
-    virtual void unregisterAnyMessageHandler(const std::string& serviceId) = 0;
+    virtual void registerInfoMessageHandler(InfoMessageHandlerFunc fun) = 0;
+    virtual void unregisterInfoMessageHandler() = 0;
 
     virtual ~IIqrfDpaService() {}
   };

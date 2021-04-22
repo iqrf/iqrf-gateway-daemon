@@ -2286,46 +2286,16 @@ namespace iqrf {
       m_enumHandlers.erase(clientId);
     }
 
-    // analyze incoming DPA responses. If there is a msg with influence to DB cahed data it starts enum
+    // runs enumeration if called, responding to a topology altering request
     // it is hooked to IqrfDpa via callback
-    void analyzeAnyMessage(const DpaMessage & msg)
-    {
-      auto messageDirection = msg.MessageDirection();
-
-      if (messageDirection != DpaMessage::MessageType::kResponse ||
-        (msg.DpaPacket().DpaResponsePacket_t.ResponseCode & STATUS_ASYNC_RESPONSE)) {
-        return;
-      }
-
-      if (msg.NodeAddress() != 0) {
-        return; //just coord addr
-      }
-
-      if (msg.PeripheralType() != 0) {
-        return; //just coord perif
-      }
-
-      int cmd = msg.PeripheralCommand() & ~0x80;
-
-      if (
-        cmd == CMD_COORDINATOR_CLEAR_ALL_BONDS
-        || cmd == CMD_COORDINATOR_BOND_NODE
-        || cmd == CMD_COORDINATOR_REMOVE_BOND
-        || cmd == CMD_COORDINATOR_DISCOVERY
-        || cmd == CMD_COORDINATOR_RESTORE
-        || cmd == CMD_COORDINATOR_SMART_CONNECT
-        || cmd == CMD_COORDINATOR_SET_MID
-        ) {
-
+    void DpaEnumCallback() {
         m_repeatEnum = true; //repeat if just running
-        TRC_INFORMATION("detected: " << PAR(cmd));
         //if (!m_iIqrfDpaService->hasExclusiveAccess()) {
         m_enumCv.notify_all();
         //}
         //else {
         //  TRC_INFORMATION("exclusive access detected => enum waits ... ");
         //}
-      }
     }
 
     bool getMidMetaDataToMessages() const
@@ -2558,8 +2528,8 @@ namespace iqrf {
 
       modify(props);
 
-      m_iIqrfDpaService->registerAnyMessageHandler(m_instanceName, [&](const DpaMessage & msg) {
-        analyzeAnyMessage(msg);
+      m_iIqrfDpaService->registerInfoMessageHandler([&]() {
+        DpaEnumCallback();
       });
 
       initDb();
@@ -2636,7 +2606,7 @@ namespace iqrf {
 
       m_iJsCacheService->unregisterCacheReloadedHandler(m_instanceName);
 
-      m_iIqrfDpaService->unregisterAnyMessageHandler(m_instanceName);
+      m_iIqrfDpaService->unregisterInfoMessageHandler();
 
       TRC_FUNCTION_LEAVE("")
     }
