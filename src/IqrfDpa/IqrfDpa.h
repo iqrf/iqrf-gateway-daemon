@@ -66,6 +66,8 @@ namespace iqrf {
     std::map<std::string, AsyncMessageHandlerFunc> m_asyncMessageHandlers;
     void asyncDpaMessageHandler(const DpaMessage& dpaMessage);
 
+    InfoMessageHandlerFunc m_infoFunc;
+
     std::mutex m_asyncRestartMtx;
     std::condition_variable m_asyncRestartCv;
 

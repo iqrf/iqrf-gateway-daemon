@@ -462,6 +462,14 @@ namespace iqrf {
     m_dpaHandler->unregisterInfoMessageHandler();
   }
 
+  void IqrfDpa::registerInfoMessageHandler(IDpaHandler2::InfoMessageHandlerFunc fun) {
+    m_dpaHandler->registerInfoMessageHandler(fun);
+  }
+
+  void IqrfDpa::unregisterInfoMessageHandler() {
+    m_dpaHandler->unregisterInfoMessageHandler();
+  }
+
   void IqrfDpa::deactivate()
   {
     TRC_FUNCTION_ENTER("");

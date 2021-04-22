@@ -2298,6 +2298,39 @@ namespace iqrf {
         //}
     }
 
+    /**
+     * Checks OS batch command to find request that impacts DB
+     * @param reqBuffer DPA request packet data
+     * @return Coordinator command number or -1 if request has no effect on DB
+     */
+    int findBatchDbChange(const std::vector<uns8>& reqBuffer) const {
+      int cmd = -1;
+      if (reqBuffer.empty() || reqBuffer.size() < 7) {
+        return cmd;
+      }
+      uint8_t idx = 6;
+      uint8_t bytes = reqBuffer.at(idx);
+      while (bytes != 0) {
+        if (reqBuffer.at(idx + 1) != 0) {
+          return -1;
+        }
+        uint8_t pcmd = reqBuffer.at(idx + 2);
+        if (pcmd == CMD_COORDINATOR_CLEAR_ALL_BONDS
+            || pcmd == CMD_COORDINATOR_BOND_NODE
+            || pcmd == CMD_COORDINATOR_REMOVE_BOND
+            || pcmd == CMD_COORDINATOR_DISCOVERY
+            || pcmd == CMD_COORDINATOR_RESTORE
+            || pcmd == CMD_COORDINATOR_SMART_CONNECT
+            || pcmd == CMD_COORDINATOR_SET_MID) {
+          cmd = pcmd;
+          break;
+        }
+        idx += bytes;
+        bytes = reqBuffer.at(idx);
+      }
+      return cmd;
+    }
+
     bool getMidMetaDataToMessages() const
     {
       return m_midMetaDataToMessages;
