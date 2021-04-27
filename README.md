@@ -22,4 +22,4 @@ https://docs.iqrf.org/iqrf-gateway
 
 ## Acknowledgement
 
-This project is implemented with financial support from the state budget through [the Ministry of Industry and Trade of the Czech Republic](https://www.mpo.cz/) in [the TRIO program](https://starfos.tacr.cz/cs/project/FV40132).
+This project has been made possible with a government grant by means of [the Ministry of Industry and Trade of the Czech Republic](https://www.mpo.cz/) in [the TRIO program](https://starfos.tacr.cz/cs/project/FV40132).
