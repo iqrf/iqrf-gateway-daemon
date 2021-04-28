@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::PingService",
+  "instance": "iqrf::PingService-Instance1"
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqmeshNetwork_Restart-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQMESH Network management - Restart request.",
+      "enum": [
+        "iqmeshNetwork_Restart"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "repeat": {
+          "type": "integer",
+          "description": "Number of repetitions of DPA messages.",
+          "default": 1
+        },
+        "req": {
+          "type": "object",
+          "properties": {
+            "hwpId": {
+              "type": "integer",
+              "description": "Hardware profile ID of the devices to Restart."
+            }
+          },
+          "required": [
+          ]
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
+        }
+      },
+      "required": [
+        "msgId",
+        "req"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}
