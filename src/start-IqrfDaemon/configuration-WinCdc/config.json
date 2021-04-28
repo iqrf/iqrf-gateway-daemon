@@ -302,6 +302,20 @@
       "startlevel": 3
     },
     {
+      "name": "iqrf::PingService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "PingService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::RestartService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "RestartService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
       "name": "iqrf::MonitorService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MonitorService",
