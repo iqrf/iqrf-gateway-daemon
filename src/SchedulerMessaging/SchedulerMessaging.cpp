@@ -149,6 +149,8 @@ namespace iqrf {
         "SchedulerMessaging instance activate" << std::endl <<
         "******************************"
       );
+      auto thr = pthread_self();
+      pthread_setname_np(thr, "igdSchedulerMsg");
 
       props->getMemberAsString("instance", m_name);
 

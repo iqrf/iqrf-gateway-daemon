@@ -156,6 +156,8 @@ namespace iqrf {
         "JsonDpaApiRaw instance activate" << std::endl <<
         "******************************"
       );
+      auto thr = pthread_self();
+      pthread_setname_np(thr, "igdDpaApiRaw");
 
       const Document& doc = props->getAsJson();
 

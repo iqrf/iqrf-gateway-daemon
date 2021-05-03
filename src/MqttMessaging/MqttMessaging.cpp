@@ -323,6 +323,7 @@ namespace iqrf {
         m_connectThread.join();
 
       m_connectThread = std::thread([this]() { this->connectThread(); });
+      pthread_setname_np(m_connectThread.native_handle(), "igdMqttMsgConnect");
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -562,6 +563,8 @@ namespace iqrf {
       "MqttMessaging instance activate" << std::endl <<
       "******************************"
     );
+    auto thr = pthread_self();
+    pthread_setname_np(thr, "igdMqttMsg");
 
     modify(props);
 

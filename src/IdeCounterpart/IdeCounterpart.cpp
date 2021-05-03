@@ -35,6 +35,9 @@ namespace iqrf {
       "******************************"
     );
 
+    auto thr = pthread_self();
+    pthread_setname_np(thr, "igdIdeCounter");
+
     using namespace rapidjson;
     const Document& doc = props->getAsJson();
 

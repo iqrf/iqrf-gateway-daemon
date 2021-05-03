@@ -99,6 +99,8 @@ namespace iqrf {
         "WebsocketMessaging instance activate" << std::endl <<
         "******************************"
       );
+      auto thr = pthread_self();
+      pthread_setname_np(thr, "igdWsMsg");
 
       props->getMemberAsString("instance", m_name);
       props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);

@@ -914,6 +914,9 @@ namespace iqrf {
         "******************************************"
       );
 
+      auto thr = pthread_self();
+      pthread_setname_np(thr, "iqdNativeUpload");
+
       props->getMemberAsString("uploadPath", m_uploadPath);
       TRC_INFORMATION(PAR(m_uploadPath));
 

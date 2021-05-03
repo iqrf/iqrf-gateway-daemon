@@ -391,6 +391,9 @@ namespace iqrf {
       "******************************"
     );
 
+    auto thr = pthread_self();
+    pthread_setname_np(thr, "igdIqrfDpa");
+
     m_dpaHandler = shape_new DpaHandler2(m_iqrfDpaChannel);
 
     const rapidjson::Document& doc = props->getAsJson();

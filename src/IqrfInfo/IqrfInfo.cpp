@@ -288,18 +288,18 @@ namespace iqrf {
      * Resets database
      * @return Op status code
      */ 
-	void resetDb() {
-		std::string dbPath = m_iLaunchService->getDataDir() + "/DB/IqrfInfo.db";
-		std::ifstream dbFile(dbPath);
-		sqlite_config config;
-		config.flags = OpenFlags::READWRITE;
-		if (dbFile.is_open()) { // db file exists
-			if (std::remove(dbPath.c_str()) != 0) {
-				THROW_EXC_TRC_WAR(std::logic_error, "Failed to remove db file: " << strerror(errno));
-			};
-		}
-		initDb();
-	}
+    void resetDb() {
+      std::string dbPath = m_iLaunchService->getDataDir() + "/DB/IqrfInfo.db";
+      std::ifstream dbFile(dbPath);
+      sqlite_config config;
+      config.flags = OpenFlags::READWRITE;
+      if (dbFile.is_open()) { // db file exists
+        if (std::remove(dbPath.c_str()) != 0) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Failed to remove db file: " << strerror(errno));
+        };
+      }
+      initDb();
+    }
 
     // percentage estimate
     void percentageEstimate(IIqrfInfo::EnumerationState & estate)
@@ -2187,6 +2187,7 @@ namespace iqrf {
         }
         m_enumThreadRun = true;
         m_enumThread = std::thread([&]() { runEnum(); });
+        pthread_setname_np(m_enumThread.native_handle(), "iqdIqrfInfoEnum");
       }
       TRC_FUNCTION_LEAVE("")
     }
@@ -2555,6 +2556,9 @@ namespace iqrf {
         "IqrfInfo instance activate" << std::endl <<
         "******************************"
       );
+
+      auto thr = pthread_self();
+      pthread_setname_np(thr, "iqdIqrfInfo");
 
       modify(props);
 

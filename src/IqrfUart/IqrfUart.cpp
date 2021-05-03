@@ -316,6 +316,9 @@ namespace iqrf {
         "******************************"
       );
 
+      auto thr = pthread_self();
+      pthread_setname_np(thr, "igdIqrfUart");
+
       using namespace rapidjson;
 
       try {

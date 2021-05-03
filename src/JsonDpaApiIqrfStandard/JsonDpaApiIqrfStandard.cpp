@@ -495,6 +495,9 @@ namespace iqrf {
 
       modify(props);
 
+      auto thr = pthread_self();
+      pthread_setname_np(thr, "igdDpaApiIqrfStd");
+
       m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
         [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
       {

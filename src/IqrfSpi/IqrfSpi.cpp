@@ -392,6 +392,9 @@ namespace iqrf {
         "******************************"
       );
 
+      auto thr = pthread_self();
+      pthread_setname_np(thr, "igdIqrfSpi");
+
       using namespace rapidjson;
 
       try {

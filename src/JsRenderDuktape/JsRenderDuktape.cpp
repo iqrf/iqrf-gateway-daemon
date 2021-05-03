@@ -328,6 +328,8 @@ namespace iqrf {
         "JsRenderDuktape instance activate" << std::endl <<
         "******************************"
       );
+      auto thr = pthread_self();
+      pthread_setname_np(thr, "igdRenderDuktape");
 
       TRC_FUNCTION_LEAVE("")
     }

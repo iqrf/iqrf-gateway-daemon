@@ -147,6 +147,9 @@ namespace iqrf {
       "******************************"
     );
 
+    auto thr = pthread_self();
+    pthread_setname_np(thr, "iqdLegacyApi");
+
     props->getMemberAsString("instance", m_name);
 
     //if (m_asyncDpaMessage) {

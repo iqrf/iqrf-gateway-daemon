@@ -62,6 +62,8 @@ namespace iqrf {
       "Scheduler instance activate" << std::endl <<
       "******************************"
     );
+    auto thr = pthread_self();
+    pthread_setname_np(thr, "igdScheduler");
 
     using namespace rapidjson;
 
@@ -101,6 +103,7 @@ namespace iqrf {
     m_scheduledTaskPushed = false;
     m_runTimerThread = true;
     m_timerThread = std::thread(&Scheduler::timer, this);
+    pthread_setname_np(m_timerThread.native_handle(), "igdSchedulerTimer");
 
     TRC_INFORMATION("Scheduler started");
 

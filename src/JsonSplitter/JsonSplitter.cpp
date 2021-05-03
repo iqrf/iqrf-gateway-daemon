@@ -568,6 +568,8 @@ namespace iqrf {
         "JsonSplitter instance activate" << std::endl <<
         "******************************"
       );
+      auto thr = pthread_self();
+      pthread_setname_np(thr, "igdSplitter");
 
       modify(props);
 
