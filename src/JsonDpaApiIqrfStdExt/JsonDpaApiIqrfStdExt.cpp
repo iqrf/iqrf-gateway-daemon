@@ -72,9 +72,9 @@ namespace iqrf {
         jsDriverStandardFrcSolver.processRequestDrv();
 
         auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-
+        int timeOut = apiMsgIqrfStandardFrc.getTimeout();
         // FRC transaction
-        std::unique_ptr<IDpaTransactionResult2> transResultFrc = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcRequest())->get();
+        std::unique_ptr<IDpaTransactionResult2> transResultFrc = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcRequest(), timeOut)->get();
         jsDriverStandardFrcSolver.setFrcDpaTransactionResult(std::move(transResultFrc));
 
         if (apiMsgIqrfStandardFrc.getExtraResult()) {

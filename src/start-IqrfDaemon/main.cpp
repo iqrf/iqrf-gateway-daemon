@@ -5,6 +5,7 @@
 #include <Trace.h>
 #include <boost/program_options.hpp>
 #include <fstream>
+#include <iostream>
 
 TRC_INIT_MNAME("iqrfgd2");
 #ifdef TRC_CHANNEL
@@ -17,8 +18,6 @@ TRC_INIT_MNAME("iqrfgd2");
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <fstream>
-#include <iostream>
 
 void pidInit(const std::string &fileName) {
 	pid_t pid = 0;
