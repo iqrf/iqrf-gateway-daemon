@@ -104,7 +104,13 @@ namespace iqrf {
       // db metadata
       if (m_iIqrfInfo) {
         if (m_iIqrfInfo->getMidMetaDataToMessages()) {
-          com->setMidMetaData(m_iIqrfInfo->getNodeMetaData(com->getNadr()));
+          Document metaDoc;
+          try {
+            metaDoc = m_iIqrfInfo->getNodeMetaData(com->getNadr());
+          } catch (const std::exception &e) {
+            TRC_WARNING(e.what());
+          }
+          com->setMidMetaData(metaDoc);
         }
       }
 

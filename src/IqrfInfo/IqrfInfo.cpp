@@ -2373,7 +2373,7 @@ namespace iqrf {
         }
       }
       else {
-        THROW_EXC_TRC_WAR(std::logic_error, "Mid does not exist: " << PAR(mid));
+        THROW_EXC_TRC_WAR(std::logic_error, "Database table node does not contain record of device with MID " << mid);
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -2401,7 +2401,7 @@ namespace iqrf {
         *m_db << "update Node set metaData = ? where mid = ?;" << md << mid;
       }
       else {
-        THROW_EXC_TRC_WAR(std::logic_error, "Mid does not exist: " << PAR(mid));
+        THROW_EXC_TRC_WAR(std::logic_error, "Database table node does not contain record of device with MID " << mid);
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -2444,7 +2444,7 @@ namespace iqrf {
         }
       }
       else {
-        THROW_EXC_TRC_WAR(std::logic_error, "Nadr is not bonded: " << PAR(nadr));
+        THROW_EXC_TRC_WAR(std::logic_error, "Database table bonded does not contain record of device at address " << nadr);
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -2481,7 +2481,7 @@ namespace iqrf {
         *m_db << "update Node set metaData = ? where mid = (select mid from Bonded where nadr = ?);" << md << nadr;
       }
       else {
-        THROW_EXC_TRC_WAR(std::logic_error, "Nadr is not bonded: " << PAR(nadr));
+        THROW_EXC_TRC_WAR(std::logic_error, "Database table bonded does not contain record of device at address " << nadr);
       }
 
       TRC_FUNCTION_LEAVE("");
