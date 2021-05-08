@@ -96,9 +96,15 @@ private:
   sockaddr_in m_iqrfUdpListener;
   sockaddr_in m_iqrfUdpTalker;
 
+  msghdr m_recHeader;
+  unsigned char* m_ctrl;
+  unsigned m_ctrlSize = 8192;
+  sockaddr_storage m_addr;
+
   unsigned short m_remotePort;
   unsigned short m_localPort;
 
+  iovec m_rIov[1];
   unsigned char* m_rx;
   unsigned m_bufsize;
 
