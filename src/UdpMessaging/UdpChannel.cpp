@@ -189,6 +189,7 @@ std::string UdpChannel::matchReceivingMacAddress(const std::string &ip) {
 				memcpy(macBytes, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBytes));
 				mac = convertToMacString(macBytes);
 			}
+			break;
 		}
 	}
 	return mac;
