@@ -136,7 +136,13 @@ void UdpChannel::listen() {
 				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvmsg(): [" << errno << "] " << strerror(errno));
 			}
 			m_receivingIp = parseReceivingIpAddress();
-			m_receivingMac = matchReceivingMacAddress(m_receivingIp);
+			if (m_receivingIp == "255.255.255.255") {
+				char senderIp[INET_ADDRSTRLEN];
+				inet_ntop(AF_INET, &((struct sockaddr_in*)m_recHeader.msg_name)->sin_addr, senderIp, sizeof(struct sockaddr_in));
+				deduceReceivingInterface(htonl(((struct sockaddr_in*)m_recHeader.msg_name)->sin_addr.s_addr));
+			} else {
+				m_receivingMac = matchReceivingMacAddress(m_receivingIp);
+			}
 			TRC_DEBUG("Received UDP datagram at IP " << m_receivingIp << ", MAC " << m_receivingMac);
 			if (recBytes > 0) {
 				if (m_messageHandler) {
@@ -204,6 +210,61 @@ std::string UdpChannel::matchReceivingMacAddress(const std::string &ip) {
 		}
 	}
 	return mac;
+}
+
+void UdpChannel::deduceReceivingInterface(const uint32_t &sender) {
+	std::string ip = "0.0.0.0", mac = "00-00-00-00-00-00";
+	struct ifreq ifrs[32];
+	struct ifconf ifc;
+	int res;
+	uint32_t address, mask;
+
+	memset(&ifc, 0, sizeof(ifconf));
+	ifc.ifc_req = ifrs;
+	ifc.ifc_len = sizeof(ifrs);
+
+	res = ioctl(m_sockfd, SIOCGIFCONF, (char *)&ifc);
+	if (res == SOCKET_ERROR) {
+		TRC_WARNING("Interface configuration ioctl failed: " << errno << ": " << strerror(errno));
+		m_receivingIp = ip;
+		m_receivingMac = mac;
+		return;
+	}
+
+	for (unsigned int i = 0; i < ifc.ifc_len/sizeof(struct ifreq); ++i) {
+		if (!(ifrs[i].ifr_flags & IFF_BROADCAST)) {
+			continue;
+		}
+
+		char ipAddr[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr, ipAddr, sizeof(ipAddr));
+		address = htonl(((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr.s_addr);
+
+		res = ioctl(m_sockfd, SIOCGIFNETMASK, (char *)&ifrs[i]);
+		if (res == SOCKET_ERROR) {
+			TRC_WARNING("Netmask ioctl failed for interface " << ifrs[i].ifr_name << ":" << errno << ": " << strerror(errno));
+			continue;
+		}
+		mask = htonl(((struct sockaddr_in *)&ifrs[i].ifr_netmask)->sin_addr.s_addr);
+
+		if ((sender & mask) != (address & mask)) {
+			continue;
+		}
+		ip = std::string(ipAddr);
+
+		res = ioctl(m_sockfd, SIOCGIFHWADDR, &ifrs[i]);
+		if (res == SOCKET_ERROR) {
+			TRC_WARNING("MAC address ioctl failed for interface " << ifrs[i].ifr_name << ":" << errno << ": " << strerror(errno));
+			continue;
+		}
+		uint8_t macBytes[6];
+		memcpy(macBytes, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBytes));
+		mac = convertToMacString(macBytes);
+		break;
+	}
+
+	m_receivingIp = ip;
+	m_receivingMac = mac;
 }
 
 std::string UdpChannel::convertToMacString(const uint8_t *macBytes) {
