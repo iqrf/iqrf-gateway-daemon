@@ -143,10 +143,15 @@ class UdpChannel : public IChannel {
 		 */
 		std::string matchReceivingMacAddress(const std::string &ip);
 
+		/**
+		 * Converts bytes to MAC address string
+		 * @param macBytes MAC byte array
+		 * @return MAC address string
+		 */
 		std::string convertToMacString(const uint8_t *macBytes);
 
 		/// Handler function for received messages
-		ReceiveFromFunc m_receiveFromFunc;
+		ReceiveFromFunc m_messageHandler;
 		/// UDP listening thread
 		std::thread m_listenThread;
 		/// Indicates if thread is listening
@@ -154,7 +159,7 @@ class UdpChannel : public IChannel {
 		/// Indicates if thread continue listening
 		bool m_runListenThread;
 		/// Socket file descriptor
-		SOCKET sockfd = -1;
+		SOCKET m_sockfd = -1;
 		/// Listening transport structure
 		sockaddr_in m_listener;
 		/// Sending transport structure

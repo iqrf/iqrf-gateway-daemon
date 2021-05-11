@@ -50,25 +50,30 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 	}
 	#endif
 
-	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-	if (sockfd == -1) {
+	m_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (m_sockfd == -1) {
 		THROW_EXC_TRC_WAR(UdpChannelException, "socket failed: " << GetLastError());
 	}
 
 	int ret;
 	opttype opt = 1;
 	// Enable packet info
-	ret = setsockopt(sockfd, IPPROTO_IP, IP_PKTINFO, &opt, sizeof(opt));;
+	ret = setsockopt(m_sockfd, IPPROTO_IP, IP_PKTINFO, &opt, sizeof(opt));;
 	if (ret == SOCKET_ERROR) {
-		closesocket(sockfd);
+		closesocket(m_sockfd);
 		THROW_EXC_TRC_WAR(UdpChannelException, "setsockopt failed: " << GetLastError());
 	}
 
-	// Local server, packets are received from any IP
+	// Initialize listener
 	memset(&m_listener, 0, sizeof(m_listener));
 	m_listener.sin_family = AF_INET;
 	m_listener.sin_port = htons(m_localPort);
 	m_listener.sin_addr.s_addr = htonl(INADDR_ANY);
+
+	// Initialize sender
+	memset(&m_sender, 0, sizeof(m_sender));
+	m_sender.sin_family = AF_INET;
+	m_sender.sin_port = htons(m_remotePort);
 
 	m_controlBuff = shape_new char[m_controlBuffSize];
 	m_dataBuff = shape_new char[m_dataBuffSize];
@@ -85,9 +90,9 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 	m_recHeader.msg_controllen = m_controlBuffSize;
 
 	// Bind socket to all interfaces
-	ret = bind(sockfd, (struct sockaddr *)&m_listener, sizeof(m_listener));
+	ret = bind(m_sockfd, (struct sockaddr *)&m_listener, sizeof(m_listener));
 	if (ret == SOCKET_ERROR) {
-		closesocket(sockfd);
+		closesocket(m_sockfd);
 		THROW_EXC_TRC_WAR(UdpChannelException, "bind failed: " << GetLastError());
 	}
 
@@ -96,8 +101,8 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 }
 
 UdpChannel::~UdpChannel() {
-	shutdown(sockfd, SHUT_RD);
-	closesocket(sockfd);
+	shutdown(m_sockfd, SHUT_RD);
+	closesocket(m_sockfd);
 
 	TRC_DEBUG("joining udp listening thread");
 	if (m_listenThread.joinable())
@@ -111,34 +116,40 @@ UdpChannel::~UdpChannel() {
 	delete[] m_dataBuff;
 }
 
+void UdpChannel::sendTo(const std::basic_string<unsigned char>& message) {
+	int sentBytes = sendto(m_sockfd, (const char *)message.data(), static_cast<unsigned int>(message.size()), 0, (struct sockaddr *)&m_sender, sizeof(m_sender));
+	if (sentBytes == SOCKET_ERROR) {
+		THROW_EXC_TRC_WAR(UdpChannelException, "Failed to send message, sendto(): [" << errno << "] " << strerror(errno));
+	}
+}
+
 void UdpChannel::listen() {
 	TRC_FUNCTION_ENTER("thread starts");
 
-	int recn = -1;
-	//socklen_t iqrfUdpListenerLength = sizeof(m_listener);
+	int recBytes;
 
 	try {
 		m_isListening = true;
 		while (m_runListenThread) {
-
-		recn = recvmsg(sockfd, &m_recHeader, 0);
-		m_receivingIp = parseReceivingIpAddress();
-		m_receivingMac = matchReceivingMacAddress(m_receivingIp);
-		TRC_DEBUG("Received UDP datagram at IP" << m_receivingIp << ", MAC " << m_receivingMac);
-		/*if (recn > 0) {
-			if (m_receiveFromFunc) {
-				std::basic_string<unsigned char> message(m_dataBuff, recn);
-				if (0 == m_receiveFromFunc(message)) {
-					m_sender.sin_addr.s_addr = m_listener.sin_addr.s_addr;    // Change the destination to the address of the last received packet
+			recBytes = recvmsg(m_sockfd, &m_recHeader, 0);
+			if (recBytes == SOCKET_ERROR) {
+				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvmsg(): [" << errno << "] " << strerror(errno));
+			}
+			m_receivingIp = parseReceivingIpAddress();
+			m_receivingMac = matchReceivingMacAddress(m_receivingIp);
+			TRC_DEBUG("Received UDP datagram at IP " << m_receivingIp << ", MAC " << m_receivingMac);
+			if (recBytes > 0) {
+				if (m_messageHandler) {
+					std::basic_string<unsigned char> message((unsigned char *)m_recHeader.msg_iov[0].iov_base, recBytes);
+					if (m_messageHandler(message) == 0) {
+						m_sender.sin_addr = m_addr.sin_addr;
+					}
+				} else {
+					TRC_WARNING("No message handler registered.");
 				}
 			}
-			else {
-				TRC_WARNING("Unregistered receiveFrom() handler");
-			}
-		}*/
 		}
-	}
-	catch (UdpChannelException& e) {
+	} catch (const UdpChannelException& e) {
 		CATCH_EXC_TRC_WAR(UdpChannelException, e, "listening thread finished");
 		m_runListenThread = false;
 	}
@@ -172,7 +183,7 @@ std::string UdpChannel::matchReceivingMacAddress(const std::string &ip) {
 		ifc.ifc_req = ifrs;
 		ifc.ifc_len = sizeof(ifrs);
 
-		res = ioctl(sockfd, SIOCGIFCONF, (char *)&ifc);
+		res = ioctl(m_sockfd, SIOCGIFCONF, (char *)&ifc);
 		if (res == SOCKET_ERROR) {
 			TRC_WARNING("Interface configuration ioctl failed: " << errno << ": " << strerror(errno));
 			return mac;
@@ -184,7 +195,7 @@ std::string UdpChannel::matchReceivingMacAddress(const std::string &ip) {
 				continue;
 			}
 			uint8_t macBytes[6];
-			res = ioctl(sockfd, SIOCGIFHWADDR, &ifrs[i]);
+			res = ioctl(m_sockfd, SIOCGIFHWADDR, &ifrs[i]);
 			if (res != SOCKET_ERROR) {
 				memcpy(macBytes, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBytes));
 				mac = convertToMacString(macBytes);
@@ -201,19 +212,12 @@ std::string UdpChannel::convertToMacString(const uint8_t *macBytes) {
 	return std::string(buffer);
 }
 
-void UdpChannel::sendTo(const std::basic_string<unsigned char>& message) {
-	int trmn = sendto(sockfd, (const char*)message.data(), static_cast<int>(message.size()), 0, (struct sockaddr *)&m_sender, sizeof(m_sender));
-	if (trmn < 0) {
-		THROW_EXC_TRC_WAR(UdpChannelException, "sendto failed: " << WSAGetLastError());
-	}
-}
-
-void UdpChannel::registerReceiveFromHandler(ReceiveFromFunc receiveFromFunc) {
-	m_receiveFromFunc = receiveFromFunc;
+void UdpChannel::registerReceiveFromHandler(ReceiveFromFunc messageHandler) {
+	m_messageHandler = messageHandler;
 }
 
 void UdpChannel::unregisterReceiveFromHandler() {
-	m_receiveFromFunc = ReceiveFromFunc();
+	m_messageHandler = ReceiveFromFunc();
 }
 
 IChannel::State UdpChannel::getState() {
