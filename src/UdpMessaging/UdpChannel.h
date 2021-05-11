@@ -150,13 +150,6 @@ class UdpChannel : public IChannel {
 		void deduceReceivingInterface(const uint32_t &sender);
 
 		/**
-		 * Converts IP to integer
-		 * @param addr Address in dot representation
-		 * @return Integer value of address 
-		 */
-		uint32_t convertIpv4ToInt(const char *addr);
-
-		/**
 		 * Converts bytes to MAC address string
 		 * @param macBytes MAC byte array
 		 * @return MAC address string
