@@ -137,11 +137,24 @@ class UdpChannel : public IChannel {
 		std::string parseReceivingIpAddress();
 
 		/**
-		 * Find a matching MAC address for IP address
+		 * Searches for a matching MAC address for IP address
 		 * @param ip IP address
 		 * @return MAC address of receiving interface
 		 */
 		std::string matchReceivingMacAddress(const std::string &ip);
+
+		/**
+		 * Attemts to deduce receiving interface based on source IP
+		 * @param sender Integer value representing sender IP
+		 */
+		void deduceReceivingInterface(const uint32_t &sender);
+
+		/**
+		 * Converts IP to integer
+		 * @param addr Address in dot representation
+		 * @return Integer value of address 
+		 */
+		uint32_t convertIpv4ToInt(const char *addr);
 
 		/**
 		 * Converts bytes to MAC address string
