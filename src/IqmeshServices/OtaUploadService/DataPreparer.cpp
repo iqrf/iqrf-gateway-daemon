@@ -86,7 +86,7 @@ namespace iqrf{
     // trims leading and trailing whitespaces from string
     static void trim(std::string& str)
     {
-      const std::string whitespace = " \t";
+      const std::string whitespace = " \t\r\n";
       const auto strBegin = str.find_first_not_of(whitespace);
 
       // no content
@@ -115,8 +115,6 @@ namespace iqrf{
     // if the line is data records, returns corresponding code block
     static std::unique_ptr<CodeBlock> parseLine(std::string& line, IOtaUploadService::MemoryType memoryType)
     {
-      trim(line);
-
       if (line.find_first_of(':') != 0)
         throw std::logic_error("Invalid Intel HEX record: line does not star with colon.");
 
@@ -226,11 +224,13 @@ namespace iqrf{
 
       std::list<std::string> lines;
       std::string line;
-
+      
       while (std::getline(sourceFile, line))
       {
-        if (line[line.length() - 1] == '\r')
-          line.erase(line.length() - 1, 1);
+        trim(line);
+        if (line.empty()) {
+          continue;
+        }
         lines.push_back(line);
       }
 
