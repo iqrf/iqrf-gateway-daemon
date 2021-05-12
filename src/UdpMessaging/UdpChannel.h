@@ -149,6 +149,11 @@ class UdpChannel : public IChannel {
 		void deduceReceivingInterface(const uint32_t &sender);
 
 		/**
+		 * Attempts to identify receiving interface based on interface index
+		 */
+		void identifyReceivingInterface();
+
+		/**
 		 * Converts bytes to MAC address string
 		 * @param macBytes MAC byte array
 		 * @return MAC address string
