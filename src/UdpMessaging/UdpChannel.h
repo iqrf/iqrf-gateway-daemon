@@ -79,9 +79,9 @@ class UdpChannel : public IChannel {
 		
 		/**
 		 * Sets handler for received messages
-		 * @param receiveFromFunc Function to pass received message to
+		 * @param messageHandler Function to pass received message to
 		 */
-		void registerReceiveFromHandler(ReceiveFromFunc receiveFromFunc) override;
+		void registerReceiveFromHandler(ReceiveFromFunc messageHandler) override;
 
 		/**
 		 * Clears handler for received messages
