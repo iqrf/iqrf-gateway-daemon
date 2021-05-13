@@ -16,30 +16,30 @@
 
 #include "UdpChannel.h"
 #include "Trace.h"
-#include <stdlib.h>     //srand, rand
-#include <time.h>       //time
+#include <stdlib.h>
+#include <time.h> 
 #include <string.h>
 
 #ifndef SHAPE_PLATFORM_WINDOWS
 #define GetLastError() errno
 #define WSAGetLastError() errno
 #define SOCKET_ERROR -1
-int closesocket(int filedes) { return close(filedes); }
+int closesocket(int __fd) { return close(__fd); }
 typedef int opttype;
 #else
 #define SHUT_RD SD_RECEIVE
 typedef char opttype;
 #endif
 
-UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned bufsize)
-	:m_runListenThread(true),
-	m_remotePort(remotePort),
-	m_localPort(localPort),
-	m_dataBuffSize(bufsize) {
+UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned bufsize) {
 	TRC_FUNCTION_ENTER(PAR(remotePort) << PAR(localPort) << PAR(bufsize));
 	m_isListening = false;
+	m_runListenThread = true;
+	m_remotePort = remotePort;
+	m_localPort = localPort;
+	m_dataBuffSize = bufsize;
 
-	#ifdef SHAPE_PLATFORM_WINDOWS
+#ifdef SHAPE_PLATFORM_WINDOWS
 	// Initialize Winsock
 	WSADATA wsaData = { 0 };
 	int iResult = 0;
@@ -48,7 +48,7 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 	if (iResult != 0) {
 		THROW_EXC_TRC_WAR(UdpChannelException, "WSAStartup failed: " << GetLastError());
 	}
-	#endif
+#endif
 
 	m_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (m_sockfd == -1) {
@@ -109,9 +109,9 @@ UdpChannel::~UdpChannel() {
 		m_listenThread.join();
 	TRC_DEBUG("listening thread joined");
 
-	#ifdef SHAPE_PLATFORM_WINDOWS
+#ifdef SHAPE_PLATFORM_WINDOWS
 	WSACleanup();
-	#endif
+#endif
 
 	delete[] m_dataBuff;
 }
@@ -119,7 +119,7 @@ UdpChannel::~UdpChannel() {
 void UdpChannel::sendTo(const std::basic_string<unsigned char>& message) {
 	int sentBytes = sendto(m_sockfd, (const char *)message.data(), static_cast<unsigned int>(message.size()), 0, (struct sockaddr *)&m_sender, sizeof(m_sender));
 	if (sentBytes == SOCKET_ERROR) {
-		THROW_EXC_TRC_WAR(UdpChannelException, "Failed to send message, sendto(): [" << errno << "] " << strerror(errno));
+		THROW_EXC_TRC_WAR(UdpChannelException, "Failed to send message, sendto(): [" << GetLastError() << "] " << strerror(GetLastError()));
 	}
 }
 
@@ -133,17 +133,9 @@ void UdpChannel::listen() {
 		while (m_runListenThread) {
 			recBytes = recvmsg(m_sockfd, &m_recHeader, 0);
 			if (recBytes == SOCKET_ERROR) {
-				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvmsg(): [" << errno << "] " << strerror(errno));
+				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvmsg(): [" << GetLastError() << "] " << strerror(GetLastError()));
 			}
 			identifyReceivingInterface();
-			//m_receivingIp = parseReceivingIpAddress();
-			/*if (m_receivingIp == "255.255.255.255") {
-				char senderIp[INET_ADDRSTRLEN];
-				inet_ntop(AF_INET, &((struct sockaddr_in*)m_recHeader.msg_name)->sin_addr, senderIp, sizeof(struct sockaddr_in));
-				deduceReceivingInterface(htonl(((struct sockaddr_in*)m_recHeader.msg_name)->sin_addr.s_addr));
-			} else {
-				m_receivingMac = matchReceivingMacAddress(m_receivingIp);
-			}*/
 			TRC_DEBUG("Received UDP datagram at IP " << m_receivingIp << ", MAC " << m_receivingMac);
 			if (recBytes > 0) {
 				if (m_messageHandler) {
@@ -165,7 +157,8 @@ void UdpChannel::listen() {
 }
 
 void UdpChannel::identifyReceivingInterface() {
-	std::string address = "0.0.0.0", mac = "00-00-00-00-00-00";
+	m_receivingIp = "0.0.0.0";
+	m_receivingMac = "00-00-00-00-00-00";
 	int idx = -1;
 	for (m_cmsg = CMSG_FIRSTHDR(&m_recHeader); m_cmsg != NULL; m_cmsg = CMSG_NXTHDR(&m_recHeader, m_cmsg)) {
 		if (m_cmsg->cmsg_level == IPPROTO_IP && m_cmsg->cmsg_type == IP_PKTINFO) {
@@ -175,116 +168,26 @@ void UdpChannel::identifyReceivingInterface() {
 		}
 	}
 
-	if (idx != -1) {
-		struct ifreq ifrs[32];
-		struct ifconf ifc;
-		int res;
+	if (idx == -1) {
+		return;
+	}
 
-		memset(&ifc, 0, sizeof(ifconf));
-		ifc.ifc_req = ifrs;
-		ifc.ifc_len = sizeof(ifrs);
-
-		res = ioctl(m_sockfd, SIOCGIFCONF, (char *)&ifc);
-		if (res == SOCKET_ERROR) {
-			TRC_WARNING("Interface configuration ioctl failed: [" << errno << "]: " << strerror(errno));
-			m_receivingIp = address;
-			m_receivingMac = mac;
+	if (m_interfaces.count(idx)) {
+		NetworkInterface iface = m_interfaces.find(idx)->second;
+		if (!iface.isExpired()) {
+			m_receivingIp = iface.getIp();
+			m_receivingMac = iface.getMac();
 			return;
 		}
-
-		for (unsigned int i = 0; i < ifc.ifc_len/sizeof(struct ifreq); ++i) {
-			res = ioctl(m_sockfd, SIOCGIFINDEX, &ifrs[i]);
-			if (res == SOCKET_ERROR) {
-				TRC_WARNING("Interface index ioctl failed: [" << errno << "]: " << strerror(errno));
-				break;
-			}
-
-			if (ifrs[i].ifr_ifindex != idx) {
-				continue;
-			}
-
-			res = ioctl(m_sockfd, SIOCGIFADDR, &ifrs[i]);
-			if (res == SOCKET_ERROR) {
-				TRC_WARNING("Interface IP ioctl failed: [" << errno << "]: " << strerror(errno));
-				break;
-			}
-
-			char addr[INET_ADDRSTRLEN];
-			inet_ntop(AF_INET, &((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr, addr, sizeof(addr));
-			address = std::string(addr);
-
-			uint8_t macBytes[6];
-			res = ioctl(m_sockfd, SIOCGIFHWADDR, &ifrs[i]);
-			if (res == SOCKET_ERROR) {
-				TRC_WARNING("Interface MAC ioctl failed: [" << errno << "]: " << strerror(errno));
-				break;
-			}
-
-			memcpy(macBytes, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBytes));
-			mac = convertToMacString(macBytes);
-			break;
-		}
 	}
-	
-	m_receivingIp = address;
-	m_receivingMac = mac;
+
+	findInterfaceByIndex(idx);
 }
 
-std::string UdpChannel::parseReceivingIpAddress() {
-	std::string address = "0.0.0.0";
-	for (m_cmsg = CMSG_FIRSTHDR(&m_recHeader); m_cmsg != NULL; m_cmsg = CMSG_NXTHDR(&m_recHeader, m_cmsg)) {
-		if (m_cmsg->cmsg_level == IPPROTO_IP && m_cmsg->cmsg_type == IP_PKTINFO) {
-			struct in_pktinfo *pi = (struct in_pktinfo *)CMSG_DATA(m_cmsg);
-			char addr[INET_ADDRSTRLEN];
-			inet_ntop(AF_INET, &pi->ipi_addr, addr, sizeof(addr));
-			address = std::string(addr);
-			break;
-		}
-	}
-	return address;
-}
-
-std::string UdpChannel::matchReceivingMacAddress(const std::string &ip) {
-	std::string mac = "00-00-00-00-00-00";
-	if (m_receivingIp != "0.0.0.0") {
-		struct ifreq ifrs[32];
-		struct ifconf ifc;
-		std::string ifaceIp;
-		int res;
-
-		memset(&ifc, 0, sizeof(ifconf));
-		ifc.ifc_req = ifrs;
-		ifc.ifc_len = sizeof(ifrs);
-
-		res = ioctl(m_sockfd, SIOCGIFCONF, (char *)&ifc);
-		if (res == SOCKET_ERROR) {
-			TRC_WARNING("Interface configuration ioctl failed: " << errno << ": " << strerror(errno));
-			return mac;
-		}
-
-		for (unsigned int i = 0; i < ifc.ifc_len/sizeof(struct ifreq); ++i) {
-			ifaceIp = std::string(inet_ntoa(((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr));
-			if (ifaceIp != ip) {
-				continue;
-			}
-			uint8_t macBytes[6];
-			res = ioctl(m_sockfd, SIOCGIFHWADDR, &ifrs[i]);
-			if (res != SOCKET_ERROR) {
-				memcpy(macBytes, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBytes));
-				mac = convertToMacString(macBytes);
-			}
-			break;
-		}
-	}
-	return mac;
-}
-
-void UdpChannel::deduceReceivingInterface(const uint32_t &sender) {
-	std::string ip = "0.0.0.0", mac = "00-00-00-00-00-00";
+void UdpChannel::findInterfaceByIndex(const int &idx) {
 	struct ifreq ifrs[32];
 	struct ifconf ifc;
 	int res;
-	uint32_t address, mask;
 
 	memset(&ifc, 0, sizeof(ifconf));
 	ifc.ifc_req = ifrs;
@@ -292,46 +195,60 @@ void UdpChannel::deduceReceivingInterface(const uint32_t &sender) {
 
 	res = ioctl(m_sockfd, SIOCGIFCONF, (char *)&ifc);
 	if (res == SOCKET_ERROR) {
-		TRC_WARNING("Interface configuration ioctl failed: " << errno << ": " << strerror(errno));
-		m_receivingIp = ip;
-		m_receivingMac = mac;
+		TRC_WARNING("Interface configuration ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
 		return;
 	}
 
 	for (unsigned int i = 0; i < ifc.ifc_len/sizeof(struct ifreq); ++i) {
-		if (!(ifrs[i].ifr_flags & IFF_BROADCAST)) {
-			continue;
-		}
-
-		char ipAddr[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, &((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr, ipAddr, sizeof(ipAddr));
-		address = htonl(((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr.s_addr);
-
-		res = ioctl(m_sockfd, SIOCGIFNETMASK, (char *)&ifrs[i]);
+		res = ioctl(m_sockfd, SIOCGIFINDEX, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
-			TRC_WARNING("Netmask ioctl failed for interface " << ifrs[i].ifr_name << ":" << errno << ": " << strerror(errno));
+			TRC_WARNING("Interface index ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			break;
+		}
+
+		if (ifrs[i].ifr_ifindex != idx) {
 			continue;
 		}
-		mask = htonl(((struct sockaddr_in *)&ifrs[i].ifr_netmask)->sin_addr.s_addr);
 
-		if ((sender & mask) != (address & mask)) {
-			continue;
+		res = ioctl(m_sockfd, SIOCGIFADDR, &ifrs[i]);
+		if (res == SOCKET_ERROR) {
+			TRC_WARNING("Interface IP ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			break;
 		}
-		ip = std::string(ipAddr);
 
+		char ipBuffer[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr, ipBuffer, sizeof(ipBuffer));
+		
+		uint8_t macBuffer[6];
 		res = ioctl(m_sockfd, SIOCGIFHWADDR, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
-			TRC_WARNING("MAC address ioctl failed for interface " << ifrs[i].ifr_name << ":" << errno << ": " << strerror(errno));
-			continue;
+			TRC_WARNING("Interface MAC ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			break;
 		}
-		uint8_t macBytes[6];
-		memcpy(macBytes, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBytes));
-		mac = convertToMacString(macBytes);
+		memcpy(macBuffer, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBuffer));
+		
+		std::string ip(ipBuffer);
+		std::string mac(convertToMacString(macBuffer));
+		std::time_t expiration = time(nullptr) + m_expirationPeriod;
+
+		if (m_interfaces.count(idx)) {
+			TRC_DEBUG("Updating interface at index " << idx << " - IP: " << ip << " MAC: " << mac << ", expires at " << std::asctime(std::localtime(&expiration)));
+			NetworkInterface iface = m_interfaces.find(idx)->second;
+			if (iface.getIp() != ip) {
+				iface.setIp(ip);
+			}
+			if (iface.getMac() != mac) {
+				iface.setMac(mac);
+			}
+			iface.setExpiration(expiration);
+		} else {
+			TRC_DEBUG("Storing interface at index " << idx << " - IP: " << ip << " MAC: " << mac << ", expires at " << std::asctime(std::localtime(&expiration)));
+			m_interfaces.insert(std::make_pair(idx, NetworkInterface(ip, mac, expiration)));
+		}
+		m_receivingIp = ip;
+		m_receivingMac = mac;
 		break;
 	}
-
-	m_receivingIp = ip;
-	m_receivingMac = mac;
 }
 
 std::string UdpChannel::convertToMacString(const uint8_t *macBytes) {
