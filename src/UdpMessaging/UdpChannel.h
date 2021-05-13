@@ -30,7 +30,6 @@
 #include <Iphlpapi.h>
 typedef int clientlen_t;
 #else
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -44,16 +43,19 @@ typedef int clientlen_t;
 typedef int SOCKET;
 typedef void * SOCKADDR_STORAGE;
 typedef size_t clientlen_t;
-
 #endif
 
 #include "IChannel.h"
+#include "NetworkInterface.h"
+#include "UdpChannelException.h"
 #include <stdint.h>
-#include <exception>
+
+#include <atomic>
+#include <ctime>
+#include <map>
+#include <stdexcept>
 #include <thread>
 #include <vector>
-#include <atomic>
-#include <map>
 
 /// UDP channel class
 class UdpChannel : public IChannel {
@@ -130,28 +132,15 @@ class UdpChannel : public IChannel {
 		void listen();
 
 		/**
-		 * Parses received message headers to find IP address
-		 * @return IP address of receiving interface
-		 */
-		std::string parseReceivingIpAddress();
-
-		/**
-		 * Searches for a matching MAC address for IP address
-		 * @param ip IP address
-		 * @return MAC address of receiving interface
-		 */
-		std::string matchReceivingMacAddress(const std::string &ip);
-
-		/**
-		 * Attemts to deduce receiving interface based on source IP
-		 * @param sender Integer value representing sender IP
-		 */
-		void deduceReceivingInterface(const uint32_t &sender);
-
-		/**
-		 * Attempts to identify receiving interface based on interface index
+		 * Attempts to identify interface that received message
 		 */
 		void identifyReceivingInterface();
+
+		/**
+		 * Finds interface at specified index and stores information in interface map
+		 * @param idx Index of interface
+		 */
+		void findInterfaceByIndex(const int &idx);
 
 		/**
 		 * Converts bytes to MAC address string
@@ -198,11 +187,8 @@ class UdpChannel : public IChannel {
 		std::string m_receivingIp;
 		/// MAC address of receiving interface
 		std::string m_receivingMac;
-};
-
-/// UDP channel exception class
-class UdpChannelException : public std::logic_error {
-	public:
-		UdpChannelException(const std::string& cause) : logic_error(cause) {}
-		UdpChannelException(const char* cause) : logic_error(cause) {}
+		/// Network interface map
+		std::map<unsigned int, NetworkInterface> m_interfaces;
+		/// Interface expiration period
+		unsigned short m_expirationPeriod = 300;
 };
