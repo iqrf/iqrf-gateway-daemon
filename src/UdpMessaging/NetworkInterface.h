@@ -10,7 +10,7 @@ class NetworkInterface {
 		 * @param mac Interface MAC address
 		 * @param expiration Expiration timestamp
 		 */
-		NetworkInterface(std::string ip, std::string mac, std::time_t expiration);
+		NetworkInterface(const std::string &ip, const std::string &mac, const std::time_t &expiration);
 
 		/**
 		 * Destructor
@@ -27,7 +27,7 @@ class NetworkInterface {
 		 * Sets new interface IP
 		 * @param ip Interface IP
 		 */
-		void setIp(const std::string ip);
+		void setIp(const std::string &ip);
 
 		/**
 		 * Returns interface MAC
@@ -39,7 +39,7 @@ class NetworkInterface {
 		 * Sets new interface MAC
 		 * @param mac Interface MAC
 		 */
-		void setMac(const std::string mac);
+		void setMac(const std::string &mac);
 
 		/**
 		 * Checks if network interface information is valid by expiration

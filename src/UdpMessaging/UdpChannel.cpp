@@ -31,13 +31,13 @@ typedef int opttype;
 typedef char opttype;
 #endif
 
-UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned bufsize) {
-	TRC_FUNCTION_ENTER(PAR(remotePort) << PAR(localPort) << PAR(bufsize));
+UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned dataBuffSize) {
+	TRC_FUNCTION_ENTER(PAR(remotePort) << PAR(localPort) << PAR(dataBuffSize));
 	m_isListening = false;
 	m_runListenThread = true;
 	m_remotePort = remotePort;
 	m_localPort = localPort;
-	m_dataBuffSize = bufsize;
+	m_dataBuffSize = dataBuffSize;
 
 #ifdef SHAPE_PLATFORM_WINDOWS
 	// Initialize Winsock
@@ -126,10 +126,9 @@ void UdpChannel::sendTo(const std::basic_string<unsigned char>& message) {
 void UdpChannel::listen() {
 	TRC_FUNCTION_ENTER("thread starts");
 
-	int recBytes;
-
 	try {
 		m_isListening = true;
+		int recBytes;
 		while (m_runListenThread) {
 			recBytes = recvmsg(m_sockfd, &m_recHeader, 0);
 			if (recBytes == SOCKET_ERROR) {
@@ -230,9 +229,10 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 		std::string ip(ipBuffer);
 		std::string mac(convertToMacString(macBuffer));
 		std::time_t expiration = time(nullptr) + m_expirationPeriod;
-
+		char datetime[32];
+		std::strftime(datetime, sizeof(datetime), "%c", std::localtime(&expiration));
 		if (m_interfaces.count(idx)) {
-			TRC_DEBUG("Updating interface at index " << idx << " - IP: " << ip << " MAC: " << mac << ", expires at " << std::asctime(std::localtime(&expiration)));
+			TRC_DEBUG("Updating interface at index " << idx << " - IP: " << ip << " MAC: " << mac << ", expires at " << datetime);
 			NetworkInterface iface = m_interfaces.find(idx)->second;
 			if (iface.getIp() != ip) {
 				iface.setIp(ip);
@@ -242,7 +242,7 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 			}
 			iface.setExpiration(expiration);
 		} else {
-			TRC_DEBUG("Storing interface at index " << idx << " - IP: " << ip << " MAC: " << mac << ", expires at " << std::asctime(std::localtime(&expiration)));
+			TRC_DEBUG("Storing interface at index " << idx << " - IP: " << ip << " MAC: " << mac << ", expires at " << datetime);
 			m_interfaces.insert(std::make_pair(idx, NetworkInterface(ip, mac, expiration)));
 		}
 		m_receivingIp = ip;
