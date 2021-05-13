@@ -192,16 +192,24 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 	ifc.ifc_req = ifrs;
 	ifc.ifc_len = sizeof(ifrs);
 
-	res = ioctl(m_sockfd, SIOCGIFCONF, (char *)&ifc);
+	SOCKET sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (sockfd == SOCKET_ERROR) {
+		TRC_WARNING("Failed to create socket for interface info: [" << GetLastError() << "]: " << strerror(GetLastError()));
+		return;
+	}
+
+	res = ioctl(sockfd, SIOCGIFCONF, (char *)&ifc);
 	if (res == SOCKET_ERROR) {
 		TRC_WARNING("Interface configuration ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+		closesocket(sockfd);
 		return;
 	}
 
 	for (unsigned int i = 0; i < ifc.ifc_len/sizeof(struct ifreq); ++i) {
-		res = ioctl(m_sockfd, SIOCGIFINDEX, &ifrs[i]);
+		res = ioctl(sockfd, SIOCGIFINDEX, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
 			TRC_WARNING("Interface index ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			closesocket(sockfd);
 			break;
 		}
 
@@ -209,9 +217,10 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 			continue;
 		}
 
-		res = ioctl(m_sockfd, SIOCGIFADDR, &ifrs[i]);
+		res = ioctl(sockfd, SIOCGIFADDR, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
 			TRC_WARNING("Interface IP ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			closesocket(sockfd);
 			break;
 		}
 
@@ -219,11 +228,13 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 		inet_ntop(AF_INET, &((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr, ipBuffer, sizeof(ipBuffer));
 		
 		uint8_t macBuffer[6];
-		res = ioctl(m_sockfd, SIOCGIFHWADDR, &ifrs[i]);
+		res = ioctl(sockfd, SIOCGIFHWADDR, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
 			TRC_WARNING("Interface MAC ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			closesocket(sockfd);
 			break;
 		}
+		closesocket(sockfd);
 		memcpy(macBuffer, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBuffer));
 		
 		std::string ip(ipBuffer);
