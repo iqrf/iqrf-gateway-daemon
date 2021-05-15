@@ -3,6 +3,8 @@
 #include <sstream>
 #include <list>
 
+namespace ihp = iqrf_header_parser;
+
 namespace iqrf{
   // MCU memory layout
   const uint16_t SERIAL_EEPROM_BOTTOM = 0x0200;

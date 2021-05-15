@@ -3,6 +3,7 @@
 #include <memory>
 #include "PreparedData.h"
 #include "IOtaUploadService.h"
+#include "iqrf_header_parser.h"
 #include <list>
 
 namespace iqrf 
