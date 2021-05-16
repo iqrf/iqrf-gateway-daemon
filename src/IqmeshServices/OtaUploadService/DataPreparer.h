@@ -34,7 +34,7 @@ namespace iqrf
   class DataPreparer
   {
   public:
-    static std::unique_ptr<PreparedData> prepareData(IOtaUploadService::LoadingContentType loadingContent, const std::string& fileName, bool isForBroadcast);
+    static std::unique_ptr<PreparedData> prepareData(IOtaUploadService::LoadingContentType loadingContent, const std::string& fileName, bool isForBroadcast, const IOtaUploadService::ModuleInfo &module);
     static std::list<CodeBlock> getEepromData(const std::string& fileName);
     static std::list<CodeBlock> getEeepromData(const std::string& fileName);
   private:
