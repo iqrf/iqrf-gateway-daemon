@@ -59,136 +59,136 @@ typedef size_t clientlen_t;
 
 /// UDP channel class
 class UdpChannel : public IChannel {
-	public:
-		/**
-		 * UDP channel constructor
-		 * @param remotePort Port to send to
-		 * @param localPort Port to listen on
-		 * @param dataBuffSize Data buffer size
-		 */
-		UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned dataBuffSize);
-		
-		/**
-		 * Destructor
-		 */
-		virtual ~UdpChannel();
+public:
+	/**
+	 * UDP channel constructor
+	 * @param remotePort Port to send to
+	 * @param localPort Port to listen on
+	 * @param dataBuffSize Data buffer size
+	 */
+	UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned dataBuffSize);
+	
+	/**
+	 * Destructor
+	 */
+	virtual ~UdpChannel();
 
-		/**
-		 * Sends message to client
-		 * @param message Message to send
-		 */
-		void sendTo(const std::basic_string<unsigned char>& message) override;
-		
-		/**
-		 * Sets handler for received messages
-		 * @param messageHandler Function to pass received message to
-		 */
-		void registerReceiveFromHandler(ReceiveFromFunc messageHandler) override;
+	/**
+	 * Sends message to client
+	 * @param message Message to send
+	 */
+	void sendTo(const std::basic_string<unsigned char>& message) override;
+	
+	/**
+	 * Sets handler for received messages
+	 * @param messageHandler Function to pass received message to
+	 */
+	void registerReceiveFromHandler(ReceiveFromFunc messageHandler) override;
 
-		/**
-		 * Clears handler for received messages
-		 */
-		void unregisterReceiveFromHandler() override;
+	/**
+	 * Clears handler for received messages
+	 */
+	void unregisterReceiveFromHandler() override;
 
-		/**
-		 * Returns channel state
-		 * @return channel state
-		 */
-		State getState() override;
+	/**
+	 * Returns channel state
+	 * @return channel state
+	 */
+	State getState() override;
 
-		/**
-		 * Returns IP address of receiving interface
-		 * @return IP address
-		 */
-		const std::string& getListeningIpAddress() const;
+	/**
+	 * Returns IP address of receiving interface
+	 * @return IP address
+	 */
+	const std::string& getListeningIpAddress() const;
 
-		/**
-		 * Returns MAC address of receiving interface
-		 * @return MAC address
-		 */
-		const std::string& getListeningMacAddress() const;
+	/**
+	 * Returns MAC address of receiving interface
+	 * @return MAC address
+	 */
+	const std::string& getListeningMacAddress() const;
 
-		/**
-		 * Returns listening port
-		 * @return Listening port
-		 */
-		unsigned short getListeningIpPort() const;
+	/**
+	 * Returns listening port
+	 * @return Listening port
+	 */
+	unsigned short getListeningIpPort() const;
 
-		/**
-		 * Checks if thread is listening
-		 * @return true if thread is listening, false otherwise
-		 */
-		bool isListening() const;
+	/**
+	 * Checks if thread is listening
+	 * @return true if thread is listening, false otherwise
+	 */
+	bool isListening() const;
 
-	private:
-		/**
-		 * Base constructor
-		 */
-		UdpChannel();
+private:
+	/**
+	 * Base constructor
+	 */
+	UdpChannel();
 
-		/**
-		 * UDP listening loop
-		 */
-		void listen();
+	/**
+	 * UDP listening loop
+	 */
+	void listen();
 
-		/**
-		 * Attempts to identify interface that received message
-		 */
-		void identifyReceivingInterface();
+	/**
+	 * Attempts to identify interface that received message
+	 */
+	void identifyReceivingInterface();
 
-		/**
-		 * Finds interface at specified index and stores information in interface map
-		 * @param idx Index of interface
-		 */
-		void findInterfaceByIndex(const int &idx);
+	/**
+	 * Finds interface at specified index and stores information in interface map
+	 * @param idx Index of interface
+	 */
+	void findInterfaceByIndex(const int &idx);
 
-		/**
-		 * Converts bytes to MAC address string
-		 * @param macBytes MAC byte array
-		 * @return MAC address string
-		 */
-		std::string convertToMacString(const uint8_t *macBytes);
+	/**
+	 * Converts bytes to MAC address string
+	 * @param macBytes MAC byte array
+	 * @return MAC address string
+	 */
+	std::string convertToMacString(const uint8_t *macBytes);
 
-		/// Handler function for received messages
-		ReceiveFromFunc m_messageHandler;
-		/// UDP listening thread
-		std::thread m_listenThread;
-		/// Indicates if thread is listening
-		std::atomic_bool m_isListening;
-		/// Indicates if thread continue listening
-		bool m_runListenThread;
-		/// Socket file descriptor
-		SOCKET m_sockfd = -1;
-		/// Listening transport structure
-		sockaddr_in m_listener;
-		/// Sending transport structure
-		sockaddr_in m_sender;
-		/// Port to send to
-		unsigned short m_remotePort;
-		/// Port to listen on
-		unsigned short m_localPort;
-		/// Message header structure for received messages
-		msghdr m_recHeader;
-		/// Control message header structure for received messages
-		cmsghdr *m_cmsg;
-		/// Transport structure for receiving interface
-		sockaddr_in m_addr;
-		/// IO structure
-		iovec m_recIov[1];
-		/// Control meta buffer
-		char *m_controlBuff;
-		/// Control meta buffer size
-		unsigned m_controlBuffSize = 0x100;
-		/// Data buffer
-		char *m_dataBuff;
-		/// Data buffer size
-		unsigned m_dataBuffSize;
-		/// IP address of receiving interface
-		std::string m_receivingIp;
-		/// MAC address of receiving interface
-		std::string m_receivingMac;
-		/// Network interface map
-		std::map<unsigned int, NetworkInterface> m_interfaces;
-		/// Interface expiration period
-		unsigned short m_expirationPeriod = 300;
+	/// Handler function for received messages
+	ReceiveFromFunc m_messageHandler;
+	/// UDP listening thread
+	std::thread m_listenThread;
+	/// Indicates if thread is listening
+	std::atomic_bool m_isListening;
+	/// Indicates if thread continue listening
+	bool m_runListenThread;
+	/// Socket file descriptor
+	SOCKET m_sockfd = -1;
+	/// Listening transport structure
+	sockaddr_in m_listener;
+	/// Sending transport structure
+	sockaddr_in m_sender;
+	/// Port to send to
+	unsigned short m_remotePort;
+	/// Port to listen on
+	unsigned short m_localPort;
+	/// Message header structure for received messages
+	msghdr m_recHeader;
+	/// Control message header structure for received messages
+	cmsghdr *m_cmsg;
+	/// Transport structure for receiving interface
+	sockaddr_in m_addr;
+	/// IO structure
+	iovec m_recIov[1];
+	/// Control meta buffer
+	char *m_controlBuff;
+	/// Control meta buffer size
+	unsigned m_controlBuffSize = 0x100;
+	/// Data buffer
+	char *m_dataBuff;
+	/// Data buffer size
+	unsigned m_dataBuffSize;
+	/// IP address of receiving interface
+	std::string m_receivingIp;
+	/// MAC address of receiving interface
+	std::string m_receivingMac;
+	/// Network interface map
+	std::map<unsigned int, NetworkInterface> m_interfaces;
+	/// Interface expiration period
+	unsigned short m_expirationPeriod = 300;
 };
