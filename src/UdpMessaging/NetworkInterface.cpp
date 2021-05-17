@@ -1,9 +1,7 @@
 #include "NetworkInterface.h"
 
-NetworkInterface::NetworkInterface(const std::string &ip, const std::string &mac, const std::time_t &expiration) {
-	this->ip = ip;
-	this->mac = mac;
-	this->expiration = expiration;
+NetworkInterface::NetworkInterface(const std::string &ip, const std::string &mac, const std::time_t &expiration):
+    ip(ip), mac(mac), expiration(expiration) {
 }
 
 const std::string NetworkInterface::getIp() const {
