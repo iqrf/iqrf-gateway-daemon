@@ -349,7 +349,7 @@ namespace iqrf
         // Build DPA request
         DpaMessage osReadRequest;
         DpaMessage::DpaPacket_t osReadPacket;
-        osReadPacket.DpaRequestPacket_t.NADR = m_otaUploadParams.deviceAddress;
+        osReadPacket.DpaRequestPacket_t.NADR = m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS ? COORDINATOR_ADDRESS : m_otaUploadParams.deviceAddress;
         osReadPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
         osReadPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ;
         osReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
@@ -365,7 +365,6 @@ namespace iqrf
         m_device.osMajor = (responseData[4] & 0xf0) >> 4;
         m_device.osMinor = responseData[4] & 0x0f;
         m_device.osBuild = (responseData[7] << 8) | responseData[6];
-        m_device.used = true;
         TRC_INFORMATION("OS read successful!");
         uploadResult.addTransactionResult(result);
       } catch (const std::exception &e) {
@@ -1012,7 +1011,7 @@ namespace iqrf
             THROW_EXC(std::logic_error, e.what());
           }
 
-          if (loadingContentType == OtaUploadService::LoadingContentType::Iqrf_plugin && m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS) {
+          if (loadingContentType == OtaUploadService::LoadingContentType::Iqrf_plugin) {
             osRead(uploadResult);
           }
 

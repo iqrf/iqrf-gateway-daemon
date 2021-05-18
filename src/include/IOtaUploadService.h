@@ -59,8 +59,6 @@ namespace iqrf {
       uint8_t osMinor;
       /// OS build number
       uint16_t osBuild;
-      /// Populated
-      bool used;
     } ModuleInfo;
 
 	/// \brief Destructor

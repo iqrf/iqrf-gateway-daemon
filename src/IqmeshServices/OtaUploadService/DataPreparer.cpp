@@ -83,20 +83,13 @@ namespace iqrf{
   static void trim(std::string& str)
   {
     const std::string whitespace = " \t\r\n";
-    const auto strBegin = str.find_first_not_of(whitespace);
-
-    // no content
-    if (strBegin == std::string::npos)
-      return;
-
-    str.erase(0, strBegin);
-
-    const auto strEnd = str.find_last_not_of(whitespace);
-    if (strEnd == str.length() - 1) {
+    size_t start = str.find_first_not_of(whitespace);
+	  if (start == std::string::npos) {
+      str = "";
       return;
     }
-
-    str.erase(strEnd + 1);
+	  size_t stop = str.find_last_not_of(whitespace);
+	  str = str.substr(start, stop - start + 1);
   }
 
   // parses hex files and provides data from them
@@ -352,7 +345,10 @@ namespace iqrf{
               break;
             case 3: // date, ignore
               break;
-            case 4: // plugin, patch and other, validate?
+            case 4:
+              if (ihp::validPluginHeaderOs(line)) {
+                throw std::logic_error("Regular ChangeOS plugin cannot be uploaded via OTA upload service.");
+              }
               break;
             case 5: // separator
             default:
