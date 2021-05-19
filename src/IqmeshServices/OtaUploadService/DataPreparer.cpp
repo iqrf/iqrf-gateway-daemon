@@ -84,12 +84,12 @@ namespace iqrf{
   {
     const std::string whitespace = " \t\r\n";
     size_t start = str.find_first_not_of(whitespace);
-	  if (start == std::string::npos) {
+    if (start == std::string::npos) {
       str = "";
       return;
     }
-	  size_t stop = str.find_last_not_of(whitespace);
-	  str = str.substr(start, stop - start + 1);
+    size_t stop = str.find_last_not_of(whitespace);
+    str = str.substr(start, stop - start + 1);
   }
 
   // parses hex files and provides data from them
