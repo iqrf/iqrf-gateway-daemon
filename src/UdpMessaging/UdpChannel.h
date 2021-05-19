@@ -167,6 +167,7 @@ private:
 	unsigned short m_remotePort;
 	/// Port to listen on
 	unsigned short m_localPort;
+#ifndef SHAPE_PLATFORM_WINDOWS
 	/// Message header structure for received messages
 	msghdr m_recHeader;
 	/// Control message header structure for received messages
@@ -179,6 +180,7 @@ private:
 	char *m_controlBuff;
 	/// Control meta buffer size
 	unsigned m_controlBuffSize = 0x100;
+#endif
 	/// Data buffer
 	char *m_dataBuff;
 	/// Data buffer size
