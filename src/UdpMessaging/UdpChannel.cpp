@@ -140,10 +140,12 @@ void UdpChannel::listen() {
 		m_isListening = true;
 		while (m_runListenThread) {
 #ifdef SHAPE_PLATFORM_WINDOWS
-			int recBytes = recvfrom(m_sockfd, (char *)m_dataBuff, m_dataBuffSize, 0, (struct sockaddr *)&m_listener, &listenerLen);		
+			int recBytes = recvfrom(m_sockfd, (char *)m_dataBuff, m_dataBuffSize, 0, (struct sockaddr *)&m_listener, &listenerLen);
+			if (recBytes == SOCKET_ERROR) {
+				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvfrom(): [" << GetLastError() << "] " << strerror(GetLastError()));
+			}
 #else
 			int recBytes = recvmsg(m_sockfd, &m_recHeader, 0);
-#endif
 			if (recBytes == SOCKET_ERROR) {
 				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvmsg(): [" << GetLastError() << "] " << strerror(GetLastError()));
 			}
@@ -152,8 +154,8 @@ void UdpChannel::listen() {
 			if (m_receivingIp == "0.0.0.0") {
 				continue;
 			}
-
 			TRC_DEBUG("Received UDP datagram at IP " << m_receivingIp << ", MAC " << m_receivingMac);
+#endif
 			if (recBytes > 0) {
 				if (m_messageHandler) {
 #ifdef SHAPE_PLATFORM_WINDOWS
