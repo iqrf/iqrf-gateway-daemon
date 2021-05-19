@@ -75,11 +75,13 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 	m_sender.sin_family = AF_INET;
 	m_sender.sin_port = htons(m_remotePort);
 
-	m_controlBuff = shape_new char[m_controlBuffSize];
 	m_dataBuff = shape_new char[m_dataBuffSize];
-	memset(m_controlBuff, 0, m_controlBuffSize);
 	memset(m_dataBuff, 0, m_dataBuffSize);
-	
+
+#ifndef SHAPE_PLATFORM_WINDOWS
+	m_controlBuff = shape_new char[m_controlBuffSize];
+	memset(m_controlBuff, 0, m_controlBuffSize);
+
 	m_recIov[0].iov_base = m_dataBuff;
 	m_recIov[0].iov_len = m_dataBuffSize;
 	m_recHeader.msg_name = &m_addr;
@@ -88,6 +90,10 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 	m_recHeader.msg_iovlen = sizeof(m_recIov) / sizeof(*m_recIov);
 	m_recHeader.msg_control = m_controlBuff;
 	m_recHeader.msg_controllen = m_controlBuffSize;
+#else
+	m_receivingIp = "0.0.0.0";
+	m_receivingMac = "00-00-00-00-00-00";
+#endif
 
 	// Bind socket to all interfaces
 	ret = bind(m_sockfd, (struct sockaddr *)&m_listener, sizeof(m_listener));
@@ -126,22 +132,41 @@ void UdpChannel::sendTo(const std::basic_string<unsigned char>& message) {
 void UdpChannel::listen() {
 	TRC_FUNCTION_ENTER("thread starts");
 
+#ifdef SHAPE_PLATFORM_WINDOWS
+	socklen_t listenerLen = sizeof(m_listener);
+#endif
+
 	try {
 		m_isListening = true;
-		int recBytes;
 		while (m_runListenThread) {
-			recBytes = recvmsg(m_sockfd, &m_recHeader, 0);
+#ifdef SHAPE_PLATFORM_WINDOWS
+			int recBytes = recvfrom(m_sockfd, (char *)m_dataBuff, m_dataBuffSize, 0, (struct sockaddr *)&m_listener, &listenerLen);		
+#else
+			int recBytes = recvmsg(m_sockfd, &m_recHeader, 0);
+#endif
 			if (recBytes == SOCKET_ERROR) {
 				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvmsg(): [" << GetLastError() << "] " << strerror(GetLastError()));
 			}
 			identifyReceivingInterface();
+
+			if (m_receivingIp == "0.0.0.0") {
+				continue;
+			}
+
 			TRC_DEBUG("Received UDP datagram at IP " << m_receivingIp << ", MAC " << m_receivingMac);
 			if (recBytes > 0) {
 				if (m_messageHandler) {
+#ifdef SHAPE_PLATFORM_WINDOWS
+					std::basic_string<unsigned char> message(m_dataBuff, recBytes);
+					if (m_messageHandler(message) == 0) {
+						m_sender.sin_addr.s_addr = m_listener.sin_addr.s_addr;
+					}
+#else
 					std::basic_string<unsigned char> message((unsigned char *)m_recHeader.msg_iov[0].iov_base, recBytes);
 					if (m_messageHandler(message) == 0) {
 						m_sender.sin_addr = m_addr.sin_addr;
 					}
+#endif
 				} else {
 					TRC_WARNING("No message handler registered.");
 				}
@@ -155,6 +180,7 @@ void UdpChannel::listen() {
 	TRC_FUNCTION_LEAVE("thread stopped");
 }
 
+#ifndef SHAPE_PLATFORM_WINDOWS
 void UdpChannel::identifyReceivingInterface() {
 	m_receivingIp = "0.0.0.0";
 	m_receivingMac = "00-00-00-00-00-00";
@@ -166,6 +192,8 @@ void UdpChannel::identifyReceivingInterface() {
 			break;
 		}
 	}
+
+	TRC_DEBUG("Index of receiving interface: " << idx);
 
 	if (idx == -1) {
 		return;
@@ -242,6 +270,7 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 		std::time_t expiration = time(nullptr) + m_expirationPeriod;
 		char datetime[32];
 		std::strftime(datetime, sizeof(datetime), "%c", std::localtime(&expiration));
+		
 		if (m_interfaces.count(idx)) {
 			TRC_DEBUG("Updating interface at index " << idx << " - IP: " << ip << " MAC: " << mac << ", expires at " << datetime);
 			NetworkInterface iface = m_interfaces.find(idx)->second;
@@ -267,6 +296,7 @@ std::string UdpChannel::convertToMacString(const uint8_t *macBytes) {
 	std::sprintf(buffer, "%02X-%02X-%02X-%02X-%02X-%02X", macBytes[0], macBytes[1], macBytes[2], macBytes[3], macBytes[4], macBytes[5]);
 	return std::string(buffer);
 }
+#endif
 
 void UdpChannel::registerReceiveFromHandler(ReceiveFromFunc messageHandler) {
 	m_messageHandler = messageHandler;
