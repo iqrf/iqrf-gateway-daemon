@@ -30,6 +30,11 @@
             "description": "...",
             "default": 55300
         },
+        "deviceRecordExpiration": {
+            "type": "integer",
+            "description": "Expiration period for stored network device records",
+            "default": 300
+        },
         "RequiredInterfaces": {
             "type": "array",
             "description": "Array of required interfaces.",

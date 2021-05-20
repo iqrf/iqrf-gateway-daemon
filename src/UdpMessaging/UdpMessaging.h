@@ -111,6 +111,8 @@ namespace iqrf {
 		int m_remotePort = 55000;
 		/// Port to listen on
 		int m_localPort = 55300;
+		/// Network device expiration
+		int m_expiration;
 		/// UDP channel
 		UdpChannel* m_udpChannel = nullptr;
 		/// UDP message queue

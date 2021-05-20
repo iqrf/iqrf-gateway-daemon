@@ -87,8 +87,9 @@ namespace iqrf {
 		props->getMemberAsString("instance", m_name);
 		props->getMemberAsInt("RemotePort", m_remotePort);
 		props->getMemberAsInt("LocalPort", m_localPort);
+		props->getMemberAsInt("deviceRecordExpiration", m_expiration);
 
-		m_udpChannel = shape_new UdpChannel(m_remotePort, m_localPort, IQRF_MQ_BUFFER_SIZE);
+		m_udpChannel = shape_new UdpChannel(m_remotePort, m_localPort, m_expiration, IQRF_MQ_BUFFER_SIZE);
 
 		m_toUdpMessageQueue = shape_new TaskQueue<std::basic_string<uint8_t>>([&](const std::basic_string<uint8_t>& msg) {
 			m_udpChannel->sendTo(msg);
