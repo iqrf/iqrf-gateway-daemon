@@ -30,15 +30,12 @@
 #include <Iphlpapi.h>
 typedef int clientlen_t;
 #else
+#include <arpa/inet.h>
+#include <net/if.h>
+#include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <net/if.h>
-#include <netinet/in.h>
-#include <ifaddrs.h>
-#include <netpacket/packet.h>
-#include <arpa/inet.h>
-#include <netdb.h>
 #include <unistd.h>
 typedef int SOCKET;
 typedef void * SOCKADDR_STORAGE;
@@ -66,7 +63,7 @@ public:
 	 * @param localPort Port to listen on
 	 * @param dataBuffSize Data buffer size
 	 */
-	UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned dataBuffSize);
+	UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned int expiration, unsigned dataBuffSize);
 	
 	/**
 	 * Destructor
@@ -137,10 +134,31 @@ private:
 	void identifyReceivingInterface();
 
 	/**
+	 * Checks if the interface has highest priority
+	 * @param idx Index of interface
+	 */
+	bool isPriorityInterface(const int &idx);
+
+	/**
 	 * Finds interface at specified index and stores information in interface map
 	 * @param idx Index of interface
 	 */
 	void findInterfaceByIndex(const int &idx);
+
+	/**
+	 * Parses and retrieves interface metric from IP route
+	 * @param ip Interface IP address
+	 * @return Interface metric
+	 */
+	int getInterfaceMetric(const std::string &ip);
+
+	/**
+	 * Splits string by delimiter and returns vector of substrings
+	 * @param string String to be split
+	 * @param delimiter Characters to split by
+	 * @return String split by delimiter in vector
+	 */
+	std::vector<std::string> split(const std::string &string, const std::string &delimiter);
 
 	/**
 	 * Converts bytes to MAC address string
@@ -189,8 +207,10 @@ private:
 	std::string m_receivingIp;
 	/// MAC address of receiving interface
 	std::string m_receivingMac;
+	/// Metric of interface route
+	int32_t m_receivingMetric;
 	/// Network interface map
 	std::map<unsigned int, NetworkInterface> m_interfaces;
 	/// Interface expiration period
-	unsigned short m_expirationPeriod = 300;
+	unsigned int m_expirationPeriod;
 };

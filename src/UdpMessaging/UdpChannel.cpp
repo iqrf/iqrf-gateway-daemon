@@ -31,12 +31,13 @@ typedef int opttype;
 typedef char opttype;
 #endif
 
-UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned dataBuffSize) {
+UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned int expiration, unsigned dataBuffSize) {
 	TRC_FUNCTION_ENTER(PAR(remotePort) << PAR(localPort) << PAR(dataBuffSize));
 	m_isListening = false;
 	m_runListenThread = true;
 	m_remotePort = remotePort;
 	m_localPort = localPort;
+	m_expirationPeriod = expiration;
 	m_dataBuffSize = dataBuffSize;
 
 #ifdef SHAPE_PLATFORM_WINDOWS
@@ -186,6 +187,7 @@ void UdpChannel::listen() {
 void UdpChannel::identifyReceivingInterface() {
 	m_receivingIp = "0.0.0.0";
 	m_receivingMac = "00-00-00-00-00-00";
+	m_receivingMetric = INT32_MAX;
 	int idx = -1;
 	for (m_cmsg = CMSG_FIRSTHDR(&m_recHeader); m_cmsg != NULL; m_cmsg = CMSG_NXTHDR(&m_recHeader, m_cmsg)) {
 		if (m_cmsg->cmsg_level == IPPROTO_IP && m_cmsg->cmsg_type == IP_PKTINFO) {
@@ -203,14 +205,39 @@ void UdpChannel::identifyReceivingInterface() {
 
 	if (m_interfaces.count(idx)) {
 		NetworkInterface iface = m_interfaces.find(idx)->second;
+		TRC_DEBUG("Interface found in map.");
 		if (!iface.isExpired()) {
-			m_receivingIp = iface.getIp();
-			m_receivingMac = iface.getMac();
+			m_receivingMetric = iface.getMetric();
+			if (isPriorityInterface(idx)) {
+				m_receivingIp = iface.getIp();
+				m_receivingMac = iface.getMac();
+			}
 			return;
 		}
+		TRC_DEBUG("Interface record in map expired.");
 	}
 
 	findInterfaceByIndex(idx);
+}
+
+bool UdpChannel::isPriorityInterface(const int &idx) {
+	for (auto const& device: m_interfaces) {
+		NetworkInterface storedIface = device.second;
+		TRC_DEBUG("Iface " << device.first << " IP " << storedIface.getIp() << " MAC " << storedIface.getMac() << " metric " << storedIface.getMetric())
+		if (device.first == idx) {
+			continue;
+		}
+		if (storedIface.isExpired()) {
+			continue;
+		}
+		if (storedIface.getIp() == "0.0.0.0") {
+			continue;
+		}
+		if (storedIface.hasLowerMetric(m_receivingMetric)) {
+			return false;
+		}
+	}
+	return true;
 }
 
 void UdpChannel::findInterfaceByIndex(const int &idx) {
@@ -222,7 +249,7 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 	ifc.ifc_req = ifrs;
 	ifc.ifc_len = sizeof(ifrs);
 
-	SOCKET sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sockfd == SOCKET_ERROR) {
 		TRC_WARNING("Failed to create socket for interface info: [" << GetLastError() << "]: " << strerror(GetLastError()));
 		return;
@@ -239,7 +266,6 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 		res = ioctl(sockfd, SIOCGIFINDEX, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
 			TRC_WARNING("Interface index ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
-			closesocket(sockfd);
 			break;
 		}
 
@@ -250,48 +276,102 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 		res = ioctl(sockfd, SIOCGIFADDR, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
 			TRC_WARNING("Interface IP ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
-			closesocket(sockfd);
 			break;
 		}
-
 		char ipBuffer[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr, ipBuffer, sizeof(ipBuffer));
 		
+		std::string ip(ipBuffer);
+		int metric = getInterfaceMetric(ip);
+
 		uint8_t macBuffer[6];
 		res = ioctl(sockfd, SIOCGIFHWADDR, &ifrs[i]);
 		if (res == SOCKET_ERROR) {
 			TRC_WARNING("Interface MAC ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
-			closesocket(sockfd);
 			break;
 		}
-		closesocket(sockfd);
 		memcpy(macBuffer, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBuffer));
-		
-		std::string ip(ipBuffer);
+
 		std::string mac(convertToMacString(macBuffer));
 		std::time_t expiration = time(nullptr) + m_expirationPeriod;
 		char datetime[32];
 		std::strftime(datetime, sizeof(datetime), "%c", std::localtime(&expiration));
+
+		std::ostringstream ss;
+		ss << "Interface [" << idx << "] - IP: " << ip << " MAC: " << mac << " metric: " << metric << ", expires at " << datetime;
 		
-		if (m_interfaces.count(idx)) {
-			TRC_DEBUG("Updating interface at index " << idx << " - IP: " << ip << " MAC: " << mac << ", expires at " << datetime);
-			NetworkInterface iface = m_interfaces.find(idx)->second;
-			if (iface.getIp() != ip) {
-				iface.setIp(ip);
-			}
-			if (iface.getMac() != mac) {
-				iface.setMac(mac);
-			}
-			iface.setExpiration(expiration);
+		auto itr = m_interfaces.find(idx);
+		if (itr != m_interfaces.end()) {
+			ss << " updated";
+			TRC_DEBUG(ss.str());
+			itr->second.setIp(ip);
+			itr->second.setMac(mac);
+			itr->second.setMetric(metric);
+			itr->second.setExpiration(expiration);
 		} else {
-			TRC_DEBUG("Storing interface at index " << idx << " - IP: " << ip << " MAC: " << mac << ", expires at " << datetime);
-			m_interfaces.insert(std::make_pair(idx, NetworkInterface(ip, mac, expiration)));
+			ss << " stored";
+			TRC_DEBUG(ss.str());
+			m_interfaces.insert(std::make_pair(idx, NetworkInterface(ip, mac, metric, expiration)));
 		}
-		m_receivingIp = ip;
-		m_receivingMac = mac;
+
+		m_receivingMetric = metric;
+		if (isPriorityInterface(idx)) {
+			m_receivingIp = ip;
+			m_receivingMac = mac;
+		}
 		break;
 	}
+	closesocket(sockfd);
 }
+
+int UdpChannel::getInterfaceMetric(const std::string &ip) {
+	int metric = INT32_MAX;
+	std::string command("ip route | grep '" + ip + " metric'"), output;
+	char buffer[256];
+
+	FILE *exec = popen(command.c_str(), "r");
+	if (!exec) {
+		TRC_WARNING("IP route exec failed.");
+		return metric;
+	}
+
+	while (fgets(buffer, 256, exec) != NULL) {
+		output += buffer;
+	}
+	pclose(exec);
+
+	if (output.empty()) {
+		return metric;
+	}
+
+	std::vector<std::string> routeTokens = split(output, " ");
+	for (size_t i = 0; i < routeTokens.size(); ++i) {
+		if (routeTokens[i] == "metric" && (i + 1) < routeTokens.size()) {
+			try {
+				metric = std::stoi(routeTokens[i + 1]);
+			} catch (const std::exception &e) {
+				TRC_WARNING("IP route metric conversion failed: " << e.what());
+			}
+			break;
+		}
+	}
+
+	return metric;
+}
+
+std::vector<std::string> UdpChannel::split(const std::string &string, const std::string &delimiter) {
+	std::string token;
+	std::vector<std::string> tokens;
+	size_t needle, start = 0, len = delimiter.length();
+	while ((needle = string.find(delimiter, start)) != std::string::npos) {
+		token = string.substr(start, needle - start);
+		tokens.push_back(token);
+		start = needle + len;
+	}
+	tokens.push_back(string.substr(start));
+	return tokens;
+}
+
 
 std::string UdpChannel::convertToMacString(const uint8_t *macBytes) {
 	char buffer[18];
