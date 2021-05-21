@@ -208,8 +208,7 @@ stages:
     - chmod 644 ~/.ssh/known_hosts
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
     - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
-    - git submodule init
-    - git submodule update
+    - git submodule update --init --recursive
 
 .package-template:
   stage: build-package
