@@ -17,6 +17,7 @@
 #pragma once
 
 #include "ShapeDefines.h"
+#include <stdint.h>
 
 #ifdef IOtaUploadService_EXPORTS
 #define IOtaUploadService_DECLSPEC SHAPE_ABI_EXPORT
@@ -45,6 +46,20 @@ namespace iqrf {
       eeprom,
       eeeprom
     };
+
+    /// \brief Module info struct
+    typedef struct ModuleInfo {
+      /// MCU type
+      uint8_t mcuType;
+      /// TR series
+      uint8_t trSeries;
+      /// OS major version
+      uint8_t osMajor;
+      /// OS minor version
+      uint8_t osMinor;
+      /// OS build number
+      uint16_t osBuild;
+    } ModuleInfo;
 
 	/// \brief Destructor
     virtual ~IOtaUploadService() {};

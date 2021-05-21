@@ -19,6 +19,8 @@
 #include <iostream>
 #include <fstream>
 
+#define MCU_TYPE_BITS 0x07
+
 TRC_INIT_MODULE(iqrf::OtaUploadService);
 
 using namespace rapidjson;
@@ -194,6 +196,9 @@ namespace iqrf
     // Absolute path with hex file to upload
     std::string m_uploadPath;
 
+    /// Device information
+    ModuleInfo m_device;
+
   public:
     explicit Imp(OtaUploadService &parent) : m_parent(parent)
     {
@@ -332,6 +337,42 @@ namespace iqrf
         uploadResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
+    }
+
+    //------------------------------------------------------
+    // Reads OS information about target device
+    //------------------------------------------------------
+    void osRead(UploadResult &uploadResult) {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> result;
+      try {
+        // Build DPA request
+        DpaMessage osReadRequest;
+        DpaMessage::DpaPacket_t osReadPacket;
+        osReadPacket.DpaRequestPacket_t.NADR = m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS ? COORDINATOR_ADDRESS : m_otaUploadParams.deviceAddress;
+        osReadPacket.DpaRequestPacket_t.PNUM = PNUM_OS;
+        osReadPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ;
+        osReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        osReadRequest.DataToBuffer(osReadPacket.Buffer, sizeof(TDpaIFaceHeader));
+        
+        // Execute DPA request and parse response
+        m_exclusiveAccess->executeDpaTransactionRepeat(osReadRequest, result, m_otaUploadParams.repeat);
+        TRC_DEBUG("Result from OS read transaction as string: " << result->getErrorString());
+        DpaMessage osReadResponse = result->getResponse();
+        std::vector<uns8> responseData(osReadResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, osReadResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData + DPA_MAX_DATA_LENGTH);
+        m_device.mcuType = responseData[5] & MCU_TYPE_BITS;
+        m_device.trSeries = responseData[5] >> 4;
+        m_device.osMajor = (responseData[4] & 0xf0) >> 4;
+        m_device.osMinor = responseData[4] & 0x0f;
+        m_device.osBuild = (responseData[7] << 8) | responseData[6];
+        TRC_INFORMATION("OS read successful!");
+        uploadResult.addTransactionResult(result);
+      } catch (const std::exception &e) {
+        uploadResult.setStatus(result->getErrorCode(), e.what());
+        uploadResult.addTransactionResult(result);
+        THROW_EXC(std::logic_error, e.what());
+      }
+      TRC_FUNCTION_LEAVE("");
     }
 
     //------------------------------------------------------
@@ -955,16 +996,28 @@ namespace iqrf
         bool uploadEeprom = false;
         bool uploadEeeprom = false;
         uint8_t eepromBottomAddr = 0x00;
+        m_device = {0};
 
         // Prepare flash eeprom and eeepron data to upload
         try 
         {
           // Process the file
           fileName = getFullFileName(m_uploadPath, m_otaUploadParams.fileName);
+
           try {
             loadingContentType = parseLoadingContentType(fileName);
+          } catch (const std::exception &e) {
+            uploadResult.setStatus(uploadFileProcessingError, e.what());
+            THROW_EXC(std::logic_error, e.what());
+          }
+
+          if (loadingContentType == OtaUploadService::LoadingContentType::Iqrf_plugin) {
+            osRead(uploadResult);
+          }
+
+          try {
             // Parse flash content
-            preparedData = DataPreparer::prepareData(loadingContentType, fileName, m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS);
+            preparedData = DataPreparer::prepareData(loadingContentType, fileName, m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS, m_device);
           } catch (const std::exception &e) {
             uploadResult.setStatus(uploadFileProcessingError, e.what());
             THROW_EXC(std::logic_error, e.what());
