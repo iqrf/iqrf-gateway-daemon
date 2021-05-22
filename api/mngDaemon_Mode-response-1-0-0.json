@@ -31,7 +31,8 @@
                             "enum": [
                                 "operational",
                                 "service",
-                                "forwarding"
+                                "forwarding",
+                                "unknown"
                             ]
                         }
                     },
