@@ -223,7 +223,6 @@ void UdpChannel::identifyReceivingInterface() {
 bool UdpChannel::isPriorityInterface(const int &idx) {
 	for (auto const& device: m_interfaces) {
 		NetworkInterface storedIface = device.second;
-		TRC_DEBUG("Iface " << device.first << " IP " << storedIface.getIp() << " MAC " << storedIface.getMac() << " metric " << storedIface.getMetric())
 		if (device.first == idx) {
 			continue;
 		}
