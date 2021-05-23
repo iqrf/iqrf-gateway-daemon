@@ -249,8 +249,7 @@ stages:
     - chmod 644 ~/.ssh/known_hosts
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
     - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
-    - git submodule init
-    - git submodule update
+    - git submodule update --init --recursive
 
 .package-release-template: &package-release-template
   only:
@@ -268,8 +267,7 @@ stages:
     - chmod 644 ~/.ssh/known_hosts
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
     - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
-    - git submodule init
-    - git submodule update
+    - git submodule update --init --recursive
 
 .api-template: &api-template
   stage: deploy-api
@@ -297,8 +295,7 @@ test:
     - git clone --branch v1.1.0 --recurse-submodules https://github.com/logimic/shapeware.git
     - cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
     - cmake --build shapeware-build --target install
-    - git submodule init
-    - git submodule update
+    - git submodule update --init --recursive
     - cmake -Bbuild -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
     - cmake --build build --target install
     - cd build/ && ctest -V
