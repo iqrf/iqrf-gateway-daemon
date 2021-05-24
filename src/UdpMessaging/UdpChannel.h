@@ -137,7 +137,7 @@ private:
 	 * Checks if the interface has highest priority
 	 * @param idx Index of interface
 	 */
-	bool isPriorityInterface(const int &idx);
+	bool isPriorityInterface(const uint32_t &idx);
 
 	/**
 	 * Finds interface at specified index and stores information in interface map
@@ -195,12 +195,12 @@ private:
 	/// IO structure
 	iovec m_recIov[1];
 	/// Control meta buffer
-	char *m_controlBuff;
+	unsigned char *m_controlBuff;
 	/// Control meta buffer size
 	unsigned m_controlBuffSize = 0x100;
 #endif
 	/// Data buffer
-	char *m_dataBuff;
+	unsigned char *m_dataBuff;
 	/// Data buffer size
 	unsigned m_dataBuffSize;
 	/// IP address of receiving interface

@@ -76,11 +76,11 @@ UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsi
 	m_sender.sin_family = AF_INET;
 	m_sender.sin_port = htons(m_remotePort);
 
-	m_dataBuff = shape_new char[m_dataBuffSize];
+	m_dataBuff = shape_new unsigned char[m_dataBuffSize];
 	memset(m_dataBuff, 0, m_dataBuffSize);
 
 #ifndef SHAPE_PLATFORM_WINDOWS
-	m_controlBuff = shape_new char[m_controlBuffSize];
+	m_controlBuff = shape_new unsigned char[m_controlBuffSize];
 	memset(m_controlBuff, 0, m_controlBuffSize);
 
 	m_recIov[0].iov_base = m_dataBuff;
@@ -220,7 +220,7 @@ void UdpChannel::identifyReceivingInterface() {
 	findInterfaceByIndex(idx);
 }
 
-bool UdpChannel::isPriorityInterface(const int &idx) {
+bool UdpChannel::isPriorityInterface(const uint32_t &idx) {
 	for (auto const& device: m_interfaces) {
 		NetworkInterface storedIface = device.second;
 		if (device.first == idx) {
