@@ -288,8 +288,8 @@ namespace iqrf {
 
   int IdeCounterpart::handleMessageFromUdp(const std::vector<uint8_t>& msg)
   {
-    //TRC_DBG("==================================" << std::endl <<
-    //  "Received from UDP: " << std::endl << FORM_HEX(udpMessage.data(), udpMessage.size()));
+    TRC_DEBUG("==================================" << std::endl <<
+      "Received from UDP: " << std::endl << MEM_HEX_CHAR(msg.data(), msg.size()));
 
     std::basic_string<uint8_t> udpMessage(msg.data(), msg.size());
 
