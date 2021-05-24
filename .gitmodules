@@ -13,3 +13,6 @@
 [submodule "libraries/sqlite_modern_cpp"]
 	path = libraries/sqlite_modern_cpp
 	url = https://github.com/SqliteModernCpp/sqlite_modern_cpp.git
+[submodule "libraries/iqrf-header-parser"]
+	path = libraries/iqrf-header-parser
+	url = https://gitlab.iqrf.org/open-source/iqrf-header-parser.git

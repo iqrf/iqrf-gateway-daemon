@@ -3,6 +3,8 @@
 #include <sstream>
 #include <list>
 
+namespace ihp = iqrf_header_parser;
+
 namespace iqrf{
   // MCU memory layout
   const uint16_t SERIAL_EEPROM_BOTTOM = 0x0200;
@@ -77,31 +79,24 @@ namespace iqrf{
     }
   }
 
+  // trims leading and trailing whitespaces from string
+  static void trim(std::string& str)
+  {
+    const std::string whitespace = " \t\r\n";
+    size_t start = str.find_first_not_of(whitespace);
+    if (start == std::string::npos) {
+      str = "";
+      return;
+    }
+    size_t stop = str.find_last_not_of(whitespace);
+    str = str.substr(start, stop - start + 1);
+  }
+
   // parses hex files and provides data from them
   class IntelHexParser
   {
   private:
     static uint32_t offset;
-
-    // trims leading and trailing whitespaces from string
-    static void trim(std::string& str)
-    {
-      const std::string whitespace = " \t\r\n";
-      const auto strBegin = str.find_first_not_of(whitespace);
-
-      // no content
-      if (strBegin == std::string::npos)
-        return;
-
-      str.erase(0, strBegin);
-
-      const auto strEnd = str.find_last_not_of(whitespace);
-      if (strEnd == str.length() - 1) {
-        return;
-      }
-
-      str.erase(strEnd + 1);
-    }
 
     // constructs error string - puts together error msg with line and line number
     static std::string addLineInfo(const std::string& msg, const std::string& line, uint16_t lineNumber)
@@ -301,41 +296,75 @@ namespace iqrf{
   uint32_t IntelHexParser::offset = 0;
 
   // parses iqrf files and provides data from them
-  class IqrfParser 
-  {
-  private:
-
-    // length of line in IQRF plugin file
-    static const int LINE_LENGTH = 40;
-
+  class IqrfParser {
   public:
-    static CodeBlock parse(const std::string& fileName) 
+    static CodeBlock parse(const std::string& fileName, const IOtaUploadService::ModuleInfo &module) 
     {
       std::ifstream sourceFile(fileName);
-      if (!sourceFile.is_open())
-      {
+      if (!sourceFile.is_open()) {
         std::stringstream ss;
         ss << "Could not open source code file: " << fileName;
         throw std::logic_error(ss.str().c_str());
       }
 
-      std::string line;
+      std::string line, error;
       std::basic_string<uint8_t> data;
+      uint32_t cnt = 0;
+      ihp::Error ret;
+      ihp::OsVersion os {
+        .major = module.osMajor,
+        .minor = module.osMinor,
+        .build = module.osBuild
+      };
 
-      while (std::getline(sourceFile, line)) 
-      {
-        // comment
-        if (line.find_first_of('#') == 0)
+      while (std::getline(sourceFile, line))  {
+        cnt++;
+        trim(line);
+
+        if (line.empty()) {
           continue;
-        if (line.size() != LINE_LENGTH)
-        {
-          if ((line.size() == (LINE_LENGTH + 1)) && (line.back() == '\r')) 
-            line.pop_back();
-          else
-            throw std::logic_error("Illegal length of IQRF plugin file.");
         }
-        for (int i = 0; i < LINE_LENGTH; i += 2)
-        {
+
+        if (cnt <= 5 && line[0] != '#') {
+          throw std::logic_error("IQRF plugins should have 4 programming headers and separator.");
+        }
+
+        if (line[0] == '#') {
+          switch (cnt) {
+            case 1: // mcu header
+              ret = ihp::parseMcuHeader(line, module.mcuType, module.trSeries, error);
+              if (ret != ihp::Error::NO_ERROR) {
+                throw std::logic_error(error);
+              }
+              break;
+            case 2: // os header
+              ret = ihp::parseOsHeader(line, os, error);
+              if (ret != ihp::Error::NO_ERROR) {
+                throw std::logic_error(error);
+              }
+              break;
+            case 3: // date, ignore
+              break;
+            case 4:
+              if (ihp::validPluginHeaderOs(line)) {
+                throw std::logic_error("Regular ChangeOS plugin cannot be uploaded via OTA upload service.");
+              }
+              break;
+            case 5: // separator
+            default:
+              if (ihp::isSeparator(line)) {
+                break;
+              }
+              throw std::logic_error("IQRF plugins should have only 4 programming headers and separator.");
+          }
+          continue;
+        }
+
+        if (!ihp::validDataLine(line, error)) {
+          throw std::logic_error(error + " Line number " + std::to_string(cnt));
+        }
+
+        for (int i = 0; i < ihp::LINE_LENGTH; i += 2) {
           uint8_t b = parseHexaByte(line, i);
           data.push_back(b);
         }
@@ -530,9 +559,9 @@ namespace iqrf
       eeepromData = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::eeeprom);
     }
 
-    std::unique_ptr<PreparedData> prepareDataFromIqrf(const std::string& fileName, bool isForBroadcast)
+    std::unique_ptr<PreparedData> prepareDataFromIqrf(const std::string& fileName, bool isForBroadcast, const IOtaUploadService::ModuleInfo &module)
     {
-      CodeBlock codeBlock = IqrfParser::parse(fileName);
+      CodeBlock codeBlock = IqrfParser::parse(fileName, module);
 
       uint16_t length = codeBlock.getLength();
 
@@ -549,7 +578,7 @@ namespace iqrf
     }
   };
 
-  std::unique_ptr<PreparedData> DataPreparer::prepareData(IOtaUploadService::LoadingContentType loadingContent, const std::string& fileName, bool isForBroadcast)
+  std::unique_ptr<PreparedData> DataPreparer::prepareData(IOtaUploadService::LoadingContentType loadingContent, const std::string& fileName, bool isForBroadcast, const IOtaUploadService::ModuleInfo &module)
   {
     m_imp = shape_new DataPreparer::Imp();
     m_imp->checkFileName(fileName);
@@ -561,7 +590,7 @@ namespace iqrf
       preparedData = m_imp->prepareDataFromHex(fileName, isForBroadcast);
       break;
     case IOtaUploadService::LoadingContentType::Iqrf_plugin:
-      preparedData = m_imp->prepareDataFromIqrf(fileName, isForBroadcast);
+      preparedData = m_imp->prepareDataFromIqrf(fileName, isForBroadcast, module);
       break;
     default:
       throw std::logic_error("Unsupported type of loading content");
