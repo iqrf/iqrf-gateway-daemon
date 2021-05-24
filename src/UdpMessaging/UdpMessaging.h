@@ -8,39 +8,116 @@
 #include <string>
 
 namespace iqrf {
-  class UdpMessaging : public IUdpMessagingService
-  {
-  public:
-    UdpMessaging();
-    virtual ~UdpMessaging();
+	/// UDP messaging class
+	class UdpMessaging : public IUdpMessagingService {
+	public:
+		/**
+		 * UDP messaging constructor
+		 */
+		UdpMessaging();
 
-    void registerMessageHandler(MessageHandlerFunc hndl) override;
-    void unregisterMessageHandler() override;
-    void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) override;
-    const std::string & getName() const override { return m_name; }
-    bool acceptAsyncMsg() const override { return false; }
+		/**
+		 * UDP messaging destructor
+		 */
+		virtual ~UdpMessaging();
 
-    const std::string& getListeningIpAddress() const override;
-    unsigned short getListeningIpPort() const override;
-    const std::string& getListeningMacAddress() const override;
+		/**
+		 * Sets message handler for received messages
+		 * @param messageHandler Function to pass received message to
+		 */
+		void registerMessageHandler(MessageHandlerFunc messageHandler) override;
 
-    void activate(const shape::Properties *props = 0);
-    void deactivate();
-    void modify(const shape::Properties *props);
+		/**
+		 * Clears handler for received messages
+		 */
+		void unregisterMessageHandler() override;
 
-    void attachInterface(shape::ITraceService* iface);
-    void detachInterface(shape::ITraceService* iface);
+		/**
+		 * Sends response via UDP channel
+		 * @param messagingId Messaging ID
+		 * @param msg Message to send
+		 */
+		void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) override;
+		
+		/**
+		 * Returns instance name
+		 * @return Instance name
+		 */
+		const std::string& getName() const override;
 
-  private:
-    int handleMessageFromUdp(const std::basic_string<uint8_t> & message);
+		/**
+		 * Returns IP address of receiving interface
+		 * @return IP address of receiving interface
+		 */
+		const std::string& getListeningIpAddress() const override;
 
-    std::string m_name;
-    UdpChannel* m_udpChannel = nullptr;
-    TaskQueue<std::basic_string<uint8_t>>* m_toUdpMessageQueue = nullptr;
+		/**
+		 * Returns MAC address of receiving interface
+		 * @return MAC address of receiving interface
+		 */
+		const std::string& getListeningMacAddress() const override;
 
-    int m_remotePort = 55000;
-    int m_localPort = 55300;
+		/**
+		 * Returns listening port
+		 * @return Listening port
+		 */
+		unsigned short getListeningIpPort() const override;
 
-    IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
-  };
+		/**
+		 * Checks if messaging accepts asynchronos messages
+		 * @return false, dummpy impl
+		 */
+		bool acceptAsyncMsg() const override { return false; }
+
+		/**
+		 * Initializes component instance
+		 * @param props Component instance properties
+		 */
+		void activate(const shape::Properties *props = 0);
+
+		/**
+		 * Modifies component instance properties
+		 * @param props Component instance properties
+		 */
+		void modify(const shape::Properties *props);
+
+		/**
+		 * Deactivates messaging component instance
+		 */
+		void deactivate();
+		
+		/**
+		 * Attaches a tracing service observer
+		 * @param iface Tracing service observer
+		 */
+		void attachInterface(shape::ITraceService* iface);
+
+		/**
+		 * Detaches a tracing service observer
+		 * @param iface Tracing service observer
+		 */
+		void detachInterface(shape::ITraceService* iface);
+
+	private:
+		/**
+		 * Passes received message to message handler
+		 * @param message Received message
+		 */
+		int handleMessageFromUdp(const std::basic_string<uint8_t> & message);
+
+		/// Instance name
+		std::string m_name;
+		/// Port to send to
+		int m_remotePort = 55000;
+		/// Port to listen on
+		int m_localPort = 55300;
+		/// Network device expiration
+		int m_expiration;
+		/// UDP channel
+		UdpChannel* m_udpChannel = nullptr;
+		/// UDP message queue
+		TaskQueue<std::basic_string<uint8_t>>* m_toUdpMessageQueue = nullptr;
+		/// Message handler
+		IMessagingService::MessageHandlerFunc m_messageHandler;
+	};
 }

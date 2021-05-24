@@ -16,337 +16,393 @@
 
 #include "UdpChannel.h"
 #include "Trace.h"
-#include <stdlib.h>     //srand, rand
-#include <time.h>       //time
+#include <stdlib.h>
+#include <time.h> 
 #include <string.h>
 
 #ifndef SHAPE_PLATFORM_WINDOWS
 #define GetLastError() errno
 #define WSAGetLastError() errno
 #define SOCKET_ERROR -1
-int closesocket(int filedes) { return close(filedes); }
+int closesocket(int __fd) { return close(__fd); }
 typedef int opttype;
 #else
 #define SHUT_RD SD_RECEIVE
 typedef char opttype;
 #endif
 
-UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned bufsize)
-  :m_runListenThread(true),
-  m_remotePort(remotePort),
-  m_localPort(localPort),
-  m_bufsize(bufsize)
-{
-  TRC_FUNCTION_ENTER(PAR(remotePort) << PAR(localPort) << PAR(bufsize));
-  m_isListening = false;
+UdpChannel::UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned int expiration, unsigned dataBuffSize) {
+	TRC_FUNCTION_ENTER(PAR(remotePort) << PAR(localPort) << PAR(dataBuffSize));
+	m_isListening = false;
+	m_runListenThread = true;
+	m_remotePort = remotePort;
+	m_localPort = localPort;
+	m_expirationPeriod = expiration;
+	m_dataBuffSize = dataBuffSize;
 
 #ifdef SHAPE_PLATFORM_WINDOWS
-  // Initialize Winsock
-  WSADATA wsaData = { 0 };
-  int iResult = 0;
+	// Initialize Winsock
+	WSADATA wsaData = { 0 };
+	int iResult = 0;
 
-  iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-  if (iResult != 0) {
-    THROW_EXC_TRC_WAR(UdpChannelException, "WSAStartup failed: " << GetLastError());
-  }
+	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult != 0) {
+		THROW_EXC_TRC_WAR(UdpChannelException, "WSAStartup failed: " << GetLastError());
+	}
 #endif
 
-  //try to get local IP by trm and rec to itself
-  getMyAddress();
-  TRC_INFORMATION("UDP listening on: " <<
-    NAME_PAR(IP, m_myIpAdress) << NAME_PAR(port, localPort) << NAME_PAR(MAC, m_myMacAdress));
+	m_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (m_sockfd == -1) {
+		THROW_EXC_TRC_WAR(UdpChannelException, "socket failed: " << GetLastError());
+	}
 
-  //iqrfUdpSocket = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0);
-  m_iqrfUdpSocket = socket(AF_INET, SOCK_DGRAM, 0);
-  if (m_iqrfUdpSocket == -1)
-    THROW_EXC_TRC_WAR(UdpChannelException, "socket failed: " << GetLastError());
+	int ret;
+	opttype opt = 1;
+	// Enable packet info
+	ret = setsockopt(m_sockfd, IPPROTO_IP, IP_PKTINFO, &opt, sizeof(opt));;
+	if (ret == SOCKET_ERROR) {
+		closesocket(m_sockfd);
+		THROW_EXC_TRC_WAR(UdpChannelException, "setsockopt failed: " << GetLastError());
+	}
 
-  opttype broadcastEnable = 1;                                // Enable sending broadcast packets
-  if (0 != setsockopt(m_iqrfUdpSocket, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable)))
-  {
-    closesocket(m_iqrfUdpSocket);
-    THROW_EXC_TRC_WAR(UdpChannelException, "setsockopt failed: " << GetLastError());
-  }
+	// Initialize listener
+	memset(&m_listener, 0, sizeof(m_listener));
+	m_listener.sin_family = AF_INET;
+	m_listener.sin_port = htons(m_localPort);
+	m_listener.sin_addr.s_addr = htonl(INADDR_ANY);
 
-  // Remote server, packets are send as a broadcast until the first packet is received
-  memset(&m_iqrfUdpTalker, 0, sizeof(m_iqrfUdpTalker));
-  m_iqrfUdpTalker.sin_family = AF_INET;
-  m_iqrfUdpTalker.sin_port = htons(m_remotePort);
-  m_iqrfUdpTalker.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+	// Initialize sender
+	memset(&m_sender, 0, sizeof(m_sender));
+	m_sender.sin_family = AF_INET;
+	m_sender.sin_port = htons(m_remotePort);
 
-  // Local server, packets are received from any IP
-  memset(&m_iqrfUdpListener, 0, sizeof(m_iqrfUdpListener));
-  m_iqrfUdpListener.sin_family = AF_INET;
-  m_iqrfUdpListener.sin_port = htons(m_localPort);
-  m_iqrfUdpListener.sin_addr.s_addr = htonl(INADDR_ANY);
+	m_dataBuff = shape_new unsigned char[m_dataBuffSize];
+	memset(m_dataBuff, 0, m_dataBuffSize);
 
-  if (SOCKET_ERROR == bind(m_iqrfUdpSocket, (struct sockaddr *)&m_iqrfUdpListener, sizeof(m_iqrfUdpListener)))
-  {
-    closesocket(m_iqrfUdpSocket);
-    THROW_EXC_TRC_WAR(UdpChannelException, "bind failed: " << GetLastError());
-  }
+#ifndef SHAPE_PLATFORM_WINDOWS
+	m_controlBuff = shape_new unsigned char[m_controlBuffSize];
+	memset(m_controlBuff, 0, m_controlBuffSize);
 
-  m_rx = shape_new unsigned char[m_bufsize];
-  memset(m_rx, 0, m_bufsize);
-
-  m_listenThread = std::thread(&UdpChannel::listen, this);
-  TRC_FUNCTION_LEAVE("");
-}
-
-UdpChannel::~UdpChannel()
-{
-  shutdown(m_iqrfUdpSocket, SHUT_RD);
-  closesocket(m_iqrfUdpSocket);
-
-  TRC_DEBUG("joining udp listening thread");
-  if (m_listenThread.joinable())
-    m_listenThread.join();
-  TRC_DEBUG("listening thread joined");
-
-#ifdef SHAPE_PLATFORM_WINDOWS
-  WSACleanup();
-#endif
-
-  delete[] m_rx;
-}
-
-void UdpChannel::listen()
-{
-  TRC_FUNCTION_ENTER("thread starts");
-
-  int recn = -1;
-  socklen_t iqrfUdpListenerLength = sizeof(m_iqrfUdpListener);
-
-  try {
-    m_isListening = true;
-    while (m_runListenThread)
-    {
-      recn = recvfrom(m_iqrfUdpSocket, (char*)m_rx, m_bufsize, 0, (struct sockaddr *)&m_iqrfUdpListener, &iqrfUdpListenerLength);
-
-      if (recn == SOCKET_ERROR) {
-        THROW_EXC_TRC_WAR(UdpChannelException, "recvfrom returned: " << WSAGetLastError());
-      }
-
-      if (recn > 0) {
-        if (m_receiveFromFunc) {
-          std::basic_string<unsigned char> message(m_rx, recn);
-          if (0 == m_receiveFromFunc(message)) {
-            m_iqrfUdpTalker.sin_addr.s_addr = m_iqrfUdpListener.sin_addr.s_addr;    // Change the destination to the address of the last received packet
-          }
-        }
-        else {
-          TRC_WARNING("Unregistered receiveFrom() handler");
-        }
-      }
-    }
-  }
-  catch (UdpChannelException& e) {
-    CATCH_EXC_TRC_WAR(UdpChannelException, e, "listening thread finished");
-    m_runListenThread = false;
-  }
-  m_isListening = false;
-  TRC_FUNCTION_LEAVE("thread stopped");
-}
-
-void UdpChannel::sendTo(const std::basic_string<unsigned char>& message)
-{
-  //TRC_DEBUG("Send to UDP: " << std::endl << FORM_HEX(message.data(), message.size()));
-
-  int trmn = sendto(m_iqrfUdpSocket, (const char*)message.data(), static_cast<int>(message.size()), 0, (struct sockaddr *)&m_iqrfUdpTalker, sizeof(m_iqrfUdpTalker));
-
-  if (trmn < 0) {
-    THROW_EXC_TRC_WAR(UdpChannelException, "sendto failed: " << WSAGetLastError());
-  }
-
-}
-
-void UdpChannel::registerReceiveFromHandler(ReceiveFromFunc receiveFromFunc)
-{
-  m_receiveFromFunc = receiveFromFunc;
-}
-
-void UdpChannel::unregisterReceiveFromHandler()
-{
-  m_receiveFromFunc = ReceiveFromFunc();
-}
-
-void UdpChannel::getMyAddress()
-{
-  TRC_FUNCTION_ENTER("");
-
-  m_myIpAdress = "0.0.0.0";
-  m_myMacAdress = "00-00-00-00-00-00";
-
-  SOCKET sockfd = socket(PF_INET, SOCK_DGRAM, 0);
-  if (sockfd < 0) {
-    THROW_EXC_TRC_WAR(UdpChannelException, "socket failed: " << GetLastError() << ": " << strerror(errno));
-  }
-
-  sockaddr_in hints;
-  memset(&hints, 0, sizeof(hints));
-  hints.sin_family = AF_INET;
-  hints.sin_port = htons(9);
-  hints.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-
-  int res;
-  int attempts = 5;
-  int attempt = 0;
-  
-  do {
-    if (attempt > 0) {
-      std::this_thread::sleep_for(std::chrono::seconds(2 * (attempt - 1) + 1));
-      //sleep(2 * (attempt - 1) + 1);
-    } 
-    res = connect(sockfd, (sockaddr *)&hints, sizeof(hints));
-    if (res < 0) {
-      attempt++;
-      TRC_WARNING("connect failed: " << GetLastError() << ": " << strerror(errno));
-      if (attempt == 5) {
-        closesocket(sockfd);
-        THROW_EXC_TRC_WAR(UdpChannelException, "connect failed: " << GetLastError() << ": " << strerror(errno));
-      }
-    }
-  } while (attempt < attempts && res < 0);
-
-  socklen_t hintsLen = sizeof(hints);
-  res = getsockname(sockfd, (sockaddr *)&hints, &hintsLen);
-  if (res < 0) {
-    closesocket(sockfd);
-    THROW_EXC_TRC_WAR(UdpChannelException, "getsockname failed: " << GetLastError() << ": " << strerror(errno));
-  }
-
-  closesocket(sockfd);
-
-  char address[INET_ADDRSTRLEN];
-  if (inet_ntop(AF_INET, &hints.sin_addr, address, INET_ADDRSTRLEN) == NULL) {
-    THROW_EXC_TRC_WAR(UdpChannelException, "inet_ntop failed: " << GetLastError() << ": " << strerror(errno));
-  }
-  m_myIpAdress = std::string(address);
-
-  sockfd = socket(PF_INET, SOCK_DGRAM, 0);
-  if (sockfd < 0) {
-    THROW_EXC_TRC_WAR(UdpChannelException, "socket failed: " << GetLastError() << ": " << strerror(errno));
-  }
-
-  memset(&hints, 0, sizeof(hints));
-  hints.sin_family = AF_INET;
-  hints.sin_port = htons(m_localPort);
-  hints.sin_addr.s_addr = htonl(INADDR_ANY);
-
-  opttype broadcastEnable = 1;
-  res = setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
-  if (res < 0) {
-    closesocket(sockfd);
-    THROW_EXC_TRC_WAR(UdpChannelException, "setsockopt failed: " << GetLastError() << ": " << strerror(errno));
-  }
-
-  res = bind(sockfd, (struct sockaddr *)&hints, sizeof(hints));
-  if (res < 0) {
-    closesocket(sockfd);
-    THROW_EXC_TRC_WAR(UdpChannelException, "bind failed: " << GetLastError() << ": " << strerror(errno));
-  }
-
-  TRC_INFORMATION("IP from inet_ntop: " << m_myIpAdress);
-
-  getMyMacAddress(sockfd);
-
-  std::ostringstream os;
-  for (auto adapter : m_adapters) {
-    os << std::endl << NAME_PAR(ip, adapter.second.mIpAddr) << NAME_PAR(mac, adapter.second.mMac);
-  }
-  TRC_INFORMATION("Detected network adapters:" << os.str());
-
-  auto found = m_adapters.find(m_myIpAdress);
-  if (found != m_adapters.end()) {
-    m_myMacAdress = found->second.mMac;
-  }
-
-  shutdown(sockfd, SHUT_RD);
-  closesocket(sockfd);
-
-  TRC_FUNCTION_LEAVE("");
-}
-
-void UdpChannel::getMyMacAddress(SOCKET soc)
-{
-  TRC_FUNCTION_ENTER("");
-#ifdef SHAPE_PLATFORM_WINDOWS
-
-  PIP_ADAPTER_INFO AdapterInfo;
-  DWORD dwBufLen = sizeof(IP_ADAPTER_INFO);
-  char mac_addr[32];
-
-  AdapterInfo = (PIP_ADAPTER_INFO) shape_new uint8_t[dwBufLen];
-
-  if (GetAdaptersInfo(AdapterInfo, &dwBufLen) == ERROR_BUFFER_OVERFLOW) {
-    delete[] AdapterInfo;
-    AdapterInfo = (PIP_ADAPTER_INFO) shape_new uint8_t[dwBufLen];
-  }
-
-  if (GetAdaptersInfo(AdapterInfo, &dwBufLen) == NO_ERROR) {
-    PIP_ADAPTER_INFO pAdapterInfo = AdapterInfo;// Contains pointer to current adapter info
-    do {
-      sprintf(mac_addr, "%02X-%02X-%02X-%02X-%02X-%02X",
-        pAdapterInfo->Address[0], pAdapterInfo->Address[1],
-        pAdapterInfo->Address[2], pAdapterInfo->Address[3],
-        pAdapterInfo->Address[4], pAdapterInfo->Address[5]);
-
-      std::string mac(mac_addr);
-      std::string ip(pAdapterInfo->IpAddressList.IpAddress.String);
-      m_adapters.insert(std::make_pair(ip, MyAdapter(ip, mac)));
-
-      pAdapterInfo = pAdapterInfo->Next;
-    } while (pAdapterInfo);
-  }
-
-  delete[] AdapterInfo;
-
+	m_recIov[0].iov_base = m_dataBuff;
+	m_recIov[0].iov_len = m_dataBuffSize;
+	m_recHeader.msg_name = &m_addr;
+	m_recHeader.msg_namelen = sizeof(m_addr);
+	m_recHeader.msg_iov = m_recIov;
+	m_recHeader.msg_iovlen = sizeof(m_recIov) / sizeof(*m_recIov);
+	m_recHeader.msg_control = m_controlBuff;
+	m_recHeader.msg_controllen = m_controlBuffSize;
 #else
-  struct if_nameindex *if_nidxs, *intf;
-  struct ifreq ifr;
-  if_nidxs = if_nameindex();
-  char mac_addr[32];
-
-  if (if_nidxs != NULL) {
-    for (intf = if_nidxs; intf->if_index != 0 || intf->if_name != NULL; intf++) {
-      memset(&ifr, 0, sizeof(ifr));
-      //printf("%s\t", intf->if_name);
-
-      // Type of address to retrieve - IPv4 IP address
-      ifr.ifr_addr.sa_family = AF_INET;
-      // Copy the interface name in the ifreq structure
-      strncpy(ifr.ifr_name, intf->if_name, IFNAMSIZ - 1);
-
-      // Get MAC address
-      if (ioctl(soc, SIOCGIFHWADDR, &ifr) < 0) {
-        TRC_WARNING("MAC ioctl failed: " << GetLastError() << ": " << strerror(errno));
-        continue;
-      }
-      unsigned char *mac = (unsigned char *)ifr.ifr_hwaddr.sa_data;
-      sprintf(mac_addr, "%02X-%02X-%02X-%02X-%02X-%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-      std::string macStr(mac_addr);
-
-      // Get IPv4 address
-      if (ioctl(soc, SIOCGIFADDR, &ifr) < 0) {
-        TRC_WARNING("IPv4 ioctl failed: " << GetLastError() << ": " << strerror(errno));
-        continue;
-      }
-      if (((struct sockaddr *)&ifr.ifr_addr)->sa_family == AF_INET) {
-        std::string ip(inet_ntoa(((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr));
-
-        m_adapters.insert(std::make_pair(ip, MyAdapter(ip, macStr)));
-      }
-    }
-  }
-  if_freenameindex(if_nidxs);
-
+	m_receivingIp = "0.0.0.0";
+	m_receivingMac = "00-00-00-00-00-00";
 #endif
-  TRC_FUNCTION_LEAVE("");
+
+	// Bind socket to all interfaces
+	ret = bind(m_sockfd, (struct sockaddr *)&m_listener, sizeof(m_listener));
+	if (ret == SOCKET_ERROR) {
+		closesocket(m_sockfd);
+		THROW_EXC_TRC_WAR(UdpChannelException, "bind failed: " << GetLastError());
+	}
+
+	m_listenThread = std::thread(&UdpChannel::listen, this);
+	TRC_FUNCTION_LEAVE("");
 }
 
-IChannel::State UdpChannel::getState()
-{
-  //TODO
-  return State::Ready;
+UdpChannel::~UdpChannel() {
+	shutdown(m_sockfd, SHUT_RD);
+	closesocket(m_sockfd);
+
+	TRC_DEBUG("joining udp listening thread");
+	if (m_listenThread.joinable())
+		m_listenThread.join();
+	TRC_DEBUG("listening thread joined");
+
+#ifdef SHAPE_PLATFORM_WINDOWS
+	WSACleanup();
+#endif
+
+	delete[] m_dataBuff;
 }
 
+void UdpChannel::sendTo(const std::basic_string<unsigned char>& message) {
+	int sentBytes = sendto(m_sockfd, (const char *)message.data(), static_cast<unsigned int>(message.size()), 0, (struct sockaddr *)&m_sender, sizeof(m_sender));
+	if (sentBytes == SOCKET_ERROR) {
+		THROW_EXC_TRC_WAR(UdpChannelException, "Failed to send message, sendto(): [" << GetLastError() << "] " << strerror(GetLastError()));
+	}
+}
+
+void UdpChannel::listen() {
+	TRC_FUNCTION_ENTER("thread starts");
+
+#ifdef SHAPE_PLATFORM_WINDOWS
+	socklen_t listenerLen = sizeof(m_listener);
+#endif
+
+	try {
+		m_isListening = true;
+		while (m_runListenThread) {
+#ifdef SHAPE_PLATFORM_WINDOWS
+			int recBytes = recvfrom(m_sockfd, (char *)m_dataBuff, m_dataBuffSize, 0, (struct sockaddr *)&m_listener, &listenerLen);
+			if (recBytes == SOCKET_ERROR) {
+				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvfrom(): [" << GetLastError() << "] " << strerror(GetLastError()));
+			}
+#else
+			int recBytes = recvmsg(m_sockfd, &m_recHeader, 0);
+			if (recBytes == SOCKET_ERROR) {
+				THROW_EXC_TRC_WAR(UdpChannelException, "Failed to receive message, recvmsg(): [" << GetLastError() << "] " << strerror(GetLastError()));
+			}
+			identifyReceivingInterface();
+
+			if (m_receivingIp == "0.0.0.0") {
+				continue;
+			}
+			TRC_DEBUG("Received UDP datagram at IP " << m_receivingIp << ", MAC " << m_receivingMac);
+#endif
+			if (recBytes > 0) {
+				if (m_messageHandler) {
+#ifdef SHAPE_PLATFORM_WINDOWS
+					std::basic_string<unsigned char> message(m_dataBuff, recBytes);
+					if (m_messageHandler(message) == 0) {
+						m_sender.sin_addr.s_addr = m_listener.sin_addr.s_addr;
+					}
+#else
+					std::basic_string<unsigned char> message((unsigned char *)m_recHeader.msg_iov[0].iov_base, recBytes);
+					if (m_messageHandler(message) == 0) {
+						m_sender.sin_addr = m_addr.sin_addr;
+					}
+#endif
+				} else {
+					TRC_WARNING("No message handler registered.");
+				}
+			}
+		}
+	} catch (const UdpChannelException& e) {
+		CATCH_EXC_TRC_WAR(UdpChannelException, e, "listening thread finished");
+		m_runListenThread = false;
+	}
+	m_isListening = false;
+	TRC_FUNCTION_LEAVE("thread stopped");
+}
+
+#ifndef SHAPE_PLATFORM_WINDOWS
+void UdpChannel::identifyReceivingInterface() {
+	m_receivingIp = "0.0.0.0";
+	m_receivingMac = "00-00-00-00-00-00";
+	m_receivingMetric = INT32_MAX;
+	int idx = -1;
+	for (m_cmsg = CMSG_FIRSTHDR(&m_recHeader); m_cmsg != NULL; m_cmsg = CMSG_NXTHDR(&m_recHeader, m_cmsg)) {
+		if (m_cmsg->cmsg_level == IPPROTO_IP && m_cmsg->cmsg_type == IP_PKTINFO) {
+			struct in_pktinfo *pi = (struct in_pktinfo *)CMSG_DATA(m_cmsg);
+			idx = pi->ipi_ifindex;
+			break;
+		}
+	}
+
+	TRC_DEBUG("Index of receiving interface: " << idx);
+
+	if (idx == -1) {
+		return;
+	}
+
+	if (m_interfaces.count(idx)) {
+		NetworkInterface iface = m_interfaces.find(idx)->second;
+		TRC_DEBUG("Interface found in map.");
+		if (!iface.isExpired()) {
+			m_receivingMetric = iface.getMetric();
+			if (isPriorityInterface(idx)) {
+				m_receivingIp = iface.getIp();
+				m_receivingMac = iface.getMac();
+			}
+			return;
+		}
+		TRC_DEBUG("Interface record in map expired.");
+	}
+
+	findInterfaceByIndex(idx);
+}
+
+bool UdpChannel::isPriorityInterface(const uint32_t &idx) {
+	for (auto const& device: m_interfaces) {
+		NetworkInterface storedIface = device.second;
+		if (device.first == idx) {
+			continue;
+		}
+		if (storedIface.isExpired()) {
+			continue;
+		}
+		if (storedIface.getIp() == "0.0.0.0") {
+			continue;
+		}
+		if (storedIface.hasLowerMetric(m_receivingMetric)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void UdpChannel::findInterfaceByIndex(const int &idx) {
+	struct ifreq ifrs[32];
+	struct ifconf ifc;
+	int res;
+
+	memset(&ifc, 0, sizeof(ifconf));
+	ifc.ifc_req = ifrs;
+	ifc.ifc_len = sizeof(ifrs);
+
+	int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (sockfd == SOCKET_ERROR) {
+		TRC_WARNING("Failed to create socket for interface info: [" << GetLastError() << "]: " << strerror(GetLastError()));
+		return;
+	}
+
+	res = ioctl(sockfd, SIOCGIFCONF, (char *)&ifc);
+	if (res == SOCKET_ERROR) {
+		TRC_WARNING("Interface configuration ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+		closesocket(sockfd);
+		return;
+	}
+
+	for (unsigned int i = 0; i < ifc.ifc_len/sizeof(struct ifreq); ++i) {
+		res = ioctl(sockfd, SIOCGIFINDEX, &ifrs[i]);
+		if (res == SOCKET_ERROR) {
+			TRC_WARNING("Interface index ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			break;
+		}
+
+		if (ifrs[i].ifr_ifindex != idx) {
+			continue;
+		}
+
+		res = ioctl(sockfd, SIOCGIFADDR, &ifrs[i]);
+		if (res == SOCKET_ERROR) {
+			TRC_WARNING("Interface IP ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			break;
+		}
+		char ipBuffer[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr, ipBuffer, sizeof(ipBuffer));
+		
+		std::string ip(ipBuffer);
+		int metric = getInterfaceMetric(ip);
+
+		uint8_t macBuffer[6];
+		res = ioctl(sockfd, SIOCGIFHWADDR, &ifrs[i]);
+		if (res == SOCKET_ERROR) {
+			TRC_WARNING("Interface MAC ioctl failed: [" << GetLastError() << "]: " << strerror(GetLastError()));
+			break;
+		}
+		memcpy(macBuffer, ifrs[i].ifr_hwaddr.sa_data, sizeof(macBuffer));
+
+		std::string mac(convertToMacString(macBuffer));
+		std::time_t expiration = time(nullptr) + m_expirationPeriod;
+		char datetime[32];
+		std::strftime(datetime, sizeof(datetime), "%c", std::localtime(&expiration));
+
+		std::ostringstream ss;
+		ss << "Interface [" << idx << "] - IP: " << ip << " MAC: " << mac << " metric: " << metric << ", expires at " << datetime;
+		
+		auto itr = m_interfaces.find(idx);
+		if (itr != m_interfaces.end()) {
+			ss << " updated";
+			TRC_DEBUG(ss.str());
+			itr->second.setIp(ip);
+			itr->second.setMac(mac);
+			itr->second.setMetric(metric);
+			itr->second.setExpiration(expiration);
+		} else {
+			ss << " stored";
+			TRC_DEBUG(ss.str());
+			m_interfaces.insert(std::make_pair(idx, NetworkInterface(ip, mac, metric, expiration)));
+		}
+
+		m_receivingMetric = metric;
+		if (isPriorityInterface(idx)) {
+			m_receivingIp = ip;
+			m_receivingMac = mac;
+		}
+		break;
+	}
+	closesocket(sockfd);
+}
+
+int UdpChannel::getInterfaceMetric(const std::string &ip) {
+	int metric = INT32_MAX;
+	std::string command("ip route | grep '" + ip + " metric'"), output;
+	char buffer[256];
+
+	FILE *exec = popen(command.c_str(), "r");
+	if (!exec) {
+		TRC_WARNING("IP route exec failed.");
+		return metric;
+	}
+
+	while (fgets(buffer, 256, exec) != NULL) {
+		output += buffer;
+	}
+	pclose(exec);
+
+	if (output.empty()) {
+		return metric;
+	}
+
+	std::vector<std::string> routeTokens = split(output, " ");
+	for (size_t i = 0; i < routeTokens.size(); ++i) {
+		if (routeTokens[i] == "metric" && (i + 1) < routeTokens.size()) {
+			try {
+				metric = std::stoi(routeTokens[i + 1]);
+			} catch (const std::exception &e) {
+				TRC_WARNING("IP route metric conversion failed: " << e.what());
+			}
+			break;
+		}
+	}
+
+	return metric;
+}
+
+std::vector<std::string> UdpChannel::split(const std::string &string, const std::string &delimiter) {
+	std::string token;
+	std::vector<std::string> tokens;
+	size_t needle, start = 0, len = delimiter.length();
+	while ((needle = string.find(delimiter, start)) != std::string::npos) {
+		token = string.substr(start, needle - start);
+		tokens.push_back(token);
+		start = needle + len;
+	}
+	tokens.push_back(string.substr(start));
+	return tokens;
+}
+
+
+std::string UdpChannel::convertToMacString(const uint8_t *macBytes) {
+	char buffer[18];
+	std::sprintf(buffer, "%02X-%02X-%02X-%02X-%02X-%02X", macBytes[0], macBytes[1], macBytes[2], macBytes[3], macBytes[4], macBytes[5]);
+	return std::string(buffer);
+}
+#endif
+
+void UdpChannel::registerReceiveFromHandler(ReceiveFromFunc messageHandler) {
+	m_messageHandler = messageHandler;
+}
+
+void UdpChannel::unregisterReceiveFromHandler() {
+	m_messageHandler = ReceiveFromFunc();
+}
+
+IChannel::State UdpChannel::getState() {
+	return State::Ready;
+}
+
+const std::string& UdpChannel::getListeningIpAddress() const {
+	return m_receivingIp;
+}
+
+const std::string& UdpChannel::getListeningMacAddress() const {
+	return m_receivingMac;
+}
+
+unsigned short UdpChannel::getListeningIpPort() const {
+	return m_localPort;
+}
+
+bool UdpChannel::isListening() const {
+	return m_isListening;
+}
