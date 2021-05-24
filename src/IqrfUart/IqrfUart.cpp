@@ -357,15 +357,15 @@ namespace iqrf {
         m_cfg.uartEnableGpioPin = UART_ENABLE_GPIO;
         m_cfg.trModuleReset = TR_MODULE_RESET_DISABLE;
 
-        m_cfg.powerEnableGpioPin = (int8_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)m_cfg.powerEnableGpioPin).GetInt();
-        m_cfg.busEnableGpioPin = (int8_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)m_cfg.busEnableGpioPin).GetInt();
-        m_cfg.pgmSwitchGpioPin = (int8_t)Pointer("/pgmSwitchGpioPin").GetWithDefault(d, (int)m_cfg.pgmSwitchGpioPin).GetInt();
+        m_cfg.powerEnableGpioPin = (int64_t)Pointer("/powerEnableGpioPin").GetWithDefault(d, (int)m_cfg.powerEnableGpioPin).GetInt64();
+        m_cfg.busEnableGpioPin = (int64_t)Pointer("/busEnableGpioPin").GetWithDefault(d, (int)m_cfg.busEnableGpioPin).GetInt64();
+        m_cfg.pgmSwitchGpioPin = (int64_t)Pointer("/pgmSwitchGpioPin").GetWithDefault(d, (int)m_cfg.pgmSwitchGpioPin).GetInt64();
 
         // bus signal separated into more for iqube devices
         if (m_cfg.busEnableGpioPin == -1) {
-          m_cfg.uartEnableGpioPin = (int8_t)Pointer("/uartEnableGpioPin").GetWithDefault(d, (int)m_cfg.uartEnableGpioPin).GetInt();
-          m_cfg.spiEnableGpioPin = (int8_t)Pointer("/spiEnableGpioPin").GetWithDefault(d, (int)m_cfg.spiEnableGpioPin).GetInt();
-          m_cfg.i2cEnableGpioPin = (int8_t)Pointer("/i2cEnableGpioPin").GetWithDefault(d, (int)m_cfg.i2cEnableGpioPin).GetInt();
+          m_cfg.uartEnableGpioPin = (int64_t)Pointer("/uartEnableGpioPin").GetWithDefault(d, (int)m_cfg.uartEnableGpioPin).GetInt64();
+          m_cfg.spiEnableGpioPin = (int64_t)Pointer("/spiEnableGpioPin").GetWithDefault(d, (int)m_cfg.spiEnableGpioPin).GetInt64();
+          m_cfg.i2cEnableGpioPin = (int64_t)Pointer("/i2cEnableGpioPin").GetWithDefault(d, (int)m_cfg.i2cEnableGpioPin).GetInt64();
         }
 
         Value* v = Pointer("/uartReset").Get(d);
