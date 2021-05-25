@@ -1,0 +1,9 @@
+# Raspbian bullseye
+## armhf
+package-rpi-bullseye-armhf:
+  <<: *raspbian-bullseye-armhf-template
+  <<: *package-devel-template
+
+package_release-rpi-bullseye-armhf:
+  <<: *raspbian-bullseye-armhf-template
+  <<: *package-release-template

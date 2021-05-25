@@ -1,0 +1,50 @@
+# Debian stretch
+## amd64
+package-stretch-amd64:
+  when: manual
+  <<: *debian-stretch-amd64-template
+  <<: *package-devel-template
+
+package_release-stretch-amd64:
+  <<: *debian-stretch-amd64-template
+  <<: *package-release-template
+
+## arm64
+package-stretch-arm64:
+  when: manual
+  <<: *debian-stretch-arm64-template
+  <<: *package-devel-template
+
+package_release-stretch-arm64:
+  <<: *debian-stretch-arm64-template
+  <<: *package-release-template
+
+## armel
+package-stretch-armel:
+  when: manual
+  <<: *debian-stretch-armel-template
+  <<: *package-devel-template
+
+package_release-stretch-armel:
+  <<: *debian-stretch-armel-template
+  <<: *package-release-template
+
+## armhf
+package-stretch-armhf:
+  when: manual
+  <<: *debian-stretch-armhf-template
+  <<: *package-devel-template
+
+package_release-stretch-armhf:
+  <<: *debian-stretch-armhf-template
+  <<: *package-release-template
+
+## i386
+package-stretch-i386:
+  when: manual
+  <<: *debian-stretch-i386-template
+  <<: *package-devel-template
+
+package_release-stretch-i386:
+  <<: *debian-stretch-i386-template
+  <<: *package-release-template

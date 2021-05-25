@@ -1,0 +1,27 @@
+# Ubuntu 20.04 focal
+## amd64
+package-focal-amd64:
+  <<: *ubuntu-focal-amd64-template
+  <<: *package-devel-template
+
+package_release-focal-amd64:
+  <<: *ubuntu-focal-amd64-template
+  <<: *package-release-template
+## arm64
+package-focal-arm64:
+  <<: *ubuntu-focal-arm64-template
+  <<: *package-devel-template
+
+package_release-focal-arm64:
+  <<: *ubuntu-focal-arm64-template
+  <<: *package-release-template
+## armhf
+package-focal-armhf:
+  <<: *ubuntu-focal-armhf-template
+  <<: *package-devel-template
+  allow_failure: true
+
+package_release-focal-armhf:
+  <<: *ubuntu-focal-armhf-template
+  <<: *package-release-template
+  allow_failure: true

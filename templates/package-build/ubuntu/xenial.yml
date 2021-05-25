@@ -1,0 +1,25 @@
+# Ubuntu 16.04 xenial
+## amd64
+package-xenial-amd64:
+  <<: *ubuntu-xenial-amd64-template
+  <<: *package-devel-template
+
+package_release-xenial-amd64:
+  <<: *ubuntu-xenial-amd64-template
+  <<: *package-release-template
+## arm64
+package-xenial-arm64:
+  <<: *ubuntu-xenial-arm64-template
+  <<: *package-devel-template
+
+package_release-xenial-arm64:
+  <<: *ubuntu-xenial-arm64-template
+  <<: *package-release-template
+## armhf
+package-xenial-armhf:
+  <<: *ubuntu-xenial-armhf-template
+  <<: *package-devel-template
+
+package_release-xenial-armhf:
+  <<: *ubuntu-xenial-armhf-template
+  <<: *package-release-template

@@ -1,0 +1,45 @@
+# Debian buster
+## amd64
+package-buster-amd64:
+  <<: *debian-buster-amd64-template
+  <<: *package-devel-template
+
+package_release-buster-amd64:
+  <<: *debian-buster-amd64-template
+  <<: *package-release-template
+
+## arm64
+package-buster-arm64:
+  <<: *debian-buster-arm64-template
+  <<: *package-devel-template
+
+package_release-buster-arm64:
+  <<: *debian-buster-arm64-template
+  <<: *package-release-template
+
+## armel
+package-buster-armel:
+  <<: *debian-buster-armel-template
+  <<: *package-devel-template
+
+package_release-buster-armel:
+  <<: *debian-buster-armel-template
+  <<: *package-release-template
+
+## armhf
+package-buster-armhf:
+  <<: *debian-buster-armhf-template
+  <<: *package-devel-template
+
+package_release-buster-armhf:
+  <<: *debian-buster-armhf-template
+  <<: *package-release-template
+
+## i386
+package-buster-i386:
+  <<: *debian-buster-i386-template
+  <<: *package-devel-template
+
+package_release-buster-i386:
+  <<: *debian-buster-i386-template
+  <<: *package-release-template

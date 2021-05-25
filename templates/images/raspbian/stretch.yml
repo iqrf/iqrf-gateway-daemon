@@ -1,0 +1,10 @@
+.raspbian-stretch-armhf-template: &raspbian-stretch-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:raspbian-stretch-armhf
+  variables:
+    ARCH: "armhf"
+    ARCH_PREFIX: "rpi-"
+    CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
+    CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
+    DIST: "stretch"
+  tags:
+    - linux, armhf

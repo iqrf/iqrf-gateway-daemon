@@ -1,0 +1,39 @@
+.debian-bullseye-amd64-template: &debian-bullseye-amd64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "bullseye"
+  tags:
+    - linux, amd64
+
+.debian-bullseye-arm64-template: &debian-bullseye-arm64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-arm64
+  variables:
+    ARCH: "arm64"
+    DIST: "bullseye"
+  tags:
+    - linux, arm64
+
+.debian-bullseye-armel-template: &debian-bullseye-armel-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-armel
+  variables:
+    ARCH: "armel"
+    DIST: "bullseye"
+  tags:
+    - linux, armel
+
+.debian-bullseye-armhf-template: &debian-bullseye-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-armhf
+  variables:
+    ARCH: "armhf"
+    DIST: "bullseye"
+  tags:
+    - linux, armhf
+
+.debian-bullseye-i386-template: &debian-bullseye-i386-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-i386
+  variables:
+    ARCH: "i386"
+    DIST: "bullseye"
+  tags:
+    - linux, i386

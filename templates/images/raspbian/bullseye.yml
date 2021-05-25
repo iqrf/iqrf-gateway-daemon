@@ -1,0 +1,10 @@
+.raspbian-bullseye-armhf-template: &raspbian-bullseye-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:raspbian-bullseye-armhf
+  variables:
+    ARCH: "armhf"
+    ARCH_PREFIX: "rpi-"
+    CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
+    CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
+    DIST: "buster"
+  tags:
+    - linux, armhf

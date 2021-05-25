@@ -1,0 +1,9 @@
+# Raspbian buster
+## armhf
+package-rpi-buster-armhf:
+  <<: *raspbian-buster-armhf-template
+  <<: *package-devel-template
+
+package_release-rpi-buster-armhf:
+  <<: *raspbian-buster-armhf-template
+  <<: *package-release-template

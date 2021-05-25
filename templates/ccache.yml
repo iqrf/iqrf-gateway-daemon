@@ -1,0 +1,18 @@
+.ccache-before_script-template: &ccache-before_script-template
+  - export CCACHE_COMPILERCHECK="content"
+  - export CCACHE_COMPRESS="true"
+  - export CCACHE_BASEDIR="$PWD"
+  - export CCACHE_DIR="${CCACHE_BASEDIR}/.ccache"
+  - ccache --zero-stats --show-stats
+  - echo "CCACHEDIR=~/.ccache" > ~/.pbuilderrc
+
+.ccache-template: &ccache-template
+  before_script:
+    - *ccache-before_script-template
+  after_script:
+    - export CCACHE_DIR="${PWD}/.ccache"
+    - ccache --show-stats
+  cache:
+    key: "$CI_JOB_NAME"
+    paths:
+      - .ccache/

@@ -1,0 +1,23 @@
+.ubuntu-xenial-amd64-template: &ubuntu-xenial-amd64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "xenial"
+  tags:
+    - linux, amd64
+
+.ubuntu-xenial-arm64-template: &ubuntu-xenial-arm64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-arm64
+  variables:
+    ARCH: "arm64"
+    DIST: "xenial"
+  tags:
+    - linux, arm64
+
+.ubuntu-xenial-armhf-template: &ubuntu-xenial-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-armhf
+  variables:
+    ARCH: "armhf"
+    DIST: "xenial"
+  tags:
+    - linux, armhf

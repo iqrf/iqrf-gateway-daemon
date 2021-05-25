@@ -1,0 +1,45 @@
+# Debian bullseye
+## amd64
+package-bullseye-amd64:
+  <<: *debian-bullseye-amd64-template
+  <<: *package-devel-template
+
+package_release-bullseye-amd64:
+  <<: *debian-bullseye-amd64-template
+  <<: *package-release-template
+
+## arm64
+package-bullseye-arm64:
+  <<: *debian-bullseye-arm64-template
+  <<: *package-devel-template
+
+package_release-bullseye-arm64:
+  <<: *debian-bullseye-arm64-template
+  <<: *package-release-template
+
+## armel
+package-bullseye-armel:
+  <<: *debian-bullseye-armel-template
+  <<: *package-devel-template
+
+package_release-bullseye-armel:
+  <<: *debian-bullseye-armel-template
+  <<: *package-release-template
+
+## armhf
+package-bullseye-armhf:
+  <<: *debian-bullseye-armhf-template
+  <<: *package-devel-template
+
+package_release-bullseye-armhf:
+  <<: *debian-bullseye-armhf-template
+  <<: *package-release-template
+
+## i386
+package-bullseye-i386:
+  <<: *debian-bullseye-i386-template
+  <<: *package-devel-template
+
+package_release-bullseye-i386:
+  <<: *debian-bullseye-i386-template
+  <<: *package-release-template

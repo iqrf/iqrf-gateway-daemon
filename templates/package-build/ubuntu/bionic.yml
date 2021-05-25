@@ -1,0 +1,25 @@
+# Ubuntu 18.04 bionic
+## amd64
+package-bionic-amd64:
+  <<: *ubuntu-bionic-amd64-template
+  <<: *package-devel-template
+
+package_release-bionic-amd64:
+  <<: *ubuntu-bionic-amd64-template
+  <<: *package-release-template
+## arm64
+package-bionic-arm64:
+  <<: *ubuntu-bionic-arm64-template
+  <<: *package-devel-template
+
+package_release-bionic-arm64:
+  <<: *ubuntu-bionic-arm64-template
+  <<: *package-release-template
+## armhf
+package-bionic-armhf:
+  <<: *ubuntu-bionic-armhf-template
+  <<: *package-devel-template
+
+package_release-bionic-armhf:
+  <<: *ubuntu-bionic-armhf-template
+  <<: *package-release-template

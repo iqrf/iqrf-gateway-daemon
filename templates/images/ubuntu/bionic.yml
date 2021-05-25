@@ -1,0 +1,23 @@
+.ubuntu-bionic-amd64-template: &ubuntu-bionic-amd64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-bionic-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "bionic"
+  tags:
+    - linux, amd64
+
+.ubuntu-bionic-arm64-template: &ubuntu-bionic-arm64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-bionic-arm64
+  variables:
+    ARCH: "arm64"
+    DIST: "bionic"
+  tags:
+    - linux, arm64
+
+.ubuntu-bionic-armhf-template: &ubuntu-bionic-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-bionic-armhf
+  variables:
+    ARCH: "armhf"
+    DIST: "bionic"
+  tags:
+    - linux, armhf

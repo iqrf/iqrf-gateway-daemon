@@ -1,0 +1,39 @@
+.debian-buster-amd64-template: &debian-buster-amd64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "buster"
+  tags:
+    - linux, amd64
+
+.debian-buster-arm64-template: &debian-buster-arm64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-arm64
+  variables:
+    ARCH: "arm64"
+    DIST: "buster"
+  tags:
+    - linux, arm64
+
+.debian-buster-armel-template: &debian-buster-armel-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-armel
+  variables:
+    ARCH: "armel"
+    DIST: "buster"
+  tags:
+    - linux, armel
+
+.debian-buster-armhf-template: &debian-buster-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-armhf
+  variables:
+    ARCH: "armhf"
+    DIST: "buster"
+  tags:
+    - linux, armhf
+
+.debian-buster-i386-template: &debian-buster-i386-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-i386
+  variables:
+    ARCH: "i386"
+    DIST: "buster"
+  tags:
+    - linux, i386

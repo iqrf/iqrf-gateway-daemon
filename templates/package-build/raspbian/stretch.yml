@@ -1,0 +1,19 @@
+# Raspbian stretch# Raspbian stretch
+## armhf
+package-rpi-stretch-armhf:
+  when: manual
+  <<: *raspbian-stretch-armhf-template
+  <<: *package-devel-template
+
+package_release-rpi-stretch-armhf:
+  <<: *raspbian-stretch-armhf-template
+  <<: *package-release-template
+## armhf
+package-rpi-stretch-armhf:
+  when: manual
+  <<: *raspbian-stretch-armhf-template
+  <<: *package-devel-template
+
+package_release-rpi-stretch-armhf:
+  <<: *raspbian-stretch-armhf-template
+  <<: *package-release-template

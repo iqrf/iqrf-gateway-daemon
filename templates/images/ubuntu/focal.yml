@@ -1,0 +1,23 @@
+.ubuntu-focal-amd64-template: &ubuntu-focal-amd64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-focal-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "focal"
+  tags:
+    - linux, amd64
+
+.ubuntu-focal-arm64-template: &ubuntu-focal-arm64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-focal-arm64
+  variables:
+    ARCH: "arm64"
+    DIST: "focal"
+  tags:
+    - linux, arm64
+
+.ubuntu-focal-armhf-template: &ubuntu-focal-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-focal-armhf
+  variables:
+    ARCH: "armhf"
+    DIST: "focal"
+  tags:
+    - linux, armhf

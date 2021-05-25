@@ -1,0 +1,39 @@
+.debian-stretch-amd64-template: &debian-stretch-amd64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-amd64
+  variables:
+    ARCH: "amd64"
+    DIST: "stretch"
+  tags:
+    - linux, amd64
+
+.debian-stretch-arm64-template: &debian-stretch-arm64-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-arm64
+  variables:
+    ARCH: "arm64"
+    DIST: "stretch"
+  tags:
+    - linux, arm64
+
+.debian-stretch-armel-template: &debian-stretch-armel-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-armel
+  variables:
+    ARCH: "armel"
+    DIST: "stretch"
+  tags:
+    - linux, armel
+
+.debian-stretch-armhf-template: &debian-stretch-armhf-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-armhf
+  variables:
+    ARCH: "armhf"
+    DIST: "stretch"
+  tags:
+    - linux, armhf
+
+.debian-stretch-i386-template: &debian-stretch-i386-template
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-i386
+  variables:
+    ARCH: "i386"
+    DIST: "stretch"
+  tags:
+    - linux, i386
