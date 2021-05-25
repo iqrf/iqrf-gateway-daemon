@@ -1,3 +1,71 @@
+iqrf-gateway-daemon (2.3.6~rc3) testing; urgency=medium
+
+  [ Karel Hanák ]
+  * API: fixed OtaUpload request json schema
+  * API: added missing request and response examples, fixed broken examples
+
+  [ Frantisek Mikulu ]
+  * fix build for Win
+
+  [ Rostislav Spinar ]
+  * Adding acknowledgement
+  * Update the acknowledgement
+  * clibdpa: update ref
+
+  [ Karel Hanák ]
+  * recvmsg instead of recvfrom
+  * UdpChannel: get IP and MAC address of receiving interface
+  * UdpMessaging: stop MAC search on match
+  * UdpMessaging: pass message to handler
+  * UdpMessaging: deduce receiving IP address based on sender IP if destination is broadcast
+  * UdpMessaging: remove unused method
+  * OtaUpload: fixed file content parsing
+  * UdpMessaging: added index based interface identification
+  * UdpMessaging: updated messaging class
+  * UdpMessaging: store interfaces with expiration, renew when expired, removed unnecessary code
+  * UdpMessaging: codestyle pass
+  * UdpMessaging: use unique socket for interface info
+
+  [ Roman Ondráček ]
+  * UdpMessaging: use initialization in initialization list instead of assigning in the constructor body
+
+  [ Karel Hanák ]
+  * OtaUpload: iqrf header parser library integration, linking
+  * OtaUpload: parse IQRF plugin headers
+  * UdpMessaging: fixed indentation
+  * OtaUpload: validate plugin header, fixed trimming func
+  * OtaUpload: unified indentation
+  * UdpChannel: do not respond if the interface address could not be retrieved, dummy impl for win
+  * UdpMessaging: fixed win impl
+  * updated reference to header parser lib
+
+  [ Roman Ondráček ]
+  * GitLab CI: fix sumbodule init on xenial and bionic
+  * Update IQRF header parser library
+
+  [ Karel Hanák ]
+  * UdpMessaging: get interface metric from route, select the best interface to respond
+  * UdpMessaging: removed useless dbg
+  * API: added daemon mode response option unknown
+  * IqrfSpi & IqrfUart: initialize gpio pins with signed 64bit integers
+
+  [ Roman Ondráček ]
+  * GitLab CI: try to fix failing package builds for Ubuntu Xenial and Bionic
+  * Update IQRF header parser library to fix build with CMake < v3.8
+
+  [ Karel Hanák ]
+  * UdpMessaging: fixed for win build, fixed warnings
+  * submodules: updated references to clibspi and clibuart
+
+  [ Vasek Hanak ]
+  * User timeout for sensor FRC
+
+  [ Roman Ondráček ]
+  * Update IQRF header parser library
+  * GitLab CI: add Debian bullseye
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 25 May 2021 09:48:03 +0200
+
 iqrf-gateway-daemon (2.3.6~rc2) testing; urgency=medium
 
   [ Karel Hanák ]
