@@ -14,7 +14,10 @@
 
 all: build-all push-all
 
-build-all: build-stretch build-buster
+build-all: build-stretch build-buster build-bullseye
+
+build-bullseye:
+	$(MAKE) -C bullseye/ build-all
 
 build-buster:
 	$(MAKE) -C buster/ build-all
@@ -22,7 +25,10 @@ build-buster:
 build-stretch:
 	$(MAKE) -C stretch/ build-all
 
-push-all: push-stretch push-buster
+push-all: push-stretch push-buster push-bullseye
+
+push-bullseye:
+	$(MAKE) -C bullseye/ push-all
 
 push-buster:
 	$(MAKE) -C buster/ push-all

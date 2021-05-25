@@ -12,26 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+DISTRIBUTION := raspbian
+REPOSITORY := iqrftech/iqrf-gateway-daemon-builder
+VERSION := bullseye
+
 all: build-all push-all
 
-build-all: build-stretch build-buster build-bullseye
+build-all: build-armhf
 
-build-bullseye:
-	$(MAKE) -C bullseye/ build-all
+build-armhf:
+	docker build --no-cache -f armhf.Dockerfile -t $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armhf .
 
-build-buster:
-	$(MAKE) -C buster/ build-all
+push-all: push-armhf
 
-build-stretch:
-	$(MAKE) -C stretch/ build-all
-
-push-all: push-stretch push-buster push-bullseye
-
-push-bullseye:
-	$(MAKE) -C bullseye/ push-all
-
-push-buster:
-	$(MAKE) -C buster/ push-all
-
-push-stretch:
-	$(MAKE) -C stretch/ push-all
+push-armhf:
+	docker push $(REPOSITORY):$(DISTRIBUTION)-$(VERSION)-armhf
