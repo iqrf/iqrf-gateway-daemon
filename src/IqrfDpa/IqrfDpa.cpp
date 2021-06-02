@@ -312,37 +312,27 @@ namespace iqrf {
   {
     TRC_FUNCTION_ENTER("");
 
-    bool sentExplicitRestart = false;
+    bool cooordinatorIdentified = false;
+    const uint32_t resetTime = 3000;
 
-    while (true)
-    { // wait for reset TR module async msg.
-      std::unique_lock<std::mutex> lck(m_asyncRestartMtx);
-
-      //wait for async msg after reset
-      const int wtime = 3000;
-      TRC_INFORMATION("Waiting for TR reset result [ms]: " << PAR(wtime));
-
-      //while (m_asyncRestartCv.wait_for(lck, std::chrono::milliseconds(wtime))== std::cv_status::timeout) {
-      if (m_asyncRestartCv.wait_for(lck, std::chrono::milliseconds(wtime)) == std::cv_status::timeout) {
-
-        if (!sentExplicitRestart) {
-          sentExplicitRestart = true;
-          TRC_INFORMATION("No async TR reset response => Send explicit request");
-
-          iqrf::embed::os::RawDpaRestart iqrfEmbedOsRestart(0); // restart coordinator
-          auto trn = executeDpaTransaction(iqrfEmbedOsRestart.getRequest(), -1);
-          // don't care about result => interested in async reset response
+    while (!cooordinatorIdentified) {
+      m_iqrfChannelService->startListen();
+      std::unique_lock<std::mutex> lock(m_asyncRestartMtx);
+      TRC_INFORMATION("Waiting for possible TR reset: " << std::to_string(resetTime) << " milliseconds.");
+      if (m_asyncRestartCv.wait_for(lock, std::chrono::milliseconds(resetTime)) == std::cv_status::timeout) {
+        TRC_WARNING("TR async reset message not received. Sleeping for: " << std::to_string(m_interfaceCheckPeriod) << " seconds.");
+        std::this_thread::sleep_for(std::chrono::seconds(m_interfaceCheckPeriod));
+        TRC_INFORMATION("Waking up from reset sleep.");
+        if (m_iqrfChannelService->getState() == IIqrfChannelService::State::Ready) {
+          TRC_INFORMATION("IQRF channel service is ready, requesting restart.");
+          iqrf::embed::os::RawDpaRestart iqrfEmbedOsRestart(0);
+          executeDpaTransaction(iqrfEmbedOsRestart.getRequest(), -1);
+        } else {
+          TRC_INFORMATION("IQRF channel service not ready, waiting.");
         }
-        else {
-          TRC_ERROR("Cannot get TR reset async msg");
-          state = IIqrfDpaService::DpaState::NotReady;
-          std::cout << std::endl << "Error: Cannot get TR reset msg => interface to DPA coordinator is not working - verify (CDC or SPI or UART) configuration" << std::endl;
-          break;
-        }
-      }
-      else {
-        TRC_WARNING("TR reset async msg was handled");
-        break;
+      } else {
+        TRC_INFORMATION("TR async reset message received.");
+        cooordinatorIdentified = true;
       }
     }
 
@@ -404,6 +394,8 @@ namespace iqrf {
       m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
     }
 
+    m_interfaceCheckPeriod = (uint8_t)rapidjson::Pointer("/interfaceCheckPeriod").Get(doc)->GetUint();
+
     // handle asyn reset
     registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) { //spaces in front of "  IqrfDpa" make it first in handlers map
       asyncRestartHandler(dpaMessage);
@@ -414,8 +406,6 @@ namespace iqrf {
       asyncDpaMessageHandler(dpaMessage);
     });
 
-    m_iqrfChannelService->startListen();
-    
     getIqrfNetworkParams();
 
     // unregister asyn reset - not needed  after getIqrfNetworkParams()

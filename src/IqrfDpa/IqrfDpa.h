@@ -68,6 +68,8 @@ namespace iqrf {
 
     std::mutex m_asyncRestartMtx;
     std::condition_variable m_asyncRestartCv;
+    /// Sleep duration in seconds when checking IQRF channel readiness
+    uint8_t m_interfaceCheckPeriod;
 
     void asyncRestartHandler(const DpaMessage& dpaMessage);
     void getIqrfNetworkParams();

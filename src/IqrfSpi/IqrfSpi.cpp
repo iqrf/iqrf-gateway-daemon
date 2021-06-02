@@ -303,6 +303,9 @@ namespace iqrf {
     void startListen()
     {
       m_runListenThread = true;
+      if (m_listenThread.joinable()) {
+        m_listenThread.join();
+      }
       m_listenThread = std::thread(&IqrfSpi::Imp::listen, this);
     }
 

@@ -7,6 +7,11 @@
         "version": "1-0-0"
     },
     "type": "object",
+    "required": [
+        "component",
+        "instance"
+    ],
+    "additionalProperties": false,
     "properties": {
         "component": {
             "type": "string",
@@ -25,11 +30,22 @@
             "description": "...",
             "default": 500
         },
+        "interfaceCheckPeriod": {
+            "title": "Interface check period",
+            "description": "Interface readiness check period",
+            "type": "integer",
+            "minimum": 0,
+            "default": 30
+        },
         "RequiredInterfaces": {
             "type": "array",
             "description": "Array of required interfaces.",
             "items": {
                 "type": "object",
+                "required": [
+                    "name",
+                    "target"
+                ],
                 "properties": {
                     "name": {
                         "type": "string",
@@ -39,16 +55,8 @@
                     "target": {
                         "type": "object"
                     }
-                },
-                "required": [
-                    "name",
-                    "target"
-                ]
+                }
             }
         }
-    },
-    "required": [
-        "component",
-        "instance"
-    ]
+    }
 }
