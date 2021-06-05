@@ -14,24 +14,18 @@
 
 all: build-all push-all
 
-build-all: build-xenial build-bionic build-focal
+build-all: build-bionic build-focal
 
 build-bionic:
 	$(MAKE) -C bionic/ build-all
 
-build-xenial:
-	$(MAKE) -C xenial/ build-all
-
 build-focal:
 	$(MAKE) -C focal/ build-all
 
-push-all: push-xenial push-bionic push-focal
+push-all: push-bionic push-focal
 
 push-bionic:
 	$(MAKE) -C bionic/ push-all
 
 push-focal:
 	$(MAKE) -C focal/ push-all
-
-push-xenial:
-	$(MAKE) -C xenial/ push-all
