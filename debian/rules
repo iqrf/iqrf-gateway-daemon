@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@  --buildsystem=cmake --builddirectory=build --with=systemd
+	dh $@  --buildsystem=cmake --builddirectory=build
 
 override_dh_auto_configure:
 	rm -rf shape shape-build shapeware shapeware-build
@@ -37,3 +37,6 @@ override_dh_install:
 	#release: rm components from package: IqrfInfo, AutoNetwork, OTA
 	rm -rf debian/iqrf-gateway-daemon/builds
 	rm debian/iqrf-gateway-daemon/var/cache/iqrf-gateway-daemon/iqrfRepoCache/update-cache.py
+
+override_dh_installsystemd:
+	dh_installsystemd --restart-after-upgrade

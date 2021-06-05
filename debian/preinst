@@ -1,6 +1,8 @@
 #!/bin/bash
 # Before install script
 
+set -e
+
 if [ -d "/etc/iqrf-gateway-daemon/cfgSchemas" ]; then
     rm -rf /etc/iqrf-gateway-daemon/cfgSchemas
 fi
@@ -8,3 +10,5 @@ fi
 if [ -d "/var/cache/iqrf-gateway-daemon/scheduler/schema" ]; then
     rm -rf /var/cache/iqrf-gateway-daemon/scheduler/schema
 fi
+
+#DEBHELPER#
