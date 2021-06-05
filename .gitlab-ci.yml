@@ -104,46 +104,6 @@ stages:
   tags:
     - linux, i386
 
-.debian-stretch-amd64-template: &debian-stretch-amd64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-amd64
-  variables:
-    ARCH: "amd64"
-    DIST: "stretch"
-  tags:
-    - linux, amd64
-
-.debian-stretch-arm64-template: &debian-stretch-arm64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-arm64
-  variables:
-    ARCH: "arm64"
-    DIST: "stretch"
-  tags:
-    - linux, arm64
-
-.debian-stretch-armel-template: &debian-stretch-armel-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-armel
-  variables:
-    ARCH: "armel"
-    DIST: "stretch"
-  tags:
-    - linux, armel
-
-.debian-stretch-armhf-template: &debian-stretch-armhf-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-armhf
-  variables:
-    ARCH: "armhf"
-    DIST: "stretch"
-  tags:
-    - linux, armhf
-
-.debian-stretch-i386-template: &debian-stretch-i386-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-stretch-i386
-  variables:
-    ARCH: "i386"
-    DIST: "stretch"
-  tags:
-    - linux, i386
-
 .raspbian-bullseye-armhf-template: &raspbian-bullseye-armhf-template
     image: iqrftech/iqrf-gateway-daemon-builder:raspbian-bullseye-armhf
     variables:
@@ -163,17 +123,6 @@ stages:
     CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
     CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
     DIST: "buster"
-  tags:
-    - linux, armhf
-
-.raspbian-stretch-armhf-template: &raspbian-stretch-armhf-template
-  image: iqrftech/iqrf-gateway-daemon-builder:raspbian-stretch-armhf
-  variables:
-    ARCH: "armhf"
-    ARCH_PREFIX: "rpi-"
-    CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-    CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-    DIST: "stretch"
   tags:
     - linux, armhf
 
@@ -222,30 +171,6 @@ stages:
   variables:
     ARCH: "armhf"
     DIST: "focal"
-  tags:
-    - linux, armhf
-
-.ubuntu-xenial-amd64-template: &ubuntu-xenial-amd64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-amd64
-  variables:
-    ARCH: "amd64"
-    DIST: "xenial"
-  tags:
-    - linux, amd64
-
-.ubuntu-xenial-arm64-template: &ubuntu-xenial-arm64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-arm64
-  variables:
-    ARCH: "arm64"
-    DIST: "xenial"
-  tags:
-    - linux, arm64
-
-.ubuntu-xenial-armhf-template: &ubuntu-xenial-armhf-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-xenial-armhf
-  variables:
-    ARCH: "armhf"
-    DIST: "xenial"
   tags:
     - linux, armhf
 
@@ -483,57 +408,6 @@ package_release-buster-i386:
   <<: *debian-buster-i386-template
   <<: *package-release-template
 
-# Debian stretch
-## amd64
-package-stretch-amd64:
-  when: manual
-  <<: *debian-stretch-amd64-template
-  <<: *package-devel-template
-
-package_release-stretch-amd64:
-  <<: *debian-stretch-amd64-template
-  <<: *package-release-template
-
-## arm64
-package-stretch-arm64:
-  when: manual
-  <<: *debian-stretch-arm64-template
-  <<: *package-devel-template
-
-package_release-stretch-arm64:
-  <<: *debian-stretch-arm64-template
-  <<: *package-release-template
-
-## armel
-package-stretch-armel:
-  when: manual
-  <<: *debian-stretch-armel-template
-  <<: *package-devel-template
-
-package_release-stretch-armel:
-  <<: *debian-stretch-armel-template
-  <<: *package-release-template
-
-## armhf
-package-stretch-armhf:
-  when: manual
-  <<: *debian-stretch-armhf-template
-  <<: *package-devel-template
-
-package_release-stretch-armhf:
-  <<: *debian-stretch-armhf-template
-  <<: *package-release-template
-
-## i386
-package-stretch-i386:
-  when: manual
-  <<: *debian-stretch-i386-template
-  <<: *package-devel-template
-
-package_release-stretch-i386:
-  <<: *debian-stretch-i386-template
-  <<: *package-release-template
-
 # Raspbian bullseye
 ## armhf
 package-rpi-bullseye-armhf:
@@ -552,17 +426,6 @@ package-rpi-buster-armhf:
 
 package_release-rpi-buster-armhf:
   <<: *raspbian-buster-armhf-template
-  <<: *package-release-template
-
-# Debian stretch
-## armhf
-package-rpi-stretch-armhf:
-  when: manual
-  <<: *raspbian-stretch-armhf-template
-  <<: *package-devel-template
-
-package_release-rpi-stretch-armhf:
-  <<: *raspbian-stretch-armhf-template
   <<: *package-release-template
 
 # Ubuntu 18.04 bionic
@@ -618,32 +481,6 @@ package_release-focal-armhf:
   <<: *ubuntu-focal-armhf-template
   <<: *package-release-template
   allow_failure: true
-
-# Ubuntu 16.04 xenial
-## amd64
-package-xenial-amd64:
-  <<: *ubuntu-xenial-amd64-template
-  <<: *package-devel-template
-
-package_release-xenial-amd64:
-  <<: *ubuntu-xenial-amd64-template
-  <<: *package-release-template
-## arm64
-package-xenial-arm64:
-  <<: *ubuntu-xenial-arm64-template
-  <<: *package-devel-template
-
-package_release-xenial-arm64:
-  <<: *ubuntu-xenial-arm64-template
-  <<: *package-release-template
-## armhf
-package-xenial-armhf:
-  <<: *ubuntu-xenial-armhf-template
-  <<: *package-devel-template
-
-package_release-xenial-armhf:
-  <<: *ubuntu-xenial-armhf-template
-  <<: *package-release-template
 
 # API
 api-deploy:
