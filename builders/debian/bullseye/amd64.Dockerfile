@@ -24,6 +24,7 @@ RUN apt-get update \
   && echo "deb https://repos.iqrf.org/debian bullseye stable" | tee -a /etc/apt/sources.list \
   && apt-get update \
   && apt-get install --no-install-recommends -y googletest libcurl4-openssl-dev \
-     libgtest-dev libsqlite3-dev mlocate python3-requests libbz2-dev libzip-dev zlib1g-dev \
+     libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate python3-requests \
+     libbz2-dev libzip-dev zlib1g-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
