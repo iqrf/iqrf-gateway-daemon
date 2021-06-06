@@ -80,20 +80,25 @@ inline MQDESCR openMqWrite(const std::string name, unsigned bufsize)
 {
   TRC_FUNCTION_ENTER(PAR(name))
 
-  struct mq_attr attr, oldAttr;
+  struct mq_attr setAttr, getAttr;
 
-  attr.mq_flags = 0;
-  attr.mq_maxmsg = MAX_MESSAGES;
-  attr.mq_msgsize = bufsize / MAX_MESSAGES;
-  attr.mq_curmsgs = 0;
+  setAttr.mq_flags = 0;
+  setAttr.mq_maxmsg = MAX_MESSAGES;
+  setAttr.mq_msgsize = bufsize / MAX_MESSAGES;
+  setAttr.mq_curmsgs = 0;
 
-  TRC_DEBUG("explicit attributes " << PAR(attr.mq_maxmsg) << PAR(attr.mq_msgsize))
-  mqd_t mqd = mq_open(name.c_str(), O_RDWR | O_CREAT, QUEUE_PERMISSIONS, &attr);
+  TRC_DEBUG("explicit attributes " << PAR(setAttr.mq_maxmsg) << PAR(setAttr.mq_msgsize))
+  mqd_t mqd = mq_open(name.c_str(), O_RDWR | O_CREAT, QUEUE_PERMISSIONS, &setAttr);
 
   if (mqd > 0) {
-    int ret = mq_setattr(mqd, &attr, &oldAttr);
+    int ret = mq_setattr(mqd, &setAttr, &getAttr);
     
-    TRC_DEBUG("set attributes " << PAR(ret) << PAR(oldAttr.mq_maxmsg) << PAR(oldAttr.mq_msgsize))
+    TRC_DEBUG("Opened message queue status:"
+      << PAR(mqd)
+      << PAR(getAttr.mq_maxmsg)
+      << PAR(getAttr.mq_curmsgs)
+      << PAR(getAttr.mq_msgsize)
+    );
   }
 
   TRC_FUNCTION_LEAVE(PAR(mqd));
@@ -115,26 +120,48 @@ inline void destroyMq(const std::string &mq) {
   }
 }
 
-inline bool readMq(MQDESCR mqDescr, unsigned char* rx, unsigned long bufSize, unsigned long& numOfBytes)
+inline bool readMq(MQDESCR mqDescr, unsigned char* rx, unsigned long bufSize, unsigned long& numOfBytes, const uint8_t &timeout)
 {
-  bool ret = true;
+  struct timespec tm;
+  clock_gettime(CLOCK_REALTIME, &tm);
+  tm.tv_sec += timeout;
 
-  ssize_t numBytes = mq_receive(mqDescr, (char*)rx, bufSize, NULL);
+  ssize_t recBytes = mq_timedreceive(mqDescr, (char *)rx, bufSize, NULL, &tm);
 
-  if (numBytes <= 0) {
-    ret = false;
+  if (recBytes <= 0) {
     numOfBytes = 0;
+    return false;
   }
-  else
-	numOfBytes = numBytes;
-  return ret;
+  numOfBytes = recBytes;
+  return true;
 }
 
-inline int writeMq(MQDESCR mqDescr, const unsigned char* tx, unsigned long toWrite, unsigned long& written)
+inline void checkMqStatus(MQDESCR mqd) {
+  struct mq_attr attr;
+  int ret = mq_getattr(mqd, &attr);
+  if (ret != 0) {
+    TRC_WARNING("Failed to get message queue attributes: [" << GetLastError() << "]: " << strerror(GetLastError()));
+    return;
+  }
+  TRC_DEBUG("Current mq status:"
+      << PAR(mqd)
+      << PAR(attr.mq_maxmsg)
+      << PAR(attr.mq_curmsgs)
+      << PAR(attr.mq_msgsize)
+  );
+}
+
+inline bool writeMq(MQDESCR mqDescr, const unsigned char* tx, unsigned long toWrite, unsigned long& written, const uint8_t &timeout)
 {
   TRC_FUNCTION_ENTER(PAR(toWrite))
+  checkMqStatus(mqDescr);
+
+  struct timespec tm;
+  clock_gettime(CLOCK_REALTIME, &tm);
+  tm.tv_sec += timeout;
+
   written = toWrite;
-  int ret = mq_send(mqDescr, (const char*)tx, toWrite, 0);
+  int ret = mq_timedsend(mqDescr, (const char*)tx, toWrite, 0, &tm);
   TRC_FUNCTION_LEAVE("");
   return (ret == 0);
 }
@@ -160,24 +187,27 @@ inline void closeMq(MQDESCR mqDescr)
   CloseHandle(mqDescr);
 }
 
-inline bool readMq(MQDESCR mqDescr, unsigned char* rx, unsigned long bufSize, unsigned long& numOfBytes)
+inline bool readMq(MQDESCR mqDescr, unsigned char* rx, unsigned long bufSize, unsigned long& numOfBytes, const uint8_t &timeout)
 {
+  (void)timeout;
   return ReadFile(mqDescr, rx, bufSize, &numOfBytes, NULL);
 }
 
-inline bool writeMq(MQDESCR mqDescr, const unsigned char* tx, unsigned long toWrite, unsigned long& written)
+inline bool writeMq(MQDESCR mqDescr, const unsigned char* tx, unsigned long toWrite, unsigned long& written, const uint8_t &timeout)
 {
+  (void)timeout;
   return WriteFile(mqDescr, tx, toWrite, &written, NULL);
 }
 
 #endif
 
-MqChannel::MqChannel(const std::string& remoteMqName, const std::string& localMqName, unsigned bufsize, bool server)
+MqChannel::MqChannel(const std::string& remoteMqName, const std::string& localMqName, const uint8_t &timeout, unsigned bufsize, bool server)
   :m_runListenThread(true)
   , m_localMqHandle(INVALID_HANDLE_VALUE)
   , m_remoteMqHandle(INVALID_HANDLE_VALUE)
   , m_localMqName(localMqName)
   , m_remoteMqName(remoteMqName)
+  , m_timeout(timeout)
   , m_bufsize(bufsize)
   , m_server(server)
 {
@@ -251,18 +281,18 @@ void MqChannel::listen()
       while (m_runListenThread) {
     	m_state = State::Ready;
         cbBytesRead = 0;
-        fSuccess = readMq(m_localMqHandle, m_rx, m_bufsize, cbBytesRead);
+        fSuccess = readMq(m_localMqHandle, m_rx, m_bufsize, cbBytesRead, m_timeout);
         if (!fSuccess || cbBytesRead == 0) {
           if (m_server) { // listen again
             closeMq(m_localMqHandle);
             m_connected = false; // connect again
-            TRC_ERROR("readMq() failed: " << NAME_PAR(GetLastError, GetLastError()));
+            TRC_ERROR("Failed to read message from queue: [" << GetLastError() << "]: " << strerror(GetLastError()));
             break;
           }
           else {
             std::string brokenMsg("Remote broken");
             sendTo(ustring((const unsigned char*)brokenMsg.data(), brokenMsg.size()));
-            THROW_EXC_TRC_WAR(MqChannelException, "readMq() failed: " << NAME_PAR(GetLastError, GetLastError()));
+            THROW_EXC_TRC_WAR(MqChannelException, "Failed to read message from queue: [" << GetLastError() << "]: " << strerror(GetLastError()));
           }
         }
 
@@ -271,7 +301,7 @@ void MqChannel::listen()
           m_receiveFromFunc(message);
         }
         else {
-          TRC_WARNING("Unregistered receiveFrom() handler");
+          TRC_WARNING("No message handler registered.");
         }
       }
     }
@@ -319,9 +349,9 @@ void MqChannel::sendTo(const std::basic_string<unsigned char>& message)
 
   connect(); //open write channel if not connected yet
 
-  fSuccess = writeMq(m_remoteMqHandle, message.data(), toWrite, written);
+  fSuccess = writeMq(m_remoteMqHandle, message.data(), toWrite, written, m_timeout);
   if (!fSuccess || toWrite != written) {
-    TRC_WARNING("Failed to write to mq: [" << GetLastError() << "]: " << strerror(GetLastError()));
+    TRC_ERROR("Failed to write to mq: [" << GetLastError() << "]: " << strerror(GetLastError()));
     m_connected = false;
   }
 }

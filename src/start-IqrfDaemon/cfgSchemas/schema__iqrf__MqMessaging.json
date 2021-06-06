@@ -31,6 +31,12 @@
             "description": "...",
             "default": "iqrf-daemon-100"
         },
+        "timeout": {
+            "title": "Message timeout",
+            "description": "MQ send and receive timeout",
+            "type": "integer",
+            "default": 15           
+        },
         "acceptAsyncMsg": {
             "type": "boolean",
             "description": "...",
