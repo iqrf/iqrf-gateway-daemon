@@ -371,11 +371,11 @@ namespace iqrf {
           // if (anyAsyncResponse.getPcmd() == ??) {} // add here possible other supported pcmd + matching driver function
 
           else {
-            THROW_EXC(std::invalid_argument, "Unsupported " << NAME_PAR(PCMD, anyAsyncResponse.getPcmd()));
+            THROW_EXC(std::invalid_argument, "Unsupported PCMD: " << std::to_string(anyAsyncResponse.getPcmd()));
           }
         }
         else {
-          THROW_EXC(std::invalid_argument, "Unsupported " << NAME_PAR(PNUM, anyAsyncResponse.getPnum()));
+          THROW_EXC(std::invalid_argument, "Unsupported PNUM: " << std::to_string(anyAsyncResponse.getPnum()));
         }
 
         static int asyncCnt = 1;
