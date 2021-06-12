@@ -8,8 +8,6 @@
 #include "Trace.h"
 #include "rapidjson/pointer.h"
 #include "iqrf__IqrfDpa.hxx"
-#include <thread>
-#include <iostream>
 
 TRC_INIT_MODULE(iqrf::IqrfDpa);
 
@@ -311,22 +309,30 @@ namespace iqrf {
   void IqrfDpa::getIqrfNetworkParams()
   {
     TRC_FUNCTION_ENTER("");
+    std::shared_ptr<IDpaTransaction2> result;
 
     bool cooordinatorIdentified = false;
     const uint32_t resetTime = 3000;
 
     while (!cooordinatorIdentified) {
+      // init channel
       m_iqrfChannelService->startListen();
       std::unique_lock<std::mutex> lock(m_asyncRestartMtx);
       TRC_INFORMATION("Waiting for possible TR reset: " << std::to_string(resetTime) << " milliseconds.");
+      // wait for async reset
       if (m_asyncRestartCv.wait_for(lock, std::chrono::milliseconds(resetTime)) == std::cv_status::timeout) {
+        if (result != nullptr) { // abort pending, stuck transaction
+          result->abort();
+          result = nullptr;
+        }
         TRC_WARNING("TR async reset message not received. Sleeping for: " << std::to_string(m_interfaceCheckPeriod) << " seconds.");
         std::this_thread::sleep_for(std::chrono::seconds(m_interfaceCheckPeriod));
         TRC_INFORMATION("Waking up from reset sleep.");
+        // check IQRF channel state
         if (m_iqrfChannelService->getState() == IIqrfChannelService::State::Ready) {
           TRC_INFORMATION("IQRF channel service is ready, requesting restart.");
           iqrf::embed::os::RawDpaRestart iqrfEmbedOsRestart(0);
-          executeDpaTransaction(iqrfEmbedOsRestart.getRequest(), -1);
+          result = executeDpaTransaction(iqrfEmbedOsRestart.getRequest(), -1);
         } else {
           TRC_INFORMATION("IQRF channel service not ready, waiting.");
         }
@@ -352,6 +358,7 @@ namespace iqrf {
       m_cPar.mcuType = iqrfEmbedOsRead.getTrMcuTypeAsString();
       m_cPar.osBuildWord = (uint16_t)iqrfEmbedOsRead.getOsBuild();
       m_cPar.osBuild = iqrfEmbedOsRead.getOsBuildAsString();
+      state = IIqrfDpaService::DpaState::Ready;
       TRC_INFORMATION("TR params: " << std::endl <<
         NAME_PAR(moduleId, m_cPar.moduleId) <<
         NAME_PAR(osVersion, m_cPar.osVersion) <<
@@ -370,6 +377,46 @@ namespace iqrf {
     }
 
     TRC_FUNCTION_LEAVE("")
+  }
+
+  void IqrfDpa::runInitThread() {
+    TRC_FUNCTION_ENTER("");
+    // handle asyn reset
+    registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) { //spaces in front of "  IqrfDpa" make it first in handlers map
+      asyncRestartHandler(dpaMessage);
+    });
+
+    getIqrfNetworkParams();
+
+    // unregister asyn reset - not needed  after getIqrfNetworkParams()
+    unregisterAsyncMessageHandler("  IqrfDpa");
+
+    IDpaTransaction2::TimingParams timingParams;
+    timingParams.bondedNodes = m_bondedNodes;
+    timingParams.discoveredNodes = m_discoveredNodes;
+    timingParams.frcResponseTime = m_responseTime;
+    timingParams.dpaVersion = m_cPar.dpaVerWord;
+    timingParams.osVersion = m_cPar.osVersion;
+    m_dpaHandler->setTimingParams(timingParams);
+
+    IIqrfChannelService::State st = m_iqrfChannelService->getState();
+    if (st == IIqrfChannelService::State::NotReady) {
+      std::cout << std::endl << "Error: Interface to DPA coordinator is not ready - verify (CDC or SPI or UART) configuration" << std::endl;
+    }
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void IqrfDpa::initializeInterface() {
+    TRC_FUNCTION_ENTER("");
+    if (m_initThread.joinable()) {
+      TRC_DEBUG("Initialization thread joinable, joining.");
+      m_initThread.join();
+    }
+    m_initThread = std::thread([this] { runInitThread(); });
+#ifndef SHAPE_PLATFORM_WINDOWS
+    pthread_setname_np(m_initThread.native_handle(), "_dpaInit");
+#endif
+    TRC_FUNCTION_LEAVE("");
   }
 
   void IqrfDpa::activate(const shape::Properties *props)
@@ -396,35 +443,14 @@ namespace iqrf {
 
     m_interfaceCheckPeriod = (uint8_t)rapidjson::Pointer("/interfaceCheckPeriod").Get(doc)->GetUint();
 
-    // handle asyn reset
-    registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) { //spaces in front of "  IqrfDpa" make it first in handlers map
-      asyncRestartHandler(dpaMessage);
-    });
-
     // register to IQRF interface
     m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
       asyncDpaMessageHandler(dpaMessage);
     });
 
-    getIqrfNetworkParams();
+    initializeInterface();
 
-    // unregister asyn reset - not needed  after getIqrfNetworkParams()
-    unregisterAsyncMessageHandler("  IqrfDpa");
-
-    IDpaTransaction2::TimingParams timingParams;
-    timingParams.bondedNodes = m_bondedNodes;
-    timingParams.discoveredNodes = m_discoveredNodes;
-    timingParams.frcResponseTime = m_responseTime;
-    timingParams.dpaVersion = m_cPar.dpaVerWord;
-    timingParams.osVersion = m_cPar.osVersion;
-    m_dpaHandler->setTimingParams(timingParams);
-
-    IIqrfChannelService::State st = m_iqrfChannelService->getState();
-    if (st == IIqrfChannelService::State::NotReady) {
-      std::cout << std::endl << "Error: Interface to DPA coordinator is not ready - verify (CDC or SPI or UART) configuration" << std::endl;
-    }
-
-    TRC_FUNCTION_LEAVE("")
+    TRC_FUNCTION_LEAVE("");
   }
 
   int IqrfDpa::getDpaQueueLen() const
@@ -463,6 +489,10 @@ namespace iqrf {
 
     m_iqrfDpaChannel->unregisterReceiveFromHandler();
     m_dpaHandler->unregisterAsyncMessageHandler("");
+
+    if (m_initThread.joinable()) {
+      m_initThread.join();
+    }
 
     delete m_dpaHandler;
     m_dpaHandler = nullptr;

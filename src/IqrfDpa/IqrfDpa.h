@@ -9,6 +9,8 @@
 #include <string>
 #include <mutex>
 #include <map>
+#include <thread>
+#include <iostream>
 
 namespace iqrf {
   class IqrfDpa : public IIqrfDpaService
@@ -52,6 +54,29 @@ namespace iqrf {
     void setExclusiveAccess();
     void resetExclusiveAccess();
   private:
+    /**
+     * Async DPA message handler
+     * @param dpaMessage DPA message
+     */
+    void asyncDpaMessageHandler(const DpaMessage& dpaMessage);
+
+    /**
+     * Asynch restart handler
+     * @param dpaMessage DPA message
+     */
+    void asyncRestartHandler(const DpaMessage& dpaMessage);
+
+    /**
+     * Initializes IQRF interface
+     */
+    void initializeInterface();
+
+    /**
+     * Runs initialization thread
+     */
+    void runInitThread();
+
+    void getIqrfNetworkParams();
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     IqrfDpaChannel *m_iqrfDpaChannel = nullptr;  //temporary workaround, see comment in IqrfDpaChannel.h
     mutable std::recursive_mutex m_exclusiveAccessMutex;
@@ -62,20 +87,21 @@ namespace iqrf {
     int m_discoveredNodes = 10;
     IDpaTransaction2::FrcResponseTime m_responseTime = IDpaTransaction2::FrcResponseTime::k40Ms;
 
+    /// Async message handler mutex
     std::mutex m_asyncMessageHandlersMutex;
+    /// Map of async message handlers
     std::map<std::string, AsyncMessageHandlerFunc> m_asyncMessageHandlers;
-    void asyncDpaMessageHandler(const DpaMessage& dpaMessage);
-
+    /// Async restart mutex
     std::mutex m_asyncRestartMtx;
+    /// Async restart conditional variable
     std::condition_variable m_asyncRestartCv;
     /// Sleep duration in seconds when checking IQRF channel readiness
     uint8_t m_interfaceCheckPeriod;
-
-    void asyncRestartHandler(const DpaMessage& dpaMessage);
-    void getIqrfNetworkParams();
-
+    /// Initialization thread
+    std::thread m_initThread;
     /// Coordinator parameters
     IIqrfDpaService::CoordinatorParameters m_cPar;
-    IIqrfDpaService::DpaState state = IIqrfDpaService::DpaState::Ready;
+    /// DPA channel state
+    IIqrfDpaService::DpaState state = IIqrfDpaService::DpaState::NotReady;
   };
 }
