@@ -88,7 +88,10 @@ inline MQDESCR openMqWrite(const std::string name, unsigned bufsize)
   setAttr.mq_curmsgs = 0;
 
   TRC_DEBUG("explicit attributes " << PAR(setAttr.mq_maxmsg) << PAR(setAttr.mq_msgsize))
+  mode_t omask;
+  omask = umask(0);
   mqd_t mqd = mq_open(name.c_str(), O_RDWR | O_CREAT, QUEUE_PERMISSIONS, &setAttr);
+  umask(omask);
 
   if (mqd > 0) {
     int ret = mq_setattr(mqd, &setAttr, &getAttr);
@@ -136,26 +139,10 @@ inline bool readMq(MQDESCR mqDescr, unsigned char* rx, unsigned long bufSize, un
   return true;
 }
 
-inline void checkMqStatus(MQDESCR mqd) {
-  struct mq_attr attr;
-  int ret = mq_getattr(mqd, &attr);
-  if (ret != 0) {
-    TRC_WARNING("Failed to get message queue attributes: [" << GetLastError() << "]: " << strerror(GetLastError()));
-    return;
-  }
-  TRC_DEBUG("Current mq status:"
-      << PAR(mqd)
-      << PAR(attr.mq_maxmsg)
-      << PAR(attr.mq_curmsgs)
-      << PAR(attr.mq_msgsize)
-  );
-}
-
 inline bool writeMq(MQDESCR mqDescr, const unsigned char* tx, unsigned long toWrite, unsigned long& written, const uint8_t &timeout)
 {
   TRC_FUNCTION_ENTER(PAR(toWrite))
-  checkMqStatus(mqDescr);
-
+  
   struct timespec tm;
   clock_gettime(CLOCK_REALTIME, &tm);
   tm.tv_sec += timeout;
@@ -283,6 +270,9 @@ void MqChannel::listen()
         cbBytesRead = 0;
         fSuccess = readMq(m_localMqHandle, m_rx, m_bufsize, cbBytesRead, m_timeout);
         if (!fSuccess || cbBytesRead == 0) {
+          if (GetLastError() == ETIMEDOUT) {
+            continue;
+          }
           if (m_server) { // listen again
             closeMq(m_localMqHandle);
             m_connected = false; // connect again
@@ -348,6 +338,19 @@ void MqChannel::sendTo(const std::basic_string<unsigned char>& message)
   bool fSuccess;
 
   connect(); //open write channel if not connected yet
+
+#ifndef SHAPE_PLATFORM_WINDOWS
+  struct mq_attr attr;
+  int ret = mq_getattr(m_remoteMqHandle, &attr);
+  if (ret != 0) {
+    TRC_WARNING("Failed to get message queue attributes: [" << GetLastError() << "]: " << strerror(GetLastError()));
+  } else {
+    if (attr.mq_curmsgs == attr.mq_maxmsg) {
+      TRC_WARNING("Message queue is full, message will not be sent.");
+      return;
+    }
+  }
+#endif
 
   fSuccess = writeMq(m_remoteMqHandle, message.data(), toWrite, written, m_timeout);
   if (!fSuccess || toWrite != written) {
