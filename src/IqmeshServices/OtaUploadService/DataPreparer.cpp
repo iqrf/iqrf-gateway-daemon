@@ -327,11 +327,10 @@ namespace iqrf{
       std::basic_string<uint8_t> data;
       uint32_t cnt = 0;
       ihp::Error ret;
-      ihp::OsVersion os {
-        .major = module.osMajor,
-        .minor = module.osMinor,
-        .build = module.osBuild
-      };
+      ihp::OsVersion os;
+      os.major = module.osMajor;
+      os.minor = module.osMinor;
+      os.build = module.osBuild;
 
       while (std::getline(sourceFile, line))  {
         cnt++;
