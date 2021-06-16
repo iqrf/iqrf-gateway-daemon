@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright 2015-2021 IQRF Tech s.r.o.
 # Copyright 2019-2021 MICRORISC s.r.o.
 #
@@ -13,19 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(TESTS_FOLDER tests)
+#latest
+docker push iqrftech/iqrf-gateway-daemon:latest-amd64
+docker push iqrftech/iqrf-gateway-daemon:latest-armhf
+docker push iqrftech/iqrf-gateway-daemon:latest-armel
+docker push iqrftech/iqrf-gateway-daemon:latest-iqdgw02
 
-add_subdirectory(include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# TODO failing tests commnted out temporarily
-add_subdirectory(TestScheduler)
-add_subdirectory(TestJsRender)
-#add_subdirectory(TestJsCache)
-add_subdirectory(TestJsonDpaApiIqrfStandard)
-add_subdirectory(TestJsonDpaApiRaw)
-add_subdirectory(TestSimulationMessaging)
-add_subdirectory(TestSimulationIqrfChannel)
-#add_subdirectory(TestReadTrConfService)
-#add_subdirectory(TestEnumerationDeviceService)
-add_subdirectory(TestJsonMngMetaDataApi)
+#stable (SPI pins set to -1, will work with v2.3)
+#docker push iqrftech/iqrf-gateway-daemon:stable-amd64
+#docker push iqrftech/iqrf-gateway-daemon:stable-armhf
+#docker push iqrftech/iqrf-gateway-daemon:stable-armel
+#docker push iqrftech/iqrf-gateway-daemon:stable-iqdgw02
