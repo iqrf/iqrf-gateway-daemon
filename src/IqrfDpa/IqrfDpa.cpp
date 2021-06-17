@@ -368,7 +368,7 @@ namespace iqrf {
         NAME_PAR(osBuild, m_cPar.osBuild) <<
         std::endl
       );
-
+      m_iIqrfInfo->reloadDriver();
     }
     catch (std::exception & e) {
       CATCH_EXC_TRC_WAR(std::exception, e, "Cannot get TR parameters")
@@ -382,7 +382,7 @@ namespace iqrf {
   void IqrfDpa::runInitThread() {
     TRC_FUNCTION_ENTER("");
     // handle asyn reset
-    registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) { //spaces in front of "  IqrfDpa" make it first in handlers map
+    registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) {
       asyncRestartHandler(dpaMessage);
     });
 
@@ -419,40 +419,6 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
-  void IqrfDpa::activate(const shape::Properties *props)
-  {
-    TRC_FUNCTION_ENTER("");
-    TRC_INFORMATION(std::endl <<
-      "******************************" << std::endl <<
-      "IqrfDpa instance activate" << std::endl <<
-      "******************************"
-    );
-
-    m_dpaHandler = shape_new DpaHandler2(m_iqrfDpaChannel);
-
-    const rapidjson::Document& doc = props->getAsJson();
-
-    {
-      const rapidjson::Value* val = rapidjson::Pointer("/DpaHandlerTimeout").Get(doc);
-      if (val && val->IsInt()) {
-        m_dpaHandlerTimeout = val->GetInt();
-        m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
-      }
-      m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
-    }
-
-    m_interfaceCheckPeriod = (uint8_t)rapidjson::Pointer("/interfaceCheckPeriod").Get(doc)->GetUint();
-
-    // register to IQRF interface
-    m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
-      asyncDpaMessageHandler(dpaMessage);
-    });
-
-    initializeInterface();
-
-    TRC_FUNCTION_LEAVE("");
-  }
-
   int IqrfDpa::getDpaQueueLen() const
   {
     return m_dpaHandler->getDpaQueueLen();
@@ -478,8 +444,39 @@ namespace iqrf {
     m_dpaHandler->unregisterAnyMessageHandler(serviceId);
   }
 
-  void IqrfDpa::deactivate()
+  void IqrfDpa::activate(const shape::Properties *props)
   {
+    TRC_FUNCTION_ENTER("");
+    TRC_INFORMATION(std::endl <<
+      "******************************" << std::endl <<
+      "IqrfDpa instance activate" << std::endl <<
+      "******************************"
+    );
+
+    m_dpaHandler = shape_new DpaHandler2(m_iqrfDpaChannel);
+
+    modify(props);
+
+    // register to IQRF interface
+    m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
+      asyncDpaMessageHandler(dpaMessage);
+    });
+
+    initializeInterface();
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void IqrfDpa::modify(const shape::Properties *props) {
+    TRC_FUNCTION_ENTER("");
+    const rapidjson::Document &doc = props->getAsJson();
+    m_dpaHandlerTimeout = rapidjson::Pointer("/DpaHandlerTimeout").Get(doc)->GetInt();
+    m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
+    m_interfaceCheckPeriod = (uint8_t)rapidjson::Pointer("/interfaceCheckPeriod").Get(doc)->GetUint();
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void IqrfDpa::deactivate() {
     TRC_FUNCTION_ENTER("");
     TRC_INFORMATION(std::endl <<
       "******************************" << std::endl <<
@@ -487,12 +484,12 @@ namespace iqrf {
       "******************************"
     );
 
-    m_iqrfDpaChannel->unregisterReceiveFromHandler();
-    m_dpaHandler->unregisterAsyncMessageHandler("");
-
     if (m_initThread.joinable()) {
       m_initThread.join();
     }
+
+    m_iqrfDpaChannel->unregisterReceiveFromHandler();
+    m_dpaHandler->unregisterAsyncMessageHandler("");
 
     delete m_dpaHandler;
     m_dpaHandler = nullptr;
@@ -500,19 +497,12 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void IqrfDpa::modify(const shape::Properties *props)
-  {
-    (void)props; //silence -Wunused-parameter
-  }
-
-  void IqrfDpa::attachInterface(iqrf::IIqrfChannelService* iface)
-  {
+  void IqrfDpa::attachInterface(iqrf::IIqrfChannelService* iface) {
     m_iqrfChannelService = iface;
     m_iqrfDpaChannel = shape_new IqrfDpaChannel(iface);
   }
 
-  void IqrfDpa::detachInterface(iqrf::IIqrfChannelService* iface)
-  {
+  void IqrfDpa::detachInterface(iqrf::IIqrfChannelService* iface) {
     if (m_iqrfChannelService == iface) {
       m_iqrfChannelService = nullptr;
       delete m_iqrfDpaChannel;
@@ -520,13 +510,21 @@ namespace iqrf {
     }
   }
 
-  void IqrfDpa::attachInterface(shape::ITraceService* iface)
-  {
+  void IqrfDpa::attachInterface(IIqrfInfo* iface) {
+    m_iIqrfInfo = iface;
+  }
+
+  void IqrfDpa::detachInterface(IIqrfInfo* iface) {
+    if (m_iIqrfInfo == iface) {
+      m_iIqrfInfo = nullptr;
+    }
+  }
+
+  void IqrfDpa::attachInterface(shape::ITraceService* iface) {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void IqrfDpa::detachInterface(shape::ITraceService* iface)
-  {
+  void IqrfDpa::detachInterface(shape::ITraceService* iface) {
     shape::Tracer::get().removeTracerService(iface);
   }
 }

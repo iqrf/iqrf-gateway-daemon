@@ -85,6 +85,8 @@ namespace iqrf
 
     virtual void resetDb() = 0;
 
+    virtual void reloadDriver() = 0;
+
     virtual ~IIqrfInfo() {}
   };
 }

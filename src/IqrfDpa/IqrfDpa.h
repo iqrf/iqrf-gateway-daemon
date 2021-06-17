@@ -2,6 +2,7 @@
 
 #include "IIqrfDpaService.h"
 #include "IqrfDpaChannel.h"
+#include "IIqrfInfo.h"
 #include "IDpaHandler2.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
@@ -41,14 +42,56 @@ namespace iqrf {
     void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) override;
     void unregisterAnyMessageHandler(const std::string& serviceId) override;
 
+    /**
+     * Activates component instance
+     * @param props Instance properties
+     */
     void activate(const shape::Properties *props = 0);
-    void deactivate();
+    
+    /**
+     * Modifies component instance properties
+     * @param props Instance properties
+     */
     void modify(const shape::Properties *props);
 
+    /**
+     * Deactivates component instance
+     */
+    void deactivate();
+
+    /**
+     * Attaches IQRF channel service interface
+     * @param iface Interface to attach
+     */
     void attachInterface(IIqrfChannelService* iface);
+
+    /**
+     * Detaches IQRF channel service interface
+     * @param iface Interface to detach
+     */
     void detachInterface(IIqrfChannelService* iface);
 
+    /**
+     * Attaches IQRF info service interface
+     * @param iface Interface to attach
+     */
+    void attachInterface(IIqrfInfo* iface);
+
+    /**
+     * Detaches IQRF info service interface
+     * @param iface Interface to detach
+     */
+    void detachInterface(IIqrfInfo* iface);
+
+    /**
+     * Attaches Shape tracing service interface
+     * @param iface Interface to attach
+     */
     void attachInterface(shape::ITraceService* iface);
+
+    /**
+     * Detaches Shape tracing service interface
+     */
     void detachInterface(shape::ITraceService* iface);
 
     void setExclusiveAccess();
@@ -77,8 +120,11 @@ namespace iqrf {
     void runInitThread();
 
     void getIqrfNetworkParams();
+
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     IqrfDpaChannel *m_iqrfDpaChannel = nullptr;  //temporary workaround, see comment in IqrfDpaChannel.h
+    /// IQRF Info service interface
+    IIqrfInfo* m_iIqrfInfo = nullptr;
     mutable std::recursive_mutex m_exclusiveAccessMutex;
     IDpaHandler2* m_dpaHandler = nullptr;
     IDpaTransaction2::RfMode m_rfMode = IDpaTransaction2::RfMode::kStd;

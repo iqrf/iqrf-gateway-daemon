@@ -2763,6 +2763,10 @@ namespace iqrf {
     m_imp->resetDb();
   }
 
+  void IqrfInfo::reloadDriver() {
+    m_imp->reloadDrivers();
+  }
+
   void IqrfInfo::activate(const shape::Properties *props)
   {
     m_imp->activate(props);
