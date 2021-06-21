@@ -1,3 +1,26 @@
+iqrf-gateway-daemon (2.3.6~rc4) testing; urgency=medium
+
+  [ Karel Hanák ]
+  * Deployment: enable syslog component for release version
+
+  [ Roman Ondráček ]
+  * Package builders: add missing paho dependency for Debian/Raspbian 11 Bullseye
+  * Package builders: use backports on Ubuntu 18.04 Bionic
+  * GitLab CI: remove package build for Debian/Raspbian 9 Stretch and Ubuntu 16.04 Xenial
+  * Package builders: remove unsupported Debian/Raspbian 9 Stretch and Ubuntu 16.04 Xenial
+  * Debian packaging: bump debhelper compatibility level to 12, fix lintian errors and warnings
+
+  [ Karel Hanák ]
+  * updated header parser library reference
+  * License headers update
+  * clibdpa: updated reference to transaction timeout resolution fix
+  * examples: added missing headers, moved C, C# and Java examples to separate repositories
+  * Autonetwork: unbond nonresponding nodes and skip prebonding
+  * iqrf-header-parser: updated library reference
+  * RemoveBondService: added processing delay after batch response is received
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Mon, 21 Jun 2021 18:28:09 +0200
+
 iqrf-gateway-daemon (2.3.6~rc3) testing; urgency=medium
 
   [ Karel Hanák ]
