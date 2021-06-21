@@ -117,6 +117,9 @@ namespace iqrf {
     // Service input parameters
     TRemoveBondInputParams m_removeBondInputParams;
 
+    // Coordinator remove bond request timeout in milliseconds
+    const uint8_t m_coordinatorRemoveBondTimeout = 15;
+
   public:
     explicit Imp(RemoveBondService& parent) : m_parent(parent)
     {
@@ -417,6 +420,7 @@ namespace iqrf {
             << NAME_PAR(Command, (int)removeBondRequest.PeripheralCommand())
           );
           removeBondResult.addTransactionResult(transResult);
+          std::this_thread::sleep_for(std::chrono::milliseconds(numNodes * m_coordinatorRemoveBondTimeout));
         } while (nodeIndex < nodes.size());
         TRC_FUNCTION_LEAVE("");
       }
