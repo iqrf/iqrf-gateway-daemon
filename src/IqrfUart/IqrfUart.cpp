@@ -290,16 +290,9 @@ namespace iqrf {
     IIqrfChannelService::State getState()
     {
       if(m_runListenThread) {
-        if (m_accessControl.hasExclusiveAccess()) {
-          state = State::ExclusiveAccess;
-        } else {
-          state = State::Ready;  
-        }  
-      } else {
-        state = State::NotReady;
+        return State::Ready;
       }
-
-      return state;
+      return State::NotReady;
     }
 
     std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
