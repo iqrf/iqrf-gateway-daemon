@@ -1,11 +1,10 @@
-iqrf-gateway-daemon (2.3.6~rc4ubuntu1~11.gbp76d29d) UNRELEASED; urgency=medium
-
-  ** SNAPSHOT build @76d29df4f27aee56be22196283b5ed0ad1c87c54 **
+iqrf-gateway-daemon (2.3.6~rc5) testing; urgency=medium
 
   [ Karel Hanák ]
   * IqrfUart: simplified iqrf channel state getter method
+  * added iqrfinterface initializing script
 
- -- khanak <khanak@khanak-MS-7C02>  Sat, 03 Jul 2021 09:23:28 +0200
+ -- Karel Hanák <karel.hanak@iqrf.org>  Sat, 03 Jul 2021 14:13:04 +0200
 
 iqrf-gateway-daemon (2.3.6~rc4) testing; urgency=medium
 
