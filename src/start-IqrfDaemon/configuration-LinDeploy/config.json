@@ -74,21 +74,21 @@
       "name": "iqrf::IqrfCdc",
       "libraryPath": "",
       "libraryName": "IqrfCdc",
-      "enabled": false,
+      "enabled": "{cdc}",
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfSpi",
       "libraryPath": "",
       "libraryName": "IqrfSpi",
-      "enabled": true,
+      "enabled": "{spi}",
       "startlevel": 0
     },
     {
       "name": "iqrf::IqrfUart",
       "libraryPath": "",
       "libraryName": "IqrfUart",
-      "enabled": false,
+      "enabled": "{uart}",
       "startlevel": 0
     },
     {
