@@ -16,3 +16,4 @@ src/start-IqrfDaemon/metaData/schema_meta_data.json             usr/share/iqrf-g
 src/start-IqrfDaemon/schedulerSchema/schema_cache_record.json   usr/share/iqrf-gateway-daemon/schedulerSchemas
 src/start-IqrfDaemon/metaData/meta_data.json                    var/cache/iqrf-gateway-daemon/metaData
 src/start-IqrfDaemon/iqrfRepoCache                              var/cache/iqrf-gateway-daemon
+scripts/*                                                       usr/bin

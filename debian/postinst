@@ -85,6 +85,7 @@ configure_gateway() {
 			fi
 		fi
 	fi
+  sh /usr/bin/iqrfgd2-interface-init
 }
 
 if [ "$1" = "configure" ]; then
