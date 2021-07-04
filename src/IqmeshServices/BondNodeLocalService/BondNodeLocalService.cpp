@@ -17,6 +17,9 @@
 
 #define IBondNodeLocalService_EXPORTS
 
+#define BOND_ERROR_ADDRESS_ASSIGNED -2
+#define BOND_ERROR_NO_AVAILABLE_ADDRESS -3
+
 #include "BondNodeLocalService.h"
 #include "RawDpaEmbedOS.h"
 #include "Trace.h"
@@ -24,7 +27,7 @@
 #include "iqrf__BondNodeLocalService.hxx"
 #include <list>
 #include <cmath>
-#include <thread> 
+#include <thread>
 
 TRC_INIT_MODULE(iqrf::BondNodeLocalService);
 
@@ -231,6 +234,63 @@ namespace iqrf {
       }
     }
 
+    void checkBondedNodes(BondResult &bondResult) {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> result;
+      uint8_t bondedArray[DPA_MAX_DATA_LENGTH] = {0};
+      const uint16_t addr = m_bondNodeParams.deviceAddress;
+      try {
+        // Build packet and request
+        DpaMessage bondedRequest;
+        DpaMessage::DpaPacket_t bondedPacket;
+        bondedPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        bondedPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+        bondedPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
+        bondedPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        bondedRequest.DataToBuffer(bondedPacket.Buffer, sizeof(TDpaIFaceHeader));
+        // Execute DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(bondedRequest, result, m_bondNodeParams.repeat);
+        TRC_DEBUG("Result from CMD_COORDINATOR_BONDED_DEVICES as string: " << PAR(result->getErrorString()));
+        // Process bonded response and check for available address
+        DpaMessage bondedResponse = result->getResponse();
+        TRC_INFORMATION("CMD_COORDINATOR_BONDED_DEVICES successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(NADR, bondedRequest.NodeAddress())
+          << NAME_PAR(PNUM, bondedRequest.PeripheralType())
+          << NAME_PAR(PCMD, (int)bondedRequest.PeripheralCommand())
+        );
+        uint8_t *pdata = bondedResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+        for (uint8_t i = 0; i < DPA_MAX_DATA_LENGTH; ++i) {
+          bondedArray[i] = pdata[i];
+        }
+        bondResult.addTransactionResultRef(result);
+      } catch (const std::exception &e) {
+        bondResult.setStatus(result->getErrorCode(), e.what());
+        bondResult.addTransactionResultRef(result);
+        THROW_EXC(std::logic_error, e.what());
+      }
+      if (addr == 0) {
+        bool freeAddr = false;
+        for (uint8_t i = 0; i <= MAX_ADDRESS; ++i) {
+          if (!(bondedArray[i / 8] & (1 << (i % 8)))) {
+            freeAddr = true;
+            break;
+          }
+        }
+        if (!freeAddr) {
+          bondResult.setStatus(BOND_ERROR_NO_AVAILABLE_ADDRESS, "No available address to assign to a new node found.");
+          THROW_EXC(std::logic_error, bondResult.getStatusStr());
+        }
+      } else {
+        if ((bondedArray[addr / 8] & (1 << (addr % 8))) != 0) {
+          bondResult.setStatus(BOND_ERROR_ADDRESS_ASSIGNED, "Requested address is already assigned to another device.");
+          THROW_EXC(std::logic_error, bondResult.getStatusStr())
+        }
+      }
+      TRC_FUNCTION_LEAVE("");
+    }
+
     //----------
     // Bond node
     //----------
@@ -356,6 +416,8 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       try
       {
+        // Check for available nodes
+        checkBondedNodes(bondResult);
         // SmartConnect request
         doBondNode(bondResult);
 
