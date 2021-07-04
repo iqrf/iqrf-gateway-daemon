@@ -69,20 +69,24 @@ namespace iqrf {
       rapidjson::Value* jsonVal;
 
       // Repeat
-      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc)))
+      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc))) {
         m_bondNodeInputParams.repeat = jsonVal->GetInt();
+      }
 
       // Device address
-      if (jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))) {
         m_bondNodeInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
+      }
 
       // bondingMak
-      if (jsonVal = rapidjson::Pointer("/data/req/bondingMak").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/bondingMak").Get(doc))) {
         m_bondNodeInputParams.bondingMask = jsonVal->GetInt();
+      }
 
       // bondingTestRetries
-      if (jsonVal = rapidjson::Pointer("/data/req/bondingTestRetries").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/bondingTestRetries").Get(doc))) {
         m_bondNodeInputParams.bondingTestRetries = jsonVal->GetInt();
+      }
     }
   };
 }
