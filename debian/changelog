@@ -1,3 +1,10 @@
+iqrf-gateway-daemon (2.3.6) testing; urgency=medium
+
+  [ Roman Ondráček ]
+  * Release version 2.3.6
+
+ -- Roman Ondráček <roman.ondracek@iqrf.com>  Thu, 08 Jul 2021 16:35:00 +0200
+
 iqrf-gateway-daemon (2.3.6~rc5) testing; urgency=medium
 
   [ Karel Hanák ]
