@@ -79,24 +79,27 @@ namespace iqrf {
       rapidjson::Value* jsonVal;
 
       // Repeat
-      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc)))
+      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc))) {
         m_smartConnectInputParams.repeat = jsonVal->GetInt();
+      }
 
       // Device address
-      if (jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))) {
         m_smartConnectInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
+      }
 
       // smartConnectCode
-      if (jsonVal = rapidjson::Pointer("/data/req/smartConnectCode").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/smartConnectCode").Get(doc))) {
         m_smartConnectInputParams.smartConnectCode = jsonVal->GetString();
+      }
 
       // bondingTestRetries
-      if (jsonVal = rapidjson::Pointer("/data/req/bondingTestRetries").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/bondingTestRetries").Get(doc))) {
         m_smartConnectInputParams.bondingRetries = jsonVal->GetInt();
+      }
 
       // userData
-      if (jsonVal = rapidjson::Pointer("/data/req/userData").Get(doc))
-      {
+      if ((jsonVal = rapidjson::Pointer("/data/req/userData").Get(doc))) {
         for (rapidjson::SizeType i = 0; i < jsonVal->Size(); i++)
           m_smartConnectInputParams.userData.push_back((uint8_t)(*jsonVal)[i].GetInt());
       }

@@ -16,6 +16,8 @@
  */
 
 #define ISmartConnectService_EXPORTS
+#define SMARTCONNECT_ERROR_ADDRESS_ASSIGNED -2
+#define SMARTCONNECT_ERROR_NO_ADDRESS_AVAILABLE -3
 
 #include "SmartConnectService.h"
 #include "RawDpaEmbedOS.h"
@@ -199,6 +201,62 @@ namespace iqrf {
     }
 
   private:
+    void checkBondedNodes(SmartConnectResult &smartConnectResult) {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> result;
+      uint8_t bondedArray[DPA_MAX_DATA_LENGTH] = {0};
+      const uint16_t addr = m_smartConnectParams.deviceAddress;
+      try {
+        // Build packet and request
+        DpaMessage bondedRequest;
+        DpaMessage::DpaPacket_t bondedPacket;
+        bondedPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        bondedPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+        bondedPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
+        bondedPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        bondedRequest.DataToBuffer(bondedPacket.Buffer, sizeof(TDpaIFaceHeader));
+        // Execute DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(bondedRequest, result, m_smartConnectParams.repeat);
+        TRC_DEBUG("Result from CMD_COORDINATOR_BONDED_DEVICES as string: " << PAR(result->getErrorString()));
+        // Process bonded response and check for available address
+        DpaMessage bondedResponse = result->getResponse();
+        TRC_INFORMATION("CMD_COORDINATOR_BONDED_DEVICES successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(NADR, bondedRequest.NodeAddress())
+          << NAME_PAR(PNUM, bondedRequest.PeripheralType())
+          << NAME_PAR(PCMD, (int)bondedRequest.PeripheralCommand())
+        );
+        uint8_t *pdata = bondedResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+        for (uint8_t i = 0; i < DPA_MAX_DATA_LENGTH; ++i) {
+          bondedArray[i] = pdata[i];
+        }
+        smartConnectResult.addTransactionResultRef(result);
+      } catch (const std::exception &e) {
+        smartConnectResult.setStatus(result->getErrorCode(), e.what());
+        smartConnectResult.addTransactionResultRef(result);
+        THROW_EXC(std::logic_error, e.what());
+      }
+      if (addr == 0) {
+        bool freeAddr = false;
+        for (uint8_t i = 0; i <= MAX_ADDRESS; ++i) {
+          if (!(bondedArray[i / 8] & (1 << (i % 8)))) {
+            freeAddr = true;
+            break;
+          }
+        }
+        if (!freeAddr) {
+          smartConnectResult.setStatus(SMARTCONNECT_ERROR_NO_ADDRESS_AVAILABLE, "No available address to assign to a new node found.");
+          THROW_EXC(std::logic_error, smartConnectResult.getStatusStr());
+        }
+      } else {
+        if ((bondedArray[addr / 8] & (1 << (addr % 8))) != 0) {
+          smartConnectResult.setStatus(SMARTCONNECT_ERROR_ADDRESS_ASSIGNED, "Requested address is already assigned to another device.");
+          THROW_EXC(std::logic_error, smartConnectResult.getStatusStr())
+        }
+      }
+      TRC_FUNCTION_LEAVE("");
+    }
 
     //-------------
     // SmartConnect
@@ -343,8 +401,11 @@ namespace iqrf {
         uint16_t dpaVersion = 0;
         IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
         dpaVersion = coordParams.dpaVerWord;
-        if (dpaVersion < DPA_MIN_REQ_VERSION)
+        if (dpaVersion < DPA_MIN_REQ_VERSION) {
           THROW_EXC(std::logic_error, "Old version of DPA: " << PAR(dpaVersion));
+        }
+        
+        checkBondedNodes(smartConnectResult);
 
         // SmartConnect request
         doSmartConnect(smartConnectResult);
