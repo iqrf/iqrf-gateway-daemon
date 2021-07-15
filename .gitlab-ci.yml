@@ -126,7 +126,7 @@ stages:
         ARCH_PREFIX: "rpi-"
         CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
         CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-        DIST: "buster"
+        DIST: "bullseye"
     tags:
         - linux, armhf
 
