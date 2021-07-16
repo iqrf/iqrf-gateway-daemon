@@ -1,10 +1,10 @@
-iqrf-gateway-daemon (2.3.7~alpha~1.gbpb7bfcf) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.3.7) stable; urgency=medium
 
-  ** SNAPSHOT build @b7bfcf286f3552ffbff8b96a923727c8edc909eb **
+  [ Roman Ondráček ]
+  * Prepare for version 2.3.7-alpha
+  * GitLab CI: fix typo
 
-  * UNRELEASED
-
- -- Roman Ondráček <roman.ondracek@iqrf.com>  Thu, 08 Jul 2021 17:15:00 +0200
+ -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 16 Jul 2021 08:26:54 +0200
 
 iqrf-gateway-daemon (2.3.6) testing; urgency=medium
 
