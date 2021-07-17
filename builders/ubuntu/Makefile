@@ -1,4 +1,5 @@
-# Copyright 2019 IQRF Tech s.r.o.
+# Copyright 2015-2021 IQRF Tech s.r.o.
+# Copyright 2019-2021 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,24 +15,18 @@
 
 all: build-all push-all
 
-build-all: build-xenial build-bionic build-focal
+build-all: build-bionic build-focal
 
 build-bionic:
 	$(MAKE) -C bionic/ build-all
 
-build-xenial:
-	$(MAKE) -C xenial/ build-all
-
 build-focal:
 	$(MAKE) -C focal/ build-all
 
-push-all: push-xenial push-bionic push-focal
+push-all: push-bionic push-focal
 
 push-bionic:
 	$(MAKE) -C bionic/ push-all
 
 push-focal:
 	$(MAKE) -C focal/ push-all
-
-push-xenial:
-	$(MAKE) -C xenial/ push-all

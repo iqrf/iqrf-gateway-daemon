@@ -1,3 +1,19 @@
+/**
+ * Copyright 2015-2021 IQRF Tech s.r.o.
+ * Copyright 2019-2021 MICRORISC s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #include "ComBase.h"
@@ -10,6 +26,8 @@ namespace iqrf {
     uint8_t discoveryTxPower;
     bool discoveryBeforeStart;
     bool skipDiscoveryEachWave;
+    bool unbondUnrespondingNodes;
+    bool skipPrebonding;
     uint8_t actionRetries;
     struct 
     {
@@ -81,8 +99,20 @@ namespace iqrf {
       else
         m_autonetworkParams.skipDiscoveryEachWave = false;
 
+      // unbondUnrespondingNodes
+      if ((jsonValue = rapidjson::Pointer("/data/req/unbondUnrespondingNodes").Get(doc)))
+        m_autonetworkParams.unbondUnrespondingNodes = jsonValue->GetBool();
+      else
+        m_autonetworkParams.unbondUnrespondingNodes = true;
+
+      // skipPrebonding
+      if ((jsonValue = rapidjson::Pointer("/data/req/skipPrebonding").Get(doc)))
+        m_autonetworkParams.skipPrebonding = jsonValue->GetBool();
+      else
+        m_autonetworkParams.skipPrebonding = false;
+
       // actionRetries
-      if ( (jsonValue = rapidjson::Pointer( "/data/req/actionRetries" ).Get( doc )) )
+      if ((jsonValue = rapidjson::Pointer("/data/req/actionRetries").Get(doc)))
         m_autonetworkParams.actionRetries = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.actionRetries = 1;

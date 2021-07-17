@@ -1,4 +1,5 @@
-# Copyright 2019 IQRF Tech s.r.o.
+# Copyright 2015-2021 IQRF Tech s.r.o.
+# Copyright 2019-2021 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +25,7 @@ RUN apt-get update \
   && echo "deb https://repos.iqrf.org/debian bullseye stable" | tee -a /etc/apt/sources.list \
   && apt-get update \
   && apt-get install --no-install-recommends -y googletest libcurl4-openssl-dev \
-     libgtest-dev libsqlite3-dev mlocate python3-requests libbz2-dev libzip-dev zlib1g-dev \
+     libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate python3-requests \
+     libbz2-dev libzip-dev zlib1g-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*

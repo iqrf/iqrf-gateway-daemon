@@ -1,4 +1,5 @@
-# Copyright 2019 IQRF Tech s.r.o.
+# Copyright 2015-2021 IQRF Tech s.r.o.
+# Copyright 2019-2021 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,12 +20,13 @@ LABEL maintainer="Roman Ondráček <roman.ondracek@iqrf.com>"
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
-  && apt-get install --no-install-recommends -y apt-transport-https dirmngr gnupg2 \
+  && apt-get install --no-install-recommends -y -t bionic-backports \
+     apt-transport-https dirmngr gnupg2 \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
   && echo "deb https://repos.iqrf.org/ubuntu bionic stable" | tee -a /etc/apt/sources.list \
   && apt-get update \
-  && apt-get install --no-install-recommends -y googletest libcurl4-openssl-dev \
-     libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate python3-requests \
-     libbz2-dev libzip-dev zlib1g-dev \
+  && apt-get install --no-install-recommends -y -t bionic-backports googletest \
+     libcurl4-openssl-dev libgtest-dev libpaho-mqtt-dev libsqlite3-dev mlocate \
+     python3-requests libbz2-dev libzip-dev zlib1g-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*

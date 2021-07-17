@@ -1,12 +1,12 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: iqrf-gateway-daemon
 Upstream-Contact: Rostislav Spinar <rostislav.spinar@iqrf.com>
 Source: https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon.git
 
 Files: *
 Copyright:
- 2017 MICRORISC s.r.o.
- 2017, 2018, 2019 IQRF Tech s.r.o.
+ 2015-2021 IQRF Tech s.r.o.
+ 2019-2021 MICRORISC s.r.o.
 License: Apache-2.0
 
 License: Apache-2.0
