@@ -2584,6 +2584,10 @@ namespace iqrf {
         reloadDrivers();
       });
 
+      m_iIqrfDpaService->registerDriverReloadHandler(m_instanceName, [&]() {
+        reloadDrivers();
+      });
+
       loadProvisoryDrivers();
 
       m_repeatEnum = false;

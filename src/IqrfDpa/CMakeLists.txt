@@ -19,7 +19,6 @@ set(COMPONENT iqrf::IqrfDpa)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfDpaService)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfChannelService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfInfo MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 

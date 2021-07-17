@@ -385,7 +385,10 @@ namespace iqrf {
         NAME_PAR(osBuild, m_cPar.osBuild) <<
         std::endl
       );
-      m_iIqrfInfo->reloadDriver();
+      if (m_driverReloadHandler != nullptr) {
+        TRC_INFORMATION("EXECUTING DRIVER RELOAD");
+        m_driverReloadHandler();
+      }
     }
     catch (std::exception & e) {
       CATCH_EXC_TRC_WAR(std::exception, e, "Cannot get TR parameters")
@@ -396,16 +399,17 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
+  void IqrfDpa::identifyCoordinator() {
+    
+  }
+
   void IqrfDpa::runInitThread() {
     TRC_FUNCTION_ENTER("");
-    // handle asyn reset
     registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) {
       asyncRestartHandler(dpaMessage);
     });
-
-    getIqrfNetworkParams();
-
-    // unregister asyn reset - not needed  after getIqrfNetworkParams()
+    identifyCoordinator();
+    //getIqrfNetworkParams();
     unregisterAsyncMessageHandler("  IqrfDpa");
 
     IDpaTransaction2::TimingParams timingParams;
@@ -459,6 +463,16 @@ namespace iqrf {
   void IqrfDpa::unregisterAnyMessageHandler(const std::string& serviceId)
   {
     m_dpaHandler->unregisterAnyMessageHandler(serviceId);
+  }
+
+  void IqrfDpa::registerDriverReloadHandler(const std::string &serviceId, IIqrfDpaService::DriverReloadHandler handler) {
+    (void)serviceId;
+    m_driverReloadHandler = handler;
+  }
+
+  void IqrfDpa::unregisterDriverReloadHandler(const std::string &serviceId) {
+    (void)serviceId;
+    m_driverReloadHandler = nullptr;
   }
 
   void IqrfDpa::activate(const shape::Properties *props)
@@ -524,16 +538,6 @@ namespace iqrf {
       m_iqrfChannelService = nullptr;
       delete m_iqrfDpaChannel;
       m_iqrfDpaChannel = nullptr;
-    }
-  }
-
-  void IqrfDpa::attachInterface(IIqrfInfo* iface) {
-    m_iIqrfInfo = iface;
-  }
-
-  void IqrfDpa::detachInterface(IIqrfInfo* iface) {
-    if (m_iIqrfInfo == iface) {
-      m_iIqrfInfo = nullptr;
     }
   }
 

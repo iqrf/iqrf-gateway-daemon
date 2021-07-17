@@ -18,7 +18,6 @@
 
 #include "IIqrfDpaService.h"
 #include "IqrfDpaChannel.h"
-#include "IIqrfInfo.h"
 #include "IDpaHandler2.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
@@ -59,6 +58,18 @@ namespace iqrf {
     void unregisterAnyMessageHandler(const std::string& serviceId) override;
 
     /**
+     * Registers js driver reload callback
+     * @param serviceId ID of service registering callback
+     * @param handler Callback
+     */
+    void registerDriverReloadHandler(const std::string &serviceId, DriverReloadHandler handler) override;
+
+    /**
+     * Unregisters js driver reload callback
+     */
+    void unregisterDriverReloadHandler(const std::string &serviceId) override;
+
+    /**
      * Activates component instance
      * @param props Instance properties
      */
@@ -86,18 +97,6 @@ namespace iqrf {
      * @param iface Interface to detach
      */
     void detachInterface(IIqrfChannelService* iface);
-
-    /**
-     * Attaches IQRF info service interface
-     * @param iface Interface to attach
-     */
-    void attachInterface(IIqrfInfo* iface);
-
-    /**
-     * Detaches IQRF info service interface
-     * @param iface Interface to detach
-     */
-    void detachInterface(IIqrfInfo* iface);
 
     /**
      * Attaches Shape tracing service interface
@@ -130,6 +129,8 @@ namespace iqrf {
      */
     void initializeInterface();
 
+    void identifyCoordinator();
+
     /**
      * Runs initialization thread
      */
@@ -139,8 +140,6 @@ namespace iqrf {
 
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     IqrfDpaChannel *m_iqrfDpaChannel = nullptr;  //temporary workaround, see comment in IqrfDpaChannel.h
-    /// IQRF Info service interface
-    IIqrfInfo* m_iIqrfInfo = nullptr;
     mutable std::recursive_mutex m_exclusiveAccessMutex;
     IDpaHandler2* m_dpaHandler = nullptr;
     IDpaTransaction2::RfMode m_rfMode = IDpaTransaction2::RfMode::kStd;
@@ -165,5 +164,7 @@ namespace iqrf {
     IIqrfDpaService::CoordinatorParameters m_cPar;
     /// DPA channel state
     IIqrfDpaService::DpaState state = IIqrfDpaService::DpaState::NotReady;
+    /// Driver reload handler
+    IIqrfDpaService::DriverReloadHandler m_driverReloadHandler = nullptr;
   };
 }
