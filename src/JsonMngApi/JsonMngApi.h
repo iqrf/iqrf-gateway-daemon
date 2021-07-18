@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "IIqrfDpaService.h"
 #include "ILaunchService.h"
 #include "ISchedulerService.h"
 #include "IUdpConnectorService.h"
@@ -37,6 +38,9 @@ namespace iqrf {
 
     void attachInterface(shape::ILaunchService* iface);
     void detachInterface(shape::ILaunchService* iface);
+
+    void attachInterface(IIqrfDpaService* iface);
+    void detachInterface(IIqrfDpaService* iface);
 
     void attachInterface(ISchedulerService* iface);
     void detachInterface(ISchedulerService* iface);

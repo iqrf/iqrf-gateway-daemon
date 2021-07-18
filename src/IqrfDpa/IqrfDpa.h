@@ -22,11 +22,12 @@
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 
-#include <string>
-#include <mutex>
-#include <map>
-#include <thread>
+#include <atomic>
 #include <iostream>
+#include <map>
+#include <mutex>
+#include <string>
+#include <thread>
 
 namespace iqrf {
   class IqrfDpa : public IIqrfDpaService
@@ -53,7 +54,7 @@ namespace iqrf {
     void unregisterAsyncMessageHandler(const std::string& serviceId) override;
     int getDpaQueueLen() const override;
     IIqrfChannelService::State getIqrfChannelState() override;
-    void refreshIqrfChannelState() override;
+    void reloadCoordinator() override;
     IIqrfDpaService::DpaState getDpaChannelState() override;
     void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) override;
     void unregisterAnyMessageHandler(const std::string& serviceId) override;
@@ -124,15 +125,48 @@ namespace iqrf {
      * @param dpaMessage DPA message
      */
     void asyncRestartHandler(const DpaMessage& dpaMessage);
-   
 
-    //--------------------------
+    /**
+     * Sets default TR and network parameters to initialize Daemon API
+     */
     void setDefaults();
+
+    /**
+     * Sets up interface initialization thread
+     */
     void startInterface();
-    void runInitializationThread();
+
+    /**
+     * Sets up channel checking thread
+     */
+    void startChannelCheck();
+
+    /**
+     * Interface initialization thread routine
+     */
+    void interfaceInitializationThread();
+
+    /**
+     * Channel checking thread routine
+     */
+    void channelCheckThread();
+
+    /**
+     * Attempts to identify coordinator to retrieve TR and network parameters
+     */
     void identifyCoordinator();
-    void printTrParams(bool updated);
-    void printNetworkParams(bool updated);
+
+    /**
+     * Logs transciever parameters
+     * @param updated Indicates whether parameters are default or updated
+     */
+    void logTranscieverParams(bool updated);
+
+    /**
+     * Logs network parameters
+     * @param updated Indicates whether parameters are default or updated
+     */
+    void logNetworkParams(bool updated);
     
 
     IIqrfChannelService* m_iqrfChannelService = nullptr;
@@ -157,13 +191,21 @@ namespace iqrf {
     uint8_t m_interfaceCheckPeriod;
     /// Initialization thread
     std::thread m_initThread;
+    /// IQRF channel state checking thread
+    std::thread m_channelStateThread;
     /// Coordinator parameters
     IIqrfDpaService::CoordinatorParameters m_coordinatorParams;
     /// DPA channel state
     IIqrfDpaService::DpaState m_state = IIqrfDpaService::DpaState::NotReady;
     /// Driver reload handler
     IIqrfDpaService::DriverReloadHandler m_driverReloadHandler = nullptr;
+    /// Interface initialization mutex
     std::mutex m_initMutex;
+    /// Interface initialization condition variable
     std::condition_variable m_initCv;
+    /// IQRF channel state mutex
+    std::mutex m_channelStateMutex;
+    /// Termination condition
+    std::atomic_bool m_runInterface;
   };
 }

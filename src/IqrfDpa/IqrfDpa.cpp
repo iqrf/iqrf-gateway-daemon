@@ -126,6 +126,9 @@ namespace iqrf {
 
     setDefaults();
 
+    m_runInterface = true;
+
+    startChannelCheck();
     startInterface();
 
     TRC_FUNCTION_LEAVE("");
@@ -148,8 +151,14 @@ namespace iqrf {
       "******************************"
     );
 
+    m_runInterface = false;
+
     if (m_initThread.joinable()) {
       m_initThread.join();
+    }
+
+    if (m_channelStateThread.joinable()) {
+      m_channelStateThread.join();
     }
 
     m_iqrfDpaChannel->unregisterReceiveFromHandler();
@@ -183,7 +192,7 @@ namespace iqrf {
           << NAME_PAR(expected, (int)STATUS_ASYNC_RESPONSE) << NAME_PAR(delivered, (int)iqrfEmbedExploreEnumerate.getRcode()));
       }
 
-      // Update coordinator params
+      // Update network params
       m_coordinatorParams.dpaVerWord = (uint16_t)iqrfEmbedExploreEnumerate.getDpaVer();
       m_coordinatorParams.dpaVerWordAsStr = iqrfEmbedExploreEnumerate.getDpaVerAsHexaString();
       m_coordinatorParams.dpaVer = iqrfEmbedExploreEnumerate.getDpaVerAsString();
@@ -193,6 +202,9 @@ namespace iqrf {
       m_coordinatorParams.stdModeSupportFlag = iqrfEmbedExploreEnumerate.getModeStd();
       m_coordinatorParams.lpModeSupportFlag = !iqrfEmbedExploreEnumerate.getModeStd();
       m_coordinatorParams.lpModeRunningFlag = iqrfEmbedExploreEnumerate.getStdAndLpSupport();
+
+      // log network params
+      logNetworkParams(true);
 
       if (m_coordinatorParams.stdModeSupportFlag)
       {
@@ -240,8 +252,8 @@ namespace iqrf {
     m_coordinatorParams.stdModeSupportFlag = true;
     m_coordinatorParams.lpModeSupportFlag = false;
     m_coordinatorParams.lpModeRunningFlag = true;
-    printTrParams(false);
-    printNetworkParams(false);
+    logTranscieverParams(false);
+    logNetworkParams(false);
     TRC_FUNCTION_LEAVE("");
   }
 
@@ -252,17 +264,20 @@ namespace iqrf {
       TRC_DEBUG("Initialization thread joinable, joining.");
       m_initThread.join();
     }
-    m_initThread = std::thread([this] { runInitializationThread(); });
+    m_initThread = std::thread([this] { interfaceInitializationThread(); });
     pthread_setname_np(m_initThread.native_handle(), "_dpaInit");
 
     TRC_FUNCTION_LEAVE("");
   }
 
-  void IqrfDpa::runInitializationThread() {
-    while (true) {
-      m_iqrfChannelService->refreshState();
-      IIqrfChannelService::State state = m_iqrfChannelService->getState();
+  void IqrfDpa::interfaceInitializationThread() {
+    IIqrfChannelService::State state;
+    while (m_runInterface) {
+      std::unique_lock<std::mutex> lock(m_channelStateMutex);
+      state = m_iqrfChannelService->getState();
+      lock.unlock();
       if (state == IIqrfChannelService::State::NotReady) {
+        TRC_WARNING("IQRF channel not ready, attempting to re-initialize...");
         registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) {
           asyncRestartHandler(dpaMessage);
         });
@@ -282,6 +297,28 @@ namespace iqrf {
         m_initCv.wait_for(lock, std::chrono::seconds(30));
         TRC_DEBUG("Initialization thread waking up...");
       }
+    }
+  }
+
+  void IqrfDpa::startChannelCheck() {
+    TRC_FUNCTION_ENTER("");
+
+    if (m_channelStateThread.joinable()) {
+      TRC_DEBUG("State checking thread joinable, joining.");
+      m_channelStateThread.join();
+    }
+    m_channelStateThread = std::thread([this] { channelCheckThread(); });
+    pthread_setname_np(m_channelStateThread.native_handle(), "_dpaChannelCheck");
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void IqrfDpa::channelCheckThread() {
+    while (m_runInterface) {
+      std::unique_lock<std::mutex> lock(m_channelStateMutex);
+      m_iqrfChannelService->refreshState();
+      lock.unlock();
+      std::this_thread::sleep_for(std::chrono::seconds(5));
     }
   }
 
@@ -315,7 +352,7 @@ namespace iqrf {
           result = executeDpaTransaction(restartRequest.getRequest(), -1);
         } else {
           // channel not ready, repeat cycle
-          TRC_WARNING("IQRF channel service not ready, retrying.");
+          TRC_WARNING("IQRF channel service not ready, retrying...");
         }
       } else {
         TRC_INFORMATION("TR reset message received.");
@@ -342,6 +379,8 @@ namespace iqrf {
       m_coordinatorParams.osBuildWord = (uint16_t)readRequest.getOsBuild();
       // update DPA state
       m_state = IIqrfDpaService::DpaState::Ready;
+      // log updated params
+      logTranscieverParams(true);
       // reload drivers
       if (m_driverReloadHandler != nullptr) {
         m_driverReloadHandler();
@@ -439,8 +478,8 @@ namespace iqrf {
     return m_iqrfChannelService->getState();
   }
 
-  void IqrfDpa::refreshIqrfChannelState() {
-    m_iqrfChannelService->refreshState();
+  void IqrfDpa::reloadCoordinator() {
+    identifyCoordinator();
   }
 
   IIqrfDpaService::DpaState IqrfDpa::getDpaChannelState() {
@@ -535,7 +574,8 @@ namespace iqrf {
   }
 
   // Auxiliary methods ============================
-  void IqrfDpa::printTrParams(bool updated) {
+
+  void IqrfDpa::logTranscieverParams(bool updated) {
     TRC_INFORMATION((updated ? "Updated " : "Default ") << "TR params: " << std::endl <<
       NAME_PAR(moduleId, m_coordinatorParams.moduleId) <<
       NAME_PAR(osVersion, m_coordinatorParams.osVersion) <<
@@ -547,7 +587,7 @@ namespace iqrf {
     );
   }
 
-  void IqrfDpa::printNetworkParams(bool updated) {
+  void IqrfDpa::logNetworkParams(bool updated) {
     TRC_INFORMATION((updated ? "Updated " : "Default ") << "DPA params: " << std::endl <<
       NAME_PAR(dpaVerWord, m_coordinatorParams.dpaVerWord) <<
       NAME_PAR(dpaVerWordAsStr, m_coordinatorParams.dpaVerWordAsStr) <<

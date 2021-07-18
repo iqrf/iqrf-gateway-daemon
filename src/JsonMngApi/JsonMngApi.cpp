@@ -121,6 +121,20 @@ namespace iqrf {
     IUdpConnectorService::Mode m_mode;
   };
 
+  class MngReloadCoordinatorMsg : public MngMsg {
+  public:
+    MngReloadCoordinatorMsg() = delete;
+    MngReloadCoordinatorMsg(const rapidjson::Document &doc): MngMsg(doc) {
+
+    };
+
+    virtual ~MngReloadCoordinatorMsg() {};
+
+    void createResponsePayload(rapidjson::Document &doc) override {
+      MngMsg::createResponsePayload(doc);
+    }
+  };
+
   class MngRestartMsg : public MngMsg
   {
   public:
@@ -464,6 +478,7 @@ namespace iqrf {
   private:
 
     shape::ILaunchService* m_iLaunchService = nullptr;
+    IIqrfDpaService* m_iIqrfDpaService = nullptr;
     ISchedulerService* m_iSchedulerService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IUdpConnectorService* m_iUdpConnectorService = nullptr;
@@ -510,6 +525,16 @@ namespace iqrf {
 
       msg.createResponse(respDoc);
 
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void handleMsg_mngDaemon_ReloadCoordinator(const rapidjson::Document& reqDoc, Document &respDoc) {
+      TRC_FUNCTION_ENTER("");
+
+      using namespace rapidjson;
+      MngReloadCoordinatorMsg msg(reqDoc);
+      m_iIqrfDpaService->reloadCoordinator();
+      msg.createResponse(respDoc);
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -653,6 +678,9 @@ namespace iqrf {
       if (msgType.m_type == "mngDaemon_Mode") {
         handleMsg_mngDaemon_Mode(doc, respDoc);
       }
+      else if (msgType.m_type == "mngDaemon_ReloadCoordinator") {
+        handleMsg_mngDaemon_ReloadCoordinator(doc, respDoc);
+      }
       else if (msgType.m_type == "mngDaemon_Exit") {
         handleMsg_mngDaemon_Exit(doc, respDoc);
       }
@@ -748,6 +776,18 @@ namespace iqrf {
       }
     }
 
+    void attachInterface(IIqrfDpaService* iface)
+    {
+      m_iIqrfDpaService = iface;
+    }
+
+    void detachInterface(IIqrfDpaService* iface)
+    {
+      if (m_iIqrfDpaService == iface) {
+        m_iIqrfDpaService = nullptr;
+      }
+    }
+
     void attachInterface(ISchedulerService* iface)
     {
       m_iSchedulerService = iface;
@@ -818,6 +858,16 @@ namespace iqrf {
   }
 
   void JsonMngApi::detachInterface(shape::ILaunchService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void JsonMngApi::attachInterface(IIqrfDpaService* iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonMngApi::detachInterface(IIqrfDpaService* iface)
   {
     m_imp->detachInterface(iface);
   }
