@@ -94,386 +94,17 @@ namespace iqrf {
     IqrfDpa* m_iqrfDpa = nullptr;
   };
 
-  std::unique_ptr<IIqrfDpaService::ExclusiveAccess> IqrfDpa::getExclusiveAccess()
-  {
-    std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
-    return std::unique_ptr<IIqrfDpaService::ExclusiveAccess>(shape_new ExclusiveAccessImpl(this));
-  }
-
-  bool IqrfDpa::hasExclusiveAccess() const
-  {
-    return m_iqrfDpaChannel->hasExclusiveAccess();
-  }
-
-  void IqrfDpa::setExclusiveAccess()
-  {
-    std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
-    m_iqrfDpaChannel->setExclusiveAccess();
-  }
-
-  void IqrfDpa::resetExclusiveAccess()
-  {
-    std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
-    m_iqrfDpaChannel->resetExclusiveAccess();
-  }
-
-  IqrfDpa::IqrfDpa()
-  {
+  IqrfDpa::IqrfDpa() {
     TRC_FUNCTION_ENTER("");
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  IqrfDpa::~IqrfDpa()
-  {
-    TRC_FUNCTION_ENTER("");
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  std::shared_ptr<IDpaTransaction2> IqrfDpa::executeExclusiveDpaTransaction(const DpaMessage& request, int32_t timeout)
-  {
-    TRC_FUNCTION_ENTER("");
-    auto result = m_dpaHandler->executeDpaTransaction(request, timeout);
-    TRC_FUNCTION_LEAVE("");
-    return result;
-  }
-
-  std::shared_ptr<IDpaTransaction2> IqrfDpa::executeDpaTransaction(const DpaMessage& request, int32_t timeout)
-  {
-    TRC_FUNCTION_ENTER("");
-    IDpaTransactionResult2::ErrorCode defaultError = IDpaTransactionResult2::TRN_OK;
-    if (m_iqrfDpaChannel->hasExclusiveAccess()) {
-      defaultError = IDpaTransactionResult2::TRN_ERROR_IFACE_EXCLUSIVE_ACCESS;
-    }
-    auto result = m_dpaHandler->executeDpaTransaction(request, timeout, defaultError);
-    TRC_FUNCTION_LEAVE("");
-    return result;
-  }
-
-  void IqrfDpa::executeDpaTransactionRepeat(const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1)
-  {
-    TRC_FUNCTION_ENTER("");
-
-    for (int rep = 0; rep <= repeat; rep++)
-    {
-      try
-      {
-        std::shared_ptr<IDpaTransaction2> transaction = m_dpaHandler->executeDpaTransaction(request, timeout);
-        result = std::move(transaction->get());
-        TRC_DEBUG("Result from read transaction as string:" << PAR(result->getErrorString()));
-        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)result->getErrorCode();
-        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK)
-        {
-          TRC_FUNCTION_LEAVE("");
-          return;
-        }
-        else
-        {
-          std::string errorStr;
-          if (errorCode < 0)
-            errorStr = "Transaction error: ";
-          else
-            errorStr = "DPA error: ";
-          errorStr += result->getErrorString();
-          THROW_EXC_TRC_WAR(std::logic_error, errorStr);
-        }
-      }
-      catch (std::exception& e) {
-        CATCH_EXC_TRC_WAR(std::logic_error, e, e.what());
-        if (rep == repeat)
-        {
-          TRC_FUNCTION_LEAVE("");
-          THROW_EXC_TRC_WAR(std::logic_error, e.what())
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
-      }
-    }
-  }
-
-  IIqrfDpaService::CoordinatorParameters IqrfDpa::getCoordinatorParameters() const
-  {
-    return m_cPar;
-  }
-
-  int IqrfDpa::getTimeout() const
-  {
-    return m_dpaHandler->getTimeout();
-  }
-
-  void IqrfDpa::setTimeout(int timeout)
-  {
-    TRC_FUNCTION_ENTER("");
-    m_dpaHandler->setTimeout(timeout);
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  IDpaTransaction2::RfMode IqrfDpa::getRfCommunicationMode() const
-  {
-    return m_dpaHandler->getRfCommunicationMode();
-  }
-
-  void IqrfDpa::setRfCommunicationMode(IDpaTransaction2::RfMode rfMode)
-  {
-    TRC_FUNCTION_ENTER("");
-    m_dpaHandler->setRfCommunicationMode(rfMode);
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  IDpaTransaction2::TimingParams IqrfDpa::getTimingParams() const
-  {
-    return m_dpaHandler->getTimingParams();
-  }
-
-  void IqrfDpa::setTimingParams(IDpaTransaction2::TimingParams params)
-  {
-    TRC_FUNCTION_ENTER("");
-    m_dpaHandler->setTimingParams(params);
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  IDpaTransaction2::FrcResponseTime IqrfDpa::getFrcResponseTime() const
-  {
-    return m_dpaHandler->getFrcResponseTime();
-  }
-
-  void IqrfDpa::setFrcResponseTime(IDpaTransaction2::FrcResponseTime frcResponseTime)
-  {
-    TRC_FUNCTION_ENTER("");
-    m_dpaHandler->setFrcResponseTime(frcResponseTime);
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  void IqrfDpa::registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun)
-  {
-    std::lock_guard<std::mutex> lck(m_asyncMessageHandlersMutex);
-    //TODO check success
-    m_asyncMessageHandlers.insert(make_pair(serviceId, fun));
-
-  }
-
-  void IqrfDpa::unregisterAsyncMessageHandler(const std::string& serviceId)
-  {
-    std::lock_guard<std::mutex> lck(m_asyncMessageHandlersMutex);
-    m_asyncMessageHandlers.erase(serviceId);
-  }
-
-  void IqrfDpa::asyncDpaMessageHandler(const DpaMessage& dpaMessage)
-  {
-    std::lock_guard<std::mutex> lck(m_asyncMessageHandlersMutex);
-
-    for (auto & hndl : m_asyncMessageHandlers)
-      hndl.second(dpaMessage);
-  }
-
-  void IqrfDpa::asyncRestartHandler(const DpaMessage& dpaMessage)
-  {
-    TRC_FUNCTION_ENTER("");
-
-    // shall be TR reset result async msg
-    try {
-      iqrf::embed::explore::RawDpaEnumerate iqrfEmbedExploreEnumerate(0);
-      iqrfEmbedExploreEnumerate.processAsyncResponse(dpaMessage);
-      TRC_DEBUG("Parsed TR reset result async msg");
-      if (!iqrfEmbedExploreEnumerate.isAsyncRcode()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Invalid async response code:"
-          << NAME_PAR(expected, (int)STATUS_ASYNC_RESPONSE) << NAME_PAR(delivered, (int)iqrfEmbedExploreEnumerate.getRcode()));
-      }
-
-      // Get coordinator parameters
-      m_cPar.dpaVerWord = (uint16_t)iqrfEmbedExploreEnumerate.getDpaVer();
-      m_cPar.dpaVerWordAsStr = iqrfEmbedExploreEnumerate.getDpaVerAsHexaString();
-      m_cPar.dpaVer = iqrfEmbedExploreEnumerate.getDpaVerAsString();
-      m_cPar.dpaVerMajor = iqrfEmbedExploreEnumerate.getDpaVerMajor();
-      m_cPar.dpaVerMinor = iqrfEmbedExploreEnumerate.getDpaVerMinor();
-      m_cPar.demoFlag = iqrfEmbedExploreEnumerate.getDemoFlag();
-      m_cPar.stdModeSupportFlag = iqrfEmbedExploreEnumerate.getModeStd();
-      m_cPar.lpModeSupportFlag = !iqrfEmbedExploreEnumerate.getModeStd();
-      m_cPar.lpModeRunningFlag = iqrfEmbedExploreEnumerate.getStdAndLpSupport();
-      TRC_INFORMATION("DPA params: " << std::endl <<
-        NAME_PAR(dpaVerWord, m_cPar.dpaVerWord) <<
-        NAME_PAR(dpaVerWordAsStr, m_cPar.dpaVerWordAsStr) <<
-        NAME_PAR(dpaVer, m_cPar.dpaVer) <<
-        NAME_PAR(dpaVerMajor, m_cPar.dpaVerMajor) <<
-        NAME_PAR(dpaVerMinor, m_cPar.dpaVerMinor) <<
-        NAME_PAR(demoFlag, m_cPar.demoFlag) <<
-        NAME_PAR(stdModeSupportFlag, m_cPar.stdModeSupportFlag) <<
-        NAME_PAR(lpModeSupportFlag, m_cPar.lpModeSupportFlag) <<
-        NAME_PAR(lpModeRunningFlag, m_cPar.lpModeRunningFlag) <<
-        std::endl
-      );
-
-      if (m_cPar.stdModeSupportFlag)
-      {
-        //dual support from DPA 4.00
-        m_rfMode = m_cPar.lpModeRunningFlag ? IDpaTransaction2::kLp : IDpaTransaction2::kStd;
-      }
-
-      if (m_cPar.lpModeSupportFlag)
-      {
-        m_rfMode = IDpaTransaction2::kLp;
-      }
-
-      m_dpaHandler->setRfCommunicationMode(m_rfMode);
-    }
-    catch (std::exception & e) {
-      CATCH_EXC_TRC_WAR(std::exception, e, "Wrong format of TR reset result async msg");
-    }
-
-    m_asyncRestartCv.notify_all();
-
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  void IqrfDpa::getIqrfNetworkParams()
-  {
-    TRC_FUNCTION_ENTER("");
-    std::shared_ptr<IDpaTransaction2> result;
-
-    bool cooordinatorIdentified = false;
-    const uint32_t resetTime = 3000;
-
-    while (!cooordinatorIdentified) {
-      // init channel
-      m_iqrfChannelService->startListen();
-      std::unique_lock<std::mutex> lock(m_asyncRestartMtx);
-      TRC_INFORMATION("Waiting for possible TR reset: " << std::to_string(resetTime) << " milliseconds.");
-      // wait for async reset
-      if (m_asyncRestartCv.wait_for(lock, std::chrono::milliseconds(resetTime)) == std::cv_status::timeout) {
-        if (result != nullptr) { // abort pending, stuck transaction
-          result->abort();
-          result = nullptr;
-        }
-        TRC_WARNING("TR async reset message not received. Sleeping for: " << std::to_string(m_interfaceCheckPeriod) << " seconds.");
-        std::this_thread::sleep_for(std::chrono::seconds(m_interfaceCheckPeriod));
-        TRC_INFORMATION("Waking up from reset sleep.");
-        // check IQRF channel state
-        if (m_iqrfChannelService->getState() == IIqrfChannelService::State::Ready) {
-          TRC_INFORMATION("IQRF channel service is ready, requesting restart.");
-          iqrf::embed::os::RawDpaRestart iqrfEmbedOsRestart(0);
-          result = executeDpaTransaction(iqrfEmbedOsRestart.getRequest(), -1);
-        } else {
-          TRC_INFORMATION("IQRF channel service not ready, waiting.");
-        }
-      } else {
-        TRC_INFORMATION("TR async reset message received.");
-        cooordinatorIdentified = true;
-      }
-    }
-
-    // Get coordinator parameters
-    auto exclusiveAccess = getExclusiveAccess();
-
-    iqrf::embed::os::RawDpaRead iqrfEmbedOsRead(0);
-    try {
-      std::unique_ptr<IDpaTransactionResult2> transResult;
-      exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedOsRead.getRequest(), transResult, 3);
-      iqrfEmbedOsRead.processDpaTransactionResult(std::move(transResult));
-
-      m_cPar.moduleId = iqrfEmbedOsRead.getMidAsString();
-      m_cPar.mid = iqrfEmbedOsRead.getMid();
-      m_cPar.osVersion = iqrfEmbedOsRead.getOsVersionAsString();
-      m_cPar.trType = iqrfEmbedOsRead.getTrTypeAsString();
-      m_cPar.mcuType = iqrfEmbedOsRead.getTrMcuTypeAsString();
-      m_cPar.osBuildWord = (uint16_t)iqrfEmbedOsRead.getOsBuild();
-      m_cPar.osBuild = iqrfEmbedOsRead.getOsBuildAsString();
-      state = IIqrfDpaService::DpaState::Ready;
-      TRC_INFORMATION("TR params: " << std::endl <<
-        NAME_PAR(moduleId, m_cPar.moduleId) <<
-        NAME_PAR(osVersion, m_cPar.osVersion) <<
-        NAME_PAR(trType, m_cPar.trType) <<
-        NAME_PAR(mcuType, m_cPar.mcuType) <<
-        NAME_PAR(osBuildWord, m_cPar.osBuildWord) <<
-        NAME_PAR(osBuild, m_cPar.osBuild) <<
-        std::endl
-      );
-      if (m_driverReloadHandler != nullptr) {
-        TRC_INFORMATION("EXECUTING DRIVER RELOAD");
-        m_driverReloadHandler();
-      }
-    }
-    catch (std::exception & e) {
-      CATCH_EXC_TRC_WAR(std::exception, e, "Cannot get TR parameters")
-      state = IIqrfDpaService::DpaState::NotReady;
-      std::cout << std::endl << "Error: Cannot get TR parameters msg => interface to DPA coordinator is not working - verify (CDC or SPI or UART) configuration" << std::endl;
-    }
-
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  void IqrfDpa::identifyCoordinator() {
-    
-  }
-
-  void IqrfDpa::runInitThread() {
-    TRC_FUNCTION_ENTER("");
-    registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) {
-      asyncRestartHandler(dpaMessage);
-    });
-    identifyCoordinator();
-    //getIqrfNetworkParams();
-    unregisterAsyncMessageHandler("  IqrfDpa");
-
-    IDpaTransaction2::TimingParams timingParams;
-    timingParams.bondedNodes = m_bondedNodes;
-    timingParams.discoveredNodes = m_discoveredNodes;
-    timingParams.frcResponseTime = m_responseTime;
-    timingParams.dpaVersion = m_cPar.dpaVerWord;
-    timingParams.osVersion = m_cPar.osVersion;
-    m_dpaHandler->setTimingParams(timingParams);
-
-    IIqrfChannelService::State st = m_iqrfChannelService->getState();
-    if (st == IIqrfChannelService::State::NotReady) {
-      std::cout << std::endl << "Error: Interface to DPA coordinator is not ready - verify (CDC or SPI or UART) configuration" << std::endl;
-    }
     TRC_FUNCTION_LEAVE("");
   }
 
-  void IqrfDpa::initializeInterface() {
+  IqrfDpa::~IqrfDpa() {
     TRC_FUNCTION_ENTER("");
-    if (m_initThread.joinable()) {
-      TRC_DEBUG("Initialization thread joinable, joining.");
-      m_initThread.join();
-    }
-    m_initThread = std::thread([this] { runInitThread(); });
-#ifndef SHAPE_PLATFORM_WINDOWS
-    pthread_setname_np(m_initThread.native_handle(), "_dpaInit");
-#endif
     TRC_FUNCTION_LEAVE("");
   }
 
-  int IqrfDpa::getDpaQueueLen() const
-  {
-    return m_dpaHandler->getDpaQueueLen();
-  }
-
-  IIqrfChannelService::State IqrfDpa::getIqrfChannelState()
-  {
-    return m_iqrfChannelService->getState();
-  }
-
-  IIqrfDpaService::DpaState IqrfDpa::getDpaChannelState()
-  {
-    return state;
-  }
-
-  void IqrfDpa::registerAnyMessageHandler(const std::string& serviceId, IDpaHandler2::AsyncMessageHandlerFunc fun)
-  {
-    m_dpaHandler->registerAnyMessageHandler(serviceId, fun);
-  }
-
-  void IqrfDpa::unregisterAnyMessageHandler(const std::string& serviceId)
-  {
-    m_dpaHandler->unregisterAnyMessageHandler(serviceId);
-  }
-
-  void IqrfDpa::registerDriverReloadHandler(const std::string &serviceId, IIqrfDpaService::DriverReloadHandler handler) {
-    (void)serviceId;
-    m_driverReloadHandler = handler;
-  }
-
-  void IqrfDpa::unregisterDriverReloadHandler(const std::string &serviceId) {
-    (void)serviceId;
-    m_driverReloadHandler = nullptr;
-  }
+  // Component lifecycle ==========================
 
   void IqrfDpa::activate(const shape::Properties *props)
   {
@@ -493,7 +124,9 @@ namespace iqrf {
       asyncDpaMessageHandler(dpaMessage);
     });
 
-    initializeInterface();
+    setDefaults();
+
+    startInterface();
 
     TRC_FUNCTION_LEAVE("");
   }
@@ -528,6 +161,354 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
+  // Handler execution ============================
+
+  void IqrfDpa::asyncDpaMessageHandler(const DpaMessage& dpaMessage)
+  {
+    std::lock_guard<std::mutex> lck(m_asyncMessageHandlersMutex);
+
+    for (auto & hndl : m_asyncMessageHandlers)
+      hndl.second(dpaMessage);
+  }
+
+  void IqrfDpa::asyncRestartHandler(const DpaMessage& dpaMessage) {
+    TRC_FUNCTION_ENTER("");
+
+    try {
+      iqrf::embed::explore::RawDpaEnumerate iqrfEmbedExploreEnumerate(0);
+      iqrfEmbedExploreEnumerate.processAsyncResponse(dpaMessage);
+      TRC_DEBUG("Parsed TR reset result async msg");
+      if (!iqrfEmbedExploreEnumerate.isAsyncRcode()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid async response code:"
+          << NAME_PAR(expected, (int)STATUS_ASYNC_RESPONSE) << NAME_PAR(delivered, (int)iqrfEmbedExploreEnumerate.getRcode()));
+      }
+
+      // Update coordinator params
+      m_coordinatorParams.dpaVerWord = (uint16_t)iqrfEmbedExploreEnumerate.getDpaVer();
+      m_coordinatorParams.dpaVerWordAsStr = iqrfEmbedExploreEnumerate.getDpaVerAsHexaString();
+      m_coordinatorParams.dpaVer = iqrfEmbedExploreEnumerate.getDpaVerAsString();
+      m_coordinatorParams.dpaVerMajor = iqrfEmbedExploreEnumerate.getDpaVerMajor();
+      m_coordinatorParams.dpaVerMinor = iqrfEmbedExploreEnumerate.getDpaVerMinor();
+      m_coordinatorParams.demoFlag = iqrfEmbedExploreEnumerate.getDemoFlag();
+      m_coordinatorParams.stdModeSupportFlag = iqrfEmbedExploreEnumerate.getModeStd();
+      m_coordinatorParams.lpModeSupportFlag = !iqrfEmbedExploreEnumerate.getModeStd();
+      m_coordinatorParams.lpModeRunningFlag = iqrfEmbedExploreEnumerate.getStdAndLpSupport();
+
+      if (m_coordinatorParams.stdModeSupportFlag)
+      {
+        //dual support from DPA 4.00
+        m_rfMode = m_coordinatorParams.lpModeRunningFlag ? IDpaTransaction2::kLp : IDpaTransaction2::kStd;
+      }
+
+      if (m_coordinatorParams.lpModeSupportFlag)
+      {
+        m_rfMode = IDpaTransaction2::kLp;
+      }
+
+      m_dpaHandler->setRfCommunicationMode(m_rfMode);
+    }
+    catch (std::exception & e) {
+      CATCH_EXC_TRC_WAR(std::exception, e, "Wrong format of TR reset result async msg");
+    }
+
+    m_asyncRestartCv.notify_all();
+
+    TRC_FUNCTION_LEAVE("")
+  }
+
+  // Interface initialization =====================
+
+  void IqrfDpa::setDefaults() {
+    TRC_FUNCTION_ENTER("");
+    // module
+    m_coordinatorParams.moduleId = "FFFFFFFF";
+    m_coordinatorParams.mid = 4294967295;
+    m_coordinatorParams.trType = "(DC)TR-72Dx";
+    m_coordinatorParams.mcuType = "PIC16LF1938";
+    // OS
+    m_coordinatorParams.osVersion = "4.03D";
+    m_coordinatorParams.osBuild = "08C8";
+    m_coordinatorParams.osBuildWord = 2248;
+    // DPA
+    m_coordinatorParams.dpaVer = "4.14";
+    m_coordinatorParams.dpaVerMajor = 4;
+    m_coordinatorParams.dpaVerMinor = 20;
+    m_coordinatorParams.dpaVerWord = 1044;
+    m_coordinatorParams.dpaVerWordAsStr = "0414";
+    // flags
+    m_coordinatorParams.demoFlag = false;
+    m_coordinatorParams.stdModeSupportFlag = true;
+    m_coordinatorParams.lpModeSupportFlag = false;
+    m_coordinatorParams.lpModeRunningFlag = true;
+    printTrParams(false);
+    printNetworkParams(false);
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void IqrfDpa::startInterface() {
+    TRC_FUNCTION_ENTER("");
+
+    if (m_initThread.joinable()) {
+      TRC_DEBUG("Initialization thread joinable, joining.");
+      m_initThread.join();
+    }
+    m_initThread = std::thread([this] { runInitializationThread(); });
+    pthread_setname_np(m_initThread.native_handle(), "_dpaInit");
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void IqrfDpa::runInitializationThread() {
+    while (true) {
+      registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) {
+        asyncRestartHandler(dpaMessage);
+      });
+      identifyCoordinator();
+      unregisterAsyncMessageHandler("  IqrfDpa");
+      IDpaTransaction2::TimingParams timingParams;
+      timingParams.bondedNodes = m_bondedNodes;
+      timingParams.discoveredNodes = m_discoveredNodes;
+      timingParams.frcResponseTime = m_responseTime;
+      timingParams.dpaVersion = m_coordinatorParams.dpaVerWord;
+      timingParams.osVersion = m_coordinatorParams.osVersion;
+      m_dpaHandler->setTimingParams(timingParams);
+      TRC_INFORMATION("Sleeping until IQRF or DPA channel is not ready.");
+      {
+        // Sleep until IQRF or DPA channel is not ready
+        std::unique_lock<std::mutex> lock(m_initMutex);
+        m_initCv.wait(lock,
+          [this] {
+            return m_iqrfChannelService->getState() == IIqrfChannelService::State::NotReady || m_state == IIqrfDpaService::DpaState::NotReady;
+          }
+        );
+      }
+    }
+  }
+
+  void IqrfDpa::identifyCoordinator() {
+    TRC_FUNCTION_ENTER("");
+
+    std::shared_ptr<IDpaTransaction2> result;
+    bool resetReceived = false;
+    const uint16_t resetDelay = 3000;
+
+    while (!resetReceived) {
+      // attempt to initialize iqrf channel
+      m_iqrfChannelService->startListen();
+      // mutex
+      std::unique_lock<std::mutex> lock(m_asyncRestartMtx);
+      TRC_INFORMATION("Waiting for TR reset (" << std::to_string(resetDelay) << "ms).");
+      // wait for reset
+      if (m_asyncRestartCv.wait_for(lock, std::chrono::milliseconds(resetDelay)) == std::cv_status::timeout) {
+        // check transaction result, if not empty, transaction is stuck
+        if (result != nullptr) {
+          result->abort();
+          result = nullptr;
+        }
+        TRC_WARNING("TR reset message not received, sleeping for " << std::to_string(m_interfaceCheckPeriod) << "seconds.");
+        // no message received, sleep before trying again
+        std::this_thread::sleep_for(std::chrono::seconds(m_interfaceCheckPeriod));
+        // check if iqrf channel state is ready
+        if (m_iqrfChannelService->getState() == IIqrfChannelService::State::Ready) {
+          // channel state ready, send explicit restart
+          iqrf::embed::os::RawDpaRestart restartRequest(0);
+          result = executeDpaTransaction(restartRequest.getRequest(), -1);
+        } else {
+          // channel not ready, repeat cycle
+          TRC_WARNING("IQRF channel service not ready, retrying.");
+        }
+      } else {
+        TRC_INFORMATION("TR reset message received.");
+        resetReceived = true;
+      }
+    }
+
+    auto exclusiveAccess = getExclusiveAccess();
+    iqrf::embed::os::RawDpaRead readRequest(0);
+
+    try {
+      // execute OS read
+      std::unique_ptr<IDpaTransactionResult2> readResult;
+      exclusiveAccess->executeDpaTransactionRepeat(readRequest.getRequest(), readResult, 3);
+      readRequest.processDpaTransactionResult(std::move(readResult));
+      // update module params
+      m_coordinatorParams.moduleId = readRequest.getMidAsString();
+      m_coordinatorParams.mid = readRequest.getMid();
+      m_coordinatorParams.trType = readRequest.getTrTypeAsString();
+      m_coordinatorParams.mcuType = readRequest.getTrMcuTypeAsString();
+      // update OS params
+      m_coordinatorParams.osVersion = readRequest.getOsVersionAsString();
+      m_coordinatorParams.osBuild = readRequest.getOsBuildAsString();
+      m_coordinatorParams.osBuildWord = (uint16_t)readRequest.getOsBuild();
+      // update DPA state
+      m_state = IIqrfDpaService::DpaState::Ready;
+      // reload drivers
+      if (m_driverReloadHandler != nullptr) {
+        m_driverReloadHandler();
+      }
+    } catch (const std::exception &e) {
+      m_state = IIqrfDpaService::DpaState::NotReady;
+      TRC_WARNING("Failed to retrieve TR parameters.");
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  // Transactions =================================
+
+  std::shared_ptr<IDpaTransaction2> IqrfDpa::executeExclusiveDpaTransaction(const DpaMessage& request, int32_t timeout) {
+    TRC_FUNCTION_ENTER("");
+    auto result = m_dpaHandler->executeDpaTransaction(request, timeout);
+    TRC_FUNCTION_LEAVE("");
+    return result;
+  }
+
+  std::shared_ptr<IDpaTransaction2> IqrfDpa::executeDpaTransaction(const DpaMessage& request, int32_t timeout) {
+    TRC_FUNCTION_ENTER("");
+    IDpaTransactionResult2::ErrorCode defaultError = IDpaTransactionResult2::TRN_OK;
+    if (m_iqrfDpaChannel->hasExclusiveAccess()) {
+      defaultError = IDpaTransactionResult2::TRN_ERROR_IFACE_EXCLUSIVE_ACCESS;
+    }
+    auto result = m_dpaHandler->executeDpaTransaction(request, timeout, defaultError);
+    TRC_FUNCTION_LEAVE("");
+    return result;
+  }
+
+  void IqrfDpa::executeDpaTransactionRepeat(const DpaMessage & request, std::unique_ptr<IDpaTransactionResult2>& result, int repeat, int32_t timeout = -1) {
+    TRC_FUNCTION_ENTER("");
+
+    for (int rep = 0; rep <= repeat; rep++) {
+      try {
+        std::shared_ptr<IDpaTransaction2> transaction = m_dpaHandler->executeDpaTransaction(request, timeout);
+        result = std::move(transaction->get());
+        TRC_DEBUG("Result from read transaction as string:" << PAR(result->getErrorString()));
+        IDpaTransactionResult2::ErrorCode errorCode = (IDpaTransactionResult2::ErrorCode)result->getErrorCode();
+        if (errorCode == IDpaTransactionResult2::ErrorCode::TRN_OK)
+        {
+          TRC_FUNCTION_LEAVE("");
+          return;
+        }
+        else
+        {
+          std::string errorStr;
+          if (errorCode < 0)
+            errorStr = "Transaction error: ";
+          else
+            errorStr = "DPA error: ";
+          errorStr += result->getErrorString();
+          THROW_EXC_TRC_WAR(std::logic_error, errorStr);
+        }
+      } catch (std::exception& e) {
+        CATCH_EXC_TRC_WAR(std::logic_error, e, e.what());
+        if (rep == repeat)
+        {
+          TRC_FUNCTION_LEAVE("");
+          THROW_EXC_TRC_WAR(std::logic_error, e.what())
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      }
+    }
+  }
+
+  // Getters and setters ==========================
+
+  std::unique_ptr<IIqrfDpaService::ExclusiveAccess> IqrfDpa::getExclusiveAccess() {
+    std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
+    return std::unique_ptr<IIqrfDpaService::ExclusiveAccess>(shape_new ExclusiveAccessImpl(this));
+  }
+
+  bool IqrfDpa::hasExclusiveAccess() const {
+    return m_iqrfDpaChannel->hasExclusiveAccess();
+  }
+
+  void IqrfDpa::setExclusiveAccess() {
+    std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
+    m_iqrfDpaChannel->setExclusiveAccess();
+  }
+
+  void IqrfDpa::resetExclusiveAccess() {
+    std::unique_lock<std::recursive_mutex> lck(m_exclusiveAccessMutex);
+    m_iqrfDpaChannel->resetExclusiveAccess();
+  }
+
+  int IqrfDpa::getDpaQueueLen() const {
+    return m_dpaHandler->getDpaQueueLen();
+  }
+
+  IIqrfChannelService::State IqrfDpa::getIqrfChannelState() {
+    return m_iqrfChannelService->getState();
+  }
+
+  IIqrfDpaService::DpaState IqrfDpa::getDpaChannelState() {
+    return m_state;
+  }
+
+  IIqrfDpaService::CoordinatorParameters IqrfDpa::getCoordinatorParameters() const {
+    return m_coordinatorParams;
+  }
+
+  int IqrfDpa::getTimeout() const {
+    return m_dpaHandler->getTimeout();
+  }
+
+  void IqrfDpa::setTimeout(int timeout) {
+    m_dpaHandler->setTimeout(timeout);
+  }
+
+  IDpaTransaction2::RfMode IqrfDpa::getRfCommunicationMode() const {
+    return m_dpaHandler->getRfCommunicationMode();
+  }
+
+  void IqrfDpa::setRfCommunicationMode(IDpaTransaction2::RfMode rfMode) {
+    m_dpaHandler->setRfCommunicationMode(rfMode);
+  }
+
+  IDpaTransaction2::TimingParams IqrfDpa::getTimingParams() const {
+    return m_dpaHandler->getTimingParams();
+  }
+
+  void IqrfDpa::setTimingParams(IDpaTransaction2::TimingParams params) {
+    m_dpaHandler->setTimingParams(params);
+  }
+
+  IDpaTransaction2::FrcResponseTime IqrfDpa::getFrcResponseTime() const {
+    return m_dpaHandler->getFrcResponseTime();
+  }
+
+  void IqrfDpa::setFrcResponseTime(IDpaTransaction2::FrcResponseTime frcResponseTime) {
+    m_dpaHandler->setFrcResponseTime(frcResponseTime);
+  }
+
+  // Handlers and interfaces ======================
+
+  void IqrfDpa::registerAsyncMessageHandler(const std::string& serviceId, AsyncMessageHandlerFunc fun) {
+    std::lock_guard<std::mutex> lck(m_asyncMessageHandlersMutex);
+    m_asyncMessageHandlers.insert(make_pair(serviceId, fun));
+  }
+
+  void IqrfDpa::unregisterAsyncMessageHandler(const std::string& serviceId) {
+    std::lock_guard<std::mutex> lck(m_asyncMessageHandlersMutex);
+    m_asyncMessageHandlers.erase(serviceId);
+  }
+
+  void IqrfDpa::registerAnyMessageHandler(const std::string& serviceId, IDpaHandler2::AsyncMessageHandlerFunc fun) {
+    m_dpaHandler->registerAnyMessageHandler(serviceId, fun);
+  }
+
+  void IqrfDpa::unregisterAnyMessageHandler(const std::string& serviceId) {
+    m_dpaHandler->unregisterAnyMessageHandler(serviceId);
+  }
+
+  void IqrfDpa::registerDriverReloadHandler(const std::string &serviceId, IIqrfDpaService::DriverReloadHandler handler) {
+    (void)serviceId;
+    m_driverReloadHandler = handler;
+  }
+
+  void IqrfDpa::unregisterDriverReloadHandler(const std::string &serviceId) {
+    (void)serviceId;
+    m_driverReloadHandler = nullptr;
+  }
+
   void IqrfDpa::attachInterface(iqrf::IIqrfChannelService* iface) {
     m_iqrfChannelService = iface;
     m_iqrfDpaChannel = shape_new IqrfDpaChannel(iface);
@@ -547,5 +528,33 @@ namespace iqrf {
 
   void IqrfDpa::detachInterface(shape::ITraceService* iface) {
     shape::Tracer::get().removeTracerService(iface);
+  }
+
+  // Auxiliary methods ============================
+  void IqrfDpa::printTrParams(bool updated) {
+    TRC_INFORMATION((updated ? "Updated " : "Default ") << "TR params: " << std::endl <<
+      NAME_PAR(moduleId, m_coordinatorParams.moduleId) <<
+      NAME_PAR(osVersion, m_coordinatorParams.osVersion) <<
+      NAME_PAR(trType, m_coordinatorParams.trType) <<
+      NAME_PAR(mcuType, m_coordinatorParams.mcuType) <<
+      NAME_PAR(osBuildWord, m_coordinatorParams.osBuildWord) <<
+      NAME_PAR(osBuild, m_coordinatorParams.osBuild) <<
+      std::endl
+    );
+  }
+
+  void IqrfDpa::printNetworkParams(bool updated) {
+    TRC_INFORMATION((updated ? "Updated " : "Default ") << "DPA params: " << std::endl <<
+      NAME_PAR(dpaVerWord, m_coordinatorParams.dpaVerWord) <<
+      NAME_PAR(dpaVerWordAsStr, m_coordinatorParams.dpaVerWordAsStr) <<
+      NAME_PAR(dpaVer, m_coordinatorParams.dpaVer) <<
+      NAME_PAR(dpaVerMajor, m_coordinatorParams.dpaVerMajor) <<
+      NAME_PAR(dpaVerMinor, m_coordinatorParams.dpaVerMinor) <<
+      NAME_PAR(demoFlag, m_coordinatorParams.demoFlag) <<
+      NAME_PAR(stdModeSupportFlag, m_coordinatorParams.stdModeSupportFlag) <<
+      NAME_PAR(lpModeSupportFlag, m_coordinatorParams.lpModeSupportFlag) <<
+      NAME_PAR(lpModeRunningFlag, m_coordinatorParams.lpModeRunningFlag) <<
+      std::endl
+    );
   }
 }

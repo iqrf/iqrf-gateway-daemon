@@ -123,20 +123,16 @@ namespace iqrf {
      * @param dpaMessage DPA message
      */
     void asyncRestartHandler(const DpaMessage& dpaMessage);
+   
 
-    /**
-     * Initializes IQRF interface
-     */
-    void initializeInterface();
-
+    //--------------------------
+    void setDefaults();
+    void startInterface();
+    void runInitializationThread();
     void identifyCoordinator();
-
-    /**
-     * Runs initialization thread
-     */
-    void runInitThread();
-
-    void getIqrfNetworkParams();
+    void printTrParams(bool updated);
+    void printNetworkParams(bool updated);
+    
 
     IIqrfChannelService* m_iqrfChannelService = nullptr;
     IqrfDpaChannel *m_iqrfDpaChannel = nullptr;  //temporary workaround, see comment in IqrfDpaChannel.h
@@ -161,10 +157,12 @@ namespace iqrf {
     /// Initialization thread
     std::thread m_initThread;
     /// Coordinator parameters
-    IIqrfDpaService::CoordinatorParameters m_cPar;
+    IIqrfDpaService::CoordinatorParameters m_coordinatorParams;
     /// DPA channel state
-    IIqrfDpaService::DpaState state = IIqrfDpaService::DpaState::NotReady;
+    IIqrfDpaService::DpaState m_state = IIqrfDpaService::DpaState::NotReady;
     /// Driver reload handler
     IIqrfDpaService::DriverReloadHandler m_driverReloadHandler = nullptr;
+    std::mutex m_initMutex;
+    std::condition_variable m_initCv;
   };
 }
