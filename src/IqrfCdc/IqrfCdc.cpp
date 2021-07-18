@@ -294,6 +294,22 @@ namespace iqrf {
       }
     }
 
+    void refreshState() {
+      try {
+        if (m_cdc) {
+          if (!m_cdc->test()) {
+            THROW_EXC_TRC_WAR(std::logic_error, "CDC refresh test failed.");
+          }
+          m_cdcValid = true;
+        }
+      } catch (CDCImplException &e) {
+        CATCH_EXC_TRC_WAR(CDCImplException, e, "CDC refresh test failed: " << e.getDescr());
+        delete m_cdc;
+        m_cdc = nullptr;
+        m_cdcValid = false;
+      }
+    }
+
     std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
     {
       return m_accessControl.getAccess(receiveFromFunc, access);
@@ -406,6 +422,10 @@ namespace iqrf {
   IIqrfChannelService::State IqrfCdc::getState() const
   {
     return m_imp->getState();
+  }
+
+  void IqrfCdc::refreshState() {
+    m_imp->refreshState();
   }
 
   std::unique_ptr<IIqrfChannelService::Accessor>  IqrfCdc::getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)

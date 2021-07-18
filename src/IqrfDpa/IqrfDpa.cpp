@@ -260,27 +260,27 @@ namespace iqrf {
 
   void IqrfDpa::runInitializationThread() {
     while (true) {
-      registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) {
-        asyncRestartHandler(dpaMessage);
-      });
-      identifyCoordinator();
-      unregisterAsyncMessageHandler("  IqrfDpa");
-      IDpaTransaction2::TimingParams timingParams;
-      timingParams.bondedNodes = m_bondedNodes;
-      timingParams.discoveredNodes = m_discoveredNodes;
-      timingParams.frcResponseTime = m_responseTime;
-      timingParams.dpaVersion = m_coordinatorParams.dpaVerWord;
-      timingParams.osVersion = m_coordinatorParams.osVersion;
-      m_dpaHandler->setTimingParams(timingParams);
-      TRC_INFORMATION("Sleeping until IQRF or DPA channel is not ready.");
+      m_iqrfChannelService->refreshState();
+      IIqrfChannelService::State state = m_iqrfChannelService->getState();
+      if (state == IIqrfChannelService::State::NotReady) {
+        registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) {
+          asyncRestartHandler(dpaMessage);
+        });
+        identifyCoordinator();
+        unregisterAsyncMessageHandler("  IqrfDpa");
+        IDpaTransaction2::TimingParams timingParams;
+        timingParams.bondedNodes = m_bondedNodes;
+        timingParams.discoveredNodes = m_discoveredNodes;
+        timingParams.frcResponseTime = m_responseTime;
+        timingParams.dpaVersion = m_coordinatorParams.dpaVerWord;
+        timingParams.osVersion = m_coordinatorParams.osVersion;
+        m_dpaHandler->setTimingParams(timingParams);
+      }
       {
-        // Sleep until IQRF or DPA channel is not ready
         std::unique_lock<std::mutex> lock(m_initMutex);
-        m_initCv.wait(lock,
-          [this] {
-            return m_iqrfChannelService->getState() == IIqrfChannelService::State::NotReady || m_state == IIqrfDpaService::DpaState::NotReady;
-          }
-        );
+        TRC_DEBUG("Sleeping for 30s");
+        m_initCv.wait_for(lock, std::chrono::seconds(30));
+        TRC_DEBUG("Initialization thread waking up...");
       }
     }
   }
@@ -297,7 +297,7 @@ namespace iqrf {
       m_iqrfChannelService->startListen();
       // mutex
       std::unique_lock<std::mutex> lock(m_asyncRestartMtx);
-      TRC_INFORMATION("Waiting for TR reset (" << std::to_string(resetDelay) << "ms).");
+      TRC_INFORMATION("Waiting for TR reset (" << std::to_string(resetDelay) << " ms).");
       // wait for reset
       if (m_asyncRestartCv.wait_for(lock, std::chrono::milliseconds(resetDelay)) == std::cv_status::timeout) {
         // check transaction result, if not empty, transaction is stuck
@@ -305,7 +305,7 @@ namespace iqrf {
           result->abort();
           result = nullptr;
         }
-        TRC_WARNING("TR reset message not received, sleeping for " << std::to_string(m_interfaceCheckPeriod) << "seconds.");
+        TRC_WARNING("TR reset message not received, sleeping for " << std::to_string(m_interfaceCheckPeriod) << " seconds.");
         // no message received, sleep before trying again
         std::this_thread::sleep_for(std::chrono::seconds(m_interfaceCheckPeriod));
         // check if iqrf channel state is ready
@@ -437,6 +437,10 @@ namespace iqrf {
 
   IIqrfChannelService::State IqrfDpa::getIqrfChannelState() {
     return m_iqrfChannelService->getState();
+  }
+
+  void IqrfDpa::refreshIqrfChannelState() {
+    m_iqrfChannelService->refreshState();
   }
 
   IIqrfDpaService::DpaState IqrfDpa::getDpaChannelState() {

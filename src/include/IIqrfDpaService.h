@@ -123,6 +123,7 @@ namespace iqrf {
     virtual void unregisterAsyncMessageHandler(const std::string& serviceId) = 0;
     virtual int getDpaQueueLen() const = 0;
     virtual IIqrfChannelService::State getIqrfChannelState() = 0;
+    virtual void refreshIqrfChannelState() = 0;
     virtual DpaState getDpaChannelState() = 0;
     virtual void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) = 0;
     virtual void unregisterAnyMessageHandler(const std::string& serviceId) = 0;
