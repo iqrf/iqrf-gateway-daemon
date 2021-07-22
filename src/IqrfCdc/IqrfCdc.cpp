@@ -304,10 +304,17 @@ namespace iqrf {
         }
       } catch (CDCImplException &e) {
         CATCH_EXC_TRC_WAR(CDCImplException, e, "CDC refresh test failed: " << e.getDescr());
-        delete m_cdc;
-        m_cdc = nullptr;
-        m_cdcValid = false;
+        destroyInterface();
       }
+    }
+
+    void destroyInterface() {
+      if (m_cdc) {
+        m_cdc->unregisterAsyncMsgListener();
+      }
+      delete m_cdc;
+      m_cdc = nullptr;
+      m_cdcValid = false;
     }
 
     std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
@@ -374,12 +381,7 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      if (m_cdc) {
-        m_cdc->unregisterAsyncMsgListener();
-      }
-
-      delete m_cdc;
-      m_cdc = nullptr;
+      destroyInterface();
 
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
@@ -426,6 +428,10 @@ namespace iqrf {
 
   void IqrfCdc::refreshState() {
     m_imp->refreshState();
+  }
+
+  void IqrfCdc::destroyInterface() {
+    m_imp->destroyInterface();
   }
 
   std::unique_ptr<IIqrfChannelService::Accessor>  IqrfCdc::getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)

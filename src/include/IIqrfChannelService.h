@@ -107,6 +107,7 @@ namespace iqrf {
     virtual void startListen() = 0;
     virtual State getState() const = 0;
     virtual void refreshState() = 0;
+    virtual void destroyInterface() = 0;
     virtual std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) = 0;
     virtual bool hasExclusiveAccess() const = 0;
 

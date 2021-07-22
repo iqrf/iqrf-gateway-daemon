@@ -22,10 +22,6 @@
                     "type": "string",
                     "description": "Message identification for binding request with response."
                 },
-                "rsp": {
-                    "type": "object",
-                    "additionalProperties": false
-                },
                 "insId": {
 					"type": "string",
 					"description": "IQRF GW daemon instance identification."
@@ -41,7 +37,6 @@
             },
             "required": [
                 "msgId",
-                "rsp",
                 "status"
             ]
         }

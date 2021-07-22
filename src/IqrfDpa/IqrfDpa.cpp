@@ -479,7 +479,13 @@ namespace iqrf {
   }
 
   void IqrfDpa::reloadCoordinator() {
-    identifyCoordinator();
+    m_runInterface = false;
+    m_initThread.join();
+    m_channelStateThread.join();
+    m_iqrfChannelService->destroyInterface();
+    m_runInterface = true;
+    startChannelCheck();
+    startInterface();
   }
 
   IIqrfDpaService::DpaState IqrfDpa::getDpaChannelState() {

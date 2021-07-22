@@ -36,6 +36,7 @@ public:
   void startListen() override;
   State getState() const override;
   void refreshState() override;
+  void destroyInterface() override;
   std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) override;
   bool hasExclusiveAccess() const override;
 
