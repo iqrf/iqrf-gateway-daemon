@@ -41,17 +41,98 @@ namespace iqrf {
   class IqrfCdc::Imp
   {
   public:
-    Imp()
-      :m_accessControl(this)
-    {
+    Imp() :m_accessControl(this) {};
+
+    ~Imp() {};
+
+    // Component lifecycle ========================
+
+    void activate(const shape::Properties *props) {
+      TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION(std::endl <<
+        "******************************" << std::endl <<
+        "IqrfCdc instance activate" << std::endl <<
+        "******************************"
+      );
+
+      try {
+        modify(props);
+      } catch (std::exception & e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "CDC failed: ");
+      }
+
+      TRC_FUNCTION_LEAVE("")
     }
 
-    ~Imp()
-    {
+    void modify(const shape::Properties *props) {
+      props->getMemberAsString("IqrfInterface", m_interfaceName);
+      TRC_INFORMATION(PAR(m_interfaceName));
     }
 
-    void send(const std::basic_string<unsigned char>& message)
-    {
+    void deactivate() {
+      TRC_FUNCTION_ENTER("");
+
+      destroyInterface();
+
+      TRC_INFORMATION(std::endl <<
+        "******************************" << std::endl <<
+        "IqrfCdc instance deactivate" << std::endl <<
+        "******************************"
+      );
+      TRC_FUNCTION_LEAVE("")
+    }
+
+    // Interface initialization ===================
+
+    void startListen() {
+      try {
+        m_cdc = shape_new CDCImpl(m_interfaceName.c_str());
+
+        if (!m_cdc->test()) {
+          THROW_EXC_TRC_WAR(std::logic_error, "CDC Test failed");
+        }
+        m_cdcValid = true;
+
+        m_cdc->resetTRModule();
+      } catch (CDCImplException & e) {
+        CATCH_EXC_TRC_WAR(CDCImplException, e, "CDC Test failed: " << e.getDescr());
+      } catch (std::exception & e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "CDC failed: ");
+      }
+
+      if (m_cdc) {
+        m_cdc->registerAsyncMsgListener([&](unsigned char* data, unsigned int length) {
+          m_accessControl.messageHandler(std::basic_string<unsigned char>(data, length)); 
+        });
+      }
+    }
+
+    void refreshState() {
+      try {
+        if (m_cdc) {
+          if (!m_cdc->test()) {
+            THROW_EXC_TRC_WAR(std::logic_error, "CDC refresh test failed.");
+          }
+          m_cdcValid = true;
+        }
+      } catch (CDCImplException &e) {
+        CATCH_EXC_TRC_WAR(CDCImplException, e, "CDC refresh test failed: " << e.getDescr());
+        destroyInterface();
+      }
+    }
+
+    void destroyInterface() {
+      if (m_cdc) {
+        m_cdc->unregisterAsyncMsgListener();
+      }
+      delete m_cdc;
+      m_cdc = nullptr;
+      m_cdcValid = false;
+    }
+
+    // Interface operation ========================
+
+    void send(const std::basic_string<unsigned char>& message) {
       static int counter = 0;
       DSResponse dsResponse = DSResponse::BUSY;
       int attempt = 0;
@@ -70,18 +151,15 @@ namespace iqrf {
         }
         if (dsResponse == DSResponse::OK) {
           m_accessControl.sniff(message);
-        }
-        else {
+        } else {
           THROW_EXC_TRC_WAR(std::logic_error, "CDC send failed: " << PAR(dsResponse));
         }
-      }
-      else {
+      } else {
         THROW_EXC_TRC_WAR(std::logic_error, "CDC not active: " << PAR(dsResponse));
       }
     }
 
-    bool enterProgrammingState() 
-    {
+    bool enterProgrammingState() {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION("Entering programming mode.");
 
@@ -110,16 +188,41 @@ namespace iqrf {
       return true;
     }
 
-    IIqrfChannelService::UploadErrorCode 
-      upload(
-        const UploadTarget target, 
-        const std::basic_string<uint8_t>& data,
-        const uint16_t address
-    )
-    {
+    bool terminateProgrammingState() {
+      TRC_FUNCTION_ENTER("");
+      TRC_INFORMATION("Terminating programming mode.");
+
+      PTEResponse response;
+      try {
+        if (m_cdc) {
+          response = m_cdc->terminateProgrammingMode();
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "CDC not active");
+        }
+      }
+      catch (std::exception& ex) {
+        CATCH_EXC_TRC_WAR(std::exception, ex, "Terminating programming mode failed.");
+        TRC_FUNCTION_LEAVE("");
+        return false;
+      }
+
+      if (response != PTEResponse::OK) {
+        TRC_WARNING("Programming mode termination failed: " << PAR((int)response));
+        TRC_FUNCTION_LEAVE("");
+        return false;
+      }
+
+      TRC_FUNCTION_LEAVE("");
+      return true;
+    }
+
+    IIqrfChannelService::UploadErrorCode upload(
+      const UploadTarget target,
+      const std::basic_string<uint8_t>& data,
+      const uint16_t address) {
       // write data to TR module
       TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION("Uploading");
 
       bool useAddress = false;
 
@@ -181,12 +284,10 @@ namespace iqrf {
           addressAndData += data;
 
           response = m_cdc->upload(targetInt, addressAndData);
-        }
-        else {
+        } else {
           response = m_cdc->upload(targetInt, data);
         }
-      }
-      catch (std::exception& ex) {
+      } catch (std::exception& ex) {
         TRC_WARNING("Uploading failed: " << ex.what());
         TRC_FUNCTION_LEAVE("");
         return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_COMMUNICATION;
@@ -198,8 +299,7 @@ namespace iqrf {
       }
 
       IIqrfChannelService::UploadErrorCode errorCode;
-      switch (response)
-      {
+      switch (response) {
         case PMResponse::ERR2:
           errorCode = IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_TARGET_MEMORY;
           break;
@@ -229,101 +329,13 @@ namespace iqrf {
       return errorCode;
     }
 
-    bool terminateProgrammingState() {
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION("Terminating programming mode.");
+    // Getters and setters ========================
 
-      PTEResponse response;
-      try {
-        if (m_cdc) {
-          response = m_cdc->terminateProgrammingMode();
-        }
-        else {
-          THROW_EXC_TRC_WAR(std::logic_error, "CDC not active");
-        }
-      }
-      catch (std::exception& ex) {
-        CATCH_EXC_TRC_WAR(std::exception, ex, "Terminating programming mode failed.");
-        TRC_FUNCTION_LEAVE("");
-        return false;
-      }
-
-      if (response != PTEResponse::OK) {
-        TRC_WARNING("Programming mode termination failed: " << PAR((int)response));
-        TRC_FUNCTION_LEAVE("");
-        return false;
-      }
-
-      TRC_FUNCTION_LEAVE("");
-      return true;
-    }
-
-    void startListen()
-    {
-      try {
-        m_cdc = shape_new CDCImpl(m_interfaceName.c_str());
-
-        if (!m_cdc->test()) {
-          THROW_EXC_TRC_WAR(std::logic_error, "CDC Test failed");
-        }
-        m_cdcValid = true;
-
-        m_cdc->resetTRModule();
-
-      }
-      catch (CDCImplException & e) {
-        CATCH_EXC_TRC_WAR(CDCImplException, e, "CDC Test failed: " << e.getDescr());
-      }
-      catch (std::exception & e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "CDC failed: ");
-      }
-
-      if (m_cdc) {
-        m_cdc->registerAsyncMsgListener([&](unsigned char* data, unsigned int length) {
-          m_accessControl.messageHandler(std::basic_string<unsigned char>(data, length)); });
-      }
-    }
-
-    IIqrfChannelService::State getState() const
-    {
-      if (m_cdc && m_cdcValid) {
-        return IIqrfChannelService::State::Ready;
-      }
-      else {
-        return IIqrfChannelService::State::NotReady;
-      }
-    }
-
-    void refreshState() {
-      try {
-        if (m_cdc) {
-          if (!m_cdc->test()) {
-            THROW_EXC_TRC_WAR(std::logic_error, "CDC refresh test failed.");
-          }
-          m_cdcValid = true;
-        }
-      } catch (CDCImplException &e) {
-        CATCH_EXC_TRC_WAR(CDCImplException, e, "CDC refresh test failed: " << e.getDescr());
-        destroyInterface();
-      }
-    }
-
-    void destroyInterface() {
-      if (m_cdc) {
-        m_cdc->unregisterAsyncMsgListener();
-      }
-      delete m_cdc;
-      m_cdc = nullptr;
-      m_cdcValid = false;
-    }
-
-    std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
-    {
+    std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) {
       return m_accessControl.getAccess(receiveFromFunc, access);
     }
 
-    bool hasExclusiveAccess() const
-    {
+    bool hasExclusiveAccess() const {
       return m_accessControl.hasExclusiveAccess();
     }
 
@@ -358,45 +370,13 @@ namespace iqrf {
       return myOsInfo;
     }
 
-    void activate(const shape::Properties *props)
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "IqrfCdc instance activate" << std::endl <<
-        "******************************"
-      );
-
-      try {
-        modify(props);
+    IIqrfChannelService::State getState() const {
+      if (m_cdc && m_cdcValid) {
+        return IIqrfChannelService::State::Ready;
+      } else {
+        return IIqrfChannelService::State::NotReady;
       }
-      catch (std::exception & e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "CDC failed: ");
-      }
-
-      TRC_FUNCTION_LEAVE("")
     }
-
-    void deactivate()
-    {
-      TRC_FUNCTION_ENTER("");
-
-      destroyInterface();
-
-      TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "IqrfCdc instance deactivate" << std::endl <<
-        "******************************"
-      );
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void modify(const shape::Properties *props)
-    {
-      props->getMemberAsString("IqrfInterface", m_interfaceName);
-      TRC_INFORMATION(PAR(m_interfaceName));
-    }
-
 
   private:
     CDCImpl* m_cdc = nullptr;
@@ -406,24 +386,16 @@ namespace iqrf {
   };
 
   //////////////////////////////////////////////////
-  IqrfCdc::IqrfCdc()
-  {
+  IqrfCdc::IqrfCdc() {
     m_imp = shape_new Imp();
   }
 
-  IqrfCdc::~IqrfCdc()
-  {
+  IqrfCdc::~IqrfCdc() {
     delete m_imp;
   }
 
-  void IqrfCdc::startListen()
-  {
+  void IqrfCdc::startListen() {
     m_imp->startListen();
-  }
-
-  IIqrfChannelService::State IqrfCdc::getState() const
-  {
-    return m_imp->getState();
   }
 
   void IqrfCdc::refreshState() {
@@ -434,38 +406,35 @@ namespace iqrf {
     m_imp->destroyInterface();
   }
 
-  std::unique_ptr<IIqrfChannelService::Accessor>  IqrfCdc::getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
-  {
+  IIqrfChannelService::State IqrfCdc::getState() const {
+    return m_imp->getState();
+  }
+
+  std::unique_ptr<IIqrfChannelService::Accessor>  IqrfCdc::getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) {
     return m_imp->getAccess(receiveFromFunc, access);
   }
 
-  bool IqrfCdc::hasExclusiveAccess() const
-  {
+  bool IqrfCdc::hasExclusiveAccess() const {
     return m_imp->hasExclusiveAccess();
   }
 
-  void IqrfCdc::activate(const shape::Properties *props)
-  {
+  void IqrfCdc::activate(const shape::Properties *props) {
     m_imp->activate(props);
   }
 
-  void IqrfCdc::deactivate()
-  {
-    m_imp->deactivate();
-  }
-
-  void IqrfCdc::modify(const shape::Properties *props)
-  {
+  void IqrfCdc::modify(const shape::Properties *props) {
     m_imp->modify(props);
   }
 
-  void IqrfCdc::attachInterface(shape::ITraceService* iface)
-  {
+  void IqrfCdc::deactivate() {
+    m_imp->deactivate();
+  }
+
+  void IqrfCdc::attachInterface(shape::ITraceService* iface) {
     shape::Tracer::get().addTracerService(iface);
   }
 
-  void IqrfCdc::detachInterface(shape::ITraceService* iface)
-  {
+  void IqrfCdc::detachInterface(shape::ITraceService* iface) {
     shape::Tracer::get().removeTracerService(iface);
   }
 }

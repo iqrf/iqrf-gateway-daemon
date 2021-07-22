@@ -106,8 +106,7 @@ namespace iqrf {
 
   // Component lifecycle ==========================
 
-  void IqrfDpa::activate(const shape::Properties *props)
-  {
+  void IqrfDpa::activate(const shape::Properties *props) {
     TRC_FUNCTION_ENTER("");
     TRC_INFORMATION(std::endl <<
       "******************************" << std::endl <<
@@ -393,6 +392,16 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
+  void IqrfDpa::reloadCoordinator() {
+    m_runInterface = false;
+    m_initThread.join();
+    m_channelStateThread.join();
+    m_iqrfChannelService->destroyInterface();
+    m_runInterface = true;
+    startChannelCheck();
+    startInterface();
+  }
+
   // Transactions =================================
 
   std::shared_ptr<IDpaTransaction2> IqrfDpa::executeExclusiveDpaTransaction(const DpaMessage& request, int32_t timeout) {
@@ -476,16 +485,6 @@ namespace iqrf {
 
   IIqrfChannelService::State IqrfDpa::getIqrfChannelState() {
     return m_iqrfChannelService->getState();
-  }
-
-  void IqrfDpa::reloadCoordinator() {
-    m_runInterface = false;
-    m_initThread.join();
-    m_channelStateThread.join();
-    m_iqrfChannelService->destroyInterface();
-    m_runInterface = true;
-    startChannelCheck();
-    startInterface();
   }
 
   IIqrfDpaService::DpaState IqrfDpa::getDpaChannelState() {
