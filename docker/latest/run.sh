@@ -14,4 +14,4 @@ if [ ! -f ${CA_DIR}/cert.pem ] || [ ! -f ${CA_DIR}/privkey.pem ]; then
   chmod 600 ${CA_DIR}/*.pem
 fi
 
-iqrfgd2 /etc/iqrf-gateway-daemon/config.json
+iqrfgd2 -c /etc/iqrf-gateway-daemon/config.json
