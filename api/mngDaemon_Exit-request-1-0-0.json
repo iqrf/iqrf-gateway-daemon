@@ -6,47 +6,66 @@
         "format": "jsonschema",
         "version": "1-0-0"
     },
+    "title": "Daemon management - Exit",
     "type": "object",
+    "required": [
+        "mType",
+        "data"
+    ],
+    "additionalProperties": false,
     "properties": {
         "mType": {
+            "$id": "#/properties/mType",
+            "title": "Message type",
+            "description": "Daemon runtime management - exit request message.",
             "type": "string",
-            "description": "Daemon runtime management - restart the daemon request.",
             "enum": [
                 "mngDaemon_Exit"
             ]
         },
         "data": {
+            "$id": "#/properties/data",
+            "title": "Message data",
+            "description": "Message metadata and arguments",
             "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "timeToExit": {
-                            "type": "number",
-                            "description": "Time to exit the daemon in ms."
-                        }
-                    },
-                    "required": [
-                        "timeToExit"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
             "required": [
                 "msgId",
                 "req"
-            ]
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "msgId": {
+                    "$id": "#/properties/data/properties/msgId",
+                    "type": "string",
+                    "title": "Message ID",
+                    "description": "Message identification for binding request with response."
+                },
+                "req": {
+                    "$id": "#/properties/data/properties/req",
+                    "title": "Request object",
+                    "description": "Request parameters",
+                    "type": "object",
+                    "required": [
+                        "timeToExit"
+                    ],
+                    "properties": {
+                        "timeToExit": {
+                            "$id": "#/properties/data/properties/req/properties/timeToExit",
+                            "title": "Time to exit",
+                            "description": "Time to exit the daemon in ms.",
+                            "type": "number",
+                            "minimum": 0,
+                            "example": 10000
+                        }
+                    }
+                },
+                "returnVerbose": {
+                    "$id": "#/properties/data/properties/returnVerbose",
+                    "title": "Verbose response",
+                    "description": "Flag that includes additional parameters in the response.",
+                    "type": "boolean"
+                }
+            }
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+    }    
 }
