@@ -261,7 +261,8 @@ namespace iqrf {
           validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
           document = sb.GetString();
           THROW_EXC_TRC_WAR(std::logic_error, "Invalid " << direction << ": " <<
-            NAME_PAR(mType, msgType.m_type) << PAR(schema) << PAR(keyword) << NAME_PAR(message, document));
+            NAME_PAR(messageType, msgType.m_type) << NAME_PAR(schemaObject, schema) << NAME_PAR(violatedRule, keyword) << NAME_PAR(violatingMember, document)
+          );
         }
         //TRC_DEBUG("OK");
         TRC_INFORMATION("Message successfully validated.")

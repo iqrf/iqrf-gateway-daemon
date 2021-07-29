@@ -1,61 +1,85 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "mngDaemon_Exit-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Daemon runtime management - restart the daemon response.",
-            "enum": [
-                "mngDaemon_Exit"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "timeToExit": {
-                            "type": "number",
-                            "description": "Time to exit the daemon in ms."
-                        }
-                    },
-                    "required": [
-                        "timeToExit"
-                    ]
-                },
-                "insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "mngDaemon_Exit-response",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"title": "Daemon management - Exit",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "Daemon runtime management - exit request message.",
+			"type": "string",
+			"enum": [
+				"mngDaemon_Exit"
+			]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message identification for binding request with response.",
+					"type": "string"
 				},
-                "status": {
-                    "type": "integer",
-                    "description": "Status of operation."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response body object",
+					"type": "object",
+					"required": [
+						"timeToExit"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"timeToExit": {
+							"$id": "#/properties/data/properties/rsp/properties/timeToExit",
+							"title": "Time to exit",
+							"description": "Time to exit the daemon in ms.",
+							"type": "number",
+							"minimum": 0,
+							"example": 10000
+						}
+					}
+				},
+				"insId": {
+					"$id": "#/properties/data/properties/insId",
+					"title": "Instance ID",
+					"description": "IQRF GW daemon instance identification.",
+					"type": "string"
+				},
+				"status": {
+					"$id": "#/properties/data/properties/status",
+					"title": "Status code",
+					"description": "Status of operation.",
+					"type": "integer"
+				},
+				"statusStr": {
+					"$id": "#/properties/data/properties/statusStr",
+					"title": "Status string",
+					"description": "IQRF GW daemon API (general or mType) status in string form.",
+					"type": "string"
+				}
+			}
+		}
+	}
 }
