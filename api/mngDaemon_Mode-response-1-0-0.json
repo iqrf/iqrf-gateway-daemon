@@ -1,67 +1,78 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "mngDaemon_Mode-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Daemon runtime configuration - Change the daemon mode response.",
-            "enum": [
-                "mngDaemon_Mode"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "operMode": {
-                            "type": "string",
-                            "description": "Operation mode.",
-                            "enum": [
-                                "operational",
-                                "service",
-                                "forwarding",
-                                "unknown"
-                            ]
-                        }
-                    },
-                    "required": [
-                        "operMode"
-                    ]
-                },
-                "insId": {
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "mngDaemon_Mode-response",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"title": "Daemon managerment - Mode",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"type": "string",
+			"description": "Daemon runtime management - Change the daemon mode response.",
+			"enum": [
+				"mngDaemon_Mode"
+			]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"type": "string",
+					"description": "Message identification for binding request with response."
+				},
+				"rsp": {
+					"$id": "#/properties/data",
+					"title": "Message data",
+					"description": "Message metadata and body",
+					"type": "object",
+					"properties": {
+						"operMode": {
+							"type": "string",
+							"description": "Operation mode.",
+							"enum": [
+								"operational",
+								"service",
+								"forwarding",
+								"unknown"
+							]
+						}
+					},
+					"required": [
+						"operMode"
+					]
+				},
+				"insId": {
 					"type": "string",
 					"description": "IQRF GW daemon instance identification."
 				},
-                "status": {
-                    "type": "integer",
-                    "description": "Status of operation."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+				"status": {
+					"type": "integer",
+					"description": "Status of operation."
+				},
+				"statusStr": {
+					"type": "string",
+					"description": "IQRF GW daemon API (general or mType) status in string form."
+				}
+			}
+		}
+	}
 }
