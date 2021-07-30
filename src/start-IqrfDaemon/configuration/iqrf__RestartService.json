@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::RestartService",
-  "instance": "iqrf::RestartService-Instance1"
+  "component": "iqrf::MaintenanceService",
+  "instance": "iqrf::MaintenanceService-Instance1"
 }
