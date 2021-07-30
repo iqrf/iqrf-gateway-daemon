@@ -2,7 +2,7 @@
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
   "self": {
     "vendor": "com.iqrftech.self-desc",
-    "name": "schema__iqrf__RestartService",
+    "name": "schema__iqrf__MaintenanceService",
     "format": "jsonschema",
     "version": "1-0-0"
   },
@@ -12,13 +12,13 @@
       "type": "string",
       "description": "Name of component.",
       "enum": [
-        "iqrf::RestartService"
+        "iqrf::MaintenanceService"
       ]
     },
     "instance": {
       "type": "string",
-      "description": "Recomended iqrf::RestartService-(id)",
-      "default": "iqrf::RestartService-1"
+      "description": "Recomended iqrf::MaintenanceService-(id)",
+      "default": "iqrf::MaintenanceService-1"
     },
     "RequiredInterfaces": {
       "type": "array",

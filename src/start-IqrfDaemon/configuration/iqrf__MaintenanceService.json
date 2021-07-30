@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::RestartService",
+  "instance": "iqrf::RestartService-Instance1"
+}

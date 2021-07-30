@@ -316,6 +316,13 @@
       "startlevel": 3
     },
     {
+      "name": "iqrf::MaintenanceService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "MaintenanceService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
       "name": "iqrf::MonitorService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MonitorService",
