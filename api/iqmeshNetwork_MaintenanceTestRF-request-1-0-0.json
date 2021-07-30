@@ -1,0 +1,82 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqmeshNetwork_MaintenanceTestRF-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQMESH Network management - Maintenance test RF signal request.",
+      "enum": [
+        "iqmeshNetwork_MaintenanceTestRF"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "repeat": {
+          "type": "integer",
+          "description": "Number of repetitions of DPA messages.",
+          "default": 1
+        },
+        "req": {
+          "type": "object",
+          "properties": {
+            "hwpId": {
+              "type": "integer",
+              "description": "Hardware profile ID of the devices to Restart."
+            },
+            "deviceAddr": {
+              "type": "integer",
+              "description": "Address of device to backup (0 - [C] device, 255 - all [N] devices)",
+              "enum": [ 0, 255 ],
+              "default": 0
+            },
+            "RFchannel": {
+              "type": "integer",
+              "description": "RF channel to test.",
+              "default": 0
+            },
+            "RFfilter": {
+              "type": "integer",
+              "description": "RF filter.",
+              "default": 0
+            },
+            "measurementTime": {
+              "type": "integer",
+              "description": "Measurement time specified in miliseconds unit.",
+              "enum": [ 40, 360, 680, 1320, 2600, 5160, 10280, 20620 ],
+              "default": 40
+            }
+          },
+          "required": [
+            "deviceAddr",
+            "RFchannel",
+            "RFfilter",
+            "measurementTime"
+          ]
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
+        }
+      },
+      "required": [
+        "msgId",
+        "req"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}
