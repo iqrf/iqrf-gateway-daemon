@@ -149,28 +149,19 @@
 								"$id": "#/properties/data/properties/raw/items/properties/requestTs",
 								"title": "Request timestamp",
 								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
-								"type": "string",
-								"format": "date-time"
+								"type": "string"
 							},
 							"confirmation": {
 								"$id": "#/properties/data/properties/raw/items/properties/confirmation",
 								"title": "Confirmation DPA",
 								"description": "Binary buffer with DPA confirmation.",
-								"type": "string"								
+								"type": "string"
 							},
 							"confirmationTs": {
 								"$id": "#/properties/data/properties/raw/items/properties/confirmationTs",
 								"title": "Confirmation timestamp",
 								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
-								"type": "string",
-								"anyOf": [
-									{
-										"format": "date-time"
-									},
-									{
-										"enum": [""]
-									}
-								]
+								"type": "string"
 							},
 							"response": {
 								"$id": "#/properties/data/properties/raw/items/properties/response",
@@ -182,15 +173,7 @@
 								"$id": "#/properties/data/properties/raw/items/properties/responseTs",
 								"title": "Response DPA",
 								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
-								"type": "string",
-								"anyOf": [
-									{
-										"format": "date-time"
-									},
-									{
-										"enum": [""]
-									}
-								]
+								"type": "string"
 							}
 						}
 					}
