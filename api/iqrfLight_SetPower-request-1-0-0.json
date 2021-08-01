@@ -120,7 +120,7 @@
 												]
 											},
 											"time": {
-												"$id": "#/properties/data/properties/req/properties/param/lights/items/properties/power",
+												"$id": "#/properties/data/properties/req/properties/param/lights/items/properties/time",
 												"title": "Light ON timer",
 												"description": "Time in seconds. Allowed values are <1;127> or 60*<1;127>.",
 												"type": "integer",
@@ -155,7 +155,6 @@
 					"description": "Flag that includes additional parameters in the response.",
 					"type": "boolean"
 				}
-
 			}
 		}
 	}

@@ -40,12 +40,14 @@ namespace iqrf {
       m_nadr = rapidjson::Pointer("/data/req/nAdr").Get(doc)->GetInt();
       m_hwpid = rapidjson::Pointer("/data/req/hwpId").GetWithDefault(doc, m_hwpid).GetInt();
       Value* reqParamObj = Pointer("/data/req/param").Get(doc);
-      rapidjson::Document param;
-      param.Swap(*reqParamObj);
-      rapidjson::StringBuffer buffer;
-      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-      param.Accept(writer);
-      m_param = buffer.GetString();
+      if (reqParamObj != nullptr) {
+        rapidjson::Document param;
+        param.Swap(*reqParamObj);
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        param.Accept(writer);
+        m_param = buffer.GetString();
+      }
     }
 
     int getNadr() const
@@ -112,7 +114,7 @@ namespace iqrf {
   private:
     int m_nadr = -1;
     int m_hwpid = -1;
-    std::string m_param;
+    std::string m_param = "{}";
     std::string m_payloadKey;
     rapidjson::Document m_payload;
     bool m_payloadOnlyForVerbose = true;
