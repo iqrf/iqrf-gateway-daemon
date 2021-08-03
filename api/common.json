@@ -1,0 +1,26 @@
+{
+	"definitions": {
+		"test": {
+			"$id": "#/definitions/test",
+			"title": "Node address",
+			"description": "Network device address.",
+			"type": "integer",
+			"minimum": 0,
+			"maximum": 239
+		},
+		"rawRequestData": {
+			"$id": "#/definitions/rawRequestData",
+			"title": "Request DPA",
+			"description": "Binary buffer with DPA request",
+			"type": "string",
+			"pattern": "^([0-9a-fA-F]|[fF]0){2}\\.00\\.(0[0-9a-dA-D]|2[0-9a-fA-F]|3[0-9a-eA-E]|4[aAbB]|5[eE]|71|7[fF]|[fF][eE])\\.[0-7][0-9a-fA-F](\\.[0-9a-fA-F]{2}){2}(\\.[0-9a-fA-F]{2}){0,58}(.)?$"
+		},
+		"rawResponseData": {
+			"$id": "#/definitions/rawResponseData",
+			"title": "Response DPA",
+			"description": "Binary buffer with DPA response",
+			"type": "string",
+			"pattern": "^([0-9a-fA-F]|[fF]0){2}\\.00\\.(0[0-9a-dA-D]|2[0-9a-fA-F]|3[0-9a-eA-E]|4[aAbB]|5[eE]|71|7[fF]|[fF][eE])\\.[8-9a-fA-F][0-9a-fA-F](\\.[0-9a-fA-F]{2}){2}\\.(0[0-9]|10|[23][0-9a-fA-F]|40|80|[fF]{2})\\.[0-9a-fA-F]{2}(\\.[0-9a-fA-F]{2}){0,56}(.)?$"
+		}
+	}
+}

@@ -29,6 +29,13 @@
 #include "rapidjson/schema.h"
 #include "Trace.h"
 
+#include <valijson/adapters/rapidjson_adapter.hpp>
+#include <valijson/utils/rapidjson_utils.hpp>
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/validation_results.hpp>
+#include <valijson/validator.hpp>
+
 #ifdef SHAPE_PLATFORM_WINDOWS
 #include <windows.h>
 #else
@@ -54,6 +61,20 @@
 TRC_INIT_MODULE(iqrf::JsonSplitter);
 
 using namespace rapidjson;
+
+static std::string m_schemesDir;
+
+static const rapidjson::Document * fetchDocument(const std::string &uri) {
+  rapidjson::Document *fetchedRoot = new rapidjson::Document();
+  if (!valijson::utils::loadDocument(uri.substr(0, 7) == "file://" ? m_schemesDir + '/' + uri.substr(7, uri.size()) : uri, *fetchedRoot)) {
+    return nullptr;
+  }
+  return fetchedRoot;
+}
+
+static void freeDocument(const rapidjson::Document *adapter) {
+  delete adapter;
+}
 
 namespace iqrf {
   class MessageErrorMsg : public ApiMsg
@@ -87,7 +108,7 @@ namespace iqrf {
   private:
     std::string m_insId = "iqrfgd2-default";
     bool m_validateResponse = true;
-    std::string m_schemesDir;
+    //std::string m_schemesDir;
 
     shape::ILaunchService* m_iLaunchService = nullptr;
     mutable std::mutex m_iMessagingServiceMapMux;
@@ -96,8 +117,8 @@ namespace iqrf {
     mutable std::mutex m_filterMessageHandlerFuncMapMux;
     std::map<std::string, FilteredMessageHandlerFunc > m_filterMessageHandlerFuncMap;
 
-    std::map<std::string, rapidjson::SchemaDocument> m_validatorMapRequest;
-    std::map<std::string, rapidjson::SchemaDocument> m_validatorMapResponse;
+    std::map<std::string, rapidjson::Document> m_validatorMapRequest;
+    std::map<std::string, rapidjson::Document> m_validatorMapResponse;
     std::map<std::string, MsgType> m_msgTypeToHandle; //TODO temporary
 
     typedef std::pair<std::string, std::vector<uint8_t>> MsgIdMsg; //pairing messagingId with msg 
@@ -112,7 +133,6 @@ namespace iqrf {
     }
 
   public:
-
     // for logging only
     static std::string JsonToStr(const rapidjson::Document& doc)
     {
@@ -244,25 +264,37 @@ namespace iqrf {
     }
 
     void validate(const IMessagingSplitterService::MsgType & msgType, const Document& doc,
-      const std::map<std::string, rapidjson::SchemaDocument>& validators, const std::string& direction) const
+      const std::map<std::string, rapidjson::Document>& validators, const std::string& direction) const
     {
       TRC_FUNCTION_ENTER(PAR(msgType.m_type))
       auto found = validators.find(getKey(msgType));
       if (found != validators.end()) {
-        SchemaValidator validator(found->second);
-        if (!doc.Accept(validator)) {
-          // Input JSON is invalid according to the schema
-          StringBuffer sb;
-          std::string schema, keyword, document;
-          validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-          schema = sb.GetString();
-          keyword = validator.GetInvalidSchemaKeyword();
-          sb.Clear();
-          validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-          document = sb.GetString();
-          THROW_EXC_TRC_WAR(std::logic_error, "Invalid " << direction << ": " <<
-            NAME_PAR(messageType, msgType.m_type) << NAME_PAR(schemaObject, schema) << NAME_PAR(violatedRule, keyword) << NAME_PAR(violatingMember, document)
-          );
+        // parse schema
+        valijson::Schema schema;
+        valijson::SchemaParser parser;
+        valijson::adapters::RapidJsonAdapter schemaAdapter(found->second);
+        try {
+          parser.populateSchema(schemaAdapter, schema, fetchDocument, freeDocument);
+        } catch (std::exception &e) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Failed to parse jsonschema: " << e.what());
+        }
+
+        valijson::Validator validator(valijson::Validator::kStrongTypes);
+        valijson::ValidationResults errors;
+        valijson::adapters::RapidJsonAdapter adapter(doc);
+
+        if (!validator.validate(schema, adapter, &errors)) {
+          valijson::ValidationResults::Error error;
+          while (errors.popError(error)) {
+            std::string context;
+            std::vector<std::string>::iterator itr = error.context.begin();
+            for (; itr != error.context.end(); ++itr) {
+              context += *itr;
+            }
+            THROW_EXC_TRC_WAR(std::logic_error, "Failed to validate " << direction << " message. Violating member: "
+              << context << ". Violation: " << error.description 
+            );
+          }
         }
         //TRC_DEBUG("OK");
         TRC_INFORMATION("Message successfully validated.")
@@ -492,7 +524,6 @@ namespace iqrf {
         TRC_INFORMATION("loading: " << PAR(fname));
         try {
           Document sd;
-
           std::ifstream ifs(fname);
           if (!ifs.is_open()) {
             THROW_EXC_TRC_WAR(std::logic_error, "Cannot open: " << PAR(fname));
@@ -557,14 +588,11 @@ namespace iqrf {
 
           MsgType msgType(mType, major, minor, micro, possibleDriverFunction);
 
-          SchemaDocument schema(sd);
-
           if (direction == "request") {
-            m_validatorMapRequest.insert(std::make_pair(getKey(msgType), std::move(schema)));
+            m_validatorMapRequest.insert(std::make_pair(getKey(msgType), std::move(sd)));
             //m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
-          }
-          else if (direction == "response") {
-            m_validatorMapResponse.insert(std::make_pair(getKey(msgType), std::move(schema)));
+          } else if (direction == "response") {
+            m_validatorMapResponse.insert(std::make_pair(getKey(msgType), std::move(sd)));
           }
           m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
           TRC_DEBUG ("Add: " << NAME_PAR(key, getKey(msgType)) << PAR(msgType.m_type) << " ver" << msgType.m_major << '.' << msgType.m_minor << '.' << msgType.m_micro << " drv:" <<
@@ -664,6 +692,10 @@ namespace iqrf {
           m_iMessagingServiceSetAcceptAsync.erase(found);
         }
       }
+    }
+
+    std::string getSchemasDir() {
+      return m_schemesDir;
     }
 
   };

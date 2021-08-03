@@ -73,7 +73,8 @@
 					"$id": "#/properties/data/properties/timeout",
 					"title": "Request timeout",
 					"description": "Timeout to wait for IQRF DPA response.",
-					"type": "integer"
+					"type": "integer",
+					"minimum": 500
 				},
 				"returnVerbose": {
 					"$id": "#/properties/data/properties/returnVerbose",
