@@ -10,6 +10,7 @@
 	"properties": {
 		"mType": {
 			"$ref": "file://definitions.json#/general/mType",
+			"description": "Message type for Raw communication.",
 			"const": "iqrfRaw"
 		},
 		"data": {
@@ -40,10 +41,10 @@
 						}
 					}
 				},
-				"raw": {"$ref": "file://definitions.json#/response/raw"},
-				"insId": {"$ref": "file://definitions.json#/response/insId"},
-				"status": {"$ref": "file://definitions.json#/response/status"},
-				"statusStr": {"$ref": "file://definitions.json#/response/statusStr"},
+				"raw": {"$ref": "file://definitions.json#/general/response/raw"},
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"},
 				"timeout": {"$ref": "file://definitions.json#/general/timeout"}
 			}
 		}

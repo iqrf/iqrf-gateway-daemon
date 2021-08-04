@@ -1,11 +1,5 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "mngDaemon_Mode-response",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
+	"$schema": "http://json-schema.org/draft-07/schema",
 	"title": "Daemon managerment - Mode",
 	"type": "object",
 	"required": [
@@ -15,13 +9,9 @@
 	"additionalProperties": false,
 	"properties": {
 		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
-			"type": "string",
+			"$ref": "file://definitions.json#/general/mType",
 			"description": "Daemon runtime management - Change the daemon mode response.",
-			"enum": [
-				"mngDaemon_Mode"
-			]
+			"const": "mngDaemon_Mode"
 		},
 		"data": {
 			"$id": "#/properties/data",
@@ -35,19 +25,22 @@
 			],
 			"additionalProperties": false,
 			"properties": {
-				"msgId": {
-					"type": "string",
-					"description": "Message identification for binding request with response."
-				},
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
 				"rsp": {
 					"$id": "#/properties/data",
 					"title": "Message data",
 					"description": "Message metadata and body",
 					"type": "object",
+					"required": [
+						"operMode"
+					],
+					"additionalProperties": false,
 					"properties": {
 						"operMode": {
-							"type": "string",
+							"$id": "#/properties/data/properties/rsp/properties/operMode",
+							"title": "Operation mode",
 							"description": "Operation mode.",
+							"type": "string",
 							"enum": [
 								"operational",
 								"service",
@@ -55,23 +48,11 @@
 								"unknown"
 							]
 						}
-					},
-					"required": [
-						"operMode"
-					]
+					}
 				},
-				"insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
-				},
-				"status": {
-					"type": "integer",
-					"description": "Status of operation."
-				},
-				"statusStr": {
-					"type": "string",
-					"description": "IQRF GW daemon API (general or mType) status in string form."
-				}
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"}
 			}
 		}
 	}

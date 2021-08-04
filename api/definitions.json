@@ -8,8 +8,7 @@
 		},
 		"mType": {
 			"$id": "#/general/mType",
-			"title": "Message type",
-			"description": "Message type for Raw communication."
+			"title": "Message type"
 		},
 		"timeout": {
 			"$id": "#/general/timeout",
@@ -17,102 +16,139 @@
 			"description": "Timeout to wait for IQRF DPA response.",
 			"type": "integer",
 			"minimum": 500
-		}
-	},
-	"request": {
-		"returnVerbose": {
-			"$id": "#/request/returnVerbose",
-			"title": "Verbose response",
-			"description": "Flag that includes additional parameters in the response.",
-			"type": "boolean"
-		}
-	},
-	"response": {
-		"insId": {
-			"$id": "#/response/insId",
-			"title": "Instance ID",
-			"description": "IQRF GW daemon instance identification.",
-			"ty,pe": "string"
 		},
-		"status": {
-			"$id": "#/response/status",
-			"title": "Status code",
-			"description": "Status of operation.",
-			"type": "integer"
+		"nAdr": {
+			"$id": "#/general/nAdr",
+			"title": "Node address",
+			"description": "Network device address.",
+			"type": "integer",
+			"minimum": 0,
+			"maximum": 239
 		},
-		"statusStr": {
-			"$id": "#/response/statusStr",
-			"title": "Status string",
-			"description": "IQRF GW daemon API (general or mType) status in string form.",
-			"type": "string"
+		"hwpId": {
+			"$id": "#/general/hwpid",
+			"title": "Device HWPID",
+			"description": "Hardware profile identification.",
+			"type": "integer",
+			"minimum": 0,
+			"maximum": 65535,
+			"default": 65535
 		},
-		"raw": {
-			"$id": "#/response/raw",
-			"title": "Raw DPA messages",
-			"description": "Returns array of objects req-cnf-rsp, see its description.",
-			"type": "array",
-			"additionalItems": false,
-			"items": {
-				"$id": "#/raw/items",
-				"title": "Raw DPA messages object",
-				"description": "Object containing Request, Confirmation and Response DPA messages and their timestamps.",
-				"type": "object",
-				"required": [
-					"request",
-					"requestTs",
-					"confirmation",
-					"confirmationTs",
-					"response",
-					"responseTs"
-				],
-				"additionalProperties": false,
-				"properties": {
-					"request": {
-						"$id": "#/response/raw/items/properties/request",
-						"title": "Request DPA",
-						"$ref": "#/data/requestDpa"
-					},
-					"requestTs": {
-						"$id": "#/response/raw/items/properties/requestTs",
-						"title": "Request timestamp",
-						"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
-						"$ref": "#/data/timestamp"
-					},
-					"confirmation": {
-						"$id": "#/response/raw/items/properties/confirmation",
-						"title": "Confirmation DPA",
-						"$ref": "#/data/confirmationDpa"
-					},
-					"confirmationTs": {
-						"$id": "#/response/raw/items/properties/confirmationTs",
-						"title": "Confirmation timestamp",
-						"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
-						"oneOf": [
-							{
-								"$ref": "#/data/timestamp"
-							},
-							{
-								"const": ""
-							}
-						]
-					},
-					"response": {
-						"$id": "#/response/raw/items/properties/response",
-						"title": "Request DPA",
-						"$ref": "#/data/responseDpa"
-					},
-					"responseTs": {
-						"$id": "#/response/raw/items/properties/responseTs",
-						"title": "Response timestamp",
-						"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
-						"oneOf": [
-							{
-								"$ref": "#/data/timestamp"
-							},
-							{
-								"const": ""
-							}
-						]
+		"request": {
+			"returnVerbose": {
+				"$id": "#/general/request/returnVerbose",
+				"title": "Verbose response",
+				"description": "Flag that includes additional parameters in the response.",
+				"type": "boolean"
+			}
+		},
+		"response": {
+			"rCode": {
+				"$id": "#/general/response/rCode",
+				"title": "Return code",
+				"description": "DPA error code.",
+				"type": "integer",
+				"minimum": 0
+			},
+			"dpaVal": {
+				"$id": "#/general/response/dpaVal",
+				"title": "DPA value",
+				"description": "DPA value.",
+				"type": "integer",
+				"minimum": 0
+			},
+			"errorStr": {
+				"$id": "#/general/response/errorStr",
+				"title": "Error string",
+				"description": "Error description from JS drivers.",
+				"type": "string"							
+			},
+			"insId": {
+				"$id": "#/general/response/insId",
+				"title": "Instance ID",
+				"description": "IQRF GW daemon instance identification.",
+				"ty,pe": "string"
+			},
+			"status": {
+				"$id": "#/general/response/status",
+				"title": "Status code",
+				"description": "Status of operation.",
+				"type": "integer"
+			},
+			"statusStr": {
+				"$id": "#/general/response/statusStr",
+				"title": "Status string",
+				"description": "IQRF GW daemon API (general or mType) status in string form.",
+				"type": "string"
+			},
+			"raw": {
+				"$id": "#/general/response/raw",
+				"title": "Raw DPA messages",
+				"description": "Returns array of objects req-cnf-rsp, see its description.",
+				"type": "array",
+				"additionalItems": false,
+				"items": {
+					"$id": "#/general/response/raw/items",
+					"title": "Raw DPA messages object",
+					"description": "Object containing Request, Confirmation and Response DPA messages and their timestamps.",
+					"type": "object",
+					"required": [
+						"request",
+						"requestTs",
+						"confirmation",
+						"confirmationTs",
+						"response",
+						"responseTs"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"request": {
+							"$id": "#/general/response/raw/items/properties/request",
+							"title": "Request DPA",
+							"$ref": "#/patterns/requestDpa"
+						},
+						"requestTs": {
+							"$id": "#/general/response/raw/items/properties/requestTs",
+							"title": "Request timestamp",
+							"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
+							"$ref": "#/patterns/timestamp"
+						},
+						"confirmation": {
+							"$id": "#/general/response/raw/items/properties/confirmation",
+							"title": "Confirmation DPA",
+							"$ref": "#/patterns/confirmationDpa"
+						},
+						"confirmationTs": {
+							"$id": "#/general/response/raw/items/properties/confirmationTs",
+							"title": "Confirmation timestamp",
+							"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
+							"oneOf": [
+								{
+									"$ref": "#/patterns/timestamp"
+								},
+								{
+									"const": ""
+								}
+							]
+						},
+						"response": {
+							"$id": "#/general/response/raw/items/properties/response",
+							"title": "Request DPA",
+							"$ref": "#/patterns/responseDpa"
+						},
+						"responseTs": {
+							"$id": "#/general/response/raw/items/properties/responseTs",
+							"title": "Response timestamp",
+							"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
+							"oneOf": [
+								{
+									"$ref": "#/patterns/timestamp"
+								},
+								{
+									"const": ""
+								}
+							]
+						}
 					}
 				}
 			}
@@ -122,23 +158,81 @@
 		"request": {
 			"$id": "#/raw/request",
 			"title": "Request DPA",
-			"$ref": "#/data/requestDpa"
+			"$ref": "#/patterns/requestDpa"
 		},
 		"response": {
 			"$id": "#/raw/response",
 			"title": "Response DPA",
-			"$ref": "#/data/responseDpa"
+			"$ref": "#/patterns/responseDpa"
 		}
 	},
-	"data": {
+	"standard": {
+		"index": {
+			"$id": "#/standard/index",
+			"title": "Device index",
+			"description": "Zero based index of the device to set.",
+			"type": "integer",
+			"minimum": 0,
+			"maximum": 31
+		},
+		"time": {
+			"$id": "#/standard/time",
+			"title": "ON timer",
+			"description": "Time in seconds. Allowed values are <1;127> or 60*<1;127>.",
+			"type": "integer",
+			"anyOf": [
+				{
+					"minimum": 1,
+					"maximum": 127
+				},
+				{
+					"minimum": 60,
+					"maximum": 7620,
+					"multipleOf": 60
+				}
+			]
+		},
+		"light": {
+			"power": {
+				"$id": "#/standard/light/power",
+				"title": "Light power",
+				"type": "integer",
+				"oneOf": [
+					{
+						"minimum": 0,
+						"maximum": 100
+					},
+					{
+						"const": 127
+					}
+				]
+			},
+			"prevVals": {
+				"$id": "#/standard/light/prevVals",
+				"title": "Previous power",
+				"description": "Array integers corresponding to the previous power level of each selected light. If the unimplemented light was selected the returned value is 0.",
+				"type": "array",
+				"additionalItems": false,
+				"items": {
+					"$id": "#/properties/data/properties/rsp/properties/result/properties/prevVals/items",
+					"title": "Light power",
+					"description": "Power of a selected light",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 100
+				}
+			}
+		}
+	},
+	"patterns": {
 		"requestDpa": {
-			"$id": "#/data/requestDpa",
+			"$id": "#/patterns/requestDpa",
 			"type": "string",
 			"description": "Binary buffer with DPA request",
 			"pattern": "^([0-9a-fA-F]|[fF]0){2}\\.00\\.(0[0-9a-dA-D]|2[0-9a-fA-F]|3[0-9a-eA-E]|4[aAbB]|5[eE]|71|7[fF]|[fF][eE])\\.[0-7][0-9a-fA-F](\\.[0-9a-fA-F]{2}){2}(\\.[0-9a-fA-F]{2}){0,58}(.)?$"
 		},
 		"confirmationDpa": {
-			"$id": "#/data/confirmationDpa",
+			"$id": "#/patterns/confirmationDpa",
 			"type": "string",
 			"description": "Binary buffer with DPA confirmation",
 			"oneOf": [
@@ -151,7 +245,7 @@
 			]
 		},
 		"responseDpa": {
-			"$id": "#/data/responseDpa",
+			"$id": "#/patterns/responseDpa",
 			"type": "string",
 			"description": "Binary buffer with DPA response",
 			"oneOf": [
@@ -164,7 +258,7 @@
 			]
 		},
 		"timestamp": {
-			"$id": "#/data/timestamp",
+			"$id": "#/patterns/timestamp",
 			"type": "string",
 			"pattern": "^(\\d{4})-((0[13578]|1[02])-(0[1-9]|1\\d|2\\d|3[01])|(0[469]|11)-(0[1-9]|1\\d|2\\d|30)|02-(0[1-9]|1\\d|2\\d))T(0\\d|1\\d|2[0-3])(:([0-5]\\d)){2}.(\\d{3})\\+(0\\d|1\\d|2[0-3]):([0-5]\\d)$"
 		}

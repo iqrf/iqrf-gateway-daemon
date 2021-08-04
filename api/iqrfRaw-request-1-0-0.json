@@ -10,6 +10,7 @@
 	"properties": {
 		"mType": {
 			"$ref": "file://definitions.json#/general/mType",
+			"description": "Message type for Raw communication.",
 			"const": "iqrfRaw"
 		},
 		"data": {
@@ -38,7 +39,7 @@
 					}
 				},
 				"timeout": {"$ref": "file://definitions.json#/general/timeout"},
-				"returnVerbose": {"$ref": "file://definitions.json#/request/returnVerbose"}
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
 			}
 		}
 	}

@@ -1,11 +1,5 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "mngDaemon_Exit-response",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
+	"$schema": "http://json-schema.org/draft-07/schema",
 	"title": "Daemon management - Exit",
 	"type": "object",
 	"required": [
@@ -15,13 +9,9 @@
 	"additionalProperties": false,
 	"properties": {
 		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
+			"$ref": "file://definitions.json#/general/mType",
 			"description": "Daemon runtime management - exit request message.",
-			"type": "string",
-			"enum": [
-				"mngDaemon_Exit"
-			]
+			"const": "mngDaemon_Exit"
 		},
 		"data": {
 			"$id": "#/properties/data",
@@ -35,12 +25,7 @@
 			],
 			"additionalProperties": false,
 			"properties": {
-				"msgId": {
-					"$id": "#/properties/data/properties/msgId",
-					"title": "Message ID",
-					"description": "Message identification for binding request with response.",
-					"type": "string"
-				},
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
 				"rsp": {
 					"$id": "#/properties/data/properties/rsp",
 					"title": "Response data",
@@ -61,24 +46,9 @@
 						}
 					}
 				},
-				"insId": {
-					"$id": "#/properties/data/properties/insId",
-					"title": "Instance ID",
-					"description": "IQRF GW daemon instance identification.",
-					"type": "string"
-				},
-				"status": {
-					"$id": "#/properties/data/properties/status",
-					"title": "Status code",
-					"description": "Status of operation.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"$id": "#/properties/data/properties/statusStr",
-					"title": "Status string",
-					"description": "IQRF GW daemon API (general or mType) status in string form.",
-					"type": "string"
-				}
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"}
 			}
 		}
 	}
