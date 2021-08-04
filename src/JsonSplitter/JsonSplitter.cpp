@@ -284,17 +284,22 @@ namespace iqrf {
         valijson::adapters::RapidJsonAdapter adapter(doc);
 
         if (!validator.validate(schema, adapter, &errors)) {
+          uint8_t cnt = 1;
+          std::stringstream ss;
+          ss << "Failed to validate " << direction << " message. " << std::endl;
           valijson::ValidationResults::Error error;
           while (errors.popError(error)) {
+            if (error.description.find("validate against schema associated with property") != std::string::npos) {
+              continue;
+            }
             std::string context;
             std::vector<std::string>::iterator itr = error.context.begin();
             for (; itr != error.context.end(); ++itr) {
               context += *itr;
             }
-            THROW_EXC_TRC_WAR(std::logic_error, "Failed to validate " << direction << " message. Violating member: "
-              << context << ". Violation: " << error.description 
-            );
+            ss << std::to_string(cnt++) << ": Violating member: " << context << ". Violation: " << error.description << std::endl;
           }
+          THROW_EXC_TRC_WAR(std::logic_error, ss.str());
         }
         //TRC_DEBUG("OK");
         TRC_INFORMATION("Message successfully validated.")
@@ -578,10 +583,13 @@ namespace iqrf {
           std::string ver;
 
           // get message type
-          if (Value* mTypeVal = Pointer("/properties/mType/enum/0").Get(sd)) {
-            mType = mTypeVal->GetString();
+          Value *mTypeVal = Pointer("/properties/mType/const").Get(sd);
+          if (mTypeVal == nullptr) {
+            mTypeVal = Pointer("/properties/mType/enum/0").Get(sd);
           }
-          else {
+          if (mTypeVal != nullptr) {
+            mType = mTypeVal->GetString();
+          } else {
             //defaulted to support daemon V1 messages
             THROW_EXC_TRC_WAR(std::logic_error, "Invalid schema: " << PAR(fname));
           }
