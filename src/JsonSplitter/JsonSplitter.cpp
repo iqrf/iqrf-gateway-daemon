@@ -279,7 +279,7 @@ namespace iqrf {
           THROW_EXC_TRC_WAR(std::logic_error, "Failed to parse jsonschema: " << e.what());
         }
 
-        valijson::Validator validator(valijson::Validator::kStrongTypes);
+        valijson::Validator validator(valijson::Validator::kWeakTypes);
         valijson::ValidationResults errors;
         valijson::adapters::RapidJsonAdapter adapter(doc);
 

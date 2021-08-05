@@ -198,6 +198,7 @@ namespace iqrf {
 
     void TearDown(void) override
     {
+      Imp::get().m_iLaunchService->exit();
     };
 
     //for debug only

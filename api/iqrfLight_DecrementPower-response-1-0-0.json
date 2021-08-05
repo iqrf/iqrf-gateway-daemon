@@ -56,7 +56,7 @@
 								"prevVals": {"$ref": "file://definitions.json#/standard/light/prevVals"}
 							}
 						},
-						"errorStr": {"$id": "file://definitions.json#/general/response/errorStr"}
+						"errorStr": {"$ref": "file://definitions.json#/general/response/errorStr"}
 					}
 				},
 				"raw": {"$ref": "file://definitions.json#/general/response/raw"},

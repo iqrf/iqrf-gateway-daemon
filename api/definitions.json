@@ -25,6 +25,21 @@
 			"minimum": 0,
 			"maximum": 239
 		},
+		"pNum": {
+			"$id": "#/general/pNum",
+			"title": "Peripheral number",
+			"description": "Integer that corresponds to the respective peripheral.",
+			"type": "integer",
+			"oneOf": [
+				{
+					"enum": [0,1,2,3,4,5,6,7,9,10,12,13,74,75,94,113]
+				},
+				{
+					"minimum": 32,
+					"maximum": 62
+				}
+			]
+		},
 		"hwpId": {
 			"$id": "#/general/hwpid",
 			"title": "Device HWPID",
@@ -35,6 +50,31 @@
 			"default": 65535
 		},
 		"request": {
+			"pCmd": {
+				"$id": "#/general/request/pCmd",
+				"title": "Peripheral command",
+				"description": "Integer that corresponds to the respective peripheral command.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 127
+			},
+			"pData": {
+				"$id": "#/general/request/pData",
+				"title": "Request packet data",
+				"description": "Binary buffer with DPA request data.",
+				"type": "array",
+				"additionalItems": false,
+				"minItems": 0,
+				"maxItems": 58,
+				"items": {
+					"$id": "#/general/pData/items",
+					"title": "Data byte",
+					"description": "Single packet data byte.",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 255
+				}
+			},
 			"returnVerbose": {
 				"$id": "#/general/request/returnVerbose",
 				"title": "Verbose response",
@@ -43,6 +83,31 @@
 			}
 		},
 		"response": {
+			"pCmd": {
+				"$id": "#/general/response/pCmd",
+				"title": "Peripheral command response",
+				"description": "Integer that corresponds to the respective peripheral command response.",
+				"type": "integer",
+				"minimum": 128,
+				"maximum": 255
+			},
+			"pData": {
+				"$id": "#/general/response/pData",
+				"title": "Response packet data",
+				"description": "Binary buffer with DPA response data.",
+				"type": "array",
+				"additionalItems": false,
+				"minItems": 0,
+				"maxItems": 56,
+				"items": {
+					"$id": "#/general/pData/items",
+					"title": "Data byte",
+					"description": "Single packet data byte.",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 255
+				}
+			},
 			"rCode": {
 				"$id": "#/general/response/rCode",
 				"title": "Return code",
@@ -134,7 +199,15 @@
 						"response": {
 							"$id": "#/general/response/raw/items/properties/response",
 							"title": "Request DPA",
-							"$ref": "#/patterns/responseDpa"
+							"oneOf": [
+								{
+									"$ref": "#/patterns/responseDpa"
+								},
+								{
+									"description": "Binary buffer with DPA response",
+									"const": ""
+								}
+							]
 						},
 						"responseTs": {
 							"$id": "#/general/response/raw/items/properties/responseTs",
@@ -229,7 +302,7 @@
 			"$id": "#/patterns/requestDpa",
 			"type": "string",
 			"description": "Binary buffer with DPA request",
-			"pattern": "^([0-9a-fA-F]|[fF]0){2}\\.00\\.(0[0-9a-dA-D]|2[0-9a-fA-F]|3[0-9a-eA-E]|4[aAbB]|5[eE]|71|7[fF]|[fF][eE])\\.[0-7][0-9a-fA-F](\\.[0-9a-fA-F]{2}){2}(\\.[0-9a-fA-F]{2}){0,58}(.)?$"
+			"pattern": "^([0-9a-fA-F]|[fF]0){2}\\.00\\.(0[0-9a-dA-D]|2[0-9a-fA-F]|3[0-9a-fA-F]|4[aAbB]|5[eE]|71|7[fF]|[fF][eE]|[fF]{2})\\.[0-7][0-9a-fA-F](\\.[0-9a-fA-F]{2}){2}(\\.[0-9a-fA-F]{2}){0,58}(.)?$"
 		},
 		"confirmationDpa": {
 			"$id": "#/patterns/confirmationDpa",
@@ -237,7 +310,7 @@
 			"description": "Binary buffer with DPA confirmation",
 			"oneOf": [
 				{
-					"pattern": "^([0-9a-fA-F]|[fF]0){2}\\.00\\.(0[0-9a-dA-D]|2[0-9a-fA-F]|3[0-9a-eA-E]|4[aAbB]|5[eE]|71|7[fF]|[fF][eE])\\.[0-7][0-9a-fA-F](\\.[0-9a-fA-F]{2}){2}\\.[fF]{2}(\\.[0-9a-fA-F]{2}){3}(.)?$"
+					"pattern": "^([0-9a-fA-F]|[fF]0){2}\\.00\\.(0[0-9a-dA-D]|2[0-9a-fA-F]|3[0-9a-fA-F]|4[aAbB]|5[eE]|71|7[fF]|[fF][eE]|[fF]{2})\\.[0-7][0-9a-fA-F](\\.[0-9a-fA-F]{2}){2}\\.[fF]{2}(\\.[0-9a-fA-F]{2}){3}(.)?$"
 				},
 				{
 					"const": ""
@@ -248,14 +321,7 @@
 			"$id": "#/patterns/responseDpa",
 			"type": "string",
 			"description": "Binary buffer with DPA response",
-			"oneOf": [
-				{
-					"pattern": "^([0-9a-fA-F]|[fF]0){2}\\.00\\.(0[0-9a-dA-D]|2[0-9a-fA-F]|3[0-9a-eA-E]|4[aAbB]|5[eE]|71|7[fF]|[fF][eE])\\.[8-9a-fA-F][0-9a-fA-F](\\.[0-9a-fA-F]{2}){2}\\.(0[0-9]|10|[23][0-9a-fA-F]|40|80|[fF]{2})\\.[0-9a-fA-F]{2}(\\.[0-9a-fA-F]{2}){0,56}(.)?$"
-				},
-				{
-					"const": ""
-				}
-			]
+			"pattern": "^([0-9a-fA-F]|[fF]0){2}\\.00\\.(0[0-9a-dA-D]|2[0-9a-fA-F]|3[0-9a-eA-E]|4[aAbB]|5[eE]|71|7[fF]|[fF][eE]|[fF]{2})\\.(3[fF]|[8-9a-fA-F][0-9a-fA-F])(\\.[0-9a-fA-F]{2}){2}\\.(0[0-9]|10|[23][0-9a-fA-F]|40|80|[fF]{2})\\.[0-9a-fA-F]{2}(\\.[0-9a-fA-F]{2}){0,56}(.)?$"
 		},
 		"timestamp": {
 			"$id": "#/patterns/timestamp",

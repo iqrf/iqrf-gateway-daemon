@@ -16,7 +16,7 @@
 	"properties": {
 		"mType": {
 			"$ref": "file://definitions.json#/general/mType",
-			"description": "Daemon runtime management - exit request message.",
+			"description": "Daemon runtime management - Exit request.",
 			"const": "mngDaemon_Exit"
 		},
 		"data": {
