@@ -265,6 +265,23 @@
 				}
 			]
 		},
+		"dali": {
+			"commands": {
+				"$id": "#/standard/dali/commands",
+				"title": "Array of DALI commands",
+				"description": "Array of 2 bytes (16 bits) wide values, each representing one DALI command at the standard DALI format YAAAAAAS+DDDDDDDD.",
+				"type": "array",
+				"additionalItems": false,
+				"minItems": 1,
+				"items": {
+					"title": "DALI command",
+					"description": "16bit DALI command value",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 65535
+				}
+			}
+		},
 		"light": {
 			"power": {
 				"$id": "#/standard/light/power",
@@ -287,7 +304,6 @@
 				"type": "array",
 				"additionalItems": false,
 				"items": {
-					"$id": "#/properties/data/properties/rsp/properties/result/properties/prevVals/items",
 					"title": "Light power",
 					"description": "Power of a selected light",
 					"type": "integer",

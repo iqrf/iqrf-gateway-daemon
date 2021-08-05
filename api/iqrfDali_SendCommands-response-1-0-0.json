@@ -1,154 +1,104 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfDali_SendCommands-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Standard peripheral DALI - Send DALI commands and returns answers synchronously.",
-            "enum": [
-                "iqrfDali_SendCommands"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "rCode": {
-                            "type": "integer",
-                            "description": "DPA error code."
-                        },
-                        "dpaVal": {
-                            "type": "integer",
-                            "description": "DPA value."
-                        },
-                        "result": {
-                            "type": "object",
-                            "properties": {
-                                "answers": {
-                                    "type": "array",
-                                    "description": "Returns array of objects for every DALI 2B command.",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "status": {
-                                                "type": "integer",
-                                                "description": "DALI status: See IQRF DALI standard for details."
-                                            },
-                                            "value": {
-                                                "type": "integer",
-                                                "description": "DALI value: See IQRF DALI standard for details."
-                                            }
-                                        },
-                                        "required": [
-                                            "status",
-                                            "value"
-                                        ]
-                                    }
-                                }
-                            },
-                            "required": [
-                                "answers"
-                            ]
-                        },
-                        "errorStr": {
-                            "type": "string",
-                            "description": "Error description from JS drivers."
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "hwpId",
-                        "rCode",
-                        "dpaVal"
-                    ]
-                },
-                "raw": {
-                    "type": "array",
-                    "description": "Returns array of objects req-cnf-rsp, see its description.",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "request": {
-                                "type": "string",
-                                "description": "Binary buffer with DPA request."
-                            },
-                            "requestTs": {
-                                "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-                            },
-                            "confirmation": {
-                                "type": "string",
-                                "description": "Binary buffer with DPA confirmation."
-                            },
-                            "confirmationTs": {
-                                "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-                            },
-                            "response": {
-                                "type": "string",
-                                "description": "Binary buffer with DPA response."
-                            },
-                            "responseTs": {
-                                "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-                            }
-                        },
-                        "required": [
-                            "request",
-                            "requestTs",
-                            "confirmation",
-                            "confirmationTs",
-                            "response",
-                            "responseTs"
-                        ]
-                    }
-                },
-                "insId": {
-                    "type": "string",
-                    "description": "IQRF GW daemon instance identification."
-                },
-                "status": {
-                    "type": "integer",
-                    "description": "IQRF GW daemon API (general or mType) status."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQRF DALI - SendCommands",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Standard peripheral DALI - Send DALI commands and returns answers synchronously.",
+			"const": "iqrfDali_SendCommands"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response body object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"hwpId",
+						"rCode",
+						"dpaVal"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
+						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"},
+						"rCode": {"$ref": "file://definitions.json#/general/response/rCode"},
+						"dpaVal": {"$ref": "file://definitions.json#/general/response/dpaVal"},
+						"result": {
+							"$id": "#/properties/data/properties/rsp/properties/result",
+							"title": "Result object",
+							"description": "Request result data.",
+							"type": "object",
+							"required": [
+								"answers"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"answers": {
+									"$id": "#/properties/data/properties/rsp/properties/result/properties/answers",
+									"title": "Array of DALI answers",
+									"description": "Returns array of objects for every DALI 2B command.",
+									"type": "array",
+									"additionalItems": false,
+									"items": {
+										"$id": "#/properties/data/properties/rsp/properties/result/properties/answers/items",
+										"title": "DALI answer",
+										"description": "DALI answer object containing status and value.",
+										"type": "object",
+										"required": [
+											"status",
+											"value"
+										],
+										"properties": {
+											"status": {
+												"$id": "#/properties/data/properties/rsp/properties/result/properties/answers/items/properties/status",
+												"title": "DALI status",
+												"description": "DALI command status: See IQRF DALI standard for details.",
+												"type": "integer",
+												"minimum": 0,
+												"maximum": 255
+											},
+											"value": {
+												"$id": "#/properties/data/properties/rsp/properties/result/properties/answers/items/properties/value",
+												"title": "DALI value",
+												"description": "DALI command value: See IQRF DALI standard for details.",
+												"type": "integer",
+												"minimum": 0,
+												"maximum": 255
+											}
+										}
+									}
+								}
+							}
+						},
+						"errorStr": {"$ref": "file://definitions.json#/general/response/errorStr"}
+					}
+				},
+				"raw": {"$ref": "file://definitions.json#/general/response/raw"},
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"},
+				"timeout": {"$ref": "file://definitions.json#/general/timeout"}
+			}
+		}
+	}
 }
