@@ -49,14 +49,14 @@
 							"additionalProperties": false,
 							"properties": {
 								"lights": {
-									"$id": "#/properties/data/properties/req/properties/param/lights",
+									"$id": "#/properties/data/properties/req/properties/param/properties/lights",
 									"title": "Lights configuration",
 									"description": "Array of objects containing configuration of lights.",
 									"type": "array",
 									"additionalItems": false,
 									"minItems": 1,
 									"items": {
-										"$id": "#/properties/data/properties/req/properties/param/lights/items",
+										"$id": "#/properties/data/properties/req/properties/param/properties/lights/items",
 										"title": "Light configuration",
 										"description": "Configuration of a single light.",
 										"type": "object",
