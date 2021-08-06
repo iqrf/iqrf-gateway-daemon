@@ -80,6 +80,21 @@
 				"title": "Verbose response",
 				"description": "Flag that includes additional parameters in the response.",
 				"type": "boolean"
+			},
+			"selectedNodes": {
+				"$id": "#/general/request/selectedNodes",
+				"title": "Array of nodes",
+				"description": "Array of integer values corresponding to the selected node addresses. Use default value to select all nodes and use sleepAfterFrc parameter.",
+				"type": "array",
+				"additionalItems": false,
+				"items": {
+					"$id": "#/general/request/selectedNodes/items",
+					"title": "Node address",
+					"description": "Address of node device in network.",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 239
+				}
 			}
 		},
 		"response": {
@@ -100,7 +115,7 @@
 				"minItems": 0,
 				"maxItems": 56,
 				"items": {
-					"$id": "#/general/pData/items",
+					"$id": "#/general/response/pData/items",
 					"title": "Data byte",
 					"description": "Single packet data byte.",
 					"type": "integer",
