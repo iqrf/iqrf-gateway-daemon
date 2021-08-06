@@ -753,11 +753,32 @@
 					"minItems": 7,
 					"maxItems": 7,
 					"additionalItems": false,
-					"items": {
-						"title": "Cron field",
-						"description": "Cron field values corresponding to seconds, minutes, hours, day of month, month, days of week and year.",
-						"type": "string"
-					}
+					"items": [
+						{
+							"title": "Seconds field",
+							"description": "5 = 5 seconds past minute, * = every second, */5 = every 5 seconds",
+							"type": "string",
+							"pattern": "^([0-9]|[1-5][0-9])|\\*(/\\d+)?$"
+						},
+						{
+							"title": "Minutes field",
+							"description": "5 = 5 minutes past hour, * = every minute, */5 = every 5 minutes",
+							"type": "string",
+							"pattern": "^([0-9]|[1-5][0-9])|\\*(/\\d+)?$"
+						},
+						{
+							"title": "Hours field",
+							"description": "5 = at 5 AM, * = every hour, */5 = every 5 hours",
+							"type": "string",
+							"pattern": "^([0-9]|1[0-9]|2[0-3])|\\*(/\\d+)?$"
+						},
+						{
+							"title": "Days of month field",
+							"description": "5 = 5th day of the month, * = every day, */5 = every 5 days",
+							"type": "string",
+							"pattern": "^([12][0-9]|3[01])|\\*(/\\d+)?$"
+						}
+					]
 				},
 				"exactTime": {
 					"title": "Oneshot task",
@@ -767,7 +788,7 @@
 				"startTime": {
 					"title": "Scheduled time",
 					"description": "Scheduled execution time for oneshot task.",
-					"type": "string"
+					"$ref": "#/patterns/timestamp"
 				},
 				"periodic": {
 					"title": "Periodic task",

@@ -43,10 +43,6 @@
 						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"},
 						"rCode": {"$ref": "file://definitions.json#/general/response/rCode"},
 						"dpaVal": {"$ref": "file://definitions.json#/general/response/dpaVal"},
-						"result": {
-							"type": "object",
-							"additionalProperties": false
-						},
 						"errorStr": {"$ref": "file://definitions.json#/general/response/errorStr"}
 					}
 				},

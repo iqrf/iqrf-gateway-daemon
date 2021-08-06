@@ -103,7 +103,7 @@ namespace iqrf {
       Pointer("/data/rsp/hwpId").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.HWPID : m_hwpid);
       Pointer("/data/rsp/rCode").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
       Pointer("/data/rsp/dpaVal").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);
-      if (!m_payloadOnlyForVerbose || getVerbose()) {
+      if ((!m_payloadOnlyForVerbose || getVerbose()) && (m_payload.IsObject() && !m_payload.ObjectEmpty())) {
         Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
       }
       if (m_appendMidMetaData) {
