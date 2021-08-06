@@ -1,11 +1,6 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "mngScheduler_AddTask-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "Scheduler management - Add task",
 	"type": "object",
 	"required": [
 		"mType",
@@ -14,15 +9,14 @@
 	"additionalProperties": false,
 	"properties": {
 		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Daemon API message type",
+			"$ref": "file://definitions.json#/general/mType",
 			"description": "Scheduler management - Add Task request.",
-			"type": "string",
-			"enum": [
-				"mngScheduler_AddTask"
-			]
+			"const": "mngScheduler_AddTask"
 		},
 		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
 			"type": "object",
 			"required": [
 				"msgId",
@@ -30,11 +24,11 @@
 			],
 			"additionalProperties": false,
 			"properties": {
-				"msgId": {
-					"type": "string",
-					"description": "Message identification for binding request with response."
-				},
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
 				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
 					"type": "object",
 					"required": [
 						"clientId",
@@ -43,123 +37,14 @@
 					],
 					"additionalProperties": false,
 					"properties": {
-						"clientId": {
-							"type": "string",
-							"description": "Client identifier."
-						},
-						"taskId": {
-							"$id": "#/properties/data/properties/req/properties/taskId",
-							"title": "Task identifier",
-							"type": "integer"
-						},
-						"task": {
-							"$id": "#/properties/data/properties/req/properties/task",
-							"title": "Tasks",
-							"description": "Scheduled task or array of tasks.",
-							"oneOf": [
-								{
-									"$ref": "#/definitions/task"
-								},
-								{
-									"type": "array",
-									"items": {
-										"$id": "#/properties/data/properties/req/properties/task/items",
-										"$ref": "#/definitions/task"
-									},
-									"additionalItems": false
-								}
-							]
-						},
-						"timeSpec": {
-							"type": "object",
-							"required": [
-								"cronTime",
-								"periodic",
-								"period",
-								"exactTime",
-								"startTime"
-							],
-							"additionalProperties": false,
-							"properties": {
-								"cronTime": {
-									"type": "array",
-									"minItems": 7,
-									"maxItems": 7,
-									"items": {
-										"type": "string"
-									},
-									"description": "7 items of cron-like syntax. All required."
-								},
-								"periodic": {
-									"type": "boolean",
-									"description": "Periodic timer with defined period."
-								},
-								"period": {
-									"type": "integer",
-									"description": "Period in seconds."
-								},
-								"exactTime": {
-									"type": "boolean",
-									"description": "One shot timer starting now or delayed ast startTime."
-								},
-								"startTime": {
-									"type": "string",
-									"description": "Delayed start in seconds in timestamp format '2018-01-03T16:00:09.859515'"
-								}
-							}
-						},
-						"persist": { 
-							"type": "boolean",
-							"description": "Task will stay after daemon restart."
-						}
+						"clientId": {"$ref": "file://definitions.json#/scheduler/clientId"},
+						"taskId": {"$ref": "file://definitions.json#/scheduler/taskId"},
+						"task": {"$ref": "file://definitions.json#/scheduler/task"},
+						"timeSpec": {"$ref": "file://definitions.json#/scheduler/timeSpec"},
+						"persist": {"$ref": "file://definitions.json#/scheduler/persist"}
 					}
 				},
-				"returnVerbose": {
-					"type": "boolean",
-					"description": "Flag that includes additional parameters in the response."
-				}
-			}
-		}
-	},
-	"definitions": {
-		"task": {
-			"$id": "#/definitions/task",
-			"title": "Task object",
-			"type": "object",
-			"required": [
-				"message",
-				"messaging"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"messaging": {
-					"$id": "#/definitions/task/properties/messaging",
-					"title": "Task messaging(s)",
-					"oneOf":[
-						{
-							"type": "string",
-							"example": "MqttMessaging"
-						},
-						{
-							"type": "array",
-							"items": {
-								"$id": "#/definitions/task/properties/messaging/items",
-								"type": "string",
-								"pattern": "^[^&]+$"
-							},
-							"additionalItems": false,
-							"example": [
-								"MqMessaging",
-								"MqttMessaging"
-							]
-						}
-					]
-				},
-				"message": {
-					"$id": "#/definitions/task/properties/message",
-					"title": "Task message",
-					"type": "object"
-				}
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
 			}
 		}
 	}

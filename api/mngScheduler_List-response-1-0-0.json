@@ -1,67 +1,72 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "mngScheduler_List-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Scheduler management - List response.",
-            "enum": [
-                "mngScheduler_List"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "clientId": {
-                            "type": "string",
-                            "description": "Command identifier."
-                        },
-                        "tasks": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
-                        }
-                    },
-                    "required": [
-                        "clientId",
-                        "tasks"
-                    ]
-                },
-                "insId": {
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "Scheduler management - List",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Scheduler management - List response.",
+			"const": "mngScheduler_List"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response body object",
+					"type": "object",
+					"required": [
+						"clientId",
+						"tasks"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"clientId": {"$ref": "file://definitions.json#/scheduler/clientId"},
+						"tasks": {
+							"$id": "#/properties/data/properties/rsp/properties/tasks",
+							"title": "Existing tasks",
+							"description": "Array of existing scheduler tasks.",
+							"type": "array",
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/tasks/items",
+								"title": "Task ID",
+								"description": "Scheduler task identifier.",
+								"type": "integer",
+								"minimum": 0
+							}
+						}
+					}
+				},
+				"insId": {
 					"type": "string",
 					"description": "IQRF GW daemon instance identification."
 				},
-                "status": {
-                    "type": "integer",
-                    "description": "Status of operation."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+				"status": {
+					"type": "integer",
+					"description": "Status of operation."
+				},
+				"statusStr": {
+					"type": "string",
+					"description": "IQRF GW daemon API (general or mType) status in string form."
+				}
+			}
+		}
+	}
 }

@@ -313,6 +313,138 @@
 			}
 		}
 	},
+	"scheduler": {
+		"clientId": {
+			"$id": "#/scheduler/clientId",
+			"title": "Client ID",
+			"description": "Client identifier associated with a subset of scheduler tasks.",
+			"type": "string"
+		},
+		"taskId": {
+			"$id": "#/scheduler/taskId",
+			"title": "Task ID",
+			"description": "Scheduler task identifier.",
+			"type": "integer",
+			"minimum": 0
+		},
+		"task": {
+			"$id": "#/scheduler/task",
+			"title": "Scheduler task(s)",
+			"description": "Scheduler task object or array of scheduler task objects.",
+			"oneOf": [
+				{
+					"$ref": "#/scheduler/taskDetail"
+				},
+				{
+					"title": "Scheduler tasks",
+					"description": "Array of scheduler task objects.",
+					"type": "array",
+					"minItems": 1,
+					"additionalItems": false,
+					"items": {
+						"$ref": "#/scheduler/taskDetail"
+					}
+				}
+			]
+		},
+		"taskDetail": {
+			"$id": "#/scheduler/taskDetail",
+			"title": "Scheduler task",
+			"description": "Scheduler task object.",
+			"type": "object",
+			"required": [
+				"messaging",
+				"message"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"messaging": {
+					"title": "Messaging",
+					"description": "Messaging service identifier(s), used to determine which service shall send messages.",
+					"oneOf": [
+						{
+							"type": "string",
+							"example": "MqttMessaging"
+						},
+						{
+							"type": "array",
+							"minItems": 1,
+							"additionalItems": false,
+							"items": {
+								"type": "string",
+								"pattern": "^[^&]+$"
+							},
+							"example": [
+								"MqMessaging",
+								"MqttMessaging"
+							]
+						}
+					]
+				},
+				"message": {
+					"title": "Task message",
+					"description": "Daemon API request message to send when task is executed.",
+					"type": "object"
+				}
+			}
+		},
+		"timeSpec": {
+			"$id": "#/scheduler/timeSpec",
+			"title": "Time specification",
+			"description": "Configuration of time-based task execution.",
+			"type": "object",
+			"required": [
+				"cronTime",
+				"exactTime",
+				"startTime",
+				"periodic",
+				"period"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"cronTime": {
+					"title": "Cron time",
+					"description": "7 field cron time syntax.",
+					"type": "array",
+					"minItems": 7,
+					"maxItems": 7,
+					"additionalItems": false,
+					"items": {
+						"title": "Cron field",
+						"description": "Cron field values corresponding to seconds, minutes, hours, day of month, month, days of week and year.",
+						"type": "string"
+					}
+				},
+				"exactTime": {
+					"title": "Oneshot task",
+					"description": "Schedule task to execute once at a specific time.",
+					"type": "boolean"
+				},
+				"startTime": {
+					"title": "Scheduled time",
+					"description": "Scheduled execution time for oneshot task.",
+					"type": "string"
+				},
+				"periodic": {
+					"title": "Periodic task",
+					"description": "Schedule task to be executed periodically.",
+					"type": "boolean"
+				},
+				"period": {
+					"title": "Task period",
+					"description": "Period to wait between executing a task.",
+					"type": "integer",
+					"minimum": 0
+				}
+			}
+		},
+		"persist": {
+			"$id": "#/scheduler/persist",
+			"title": "Task persistence.",
+			"description": "If set to true, task will persist through Daemon restart.",
+			"type": "boolean"
+		}
+	},
 	"patterns": {
 		"requestDpa": {
 			"$id": "#/patterns/requestDpa",
