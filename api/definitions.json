@@ -397,9 +397,338 @@
 					]
 				},
 				"message": {
-					"title": "Task message",
-					"description": "Daemon API request message to send when task is executed.",
-					"type": "object"
+					"oneOf": [
+						{
+							"$ref": "file://infoDaemon_Enumeration-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_GetBinaryOutputs-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_GetDalis-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_GetLights-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_GetMidMetaData-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_GetNodeMetaData-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_GetNodes-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_GetSensors-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_MidMetaDataAnnotate-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_OrphanedMids-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_Reset-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_SetMidMetaData-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://infoDaemon_SetNodeMetaData-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_AutoNetwork-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_Backup-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_BondNodeLocal-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_EnumerateDevice-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_OtaUpload-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_ReadTrConf-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_RemoveBond-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_RemoveBondOnlyInC-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_Restore-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_SmartConnect-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqmeshNetwork_WriteTrConf-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfBinaryoutput_Enumerate-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfBinaryoutput_SetOutput-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfDali_Frc-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfDali_SendCommands-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfDali_SendCommandsAsync-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_AddrInfo-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_AuthorizeBond-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_Backup-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_BondNode-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_BondedDevices-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_ClearAllBonds-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_ClearRemotelyBondedMid-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_DiscoveredDevices-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_Discovery-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_DiscoveryData-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_EnableRemoteBonding-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_ReadRemotelyBondedMid-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_RebondNode-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_RemoveBond-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_Restore-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_SetDpaParams-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_SetHops-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_SetMID-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedCoordinator_SmartConnect-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedEeeprom_Read-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedEeeprom_Write-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedEeprom_Read-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedEeprom_Write-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedExplore_Enumerate-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedExplore_MorePeripheralsInformation-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedExplore_PeripheralInformation-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedFrc_ExtraResult-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedFrc_Send-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedFrc_SendSelective-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedFrc_SetParams-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedIo_Direction-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedIo_Get-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedIo_Set-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedLedg_Flashing-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedLedg_Get-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedLedg_Pulse-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedLedg_Set-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedLedr_Flashing-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedLedr_Get-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedLedr_Pulse-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedLedr_Set-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedNode_Backup-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedNode_ClearRemotelyBondedMid-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedNode_EnableRemoteBonding-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedNode_Read-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedNode_ReadRemotelyBondedMid-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedNode_RemoveBond-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedNode_Restore-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedNode_ValidateBonds-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_Batch-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_FactorySettings-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_Indicate-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_LoadCode-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_Read-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_ReadCfg-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_Reset-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_Restart-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_Rfpgm-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_SelectiveBatch-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_SetSecurity-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_Sleep-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_TestRfSignal-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_WriteCfg-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedOs_WriteCfgByte-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedRam_Read-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedRam_Write-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedSpi_WriteRead-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedThermometer_Read-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedUart_ClearWriteRead-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedUart_Close-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedUart_Open-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfEmbedUart_WriteRead-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfLight_DecrementPower-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfLight_Enumerate-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfLight_IncrementPower-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfLight_SetPower-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfRaw-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfRawHdp-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfSensor_Enumerate-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfSensor_Frc-request-1-0-0.json"
+						},
+						{
+							"$ref": "file://iqrfSensor_ReadSensorsWithTypes-request-1-0-0.json"
+						}
+					]
 				}
 			}
 		},
