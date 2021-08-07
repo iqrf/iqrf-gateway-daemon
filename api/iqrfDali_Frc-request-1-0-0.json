@@ -41,7 +41,7 @@
 						"param": {
 							"$id": "#/properties/data/properties/req/properties/param",
 							"title": "Request parameters",
-							"description": "Request message configuraiton parameters.",
+							"description": "Request message configuration parameters.",
 							"type": "object",
 							"required": [
 								"command"
