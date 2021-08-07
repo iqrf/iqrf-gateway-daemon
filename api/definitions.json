@@ -264,9 +264,9 @@
 				"type": "boolean"
 			}
 		},
-		"uart": {
+		"spiUart": {
 			"readTimeout": {
-				"$id": "#/embed/uart/readTimeout",
+				"$id": "#/embed/spiUart/readTimeout",
 				"title": "Read timeout",
 				"description": "Timeout in 10ms unit to wait for data to be read after data is written. Set to 255 to read no data.",
 				"type": "integer",
@@ -274,7 +274,7 @@
 				"maximum": 255
 			},
 			"writtenData": {
-				"$id": "#/embed/uart/writtenData",
+				"$id": "#/embed/spiUart/writtenData",
 				"title": "Data to write",
 				"description": "Data to be written to TX buffer.",
 				"type": "array",
@@ -290,7 +290,7 @@
 				}
 			},
 			"readData": {
-				"$id": "#/embed/uart/readData",
+				"$id": "#/embed/spiUart/readData",
 				"title": "Data read",
 				"description": "Data read from the RX buffer.",
 				"type": "array",

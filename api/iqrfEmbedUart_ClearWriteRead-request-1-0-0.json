@@ -48,8 +48,8 @@
 							],
 							"additionalProperties": false,
 							"properties": {
-								"readTimeout": {"$ref": "file://definitions.json#/embed/uart/readTimeout"},
-								"writtenData": {"$ref": "file://definitions.json#/embed/uart/writtenData"}
+								"readTimeout": {"$ref": "file://definitions.json#/embed/spiUart/readTimeout"},
+								"writtenData": {"$ref": "file://definitions.json#/embed/spiUart/writtenData"}
 							}
 						}
 					}

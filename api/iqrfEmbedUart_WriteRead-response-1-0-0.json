@@ -53,7 +53,7 @@
 							],
 							"additionalProperties": false,
 							"properties": {
-								"readData": {"$ref": "file://definitions.json#/embed/uart/readData"}
+								"readData": {"$ref": "file://definitions.json#/embed/spiUart/readData"}
 							}
 						},
 						"errorStr": {"$ref": "file://definitions.json#/general/response/errorStr"}
