@@ -69,22 +69,8 @@
 											"value"
 										],
 										"properties": {
-											"status": {
-												"$id": "#/properties/data/properties/rsp/properties/result/properties/answers/items/properties/status",
-												"title": "DALI status",
-												"description": "DALI command status: See IQRF DALI standard for details.",
-												"type": "integer",
-												"minimum": 0,
-												"maximum": 255
-											},
-											"value": {
-												"$id": "#/properties/data/properties/rsp/properties/result/properties/answers/items/properties/value",
-												"title": "DALI value",
-												"description": "DALI command value: See IQRF DALI standard for details.",
-												"type": "integer",
-												"minimum": 0,
-												"maximum": 255
-											}
+											"status": {"$ref": "file://definitions.json#/standard/dali/status"},
+											"value": {"$ref": "file://definitions.json#/standard/dali/value"}
 										}
 									}
 								}
