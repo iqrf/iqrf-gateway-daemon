@@ -1,134 +1,70 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedLedr_Get-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral Ledr - Get request.",
-            "enum": [
-                "iqrfEmbedLedr_Get"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "rCode": {
-                            "type": "integer",
-                            "description": "DPA error code."
-                        },
-                        "dpaVal": {
-                            "type": "integer",
-                            "description": "DPA value."
-                        },
-                        "result": {
-                            "type": "object",
-                            "properties": {
-                                "onOff": {
-                                    "type": "boolean",
-                                    "description": "LED status."
-                                }
-                            }
-                        },
-                        "errorStr": {
-                            "type": "string",
-                            "description": "Error description from JS drivers."
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "hwpId",
-                        "rCode",
-                        "dpaVal"
-                    ]
-                },
-                "raw": {
-					"type": "array",
-					"description": "Returns array of objects req-cnf-rsp, see its description.",
-					"items": {
-						"type": "object",
-						"properties": {
-							"request": {
-								"type": "string",
-								"description": "Binary buffer with DPA request."
-							},
-							"requestTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"confirmation": {
-								"type": "string",
-								"description": "Binary buffer with DPA confirmation."
-							},
-							"confirmationTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"response": {
-								"type": "string",
-								"description": "Binary buffer with DPA response."
-							},
-							"responseTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "Embed LEDR - Get",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Embedded peripheral Ledr - Get response.",
+			"const": "iqrfEmbedLedr_Get"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response body object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"hwpId",
+						"rCode",
+						"dpaVal"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
+						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"},
+						"rCode": {"$ref": "file://definitions.json#/general/response/rCode"},
+						"dpaVal": {"$ref": "file://definitions.json#/general/response/dpaVal"},
+						"result": {
+							"$id": "#/properties/data/properties/rsp/properties/result",
+							"title": "Result object",
+							"description": "Request result data.",
+							"type": "object",
+							"required": [
+								"onOff"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"onOff": {"$ref": "file://definitions.json#/embed/led/onOff"}
 							}
 						},
-						"required": [
-							"request",
-							"requestTs",
-							"confirmation",
-							"confirmationTs",
-							"response",
-							"responseTs"
-						]
+						"errorStr": {"$ref": "file://definitions.json#/general/response/errorStr"}
 					}
-                },
-                "insId": {
-                    "type": "string",
-                    "description": "IQRF GW daemon instance identification."
-                },
-                "status": {
-                    "type": "integer",
-                    "description": "IQRF GW daemon API (general or mType) status."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+				},
+				"raw": {"$ref": "file://definitions.json#/general/response/raw"},
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"},
+				"timeout": {"$ref": "file://definitions.json#/general/timeout"}
+			}
+		}
+	}
 }
