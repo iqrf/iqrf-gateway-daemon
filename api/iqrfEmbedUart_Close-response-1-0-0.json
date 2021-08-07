@@ -10,7 +10,7 @@
 	"properties": {
 		"mType": {
 			"$ref": "file://definitions.json#/general/mType",
-			"description": "Embedded peripheral UART - Close request.",
+			"description": "Embedded peripheral UART - Close response.",
 			"const": "iqrfEmbedUart_Close"
 		},
 		"data": {

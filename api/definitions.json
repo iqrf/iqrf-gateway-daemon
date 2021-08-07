@@ -185,13 +185,27 @@
 						"request": {
 							"$id": "#/general/response/raw/items/properties/request",
 							"title": "Request DPA",
-							"$ref": "#/patterns/requestDpa"
+							"oneOf": [
+								{
+									"$ref": "#/patterns/requestDpa"
+								},
+								{
+									"const": ""
+								}
+							]
 						},
 						"requestTs": {
 							"$id": "#/general/response/raw/items/properties/requestTs",
 							"title": "Request timestamp",
 							"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
-							"$ref": "#/patterns/timestamp"
+							"oneOf": [
+								{
+									"$ref": "#/patterns/timestamp"
+								},
+								{
+									"const": ""
+								}
+							]
 						},
 						"confirmation": {
 							"$id": "#/general/response/raw/items/properties/confirmation",
@@ -213,13 +227,12 @@
 						},
 						"response": {
 							"$id": "#/general/response/raw/items/properties/response",
-							"title": "Request DPA",
+							"title": "Response DPA",
 							"oneOf": [
 								{
 									"$ref": "#/patterns/responseDpa"
 								},
 								{
-									"description": "Binary buffer with DPA response",
 									"const": ""
 								}
 							]
@@ -243,6 +256,14 @@
 		}
 	},
 	"embed": {
+		"led": {
+			"onOff": {
+				"$id": "#/embed/led/onOff",
+				"title": "LED status",
+				"description": "LED ON/OFF status.",
+				"type": "boolean"
+			}
+		},
 		"uart": {
 			"readTimeout": {
 				"$id": "#/embed/uart/readTimeout",
