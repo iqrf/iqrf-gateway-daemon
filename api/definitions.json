@@ -371,6 +371,16 @@
 				"maximum": 4294967295
 			}
 		},
+		"memories": {
+			"data": {
+				"$id": "#/embed/memories/data",
+				"title": "Data byte.",
+				"description": "Byte of memory data.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			}
+		},
 		"led": {
 			"onOff": {
 				"$id": "#/embed/led/onOff",
