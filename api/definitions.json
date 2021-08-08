@@ -256,6 +256,121 @@
 		}
 	},
 	"embed": {
+		"coordinator": {
+			"nAdr": {
+				"$id": "#/embed/coordinator/nAdr",
+				"title": "Coordinator address",
+				"description": "Coordinator device network address.",
+				"type": "integer",
+				"const": 0
+			},
+			"devNr": {
+				"$id": "#/embed/coordinator/devNr",
+				"title": "Node count",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 239
+			},
+			"nodeArray": {
+				"$id": "#/embed/coordinator/nodeArray",
+				"title": "Node array",
+				"type": "array",
+				"maxItems": 239,
+				"additionalItems": false,
+				"items": {
+					"title": "Node address",
+					"description": "Node device network address",
+					"type": "integer",
+					"minimum": 1,
+					"maximum": 239
+				}
+			},
+			"reqAddr": {
+				"$id": "#/embed/coordinator/reqAddr",
+				"title": "Node address",
+				"type": "integer",
+				"minimum": 1,
+				"maximum": 239
+			},
+			"bondingTestRetries": {
+				"$id": "#/embed/coordinator/bondingTestRetries",
+				"title": "Bonding test retries",
+				"description": "Maximum number of FRCs to test whether the node was successfully bonded.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"txPower": {
+				"$id": "#/embed/coordinator/txPower",
+				"title": "TX Power",
+				"description": "TX power used for discovery.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 7
+			},
+			"dpaParam": {
+				"$id": "#/embed/coordinator/dpaParam",
+				"title": "DPA param.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 3
+			},
+			"requestHops": {
+				"$id": "#/embed/coordinator/requestHops",
+				"title": "Request hops",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255,
+				"default": 255
+			},
+			"responseHops": {
+				"$id": "#/embed/coordinator/responseHops",
+				"title": "Response hops",
+				"type": "integer",
+				"minimum": 1,
+				"maximum": 255,
+				"default": 255
+			},
+			"networkData": {
+				"$id": "#/embed/coordinator/networkData",
+				"title": "Network data",
+				"type": "array",
+				"maxItems": 49,
+				"additionalItems": false,
+				"items": {
+					"title": "Data block",
+					"description": "one block of coordinator network info data.",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 255
+				}
+			}
+		},
+		"os": {
+			"ibk": {
+				"$id": "#/embed/os/ibk",
+				"title": "Module IBK",
+				"description": "TR module individual bonding key.",
+				"type": "array",
+				"minItems": 16,
+				"maxItems": 16,
+				"additionalItems": false,
+				"items": {
+					"title": "IBK byte.",
+					"description": "Individual bonding key byte.",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 255
+				}
+			},
+			"mid": {
+				"$id": "#/embed/os/mid",
+				"title": "Device MID",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 4294967295
+			}
+		},
 		"led": {
 			"onOff": {
 				"$id": "#/embed/led/onOff",

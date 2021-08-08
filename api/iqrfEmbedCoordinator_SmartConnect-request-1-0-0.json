@@ -1,98 +1,101 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedCoordinator_SmartConnect-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral Coordinator - Smart Connect request.",
-            "enum": [
-                "iqrfEmbedCoordinator_SmartConnect"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "reqAddr": {
-                                    "type": "integer",
-                                    "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node."
-                                },
-                                "bondingTestRetries": {
-                                    "type": "integer",
-                                    "description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds."
-                                },
-                                "ibk": {
-                                    "type": "array",
-                                    "description": "Individual Bonding Key of the Node to bond.",
-                                    "items": {
-                                        "type": "integer"
-                                    },
-                                    "maxItems": 16
-                                },
-                                "mid": {
-                                    "type": "integer",
-                                    "description": "MID of the Node to bond."
-                                },
-                                "virtualDeviceAddress": {
-                                    "type": "integer",
-                                    "description": "Virtual device address. Must equal to 0xFF if not used."
-                                },
-                                "userData": {
-                                    "type": "array",
-                                    "description": "Optional data passed to the bonded node.",
-                                    "items": {
-                                        "type": "integer"
-                                    },
-                                    "maxItems": 4
-                                }
-                            }
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "Embed Coordinator - SmartConnect",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Embedded peripheral Coordinator - Smart Connect request.",
+			"const": "iqrfEmbedCoordinator_SmartConnect"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"param"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {"$ref": "file://definitions.json#/embed/coordinator/nAdr"},
+						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"},
+						"param": {
+							"$id": "#/properties/data/properties/req/properties/param",
+							"title": "Request parameters",
+							"description": "Request message configuration parameters.",
+							"type": "object",
+							"required": [
+								"reqAddr",
+								"bondingTestRetries",
+								"ibk",
+								"mid",
+								"virtualDeviceAddress",
+								"userData"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"reqAddr": {
+									"$ref": "file://definitions.json#/embed/coordinator/reqAddr",
+									"description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node."
+								},
+								"bondingTestRetries": {"$ref": "file://definitions.json#/embed/coordinator/bondingTestRetries"},
+								"ibk": {"$ref": "file://definitions.json#/embed/os/ibk"},
+								"mid": {
+									"$ref": "file://definitions.json#/embed/os/mid",
+									"description": "MID of the Node to bond."
+								},
+								"virtualDeviceAddress": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/virtualDeviceAddress",
+									"title": "Virtual device address.",
+									"description": "Must equal to 0xFF if not used.",
+									"type": "integer",
+									"minimum": 0,
+									"maximum": 255,
+									"default": 255
+								},
+								"userData": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/userData",
+									"title": "User data",
+									"description": "Optional data passed to the bonded node.",
+									"type": "array",
+									"minItems": 4,
+									"maxItems": 4,
+									"additionalItems": false,
+									"items": {
+										"title": "Data byte",
+										"description": "Byte of optional user data",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 255,
+										"default": 0
+									}
+								}
+							}
 						}
-                    },
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+					}
+				},
+				"timeout": {"$ref": "file://definitions.json#/general/timeout"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }
