@@ -10,7 +10,7 @@
     "properties": {
         "mType": {
             "type": "string",
-            "description": "Embedded peripheral Memory - Write request.",
+            "description": "Embedded peripheral RAM - Write request.",
             "enum": [
                 "iqrfEmbedRam_Write"
             ]

@@ -10,7 +10,7 @@
 	"properties": {
 		"mType": {
 			"$ref": "file://definitions.json#/general/mType",
-			"description": "Embedded peripheral Memory - Read response.",
+			"description": "Embedded peripheral EEEPROM - Read response.",
 			"const": "iqrfEmbedEeeprom_Read"
 		},
 		"data": {

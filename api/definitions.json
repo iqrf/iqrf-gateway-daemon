@@ -346,7 +346,103 @@
 				}
 			}
 		},
+		"explore": {
+			"per": {
+				"$id": "#/embed/explore/per",
+				"title": "Peripheral number",
+				"description": "Peripheral number to get information about.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 13
+			},
+			"par": {
+				"$id": "#/embed/explore/par",
+				"title": "Peripheral information",
+				"description": "Optional peripheral specific information. See DPA framework technical guide for details.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"perT": {
+				"$id": "#/embed/explore/per",
+				"title": "Peripheral type",
+				"description": "Peripheral type number, see DPA framework technical guide for peripheral type constants. If peripheral is not supported or enabled, the value is PERIPHERAL_TYPE_DUMMY (0).",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 14
+			},
+			"perTe": {
+				"$id": "#/embed/explore/perTe",
+				"title": "Peripheral characteristics",
+				"description": "Extended peripheral characteristic.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 3
+			}
+		},
 		"os": {
+			"dpaVer": {
+				"$id": "#/embed/os/dpaVer",
+				"title": "DPA version",
+				"description": "DPA version represented by an integer value.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 65535
+			},
+			"userPerNr": {
+				"$id": "#/embed/os/userPerNr",
+				"title": "User peripherals count",
+				"description": "Number of all non-embedded peripherals implemented by Custom DPA Handler.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"embeddedPers": {
+				"$id": "#/embed/os/embeddedPers",
+				"title": "Embedded peripherals",
+				"description": "Array of embedded peripheral type numbers.",
+				"type": "array",
+				"maxItems": 32,
+				"additionalItems": false,
+				"items": {
+					"title": "Peripheral number",
+					"description": "Embedded peripheral type number.",
+					"type": "integer",
+					"enum": [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 12, 13]
+				}
+			},
+			"hwpidVer": {
+				"$id": "#/embed/os/hwpidVer",
+				"title": "HWPID version",
+				"description": "Hardware profile version represented by an integer value.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 65535
+			},
+			"flags": {
+				"$id": "#/embed/os/flags",
+				"title": "Flags",
+				"description": "Device operational mode flags.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 7
+			},
+			"userPer": {
+				"$id": "#/embed/os/userPer",
+				"title": "User peripherals",
+				"description": "Array of implemented non-embedded user peripherals.",
+				"type": "array",
+				"minItems": 0,
+				"maxItems": 12,
+				"additionalItems": false,
+				"items": {
+					"title": "User peripheral number",
+					"description": "Peripheral type number of non-embedded user peripheral.",
+					"type": "integer",
+					"minimum": 32,
+					"maximum": 62
+				}
+			},
 			"ibk": {
 				"$id": "#/embed/os/ibk",
 				"title": "Module IBK",
