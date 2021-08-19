@@ -40,7 +40,7 @@
 					"additionalProperties": false,
 					"properties": {
 						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
-						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"},
+						"hwpId": {"$ref": "file://definitions.json#/general/response/hwpId"},
 						"rCode": {"$ref": "file://definitions.json#/general/response/rCode"},
 						"dpaVal": {"$ref": "file://definitions.json#/general/response/dpaVal"},
 						"result": {
@@ -62,7 +62,7 @@
 								"dpaVer": {"$ref": "file://definitions.json#/embed/os/dpaVer"},
 								"perNr": {"$ref": "file://definitions.json#/embed/os/userPerNr"},
 								"embeddedPers": {"$ref": "file://definitions.json#/embed/os/embeddedPers"},
-								"hwpid": {"$ref": "file://definitions.json#/general/hwpId"},
+								"hwpid": {"$ref": "file://definitions.json#/general/response/hwpId"},
 								"hwpidVer": {"$ref": "file://definitions.json#/embed/os/hwpidVer"},
 								"flags": {"$ref": "file://definitions.json#/embed/os/flags"},
 								"userPer": {"$ref": "file://definitions.json#/embed/os/userPer"}

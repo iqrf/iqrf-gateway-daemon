@@ -37,7 +37,7 @@
 					"additionalProperties": false,
 					"properties": {
 						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
-						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
 						"param": {
 							"$id": "#/properties/data/properties/req/properties/param",
 							"title": "Request parameters",

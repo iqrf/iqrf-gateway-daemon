@@ -40,7 +40,7 @@
 					"additionalProperties": false,
 					"properties": {
 						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
-						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"},
+						"hwpId": {"$ref": "file://definitions.json#/general/response/hwpId"},
 						"rCode": {"$ref": "file://definitions.json#/general/response/rCode"},
 						"dpaVal": {"$ref": "file://definitions.json#/general/response/dpaVal"},
 						"result": {

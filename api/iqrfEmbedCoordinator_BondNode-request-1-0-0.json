@@ -37,24 +37,42 @@
 					"additionalProperties": false,
 					"properties": {
 						"nAdr": {"$ref": "file://definitions.json#/embed/coordinator/nAdr"},
-						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
 						"param": {
 							"$id": "#/properties/data/properties/req/properties/param",
 							"title": "Request parameters",
 							"description": "Request message configuration parameters.",
 							"type": "object",
-							"required": [
-								"reqAddr",
-								"bondingTestRetries"
-							],
-							"additionalProperties": false,
-							"properties": {
-								"reqAddr": {
-									"$ref": "file://definitions.json#/embed/coordinator/reqAddr",
-									"description": "Requested network address to bond node to. If set to 0, first free address will be used."
+							"oneOf": [
+								{
+									"required": [
+										"reqAddr",
+										"bondingMask"
+									],
+									"additionalProperties": false,
+									"properties": {
+										"reqAddr": {
+											"$ref": "file://definitions.json#/embed/coordinator/reqAddr",
+											"description": "Requested network address to bond node to. If set to 0, first free address will be used."
+										},
+										"bondingMask": {"$ref": "file://definitions.json#/embed/coordinator/bondingMask"}
+									}
 								},
-								"bondingTestRetries": {"$ref": "file://definitions.json#/embed/coordinator/bondingTestRetries"}
-							}
+								{
+									"required": [
+										"reqAddr",
+										"bondingTestRetries"
+									],
+									"additionalProperties": false,
+									"properties": {
+										"reqAddr": {
+											"$ref": "file://definitions.json#/embed/coordinator/reqAddr",
+											"description": "Requested network address to bond node to. If set to 0, first free address will be used."
+										},
+										"bondingTestRetries": {"$ref": "file://definitions.json#/embed/coordinator/bondingTestRetries"}
+									}
+								}
+							]
 						}
 					}
 				},

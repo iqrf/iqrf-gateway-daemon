@@ -1,92 +1,106 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedIo_Direction-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral IO - Direction request.",
-            "enum": [
-                "iqrfEmbedIo_Direction"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "ports": {
-                                    "type": "array",
-                                    "description": "Array of ports.",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "port": {
-                                                "type": "integer",
-                                                "description": " Specifies port to setup a direction."
-                                            },
-                                            "mask": {
-                                                "type": "integer",
-                                                "description": "Masks pins of the port."
-                                            },
-                                            "value": {
-                                                "type": "integer",
-                                                "description": "Actual direction."
-                                            }
-                                        },
-                                        "required": [
-                                            "port",
-                                            "mask",
-                                            "value"
-                                        ]
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "Embed IO - Direction",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Embedded peripheral IO - Direction request.",
+			"const": "iqrfEmbedIo_Direction"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"param"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
+						"param": {
+							"$id": "#/properties/data/properties/req/properties/param",
+							"title": "Request parameters",
+							"description": "Request message configuration parameters.",
+							"type": "object",
+							"required": [
+								"ports"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"ports": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/ports",
+									"title": "MCU ports",
+									"description": "Array of ports to configure direction or pull-up state of.",
+									"type": "array",
+									"minItems": 1,
+									"maxItems": 17,
+									"items": {
+										"$id": "#/properties/data/properties/req/properties/param/properties/ports/items",
+										"title": "MCU port",
+										"description": "Single MCU port configuration.",
+										"type": "object",
+										"required": [
+											"port",
+											"mask",
+											"value"
+										],
+										"additionalProperties": false,
+										"properties": {
+											"port": {
+												"$id": "#/properties/data/properties/req/properties/param/properties/ports/items/properties/port",
+												"title": "MCU port",
+												"description": "Specify port to set direction or pull-up state. Port direction 0x00-0x07 (0-7), pull-up state (0x10-0x17) (16-23).",
+												"type": "integer",
+												"oneOf": [
+													{
+														"minimum": 0,
+														"maximum": 7
+													},
+													{
+														"minimum": 16,
+														"maximum": 23
+													}
+												]
+											},
+											"mask": {"$ref": "file://definitions.json#/embed/io/mask"},
+											"value": {
+												"$id": "#/properties/data/properties/req/properties/param/properties/ports/items/properties/value",
+												"title": "Pin value",
+												"description": "Direction: output = 0, input = 1; Pull-up state: disabled = 0, enabled = 1",
+												"type": "integer",
+												"enum": [0, 1]
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"timeout": {"$ref": "file://definitions.json#/general/timeout"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }

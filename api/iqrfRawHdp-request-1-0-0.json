@@ -40,7 +40,7 @@
 						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
 						"pNum": {"$ref": "file://definitions.json#/general/pNum"},
 						"pCmd": {"$ref": "file://definitions.json#/general/request/pCmd"},
-						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
 						"pData": {"$ref": "file://definitions.json#/general/request/pData"}
 					}
 				},

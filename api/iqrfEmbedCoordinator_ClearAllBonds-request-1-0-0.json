@@ -36,7 +36,7 @@
 					"additionalProperties": false,
 					"properties": {
 						"nAdr": {"$ref": "file://definitions.json#/embed/coordinator/nAdr"},
-						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"}
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"}
 					}
 				},
 				"timeout": {"$ref": "file://definitions.json#/general/timeout"},

@@ -44,7 +44,7 @@
 						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
 						"pNum": {"$ref": "file://definitions.json#/general/pNum"},
 						"pCmd": {"$ref": "file://definitions.json#/general/response/pCmd"},
-						"hwpId": {"$ref": "file://definitions.json#/general/hwpId"},
+						"hwpId": {"$ref": "file://definitions.json#/general/response/hwpId"},
 						"rCode": {"$ref": "file://definitions.json#/general/response/rCode"},
 						"dpaVal": {"$ref": "file://definitions.json#/general/response/dpaVal"},
 						"pData": {"$ref": "file://definitions.json#/general/response/pData"}

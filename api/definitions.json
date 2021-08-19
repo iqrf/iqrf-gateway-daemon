@@ -40,15 +40,6 @@
 				}
 			]
 		},
-		"hwpId": {
-			"$id": "#/general/hwpid",
-			"title": "Device HWPID",
-			"description": "Hardware profile identification.",
-			"type": "integer",
-			"minimum": 0,
-			"maximum": 65535,
-			"default": 65535
-		},
 		"metaData": {
 			"$id": "#/general/metaData",
 			"title": "Device metadata",
@@ -56,6 +47,15 @@
 			"type": "object"
 		},
 		"request": {
+			"hwpId": {
+				"$id": "#/request/hwpId",
+				"title": "Device HWPID",
+				"description": "Hardware profile identification.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 65535,
+				"default": 65535
+			},
 			"pCmd": {
 				"$id": "#/general/request/pCmd",
 				"title": "Peripheral command",
@@ -104,6 +104,15 @@
 			}
 		},
 		"response": {
+			"hwpId": {
+				"$id": "#/response/hwpId",
+				"title": "Device HWPID",
+				"description": "Hardware profile identification.",
+				"type": "integer",
+				"minimum": -1,
+				"maximum": 65535,
+				"default": 65535
+			},
 			"pCmd": {
 				"$id": "#/general/response/pCmd",
 				"title": "Peripheral command response",
@@ -298,10 +307,18 @@
 				"minimum": 1,
 				"maximum": 239
 			},
+			"bondingMask": {
+				"$id": "#/embed/coordinator/bondingMask",
+				"title": "Bonding mask",
+				"description": "Bonding mask. For DPA < 4.00.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
 			"bondingTestRetries": {
 				"$id": "#/embed/coordinator/bondingTestRetries",
 				"title": "Bonding test retries",
-				"description": "Maximum number of FRCs to test whether the node was successfully bonded.",
+				"description": "Maximum number of FRCs to test whether the node was successfully bonded. For DPA >= 4.00.",
 				"type": "integer",
 				"minimum": 0,
 				"maximum": 255
@@ -530,6 +547,16 @@
 					"minimum": 0,
 					"maximum": 255
 				}
+			}
+		},
+		"io": {
+			"mask": {
+				"$id": "#/embed/io/mask",
+				"title": "Pin mask",
+				"description": "Masks pins of the port, allowing for filtering which pins are set.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
 			}
 		}
 	},

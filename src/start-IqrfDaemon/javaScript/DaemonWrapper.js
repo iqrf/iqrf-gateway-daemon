@@ -68,7 +68,13 @@ if (iqrf.embed.coordinator !== undefined) {
   };
 
   iqrf.embed.coordinator.BondNode_Request_req = function (param) {
-    return iqrf.embed.coordinator.BondNode_Request(param.reqAddr, param.bondingTestRetries)
+    var bondingParam;
+    if (typeof param.bondingTestRetries !== 'undefined') {
+      bondingParam = param.bondingTestRetries;
+    } else {
+      bondingParam = param.bondingMask;
+    }
+    return iqrf.embed.coordinator.BondNode_Request(param.reqAddr, bondingParam)
   };
 
   iqrf.embed.coordinator.BondNode_Response_rsp = function (rawHdp) {
@@ -269,6 +275,11 @@ if (iqrf.embed.io !== undefined) {
   };
 
   iqrf.embed.io.Set_Request_req = function (param) {
+    for (var i = 0, n = param.ports.length; i < n; i++) {
+      if (typeof param.ports[i].delay !== 'undefined') {
+        param.ports[i] = {port: 0xff, mask: (param.ports[i].delay & 0xff), value: ((param.ports[i].delay >> 8) & 0xff)};
+      }
+    }
     return iqrf.embed.io.Set_Request(param.ports);
   };
 
