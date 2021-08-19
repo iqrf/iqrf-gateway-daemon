@@ -67,7 +67,7 @@
 								"extFormat": {
 									"$id": "#/properties/data/properties/req/properties/param/properties/extFormat",
 									"title": "Extended data format",
-									"description": "Sensors returns in extended format.",
+									"description": "Returns additional information pertaining to the specific device.",
 									"type": "boolean",
 									"default": false
 								}

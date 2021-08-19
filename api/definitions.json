@@ -49,6 +49,12 @@
 			"maximum": 65535,
 			"default": 65535
 		},
+		"metaData": {
+			"$id": "#/general/metaData",
+			"title": "Device metadata",
+			"description": "Arbitrary user defined meta data.",
+			"type": "object"
+		},
 		"request": {
 			"pCmd": {
 				"$id": "#/general/request/pCmd",

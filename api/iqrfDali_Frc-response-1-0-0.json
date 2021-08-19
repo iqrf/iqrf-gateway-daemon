@@ -54,66 +54,50 @@
 							"additionalProperties": false,
 							"properties": {
 								"answers": {
+									"$id": "#/properties/data/properties/rsp/properties/result/properties/answers",
 									"title": "Array of DALI answers",
 									"description": "Returns array of objects for every DALI 2B command.",
 									"type": "array",
 									"additionalItems": false,
 									"items": {
+										"$id": "#/properties/data/properties/rsp/properties/result/properties/answers/items",
 										"oneOf": [
 											{
-												"type": "null"
+												"title": "Base answer",
+												"description": "Default answer object without additional information.",
+												"type": "object",
+												"required": [
+													"status",
+													"value"
+												],
+												"properties": {
+													"status": {"$ref": "file://definitions.json#/standard/dali/status"},
+													"value": {"$ref": "file://definitions.json#/standard/dali/value"}
+												}
 											},
 											{
+												"title": "Extended answer",
+												"description": "Answer object with additional information about a node device.",
 												"type": "object",
+												"required": [
+													"nAdr",
+													"answer"
+												],
 												"properties": {
-													"status": {
-														"type": "integer",
-														"description": "DALI status: See IQRF DALI standard for details."
-													},
-													"value": {
-														"type": "integer",
-														"description": "DALI value: See IQRF DALI standard for details."
-													}
-												},
-												"required": ["status", "value"]
-											},
-											{
-												"type": "object",
-												"properties": {
-													"nAdr": {
-														"type": "integer",
-														"description": "Node address."
-													},
-													"metaData": {
-														"type": "object",
-														"description": "Arbitrary user defined meta data."
-													},
+													"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
+													"metaData": {"$ref": "file://definitions.json#/general/metaData"},
 													"answer": {
-														"oneOf": [
-															{
-																"type": "null"
-															},
-															{
-																"type": "object",
-																"properties": {
-																	"status": {
-																		"type": "integer",
-																		"description": "DALI status: See IQRF DALI standard for details."
-																	},
-																	"value": {
-																		"type": "integer",
-																		"description": "DALI value: See IQRF DALI standard for details."
-																	}
-																},
-																"required": [
-																	"status",
-																	"value"
-																]
-															}
-														]
+														"type": "object",
+														"required": [
+															"status",
+															"value"
+														],
+														"properties": {
+															"status": {"$ref": "file://definitions.json#/standard/dali/status"},
+															"value": {"$ref": "file://definitions.json#/standard/dali/value"}
+														}
 													}
-												},
-												"required": ["nAdr", "answer"]
+												}
 											}
 										]
 									}
