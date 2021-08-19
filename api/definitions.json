@@ -558,6 +558,56 @@
 				"minimum": 0,
 				"maximum": 255
 			}
+		},
+		"frc": {
+			"frcCommand": {
+				"$id": "#/embed/frc/frcCommand",
+				"title": "FRC command",
+				"description": "Specifies data to be collected.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"selectedNodes": {
+				"$id": "#/embed/frc/selectedNodes",
+				"title": "Node array",
+				"description": "Array of node device addresses.",
+				"type": "array",
+				"minItems": 1,
+				"maxItems": 239,
+				"additionalItems": false,
+				"items": {
+					"title": "Node address",
+					"description": "Address of node device in network.",
+					"type": "integer",
+					"minimum": 1,
+					"maximum": 239
+				}
+			},
+			"status": {
+				"$id": "#/embed/frc/status",
+				"title": "FRC status",
+				"description": "Return code of Send FRC operation. Equal to number of responding nodes, or an error code if the value is >= 240. See IQRF OS documentation for details.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"frcByte": {
+				"$id": "#/embed/frc/frcByte",
+				"title": "Data byte",
+				"description": "FRC data byte.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"userByte": {
+				"$id": "#/embed/frc/userByte",
+				"title": "Data byte",
+				"description": "Byte of user defined data.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			}
 		}
 	},
 	"raw": {
