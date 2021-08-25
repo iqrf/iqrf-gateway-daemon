@@ -338,7 +338,30 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.Sleep_Request_req = function (param) {
-    return iqrf.embed.os.Sleep_Request(param.time, param.control);
+    var control = 0;
+    if (typeof param.control === 'number') {
+      control = param.control;
+    } else {
+      if (param.control.wakeOnNegativeEdge) {
+        control |= 1;
+      }
+      if (param.control.calibrate) {
+        control |= (1 << 1);
+      }
+      if (param.control.indicate) {
+        control |= (1 << 2);
+      }
+      if (param.control.wakeOnPositiveEdge) {
+        control |= (1 << 3);
+      }
+      if (param.control.unit === 'ms') {
+        control |= (1 << 4);
+      }
+      if (param.control.deepSleep) {
+        control |= (1 << 5);
+      }
+    }
+    return iqrf.embed.os.Sleep_Request(param.time, control);
   };
 
   iqrf.embed.os.Sleep_Response_rsp = function (rawHdp) {

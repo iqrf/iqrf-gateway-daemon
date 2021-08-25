@@ -447,6 +447,62 @@
 			}
 		},
 		"os": {
+			"osVersion": {
+				"$id": "#/embed/os/osVersion",
+				"title": "OS version",
+				"description": "IQRF OS version.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"osBuild": {
+				"$id": "#/embed/os/osBuild",
+				"title": "OS build",
+				"description": "IQRF OS build.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 65535
+			},
+			"trMcuType": {
+				"$id": "#/embed/os/trMcuType",
+				"title": "MCU type",
+				"description": "Transciever MCU type.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"rssi": {
+				"$id": "#/embed/os/rssi",
+				"title": "RSSI",
+				"description": "Gets the RF signal level. See lastRSSI at IQRF OS Reference Guide.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"supplyVoltage": {
+				"$id": "#/embed/os/supplyVoltage",
+				"title": "Supply voltage.",
+				"description": "Module supply voltage, contains real voltage value.",
+				"type": "number",
+				"minimum": 0,
+				"maximum": 3.84
+			},
+			"osFlags": {
+				"$id": "#/embed/os/osFlags",
+				"title": "OS flags",
+				"description": "Bit 0: 1 = insufficient OS build for the used DPA version; Bit 1: Supported interface - 0 = SPI / 1 = UART; Bit 2: 1 = Custom DPA Handler detected; Bit 3: 1 = Custom DPA Handler not detected, but enabled in TR config; Bit 4: No interface supported; Bit 5: IQRF OS changed from factory state; Bit 6-7: reserved.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 57
+			},
+			"slotLimits": {
+				"$id": "#/embed/os/slotLimits",
+				"title": "Time slot limits",
+				"description": "Lower nibble contains shortest timeslot length in 10 ms units. Upper nibble contains longest timeslot length.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
 			"dpaVer": {
 				"$id": "#/embed/os/dpaVer",
 				"title": "DPA version",

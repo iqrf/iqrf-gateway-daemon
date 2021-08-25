@@ -1,74 +1,142 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_Sleep-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral OS - Sleep request.",
-            "enum": [
-                "iqrfEmbedOs_Sleep"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "time": {
-                                    "type": "integer",
-                                    "description": "Sleep time in 2.097 s or 32.768 ms units. See Control.bit.4."
-                                },
-                                "control": {
-                                    "type": "integer",
-                                    "description": "See DPA guide."
-                                }
-                            }
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "Embed OS - Sleep",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Embedded peripheral OS - Sleep request.",
+			"const": "iqrfEmbedOs_Sleep"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"param"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {"$ref": "file://definitions.json#/embed/node/nAdr"},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
+						"param": {
+							"$id": "#/properties/data/properties/req/properties/param",
+							"title": "Request parameters",
+							"description": "Request message configuration parameters.",
+							"type": "object",
+							"required": [
+								"time",
+								"control"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"time": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/time",
+									"title": "Sleep time",
+									"description": "Sleep time in 32.768ms or 2.097s units. Value 0 specifies endless sleep. Maximum sleep time 35 minutes and 47.48 seconds, or 38 hours and 10 minutes.",
+									"type": "integer",
+									"minimum": 0,
+									"maximum": 65535
+								},
+								"control": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/control",
+									"title": "Sleep control",
+									"oneOf": [
+										{
+											"description": "Bit value based configuration, see DPA guide for more information.",
+											"type": "integer",
+											"minimum": 0,
+											"maximum": 63,
+											"default": 0
+										},
+										{
+											"description": "Object based sleep configuration.",
+											"type": "object",
+											"required": [
+												"calibrate",
+												"indicate",
+												"wakeOnPositiveEdge",
+												"wakeOnNegativeEdge",
+												"unit",
+												"deepSleep"
+											],
+											"additionalProperties": false,
+											"properties": {
+												"calibrate": {
+													"$id": "#/properties/data/properties/req/properties/param/properties/control/properties/calibrate",
+													"title": "Runs calibration",
+													"description": "Runs the calibration process before going to sleep. See DPA guide for more details.",
+													"type": "boolean",
+													"default": false
+												},
+												"indicate": {
+													"$id": "#/properties/data/properties/req/properties/param/properties/control/properties/indicateWake",
+													"title": "Sleep wake up indication",
+													"description": "When the device wakes up, the green LED will flash once. Useful for diagnostic purposes.",
+													"type": "boolean",
+													"default": false
+												},
+												"wakeOnPositiveEdge": {
+													"$id": "#/properties/data/properties/req/properties/param/properties/control/properties/wakeOnPositiveEdge",
+													"title": "PORTB wake up.",
+													"description": "Wake up on PORTB pin 4 positive edge change.",
+													"type": "boolean",
+													"default": false
+												},
+												"wakeOnNegativeEdge": {
+													"$id": "#/properties/data/properties/req/properties/param/properties/control/properties/wakeOnNegativeEdge",
+													"title": "PORTB wake up.",
+													"description": "Wake up on PORTB pin 4 negative edge change.",
+													"type": "boolean",
+													"default": false
+												},
+												"unit": {
+													"$id": "#/properties/data/properties/req/properties/param/properties/control/properties/unit",
+													"title": "Sleep time unit",
+													"description": "Set sleep time unit. s = 2.097s unit, ms = 32.768ms unit.",
+													"type": "string",
+													"enum": [
+														"s",
+														"ms"
+													]
+												},
+												"deepSleep": {
+													"$id": "#/properties/data/properties/req/properties/param/properties/control/properties/deepSleep",
+													"title": "Use deepSleep",
+													"description": "Use iqrfDeepSleep instead of iqrfSleep. See IQRF OS documentation for more information.",
+													"type": "boolean",
+													"default": false
+												}
+											}
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"timeout": {"$ref": "file://definitions.json#/general/timeout"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }
