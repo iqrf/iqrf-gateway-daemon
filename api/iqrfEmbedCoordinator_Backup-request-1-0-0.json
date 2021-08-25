@@ -48,14 +48,7 @@
 							],
 							"additionalProperties": false,
 							"properties": {
-								"index": {
-									"$id": "#/properties/data/properties/req/properties/param/properties/index",
-									"title": "Block index",
-									"description": "Index of the block of data.",
-									"type": "integer",
-									"minimum": 0,
-									"maximum": 255
-								}
+								"index": {"$ref": "file://definitions.json#/general/backupIndex"}
 							}
 						}
 					}

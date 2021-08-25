@@ -51,14 +51,8 @@
 							"additionalProperties": false,
 							"properties": {
 								"bondingMask": {"$ref": "file://definitions.json#/embed/coordinator/bondingMask"},
-								"control": {
-									"$id": "#/properties/data/properties/req/properties/param/control",
-									"title": "Bonding control",
-									"description": "Enables remote bonding mode. If enabled then previously bonded nodes are forgotten.",
-									"type": "integer",
-									"enum": [0, 1]
-								},
-								"userData": {"$ref": "file://definitions.json#/embed/node/userData"}
+								"control": {"$ref": "file://definitions.json#/remoteBonding/control"},
+								"userData": {"$ref": "file://definitions.json#/remoteBonding/userData"}
 							}
 						}
 					}

@@ -54,7 +54,7 @@
 							"additionalProperties": false,
 							"properties": {
 								"networkData": {
-									"$ref": "file://definitions.json#/embed/coordinator/networkData",
+									"$ref": "file://definitions.json#/general/networkData",
 									"description": "Coordinator network information."
 								}
 							}

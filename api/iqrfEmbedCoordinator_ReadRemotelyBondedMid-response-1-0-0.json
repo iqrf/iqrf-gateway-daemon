@@ -54,7 +54,7 @@
 							"additionalProperties": false,
 							"properties": {
 								"prebondedNodes": {
-									"$id": "#/properties/data/properties/rsp/properties/result/prebondedNodes",
+									"$id": "#/properties/data/properties/rsp/properties/result/param/prebondedNodes",
 									"type": "array",
 									"description": "List of MID and UserData pairs of prebonded nodes.",
 									"maxItems": 8,
@@ -71,8 +71,8 @@
 										"additionalProperties": false,
 										"properties": {
 											"mid": {"$ref": "file://definitions.json#/embed/os/mid"},
-											"userData": {"$ref": "file://definitions.json#/embed/node/userData"}
-										}	
+											"userData": {"$ref": "file://definitions.json#/remoteBonding/userData"}
+										}
 									}
 								}
 							}
