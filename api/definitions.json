@@ -310,7 +310,7 @@
 			"bondingMask": {
 				"$id": "#/embed/coordinator/bondingMask",
 				"title": "Bonding mask",
-				"description": "Bonding mask. For DPA < 4.00.",
+				"description": "Bonding mask. See IQRF OS User's and Reference guides (remote bonding, function bondNewNode). For DPA < 4.00.",
 				"type": "integer",
 				"minimum": 0,
 				"maximum": 255
@@ -366,6 +366,31 @@
 					"type": "integer",
 					"minimum": 0,
 					"maximum": 255
+				}
+			}
+		},
+		"node": {
+			"nAdr": {
+				"$id": "#/embed/node/nAdr",
+				"title": "Node address.",
+				"description": "Address of node device in network.",
+				"type": "integer",
+				"minimum": 1,
+				"maximum": 239
+			},
+			"userData": {
+				"$id": "#/embed/coordinator/userData",
+				"title": "User data",
+				"description": "Optional data that can be used at Reset Custom DPA Handler event.",
+				"type": "array",
+				"maxItems": 4,
+				"additionalItems": false,
+				"items": {
+					"title": "User data byte",
+					"description": "Byte of user data.",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 1
 				}
 			}
 		},
