@@ -587,6 +587,53 @@
 				"type": "integer",
 				"minimum": 0,
 				"maximum": 4294967295
+			},
+			"rxFilter": {
+				"$id": "#/embed/os/rxFilter",
+				"title": "RX filter",
+				"description": "RX filter (0-63) to be passed as a parameter to checkRF IQRF OS function. Set value to 255 to get data from previous measurement.",
+				"type": "integer",
+				"oneOf": [
+					{
+						"minimum": 0,
+						"maximum": 63
+					},
+					{
+						"const": 255
+					}
+				]
+			},
+			"checksum": {
+				"$id": "#/embed/os/checksum",
+				"title": "Checksum",
+				"description": "Checksum of the Configuration part. XORed with all configuration bytes results in value 0x5F.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"configuration": {
+				"$id": "#/embed/os/configuration",
+				"title": "Configuration array",
+				"description": "Content the configuration memory block from address 0x01 to 0x1F.",
+				"type": "array",
+				"minItems": 31,
+				"maxItems": 31,
+				"additionalItems": false,
+				"items": {
+					"title": "Configuration byte",
+					"description": "Single byte of TR configuration block",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 255
+				}
+			},
+			"rfpgm": {
+				"$id": "#/embed/os/rfpgm",
+				"title": "RFPGM configuration.",
+				"description":"See parameter of setupRFPGM IQRF OS function.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 215
 			}
 		},
 		"memories": {
