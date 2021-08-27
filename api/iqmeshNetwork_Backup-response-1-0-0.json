@@ -1,136 +1,92 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_Backup-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Backup response.",
-      "enum": [
-        "iqmeshNetwork_Backup"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "rsp": {
-          "type": "object",
-          "description": "Returns following values, see its description.",
-          "properties": {
-            "progress": {
-              "type": "integer",
-              "description": "Backup algorithm progress [%]."
-            },
-            "devices": {
-              "type": "array",
-              "description": "Device(s) Backup data.",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "deviceAddr": {
-                    "type": "integer",
-                    "description": "Device address."
-                  },
-                  "online": {
-                    "type": "boolean",
-                    "description": "Device online status."
-                  },
-                  "mid": {
-                    "type": "integer",
-                    "description": "Device MID."
-                  },
-                  "dpaVer": {
-                    "type": "integer",
-                    "description": "DPA version."
-                  },
-                  "data": {
-                    "type": "string",
-                    "description": "Device Backup Data (hex-string format)."
-                  }
-                },
-                "required": [
-                  "deviceAddr",
-                  "online"
-                ]
-              }
-            }
-          },
-          "required": [
-            "progress",
-            "devices"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
-          }
-        },
-        "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
-        },
-        "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
-        },
-        "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
-        }
-      },
-      "required": [
-        "msgId",
-        "status"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - Backup",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - Backup response.",
+			"const": "iqmeshNetwork_Backup"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response body object",
+					"type": "object",
+					"required": [
+						"progress",
+						"devices"
+					],
+					"properties": {
+						"progress": {
+							"$id": "#/properties/data/properties/rsp/properties/progress",
+							"title": "Backup progress",
+							"description": "Backup algorithm progress in percentages.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 100
+						},
+						"devices": {
+							"$id": "#/properties/data/properties/rsp/properties/devices",
+							"title": "Device(s) backup data.",
+							"type": "array",
+							"description": "Array of device backup data objects.",
+							"minItems": 1,
+							"maxItems": 240,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/devices/items",
+								"title": "Device backup data.",
+								"description": "Backup data of a single device.",
+								"type": "object",
+								"required": [
+									"deviceAddr",
+									"online"
+								],
+								"properties": {
+									"deviceAddr": {"$ref": "file://definitions.json#/iqmesh/general/deviceAddr"},
+									"online": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/online",
+										"title": "Device status",
+										"description": "Indicates whether device is online,",
+										"type": "boolean"
+									},
+									"mid": {"$ref": "file://definitions.json#/embed/os/mid"},
+									"dpaVer": {"$ref": "file://definitions.json#/embed/os/dpaVer"},
+									"data": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/data",
+										"title": "Backup data",
+										"description": "Device Backup Data (hex-string format).",
+										"type": "string",
+										"pattern": "^[0-9a-fA-F]+$"
+									}
+								}
+							}
+						}
+					}
+				},
+				"raw": {"$ref": "file://definitions.json#/general/response/raw"},
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"}
+			}
+		}
+	}
 }
