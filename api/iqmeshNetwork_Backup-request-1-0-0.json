@@ -35,7 +35,10 @@
 					],
 					"additionalProperties": false,
 					"properties": {
-						"deviceAddr": {"$ref": "file://definitions.json#/iqmesh/general/deviceAddr"},
+						"deviceAddr": {
+							"$ref": "file://definitions.json#/embed/coordinator/reqAddr",
+							"description": "Address of device in network. 0 = Coordinator, 1..239 = Node."
+						},
 						"wholeNetwork": {
 							"$id": "#/properties/data/properties/req/properties/wholeNetwork",
 							"title": "Target network",

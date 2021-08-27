@@ -56,7 +56,10 @@
 								],
 								"additionalProperties": false,
 								"properties": {
-									"deviceAddr": {"$ref": "file://definitions.json#/iqmesh/general/deviceAddr"},
+									"deviceAddr": {
+										"$ref": "file://definitions.json#/embed/coordinator/reqAddr",
+										"description": "Address of device in network. 0 = Coordinator, 1..239 = Node."
+									},
 									"online": {
 										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/online",
 										"title": "Device status",

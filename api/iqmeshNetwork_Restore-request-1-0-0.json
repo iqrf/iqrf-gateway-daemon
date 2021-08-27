@@ -36,7 +36,10 @@
 					],
 					"additionalProperties": false,
 					"properties": {
-						"deviceAddr": {"$ref": "file://definitions.json#/iqmesh/general/deviceAddr"},
+						"deviceAddr": {
+							"$ref": "file://definitions.json#/embed/coordinator/reqAddr",
+							"description": "Address of device in network. 0 = Coordinator, 1..239 = Node."
+						},
 						"data": {"$ref": "file://definitions.json#/iqmesh/backupRestore/data"},
 						"restartCoordinator": {
 							"$id": "#/properties/data/properties/req/properties/restartCoordinator",

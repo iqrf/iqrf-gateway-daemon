@@ -54,7 +54,7 @@
 							],
 							"additionalProperties": false,
 							"properties": {
-								"bondAddr": {"$ref": "file://definitions.json#/embed/coordinator/reqAddr"},
+								"bondAddr": {"$ref": "file://definitions.json#/embed/node/nAdr"},
 								"devNr": {
 									"$ref": "file://definitions.json#/embed/coordinator/devNr",
 									"description": "Number of bonded network nodes."

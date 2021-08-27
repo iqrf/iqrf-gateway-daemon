@@ -351,7 +351,7 @@
 				"$id": "#/embed/coordinator/reqAddr",
 				"title": "Node address",
 				"type": "integer",
-				"minimum": 1,
+				"minimum": 0,
 				"maximum": 239
 			},
 			"bondingMask": {
@@ -561,8 +561,15 @@
 					"title": "User peripheral number",
 					"description": "Peripheral type number of non-embedded user peripheral.",
 					"type": "integer",
-					"minimum": 32,
-					"maximum": 62
+					"oneOf": [
+						{
+							"minimum": 32,
+							"maximum": 62
+						},
+						{
+							"enum": [74, 75, 94, 113]
+						}
+					]
 				}
 			},
 			"ibk": {
@@ -765,14 +772,6 @@
 				"type": "integer",
 				"minimum": 1
 			},
-			"deviceAddr": {
-				"$id": "#/iqmesh/general/deviceAddr",
-				"title": "Device address",
-				"description": "Address of device in network. 0 = Coordinator, 1..239 = Node.",
-				"type": "integer",
-				"minimum": 0,
-				"maximum": 239
-			},
 			"progress": {
 				"$id": "#/iqmesh/general/progress",
 				"title": "Operation progress",
@@ -780,6 +779,185 @@
 				"type": "integer",
 				"minimum": 0,
 				"maximum": 100
+			}
+		},
+		"device": {
+			"manufacturer": {
+				"$id": "#/iqmesh/device/manufacturer",
+				"title": "Manufacturer",
+				"description": "Name of manufacturer.",
+				"type": "string"
+			},
+			"product": {
+				"$id": "#/iqmesh/device/product",
+				"title": "Product",
+				"description": "Name of product.",
+				"type": "string"
+			},
+			"standards": {
+				"$id": "#/iqmesh/device/standards",
+				"title": "Standards",
+				"description": "Array of implemented standard peripherals.",
+				"type": "array",
+				"additionalItems": false,
+				"items": {
+					"title": "Standard",
+					"description": "Implemented standard peripheral.",
+					"type": "string"
+				}
+			},
+			"rssi": {
+				"$id": "#/iqmesh/device/rssi",
+				"title": "RSSI",
+				"description": "RSSI in a string representation.",
+				"type": "string",
+				"pattern": "^(-)\\d+ dBm$"
+			},
+			"supplyVoltage": {
+				"$id": "#/iqmesh/device/supplyVoltage",
+				"title": "Supply voltage",
+				"description": "Supply voltage in a string representation.",
+				"type": "string",
+				"pattern": "^\\d(\\.\\d)? V$"
+			},
+			"os": {
+				"mid": {
+					"$id": "#/iqmesh/device/os/mid",
+					"title": "MID string",
+					"description": "Module ID in a hexadecimal string representation.",
+					"type": "string",
+					"pattern": "^[0-9a-fA-F]{8}$"
+				},
+				"version": {
+					"$id": "#/iqmesh/device/os/version",
+					"title": "OS version string",
+					"description": "OS version in a string representation.",
+					"type": "string",
+					"pattern": "^\\d\\.\\d{2}[DG]$"
+				},
+				"build": {
+					"$id": "#/iqmesh/device/os/build",
+					"title": "OS build",
+					"description": "OS build in a string representation.",
+					"type": "string",
+					"pattern": "^[0-9a-fA-F]{4}$"
+				}
+			},
+			"trMcu": {
+				"trType": {
+					"$id": "#/iqmesh/device/trMcu/trType",
+					"title": "TR MCU type",
+					"description": "Transciever type in a string representation.",
+					"type": "string",
+					"pattern": "^(\\(DC\\))?TR-\\d{2}[DG](x)?$"
+				},
+				"mcuType": {
+					"$id": "#/iqmesh/device/trMcu/mcuType",
+					"title": "MCU type",
+					"description": "MCU type in a string representation.",
+					"type": "string",
+					"enum": [
+						"PIC16LF1938",
+						"PIC16LF18877"
+					]
+				},
+				"fccCertified": {
+					"$id": "#/iqmesh/device/trMcu/fccCertified",
+					"title": "FCC certification",
+					"description": "Indicates whether device is FCC certified.",
+					"type": "boolean"
+				}
+			},
+			"flags": {
+				"insufficientOsBuild": {
+					"$id": "#/iqmesh/device/flags/insufficientOsBuild",
+					"title": "Insufficient OS build",
+					"description": "Indicates whether the OS build is insufficient for the used DPA version.",
+					"type": "boolean"
+				},
+				"interfaceType": {
+					"$id": "#/iqmesh/device/flags/interfaceType",
+					"title": "Supported interface",
+					"description": "Specifies interface supported by the uploaded DPA plugin.",
+					"type": "string",
+					"enum": [
+						"SPI",
+						"UART"
+					]
+				},
+				"dpaHandlerDetected": {
+					"$id": "#/iqmesh/device/flags/dpaHandlerDetected",
+					"title": "DPA handler detected",
+					"description": "Indicates that a Custom DPA Handler has been uploaded to the device.",
+					"type": "boolean"
+				},
+				"dpaHandlerNotDetectedButEnabled": {
+					"$id": "#/iqmesh/device/flags/dpaHandlerNotDetectedButEnabled",
+					"title": "Missing DPA handler",
+					"description": "Indicates that a Custom DPA Handler hasn't been detected, but is enabled in TR configuration.",
+					"type": "boolean"
+				},
+				"noInterfaceSupported": {
+					"$id": "#/iqmesh/device/flags/noInterfaceSupported",
+					"title": "No interface supported",
+					"description": "Indicates that no interface is supported by the uploaded DPA plugin.",
+					"type": "boolean"
+				},
+				"iqrfOsChanged": {
+					"$id": "#/iqmesh/device/flags/iqrfOsChanged",
+					"title": "IQRF OS changed",
+					"description": "Indicates whether IQRF OS has changed from factory configuration.",
+					"type": "boolean"
+				},
+				"frcAggregationEnabled": {
+					"$id": "#/iqmesh/device/flags/frcAggregationEnabled",
+					"title": "FRC aggregation",
+					"description": "Indicates whether FRC aggregation is enabled.",
+					"type": "boolean"
+				}
+			},
+			"slotLimits": {
+				"shortestTimeslot": {
+					"$id": "#/iqmesh/device/slotLimits/shortestTimeslot",
+					"title": "Shortest timeslot",
+					"description": "Shortest timeslot length.",
+					"type": "string",
+					"pattern": "^([3-9][0-9]|1[0-7][0-9]|180) ms$"
+				},
+				"longestTimeslot": {
+					"$id": "#/iqmesh/device/slotLimits/longestTimeslot",
+					"title": "Longest timeslot",
+					"description": "Longest timeslot length.",
+					"type": "string",
+					"pattern": "^([3-9][0-9]|1[0-7][0-9]|180) ms$"
+				}
+			},
+			"dpaVer": {
+				"$id": "#/iqmesh/device/dpaVer",
+				"title": "DPA version",
+				"description": "DPA version in a string representation.",
+				"type": "string",
+				"pattern": "^\\d\\.\\d{2}$"
+			},
+			"enumFlags": {
+				"rfModeStd": {
+					"$id": "#/iqmesh/device/enumFlags/rfModeStd",
+					"title": "STD-RX mode",
+					"description": "Device works in STD-RX mode.",
+					"type": "boolean"
+				},
+				"rfModeLp": {
+					"$id": "#/iqmesh/device/enumFlags/rfModeLp",
+					"title": "LP-RX mode",
+					"description": "Device works in LP-RX mode.",
+					"type": "boolean"
+				},
+				"stdAndLpNetwork": {
+					"$id": "#/iqmesh/device/enumFlags/stdAndLpNetwork",
+					"title": "STD+LP network",
+					"description": "STD+LP network is running, otherwise STD network.",
+					"type": "boolean"
+				}
 			}
 		},
 		"backupRestore": {
