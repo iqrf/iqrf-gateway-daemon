@@ -1,82 +1,116 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_LoadCode-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral OS - Load Code request.",
-            "enum": [
-                "iqrfEmbedOs_LoadCode"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "flags": {
-                                    "type": "integer",
-                                    "description": "Action flags."
-                                },
-                                "address": {
-                                    "type": "integer",
-                                    "description": "A physical address at external EEPROM memory to load the code image from."
-                                },
-                                "length": {
-                                    "type": "integer",
-                                    "description": "Length of the code image in bytes at the external EEPROM."
-                                },
-                                "checkSum": {
-                                    "type": "integer",
-                                    "description":"One’s complement Fletcher-16 checksum of the code image."
-                                }
-                            }
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "Embed OS - LoadCode",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Embedded peripheral OS - Load Code request.",
+			"const": "iqrfEmbedOs_LoadCode"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"param"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
+						"param": {
+							"$id": "#/properties/data/properties/req/properties/param",
+							"title": "Request parameters",
+							"description": "Request message configuration parameters.",
+							"type": "object",
+							"required": [
+								"flags",
+								"address",
+								"length",
+								"checkSum"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"flags": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/flags",
+									"title": "Action flags",
+									"description": "Bit 0: 0 = matches checksum, 1 = loads code if checksum matches; Bit 1: 0 = Custom DPA Handler, 1 = IQRF plug-in.",
+									"type": "integer",
+									"minimum": 0,
+									"maximum": 3									
+								},
+								"address": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/address",
+									"title": "Code address.",
+									"description": "A physical address at external EEPROM memory to load the code image from.",
+									"type": "integer",
+									"minimum": 0,
+									"maximum": 65535
+								},
+								"length": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/length",
+									"title": "Code image length.",
+									"description": "Length of the code image in bytes at the external EEPROM.",
+									"type": "integer"
+								},
+								"checkSum": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/checkSum",
+									"title": "Code image checksum.",
+									"description":"One’s complement Fletcher-16 checksum of the code image.",
+									"type": "integer",
+									"minimum": 0,
+									"maximum": 65535
+								}
+							},
+							"if": {
+								"properties": {
+									"flags": {"enum": [0, 1]}
+								}
+							},
+							"then": {
+								"properties": {
+									"length": {
+										"minimum": 0,
+										"multipleOf": 64,
+										"maximum": 65535
+									}
+								}
+							},
+							"else": {
+								"properties": {
+									"length": {
+										"minimum": 0,
+										"multipleOf": 20,
+										"maximum": 65535
+									}
+								}
+							}
+						}
+					}
+				},
+				"timeout": {"$ref": "file://definitions.json#/general/timeout"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }

@@ -1,73 +1,107 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_WriteCfgByte-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral OS - Write Configuration Byte request.",
-            "enum": [
-                "iqrfEmbedOs_WriteCfgByte"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "bytes": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "description": "Triplet of address, value, mask."    
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "Embed OS - WriteCfgByte",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Embedded peripheral OS - Write Configuration Byte request.",
+			"const": "iqrfEmbedOs_WriteCfgByte"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"param"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
+						"param": {
+							"$id": "#/properties/data/properties/req/properties/param",
+							"title": "Request parameters",
+							"description": "Request message configuration parameters.",
+							"type": "object",
+							"required": [
+								"bytes"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"bytes": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/bytes",
+									"title": "Configurations bytes",
+									"description": "Addressable bytes of configuration to set.",
+									"type": "array",
+									"minItems": 1,
+									"maxItems": 18,
+									"additionalItems": false,
+									"items": {
+										"$id": "#/properties/data/properties/req/properties/param/properties/bytes/items",
+										"title": "Byte triplet",
+										"description": "Configuration byte triplet consisting of byte address, value to set and bit mask.",
+										"type": "object",
+										"required": [
+											"address",
+											"value",
+											"mask"
+										],
+										"additionalProperties": false,
+										"properties": {
+											"address": {
+												"$id": "#/properties/data/properties/req/properties/param/properties/bytes/items/properties/address",
+												"title": "Byte address",
+												"description": "Address of configuration byte to set. 0-31 = configuration bytes, 32 = rfpgm byte.",
+												"type": "integer",
+												"minimum": 0,
+												"maximum": 32
+											},
+											"value": {
+												"$id": "#/properties/data/properties/req/properties/param/properties/bytes/items/properties/value",
+												"title": "Byte value",
+												"description": "Value of the configuration byte to write.",
+												"type": "integer",
+												"minimum": 0,
+												"maximum": 255
+											},
+											"mask": {
+												"$id": "#/properties/data/properties/req/properties/param/properties/bytes/items/properties/mask",
+												"title": "Bit mask",
+												"description": "Specifies bit of the configuration byte to be modified.",
+												"type": "integer",
+												"minimum": 0,
+												"maximum": 255
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"timeout": {"$ref": "file://definitions.json#/general/timeout"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }

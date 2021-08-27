@@ -756,6 +756,25 @@
 			}
 		}
 	},
+	"iqmesh": {
+		"general": {
+			"repeat": {
+				"$id": "#/iqmesh/general/repeat",
+				"title": "DPA request repeat",
+				"description": "Maximum number of DPA request retries in case of a failure.",
+				"type": "integer",
+				"minimum": 1
+			},
+			"deviceAddr": {
+				"$id": "#/iqmesh/general/deviceAddr",
+				"title": "Device address",
+				"description": "Address of device in network. 0 = Coordinator, 1..239 = Node.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 239
+			}
+		}
+	},
 	"raw": {
 		"request": {
 			"$id": "#/raw/request",
