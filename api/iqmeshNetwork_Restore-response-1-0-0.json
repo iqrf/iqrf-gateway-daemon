@@ -1,124 +1,79 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_Restore-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Restore response.",
-      "enum": [
-        "iqmeshNetwork_Restore"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "rsp": {
-          "type": "object",
-          "description": "Returns following values, see its description.",
-          "properties": {
-            "progress": {
-              "type": "integer",
-              "description": "Restore algorithm progress [%]."
-            },
-            "devices": {
-              "type": "array",
-              "description": "Device(s) Restore status.",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "deviceAddr": {
-                    "type": "integer",
-                    "description": "Device address."
-                  },
-                  "restoreStatus": {
-                    "type": "boolean",
-                    "description": "Result of restore operation."
-                  }
-                },
-                "required": [
-                  "deviceAddr",
-                  "restoreStatus"
-                ]
-              }
-            }
-          },
-          "required": [
-            "progress",
-            "devices"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
-          }
-        },
-        "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
-        },
-        "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
-        },
-        "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
-        }
-      },
-      "required": [
-        "msgId",
-        "status"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - Restore",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - Restore response.",
+			"const": "iqmeshNetwork_Restore"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response body object",
+					"type": "object",
+					"required": [
+						"progress",
+						"devices"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"progress": {"$ref": "file://definitions.json#/iqmesh/general/progress"},
+						"devices": {
+							"$id": "#/properties/data/properties/rsp/properties/devices",
+							"title": "Restore information",
+							"description": "Array of device(s) restoration information.",
+							"type": "array",
+							"minItems": 1,
+							"maxItems": 240,
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/devices/items",
+								"title": "Device restore information",
+								"description": "Restore information of a single device.",
+								"type": "object",
+								"required": [
+									"deviceAddr",
+									"restoreStatus"
+								],
+								"additionalProperties": false,
+								"properties": {
+									"deviceAddr": {"$ref": "file://definitions.json#/iqmesh/general/deviceAddr"},
+									"restoreStatus": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/restoreStatus",
+										"title": "Restore status",
+										"description": "Result of restore operation.",
+										"type": "boolean"
+									}
+								}
+							}
+						}
+					}
+				},
+				"raw": {"$ref": "file://definitions.json#/general/response/raw"},
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"}
+			}
+		}
+	}
 }

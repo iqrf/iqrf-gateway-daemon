@@ -772,6 +772,23 @@
 				"type": "integer",
 				"minimum": 0,
 				"maximum": 239
+			},
+			"progress": {
+				"$id": "#/iqmesh/general/progress",
+				"title": "Operation progress",
+				"description": "Operation algorithm progress in percentages.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 100
+			}
+		},
+		"backupRestore": {
+			"data": {
+				"$id": "#/iqmesh/backupRestore/data",
+				"title": "Backup data",
+				"description": "Device Backup Data (hex-string format).",
+				"type": "string",
+				"pattern": "^[0-9a-fA-F]+$"
 			}
 		}
 	},

@@ -1,62 +1,55 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_Restore-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Restore request.",
-      "enum": [
-        "iqmeshNetwork_Restore"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "req": {
-          "type": "object",
-          "properties": {
-            "deviceAddr": {
-              "type": "integer",
-              "description": "Address of device to restore (0 - [C] device, 1..239 - [N] device)",
-              "default": 0
-            },
-            "data": {
-              "type": "string",
-              "description": "Device Backup Data (hex-string format)."
-            },
-            "restartCoordinator": {
-              "type": "boolean",
-              "description": "Restart Coordinator after restore."
-            }
-          },
-          "required": [
-            "deviceAddr",
-            "data"
-          ]
-        },
-        "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
-        }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - Restore",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - Restore request.",
+			"const": "iqmeshNetwork_Restore"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"deviceAddr",
+						"data"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"deviceAddr": {"$ref": "file://definitions.json#/iqmesh/general/deviceAddr"},
+						"data": {"$ref": "file://definitions.json#/iqmesh/backupRestore/data"},
+						"restartCoordinator": {
+							"$id": "#/properties/data/properties/req/properties/restartCoordinator",
+							"title": "Restart coordinator",
+							"description": "Restart Coordinator after restore.",
+							"type": "boolean",
+							"default": true
+						}
+					}
+				},
+				"repeat": {"$ref": "file://definitions.json#/iqmesh/general/repeat"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }

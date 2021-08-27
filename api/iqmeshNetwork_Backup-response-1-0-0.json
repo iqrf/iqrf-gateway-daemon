@@ -35,18 +35,12 @@
 						"progress",
 						"devices"
 					],
+					"additionalProperties": false,
 					"properties": {
-						"progress": {
-							"$id": "#/properties/data/properties/rsp/properties/progress",
-							"title": "Backup progress",
-							"description": "Backup algorithm progress in percentages.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 100
-						},
+						"progress": {"$ref": "file://definitions.json#/iqmesh/general/progress"},
 						"devices": {
 							"$id": "#/properties/data/properties/rsp/properties/devices",
-							"title": "Device(s) backup data.",
+							"title": "Backup data.",
 							"type": "array",
 							"description": "Array of device backup data objects.",
 							"minItems": 1,
@@ -60,6 +54,7 @@
 									"deviceAddr",
 									"online"
 								],
+								"additionalProperties": false,
 								"properties": {
 									"deviceAddr": {"$ref": "file://definitions.json#/iqmesh/general/deviceAddr"},
 									"online": {
@@ -70,13 +65,7 @@
 									},
 									"mid": {"$ref": "file://definitions.json#/embed/os/mid"},
 									"dpaVer": {"$ref": "file://definitions.json#/embed/os/dpaVer"},
-									"data": {
-										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/data",
-										"title": "Backup data",
-										"description": "Device Backup Data (hex-string format).",
-										"type": "string",
-										"pattern": "^[0-9a-fA-F]+$"
-									}
+									"data": {"$ref": "file://definitions.json#/iqmesh/backupRestore/data"}
 								}
 							}
 						}
