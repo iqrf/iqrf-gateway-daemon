@@ -445,6 +445,9 @@ namespace iqrf {
         Document::AllocatorType& allocator = response.GetAllocator();
         for (std::string standard : bondResult.getStandards())
         {
+          if (standard.length() == 0) {
+            continue;
+          }
           rapidjson::Value standardJsonString;
           standardJsonString.SetString(standard.c_str(), (SizeType)standard.length(), allocator);
           standardsJsonArray.PushBack(standardJsonString, allocator);
@@ -506,10 +509,11 @@ namespace iqrf {
           Pointer("/data/rsp/osRead/hwpIdVer").Set(response, bondResult.getOsRead()->getHwpidVer());
 
           // flags - int value
-          Pointer("/data/rsp/osRead/enumFlags/value").Set(response, bondResult.getOsRead()->getFlags());
+          uint8_t flagsEnum = bondResult.getOsRead()->getFlagsEnum();
+          Pointer("/data/rsp/osRead/enumFlags/value").Set(response, flagsEnum);
 
           // flags - parsed
-          bool stdModeSupported = (bondResult.getOsRead()->getFlags() & 0b1) == 0b1;
+          bool stdModeSupported = (flagsEnum & 0b1) == 0b1;
           if (stdModeSupported)
           {
             Pointer("/data/rsp/osRead/enumFlags/rfModeStd").Set(response, true);

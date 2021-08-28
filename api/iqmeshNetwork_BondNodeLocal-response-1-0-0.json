@@ -136,7 +136,7 @@
 								"hwpIdVer": {"$ref": "file://definitions.json#/embed/os/hwpidVer"},
 								"enumFlags": {
 									"$id": "#/properties/data/properties/rsp/properties/osRead/properties/enumFlags",
-									"title": "",
+									"title": "Device enumeration flags",
 									"description": "Object containing device operation mode flags.",
 									"type": "object",
 									"required": [

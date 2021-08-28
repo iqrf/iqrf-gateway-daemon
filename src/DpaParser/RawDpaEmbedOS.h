@@ -68,7 +68,7 @@ namespace iqrf
             m_embedPer = bitmapToIndexes(resp.EmbeddedPers, 0, 3, 0);
             m_hwpidValEnum = (int)resp.HWPID;
             m_hwpidVer = (int)resp.HWPIDver;
-            m_flags = (int)resp.Flags;
+            m_flagsEnum = (int)resp.FlagsEnum;
             m_userPer = bitmapToIndexes(resp.UserPer, 0, 11, 0x20);
             m_is410Compliant = true;
           }
