@@ -302,18 +302,20 @@
 			"enum": [0, 1]
 		},
 		"userData": {
-			"$id": "#/remoteBonding/userData",
+			"$id": "#/remoteBonding/control/userData",
 			"title": "User data",
-			"description": "Optional data that can be used at Reset Custom DPA Handler event.",
+			"description": "Optional data passed to the bonded node.",
 			"type": "array",
+			"minItems": 4,
 			"maxItems": 4,
 			"additionalItems": false,
 			"items": {
-				"title": "User data byte",
-				"description": "Byte of user data.",
+				"title": "Data byte",
+				"description": "Byte of optional user data",
 				"type": "integer",
 				"minimum": 0,
-				"maximum": 1
+				"maximum": 255,
+				"default": 0
 			}
 		}
 	},

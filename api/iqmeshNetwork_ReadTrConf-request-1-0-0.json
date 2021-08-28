@@ -1,61 +1,50 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmeshNetwork_ReadTrConf-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - ReadTrConf",
 	"type": "object",
-	"properties": {
-		"mType": {
-			"type": "string",
-			"description": "IQMESH Network management - Read TR configuration request.",
-			"enum": [
-				"iqmeshNetwork_ReadTrConf"
-			]
-		},
-		"data": {
-			"type": "object",
-			"properties": {
-				"msgId": {
-					"type": "string",
-					"description": "Message identification for binding request with response."
-				},
-				"repeat": {
-					"type": "integer",
-					"description": "Number of repetitions of DPA messages.",
-					"default": 1
-				},
-				"req": {
-					"type": "object",
-					"properties": {
-						"deviceAddr": {
-                            "type": "integer",
-                            "description": "Device address to read the configuration from."
-                        },
-						"hwpId": {
-							"type": "integer",
-                            "description": "HWP Id."
-						}
-					},
-					"required": [
-						"deviceAddr"
-					]
-				},
-				"returnVerbose": {
-					"type": "boolean",
-					"description": "Flag that includes additional parameters in the response."
-				}
-			},
-			"required": [
-				"msgId",
-				"req"
-			]
-		}
-	},
 	"required": [
 		"mType",
 		"data"
-	]
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - Read TR configuration request.",
+			"const": "iqmeshNetwork_ReadTrConf"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"deviceAddr"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"deviceAddr": {
+							"$ref": "file://definitions.json#/embed/coordinator/reqAddr",
+							"description": "Address of device in network. 0 = Coordinator, 1..239 = Node."
+						},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"}
+					}
+				},
+				"repeat": {"$ref": "file://definitions.json#/iqmesh/general/repeat"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }

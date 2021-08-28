@@ -1,124 +1,81 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_WriteTrConf-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Write TR configuration response.",
-      "enum": [
-        "iqmeshNetwork_WriteTrConf"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "rsp": {
-          "type": "object",
-          "description": "Returns following values, see its description.",
-          "properties": {
-            "deviceAddr": {
-              "type": "integer",
-              "description": "Device address to write the configuration to. Broadcast address is also allowed."
-            },
-            "notMatchedNodes": {
-              "type": "array",
-              "description": "Nodes that set bit1 in FrcAcknowledgedBroadcastBits response (their HWPID doesn't match).",
-              "items": {
-                "type": "integer"
-              }
-            },
-            "notRespondedNodes": {
-              "type": "array",
-              "description": "Nodes that didn't respond to FrcAcknowledgedBroadcastBits response.",
-              "items": {
-                "type": "integer"
-              }
-            },
-            "writeSuccess": {
-              "type": "boolean",
-              "description": "If sets, then configuration has been successfully written."
-            },
-            "restartNeeded": {
-              "type": "boolean",
-              "description": "Restart required, but not done yet."
-            }
-          },
-          "required": [
-            "deviceAddr"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
-          }
-        },
-        "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
-        },
-        "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
-        },
-        "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
-        }
-      },
-      "required": [
-        "msgId",
-        "status"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - WriteTrConf",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - Write TR configuration response.",
+			"const": "iqmeshNetwork_WriteTrConf"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response body object",
+					"type": "object",
+					"required": [
+						"deviceAddr"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"deviceAddr": {
+							"$ref": "file://definitions.json#/iqmesh/general/deviceAddrAll",
+							"description": "Address of device in network. 0 = Coordinator, 1..239 = Node, 255 = all devices."
+						},
+						"notMatchedNodes": {
+							"$id": "#/properties/data/properties/rsp/properties/notMatchedNodes",
+							"title": "HWPID mismatched nodes",
+							"description": "Nodes that were not affected due to HWPID mismatch.",
+							"type": "array",
+							"maxItems": 239,
+							"additionalItems": false,						
+							"items": {"$ref": "file://definitions.json#/embed/node/nAdr"}
+						},
+						"notRespondedNodes": {
+							"$id": "#/properties/data/properties/rsp/properties/notRespondedNodes",
+							"title": "Non-responding nodes",
+							"description": "Nodes that were not affected due to not being available, offline or another unexpected reason.",
+							"type": "array",
+							"maxItems": 239,
+							"additionalItems": false,
+							"items": {"$ref": "file://definitions.json#/embed/node/nAdr"}
+						},
+						"writeSuccess": {
+							"$id": "#/properties/data/properties/rsp/properties/writeSuccess",
+							"title": "Write successful",
+							"description": "Indicates whether configuration has been successfully written.",
+							"type": "boolean"
+						},
+						"restartNeeded": {
+							"$id": "#/properties/data/properties/rsp/properties/restartNeeded",
+							"title": "Device restart required",
+							"description": "Indicates whether TR configuration changes require the device to be restarted.",
+							"type": "boolean"
+						}
+					}
+				},
+				"raw": {"$ref": "file://definitions.json#/general/response/raw"},
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"}
+			}
+		}
+	}
 }

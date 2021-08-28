@@ -1,77 +1,59 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmeshNetwork_SmartConnect-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - SmartConnect",
 	"type": "object",
-	"properties": {
-		"mType": {
-			"type": "string",
-			"description": "IQMESH Network management - Smart Connect request.",
-			"enum": [
-				"iqmeshNetwork_SmartConnect"
-			]
-		},
-		"data": {
-			"type": "object",
-			"properties": {
-				"msgId": {
-					"type": "string",
-					"description": "Message identification for binding request with response."
-				},
-				"repeat": {
-					"type": "integer",
-					"description": "Number of repetitions of DPA messages.",
-					"default": 1
-				},
-				"req": {
-					"type": "object",
-					"properties": {
-						"deviceAddr": {
-							"type": "integer",
-							"description": "Address to bond the device to."
-						},
-						"smartConnectCode": {
-							"type": "string",
-							"description": "Smart connect code of the device."
-						},
-						"bondingTestRetries": {
-							"type": "integer",
-							"description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds.",
-							"default": 1
-						},
-						"userData": {
-							"type": "array",
-							"description": "Optional data passed to the bonded node.",
-							"items": {
-								"type": "integer",
-								"minItems": 4, 
-								"maxItems": 4,
-								"default": 0
-							}
-						}
-					},
-					"required": [
-						"deviceAddr",
-						"smartConnectCode"
-					]
-				},
-				"returnVerbose": {
-					"type": "boolean",
-					"description": "Flag that includes additional parameters in the response."
-				}
-			},
-			"required": [
-				"msgId",
-				"req"
-			]
-		}
-	},
 	"required": [
 		"mType",
 		"data"
-	]
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - Smart Connect request.",
+			"const": "iqmeshNetwork_SmartConnect"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"deviceAddr",
+						"smartConnectCode"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"deviceAddr": {
+							"$ref": "file://definitions.json#/embed/coordinator/reqAddr",
+							"description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node."
+						},
+						"smartConnectCode": {
+							"$id": "#/properties/data/properties/req/properties/smartConnectCode",
+							"title": "SmartConnect code",
+							"description": "Smart connect code of the device.",
+							"type": "string",
+							"pattern": "^[1-9a-km-tv-zA-HJ-NP-Z]{34}$"
+						},
+						"bondingTestRetries": {"$ref": "file://definitions.json#/embed/coordinator/bondingTestRetries"},
+						"userData": {"$ref": "file://definitions.json#/remoteBonding/userData"}
+					}
+				},
+				"repeat": {"$ref": "file://definitions.json#/iqmesh/general/repeat"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }

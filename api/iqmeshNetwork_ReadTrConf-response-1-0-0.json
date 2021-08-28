@@ -1,276 +1,78 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_ReadTrConf-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Read TR configuration response.",
-      "enum": [
-        "iqmeshNetwork_ReadTrConf"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "rsp": {
-          "type": "object",
-          "description": "Returns following values, see its description.",
-          "properties": {
-            "deviceAddr": {
-              "type": "integer",
-              "description": "Device address to read the configuration from."
-            },
-            "embPers": {
-              "type": "object",
-              "description": "Embedded peripherals enabled on the node.",
-              "properties": {
-                "values": {
-                  "type": "array",
-                  "description": "An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.",
-                  "items": {
-                    "type": "integer"
-                  },
-                  "maxItems": 4
-                },
-                "coordinator": {
-                  "type": "boolean",
-                  "description": "If coordinator is enabled."
-                },
-                "node": {
-                  "type": "boolean",
-                  "description": "If node is enabled."
-                },
-                "os": {
-                  "type": "boolean",
-                  "description": "If OS is enabled."
-                },
-                "eeprom": {
-                  "type": "boolean",
-                  "description": "If EEPROM is enabled."
-                },
-                "eeeprom": {
-                  "type": "boolean",
-                  "description": "If EEEPROM is enabled."
-                },
-                "ram": {
-                  "type": "boolean",
-                  "description": "If RAM is enabled."
-                },
-                "ledr": {
-                  "type": "boolean",
-                  "description": "If LEDR is enabled."
-                },
-                "ledg": {
-                  "type": "boolean",
-                  "description": "If LEDG is enabled."
-                },
-                "spi": {
-                  "type": "boolean",
-                  "description": "If SPI is enabled."
-                },
-                "io": {
-                  "type": "boolean",
-                  "description": "If IO is enabled."
-                },
-                "thermometer": {
-                  "type": "boolean",
-                  "description": "If thermometer is enabled."
-                },
-                "pwm": {
-                  "type": "boolean",
-                  "description": "If PWM is enabled."
-                },
-                "uart": {
-                  "type": "boolean",
-                  "description": "If UART is enabled."
-                },
-                "frc": {
-                  "type": "boolean",
-                  "description": "If FRC is enabled."
-                }
-              }
-            },
-            "rfBand": {
-              "type": "string",
-              "description": "Used RF band."
-            },
-            "rfChannelA": {
-              "type": "integer",
-              "description": "Main RF channel A of the main network. Valid numbers depend on used RF band."
-            },
-            "rfChannelB": {
-              "type": "integer",
-              "description": "Same as above but second B channel. Used at RFPGM only."
-            },
-            "rfSubChannelA": {
-              "type": "integer",
-              "description": "Main RF channel A of the optional subordinate network in case the node also plays a role of the coordinator of such network. Valid numbers depend on used RF band. Available for DPA<400."
-            },
-            "rfSubChannelB": {
-              "type": "integer",
-              "description": "Same as above but second B channel."
-            },
-            "txPower": {
-              "type": "integer",
-              "description": "RF output power. Valid numbers 0-7."
-            },
-            "rxFilter": {
-              "type": "integer",
-              "description": "RF signal filter. Valid numbers 0-64."
-            },
-            "lpRxTimeout": {
-              "type": "integer",
-              "description": "Timeout for receiving RF packets at LP mode at N device."
-            },
-            "rfAltDsmChannel": {
-              "type": "integer",
-              "description": "A nonzero value specifies an alternative DPA service mode channel."
-            },
-            "rfPgmEnableAfterReset": {
-              "type": "boolean",
-              "description": "If sets, then activates RFPGM invoking by TR module reset."
-            },
-            "rfPgmTerminateAfter1Min": {
-              "type": "boolean",
-              "description": "If sets, then terminates RFPGM automatically ~1 minute after reset."
-            },
-            "rfPgmTerminateMcuPin": {
-              "type": "boolean",
-              "description": "If sets, then terminates RFPGM by dedicated pin of the TR module."
-            },
-            "rfPgmDualChannel": {
-              "type": "boolean",
-              "description": "If sets, then enables single or dual channel function."
-            },
-            "rfPgmLpMode": {
-              "type": "boolean",
-              "description": "RFPGM receiving mode setting. If set, then LP (low power) Rx mode is used during RFPGM. Otherwise STD (standard) Rx mode is used."
-            },
-            "rfPgmIncorrectUpload": {
-              "type": "boolean",
-              "description": "Read only. Indicates that the last RFPGM has successfully been completed."
-            },
-            "customDpaHandler": {
-              "type": "boolean",
-              "description": "If set, then a Custom DPA handler is called in case of an event."
-            },
-            "dpaPeerToPeer": {
-              "type": "boolean",
-              "description": "If set, then DP2P is enabled at [N]."
-            },
-            "nodeDpaInterface": {
-              "type": "boolean",
-              "description": "If set, then Node device can be controlled by a SPI or UART interface. Valid only in DPA version < 4.00"
-            },
-            "uartBaudrate": {
-              "type": "integer",
-              "description": "Baud rate of the UART interface if one is used."
-            },
-            "localFrcReception": {
-              "type": "boolean",
-              "description": "If set, then Local FRC reception is enabled at [N]."
-            },
-            "dpaAutoexec": {
-              "type": "boolean",
-              "description": "If set, then DPA Autoexec is run at a later stage of the module boot time."
-            },
-            "routingOff": {
-              "type": "boolean",
-              "description": "If set, then the Node device does not route packets on the background."
-            },
-            "ioSetup": {
-              "type": "boolean",
-              "description": "If set, then DPA IO Setup is run at an early stage of the module boot time."
-            },
-            "peerToPeer": {
-              "type": "boolean",
-              "description": "If set, then device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event."
-            },
-            "neverSleep": {
-              "type": "boolean",
-              "description": "If set, then unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03"
-            },
-            "stdAndLpNetwork": {
-              "type": "boolean",
-              "description": "If the bit is set, then the [C] controls the STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00"
-            }
-          },
-          "required": [
-            "deviceAddr"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
-          }
-        },
-        "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
-        },
-        "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
-        },
-        "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
-        }
-      },
-      "required": [
-        "msgId",
-        "status"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - ReadTrConf",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - Read TR configuration response.",
+			"const": "iqmeshNetwork_ReadTrConf"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response body object",
+					"type": "object",
+					"required": [
+						"deviceAddr"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"deviceAddr": {
+							"$ref": "file://definitions.json#/embed/coordinator/reqAddr",
+							"description": "Address of device in network. 0 = Coordinator, 1..239 = Node."
+						},
+						"embPers": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/embPers"},
+						"rfBand": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfBand"},
+						"rfChannelA": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfChannelA"},
+						"rfChannelB": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfChannelB"},
+						"rfSubChannelA": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfSubChannelA"},
+						"rfSubChannelB": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfSubChannelB"},
+						"txPower": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/txPower"},
+						"rxFilter": {"$ref": "file://definitions.json#/embed/os/rxFilter"},
+						"lpRxTimeout": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/lpRxTimeout"},
+						"rfAltDsmChannel": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfAltDsmChannel"},
+						"localFrcReception": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/localFrcReception"},
+						"rfPgmEnableAfterReset": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfPgmEnableAfterReset"},
+						"rfPgmTerminateAfter1Min": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfPgmTerminateAfter1Min"},
+						"rfPgmTerminateMcuPin": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfPgmTerminateMcuPin"},
+						"rfPgmDualChannel": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfPgmDualChannel"},
+						"rfPgmLpMode": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfPgmLpMode"},
+						"rfPgmIncorrectUpload": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/rfPgmIncorrectUpload"},
+						"customDpaHandler": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/customDpaHandler"},
+						"dpaPeerToPeer": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/dpaPeerToPeer"},
+						"nodeDpaInterface": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/nodeDpaInterface"},
+						"uartBaudrate": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/uartBaudRate"},
+						"dpaAutoexec": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/dpaAutoexec"},
+						"routingOff": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/routingOff"},
+						"ioSetup": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/ioSetup"},
+						"peerToPeer": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/peerToPeer"},
+						"neverSleep": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/neverSleep"},
+						"stdAndLpNetwork": {"$ref": "file://definitions.json#/iqmesh/trConfiguration/stdAndLpNetwork"}
+					}
+				},
+				"raw": {"$ref": "file://definitions.json#/general/response/raw"},
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"}
+			}
+		}
+	}
 }
