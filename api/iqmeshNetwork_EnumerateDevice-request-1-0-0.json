@@ -1,61 +1,55 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqmeshNetwork_EnumerateDevice-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "IQMESH Network management - Enumerate Device request.",
-            "enum": [
-                "iqmeshNetwork_EnumerateDevice"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "repeat": {
-                    "type": "integer",
-                    "description": "Number of repetitions of DPA messages.",
-                    "default": 1
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "deviceAddr": {
-                            "type": "integer",
-                            "description": "Device address to enumerate."
-                        },
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - EnumerateDevice",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - Enumerate Device request.",
+			"const": "iqmeshNetwork_EnumerateDevice"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"deviceAddr"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"deviceAddr": {
+							"$ref": "file://definitions.json#/general/nAdr",
+							"description": "Address of device to enumerate."
+						},
 						"morePeripheralsInfo": {
-							"type": "boolean",
-                            "description": "If to get more peripherals information."
+							"$id": "#/properties/data/properties/req/properties/morePeripheralsInfo",
+							"title": "More peripherals information",
+							"description": "If set to true, the request to retrieve information about all peripherals is sent.",
+							"type": "boolean"
 						}
-                    },
-                    "required": [
-                        "deviceAddr"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+					}
+				},
+				"repeat": {"$ref": "file://definitions.json#/iqmesh/general/repeat"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }

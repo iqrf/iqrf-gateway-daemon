@@ -20,7 +20,6 @@
 			"type": "object",
 			"required": [
 				"msgId",
-				"rsp",
 				"status"
 			],
 			"additionalProperties": false,
@@ -63,96 +62,18 @@
 								"mid": {"$ref": "file://definitions.json#/iqmesh/device/os/mid"},
 								"osVersion": {"$ref": "file://definitions.json#/iqmesh/device/os/version"},
 								"osBuild": {"$ref": "file://definitions.json#/iqmesh/device/os/build"},
-								"trMcuType": {
-									"$id": "#/properties/data/properties/rsp/properties/osRead/properties/trMcuType",
-									"title": "TR/MCU type",
-									"description": "Object containing information about transciever and mcu type.",
-									"type": "object",
-									"required": [
-										"value",
-										"trType",
-										"mcuType",
-										"fccCertified"
-									],
-									"additionalProperties": false,
-									"properties": {
-										"value": {"$ref": "file://definitions.json#/embed/os/trMcuType"},
-										"trType": {"$ref": "file://definitions.json#/iqmesh/device/trMcu/trType"},
-										"mcuType": {"$ref": "file://definitions.json#/iqmesh/device/trMcu/mcuType"},
-										"fccCertified": {"$ref": "file://definitions.json#/iqmesh/device/trMcu/fccCertified"}
-									}
-								},
+								"trMcuType": {"$ref": "file://definitions.json#/iqmesh/device/trMcuType"},
 								"rssi": {"$ref": "file://definitions.json#/iqmesh/device/rssi"},
 								"supplyVoltage": {"$ref": "file://definitions.json#/iqmesh/device/supplyVoltage"},
-								"flags": {
-									"$id": "#/properties/data/properties/rsp/properties/osRead/properties/flags",
-									"title": "OS flags",
-									"description": "Object containing OS flags in a human readable from.",
-									"type": "object",
-									"required": [
-										"value",
-										"insufficientOsBuild",
-										"interfaceType",
-										"dpaHandlerDetected",
-										"dpaHandlerNotDetectedButEnabled",
-										"noInterfaceSupported",
-										"iqrfOsChanged",
-										"frcAggregationEnabled"
-									],
-									"additionalProperties": false,
-									"properties": {
-										"value": {"$ref": "file://definitions.json#/embed/os/osFlags"},
-										"insufficientOsBuild": {"$ref": "file://definitions.json#/iqmesh/device/flags/insufficientOsBuild"},
-										"interfaceType": {"$ref": "file://definitions.json#/iqmesh/device/flags/interfaceType"},
-										"dpaHandlerDetected": {"$ref": "file://definitions.json#/iqmesh/device/flags/dpaHandlerDetected"},
-										"dpaHandlerNotDetectedButEnabled": {"$ref": "file://definitions.json#/iqmesh/device/flags/dpaHandlerNotDetectedButEnabled"},
-										"noInterfaceSupported": {"$ref": "file://definitions.json#/iqmesh/device/flags/noInterfaceSupported"},
-										"iqrfOsChanged": {"$ref": "file://definitions.json#/iqmesh/device/flags/iqrfOsChanged"},
-										"frcAggregationEnabled": {"$ref": "file://definitions.json#/iqmesh/device/flags/frcAggregationEnabled"}
-									}
-								},
-								"slotLimits": {
-									"$id": "#/properties/data/properties/rsp/properties/osRead/properties/flags",
-									"title": "Slot limits",
-									"description": "Object containing timeslot limits.",
-									"type": "object",
-									"required": [
-										"value",
-										"shortestTimeslot",
-										"longestTimeslot"
-									],
-									"additionalProperties": false,
-									"properties": {
-										"value": {"$ref": "file://definitions.json#/embed/os/slotLimits"},
-										"shortestTimeslot": {"$ref": "file://definitions.json#/iqmesh/device/slotLimits/shortestTimeslot"},
-										"longestTimeslot": {"$ref": "file://definitions.json#/iqmesh/device/slotLimits/longestTimeslot"}
-									}
-								},
+								"flags": {"$ref": "file://definitions.json#/iqmesh/device/flags"},
+								"slotLimits": {"$ref": "file://definitions.json#/iqmesh/device/slotLimits"},
 								"ibk": {"$ref": "file://definitions.json#/embed/os/ibk"},
 								"dpaVer": {"$ref": "file://definitions.json#/iqmesh/device/dpaVer"},
 								"perNr": {"$ref": "file://definitions.json#/embed/os/userPerNr"},
 								"embPers": {"$ref": "file://definitions.json#/embed/os/embeddedPers"},
 								"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
 								"hwpIdVer": {"$ref": "file://definitions.json#/embed/os/hwpidVer"},
-								"enumFlags": {
-									"$id": "#/properties/data/properties/rsp/properties/osRead/properties/enumFlags",
-									"title": "Device enumeration flags",
-									"description": "Object containing device operation mode flags.",
-									"type": "object",
-									"required": [
-										"value",
-										"rfModeStd",
-										"rfModeLp",
-										"stdAndLpNetwork"
-									],
-									"additionalProperties": false,
-									"properties": {
-										"value": {"$ref": "file://definitions.json#/embed/os/flags"},
-										"rfModeStd": {"$ref": "file://definitions.json#/iqmesh/device/enumFlags/rfModeStd"},
-										"rfModeLp": {"$ref": "file://definitions.json#/iqmesh/device/enumFlags/rfModeLp"},
-										"stdAndLpNetwork": {"$ref": "file://definitions.json#/iqmesh/device/enumFlags/stdAndLpNetwork"}
-									}
-								},
+								"enumFlags": {"$ref": "file://definitions.json#/iqmesh/device/enumFlags"},
 								"userPers": {"$ref": "file://definitions.json#/embed/os/userPer"}
 							}
 						}

@@ -598,12 +598,12 @@
 			"rxFilter": {
 				"$id": "#/embed/os/rxFilter",
 				"title": "RX filter",
-				"description": "RX filter (0-63) to be passed as a parameter to checkRF IQRF OS function. Set value to 255 to get data from previous measurement.",
+				"description": "RX signal filter (0-64) to be passed as a parameter to checkRF IQRF OS function. Set value to 255 to get data from previous measurement.",
 				"type": "integer",
 				"oneOf": [
 					{
 						"minimum": 0,
-						"maximum": 63
+						"maximum": 64
 					},
 					{
 						"const": 255
@@ -779,6 +779,34 @@
 				"type": "integer",
 				"minimum": 0,
 				"maximum": 100
+			},
+			"deviceAddrAll": {
+				"$id": "#/iqmesh/general/deviceAddrAll",
+				"title": "Device address",
+				"type": "integer",
+				"oneOf": [
+					{
+						"minimum": 0,
+						"maximum": 239
+					},
+					{
+						"const": 255
+					}
+				]
+			},
+			"deviceAddrNode": {
+				"$id": "#/iqmesh/general/deviceAddrNode",
+				"title": "Node device address",
+				"type": "integer",
+				"oneOf": [
+					{
+						"minimum": 1,
+						"maximum": 239
+					},
+					{
+						"const": 255
+					}
+				]
 			}
 		},
 		"device": {
@@ -843,93 +871,127 @@
 					"pattern": "^[0-9a-fA-F]{4}$"
 				}
 			},
-			"trMcu": {
-				"trType": {
-					"$id": "#/iqmesh/device/trMcu/trType",
-					"title": "TR MCU type",
-					"description": "Transciever type in a string representation.",
-					"type": "string",
-					"pattern": "^(\\(DC\\))?TR-\\d{2}[DG](x)?$"
-				},
-				"mcuType": {
-					"$id": "#/iqmesh/device/trMcu/mcuType",
-					"title": "MCU type",
-					"description": "MCU type in a string representation.",
-					"type": "string",
-					"enum": [
-						"PIC16LF1938",
-						"PIC16LF18877"
-					]
-				},
-				"fccCertified": {
-					"$id": "#/iqmesh/device/trMcu/fccCertified",
-					"title": "FCC certification",
-					"description": "Indicates whether device is FCC certified.",
-					"type": "boolean"
+			"trMcuType": {
+				"$id": "#/iqmesh/device/trMcuType",
+				"title": "TR/MCU type",
+				"description": "Object containing information about transciever and mcu type.",
+				"type": "object",
+				"required": [
+					"value",
+					"trType",
+					"mcuType",
+					"fccCertified"
+				],
+				"additionalProperties": false,
+				"properties": {
+					"value": {"$ref": "#/embed/os/trMcuType"},
+					"trType": {
+						"$id": "#/iqmesh/device/trMcuType/properties/trType",
+						"title": "TR MCU type",
+						"description": "Transciever type in a string representation.",
+						"type": "string",
+						"pattern": "^(\\(DC\\))?TR-\\d{2}[DG](x)?$"
+					},
+					"mcuType": {
+						"$id": "#/iqmesh/device/trMcuType/properties/mcuType",
+						"title": "MCU type",
+						"description": "MCU type in a string representation.",
+						"type": "string",
+						"enum": [
+							"PIC16LF1938",
+							"PIC16LF18877"
+						]
+					},
+					"fccCertified": {
+						"$id": "#/iqmesh/device/trMcuType/properties/fccCertified",
+						"title": "FCC certification",
+						"description": "Indicates whether device is FCC certified.",
+						"type": "boolean"
+					}
 				}
 			},
 			"flags": {
-				"insufficientOsBuild": {
-					"$id": "#/iqmesh/device/flags/insufficientOsBuild",
-					"title": "Insufficient OS build",
-					"description": "Indicates whether the OS build is insufficient for the used DPA version.",
-					"type": "boolean"
-				},
-				"interfaceType": {
-					"$id": "#/iqmesh/device/flags/interfaceType",
-					"title": "Supported interface",
-					"description": "Specifies interface supported by the uploaded DPA plugin.",
-					"type": "string",
-					"enum": [
-						"SPI",
-						"UART"
-					]
-				},
-				"dpaHandlerDetected": {
-					"$id": "#/iqmesh/device/flags/dpaHandlerDetected",
-					"title": "DPA handler detected",
-					"description": "Indicates that a Custom DPA Handler has been uploaded to the device.",
-					"type": "boolean"
-				},
-				"dpaHandlerNotDetectedButEnabled": {
-					"$id": "#/iqmesh/device/flags/dpaHandlerNotDetectedButEnabled",
-					"title": "Missing DPA handler",
-					"description": "Indicates that a Custom DPA Handler hasn't been detected, but is enabled in TR configuration.",
-					"type": "boolean"
-				},
-				"noInterfaceSupported": {
-					"$id": "#/iqmesh/device/flags/noInterfaceSupported",
-					"title": "No interface supported",
-					"description": "Indicates that no interface is supported by the uploaded DPA plugin.",
-					"type": "boolean"
-				},
-				"iqrfOsChanged": {
-					"$id": "#/iqmesh/device/flags/iqrfOsChanged",
-					"title": "IQRF OS changed",
-					"description": "Indicates whether IQRF OS has changed from factory configuration.",
-					"type": "boolean"
-				},
-				"frcAggregationEnabled": {
-					"$id": "#/iqmesh/device/flags/frcAggregationEnabled",
-					"title": "FRC aggregation",
-					"description": "Indicates whether FRC aggregation is enabled.",
-					"type": "boolean"
+				"$id": "#/iqmesh/device/flags",
+				"title": "OS flags",
+				"description": "Object containing OS flags in a human readable from.",
+				"type": "object",
+				"required": [
+					"value",
+					"insufficientOsBuild",
+					"interfaceType",
+					"dpaHandlerDetected",
+					"dpaHandlerNotDetectedButEnabled",
+					"noInterfaceSupported"
+				],
+				"additionalProperties": false,
+				"properties": {
+					"value": {"$ref": "#/embed/os/osFlags"},
+					"insufficientOsBuild": {
+						"title": "Insufficient OS build",
+						"description": "Indicates whether the OS build is insufficient for the used DPA version.",
+						"type": "boolean"
+					},
+					"interfaceType": {
+						"title": "Supported interface",
+						"description": "Specifies interface supported by the uploaded DPA plugin.",
+						"type": "string",
+						"enum": [
+							"SPI",
+							"UART"
+						]
+					},
+					"dpaHandlerDetected": {
+						"title": "DPA handler detected",
+						"description": "Indicates that a Custom DPA Handler has been uploaded to the device.",
+						"type": "boolean"
+					},
+					"dpaHandlerNotDetectedButEnabled": {
+						"title": "Missing DPA handler",
+						"description": "Indicates that a Custom DPA Handler hasn't been detected, but is enabled in TR configuration.",
+						"type": "boolean"
+					},
+					"noInterfaceSupported": {
+						"title": "No interface supported",
+						"description": "Indicates that no interface is supported by the uploaded DPA plugin.",
+						"type": "boolean"
+					},
+					"iqrfOsChanged": {
+						"title": "IQRF OS changed",
+						"description": "Indicates whether IQRF OS has changed from factory configuration.",
+						"type": "boolean"
+					},
+					"frcAggregationEnabled": {
+						"title": "FRC aggregation",
+						"description": "Indicates whether FRC aggregation is enabled.",
+						"type": "boolean"
+					}
 				}
 			},
 			"slotLimits": {
-				"shortestTimeslot": {
-					"$id": "#/iqmesh/device/slotLimits/shortestTimeslot",
-					"title": "Shortest timeslot",
-					"description": "Shortest timeslot length.",
-					"type": "string",
-					"pattern": "^([3-9][0-9]|1[0-7][0-9]|180) ms$"
-				},
-				"longestTimeslot": {
-					"$id": "#/iqmesh/device/slotLimits/longestTimeslot",
-					"title": "Longest timeslot",
-					"description": "Longest timeslot length.",
-					"type": "string",
-					"pattern": "^([3-9][0-9]|1[0-7][0-9]|180) ms$"
+				"$id": "#/iqmesh/device/slotLimits",
+				"title": "Slot limits",
+				"description": "Object containing timeslot limits.",
+				"type": "object",
+				"required": [
+					"value",
+					"shortestTimeslot",
+					"longestTimeslot"
+				],
+				"additionalProperties": false,
+				"properties": {
+					"value": {"$ref": "#/embed/os/slotLimits"},
+					"shortestTimeslot": {
+						"title": "Shortest timeslot",
+						"description": "Shortest timeslot length.",
+						"type": "string",
+						"pattern": "^([3-9][0-9]|1[0-7][0-9]|180) ms$"
+					},
+					"longestTimeslot": {
+						"title": "Longest timeslot",
+						"description": "Longest timeslot length.",
+						"type": "string",
+						"pattern": "^([3-9][0-9]|1[0-7][0-9]|180) ms$"
+					}
 				}
 			},
 			"dpaVer": {
@@ -940,24 +1002,311 @@
 				"pattern": "^\\d\\.\\d{2}$"
 			},
 			"enumFlags": {
-				"rfModeStd": {
-					"$id": "#/iqmesh/device/enumFlags/rfModeStd",
-					"title": "STD-RX mode",
-					"description": "Device works in STD-RX mode.",
-					"type": "boolean"
-				},
-				"rfModeLp": {
-					"$id": "#/iqmesh/device/enumFlags/rfModeLp",
-					"title": "LP-RX mode",
-					"description": "Device works in LP-RX mode.",
-					"type": "boolean"
-				},
-				"stdAndLpNetwork": {
-					"$id": "#/iqmesh/device/enumFlags/stdAndLpNetwork",
-					"title": "STD+LP network",
-					"description": "STD+LP network is running, otherwise STD network.",
-					"type": "boolean"
+				"$id": "#/iqmesh/device/enumFlags",
+				"title": "Device enumeration flags",
+				"description": "Object containing device operation mode flags.",
+				"type": "object",
+				"required": [
+					"value",
+					"rfModeStd",
+					"rfModeLp",
+					"stdAndLpNetwork"
+				],
+				"additionalProperties": false,
+				"properties": {
+					"value": {"$ref": "#/embed/os/flags"},
+					"rfModeStd": {
+						"title": "STD-RX mode",
+						"description": "Device works in STD-RX mode.",
+						"type": "boolean"
+					},
+					"rfModeLp": {
+						"title": "LP-RX mode",
+						"description": "Device works in LP-RX mode.",
+						"type": "boolean"
+					},
+					"stdAndLpNetwork": {
+						"title": "STD+LP network",
+						"description": "STD+LP network is running, otherwise STD network.",
+						"type": "boolean"
+					}
 				}
+			}
+		},
+		"trConfiguration": {
+			"embPers": {
+				"$id": "#/iqmesh/trConfiguration/embPers",
+				"title": "Embedded peripherals",
+				"description": "Object containing state of embedded peripherals.",
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"values": {
+						"title": "Embedded peripherals bit array.",
+						"description": "Each bit enables/disables one of the embedded 32 predefined peripherals.",
+						"type": "array",
+						"minItems": 4,
+						"maxItems": 4,
+						"additionalItems": false,
+						"items": {
+							"title": "Embedded peripherals byte.",
+							"description": "Byte of embedded peripherals information.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 255
+						}
+					},
+					"coordinator": {
+						"title": "Coordinator enabled",
+						"description": "Indicates whether coordinator peripheral is enabled.",
+						"type": "boolean"
+					},
+					"node": {
+						"title": "Node enabled",
+						"description": "Indicates whether node peripheral is enabled.",
+						"type": "boolean"
+					},
+					"os": {
+						"title": "OS peripheral",
+						"description": "Indicates whether OS peripheral is enabled.",
+						"type": "boolean"
+					},
+					"eeprom": {
+						"title": "EEPROM peripheral",
+						"description": "Indicates whether EEPROM peripheral is enabled.",
+						"type": "boolean"
+					},
+					"eeeprom": {
+						"title": "EEEPROM peripheral",
+						"description": "Indicates whether EEEPROM peripheral is enabled.",
+						"type": "boolean"
+					},
+					"ram": {
+						"title": "RAM peripheral",
+						"description": "Indicates whether RAM peripheral is enabled.",
+						"type": "boolean"
+					},
+					"ledr": {
+						"title": "LEDR peripheral",
+						"description": "Indicates whether LEDR peripheral is enabled.",
+						"type": "boolean"
+					},
+					"ledg": {
+						"title": "LEDG peripheral",
+						"description": "Indicates whether LEDG peripheral is enabled.",
+						"type": "boolean"
+					},
+					"spi": {
+						"title": "SPI peripheral",
+						"description": "Indicates whether SPI peripheral is enabled.",
+						"type": "boolean"
+					},
+					"io": {
+						"title": "IO peripheral",
+						"description": "Indicates whether IO peripheral is enabled.",
+						"type": "boolean"
+					},
+					"thermometer": {
+						"title": "Thermometer peripheral",
+						"description": "Indicates whether thermometer peripheral is enabled.",
+						"type": "boolean"
+					},
+					"pwm": {
+						"title": "PWN peripheral",
+						"description": "Indicates whether PWM peripheral is enabled.",
+						"type": "boolean"
+					},
+					"uart": {
+						"title": "UART peripheral",
+						"description": "Indicates whether UART peripheral is enabled.",
+						"type": "boolean"
+					},
+					"frc": {
+						"title": "FRC peripheral",
+						"description": "Indicates whether FRC peripheral is enabled.",
+						"type": "boolean"
+					}
+				}
+			},
+			"rfBand": {
+				"$id": "#/iqmesh/trConfiguration/rfBand",
+				"title": "RF band",
+				"description": "Used RF band.",
+				"type": "string",
+				"enum": [
+					"868",
+					"916",
+					"433"
+				]
+			},
+			"rfChannelA": {
+				"$id": "#/iqmesh/trConfiguration/rfChannelA",
+				"title": "RF channel A",
+				"description": "Main RF channel A. Valid numbers depend on used RF band.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"rfChannelB": {
+				"$id": "#/iqmesh/trConfiguration/rfChannelB",
+				"title": "RF channel B",
+				"description": "Main RF channel B. Used at RFPGM only. Valid numbers depend on used RF band.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"rfSubChannelA": {
+				"$id": "#/iqmesh/trConfiguration/rfSubChannelA",
+				"title": "RF subchannel A",
+				"description": "Main RF channel A of subordinate network for when a node plays the role of coordinator. Valid numbers depend on used RF band. Only valid for DPA < 4.00.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"rfSubChannelB": {
+				"$id": "#/iqmesh/trConfiguration/rfSubChannelB",
+				"title": "RF subchannel B",
+				"description": "Main RF channel B of subordinate network for when a node plays the role of coordinator. Valid numbers depend on used RF band. Only valid for DPA < 4.00.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"txPower": {
+				"$id": "#/iqmesh/trConfiguration/txPower",
+				"title": "TX power",
+				"description": "RF output power.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 7
+			},
+			"lpRxTimeout": {
+				"$id": "#/iqmesh/trConfiguration/lpRxTimeout",
+				"title": "LP-RX timeout",
+				"description": "Timeout for receiving RF packets at device in LP mode. Unit in cycles (46ms in LP-RX mode).",
+				"type": "integer",
+				"minimum": 1,
+				"maximum": 255
+			},
+			"rfAltDsmChannel": {
+				"$id": "#/iqmesh/trConfiguration/rfAltDsmChannel",
+				"title": "Alternative DSM channel",
+				"description": "Nonzero value specifies an alternative DPA service mode channel.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"localFrcReception": {
+				"$id": "#/iqmesh/trConfiguration/localFrcReception",
+				"title": "Local FRC reception",
+				"description": "If set to true, Local FRC reception is enabled at node device.",
+				"type": "boolean"
+			},
+			"rfPgmEnableAfterReset": {
+				"$id": "#/iqmesh/trConfiguration/rfPgmEnableAfterReset",
+				"title": "RFPGM enable after reset.",
+				"description": "Enable RFPGM mode by invoking TR module reset.",
+				"type": "boolean"
+			},
+			"rfPgmTerminateAfter1Min": {
+				"$id": "#/iqmesh/trConfiguration/rfPgmTerminateAfter1Min",
+				"title": "Timed RFPGM termination",
+				"description": "If set to true, RPFGM mode is automatically terminated after 1 minute.",
+				"type": "boolean"
+			},
+			"rfPgmTerminateMcuPin": {
+				"$id": "#/iqmesh/trConfiguration/rfPgmTerminateMcuPin",
+				"title": "RPFGM termination by pin",
+				"description": "If set to true, RPFGM is terminated by a dedicated pin of the TR module.",
+				"type": "boolean"
+			},
+			"rfPgmDualChannel": {
+				"$id": "#/iqmesh/trConfiguration/rfPgmDualChannel",
+				"title": "RFPGM dual channel",
+				"description": "If set to true, dual channel function is enabled, otherwise single channel function is utilized.",
+				"type": "boolean"
+			},
+			"rfPgmLpMode": {
+				"$id": "#/iqmesh/trConfiguration/rfPgmLpMode",
+				"title": "RPFGM LP mode",
+				"description": "If set to true, LP-RX mode is used during RFPGM, otherwise, STD-RX mode is used.",
+				"type": "boolean"
+			},
+			"rfPgmIncorrectUpload": {
+				"$id": "#/iqmesh/trConfiguration/rfPgmIncorrectUpload",
+				"title": "Last RFPGM state",
+				"description": "Read-only property. Indicates whether the last RPFGM mode has been successfully completed.",
+				"type": "boolean"
+			},
+			"customDpaHandler": {
+				"$id": "#/iqmesh/trConfiguration/customDpaHandler",
+				"title": "Enable Custom DPA Handler",
+				"description": "If set to true, a Custom DPA Handler is called when an event occurs.",
+				"type": "boolean"
+			},
+			"dpaPeerToPeer": {
+				"$id": "#/iqmesh/trConfiguration/dpaPeerToPeer",
+				"title": "DPA P2P",
+				"description": "If set to true, then DPA Peer-to-Peer is enabled at node device.",
+				"type": "boolean"
+			},
+			"nodeDpaInterface": {
+				"$id": "#/iqmesh/trConfiguration/nodeDpaInterface",
+				"title": "Node interface control",
+				"description": "If set to true, then node device can be controlled using SPI or UART interface. Only valid for DPA < 4.00.",
+				"type": "boolean"
+			},
+			"uartBaudRate": {
+				"$id": "#/iqmesh/trConfiguration/uartBaudRate",
+				"title": "UART baud rate",
+				"description": "Baud rate of the UART interface if it is used.",
+				"type": "integer",
+				"enum": [
+					1200,
+					2400,
+					4800,
+					9600,
+					19200,
+					38400,
+					57600,
+					115200,
+					230400
+				]
+			},
+			"dpaAutoexec": {
+				"$id": "#/iqmesh/trConfiguration/dpaAutoexec",
+				"title": "DPA autoexec",
+				"description": "If set to true, DPA Autoexec is executed at a later stage of the module boot time.",
+				"type": "boolean"
+			},
+			"routingOff": {
+				"$id": "#/iqmesh/trConfiguration/routingOff",
+				"title": "Disable routing",
+				"description": "If set to true, the node device does not route packets in the network.",
+				"type": "boolean"
+			},
+			"ioSetup": {
+				"$id": "#/iqmesh/trConfiguration/ioSetup",
+				"title": "IO setup",
+				"description": "If set to true, DPA IO Setup is executed at an early stage of the module boot time.",
+				"type": "boolean"
+			},
+			"peerToPeer": {
+				"$id": "#/iqmesh/trConfiguration/peerToPeer",
+				"title": "Peer-to-Peer",
+				"description": "If set to true, device receives non-networking peer-to-peer packets and raises peer-to-peer events.",
+				"type": "boolean"
+			},
+			"neverSleep": {
+				"$id": "#/iqmesh/trConfiguration/neverSleep",
+				"title": "Never sleep",
+				"description": "If set to true, node unbonded using IQRF buttons never sleeps during button bonding. Only valid for DPA >= 3.03.",
+				"type": "boolean"
+			},
+			"stdAndLpNetwork": {
+				"$id": "#/iqmesh/trConfiguration/stdAndLpNetwork",
+				"title": "STD+LP network",
+				"description": "If set to true, coordinator device controls STD+LP network, otherwise it controls STD network. Setting is only changed if there are no nodes in the network. Only valid for DPA >= 4.00.",
+				"type": "boolean"
 			}
 		},
 		"backupRestore": {
