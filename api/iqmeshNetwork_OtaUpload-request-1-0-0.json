@@ -1,11 +1,6 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmeshNetwork_OtaUpload-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - OtaUpload",
 	"type": "object",
 	"required": [
 		"mType",
@@ -14,13 +9,14 @@
 	"additionalProperties": false,
 	"properties": {
 		"mType": {
-			"type": "string",
-			"description": "IQMESH Network management - Upload hex or iqrf file request.",
-			"enum": [
-				"iqmeshNetwork_OtaUpload"
-			]
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - OTA upload request.",
+			"const": "iqmeshNetwork_OtaUpload"
 		},
 		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
 			"type": "object",
 			"required": [
 				"msgId",
@@ -28,16 +24,11 @@
 			],
 			"additionalProperties": false,
 			"properties": {
-				"msgId": {
-					"type": "string",
-					"description": "Message identification for binding request with response."
-				},
-				"repeat": {
-					"type": "integer",
-					"description": "Number of repetitions of DPA messages.",
-					"default": 1
-				},
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
 				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
 					"type": "object",
 					"required": [
 						"deviceAddr",
@@ -48,39 +39,52 @@
 					"additionalProperties": false,
 					"properties": {
 						"deviceAddr": {
-							"type": "integer",
-							"description": "Device address to write the hex or iqrf file."
+							"$ref": "file://definitions.json#/iqmesh/general/deviceAddrAll",
+							"description": "Device address to write the hex or iqrf file. 0 = coordinator, 1..239 = node, 255 = network."
 						},
-						"hwpId": {
-							"type": "integer",
-							"description": "Hardware profile ID of the devices to write the hex or iqrf file."
-						},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
 						"fileName": {
+							"$id": "#/properties/data/properties/req/properties/fileName",
+							"title": "File name",
+							"description": "Full name of file with source code to load.",
 							"type": "string",
-							"description": "Full name of file with source code to load."
+							"pattern": "^.*\\.(hex|iqrf)$"
 						},
 						"startMemAddr": {
+							"$id": "#/properties/data/properties/req/properties/startMemAddr",
+							"title": "Start memory address",
+							"description": "Start address on which will be the data saved into memory.",
 							"type": "integer",
-							"description": "Start address on which will be the data saved into memory."
+							"minimum": 768,
+							"maximum": 16383
 						},
 						"loadingAction": {
+							"$id": "#/properties/data/properties/req/properties/loadingAction",
+							"title": "Loading action",
+							"description": "Loading action - upload code, verify code, load code to flash.",
 							"type": "string",
-							"description": "Loading action - WithoutCodeLoading, WithCodeLoading."
+							"enum": [
+								"Upload",
+								"Verify",
+								"Load"
+							]
 						},
 						"uploadEepromData": {
-							"type": "boolean",
-							"description": "Upload internal eeprom data from hex file."
+							"$id": "#/properties/data/properties/req/properties/uploadEepromData",
+							"title": "Upload EEPROM data",
+							"description": "Upload internal EEPROM data from hex file.",
+							"type": "boolean"
 						},
 						"uploadEeepromData": {
-							"type": "boolean",
-							"description": "Upload external eeprom data from hex file."
+							"$id": "#/properties/data/properties/req/properties/uploadEeepromData",
+							"title": "Upload EEEPROM data",
+							"description": "Upload external EEEPROM data from hex file.",
+							"type": "boolean"
 						}
 					}
 				},
-				"returnVerbose": {
-					"type": "boolean",
-					"description": "Flag that includes additional parameters in the response."
-				}
+				"repeat": {"$ref": "file://definitions.json#/iqmesh/general/repeat"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
 			}
 		}
 	}

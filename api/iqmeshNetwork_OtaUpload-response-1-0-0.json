@@ -1,160 +1,127 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_OtaUpload-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Upload hex or iqrf file response.",
-      "enum": [
-        "iqmeshNetwork_OtaUpload"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "rsp": {
-          "type": "object",
-          "description": "Returns following values, see its description.",
-          "properties": {
-            "deviceAddr": {
-              "type": "integer",
-              "description": "Device address to load the code to. Broadcast address is also allowed."
-            },
-            "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile ID of the devices to write the hex or iqrf file."
-            },
-            "loadingAction": {
-              "type": "string",
-              "description": "Loading action - WithoutCodeLoading, WithCodeLoading."
-            },
-            "uploadResult": {
-              "type": "boolean",
-              "description": "If sets, then selected file has been successfully loaded."
-            },
-            "verifyResult": {
-              "type": "array",
-              "description": "Returns result of verify action.",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "address": {
-                    "type": "integer",
-                    "description": "Device address."
-                  },
-                  "result": {
-                    "type": "boolean",
-                    "description": "Result."
-                  }
-                },
-                "required": [
-                  "address",
-                  "result"
-                ],
-                "maxItems": 239
-              }
-            },
-            "loadResult": {
-              "type": "array",
-              "description": "Returns result of verify action.",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "address": {
-                    "type": "integer",
-                    "description": "Device address."
-                  },
-                  "result": {
-                    "type": "boolean",
-                    "description": "Result."
-                  }
-                },
-                "required": [
-                  "address",
-                  "result"
-                ],
-                "maxItems": 239
-              }
-            }
-          },
-          "required": [
-            "deviceAddr",
-            "hwpId",
-            "loadingAction"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
-          }
-        },
-        "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
-        },
-        "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
-        },
-        "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
-        }
-      },
-      "required": [
-        "msgId",
-        "status"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - Backup",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - OTA upload response.",
+			"const": "iqmeshNetwork_OtaUpload"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response body object",
+					"type": "object",
+					"required": [
+						"deviceAddr",
+						"hwpId",
+						"loadingAction"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"deviceAddr": {
+							"$ref": "file://definitions.json#/iqmesh/general/deviceAddrAll",
+							"description": "Device address to write the hex or iqrf file. 0 = coordinator, 1..239 = node, 255 = network."
+						},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
+						"loadingAction": {
+							"$id": "#/properties/data/properties/rsp/properties/loadingAction",
+							"title": "Loading action",
+							"description": "Loading action - upload code, verify code, load code to flash.",
+							"type": "string",
+							"enum": [
+								"Upload",
+								"Verify",
+								"Load"
+							]
+						},
+						"uploadResult": {
+							"$id": "#/properties/data/properties/rsp/properties/uploadResult",
+							"title": "Upload result",
+							"description": "Indicates whether the code upload step was successfully completed.",
+							"type": "boolean"
+						},
+						"verifyResult": {
+							"$id": "#/properties/data/properties/rsp/properties/verifyResult",
+							"title": "Verify result",
+							"description": "Array of device addresses and verify action results.",
+							"type": "array",
+							"maxItems": 239,
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/verifyResult/items",
+								"title": "Device verify result",
+								"description": "Verification step result for a single device.",
+								"type": "object",
+								"required": [
+									"address",
+									"result"
+								],
+								"additionalProperties": false,
+								"properties": {
+									"address": {"$ref": "file://definitions.json#/general/nAdr"},
+									"result": {
+										"$id": "#/properties/data/properties/rsp/properties/verifyResult/items/properties/result",
+										"title": "Verify result",
+										"description": "Indicates whether the code verification step was completed successfully.",
+										"type": "boolean"
+									}
+								}
+							}
+						},
+						"loadResult": {
+							"$id": "#/properties/data/properties/rsp/properties/loadResult",
+							"title": "Flash load result",
+							"description": "Array of device addresses and flash load action results.",
+							"type": "array",
+							"maxItems": 239,
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/loadResult/items",
+								"title": "Device flash load result",
+								"description": "Flash load step result for a single device.",
+								"type": "object",
+								"required": [
+									"address",
+									"result"
+								],
+								"additionalProperties": false,
+								"properties": {
+									"address": {"$ref": "file://definitions.json#/general/nAdr"},
+									"result": {
+										"$id": "#/properties/data/properties/rsp/properties/loadResult/items/properties/result",
+										"title": "Flash load result",
+										"description": "Indicates whether the code flash load step was completed successfully.",
+										"type": "boolean"
+									}
+								}
+							}
+						}
+					}
+				},
+				"raw": {"$ref": "file://definitions.json#/general/response/raw"},
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"}
+			}
+		}
+	}
 }
