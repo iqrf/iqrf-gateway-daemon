@@ -373,6 +373,11 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.Batch_Request_req = function (param) {
+    for (var i = 0, n = param.requests.length; i < n; i++) {
+      if (typeof param.requests[i].hwpid === 'undefined') {
+        param.requests[i].hwpid = 'FFFF';
+      }
+    }
     return iqrf.embed.os.Batch_Request(param.requests);
   };
 
@@ -434,6 +439,11 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.SelectiveBatch_Request_req = function (param) {
+    for (var i = 0, n = param.requests.length; i < n; i++) {
+      if (typeof param.requests[i].hwpid === 'undefined') {
+        param.requests[i].hwpid = 'FFFF';
+      }
+    }
     return iqrf.embed.os.SelectiveBatch_Request(param.selectedNodes, param.requests);
   };
 

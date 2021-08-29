@@ -113,7 +113,7 @@
 			"selectedNodes": {
 				"$id": "#/general/request/selectedNodes",
 				"title": "Array of nodes",
-				"description": "Array of integer values corresponding to the selected node addresses. Use default value to select all nodes and use sleepAfterFrc parameter.",
+				"description": "Array of integer values corresponding to the selected node addresses.",
 				"type": "array",
 				"additionalItems": false,
 				"items": {
@@ -450,6 +450,50 @@
 			}
 		},
 		"os": {
+			"batchRequests": {
+				"$id": "#/embed/os/batchRequests",
+				"title": "DPA requests",
+				"type": "array",
+				"description": "Array of requests, each request consists of PNUM, PCMD, HWPID and optional data.",
+				"additionalItems": false,
+				"items": {
+					"$id": "#/properties/data/properties/req/properties/param/properties/requests/items",
+					"title": "DPA request",
+					"description": "Single DPA request to be executed at a device. If the request parameters are not valid, it is ignored.",
+					"type": "object",
+					"required": [
+						"pnum",
+						"pcmd"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"pnum": {
+							"title": "PNUM string",
+							"description": "Peripheral number in a hexadecimal string representation.",
+							"type": "string",
+							"pattern": "^(0[0-9a-dA-D]|2[0-9a-fA-F]|3[0-9a-eA-E]|4[aAbB]|5[eE]|71)$"
+						},
+						"pcmd": {
+							"title": "PCMD string",
+							"description": "Peripheral command in a string representation.",
+							"type": "string",
+							"pattern": "^[0-7][0-9a-fA-F]$"
+						},
+						"hwpid": {
+							"title": "HWPID string",
+							"description": "HWPID in a hexadecimal string representation.",
+							"type": "string",
+							"pattern": "^[0-9a-fA-F]{4}$"
+						},
+						"rdata": {
+							"title": "PDATA string",
+							"description": "PDATA in a hexadecimal string representation.",
+							"type": "string",
+							"pattern": "^([0-9a-fA-F]{2}\\.){0,57}[0-9a-fA-F]{2}(\\.|)$"
+						}
+					}
+				}
+			},
 			"osVersion": {
 				"$id": "#/embed/os/osVersion",
 				"title": "OS version",

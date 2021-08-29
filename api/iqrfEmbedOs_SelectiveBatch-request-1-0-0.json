@@ -1,80 +1,69 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedOs_SelectiveBatch-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral OS - Selective Batch request.",
-            "enum": [
-                "iqrfEmbedOs_SelectiveBatch"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "selectedNodes": {
-                                    "type": "array",
-                                    "description": "Array if integer values corresponding to the selected nodes.",
-                                    "items": {
-                                        "type": "integer"
-                                    }
-                                },
-                                "requests": {
-                                    "type": "array",
-                                    "description": "Array of objects (requests).",
-                                    "items": {
-                                        "type": "object"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "Embed OS - SelectiveBatch",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Embedded peripheral OS - Selective Batch request.",
+			"const": "iqrfEmbedOs_SelectiveBatch"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"param"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {
+							"$id": "#/properties/data/properties/req/properties/nAdr",
+							"title": "Target address",
+							"description": "Target device address. Since this request allows to specify which nodes will execute the batch, it only makes sense to use broadcast address.",
+							"type": "integer",
+							"const": 255
+						},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
+						"param": {
+							"$id": "#/properties/data/properties/req/properties/param",
+							"title": "Request parameters",
+							"description": "Request message configuration parameters.",
+							"type": "object",
+							"required": [
+								"selectedNodes",
+								"requests"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"selectedNodes": {"$ref": "file://definitions.json#/general/request/selectedNodes"},
+								"requests": {"$ref": "file://definitions.json#/embed/os/batchRequests"}
+							}
+						}
+					}
+				},
+				"timeout": {"$ref": "file://definitions.json#/general/timeout"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }
