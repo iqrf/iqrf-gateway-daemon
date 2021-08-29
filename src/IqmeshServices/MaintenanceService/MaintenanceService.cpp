@@ -27,6 +27,14 @@ namespace iqrf {
   // Holds information about result of read Tr configuration
   class MaintenanceResult
   {
+  public:
+    // MID union
+    typedef union
+    {
+      uint8_t bytes[sizeof(uint32_t)];
+      uint32_t value;
+    }TMID;
+
   private:
     // Status
     int m_status = 0;
@@ -38,8 +46,21 @@ namespace iqrf {
     // Maintenance test RF result
     std::map<uint16_t, uint8_t> m_testRfResult;
 
+    // Nodes MID map
+    std::map<uint16_t, TMID> m_nodesMidMapCoord;
+    std::map<uint16_t, TMID> m_nodesMidMap;
+
     // Inaccessible nodes count
-    uint8_t m_inaccessibleNodes;
+    uint8_t m_inaccessibleNodesNr;
+
+    // Inaccessible nodes
+    std::basic_string<uint8_t> m_inaccessibleNodes;
+
+    // Inconsistent nodes count
+    uint8_t m_inconsistentNodesNr;
+
+    // MID Inconsistent nodes
+    std::basic_string<uint8_t> m_inconsistentNodes;
 
     // Transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
@@ -59,21 +80,28 @@ namespace iqrf {
       m_statusStr = statusStr;
     }
 
-    const uint8_t &getInaccessibleNodes() const
+    const uint8_t &getInaccessibleNodesNr() const
     {
-      return m_inaccessibleNodes;
+      return m_inaccessibleNodesNr;
+    }
+    void setInaccessibleNodesNr(const uint8_t inaccessibleNodesNr)
+    {
+      m_inaccessibleNodesNr = inaccessibleNodesNr;
     }
 
-    void setInaccessibleNodes(const uint8_t inaccessibleNodes)
+    const uint8_t &getInconsistentNodesNr() const
     {
-      m_inaccessibleNodes = inaccessibleNodes;
+      return m_inconsistentNodesNr;
+    }
+    void setInconsistentNodesNr(const uint8_t inconsistentNodesNr)
+    {
+      m_inconsistentNodesNr = inconsistentNodesNr;
     }
 
     const std::basic_string<uint8_t> &getBondedNodes() const
     {
       return m_bondedNodes;
     }
-
     void setBondedNodes(const std::basic_string<uint8_t> &nodesList)
     {
       m_bondedNodes = nodesList;
@@ -83,10 +111,53 @@ namespace iqrf {
     {
       return m_testRfResult;
     }
-
     void setTestRfResult(const uint16_t address, const uint8_t counter)
     {
       m_testRfResult[address] = counter;
+    }
+
+    const std::map<uint16_t, TMID> &getNodesMidMapCoord() const
+    {
+      return m_nodesMidMapCoord;
+    }
+    void setNodesMidMapCoord(const uint16_t address, const TMID mid)
+    {
+      m_nodesMidMapCoord[address].value = mid.value;
+    }
+    void clearNodesMidMapCoord(void)
+    {
+      m_nodesMidMapCoord.clear();
+    }
+
+    const std::map<uint16_t, TMID> &getNodesMidMap() const
+    {
+      return m_nodesMidMap;
+    }
+    void setNodesMidMap(const uint16_t address, const TMID mid)
+    {
+      m_nodesMidMap[address].value = mid.value;
+    }
+    void clearNodesMidMap(void)
+    {
+      m_nodesMidMap.clear();
+    }
+
+    const std::basic_string<uint8_t> &getInconsistentNodes() const
+    {
+      return m_inconsistentNodes;
+    }
+    void setInconsistentNodes(const std::basic_string<uint8_t> &inconsistentNodes)
+    {
+      m_inconsistentNodes = inconsistentNodes;
+    }
+
+    const std::basic_string<uint8_t> &getInaccessibleNodes() const
+    {
+      return m_inaccessibleNodes;
+    }
+    void setInaccessibleNodes(const std::basic_string<uint8_t> &inaccessibleNodes)
+    {
+      m_inaccessibleNodes = inaccessibleNodes;
     }
 
     // Adds transaction result into the list of results
@@ -116,6 +187,8 @@ namespace iqrf {
 
     // Message type: IQMESH Network Read TR Configuration
     const std::string m_mTypeName_iqmeshNetwork_MaintenanceTestRF = "iqmeshNetwork_MaintenanceTestRF";
+    const std::string m_mTypeName_iqmeshNetwork_MaintenanceInconsistentMIDsInCoord = "iqmeshNetwork_MaintenanceInconsistentMIDsInCoord";
+    const std::string m_mTypeName_iqmeshNetwork_MaintenanceDuplicatedAddresses = "iqmeshNetwork_MaintenanceDuplicatedAddresses";
     const std::string m_mTypeName_iqmeshNetwork_MaintenanceUselessPrebondedNodes = "iqmeshNetwork_MaintenanceUselessPrebondedNodes";
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
@@ -345,15 +418,15 @@ namespace iqrf {
           }
           // Set counter of test RF signal
           uint8_t frcPDataIndex = 0;
-          uint8_t inaccessibleNodes = 0;
+          uint8_t inaccessibleNodesNr = 0;
           for (uint16_t addr : selectedNodes)
           {
             uint8_t counter = frcData[frcPDataIndex++];
             maintenanceResult.setTestRfResult(addr, counter);
             if (counter == 0)
-              inaccessibleNodes++;
+              inaccessibleNodesNr++;
           }
-          maintenanceResult.setInaccessibleNodes(inaccessibleNodes);
+          maintenanceResult.setInaccessibleNodesNr(inaccessibleNodesNr);
         }
         TRC_FUNCTION_LEAVE("");
       }
@@ -388,9 +461,9 @@ namespace iqrf {
         testRfSignalRequest.DataToBuffer(testRfSignalPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerOSTestRfSignal_Request));
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat(testRfSignalRequest, transResult, m_maintenanceParams.repeat, m_maintenanceParams.measurementTimeMS + 100);
-        TRC_DEBUG("Result from Set Hops transaction as string:" << PAR(transResult->getErrorString()));
+        TRC_DEBUG("Result from CMD_OS_TEST_RF_SIGNAL as string:" << PAR(transResult->getErrorString()));
         DpaMessage dpaResponse = transResult->getResponse();
-        TRC_INFORMATION("Set Hops successful!");
+        TRC_INFORMATION("CMD_OS_TEST_RF_SIGNAL successful!");
         TRC_DEBUG(
           "DPA transaction: "
           << NAME_PAR(Peripheral type, testRfSignalRequest.PeripheralType())
@@ -409,6 +482,106 @@ namespace iqrf {
       }
     }
 
+    //-----------------
+    // FRC_MemoryRead4B
+    //-----------------
+    std::basic_string<uint8_t> FRC_MemoryRead4BPlus1(MaintenanceResult& maintenanceResult, const std::basic_string<uint8_t>& selectedNodes, const uint16_t address)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage memoryReadRequest;
+        DpaMessage::DpaPacket_t memoryReadPacket;
+        memoryReadPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        memoryReadPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        memoryReadPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND_SELECTIVE;
+        memoryReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // FRC Command
+        memoryReadPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.FrcCommand = FRC_MemoryRead4B;
+        // Selected nodes - prebonded alive nodes
+        memset(memoryReadPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes, 0, 30 * sizeof(uint8_t));
+        for (uint8_t i : selectedNodes)
+          memoryReadPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.SelectedNodes[i / 0x08] |= (0x01 << (i % 8));
+        // Inc, 0
+        memoryReadPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x00] = 0x01;
+        memoryReadPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x01] = 0x00;
+        // OS Read command
+        memoryReadPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x02] = address & 0xff;
+        memoryReadPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x03] = address >> 0x08;
+        memoryReadPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x04] = PNUM_OS;
+        memoryReadPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x05] = CMD_OS_READ;
+        memoryReadPacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0x06] = 0x00;
+        memoryReadRequest.DataToBuffer(memoryReadPacket.Buffer, sizeof(TDpaIFaceHeader) + 38);
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(memoryReadRequest, transResult, m_maintenanceParams.repeat);
+        TRC_DEBUG("Result from FRC_MemoryRead4B transaction as string:" << PAR(transResult->getErrorString()));
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION("FRC_MemoryRead4B successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(Peripheral type, memoryReadRequest.PeripheralType())
+          << NAME_PAR(Node address, memoryReadRequest.NodeAddress())
+          << NAME_PAR(Command, (int)memoryReadRequest.PeripheralCommand())
+        );
+        // Data from FRC
+        std::basic_string<uint8_t> memoryData;
+        memoryData.clear();
+        // Check status
+        uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if (status < 0xfd)
+        {
+          TRC_INFORMATION("FRC_MemoryRead4B status ok." << NAME_PAR_HEX("Status", (int)status));
+          memoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + sizeof(uint32_t), 51);
+          TRC_DEBUG("Size of FRC data: " << PAR(memoryData.size()));
+        }
+        else
+        {
+          TRC_WARNING("FRC_MemoryRead4B NOT ok." << NAME_PAR_HEX("Status", (int)status));
+          THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
+        }
+        // Add FRC result
+        maintenanceResult.addTransactionResult(transResult);
+
+        // Read FRC extra result (if needed)
+        if (selectedNodes.size() > 12)
+        {
+          // Read FRC extra results
+          DpaMessage extraResultRequest;
+          DpaMessage::DpaPacket_t extraResultPacket;
+          extraResultPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+          extraResultPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+          extraResultPacket.DpaRequestPacket_t.PCMD = CMD_FRC_EXTRARESULT;
+          extraResultPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+          extraResultRequest.DataToBuffer(extraResultPacket.Buffer, sizeof(TDpaIFaceHeader));
+          // Execute the DPA request
+          m_exclusiveAccess->executeDpaTransactionRepeat(extraResultRequest, transResult, m_maintenanceParams.repeat);
+          TRC_DEBUG("Result from FRC CMD_FRC_EXTRARESULT transaction as string:" << PAR(transResult->getErrorString()));
+          dpaResponse = transResult->getResponse();
+          TRC_INFORMATION("FRC CMD_FRC_EXTRARESULT successful!");
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(Peripheral type, extraResultRequest.PeripheralType())
+            << NAME_PAR(Node address, extraResultRequest.NodeAddress())
+            << NAME_PAR(Command, (int)extraResultRequest.PeripheralCommand())
+          );
+          // Append FRC data
+          memoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, 9);
+          // Add FRC extra result
+          maintenanceResult.addTransactionResult(transResult);
+        }
+        TRC_FUNCTION_LEAVE("");
+        return memoryData;
+      }
+      catch (const std::exception& e)
+      {
+        maintenanceResult.setStatus(transResult->getErrorCode(), e.what());
+        maintenanceResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
     //------------------------------------
     // Unbond nodes with temporary address
     //------------------------------------
@@ -418,6 +591,7 @@ namespace iqrf {
       std::unique_ptr<IDpaTransactionResult2> transResult;
       try
       {
+
         DpaMessage validateBondRequest;
         DpaMessage::DpaPacket_t validateBondPacket;
         validateBondPacket.DpaRequestPacket_t.NADR = BROADCAST_ADDRESS;
@@ -440,6 +614,154 @@ namespace iqrf {
           << NAME_PAR(Peripheral type, validateBondRequest.PeripheralType())
           << NAME_PAR(Node address, validateBondRequest.NodeAddress())
           << NAME_PAR(Command, (int)validateBondRequest.PeripheralCommand())
+        );
+        maintenanceResult.addTransactionResult(transResult);
+        TRC_FUNCTION_LEAVE("");
+      }
+      catch (const std::exception& e)
+      {
+        maintenanceResult.setStatus(transResult->getErrorCode(), e.what());
+        maintenanceResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
+    //---------------
+    // Validate bonds
+    //---------------
+    void validateBonds(MaintenanceResult& maintenanceResult)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Get Nodes MID
+        std::map<uint16_t, MaintenanceResult::TMID> nodesMID = maintenanceResult.getNodesMidMapCoord();
+        std::map<uint16_t, MaintenanceResult::TMID>::iterator node = nodesMID.begin();
+        do
+        {
+          DpaMessage validateBondRequest;
+          DpaMessage::DpaPacket_t validateBondPacket;
+          validateBondPacket.DpaRequestPacket_t.NADR = BROADCAST_ADDRESS;
+          validateBondPacket.DpaRequestPacket_t.PNUM = PNUM_NODE;
+          validateBondPacket.DpaRequestPacket_t.PCMD = CMD_NODE_VALIDATE_BONDS;
+          validateBondPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+          // Put up to 11 pairs of network [N] address and [N] MID in the data part 
+          uint8_t index = 0x00;
+          do
+          {
+            validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].Address = (uint8_t)node->first;
+            validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x00] = node->second.bytes[0x00];
+            validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x01] = node->second.bytes[0x01];
+            validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x02] = node->second.bytes[0x02];
+            validateBondPacket.DpaRequestPacket_t.DpaMessage.PerNodeValidateBonds_Request.Bonds[index].MID[0x03] = node->second.bytes[0x03];
+            node++;
+          } while ((++index != 11) && (node != nodesMID.end()));
+          // Data to buffer
+          validateBondRequest.DataToBuffer(validateBondPacket.Buffer, sizeof(TDpaIFaceHeader) + index * sizeof(TPerNodeValidateBondsItem));
+          // Execute the DPA request
+          m_exclusiveAccess->executeDpaTransactionRepeat(validateBondRequest, transResult, m_maintenanceParams.repeat);
+          TRC_INFORMATION("CMD_NODE_VALIDATE_BONDS ok!");
+          DpaMessage dpaResponse = transResult->getResponse();
+          TRC_DEBUG(
+            "DPA transaction: "
+            << NAME_PAR(Peripheral type, validateBondRequest.PeripheralType())
+            << NAME_PAR(Node address, validateBondRequest.NodeAddress())
+            << NAME_PAR(Command, (int)validateBondRequest.PeripheralCommand())
+          );
+          maintenanceResult.addTransactionResult(transResult);
+        } while (node != nodesMID.end());
+        TRC_FUNCTION_LEAVE("");
+      }
+      catch (const std::exception& e)
+      {
+        maintenanceResult.setStatus(transResult->getErrorCode(), e.what());
+        maintenanceResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
+    //--------------------------------------
+    // Read from coordinator extended eeprom
+    //--------------------------------------
+    std::basic_string<uint8_t> readCoordXMemory(MaintenanceResult& maintenanceResult, uint16_t address, uint8_t length)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage XMemoryReadRequest;
+        DpaMessage::DpaPacket_t XMemoryReadPacket;
+        XMemoryReadPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        XMemoryReadPacket.DpaRequestPacket_t.PNUM = PNUM_EEEPROM;
+        XMemoryReadPacket.DpaRequestPacket_t.PCMD = CMD_EEEPROM_XREAD;
+        XMemoryReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // Set address and length 
+        XMemoryReadPacket.DpaRequestPacket_t.DpaMessage.XMemoryRequest.Address = address;
+        XMemoryReadPacket.DpaRequestPacket_t.DpaMessage.XMemoryRequest.ReadWrite.Read.Length = length;
+        // Data to buffer
+        XMemoryReadRequest.DataToBuffer(XMemoryReadPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(uint16_t) + sizeof(uint8_t));
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(XMemoryReadRequest, transResult, m_maintenanceParams.repeat);
+        TRC_DEBUG("Result from XMemoryRequest transaction as string:" << PAR(transResult->getErrorString()));
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION("Read XMemoryRequest successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(Peripheral type, XMemoryReadRequest.PeripheralType())
+          << NAME_PAR(Node address, XMemoryReadRequest.NodeAddress())
+          << NAME_PAR(Command, (int)XMemoryReadRequest.PeripheralCommand())
+        );
+        maintenanceResult.addTransactionResult(transResult);
+        // Get response data
+        std::basic_string<uint8_t> XMemoryData;
+        XMemoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData, length);
+        TRC_FUNCTION_LEAVE("");
+        return XMemoryData;
+      }
+      catch (const std::exception& e)
+      {
+        maintenanceResult.setStatus(transResult->getErrorCode(), e.what());
+        maintenanceResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
+    //--------
+    // Set MID
+    //--------
+    void setMid(MaintenanceResult& maintenanceResult, const uint16_t deviceAddr, const MaintenanceResult::TMID mid)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage setMidRequest;
+        DpaMessage::DpaPacket_t setMidPacket;
+        setMidPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        setMidPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+        setMidPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_SET_MID;
+        setMidPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // Set address and length 
+        setMidPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetMID_Request.BondAddr = (uint8_t)deviceAddr;
+        setMidPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetMID_Request.MID[0x00] = mid.bytes[0x00];
+        setMidPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetMID_Request.MID[0x01] = mid.bytes[0x01];
+        setMidPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetMID_Request.MID[0x02] = mid.bytes[0x02];
+        setMidPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetMID_Request.MID[0x03] = mid.bytes[0x03];
+        // Data to buffer
+        setMidRequest.DataToBuffer(setMidPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorSetMID_Request));
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(setMidRequest, transResult, m_maintenanceParams.repeat);
+        TRC_DEBUG("Result from CMD_COORDINATOR_SET_MID transaction as string:" << PAR(transResult->getErrorString()));
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION("Read CMD_COORDINATOR_SET_MID successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(Peripheral type, setMidRequest.PeripheralType())
+          << NAME_PAR(Node address, setMidRequest.NodeAddress())
+          << NAME_PAR(Command, (int)setMidRequest.PeripheralCommand())
         );
         maintenanceResult.addTransactionResult(transResult);
         TRC_FUNCTION_LEAVE("");
@@ -495,24 +817,64 @@ namespace iqrf {
           if (m_maintenanceParams.deviceAddr == BROADCAST_ADDRESS)
           {
             // inaccessibleNodesNr
-            Pointer("/data/rsp/inaccessibleNodesNr").Set(response, maintenanceResult.getInaccessibleNodes());
+            Pointer("/data/rsp/inaccessibleNodesNr").Set(response, maintenanceResult.getInaccessibleNodesNr());
           }
 
           // Array of objects
           Document::AllocatorType &allocator = response.GetAllocator();
-          rapidjson::Value frcRestartResult(kArrayType);
+          rapidjson::Value frcTestRfResult(kArrayType);
           std::map<uint16_t, uint8_t> result = maintenanceResult.getTestRfResult();
           for (std::map<uint16_t, uint8_t>::iterator i = result.begin(); i != result.end(); ++i)
           {
-            rapidjson::Value frcRestartResultItem(kObjectType);
-            frcRestartResultItem.AddMember("deviceAddr", i->first, allocator);
+            rapidjson::Value frcTestRfResultItem(kObjectType);
+            frcTestRfResultItem.AddMember("deviceAddr", i->first, allocator);
             bool online = i->second != 0;
-            frcRestartResultItem.AddMember("online", online, allocator);
+            frcTestRfResultItem.AddMember("online", online, allocator);
             if (online == true)
-              frcRestartResultItem.AddMember("counter", i->second - 1, allocator);
-            frcRestartResult.PushBack(frcRestartResultItem, allocator);
+              frcTestRfResultItem.AddMember("counter", i->second - 1, allocator);
+            frcTestRfResult.PushBack(frcTestRfResultItem, allocator);
           }
-          Pointer("/data/rsp/testRfResult").Set(response, frcRestartResult);
+          Pointer("/data/rsp/testRfResult").Set(response, frcTestRfResult);
+        }
+
+        // iqmeshNetwork_MaintenanceInconsistentMIDsInCoord ?
+        if (m_msgType->m_type == m_mTypeName_iqmeshNetwork_MaintenanceInconsistentMIDsInCoord)
+        {
+          // inaccessibleNodesNr
+          Pointer("/data/rsp/inaccessibleNodesNr").Set(response, maintenanceResult.getInaccessibleNodesNr());
+
+          // inconsistentNodesNr
+          Pointer("/data/rsp/inconsistentNodesNr").Set(response, maintenanceResult.getInconsistentNodesNr());
+
+          // inaccessibleNodes
+          if (maintenanceResult.getInaccessibleNodesNr() > 0)
+          {
+            std::basic_string<uint8_t> inaccessibleNodes = maintenanceResult.getInaccessibleNodes();
+            Document::AllocatorType &allocator = response.GetAllocator();
+            rapidjson::Value inaccessibleNodeResult(kArrayType);
+            for (auto nodeAddr : inaccessibleNodes)
+            {
+              rapidjson::Value inaccessibleNodeResultItem(kObjectType);
+              inaccessibleNodeResultItem.AddMember("deviceAddr", nodeAddr, allocator);            
+              inaccessibleNodeResult.PushBack(inaccessibleNodeResultItem, allocator);
+            }
+            Pointer("/data/rsp/inaccessibleNodes").Set(response, inaccessibleNodeResult);
+          }
+
+          // inconsistentNodes
+          if (maintenanceResult.getInconsistentNodesNr() > 0)
+          {
+            std::basic_string<uint8_t> inconsistentNodes = maintenanceResult.getInaccessibleNodes();
+            Document::AllocatorType &allocator = response.GetAllocator();
+            rapidjson::Value inconsistentNodeResult(kArrayType);
+            for (auto nodeAddr : inconsistentNodes)
+            {
+              rapidjson::Value inconsistentNodeNodeResultItem(kObjectType);
+              inconsistentNodeNodeResultItem.AddMember("deviceAddr", nodeAddr, allocator);
+              inconsistentNodeResult.PushBack(inconsistentNodeNodeResultItem, allocator);
+            }
+            Pointer("/data/rsp/inconsistentNodes").Set(response, inconsistentNodeResult);
+          }
         }
       }
   
@@ -578,9 +940,6 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       try
       {
-        // Get bonded nodes
-        getBondedNodes(maintenanceResult);
-
         // Test RF signal at [C] ?
         if (m_maintenanceParams.deviceAddr == COORDINATOR_ADDRESS)
         {
@@ -609,6 +968,137 @@ namespace iqrf {
       }
     }   
 
+    //----------------------------------
+    // Resolve inconsistence MIDs in [C]
+    //----------------------------------
+    void resolveInconsistentMIDsInCoord(MaintenanceResult& maintenanceResult)
+    {
+      TRC_FUNCTION_ENTER("");
+      try
+      {
+        // Read Nodes MIDs from [C] eeeprom    
+        maintenanceResult.clearNodesMidMapCoord();
+        std::basic_string<uint8_t> bondedNodes = maintenanceResult.getBondedNodes();
+        for (uint8_t i = 0; i < bondedNodes.size(); i++)
+        {
+          // Read MID from Coordinator eeprom
+          uint16_t address = 0x4000 + bondedNodes[i] * 0x08;
+          std::basic_string<uint8_t> midArray = readCoordXMemory(maintenanceResult, address, sizeof(uint32_t));
+          MaintenanceResult::TMID mid;
+          mid.bytes[0x00] = midArray[0x00];
+          mid.bytes[0x01] = midArray[0x01];
+          mid.bytes[0x02] = midArray[0x02];
+          mid.bytes[0x03] = midArray[0x03];
+          maintenanceResult.setNodesMidMapCoord(bondedNodes[i], mid);
+        }
+        // Read Nodes MIDs from bonded Nodes
+        uint8_t inaccessibleNodesNr = 0;
+        maintenanceResult.clearNodesMidMap();
+        std::basic_string<uint8_t> inaccessibleNodes;
+        std::basic_string<uint8_t>::iterator node = bondedNodes.begin();
+        do
+        {
+          std::basic_string<uint8_t> selectedNodes;
+          selectedNodes.clear();
+          uint8_t c = 0x00;
+          do
+          {
+            selectedNodes.push_back(*node);
+          } while ((++c != 15) && (++node != bondedNodes.end()));
+          std::basic_string<uint8_t> memoryData = FRC_MemoryRead4BPlus1(maintenanceResult, selectedNodes, 0x04a0);
+          uint8_t index = 0x00;
+          for (uint8_t nodeAddr : selectedNodes)
+          {
+            MaintenanceResult::TMID mid;
+            mid.bytes[0x00] = memoryData[index++];
+            mid.bytes[0x01] = memoryData[index++];
+            mid.bytes[0x02] = memoryData[index++];
+            mid.bytes[0x03] = memoryData[index++];
+            if (mid.value != 0)
+              mid.value--;
+            else
+            {
+              inaccessibleNodesNr++;
+              inaccessibleNodes.push_back(nodeAddr);
+            }
+            maintenanceResult.setNodesMidMap(nodeAddr, mid);
+          }
+        } while (node != bondedNodes.end());
+        maintenanceResult.setInaccessibleNodes(inaccessibleNodes);
+
+        // Compare MID's from [C] eeeprom with nodes real MID's
+        std::map<uint16_t, MaintenanceResult::TMID> nodesMidMapCoord = maintenanceResult.getNodesMidMapCoord();
+        std::map<uint16_t, MaintenanceResult::TMID> nodesMidMapReal = maintenanceResult.getNodesMidMap();
+        std::basic_string<uint8_t> inconsistentNodes;
+        uint8_t inconsistentNodesNr = 0;
+        for(auto nodeAddr : bondedNodes)
+        {
+          // Check the Node responded to FRC
+          if (nodesMidMapReal[nodeAddr].value != 0)
+          {
+            // OK, compare the [C] MID with real Node MID
+            if (nodesMidMapCoord[nodeAddr].value != nodesMidMapReal[nodeAddr].value)
+            {
+              // MID inconsistence found
+              TRC_WARNING(
+                "Inconsistent MID found at [C] side. Node " << (int)nodeAddr
+                << NAME_PAR_HEX(": [C] MID = ", (int)nodesMidMapCoord[nodeAddr].value)
+                << NAME_PAR_HEX(", [N] (real) MID = ", (int)nodesMidMapReal[nodeAddr].value)
+              );
+              // Set correct (real) MID at [C] side
+              setMid(maintenanceResult, nodeAddr, nodesMidMapReal[nodeAddr]);
+              inconsistentNodesNr++;
+              inconsistentNodes.push_back(nodeAddr);              
+            }
+          }
+        }
+        maintenanceResult.setInaccessibleNodesNr(inaccessibleNodesNr);
+        maintenanceResult.setInconsistentNodesNr(inconsistentNodesNr);
+        maintenanceResult.setInconsistentNodes(inconsistentNodes);
+
+        TRC_FUNCTION_LEAVE("");
+      }
+      catch (std::exception& e)
+      {
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+        TRC_FUNCTION_LEAVE("");
+      }
+    }
+
+    //----------------------------
+    // Resolve duplicated adresses
+    //----------------------------
+    void resolveDuplicatedAddresses(MaintenanceResult& maintenanceResult)
+    {
+      TRC_FUNCTION_ENTER("");
+      try
+      {
+        // Read Nodes MIDs from [C] eeeprom    
+        maintenanceResult.clearNodesMidMapCoord();
+        std::basic_string<uint8_t> bondedNodes = maintenanceResult.getBondedNodes();
+        for (uint8_t i = 0; i < bondedNodes.size(); i++)
+        {
+          // Read MID from Coordinator eeprom
+          uint16_t address = 0x4000 + bondedNodes[i] * 0x08;
+          std::basic_string<uint8_t> midArray = readCoordXMemory(maintenanceResult, address, sizeof(uint32_t));
+          MaintenanceResult::TMID mid;
+          mid.bytes[0x00] = midArray[0x00];
+          mid.bytes[0x01] = midArray[0x01];
+          mid.bytes[0x02] = midArray[0x02];
+          mid.bytes[0x03] = midArray[0x03];
+          maintenanceResult.setNodesMidMapCoord(bondedNodes[i], mid);
+        }
+        // Validate bonds by broarcast request
+        validateBonds(maintenanceResult);
+        TRC_FUNCTION_LEAVE("");
+      }
+      catch (std::exception& e)
+      {
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+        TRC_FUNCTION_LEAVE("");
+      }
+    }
+
     //-------------------
     // Handle the request
     //-------------------
@@ -623,6 +1113,8 @@ namespace iqrf {
 
       // Unsupported type of request
       if (msgType.m_type != m_mTypeName_iqmeshNetwork_MaintenanceTestRF &&
+        msgType.m_type != m_mTypeName_iqmeshNetwork_MaintenanceInconsistentMIDsInCoord &&
+        msgType.m_type != m_mTypeName_iqmeshNetwork_MaintenanceDuplicatedAddresses &&
         msgType.m_type != m_mTypeName_iqmeshNetwork_MaintenanceUselessPrebondedNodes)
       {
         THROW_EXC(std::logic_error, "Unsupported message type: " << PAR(msgType.m_type));
@@ -692,6 +1184,20 @@ namespace iqrf {
           }
         }
 
+        // m_mTypeName_iqmeshNetwork_MaintenanceInconsistentMIDsInCoord ?
+        if (msgType.m_type == m_mTypeName_iqmeshNetwork_MaintenanceInconsistentMIDsInCoord)
+        {
+          // Resolve Inconsistent MIDs in Coordinator
+          resolveInconsistentMIDsInCoord(maintenanceResult);
+        }
+
+        // m_mTypeName_iqmeshNetwork_MaintenanceDuplicatedAddresses ?
+        if (msgType.m_type == m_mTypeName_iqmeshNetwork_MaintenanceDuplicatedAddresses)
+        {
+          // Resolve Duplicated addresses
+          resolveDuplicatedAddresses(maintenanceResult);
+        }
+
         // m_mTypeName_iqmeshNetwork_MaintenanceUselessPrebondedNodes ?
         if (msgType.m_type == m_mTypeName_iqmeshNetwork_MaintenanceUselessPrebondedNodes)
         {
@@ -728,6 +1234,8 @@ namespace iqrf {
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetwork_MaintenanceTestRF,
+        m_mTypeName_iqmeshNetwork_MaintenanceInconsistentMIDsInCoord,
+        m_mTypeName_iqmeshNetwork_MaintenanceDuplicatedAddresses,
         m_mTypeName_iqmeshNetwork_MaintenanceUselessPrebondedNodes
       };
 
@@ -754,6 +1262,8 @@ namespace iqrf {
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetwork_MaintenanceTestRF,
+        m_mTypeName_iqmeshNetwork_MaintenanceInconsistentMIDsInCoord,
+        m_mTypeName_iqmeshNetwork_MaintenanceDuplicatedAddresses,
         m_mTypeName_iqmeshNetwork_MaintenanceUselessPrebondedNodes
       };
 
