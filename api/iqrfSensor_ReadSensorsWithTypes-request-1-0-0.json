@@ -1,78 +1,77 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfSensor_ReadSensorsWithTypes-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Standard peripheral Sensor - Read with Types request.",
-            "enum": [
-                "iqrfSensor_ReadSensorsWithTypes"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "sensorIndexes": {
-                                    "oneOf": [
-                                        { "type": "null" },
-                                        { "type": "integer" },
-                                        { "type": "array", 
-                                            "items": {
-                                                "type":"integer"
-                                            }  
-                                        }
-                                    ],
-                                    "description": "Specifies sensors to read data from. Undefined: Missing parameter: reads 1st sensor. Number: -1: reads all sensors. Array: array of indexes: specifies sensors to read."
-                                }
-                            }
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQRF Sensor - ReadSensorsWithTypes",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Standard peripheral Sensor - Read with Types request.",
+			"const": "iqrfSensor_ReadSensorsWithTypes"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"param"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
+						"param": {
+							"$id": "#/properties/data/properties/req/properties/param",
+							"title": "Request parameters",
+							"description": "Request message configuration parameters.",
+							"type": "object",
+							"required": [
+								"sensorIndexes"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"sensorIndexes": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/sensorIndexes",
+									"title": "Selected sensors",
+									"description": "Specifies sensors to read data from. Value can be either number -1 to read all sensors, or array of integers specifying sensor (quantity) types to read.",
+									"oneOf": [
+										{
+											"type": "integer",
+											"const": -1
+										},
+										{
+											"type": "array",
+											"minItems": 1,
+											"additionalItems": false,
+											"items": {"$ref": "file://definitions.json#/standard/sensor/index"}
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"timeout": {"$ref": "file://definitions.json#/general/timeout"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }

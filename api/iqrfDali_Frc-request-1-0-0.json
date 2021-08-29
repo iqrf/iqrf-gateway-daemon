@@ -57,20 +57,8 @@
 									"maximum": 65535
 								},
 								"selectedNodes": {"$ref": "file://definitions.json#/general/request/selectedNodes"},
-								"getExtraResult": {
-									"$id": "#/properties/data/properties/req/properties/param/properties/getExtraResult",
-									"title": "FRC extra result",
-									"description": "If set Extra result DPA message is sent and processed",
-									"type": "boolean",
-									"default": true
-								},
-								"extFormat": {
-									"$id": "#/properties/data/properties/req/properties/param/properties/extFormat",
-									"title": "Extended data format",
-									"description": "Returns additional information pertaining to the specific device.",
-									"type": "boolean",
-									"default": false
-								}
+								"getExtraResult": {"$ref": "file://definitions.json#/standard/frc/getExtraResult"},
+								"extFormat": {"$ref": "file://definitions.json#/standard/frc/extFormat"}
 							}
 						}
 					}

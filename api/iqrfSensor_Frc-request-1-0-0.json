@@ -1,114 +1,104 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfSensor_Frc-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "Standard peripheral Sensor - FRC request.",
-      "enum": [
-        "iqrfSensor_Frc"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
-        },
-        "req": {
-          "type": "object",
-          "properties": {
-            "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
-            },
-            "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
-            },
-            "param": {
-              "type": "object",
-              "properties": {
-                "sensorType": {
-                  "type": "integer",
-                  "description": "Type of sensor (quantity) to read values of. Refer to the Sensor interoperability standard https://www.iqrfalliance.org/iqrf-interoperability/ for details."
-                },
-                "sensorIndex": {
-                  "type": "integer",
-                  "description": "Index of the sensor. When the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data."
-                },
-                "frcCommand": {
-                  "type": "integer",
-                  "description": "One of predefined standard sensor FRC commands. Use FRC commands available from Sensor enumeration."
-                },
-                "selectedNodes": {
-                  "type": "array",
-                  "description": "Array if integer values corresponding to the selected nodes. Use default value to select all nodes and use sleepAfterFrc parameter.",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                "sleepAfterFrc": {
-                  "type": "object",
-                  "description": "Object with the following fields to put the nodes into sleep mode after the FRC is finished.",
-                  "properties": {
-                    "time": {
-                      "type": "integer",
-                      "description": "See DPA documentation https://www.iqrf.org/DpaTechGuide/pages/sleep.html for details."
-                    },
-                    "control": {
-                      "type": "integer",
-                      "description": "See DPA documentation https://www.iqrf.org/DpaTechGuide/pages/sleep.html for details."
-                    }
-                  }
-                },
-                "getExtraResult": {
-                  "type": "boolean",
-                  "description": "If set Extra result DPA message is sent and processed",
-                  "default": true
-                },
-                "extFormat": {
-                  "type": "boolean",
-                  "description": "Sensors returns in extended format",
-                  "default": false
-                }
-              },
-              "required": [
-                "sensorType",
-                "sensorIndex",
-                "frcCommand"
-              ]
-            }
-          },
-          "required": [
-            "nAdr",
-            "param"
-          ]
-        },
-        "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
-        }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQRF Sensor - Frc",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "Standard peripheral Sensor - FRC request.",
+			"const": "iqrfSensor_Frc"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"param"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {"$ref": "file://definitions.json#/embed/coordinator/nAdr"},
+						"hwpId": {"$ref": "file://definitions.json#/general/request/hwpId"},
+						"param": {
+							"$id": "#/properties/data/properties/req/properties/param",
+							"title": "Request parameters",
+							"description": "Request message configuration parameters.",
+							"type": "object",
+							"required": [
+								"sensorType",
+								"sensorIndex",
+								"frcCommand"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"type": {"$ref": "file://definitions.json#/standard/sensor/type"},
+								"sensorIndex": {"$ref": "file://definitions.json#/standard/sensor/index"},
+								"frcCommand": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/frcCommand",
+									"title": "FRC command",
+									"description": "FRC command code supported by the sensor type. 16 = 2 bits, 144 = 1 byte, 224 = 2 bytes, 249 = 4 bytes.",
+									"type": "integer",
+									"enum": [16, 144, 224, 249]
+								},
+								"sleepAfterFrc": {
+									"$id": "#/properties/data/properties/req/properties/param/properties/sleepAfterFrc",
+									"title": "Sleep after FRC",
+									"description": "Object with the following fields to put the nodes into sleep mode after the FRC is finished.",
+									"type": "object",
+									"required": [
+										"time",
+										"control"
+									],
+									"additionalProperties": false,
+									"properties": {
+										"time": {
+											"$id": "#/properties/data/properties/req/properties/param/properties/sleepAfterFrc/properties/time",
+											"title": "Sleep time",
+											"description": "Sleep time in 32.768ms or 2.097s units. Value 0 specifies endless sleep. Maximum sleep time 35 minutes and 47.48 seconds, or 38 hours and 10 minutes.",
+											"type": "integer",
+											"minimum": 0,
+											"maximum": 65535
+										},
+										"control": {
+											"$id": "#/properties/data/properties/req/properties/param/properties/sleepAfterFrc/properties/control",
+											"title": "Sleep control",
+											"description": "Bit value based configuration, see DPA guide for more information.",
+											"type": "integer",
+											"minimum": 0,
+											"maximum": 63,
+											"default": 0
+										}
+									}
+								},
+								"selectedNodes": {"$ref": "file://definitions.json#/general/request/selectedNodes"},
+								"getExtraResult": {"$ref": "file://definitions.json#/standard/frc/getExtraResult"},
+								"extFormat": {"$ref": "file://definitions.json#/standard/frc/extFormat"}
+							}
+						}
+					}
+				},
+				"timeout": {"$ref": "file://definitions.json#/general/timeout"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }

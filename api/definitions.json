@@ -1466,6 +1466,108 @@
 					"maximum": 100
 				}
 			}
+		},
+		"sensor": {
+			"id": {
+				"$id": "#/standard/sensor/id",
+				"title": "Sensor ID",
+				"description": "Sensor type as string identifier.",
+				"type": "string"
+			},
+			"type": {
+				"$id": "#/standard/sensor/type",
+				"title": "Sensor type",
+				"description": "Sensor (quantity) type as integer identifier.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 255
+			},
+			"name": {
+				"$id": "#/standard/sensor/name",
+				"title": "Sensor name",
+				"description": "Name of sensor.",
+				"type": "string"
+			},
+			"shortName": {
+				"$id": "#/standard/sensor/shortName",
+				"title": "Sensor short name",
+				"description": "Short name of a sensor (quantity), typically it is a symbol used in physics.",
+				"type": "string"
+			},
+			"unit": {
+				"$id": "#/standard/sensor/unit",
+				"title": "Sensor unit",
+				"description": "Unit of the quantity. If the quanitity is dimensionless, the value is \"\".",
+				"type": "string"
+			},
+			"decimalPlaces": {
+				"$id": "#/standard/sensor/decimalPlaces",
+				"title": "Decimal places",
+				"description": "Number of valid decimal places.",
+				"type": "integer",
+				"minimum": 0
+			},
+			"frcs": {
+				"$id": "#/standard/sensor/frcs",
+				"title": "FRC commands.",
+				"description": "Array of FRC commands supported by the sensor type.",
+				"type": "array",
+				"minItems": 0,
+				"maxItems": 4,
+				"additionalItems": false,
+				"items": {
+					"title": "FRC command",
+					"description": "FRC command code supported by the sensor type. 16 = 2 bits, 144 = 1 byte, 224 = 2 bytes, 249 = 4 bytes.",
+					"type": "integer",
+					"enum": [16, 144, 224, 249]
+				}
+			},
+			"value": {
+				"$id": "#/standard/sensor/value",
+				"title": "Sensor value",
+				"description": "Quantity value measured by the sensor.",
+				"oneOf": [
+					{
+						"type": "null"
+					},
+					{
+						"type": "number"
+					},
+					{
+						"type": "array",
+						"additionalItems": false,
+						"items": {
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 255
+						}
+					}
+				]
+			},
+			"index": {
+				"$id": "#/standard/sensor/index",
+				"title": "Sensor index",
+				"description": "Index of the sensor. When the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data.",
+				"type": "integer",
+				"minimum": 0,
+				"maximum": 31
+			}
+		},
+		"frc": {
+			"getExtraResult": {
+				"$id": "#/standard/frc/getExtraResult",
+				"title": "FRC extra result",
+				"description": "If set Extra result DPA message is sent and processed",
+				"type": "boolean",
+				"default": true
+			},
+			"extFormat": {
+				"$id": "#/standard/frc/extFormat",
+				"title": "Extended data format",
+				"description": "Returns additional information pertaining to the specific device.",
+				"type": "boolean",
+				"default": false
+			}
 		}
 	},
 	"scheduler": {
