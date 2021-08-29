@@ -378,7 +378,8 @@
 				"description": "TX power used for discovery.",
 				"type": "integer",
 				"minimum": 0,
-				"maximum": 7
+				"maximum": 7,
+				"default": 7
 			},
 			"dpaParam": {
 				"$id": "#/embed/coordinator/dpaParam",

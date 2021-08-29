@@ -1,132 +1,170 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_AutoNetwork-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - AutoNetwork request.",
-      "enum": [
-        "iqmeshNetwork_AutoNetwork"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "req": {
-          "type": "object",
-          "properties": {
-            "discoveryTxPower": {
-              "type": "integer",
-              "description": "TX power to use in discovery process.",
-              "default": 7
-            },
-            "discoveryBeforeStart": {
-              "type": "boolean",
-              "description": "Run discovery before start.",
-              "default": false
-            },
-            "skipDiscoveryEachWave": {
-              "type": "boolean",
-              "description": "Skip discovery in each wave.",
-              "default": false
-            },
-            "unbondUnrespondingNodes": {
-              "type": "boolean",
-              "description": "Unbond Nodes that don't respond.",
-              "default": true
-            },
-            "skipPrebonding": {
-              "type": "boolean",
-              "description": "Skip SmartConnect.",
-              "default": false
-            },
-            "actionRetries": {
-              "type": "integer",
-              "description": "Number of retries DPA transactions.",
-              "default": 1
-            },
-            "overlappingNetworks": {
-              "type": "object",
-              "properties": {
-                "networks": {
-                  "type": "integer",
-                  "description": "Number of the networks to be built."
-                },
-                "network": {
-                  "type": "integer",
-                  "description": "Network number that will be build."
-                }
-              },
-              "required": [
-                "networks",
-                "network"
-              ]
-            },
-            "hwpidFiltering": {
-              "type": "array",
-              "description": "Allows to add only nodes with specified HWPID to the network.",
-              "items": {
-                "type": "integer"
-              }
-            },
-            "stopConditions": {
-              "type": "object",
-              "properties": {
-                "waves": {
-                  "type": "integer",
-                  "description": "Maximum number of waves."
-                },
-                "emptyWaves": {
-                  "type": "integer",
-                  "description": "Number of consecutive waves, in which no new nodes were added into network.",
-                  "default": 2
-                },
-                "numberOfTotalNodes": {
-                  "type": "integer",
-                  "description": "Number of total nodes bonded into the network."
-                },
-                "numberOfNewNodes": {
-                  "type": "integer",
-                  "description": "Number of new nodes bonded into the network."
-                },
-                "abortOnTooManyNodesFound": {
-                  "type": "boolean",
-                  "description": "Abort the Autonetwork if too many nodes were found.",
-                  "default": false
-                }
-              },
-              "required": [
-                "emptyWaves"
-              ]
-            }
-          },
-          "required": [
-            "stopConditions"
-          ]
-        },
-        "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
-        }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - AutoNetwork",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - AutoNetwork request.",
+			"const": "iqmeshNetwork_AutoNetwork"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request data",
+					"description": "Request body object",
+					"type": "object",
+					"required": [
+						"stopConditions"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"discoveryTxPower": {"$ref": "file://definitions.json#/embed/coordinator/txPower"},
+						"discoveryBeforeStart": {
+							"$id": "#/properties/data/properties/req/properties/discoveryBeforeStart",
+							"title": "Discovery before start",
+							"description": "Run Discovery before starting the AutoNetwork process.",
+							"type": "boolean",
+							"default": true
+						},
+						"skipDiscoveryEachWave": {
+							"$id": "#/properties/data/properties/req/properties/skipDiscoveryEachWave",
+							"title": "Skip wave Discovery",
+							"description": "Skip Discovery in each wave.",
+							"type": "boolean",
+							"default": false
+						},
+						"unbondUnrespondingNodes": {
+							"$id": "#/properties/data/properties/req/properties/unbondUnrespondingNodes",
+							"title": "Unbond unresponding nodes",
+							"description": "Unbond nodes that do not respond in each wave to resolve bonding conflicts.",
+							"type": "boolean",
+							"default": true
+						},
+						"skipPrebonding": {
+							"$id": "#/properties/data/properties/req/properties/skipPrebonding",
+							"title": "Skip pre-bonding",
+							"description": "Skip SmartConnect process.",
+							"type": "boolean",
+							"default": false
+						},
+						"actionRetries": {
+							"$id": "#/properties/data/properties/req/properties/actionRetries",
+							"title": "DPA transactions retries",
+							"description": "Number of DPA transaction retries in case of a failure.",
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						},
+						"overlappingNetworks": {
+							"$id": "#/properties/data/properties/req/properties/overlappingNetworks",
+							"title": "Overlapping networks",
+							"description": "Network building configuration.",
+							"type": "object",
+							"required": [
+								"networks",
+								"network"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"networks": {
+									"$id": "#/properties/data/properties/req/properties/overlappingNetworks/properties/networks",
+									"title": "Number of networks",
+									"description": "Number of the networks to be built.",
+									"type": "integer",
+									"minimum": 1,
+									"maximum": 50
+								},
+								"network": {
+									"$id": "#/properties/data/properties/req/properties/overlappingNetworks/properties/network",
+									"title": "Network number",
+									"description": "Network number that will be build.",
+									"type": "integer",
+									"minimum": 1,
+									"maximum": 50
+								}
+							}
+						},
+						"hwpidFiltering": {
+							"$id": "#/properties/data/properties/req/properties/hwpidFiltering",
+							"title": "HWPID filtering",
+							"description": "Array of HWPIDs to allow to be added to the network. If a node device HWPID is not among them, it is ignored.",
+							"type": "array",
+							"items": {"$ref": "file://definitions.json#/general/request/hwpId"}
+						},
+						"stopConditions": {
+							"$id": "#/properties/data/properties/req/properties/stopConditions",
+							"title": "Stop conditions",
+							"description": "Conditions to be met to stop the AutoNetwork process.",
+							"type": "object",
+							"required": [
+								"emptyWaves"
+							],
+							"properties": {
+								"waves": {
+									"$id": "#/properties/data/properties/req/properties/stopConditions/properties/waves",
+									"title": "Maximum number of waves.",
+									"description": "Stops the AutoNetwork process when the last wave has been completed.",
+									"type": "integer",
+									"minimum": 1,
+									"maximum": 127,
+									"default": 2
+								},
+								"emptyWaves": {
+									"$id": "#/properties/data/properties/req/properties/stopConditions/properties/emptyWaves",
+									"title": "Empty waves",
+									"description": "Stops the AutoNetwork process when a specified number of waves where no new nodes were added to the network have been completed.",
+									"type": "integer",
+									"minimum": 1,
+									"maximum": 127,
+									"default": 2
+								},
+								"numberOfTotalNodes": {
+									"$id": "#/properties/data/properties/req/properties/stopConditions/properties/numberOfTotalNodes",
+									"title": "Total node count",
+									"description": "Stops the AutoNetwork process when the total number of nodes in the network reaches this value.",
+									"type": "integer",
+									"minimum": 1,
+									"maximum": 239
+								},
+								"numberOfNewNodes": {
+									"$id": "#/properties/data/properties/req/properties/stopConditions/properties/numberOfNewNodes",
+									"title": "New node count",
+									"description": "Stops the AutoNetwork process when the specified number of new nodes have been added to the network.",
+									"type": "integer",
+									"minimum": 1,
+									"maximum": 239
+								},
+								"abortOnTooManyNodesFound": {
+									"$id": "#/properties/data/properties/req/properties/stopConditions/properties/abortOnTooManyNodesFound",
+									"title": "Abort on too many nodes",
+									"description": "Aborts the AutoNetwork process if too many nodes were found.",
+									"type": "boolean",
+									"default": false
+								}
+							}
+						}
+					}
+				},
+				"repeat": {"$ref": "file://definitions.json#/iqmesh/general/repeat"},
+				"returnVerbose": {"$ref": "file://definitions.json#/general/request/returnVerbose"}
+			}
+		}
+	}
 }

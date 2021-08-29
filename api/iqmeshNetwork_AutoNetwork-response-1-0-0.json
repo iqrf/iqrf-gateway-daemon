@@ -1,147 +1,108 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_AutoNetwork-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - AutoNetwork response.",
-      "enum": [
-        "iqmeshNetwork_AutoNetwork"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "rsp": {
-          "type": "object",
-          "description": "Returns following values, see its description.",
-          "properties": {
-            "wave": {
-              "type": "integer",
-              "description": "Wave number."
-            },
-            "waveState": {
-              "type": "string",
-              "description": "Wave state description notification."
-            },
-            "waveStateCode": {
-              "type": "integer",
-              "description": "Wave state description notification code."
-            },
-            "progress": {
-              "type": "integer",
-              "description": "Algorithm progress estimation [%]."
-            },
-            "nodesNr": {
-              "type": "integer",
-              "description": "Number of nodes in the network."
-            },
-            "newNodesNr": {
-              "type": "integer",
-              "description": "Number of nodes newly added into the network in this wave."
-            },
-            "newNodes": {
-              "type": "array",
-              "description": "Returns nodes newly added into the network in this wave.",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "mid": {
-                    "type": "string",
-                    "description": "Module ID."
-                  },
-                  "address": {
-                    "type": "integer",
-                    "description": "Assigned address."
-                  }
-                },
-                "required": [
-                  "mid",
-                  "address"
-                ]
-              }
-            },
-            "lastWave": {
-              "type": "boolean",
-              "description": "Indication, if this is the last wave."
-            }
-          },
-          "required": [
-            "wave"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
-          }
-        },
-        "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
-        },
-        "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
-        },
-        "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
-        }
-      },
-      "required": [
-        "msgId",
-        "status"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "IQMESH Network - AutoNetwork",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$ref": "file://definitions.json#/general/mType",
+			"description": "IQMESH Network management - AutoNetwork response.",
+			"const": "iqmeshNetwork_AutoNetwork"
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body",
+			"type": "object",
+			"required": [
+				"msgId",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {"$ref": "file://definitions.json#/general/msgId"},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response body object",
+					"type": "object",
+					"required": [
+						"wave"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"wave": {
+							"$id": "#/properties/data/properties/rsp/properties/wave",
+							"title": "Wave number",
+							"description": "Current AutoNetwork wave number.",
+							"type": "integer",
+							"minimum": 1
+						},
+						"waveState": {
+							"$id": "#/properties/data/properties/rsp/properties/waveState",
+							"title": "Wave state string",
+							"description": "Wave status string description.",
+							"type": "string"
+						},
+						"waveStateCode": {
+							"$id": "#/properties/data/properties/rsp/properties/waveStateCode",
+							"title": "Wave state code",
+							"description": "Wave status integer code.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 20
+						},
+						"progress": {"$ref": "file://definitions.json#/iqmesh/general/progress"},
+						"nodesNr": {"$ref": "file://definitions.json#/embed/coordinator/devNr"},
+						"newNodesNr": {
+							"$id": "#/properties/data/properties/rsp/properties/newNodesNr",
+							"title": "Number of new nodes",
+							"description": "Number of nodes newly added into the network in this wave.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 239
+						},
+						"newNodes": {
+							"$id": "#/properties/data/properties/rsp/properties/newNodes",
+							"title": "Newly added nodes",
+							"description": "Array of new nodes (MID, address) in the network.",
+							"type": "array",
+							"minItems": 1,
+							"maxItems": 239,
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/newNodes/items",
+								"title": "New node",
+								"description": "MID and address of a newly added node.",
+								"type": "object",
+								"required": [
+									"mid",
+									"address"
+								],
+								"additionalProperties": false,
+								"properties": {
+									"mid": {"$ref": "file://definitions.json#/iqmesh/device/os/mid"},
+									"address": {"$ref": "file://definitions.json#/embed/node/nAdr"}
+								}
+							}
+						},
+						"lastWave": {
+							"$id": "#/properties/data/properties/rsp/properties/lastWave",
+							"title": "Last wave",
+							"description": "Indicates whether the current wave is the last wave.",
+							"type": "boolean"
+						}
+					}
+				},
+				"raw": {"$ref": "file://definitions.json#/general/response/raw"},
+				"insId": {"$ref": "file://definitions.json#/general/response/insId"},
+				"status": {"$ref": "file://definitions.json#/general/response/status"},
+				"statusStr": {"$ref": "file://definitions.json#/general/response/statusStr"}
+			}
+		}
+	}
 }
