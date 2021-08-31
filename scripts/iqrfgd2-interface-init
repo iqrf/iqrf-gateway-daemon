@@ -17,7 +17,8 @@
 
 if [ -f /etc/iqrf-gateway.json ]
 then
-	interface=$(jq -r '.gwInterface' /etc/iqrf-gateway.json)
+	propertyExists=$(jq 'has("gwInterface")' /etc/iqrf-gateway.json)
+	(($propertyExists)) && interface=$(jq -r '.gwInterface' /etc/iqrf-gateway.json) || interface='spi'
 	case $interface in
 		cdc)
 			sed -i '0,/"{cdc}"/ s//true/' /etc/iqrf-gateway-daemon/config.json
