@@ -77,7 +77,7 @@
 											},
 											{
 												"title": "Extended answer",
-												"description": "Answer object with additional information about a node device.",
+												"description": "Answer object with additional information about the device.",
 												"type": "object",
 												"required": [
 													"nAdr",

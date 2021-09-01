@@ -63,6 +63,11 @@
 										"$id": "#/properties/data/properties/rsp/properties/result/properties/sensors/items",
 										"oneOf": [
 											{
+												"title": "No sensor data",
+												"description": "Sensor type not implemented by this device.",
+												"type": "null"
+											},
+											{
 												"title": "Base sensor data",
 												"description": "Default sensor object without additional information.",
 												"type": "object",
@@ -71,8 +76,10 @@
 													"type",
 													"name",
 													"shortName",
+													"value",
 													"unit"
 												],
+												"additionalProperties": false,
 												"properties": {
 													"id": {"$ref": "file://definitions.json#/standard/sensor/id"},
 													"type": {"$ref": "file://definitions.json#/standard/sensor/type"},
@@ -80,150 +87,105 @@
 													"shortName": {"$ref": "file://definitions.json#/standard/sensor/shortName"},
 													"value": {"$ref": "file://definitions.json#/standard/sensor/value"},
 													"unit": {"$ref": "file://definitions.json#/standard/sensor/unit"},
+													"decimalPlaces": {"$ref": "file://definitions.json#/standard/sensor/decimalPlaces"},
 													"breakdown": {
+														"title": "Sensor breakdowns",
+														"description": "Breakdowns of sensor type in case of a generic type, such as BINARY_DATA.",
 														"type": "array",
-														"description": "Parsed generic types if present in device response.",
 														"items": {
 															"type": "object",
+															"required": [
+																"id",
+																"type",
+																"name",
+																"shortName",
+																"value",
+																"unit"
+															],
+															"additionalProperties": false,
 															"properties": {
-																"type": {
-																	"type": "integer",
-																	"description": "Value type of the sensor (quantity)."
-																},
-																"name": {
-																	"type": "string",
-																	"description": "Name of the sensor (quantity)."
-																},
-																"shortName": {
-																	"type": "string",
-																	"description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-																},
-																"value": {
-																	"oneOf": [
-																		{
-																			"type": "number"
-																		},
-																		{
-																			"type": "null"
-																		}
-																	],
-																	"description": "Value of the sensor."
-																},
-																"unit": {
-																	"type": "string",
-																	"description": "Unit of the quantity. Dimensionless quantities has \"\"."
-																}
+																"id": {"$ref": "file://definitions.json#/standard/sensor/id"},
+																"type": {"$ref": "file://definitions.json#/standard/sensor/type"},
+																"name": {"$ref": "file://definitions.json#/standard/sensor/name"},
+																"shortName": {"$ref": "file://definitions.json#/standard/sensor/shortName"},
+																"value": {"$ref": "file://definitions.json#/standard/sensor/value"},
+																"unit": {"$ref": "file://definitions.json#/standard/sensor/unit"},
+																"decimalPlaces": {"$ref": "file://definitions.json#/standard/sensor/decimalPlaces"}
 															}
 														}
 													}
 												}
 											},
 											{
+												"title": "Extended sensor data",
+												"description": "Sensor data object with additional information about the device.",
 												"type": "object",
+												"required": [
+													"nAdr",
+													"sensor"
+												],
+												"additionalProperties": false,
 												"properties": {
-													"nAdr": {
-														"type": "integer",
-														"description": "Node address."
-													},
-													"metadata": {
-														"oneOf": [
-															{
-																"type": "object",
-																"description": "Arbitrary user defined meta data."
-															},
-															{
-																"type": "null"
-															}
-														]
-													},
+													"nAdr": {"$ref": "file://definitions.json#/general/nAdr"},
+													"metaData": {"$ref": "file://definitions.json#/general/metaData"},
 													"sensor": {
 														"oneOf": [
 															{
+																"title": "No sensor data",
+																"description": "Sensor type not implemented by this device.",
 																"type": "null"
 															},
 															{
+																"title": "Sensor data",
+																"description": "Sensor data object.",
 																"type": "object",
-																"properties": {
-																	"id": {
-																		"type": "string",
-																		"description": "Value type as text id."
-																	},
-																	"type": {
-																		"type": "integer",
-																		"description": "Value type of the sensor (quantity)."
-																	},
-																	"name": {
-																		"type": "string",
-																		"description": "Name of the sensor (quantity)."
-																	},
-																	"shortName": {
-																		"type": "string",
-																		"description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-																	},
-																	"value": {
-																		"oneOf": [
-																			{
-																				"type": "number"
-																			},
-																			{
-																				"type": "null"
-																			}
-																		],
-																		"description": "Value of the sensor."
-																	},
-																	"unit": {
-																		"type": "string",
-																		"description": "Unit of the quantity. Dimensionless quantities has \"\"."
-																	},
-																	"breakdown": {
-																		"type": "array",
-																		"description": "Parsed generic types if present in device response.",
-																		"items": {
-																			"type": "object",
-																			"properties": {
-																				"type": {
-																					"type": "integer",
-																					"description": "Value type of the sensor (quantity)."
-																				},
-																				"name": {
-																					"type": "string",
-																					"description": "Name of the sensor (quantity)."
-																				},
-																				"shortName": {
-																					"type": "string",
-																					"description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-																				},
-																				"value": {
-																					"oneOf": [
-																						{
-																							"type": "number"
-																						},
-																						{
-																							"type": "null"
-																						}
-																					],
-																					"description": "Value of the sensor."
-																				},
-																				"unit": {
-																					"type": "string",
-																					"description": "Unit of the quantity. Dimensionless quantities has \"\"."
-																				}
-																			}
-																		}
-																	}
-																},
 																"required": [
 																	"id",
 																	"type",
 																	"name",
 																	"shortName",
+																	"value",
 																	"unit"
-																]
+																],
+																"additionalProperties": false,
+																"properties": {
+																	"id": {"$ref": "file://definitions.json#/standard/sensor/id"},
+																	"type": {"$ref": "file://definitions.json#/standard/sensor/type"},
+																	"name": {"$ref": "file://definitions.json#/standard/sensor/name"},
+																	"shortName": {"$ref": "file://definitions.json#/standard/sensor/shortName"},
+																	"value": {"$ref": "file://definitions.json#/standard/sensor/value"},
+																	"unit": {"$ref": "file://definitions.json#/standard/sensor/unit"},
+																	"decimalPlaces": {"$ref": "file://definitions.json#/standard/sensor/decimalPlaces"},
+																	"breakdown": {
+																		"title": "Sensor breakdowns",
+																		"description": "Breakdowns of sensor type in case of a generic type, such as BINARY_DATA.",
+																		"type": "array",
+																		"items": {
+																			"type": "object",
+																			"required": [
+																				"id",
+																				"type",
+																				"name",
+																				"shortName",
+																				"value",
+																				"unit"
+																			],
+																			"properties": {
+																				"id": {"$ref": "file://definitions.json#/standard/sensor/id"},
+																				"type": {"$ref": "file://definitions.json#/standard/sensor/type"},
+																				"name": {"$ref": "file://definitions.json#/standard/sensor/name"},
+																				"shortName": {"$ref": "file://definitions.json#/standard/sensor/shortName"},
+																				"value": {"$ref": "file://definitions.json#/standard/sensor/value"},
+																				"unit": {"$ref": "file://definitions.json#/standard/sensor/unit"},
+																				"decimalPlaces": {"$ref": "file://definitions.json#/standard/sensor/decimalPlaces"}
+																			}
+																		}
+																	}
+																}
 															}
 														]
 													}
-												},
-												"required": ["nAdr", "sensor"]
+												}
 											}
 										]
 									}

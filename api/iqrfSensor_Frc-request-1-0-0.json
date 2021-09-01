@@ -50,7 +50,7 @@
 							],
 							"additionalProperties": false,
 							"properties": {
-								"type": {"$ref": "file://definitions.json#/standard/sensor/type"},
+								"sensorType": {"$ref": "file://definitions.json#/standard/sensor/type"},
 								"sensorIndex": {"$ref": "file://definitions.json#/standard/sensor/index"},
 								"frcCommand": {
 									"$id": "#/properties/data/properties/req/properties/param/properties/frcCommand",
