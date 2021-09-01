@@ -1479,7 +1479,7 @@
 				"title": "Sensor type",
 				"description": "Sensor (quantity) type as integer identifier.",
 				"type": "integer",
-				"minimum": 0,
+				"minimum": 1,
 				"maximum": 255
 			},
 			"name": {
