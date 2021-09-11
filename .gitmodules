@@ -16,3 +16,6 @@
 [submodule "libraries/iqrf-header-parser"]
 	path = libraries/iqrf-header-parser
 	url = https://gitlab.iqrf.org/open-source/iqrf-header-parser.git
+[submodule "libraries/valijson"]
+	path = libraries/valijson
+	url = https://github.com/tristanpenman/valijson.git
