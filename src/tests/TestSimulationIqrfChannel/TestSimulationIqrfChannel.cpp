@@ -134,6 +134,10 @@ namespace iqrf {
       return false;
     }
 
+    IIqrfChannelService::InterfaceType getInterfaceType() const {
+      return IIqrfChannelService::InterfaceType::UNKNOWN;
+    }
+
     //Accessor
     ///////////////////////////////////
     void send(const std::basic_string<unsigned char>& message)
@@ -255,6 +259,11 @@ namespace iqrf {
   bool TestSimulationIqrfChannel::hasExclusiveAccess() const
   {
     return m_imp->hasExclusiveAccess();
+  }
+
+  IIqrfChannelService::InterfaceType TestSimulationIqrfChannel::getInterfaceType() const
+  {
+    return m_imp->getInterfaceType();
   }
 
   /////////////////////////

@@ -305,6 +305,10 @@ namespace iqrf {
       return m_accessControl.hasExclusiveAccess();
     }
 
+    IIqrfChannelService::InterfaceType getInterfaceType() const {
+      return IIqrfChannelService::InterfaceType::UART;
+    }
+
     IIqrfChannelService::osInfo getTrModuleInfo()
     {
       TRC_FUNCTION_ENTER("");
@@ -558,6 +562,10 @@ namespace iqrf {
   bool IqrfUart::hasExclusiveAccess() const
   {
     return m_imp->hasExclusiveAccess();
+  }
+
+  IIqrfChannelService::InterfaceType IqrfUart::getInterfaceType() const {
+    return m_imp->getInterfaceType();
   }
 
   void IqrfUart::activate(const shape::Properties *props)

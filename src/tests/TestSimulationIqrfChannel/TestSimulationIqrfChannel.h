@@ -36,6 +36,7 @@ namespace iqrf {
     State getState() const override;
     std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) override;
     bool hasExclusiveAccess() const override;
+    InterfaceType getInterfaceType() const override;
 
     //iqrf::ITestSimulationIqrfChannel
     void pushOutgoingMessage(const std::string& msg, unsigned millisToDelay) override;

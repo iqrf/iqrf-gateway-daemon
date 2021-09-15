@@ -136,6 +136,10 @@ namespace iqrf {
       return m_accessControl.hasExclusiveAccess();
     }
 
+    IIqrfChannelService::InterfaceType getInterfaceType() const {
+      return IIqrfChannelService::InterfaceType::UART;
+    }
+
     void activate(const shape::Properties *props)
     {
       TRC_FUNCTION_ENTER("");
@@ -816,6 +820,10 @@ namespace iqrf {
   bool IqrfUartWin::hasExclusiveAccess() const
   {
     return m_imp->hasExclusiveAccess();
+  }
+
+  IIqrfChannelService::InterfaceType IqrfUartWin::getInterfaceType() const {
+    return m_imp->getInterfaceType();
   }
 
   void IqrfUartWin::activate(const shape::Properties *props)

@@ -37,6 +37,7 @@ public:
   State getState() const override;
   std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) override;
   bool hasExclusiveAccess() const override;
+  InterfaceType getInterfaceType() const override;
 
   void activate(const shape::Properties *props = 0);
   void deactivate();

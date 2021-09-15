@@ -73,6 +73,16 @@ namespace iqrf {
       UPLOAD_ERROR_BUSY
     };
 
+    /// Interface type enum
+    enum class InterfaceType {
+      UNKNOWN = -1,
+      CDC,
+      MQTT,
+      SPI,
+      TCP,
+      UART
+    };
+
     struct osInfo {
       uint16_t osBuild;
       uint8_t osVersionMajor, osVersionMinor;
@@ -108,6 +118,7 @@ namespace iqrf {
     virtual State getState() const = 0;
     virtual std::unique_ptr<Accessor> getAccess(ReceiveFromFunc receiveFromFunc, AccesType access) = 0;
     virtual bool hasExclusiveAccess() const = 0;
+    virtual InterfaceType getInterfaceType() const = 0;
 
     virtual ~IIqrfChannelService() {}
 

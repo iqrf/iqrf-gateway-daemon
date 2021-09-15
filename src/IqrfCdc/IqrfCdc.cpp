@@ -294,6 +294,10 @@ namespace iqrf {
       }
     }
 
+    IIqrfChannelService::InterfaceType getInterfaceType() const {
+      return IIqrfChannelService::InterfaceType::CDC;
+    }
+
     std::unique_ptr<IIqrfChannelService::Accessor>  getAccess(ReceiveFromFunc receiveFromFunc, AccesType access)
     {
       return m_accessControl.getAccess(receiveFromFunc, access);
@@ -416,6 +420,10 @@ namespace iqrf {
   bool IqrfCdc::hasExclusiveAccess() const
   {
     return m_imp->hasExclusiveAccess();
+  }
+  
+  IIqrfChannelService::InterfaceType IqrfCdc::getInterfaceType() const {
+    return m_imp->getInterfaceType();
   }
 
   void IqrfCdc::activate(const shape::Properties *props)

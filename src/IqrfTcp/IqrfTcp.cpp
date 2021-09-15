@@ -159,6 +159,10 @@ namespace iqrf {
       return m_accessControl.hasExclusiveAccess();
     }
 
+    IIqrfChannelService::InterfaceType getInterfaceType() {
+      return IIqrfChannelService::InterfaceType::TCP;
+    }
+
     IIqrfChannelService::osInfo getTrModuleInfo()
     {
       TRC_FUNCTION_ENTER("");
@@ -435,6 +439,10 @@ namespace iqrf {
   bool IqrfTcp::hasExclusiveAccess() const
   {
     return m_imp->hasExclusiveAccess();
+  }
+
+  IIqrfChannelService::InterfaceType IqrfTcp::getInterfaceType() const {
+    return m_imp->getInterfaceType();
   }
 
   void IqrfTcp::activate(const shape::Properties *props)

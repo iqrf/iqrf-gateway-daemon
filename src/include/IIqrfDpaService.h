@@ -38,7 +38,8 @@ namespace iqrf {
     typedef std::function<void(const DpaMessage& dpaMessage)> AsyncMessageHandlerFunc;
     typedef std::function<void(const DpaMessage& dpaMessage)> AnyMessageHandlerFunc;
     typedef std::function<void(uint8_t pnum, uint8_t pcmd)> DpaCommandHookHandlerFunc;
-
+    typedef std::function<void()> DriverReloadHandler;
+    
     enum class DpaState
     {
       Ready,
@@ -69,6 +70,8 @@ namespace iqrf {
       bool lpModeSupportFlag = false;
       bool lpModeRunningFlag = false;
     };
+
+    typedef std::function<void(const IIqrfDpaService::CoordinatorParameters coordinatorParams)> CoordinatorReloadHandler;
 
     class ExclusiveAccess
     {
@@ -129,6 +132,9 @@ namespace iqrf {
     virtual DpaState getDpaChannelState() = 0;
     virtual void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) = 0;
     virtual void unregisterAnyMessageHandler(const std::string& serviceId) = 0;
+    virtual void registerDriverReloadHandler(const std::string& serviceId, DriverReloadHandler handler) = 0;
+    virtual void unregisterDriverReloadHandler(const std::string& serviceId) = 0;
+    virtual void reloadCoordinator(const CoordinatorParameters& params) = 0;
 
     virtual ~IIqrfDpaService() {}
   };

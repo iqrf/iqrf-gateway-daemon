@@ -354,6 +354,10 @@ namespace iqrf {
       return m_accessControl.hasExclusiveAccess();
     }
 
+    IIqrfChannelService::InterfaceType getInterfaceType() const {
+      return IIqrfChannelService::InterfaceType::SPI;
+    }
+
     IIqrfChannelService::osInfo getTrModuleInfo()
     {
       TRC_FUNCTION_ENTER("");
@@ -609,6 +613,10 @@ namespace iqrf {
   bool IqrfSpi::hasExclusiveAccess() const
   {
     return m_imp->hasExclusiveAccess();
+  }
+
+  IIqrfChannelService::InterfaceType IqrfSpi::getInterfaceType() const {
+    return m_imp->getInterfaceType();
   }
 
   void IqrfSpi::activate(const shape::Properties *props)

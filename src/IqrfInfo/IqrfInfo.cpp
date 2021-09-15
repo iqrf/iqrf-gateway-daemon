@@ -2584,6 +2584,10 @@ namespace iqrf {
         reloadDrivers();
       });
 
+      m_iIqrfDpaService->registerDriverReloadHandler(m_instanceName, [&]() {
+        reloadDrivers();
+      });
+
       loadProvisoryDrivers();
 
       m_repeatEnum = false;
@@ -2777,6 +2781,10 @@ namespace iqrf {
 
   void IqrfInfo::resetDb() {
     m_imp->resetDb();
+  }
+
+  void IqrfInfo::reloadDrivers() {
+    m_imp->reloadDrivers();
   }
 
   void IqrfInfo::activate(const shape::Properties *props)
