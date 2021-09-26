@@ -290,7 +290,7 @@ test:
     - cmake -Bbuild -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
     - cmake --build build --target install
     - cd build/ && ctest -V
-  <<: *debian-buster-amd64-template
+  <<: *debian-bullseye-amd64-template
   <<: *ccache-template
 
 api-testing:
