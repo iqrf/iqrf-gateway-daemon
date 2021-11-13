@@ -17,9 +17,6 @@
 
 #define IBondNodeLocalService_EXPORTS
 
-#define BOND_ERROR_ADDRESS_ASSIGNED -2
-#define BOND_ERROR_NO_AVAILABLE_ADDRESS -3
-
 #include "BondNodeLocalService.h"
 #include "RawDpaEmbedOS.h"
 #include "Trace.h"
@@ -37,6 +34,8 @@ namespace {
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
+  static const int addressUsedError = 1003;
+  static const int noFreeAddressError = 1004;
 };
 
 namespace iqrf {
@@ -279,12 +278,12 @@ namespace iqrf {
           }
         }
         if (!freeAddr) {
-          bondResult.setStatus(BOND_ERROR_NO_AVAILABLE_ADDRESS, "No available address to assign to a new node found.");
+          bondResult.setStatus(noFreeAddressError, "No available address to assign to a new node found.");
           THROW_EXC(std::logic_error, bondResult.getStatusStr());
         }
       } else {
         if ((bondedArray[addr / 8] & (1 << (addr % 8))) != 0) {
-          bondResult.setStatus(BOND_ERROR_ADDRESS_ASSIGNED, "Requested address is already assigned to another device.");
+          bondResult.setStatus(addressUsedError, "Requested address is already assigned to another device.");
           THROW_EXC(std::logic_error, bondResult.getStatusStr())
         }
       }
@@ -657,7 +656,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, bondResult.getStatusStr());
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -676,7 +675,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -702,7 +701,7 @@ namespace iqrf {
 
       // Parsing and checking service parameters
       try
-      {      
+      {
         m_bondNodeParams = comBondNode.getBondNodeInputParams();
       }
       catch (const std::exception& e)
@@ -758,7 +757,7 @@ namespace iqrf {
 
       (void)props;
 
-      // for the sake of register function parameters 
+      // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetworkBondNodeLocal
