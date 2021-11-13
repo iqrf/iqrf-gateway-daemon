@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM iqrftech/iqrf-gateway-daemon-builder:debian-buster-amd64
+FROM iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-amd64
 
 COPY ./ /iqrf
 WORKDIR /iqrf

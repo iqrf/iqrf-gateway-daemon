@@ -16,21 +16,17 @@
 stages:
   - test
   - update-cache
-  - clean-dirs
   - build-package
   - deploy-api
 
-.ccache-before_script-template: &ccache-before_script-template
-  - export CCACHE_COMPILERCHECK="content"
-  - export CCACHE_COMPRESS="true"
-  - export CCACHE_BASEDIR="$PWD"
-  - export CCACHE_DIR="${CCACHE_BASEDIR}/.ccache"
-  - ccache --zero-stats --show-stats
-  - echo "CCACHEDIR=~/.ccache" > ~/.pbuilderrc
-
 .ccache-template: &ccache-template
   before_script:
-    - *ccache-before_script-template
+    - export CCACHE_COMPILERCHECK="content"
+    - export CCACHE_COMPRESS="true"
+    - export CCACHE_BASEDIR="$PWD"
+    - export CCACHE_DIR="${CCACHE_BASEDIR}/.ccache"
+    - ccache --zero-stats --show-stats
+    - echo "CCACHEDIR=~/.ccache" > ~/.pbuilderrc
   after_script:
     - export CCACHE_DIR="${PWD}/.ccache"
     - ccache --show-stats
@@ -40,156 +36,14 @@ stages:
       - .ccache/
 
 .debian-bullseye-amd64-template: &debian-bullseye-amd64-template
-    image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-amd64
-    variables:
-        ARCH: "amd64"
-        DIST: "bullseye"
-    tags:
-        - linux, amd64
-
-.debian-bullseye-arm64-template: &debian-bullseye-arm64-template
-    image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-arm64
-    variables:
-        ARCH: "arm64"
-        DIST: "bullseye"
-    tags:
-        - linux, arm64
-
-.debian-bullseye-armel-template: &debian-bullseye-armel-template
-    image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-armel
-    variables:
-        ARCH: "armel"
-        DIST: "bullseye"
-    tags:
-        - linux, armel
-
-.debian-bullseye-armhf-template: &debian-bullseye-armhf-template
-    image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-armhf
-    variables:
-        ARCH: "armhf"
-        DIST: "bullseye"
-    tags:
-        - linux, armhf
-
-.debian-bullseye-i386-template: &debian-bullseye-i386-template
-    image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-i386
-    variables:
-        ARCH: "i386"
-        DIST: "bullseye"
-    tags:
-        - linux, i386
-
-.debian-buster-amd64-template: &debian-buster-amd64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-amd64
+  image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-amd64
   variables:
     ARCH: "amd64"
-    DIST: "buster"
+    DIST: "bullseye"
   tags:
     - linux, amd64
 
-.debian-buster-arm64-template: &debian-buster-arm64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-arm64
-  variables:
-    ARCH: "arm64"
-    DIST: "buster"
-  tags:
-    - linux, arm64
-
-.debian-buster-armel-template: &debian-buster-armel-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-armel
-  variables:
-    ARCH: "armel"
-    DIST: "buster"
-  tags:
-    - linux, armel
-
-.debian-buster-armhf-template: &debian-buster-armhf-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-armhf
-  variables:
-    ARCH: "armhf"
-    DIST: "buster"
-  tags:
-    - linux, armhf
-
-.debian-buster-i386-template: &debian-buster-i386-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-i386
-  variables:
-    ARCH: "i386"
-    DIST: "buster"
-  tags:
-    - linux, i386
-
-.raspbian-bullseye-armhf-template: &raspbian-bullseye-armhf-template
-    image: iqrftech/iqrf-gateway-daemon-builder:raspbian-bullseye-armhf
-    variables:
-        ARCH: "armhf"
-        ARCH_PREFIX: "rpi-"
-        CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-        CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-        DIST: "buster"
-    tags:
-        - linux, armhf
-
-.raspbian-buster-armhf-template: &raspbian-buster-armhf-template
-  image: iqrftech/iqrf-gateway-daemon-builder:raspbian-buster-armhf
-  variables:
-    ARCH: "armhf"
-    ARCH_PREFIX: "rpi-"
-    CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-    CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-    DIST: "buster"
-  tags:
-    - linux, armhf
-
-.ubuntu-bionic-amd64-template: &ubuntu-bionic-amd64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-bionic-amd64
-  variables:
-    ARCH: "amd64"
-    DIST: "bionic"
-  tags:
-    - linux, amd64
-
-.ubuntu-bionic-arm64-template: &ubuntu-bionic-arm64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-bionic-arm64
-  variables:
-    ARCH: "arm64"
-    DIST: "bionic"
-  tags:
-    - linux, arm64
-
-.ubuntu-bionic-armhf-template: &ubuntu-bionic-armhf-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-bionic-armhf
-  variables:
-    ARCH: "armhf"
-    DIST: "bionic"
-  tags:
-    - linux, armhf
-
-.ubuntu-focal-amd64-template: &ubuntu-focal-amd64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-focal-amd64
-  variables:
-    ARCH: "amd64"
-    DIST: "focal"
-  tags:
-    - linux, amd64
-
-.ubuntu-focal-arm64-template: &ubuntu-focal-arm64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-focal-arm64
-  variables:
-    ARCH: "arm64"
-    DIST: "focal"
-  tags:
-    - linux, arm64
-
-.ubuntu-focal-armhf-template: &ubuntu-focal-armhf-template
-  image: iqrftech/iqrf-gateway-daemon-builder:ubuntu-focal-armhf
-  variables:
-    ARCH: "armhf"
-    DIST: "focal"
-  tags:
-    - linux, armhf
-
-.ssh_template:
+.ssh-template:
   before_script:
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
@@ -202,6 +56,7 @@ stages:
     - git submodule update --init --recursive
 
 .package-template:
+  image: iqrftech/iqrf-gateway-daemon-builder:${DISTRIBUTION}-${DIST}-${ARCH}
   stage: build-package
   dependencies:
     - update-cache
@@ -216,68 +71,45 @@ stages:
     - mv ../*.changes .
     - sed -i "s/.ddeb/.deb/g" *.changes
     - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-    - rsync -hrvz --delete -e ssh *_all.deb *_${ARCH}.deb *_${ARCH}.changes www-deploy@icinga.iqrf.org:/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH_PREFIX}${ARCH}/${STABILITY}
+    - export DEPLOY_DIR=/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH_PREFIX}${ARCH}/${STABILITY}
+    - if [ "${STABILITY}" == "devel" ]; then ssh www-deploy@icinga.iqrf.org "rm -f ${DEPLOY_DIR}/*"; fi
+    - if [ "${STABILITY}" != "devel" ]; then ssh www-deploy@icinga.iqrf.org "rm -f ${DEPLOY_DIR}/*.changes"; fi
+    - rsync -hrvz --delete -e ssh *_all.deb *_${ARCH}.deb *_${ARCH}.changes www-deploy@icinga.iqrf.org:${DEPLOY_DIR}
   artifacts:
     paths:
       - ./*.deb
       - ./*.changes
     expire_in: 2 weeks
+  parallel:
+    matrix:
+      - DISTRIBUTION: debian
+        DIST: [bullseye, buster]
+        ARCH: [amd64, arm64, armhf, armel, i386]
+      - DISTRIBUTION: raspbian
+        ARCH: armhf
+        ARCH_PREFIX: "rpi-"
+        CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
+        CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
+        DIST: [bullseye, buster]
+      - DISTRIBUTION: ubuntu
+        DIST: [focal, bionic]
+        ARCH: [amd64, arm64, armhf]
+  tags:
+    - linux, ${ARCH}
   <<: *ccache-template
-
-.package-devel-template: &package-devel-template
-  only:
-    - master
-  extends: .package-template
-  before_script:
-    - *ccache-before_script-template
-    - export DAEMON_VERSION=v2.4.0-beta~${CI_PIPELINE_ID}
-    - export STABILITY=devel
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-    - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
-    - git submodule update --init --recursive
-
-.package-release-template: &package-release-template
-  only:
-    - tags
-  extends: .package-template
-  before_script:
-    - *ccache-before_script-template
-    - export DAEMON_VERSION="$CI_COMMIT_TAG"
-    - '[[ "$CI_COMMIT_TAG" =~ ^.*-(alpha|beta|rc)[0-9]*$ ]] && export STABILITY="testing" || export STABILITY="stable"'
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-    - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
-    - git submodule update --init --recursive
 
 .api-template: &api-template
   stage: deploy-api
   only:
     - master
-  extends: .ssh_template
+  extends: .ssh-template
   dependencies: []
   script:
     - rsync -hrvz --delete -e ssh api/ www-deploy@icinga.iqrf.org:/data/nginx/apidocs/iqrf-gateway-daemon/latest/json/iqrf/
 
-.clean-template:
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-buster-amd64
-  stage: clean-dirs
-  extends: .ssh_template
-  dependencies: []
-
 test:
   stage: test
-  extends: .ssh_template
+  extends: .ssh-template
   script:
     - mkdir deploy
     - git clone --recurse-submodules https://github.com/logimic/shape.git
@@ -290,16 +122,16 @@ test:
     - cmake -Bbuild -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
     - cmake --build build --target install
     - cd build/ && ctest -V
-  <<: *debian-buster-amd64-template
+  <<: *debian-bullseye-amd64-template
   <<: *ccache-template
 
 api-testing:
   stage: test
   image: docker:latest
   services:
-    - docker:19.03.12-dind
+    - docker:dind
   before_script:
-    - apk add  --no-cache docker-compose
+    - apk add --no-cache docker-compose
   script:
     - docker-compose -f apitesting.docker-compose.yml up --build --abort-on-container-exit --exit-code-from tests
   tags:
@@ -314,193 +146,33 @@ update-cache:
     paths:
       - src/start-IqrfDaemon/iqrfRepoCache/
     expire_in: 1 day
-  <<: *debian-buster-amd64-template
+  <<: *debian-bullseye-amd64-template
 
-clean-devel:
-  extends: .clean-template
+package-devel:
   only:
     - master
-  script:
-    - ssh www-deploy@icinga.iqrf.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/*/*/devel/*"
+  extends: .package-template
+  before_script:
+    - !reference [.ccache-template, before_script]
+    - export DAEMON_VERSION=v2.4.0-beta~${CI_PIPELINE_ID}
+    - export STABILITY=devel
+    - !reference [.ssh-template, before_script]
 
-clean-release:
-  extends: .clean-template
+package-release:
   only:
     - tags
-  script:
+  extends: .package-template
+  before_script:
+    - !reference [.ccache-template, before_script]
+    - export DAEMON_VERSION="$CI_COMMIT_TAG"
     - '[[ "$CI_COMMIT_TAG" =~ ^.*-(alpha|beta|rc)[0-9]*$ ]] && export STABILITY="testing" || export STABILITY="stable"'
-    - ssh www-deploy@icinga.iqrf.org "rm -f /data/nginx/dl/iqrf-gateway-daemon/*/*/${STABILITY}/*.changes"
-
-# Debian bullseye
-## amd64
-package-bullseye-amd64:
-    <<: *debian-bullseye-amd64-template
-    <<: *package-devel-template
-
-package_release-bullseye-amd64:
-    <<: *debian-bullseye-amd64-template
-    <<: *package-release-template
-
-## arm64
-package-bullseye-arm64:
-    <<: *debian-bullseye-arm64-template
-    <<: *package-devel-template
-
-package_release-bullseye-arm64:
-    <<: *debian-bullseye-arm64-template
-    <<: *package-release-template
-
-## armel
-package-bullseye-armel:
-    <<: *debian-bullseye-armel-template
-    <<: *package-devel-template
-
-package_release-bullseye-armel:
-    <<: *debian-bullseye-armel-template
-    <<: *package-release-template
-
-## armhf
-package-bullseye-armhf:
-    <<: *debian-bullseye-armhf-template
-    <<: *package-devel-template
-
-package_release-bullseye-armhf:
-    <<: *debian-bullseye-armhf-template
-    <<: *package-release-template
-
-## i386
-package-bullseye-i386:
-    <<: *debian-bullseye-i386-template
-    <<: *package-devel-template
-
-package_release-bullseye-i386:
-    <<: *debian-bullseye-i386-template
-    <<: *package-release-template
-
-# Debian buster
-## amd64
-package-buster-amd64:
-  <<: *debian-buster-amd64-template
-  <<: *package-devel-template
-
-package_release-buster-amd64:
-  <<: *debian-buster-amd64-template
-  <<: *package-release-template
-
-## arm64
-package-buster-arm64:
-  <<: *debian-buster-arm64-template
-  <<: *package-devel-template
-
-package_release-buster-arm64:
-  <<: *debian-buster-arm64-template
-  <<: *package-release-template
-
-## armel
-package-buster-armel:
-  <<: *debian-buster-armel-template
-  <<: *package-devel-template
-
-package_release-buster-armel:
-  <<: *debian-buster-armel-template
-  <<: *package-release-template
-
-## armhf
-package-buster-armhf:
-  <<: *debian-buster-armhf-template
-  <<: *package-devel-template
-
-package_release-buster-armhf:
-  <<: *debian-buster-armhf-template
-  <<: *package-release-template
-
-## i386
-package-buster-i386:
-  <<: *debian-buster-i386-template
-  <<: *package-devel-template
-
-package_release-buster-i386:
-  <<: *debian-buster-i386-template
-  <<: *package-release-template
-
-# Raspbian bullseye
-## armhf
-package-rpi-bullseye-armhf:
-    <<: *raspbian-bullseye-armhf-template
-    <<: *package-devel-template
-
-package_release-rpi-bullseye-armhf:
-    <<: *raspbian-bullseye-armhf-template
-    <<: *package-release-template
-
-# Raspbian buster
-## armhf
-package-rpi-buster-armhf:
-  <<: *raspbian-buster-armhf-template
-  <<: *package-devel-template
-
-package_release-rpi-buster-armhf:
-  <<: *raspbian-buster-armhf-template
-  <<: *package-release-template
-
-# Ubuntu 18.04 bionic
-## amd64
-package-bionic-amd64:
-  <<: *ubuntu-bionic-amd64-template
-  <<: *package-devel-template
-
-package_release-bionic-amd64:
-  <<: *ubuntu-bionic-amd64-template
-  <<: *package-release-template
-## arm64
-package-bionic-arm64:
-  <<: *ubuntu-bionic-arm64-template
-  <<: *package-devel-template
-
-package_release-bionic-arm64:
-  <<: *ubuntu-bionic-arm64-template
-  <<: *package-release-template
-## armhf
-package-bionic-armhf:
-  <<: *ubuntu-bionic-armhf-template
-  <<: *package-devel-template
-
-package_release-bionic-armhf:
-  <<: *ubuntu-bionic-armhf-template
-  <<: *package-release-template
-
-# Ubuntu 20.04 focal
-## amd64
-package-focal-amd64:
-  <<: *ubuntu-focal-amd64-template
-  <<: *package-devel-template
-
-package_release-focal-amd64:
-  <<: *ubuntu-focal-amd64-template
-  <<: *package-release-template
-## arm64
-package-focal-arm64:
-  <<: *ubuntu-focal-arm64-template
-  <<: *package-devel-template
-
-package_release-focal-arm64:
-  <<: *ubuntu-focal-arm64-template
-  <<: *package-release-template
-## armhf
-package-focal-armhf:
-  <<: *ubuntu-focal-armhf-template
-  <<: *package-devel-template
-  allow_failure: true
-
-package_release-focal-armhf:
-  <<: *ubuntu-focal-armhf-template
-  <<: *package-release-template
-  allow_failure: true
+    - !reference [.ssh-template, before_script]
 
 # API
 api-deploy:
-  <<: *debian-buster-amd64-template
+  <<: *debian-bullseye-amd64-template
   <<: *api-template
 
 include:
   - template: Code-Quality.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml

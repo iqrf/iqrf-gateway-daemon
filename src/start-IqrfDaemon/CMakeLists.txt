@@ -68,7 +68,7 @@ foreach(cfg ${CfgList})
 		${CMAKE_CURRENT_SOURCE_DIR}/configuration-${cfg}			configuration
 		${CMAKE_SOURCE_DIR}/api										configuration/apiSchemas
 		${CMAKE_CURRENT_SOURCE_DIR}/scheduler						configuration/scheduler
-		${CMAKE_CURRENT_SOURCE_DIR}/schedulerSchema					configuration/schedulerSchemas
+		${CMAKE_CURRENT_SOURCE_DIR}/schedulerSchemas				configuration/schedulerSchemas
    		${CMAKE_CURRENT_SOURCE_DIR}/DB/init							configuration/DB/init
 		${CMAKE_CURRENT_SOURCE_DIR}/metaData/meta_data.json			configuration/metaData/meta_data.json
 		${CMAKE_CURRENT_SOURCE_DIR}/metaData/schema_meta_data.json	configuration/metaDataSchemas/schema_meta_data.json
