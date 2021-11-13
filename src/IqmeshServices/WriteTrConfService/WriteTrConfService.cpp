@@ -74,7 +74,7 @@ namespace iqrf
 
     // Bondes nodes list
     std::basic_string<uint8_t> m_bondedNodes;
-      
+
     // Nodes that didn't responded to FrcAcknowledgedBroadcastBits (bit0 = bit1 = 0)
     std::basic_string<uint8_t> m_notRespondedNodes;
 
@@ -134,7 +134,7 @@ namespace iqrf
       // Check all bonded nodes
       for ( uint8_t node : m_bondedNodes )
       {
-        // HWPID matched the HWPID of the device ? 
+        // HWPID matched the HWPID of the device ?
         if ( frcDataBit0[node] == true )
         {
           // Yes, node already added to m_notMatchedNodes list ?
@@ -143,7 +143,7 @@ namespace iqrf
           continue;
         }
 
-        // HWPID did not match the HWPID of the device ? 
+        // HWPID did not match the HWPID of the device ?
         if ( frcDataBit1[node] == true )
         {
           // Yes, node already added to m_notMatchedNodes list ?
@@ -152,7 +152,7 @@ namespace iqrf
           continue;
         }
 
-        // Node didn't respond (bit0 = bit1 = 0) 
+        // Node didn't respond (bit0 = bit1 = 0)
         if ( std::find( m_notRespondedNodes.begin(), m_notRespondedNodes.end(), node ) == m_notRespondedNodes.end() )
           m_notRespondedNodes.push_back( node );
       }
@@ -353,7 +353,7 @@ namespace iqrf
         writeTrConfResult.setEnumPer(enumPerAnswer);
       }
       catch (const std::exception& e)
-      {       
+      {
         writeTrConfResult.setStatus(transResult->getErrorCode(), e.what());
         writeTrConfResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
@@ -603,7 +603,7 @@ namespace iqrf
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -721,7 +721,7 @@ namespace iqrf
       Pointer("/data/status").Set(writeResult, writeTrConfResult.getStatus());
       Pointer("/data/statusStr").Set(writeResult, writeTrConfResult.getStatusStr());
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(writeResult));
       TRC_FUNCTION_LEAVE("");
     }
@@ -919,109 +919,111 @@ namespace iqrf
         }
         else
         {
-          // Broadcast address
-          bool perFrcInitiallyDisabled = false;
+          if (writeTrConfResult.getBondedNodes().size() > 0) {
+            // Broadcast address
+            bool perFrcInitiallyDisabled = false;
 
-          // Check [C] DPA version is < 4.00
-          if (dpaVersion < 0x0400)
-          {
-            // Yes, check the per. FRC is disabled at [C]
-            if ((coordEnum.EmbeddedPers[PNUM_FRC / 8] & (1 << (PNUM_FRC % 8))) == false)
+            // Check [C] DPA version is < 4.00
+            if (dpaVersion < 0x0400)
             {
-              TRC_INFORMATION("DPA version is < 4.00 and per. FRC is disabled. Enable it at [C].");
-              // Per. FRC is disabled - enable it
-              setFrcPerAtCoord(writeTrConfResult, true);
-              // Disable FRC aftrer conf. is written
-              perFrcInitiallyDisabled = true;
+              // Yes, check the per. FRC is disabled at [C]
+              if ((coordEnum.EmbeddedPers[PNUM_FRC / 8] & (1 << (PNUM_FRC % 8))) == false)
+              {
+                TRC_INFORMATION("DPA version is < 4.00 and per. FRC is disabled. Enable it at [C].");
+                // Per. FRC is disabled - enable it
+                setFrcPerAtCoord(writeTrConfResult, true);
+                // Disable FRC aftrer conf. is written
+                perFrcInitiallyDisabled = true;
+              }
             }
-          }
 
-          // Set FRC param to 0, store previous value
-          uint8_t frcResponseTime = 0;
-          frcResponseTime = setFrcReponseTime(writeTrConfResult, frcResponseTime);
+            // Set FRC param to 0, store previous value
+            uint8_t frcResponseTime = 0;
+            frcResponseTime = setFrcReponseTime(writeTrConfResult, frcResponseTime);
 
-          // Any TR configuration byte ?
-          if (trConfigBytes.size() != 0)
-          {
-            uint8_t confBytesIndex = 0;
-            std::basic_string<uint8_t> frcUserData;
-            do
+            // Any TR configuration byte ?
+            if (trConfigBytes.size() != 0)
             {
-              // Fill OS Write Configuration byte request
-              frcUserData.clear();
-              frcUserData.push_back(0x05);
-              frcUserData.push_back(PNUM_OS);
-              frcUserData.push_back(CMD_OS_WRITE_CFG_BYTE);
-              frcUserData.push_back(m_writeTrConfParams.hwpId & 0xff);
-              frcUserData.push_back(m_writeTrConfParams.hwpId >> 0x08);
+              uint8_t confBytesIndex = 0;
+              std::basic_string<uint8_t> frcUserData;
               do
               {
-                // Fill current TPerOSWriteCfgByteTriplet
-                frcUserData.push_back(trConfigBytes.front().address);
-                frcUserData.push_back(trConfigBytes.front().value);
-                frcUserData.push_back(trConfigBytes.front().mask);
-                // Add TPerOSWriteCfgByteTriplet length
-                frcUserData[0x00] += sizeof(TPerOSWriteCfgByteTriplet);
-                // Erase consumed TrConfigByte
-                trConfigBytes.erase(trConfigBytes.begin());
-              } while ((++confBytesIndex < 8) && (trConfigBytes.size() != 0));
+                // Fill OS Write Configuration byte request
+                frcUserData.clear();
+                frcUserData.push_back(0x05);
+                frcUserData.push_back(PNUM_OS);
+                frcUserData.push_back(CMD_OS_WRITE_CFG_BYTE);
+                frcUserData.push_back(m_writeTrConfParams.hwpId & 0xff);
+                frcUserData.push_back(m_writeTrConfParams.hwpId >> 0x08);
+                do
+                {
+                  // Fill current TPerOSWriteCfgByteTriplet
+                  frcUserData.push_back(trConfigBytes.front().address);
+                  frcUserData.push_back(trConfigBytes.front().value);
+                  frcUserData.push_back(trConfigBytes.front().mask);
+                  // Add TPerOSWriteCfgByteTriplet length
+                  frcUserData[0x00] += sizeof(TPerOSWriteCfgByteTriplet);
+                  // Erase consumed TrConfigByte
+                  trConfigBytes.erase(trConfigBytes.begin());
+                } while ((++confBytesIndex < 8) && (trConfigBytes.size() != 0));
+                // Send FrcAcknowledgedBroadcastBits
+                std::basic_string<uint8_t> frcData = FrcAcknowledgedBroadcastBits(writeTrConfResult, frcUserData);
+                writeTrConfResult.checkFrcResponse(frcDataToNodesBitset(frcData.data()), frcDataToNodesBitset(&frcData.data()[32]));
+              } while (trConfigBytes.size() != 0);
+            }
+
+            // Set Access pasword
+            if (m_writeTrConfParams.security.accessPassword.length() != 0)
+            {
+              // Fill OS Set security request
+              std::basic_string<uint8_t> frcUserData;
+              frcUserData.clear();
+              frcUserData.push_back(0x06 + (uint8_t)m_writeTrConfParams.security.accessPassword.length());
+              frcUserData.push_back(PNUM_OS);
+              frcUserData.push_back(CMD_OS_SET_SECURITY);
+              frcUserData.push_back(m_writeTrConfParams.hwpId & 0xff);
+              frcUserData.push_back(m_writeTrConfParams.hwpId >> 0x08);
+              // Type 0x00 - Sets an access password
+              frcUserData.push_back(0x00);
+              frcUserData.append(m_writeTrConfParams.security.accessPassword);
               // Send FrcAcknowledgedBroadcastBits
               std::basic_string<uint8_t> frcData = FrcAcknowledgedBroadcastBits(writeTrConfResult, frcUserData);
               writeTrConfResult.checkFrcResponse(frcDataToNodesBitset(frcData.data()), frcDataToNodesBitset(&frcData.data()[32]));
-            } while (trConfigBytes.size() != 0);
-          }
+            }
 
-          // Set Access pasword
-          if (m_writeTrConfParams.security.accessPassword.length() != 0)
-          {
-            // Fill OS Set security request
-            std::basic_string<uint8_t> frcUserData;
-            frcUserData.clear();
-            frcUserData.push_back(0x06 + (uint8_t)m_writeTrConfParams.security.accessPassword.length());
-            frcUserData.push_back(PNUM_OS);
-            frcUserData.push_back(CMD_OS_SET_SECURITY);
-            frcUserData.push_back(m_writeTrConfParams.hwpId & 0xff);
-            frcUserData.push_back(m_writeTrConfParams.hwpId >> 0x08);
-            // Type 0x00 - Sets an access password
-            frcUserData.push_back(0x00);
-            frcUserData.append(m_writeTrConfParams.security.accessPassword);
-            // Send FrcAcknowledgedBroadcastBits
-            std::basic_string<uint8_t> frcData = FrcAcknowledgedBroadcastBits(writeTrConfResult, frcUserData);
-            writeTrConfResult.checkFrcResponse(frcDataToNodesBitset(frcData.data()), frcDataToNodesBitset(&frcData.data()[32]));
-          }
-
-          // Set User key
-          if (m_writeTrConfParams.security.userKey.length() != 0)
-          {
-            // Fill OS Set security request
-            std::basic_string<uint8_t> frcUserData;
-            frcUserData.clear();
-            frcUserData.push_back(0x06 + (uint8_t)m_writeTrConfParams.security.accessPassword.length());
-            frcUserData.push_back(PNUM_OS);
-            frcUserData.push_back(CMD_OS_SET_SECURITY);
-            frcUserData.push_back(m_writeTrConfParams.hwpId & 0xff);
-            frcUserData.push_back(m_writeTrConfParams.hwpId >> 0x08);
-            // Type 0x01 - Sets a user key
-            frcUserData.push_back(0x01);
-            frcUserData.append(m_writeTrConfParams.security.userKey);
-            // Send FrcAcknowledgedBroadcastBits
-            std::basic_string<uint8_t> frcData = FrcAcknowledgedBroadcastBits(writeTrConfResult, frcUserData);
-            writeTrConfResult.checkFrcResponse(frcDataToNodesBitset(frcData.data()), frcDataToNodesBitset(&frcData.data()[32]));
-          }
-
-          // Restore initial FRC param
-          if (frcResponseTime != 0)
-            frcResponseTime = setFrcReponseTime(writeTrConfResult, frcResponseTime);
-
-          // Check [C] DPA version is < 4.00
-          if (dpaVersion < 0x0400)
-          {
-            // Yes, check the per. FRC was initially disabled at [C]
-            if (perFrcInitiallyDisabled)
+            // Set User key
+            if (m_writeTrConfParams.security.userKey.length() != 0)
             {
-              // Per. FRC was disabled
-              TRC_INFORMATION("DPA version is < 4.00 - disabling per. FRC.");
-              setFrcPerAtCoord(writeTrConfResult, false);
+              // Fill OS Set security request
+              std::basic_string<uint8_t> frcUserData;
+              frcUserData.clear();
+              frcUserData.push_back(0x06 + (uint8_t)m_writeTrConfParams.security.accessPassword.length());
+              frcUserData.push_back(PNUM_OS);
+              frcUserData.push_back(CMD_OS_SET_SECURITY);
+              frcUserData.push_back(m_writeTrConfParams.hwpId & 0xff);
+              frcUserData.push_back(m_writeTrConfParams.hwpId >> 0x08);
+              // Type 0x01 - Sets a user key
+              frcUserData.push_back(0x01);
+              frcUserData.append(m_writeTrConfParams.security.userKey);
+              // Send FrcAcknowledgedBroadcastBits
+              std::basic_string<uint8_t> frcData = FrcAcknowledgedBroadcastBits(writeTrConfResult, frcUserData);
+              writeTrConfResult.checkFrcResponse(frcDataToNodesBitset(frcData.data()), frcDataToNodesBitset(&frcData.data()[32]));
+            }
+
+            // Restore initial FRC param
+            if (frcResponseTime != 0)
+              frcResponseTime = setFrcReponseTime(writeTrConfResult, frcResponseTime);
+
+            // Check [C] DPA version is < 4.00
+            if (dpaVersion < 0x0400)
+            {
+              // Yes, check the per. FRC was initially disabled at [C]
+              if (perFrcInitiallyDisabled)
+              {
+                // Per. FRC was disabled
+                TRC_INFORMATION("DPA version is < 4.00 - disabling per. FRC.");
+                setFrcPerAtCoord(writeTrConfResult, false);
+              }
             }
           }
         }
