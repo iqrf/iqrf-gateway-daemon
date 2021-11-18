@@ -849,31 +849,21 @@ namespace iqrf {
           // inaccessibleNodes
           if (maintenanceResult.getInaccessibleNodesNr() > 0)
           {
-            std::basic_string<uint8_t> inaccessibleNodes = maintenanceResult.getInaccessibleNodes();
             Document::AllocatorType &allocator = response.GetAllocator();
-            rapidjson::Value inaccessibleNodeResult(kArrayType);
-            for (auto nodeAddr : inaccessibleNodes)
-            {
-              rapidjson::Value inaccessibleNodeResultItem(kObjectType);
-              inaccessibleNodeResultItem.AddMember("deviceAddr", nodeAddr, allocator);            
-              inaccessibleNodeResult.PushBack(inaccessibleNodeResultItem, allocator);
-            }
-            Pointer("/data/rsp/inaccessibleNodes").Set(response, inaccessibleNodeResult);
+            rapidjson::Value inaccessibleNodesJsonArray(kArrayType);
+            for (std::basic_string<uint8_t>::const_iterator it = maintenanceResult.getInaccessibleNodes().begin(); it != maintenanceResult.getInaccessibleNodes().end(); ++it)
+              inaccessibleNodesJsonArray.PushBack(*it, allocator);
+            Pointer("/data/rsp/inaccessibleNodes").Set(response, inaccessibleNodesJsonArray);
           }
 
           // inconsistentNodes
           if (maintenanceResult.getInconsistentNodesNr() > 0)
           {
-            std::basic_string<uint8_t> inconsistentNodes = maintenanceResult.getInaccessibleNodes();
             Document::AllocatorType &allocator = response.GetAllocator();
-            rapidjson::Value inconsistentNodeResult(kArrayType);
-            for (auto nodeAddr : inconsistentNodes)
-            {
-              rapidjson::Value inconsistentNodeNodeResultItem(kObjectType);
-              inconsistentNodeNodeResultItem.AddMember("deviceAddr", nodeAddr, allocator);
-              inconsistentNodeResult.PushBack(inconsistentNodeNodeResultItem, allocator);
-            }
-            Pointer("/data/rsp/inconsistentNodes").Set(response, inconsistentNodeResult);
+            rapidjson::Value inconsistentNodesJsonArray(kArrayType);
+            for (std::basic_string<uint8_t>::const_iterator it = maintenanceResult.getInconsistentNodes().begin(); it != maintenanceResult.getInconsistentNodes().end(); ++it)
+              inconsistentNodesJsonArray.PushBack(*it, allocator);
+            Pointer("/data/rsp/inconsistentNodes").Set(response, inconsistentNodesJsonArray);
           }
         }
       }
