@@ -42,34 +42,14 @@
               "type": "array",
               "description": "Returns list of nodes that didn't respond to FRC.",
               "items": {
-                "type": "object",
-                "properties": {
-                  "deviceAddr": {
-                    "type": "integer",
-                    "description": "Device address."
-                  }
-                },
-                "required": [
-                  "deviceAddr"
-                ],
-                "maxItems": 239
+                "type": "integer"
               }
             },
             "inconsistentNodes": {
               "type": "array",
               "description": "Returns list of nodes whose MID was inconsistent.",
               "items": {
-                "type": "object",
-                "properties": {
-                  "deviceAddr": {
-                    "type": "integer",
-                    "description": "Device address."
-                  }
-                },
-                "required": [
-                  "deviceAddr"
-                ],
-                "maxItems": 239
+                "type": "integer"
               }
             }
           },
