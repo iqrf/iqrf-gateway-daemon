@@ -51,11 +51,13 @@ namespace {
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
+  static const int addressUsedError = 1003;
+  static const int noFreeAddressError = 1004;
 };
 
 namespace iqrf {
   // Holds information about result of smart connect
-  class SmartConnectResult 
+  class SmartConnectResult
   {
   private:
     // Status
@@ -118,7 +120,7 @@ namespace iqrf {
       m_manufacturer = manufacturer;
     }
 
-    std::string getProduct() const { return m_product; };    
+    std::string getProduct() const { return m_product; };
     void setProduct(const std::string& product) {
       m_product = product;
     }
@@ -199,6 +201,62 @@ namespace iqrf {
     }
 
   private:
+    void checkBondedNodes(SmartConnectResult &smartConnectResult) {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> result;
+      uint8_t bondedArray[DPA_MAX_DATA_LENGTH] = {0};
+      const uint16_t addr = m_smartConnectParams.deviceAddress;
+      try {
+        // Build packet and request
+        DpaMessage bondedRequest;
+        DpaMessage::DpaPacket_t bondedPacket;
+        bondedPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        bondedPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+        bondedPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
+        bondedPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        bondedRequest.DataToBuffer(bondedPacket.Buffer, sizeof(TDpaIFaceHeader));
+        // Execute DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(bondedRequest, result, m_smartConnectParams.repeat);
+        TRC_DEBUG("Result from CMD_COORDINATOR_BONDED_DEVICES as string: " << PAR(result->getErrorString()));
+        // Process bonded response and check for available address
+        DpaMessage bondedResponse = result->getResponse();
+        TRC_INFORMATION("CMD_COORDINATOR_BONDED_DEVICES successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(NADR, bondedRequest.NodeAddress())
+          << NAME_PAR(PNUM, bondedRequest.PeripheralType())
+          << NAME_PAR(PCMD, (int)bondedRequest.PeripheralCommand())
+        );
+        uint8_t *pdata = bondedResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+        for (uint8_t i = 0; i < DPA_MAX_DATA_LENGTH; ++i) {
+          bondedArray[i] = pdata[i];
+        }
+        smartConnectResult.addTransactionResultRef(result);
+      } catch (const std::exception &e) {
+        smartConnectResult.setStatus(result->getErrorCode(), e.what());
+        smartConnectResult.addTransactionResultRef(result);
+        THROW_EXC(std::logic_error, e.what());
+      }
+      if (addr == 0) {
+        bool freeAddr = false;
+        for (uint8_t i = 0; i <= MAX_ADDRESS; ++i) {
+          if (!(bondedArray[i / 8] & (1 << (i % 8)))) {
+            freeAddr = true;
+            break;
+          }
+        }
+        if (!freeAddr) {
+          smartConnectResult.setStatus(noFreeAddressError, "No available address to assign to a new node found.");
+          THROW_EXC(std::logic_error, smartConnectResult.getStatusStr());
+        }
+      } else {
+        if ((bondedArray[addr / 8] & (1 << (addr % 8))) != 0) {
+          smartConnectResult.setStatus(addressUsedError, "Requested address is already assigned to another device.");
+          THROW_EXC(std::logic_error, smartConnectResult.getStatusStr())
+        }
+      }
+      TRC_FUNCTION_LEAVE("");
+    }
 
     //-------------
     // SmartConnect
@@ -323,7 +381,7 @@ namespace iqrf {
         TRC_INFORMATION("OS read successful!");
         TRC_FUNCTION_LEAVE("");
       }
-      catch (const std::exception &e) 
+      catch (const std::exception &e)
       {
         smartConnectResult.setStatus(transResult->getErrorCode(), e.what());
         smartConnectResult.addTransactionResultRef(transResult);
@@ -343,8 +401,11 @@ namespace iqrf {
         uint16_t dpaVersion = 0;
         IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
         dpaVersion = coordParams.dpaVerWord;
-        if (dpaVersion < DPA_MIN_REQ_VERSION)
+        if (dpaVersion < DPA_MIN_REQ_VERSION) {
           THROW_EXC(std::logic_error, "Old version of DPA: " << PAR(dpaVersion));
+        }
+
+        checkBondedNodes(smartConnectResult);
 
         // SmartConnect request
         doSmartConnect(smartConnectResult);
@@ -536,7 +597,7 @@ namespace iqrf {
       }
 
       // Set raw fields, if verbose mode is active
-      if (m_comSmartConnect->getVerbose()) 
+      if (m_comSmartConnect->getVerbose())
       {
         rapidjson::Value rawArray(kArrayType);
         Document::AllocatorType& allocator = response.GetAllocator();
@@ -585,7 +646,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, smartConnectResult.getStatusStr());
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -603,7 +664,7 @@ namespace iqrf {
     std::string getHexaString(const std::basic_string<uint8_t>& byteStream)
     {
       std::ostringstream os;
-      
+
       for ( const uint8_t byte : byteStream ) {
         os << std::setfill('0') << std::setw(2) << std::hex << (int)byte;
         os << " ";
@@ -624,7 +685,7 @@ namespace iqrf {
     }
 
     // returns reversed byte sequence to the one in the parameter
-    std::basic_string<uint8_t> getReversedBytes(const std::basic_string<uint8_t>& bytes) 
+    std::basic_string<uint8_t> getReversedBytes(const std::basic_string<uint8_t>& bytes)
     {
       std::basic_string<uint8_t> reversedBytes(bytes);
       std::reverse(reversedBytes.begin(), reversedBytes.end());
@@ -646,7 +707,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -669,7 +730,7 @@ namespace iqrf {
       m_msgType = &msgType;
       m_messagingId = &messagingId;
       m_comSmartConnect = &comSmartConnect;
-      
+
       // Parsing and checking service parameters
       try
       {
@@ -684,14 +745,14 @@ namespace iqrf {
         TRC_INFORMATION("IBK: " << PAR(getHexaString(m_smartConnectParams.IBK)));
         TRC_INFORMATION("HWP ID: " << PAR(getHexaString(m_smartConnectParams.hwpId)));
       }
-      catch (const std::exception& e) 
+      catch (const std::exception& e)
       {
         CATCH_EXC_TRC_WAR(std::exception, e, "Error while parsing service input parameters.");
         createResponse(parsingRequestError, e.what());
         TRC_FUNCTION_LEAVE("");
         return;
       }
-      
+
       // Try to establish exclusive access
       try
       {
@@ -725,7 +786,7 @@ namespace iqrf {
       m_exclusiveAccess.reset();
       TRC_FUNCTION_LEAVE("");
     }
-    
+
 
   public:
     void activate(const shape::Properties *props)
@@ -739,7 +800,7 @@ namespace iqrf {
 
       (void)props;
 
-      // for the sake of register function parameters 
+      // for the sake of register function parameters
       std::vector<std::string> m_filters =
       {
         "iqmeshNetwork_SmartConnect"
@@ -765,7 +826,7 @@ namespace iqrf {
         "**************************************"
       );
 
-      // for the sake of unregister function parameters 
+      // for the sake of unregister function parameters
       std::vector<std::string> m_filters =
       {
         m_mTypeName_iqmeshNetworkSmartConnect
@@ -792,7 +853,7 @@ namespace iqrf {
         m_iIqrfDpaService = nullptr;
       }
     }
-    
+
     void attachInterface(IJsCacheService* iface)
     {
       m_iJsCacheService = iface;
@@ -804,7 +865,7 @@ namespace iqrf {
         m_iJsCacheService = nullptr;
       }
     }
-    
+
     void attachInterface(IMessagingSplitterService* iface)
     {
       m_iMessagingSplitterService = iface;
@@ -852,7 +913,7 @@ namespace iqrf {
     m_imp->detachInterface(iface);
   }
 
-  
+
   void SmartConnectService::attachInterface(iqrf::IJsCacheService* iface)
   {
     m_imp->attachInterface(iface);
@@ -862,7 +923,7 @@ namespace iqrf {
   {
     m_imp->detachInterface(iface);
   }
-  
+
   void SmartConnectService::attachInterface(shape::ITraceService* iface)
   {
     shape::Tracer::get().addTracerService(iface);
