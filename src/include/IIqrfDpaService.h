@@ -57,6 +57,10 @@ namespace iqrf {
       std::string dpaVerWordAsStr;
       uint16_t dpaVerWord = 0;
       uint16_t osBuildWord = 0;
+      uint16_t hwpid = 0;
+      uint16_t hwpidVersion = 0;
+      uint8_t osVersionByte = 0;
+      uint8_t trMcuType = 0;
       uint32_t mid = 0;
       int dpaVerMajor = 0;
       int dpaVerMinor = 0;
