@@ -371,14 +371,19 @@ namespace iqrf {
       std::unique_ptr<IDpaTransactionResult2> transResult;
       exclusiveAccess->executeDpaTransactionRepeat(iqrfEmbedOsRead.getRequest(), transResult, 3);
       iqrfEmbedOsRead.processDpaTransactionResult(std::move(transResult));
-
-      m_cPar.moduleId = iqrfEmbedOsRead.getMidAsString();
-      m_cPar.mid = iqrfEmbedOsRead.getMid();
-      m_cPar.osVersion = iqrfEmbedOsRead.getOsVersionAsString();
-      m_cPar.trType = iqrfEmbedOsRead.getTrTypeAsString();
-      m_cPar.mcuType = iqrfEmbedOsRead.getTrMcuTypeAsString();
-      m_cPar.osBuildWord = (uint16_t)iqrfEmbedOsRead.getOsBuild();
-      m_cPar.osBuild = iqrfEmbedOsRead.getOsBuildAsString();
+      // module
+			m_cPar.mid = iqrfEmbedOsRead.getMid();
+			m_cPar.moduleId = iqrfEmbedOsRead.getMidAsString();
+			m_cPar.trMcuType = (uint8_t)iqrfEmbedOsRead.getTrMcuType();
+			m_cPar.trType = iqrfEmbedOsRead.getTrTypeAsString();
+			m_cPar.mcuType = iqrfEmbedOsRead.getTrMcuTypeAsString();
+			// product
+			m_cPar.osBuildWord = (uint16_t)iqrfEmbedOsRead.getOsBuild();
+			m_cPar.osBuild = iqrfEmbedOsRead.getOsBuildAsString();
+			m_cPar.osVersionByte = (uint8_t)iqrfEmbedOsRead.getOsVersion();
+			m_cPar.osVersion = iqrfEmbedOsRead.getOsVersionAsString();
+			m_cPar.hwpid = iqrfEmbedOsRead.getHwpid();
+			m_cPar.hwpidVersion = (uint16_t)iqrfEmbedOsRead.getHwpidVer();
       TRC_INFORMATION("TR params: " << std::endl <<
         NAME_PAR(moduleId, m_cPar.moduleId) <<
         NAME_PAR(osVersion, m_cPar.osVersion) <<
@@ -432,7 +437,7 @@ namespace iqrf {
     });
 
     m_iqrfChannelService->startListen();
-    
+
     getIqrfNetworkParams();
 
     // unregister asyn reset - not needed  after getIqrfNetworkParams()
