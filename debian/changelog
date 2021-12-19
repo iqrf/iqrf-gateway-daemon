@@ -1,3 +1,11 @@
+iqrf-gateway-daemon (2.3.8) stable; urgency=medium
+
+  [ Karel Hanák ]
+  * Prepare for version 2.3.8-rc2
+  * IqrfDpa: store hwpid and os information in coordinator parameters
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Sun, 19 Dec 2021 16:28:57 +0100
+
 iqrf-gateway-daemon (2.3.8~rc1) testing; urgency=medium
 
   [ Karel Hanák ]
