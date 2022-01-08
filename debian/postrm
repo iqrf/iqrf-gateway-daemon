@@ -1,7 +1,25 @@
 #!/bin/bash
+
+# Copyright 2015-2021 IQRF Tech s.r.o.
+# Copyright 2019-2021 MICRORISC s.r.o.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # After remove script for iqrf-gateway-daemon
 
 set -e
+
+#DEBHELPER#
 
 daemon_remove_config() {
   rm -rf /etc/iqrf-gateway-daemon/
@@ -15,17 +33,4 @@ daemon_remove_data() {
 if [ "$1" = "purge" ]; then
   daemon_remove_data
   daemon_remove_config
-fi
-
-if [ "$1" = "remove" ]; then
-  if [ -x "/usr/bin/deb-systemd-helper" ]; then
-    deb-systemd-helper mask iqrf-gateway-daemon.service >/dev/null || true
-  fi
-fi
-
-if [ "$1" = "purge" ]; then
-  if [ -x "/usr/bin/deb-systemd-helper" ]; then
-    deb-systemd-helper purge iqrf-gateway-daemon.service >/dev/null || true
-    deb-systemd-helper unmask iqrf-gateway-daemon.service >/dev/null || true
-  fi
 fi

@@ -1,3 +1,20 @@
+/**
+ * Copyright 2015-2021 IQRF Tech s.r.o.
+ * Copyright 2019-2021 MICRORISC s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #define IBondNodeLocalService_EXPORTS
 
 #include "BondNodeLocalService.h"
@@ -7,7 +24,7 @@
 #include "iqrf__BondNodeLocalService.hxx"
 #include <list>
 #include <cmath>
-#include <thread> 
+#include <thread>
 
 TRC_INIT_MODULE(iqrf::BondNodeLocalService);
 
@@ -17,6 +34,8 @@ namespace {
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
+  static const int addressUsedError = 1003;
+  static const int noFreeAddressError = 1004;
 };
 
 namespace iqrf {
@@ -214,6 +233,63 @@ namespace iqrf {
       }
     }
 
+    void checkBondedNodes(BondResult &bondResult) {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> result;
+      uint8_t bondedArray[DPA_MAX_DATA_LENGTH] = {0};
+      const uint16_t addr = m_bondNodeParams.deviceAddress;
+      try {
+        // Build packet and request
+        DpaMessage bondedRequest;
+        DpaMessage::DpaPacket_t bondedPacket;
+        bondedPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        bondedPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
+        bondedPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BONDED_DEVICES;
+        bondedPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        bondedRequest.DataToBuffer(bondedPacket.Buffer, sizeof(TDpaIFaceHeader));
+        // Execute DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(bondedRequest, result, m_bondNodeParams.repeat);
+        TRC_DEBUG("Result from CMD_COORDINATOR_BONDED_DEVICES as string: " << PAR(result->getErrorString()));
+        // Process bonded response and check for available address
+        DpaMessage bondedResponse = result->getResponse();
+        TRC_INFORMATION("CMD_COORDINATOR_BONDED_DEVICES successful!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(NADR, bondedRequest.NodeAddress())
+          << NAME_PAR(PNUM, bondedRequest.PeripheralType())
+          << NAME_PAR(PCMD, (int)bondedRequest.PeripheralCommand())
+        );
+        uint8_t *pdata = bondedResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
+        for (uint8_t i = 0; i < DPA_MAX_DATA_LENGTH; ++i) {
+          bondedArray[i] = pdata[i];
+        }
+        bondResult.addTransactionResultRef(result);
+      } catch (const std::exception &e) {
+        bondResult.setStatus(result->getErrorCode(), e.what());
+        bondResult.addTransactionResultRef(result);
+        THROW_EXC(std::logic_error, e.what());
+      }
+      if (addr == 0) {
+        bool freeAddr = false;
+        for (uint8_t i = 0; i <= MAX_ADDRESS; ++i) {
+          if (!(bondedArray[i / 8] & (1 << (i % 8)))) {
+            freeAddr = true;
+            break;
+          }
+        }
+        if (!freeAddr) {
+          bondResult.setStatus(noFreeAddressError, "No available address to assign to a new node found.");
+          THROW_EXC(std::logic_error, bondResult.getStatusStr());
+        }
+      } else {
+        if ((bondedArray[addr / 8] & (1 << (addr % 8))) != 0) {
+          bondResult.setStatus(addressUsedError, "Requested address is already assigned to another device.");
+          THROW_EXC(std::logic_error, bondResult.getStatusStr())
+        }
+      }
+      TRC_FUNCTION_LEAVE("");
+    }
+
     //----------
     // Bond node
     //----------
@@ -339,6 +415,8 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       try
       {
+        // Check for available nodes
+        checkBondedNodes(bondResult);
         // SmartConnect request
         doBondNode(bondResult);
 
@@ -578,7 +656,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, bondResult.getStatusStr());
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -597,7 +675,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -623,7 +701,7 @@ namespace iqrf {
 
       // Parsing and checking service parameters
       try
-      {      
+      {
         m_bondNodeParams = comBondNode.getBondNodeInputParams();
       }
       catch (const std::exception& e)
@@ -679,7 +757,7 @@ namespace iqrf {
 
       (void)props;
 
-      // for the sake of register function parameters 
+      // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetworkBondNodeLocal

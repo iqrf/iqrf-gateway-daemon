@@ -1,3 +1,19 @@
+/**
+ * Copyright 2015-2021 IQRF Tech s.r.o.
+ * Copyright 2019-2021 MICRORISC s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #include "ComBase.h"
@@ -53,20 +69,24 @@ namespace iqrf {
       rapidjson::Value* jsonVal;
 
       // Repeat
-      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc)))
+      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc))) {
         m_bondNodeInputParams.repeat = jsonVal->GetInt();
+      }
 
       // Device address
-      if (jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))) {
         m_bondNodeInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
+      }
 
       // bondingMak
-      if (jsonVal = rapidjson::Pointer("/data/req/bondingMak").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/bondingMak").Get(doc))) {
         m_bondNodeInputParams.bondingMask = jsonVal->GetInt();
+      }
 
       // bondingTestRetries
-      if (jsonVal = rapidjson::Pointer("/data/req/bondingTestRetries").Get(doc))
+      if ((jsonVal = rapidjson::Pointer("/data/req/bondingTestRetries").Get(doc))) {
         m_bondNodeInputParams.bondingTestRetries = jsonVal->GetInt();
+      }
     }
   };
 }

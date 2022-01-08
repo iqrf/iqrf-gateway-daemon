@@ -1,4 +1,5 @@
-# Copyright 2019 IQRF Tech s.r.o.
+# Copyright 2015-2021 IQRF Tech s.r.o.
+# Copyright 2019-2021 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
 
 all: build-all push-all
 
-build-all: build-stretch build-buster build-bullseye
+build-all: build-buster build-bullseye
 
 build-bullseye:
 	$(MAKE) -C bullseye/ build-all
@@ -22,16 +23,10 @@ build-bullseye:
 build-buster:
 	$(MAKE) -C buster/ build-all
 
-build-stretch:
-	$(MAKE) -C stretch/ build-all
-
-push-all: push-stretch push-buster push-bullseye
+push-all: push-buster push-bullseye
 
 push-bullseye:
 	$(MAKE) -C bullseye/ push-all
 
 push-buster:
 	$(MAKE) -C buster/ push-all
-
-push-stretch:
-	$(MAKE) -C stretch/ push-all

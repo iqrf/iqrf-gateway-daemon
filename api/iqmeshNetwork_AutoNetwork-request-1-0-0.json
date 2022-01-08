@@ -40,6 +40,16 @@
               "description": "Skip discovery in each wave.",
               "default": false
             },
+            "unbondUnrespondingNodes": {
+              "type": "boolean",
+              "description": "Unbond Nodes that don't respond.",
+              "default": true
+            },
+            "skipPrebonding": {
+              "type": "boolean",
+              "description": "Skip SmartConnect.",
+              "default": false
+            },
             "actionRetries": {
               "type": "integer",
               "description": "Number of retries DPA transactions.",

@@ -1,3 +1,19 @@
+/**
+ * Copyright 2015-2021 IQRF Tech s.r.o.
+ * Copyright 2019-2021 MICRORISC s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include "IqrfInfo.h"
 
 #include <sqlite_modern_cpp.h>
@@ -214,7 +230,7 @@ namespace iqrf {
     // rerun enum
     std::atomic<bool> m_repeatEnum;
 
-    // flag to control if messages are anotaded by metadata 
+    // flag to control if messages are anotaded by metadata
     bool m_midMetaDataToMessages = false;
 
   public:
@@ -249,7 +265,7 @@ namespace iqrf {
           //create tables
           SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
         }
-        
+
         //update - TODO prepare migration scripts based on DB version in Info table in ver 2.4
         bool existInfoTable = false;
         try {
@@ -287,7 +303,7 @@ namespace iqrf {
     /**
      * Resets database
      * @return Op status code
-     */ 
+     */
 	void resetDb() {
 		std::string dbPath = m_iLaunchService->getDataDir() + "/DB/IqrfInfo.db";
 		std::ifstream dbFile(dbPath);
@@ -572,7 +588,7 @@ namespace iqrf {
       std::unique_ptr<int> deviceIdPtr = selectDevice(d);
 
       if (!deviceIdPtr) {
-        
+
         const auto & exEnum = nd->getEmbedExploreEnumerate();
         if (!exEnum) {
           // wasn't enumerated yet => done by FRC
@@ -772,7 +788,7 @@ namespace iqrf {
             it.second->getNode().setOsBuild(cp.osBuildWord);
             it.second->getNode().setDpaVer(cp.dpaVerWord);
           }
-          
+
           break; // not necessary to continue
         }
 
@@ -834,7 +850,7 @@ namespace iqrf {
         handleEnumEvent(EnumerationState(EnumerationState::Phase::fullNode, 2, 3));
 
         anyValid = false;
-        { // read OsBuild + 2B 
+        { // read OsBuild + 2B
 
           TRC_INFORMATION("Start OsBuild enumeration");
 
@@ -917,7 +933,7 @@ namespace iqrf {
           nodeData->getNode().setOsBuild(cp.osBuildWord);
           nodeData->getNode().setDpaVer(cp.dpaVerWord);
         }
-      
+
         handleEnumEvent(EnumerationState(EnumerationState::Phase::fullNode, 1, 1));
 
       }
@@ -983,8 +999,8 @@ namespace iqrf {
         --enumNodeCount; //C is enumed separately
         // coordinator enumeration
         NodeDataPtr & c = m_nadrFullEnumNodeMap.begin()->second;
-        c->getNode().setHwpid(0);
-        c->getNode().setHwpidVer(0);
+        c->getNode().setHwpid(cp.hwpid);
+        c->getNode().setHwpidVer(cp.hwpidVersion);
         c->getNode().setOsBuild(cp.osBuildWord);
         c->getNode().setDpaVer(cp.dpaVerWord);
       }
@@ -1022,7 +1038,7 @@ namespace iqrf {
           bool validNode = nd->getNode().isValid();
 
           if (validNode) {
-            // valid hwpid, hwpidVer, dpaVer, osBuild => load appropriate drivers and use or create device 
+            // valid hwpid, hwpidVer, dpaVer, osBuild => load appropriate drivers and use or create device
             int hwpid = nd->getNode().getHwpid();
             int hwpidVer = nd->getNode().getHwpidVer();
             int osBuild = nd->getNode().getOsBuild();
@@ -1073,7 +1089,7 @@ namespace iqrf {
               db << "commit;";
             }
           }
-          
+
           if (!validNode) {
             TRC_DEBUG("handle invalid node: " << PAR(nadr) << PAR(mid) << PAR(dis));
             // insert node if not exists
@@ -1379,7 +1395,7 @@ namespace iqrf {
             /////////// special [C] handling
             if (deviceId == coordDeviceId) {
               // add the highest standard version as their FRC shall be backward compatible to handle their FRC by [C] context
-              // if not compatible we cannot cope with FRC over different device versions of the same standard 
+              // if not compatible we cannot cope with FRC over different device versions of the same standard
               db << "SELECT "
                 " Id "
                 ", Name "
@@ -2223,7 +2239,7 @@ namespace iqrf {
     {
       m_enumPeriod = period;
     }
-    
+
     std::vector<uint32_t> getUnbondMids() const
     {
       TRC_FUNCTION_ENTER("");
@@ -2693,7 +2709,7 @@ namespace iqrf {
   {
     m_imp->stopEnumeration();
   }
-  
+
   void IqrfInfo::enumerate()
   {
     m_imp->enumerate();
@@ -2708,12 +2724,12 @@ namespace iqrf {
   {
     m_imp->setPeriodEnumerate(period);
   }
-  
+
   std::vector<uint32_t> IqrfInfo::getUnbondMids() const
   {
     return m_imp->getUnbondMids();
   }
-  
+
   void IqrfInfo::removeUnbondMids(const std::vector<uint32_t> & unbondVec)
   {
     m_imp->removeUnbondMids(unbondVec);
