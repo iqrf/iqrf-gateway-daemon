@@ -88,12 +88,14 @@ namespace iqrf {
       "******************************"
     );
 
+    const rapidjson::Document &doc = props->getAsJson();
     props->getMemberAsString("instance", m_name);
     props->getMemberAsString("LocalMqName", m_localMqName);
     props->getMemberAsString("RemoteMqName", m_remoteMqName);
     props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
+    m_timeout = (uint8_t)rapidjson::Pointer("/timeout").Get(doc)->GetUint();
 
-    m_mqChannel = shape_new MqChannel(m_remoteMqName, m_localMqName, IQRF_MQ_BUFFER_SIZE, true);
+    m_mqChannel = shape_new MqChannel(m_remoteMqName, m_localMqName, m_timeout, IQRF_MQ_BUFFER_SIZE, true);
 
     m_toMqMessageQueue = shape_new TaskQueue<ustring>([&](const ustring& msg) {
       m_mqChannel->sendTo(msg);

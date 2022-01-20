@@ -21,6 +21,8 @@
 #include "MqChannel.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
+#include "rapidjson/document.h"
+#include "rapidjson/pointer.h"
 #include <string>
 
 namespace iqrf {
@@ -54,6 +56,7 @@ namespace iqrf {
 
     std::string m_localMqName = "iqrf-daemon-110";
     std::string m_remoteMqName = "iqrf-daemon-100";
+    uint8_t m_timeout;
 
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
   };

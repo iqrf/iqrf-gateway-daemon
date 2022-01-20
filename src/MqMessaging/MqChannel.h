@@ -40,7 +40,7 @@ typedef std::basic_string<unsigned char> ustring;
 class MqChannel: public IChannel
 {
 public:
-  MqChannel(const std::string& remoteMqName, const std::string& localMqName, unsigned bufsize, bool server = false);
+  MqChannel(const std::string& remoteMqName, const std::string& localMqName, const uint8_t &timeout, unsigned bufsize, bool server = false);
   virtual ~MqChannel();
 
   void sendTo(const std::basic_string<unsigned char>& message) override;
@@ -63,6 +63,7 @@ private:
   MQDESCR m_remoteMqHandle;
   std::string m_localMqName;
   std::string m_remoteMqName;
+  uint8_t m_timeout;
 
   unsigned char* m_rx;
   unsigned m_bufsize;
