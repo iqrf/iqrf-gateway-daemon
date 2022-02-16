@@ -19,14 +19,12 @@
 
 set -e
 
-if [ "$1" = "upgrade" ]; then
-    if [ -d "/etc/iqrf-gateway-daemon/cfgSchemas" ] && [ ! -d "/usr/share/iqrf-gateway-daemon/cfgSchemas" ]; then
-        cp -rfp /etc/iqrf-gateway-daemon/cfgSchemas /usr/share/iqrf-gateway-daemon/
-        rm -rf /etc/iqrf-gateway-daemon/cfgSchemas
-    fi
-    if [ -d "/var/cache/iqrf-gateway-daemon/scheduler/schema" ]; then
-        rm -rf /var/cache/iqrf-gateway-daemon/scheduler/schema
-    fi
+if [ -d "/etc/iqrf-gateway-daemon/cfgSchemas" ]; then
+    rm -rf /etc/iqrf-gateway-daemon/cfgSchemas
+fi
+
+if [ -d "/var/cache/iqrf-gateway-daemon/scheduler/schema" ]; then
+    rm -rf /var/cache/iqrf-gateway-daemon/scheduler/schema
 fi
 
 #DEBHELPER#
