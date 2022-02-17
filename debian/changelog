@@ -1,10 +1,10 @@
-iqrf-gateway-daemon (2.3.9~alpha~1.gbp32a5bb) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.3.9) stable; urgency=medium
 
-  ** SNAPSHOT build @32a5bb1e3c09eb5829cc29e22342628e972f2502 **
+  [ Karel Hanák ]
+  * Prepare for version 2.3.9-alpha
+  * debian package: removed preinst
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Sun, 19 Dec 2021 16:32:15 +0100
+ -- Karel Hanák <karel.hanak@iqrf.org>  Thu, 17 Feb 2022 09:58:35 +0100
 
 iqrf-gateway-daemon (2.3.8) stable; urgency=medium
 
