@@ -45,6 +45,11 @@
               "description": "Unbond Nodes that don't respond.",
               "default": true
             },
+            "abortOnTooManyNodesFound": {
+              "type": "boolean",
+              "description": "Abort the Autonetwork if too many nodes were found.",
+              "default": false
+            },
             "skipPrebonding": {
               "type": "boolean",
               "description": "Skip SmartConnect.",
@@ -55,22 +60,62 @@
               "description": "Number of retries DPA transactions.",
               "default": 1
             },
-            "overlappingNetworks": {
+            "bondingControl": {
               "type": "object",
               "properties": {
-                "networks": {
-                  "type": "integer",
-                  "description": "Number of the networks to be built."
+                "addressSpace": {
+                  "type": "array",
+                  "description": "ToDo - add description.",
+                  "items": {
+                    "type": "integer"
+                  },
+                  "maxItems": 239
                 },
-                "network": {
-                  "type": "integer",
-                  "description": "Network number that will be build."
+                "midList": {
+                  "type": "array",
+                  "description": "Select this option to control MIDs of the Nodes and/or their addresses.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "deviceMID": {
+                        "type": "integer",
+                        "description": "Device MID."
+                      },
+                      "deviceAddr": {
+                        "type": "integer",
+                        "description": "Device address.",
+                        "default": 0
+                      }
+                    },
+                    "required": [
+                      "deviceMID"
+                    ],
+                    "maxItems": 239
+                  }
+                },
+                "midFiltering": {
+                  "type": "boolean",
+                  "description": "Bond only Nodes with MIDs listed in midList array).",
+                  "default": false
+                },
+                "overlappingNetworks": {
+                  "type": "object",
+                  "properties": {
+                    "networks": {
+                      "type": "integer",
+                      "description": "Number of the networks to be built."
+                    },
+                    "network": {
+                      "type": "integer",
+                      "description": "Network number that will be build."
+                    }
+                  },
+                  "required": [
+                    "networks",
+                    "network"
+                  ]
                 }
-              },
-              "required": [
-                "networks",
-                "network"
-              ]
+              }
             },
             "hwpidFiltering": {
               "type": "array",
@@ -98,11 +143,6 @@
                 "numberOfNewNodes": {
                   "type": "integer",
                   "description": "Number of new nodes bonded into the network."
-                },
-                "abortOnTooManyNodesFound": {
-                  "type": "boolean",
-                  "description": "Abort the Autonetwork if too many nodes were found.",
-                  "default": false
                 }
               },
               "required": [
