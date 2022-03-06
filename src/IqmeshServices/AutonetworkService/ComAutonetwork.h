@@ -116,12 +116,6 @@ namespace iqrf {
       else
         m_autonetworkParams.unbondUnrespondingNodes = false;
 
-      // abortOnTooManyNodesFound
-      if ((jsonValue = rapidjson::Pointer("/data/req/abortOnTooManyNodesFound").Get(doc)))
-        m_autonetworkParams.abortOnTooManyNodesFound = jsonValue->GetBool();
-      else
-        m_autonetworkParams.abortOnTooManyNodesFound = false;
-
       // skipPrebonding
       if ((jsonValue = rapidjson::Pointer("/data/req/skipPrebonding").Get(doc)))
         m_autonetworkParams.skipPrebonding = jsonValue->GetBool();
@@ -224,6 +218,18 @@ namespace iqrf {
       else
         m_autonetworkParams.bondingControl.overlappingNetworks.network = 0;
 
+	  // overlappingNetworks/networks
+	  if ((jsonValue = rapidjson::Pointer("/data/req/overlappingNetworks/networks").Get(doc)))
+		  m_autonetworkParams.bondingControl.overlappingNetworks.networks = (uint8_t)jsonValue->GetInt();
+	  else
+		  m_autonetworkParams.bondingControl.overlappingNetworks.networks = 0;
+
+	  // overlappingNetworks/network
+	  if ((jsonValue = rapidjson::Pointer("/data/req/overlappingNetworks/network").Get(doc)))
+		  m_autonetworkParams.bondingControl.overlappingNetworks.network = (uint8_t)jsonValue->GetInt();
+	  else
+		  m_autonetworkParams.bondingControl.overlappingNetworks.network = 0;
+
       // hwpidFiltering
       m_autonetworkParams.hwpidFiltering.clear();
       if ((jsonValue = rapidjson::Pointer("/data/req/hwpidFiltering").Get(doc)))
@@ -259,6 +265,12 @@ namespace iqrf {
         m_autonetworkParams.stopConditions.numberOfNewNodes = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.stopConditions.numberOfNewNodes = 0;
+
+	  // abortOnTooManyNodesFound
+	  if ((jsonValue = rapidjson::Pointer("/data/req/stopConditions/abortOnTooManyNodesFound").Get(doc)))
+		  m_autonetworkParams.abortOnTooManyNodesFound = jsonValue->GetBool();
+	  else
+		  m_autonetworkParams.abortOnTooManyNodesFound = false;
     }
 
     // Parses document into data fields
