@@ -45,11 +45,6 @@
               "description": "Unbond Nodes that don't respond.",
               "default": true
             },
-            "abortOnTooManyNodesFound": {
-              "type": "boolean",
-              "description": "Abort the Autonetwork if too many nodes were found.",
-              "default": false
-            },
             "skipPrebonding": {
               "type": "boolean",
               "description": "Skip SmartConnect.",
@@ -117,6 +112,23 @@
                 }
               }
             },
+            "overlappingNetworks": {
+              "type": "object",
+              "properties": {
+                "networks": {
+                  "type": "integer",
+                  "description": "Number of the networks to be built."
+                },
+                "network": {
+                  "type": "integer",
+                  "description": "Network number that will be build."
+                }
+              },
+              "required": [
+                "networks",
+                "network"
+              ]
+            },
             "hwpidFiltering": {
               "type": "array",
               "description": "Allows to add only nodes with specified HWPID to the network.",
@@ -143,6 +155,11 @@
                 "numberOfNewNodes": {
                   "type": "integer",
                   "description": "Number of new nodes bonded into the network."
+                },
+                "abortOnTooManyNodesFound": {
+                  "type": "boolean",
+                  "description": "Abort the Autonetwork if too many nodes were found.",
+                  "default": false
                 }
               },
               "required": [
