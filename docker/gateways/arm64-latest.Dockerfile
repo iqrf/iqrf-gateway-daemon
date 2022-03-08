@@ -13,27 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# IQRF GW daemon image for the IQD-GW-01A board
+# IQRF GW daemon image for the RPI board
 # Edit config/* files and set accordingly for your target
 
-FROM balenalib/orange-pi-zero-debian:latest
+FROM multiarch/debian-debootstrap:arm64-buster
 
-# copy custom config
-WORKDIR /etc
-COPY config-iqube/iqrf-gateway.json iqrf-gateway.json
+LABEL maintainer="Rostislav Spinar <rostislav.spinar@iqrf.com>"
 
 RUN apt-get update \
- && apt-get install --no-install-recommends -y dirmngr gnupg2 openssl jq \
+ && apt-get install --no-install-recommends -y dirmngr gnupg2 \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
- && echo "deb http://repos.iqrf.org/iqd-gw-01 buster stable testing" | tee /etc/apt/sources.list.d/iqrf.list \
+ && echo "deb http://repos.iqrf.org/debian buster stable" | tee /etc/apt/sources.list.d/iqrf.list \
  && apt-get update \
- && apt-get install --no-install-recommends -y iqrf-gateway-daemon \
+ && apt-get install --no-install-recommends -y iqrf-gateway-daemon openssl \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
 # copy custom config
 WORKDIR /etc/iqrf-gateway-daemon
-COPY config-iqube/iqrf-gateway-daemon/. .
+COPY config-rpi/iqrf-gateway-daemon/. .
 
 # expose ports
 EXPOSE 1338 1438 55000/udp 55300/udp

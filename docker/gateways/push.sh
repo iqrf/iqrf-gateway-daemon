@@ -15,18 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-CA_DIR="/etc/iqrf-gateway-daemon/certs/core"
-if [ ! -d ${CA_DIR} ]; then
-  mkdir -p ${CA_DIR}
-fi
-
-if [ ! -f ${CA_DIR}/cert.pem ] || [ ! -f ${CA_DIR}/privkey.pem ]; then
-  openssl ecparam -name secp384r1 -genkey -param_enc named_curve \
-    -out ${CA_DIR}/privkey.pem
-  openssl req -new -x509 -sha256 -nodes -days 3650 \
-    -subj "/CN=IQRF Gateway/C=CZ/ST=Hradec Kralove Region/L=Jicin/O=IQRF Tech s.r.o." \
-    -key ${CA_DIR}/privkey.pem -out ${CA_DIR}/cert.pem
-  chmod 600 ${CA_DIR}/*.pem
-fi
-
-iqrfgd2 -c /etc/iqrf-gateway-daemon/config.json
+#latest
+#docker push iqrftech/iqrf-gateway-daemon:latest-amd64
+#docker push iqrftech/iqrf-gateway-daemon:latest-arm64
+#docker push iqrftech/iqrf-gateway-daemon:latest-armhf
+#docker push iqrftech/iqrf-gateway-daemon:latest-armel
+docker push iqrftech/iqrf-gateway-daemon:latest-iqube
