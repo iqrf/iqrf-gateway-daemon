@@ -1,3 +1,20 @@
+/**
+ * Copyright 2015-2021 IQRF Tech s.r.o.
+ * Copyright 2019-2021 MICRORISC s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #define IPingService_EXPORTS
 
 #include "PingService.h"
@@ -127,13 +144,9 @@ namespace iqrf {
     TPingInputParams m_pingParams;
 
   public:
-    explicit Imp(PingService& parent) : m_parent(parent)
-    {
-    }
+    explicit Imp(PingService& parent) : m_parent(parent) {}
 
-    ~Imp()
-    {
-    }
+    ~Imp() {}
 
     //-------------------------------------------
     // Convert nodes bitmap to Node address array
@@ -304,7 +317,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -324,7 +337,7 @@ namespace iqrf {
 
       // nodesNr
       Pointer("/data/rsp/nodesNr").Set(response, pingResult.getNodesList().length());
-     
+
       // inaccessibleNodesNr
       Pointer("/data/rsp/inaccessibleNodesNr").Set(response, pingResult.getInaccessibleNodes());
 
@@ -345,7 +358,7 @@ namespace iqrf {
         }
         Pointer("/data/rsp/pingResult").Set(response, frcPingResult);
       }
-  
+
       // Set raw fields, if verbose mode is active
       if (m_comPing->getVerbose())
       {
@@ -396,7 +409,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, pingResult.getStatusStr());
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -422,7 +435,7 @@ namespace iqrf {
         m_iIqrfDpaService->setFrcResponseTime(FRCresponseTime);
         setFrcReponseTime(pingResult, FRCresponseTime);
 
-        // Check the response   
+        // Check the response
         uint8_t inaccessibleNodes = 0;
         for (uint8_t addr : pingResult.getNodesList())
         {
@@ -524,8 +537,8 @@ namespace iqrf {
       );
 
       (void)props;
-      
-      // for the sake of register function parameters 
+
+      // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetworkPing
@@ -550,7 +563,7 @@ namespace iqrf {
         "**************************************"
       );
 
-      // for the sake of unregister function parameters 
+      // for the sake of unregister function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetworkPing
