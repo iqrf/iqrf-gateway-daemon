@@ -1,3 +1,20 @@
+/**
+ * Copyright 2015-2021 IQRF Tech s.r.o.
+ * Copyright 2019-2021 MICRORISC s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #define IMaintenanceService_EXPORTS
 
 #include "MaintenanceService.h"
@@ -646,7 +663,7 @@ namespace iqrf {
           validateBondPacket.DpaRequestPacket_t.PNUM = PNUM_NODE;
           validateBondPacket.DpaRequestPacket_t.PCMD = CMD_NODE_VALIDATE_BONDS;
           validateBondPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-          // Put up to 11 pairs of network [N] address and [N] MID in the data part 
+          // Put up to 11 pairs of network [N] address and [N] MID in the data part
           uint8_t index = 0x00;
           do
           {
@@ -697,7 +714,7 @@ namespace iqrf {
         XMemoryReadPacket.DpaRequestPacket_t.PNUM = PNUM_EEEPROM;
         XMemoryReadPacket.DpaRequestPacket_t.PCMD = CMD_EEEPROM_XREAD;
         XMemoryReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        // Set address and length 
+        // Set address and length
         XMemoryReadPacket.DpaRequestPacket_t.DpaMessage.XMemoryRequest.Address = address;
         XMemoryReadPacket.DpaRequestPacket_t.DpaMessage.XMemoryRequest.ReadWrite.Read.Length = length;
         // Data to buffer
@@ -744,7 +761,7 @@ namespace iqrf {
         setMidPacket.DpaRequestPacket_t.PNUM = PNUM_COORDINATOR;
         setMidPacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_SET_MID;
         setMidPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-        // Set address and length 
+        // Set address and length
         setMidPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetMID_Request.BondAddr = (uint8_t)deviceAddr;
         setMidPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetMID_Request.MID[0x00] = mid.bytes[0x00];
         setMidPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSetMID_Request.MID[0x01] = mid.bytes[0x01];
@@ -789,7 +806,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -867,7 +884,7 @@ namespace iqrf {
           }
         }
       }
-  
+
       // Set raw fields, if verbose mode is active
       if (m_comMaintenance->getVerbose())
       {
@@ -918,7 +935,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, maintenanceResult.getStatusStr());
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -956,7 +973,7 @@ namespace iqrf {
         CATCH_EXC_TRC_WAR(std::exception, e, e.what());
         TRC_FUNCTION_LEAVE("");
       }
-    }   
+    }
 
     //----------------------------------
     // Resolve inconsistence MIDs in [C]
@@ -966,7 +983,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       try
       {
-        // Read Nodes MIDs from [C] eeeprom    
+        // Read Nodes MIDs from [C] eeeprom
         maintenanceResult.clearNodesMidMapCoord();
         std::basic_string<uint8_t> bondedNodes = maintenanceResult.getBondedNodes();
         for (uint8_t i = 0; i < bondedNodes.size(); i++)
@@ -1038,7 +1055,7 @@ namespace iqrf {
               // Set correct (real) MID at [C] side
               setMid(maintenanceResult, nodeAddr, nodesMidMapReal[nodeAddr]);
               inconsistentNodesNr++;
-              inconsistentNodes.push_back(nodeAddr);              
+              inconsistentNodes.push_back(nodeAddr);
             }
           }
         }
@@ -1063,7 +1080,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       try
       {
-        // Read Nodes MIDs from [C] eeeprom    
+        // Read Nodes MIDs from [C] eeeprom
         maintenanceResult.clearNodesMidMapCoord();
         std::basic_string<uint8_t> bondedNodes = maintenanceResult.getBondedNodes();
         for (uint8_t i = 0; i < bondedNodes.size(); i++)
@@ -1220,7 +1237,7 @@ namespace iqrf {
 
       (void)props;
 
-      // for the sake of register function parameters 
+      // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetwork_MaintenanceTestRF,
@@ -1248,7 +1265,7 @@ namespace iqrf {
         "**************************************"
       );
 
-      // for the sake of unregister function parameters 
+      // for the sake of unregister function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetwork_MaintenanceTestRF,
