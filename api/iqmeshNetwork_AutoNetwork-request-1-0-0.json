@@ -55,62 +55,42 @@
               "description": "Number of retries DPA transactions.",
               "default": 1
             },
-            "bondingControl": {
-              "type": "object",
-              "properties": {
-                "addressSpace": {
-                  "type": "array",
-                  "description": "ToDo - add description.",
-                  "items": {
-                    "type": "integer"
+            "addressSpace": {
+              "type": "array",
+              "description": "ToDo - add description.",
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 239
+            },
+            "midList": {
+              "type": "array",
+              "description": "Select this option to control MIDs of the Nodes and/or their addresses.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "deviceMID": {
+                    "type": "string",
+                    "description": "Device MID.",
+                    "minLength": 8,
+                    "maxLength": 8
                   },
-                  "maxItems": 239
-                },
-                "midList": {
-                  "type": "array",
-                  "description": "Select this option to control MIDs of the Nodes and/or their addresses.",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "deviceMID": {
-                        "type": "integer",
-                        "description": "Device MID."
-                      },
-                      "deviceAddr": {
-                        "type": "integer",
-                        "description": "Device address.",
-                        "default": 0
-                      }
-                    },
-                    "required": [
-                      "deviceMID"
-                    ],
-                    "maxItems": 239
+                  "deviceAddr": {
+                    "type": "integer",
+                    "description": "Device address.",
+                    "default": 0
                   }
                 },
-                "midFiltering": {
-                  "type": "boolean",
-                  "description": "Bond only Nodes with MIDs listed in midList array).",
-                  "default": false
-                },
-                "overlappingNetworks": {
-                  "type": "object",
-                  "properties": {
-                    "networks": {
-                      "type": "integer",
-                      "description": "Number of the networks to be built."
-                    },
-                    "network": {
-                      "type": "integer",
-                      "description": "Network number that will be build."
-                    }
-                  },
-                  "required": [
-                    "networks",
-                    "network"
-                  ]
-                }
+                "required": [
+                  "deviceMID"
+                ],
+                "maxItems": 239
               }
+            },
+            "midFiltering": {
+              "type": "boolean",
+              "description": "Bond only Nodes with MIDs listed in midList array).",
+              "default": false
             },
             "overlappingNetworks": {
               "type": "object",
