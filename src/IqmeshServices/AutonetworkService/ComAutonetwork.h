@@ -128,11 +128,11 @@ namespace iqrf {
       else
         m_autonetworkParams.actionRetries = 1;
 
-      // bondingControl/addressSpace
+      // addressSpace
       m_autonetworkParams.bondingControl.addressSpace.clear();
       m_autonetworkParams.bondingControl.addressSpaceBitmap.reset();
       m_autonetworkParams.bondingControl.duplicitAddressSpace = 0;
-      if ((jsonValue = rapidjson::Pointer("/data/req/bondingControl/addressSpace").Get(doc)))
+      if ((jsonValue = rapidjson::Pointer("/data/req/addressSpace").Get(doc)))
       {
         const auto val = jsonValue->GetArray();
         for (auto itr = val.Begin(); itr != val.End(); ++itr)
@@ -156,11 +156,11 @@ namespace iqrf {
         }
       }
 
-      // bondingControl/midList
+      // midList
       m_autonetworkParams.bondingControl.midList.clear();
       m_autonetworkParams.bondingControl.duplicitMidMidList = 0;
       m_autonetworkParams.bondingControl.duplicitAddressMidList = 0;
-      if ((jsonValue = rapidjson::Pointer("/data/req/bondingControl/midList").Get(doc)))
+      if ((jsonValue = rapidjson::Pointer("/data/req/midList").Get(doc)))
       {
         const auto val = jsonValue->GetArray();
         for (auto itr = val.Begin(); itr != val.End(); ++itr)
@@ -169,7 +169,11 @@ namespace iqrf {
           {
             // Get MID and validate deviceMid
             const auto midListObj = itr->GetObject();
-            int deviceMid = midListObj["deviceMID"].GetInt();
+			std::stringstream ss;
+			std::string strDeviceMid = midListObj["deviceMID"].GetString();
+			ss << std::hex << strDeviceMid;
+			uint32_t deviceMid = 0;
+			ss >> (uint32_t)deviceMid;
             if (deviceMid != 0)
             {
               // Check duplicid MID entries
@@ -200,35 +204,23 @@ namespace iqrf {
         }
       }
 
-      // bondingControl/midFiltering
-      if ((jsonValue = rapidjson::Pointer("/data/req/bondingControl/midFiltering").Get(doc)))
+      // midFiltering
+      if ((jsonValue = rapidjson::Pointer("/data/req/midFiltering").Get(doc)))
         m_autonetworkParams.bondingControl.midFiltering = jsonValue->GetBool();
       else
         m_autonetworkParams.unbondUnrespondingNodes = false;
 
-      // bondingControl/overlappingNetworks/networks
-      if ((jsonValue = rapidjson::Pointer("/data/req/bondingControl/overlappingNetworks/networks").Get(doc)))
+      // overlappingNetworks/networks
+      if ((jsonValue = rapidjson::Pointer("/data/req/overlappingNetworks/networks").Get(doc)))
         m_autonetworkParams.bondingControl.overlappingNetworks.networks = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.bondingControl.overlappingNetworks.networks = 0;
 
-      // bondingControl/overlappingNetworks/network
-      if ((jsonValue = rapidjson::Pointer("/data/req/bondingControl/ overlappingNetworks/network").Get(doc)))
+      // overlappingNetworks/network
+      if ((jsonValue = rapidjson::Pointer("/data/req/overlappingNetworks/network").Get(doc)))
         m_autonetworkParams.bondingControl.overlappingNetworks.network = (uint8_t)jsonValue->GetInt();
       else
         m_autonetworkParams.bondingControl.overlappingNetworks.network = 0;
-
-	  // overlappingNetworks/networks
-	  if ((jsonValue = rapidjson::Pointer("/data/req/overlappingNetworks/networks").Get(doc)))
-		  m_autonetworkParams.bondingControl.overlappingNetworks.networks = (uint8_t)jsonValue->GetInt();
-	  else
-		  m_autonetworkParams.bondingControl.overlappingNetworks.networks = 0;
-
-	  // overlappingNetworks/network
-	  if ((jsonValue = rapidjson::Pointer("/data/req/overlappingNetworks/network").Get(doc)))
-		  m_autonetworkParams.bondingControl.overlappingNetworks.network = (uint8_t)jsonValue->GetInt();
-	  else
-		  m_autonetworkParams.bondingControl.overlappingNetworks.network = 0;
 
       // hwpidFiltering
       m_autonetworkParams.hwpidFiltering.clear();
