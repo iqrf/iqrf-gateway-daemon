@@ -24,6 +24,7 @@
 			]
 		},
 		"data": {
+			"$id": "#/properties/data",
 			"title": "Message data.",
 			"description": "Message metadata and body.",
 			"type": "object",

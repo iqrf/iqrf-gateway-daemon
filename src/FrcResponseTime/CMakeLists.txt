@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-project(MaintenanceService)
+project(FrcResponseTime)
 
-set(COMPONENT iqrf::MaintenanceService)
+set(COMPONENT iqrf::FrcResponseTime)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::IMaintenanceService)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IFrcResponseTime)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
@@ -40,7 +40,5 @@ if(SHAPE_STATIC_LIBS)
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
-
-set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${IQMESH_SERVICES_FOLDER})
 
 DeployShapeComponent(${PROJECT_NAME})

@@ -144,7 +144,7 @@
       "name": "iqrf::MqttMessaging",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MqttMessaging",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 10
     },
     {
@@ -333,6 +333,13 @@
       "name": "iqrf::MaintenanceService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MaintenanceService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::FrcResponseTime",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "FrcResponseTime",
       "enabled": true,
       "startlevel": 3
     }
