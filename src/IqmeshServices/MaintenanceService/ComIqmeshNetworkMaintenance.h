@@ -74,10 +74,10 @@ namespace iqrf {
 
 	private:
 		/**
-		 * Parses reqeust document and stores maintenance request parameters
+		 * Parses request document and stores maintenance request parameters
 		 * @param doc Request document
 		 */
-		void parse(rapidjson::Document &doc) {
+		void parse(Document &doc) {
 			Value *jsonVal;
 			// Repeat
 			if ((jsonVal = Pointer("/data/repeat").Get(doc))) {

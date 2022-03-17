@@ -2,7 +2,7 @@
 	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmeshNetwork_Ping-request",
+		"name": "iqmeshNetwork_MaintenanceUselessPrebondedNodes-request",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
@@ -12,11 +12,12 @@
 		"mType",
 		"data"
 	],
+	"additionalProperties": false,
 	"properties": {
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - Resolve Useless Prebonded Nodes.",
+			"description": "IQMESH Network management - Maintenance - Resolve Useless Prebonded Nodes.",
 			"type": "string",
 			"enum": [
 				"iqmeshNetwork_MaintenanceUselessPrebondedNodes"
