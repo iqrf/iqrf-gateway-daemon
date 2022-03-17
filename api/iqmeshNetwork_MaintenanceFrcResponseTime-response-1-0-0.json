@@ -1,0 +1,156 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "iqmeshNetwork_MaintenanceFrcResponseTime-response",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"title": "IQMESH Network - Maintenance: FRC Response Time",
+	"type": "object",
+	"required": ["mType", "data"],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "IQMESH Network management - Maintenance - FRC Response Time.",
+			"type": "string",
+			"enum": [
+				"iqmeshNetwork_MaintenanceFrcResponseTime"
+			]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Response data",
+			"description": "Response data.",
+			"type": "object",
+			"required": [
+				"msgId"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message ID used for pairing requests and responses.",
+					"type": "string"
+				},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response object",
+					"description": "Response object.",
+					"type": "object",
+					"required": [
+						"inaccessibleNodes",
+						"currentResponseTime",
+						"recommendedResponseTime"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"inaccessibleNodes": {
+							"$id": "#/properties/data/properties/rsp/properties/inaccessibleNodes",
+							"title": "Inaccessible nodes",
+							"description": "Number of nodes that did not respond to FRC response time.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 238
+						},
+						"currentResponseTime": {
+							"$id": "#/properties/data/properties/rsp/properties/currentResponseTime",
+							"title": "Current response time",
+							"description": "FRC response time currently set at [C].",
+							"type": "integer",
+							"enum": [
+								40,
+								360,
+								680,
+								1320,
+								2600,
+								5160,
+								10280,
+								20620
+							]
+						},
+						"recommendedResponseTime": {
+							"$id": "#/properties/data/properties/rsp/properties/recommendedResponseTime",
+							"title": "Recommended response time",
+							"description": "FRC response time that is recommended to set at [C].",
+							"type": "integer",
+							"enum": [
+								40,
+								360,
+								680,
+								1320,
+								2600,
+								5160,
+								10280,
+								20620
+							]
+						}
+					}
+				},
+				"raw": {
+					"type": "array",
+					"description": "Returns array of objects req-cnf-rsp, see its description.",
+					"items": {
+						"type": "object",
+						"required": [
+							"request",
+							"requestTs",
+							"confirmation",
+							"confirmationTs",
+							"response",
+							"responseTs"
+						],
+						"additionalProperties": false,
+						"properties": {
+							"request": {
+								"type": "string",
+								"description": "Binary buffer with DPA request."
+							},
+							"requestTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"confirmation": {
+								"type": "string",
+								"description": "Binary buffer with DPA confirmation."
+							},
+							"confirmationTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"response": {
+								"type": "string",
+								"description": "Binary buffer with DPA response."
+							},
+							"responseTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							}
+						}
+					}
+				},
+				"insId": {
+					"$id": "#/properties/data/properties/insId",
+					"title": "Instance ID",
+					"description": "Daemon insteance ID.",
+					"type": "string"
+				},
+				"status": {
+					"$id": "#/properties/data/properties/status",
+					"title": "Status code",
+					"description": "Status code.",
+					"type": "integer"
+				},
+				"statusStr": {
+					"$id": "#/properties/data/properties/statusStr",
+					"title": "Status string",
+					"description": "Verbose status string",
+					"type": "string"
+				}
+			}
+		}
+	}
+}
