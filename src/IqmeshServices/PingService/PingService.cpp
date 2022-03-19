@@ -231,9 +231,9 @@ namespace iqrf {
           << NAME_PAR(Command, (int)getBondedNodesRequest.PeripheralCommand())
         );
         // Get response data
-        pingResult.addTransactionResult(transResult);
         std::basic_string<uint8_t> bondedNodes = bitmapToNodes(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
         pingResult.setNodesList(bondedNodes);
+        pingResult.addTransactionResult(transResult);
         TRC_FUNCTION_LEAVE("");
         return(bondedNodes);
       }
@@ -279,7 +279,6 @@ namespace iqrf {
           << NAME_PAR(Node address, checkNewNodesRequest.NodeAddress())
           << NAME_PAR(Command, (int)checkNewNodesRequest.PeripheralCommand())
         );
-        pingResult.addTransactionResult(transResult);
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if (status <= 0xEF)
@@ -293,6 +292,7 @@ namespace iqrf {
           TRC_WARNING("FRC_Ping: status NOK!" << NAME_PAR_HEX("Status", (int)status));
           THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
         }
+        pingResult.addTransactionResult(transResult);
       }
       catch (const std::exception& e)
       {
