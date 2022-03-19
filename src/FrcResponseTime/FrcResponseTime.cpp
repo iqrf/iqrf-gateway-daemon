@@ -136,7 +136,6 @@ namespace iqrf {
 			if (nodes == 0) {
 				break;
 			}
-			// TODO: selected nodes are in order, only copy number of nodes per request - use nodes variable
 			frcSendSelective(serviceResult, nodes, processedNodes, responded, frcData);
 			if (nodes > FRC_RESPONSE_MAX_BYTES) {
 				frcExtraResult(serviceResult, nodes - FRC_RESPONSE_MAX_BYTES, frcData);
@@ -191,8 +190,7 @@ namespace iqrf {
 			}
 			responded += status;
 			const uint8_t *pData = frcSendSelectiveResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData;
-			data.insert(data.end(), pData, pData + FRC_RESPONSE_MAX_BYTES);
-			// TODO: data.insert(data.end(), pData + 1, pData + 1 + count + 1);
+			data.insert(data.end(), pData + 1, pData + 1 + count);
 			serviceResult.addTransactionResult(result);
 		} catch (const std::exception &e) {
 			setErrorTransactionResult(serviceResult, result, e.what());
@@ -217,8 +215,7 @@ namespace iqrf {
 			DpaMessage frcExtraResultResponse = result->getResponse();
 			// Process FRC response
 			const uint8_t *pData = frcExtraResultResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-			data.insert(data.end(), pData, pData + FRC_EXTRA_RESPONSE_BYTES);
-			//TODO: data.insert(data.end(), pData, pData + count + 1);
+			data.insert(data.end(), pData, pData + count);
 			serviceResult.addTransactionResult(result);
 		} catch (const std::exception &e) {
 			setErrorTransactionResult(serviceResult, result, e.what());
@@ -266,11 +263,6 @@ namespace iqrf {
 			// Get response time
 			IDpaTransaction2::FrcResponseTime recommended = getResponseTime(result);
 			result.setRecommendedResponseTime(recommended);
-			// Set original FRC response time
-			m_dpaService->setFrcResponseTime(result.getCurrentResponseTime());
-			setFrcResponseTime(result, result.getCurrentResponseTime());
-		} catch (const NoRespondedNodesException &e) {
-			CATCH_EXC_TRC_WAR(NoRespondedNodesException, e, e.what());
 			// Set original FRC response time
 			m_dpaService->setFrcResponseTime(result.getCurrentResponseTime());
 			setFrcResponseTime(result, result.getCurrentResponseTime());
@@ -351,5 +343,4 @@ namespace iqrf {
 	void FrcResponseTime::detachInterface(shape::ITraceService *iface) {
 		shape::Tracer::get().removeTracerService(iface);
 	}
-
 }
