@@ -402,8 +402,8 @@ namespace iqrf {
           // Initialize user data to zero
           memset(frcSendSelectivePacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData, 0, 25 * sizeof(uint8_t));
           // Put RF channel and RF filter
-          frcSendSelectivePacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0] = m_maintenanceParams.RFchannel;
-          frcSendSelectivePacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[1] = m_maintenanceParams.RFfilter;
+          frcSendSelectivePacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[0] = m_maintenanceParams.rfChannel;
+          frcSendSelectivePacket.DpaRequestPacket_t.DpaMessage.PerFrcSendSelective_Request.UserData[1] = m_maintenanceParams.rxFilter;
           frcSendSelectiveRequest.DataToBuffer(frcSendSelectivePacket.Buffer, sizeof(TDpaIFaceHeader) + 1 + 30 + 2);
           // Execute the DPA request
           m_exclusiveAccess->executeDpaTransactionRepeat(frcSendSelectiveRequest, transResult, m_maintenanceParams.repeat);
@@ -472,8 +472,8 @@ namespace iqrf {
         testRfSignalPacket.DpaRequestPacket_t.PCMD = CMD_OS_TEST_RF_SIGNAL;
         testRfSignalPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         // Put Channel, RXfilter and Time
-        testRfSignalPacket.DpaRequestPacket_t.DpaMessage.PerOSTestRfSignal_Request.Channel = m_maintenanceParams.RFchannel;
-        testRfSignalPacket.DpaRequestPacket_t.DpaMessage.PerOSTestRfSignal_Request.RXfilter = m_maintenanceParams.RFfilter;
+        testRfSignalPacket.DpaRequestPacket_t.DpaMessage.PerOSTestRfSignal_Request.Channel = m_maintenanceParams.rfChannel;
+        testRfSignalPacket.DpaRequestPacket_t.DpaMessage.PerOSTestRfSignal_Request.RXfilter = m_maintenanceParams.rxFilter;
         testRfSignalPacket.DpaRequestPacket_t.DpaMessage.PerOSTestRfSignal_Request.Time = (uint16_t)(m_maintenanceParams.measurementTimeMS / 10);
         testRfSignalRequest.DataToBuffer(testRfSignalPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerOSTestRfSignal_Request));
         // Execute the DPA request

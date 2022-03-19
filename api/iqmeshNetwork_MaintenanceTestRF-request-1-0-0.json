@@ -47,8 +47,8 @@
 					"type": "object",
 					"required": [
 						"deviceAddr",
-						"RFchannel",
-						"RFfilter",
+						"rfChannel",
+						"rxFilter",
 						"measurementTime"
 					],
 					"additionalProperties": false,
@@ -61,8 +61,8 @@
 							"enum": [0, 255],
 							"default": 0
 						},
-						"RFchannel": {
-							"$id": "#/properties/data/properties/req/properties/RFchannel",
+						"rfChannel": {
+							"$id": "#/properties/data/properties/req/properties/rfChannel",
 							"title": "RF channel",
 							"description": "RF channel to test.",
 							"type": "integer",
@@ -70,8 +70,8 @@
 							"minimum": 0,
 							"maximum": 255
 						},
-						"RFfilter": {
-							"$id": "#/properties/data/properties/req/properties/RFfilter",
+						"rxFilter": {
+							"$id": "#/properties/data/properties/req/properties/rxFilter",
 							"title": "RF filter",
 							"description": "RF filter.",
 							"type": "integer",
