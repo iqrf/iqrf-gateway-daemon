@@ -17,9 +17,11 @@
 #pragma once
 
 #include "ComBase.h"
-#include "Trace.h"
-#include <list>
+#include "IDpaTransaction2.h"
 #include "JsonUtils.h"
+#include "Trace.h"
+
+#include <list>
 
 using namespace rapidjson;
 
@@ -28,8 +30,8 @@ namespace iqrf {
 	/// Maintenance input paramaters
 	typedef struct {
 		uint16_t deviceAddr = COORDINATOR_ADDRESS;
-		uint8_t RFchannel = 0;
-		uint8_t RFfilter = 0;
+		uint8_t rfChannel = 0;
+		uint8_t rxFilter = 0;
 		IDpaTransaction2::FrcResponseTime measurementTime = IDpaTransaction2::FrcResponseTime::k40Ms;
 		int measurementTimeMS = 40;
 		int repeat = 1;
@@ -88,17 +90,17 @@ namespace iqrf {
 				m_MaintenanceParams.deviceAddr = (uint16_t)jsonVal->GetUint();
 			}
 			// RFchannel
-			if ((jsonVal = Pointer("/data/req/RFchannel").Get(doc))) {
-				m_MaintenanceParams.RFchannel = (uint8_t)jsonVal->GetUint();
-				if (m_MaintenanceParams.RFchannel > 67) {
-					m_MaintenanceParams.RFchannel = 0;
+			if ((jsonVal = Pointer("/data/req/rfChannel").Get(doc))) {
+				m_MaintenanceParams.rfChannel = (uint8_t)jsonVal->GetUint();
+				if (m_MaintenanceParams.rfChannel > 67) {
+					m_MaintenanceParams.rfChannel = 0;
 				}
 			}
 			// RFfilter
-			if ((jsonVal = Pointer("/data/req/RFfilter").Get(doc))) {
-				m_MaintenanceParams.RFfilter = (uint8_t)jsonVal->GetUint();
-				if (m_MaintenanceParams.RFfilter > 64 && m_MaintenanceParams.RFfilter != 255) {
-					m_MaintenanceParams.RFfilter = 0;
+			if ((jsonVal = Pointer("/data/req/rxFilter").Get(doc))) {
+				m_MaintenanceParams.rxFilter = (uint8_t)jsonVal->GetUint();
+				if (m_MaintenanceParams.rxFilter > 64 && m_MaintenanceParams.rxFilter != 255) {
+					m_MaintenanceParams.rxFilter = 0;
 				}
 			}
 			// measurementTime
