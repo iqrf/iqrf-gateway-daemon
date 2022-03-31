@@ -1683,10 +1683,10 @@ namespace iqrf {
         strWaveState = "Number of new nodes bonded into network.";
         break;
       case TWaveStateCode::abortOnTooManyNodesFound:
-        strWaveState = "Too many nodes found - Autonetwork process aborted.";
+        strWaveState = "Too many nodes found.";
         break;
       case TWaveStateCode::abortOnAllAddressesAllocated:
-        strWaveState = "All available network addresses are already allocated - Autonetwork process aborted.";
+        strWaveState = "All available network addresses are already allocated.";
         break;
       case TWaveStateCode::waveFinished:
         strWaveState = "Wave finished.";
@@ -1710,13 +1710,13 @@ namespace iqrf {
         strWaveState = "The AutoNetwork process cannot be started because all Nodes in the MID list file are already bonded. Add not bonded Nodes to the MID list file or disable the MID filtering option.";
         break;
       case TWaveStateCode::cannotStartProcessDuplicitMidInCoord:
-        strWaveState = "The AutoNetwork process cannot be started because the Coordinator�s IQMESH database contains the same Node(s) bonded to more addresses. Please inspect the duplicate MID values in the MID column in the Table View and unbond the duplicate Node(s) in the Coordinator only.";
+        strWaveState = "The AutoNetwork process cannot be started because the Coordinator's IQMESH database contains the same Node(s) bonded to more addresses. Please inspect the duplicate MID values in the MID column in the Table View and unbond the duplicate Node(s) in the Coordinator only.";
         break;
       case TWaveStateCode::cannotStartProcessAddressSpaceNoFreeAddress:
         strWaveState = "The AutoNetwork process cannot start because there is no free network address limited by address space. Change the value in the address space.";
         break;
       case TWaveStateCode::abortOnAllAddressesFromAddressSpaceAllocated:
-        strWaveState = "All available network addresses limited by the Address space were assigned. No new Node can be bonded.The AutoNetwork process will stop.";
+        strWaveState = "All available network addresses limited by the Address space were assigned. No new Node can be bonded.";
         break;
 
       default:
@@ -2852,7 +2852,7 @@ namespace iqrf {
                 if (node != FrcSelect.end())
                 {
                   // Insert duplicit node to duplicitMID
-                  if (std::find(antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address) == antwProcessParams.duplicitMID.end())
+                  if (std::find(antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address) != antwProcessParams.duplicitMID.end())
                     antwProcessParams.duplicitMID.push_back(address);
                   try
                   {
