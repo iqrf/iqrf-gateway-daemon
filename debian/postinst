@@ -20,78 +20,42 @@
 set -e
 
 openssl_create_ca() {
-  CA_DIR="/etc/iqrf-gateway-daemon/certs/core"
-  if [ ! -d ${CA_DIR} ]; then
-    mkdir -p ${CA_DIR}
-  fi
+	CA_DIR="/etc/iqrf-gateway-daemon/certs/core"
+	if [ ! -d ${CA_DIR} ]; then
+		mkdir -p ${CA_DIR}
+	fi
 
-  if ! find /etc/iqrf-gateway-daemon/certs/core/ -type f -not -newermt "2020-04-12T00:00:00" -exec false {} +; then
-    rm -rf "${CA_DIR}/cert.pem" "${CA_DIR}/privkey.pem"
-  fi
+	if ! find /etc/iqrf-gateway-daemon/certs/core/ -type f -not -newermt "2020-04-12T00:00:00" -exec false {} +; then
+		rm -rf "${CA_DIR}/cert.pem" "${CA_DIR}/privkey.pem"
+	fi
 
-  if [ ! -f ${CA_DIR}/cert.pem ] || [ ! -f ${CA_DIR}/privkey.pem ]; then
-    openssl ecparam -name secp384r1 -genkey -param_enc named_curve \
-      -out ${CA_DIR}/privkey.pem
-    openssl req -new -x509 -sha256 -nodes -days 3650 \
-      -subj "/CN=IQRF Gateway/C=CZ/ST=Hradec Kralove Region/L=Jicin/O=IQRF Tech s.r.o." \
-      -key ${CA_DIR}/privkey.pem -out ${CA_DIR}/cert.pem
-    chmod 600 ${CA_DIR}/*.pem
-  fi
+	if [ ! -f ${CA_DIR}/cert.pem ] || [ ! -f ${CA_DIR}/privkey.pem ]; then
+		openssl ecparam -name secp384r1 -genkey -param_enc named_curve \
+			-out ${CA_DIR}/privkey.pem
+		openssl req -new -x509 -sha256 -nodes -days 3650 \
+			-subj "/CN=IQRF Gateway/C=CZ/ST=Hradec Kralove Region/L=Jicin/O=IQRF Tech s.r.o." \
+			-key ${CA_DIR}/privkey.pem -out ${CA_DIR}/cert.pem
+		chmod 600 ${CA_DIR}/*.pem
+	fi
 }
 
 remove_old_dirs() {
-  # CLEAN
-  rm -rf /etc/iqrfgd2
-  rm -rf /var/cache/iqrfgd2
-  rm -rf /usr/lib/iqrfgd2
-  rm -rf /usr/share/iqrfgd2
-  rm -f /lib/systemd/system/iqrfgd2.service
+	rm -rf /etc/iqrfgd2
+	rm -rf /var/cache/iqrfgd2
+	rm -rf /usr/lib/iqrfgd2
+	rm -rf /usr/share/iqrfgd2
+	rm -f /lib/systemd/system/iqrfgd2.service
 }
 
 configure_gateway() {
-  confDir="/etc/iqrf-gateway-daemon/"
-	if [ -f /etc/iqrf-gateway.json ]
-	then
-		gwProduct=$(jq -r '.gwProduct' /etc/iqrf-gateway.json)
-		if [[ $gwProduct =~ ^IQD-GW-0[12].?$ ]]; then
-			gwId=$(jq -r '.gwId' /etc/iqrf-gateway.json | awk '{print tolower($0)}')
-			if [[ $gwProduct =~ ^IQD-GW-01.?$ ]]; then
-				if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
-					jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 19 | .busEnableGpioPin = 10 | .pgmSwitchGpioPin = 3' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
-				fi
-				if [ -f "${confDir}iqrf__IqrfUart.json" ]; then
-					jq --unbuffered '.instance = "iqrf::IqrfUart-/dev/ttyS1" | .IqrfInterface = "/dev/ttyS1" | .powerEnableGpioPin = 19 | .busEnableGpioPin = 10 | .pgmSwitchGpioPin = -1 | .+ {uartReset: true}' "${confDir}iqrf__IqrfUart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfUart.json"
-				fi
-			elif [[ $gwProduct =~ ^IQD-GW-02.?$ ]]; then
-				if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
-					jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 19 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = 3 | .+ {spiEnableGpioPin: 10, uartEnableGpioPin: 6, i2cEnableGpioPin: 7}' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
-				fi
-				if [ -f "${confDir}iqrf__IqrfUart.json" ]; then
-					jq --unbuffered '.instance = "iqrf::IqrfUart-/dev/ttyS1" | .IqrfInterface = "/dev/ttyS1" | .powerEnableGpioPin = 19 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = -1 | .+ {uartEnableGpioPin: 6, spiEnableGpioPin: 10, i2cEnableGpioPin: 7, uartReset: true}' "${confDir}iqrf__IqrfUart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfUart.json"
-				fi
-			fi
-			if [ -f "${confDir}iqrf__JsonSplitter.json" ]; then
-				jq --unbuffered --arg gwId "$gwId" '.insId = "iqdgw01-" + $gwId' "${confDir}iqrf__JsonSplitter.json" > tmp.json && mv tmp.json "${confDir}iqrf__JsonSplitter.json"
-			fi
-			if [ -f "${confDir}iqrf__MqttMessaging.json" ]; then
-        rqTopic=$(jq -r '.TopicRequest' "${confDir}iqrf__MqttMessaging.json")
-        rspTopic=$(jq -r '.TopicResponse' "${confDir}iqrf__MqttMessaging.json")
-        if [ "$rqTopic" == "Iqrf/DpaRequest" ] && [ "$rspTopic" = "Iqrf/DpaResponse" ]; then
-				  jq --unbuffered --arg gwId "$gwId" '.ClientId = $gwId | .TopicRequest = "gateway/" + $gwId + "/iqrf/requests" | .TopicResponse = "gateway/" + $gwId + "/iqrf/responses"' "${confDir}iqrf__MqttMessaging.json" > tmp.json && mv tmp.json "${confDir}iqrf__MqttMessaging.json"
-        fi
-      fi
-			if [ -f "${confDir}iqrf__IdeCounterpart.json" ]; then
-				jq --unbuffered --arg gwProduct "$gwProduct" '.gwIdentModeByte = 34 | .gwIdentName = $gwProduct' "${confDir}iqrf__IdeCounterpart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IdeCounterpart.json"
-			fi
-		fi
-	fi
-  sh /usr/bin/iqrfgd2-interface-init
+	bash /usr/bin/iqrfgd2-config-init "/etc/iqrf-gateway-daemon/"
+	sh /usr/bin/iqrfgd2-interface-init
 }
 
 if [ "$1" = "configure" ]; then
-  openssl_create_ca
-  remove_old_dirs
-  configure_gateway
+	openssl_create_ca
+	remove_old_dirs
+	configure_gateway
 fi
 
 #DEBHELPER#

@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Copyright 2015-2021 IQRF Tech s.r.o.
+# Copyright 2019-2021 MICRORISC s.r.o.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+confDir=$1
+
+if [ -f /etc/iqrf-gateway.json ]; then
+	gwProduct=$(jq -r '.gwProduct' /etc/iqrf-gateway.json)
+	if [[ $gwProduct =~ ^IQD-GW-0[12].?$ ]]; then
+		gwId=$(jq -r '.gwId' /etc/iqrf-gateway.json | awk '{print tolower($0)}')
+		if [[ $gwProduct =~ ^IQD-GW-01.?$ ]]; then
+			gwId="iqdgw01-${gwId}"
+			if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
+				jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 19 | .busEnableGpioPin = 10 | .pgmSwitchGpioPin = 3' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
+			fi
+			if [ -f "${confDir}iqrf__IqrfUart.json" ]; then
+				jq --unbuffered '.instance = "iqrf::IqrfUart-/dev/ttyS1" | .IqrfInterface = "/dev/ttyS1" | .powerEnableGpioPin = 19 | .busEnableGpioPin = 10 | .pgmSwitchGpioPin = -1 | .+ {uartReset: true}' "${confDir}iqrf__IqrfUart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfUart.json"
+			fi
+		elif [[ $gwProduct =~ ^IQD-GW-02.?$ ]]; then
+			gwId="iqdgw02-${gwId}"
+			if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
+				jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 19 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = 3 | .+ {spiEnableGpioPin: 10, uartEnableGpioPin: 6, i2cEnableGpioPin: 7}' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
+			fi
+			if [ -f "${confDir}iqrf__IqrfUart.json" ]; then
+				jq --unbuffered '.instance = "iqrf::IqrfUart-/dev/ttyS1" | .IqrfInterface = "/dev/ttyS1" | .powerEnableGpioPin = 19 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = -1 | .+ {i2cEnableGpioPin: 7, uartEnableGpioPin: 6, spiEnableGpioPin: 10, uartReset: true}' "${confDir}iqrf__IqrfUart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfUart.json"
+			fi
+		fi
+		if [ -f "${confDir}iqrf__JsonSplitter.json" ]; then
+				jq --unbuffered --arg gwId "$gwId" '.insId = $gwId' "${confDir}iqrf__JsonSplitter.json" > tmp.json && mv tmp.json "${confDir}iqrf__JsonSplitter.json"
+			fi
+		if [ -f "${confDir}iqrf__MqttMessaging.json" ]; then
+			rqTopic=$(jq -r '.TopicRequest' "${confDir}iqrf__MqttMessaging.json")
+			rspTopic=$(jq -r '.TopicResponse' "${confDir}iqrf__MqttMessaging.json")
+			if [ "$rqTopic" == "Iqrf/DpaRequest" ] && [ "$rspTopic" = "Iqrf/DpaResponse" ]; then
+				jq --unbuffered --arg gwId "$gwId" '.ClientId = $gwId | .TopicRequest = "gateway/" + $gwId + "/iqrf/requests" | .TopicResponse = "gateway/" + $gwId + "/iqrf/responses"' "${confDir}iqrf__MqttMessaging.json" > tmp.json && mv tmp.json "${confDir}iqrf__MqttMessaging.json"
+			fi
+		fi
+		if [ -f "${confDir}iqrf__IdeCounterpart.json" ]; then
+			jq --unbuffered --arg gwProduct "$gwProduct" '.gwIdentModeByte = 34 | .gwIdentName = $gwProduct' "${confDir}iqrf__IdeCounterpart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IdeCounterpart.json"
+		fi
+	elif [[ $gwProduct = "Unipi Iris Zulu" ]]; then
+		if [ -f "${confDir}iqrf__IqrfSpi.json" ]; then
+			jq --unbuffered '.instance = "iqrf::IqrfSpi-/dev/spidev1.0" | .IqrfInterface = "/dev/spidev1.0" | .powerEnableGpioPin = 511 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = 510 | .+ {i2cEnableGpioPin: 509, spiEnableGpioPin: 508, uartEnableGpioPin: 505}' "${confDir}iqrf__IqrfSpi.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfSpi.json"
+		fi
+		if [ -f "${confDir}iqrf__IqrfUart.json" ]; then
+			jq --unbuffered '.instance = "iqrf::IqrfUart-/dev/ttymxc3" | .IqrfInterface = "/dev/ttymxc3" | .powerEnableGpioPin = 511 | .busEnableGpioPin = -1 | .pgmSwitchGpioPin = 510 | .+ {i2cEnableGpioPin: 509, spiEnableGpioPin: 508, uartEnableGpioPin: 505, uartReset: true}' "${confDir}iqrf__IqrfUart.json" > tmp.json && mv tmp.json "${confDir}iqrf__IqrfUart.json"
+		fi
+	fi
+fi
