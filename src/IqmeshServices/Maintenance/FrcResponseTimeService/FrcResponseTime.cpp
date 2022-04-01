@@ -141,11 +141,15 @@ namespace iqrf {
 				frcExtraResult(serviceResult, nodes - FRC_RESPONSE_MAX_BYTES, frcData);
 			}
 		}
-		uint8_t responseTime = 0;
-		for (auto &byte : frcData) {
-			if (byte > responseTime) {
-				responseTime = byte;
+		uint8_t recommended = 0;
+		uint8_t i = 0;
+		std::map<uint8_t, uint8_t> responseTimeMap;
+		for (auto &addr : bonded) {
+			responseTimeMap.insert(std::make_pair(addr, frcData[i]));
+			if (frcData[i] > recommended) {
+				recommended = frcData[i];
 			}
+			i++;
 		}
 		if (responded == 0) {
 			std::string errorStr = "No node in network responded.";
@@ -153,8 +157,9 @@ namespace iqrf {
 			THROW_EXC(NoRespondedNodesException, errorStr);
 		}
 		serviceResult.setInaccessibleNodes(responded);
+		serviceResult.setResponseTimeMap(responseTimeMap);
 		TRC_FUNCTION_LEAVE("");
-		return (IDpaTransaction2::FrcResponseTime)(responseTime - 1);
+		return (IDpaTransaction2::FrcResponseTime)(recommended - 1);
 	}
 
 	void FrcResponseTime::frcSendSelective(FrcResponseTimeResult &serviceResult, const uint8_t &count, const uint8_t &processed, uint8_t &responded, std::vector<uint8_t> &data) {

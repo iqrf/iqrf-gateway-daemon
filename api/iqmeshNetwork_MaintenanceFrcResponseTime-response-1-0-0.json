@@ -43,6 +43,7 @@
 					"type": "object",
 					"required": [
 						"inaccessibleNodes",
+						"nodes",
 						"currentResponseTime",
 						"recommendedResponseTime"
 					],
@@ -55,6 +56,57 @@
 							"type": "integer",
 							"minimum": 0,
 							"maximum": 238
+						},
+						"nodes": {
+							"$id": "#/properties/data/properties/rsp/properties/nodes",
+							"title": "Nodes",
+							"description": "FRC response time node devices results.",
+							"type": "array",
+							"additionalItems": false,
+							"maxItems": 238,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/nodes/items",
+								"title": "Node result",
+								"description": "Object containing FRC response time results for a single node.",
+								"type": "object",
+								"required": [
+									"deviceAddr",
+									"responded"
+								],
+								"additionalProperties": false,
+								"properties": {
+									"deviceAddr": {
+										"$id": "#/properties/data/properties/rsp/properties/nodes/items/properties/deviceAddr",
+										"title": "Device address",
+										"description": "Address of device in the network.",
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 239
+									},
+									"responded": {
+										"$id": "#/properties/data/properties/rsp/properties/nodes/items/properties/responded",
+										"title": "Node responded",
+										"description": "Indicates whether node device responded to the FRC request.",
+										"type": "boolean"
+									},
+									"responseTime": {
+										"$id": "#/properties/data/properties/rsp/properties/nodes/items/properties/responseTime",
+										"title": "Response time",
+										"description": "Node device response time.",
+										"type": "integer",
+										"enum": [
+											40,
+											360,
+											680,
+											1320,
+											2600,
+											5160,
+											10280,
+											20620
+										]
+									}
+								}
+							}
 						},
 						"currentResponseTime": {
 							"$id": "#/properties/data/properties/rsp/properties/currentResponseTime",
