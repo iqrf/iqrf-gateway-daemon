@@ -83,6 +83,14 @@ namespace iqrf {
 		}
 
 		/**
+		 * Sets map of nodes and their response times
+		 * @param map Map of nodes and response times
+		 */
+		void setResponseTimeMap(const std::map<uint8_t, uint8_t> &map) {
+			m_responseTimeMap = map;
+		}
+
+		/**
 		 * Returns current response time
 		 * @return Current response time
 		 */
@@ -167,6 +175,24 @@ namespace iqrf {
 			if (m_status == 0) {
 				// Inacessible nodes
 				Pointer("/data/rsp/inaccessibleNodes").Set(response, m_inaccessibleNodes);
+
+				// Node results
+				Value array(kArrayType);
+				Document::AllocatorType &allocator = response.GetAllocator();
+				for (auto &item : m_responseTimeMap) {
+					uint8_t address = item.first;
+					uint8_t responseTime = item.second;
+
+					Value object(kObjectType);
+					Pointer("/deviceAddr").Set(object, address, allocator);
+					Pointer("/responded").Set(object, responseTime != 0, allocator);
+					if (responseTime != 0) {
+						Pointer("/responseTime").Set(object, responseTimeToMs((IDpaTransaction2::FrcResponseTime)(responseTime - 1)), allocator);
+					}
+					array.PushBack(object, allocator);
+				}
+				Pointer("/data/rsp/nodes").Set(response, array);
+
 				// FRC response time results
 				Pointer("/data/rsp/currentResponseTime").Set(response, responseTimeToMs(m_currentResponseTime));
 				Pointer("/data/rsp/recommendedResponseTime").Set(response, responseTimeToMs(m_recommendedResponseTime));
@@ -246,6 +272,8 @@ namespace iqrf {
 		std::set<uint8_t> m_bondedNodes;
 		/// Number of inaccessible nodes
 		uint8_t m_inaccessibleNodes = 0;
+		/// Map of node addresses and response times
+		std::map<uint8_t, uint8_t> m_responseTimeMap;
 		/// Current FRC response time
 		IDpaTransaction2::FrcResponseTime m_currentResponseTime = IDpaTransaction2::FrcResponseTime::k40Ms;
 		/// Recommended FRC response time
