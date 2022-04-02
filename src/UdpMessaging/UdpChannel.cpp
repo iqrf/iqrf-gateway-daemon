@@ -17,7 +17,7 @@
 #include "UdpChannel.h"
 #include "Trace.h"
 #include <stdlib.h>
-#include <time.h> 
+#include <time.h>
 #include <string.h>
 
 #ifndef SHAPE_PLATFORM_WINDOWS
@@ -155,7 +155,9 @@ void UdpChannel::listen() {
 			if (m_receivingIp == "0.0.0.0") {
 				continue;
 			}
-			TRC_DEBUG("Received UDP datagram at IP " << m_receivingIp << ", MAC " << m_receivingMac);
+
+			std::string senderIp(inet_ntoa(m_addr.sin_addr));
+			TRC_DEBUG("Received UDP datagram at IP " << m_receivingIp << ", MAC " << m_receivingMac << " from IP " << senderIp);
 #endif
 			if (recBytes > 0) {
 				if (m_messageHandler) {
@@ -279,7 +281,7 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 		}
 		char ipBuffer[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &((struct sockaddr_in *)&ifrs[i].ifr_addr)->sin_addr, ipBuffer, sizeof(ipBuffer));
-		
+
 		std::string ip(ipBuffer);
 		int metric = getInterfaceMetric(ip);
 
@@ -298,7 +300,7 @@ void UdpChannel::findInterfaceByIndex(const int &idx) {
 
 		std::ostringstream ss;
 		ss << "Interface [" << idx << "] - IP: " << ip << " MAC: " << mac << " metric: " << metric << ", expires at " << datetime;
-		
+
 		auto itr = m_interfaces.find(idx);
 		if (itr != m_interfaces.end()) {
 			ss << " updated";
