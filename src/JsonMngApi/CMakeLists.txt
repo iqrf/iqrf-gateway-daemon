@@ -15,10 +15,14 @@
 
 project(JsonMngApi)
 
+set(CMAKE_CXX_STANDARD 14)
 set(COMPONENT iqrf::JsonMngApi)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} shape::ILaunchService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfInfo MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::ISchedulerService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IJsCacheService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IUdpConnectorService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
@@ -33,6 +37,8 @@ source_group("Source Files" FILES ${_SRCFILES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_BINARY_DIR})
+include_directories(${clibdpa_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 

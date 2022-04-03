@@ -33,7 +33,7 @@ namespace iqrf {
     virtual std::set<int> getDriverIdSet(int contextId) const = 0;
     virtual void mapNadrToFenced(int nadr, int contextId) = 0;
     virtual void callFenced(int nadr, int hwpid, const std::string& functionName, const std::string& par, std::string& ret) = 0;
-    virtual void unloadProvisionalContexts() = 0;
+    virtual void clearContexts() = 0;
     virtual ~IJsRenderService() {}
   };
 }

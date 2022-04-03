@@ -34,7 +34,7 @@ namespace iqrf {
     // set driver mapping according nadr
     void mapNadrToFenced(int nadr, int contextId) override;
     void callFenced(int nadr, int hwpid, const std::string& functionName, const std::string& par, std::string& ret) override;
-    void unloadProvisionalContexts() override;
+    void clearContexts() override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

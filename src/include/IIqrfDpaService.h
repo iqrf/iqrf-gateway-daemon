@@ -129,6 +129,7 @@ namespace iqrf {
     virtual DpaState getDpaChannelState() = 0;
     virtual void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) = 0;
     virtual void unregisterAnyMessageHandler(const std::string& serviceId) = 0;
+    virtual void reinitializeCoordinator() = 0;
 
     virtual ~IIqrfDpaService() {}
   };

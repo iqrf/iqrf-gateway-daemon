@@ -54,6 +54,7 @@ namespace iqrf {
     IIqrfDpaService::DpaState getDpaChannelState() override;
     void registerAnyMessageHandler(const std::string& serviceId, AnyMessageHandlerFunc fun) override;
     void unregisterAnyMessageHandler(const std::string& serviceId) override;
+    void reinitializeCoordinator() override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();
@@ -77,6 +78,8 @@ namespace iqrf {
     int m_bondedNodes = 10;
     int m_discoveredNodes = 10;
     IDpaTransaction2::FrcResponseTime m_responseTime = IDpaTransaction2::FrcResponseTime::k40Ms;
+
+    void initializeCoordinator();
 
     std::mutex m_asyncMessageHandlersMutex;
     std::map<std::string, AsyncMessageHandlerFunc> m_asyncMessageHandlers;

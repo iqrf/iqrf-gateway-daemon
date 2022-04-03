@@ -17,7 +17,6 @@
 #include "VersionInfo.h"
 #include "ApiMsg.h"
 #include "JsonMngApi.h"
-#include "HexStringCoversion.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
@@ -27,6 +26,20 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <memory>
+
+#include "Messages/MngBaseMsg.h"
+#include "Messages/MngModeMsg.h"
+#include "Messages/MngReloadCoordinatorMsg.h"
+#include "Messages/MngRestartMsg.h"
+#include "Messages/MngUpdateCacheMsg.h"
+#include "Messages/MngVersionMsg.h"
+
+#include "Messages/SchedulerAddTaskMsg.h"
+#include "Messages/SchedulerGetTaskMsg.h"
+#include "Messages/SchedulerListMsg.h"
+#include "Messages/SchedulerRemoveAllMsg.h"
+#include "Messages/SchedulerRemoveTaskMsg.h"
 
 #include "iqrf__JsonMngApi.hxx"
 
@@ -40,432 +53,18 @@ TRC_INIT_MODULE(iqrf::JsonMngApi);
 using namespace rapidjson;
 
 namespace iqrf {
-  class MngMsg : public ApiMsg
-  {
-  public:
-    MngMsg() = delete;
-    MngMsg(const rapidjson::Document& doc)
-      :ApiMsg(doc)
-    {
-    }
-
-    virtual ~MngMsg()
-    {
-    }
-
-    const std::string& getErr() const
-    {
-      return m_errStr;
-    }
-
-    void setErr(const std::string& errStr)
-    {
-      m_errStr = errStr;
-      m_success = false;
-    }
-
-    bool isSuccess()
-    {
-      return m_success;
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      if (m_success) {
-        setStatus("ok", 0);
-      }
-      else {
-        if (getVerbose()) {
-          Pointer("/data/errorStr").Set(doc, m_errStr);
-        }
-        setStatus("err", -1);
-      }
-    }
-
-  private:
-    std::string m_errStr;
-    bool m_success = true;
-  };
-
-  class MngModeMsg : public MngMsg
-  {
-  public:
-    MngModeMsg() = delete;
-    MngModeMsg(const rapidjson::Document& doc)
-      :MngMsg(doc)
-    {
-      m_mode = ModeStringConvertor::str2enum(rapidjson::Pointer("/data/req/operMode").Get(doc)->GetString());
-    }
-
-    virtual ~MngModeMsg()
-    {
-    }
-
-    IUdpConnectorService::Mode getMode() const
-    {
-      return m_mode;
-    }
-
-    void setMode(IUdpConnectorService::Mode mode)
-    {
-      m_mode = mode;
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      Pointer("/data/rsp/operMode").Set(doc, ModeStringConvertor::enum2str(m_mode));
-      MngMsg::createResponsePayload(doc);
-    }
-
-  private:
-    IUdpConnectorService::Mode m_mode;
-  };
-
-  class MngRestartMsg : public MngMsg
-  {
-  public:
-    MngRestartMsg() = delete;
-    MngRestartMsg(const rapidjson::Document& doc)
-      :MngMsg(doc)
-    {
-      m_timeToExit = rapidjson::Pointer("/data/req/timeToExit").Get(doc)->GetDouble();
-    }
-
-    virtual ~MngRestartMsg()
-    {
-    }
-
-    double getTimeToRestart() const
-    {
-      return m_timeToExit;
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      Pointer("/data/rsp/timeToExit").Set(doc, m_timeToExit);
-      MngMsg::createResponsePayload(doc);
-    }
-
-  private:
-    double m_timeToExit;
-  };
-
-  class MngVersionMsg : public MngMsg
-  {
-  public:
-    MngVersionMsg() = delete;
-    MngVersionMsg(const rapidjson::Document& doc)
-      :MngMsg(doc)
-      , m_daemonVersion(DAEMON_VERSION)
-    {
-    }
-
-    virtual ~MngVersionMsg()
-    {
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      Pointer("/data/rsp/version").Set(doc, m_daemonVersion);
-      MngMsg::createResponsePayload(doc);
-    }
-
-  private:
-    std::string m_daemonVersion;
-  };
-
-  class SchedAddTaskMsg : public MngMsg
-  {
-  public:
-    SchedAddTaskMsg() = delete;
-    SchedAddTaskMsg(const rapidjson::Document& doc)
-      :MngMsg(doc)
-    {
-      using namespace rapidjson;
-
-      m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
-      
-      const Value* cron = Pointer("/data/req/timeSpec/cronTime").Get(doc);
-      auto it = cron->Begin();
-      for (int i = 0; i < 7; i++) {
-        m_cron[i] = it->GetString();
-        it++;
-      }
-
-      m_periodic = Pointer("/data/req/timeSpec/periodic").Get(doc)->GetBool();
-      m_period = Pointer("/data/req/timeSpec/period").Get(doc)->GetInt();
-      m_exactTime = Pointer("/data/req/timeSpec/exactTime").Get(doc)->GetBool();
-
-      const Value *tpVal = Pointer("/data/req/timeSpec/startTime").Get(doc);
-      m_startTime = parseTimestamp(tpVal->GetString());
-
-      const Value *taskVal = Pointer("/data/req/task").Get(doc);
-      if (taskVal && (taskVal->IsObject() || taskVal->IsArray())) {
-        m_task.CopyFrom(*taskVal, m_task.GetAllocator());
-      }
-      else {
-        TRC_WARNING("Unexpected type: /data/req/task")
-      }
-
-      const Value* persistVal = Pointer("/data/req/persist").Get(doc);
-      if (persistVal && persistVal->IsBool()) {
-        m_persist = persistVal->GetBool();
-      }
-    }
-
-    virtual ~SchedAddTaskMsg()
-    {
-    }
-
-    const std::string& getClientId() const
-    {
-      return m_clientId;
-    }
-
-    const ISchedulerService::CronType& getCron() const
-    {
-      return m_cron;
-    }
-
-    bool isPeriodic() const
-    {
-      return m_periodic;
-    }
-
-    int getPeriod() const
-    {
-      return m_period;
-    }
-
-    bool isExactTime() const
-    {
-      return m_exactTime;
-    }
-
-    const std::chrono::system_clock::time_point& getStartTime() const
-    {
-      return m_startTime;
-    }
-
-    const rapidjson::Document& getTask() const
-    {
-      return m_task;
-    }
-
-    int64_t getTaskId() const
-    {
-      return m_taskId;
-    }
-
-    void setTaskId(int64_t taskId)
-    {
-      m_taskId = taskId;
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      Pointer("/data/rsp/clientId").Set(doc, m_clientId);
-      Pointer("/data/rsp/taskId").Set(doc, m_taskId);
-      MngMsg::createResponsePayload(doc);
-    }
-
-    bool getPersist() const { return m_persist; }
-
-  private:
-    std::string m_clientId;
-    ISchedulerService::CronType m_cron;
-    bool m_periodic = false;
-    int m_period = 0;
-    bool m_exactTime = false;
-    std::chrono::system_clock::time_point m_startTime;
-    rapidjson::Document m_task;
-    int64_t m_taskId = 0;
-    bool m_persist = false;
-  };
-
-  class SchedGetTaskMsg : public MngMsg
-  {
-  public:
-    SchedGetTaskMsg() = delete;
-    SchedGetTaskMsg(const rapidjson::Document& doc)
-      :MngMsg(doc)
-    {
-      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
-      m_taskId = rapidjson::Pointer("/data/req/taskId").Get(doc)->GetInt();
-    }
-
-    virtual ~SchedGetTaskMsg()
-    {
-    }
-
-    const std::string& getClientId() const
-    {
-      return m_clientId;
-    }
-
-    int getTaskId() const
-    {
-      return m_taskId;
-    }
-
-    const rapidjson::Value* getTask() const
-    {
-      return m_task;
-    }
-
-    void setTask(const rapidjson::Value *task)
-    {
-      m_task = task;
-    }
-
-    const rapidjson::Value* getTimeSpec() const
-    {
-      return m_timeSpec;
-    }
-
-    void setTimeSpec(const rapidjson::Value* timeSpec)
-    {
-      m_timeSpec = timeSpec;
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      Pointer("/data/rsp/clientId").Set(doc, m_clientId);
-      Pointer("/data/rsp/taskId").Set(doc, m_taskId);
-
-      if (isSuccess()) {
-        // prepare OK response
-        Pointer("/data/rsp/task").Set(doc, *m_task);
-        Pointer("/data/rsp/timeSpec").Set(doc, *m_timeSpec);
-      }
-      MngMsg::createResponsePayload(doc);
-    }
-
-  private:
-    std::string m_clientId;
-    int m_taskId;
-    const rapidjson::Value* m_task = nullptr;
-    const rapidjson::Value* m_timeSpec = nullptr;
-  };
-
-  class SchedRemoveTaskMsg : public MngMsg
-  {
-  public:
-    SchedRemoveTaskMsg() = delete;
-    SchedRemoveTaskMsg(const rapidjson::Document& doc)
-      :MngMsg(doc)
-    {
-      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
-      m_taskId = rapidjson::Pointer("/data/req/taskId").Get(doc)->GetInt();
-    }
-
-    virtual ~SchedRemoveTaskMsg()
-    {
-    }
-
-    const std::string& getClientId() const
-    {
-      return m_clientId;
-    }
-
-    int getTaskId() const
-    {
-      return m_taskId;
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      Pointer("/data/rsp/clientId").Set(doc, m_clientId);
-      Pointer("/data/rsp/taskId").Set(doc, m_taskId);
-      MngMsg::createResponsePayload(doc);
-    }
-
-  private:
-    std::string m_clientId;
-    int m_taskId;
-    const rapidjson::Value* m_task = nullptr;
-  };
-
-  class SchedListMsg : public MngMsg
-  {
-  public:
-    SchedListMsg() = delete;
-    SchedListMsg(const rapidjson::Document& doc)
-      :MngMsg(doc)
-    {
-      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
-    }
-
-    virtual ~SchedListMsg()
-    {
-    }
-
-    const std::string& getClientId() const
-    {
-      return m_clientId;
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      using namespace rapidjson;
-      // prepare OK response
-      Pointer("/data/rsp/clientId").Set(doc, m_clientId);
-      Value arr;
-      arr.SetArray();
-      for (auto v : m_vect) {
-        arr.PushBack(v, doc.GetAllocator());
-      }
-      Pointer("/data/rsp/tasks").Set(doc, arr);
-
-      MngMsg::createResponsePayload(doc);
-    }
-
-    void setVect(const std::vector<ISchedulerService::TaskHandle>& vect)
-    {
-      m_vect = vect;
-    }
-
-  private:
-    std::string m_clientId;
-    std::vector<ISchedulerService::TaskHandle> m_vect;
-  };
-
-  class SchedRemoveAllMsg : public MngMsg
-  {
-  public:
-    SchedRemoveAllMsg() = delete;
-    SchedRemoveAllMsg(const rapidjson::Document& doc)
-      :MngMsg(doc)
-    {
-      m_clientId = rapidjson::Pointer("/data/req/clientId").Get(doc)->GetString();
-    }
-
-    virtual ~SchedRemoveAllMsg()
-    {
-    }
-
-    const std::string& getClientId() const
-    {
-      return m_clientId;
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      Pointer("/data/rsp/clientId").Set(doc, m_clientId);
-      MngMsg::createResponsePayload(doc);
-    }
-
-  private:
-    std::string m_clientId;
-  };
 
   class JsonMngApi::Imp
   {
   private:
 
-    shape::ILaunchService* m_iLaunchService = nullptr;
-    ISchedulerService* m_iSchedulerService = nullptr;
-    IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
+    shape::ILaunchService *m_iLaunchService = nullptr;
+    shape::ITraceService *m_traceService = nullptr;
+    IIqrfDpaService *m_dpaService = nullptr;
+    IIqrfInfo *m_infoService = nullptr;
+    ISchedulerService *m_iSchedulerService = nullptr;
+    IMessagingSplitterService *m_iMessagingSplitterService = nullptr;
+    IJsCacheService *m_cacheService = nullptr;
     IUdpConnectorService* m_iUdpConnectorService = nullptr;
 
     std::vector<std::string> m_filters =
@@ -483,203 +82,50 @@ namespace iqrf {
     {
     }
 
-    void handleMsg_mngDaemon_Mode(const rapidjson::Document& reqDoc, Document& respDoc)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      using namespace rapidjson;
-      MngModeMsg msg(reqDoc);
-
-      try {
-        if (m_iUdpConnectorService) { // interface is UNREQUIRED
-          // switch mode
-          IUdpConnectorService::Mode mode = msg.getMode();
-          if (mode != IUdpConnectorService::Mode::Unknown) {
-            m_iUdpConnectorService->setMode(msg.getMode());
-          }
-          msg.setMode(m_iUdpConnectorService->getMode());
-        }
-        else {
-          THROW_EXC_TRC_WAR(std::logic_error, "UdpConnectorService not active");
-        }
-      }
-      catch (std::exception &e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Cannot handle MngModeMsg");
-        msg.setErr(e.what());
-      }
-
-      msg.createResponse(respDoc);
-
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    void handleMsg_mngDaemon_Exit(const rapidjson::Document& reqDoc, Document& respDoc)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      MngRestartMsg msg(reqDoc);
-
-      Document d;
-      Pointer("/task/restart").Set(d, true);
-
-      TRC_INFORMATION(std::endl << "Exit scheduled in: " << msg.getTimeToRestart() << " milliseconds");
-      std::cout << std::endl << "Exit scheduled in: " << msg.getTimeToRestart() << " milliseconds" << std::endl;
-
-      m_iSchedulerService->scheduleTaskAt("JsonMngApi", d,
-        std::chrono::system_clock::now() + std::chrono::milliseconds((unsigned)msg.getTimeToRestart()));
-
-      msg.createResponse(respDoc);
-
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    void handleMsg_mngDaemon_Version(const rapidjson::Document& reqDoc, Document& respDoc)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      MngVersionMsg msg(reqDoc);
-      msg.createResponse(respDoc);
-
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    void handleMsg_mngScheduler_AddTask(const rapidjson::Document& reqDoc, Document& respDoc)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      SchedAddTaskMsg msg(reqDoc);
-      
-      int64_t taskId = 0;
-
-      try {
-        if (msg.isPeriodic()) {
-          taskId = m_iSchedulerService->scheduleTaskPeriodic(
-            msg.getClientId(), msg.getTask(), std::chrono::seconds(msg.getPeriod()), msg.getStartTime(), msg.getPersist());
-        }
-        else if (msg.isExactTime()) {
-          taskId = m_iSchedulerService->scheduleTaskAt(
-            msg.getClientId(), msg.getTask(), msg.getStartTime(), msg.getPersist());
-        }
-        else {
-          //cron
-          taskId = m_iSchedulerService->scheduleTask(
-            msg.getClientId(), msg.getTask(), msg.getCron(), msg.getPersist());
-        }
-      }
-      catch (std::exception &e) {
-        CATCH_EXC_TRC_WAR(std::exception, e, "Cannot schedule task " << NAME_PAR(msg.getClientId, msg.getClientId()));
-        std::ostringstream os;
-        os << "Cannot schedule task: " << e.what();
-        msg.setErr(os.str());
-      }
-
-      msg.setTaskId(taskId);
-
-      msg.createResponse(respDoc);
-
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    void handleMsg_mngScheduler_GetTask(const rapidjson::Document& reqDoc, Document& respDoc)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      SchedGetTaskMsg msg(reqDoc);
-
-      const Value *task = m_iSchedulerService->getMyTask(msg.getClientId(), msg.getTaskId());
-      const Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(msg.getClientId(), msg.getTaskId());
-      
-      msg.setTask(task);
-      msg.setTimeSpec(timeSpec);
-      
-      if (!task) {
-        msg.setErr("clientId or taskId doesn't exist");
-      }
-
-      msg.createResponse(respDoc);
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    void handleMsg_mngScheduler_RemoveTask(const rapidjson::Document& reqDoc, Document& respDoc)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      SchedRemoveTaskMsg msg(reqDoc);
-
-      const Value *task = m_iSchedulerService->getMyTask(msg.getClientId(), msg.getTaskId());
-      if (task) {
-        m_iSchedulerService->removeTask(msg.getClientId(), msg.getTaskId());
-      }
-      else {
-        msg.setErr("clientId or taskId doesn't exist");
-      }
-
-      msg.createResponse(respDoc);
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    void handleMsg_mngScheduler_List(const rapidjson::Document& reqDoc, Document& respDoc)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      SchedListMsg msg(reqDoc);
-
-      std::vector<ISchedulerService::TaskHandle> vect = m_iSchedulerService->getMyTasks(msg.getClientId());
-      msg.setVect(vect);
-
-      msg.createResponse(respDoc);
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    void handleMsg_mngScheduler_RemoveAll(const rapidjson::Document& reqDoc, Document& respDoc)
-    {
-      TRC_FUNCTION_ENTER("");
-
-      SchedRemoveAllMsg msg(reqDoc);
-      msg.createResponse(respDoc);
-
-      m_iSchedulerService->removeAllMyTasks(msg.getClientId());
-
-      msg.createResponse(respDoc);
-      TRC_FUNCTION_LEAVE("");
-    }
-
     void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
     {
       TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
         NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
 
       Document respDoc;
-      if (msgType.m_type == "mngDaemon_Mode") {
-        handleMsg_mngDaemon_Mode(doc, respDoc);
-      }
-      else if (msgType.m_type == "mngDaemon_Exit") {
-        handleMsg_mngDaemon_Exit(doc, respDoc);
-      }
-      else if (msgType.m_type == "mngDaemon_Version") {
-        handleMsg_mngDaemon_Version(doc, respDoc);
-      }
-      else if (msgType.m_type == "mngScheduler_AddTask") {
-        handleMsg_mngScheduler_AddTask(doc, respDoc);
-      }
-      else if (msgType.m_type == "mngScheduler_GetTask") {
-        handleMsg_mngScheduler_GetTask(doc, respDoc);
-      }
-      else if (msgType.m_type == "mngScheduler_RemoveTask") {
-        handleMsg_mngScheduler_RemoveTask(doc, respDoc);
-      }
-      else if (msgType.m_type == "mngScheduler_RemoveAll") {
-        handleMsg_mngScheduler_RemoveAll(doc, respDoc);
-      }
-      else if (msgType.m_type == "mngScheduler_List") {
-        handleMsg_mngScheduler_List(doc, respDoc);
-      }
-      else {
-        THROW_EXC_TRC_WAR(std::logic_error, "unknown type: " << msgType.m_type)
-        //TODO not support
+      std::unique_ptr<MngBaseMsg> msg;
+
+      if (msgType.m_type == "mngDaemon_Exit") {
+        msg = std::make_unique<MngRestartMsg>(MngRestartMsg(doc, m_iSchedulerService));
+      } else if (msgType.m_type == "mngDaemon_Mode") {
+        msg = std::make_unique<MngModeMsg>(MngModeMsg(doc, m_iUdpConnectorService));
+      } else if (msgType.m_type == "mngDaemon_ReloadCoordinator") {
+        msg = std::make_unique<MngReloadCoordinatorMsg>(MngReloadCoordinatorMsg(doc, m_dpaService, m_infoService));
+      } else if (msgType.m_type == "mngDaemon_UpdateCache") {
+        msg = std::make_unique<MngUpdateCacheMsg>(MngUpdateCacheMsg(doc, m_infoService, m_cacheService));
+      } else if (msgType.m_type == "mngDaemon_Version") {
+        msg = std::make_unique<MngVersionMsg>(MngVersionMsg(doc));
+      } else if (msgType.m_type == "mngScheduler_AddTask") {
+        msg = std::make_unique<SchedulerAddTaskMsg>(SchedulerAddTaskMsg(doc, m_iSchedulerService));
+      } else if (msgType.m_type == "mngScheduler_GetTask") {
+        msg = std::make_unique<SchedulerGetTaskMsg>(SchedulerGetTaskMsg(doc, m_iSchedulerService));
+      } else if (msgType.m_type == "mngScheduler_List") {
+        msg = std::make_unique<SchedulerListMsg>(SchedulerListMsg(doc, m_iSchedulerService));
+      } else if (msgType.m_type == "mngScheduler_RemoveAll") {
+        msg = std::make_unique<SchedulerRemoveAllMsg>(SchedulerRemoveAllMsg(doc, m_iSchedulerService));
+      } else if (msgType.m_type == "mngScheduler_RemoveTask") {
+        msg = std::make_unique<SchedulerRemoveTaskMsg>(SchedulerRemoveTaskMsg(doc, m_iSchedulerService));
+      } else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Unknown message type: " << msgType.m_type);
       }
 
-      m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
+      try {
+        msg->handleMsg();
+        msg->setStatus("ok", 0);
+        msg->createResponse(respDoc);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
+      } catch (const std::exception &e) {
+        msg->setErrorString(e.what());
+        msg->setStatus("err", -1);
+        Document errorDoc;
+        msg->createResponse(errorDoc);
+        m_iMessagingSplitterService->sendMessage(messagingId, std::move(errorDoc));
+      }
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -748,6 +194,30 @@ namespace iqrf {
       }
     }
 
+    void attachInterface(IIqrfDpaService *iface)
+    {
+      m_dpaService = iface;
+    }
+
+    void detachInterface(IIqrfDpaService *iface)
+    {
+      if (m_dpaService == iface) {
+        m_dpaService = nullptr;
+      }
+    }
+
+    void attachInterface(IIqrfInfo *iface)
+    {
+      m_infoService = iface;
+    }
+
+    void detachInterface(IIqrfInfo *iface)
+    {
+      if (m_infoService == iface) {
+        m_infoService = nullptr;
+      }
+    }
+
     void attachInterface(ISchedulerService* iface)
     {
       m_iSchedulerService = iface;
@@ -757,6 +227,18 @@ namespace iqrf {
     {
       if (m_iSchedulerService == iface) {
         m_iSchedulerService = nullptr;
+      }
+    }
+
+    void attachInterface(IJsCacheService *iface)
+    {
+      m_cacheService = iface;
+    }
+
+    void detachInterface(IJsCacheService *iface)
+    {
+      if (m_cacheService == iface) {
+        m_cacheService = nullptr;
       }
     }
 
@@ -784,6 +266,15 @@ namespace iqrf {
       }
     }
 
+    void attachInterface(shape::ITraceService *iface) {
+      m_traceService = iface;
+      shape::Tracer::get().addTracerService(iface);
+    }
+
+    void detachInterface(shape::ITraceService *iface) {
+      m_traceService = nullptr;
+      shape::Tracer::get().removeTracerService(iface);
+    }
   };
 
   /////////////////////////
@@ -822,12 +313,41 @@ namespace iqrf {
     m_imp->detachInterface(iface);
   }
 
+  void JsonMngApi::attachInterface(IIqrfDpaService *iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+  void JsonMngApi::detachInterface(IIqrfDpaService *iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void JsonMngApi::attachInterface(IIqrfInfo *iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonMngApi::detachInterface(IIqrfInfo *iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
   void JsonMngApi::attachInterface(ISchedulerService* iface)
   {
     m_imp->attachInterface(iface);
   }
 
   void JsonMngApi::detachInterface(ISchedulerService* iface)
+  {
+    m_imp->detachInterface(iface);
+  }
+
+  void JsonMngApi::attachInterface(IJsCacheService *iface)
+  {
+    m_imp->attachInterface(iface);
+  }
+
+  void JsonMngApi::detachInterface(IJsCacheService *iface)
   {
     m_imp->detachInterface(iface);
   }
@@ -854,12 +374,12 @@ namespace iqrf {
 
   void JsonMngApi::attachInterface(shape::ITraceService* iface)
   {
-    shape::Tracer::get().addTracerService(iface);
+    m_imp->attachInterface(iface);
   }
 
   void JsonMngApi::detachInterface(shape::ITraceService* iface)
   {
-    shape::Tracer::get().removeTracerService(iface);
+    m_imp->detachInterface(iface);
   }
 
 }

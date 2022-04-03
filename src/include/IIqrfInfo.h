@@ -39,7 +39,7 @@ namespace iqrf
 
     // for AutoNetwork usage
     virtual void insertNodes(const std::map<int, embed::node::BriefInfo> & nodes) = 0;
-    
+
     // start enumeration thread
     virtual void startEnumeration() = 0;
     // stop enumeration thread
@@ -88,9 +88,9 @@ namespace iqrf
     virtual void unregisterEnumerateHandler(const std::string& clientId) = 0;
 
     // for Mid meta data
-    // gets the flag to control if messages are anotaded by metadata 
+    // gets the flag to control if messages are anotaded by metadata
     virtual bool getMidMetaDataToMessages() const = 0;
-    // sets the flag to control if messages are anotaded by metadata 
+    // sets the flag to control if messages are anotaded by metadata
     virtual void setMidMetaDataToMessages(bool val) = 0;
 
     virtual rapidjson::Document getMidMetaData(uint32_t mid) const = 0;
@@ -100,6 +100,7 @@ namespace iqrf
     virtual void setNodeMetaData(int nadr, const rapidjson::Value & metaData) = 0;
 
     virtual void resetDb() = 0;
+    virtual void reloadDrivers() = 0;
 
     virtual ~IIqrfInfo() {}
   };
