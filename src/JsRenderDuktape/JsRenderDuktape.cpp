@@ -176,9 +176,6 @@ namespace iqrf {
   private:
     bool m_init = false;
     duk_context *m_ctx = nullptr;
-    int m_relativeStack = 0;
-
-    int m_ctxCounter = 0;
     mutable std::mutex m_contextMtx;
     std::map<int, std::shared_ptr<Context>> m_contexts;
     std::map<int, int> m_mapNadrContext;
@@ -310,21 +307,14 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void unloadProvisionalContexts()
+    void clearContexts()
     {
       TRC_FUNCTION_ENTER("");
 
       std::unique_lock<std::mutex> lck(m_contextMtx);
-
-      auto it = m_contexts.begin();
-      while (it != m_contexts.end()) {
-        if (it->first < 0) {
-          it = m_contexts.erase(it);
-        }
-        else {
-          ++it;
-        }
-      }
+      m_contexts.clear();
+      m_mapNadrContext.clear();
+      m_mapNadrDriversId.clear();
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -401,9 +391,9 @@ namespace iqrf {
     m_imp->callFenced(nadr, hwpid, functionName, par, ret);
   }
 
-  void JsRenderDuktape::unloadProvisionalContexts()
+  void JsRenderDuktape::clearContexts()
   {
-    m_imp->unloadProvisionalContexts();
+    m_imp->clearContexts();
   }
 
   void JsRenderDuktape::activate(const shape::Properties *props)

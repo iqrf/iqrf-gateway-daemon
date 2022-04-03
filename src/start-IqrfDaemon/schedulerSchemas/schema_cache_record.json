@@ -1,74 +1,132 @@
 {
-  "type": "object",
-  "properties": {
-    "taskId": {
-      "type": "integer",
-      "min": 1,
-      "max": 2147483647,
-      "description": "Task ID number.",
-      "default": 25828
-    },
-    "clientId": {
-      "type": "string",
-      "description": "Client ID string."
-    },
-    "timeSpec": {
-      "type": "object",
-      "properties": {
-        "cronTime": {
-          "type": "array",
-          "minItems": 7,
-          "maxItems": 7,
-          "items": {
-            "type": "string"
-          },
-          "description": "7 items of cron syntax..."
-        },
-        "exactTime": {
-          "type": "boolean",
-          "default": false
-        },
-        "periodic": {
-          "type": "boolean",
-          "default": false
-        },
-        "period": {
-          "type": "number",
-          "default": 0
-        },
-        "startTime": {
-          "type": "string",
-          "default": "2018-11-21T21:21:16.103930"
-        }
-      },
-      "required": [
-        "cronTime",
-        "exactTime",
-        "periodic",
-        "period",
-        "startTime"
-      ]
-    },
-    "task": {
-      "oneOf": [
-        {
-          "type": "object",
-          "properties": {}
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {}
-          }
-        }
-      ]
-    }
-  },
-  "required": [
-    "taskId",
-    "clientId",
-    "timeSpec",
-    "task"
-  ]
+	"type": "object",
+	"required": [
+		"taskId",
+		"clientId",
+		"timeSpec",
+		"task"
+	],
+	"properties": {
+		"clientId": {
+			"title": "Client ID",
+			"description": "Client identifier.",
+			"type": "string"
+		},
+		"taskId": {
+			"title": "Task ID",
+			"description": "Task identifier.",
+			"type": "integer",
+			"min": 0,
+			"max": 2147483647
+		},
+		"task": {
+			"title": "Tasks",
+			"description": "Scheduled task or array of tasks.",
+			"oneOf": [
+				{
+					"$ref": "#/definitions/task"
+				},
+				{
+					"type": "array",
+					"additionalItems": false,
+					"items": {
+						"$ref": "#/definitions/task"
+					}
+				}
+			]
+		},
+		"timeSpec": {
+			"title": "Time specification",
+			"description": "Time-based task execution conditions.",
+			"type": "object",
+			"required": [
+				"cronTime",
+				"periodic",
+				"period",
+				"exactTime",
+				"startTime"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"cronTime": {
+					"title": "cron time",
+					"description": "7 items of cron-like syntax. All required.",
+					"type": "array",
+					"minItems": 7,
+					"maxItems": 7,
+					"additionalItems": false,
+					"items": {
+						"title": "cron field",
+						"description": "1 of 7 cron field items, representing a time unit.",
+						"type": "string"
+					}
+				},
+				"periodic": {
+					"title": "Periodic",
+					"description": "Periodic task execution.",
+					"type": "boolean"
+				},
+				"period": {
+					"title": "Period",
+					"description": "Task execution period in seconds.",
+					"type": "integer"
+				},
+				"exactTime": {
+					"title": "One shot",
+					"description": "Single task execution now or at a specified time (startTime).",
+					"type": "boolean"
+				},
+				"startTime": {
+					"title": "Start time",
+					"description": "One shot task start time in format '2018-01-03T16:00:09'",
+					"type": "string",
+					"format": "date-time"
+				}
+			}
+		}
+	},
+	"definitions": {
+		"task": {
+			"$id": "#/definitions/task",
+			"title": "Task object",
+			"type": "object",
+			"required": [
+				"message",
+				"messaging"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"messaging": {
+					"$id": "#/definitions/task/properties/messaging",
+					"title": "Messaging ID(s)",
+					"description": "Scheduler messaging channel(s).",
+					"oneOf":[
+						{
+							"type": "string",
+							"example": "MqttMessaging"
+						},
+						{
+							"type": "array",
+							"items": {
+								"$id": "#/definitions/task/properties/messaging/items",
+								"type": "string",
+								"pattern": "^[^&]+$"
+							},
+							"additionalItems": false,
+							"example": [
+								"MqMessaging",
+								"MqttMessaging"
+							]
+						}
+					]
+				},
+				"message": {
+					"$id": "#/definitions/task/properties/message",
+					"title": "Task message",
+					"description": "Supported Daemon API json request.",
+					"type": "object"
+				}
+			}
+		}
+	}
 }
