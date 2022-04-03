@@ -172,6 +172,18 @@ namespace iqrf {
       std::string m_databaseChangeDateTime;
     };
 
+    /**
+     * JS cache status enum
+     */
+    enum CacheStatus
+    {
+      PENDING,
+      UP_TO_DATE,
+      UPDATE_NEEDED,
+      UPDATED,
+      UPDATE_FAILED,
+    };
+
     virtual StdDriver getDriver(int id, double ver) const = 0;
     virtual Manufacturer getManufacturer(uint16_t hwpid) const = 0;
     virtual Product getProduct(uint16_t hwpid) const = 0;
@@ -183,6 +195,7 @@ namespace iqrf {
     virtual OsDpa getOsDpa(int id) const = 0;
     virtual OsDpa getOsDpa(const std::string& os, const std::string& dpa) const = 0;
     virtual ServerState getServerState() const = 0;
+    virtual std::tuple<CacheStatus, std::string> invokeWorker() = 0;
 
     typedef std::function<void()> CacheReloadedFunc;
     virtual void registerCacheReloadedHandler(const std::string & clientId, CacheReloadedFunc hndl) = 0;

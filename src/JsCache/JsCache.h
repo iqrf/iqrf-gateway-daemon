@@ -45,6 +45,7 @@ namespace iqrf {
     OsDpa getOsDpa(int id) const override;
     OsDpa getOsDpa(const std::string& os, const std::string& dpa) const override;
     IJsCacheService::ServerState getServerState() const override;
+    std::tuple<CacheStatus, std::string> invokeWorker() override;
 
     void registerCacheReloadedHandler(const std::string & clientId, CacheReloadedFunc hndl) override;
     void unregisterCacheReloadedHandler(const std::string & clientId) override;

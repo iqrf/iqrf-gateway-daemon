@@ -1498,9 +1498,11 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
+      if (m_iJsRenderService != nullptr) {
+        m_iJsRenderService->clearContexts();
+      }
       loadProvisoryDrivers();
-
-      //TODO
+      loadDeviceDrivers();
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -2584,7 +2586,7 @@ namespace iqrf {
         reloadDrivers();
       });
 
-      loadProvisoryDrivers();
+      reloadDrivers();
 
       m_repeatEnum = false;
       m_enumThreadRun = false;
@@ -2777,6 +2779,10 @@ namespace iqrf {
 
   void IqrfInfo::resetDb() {
     m_imp->resetDb();
+  }
+
+  void IqrfInfo::reloadDrivers() {
+    m_imp->reloadDrivers();
   }
 
   void IqrfInfo::activate(const shape::Properties *props)

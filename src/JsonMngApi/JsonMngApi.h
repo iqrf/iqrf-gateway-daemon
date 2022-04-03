@@ -17,7 +17,10 @@
 #pragma once
 
 #include "ILaunchService.h"
+#include "IIqrfDpaService.h"
+#include "IIqrfInfo.h"
 #include "ISchedulerService.h"
+#include "IJsCacheService.h"
 #include "IUdpConnectorService.h"
 #include "IMessagingSplitterService.h"
 #include "ShapeProperties.h"
@@ -35,20 +38,29 @@ namespace iqrf {
     void deactivate();
     void modify(const shape::Properties *props);
 
-    void attachInterface(shape::ILaunchService* iface);
-    void detachInterface(shape::ILaunchService* iface);
+    void attachInterface(shape::ILaunchService *iface);
+    void detachInterface(shape::ILaunchService *iface);
 
-    void attachInterface(ISchedulerService* iface);
-    void detachInterface(ISchedulerService* iface);
+    void attachInterface(IIqrfDpaService *iface);
+    void detachInterface(IIqrfDpaService *iface);
 
-    void attachInterface(IUdpConnectorService* iface);
-    void detachInterface(IUdpConnectorService* iface);
+    void attachInterface(IIqrfInfo *iface);
+    void detachInterface(IIqrfInfo *iface);
 
-    void attachInterface(IMessagingSplitterService* iface);
-    void detachInterface(IMessagingSplitterService* iface);
+    void attachInterface(ISchedulerService *iface);
+    void detachInterface(ISchedulerService *iface);
 
-    void attachInterface(shape::ITraceService* iface);
-    void detachInterface(shape::ITraceService* iface);
+    void attachInterface(IJsCacheService *iface);
+    void detachInterface(IJsCacheService *iface);
+
+    void attachInterface(IUdpConnectorService *iface);
+    void detachInterface(IUdpConnectorService *iface);
+
+    void attachInterface(IMessagingSplitterService *iface);
+    void detachInterface(IMessagingSplitterService *iface);
+
+    void attachInterface(shape::ITraceService *iface);
+    void detachInterface(shape::ITraceService *iface);
 
   private:
     class Imp;
