@@ -203,6 +203,8 @@ namespace iqrf {
       std::map<uint8_t, TPrebondedNode> prebondedNodes;
       // Network nodes map
       std::map<uint8_t, TNode> networkNodes;
+      // Network MIDs map
+      std::map<uint32_t, uint8_t> MIDs;
       // FRC param value
       uint8_t FrcResponseTime;
       // DPA param value
@@ -1402,10 +1404,8 @@ namespace iqrf {
       }
 
       // Overlapping networks
-      IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
       if ((antwInputParams.overlappingNetworks.networks != 0) && (antwInputParams.overlappingNetworks.network != 0))
       {
-        // Applied only when DPA at [C] is < 0x414
         uint32_t rem = MID % antwInputParams.overlappingNetworks.networks;
         if (rem != (uint32_t)(antwInputParams.overlappingNetworks.network - 1))
         {
@@ -1425,16 +1425,56 @@ namespace iqrf {
         }
       }
 
-      // Select free address to bond
-      for (uint8_t addr = 1; addr <= MAX_ADDRESS; addr++)
+      // Was node with current MID already bonded ?
+      auto node = antwProcessParams.MIDs.find(MID);
+      if ((node != antwProcessParams.MIDs.end()) && (node->second != 0))
       {
-        // Node bonded ?
-        if (antwProcessParams.networkNodes[addr].bonded == false)
+        // Yes, node was already bonded, assign the same address
+        bondAddr = node->second;
+        return true;
+      }
+      else
+      {
+        // Assign network address to authorized Node
+        for (uint8_t addr = 1; addr <= MAX_ADDRESS; addr++)
         {
-          // No, use address 
-          antwProcessParams.networkNodes[addr].bonded = true;
-          bondAddr = addr;
-          return true;
+          // Address already bonded ?
+          if (antwProcessParams.networkNodes[addr].bonded == false)
+          {
+            // No, address is free
+            bool usedAddress = false;
+
+            // Address assinged in MIDs map ?
+            for (auto node : antwProcessParams.MIDs)
+            {
+              if (node.second == addr)
+              {
+                // Yes, set the flag
+                usedAddress = true;
+                break;
+              }
+            }
+
+            // Check the flag
+            if (usedAddress == false)
+            {
+              // Address is free and wasn't assigned
+              bondAddr = addr;
+              // Was node with current MID already bonded ?
+              auto node = antwProcessParams.MIDs.find(MID);
+              if (node != antwProcessParams.MIDs.end())
+              {
+                // Yes, assign address
+                node->second = addr;
+              }
+              else
+              {
+                // No, add current node to MIDs map
+                antwProcessParams.MIDs.insert(std::make_pair(MID, addr));
+              }
+              return true;
+            }
+          }
         }
       }
 
@@ -1712,6 +1752,7 @@ namespace iqrf {
           node.address = addr;
           antwProcessParams.networkNodes[addr] = node;
         }
+        antwProcessParams.MIDs.clear();
 
         // Update network info
         updateNetworkInfo(autonetworkResult);
@@ -2246,11 +2287,8 @@ namespace iqrf {
                     antwProcessParams.networkNodes[response.BondAddr].mid.value = node.second.mid.value;
                     antwProcessParams.networkNodes[response.BondAddr].HWPID = node.second.HWPID;
                     antwProcessParams.networkNodes[response.BondAddr].HWPIDVer = node.second.HWPIDVer;
-                    //if (antwProcessParams.unbondedNodes == 0)
-                    //{
                     antwProcessParams.countWaveNewNodes++;
                     antwProcessParams.countNewNodes++;
-                    //}
                     // Increase number of authorized nodes
                     step++;
                     break;
@@ -2420,7 +2458,6 @@ namespace iqrf {
             std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_STEP));
 
             // Unbond node at coordinator only ?
-            // TestCase - overit odbondovani na strane [C] (zamerne nasimulovat FrcSelect.size() != 0)
             if (FrcSelect.size() != 0)
             {
               TRC_INFORMATION("Unbonding Nodes only at Coordinator.");
@@ -2430,7 +2467,7 @@ namespace iqrf {
                 if (node != FrcSelect.end())
                 {
                   // Insert duplicit node to duplicitMID 
-                  if (std::find(antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address) != antwProcessParams.duplicitMID.end())
+                  if (std::find(antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address) == antwProcessParams.duplicitMID.end())
                     antwProcessParams.duplicitMID.push_back(address);
                   try
                   {
