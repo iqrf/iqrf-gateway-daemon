@@ -94,7 +94,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       //TRC_INFORMATION("Entering programming mode.");
       TRC_WARNING("Not implemented");
-#if 0   
+#if 0
 
       int progModeEnterRes = spi_iqrf_pe();
       if (progModeEnterRes != BASE_TYPES_OPER_OK) {
@@ -108,7 +108,7 @@ namespace iqrf {
       return false;
     }
 
-#if 0   
+#if 0
     // try to wait for communication ready state in specified timeout (in ms).
     // returns	last read IQRF SPI status.
     // copied and slightly modified from: spi_example_pgm_hex.c
@@ -169,11 +169,11 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_WARNING("Not implemented");
       //silence -Wunused-parameter
-      (void)target; 
+      (void)target;
       (void)data;
       (void)address;
 
-#if 0      
+#if 0
       // wait for TR module is ready
       spi_iqrf_SPIStatus spiStatus = tryToWaitForPgmReady(2000);
 
@@ -380,7 +380,7 @@ namespace iqrf {
 
         Value* v = Pointer("/uartReset").Get(d);
         if (v && v->IsBool())
-          m_cfg.trModuleReset = v->GetBool() ? TR_MODULE_RESET_ENABLE : TR_MODULE_RESET_DISABLE;  
+          m_cfg.trModuleReset = v->GetBool() ? TR_MODULE_RESET_ENABLE : TR_MODULE_RESET_DISABLE;
 
         TRC_INFORMATION(PAR(m_interfaceName) << PAR(m_baudRate));
 
@@ -475,12 +475,15 @@ namespace iqrf {
       try {
         while (m_runListenThread)
         {
+          if (state == State::NotReady) {
+            THROW_EXC_TRC_WAR(std::logic_error, "UART interface not ready to listen.");
+          }
           int recData = 0;
 
           // reading
           uint8_t reclen = 0;
           int retval = uart_iqrf_read(m_rx, &reclen, 100); //waits for 100 ms
-            
+
           switch (retval) {
           case BASE_TYPES_OPER_OK:
           case UART_IQRF_ERROR_TIMEOUT:
