@@ -66,7 +66,7 @@ namespace iqrf {
       int attempt = 0;
       counter++;
 
-      TRC_INFORMATION("Sending to IQRF UART: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
+      TRC_INFORMATION("Sending to IQRF UART: " << std::endl << MEM_HEX(message.data(), message.size()));
 
       while (attempt++ < 4) {
         TRC_INFORMATION("Trying to sent: " << counter << "." << attempt);
@@ -499,8 +499,8 @@ namespace iqrf {
           }
 
           if (recData > 0) {
-            TRC_DEBUG(PAR(recData));
             std::basic_string<unsigned char> message(m_rx, recData);
+            TRC_INFORMATION("Received from IQRF UART: " << std::endl << MEM_HEX(message.data(), message.size()));
             m_accessControl.messageHandler(message);
           }
 

@@ -2,7 +2,7 @@
 * filename: IqrfTcp.cpp
 * author: Karel Hanák <xhanak34@stud.fit.vutbr.cz>
 * school: Brno University of Technology, Faculty of Information Technology
-* bachelor's thesis: Automatic Testing of Software 
+* bachelor's thesis: Automatic Testing of Software
 *
 * This file contains implementation a TCP communication component in the role of a client.
 *
@@ -77,13 +77,13 @@ namespace iqrf {
 
     /**
      * Sends DPA message to TCP server via the socket file descriptor.
-     * 
-     * @param message DPA message to send 
+     *
+     * @param message DPA message to send
      */
     void send(const std::basic_string<unsigned char>& message)
     {
-      TRC_INFORMATION("Sending to IQRF TCP: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
-      
+      TRC_INFORMATION("Sending to IQRF TCP: " << std::endl << MEM_HEX(message.data(), message.size()));
+
       if (sockfd == -1) {
         THROW_EXC_TRC_WAR(std::logic_error, "Socket is not open.")
       }
@@ -96,7 +96,7 @@ namespace iqrf {
 
     }
 
-    bool enterProgrammingState() 
+    bool enterProgrammingState()
     {
       TRC_FUNCTION_ENTER("");
       //TRC_INFORMATION("Entering programming mode.");
@@ -115,7 +115,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_WARNING("Not implemented");
       //silence -Wunused-parameter
-      (void)target; 
+      (void)target;
       (void)data;
       (void)address;
 
@@ -124,7 +124,7 @@ namespace iqrf {
       return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
     }
 
-    bool terminateProgrammingState() 
+    bool terminateProgrammingState()
     {
       TRC_INFORMATION("Terminating programming mode.");
       TRC_WARNING("Not implemented");
@@ -227,7 +227,7 @@ namespace iqrf {
         /************************************** Beginning of citation ************************************
          * The following section is inspired by a linux manual page for the getaddrinfo function.
          * The original example has been altered.
-         * 
+         *
          * Title: getaddrinfo(3) - linux manual page
          * Author(s): Michael Kerrisk <mtk.manpages@gmail.com>, Ulrich Drepper <drepper@redhat.com>,
          *            Sam Varshavchik <mrsam@courier-mta.com>
@@ -240,7 +240,7 @@ namespace iqrf {
         resolve.ai_family = AF_UNSPEC;
         resolve.ai_socktype = SOCK_STREAM;
         resolve.ai_flags = 0;
-        resolve.ai_protocol = 0;    
+        resolve.ai_protocol = 0;
 
         //retrieve hosts from address and specified connection parameters
         if (getaddrinfo(&(*addrStr.c_str()), nullptr, &resolve, &res) != 0) {
@@ -256,7 +256,7 @@ namespace iqrf {
             addr->sin_port = portnum;
             //create socket for ipv4 connection
             sockfd = socket(dest->ai_family, dest->ai_socktype, dest->ai_protocol);
-            
+
             //failed to create socket, continue with the next result
             if (sockfd == -1) {
               continue;
@@ -272,7 +272,7 @@ namespace iqrf {
             addr6->sin6_port = portnum;
             //create socket for ipv6 connection
             sockfd = socket(dest->ai_family, dest->ai_socktype, dest->ai_protocol);
-           
+
             //failed to create socket, continue with the next result
             if (sockfd == -1) {
               continue;
@@ -301,7 +301,7 @@ namespace iqrf {
     }
 
     /**
-     * Deactivates the TCP component after closing the connection on socket file descriptor. 
+     * Deactivates the TCP component after closing the connection on socket file descriptor.
      */
     void deactivate()
     {
@@ -383,8 +383,8 @@ namespace iqrf {
           memset(buffer, 0, BUFFER_SIZE);
 
           if (recvlen > 0) {
-            TRC_DEBUG(PAR(recvlen));
             std::basic_string<unsigned char> message(m_rec, recvlen);
+            TRC_INFORMATION("Received from IQRF TCP: " << std::endl << MEM_HEX(message.data(), message.size()));
             m_accessControl.messageHandler(message);
           }
         }

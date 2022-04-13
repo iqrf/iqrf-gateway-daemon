@@ -58,7 +58,7 @@ namespace iqrf {
       counter++;
 
       TRC_INFORMATION("Sending to IQRF CDC: " << std::endl << MEM_HEX(message.data(), static_cast<uint8_t>(message.size())));
-      
+
       if (m_cdc) {
         while (attempt++ < 10) {
           TRC_INFORMATION("Trying to sent: " << counter << "." << attempt);
@@ -80,7 +80,7 @@ namespace iqrf {
       }
     }
 
-    bool enterProgrammingState() 
+    bool enterProgrammingState()
     {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION("Entering programming mode.");
@@ -110,9 +110,9 @@ namespace iqrf {
       return true;
     }
 
-    IIqrfChannelService::UploadErrorCode 
+    IIqrfChannelService::UploadErrorCode
       upload(
-        const UploadTarget target, 
+        const UploadTarget target,
         const std::basic_string<uint8_t>& data,
         const uint16_t address
     )
@@ -165,7 +165,7 @@ namespace iqrf {
         TRC_FUNCTION_LEAVE("");
         return IIqrfChannelService::UploadErrorCode::UPLOAD_ERROR_NOT_SUPPORTED;
       }
-      
+
       PMResponse response;
       try {
         if (!m_cdc) {
@@ -280,7 +280,10 @@ namespace iqrf {
 
       if (m_cdc) {
         m_cdc->registerAsyncMsgListener([&](unsigned char* data, unsigned int length) {
-          m_accessControl.messageHandler(std::basic_string<unsigned char>(data, length)); });
+          std::basic_string<unsigned char> message(data, length);
+          TRC_INFORMATION("Received from IQRF CDC: " << std::endl << MEM_HEX(message.data(), message.size()));
+          m_accessControl.messageHandler(message);
+        });
       }
     }
 

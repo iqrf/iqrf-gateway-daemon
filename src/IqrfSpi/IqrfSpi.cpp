@@ -63,7 +63,7 @@ namespace iqrf {
       int attempt = 0;
       counter++;
 
-      TRC_INFORMATION("Sending to IQRF SPI: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
+      TRC_INFORMATION("Sending to IQRF SPI: " << std::endl << MEM_HEX(message.data(), message.size()));
 
       while (attempt++ < 11) {
         TRC_INFORMATION("Trying to sent: " << counter << "." << attempt);
@@ -87,7 +87,7 @@ namespace iqrf {
             else {
               THROW_EXC_TRC_WAR(std::logic_error, "spi_iqrf_write()() failed: " << PAR(retval));
             }
-            
+
             break;
           }
           else {
@@ -324,9 +324,9 @@ namespace iqrf {
 
           switch (ret) {
             case BASE_TYPES_OPER_OK:
-              if ((spiStatus1.dataNotReadyStatus == SPI_IQRF_SPI_DISABLED 
-                  && spiStatus2.dataNotReadyStatus == SPI_IQRF_SPI_DISABLED) 
-                  || (spiStatus1.dataNotReadyStatus == SPI_IQRF_SPI_HW_ERROR 
+              if ((spiStatus1.dataNotReadyStatus == SPI_IQRF_SPI_DISABLED
+                  && spiStatus2.dataNotReadyStatus == SPI_IQRF_SPI_DISABLED)
+                  || (spiStatus1.dataNotReadyStatus == SPI_IQRF_SPI_HW_ERROR
                   && spiStatus2.dataNotReadyStatus == SPI_IQRF_SPI_HW_ERROR)) {
                 TRC_INFORMATION("GetState() SPI status: " << PAR(spiStatus1.dataNotReadyStatus) << PAR(spiStatus2.dataNotReadyStatus));
                 return state = State::NotReady;
@@ -550,6 +550,7 @@ namespace iqrf {
           // unlocked - possible to write in receiveFromFunc
           if (recData) {
             std::basic_string<unsigned char> message(m_rx, recData);
+            TRC_INFORMATION("Received from IQRF SPI: " << std::endl << MEM_HEX(message.data(), message.size()));
             m_accessControl.messageHandler(message);
           }
 
