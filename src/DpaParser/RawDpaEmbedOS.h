@@ -43,18 +43,20 @@ namespace iqrf
 
         void parseResponse(const DpaMessage & dpaResponse) override
         {
-          
+
           TPerOSRead_Response resp = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerOSRead_Response;
 
           m_mid = (unsigned)resp.MID[0] + ((unsigned)resp.MID[1] << 8) + ((unsigned)resp.MID[2] << 16) + ((unsigned)resp.MID[3] << 24);
           m_osVersion = (int)resp.OsVersion;
-          m_trMcuType = (int)resp.McuType;
+          m_trMcuType = (uint8_t)resp.McuType;
+          m_trSeries = m_trMcuType >> 4;
+          m_mcuType = m_trMcuType & 0x07;
           m_osBuild = (int)resp.OsBuild;
           m_rssi = (int)resp.Rssi;
           m_supplyVoltage = 261.12 / (127 - (int)resp.SupplyVoltage);
           m_flags = (int)resp.Flags;
           m_slotLimits = (int)resp.SlotLimits;
-          
+
           // False at DPA < 3.03
           if (m_rdata.size() > 12 + 16) {
             m_ibk = std::vector<uint8_t>(resp.IBK, resp.IBK + 16);
