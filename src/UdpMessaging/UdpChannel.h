@@ -64,7 +64,7 @@ public:
 	 * @param dataBuffSize Data buffer size
 	 */
 	UdpChannel(unsigned short remotePort, unsigned short localPort, unsigned int expiration, unsigned dataBuffSize);
-	
+
 	/**
 	 * Destructor
 	 */
@@ -75,7 +75,7 @@ public:
 	 * @param message Message to send
 	 */
 	void sendTo(const std::basic_string<unsigned char>& message) override;
-	
+
 	/**
 	 * Sets handler for received messages
 	 * @param messageHandler Function to pass received message to
