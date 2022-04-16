@@ -20,9 +20,9 @@
 
 namespace iqrf {
 
-	MngUpdateCacheMsg::MngUpdateCacheMsg(const Document &doc, IIqrfInfo *infoService, IJsCacheService *cacheService) : MngBaseMsg(doc) {
+	MngUpdateCacheMsg::MngUpdateCacheMsg(const Document &doc, IIqrfDb *infoService, IJsCacheService *cacheService) : MngBaseMsg(doc) {
 		TRC_FUNCTION_ENTER("");
-		m_infoService = infoService;
+		m_dbService = infoService;
 		m_cacheService = cacheService;
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -35,7 +35,7 @@ namespace iqrf {
 			throw std::logic_error(std::get<1>(result));
 		}
 		if (m_cacheState == IJsCacheService::CacheStatus::UPDATED) {
-			m_infoService->reloadDrivers();
+			m_dbService->reloadDrivers();
 		}
 		TRC_FUNCTION_LEAVE("");
 	}

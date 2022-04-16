@@ -19,13 +19,13 @@
 
 namespace iqrf {
 
-	MngReloadCoordinatorMsg::MngReloadCoordinatorMsg(const Document &doc, IIqrfDpaService *dpaService, IIqrfInfo *infoService) : MngBaseMsg(doc) {
+	MngReloadCoordinatorMsg::MngReloadCoordinatorMsg(const Document &doc, IIqrfDpaService *dpaService, IIqrfDb *dbService) : MngBaseMsg(doc) {
 		m_dpaService = dpaService;
-		m_infoService = infoService;
+		m_dbService = dbService;
 	}
 
 	void MngReloadCoordinatorMsg::handleMsg() {
 		m_dpaService->reinitializeCoordinator();
-		m_infoService->reloadDrivers();
+		m_dbService->reloadDrivers();
 	}
 }

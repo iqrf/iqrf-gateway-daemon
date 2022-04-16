@@ -1,0 +1,59 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "schema__iqrf__JsonDbApi",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"type": "object",
+	"required": [
+		"component",
+		"instance"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"component": {
+			"$id": "#/properties/component",
+			"title": "Component name",
+			"description": "Name of component.",
+			"type": "string",
+			"enum": [
+				"iqrf::JsonDbApi"
+			]
+		},
+		"instance": {
+			"$id": "#/properties/instance",
+			"title": "Instance name",
+			"description": "Name of instance.",
+			"type": "string",
+			"default": "iqrf::JsonDbApi-1"
+		},
+		"RequiredInterfaces": {
+			"$id": "#/properties/RequiredInterfaces",
+			"title": "Required interfaces",
+			"description": "Array of required interfaces.",
+			"type": "array",
+			"additionalItems": false,
+			"items": {
+				"$id": "#/properties/RequiredInterfaces/items",
+				"type": "object",
+				"required": [
+					"name",
+					"target"
+				],
+				"additionalProperties": false,
+				"properties": {
+					"name": {
+						"type": "string",
+						"default": "iqrf::IMessagingService",
+						"description": "..."
+					},
+					"target": {
+						"type": "object"
+					}
+				}
+			}
+		}
+	}
+}
