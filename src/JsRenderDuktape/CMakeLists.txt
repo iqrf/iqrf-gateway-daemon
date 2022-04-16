@@ -37,9 +37,13 @@ add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 endif()
 
 if(SHAPE_STATIC_LIBS)
-    add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
+	add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
-    add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
+	add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+	nlohmann_json::nlohmann_json
+)
 
 DeployShapeComponent(${PROJECT_NAME})

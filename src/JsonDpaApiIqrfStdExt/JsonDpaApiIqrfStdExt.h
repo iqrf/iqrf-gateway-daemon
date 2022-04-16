@@ -16,44 +16,149 @@
  */
 #pragma once
 
-#include "IJsRenderService.h"
+#include "ApiMsgIqrfStandardFrc.h"
+#include "IIqrfDb.h"
 #include "IIqrfDpaService.h"
 #include "IIqrfInfo.h"
+#include "IJsRenderService.h"
 #include "IMessagingSplitterService.h"
-#include "ShapeProperties.h"
 #include "ITraceService.h"
+#include "JsDriverStandardFrcSolver.h"
+#include "ShapeProperties.h"
+#include "Trace.h"
 #include "EnumUtils.h"
 #include "MessageTypes.h"
+
+#include "rapidjson/rapidjson.h"
+#include "rapidjson/document.h"
+#include "rapidjson/istreamwrapper.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
+
+#include <algorithm>
+#include <fstream>
 #include <map>
+#include <memory>
 
+/// iqrf namespace
 namespace iqrf {
-  class JsonDpaApiIqrfStdExt
-  {
-  public:
-    JsonDpaApiIqrfStdExt();
-    virtual ~JsonDpaApiIqrfStdExt();
 
-    void activate(const shape::Properties *props = 0);
-    void deactivate();
-    void modify(const shape::Properties *props);
+	class JsonDpaApiIqrfStdExt {
+	public:
+		/**
+		 * Constructor
+		 */
+		JsonDpaApiIqrfStdExt();
 
-    void attachInterface(IIqrfInfo* iface);
-    void detachInterface(IIqrfInfo* iface);
+		/**
+		 * Destructor
+		 */
+		virtual ~JsonDpaApiIqrfStdExt();
 
-    void attachInterface(IJsRenderService* iface);
-    void detachInterface(IJsRenderService* iface);
+		/**
+		 * Activate component instance
+		 * @param props Instance properteis
+		 */
+		void activate(const shape::Properties *props = 0);
 
-    void attachInterface(IIqrfDpaService* iface);
-    void detachInterface(IIqrfDpaService* iface);
+		/**
+		 * Modify component instance members
+		 * @param props Instance properties
+		 */
+		void modify(const shape::Properties *props);
 
-    void attachInterface(IMessagingSplitterService* iface);
-    void detachInterface(IMessagingSplitterService* iface);
+		/**
+		 * Deactivate component instance
+		 */
+		void deactivate();
 
-    void attachInterface(shape::ITraceService* iface);
-    void detachInterface(shape::ITraceService* iface);
+		/**
+		 * Attach DB service interface
+		 * @param iface DB service interface
+		 */
+		void attachInterface(IIqrfDb *iface);
 
-  private:
-    class Imp;
-    Imp* m_imp;
-  };
+		/**
+		 * Detach DB service interface
+		 * @param iface DB service interface
+		 */
+		void detachInterface(IIqrfDb *iface);
+
+		/**
+		 * Attach DPA service interface
+		 * @param iface DPA service interface
+		 */
+		void attachInterface(IIqrfDpaService *iface);
+
+		/**
+		 * Detach DPA service interface
+		 * @param iface DPA service interface
+		 */
+		void detachInterface(IIqrfDpaService *iface);
+
+		/**
+		 * Attach JS render service interface
+		 * @param iface JS render service interface
+		 */
+		void attachInterface(IJsRenderService *iface);
+
+		/**
+		 * Detach JS render service interface
+		 * @param iface JS render service interface
+		 */
+		void detachInterface(IJsRenderService *iface);
+
+		/**
+		 * Attach Splitter service interface
+		 * @param iface Splitter service interface
+		 */
+		void attachInterface(IMessagingSplitterService *iface);
+
+		/**
+		 * Detach Splitter service interface
+		 * @param iface Splitter service interface
+		 */
+		void detachInterface(IMessagingSplitterService *iface);
+
+		/**
+		 * Attach Tracing service interface
+		 * @param iface Tracing service interface
+		 */
+		void attachInterface(shape::ITraceService *iface);
+
+		/**
+		 * Detach Tracing service interface
+		 * @param iface Tracing service interface
+		 */
+		void detachInterface(shape::ITraceService *iface);
+
+	private:
+		/**
+		 * Handles DPA messages
+		 * @param messagingId Messaging ID
+		 * @param msgType Message type
+		 * @param doc Request document
+		 */
+		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
+
+		/// DB service interface
+		IIqrfDb *m_dbService = nullptr;
+		/// DPA service interface
+		IIqrfDpaService *m_dpaService = nullptr;
+		/// JS render service interface
+		IJsRenderService *m_jsRenderService = nullptr;
+		/// Splitter service interface
+		IMessagingSplitterService *m_splitterService = nullptr;
+		/// Transaction mutex
+		std::mutex m_transactionMutex;
+		/// Pointer to store current transaction
+		std::shared_ptr<IDpaTransaction2> m_transaction;
+		/// Vector of DPA messages to handle
+		std::vector<std::string> m_filters = {
+			"iqrfDali_Frc",
+      "iqrfLight_FrcLaiRead",
+      "iqrfLight_FrcLdiSend",
+      "iqrfSensor_Frc"
+		};
+	};
 }
