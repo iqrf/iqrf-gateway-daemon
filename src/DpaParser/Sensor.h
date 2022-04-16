@@ -49,7 +49,10 @@ namespace iqrf
         std::set<int> m_frcs;
         double m_value = 0;
         bool m_valueSet = false;
-        //TODO breakdown - array : [optional] see <iqrf.sensor.ReadSensorsWithTypes_Response> for more information.
+        std::string m_breakdownName;
+        std::string m_breakdownShortname;
+        std::string m_breakdownUnit;
+        uint8_t m_breakdownDecimalPlaces = 1;
 
       public:
         int getIdx() const { return m_idx; }
@@ -59,10 +62,14 @@ namespace iqrf
         const std::string & getShortName() const { return m_shortName; }
         const std::string & getUnit() const { return m_unit; }
         int getDecimalPlaces() const { return m_decimalPlaces; }
+        bool hasBreakdown() { return m_breakdownName.length() > 0 && m_breakdownShortname.length() > 0 && m_breakdownUnit.length() > 0; }
+        const std::string& getBreakdownName() const { return m_breakdownName; }
+        const std::string& getBreakdownShortName() const { return m_breakdownShortname; }
+        const std::string& getBreakdownUnit() const { return m_breakdownUnit; }
+        const uint8_t& getBreakdownDecimalPlaces() const { return m_breakdownDecimalPlaces; }
         const std::set<int> & getFrcs() const { return m_frcs; }
         double getValue() const { return m_value; }
         bool isValueSet() const { return m_valueSet; }
-        //TODO breakdown - array : [optional] see <iqrf.sensor.ReadSensorsWithTypes_Response> for more information.
 
         virtual ~Sensor() {}
       };

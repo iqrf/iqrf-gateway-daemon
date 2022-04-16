@@ -28,7 +28,7 @@ namespace iqrf {
     uint16_t hwpId = HWPID_DoNotCheck;
     bool wholeNetwork = false;
     int repeat = 1;
-    std::basic_string<uint8_t> deviceAddrList;
+    std::vector<uint8_t> deviceAddrList;
     bool clearAllBonds = false;
   } TRemoveBondInputParams;
 

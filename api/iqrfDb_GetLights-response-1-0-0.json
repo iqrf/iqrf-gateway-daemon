@@ -1,0 +1,107 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"title": "GetLights response",
+	"description": "Retrieves device addresses and the number of implemented lights.",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "IQRF DB - GetLights request.",
+			"type": "string",
+			"enum": [
+				"iqrfDb_GetLights"
+			]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Response data",
+			"description": "Response data.",
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message ID used for pairing requests and responses.",
+					"type": "string"
+				},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response parameters",
+					"description": "Response parameters.",
+					"type": "object",
+					"required": [
+						"lightDevices"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"lightDevices": {
+							"$id": "#/properties/data/properties/rsp/properties/lightDevices",
+							"title": "BinaryOutput devices",
+							"descriptions": "Array of devices implementing BinaryOutput standard and count of implemented lights.",
+							"type": "array",
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/lightDevices/items",
+								"title": "BinaryOutput device",
+								"description": "Object containing address of device and number of implemented lights.",
+								"type": "object",
+								"required": [
+									"address",
+									"count"
+								],
+								"additionalProperties": false,
+								"properties": {
+									"address": {
+										"$id": "#/properties/data/properties/rsp/properties/lightDevices/items/properties/address",
+										"title": "Device address",
+										"description": "Address of device implementing Light standard.",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 239
+									},
+									"count": {
+										"$id": "#/properties/data/properties/rsp/properties/lightDevices/items/properties/count",
+										"title": "Binout count",
+										"description": "Number of implemented lights.",
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 32
+									}
+								}
+							}
+						}
+					}
+				},
+				"insId": {
+					"$id": "#/properties/data/properties/insId",
+					"title": "Instance ID",
+					"description": "Daemon insteance ID.",
+					"type": "string"
+				},
+				"status": {
+					"$id": "#/properties/data/properties/status",
+					"title": "Status code",
+					"description": "Status code.",
+					"type": "integer"
+				},
+				"statusStr": {
+					"$id": "#/properties/data/properties/statusStr",
+					"title": "Status string",
+					"description": "Verbose status string",
+					"type": "string"
+				}
+			}
+		}
+	}
+}

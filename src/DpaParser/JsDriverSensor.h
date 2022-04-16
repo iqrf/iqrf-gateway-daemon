@@ -32,7 +32,7 @@ namespace iqrf
         class Sensor : public sensor::item::Sensor
         {
         public:
-          Sensor(const rapidjson::Value& v)
+          Sensor(const rapidjson::Value& v, uint8_t idx)
           {
             using namespace rapidjson;
 
@@ -42,6 +42,7 @@ namespace iqrf
             m_name = jutils::getMemberAs<std::string>("name", v);
             m_shortName = jutils::getMemberAs<std::string>("shortName", v);
             m_unit = jutils::getMemberAs<std::string>("unit", v);
+            m_idx = idx;
             //TODO id is not set by driver
             m_decimalPlaces = jutils::getPossibleMemberAs<int>("decimalPlaces", v, m_decimalPlaces);
             {
@@ -52,6 +53,13 @@ namespace iqrf
             if (val) {
               m_value = val->GetDouble();
               m_valueSet = true;
+            }
+            const Value *breakdown = Pointer("/breakdown/0").Get(v);
+            if (breakdown) {
+              m_breakdownName = jutils::getMemberAs<std::string>("name", *breakdown);
+              m_breakdownShortname = jutils::getMemberAs<std::string>("shortName", *breakdown);
+              m_breakdownUnit = jutils::getMemberAs<std::string>("unit", *breakdown);
+              m_breakdownDecimalPlaces = (uint8_t)jutils::getPossibleMemberAs<int>("decimalPlaces", *breakdown, m_breakdownDecimalPlaces);
             }
           }
 
@@ -85,13 +93,69 @@ namespace iqrf
           for (auto itr = val.Begin(); itr != val.End(); ++itr) {
             jsdriver::item::SensorPtr sen;
             if (!itr->IsNull()) {
-              sen.reset(shape_new jsdriver::item::Sensor(*itr));
+              sen.reset(shape_new jsdriver::item::Sensor(*itr, itr - val.begin()));
             }
             m_sensors.push_back(std::move(sen));
           }
         }
       };
       typedef std::unique_ptr<Enumerate> EnumeratePtr;
+
+      ////////////////
+      class SensorFrc {
+      public:
+        SensorFrc(const rapidjson::Document& parameters) {
+          using namespace rapidjson;
+          m_type = Pointer("/sensorType").Get(parameters)->GetUint();
+          m_idx = Pointer("/sensorIndex").Get(parameters)->GetUint();
+          m_command = Pointer("/frcCommand").Get(parameters)->GetUint();
+          {
+            const Value *v = Pointer("/selectedNodes").Get(parameters);
+            if (v && v->IsArray()) {
+              const auto &arr = v->GetArray();
+              for (SizeType i = 0; i < arr.Size(); ++i) {
+                m_selectedNodes.insert(arr[i].GetUint());
+              }
+            }
+          }
+          {
+            const Value *v = Pointer("/getExtraResult").Get(parameters);
+            if (v && v->IsBool()) {
+              m_extraResult = v->GetBool();
+            } else {
+              m_extraResult = false;
+            }
+          }
+        }
+
+        uint8_t& getIndex() {
+          return m_idx;
+        }
+
+        uint8_t& getType() {
+          return m_type;
+        }
+
+        uint8_t& getCommand() {
+          return m_command;
+        }
+
+        std::set<uint8_t>& getSelectedNodes() {
+          return m_selectedNodes;
+        }
+
+        bool getExtraResult() {
+          return m_extraResult;
+        }
+
+        virtual ~SensorFrc() {}
+      private:
+        uint8_t m_idx;
+        uint8_t m_type;
+        uint8_t m_command;
+        std::set<uint8_t> m_selectedNodes;
+        bool m_extraResult;
+      };
 
       /*
       ////////////////

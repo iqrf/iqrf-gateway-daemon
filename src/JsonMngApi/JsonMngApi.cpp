@@ -61,10 +61,10 @@ namespace iqrf {
 		shape::ILaunchService *m_iLaunchService = nullptr;
 		/// Tracing service
 		shape::ITraceService *m_traceService = nullptr;
+		/// IqrfDb service
+		IIqrfDb *m_dbService = nullptr;
 		/// DPA service
 		IIqrfDpaService *m_dpaService = nullptr;
-		/// IqrfInfo service
-		IIqrfInfo *m_infoService = nullptr;
 		/// Scheduler service
 		ISchedulerService *m_iSchedulerService = nullptr;
 		/// JsonSplitter service
@@ -92,9 +92,9 @@ namespace iqrf {
 			} else if (msgType.m_type == "mngDaemon_Mode") {
 				msg = std::make_unique<MngModeMsg>(MngModeMsg(doc, m_iUdpConnectorService));
 			} else if (msgType.m_type == "mngDaemon_ReloadCoordinator") {
-				msg = std::make_unique<MngReloadCoordinatorMsg>(MngReloadCoordinatorMsg(doc, m_dpaService, m_infoService));
+				msg = std::make_unique<MngReloadCoordinatorMsg>(MngReloadCoordinatorMsg(doc, m_dpaService, m_dbService));
 			} else if (msgType.m_type == "mngDaemon_UpdateCache") {
-				msg = std::make_unique<MngUpdateCacheMsg>(MngUpdateCacheMsg(doc, m_infoService, m_cacheService));
+				msg = std::make_unique<MngUpdateCacheMsg>(MngUpdateCacheMsg(doc, m_dbService, m_cacheService));
 			} else if (msgType.m_type == "mngDaemon_Version") {
 				msg = std::make_unique<MngVersionMsg>(MngVersionMsg(doc));
 			} else if (msgType.m_type == "mngScheduler_AddTask") {
@@ -192,19 +192,19 @@ namespace iqrf {
 			m_dpaService = iface;
 		}
 
-		void detachInterface(IIqrfDpaService *iface) {
-			if (m_dpaService == iface) {
-				m_dpaService = nullptr;
+		void attachInterface(IIqrfDb *iface) {
+			m_dbService = iface;
+		}
+
+		void detachInterface(IIqrfDb *iface) {
+			if (m_dbService == iface) {
+				m_dbService = nullptr;
 			}
 		}
 
-		void attachInterface(IIqrfInfo *iface) {
-			m_infoService = iface;
-		}
-
-		void detachInterface(IIqrfInfo *iface) {
-			if (m_infoService == iface) {
-				m_infoService = nullptr;
+		void detachInterface(IIqrfDpaService *iface) {
+			if (m_dpaService == iface) {
+				m_dpaService = nullptr;
 			}
 		}
 
@@ -288,19 +288,19 @@ namespace iqrf {
 		m_imp->detachInterface(iface);
 	}
 
+	void JsonMngApi::attachInterface(IIqrfDb *iface) {
+		m_imp->attachInterface(iface);
+	}
+
+	void JsonMngApi::detachInterface(IIqrfDb *iface) {
+		m_imp->detachInterface(iface);
+	}
+
 	void JsonMngApi::attachInterface(IIqrfDpaService *iface) {
 		m_imp->attachInterface(iface);
 	}
 
 	void JsonMngApi::detachInterface(IIqrfDpaService *iface) {
-		m_imp->detachInterface(iface);
-	}
-
-	void JsonMngApi::attachInterface(IIqrfInfo *iface) {
-		m_imp->attachInterface(iface);
-	}
-
-	void JsonMngApi::detachInterface(IIqrfInfo *iface) {
 		m_imp->detachInterface(iface);
 	}
 

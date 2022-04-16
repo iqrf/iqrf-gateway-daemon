@@ -108,6 +108,7 @@ namespace iqrf {
     const std::string m_mTypeName_iqmeshNetworkRemoveBondOnlyInC = "iqmeshNetwork_RemoveBondOnlyInC";
 
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
+    IIqrfDb *m_dbService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
     const std::string* m_messagingId = nullptr;
@@ -260,7 +261,7 @@ namespace iqrf {
     //------------------------------
     // FRC_AcknowledgedBroadcastBits
     //------------------------------
-    std::basic_string<uint8_t> FRCAcknowledgedBroadcastBits(RemoveBondResult& removeBondResult, const uint8_t PNUM, const uint8_t PCMD, const uint16_t hwpId, const std::basic_string<uint8_t>& data)
+    std::vector<uint8_t> FRCAcknowledgedBroadcastBits(RemoveBondResult& removeBondResult, const uint8_t PNUM, const uint8_t PCMD, const uint16_t hwpId, const std::basic_string<uint8_t>& data)
     {
       TRC_FUNCTION_ENTER("");
       std::unique_ptr<IDpaTransactionResult2> transResult;
@@ -304,11 +305,12 @@ namespace iqrf {
         );
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status <= MAX_ADDRESS)
-        {
+        std::vector<uint8_t> acknowledgedNodes;
+        acknowledgedNodes.clear();
+        if (status <= 0xfd) {
           TRC_INFORMATION("FRC_AcknowledgedBroadcastBits OK." << NAME_PAR_HEX("Status", (int)status));
           // Return nodes that executed DPA request (bit0 is set - the DPA Request is executed.)
-          std::basic_string<uint8_t> acknowledgedNodes;
+          std::vector<uint8_t> acknowledgedNodes;
           acknowledgedNodes.clear();
           for (uint8_t nodeAddr = 1; nodeAddr <= MAX_ADDRESS; nodeAddr++)
             if ((dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData[nodeAddr / 8] & (1 << (nodeAddr % 8))) != 0)
@@ -317,9 +319,9 @@ namespace iqrf {
           removeBondResult.addTransactionResult(transResult);
           TRC_FUNCTION_LEAVE("");
           return acknowledgedNodes;
-        }
-        else
-        {
+        } else if (status == 255) {
+          return acknowledgedNodes;
+        } else {
           TRC_WARNING("FRC_AcknowledgedBroadcastBits NOK." << NAME_PAR_HEX("Status", (int)status));
           THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
         }
@@ -375,11 +377,10 @@ namespace iqrf {
     //------------------
     // Remove bond batch
     //------------------
-    void coordRemoveBondBatch(RemoveBondResult& removeBondResult, std::basic_string<uint8_t> &nodes)
+    void coordRemoveBondBatch(RemoveBondResult& removeBondResult, std::vector<uint8_t> &nodes)
     {
       TRC_FUNCTION_ENTER("");
-      if (nodes.size() == 0)
-      {
+      if (nodes.size() == 0) {
         TRC_FUNCTION_LEAVE("");
         return;
       }
@@ -709,7 +710,7 @@ namespace iqrf {
             // Set FRC response time 40 ms
             uint8_t initialFrcResponseTime = setFrcReponseTime(removeBondResult, IDpaTransaction2::FrcResponseTime::k40Ms);
             // FRCAcknowledgedBroadcastBits
-            std::basic_string<uint8_t> removedNodes = FRCAcknowledgedBroadcastBits(removeBondResult, PNUM_NODE, CMD_NODE_REMOVE_BOND, hwpId, std::basic_string<uint8_t> {});
+            std::vector<uint8_t> removedNodes = FRCAcknowledgedBroadcastBits(removeBondResult, PNUM_NODE, CMD_NODE_REMOVE_BOND, hwpId, std::basic_string<uint8_t> {});
             // Switch FRC response time back to initial value
             setFrcReponseTime(removeBondResult, initialFrcResponseTime);
             // Remove the sucessfully removed nodes at C side too
@@ -717,6 +718,12 @@ namespace iqrf {
             // Check bonded nodes
             bondedNodes = getBondedNodes(removeBondResult);
             removeBondResult.setNotRemovedNodes(bondedNodes);
+            if (m_dbService != nullptr) {
+              IIqrfDb::EnumParams parameters;
+              parameters.reenumerate = true;
+              parameters.standards = true;
+              m_dbService->enumerate(parameters);
+            }
           }
         }
         else
@@ -921,6 +928,16 @@ namespace iqrf {
       (void)props;
     }
 
+    void attachInterface(IIqrfDb *iface) {
+      m_dbService = iface;
+    }
+
+    void detachInterface(IIqrfDb *iface) {
+      if (m_dbService == iface) {
+        m_dbService = nullptr;
+      }
+    }
+
     void attachInterface(IIqrfDpaService* iface)
     {
       m_iIqrfDpaService = iface;
@@ -958,6 +975,13 @@ namespace iqrf {
     delete m_imp;
   }
 
+  void RemoveBondService::attachInterface(iqrf::IIqrfDb *iface) {
+    m_imp->attachInterface(iface);
+  }
+
+  void RemoveBondService::detachInterface(iqrf::IIqrfDb *iface) {
+    m_imp->detachInterface(iface);
+  }
 
   void RemoveBondService::attachInterface(iqrf::IIqrfDpaService* iface)
   {

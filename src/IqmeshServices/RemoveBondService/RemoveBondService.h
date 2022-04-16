@@ -20,6 +20,7 @@
 #include "ShapeProperties.h"
 #include "IMessagingSplitterService.h"
 #include "IJsCacheService.h"
+#include "IIqrfDb.h"
 #include "IIqrfDpaService.h"
 #include "ITraceService.h"
 #include <string>
@@ -41,6 +42,9 @@ namespace iqrf {
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);
+
+    void attachInterface(iqrf::IIqrfDb *iface);
+    void detachInterface(iqrf::IIqrfDb *iface);
 
     void attachInterface(iqrf::IIqrfDpaService* iface);
     void detachInterface(iqrf::IIqrfDpaService* iface);
