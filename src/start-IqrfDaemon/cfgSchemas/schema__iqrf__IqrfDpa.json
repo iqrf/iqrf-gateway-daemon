@@ -49,6 +49,7 @@
     },
     "required": [
         "component",
-        "instance"
+        "instance",
+        "DpaHandlerTimeout"
     ]
 }
