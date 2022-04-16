@@ -16,37 +16,24 @@
  */
 #pragma once
 
-#include "IJsRenderService.h"
 #include "ApiMsgIqrfStandard.h"
+#include "IJsRenderService.h"
 #include "JsDriverSensor.h"
 
+using namespace rapidjson;
+
 namespace iqrf {
-  class ApiMsgIqrfStandardFrc : public ApiMsgIqrfStandard
-  {
-  private:
-    bool m_getExtraResult = true;
-    bool m_getNadr = false;
-    bool m_getExtFormat = false;
-    DpaMessage m_dpaRequestExtra;
-    std::unique_ptr<IDpaTransactionResult2> m_extraRes;
-    std::set<uint8_t> selectedNodes;
-    bool m_hasSensorIndex = false;
-    uint8_t m_sensorIndex = 0;
-    uint16_t m_ldiCommand = 0;
-    rapidjson::Document m_selectedNodes;
-    const std::string mTypeDaliFrc = "iqrfDali_Frc";
-    const std::string mTypeLightFrcLaiRead = "iqrfLight_FrcLaiRead";
-    const std::string mTypeLightFrcLdiSend = "iqrfLight_FrcLdiSend";
-    const std::string mTypeSensorFrc = "iqrfSensor_Frc";
 
-  public:
-    ApiMsgIqrfStandardFrc() = delete;
-    ApiMsgIqrfStandardFrc(const rapidjson::Document& doc)
-      :ApiMsgIqrfStandard(doc)
-    {
-      using namespace rapidjson;
+	class ApiMsgIqrfStandardFrc : public ApiMsgIqrfStandard {
+	public:
+		/// Delete implicit constructor
+		ApiMsgIqrfStandardFrc() = delete;
 
-
+		/**
+		 * Constructor
+		 * @param doc Request document
+		 */
+		ApiMsgIqrfStandardFrc(const Document& doc) : ApiMsgIqrfStandard(doc) {
       const Value *val = Pointer("/data/req/param/getExtraResult").Get(doc);
       if (val && val->IsBool()) {
         m_getExtraResult = val->GetBool();
@@ -109,22 +96,28 @@ namespace iqrf {
     }
 
     bool getExtraResult() const { return m_getExtraResult; }
-    bool getExtFormat() const { return m_getExtFormat; }
 
-    void setDpaTransactionExtraResult(std::unique_ptr<IDpaTransactionResult2> extraRes)
-    {
-      m_extraRes = std::move(extraRes);
-    }
+		/**
+		 * Checks if extended format should be used in response
+		 * @return true if extended format should be used, false otherwise
+		 */
+		bool getExtFormat() const { return m_getExtFormat; }
 
-    virtual ~ApiMsgIqrfStandardFrc()
-    {
-    }
+		/**
+		 * Stores FRC extra transaction result
+		 * @param extraRes Transaction result
+		 */
+		void setDpaTransactionExtraResult(std::unique_ptr<IDpaTransactionResult2> extraRes) {
+			m_extraRes = std::move(extraRes);
+		}
 
-  protected:
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      using namespace rapidjson;
-      ApiMsgIqrfStandard::createResponsePayload(doc);
+	protected:
+		/**
+		 * Populates response document with data
+		 * @param doc Response document
+		 */
+		void createResponsePayload(Document& doc) override {
+			ApiMsgIqrfStandard::createResponsePayload(doc);
 
       if (getStatus() == 0) {
         const std::string mType = getMType();
@@ -134,22 +127,50 @@ namespace iqrf {
           Pointer("/data/rsp/result/sensorIndex").Set(doc, m_sensorIndex);
         }
 
-        if (!m_selectedNodes.IsNull()) {
-          Pointer("/data/rsp/result/selectedNodes").Set(doc, m_selectedNodes);
-        }
-      }
+				if (!m_selectedNodes.IsNull()) {
+					Pointer("/data/rsp/result/selectedNodes").Set(doc, m_selectedNodes);
+				}
+			}
+			bool r = (bool)m_extraRes;
+			if (getVerbose() && r) {
+				Pointer("/data/raw/1/request").Set(doc, r ? encodeBinary(m_extraRes->getRequest().DpaPacket().Buffer, m_extraRes->getRequest().GetLength()) : "");
+				Pointer("/data/raw/1/requestTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_extraRes->getRequestTs()) : "");
+				Pointer("/data/raw/1/confirmation").Set(doc, r ? encodeBinary(m_extraRes->getConfirmation().DpaPacket().Buffer, m_extraRes->getConfirmation().GetLength()) : "");
+				Pointer("/data/raw/1/confirmationTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_extraRes->getConfirmationTs()) : "");
+				Pointer("/data/raw/1/response").Set(doc, r ? encodeBinary(m_extraRes->getResponse().DpaPacket().Buffer, m_extraRes->getResponse().GetLength()) : "");
+				Pointer("/data/raw/1/responseTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_extraRes->getResponseTs()) : "");
+			}
+		}
 
-      bool r = (bool)m_extraRes;
-      if (getVerbose() && r) {
-        rapidjson::Pointer("/data/raw/1/request").Set(doc, r ? encodeBinary(m_extraRes->getRequest().DpaPacket().Buffer, m_extraRes->getRequest().GetLength()) : "");
-        rapidjson::Pointer("/data/raw/1/requestTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_extraRes->getRequestTs()) : "");
-        rapidjson::Pointer("/data/raw/1/confirmation").Set(doc, r ? encodeBinary(m_extraRes->getConfirmation().DpaPacket().Buffer, m_extraRes->getConfirmation().GetLength()) : "");
-        rapidjson::Pointer("/data/raw/1/confirmationTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_extraRes->getConfirmationTs()) : "");
-        rapidjson::Pointer("/data/raw/1/response").Set(doc, r ? encodeBinary(m_extraRes->getResponse().DpaPacket().Buffer, m_extraRes->getResponse().GetLength()) : "");
-        rapidjson::Pointer("/data/raw/1/responseTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_extraRes->getResponseTs()) : "");
-      }
-    }
-
-  };
+	private:
+		/// Controls whether FRC extra result is sent to collect the remaining bytes of data
+		bool m_getExtraResult = true;
+		/// Get device address
+		bool m_getNadr = false;
+		/// Return extended response format
+		bool m_getExtFormat = false;
+		/// FRC extra result DPA message
+		DpaMessage m_dpaRequestExtra;
+		/// Pointer to store FRC extra result transaction
+		std::unique_ptr<IDpaTransactionResult2> m_extraRes;
+		/// Selected nodes
+		std::set<uint8_t> selectedNodes;
+		/// Sensor index present in request
+		bool m_hasSensorIndex = false;
+		/// Sensor index
+		uint8_t m_sensorIndex = 0;
+		/// DALI command
+		uint16_t m_ldiCommand = 0;
+		/// Selected nodes document
+		rapidjson::Document m_selectedNodes;
+    /// DALI FRC message type
+    const std::string mTypeDaliFrc = "iqrfDali_Frc";
+    /// Light FRC LAI read message type
+    const std::string mTypeLightFrcLaiRead = "iqrfLight_FrcLaiRead";
+    /// Light FRC LDI send message type
+    const std::string mTypeLightFrcLdiSend = "iqrfLight_FrcLdiSend";
+    /// Sensor FRC message type
+    const std::string mTypeSensorFrc = "iqrfSensor_Frc";    
+	};
 
 }

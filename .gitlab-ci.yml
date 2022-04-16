@@ -65,7 +65,7 @@ test:
     - git clone --recurse-submodules https://github.com/logimic/shapeware.git
     - cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
     - cmake --build shapeware-build --target install
-    - git submodule update --init --recursive
+    - git submodule update --init
     - cmake -Bbuild -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DBUILD_TESTING:BOOL=true -DCMAKE_BUILD_TYPE=Debug -DUSE_CCACHE=TRUE
     - cmake --build build --target install
     - cd build/ && ctest -V
