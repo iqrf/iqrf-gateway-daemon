@@ -22,3 +22,9 @@
 [submodule "libraries/date"]
 	path = libraries/date
 	url = https://github.com/HowardHinnant/date.git
+[submodule "libraries/sqlite_orm"]
+	path = libraries/sqlite_orm
+	url = https://github.com/fnc12/sqlite_orm.git
+[submodule "libraries/nlohmann_json"]
+	path = libraries/nlohmann_json
+	url = https://github.com/nlohmann/json.git

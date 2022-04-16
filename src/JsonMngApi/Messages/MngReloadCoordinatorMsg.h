@@ -19,7 +19,7 @@
 #include "MngBaseMsg.h"
 
 #include "IIqrfDpaService.h"
-#include "IIqrfInfo.h"
+#include "IIqrfDb.h"
 
 namespace iqrf {
 
@@ -35,9 +35,9 @@ namespace iqrf {
 		 * Constructor
 		 * @param doc Request document
 		 * @param dpaService DPA service interface
-		 * @param infoService Info service interface
+		 * @param dbService DB service interface
 		 */
-		MngReloadCoordinatorMsg(const Document &doc, IIqrfDpaService *dpaService, IIqrfInfo *infoService);
+		MngReloadCoordinatorMsg(const Document &doc, IIqrfDpaService *dpaService, IIqrfDb *dbService);
 
 		/**
 		 * Destructor
@@ -51,7 +51,7 @@ namespace iqrf {
 	private:
 		/// DPA service interface
 		IIqrfDpaService *m_dpaService = nullptr;
-		/// Info service interface
-		IIqrfInfo *m_infoService = nullptr;
+		/// DB service interface
+		IIqrfDb *m_dbService = nullptr;
 	};
 }

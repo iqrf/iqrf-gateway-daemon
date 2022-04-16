@@ -28,7 +28,7 @@ RUN mkdir deploy \
     && cmake -Bshapeware-build -Hshapeware -Dshape_DIR:PATH=`pwd`/shape-build -DCMAKE_BUILD_TYPE=Debug \
     && cmake --build shapeware-build --target install \
     && python3 src/start-IqrfDaemon/iqrfRepoCache/update-cache.py \
-    && cmake -Biqrf-gateway-daemon-build -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DCMAKE_BUILD_TYPE=Debug \
+    && cmake -Biqrf-gateway-daemon-build -H. -Dshape_DIR:PATH=`pwd`/shape-build -Dshapeware_DIR:PATH=`pwd`/shapeware-build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=false \
     && cmake --build iqrf-gateway-daemon-build --target install
 
 ENV PATH="/iqrf/deploy/Debug/iqrf-gateway-daemon/bin:${PATH}"

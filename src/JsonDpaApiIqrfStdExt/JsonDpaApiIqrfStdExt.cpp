@@ -14,18 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "ApiMsgIqrfStandardFrc.h"
-#include "JsDriverStandardFrcSolver.h"
-#include "JsonDpaApiIqrfStdExt.h"
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/document.h"
-#include "rapidjson/istreamwrapper.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/prettywriter.h"
-#include "Trace.h"
-#include <algorithm>
-#include <fstream>
 
+#include "JsonDpaApiIqrfStdExt.h"
 #include "iqrf__JsonDpaApiIqrfStdExt.hxx"
 
 #ifdef TRC_CHANNEL
@@ -39,317 +29,212 @@ using namespace rapidjson;
 
 namespace iqrf {
 
-  class JsonDpaApiIqrfStdExt::Imp
-  {
-  private:
+	JsonDpaApiIqrfStdExt::JsonDpaApiIqrfStdExt() {
+		TRC_FUNCTION_ENTER("");
+		TRC_FUNCTION_LEAVE("");
+	}
 
-    IIqrfInfo* m_iIqrfInfo = nullptr;
-    iqrf::IJsRenderService* m_iJsRenderService = nullptr;
-    IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
-    IIqrfDpaService* m_iIqrfDpaService = nullptr;
-    //just to be able to abort
-    std::mutex m_iDpaTransactionMtx;
-    std::shared_ptr<IDpaTransaction2> m_iDpaTransaction;
+	JsonDpaApiIqrfStdExt::~JsonDpaApiIqrfStdExt() {
+		TRC_FUNCTION_ENTER("");
+		TRC_FUNCTION_LEAVE("");
+	}
 
-    // TODO from cfg
-    std::vector<std::string> m_filters =
-    {
-      "iqrfDali_Frc",
-      "iqrfSensor_Frc"
-    };
+	///// Component lifecycle methods
 
-  public:
-    Imp()
-    {
-    }
+	void JsonDpaApiIqrfStdExt::activate(const shape::Properties *props) {
+		TRC_FUNCTION_ENTER("");
+		TRC_INFORMATION(std::endl <<
+			"******************************" << std::endl <<
+			"JsonDpaApiIqrfStdExt instance activate" << std::endl <<
+			"******************************"
+		);
+		modify(props);
+		m_splitterService->registerFilteredMsgHandler(m_filters,
+			[&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc)
+		{
+			handleMsg(messagingId, msgType, std::move(doc));
+		});
 
-    ~Imp()
-    {
-    }
+		TRC_FUNCTION_LEAVE("")
+	}
 
-    void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document dc)
-    {
-      TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
-        NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
+	void JsonDpaApiIqrfStdExt::modify(const shape::Properties *props) {
+		(void)props;
+	}
 
-      using namespace rapidjson;
+	void JsonDpaApiIqrfStdExt::deactivate() {
+		TRC_FUNCTION_ENTER("");
+		TRC_INFORMATION(std::endl <<
+			"******************************" << std::endl <<
+			"JsonDpaApiIqrfStdExt instance deactivate" << std::endl <<
+			"******************************"
+		);
 
-      Document allResponseDoc;
+		{
+			std::lock_guard<std::mutex> lck(m_transactionMutex);
+			if (m_transaction) {
+				m_transaction->abort();
+			}
+		}
 
-      // solves api msg processing
-      ApiMsgIqrfStandardFrc apiMsgIqrfStandardFrc(dc);
+		m_splitterService->unregisterFilteredMsgHandler(m_filters);
 
-      try {
-        // solves JsDriver processing
-        JsDriverStandardFrcSolver jsDriverStandardFrcSolver(m_iJsRenderService, msgType.m_possibleDriverFunction,
-          apiMsgIqrfStandardFrc.getRequestParamDoc(), apiMsgIqrfStandardFrc.getHwpid());
+		TRC_FUNCTION_LEAVE("")
+	}
 
-        // process *_Request
-        jsDriverStandardFrcSolver.processRequestDrv();
+	///// Message handling
 
-        auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-        int timeOut = apiMsgIqrfStandardFrc.getTimeout();
-        // FRC transaction
-        std::unique_ptr<IDpaTransactionResult2> transResultFrc = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcRequest(), timeOut)->get();
-        jsDriverStandardFrcSolver.setFrcDpaTransactionResult(std::move(transResultFrc));
+	void JsonDpaApiIqrfStdExt::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+		TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
+			NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
 
-        if (apiMsgIqrfStandardFrc.getExtraResult()) {
-          // FRC extra result transaction
-          std::unique_ptr<IDpaTransactionResult2> transResultFrcExtra = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcExtraRequest())->get();
-          jsDriverStandardFrcSolver.setFrcExtraDpaTransactionResult(std::move(transResultFrcExtra));
-        }
 
-        // process *_Response
-        jsDriverStandardFrcSolver.processResponseDrv();
+		Document allResponseDoc;
 
-        // finalize api response
-        if (!apiMsgIqrfStandardFrc.getExtFormat()) {
-          apiMsgIqrfStandardFrc.setPayload("/data/rsp/result", jsDriverStandardFrcSolver.getResponseResultDoc());
-        }
-        else {
-          std::string arrayKey, itemKey;
+		// solves api msg processing
+		ApiMsgIqrfStandardFrc apiMsgIqrfStandardFrc(doc);
 
-          // TODO maybe better to virtualize getExtFormat()
-          if (msgType.m_type == "iqrfDali_Frc") {
-            arrayKey = "/answers";
-            itemKey = "/answer";
-          }
-          else if (msgType.m_type == "iqrfSensor_Frc") {
-            arrayKey = "/sensors";
-            itemKey = "/sensor";
-          }
-          else {
-            THROW_EXC_TRC_WAR(std::logic_error, "Unexpected: " << NAME_PAR(messageType, msgType.m_type));
-          }
+		try {
+			// solves JsDriver processing
+			JsDriverStandardFrcSolver jsDriverStandardFrcSolver(m_jsRenderService, msgType.m_possibleDriverFunction,
+			apiMsgIqrfStandardFrc.getRequestParamDoc(), apiMsgIqrfStandardFrc.getHwpid());
 
-          rapidjson::Document doc = jsDriverStandardFrcSolver.getExtFormat(arrayKey, itemKey);
+			// process *_Request
+			jsDriverStandardFrcSolver.processRequestDrv();
 
-          for (Value * senVal = doc.Begin(); senVal != doc.End(); senVal++) {
-            Value *nadrVal = Pointer("/nAdr").Get(*senVal);
-            if (!(nadrVal && nadrVal->IsInt())) {
-              THROW_EXC_TRC_WAR(std::logic_error, "Expected: .../nAdr of type integer");
-            }
+			auto exclusiveAccess = m_dpaService->getExclusiveAccess();
+			int timeOut = apiMsgIqrfStandardFrc.getTimeout();
+			// FRC transaction
+			std::unique_ptr<IDpaTransactionResult2> transResultFrc = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcRequest(), timeOut)->get();
+			jsDriverStandardFrcSolver.setFrcDpaTransactionResult(std::move(transResultFrc));
 
-            int nadr = nadrVal->GetInt();
+			if (apiMsgIqrfStandardFrc.getExtraResult()) {
+				// FRC extra result transaction
+				std::unique_ptr<IDpaTransactionResult2> transResultFrcExtra = exclusiveAccess->executeDpaTransaction(jsDriverStandardFrcSolver.getFrcExtraRequest())->get();
+				jsDriverStandardFrcSolver.setFrcExtraDpaTransactionResult(std::move(transResultFrcExtra));
+			}
 
-            try {
-              // db metadata
-              if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
-                // anotate with metada
-                Pointer("/metaData").Set(*senVal, m_iIqrfInfo->getNodeMetaData(nadr), doc.GetAllocator());
-              }
-            }
-            catch (std::exception & e) {
-              CATCH_EXC_TRC_WAR(std::exception, e, "Cannot annotate by metadata");
-            }
-          }
+			//jsDriverStandardFrcSolver.processResponseDrv();
+			// process response
+			if (m_dbService && msgType.m_type == "iqrfSensor_Frc") {
+				sensor::jsdriver::SensorFrc sensorFrc(apiMsgIqrfStandardFrc.getRequestParamDoc());
+				const uint8_t type = sensorFrc.getType();
+				if (type == 129 || type == 160) {
+					auto map = m_dbService->getSensorDeviceHwpids(type);
+					jsDriverStandardFrcSolver.processResponseSensorDrv(map, sensorFrc.getSelectedNodes(), sensorFrc.getExtraResult());
+				} else {
+					jsDriverStandardFrcSolver.processResponseDrv();
+				}
+				m_dbService->handleSensorFrc(sensorFrc.getType(), sensorFrc.getIndex(), sensorFrc.getSelectedNodes(), jsDriverStandardFrcSolver.getResponseResultStr());
+			} else {
+				jsDriverStandardFrcSolver.processResponseDrv();
+			}
 
-          //TODO right key here
-          std::string fullArrayKey = "/data/rsp/result";
-          fullArrayKey += arrayKey;
-          apiMsgIqrfStandardFrc.setPayload(fullArrayKey, doc);
-        }
-        apiMsgIqrfStandardFrc.setDpaTransactionResult(jsDriverStandardFrcSolver.moveFrcDpaTransactionResult());
-        apiMsgIqrfStandardFrc.setDpaTransactionExtraResult(jsDriverStandardFrcSolver.moveFrcExtraDpaTransactionResult());
-        IDpaTransactionResult2::ErrorCode status = IDpaTransactionResult2::ErrorCode::TRN_OK;
-        apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
-        apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
+			// finalize api response
+			if (!apiMsgIqrfStandardFrc.getExtFormat()) {
+				apiMsgIqrfStandardFrc.setPayload("/data/rsp/result", jsDriverStandardFrcSolver.getResponseResultDoc());
+			} else {
+				std::string arrayKey, itemKey;
+				if (msgType.m_type == "iqrfDali_Frc") {
+					arrayKey = "/answers";
+					itemKey = "/answer";
+				} else if (msgType.m_type == "iqrfSensor_Frc") {
+					arrayKey = "/sensors";
+					itemKey = "/sensor";
+				} else {
+					THROW_EXC_TRC_WAR(std::logic_error, "Unexpected: " << NAME_PAR(messageType, msgType.m_type));
+				}
 
-        //{ //TODO debug  only
-        //  rapidjson::StringBuffer buffer;
-        //  rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-        //  allResponseDoc.Accept(writer);
-        //  std::string allResponseDocStr = buffer.GetString();
-        //}
+				Document doc = jsDriverStandardFrcSolver.getExtFormat(arrayKey, itemKey);
 
-      }
-      catch (std::exception & e) {
-        //provide error response
-        Document rDataError;
-        rDataError.SetString(e.what(), rDataError.GetAllocator());
-        apiMsgIqrfStandardFrc.setPayload("/data/rsp/errorStr", std::move(rDataError));
-        //apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(e.getStatus()), e.getStatus());
-        apiMsgIqrfStandardFrc.setStatus(
-          IDpaTransactionResult2::errorCode(IDpaTransactionResult2::ErrorCode::TRN_ERROR_FAIL), IDpaTransactionResult2::ErrorCode::TRN_ERROR_FAIL);
-        apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
-      }
+				for (Value * senVal = doc.Begin(); senVal != doc.End(); senVal++) {
+					Value *nadrVal = Pointer("/nAdr").Get(*senVal);
+					if (!(nadrVal && nadrVal->IsInt())) {
+						THROW_EXC_TRC_WAR(std::logic_error, "Expected: .../nAdr of type integer");
+					}
 
-      m_iMessagingSplitterService->sendMessage(messagingId, std::move(allResponseDoc));
+					uint8_t address = nadrVal->GetInt();
 
-      TRC_FUNCTION_LEAVE("");
-    }
+					try {
+						if (m_dbService && m_dbService->addMetadataToMessage()) {
+							Pointer("/metaData").Set(*senVal, m_dbService->getDeviceMetadataDoc(address), doc.GetAllocator());
+						}
+					} catch (const std::exception &e) {
+						CATCH_EXC_TRC_WAR(std::exception, e, "Cannot annotate by metadata");
+					}
+				}
 
-    void activate(const shape::Properties *props)
-    {
-      (void)props; //silence -Wunused-parameter
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "JsonDpaApiIqrfStdExt instance activate" << std::endl <<
-        "******************************"
-      );
+				std::string fullArrayKey = "/data/rsp/result";
+				fullArrayKey += arrayKey;
+				apiMsgIqrfStandardFrc.setPayload(fullArrayKey, doc);
+			}
+			apiMsgIqrfStandardFrc.setDpaTransactionResult(jsDriverStandardFrcSolver.moveFrcDpaTransactionResult());
+			apiMsgIqrfStandardFrc.setDpaTransactionExtraResult(jsDriverStandardFrcSolver.moveFrcExtraDpaTransactionResult());
+			IDpaTransactionResult2::ErrorCode status = IDpaTransactionResult2::ErrorCode::TRN_OK;
+			apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
+			apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
+		} catch (const std::exception &e) {
+			Document rDataError;
+			rDataError.SetString(e.what(), rDataError.GetAllocator());
+			apiMsgIqrfStandardFrc.setPayload("/data/rsp/errorStr", std::move(rDataError));
+			IDpaTransactionResult2::ErrorCode status = IDpaTransactionResult2::ErrorCode::TRN_ERROR_FAIL;
+			apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
+			apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
+		}
 
-      m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
-        [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
-      {
-        handleMsg(messagingId, msgType, std::move(doc));
-      });
+		m_splitterService->sendMessage(messagingId, std::move(allResponseDoc));
 
-      TRC_FUNCTION_LEAVE("")
-    }
+		TRC_FUNCTION_LEAVE("");
+	}
 
-    void deactivate()
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "JsonDpaApiIqrfStdExt instance deactivate" << std::endl <<
-        "******************************"
-      );
+	///// Interface management
 
-      {
-        std::lock_guard<std::mutex> lck(m_iDpaTransactionMtx);
-        if (m_iDpaTransaction) {
-          m_iDpaTransaction->abort();
-        }
-      }
+	void JsonDpaApiIqrfStdExt::attachInterface(IIqrfDb *iface) {
+		m_dbService = iface;
+	}
 
-      m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
+	void JsonDpaApiIqrfStdExt::detachInterface(IIqrfDb *iface) {
+		if (m_dbService == iface) {
+			m_dbService = nullptr;
+		}
+	}
 
-      TRC_FUNCTION_LEAVE("")
-    }
+	void JsonDpaApiIqrfStdExt::attachInterface(IJsRenderService *iface) {
+		m_jsRenderService = iface;
+	}
 
-    void modify(const shape::Properties *props)
-    {
-      (void)props; //silence -Wunused-parameter
-    }
+	void JsonDpaApiIqrfStdExt::detachInterface(IJsRenderService *iface) {
+		if (m_jsRenderService == iface) {
+			m_jsRenderService = nullptr;
+		}
+	}
 
-    void attachInterface(IIqrfInfo* iface)
-    {
-      m_iIqrfInfo = iface;
-    }
+	void JsonDpaApiIqrfStdExt::attachInterface(IIqrfDpaService* iface){
+		m_dpaService = iface;
+	}
 
-    void detachInterface(IIqrfInfo* iface)
-    {
-      if (m_iIqrfInfo == iface) {
-        m_iIqrfInfo = nullptr;
-      }
-    }
+	void JsonDpaApiIqrfStdExt::detachInterface(IIqrfDpaService* iface) {
+		if (m_dpaService == iface) {
+			m_dpaService = nullptr;
+		}
+	}
 
-    void attachInterface(IJsRenderService* iface)
-    {
-      m_iJsRenderService = iface;
-    }
+	void JsonDpaApiIqrfStdExt::attachInterface(IMessagingSplitterService* iface) {
+		m_splitterService = iface;
+	}
 
-    void detachInterface(IJsRenderService* iface)
-    {
-      if (m_iJsRenderService == iface) {
-        m_iJsRenderService = nullptr;
-      }
-    }
+	void JsonDpaApiIqrfStdExt::detachInterface(IMessagingSplitterService* iface) {
+		if (m_splitterService == iface) {
+			m_splitterService = nullptr;
+		}
+	}
 
-    void attachInterface(IIqrfDpaService* iface)
-    {
-      m_iIqrfDpaService = iface;
-    }
+	void JsonDpaApiIqrfStdExt::attachInterface(shape::ITraceService* iface) {
+		shape::Tracer::get().addTracerService(iface);
+	}
 
-    void detachInterface(IIqrfDpaService* iface)
-    {
-      if (m_iIqrfDpaService == iface) {
-        m_iIqrfDpaService = nullptr;
-      }
-
-    }
-
-    void attachInterface(IMessagingSplitterService* iface)
-    {
-      m_iMessagingSplitterService = iface;
-    }
-
-    void detachInterface(IMessagingSplitterService* iface)
-    {
-      if (m_iMessagingSplitterService == iface) {
-        m_iMessagingSplitterService = nullptr;
-      }
-
-    }
-
-  };
-
-  /////////////////////////
-  JsonDpaApiIqrfStdExt::JsonDpaApiIqrfStdExt()
-  {
-    m_imp = shape_new Imp();
-  }
-
-  JsonDpaApiIqrfStdExt::~JsonDpaApiIqrfStdExt()
-  {
-    delete m_imp;
-  }
-
-  void JsonDpaApiIqrfStdExt::activate(const shape::Properties *props)
-  {
-    m_imp->activate(props);
-  }
-
-  void JsonDpaApiIqrfStdExt::deactivate()
-  {
-    m_imp->deactivate();
-  }
-
-  void JsonDpaApiIqrfStdExt::modify(const shape::Properties *props)
-  {
-    m_imp->modify(props);
-  }
-
-  void JsonDpaApiIqrfStdExt::attachInterface(IIqrfInfo* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonDpaApiIqrfStdExt::detachInterface(IIqrfInfo* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
-  void JsonDpaApiIqrfStdExt::attachInterface(iqrf::IJsRenderService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonDpaApiIqrfStdExt::detachInterface(iqrf::IJsRenderService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
-  void JsonDpaApiIqrfStdExt::attachInterface(IIqrfDpaService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonDpaApiIqrfStdExt::detachInterface(IIqrfDpaService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
-  void JsonDpaApiIqrfStdExt::attachInterface(IMessagingSplitterService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonDpaApiIqrfStdExt::detachInterface(IMessagingSplitterService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
-  void JsonDpaApiIqrfStdExt::attachInterface(shape::ITraceService* iface)
-  {
-    shape::Tracer::get().addTracerService(iface);
-  }
-
-  void JsonDpaApiIqrfStdExt::detachInterface(shape::ITraceService* iface)
-  {
-    shape::Tracer::get().removeTracerService(iface);
-  }
+	void JsonDpaApiIqrfStdExt::detachInterface(shape::ITraceService* iface) {
+		shape::Tracer::get().removeTracerService(iface);
+	}
 
 }

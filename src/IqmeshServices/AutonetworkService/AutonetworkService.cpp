@@ -233,7 +233,6 @@ namespace iqrf {
 
     // Message type
     const std::string m_mTypeName_Autonetwork = "iqmeshNetwork_AutoNetwork";
-    IIqrfInfo* m_iIqrfInfo = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
@@ -1973,8 +1972,6 @@ namespace iqrf {
 
       // Autonetwork result
       AutonetworkResult autonetworkResult;
-      // List of new nodes passed to IqrfInfo when AN finishes
-      std::map<int, embed::node::BriefInfo> newNodes;
       std::bitset<MAX_ADDRESS + 1> warningAddressSpaceBitmap;
 
       try
@@ -2005,7 +2002,6 @@ namespace iqrf {
         antwProcessParams.countNewNodes = 0;
         antwProcessParams.countWaves = 1;
         antwProcessParams.countEmpty = 0;
-        newNodes.clear();
         antwProcessParams.countWaveNewNodes = 0;
         antwProcessParams.respondedNewNodes.clear();
 
@@ -2934,17 +2930,6 @@ namespace iqrf {
             for (auto node : antwProcessParams.respondedNewNodes)
             {
               autonetworkResult.putNewNode(node.address, node.MID);
-              // HWPID filtering requested ?
-              if (antwInputParams.hwpidFiltering.empty() == true)
-              {
-                // No, pass only MIDs
-                newNodes.insert(std::make_pair(node.address, embed::node::BriefInfo(node.MID)));
-              }
-              else
-              {
-                // Yes, pass MID, HWPID and HWPID version
-                newNodes.insert(std::make_pair(node.address, embed::node::BriefInfo(node.MID, antwProcessParams.networkNodes[node.address].HWPID, antwProcessParams.networkNodes[node.address].HWPIDVer)));
-              }
             }
           }
 
@@ -3022,17 +3007,6 @@ namespace iqrf {
       {
         // Set error
         TRC_WARNING("Error during algorithm run: " << ex.what());
-      }
-
-      // SQLDB add nodes
-      try
-      {
-        // SQLDB - predat MID, pokud je aktivni filtrovani HWPID, predat take HWPID a HWPIDVer
-        m_iIqrfInfo->insertNodes(newNodes);
-      }
-      catch (const std::exception& ex)
-      {
-        TRC_ERROR("Error inserting nodes to DB: " << ex.what());
       }
 
       // Send result
@@ -3186,18 +3160,6 @@ namespace iqrf {
       }
     }
 
-    void attachInterface(IIqrfInfo* iface)
-    {
-      m_iIqrfInfo = iface;
-    }
-
-    void detachInterface(IIqrfInfo* iface)
-    {
-      if (m_iIqrfInfo == iface) {
-        m_iIqrfInfo = nullptr;
-      }
-    }
-
     void attachInterface(IMessagingSplitterService* iface)
     {
       m_iMessagingSplitterService = iface;
@@ -3219,16 +3181,6 @@ namespace iqrf {
   AutonetworkService::~AutonetworkService()
   {
     delete m_imp;
-  }
-
-  void AutonetworkService::attachInterface(IIqrfInfo* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void AutonetworkService::detachInterface(IIqrfInfo* iface)
-  {
-    m_imp->detachInterface(iface);
   }
 
   void AutonetworkService::attachInterface(IIqrfDpaService* iface)

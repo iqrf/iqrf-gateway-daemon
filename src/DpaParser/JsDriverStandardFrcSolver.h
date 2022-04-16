@@ -21,6 +21,7 @@
 #include "Dali.h"
 #include "JsonUtils.h"
 #include <vector>
+#include <nlohmann/json.hpp>
 
 namespace iqrf
 {
@@ -154,6 +155,71 @@ namespace iqrf
       }
 
       return doc;
+    }
+
+    void processResponseSensorDrv(std::map<uint16_t, std::set<uint8_t>> &hwpidAddrMap, std::set<uint8_t> &selectedNodes, bool extraResult) {
+      TRC_FUNCTION_ENTER("");
+      using namespace rapidjson;
+      using json = nlohmann::json;
+      std::string functionNameRsp(functionName());
+      functionNameRsp += "_Response_rsp";
+      TRC_DEBUG(PAR(functionNameRsp));
+
+      preResponse(m_responseParamDoc);
+
+      StringBuffer buffer;
+      Writer<rapidjson::StringBuffer> writer(buffer);
+      m_responseParamDoc.Accept(writer);
+      m_responseParamStr = buffer.GetString();
+
+      TRC_DEBUG(PAR(m_responseParamStr));
+
+      std::string partialResultStr;
+
+      //member count
+      uint8_t count = extraResult ? 64 : 55;
+
+      //nlohmann json sensors prep
+      json responseResult;
+      responseResult["sensors"] = json::array();
+      for (uint8_t i = 0; i < count; i++) {
+        responseResult["sensors"].push_back(nullptr);
+      }
+
+      for (const auto &item : hwpidAddrMap) {
+        try {
+          std::set<uint8_t> deviceAddresses = item.second;
+          m_iJsRenderService->callContext(*deviceAddresses.begin(), item.first, functionNameRsp, m_responseParamStr, partialResultStr);
+          json j = json::parse(partialResultStr);
+          if (selectedNodes.size() == 0) {
+            for (auto it = deviceAddresses.begin(); it != deviceAddresses.end(); ++it) {
+              if (*it >= count) {
+                break;
+              }
+              responseResult["sensors"][*it] = j["sensors"][*it];
+            }
+          } else {
+            uint8_t idx = 1;
+            for (auto it = selectedNodes.begin(); it != selectedNodes.end(); ++it, ++idx) {
+              if (deviceAddresses.find(*it) == deviceAddresses.end()) {
+                continue;
+              }
+              responseResult["sensors"][idx] = j["sensors"][idx];
+            }
+          }
+        } catch (std::exception &e) {
+          //TODO use dedicated exception to distinguish driver error (BAD_RESPONSE)
+          CATCH_EXC_TRC_WAR(std::exception, e, "Driver response failure: ");
+          THROW_EXC_TRC_WAR(std::logic_error, "Driver response failure: " << e.what());
+        }
+      }
+
+      m_responseResultStr = responseResult.dump();
+      TRC_DEBUG(PAR(m_responseResultStr));
+      m_responseResultDoc.Parse(m_responseResultStr.c_str());
+      postResponse(m_responseResultDoc);
+
+      TRC_FUNCTION_LEAVE("");
     }
 
   protected:
