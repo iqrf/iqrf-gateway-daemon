@@ -986,17 +986,30 @@ namespace iqrf {
         // Read Nodes MIDs from [C] eeeprom
         maintenanceResult.clearNodesMidMapCoord();
         std::basic_string<uint8_t> bondedNodes = maintenanceResult.getBondedNodes();
-        for (uint8_t i = 0; i < bondedNodes.size(); i++)
-        {
+        const uint8_t maxDataLen = 54;
+        const uint16_t startAddr = 0x4000;
+        const uint16_t totalData = (*bondedNodes.rbegin() + 1) * 8;
+        const uint8_t requests = totalData / maxDataLen;
+        const uint8_t remainder = totalData % maxDataLen;
+        std::vector<uint8_t> midData(0,0);
+        for (uint8_t i = 0; i < requests + 1; ++i) {
           // Read MID from Coordinator eeprom
-          uint16_t address = 0x4000 + bondedNodes[i] * 0x08;
-          std::basic_string<uint8_t> midArray = readCoordXMemory(maintenanceResult, address, sizeof(uint32_t));
+          uint8_t len = (uint8_t)(i < requests ? maxDataLen : remainder);
+          if (len == 0) {
+            break;
+          }
+          uint16_t address = startAddr + i * maxDataLen;
+          std::basic_string<uint8_t> mids = readCoordXMemory(maintenanceResult, address, len);
+          midData.insert(midData.end(), mids.begin(), mids.begin() + len);
+        }
+        for (uint8_t addr : bondedNodes) {
+          uint16_t idx = addr * 8;
           MaintenanceResult::TMID mid;
-          mid.bytes[0x00] = midArray[0x00];
-          mid.bytes[0x01] = midArray[0x01];
-          mid.bytes[0x02] = midArray[0x02];
-          mid.bytes[0x03] = midArray[0x03];
-          maintenanceResult.setNodesMidMapCoord(bondedNodes[i], mid);
+          mid.bytes[0] = midData[idx];
+          mid.bytes[1] = midData[idx + 1];
+          mid.bytes[2] = midData[idx + 2];
+          mid.bytes[3] = midData[idx + 3];
+          maintenanceResult.setNodesMidMapCoord(addr, mid);
         }
         // Read Nodes MIDs from bonded Nodes
         uint8_t inaccessibleNodesNr = 0;
@@ -1084,17 +1097,30 @@ namespace iqrf {
         maintenanceResult.clearNodesMidMapCoord();
         std::basic_string<uint8_t> bondedNodes = maintenanceResult.getBondedNodes();
         if (bondedNodes.length() > 0) {
-          for (uint8_t i = 0; i < bondedNodes.size(); i++)
-          {
+          const uint8_t maxDataLen = 54;
+          const uint16_t startAddr = 0x4000;
+          const uint16_t totalData = (*bondedNodes.rbegin() + 1) * 8;
+          const uint8_t requests = totalData / maxDataLen;
+          const uint8_t remainder = totalData % maxDataLen;
+          std::vector<uint8_t> midData(0,0);
+          for (uint8_t i = 0; i < requests + 1; ++i) {
             // Read MID from Coordinator eeprom
-            uint16_t address = 0x4000 + bondedNodes[i] * 0x08;
-            std::basic_string<uint8_t> midArray = readCoordXMemory(maintenanceResult, address, sizeof(uint32_t));
+            uint8_t len = (uint8_t)(i < requests ? maxDataLen : remainder);
+            if (len == 0) {
+              break;
+            }
+            uint16_t address = startAddr + i * maxDataLen;
+            std::basic_string<uint8_t> mids = readCoordXMemory(maintenanceResult, address, len);
+            midData.insert(midData.end(), mids.begin(), mids.begin() + len);
+          }
+          for (uint8_t addr : bondedNodes) {
+            uint16_t idx = addr * 8;
             MaintenanceResult::TMID mid;
-            mid.bytes[0x00] = midArray[0x00];
-            mid.bytes[0x01] = midArray[0x01];
-            mid.bytes[0x02] = midArray[0x02];
-            mid.bytes[0x03] = midArray[0x03];
-            maintenanceResult.setNodesMidMapCoord(bondedNodes[i], mid);
+            mid.bytes[0] = midData[idx];
+            mid.bytes[1] = midData[idx + 1];
+            mid.bytes[2] = midData[idx + 2];
+            mid.bytes[3] = midData[idx + 3];
+            maintenanceResult.setNodesMidMapCoord(addr, mid);
           }
           // Validate bonds by broarcast request
           validateBonds(maintenanceResult);
