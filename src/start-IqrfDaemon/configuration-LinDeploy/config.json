@@ -314,6 +314,34 @@
       "libraryName": "OtaUploadService",
       "enabled": true,
       "startlevel": 3
+    },
+    {
+      "name": "iqrf::PingService",
+      "libraryPath": "",
+      "libraryName": "PingService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::RestartService",
+      "libraryPath": "",
+      "libraryName": "RestartService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::MaintenanceService",
+      "libraryPath": "",
+      "libraryName": "MaintenanceService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::FrcResponseTime",
+      "libraryPath": "",
+      "libraryName": "FrcResponseTime",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }

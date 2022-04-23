@@ -55,7 +55,7 @@
 							"description": "Number of nodes that did not respond to FRC response time.",
 							"type": "integer",
 							"minimum": 0,
-							"maximum": 238
+							"maximum": 239
 						},
 						"nodes": {
 							"$id": "#/properties/data/properties/rsp/properties/nodes",
@@ -63,7 +63,7 @@
 							"description": "FRC response time node devices results.",
 							"type": "array",
 							"additionalItems": false,
-							"maxItems": 238,
+							"maxItems": 239,
 							"items": {
 								"$id": "#/properties/data/properties/rsp/properties/nodes/items",
 								"title": "Node result",
