@@ -29,7 +29,7 @@
 
 #include <cmath>
 
-#define FRC_MAX_NODES 63
+#define FRC_1BYTE_MAX_NODES 63
 #define FRC_RESPONSE_MAX_BYTES 55
 #define FRC_EXTRA_RESPONSE_BYTES 9
 
@@ -125,7 +125,7 @@ namespace iqrf {
 		 * @param count Number of node addresses to insert to bitmap
 		 * @return Node address bitmap
 		 */
-		std::vector<uint8_t> selectNodes(const std::set<uint8_t> &nodes, const uint8_t &idx, const uint8_t &count);
+		std::vector<uint8_t> selectNodes(const std::set<uint8_t> &nodes, uint8_t &idx, const uint8_t &count);
 
 		/**
 		 * Set transaction result, error code and error string
@@ -164,7 +164,7 @@ namespace iqrf {
 		 * @param responded Number of total responded nodes
 		 * @param data FRC response data container
 		 */
-		void frcSendSelective(FrcResponseTimeResult &serviceResult, const uint8_t &count, const uint8_t &processed, uint8_t &responded, std::vector<uint8_t> &data);
+		void frcSendSelective(FrcResponseTimeResult &serviceResult, const uint8_t &count, uint8_t &processed, uint8_t &responded, std::vector<uint8_t> &data);
 
 		/**
 		 * Sends FRC extra result request

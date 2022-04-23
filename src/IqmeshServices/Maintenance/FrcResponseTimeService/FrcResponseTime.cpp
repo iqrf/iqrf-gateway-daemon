@@ -45,12 +45,13 @@ namespace iqrf {
 		return nodes;
 	}
 
-	std::vector<uint8_t> FrcResponseTime::selectNodes(const std::set<uint8_t> &nodes, const uint8_t &idx, const uint8_t &count) {
+	std::vector<uint8_t> FrcResponseTime::selectNodes(const std::set<uint8_t> &nodes, uint8_t &idx, const uint8_t &count) {
 		std::vector<uint8_t> selectedNodes(30, 0);
 		std::set<uint8_t>::iterator itr = nodes.begin();
 		std::advance(itr, idx);
 		for (std::set<uint8_t>::iterator end = std::next(itr, count); itr != end; ++itr) {
 			selectedNodes[*itr / 8] |= (1 << (*itr % 8));
+			idx++;
 		}
 		return selectedNodes;
 	}
@@ -125,20 +126,20 @@ namespace iqrf {
 		TRC_FUNCTION_ENTER("");
 		std::set<uint8_t> bonded = serviceResult.getBondedNodes();
 		// Calculate FRCs
-		uint8_t frcCount = std::floor(bonded.size() / FRC_MAX_NODES);
-		uint8_t frcRemainder = bonded.size() % FRC_MAX_NODES;
+		uint8_t frcCount = std::floor(bonded.size() / FRC_1BYTE_MAX_NODES);
+		uint8_t frcRemainder = bonded.size() % FRC_1BYTE_MAX_NODES;
 		// Execute
 		uint8_t processedNodes = 0;
 		uint8_t responded = 0;
 		std::vector<uint8_t> frcData;
 		for (uint8_t i = 0, n = frcCount; i <= n; ++i) {
-			uint8_t nodes = (uint8_t)(i < frcCount ? FRC_MAX_NODES : frcRemainder);
+			uint8_t nodes = (uint8_t)(i < frcCount ? FRC_1BYTE_MAX_NODES : frcRemainder);
 			if (nodes == 0) {
 				break;
 			}
 			frcSendSelective(serviceResult, nodes, processedNodes, responded, frcData);
 			if (nodes > FRC_RESPONSE_MAX_BYTES) {
-				frcExtraResult(serviceResult, nodes - FRC_RESPONSE_MAX_BYTES, frcData);
+				frcExtraResult(serviceResult, nodes - FRC_RESPONSE_MAX_BYTES + 1, frcData);
 			}
 		}
 		uint8_t recommended = 0;
@@ -162,7 +163,7 @@ namespace iqrf {
 		return (IDpaTransaction2::FrcResponseTime)(recommended - 1);
 	}
 
-	void FrcResponseTime::frcSendSelective(FrcResponseTimeResult &serviceResult, const uint8_t &count, const uint8_t &processed, uint8_t &responded, std::vector<uint8_t> &data) {
+	void FrcResponseTime::frcSendSelective(FrcResponseTimeResult &serviceResult, const uint8_t &count, uint8_t &processed, uint8_t &responded, std::vector<uint8_t> &data) {
 		TRC_FUNCTION_ENTER("");
 		std::unique_ptr<IDpaTransactionResult2> result;
 		try {
@@ -195,7 +196,8 @@ namespace iqrf {
 			}
 			responded += status;
 			const uint8_t *pData = frcSendSelectiveResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData;
-			data.insert(data.end(), pData + 1, pData + 1 + count);
+			uint8_t toCopy = count >= FRC_RESPONSE_MAX_BYTES ? FRC_RESPONSE_MAX_BYTES : count + 1;
+			data.insert(data.end(), pData + 1, pData + toCopy);
 			serviceResult.addTransactionResult(result);
 		} catch (const std::exception &e) {
 			setErrorTransactionResult(serviceResult, result, e.what());
@@ -255,7 +257,12 @@ namespace iqrf {
 		}
 
 		try {
-			getBondedNodes(result);
+			//getBondedNodes(result);
+			std::set<uint8_t> bondedNodes;
+			for (uint8_t i = 1; i <= 239; ++i) {
+				bondedNodes.insert(i);
+			}
+			result.setBondedNodes(bondedNodes);
 			if (result.getBondedNodes().size() == 0) {
 				std::string errorStr = "There are no nodes bonded in network.";
 				result.setStatus(ErrorCodes::noBondedNodesError, errorStr);
