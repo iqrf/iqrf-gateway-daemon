@@ -131,6 +131,7 @@ namespace iqrf {
 		// Execute
 		uint8_t processedNodes = 0;
 		uint8_t responded = 0;
+		uint8_t unhandled = 0;
 		std::vector<uint8_t> frcData;
 		for (uint8_t i = 0, n = frcCount; i <= n; ++i) {
 			uint8_t nodes = (uint8_t)(i < frcCount ? FRC_1BYTE_MAX_NODES : frcRemainder);
@@ -147,7 +148,9 @@ namespace iqrf {
 		std::map<uint8_t, uint8_t> responseTimeMap;
 		for (auto &addr : bonded) {
 			responseTimeMap.insert(std::make_pair(addr, frcData[i]));
-			if (frcData[i] > recommended) {
+			if (frcData[i] == 0xFF) {
+				unhandled++;
+			} else if (frcData[i] > recommended) {
 				recommended = frcData[i];
 			}
 			i++;
@@ -157,7 +160,13 @@ namespace iqrf {
 			serviceResult.setStatus(noRespondedNodesError, errorStr);
 			THROW_EXC(NoRespondedNodesException, errorStr);
 		}
+		if (unhandled == bonded.size()) {
+			std::string errorStr = "No node in network handled FRC response time event.";
+			serviceResult.setStatus(noHandledNodesError, errorStr);
+			THROW_EXC(std::logic_error, errorStr);
+		}
 		serviceResult.setInaccessibleNodes(responded);
+		serviceResult.setUnhandledNodes(unhandled);
 		serviceResult.setResponseTimeMap(responseTimeMap);
 		TRC_FUNCTION_LEAVE("");
 		return (IDpaTransaction2::FrcResponseTime)(recommended - 1);
