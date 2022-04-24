@@ -83,6 +83,14 @@ namespace iqrf {
 		}
 
 		/**
+		 * Sets number of nodes ignoring the event
+		 * @param unhandled Number of nodes ignoring the event
+		 */
+		void setUnhandledNodes(const uint8_t &unhandled) {
+			m_unhandledNodes = unhandled;
+		}
+
+		/**
 		 * Sets map of nodes and their response times
 		 * @param map Map of nodes and response times
 		 */
@@ -175,6 +183,8 @@ namespace iqrf {
 			if (m_status == 0) {
 				// Inacessible nodes
 				Pointer("/data/rsp/inaccessibleNodes").Set(response, m_inaccessibleNodes);
+				// Nodes ignored
+				Pointer("/data/rsp/unhandledNodes").Set(response, m_unhandledNodes);
 
 				// Node results
 				Value array(kArrayType);
@@ -187,7 +197,10 @@ namespace iqrf {
 					Pointer("/deviceAddr").Set(object, address, allocator);
 					Pointer("/responded").Set(object, responseTime != 0, allocator);
 					if (responseTime != 0) {
-						Pointer("/responseTime").Set(object, responseTimeToMs((IDpaTransaction2::FrcResponseTime)(responseTime - 1)), allocator);
+						Pointer("/handled").Set(object, responseTime != 0xFF, allocator);
+						if (responseTime != 0xFF) {
+							Pointer("/responseTime").Set(object, responseTimeToMs((IDpaTransaction2::FrcResponseTime)(responseTime - 1)), allocator);
+						}
 					}
 					array.PushBack(object, allocator);
 				}
@@ -272,6 +285,8 @@ namespace iqrf {
 		std::set<uint8_t> m_bondedNodes;
 		/// Number of inaccessible nodes
 		uint8_t m_inaccessibleNodes = 0;
+		/// Number of nodes ignoring the event
+		uint8_t m_unhandledNodes = 0;
 		/// Map of node addresses and response times
 		std::map<uint8_t, uint8_t> m_responseTimeMap;
 		/// Current FRC response time
