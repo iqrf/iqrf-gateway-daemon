@@ -43,6 +43,7 @@
 					"type": "object",
 					"required": [
 						"inaccessibleNodes",
+						"unhandledNodes",
 						"nodes",
 						"currentResponseTime",
 						"recommendedResponseTime"
@@ -53,6 +54,14 @@
 							"$id": "#/properties/data/properties/rsp/properties/inaccessibleNodes",
 							"title": "Inaccessible nodes",
 							"description": "Number of nodes that did not respond to FRC response time.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 239
+						},
+						"unhandledNodes": {
+							"$id": "#/properties/data/properties/rsp/properties/unhandledNodes",
+							"title": "Unhandled nodes",
+							"description": "Number of nodes that did not handle the FRC response time event.",
 							"type": "integer",
 							"minimum": 0,
 							"maximum": 239
@@ -87,6 +96,12 @@
 										"$id": "#/properties/data/properties/rsp/properties/nodes/items/properties/responded",
 										"title": "Node responded",
 										"description": "Indicates whether node device responded to the FRC request.",
+										"type": "boolean"
+									},
+									"handled": {
+										"$id": "#/properties/data/properties/rsp/properties/nodes/items/properties/handled",
+										"title": "Event handled",
+										"description": "Indicates whether node device handled FRC response time event.",
 										"type": "boolean"
 									},
 									"responseTime": {

@@ -45,7 +45,7 @@ namespace iqrf {
 			exclusiveAccessError = 1002,
 			noBondedNodesError = 1003,
 			noRespondedNodesError = 1004,
-
+			noHandledNodesError = 1005,
 		};
 
 		/**
