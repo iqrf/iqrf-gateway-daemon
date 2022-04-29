@@ -134,6 +134,13 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::MonitorService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "MonitorService",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::MqMessaging",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MqMessaging",
@@ -204,16 +211,16 @@
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsonCfgApi",
+      "name": "iqrf::JsonIqrfInfoApi",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "JsonCfgApi",
+      "libraryName": "JsonIqrfInfoApi",
       "enabled": true,
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsonIqrfInfoApi",
+      "name": "iqrf::JsonCfgApi",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "JsonIqrfInfoApi",
+      "libraryName": "JsonCfgApi",
       "enabled": true,
       "startlevel": 2
     },
@@ -260,13 +267,6 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::SmartConnectService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "SmartConnectService",
-      "enabled": true,
-      "startlevel": 3
-    },
-    {
       "name": "iqrf::ReadTrConfService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "ReadTrConfService",
@@ -274,9 +274,9 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::OtaUploadService",
+      "name": "iqrf::SmartConnectService",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "OtaUploadService",
+      "libraryName": "SmartConnectService",
       "enabled": true,
       "startlevel": 3
     },
@@ -291,6 +291,13 @@
       "name": "iqrf::EnumerateDeviceService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "EnumerateDeviceService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::RemoveBondService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "RemoveBondService",
       "enabled": true,
       "startlevel": 3
     },
@@ -316,18 +323,11 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::RemoveBondService",
+      "name": "iqrf::OtaUploadService",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "RemoveBondService",
+      "libraryName": "OtaUploadService",
       "enabled": true,
       "startlevel": 3
-    },
-    {
-      "name": "iqrf::MonitorService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "MonitorService",
-      "enabled": true,
-      "startlevel": 0
     }
   ]
 }

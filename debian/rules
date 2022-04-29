@@ -45,8 +45,6 @@ override_dh_fixperms:
 	chmod -R 666 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon
 	chmod 777 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon
 	chmod 777 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/cfgSchemas
-	chmod 777 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/metaData
-	chmod 777 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/metaDataSchemas
 	chmod 777 debian/iqrf-gateway-daemon-default-cfg/usr/share/iqrf-gateway/default/daemon/schedulerSchemas
 
 override_dh_auto_install:

@@ -40,18 +40,18 @@ include_directories(${CMAKE_BINARY_DIR})
 
 add_executable(${PROJECT_NAME} ${_HDRFILES} ${_SRCFILES} ${_CONFIG} ${_CONFIG_WIN_CDC} ${_JAVA_SCRIPT})
 
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME}
   launcher
   ${Boost_LIBRARIES}
 )
 
 if(UNIX)
-  target_link_libraries(${PROJECT_NAME} 
+  target_link_libraries(${PROJECT_NAME}
     dl
     pthread
   )
 endif()
- 
+
 DeployShapeComponent(${PROJECT_NAME})
 
 if(UNIX)
@@ -70,8 +70,6 @@ foreach(cfg ${CfgList})
 		${CMAKE_CURRENT_SOURCE_DIR}/scheduler						configuration/scheduler
 		${CMAKE_CURRENT_SOURCE_DIR}/schedulerSchemas				configuration/schedulerSchemas
    		${CMAKE_CURRENT_SOURCE_DIR}/DB/init							configuration/DB/init
-		${CMAKE_CURRENT_SOURCE_DIR}/metaData/meta_data.json			configuration/metaData/meta_data.json
-		${CMAKE_CURRENT_SOURCE_DIR}/metaData/schema_meta_data.json	configuration/metaDataSchemas/schema_meta_data.json
 		${CMAKE_CURRENT_SOURCE_DIR}/iqrfRepoCache					configuration/iqrfRepoCache
 		${CMAKE_CURRENT_SOURCE_DIR}/javaScript						configuration/javaScript
 		${CMAKE_CURRENT_SOURCE_DIR}/cfgSchemas						configuration/cfgSchemas
