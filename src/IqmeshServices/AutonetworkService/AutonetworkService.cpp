@@ -1385,6 +1385,63 @@ namespace iqrf {
       }
     }
 
+    // FRC_AcknowledgedBroadcastBits - OS restart
+    TPerFrcSend_Response FrcRestartNodes(AutonetworkResult& autonetworkResult)
+    {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> transResult;
+      try
+      {
+        // Prepare DPA request
+        DpaMessage frcRestartNodesRequest;
+        DpaMessage::DpaPacket_t frcRestartNodesPacket;
+        frcRestartNodesPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        frcRestartNodesPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        frcRestartNodesPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND;
+        frcRestartNodesPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+        // FRC command - Ping
+        frcRestartNodesPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand = FRC_AcknowledgedBroadcastBits;
+        frcRestartNodesPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x00] = 5;
+        frcRestartNodesPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x01] = PNUM_OS;
+        frcRestartNodesPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x02] = CMD_OS_RESTART;
+        frcRestartNodesPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x03] = HWPID_DoNotCheck >> 0x08;
+        frcRestartNodesPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x04] = HWPID_DoNotCheck & 0xff;
+        // Data to buffer
+        frcRestartNodesRequest.DataToBuffer(frcRestartNodesPacket.Buffer, sizeof(TDpaIFaceHeader) + 6);
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(frcRestartNodesRequest, transResult, antwInputParams.actionRetries);
+        TRC_DEBUG("Result from FRC_AcknowledgedBroadcastBits Restart transaction as string:" << PAR(transResult->getErrorString()));
+        DpaMessage dpaResponse = transResult->getResponse();
+        TRC_INFORMATION("FRC_AcknowledgedBroadcastBits Restart nodes ok!");
+        TRC_DEBUG(
+          "DPA transaction: "
+          << NAME_PAR(Peripheral type, frcRestartNodesRequest.PeripheralType())
+          << NAME_PAR(Node address, frcRestartNodesRequest.NodeAddress())
+          << NAME_PAR(Command, (int)frcRestartNodesRequest.PeripheralCommand())
+        );
+        autonetworkResult.addTransactionResult(transResult);
+        // Check FRC status
+        uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if (status <= 0xEF)
+        {
+          TRC_INFORMATION("FRC_AcknowledgedBroadcastBits: status OK." << NAME_PAR_HEX("Status", (int)status));
+          TRC_FUNCTION_LEAVE("");
+          return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
+        }
+        else
+        {
+          TRC_WARNING("FRC_AcknowledgedBroadcastBits: status NOK!" << NAME_PAR_HEX("Status", (int)status));
+          THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
+        }
+      }
+      catch (const std::exception& e)
+      {
+        autonetworkResult.setStatus(transResult->getErrorCode(), e.what());
+        autonetworkResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
     // Authorize control
     bool authorizeControl(uint32_t MID, uint16_t HWPID, uint8_t& bondAddr, TAuthorizeErr& authorizeErr)
     {
@@ -2568,6 +2625,47 @@ namespace iqrf {
         // Unbond temporary address
         if(antwInputParams.skipPrebonding == false)
           unbondTemporaryAddress(autonetworkResult);
+        // Get DPA version
+        IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
+        if (coordParams.dpaVerWord < 0x0417)
+        {
+          TRC_INFORMATION("Restarting nodes.");
+          std::basic_string<uint8_t> FrcOfflineNodes;
+          uint8_t retryAction = antwInputParams.actionRetries + 1;
+          do
+          {
+            try
+            {
+              // Add delay at next retries
+              if (--retryAction != antwInputParams.actionRetries)
+              {
+                // ToDo
+                std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_REPEAT));
+              }
+
+              // FRC_AcknowledgedBroadcastBits - Restart nodes
+              TPerFrcSend_Response response = FrcRestartNodes(autonetworkResult);
+              // Clear FrcPingOfflineNodes
+              FrcOfflineNodes.clear();
+              // Check the response
+              for (uint8_t address = 1; address <= MAX_ADDRESS; address++)
+              {
+                // Node bonded ?
+                if (antwProcessParams.networkNodes[address].bonded == true)
+                {
+                  // Node acknowledged to FRC_AcknowledgedBroadcastBits - Restart nodes (Bit0 is set) ?
+                  bool nodeOnline = (response.FrcData[address / 8] & (uint8_t)(1 << (address % 8))) != 0;
+                  if (nodeOnline == false)
+                    FrcOfflineNodes.push_back(address);
+                }
+              }
+            }
+            catch (const std::exception& ex)
+            {
+              TRC_WARNING("FRC_AcknowledgedBroadcastBits: error: " << ex.what());
+            }
+          } while ((FrcOfflineNodes.size() != 0) && (retryAction != 0));
+        }
         // Set initial FRC param
         if (antwProcessParams.FrcResponseTime != 0)
           antwProcessParams.FrcResponseTime = setFrcReponseTime(autonetworkResult, antwProcessParams.FrcResponseTime);
