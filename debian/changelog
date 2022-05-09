@@ -1,10 +1,17 @@
-iqrf-gateway-daemon (2.3.11~alpha~1.gbpf01709) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.3.11) stable; urgency=medium
 
-  ** SNAPSHOT build @f017096993ce66fead9a6d8380573079f3e863ed **
+  [ Roman Ondráček ]
+  * Prepare for version 2.3.11-alpha
 
-  * UNRELEASED
+  [ Karel Hanák ]
+  * IqrfUart: stop listening thread if uart interface is not ready
+  * updated message logging in IQRF interface components
+  * UdpChannel: include sender IP when receiving UDP datagram
 
- -- Roman Ondráček <roman@romanondracek.cz>  Tue, 05 Apr 2022 13:25:00 +0200
+  [ Vasek Hanak ]
+  * Adding OS restart of Nodes at the end of anutonetwork process (if [C] DPA version < 0x0417).
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Mon, 09 May 2022 22:42:55 +0200
 
 iqrf-gateway-daemon (2.3.10) stable; urgency=medium
 
