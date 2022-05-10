@@ -266,12 +266,7 @@ namespace iqrf {
 		}
 
 		try {
-			//getBondedNodes(result);
-			std::set<uint8_t> bondedNodes;
-			for (uint8_t i = 1; i <= 239; ++i) {
-				bondedNodes.insert(i);
-			}
-			result.setBondedNodes(bondedNodes);
+			getBondedNodes(result);
 			if (result.getBondedNodes().size() == 0) {
 				std::string errorStr = "There are no nodes bonded in network.";
 				result.setStatus(ErrorCodes::noBondedNodesError, errorStr);
