@@ -180,6 +180,7 @@ add_subdirectory(src/IqmeshServices/RemoveBondService)
 add_subdirectory(src/IqmeshServices/PingService)
 add_subdirectory(src/IqmeshServices/RestartService)
 add_subdirectory(src/IqmeshServices/Maintenance)
+add_subdirectory(src/IqmeshServices/DpaParams)
 
 if(${BUILD_TESTING})
   add_subdirectory(src/tests)

@@ -342,6 +342,13 @@
       "libraryName": "FrcResponseTime",
       "enabled": true,
       "startlevel": 3
+    },
+    {
+      "name": "iqrf::DpaValueService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "DpaValueService",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }
