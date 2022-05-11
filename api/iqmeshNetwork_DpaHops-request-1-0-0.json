@@ -1,0 +1,86 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "iqmeshNetwork_DpaHops-request",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"title": "IQMESH Network - DPA Params - DPA Hops",
+	"type": "object",
+	"required": ["mType", "data"],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "IQMESH Network management - DPA Params - DPA Hops.",
+			"type": "string",
+			"enum": ["iqmeshNetwork_DpaHops"]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data.",
+			"description": "Message metadata and body.",
+			"type": "object",
+			"required": ["msgId", "req"],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message ID used for pairing requests and responses.",
+					"type": "string"
+				},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request parameters",
+					"description": "Request parameters.",
+					"type": "object",
+					"required": ["action"],
+					"additionalProperties": false,
+					"properties": {
+						"action": {
+							"$id": "#/properties/data/properties/req/properties/action",
+							"title": "Action",
+							"description": "Get or Set DPA hops. If action is set and hops not specified, default values are used.",
+							"type": "string",
+							"enum": ["get", "set"]
+						},
+						"requestHops": {
+							"$id": "#/properties/data/properties/req/properties/requestHops",
+							"title": "Request hops",
+							"description": "Request hops.",
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 255,
+							"default": 255
+						},
+						"responseHops": {
+							"$id": "#/properties/data/properties/req/properties/responseHops",
+							"title": "Response hops",
+							"description": "Response hops.",
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 255,
+							"default": 255
+						}
+					}
+				},
+				"repeat": {
+					"$id": "#/properties/data/properties/repeat",
+					"title": "Repeat request",
+					"description": "Number of repetitions of DPA messages.",
+					"type": "integer",
+					"default": 1
+				},
+				"returnVerbose": {
+					"$id": "#/properties/data/properties/returnVerbose",
+					"title": "Verbose response",
+					"description": "Return more verbose response.",
+					"type": "boolean"
+				}
+			}
+		}
+	}
+}
