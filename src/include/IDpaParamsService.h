@@ -31,6 +31,7 @@
 #else
 #define IDpaHopsService_DECLSPEC SHAPE_ABI_IMPORT
 #endif
+
 #ifdef IDpaFrcParamsService_EXPORTS
 #define IDpaFrcParamsService_DECLSPEC SHAPE_ABI_EXPORT
 #else
@@ -56,7 +57,6 @@ namespace iqrf {
 		std::make_pair("get", TDpaParamAction::GET),
 		std::make_pair("set", TDpaParamAction::SET),
 	};
-
 	/// DPA Value service interface
 	class IDpaValueService_DECLSPEC IDpaValueService {
 	public:
