@@ -2,11 +2,11 @@
 	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmeshNetwork_DpaValue-response",
+		"name": "iqmeshNetwork_DpaHops-response",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
-	"title": "IQMESH Network - DPA Params - DPA Value",
+	"title": "IQMESH Network - DPA Params - DPA Hops",
 	"type": "object",
 	"required": ["mType", "data"],
 	"additionalProperties": false,
@@ -14,10 +14,10 @@
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - DPA Params - DPA Value.",
+			"description": "IQMESH Network management - DPA Params - DPA Hops.",
 			"type": "string",
 			"enum": [
-				"iqmeshNetwork_DpaValue"
+				"iqmeshNetwork_DpaHops"
 			]
 		},
 		"data": {
@@ -46,17 +46,27 @@
 						"action": {
 							"$id": "#/properties/data/properties/rsp/properties/action",
 							"title": "Action",
-							"description": "Get or Set DPA value type.",
+							"description": "Get or Set DPA hops.",
 							"type": "string",
 							"enum": ["get", "set"]
 						},
-						"type": {
-							"$id": "#/properties/data/properties/rsp/properties/type",
-							"title": "Value type",
-							"descriptions": "Current DPA value type. [0 - RSSI, 1 - Supply Voltage, 2 - System, 3 - User]",
+						"requestHops": {
+							"$id": "#/properties/data/properties/rsp/properties/requestHops",
+							"title": "Request hops",
+							"description": "Request hops.",
 							"type": "integer",
-							"minimum": 0,
-							"maximum": 3
+							"minimum": 1,
+							"maximum": 255,
+							"default": 255
+						},
+						"responseHops": {
+							"$id": "#/properties/data/properties/rsp/properties/responseHops",
+							"title": "Response hops",
+							"description": "Response hops.",
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 255,
+							"default": 255
 						}
 					}
 				},
