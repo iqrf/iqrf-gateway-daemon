@@ -16,12 +16,10 @@
  */
 #pragma once
 
-#include "IDpaTransaction2.h"
-#include "IDpaTransactionResult2.h"
 #include "IMessagingSplitterService.h"
 #include "rapidjson/document.h"
+#include "ServiceResultBase.h"
 
-#include <list>
 #include <memory>
 #include <set>
 
@@ -30,34 +28,8 @@ using namespace rapidjson;
 /// iqrf namespace
 namespace iqrf {
 	/// FRC Response Time result class
-	class FrcResponseTimeResult {
+	class FrcResponseTimeResult : public ServiceResultBase {
 	public:
-		/**
-		 * Sets message ID
-		 * @param msgId Message ID
-		 */
-		void setMessageId(const std::string &msgId) {
-			m_msgId = msgId;
-		}
-
-		/**
-		 * Sets response verbosity
-		 * @param verbose Verbose response
-		 */
-		void setVerbose(bool verbose) {
-			m_verbose = verbose;
-		}
-
-		/**
-		 * Sets status code and string
-		 * @param status Status code
-		 * @param statusStr Status string
-		 */
-		void setStatus(const int status, const std::string &statusStr) {
-			m_status = status;
-			m_statusStr = statusStr;
-		}
-
 		/**
 		 * Returns set of bonded nodes
 		 * @return Bonded nodes
@@ -166,20 +138,14 @@ namespace iqrf {
 		}
 
 		/**
-		 * Stores transaction result
-		 * @param transactionResult Transaction result
+		 * Populates response document
+		 * @param response response document
 		 */
-		void addTransactionResult(std::unique_ptr<IDpaTransactionResult2> &transactionResult) {
-			if (transactionResult) {
-				m_transactionResults.push_back(std::move(transactionResult));
-			}
-		}
-
 		void createResponse(Document &response) {
 			// Default parameters
-			Pointer("/mType").Set(response, m_mType);
-			Pointer("/data/msgId").Set(response, m_msgId);
+			ServiceResultBase::setResponseMetadata(response);
 
+			// Service results
 			if (m_status == 0) {
 				// Inacessible nodes
 				Pointer("/data/rsp/inaccessibleNodes").Set(response, m_inaccessibleNodes);
@@ -211,76 +177,10 @@ namespace iqrf {
 				Pointer("/data/rsp/recommendedResponseTime").Set(response, responseTimeToMs(m_recommendedResponseTime));
 			}
 
-			if (m_verbose) {
-				Value array(kArrayType);
-				Document::AllocatorType &allocator = response.GetAllocator();
-
-				std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator itr;
-				for (itr = m_transactionResults.begin(); itr != m_transactionResults.end(); ++itr) {
-					std::unique_ptr<IDpaTransactionResult2> result = std::move(*itr);
-					Value object(kObjectType);
-					object.AddMember(
-						"request",
-						encodeBinary(result->getRequest().DpaPacket().Buffer, result->getRequest().GetLength()),
-						allocator
-					);
-					object.AddMember(
-						"requestTs",
-						encodeTimestamp(result->getRequestTs()),
-						allocator
-					);
-					object.AddMember(
-						"confirmation",
-						encodeBinary(result->getConfirmation().DpaPacket().Buffer, result->getConfirmation().GetLength()),
-						allocator
-					);
-					object.AddMember(
-						"confirmationTs",
-						encodeTimestamp(result->getConfirmationTs()),
-						allocator
-					);
-					object.AddMember(
-						"response",
-						encodeBinary(result->getResponse().DpaPacket().Buffer, result->getResponse().GetLength()),
-						allocator
-					);
-					object.AddMember(
-						"responseTs",
-						encodeTimestamp(result->getResponseTs()),
-						allocator
-					);
-					array.PushBack(object, allocator);
-				}
-				Pointer("/data/raw").Set(response, array);
-			}
-
-			// Status
-			Pointer("/data/status").Set(response, m_status);
-			Pointer("/data/statusStr").Set(response, m_statusStr);
-		}
-
-		void createErrorResponse(Document &response) {
-			// Default parameters
-			Pointer("/mType").Set(response, m_mType);
-			Pointer("/data/msgId").Set(response, m_msgId);
-
-			// Status
-			Pointer("/data/status").Set(response, m_status);
-			Pointer("/data/statusStr").Set(response, m_statusStr);
+			// Transactions and error codes
+			ServiceResultBase::createResponse(response);
 		}
 	private:
-		/// Message type
-		std::string m_mType = "iqmeshNetwork_MaintenanceFrcResponseTime";
-		/// Message ID
-		std::string m_msgId;
-		/// Verbose response
-		bool m_verbose = false;
-		/// Status code
-		int m_status = 0;
-		/// Status string
-		std::string m_statusStr = "ok";
-		/// List of DPA transactions performed during the service
-		std::list<std::unique_ptr<IDpaTransactionResult2>> m_transactionResults;
 		/// Set of bonded node addresses
 		std::set<uint8_t> m_bondedNodes;
 		/// Number of inaccessible nodes

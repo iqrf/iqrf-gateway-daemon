@@ -16,10 +16,18 @@
  */
 #pragma once
 
+#include "ShapeDefines.h"
+
+#ifdef IFrcResponseTime_EXPORTS
+#define IFrcResponseTime_DECLSPEC SHAPE_ABI_EXPORT
+#else
+#define IFrcResponseTime_DECLSPEC SHAPE_ABI_IMPORT
+#endif
+
 //// iqrf namespace
 namespace iqrf {
 	/// FRC response time interface
-	class IFrcResponseTime {
+	class IFrcResponseTime_DECLSPEC IFrcResponseTime {
 	public:
 		virtual ~IFrcResponseTime() {};
 	};

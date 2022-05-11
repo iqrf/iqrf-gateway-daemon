@@ -250,6 +250,7 @@ namespace iqrf {
 		ComIqmeshMaintenanceFrcResponse params(doc);
 		m_requestParams = params.getFrcResponseTimeParams();
 		FrcResponseTimeResult result;
+		result.setMessageType(msgType.m_type);
 		result.setMessageId(params.getMsgId());
 		result.setVerbose(params.getVerbose());
 		Document response;
