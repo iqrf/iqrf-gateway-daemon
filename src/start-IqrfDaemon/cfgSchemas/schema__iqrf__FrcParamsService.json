@@ -2,7 +2,7 @@
 	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "schema__iqrf__DpaHopsService",
+		"name": "schema__iqrf__FrcParamsService",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
@@ -16,13 +16,13 @@
 			"type": "string",
 			"description": "Name of component.",
 			"enum": [
-				"iqrf::DpaHopsService"
+				"iqrf::FrcParamsService"
 			]
 		},
 		"instance": {
 			"type": "string",
-			"description": "Recomended iqrf::DpaHopsService-(id)",
-			"default": "iqrf::DpaHopsService-1"
+			"description": "Recomended iqrf::FrcParamsService-(id)",
+			"default": "iqrf::FrcParamsService-1"
 		},
 		"RequiredInterfaces": {
 			"type": "array",

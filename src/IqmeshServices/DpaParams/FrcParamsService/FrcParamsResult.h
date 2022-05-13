@@ -31,8 +31,8 @@ using namespace rapidjson;
 
 /// iqrf namespace
 namespace iqrf {
-	/// DPA hops result class
-	class DpaHopsResult : public ServiceResultBase {
+	/// DPA frc params result class
+	class FrcParamsResult : public ServiceResultBase {
 	public:
 		/**
 		 * Stores action
@@ -43,19 +43,19 @@ namespace iqrf {
 		}
 
 		/**
-		 * Sets request hops
-		 * @param requestHops Request hops
+		 * Sets FRC response time
+		 * @param responseTime FRC response time
 		 */
-		void setRequestHops(const uint8_t &requestHops) {
-			m_requestHops = requestHops;
+		void setResponseTime(IDpaTransaction2::FrcResponseTime responseTime) {
+			m_responseTime = responseTime;
 		}
 
 		/**
-		 * Sets response hops
-		 * @param requestHops Response hops
+		 * Sets offline frc
+		 * @param offlineFrc Offline frc
 		 */
-		void setResponseHops(const uint8_t &responseHops) {
-			m_responseHops = responseHops;
+		void setOfflineFrc(bool offlineFrc) {
+			m_offlineFrc = offlineFrc;
 		}
 
 		/**
@@ -70,8 +70,8 @@ namespace iqrf {
 			if (m_status == 0) {
 				Pointer("/data/rsp/action").Set(response, dpaParamActionEnumStringMap[m_action]);
 				if (m_action == TDpaParamAction::GET) {
-					Pointer("/data/rsp/requestHops").Set(response, m_requestHops);
-					Pointer("/data/rsp/responseHops").Set(response, m_responseHops);
+					Pointer("/data/rsp/responseTime").Set(response, m_responseTime);
+					Pointer("/data/rsp/offlineFrc").Set(response, m_offlineFrc);
 				}
 			}
 
@@ -81,9 +81,9 @@ namespace iqrf {
 	private:
 		/// DPA param action
 		TDpaParamAction m_action;
-		/// Request hops
-		uint8_t m_requestHops;
-		/// Response hops
-		uint8_t m_responseHops;
+		/// FRC response time
+		IDpaTransaction2::FrcResponseTime m_responseTime;
+		/// Offline FRC
+		bool m_offlineFrc;
 	};
 }

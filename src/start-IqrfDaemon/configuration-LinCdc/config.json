@@ -344,6 +344,13 @@
       "startlevel": 3
     },
     {
+      "name": "iqrf::FrcParamsService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "FrcParamsService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
       "name": "iqrf::DpaHopsService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "DpaHopsService",
