@@ -13,5 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+add_subdirectory(FrcParamsService)
 add_subdirectory(DpaHopsService)
 add_subdirectory(DpaValueService)

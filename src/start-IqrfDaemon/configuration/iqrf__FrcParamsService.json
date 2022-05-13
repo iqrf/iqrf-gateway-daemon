@@ -1,0 +1,4 @@
+{
+	"component": "iqrf::FrcParamsService",
+	"instance": "iqrf::FrcParamsService-Instance1"
+}
