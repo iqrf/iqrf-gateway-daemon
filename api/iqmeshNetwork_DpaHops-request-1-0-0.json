@@ -52,7 +52,7 @@
 							"title": "Request hops",
 							"description": "Request hops.",
 							"type": "integer",
-							"minimum": 1,
+							"minimum": 0,
 							"maximum": 255,
 							"default": 255
 						},
