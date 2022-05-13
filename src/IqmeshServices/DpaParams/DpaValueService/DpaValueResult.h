@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "IDpaParamsService.h"
 #include "IDpaTransaction2.h"
 #include "IDpaTransactionResult2.h"
 #include "IMessagingSplitterService.h"

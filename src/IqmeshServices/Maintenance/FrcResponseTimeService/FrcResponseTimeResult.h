@@ -20,6 +20,7 @@
 #include "rapidjson/document.h"
 #include "ServiceResultBase.h"
 
+#include <map>
 #include <memory>
 #include <set>
 

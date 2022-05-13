@@ -32,10 +32,10 @@
 #define IDpaHopsService_DECLSPEC SHAPE_ABI_IMPORT
 #endif
 
-#ifdef IDpaFrcParamsService_EXPORTS
-#define IDpaFrcParamsService_DECLSPEC SHAPE_ABI_EXPORT
+#ifdef IFrcParamsService_EXPORTS
+#define IFrcParamsService_DECLSPEC SHAPE_ABI_EXPORT
 #else
-#define IDpaFrcParamsService_DECLSPEC SHAPE_ABI_IMPORT
+#define IFrcParamsService_DECLSPEC SHAPE_ABI_IMPORT
 #endif
 
 /// iqrf namespace
@@ -57,6 +57,7 @@ namespace iqrf {
 		std::make_pair("get", TDpaParamAction::GET),
 		std::make_pair("set", TDpaParamAction::SET),
 	};
+
 	/// DPA Value service interface
 	class IDpaValueService_DECLSPEC IDpaValueService {
 	public:
@@ -76,11 +77,11 @@ namespace iqrf {
 	};
 
 	/// DPA FRC params service interface
-	class IDpaFrcParamsService_DECLSPEC IDpaFrcParamsService {
+	class IFrcParamsService_DECLSPEC IFrcParamsService {
 	public:
 		/**
 		 * Destructor
 		 */
-		virtual ~IDpaFrcParamsService() {};
+		virtual ~IFrcParamsService() {};
 	};
 }
