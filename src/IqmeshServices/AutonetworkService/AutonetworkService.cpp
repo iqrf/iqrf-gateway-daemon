@@ -158,6 +158,7 @@ namespace iqrf {
       cannotStartProcessDuplicitMidInCoord,
       cannotStartProcessAddressSpaceNoFreeAddress,
       abortOnAllAddressesFromAddressSpaceAllocated,
+      abortOnAllMIDsFromMidListAllocated
     };
 
     // MID union
@@ -1428,12 +1429,11 @@ namespace iqrf {
           << NAME_PAR(Node address, frcRestartNodesRequest.NodeAddress())
           << NAME_PAR(Command, (int)frcRestartNodesRequest.PeripheralCommand())
         );
+        autonetworkResult.addTransactionResult(transResult);
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if (status <= 0xEF)
         {
-          // Add FRC result
-          autonetworkResult.addTransactionResult(transResult);
           TRC_INFORMATION("FRC_AcknowledgedBroadcastBits: status OK." << NAME_PAR_HEX("Status", (int)status));
           TRC_FUNCTION_LEAVE("");
           return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
@@ -1471,163 +1471,193 @@ namespace iqrf {
       }
 
       // Overlapping networks
-      if ((antwInputParams.bondingControl.overlappingNetworks.networks != 0) && (antwInputParams.bondingControl.overlappingNetworks.network != 0))
+      bool overlappingNetworks = (antwInputParams.bondingControl.overlappingNetworks.networks != 0) && (antwInputParams.bondingControl.overlappingNetworks.network != 0);
+      if ((overlappingNetworks == true) && ((MID % antwInputParams.bondingControl.overlappingNetworks.networks) != (uint32_t)(antwInputParams.bondingControl.overlappingNetworks.network - 1)))
       {
-        uint32_t rem = MID % antwInputParams.bondingControl.overlappingNetworks.networks;
-        if (rem != (uint32_t)(antwInputParams.bondingControl.overlappingNetworks.network - 1))
-        {
-          authorizeErr = TAuthorizeErr::eNetworkNum;
-          return false;
-        }
+        TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized! Network number error.");
+        authorizeErr = TAuthorizeErr::eNetworkNum;
       }
-
-      // MID List specified in JSON request ?
-      if (antwInputParams.bondingControl.midList.empty() == false)
+      else
       {
-        // Check the authorized MID is listed in the midList
-        auto midListEntry = antwInputParams.bondingControl.midList.find(MID);
-
-        // MID filtering active ?
-        if (antwInputParams.bondingControl.midFiltering == true)
+        // MID List specified in JSON request ?
+        if (antwInputParams.bondingControl.midList.empty() == false)
         {
-          // Is Authorized MID listed in the midList ?
-          if (midListEntry == antwInputParams.bondingControl.midList.end())
+          // Check the authorized MID is listed in the midList
+          auto midListEntry = antwInputParams.bondingControl.midList.find(MID);
+          // MID filtering active ?
+          if ((antwInputParams.bondingControl.midFiltering == true) && (midListEntry == antwInputParams.bondingControl.midList.end()))
           {
             // No, authorization denied
             TRC_WARNING("authorizeControl: MID list doesn't contain MID:  " << PAR((int)MID) << ", Node not authorized!");
             authorizeErr = TAuthorizeErr::eMIDFiltering;
-            return false;
+          }
+          else
+          {
+            // HWPID filtering active ?
+            if ((antwInputParams.hwpidFiltering.empty() == false) && (std::find(antwInputParams.hwpidFiltering.begin(), antwInputParams.hwpidFiltering.end(), HWPID) == antwInputParams.hwpidFiltering.end()))
+            {
+              // Authorization denied
+              TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized. HWPID not equal with HWPID filter!");
+              authorizeErr = TAuthorizeErr::eHWPIDFiltering;
+            }
+            else
+            {
+              // Is authorized MID listed in the midList and device address is assigned ?
+              if ((midListEntry != antwInputParams.bondingControl.midList.end()) && (midListEntry->second != 0))
+              {
+                // Address space specified in JSON request and device address assigned in MID list is specified also in Address space ?
+                if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
+                {
+                  // No, Device address assigned MID list is not specified in Address space
+                  TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized. Address assinged in MID list isn't specified in Address space!");
+                  authorizeErr = TAuthorizeErr::eAddress;
+                }
+                else
+                {
+                  // OK
+                  bondAddr = midListEntry->second;
+                  return true;
+                }
+              }
+              else
+              {
+                // Assign network address to authorized Node
+                for (uint8_t addr = 1; addr <= MAX_ADDRESS; addr++)
+                {
+                  // Address already bonded ?
+                  if (antwProcessParams.networkNodes[addr].bonded == false)
+                  {
+                    // No, address is free
+                    bool usedAddress = false;
+
+                    // Address assinged in MID list ?
+                    for (auto node : antwInputParams.bondingControl.midList)
+                    {
+                      if (node.second == addr)
+                      {
+                        // Yes, set the flag
+                        usedAddress = true;
+                        break;
+                      }
+                    }
+
+                    // Address assinged in MID list ?
+                    if (usedAddress == false)
+                    {
+                      // No, Address space specified in JSON request and address specified in Address space list ?
+                      if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
+                        continue;
+
+                      // Is Authorized MID listed in the midList ?
+                      if (midListEntry != antwInputParams.bondingControl.midList.end())
+                      {
+                        // Yes, modify MID list entry - add Device address
+                        antwInputParams.bondingControl.midList.at(midListEntry->first) = addr;
+                      }
+                      else
+                      {
+                        // No, add new entry to MID list
+                        antwInputParams.bondingControl.midList.insert(std::make_pair(MID, addr));
+                      }
+                      bondAddr = addr;
+                      break;
+                    }
+                  }
+                }
+                if (bondAddr == 0)
+                {
+                  authorizeErr = TAuthorizeErr::eAddress;
+                  TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized! No free address.");
+                }
+              }
+            }
           }
         }
-
-        // HWPID filtering active ?
-        if (antwInputParams.hwpidFiltering.empty() == false)
+        else
         {
-          // Yes, check HWPID of authorized Node
-          if (std::find(antwInputParams.hwpidFiltering.begin(), antwInputParams.hwpidFiltering.end(), HWPID) == antwInputParams.hwpidFiltering.end())
+          // HWPID filtering active ?
+          if ((antwInputParams.hwpidFiltering.empty() == false) && (std::find(antwInputParams.hwpidFiltering.begin(), antwInputParams.hwpidFiltering.end(), HWPID) == antwInputParams.hwpidFiltering.end()))
           {
             // Authorization denied
             TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized. HWPID not equal with HWPID filter!");
             authorizeErr = TAuthorizeErr::eHWPIDFiltering;
-            return false;
-          }
-        }
-
-        // Is authorized MID listed in the midList and device address is assigned ?
-        if ((midListEntry != antwInputParams.bondingControl.midList.end()) && (midListEntry->second != 0))
-        {
-          // Address space specified in JSON request and sevice address assigned in MID list is specified alo in Address space ?
-          if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
-          {
-            // No, Device address assigned MID list is not specified in Address space
-            TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized. Address assinged in MID list isn't specified in Address space!");
-            authorizeErr = TAuthorizeErr::eAddress;
-            return false;
           }
           else
           {
-            // OK
-            bondAddr = midListEntry->second;
-            antwProcessParams.networkNodes[midListEntry->second].bonded = midListEntry->second;
-            return true;
-          }
-        }
-
-        // Assign network address to authorized Node
-        for (uint8_t addr = 1; addr <= MAX_ADDRESS; addr++)
-        {
-          // Address already bonded ?
-          if (antwProcessParams.networkNodes[addr].bonded == false)
-          {
-            // No, address is free
-            bool usedAddress = false;
-
-            // Address assinged in MID list ?
-            for (auto m : antwInputParams.bondingControl.midList)
+            // Check the authorized MID is listed in the midList
+            auto midListEntry = antwInputParams.bondingControl.midList.find(MID);
+            // Is authorized MID listed in the midList and device address is assigned ?
+            if ((midListEntry != antwInputParams.bondingControl.midList.end()) && (midListEntry->second != 0))
             {
-              if (m.second == addr)
-              {
-                // Yes, set the flag
-                usedAddress = true;
-                break;
-              }
-            }
-
-            // Address assinged in MID list ?
-            if (usedAddress == false)
-            {
-              // No, Address space specified in JSON request and address specified in Address space list ?
+              // Address space specified in JSON request and device address assigned in MID list is specified also in Address space ?
               if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
-                continue;
-              // Is Authorized MID listed in the midList ?
-              if (midListEntry != antwInputParams.bondingControl.midList.end())
               {
-                // Yes, modify MID list entry - add Device address
-                antwInputParams.bondingControl.midList.at(midListEntry->first) = addr;
+                // No, Device address assigned in MID list is not specified in Address space
+                TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized. Address assinged in MID list isn't specified in Address space!");
+                authorizeErr = TAuthorizeErr::eAddress;
               }
               else
               {
-                // No, add new entry to MID list
-                antwInputParams.bondingControl.midList.insert(std::make_pair(addr, MID));
+                // OK
+                bondAddr = midListEntry->second;
+                return true;
               }
-              bondAddr = addr;
-              antwProcessParams.networkNodes[addr].bonded = addr;
-              return true;
             }
-          }
-        }
-      }
-      else
-      {
-        // No, Mid list isn't specified in JSON request, HWPID filtering active ?
-        if (antwInputParams.hwpidFiltering.empty() == false)
-        {
-          // Yes, check HWPID of authorized Node
-          if (std::find(antwInputParams.hwpidFiltering.begin(), antwInputParams.hwpidFiltering.end(), HWPID) == antwInputParams.hwpidFiltering.end())
-          {
-            TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized. HWPID not equal with HWPID filter!");
-            authorizeErr = TAuthorizeErr::eHWPIDFiltering;
-            return false;
-          }
-        }
-
-        // Assign network address to authorized Node
-        for (uint8_t addr = 1; addr <= MAX_ADDRESS; addr++)
-        {
-          // Address already bonded ?
-          if (antwProcessParams.networkNodes[addr].bonded == false)
-          {
-            // No, address is free
-            bool usedAddress = false;
-
-            // Address assinged in MID list ?
-            for (auto m : antwInputParams.bondingControl.midList)
+            else
             {
-              if (m.second == addr)
+              // Assign network address to authorized Node
+              for (uint8_t addr = 1; addr <= MAX_ADDRESS; addr++)
               {
-                // Yes, set the flag
-                usedAddress = true;
-                break;
-              }
-            }
+                // Address already bonded ?
+                if (antwProcessParams.networkNodes[addr].bonded == false)
+                {
+                  // No, address is free
+                  bool usedAddress = false;
 
-            // Address assinged in MID list ?
-            if (usedAddress == false)
-            {
-              // No, Address space specified in JSON request and address specified in Address space list ?
-              if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[addr] == false))
-                continue;
-              bondAddr = addr;
-              antwProcessParams.networkNodes[addr].bonded = addr;
-              return true;
+                  // Address assinged in MID list ?
+                  for (auto node : antwInputParams.bondingControl.midList)
+                  {
+                    if (node.second == addr)
+                    {
+                      // Yes, set the flag
+                      usedAddress = true;
+                      break;
+                    }
+                  }
+
+                  // Address assinged in MID list ?
+                  if (usedAddress == false)
+                  {
+                    // No, Address space specified in JSON request and address specified in Address space list ?
+                    if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
+                      continue;
+
+                    // Is Authorized MID listed in the midList ?
+                    if (midListEntry != antwInputParams.bondingControl.midList.end())
+                    {
+                      // Yes, modify MID list entry - add Device address
+                      antwInputParams.bondingControl.midList.at(midListEntry->first) = addr;
+                    }
+                    else
+                    {
+                      // No, add new entry to MID list
+                      antwInputParams.bondingControl.midList.insert(std::make_pair(MID, addr));
+                    }
+                    bondAddr = addr;
+                    break;
+                  }
+                }
+              }
+              if (bondAddr == 0)
+              {
+                authorizeErr = TAuthorizeErr::eAddress;
+                TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized! No free address.");
+              }
             }
           }
         }
       }
 
-      // No free address
-      TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized!");
-      authorizeErr = TAuthorizeErr::eAddress;
       return false;
     }
 
@@ -1717,6 +1747,9 @@ namespace iqrf {
         break;
       case TWaveStateCode::abortOnAllAddressesFromAddressSpaceAllocated:
         strWaveState = "All available network addresses limited by the Address space were assigned. No new Node can be bonded.";
+        break;
+      case TWaveStateCode::abortOnAllMIDsFromMidListAllocated:
+        strWaveState = "All Nodes with MIDs from the MID list were found. No new Node can be bonded.";
         break;
 
       default:
@@ -1851,6 +1884,25 @@ namespace iqrf {
           {
             TRC_INFORMATION("All available network addresses limited by the Address space were assigned. No new Node can be bonded.The AutoNetwork process will stop.");
             antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesFromAddressSpaceAllocated;
+          }
+        }
+
+        // Check all MIDs from midList are already bonded
+        if (antwInputParams.bondingControl.midFiltering == true)
+        {
+          int midCount = antwInputParams.bondingControl.midList.size();
+          for (auto midListEntry : antwInputParams.bondingControl.midList)
+          {
+            for (auto networkNode : antwProcessParams.networkNodes)
+            {
+              if (networkNode.second.mid.value == midListEntry.first)
+                midCount--;
+            }
+          }
+          if (midCount == 0)
+          {
+            TRC_INFORMATION("All Nodes with MIDs from the MID list were found. No new Node can be bonded.");
+            antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllMIDsFromMidListAllocated;
           }
         }
       }
@@ -2018,7 +2070,7 @@ namespace iqrf {
                 {
                   if ((node.second.address != node1.second.address) && (node.second.mid.value == node1.second.mid.value))
                   {
-                    TRC_INFORMATION("The AutoNetwork process cannot be started because the Coordinator�s IQMESH database contains the same Node(s) bonded to more addresses. Please inspect the duplicate MID values in the MID column in the Table View and unbond the duplicate Node(s) in the Coordinator only.");
+                    TRC_INFORMATION("The AutoNetwork process cannot be started because the Coordinator's IQMESH database contains the same Node(s) bonded to more addresses. Please inspect the duplicate MID values in the MID column in the Table View and unbond the duplicate Node(s) in the Coordinator only.");
                     antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessDuplicitMidInCoord;
                     sendWaveResult(autonetworkResult);
                     TRC_FUNCTION_LEAVE("");
@@ -2319,7 +2371,7 @@ namespace iqrf {
           if ((coordParams.dpaVerWord >= 0x0414) && (FrcSelect.size() > 1))
           {
             // Check the DPA version of prebonded nodes is >= 0x0414
-            TRC_INFORMATION("Checking prebonded alive nodes DPA version.");
+            TRC_INFORMATION("Reading prebonded alive nodes DPA version.");
             antwProcessParams.waveStateCode = TWaveStateCode::readingDPAVersion;
             sendWaveState();
             std::basic_string<uint8_t> frcData = FrcPrebondedMemoryCompare2B(autonetworkResult, nodeSeed, 0x0414, 0x04a0, PNUM_ENUMERATION, CMD_GET_PER_INFO);
@@ -2852,7 +2904,7 @@ namespace iqrf {
                 if (node != FrcSelect.end())
                 {
                   // Insert duplicit node to duplicitMID
-                  if (std::find(antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address) != antwProcessParams.duplicitMID.end())
+                  if (std::find(antwProcessParams.duplicitMID.begin(), antwProcessParams.duplicitMID.end(), address) == antwProcessParams.duplicitMID.end())
                     antwProcessParams.duplicitMID.push_back(address);
                   try
                   {
