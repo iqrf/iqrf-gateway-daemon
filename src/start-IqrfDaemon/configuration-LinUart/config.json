@@ -232,13 +232,6 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::NativeUploadService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "NativeUploadService",
-      "enabled": true,
-      "startlevel": 3
-    },
-    {
       "name": "iqrf::WriteTrConfService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "WriteTrConfService",

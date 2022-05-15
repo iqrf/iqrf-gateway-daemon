@@ -13,4 +13,3 @@ var/cache/iqrf-gateway-daemon
 var/cache/iqrf-gateway-daemon/iqrfRepoCache
 var/cache/iqrf-gateway-daemon/metaData
 var/cache/iqrf-gateway-daemon/scheduler
-var/cache/iqrf-gateway-daemon/upload
