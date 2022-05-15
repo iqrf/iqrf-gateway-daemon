@@ -127,13 +127,6 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::LegacyApiSupport",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "LegacyApiSupport",
-      "enabled": true,
-      "startlevel": 0
-    },
-    {
       "name": "iqrf::MonitorService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MonitorService",
