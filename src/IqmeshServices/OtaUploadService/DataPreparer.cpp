@@ -30,9 +30,11 @@ namespace iqrf{
   const uint16_t IQRF_CONFIG_MEM_L_ADR = 0x37C0;
   const uint16_t IQRF_CONFIG_MEM_H_ADR = 0x37D0;
   const uint16_t IQRF_MAIN_MEM_MIN_ADR = 0x3A00;
-  const uint16_t IQRF_MAIN_MEM_MAX_ADR = 0x3FFF;
+  const uint16_t IQRF_MAIN_MEM_MAX_ADR_D = 0x3FFF;
+  const uint16_t IQRF_MAIN_MEM_MAX_ADR_G = 0x4FFF;
   const uint16_t INTERNAL_EEPROM_BOTTOM = 0xf000;
   const uint16_t INTERNAL_EEPROM_TOP = 0xf0ff;
+  const uint8_t PIC16LF18877 = 5;
 
   // Simple implementation of abstract class PreparedData
   class PreparedDataImpl : public iqrf::PreparedData
@@ -56,7 +58,7 @@ namespace iqrf{
   };
 
   /*
-  // Encapsulates block of code 
+  // Encapsulates block of code
   class CodeBlock
   {
   private:
@@ -83,11 +85,11 @@ namespace iqrf{
   static uint8_t parseHexaByte(const std::string& text, int pos)
   {
     std::string byteStr = text.substr(pos, 2);
-    try 
+    try
     {
       return (uint8_t)std::stoi(byteStr, nullptr, 16);
     }
-    catch (const std::exception& ex) 
+    catch (const std::exception& ex)
     {
       std::stringstream errstream;
       errstream << "Invalid Intex HEX record: cannot parse string:  " << byteStr << " to hexa value.";
@@ -124,7 +126,7 @@ namespace iqrf{
 
     // parses specified line
     // if the line is data records, returns corresponding code block
-    static std::unique_ptr<CodeBlock> parseLine(std::string& line, IOtaUploadService::MemoryType memoryType)
+    static std::unique_ptr<CodeBlock> parseLine(std::string& line, IOtaUploadService::MemoryType memoryType, IOtaUploadService::ModuleInfo module)
     {
       if (line.find_first_of(':') != 0)
         throw std::logic_error("Invalid Intel HEX record: line does not star with colon.");
@@ -185,7 +187,8 @@ namespace iqrf{
         // Flash data ?
         if (memoryType == IOtaUploadService::MemoryType::flash)
         {
-          if (realEndAddress <= IQRF_MAIN_MEM_MAX_ADR)
+          const uint16_t mainAddrMax = module.mcuType == PIC16LF18877 ? IQRF_MAIN_MEM_MAX_ADR_G : IQRF_MAIN_MEM_MAX_ADR_D;
+          if (realEndAddress <= mainAddrMax)
             return std::unique_ptr<CodeBlock>(shape_new CodeBlock(data, (uint16_t)startAddress, (uint16_t)endAddress));
         }
 
@@ -196,7 +199,7 @@ namespace iqrf{
           {
             std::basic_string<uint8_t> eeData;
             for (uint8_t i = 0x00; i < data.length(); i += 0x02)
-              eeData.push_back(data[i]);            
+              eeData.push_back(data[i]);
             realStartAddress -= INTERNAL_EEPROM_BOTTOM;
             realEndAddress -= INTERNAL_EEPROM_BOTTOM;
             return std::unique_ptr<CodeBlock>(shape_new CodeBlock(eeData, (uint16_t)realStartAddress, (uint16_t)realEndAddress));
@@ -235,7 +238,7 @@ namespace iqrf{
 
       std::list<std::string> lines;
       std::string line;
-      
+
       while (std::getline(sourceFile, line))
       {
         trim(line);
@@ -261,7 +264,7 @@ namespace iqrf{
       else
         return std::unique_ptr<CodeBlock>(shape_new CodeBlock(b2.getCode() + b1.getCode(), b2.getStartAddress(), b1.getEndAddress()));
     }
-  
+
     static void addCodeBlock(CodeBlock& newBlock, std::list<CodeBlock>& codeBlocks)
     {
       std::list<CodeBlock>::iterator codeBlockIter = codeBlocks.begin();
@@ -282,26 +285,26 @@ namespace iqrf{
     }
 
   public:
-    static std::list<CodeBlock> parse(const std::string& fileName, IOtaUploadService::MemoryType memoryType)
+    static std::list<CodeBlock> parse(const std::string& fileName, IOtaUploadService::MemoryType memoryType, IOtaUploadService::ModuleInfo module)
     {
       std::list<std::string> lines = readLinesFromFile(fileName);
       std::list<CodeBlock> codeBlocks;
       IntelHexParser::offset = 0;
       uint16_t lineIndex = 0;
 
-      for (std::string line : lines) 
+      for (std::string line : lines)
       {
         std::unique_ptr<CodeBlock> pCodeBlock;
         try
         {
-          pCodeBlock = parseLine(line, memoryType);
+          pCodeBlock = parseLine(line, memoryType, module);
         }
-        catch (const std::exception& ex) 
+        catch (const std::exception& ex)
         {
           throw std::logic_error(addLineInfo(ex.what(), line, lineIndex).c_str());
         }
         if (pCodeBlock)
-          addCodeBlock(*pCodeBlock, codeBlocks);        
+          addCodeBlock(*pCodeBlock, codeBlocks);
         lineIndex++;
       }
       return codeBlocks;
@@ -314,7 +317,7 @@ namespace iqrf{
   // parses iqrf files and provides data from them
   class IqrfParser {
   public:
-    static CodeBlock parse(const std::string& fileName, const IOtaUploadService::ModuleInfo &module) 
+    static CodeBlock parse(const std::string& fileName, const IOtaUploadService::ModuleInfo &module)
     {
       std::ifstream sourceFile(fileName);
       if (!sourceFile.is_open()) {
@@ -404,9 +407,16 @@ namespace iqrf
 
   class DataPreparer::Imp
   {
+  private:
+    // Module info
+    IOtaUploadService::ModuleInfo m_module;
   public:
     Imp() {}
     ~Imp() {}
+
+    void setModuleInfo(const IOtaUploadService::ModuleInfo module) {
+      m_module = module;
+    }
 
     void checkFileName(const std::string& fileName)
     {
@@ -545,7 +555,7 @@ namespace iqrf
     {
       (void)isForBroadcast;
 
-      std::list<CodeBlock> codeBlocks = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::flash);
+      std::list<CodeBlock> codeBlocks = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::flash, m_module);
       const CodeBlock* handlerBlock = findHandlerBlock(codeBlocks);
       if (handlerBlock == nullptr)
         throw std::logic_error("Selected hex file does not include Custom DPA handler section or the code does not start with clrwdt() marker.");
@@ -565,13 +575,13 @@ namespace iqrf
     void prepareEepromDataFromHex(const std::string& fileName, std::list<CodeBlock> &eepromData)
     {
       eepromData.clear();
-      eepromData = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::eeprom);
+      eepromData = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::eeprom, m_module);
     }
 
     void prepareEeepromDataFromHex(const std::string& fileName, std::list<CodeBlock> &eeepromData)
     {
       eeepromData.clear();
-      eeepromData = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::eeeprom);
+      eeepromData = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::eeeprom, m_module);
     }
 
     std::unique_ptr<PreparedData> prepareDataFromIqrf(const std::string& fileName, bool isForBroadcast, const IOtaUploadService::ModuleInfo &module)
@@ -596,10 +606,11 @@ namespace iqrf
   std::unique_ptr<PreparedData> DataPreparer::prepareData(IOtaUploadService::LoadingContentType loadingContent, const std::string& fileName, bool isForBroadcast, const IOtaUploadService::ModuleInfo &module)
   {
     m_imp = shape_new DataPreparer::Imp();
+    m_imp->setModuleInfo(module);
     m_imp->checkFileName(fileName);
     std::unique_ptr<PreparedData> preparedData;
 
-    switch (loadingContent) 
+    switch (loadingContent)
     {
     case IOtaUploadService::LoadingContentType::Hex:
       preparedData = m_imp->prepareDataFromHex(fileName, isForBroadcast);
@@ -626,7 +637,7 @@ namespace iqrf
     delete m_imp;
     return eepromData;
   }
-  
+
   std::list<CodeBlock> DataPreparer::getEeepromData(const std::string& fileName)
   {
     m_imp = shape_new DataPreparer::Imp();
