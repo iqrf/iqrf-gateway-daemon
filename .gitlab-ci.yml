@@ -92,7 +92,7 @@ stages:
         CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
         DIST: [bullseye, buster]
       - DISTRIBUTION: ubuntu
-        DIST: [focal, bionic]
+        DIST: [jammy, focal, bionic]
         ARCH: [amd64, arm64, armhf]
   tags:
     - linux, ${ARCH}

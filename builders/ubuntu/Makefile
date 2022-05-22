@@ -15,7 +15,7 @@
 
 all: build-all push-all
 
-build-all: build-bionic build-focal
+build-all: build-bionic build-focal build-jammy
 
 build-bionic:
 	$(MAKE) -C bionic/ build-all
@@ -23,10 +23,16 @@ build-bionic:
 build-focal:
 	$(MAKE) -C focal/ build-all
 
-push-all: push-bionic push-focal
+build-jammy:
+	$(MAKE) -C jammy/ build-all
+
+push-all: push-bionic push-focal push-jammy
 
 push-bionic:
 	$(MAKE) -C bionic/ push-all
 
 push-focal:
 	$(MAKE) -C focal/ push-all
+
+push-jammy:
+	$(MAKE) -C jammy/ push-all
