@@ -1,10 +1,15 @@
-iqrf-gateway-daemon (2.3.12~alpha~1.gbp1a7bff) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.3.12) stable; urgency=medium
 
-  ** SNAPSHOT build @1a7bff6d2273c7ead272b8efdaa7cb6eba7bf2ae **
+  [ Karel Hanák ]
+  * Prepare for version 2.3.12-alpha
 
-  * UNRELEASED
+  [ Roman Ondráček ]
+  * Debian packaging: add builds for Ubuntu 22.04 Jammy Jellyfish
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Mon, 09 May 2022 22:46:55 +0200
+  [ Vasek Hanak ]
+  * Autonetwork - fixing FrcRestartNodes function. Restart nodes is executed before the JSON response is sent to client.
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Mon, 30 May 2022 17:58:40 +0200
 
 iqrf-gateway-daemon (2.3.11) stable; urgency=medium
 
