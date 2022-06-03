@@ -1429,11 +1429,12 @@ namespace iqrf {
           << NAME_PAR(Node address, frcRestartNodesRequest.NodeAddress())
           << NAME_PAR(Command, (int)frcRestartNodesRequest.PeripheralCommand())
         );
-        autonetworkResult.addTransactionResult(transResult);
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if (status <= 0xEF)
         {
+          // Add FRC result
+          autonetworkResult.addTransactionResult(transResult);
           TRC_INFORMATION("FRC_AcknowledgedBroadcastBits: status OK." << NAME_PAR_HEX("Status", (int)status));
           TRC_FUNCTION_LEAVE("");
           return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
@@ -1480,7 +1481,7 @@ namespace iqrf {
       else
       {
         // MID List specified in JSON request ?
-        if (antwInputParams.bondingControl.midList.empty() == false)
+        if (antwInputParams.bondingControl.midListActive == true)
         {
           // Check the authorized MID is listed in the midList
           auto midListEntry = antwInputParams.bondingControl.midList.find(MID);
@@ -1545,7 +1546,7 @@ namespace iqrf {
                     if (usedAddress == false)
                     {
                       // No, Address space specified in JSON request and address specified in Address space list ?
-                      if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
+                      if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[addr] == false))
                         continue;
 
                       // Is Authorized MID listed in the midList ?
@@ -1629,7 +1630,7 @@ namespace iqrf {
                   if (usedAddress == false)
                   {
                     // No, Address space specified in JSON request and address specified in Address space list ?
-                    if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
+                    if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[addr] == false))
                       continue;
 
                     // Is Authorized MID listed in the midList ?
@@ -1824,89 +1825,50 @@ namespace iqrf {
         antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesAllocated;
       }
 
+      // Check all nodes from addressSpace are already bonded
+      if (antwInputParams.bondingControl.addressSpace.empty() == false)
+      {
+        int addr = 1;
+        for (; addr <= MAX_ADDRESS; addr++)
+        {
+          if (antwInputParams.bondingControl.addressSpaceBitmap[addr] == true)
+            if (antwProcessParams.networkNodes[addr].bonded == true)
+              antwInputParams.bondingControl.addressSpaceBitmap[addr] = false;
+            else
+              break;
+        }
+        if (addr == (MAX_ADDRESS + 1))
+        {
+          TRC_INFORMATION("All available network addresses limited by the Address space were assigned. No new Node can be bonded.The AutoNetwork process will stop.");
+          antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesFromAddressSpaceAllocated;
+        }
+      }
+
+      // Check all MIDs from midList are already bonded
+      if (antwInputParams.bondingControl.midFiltering == true)
+      {
+        int midCount = antwInputParams.bondingControl.midList.size();
+        for (auto midListEntry : antwInputParams.bondingControl.midList)
+        {
+          for (auto networkNode : antwProcessParams.networkNodes)
+          {
+            if (networkNode.second.mid.value == midListEntry.first)
+              midCount--;
+          }
+        }
+        if (midCount == 0)
+        {
+          TRC_INFORMATION("All Nodes with MIDs from the MID list were found. No new Node can be bonded.");
+          antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllMIDsFromMidListAllocated;
+        }
+      }
+
       return antwProcessParams.waveStateCode != TWaveStateCode::waveFinished;
     }
 
     // Send wave result
     void sendWaveResult(AutonetworkResult& autonetworkResult)
     {
-      antwProcessParams.progress = 100;
-      if (antwProcessParams.waveStateCode == TWaveStateCode::waveFinished)
-      {
-        // Maximum waves reached ?
-        if ((antwInputParams.stopConditions.totalWaves != 0) && (antwProcessParams.countWaves == antwInputParams.stopConditions.totalWaves))
-        {
-          TRC_INFORMATION("Maximum number of waves reached.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxNumWaves;
-        }
-
-        // Maximum empty waves reached ?
-        if ((antwInputParams.stopConditions.emptyWaves != 0) && (antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves))
-        {
-          TRC_INFORMATION("Maximum number of consecutive empty waves reached.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxEmptyWaves;
-        }
-
-        // Number of new nodes bonded into network ?
-        if ((antwInputParams.stopConditions.numberOfNewNodes != 0) && (antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes))
-        {
-          TRC_INFORMATION("Number of new nodes bonded into network.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfNewNodes;
-        }
-
-        // Number of total nodes bonded into network ?
-        if ((antwInputParams.stopConditions.numberOfTotalNodes != 0) && (antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes))
-        {
-          TRC_INFORMATION("Number of total nodes bonded into network.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfTotalNodes;
-        }
-
-        // Check all nodes bonded into network
-        if (antwProcessParams.bondedNodesNr == MAX_ADDRESS)
-        {
-          TRC_INFORMATION("All available network addresses are already allocated - Autonetwork process aborted.");
-          antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesAllocated;
-        }
-
-        // Check all nodes from addressSpace are already bonded
-        if (antwInputParams.bondingControl.addressSpace.empty() == false)
-        {
-          int addr = 1;
-          for (; addr <= MAX_ADDRESS; addr++)
-          {
-            if (antwInputParams.bondingControl.addressSpaceBitmap[addr] == true)
-              if (antwProcessParams.networkNodes[addr].bonded == true)
-                antwInputParams.bondingControl.addressSpaceBitmap[addr] = false;
-              else
-                break;
-          }
-          if (addr == (MAX_ADDRESS + 1))
-          {
-            TRC_INFORMATION("All available network addresses limited by the Address space were assigned. No new Node can be bonded.The AutoNetwork process will stop.");
-            antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesFromAddressSpaceAllocated;
-          }
-        }
-
-        // Check all MIDs from midList are already bonded
-        if (antwInputParams.bondingControl.midFiltering == true)
-        {
-          int midCount = antwInputParams.bondingControl.midList.size();
-          for (auto midListEntry : antwInputParams.bondingControl.midList)
-          {
-            for (auto networkNode : antwProcessParams.networkNodes)
-            {
-              if (networkNode.second.mid.value == midListEntry.first)
-                midCount--;
-            }
-          }
-          if (midCount == 0)
-          {
-            TRC_INFORMATION("All Nodes with MIDs from the MID list were found. No new Node can be bonded.");
-            antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllMIDsFromMidListAllocated;
-          }
-        }
-      }
-
       Document waveResult;
       // Set common parameters
       Pointer("/mType").Set(waveResult, m_msgType->m_type);
@@ -1917,6 +1879,7 @@ namespace iqrf {
       rapidjson::Pointer("/data/rsp/nodesNr").Set(waveResult, antwProcessParams.bondedNodesNr);
       rapidjson::Pointer("/data/rsp/newNodesNr").Set(waveResult, antwProcessParams.countWaveNewNodes);
       rapidjson::Pointer("/data/rsp/waveStateCode").Set(waveResult, (int)antwProcessParams.waveStateCode);
+      antwProcessParams.progress = 100;
       rapidjson::Pointer("/data/rsp/progress").Set(waveResult, (int)antwProcessParams.progress);
       if (m_comAutonetwork->getVerbose() == true)
         rapidjson::Pointer("/data/rsp/waveState").Set(waveResult, getWaveState());
