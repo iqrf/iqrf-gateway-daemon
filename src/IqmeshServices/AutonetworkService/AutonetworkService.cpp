@@ -758,12 +758,12 @@ namespace iqrf {
           << NAME_PAR(Node address, prebondedAliveRequest.NodeAddress())
           << NAME_PAR(Command, (int)prebondedAliveRequest.PeripheralCommand())
         );
-        autonetworkResult.addTransactionResult(transResult);
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if (status < 0xfd)
         {
           // Add FRC result
+          autonetworkResult.addTransactionResult(transResult);
           TRC_INFORMATION("FRC Prebonded Alive status OK." << NAME_PAR_HEX("Status", (int)status));
           // Get list of nodes responded FRC_PrebondedAlive
           std::basic_string<uint8_t> prebondedNodes;
@@ -843,6 +843,8 @@ namespace iqrf {
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if (status < 0xfd)
         {
+          // Add FRC result
+          autonetworkResult.addTransactionResult(transResult);
           TRC_INFORMATION("FRC Prebonded Memory Read status ok." << NAME_PAR_HEX("Status", (int)status));
           prebondedMemoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + sizeof(TMID), 51);
           TRC_DEBUG("Size of FRC data: " << PAR(prebondedMemoryData.size()));
@@ -852,8 +854,6 @@ namespace iqrf {
           TRC_WARNING("FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX("Status", (int)status));
           THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
         }
-        // Add FRC result
-        autonetworkResult.addTransactionResult(transResult);
 
         // Read FRC extra result (if needed)
         if (prebondedNodes.size() > 12)
@@ -942,6 +942,8 @@ namespace iqrf {
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if (status < 0xFD)
         {
+          // Add FRC result
+          autonetworkResult.addTransactionResult(transResult);
           TRC_INFORMATION("FRC Prebonded Memory Read status ok." << NAME_PAR_HEX("Status", (int)status));
           prebondedMemoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, 55);
           TRC_DEBUG("Size of FRC data: " << PAR(prebondedMemoryData.size()));
@@ -951,8 +953,6 @@ namespace iqrf {
           TRC_WARNING("FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX("Status", (int)status));
           THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
         }
-        // Add FRC result
-        autonetworkResult.addTransactionResult(transResult);
 
         // Read FRC extra results
         DpaMessage extraResultRequest;
@@ -1072,11 +1072,12 @@ namespace iqrf {
           << NAME_PAR(Node address, checkNewNodesRequest.NodeAddress())
           << NAME_PAR(Command, (int)checkNewNodesRequest.PeripheralCommand())
         );
-        autonetworkResult.addTransactionResult(transResult);
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if (status <= 0xEF)
         {
+          // Add FRC result
+          autonetworkResult.addTransactionResult(transResult);
           TRC_INFORMATION("FRC_Ping: status OK." << NAME_PAR_HEX("Status", (int)status));
           TRC_FUNCTION_LEAVE("");
           return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
@@ -1167,11 +1168,12 @@ namespace iqrf {
           << NAME_PAR(Node address, frcAckBroadcastRequest.NodeAddress())
           << NAME_PAR(Command, (int)frcAckBroadcastRequest.PeripheralCommand())
         );
-        autonetworkResult.addTransactionResult(transResult);
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if (status <= 0xEF)
         {
+          // Add FRC result
+          autonetworkResult.addTransactionResult(transResult);
           TRC_INFORMATION("FRC Prebonded Alive status OK." << NAME_PAR_HEX("Status", (int)status));
           TRC_FUNCTION_LEAVE("");
           return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
@@ -1380,6 +1382,7 @@ namespace iqrf {
           << NAME_PAR(Node address, validateBondRequest.NodeAddress())
           << NAME_PAR(Command, (int)validateBondRequest.PeripheralCommand())
         );
+        autonetworkResult.addTransactionResult(transResult);
         TRC_FUNCTION_LEAVE("");
       }
       catch (const std::exception& e)
@@ -1424,11 +1427,12 @@ namespace iqrf {
           << NAME_PAR(Node address, frcRestartNodesRequest.NodeAddress())
           << NAME_PAR(Command, (int)frcRestartNodesRequest.PeripheralCommand())
         );
-        autonetworkResult.addTransactionResult(transResult);
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if (status <= 0xEF)
         {
+          // Add FRC result
+          autonetworkResult.addTransactionResult(transResult);
           TRC_INFORMATION("FRC_AcknowledgedBroadcastBits: status OK." << NAME_PAR_HEX("Status", (int)status));
           TRC_FUNCTION_LEAVE("");
           return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
@@ -1475,7 +1479,7 @@ namespace iqrf {
       else
       {
         // MID List specified in JSON request ?
-        if (antwInputParams.bondingControl.midList.empty() == false)
+        if (antwInputParams.bondingControl.midListActive == true)
         {
           // Check the authorized MID is listed in the midList
           auto midListEntry = antwInputParams.bondingControl.midList.find(MID);
@@ -1540,7 +1544,7 @@ namespace iqrf {
                     if (usedAddress == false)
                     {
                       // No, Address space specified in JSON request and address specified in Address space list ?
-                      if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
+                      if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[addr] == false))
                         continue;
 
                       // Is Authorized MID listed in the midList ?
@@ -1624,7 +1628,7 @@ namespace iqrf {
                   if (usedAddress == false)
                   {
                     // No, Address space specified in JSON request and address specified in Address space list ?
-                    if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
+                    if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[addr] == false))
                       continue;
 
                     // Is Authorized MID listed in the midList ?
@@ -1778,87 +1782,91 @@ namespace iqrf {
         antwProcessParams.progress += (100 / antwProcessParams.progressStep);
     }
 
-    // Send wave result
-    bool sendWaveResult(AutonetworkResult& autonetworkResult)
+    // Check the wave is last one
+    bool checkLastWave(void)
     {
-      antwProcessParams.progress = 100;
-      if (antwProcessParams.waveStateCode == TWaveStateCode::waveFinished)
+      // Set wave finished state
+      antwProcessParams.waveStateCode = TWaveStateCode::waveFinished;
+
+      // Maximum waves reached ?
+      if ((antwInputParams.stopConditions.totalWaves != 0) && (antwProcessParams.countWaves == antwInputParams.stopConditions.totalWaves))
       {
-        // Maximum waves reached ?
-        if ((antwInputParams.stopConditions.totalWaves != 0) && (antwProcessParams.countWaves == antwInputParams.stopConditions.totalWaves))
-        {
-          TRC_INFORMATION("Maximum number of waves reached.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxNumWaves;
-        }
+        TRC_INFORMATION("Maximum number of waves reached.");
+        antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxNumWaves;
+      }
 
-        // Maximum empty waves reached ?
-        if ((antwInputParams.stopConditions.emptyWaves != 0) && (antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves))
-        {
-          TRC_INFORMATION("Maximum number of consecutive empty waves reached.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxEmptyWaves;
-        }
+      // Maximum empty waves reached ?
+      if ((antwInputParams.stopConditions.emptyWaves != 0) && (antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves))
+      {
+        TRC_INFORMATION("Maximum number of consecutive empty waves reached.");
+        antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxEmptyWaves;
+      }
 
-        // Number of new nodes bonded into network ?
-        if ((antwInputParams.stopConditions.numberOfNewNodes != 0) && (antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes))
-        {
-          TRC_INFORMATION("Number of new nodes bonded into network.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfNewNodes;
-        }
+      // Number of new nodes bonded into network ?
+      if ((antwInputParams.stopConditions.numberOfNewNodes != 0) && (antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes))
+      {
+        TRC_INFORMATION("Number of new nodes bonded into network.");
+        antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfNewNodes;
+      }
 
-        // Number of total nodes bonded into network ?
-        if ((antwInputParams.stopConditions.numberOfTotalNodes != 0) && (antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes))
-        {
-          TRC_INFORMATION("Number of total nodes bonded into network.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfTotalNodes;
-        }
+      // Number of total nodes bonded into network ?
+      if ((antwInputParams.stopConditions.numberOfTotalNodes != 0) && (antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes))
+      {
+        TRC_INFORMATION("Number of total nodes bonded into network.");
+        antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfTotalNodes;
+      }
 
-        // Check all nodes bonded into network
-        if (antwProcessParams.bondedNodesNr == MAX_ADDRESS)
-        {
-          TRC_INFORMATION("All available network addresses are already allocated - Autonetwork process aborted.");
-          antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesAllocated;
-        }
+      // Check all nodes bonded into network
+      if (antwProcessParams.bondedNodesNr == MAX_ADDRESS)
+      {
+        TRC_INFORMATION("All available network addresses are already allocated - Autonetwork process aborted.");
+        antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesAllocated;
+      }
 
-        // Check all nodes from addressSpace are already bonded
-        if (antwInputParams.bondingControl.addressSpace.empty() == false)
+      // Check all nodes from addressSpace are already bonded
+      if (antwInputParams.bondingControl.addressSpace.empty() == false)
+      {
+        int addr = 1;
+        for (; addr <= MAX_ADDRESS; addr++)
         {
-          int addr = 1;
-          for (; addr <= MAX_ADDRESS; addr++)
-          {
-            if (antwInputParams.bondingControl.addressSpaceBitmap[addr] == true)
-              if (antwProcessParams.networkNodes[addr].bonded == true)
-                antwInputParams.bondingControl.addressSpaceBitmap[addr] = false;
-              else
-                break;
-          }
-          if (addr == (MAX_ADDRESS + 1))
-          {
-            TRC_INFORMATION("All available network addresses limited by the Address space were assigned. No new Node can be bonded.The AutoNetwork process will stop.");
-            antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesFromAddressSpaceAllocated;
-          }
+          if (antwInputParams.bondingControl.addressSpaceBitmap[addr] == true)
+            if (antwProcessParams.networkNodes[addr].bonded == true)
+              antwInputParams.bondingControl.addressSpaceBitmap[addr] = false;
+            else
+              break;
         }
-
-        // Check all MIDs from midList are already bonded
-        if (antwInputParams.bondingControl.midFiltering == true)
+        if (addr == (MAX_ADDRESS + 1))
         {
-          int midCount = antwInputParams.bondingControl.midList.size();
-          for (auto midListEntry : antwInputParams.bondingControl.midList)
-          {
-            for (auto networkNode : antwProcessParams.networkNodes)
-            {
-              if (networkNode.second.mid.value == midListEntry.first)
-                midCount--;
-            }
-          }
-          if (midCount == 0)
-          {
-            TRC_INFORMATION("All Nodes with MIDs from the MID list were found. No new Node can be bonded.");
-            antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllMIDsFromMidListAllocated;
-          }
+          TRC_INFORMATION("All available network addresses limited by the Address space were assigned. No new Node can be bonded.The AutoNetwork process will stop.");
+          antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesFromAddressSpaceAllocated;
         }
       }
 
-      bool stopCondReached = antwProcessParams.waveStateCode != TWaveStateCode::waveFinished;
+      // Check all MIDs from midList are already bonded
+      if (antwInputParams.bondingControl.midFiltering == true)
+      {
+        int midCount = antwInputParams.bondingControl.midList.size();
+        for (auto midListEntry : antwInputParams.bondingControl.midList)
+        {
+          for (auto networkNode : antwProcessParams.networkNodes)
+          {
+            if (networkNode.second.mid.value == midListEntry.first)
+              midCount--;
+          }
+        }
+        if (midCount == 0)
+        {
+          TRC_INFORMATION("All Nodes with MIDs from the MID list were found. No new Node can be bonded.");
+          antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllMIDsFromMidListAllocated;
+        }
+      }
+
+      return antwProcessParams.waveStateCode != TWaveStateCode::waveFinished;
+    }
+
+    // Send wave result
+    void sendWaveResult(AutonetworkResult& autonetworkResult)
+    {
       Document waveResult;
       // Set common parameters
       Pointer("/mType").Set(waveResult, m_msgType->m_type);
@@ -1869,10 +1877,11 @@ namespace iqrf {
       rapidjson::Pointer("/data/rsp/nodesNr").Set(waveResult, antwProcessParams.bondedNodesNr);
       rapidjson::Pointer("/data/rsp/newNodesNr").Set(waveResult, antwProcessParams.countWaveNewNodes);
       rapidjson::Pointer("/data/rsp/waveStateCode").Set(waveResult, (int)antwProcessParams.waveStateCode);
+      antwProcessParams.progress = 100;
       rapidjson::Pointer("/data/rsp/progress").Set(waveResult, (int)antwProcessParams.progress);
       if (m_comAutonetwork->getVerbose() == true)
         rapidjson::Pointer("/data/rsp/waveState").Set(waveResult, getWaveState());
-      rapidjson::Pointer("/data/rsp/lastWave").Set(waveResult, stopCondReached);
+      rapidjson::Pointer("/data/rsp/lastWave").Set(waveResult, antwProcessParams.waveStateCode != TWaveStateCode::waveFinished);
       if (antwProcessParams.respondedNewNodes.empty() == false)
       {
         // Rsp object
@@ -1953,8 +1962,6 @@ namespace iqrf {
 
       // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(waveResult));
-
-      return stopCondReached;
     }
 
     // Process the autonetwork algorithm
@@ -2287,12 +2294,12 @@ namespace iqrf {
             clearDuplicitMID(autonetworkResult);
             // Increase empty wave counter
             antwProcessParams.countEmpty++;
-            // Send result
-            antwProcessParams.waveStateCode = TWaveStateCode::waveFinished;
-            if (sendWaveResult(autonetworkResult))
+            // Check the wave is last one
+            if (checkLastWave() == true)
               break;
-            else
-              continue;
+            // Wave is not the last, send result and continue
+            sendWaveResult(autonetworkResult);
+            continue;
           }
 
           // Abort the autonetwork process when requested number of nodes (total/new) is found
@@ -2707,12 +2714,12 @@ namespace iqrf {
               TRC_WARNING("Clear Duplicit MID error: " << ex.what());
             }
             antwProcessParams.countEmpty++;
-            // Send result
-            antwProcessParams.waveStateCode = TWaveStateCode::waveFinished;
-            if (sendWaveResult(autonetworkResult))
+            // Check the wave is last one
+            if (checkLastWave() == true)
               break;
-            else
-              continue;
+            // Wave is not the last, send result and continue
+            sendWaveResult(autonetworkResult);
+            continue;
           }
           else
             antwProcessParams.countEmpty = 0;
@@ -2939,17 +2946,17 @@ namespace iqrf {
             }
           }
 
-          // Send result
-          antwProcessParams.waveStateCode = TWaveStateCode::waveFinished;
-          if (sendWaveResult(autonetworkResult))
+          // Check the wave is last one
+          if (checkLastWave() == true)
             break;
+
+          // Wave is not the last, send result and continue
+          sendWaveResult(autonetworkResult);
         }
       }
       catch (const std::exception& ex)
       {
         TRC_WARNING("Error during algorithm run: " << ex.what());
-        // Send result
-        sendWaveResult(autonetworkResult);
       }
 
       // Unbond temporary address, set initial FRC param, DPA param and DPA Hops param
@@ -2960,7 +2967,7 @@ namespace iqrf {
           unbondTemporaryAddress(autonetworkResult);
         // Get DPA version
         IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-        if (coordParams.dpaVerWord < 0x0417)
+        if ((coordParams.dpaVerWord < 0x0417) && (antwProcessParams.bondedNodesNr > 0))
         {
           TRC_INFORMATION("Restarting nodes.");
           std::basic_string<uint8_t> FrcOfflineNodes;
@@ -3025,6 +3032,9 @@ namespace iqrf {
       {
         TRC_ERROR("Error inserting nodes to DB: " << ex.what());
       }
+
+      // Send result
+      sendWaveResult(autonetworkResult);
 
       TRC_FUNCTION_LEAVE("");
     }

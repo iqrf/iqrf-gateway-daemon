@@ -36,6 +36,7 @@ namespace iqrf {
       std::basic_string<uint8_t> addressSpace;
       std::bitset<MAX_ADDRESS + 1> addressSpaceBitmap;
       std::map<uint32_t, uint8_t> midList;
+      bool midListActive;
       bool midFiltering;
       int duplicitAddressSpace;
       int duplicitMidMidList;
@@ -172,7 +173,7 @@ namespace iqrf {
       // midList
       m_autonetworkParams.bondingControl.midList.clear();
       m_autonetworkParams.bondingControl.duplicitMidMidList = 0;
-      m_autonetworkParams.bondingControl.duplicitAddressMidList = 0;
+      m_autonetworkParams.bondingControl.duplicitAddressMidList = 0;      
       if ((jsonValue = rapidjson::Pointer("/data/req/midList").Get(doc))) {
         const auto val = jsonValue->GetArray();
         for (auto itr = val.Begin(); itr != val.End(); ++itr) {
@@ -207,6 +208,7 @@ namespace iqrf {
           }
         }
       }
+      m_autonetworkParams.bondingControl.midListActive = m_autonetworkParams.bondingControl.midList.empty() == false;
 
       // midFiltering
       if ((jsonValue = rapidjson::Pointer("/data/req/midFiltering").Get(doc))) {
