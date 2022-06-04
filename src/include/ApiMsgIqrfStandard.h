@@ -37,7 +37,7 @@ namespace iqrf {
   private:
     int m_timeout = -1;
     int m_nadr = -1;
-    int m_hwpid = 0;
+    int m_hwpid = 0xffff;
     rapidjson::Document m_requestParamDoc;
     std::string m_requestParamStr;
     DpaMessage m_dpaRequest;
@@ -52,12 +52,12 @@ namespace iqrf {
       const Value* timeoutVal = Pointer("/data/timeout").Get(doc);
       if (timeoutVal && timeoutVal->IsInt())
         m_timeout = timeoutVal->GetInt();
-      
+
       m_nadr = Pointer("/data/req/nAdr").Get(doc)->GetInt();
       const Value* hwpidVal = Pointer("/data/req/hwpId").Get(doc);
       if (hwpidVal && hwpidVal->IsInt())
         m_hwpid = hwpidVal->GetInt();
-      
+
       const Value* reqParamObj = Pointer("/data/req/param").Get(doc);
       m_requestParamDoc.CopyFrom(*reqParamObj, m_requestParamDoc.GetAllocator());
       StringBuffer buffer;
@@ -69,13 +69,13 @@ namespace iqrf {
     int getTimeout() const { return m_timeout; }
     int getNadr() const { return m_nadr; }
     int getHwpid() const { return m_hwpid; }
-    
+
     const rapidjson::Document & getRequestParamDoc() { return m_requestParamDoc; }
     std::string getRequestParamStr() const { return m_requestParamStr; }
-    
+
     const DpaMessage& getDpaRequest() const { return m_dpaRequest; }
     //void setDpaRequest(const DpaMessage& dpaRequest) { m_dpaRequest = dpaRequest; }
-    
+
     void setPayload(const std::string& payloadKey, const rapidjson::Value& val)
     {
       m_payloadKey = payloadKey;
