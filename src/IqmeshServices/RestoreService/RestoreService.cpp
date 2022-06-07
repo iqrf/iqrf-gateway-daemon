@@ -304,7 +304,7 @@ namespace iqrf {
 
     void detachInterface(IIqrfRestore* iface)
     {
-      if (iface == iface)
+      if (m_iIqrfRestore == iface)
         m_iIqrfRestore = nullptr;
     }
 

@@ -367,7 +367,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "************************************" << std::endl <<
-        "Bqackup instance deactivate" << std::endl <<
+        "Backup instance deactivate" << std::endl <<
         "************************************"
       );
 
@@ -392,7 +392,7 @@ namespace iqrf {
 
     void detachInterface(IIqrfBackup* iface)
     {
-      if (iface == iface)
+      if (m_iIqrfBackup == iface)
         m_iIqrfBackup = nullptr;
     }
 
