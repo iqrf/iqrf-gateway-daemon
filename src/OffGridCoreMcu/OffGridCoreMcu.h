@@ -1,0 +1,46 @@
+#pragma once
+
+#include "IOffGridCoreMcu.h"
+#include "IIqrfChannelService.h"
+#include "ICommandService.h"
+#include "ShapeProperties.h"
+#include "ITraceService.h"
+
+namespace iqrf {
+
+  class OffGridCoreMcu : public IOffGridCoreMcu
+  {
+  public:
+    OffGridCoreMcu();
+    virtual ~OffGridCoreMcu();
+
+    std::string testCom(const std::string & dotstr) override;
+   
+    Raw getLastRaw() override;
+    void setPwrOffTimeCmd(const std::string & timeStr) override;
+    void setWakeUpTimeCmd(const std::string & timeStr) override;
+    std::string getPwrOffTimeCmd() override;
+    std::string getWakeUpTimeCmd() override;
+    void setRtcTimeCmd(const std::string & timeStr) override;
+    void setRtcDateCmd(const std::string & dateStr) override;
+    std::string getRtcTimeCmd() override;
+    std::string getRtcDateCmd() override;
+
+    void activate(const shape::Properties *props = 0);
+    void deactivate();
+    void modify(const shape::Properties *props);
+
+    void attachInterface(iqrf::IIqrfChannelService* iface);
+    void detachInterface(iqrf::IIqrfChannelService* iface);
+
+    void attachInterface(shape::ICommandService* iface);
+    void detachInterface(shape::ICommandService* iface);
+
+    void attachInterface(shape::ITraceService* iface);
+    void detachInterface(shape::ITraceService* iface);
+
+    class Imp;
+    Imp *m_imp;
+  };
+
+}

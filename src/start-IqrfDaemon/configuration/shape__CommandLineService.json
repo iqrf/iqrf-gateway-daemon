@@ -1,0 +1,4 @@
+{
+  "component": "shape::CommandLineService",
+  "instance": "shape::CommandLineService"
+}

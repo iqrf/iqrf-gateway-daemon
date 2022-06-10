@@ -1,0 +1,52 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqrfGwMcu_GetTimer-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQRF GW MCU Get Timer request.",
+      "enum": [
+        "iqrfGwMcu_GetTimer"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "req": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "command [timer]."
+            }
+          },
+          "required": [
+            "command"
+          ]
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
+        }
+      },
+      "required": [
+        "msgId",
+        "req"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}

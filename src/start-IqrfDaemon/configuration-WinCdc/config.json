@@ -36,6 +36,20 @@
       "startlevel": -2
     },
     {
+      "name": "shape::CommandService",
+      "libraryPath": "shapeware/bin",
+      "libraryName": "CommandService",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
+      "name": "shape::CommandLineService",
+      "libraryPath": "shapeware/bin",
+      "libraryName": "CommandLineService",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
       "name": "shape::WebsocketCppService",
       "libraryPath": "shapeware/bin",
       "libraryName": "WebsocketCppService",
@@ -328,6 +342,20 @@
       "libraryName": "MonitorService",
       "enabled": true,
       "startlevel": 0
-    }
+    },
+    {
+      "name": "iqrf::OffGridCoreMcu",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "OffGridCoreMcu",
+      "enabled": true,
+      "startlevel": 4
+    },	
+    {
+      "name": "iqrf::JsonOffGridCoreMcuApi",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "JsonOffGridCoreMcuApi",
+      "enabled": true,
+      "startlevel": 5
+    }	
   ]
 }

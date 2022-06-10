@@ -184,6 +184,9 @@ add_subdirectory(src/IqmeshServices/RestartService)
 add_subdirectory(src/IqmeshServices/Maintenance)
 add_subdirectory(src/IqmeshServices/DpaParams)
 
+add_subdirectory(src/OffGridCoreMcu)
+add_subdirectory(src/JsonOffGridCoreMcuApi)
+
 if(${BUILD_TESTING})
   add_subdirectory(src/tests)
 endif()
