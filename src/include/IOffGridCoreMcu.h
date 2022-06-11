@@ -43,5 +43,15 @@ namespace iqrf {
     virtual std::string getRtcTimeCmd() = 0;
     // returns: "YYYY:DD:MM" - weak day is not considered
     virtual std::string getRtcDateCmd() = 0;
+
+    virtual float getVoltageCmd() = 0;
+    virtual float getCurrentCmd() = 0;
+    virtual float getPowerCmd() = 0;
+    virtual float getTemperatureCmd() = 0;
+    virtual int getRepCapCmd() = 0;
+    virtual int getRepSocCmd() = 0;
+    virtual int getTteCmd() = 0;
+    virtual int getTtfCmd() = 0;
+
   };
 }

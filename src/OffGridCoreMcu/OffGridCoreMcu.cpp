@@ -382,7 +382,7 @@ namespace iqrf {
       cmd.setTime(timeStr);
       
 #ifdef OFFGRIDMCU_TEST
-      m_recFakeVect = iqrf::DotMsg("81.01.05.00");
+      m_recFakeVect = iqrf::DotMsg("82.01.05.00");
 #endif
       sendAndWaitForResponse(cmd.encodeRequest());
       
@@ -399,7 +399,7 @@ namespace iqrf {
       cmd.setDate(dateStr);
 
 #ifdef OFFGRIDMCU_TEST
-      m_recFakeVect = iqrf::DotMsg("81.02.05.00");
+      m_recFakeVect = iqrf::DotMsg("82.02.05.00");
 #endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
@@ -415,7 +415,7 @@ namespace iqrf {
       offgrid::GetRTCTimeCmd cmd;
 
 #ifdef OFFGRIDMCU_TEST
-      m_recFakeVect = iqrf::DotMsg("81.03.08.00.08.07.06");
+      m_recFakeVect = iqrf::DotMsg("82.03.08.00.08.07.06");
 #endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
@@ -434,7 +434,7 @@ namespace iqrf {
       offgrid::GetRTCDateCmd cmd;
 
 #ifdef OFFGRIDMCU_TEST
-      m_recFakeVect = iqrf::DotMsg("81.03.09.00.0A.06.16.05");
+      m_recFakeVect = iqrf::DotMsg("82.04.09.00.0A.06.16.05");
 #endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
@@ -454,6 +454,9 @@ namespace iqrf {
       float retval;
       offgrid::GetVoltageCmd cmd;
 
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("83.01.07.00.01.02");
+#endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
       cmd.parseResponse(getLastRaw().recBuffer);
@@ -468,6 +471,9 @@ namespace iqrf {
       float retval;
       offgrid::GetCurrentCmd cmd;
 
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("83.02.07.00.02.03");
+#endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
       cmd.parseResponse(getLastRaw().recBuffer);
@@ -482,6 +488,9 @@ namespace iqrf {
       float retval;
       offgrid::GetPowerCmd cmd;
 
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("83.03.07.00.03.04");
+#endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
       cmd.parseResponse(getLastRaw().recBuffer);
@@ -496,6 +505,9 @@ namespace iqrf {
       float retval;
       offgrid::GetTemperatureCmd cmd;
 
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("83.04.07.00.04.05");
+#endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
       cmd.parseResponse(getLastRaw().recBuffer);
@@ -503,13 +515,16 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE(PAR(retval));
       return retval;
     }
-
     int getRepCapCmd()
     {
       TRC_FUNCTION_ENTER("");
       int retval;
       offgrid::GetRepCapCmd cmd;
 
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("83.05.07.00.05.06");
+#endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
       cmd.parseResponse(getLastRaw().recBuffer);
@@ -524,6 +539,10 @@ namespace iqrf {
       int retval;
       offgrid::GetRepSocCmd cmd;
 
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("83.06.07.00.06.07");
+#endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
       cmd.parseResponse(getLastRaw().recBuffer);
@@ -538,6 +557,10 @@ namespace iqrf {
       int retval;
       offgrid::GetTteCmd cmd;
 
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("83.07.07.00.06.07");
+#endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
       cmd.parseResponse(getLastRaw().recBuffer);
@@ -552,6 +575,10 @@ namespace iqrf {
       int retval;
       offgrid::GetTtfCmd cmd;
 
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("83.08.07.00.07.08");
+#endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
       cmd.parseResponse(getLastRaw().recBuffer);
@@ -718,6 +745,47 @@ namespace iqrf {
     return m_imp->getRtcDateCmd();
   }
 
+  float OffGridCoreMcu::getVoltageCmd()
+  {
+    return m_imp->getVoltageCmd();
+  }
+
+  float OffGridCoreMcu::getCurrentCmd()
+  {
+    return m_imp->getCurrentCmd();
+  }
+
+  float OffGridCoreMcu::getPowerCmd()
+  {
+    return m_imp->getPowerCmd();
+  }
+
+  float OffGridCoreMcu::getTemperatureCmd()
+  {
+    return m_imp->getTemperatureCmd();
+  }
+
+  int OffGridCoreMcu::getRepCapCmd()
+  {
+    return m_imp->getRepCapCmd();
+  }
+
+  int OffGridCoreMcu::getRepSocCmd()
+  {
+    return m_imp->getRepSocCmd();
+  }
+
+  int OffGridCoreMcu::getTteCmd()
+  {
+    return m_imp->getTteCmd();
+  }
+
+  int OffGridCoreMcu::getTtfCmd()
+  {
+    return m_imp->getTtfCmd();
+  }
+
+  /////////////////////////
   void OffGridCoreMcu::activate(const shape::Properties *props)
   {
     m_imp->activate(props);

@@ -307,12 +307,12 @@ namespace iqrf
         IqrfGwMcuMsg::handleMsg(imp);
 
         if (m_command == "rtc") {
-
-          std::replace(m_strDateTime.begin(), m_strDateTime.end(), 'T', ' ');
-          std::istringstream is(m_strDateTime);
+          std::string strDateTime(m_strDateTime);
+          std::replace(strDateTime.begin(), strDateTime.end(), 'T', ' ');
+          std::istringstream is(strDateTime);
           std::string strDate, strTime;
           try {
-            is >> strDate >> strDate;
+            is >> strDate >> strTime;
           }
           catch (std::exception &e) {
             THROW_EXC_TRC_WAR(std::logic_error, "Bad format: " << PAR(m_strDateTime));
@@ -337,6 +337,99 @@ namespace iqrf
 
     private:
       std::string m_strDateTime;
+    };
+
+    //////////////////////////////////////////////
+    class IqrfGwMcuMsgGetCharger : public IqrfGwMcuMsg
+    {
+    public:
+      IqrfGwMcuMsgGetCharger() = delete;
+      IqrfGwMcuMsgGetCharger(const rapidjson::Document& doc)
+        :IqrfGwMcuMsg(doc)
+      {
+      }
+
+      virtual ~IqrfGwMcuMsgGetCharger()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        Pointer("/data/rsp/voltage").Set(doc, m_voltage);
+        Pointer("/data/rsp/current").Set(doc, m_current);
+        Pointer("/data/rsp/power").Set(doc, m_power);
+        Pointer("/data/rsp/temperature").Set(doc, m_temperature);
+        Pointer("/data/rsp/repCap").Set(doc, m_repCap);
+        Pointer("/data/rsp/repSOC").Set(doc, m_repSOC);
+        Pointer("/data/rsp/tte").Set(doc, m_tte);
+        Pointer("/data/rsp/ttf").Set(doc, m_ttf);
+
+        IqrfGwMcuMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonOffGridCoreMcuApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        IqrfGwMcuMsg::handleMsg(imp);
+
+        if (m_command == "charger") {
+          m_voltage = imp->m_iOffGridCoreMcu->getVoltageCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+
+          m_current = imp->m_iOffGridCoreMcu->getCurrentCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+
+          m_power = imp->m_iOffGridCoreMcu->getPowerCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+
+          m_temperature = imp->m_iOffGridCoreMcu->getTemperatureCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+
+          m_repCap = imp->m_iOffGridCoreMcu->getRepCapCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+
+          m_repSOC = imp->m_iOffGridCoreMcu->getRepSocCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+
+          m_tte = imp->m_iOffGridCoreMcu->getTteCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+
+          m_ttf = imp->m_iOffGridCoreMcu->getTtfCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+        }
+        else {
+          THROW_EXC_TRC_WAR(std::logic_error, "Unknown command: " << PAR(m_command));
+        }
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    private:
+      float m_voltage;
+      float m_current;
+      float m_power;
+      float m_temperature;
+      float m_repCap;
+      float m_repSOC;
+      float m_tte;
+      float m_ttf;
     };
 
   public:
@@ -366,6 +459,7 @@ namespace iqrf
       m_objectFactory.registerClass<IqrfGwMcuMsgGetTimer>(mType_GetTimer);
       m_objectFactory.registerClass<IqrfGwMcuMsgSetRTC>(mType_SetRTC);
       m_objectFactory.registerClass<IqrfGwMcuMsgGetRTC>(mType_GetRTC);
+      m_objectFactory.registerClass<IqrfGwMcuMsgGetCharger>(mType_GetCharger);
     }
 
     ~Imp() {}

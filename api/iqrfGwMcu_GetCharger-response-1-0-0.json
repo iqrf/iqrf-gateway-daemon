@@ -2,7 +2,7 @@
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
   "self": {
     "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfGwMcu_GetRTC-response",
+    "name": "iqrfGwMcu_GetCharger-response",
     "format": "jsonschema",
     "version": "1-0-0"
   },
@@ -10,9 +10,9 @@
   "properties": {
     "mType": {
       "type": "string",
-      "description": "IQRF GW MCU Get RTC response.",
+      "description": "IQRF GW MCU Get Charger response.",
       "enum": [
-        "iqrfGwMcu_GetRTC"
+        "iqrfGwMcu_GetCharger"
       ]
     },
     "data": {
@@ -30,14 +30,49 @@
               "type": "string",
               "description": "command copied from request."
             },
-            "dateTime": {
-              "type": "string",
-              "description": "YYYY-MM-DDThh:mm:ss.sTZD"
+            "voltage": {
+              "type": "number",
+              "description": "voltage"
+            },
+            "current": {
+              "type": "number",
+              "description": "current"
+            },
+            "power": {
+              "type": "number",
+              "description": "power"
+            },
+            "temperature": {
+              "type": "number",
+              "description": "temperature"
+            },
+            "repCap": {
+              "type": "number",
+              "description": "repCap"
+            },
+            "repSOC": {
+              "type": "number",
+              "description": "repSOC"
+            },
+            "tte": {
+              "type": "number",
+              "description": "m_tte"
+            },
+            "ttf": {
+              "type": "number",
+              "description": "m_ttf"
             }
           },
           "required": [
             "command",
-			"dateTime"
+            "voltage",
+            "current",
+            "power",
+            "temperature",
+            "repCap",
+            "repSOC",
+            "tte",
+            "ttf"
           ]
         },
 		"raw": {
