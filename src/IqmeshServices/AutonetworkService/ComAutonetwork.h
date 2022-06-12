@@ -209,13 +209,13 @@ namespace iqrf {
         }
       }
       m_autonetworkParams.bondingControl.midListActive = m_autonetworkParams.bondingControl.midList.empty() == false;
-
-      // midFiltering
-      if ((jsonValue = rapidjson::Pointer("/data/req/midFiltering").Get(doc))) {
-        m_autonetworkParams.bondingControl.midFiltering = jsonValue->GetBool();
-      }
-      else {
-        m_autonetworkParams.unbondUnrespondingNodes = false;
+      
+      // midFiltering - parse only in case the MID list is active
+      m_autonetworkParams.bondingControl.midFiltering = false;
+      if (m_autonetworkParams.bondingControl.midListActive == true) {
+        if ((jsonValue = rapidjson::Pointer("/data/req/midFiltering").Get(doc))) {
+          m_autonetworkParams.bondingControl.midFiltering = jsonValue->GetBool();
+        }
       }
 
       // overlappingNetworks/networks
