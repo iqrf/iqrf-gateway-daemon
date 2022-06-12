@@ -1559,7 +1559,7 @@ namespace iqrf {
                         antwInputParams.bondingControl.midList.insert(std::make_pair(MID, addr));
                       }
                       bondAddr = addr;
-                      break;
+                      return true;
                     }
                   }
                 }
@@ -1643,7 +1643,7 @@ namespace iqrf {
                       antwInputParams.bondingControl.midList.insert(std::make_pair(MID, addr));
                     }
                     bondAddr = addr;
-                    break;
+                    return true;
                   }
                 }
               }
@@ -2048,7 +2048,7 @@ namespace iqrf {
         if (addressSpaceCount != 0)
         {
           // Check already bonded nodes bitmap vs addressSpace bitmap
-          for (int i = 1; i < MAX_ADDRESS; i++)
+          for (int i = 1; i <= MAX_ADDRESS; i++)
           {
             if ((antwProcessParams.bondedNodes[i] == true) && (antwInputParams.bondingControl.addressSpaceBitmap[i] == true))
               addressSpaceCount--;
@@ -2057,7 +2057,7 @@ namespace iqrf {
           // All addresses dedicated in addressSpace already bonded ?
           if (addressSpaceCount == 0)
           {
-            TRC_INFORMATION("The AutoNetwork process cannot start because there is no free network address limited by address space.Change the value in the address space.");
+            TRC_INFORMATION("The AutoNetwork process cannot start because there is no free network address limited by address space. Change the value in the address space.");
             antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessAddressSpaceNoFreeAddress;
             sendWaveResult(autonetworkResult);
             TRC_FUNCTION_LEAVE("");
@@ -2816,7 +2816,7 @@ namespace iqrf {
               // FRC_AcknowledgedBroadcastBits remove bond (for DPA < 0x0400 - send Batch command Remove bond + Restart)
               TPerFrcSend_Response response = removeNotRespondedNewNodes(autonetworkResult, FrcSelect);
               // Check the nodes contained in FrcSelect list acknowledged FRC_AcknowledgedBroadcastBits
-              for (uint8_t address = 1; address < MAX_ADDRESS; address++)
+              for (uint8_t address = 1; address <= MAX_ADDRESS; address++)
               {
                 auto node = std::find(FrcSelect.begin(), FrcSelect.end(), address);
                 if (node != FrcSelect.end())
@@ -2858,7 +2858,7 @@ namespace iqrf {
             if (FrcSelect.size() != 0)
             {
               TRC_INFORMATION("Unbonding Nodes only at Coordinator.");
-              for (uint8_t address = 1; address < MAX_ADDRESS; address++)
+              for (uint8_t address = 1; address <= MAX_ADDRESS; address++)
               {
                 auto node = std::find(FrcSelect.begin(), FrcSelect.end(), address);
                 if (node != FrcSelect.end())
