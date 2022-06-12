@@ -1,0 +1,170 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "iqmeshNetwork_NetworkInfo-response",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"title": "IQMESH Network - Network Info",
+	"type": "object",
+	"required": ["mType", "data"],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "IQMESH Network management - Network Information.",
+			"type": "string",
+			"enum": ["iqmeshNetwork_NetworkInfo"]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Response data",
+			"description": "Response data.",
+			"type": "object",
+			"required": ["msgId"],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message ID used for pairing requests and responses.",
+					"type": "string"
+				},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response object",
+					"description": "Response object.",
+					"type": "object",
+					"required": ["nodes"],
+					"additionalProperties": false,
+					"properties": {
+						"nodes": {
+							"$id": "#/properties/data/properties/rs/properties/nodes",
+							"title": "Node results",
+							"description": "Array of node network information",
+							"type": "array",
+							"maxItems": 239,
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rs/properties/nodes/items",
+								"type": "object",
+								"required": ["address"],
+								"additionalProperties": false,
+								"properties": {
+									"address": {
+										"$id": "#/properties/data/properties/rs/properties/nodes/items/properties/address",
+										"title": "Device address",
+										"description": "Device address in network.",
+										"type": "integer",
+										"min": 1,
+										"max": 239
+									},
+									"mid": {
+										"$id": "#/properties/data/properties/rs/properties/nodes/items/properties/mid",
+										"title": "MID",
+										"description": "Device module ID.",
+										"type": "integer"
+									},
+									"vrn": {
+										"$id": "#/properties/data/properties/rs/properties/nodes/items/properties/vrn",
+										"title": "VRN",
+										"description": "Virtual routing number of discovered node. If node is not discovered, VRN is 0.",
+										"type": "integer",
+										"min": 0,
+										"maximum": 239
+									},
+									"zone": {
+										"$id": "#/properties/data/properties/rs/properties/nodes/items/properties/zone",
+										"title": "Zone",
+										"description": "Zone of discovered node. If node is not discovered, zone is 0.",
+										"type": "integer",
+										"min": 0,
+										"maximum": 239
+
+									},
+									"parent": {
+										"$id": "#/properties/data/properties/rs/properties/nodes/items/properties/parent",
+										"title": "Parent",
+										"description": "Parent's address of discovered node. If node is not discovered, zone is null.",
+										"oneOf": [
+											{
+												"type": "integer",
+												"min": 0,
+												"maximum": 239
+											},
+											{
+												"type": "null"
+											}
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"raw": {
+					"type": "array",
+					"description": "Returns array of objects req-cnf-rsp, see its description.",
+					"items": {
+						"type": "object",
+						"required": [
+							"request",
+							"requestTs",
+							"confirmation",
+							"confirmationTs",
+							"response",
+							"responseTs"
+						],
+						"additionalProperties": false,
+						"properties": {
+							"request": {
+								"type": "string",
+								"description": "Binary buffer with DPA request."
+							},
+							"requestTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"confirmation": {
+								"type": "string",
+								"description": "Binary buffer with DPA confirmation."
+							},
+							"confirmationTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"response": {
+								"type": "string",
+								"description": "Binary buffer with DPA response."
+							},
+							"responseTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							}
+						}
+					}
+				},
+				"insId": {
+					"$id": "#/properties/data/properties/insId",
+					"title": "Instance ID",
+					"description": "Daemon insteance ID.",
+					"type": "string"
+				},
+				"status": {
+					"$id": "#/properties/data/properties/status",
+					"title": "Status code",
+					"description": "Status code.",
+					"type": "integer"
+				},
+				"statusStr": {
+					"$id": "#/properties/data/properties/statusStr",
+					"title": "Status string",
+					"description": "Verbose status string",
+					"type": "string"
+				}
+			}
+		}
+	}
+}

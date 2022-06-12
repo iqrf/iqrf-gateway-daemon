@@ -1,0 +1,41 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "schema__iqrf__NetworkInfoService",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"type": "object",
+	"required": ["component", "instance"],
+	"properties": {
+		"component": {
+			"type": "string",
+			"description": "Name of component.",
+			"enum": ["iqrf::NetworkInfoService"]
+		},
+		"instance": {
+			"type": "string",
+			"description": "Recomended iqrf::NetworkInfoService-(id)",
+			"default": "iqrf::NetworkInfoService-1"
+		},
+		"RequiredInterfaces": {
+			"type": "array",
+			"description": "Array of required interfaces.",
+			"items": {
+				"type": "object",
+				"required": ["name", "target"],
+				"properties": {
+					"name": {
+						"type": "string",
+						"default": "iqrf::IMessagingService",
+						"description": "..."
+					},
+					"target": {
+						"type": "object"
+					}
+				}
+			}
+		}
+	}
+}

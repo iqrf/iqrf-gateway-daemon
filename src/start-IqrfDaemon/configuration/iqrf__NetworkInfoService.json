@@ -1,0 +1,4 @@
+{
+	"component": "iqrf::NetworkInfoService",
+	"instance": "iqrf::NetworkInfoService-Instance1"
+}

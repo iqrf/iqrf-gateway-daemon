@@ -127,6 +127,13 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::IqrfNetworkInfo",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfNetworkInfo",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::LegacyApiSupport",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "LegacyApiSupport",
@@ -151,7 +158,7 @@
       "name": "iqrf::MqttMessaging",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MqttMessaging",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 10
     },
     {
@@ -326,6 +333,13 @@
       "name": "iqrf::OtaUploadService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "OtaUploadService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::NetworkInfoService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "NetworkInfoService",
       "enabled": true,
       "startlevel": 3
     }
