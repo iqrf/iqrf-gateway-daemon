@@ -25,6 +25,7 @@ namespace iqrf {
     void setRtcDateCmd(const std::string & dateStr) override;
     std::string getRtcTimeCmd() override;
     std::string getRtcDateCmd() override;
+    
     float getVoltageCmd() override;
     float getCurrentCmd() override;
     float getPowerCmd() override;
@@ -33,6 +34,15 @@ namespace iqrf {
     int getRepSocCmd() override;
     int getTteCmd() override;
     int getTtfCmd() override;
+
+    void setLteOnCmd() override;
+    void setLteOffCmd() override;
+    bool getLteStateCmd() override;
+    void setLoraOnCmd() override;
+    void setLoraOffCmd() override;
+    bool getLoraStateCmd() override;
+
+    std::string getMcuVersionCmd() override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

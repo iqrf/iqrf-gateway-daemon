@@ -58,7 +58,7 @@ namespace iqrf
     const std::string mType_GetRTC = "iqrfGwMcu_GetRTC";
     const std::string mType_GetCharger = "iqrfGwMcu_GetCharger";
     const std::string mType_SetPower = "iqrfGwMcu_SetPower";
-    const std::string mType_Getpower = "iqrfGwMcu_Getpower";
+    const std::string mType_GetPower = "iqrfGwMcu_GetPower";
 
     /////////// message classes declarations
     class IqrfGwMcuMsg : public ApiMsg
@@ -363,6 +363,7 @@ namespace iqrf
         Pointer("/data/rsp/repSOC").Set(doc, m_repSOC);
         Pointer("/data/rsp/tte").Set(doc, m_tte);
         Pointer("/data/rsp/ttf").Set(doc, m_ttf);
+        Pointer("/data/rsp/mcuVersion").Set(doc, m_mcuVersion);
 
         IqrfGwMcuMsg::createResponsePayload(doc);
       }
@@ -413,6 +414,11 @@ namespace iqrf
           if (getVerbose()) {
             m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
           }
+
+          m_mcuVersion = imp->m_iOffGridCoreMcu->getMcuVersionCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
         }
         else {
           THROW_EXC_TRC_WAR(std::logic_error, "Unknown command: " << PAR(m_command));
@@ -430,6 +436,149 @@ namespace iqrf
       float m_repSOC;
       float m_tte;
       float m_ttf;
+      std::string m_mcuVersion;
+    };
+
+    //////////////////////////////////////////////
+    // base for Get/Set
+    class IqrfGwMcuMsgPower : public IqrfGwMcuMsg
+    {
+    public:
+      IqrfGwMcuMsgPower() = delete;
+      IqrfGwMcuMsgPower(const rapidjson::Document& doc)
+        :IqrfGwMcuMsg(doc)
+      {
+      }
+
+      virtual ~IqrfGwMcuMsgPower()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        if (m_lte >= 0) {
+          Pointer("/data/rsp/lte").Set(doc, (bool)(m_lte > 0 ? true : false));
+        }
+        if (m_lora >= 0) {
+          Pointer("/data/rsp/lora").Set(doc, (bool)(m_lora > 0 ? true : false));
+        }
+
+        IqrfGwMcuMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonOffGridCoreMcuApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        IqrfGwMcuMsg::handleMsg(imp);
+        
+        if (m_command != "power") {
+          THROW_EXC_TRC_WAR(std::logic_error, "Unknown command: " << PAR(m_command));
+        }
+      }
+
+    protected:
+      // 3-state: invalid = -1, 0 = false, 1 = true
+      int m_lte = -1;
+      int m_lora = -1;
+    };
+
+    //////////////////////////////////////////////
+    class IqrfGwMcuMsgGetPower : public IqrfGwMcuMsgPower
+    {
+    public:
+      IqrfGwMcuMsgGetPower() = delete;
+      IqrfGwMcuMsgGetPower(const rapidjson::Document& doc)
+        :IqrfGwMcuMsgPower(doc)
+      {
+      }
+
+      virtual ~IqrfGwMcuMsgGetPower()
+      {
+      }
+
+      void handleMsg(JsonOffGridCoreMcuApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        IqrfGwMcuMsgPower::handleMsg(imp);
+
+        m_lte = imp->m_iOffGridCoreMcu->getLteStateCmd();
+        if (getVerbose()) {
+          m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+        }
+        
+        m_lora = imp->m_iOffGridCoreMcu->getLoraStateCmd();
+        if (getVerbose()) {
+          m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+        }
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    };
+
+    //////////////////////////////////////////////
+    class IqrfGwMcuMsgSetPower : public IqrfGwMcuMsgPower
+    {
+    public:
+      IqrfGwMcuMsgSetPower() = delete;
+      IqrfGwMcuMsgSetPower(const rapidjson::Document& doc)
+        :IqrfGwMcuMsgPower(doc)
+      {
+        {
+          const rapidjson::Value *val = rapidjson::Pointer("/data/req/lte").Get(doc);
+          if (val && val->IsBool()) {
+            m_lte = val->GetBool() ? 1 : 0;
+          }
+        }
+        {
+          const rapidjson::Value *val = rapidjson::Pointer("/data/req/lora").Get(doc);
+          if (val && val->IsBool()) {
+            m_lora = val->GetBool() ? 1 : 0;
+          }
+        }
+      }
+
+      virtual ~IqrfGwMcuMsgSetPower()
+      {
+      }
+
+      void handleMsg(JsonOffGridCoreMcuApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        IqrfGwMcuMsgPower::handleMsg(imp);
+
+        if (m_lte == 1) {
+          imp->m_iOffGridCoreMcu->setLteOnCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+        }
+        else if (m_lte == 0) {
+          imp->m_iOffGridCoreMcu->setLteOffCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+        }
+
+        if (m_lora == 1) {
+          imp->m_iOffGridCoreMcu->setLoraOnCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+        }
+        else if (m_lora == 0) {
+          imp->m_iOffGridCoreMcu->setLoraOffCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+        }
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
     };
 
   public:
@@ -460,6 +609,8 @@ namespace iqrf
       m_objectFactory.registerClass<IqrfGwMcuMsgSetRTC>(mType_SetRTC);
       m_objectFactory.registerClass<IqrfGwMcuMsgGetRTC>(mType_GetRTC);
       m_objectFactory.registerClass<IqrfGwMcuMsgGetCharger>(mType_GetCharger);
+      m_objectFactory.registerClass<IqrfGwMcuMsgSetPower>(mType_SetPower);
+      m_objectFactory.registerClass<IqrfGwMcuMsgGetPower>(mType_GetPower);
     }
 
     ~Imp() {}

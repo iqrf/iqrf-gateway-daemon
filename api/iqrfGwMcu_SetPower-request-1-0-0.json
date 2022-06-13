@@ -1,0 +1,60 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqrfGwMcu_SetPower-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQRF GW MCU Set Devices Power request.",
+      "enum": [
+        "iqrfGwMcu_SetPower"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "req": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "command [power]."
+            },
+            "lte": {
+              "type": "boolean",
+              "description": "set LTE on/off if ommited no action is done"
+            },
+            "lora": {
+              "type": "boolean",
+              "description": "set Lora on/off if ommited no action is done"
+            }
+          },
+          "required": [
+            "command"
+          ]
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
+        }
+      },
+      "required": [
+        "msgId",
+        "req"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}

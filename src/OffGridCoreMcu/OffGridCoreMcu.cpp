@@ -181,7 +181,7 @@ namespace iqrf {
             traceLastRaw(ostr);
           }
           else if (subcmd == "gVER") {
-          std::string ret = m_imp->getVersionCmd();
+          std::string ret = m_imp->getMcuVersionCmd();
           ostr << "getVersionCmd: " << ret << std::endl;
           traceLastRaw(ostr);
           }
@@ -521,7 +521,6 @@ namespace iqrf {
       int retval;
       offgrid::GetRepCapCmd cmd;
 
-
 #ifdef OFFGRIDMCU_TEST
       m_recFakeVect = iqrf::DotMsg("83.05.07.00.05.06");
 #endif
@@ -538,7 +537,6 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       int retval;
       offgrid::GetRepSocCmd cmd;
-
 
 #ifdef OFFGRIDMCU_TEST
       m_recFakeVect = iqrf::DotMsg("83.06.07.00.06.07");
@@ -557,7 +555,6 @@ namespace iqrf {
       int retval;
       offgrid::GetTteCmd cmd;
 
-
 #ifdef OFFGRIDMCU_TEST
       m_recFakeVect = iqrf::DotMsg("83.07.07.00.06.07");
 #endif
@@ -575,7 +572,6 @@ namespace iqrf {
       int retval;
       offgrid::GetTtfCmd cmd;
 
-
 #ifdef OFFGRIDMCU_TEST
       m_recFakeVect = iqrf::DotMsg("83.08.07.00.07.08");
 #endif
@@ -588,22 +584,111 @@ namespace iqrf {
     }
 
     //////////////////////////
-    // LTE
+    // Devices Power control
     //////////////////////////
-    std::string setLteOnCmd()
+    void setLteOnCmd()
     {
       TRC_FUNCTION_ENTER("");
-      std::string retval;
-      //TODO
+      int retval;
+      offgrid::SetLteOnCmd cmd;
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("84.01.05.00");
+#endif
+      sendAndWaitForResponse(cmd.encodeRequest());
+
+      cmd.parseResponse(getLastRaw().recBuffer);
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void setLteOffCmd()
+    {
+      TRC_FUNCTION_ENTER("");
+      int retval;
+      offgrid::SetLteOffCmd cmd;
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("84.02.05.00");
+#endif
+      sendAndWaitForResponse(cmd.encodeRequest());
+
+      cmd.parseResponse(getLastRaw().recBuffer);
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    bool getLteStateCmd()
+    {
+      TRC_FUNCTION_ENTER("");
+      bool retval;
+      offgrid::GetLteStateCmd cmd;
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("84.03.06.00.01");
+//#endif
+      //TODO not implemented by MCU yet => it may differ
+      sendAndWaitForResponse(cmd.encodeRequest());
+
+      cmd.parseResponse(getLastRaw().recBuffer);
+
+      retval = cmd.getState();
+#else
+      retval = true;
+#endif
       TRC_FUNCTION_LEAVE(PAR(retval));
       return retval;
     }
 
-    std::string setLteOffCmd()
+    void setLoraOnCmd()
     {
       TRC_FUNCTION_ENTER("");
-      std::string retval;
-      //TODO
+      int retval;
+      offgrid::SetLoraOnCmd cmd;
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("84.04.05.00");
+//#endif
+      //TODO not implemented by MCU yet => it may differ
+      sendAndWaitForResponse(cmd.encodeRequest());
+
+      cmd.parseResponse(getLastRaw().recBuffer);
+#else
+#endif
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void setLoraOffCmd()
+    {
+      TRC_FUNCTION_ENTER("");
+      int retval;
+      offgrid::SetLoraOffCmd cmd;
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("84.05.05.00");
+//#endif
+      //TODO not implemented by MCU yet => it may differ
+      sendAndWaitForResponse(cmd.encodeRequest());
+#else
+#endif
+      cmd.parseResponse(getLastRaw().recBuffer);
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    bool getLoraStateCmd()
+    {
+      TRC_FUNCTION_ENTER("");
+      int retval;
+      offgrid::GetLteStateCmd cmd;
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("84.06.06.00.01");
+//#endif
+      //sendAndWaitForResponse(cmd.encodeRequest());
+
+      cmd.parseResponse(getLastRaw().recBuffer);
+      retval = cmd.getState();
+#else
+      retval = true;
+#endif
       TRC_FUNCTION_LEAVE(PAR(retval));
       return retval;
     }
@@ -611,12 +696,15 @@ namespace iqrf {
     //////////////////////////
     // Other
     //////////////////////////
-    std::string getVersionCmd()
+    std::string getMcuVersionCmd()
     {
       TRC_FUNCTION_ENTER("");
       std::string retval;
       offgrid::GetVerCmd cmd;
 
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("A0.01.07.00.04.01");
+#endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
       cmd.parseResponse(getLastRaw().recBuffer);
@@ -783,6 +871,41 @@ namespace iqrf {
   int OffGridCoreMcu::getTtfCmd()
   {
     return m_imp->getTtfCmd();
+  }
+
+  void OffGridCoreMcu::setLteOnCmd()
+  {
+    m_imp->setLteOnCmd();
+  }
+
+  void OffGridCoreMcu::setLteOffCmd()
+  {
+    m_imp->setLteOffCmd();
+  }
+
+  bool OffGridCoreMcu::getLteStateCmd()
+  {
+    return m_imp->getLteStateCmd();
+  }
+
+  void OffGridCoreMcu::setLoraOnCmd()
+  {
+    m_imp->setLoraOnCmd();
+  }
+
+  void OffGridCoreMcu::setLoraOffCmd()
+  {
+    m_imp->setLoraOffCmd();
+  }
+
+  bool OffGridCoreMcu::getLoraStateCmd()
+  {
+    return m_imp->getLoraStateCmd();
+  }
+
+  std::string OffGridCoreMcu::getMcuVersionCmd()
+  {
+    return m_imp->getMcuVersionCmd();
   }
 
   /////////////////////////

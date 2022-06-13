@@ -506,11 +506,86 @@ namespace iqrf {
       int getSeconds() { return m_number; }
     };
 
+    /////////////////////
+    // common base for device power get state
+    class GetDeviceStateCmd : public OffGridCmd
+    {
+    public:
+      GetDeviceStateCmd(uint8_t pnum, uint8_t pcmd)
+        :OffGridCmd(pnum, pcmd)
+      {}
+
+      bool getState() const { return m_state; }
+
+    protected:
+      virtual void parse(std::vector<uint8_t>::iterator & pos, const std::vector<uint8_t>::iterator end)
+      {
+        if (end - pos < 1) {
+          THROW_EXC_TRC_WAR(std::out_of_range, "provided buffer is too short");
+        }
+        m_state = (bool)(*pos++ ? true : false);
+      };
+
+      bool m_state;
+    };
+
+    class SetLteOnCmd : public OffGridCmd
+    {
+    public:
+      SetLteOnCmd()
+        :OffGridCmd(4, 1)
+      {}
+    };
+
+    class SetLteOffCmd : public OffGridCmd
+    {
+    public:
+      SetLteOffCmd()
+        :OffGridCmd(4, 2)
+      {}
+    };
+
+    // TODO not implemented by MCU yet => it may differ
+    class GetLteStateCmd : public GetDeviceStateCmd
+    {
+    public:
+      GetLteStateCmd()
+        :GetDeviceStateCmd(4, 3)
+      {}
+    };
+
+    // TODO not implemented by MCU yet => it may differ
+    class SetLoraOnCmd : public OffGridCmd
+    {
+    public:
+      SetLoraOnCmd()
+        :OffGridCmd(4, 4)
+      {}
+    };
+
+    // TODO not implemented by MCU yet => it may differ
+    class SetLoraOffCmd : public OffGridCmd
+    {
+    public:
+      SetLoraOffCmd()
+        :OffGridCmd(4, 5)
+      {}
+    };
+
+    // TODO not implemented by MCU yet => it may differ
+    class GetLoraStateCmd : public GetDeviceStateCmd
+    {
+    public:
+      GetLoraStateCmd()
+        :GetDeviceStateCmd(4, 6)
+      {}
+    };
+
     class GetVerCmd : public GetNumCmd
     {
     public:
       GetVerCmd()
-        :GetNumCmd(3, 8)
+        :GetNumCmd(0x20, 1)
       {}
 
       std::string getVersion() { 

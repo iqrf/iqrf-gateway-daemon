@@ -36,12 +36,12 @@ namespace iqrf {
    
     // sets time part of RTC from time string "hh:mm:ss"
     virtual void setRtcTimeCmd(const std::string & timeStr) = 0;
-    // sets date part of RTC from date string "YYYY:DD:MM"
+    // sets date part of RTC from date string "YYYY-MM-DD"
     virtual void setRtcDateCmd(const std::string & dateStr) = 0;
     
     // returns: "hh:mm:ss"
     virtual std::string getRtcTimeCmd() = 0;
-    // returns: "YYYY:DD:MM" - weak day is not considered
+    // returns: "YYYY-MM-DD" - weak day is not considered
     virtual std::string getRtcDateCmd() = 0;
 
     virtual float getVoltageCmd() = 0;
@@ -53,5 +53,13 @@ namespace iqrf {
     virtual int getTteCmd() = 0;
     virtual int getTtfCmd() = 0;
 
+    virtual void setLteOnCmd() = 0;
+    virtual void setLteOffCmd() = 0;
+    virtual bool getLteStateCmd() = 0;
+    virtual void setLoraOnCmd() = 0;
+    virtual void setLoraOffCmd() = 0;
+    virtual bool getLoraStateCmd() = 0;
+
+    virtual std::string getMcuVersionCmd() = 0;
   };
 }
