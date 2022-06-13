@@ -222,8 +222,6 @@ namespace iqrf {
     iqrf::IIqrfChannelService* m_iIqrfChannelService = nullptr;
     shape::ICommandService* m_iCommandService = nullptr;
 
-    std::string m_testComMsg = "22.21";
-
     std::condition_variable m_recCond;
     std::mutex m_recMux;
     std::vector<uint8_t> m_recVect;

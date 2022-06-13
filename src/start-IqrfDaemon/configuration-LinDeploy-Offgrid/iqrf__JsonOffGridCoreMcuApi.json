@@ -1,0 +1,4 @@
+{
+	"component": "iqrf::JsonOffGridCoreMcuApi",
+	"instance":	"iqrf::JsonOffGridCoreMcuApi"
+}

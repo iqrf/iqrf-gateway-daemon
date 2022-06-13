@@ -7,7 +7,7 @@ set(COMPONENT iqrf::OffGridCoreMcu)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IOffGridCoreMcu)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfChannelService MANDATORY SINGLE)
-AddShapeRequiredInterface(${COMPONENT} shape::ICommandService MANDATORY SINGLE)
+AddShapeRequiredInterface(${COMPONENT} shape::ICommandService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::ITraceService MANDATORY MULTIPLE)
 ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 

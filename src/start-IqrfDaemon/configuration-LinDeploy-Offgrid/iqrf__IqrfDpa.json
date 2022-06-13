@@ -1,0 +1,13 @@
+{
+  "component": "iqrf::IqrfDpa",
+  "instance": "iqrf::IqrfDpa-Instance1",
+  "DpaHandlerTimeout": 500,
+  "RequiredInterfaces": [
+    {
+      "name": "iqrf::IIqrfChannelService",
+      "target": {
+        "IqrfInterface": "/dev/spidev0.0"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "component": "iqrf::OffGridCoreMcu",
+  "instance":	"iqrf::OffGridCoreMcu",
+  "RequiredInterfaces": [
+    {
+      "name": "iqrf::IIqrfChannelService",
+      "target": {
+        "IqrfInterface": "/dev/ttyS0",
+      }
+    }
+  ]
+}

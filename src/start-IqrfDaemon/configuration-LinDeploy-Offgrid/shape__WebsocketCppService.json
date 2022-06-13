@@ -1,0 +1,10 @@
+{
+  "component": "shape::WebsocketCppService",
+  "instance": "WebsocketCppService",
+  "WebsocketPort": 1338,
+  "acceptOnlyLocalhost": false,
+  "tlsEnabled": false,
+  "tlsMode": "intermediate",
+  "certificate": "/etc/iqrf-gateway-daemon/certs/core/cert.pem",
+  "privateKey": "/etc/iqrf-gateway-daemon/certs/core/privkey.pem"
+}
