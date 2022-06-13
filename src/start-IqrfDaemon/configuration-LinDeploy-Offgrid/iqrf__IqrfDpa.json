@@ -6,7 +6,7 @@
     {
       "name": "iqrf::IIqrfChannelService",
       "target": {
-        "IqrfInterface": "/dev/spidev0.0"
+        "IqrfInterface": "/dev/ttyS0"
       }
     }
   ]

@@ -17,28 +17,12 @@
 #include "ApiMsg.h"
 #include "ObjectFactory.h"
 #include "JsonOffGridCoreMcuApi.h"
-//#include "AutorunParams.h"
 #include "Trace.h"
-#include "ComBase.h"
+#include "HexStringCoversion.h"
 #include <chrono>
-#include <iostream>
-#include <fstream>
-#include <set>
-#include <thread>
-#include <atomic>
-#include <condition_variable>
-#include <random>
-#include <cstddef>
-#include <tuple>
-#include <cmath>
-#include <list>
 #include <vector>
 #include <sstream>
-#include <sys/stat.h>
- // for windows mkdir
-#ifdef SHAPE_PLATFORM_WINDOWS
-#include <direct.h>
-#endif
+#include <algorithm>
 
 #include "iqrf__JsonOffGridCoreMcuApi.hxx"
 
@@ -652,15 +636,6 @@ namespace iqrf
         << "******************************");
       modify(props);
 
-      //if (m_runDaliThreadAtStartup == true)
-      //{
-      //  if (m_daliThread.joinable())
-      //    m_daliThread.join();
-
-      //  m_daliThreadRun = true;
-      //  m_daliThread = std::thread([&]() { daliThreadFunc(); });
-      //}
-
       m_iMessagingSplitterService->registerFilteredMsgHandler(
         m_filters,
         [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
@@ -678,9 +653,6 @@ namespace iqrf
         << "******************************" << std::endl
         << "JsonOffGridCoreMcuApi instance deactivate" << std::endl
         << "******************************");
-      //m_daliThreadRun = false;
-      //if (m_daliThread.joinable())
-      //  m_daliThread.join();
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
 
@@ -693,37 +665,6 @@ namespace iqrf
 
       const Document& doc = props->getAsJson();
       m_instanceName = Pointer("/instance").Get(doc)->GetString();
-      const Value* val = Pointer("/runDaliThreadAtStartup").Get(doc);
-      //if (val && val->IsBool())
-      //  m_runDaliThreadAtStartup = val->GetBool();
-
-      //val = Pointer("/readDaliStatusPeriod").Get(doc);
-      //if (val && val->IsInt())
-      //  m_readDaliStatusPeriod = val->GetInt();
-
-      //val = Pointer("/conductDaliFunctionalTestPeriod").Get(doc);
-      //if (val && val->IsInt())
-      //  m_conductDaliFunctionalTestPeriod = val->GetInt();
-
-      //val = Pointer("/conductDaliFunctionalTestHour").Get(doc);
-      //if (val && val->IsInt())
-      //  m_conductDaliFunctionalTestHour = val->GetInt();
-
-      //val = Pointer("/conductDaliDurationTestDay").Get(doc);
-      //if (val && val->IsInt())
-      //  m_conductDaliDurationTestDay = val->GetInt();
-
-      //val = Pointer("/conductDaliDurationTestMonth").Get(doc);
-      //if (val && val->IsInt())
-      //  m_conductDaliDurationTestMonth = val->GetInt();
-
-      //val = Pointer("/conductDaliDurationTestHour").Get(doc);
-      //if (val && val->IsInt())
-      //  m_conductDaliDurationTestHour = val->GetInt();
-
-      //val = Pointer("/debugMode").Get(doc);
-      //if (val && val->IsBool())
-      //  m_debugMode = val->GetBool();
 
       TRC_FUNCTION_LEAVE("")
     }
