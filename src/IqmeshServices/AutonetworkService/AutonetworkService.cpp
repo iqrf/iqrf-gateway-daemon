@@ -131,6 +131,15 @@ namespace iqrf {
     // waveState codes definition
     enum class TWaveStateCode
     {
+      cannotStartProcessMaxAddress = -10,
+      cannotStartProcessTotalNodesNr,
+      cannotStartProcessNewNodesNr,
+      cannotStartProcessTotalNodesNrMidList,
+      cannotStartProcessNewNodesNrMidList,
+      cannotStartProcessAllNodesMidListBonded,
+      cannotStartProcessDuplicitMidInCoord,
+      cannotStartProcessAddressSpaceNoFreeAddress,
+      waveFinished = 0,
       discoveryBeforeStart,
       smartConnect,
       checkPrebondedAlive,
@@ -148,15 +157,6 @@ namespace iqrf {
       stopOnNumberOfNewNodes,
       abortOnTooManyNodesFound,
       abortOnAllAddressesAllocated,
-      waveFinished,
-      cannotStartProcessMaxAddress,
-      cannotStartProcessTotalNodesNr,
-      cannotStartProcessNewNodesNr,
-      cannotStartProcessTotalNodesNrMidList,
-      cannotStartProcessNewNodesNrMidList,
-      cannotStartProcessAllNodesMidListBonded,
-      cannotStartProcessDuplicitMidInCoord,
-      cannotStartProcessAddressSpaceNoFreeAddress,
       abortOnAllAddressesFromAddressSpaceAllocated,
       abortOnAllMIDsFromMidListAllocated
     };
