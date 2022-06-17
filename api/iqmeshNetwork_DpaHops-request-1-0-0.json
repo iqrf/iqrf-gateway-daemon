@@ -8,13 +8,16 @@
 	},
 	"title": "IQMESH Network - DPA Params - DPA Hops",
 	"type": "object",
-	"required": ["mType", "data"],
+	"required": [
+		"mType",
+		"data"
+	],
 	"additionalProperties": false,
 	"properties": {
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - DPA Params - DPA Hops.",
+			"description": "IQMESH Network management - DPA Params - DPA Hops request.",
 			"type": "string",
 			"enum": ["iqmeshNetwork_DpaHops"]
 		},
@@ -23,7 +26,10 @@
 			"title": "Message data.",
 			"description": "Message metadata and body.",
 			"type": "object",
-			"required": ["msgId", "req"],
+			"required": [
+				"msgId",
+				"req"
+			],
 			"additionalProperties": false,
 			"properties": {
 				"msgId": {
@@ -37,7 +43,9 @@
 					"title": "Request parameters",
 					"description": "Request parameters.",
 					"type": "object",
-					"required": ["action"],
+					"required": [
+						"action"
+					],
 					"additionalProperties": false,
 					"properties": {
 						"action": {
@@ -45,7 +53,10 @@
 							"title": "Action",
 							"description": "Get or Set DPA hops. If action is set and hops not specified, default values are used.",
 							"type": "string",
-							"enum": ["get", "set"]
+							"enum": [
+								"get",
+								"set"
+							]
 						},
 						"requestHops": {
 							"$id": "#/properties/data/properties/req/properties/requestHops",

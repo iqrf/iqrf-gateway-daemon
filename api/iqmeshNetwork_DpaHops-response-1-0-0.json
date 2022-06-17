@@ -8,25 +8,27 @@
 	},
 	"title": "IQMESH Network - DPA Params - DPA Hops",
 	"type": "object",
-	"required": ["mType", "data"],
+	"required": [
+		"mType",
+		"data"
+	],
 	"additionalProperties": false,
 	"properties": {
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - DPA Params - DPA Hops.",
+			"description": "IQMESH Network management - DPA Params - DPA Hops response.",
 			"type": "string",
-			"enum": [
-				"iqmeshNetwork_DpaHops"
-			]
+			"enum": ["iqmeshNetwork_DpaHops"]
 		},
 		"data": {
 			"$id": "#/properties/data",
-			"title": "Response data",
-			"description": "Response data.",
+			"title": "Message data",
+			"description": "Message metadata and body.",
 			"type": "object",
 			"required": [
-				"msgId"
+				"msgId",
+				"status"
 			],
 			"additionalProperties": false,
 			"properties": {
@@ -41,6 +43,9 @@
 					"title": "Response object",
 					"description": "Response object.",
 					"type": "object",
+					"required": [
+						"action"
+					],
 					"additionalProperties": false,
 					"properties": {
 						"action": {
@@ -48,7 +53,10 @@
 							"title": "Action",
 							"description": "Get or Set DPA hops.",
 							"type": "string",
-							"enum": ["get", "set"]
+							"enum": [
+								"get",
+								"set"
+							]
 						},
 						"requestHops": {
 							"$id": "#/properties/data/properties/rsp/properties/requestHops",

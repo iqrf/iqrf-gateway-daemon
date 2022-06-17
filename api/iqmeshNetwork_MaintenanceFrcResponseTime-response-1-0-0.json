@@ -8,25 +8,27 @@
 	},
 	"title": "IQMESH Network - Maintenance: FRC Response Time",
 	"type": "object",
-	"required": ["mType", "data"],
+	"required": [
+		"mType",
+		"data"
+	],
 	"additionalProperties": false,
 	"properties": {
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - Maintenance - FRC Response Time.",
+			"description": "IQMESH Network management - Maintenance - FRC Response Time response.",
 			"type": "string",
-			"enum": [
-				"iqmeshNetwork_MaintenanceFrcResponseTime"
-			]
+			"enum": ["iqmeshNetwork_MaintenanceFrcResponseTime"]
 		},
 		"data": {
 			"$id": "#/properties/data",
-			"title": "Response data",
-			"description": "Response data.",
+			"title": "Message data",
+			"description": "Message metadata and body.",
 			"type": "object",
 			"required": [
-				"msgId"
+				"msgId",
+				"status"
 			],
 			"additionalProperties": false,
 			"properties": {

@@ -19,9 +19,7 @@
 			"title": "Message type",
 			"description": "IQMESH Network management - Maintenance - Test RF Signal request.",
 			"type": "string",
-			"enum": [
-				"iqmeshNetwork_MaintenanceTestRF"
-			]
+			"enum": ["iqmeshNetwork_MaintenanceTestRF"]
 		},
 		"data": {
 			"$id": "#/properties/data",

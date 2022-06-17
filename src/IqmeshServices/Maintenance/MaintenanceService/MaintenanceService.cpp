@@ -28,7 +28,7 @@
 #include <math.h>
 #include <bitset>
 
-TRC_INIT_MODULE(iqrf::MaintenanceService);
+TRC_INIT_MODULE(iqrf::MaintenanceService)
 
 using namespace rapidjson;
 
@@ -37,7 +37,7 @@ namespace
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
-};
+}
 
 namespace iqrf {
 

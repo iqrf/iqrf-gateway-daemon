@@ -19,9 +19,7 @@
 			"title": "Message type",
 			"description": "IQMESH Network management - Ping request.",
 			"type": "string",
-			"enum": [
-				"iqmeshNetwork_Ping"
-			]
+			"enum": ["iqmeshNetwork_Ping"]
 		},
 		"data": {
 			"$id": "#/properties/data",
