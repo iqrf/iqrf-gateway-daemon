@@ -18,7 +18,7 @@
 #include "FrcResponseTime.h"
 #include "iqrf__FrcResponseTime.hxx"
 
-TRC_INIT_MODULE(iqrf::FrcResponseTime);
+TRC_INIT_MODULE(iqrf::FrcResponseTime)
 
 /// iqrf namespace
 namespace iqrf {

@@ -17,11 +17,9 @@
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - Maintenance - FRC Response Time.",
+			"description": "IQMESH Network management - Maintenance - FRC Response Time request.",
 			"type": "string",
-			"enum": [
-				"iqmeshNetwork_MaintenanceFrcResponseTime"
-			]
+			"enum": ["iqmeshNetwork_MaintenanceFrcResponseTime"]
 		},
 		"data": {
 			"$id": "#/properties/data",

@@ -17,11 +17,9 @@
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - Maintenance - Resolve Duplicated Addresses.",
+			"description": "IQMESH Network management - Maintenance - Resolve Duplicated Addresses request.",
 			"type": "string",
-			"enum": [
-				"iqmeshNetwork_MaintenanceDuplicatedAddresses"
-			]
+			"enum": ["iqmeshNetwork_MaintenanceDuplicatedAddresses"]
 		},
 		"data": {
 			"$id": "#/properties/data",
