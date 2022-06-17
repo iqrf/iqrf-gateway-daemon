@@ -28,7 +28,7 @@
 #include <math.h>
 #include <bitset>
 
-TRC_INIT_MODULE(iqrf::ReadTrConfService);
+TRC_INIT_MODULE(iqrf::ReadTrConfService)
 
 using namespace rapidjson;
 
@@ -54,7 +54,7 @@ namespace
     115200,
     230400
   };
-};
+}
 
 namespace iqrf {
 
@@ -245,7 +245,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -517,7 +517,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, readTrConfigResult.getStatusStr());
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -529,7 +529,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
       try
       {
-        // Enumerate peripheral 
+        // Enumerate peripheral
         getPerInfo(readTrConfigResult, m_readTrConfParams.deviceAddress);
         readConfig(readTrConfigResult, m_readTrConfParams.deviceAddress, m_readTrConfParams.hwpId);
         TRC_FUNCTION_LEAVE("");
@@ -622,7 +622,7 @@ namespace iqrf {
 
       (void)props;
 
-      // for the sake of register function parameters 
+      // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetworkReadTrConf
@@ -647,7 +647,7 @@ namespace iqrf {
         "**************************************"
       );
 
-      // for the sake of unregister function parameters 
+      // for the sake of unregister function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetworkReadTrConf

@@ -26,7 +26,7 @@
 #include <cmath>
 #include <thread>
 
-TRC_INIT_MODULE(iqrf::BondNodeLocalService);
+TRC_INIT_MODULE(iqrf::BondNodeLocalService)
 
 using namespace rapidjson;
 
@@ -36,7 +36,7 @@ namespace {
   static const int exclusiveAccessError = 1002;
   static const int addressUsedError = 1003;
   static const int noFreeAddressError = 1004;
-};
+}
 
 namespace iqrf {
   /// \class BondResult

@@ -38,7 +38,7 @@
 
 #define MCU_TYPE_BITS 0x07
 
-TRC_INIT_MODULE(iqrf::OtaUploadService);
+TRC_INIT_MODULE(iqrf::OtaUploadService)
 
 using namespace rapidjson;
 
@@ -63,7 +63,7 @@ namespace
   static const int uploadFileProcessingError = 1004;
   static const int invalidEepromAddress = 1005;
   static const int eepromContentNotUploaded = 1006;
-};
+}
 
 namespace iqrf
 {
@@ -371,7 +371,7 @@ namespace iqrf
         osReadPacket.DpaRequestPacket_t.PCMD = CMD_OS_READ;
         osReadPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         osReadRequest.DataToBuffer(osReadPacket.Buffer, sizeof(TDpaIFaceHeader));
-        
+
         // Execute DPA request and parse response
         m_exclusiveAccess->executeDpaTransactionRepeat(osReadRequest, result, m_otaUploadParams.repeat);
         TRC_DEBUG("Result from OS read transaction as string: " << result->getErrorString());
@@ -432,7 +432,7 @@ namespace iqrf
     }
 
     //----------------------
-    // Write internal eeprom 
+    // Write internal eeprom
     //----------------------
     void writeInternalEeprom(UploadResult& uploadResult, const uint8_t address, const std::basic_string<uint8_t> &data)
     {
@@ -478,7 +478,7 @@ namespace iqrf
     }
 
     //----------------------
-    // Write external eeprom 
+    // Write external eeprom
     //----------------------
     void writeExternalEeprom(UploadResult& uploadResult, const uint16_t address, const std::basic_string<uint8_t> &data)
     {
@@ -1013,10 +1013,10 @@ namespace iqrf
         bool uploadEeprom = false;
         bool uploadEeeprom = false;
         uint8_t eepromBottomAddr = 0x00;
-        m_device = {0};
+        m_device = ModuleInfo();
 
         // Prepare flash eeprom and eeepron data to upload
-        try 
+        try
         {
           // Process the file
           fileName = getFullFileName(m_uploadPath, m_otaUploadParams.fileName);
@@ -1055,7 +1055,7 @@ namespace iqrf
               // Hex contains data for internal eeprom, upload eeprom data specified in request ?
               if (m_otaUploadParams.uploadEepromData == true)
               {
-                // Yes - check internal eeprom address ([N]: 0x00-0xbf, [C]: 0x80-0xbf)               
+                // Yes - check internal eeprom address ([N]: 0x00-0xbf, [C]: 0x80-0xbf)
                 if (m_otaUploadParams.deviceAddress == COORDINATOR_ADDRESS)
                   eepromBottomAddr = 0x80;
                 for (CodeBlock block : eepromData)
@@ -1084,7 +1084,7 @@ namespace iqrf
 
             try {
               // Parse external eeprom content
-              eeepromData = DataPreparer::getEeepromData(fileName);   
+              eeepromData = DataPreparer::getEeepromData(fileName);
             } catch (const std::exception &e) {
               uploadResult.setStatus(uploadFileProcessingError, e.what());
               THROW_EXC(std::logic_error, e.what());
@@ -1133,11 +1133,11 @@ namespace iqrf
         {
           THROW_EXC(std::logic_error, e.what());
         }
-        
+
         // Upload - write prepared data into external eeprom memory
         if (loadingAction == LoadingAction::Upload)
         {
-          // Upload eeprom data 
+          // Upload eeprom data
           if (uploadEeprom == true)
           {
             // Write data to internal eeprom
@@ -1159,7 +1159,7 @@ namespace iqrf
             }
           }
 
-          // Upload eeeprom data 
+          // Upload eeeprom data
           if (uploadEeeprom == true)
           {
             // Write data to external eeprom
@@ -1345,7 +1345,7 @@ namespace iqrf
       Pointer("/data/status").Set(docUploadResult, uploadResult.getStatus());
       Pointer("/data/statusStr").Set(docUploadResult, uploadResult.getStatusStr());
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docUploadResult));
       TRC_FUNCTION_LEAVE("");
     }
@@ -1386,7 +1386,7 @@ namespace iqrf
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 

@@ -27,7 +27,7 @@
 #include <math.h>
 #include <thread>
 
-TRC_INIT_MODULE(iqrf::SmartConnectService);
+TRC_INIT_MODULE(iqrf::SmartConnectService)
 
 using namespace rapidjson;
 
@@ -53,7 +53,7 @@ namespace {
   static const int exclusiveAccessError = 1002;
   static const int addressUsedError = 1003;
   static const int noFreeAddressError = 1004;
-};
+}
 
 namespace iqrf {
   // Holds information about result of smart connect
@@ -287,7 +287,7 @@ namespace iqrf {
         // VirtualDeviceAddress
         smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.VirtualDeviceAddress = 0xff;
         // Fill reserved1 with zeros
-        for (int i = 0x00; i < sizeof(smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved1); i++)
+        for (size_t i = 0x00; i < sizeof(smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved1); i++)
           smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.reserved1[i] = 0x00;
         // Copy UserData
         std::copy(m_smartConnectParams.userData.begin(), m_smartConnectParams.userData.end(), smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.UserData);

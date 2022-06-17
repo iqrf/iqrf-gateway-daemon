@@ -30,14 +30,13 @@ namespace iqrf {
     int repeat = 1;
     std::basic_string<uint8_t> deviceAddrList;
     bool clearAllBonds = false;
-  }TRemoveBondInputParams;
+  } TRemoveBondInputParams;
 
   class ComIqmeshNetworkRemoveBond : public ComBase
   {
   public:
     ComIqmeshNetworkRemoveBond() = delete;
-    explicit ComIqmeshNetworkRemoveBond(rapidjson::Document& doc)
-      :ComBase(doc)
+    explicit ComIqmeshNetworkRemoveBond(rapidjson::Document& doc) : ComBase(doc)
     {
       parse(doc);
     }
@@ -66,7 +65,7 @@ namespace iqrf {
       rapidjson::Value* jsonValue;
 
       // deviceAddress
-      if (jsonValue = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))
+      if ((jsonValue = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)))
       {
         m_removeBondInputParams.deviceAddrList.clear();
 
@@ -75,7 +74,7 @@ namespace iqrf {
           uint32_t addr = jsonValue->GetInt();
           m_removeBondInputParams.deviceAddr = (uint8_t)addr;
         }
-        
+
         if (jsonValue->IsArray())
         {
           for (auto itr = jsonValue->Begin(); itr != jsonValue->End(); ++itr)
@@ -90,15 +89,15 @@ namespace iqrf {
       }
 
       // hwpId
-      if (jsonValue = rapidjson::Pointer("/data/req/hwpId").Get(doc))
+      if ((jsonValue = rapidjson::Pointer("/data/req/hwpId").Get(doc)))
         m_removeBondInputParams.hwpId = (uint16_t)jsonValue->GetInt();
 
       // wholeNetwork
-      if (jsonValue = rapidjson::Pointer("/data/req/wholeNetwork").Get(doc))
+      if ((jsonValue = rapidjson::Pointer("/data/req/wholeNetwork").Get(doc)))
         m_removeBondInputParams.wholeNetwork = jsonValue->GetBool();
 
       // clearAllBonds
-      if (jsonValue = rapidjson::Pointer("/data/req/clearAllBonds").Get(doc))
+      if ((jsonValue = rapidjson::Pointer("/data/req/clearAllBonds").Get(doc)))
         m_removeBondInputParams.clearAllBonds = jsonValue->GetBool();
 
       // repeat

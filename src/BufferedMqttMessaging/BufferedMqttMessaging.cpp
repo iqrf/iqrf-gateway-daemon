@@ -28,14 +28,14 @@
 
 #include "iqrf__BufferedMqttMessaging.hxx"
 
-TRC_INIT_MODULE(iqrf::BufferedMqttMessaging);
+TRC_INIT_MODULE(iqrf::BufferedMqttMessaging)
 
 namespace iqrf {
 
   typedef std::basic_string<uint8_t> ustring;
 
   class BufferedMqttMessagingImpl {
- 
+
   private:
     shape::IMqttService* m_iMqttService = nullptr;
 
@@ -58,10 +58,11 @@ namespace iqrf {
     void start()
     {
       TRC_FUNCTION_ENTER("");
-      
+
       m_iMqttService->create(m_mqttClientId);
       m_iMqttService->registerMessageStrHandler([&](const std::string& topic, const std::string & msg)
       {
+        (void)topic;
         if (m_messageHandlerFunc) {
           m_messageHandlerFunc(m_name, std::vector<uint8_t>((uint8_t*)msg.data(), (uint8_t*)(msg.data() + msg.size())));
         }
@@ -81,7 +82,7 @@ namespace iqrf {
     void stop()
     {
       TRC_FUNCTION_ENTER("");
-      
+
       m_iMqttService->unregisterMessageStrHandler();
       m_iMqttService->unregisterOnConnectHandler();
       m_iMqttService->disconnect();
@@ -206,6 +207,7 @@ namespace iqrf {
 
   void BufferedMqttMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
   {
+    (void)messagingId;
     m_impl->sendMessage(msg);
   }
 

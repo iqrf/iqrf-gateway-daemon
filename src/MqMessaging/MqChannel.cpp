@@ -96,6 +96,14 @@ inline MQDESCR openMqWrite(const std::string name, unsigned bufsize)
   if (mqd > 0) {
     int ret = mq_setattr(mqd, &setAttr, &getAttr);
 
+    if (ret == -1) {
+      TRC_WARNING("Failed to set queue attributes:"
+        << PAR(setAttr.mq_maxmsg)
+        << PAR(setAttr.mq_msgsize)
+        << PAR(setAttr.mq_curmsgs)
+      );
+    }
+
     TRC_DEBUG("Opened message queue status:"
       << PAR(mqd)
       << PAR(getAttr.mq_maxmsg)

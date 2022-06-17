@@ -34,7 +34,7 @@
 
 #include "iqrf__IqrfCdc.hxx"
 
-TRC_INIT_MODULE(iqrf::IqrfCdc);
+TRC_INIT_MODULE(iqrf::IqrfCdc)
 
 namespace iqrf {
 

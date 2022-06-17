@@ -35,7 +35,7 @@
 #endif
 #define TRC_CHANNEL 0
 
-TRC_INIT_MODULE(iqrf::JsonMngApi);
+TRC_INIT_MODULE(iqrf::JsonMngApi)
 
 using namespace rapidjson;
 
@@ -184,7 +184,7 @@ namespace iqrf {
       using namespace rapidjson;
 
       m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
-      
+
       const Value* cron = Pointer("/data/req/timeSpec/cronTime").Get(doc);
       auto it = cron->Begin();
       for (int i = 0; i < 7; i++) {
@@ -548,7 +548,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       SchedAddTaskMsg msg(reqDoc);
-      
+
       int64_t taskId = 0;
 
       try {
@@ -588,10 +588,10 @@ namespace iqrf {
 
       const Value *task = m_iSchedulerService->getMyTask(msg.getClientId(), msg.getTaskId());
       const Value *timeSpec = m_iSchedulerService->getMyTaskTimeSpec(msg.getClientId(), msg.getTaskId());
-      
+
       msg.setTask(task);
       msg.setTimeSpec(timeSpec);
-      
+
       if (!task) {
         msg.setErr("clientId or taskId doesn't exist");
       }

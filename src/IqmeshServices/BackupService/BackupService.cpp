@@ -27,7 +27,7 @@
 #include <bitset>
 #include <chrono>
 
-TRC_INIT_MODULE(iqrf::BackupService);
+TRC_INIT_MODULE(iqrf::BackupService)
 
 using namespace rapidjson;
 
@@ -36,7 +36,7 @@ namespace
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
-};
+}
 
 namespace iqrf {
   // Implementation class
@@ -137,7 +137,7 @@ namespace iqrf {
       Pointer("/data/status").Set(docBackupResult, status);
       Pointer("/data/statusStr").Set(docBackupResult, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docBackupResult));
     }
 
@@ -245,7 +245,7 @@ namespace iqrf {
       Pointer("/data/status").Set(docBackupResult, status);
       Pointer("/data/statusStr").Set(docBackupResult, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docBackupResult));
     }
 
@@ -345,8 +345,9 @@ namespace iqrf {
         "Backup instance activate" << std::endl <<
         "************************************"
       );
+      modify(props);
 
-      // for the sake of register function parameters 
+      // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_Backup
@@ -383,6 +384,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props;
     }
 
     void attachInterface(IIqrfBackup* iface)

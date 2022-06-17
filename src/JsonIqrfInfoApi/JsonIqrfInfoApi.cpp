@@ -34,7 +34,7 @@
 #endif
 #define TRC_CHANNEL 0
 
-TRC_INIT_MODULE(iqrf::JsonIqrfInfoApi);
+TRC_INIT_MODULE(iqrf::JsonIqrfInfoApi)
 
 using namespace rapidjson;
 
@@ -292,7 +292,7 @@ namespace iqrf {
     private:
       std::map<int, dali::EnumeratePtr> m_enmMap;
     };
-    
+
     //////////////////////////////////////////////
     class InfoDaemonMsgGetLights : public InfoDaemonMsg
     {
@@ -401,7 +401,7 @@ namespace iqrf {
       void handleMsg(JsonIqrfInfoApi::Imp* imp) override
       {
         TRC_FUNCTION_ENTER("");
-        
+
         setMetaDataApi(imp); //can be used in response
         m_enmMap = imp->getNodes();
 
@@ -836,17 +836,17 @@ namespace iqrf {
 		InfoDaemonMsgReset() = delete;
 		InfoDaemonMsgReset(const rapidjson::Document& doc): InfoDaemonMsg(doc) {}
 		virtual ~InfoDaemonMsgReset() {}
-	
+
 		/**
 		 * Handles database reset message
-		 * @param imp IqrfInfo implementation object 
+		 * @param imp IqrfInfo implementation object
 		 */
 		void handleMsg(JsonIqrfInfoApi::Imp* imp) override {
 			TRC_FUNCTION_ENTER("");
 			imp->resetDb();
 			TRC_FUNCTION_LEAVE("");
 		}
-	private: 
+	private:
 		int m_res;
 	};
 
@@ -966,9 +966,9 @@ namespace iqrf {
 
     void setPeriodEnumeration(int period)
     {
-      m_iIqrfInfo->setPeriodEnumerate(period); 
+      m_iIqrfInfo->setPeriodEnumerate(period);
     }
-    
+
     void enumerate(InfoDaemonMsgEnumeration & msg)
     {
       std::unique_lock<std::mutex> lck(m_infoDaemonMsgEnumerationMtx);

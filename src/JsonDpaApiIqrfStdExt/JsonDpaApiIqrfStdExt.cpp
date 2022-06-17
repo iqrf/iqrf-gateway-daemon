@@ -33,7 +33,7 @@
 #endif
 #define TRC_CHANNEL 0
 
-TRC_INIT_MODULE(iqrf::JsonDpaApiIqrfStdExt);
+TRC_INIT_MODULE(iqrf::JsonDpaApiIqrfStdExt)
 
 using namespace rapidjson;
 
@@ -109,7 +109,7 @@ namespace iqrf {
         else {
           std::string arrayKey, itemKey;
 
-          // TODO maybe better to virtualize getExtFormat() 
+          // TODO maybe better to virtualize getExtFormat()
           if (msgType.m_type == "iqrfDali_Frc") {
             arrayKey = "/answers";
             itemKey = "/answer";

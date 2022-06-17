@@ -32,7 +32,7 @@
 #include <math.h>
 #include <bitset>
 
-TRC_INIT_MODULE(iqrf::EnumerateDeviceService);
+TRC_INIT_MODULE(iqrf::EnumerateDeviceService)
 
 using namespace rapidjson;
 
@@ -77,7 +77,7 @@ namespace {
     115200,
     230400
   };
-};
+}
 
 namespace iqrf {
   // Holds information about result of device enumeration
@@ -190,7 +190,7 @@ namespace iqrf {
       m_osBuild = osBuild;
     }
 
-    const embed::explore::RawDpaEnumeratePtr& getPerEnum() const 
+    const embed::explore::RawDpaEnumeratePtr& getPerEnum() const
     {
       return m_perEnum;
     }
@@ -873,7 +873,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, deviceEnumerateResult.getStatusStr());
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -892,7 +892,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -978,7 +978,7 @@ namespace iqrf {
 
       (void)props;
 
-      // for the sake of register function parameters 
+      // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetworkEnumerateDevice
@@ -1003,7 +1003,7 @@ namespace iqrf {
         "**************************************"
       );
 
-      // for the sake of unregister function parameters 
+      // for the sake of unregister function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetworkEnumerateDevice

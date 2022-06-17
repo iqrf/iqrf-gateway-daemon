@@ -51,7 +51,7 @@
 
 #include "iqrf__JsonSplitter.hxx"
 
-TRC_INIT_MODULE(iqrf::JsonSplitter);
+TRC_INIT_MODULE(iqrf::JsonSplitter)
 
 using namespace rapidjson;
 
@@ -100,7 +100,7 @@ namespace iqrf {
     std::map<std::string, rapidjson::SchemaDocument> m_validatorMapResponse;
     std::map<std::string, MsgType> m_msgTypeToHandle; //TODO temporary
 
-    typedef std::pair<std::string, std::vector<uint8_t>> MsgIdMsg; //pairing messagingId with msg 
+    typedef std::pair<std::string, std::vector<uint8_t>> MsgIdMsg; //pairing messagingId with msg
 
     TaskQueue<MsgIdMsg>* m_splitterMessageQueue = nullptr;
 
@@ -157,7 +157,7 @@ namespace iqrf {
 
       //all outgoing msgs tagged by insId
       Pointer("/data/insId").Set(doc, m_insId);
-      
+
       TRC_INFORMATION("Outcomming message:\n"
         << NAME_PAR(Messaging ID, messagingId)
         << "\n"
@@ -174,13 +174,13 @@ namespace iqrf {
       if (m_validateResponse) {
         validate(msgType, doc, m_validatorMapResponse, "response");
       }
-      
+
       StringBuffer buffer;
       PrettyWriter<StringBuffer> writer(buffer);
       doc.Accept(writer);
 
       if (!messagingId.empty()) {
-        //check for multiple messagings separated by &        
+        //check for multiple messagings separated by &
         std::vector<std::string> messagingVector;
         std::size_t current, previous = 0;
 
@@ -191,7 +191,7 @@ namespace iqrf {
           current = messagingId.find('&', previous);
         }
         messagingVector.push_back(messagingId.substr(previous, current - previous));
-        
+
         for (std::string& messagingIdv : messagingVector) {
           std::string messagingId2(messagingIdv);
           if (std::string::npos != messagingId2.find_first_of('/')) {
@@ -275,7 +275,7 @@ namespace iqrf {
       using namespace rapidjson;
 
       std::string msgStr((char*)message.data(), message.size());
-      
+
       TRC_INFORMATION("Incoming message:\n"
         << NAME_PAR(Messaging ID, messagingId)
         << "\n"
@@ -660,7 +660,7 @@ namespace iqrf {
     }
 
   };
-  
+
   ////////////////////////////////
   JsonSplitter::JsonSplitter()
   {

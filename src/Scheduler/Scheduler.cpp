@@ -36,7 +36,7 @@
 
 #include "iqrf__Scheduler.hxx"
 
-TRC_INIT_MODULE(iqrf::Scheduler);
+TRC_INIT_MODULE(iqrf::Scheduler)
 
 using namespace std::chrono;
 
@@ -74,10 +74,10 @@ namespace iqrf {
     std::string schemaDir = m_iLaunchService->getDataDir();
     m_schemaFile = schemaDir.empty() ? "." : schemaDir;
     m_schemaFile += "/schedulerSchemas/schema_cache_record.json";
-    
+
     TRC_INFORMATION("Using cache dir: " << PAR(m_cacheDir));
     TRC_INFORMATION("Using record schema file: " << PAR(m_schemaFile));
-    
+
     Document sd;
     std::ifstream ifs(m_schemaFile);
     if (!ifs.is_open()) {
@@ -180,7 +180,7 @@ namespace iqrf {
   {
     TRC_FUNCTION_ENTER("");
     using namespace rapidjson;
-  
+
     try {
       auto tfiles = getTaskFiles(m_cacheDir);
 
@@ -194,7 +194,7 @@ namespace iqrf {
           TRC_WARNING("Json parse error: " << NAME_PAR(emsg, d.GetParseError()) <<
             NAME_PAR(eoffset, d.GetErrorOffset()));
 
-          continue; //ignore task 
+          continue; //ignore task
 
         }
 
@@ -367,7 +367,7 @@ namespace iqrf {
       else
         it++;
     }
-    
+
     if (record->isPersist()) {
       std::ostringstream os;
       os << m_cacheDir << '/' << record->getTaskHandle() << ".json";
@@ -631,7 +631,7 @@ namespace iqrf {
         }
       }
       closedir(dir);
- 
+
     }
 
     return fileSet;

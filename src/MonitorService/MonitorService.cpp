@@ -27,7 +27,7 @@
 
 #include "iqrf__MonitorService.hxx"
 
-TRC_INIT_MODULE(iqrf::MonitorService);
+TRC_INIT_MODULE(iqrf::MonitorService)
 
 namespace iqrf {
 
@@ -85,7 +85,7 @@ namespace iqrf {
         m_cond.wait_for(lck, std::chrono::seconds(m_reportPeriod));
 
         using namespace rapidjson;
-        
+
         if (m_iIqrfDpaService) {
           dpaQueueLen = m_iIqrfDpaService->getDpaQueueLen();
           iqrfChannelState = m_iIqrfDpaService->getIqrfChannelState();

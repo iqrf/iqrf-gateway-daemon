@@ -27,7 +27,7 @@
 
 #include "iqrf__IdeCounterpart.hxx"
 
-TRC_INIT_MODULE(iqrf::IdeCounterpart);
+TRC_INIT_MODULE(iqrf::IdeCounterpart)
 
 namespace iqrf {
 
@@ -119,7 +119,7 @@ namespace iqrf {
     );
 
     setMode(IdeCounterpart::Mode::Operational);
-    
+
     m_messaging->unregisterMessageHandler();
 
     TRC_FUNCTION_LEAVE("")
@@ -281,7 +281,7 @@ namespace iqrf {
 
     message.resize(UdpGwStatus::unused12 + 1, '\0');
     //TODO get channel status to Channel iface
-    message[trStatus] = 0x80;   //SPI_IQRF_SPI_READY_COMM = 0x80, see spi_iqrf.h  
+    message[trStatus] = 0x80;   //SPI_IQRF_SPI_READY_COMM = 0x80, see spi_iqrf.h
 
     if (m_exclusiveAcessor || m_snifferAcessor)
     {                           // exclusiveAccess

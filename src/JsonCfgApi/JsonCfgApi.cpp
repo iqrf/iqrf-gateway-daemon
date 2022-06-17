@@ -33,7 +33,7 @@
 #endif
 #define TRC_CHANNEL 0
 
-TRC_INIT_MODULE(iqrf::JsonCfgApi);
+TRC_INIT_MODULE(iqrf::JsonCfgApi)
 
 using namespace rapidjson;
 
@@ -93,7 +93,7 @@ namespace iqrf {
     {
       Pointer("/data/rsp/componentName").Set(doc, getComponentName());
       Pointer("/data/rsp/componentInstance").Set(doc, getComponentInstance());
-      
+
       if (m_errStr.empty()) {
         setStatus("ok", 0);
       }
@@ -145,7 +145,7 @@ namespace iqrf {
       Document respDoc;
       if (msgType.m_type == "cfgDaemon_Component") {
         CfgMsg msg(doc);
-        
+
         try {
           const Document& cfgDoc = msg.getConfiguration();
           {

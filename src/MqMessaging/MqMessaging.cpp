@@ -28,7 +28,7 @@
 
 #include "iqrf__MqMessaging.hxx"
 
-TRC_INIT_MODULE(iqrf::MqMessaging);
+TRC_INIT_MODULE(iqrf::MqMessaging)
 
 const unsigned IQRF_MQ_BUFFER_SIZE = 64 * 1024;
 
@@ -110,7 +110,7 @@ namespace iqrf {
   void MqMessaging::deactivate()
   {
     TRC_FUNCTION_ENTER("");
-    
+
     m_mqChannel->unregisterReceiveFromHandler();
     delete m_mqChannel;
     delete m_toMqMessageQueue;

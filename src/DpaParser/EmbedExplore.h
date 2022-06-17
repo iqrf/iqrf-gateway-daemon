@@ -34,7 +34,7 @@ namespace iqrf
       {
       protected:
         int m_dpaVer = 0;
-        int m_perNr = 0;;
+        int m_perNr = 0;
         std::set<int> m_embedPer;
         int m_hwpidEnm = 0;
         int m_hwpidVer = 0;

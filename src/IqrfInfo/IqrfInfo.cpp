@@ -47,7 +47,7 @@
 
 #include "iqrf__IqrfInfo.hxx"
 
-TRC_INIT_MODULE(iqrf::IqrfInfo);
+TRC_INIT_MODULE(iqrf::IqrfInfo)
 
 using namespace  sqlite;
 
