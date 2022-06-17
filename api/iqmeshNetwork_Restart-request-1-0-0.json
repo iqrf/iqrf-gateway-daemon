@@ -19,9 +19,7 @@
 			"title": "Message type",
 			"description": "IQMESH Network management - Restart request.",
 			"type": "string",
-			"enum": [
-				"iqmeshNetwork_Restart"
-			]
+			"enum": ["iqmeshNetwork_Restart"]
 		},
 		"data": {
 			"$id": "#/properties/data",
@@ -40,13 +38,6 @@
 					"description": "Message ID used for pairing requests and responses.",
 					"type": "string"
 				},
-				"repeat": {
-					"$id": "#/properties/data/properties/repeat",
-					"title": "Repeat request",
-					"description": "Number of repetitions of DPA messages.",
-					"type": "integer",
-					"default": 1
-				},
 				"req": {
 					"$id": "#/properties/data/properties/req",
 					"title": "Request parameters",
@@ -63,6 +54,13 @@
 							"maximum": 65535
 						}
 					}
+				},
+				"repeat": {
+					"$id": "#/properties/data/properties/repeat",
+					"title": "Repeat request",
+					"description": "Number of repetitions of DPA messages.",
+					"type": "integer",
+					"default": 1
 				},
 				"returnVerbose": {
 					"$id": "#/properties/data/properties/returnVerbose",

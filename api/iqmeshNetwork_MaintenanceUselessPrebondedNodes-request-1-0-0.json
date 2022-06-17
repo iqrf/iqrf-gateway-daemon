@@ -6,7 +6,7 @@
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
-	"title": "IQMESH Network - Maintenance: Useless Prebonded Nodes",
+	"title": "IQMESH Network - Maintenance - Resolve Useless Prebonded Nodes",
 	"type": "object",
 	"required": [
 		"mType",
@@ -17,14 +17,13 @@
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - Maintenance - Resolve Useless Prebonded Nodes.",
+			"description": "IQMESH Network management - Maintenance - Resolve Useless Prebonded Nodes request.",
 			"type": "string",
-			"enum": [
-				"iqmeshNetwork_MaintenanceUselessPrebondedNodes"
-			]
+			"enum": ["iqmeshNetwork_MaintenanceUselessPrebondedNodes"]
 		},
 		"data": {
-			"title": "Message data.",
+			"$id": "#/properties/data",
+			"title": "Message data",
 			"description": "Message metadata and body.",
 			"type": "object",
 			"required": [

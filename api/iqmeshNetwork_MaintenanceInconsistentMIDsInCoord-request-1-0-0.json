@@ -17,11 +17,9 @@
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - Maintenance - Resolve Inconsistent MIDs in Coordinator.",
+			"description": "IQMESH Network management - Maintenance - Resolve Inconsistent MIDs in Coordinator request.",
 			"type": "string",
-			"enum": [
-				"iqmeshNetwork_MaintenanceInconsistentMIDsInCoord"
-			]
+			"enum": ["iqmeshNetwork_MaintenanceInconsistentMIDsInCoord"]
 		},
 		"data": {
 			"$id": "#/properties/data",

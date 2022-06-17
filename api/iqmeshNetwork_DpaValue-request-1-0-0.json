@@ -8,13 +8,16 @@
 	},
 	"title": "IQMESH Network - DPA Params - DPA Value",
 	"type": "object",
-	"required": ["mType", "data"],
+	"required": [
+		"mType",
+		"data"
+	],
 	"additionalProperties": false,
 	"properties": {
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - DPA Params - DPA Value.",
+			"description": "IQMESH Network management - DPA Params - DPA Value request.",
 			"type": "string",
 			"enum": ["iqmeshNetwork_DpaValue"]
 		},
@@ -23,7 +26,10 @@
 			"title": "Message data.",
 			"description": "Message metadata and body.",
 			"type": "object",
-			"required": ["msgId", "req"],
+			"required": [
+				"msgId",
+				"req"
+			],
 			"additionalProperties": false,
 			"properties": {
 				"msgId": {
@@ -37,7 +43,9 @@
 					"title": "Request parameters",
 					"description": "Request parameters.",
 					"type": "object",
-					"required": ["action"],
+					"required": [
+						"action"
+					],
 					"additionalProperties": false,
 					"properties": {
 						"action": {
@@ -45,7 +53,10 @@
 							"title": "Action",
 							"description": "Get or Set DPA value type. If action is set and type not specified, default type is used.",
 							"type": "string",
-							"enum": ["get", "set"]
+							"enum": [
+								"get",
+								"set"
+							]
 						},
 						"type": {
 							"$id": "#/properties/data/properties/req/properties/type",

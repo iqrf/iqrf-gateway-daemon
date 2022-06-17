@@ -1,126 +1,175 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_MaintenanceInconsistentMIDsInCoord-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Maintenance - Resolve Inconsistent MIDs in Coordinator.",
-      "enum": [
-        "iqmeshNetwork_MaintenanceInconsistentMIDsInCoord"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "rsp": {
-          "type": "object",
-          "description": "Returns following values, see its description.",
-          "properties": {
-            "nodesNr": {
-              "type": "integer",
-              "description": "Number of nodes in the network."
-            },
-            "inaccessibleNodesNr": {
-              "type": "integer",
-              "description": "Number of nodes that don't relpy to FRC."
-            },
-            "inconsistentNodesNr": {
-              "type": "integer",
-              "description": "Number of nodes whose MID was inconsistent."
-            },
-            "inaccessibleNodes": {
-              "type": "array",
-              "description": "Returns list of nodes that didn't respond to FRC.",
-              "items": {
-                "type": "integer"
-              }
-            },
-            "inconsistentNodes": {
-              "type": "array",
-              "description": "Returns list of nodes whose MID was inconsistent.",
-              "items": {
-                "type": "integer"
-              }
-            }
-          },
-          "required": [
-            "nodesNr",
-            "inaccessibleNodesNr",
-            "inconsistentNodesNr"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
-          }
-        },
-        "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
-        },
-        "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
-        },
-        "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
-        }
-      },
-      "required": [
-        "msgId",
-        "status"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "iqmeshNetwork_MaintenanceInconsistentMIDsInCoord-response",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"title": "IQMESH Network - Maintenance: Inconsistent MIDs in Coordinator",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "IQMESH Network management - Maintenance - Resolve Inconsistent MIDs in Coordinator response.",
+			"type": "string",
+			"enum": ["iqmeshNetwork_MaintenanceInconsistentMIDsInCoord"]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body.",
+			"type": "object",
+			"required": [
+				"msgId",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message ID used for pairing requests and responses.",
+					"type": "string"
+				},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response object",
+					"description": "Response object.",
+					"type": "object",
+					"required": [
+						"nodesNr",
+						"inaccessibleNodesNr",
+						"inconsistentNodesNr"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nodesNr": {
+							"$id": "#/properties/data/properties/rsp/properties/nodesNr",
+							"title": "Node count",
+							"description": "Number of nodes in the network.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 239
+						},
+						"inaccessibleNodesNr": {
+							"$id": "#/properties/data/properties/rsp/properties/inaccessibleNodesNr",
+							"title": "Inaccessible node count",
+							"description": "Number of nodes that don't reply to FRC.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 239
+						},
+						"inconsistentNodesNr": {
+							"$id": "#/properties/data/properties/rsp/properties/inconsistentNodesNr",
+							"title": "Inconsistent MID node count",
+							"description": "Number of nodes whose MID was inconsistent.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 239
+						},
+						"inaccessibleNodes": {
+							"$id": "#/properties/data/properties/rsp/properties/inaccessibleNodes",
+							"title": "Inaccessible nodes list",
+							"description": "List of nodes that didn't respond to FRC.",
+							"type": "array",
+							"minItems": 0,
+							"maxItems": 239,
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/inaccessibleNodes/items",
+								"title": "Node address",
+								"description": "Address of node device in network.",
+								"type": "integer",
+								"minimum": 0,
+								"maximum": 239
+							}
+						},
+						"inconsistentNodes": {
+							"$id": "#/properties/data/properties/rsp/properties/inconsistentNodes",
+							"title": "Inconsistent nodes list",
+							"description": "List of nodes whose MID was inconsistent.",
+							"type": "array",
+							"minItems": 0,
+							"maxItems": 239,
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/inconsistentNodes/items",
+								"title": "Node address",
+								"description": "Address of node device in network.",
+								"type": "integer",
+								"minimum": 0,
+								"maximum": 239
+							}
+						}
+					}
+				},
+				"raw": {
+					"type": "array",
+					"description": "Returns array of objects req-cnf-rsp, see its description.",
+					"items": {
+						"type": "object",
+						"properties": {
+							"request": {
+								"type": "string",
+								"description": "Binary buffer with DPA request."
+							},
+							"requestTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"confirmation": {
+								"type": "string",
+								"description": "Binary buffer with DPA confirmation."
+							},
+							"confirmationTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"response": {
+								"type": "string",
+								"description": "Binary buffer with DPA response."
+							},
+							"responseTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							}
+						},
+						"required": [
+							"request",
+							"requestTs",
+							"confirmation",
+							"confirmationTs",
+							"response",
+							"responseTs"
+						]
+					}
+				},
+				"insId": {
+					"$id": "#/properties/data/properties/insId",
+					"title": "Instance ID",
+					"description": "Daemon insteance ID.",
+					"type": "string"
+				},
+				"status": {
+					"$id": "#/properties/data/properties/status",
+					"title": "Status code",
+					"description": "Status code.",
+					"type": "integer"
+				},
+				"statusStr": {
+					"$id": "#/properties/data/properties/statusStr",
+					"title": "Status string",
+					"description": "Verbose status string",
+					"type": "string"
+				}
+			}
+		}
+	}
 }

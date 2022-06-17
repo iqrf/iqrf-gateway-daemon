@@ -8,23 +8,27 @@
 	},
 	"title": "IQMESH Network - DPA Params - FRC Params",
 	"type": "object",
-	"required": ["mType", "data"],
+	"required": [
+		"mType",
+		"data"
+	],
 	"additionalProperties": false,
 	"properties": {
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - DPA Params - FRC Params.",
+			"description": "IQMESH Network management - DPA Params - FRC Params response.",
 			"type": "string",
 			"enum": ["iqmeshNetwork_FrcParams"]
 		},
 		"data": {
 			"$id": "#/properties/data",
-			"title": "Response data",
-			"description": "Response data.",
+			"title": "Message data",
+			"description": "Message metadata and body.",
 			"type": "object",
 			"required": [
-				"msgId"
+				"msgId",
+				"status"
 			],
 			"additionalProperties": false,
 			"properties": {
@@ -39,6 +43,9 @@
 					"title": "Response object",
 					"description": "Response object.",
 					"type": "object",
+					"required": [
+						"action"
+					],
 					"additionalProperties": false,
 					"properties": {
 						"action": {
@@ -46,14 +53,26 @@
 							"title": "Action",
 							"description": "Get or Set DPA value type.",
 							"type": "string",
-							"enum": ["get", "set"]
+							"enum": [
+								"get",
+								"set"
+							]
 						},
 						"responseTime": {
 							"$id": "#/properties/data/properties/req/properties/responseTime",
 							"title": "FRC response time",
 							"description": "Current FRC response time milliseconds. [0 - 40ms, 16 - 360ms, 32 - 680ms, 48 - 1320ms, 64 - 2600ms, 80 - 5160ms, 96 - 10280ms, 112 - 20620ms].",
 							"type": "integer",
-							"enum": [0, 16, 32, 48, 64, 80, 96, 112],
+							"enum": [
+								0,
+								16,
+								32,
+								48,
+								64,
+								80,
+								96,
+								112
+							],
 							"default": 0
 						},
 						"offlineFrc": {
