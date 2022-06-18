@@ -1,0 +1,30 @@
+{
+	"mType": "iqmeshNetwork_MaintenanceUselessPrebondedNodes",
+	"data": {
+		"msgId": "e18b59fa-cb4c-4731-a82e-8319c235c4ca",
+		"rsp": {
+			"nodesNr": 3
+		},
+		"raw": [
+			{
+				"request": "00.00.00.02.ff.ff",
+				"requestTs": "2022-06-18T10:40:10.136+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.00.82.00.00.00.55.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+				"responseTs": "2022-06-18T10:40:10.167+02:00"
+			},
+			{
+				"request": "ff.00.01.08.ff.ff.fe.00.00.00.00",
+				"requestTs": "2022-06-18T10:40:10.167+02:00",
+				"confirmation": "ff.00.01.08.ff.ff.ff.55.03.08.00",
+				"confirmationTs": "2022-06-18T10:40:10.295+02:00",
+				"response": "",
+				"responseTs": ""
+			}
+		],
+		"status": 0,
+		"statusStr": "ok",
+		"insId": "iqrfgd2-default"
+	}
+}

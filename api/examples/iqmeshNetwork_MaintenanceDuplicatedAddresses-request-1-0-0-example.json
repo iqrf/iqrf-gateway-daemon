@@ -1,0 +1,8 @@
+{
+	"mType": "iqmeshNetwork_MaintenanceDuplicatedAddresses",
+	"data": {
+		"msgId": "28e00321-6012-45eb-b7a3-dec65206e561",
+		"repeat": 1,
+		"returnVerbose": true
+	}
+}

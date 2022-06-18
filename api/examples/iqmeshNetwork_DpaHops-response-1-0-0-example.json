@@ -1,0 +1,58 @@
+[
+	{
+		"mType": "iqmeshNetwork_DpaHops",
+		"data": {
+			"msgId": "ff1b8e3e-3806-4b8b-89d4-6570e7fbe36b",
+			"rsp": {
+				"action": "get",
+				"requestHops": 255,
+				"responseHops": 255
+			},
+			"raw": [
+				{
+					"request": "00.00.00.09.ff.ff.00.00",
+					"requestTs": "2022-06-18T09:46:22.801+02:00",
+					"confirmation": "",
+					"confirmationTs": "",
+					"response": "00.00.00.89.00.00.00.00.ff.ff",
+					"responseTs": "2022-06-18T09:46:22.826+02:00"
+				},
+				{
+					"request": "00.00.00.09.ff.ff.ff.ff",
+					"requestTs": "2022-06-18T09:46:22.826+02:00",
+					"confirmation": "",
+					"confirmationTs": "",
+					"response": "00.00.00.89.00.00.00.00.00.00",
+					"responseTs": "2022-06-18T09:46:22.954+02:00"
+				}
+			],
+			"status": 0,
+			"statusStr": "ok",
+			"insId": "iqrfgd2-default"
+		}
+	},
+	{
+		"mType": "iqmeshNetwork_DpaHops",
+		"data": {
+			"msgId": "ef2e825e-abb9-4631-995b-ef2db77686a9",
+			"rsp": {
+				"action": "set",
+				"requestHops": 20,
+				"responseHops": 20
+			},
+			"raw": [
+				{
+					"request": "00.00.00.09.ff.ff.14.14",
+					"requestTs": "2022-06-18T09:54:52.314+02:00",
+					"confirmation": "",
+					"confirmationTs": "",
+					"response": "00.00.00.89.00.00.00.00.ff.ff",
+					"responseTs": "2022-06-18T09:54:52.341+02:00"
+				}
+			],
+			"status": 0,
+			"statusStr": "ok",
+			"insId": "iqrfgd2-default"
+		}
+	}
+]

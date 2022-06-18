@@ -1,0 +1,26 @@
+[
+	{
+		"mType": "iqmeshNetwork_DpaHops",
+		"data": {
+			"msgId": "ff1b8e3e-3806-4b8b-89d4-6570e7fbe36b",
+			"repeat": 1,
+			"req": {
+				"action": "get"
+			},
+			"returnVerbose": true
+		}
+	},
+	{
+		"mType": "iqmeshNetwork_DpaHops",
+		"data": {
+			"msgId": "ef2e825e-abb9-4631-995b-ef2db77686a9",
+			"repeat": 1,
+			"req": {
+				"action": "set",
+				"requestHops": 20,
+				"responseHops": 20
+			},
+			"returnVerbose": true
+		}
+	}
+]
