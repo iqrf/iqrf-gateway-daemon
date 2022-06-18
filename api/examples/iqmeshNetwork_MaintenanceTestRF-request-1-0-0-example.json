@@ -1,0 +1,30 @@
+[
+	{
+		"mType": "iqmeshNetwork_MaintenanceTestRF",
+		"data": {
+			"msgId": "e1274841-9d07-4795-a919-74653e5044ac",
+			"repeat": 1,
+			"req": {
+				"deviceAddr": 0,
+				"rfChannel": 52,
+				"rxFilter": 1,
+				"measurementTime": 5160
+			},
+			"returnVerbose": true
+		}
+	},
+	{
+		"mType": "iqmeshNetwork_MaintenanceTestRF",
+		"data": {
+			"msgId": "26db792c-ace9-4655-a179-ebcdf1b3d60a",
+			"repeat": 1,
+			"req": {
+				"deviceAddr": 255,
+				"rfChannel": 52,
+				"rxFilter": 1,
+				"measurementTime": 20620
+			},
+			"returnVerbose": true
+		}
+	}
+]

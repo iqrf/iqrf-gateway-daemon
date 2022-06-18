@@ -1,0 +1,54 @@
+{
+	"mType": "iqmeshNetwork_Ping",
+	"data": {
+		"msgId": "b140d35b-2706-4e93-b6a0-1922c4a4463a",
+		"rsp": {
+			"hwpId": 65535,
+			"nodesNr": 3,
+			"inaccessibleNodesNr": 1,
+			"pingResult": [
+				{
+					"address": 1,
+					"result": true
+				},
+				{
+					"address": 2,
+					"result": false
+				},
+				{
+					"address": 3,
+					"result": true
+				}
+			]
+		},
+		"raw": [
+			{
+				"request": "00.00.00.02.ff.ff",
+				"requestTs": "2022-06-18T08:39:50.589+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.00.82.00.00.00.00.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+				"responseTs": "2022-06-18T08:39:50.620+02:00"
+			},
+			{
+				"request": "00.00.0d.03.ff.ff.00",
+				"requestTs": "2022-06-18T08:39:50.620+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.0d.83.00.00.00.00.00",
+				"responseTs": "2022-06-18T08:39:50.747+02:00"
+			},
+			{
+				"request": "00.00.0d.03.ff.ff.00",
+				"requestTs": "2022-06-18T08:39:51.773+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.0d.83.00.00.00.00.00",
+				"responseTs": "2022-06-18T08:39:51.899+02:00"
+			}
+		],
+		"status": 0,
+		"statusStr": "ok",
+		"insId": "iqrfgd2-default"
+	}
+}

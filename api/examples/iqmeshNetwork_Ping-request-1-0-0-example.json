@@ -1,0 +1,11 @@
+{
+	"mType": "iqmeshNetwork_Ping",
+	"data": {
+		"msgId": "b140d35b-2706-4e93-b6a0-1922c4a4463a",
+		"repeat": 1,
+		"req": {
+			"hwpId": 65535
+		},
+		"returnVerbose": true
+	}
+}

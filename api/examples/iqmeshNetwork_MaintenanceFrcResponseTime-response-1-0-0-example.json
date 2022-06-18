@@ -1,0 +1,67 @@
+{
+	"mType": "iqmeshNetwork_MaintenanceFrcResponseTime",
+	"data": {
+		"msgId": "b331de3f-cd53-4e68-b562-5bc48bd49a04",
+		"rsp": {
+			"inaccessibleNodes": 1,
+			"unhandledNodes": 0,
+			"nodes": [
+				{
+					"deviceAddr": 1,
+					"responded": true,
+					"handled": true,
+					"responseTime": 40
+				},
+				{
+					"deviceAddr": 2,
+					"responded": false
+				},
+				{
+					"deviceAddr": 3,
+					"responded": true,
+					"handled": true,
+					"responseTime": 40
+				}
+			],
+			"currentResponseTime": 360,
+			"recommendedResponseTime": 40
+		},
+		"raw": [
+			{
+				"request": "00.00.00.02.ff.ff",
+				"requestTs": "2022-06-18T10:30:30.589+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.00.82.00.00.00.55.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.ff.ff",
+				"responseTs": "2022-06-18T10:30:30.621+02:00"
+			},
+			{
+				"request": "00.00.0d.03.ff.ff.00",
+				"requestTs": "2022-06-18T10:30:30.621+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.0d.83.00.00.00.55.10",
+				"responseTs": "2022-06-18T10:30:30.748+02:00"
+			},
+			{
+				"request": "00.00.0d.02.ff.ff.84.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.90.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+				"requestTs": "2022-06-18T10:30:30.748+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.0d.82.00.00.00.55.02.00.01.00.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+				"responseTs": "2022-06-18T10:30:31.793+02:00"
+			},
+			{
+				"request": "00.00.0d.03.ff.ff.10",
+				"requestTs": "2022-06-18T10:30:31.794+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.0d.83.00.00.00.55.00",
+				"responseTs": "2022-06-18T10:30:31.920+02:00"
+			}
+		],
+		"status": 0,
+		"statusStr": "ok",
+		"insId": "iqrfgd2-default"
+	}
+}
