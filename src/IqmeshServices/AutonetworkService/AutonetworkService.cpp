@@ -27,7 +27,7 @@
 #include <bitset>
 #include <chrono>
 
-TRC_INIT_MODULE(iqrf::AutonetworkService)
+TRC_INIT_MODULE(iqrf::AutonetworkService);
 
 using namespace rapidjson;
 
@@ -42,7 +42,7 @@ namespace {
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
-}
+};
 
 namespace iqrf {
 
@@ -210,8 +210,6 @@ namespace iqrf {
       std::map<uint8_t, TPrebondedNode> prebondedNodes;
       // Network nodes map
       std::map<uint8_t, TNode> networkNodes;
-      // Network MIDs map
-      std::map<uint32_t, uint8_t> MIDs;
       // FRC param value
       uint8_t FrcResponseTime;
       // DPA param value
@@ -1995,7 +1993,6 @@ namespace iqrf {
           node.address = addr;
           antwProcessParams.networkNodes[addr] = node;
         }
-        antwProcessParams.MIDs.clear();
 
         // Update network info
         updateNetworkInfo(autonetworkResult);
