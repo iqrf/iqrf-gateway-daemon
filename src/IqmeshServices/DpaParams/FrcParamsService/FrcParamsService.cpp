@@ -115,6 +115,8 @@ namespace iqrf {
 				if (m_requestParams.offlineFrc) {
 					param |= FRC_OFFLINE_FRC_MASK;
 				}
+				result.setResponseTime(m_requestParams.responseTime);
+				result.setOfflineFrc(m_requestParams.offlineFrc);
 				setFrcResponseTime(result, param);
 			}
 		} catch (const std::exception &e) {

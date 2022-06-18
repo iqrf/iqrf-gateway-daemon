@@ -54,7 +54,7 @@
 						"deviceAddr": {
 							"$id": "#/properties/data/properties/req/properties/deviceAddr",
 							"title": "Device address",
-							"description": "Address of device to backup (0 - [C] device, 255 - all [N] devices)",
+							"description": "Address of device (0 - [C] device, 255 - all [N] devices)",
 							"type": "integer",
 							"enum": [0, 255],
 							"default": 0
@@ -70,8 +70,8 @@
 						},
 						"rxFilter": {
 							"$id": "#/properties/data/properties/req/properties/rxFilter",
-							"title": "RF filter",
-							"description": "RF filter.",
+							"title": "RX filter",
+							"description": "RX filter.",
 							"type": "integer",
 							"default": 0,
 							"minimum": 0,
