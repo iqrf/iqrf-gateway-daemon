@@ -1,0 +1,62 @@
+{
+	"mType": "iqmeshNetwork_Restart",
+	"data": {
+		"msgId": "493cd616-d14c-4e77-a0ec-c93e0b7dfb90",
+		"rsp": {
+			"hwpId": 65535,
+			"nodesNr": 3,
+			"inaccessibleNodesNr": 1,
+			"restartResult": [
+				{
+					"address": 1,
+					"result": true
+				},
+				{
+					"address": 2,
+					"result": false
+				},
+				{
+					"address": 3,
+					"result": true
+				}
+			]
+		},
+		"raw": [
+			{
+				"request": "00.00.00.02.ff.ff",
+				"requestTs": "2022-06-18T08:53:11.186+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.00.82.00.00.00.00.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+				"responseTs": "2022-06-18T08:53:11.216+02:00"
+			},
+			{
+				"request": "00.00.0d.03.ff.ff.00",
+				"requestTs": "2022-06-18T08:53:11.217+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.0d.83.00.00.00.00.00",
+				"responseTs": "2022-06-18T08:53:11.343+02:00"
+			},
+			{
+				"request": "00.00.0d.00.ff.ff.02.05.02.08.ff.ff",
+				"requestTs": "2022-06-18T08:53:11.344+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.0d.80.00.00.00.00.02.0a.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+				"responseTs": "2022-06-18T08:53:12.369+02:00"
+			},
+			{
+				"request": "00.00.0d.03.ff.ff.00",
+				"requestTs": "2022-06-18T08:53:12.370+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.0d.83.00.00.00.00.00",
+				"responseTs": "2022-06-18T08:53:12.496+02:00"
+			}
+		],
+		"status": 0,
+		"statusStr": "ok",
+		"insId": "iqrfgd2-default"
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"mType": "iqmeshNetwork_MaintenanceFrcResponseTime",
+	"data": {
+		"msgId": "b331de3f-cd53-4e68-b562-5bc48bd49a04",
+		"repeat": 1,
+		"req": {
+			"command": 144
+		},
+		"returnVerbose": true
+	}
+}

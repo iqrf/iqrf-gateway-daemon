@@ -1,0 +1,25 @@
+[
+	{
+		"mType": "iqmeshNetwork_DpaValue",
+		"data": {
+			"msgId": "0760f47f-7300-4d86-96bb-04475aa23834",
+			"repeat": 1,
+			"req": {
+				"action": "get"
+			},
+			"returnVerbose": true
+		}
+	},
+	{
+		"mType": "iqmeshNetwork_DpaValue",
+		"data": {
+			"msgId": "a0f60280-1dd0-4bab-88cd-c6e13fd32e81",
+			"repeat": 1,
+			"req": {
+				"action": "set",
+				"type": 0
+			},
+			"returnVerbose": true
+		}
+	}
+]

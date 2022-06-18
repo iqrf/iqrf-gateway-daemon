@@ -1,0 +1,26 @@
+[
+	{
+		"mType": "iqmeshNetwork_FrcParams",
+		"data": {
+			"msgId": "04df34da-e288-4887-ae0a-cf5f742fdc86",
+			"repeat": 1,
+			"req": {
+				"action": "get"
+			},
+			"returnVerbose": true
+		}
+	},
+	{
+		"mType": "iqmeshNetwork_FrcParams",
+		"data": {
+			"msgId": "2aa9b3bf-1f16-4a0b-a6b1-5a41e98dbf88",
+			"repeat": 1,
+			"req": {
+				"action": "set",
+				"responseTime": 16,
+				"offlineFrc": false
+			},
+			"returnVerbose": true
+		}
+	}
+]
