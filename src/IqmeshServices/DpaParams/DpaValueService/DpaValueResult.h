@@ -61,9 +61,7 @@ namespace iqrf {
 			// Service results
 			if (m_status == 0) {
 				Pointer("/data/rsp/action").Set(response, dpaParamActionEnumStringMap[m_action]);
-				if (m_action == TDpaParamAction::GET) {
-					Pointer("/data/rsp/type").Set(response, m_valueType);
-				}
+				Pointer("/data/rsp/type").Set(response, m_valueType);
 			}
 
 			// Transactions and error codes

@@ -63,8 +63,15 @@
 							"title": "Request hops",
 							"description": "Request hops.",
 							"type": "integer",
-							"minimum": 0,
-							"maximum": 255,
+							"oneOf": [
+								{
+									"minimum": 0,
+									"maximum": 239
+								},
+								{
+									"enum": [255]
+								}
+							],
 							"default": 255
 						},
 						"responseHops": {
@@ -72,8 +79,15 @@
 							"title": "Response hops",
 							"description": "Response hops.",
 							"type": "integer",
-							"minimum": 1,
-							"maximum": 255,
+							"oneOf": [
+								{
+									"minimum": 1,
+									"maximum": 239
+								},
+								{
+									"enum": [255]
+								}
+							],
 							"default": 255
 						}
 					}
