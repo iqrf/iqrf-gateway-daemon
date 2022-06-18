@@ -110,6 +110,7 @@ namespace iqrf {
 					setDpaValueType(result, current);
 				}
 			} else {
+				result.setValueType(m_requestParams.type);
 				setDpaValueType(result, m_requestParams.type);
 			}
 		} catch (const std::exception &e) {

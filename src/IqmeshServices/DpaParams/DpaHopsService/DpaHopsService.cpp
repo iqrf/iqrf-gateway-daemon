@@ -115,6 +115,8 @@ namespace iqrf {
 				}
 			} else {
 				std::tuple<uint8_t, uint8_t> hops = {m_requestParams.requestHops, m_requestParams.responseHops};
+				result.setRequestHops(m_requestParams.requestHops);
+				result.setResponseHops(m_requestParams.responseHops);
 				setDpaHops(result, hops);
 			}
 		} catch (const std::exception &e) {
