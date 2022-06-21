@@ -1,5 +1,0 @@
-{
-  "component": "iqrf::NativeUploadService",
-  "instance": "iqrf::NativeUpload-Instance1",
-  "uploadPath": "/var/cache/iqrf-gateway-daemon/upload"
-}
