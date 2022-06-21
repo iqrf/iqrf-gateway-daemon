@@ -136,10 +136,8 @@ namespace iqrf {
       // get message type
       if (const Value* mTypeVal = Pointer("/mType").Get(doc)) {
         mType = mTypeVal->GetString();
-      }
-      else {
-        //defaulted to support daemon V1 messages
-        mType = "dpaV1";
+      } else {
+        THROW_EXC_TRC_WAR(std::logic_error, "Missing message type");
       }
 
       // get version
@@ -167,16 +165,14 @@ namespace iqrf {
       )
 
       MsgType msgType = getMessageType(doc);
-      if (msgType.m_type != "dpaV1") { // dpaV1 is default legacy support
-        auto foundType = m_msgTypeToHandle.find(getKey(msgType));
-        if (foundType == m_msgTypeToHandle.end()) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type));
-        }
+      auto foundType = m_msgTypeToHandle.find(getKey(msgType));
+      if (foundType == m_msgTypeToHandle.end()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type));
+      }
 
-        msgType = foundType->second;
-        if (m_validateResponse) {
-          validate(msgType, doc, m_validatorMapResponse, "response");
-        }
+      msgType = foundType->second;
+      if (m_validateResponse) {
+        validate(msgType, doc, m_validatorMapResponse, "response");
       }
       
       StringBuffer buffer;
@@ -348,16 +344,14 @@ namespace iqrf {
         msgId = Pointer("/data/msgId").GetWithDefault(doc, "undefined").GetString();
         MsgType msgType = getMessageType(doc);
 
-        if (msgType.m_type != "dpaV1") { // dpaV1 is default legacy support
-          auto foundType = m_msgTypeToHandle.find(getKey(msgType));
-          if (foundType == m_msgTypeToHandle.end()) {
-            THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type) << NAME_PAR(key, getKey(msgType)));
-          }
-
-          const std::string REQS("request");
-          msgType = foundType->second;
-          validate(msgType, doc, m_validatorMapRequest, REQS);
+        auto foundType = m_msgTypeToHandle.find(getKey(msgType));
+        if (foundType == m_msgTypeToHandle.end()) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type) << NAME_PAR(key, getKey(msgType)));
         }
+
+        const std::string REQS("request");
+        msgType = foundType->second;
+        validate(msgType, doc, m_validatorMapRequest, REQS);
 
         std::map<std::string, FilteredMessageHandlerFunc > bestFitMap;
         { //lock scope
