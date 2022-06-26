@@ -16,9 +16,11 @@
  */
 #pragma once
 
-#include <vector>
-#include <sstream>
 #include <iomanip>
+#include <set>
+#include <sstream>
+#include <vector>
+
 
 namespace iqrf
 {
@@ -66,17 +68,35 @@ namespace iqrf
 					PIC16LF18877,
 				};
 
+				enum TrFamily {
+					UNKNOWN = -1,
+					TR_5xD,
+					TR_7xD,
+					TR_7xG,
+					TR_8xG
+				};
+
 				enum TrSeriesD {
-					TR_72D = 2,
-					TR_78D = 4,
-					TR_76D = 11,
+					TR_52D,
+					TR_58D,
+					TR_72D,
+					TR_53D,
+					TR_78D,
+					TR_54D = 8,
+					TR_55D,
+					TR_56D,
+					TR_76D,
 					TR_77D,
 					TR_75D,
 				};
 
 				enum TrSeriesG {
 					TR_72G = 2,
+					TR_75G = 13,
 					TR_76G = 11,
+					TR_82G = 0,
+					TR_85G = 9,
+					TR_86G = 10,
 				};
 
 				unsigned getMid() const { return m_mid; }
@@ -146,17 +166,66 @@ namespace iqrf
 						}
 					} else if (m_mcuType == PIC16LF18877) {
 						switch (m_trSeries) {
+							case TR_82G:
+								trTypeStr += "82G";
+								break;
 							case TR_72G:
 								trTypeStr += "72G";
 								break;
+							case TR_85G:
+								trTypeStr += "85G";
+								break;
+							case TR_86G:
+								trTypeStr += "86G";
+								break;
 							case TR_76G:
 								trTypeStr += "76G";
+								break;
+							case TR_75G:
+								trTypeStr += "75G";
 								break;
 							default:
 								trTypeStr += "??G";
 						}
 					}
 					return trTypeStr;
+				}
+
+				TrFamily getTrFamily() const {
+					if (m_mcuType == McuType::PIC16LF1938) {
+						switch (m_trSeries) {
+							case TrSeriesD::TR_52D:
+							case TrSeriesD::TR_53D:
+							case TrSeriesD::TR_54D:
+							case TrSeriesD::TR_55D:
+							case TrSeriesD::TR_56D:
+							case TrSeriesD::TR_58D:
+								return TrFamily::TR_5xD;
+							case TrSeriesD::TR_72D:
+							case TrSeriesD::TR_75D:
+							case TrSeriesD::TR_76D:
+							case TrSeriesD::TR_77D:
+							case TrSeriesD::TR_78D:
+								return TrFamily::TR_7xD;
+							default:
+								return TrFamily::UNKNOWN;
+						}
+					} else if (m_mcuType == McuType::PIC16LF18877) {
+						switch (m_trSeries) {
+							case TrSeriesG::TR_72G:
+							case TrSeriesG::TR_75G:
+							case TrSeriesG::TR_76G:
+								return TrFamily::TR_7xG;
+							case TrSeriesG::TR_82G:
+							case TrSeriesG::TR_85G:
+							case TrSeriesG::TR_86G:
+								return TrFamily::TR_8xG;
+							default:
+								return TrFamily::UNKNOWN;
+						}
+					} else {
+						return TrFamily::UNKNOWN;
+					}
 				}
 
 				bool isFccCertified() const {
