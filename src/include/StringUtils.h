@@ -16,24 +16,27 @@
  */
 #pragma once
 
-#include <memory>
-#include "CodeBlock.h"
-#include "PreparedData.h"
-#include "IOtaUploadService.h"
-#include "iqrf_header_parser.h"
-#include <list>
+#include <string>
 
-namespace iqrf
-{
-  /// Class DataPreparer
-  class DataPreparer
-  {
-  public:
-    static std::unique_ptr<PreparedData> prepareData(IOtaUploadService::LoadingContentType loadingContent, const std::string& fileName, bool isForBroadcast, const IOtaUploadService::ModuleInfo &module);
-    static std::list<CodeBlock> getEepromData(const std::string& fileName);
-    static std::list<CodeBlock> getEeepromData(const std::string& fileName);
-  private:
-    class Imp;
-    static Imp* m_imp;
-  };
+namespace iqrf {
+	static const char *STRING_UTILS_WHITESPACE = " \t\n\r\f\v";
+	class StringUtils {
+	public:
+		static void ltrim(std::string &s) {
+			s.erase(0, s.find_first_not_of(STRING_UTILS_WHITESPACE));
+		}
+
+		static void rtrim(std::string &s) {
+			s.erase(s.find_last_not_of(STRING_UTILS_WHITESPACE) + 1);
+		}
+
+		static void trim(std::string &s) {
+			rtrim(s);
+			ltrim(s);
+		}
+
+		static bool starsWith(const std::string &s, const std::string &prefix) {
+			return s.rfind(prefix, 0) == 0;
+		}
+	};
 }
