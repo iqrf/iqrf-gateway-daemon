@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "PreparedData.h"
 #include "IOtaUploadService.h"
 #include "ILaunchService.h"
 #include "ShapeProperties.h"

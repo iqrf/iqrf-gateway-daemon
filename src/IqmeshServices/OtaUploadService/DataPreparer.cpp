@@ -30,32 +30,9 @@ namespace iqrf{
   const uint16_t IQRF_CONFIG_MEM_L_ADR = 0x37C0;
   const uint16_t IQRF_CONFIG_MEM_H_ADR = 0x37D0;
   const uint16_t IQRF_MAIN_MEM_MIN_ADR = 0x3A00;
-  const uint16_t IQRF_MAIN_MEM_MAX_ADR_D = 0x3FFF;
-  const uint16_t IQRF_MAIN_MEM_MAX_ADR_G = 0x4FFF;
+  const uint16_t IQRF_MAIN_MEM_MAX_ADR = 0x3FFF;
   const uint16_t INTERNAL_EEPROM_BOTTOM = 0xf000;
   const uint16_t INTERNAL_EEPROM_TOP = 0xf0ff;
-  const uint8_t PIC16LF18877 = 5;
-
-  // Simple implementation of abstract class PreparedData
-  class PreparedDataImpl : public iqrf::PreparedData
-  {
-  private:
-    Data m_data;
-    uint16_t m_length;
-    uint16_t m_checksum;
-
-  public:
-    PreparedDataImpl(const Data& data, uint16_t length, uint16_t checksum)
-    {
-      this->m_data = data;
-      this->m_length = length;
-      this->m_checksum = checksum;
-    }
-
-    Data getData() override { return m_data; };
-    uint16_t getChecksum() override { return m_checksum; };
-    uint16_t getLength() override { return m_length; };
-  };
 
   /*
   // Encapsulates block of code
@@ -126,7 +103,7 @@ namespace iqrf{
 
     // parses specified line
     // if the line is data records, returns corresponding code block
-    static std::unique_ptr<CodeBlock> parseLine(std::string& line, IOtaUploadService::MemoryType memoryType, IOtaUploadService::ModuleInfo module)
+    static std::unique_ptr<CodeBlock> parseLine(std::string& line, IOtaUploadService::MemoryType memoryType)
     {
       if (line.find_first_of(':') != 0)
         throw std::logic_error("Invalid Intel HEX record: line does not star with colon.");
@@ -187,8 +164,7 @@ namespace iqrf{
         // Flash data ?
         if (memoryType == IOtaUploadService::MemoryType::flash)
         {
-          const uint16_t mainAddrMax = module.mcuType == PIC16LF18877 ? IQRF_MAIN_MEM_MAX_ADR_G : IQRF_MAIN_MEM_MAX_ADR_D;
-          if (realEndAddress <= mainAddrMax)
+          if (realEndAddress <= IQRF_MAIN_MEM_MAX_ADR)
             return std::unique_ptr<CodeBlock>(shape_new CodeBlock(data, (uint16_t)startAddress, (uint16_t)endAddress));
         }
 
@@ -254,15 +230,15 @@ namespace iqrf{
 
     static bool areAdjacent(const CodeBlock& block1, const CodeBlock& block2)
     {
-      return(((block1.getEndAddress() + 1) == block2.getStartAddress()) || ((block2.getEndAddress() + 1) == block1.getStartAddress()));
+      return(((block1.getEndAddr() + 1) == block2.getStartAddr()) || ((block2.getEndAddr() + 1) == block1.getStartAddr()));
     }
 
     static std::unique_ptr<CodeBlock> mergeBlock(const CodeBlock& b1, const CodeBlock& b2)
     {
-      if ((b1.getEndAddress() + 1) == b2.getStartAddress())
-        return std::unique_ptr<CodeBlock>(shape_new CodeBlock(b1.getCode() + b2.getCode(), b1.getStartAddress(), b2.getEndAddress()));
+      if ((b1.getEndAddr() + 1) == b2.getStartAddr())
+        return std::unique_ptr<CodeBlock>(shape_new CodeBlock(b1.getCode() + b2.getCode(), b1.getStartAddr(), b2.getEndAddr()));
       else
-        return std::unique_ptr<CodeBlock>(shape_new CodeBlock(b2.getCode() + b1.getCode(), b2.getStartAddress(), b1.getEndAddress()));
+        return std::unique_ptr<CodeBlock>(shape_new CodeBlock(b2.getCode() + b1.getCode(), b2.getStartAddr(), b1.getEndAddr()));
     }
 
     static void addCodeBlock(CodeBlock& newBlock, std::list<CodeBlock>& codeBlocks)
@@ -285,7 +261,7 @@ namespace iqrf{
     }
 
   public:
-    static std::list<CodeBlock> parse(const std::string& fileName, IOtaUploadService::MemoryType memoryType, IOtaUploadService::ModuleInfo module)
+    static std::list<CodeBlock> parse(const std::string& fileName, IOtaUploadService::MemoryType memoryType)
     {
       std::list<std::string> lines = readLinesFromFile(fileName);
       std::list<CodeBlock> codeBlocks;
@@ -297,7 +273,7 @@ namespace iqrf{
         std::unique_ptr<CodeBlock> pCodeBlock;
         try
         {
-          pCodeBlock = parseLine(line, memoryType, module);
+          pCodeBlock = parseLine(line, memoryType);
         }
         catch (const std::exception& ex)
         {
@@ -330,10 +306,10 @@ namespace iqrf{
       std::basic_string<uint8_t> data;
       uint32_t cnt = 0;
       ihp::Error ret;
-      ihp::OsVersion os;
-      os.major = module.osMajor;
-      os.minor = module.osMinor;
-      os.build = module.osBuild;
+      ihp::device::ModuleInfo moduleInfo;
+      moduleInfo.osMajor = module.osMajor;
+      moduleInfo.osMinor = module.osMinor;
+      moduleInfo.osBuild = module.osBuild;
 
       while (std::getline(sourceFile, line))  {
         cnt++;
@@ -350,13 +326,13 @@ namespace iqrf{
         if (line[0] == '#') {
           switch (cnt) {
             case 1: // mcu header
-              ret = ihp::parseMcuHeader(line, module.mcuType, module.trSeries, error);
+              ret = ihp::iqrf::parseMcuHeader(line, module.mcuType, module.trSeries, error);
               if (ret != ihp::Error::NO_ERROR) {
                 throw std::logic_error(error);
               }
               break;
             case 2: // os header
-              ret = ihp::parseOsHeader(line, os, error);
+              ret = ihp::iqrf::parseOsHeader(line, moduleInfo, error);
               if (ret != ihp::Error::NO_ERROR) {
                 throw std::logic_error(error);
               }
@@ -364,13 +340,13 @@ namespace iqrf{
             case 3: // date, ignore
               break;
             case 4:
-              if (ihp::validPluginHeaderOs(line)) {
+              if (ihp::iqrf::validPluginHeaderOs(line)) {
                 throw std::logic_error("Regular ChangeOS plugin cannot be uploaded via OTA upload service.");
               }
               break;
             case 5: // separator
             default:
-              if (ihp::isSeparator(line)) {
+              if (ihp::iqrf::isSeparator(line)) {
                 break;
               }
               throw std::logic_error("IQRF plugins should have only 4 programming headers and separator.");
@@ -378,11 +354,11 @@ namespace iqrf{
           continue;
         }
 
-        if (!ihp::validDataLine(line, error)) {
+        if (!ihp::iqrf::validDataLine(line, error)) {
           throw std::logic_error(error + " Line number " + std::to_string(cnt));
         }
 
-        for (int i = 0; i < ihp::LINE_LENGTH; i += 2) {
+        for (int i = 0; i < ihp::iqrf::LINE_LENGTH; i += 2) {
           uint8_t b = parseHexaByte(line, i);
           data.push_back(b);
         }
@@ -407,16 +383,9 @@ namespace iqrf
 
   class DataPreparer::Imp
   {
-  private:
-    // Module info
-    IOtaUploadService::ModuleInfo m_module;
   public:
     Imp() {}
     ~Imp() {}
-
-    void setModuleInfo(const IOtaUploadService::ModuleInfo module) {
-      m_module = module;
-    }
 
     void checkFileName(const std::string& fileName)
     {
@@ -431,7 +400,7 @@ namespace iqrf
     const CodeBlock* findHandlerBlock(const std::list<CodeBlock>& codeBlocks)
     {
       for (const CodeBlock& block : codeBlocks)
-        if (block.getStartAddress() == (0x3A20 * 2))
+        if (block.getStartAddr() == (0x3A20 * 2))
           return &block;
       return nullptr;
     }
@@ -444,10 +413,10 @@ namespace iqrf
       bool lowerFillingByteOnRank = true;
 
       size_t byteIndex = 0;
-      for (uint16_t address = block.getStartAddress(); address < block.getStartAddress() + length; address++, byteIndex++)
+      for (uint16_t address = block.getStartAddr(); address < block.getStartAddr() + length; address++, byteIndex++)
       {
         uint8_t oneByte = 0x00;
-        if (block.getEndAddress() - address >= 0)
+        if (block.getEndAddr() - address >= 0)
           oneByte = block.getCode()[byteIndex] & 0xFF;
         else
         {
@@ -503,7 +472,7 @@ namespace iqrf
     {
       std::basic_string<uint8_t> byteBlock;
       uint16_t byteCounter = 0;
-      for (uint16_t address = block.getStartAddress(); address <= block.getEndAddress();)
+      for (uint16_t address = block.getStartAddr(); address <= block.getEndAddr();)
       {
         fillByteBlock(byteBlock, block.getCode(), 16, byteCounter);
         data.push_back(byteBlock);
@@ -529,7 +498,7 @@ namespace iqrf
       std::basic_string<uint8_t> byteBlock;
       uint16_t byteCounter = 0;
 
-      for (uint16_t address = block.getStartAddress(); address <= block.getEndAddress();)
+      for (uint16_t address = block.getStartAddr(); address <= block.getEndAddr();)
       {
         fillByteBlock(byteBlock, block.getCode(), 48, byteCounter);
         data.push_back(byteBlock);
@@ -555,7 +524,7 @@ namespace iqrf
     {
       (void)isForBroadcast;
 
-      std::list<CodeBlock> codeBlocks = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::flash, m_module);
+      std::list<CodeBlock> codeBlocks = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::flash);
       const CodeBlock* handlerBlock = findHandlerBlock(codeBlocks);
       if (handlerBlock == nullptr)
         throw std::logic_error("Selected hex file does not include Custom DPA handler section or the code does not start with clrwdt() marker.");
@@ -569,19 +538,19 @@ namespace iqrf
       PreparedData::Data data;
       prepareAsMostEffective(*handlerBlock, data);
 
-      return std::unique_ptr<PreparedData>(shape_new PreparedDataImpl(data, length, checksum));
+      return std::unique_ptr<PreparedData>(shape_new PreparedData(data, length, checksum));
     }
 
     void prepareEepromDataFromHex(const std::string& fileName, std::list<CodeBlock> &eepromData)
     {
       eepromData.clear();
-      eepromData = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::eeprom, m_module);
+      eepromData = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::eeprom);
     }
 
     void prepareEeepromDataFromHex(const std::string& fileName, std::list<CodeBlock> &eeepromData)
     {
       eeepromData.clear();
-      eeepromData = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::eeeprom, m_module);
+      eeepromData = IntelHexParser::parse(fileName, IOtaUploadService::MemoryType::eeeprom);
     }
 
     std::unique_ptr<PreparedData> prepareDataFromIqrf(const std::string& fileName, bool isForBroadcast, const IOtaUploadService::ModuleInfo &module)
@@ -599,14 +568,13 @@ namespace iqrf
       else
         prepareAsMostEffective(codeBlock, data);
 
-      return std::unique_ptr<PreparedData>(shape_new PreparedDataImpl(data, length, checksum));
+      return std::unique_ptr<PreparedData>(shape_new PreparedData(data, length, checksum));
     }
   };
 
   std::unique_ptr<PreparedData> DataPreparer::prepareData(IOtaUploadService::LoadingContentType loadingContent, const std::string& fileName, bool isForBroadcast, const IOtaUploadService::ModuleInfo &module)
   {
     m_imp = shape_new DataPreparer::Imp();
-    m_imp->setModuleInfo(module);
     m_imp->checkFileName(fileName);
     std::unique_ptr<PreparedData> preparedData;
 
