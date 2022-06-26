@@ -95,7 +95,7 @@ inline MQDESCR openMqWrite(const std::string name, unsigned bufsize)
 
   if (mqd > 0) {
     int ret = mq_setattr(mqd, &setAttr, &getAttr);
-    
+
     TRC_DEBUG("Opened message queue status:"
       << PAR(mqd)
       << PAR(getAttr.mq_maxmsg)
@@ -142,7 +142,7 @@ inline bool readMq(MQDESCR mqDescr, unsigned char* rx, unsigned long bufSize, un
 inline bool writeMq(MQDESCR mqDescr, const unsigned char* tx, unsigned long toWrite, unsigned long& written, const uint8_t &timeout)
 {
   TRC_FUNCTION_ENTER(PAR(toWrite))
-  
+
   struct timespec tm;
   clock_gettime(CLOCK_REALTIME, &tm);
   tm.tv_sec += timeout;
@@ -331,7 +331,7 @@ void MqChannel::connect()
 
 void MqChannel::sendTo(const std::basic_string<unsigned char>& message)
 {
-  TRC_INFORMATION("Send to MQ: " << std::endl << MEM_HEX(message.data(), message.size()));
+  TRC_DEBUG("Send to MQ: " << std::endl << MEM_HEX(message.data(), message.size()));
 
   unsigned long toWrite = static_cast<unsigned long>(message.size());
   unsigned long written = 0;
