@@ -1,0 +1,165 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqrfDali_FailureStatusAsync-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQRF DALI Failure status async. notification.",
+      "enum": [
+        "iqrfDali_FailureStatusAsync"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for async notification."
+        },
+        "rsp": {
+          "type": "object",
+          "description": "Returns following values, see its description.",
+          "properties": {
+            "numNodes": {
+              "type": "integer",
+              "description": "Number of nodes in the network."
+            },
+            "nodes": {
+              "type": "array",
+              "description": "Dali Failure status of online nodes.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "integer",
+                    "description": "Node address."
+                  },
+                  "online": {
+                    "type": "boolean",
+                    "description": "Node online status."
+                  },
+                  "failureStatus": {
+                    "type": "integer",
+                    "description": "Failure status raw value."
+                  },
+                  "circuitFailure": {
+                    "type": "boolean",
+                    "description": "bit0: circuit failure."
+                  },
+                  "batteryDurationFailure": {
+                    "type": "boolean",
+                    "description": "bit1: battery duration failure."
+                  },
+                  "batteryFailure": {
+                    "type": "boolean",
+                    "description": "bit2: battery failure."
+                  },
+                  "emergencyLampFailure": {
+                    "type": "boolean",
+                    "description": "bit3: emergency lamp failure."
+                  },
+                  "functionTestDelayExceeded": {
+                    "type": "boolean",
+                    "description": "bit4: function test max. delay exceeded."
+                  },
+                  "durationTestDelayExceeded": {
+                    "type": "boolean",
+                    "description": "bit5: duration test max. delay exceeded."
+                  },
+                  "functionTestFailed": {
+                    "type": "boolean",
+                    "description": "bit6: function test failed."
+                  },
+                  "durationTestFailed": {
+                    "type": "boolean",
+                    "description": "bit7: duration test failed."
+                  }
+                },
+                "required": [
+                  "address",
+                  "online"
+                ]
+              },
+              "required": [
+                "numNodes",
+                "nodes"
+              ]
+            },
+            "timestamp": {
+              "type": "string",
+              "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+            }
+          },
+          "raw": {
+            "type": "array",
+            "description": "Returns array of objects req-cnf-rsp, see its description.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "request": {
+                  "type": "string",
+                  "description": "Binary buffer with DPA request."
+                },
+                "requestTs": {
+                  "type": "string",
+                  "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+                },
+                "confirmation": {
+                  "type": "string",
+                  "description": "Binary buffer with DPA confirmation."
+                },
+                "confirmationTs": {
+                  "type": "string",
+                  "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+                },
+                "response": {
+                  "type": "string",
+                  "description": "Binary buffer with DPA response."
+                },
+                "responseTs": {
+                  "type": "string",
+                  "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+                }
+              },
+              "required": [
+                "request",
+                "requestTs",
+                "confirmation",
+                "confirmationTs",
+                "response",
+                "responseTs"
+              ]
+            }
+          },
+          "insId": {
+            "type": "string",
+            "description": "IQRF GW daemon instance identification."
+          },
+          "status": {
+            "type": "integer",
+            "description": "IQRF GW daemon API (general or mType) status."
+          },
+          "statusStr": {
+            "type": "string",
+            "description": "IQRF GW daemon API (general or mType) status in string form."
+          }
+        }
+      },
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}

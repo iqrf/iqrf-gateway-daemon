@@ -241,6 +241,24 @@ namespace iqrf {
     const IMessagingSplitterService::MsgType* m_msgType = nullptr;
     const ComAutonetwork* m_comAutonetwork = nullptr;
 
+    // Dali Emergency mode bit names
+    const std::vector<std::string> m_emergencyModeBits = { "restModeActive", "normalModeActive", "emergencyModeActive", "extendedEmergencyModeActive", "functionTestInProgress", "durationTestInProgress", "hardwiredInhibitActive", "hardwiredSwitchOn" };
+
+    // Dali Failure status bit names
+    const std::vector<std::string> m_faliureStatusBits = { "circuitFailure", "batteryDurationFailure", "batteryFailure", "emergencyLampFailure", "functionTestDelayExceeded", "durationTestDelayExceeded", "functionTestFailed", "durationTestFailed" };
+
+    // Dali Emergency status bit names
+    const std::vector<std::string> m_emergencyStatusBits = { "inhibitMode", "functionTestDone", "durationTestDone", "batteryFullyCharged", "functionTestPending", "durationTestPending", "identificationActive", "physicallySelected" };
+
+    // Dali Failure status
+    std::vector<std::pair<uint8_t, uint8_t>> m_failureStatus;
+
+    // Dali Emergency status
+    std::vector<std::pair<uint8_t, uint8_t>> m_emergencyStatus;
+
+    // Dali Emergency mode
+    std::vector<std::pair<uint8_t, uint8_t>> m_emergencyMode;
+
   public:
     Imp( AutonetworkService& parent ) : m_parent( parent )
     {
@@ -1964,6 +1982,150 @@ namespace iqrf {
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(waveResult));
     }
 
+    //---------------------------------
+    // Send Dali Failure status message
+    //---------------------------------
+    void sendDaliFailureStatus(void)
+    {
+      TRC_FUNCTION_ENTER("");
+      // Create document
+      Document docFailureStatus;
+      // Set common parameters
+      Pointer("/mType").Set(docFailureStatus, "iqrfDali_FailureStatusAsync");
+      Pointer("/data/msgId").Set(docFailureStatus, "async");
+      // Fill response
+      rapidjson::Pointer("/data/rsp/numNodes").Set(docFailureStatus, m_failureStatus.size());
+      rapidjson::Value arrayNodes(kArrayType);
+      Document::AllocatorType& allocator = docFailureStatus.GetAllocator();
+      // Put nodes
+      for (auto node : m_failureStatus)
+      {
+        rapidjson::Value objFailureStatus(kObjectType);
+        // Put node address
+        objFailureStatus.AddMember("address", node.first, allocator);
+        bool nodeOnline = (node.second != 0);
+        // Put node online status
+        objFailureStatus.AddMember("online", nodeOnline, allocator);
+        if (nodeOnline == true)
+        {
+          // Node is online, parse Dali Failure status (subtract 1 - FRCMemoryReadPlus1)
+          uint8_t failStatus = node.second - 0x01;
+          // Put Dali failure status raw value
+          objFailureStatus.AddMember("failureStatus", failStatus, allocator);
+          for (uint8_t i = 0; i < m_faliureStatusBits.size(); i++)
+          {
+            bool flag = (failStatus & (1 << i)) != 0;
+            Value name(m_faliureStatusBits[i].c_str(), (rapidjson::SizeType)m_faliureStatusBits[i].length());
+            objFailureStatus.AddMember(name, flag, allocator);
+          }
+        }
+        arrayNodes.PushBack(objFailureStatus, allocator);
+      }
+      Pointer("/data/rsp/nodes").Set(docFailureStatus, arrayNodes);
+      Pointer("/data/rsp/timestamp").Set(docFailureStatus, encodeTimestamp(std::chrono::system_clock::now()));
+      Pointer("/data/status").Set(docFailureStatus, 0);
+      Pointer("/data/statusStr").Set(docFailureStatus, "ok");
+      // Send message      
+      m_iMessagingSplitterService->sendMessage("", std::move(docFailureStatus));
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    //-----------------------------------
+    // Send Dali Emergency status message
+    //-----------------------------------
+    void sendDaliEmergencyStatus(void)
+    {
+      TRC_FUNCTION_ENTER("");
+      // Create document
+      Document docEmergencyStatus;
+      // Set common parameters
+      Pointer("/mType").Set(docEmergencyStatus, "iqrfDali_EmergencyStatusAsync");
+      Pointer("/data/msgId").Set(docEmergencyStatus, "async");
+      // Fill response
+      rapidjson::Pointer("/data/rsp/numNodes").Set(docEmergencyStatus, m_emergencyStatus.size());
+      rapidjson::Value arrayNodes(kArrayType);
+      Document::AllocatorType& allocator = docEmergencyStatus.GetAllocator();
+      // Put nodes
+      for (auto node : m_emergencyStatus)
+      {
+        rapidjson::Value objEmergencyStatus(kObjectType);
+        // Put node address
+        objEmergencyStatus.AddMember("address", node.first, allocator);
+        bool nodeOnline = (node.second != 0);
+        // Put node online status
+        objEmergencyStatus.AddMember("online", nodeOnline, allocator);
+        if (nodeOnline == true)
+        {
+          // Node is online, parse Dali Emergency status (subtract 1 - FRCMemoryReadPlus1)
+          uint8_t emgStatus = node.second - 0x01;
+          // Put Dali Emergency status raw value
+          objEmergencyStatus.AddMember("emergencyStatus", emgStatus, allocator);
+          for (uint8_t i = 0; i < m_emergencyStatusBits.size(); i++)
+          {
+            bool flag = (emgStatus & (1 << i)) != 0;
+            Value name(m_emergencyStatusBits[i].c_str(), (rapidjson::SizeType)m_emergencyStatusBits[i].length());
+            objEmergencyStatus.AddMember(name, flag, allocator);
+          }
+        }
+        arrayNodes.PushBack(objEmergencyStatus, allocator);
+      }
+      Pointer("/data/rsp/nodes").Set(docEmergencyStatus, arrayNodes);
+      Pointer("/data/rsp/timestamp").Set(docEmergencyStatus, encodeTimestamp(std::chrono::system_clock::now()));
+      Pointer("/data/status").Set(docEmergencyStatus, 0);
+      Pointer("/data/statusStr").Set(docEmergencyStatus, "ok");
+      // Send message      
+      m_iMessagingSplitterService->sendMessage("", std::move(docEmergencyStatus));
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    //---------------------------------
+    // Send Dali Emergency mode message
+    //---------------------------------
+    void sendDaliEmergencyMode(void)
+    {
+      TRC_FUNCTION_ENTER("");
+      // Create document
+      Document docEmergencyMode;
+      // Set common parameters
+      Pointer("/mType").Set(docEmergencyMode, "iqrfDali_EmergencyModeAsync");
+      Pointer("/data/msgId").Set(docEmergencyMode, "async");
+      // Fill response
+      rapidjson::Pointer("/data/rsp/numNodes").Set(docEmergencyMode, m_emergencyMode.size());
+      rapidjson::Value arrayNodes(kArrayType);
+      Document::AllocatorType& allocator = docEmergencyMode.GetAllocator();
+      // Put nodes
+      for (auto node : m_emergencyMode)
+      {
+        rapidjson::Value objEmergencyMode(kObjectType);
+        // Put node address
+        objEmergencyMode.AddMember("address", node.first, allocator);
+        bool nodeOnline = (node.second != 0);
+        // Put node online status
+        objEmergencyMode.AddMember("online", nodeOnline, allocator);
+        if (nodeOnline == true)
+        {
+          // Node is online, parse Dali Emergency mode (subtract 1 - FRCMemoryReadPlus1)
+          uint8_t emgMode = node.second - 0x01;
+          // Put Dali Emergency mode raw value
+          objEmergencyMode.AddMember("emergencyMode", emgMode, allocator);
+          for (uint8_t i = 0; i < m_emergencyModeBits.size(); i++)
+          {
+            bool flag = (emgMode & (1 << i)) != 0;
+            Value name(m_emergencyModeBits[i].c_str(), (rapidjson::SizeType)m_emergencyModeBits[i].length());
+            objEmergencyMode.AddMember(name, flag, allocator);
+          }
+        }
+        arrayNodes.PushBack(objEmergencyMode, allocator);
+      }
+      Pointer("/data/rsp/nodes").Set(docEmergencyMode, arrayNodes);
+      Pointer("/data/rsp/timestamp").Set(docEmergencyMode, encodeTimestamp(std::chrono::system_clock::now()));
+      Pointer("/data/status").Set(docEmergencyMode, 0);
+      Pointer("/data/statusStr").Set(docEmergencyMode, "ok");
+      // Send message      
+      m_iMessagingSplitterService->sendMessage("", std::move(docEmergencyMode));
+      TRC_FUNCTION_LEAVE("");
+    }
+
     // Process the autonetwork algorithm
     void runAutonetwork(void)
     {
@@ -3054,6 +3216,28 @@ namespace iqrf {
       // Parsing and checking service parameters
       try
       {
+        m_failureStatus.clear();
+        m_emergencyStatus.clear();
+        m_emergencyMode.clear();
+        std::srand(std::time(nullptr));
+        for (uint8_t i = 1; i < 240; i++)
+        {          
+          uint8_t rnd = (uint8_t)std::rand();
+          std::pair<uint8_t, uint8_t> node(i, rnd);
+          m_failureStatus.push_back(node);
+          m_emergencyStatus.push_back(node);
+          m_emergencyMode.push_back(node);
+        }
+
+        sendDaliFailureStatus();
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+        sendDaliEmergencyStatus();
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+        sendDaliEmergencyMode();
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
         // Get input params
         antwInputParams = comAutonetwork.getAutonetworkParams();
 
@@ -3275,4 +3459,5 @@ namespace iqrf {
     m_imp->modify(props);
   }
 }
+
 

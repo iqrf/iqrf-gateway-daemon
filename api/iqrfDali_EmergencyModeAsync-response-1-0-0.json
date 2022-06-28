@@ -1,0 +1,165 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqrfDali_EmergencyModeAsync-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "IQRF DALI Emergency mode async. notification.",
+      "enum": [
+        "iqrfDali_EmergencyModeAsync"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for async notification."
+        },
+        "rsp": {
+          "type": "object",
+          "description": "Returns following values, see its description.",
+          "properties": {
+            "numNodes": {
+              "type": "integer",
+              "description": "Number of nodes in the network."
+            },
+            "nodes": {
+              "type": "array",
+              "description": "Dali Emergency mode of online nodes.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "integer",
+                    "description": "Node address."
+                  },
+                  "online": {
+                    "type": "boolean",
+                    "description": "Node online status."
+                  },
+                  "emergencyStatus": {
+                    "type": "integer",
+                    "description": "Emergency mode raw value."
+                  },
+                  "restModeActive": {
+                    "type": "boolean",
+                    "description": "bit0: rest mode active."
+                  },
+                  "normalModeActive": {
+                    "type": "boolean",
+                    "description": "bit1: normal mode active."
+                  },
+                  "emergencyModeActive": {
+                    "type": "boolean",
+                    "description": "bit2: emergency mode active."
+                  },
+                  "extendedEmergencyModeActive": {
+                    "type": "boolean",
+                    "description": "bit3: extended emergency mode active."
+                  },
+                  "functionTestInProgress": {
+                    "type": "boolean",
+                    "description": "bit4: function test in progress."
+                  },
+                  "durationTestInProgress": {
+                    "type": "boolean",
+                    "description": "bit5: duration test in progress."
+                  },
+                  "hardwiredInhibitActive": {
+                    "type": "boolean",
+                    "description": "bit6: hardwired inhibit is active."
+                  },
+                  "hardwiredSwitchOn": {
+                    "type": "boolean",
+                    "description": "bit7: hardwired switch is on."
+                  }
+                },
+                "required": [
+                  "address",
+                  "online"
+                ]
+              },
+              "required": [
+                "numNodes",
+                "nodes"
+              ]
+            },
+            "timestamp": {
+              "type": "string",
+              "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+            }
+          },
+          "raw": {
+            "type": "array",
+            "description": "Returns array of objects req-cnf-rsp, see its description.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "request": {
+                  "type": "string",
+                  "description": "Binary buffer with DPA request."
+                },
+                "requestTs": {
+                  "type": "string",
+                  "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+                },
+                "confirmation": {
+                  "type": "string",
+                  "description": "Binary buffer with DPA confirmation."
+                },
+                "confirmationTs": {
+                  "type": "string",
+                  "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+                },
+                "response": {
+                  "type": "string",
+                  "description": "Binary buffer with DPA response."
+                },
+                "responseTs": {
+                  "type": "string",
+                  "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+                }
+              },
+              "required": [
+                "request",
+                "requestTs",
+                "confirmation",
+                "confirmationTs",
+                "response",
+                "responseTs"
+              ]
+            }
+          },
+          "insId": {
+            "type": "string",
+            "description": "IQRF GW daemon instance identification."
+          },
+          "status": {
+            "type": "integer",
+            "description": "IQRF GW daemon API (general or mType) status."
+          },
+          "statusStr": {
+            "type": "string",
+            "description": "IQRF GW daemon API (general or mType) status in string form."
+          }
+        }
+      },
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
+}
