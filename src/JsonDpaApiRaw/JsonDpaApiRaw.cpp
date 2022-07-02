@@ -37,7 +37,7 @@
 #endif
 #define TRC_CHANNEL 0
 
-TRC_INIT_MODULE(iqrf::JsonDpaApiRaw);
+TRC_INIT_MODULE(iqrf::JsonDpaApiRaw)
 
 using namespace rapidjson;
 
@@ -51,6 +51,7 @@ namespace iqrf {
       switch (dpaMessage.MessageDirection()) {
       case DpaMessage::MessageType::kRequest:
         m_request = dpaMessage;
+        // fall through
       case DpaMessage::MessageType::kResponse:
         m_response = dpaMessage;
       default:;

@@ -29,7 +29,7 @@
 
 #include "iqrf__UdpMessaging.hxx"
 
-TRC_INIT_MODULE(iqrf::UdpMessaging);
+TRC_INIT_MODULE(iqrf::UdpMessaging)
 
 const unsigned IQRF_MQ_BUFFER_SIZE = 64 * 1024;
 
@@ -113,7 +113,7 @@ namespace iqrf {
 		});
 
 		m_udpChannel->registerReceiveFromHandler([&](const std::basic_string<unsigned char>& msg) -> int {
-			return handleMessageFromUdp(msg); 
+			return handleMessageFromUdp(msg);
 		});
 
 		TRC_FUNCTION_LEAVE("")
@@ -125,9 +125,9 @@ namespace iqrf {
 
 	void UdpMessaging::deactivate() {
 		TRC_FUNCTION_ENTER("");
-		
+
 		m_udpChannel->unregisterReceiveFromHandler();
-		
+
 		delete m_udpChannel;
 		delete m_toUdpMessageQueue;
 

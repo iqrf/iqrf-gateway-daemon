@@ -35,7 +35,7 @@
 #include <vector>
 #include <mutex>
 
-TRC_INIT_MODULE(iqrf::IqrfBackup);
+TRC_INIT_MODULE(iqrf::IqrfBackup)
 
 using namespace rapidjson;
 
@@ -253,7 +253,7 @@ namespace iqrf {
         backupData[0x01] = (uint8_t)(index >> 0x08);
         // Insert CRC
         uint8_t crc8 = 0x5f;
-        for (int i = 3; i < backupData.size(); i++)
+        for (size_t i = 3; i < backupData.size(); i++)
           crc8 ^= backupData[i];
         backupData[0x02] = crc8;
         TRC_FUNCTION_LEAVE("");
@@ -337,6 +337,7 @@ namespace iqrf {
         "IqrfBackup instance activate" << std::endl <<
         "************************************"
       );
+      modify(props);
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -354,6 +355,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props;
     }
 
     void attachInterface(IIqrfDpaService* iface)

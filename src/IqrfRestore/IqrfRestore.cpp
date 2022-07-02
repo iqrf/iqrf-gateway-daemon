@@ -35,7 +35,7 @@
 #include <vector>
 #include <mutex>
 
-TRC_INIT_MODULE(iqrf::IqrfRestore);
+TRC_INIT_MODULE(iqrf::IqrfRestore)
 
 using namespace rapidjson;
 
@@ -308,8 +308,8 @@ namespace iqrf {
       }
 
       // Check backupData length
-      int len = (backupData[0x01] << 0x08) | backupData[0x00];
-      // Get len[B] = block count * 49 
+      size_t len = (backupData[0x01] << 0x08) | backupData[0x00];
+      // Get len[B] = block count * 49
       len *= sizeof(TPerCoordinatorNodeRestore_Request);
       // Add length and crc8
       len += 3 * sizeof(uint8_t);
@@ -320,7 +320,7 @@ namespace iqrf {
       }
       // Check backupData CRC8
       uint8_t crc8 = 0x5f;
-      for (int i = 3; i < backupData.size(); i++)
+      for (size_t i = 3; i < backupData.size(); i++)
         crc8 ^= backupData[i];
       if (crc8 != backupData[0x02])
       {
@@ -345,7 +345,6 @@ namespace iqrf {
       {
         m_transResults.clear();
         checkPresentCoordAndCoordOs();
-        TPerOSRead_Response osInfo = readOsInfo(deviceAddress);
         writeBackupData(deviceAddress, backupData);
         // Restart [C] after backup
         if (restartCoordinator == true)
@@ -398,6 +397,7 @@ namespace iqrf {
         "IqrfRestore instance activate" << std::endl <<
         "************************************"
       );
+      modify(props);
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -415,6 +415,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props;
     }
 
     void attachInterface(IIqrfDpaService* iface)

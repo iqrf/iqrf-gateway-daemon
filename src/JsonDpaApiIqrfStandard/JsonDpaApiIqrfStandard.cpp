@@ -37,7 +37,7 @@
 #endif
 #define TRC_CHANNEL 0
 
-TRC_INIT_MODULE(iqrf::JsonDpaApiIqrfStandard);
+TRC_INIT_MODULE(iqrf::JsonDpaApiIqrfStandard)
 
 using namespace rapidjson;
 
@@ -266,7 +266,7 @@ namespace iqrf {
         int hwpidReq = com->getHwpid();
         std::vector<uint8_t> dpaRequest = rawHdpRequestToDpaRequest(com->getNadr(), hwpidReq < 0 ? 0xffff : hwpidReq, rawHdpRequest);
 
-        // setDpaRequest as DpaMessage in com object 
+        // setDpaRequest as DpaMessage in com object
         com->setDpaMessage(dpaRequest);
 
         // send to coordinator and wait for transaction result
@@ -368,7 +368,7 @@ namespace iqrf {
       try {
         using namespace rapidjson;
 
-        // parse raw data to basic response structure 
+        // parse raw data to basic response structure
         iqrf::raw::AnyAsyncResponse anyAsyncResponse(dpaMessage);
         const uint8_t *buf = anyAsyncResponse.getResponse().DpaPacket().Buffer;
         int sz = anyAsyncResponse.getResponse().GetLength();
@@ -431,7 +431,7 @@ namespace iqrf {
         int nadrRes = 0;
         int hwpidRes = 0;
         int rcode = -1;
-         
+
         std::string rawHdpRequest; //empty just to satisfy next method signature
 
         // get rawHdpResponse in text form
@@ -554,7 +554,7 @@ namespace iqrf {
       }
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
-      
+
       m_iIqrfDpaService->unregisterAsyncMessageHandler(m_instanceName);
 
       TRC_FUNCTION_LEAVE("")

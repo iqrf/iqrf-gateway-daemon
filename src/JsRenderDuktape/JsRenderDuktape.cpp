@@ -38,7 +38,7 @@
 #endif
 #define TRC_CHANNEL 0
 
-TRC_INIT_MODULE(iqrf::JsRenderDuktape);
+TRC_INIT_MODULE(iqrf::JsRenderDuktape)
 
 using namespace rapidjson;
 
@@ -405,7 +405,7 @@ namespace iqrf {
   {
     m_imp->unloadProvisionalContexts();
   }
-  
+
   void JsRenderDuktape::activate(const shape::Properties *props)
   {
     m_imp->activate(props);

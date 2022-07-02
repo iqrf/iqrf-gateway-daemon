@@ -23,18 +23,18 @@
 #include "iqrf__RemoveBondService.hxx"
 #include <list>
 #include <cmath>
-#include <thread> 
+#include <thread>
 
-TRC_INIT_MODULE(iqrf::RemoveBondService);
+TRC_INIT_MODULE(iqrf::RemoveBondService)
 
 using namespace rapidjson;
 
-namespace 
+namespace
 {
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
-};
+}
 
 namespace iqrf {
   class RemoveBondResult {
@@ -63,7 +63,7 @@ namespace iqrf {
       m_statusStr = statusStr;
     }
 
-    uint8_t getNodesNr() const { return m_nodesNr; };   
+    uint8_t getNodesNr() const { return m_nodesNr; };
     void setNodesNr(const uint8_t nodesNr) {
       m_nodesNr = nodesNr;
     }
@@ -575,7 +575,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -673,7 +673,7 @@ namespace iqrf {
       Pointer("/data/status").Set(response, status);
       Pointer("/data/statusStr").Set(response, removeBondResult.getStatusStr());
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
     }
 
@@ -878,7 +878,7 @@ namespace iqrf {
 
       (void)props;
 
-      // for the sake of register function parameters 
+      // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_iqmeshNetworkRemoveBond,

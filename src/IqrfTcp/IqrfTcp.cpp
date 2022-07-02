@@ -55,7 +55,7 @@ typedef int SOCKET;
 
 #include "iqrf__IqrfTcp.hxx"
 
-TRC_INIT_MODULE(iqrf::IqrfTcp);
+TRC_INIT_MODULE(iqrf::IqrfTcp)
 
 const unsigned BUFFER_SIZE = 1024;
 SOCKET sockfd; //client socket file descriptor

@@ -23,7 +23,7 @@
 #include <fstream>
 #include <iostream>
 
-TRC_INIT_MNAME("iqrfgd2");
+TRC_INIT_MNAME("iqrfgd2")
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
 #endif
@@ -66,7 +66,7 @@ void pidInit(const std::string &fileName) {
 		}
 		pidFile.close();
 	} else {
-		TRC_WARNING("Failed to create PID file: " << strerror(errno)); 
+		TRC_WARNING("Failed to create PID file: " << strerror(errno));
 	}
 }
 #else

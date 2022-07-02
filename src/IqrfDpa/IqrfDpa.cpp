@@ -28,7 +28,7 @@
 #include <thread>
 #include <iostream>
 
-TRC_INIT_MODULE(iqrf::IqrfDpa);
+TRC_INIT_MODULE(iqrf::IqrfDpa)
 
 namespace iqrf {
 

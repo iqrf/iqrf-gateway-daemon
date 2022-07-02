@@ -31,7 +31,7 @@ namespace iqrf
       {
       protected:
         unsigned m_mid = 0;
-        int m_osVersion = 0;;
+        int m_osVersion = 0;
         int m_trMcuType = 0;
         int m_osBuild = 0;
         int m_rssi = 0;
@@ -47,7 +47,7 @@ namespace iqrf
         //members read for dpa > 4.10 only
         bool m_is410Compliant = false;
         int m_dpaVer = 0;
-        int m_perNr = 0;;
+        int m_perNr = 0;
         std::set<int> m_embedPer;
         int m_hwpidValEnum = 0;
         int m_hwpidVer = 0;

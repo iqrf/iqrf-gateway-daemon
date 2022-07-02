@@ -27,7 +27,7 @@
 #include <bitset>
 #include <chrono>
 
-TRC_INIT_MODULE(iqrf::RestoreService);
+TRC_INIT_MODULE(iqrf::RestoreService)
 
 using namespace rapidjson;
 
@@ -36,7 +36,7 @@ namespace
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
-};
+}
 
 namespace iqrf {
   // Implementation class
@@ -78,7 +78,7 @@ namespace iqrf {
       Pointer("/data/status").Set(docRestoreResult, status);
       Pointer("/data/statusStr").Set(docRestoreResult, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docRestoreResult));
     }
 
@@ -172,7 +172,7 @@ namespace iqrf {
       Pointer("/data/status").Set(docRestoreResult, status);
       Pointer("/data/statusStr").Set(docRestoreResult, statusStr);
 
-      // Send message      
+      // Send message
       m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(docRestoreResult));
     }
 
@@ -186,10 +186,10 @@ namespace iqrf {
       std::string statusStr = "ok";
       try
       {
-        // Parse backup data string 
+        // Parse backup data string
         std::basic_string<uint8_t> data;
         data.clear();
-        for (int i = 0x00; i < backupData.data.size(); i += 0x02)
+        for (size_t i = 0x00; i < backupData.data.size(); i += 0x02)
         {
           std::string byteString = backupData.data.substr(i, 2);
           uint8_t byte = (uint8_t)strtol(byteString.c_str(), NULL, 16);
@@ -226,7 +226,7 @@ namespace iqrf {
       TRestoreInputParams restoreInputParams;
       try
       {
-        restoreInputParams = comRestore.getRestoreParams();       
+        restoreInputParams = comRestore.getRestoreParams();
       }
       catch (std::exception& e)
       {
@@ -258,7 +258,9 @@ namespace iqrf {
         "************************************"
       );
 
-      // for the sake of register function parameters 
+      modify(props);
+
+      // for the sake of register function parameters
       std::vector<std::string> supportedMsgTypes =
       {
         m_mTypeName_Restore
@@ -295,6 +297,7 @@ namespace iqrf {
 
     void modify(const shape::Properties *props)
     {
+      (void)props;
     }
 
     void attachInterface(IIqrfRestore* iface)

@@ -30,7 +30,7 @@
 
 #include "iqrf__SyslogLogger.hxx"
 
-TRC_INIT_MODULE(iqrf::SyslogLogger);
+TRC_INIT_MODULE(iqrf::SyslogLogger)
 
 namespace iqrf {
 

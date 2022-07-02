@@ -29,7 +29,7 @@
 
 #include "iqrf__WebsocketMessaging.hxx"
 
-TRC_INIT_MODULE(iqrf::WebsocketMessaging);
+TRC_INIT_MODULE(iqrf::WebsocketMessaging)
 
 const unsigned IQRF_MQ_BUFFER_SIZE = 64 * 1024;
 

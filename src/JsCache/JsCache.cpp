@@ -45,7 +45,7 @@
 
 #include "iqrf__JsCache.hxx"
 
-TRC_INIT_MODULE(iqrf::JsCache);
+TRC_INIT_MODULE(iqrf::JsCache)
 
 namespace iqrf {
 
@@ -265,7 +265,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       IJsCacheService::MapOsListDpa retval;
-      
+
       std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
       for (auto it : m_osDpaMap) {
@@ -525,7 +525,7 @@ namespace iqrf {
       int companyId = -1;
       std::string name;
       std::string homePage;
-      
+
       if (!doc.IsArray()) {
         THROW_EXC_TRC_WAR(std::logic_error, "parse error not array: " << PAR(COMPANIES_DIR) << PAR(fname));
       }
@@ -618,7 +618,7 @@ namespace iqrf {
         POINTER_GET_STRING(PRODUCTS_DIR, itr, "/picture", picture, fname);
         productMap.insert(std::make_pair(hwpid, Product(hwpid, manufacturerId, name, homePage, picture)));
       }
-      
+
       m_productMap = productMap;
 
       TRC_FUNCTION_LEAVE("")
@@ -737,7 +737,7 @@ namespace iqrf {
       TRC_INFORMATION("Downloading zip cache  ... ");
 
       std::string zipArchFname = getCachePath("IQRFrepository.zip");
-      
+
       downloadData(ZIP_URL, zipArchFname);
 
       if (!filesystem::exists(zipArchFname)) {
@@ -761,9 +761,9 @@ namespace iqrf {
         std::string zipFname = "inflated/";
         zipFname += zip_get_name(zipArch, i, 0);
 
-        //convert from win \\ (escaped dir separator) to lin / 
+        //convert from win \\ (escaped dir separator) to lin /
         //it is processed later with boost on both platforms correctly
-        
+
         const std::string winSep("\\");
         const std::string linSep("/");
 
@@ -814,7 +814,7 @@ namespace iqrf {
       std::string cacheName = getCachePath("cache");
       std::string cacheNameBkp = getCachePath("cache.bkp");
       if (filesystem::exists(cacheName)) {
-        
+
 #ifdef SHAPE_PLATFORM_WINDOWS
         {
           boost::filesystem::recursive_directory_iterator rdi(cacheNameBkp);
@@ -831,7 +831,7 @@ namespace iqrf {
             }
           }
         }
-#endif        
+#endif
 
         filesystem::remove_all(cacheNameBkp);
         filesystem::rename(cacheName, cacheNameBkp);
@@ -1129,7 +1129,7 @@ namespace iqrf {
       os << m_cacheDir << '/' << path;
       return os.str();
     }
-    
+
     std::string getCacheDataFileName(const std::string& relativeDir)
     {
       std::ostringstream os;

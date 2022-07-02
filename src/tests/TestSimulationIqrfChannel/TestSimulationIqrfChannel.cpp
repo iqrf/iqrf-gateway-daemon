@@ -36,13 +36,13 @@ using namespace std;
 namespace iqrf {
 
   class TestSimulationIqrfChannel::Imp {
-  
+
   private:
     std::queue<std::string> m_incomingMsgQueue;
     std::mutex  m_queueMux;
     std::condition_variable m_cv;
     std::thread m_thd;
-    
+
     AccessControl<Imp> m_accessControl;
 
   public:
@@ -103,7 +103,7 @@ namespace iqrf {
     std::unique_ptr<IIqrfChannelService::Accessor> getAccess(IIqrfChannelService::ReceiveFromFunc receiveFromFunc, IIqrfChannelService::AccesType access)
     {
       auto retval = m_accessControl.getAccess(receiveFromFunc, access);
-      
+
       //simulate IqrfDpa activate procedure
       static bool simulateReset = true;
       if (simulateReset) {
@@ -178,7 +178,7 @@ namespace iqrf {
 
     IIqrfChannelService::osInfo getTrModuleInfo()
     {
-      IIqrfChannelService::osInfo inf;
+      IIqrfChannelService::osInfo inf = IIqrfChannelService::osInfo();
       return inf;
     }
 

@@ -41,7 +41,7 @@
 
 #include "iqrf__IqrfUart.hxx"
 
-TRC_INIT_MODULE(iqrf::IqrfUart);
+TRC_INIT_MODULE(iqrf::IqrfUart)
 
 const unsigned SPI_REC_BUFFER_SIZE = 1024;
 

@@ -31,7 +31,7 @@
 
 #include "iqrf__SchedulerMessaging.hxx"
 
-TRC_INIT_MODULE(iqrf::SchedulerMessaging);
+TRC_INIT_MODULE(iqrf::SchedulerMessaging)
 
 const unsigned IQRF_MQ_BUFFER_SIZE = 64 * 1024;
 
@@ -57,7 +57,7 @@ namespace iqrf {
       // vector is now not needed since array is treated as a single messaging separated by &
       // keep vector for time being
       std::vector<std::string> messagingVector;
-      
+
       // just string
       if (messagingVal && messagingVal->IsString()) {
         messagingVector.push_back(messagingVal->GetString());

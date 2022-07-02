@@ -243,7 +243,7 @@ namespace iqrf {
       retval[bitmapIdx] |= 1 << (idx % 8);
     }
     return retval;
-  };
+  }
 
   //aux class to convert from dot notation to ustring and back
   class DotMsg

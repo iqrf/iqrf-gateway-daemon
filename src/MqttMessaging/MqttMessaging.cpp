@@ -32,7 +32,7 @@
 
 #include "iqrf__MqttMessaging.hxx"
 
-TRC_INIT_MODULE(iqrf::MqttMessaging);
+TRC_INIT_MODULE(iqrf::MqttMessaging)
 
 namespace iqrf {
 
@@ -54,7 +54,7 @@ namespace iqrf {
     int m_mqttKeepAliveInterval = 20; //special msg sent to keep connection alive
     int m_mqttConnectTimeout = 5; //waits for accept from broker side
     int m_mqttMinReconnect = 1; //waits to reconnect when connection broken
-    int m_mqttMaxReconnect = 64; //waits time *= 2 with every unsuccessful attempt up to this value 
+    int m_mqttMaxReconnect = 64; //waits time *= 2 with every unsuccessful attempt up to this value
 
                                  //The file in PEM format containing the public digital certificates trusted by the client.
     std::string m_trustStore;

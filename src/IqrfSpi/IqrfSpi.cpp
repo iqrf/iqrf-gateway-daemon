@@ -39,7 +39,7 @@
 #include "iqrf__IqrfSpi.hxx"
 
 
-TRC_INIT_MODULE(iqrf::IqrfSpi);
+TRC_INIT_MODULE(iqrf::IqrfSpi)
 
 const unsigned SPI_REC_BUFFER_SIZE = 1024;
 
