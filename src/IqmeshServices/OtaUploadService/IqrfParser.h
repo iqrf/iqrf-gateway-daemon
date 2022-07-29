@@ -28,12 +28,15 @@ namespace ihp = iqrf_header_parser;
 
 /// iqrf namespace
 namespace iqrf {
-	/// IQRF parser
+	/// IQRF plugin parser
 	class IqrfParser {
 	public:
+		/**
+		 * Constructor
+		 * @param filename Path to IQRF plugin file
+		 */
 		IqrfParser(const std::string &filename) {
 			std::ifstream file(filename);
-
 			if (!file.is_open()) {
 				throw std::logic_error("Unable to open file " + filename + ": " + std::strerror(errno));
 			}
@@ -46,14 +49,22 @@ namespace iqrf {
 				}
 				m_contents.push_back(record);
 			}
-
 			file.close();
 		}
 
+		/**
+		 * Parses IQRF plugin and returns flash data
+		 * @return CodeBlock IQRF code blocks
+		 */
 		CodeBlock getFlashData() {
 			return parse();
 		}
 
+		/**
+		 * Returns plugin module compatibility information
+		 * TR series in this case is TR family and requires conversion of device MCU and TR series values to TR family
+		 * @return ihp::device::ModuleInfo Compatibility information
+		 */
 		ihp::device::ModuleInfo getHeaderModuleInfo() {
 			ihp::device::ModuleInfo moduleInfo = ihp::device::ModuleInfo();
 			moduleInfo.mcuType = m_mcu;
@@ -61,17 +72,25 @@ namespace iqrf {
 			return moduleInfo;
 		}
 
+		/**
+		 * Returns plugin OS compatibility information in string tokens
+		 * IQRF plugin allows specification of OS versions and builds, and requires proper compatibility validation
+		 * @return std::vector<std::string> OS compatibility tokens
+		 */
 		std::vector<std::string> getHeaderOs() {
 			return m_os;
 		}
 	private:
+		/**
+		 * Parses IQRF plugin data to code blocks
+		 * @return CodeBlock IQRF plugin code blocks
+		 */
 		CodeBlock parse() {
 			std::basic_string<uint8_t> data;
 			uint32_t cnt = 0;
 
 			for (auto &record : m_contents) {
 				cnt++;
-
 				if (StringUtils::starsWith(record, "#")) {
 					switch (cnt) {
 					case 1:
@@ -96,9 +115,7 @@ namespace iqrf {
 					}
 					continue;
 				}
-
 				ihp::iqrf::validateData(record);
-
 				for (uint32_t i = 0; i < ihp::iqrf::LINE_LENGTH; i += 2) {
 					uint8_t byte = ihp::utils::hexStringToByte(record, i);
 					data.push_back(byte);

@@ -35,12 +35,23 @@ namespace iqrf {
 	public:
 		typedef std::vector<std::basic_string<uint8_t>> Data;
 
+		/**
+		 * Constructor
+		 * @param data Data
+		 * @param len Length of data
+		 * @param checksum Checksum value
+		 */
 		PreparedData(const Data &data, uint16_t len, uint16_t checksum) {
 			m_data = data;
 			m_length = len;
 			m_checksum = checksum;
 		}
 
+		/**
+		 * Converts Intel HEX code blocks to data suitable for upload to network
+		 * @param codeBlocks Intel HEX code blocks
+		 * @return PreparedData Data suitable for upload to network
+		 */
 		static PreparedData fromHex(const std::list<CodeBlock> &codeBlocks) {
 			const CodeBlock *block = nullptr;
 			for (auto &item : codeBlocks) {
@@ -59,6 +70,12 @@ namespace iqrf {
 			return PreparedData(data, len, chksum);
 		}
 
+		/**
+		 * Converts IQRF code blocks to data suitable for upload to network
+		 * @param codeBlock IQRF code blocks
+		 * @param broadcast Prepare data for network distribution
+		 * @return PreparedData Data suitable for upload to network
+		 */
 		static PreparedData fromIqrf(const CodeBlock &codeBlock, bool broadcast) {
 			uint16_t len = codeBlock.getLength();
 			uint16_t chksum = checksum(codeBlock, len, CRC_INIT_VAL_IQRF);
@@ -72,14 +89,37 @@ namespace iqrf {
 			return PreparedData(data, len, chksum);
 		}
 
-		Data getData() { return m_data; }
-		uint16_t getChecksum() { return m_checksum; }
-		uint16_t getLength() { return m_length; }
-	private:
-		Data m_data;
-		uint16_t m_length;
-		uint16_t m_checksum;
+		/**
+		 * Returns prepared data
+		 * @return Data Prepared data
+		 */
+		Data getData() {
+			return m_data;
+		}
 
+		/**
+		 * Returns data length
+		 * @return uint16_t Data length
+		 */
+		uint16_t getLength() {
+			return m_length;
+		}
+
+		/**
+		 * Returns data checksum
+		 * @return uint16_t Checksum
+		 */
+		uint16_t getChecksum() {
+			return m_checksum;
+		}
+	private:
+		/**
+		 * Computes data checksum
+		 * @param block Code block
+		 * @param len Data length
+		 * @param initVal Initial value
+		 * @return uint16_t Checksum
+		 */
 		static uint16_t checksum(const CodeBlock &block, uint16_t &len, uint16_t initVal) {
 			uint16_t sum = initVal;
 			uint16_t padding = 0x34FF;
@@ -99,25 +139,26 @@ namespace iqrf {
 						lowerFillingByteOnRank = true;
 					}
 				}
-
 				uint16_t lo = sum & 0xFF;
 				uint16_t hi = sum >> 8;
 				lo += byte;
 				if ((lo & 0x100) != 0) {
 					lo++;
 				}
-
 				hi += lo & 0xFF;
 				if ((hi & 0x100) != 0) {
 					hi++;
 				}
-
 				sum = (lo & 0xFF) | (hi & 0xFF) << 8;
 			}
-
 			return sum;
 		}
 
+		/**
+		 * Prepares data as fixed blocks of 16 bytes for network transfer
+		 * @param block Code blocks
+		 * @return Data Prepared data
+		 */
 		static Data prepareAs16ByteBlocks(const CodeBlock &block) {
 			Data data;
 			std::basic_string<uint8_t> byteBlock;
@@ -136,10 +177,14 @@ namespace iqrf {
 				}
 				data.push_back(byteBlock);
 			}
-
 			return data;
 		}
 
+		/**
+		 * Prepares data as blocks maximizing their capacity
+		 * @param block Code blocks
+		 * @return Data Prepared data
+		 */
 		static Data prepareAsMostEffective(const CodeBlock &block) {
 			Data data;
 			std::basic_string<uint8_t> byteBlock;
@@ -164,10 +209,16 @@ namespace iqrf {
 
 				addr += 128;
 			}
-
 			return data;
 		}
 
+		/**
+		 * Fills block with data
+		 * @param byteBlock Block
+		 * @param source Source data
+		 * @param blockSize Block size
+		 * @param offset Data offset
+		 */
 		static void fillByteBlock(std::basic_string<uint8_t> &byteBlock, const std::basic_string<uint8_t> &source, uint8_t blockSize, uint16_t offset) {
 			byteBlock.resize(blockSize);
 			for (uint8_t i = 0; i < blockSize; i++)
@@ -183,5 +234,12 @@ namespace iqrf {
 				}
 			}
 		}
+
+		// Prepared data
+		Data m_data;
+		// Data length
+		uint16_t m_length;
+		// Data checksum
+		uint16_t m_checksum;
 	};
 }

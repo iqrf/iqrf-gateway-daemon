@@ -34,9 +34,12 @@ namespace iqrf {
 	/// Intel HEX parser
 	class IntelHexParser {
 	public:
+		/**
+		 * Constructor
+		 * @param filename Path to HEX DPA handler file
+		 */
 		IntelHexParser(const std::string &filename) {
 			std::ifstream file(filename);
-
 			if (!file.is_open()) {
 				throw std::logic_error("Unable to open file " + filename + ": " + std::strerror(errno));
 			}
@@ -54,22 +57,37 @@ namespace iqrf {
 				}
 				m_contents.push_back(record);
 			}
-
 			file.close();
 		}
 
+		/**
+		 * Parses HEX DPA handler and returns flash data
+		 * @return std::list<CodeBlock> Flash data blocks
+		 */
 		std::list<CodeBlock> getFlashData() {
 			return parse(IOtaUploadService::MemoryType::flash);
 		}
 
+		/**
+		 * Parses HEX DPA handler and returns EEPROM data
+		 * @return std::list<CodeBlock> EEPROM data blocks
+		 */
 		std::list<CodeBlock> getEepromData() {
 			return parse(IOtaUploadService::MemoryType::eeprom);
 		}
 
+		/**
+		 * Parses HEX DPA handler and returns EEEPROM data
+		 * @return std::list<CodeBlock> EEEPROM data blocks
+		 */
 		std::list<CodeBlock> getEeepromData() {
 			return parse(IOtaUploadService::MemoryType::eeeprom);
 		}
 
+		/**
+		 * Returns dpa handler module compatibility information
+		 * @return ihp::device::ModuleInfo Compatibility information
+		 */
 		ihp::device::ModuleInfo getHeaderModuleInfo() {
 			ihp::device::ModuleInfo moduleInfo = ihp::device::ModuleInfo();
 			moduleInfo.osMajor = m_os / 10 % 10;
@@ -78,7 +96,21 @@ namespace iqrf {
 			moduleInfo.trSeries = m_tr;
 			return moduleInfo;
 		}
+
+		/**
+		 * Doex Hex DPA handler contain compatibility header?
+		 * @return true Compatibility header exists
+		 * @return false Compatibility header does not exist
+		 */
+		bool hasCompatibilityHeader() {
+			return m_identificationRecord;
+		}
 	private:
+		/**
+		 * Parses HEX DPA handler and returns requested data type in code blocks
+		 * @param type Data type
+		 * @return std::list<CodeBlock> Code blocks
+		 */
 		std::list<CodeBlock> parse(IOtaUploadService::MemoryType type) {
 			m_codeBlocks.clear();
 			uint32_t offset = 0;
@@ -138,15 +170,17 @@ namespace iqrf {
 					offset = ((ihp::utils::hexStringToByte(record, 9) & 0xFF) << 8) + (ihp::utils::hexStringToByte(record, 11) & 0xFF);
 					offset *= (recordType == 2) ? 16 : 65536;
 				}
-
 				if (block) {
 					addCodeBlock(*block);
 				}
 			}
-
 			return m_codeBlocks;
 		}
 
+		/**
+		 * Adds code block to list of blocks in the correct order
+		 * @param block Block to add
+		 */
 		void addCodeBlock(CodeBlock &block) {
 			std::list<CodeBlock>::iterator itr = m_codeBlocks.begin();
 			while (itr != m_codeBlocks.end()) {
@@ -162,32 +196,29 @@ namespace iqrf {
 			m_codeBlocks.push_back(block);
 		}
 
-		bool adjacentBlocks(const CodeBlock& block1, const CodeBlock& block2) {
-			return(((block1.getEndAddr() + 1) == block2.getStartAddr()) || ((block2.getEndAddr() + 1) == block1.getStartAddr()));
+		/**
+		 * Checks if two blocks of code are adjacent
+		 * @param b1 Block
+		 * @param b2 Block
+		 * @return true Blocks are adjacent
+		 * @return false Blocks are not adjacent
+		 */
+		bool adjacentBlocks(const CodeBlock& b1, const CodeBlock& b2) {
+			return(((b1.getEndAddr() + 1) == b2.getStartAddr()) || ((b2.getEndAddr() + 1) == b1.getStartAddr()));
 		}
 
+		/**
+		 * Merges adjacent blocks to a single block
+		 * @param b1 Block to merge
+		 * @param b2 Block to merge
+		 * @return CodeBlock New block
+		 */
 		CodeBlock mergeBlocks(const CodeBlock& b1, const CodeBlock& b2) {
 			if ((b1.getEndAddr() + 1) == b2.getStartAddr()) {
 				return CodeBlock(b1.getCode() + b2.getCode(), b1.getStartAddr(), b2.getEndAddr());
 			} else {
 				return CodeBlock(b2.getCode() + b1.getCode(), b2.getStartAddr(), b1.getEndAddr());
 			}
-		}
-
-		bool hasIdentificationRecord() {
-			return m_identificationRecord;
-		}
-
-		uint8_t getMcu() const {
-			return m_mcu;
-		}
-
-		uint8_t getTr() const {
-			return m_tr;
-		}
-
-		uint8_t getOs() const {
-			return m_os;
 		}
 
 		/// List of code records
