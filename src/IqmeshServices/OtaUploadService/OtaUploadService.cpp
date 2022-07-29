@@ -241,9 +241,6 @@ namespace iqrf
     ihp::device::ModuleInfo m_headerInfo;
     /// Device module information
     std::map<uint8_t, ihp::device::ModuleInfo> m_devices;
-
-    IOtaUploadService::ModuleInfo m_device;
-
   public:
     explicit Imp(OtaUploadService &parent) : m_parent(parent)
     {
@@ -411,12 +408,6 @@ namespace iqrf
         device.mcuType = responseData[5] & MCU_TYPE_BITS;
         device.trSeries = responseData[5] >> 4;
         device.osBuild = (responseData[7] << 8) | responseData[6];
-        //-------
-        m_device.osMajor = (responseData[4] & 0xF0) >> 4;
-        m_device.osMinor = responseData[4] & 0x0F;
-        m_device.mcuType = responseData[5] & MCU_TYPE_BITS;
-        m_device.trSeries = responseData[5] >> 4;
-        m_device.osBuild = (responseData[7] << 8) | responseData[6];
         m_devices.insert(std::make_pair(m_otaUploadParams.deviceAddress, device));
         TRC_INFORMATION("OS read successful!");
         uploadResult.addTransactionResult(result);
@@ -1161,17 +1152,16 @@ namespace iqrf
         std::string fileName;
         IOtaUploadService::LoadingContentType loadingContentType;
         LoadingAction loadingAction = uploadResult.getLoadingAction();
-        std::unique_ptr<PreparedData> preparedData;
-        std::unique_ptr<PreparedData> preparedFlashData;
-        std::list<CodeBlock> eepromData, eeParser;
-        std::list<CodeBlock> eeepromData, eeeParser;
+        std::unique_ptr<PreparedData> flashData;
+        std::list<CodeBlock> eepromData;
+        std::list<CodeBlock> eeepromData;
         bool uploadEeprom = false;
         bool uploadEeeprom = false;
         uint8_t eepromBottomAddr = 0x00;
+        bool hasCompatibilityHeader;
         m_headerInfo = ihp::device::ModuleInfo();
         std::vector<std::string> headerOsTokens;
         m_devices.clear();
-        m_device = {0};
 
         // Prepare flash eeprom and eeepron data to upload
         try 
@@ -1186,38 +1176,20 @@ namespace iqrf
             THROW_EXC(std::logic_error, e.what());
           }
 
-          if (m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS) {
-            std::basic_string<uint8_t> bondedDevices = getBondedNodes(uploadResult);  //TODO store bonded nodes offline vs incompatible
-            std::vector<uint8_t> osData = frcOsMcuData(uploadResult, bondedDevices, static_cast<uint16_t>(offsetof(TPerOSRead_Response, OsVersion)));
-            for (uint8_t i = 0; i < bondedDevices.size(); i++) {
-              uint8_t idx = 4*i;
-              ihp::device::ModuleInfo node;
-              node.osMajor = (osData[idx] & 0xF0) >> 4;
-              node.osMinor = (osData[idx] & 0x0F);
-              node.mcuType = osData[idx+1] & MCU_TYPE_BITS;
-              node.trSeries = osData[idx+1] >> 4;
-              node.osBuild = static_cast<uint16_t>(osData[idx+3]) << 8 | osData[idx+2];
-              m_devices.insert(std::make_pair(bondedDevices[i], node));
-            }
-          } else {
-            osRead(uploadResult);
-          }
-
-          preparedData = DataPreparer::prepareData(loadingContentType, fileName, m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS, m_device);
-
           // parse data
           try {
             if (loadingContentType == LoadingContentType::Hex) {
               IntelHexParser parser(fileName);
-              preparedFlashData = std::make_unique<PreparedData>(PreparedData::fromHex(parser.getFlashData()));
+              flashData = std::make_unique<PreparedData>(PreparedData::fromHex(parser.getFlashData()));
               if (loadingAction == LoadingAction::Upload) {
                 eepromData = parser.getEepromData();
                 eeepromData = parser.getEeepromData();
               }
+              hasCompatibilityHeader = parser.hasCompatibilityHeader();
               m_headerInfo = parser.getHeaderModuleInfo();
             } else {
               IqrfParser parser(fileName);
-              preparedFlashData = std::make_unique<PreparedData>(PreparedData::fromIqrf(parser.getFlashData(), m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS));
+              flashData = std::make_unique<PreparedData>(PreparedData::fromIqrf(parser.getFlashData(), m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS));
               m_headerInfo = parser.getHeaderModuleInfo();
               headerOsTokens = parser.getHeaderOs();
             }
@@ -1287,6 +1259,23 @@ namespace iqrf
               }
             }
           }
+
+          if (m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS) {
+            std::basic_string<uint8_t> bondedDevices = getBondedNodes(uploadResult);  //TODO store bonded nodes offline vs incompatible
+            std::vector<uint8_t> osData = frcOsMcuData(uploadResult, bondedDevices, static_cast<uint16_t>(offsetof(TPerOSRead_Response, OsVersion)));
+            for (uint8_t i = 0; i < bondedDevices.size(); i++) {
+              uint8_t idx = 4*i;
+              ihp::device::ModuleInfo node;
+              node.osMajor = (osData[idx] & 0xF0) >> 4;
+              node.osMinor = (osData[idx] & 0x0F);
+              node.mcuType = osData[idx+1] & MCU_TYPE_BITS;
+              node.trSeries = osData[idx+1] >> 4;
+              node.osBuild = static_cast<uint16_t>(osData[idx+3]) << 8 | osData[idx+2];
+              m_devices.insert(std::make_pair(bondedDevices[i], node));
+            }
+          } else {
+            osRead(uploadResult);
+          }
         }
         catch (const std::exception &e)
         {
@@ -1298,23 +1287,41 @@ namespace iqrf
           bool compatible = true;
           uint8_t addr = entry.first;
           ihp::device::ModuleInfo device = entry.second;
-          if (m_headerInfo.mcuType != device.mcuType) {
-            compatible = false;
-          }
-          if (m_headerInfo.trSeries != ihp::device::getTrFamily(device.mcuType, device.trSeries)) {
-            compatible = false;
-          }
           if (loadingContentType == LoadingContentType::Hex) {
-            if (m_headerInfo.osMajor != device.osMajor) {
-              compatible = false;
-            }
-            if (m_headerInfo.osMinor != device.osMinor) {
-              compatible = false;
+            if (hasCompatibilityHeader) {
+              if (m_headerInfo.mcuType != device.mcuType) {
+                compatible = false;
+              }
+              if (m_headerInfo.trSeries != ihp::device::getTrFamily(device.mcuType, device.trSeries)) {
+                compatible = false;
+              }
+              if (m_headerInfo.osMajor != device.osMajor) {
+                compatible = false;
+              }
+              if (m_headerInfo.osMinor != device.osMinor) {
+                compatible = false;
+              }
+            } else {
+              ihp::device::TrFamily trFamily = ihp::device::getTrFamily(device.mcuType, device.trSeries);
+              if (trFamily == ihp::device::TrFamily::UNKNOWN_FAMILY || trFamily == ihp::device::TrFamily::TR_7xG || trFamily == ihp::device::TrFamily::TR_8xG) {
+                compatible = false;
+              }
             }
           } else {
+            if (m_headerInfo.mcuType != device.mcuType) {
+              compatible = false;
+            }
+            if (m_headerInfo.trSeries != ihp::device::getTrFamily(device.mcuType, device.trSeries)) {
+              compatible = false;
+            }
             if (!ihp::iqrf::osCompatible(headerOsTokens, device)) {
               compatible = false;
             }
+          }
+          if (!compatible) {
+            std::string error = m_otaUploadParams.deviceAddress == 255 ? "Network contains device(s) incompatible with selected plugin." : "Selected plugin is incompatible with target device.";
+            uploadResult.setStatus(incompatibleDevice, error);
+            THROW_EXC(std::logic_error, uploadResult.getStatusStr());
           }
           uploadResult.setDeviceCompatibility(addr, compatible);
         }
@@ -1367,7 +1374,7 @@ namespace iqrf
           }
 
           // Upload code to eeeprom
-          writeDataToExtEEPROM(uploadResult, m_otaUploadParams.startMemAddr, preparedData->getData());
+          writeDataToExtEEPROM(uploadResult, m_otaUploadParams.startMemAddr, flashData->getData());
         }
 
         // Verify (or load) action - check the external eeprom content
@@ -1377,18 +1384,18 @@ namespace iqrf
           if (m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS)
           {
             if (!uploadResult.isCompatible((uint8_t)m_otaUploadParams.deviceAddress)) {
-              uploadResult.setStatus(eepromContentNotUploaded, "Selected plugin is incompatible with target device.");
+              uploadResult.setStatus(incompatibleDevice, "Selected plugin is incompatible with target device.");
               THROW_EXC(std::logic_error, uploadResult.getStatusStr());
             }
             // Unicast address
-            loadCodeUnicast(LoadingAction::Verify, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
+            loadCodeUnicast(LoadingAction::Verify, loadingContentType, flashData->getLength(), flashData->getChecksum(), uploadResult);
           }
           else
           {
             // Save actual FRC params
             IDpaTransaction2::FrcResponseTime frcResponseTime = m_iIqrfDpaService->getFrcResponseTime();
             // Verify the external eeprom memory content
-            verifyCode(LoadingAction::Verify, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
+            verifyCode(LoadingAction::Verify, loadingContentType, flashData->getLength(), flashData->getChecksum(), uploadResult);
             // Finally set FRC param back to initial value
             m_iIqrfDpaService->setFrcResponseTime(frcResponseTime);
             setFrcReponseTime(uploadResult, frcResponseTime);
@@ -1401,12 +1408,12 @@ namespace iqrf
           // Load the external eeprom content to flash
           if (m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS) {
             if (!uploadResult.isCompatible((uint8_t)m_otaUploadParams.deviceAddress)) {
-              uploadResult.setStatus(eepromContentNotUploaded, "Selected plugin is incompatible with target device.");
+              uploadResult.setStatus(incompatibleDevice, "Selected plugin is incompatible with target device.");
               THROW_EXC(std::logic_error, uploadResult.getStatusStr());
             }
-            loadCodeUnicast(LoadingAction::Load, loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
+            loadCodeUnicast(LoadingAction::Load, loadingContentType, flashData->getLength(), flashData->getChecksum(), uploadResult);
           } else {
-            loadCodeBroadcast(loadingContentType, preparedData->getLength(), preparedData->getChecksum(), uploadResult);
+            loadCodeBroadcast(loadingContentType, flashData->getLength(), flashData->getChecksum(), uploadResult);
           }
         }
 
