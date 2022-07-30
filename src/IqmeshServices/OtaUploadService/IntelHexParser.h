@@ -39,6 +39,7 @@ namespace iqrf {
 		 * @param filename Path to HEX DPA handler file
 		 */
 		IntelHexParser(const std::string &filename) {
+			uint32_t linenum = 1;
 			std::ifstream file(filename);
 			if (!file.is_open()) {
 				throw std::logic_error("Unable to open file " + filename + ": " + std::strerror(errno));
@@ -50,12 +51,20 @@ namespace iqrf {
 				if (record.empty()) {
 					continue;
 				}
-				ihp::hex::validateRecord(record);
-				if (std::regex_match(record, std::regex(ihp::hex::COMPATIBILITY_RECORD_HEADER_PATTERN, std::regex_constants::icase))) {
-					m_identificationRecord = true;
-					ihp::hex::parseCompatibilityHeader(record, m_os, m_mcu, m_tr);
+				try {
+					ihp::hex::validateRecord(record);
+					if (std::regex_match(record, std::regex(ihp::hex::COMPATIBILITY_RECORD_HEADER_PATTERN, std::regex_constants::icase))) {
+						m_identificationRecord = true;
+						ihp::hex::parseCompatibilityHeader(record, m_os, m_mcu, m_tr);
+					}
+				} catch (const std::logic_error &e) {
+					throw std::logic_error(std::string(e.what()) + " (" + basename(filename.c_str()) + ":" + std::to_string(linenum) + ")");
 				}
 				m_contents.push_back(record);
+				linenum++;
+			}
+			if (m_contents.back() != ihp::hex::END_OF_FILE) {
+				throw std::invalid_argument("Intel HEX file is missing end-of-file record.");
 			}
 			file.close();
 		}
