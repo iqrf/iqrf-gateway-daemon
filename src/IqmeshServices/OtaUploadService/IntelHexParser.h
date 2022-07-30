@@ -39,12 +39,12 @@ namespace iqrf {
 		 * @param filename Path to HEX DPA handler file
 		 */
 		IntelHexParser(const std::string &filename) {
-			uint32_t linenum = 1;
 			std::ifstream file(filename);
 			if (!file.is_open()) {
 				throw std::logic_error("Unable to open file " + filename + ": " + std::strerror(errno));
 			}
 
+			uint32_t linenum = 1;
 			std::string record;
 			while (std::getline(file, record)) {
 				StringUtils::trim(record);
@@ -235,7 +235,7 @@ namespace iqrf {
 		/// List of code blocks
 		std::list<CodeBlock> m_codeBlocks;
 		/// Indicates presence of identification record in the hex file
-		bool m_identificationRecord;
+		bool m_identificationRecord = false;
 		/// Header MCU
 		uint8_t m_mcu;
 		/// Header TR

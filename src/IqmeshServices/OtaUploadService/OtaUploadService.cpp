@@ -1158,7 +1158,7 @@ namespace iqrf
         bool uploadEeprom = false;
         bool uploadEeeprom = false;
         uint8_t eepromBottomAddr = 0x00;
-        bool hasCompatibilityHeader;
+        bool hasCompatibilityHeader = false;
         m_headerInfo = ihp::device::ModuleInfo();
         std::vector<std::string> headerOsTokens;
         m_devices.clear();
