@@ -75,7 +75,7 @@ namespace iqrf {
         {
           //std::lock_guard<std::mutex> lck(m_commMutex);
 
-          int retval = uart_iqrf_write((uint8_t*)message.data(), static_cast<unsigned int>(message.size()));
+          int retval = uart_iqrf_write(&m_socket, (uint8_t*)message.data(), static_cast<unsigned int>(message.size()));
           if (BASE_TYPES_OPER_OK == retval) {
             m_accessControl.sniff(message); //send to sniffer if set
           }
@@ -388,7 +388,7 @@ namespace iqrf {
         int res = BASE_TYPES_OPER_ERROR;
         while (attempts < 3) {
 
-          res = uart_iqrf_init(&m_cfg);
+          res = uart_iqrf_init(&m_cfg, &m_socket);
 
           if (BASE_TYPES_OPER_OK == res) {
             break;
@@ -451,7 +451,7 @@ namespace iqrf {
         m_listenThread.join();
       TRC_DEBUG("listening thread joined");
 
-      uart_iqrf_destroy();
+      uart_iqrf_destroy(&m_cfg, &m_socket);
 
       delete[] m_rx;
 
@@ -482,7 +482,7 @@ namespace iqrf {
 
           // reading
           uint8_t reclen = 0;
-          int retval = uart_iqrf_read(m_rx, &reclen, 100); //waits for 100 ms
+          int retval = uart_iqrf_read(&m_socket, m_rx, &reclen, 100); //waits for 100 ms
 
           switch (retval) {
           case BASE_TYPES_OPER_OK:
@@ -529,7 +529,8 @@ namespace iqrf {
 
     //mutable std::mutex m_commMutex;
 
-    T_UART_IQRF_CONFIG_STRUCT m_cfg;
+    T_UART_IQRF_CONFIG_STRUCT m_cfg = T_UART_IQRF_CONFIG_STRUCT();
+    T_UART_SOCKET_CONTROL m_socket = T_UART_SOCKET_CONTROL();
   };
 
   //////////////////////////////////////////////////
