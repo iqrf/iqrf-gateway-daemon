@@ -356,6 +356,8 @@ namespace iqrf {
         if (sz > sizeof(m_cfg.uartDev)) sz = sizeof(m_cfg.uartDev);
         std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, m_cfg.uartDev);
 
+        m_socket.fd = -1;
+
         m_cfg.baudRate = get_baud(m_baudRate);
 
         // default RPI mapping in include
