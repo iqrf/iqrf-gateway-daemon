@@ -66,6 +66,11 @@ namespace
   static const int invalidEepromAddress = 1005;
   static const int eepromContentNotUploaded = 1006;
   static const int incompatibleDevice = 1007;
+
+  static const std::string deviceHexIncompatible("Selected HEX is incompatible with target device.");
+  static const std::string deviceIqrfIncompatible("Selected IQRF plugin is incompatible with target device.");
+  static const std::string networkHexIncompatible("Network contains device(s) incompatible with selected HEX.");
+  static const std::string networkIqrfIncompatible("Network contains device(s) incompatible with selected IQRF plugin.");
 };
 
 namespace iqrf
@@ -145,7 +150,7 @@ namespace iqrf
 
     bool isCompatible(const uint8_t &deviceAddr) {
       if (m_compatibleDevicesMap.find(deviceAddr) == m_compatibleDevicesMap.end()) {
-        false;
+        return false;
       }
       return m_compatibleDevicesMap[deviceAddr];
     }
@@ -1319,7 +1324,12 @@ namespace iqrf
             }
           }
           if (!compatible) {
-            std::string error = m_otaUploadParams.deviceAddress == 255 ? "Network contains device(s) incompatible with selected plugin." : "Selected plugin is incompatible with target device.";
+            std::string error;
+            if (m_otaUploadParams.deviceAddress == 255) {
+              error = loadingContentType == LoadingContentType::Hex ? networkHexIncompatible : networkIqrfIncompatible;
+            } else {
+              error = loadingContentType == LoadingContentType::Hex ? deviceHexIncompatible : deviceIqrfIncompatible;
+            }
             uploadResult.setStatus(incompatibleDevice, error);
             THROW_EXC(std::logic_error, uploadResult.getStatusStr());
           }
@@ -1384,7 +1394,8 @@ namespace iqrf
           if (m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS)
           {
             if (!uploadResult.isCompatible((uint8_t)m_otaUploadParams.deviceAddress)) {
-              uploadResult.setStatus(incompatibleDevice, "Selected plugin is incompatible with target device.");
+              std::string error = loadingContentType == LoadingContentType::Hex ? deviceHexIncompatible : deviceIqrfIncompatible;
+              uploadResult.setStatus(incompatibleDevice, error);
               THROW_EXC(std::logic_error, uploadResult.getStatusStr());
             }
             // Unicast address
@@ -1408,7 +1419,8 @@ namespace iqrf
           // Load the external eeprom content to flash
           if (m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS) {
             if (!uploadResult.isCompatible((uint8_t)m_otaUploadParams.deviceAddress)) {
-              uploadResult.setStatus(incompatibleDevice, "Selected plugin is incompatible with target device.");
+              std::string error = loadingContentType == LoadingContentType::Hex ? deviceHexIncompatible : deviceIqrfIncompatible;
+              uploadResult.setStatus(incompatibleDevice, error);
               THROW_EXC(std::logic_error, uploadResult.getStatusStr());
             }
             loadCodeUnicast(LoadingAction::Load, loadingContentType, flashData->getLength(), flashData->getChecksum(), uploadResult);
