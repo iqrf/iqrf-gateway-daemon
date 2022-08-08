@@ -64,7 +64,7 @@ if(WIN32)
   if(${VCPKG_VER} STREQUAL "2021-01-13-unknownhash")
 	  install(
 		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-gd-x64-1_75.dll"
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc143-mt-gd-x64-1_78.dll"
 			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/zip.dll"
 			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/bz2d.dll"
 		  CONFIGURATIONS Debug
@@ -73,7 +73,7 @@ if(WIN32)
 
 	  install(
 		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-x64-1_75.dll"
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc143-mt-x64-1_78.dll"
 			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/zip.dll"
 		  CONFIGURATIONS Release
 		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
@@ -81,7 +81,7 @@ if(WIN32)
   else()
 	  install(
 		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-gd-x64-1_73.dll"
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc143-mt-gd-x64-1_78.dll"
 			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/zip.dll"
 			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/bz2d.dll"
 		  CONFIGURATIONS Debug
@@ -90,7 +90,7 @@ if(WIN32)
 
 	  install(
 		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc141-mt-x64-1_73.dll"
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_filesystem-vc143-mt-x64-1_78.dll"
 			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/zip.dll"
 		  CONFIGURATIONS Release
 		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"

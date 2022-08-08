@@ -82,28 +82,28 @@ if(WIN32)
   if(${VCPKG_VER} STREQUAL "2021-01-13-unknownhash")
 	  install(
 		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-gd-x64-1_75.dll"
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc143-mt-gd-x64-1_78.dll"
 		  CONFIGURATIONS Debug
 		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
 	  )
 
 	  install(
 		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-x64-1_75.dll"
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc143-mt-x64-1_78.dll"
 		  CONFIGURATIONS Release
 		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
 	  )
   else()
 	  install(
 		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-gd-x64-1_73.dll"
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc143-mt-gd-x64-1_78.dll"
 		  CONFIGURATIONS Debug
 		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
 	  )
 
 	  install(
 		  FILES
-			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc141-mt-x64-1_73.dll"
+			  "$<TARGET_FILE_DIR:${PROJECT_NAME}>/boost_program_options-vc143-mt-x64-1_78.dll"
 		  CONFIGURATIONS Release
 		  DESTINATION "\${CMAKE_INSTALL_CONFIG_NAME}/${PROJECT_INSTALL_PREFIX}/bin"
 	  )
