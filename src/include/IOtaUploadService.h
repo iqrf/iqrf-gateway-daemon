@@ -47,6 +47,20 @@ namespace iqrf {
       eeeprom
     };
 
+    enum MemoryRanges {
+      SERIAL_EEPROM_BOTTOM = 0x0200,
+      SERIAL_EEPROM_TOP = 0x09FF,
+      IQRF_LICENCED_MEM_MIN_ADR = 0x2C00,
+      IQRF_LICENCED_MEM_MAX_ADR = 0x37BF,
+      IQRF_CONFIG_MEM_L_ADR = 0x37C0,
+      IQRF_CONFIG_MEM_H_ADR = 0x37DF,
+      IQRF_MAIN_MEM_MIN_ADR = 0x3A00,
+      IQRF_MAIN_MEM_MAX_ADR_D = 0x3FFF,
+      IQRF_MAIN_MEM_MAX_ADR_G = 0x4FFF,
+      INTERNAL_EEPROM_BOTTOM = 0xF000,
+      INTERNAL_EEPROM_TOP = 0xF0BF,
+    };
+
     /// \brief Module info struct
     typedef struct ModuleInfo {
       /// MCU type
