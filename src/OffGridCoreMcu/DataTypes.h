@@ -433,7 +433,7 @@ namespace iqrf {
         :GetNumCmd(3, 1)
       {}
 
-      float getVoltage() { return (float)m_number / 16.0f; }
+      float getVoltage() { return (float)m_number / 1000.0f; }
     };
 
     class GetCurrentCmd : public GetNumCmd

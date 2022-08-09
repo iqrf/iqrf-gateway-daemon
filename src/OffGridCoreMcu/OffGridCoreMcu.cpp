@@ -453,7 +453,7 @@ namespace iqrf {
       offgrid::GetVoltageCmd cmd;
 
 #ifdef OFFGRIDMCU_TEST
-      m_recFakeVect = iqrf::DotMsg("83.01.07.00.01.02");
+      m_recFakeVect = iqrf::DotMsg("83.01.07.00.D8.0C");
 #endif
       sendAndWaitForResponse(cmd.encodeRequest());
 
