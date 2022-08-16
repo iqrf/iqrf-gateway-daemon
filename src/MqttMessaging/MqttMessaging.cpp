@@ -23,6 +23,8 @@
 #include <atomic>
 #include <future>
 
+#define CONNECTION(broker, client)  "[" << broker << ":" << client << "]: "
+
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
 #endif
@@ -32,7 +34,7 @@
 
 #include "iqrf__MqttMessaging.hxx"
 
-TRC_INIT_MODULE(iqrf::MqttMessaging)
+TRC_INIT_MODULE(iqrf::MqttMessaging);
 
 namespace iqrf {
 
@@ -51,12 +53,15 @@ namespace iqrf {
     std::string m_mqttUser;
     std::string m_mqttPassword;
     bool m_mqttEnabledSSL = false;
-    int m_mqttKeepAliveInterval = 20; //special msg sent to keep connection alive
-    int m_mqttConnectTimeout = 5; //waits for accept from broker side
-    int m_mqttMinReconnect = 1; //waits to reconnect when connection broken
-    int m_mqttMaxReconnect = 64; //waits time *= 2 with every unsuccessful attempt up to this value
-
-                                 //The file in PEM format containing the public digital certificates trusted by the client.
+    //special msg sent to keep connection alive
+    int m_mqttKeepAliveInterval = 20;
+    //waits for accept from broker side
+    int m_mqttConnectTimeout = 5;
+    //waits to reconnect when connection broken
+    int m_mqttMinReconnect = 1;
+    //waits time *= 2 with every unsuccessful attempt up to this value
+    int m_mqttMaxReconnect = 64;
+    //The file in PEM format containing the public digital certificates trusted by the client.
     std::string m_trustStore;
     //The file in PEM format containing the public certificate chain of the client. It may also include
     //the client's private key.
@@ -82,11 +87,8 @@ namespace iqrf {
     MQTTAsync m_client = nullptr;
 
     std::atomic<MQTTAsync_token> m_deliveredtoken;
-    std::atomic_bool m_stopAutoConnect;
     std::atomic_bool m_connected;
     std::atomic_bool m_subscribed;
-
-    std::thread m_connectThread;
 
     MQTTAsync_connectOptions m_conn_opts = MQTTAsync_connectOptions_initializer;
     MQTTAsync_SSLOptions m_ssl_opts = MQTTAsync_SSLOptions_initializer;
@@ -166,16 +168,33 @@ namespace iqrf {
 
       if ((retval = MQTTAsync_create(&m_client, m_mqttBrokerAddr.c_str(),
         m_mqttClientId.c_str(), m_mqttPersistence, NULL)) != MQTTASYNC_SUCCESS) {
-        THROW_EXC_TRC_WAR(std::logic_error, "MQTTClient_create() failed: " << PAR(retval));
+        THROW_EXC_TRC_WAR(
+          std::logic_error,
+          CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+          "MQTTClient_create() failed: " <<
+          PAR(retval)
+        );
+      }
+
+      int ret = MQTTAsync_setConnected(m_client, this, s_connected);
+      if (ret != MQTTASYNC_SUCCESS) {
+        THROW_EXC_TRC_WAR(
+          std::logic_error,
+          CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+          "Failed to set reconnect callback." << PAR(ret)
+        );
       }
 
       m_conn_opts.keepAliveInterval = m_mqttKeepAliveInterval;
       m_conn_opts.cleansession = 1;
       m_conn_opts.connectTimeout = m_mqttConnectTimeout;
+      m_conn_opts.automaticReconnect = 1;
+      m_conn_opts.minRetryInterval = m_mqttMinReconnect;
+      m_conn_opts.maxRetryInterval = m_mqttMaxReconnect;
       m_conn_opts.username = m_mqttUser.c_str();
       m_conn_opts.password = m_mqttPassword.c_str();
-      m_conn_opts.onSuccess = s_onConnect;
-      m_conn_opts.onFailure = s_onConnectFailure;
+      m_conn_opts.onSuccess = s_connectSuccess;
+      m_conn_opts.onFailure = s_connectFailed;
       m_conn_opts.context = this;
 
       m_subs_opts.onSuccess = s_onSubscribe;
@@ -190,8 +209,14 @@ namespace iqrf {
         m_conn_opts.ssl = &m_ssl_opts;
       }
 
-      if ((retval = MQTTAsync_setCallbacks(m_client, this, s_connlost, s_msgarrvd, s_delivered)) != MQTTASYNC_SUCCESS) {
-        THROW_EXC_TRC_WAR(std::logic_error, "MQTTClient_setCallbacks() failed: " << PAR(retval));
+      ret = MQTTAsync_setCallbacks(m_client, this, s_connlost, s_msgarrvd, s_delivered);
+      if (ret != MQTTASYNC_SUCCESS) {
+        THROW_EXC_TRC_WAR(
+          std::logic_error,
+          CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+          "MQTTClient_setCallbacks() failed: " <<
+          PAR(retval)
+        );
       }
 
       TRC_INFORMATION("daemon-MQTT-protocol started - trying to connect broker: " << m_mqttBrokerAddr);
@@ -207,16 +232,15 @@ namespace iqrf {
       TRC_FUNCTION_ENTER("");
 
       ///stop possibly running connect thread
-      m_stopAutoConnect = true;
-      onConnectFailure(nullptr);
-      if (m_connectThread.joinable())
-        m_connectThread.join();
-
       int retval;
       m_disc_opts.onSuccess = s_onDisconnect;
       m_disc_opts.context = this;
       if ((retval = MQTTAsync_disconnect(m_client, &m_disc_opts)) != MQTTASYNC_SUCCESS) {
-        TRC_WARNING("Failed to start disconnect: " << PAR(retval));
+        TRC_WARNING(
+          CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+          "Failed to start disconnect: " <<
+          PAR(retval)
+        );
         onDisconnect(nullptr);
       }
 
@@ -289,41 +313,16 @@ namespace iqrf {
 
         if ((retval = MQTTAsync_sendMessage(m_client, m_mqttTopicResponse.c_str(), &pubmsg, &m_send_opts)) != MQTTASYNC_SUCCESS)
         {
-          TRC_WARNING("Failed to start sendMessage: " << PAR(retval));
+          TRC_WARNING(
+            CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+            "Failed to start sendMessage: " <<
+            PAR(retval)
+          );
         }
 
       }
       else {
-        TRC_WARNING("Cannot send to MQTT: connection lost");
-      }
-    }
-
-    //------------------------
-    void connectThread()
-    {
-      //TODO verify paho autoconnect and reuse if applicable
-      int retval;
-      int seconds = m_mqttMinReconnect;
-      int seconds_max = m_mqttMaxReconnect;
-
-
-      while (true) {
-        TRC_DEBUG("Connecting: " << PAR(m_mqttBrokerAddr) << PAR(m_mqttClientId));
-        if ((retval = MQTTAsync_connect(m_client, &m_conn_opts)) == MQTTASYNC_SUCCESS) {
-        }
-        else {
-          TRC_WARNING("MQTTAsync_connect() failed: " << PAR(retval));
-        }
-
-        // wait for connection result
-        TRC_DEBUG("Going to sleep for: " << PAR(seconds));
-        {
-          std::unique_lock<std::mutex> lck(m_connectionMutex);
-          if (m_connectionVariable.wait_for(lck, std::chrono::seconds(seconds),
-            [this] {return m_connected == true || m_stopAutoConnect == true; }))
-            break;
-        }
-        seconds = seconds < seconds_max ? seconds * 2 : seconds_max;
+        TRC_WARNING(CONNECTION(m_mqttBrokerAddr, m_mqttClientId) << "Cannot send message to, client not connected.");
       }
     }
 
@@ -332,24 +331,27 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      m_stopAutoConnect = false;
       m_connected = false;
       m_subscribed = false;
 
-      if (m_connectThread.joinable())
-        m_connectThread.join();
+      int ret = MQTTAsync_connect(m_client, &m_conn_opts);
+      if (ret != MQTTASYNC_SUCCESS) {
+        TRC_WARNING(
+          CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+          "MQTTASync_connect() failed: " <<
+          PAR(ret)
+        );
+      }
 
-      m_connectThread = std::thread([this]() { this->connectThread(); });
       TRC_FUNCTION_LEAVE("");
     }
 
 
-    //////////////////
-    static void s_onConnect(void* context, MQTTAsync_successData* response) {
-      ((MqttMessagingImpl*)context)->onConnect(response);
+    //------------------------ CALLED ONLY ONCE
+    static void s_connectSuccess(void* context, MQTTAsync_successData* response) {
+      ((MqttMessagingImpl*)context)->connectSuccessCallback(response);
     }
-    void onConnect(MQTTAsync_successData* response) {
-
+    void connectSuccessCallback(MQTTAsync_successData* response) {
       MQTTAsync_token token = 0;
       char* suri = nullptr;
       std::string serverUri;
@@ -364,9 +366,9 @@ namespace iqrf {
         sessionPresent = response->alt.connect.sessionPresent;
       }
 
-      TRC_INFORMATION("Connect succeeded: " <<
-        PAR(m_mqttBrokerAddr) <<
-        PAR(m_mqttClientId) <<
+      TRC_INFORMATION(
+        CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+        "Connect succeeded: " <<
         PAR(token) <<
         PAR(serverUri) <<
         PAR(MQTTVersion) <<
@@ -376,33 +378,65 @@ namespace iqrf {
       {
         std::unique_lock<std::mutex> lck(m_connectionMutex);
         m_connected = true;
-        m_connectionVariable.notify_one();
-      }
-
-      int retval;
-      TRC_DEBUG("Subscribing: " << PAR(m_mqttTopicRequest) << PAR(m_mqttQos));
-      if ((retval = MQTTAsync_subscribe(m_client, m_mqttTopicRequest.c_str(), m_mqttQos, &m_subs_opts)) != MQTTASYNC_SUCCESS) {
-        TRC_WARNING("MQTTAsync_subscribe() failed: " << PAR(retval) << PAR(m_mqttTopicRequest) << PAR(m_mqttQos));
+        //m_connectionVariable.notify_one();
       }
     }
 
-    //------------------------
-    static void s_onConnectFailure(void* context, MQTTAsync_failureData* response) {
-      ((MqttMessagingImpl*)context)->onConnectFailure(response);
+    //------------------------ CALLED ONLY ONCE
+    static void s_connectFailed(void* context, MQTTAsync_failureData* response) {
+      ((MqttMessagingImpl*)context)->connectFailedCallback(response);
     }
-    void onConnectFailure(MQTTAsync_failureData* response) {
+    void connectFailedCallback(MQTTAsync_failureData* response) {
       TRC_FUNCTION_ENTER("");
       if (response) {
-        TRC_WARNING("Connect failed: " << PAR(response->code) << NAME_PAR(errmsg, (response->message ? response->message : "-")) <<
-          PAR(m_mqttTopicRequest) << PAR(m_mqttQos));
+        TRC_WARNING(
+          CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+          "Connect failed: " <<
+          PAR(response->code) <<
+          NAME_PAR(errmsg, (response->message ? response->message : "-")) <<
+          PAR(m_mqttTopicRequest) <<
+          PAR(m_mqttQos)
+        );
       }
 
       {
         std::unique_lock<std::mutex> lck(m_connectionMutex);
         m_connected = false;
-        m_connectionVariable.notify_one();
+        //m_connectionVariable.notify_one();
       }
+
+      //connect(); maybe?
       TRC_FUNCTION_LEAVE("");
+    }
+
+    //------------------------ CALLED ON EVERY CONNECT SUCCESS
+    static void s_connected(void *context, char *cause) {
+      ((MqttMessagingImpl *)context)->connected(cause);
+    }
+    void connected(char *cause) {
+      (void)cause;
+      TRC_INFORMATION(CONNECTION(m_mqttBrokerAddr, m_mqttClientId) << "(Re-)connect success.");
+
+      {
+        std::unique_lock<std::mutex> lck(m_connectionMutex);
+        m_connected = true;
+        //m_connectionVariable.notify_one();
+      }
+
+      TRC_DEBUG(
+        CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+        "Subscribing: " << PAR(m_mqttTopicRequest) << PAR(m_mqttQos)
+      );
+      int ret = MQTTAsync_subscribe(m_client, m_mqttTopicRequest.c_str(), m_mqttQos, &m_subs_opts);
+      if (ret != MQTTASYNC_SUCCESS) {
+        TRC_WARNING(
+          CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+          "MQTTAsync_subscribe() failed: " <<
+          PAR(ret) <<
+          PAR(m_mqttTopicRequest) <<
+          PAR(m_mqttQos)
+        );
+      }
     }
 
     //------------------------
@@ -410,7 +444,6 @@ namespace iqrf {
       ((MqttMessagingImpl*)context)->onSubscribe(response);
     }
     void onSubscribe(MQTTAsync_successData* response) {
-
       MQTTAsync_token token = 0;
       int qos = 0;
 
@@ -419,7 +452,9 @@ namespace iqrf {
         qos = response->alt.qos;
       }
 
-      TRC_INFORMATION("Subscribe succeeded: " <<
+      TRC_INFORMATION(
+        CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+        "Subscribe succeeded: " <<
         PAR(m_mqttTopicRequest) <<
         PAR(m_mqttQos) <<
         PAR(token) <<
@@ -444,7 +479,9 @@ namespace iqrf {
         message = response->message ? response->message : "";
       }
 
-      TRC_WARNING("Subscribe failed: " <<
+      TRC_WARNING(
+        CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+        "Subscribe failed: " <<
         PAR(m_mqttTopicRequest) <<
         PAR(m_mqttQos) <<
         PAR(token) <<
@@ -459,7 +496,10 @@ namespace iqrf {
       ((MqttMessagingImpl*)context)->delivered(dt);
     }
     void delivered(MQTTAsync_token dt) {
-      TRC_DEBUG("Message delivery confirmed" << PAR(dt));
+      TRC_DEBUG(
+        CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+        "Message delivery confirmed" << PAR(dt)
+      );
       m_deliveredtoken = dt;
     }
 
@@ -493,7 +533,10 @@ namespace iqrf {
       ((MqttMessagingImpl*)context)->onSend(response);
     }
     void onSend(MQTTAsync_successData* response) {
-      TRC_DEBUG("Message sent successfully: " << NAME_PAR(token, (response ? response->token : 0)));
+      TRC_DEBUG(
+        CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+        "Message sent successfully: " << NAME_PAR(token, (response ? response->token : 0))
+      );
     }
 
     //------------------------
@@ -501,17 +544,29 @@ namespace iqrf {
       ((MqttMessagingImpl*)context)->onSendFailure(response);
     }
     void onSendFailure(MQTTAsync_failureData* response) {
-      TRC_WARNING("Message sent failure: " << PAR(response->code));
+      TRC_WARNING(
+        CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+        "Message sent failure: " << PAR(response->code)
+      );
       //connect();
     }
 
-    //------------------------
+    //------------------------ CALLED ON EVERY LOST CONNECTION
     static void s_connlost(void *context, char *cause) {
       ((MqttMessagingImpl*)context)->connlost(cause);
     }
     void connlost(char *cause) {
-      TRC_WARNING("Connection lost: " << NAME_PAR(cause, (cause ? cause : "nullptr")));
-      connect();
+      {
+        std::unique_lock<std::mutex> lck(m_connectionMutex);
+        m_connected = false;
+        //m_connectionVariable.notify_one();
+      }
+
+      TRC_WARNING(
+        CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+        "Connection lost: " << NAME_PAR(cause, (cause ? cause : "nullptr"))
+      );
+      //connect();
     }
 
     //------------------------
