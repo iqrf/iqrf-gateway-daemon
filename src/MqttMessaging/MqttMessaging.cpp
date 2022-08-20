@@ -97,7 +97,6 @@ namespace iqrf {
     MQTTAsync_responseOptions m_send_opts = MQTTAsync_responseOptions_initializer;
 
     std::mutex m_connectionMutex;
-    std::condition_variable m_connectionVariable;
 
     std::promise<bool> m_disconnect_promise;
     std::future<bool> m_disconnect_future = m_disconnect_promise.get_future();
@@ -231,7 +230,6 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      ///stop possibly running connect thread
       int retval;
       m_disc_opts.onSuccess = s_onDisconnect;
       m_disc_opts.context = this;
@@ -347,7 +345,7 @@ namespace iqrf {
     }
 
 
-    //------------------------ CALLED ONLY ONCE
+    //------------------------
     static void s_connectSuccess(void* context, MQTTAsync_successData* response) {
       ((MqttMessagingImpl*)context)->connectSuccessCallback(response);
     }
@@ -378,11 +376,10 @@ namespace iqrf {
       {
         std::unique_lock<std::mutex> lck(m_connectionMutex);
         m_connected = true;
-        //m_connectionVariable.notify_one();
       }
     }
 
-    //------------------------ CALLED ONLY ONCE
+    //------------------------
     static void s_connectFailed(void* context, MQTTAsync_failureData* response) {
       ((MqttMessagingImpl*)context)->connectFailedCallback(response);
     }
@@ -402,14 +399,12 @@ namespace iqrf {
       {
         std::unique_lock<std::mutex> lck(m_connectionMutex);
         m_connected = false;
-        //m_connectionVariable.notify_one();
       }
 
-      //connect(); maybe?
       TRC_FUNCTION_LEAVE("");
     }
 
-    //------------------------ CALLED ON EVERY CONNECT SUCCESS
+    //------------------------
     static void s_connected(void *context, char *cause) {
       ((MqttMessagingImpl *)context)->connected(cause);
     }
@@ -420,7 +415,6 @@ namespace iqrf {
       {
         std::unique_lock<std::mutex> lck(m_connectionMutex);
         m_connected = true;
-        //m_connectionVariable.notify_one();
       }
 
       TRC_DEBUG(
@@ -548,10 +542,9 @@ namespace iqrf {
         CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
         "Message sent failure: " << PAR(response->code)
       );
-      //connect();
     }
 
-    //------------------------ CALLED ON EVERY LOST CONNECTION
+    //------------------------
     static void s_connlost(void *context, char *cause) {
       ((MqttMessagingImpl*)context)->connlost(cause);
     }
@@ -559,14 +552,12 @@ namespace iqrf {
       {
         std::unique_lock<std::mutex> lck(m_connectionMutex);
         m_connected = false;
-        //m_connectionVariable.notify_one();
       }
 
       TRC_WARNING(
         CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
         "Connection lost: " << NAME_PAR(cause, (cause ? cause : "nullptr"))
       );
-      //connect();
     }
 
     //------------------------
