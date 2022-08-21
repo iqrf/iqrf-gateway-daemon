@@ -1,10 +1,31 @@
-iqrf-gateway-daemon (2.3.13~alpha~1.gbp7fe81f) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.3.13) stable; urgency=medium
 
-  ** SNAPSHOT build @7fe81fdaff15b443f34ac6680466466fe2d66353 **
+  [ Karel Hanák ]
+  * Prepare for version 2.3.13-alpha
 
-  * UNRELEASED
+  [ Roman Ondráček ]
+  * IQMESH services: fix typo in backup and restore services
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Mon, 30 May 2022 18:00:51 +0200
+  [ Karel Hanák ]
+  * ApiMsgIqrfStandard: set default hwpid to 0xFFFF
+
+  [ Frantisek Mikulu ]
+  * missing include
+
+  [ Karel Hanák ]
+  * EmbedOS: reworked DPA parsing to support G modules
+  * OtaUploadService: Hex upload G module support
+  * Embed OS: updated methods for G module identification
+  * OtaUploadService: hex and iqrf validation and parsing rework, device compatibility
+  * OtaUpload: refactor device compatibility, added missing docstrings
+  * IntelHexParser: check for end of file record, improved error reporting for json responses
+  * OtaUploadService: updated validation and reporting of hex and iqrf files
+  * OtaUpload: fixed device compatibility getter method, updated error messages
+  * OtaUploadService: removed unused code
+  * MqttMessaging: rework connection loop, use automatic reconnect feature
+  * MqttMessaging: removed unused code
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Sun, 21 Aug 2022 11:22:09 +0200
 
 iqrf-gateway-daemon (2.3.12) stable; urgency=medium
 
