@@ -19,9 +19,12 @@
 #include "ShapeDefines.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
+
+#include <functional>
+#include <list>
 #include <string>
 #include <vector>
-#include <functional>
+
 
 #ifdef IMessagingSplitterService_EXPORTS
 #define IMessagingSplitterService_DECLSPEC SHAPE_ABI_EXPORT
@@ -60,6 +63,7 @@ namespace iqrf {
     };
 
     virtual void sendMessage(const std::string& messagingId, rapidjson::Document doc) const = 0;
+    virtual void sendMessage(const std::list<std::string> &messagingList, rapidjson::Document doc) const = 0;
     virtual void registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc) = 0;
     virtual void unregisterFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters) = 0;
     virtual int getMsgQueueLen() const = 0;

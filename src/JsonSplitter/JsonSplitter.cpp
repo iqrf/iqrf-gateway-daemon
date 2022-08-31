@@ -85,24 +85,37 @@ namespace iqrf {
 
   class JsonSplitter::Imp {
   private:
+    /// Messaging ID and message pair
+    typedef std::pair<std::string, std::vector<uint8_t>> MsgIdMsg;
+
+    /// Instance ID
     std::string m_insId = "iqrfgd2-default";
+    /// Validate responses
     bool m_validateResponse = true;
+    /// List of messaging services
+    std::list<std::string> m_messagingList;
+    /// Directory containing request and response schemas
     std::string m_schemesDir;
-
-    shape::ILaunchService* m_iLaunchService = nullptr;
+    /// Messaging service mutex
     mutable std::mutex m_iMessagingServiceMapMux;
+    /// Messaging service map
     std::map<std::string, IMessagingService*> m_iMessagingServiceMap;
+    /// Set of messaging services accepting asynchronous messages
     std::set<IMessagingService*> m_iMessagingServiceSetAcceptAsync;
+    /// Message handling mutex
     mutable std::mutex m_filterMessageHandlerFuncMapMux;
+    /// Registered message handlers
     std::map<std::string, FilteredMessageHandlerFunc > m_filterMessageHandlerFuncMap;
-
+    /// Map of requests and validation schemas
     std::map<std::string, rapidjson::SchemaDocument> m_validatorMapRequest;
+    /// Map of responses and validation schemas
     std::map<std::string, rapidjson::SchemaDocument> m_validatorMapResponse;
-    std::map<std::string, MsgType> m_msgTypeToHandle; //TODO temporary
-
-    typedef std::pair<std::string, std::vector<uint8_t>> MsgIdMsg; //pairing messagingId with msg
-
+    /// Message type to handle
+    std::map<std::string, MsgType> m_msgTypeToHandle;
+    /// Message queue
     TaskQueue<MsgIdMsg>* m_splitterMessageQueue = nullptr;
+    /// Launch service interface
+    shape::ILaunchService* m_iLaunchService = nullptr;
 
     std::string getKey(const MsgType& msgType) const
     {
@@ -151,74 +164,94 @@ namespace iqrf {
       return MsgType(mType, major, minor, micro);
     }
 
-    void sendMessage(const std::string& messagingId, rapidjson::Document doc) const
-    {
+    void sendMessage(const std::string &messagingId, rapidjson::Document doc) const {
+      std::list<std::string> messagingList;
+      if (!messagingId.empty()) {
+        messagingList.push_back(messagingId);
+      }
+      sendMessage(messagingList, std::move(doc));
+    }
+
+    void sendMessage(const std::list<std::string> &messagingList, rapidjson::Document doc) const {
       using namespace rapidjson;
 
-      //all outgoing msgs tagged by insId
+      // Include instance ID in messages
       Pointer("/data/insId").Set(doc, m_insId);
 
-      TRC_INFORMATION("Outcomming message:\n"
-        << NAME_PAR(Messaging ID, messagingId)
-        << "\n"
-        << NAME_PAR(Sent message, JsonToStr(doc))
-      )
+      // Log outgoing message
+      std::ostringstream oss;
+      oss << "Outgoing message" << std::endl << "Messaging IDs: [";
+      std::list<std::string>::const_iterator itr;
+      for (itr = messagingList.begin(); itr != messagingList.end(); ++itr) {
+        oss << *itr;
+        if (std::distance(itr, messagingList.end()) > 1) {
+          oss << ", ";
+        }
+      }
+      oss << "]" << std::endl << "Message: " << JsonToStr(doc);
+      TRC_INFORMATION(oss.str());
 
-      MsgType msgType = getMessageType(doc);
-      auto foundType = m_msgTypeToHandle.find(getKey(msgType));
-      if (foundType == m_msgTypeToHandle.end()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type));
+      // Check if message is allowed or supported
+      MsgType mType = getMessageType(doc);
+      auto searchResult = m_msgTypeToHandle.find(getKey(mType));
+      if (searchResult == m_msgTypeToHandle.end()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Unsupported message type: " << mType.m_type);
       }
 
-      msgType = foundType->second;
+      // Validate generated response
       if (m_validateResponse) {
-        validate(msgType, doc, m_validatorMapResponse, "response");
+        validate(searchResult->second, doc, m_validatorMapResponse, "response");
       }
 
       StringBuffer buffer;
       PrettyWriter<StringBuffer> writer(buffer);
       doc.Accept(writer);
 
-      if (!messagingId.empty()) {
-        //check for multiple messagings separated by &
-        std::vector<std::string> messagingVector;
-        std::size_t current, previous = 0;
-
-        current = messagingId.find('&');
-        while (current != std::string::npos) {
-          messagingVector.push_back(messagingId.substr(previous, current - previous));
-          previous = current + 1;
-          current = messagingId.find('&', previous);
+      // Send responses out
+      if (messagingList.empty() && m_messagingList.empty()) {
+        // Service and splitter messaging lists empty, send to all
+        TRC_DEBUG("No service or splitter messagings specified, sending to all available.");
+        std::unique_lock<std::mutex> lock(m_iMessagingServiceMapMux);
+        for (auto messaging : m_iMessagingServiceSetAcceptAsync) {
+          messaging->sendMessage(std::string(), std::basic_string<uint8_t>((uint8_t *)buffer.GetString(), buffer.GetSize()));
+          TRC_INFORMATION("Outgoing message successfully sent.");
         }
-        messagingVector.push_back(messagingId.substr(previous, current - previous));
-
-        for (std::string& messagingIdv : messagingVector) {
-          std::string messagingId2(messagingIdv);
-          if (std::string::npos != messagingId2.find_first_of('/')) {
-            //preparse messageId to remove possible optional appended topic
-            //we need just clean massaging name to find in map
-            std::string buf(messagingId2);
-            std::replace(buf.begin(), buf.end(), '/', ' ');
-            std::istringstream is(buf);
-            is >> messagingId2;
+      } else {
+        // Service or splitter messaging list not empty
+        std::list<std::string> messagings, candidates = messagingList.empty() ? m_messagingList : messagingList;
+        char separator = '&';
+        for (auto candidate : candidates) {
+          size_t current, prev = 0;
+          current = candidate.find(separator);
+          // Check for multiple messaging services in one entry
+          while (current != std::string::npos) {
+            messagings.push_back(candidate.substr(prev, current - prev));
+            prev = current + 1;
+            current = candidate.find(separator, prev);
           }
-
-          std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
-          auto found = m_iMessagingServiceMap.find(messagingId2);
-          if (found != m_iMessagingServiceMap.end()) {
-            found->second->sendMessage(messagingIdv, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
-            TRC_INFORMATION("Outcomming message successfully sent.");
-          }
-          else {
-            TRC_WARNING("Cannot find required: " << PAR(messagingIdv))
-          }
+          messagings.push_back(candidate.substr(prev, current - prev));
         }
-      }
-      else {
-        std::unique_lock<std::mutex> lck(m_iMessagingServiceMapMux);
-        for (auto m : m_iMessagingServiceSetAcceptAsync) {
-          m->sendMessage(messagingId, std::basic_string<uint8_t>((uint8_t*)buffer.GetString(), buffer.GetSize()));
-          TRC_INFORMATION("Outcomming message successfully sent.");
+        // Filter duplicates
+        messagings.sort();
+        messagings.unique();
+
+        // Send message to all specified messagings
+        for (std::string &messaging : messagings) {
+          std::string auxMessaging(messaging);
+          // Check for appended topics
+          size_t pos = auxMessaging.find_first_of('/');
+          if (pos != std::string::npos) {
+            auxMessaging = auxMessaging.substr(0, pos);
+          }
+
+          std::unique_lock<std::mutex> lock(m_iMessagingServiceMapMux);
+          auto messsagingResult = m_iMessagingServiceMap.find(auxMessaging);
+          if (messsagingResult != m_iMessagingServiceMap.end()) {
+            messsagingResult->second->sendMessage(messaging, std::basic_string<uint8_t>((uint8_t *)buffer.GetString(), buffer.GetSize()));
+            TRC_INFORMATION("Outgoing message sent via: " << messaging);
+          } else {
+            TRC_WARNING("Could not find required messaging: " << messaging);
+          }
         }
       }
     }
@@ -593,6 +626,27 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    void modify(const shape::Properties *props)
+    {
+      props->getMemberAsString("insId", m_insId);
+      props->getMemberAsBool("validateJsonResponse", m_validateResponse);
+      m_messagingList.clear();
+
+      const Document &doc = props->getAsJson();
+      const Value *val = Pointer("/messagingList").Get(doc);
+      if (val && val->IsArray()) {
+        const auto arr = val->GetArray();
+        for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+          if (!itr->IsNull()) {
+            m_messagingList.push_back(itr->GetString());
+          }
+        }
+        m_messagingList.sort();
+        m_messagingList.unique();
+      }
+      TRC_INFORMATION(PAR(m_validateResponse));
+    }
+
     void deactivate()
     {
       TRC_FUNCTION_ENTER("");
@@ -605,13 +659,6 @@ namespace iqrf {
       delete m_splitterMessageQueue;
 
       TRC_FUNCTION_LEAVE("")
-    }
-
-    void modify(const shape::Properties *props)
-    {
-      props->getMemberAsString("insId", m_insId);
-      props->getMemberAsBool("validateJsonResponse", m_validateResponse);
-      TRC_INFORMATION(PAR(m_validateResponse));
     }
 
     void attachInterface(shape::ILaunchService* iface)
@@ -675,6 +722,10 @@ namespace iqrf {
   void JsonSplitter::sendMessage(const std::string& messagingId, rapidjson::Document doc) const
   {
     m_imp->sendMessage(messagingId, std::move(doc));
+  }
+
+  void JsonSplitter::sendMessage(const std::list<std::string> &messagingList, rapidjson::Document doc) const {
+    m_imp->sendMessage(messagingList, std::move(doc));
   }
 
   void JsonSplitter::registerFilteredMsgHandler(const std::vector<std::string>& msgTypeFilters, FilteredMessageHandlerFunc handlerFunc)
