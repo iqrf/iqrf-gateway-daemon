@@ -1,59 +1,70 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "schema__iqrf__JsonSplitter",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "component": {
-            "type": "string",
-            "description": "Name of component.",
-            "enum": [
-                "iqrf::JsonSplitter"
-            ]
-        },
-        "instance": {
-            "type": "string",
-            "description": "Recomended iqrf::JsonSplitter-(id)",
-            "default": "iqrf::JsonSplitter-1"
-        },
-        "validateJsonResponse": {
-            "type": "boolean",
-            "description": "...",
-            "default": true
-        },
-        "insId": {
-            "type": "string",
-            "description": "iqrfgd2 instance identification",
-            "default": "iqrfgd2-default"
-        },
-        "RequiredInterfaces": {
-            "type": "array",
-            "description": "Array of required interfaces.",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "default": "iqrf::IMessagingService",
-                        "description": "..."
-                    },
-                    "target": {
-                        "type": "object"
-                    }
-                },
-                "required": [
-                    "name",
-                    "target"
-                ]
-            }
-        }
-    },
-    "required": [
-        "component",
-        "instance"
-    ]
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "schema__iqrf__JsonSplitter",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"type": "object",
+	"properties": {
+		"component": {
+			"type": "string",
+			"description": "Name of component.",
+			"enum": [
+				"iqrf::JsonSplitter"
+			]
+		},
+		"instance": {
+			"type": "string",
+			"description": "Recomended iqrf::JsonSplitter-(id)",
+			"default": "iqrf::JsonSplitter-1"
+		},
+		"validateJsonResponse": {
+			"type": "boolean",
+			"description": "...",
+			"default": true
+		},
+		"insId": {
+			"type": "string",
+			"description": "iqrfgd2 instance identification",
+			"default": "iqrfgd2-default"
+		},
+		"messagingList": {
+			"title": "Messaging IDs",
+			"description": "List of messaging services to send responses to.",
+			"type": "array",
+			"additionalItems": false,
+			"items": {
+				"title": "Messaging ID",
+				"description": "ID of messaging service",
+				"type": "string"
+			}
+		},
+		"RequiredInterfaces": {
+			"type": "array",
+			"description": "Array of required interfaces.",
+			"items": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string",
+						"default": "iqrf::IMessagingService",
+						"description": "..."
+					},
+					"target": {
+						"type": "object"
+					}
+				},
+				"required": [
+					"name",
+					"target"
+				]
+			}
+		}
+	},
+	"required": [
+		"component",
+		"instance"
+	]
 }
