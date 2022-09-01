@@ -40,8 +40,13 @@ namespace iqrf {
 		 */
 		IntelHexParser(const std::string &filename) {
 			std::ifstream file(filename);
+			std::string path(filename);
+			size_t pos = path.find_last_of("/\\");
+			if (pos != std::string::npos) {
+				path = path.substr(pos + 1);
+			}
 			if (!file.is_open()) {
-				throw std::logic_error("Unable to open file " + filename + ": " + std::strerror(errno));
+				throw std::logic_error("Unable to open file " + path + ": " + std::strerror(errno));
 			}
 
 			uint32_t linenum = 1;
@@ -58,7 +63,8 @@ namespace iqrf {
 						ihp::hex::parseCompatibilityHeader(record, m_os, m_mcu, m_tr);
 					}
 				} catch (const std::logic_error &e) {
-					throw std::logic_error(std::string(e.what()) + " (" + basename(filename.c_str()) + ":" + std::to_string(linenum) + ")");
+
+					throw std::logic_error(std::string(e.what()) + " (" + path + ":" + std::to_string(linenum) + ")");
 				}
 				m_contents.push_back(record);
 				linenum++;
