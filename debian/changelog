@@ -1,3 +1,10 @@
+iqrf-gateway-daemon (2.3.14) stable; urgency=medium
+
+  [ Karel Hanák ]
+  * Prepare for version 2.3.14-rc2
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Mon, 12 Sep 2022 13:44:38 +0200
+
 iqrf-gateway-daemon (2.3.14~rc1) testing; urgency=medium
 
   [ Karel Hanák ]
