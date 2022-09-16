@@ -46,6 +46,10 @@ namespace iqrf {
       rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
       param.Accept(writer);
       m_param = buffer.GetString();
+      Value* selectedNodes = Pointer("/selectedNodes").Get(param);
+      if (selectedNodes) {
+        m_selectedNodes.CopyFrom(*selectedNodes, m_selectedNodes.GetAllocator());
+      }
     }
 
     int getNadr() const
@@ -107,6 +111,9 @@ namespace iqrf {
       if (m_appendMidMetaData) {
         Pointer("/data/rsp/metaData").Set(doc, m_midMetaData);
       }
+      if (!m_selectedNodes.IsNull()) {
+        Pointer("/data/rsp/selectedNodes").Set(doc, m_selectedNodes);
+      }
     }
 
   private:
@@ -118,6 +125,7 @@ namespace iqrf {
     bool m_payloadOnlyForVerbose = true;
     bool m_appendMidMetaData = false;
     rapidjson::Document m_midMetaData;
+    rapidjson::Document m_selectedNodes;
   };
 
 }

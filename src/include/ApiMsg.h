@@ -45,6 +45,7 @@ namespace iqrf {
     {
     }
 
+    const std::string& getMType() const { return m_mType; }
     const std::string& getMsgId() const { return m_msgId; }
     bool getVerbose() const { return m_verbose; }
     const std::string& getInsId() const { return m_insId; }
