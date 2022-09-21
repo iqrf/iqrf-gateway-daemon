@@ -46,9 +46,18 @@ namespace iqrf {
       rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
       param.Accept(writer);
       m_param = buffer.GetString();
-      Value* selectedNodes = Pointer("/selectedNodes").Get(param);
-      if (selectedNodes) {
-        m_selectedNodes.CopyFrom(*selectedNodes, m_selectedNodes.GetAllocator());
+      std::string mType = getMType();
+      if (mType == "iqrfSensor_ReadSensorsWithTypes") {
+        Value *sensorIndexes = Pointer("/sensorIndexes").Get(param);
+        if (sensorIndexes) {
+          m_sensorIndexes.CopyFrom(*sensorIndexes, m_sensorIndexes.GetAllocator());
+        }
+      }
+      if (mType == "iqrfEmbedFrc_SendSelective" || mType == "iqrfEmbedOs_SelectiveBatch") {
+        Value* selectedNodes = Pointer("/selectedNodes").Get(param);
+        if (selectedNodes) {
+          m_selectedNodes.CopyFrom(*selectedNodes, m_selectedNodes.GetAllocator());
+        }
       }
     }
 
@@ -108,11 +117,14 @@ namespace iqrf {
       if (!m_payloadOnlyForVerbose || getVerbose()) {
         Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
       }
+      if (!m_selectedNodes.IsNull()) {
+        Pointer("/data/rsp/result/selectedNodes").Set(doc, m_selectedNodes);
+      }
+      if (!m_sensorIndexes.IsNull()) {
+        Pointer("/data/rsp/result/sensorIndexes").Set(doc, m_sensorIndexes);
+      }
       if (m_appendMidMetaData) {
         Pointer("/data/rsp/metaData").Set(doc, m_midMetaData);
-      }
-      if (!m_selectedNodes.IsNull()) {
-        Pointer("/data/rsp/selectedNodes").Set(doc, m_selectedNodes);
       }
     }
 
@@ -126,6 +138,7 @@ namespace iqrf {
     bool m_appendMidMetaData = false;
     rapidjson::Document m_midMetaData;
     rapidjson::Document m_selectedNodes;
+    rapidjson::Document m_sensorIndexes;
   };
 
 }

@@ -91,11 +91,11 @@ namespace iqrf {
       ApiMsgIqrfStandard::createResponsePayload(doc);
 
       if (hasSensorIndex) {
-        rapidjson::Pointer("/data/rsp/sensorIndex").Set(doc, sensorIndex);
+        Pointer("/data/rsp/result/sensorIndex").Set(doc, sensorIndex);
       }
 
       if (!m_selectedNodes.IsNull()) {
-        Pointer("/data/rsp/selectedNodes").Set(doc, m_selectedNodes);
+        Pointer("/data/rsp/result/selectedNodes").Set(doc, m_selectedNodes);
       }
 
       bool r = (bool)m_extraRes;
