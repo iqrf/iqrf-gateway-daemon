@@ -434,15 +434,15 @@ namespace iqrf
           << NAME_PAR(Node address, frcAckBroadcastBitsRequest.NodeAddress())
           << NAME_PAR(Command, (int)frcAckBroadcastBitsRequest.PeripheralCommand())
         );
-        writeTrConfResult.addTransactionResult(transResult);
         // Check status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status > 0xef)
+        if (status > MAX_ADDRESS)
         {
           TRC_WARNING("FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX("Status", (int)status));
           THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
         }
         // Add FRC result
+        writeTrConfResult.addTransactionResult(transResult);
         TRC_INFORMATION("FRC Prebonded Memory Read status ok." << NAME_PAR_HEX("Status", (int)status));
         std::basic_string<uint8_t> frcData;
         frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, 55);

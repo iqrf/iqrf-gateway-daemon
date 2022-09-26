@@ -304,7 +304,7 @@ namespace iqrf {
         );
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status <= 0xfd)
+        if (status <= MAX_ADDRESS)
         {
           TRC_INFORMATION("FRC_AcknowledgedBroadcastBits OK." << NAME_PAR_HEX("Status", (int)status));
           // Return nodes that executed DPA request (bit0 is set - the DPA Request is executed.)

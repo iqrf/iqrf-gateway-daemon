@@ -493,13 +493,14 @@ namespace iqrf
         DpaMessage frcSendSelectiveResponse = result->getResponse();
         // Process DPA response
         uint8_t status = frcSendSelectiveResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status >= 0xEF) {
+        if (status > MAX_ADDRESS) {
           THROW_EXC_TRC_WAR(std::logic_error, "FRC Send Selective Memory read failed: " << PAR(pnum) << " " << PAR(pcmd) << " with status " << PAR(status));
         }
         const uint8_t *pData = frcSendSelectiveResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData;
         for (uint8_t i = 4; i < 55; i++) {
           data.push_back(pData[i]);
         }
+        // Add FRC result
         uploadResult.addTransactionResult(result);
         TRC_FUNCTION_LEAVE("");
       } catch (const std::exception &e) {
@@ -937,15 +938,16 @@ namespace iqrf
             << NAME_PAR(Node address, frcSendRequest.NodeAddress())
             << NAME_PAR(Command, (int)frcSendRequest.PeripheralCommand())
           );
-          uploadResult.addTransactionResult(transResult);
           // Check FRC status
           uint8_t frcStatus = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-          if (frcStatus > 0xef)
+          if (frcStatus > MAX_ADDRESS)
           {
             TRC_WARNING("FRC Read OS Info failed." << NAME_PAR_HEX("Status", (int)frcStatus));
             THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)frcStatus));
           }
           nodesList = bitmapToNodes(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData);
+          // Add FRC result
+          uploadResult.addTransactionResult(transResult);
         }
         uploadResult.setNodesList(nodesList);
 
@@ -1028,14 +1030,15 @@ namespace iqrf
             << NAME_PAR(Node address, frcSendRequest.NodeAddress())
             << NAME_PAR(Command, (int)frcSendRequest.PeripheralCommand())
           );
-          uploadResult.addTransactionResult(transResult);
           // Check FRC status
           uint8_t frcStatus = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-          if (frcStatus > 0xef)
+          if (frcStatus > MAX_ADDRESS)
           {
             TRC_WARNING("Selective FRC Verify code failed." << NAME_PAR_HEX("Status", (int)frcStatus));
             THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)frcStatus));
           }
+          // Add FRC result
+          uploadResult.addTransactionResult(transResult);
           // Process FRC data
           std::basic_string<uint8_t> frcData;
           frcData.append(&dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[2], 54);
@@ -1105,14 +1108,15 @@ namespace iqrf
           << NAME_PAR(Node address, frcSendRequest.NodeAddress())
           << NAME_PAR(Command, (int)frcSendRequest.PeripheralCommand())
         );
-        uploadResult.addTransactionResult(transResult);
         // Check FRC status
         uint8_t frcStatus = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (frcStatus > 0xef)
+        if (frcStatus > MAX_ADDRESS)
         {
           TRC_WARNING("Send FRC CMD_OS_LOAD_CODE failed." << NAME_PAR_HEX("Status", (int)frcStatus));
           THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)frcStatus));
         }
+        // Add FRC result
+        uploadResult.addTransactionResult(transResult);
         // Process FRC data
         std::basic_string<uint8_t> frcData;
         frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, 55);
