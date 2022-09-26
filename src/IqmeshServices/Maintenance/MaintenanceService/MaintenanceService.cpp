@@ -416,14 +416,15 @@ namespace iqrf {
             << NAME_PAR(Node address, frcSendSelectiveRequest.NodeAddress())
             << NAME_PAR(Command, (int)frcSendSelectiveRequest.PeripheralCommand())
           );
-          maintenanceResult.addTransactionResult(transResult);
           // Check FRC status
           uint8_t frcStatus = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-          if (frcStatus > 0xef)
+          if (frcStatus > MAX_ADDRESS)
           {
             TRC_WARNING("Selective FRC Verify code failed." << NAME_PAR_HEX("Status", (int)frcStatus));
             THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)frcStatus));
           }
+          // Add FRC result
+          maintenanceResult.addTransactionResult(transResult);
           // Process FRC data
           std::basic_string<uint8_t> frcData;
           frcData.append(&dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[2], 54);
@@ -547,7 +548,7 @@ namespace iqrf {
         memoryData.clear();
         // Check status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status < 0xfd)
+        if (status <= MAX_ADDRESS)
         {
           TRC_INFORMATION("FRC_MemoryRead4B status ok." << NAME_PAR_HEX("Status", (int)status));
           memoryData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData + sizeof(uint32_t), 51);

@@ -313,6 +313,7 @@ namespace iqrf {
           for (uint8_t nodeAddr = 1; nodeAddr <= MAX_ADDRESS; nodeAddr++)
             if ((dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData[nodeAddr / 8] & (1 << (nodeAddr % 8))) != 0)
               acknowledgedNodes.push_back(nodeAddr);
+          // Add FRC result
           removeBondResult.addTransactionResult(transResult);
           TRC_FUNCTION_LEAVE("");
           return acknowledgedNodes;

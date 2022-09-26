@@ -294,11 +294,12 @@ namespace iqrf {
           << NAME_PAR(Node address, frcAckBroadcastRequest.NodeAddress())
           << NAME_PAR(Command, (int)frcAckBroadcastRequest.PeripheralCommand())
         );
-        restartResult.addTransactionResult(transResult);
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status <= 0xfd)
+        if (status <= MAX_ADDRESS)
         {
+          // Add FRC result
+          restartResult.addTransactionResult(transResult);
           TRC_INFORMATION("FRC_AcknowledgedBroadcastBits OK." << NAME_PAR_HEX("Status", (int)status));
           TRC_FUNCTION_LEAVE("");
           return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;

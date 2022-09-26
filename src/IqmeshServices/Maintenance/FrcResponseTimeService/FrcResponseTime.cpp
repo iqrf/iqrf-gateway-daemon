@@ -197,16 +197,14 @@ namespace iqrf {
 			DpaMessage frcSendSelectiveResponse = result->getResponse();
 			// Process FRC response
 			uint8_t status = frcSendSelectiveResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-			if (status == 0xff) {
-				THROW_EXC_TRC_WAR(std::logic_error, "FRC command not supported.");
-			}
-			if (status > 0xef) {
+			if (status > MAX_ADDRESS) {
 				THROW_EXC_TRC_WAR(std::logic_error, "FRC unsuccessful.");
 			}
 			responded += status;
 			const uint8_t *pData = frcSendSelectiveResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData;
 			uint8_t toCopy = count >= FRC_RESPONSE_MAX_BYTES ? FRC_RESPONSE_MAX_BYTES : count + 1;
 			data.insert(data.end(), pData + 1, pData + toCopy);
+      // Add FRC result
 			serviceResult.addTransactionResult(result);
 		} catch (const std::exception &e) {
 			setErrorTransactionResult(serviceResult, result, e.what());

@@ -945,6 +945,8 @@ namespace iqrf
             TRC_WARNING("FRC Read OS Info failed." << NAME_PAR_HEX("Status", (int)frcStatus));
             THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)frcStatus));
           }
+          // Add FRC result
+          uploadResult.addTransactionResult(transResult);
           nodesList = bitmapToNodes(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData);
           // Add FRC result
           uploadResult.addTransactionResult(transResult);
