@@ -760,7 +760,7 @@ namespace iqrf {
         );
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status < 0xfd)
+        if (status <= MAX_ADDRESS)
         {
           // Add FRC result
           autonetworkResult.addTransactionResult(transResult);
@@ -841,7 +841,7 @@ namespace iqrf {
         std::basic_string<uint8_t> prebondedMemoryData;
         // Check status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status < 0xfd)
+        if (status <= MAX_ADDRESS)
         {
           // Add FRC result
           autonetworkResult.addTransactionResult(transResult);
@@ -940,7 +940,7 @@ namespace iqrf {
         std::basic_string<uint8_t> prebondedMemoryData;
         // Check status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status < 0xFD)
+        if (status <= MAX_ADDRESS)
         {
           // Add FRC result
           autonetworkResult.addTransactionResult(transResult);
@@ -1074,7 +1074,7 @@ namespace iqrf {
         );
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status <= 0xEF)
+        if (status <= MAX_ADDRESS)
         {
           // Add FRC result
           autonetworkResult.addTransactionResult(transResult);
@@ -1170,7 +1170,7 @@ namespace iqrf {
         );
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status <= 0xEF)
+        if (status <= MAX_ADDRESS)
         {
           // Add FRC result
           autonetworkResult.addTransactionResult(transResult);
@@ -1429,7 +1429,7 @@ namespace iqrf {
         );
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status <= 0xEF)
+        if (status <= MAX_ADDRESS)
         {
           // Add FRC result
           autonetworkResult.addTransactionResult(transResult);
