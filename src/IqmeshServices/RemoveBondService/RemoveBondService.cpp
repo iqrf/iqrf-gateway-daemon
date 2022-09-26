@@ -304,7 +304,7 @@ namespace iqrf {
         );
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status <= 0xfd)
+        if (status <= MAX_ADDRESS)
         {
           TRC_INFORMATION("FRC_AcknowledgedBroadcastBits OK." << NAME_PAR_HEX("Status", (int)status));
           // Return nodes that executed DPA request (bit0 is set - the DPA Request is executed.)
@@ -313,6 +313,7 @@ namespace iqrf {
           for (uint8_t nodeAddr = 1; nodeAddr <= MAX_ADDRESS; nodeAddr++)
             if ((dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData[nodeAddr / 8] & (1 << (nodeAddr % 8))) != 0)
               acknowledgedNodes.push_back(nodeAddr);
+          // Add FRC result
           removeBondResult.addTransactionResult(transResult);
           TRC_FUNCTION_LEAVE("");
           return acknowledgedNodes;

@@ -281,8 +281,10 @@ namespace iqrf {
         );
         // Check FRC status
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
-        if (status <= 0xEF)
+        if (status <= MAX_ADDRESS)
         {
+          // Add FRC result
+          pingResult.addTransactionResult(transResult);
           TRC_INFORMATION("FRC_Ping: status OK." << NAME_PAR_HEX("Status", (int)status));
           TRC_FUNCTION_LEAVE("");
           return dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response;
@@ -292,7 +294,6 @@ namespace iqrf {
           TRC_WARNING("FRC_Ping: status NOK!" << NAME_PAR_HEX("Status", (int)status));
           THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
         }
-        pingResult.addTransactionResult(transResult);
       }
       catch (const std::exception& e)
       {
