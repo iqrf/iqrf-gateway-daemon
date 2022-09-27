@@ -37,6 +37,7 @@ namespace
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
+  static const int noBondedNodesError = 1003;
 }
 
 namespace iqrf {
@@ -1207,6 +1208,11 @@ namespace iqrf {
           }
           else
           {
+            if (maintenanceResult.getBondedNodes().size() == 0) {
+              std::string errorStr = "There are no bonded nodes in network.";
+              maintenanceResult.setStatus(noBondedNodesError, errorStr);
+              THROW_EXC(std::logic_error, errorStr);
+            }
             // Set requested FRC response time
             m_iIqrfDpaService->setFrcResponseTime(m_maintenanceParams.measurementTime);
             IDpaTransaction2::FrcResponseTime FRCresponseTime = setFrcReponseTime(maintenanceResult, m_maintenanceParams.measurementTime);
@@ -1223,6 +1229,11 @@ namespace iqrf {
         // m_mTypeName_iqmeshNetwork_MaintenanceInconsistentMIDsInCoord ?
         if (msgType.m_type == m_mTypeName_iqmeshNetwork_MaintenanceInconsistentMIDsInCoord)
         {
+          if (maintenanceResult.getBondedNodes().size() == 0) {
+            std::string errorStr = "There are no bonded nodes in network.";
+            maintenanceResult.setStatus(noBondedNodesError, errorStr);
+            THROW_EXC(std::logic_error, errorStr);
+          }
           // Resolve Inconsistent MIDs in Coordinator
           resolveInconsistentMIDsInCoord(maintenanceResult);
         }
@@ -1230,6 +1241,11 @@ namespace iqrf {
         // m_mTypeName_iqmeshNetwork_MaintenanceDuplicatedAddresses ?
         if (msgType.m_type == m_mTypeName_iqmeshNetwork_MaintenanceDuplicatedAddresses)
         {
+          if (maintenanceResult.getBondedNodes().size() == 0) {
+            std::string errorStr = "There are no bonded nodes in network.";
+            maintenanceResult.setStatus(noBondedNodesError, errorStr);
+            THROW_EXC(std::logic_error, errorStr);
+          }
           // Resolve Duplicated addresses
           resolveDuplicatedAddresses(maintenanceResult);
         }
@@ -1237,6 +1253,11 @@ namespace iqrf {
         // m_mTypeName_iqmeshNetwork_MaintenanceUselessPrebondedNodes ?
         if (msgType.m_type == m_mTypeName_iqmeshNetwork_MaintenanceUselessPrebondedNodes)
         {
+          if (maintenanceResult.getBondedNodes().size() == 0) {
+            std::string errorStr = "There are no bonded nodes in network.";
+            maintenanceResult.setStatus(noBondedNodesError, errorStr);
+            THROW_EXC(std::logic_error, errorStr);
+          }
           // Resolve useless Prebonded Nodes
           unbondTemporaryAddress(maintenanceResult);
         }

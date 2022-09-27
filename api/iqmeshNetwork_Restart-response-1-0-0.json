@@ -44,13 +44,18 @@
 					"description": "Response object.",
 					"type": "object",
 					"required": [
-						"nodesNr",
-						"inaccessibleNodesNr",
-						"hwpId",
-						"restartResult"
+						"hwpId"
 					],
 					"additionalProperties": false,
 					"properties": {
+						"hwpId": {
+							"$id": "#/properties/data/properties/rsp/properties/hwpId",
+							"title": "HWPID filter",
+							"description": "Ping devices with specified HWPID only.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 65535
+						},
 						"nodesNr": {
 							"$id": "#/properties/data/properties/rsp/properties/nodesNr",
 							"title": "Node count",
@@ -66,14 +71,6 @@
 							"type": "integer",
 							"minimum": 0,
 							"maximum": 239
-						},
-						"hwpId": {
-							"$id": "#/properties/data/properties/rsp/properties/hwpId",
-							"title": "HWPID filter",
-							"description": "Ping devices with specified HWPID only.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 65535
 						},
 						"restartResult": {
 							"$id": "#/properties/data/properties/rsp/properties/restartResult",
@@ -117,6 +114,15 @@
 					"description": "Returns array of objects req-cnf-rsp, see its description.",
 					"items": {
 						"type": "object",
+						"required": [
+							"request",
+							"requestTs",
+							"confirmation",
+							"confirmationTs",
+							"response",
+							"responseTs"
+						],
+						"additionalProperties": false,
 						"properties": {
 							"request": {
 								"type": "string",
@@ -142,15 +148,7 @@
 								"type": "string",
 								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
 							}
-						},
-						"required": [
-							"request",
-							"requestTs",
-							"confirmation",
-							"confirmationTs",
-							"response",
-							"responseTs"
-						]
+						}
 					}
 				},
 				"insId": {
