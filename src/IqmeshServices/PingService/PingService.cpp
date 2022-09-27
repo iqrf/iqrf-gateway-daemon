@@ -37,6 +37,7 @@ namespace
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
+  static const int noBondedNodesError = 1003;
 }
 
 namespace iqrf {
@@ -56,7 +57,7 @@ namespace iqrf {
     std::map<uint16_t, bool> m_pingResult;
 
     // Inaccessible nodes coubt
-    uint8_t m_inaccessibleNodes;
+    uint8_t m_inaccessibleNodes = 0;
 
     // Transaction results
     std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
@@ -339,13 +340,12 @@ namespace iqrf {
       // nodesNr
       Pointer("/data/rsp/nodesNr").Set(response, pingResult.getNodesList().length());
 
-      // inaccessibleNodesNr
-      Pointer("/data/rsp/inaccessibleNodesNr").Set(response, pingResult.getInaccessibleNodes());
-
-      // Set status
+      // If success, populate with response
       int status = pingResult.getStatus();
-      //if (status == 0)
-      {
+      if (status == 0) {
+        // inaccessibleNodesNr
+        Pointer("/data/rsp/inaccessibleNodesNr").Set(response, pingResult.getInaccessibleNodes());
+
         // Array of objects
         Document::AllocatorType &allocator = response.GetAllocator();
         rapidjson::Value frcPingResult(kArrayType);
@@ -424,6 +424,11 @@ namespace iqrf {
       {
         // Get bonded nodes
         getBondedNodes(pingResult);
+        if (pingResult.getNodesList().size() == 0) {
+          std::string errorStr = "There are no bonded nodes in network.";
+          pingResult.setStatus(noBondedNodesError, errorStr);
+          THROW_EXC(std::logic_error, errorStr);
+        }
 
         // Set calculated FRC response time
         m_iIqrfDpaService->setFrcResponseTime(IDpaTransaction2::FrcResponseTime::k40Ms);

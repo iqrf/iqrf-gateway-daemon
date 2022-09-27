@@ -267,7 +267,7 @@ namespace iqrf {
 		try {
 			getBondedNodes(result);
 			if (result.getBondedNodes().size() == 0) {
-				std::string errorStr = "There are no nodes bonded in network.";
+				std::string errorStr = "There are no bonded nodes in network.";
 				result.setStatus(ErrorCodes::noBondedNodesError, errorStr);
 				THROW_EXC(NoBondedNodesException, errorStr);
 			}

@@ -44,9 +44,7 @@
 					"description": "Response object.",
 					"type": "object",
 					"required": [
-						"nodesNr",
-						"inaccessibleNodesNr",
-						"inconsistentNodesNr"
+						"nodesNr"
 					],
 					"additionalProperties": false,
 					"properties": {
