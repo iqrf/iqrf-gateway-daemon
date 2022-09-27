@@ -28,7 +28,7 @@
 #include <math.h>
 #include <bitset>
 
-TRC_INIT_MODULE(iqrf::RestartService)
+TRC_INIT_MODULE(iqrf::RestartService);
 
 using namespace rapidjson;
 
@@ -37,7 +37,8 @@ namespace
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
-}
+  static const int noBondedNodesError = 1003;
+};
 
 namespace iqrf {
 
@@ -354,13 +355,12 @@ namespace iqrf {
       // nodesNr
       Pointer("/data/rsp/nodesNr").Set(response, restartResult.getNodesList().length());
 
-      // inaccessibleNodesNr
-      Pointer("/data/rsp/inaccessibleNodesNr").Set(response, restartResult.getInaccessibleNodes());
-
-      // Set status
+      // If success, populate restart result
       int status = restartResult.getStatus();
-      if (status == 0)
-      {
+      if (status == 0) {
+        // inaccessibleNodesNr
+        Pointer("/data/rsp/inaccessibleNodesNr").Set(response, restartResult.getInaccessibleNodes());
+
         // Array of objects
         Document::AllocatorType &allocator = response.GetAllocator();
         rapidjson::Value frcRestartResult(kArrayType);
@@ -439,6 +439,11 @@ namespace iqrf {
       {
         // Get bonded nodes
         getBondedNodes(restartResult);
+        if (restartResult.getNodesList().size() == 0) {
+          std::string errorStr = "There are no bonded nodes in network.";
+          restartResult.setStatus(noBondedNodesError, errorStr);
+          THROW_EXC(std::logic_error, errorStr);
+        }
 
         // Set calculated FRC response time
         m_iIqrfDpaService->setFrcResponseTime(IDpaTransaction2::FrcResponseTime::k40Ms);
