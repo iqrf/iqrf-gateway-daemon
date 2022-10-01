@@ -29,6 +29,10 @@ namespace iqrf {
     bool m_getExtFormat = false;
     DpaMessage m_dpaRequestExtra;
     std::unique_ptr<IDpaTransactionResult2> m_extraRes;
+    std::set<uint8_t> selectedNodes;
+    bool hasSensorIndex = false;
+    uint8_t sensorIndex = 0;
+    rapidjson::Document m_selectedNodes;
 
   public:
     ApiMsgIqrfStandardFrc() = delete;
@@ -47,6 +51,23 @@ namespace iqrf {
         const Value *val = Pointer("/data/req/param/extFormat").Get(doc);
         if (val && val->IsBool()) {
           m_getExtFormat = val->GetBool();
+        }
+      }
+      {
+        const std::string mType = getMType();
+        if (mType != "iqrfSensor_Frc") {
+          return;
+        }
+        const Value *val = Pointer("/data/req/param/sensorIndex").Get(doc);
+        if (val && val->IsUint()) {
+          hasSensorIndex = true;
+          sensorIndex = val->GetUint();
+        }
+      }
+      {
+        const Value *val = Pointer("/data/req/param/selectedNodes").Get(doc);
+        if (val) {
+          m_selectedNodes.CopyFrom(*val, m_selectedNodes.GetAllocator());
         }
       }
     }
@@ -68,6 +89,14 @@ namespace iqrf {
     {
       using namespace rapidjson;
       ApiMsgIqrfStandard::createResponsePayload(doc);
+
+      if (hasSensorIndex) {
+        Pointer("/data/rsp/result/sensorIndex").Set(doc, sensorIndex);
+      }
+
+      if (!m_selectedNodes.IsNull()) {
+        Pointer("/data/rsp/result/selectedNodes").Set(doc, m_selectedNodes);
+      }
 
       bool r = (bool)m_extraRes;
       if (getVerbose() && r) {
