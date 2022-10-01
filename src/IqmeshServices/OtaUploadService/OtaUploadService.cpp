@@ -948,6 +948,8 @@ namespace iqrf
           // Add FRC result
           uploadResult.addTransactionResult(transResult);
           nodesList = bitmapToNodes(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData);
+          // Add FRC result
+          uploadResult.addTransactionResult(transResult);
         }
         uploadResult.setNodesList(nodesList);
 
