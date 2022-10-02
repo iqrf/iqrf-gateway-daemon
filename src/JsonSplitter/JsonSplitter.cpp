@@ -178,19 +178,6 @@ namespace iqrf {
       // Include instance ID in messages
       Pointer("/data/insId").Set(doc, m_insId);
 
-      // Log outgoing message
-      std::ostringstream oss;
-      oss << "Outgoing message" << std::endl << "Messaging IDs: [";
-      std::list<std::string>::const_iterator itr;
-      for (itr = messagingList.begin(); itr != messagingList.end(); ++itr) {
-        oss << *itr;
-        if (std::distance(itr, messagingList.end()) > 1) {
-          oss << ", ";
-        }
-      }
-      oss << "]" << std::endl << "Message: " << JsonToStr(doc);
-      TRC_INFORMATION(oss.str());
-
       // Check if message is allowed or supported
       MsgType mType = getMessageType(doc);
       auto searchResult = m_msgTypeToHandle.find(getKey(mType));
@@ -210,7 +197,9 @@ namespace iqrf {
       // Send responses out
       if (messagingList.empty() && m_messagingList.empty()) {
         // Service and splitter messaging lists empty, send to all
-        TRC_DEBUG("No service or splitter messagings specified, sending to all available.");
+        TRC_INFORMATION("Outgoing message" << std::endl
+          << "No service or splitter messagings specified, sending to all available." << std::endl
+          << "Message: " << JsonToStr(doc));
         std::unique_lock<std::mutex> lock(m_iMessagingServiceMapMux);
         for (auto messaging : m_iMessagingServiceSetAcceptAsync) {
           messaging->sendMessage(std::string(), std::basic_string<uint8_t>((uint8_t *)buffer.GetString(), buffer.GetSize()));
@@ -234,6 +223,19 @@ namespace iqrf {
         // Filter duplicates
         messagings.sort();
         messagings.unique();
+
+        // Log outgoing message
+        std::ostringstream oss;
+        oss << "Outgoing message" << std::endl << "Messaging IDs: [";
+        std::list<std::string>::iterator itr;
+        for (itr = messagings.begin(); itr != messagings.end(); ++itr) {
+          oss << *itr;
+          if (std::distance(itr, messagings.end()) > 1) {
+            oss << ", ";
+          }
+        }
+        oss << "]" << std::endl << "Message: " << JsonToStr(doc);
+        TRC_INFORMATION(oss.str());
 
         // Send message to all specified messagings
         for (std::string &messaging : messagings) {
