@@ -117,12 +117,16 @@ namespace iqrf {
       if (!m_payloadOnlyForVerbose || getVerbose()) {
         Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
       }
-      if (!m_selectedNodes.IsNull()) {
-        Pointer("/data/rsp/result/selectedNodes").Set(doc, m_selectedNodes);
+
+      if (getStatus() == 0) {
+        if (!m_selectedNodes.IsNull()) {
+          Pointer("/data/rsp/result/selectedNodes").Set(doc, m_selectedNodes);
+        }
+        if (!m_sensorIndexes.IsNull()) {
+          Pointer("/data/rsp/result/sensorIndexes").Set(doc, m_sensorIndexes);
+        }
       }
-      if (!m_sensorIndexes.IsNull()) {
-        Pointer("/data/rsp/result/sensorIndexes").Set(doc, m_sensorIndexes);
-      }
+
       if (m_appendMidMetaData) {
         Pointer("/data/rsp/metaData").Set(doc, m_midMetaData);
       }
