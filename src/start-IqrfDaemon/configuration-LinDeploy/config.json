@@ -29,14 +29,14 @@
       "startlevel": -3
     },
     {
-      "name": "shape::ConfigurationService",
+      "name": "shape::LauncherService",
       "libraryPath": "",
       "libraryName": "",
       "enabled": true,
       "startlevel": -2
     },
     {
-      "name": "shape::LauncherService",
+      "name": "shape::ConfigurationService",
       "libraryPath": "",
       "libraryName": "",
       "enabled": true,
@@ -345,21 +345,21 @@
     },
     {
       "name": "iqrf::FrcParamsService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryPath": "",
       "libraryName": "FrcParamsService",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::DpaHopsService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryPath": "",
       "libraryName": "DpaHopsService",
       "enabled": true,
       "startlevel": 3
     },
     {
       "name": "iqrf::DpaValueService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryPath": "",
       "libraryName": "DpaValueService",
       "enabled": true,
       "startlevel": 3
