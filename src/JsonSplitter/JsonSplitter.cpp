@@ -178,6 +178,8 @@ namespace iqrf {
       // Include instance ID in messages
       Pointer("/data/insId").Set(doc, m_insId);
 
+      TRC_INFORMATION("Outgoing message: " << std::endl << JsonToStr(doc));
+
       // Check if message is allowed or supported
       MsgType mType = getMessageType(doc);
       auto searchResult = m_msgTypeToHandle.find(getKey(mType));
@@ -197,9 +199,7 @@ namespace iqrf {
       // Send responses out
       if (messagingList.empty() && m_messagingList.empty()) {
         // Service and splitter messaging lists empty, send to all
-        TRC_INFORMATION("Outgoing message" << std::endl
-          << "No service or splitter messagings specified, sending to all available." << std::endl
-          << "Message: " << JsonToStr(doc));
+        TRC_INFORMATION("No service or splitter messagings specified, sending to all available.");
         std::unique_lock<std::mutex> lock(m_iMessagingServiceMapMux);
         for (auto messaging : m_iMessagingServiceSetAcceptAsync) {
           messaging->sendMessage(std::string(), std::basic_string<uint8_t>((uint8_t *)buffer.GetString(), buffer.GetSize()));
@@ -226,7 +226,7 @@ namespace iqrf {
 
         // Log outgoing message
         std::ostringstream oss;
-        oss << "Outgoing message" << std::endl << "Messaging IDs: [";
+        oss << "Messaging IDs: [";
         std::list<std::string>::iterator itr;
         for (itr = messagings.begin(); itr != messagings.end(); ++itr) {
           oss << *itr;
@@ -234,7 +234,7 @@ namespace iqrf {
             oss << ", ";
           }
         }
-        oss << "]" << std::endl << "Message: " << JsonToStr(doc);
+        oss << "]";
         TRC_INFORMATION(oss.str());
 
         // Send message to all specified messagings
