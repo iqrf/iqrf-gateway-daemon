@@ -167,10 +167,14 @@ namespace iqrf {
     m_timeSpec.CopyFrom(v, m_timeSpec.GetAllocator());
 
     const Value* cron = Pointer("/cronTime").Get(v);
-    auto it = cron->Begin();
-    for (int i = 0; i < 7; i++) {
-      m_cron[i] = it->GetString();
-      it++;
+    if (cron->IsArray()) {
+      auto it = cron->Begin();
+      for (int i = 0; i < 7; i++) {
+        m_cron[i] = it->GetString();
+        it++;
+      }
+    } else {
+      m_cronString = cron->GetString();
     }
 
     m_exactTime = Pointer("/exactTime").Get(m_timeSpec)->GetBool();
@@ -195,11 +199,8 @@ namespace iqrf {
     if (!m_periodic && !m_exactTime) {
 
       ISchedulerService::CronType tempCron = m_cron;
-
-      //solve nickName
-      const std::string& nickName = m_cron[0];
-      if (!nickName.empty() && nickName[0] == '@') {
-        std::string ts = nickName.substr(0, nickName.find(" ", 0)); //get just beginning string without spaces and other * rubish
+      if (!m_cronString.empty() && m_cronString[0] == '@') {
+        std::string ts = m_cronString.substr(0, m_cronString.find(" ", 0)); //get just beginning string without spaces and other * rubish
         auto found = NICKNAMES.find(ts);
         if (found != NICKNAMES.end()) {
           if (found->second.empty()) { //reboot
@@ -214,7 +215,7 @@ namespace iqrf {
 
         }
         else {
-          THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format:" << PAR(nickName));
+          THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format:" << PAR(m_cronString));
         }
       }
 
@@ -225,7 +226,7 @@ namespace iqrf {
         parseItem(tempCron[3], 1, 31, m_vmday);
         parseItem(tempCron[4], 1, 12, m_vmon, -1);
         parseItem(tempCron[5], 0, 6, m_vwday);
-        parseItem(tempCron[6], 0, 9999, m_vyear);
+        parseItem(tempCron[6], 1970, 2099, m_vyear);
       }
     }
   }
@@ -254,52 +255,58 @@ namespace iqrf {
     return v;
   }
 
-  int ScheduleRecord::parseItem(const std::string& item, int mnm, int mxm, std::vector<int>& vec, int offset)
+  int ScheduleRecord::parseItem(const std::string& item, int min, int max, std::vector<int>& vec, int offset)
   {
-    size_t position;
+    size_t pos;
     int val = 0;
 
     if (item == "*") {
       val = -1;
       vec.push_back(val);
-    }
-
-    else if ((position = item.find('/')) != std::string::npos) {
-      if (++position > item.size() - 1)
-        THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format");
-      int divid = std::stoi(item.substr(position));
+    } else if ((pos = item.find('/')) != std::string::npos) {
+      if (++pos > item.size() - 1)
+        THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format: " << item);
+      int divid = std::stoi(item.substr(pos));
       if (divid <= 0)
-        THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << PAR(divid));
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << item);
 
-      val = mnm % divid;
-      val = val == 0 ? mnm : mnm - val + divid;
-      while (val <= mxm) {
+      val = min % divid;
+      val = val == 0 ? min : min - val + divid;
+      while (val <= max) {
         vec.push_back(val + offset);
         val += divid;
       }
-      val = mnm;
-    }
-
-    else if ((position = item.find(',')) != std::string::npos) {
-      position = 0;
+      val = min;
+    } else if ((pos = item.find('-')) != std::string::npos) {
+      if (++pos > item.size() - 1) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid format: " << item);
+      }
+      int start = std::stoi(item.substr(0, pos - 1));
+      int end = std::stoi(item.substr(pos));
+      if (start < min || end > max || start >= end) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << item)
+      }
+      vec = std::vector<int>(end - start + 1);
+      std::iota(vec.begin(), vec.end(), start);
+      val = min;
+    } else if ((pos = item.find(',')) != std::string::npos) {
+      pos = 0;
       std::string substr = item;
       while (true) {
-        val = std::stoi(substr, &position);
-        if (val < mnm || val > mxm)
-          THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << PAR(val));
+        val = std::stoi(substr, &pos);
+        if (val < min || val > max)
+          THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << item);
         vec.push_back(val + offset);
 
-        if (++position > substr.size() - 1)
+        if (++pos > substr.size() - 1)
           break;
-        substr = substr.substr(position);
+        substr = substr.substr(pos);
       }
-      val = mnm;
-    }
-
-    else {
+      val = min;
+    } else {
       val = std::stoi(item);
-      if (val < mnm || val > mxm) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << PAR(val));
+      if (val < min || val > max) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << item);
       }
       vec.push_back(val + offset);
     }

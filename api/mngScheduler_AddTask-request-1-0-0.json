@@ -96,19 +96,73 @@
 							"additionalProperties": false,
 							"properties": {
 								"cronTime": {
-									"$id": "#/properties/data/properties/req/properties/timespec/properties/cronTime",
 									"title": "cron time",
-									"description": "7 items of cron-like syntax. All required.",
-									"type": "array",
-									"minItems": 7,
-									"maxItems": 7,
-									"additionalItems": false,
-									"items": {
-										"$id": "#/properties/data/properties/req/properties/timespec/properties/cronTime/items",
-										"title": "cron field",
-										"description": "1 of 7 cron field items, representing a time unit.",
-										"type": "string"
-									}
+									"description": "Array of 7 cron format values or cron alias string",
+									"oneOf": [
+										{
+											"type": "array",
+											"minItems": 7,
+											"maxItems": 7,
+											"additionalItems": false,
+											"items": [
+												{
+													"title": "seconds",
+													"description": "cron expression seconds",
+													"type": "string",
+													"pattern": "^((\\*|([0-5]?\\d))(\/([1-9]|[1-5]\\d|60))?|[0-5]?\\d(-[0-5]?\\d)?|([0-5]?\\d,)*[0-5]?\\d)$"
+												},
+												{
+													"title": "minutes",
+													"description": "cron expression minutes",
+													"type": "string",
+													"pattern": "^((\\*|([0-5]?\\d))(\/([1-9]|[1-5]\\d|60))?|[0-5]?\\d(-[0-5]?\\d)?|([0-5]?\\d,)*[0-5]?\\d)$"
+												},
+												{
+													"title": "hours",
+													"description": "cron expression hours",
+													"type": "string",
+													"pattern": "^((\\*|(2[0-3]|[0-1]?\\d))(\/([1-9]|1\\d|2[0-4]))?|((2[0-3]|[01]?\\d)(-(2[0-3]|[0-1]?\\d))?)|((2[0-3]|[01]?\\d),)*(2[0-3]|[01]?\\d))$"
+												},
+												{
+													"title": "days of month",
+													"description": "cron expression days of month",
+													"type": "string",
+													"pattern": "^(\\*(\/([1-9]|[12]\\d|3[01]))?|(([1-9]|[12]\\d|3[01])(-([1-9]|[12]\\d|3[01]))?)|(([1-9]|[12]\\d|3[01]),)*([1-9]|[12]\\d|3[01]))$"
+												},
+												{
+													"title": "months",
+													"description": "cron expression months",
+													"type": "string",
+													"pattern": "^((\\*|([2-9]|1[0-2]?))(\/([2-9]|1[0-2]?))?|(([2-9]|1[0-2]?)(-([2-9]|1[0-2]?))?)|(([2-9]|1[0-2]?),)*([2-9]|1[0-2]?))$"
+												},
+												{
+													"title": "days of week",
+													"description": "cron expression days of week",
+													"type": "string",
+													"pattern": "^((\\*|[1-7])(\/[1-7])?|([1-7](-[1-7])?)|(([1-7],)*[1-7]))$"
+												},
+												{
+													"title": "years",
+													"description": "cron expression years",
+													"type": "string",
+													"pattern": "^((\\*|(19[789]\\d|20\\d{2}))(\/\\d+)?|((19[789]\\d|20\\d{2})(-(19[789]\\d|20\\d{2}))?)|((19[789]\\d|20\\d{2}),)*(19[789]\\d|20\\d{2}))$"
+												}
+											]
+										},
+										{
+											"type": "string",
+											"enum": [
+												"@reboot",
+												"@minutely",
+												"@hourly",
+												"@daily",
+												"@weekly",
+												"@monthly",
+												"@annually",
+												"@yearly"
+											]
+										}
+									]
 								},
 								"periodic": {
 									"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",

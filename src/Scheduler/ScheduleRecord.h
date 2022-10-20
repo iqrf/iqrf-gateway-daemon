@@ -26,6 +26,7 @@
 #include <string>
 #include <chrono>
 #include <array>
+#include <numeric>
 
 namespace iqrf {
   /// \class SchedulerRecord
@@ -36,11 +37,11 @@ namespace iqrf {
 
     //one shot
     ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& startTime, bool persist);
-    
+
     //periodic
     ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& period,
       const std::chrono::system_clock::time_point& startTime, bool persist);
-    
+
     //cron
     //These special time specification "nicknames" which replace initial time and date fields,
     //and are prefixed with the '@' character, are supported :
@@ -54,10 +55,10 @@ namespace iqrf {
     //  @minutely : Run once a minute, ie. "0 * * * * * *".
     ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const ISchedulerService::CronType& cronTime, bool persist);
     ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist);
-    
+
     //from persist file
     ScheduleRecord(const rapidjson::Value& rec);
-    
+
     //copy
     ScheduleRecord(const ScheduleRecord& other);
 
@@ -83,7 +84,7 @@ namespace iqrf {
     //The only method can do it
     friend void shuffleDuplicitHandle(ScheduleRecord& rec);
     void init(const rapidjson::Value & task);
-    int parseItem(const std::string& item, int mnm, int mxm, std::vector<int>& vec, int offset = 0);
+    int parseItem(const std::string& item, int min, int max, std::vector<int>& vec, int offset = 0);
     void setTimeSpec();
     void parseTimeSpec(const rapidjson::Value &v);
 
@@ -110,5 +111,6 @@ namespace iqrf {
     ISchedulerService::TaskHandle m_taskHandle;
     rapidjson::Document m_timeSpec;
     ISchedulerService::CronType m_cron;
+    std::string m_cronString;
   };
 }
