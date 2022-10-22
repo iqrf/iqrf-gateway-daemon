@@ -36,7 +36,7 @@ stages:
       - .ccache/
 
 .debian-bullseye-amd64-template: &debian-bullseye-amd64-template
-  image: iqrftech/iqrf-gateway-daemon-builder:debian-bullseye-amd64
+  image: iqrftech/debian-c-builder:debian-bullseye-amd64
   variables:
     ARCH: "amd64"
     DIST: "bullseye"
@@ -56,7 +56,7 @@ stages:
     - git submodule update --init --recursive
 
 .package-template:
-  image: iqrftech/iqrf-gateway-daemon-builder:${DISTRIBUTION}-${DIST}-${ARCH}
+  image: iqrftech/debian-c-builder:${DISTRIBUTION}-${DIST}-${ARCH}
   stage: build-package
   dependencies:
     - update-cache
