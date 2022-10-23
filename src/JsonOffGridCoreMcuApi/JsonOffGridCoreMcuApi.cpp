@@ -704,6 +704,9 @@ namespace iqrf
         msg->setStatus("ok", 0);
         msg->createResponse(respDoc);
         m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
+
+        m_iOffGridCoreMcu->checkShutdown();
+
       }
       catch (std::exception & e) {
         msg->setStatus(e.what(), -1);

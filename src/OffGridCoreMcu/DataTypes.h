@@ -228,7 +228,11 @@ namespace iqrf {
       {}
 
       void setTime(const std::string & timeStr) {
-        return m_time.setTime(timeStr);
+        m_time.setTime(timeStr);
+      }
+
+      std::string getTime() {
+        return m_time.getTime();
       }
 
     protected:
@@ -538,7 +542,6 @@ namespace iqrf {
       {}
     };
 
-    // TODO not implemented by MCU yet => it may differ
     class GetLteStateCmd : public GetDeviceStateCmd
     {
     public:
@@ -547,30 +550,27 @@ namespace iqrf {
       {}
     };
 
-    // TODO not implemented by MCU yet => it may differ
     class SetLoraOnCmd : public OffGridCmd
     {
     public:
       SetLoraOnCmd()
-        :OffGridCmd(4, 4)
+        :OffGridCmd(5, 1)
       {}
     };
 
-    // TODO not implemented by MCU yet => it may differ
     class SetLoraOffCmd : public OffGridCmd
     {
     public:
       SetLoraOffCmd()
-        :OffGridCmd(4, 5)
+        :OffGridCmd(5, 2)
       {}
     };
 
-    // TODO not implemented by MCU yet => it may differ
     class GetLoraStateCmd : public GetDeviceStateCmd
     {
     public:
       GetLoraStateCmd()
-        :GetDeviceStateCmd(4, 6)
+        :GetDeviceStateCmd(5, 3)
       {}
     };
 
@@ -593,7 +593,6 @@ namespace iqrf {
       virtual void parse(std::vector<uint8_t>::iterator& pos, const std::vector<uint8_t>::iterator end)
       {
         m_at = std::string(pos, end);
-        //m_at.insert(std::end(m_at), pos, end);
       };
 
       virtual void encode(std::vector<uint8_t>& vect) const {

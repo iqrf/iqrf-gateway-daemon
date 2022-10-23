@@ -47,6 +47,8 @@ namespace iqrf {
 
     std::string getMcuVersionCmd() override;
 
+    void checkShutdown() override;
+
     void activate(const shape::Properties *props = 0);
     void deactivate();
     void modify(const shape::Properties *props);

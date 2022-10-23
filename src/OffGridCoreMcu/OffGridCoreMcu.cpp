@@ -28,6 +28,10 @@ namespace iqrf {
 
   class OffGridCoreMcu::Imp
   {
+  private:
+    std::string m_shutdownTime;
+    bool m_shutdownFlag = false;
+
   public:
     class TestCommCommand : public shape::ICommand
     {
@@ -313,6 +317,10 @@ namespace iqrf {
       sendAndWaitForResponse(cmd.encodeRequest());
       
       cmd.parseResponse(getLastRaw().recBuffer);
+
+      m_shutdownFlag = true;
+      m_shutdownTime = cmd.getTime();
+
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -642,7 +650,7 @@ namespace iqrf {
       offgrid::SetLoraOnCmd cmd;
 
 #ifdef OFFGRIDMCU_TEST
-      m_recFakeVect = iqrf::DotMsg("84.04.05.00");
+      m_recFakeVect = iqrf::DotMsg("85.01.05.00");
 //#endif
       //TODO not implemented by MCU yet => it may differ
       sendAndWaitForResponse(cmd.encodeRequest());
@@ -660,7 +668,7 @@ namespace iqrf {
       offgrid::SetLoraOffCmd cmd;
 
 #ifdef OFFGRIDMCU_TEST
-      m_recFakeVect = iqrf::DotMsg("84.05.05.00");
+      m_recFakeVect = iqrf::DotMsg("85.02.05.00");
 //#endif
       //TODO not implemented by MCU yet => it may differ
       sendAndWaitForResponse(cmd.encodeRequest());
@@ -677,7 +685,7 @@ namespace iqrf {
       offgrid::GetLteStateCmd cmd;
 
 #ifdef OFFGRIDMCU_TEST
-      m_recFakeVect = iqrf::DotMsg("84.06.06.00.01");
+      m_recFakeVect = iqrf::DotMsg("85.03.06.00.01");
 //#endif
       //sendAndWaitForResponse(cmd.encodeRequest());
 
@@ -746,6 +754,18 @@ namespace iqrf {
       retval = cmd.getVersion();
       TRC_FUNCTION_LEAVE(PAR(retval));
       return retval;
+    }
+
+    void checkShutdown()
+    {
+      if (m_shutdownFlag) {
+        std::string cmd = "shutdown -p " + m_shutdownTime;
+#ifndef OFFGRIDMCU_TEST
+        system(cmd.c_str());
+#else
+        TRC_INFORMATION("*******************\n" << cmd.c_str() << "\n*******************\n");
+#endif
+      }
     }
 
     void activate(const shape::Properties *props)
@@ -951,6 +971,11 @@ namespace iqrf {
   std::string OffGridCoreMcu::getMcuVersionCmd()
   {
     return m_imp->getMcuVersionCmd();
+  }
+
+  void OffGridCoreMcu::checkShutdown()
+  {
+    return m_imp->checkShutdown();
   }
 
   /////////////////////////

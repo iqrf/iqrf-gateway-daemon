@@ -64,5 +64,7 @@ namespace iqrf {
     virtual std::string recieveLoraAtCmd() = 0;
 
     virtual std::string getMcuVersionCmd() = 0;
+
+    virtual void checkShutdown() = 0;
   };
 }
