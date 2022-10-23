@@ -33,6 +33,15 @@ namespace iqrf {
         return os.str();
       }
 
+      std::string getTimeHhMm() const
+      {
+        // "time": "hh:mm:ss"
+        std::ostringstream os;
+        os << std::setfill('0') << std::setw(2) << (int)m_hour << ':'
+          << std::setfill('0') << std::setw(2) << (int)m_min;
+        return os.str();
+      }
+
       void setTime(const std::string & timeStr)
       {
         std::string tstr(timeStr);
@@ -231,8 +240,8 @@ namespace iqrf {
         m_time.setTime(timeStr);
       }
 
-      std::string getTime() {
-        return m_time.getTime();
+      std::string getTimeHhMm() {
+        return m_time.getTimeHhMm();
       }
 
     protected:

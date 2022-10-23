@@ -319,7 +319,7 @@ namespace iqrf {
       cmd.parseResponse(getLastRaw().recBuffer);
 
       m_shutdownFlag = true;
-      m_shutdownTime = cmd.getTime();
+      m_shutdownTime = cmd.getTimeHhMm();
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -759,7 +759,7 @@ namespace iqrf {
     void checkShutdown()
     {
       if (m_shutdownFlag) {
-        std::string cmd = "shutdown -p " + m_shutdownTime;
+        std::string cmd = "shutdown --poweroff " + m_shutdownTime;
 #ifndef OFFGRIDMCU_TEST
         system(cmd.c_str());
 #else
