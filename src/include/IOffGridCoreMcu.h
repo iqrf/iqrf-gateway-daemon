@@ -60,6 +60,9 @@ namespace iqrf {
     virtual void setLoraOffCmd() = 0;
     virtual bool getLoraStateCmd() = 0;
 
+    virtual std::string sendLoraAtCmd(const std::string& at) = 0;
+    virtual std::string recieveLoraAtCmd() = 0;
+
     virtual std::string getMcuVersionCmd() = 0;
   };
 }

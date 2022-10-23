@@ -57,18 +57,6 @@ namespace iqrf {
         m_sec = (uint8_t)ss;
       }
 
-      /*
-      //set time from timepoint time part
-      void setTime(const std::chrono::system_clock::time_point & tp)
-      {
-        auto time = std::chrono::system_clock::to_time_t(tp);
-        auto tm = *std::localtime(&time);
-        m_hour = (uint8_t)tm.tm_hour;
-        m_min = (uint8_t)tm.tm_min;
-        m_sec = (uint8_t)tm.tm_sec;
-      }
-      */
-
       void serialize(std::vector<uint8_t> & vect) const {
         vect.push_back(m_hour);
         vect.push_back(m_min);
@@ -165,6 +153,7 @@ namespace iqrf {
       OffGridCmd(uint8_t pnum, uint8_t pcmd)
         :m_pnum(pnum)
         , m_pcmd(pcmd)
+        , m_rcode(0)
       {}
     public:
       const std::vector<uint8_t> & encodeRequest() {
@@ -407,6 +396,9 @@ namespace iqrf {
     public:
       GetNumCmd(uint8_t pnum, uint8_t pcmd)
         :OffGridCmd(pnum, pcmd)
+        , m_number(0)
+        , m_hbyte(0)
+        , m_lbyte(0)
       {}
 
     protected:
@@ -513,6 +505,7 @@ namespace iqrf {
     public:
       GetDeviceStateCmd(uint8_t pnum, uint8_t pcmd)
         :OffGridCmd(pnum, pcmd)
+        , m_state(false)
       {}
 
       bool getState() const { return m_state; }
@@ -579,6 +572,57 @@ namespace iqrf {
       GetLoraStateCmd()
         :GetDeviceStateCmd(4, 6)
       {}
+    };
+
+    class SendLoraAtCmd : public OffGridCmd
+    {
+    public:
+      SendLoraAtCmd()
+        :OffGridCmd(5, 4)
+      {}
+
+      const std::string& getAt() const {
+        return m_at;
+      }
+
+      void setAt(const std::string& at) {
+        m_at = at;
+      }
+
+    protected:
+      virtual void parse(std::vector<uint8_t>::iterator& pos, const std::vector<uint8_t>::iterator end)
+      {
+        m_at = std::string(pos, end);
+        //m_at.insert(std::end(m_at), pos, end);
+      };
+
+      virtual void encode(std::vector<uint8_t>& vect) const {
+        vect.insert(std::end(vect), std::begin(m_at), std::end(m_at));
+      }
+
+    private:
+      std::string m_at;
+    };
+
+    class ReceiveLoraAtCmd : public OffGridCmd
+    {
+    public:
+      ReceiveLoraAtCmd()
+        :OffGridCmd(5, 5)
+      {}
+
+      const std::string& getAt() const {
+        return m_at;
+      }
+
+    protected:
+      virtual void parse(std::vector<uint8_t>::iterator& pos, const std::vector<uint8_t>::iterator end)
+      {
+        m_at.insert(std::end(m_at), pos, end);
+      };
+
+    private:
+      std::string m_at;
     };
 
     class GetVerCmd : public GetNumCmd

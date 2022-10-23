@@ -42,6 +42,9 @@ namespace iqrf {
     void setLoraOffCmd() override;
     bool getLoraStateCmd() override;
 
+    std::string sendLoraAtCmd(const std::string& at) override;
+    std::string recieveLoraAtCmd() override;
+
     std::string getMcuVersionCmd() override;
 
     void activate(const shape::Properties *props = 0);

@@ -390,7 +390,6 @@ namespace iqrf {
 
     void setRtcDateCmd(const std::string & dateStr)
     {
-      //TRC_FUNCTION_ENTER(NAME_PAR(tp, encodeTimestamp(tp)));
       TRC_FUNCTION_ENTER(PAR(dateStr));
 
       offgrid::SetRTCDateCmd cmd;
@@ -691,6 +690,44 @@ namespace iqrf {
       return retval;
     }
 
+    std::string sendLoraAtCmd(const std::string& at)
+    {
+      TRC_FUNCTION_ENTER(PAR(at));
+
+      offgrid::SendLoraAtCmd cmd;
+      std::string retval;
+
+      cmd.setAt(at);
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("85.04.08.00.2b.4f.4b");
+#endif
+      sendAndWaitForResponse(cmd.encodeRequest());
+
+      cmd.parseResponse(getLastRaw().recBuffer);
+      retval = cmd.getAt();
+      TRC_FUNCTION_LEAVE(PAR(retval));
+      return retval;
+    }
+
+    std::string recieveLoraAtCmd()
+    {
+      TRC_FUNCTION_ENTER("");
+
+      offgrid::ReceiveLoraAtCmd cmd;
+      std::string retval;
+
+#ifdef OFFGRIDMCU_TEST
+      m_recFakeVect = iqrf::DotMsg("85.05.08.00.41.42.43");
+#endif
+      sendAndWaitForResponse(cmd.encodeRequest());
+
+      cmd.parseResponse(getLastRaw().recBuffer);
+      retval = cmd.getAt();
+      TRC_FUNCTION_LEAVE(PAR(retval));
+      return retval;
+    }
+
     //////////////////////////
     // Other
     //////////////////////////
@@ -899,6 +936,16 @@ namespace iqrf {
   bool OffGridCoreMcu::getLoraStateCmd()
   {
     return m_imp->getLoraStateCmd();
+  }
+
+  std::string OffGridCoreMcu::sendLoraAtCmd(const std::string& at)
+  {
+    return m_imp->sendLoraAtCmd(at);
+  }
+
+  std::string OffGridCoreMcu::recieveLoraAtCmd()
+  {
+    return m_imp->recieveLoraAtCmd();
   }
 
   std::string OffGridCoreMcu::getMcuVersionCmd()

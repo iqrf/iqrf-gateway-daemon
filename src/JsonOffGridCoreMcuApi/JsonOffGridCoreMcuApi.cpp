@@ -43,6 +43,8 @@ namespace iqrf
     const std::string mType_GetCharger = "iqrfGwMcu_GetCharger";
     const std::string mType_SetPower = "iqrfGwMcu_SetPower";
     const std::string mType_GetPower = "iqrfGwMcu_GetPower";
+    const std::string mType_LoraSend = "iqrfGwMcu_LoraSend";
+    const std::string mType_LoraReceive = "iqrfGwMcu_LoraReceive";
 
     /////////// message classes declarations
     class IqrfGwMcuMsg : public ApiMsg
@@ -565,6 +567,90 @@ namespace iqrf
 
     };
 
+    //////////////////////////////////////////////
+    class IqrfGwMcuMsgLoraSend : public IqrfGwMcuMsg
+    {
+    public:
+      IqrfGwMcuMsgLoraSend() = delete;
+      IqrfGwMcuMsgLoraSend(const rapidjson::Document& doc)
+        :IqrfGwMcuMsg(doc)
+      {
+        const rapidjson::Value* val = rapidjson::Pointer("/data/req/data").Get(doc);
+        if (val && val->IsString()) {
+          m_data = val->GetString();
+        }
+      }
+
+      virtual ~IqrfGwMcuMsgLoraSend()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        Pointer("/data/rsp/data").Set(doc, m_data);
+        IqrfGwMcuMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonOffGridCoreMcuApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        IqrfGwMcuMsg::handleMsg(imp);
+
+        if (m_command == "lora") {
+          m_data = imp->m_iOffGridCoreMcu->sendLoraAtCmd(m_data);
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+        }
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    protected:
+      std::string m_data;
+    };
+
+    //////////////////////////////////////////////
+    class IqrfGwMcuMsgLoraReceive : public IqrfGwMcuMsg
+    {
+    public:
+      IqrfGwMcuMsgLoraReceive() = delete;
+      IqrfGwMcuMsgLoraReceive(const rapidjson::Document& doc)
+        :IqrfGwMcuMsg(doc)
+      {
+      }
+
+      virtual ~IqrfGwMcuMsgLoraReceive()
+      {
+      }
+
+      void createResponsePayload(rapidjson::Document& doc) override
+      {
+        Pointer("/data/rsp/data").Set(doc, m_data);
+        IqrfGwMcuMsg::createResponsePayload(doc);
+      }
+
+      void handleMsg(JsonOffGridCoreMcuApi::Imp* imp) override
+      {
+        TRC_FUNCTION_ENTER("");
+
+        IqrfGwMcuMsg::handleMsg(imp);
+
+        if (m_command == "lora") {
+          m_data = imp->m_iOffGridCoreMcu->recieveLoraAtCmd();
+          if (getVerbose()) {
+            m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
+          }
+        }
+
+        TRC_FUNCTION_LEAVE("");
+      }
+
+    protected:
+      std::string m_data;
+    };
+
   public:
     //////////////////////////////
     // Services
@@ -595,6 +681,8 @@ namespace iqrf
       m_objectFactory.registerClass<IqrfGwMcuMsgGetCharger>(mType_GetCharger);
       m_objectFactory.registerClass<IqrfGwMcuMsgSetPower>(mType_SetPower);
       m_objectFactory.registerClass<IqrfGwMcuMsgGetPower>(mType_GetPower);
+      m_objectFactory.registerClass<IqrfGwMcuMsgLoraSend>(mType_LoraSend);
+      m_objectFactory.registerClass<IqrfGwMcuMsgLoraReceive>(mType_LoraReceive);
     }
 
     ~Imp() {}
