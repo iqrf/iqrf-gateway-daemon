@@ -34,7 +34,7 @@ namespace iqrf {
 		Value array(kArrayType);
 		Document::AllocatorType &allocator = doc.GetAllocator();
 		for (auto task : m_tasks) {
-			array.PushBack(task, allocator);
+			array.PushBack(Value(task.c_str(), allocator), allocator);
 		}
 		Pointer("/data/rsp/tasks").Set(doc, array);
 		MngBaseMsg::createResponsePayload(doc);

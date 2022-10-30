@@ -20,7 +20,6 @@
 #include "ScheduleRecord.h"
 #include "TaskQueue.h"
 #include "ILaunchService.h"
-#include "ISchedulerService.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 #include "rapidjson/schema.h"
@@ -29,7 +28,11 @@
 #include <chrono>
 #include <map>
 #include <memory>
+#include <regex>
 #include <set>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 /// \class Scheduler
 /// \brief Tasks scheduler
@@ -46,14 +49,14 @@
 ///
 /// Scheduling via configuration file allows scheduling according time pattern similar to unix Cron.
 /// See for details e.g: https://en.wikipedia.org/wiki/Cron link.
-/// Time pattern consist of seven tokens. Unlike Cron it has the token for seconds: 
+/// Time pattern consist of seven tokens. Unlike Cron it has the token for seconds:
 /// "sec min hour day mon year wday".
 /// The tokens are accepted in these Cron forms, e.g:
 ///
 /// Token | meaning
 /// ----- | -------
 /// * | every
-/// 3 | 3rd 
+/// 3 | 3rd
 /// 1,2,3 | 1st, 2nd, 3rd
 /// 5/* | every divisible by 5
 ///
@@ -101,31 +104,53 @@ namespace iqrf {
     void deactivate();
     void modify(const shape::Properties *props);
 
+    void registerTaskHandler(const std::string& clientId, TaskHandlerFunc fun) override;
+    void unregisterTaskHandler(const std::string& clientId) override;
+
+    TaskHandle addTask(const std::string &clientId, const std::string &taskId, const rapidjson::Value &task, const rapidjson::Value &timeSpec, bool persist) override;
+    std::vector<TaskHandle> getMyTasks(const std::string& clientId) const override;
+    const rapidjson::Value * getMyTask(const std::string& clientId, const TaskHandle& hndl) const override;
+    const rapidjson::Value * getMyTaskTimeSpec(const std::string& clientId, const TaskHandle& hndl) const override;
+    bool isPersist(const std::string& clientId, const TaskHandle& hndl) const override;
+    void removeAllMyTasks(const std::string& clientId) override;
+    void removeTask(const std::string& clientId, TaskHandle hndl) override;
+    void removeTasks(const std::string& clientId, std::vector<TaskHandle> hndls) override;
+
+    TaskHandle scheduleTask(
+      const std::string& clientId,
+      const std::string& taskId,
+      const rapidjson::Value & task,
+      const CronType& cronTime,
+      bool persis
+    ) override;
+    TaskHandle scheduleTask(
+      const std::string& clientId,
+      const std::string& taskId,
+      const rapidjson::Value & task,
+      const std::string& cronTime,
+      bool persist
+    ) override;
+    TaskHandle scheduleTaskAt(
+      const std::string& clientId,
+      const std::string& taskId,
+      const rapidjson::Value & task,
+      const std::chrono::system_clock::time_point& tp,
+      bool persist
+    ) override;
+    TaskHandle scheduleTaskPeriodic(
+      const std::string& clientId,
+      const std::string& taskId,
+      const rapidjson::Value & task,
+      const std::chrono::seconds& sec,
+      const std::chrono::system_clock::time_point& tp,
+      bool persist
+    ) override;
+
     void attachInterface(shape::ILaunchService* iface);
     void detachInterface(shape::ILaunchService* iface);
 
     void attachInterface(shape::ITraceService* iface);
     void detachInterface(shape::ITraceService* iface);
-
-    void registerTaskHandler(const std::string& clientId, TaskHandlerFunc fun) override;
-    void unregisterTaskHandler(const std::string& clientId) override;
-
-    //std::vector<const rapidjson::Value *> getMyTasks(const std::string& clientId) const override;
-    std::vector<TaskHandle> getMyTasks(const std::string& clientId) const override;
-    const rapidjson::Value * getMyTask(const std::string& clientId, const TaskHandle& hndl) const override;
-    const rapidjson::Value * getMyTaskTimeSpec(const std::string& clientId, const TaskHandle& hndl) const override;
-    bool isPersist(const std::string& clientId, const TaskHandle& hndl) const override;
-
-    TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist) override;
-    TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist) override;
-    TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist) override;
-    TaskHandle scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& sec,
-      const std::chrono::system_clock::time_point& tp, bool persist) override;
-
-    void removeAllMyTasks(const std::string& clientId) override;
-    void removeTask(const std::string& clientId, TaskHandle hndl) override;
-    void removeTasks(const std::string& clientId, std::vector<TaskHandle> hndls) override;
-
   private:
     void loadCache();
 
@@ -133,7 +158,7 @@ namespace iqrf {
 
     TaskHandle addScheduleRecordUnlocked(std::shared_ptr<ScheduleRecord>& record);
     TaskHandle addScheduleRecord(std::shared_ptr<ScheduleRecord>& record);
-    
+
     void removeScheduleRecordUnlocked(std::shared_ptr<ScheduleRecord>& record);
     void removeScheduleRecord(std::shared_ptr<ScheduleRecord>& record);
 
@@ -142,8 +167,11 @@ namespace iqrf {
 
     std::string m_cacheDir;
     std::string m_schemaFile;
+    boost::uuids::basic_random_generator<boost::mt19937> m_uuidGenerator;
 
     std::set<std::string> getTaskFiles(const std::string& dir) const;
+    std::string getTaskHandle(const std::string &taskId);
+    std::string generateTaskId();
 
     std::map<std::string, TaskHandlerFunc> m_messageHandlers;
     std::mutex m_messageHandlersMutex;
@@ -167,6 +195,8 @@ namespace iqrf {
     shape::ILaunchService* m_iLaunchService = nullptr;
 
     std::shared_ptr<rapidjson::SchemaDocument> m_schema;
+
+    const std::string TASK_FILE_PATTERN = "^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\.json$";
   };
 
 }

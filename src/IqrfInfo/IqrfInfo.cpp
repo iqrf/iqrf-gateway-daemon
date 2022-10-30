@@ -988,8 +988,8 @@ namespace iqrf {
         return retval;
       }
 
-      std::cout << "Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
-      TRC_INFORMATION("Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()));
+      std::cout << "Drv Enumeration started at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+      TRC_INFORMATION("Drv Enumeration started at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()));
 
       auto cp = m_iIqrfDpaService->getCoordinatorParameters();
 
@@ -1112,8 +1112,8 @@ namespace iqrf {
       }
 
       m_nadrFullEnumNodeMap.clear();
-      std::cout << "Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
-      TRC_INFORMATION("Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()));
+      std::cout << "Drv Enumeration finished at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+      TRC_INFORMATION("Drv Enumeration finished at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()));
 
       TRC_FUNCTION_LEAVE(PAR(retval));
       return retval;
@@ -1831,8 +1831,8 @@ namespace iqrf {
       bool retval = false;
 
       if (mapDeviceVectNadr.size() > 0) {
-        std::cout << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
-        TRC_INFORMATION("Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()));
+        std::cout << "Std Enumeration started at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+        TRC_INFORMATION("Std Enumeration started at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()));
 
         // std enum according first bonded nadr of the device
         for (auto it : mapDeviceVectNadr) {
@@ -1923,8 +1923,8 @@ namespace iqrf {
           }
         }
 
-        std::cout << "Std Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
-        TRC_INFORMATION("Std Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()));
+        std::cout << "Std Enumeration finished at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+        TRC_INFORMATION("Std Enumeration finished at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()));
       }
 
       TRC_FUNCTION_LEAVE(PAR(retval));

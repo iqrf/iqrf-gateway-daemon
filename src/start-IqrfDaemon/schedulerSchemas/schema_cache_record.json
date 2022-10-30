@@ -15,9 +15,17 @@
 		"taskId": {
 			"title": "Task ID",
 			"description": "Task identifier.",
-			"type": "integer",
-			"min": 0,
-			"max": 2147483647
+			"oneOf": [
+				{
+					"type": "string",
+					"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+				},
+				{
+					"type": "integer",
+					"min": 0,
+					"max": 2147483647
+				}
+			]
 		},
 		"task": {
 			"title": "Tasks",
@@ -36,6 +44,7 @@
 			]
 		},
 		"timeSpec": {
+			"$id": "#/properties/data/properties/req/properties/timespec",
 			"title": "Time specification",
 			"description": "Time-based task execution conditions.",
 			"type": "object",
@@ -103,6 +112,16 @@
 							]
 						},
 						{
+							"type": "array",
+							"minItems": 7,
+							"maxItems": 7,
+							"additionalItems": false,
+							"items": {
+								"type": "string",
+								"enum": [""]
+							}
+						},
+						{
 							"type": "string",
 							"enum": [
 								"@reboot",
@@ -118,21 +137,25 @@
 					]
 				},
 				"periodic": {
+					"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
 					"title": "Periodic",
 					"description": "Periodic task execution.",
 					"type": "boolean"
 				},
 				"period": {
+					"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
 					"title": "Period",
 					"description": "Task execution period in seconds.",
 					"type": "integer"
 				},
 				"exactTime": {
+					"$id": "#/properties/data/properties/req/properties/timespec/properties/exactTime",
 					"title": "One shot",
 					"description": "Single task execution now or at a specified time (startTime).",
 					"type": "boolean"
 				},
 				"startTime": {
+					"$id": "#/properties/data/properties/req/properties/timespec/properties/exactTime",
 					"title": "Start time",
 					"description": "One shot task start time in format '2018-01-03T16:00:09'",
 					"type": "string",

@@ -103,7 +103,7 @@ namespace iqrf {
 					);
 					object.AddMember(
 						"requestTs",
-						encodeTimestamp(result->getRequestTs()),
+						TimeConversion::encodeTimestamp(result->getRequestTs()),
 						allocator
 					);
 					object.AddMember(
@@ -113,7 +113,7 @@ namespace iqrf {
 					);
 					object.AddMember(
 						"confirmationTs",
-						encodeTimestamp(result->getConfirmationTs()),
+						TimeConversion::encodeTimestamp(result->getConfirmationTs()),
 						allocator
 					);
 					object.AddMember(
@@ -123,7 +123,7 @@ namespace iqrf {
 					);
 					object.AddMember(
 						"responseTs",
-						encodeTimestamp(result->getResponseTs()),
+						TimeConversion::encodeTimestamp(result->getResponseTs()),
 						allocator
 					);
 					array.PushBack(object, allocator);

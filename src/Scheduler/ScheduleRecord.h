@@ -22,6 +22,7 @@
 #include "ISchedulerService.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
+#include "TimeConversion.h"
 
 #include <string>
 #include <chrono>
@@ -36,10 +37,10 @@ namespace iqrf {
     ScheduleRecord() = delete;
 
     //one shot
-    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& startTime, bool persist);
+    ScheduleRecord(const std::string& clientId, const std::string& taskId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& startTime, bool persist);
 
     //periodic
-    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::chrono::seconds& period,
+    ScheduleRecord(const std::string& clientId, const std::string& taskId, const rapidjson::Value & task, const std::chrono::seconds& period,
       const std::chrono::system_clock::time_point& startTime, bool persist);
 
     //cron
@@ -53,8 +54,8 @@ namespace iqrf {
     //  @daily : Run once a day, ie.   "0 0 0 * * * *".
     //  @hourly : Run once an hour, ie. "0 0 * * * * *".
     //  @minutely : Run once a minute, ie. "0 * * * * * *".
-    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const ISchedulerService::CronType& cronTime, bool persist);
-    ScheduleRecord(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist);
+    ScheduleRecord(const std::string& clientId, const std::string& taskId, const rapidjson::Value & task, const ISchedulerService::CronType& cronTime, bool persist);
+    ScheduleRecord(const std::string& clientId, const std::string& taskId, const rapidjson::Value & task, const std::string& cronTime, bool persist);
 
     //from persist file
     ScheduleRecord(const rapidjson::Value& rec);
@@ -79,10 +80,6 @@ namespace iqrf {
 
   private:
     void parseCron();
-    //Change handle it if duplicit detected by Scheduler
-    void shuffleHandle(); //change handle it if duplicit exists
-    //The only method can do it
-    friend void shuffleDuplicitHandle(ScheduleRecord& rec);
     void init(const rapidjson::Value & task);
     int parseItem(const std::string& item, int min, int max, std::vector<int>& vec, int offset = 0);
     void setTimeSpec();
@@ -91,6 +88,7 @@ namespace iqrf {
     bool verifyTimePattern(int cval, const std::vector<int>& tvalV) const;
     rapidjson::Document m_task;
     std::string m_clientId;
+    ISchedulerService::TaskHandle m_taskHandle;
 
     //multi record
     std::vector<int> m_vsec;
@@ -108,7 +106,6 @@ namespace iqrf {
     std::chrono::seconds m_period = std::chrono::seconds(0);
     std::chrono::system_clock::time_point m_startTime;
     bool m_persist = false;
-    ISchedulerService::TaskHandle m_taskHandle;
     rapidjson::Document m_timeSpec;
     ISchedulerService::CronType m_cron;
     std::string m_cronString;

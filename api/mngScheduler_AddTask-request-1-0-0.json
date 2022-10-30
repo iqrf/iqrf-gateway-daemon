@@ -60,8 +60,8 @@
 							"$id": "#/properties/data/properties/req/properties/taskId",
 							"title": "Task ID",
 							"description": "Task identifier.",
-							"type": "integer",
-							"min": 0
+							"type": "string",
+							"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
 						},
 						"task": {
 							"$id": "#/properties/data/properties/req/properties/task",
@@ -148,6 +148,16 @@
 													"pattern": "^((\\*|(19[789]\\d|20\\d{2}))(\/\\d+)?|((19[789]\\d|20\\d{2})(-(19[789]\\d|20\\d{2}))?)|((19[789]\\d|20\\d{2}),)*(19[789]\\d|20\\d{2}))$"
 												}
 											]
+										},
+										{
+											"type": "array",
+											"minItems": 7,
+											"maxItems": 7,
+											"additionalItems": false,
+											"items": {
+												"type": "string",
+												"enum": [""]
+											}
 										},
 										{
 											"type": "string",

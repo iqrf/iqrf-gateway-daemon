@@ -15,8 +15,12 @@
  * limitations under the License.
  */
 
-#include "HexStringCoversion.h"
 #include "SchedulerAddTaskMsg.h"
+
+#include "rapidjson/pointer.h"
+#include "rapidjson/ostreamwrapper.h"
+#include "rapidjson/schema.h"
+#include "rapidjson/writer.h"
 
 namespace iqrf {
 
@@ -24,61 +28,30 @@ namespace iqrf {
 		m_schedulerService = schedulerService;
 		m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
 
-		const Value *cron = Pointer("/data/req/timeSpec/cronTime").Get(doc);
-		auto it = cron->Begin();
-		for (int i = 0; i < 7; i++) {
-			m_cron[i] = it->GetString();
-			it++;
+		const Value *val = Pointer("/data/req/taskId").Get(doc);
+		if (val) {
+			m_taskId = val->GetString();
+		}
+		val = Pointer("/data/req/persist").Get(doc);
+		if (val) {
+			m_persist = val->GetBool();
 		}
 
-		m_periodic = Pointer("/data/req/timeSpec/periodic").Get(doc)->GetBool();
-		m_period = Pointer("/data/req/timeSpec/period").Get(doc)->GetUint();
-		m_exactTime = Pointer("/data/req/timeSpec/exactTime").Get(doc)->GetBool();
-
-		const Value *time = Pointer("/data/req/timeSpec/startTime").Get(doc);
-		m_startTime = parseTimestamp(time->GetString());
-
-		m_task = new Document();
-
-		const Value *task = Pointer("/data/req/task").Get(doc);
-		if (task && (task->IsObject() || task->IsArray())) {
-			m_task->CopyFrom(*task, m_task->GetAllocator());
-		}
-
-		const Value *persist = Pointer("/data/req/persist").Get(doc);
-		if (persist) {
-			m_persist = persist->GetBool();
-		}
+		val = Pointer("/data/req/task").Get(doc);
+		m_task->CopyFrom(*val, m_task->GetAllocator());
+		val = Pointer("/data/req/timeSpec").Get(doc);
+		m_timeSpec->CopyFrom(*val, m_timeSpec->GetAllocator());
 	}
 
 	void SchedulerAddTaskMsg::handleMsg() {
 		try {
-			if (m_periodic) {
-				m_taskId = m_schedulerService->scheduleTaskPeriodic(
-					m_clientId,
-					*m_task,
-					std::chrono::seconds(m_period),
-					m_startTime,
-					m_persist
-				);
-			} else if (m_exactTime) {
-				m_taskId = m_schedulerService->scheduleTaskAt(
-					m_clientId,
-					*m_task,
-					m_startTime,
-					m_persist
-				);
-			} else {
-				m_taskId = m_schedulerService->scheduleTask(
-					m_clientId,
-					*m_task,
-					m_cron,
-					m_persist
-				);
+			if (m_schedulerService->getMyTask(m_clientId, m_taskId)) {
+				throw std::logic_error("Task already exists");
 			}
+			m_taskId = m_schedulerService->addTask(m_clientId, m_taskId, *m_task, *m_timeSpec, m_persist);
 		} catch (std::exception &e) {
 			std::ostringstream os;
-			os << "Cannot schedule (client ID: " << m_clientId << ", task ID: " << m_taskId << "): "  << e.what();
+			os << "Cannot schedule task (client ID: " << m_clientId << ", task ID: " << m_taskId << "): "  << e.what();
 			throw std::logic_error(os.str());
 		}
 	}

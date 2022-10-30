@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "VersionInfo.h"
 #include "ApiMsg.h"
 #include "JsonMngApi.h"
 #include "rapidjson/rapidjson.h"

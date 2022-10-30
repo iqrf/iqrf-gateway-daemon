@@ -19,6 +19,7 @@
 #include "ApiMsg.h"
 #include "IDpaTransactionResult2.h"
 #include "HexStringCoversion.h"
+#include "TimeConversion.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/stringbuffer.h"
@@ -111,11 +112,11 @@ namespace iqrf {
       if (getVerbose()) {
         r = (bool)m_res;
         rapidjson::Pointer("/data/raw/0/request").Set(doc, r ? encodeBinary(m_res->getRequest().DpaPacket().Buffer, m_res->getRequest().GetLength()) : "");
-        rapidjson::Pointer("/data/raw/0/requestTs").Set(doc, r ? encodeTimestamp(m_res->getRequestTs()) : "");
+        rapidjson::Pointer("/data/raw/0/requestTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_res->getRequestTs()) : "");
         rapidjson::Pointer("/data/raw/0/confirmation").Set(doc, r ? encodeBinary(m_res->getConfirmation().DpaPacket().Buffer, m_res->getConfirmation().GetLength()) : "");
-        rapidjson::Pointer("/data/raw/0/confirmationTs").Set(doc, r ? encodeTimestamp(m_res->getConfirmationTs()) : "");
+        rapidjson::Pointer("/data/raw/0/confirmationTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_res->getConfirmationTs()) : "");
         rapidjson::Pointer("/data/raw/0/response").Set(doc, r ? encodeBinary(m_res->getResponse().DpaPacket().Buffer, m_res->getResponse().GetLength()) : "");
-        rapidjson::Pointer("/data/raw/0/responseTs").Set(doc, r ? encodeTimestamp(m_res->getResponseTs()) : "");
+        rapidjson::Pointer("/data/raw/0/responseTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_res->getResponseTs()) : "");
       }
     }
 

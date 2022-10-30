@@ -45,6 +45,7 @@ namespace iqrf {
 
 		m_schedulerService->scheduleTaskAt(
 			"JsonMngApi",
+			"00000000-0000-0000-0000-000000000000",
 			doc,
 			std::chrono::system_clock::now() + std::chrono::milliseconds((unsigned)m_timeToExit)
 		);

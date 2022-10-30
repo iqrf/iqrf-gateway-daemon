@@ -57,6 +57,6 @@ namespace iqrf {
 		/// Scheduler client ID
 		std::string m_clientId;
 		/// Schedule task ID
-		int m_taskId;
+		std::string m_taskId;
 	};
 }

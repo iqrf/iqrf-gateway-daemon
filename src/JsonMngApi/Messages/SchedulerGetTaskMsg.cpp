@@ -22,7 +22,7 @@ namespace iqrf {
 	SchedulerGetTaskMsg::SchedulerGetTaskMsg(const Document &doc, ISchedulerService *schedulerService) : MngBaseMsg(doc) {
 		m_schedulerService = schedulerService;
 		m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
-		m_taskId = Pointer("/data/req/taskId").Get(doc)->GetInt();
+		m_taskId = Pointer("/data/req/taskId").Get(doc)->GetString();
 	}
 
 	void SchedulerGetTaskMsg::handleMsg() {

@@ -40,10 +40,7 @@ namespace iqrf {
   {
   public:
     /// Task handle is task identification
-    typedef int32_t TaskHandle;
-
-    /// Invalid task handle
-    static const TaskHandle TASK_HANDLE_INVALID = 0;
+    typedef std::string TaskHandle;
 
     /// Task to be processed handler functional type
     typedef std::function<void(const rapidjson::Value &)> TaskHandlerFunc;
@@ -87,21 +84,41 @@ namespace iqrf {
     virtual bool isPersist(const std::string& clientId, const TaskHandle& hndl) const = 0;
 
     typedef std::array<std::string, 7> CronType;
-    virtual TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const CronType& cronTime, bool persist = false) = 0;
-    virtual TaskHandle scheduleTask(const std::string& clientId, const rapidjson::Value & task, const std::string& cronTime, bool persist = false) = 0;
+    virtual TaskHandle scheduleTask(
+      const std::string& clientId,
+      const std::string& taskId,
+      const rapidjson::Value& task,
+      const CronType& cronTime,
+      bool persist = false
+    ) = 0;
+    virtual TaskHandle scheduleTask(
+      const std::string& clientId,
+      const std::string& taskId,
+      const rapidjson::Value& task,
+      const std::string& cronTime,
+      bool persist = false
+    ) = 0;
 
     /// \brief Schedule task at time point
     /// \param [in] clientId client identification
+    /// \param [in] taskId task identifier
     /// \param [in] task planned task
     /// \param [in] tp time point
     /// \return scheduled task handle
     /// \details
     /// Schedules task at exact time point. When the time point is reached the task is passed to its handler and released
     /// Use it for one shot tasks
-    virtual TaskHandle scheduleTaskAt(const std::string& clientId, const rapidjson::Value & task, const std::chrono::system_clock::time_point& tp, bool persist = false) = 0;
+    virtual TaskHandle scheduleTaskAt(
+      const std::string& clientId,
+      const std::string& taskId,
+      const rapidjson::Value& task,
+      const std::chrono::system_clock::time_point& tp,
+      bool persist = false
+    ) = 0;
 
     /// \brief Schedule periodic task
     /// \param [in] clientId client identification
+    /// \param [in] taskId task identifier
     /// \param [in] task planned task
     /// \param [in] sec period in seconds
     /// \param [in] tp time point of delayed start
@@ -109,8 +126,16 @@ namespace iqrf {
     /// \details
     /// Schedules periodic task. It is started immediatelly by default, the first shot after one period.
     /// If the start shall be delayed use appropriate time point of start
-    virtual TaskHandle scheduleTaskPeriodic(const std::string& clientId, const rapidjson::Value &, const std::chrono::seconds& sec,
-      const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now(), bool persist = false) = 0;
+    virtual TaskHandle scheduleTaskPeriodic(
+      const std::string& clientId,
+      const std::string& taskId,
+      const rapidjson::Value & task,
+      const std::chrono::seconds& sec,
+      const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now(),
+      bool persist = false
+    ) = 0;
+
+    virtual TaskHandle addTask(const std::string &clientId, const std::string &taskId, const rapidjson::Value &task, const rapidjson::Value &timeSpec, bool persist) = 0;
 
     /// \brief Remove all task for client
     /// \param [in] clientId client identification

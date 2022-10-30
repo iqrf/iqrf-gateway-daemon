@@ -376,7 +376,7 @@ namespace iqrf {
           );
           rawObject.AddMember(
             "requestTs",
-            encodeTimestamp(transResult->getRequestTs()),
+            TimeConversion::encodeTimestamp(transResult->getRequestTs()),
             allocator
           );
           rawObject.AddMember(
@@ -386,7 +386,7 @@ namespace iqrf {
           );
           rawObject.AddMember(
             "confirmationTs",
-            encodeTimestamp(transResult->getConfirmationTs()),
+            TimeConversion::encodeTimestamp(transResult->getConfirmationTs()),
             allocator
           );
           rawObject.AddMember(
@@ -396,7 +396,7 @@ namespace iqrf {
           );
           rawObject.AddMember(
             "responseTs",
-            encodeTimestamp(transResult->getResponseTs()),
+            TimeConversion::encodeTimestamp(transResult->getResponseTs()),
             allocator
           );
           // Add object into array
