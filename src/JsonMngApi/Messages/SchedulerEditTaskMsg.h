@@ -24,27 +24,27 @@
 namespace iqrf {
 
 	/**
-	 * Scheduler add task message
+	 * Scheduler edit task message
 	 */
-	class SchedulerAddTaskMsg : public MngBaseMsg {
+	class SchedulerEditTaskMsg : public MngBaseMsg {
 	public:
 		/// Delete base constructor
-		SchedulerAddTaskMsg() = delete;
+		SchedulerEditTaskMsg() = delete;
 
 		/**
 		 * Constructor
 		 * @param doc Request document
 		 * @param schedulerRervice Scheduler service interface
 		 */
-		SchedulerAddTaskMsg(const Document &doc, ISchedulerService *schedulerService);
+		SchedulerEditTaskMsg(const Document &doc, ISchedulerService *schedulerService);
 
 		/**
 		 * Destructor
 		 */
-		virtual ~SchedulerAddTaskMsg() {};
+		virtual ~SchedulerEditTaskMsg() {};
 
 		/**
-		 * Handles add scheduler tasks request
+		 * Handles edit scheduler tasks request
 		 */
 		void handleMsg() override;
 
@@ -59,7 +59,9 @@ namespace iqrf {
 		/// Scheduler client ID
 		std::string m_clientId;
 		/// Scheduler task ID
-		std::string m_taskId = "00000000-0000-0000-0000-000000000000";
+		std::string m_taskId;
+		/// Scheduler task new ID
+		std::string m_newTaskId;
 		/// Task description
 		std::string m_description;
 		/// Task doc

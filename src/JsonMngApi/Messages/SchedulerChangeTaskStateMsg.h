@@ -16,35 +16,33 @@
  */
 #pragma once
 
-#include <sstream>
-
 #include "MngBaseMsg.h"
 #include "ISchedulerService.h"
 
 namespace iqrf {
 
 	/**
-	 * Scheduler add task message
+	 * Scheduler change task state message
 	 */
-	class SchedulerAddTaskMsg : public MngBaseMsg {
+	class SchedulerChangeTaskStateMsg : public MngBaseMsg {
 	public:
 		/// Delete base constructor
-		SchedulerAddTaskMsg() = delete;
+		SchedulerChangeTaskStateMsg() = delete;
 
 		/**
 		 * Constructor
 		 * @param doc Request document
 		 * @param schedulerRervice Scheduler service interface
 		 */
-		SchedulerAddTaskMsg(const Document &doc, ISchedulerService *schedulerService);
+		SchedulerChangeTaskStateMsg(const Document &doc, ISchedulerService *schedulerService, bool active);
 
 		/**
 		 * Destructor
 		 */
-		virtual ~SchedulerAddTaskMsg() {};
+		virtual ~SchedulerChangeTaskStateMsg() {};
 
 		/**
-		 * Handles add scheduler tasks request
+		 * Handles change scheduler task state request
 		 */
 		void handleMsg() override;
 
@@ -59,16 +57,8 @@ namespace iqrf {
 		/// Scheduler client ID
 		std::string m_clientId;
 		/// Scheduler task ID
-		std::string m_taskId = "00000000-0000-0000-0000-000000000000";
-		/// Task description
-		std::string m_description;
-		/// Task doc
-		Document* m_task = new Document();
-		/// Timespec doc
-		Document* m_timeSpec = new Document();
-		/// Persistent task
-		bool m_persist = false;
-		/// Schedule task automatically
-		bool m_autoStart = false;
+		std::string m_taskId;
+		/// Requested task state
+		bool m_active;
 	};
 }

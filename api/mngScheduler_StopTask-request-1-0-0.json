@@ -2,11 +2,11 @@
 	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "mngScheduler_List-request",
+		"name": "mngScheduler_StopTask-request",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
-	"title": "Scheduler Management - List Tasks",
+	"title": "Scheduler Management - Stop Task",
 	"type": "object",
 	"required": [
 		"mType",
@@ -17,9 +17,9 @@
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "Scheduler management - List Tasks request.",
+			"description": "Scheduler management - Stop Task request.",
 			"type": "string",
-			"enum": ["mngScheduler_List"]
+			"enum": ["mngScheduler_StopTask"]
 		},
 		"data": {
 			"$id": "#/properties/data",
@@ -44,7 +44,8 @@
 					"description": "Request parameters.",
 					"type": "object",
 					"required": [
-						"clientId"
+						"clientId",
+						"taskId"
 					],
 					"additionalProperties": false,
 					"properties": {
@@ -54,11 +55,12 @@
 							"description": "Client identifier.",
 							"type": "string"
 						},
-						"details": {
-							"$id": "#/properties/data/properties/req/properties/details",
-							"title": "Task details",
-							"description": "Retrieve task details instead of task IDs.",
-							"type": "boolean"
+						"taskId": {
+							"$id": "#/properties/data/properties/req/properties/taskId",
+							"title": "Task ID",
+							"description": "Task identifier.",
+							"type": "string",
+							"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
 						}
 					}
 				},

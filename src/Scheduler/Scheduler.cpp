@@ -93,17 +93,29 @@ namespace iqrf {
 
 		loadCache();
 
-		m_dpaTaskQueue = shape_new TaskQueue<ScheduleRecord>([&](const ScheduleRecord &record) {
+		m_dpaTaskQueue = shape_new TaskQueue<SchedulerRecord>([&](const SchedulerRecord &record) {
 			handleScheduledRecord(record);
 		});
 
 		m_scheduledTaskPushed = false;
 		m_runTimerThread = true;
-		m_timerThread = std::thread(&Scheduler::timer, this);
+		m_timerThread = std::thread(&Scheduler::worker, this);
 
 		TRC_INFORMATION("Scheduler started");
 
 		TRC_FUNCTION_LEAVE("")
+	}
+
+	void Scheduler::modify(const shape::Properties *props) {
+		using namespace rapidjson;
+		const Document &propDoc = props->getAsJson();
+		{
+			StringBuffer buffer;
+			PrettyWriter<StringBuffer> writer(buffer);
+			propDoc.Accept(writer);
+			std::string cfgStr = buffer.GetString();
+			TRC_DEBUG(std::endl << cfgStr);
+		}
 	}
 
 	void Scheduler::deactivate() {
@@ -135,18 +147,6 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("")
 	}
 
-	void Scheduler::modify(const shape::Properties *props) {
-		using namespace rapidjson;
-		const Document &propDoc = props->getAsJson();
-		{
-			StringBuffer buffer;
-			PrettyWriter<StringBuffer> writer(buffer);
-			propDoc.Accept(writer);
-			std::string cfgStr = buffer.GetString();
-			TRC_DEBUG(std::endl << cfgStr);
-		}
-	}
-
 	///// public methods
 
 	void Scheduler::registerTaskHandler(const std::string &clientId, TaskHandlerFunc fun) {
@@ -159,112 +159,280 @@ namespace iqrf {
 		m_messageHandlers.erase(clientId);
 	}
 
-	ISchedulerService::TaskHandle Scheduler::addTask(const std::string &clientId, const std::string &taskId, const rapidjson::Value &task, const rapidjson::Value &timeSpec, bool persist) {
+	std::vector<ISchedulerService::TaskHandle> Scheduler::getTaskIds(const std::string &clientId) const {
+		std::vector<TaskHandle> tasks;
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		for (auto &task : m_tasksMap) {
+			if (task.second->getClientId() != clientId) {
+				continue;
+			}
+			tasks.push_back(task.second->getTaskId());
+		}
+		return tasks;
+	}
+
+	std::vector<rapidjson::Value *> Scheduler::getTasks(const std::string &clientId, rapidjson::Document::AllocatorType &allocator) const {
+		std::vector<rapidjson::Value *> tasks;
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		for (auto &task : m_tasksMap) {
+			if (task.second->getClientId() != clientId) {
+				continue;
+			}
+			auto val = new rapidjson::Value(task.second->serialize(allocator));
+			rapidjson::Pointer("/active").Set(*val, task.second->isActive(), allocator);
+			tasks.push_back(val);
+		}
+		return tasks;
+	}
+
+	void Scheduler::getTaskDocument(const std::string &clientId, const TaskHandle &taskId, rapidjson::Document &doc) const {
+		using namespace rapidjson;
+		std::shared_ptr<SchedulerRecord> record;
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		auto item = m_tasksMap.find(taskId);
+		if (item == m_tasksMap.end() || clientId != item->second->getClientId()) {
+			throw std::logic_error("Client or task ID does not exist.");
+		}
+		record = item->second;
+		Document::AllocatorType &a = doc.GetAllocator();
+		Pointer("/clientId").Set(doc, record->getClientId(), a);
+		Pointer("/taskId").Set(doc, record->getTaskId(), a);
+		Pointer("/description").Set(doc, record->getDescription(), a);
+		Pointer("/task").Set(doc, record->getTask(), a);
+		Pointer("/timeSpec").Set(doc, record->getTimeSpec(), a);
+		Pointer("/persist").Set(doc, record->isPersistent(), a);
+		Pointer("/autoStart").Set(doc, record->isStartupTask(), a);
+	}
+
+	const rapidjson::Value* Scheduler::getTask(const std::string &clientId, const TaskHandle &taskId) const {
+		const rapidjson::Value *task = nullptr;
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		auto record = m_tasksMap.find(taskId);
+		if (record != m_tasksMap.end() && clientId == record->second->getClientId()) {
+			task = &record->second->getTask();
+		}
+		return task;
+	}
+
+	const rapidjson::Value* Scheduler::getTaskTimeSpec(const std::string &clientId, const TaskHandle &taskId) const {
+		const rapidjson::Value *timeSpec = nullptr;
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		auto record = m_tasksMap.find(taskId);
+		if (record != m_tasksMap.end() && clientId == record->second->getClientId()) {
+			timeSpec = &record->second->getTimeSpec();
+		}
+		return timeSpec;
+	}
+
+	bool Scheduler::isTaskPersistent(const std::string &clientId, const TaskHandle &taskId) const {
+		bool persistent = false;
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		auto record = m_tasksMap.find(taskId);
+		if (record != m_tasksMap.end() && clientId == record->second->getClientId()) {
+			persistent = record->second->isPersistent();
+		}
+		return persistent;
+	}
+
+	bool Scheduler::isStartupTask(const std::string &clientId, const TaskHandle &taskId) const {
+		bool autoStart = false;
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		auto record = m_tasksMap.find(taskId);
+		if (record != m_tasksMap.end() && clientId == record->second->getClientId()) {
+			autoStart = record->second->isStartupTask();
+		}
+		return autoStart;
+	}
+
+	bool Scheduler::isTaskActive(const std::string &clientId, const TaskHandle &taskId) const {
+		bool active = false;
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		auto record = m_tasksMap.find(taskId);
+		if (record != m_tasksMap.end() && clientId == record->second->getClientId()) {
+			active = record->second->isActive();
+		}
+		return active;
+	}
+
+	ISchedulerService::TaskHandle Scheduler::scheduleInternalTask(
+		const std::string &clientId,
+		const std::string &taskId,
+		const rapidjson::Value &task,
+		const std::chrono::system_clock::time_point& tp,
+		bool persist,
+		bool autoStart
+	) {
+		auto record = std::shared_ptr<SchedulerRecord>(
+			shape_new SchedulerRecord(
+				clientId,
+				taskId,
+				task,
+				tp,
+				persist,
+				autoStart
+			)
+		);
+		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
+		return addSchedulerTask(record);
+	}
+
+	ISchedulerService::TaskHandle Scheduler::addTask(
+		const std::string &clientId,
+		const std::string &taskId,
+		const std::string &description,
+		const rapidjson::Value &task,
+		const rapidjson::Value &timeSpec,
+		bool persist,
+		bool autoStart
+	) {
 		using namespace rapidjson;
 
+		std::shared_ptr<SchedulerRecord> record;
+
 		bool periodic = Pointer("/periodic").Get(timeSpec)->GetBool();
+		bool exactTime = Pointer("/exactTime").Get(timeSpec)->GetBool();
 		if (periodic) { // periodic task
 			uint32_t period = Pointer("/period").Get(timeSpec)->GetUint();
 			std::string startTime = Pointer("/startTime").Get(timeSpec)->GetString();
-			return scheduleTaskPeriodic(clientId, taskId, task, std::chrono::seconds(period), TimeConversion::parseTimestamp(startTime), persist);
-		}
-		bool exactTime = Pointer("/exactTime").Get(timeSpec)->GetBool();
-		if (exactTime) { // oneshot
+			record = std::shared_ptr<SchedulerRecord>(
+				shape_new SchedulerRecord(
+					clientId,
+					getTaskHandle(taskId),
+					task,
+					std::chrono::seconds(period),
+					TimeConversion::parseTimestamp(startTime),
+					persist,
+					autoStart
+				)
+			);
+		} else if (exactTime) { // oneshot
 			std::string startTime = Pointer("/startTime").Get(timeSpec)->GetString();
-			return scheduleTaskAt(clientId, taskId, task, TimeConversion::parseTimestamp(startTime), persist);
-		}
-		// cron
-		std::string cronString;
-		CronType cron;
-		const Value* val = Pointer("/cronTime").Get(timeSpec);
-		if (val->IsArray()) {
-			auto it = val->Begin();
-			for (int i = 0; i < 7; i++) {
-				cron[i] = it->GetString();
-				it++;
-			}
-		} else {
-			cronString = val->GetString();
-		}
-		if (cronString.size() > 0) {
-			return scheduleTask(clientId, taskId, task, cronString, persist);
-		}
-		return scheduleTask(clientId, taskId, task, cron, persist);
-	}
-
-	std::vector<ISchedulerService::TaskHandle> Scheduler::getMyTasks(const std::string &clientId) const {
-		std::vector<TaskHandle> retval;
-		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-		for (auto &task : m_scheduledTasksByTime) {
-			if (task.second->getClientId() == clientId) {
-				retval.push_back(task.second->getTaskHandle());
-			}
-		}
-		return retval;
-	}
-
-	const rapidjson::Value *Scheduler::getMyTask(const std::string &clientId, const TaskHandle &hndl) const {
-		const rapidjson::Value *retval = nullptr;
-		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-		auto found = m_scheduledTasksByHandle.find(hndl);
-		if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId()) {
-			retval = &found->second->getTask();
-		}
-		return retval;
-	}
-
-	const rapidjson::Value *Scheduler::getMyTaskTimeSpec(const std::string &clientId, const TaskHandle &hndl) const {
-		const rapidjson::Value *retval = nullptr;
-		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-		auto found = m_scheduledTasksByHandle.find(hndl);
-		if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId()) {
-			retval = &found->second->getTimeSpec();
-		}
-		return retval;
-	}
-
-	bool Scheduler::isPersist(const std::string &clientId, const TaskHandle &hndl) const {
-		bool retval = false;
-		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-		auto found = m_scheduledTasksByHandle.find(hndl);
-		if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId()) {
-			retval = found->second->isPersist();
-		}
-		return retval;
-	}
-
-	void Scheduler::removeTask(const std::string &clientId, TaskHandle hndl) {
-		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-		auto found = m_scheduledTasksByHandle.find(hndl);
-		if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId()) {
-			removeScheduleRecordUnlocked(found->second);
-		}
-	}
-
-	void Scheduler::removeTasks(const std::string &clientId, std::vector<TaskHandle> hndls) {
-		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-		for (auto &it : hndls) {
-			auto found = m_scheduledTasksByHandle.find(it);
-			if (found != m_scheduledTasksByHandle.end() && clientId == found->second->getClientId()) {
-				removeScheduleRecordUnlocked(found->second);
-			}
-		}
-	}
-
-	void Scheduler::removeAllMyTasks(const std::string &clientId) {
-		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-		for (auto it = m_scheduledTasksByTime.begin(); it != m_scheduledTasksByTime.end();) {
-			if (it->second->getClientId() == clientId) {
-				if (it->second->isPersist()) { // remove persistent file
-					std::ostringstream os;
-					os << m_cacheDir << '/' << it->second->getTaskHandle() << ".json";
-					std::string fname = os.str();
-					std::remove(fname.c_str());
+			record = std::shared_ptr<SchedulerRecord>(
+				shape_new SchedulerRecord(
+					clientId,
+					getTaskHandle(taskId),
+					task,
+					TimeConversion::parseTimestamp(startTime),
+					persist,
+					autoStart
+				)
+			);
+		} else { // cron
+			std::string cronString;
+			CronType cron;
+			const Value* val = Pointer("/cronTime").Get(timeSpec);
+			if (val->IsArray()) {
+				auto it = val->Begin();
+				for (int i = 0; i < 7; i++) {
+					cron[i] = it->GetString();
+					it++;
 				}
-				m_scheduledTasksByHandle.erase(it->second->getTaskHandle());
-				it = m_scheduledTasksByTime.erase(it);
+				record = std::shared_ptr<SchedulerRecord>(shape_new SchedulerRecord(clientId, getTaskHandle(taskId), task, cron, persist, autoStart));
 			} else {
+				cronString = val->GetString();
+				record = std::shared_ptr<SchedulerRecord>(shape_new SchedulerRecord(clientId, getTaskHandle(taskId), task, cronString, persist, autoStart));
+			}
+		}
+		record->setDescription(description);
+		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
+		return addSchedulerTask(record);
+	}
+
+	ISchedulerService::TaskHandle Scheduler::editTask(
+		const std::string &clientId,
+		const std::string &taskId,
+		const std::string &newTaskId,
+		const std::string &description,
+		const rapidjson::Value &task,
+		const rapidjson::Value &timeSpec,
+		bool persist,
+		bool autoStart
+	) {
+		using namespace rapidjson;
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		auto item = m_tasksMap.find(taskId);
+		if (item == m_tasksMap.end() || clientId != item->second->getClientId()) {
+			throw std::logic_error("Client or task ID does not exist.");
+		}
+		SchedulerRecord record = *item->second;
+		bool reload = false;
+		if (taskId != newTaskId) {
+			record.setTaskId(newTaskId);
+			reload = true;
+		}
+		record.setTask(task);
+		if (timeSpec != record.getTimeSpec()) {
+			record.setTimeSpec(timeSpec);
+			reload = true;
+		}
+		if (description != record.getDescription()) {
+			record.setDescription(description);
+		}
+		record.setPersistence(persist);
+		record.setStartupTask(autoStart);
+		std::shared_ptr<SchedulerRecord> ptr = std::make_shared<SchedulerRecord>(record);
+		if (reload) {
+			removeSchedulerTask(item->second);
+			addSchedulerTask(ptr);
+		} else {
+			if (persist != item->second->isPersistent()) {
+				if (persist) {
+					createTaskFile(ptr);
+				} else {
+					deleteTaskFile(taskId);
+				}
+			}
+			item->second = ptr;
+		}
+		return ptr->getTaskId();
+	}
+
+	void Scheduler::changeTaskState(const std::string &clientId, const TaskHandle &taskId, bool active) {
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		auto record = m_tasksMap.find(taskId);
+		if (record == m_tasksMap.end() || clientId != record->second->getClientId()) {
+			throw std::logic_error("Client or task ID does not exist.");
+		}
+		if (record->second->isActive() == active) {
+			return;
+		}
+		if (active) {
+			scheduleTask(record->second);
+		} else {
+			unscheduleTask(taskId);
+		}
+		record->second->setActive(active);
+	}
+
+	void Scheduler::removeAllTasks(const std::string &clientId) {
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		for (auto it = m_tasksMap.begin(); it != m_tasksMap.end();) {
+			if (it->second->getClientId() != clientId) {
 				it++;
+			}
+			const TaskHandle taskId = it->second->getTaskId();
+			unscheduleTask(taskId);
+			if (it->second->isPersistent()) {
+				deleteTaskFile(taskId);
+			}
+			it = m_tasksMap.erase(it);
+		}
+	}
+
+	void Scheduler::removeTask(const std::string &clientId, const TaskHandle &taskId) {
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		auto record = m_tasksMap.find(taskId);
+		if (record != m_tasksMap.end() && clientId == record->second->getClientId()) {
+			removeSchedulerTask(record->second);
+		}
+	}
+
+	void Scheduler::removeTasks(const std::string &clientId, std::vector<TaskHandle> &taskIds) {
+		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
+		for (auto &taskId : taskIds) {
+			auto record = m_tasksMap.find(taskId);
+			if (record != m_tasksMap.end() && clientId == record->second->getClientId()) {
+				removeSchedulerTask(record->second);
 			}
 		}
 	}
@@ -344,16 +512,20 @@ namespace iqrf {
 #endif
 				}
 
-				std::shared_ptr<ScheduleRecord> ptr(shape_new ScheduleRecord(taskDoc));
-				ptr->setPersist(true);
+				std::shared_ptr<SchedulerRecord> record(shape_new SchedulerRecord(taskDoc));
+				record->setPersistence(true);
 
 				// lock and copy
 				std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-				auto found = m_scheduledTasksByHandle.find(ptr->getTaskHandle());
-				if (found != m_scheduledTasksByHandle.end()) {
-					TRC_WARNING("Cannot load duplicit: " << NAME_PAR(taskId, ptr->getTaskHandle()))
+				auto found = m_tasksMap.find(record->getTaskId());
+				if (found != m_tasksMap.end()) {
+					TRC_WARNING("Cannot load duplicit: " << NAME_PAR(taskId, record->getTaskId()))
 				} else {
-					addScheduleRecordUnlocked(ptr);
+					m_tasksMap.insert(std::make_pair(record->getTaskId(), record));
+					if (record->isStartupTask()) {
+						scheduleTask(record);
+						record->setActive(true);
+					}
 				}
 			}
 		} catch (std::exception &e) {
@@ -363,33 +535,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	Scheduler::TaskHandle Scheduler::scheduleTask(const std::string &clientId, const std::string &taskId, const rapidjson::Value &task, const CronType &cronTime, bool persist)
-	{
-		std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, getTaskHandle(taskId), task, cronTime, persist));
-		return addScheduleRecord(s);
-	}
-
-	Scheduler::TaskHandle Scheduler::scheduleTask(const std::string &clientId, const std::string &taskId, const rapidjson::Value &task, const std::string &cronTime, bool persist)
-	{
-		std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, getTaskHandle(taskId), task, cronTime, persist));
-		return addScheduleRecord(s);
-	}
-
-	Scheduler::TaskHandle Scheduler::scheduleTaskAt(const std::string &clientId, const std::string &taskId, const rapidjson::Value &task, const std::chrono::system_clock::time_point& tp, bool persist)
-	{
-		std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, getTaskHandle(taskId), task, tp, persist));
-		return addScheduleRecord(s);
-	}
-
-	Scheduler::TaskHandle Scheduler::scheduleTaskPeriodic(const std::string &clientId, const std::string &taskId, const rapidjson::Value &task, const std::chrono::seconds &sec,
-		const std::chrono::system_clock::time_point& tp, bool persist)
-	{
-		std::shared_ptr<ScheduleRecord> s = std::shared_ptr<ScheduleRecord>(shape_new ScheduleRecord(clientId, getTaskHandle(taskId), task, sec, tp, persist));
-		return addScheduleRecord(s);
-	}
-
-	int Scheduler::handleScheduledRecord(const ScheduleRecord &record) {
-
+	int Scheduler::handleScheduledRecord(const SchedulerRecord &record) {
 		{
 			std::lock_guard<std::mutex> lck(m_messageHandlersMutex);
 			try {
@@ -403,160 +549,147 @@ namespace iqrf {
 				CATCH_EXC_TRC_WAR(std::exception, e, "untreated handler exception");
 			}
 		}
-
 		return 0;
 	}
 
-	Scheduler::TaskHandle Scheduler::addScheduleRecordUnlocked(std::shared_ptr<ScheduleRecord> &record) {
-		system_clock::time_point timePoint;
-		std::tm timeStr;
-		ScheduleRecord::getTime(timePoint, timeStr);
-		TRC_DEBUG(ScheduleRecord::asString(timePoint));
-
-		// add according time
-		system_clock::time_point tp = record->getNext(timePoint, timeStr);
-		m_scheduledTasksByTime.insert(std::make_pair(tp, record));
-
-		// add according handle
-		while (true) { // get unique handle
-			auto result = m_scheduledTasksByHandle.insert(std::make_pair(record->getTaskHandle(), record));
-			if (result.second) {
-				break;
-			}
+	Scheduler::TaskHandle Scheduler::addSchedulerTask(std::shared_ptr<SchedulerRecord> &record) {
+		using namespace rapidjson;
+		if (record->isPersistent()) {
+			createTaskFile(record);
 		}
-		return record->getTaskHandle();
+		m_tasksMap.insert(std::make_pair(record->getTaskId(), record));
+		if (record->isStartupTask()) {
+			scheduleTask(record);
+			record->setActive(true);
+		}
+		return record->getTaskId();
 	}
 
-	Scheduler::TaskHandle Scheduler::addScheduleRecord(std::shared_ptr<ScheduleRecord> &record) {
-		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
+	void Scheduler::createTaskFile(std::shared_ptr<SchedulerRecord> &record) {
+		using namespace rapidjson;
+		std::ostringstream os;
+		os << m_cacheDir << '/' << record->getTaskId() << ".json";
+		std::string fname = os.str();
 
-		if (record->isPersist()) {
-			using namespace rapidjson;
-
-			std::ostringstream os;
-			os << m_cacheDir << '/' << record->getTaskHandle() << ".json";
-			std::string fname = os.str();
-
-			std::ifstream ifs(fname);
-			if (ifs.good()) {
-				TRC_WARNING("File already exists: " << PAR(fname));
-			} else {
-				Document d;
-				auto v = record->serialize(d.GetAllocator());
-				d.Swap(v);
-				std::ofstream ofs(fname);
-				OStreamWrapper osw(ofs);
-				PrettyWriter<OStreamWrapper> writer(osw);
-				d.Accept(writer);
-				ofs.close();
+		std::ifstream ifs(fname);
+		if (ifs.good()) {
+			TRC_WARNING("File already exists: " << PAR(fname));
+		} else {
+			Document d;
+			auto v = record->serialize(d.GetAllocator());
+			d.Swap(v);
+			std::ofstream ofs(fname);
+			OStreamWrapper osw(ofs);
+			PrettyWriter<OStreamWrapper> writer(osw);
+			d.Accept(writer);
+			ofs.close();
 #ifndef SHAPE_PLATFORM_WINDOWS
-				int fd = open(fname.c_str(), O_RDWR);
-				if (fd < 0) {
-					TRC_WARNING("Failed to open file " << fname << ". " << errno << ": " << strerror(errno));
-				} else {
-					if (fsync(fd) < 0) {
-						TRC_WARNING("Failed to sync file to filesystem." << errno << ": " << strerror(errno));
-					}
-					close(fd);
+			int fd = open(fname.c_str(), O_RDWR);
+			if (fd < 0) {
+				TRC_WARNING("Failed to open file " << fname << ". " << errno << ": " << strerror(errno));
+			} else {
+				if (fsync(fd) < 0) {
+					TRC_WARNING("Failed to sync file to filesystem." << errno << ": " << strerror(errno));
 				}
-#endif
+				close(fd);
 			}
+#endif
 		}
-
-		addScheduleRecordUnlocked(record);
-
-		// notify timer thread
-		std::unique_lock<std::mutex> lckn(m_conditionVariableMutex);
-		m_scheduledTaskPushed = true;
-		m_conditionVariable.notify_one();
-
-		return record->getTaskHandle();
 	}
 
-	void Scheduler::removeScheduleRecord(std::shared_ptr<ScheduleRecord> &record) {
-		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-		removeScheduleRecordUnlocked(record);
+	void Scheduler::scheduleTask(std::shared_ptr<SchedulerRecord> &record) {
+		system_clock::time_point timePoint;
+		std::tm time;
+		SchedulerRecord::getTime(timePoint, time);
+		TRC_DEBUG(SchedulerRecord::asString(timePoint));
+
+		system_clock::time_point next = record->getNext(timePoint, time);
+		m_scheduledTasksMap.insert(std::make_pair(next, record->getTaskId()));
 	}
 
-	void Scheduler::removeScheduleRecordUnlocked(std::shared_ptr<ScheduleRecord> &record) {
-		Scheduler::TaskHandle handle = record->getTaskHandle();
-		for (auto it = m_scheduledTasksByTime.begin(); it != m_scheduledTasksByTime.end();) {
-			if (it->second->getTaskHandle() == handle) {
-				it = m_scheduledTasksByTime.erase(it);
+	void Scheduler::unscheduleTask(const TaskHandle &taskId) {
+		for (auto it = m_scheduledTasksMap.begin(); it != m_scheduledTasksMap.end();) {
+			if (it->second == taskId) {
+				it = m_scheduledTasksMap.erase(it);
 			} else {
 				it++;
 			}
 		}
-		if (record->isPersist()) { // remove persistent file
-			std::ostringstream os;
-			os << m_cacheDir << '/' << record->getTaskHandle() << ".json";
-			std::string fname = os.str();
-			std::remove(fname.c_str());
-		}
-
-		m_scheduledTasksByHandle.erase(handle);
 	}
 
-	void Scheduler::timer() {
+	void Scheduler::deleteTaskFile(const TaskHandle &taskId) {
+		std::ostringstream os;
+		os << m_cacheDir << '/' << taskId << ".json";
+		std::string fname = os.str();
+		std::remove(fname.c_str());
+	}
+
+	void Scheduler::removeSchedulerTask(std::shared_ptr<SchedulerRecord> &record) {
+		TaskHandle taskId = record->getTaskId();
+		unscheduleTask(taskId);
+		if (record->isPersistent()) {
+			deleteTaskFile(taskId);
+		}
+		m_tasksMap.erase(taskId);
+	}
+
+	void Scheduler::worker() {
 		system_clock::time_point timePoint;
-		std::tm timeStr;
-		ScheduleRecord::getTime(timePoint, timeStr);
-		TRC_DEBUG(ScheduleRecord::asString(timePoint));
+		std::tm time;
+		SchedulerRecord::getTime(timePoint, time);
+		TRC_DEBUG(SchedulerRecord::asString(timePoint));
 
 		while (m_runTimerThread) {
-			{ // wait for something in the m_scheduledTasks;
-				std::unique_lock<std::mutex> lck(m_conditionVariableMutex);
-				m_conditionVariable.wait_until(lck, timePoint, [&] {
+			{
+				std::unique_lock<std::mutex> lock(m_conditionVariableMutex);
+				m_conditionVariable.wait_until(lock, timePoint, [&] {
 					return m_scheduledTaskPushed;
 				});
 				m_scheduledTaskPushed = false;
 			}
 
-			// get actual time
-			ScheduleRecord::getTime(timePoint, timeStr);
+			// get current time
+			SchedulerRecord::getTime(timePoint, time);
 
-			// fire all expired tasks
 			while (m_runTimerThread) {
 				m_scheduledTasksMutex.lock();
 
-				if (m_scheduledTasksByTime.empty()) {
-					nextWakeupAndUnlock(timePoint);
+				if (m_scheduledTasksMap.empty()) {
+					getNextWorkerCycleTime(timePoint);
 					break;
 				}
 
-				auto begin = m_scheduledTasksByTime.begin();
-				std::shared_ptr<ScheduleRecord> record = begin->second;
-				// auto diff = begin->first.time_since_epoch().count() - timePoint.time_since_epoch().count();
+				auto firstTask = m_scheduledTasksMap.begin();
+				std::shared_ptr<SchedulerRecord> record = m_tasksMap[firstTask->second];
 
-				if (begin->first < timePoint) {
-					// erase fired
-					m_scheduledTasksByTime.erase(begin);
-					// get and schedule next
-					system_clock::time_point nextTimePoint = record->getNext(timePoint, timeStr);
-					if (nextTimePoint >= timePoint) {
-						m_scheduledTasksByTime.insert(std::make_pair(nextTimePoint, record));
+				if (firstTask->first < timePoint) {
+					// remove executed task
+					m_scheduledTasksMap.erase(firstTask);
+					// calculate next execution time
+					system_clock::time_point next = record->getNext(timePoint, time);
+					if (next >= timePoint) {
+						m_scheduledTasksMap.insert(std::make_pair(next, record->getTaskId()));
 					} else {
-						// expired one shot task - remove from m_scheduledTasksByHandle
-						removeScheduleRecordUnlocked(record);
+						removeSchedulerTask(record);
 					}
-					nextWakeupAndUnlock(timePoint);
-					// check if task execution time is now
-					if (record->verifyTimePattern(timeStr)) {
+					getNextWorkerCycleTime(timePoint);
+					/*if (record->isExecutionTime(time)) {
 						m_dpaTaskQueue->pushToQueue(*record);
-					}
+					}*/
+					m_dpaTaskQueue->pushToQueue(*record);
 				} else {
-					nextWakeupAndUnlock(timePoint);
+					getNextWorkerCycleTime(timePoint);
 					break;
 				}
 			}
 		}
 	}
 
-	void Scheduler::nextWakeupAndUnlock(system_clock::time_point &timePoint) {
-		if (!m_scheduledTasksByTime.empty()) {
-			timePoint = m_scheduledTasksByTime.begin()->first;
+	void Scheduler::getNextWorkerCycleTime(std::chrono::system_clock::time_point &timePoint) {
+		if (!m_scheduledTasksMap.empty()) {
+			timePoint = m_scheduledTasksMap.begin()->first;
 		} else {
-			timePoint += seconds(10);
+			timePoint += std::chrono::seconds(10);
 		}
 		m_scheduledTasksMutex.unlock();
 	}
@@ -642,7 +775,7 @@ namespace iqrf {
 		std::string uuid;
 		do {
 			uuid = boost::uuids::to_string(m_uuidGenerator());
-		} while (getMyTask("SchedulerMessaging", uuid));
+		} while (getTask("SchedulerMessaging", uuid));
 		return uuid;
 	}
 

@@ -26,11 +26,11 @@ namespace iqrf {
 	}
 
 	void SchedulerGetTaskMsg::handleMsg() {
-		const Value *task = m_schedulerService->getMyTask(m_clientId, m_taskId);
-		if (task) {
-			m_task = task;
-			m_timeSpec = m_schedulerService->getMyTaskTimeSpec(m_clientId, m_taskId);
-		} else {
+		try {
+			m_taskDoc = new Document();
+			m_schedulerService->getTaskDocument(m_clientId, m_taskId, *m_taskDoc);
+			m_active = m_schedulerService->isTaskActive(m_clientId, m_taskId);
+		} catch (const std::logic_error &e) {
 			throw std::logic_error("Client or task ID does not exist.");
 		}
 	}
@@ -39,8 +39,8 @@ namespace iqrf {
 		Pointer("/data/rsp/clientId").Set(doc, m_clientId);
 		Pointer("/data/rsp/taskId").Set(doc, m_taskId);
 		if (getStatus() == 0) {
-			Pointer("/data/rsp/task").Set(doc, *m_task);
-			Pointer("/data/rsp/timeSpec").Set(doc, *m_timeSpec);
+			Pointer("/data/rsp").Set(doc, *m_taskDoc);
+			Pointer("/data/rsp/active").Set(doc, m_active);
 		}
 		MngBaseMsg::createResponsePayload(doc);
 	}

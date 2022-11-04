@@ -59,16 +59,210 @@
 						"tasks": {
 							"$id": "#/properties/data/properties/rsp/properties/tasks",
 							"title": "Tasks",
-							"description": "Task identifiers",
+							"description": "Task identifiers or array of tasks",
 							"type": "array",
 							"additionalItems": false,
-							"items": {
-								"$id": "#/properties/data/properties/rsp/properties/tasks/items",
-								"title": "Task ID",
-								"description": "Task identifier.",
-								"type": "string",
-								"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-							}
+							"anyOf": [
+								{
+									"items": {
+										"$id": "#/properties/data/properties/rsp/properties/tasks/items",
+										"title": "Task ID",
+										"description": "Task identifier.",
+										"type": "string",
+										"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+									}
+								},
+								{
+									"items": {
+										"type": "object",
+										"required": [
+											"clientId",
+											"taskId",
+											"task",
+											"timeSpec",
+											"persist",
+											"autoStart"
+										],
+										"additionalProperties": false,
+										"properties": {
+											"clientId": {
+												"$id": "#/properties/data/properties/rsp/properties/clientId",
+												"title": "Client ID",
+												"description": "Client identifier.",
+												"type": "string"
+											},
+											"taskId": {
+												"$id": "#/properties/data/properties/rsp/properties/taskId",
+												"title": "Task ID",
+												"description": "Task identifier.",
+												"type": "string",
+												"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+											},
+											"description": {
+												"$id": "#/properties/data/properties/req/properties/description",
+												"title": "Description",
+												"description": "Task description.",
+												"type": "string"
+											},
+											"task": {
+												"$id": "#/properties/data/properties/rsp/properties/task",
+												"title": "Tasks",
+												"description": "Scheduled task or array of tasks.",
+												"oneOf": [
+													{
+														"$ref": "#/definitions/task"
+													},
+													{
+														"type": "array",
+														"additionalItems": false,
+														"items": {
+															"$id": "#/properties/data/properties/req/properties/task/items",
+															"$ref": "#/definitions/task"
+														}
+													}
+												]
+											},
+											"timeSpec": {
+												"$id": "#/properties/data/properties/req/properties/timespec",
+												"title": "Time specification",
+												"description": "Time-based task execution conditions.",
+												"type": "object",
+												"required": [
+													"cronTime",
+													"periodic",
+													"period",
+													"exactTime",
+													"startTime"
+												],
+												"additionalProperties": false,
+												"properties": {
+													"cronTime": {
+														"title": "cron time",
+														"description": "Array of 7 cron format values or cron alias string",
+														"oneOf": [
+															{
+																"type": "array",
+																"minItems": 7,
+																"maxItems": 7,
+																"additionalItems": false,
+																"items": [
+																	{
+																		"title": "seconds",
+																		"description": "cron expression seconds",
+																		"type": "string",
+																		"pattern": "^((\\*|([0-5]?\\d))(\/([1-9]|[1-5]\\d|60))?|[0-5]?\\d(-[0-5]?\\d)?|([0-5]?\\d,)*[0-5]?\\d)$"
+																	},
+																	{
+																		"title": "minutes",
+																		"description": "cron expression minutes",
+																		"type": "string",
+																		"pattern": "^((\\*|([0-5]?\\d))(\/([1-9]|[1-5]\\d|60))?|[0-5]?\\d(-[0-5]?\\d)?|([0-5]?\\d,)*[0-5]?\\d)$"
+																	},
+																	{
+																		"title": "hours",
+																		"description": "cron expression hours",
+																		"type": "string",
+																		"pattern": "^((\\*|(2[0-3]|[0-1]?\\d))(\/([1-9]|1\\d|2[0-4]))?|((2[0-3]|[01]?\\d)(-(2[0-3]|[0-1]?\\d))?)|((2[0-3]|[01]?\\d),)*(2[0-3]|[01]?\\d))$"
+																	},
+																	{
+																		"title": "days of month",
+																		"description": "cron expression days of month",
+																		"type": "string",
+																		"pattern": "^(\\*(\/([1-9]|[12]\\d|3[01]))?|(([1-9]|[12]\\d|3[01])(-([1-9]|[12]\\d|3[01]))?)|(([1-9]|[12]\\d|3[01]),)*([1-9]|[12]\\d|3[01]))$"
+																	},
+																	{
+																		"title": "months",
+																		"description": "cron expression months",
+																		"type": "string",
+																		"pattern": "^((\\*|([2-9]|1[0-2]?))(\/([2-9]|1[0-2]?))?|(([2-9]|1[0-2]?)(-([2-9]|1[0-2]?))?)|(([2-9]|1[0-2]?),)*([2-9]|1[0-2]?))$"
+																	},
+																	{
+																		"title": "days of week",
+																		"description": "cron expression days of week",
+																		"type": "string",
+																		"pattern": "^((\\*|[1-7])(\/[1-7])?|([1-7](-[1-7])?)|(([1-7],)*[1-7]))$"
+																	},
+																	{
+																		"title": "years",
+																		"description": "cron expression years",
+																		"type": "string",
+																		"pattern": "^((\\*|(19[789]\\d|20\\d{2}))(\/\\d+)?|((19[789]\\d|20\\d{2})(-(19[789]\\d|20\\d{2}))?)|((19[789]\\d|20\\d{2}),)*(19[789]\\d|20\\d{2}))$"
+																	}
+																]
+															},
+															{
+																"type": "array",
+																"minItems": 7,
+																"maxItems": 7,
+																"additionalItems": false,
+																"items": {
+																	"type": "string",
+																	"enum": [""]
+																}
+															},
+															{
+																"type": "string",
+																"enum": [
+																	"@reboot",
+																	"@minutely",
+																	"@hourly",
+																	"@daily",
+																	"@weekly",
+																	"@monthly",
+																	"@annually",
+																	"@yearly"
+																]
+															}
+														]
+													},
+													"periodic": {
+														"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
+														"title": "Periodic",
+														"description": "Periodic task execution.",
+														"type": "boolean"
+													},
+													"period": {
+														"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
+														"title": "Period",
+														"description": "Task execution period in seconds.",
+														"type": "integer"
+													},
+													"exactTime": {
+														"$id": "#/properties/data/properties/req/properties/timespec/properties/exactTime",
+														"title": "One shot",
+														"description": "Single task execution now or at a specified time (startTime).",
+														"type": "boolean"
+													},
+													"startTime": {
+														"$id": "#/properties/data/properties/req/properties/timespec/properties/exactTime",
+														"title": "Start time",
+														"description": "One shot task start time in format '2018-01-03T16:00:09'",
+														"type": "string"
+													}
+												}
+											},
+											"persist": {
+												"$id": "#/properties/data/properties/req/properties/persist",
+												"title": "Persistent task",
+												"description": "Task will persist through daemon restarts and shutdowns.",
+												"type": "boolean"
+											},
+											"autoStart": {
+												"$id": "#/properties/data/properties/req/properties/autoStart",
+												"title": "Start task",
+												"description": "Schedule task immediately.",
+												"type": "boolean"
+											},
+											"active": {
+												"$id": "#/properties/data/properties/req/properties/active",
+												"title": "Task active",
+												"description": "Is task scheduled?.",
+												"type": "boolean"
+											}
+										}
+									}
+								}
+							]
 						}
 					}
 				},
@@ -95,6 +289,50 @@
 					"title": "Error string",
 					"description": "Error message string.",
 					"type": "string"
+				}
+			}
+		}
+	},
+	"definitions": {
+		"task": {
+			"$id": "#/definitions/task",
+			"title": "Task object",
+			"type": "object",
+			"required": [
+				"message",
+				"messaging"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"messaging": {
+					"$id": "#/definitions/task/properties/messaging",
+					"title": "Messaging ID(s)",
+					"description": "Scheduler messaging channel(s).",
+					"oneOf":[
+						{
+							"type": "string",
+							"example": "MqttMessaging"
+						},
+						{
+							"type": "array",
+							"items": {
+								"$id": "#/definitions/task/properties/messaging/items",
+								"type": "string",
+								"pattern": "^[^&]+$"
+							},
+							"additionalItems": false,
+							"example": [
+								"MqMessaging",
+								"MqttMessaging"
+							]
+						}
+					]
+				},
+				"message": {
+					"$id": "#/definitions/task/properties/message",
+					"title": "Task message",
+					"description": "Supported Daemon API json request.",
+					"type": "object"
 				}
 			}
 		}

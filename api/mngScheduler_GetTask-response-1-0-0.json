@@ -63,6 +63,12 @@
 							"type": "string",
 							"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
 						},
+						"description": {
+							"$id": "#/properties/data/properties/req/properties/description",
+							"title": "Description",
+							"description": "Task description.",
+							"type": "string"
+						},
 						"task": {
 							"$id": "#/properties/data/properties/rsp/properties/task",
 							"title": "Tasks",
@@ -196,8 +202,7 @@
 									"$id": "#/properties/data/properties/req/properties/timespec/properties/exactTime",
 									"title": "Start time",
 									"description": "One shot task start time in format '2018-01-03T16:00:09'",
-									"type": "string",
-									"format": "date-time"
+									"type": "string"
 								}
 							}
 						},
@@ -205,6 +210,18 @@
 							"$id": "#/properties/data/properties/req/properties/persist",
 							"title": "Persistent task",
 							"description": "Task will persist through daemon restarts and shutdowns.",
+							"type": "boolean"
+						},
+						"autoStart": {
+							"$id": "#/properties/data/properties/req/properties/autoStart",
+							"title": "Start task",
+							"description": "Schedule task immediately.",
+							"type": "boolean"
+						},
+						"active": {
+							"$id": "#/properties/data/properties/req/properties/active",
+							"title": "Task active",
+							"description": "Is task scheduled?.",
 							"type": "boolean"
 						}
 					}

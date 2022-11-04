@@ -43,11 +43,13 @@ namespace iqrf {
 
 		std::cout << ss.str();
 
-		m_schedulerService->scheduleTaskAt(
+		m_schedulerService->scheduleInternalTask(
 			"JsonMngApi",
 			"00000000-0000-0000-0000-000000000000",
 			doc,
-			std::chrono::system_clock::now() + std::chrono::milliseconds((unsigned)m_timeToExit)
+			std::chrono::system_clock::now() + std::chrono::milliseconds((unsigned)m_timeToExit),
+			false,
+			true
 		);
 	}
 

@@ -25,7 +25,7 @@ namespace iqrf {
 	}
 
 	void SchedulerRemoveAllMsg::handleMsg() {
-		m_schedulerService->removeAllMyTasks(m_clientId);
+		m_schedulerService->removeAllTasks(m_clientId);
 	}
 
 	void SchedulerRemoveAllMsg::createResponsePayload(Document &doc) {

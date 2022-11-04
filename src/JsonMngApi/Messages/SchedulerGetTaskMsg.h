@@ -59,8 +59,8 @@ namespace iqrf {
 		/// Scheduler task ID
     	std::string m_taskId;
 		/// Scheduler task
-    	const rapidjson::Value* m_task = nullptr;
-		/// Task execution conditions
-    	const rapidjson::Value* m_timeSpec = nullptr;
+		rapidjson::Document* m_taskDoc = nullptr;
+		/// Task active
+		bool m_active = false;
 	};
 }

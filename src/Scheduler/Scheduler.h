@@ -17,7 +17,7 @@
 #pragma once
 
 #include "JsonUtils.h"
-#include "ScheduleRecord.h"
+#include "SchedulerRecord.h"
 #include "TaskQueue.h"
 #include "ILaunchService.h"
 #include "ShapeProperties.h"
@@ -34,169 +34,112 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-/// \class Scheduler
-/// \brief Tasks scheduler
-/// \details
-/// Scheduled tasks are set according a configuration file or during runtime via IScheduler interface.
-/// The tasks are scheduled periodically or according a time pattern as defined by Cron syntax.
-/// The tasks are stored as std::string and delivered to clients via registered callbacks.
-/// It is up to the client to parse content of delivered std::string and handle it approproiatelly.
-/// Handling must not block as it is done in the scheduler tasks queue and would block handling of other fired tasks.
-/// The client shall create its own handling thread in case of blocking processing.
-///
-/// Runtime scheduling is possible via methods scheduleTaskAt() for task firing at exact time point in future or scheduleTaskPeriodic()
-/// for periodic firing with period in soconds.
-///
-/// Scheduling via configuration file allows scheduling according time pattern similar to unix Cron.
-/// See for details e.g: https://en.wikipedia.org/wiki/Cron link.
-/// Time pattern consist of seven tokens. Unlike Cron it has the token for seconds:
-/// "sec min hour day mon year wday".
-/// The tokens are accepted in these Cron forms, e.g:
-///
-/// Token | meaning
-/// ----- | -------
-/// * | every
-/// 3 | 3rd
-/// 1,2,3 | 1st, 2nd, 3rd
-/// 5/* | every divisible by 5
-///
-/// It is possible to use Cron nicknames for time pattern.
-/// - "@reboot": Run once after reboot.
-/// - "@yearly": Run once a year, ie.  "0 0 0 0 1 1 *".
-/// - "@annually": Run once a year, ie.  "0 0 0 0 1 1 *".
-/// - "@monthly": Run once a month, ie. "0 0 0 0 1 * *".
-/// - "@weekly": Run once a week, ie.  "0 0 0 * * * 0".
-/// - "@daily": Run once a day, ie.   "0 0 0 * * * *".
-/// - "@hourly": Run once an hour, ie. "0 0 * * * * *".
-/// - "@minutely": Run once a minute, ie. "0 * * * * * *".
-///
-/// Configuration file is accepted in this JSON format:
-/// ```json
-/// {
-///  "TasksJson" : [                        #tasks array
-///   {
-///     "time": "*/5 6 * * * * *",          #time pattern
-///     "service" : "BaseServiceForMQTT1",  #id of callback registrator
-///     "message" : {                       #task (passed as std::string)
-///       "ctype": "dpa",
-///       "type" : "raw",
-///       "msgid" : "1",
-///       "timeout" : 1000,
-///       "request" : "00.00.06.03.ff.ff",
-///       "request_ts" : "",
-///       "confirmation" : ".",
-///       "confirmation_ts" : "",
-///       "response" : ".",
-///       "response_ts" : ""
-///   }
-///  ]
-/// }
-/// ```
-
 namespace iqrf {
-  class Scheduler : public ISchedulerService
-  {
-  public:
-    Scheduler();
-    virtual ~Scheduler();
+	class Scheduler : public ISchedulerService {
+	public:
+		Scheduler();
+		virtual ~Scheduler();
 
-    void activate(const shape::Properties *props = 0);
-    void deactivate();
-    void modify(const shape::Properties *props);
+		void activate(const shape::Properties *props = 0);
+		void deactivate();
+		void modify(const shape::Properties *props);
 
-    void registerTaskHandler(const std::string& clientId, TaskHandlerFunc fun) override;
-    void unregisterTaskHandler(const std::string& clientId) override;
+		void registerTaskHandler(const std::string &clientId, TaskHandlerFunc fun) override;
+		void unregisterTaskHandler(const std::string &clientId) override;
 
-    TaskHandle addTask(const std::string &clientId, const std::string &taskId, const rapidjson::Value &task, const rapidjson::Value &timeSpec, bool persist) override;
-    std::vector<TaskHandle> getMyTasks(const std::string& clientId) const override;
-    const rapidjson::Value * getMyTask(const std::string& clientId, const TaskHandle& hndl) const override;
-    const rapidjson::Value * getMyTaskTimeSpec(const std::string& clientId, const TaskHandle& hndl) const override;
-    bool isPersist(const std::string& clientId, const TaskHandle& hndl) const override;
-    void removeAllMyTasks(const std::string& clientId) override;
-    void removeTask(const std::string& clientId, TaskHandle hndl) override;
-    void removeTasks(const std::string& clientId, std::vector<TaskHandle> hndls) override;
+		std::vector<TaskHandle> getTaskIds(const std::string &clientId) const override;
+		std::vector<rapidjson::Value *> getTasks(const std::string &clientId, rapidjson::Document::AllocatorType &allocator) const override;
+		void getTasks(const std::string &clientId) const;
+		void getTaskDocument(const std::string &clientId, const TaskHandle &taskId, rapidjson::Document &doc) const override;
+		const rapidjson::Value *getTask(const std::string &clientId, const TaskHandle &taskId) const override;
+		const rapidjson::Value *getTaskTimeSpec(const std::string &clientId, const TaskHandle &taskId) const override;
+		bool isTaskPersistent(const std::string &clientId, const TaskHandle &taskId) const override;
+		bool isStartupTask(const std::string &clientId, const TaskHandle &taskId) const override;
+		bool isTaskActive(const std::string &clientId, const TaskHandle &taskId) const override;
+		TaskHandle scheduleInternalTask(
+			const std::string &clientId,
+			const std::string &taskId,
+			const rapidjson::Value &task,
+			const std::chrono::system_clock::time_point& tp,
+			bool persist,
+			bool autoStart
+		) override;
+		TaskHandle addTask(
+			const std::string &clientId,
+			const std::string &taskId,
+			const std::string &description,
+			const rapidjson::Value &task,
+			const rapidjson::Value &timeSpec,
+			bool persist,
+			bool autoStart) override;
+		TaskHandle editTask(
+			const std::string &clientId,
+			const std::string &taskId,
+			const std::string &newTaskId,
+			const std::string &description,
+			const rapidjson::Value &task,
+			const rapidjson::Value &timeSpec,
+			bool persist,
+			bool autoStart) override;
+		void changeTaskState(const std::string &clientId, const TaskHandle &taskId, bool active) override;
+		void removeAllTasks(const std::string &clientId) override;
+		void removeTask(const std::string &clientId, const TaskHandle &taskId) override;
+		void removeTasks(const std::string &clientId, std::vector<TaskHandle> &taskIds) override;
 
-    TaskHandle scheduleTask(
-      const std::string& clientId,
-      const std::string& taskId,
-      const rapidjson::Value & task,
-      const CronType& cronTime,
-      bool persis
-    ) override;
-    TaskHandle scheduleTask(
-      const std::string& clientId,
-      const std::string& taskId,
-      const rapidjson::Value & task,
-      const std::string& cronTime,
-      bool persist
-    ) override;
-    TaskHandle scheduleTaskAt(
-      const std::string& clientId,
-      const std::string& taskId,
-      const rapidjson::Value & task,
-      const std::chrono::system_clock::time_point& tp,
-      bool persist
-    ) override;
-    TaskHandle scheduleTaskPeriodic(
-      const std::string& clientId,
-      const std::string& taskId,
-      const rapidjson::Value & task,
-      const std::chrono::seconds& sec,
-      const std::chrono::system_clock::time_point& tp,
-      bool persist
-    ) override;
+		void attachInterface(shape::ILaunchService *iface);
+		void detachInterface(shape::ILaunchService *iface);
 
-    void attachInterface(shape::ILaunchService* iface);
-    void detachInterface(shape::ILaunchService* iface);
+		void attachInterface(shape::ITraceService *iface);
+		void detachInterface(shape::ITraceService *iface);
 
-    void attachInterface(shape::ITraceService* iface);
-    void detachInterface(shape::ITraceService* iface);
-  private:
-    void loadCache();
+	private:
+		void loadCache();
+		int handleScheduledRecord(const SchedulerRecord &record);
+		TaskHandle addSchedulerTask(std::shared_ptr<SchedulerRecord> &record);
+		void createTaskFile(std::shared_ptr<SchedulerRecord> &record);
+		void scheduleTask(std::shared_ptr<SchedulerRecord> &record);
+		void unscheduleTask(const TaskHandle &taskId);
+		void deleteTaskFile(const TaskHandle &taskId);
+		void removeSchedulerTask(std::shared_ptr<SchedulerRecord> &record);
+		void worker();
+		void getNextWorkerCycleTime(std::chrono::system_clock::time_point &timePoint);
+		std::set<std::string> getTaskFiles(const std::string &dir) const;
+		std::string getTaskHandle(const std::string &taskId);
+		std::string generateTaskId();
 
-    int handleScheduledRecord(const ScheduleRecord& record);
-
-    TaskHandle addScheduleRecordUnlocked(std::shared_ptr<ScheduleRecord>& record);
-    TaskHandle addScheduleRecord(std::shared_ptr<ScheduleRecord>& record);
-
-    void removeScheduleRecordUnlocked(std::shared_ptr<ScheduleRecord>& record);
-    void removeScheduleRecord(std::shared_ptr<ScheduleRecord>& record);
-
-    ////////////////////////////////
-    TaskQueue<ScheduleRecord>* m_dpaTaskQueue = nullptr;
-
-    std::string m_cacheDir;
-    std::string m_schemaFile;
-    boost::uuids::basic_random_generator<boost::mt19937> m_uuidGenerator;
-
-    std::set<std::string> getTaskFiles(const std::string& dir) const;
-    std::string getTaskHandle(const std::string &taskId);
-    std::string generateTaskId();
-
-    std::map<std::string, TaskHandlerFunc> m_messageHandlers;
-    std::mutex m_messageHandlersMutex;
-
-    // Scheduled tasks by time contains [time_point, ScheduleRecords] pairs.
-    // When the time_point is reached, the task is fired and removed. Another pair is added with the next time_point
-    // generated from required time matrice
-    std::multimap<std::chrono::system_clock::time_point, std::shared_ptr<ScheduleRecord>> m_scheduledTasksByTime;
-    bool m_scheduledTaskPushed;
-    mutable std::mutex m_scheduledTasksMutex;
-
-    std::thread m_timerThread;
-    std::atomic_bool m_runTimerThread;
-    std::mutex m_conditionVariableMutex;
-    std::condition_variable m_conditionVariable;
-    void timer();
-    void nextWakeupAndUnlock(std::chrono::system_clock::time_point& timePoint);
-
-    std::map<TaskHandle, std::shared_ptr<ScheduleRecord>> m_scheduledTasksByHandle;
-
-    shape::ILaunchService* m_iLaunchService = nullptr;
-
-    std::shared_ptr<rapidjson::SchemaDocument> m_schema;
-
-    const std::string TASK_FILE_PATTERN = "^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\.json$";
-  };
-
+		/// Launch service
+		shape::ILaunchService *m_iLaunchService = nullptr;
+		/// Cache dir
+		std::string m_cacheDir;
+		/// Path to schema file
+		std::string m_schemaFile;
+		/// Schema document
+		std::shared_ptr<rapidjson::SchemaDocument> m_schema;
+		/// Message handler mutex
+		std::mutex m_messageHandlersMutex;
+		/// Message handlers
+		std::map<std::string, TaskHandlerFunc> m_messageHandlers;
+		/// Task queue
+		TaskQueue<SchedulerRecord> *m_dpaTaskQueue = nullptr;
+		/// Scheduled tasks mutex
+		mutable std::mutex m_scheduledTasksMutex;
+		/// Tasks available
+		bool m_scheduledTaskPushed;
+		/// Scheduler worker thread
+		std::thread m_timerThread;
+		/// Worker thread run condition
+		std::atomic_bool m_runTimerThread;
+		/// Worker thread mutex
+		std::mutex m_conditionVariableMutex;
+		/// Worker thread condition variable
+		std::condition_variable m_conditionVariable;
+		/// Map of all tasks
+		std::map<TaskHandle, std::shared_ptr<SchedulerRecord>> m_tasksMap;
+		/// Map of active, scheduled tasks
+		std::multimap<std::chrono::system_clock::time_point, TaskHandle> m_scheduledTasksMap;
+		/// Task ID pattern
+		const std::string TASK_FILE_PATTERN = "^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\.json$";
+		/// UUID v4 generator
+		boost::uuids::basic_random_generator<boost::mt19937> m_uuidGenerator;
+	};
 }
