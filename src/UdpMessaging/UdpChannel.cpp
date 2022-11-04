@@ -119,7 +119,7 @@ UdpChannel::~UdpChannel() {
 #ifdef SHAPE_PLATFORM_WINDOWS
 	WSACleanup();
 #endif
-
+	delete[] m_controlBuff;
 	delete[] m_dataBuff;
 }
 
