@@ -1,4 +1,4 @@
-src/start-IqrfDaemon/configuration/*.json                   usr/share/iqrf-gateway/default/daemon
-src/start-IqrfDaemon/configuration-LinDeploy/*.json         usr/share/iqrf-gateway/default/daemon
+src/start-IqrfDaemon/configuration/*.json                   usr/share/iqrf-gateway/default/daemon/config/
+src/start-IqrfDaemon/configuration-LinDeploy/*.json         usr/share/iqrf-gateway/default/daemon/config/
 src/start-IqrfDaemon/cfgSchemas                             usr/share/iqrf-gateway/default/daemon
 src/start-IqrfDaemon/schedulerSchemas                       usr/share/iqrf-gateway/default/daemon
