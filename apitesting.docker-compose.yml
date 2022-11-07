@@ -43,7 +43,7 @@ services:
       - mosquitto
 
   tests:
-    image: iqrftech/iqrf-gateway-daemon-api-testing:pre-v2.4.x
+    image: iqrftech/iqrf-gateway-daemon-api-testing:latest
     container_name: tavern_test
     depends_on:
       - mosquitto
