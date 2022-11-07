@@ -55,6 +55,13 @@ stages:
     - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
     - git submodule update --init --recursive
 
+.deploy-template:
+  script:
+    - export DEPLOY_DIR=/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH_PREFIX}${ARCH}/${STABILITY}
+    - if [ "${STABILITY}" == "devel" ]; then ssh www-deploy@icinga.iqrf.org "rm -f ${DEPLOY_DIR}/*"; fi
+    - if [ "${STABILITY}" != "devel" ]; then ssh www-deploy@icinga.iqrf.org "rm -f ${DEPLOY_DIR}/*.changes"; fi
+    - rsync -hrvz --delete -e ssh *_all.deb *_${ARCH}.deb *_${ARCH}.changes www-deploy@icinga.iqrf.org:${DEPLOY_DIR}
+
 .package-template:
   image: iqrftech/debian-c-builder:${DISTRIBUTION}-${DIST}-${ARCH}
   stage: build-package
@@ -71,10 +78,6 @@ stages:
     - mv ../*.changes .
     - sed -i "s/.ddeb/.deb/g" *.changes
     - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-    - export DEPLOY_DIR=/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH_PREFIX}${ARCH}/${STABILITY}
-    - if [ "${STABILITY}" == "devel" ]; then ssh www-deploy@icinga.iqrf.org "rm -f ${DEPLOY_DIR}/*"; fi
-    - if [ "${STABILITY}" != "devel" ]; then ssh www-deploy@icinga.iqrf.org "rm -f ${DEPLOY_DIR}/*.changes"; fi
-    - rsync -hrvz --delete -e ssh *_all.deb *_${ARCH}.deb *_${ARCH}.changes www-deploy@icinga.iqrf.org:${DEPLOY_DIR}
   artifacts:
     paths:
       - ./*.deb
@@ -157,6 +160,32 @@ package-devel:
     - export DAEMON_VERSION=v2.4.0-beta~${CI_PIPELINE_ID}
     - export STABILITY=devel
     - !reference [.ssh-template, before_script]
+  after_script:
+    !reference [.deploy-template, script]
+
+package-feature:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      when: manual
+  extends: .package-template
+  before_script:
+    - !reference [.ccache-template, before_script]
+    - export DAEMON_VERSION=v2.4.0-beta~${CI_PIPELINE_ID}
+    - export STABILITY=devel
+    - !reference [.ssh-template, before_script]
+  parallel:
+    matrix:
+      - DISTRIBUTION: debian
+        DIST: [bullseye, buster]
+        ARCH: [amd64, armhf]
+      - DISTRIBUTION: raspbian
+        ARCH: armhf
+        ARCH_PREFIX: "rpi-"
+        CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
+        CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
+        DIST: [bullseye, buster]
 
 package-release:
   only:
@@ -167,6 +196,8 @@ package-release:
     - export DAEMON_VERSION="$CI_COMMIT_TAG"
     - '[[ "$CI_COMMIT_TAG" =~ ^.*-(alpha|beta|rc)[0-9]*$ ]] && export STABILITY="testing" || export STABILITY="stable"'
     - !reference [.ssh-template, before_script]
+  after_script:
+    !reference [.deploy-template, script]
 
 # API
 api-deploy:
