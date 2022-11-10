@@ -71,6 +71,6 @@ namespace iqrf {
 		/// Persistent task
 		bool m_persist = false;
 		/// Schedule task automatically
-		bool m_autoStart = false;
+		bool m_enabled = false;
 	};
 }

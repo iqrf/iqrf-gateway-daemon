@@ -156,27 +156,7 @@
 											]
 										},
 										{
-											"type": "array",
-											"minItems": 7,
-											"maxItems": 7,
-											"additionalItems": false,
-											"items": {
-												"type": "string",
-												"enum": [""]
-											}
-										},
-										{
-											"type": "string",
-											"enum": [
-												"@reboot",
-												"@minutely",
-												"@hourly",
-												"@daily",
-												"@weekly",
-												"@monthly",
-												"@annually",
-												"@yearly"
-											]
+											"type": "string"
 										}
 									]
 								},
@@ -212,8 +192,8 @@
 							"description": "Task will persist through daemon restarts and shutdowns.",
 							"type": "boolean"
 						},
-						"autoStart": {
-							"$id": "#/properties/data/properties/req/properties/autoStart",
+						"enabled": {
+							"$id": "#/properties/data/properties/req/properties/enabled",
 							"title": "Start task",
 							"description": "Schedule task immediately.",
 							"type": "boolean"

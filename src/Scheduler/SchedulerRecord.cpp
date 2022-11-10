@@ -30,8 +30,8 @@ namespace iqrf {
 		const rapidjson::Value &task,
 		const std::chrono::system_clock::time_point &startTime,
 		bool persist,
-		bool autoStart
-	) : m_clientId(clientId), m_taskId(taskId), m_exactTime(true), m_startTime(startTime), m_persist(persist), m_autoStart(autoStart)
+		bool enabled
+	) : m_clientId(clientId), m_taskId(taskId), m_exactTime(true), m_startTime(startTime), m_persist(persist), m_enabled(enabled)
 	{
 		init(task);
 	}
@@ -43,8 +43,8 @@ namespace iqrf {
 		const std::chrono::seconds &period,
 		const std::chrono::system_clock::time_point &startTime,
 		bool persist,
-		bool autoStart
-	) : m_clientId(clientId), m_taskId(taskId), m_periodic(true), m_period(period), m_startTime(startTime), m_persist(persist), m_autoStart(autoStart)
+		bool enabled
+	) : m_clientId(clientId), m_taskId(taskId), m_periodic(true), m_period(period), m_startTime(startTime), m_persist(persist), m_enabled(enabled)
 	{
 		if (period.count() <= 0) {
 			THROW_EXC_TRC_WAR(std::logic_error, "Period must be at least >= 1sec " << NAME_PAR(period, period.count()))
@@ -58,8 +58,8 @@ namespace iqrf {
 		const rapidjson::Value &task,
 		const ISchedulerService::CronType &cronTime,
 		bool persist,
-		bool autoStart
-	) : m_clientId(clientId), m_taskId(taskId), m_cron(cronTime), m_persist(persist), m_autoStart(autoStart)
+		bool enabled
+	) : m_clientId(clientId), m_taskId(taskId), m_cron(cronTime), m_persist(persist), m_enabled(enabled)
 	{
 		init(task);
 	}
@@ -70,8 +70,8 @@ namespace iqrf {
 		const rapidjson::Value &task,
 		const std::string &cronTime,
 		bool persist,
-		bool autoStart
-	) : m_clientId(clientId), m_taskId(taskId), m_cronString(cronTime), m_persist(persist), m_autoStart(autoStart)
+		bool enabled
+	) : m_clientId(clientId), m_taskId(taskId), m_cronString(cronTime), m_persist(persist), m_enabled(enabled)
 	{
 		init(task);
 	}
@@ -89,35 +89,30 @@ namespace iqrf {
 		if (val) {
 			m_persist = val->GetBool();
 		}
-		val = Pointer("/autoStart").Get(rec);
+		val = Pointer("/enabled").Get(rec);
 		if (val) {
-			m_autoStart = val->GetBool();
+			m_enabled = val->GetBool();
 		}
 	}
 
 	SchedulerRecord::SchedulerRecord(const SchedulerRecord &other) {
-		m_task.CopyFrom(other.m_task, m_task.GetAllocator());
 		m_clientId = other.m_clientId;
-
-		m_vsec = other.m_vsec;
-		m_vmin = other.m_vmin;
-		m_vhour = other.m_vhour;
-		m_vmday = other.m_vmday;
-		m_vmon = other.m_vmon;
-		m_vwday = other.m_vwday;
-		m_vyear = other.m_vyear;
-
-		m_exactTime = other.m_exactTime;
-		m_periodic = other.m_periodic;
-		m_started = other.m_started;
-		m_period = other.m_period;
-		m_startTime = other.m_startTime;
-		m_cron = other.m_cron;
-
 		m_taskId = other.m_taskId;
 		m_description = other.m_description;
+		m_task.CopyFrom(other.m_task, m_task.GetAllocator());
+
+		m_periodic = other.m_periodic;
+		m_period = other.m_period;
+		m_exactTime = other.m_exactTime;
+		m_startTime = other.m_startTime;
+		m_cron = other.m_cron;
+		m_cronString = other.m_cronString;
+		m_cronExpr = other.m_cronExpr;
+		m_started = other.m_started;
+
 		m_persist = other.m_persist;
-		m_autoStart = other.m_autoStart;
+		m_enabled = other.m_enabled;
+		m_active = other.m_active;
 
 		populateTimeSpec();
 	}
@@ -131,7 +126,7 @@ namespace iqrf {
 		Pointer("/task").Set(v, m_task, a);
 		Pointer("/timeSpec").Set(v, m_timeSpec, a);
 		Pointer("/persist").Set(v, m_persist, a);
-		Pointer("/autoStart").Set(v, m_autoStart, a);
+		Pointer("/enabled").Set(v, m_enabled, a);
 		return v;
 	}
 
@@ -185,11 +180,11 @@ namespace iqrf {
 	}
 
 	bool SchedulerRecord::isStartupTask() const {
-		return m_autoStart;
+		return m_enabled;
 	}
 
-	void SchedulerRecord::setStartupTask(bool autoStart) {
-		m_autoStart = autoStart;
+	void SchedulerRecord::setStartupTask(bool enabled) {
+		m_enabled = enabled;
 	}
 
 	bool SchedulerRecord::isActive() const {
@@ -212,65 +207,16 @@ namespace iqrf {
 				m_started = true;
 			}
 		} else {
-			//std::time_t now = std::time(0);
 			std::time_t now = system_clock::to_time_t(actualTimePoint);
 			std::time_t next = cron::cron_next(m_cronExpr, now);
 			tp = system_clock::from_time_t(next);
-			/*
-			//evaluate remaining seconds
-			int asec = actualTime.tm_sec;
-			int fsec = asec;
-			int dsec = 0;
-			// find closest valid sec
-			if (m_vsec.size() > 0 && m_vsec[0] < 0) {
-				fsec = 0; // seconds * use 0 and period is set to 60 sec by default
-			} else {
-				fsec = m_vsec._Find_first();
-				for (int i = asec + 1, n = m_vsec.size(); i < n; ++i) {
-					if (m_vsec.test(i)) {
-						fsec = i;
-						break;
-					}
-				}
-			}
-			dsec = fsec - asec;
-			if (fsec <= asec) {
-				dsec += 60;
-			}
-			tp = actualTimePoint + seconds(dsec);
-			*/
 		}
 		return tp;
 	}
 
-	bool SchedulerRecord::isExecutionTime(const std::tm &actualTime) const {
-		if (!m_periodic && !m_exactTime) {
-			if (!m_vmin.test(actualTime.tm_min)) {
-				return false;
-			}
-			if (!m_vhour.test(actualTime.tm_hour)) {
-				return false;
-			}
-			if (!m_vmday.test(actualTime.tm_mday - 1)) {
-				return false;
-			}
-			if (!m_vmon.test(actualTime.tm_mon)) {
-				return false;
-			}
-			if (!m_vwday.test(actualTime.tm_wday)) {
-				return false;
-			}
-			if (!m_vyear.test(actualTime.tm_year - 70)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	void SchedulerRecord::getTime(std::chrono::system_clock::time_point &timePoint, std::tm &timeStr) {
 		timePoint = system_clock::now();
-		time_t tt;
-		tt = system_clock::to_time_t(timePoint);
+		time_t tt = system_clock::to_time_t(timePoint);
 		std::tm *timeinfo;
 		timeinfo = localtime(&tt);
 		timeStr = *timeinfo;
@@ -308,110 +254,53 @@ namespace iqrf {
 		m_startTime = TimeConversion::parseTimestamp(Pointer("/startTime").Get(m_timeSpec)->GetString());
 	}
 
-	void SchedulerRecord::parseCron() {
-		if (!m_periodic && !m_exactTime) {
-			ISchedulerService::CronType tempCron = m_cron;
-			if (!m_cronString.empty() && m_cronString[0] == '@') {
-				std::string ts = m_cronString.substr(0, m_cronString.find(" ", 0)); // get just beginning string without spaces and other * rubish
-				auto found = CRON_ALIASES.find(ts);
-				if (found != CRON_ALIASES.end()) {
-					if (found->second.empty()) {
-						m_exactTime = true;
-						m_startTime = std::chrono::system_clock::now();
-					}
-					std::stringstream strstr(found->second);
-					std::istream_iterator<std::string> it(strstr);
-					std::istream_iterator<std::string> end;
-					std::move(it, end, tempCron.begin());
-				} else {
-					THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format:" << PAR(m_cronString));
-				}
-			}
-			if (!m_exactTime) {
-				/*parseItem(tempCron[0], 0, 59, m_vsec);
-				parseItem(tempCron[1], 0, 59, m_vmin);
-				parseItem(tempCron[2], 0, 23, m_vhour);
-				parseItem(tempCron[3], 1, 31, m_vmday, -1);
-				parseItem(tempCron[4], 1, 12, m_vmon, -1);
-				parseItem(tempCron[5], 0, 6, m_vwday);
-				parseItem(tempCron[6], 1970, 2099, m_vyear, -1970);*/
-				m_cronExpr = cron::make_cron(
-					tempCron[0] + ' ' + tempCron[1] + ' ' + tempCron[2] + ' ' +
-					tempCron[3] + ' ' + tempCron[4] + ' ' + tempCron[5] + ' ' + tempCron[6]
-				);
-			}
+	std::string SchedulerRecord::resolveCronAlias(const std::string &alias) {
+		auto result = CRON_ALIASES.find(alias);
+		if (result == CRON_ALIASES.end()) {
+			THROW_EXC_TRC_WAR(std::logic_error, "Unknown or unsupported alias: " << alias);
 		}
+		return result->second;
 	}
 
-	template<size_t bits>
-	void SchedulerRecord::parseItem(const std::string &item, int min, int max, std::bitset<bits> &bitset, int offset) {
-		size_t pos;
-		int val = 0;
-		if (item == "*") {
-			for (int i = min; i <= max; ++i) {
-				bitset.set(i + offset, true);
-			}
-		} else if ((pos = item.find('/')) != std::string::npos) {
-			if (++pos > item.size() - 1) {
-				THROW_EXC_TRC_WAR(std::logic_error, "Unexpected format: " << item);
-			}
-			int divid = std::stoi(item.substr(pos));
-			if (divid <= 0) {
-				THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << item);
-			}
-			val = min % divid;
-			val = val == 0 ? min : min - val + divid;
-			while (val <= max) {
-				bitset.set(val + offset, true);
-				val += divid;
-			}
-			val = min;
-		} else if ((pos = item.find('-')) != std::string::npos) {
-			if (++pos > item.size() - 1) {
-				THROW_EXC_TRC_WAR(std::logic_error, "Invalid format: " << item);
-			}
-			int start = std::stoi(item.substr(0, pos - 1));
-			int end = std::stoi(item.substr(pos));
-			if (start < min || end > max || start >= end) {
-				THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << item)
-			}
-			for (int i = start; i <= end; ++i) {
-				bitset.set(i, true);
-			}
-			val = min;
-		} else if ((pos = item.find(',')) != std::string::npos) {
-			pos = 0;
-			std::string substr = item;
-			while (true) {
-				val = std::stoi(substr, &pos);
-				if (val < min || val > max) {
-					THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << item);
+	void SchedulerRecord::parseCron() {
+		if (m_periodic || m_exactTime) {
+			return;
+		}
+		try {
+			if (!m_cronString.empty()) {
+				if (m_cronString[0] == '@') {
+					m_cronString = resolveCronAlias(m_cronString);
 				}
-				bitset.set(val + offset, true);
-				if (++pos > substr.size() - 1) {
-					break;
+				m_cronExpr = cron::make_cron(m_cronString);
+				return;
+
+			}
+			std::ostringstream oss;
+			for (int i = 0, n = m_cron.size(); i < n; ++i) {
+				oss << m_cron[i];
+				if ((i+1) != n) {
+					oss << ' ';
 				}
-				substr = substr.substr(pos);
 			}
-			val = min;
-		} else {
-			val = std::stoi(item);
-			if (val < min || val > max) {
-				THROW_EXC_TRC_WAR(std::logic_error, "Invalid value: " << item);
-			}
-			bitset.set(val + offset, true);
+			m_cronExpr = cron::make_cron(oss.str());
+		} catch (const cron::bad_cronexpr &e) {
+			THROW_EXC_TRC_WAR(std::logic_error, "Cron expression error: " << e.what());
 		}
 	}
 
 	void SchedulerRecord::populateTimeSpec() {
 		using namespace rapidjson;
-		Pointer("/cronTime/0").Set(m_timeSpec, m_cron[0]);
-		Pointer("/cronTime/1").Set(m_timeSpec, m_cron[1]);
-		Pointer("/cronTime/2").Set(m_timeSpec, m_cron[2]);
-		Pointer("/cronTime/3").Set(m_timeSpec, m_cron[3]);
-		Pointer("/cronTime/4").Set(m_timeSpec, m_cron[4]);
-		Pointer("/cronTime/5").Set(m_timeSpec, m_cron[5]);
-		Pointer("/cronTime/6").Set(m_timeSpec, m_cron[6]);
+		if (m_cronString.length() > 0) {
+			Pointer("/cronTime").Set(m_timeSpec, m_cronString);
+		} else {
+			Pointer("/cronTime/0").Set(m_timeSpec, m_cron[0]);
+			Pointer("/cronTime/1").Set(m_timeSpec, m_cron[1]);
+			Pointer("/cronTime/2").Set(m_timeSpec, m_cron[2]);
+			Pointer("/cronTime/3").Set(m_timeSpec, m_cron[3]);
+			Pointer("/cronTime/4").Set(m_timeSpec, m_cron[4]);
+			Pointer("/cronTime/5").Set(m_timeSpec, m_cron[5]);
+			Pointer("/cronTime/6").Set(m_timeSpec, m_cron[6]);
+		}
 		Pointer("/exactTime").Set(m_timeSpec, m_exactTime);
 		Pointer("/periodic").Set(m_timeSpec, m_periodic);
 		Pointer("/period").Set(m_timeSpec, (uint64_t)(m_period.count()));

@@ -90,7 +90,7 @@ namespace iqrf {
 
     virtual bool isTaskActive(const std::string &clientId, const TaskHandle &taskId) const = 0;
 
-    virtual TaskHandle scheduleInternalTask(const std::string &clientId, const TaskHandle &taskId, const rapidjson::Value &task, const std::chrono::system_clock::time_point& tp, bool persist, bool autoStart) = 0;
+    virtual TaskHandle scheduleInternalTask(const std::string &clientId, const TaskHandle &taskId, const rapidjson::Value &task, const std::chrono::system_clock::time_point& tp, bool persist, bool enabled) = 0;
 
     virtual TaskHandle addTask(
       const std::string &clientId,
@@ -99,7 +99,7 @@ namespace iqrf {
       const rapidjson::Value &task,
       const rapidjson::Value &timeSpec,
       bool persist,
-      bool autoStart
+      bool enabled
     ) = 0;
 
     virtual TaskHandle editTask(
@@ -110,7 +110,7 @@ namespace iqrf {
       const rapidjson::Value &task,
       const rapidjson::Value &timeSpec,
       bool persist,
-      bool autoStart
+      bool enabled
     ) = 0;
 
     virtual void changeTaskState(const std::string &clientId, const TaskHandle &taskId, bool active) = 0;

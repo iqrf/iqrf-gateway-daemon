@@ -46,7 +46,7 @@ namespace iqrf {
 		 * @param task Task messages
 		 * @param startTime Task execution time point
 		 * @param persist Persistent task
-		 * @param autoStart Start task automatically
+		 * @param enabled Start task automatically
 		 */
 		SchedulerRecord(
 			const std::string &clientId,
@@ -54,7 +54,7 @@ namespace iqrf {
 			const rapidjson::Value &task,
 			const std::chrono::system_clock::time_point &startTime,
 			bool persist,
-			bool autoStart
+			bool enabled
 		);
 
 		/**
@@ -65,7 +65,7 @@ namespace iqrf {
 		 * @param period Task execution period
 		 * @param startTime First task execution time point
 		 * @param persist Persistent task
-		 * @param autoStart Start task automatically
+		 * @param enabled Start task automatically
 		 */
 		SchedulerRecord(
 			const std::string &clientId,
@@ -74,7 +74,7 @@ namespace iqrf {
 			const std::chrono::seconds &period,
 			const std::chrono::system_clock::time_point &startTime,
 			bool persist,
-			bool autoStart
+			bool enabled
 		);
 
 		/**
@@ -84,7 +84,7 @@ namespace iqrf {
 		 * @param task Task messages
 		 * @param cronTime Task execution cron array
 		 * @param persist Persistent task
-		 * @param autoStart Start task automatically
+		 * @param enabled Start task automatically
 		 */
 		SchedulerRecord(
 			const std::string &clientId,
@@ -92,7 +92,7 @@ namespace iqrf {
 			const rapidjson::Value &task,
 			const ISchedulerService::CronType &cronTime,
 			bool persist,
-			bool autoStart
+			bool enabled
 		);
 
 		/**
@@ -102,7 +102,7 @@ namespace iqrf {
 		 * @param task Task Messages
 		 * @param cronTime Task execution cron string
 		 * @param persist Persistent task
-		 * @param autoStart Start task automatically
+		 * @param enabled Start task automatically
 		 */
 		SchedulerRecord(
 			const std::string &clientId,
@@ -110,7 +110,7 @@ namespace iqrf {
 			const rapidjson::Value &task,
 			const std::string &cronTime,
 			bool persist,
-			bool autoStart
+			bool enabled
 		);
 
 		/**
@@ -212,9 +212,9 @@ namespace iqrf {
 
 		/**
 		 * Sets task startup
-		 * @param autoStart Task startup
+		 * @param enabled Task startup
 		 */
-		void setStartupTask(bool autoStart);
+		void setStartupTask(bool enabled);
 
 		/**
 		 * Returns task active state
@@ -235,13 +235,6 @@ namespace iqrf {
 		 * @return Task execution time point
 		 */
 		std::chrono::system_clock::time_point getNext(const std::chrono::system_clock::time_point &actualTimePoint, const std::tm &actualTime);
-
-		/**
-		 * Checks if task should be executed at specified time
-		 * @param actualTime Broken-down execution time
-		 * @return true if task ready to execute, false otherwise
-		 */
-		bool isExecutionTime(const std::tm &actualTime) const;
 
 		/**
 		 * Populates time point and broken-down time structure with current time data
@@ -275,15 +268,11 @@ namespace iqrf {
 		void parseCron();
 
 		/**
-		 * Parses cron time unit expression into specific execution times
-		 * @param item Cron expression item
-		 * @param min Minimum time unit value
-		 * @param max Maximum time unit value
-		 * @param vec Vector of time unit execution values
-		 * @param offset Value offset
+		 * Attempts to resolve cron alias
+		 * @param alias Cron alias
+		 * @return Resolved cron alias
 		 */
-		template<size_t bits>
-		void parseItem(const std::string &item, int min, int max, std::bitset<bits> &bitset, int offset = 0);
+		std::string resolveCronAlias(const std::string &alias);
 
 		/**
 		 * Populates internal time specification document with execution time data
@@ -331,31 +320,15 @@ namespace iqrf {
 		ISchedulerService::CronType m_cron;
 		/// Cron string
 		std::string m_cronString;
+		/// Parsed cron expression
 		cron::cronexpr m_cronExpr;
 		/// Persistent task
 		bool m_persist = false;
 		/// Start task automatically
-		bool m_autoStart = false;
+		bool m_enabled = false;
 		/// Is task active
 		bool m_active = false;
-
-		///// timing /////
-
 		/// Started
 		bool m_started = false;
-		/// Seconds to execute task at
-		std::bitset<60> m_vsec;
-		/// Minutes to execute task at
-		std::bitset<60> m_vmin;
-		/// Hours to execute task at
-		std::bitset<24> m_vhour;
-		/// Days to execute task on
-		std::bitset<31> m_vmday;
-		/// Months to execute task in
-		std::bitset<12> m_vmon;
-		/// Weekdays to execute task on
-		std::bitset<7> m_vwday;
-		/// Years to execute task in
-		std::bitset<130> m_vyear;
 	};
 }

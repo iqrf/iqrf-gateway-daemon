@@ -62,7 +62,7 @@ namespace iqrf {
 			const rapidjson::Value &task,
 			const std::chrono::system_clock::time_point& tp,
 			bool persist,
-			bool autoStart
+			bool enabled
 		) override;
 		TaskHandle addTask(
 			const std::string &clientId,
@@ -71,7 +71,7 @@ namespace iqrf {
 			const rapidjson::Value &task,
 			const rapidjson::Value &timeSpec,
 			bool persist,
-			bool autoStart) override;
+			bool enabled) override;
 		TaskHandle editTask(
 			const std::string &clientId,
 			const std::string &taskId,
@@ -80,7 +80,7 @@ namespace iqrf {
 			const rapidjson::Value &task,
 			const rapidjson::Value &timeSpec,
 			bool persist,
-			bool autoStart) override;
+			bool enabled) override;
 		void changeTaskState(const std::string &clientId, const TaskHandle &taskId, bool active) override;
 		void removeAllTasks(const std::string &clientId) override;
 		void removeTask(const std::string &clientId, const TaskHandle &taskId) override;

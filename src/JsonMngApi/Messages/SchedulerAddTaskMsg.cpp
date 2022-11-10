@@ -40,9 +40,9 @@ namespace iqrf {
 		if (val) {
 			m_persist = val->GetBool();
 		}
-		val = Pointer("/data/req/autoStart").Get(doc);
+		val = Pointer("/data/req/enabled").Get(doc);
 		if (val) {
-			m_autoStart = val->GetBool();
+			m_enabled = val->GetBool();
 		}
 
 		val = Pointer("/data/req/task").Get(doc);
@@ -56,8 +56,8 @@ namespace iqrf {
 			if (m_schedulerService->getTask(m_clientId, m_taskId)) {
 				throw std::logic_error("Task already exists");
 			}
-			m_taskId = m_schedulerService->addTask(m_clientId, m_taskId, m_description, *m_task, *m_timeSpec, m_persist, m_autoStart);
-		} catch (std::exception &e) {
+			m_taskId = m_schedulerService->addTask(m_clientId, m_taskId, m_description, *m_task, *m_timeSpec, m_persist, m_enabled);
+		} catch (const std::exception &e) {
 			std::ostringstream os;
 			os << "Cannot schedule task (client ID: " << m_clientId << ", task ID: " << m_taskId << "): "  << e.what();
 			throw std::logic_error(os.str());

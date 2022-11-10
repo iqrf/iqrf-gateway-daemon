@@ -34,9 +34,9 @@ namespace iqrf {
 		if (val) {
 			m_persist = val->GetBool();
 		}
-		val = Pointer("/data/req/autoStart").Get(doc);
+		val = Pointer("/data/req/enabled").Get(doc);
 		if (val) {
-			m_autoStart = val->GetBool();
+			m_enabled = val->GetBool();
 		}
 
 		val = Pointer("/data/req/task").Get(doc);
@@ -55,7 +55,7 @@ namespace iqrf {
 				*m_task,
 				*m_timeSpec,
 				m_persist,
-				m_autoStart
+				m_enabled
 			);
 		} catch (std::exception &e) {
 			std::ostringstream os;

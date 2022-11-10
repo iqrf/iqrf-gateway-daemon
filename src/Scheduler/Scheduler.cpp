@@ -201,7 +201,7 @@ namespace iqrf {
 		Pointer("/task").Set(doc, record->getTask(), a);
 		Pointer("/timeSpec").Set(doc, record->getTimeSpec(), a);
 		Pointer("/persist").Set(doc, record->isPersistent(), a);
-		Pointer("/autoStart").Set(doc, record->isStartupTask(), a);
+		Pointer("/enabled").Set(doc, record->isStartupTask(), a);
 	}
 
 	const rapidjson::Value* Scheduler::getTask(const std::string &clientId, const TaskHandle &taskId) const {
@@ -235,13 +235,13 @@ namespace iqrf {
 	}
 
 	bool Scheduler::isStartupTask(const std::string &clientId, const TaskHandle &taskId) const {
-		bool autoStart = false;
+		bool enabled = false;
 		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
 		auto record = m_tasksMap.find(taskId);
 		if (record != m_tasksMap.end() && clientId == record->second->getClientId()) {
-			autoStart = record->second->isStartupTask();
+			enabled = record->second->isStartupTask();
 		}
-		return autoStart;
+		return enabled;
 	}
 
 	bool Scheduler::isTaskActive(const std::string &clientId, const TaskHandle &taskId) const {
@@ -260,7 +260,7 @@ namespace iqrf {
 		const rapidjson::Value &task,
 		const std::chrono::system_clock::time_point& tp,
 		bool persist,
-		bool autoStart
+		bool enabled
 	) {
 		auto record = std::shared_ptr<SchedulerRecord>(
 			shape_new SchedulerRecord(
@@ -269,7 +269,7 @@ namespace iqrf {
 				task,
 				tp,
 				persist,
-				autoStart
+				enabled
 			)
 		);
 		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
@@ -283,7 +283,7 @@ namespace iqrf {
 		const rapidjson::Value &task,
 		const rapidjson::Value &timeSpec,
 		bool persist,
-		bool autoStart
+		bool enabled
 	) {
 		using namespace rapidjson;
 
@@ -302,7 +302,7 @@ namespace iqrf {
 					std::chrono::seconds(period),
 					TimeConversion::parseTimestamp(startTime),
 					persist,
-					autoStart
+					enabled
 				)
 			);
 		} else if (exactTime) { // oneshot
@@ -314,7 +314,7 @@ namespace iqrf {
 					task,
 					TimeConversion::parseTimestamp(startTime),
 					persist,
-					autoStart
+					enabled
 				)
 			);
 		} else { // cron
@@ -327,10 +327,10 @@ namespace iqrf {
 					cron[i] = it->GetString();
 					it++;
 				}
-				record = std::shared_ptr<SchedulerRecord>(shape_new SchedulerRecord(clientId, getTaskHandle(taskId), task, cron, persist, autoStart));
+				record = std::shared_ptr<SchedulerRecord>(shape_new SchedulerRecord(clientId, getTaskHandle(taskId), task, cron, persist, enabled));
 			} else {
 				cronString = val->GetString();
-				record = std::shared_ptr<SchedulerRecord>(shape_new SchedulerRecord(clientId, getTaskHandle(taskId), task, cronString, persist, autoStart));
+				record = std::shared_ptr<SchedulerRecord>(shape_new SchedulerRecord(clientId, getTaskHandle(taskId), task, cronString, persist, enabled));
 			}
 		}
 		record->setDescription(description);
@@ -346,7 +346,7 @@ namespace iqrf {
 		const rapidjson::Value &task,
 		const rapidjson::Value &timeSpec,
 		bool persist,
-		bool autoStart
+		bool enabled
 	) {
 		using namespace rapidjson;
 		std::lock_guard<std::mutex> lock(m_scheduledTasksMutex);
@@ -369,7 +369,7 @@ namespace iqrf {
 			record.setDescription(description);
 		}
 		record.setPersistence(persist);
-		record.setStartupTask(autoStart);
+		record.setStartupTask(enabled);
 		std::shared_ptr<SchedulerRecord> ptr = std::make_shared<SchedulerRecord>(record);
 		if (reload) {
 			removeSchedulerTask(item->second);
@@ -673,9 +673,6 @@ namespace iqrf {
 						removeSchedulerTask(record);
 					}
 					getNextWorkerCycleTime(timePoint);
-					/*if (record->isExecutionTime(time)) {
-						m_dpaTaskQueue->pushToQueue(*record);
-					}*/
 					m_dpaTaskQueue->pushToQueue(*record);
 				} else {
 					getNextWorkerCycleTime(timePoint);
