@@ -45,8 +45,7 @@
 					"description": "Response data.",
 					"type": "object",
 					"required": [
-						"clientId",
-						"taskId"
+						"clientId"
 					],
 					"additionalProperties": false,
 					"properties": {

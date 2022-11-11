@@ -31,7 +31,7 @@ namespace iqrf {
 			m_schedulerService->getTaskDocument(m_clientId, m_taskId, *m_taskDoc);
 			m_active = m_schedulerService->isTaskActive(m_clientId, m_taskId);
 		} catch (const std::logic_error &e) {
-			throw std::logic_error("Client or task ID does not exist.");
+			throw std::logic_error(e.what());
 		}
 	}
 

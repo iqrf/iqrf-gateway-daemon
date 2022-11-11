@@ -289,7 +289,6 @@ namespace iqrf {
 
 		/// Map of cron aliases and equivalent cron expressions
 		const std::map<std::string, std::string> CRON_ALIASES = {
-			{"@reboot", ""},
 			{"@yearly", "0 0 0 1 1 * *"},
 			{"@annually", "0 0 0 1 1 * *"},
 			{"@monthly", "0 0 0 1 * * *"},

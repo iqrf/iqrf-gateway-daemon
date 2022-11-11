@@ -30,7 +30,7 @@ namespace iqrf {
 		if (task) {
 			m_schedulerService->removeTask(m_clientId, m_taskId);
 		} else {
-			throw std::logic_error("Client or task ID does not exist.");
+			throw std::logic_error("Cannot remove task: task does not exist.");
 		}
 	}
 

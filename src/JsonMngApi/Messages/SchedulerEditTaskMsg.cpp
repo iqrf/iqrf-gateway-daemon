@@ -59,7 +59,7 @@ namespace iqrf {
 			);
 		} catch (std::exception &e) {
 			std::ostringstream os;
-			os << "Cannot edit task (client ID: " << m_clientId << ", task ID: " << m_taskId << "): "  << e.what();
+			os << "Cannot edit task: "  << e.what();
 			throw std::logic_error(os.str());
 		}
 	}

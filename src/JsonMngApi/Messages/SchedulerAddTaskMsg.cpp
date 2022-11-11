@@ -59,14 +59,16 @@ namespace iqrf {
 			m_taskId = m_schedulerService->addTask(m_clientId, m_taskId, m_description, *m_task, *m_timeSpec, m_persist, m_enabled);
 		} catch (const std::exception &e) {
 			std::ostringstream os;
-			os << "Cannot schedule task (client ID: " << m_clientId << ", task ID: " << m_taskId << "): "  << e.what();
+			os << "Cannot schedule task: " << e.what();
 			throw std::logic_error(os.str());
 		}
 	}
 
 	void SchedulerAddTaskMsg::createResponsePayload(Document &doc) {
 		Pointer("/data/rsp/clientId").Set(doc, m_clientId);
-		Pointer("/data/rsp/taskId").Set(doc, m_taskId);
+		if (m_taskId != "00000000-0000-0000-0000-000000000000") {
+			Pointer("/data/rsp/taskId").Set(doc, m_taskId);
+		}
 		MngBaseMsg::createResponsePayload(doc);
 	}
 }
