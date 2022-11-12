@@ -150,7 +150,14 @@
 									"title": "Start time",
 									"description": "One shot task start time in format '2018-01-03T16:00:09'",
 									"type": "string",
-									"format": "date-time"
+									"anyOf": [
+										{
+											"format": "date-time"
+										},
+										{
+											"enum": [""]
+										}
+									]
 								}
 							}
 						},
