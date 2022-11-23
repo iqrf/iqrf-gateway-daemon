@@ -174,34 +174,18 @@ namespace iqrf {
   class JsRenderDuktape::Imp
   {
   private:
-    bool m_init = false;
-    duk_context *m_ctx = nullptr;
     mutable std::mutex m_contextMtx;
     std::map<int, std::shared_ptr<Context>> m_contexts;
     std::map<int, int> m_mapNadrContext;
     std::map<int, std::set<int>> m_mapNadrDriversId;
 
   public:
-    Imp()
-    {
-      // Initialize.
-      m_ctx = duk_create_heap_default();
-      if (!m_ctx) {
-        std::cerr << "Failed to create a Duktape heap.\n";
-        throw std::logic_error("Failed to create a Duktape heap.\n");
-      }
+    Imp() {};
 
-      duk_push_global_object(m_ctx);
-    }
-
-    ~Imp()
-    {
-      duk_destroy_heap(m_ctx);
-    }
+    ~Imp() {};
 
     //for debug only
-    static std::string JsonToStr(const rapidjson::Value* val)
-    {
+    static std::string JsonToStr(const rapidjson::Value* val) {
       rapidjson::Document doc;
       doc.CopyFrom(*val, doc.GetAllocator());
       rapidjson::StringBuffer buffer;
@@ -210,47 +194,40 @@ namespace iqrf {
       return buffer.GetString();
     }
 
-    int loadJsCodeFenced(int contextId, const std::string& js, const std::set<int> & driverIdSet)
-    {
+    bool loadJsCodeFenced(int contextId, const std::string &js, const std::set<int> &driverIdSet) {
       TRC_FUNCTION_ENTER(PAR(contextId));
-
+      bool retval = true;
       try {
         std::unique_lock<std::mutex> lck(m_contextMtx);
-
         auto found = m_contexts.find(contextId);
         if (found != m_contexts.end()) {
           m_contexts.erase(contextId);
         }
-        auto res = m_contexts.insert(std::make_pair(contextId, std::shared_ptr<Context>(shape_new Context())));
-        res.first->second->loadJsCode(js);
-
+        auto pair = std::make_pair(contextId, std::shared_ptr<Context>(shape_new Context()));
+        pair.second->loadJsCode(js);
+        m_contexts.insert(pair);
         m_mapNadrDriversId[contextId] = driverIdSet;
-
-      }
-      catch (std::exception & e) {
+      } catch (const std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "cannot load passed JS code");
         // JsCache has TRC_CHANNEL 33 => write to its trace channel
         shape::Tracer::get().writeMsg((int)shape::TraceLevel::Warning, 33, TRC_MNAME, __FILE__, __LINE__, __FUNCTION__, js);
+        retval = false;
       }
 
       TRC_FUNCTION_LEAVE("");
-      return 0;
+      return retval;
     }
 
-    std::set<int> getDriverIdSet(int contextId) const
-    {
+    std::set<int> getDriverIdSet(int contextId) const {
       std::unique_lock<std::mutex> lck(m_contextMtx);
       auto found = m_mapNadrDriversId.find(contextId);
       if (found != m_mapNadrDriversId.end()) {
         return found->second;
       }
-      else {
-        return std::set<int>();
-      }
+      return std::set<int>();
     }
 
-    void mapNadrToFenced(int nadr, int contextId)
-    {
+    void mapNadrToFenced(int nadr, int contextId) {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(contextId));
       std::unique_lock<std::mutex> lck(m_contextMtx);
       m_mapNadrContext[nadr] = contextId;
@@ -307,10 +284,8 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void clearContexts()
-    {
+    void clearContexts() {
       TRC_FUNCTION_ENTER("");
-
       std::unique_lock<std::mutex> lck(m_contextMtx);
       m_contexts.clear();
       m_mapNadrContext.clear();
@@ -318,46 +293,30 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("");
     }
 
-    void finit()
-    {
-      TRC_FUNCTION_ENTER("");
-      //TODO duk_pop()
-      m_init = false;
-      TRC_FUNCTION_LEAVE("");
-    }
-
-    void activate(const shape::Properties *props)
-    {
-      (void)props; //silence -Wunused-parameter
+    void activate(const shape::Properties *props) {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
         "JsRenderDuktape instance activate" << std::endl <<
         "******************************"
       );
-
+      modify(props);
       TRC_FUNCTION_LEAVE("")
     }
 
-    void deactivate()
-    {
+    void modify(const shape::Properties *props) {
+      (void)props;
+    }
+
+    void deactivate() {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl <<
         "******************************" << std::endl <<
         "JsRenderDuktape instance deactivate" << std::endl <<
         "******************************"
       );
-
-      finit();
-
       TRC_FUNCTION_LEAVE("")
     }
-
-    void modify(const shape::Properties *props)
-    {
-      (void)props; //silence -Wunused-parameter
-    }
-
   };
 
   /////////////////////////
@@ -371,9 +330,9 @@ namespace iqrf {
     delete m_imp;
   }
 
-  void JsRenderDuktape::loadJsCodeFenced(int contextId, const std::string& js, const std::set<int> & driverIdSet)
+  bool JsRenderDuktape::loadJsCodeFenced(int contextId, const std::string& js, const std::set<int> & driverIdSet)
   {
-    m_imp->loadJsCodeFenced(contextId, js, driverIdSet);
+    return m_imp->loadJsCodeFenced(contextId, js, driverIdSet);
   }
 
   std::set<int> JsRenderDuktape::getDriverIdSet(int contextId) const

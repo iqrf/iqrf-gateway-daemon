@@ -1426,7 +1426,16 @@ namespace iqrf {
             }
             str2load += customDrv;
             str2load += wrapperStr; // add wrapper
-            m_iJsRenderService->loadJsCodeFenced(deviceId, str2load, driverIdSet);
+            bool success = m_iJsRenderService->loadJsCodeFenced(deviceId, str2load, driverIdSet);
+
+            if (!success) {
+              TRC_WARNING_CHN(
+                33,
+                "iqrf::JsCache",
+                "Failed to load drivers for deviceId: " << deviceId << std::endl
+              );
+              continue;
+            }
 
             // map nadrs to device dedicated context
             std::vector<int> nadrs;

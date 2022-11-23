@@ -29,7 +29,7 @@ namespace iqrf {
     JsRenderDuktape();
     virtual ~JsRenderDuktape();
 
-    void loadJsCodeFenced(int contextId, const std::string& js, const std::set<int> & driverIdSet) override;
+    bool loadJsCodeFenced(int contextId, const std::string& js, const std::set<int> & driverIdSet) override;
     std::set<int> getDriverIdSet(int contextId) const override;
     // set driver mapping according nadr
     void mapNadrToFenced(int nadr, int contextId) override;
