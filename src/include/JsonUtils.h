@@ -31,6 +31,20 @@
  /// \brief Rapid Json values manipulation functions
 namespace jutils
 {
+  /// @brief Dump JSON to string
+  /// @param [in] val rapidjson value 
+  /// @return string JSON dumped to string
+  /// rapidjson value is copied into a local document and loaded into pretty writer,
+  /// then contents of the writter buffer are returned
+  inline std::string jsonToStr(const rapidjson::Value& val) {
+    rapidjson::Document doc;
+    doc.CopyFrom(val, doc.GetAllocator());
+    rapidjson::StringBuffer buffer;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+    doc.Accept(writer);
+    return buffer.GetString();
+  }
+
   /// \brief Parse file with Json content
   /// \param [in] fname file name
   /// \param [out] json value to hold parsed result

@@ -17,34 +17,116 @@
 
 #pragma once
 
+#include "Context.h"
 #include "IJsRenderService.h"
-#include "ShapeProperties.h"
 #include "ITraceService.h"
+#include "ShapeProperties.h"
+#include "Trace.h"
+
+#include "rapidjson/rapidjson.h"
+#include "rapidjson/document.h"
+#include "rapidjson/istreamwrapper.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
+
+#include <algorithm>
+#include <condition_variable>
+#include <fstream>
+#include <iostream>
 #include <map>
+#include <thread>
 
+/// iqrf namespace
 namespace iqrf {
-  class JsRenderDuktape : public IJsRenderService
-  {
-  public:
-    JsRenderDuktape();
-    virtual ~JsRenderDuktape();
+	/**
+	 * JsRenderDuktape class
+	 */
+	class JsRenderDuktape : public IJsRenderService {
+	public:
+		/**
+		 * Constructor
+		 */
+		JsRenderDuktape();
 
-    bool loadJsCodeFenced(int contextId, const std::string& js, const std::set<int> & driverIdSet) override;
-    std::set<int> getDriverIdSet(int contextId) const override;
-    // set driver mapping according nadr
-    void mapNadrToFenced(int nadr, int contextId) override;
-    void callFenced(int nadr, int hwpid, const std::string& functionName, const std::string& par, std::string& ret) override;
-    void clearContexts() override;
+		/**
+		 * Destructor
+		 */
+		virtual ~JsRenderDuktape();
 
-    void activate(const shape::Properties *props = 0);
-    void deactivate();
-    void modify(const shape::Properties *props);
+		/**
+		 * Initializes component
+		 * @param props Component properties
+		 */
+		void activate(const shape::Properties *props = 0);
 
-    void attachInterface(shape::ITraceService* iface);
-    void detachInterface(shape::ITraceService* iface);
+		/**
+		 * Modifies component properties
+		 * @param props Component properties
+		 */
+		void modify(const shape::Properties *props);
 
-  private:
-    class Imp;
-    Imp* m_imp;
-  };
+		/**
+		 * Deactivates component
+		 */
+		void deactivate();
+
+		/**
+		 * Creates a new context and loads code, or loads code for existing context
+		 * @param contextId Context ID
+		 * @param js Code to load
+		 * @param driverIdSet Context drivers
+		 * @return true if context code was successfully loaded, false otherwise
+		 */
+		bool loadContextCode(int contextId, const std::string &js, const std::set<int> &driverIdSet) override;
+
+		/**
+		 * Assigns context ID for device address
+		 * @param address Device address
+		 * @param contextId Context ID
+		 */
+		void mapAddressToContext(int address, int contextId) override;
+
+		/**
+		 * Attempts to find suitable context and call function
+		 * @param address Address
+		 * @param hwpid HW profile ID
+		 * @param fname Function name
+		 * @param params Function call parameters
+		 * @param ret Return value
+		 */
+		void callContext(int address, int hwpid, const std::string &fname, const std::string &params, std::string &ret) override;
+
+		/**
+		 * Returns context driver IDs
+		 * @param contextId Context ID
+		 * @return Set of context driver IDs
+		 */
+		std::set<int> getDriverIdSet(int contextId) const override;
+
+		/**
+		 * Clears all driver contexts, device and address mapping
+		 */
+		void clearContexts() override;
+
+		/**
+		 * Attaches tracing service interface
+		 * @param iface Tracing service interface
+		 */
+		void attachInterface(shape::ITraceService *iface);
+
+		/**
+		 * Detaches tracing service interface
+		 * @param iface Tracing service interface
+		 */
+		void detachInterface(shape::ITraceService *iface);
+	private:
+		/// context mutex
+		mutable std::mutex m_contextMtx;
+		/// map of contexts
+		std::map<int, std::shared_ptr<Context>> m_contexts;
+		/// map of addresses and corresponding context IDs
+		std::map<int, int> m_addressContextMap;
+		/// map of context IDs and corresponding driver IDs
+		std::map<int, std::set<int>> m_contextDriverMap;
+	};
 }

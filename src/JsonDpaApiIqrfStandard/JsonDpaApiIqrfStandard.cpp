@@ -243,7 +243,7 @@ namespace iqrf {
       std::string errStrReq;
       bool driverRequestError = false;
       try {
-        m_iJsRenderService->callFenced(com->getNadr(), com->getHwpid(), methodRequestName, com->getParamAsString(), rawHdpRequest);
+        m_iJsRenderService->callContext(com->getNadr(), com->getHwpid(), methodRequestName, com->getParamAsString(), rawHdpRequest);
       }
       catch (std::exception &e) {
         //request driver func error
@@ -301,7 +301,7 @@ namespace iqrf {
             std::string errStrRes;
             bool driverResponseError = false;
             try {
-              m_iJsRenderService->callFenced(nadrRes, hwpidRes, methodResponseName, rawHdpResponse, rspObjStr);
+              m_iJsRenderService->callContext(nadrRes, hwpidRes, methodResponseName, rawHdpResponse, rspObjStr);
             }
             catch (std::exception &e) {
               //response driver func error
@@ -446,7 +446,7 @@ namespace iqrf {
           std::string errStrRes;
           bool driverResponseError = false;
           try {
-            m_iJsRenderService->callFenced(nadrRes, hwpidRes, methodResponseName, rawHdpResponse, rspObjStr);
+            m_iJsRenderService->callContext(nadrRes, hwpidRes, methodResponseName, rawHdpResponse, rspObjStr);
           }
           catch (std::exception &e) {
             //response driver func error

@@ -1263,7 +1263,7 @@ namespace iqrf {
       }
 
       str2load += wrapperStr;
-      m_iJsRenderService->loadJsCodeFenced(IJsRenderService::HWPID_DEFAULT_MAPPING, str2load, driversIdSet); // provisional context for all with empty custom drivers
+      m_iJsRenderService->loadContextCode(IJsRenderService::HWPID_DEFAULT_MAPPING, str2load, driversIdSet); // provisional context for all with empty custom drivers
 
       // get all non empty custom drivers because of breakdown
       // hwpid, hwpidVer, driver
@@ -1274,7 +1274,7 @@ namespace iqrf {
         std::string js = str2load;
         std::string driver = d.second.rbegin()->second; // get the highest hwpidVer one from reverse end
         js += driver;
-        m_iJsRenderService->loadJsCodeFenced(IJsRenderService::HWPID_MAPPING_SPACE - d.first, js, driversIdSet);
+        m_iJsRenderService->loadContextCode(IJsRenderService::HWPID_MAPPING_SPACE - d.first, js, driversIdSet);
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -1426,7 +1426,7 @@ namespace iqrf {
             }
             str2load += customDrv;
             str2load += wrapperStr; // add wrapper
-            bool success = m_iJsRenderService->loadJsCodeFenced(deviceId, str2load, driverIdSet);
+            bool success = m_iJsRenderService->loadContextCode(deviceId, str2load, driverIdSet);
 
             if (!success) {
               TRC_WARNING_CHN(
@@ -1458,7 +1458,7 @@ namespace iqrf {
             std::ostringstream ostrNadr;
 
             for (auto nadr : nadrs) {
-              m_iJsRenderService->mapNadrToFenced(nadr, deviceId);
+              m_iJsRenderService->mapAddressToContext(nadr, deviceId);
               ostrNadr << nadr << ", ";
             }
 
