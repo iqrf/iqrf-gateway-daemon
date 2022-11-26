@@ -968,6 +968,7 @@ namespace iqrf
 
 			ServerState serverStateAct = getCacheServer(serverCheckFname);
 
+			TRC_INFORMATION("Comparing db checksums: " << NAME_PAR(localChecksum, m_serverState.m_databaseChecksum) << NAME_PAR(remoteChecksum, serverStateAct.m_databaseChecksum));
 			m_upToDate = m_serverState.m_databaseChecksum == serverStateAct.m_databaseChecksum;
 
 			if (m_upToDate)

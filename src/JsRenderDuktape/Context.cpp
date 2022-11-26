@@ -39,10 +39,8 @@ namespace iqrf {
 		std::vector<std::string> items;
 		while (true) {
 			std::string item;
-			if (!(iss >> item)) {
-				if (iss.eof()) {
-					break;
-				}
+			if (!(iss >> item) && iss.eof()) {
+				break;
 			}
 			items.push_back(item);
 		}
@@ -55,8 +53,6 @@ namespace iqrf {
 			if (!result) {
 				duk_pop_n(m_ctx, m_relativeStack);
 				throw std::logic_error("Not found: " + item);
-				retval = false;
-            	break;
 			}
 		}
 
