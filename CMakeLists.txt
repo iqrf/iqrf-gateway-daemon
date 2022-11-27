@@ -121,6 +121,9 @@ add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibuart EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/iqrf-header-parser EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/croncpp EXCLUDE_FROM_ALL)
+add_subdirectory(libraries/date EXCLUDE_FROM_ALL)
+add_subdirectory(libraries/daw_header_libraries EXCLUDE_FROM_ALL)
+add_subdirectory(libraries/iso8601_parsing EXCLUDE_FROM_ALL)
 
 #add_subdirectory(src)
 
@@ -184,7 +187,7 @@ add_subdirectory(src/IqmeshServices/Maintenance)
 add_subdirectory(src/IqmeshServices/DpaParams)
 
 if(${BUILD_TESTING})
-  add_subdirectory(src/tests)
+  #add_subdirectory(src/tests)
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake @ONLY)

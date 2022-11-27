@@ -223,7 +223,7 @@ namespace iqrf {
 	}
 
 	std::string SchedulerRecord::asString(const std::chrono::system_clock::time_point &tp) {
-		return TimeConversion::encodeTimestamp(tp);
+		return TimeConversion::toUTCString(tp);
 	}
 
 	///// private methods /////
@@ -251,7 +251,8 @@ namespace iqrf {
 		m_exactTime = Pointer("/exactTime").Get(m_timeSpec)->GetBool();
 		m_periodic = Pointer("/periodic").Get(m_timeSpec)->GetBool();
 		m_period = std::chrono::seconds(Pointer("/period").Get(m_timeSpec)->GetInt());
-		m_startTime = TimeConversion::parseTimestamp(Pointer("/startTime").Get(m_timeSpec)->GetString());
+		std::string startTime = Pointer("/startTime").Get(m_timeSpec)->GetString();
+		m_startTime = daw::date_parsing::parse_iso8601_timestamp(daw::string_view(startTime));
 	}
 
 	std::string SchedulerRecord::resolveCronAlias(const std::string &alias) {

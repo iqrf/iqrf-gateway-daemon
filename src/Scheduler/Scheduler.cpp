@@ -300,7 +300,7 @@ namespace iqrf {
 					getTaskHandle(taskId),
 					task,
 					std::chrono::seconds(period),
-					TimeConversion::parseTimestamp(startTime),
+					std::chrono::system_clock::now(),
 					persist,
 					enabled
 				)
@@ -312,7 +312,7 @@ namespace iqrf {
 					clientId,
 					getTaskHandle(taskId),
 					task,
-					TimeConversion::parseTimestamp(startTime),
+					daw::date_parsing::parse_iso8601_timestamp(daw::string_view(startTime)),
 					persist,
 					enabled
 				)

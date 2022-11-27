@@ -19,3 +19,12 @@
 [submodule "libraries/croncpp"]
 	path = libraries/croncpp
 	url = https://github.com/khgreav/croncpp.git
+[submodule "libraries/iso8601_parsing"]
+	path = libraries/iso8601_parsing
+	url = https://github.com/beached/iso8601_parsing.git
+[submodule "libraries/date"]
+	path = libraries/date
+	url = https://github.com/HowardHinnant/date.git
+[submodule "libraries/daw_header_libraries"]
+	path = libraries/daw_header_libraries
+	url = https://github.com/beached/header_libraries.git

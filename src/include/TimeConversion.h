@@ -2,10 +2,21 @@
 
 #include <algorithm>
 #include <chrono>
+#include <iomanip>
 #include <sstream>
 
 class TimeConversion {
 public:
+	/// @brief convert time point to ISO8601 UTC string
+	/// @param [in] tp time point
+	/// @return converted time string
+	static std::string toUTCString(const std::chrono::system_clock::time_point &tp) {
+		std::time_t t = std::chrono::system_clock::to_time_t(tp);
+		std::stringstream ss;
+		ss << std::put_time(std::gmtime(&t), "%FT%T") << 'Z';
+		return ss.str();
+	}
+
 	/// \brief parse time up to seconds granularity in format YYY-MM-DDThh:mm:ss
 	/// \param [in] from string to be parsed
 	/// \return encoded time point
