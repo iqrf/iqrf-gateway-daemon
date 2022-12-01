@@ -283,6 +283,7 @@ void MqChannel::listen()
           }
           if (m_server) { // listen again
             closeMq(m_localMqHandle);
+            closeMq(m_remoteMqHandle);
             m_connected = false; // connect again
             TRC_ERROR("Failed to read message from queue: [" << GetLastError() << "]: " << strerror(GetLastError()));
             break;
@@ -321,8 +322,6 @@ void MqChannel::connect()
   if (!m_connected) {
 
     std::lock_guard<std::mutex> lck(m_connectMtx);
-
-    closeMq(m_remoteMqHandle);
 
     // Open write channel to client
     m_remoteMqHandle = openMqWrite(m_remoteMqName, m_bufsize);
