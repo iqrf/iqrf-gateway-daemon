@@ -9,7 +9,7 @@
 	url = https://github.com/iqrfsdk/clibspi.git
 [submodule "libraries/clibuart"]
 	path = libraries/clibuart
-	url = https://github.com/iqrfsdk/clibuart.git
+	url = https://gitlab.iqrf.org/open-source/iqrf-sdk/clibuart.git
 [submodule "libraries/sqlite_modern_cpp"]
 	path = libraries/sqlite_modern_cpp
 	url = https://github.com/SqliteModernCpp/sqlite_modern_cpp.git
