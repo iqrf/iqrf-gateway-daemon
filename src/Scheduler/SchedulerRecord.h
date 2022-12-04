@@ -45,7 +45,25 @@ namespace iqrf {
 		 * @param clientId Client ID
 		 * @param taskId Task ID
 		 * @param task Task messages
-		 * @param startTime Task execution time point
+		 * @param startTime Task execution timestamp
+		 * @param persist Persistent task
+		 * @param enabled Start task automatically
+		 */
+		SchedulerRecord(
+			const std::string &clientId,
+			const std::string &taskId,
+			const rapidjson::Value &task,
+			const std::string &startTime,
+			bool persist,
+			bool enabled
+		);
+
+		/**
+		 * One-shot time point task constructor
+		 * @param clientId Client ID
+		 * @param taskId Task ID
+		 * @param task Task messages
+		 * @param startTime Task execution timestamp
 		 * @param persist Persistent task
 		 * @param enabled Start task automatically
 		 */
@@ -64,7 +82,6 @@ namespace iqrf {
 		 * @param taskId Task ID
 		 * @param task Task messages
 		 * @param period Task execution period
-		 * @param startTime First task execution time point
 		 * @param persist Persistent task
 		 * @param enabled Start task automatically
 		 */
@@ -73,7 +90,6 @@ namespace iqrf {
 			const std::string &taskId,
 			const rapidjson::Value &task,
 			const std::chrono::seconds &period,
-			const std::chrono::system_clock::time_point &startTime,
 			bool persist,
 			bool enabled
 		);
@@ -83,7 +99,8 @@ namespace iqrf {
 		 * @param clientId Client ID
 		 * @param taskId Task ID
 		 * @param task Task messages
-		 * @param cronTime Task execution cron array
+		 * @param cronString CRON time string
+		 * @param cronArray CRON time field array
 		 * @param persist Persistent task
 		 * @param enabled Start task automatically
 		 */
@@ -91,25 +108,8 @@ namespace iqrf {
 			const std::string &clientId,
 			const std::string &taskId,
 			const rapidjson::Value &task,
-			const ISchedulerService::CronType &cronTime,
-			bool persist,
-			bool enabled
-		);
-
-		/**
-		 * Cron string task constructor
-		 * @param clientId Client ID
-		 * @param taskId Task ID
-		 * @param task Task Messages
-		 * @param cronTime Task execution cron string
-		 * @param persist Persistent task
-		 * @param enabled Start task automatically
-		 */
-		SchedulerRecord(
-			const std::string &clientId,
-			const std::string &taskId,
-			const rapidjson::Value &task,
-			const std::string &cronTime,
+			const std::string &cronString,
+			const ISchedulerService::CronType &cronArray,
 			bool persist,
 			bool enabled
 		);
@@ -314,8 +314,10 @@ namespace iqrf {
 		std::chrono::seconds m_period = std::chrono::seconds(0);
 		/// One-shot task
 		bool m_exactTime = false;
+		/// Start timestamp
+		std::string m_startTime;
 		/// Execution time point
-		std::chrono::system_clock::time_point m_startTime;
+		std::chrono::system_clock::time_point m_startTimePoint;
 		/// Cron array
 		ISchedulerService::CronType m_cron;
 		/// Cron string

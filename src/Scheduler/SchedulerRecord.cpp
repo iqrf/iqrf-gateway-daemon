@@ -28,7 +28,7 @@ namespace iqrf {
 		const std::string &clientId,
 		const std::string &taskId,
 		const rapidjson::Value &task,
-		const std::chrono::system_clock::time_point &startTime,
+		const std::string &startTime,
 		bool persist,
 		bool enabled
 	) : m_clientId(clientId), m_taskId(taskId), m_exactTime(true), m_startTime(startTime), m_persist(persist), m_enabled(enabled)
@@ -40,11 +40,22 @@ namespace iqrf {
 		const std::string &clientId,
 		const std::string &taskId,
 		const rapidjson::Value &task,
-		const std::chrono::seconds &period,
 		const std::chrono::system_clock::time_point &startTime,
 		bool persist,
 		bool enabled
-	) : m_clientId(clientId), m_taskId(taskId), m_periodic(true), m_period(period), m_startTime(startTime), m_persist(persist), m_enabled(enabled)
+	) : m_clientId(clientId), m_taskId(taskId), m_exactTime(true), m_startTimePoint(startTime), m_persist(persist), m_enabled(enabled)
+	{
+		init(task);
+	}
+
+	SchedulerRecord::SchedulerRecord(
+		const std::string &clientId,
+		const std::string &taskId,
+		const rapidjson::Value &task,
+		const std::chrono::seconds &period,
+		bool persist,
+		bool enabled
+	) : m_clientId(clientId), m_taskId(taskId), m_periodic(true), m_period(period), m_persist(persist), m_enabled(enabled)
 	{
 		if (period.count() <= 0) {
 			THROW_EXC_TRC_WAR(std::logic_error, "Period must be at least >= 1sec " << NAME_PAR(period, period.count()))
@@ -56,22 +67,11 @@ namespace iqrf {
 		const std::string &clientId,
 		const std::string &taskId,
 		const rapidjson::Value &task,
-		const ISchedulerService::CronType &cronTime,
+		const std::string &cronString,
+		const ISchedulerService::CronType &cronArray,
 		bool persist,
 		bool enabled
-	) : m_clientId(clientId), m_taskId(taskId), m_cron(cronTime), m_persist(persist), m_enabled(enabled)
-	{
-		init(task);
-	}
-
-	SchedulerRecord::SchedulerRecord(
-		const std::string &clientId,
-		const std::string &taskId,
-		const rapidjson::Value &task,
-		const std::string &cronTime,
-		bool persist,
-		bool enabled
-	) : m_clientId(clientId), m_taskId(taskId), m_cronString(cronTime), m_persist(persist), m_enabled(enabled)
+	) : m_clientId(clientId), m_taskId(taskId), m_cron(cronArray), m_cronString(cronString), m_persist(persist), m_enabled(enabled)
 	{
 		init(task);
 	}
@@ -198,12 +198,12 @@ namespace iqrf {
 	system_clock::time_point SchedulerRecord::getNext(const std::chrono::system_clock::time_point &actualTimePoint, const std::tm &actualTime) {
 		system_clock::time_point tp;
 		if (m_exactTime){
-			return m_startTime;
+			return m_startTimePoint;
 		} else if (m_periodic) {
 			if (m_started) {
 				tp = actualTimePoint + m_period;
 			} else {
-				tp = m_startTime;
+				tp = std::chrono::system_clock::now();
 				m_started = true;
 			}
 		} else {
@@ -251,8 +251,10 @@ namespace iqrf {
 		m_exactTime = Pointer("/exactTime").Get(m_timeSpec)->GetBool();
 		m_periodic = Pointer("/periodic").Get(m_timeSpec)->GetBool();
 		m_period = std::chrono::seconds(Pointer("/period").Get(m_timeSpec)->GetInt());
-		std::string startTime = Pointer("/startTime").Get(m_timeSpec)->GetString();
-		m_startTime = daw::date_parsing::parse_iso8601_timestamp(daw::string_view(startTime));
+		m_startTime = Pointer("/startTime").Get(m_timeSpec)->GetString();
+		if (m_startTime.length() > 0) {
+			m_startTimePoint = daw::date_parsing::parse_iso8601_timestamp(daw::string_view(m_startTime));
+		}
 	}
 
 	std::string SchedulerRecord::resolveCronAlias(const std::string &alias) {
@@ -305,7 +307,11 @@ namespace iqrf {
 		Pointer("/exactTime").Set(m_timeSpec, m_exactTime);
 		Pointer("/periodic").Set(m_timeSpec, m_periodic);
 		Pointer("/period").Set(m_timeSpec, (uint64_t)(m_period.count()));
-		Pointer("/startTime").Set(m_timeSpec, SchedulerRecord::asString(m_startTime));
+		if (m_exactTime && m_startTime.length() > 0) {
+			Pointer("/startTime").Set(m_timeSpec, SchedulerRecord::asString(m_startTimePoint));
+		} else {
+			Pointer("/startTime").Set(m_timeSpec, std::string());
+		}
 	}
 
 	bool SchedulerRecord::verifyTimePattern(int cval, const std::vector<int> &tvalV) const {

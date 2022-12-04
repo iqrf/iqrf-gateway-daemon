@@ -293,14 +293,12 @@ namespace iqrf {
 		bool exactTime = Pointer("/exactTime").Get(timeSpec)->GetBool();
 		if (periodic) { // periodic task
 			uint32_t period = Pointer("/period").Get(timeSpec)->GetUint();
-			std::string startTime = Pointer("/startTime").Get(timeSpec)->GetString();
 			record = std::shared_ptr<SchedulerRecord>(
 				shape_new SchedulerRecord(
 					clientId,
 					getTaskHandle(taskId),
 					task,
 					std::chrono::seconds(period),
-					std::chrono::system_clock::now(),
 					persist,
 					enabled
 				)
@@ -312,7 +310,7 @@ namespace iqrf {
 					clientId,
 					getTaskHandle(taskId),
 					task,
-					daw::date_parsing::parse_iso8601_timestamp(daw::string_view(startTime)),
+					startTime,
 					persist,
 					enabled
 				)
@@ -327,11 +325,10 @@ namespace iqrf {
 					cron[i] = it->GetString();
 					it++;
 				}
-				record = std::shared_ptr<SchedulerRecord>(shape_new SchedulerRecord(clientId, getTaskHandle(taskId), task, cron, persist, enabled));
 			} else {
 				cronString = val->GetString();
-				record = std::shared_ptr<SchedulerRecord>(shape_new SchedulerRecord(clientId, getTaskHandle(taskId), task, cronString, persist, enabled));
 			}
+			record = std::shared_ptr<SchedulerRecord>(shape_new SchedulerRecord(clientId, getTaskHandle(taskId), task, cronString, cron, persist, enabled));
 		}
 		record->setDescription(description);
 		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
