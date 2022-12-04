@@ -18,7 +18,7 @@
 	url = https://gitlab.iqrf.org/open-source/iqrf-header-parser.git
 [submodule "libraries/croncpp"]
 	path = libraries/croncpp
-	url = https://github.com/khgreav/croncpp.git
+	url = https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon-utils/croncpp.git
 [submodule "libraries/iso8601_parsing"]
 	path = libraries/iso8601_parsing
 	url = https://github.com/beached/iso8601_parsing.git

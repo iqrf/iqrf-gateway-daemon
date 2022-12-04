@@ -371,6 +371,9 @@ namespace iqrf {
 		if (reload) {
 			removeSchedulerTask(item->second);
 			addSchedulerTask(ptr);
+			if (ptr->isActive() && !enabled) {
+				scheduleTask(ptr);
+			}
 		} else {
 			if (persist != item->second->isPersistent()) {
 				if (persist) {

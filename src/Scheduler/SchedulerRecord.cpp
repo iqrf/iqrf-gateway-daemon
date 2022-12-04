@@ -33,6 +33,8 @@ namespace iqrf {
 		bool enabled
 	) : m_clientId(clientId), m_taskId(taskId), m_exactTime(true), m_startTime(startTime), m_persist(persist), m_enabled(enabled)
 	{
+		TimeConversion::fixTimestamp(m_startTime);
+		m_startTimePoint = daw::date_parsing::parse_iso8601_timestamp(daw::string_view(m_startTime));
 		init(task);
 	}
 
@@ -105,6 +107,7 @@ namespace iqrf {
 		m_period = other.m_period;
 		m_exactTime = other.m_exactTime;
 		m_startTime = other.m_startTime;
+		m_startTimePoint = other.m_startTimePoint;
 		m_cron = other.m_cron;
 		m_cronString = other.m_cronString;
 		m_cronExpr = other.m_cronExpr;
@@ -167,6 +170,8 @@ namespace iqrf {
 	}
 
 	void SchedulerRecord::setTimeSpec(const rapidjson::Value &timeSpec) {
+		m_cron = ISchedulerService::CronType();
+		m_cronString = std::string();
 		parseTimeSpec(timeSpec);
 		parseCron();
 	}
@@ -253,6 +258,7 @@ namespace iqrf {
 		m_period = std::chrono::seconds(Pointer("/period").Get(m_timeSpec)->GetInt());
 		m_startTime = Pointer("/startTime").Get(m_timeSpec)->GetString();
 		if (m_startTime.length() > 0) {
+			TimeConversion::fixTimestamp(m_startTime);
 			m_startTimePoint = daw::date_parsing::parse_iso8601_timestamp(daw::string_view(m_startTime));
 		}
 	}

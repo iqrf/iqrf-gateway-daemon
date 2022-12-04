@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <iomanip>
+#include <regex>
 #include <sstream>
 
 class TimeConversion {
@@ -15,6 +16,19 @@ public:
 		std::stringstream ss;
 		ss << std::put_time(std::gmtime(&t), "%FT%T") << 'Z';
 		return ss.str();
+	}
+
+	/// @brief check if timestamp is in ISO8601 format, set to UTC if not
+	/// @param [in] timeString timestamp string
+	static void fixTimestamp(std::string &timeString) {
+		if (timeString.back() == 'Z') {
+			return;
+		}
+		std::regex pattern("^.*[+-]\\d{2}:\\d{2}$", std::regex_constants::icase);
+		if (std::regex_match(timeString, pattern)) {
+			return;
+		}
+		timeString.push_back('Z');
 	}
 
 	/// \brief parse time up to seconds granularity in format YYY-MM-DDThh:mm:ss
