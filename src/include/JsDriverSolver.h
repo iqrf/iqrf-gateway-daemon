@@ -97,7 +97,7 @@ namespace iqrf {
       TRC_DEBUG(PAR(m_requestParamStr));
 
       try {
-        m_iJsRenderService->callFenced(getNadrDrv(), getHwpidDrv(), functionNameReq, m_requestParamStr, m_requestResultStr);
+        m_iJsRenderService->callContext(getNadrDrv(), getHwpidDrv(), functionNameReq, m_requestParamStr, m_requestResultStr);
       }
       catch (std::exception &e) {
         //TODO use dedicated exception to distinguish driver error (BAD_REQUEST)
@@ -134,7 +134,7 @@ namespace iqrf {
       TRC_DEBUG(PAR(m_responseParamStr));
 
       try {
-        m_iJsRenderService->callFenced(getNadrDrv(), getHwpidDrv(), functionNameRsp, m_responseParamStr, m_responseResultStr);
+        m_iJsRenderService->callContext(getNadrDrv(), getHwpidDrv(), functionNameRsp, m_responseParamStr, m_responseResultStr);
 
       }
       catch (std::exception &e) {
