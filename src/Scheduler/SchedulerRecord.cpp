@@ -83,11 +83,14 @@ namespace iqrf {
 
 		m_clientId = Pointer("/clientId").Get(rec)->GetString();
 		m_taskId = Pointer("/taskId").Get(rec)->GetString();
-		m_description = Pointer("/description").Get(rec)->GetString();
+		const Value *val = Pointer("/description").Get(rec);
+		if (val) {
+			m_description = val->GetString();
+		}
 		parseTimeSpec(*Pointer("/timeSpec").Get(rec));
 		m_task.CopyFrom(*Pointer("/task").Get(rec), m_task.GetAllocator());
 		parseCron();
-		const Value *val = Pointer("/persist").Get(rec);
+		val = Pointer("/persist").Get(rec);
 		if (val) {
 			m_persist = val->GetBool();
 		}
