@@ -60,8 +60,14 @@
 							"$id": "#/properties/data/properties/req/properties/taskId",
 							"title": "Task ID",
 							"description": "Task identifier.",
-							"type": "integer",
-							"min": 0
+							"type": "string",
+							"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+						},
+						"description": {
+							"$id": "#/properties/data/properties/req/properties/description",
+							"title": "Description",
+							"description": "Task description.",
+							"type": "string"
 						},
 						"task": {
 							"$id": "#/properties/data/properties/req/properties/task",
@@ -96,19 +102,22 @@
 							"additionalProperties": false,
 							"properties": {
 								"cronTime": {
-									"$id": "#/properties/data/properties/req/properties/timespec/properties/cronTime",
 									"title": "cron time",
-									"description": "7 items of cron-like syntax. All required.",
-									"type": "array",
-									"minItems": 7,
-									"maxItems": 7,
-									"additionalItems": false,
-									"items": {
-										"$id": "#/properties/data/properties/req/properties/timespec/properties/cronTime/items",
-										"title": "cron field",
-										"description": "1 of 7 cron field items, representing a time unit.",
-										"type": "string"
-									}
+									"description": "Array of 7 cron format values or cron alias string",
+									"oneOf": [
+										{
+											"type": "array",
+											"minItems": 7,
+											"maxItems": 7,
+											"additionalItems": false,
+											"items": {
+												"type": "string"
+											}
+										},
+										{
+											"type": "string"
+										}
+									]
 								},
 								"periodic": {
 									"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
@@ -133,7 +142,14 @@
 									"title": "Start time",
 									"description": "One shot task start time in format '2018-01-03T16:00:09'",
 									"type": "string",
-									"format": "date-time"
+									"anyOf": [
+										{
+											"format": "date-time"
+										},
+										{
+											"enum": [""]
+										}
+									]
 								}
 							}
 						},
@@ -141,6 +157,12 @@
 							"$id": "#/properties/data/properties/req/properties/persist",
 							"title": "Persistent task",
 							"description": "Task will persist through daemon restarts and shutdowns.",
+							"type": "boolean"
+						},
+						"enabled": {
+							"$id": "#/properties/data/properties/req/properties/enabled",
+							"title": "Start task",
+							"description": "Schedule task immediately.",
 							"type": "boolean"
 						}
 					}

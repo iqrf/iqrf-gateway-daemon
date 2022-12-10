@@ -22,15 +22,15 @@ namespace iqrf {
 	SchedulerRemoveTaskMsg::SchedulerRemoveTaskMsg(const Document &doc, ISchedulerService *schedulerService) : MngBaseMsg(doc) {
 		m_schedulerService = schedulerService;
 		m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
-		m_taskId = Pointer("/data/req/taskId").Get(doc)->GetInt();
+		m_taskId = Pointer("/data/req/taskId").Get(doc)->GetString();
 	}
 
 	void SchedulerRemoveTaskMsg::handleMsg() {
-		const Value *task = m_schedulerService->getMyTask(m_clientId, m_taskId);
+		const Value *task = m_schedulerService->getTask(m_clientId, m_taskId);
 		if (task) {
 			m_schedulerService->removeTask(m_clientId, m_taskId);
 		} else {
-			throw std::logic_error("Client or task ID does not exist.");
+			throw std::logic_error("Cannot remove task: task does not exist.");
 		}
 	}
 

@@ -1,12 +1,12 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/com.iqrftech.self-desc/schema/jsonschema/1-1-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "mngScheduler_GetTask-response",
+		"name": "mngScheduler_EditTask-request",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
-	"title": "Scheduler Management - Get Task",
+	"title": "Scheduler Management - Edit Task",
 	"type": "object",
 	"required": [
 		"mType",
@@ -17,9 +17,9 @@
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "Scheduler management - Get Task response.",
+			"description": "Scheduler management - Edit Task request.",
 			"type": "string",
-			"enum": ["mngScheduler_GetTask"]
+			"enum": ["mngScheduler_EditTask"]
 		},
 		"data": {
 			"$id": "#/properties/data",
@@ -28,8 +28,7 @@
 			"type": "object",
 			"required": [
 				"msgId",
-				"rsp",
-				"status"
+				"req"
 			],
 			"additionalProperties": false,
 			"properties": {
@@ -39,25 +38,34 @@
 					"description": "Message ID used for pairing requests and responses.",
 					"type": "string"
 				},
-				"rsp": {
-					"$id": "#/properties/data/properties/rsp",
-					"title": "Response data",
-					"description": "Response data.",
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request parameters",
+					"description": "Request parameters.",
 					"type": "object",
 					"required": [
 						"clientId",
-						"taskId"
+						"taskId",
+						"task",
+						"timeSpec"
 					],
 					"additionalProperties": false,
 					"properties": {
 						"clientId": {
-							"$id": "#/properties/data/properties/rsp/properties/clientId",
+							"$id": "#/properties/data/properties/req/properties/clientId",
 							"title": "Client ID",
 							"description": "Client identifier.",
 							"type": "string"
 						},
 						"taskId": {
-							"$id": "#/properties/data/properties/rsp/properties/taskId",
+							"$id": "#/properties/data/properties/req/properties/taskId",
+							"title": "Task ID",
+							"description": "Task identifier.",
+							"type": "string",
+							"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+						},
+						"newTaskId": {
+							"$id": "#/properties/data/properties/req/properties/taskId",
 							"title": "Task ID",
 							"description": "Task identifier.",
 							"type": "string",
@@ -70,7 +78,7 @@
 							"type": "string"
 						},
 						"task": {
-							"$id": "#/properties/data/properties/rsp/properties/task",
+							"$id": "#/properties/data/properties/req/properties/task",
 							"title": "Tasks",
 							"description": "Scheduled task or array of tasks.",
 							"oneOf": [
@@ -164,38 +172,14 @@
 							"title": "Start task",
 							"description": "Schedule task immediately.",
 							"type": "boolean"
-						},
-						"active": {
-							"$id": "#/properties/data/properties/req/properties/active",
-							"title": "Task active",
-							"description": "Is task scheduled?.",
-							"type": "boolean"
 						}
 					}
 				},
-				"insId": {
-					"$id": "#/properties/data/properties/insId",
-					"title": "Instance ID",
-					"description": "Daemon insteance ID.",
-					"type": "string"
-				},
-				"status": {
-					"$id": "#/properties/data/properties/status",
-					"title": "Status code",
-					"description": "Status code.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"$id": "#/properties/data/properties/statusStr",
-					"title": "Status string",
-					"description": "Verbose status string",
-					"type": "string"
-				},
-				"errorStr": {
-					"$id": "#/properties/data/properties/errorStr",
-					"title": "Error string",
-					"description": "Error message string.",
-					"type": "string"
+				"returnVerbose": {
+					"$id": "#/properties/data/properties/returnVerbose",
+					"title": "Verbose response",
+					"description": "Return more verbose response.",
+					"type": "boolean"
 				}
 			}
 		}

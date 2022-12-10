@@ -59,20 +59,16 @@ namespace iqrf {
 		/// Scheduler client ID
 		std::string m_clientId;
 		/// Scheduler task ID
-		int m_taskId;
-		/// Cron time
-		ISchedulerService::CronType m_cron;
-		/// Periodic task?
-		bool m_periodic = false;
-		/// Task period
-		unsigned m_period = 0;
-		/// Oneshot task?
-		bool m_exactTime = false;
-		/// Oneshot start time
-		std::chrono::system_clock::time_point m_startTime;
-		/// Scheduler task
-    	Document *m_task = nullptr;
-		/// Persist task after shutdown
+		std::string m_taskId = "00000000-0000-0000-0000-000000000000";
+		/// Task description
+		std::string m_description;
+		/// Task doc
+		Document* m_task = new Document();
+		/// Timespec doc
+		Document* m_timeSpec = new Document();
+		/// Persistent task
 		bool m_persist = false;
+		/// Schedule task automatically
+		bool m_enabled = false;
 	};
 }

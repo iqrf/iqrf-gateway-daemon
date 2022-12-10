@@ -15,6 +15,7 @@
 
 project(Scheduler)
 
+set(CMAKE_CXX_STANDARD 17)
 set(COMPONENT iqrf::Scheduler)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::ISchedulerService)
@@ -25,16 +26,30 @@ ConfigureShapeComponent(${COMPONENT} COMPONENT_HXX)
 file(GLOB_RECURSE _HDRFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h  ${COMPONENT_HXX})
 file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
+find_package(Boost REQUIRED COMPONENTS filesystem)
+
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 
+if (Boost_FOUND)
+	include_directories(${Boost_INCLUDE_DIRS})
+else()
+	message(FATAL_ERROR "Boost libraries not found.")
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/libraries/croncpp/include)
+include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
+include_directories(${CMAKE_SOURCE_DIR}/libraries/daw_header_libraries/include)
+include_directories(${CMAKE_SOURCE_DIR}/libraries/iso8601_parsing/include)
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
 else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
+
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} date::date daw::daw-header-libraries daw::daw-iso8601-parsing)
 
 DeployShapeComponent(${PROJECT_NAME})

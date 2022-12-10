@@ -15,23 +15,17 @@
  * limitations under the License.
  */
 
-#include "SchedulerAddTaskMsg.h"
-
-#include "rapidjson/pointer.h"
-#include "rapidjson/ostreamwrapper.h"
-#include "rapidjson/schema.h"
-#include "rapidjson/writer.h"
+#include "SchedulerEditTaskMsg.h"
 
 namespace iqrf {
 
-	SchedulerAddTaskMsg::SchedulerAddTaskMsg(const Document &doc, ISchedulerService *schedulerService) : MngBaseMsg(doc) {
+	SchedulerEditTaskMsg::SchedulerEditTaskMsg(const Document &doc, ISchedulerService *schedulerService) : MngBaseMsg(doc) {
 		m_schedulerService = schedulerService;
 		m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
+        m_taskId = Pointer("/data/req/taskId").Get(doc)->GetString();
 
-		const Value *val = Pointer("/data/req/taskId").Get(doc);
-		if (val) {
-			m_taskId = val->GetString();
-		}
+		const Value* val = Pointer("/data/req/newTaskId").Get(doc);
+		m_newTaskId = val ? val->GetString() : m_taskId;
 		val = Pointer("/data/req/description").Get(doc);
 		if (val) {
 			m_description = val->GetString();
@@ -51,24 +45,28 @@ namespace iqrf {
 		m_timeSpec->CopyFrom(*val, m_timeSpec->GetAllocator());
 	}
 
-	void SchedulerAddTaskMsg::handleMsg() {
+	void SchedulerEditTaskMsg::handleMsg() {
 		try {
-			if (m_schedulerService->getTask(m_clientId, m_taskId)) {
-				throw std::logic_error("Task already exists");
-			}
-			m_taskId = m_schedulerService->addTask(m_clientId, m_taskId, m_description, *m_task, *m_timeSpec, m_persist, m_enabled);
-		} catch (const std::exception &e) {
+			m_taskId = m_schedulerService->editTask(
+				m_clientId,
+				m_taskId,
+				m_newTaskId,
+				m_description,
+				*m_task,
+				*m_timeSpec,
+				m_persist,
+				m_enabled
+			);
+		} catch (std::exception &e) {
 			std::ostringstream os;
-			os << "Cannot schedule task: " << e.what();
+			os << "Cannot edit task: "  << e.what();
 			throw std::logic_error(os.str());
 		}
 	}
 
-	void SchedulerAddTaskMsg::createResponsePayload(Document &doc) {
+	void SchedulerEditTaskMsg::createResponsePayload(Document &doc) {
 		Pointer("/data/rsp/clientId").Set(doc, m_clientId);
-		if (m_taskId != "00000000-0000-0000-0000-000000000000") {
-			Pointer("/data/rsp/taskId").Set(doc, m_taskId);
-		}
+		Pointer("/data/rsp/taskId").Set(doc, m_taskId);
 		MngBaseMsg::createResponsePayload(doc);
 	}
 }

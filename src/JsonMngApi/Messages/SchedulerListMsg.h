@@ -39,7 +39,7 @@ namespace iqrf {
 		/**
 		 * Destructor
 		 */
-		virtual ~SchedulerListMsg() {};
+		virtual ~SchedulerListMsg();
 
 		/**
 		 * Handles list scheduler tasks request
@@ -56,7 +56,13 @@ namespace iqrf {
 		ISchedulerService *m_schedulerService = nullptr;
 		/// Scheduler client ID
 		std::string m_clientId;
+		/// Retrieve full tasks
+		bool m_details = false;
+		/// Scheduler task IDs
+		std::vector<ISchedulerService::TaskHandle> m_tasksIds;
 		/// Scheduler tasks
-		std::vector<ISchedulerService::TaskHandle> m_tasks;
+		std::vector<rapidjson::Value *> m_tasks;
+		/// Tasks doc
+		Document *m_tasksDoc = nullptr;
 	};
 }

@@ -1,23 +1,8 @@
-/**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 #include "TestScheduler.h"
 #include "Trace.h"
 #include "GTestStaticRunner.h"
 #include "HexStringCoversion.h"
+#include "TimeConversion.h"
 
 #include "gtest/gtest.h"
 
@@ -277,7 +262,7 @@ namespace iqrf {
           if (!m_expectedTask.IsNull()) break;
         }
       }
-      
+
       rapidjson::Document expectedTask;
       expectedTask.Swap(m_expectedTask);
       TRC_FUNCTION_LEAVE("");
@@ -298,11 +283,11 @@ namespace iqrf {
     EXPECT_EQ((size_t)0, taskHandleVect.size());
 
     //verify empty result as we pass wrong handler
-    const rapidjson::Value *val = m_iSchedulerService->getMyTask(CLIENT_ID, 0);
+    const rapidjson::Value *val = m_iSchedulerService->getMyTask(CLIENT_ID, "00000000-0000-0000-0000-000000000000");
     EXPECT_EQ(nullptr, val);
 
     //verify empty result as we pass wrong handler
-    val = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, 0);
+    val = m_iSchedulerService->getMyTaskTimeSpec(CLIENT_ID, "00000000-0000-0000-0000-000000000000");
     EXPECT_EQ(nullptr, val);
   }
 
@@ -310,12 +295,10 @@ namespace iqrf {
   {
     using namespace rapidjson;
 
-    const int TID1 = 1736;
-    const int TID2 = 25828;
-    //const int TID3 = 78963;
+    const std::string TID1 = "b65ab3d2-f890-4bec-95bf-1669205f34e7";
+    const std::string TID2 = "e740728b-d85e-464a-8360-e3a8157f5fb8";
     const std::string MSG_ID1 = "b726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
     const std::string MSG_ID2 = "a726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
-    //const std::string MSG_ID3 = "f726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
 
     //verify result
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID_PERSIST);
@@ -355,7 +338,7 @@ namespace iqrf {
   {
     using namespace rapidjson;
 
-    const int TID3 = 78963;
+    const std::string TID3 = "be6b43b6-a359-487e-bd77-63c0a010a96f";
     const std::string MSG_ID3 = "f726ecb9-ee7c-433a-9aa4-3fb21cae2d4d";
 
     //verify result
@@ -379,9 +362,10 @@ namespace iqrf {
     using namespace rapidjson;
     Document doc1;
     Pointer("/item").Set(doc1, VAL1);
+    std::string TID = "6e0dc031-546f-4ae3-b5db-b9c049b81d23";
 
     //schedule task by cron time
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTask(CLIENT_ID, doc1, CRON1, true);
+    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTask(TID, CLIENT_ID, doc1, CRON1, true);
 
     //expected one handler
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
@@ -416,7 +400,7 @@ namespace iqrf {
     ASSERT_NE(nullptr, val2);
     ASSERT_TRUE(val2->IsInt());
     EXPECT_EQ(VAL1, val2->GetInt());
-    
+
     ifs.close();
 
     //remove tasks
@@ -430,20 +414,21 @@ namespace iqrf {
 
   TEST_F(SchedulerTesting, addTaskAtPersist)
   {
-    
+
     using namespace rapidjson;
     using namespace chrono;
 
     Document doc1;
     Pointer("/item").Set(doc1, VAL1);
+    std::string TID = "2dd84bd5-426c-4f2b-b51d-9f57331afc62";
 
     //prepare expiration time
     system_clock::time_point tp = system_clock::now();
     tp += milliseconds(10000); //expire in 10 sec
-    string tpStr = encodeTimestamp(tp);
+    string tpStr = TimeConversion::encodeTimestamp(tp);
 
     //schedule
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(CLIENT_ID, doc1, tp, true);
+    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(TID, CLIENT_ID, doc1, tp, true);
     const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
 
     //verify returned task1
@@ -491,10 +476,12 @@ namespace iqrf {
     Pointer("/item").Set(doc1, VAL1);
     Document doc2;
     Pointer("/item").Set(doc2, VAL2);
+    std::string TID1 = "cebd0e31-c78e-40f1-8009-76e83c3ffe2f";
+    std::string TID2 = "66a3dca3-6ca7-49ef-9903-5f815ad8052a";
 
     //schedule two tasks by cron time
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTask(CLIENT_ID, doc1, CRON1);
-    ISchedulerService::TaskHandle th2 = m_iSchedulerService->scheduleTask(CLIENT_ID, doc2, CRON2);
+    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTask(TID1, CLIENT_ID, doc1, CRON1);
+    ISchedulerService::TaskHandle th2 = m_iSchedulerService->scheduleTask(TID2, CLIENT_ID, doc2, CRON2);
 
     //expected two handlers
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
@@ -524,7 +511,7 @@ namespace iqrf {
     //remove tasks by vector
     std::vector<ISchedulerService::TaskHandle> taskHandleVectRem = { th1, th2 };
     m_iSchedulerService->removeTasks(CLIENT_ID, taskHandleVectRem);
-    
+
     //verify removal
     taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
     EXPECT_EQ((size_t)0, taskHandleVect.size());
@@ -537,14 +524,15 @@ namespace iqrf {
 
     Document doc1;
     Pointer("/item").Set(doc1, VAL1);
+    std::string TID = "862a1440-9b9d-4012-b889-0b1e82c31f4a";
 
     //prepare expiration time
     system_clock::time_point tp = system_clock::now();
     tp += milliseconds(10000); //expire in 10 sec
-    string tpStr = encodeTimestamp(tp);
+    string tpStr = TimeConversion::encodeTimestamp(tp);
 
     //schedule
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(CLIENT_ID, doc1, tp);
+    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskAt(TID, CLIENT_ID, doc1, tp);
     const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
 
     //verify returned task1
@@ -559,7 +547,7 @@ namespace iqrf {
 
     //remove tasks by id
     m_iSchedulerService->removeAllMyTasks(CLIENT_ID);
-    
+
     //verify removal
     std::vector<ISchedulerService::TaskHandle> taskHandleVect = m_iSchedulerService->getMyTasks(CLIENT_ID);
     EXPECT_EQ((size_t)0, taskHandleVect.size());
@@ -572,14 +560,15 @@ namespace iqrf {
 
     Document doc1;
     Pointer("/item").Set(doc1, VAL1);
+    std::string TID = "e7c341b5-e0f5-4407-a8c5-c11755897e5f";
 
     //prepare start time
     system_clock::time_point tp = system_clock::now();
     tp += milliseconds(10000); //start in 10 sec
-    string tpStr = encodeTimestamp(tp);
+    string tpStr = TimeConversion::encodeTimestamp(tp);
 
     //schedule
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskPeriodic(CLIENT_ID, doc1, seconds(PERIOD1), tp);
+    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskPeriodic(TID, CLIENT_ID, doc1, seconds(PERIOD1), tp);
     const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
 
     //verify returned task1
@@ -605,9 +594,10 @@ namespace iqrf {
     using namespace rapidjson;
     Document doc1;
     Pointer("/item").Set(doc1, VAL1);
-    
+    std::string TID = "ca2baaa0-a79b-4d71-9369-9e90c81e5665";
+
     //schedule
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTask(CLIENT_ID, doc1, CRON1);
+    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTask(TID, CLIENT_ID, doc1, CRON1);
 
     { //verify 1st iter
       Document doc = fetchTask(2000);
@@ -647,13 +637,14 @@ namespace iqrf {
 
     Document doc1;
     Pointer("/item").Set(doc1, VAL1);
+    std::string TID = "fe1083c7-c456-45d8-9cfb-018e6942be4d";
 
     system_clock::time_point tp = system_clock::now();
     tp += milliseconds(1000); //expire in 1 sec
-    string tpStr = encodeTimestamp(tp);
+    string tpStr = TimeConversion::encodeTimestamp(tp);
 
     //schedule one shot task
-    m_iSchedulerService->scheduleTaskAt(CLIENT_ID, doc1, tp);
+    m_iSchedulerService->scheduleTaskAt(TID, CLIENT_ID, doc1, tp);
 
     { //shouldn't expire yet
       Document doc = fetchTask(200); //200 ms
@@ -681,14 +672,15 @@ namespace iqrf {
 
     Document doc1;
     Pointer("/item").Set(doc1, VAL1);
+    std::string TID = "5ecb0de4-02db-478c-a4ac-b724d1d7edb9";
 
     //prepare start time
     system_clock::time_point tp = system_clock::now();
     tp += milliseconds(1000); //postpone start by 1 sec
-    string tpStr = encodeTimestamp(tp);
+    string tpStr = TimeConversion::encodeTimestamp(tp);
 
     //schedule
-    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskPeriodic(CLIENT_ID, doc1, seconds(PERIOD1), tp);
+    ISchedulerService::TaskHandle th1 = m_iSchedulerService->scheduleTaskPeriodic(TID, CLIENT_ID, doc1, seconds(PERIOD1), tp);
     //const rapidjson::Value *task1 = m_iSchedulerService->getMyTask(CLIENT_ID, th1);
 
     { //shouldn't expire yet

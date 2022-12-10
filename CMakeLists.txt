@@ -120,6 +120,10 @@ add_subdirectory(libraries/clibcdc  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibuart EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/iqrf-header-parser EXCLUDE_FROM_ALL)
+add_subdirectory(libraries/croncpp EXCLUDE_FROM_ALL)
+add_subdirectory(libraries/date EXCLUDE_FROM_ALL)
+add_subdirectory(libraries/daw_header_libraries EXCLUDE_FROM_ALL)
+add_subdirectory(libraries/iso8601_parsing EXCLUDE_FROM_ALL)
 
 #add_subdirectory(src)
 

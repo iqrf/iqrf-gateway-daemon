@@ -2,11 +2,11 @@
 	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"self": {
 		"vendor": "com.iqrftech.self-desc",
-		"name": "mngScheduler_RemoveTask-response",
+		"name": "mngScheduler_StartTask-response",
 		"format": "jsonschema",
 		"version": "1-0-0"
 	},
-	"title": "Scheduler Management - Remove Task",
+	"title": "Scheduler Management - Start Task",
 	"type": "object",
 	"required": [
 		"mType",
@@ -17,9 +17,9 @@
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "Scheduler management - Remove Task response.",
+			"description": "Scheduler management - Start Task response.",
 			"type": "string",
-			"enum": ["mngScheduler_RemoveTask"]
+			"enum": ["mngScheduler_StartTask"]
 		},
 		"data": {
 			"$id": "#/properties/data",
@@ -88,6 +88,50 @@
 					"title": "Error string",
 					"description": "Error message string.",
 					"type": "string"
+				}
+			}
+		}
+	},
+	"definitions": {
+		"task": {
+			"$id": "#/definitions/task",
+			"title": "Task object",
+			"type": "object",
+			"required": [
+				"message",
+				"messaging"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"messaging": {
+					"$id": "#/definitions/task/properties/messaging",
+					"title": "Messaging ID(s)",
+					"description": "Scheduler messaging channel(s).",
+					"oneOf":[
+						{
+							"type": "string",
+							"example": "MqttMessaging"
+						},
+						{
+							"type": "array",
+							"items": {
+								"$id": "#/definitions/task/properties/messaging/items",
+								"type": "string",
+								"pattern": "^[^&]+$"
+							},
+							"additionalItems": false,
+							"example": [
+								"MqMessaging",
+								"MqttMessaging"
+							]
+						}
+					]
+				},
+				"message": {
+					"$id": "#/definitions/task/properties/message",
+					"title": "Task message",
+					"description": "Supported Daemon API json request.",
+					"type": "object"
 				}
 			}
 		}

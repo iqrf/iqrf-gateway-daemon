@@ -22,19 +22,43 @@ namespace iqrf {
 	SchedulerListMsg::SchedulerListMsg(const Document &doc, ISchedulerService *schedulerService) : MngBaseMsg(doc) {
 		m_schedulerService = schedulerService;
 		m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
+		const Value* val = Pointer("/data/req/details").Get(doc);
+		if (val) {
+			m_details = val->GetBool();
+		}
+	}
+
+	SchedulerListMsg::~SchedulerListMsg() {
+		if (m_tasksDoc != nullptr) {
+			delete m_tasksDoc;
+		}
+		for (auto task : m_tasks) {
+			delete task;
+		}
+		m_tasks.clear();
 	}
 
 	void SchedulerListMsg::handleMsg() {
-		m_tasks = m_schedulerService->getMyTasks(m_clientId);
+		if (m_details) {
+			m_tasksDoc = new Document();
+			m_tasks = m_schedulerService->getTasks(m_clientId, m_tasksDoc->GetAllocator());
+		} else {
+			m_tasksIds = m_schedulerService->getTaskIds(m_clientId);
+		}
 	}
 
 	void SchedulerListMsg::createResponsePayload(Document &doc) {
 		Pointer("/data/rsp/clientId").Set(doc, m_clientId);
-
 		Value array(kArrayType);
 		Document::AllocatorType &allocator = doc.GetAllocator();
-		for (auto task : m_tasks) {
-			array.PushBack(task, allocator);
+		if (m_details) {
+			for (auto task : m_tasks) {
+				array.PushBack(*task, allocator);
+			}
+		} else {
+			for (auto taskId : m_tasksIds) {
+				array.PushBack(Value(taskId.c_str(), allocator), allocator);
+			}
 		}
 		Pointer("/data/rsp/tasks").Set(doc, array);
 		MngBaseMsg::createResponsePayload(doc);

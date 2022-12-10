@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "TimeConversion.h"
 #include "ShapeProperties.h"
 #include "IIqrfInfo.h"
 #include "IJsRenderService.h"

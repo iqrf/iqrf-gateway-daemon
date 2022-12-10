@@ -15,33 +15,28 @@
  * limitations under the License.
  */
 
-#include "SchedulerGetTaskMsg.h"
+#include "SchedulerChangeTaskStateMsg.h"
 
 namespace iqrf {
 
-	SchedulerGetTaskMsg::SchedulerGetTaskMsg(const Document &doc, ISchedulerService *schedulerService) : MngBaseMsg(doc) {
+	SchedulerChangeTaskStateMsg::SchedulerChangeTaskStateMsg(const Document &doc, ISchedulerService *schedulerService, bool active) : MngBaseMsg(doc) {
 		m_schedulerService = schedulerService;
 		m_clientId = Pointer("/data/req/clientId").Get(doc)->GetString();
 		m_taskId = Pointer("/data/req/taskId").Get(doc)->GetString();
+		m_active = active;
 	}
 
-	void SchedulerGetTaskMsg::handleMsg() {
+	void SchedulerChangeTaskStateMsg::handleMsg() {
 		try {
-			m_taskDoc = new Document();
-			m_schedulerService->getTaskDocument(m_clientId, m_taskId, *m_taskDoc);
-			m_active = m_schedulerService->isTaskActive(m_clientId, m_taskId);
+			m_schedulerService->changeTaskState(m_clientId, m_taskId, m_active);
 		} catch (const std::logic_error &e) {
-			throw std::logic_error(e.what());
+			throw std::logic_error("Client or task ID does not exist.");
 		}
 	}
 
-	void SchedulerGetTaskMsg::createResponsePayload(Document &doc) {
+	void SchedulerChangeTaskStateMsg::createResponsePayload(Document &doc) {
 		Pointer("/data/rsp/clientId").Set(doc, m_clientId);
 		Pointer("/data/rsp/taskId").Set(doc, m_taskId);
-		if (getStatus() == 0) {
-			Pointer("/data/rsp").Set(doc, *m_taskDoc);
-			Pointer("/data/rsp/active").Set(doc, m_active);
-		}
 		MngBaseMsg::createResponsePayload(doc);
 	}
 }

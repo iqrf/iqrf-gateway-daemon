@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "VersionInfo.h"
 #include "ApiMsg.h"
 #include "JsonMngApi.h"
 #include "rapidjson/rapidjson.h"
@@ -36,6 +35,8 @@
 #include "Messages/MngVersionMsg.h"
 
 #include "Messages/SchedulerAddTaskMsg.h"
+#include "Messages/SchedulerChangeTaskStateMsg.h"
+#include "Messages/SchedulerEditTaskMsg.h"
 #include "Messages/SchedulerGetTaskMsg.h"
 #include "Messages/SchedulerListMsg.h"
 #include "Messages/SchedulerRemoveAllMsg.h"
@@ -54,332 +55,292 @@ using namespace rapidjson;
 
 namespace iqrf {
 
-  class JsonMngApi::Imp
-  {
-  private:
+	class JsonMngApi::Imp {
+	private:
+		/// Launch service
+		shape::ILaunchService *m_iLaunchService = nullptr;
+		/// Tracing service
+		shape::ITraceService *m_traceService = nullptr;
+		/// DPA service
+		IIqrfDpaService *m_dpaService = nullptr;
+		/// IqrfInfo service
+		IIqrfInfo *m_infoService = nullptr;
+		/// Scheduler service
+		ISchedulerService *m_iSchedulerService = nullptr;
+		/// JsonSplitter service
+		IMessagingSplitterService *m_iMessagingSplitterService = nullptr;
+		/// JsCache service
+		IJsCacheService *m_cacheService = nullptr;
+		/// UDP service
+		IUdpConnectorService *m_iUdpConnectorService = nullptr;
+		/// API message filters
+		std::vector<std::string> m_filters = {
+			"mngScheduler",
+			"mngDaemon"
+		};
+	public:
+		Imp() {}
 
-    shape::ILaunchService *m_iLaunchService = nullptr;
-    shape::ITraceService *m_traceService = nullptr;
-    IIqrfDpaService *m_dpaService = nullptr;
-    IIqrfInfo *m_infoService = nullptr;
-    ISchedulerService *m_iSchedulerService = nullptr;
-    IMessagingSplitterService *m_iMessagingSplitterService = nullptr;
-    IJsCacheService *m_cacheService = nullptr;
-    IUdpConnectorService* m_iUdpConnectorService = nullptr;
+		~Imp() {}
 
-    std::vector<std::string> m_filters =
-    {
-      "mngScheduler",
-      "mngDaemon"
-    };
+		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+			TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) << NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
+			Document respDoc;
+			std::unique_ptr<MngBaseMsg> msg;
+			if (msgType.m_type == "mngDaemon_Exit") {
+				msg = std::make_unique<MngRestartMsg>(MngRestartMsg(doc, m_iSchedulerService));
+			} else if (msgType.m_type == "mngDaemon_Mode") {
+				msg = std::make_unique<MngModeMsg>(MngModeMsg(doc, m_iUdpConnectorService));
+			} else if (msgType.m_type == "mngDaemon_ReloadCoordinator") {
+				msg = std::make_unique<MngReloadCoordinatorMsg>(MngReloadCoordinatorMsg(doc, m_dpaService, m_infoService));
+			} else if (msgType.m_type == "mngDaemon_UpdateCache") {
+				msg = std::make_unique<MngUpdateCacheMsg>(MngUpdateCacheMsg(doc, m_infoService, m_cacheService));
+			} else if (msgType.m_type == "mngDaemon_Version") {
+				msg = std::make_unique<MngVersionMsg>(MngVersionMsg(doc));
+			} else if (msgType.m_type == "mngScheduler_AddTask") {
+				msg = std::make_unique<SchedulerAddTaskMsg>(SchedulerAddTaskMsg(doc, m_iSchedulerService));
+			} else if (msgType.m_type == "mngScheduler_EditTask") {
+				msg = std::make_unique<SchedulerEditTaskMsg>(SchedulerEditTaskMsg(doc, m_iSchedulerService));
+			} else if (msgType.m_type == "mngScheduler_GetTask") {
+				msg = std::make_unique<SchedulerGetTaskMsg>(SchedulerGetTaskMsg(doc, m_iSchedulerService));
+			} else if (msgType.m_type == "mngScheduler_List") {
+				msg = std::make_unique<SchedulerListMsg>(SchedulerListMsg(doc, m_iSchedulerService));
+			} else if (msgType.m_type == "mngScheduler_RemoveAll") {
+				msg = std::make_unique<SchedulerRemoveAllMsg>(SchedulerRemoveAllMsg(doc, m_iSchedulerService));
+			} else if (msgType.m_type == "mngScheduler_RemoveTask") {
+				msg = std::make_unique<SchedulerRemoveTaskMsg>(SchedulerRemoveTaskMsg(doc, m_iSchedulerService));
+			} else if (msgType.m_type == "mngScheduler_StartTask") {
+				msg = std::make_unique<SchedulerChangeTaskStateMsg>(SchedulerChangeTaskStateMsg(doc, m_iSchedulerService, true));
+			} else if (msgType.m_type == "mngScheduler_StopTask") {
+				msg = std::make_unique<SchedulerChangeTaskStateMsg>(SchedulerChangeTaskStateMsg(doc, m_iSchedulerService, false));
+			} else {
+				THROW_EXC_TRC_WAR(std::logic_error, "Unknown message type: " << msgType.m_type);
+			}
+			try {
+				msg->handleMsg();
+				msg->setStatus("ok", 0);
+				msg->createResponse(respDoc);
+				m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
+			} catch (const std::exception &e) {
+				msg->setErrorString(e.what());
+				msg->setStatus("err", -1);
+				Document errorDoc;
+				msg->createResponse(errorDoc);
+				m_iMessagingSplitterService->sendMessage(messagingId, std::move(errorDoc));
+			}
+			TRC_FUNCTION_LEAVE("");
+		}
 
-  public:
-    Imp()
-    {
-    }
+		void handleSchedulerMsg(const rapidjson::Value &val) {
+			(void)val;
+			TRC_INFORMATION(std::endl << "Scheduled Exit ... " << std::endl);
+			std::cout << std::endl << "Scheduled Exit ... " << std::endl;
+			m_iLaunchService->exit();
+		}
 
-    ~Imp()
-    {
-    }
+		void activate(const shape::Properties *props) {
+			(void)props;
+			TRC_FUNCTION_ENTER("");
+			TRC_INFORMATION(std::endl
+				<< "******************************" << std::endl
+				<< "JsonMngApi instance activate" << std::endl
+				<< "******************************"
+			);
+			m_iMessagingSplitterService->registerFilteredMsgHandler(
+				m_filters,
+				[&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+					handleMsg(messagingId, msgType, std::move(doc));
+				}
+			);
+			m_iSchedulerService->registerTaskHandler(
+				"JsonMngApi",
+				[&](const rapidjson::Value &val) {
+					handleSchedulerMsg(val);
+				}
+			);
+			TRC_FUNCTION_LEAVE("")
+		}
 
-    void handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
-    {
-      TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
-        NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
+		void modify(const shape::Properties *props) {
+			(void)props;
+		}
 
-      Document respDoc;
-      std::unique_ptr<MngBaseMsg> msg;
+		void deactivate() {
+			TRC_FUNCTION_ENTER("");
+			TRC_INFORMATION(std::endl
+				<< "******************************" << std::endl
+				<< "JsonMngApi instance deactivate" << std::endl
+				<< "******************************"
+			);
+			m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
+			m_iSchedulerService->unregisterTaskHandler("JsonMngApi");
 
-      if (msgType.m_type == "mngDaemon_Exit") {
-        msg = std::make_unique<MngRestartMsg>(MngRestartMsg(doc, m_iSchedulerService));
-      } else if (msgType.m_type == "mngDaemon_Mode") {
-        msg = std::make_unique<MngModeMsg>(MngModeMsg(doc, m_iUdpConnectorService));
-      } else if (msgType.m_type == "mngDaemon_ReloadCoordinator") {
-        msg = std::make_unique<MngReloadCoordinatorMsg>(MngReloadCoordinatorMsg(doc, m_dpaService, m_infoService));
-      } else if (msgType.m_type == "mngDaemon_UpdateCache") {
-        msg = std::make_unique<MngUpdateCacheMsg>(MngUpdateCacheMsg(doc, m_infoService, m_cacheService));
-      } else if (msgType.m_type == "mngDaemon_Version") {
-        msg = std::make_unique<MngVersionMsg>(MngVersionMsg(doc));
-      } else if (msgType.m_type == "mngScheduler_AddTask") {
-        msg = std::make_unique<SchedulerAddTaskMsg>(SchedulerAddTaskMsg(doc, m_iSchedulerService));
-      } else if (msgType.m_type == "mngScheduler_GetTask") {
-        msg = std::make_unique<SchedulerGetTaskMsg>(SchedulerGetTaskMsg(doc, m_iSchedulerService));
-      } else if (msgType.m_type == "mngScheduler_List") {
-        msg = std::make_unique<SchedulerListMsg>(SchedulerListMsg(doc, m_iSchedulerService));
-      } else if (msgType.m_type == "mngScheduler_RemoveAll") {
-        msg = std::make_unique<SchedulerRemoveAllMsg>(SchedulerRemoveAllMsg(doc, m_iSchedulerService));
-      } else if (msgType.m_type == "mngScheduler_RemoveTask") {
-        msg = std::make_unique<SchedulerRemoveTaskMsg>(SchedulerRemoveTaskMsg(doc, m_iSchedulerService));
-      } else {
-        THROW_EXC_TRC_WAR(std::logic_error, "Unknown message type: " << msgType.m_type);
-      }
+			TRC_FUNCTION_LEAVE("")
+		}
 
-      try {
-        msg->handleMsg();
-        msg->setStatus("ok", 0);
-        msg->createResponse(respDoc);
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
-      } catch (const std::exception &e) {
-        msg->setErrorString(e.what());
-        msg->setStatus("err", -1);
-        Document errorDoc;
-        msg->createResponse(errorDoc);
-        m_iMessagingSplitterService->sendMessage(messagingId, std::move(errorDoc));
-      }
+		void attachInterface(shape::ILaunchService *iface) {
+			m_iLaunchService = iface;
+		}
 
-      TRC_FUNCTION_LEAVE("");
-    }
+		void detachInterface(shape::ILaunchService *iface) {
+			if (m_iLaunchService == iface) {
+				m_iLaunchService = nullptr;
+			}
+		}
 
-    void handleSchedulerMsg(const rapidjson::Value& val)
-    {
-      (void)val; //silence -Wunused-parameter
-      TRC_INFORMATION(std::endl << "Scheduled Exit ... " << std::endl);
-      std::cout << std::endl << "Scheduled Exit ... " << std::endl;
-      m_iLaunchService->exit();
-    }
+		void attachInterface(IIqrfDpaService *iface) {
+			m_dpaService = iface;
+		}
 
-    void activate(const shape::Properties *props)
-    {
-      (void)props; //silence -Wunused-parameter
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "JsonMngApi instance activate" << std::endl <<
-        "******************************"
-      );
+		void detachInterface(IIqrfDpaService *iface) {
+			if (m_dpaService == iface) {
+				m_dpaService = nullptr;
+			}
+		}
 
-      m_iMessagingSplitterService->registerFilteredMsgHandler(m_filters,
-        [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
-      {
-        handleMsg(messagingId, msgType, std::move(doc));
-      });
+		void attachInterface(IIqrfInfo *iface) {
+			m_infoService = iface;
+		}
 
-      m_iSchedulerService->registerTaskHandler("JsonMngApi", [&](const rapidjson::Value& val)
-      {
-        handleSchedulerMsg(val);
-      });
+		void detachInterface(IIqrfInfo *iface) {
+			if (m_infoService == iface) {
+				m_infoService = nullptr;
+			}
+		}
 
-      TRC_FUNCTION_LEAVE("")
-    }
+		void attachInterface(ISchedulerService *iface) {
+			m_iSchedulerService = iface;
+		}
 
-    void deactivate()
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "******************************" << std::endl <<
-        "JsonMngApi instance deactivate" << std::endl <<
-        "******************************"
-      );
+		void detachInterface(ISchedulerService *iface) {
+			if (m_iSchedulerService == iface) {
+				m_iSchedulerService = nullptr;
+			}
+		}
 
-      m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
-      m_iSchedulerService->unregisterTaskHandler("JsonMngApi");
+		void attachInterface(IJsCacheService *iface) {
+			m_cacheService = iface;
+		}
 
-      TRC_FUNCTION_LEAVE("")
-    }
+		void detachInterface(IJsCacheService *iface) {
+			if (m_cacheService == iface) {
+				m_cacheService = nullptr;
+			}
+		}
 
-    void modify(const shape::Properties *props)
-    {
-      (void)props; //silence -Wunused-parameter
-    }
+		void attachInterface(IUdpConnectorService *iface) {
+			m_iUdpConnectorService = iface;
+		}
 
-    void attachInterface(shape::ILaunchService* iface)
-    {
-      m_iLaunchService = iface;
-    }
+		void detachInterface(IUdpConnectorService *iface) {
+			if (m_iUdpConnectorService == iface) {
+				m_iUdpConnectorService = nullptr;
+			}
+		}
 
-    void detachInterface(shape::ILaunchService* iface)
-    {
-      if (m_iLaunchService == iface) {
-        m_iLaunchService = nullptr;
-      }
-    }
+		void attachInterface(IMessagingSplitterService *iface) {
+			m_iMessagingSplitterService = iface;
+		}
 
-    void attachInterface(IIqrfDpaService *iface)
-    {
-      m_dpaService = iface;
-    }
+		void detachInterface(IMessagingSplitterService *iface) {
+			if (m_iMessagingSplitterService == iface) {
+				m_iMessagingSplitterService = nullptr;
+			}
+		}
 
-    void detachInterface(IIqrfDpaService *iface)
-    {
-      if (m_dpaService == iface) {
-        m_dpaService = nullptr;
-      }
-    }
+		void attachInterface(shape::ITraceService *iface) {
+			m_traceService = iface;
+			shape::Tracer::get().addTracerService(iface);
+		}
 
-    void attachInterface(IIqrfInfo *iface)
-    {
-      m_infoService = iface;
-    }
+		void detachInterface(shape::ITraceService *iface) {
+			m_traceService = nullptr;
+			shape::Tracer::get().removeTracerService(iface);
+		}
+	};
 
-    void detachInterface(IIqrfInfo *iface)
-    {
-      if (m_infoService == iface) {
-        m_infoService = nullptr;
-      }
-    }
+	/////////////////////////
+	JsonMngApi::JsonMngApi() {
+		m_imp = shape_new Imp();
+	}
 
-    void attachInterface(ISchedulerService* iface)
-    {
-      m_iSchedulerService = iface;
-    }
+	JsonMngApi::~JsonMngApi() {
+		delete m_imp;
+	}
 
-    void detachInterface(ISchedulerService* iface)
-    {
-      if (m_iSchedulerService == iface) {
-        m_iSchedulerService = nullptr;
-      }
-    }
+	void JsonMngApi::activate(const shape::Properties *props) {
+		m_imp->activate(props);
+	}
 
-    void attachInterface(IJsCacheService *iface)
-    {
-      m_cacheService = iface;
-    }
+	void JsonMngApi::deactivate() {
+		m_imp->deactivate();
+	}
 
-    void detachInterface(IJsCacheService *iface)
-    {
-      if (m_cacheService == iface) {
-        m_cacheService = nullptr;
-      }
-    }
+	void JsonMngApi::modify(const shape::Properties *props) {
+		m_imp->modify(props);
+	}
 
-    void attachInterface(IUdpConnectorService* iface)
-    {
-      m_iUdpConnectorService = iface;
-    }
+	void JsonMngApi::attachInterface(shape::ILaunchService *iface) {
+		m_imp->attachInterface(iface);
+	}
 
-    void detachInterface(IUdpConnectorService* iface)
-    {
-      if (m_iUdpConnectorService == iface) {
-        m_iUdpConnectorService = nullptr;
-      }
-    }
+	void JsonMngApi::detachInterface(shape::ILaunchService *iface) {
+		m_imp->detachInterface(iface);
+	}
 
-    void attachInterface(IMessagingSplitterService* iface)
-    {
-      m_iMessagingSplitterService = iface;
-    }
+	void JsonMngApi::attachInterface(IIqrfDpaService *iface) {
+		m_imp->attachInterface(iface);
+	}
 
-    void detachInterface(IMessagingSplitterService* iface)
-    {
-      if (m_iMessagingSplitterService == iface) {
-        m_iMessagingSplitterService = nullptr;
-      }
-    }
+	void JsonMngApi::detachInterface(IIqrfDpaService *iface) {
+		m_imp->detachInterface(iface);
+	}
 
-    void attachInterface(shape::ITraceService *iface) {
-      m_traceService = iface;
-      shape::Tracer::get().addTracerService(iface);
-    }
+	void JsonMngApi::attachInterface(IIqrfInfo *iface) {
+		m_imp->attachInterface(iface);
+	}
 
-    void detachInterface(shape::ITraceService *iface) {
-      m_traceService = nullptr;
-      shape::Tracer::get().removeTracerService(iface);
-    }
-  };
+	void JsonMngApi::detachInterface(IIqrfInfo *iface) {
+		m_imp->detachInterface(iface);
+	}
 
-  /////////////////////////
-  JsonMngApi::JsonMngApi()
-  {
-    m_imp = shape_new Imp();
-  }
+	void JsonMngApi::attachInterface(ISchedulerService *iface) {
+		m_imp->attachInterface(iface);
+	}
 
-  JsonMngApi::~JsonMngApi()
-  {
-    delete m_imp;
-  }
+	void JsonMngApi::detachInterface(ISchedulerService *iface) {
+		m_imp->detachInterface(iface);
+	}
 
-  void JsonMngApi::activate(const shape::Properties *props)
-  {
-    m_imp->activate(props);
-  }
+	void JsonMngApi::attachInterface(IJsCacheService *iface) {
+		m_imp->attachInterface(iface);
+	}
 
-  void JsonMngApi::deactivate()
-  {
-    m_imp->deactivate();
-  }
+	void JsonMngApi::detachInterface(IJsCacheService *iface) {
+		m_imp->detachInterface(iface);
+	}
 
-  void JsonMngApi::modify(const shape::Properties *props)
-  {
-    m_imp->modify(props);
-  }
+	void JsonMngApi::attachInterface(IUdpConnectorService *iface) {
+		m_imp->attachInterface(iface);
+	}
 
-  void JsonMngApi::attachInterface(shape::ILaunchService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
+	void JsonMngApi::detachInterface(IUdpConnectorService *iface) {
+		m_imp->detachInterface(iface);
+	}
 
-  void JsonMngApi::detachInterface(shape::ILaunchService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
+	void JsonMngApi::attachInterface(IMessagingSplitterService *iface) {
+		m_imp->attachInterface(iface);
+	}
 
-  void JsonMngApi::attachInterface(IIqrfDpaService *iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-  void JsonMngApi::detachInterface(IIqrfDpaService *iface)
-  {
-    m_imp->detachInterface(iface);
-  }
+	void JsonMngApi::detachInterface(IMessagingSplitterService *iface) {
+		m_imp->detachInterface(iface);
+	}
 
-  void JsonMngApi::attachInterface(IIqrfInfo *iface)
-  {
-    m_imp->attachInterface(iface);
-  }
+	void JsonMngApi::attachInterface(shape::ITraceService *iface) {
+		m_imp->attachInterface(iface);
+	}
 
-  void JsonMngApi::detachInterface(IIqrfInfo *iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
-  void JsonMngApi::attachInterface(ISchedulerService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonMngApi::detachInterface(ISchedulerService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
-  void JsonMngApi::attachInterface(IJsCacheService *iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonMngApi::detachInterface(IJsCacheService *iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
-  void JsonMngApi::attachInterface(IUdpConnectorService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonMngApi::detachInterface(IUdpConnectorService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
-  void JsonMngApi::attachInterface(IMessagingSplitterService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonMngApi::detachInterface(IMessagingSplitterService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
-  void JsonMngApi::attachInterface(shape::ITraceService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
-
-  void JsonMngApi::detachInterface(shape::ITraceService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
-
+	void JsonMngApi::detachInterface(shape::ITraceService *iface) {
+		m_imp->detachInterface(iface);
+	}
 }

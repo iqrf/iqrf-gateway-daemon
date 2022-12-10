@@ -1829,11 +1829,13 @@ namespace iqrf {
         int addr = 1;
         for (; addr <= MAX_ADDRESS; addr++)
         {
-          if (antwInputParams.bondingControl.addressSpaceBitmap[addr] == true)
-            if (antwProcessParams.networkNodes[addr].bonded == true)
+          if (antwInputParams.bondingControl.addressSpaceBitmap[addr] == true) {
+            if (antwProcessParams.networkNodes[addr].bonded == true) {
               antwInputParams.bondingControl.addressSpaceBitmap[addr] = false;
-            else
+            } else {
               break;
+            }
+          }
         }
         if (addr == (MAX_ADDRESS + 1))
         {
@@ -1920,7 +1922,7 @@ namespace iqrf {
 
           rawObject.AddMember(
             "requestTs",
-            encodeTimestamp(transResult->getRequestTs()),
+            TimeConversion::encodeTimestamp(transResult->getRequestTs()),
             allocator
           );
 
@@ -1932,7 +1934,7 @@ namespace iqrf {
 
           rawObject.AddMember(
             "confirmationTs",
-            encodeTimestamp(transResult->getConfirmationTs()),
+            TimeConversion::encodeTimestamp(transResult->getConfirmationTs()),
             allocator
           );
 
@@ -1944,7 +1946,7 @@ namespace iqrf {
 
           rawObject.AddMember(
             "responseTs",
-            encodeTimestamp(transResult->getResponseTs()),
+            TimeConversion::encodeTimestamp(transResult->getResponseTs()),
             allocator
           );
 

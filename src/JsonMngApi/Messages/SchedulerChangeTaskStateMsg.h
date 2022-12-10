@@ -22,27 +22,27 @@
 namespace iqrf {
 
 	/**
-	 * Scheduler remove task message
+	 * Scheduler change task state message
 	 */
-	class SchedulerRemoveTaskMsg : public MngBaseMsg {
+	class SchedulerChangeTaskStateMsg : public MngBaseMsg {
 	public:
 		/// Delete base constructor
-		SchedulerRemoveTaskMsg() = delete;
+		SchedulerChangeTaskStateMsg() = delete;
 
 		/**
 		 * Constructor
 		 * @param doc Request document
 		 * @param schedulerRervice Scheduler service interface
 		 */
-		SchedulerRemoveTaskMsg(const Document &doc, ISchedulerService *schedulerService);
+		SchedulerChangeTaskStateMsg(const Document &doc, ISchedulerService *schedulerService, bool active);
 
 		/**
 		 * Destructor
 		 */
-		virtual ~SchedulerRemoveTaskMsg() {};
+		virtual ~SchedulerChangeTaskStateMsg() {};
 
 		/**
-		 * Handles remove scheduler task request
+		 * Handles change scheduler task state request
 		 */
 		void handleMsg() override;
 
@@ -56,7 +56,9 @@ namespace iqrf {
 		ISchedulerService *m_schedulerService = nullptr;
 		/// Scheduler client ID
 		std::string m_clientId;
-		/// Schedule task ID
+		/// Scheduler task ID
 		std::string m_taskId;
+		/// Requested task state
+		bool m_active;
 	};
 }
