@@ -273,7 +273,7 @@ namespace iqrf {
 			)
 		);
 		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-		addSchedulerTask(record);
+		addSchedulerTask(record, enabled);
 		notifyWorker();
 		return record->getTaskId();
 	}
@@ -334,7 +334,7 @@ namespace iqrf {
 		}
 		record->setDescription(description);
 		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
-		addSchedulerTask(record);
+		addSchedulerTask(record, enabled);
 		notifyWorker();
 		return record->getTaskId();
 	}
@@ -374,16 +374,13 @@ namespace iqrf {
 		std::shared_ptr<SchedulerRecord> ptr = std::make_shared<SchedulerRecord>(record);
 		if (reload) {
 			removeSchedulerTask(item->second);
-			addSchedulerTask(ptr);
-			if (ptr->isActive() && !enabled) {
-				scheduleTask(ptr);
-			}
+			addSchedulerTask(ptr, ptr->isActive());
 			notifyWorker();
 		} else {
-			if (persist != item->second->isPersistent()) {
-				if (persist) {
-					createTaskFile(ptr);
-				} else {
+			if (persist) {
+				writeTaskFile(ptr);
+			} else {
+				if (item->second->isPersistent()) {
 					deleteTaskFile(taskId);
 				}
 			}
@@ -448,13 +445,13 @@ namespace iqrf {
 
 	///// private methods
 
-	Scheduler::TaskHandle Scheduler::addSchedulerTask(std::shared_ptr<SchedulerRecord> &record) {
+	Scheduler::TaskHandle Scheduler::addSchedulerTask(std::shared_ptr<SchedulerRecord> &record, bool start) {
 		using namespace rapidjson;
 		if (record->isPersistent()) {
-			createTaskFile(record);
+			writeTaskFile(record);
 		}
 		m_tasksMap.insert(std::make_pair(record->getTaskId(), record));
-		if (record->isStartupTask()) {
+		if (start) {
 			scheduleTask(record);
 			record->setActive(true);
 		}
@@ -470,36 +467,32 @@ namespace iqrf {
 		m_tasksMap.erase(taskId);
 	}
 
-	void Scheduler::createTaskFile(std::shared_ptr<SchedulerRecord> &record) {
+	void Scheduler::writeTaskFile(std::shared_ptr<SchedulerRecord> &record) {
 		using namespace rapidjson;
 		std::ostringstream os;
 		os << m_cacheDir << '/' << record->getTaskId() << ".json";
 		std::string fname = os.str();
-
 		std::ifstream ifs(fname);
-		if (ifs.good()) {
-			TRC_WARNING("File already exists: " << PAR(fname));
-		} else {
-			Document d;
-			auto v = record->serialize(d.GetAllocator());
-			d.Swap(v);
-			std::ofstream ofs(fname);
-			OStreamWrapper osw(ofs);
-			PrettyWriter<OStreamWrapper> writer(osw);
-			d.Accept(writer);
-			ofs.close();
+
+		Document d;
+		auto v = record->serialize(d.GetAllocator());
+		d.Swap(v);
+		std::ofstream ofs(fname);
+		OStreamWrapper osw(ofs);
+		PrettyWriter<OStreamWrapper> writer(osw);
+		d.Accept(writer);
+		ofs.close();
 #ifndef SHAPE_PLATFORM_WINDOWS
-			int fd = open(fname.c_str(), O_RDWR);
-			if (fd < 0) {
-				TRC_WARNING("Failed to open file " << fname << ". " << errno << ": " << strerror(errno));
-			} else {
-				if (fsync(fd) < 0) {
-					TRC_WARNING("Failed to sync file to filesystem." << errno << ": " << strerror(errno));
-				}
-				close(fd);
+		int fd = open(fname.c_str(), O_RDWR);
+		if (fd < 0) {
+			TRC_WARNING("Failed to open file " << fname << ". " << errno << ": " << strerror(errno));
+		} else {
+			if (fsync(fd) < 0) {
+				TRC_WARNING("Failed to sync file to filesystem." << errno << ": " << strerror(errno));
 			}
-#endif
+			close(fd);
 		}
+#endif
 	}
 
 	void Scheduler::deleteTaskFile(const TaskHandle &taskId) {

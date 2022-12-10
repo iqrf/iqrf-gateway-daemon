@@ -260,9 +260,10 @@ namespace iqrf {
 		 * Adds a scheduler record and sets active if the task is set to start automatically
 		 * If the task is persistent, a task file is created in filesystem
 		 * @param record Scheduler record
+		 * @param start Start task
 		 * @return Task ID
 		 */
-		TaskHandle addSchedulerTask(std::shared_ptr<SchedulerRecord> &record);
+		TaskHandle addSchedulerTask(std::shared_ptr<SchedulerRecord> &record, bool start = false);
 
 		/**
 		 * Removes scheduler record, including active scheduled tasks
@@ -272,10 +273,10 @@ namespace iqrf {
 		void removeSchedulerTask(std::shared_ptr<SchedulerRecord> &record);
 
 		/**
-		 * Creates task file in filesystem from scheduler record
+		 * Creates task file in filesystem from scheduler record, or updates existing file
 		 * @param record Scheduler record
 		 */
-		void createTaskFile(std::shared_ptr<SchedulerRecord> &record);
+		void writeTaskFile(std::shared_ptr<SchedulerRecord> &record);
 
 		/**
 		 * Adds task to map of active tasks
