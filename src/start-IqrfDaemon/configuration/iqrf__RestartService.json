@@ -1,0 +1,4 @@
+{
+  "component": "iqrf::MaintenanceService",
+  "instance": "iqrf::MaintenanceService-Instance1"
+}

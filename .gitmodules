@@ -9,10 +9,22 @@
 	url = https://github.com/iqrfsdk/clibspi.git
 [submodule "libraries/clibuart"]
 	path = libraries/clibuart
-	url = https://github.com/iqrfsdk/clibuart.git
+	url = https://gitlab.iqrf.org/open-source/iqrf-sdk/clibuart.git
 [submodule "libraries/sqlite_modern_cpp"]
 	path = libraries/sqlite_modern_cpp
 	url = https://github.com/SqliteModernCpp/sqlite_modern_cpp.git
 [submodule "libraries/iqrf-header-parser"]
 	path = libraries/iqrf-header-parser
 	url = https://gitlab.iqrf.org/open-source/iqrf-header-parser.git
+[submodule "libraries/croncpp"]
+	path = libraries/croncpp
+	url = https://gitlab.iqrf.org/open-source/iqrf-gateway-daemon-utils/croncpp.git
+[submodule "libraries/iso8601_parsing"]
+	path = libraries/iso8601_parsing
+	url = https://github.com/beached/iso8601_parsing.git
+[submodule "libraries/date"]
+	path = libraries/date
+	url = https://github.com/HowardHinnant/date.git
+[submodule "libraries/daw_header_libraries"]
+	path = libraries/daw_header_libraries
+	url = https://github.com/beached/header_libraries.git

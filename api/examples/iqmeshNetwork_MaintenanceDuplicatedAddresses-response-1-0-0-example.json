@@ -1,0 +1,38 @@
+{
+	"mType": "iqmeshNetwork_MaintenanceDuplicatedAddresses",
+	"data": {
+		"msgId": "28e00321-6012-45eb-b7a3-dec65206e561",
+		"rsp": {
+			"nodesNr": 3
+		},
+		"raw": [
+			{
+				"request": "00.00.00.02.ff.ff",
+				"requestTs": "2022-06-18T10:26:15.407+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.00.82.00.00.00.00.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+				"responseTs": "2022-06-18T10:26:15.437+02:00"
+			},
+			{
+				"request": "00.00.04.02.ff.ff.00.40.20",
+				"requestTs": "2022-06-18T10:26:15.438+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.04.82.00.00.00.00.ff.ff.ff.ff.ff.ff.ff.ff.51.7c.11.81.ff.ff.ff.ff.47.7c.11.81.ff.ff.ff.ff.24.7c.11.81.ff.ff.ff.ff",
+				"responseTs": "2022-06-18T10:26:15.580+02:00"
+			},
+			{
+				"request": "ff.00.01.08.ff.ff.01.51.7c.11.81.02.47.7c.11.81.03.24.7c.11.81",
+				"requestTs": "2022-06-18T10:26:15.580+02:00",
+				"confirmation": "ff.00.01.08.ff.ff.ff.00.03.08.00",
+				"confirmationTs": "2022-06-18T10:26:15.710+02:00",
+				"response": "",
+				"responseTs": ""
+			}
+		],
+		"status": 0,
+		"statusStr": "ok",
+		"insId": "iqrfgd2-default"
+	}
+}

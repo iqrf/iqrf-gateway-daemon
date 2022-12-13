@@ -195,8 +195,8 @@ namespace iqrf {
     std::string jsString = strStream.str();
     ASSERT_FALSE(jsString.empty());
     std::set<int> driverIds = { 1, 2, 3 };
-    Imp::get().m_iJsRenderService->loadJsCodeFenced(0xFFFFFF, jsString, driverIds);
-    Imp::get().m_iJsRenderService->mapNadrToFenced(0xFFFFFF, 0xFFFFFF); 
+    Imp::get().m_iJsRenderService->loadContextCode(0xFFFFFF, jsString, driverIds);
+    Imp::get().m_iJsRenderService->mapAddressToContext(0xFFFFFF, 0xFFFFFF); 
     std::set<int> driverIdsExp = Imp::get().m_iJsRenderService->getDriverIdSet(0xFFFFFF);
     EXPECT_EQ(driverIdsExp.size(), driverIds.size());
     auto it = driverIdsExp.begin();
@@ -210,7 +210,7 @@ namespace iqrf {
     std::string input = "\"qwerty\"";
     std::string output;
     std::string expect = "{\"out\":\"QWERTY\"}";
-    Imp::get().m_iJsRenderService->callFenced(0xFFFFFF, 0xFFFF, "test.convertUpperCase", input, output);
+    Imp::get().m_iJsRenderService->callContext(0xFFFFFF, 0xFFFF, "test.convertUpperCase", input, output);
     ASSERT_EQ(expect, output);
   }
 

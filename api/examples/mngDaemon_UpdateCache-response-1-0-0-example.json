@@ -1,0 +1,28 @@
+[
+	{
+		"mType": "mngDaemon_UpdateCache",
+		"data": {
+			"msgId": "ce9cd255-56bd-48e8-b7b3-1875668b4472",
+			"rsp": {
+				"updated": false,
+				"status": "Cache is up to date."
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	},
+	{
+		"mType": "mngDaemon_UpdateCache",
+		"data": {
+			"msgId": "ce9cd255-56bd-48e8-b7b3-1875668b4472",
+			"rsp": {
+				"updated": true,
+				"status": "Cache has been updated."
+			},
+			"insId": "iqrfgd2-default",
+			"statusStr": "ok",
+			"status": 0
+		}
+	}
+]

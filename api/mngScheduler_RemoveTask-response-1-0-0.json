@@ -1,70 +1,95 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "mngScheduler_RemoveTask-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Scheduler management - Remove Task response.",
-            "enum": [
-                "mngScheduler_RemoveTask"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "clientId": {
-                            "type": "string",
-                            "description": "Client identifier."
-                        },
-                        "taskId": {
-                            "type": "integer",
-                            "description": "Task identifier."
-                        }
-                    },
-                    "required": [
-                        "clientId",
-						"taskId"
-                    ]
-                },
-                "insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "mngScheduler_RemoveTask-response",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"title": "Scheduler Management - Remove Task",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "Scheduler management - Remove Task response.",
+			"type": "string",
+			"enum": ["mngScheduler_RemoveTask"]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body.",
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message ID used for pairing requests and responses.",
+					"type": "string"
 				},
-                "status": {
-                    "type": "integer",
-                    "description": "IQRF GW daemon API (general or mType) status."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                },
-                "errorStr": {
-                    "type": "string",
-                    "description": "reason of error in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response data",
+					"description": "Response data.",
+					"type": "object",
+					"required": [
+						"clientId",
+						"taskId"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"clientId": {
+							"$id": "#/properties/data/properties/rsp/properties/clientId",
+							"title": "Client ID",
+							"description": "Client identifier.",
+							"type": "string"
+						},
+						"taskId": {
+							"$id": "#/properties/data/properties/rsp/properties/taskId",
+							"title": "Task ID",
+							"description": "Task identifier.",
+							"type": "string",
+							"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+						}
+					}
+				},
+				"insId": {
+					"$id": "#/properties/data/properties/insId",
+					"title": "Instance ID",
+					"description": "Daemon insteance ID.",
+					"type": "string"
+				},
+				"status": {
+					"$id": "#/properties/data/properties/status",
+					"title": "Status code",
+					"description": "Status code.",
+					"type": "integer"
+				},
+				"statusStr": {
+					"$id": "#/properties/data/properties/statusStr",
+					"title": "Status string",
+					"description": "Verbose status string",
+					"type": "string"
+				},
+				"errorStr": {
+					"$id": "#/properties/data/properties/errorStr",
+					"title": "Error string",
+					"description": "Error message string.",
+					"type": "string"
+				}
+			}
+		}
+	}
 }

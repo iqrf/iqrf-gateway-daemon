@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "TimeConversion.h"
 #include "ShapeProperties.h"
 #include "IIqrfInfo.h"
 #include "IJsRenderService.h"
@@ -36,7 +37,7 @@ namespace iqrf {
     std::map<int, dali::EnumeratePtr> getDalis() const override;
     std::map<int, light::EnumeratePtr> getLights() const override;
     std::map<int, embed::node::BriefInfoPtr> getNodes() const override;
-    
+
     void insertNodes(const std::map<int, embed::node::BriefInfo> & nodes) override;
 
     // start enumeration thread
@@ -68,6 +69,7 @@ namespace iqrf {
 
     // resets database
     void resetDb() override;
+    void reloadDrivers() override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

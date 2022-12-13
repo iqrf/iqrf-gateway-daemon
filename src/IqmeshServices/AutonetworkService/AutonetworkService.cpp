@@ -27,7 +27,7 @@
 #include <bitset>
 #include <chrono>
 
-TRC_INIT_MODULE(iqrf::AutonetworkService)
+TRC_INIT_MODULE(iqrf::AutonetworkService);
 
 using namespace rapidjson;
 
@@ -42,7 +42,7 @@ namespace {
   static const int serviceError = 1000;
   static const int parsingRequestError = 1001;
   static const int exclusiveAccessError = 1002;
-}
+};
 
 namespace iqrf {
 
@@ -131,6 +131,15 @@ namespace iqrf {
     // waveState codes definition
     enum class TWaveStateCode
     {
+      cannotStartProcessMaxAddress = -10,
+      cannotStartProcessTotalNodesNr,
+      cannotStartProcessNewNodesNr,
+      cannotStartProcessTotalNodesNrMidList,
+      cannotStartProcessNewNodesNrMidList,
+      cannotStartProcessAllNodesMidListBonded,
+      cannotStartProcessDuplicitMidInCoord,
+      cannotStartProcessAddressSpaceNoFreeAddress,
+      waveFinished = 0,
       discoveryBeforeStart,
       smartConnect,
       checkPrebondedAlive,
@@ -148,10 +157,8 @@ namespace iqrf {
       stopOnNumberOfNewNodes,
       abortOnTooManyNodesFound,
       abortOnAllAddressesAllocated,
-      waveFinished,
-      cannotStartProcessMaxAddress,
-      cannotStartProcessTotalNodesNr,
-      cannotStartProcessNewNodesNr,
+      abortOnAllAddressesFromAddressSpaceAllocated,
+      abortOnAllMIDsFromMidListAllocated
     };
 
     // MID union
@@ -203,8 +210,6 @@ namespace iqrf {
       std::map<uint8_t, TPrebondedNode> prebondedNodes;
       // Network nodes map
       std::map<uint8_t, TNode> networkNodes;
-      // Network MIDs map
-      std::map<uint32_t, uint8_t> MIDs;
       // FRC param value
       uint8_t FrcResponseTime;
       // DPA param value
@@ -680,11 +685,11 @@ namespace iqrf {
         std::fill_n(smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID, 4, 0);
         // Optimized bonding ?
         IIqrfDpaService::CoordinatorParameters coordParams = m_iIqrfDpaService->getCoordinatorParameters();
-        if ((coordParams.dpaVerWord >= 0x0414) && (antwInputParams.overlappingNetworks.networks != 0) && (antwInputParams.overlappingNetworks.network != 0))
+        if ((coordParams.dpaVerWord >= 0x0414) && (antwInputParams.bondingControl.overlappingNetworks.networks != 0) && (antwInputParams.bondingControl.overlappingNetworks.network != 0))
         {
           // Optimize bonging (applied for DPA >= 0x414)
-          smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID[0] = antwInputParams.overlappingNetworks.network - 1;
-          smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID[1] = antwInputParams.overlappingNetworks.networks;
+          smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID[0] = antwInputParams.bondingControl.overlappingNetworks.network - 1;
+          smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID[1] = antwInputParams.bondingControl.overlappingNetworks.networks;
           smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID[2] = 0xff;
           smartConnectPacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorSmartConnect_Request.MID[3] = 0xff;
         }
@@ -1465,82 +1470,193 @@ namespace iqrf {
       }
 
       // Overlapping networks
-      if ((antwInputParams.overlappingNetworks.networks != 0) && (antwInputParams.overlappingNetworks.network != 0))
+      bool overlappingNetworks = (antwInputParams.bondingControl.overlappingNetworks.networks != 0) && (antwInputParams.bondingControl.overlappingNetworks.network != 0);
+      if ((overlappingNetworks == true) && ((MID % antwInputParams.bondingControl.overlappingNetworks.networks) != (uint32_t)(antwInputParams.bondingControl.overlappingNetworks.network - 1)))
       {
-        uint32_t rem = MID % antwInputParams.overlappingNetworks.networks;
-        if (rem != (uint32_t)(antwInputParams.overlappingNetworks.network - 1))
-        {
-          authorizeErr = TAuthorizeErr::eNetworkNum;
-          return false;
-        }
-      }
-
-      // HWPID filtering ?
-      if (antwInputParams.hwpidFiltering.empty() == false)
-      {
-        // Check HWPID
-        if (std::find(antwInputParams.hwpidFiltering.begin(), antwInputParams.hwpidFiltering.end(), HWPID) == antwInputParams.hwpidFiltering.end())
-        {
-          authorizeErr = TAuthorizeErr::eHWPIDFiltering;
-          return false;
-        }
-      }
-
-      // Was node with current MID already bonded ?
-      auto node = antwProcessParams.MIDs.find(MID);
-      if ((node != antwProcessParams.MIDs.end()) && (node->second != 0))
-      {
-        // Yes, node was already bonded, assign the same address
-        bondAddr = node->second;
-        return true;
+        TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized! Network number error.");
+        authorizeErr = TAuthorizeErr::eNetworkNum;
       }
       else
       {
-        // Assign network address to authorized Node
-        for (uint8_t addr = 1; addr <= MAX_ADDRESS; addr++)
+        // MID List specified in JSON request ?
+        if (antwInputParams.bondingControl.midListActive == true)
         {
-          // Address already bonded ?
-          if (antwProcessParams.networkNodes[addr].bonded == false)
+          // Check the authorized MID is listed in the midList
+          auto midListEntry = antwInputParams.bondingControl.midList.find(MID);
+          // MID filtering active ?
+          if ((antwInputParams.bondingControl.midFiltering == true) && (midListEntry == antwInputParams.bondingControl.midList.end()))
           {
-            // No, address is free
-            bool usedAddress = false;
-
-            // Address assinged in MIDs map ?
-            for (auto node : antwProcessParams.MIDs)
+            // No, authorization denied
+            TRC_WARNING("authorizeControl: MID list doesn't contain MID:  " << PAR((int)MID) << ", Node not authorized!");
+            authorizeErr = TAuthorizeErr::eMIDFiltering;
+          }
+          else
+          {
+            // HWPID filtering active ?
+            if ((antwInputParams.hwpidFiltering.empty() == false) && (std::find(antwInputParams.hwpidFiltering.begin(), antwInputParams.hwpidFiltering.end(), HWPID) == antwInputParams.hwpidFiltering.end()))
             {
-              if (node.second == addr)
-              {
-                // Yes, set the flag
-                usedAddress = true;
-                break;
-              }
+              // Authorization denied
+              TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized. HWPID not equal with HWPID filter!");
+              authorizeErr = TAuthorizeErr::eHWPIDFiltering;
             }
-
-            // Check the flag
-            if (usedAddress == false)
+            else
             {
-              // Address is free and wasn't assigned
-              bondAddr = addr;
-              // Was node with current MID already bonded ?
-              auto node = antwProcessParams.MIDs.find(MID);
-              if (node != antwProcessParams.MIDs.end())
+              // Is authorized MID listed in the midList and device address is assigned ?
+              if ((midListEntry != antwInputParams.bondingControl.midList.end()) && (midListEntry->second != 0))
               {
-                // Yes, assign address
-                node->second = addr;
+                // Address space specified in JSON request and device address assigned in MID list is specified also in Address space ?
+                if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
+                {
+                  // No, Device address assigned MID list is not specified in Address space
+                  TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized. Address assinged in MID list isn't specified in Address space!");
+                  authorizeErr = TAuthorizeErr::eAddress;
+                }
+                else
+                {
+                  // OK
+                  bondAddr = midListEntry->second;
+                  return true;
+                }
               }
               else
               {
-                // No, add current node to MIDs map
-                antwProcessParams.MIDs.insert(std::make_pair(MID, addr));
+                // Assign network address to authorized Node
+                for (uint8_t addr = 1; addr <= MAX_ADDRESS; addr++)
+                {
+                  // Address already bonded ?
+                  if (antwProcessParams.networkNodes[addr].bonded == false)
+                  {
+                    // No, address is free
+                    bool usedAddress = false;
+
+                    // Address assinged in MID list ?
+                    for (auto node : antwInputParams.bondingControl.midList)
+                    {
+                      if (node.second == addr)
+                      {
+                        // Yes, set the flag
+                        usedAddress = true;
+                        break;
+                      }
+                    }
+
+                    // Address assinged in MID list ?
+                    if (usedAddress == false)
+                    {
+                      // No, Address space specified in JSON request and address specified in Address space list ?
+                      if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[addr] == false))
+                        continue;
+
+                      // Is Authorized MID listed in the midList ?
+                      if (midListEntry != antwInputParams.bondingControl.midList.end())
+                      {
+                        // Yes, modify MID list entry - add Device address
+                        antwInputParams.bondingControl.midList.at(midListEntry->first) = addr;
+                      }
+                      else
+                      {
+                        // No, add new entry to MID list
+                        antwInputParams.bondingControl.midList.insert(std::make_pair(MID, addr));
+                      }
+                      bondAddr = addr;
+                      return true;
+                    }
+                  }
+                }
+                if (bondAddr == 0)
+                {
+                  authorizeErr = TAuthorizeErr::eAddress;
+                  TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized! No free address.");
+                }
               }
-              return true;
+            }
+          }
+        }
+        else
+        {
+          // HWPID filtering active ?
+          if ((antwInputParams.hwpidFiltering.empty() == false) && (std::find(antwInputParams.hwpidFiltering.begin(), antwInputParams.hwpidFiltering.end(), HWPID) == antwInputParams.hwpidFiltering.end()))
+          {
+            // Authorization denied
+            TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized. HWPID not equal with HWPID filter!");
+            authorizeErr = TAuthorizeErr::eHWPIDFiltering;
+          }
+          else
+          {
+            // Check the authorized MID is listed in the midList
+            auto midListEntry = antwInputParams.bondingControl.midList.find(MID);
+            // Is authorized MID listed in the midList and device address is assigned ?
+            if ((midListEntry != antwInputParams.bondingControl.midList.end()) && (midListEntry->second != 0))
+            {
+              // Address space specified in JSON request and device address assigned in MID list is specified also in Address space ?
+              if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[midListEntry->second] == false))
+              {
+                // No, Device address assigned in MID list is not specified in Address space
+                TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized. Address assinged in MID list isn't specified in Address space!");
+                authorizeErr = TAuthorizeErr::eAddress;
+              }
+              else
+              {
+                // OK
+                bondAddr = midListEntry->second;
+                return true;
+              }
+            }
+            else
+            {
+              // Assign network address to authorized Node
+              for (uint8_t addr = 1; addr <= MAX_ADDRESS; addr++)
+              {
+                // Address already bonded ?
+                if (antwProcessParams.networkNodes[addr].bonded == false)
+                {
+                  // No, address is free
+                  bool usedAddress = false;
+
+                  // Address assinged in MID list ?
+                  for (auto node : antwInputParams.bondingControl.midList)
+                  {
+                    if (node.second == addr)
+                    {
+                      // Yes, set the flag
+                      usedAddress = true;
+                      break;
+                    }
+                  }
+
+                  // Address assinged in MID list ?
+                  if (usedAddress == false)
+                  {
+                    // No, Address space specified in JSON request and address specified in Address space list ?
+                    if ((antwInputParams.bondingControl.addressSpace.empty() == false) && (antwInputParams.bondingControl.addressSpaceBitmap[addr] == false))
+                      continue;
+
+                    // Is Authorized MID listed in the midList ?
+                    if (midListEntry != antwInputParams.bondingControl.midList.end())
+                    {
+                      // Yes, modify MID list entry - add Device address
+                      antwInputParams.bondingControl.midList.at(midListEntry->first) = addr;
+                    }
+                    else
+                    {
+                      // No, add new entry to MID list
+                      antwInputParams.bondingControl.midList.insert(std::make_pair(MID, addr));
+                    }
+                    bondAddr = addr;
+                    return true;
+                  }
+                }
+              }
+              if (bondAddr == 0)
+              {
+                authorizeErr = TAuthorizeErr::eAddress;
+                TRC_WARNING("authorizeControl: MID:  " << PAR((int)MID) << ", Node not authorized! No free address.");
+              }
             }
           }
         }
       }
 
-      // No free address
-      authorizeErr = TAuthorizeErr::eAddress;
       return false;
     }
 
@@ -1596,10 +1712,10 @@ namespace iqrf {
         strWaveState = "Number of new nodes bonded into network.";
         break;
       case TWaveStateCode::abortOnTooManyNodesFound:
-        strWaveState = "Too many nodes found - Autonetwork process aborted.";
+        strWaveState = "Too many nodes found.";
         break;
       case TWaveStateCode::abortOnAllAddressesAllocated:
-        strWaveState = "All available network addresses are already allocated - Autonetwork process aborted.";
+        strWaveState = "All available network addresses are already allocated.";
         break;
       case TWaveStateCode::waveFinished:
         strWaveState = "Wave finished.";
@@ -1613,6 +1729,28 @@ namespace iqrf {
       case TWaveStateCode::cannotStartProcessNewNodesNr:
         strWaveState = "The AutoNetwork process cannot be started because the number of existing nodes plus number of new nodes exceeds the maximum network size.";
         break;
+      case TWaveStateCode::cannotStartProcessTotalNodesNrMidList:
+        strWaveState = "The AutoNetwork process cannot be started because the Number of total Nodes stop condition is higher than number of already bonded Nodes and not bonded Nodes in the MID list file. Change stop conditions or add Nodes to the MID list file.";
+        break;
+      case TWaveStateCode::cannotStartProcessNewNodesNrMidList:
+        strWaveState = "The AutoNetwork process cannot be started because the Number of new Nodes stop condition is higher than number of not bonded Nodes in the MID list file. Change stop conditions or add not bonded Nodes to the MID list file.Alternatively, disable the MID filtering option.";
+        break;
+      case TWaveStateCode::cannotStartProcessAllNodesMidListBonded:
+        strWaveState = "The AutoNetwork process cannot be started because all Nodes in the MID list file are already bonded. Add not bonded Nodes to the MID list file or disable the MID filtering option.";
+        break;
+      case TWaveStateCode::cannotStartProcessDuplicitMidInCoord:
+        strWaveState = "The AutoNetwork process cannot be started because the Coordinator's IQMESH database contains the same Node(s) bonded to more addresses. Please inspect the duplicate MID values in the MID column in the Table View and unbond the duplicate Node(s) in the Coordinator only.";
+        break;
+      case TWaveStateCode::cannotStartProcessAddressSpaceNoFreeAddress:
+        strWaveState = "The AutoNetwork process cannot start because there is no free network address limited by address space. Change the value in the address space.";
+        break;
+      case TWaveStateCode::abortOnAllAddressesFromAddressSpaceAllocated:
+        strWaveState = "All available network addresses limited by the Address space were assigned. No new Node can be bonded.";
+        break;
+      case TWaveStateCode::abortOnAllMIDsFromMidListAllocated:
+        strWaveState = "All Nodes with MIDs from the MID list were found. No new Node can be bonded.";
+        break;
+
       default:
         THROW_EXC(std::logic_error, "Unknown waveStateCode.");
       }
@@ -1651,7 +1789,7 @@ namespace iqrf {
       antwProcessParams.waveStateCode = TWaveStateCode::waveFinished;
 
       // Maximum waves reached ?
-      if ((antwInputParams.stopConditions.waves != 0) && (antwProcessParams.countWaves == antwInputParams.stopConditions.waves))
+      if ((antwInputParams.stopConditions.totalWaves != 0) && (antwProcessParams.countWaves == antwInputParams.stopConditions.totalWaves))
       {
         TRC_INFORMATION("Maximum number of waves reached.");
         antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxNumWaves;
@@ -1685,51 +1823,52 @@ namespace iqrf {
         antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesAllocated;
       }
 
+      // Check all nodes from addressSpace are already bonded
+      if (antwInputParams.bondingControl.addressSpace.empty() == false)
+      {
+        int addr = 1;
+        for (; addr <= MAX_ADDRESS; addr++)
+        {
+          if (antwInputParams.bondingControl.addressSpaceBitmap[addr] == true) {
+            if (antwProcessParams.networkNodes[addr].bonded == true) {
+              antwInputParams.bondingControl.addressSpaceBitmap[addr] = false;
+            } else {
+              break;
+            }
+          }
+        }
+        if (addr == (MAX_ADDRESS + 1))
+        {
+          TRC_INFORMATION("All available network addresses limited by the Address space were assigned. No new Node can be bonded.The AutoNetwork process will stop.");
+          antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesFromAddressSpaceAllocated;
+        }
+      }
+
+      // Check all MIDs from midList are already bonded
+      if (antwInputParams.bondingControl.midFiltering == true)
+      {
+        int midCount = antwInputParams.bondingControl.midList.size();
+        for (auto midListEntry : antwInputParams.bondingControl.midList)
+        {
+          for (auto networkNode : antwProcessParams.networkNodes)
+          {
+            if (networkNode.second.mid.value == midListEntry.first)
+              midCount--;
+          }
+        }
+        if (midCount == 0)
+        {
+          TRC_INFORMATION("All Nodes with MIDs from the MID list were found. No new Node can be bonded.");
+          antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllMIDsFromMidListAllocated;
+        }
+      }
+
       return antwProcessParams.waveStateCode != TWaveStateCode::waveFinished;
     }
 
     // Send wave result
     void sendWaveResult(AutonetworkResult& autonetworkResult)
     {
-      antwProcessParams.progress = 100;
-      if (antwProcessParams.waveStateCode == TWaveStateCode::waveFinished)
-      {
-        // Maximum waves reached ?
-        if ((antwInputParams.stopConditions.waves != 0) && (antwProcessParams.countWaves == antwInputParams.stopConditions.waves))
-        {
-          TRC_INFORMATION("Maximum number of waves reached.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxNumWaves;
-        }
-
-        // Maximum empty waves reached ?
-        if ((antwInputParams.stopConditions.emptyWaves != 0) && (antwProcessParams.countEmpty >= antwInputParams.stopConditions.emptyWaves))
-        {
-          TRC_INFORMATION("Maximum number of consecutive empty waves reached.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnMaxEmptyWaves;
-        }
-
-        // Number of new nodes bonded into network ?
-        if ((antwInputParams.stopConditions.numberOfNewNodes != 0) && (antwProcessParams.countNewNodes >= antwInputParams.stopConditions.numberOfNewNodes))
-        {
-          TRC_INFORMATION("Number of new nodes bonded into network.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfNewNodes;
-        }
-
-        // Number of total nodes bonded into network ?
-        if ((antwInputParams.stopConditions.numberOfTotalNodes != 0) && (antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes))
-        {
-          TRC_INFORMATION("Number of total nodes bonded into network.");
-          antwProcessParams.waveStateCode = TWaveStateCode::stopOnNumberOfTotalNodes;
-        }
-
-        // Check max address
-        if (antwProcessParams.bondedNodes == MAX_ADDRESS)
-        {
-          TRC_INFORMATION("All available network addresses are already allocated - Autonetwork process aborted.");
-          antwProcessParams.waveStateCode = TWaveStateCode::abortOnAllAddressesAllocated;
-        }
-      }
-
       Document waveResult;
       // Set common parameters
       Pointer("/mType").Set(waveResult, m_msgType->m_type);
@@ -1740,6 +1879,7 @@ namespace iqrf {
       rapidjson::Pointer("/data/rsp/nodesNr").Set(waveResult, antwProcessParams.bondedNodesNr);
       rapidjson::Pointer("/data/rsp/newNodesNr").Set(waveResult, antwProcessParams.countWaveNewNodes);
       rapidjson::Pointer("/data/rsp/waveStateCode").Set(waveResult, (int)antwProcessParams.waveStateCode);
+      antwProcessParams.progress = 100;
       rapidjson::Pointer("/data/rsp/progress").Set(waveResult, (int)antwProcessParams.progress);
       if (m_comAutonetwork->getVerbose() == true)
         rapidjson::Pointer("/data/rsp/waveState").Set(waveResult, getWaveState());
@@ -1782,7 +1922,7 @@ namespace iqrf {
 
           rawObject.AddMember(
             "requestTs",
-            encodeTimestamp(transResult->getRequestTs()),
+            TimeConversion::encodeTimestamp(transResult->getRequestTs()),
             allocator
           );
 
@@ -1794,7 +1934,7 @@ namespace iqrf {
 
           rawObject.AddMember(
             "confirmationTs",
-            encodeTimestamp(transResult->getConfirmationTs()),
+            TimeConversion::encodeTimestamp(transResult->getConfirmationTs()),
             allocator
           );
 
@@ -1806,7 +1946,7 @@ namespace iqrf {
 
           rawObject.AddMember(
             "responseTs",
-            encodeTimestamp(transResult->getResponseTs()),
+            TimeConversion::encodeTimestamp(transResult->getResponseTs()),
             allocator
           );
 
@@ -1835,6 +1975,7 @@ namespace iqrf {
       AutonetworkResult autonetworkResult;
       // List of new nodes passed to IqrfInfo when AN finishes
       std::map<int, embed::node::BriefInfo> newNodes;
+      std::bitset<MAX_ADDRESS + 1> warningAddressSpaceBitmap;
 
       try
       {
@@ -1854,7 +1995,6 @@ namespace iqrf {
           node.address = addr;
           antwProcessParams.networkNodes[addr] = node;
         }
-        antwProcessParams.MIDs.clear();
 
         // Update network info
         updateNetworkInfo(autonetworkResult);
@@ -1870,33 +2010,190 @@ namespace iqrf {
         antwProcessParams.respondedNewNodes.clear();
 
         // Check max address
-        if (antwProcessParams.bondedNodes == MAX_ADDRESS)
+        if (antwProcessParams.bondedNodesNr == MAX_ADDRESS)
         {
-          TRC_INFORMATION("The AutoNetwork process cannot be started because all available network addresses are already allocated.")
-            antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessMaxAddress;
+          TRC_INFORMATION("The AutoNetwork process cannot be started because all available network addresses are already allocated.");
+          antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessMaxAddress;
           sendWaveResult(autonetworkResult);
           TRC_FUNCTION_LEAVE("");
           return;
         }
 
-        // Check stop conditions - number of total nodes
-        if ((antwInputParams.stopConditions.numberOfTotalNodes != 0) && (antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes))
+        // Check duplicit MID in Coordinator
+        if (antwProcessParams.bondedNodesNr != 0)
         {
-          TRC_INFORMATION("The AutoNetwork process cannot be started because the number of total nodes is equal or lower than the size of the existing network.");
-          antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessTotalNodesNr;
-          sendWaveResult(autonetworkResult);
-          TRC_FUNCTION_LEAVE("");
-          return;
+          for (auto node : antwProcessParams.networkNodes)
+          {
+            if (node.second.bonded == true)
+            {
+              for (auto node1 : antwProcessParams.networkNodes)
+              {
+                if (node1.second.bonded)
+                {
+                  if ((node.second.address != node1.second.address) && (node.second.mid.value == node1.second.mid.value))
+                  {
+                    TRC_INFORMATION("The AutoNetwork process cannot be started because the Coordinator's IQMESH database contains the same Node(s) bonded to more addresses. Please inspect the duplicate MID values in the MID column in the Table View and unbond the duplicate Node(s) in the Coordinator only.");
+                    antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessDuplicitMidInCoord;
+                    sendWaveResult(autonetworkResult);
+                    TRC_FUNCTION_LEAVE("");
+                    return;
+                  }
+                }
+              }
+            }
+          }
         }
 
-        // Check stop conditions - number of new nodes
-        if ((antwInputParams.stopConditions.numberOfNewNodes != 0) && ((antwInputParams.stopConditions.numberOfNewNodes + antwProcessParams.bondedNodesNr) > MAX_ADDRESS))
+        // Check addressSpace
+        int addressSpaceCount = (int)antwInputParams.bondingControl.addressSpaceBitmap.count();
+        warningAddressSpaceBitmap.reset();
+        if (addressSpaceCount != 0)
         {
-          TRC_INFORMATION("The AutoNetwork process cannot be started because the number of existing nodes plus number of new nodes exceeds the maximum network size.");
-          antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessNewNodesNr;
-          sendWaveResult(autonetworkResult);
-          TRC_FUNCTION_LEAVE("");
-          return;
+          // Check already bonded nodes bitmap vs addressSpace bitmap
+          for (int i = 1; i <= MAX_ADDRESS; i++)
+          {
+            if ((antwProcessParams.bondedNodes[i] == true) && (antwInputParams.bondingControl.addressSpaceBitmap[i] == true))
+              addressSpaceCount--;
+          }
+
+          // All addresses dedicated in addressSpace already bonded ?
+          if (addressSpaceCount == 0)
+          {
+            TRC_INFORMATION("The AutoNetwork process cannot start because there is no free network address limited by address space. Change the value in the address space.");
+            antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessAddressSpaceNoFreeAddress;
+            sendWaveResult(autonetworkResult);
+            TRC_FUNCTION_LEAVE("");
+            return;
+          }
+
+          // Check midList address vs addressSpace
+          if (antwInputParams.bondingControl.midList.empty() == false)
+          {
+            // Check all not bonded addresses listed in addressSpace are listed in midList too
+            for (auto midListItem : antwInputParams.bondingControl.midList)
+            {
+              // Node already bonded ?
+              if (antwProcessParams.bondedNodes[midListItem.second] == false)
+              {
+                // No, check both addressSpace and midList contain the address
+                if ((midListItem.second != 0x00) && (antwInputParams.bondingControl.addressSpaceBitmap[midListItem.second] == false))
+                {
+                  warningAddressSpaceBitmap[midListItem.second] = true;
+                }
+              }
+            }
+          }
+        }
+
+        // Check maximum number of total/new nodes in case that MID list and filtering is active
+        if ((antwInputParams.bondingControl.midList.empty() == false) && (antwInputParams.bondingControl.midFiltering == true))
+        {
+          int countNewNodes = 0;
+
+          // Mid list specified in request JSON and no Node bonded ?
+          if ((antwInputParams.bondingControl.midList.empty() == false) && (antwProcessParams.bondedNodesNr != 0))
+          {
+            // Compare MID's of all bondes Nodes with MID's specified in MID list
+            for (auto midListNode : antwInputParams.bondingControl.midList)
+            {
+              countNewNodes++;
+              for (auto bondedNode : antwProcessParams.networkNodes)
+              {
+                if (midListNode.first == bondedNode.second.mid.value)
+                {
+                  countNewNodes--;
+                  break;
+                }
+              }
+            }
+          }
+
+          if ((countNewNodes != 0) && ((antwInputParams.stopConditions.numberOfTotalNodes != 0) || (antwInputParams.stopConditions.numberOfNewNodes != 0)))
+          {
+            if ((antwInputParams.stopConditions.totalWaves != 0) && (antwInputParams.stopConditions.emptyWaves != 0))
+            {
+              if ((antwInputParams.stopConditions.numberOfTotalNodes != 0) && (antwInputParams.stopConditions.numberOfTotalNodes > antwProcessParams.bondedNodesNr + countNewNodes))
+              {
+                TRC_INFORMATION("The AutoNetwork process cannot be started because the Number of total Nodes stop condition is higher than number of already bonded Nodes and not bonded Nodes in the MID list file. Change stop conditions or add Nodes to the MID list file.");
+                antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessTotalNodesNrMidList;
+                sendWaveResult(autonetworkResult);
+                TRC_FUNCTION_LEAVE("");
+                return;
+              }
+
+              if ((antwInputParams.stopConditions.numberOfNewNodes != 0) && (antwInputParams.stopConditions.numberOfNewNodes > countNewNodes))
+              {
+                TRC_INFORMATION("The AutoNetwork process cannot be started because the Number of new Nodes stop condition is higher than number of not bonded Nodes in the MID list file. Change stop conditions or add not bonded Nodes to the MID list file.Alternatively, disable the MID filtering option.");
+                antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessNewNodesNrMidList;
+                sendWaveResult(autonetworkResult);
+                TRC_FUNCTION_LEAVE("");
+                return;
+              }
+            }
+          }
+
+          if ((countNewNodes == 0) && (antwProcessParams.bondedNodesNr != 0))
+          {
+            TRC_INFORMATION("The AutoNetwork process cannot be started because all Nodes in the MID list file are already bonded. Add not bonded Nodes to the MID list file or disable the MID filtering option.");
+            antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessAllNodesMidListBonded;
+            sendWaveResult(autonetworkResult);
+            TRC_FUNCTION_LEAVE("");
+            return;
+          }
+        }
+
+        // Check stop conditions - numberOfTotalNodes and numberOfNewNodes (if totalWaves and emptyWaves not set)
+        if ((antwInputParams.stopConditions.totalWaves == 0) && (antwInputParams.stopConditions.emptyWaves == 0))
+        {
+          // Check stop condition - number of total nodes
+          if ((antwInputParams.stopConditions.numberOfTotalNodes != 0) && (antwProcessParams.bondedNodesNr >= antwInputParams.stopConditions.numberOfTotalNodes))
+          {
+            TRC_INFORMATION("The AutoNetwork process cannot be started because the number of total nodes is equal or lower than the size of the existing network.");
+            antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessTotalNodesNr;
+            sendWaveResult(autonetworkResult);
+            TRC_FUNCTION_LEAVE("");
+            return;
+          }
+
+          // Check stop conditions - number of new nodes
+          if ((antwInputParams.stopConditions.numberOfNewNodes != 0) && ((antwInputParams.stopConditions.numberOfNewNodes + antwProcessParams.bondedNodesNr) > MAX_ADDRESS))
+          {
+            TRC_INFORMATION("The AutoNetwork process cannot be started because the number of existing nodes plus number of new nodes exceeds the maximum network size.");
+            antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessNewNodesNr;
+            sendWaveResult(autonetworkResult);
+            TRC_FUNCTION_LEAVE("");
+            return;
+          }
+
+          // Check addressSpace in relation to stop conditions
+          if (antwInputParams.bondingControl.addressSpace.empty() == false)
+          {
+            // Stop condition - number of total nodes
+            if (antwInputParams.stopConditions.numberOfTotalNodes != 0)
+            {
+              if (antwInputParams.bondingControl.addressSpace.size() < (antwInputParams.stopConditions.numberOfTotalNodes - antwProcessParams.bondedNodesNr))
+              {
+                TRC_INFORMATION("The AutoNetwork process cannot be started because the number of free network addresses limited by the Address space is lower than number of total Nodes in the Stop condition. Change the value in the Address space or in the Stop condition.");
+                antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessTotalNodesNr;
+                sendWaveResult(autonetworkResult);
+                TRC_FUNCTION_LEAVE("");
+                return;
+              }
+            }
+
+            // Stop condition - number of new nodes
+            if (antwInputParams.stopConditions.numberOfNewNodes != 0)
+            {
+              if (antwInputParams.bondingControl.addressSpace.size() < antwInputParams.stopConditions.numberOfNewNodes)
+              {
+                TRC_INFORMATION("The AutoNetwork process cannot be started because the number of free network addresses limited by the Address space is lower than number of new Nodes in the Stop condition. Change the value in the Address space or in the Stop condition.");
+                antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessNewNodesNr;
+                sendWaveResult(autonetworkResult);
+                TRC_FUNCTION_LEAVE("");
+                return;
+              }
+            }
+          }
         }
 
         // Set FRC param to 0, store previous value
@@ -2008,7 +2305,7 @@ namespace iqrf {
           }
 
           // Abort the autonetwork process when requested number of nodes (total/new) is found
-          if (antwInputParams.stopConditions.abortOnTooManyNodesFound)
+          if (antwInputParams.abortOnTooManyNodesFound == true)
           {
             // Check number of total nodes
             if ((antwInputParams.stopConditions.numberOfTotalNodes != 0) && (antwProcessParams.bondedNodesNr + FrcSelect.size() > antwInputParams.stopConditions.numberOfTotalNodes))
@@ -2036,7 +2333,7 @@ namespace iqrf {
           if ((coordParams.dpaVerWord >= 0x0414) && (FrcSelect.size() > 1))
           {
             // Check the DPA version of prebonded nodes is >= 0x0414
-            TRC_INFORMATION("Reading prebonded alive nodes.");
+            TRC_INFORMATION("Reading prebonded alive nodes DPA version.");
             antwProcessParams.waveStateCode = TWaveStateCode::readingDPAVersion;
             sendWaveState();
             std::basic_string<uint8_t> frcData = FrcPrebondedMemoryCompare2B(autonetworkResult, nodeSeed, 0x0414, 0x04a0, PNUM_ENUMERATION, CMD_GET_PER_INFO);
@@ -2521,7 +2818,7 @@ namespace iqrf {
               // FRC_AcknowledgedBroadcastBits remove bond (for DPA < 0x0400 - send Batch command Remove bond + Restart)
               TPerFrcSend_Response response = removeNotRespondedNewNodes(autonetworkResult, FrcSelect);
               // Check the nodes contained in FrcSelect list acknowledged FRC_AcknowledgedBroadcastBits
-              for (uint8_t address = 1; address < MAX_ADDRESS; address++)
+              for (uint8_t address = 1; address <= MAX_ADDRESS; address++)
               {
                 auto node = std::find(FrcSelect.begin(), FrcSelect.end(), address);
                 if (node != FrcSelect.end())
@@ -2563,7 +2860,7 @@ namespace iqrf {
             if (FrcSelect.size() != 0)
             {
               TRC_INFORMATION("Unbonding Nodes only at Coordinator.");
-              for (uint8_t address = 1; address < MAX_ADDRESS; address++)
+              for (uint8_t address = 1; address <= MAX_ADDRESS; address++)
               {
                 auto node = std::find(FrcSelect.begin(), FrcSelect.end(), address);
                 if (node != FrcSelect.end())
@@ -2759,7 +3056,21 @@ namespace iqrf {
       // Parsing and checking service parameters
       try
       {
+        // Get input params
         antwInputParams = comAutonetwork.getAutonetworkParams();
+
+        // Check addressSpace
+        if (antwInputParams.bondingControl.duplicitAddressSpace != 0)
+          THROW_EXC(std::logic_error, "Duplicit Address in Address space.");
+
+        // Check midList
+        if (antwInputParams.bondingControl.midList.empty() == false)
+        {
+          if (antwInputParams.bondingControl.duplicitMidMidList != 0)
+            THROW_EXC(std::logic_error, "Duplicit MID in MID list.");
+          if (antwInputParams.bondingControl.duplicitAddressMidList != 0)
+            THROW_EXC(std::logic_error, "Duplicit Address in MID list.");
+        }
       }
       catch (const std::exception& e)
       {

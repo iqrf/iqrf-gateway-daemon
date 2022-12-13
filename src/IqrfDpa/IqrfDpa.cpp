@@ -404,6 +404,36 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
+  void IqrfDpa::initializeCoordinator()
+  {
+    TRC_FUNCTION_ENTER("");
+
+    // handle asyn reset
+    registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) { //spaces in front of "  IqrfDpa" make it first in handlers map
+      asyncRestartHandler(dpaMessage);
+    });
+
+    getIqrfNetworkParams();
+
+    // unregister asyn reset - not needed  after getIqrfNetworkParams()
+    unregisterAsyncMessageHandler("  IqrfDpa");
+
+    IDpaTransaction2::TimingParams timingParams;
+    timingParams.bondedNodes = m_bondedNodes;
+    timingParams.discoveredNodes = m_discoveredNodes;
+    timingParams.frcResponseTime = m_responseTime;
+    timingParams.dpaVersion = m_cPar.dpaVerWord;
+    timingParams.osVersion = m_cPar.osVersion;
+    m_dpaHandler->setTimingParams(timingParams);
+
+    IIqrfChannelService::State st = m_iqrfChannelService->getState();
+    if (st == IIqrfChannelService::State::NotReady) {
+      std::cout << std::endl << "Error: Interface to DPA coordinator is not ready - verify (CDC or SPI or UART) configuration" << std::endl;
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
   void IqrfDpa::activate(const shape::Properties *props)
   {
     TRC_FUNCTION_ENTER("");
@@ -426,11 +456,6 @@ namespace iqrf {
       m_dpaHandler->setTimeout(m_dpaHandlerTimeout);
     }
 
-    // handle asyn reset
-    registerAsyncMessageHandler("  IqrfDpa", [&](const DpaMessage& dpaMessage) { //spaces in front of "  IqrfDpa" make it first in handlers map
-      asyncRestartHandler(dpaMessage);
-    });
-
     // register to IQRF interface
     m_dpaHandler->registerAsyncMessageHandler("", [&](const DpaMessage& dpaMessage) {
       asyncDpaMessageHandler(dpaMessage);
@@ -438,23 +463,7 @@ namespace iqrf {
 
     m_iqrfChannelService->startListen();
 
-    getIqrfNetworkParams();
-
-    // unregister asyn reset - not needed  after getIqrfNetworkParams()
-    unregisterAsyncMessageHandler("  IqrfDpa");
-
-    IDpaTransaction2::TimingParams timingParams;
-    timingParams.bondedNodes = m_bondedNodes;
-    timingParams.discoveredNodes = m_discoveredNodes;
-    timingParams.frcResponseTime = m_responseTime;
-    timingParams.dpaVersion = m_cPar.dpaVerWord;
-    timingParams.osVersion = m_cPar.osVersion;
-    m_dpaHandler->setTimingParams(timingParams);
-
-    IIqrfChannelService::State st = m_iqrfChannelService->getState();
-    if (st == IIqrfChannelService::State::NotReady) {
-      std::cout << std::endl << "Error: Interface to DPA coordinator is not ready - verify (CDC or SPI or UART) configuration" << std::endl;
-    }
+    initializeCoordinator();
 
     TRC_FUNCTION_LEAVE("")
   }
@@ -482,6 +491,11 @@ namespace iqrf {
   void IqrfDpa::unregisterAnyMessageHandler(const std::string& serviceId)
   {
     m_dpaHandler->unregisterAnyMessageHandler(serviceId);
+  }
+
+  void IqrfDpa::reinitializeCoordinator()
+  {
+    initializeCoordinator();
   }
 
   void IqrfDpa::deactivate()

@@ -438,12 +438,12 @@ namespace iqrf
         uint8_t status = dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
         if (status > MAX_ADDRESS)
         {
-          TRC_WARNING("FRC Prebonded Memory Read NOT ok." << NAME_PAR_HEX("Status", (int)status));
+          TRC_WARNING("FRC_AcknowledgedBroadcastBits NOT ok." << NAME_PAR_HEX("Status", (int)status));
           THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)status));
         }
         // Add FRC result
         writeTrConfResult.addTransactionResult(transResult);
-        TRC_INFORMATION("FRC Prebonded Memory Read status ok." << NAME_PAR_HEX("Status", (int)status));
+        TRC_INFORMATION("FRC_AcknowledgedBroadcastBits ok." << NAME_PAR_HEX("Status", (int)status));
         std::basic_string<uint8_t> frcData;
         frcData.append(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData, 55);
 
@@ -681,7 +681,7 @@ namespace iqrf
 
           rawObject.AddMember(
             "requestTs",
-            encodeTimestamp(transResult->getRequestTs()),
+            TimeConversion::encodeTimestamp(transResult->getRequestTs()),
             allocator
           );
 
@@ -693,7 +693,7 @@ namespace iqrf
 
           rawObject.AddMember(
             "confirmationTs",
-            encodeTimestamp(transResult->getConfirmationTs()),
+            TimeConversion::encodeTimestamp(transResult->getConfirmationTs()),
             allocator
           );
 
@@ -705,7 +705,7 @@ namespace iqrf
 
           rawObject.AddMember(
             "responseTs",
-            encodeTimestamp(transResult->getResponseTs()),
+            TimeConversion::encodeTimestamp(transResult->getResponseTs()),
             allocator
           );
 

@@ -1,0 +1,102 @@
+[
+	{
+		"mType": "iqmeshNetwork_MaintenanceTestRF",
+		"data": {
+			"msgId": "e1274841-9d07-4795-a919-74653e5044ac",
+			"rsp": {
+				"nodesNr": 3,
+				"testRfResult": [
+					{
+						"deviceAddr": 0,
+						"online": true,
+						"counter": 0
+					}
+				]
+			},
+			"raw": [
+				{
+					"request": "00.00.00.02.ff.ff",
+					"requestTs": "2022-06-18T10:46:37.311+02:00",
+					"confirmation": "",
+					"confirmationTs": "",
+					"response": "00.00.00.82.00.00.00.55.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+					"responseTs": "2022-06-18T10:46:37.342+02:00"
+				},
+				{
+					"request": "00.00.02.0c.ff.ff.34.01.04.02",
+					"requestTs": "2022-06-18T10:46:37.343+02:00",
+					"confirmation": "",
+					"confirmationTs": "",
+					"response": "00.00.02.8c.00.00.00.55.01",
+					"responseTs": "2022-06-18T10:46:42.646+02:00"
+				}
+			],
+			"status": 0,
+			"statusStr": "ok",
+			"insId": "iqrfgd2-default"
+		}
+	},
+	{
+		"mType": "iqmeshNetwork_MaintenanceTestRF",
+		"data": {
+			"msgId": "26db792c-ace9-4655-a179-ebcdf1b3d60a",
+			"rsp": {
+				"nodesNr": 3,
+				"inaccessibleNodesNr": 1,
+				"testRfResult": [
+					{
+						"deviceAddr": 1,
+						"online": true,
+						"counter": 1
+					},
+					{
+						"deviceAddr": 2,
+						"online": false
+					},
+					{
+						"deviceAddr": 3,
+						"online": true,
+						"counter": 0
+					}
+				]
+			},
+			"raw": [
+				{
+					"request": "00.00.00.02.ff.ff",
+					"requestTs": "2022-06-18T10:53:14.187+02:00",
+					"confirmation": "",
+					"confirmationTs": "",
+					"response": "00.00.00.82.00.00.00.00.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+					"responseTs": "2022-06-18T10:53:14.219+02:00"
+				},
+				{
+					"request": "00.00.0d.03.ff.ff.70",
+					"requestTs": "2022-06-18T10:53:14.219+02:00",
+					"confirmation": "",
+					"confirmationTs": "",
+					"response": "00.00.0d.83.00.00.00.00.00",
+					"responseTs": "2022-06-18T10:53:14.345+02:00"
+				},
+				{
+					"request": "00.00.0d.02.ff.ff.85.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.34.01",
+					"requestTs": "2022-06-18T10:53:14.345+02:00",
+					"confirmation": "",
+					"confirmationTs": "",
+					"response": "00.00.0d.82.00.00.00.00.02.00.02.00.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+					"responseTs": "2022-06-18T10:53:35.898+02:00"
+				},
+				{
+					"request": "00.00.0d.03.ff.ff.00",
+					"requestTs": "2022-06-18T10:53:35.898+02:00",
+					"confirmation": "",
+					"confirmationTs": "",
+					"response": "00.00.0d.83.00.00.00.00.70",
+					"responseTs": "2022-06-18T10:53:36.024+02:00"
+				}
+			],
+			"status": 0,
+			"statusStr": "ok",
+			"insId": "iqrfgd2-default"
+		}
+	}
+]

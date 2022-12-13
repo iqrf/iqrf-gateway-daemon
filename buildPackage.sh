@@ -22,9 +22,9 @@ set -e
 
 # Generate Debian changelog
 if [ ! -v BUILD ] || [ -z "$BUILD" ] || [ "$BUILD" != "release" ]; then
-    gbp dch -a -S
+    gbp dch -a -S --ignore-branch
 else
-    gbp dch -a -R
+    gbp dch -a -R --ignore-branch
 fi
 
 # Build Debian package

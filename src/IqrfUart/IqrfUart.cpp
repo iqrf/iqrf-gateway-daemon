@@ -75,7 +75,7 @@ namespace iqrf {
         {
           //std::lock_guard<std::mutex> lck(m_commMutex);
 
-          int retval = uart_iqrf_write((uint8_t*)message.data(), static_cast<unsigned int>(message.size()));
+          int retval = uart_iqrf_write(&m_socket, (uint8_t*)message.data(), static_cast<unsigned int>(message.size()));
           if (BASE_TYPES_OPER_OK == retval) {
             m_accessControl.sniff(message); //send to sniffer if set
           }
@@ -329,15 +329,13 @@ namespace iqrf {
       using namespace rapidjson;
 
       try {
-
         Document d;
         d.CopyFrom(props->getAsJson(), d.GetAllocator());
 
         Value* comName = Pointer("/IqrfInterface").Get(d);
         if (comName != nullptr && comName->IsString()) {
           m_interfaceName = comName->GetString();
-        }
-        else {
+        } else {
           state = State::NotReady;
           THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /IqrfInterface");
         }
@@ -345,17 +343,19 @@ namespace iqrf {
         Value* baudRate = Pointer("/baudRate").Get(d);
         if (baudRate != nullptr && baudRate->IsInt()) {
           m_baudRate = baudRate->GetInt();
-        }
-        else {
+        } else {
           state = State::NotReady;
           THROW_EXC_TRC_WAR(std::logic_error, "Cannot find property: /IqrfInterface");
         }
 
         memset(m_cfg.uartDev, 0, sizeof(m_cfg.uartDev));
         auto sz = m_interfaceName.size();
-        if (sz > sizeof(m_cfg.uartDev)) sz = sizeof(m_cfg.uartDev);
+        if (sz > sizeof(m_cfg.uartDev)) {
+          sz = sizeof(m_cfg.uartDev);
+        }
         std::copy(m_interfaceName.c_str(), m_interfaceName.c_str() + sz, m_cfg.uartDev);
 
+        m_socket.fd = -1;
         m_cfg.baudRate = get_baud(m_baudRate);
 
         // default RPI mapping in include
@@ -379,21 +379,19 @@ namespace iqrf {
         }
 
         Value* v = Pointer("/uartReset").Get(d);
-        if (v && v->IsBool())
+        if (v && v->IsBool()) {
           m_cfg.trModuleReset = v->GetBool() ? TR_MODULE_RESET_ENABLE : TR_MODULE_RESET_DISABLE;
+        }
 
         TRC_INFORMATION(PAR(m_interfaceName) << PAR(m_baudRate));
 
         int attempts = 1;
         int res = BASE_TYPES_OPER_ERROR;
         while (attempts < 3) {
-
-          res = uart_iqrf_init(&m_cfg);
-
+          res = uart_iqrf_init(&m_cfg, &m_socket);
           if (BASE_TYPES_OPER_OK == res) {
             break;
           }
-
           TRC_WARNING(PAR(m_interfaceName) << PAR(attempts) << " Create IqrfInterface failure");
           ++attempts;
           std::this_thread::sleep_for(std::chrono::milliseconds(3000));
@@ -403,17 +401,14 @@ namespace iqrf {
           TRC_WARNING(PAR(m_interfaceName) << " Created");
           m_rx = shape_new unsigned char[m_bufsize];
           memset(m_rx, 0, m_bufsize);
-        }
-        else {
+        } else {
           state = State::NotReady;
           TRC_WARNING(PAR(m_interfaceName) << " Cannot create IqrfInterface");
         }
-      }
-      catch (std::exception &e) {
+      } catch (const std::exception &e) {
         state = State::NotReady;
         CATCH_EXC_TRC_WAR(std::exception, e, PAR(m_interfaceName) << " Cannot create IqrfInterface");
       }
-
       TRC_FUNCTION_LEAVE("")
     }
 
@@ -451,7 +446,7 @@ namespace iqrf {
         m_listenThread.join();
       TRC_DEBUG("listening thread joined");
 
-      uart_iqrf_destroy();
+      uart_iqrf_destroy(&m_cfg, &m_socket);
 
       delete[] m_rx;
 
@@ -482,7 +477,7 @@ namespace iqrf {
 
           // reading
           uint8_t reclen = 0;
-          int retval = uart_iqrf_read(m_rx, &reclen, 100); //waits for 100 ms
+          int retval = uart_iqrf_read(&m_socket, m_rx, &reclen, 100); //waits for 100 ms
 
           switch (retval) {
           case BASE_TYPES_OPER_OK:
@@ -527,9 +522,8 @@ namespace iqrf {
     unsigned char* m_rx = nullptr;
     unsigned m_bufsize = SPI_REC_BUFFER_SIZE;
 
-    //mutable std::mutex m_commMutex;
-
-    T_UART_IQRF_CONFIG_STRUCT m_cfg;
+    T_UART_IQRF_CONFIG_STRUCT m_cfg = T_UART_IQRF_CONFIG_STRUCT();
+    T_UART_SOCKET_CONTROL m_socket = T_UART_SOCKET_CONTROL();
   };
 
   //////////////////////////////////////////////////

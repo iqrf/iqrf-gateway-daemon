@@ -132,7 +132,7 @@ namespace iqrf {
 
           rawObject.AddMember(
             "requestTs",
-            encodeTimestamp(tr->getRequestTs()),
+            TimeConversion::encodeTimestamp(tr->getRequestTs()),
             allocator
           );
 
@@ -144,7 +144,7 @@ namespace iqrf {
 
           rawObject.AddMember(
             "confirmationTs",
-            encodeTimestamp(tr->getConfirmationTs()),
+            TimeConversion::encodeTimestamp(tr->getConfirmationTs()),
             allocator
           );
 
@@ -156,7 +156,7 @@ namespace iqrf {
 
           rawObject.AddMember(
             "responseTs",
-            encodeTimestamp(tr->getResponseTs()),
+            TimeConversion::encodeTimestamp(tr->getResponseTs()),
             allocator
           );
 

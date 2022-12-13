@@ -988,8 +988,8 @@ namespace iqrf {
         return retval;
       }
 
-      std::cout << "Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
-      TRC_INFORMATION("Drv Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()));
+      std::cout << "Drv Enumeration started at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+      TRC_INFORMATION("Drv Enumeration started at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()));
 
       auto cp = m_iIqrfDpaService->getCoordinatorParameters();
 
@@ -1112,8 +1112,8 @@ namespace iqrf {
       }
 
       m_nadrFullEnumNodeMap.clear();
-      std::cout << "Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
-      TRC_INFORMATION("Drv Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()));
+      std::cout << "Drv Enumeration finished at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+      TRC_INFORMATION("Drv Enumeration finished at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()));
 
       TRC_FUNCTION_LEAVE(PAR(retval));
       return retval;
@@ -1263,7 +1263,7 @@ namespace iqrf {
       }
 
       str2load += wrapperStr;
-      m_iJsRenderService->loadJsCodeFenced(IJsRenderService::HWPID_DEFAULT_MAPPING, str2load, driversIdSet); // provisional context for all with empty custom drivers
+      m_iJsRenderService->loadContextCode(IJsRenderService::HWPID_DEFAULT_MAPPING, str2load, driversIdSet); // provisional context for all with empty custom drivers
 
       // get all non empty custom drivers because of breakdown
       // hwpid, hwpidVer, driver
@@ -1274,7 +1274,7 @@ namespace iqrf {
         std::string js = str2load;
         std::string driver = d.second.rbegin()->second; // get the highest hwpidVer one from reverse end
         js += driver;
-        m_iJsRenderService->loadJsCodeFenced(IJsRenderService::HWPID_MAPPING_SPACE - d.first, js, driversIdSet);
+        m_iJsRenderService->loadContextCode(IJsRenderService::HWPID_MAPPING_SPACE - d.first, js, driversIdSet);
       }
 
       TRC_FUNCTION_LEAVE("");
@@ -1426,7 +1426,16 @@ namespace iqrf {
             }
             str2load += customDrv;
             str2load += wrapperStr; // add wrapper
-            m_iJsRenderService->loadJsCodeFenced(deviceId, str2load, driverIdSet);
+            bool success = m_iJsRenderService->loadContextCode(deviceId, str2load, driverIdSet);
+
+            if (!success) {
+              TRC_WARNING_CHN(
+                33,
+                "iqrf::JsCache",
+                "Failed to load drivers for deviceId: " << deviceId << std::endl
+              );
+              continue;
+            }
 
             // map nadrs to device dedicated context
             std::vector<int> nadrs;
@@ -1449,7 +1458,7 @@ namespace iqrf {
             std::ostringstream ostrNadr;
 
             for (auto nadr : nadrs) {
-              m_iJsRenderService->mapNadrToFenced(nadr, deviceId);
+              m_iJsRenderService->mapAddressToContext(nadr, deviceId);
               ostrNadr << nadr << ", ";
             }
 
@@ -1498,9 +1507,11 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
+      if (m_iJsRenderService != nullptr) {
+        m_iJsRenderService->clearContexts();
+      }
       loadProvisoryDrivers();
-
-      //TODO
+      loadDeviceDrivers();
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -1820,8 +1831,8 @@ namespace iqrf {
       bool retval = false;
 
       if (mapDeviceVectNadr.size() > 0) {
-        std::cout << "Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
-        TRC_INFORMATION("Std Enumeration started at:  " << encodeTimestamp(std::chrono::system_clock::now()));
+        std::cout << "Std Enumeration started at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+        TRC_INFORMATION("Std Enumeration started at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()));
 
         // std enum according first bonded nadr of the device
         for (auto it : mapDeviceVectNadr) {
@@ -1912,8 +1923,8 @@ namespace iqrf {
           }
         }
 
-        std::cout << "Std Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
-        TRC_INFORMATION("Std Enumeration finished at:  " << encodeTimestamp(std::chrono::system_clock::now()));
+        std::cout << "Std Enumeration finished at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()) << std::endl;
+        TRC_INFORMATION("Std Enumeration finished at:  " << TimeConversion::encodeTimestamp(std::chrono::system_clock::now()));
       }
 
       TRC_FUNCTION_LEAVE(PAR(retval));
@@ -2584,7 +2595,7 @@ namespace iqrf {
         reloadDrivers();
       });
 
-      loadProvisoryDrivers();
+      reloadDrivers();
 
       m_repeatEnum = false;
       m_enumThreadRun = false;
@@ -2777,6 +2788,10 @@ namespace iqrf {
 
   void IqrfInfo::resetDb() {
     m_imp->resetDb();
+  }
+
+  void IqrfInfo::reloadDrivers() {
+    m_imp->reloadDrivers();
   }
 
   void IqrfInfo::activate(const shape::Properties *props)
