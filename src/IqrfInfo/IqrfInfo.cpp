@@ -1538,7 +1538,10 @@ namespace iqrf {
       else {
         if (mid != (unsigned)midDb || dis != disDb || enm != enmDb) {
           TRC_INFORMATION(PAR(nadr) << " update Bonded: " << PAR(nadr) << PAR(dis) << PAR(mid) << PAR(enm));
-          db << "update Bonded  set Dis = ? , Mid = ?, Enm = ? where Nadr = ?; " << dis << mid << enm << nadr;
+          // delete original record firstly
+          db << "delete from Bonded where Mid = ?; " << mid;
+          // insert with again with updated data
+          db << "insert into Bonded (Nadr, Dis, Mid, Enm)  values (?, ?, ?, ?);" << nadr << dis << mid << enm;
         }
         else {
           TRC_DEBUG("bonded already exists in db => nothing to update: " << PAR(nadr) << PAR(dis) << PAR(mid) << PAR(enm))
