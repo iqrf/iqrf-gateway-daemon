@@ -34,7 +34,8 @@ namespace iqrf {
 	) : m_clientId(clientId), m_taskId(taskId), m_exactTime(true), m_startTime(startTime), m_persist(persist), m_enabled(enabled)
 	{
 		TimeConversion::fixTimestamp(m_startTime);
-		m_startTimePoint = daw::date_parsing::parse_iso8601_timestamp(daw::string_view(m_startTime));
+		//m_startTimePoint = daw::date_parsing::parse_iso8601_timestamp(daw::string_view(m_startTime));
+		m_startTimePoint = DatetimeParser::parse_to_timepoint(m_startTime);
 		init(task);
 	}
 
