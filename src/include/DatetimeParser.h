@@ -1,11 +1,16 @@
 #pragma once
 
 #include <date/date.h>
+#include <regex>
 #include <string_view>
 
 class DatetimeParser {
 public:
-	static const std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> parse_to_timepoint(std::string_view sv) {
+	static const std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> parse_to_timepoint(std::string &timestamp) {
+		if (!is_timestamp_valid(timestamp)) {
+			throw std::logic_error("Invalid datetime string format.");
+		}
+		std::string_view sv = timestamp;
 		const DateStruct date = parse_date(sv);
 		if (is_special_character(sv)) {
 			sv.remove_prefix(1);
@@ -35,6 +40,11 @@ private:
 		int8_t seconds;
 		int16_t milliseconds;
 	};
+
+	static bool is_timestamp_valid(std::string &timestamp) {
+		std::regex r("^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])T([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)(\\.\\d{3})?(Z|\\+(0\\d|1[0-3]):[0-5]\\d|\\+14:00|-(0\\d|1[0-1]):[0-5]\\d|-12:00)$", std::regex::icase);
+		return std::regex_match(timestamp, r);
+	}
 
 	static const DateStruct parse_date(std::string_view &sv) {
 		DateStruct date{0, 0, 0};
@@ -74,7 +84,7 @@ private:
 		return time;
 	}
 
-	static const int16_t parse_offset(std::string_view &sv) {
+	static int16_t parse_offset(std::string_view &sv) {
 		if (sv.size() == 0 || std::toupper(sv[0]) == 'Z') {
 			return 0;
 		}
