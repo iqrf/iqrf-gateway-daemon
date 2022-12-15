@@ -1,179 +1,51 @@
 {
-    "mType": "iqrfSensor_ReadSensorsWithTypes",
-    "data": {
-        "msgId": "testEmbedSensor",
-        "rsp": {
-            "nAdr": 1,
-            "hwpId": 4117,
-            "rCode": 0,
-            "dpaVal": 88,
-            "result": {
-                "sensors": [
-                    {
-                        "id": "ALTITUDE",
-                        "type": 20,
-                        "name": "Altitude",
-                        "shortName": "h",
-                        "value": 410.5,
-                        "unit": "m"
-                    },
-                    {
-                        "id":"CARBON_DIOXIDE",
-                        "type": 2,
-                        "name": "Carbon dioxide",
-                        "shortName": "CO2",
-                        "value": 232,
-                        "unit": "ppm"
-                    },
-                    {
-                        "id":"RELATIVE_HUMIDITY",
-                        "type": 128,
-                        "name": "Relative humidity",
-                        "shortName": "RH",
-                        "value": 46,
-                        "unit": "%"
-                    },
-                    {
-                        "id":"ILLUMINANCE",
-                        "type": 11,
-                        "name": "Illuminance",
-                        "shortName": "Ev",
-                        "value": 28,
-                        "unit": "lx"
-                    },
-                    {
-                        "id":"BINARY_DATA30",
-                        "type": 160,
-                        "name": "Binary data30",
-                        "shortName": "bin30",
-                        "value": null,
-                        "unit": "?",
-                        "breakdown": [
-                            {
-                                "id":"COUNTER",
-                                "type": 160,
-                                "name": "Counter",
-                                "shortName": "cnt",
-                                "unit": "",
-                                "value": null
-                            }
-                        ]
-                    },
-                    {
-                        "id":"BINARY_DATA7",
-                        "type": 129, 
-                        "name": "Binary data7",
-                        "shortName": "bin7",
-                        "value": 2,
-                        "unit": "?",
-                        "breakdown": [
-                            {
-                                "id":"ORIENTATION",
-                                "type": 129,
-                                "name": "Orientation",
-                                "shortName": "ori",
-                                "unit": "",
-                                "value": 2
-                            }
-                        ]
-                    },
-                    {
-                        "id":"ACCELERATION",
-                        "type": 21,
-                        "name": "Acceleration",
-                        "shortName": "a",
-                        "value": 9.76953125,
-                        "unit": "m/s²"
-                    },
-                    {
-                        "id":"ACCELERATION",
-                        "type": 21,
-                        "name": "Acceleration",
-                        "shortName": "a",
-                        "value": -0.03515625,
-                        "unit": "m/s²"
-                    },
-                    {
-                        "id":"ACCELERATION",
-                        "type": 21,
-                        "name": "Acceleration",
-                        "shortName": "a",
-                        "value": 0.171875,
-                        "unit": "m/s²"
-                    },
-                    {
-                        "id":"BINARY_DATA30",
-                        "type": 160,
-                        "name": "Binary data30",
-                        "shortName": "bin30",
-                        "value": 0,
-                        "unit": "?",
-                        "breakdown": [
-                            {
-                                "id":"COUNTER",
-                                "type": 160,
-                                "name": "Counter",
-                                "shortName": "cnt",
-                                "unit": "",
-                                "value": 0
-                            }
-                        ]
-                    },
-                    {
-                        "id":"ATMOSPHERIC_PRESSURE",
-                        "type": 16,
-                        "name": "Atmospheric pressure",
-                        "shortName": "p",
-                        "value": 964,
-                        "unit": "hPa"
-                    },
-                    {
-                        "id":"SOUND_PRESSURE_LEVEL",
-                        "type": 19,
-                        "name": "Sound pressure level",
-                        "shortName": "Lp",
-                        "value": 25,
-                        "unit": "dB"
-                    },
-                    {
-                        "id":"TEMPERATURE",
-                        "type": 1,
-                        "name": "Temperature",
-                        "shortName": "T",
-                        "value": 21.625,
-                        "unit": "°C"
-                    },
-                    {
-                        "id":"VOLATILE_ORGANIC_COMPOUND",
-                        "type": 3,
-                        "name": "Volatile organic compound",
-                        "shortName": "VOC",
-                        "value": 6,
-                        "unit": "ppm"
-                    },
-                    {
-                        "id":"EXTRA-LOW_VOLTAGE",
-                        "type": 4,
-                        "name": "Extra-low voltage",
-                        "shortName": "U",
-                        "value": 4.422,
-                        "unit": "V"
-                    }
-                ]
-            }
-        },
-        "raw": [
-            {
-                "request": "01.00.5e.01.ff.ff.ff.ff.ff.ff",
-                "requestTs": "2019-04-05T15:01:33.494786",
-                "confirmation": "01.00.5e.01.ff.ff.ff.50.01.08.01",
-                "confirmationTs": "2019-04-05T15:01:33.534786",
-                "response": "01.00.5e.81.15.10.00.58.14.6a.16.02.e8.00.80.5c.0b.1c.00.a0.00.00.00.80.81.02.15.c5.09.15.f7.ff.15.2c.00.a0.00.00.00.00.10.40.3c.13.90.01.01.5a.01.03.06.00.04.46.11",
-                "responseTs": "2019-04-05T15:01:33.814787"
-            }
-        ],
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
-    }
+	"mType": "iqrfSensor_ReadSensorsWithTypes",
+	"data": {
+		"msgId": "testEmbedSensor",
+		"rsp": {
+			"nAdr": 1,
+			"hwpId": 5122,
+			"rCode": 0,
+			"dpaVal": 81,
+			"result": {
+				"sensors": [
+					{
+						"id": "TEMPERATURE",
+						"type": 1,
+						"name": "Temperature",
+						"shortName": "t",
+						"value": 28.5,
+						"unit": "°C",
+						"decimalPlaces": 4
+					},
+					{
+						"id": "CO2",
+						"type": 2,
+						"name": "Carbon dioxide",
+						"shortName": "CO2",
+						"value": 2439,
+						"unit": "ppm",
+						"decimalPlaces": 0
+					}
+				],
+				"sensorIndexes": [
+					0,
+					1
+				]
+			}
+		},
+		"raw": [
+			{
+				"request": "01.00.5e.01.ff.ff.03.00.00.00",
+				"requestTs": "2022-12-15T08:50:55.602+01:00",
+				"confirmation": "01.00.5e.01.ff.ff.ff.50.01.08.01",
+				"confirmationTs": "2022-12-15T08:50:55.629+01:00",
+				"response": "01.00.5e.81.02.14.00.51.01.c8.01.02.87.09",
+				"responseTs": "2022-12-15T08:50:55.876+01:00"
+			}
+		],
+		"insId": "iqrfgd2-default",
+		"statusStr": "ok",
+		"status": 0
+	}
 }

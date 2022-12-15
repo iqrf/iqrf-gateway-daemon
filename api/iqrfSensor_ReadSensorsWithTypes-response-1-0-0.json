@@ -1,235 +1,255 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfSensor_ReadSensorsWithTypes-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Standard peripheral Sensor - Read with Types response.",
-            "enum": [
-                "iqrfSensor_ReadSensorsWithTypes"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "rCode": {
-                            "type": "integer",
-                            "description": "DPA error code."
-                        },
-                        "dpaVal": {
-                            "type": "integer",
-                            "description": "DPA value."
-                        },
-                        "result": {
-                            "type": "object",
-                            "properties": {
-                                "sensors": {
-                                    "type": "array",
-                                    "maxItems": 31,
-                                    "description": "Returns array of objects for every sensor, see its description.",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "id": {
-                                                "type": "string",
-                                                "description": "Value type as text id."
-                                            },
-                                            "type": {
-                                                "type": "integer",
-                                                "description": "Value type of the sensor (quantity)."
-                                            },
-                                            "name": {
-                                                "type": "string",
-                                                "description": "Name of the sensor (quantity)."
-                                            },
-                                            "shortName": {
-                                                "type": "string",
-                                                "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-                                            },
-                                            "value": {
-                                                "oneOf": [
-                                                    {
-                                                        "type": "number"
-                                                    },
-                                                    {
-                                                        "type": "null"
-                                                    },
-                                                    {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "type": "integer"
-                                                        }
-                                                    }
-                                                ],
-                                                "description": "Value of the sensor."
-                                            },
-                                            "unit": {
-                                                "type": "string",
-                                                "description": "Unit of the quantity. Dimensionless quantities has \"\"."
-                                            },
-                                            "decimalPlaces": {
-                                                "type": "number",
-                                                "description": "Number of valid decimal places."
-                                            },
-                                            "breakdown": {
-                                                "type": "array",
-                                                "description": "Parsed generic types if present in device response.",
-                                                "items": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "type": {
-                                                            "type": "integer",
-                                                            "description": "Value type of the sensor (quantity)."
-                                                        },
-                                                        "name": {
-                                                            "type": "string",
-                                                            "description": "Name of the sensor (quantity)."
-                                                        },
-                                                        "shortName": {
-                                                            "type": "string",
-                                                            "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-                                                        },
-                                                        "value": {
-                                                            "oneOf": [
-                                                                {
-                                                                    "type": "number"
-                                                                },
-                                                                {
-                                                                    "type": "null"
-                                                                },
-                                                                {
-                                                                    "type": "array",
-                                                                    "items": {
-                                                                        "type": "integer"
-                                                                    }
-                                                                }
-                                                            ],
-                                                            "description": "Value of the sensor."
-                                                        },
-                                                        "unit": {
-                                                            "type": "string",
-                                                            "description": "Unit of the quantity. Dimensionless quantities has \"\"."
-                                                        },
-                                                        "decimalPlaces": {
-                                                            "type": "number",
-                                                            "description": "Number of valid decimal places."
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "required": [
-                                            "id",
-                                            "type",
-                                            "name",
-                                            "shortName",
-                                            "unit",
-                                            "decimalPlaces"
-                                        ]
-                                    }
-                                }
-                            }
-                        },
-                        "errorStr": {
-                            "type": "string",
-                            "description": "Error description from JS drivers."
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "hwpId",
-                        "rCode",
-                        "dpaVal"
-                    ]
-                },
-                "raw": {
-                    "type": "array",
-                    "description": "Returns array of objects req-cnf-rsp, see its description.",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "request": {
-                                "type": "string",
-                                "description": "Binary buffer with DPA request."
-                            },
-                            "requestTs": {
-                                "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-                            },
-                            "confirmation": {
-                                "type": "string",
-                                "description": "Binary buffer with DPA confirmation."
-                            },
-                            "confirmationTs": {
-                                "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-                            },
-                            "response": {
-                                "type": "string",
-                                "description": "Binary buffer with DPA response."
-                            },
-                            "responseTs": {
-                                "type": "string",
-                                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-                            }
-                        },
-                        "required": [
-                            "request",
-                            "requestTs",
-                            "confirmation",
-                            "confirmationTs",
-                            "response",
-                            "responseTs"
-                        ]
-                    }
-                },
-                "insId": {
-                    "type": "string",
-                    "description": "IQRF GW daemon instance identification."
-                },
-                "status": {
-                    "type": "integer",
-                    "description": "IQRF GW daemon API (general or mType) status."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "iqrfSensor_ReadSensorsWithTypes-response",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"type": "string",
+			"description": "Standard peripheral Sensor - Read with Types response.",
+			"enum": ["iqrfSensor_ReadSensorsWithTypes"]
+		},
+		"data": {
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"type": "string",
+					"description": "Message identification for binding request with response."
+				},
+				"timeout": {
+					"type": "integer",
+					"description": "Timeout to wait for IQRF DPA response."
+				},
+				"rsp": {
+					"type": "object",
+					"required": [
+						"nAdr",
+						"hwpId",
+						"rCode",
+						"dpaVal"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {
+							"type": "integer",
+							"description": "Network device address."
+						},
+						"hwpId": {
+							"type": "integer",
+							"description": "Hardware profile identification."
+						},
+						"rCode": {
+							"type": "integer",
+							"description": "DPA error code."
+						},
+						"dpaVal": {
+							"type": "integer",
+							"description": "DPA value."
+						},
+						"result": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"sensors": {
+									"type": "array",
+									"maxItems": 31,
+									"description": "Returns array of objects for every sensor, see its description.",
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "string",
+												"description": "Value type as text id."
+											},
+											"type": {
+												"type": "integer",
+												"description": "Value type of the sensor (quantity)."
+											},
+											"name": {
+												"type": "string",
+												"description": "Name of the sensor (quantity)."
+											},
+											"shortName": {
+												"type": "string",
+												"description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
+											},
+											"value": {
+												"oneOf": [
+													{
+														"type": "number"
+													},
+													{
+														"type": "null"
+													},
+													{
+														"type": "array",
+														"items": {
+															"type": "integer"
+														}
+													}
+												],
+												"description": "Value of the sensor."
+											},
+											"unit": {
+												"type": "string",
+												"description": "Unit of the quantity. Dimensionless quantities has \"\"."
+											},
+											"decimalPlaces": {
+												"type": "number",
+												"description": "Number of valid decimal places."
+											},
+											"breakdown": {
+												"type": "array",
+												"description": "Parsed generic types if present in device response.",
+												"items": {
+													"type": "object",
+													"properties": {
+														"type": {
+															"type": "integer",
+															"description": "Value type of the sensor (quantity)."
+														},
+														"name": {
+															"type": "string",
+															"description": "Name of the sensor (quantity)."
+														},
+														"shortName": {
+															"type": "string",
+															"description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
+														},
+														"value": {
+															"oneOf": [
+																{
+																	"type": "number"
+																},
+																{
+																	"type": "null"
+																},
+																{
+																	"type": "array",
+																	"items": {
+																		"type": "integer"
+																	}
+																}
+															],
+															"description": "Value of the sensor."
+														},
+														"unit": {
+															"type": "string",
+															"description": "Unit of the quantity. Dimensionless quantities has \"\"."
+														},
+														"decimalPlaces": {
+															"type": "number",
+															"description": "Number of valid decimal places."
+														}
+													}
+												}
+											}
+										},
+										"required": [
+											"id",
+											"type",
+											"name",
+											"shortName",
+											"unit",
+											"decimalPlaces"
+										]
+									}
+								},
+								"sensorIndexes": {
+									"description": "Indexes of requested sensors.",
+									"additionalItems": false,
+									"oneOf": [
+										{ "type": "null" },
+										{ "type": "integer" },
+										{
+											"type": "array",
+											"additionalItems": false,
+											"uniqueItems": true,
+											"items": {
+												"type":"integer",
+												"minimum": 0,
+												"maximum": 31
+											}
+										}
+									]
+								}
+							}
+						},
+						"errorStr": {
+							"type": "string",
+							"description": "Error description from JS drivers."
+						}
+					}
+				},
+				"raw": {
+					"type": "array",
+					"description": "Returns array of objects req-cnf-rsp, see its description.",
+					"items": {
+						"type": "object",
+						"properties": {
+							"request": {
+								"type": "string",
+								"description": "Binary buffer with DPA request."
+							},
+							"requestTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"confirmation": {
+								"type": "string",
+								"description": "Binary buffer with DPA confirmation."
+							},
+							"confirmationTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"response": {
+								"type": "string",
+								"description": "Binary buffer with DPA response."
+							},
+							"responseTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							}
+						},
+						"required": [
+							"request",
+							"requestTs",
+							"confirmation",
+							"confirmationTs",
+							"response",
+							"responseTs"
+						]
+					}
+				},
+				"insId": {
+					"type": "string",
+					"description": "IQRF GW daemon instance identification."
+				},
+				"status": {
+					"type": "integer",
+					"description": "IQRF GW daemon API (general or mType) status."
+				},
+				"statusStr": {
+					"type": "string",
+					"description": "IQRF GW daemon API (general or mType) status in string form."
+				}
+			}
+		}
+	}
 }

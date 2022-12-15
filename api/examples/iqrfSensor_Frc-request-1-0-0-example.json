@@ -1,16 +1,20 @@
 {
-  "mType": "iqrfSensor_Frc",
-  "data": {
-    "msgId": "testEmbedSensor",
-    "req": {
-      "nAdr": 0,
-      "param": {
-        "sensorType": 1,
-        "sensorIndex": 1,
-        "frcCommand": 144,
-        "getExtraResult": true
-      }
-    },
-    "returnVerbose": true
-  }
+	"mType": "iqrfSensor_Frc",
+	"data": {
+		"msgId": "testEmbedSensor",
+		"req": {
+			"nAdr": 0,
+			"param": {
+				"sensorType": 1,
+				"sensorIndex": 0,
+				"frcCommand": 144,
+				"getExtraResult": true,
+				"selectedNodes": [
+					1,
+					2
+				]
+			}
+		},
+		"returnVerbose": true
+	}
 }

@@ -1,79 +1,104 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedFrc_SendSelective-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral FRC - Send Selective response.",
-            "enum": [
-                "iqrfEmbedFrc_SendSelective"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "rCode": {
-                            "type": "integer",
-                            "description": "DPA error code."
-                        },
-                        "dpaVal": {
-                            "type": "integer",
-                            "description": "DPA value."
-                        },
-                        "result": {
-                            "type": "object",
-                            "properties": {
-                                "status": {
-                                    "type": "integer",
-                                    "description": "FRC status."
-                                },
-                                "frcData": {
-                                    "type": "array",
-                                    "description": "FRC data.",
-                                    "items": {
-                                        "type": "integer"
-                                    }
-                                }
-                            }
-                        },
-                        "errorStr": {
-                            "type": "string",
-                            "description": "Error description from JS drivers."
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "hwpId",
-                        "rCode",
-                        "dpaVal"
-                    ]
-                },
-                "raw": {
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "iqrfEmbedFrc_SendSelective-response",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"type": "string",
+			"description": "Embedded peripheral FRC - Send Selective response.",
+			"enum": [
+				"iqrfEmbedFrc_SendSelective"
+			]
+		},
+		"data": {
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"type": "string",
+					"description": "Message identification for binding request with response."
+				},
+				"rsp": {
+					"type": "object",
+					"required": [
+						"nAdr",
+						"hwpId",
+						"rCode",
+						"dpaVal"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {
+							"type": "integer",
+							"description": "Network device address."
+						},
+						"hwpId": {
+							"type": "integer",
+							"description": "Hardware profile identification."
+						},
+						"rCode": {
+							"type": "integer",
+							"description": "DPA error code."
+						},
+						"dpaVal": {
+							"type": "integer",
+							"description": "DPA value."
+						},
+						"result": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"description": "FRC status."
+								},
+								"frcData": {
+									"type": "array",
+									"description": "FRC data.",
+									"items": {
+										"type": "integer"
+									}
+								},
+								"selectedNodes": {
+									"description": "Array of network device addresses.",
+									"type": "array",
+									"additionalItems": false,
+									"uniqueItems": true,
+									"minItems": 1,
+									"maxItems": 239,
+									"items": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 239
+									}
+								}
+							}
+						},
+						"errorStr": {
+							"type": "string",
+							"description": "Error description from JS drivers."
+						}
+					}
+				},
+				"timeout": {
+					"type": "integer",
+					"description": "Timeout to wait for IQRF DPA response."
+				},
+				"raw": {
 					"type": "array",
 					"description": "Returns array of objects req-cnf-rsp, see its description.",
 					"items": {
@@ -113,29 +138,20 @@
 							"responseTs"
 						]
 					}
-                },
-                "insId": {
-                    "type": "string",
-                    "description": "IQRF GW daemon instance identification."
-                },
-                "status": {
-                    "type": "integer",
-                    "description": "IQRF GW daemon API (general or mcat) status."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mcat) status in string form."
-                }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
-        }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+				},
+				"insId": {
+					"type": "string",
+					"description": "IQRF GW daemon instance identification."
+				},
+				"status": {
+					"type": "integer",
+					"description": "IQRF GW daemon API (general or mcat) status."
+				},
+				"statusStr": {
+					"type": "string",
+					"description": "IQRF GW daemon API (general or mcat) status in string form."
+				}
+			}
+		}
+	}
 }

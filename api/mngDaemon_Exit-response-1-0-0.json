@@ -53,7 +53,7 @@
 							"$id": "#/properties/data/properties/req/properties/timeToExit",
 							"title": "Time to exit",
 							"description": "Restart timeout in milliseconds.",
-							"type": "number",
+							"type": "integer",
 							"minimum": 0
 						}
 					}
