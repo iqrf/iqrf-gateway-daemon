@@ -1,39 +1,125 @@
-{
-  "mType": "mngScheduler_AddTask",
-  "data": {
-    "msgId": "testSchedulerAdd",
-    "req": {
-      "clientId": "SchedulerMessaging",
-      "task": {
-        "messaging": "WebsocketMessaging",
-        "message": {
-          "mType": "iqrfRaw",
-          "data": {
-            "msgId": "testRaw",
-            "req": {
-              "rData": "00.00.06.03.FF.FF"
-            },
-            "returnVerbose": true
-          }
-        }
-      },
-      "timeSpec": {
-        "cronTime": [
-          "*/10",
-          "*",
-          "*",
-          "*",
-          "*",
-          "*",
-          "*"
-        ],
-        "periodic": false,
-        "period": 0,
-        "exactTime": false,
-        "startTime": ""
-      },
-      "persist":true
-    },
-    "returnVerbose": true
-  }
-}
+[
+	{
+		"mType":"mngScheduler_AddTask",
+		"data":{
+			"req":{
+				"clientId":"SchedulerMessaging",
+				"taskId":"617c6004-3e00-4f45-be7f-4ddade78c2e5",
+				"description":"Example task",
+				"task":[
+					{
+						"message":{
+							"mType":"iqrfEmbedLedr_Pulse",
+							"data":{
+								"msgId":"testEmbedLedr",
+								"req":{
+									"nAdr":1,
+									"param":{
+
+									}
+								},
+								"returnVerbose":true
+							}
+						},
+						"messaging":[
+							"WebsocketMessaging"
+						]
+					}
+				],
+				"timeSpec":{
+					"cronTime":"",
+					"exactTime":true,
+					"startTime":"2023-01-01T12:00:00.000Z",
+					"periodic":false,
+					"period":0
+				},
+				"persist":true,
+				"enabled":true
+			},
+			"returnVerbose":true,
+			"msgId":"f800d934-8774-435d-a772-5beb98198192"
+		}
+	},
+	{
+		"mType":"mngScheduler_AddTask",
+		"data":{
+			"req":{
+				"clientId":"SchedulerMessaging",
+				"taskId":"89e8a261-a062-414c-86d8-3979a5052876",
+				"description":"Example task #2",
+				"task":[
+					{
+						"message":{
+							"mType":"iqrfEmbedLedr_Pulse",
+							"data":{
+								"msgId":"testEmbedLedr",
+								"req":{
+									"nAdr":1,
+									"param":{
+
+									}
+								},
+								"returnVerbose":true
+							}
+						},
+						"messaging":[
+							"WebsocketMessaging"
+						]
+					}
+				],
+				"timeSpec":{
+					"cronTime":"",
+					"exactTime":false,
+					"startTime":"",
+					"periodic":true,
+					"period":60
+				},
+				"persist":true,
+				"enabled":true
+			},
+			"returnVerbose":true,
+			"msgId":"176a5525-5878-463b-aa54-7863ff3ff05a"
+		}
+	},
+	{
+		"mType":"mngScheduler_AddTask",
+		"data":{
+			"req":{
+				"clientId":"SchedulerMessaging",
+				"taskId":"7152e0c3-9281-4068-b240-8294e461d256",
+				"description":"Example task #3",
+				"task":[
+					{
+						"message":{
+							"mType":"iqrfEmbedLedr_Pulse",
+							"data":{
+								"msgId":"testEmbedLedr",
+								"req":{
+									"nAdr":1,
+									"param":{
+
+									}
+								},
+								"returnVerbose":true
+							}
+						},
+						"messaging":[
+							"WebsocketMessaging"
+						]
+					}
+				],
+				"timeSpec":{
+					"cronTime":"0 */5 * * * * *",
+					"exactTime":false,
+					"startTime":"",
+					"periodic":false,
+					"period":0
+				},
+				"persist":true,
+				"enabled":true
+			},
+			"returnVerbose":true,
+			"msgId":"dcfb608f-63af-4be4-b97b-a9e5c42bd6a9"
+		}
+	}
+]

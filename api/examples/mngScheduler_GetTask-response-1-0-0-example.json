@@ -1,30 +1,33 @@
 {
-	"mType": "mngScheduler_GetTask",
-	"data": {
-		"msgId": "5c5c0eaf-bd29-4228-a0d1-f580bda94908",
-		"rsp": {
-			"clientId": "SchedulerMessaging",
-			"taskId": 233918545,
-			"task": [
+	"mType":"mngScheduler_GetTask",
+	"data":{
+		"msgId":"20ecb6be-6d83-4cd8-a155-839ed992f792",
+		"rsp":{
+			"clientId":"SchedulerMessaging",
+			"taskId":"617c6004-3e00-4f45-be7f-4ddade78c2e5",
+			"description":"Example task",
+			"task":[
 				{
-					"message": {
-						"mType": "iqrfRaw",
-						"data": {
-							"msgId": "testRaw",
-							"timeout": 1000,
-							"req": {
-								"rData": "00.00.06.03.FF.FF"
+					"message":{
+						"mType":"iqrfEmbedLedr_Pulse",
+						"data":{
+							"msgId":"testEmbedLedr",
+							"req":{
+								"nAdr":1,
+								"param":{
+
+								}
 							},
-							"returnVerbose": true
+							"returnVerbose":true
 						}
 					},
-					"messaging": [
+					"messaging":[
 						"WebsocketMessaging"
 					]
 				}
 			],
-			"timeSpec": {
-				"cronTime": [
+			"timeSpec":{
+				"cronTime":[
 					"",
 					"",
 					"",
@@ -33,14 +36,17 @@
 					"",
 					""
 				],
-				"exactTime": false,
-				"periodic": true,
-				"period": 60000,
-				"startTime": "2021-04-21T15:10:05.957+02:00"
-			}
+				"exactTime":true,
+				"periodic":false,
+				"period":0,
+				"startTime":"2023-01-01T12:00:00Z"
+			},
+			"persist":true,
+			"enabled":true,
+			"active":true
 		},
-		"insId": "iqrfgd2-1",
-		"statusStr": "ok",
-		"status": 0
+		"insId":"iqrfgd2-default",
+		"statusStr":"ok",
+		"status":0
 	}
 }

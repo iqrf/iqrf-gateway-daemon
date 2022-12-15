@@ -1,10 +1,23 @@
-{
-	"mType": "mngScheduler_List",
-	"data": {
-		"msgId": "fd789102-5109-4081-95ca-68c9710cb0b5",
-		"req": {
-			"clientId": "SchedulerMessaging"
-		},
-		"returnVerbose": true
+[
+	{
+		"mType": "mngScheduler_List",
+		"data": {
+			"msgId": "fd789102-5109-4081-95ca-68c9710cb0b5",
+			"req": {
+				"clientId": "SchedulerMessaging"
+			},
+			"returnVerbose": true
+		}
+	},
+	{
+		"mType": "mngScheduler_List",
+		"data": {
+			"msgId": "83c7c3f8-931f-4b8b-9526-0c67867436ff",
+			"req": {
+				"clientId": "SchedulerMessaging",
+				"details": true
+			},
+			"returnVerbose": true
+		}
 	}
-}
+]

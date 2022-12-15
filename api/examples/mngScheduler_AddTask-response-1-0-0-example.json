@@ -1,13 +1,13 @@
 {
-    "mType": "mngScheduler_AddTask",
-    "data": {
-        "msgId": "testSchedulerAdd",
-        "rsp": {
-            "clientId": "SchedulerMessaging",
-            "taskId": 2146077740
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+	"mType":"mngScheduler_AddTask",
+	"data":{
+		"msgId":"f800d934-8774-435d-a772-5beb98198192",
+		"rsp":{
+			"clientId":"SchedulerMessaging",
+			"taskId":"617c6004-3e00-4f45-be7f-4ddade78c2e5"
+		},
+		"insId":"iqrfgd2-default",
+		"statusStr":"ok",
+		"status":0
+	}
 }
