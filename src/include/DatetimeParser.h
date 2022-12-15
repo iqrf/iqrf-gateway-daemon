@@ -1,11 +1,37 @@
+/**
+ * Copyright 2015-2022 IQRF Tech s.r.o.
+ * Copyright 2019-2022 MICRORISC s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #include <date/date.h>
 #include <regex>
 #include <string_view>
 
+/**
+ * ISO 8601 date-time timestamp parser
+ *
+ * Based on: https://github.com/beached/iso8601_parsing
+ */
 class DatetimeParser {
 public:
+	/**
+	 * Converts ISO8601 date-time timestamp string to time point
+	 * @param timestamp Timestamp string
+	 * @return const std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> Time point
+	 */
 	static const std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> parse_to_timepoint(std::string &timestamp) {
 		if (!is_timestamp_valid(timestamp)) {
 			throw std::logic_error("Invalid datetime string format.");
@@ -28,24 +54,47 @@ public:
 		return tp;
 	}
 private:
-	struct DateStruct {
+	/**
+	 * Broken-down parsed date
+	 */
+	typedef struct {
+		/// Parsed year value
 		uint16_t year;
+		/// Parsed month value
 		uint8_t month;
+		/// Parsed day value
 		uint8_t day;
-	};
+	} DateStruct;
 
-	struct TimeStruct {
+	/**
+	 * Broken-down parsed time
+	 */
+	typedef struct {
+		/// Parsed hours value
 		int8_t hours;
+		/// Parsed minutes value
 		int8_t minutes;
+		/// Parsed seconds value
 		int8_t seconds;
+		/// Parsed milliseconds value
 		int16_t milliseconds;
-	};
+	} TimeStruct;
 
+	/**
+	 * Checks if passed timestamp is a valid ISO 8601 date-time string
+	 * @param timestamp Timestamp string
+	 * @return true if timestamp is valid, false otherwise
+	 */
 	static bool is_timestamp_valid(std::string &timestamp) {
 		std::regex r("^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])T([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)(\\.\\d{3})?(Z|\\+(0\\d|1[0-3]):[0-5]\\d|\\+14:00|-(0\\d|1[0-1]):[0-5]\\d|-12:00)$", std::regex::icase);
 		return std::regex_match(timestamp, r);
 	}
 
+	/**
+	 * Parses date from timestamp string into a broken-down date struct
+	 * @param sv Timestamp string
+	 * @return const DateStruct Parsed broken-down date
+	 */
 	static const DateStruct parse_date(std::string_view &sv) {
 		DateStruct date{0, 0, 0};
 		date.year = remove_prefix_to_integer<uint16_t>(sv, 4);
@@ -63,6 +112,11 @@ private:
 		return date;
 	}
 
+	/**
+	 * Parses time from timestmap string into a broken-down time struct
+	 * @param sv Timestamp string
+	 * @return const TimeStruct Parsed broken-down time
+	 */
 	static const TimeStruct parse_time(std::string_view &sv) {
 		TimeStruct time{0, 0, 0, 0};
 		time.hours = remove_prefix_to_integer<int8_t>(sv, 2);
@@ -84,6 +138,11 @@ private:
 		return time;
 	}
 
+	/**
+	 * Parses offset from timestamp into minutes
+	 * @param sv Timestamp string
+	 * @return int16_t Parsed offset in minutes
+	 */
 	static int16_t parse_offset(std::string_view &sv) {
 		if (sv.size() == 0 || std::toupper(sv[0]) == 'Z') {
 			return 0;
@@ -104,15 +163,33 @@ private:
 		return static_cast<int16_t>(sign * offset);
 	}
 
+	/**
+	 * Checks if the first character is a non-digit character
+	 * @param sv Datetime string
+	 * @return true if the first character is not a digit, false otherwise
+	 */
 	static bool is_special_character(std::string_view &sv) {
 		return !sv.empty() && !std::isdigit(sv[0]);
 	}
 
+	/**
+	 * Cast character to specified integer type
+	 * @tparam IntegerType Integer type
+	 * @param c Character to cast
+	 * @return const IntegerType Converted value
+	 */
 	template<typename IntegerType>
 	static const IntegerType cast_to_integer(const char c) {
 		return static_cast<IntegerType>(c - '0');
 	}
 
+	/**
+	 * Removes prefix of specified length from a string, and converts removed characters to an integer value
+	 * @tparam IntegerType Integer type
+	 * @param sv Datetime string
+	 * @param digits Number of digits to remove as prefix and convert
+	 * @return const IntegerType Converted value
+	 */
 	template<typename IntegerType>
 	static const IntegerType remove_prefix_to_integer(std::string_view &sv, size_t digits) {
 		if (digits == 0 || digits > sv.size()) {

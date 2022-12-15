@@ -25,11 +25,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if(NOT CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|MSBuild)")
   include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+  CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
   if(COMPILER_SUPPORTS_CXX14)
-  	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++14 -pthread")
+  	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++17 -pthread")
   else()
-    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
   endif()
 endif()
 
@@ -122,8 +122,6 @@ add_subdirectory(libraries/clibuart EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/iqrf-header-parser EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/croncpp EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/date EXCLUDE_FROM_ALL)
-add_subdirectory(libraries/daw_header_libraries EXCLUDE_FROM_ALL)
-add_subdirectory(libraries/iso8601_parsing EXCLUDE_FROM_ALL)
 
 #add_subdirectory(src)
 

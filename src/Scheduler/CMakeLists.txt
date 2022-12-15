@@ -41,8 +41,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/libraries/croncpp/include)
 include_directories(${CMAKE_SOURCE_DIR}/libraries/date/include)
-include_directories(${CMAKE_SOURCE_DIR}/libraries/daw_header_libraries/include)
-include_directories(${CMAKE_SOURCE_DIR}/libraries/iso8601_parsing/include)
 
 if(SHAPE_STATIC_LIBS)
     add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
@@ -50,6 +48,6 @@ else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} date::date daw::daw-header-libraries daw::daw-iso8601-parsing)
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 
 DeployShapeComponent(${PROJECT_NAME})
