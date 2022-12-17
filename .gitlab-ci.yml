@@ -15,8 +15,7 @@
 
 stages:
   - test
-  - update-cache
-  - build-package
+  - jsonnet
   - deploy-api
 
 .ccache-template: &ccache-template
@@ -55,61 +54,6 @@ stages:
     - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
     - git submodule update --init --recursive
 
-.deploy-template:
-  script:
-    - export DEPLOY_DIR=/data/nginx/dl/iqrf-gateway-daemon/${DIST}/${ARCH_PREFIX}${ARCH}/${STABILITY}
-    - if [ "${STABILITY}" == "devel" ]; then ssh www-deploy@icinga.iqrf.org "rm -f ${DEPLOY_DIR}/*"; fi
-    - if [ "${STABILITY}" != "devel" ]; then ssh www-deploy@icinga.iqrf.org "rm -f ${DEPLOY_DIR}/*.changes"; fi
-    - rsync -hrvz --delete -e ssh *_all.deb *_${ARCH}.deb *_${ARCH}.changes www-deploy@icinga.iqrf.org:${DEPLOY_DIR}
-
-.package-template:
-  image: iqrftech/debian-c-builder:${DISTRIBUTION}-${DIST}-${ARCH}
-  stage: build-package
-  dependencies:
-    - update-cache
-  script:
-    - export DATE=`git show --no-patch --format=%cD ${CI_COMMIT_SHA}`
-    - if [ "${STABILITY}" == "devel" ]; then gbp dch -a -S --snapshot-number="$CI_PIPELINE_ID" --ignore-branch; fi
-    - dch-add-distro -d "${DIST}" -D "${DATE}"
-    - find . -exec touch -am -d "${DATE}" {} +
-    - debuild -e CCACHE_COMPILERCHECK -e CCACHE_COMPRESS -e CCACHE_BASEDIR -e CCACHE_DIR -e DAEMON_VERSION -b -uc -us -tc
-    - mv ../*.deb .
-    - 'mv ../*.ddeb . 2>/dev/null || :'
-    - mv ../*.changes .
-    - sed -i "s/.ddeb/.deb/g" *.changes
-    - for file in $(ls *.ddeb) ; do mv "${file}" "${file%.ddeb}.deb"; done
-  artifacts:
-    paths:
-      - ./*.deb
-      - ./*.changes
-    expire_in: 2 weeks
-  parallel:
-    matrix:
-      - DISTRIBUTION: debian
-        DIST: [bullseye, buster]
-        ARCH: [amd64, arm64, armhf, armel, i386]
-      - DISTRIBUTION: raspbian
-        ARCH: armhf
-        ARCH_PREFIX: "rpi-"
-        CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-        CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-        DIST: [bullseye, buster]
-      - DISTRIBUTION: ubuntu
-        DIST: [jammy, focal, bionic]
-        ARCH: [amd64, arm64, armhf]
-  tags:
-    - linux, ${ARCH}
-  <<: *ccache-template
-
-.api-template: &api-template
-  stage: deploy-api
-  only:
-    - master
-  extends: .ssh-template
-  dependencies: []
-  script:
-    - rsync -hrvz --delete -e ssh api/ www-deploy@icinga.iqrf.org:/data/nginx/apidocs/iqrf-gateway-daemon/latest/json/iqrf/
-
 test:
   stage: test
   extends: .ssh-template
@@ -141,68 +85,39 @@ api-testing:
     - docker
     - daemon-api-testing
 
-update-cache:
-  stage: update-cache
+# Jsonnet
+jsonnet-build:
+  image: alpine:latest
+  stage: jsonnet
   script:
-    - python3 src/start-IqrfDaemon/iqrfRepoCache/update-cache.py
+    - apk add -U jsonnet
+    - jsonnet -o .gitlab/packages.yml .gitlab/packages.jsonnet
   artifacts:
     paths:
-      - src/start-IqrfDaemon/iqrfRepoCache/
-    expire_in: 1 day
-  <<: *debian-bullseye-amd64-template
+      - .gitlab/packages.yml
 
-package-devel:
-  only:
-    - master
-  extends: .package-template
-  before_script:
-    - !reference [.ccache-template, before_script]
-    - export DAEMON_VERSION=v2.4.0-beta~${CI_PIPELINE_ID}
-    - export STABILITY=devel
-    - !reference [.ssh-template, before_script]
-  after_script:
-    !reference [.deploy-template, script]
-
-package-feature:
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_TAG
-      when: never
-    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
-      when: manual
-  extends: .package-template
-  before_script:
-    - !reference [.ccache-template, before_script]
-    - export DAEMON_VERSION=v2.4.0-beta~${CI_PIPELINE_ID}
-    - export STABILITY=devel
-    - !reference [.ssh-template, before_script]
-  parallel:
-    matrix:
-      - DISTRIBUTION: debian
-        DIST: [bullseye, buster]
-        ARCH: [amd64, armhf]
-      - DISTRIBUTION: raspbian
-        ARCH: armhf
-        ARCH_PREFIX: "rpi-"
-        CFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-        CXXFLAGS: "-marm -march=armv6zk -mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp"
-        DIST: [bullseye, buster]
-
-package-release:
-  only:
-    - tags
-  extends: .package-template
-  before_script:
-    - !reference [.ccache-template, before_script]
-    - export DAEMON_VERSION="$CI_COMMIT_TAG"
-    - '[[ "$CI_COMMIT_TAG" =~ ^.*-(alpha|beta|rc)[0-9]*$ ]] && export STABILITY="testing" || export STABILITY="stable"'
-    - !reference [.ssh-template, before_script]
-  after_script:
-    !reference [.deploy-template, script]
+jsonnet-trigger-packages:
+  stage: jsonnet
+  needs:
+    - jsonnet-build
+  trigger:
+    forward:
+      pipeline_variables: true
+    include:
+      - artifact: .gitlab/packages.yml
+        job: jsonnet-build
+    strategy: depend
 
 # API
 api-deploy:
+  stage: deploy-api
+  only:
+    - master
+  extends: .ssh-template
+  dependencies: []
+  script:
+    - rsync -hrvz --delete -e ssh api/ www-deploy@icinga.iqrf.org:/data/nginx/apidocs/iqrf-gateway-daemon/latest/json/iqrf/
   <<: *debian-bullseye-amd64-template
-  <<: *api-template
 
 include:
   - template: Code-Quality.gitlab-ci.yml
