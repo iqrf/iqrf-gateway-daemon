@@ -1,8 +1,439 @@
-iqrf-gateway-daemon (2.4.0~beta~1.gbp7735ae) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.4.0~rc1) testing; urgency=medium
 
+  [ Rostislav Spinar ]
   * Version 2.4.0~beta
 
- -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Mon, 5 Oct 2020 14:00:00 +0200
+  [ Vasek Hanak ]
+  * ReadTrConfService fix DP2P flag
+  * WriteTrConfService fix. If [N] is addressed, DPA version of [N] itself used instead of [C] DPA version.
+
+  [ Karel Hanák ]
+  * Debian package: default configuration package, gateway postinst configuration
+  * Debian package: additional postinst actions for gateway types
+  * Debian package: default configuration package permissions
+  * Debian package: fix default config package name
+  * Debian package: set certificate directory permissions in default config
+  * Debian package: permission fix
+
+  [ Roman Ondráček ]
+  * GitLab CI: fix Debian package deployment
+
+  [ Rostislav Spinar ]
+  * Fix in UART config
+
+  [ Karel Hanák ]
+  * Debian package: additional UART and GWID postinst actions
+
+  [ Roman Ondráček ]
+  * Docker builders: disable cache during build
+  * GitLab CI: use commit date as Debian change block date
+  * GitLab CI: fix Ubuntu 16.04 package build
+  * GitLab CI: unify access and modify times with commit creation time
+
+  [ Karel Hanák ]
+  * Debian package: update postinst for gateway
+  * JsonSplitter: preserve msgId if validation fails or message queue is full
+
+  [ Frantisek Mikulu ]
+  * driver code in shared_ptr
+  * fix for Lin
+
+  [ Rostislav Spinar ]
+  * Extend UDP GW status
+
+  [ Karel Hanák ]
+  * UdpChannel: refactor ipv4 fetch
+
+  [ Rostislav Spinar ]
+  * Signal forwarding mode correctly
+
+  [ Karel Hanák ]
+  * Debian package: IdeCounterpart configuration postinst update
+  * Scheduler: close ofs
+  * Scheduler: sync persistent tasks to filesystem
+  * UdpChannel: fix socket close for windows
+  * JsonSplitter: ignored msgid fix
+
+  [ Vasek Hanak ]
+  * Unified error codes of Iqmesh Services.
+
+  [ Karel Hanák ]
+  * UdpChannel: retry connection
+
+  [ Rostislav Spinar ]
+  * Docker update
+  * Docker update fix
+  * Enable proper setting for KON-RASP-01
+  * Fix setting for Uart, Pgm pin is always not used
+  * Docker update, hub images updated
+
+  [ Vasek Hanak ]
+  * DPA.h + OTA
+
+  [ Rostislav Spinar ]
+  * Update ref to clibdpa
+
+  [ Roman Ondráček ]
+  * GitLab CI: deploy to another server
+
+  [ Karel Hanák ]
+  * moved configuration, scheduler and metadata schemas to architecture independent shareable files directory
+  * add scheduler dir during build
+  * Debian package: remove redundant schemas from filesystem
+  * Tests: fixed TestJsonMngMetaDataApi paths
+  * Tests: fixed TestJsonDpaApiIqrfStandard paths
+
+  [ Frantisek Mikulu ]
+  * Upd Win build vcpkg_ver="2021-01-13-unknownhash"
+  * 1st std async handler prototype
+  * Support Std Sensor async response
+
+  [ Karel Hanák ]
+  * debian package: remove shareable directories permission rules
+
+  [ Frantisek Mikulu ]
+  * omit timestamp in response result for empty request, confirm, response
+  * fix JsCache save cache bkp on Win platform
+  * JsonDpaApiIqrfStandard handle async sensor rsp check PNUM, PCMD, fill response code
+
+  [ Karel Hanák ]
+  * UdpChannel: use network byte order when fetching address
+  * added syslog trace component configuration
+  * Debian package: update MqttMessaging in postinst only if default topics are set
+  * API: fixed backup and restore examples
+  * added syslog logging component
+
+  [ Roman Ondráček ]
+  * GitLab CI: downgrade DinD
+  * GitLab CI: add testing version deployment, add tag for API testing
+
+  [ Frantisek Mikulu ]
+  * conditional build of SyslogLogger
+  * remove old metadata
+  * metaDataToMessages persistent in IqrfInfo cfg
+  * metaData catch unbond addr
+
+  [ Karel Hanák ]
+  * added pid fine initialization
+
+  [ Frantisek Mikulu ]
+  * Fix  pid for Win
+
+  [ Rostislav Spinar ]
+  * metadata: json enable null, add config item
+
+  [ Roman Ondráček ]
+  * API testing: remove JsonMngMetaDataApi from the configuration
+  * JsonMngMetaDataApi: remove unused code
+  * UdpMessaging: add missing import
+  * JsonDpaApiRaw: fix missing rData in the response
+  * systemd: send outputs to journal instead of deprecated syslog
+
+  [ Karel Hanák ]
+  * main: added boost program options parsing
+  * Main: handle a situation where non-option argument is specified
+
+  [ Frantisek Mikulu ]
+  * Add boost program-options build deps for Win
+  * doc upd
+
+  [ Karel Hanák ]
+  * updated PO parsing, fixed cmake config deployment
+  * main: support legacy launch for a few versions
+  * main: updated version output
+  * Main: nonexistent configuration path error handling
+  * forbid ampersand scheduler task and messaging config schemas
+  * IqrfSpi and IqrfUart: set default gpio pins
+  * updated clibspi and clibuart submodule references
+
+  [ Vasek Hanak ]
+  * OTA update
+
+  [ Karel Hanák ]
+  * OtaUpload: fixed compile time warnings, updated error messages
+  * OtaUpload: fixed file and content parsing error handling
+  * IqrfInfo: added reset mType
+  * api: added info reset request examples, fixed examples with multiple messages
+  * API: fixed OtaUpload request json schema
+  * API: added missing request and response examples, fixed broken examples
+
+  [ Frantisek Mikulu ]
+  * fix build for Win
+
+  [ Vasek Hanak ]
+  * User timeout for sensor FRC
+
+  [ Rostislav Spinar ]
+  * Adding acknowledgement
+  * Update the acknowledgement
+  * clibdpa: update ref
+
+  [ Karel Hanák ]
+  * added error handling for missing metadata when appending to responses
+  * recvmsg instead of recvfrom
+  * UdpChannel: get IP and MAC address of receiving interface
+  * UdpMessaging: stop MAC search on match
+  * UdpMessaging: pass message to handler
+  * UdpMessaging: deduce receiving IP address based on sender IP if destination is broadcast
+  * UdpMessaging: remove unused method
+  * OtaUpload: fixed file content parsing
+  * UdpMessaging: added index based interface identification
+  * UdpMessaging: updated messaging class
+  * UdpMessaging: store interfaces with expiration, renew when expired, removed unnecessary code
+  * UdpMessaging: codestyle pass
+  * UdpMessaging: use unique socket for interface info
+
+  [ Roman Ondráček ]
+  * UdpMessaging: use initialization in initialization list instead of assigning in the constructor body
+
+  [ Karel Hanák ]
+  * OtaUpload: iqrf header parser library integration, linking
+  * OtaUpload: parse IQRF plugin headers
+  * UdpMessaging: fixed indentation
+  * OtaUpload: validate plugin header, fixed trimming func
+  * OtaUpload: unified indentation
+  * UdpChannel: do not respond if the interface address could not be retrieved, dummy impl for win
+  * UdpMessaging: fixed win impl
+  * updated reference to header parser lib
+
+  [ Roman Ondráček ]
+  * GitLab CI: fix sumbodule init on xenial and bionic
+  * Update IQRF header parser library
+
+  [ Karel Hanák ]
+  * UdpMessaging: get interface metric from route, select the best interface to respond
+  * UdpMessaging: removed useless dbg
+  * API: added daemon mode response option unknown
+  * IqrfSpi & IqrfUart: initialize gpio pins with signed 64bit integers
+
+  [ Roman Ondráček ]
+  * GitLab CI: try to fix failing package builds for Ubuntu Xenial and Bionic
+  * Update IQRF header parser library to fix build with CMake < v3.8
+
+  [ Karel Hanák ]
+  * UdpMessaging: fixed for win build, fixed warnings
+  * submodules: updated references to clibspi and clibuart
+
+  [ Roman Ondráček ]
+  * Update IQRF header parser library
+  * GitLab CI: add Debian bullseye
+  * Package builders: add missing paho dependency for Debian/Raspbian 11 Bullseye
+  * Package builders: use backports on Ubuntu 18.04 Bionic
+
+  [ Karel Hanák ]
+  * MqChannel: fixed mq creation and removal
+  * JsonDpaApiIqrfStandard: fixed async message handler logging
+  * MqMessaging: added message queue timeout, status checking
+
+  [ Roman Ondráček ]
+  * GitLab CI: remove package build for Debian/Raspbian 9 Stretch and Ubuntu 16.04 Xenial
+  * Package builders: remove unsupported Debian/Raspbian 9 Stretch and Ubuntu 16.04 Xenial
+  * Debian packaging: bump debhelper compatibility level to 12, fix lintian errors and warnings
+
+  [ Karel Hanák ]
+  * updated header parser library reference
+  * MqChannel: check if message queue is full before sending, ignore read timeout
+  * updated header parser lib reference
+  * License headers update
+  * clibdpa: updated reference to transaction timeout resolution fix
+  * examples: added missing headers, moved C, C# and Java examples to separate repositories
+  * Autonetwork: unbond nonresponding nodes and skip prebonding
+  * iqrf-header-parser: updated library reference
+  * RemoveBondService: added processing delay after batch response is received
+  * IqrfUart: simplified iqrf channel state getter method
+  * added iqrfinterface initializing script
+  * BondNodeLocalService: distinguish between failed transaction, no free address or assigned requested address
+  * SmartConnect: distinguish between internal failure, no available address or address assigned
+
+  [ Roman Ondráček ]
+  * GitLab CI: fix typo
+
+  [ Karel Hanák ]
+  * default config: move metadata schema to separate directory
+  * debian package: fixed default config install and rules
+  * cmake: fixed schema copy path
+  * fixed interface initialization if gateway file exists, but interface property is missing
+
+  [ Roman Ondráček ]
+  * Docker: add latest images
+  * Docker: use Debian bullseye and stable versions
+  * Docker: add missing license headers
+  * GitLab CI: use Debian bullseye as base image
+  * GitLab CI: use matrices to build packages
+  * GitLab CI: refactor configuration
+
+  [ Karel Hanák ]
+  * WriteTrConf: do not run FRC commands if no nodes are bonded
+  * Bonding: use service codes
+  * IqrfDpa: store hwpid and os information in coordinator parameters
+  * debian package: updated preinst script
+  * Revert "debian package: updated preinst script"
+
+  [ Rostislav Spinar ]
+  * Update docker files
+
+  [ Karel Hanák ]
+  * added unipi mapping to postinst
+
+  [ Vasek Hanak ]
+  * Fixing autonetwork code to prevent duplicit address.
+
+  [ Roman Ondráček ]
+  * Add .mailmap
+
+  [ Karel Hanák ]
+  * IqrfUart: stop listening thread if uart interface is not ready
+  * updated message logging in IQRF interface components
+  * UdpChannel: include sender IP when receiving UDP datagram
+  * removed metadata and schema, updated debian package building
+
+  [ Vasek Hanak ]
+  * Adding OS restart of Nodes at the end of anutonetwork process (if [C] DPA version < 0x0417).
+
+  [ Roman Ondráček ]
+  * Debian packaging: add builds for Ubuntu 22.04 Jammy Jellyfish
+
+  [ Vasek Hanak ]
+  * Autonetwork - fixing FrcRestartNodes function. Restart nodes is executed before the JSON response is sent to client.
+
+  [ Roman Ondráček ]
+  * IQMESH services: fix typo in backup and restore services
+
+  [ Karel Hanák ]
+  * ApiMsgIqrfStandard: set default hwpid to 0xFFFF
+
+  [ Roman Ondráček ]
+  * Drop Daemon v1 API support
+
+  [ Karel Hanák ]
+  * drop NativeUpload component
+  * MqMessaging: sendTo log debug message instead of information
+  * fixed component warnings, updated C++ standard
+
+  [ Frantisek Mikulu ]
+  * missing include
+
+  [ Karel Hanák ]
+  * EmbedOS: reworked DPA parsing to support G modules
+  * OtaUploadService: Hex upload G module support
+  * Embed OS: updated methods for G module identification
+  * OtaUploadService: hex and iqrf validation and parsing rework, device compatibility
+  * OtaUpload: refactor device compatibility, added missing docstrings
+  * IntelHexParser: check for end of file record, improved error reporting for json responses
+  * OtaUploadService: updated validation and reporting of hex and iqrf files
+  * OtaUpload: fixed device compatibility getter method, updated error messages
+  * OtaUploadService: removed unused code
+  * MqttMessaging: rework connection loop, use automatic reconnect feature
+  * MqttMessaging: removed unused code
+  * iqrf-header-parser: updated submodule reference
+  * OtaUploadService: use platform independent basename implementation
+
+  [ Vasek Hanak ]
+  * Checking FRC status fix.
+
+  [ Karel Hanák ]
+  * api-testing: use older image for older daemon versions
+
+  [ Roman Ondráček ]
+  * GitLab CI: use new C/C++ package builder images
+
+  [ Karel Hanák ]
+  * UdpChannel: fixed memory leak
+  * CI: feature branch build
+
+  [ Vasek Hanak ]
+  * Antw. alg. modified according to IQRF IDE, added Address Space and MID list support.
+  * Change antw JSON request for Backward compatibility.
+  * Modifying antw JSON request. MID item of midList changed from int to (hex) string array.
+
+  [ Karel Hanák ]
+  * Autonetwork: refactor input parameter parsing class
+  * AutoNetwork: updated error messages
+
+  [ Vasek Hanak ]
+  * Update authorizeControl function, Adding OS restart of Nodes at the end of autonetwork process (if [C] DPA version < 0x0417), update JSON API.
+  * Autonetwork - fixing FrcRestartNodes function. Restart nodes is executed before the JSON response is sent to client.
+  * authorizeControl bug fix. Parsing JSON param. "midFiltering" bug fix.
+  * Updating Wave State Codes.
+
+  [ Karel Hanák ]
+  * AutoNetwork: removed unused MIDs object
+
+  [ Vasek Hanak ]
+  * IqMesh services Ping and Restart
+  * Iqmesh Maintenance, initial commint
+  * Resolve inconsistent nodes and duplicate addresses.
+  * Updating json schema of response to iqmeshNetwork_MaintenanceInconsistentMIDsInCoord.
+
+  [ Karel Hanák ]
+  * IQMESH: ping, restart, maintenance refactor
+  * added FRC response time request
+  * FrcResponseTime: only read frc data chunks
+  * PingService: fixed null pointer interaction
+  * Updated IQMESH maintenance structure, fixed a bug where infinite loop would occur
+  * RF Signal Test: fixed request parameters
+  * FrcResponseTime: add breakdown of node results
+  * MaintenanceService: optimized reading mids from coordinator memory
+  * FrcResponseTimeService: fixed selective frc request building, fixed response jsonschema
+  * FrcResponseTimeService: fixed result interpretation, added breakdown of event ignoring nodes
+  * FrcResponseTime: removed auxiliary bonded nodes for testing
+  * DpaParams: added DpaValue service
+  * DpaParams: added DpaHops service
+  * DpaParams: added FrcParams service
+  * DpaHops: updated api schema for request and response
+  * Maintenance, Ping, Restart and DpaParams: stricter json schema definitions; updated configurations
+  * DpaParams: include parameters in SET requests; fixed api request json schemas
+  * api: added examples for DpaParams and Maintenance services
+
+  [ Vasek Hanak ]
+  * Checking FRC result fix.
+
+  [ Karel Hanák ]
+  * Ping, Restart and Maintenance services: empty network error handling, fixed response jsonschema
+  * added selected nodes and sensor index to embed and sensor frc responses
+  * JsonDpaApi: added sensorIndexes to sensor read response, moved properties to result object
+  * JsonMngApi: refactor messages, added cache update and reload, coordinator reload; JsCache: reworked updating, worker
+  * JsonSplitter: added support for service and component messaging lists
+  * Splitter: updated message logging
+  * do not include request params in responses if request failed
+  * fixed deployment configuration
+  * Splitter: updated outgoing message logging
+  * iqrf-header-parser: updated reference
+  * debian packages: removed links, updated default config install dirs
+  * api-testing: use latest image
+  * MqChannel: updated opening and closing of remote queue
+  * IqrfUart: use updated clibuart, component socket
+  * use provisory drivers for devices with invalid driver code
+  * JsRenderDuktape: separated context class, refactor
+  * Context: removed useless code; JsCache: log database checksum
+  * scheduler: API update, support for range
+  * Scheduler: rework task add
+  * Scheduler: rework scheduler record and scheduler logic
+  * Scheduler: removed unused code, use croncpp, changed autoStart to enabled
+  * Scheduler: updated api jsonschemas and error handling
+  * scheduler: allow empty startTime in jsonschemas
+  * scheduler: timestamp parsing and formatting
+  * Scheduler: removed unnecesary bloat from scheduler records and task files
+  * scheduler: reset cron when changing execution condition, allow oneshot from string
+  * Scheduler: fixed worker thread not being woken up, updated docs
+  * Scheduler: check for existence of description property when loading persistent tasks
+  * fixed default lincdc configuration
+  * Scheduler: fixed EditTask file saving and task activation
+
+  [ Frantisek Mikulu ]
+  * fix issue #190
+
+  [ Karel Hanák ]
+  * API: updated existing and added new scheduler task request and response examples
+  * API: updated jsonschemas and examples
+  * added datetime parser
+  * DatetimeParser: validate timestamp; removed date-time format from Add and Edit scheduler task requests as rapidjson cannot process it
+  * Scheduler: removed unused dependencies, updated DatetimeParser docs
+
+  [ Roman Ondráček ]
+  * GitLab CI: use Jsonnet for package build
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Sun, 18 Dec 2022 12:50:31 +0100
 
 iqrf-gateway-daemon (2.3.0~beta~1.gbp7735ae) UNRELEASED; urgency=medium
 
@@ -23,7 +454,7 @@ iqrf-gateway-daemon (2.2.0~rc) RELEASED; urgency=medium
 
   * Improved: IQMESH WriteTrConf to enable broadcast
               IQMESH SmartConnect service
-  
+
   * Fixed: Missing TestRfSignal API
            Minor repairs
 
@@ -61,7 +492,7 @@ iqrf-gateway-daemon (2.1.4) RELEASED; urgency=medium
   * Improved: Auto update of IQRF repository cache during package build
   * Updated: Sensor's FRC API doc
   * Fixed: IQRF BO's schemas
-   
+
  -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Thu, 6 Jun 2019 5:00:00 +0000
 
 iqrf-gateway-daemon (2.1.3) RELEASED; urgency=medium
@@ -72,7 +503,7 @@ iqrf-gateway-daemon (2.1.3) RELEASED; urgency=medium
   * Fixed Sensor's FRC service
   * Updated Sensor's schemas
   * Updated IQRF repository cache
-   
+
  -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Thu, 30 May 2019 14:00:00 +0000
 
 iqrf-gateway-daemon (2.1.2) RELEASED; urgency=medium
@@ -80,7 +511,7 @@ iqrf-gateway-daemon (2.1.2) RELEASED; urgency=medium
   [ Rostislav Spinar ]
 
   * Removing Autonetwork service from API and CFG
-  
+
  -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Sun, 12 May 2019 21:00:00 +0000
 
 iqrf-gateway-daemon (2.1.1) RELEASED; urgency=medium
@@ -91,7 +522,7 @@ iqrf-gateway-daemon (2.1.1) RELEASED; urgency=medium
 
   * IQRF UART receive handling improved
   * IQRF repository cache updated
-  
+
  -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Wed, 8 May 2019 23:30:00 +0000
 
 iqrf-gateway-daemon (2.1.0) RELEASED; urgency=medium
@@ -110,8 +541,8 @@ iqrf-gateway-daemon (2.1.0) RELEASED; urgency=medium
   * Deb packages for Armel arch
   * Docker support
   * Source code released
-  * Many fixes and improvements 
-  
+  * Many fixes and improvements
+
  -- Rostislav Spinar <rostislav.spinar@iqrf.com>  Fri, 3 May 2019 13:30:00 +0000
 
 iqrf-gateway-daemon (2.0.0) RELEASED; urgency=medium
