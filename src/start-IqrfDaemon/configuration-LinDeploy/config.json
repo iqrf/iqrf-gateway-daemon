@@ -29,14 +29,14 @@
       "startlevel": -3
     },
     {
-      "name": "shape::LauncherService",
+      "name": "shape::ConfigurationService",
       "libraryPath": "",
       "libraryName": "",
       "enabled": true,
       "startlevel": -2
     },
     {
-      "name": "shape::ConfigurationService",
+      "name": "shape::LauncherService",
       "libraryPath": "",
       "libraryName": "",
       "enabled": true,
@@ -130,6 +130,13 @@
       "name": "iqrf::MonitorService",
       "libraryPath": "",
       "libraryName": "MonitorService",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::LegacyApiSupport",
+      "libraryPath": "",
+      "libraryName": "LegacyApiSupport",
       "enabled": true,
       "startlevel": 0
     },
@@ -242,6 +249,13 @@
       "name": "iqrf::JsonDpaApiIqrfStdExt",
       "libraryPath": "",
       "libraryName": "JsonDpaApiIqrfStdExt",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::NativeUploadService",
+      "libraryPath": "",
+      "libraryName": "NativeUploadService",
       "enabled": true,
       "startlevel": 3
     },
@@ -363,6 +377,20 @@
       "libraryName": "DpaValueService",
       "enabled": true,
       "startlevel": 3
+    },
+    {
+      "name": "iqrf::OffGridCoreMcu",
+      "libraryPath": "",
+      "libraryName": "OffGridCoreMcu",
+      "enabled": true,
+      "startlevel": 4
+    },
+    {
+      "name": "iqrf::JsonOffGridCoreMcuApi",
+      "libraryPath": "",
+      "libraryName": "JsonOffGridCoreMcuApi",
+      "enabled": true,
+      "startlevel": 5
     }
   ]
 }

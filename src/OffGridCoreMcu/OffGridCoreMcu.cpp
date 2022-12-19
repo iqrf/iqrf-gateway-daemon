@@ -759,7 +759,8 @@ namespace iqrf {
     void checkShutdown()
     {
       if (m_shutdownFlag) {
-        std::string cmd = "shutdown --poweroff " + m_shutdownTime;
+        std::string cmd = "shutdown -h now";
+        //std::string cmd = "shutdown --poweroff " + m_shutdownTime;
 #ifndef OFFGRIDMCU_TEST
         system(cmd.c_str());
 #else
