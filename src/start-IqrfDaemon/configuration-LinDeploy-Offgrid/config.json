@@ -330,18 +330,67 @@
       "startlevel": 3
     },
     {
+      "name": "iqrf::PingService",
+      "libraryPath": "",
+      "libraryName": "PingService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::RestartService",
+      "libraryPath": "",
+      "libraryName": "RestartService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::MaintenanceService",
+      "libraryPath": "",
+      "libraryName": "MaintenanceService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::FrcResponseTime",
+      "libraryPath": "",
+      "libraryName": "FrcResponseTime",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::FrcParamsService",
+      "libraryPath": "",
+      "libraryName": "FrcParamsService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::DpaHopsService",
+      "libraryPath": "",
+      "libraryName": "DpaHopsService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::DpaValueService",
+      "libraryPath": "",
+      "libraryName": "DpaValueService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
       "name": "iqrf::OffGridCoreMcu",
       "libraryPath": "",
       "libraryName": "OffGridCoreMcu",
       "enabled": true,
       "startlevel": 4
-    },	
+    },
     {
       "name": "iqrf::JsonOffGridCoreMcuApi",
       "libraryPath": "",
       "libraryName": "JsonOffGridCoreMcuApi",
       "enabled": true,
       "startlevel": 5
-    }	
+    }
   ]
 }
