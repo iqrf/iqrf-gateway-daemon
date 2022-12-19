@@ -4,6 +4,7 @@
 #include <vector>
 #include <chrono>
 
+#include "TimeConversion.h"
 #include "Trace.h"
 
 namespace iqrf {
@@ -114,7 +115,7 @@ namespace iqrf {
       {
         std::string ds(dateStr);
         ds += "T01:00:00";
-        std::chrono::system_clock::time_point tp = parseTimestamp(ds);
+        std::chrono::system_clock::time_point tp = TimeConversion::parseTimestamp(ds);
         auto time = std::chrono::system_clock::to_time_t(tp);
         auto tm = *std::localtime(&time);
         m_year = (uint8_t)((tm.tm_year + 1900) % 1000);
@@ -129,7 +130,7 @@ namespace iqrf {
         vect.push_back(m_year);
         vect.push_back(m_wday);
       }
-      
+
       virtual void deserialize(std::vector<uint8_t>::iterator & pos, const std::vector<uint8_t>::iterator end) {
         if (end - pos < 3) {
           THROW_EXC_TRC_WAR(std::out_of_range, "provided buffer is too short");
@@ -228,7 +229,7 @@ namespace iqrf {
     };
 
     ///////////////
-    // Common base for all set time msgs 
+    // Common base for all set time msgs
     class SetTimeCmd : public OffGridCmd
     {
     public:
@@ -254,7 +255,7 @@ namespace iqrf {
     };
 
     ///////////////
-    // Common base for all get time msgs 
+    // Common base for all get time msgs
     class GetTimeCmd : public OffGridCmd
     {
     public:
@@ -277,7 +278,7 @@ namespace iqrf {
     };
 
     ///////////////
-    // Common base for all get time msgs 
+    // Common base for all get time msgs
     class GetDateTimeCmd : public OffGridCmd
     {
     public:
@@ -640,7 +641,7 @@ namespace iqrf {
         :GetNumCmd(0x20, 1)
       {}
 
-      std::string getVersion() { 
+      std::string getVersion() {
         std::ostringstream os;
         os << (int)m_hbyte << '.' << std::setfill('0') << std::setw(2) << (int)m_lbyte;
         return os.str();

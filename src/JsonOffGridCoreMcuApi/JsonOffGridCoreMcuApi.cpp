@@ -79,14 +79,14 @@ namespace iqrf
         if (getVerbose()) {
           auto & a = doc.GetAllocator();
           Value vectVal(Type::kArrayType);
-          
+
           for (auto raw : m_rawVect) {
             Value val(Type::kObjectType);
 
             Pointer("/request").Set(val, raw.request, a);
-            Pointer("/requestTs").Set(val, encodeTimestamp(raw.requestTs), a);
+            Pointer("/requestTs").Set(val, TimeConversion::encodeTimestamp(raw.requestTs), a);
             Pointer("/response").Set(val, raw.response, a);
-            Pointer("/responseTs").Set(val, encodeTimestamp(raw.responseTs), a);
+            Pointer("/responseTs").Set(val, TimeConversion::encodeTimestamp(raw.responseTs), a);
 
             vectVal.PushBack(val, a);
           }
@@ -457,7 +457,7 @@ namespace iqrf
         TRC_FUNCTION_ENTER("");
 
         IqrfGwMcuMsg::handleMsg(imp);
-        
+
         if (m_command != "power") {
           THROW_EXC_TRC_WAR(std::logic_error, "Unknown command: " << PAR(m_command));
         }
@@ -493,7 +493,7 @@ namespace iqrf
         if (getVerbose()) {
           m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());
         }
-        
+
         m_lora = imp->m_iOffGridCoreMcu->getLoraStateCmd();
         if (getVerbose()) {
           m_rawVect.push_back(imp->m_iOffGridCoreMcu->getLastRaw());

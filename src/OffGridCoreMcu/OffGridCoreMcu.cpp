@@ -210,14 +210,14 @@ namespace iqrf {
       ~TestCommCommand() {}
     private:
       OffGridCoreMcu::Imp* m_imp = nullptr;
-      
+
       std::ostringstream & traceLastRaw(std::ostringstream & os) {
         auto raw = m_imp->getLastRaw();
         os << "raw: "
           << std::endl << raw.request
-          << std::endl << encodeTimestamp(raw.requestTs)
+          << std::endl << TimeConversion::encodeTimestamp(raw.requestTs)
           << std::endl << raw.response
-          << std::endl << encodeTimestamp(raw.responseTs)
+          << std::endl << TimeConversion::encodeTimestamp(raw.responseTs)
           ;
         return os;
       }
@@ -310,12 +310,12 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(timeStr));
       offgrid::SetPwrOffTimeCmd cmd;
       cmd.setTime(timeStr);
-      
+
 #ifdef OFFGRIDMCU_TEST
       m_recFakeVect = iqrf::DotMsg("81.01.05.00");
 #endif
       sendAndWaitForResponse(cmd.encodeRequest());
-      
+
       cmd.parseResponse(getLastRaw().recBuffer);
 
       m_shutdownFlag = true;
@@ -329,7 +329,7 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(timeStr));
       offgrid::SetWakeUpTimeCmd cmd;
       cmd.setTime(timeStr);
-      
+
 #ifdef OFFGRIDMCU_TEST
       m_recFakeVect = iqrf::DotMsg("81.02.05.00");
 #endif
@@ -386,12 +386,12 @@ namespace iqrf {
       TRC_FUNCTION_ENTER(PAR(timeStr));
       offgrid::SetRTCTimeCmd cmd;
       cmd.setTime(timeStr);
-      
+
 #ifdef OFFGRIDMCU_TEST
       m_recFakeVect = iqrf::DotMsg("82.01.05.00");
 #endif
       sendAndWaitForResponse(cmd.encodeRequest());
-      
+
       cmd.parseResponse(getLastRaw().recBuffer);
       TRC_FUNCTION_LEAVE("");
     }

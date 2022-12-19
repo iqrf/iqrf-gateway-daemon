@@ -22,6 +22,7 @@
 #include "IMessagingSplitterService.h"
 #include "IConfigurationService.h"
 #include "ITraceService.h"
+#include "TimeConversion.h"
 #include <string>
 #include <thread>
 
