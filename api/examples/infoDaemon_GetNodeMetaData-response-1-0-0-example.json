@@ -1,45 +1,46 @@
-{
-    "mType": "infoDaemon_GetNodeMetaData",
-    "data": {
-        "msgId": "testGetNodeMetaData",
-        "rsp": {
-            "nAdr": 1,
-            "metaData": {
-                "sensor": {
-                    "user": {
-                        "name": "manager"
-                    },
-                    "location": {
-                        "building": "a1",
-                        "floor": 1,
-                        "room": 1,
-                        "gw": 1
-                    },
-                    "identification": {
-                        "name": "s1",
-                        "measure_number": 159,
-                        "manufacturer": "xyz",
-                        "serial_number": 753
+[
+    {
+        "mType": "infoDaemon_GetNodeMetaData",
+        "data": {
+            "msgId": "dc6d2915-fba2-4fed-8178-e0e38d940c1c",
+            "rsp": {
+                "nAdr": 1,
+                "metaData": {
+                    "sensor": {
+                        "user": {
+                            "name": "manager"
+                        },
+                        "location": {
+                            "building": "a1",
+                            "floor": 1,
+                            "room": 1,
+                            "gw": 1
+                        },
+                        "identification": {
+                            "name": "s1",
+                            "measure_number": 159,
+                            "manufacturer": "xyz",
+                            "serial_number": 753
+                        }
                     }
                 }
-            }
-        },
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
+            },
+            "insId": "iqrfgd2-default",
+            "statusStr": "ok",
+            "status": 0
+        }
+    },
+    {
+        "mType": "infoDaemon_GetNodeMetaData",
+        "data": {
+            "msgId": "0baf28b6-51b8-44c7-83ad-6bfce8eb345f",
+            "rsp": {
+                "nAdr": 1,
+                "metaData": null
+            },
+            "insId": "iqrfgd2-default",
+            "statusStr": "ok",
+            "status": 0
+        }
     }
-}
-
-{
-    "mType": "infoDaemon_GetNodeMetaData",
-    "data": {
-        "msgId": "testGetNodeMetaData",
-        "rsp": {
-            "nAdr": 1,
-            "metaData": null
-        },
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
-    }
-}
+]

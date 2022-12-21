@@ -1,10 +1,10 @@
 {
-    "mType": "infoDaemon_GetNodeMetaData",
-    "data": {
-        "msgId": "testGetNodeMetaData",
-        "req": {
-          "nAdr":1
-        },
-        "returnVerbose": true
-    }
+	"mType": "infoDaemon_GetNodeMetaData",
+	"data": {
+		"msgId": "dc6d2915-fba2-4fed-8178-e0e38d940c1c",
+		"req": {
+			"nAdr": 1
+		},
+		"returnVerbose": true
+	}
 }

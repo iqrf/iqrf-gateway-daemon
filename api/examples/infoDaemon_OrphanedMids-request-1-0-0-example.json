@@ -1,24 +1,25 @@
-{
-    "mType": "infoDaemon_OrphanedMids",
-    "data": {
-        "msgId": "testOrphanedMids",
-        "req": {
-            "command":"get"
-        },
-	"returnVerbose": true
-    }
-}
-
-{
-    "mType": "infoDaemon_OrphanedMids",
-    "data": {
-        "msgId": "testOrphanedMids",
-        "req": {
-            "command":"remove",
-	    "mids": [
-                2165398592
-            ]
-        },
-	"returnVerbose": true
-    }
-}
+[
+	{
+		"mType": "infoDaemon_OrphanedMids",
+		"data": {
+			"msgId": "cb308895-4e98-424b-a0de-b83605a1bc65",
+			"req": {
+				"command":"get"
+			},
+			"returnVerbose": true
+		}
+	},
+	{
+		"mType": "infoDaemon_OrphanedMids",
+		"data": {
+			"msgId": "4a91b602-6bed-4fa7-afd0-e723342e30cb",
+			"req": {
+				"command":"remove",
+				"mids": [
+					2165398592
+				]
+			},
+			"returnVerbose": true
+		}
+	}
+]

@@ -1,41 +1,42 @@
-{
-    "mType": "infoDaemon_SetMidMetaData",
-    "data": {
-        "msgId": "testSetMidMetaData",
-        "req": {
-            "mid": 2165408701,
-            "metaData": {
-                "sensor": {
-                    "user": {
-                        "name": "manager"
-                    },
-                    "location": {
-                        "building": "a1",
-                        "floor": 1,
-                        "room": 1,
-                        "gw": 1
-                    },
-                    "identification": {
-                        "name": "s1",
-                        "measure_number": 159,
-                        "manufacturer": "xyz",
-                        "serial_number": 753
-                    }
-                }
-            }
-        },
-        "returnVerbose": true
-    }
-}
-
-{
-    "mType": "infoDaemon_SetMidMetaData",
-    "data": {
-        "msgId": "testSetMidMetaData",
-        "req": {
-            "mid": 2165408701,
-            "metaData": null
-        },
-        "returnVerbose": true
-    }
-}
+[
+	{
+		"mType": "infoDaemon_SetMidMetaData",
+		"data": {
+			"msgId": "3c7e4185-23ef-4d50-b1f7-8e46397d1ee8",
+			"req": {
+				"mid": 2165408701,
+				"metaData": {
+					"sensor": {
+						"user": {
+							"name": "manager"
+						},
+						"location": {
+							"building": "a1",
+							"floor": 1,
+							"room": 1,
+							"gw": 1
+						},
+						"identification": {
+							"name": "s1",
+							"measure_number": 159,
+							"manufacturer": "xyz",
+							"serial_number": 753
+						}
+					}
+				}
+			},
+			"returnVerbose": true
+		}
+	},
+	{
+		"mType": "infoDaemon_SetMidMetaData",
+		"data": {
+			"msgId": "5734915a-507b-4817-8849-a87279841301",
+			"req": {
+				"mid": 2165408701,
+				"metaData": null
+			},
+			"returnVerbose": true
+		}
+	}
+]
