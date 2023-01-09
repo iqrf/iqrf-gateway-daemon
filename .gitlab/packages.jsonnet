@@ -117,7 +117,7 @@ if stability == 'devel' then {
 	only: ['tags'],
 	script: [
 		stabilityEnvironmentVars(stability),
-		'ssh www-deploy@icinga.iqrf.org "mkdir -p ' + options.deployDir + 'old && if [ -e ' + options.deployDir + '*.* ]; then mv ' + options.deployDir + '*.* ' + options.deployDir + 'old; fi"',
+		'ssh www-deploy@icinga.iqrf.org "mkdir -p ' + options.deployDir + 'old && find ' + options.deployDir + ' -maxdepth 1 -type f -exec mv {} ' + options.deployDir + 'old \\;"',
 		'rsync -hrvz --delete -e ssh packageDeploy/* www-deploy@icinga.iqrf.org:' + options.deployDir + '',
 	],
 }
