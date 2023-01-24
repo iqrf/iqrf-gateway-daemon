@@ -64,11 +64,15 @@ namespace
   static const int invalidEepromAddress = 1005;
   static const int eepromContentNotUploaded = 1006;
   static const int incompatibleDevice = 1007;
+  static const int noDevices = 1008;
+  static const int deviceOffline = 1009;
 
-  static const std::string deviceHexIncompatible("Selected HEX is incompatible with target device.");
-  static const std::string deviceIqrfIncompatible("Selected IQRF plugin is incompatible with target device.");
-  static const std::string networkHexIncompatible("Network contains device(s) incompatible with selected HEX.");
-  static const std::string networkIqrfIncompatible("Network contains device(s) incompatible with selected IQRF plugin.");
+  static const std::string noDevicesStr("No devices in network.");
+  static const std::string deviceOfflineStr("One or more devices were offline during the upload process.");
+  static const std::string deviceHexIncompatibleStr("Selected HEX is incompatible with target device.");
+  static const std::string deviceIqrfIncompatibleStr("Selected IQRF plugin is incompatible with target device.");
+  static const std::string networkHexIncompatibleStr("Network contains device(s) incompatible with selected HEX.");
+  static const std::string networkIqrfIncompatibleStr("Network contains device(s) incompatible with selected IQRF plugin.");
 };
 
 namespace iqrf
@@ -380,6 +384,47 @@ namespace iqrf
       {
         uploadResult.setStatus(transResult->getErrorCode(), e.what());
         uploadResult.addTransactionResult(transResult);
+        THROW_EXC(std::logic_error, e.what());
+      }
+    }
+
+    //-------------------------------
+    // Returns list of online devices
+    //-------------------------------
+    std::basic_string<uint8_t> getOnlineNodes(UploadResult &uploadResult) {
+      TRC_FUNCTION_ENTER("");
+      std::unique_ptr<IDpaTransactionResult2> result;
+      try {
+        // Build DPA request
+        DpaMessage frcPingRequest;
+        DpaMessage::DpaPacket_t frcPingPacket;
+        frcPingPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+        frcPingPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+        frcPingPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND;
+        frcPingPacket.DpaRequestPacket_t.HWPID = m_otaUploadParams.hwpId;
+        // FRC command - Ping
+        frcPingPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand = FRC_Ping;
+        // User data
+        frcPingPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x00] = 0x00;
+        frcPingPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.UserData[0x01] = 0x00;
+        // Data to buffer
+        frcPingRequest.DataToBuffer(frcPingPacket.Buffer, sizeof(TDpaIFaceHeader) + 3);
+        // Execute the DPA request
+        m_exclusiveAccess->executeDpaTransactionRepeat(frcPingRequest, result, m_otaUploadParams.repeat);
+        TRC_DEBUG("Result from PNUM_FRC Ping transaction as string:" << PAR(result->getErrorString()));
+        DpaMessage frcPingResponse = result->getResponse();
+        // Check FRC status
+        uint8_t status = frcPingResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        if (status == 0xFF) {
+          return std::basic_string<uint8_t>();
+        } else if (status > MAX_ADDRESS) {
+          THROW_EXC_TRC_WAR(std::logic_error, "FRC ping failed with status " << PAR(status));
+        } else {
+          return bitmapToNodes(frcPingResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData);
+        }
+      } catch (const std::exception &e) {
+        uploadResult.setStatus(result->getErrorCode(), e.what());
+        uploadResult.addTransactionResult(result);
         THROW_EXC(std::logic_error, e.what());
       }
     }
@@ -1270,7 +1315,23 @@ namespace iqrf
           }
 
           if (m_otaUploadParams.deviceAddress == BROADCAST_ADDRESS) {
-            std::basic_string<uint8_t> bondedDevices = getBondedNodes(uploadResult);  //TODO store bonded nodes offline vs incompatible
+            std::basic_string<uint8_t> bondedDevices = getBondedNodes(uploadResult);
+            if (bondedDevices.size() == 0) {
+              uploadResult.setStatus(noDevices, noDevicesStr);
+              THROW_EXC(std::logic_error, uploadResult.getStatusStr());
+            }
+            auto nodes = getOnlineNodes(uploadResult);
+            if (nodes.size() != bondedDevices.size()) {
+              uploadResult.setStatus(deviceOffline, deviceOfflineStr);
+              THROW_EXC(std::logic_error, uploadResult.getStatusStr());
+            }
+            // TODO
+            // get online nodes, compare with bonded and requested (selectedNodes)
+            // select online and requested
+            // check compatibility
+            // upload to compatible, return device compatibility/offline object in response
+            // use selected nodes for upload, verify and load
+            // add complete execution in one request (upload, verify, load), report success, offline, incompatible nodes at the end in response
             std::vector<uint8_t> osData = frcOsMcuData(uploadResult, bondedDevices, static_cast<uint16_t>(offsetof(TPerOSRead_Response, OsVersion)));
             for (uint8_t i = 0; i < bondedDevices.size(); i++) {
               uint8_t idx = 4*i;
@@ -1330,9 +1391,9 @@ namespace iqrf
           if (!compatible) {
             std::string error;
             if (m_otaUploadParams.deviceAddress == 255) {
-              error = loadingContentType == LoadingContentType::Hex ? networkHexIncompatible : networkIqrfIncompatible;
+              error = loadingContentType == LoadingContentType::Hex ? networkHexIncompatibleStr : networkIqrfIncompatibleStr;
             } else {
-              error = loadingContentType == LoadingContentType::Hex ? deviceHexIncompatible : deviceIqrfIncompatible;
+              error = loadingContentType == LoadingContentType::Hex ? deviceHexIncompatibleStr : deviceIqrfIncompatibleStr;
             }
             uploadResult.setStatus(incompatibleDevice, error);
             THROW_EXC(std::logic_error, uploadResult.getStatusStr());
@@ -1398,7 +1459,7 @@ namespace iqrf
           if (m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS)
           {
             if (!uploadResult.isCompatible((uint8_t)m_otaUploadParams.deviceAddress)) {
-              std::string error = loadingContentType == LoadingContentType::Hex ? deviceHexIncompatible : deviceIqrfIncompatible;
+              std::string error = loadingContentType == LoadingContentType::Hex ? deviceHexIncompatibleStr : deviceIqrfIncompatibleStr;
               uploadResult.setStatus(incompatibleDevice, error);
               THROW_EXC(std::logic_error, uploadResult.getStatusStr());
             }
@@ -1423,7 +1484,7 @@ namespace iqrf
           // Load the external eeprom content to flash
           if (m_otaUploadParams.deviceAddress != BROADCAST_ADDRESS) {
             if (!uploadResult.isCompatible((uint8_t)m_otaUploadParams.deviceAddress)) {
-              std::string error = loadingContentType == LoadingContentType::Hex ? deviceHexIncompatible : deviceIqrfIncompatible;
+              std::string error = loadingContentType == LoadingContentType::Hex ? deviceHexIncompatibleStr : deviceIqrfIncompatibleStr;
               uploadResult.setStatus(incompatibleDevice, error);
               THROW_EXC(std::logic_error, uploadResult.getStatusStr());
             }
