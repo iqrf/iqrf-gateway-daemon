@@ -66,6 +66,7 @@ namespace
   static const int incompatibleDevice = 1007;
   static const int noDevices = 1008;
   static const int deviceOffline = 1009;
+  static const int noDeviceMatchedHwpid = 1010;
 
   static const std::string noDevicesStr("No devices in network.");
   static const std::string deviceOfflineStr("One or more devices were offline during the upload process.");
@@ -73,6 +74,7 @@ namespace
   static const std::string deviceIqrfIncompatibleStr("Selected IQRF plugin is incompatible with target device.");
   static const std::string networkHexIncompatibleStr("Network contains device(s) incompatible with selected HEX.");
   static const std::string networkIqrfIncompatibleStr("Network contains device(s) incompatible with selected IQRF plugin.");
+  static const std::string noDeviceMatchedHwpidStr("No device in network matched specified hwpid.");
 };
 
 namespace iqrf
@@ -947,6 +949,7 @@ namespace iqrf
     {
       TRC_FUNCTION_ENTER("");
       std::unique_ptr<IDpaTransactionResult2> transResult;
+      bool forced = false;
       try
       {
         uint16_t hwpId = m_otaUploadParams.hwpId;
@@ -992,6 +995,11 @@ namespace iqrf
             THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)frcStatus));
           }
           nodesList = bitmapToNodes(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData);
+          if (nodesList.empty()) {
+            forced = true;
+            uploadResult.setStatus(noDeviceMatchedHwpid, noDeviceMatchedHwpidStr);
+            THROW_EXC(std::logic_error, uploadResult.getStatusStr());
+          }
           // Add FRC result
           uploadResult.addTransactionResult(transResult);
         }
@@ -1103,7 +1111,9 @@ namespace iqrf
       }
       catch (const std::exception& e)
       {
-        uploadResult.setStatus(transResult->getErrorCode(), e.what());
+        if (!forced) {
+          uploadResult.setStatus(transResult->getErrorCode(), e.what());
+        }
         uploadResult.addTransactionResult(transResult);
         THROW_EXC(std::logic_error, e.what());
       }
