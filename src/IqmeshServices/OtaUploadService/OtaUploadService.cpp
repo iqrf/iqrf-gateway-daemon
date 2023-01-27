@@ -401,7 +401,7 @@ namespace iqrf
         frcPingPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
         frcPingPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
         frcPingPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SEND;
-        frcPingPacket.DpaRequestPacket_t.HWPID = m_otaUploadParams.hwpId;
+        frcPingPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         // FRC command - Ping
         frcPingPacket.DpaRequestPacket_t.DpaMessage.PerFrcSend_Request.FrcCommand = FRC_Ping;
         // User data
@@ -415,6 +415,7 @@ namespace iqrf
         DpaMessage frcPingResponse = result->getResponse();
         // Check FRC status
         uint8_t status = frcPingResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.Status;
+        uploadResult.addTransactionResult(result);
         if (status == 0xFF) {
           return std::basic_string<uint8_t>();
         } else if (status > MAX_ADDRESS) {
@@ -990,8 +991,6 @@ namespace iqrf
             TRC_WARNING("FRC Read OS Info failed." << NAME_PAR_HEX("Status", (int)frcStatus));
             THROW_EXC(std::logic_error, "Bad FRC status: " << PAR((int)frcStatus));
           }
-          // Add FRC result
-          uploadResult.addTransactionResult(transResult);
           nodesList = bitmapToNodes(dpaResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData);
           // Add FRC result
           uploadResult.addTransactionResult(transResult);
