@@ -423,7 +423,7 @@ namespace iqrf {
     timingParams.discoveredNodes = m_discoveredNodes;
     timingParams.frcResponseTime = m_responseTime;
     timingParams.dpaVersion = m_cPar.dpaVerWord;
-    timingParams.osVersion = m_cPar.osVersion;
+    timingParams.osBuild = m_cPar.osBuildWord;
     m_dpaHandler->setTimingParams(timingParams);
 
     IIqrfChannelService::State st = m_iqrfChannelService->getState();
