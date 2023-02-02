@@ -1,5 +1,5 @@
-# Copyright 2015-2021 IQRF Tech s.r.o.
-# Copyright 2019-2021 MICRORISC s.r.o.
+# Copyright 2015-2023 IQRF Tech s.r.o.
+# Copyright 2019-2023 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #  PAHO_ROOT_DIR - The paho root path
 #  PAHO_INCLUDE_DIRS - The paho include directories
 #  PAHO_LIBRARY_DIRS - The libraries include directories
-# 
+#
 #	To satisfy this finder paho has to be installed properly
 #   Download https://github.com/eclipse/paho.mqtt.c.git
 #   Build in a directory outside sources e.g:
@@ -29,13 +29,13 @@
 #	  cd ..
 #	  cmake --build ./pahoBuild
 #	Install with admin(WIN) privileges or sudo(LIN)
-#	  cmake --build ./pahoBuild --target install 
+#	  cmake --build ./pahoBuild --target install
 #  Linux specific:
 #    Paho is installed in /usr/local/bin and /usr/local/include
 #  Windows specific:
 #    Paho intallation path has to be specified in the PATH env. variable:
 #    C:\Program Files\paho\bin
-#    It is used by this finder and the system to find paho*.dll 
+#    It is used by this finder and the system to find paho*.dll
 
 find_path(PAHO_ROOT_DIR
     include/MQTTClient.h
@@ -45,7 +45,7 @@ find_path(PAHO_INC_DIR
     MQTTClient.h
 )
 
-find_library(PAHO_C_LIB 
+find_library(PAHO_C_LIB
     paho-mqtt3c
 )
 

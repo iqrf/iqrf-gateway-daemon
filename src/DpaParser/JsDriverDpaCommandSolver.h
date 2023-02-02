@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,14 +60,14 @@ namespace iqrf {
     //////////
     virtual uint16_t getNadrDrv() const { return getNadr(); }
     virtual uint16_t getHwpidDrv() const { return getHwpid(); }
-    
+
     void preRequest(rapidjson::Document & requestParamDoc) override
     {
       TRC_FUNCTION_ENTER("");
       requestParameter(requestParamDoc);
       TRC_FUNCTION_LEAVE("");
     }
-    
+
     void postRequest(const rapidjson::Document & requestResultDoc) override
     {
       TRC_FUNCTION_ENTER("");
@@ -118,7 +118,7 @@ namespace iqrf {
   protected:
     // virtuals to be overriden by successor classes
     ////////
-    
+
     // override if non empty par is required
     virtual void requestParameter(rapidjson::Document& par) const
     {

@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,7 +161,7 @@ namespace iqrf {
   private:
     TWriteTrConfInputParams m_writeTrConfParams;
 
-    // Parse document into structure TWriteTrConfInputParams 
+    // Parse document into structure TWriteTrConfInputParams
     void parse( rapidjson::Document& doc )
     {
       rapidjson::Value* jsonVal;
@@ -533,7 +533,7 @@ namespace iqrf {
         std::string s = jsonVal->GetString();
         for ( int i = 0; i < 16; i++ )
           m_writeTrConfParams.security.accessPassword.push_back( 0x00 );
-        size_t len = s.length() > 16 ? 16 : s.length();        
+        size_t len = s.length() > 16 ? 16 : s.length();
         for ( unsigned int i = 0; i < len; i++ )
           m_writeTrConfParams.security.accessPassword[i] = s[i];
       }

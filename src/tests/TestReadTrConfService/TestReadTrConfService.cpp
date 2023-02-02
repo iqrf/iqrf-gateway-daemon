@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -237,16 +237,16 @@ namespace iqrf {
 
     // simulate receiving of request by splitter and tested service
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(requestStr);
-    
+
     // expected DPA request sent from IqrfDpa to Coordinator
     //std::string responseStr = Imp::get().m_iTestSimulationIqrfChannel->popIncomingMessage(MILLIS_WAIT);
 
     // simulate send DPA response
     Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage(
-      "00.00.02.82.00.00.00.00.b4.c9.10.34.34.34.3c.34.32.32.32.37.34.34.34.34.34.15.1d.34.34.34.34.34.34.34.34.34.34.34.37.34.00.30", 
+      "00.00.02.82.00.00.00.00.b4.c9.10.34.34.34.3c.34.32.32.32.37.34.34.34.34.34.15.1d.34.34.34.34.34.34.34.34.34.34.34.37.34.00.30",
       10
     );
-    
+
     // expected JSON message output (jmo) as result of processing to be sent out by a messaging
     std::string responseStr = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
 
@@ -422,15 +422,15 @@ namespace iqrf {
     rapidjson::Value* rfPgmEnableAfterResetJsonVal = rapidjson::Pointer("/data/rsp/rfPgmEnableAfterReset").Get(responseDoc);
     EXPECT_NE(rfPgmEnableAfterResetJsonVal, nullptr);
     EXPECT_EQ(rfPgmEnableAfterResetJsonVal->GetBool(), false);
-    
+
     rapidjson::Value* rfPgmTerminateAfter1MinJsonVal = rapidjson::Pointer("/data/rsp/rfPgmTerminateAfter1Min").Get(responseDoc);
     EXPECT_NE(rfPgmTerminateAfter1MinJsonVal, nullptr);
     EXPECT_EQ(rfPgmTerminateAfter1MinJsonVal->GetBool(), false);
-    
+
     rapidjson::Value* rfPgmTerminateMcuPinJsonVal = rapidjson::Pointer("/data/rsp/rfPgmTerminateMcuPin").Get(responseDoc);
     EXPECT_NE(rfPgmTerminateMcuPinJsonVal, nullptr);
     EXPECT_EQ(rfPgmTerminateMcuPinJsonVal->GetBool(), false);
-    
+
 
     // raw data
     rapidjson::Value* rawDataJson = rapidjson::Pointer("/data/raw").Get(responseDoc);
@@ -457,7 +457,7 @@ namespace iqrf {
       rapidjson::Value::MemberIterator responseIter = (*rawDataJson)[0].FindMember("response");
       EXPECT_NE(responseIter, (*rawDataJson)[0].MemberEnd());
       EXPECT_STREQ(
-        responseIter->value.GetString(), 
+        responseIter->value.GetString(),
         "00.00.02.82.00.00.00.00.b4.c9.10.34.34.34.3c.34.32.32.32.37.34.34.34.34.34.15.1d.34.34.34.34.34.34.34.34.34.34.34.37.34.00.30"
       );
     }
@@ -492,7 +492,7 @@ namespace iqrf {
     // simulate receiving of request by splitter and tested service
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(requestStr);
 
-    // NOTE: 
+    // NOTE:
     // read Tr Conf Service should send error JSON response WITHOUT ever sending some DPA request
 
     // expected JSON message output (jmo) as result of processing to be sent out by a messaging
@@ -546,7 +546,7 @@ namespace iqrf {
     // simulate receiving of request by splitter and tested service
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(requestStr);
 
-    // NOTE: 
+    // NOTE:
     // read Tr Conf Service should send error JSON response WITHOUT ever sending some DPA request
 
     // expected JSON message output (jmo) as result of processing to be sent out by a messaging

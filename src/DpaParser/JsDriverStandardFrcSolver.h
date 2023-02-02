@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,14 +96,14 @@ namespace iqrf
     }
 
     const rapidjson::Document & getResponseResultDoc() { return m_responseResultDoc; }
-    
+
     // partial JSON parse to get nadrs of returned results
     rapidjson::Document getExtFormat(const std::string & resultArrayKey, const std::string & resultItemKey)
     {
       using namespace rapidjson;
       Document doc;
       doc.SetArray();
-      
+
       // get nadrs from selectedNodes if applied
       std::set<int> selectedNodesSet;
       const Value *selectedNodesVal = Pointer("/selectedNodes").Get(getRequestParamDoc());
@@ -126,7 +126,7 @@ namespace iqrf
       if (arrayVal->Size() > 0) { // is there something in the array?
         if (selectedNodesSet.size() > 0) {
           // selective FRC
-          
+
           // check size
           if ((selectedNodesSet.size() + 1)  > arrayVal->Size()) {
             THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent .../selectedNodes[] and ..." << resultArrayKey << "[]");

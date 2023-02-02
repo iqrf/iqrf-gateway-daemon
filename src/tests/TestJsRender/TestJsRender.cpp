@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,7 +196,7 @@ namespace iqrf {
     ASSERT_FALSE(jsString.empty());
     std::set<int> driverIds = { 1, 2, 3 };
     Imp::get().m_iJsRenderService->loadContextCode(0xFFFFFF, jsString, driverIds);
-    Imp::get().m_iJsRenderService->mapAddressToContext(0xFFFFFF, 0xFFFFFF); 
+    Imp::get().m_iJsRenderService->mapAddressToContext(0xFFFFFF, 0xFFFFFF);
     std::set<int> driverIdsExp = Imp::get().m_iJsRenderService->getDriverIdSet(0xFFFFFF);
     EXPECT_EQ(driverIdsExp.size(), driverIds.size());
     auto it = driverIdsExp.begin();

@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ namespace iqrf {
       , m_asyncResponse(false)
       , m_dpaResponse(dpaResponse)
     {
-      
+
       unsigned len = (unsigned)m_dpaResponse.GetLength();
 
       if (len < getResponseHeaderLen() || len > getResponseHeaderLen() + DPA_MAX_DATA_LENGTH) {
@@ -130,7 +130,7 @@ namespace iqrf {
     uint8_t getPcmd() const { return m_pcmd; }
     uint8_t getRcode() const { return m_rcode; }
     bool isAsyncRcode() const { return m_asyncResponse; }
-  
+
     uint8_t getDpaval() const { return m_dpaval; }
     const std::vector<uint8_t> & getRdata() const { return m_rdata; }
 
@@ -138,12 +138,12 @@ namespace iqrf {
     {
       return m_dpaTransactionResult2;
     }
-    
+
     std::unique_ptr<IDpaTransactionResult2> getResultMove()
     {
       return std::move(m_dpaTransactionResult2);
     }
-    
+
     DpaMessage getRequest()
     {
       DpaMessage dpaRequest;

@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  */
 
 /***
- npm install mqtt --save                                                   
-***/                                                                           
+ npm install mqtt --save
+***/
 
 var mqtt = require('mqtt')
 var client = mqtt.connect('mqtt://10.1.30.13:1883')

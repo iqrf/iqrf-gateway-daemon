@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -224,10 +224,10 @@ namespace iqrf {
 
     //simulate async DPA response
     Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage("00.00.ff.3f.00.00.00.00.28.02.00.fd.26.00.00.00.00.00.00.01", 10);
-    
+
     //expected JSON message output (jmo) as result of processing to be sent out by a messaging
     std::string jmo = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
-    
+
     EXPECT_EQ(jmoexp, jmo);
 
     TRC_DEBUG(jmo);

@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ namespace iqrf {
 		 * @return true if context code was successfully loaded, false otherwise
 		 */
 		virtual bool loadContextCode(int contextId, const std::string &js, const std::set<int> &driverIdSet) = 0;
-		
+
 		/**
 		 * Assigns context ID for device address
 		 * @param address Device address
@@ -62,7 +62,7 @@ namespace iqrf {
 		 * @param ret Return value
 		 */
 		virtual void callContext(int address, int hwpid, const std::string &fname, const std::string &params, std::string &ret) = 0;
-		
+
 		/**
 		 * Returns context driver IDs
 		 * @param contextId Context ID

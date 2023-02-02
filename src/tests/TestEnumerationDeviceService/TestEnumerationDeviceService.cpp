@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -218,7 +218,7 @@ namespace iqrf {
   // and provided to parametrisation of TEST_F(ReadTrConfTesting, iqrfEmbedCoordinator_AddrInfo) example
 
   const unsigned MILLIS_WAIT = 1000;
-  
+
   TEST_F(DeviceEnumerationTesting, iqmeshNetwork_EnumerateDevice_1)
   {
     // JSON request - as received from messaging
@@ -240,9 +240,9 @@ namespace iqrf {
 
     // simulate send DPA response
     // Discovery data responses
-    
+
     Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage(
-      "00.00.00.8a.00.00.00.00.3f.3a.03.1d.0e.32.a1.08.03.1d.0b.32.ef.30.29.00.a7.00.ee.30.a8.00.ef.30.a9.00.ee.30.aa.00.03.14.08.00.03.10.29.00.08.00.00.00.00.00.00.00.00.00", 
+      "00.00.00.8a.00.00.00.00.3f.3a.03.1d.0e.32.a1.08.03.1d.0b.32.ef.30.29.00.a7.00.ee.30.a8.00.ef.30.a9.00.ee.30.aa.00.03.14.08.00.03.10.29.00.08.00.00.00.00.00.00.00.00.00",
       10
     );
 
@@ -285,7 +285,7 @@ namespace iqrf {
       "00.00.ff.bf.00.00.00.00.02.03.00.fd.24.00.00.00.00.00.00.01",
       100
     );
-    
+
     // expected JSON message output (jmo) as result of processing to be sent out by a messaging
     std::string responseStr = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
 
@@ -430,7 +430,7 @@ namespace iqrf {
     rapidjson::Value* hwpIdJsonVal = rapidjson::Pointer("/data/rsp/peripheralEnumeration/hwpId").Get(responseDoc);
     EXPECT_NE(hwpIdJsonVal, nullptr);
     EXPECT_STREQ(hwpIdJsonVal->GetString(), "0000");
-    
+
     rapidjson::Value* hwpIdVerJsonVal = rapidjson::Pointer("/data/rsp/peripheralEnumeration/hwpIdVer").Get(responseDoc);
     EXPECT_NE(hwpIdVerJsonVal, nullptr);
     EXPECT_EQ(hwpIdVerJsonVal->GetInt(), 0);
@@ -443,7 +443,7 @@ namespace iqrf {
     rapidjson::Value* rfModeJsonVal = rapidjson::Pointer("/data/rsp/peripheralEnumeration/flags/rfMode").Get(responseDoc);
     EXPECT_NE(rfModeJsonVal, nullptr);
     EXPECT_STREQ(rfModeJsonVal->GetString(), "std");
-    
+
     // user pers - byte values
     rapidjson::Value* userPersJsonVal = rapidjson::Pointer("/data/rsp/peripheralEnumeration/userPers").Get(responseDoc);
     EXPECT_NE(userPersJsonVal, nullptr);
@@ -712,7 +712,7 @@ namespace iqrf {
       }
 
     }
-    
+
 
     // raw data
     rapidjson::Value* rawDataJson = rapidjson::Pointer("/data/raw").Get(responseDoc);
@@ -739,7 +739,7 @@ namespace iqrf {
       rapidjson::Value::MemberIterator responseIter = (*rawDataJson)[0].FindMember("response");
       EXPECT_NE(responseIter, (*rawDataJson)[0].MemberEnd());
       EXPECT_STREQ(
-        responseIter->value.GetString(), 
+        responseIter->value.GetString(),
         "00.00.00.8a.00.00.00.00.3f.3a.03.1d.0e.32.a1.08.03.1d.0b.32.ef.30.29.00.a7.00.ee.30.a8.00.ef.30.a9.00.ee.30.aa.00.03.14.08.00.03.10.29.00.08.00.00.00.00.00.00.00.00.00"
       );
 
@@ -879,7 +879,7 @@ namespace iqrf {
     EXPECT_NE(statusStr, nullptr);
     EXPECT_STREQ(statusStr->GetString(), "ok");
   }
-  
+
   // invalid device address
   TEST_F(DeviceEnumerationTesting, iqmeshNetwork_EnumerateDevice_2)
   {
@@ -900,7 +900,7 @@ namespace iqrf {
     // simulate receiving of request by splitter and tested service
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(requestStr);
 
-    // NOTE: 
+    // NOTE:
     // Enumeration Device Service should send error JSON response WITHOUT ever sending some DPA request
 
     // expected JSON message output (jmo) as result of processing to be sent out by a messaging
@@ -954,7 +954,7 @@ namespace iqrf {
     // simulate receiving of request by splitter and tested service
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(requestStr);
 
-    // NOTE: 
+    // NOTE:
     // Enumearte Device Service should send error JSON response WITHOUT ever sending some DPA request
 
     // expected JSON message output (jmo) as result of processing to be sent out by a messaging

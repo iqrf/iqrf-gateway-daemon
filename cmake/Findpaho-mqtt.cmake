@@ -1,5 +1,5 @@
-# Copyright 2015-2021 IQRF Tech s.r.o.
-# Copyright 2019-2021 MICRORISC s.r.o.
+# Copyright 2015-2023 IQRF Tech s.r.o.
+# Copyright 2019-2023 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,9 +44,9 @@ INCLUDE(FindPackageHandleStandardArgs)
 SET(paho-mqtt_LIBRARIES ${paho-mqtt_LIBRARY})
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(paho-mqtt DEFAULT_MSG paho-mqtt_LIBRARY paho-mqtt_INCLUDE_DIR)
-  
+
 MARK_AS_ADVANCED(paho-mqtt_LIBRARY paho-mqtt_INCLUDE_DIR)
-  
+
 IF(paho-mqtt_FOUND)
   SET(paho-mqtt_INCLUDE_DIRS ${paho-mqtt_INCLUDE_DIR})
 ENDIF(paho-mqtt_FOUND)

@@ -1,5 +1,5 @@
-# Copyright 2015-2021 IQRF Tech s.r.o.
-# Copyright 2019-2021 MICRORISC s.r.o.
+# Copyright 2015-2023 IQRF Tech s.r.o.
+# Copyright 2019-2023 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 
 project(MqttMessaging)
 
-if (WIN32) 
+if (WIN32)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 FIND_PACKAGE(paho-mqtt REQUIRED)
 else()
@@ -41,7 +41,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${PAHO_INCLUDE_DIRS})
 
-if (WIN32) 
+if (WIN32)
 	link_directories(${PAHO_LIBRARY_DIRS})
 endif()
 
@@ -51,7 +51,7 @@ else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
-if (WIN32) 
+if (WIN32)
 target_link_libraries(${PROJECT_NAME}
 	${paho-mqtt_LIBRARY}
 )

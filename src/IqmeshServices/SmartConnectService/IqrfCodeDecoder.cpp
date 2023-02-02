@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #include "IqrfCodeDecoder.h"
 #include "Trace.h"
 #include "DPA.h"
-#include <algorithm> 
+#include <algorithm>
 
 namespace {
 
@@ -44,7 +44,7 @@ namespace {
   /// 11          64.16       64
   static int piece57Lengths[] = { 0, 2, 3, 5, 6, 7, 9, 10, maximumPiece57Length };
 
-  // returns INDEX of specified piece 
+  // returns INDEX of specified piece
   static int getIndexOfPieceLen(int piece57Len) {
     for (int i = 0; i < 9; i++) {
       if (piece57Lengths[i] == piece57Len) {
@@ -156,7 +156,7 @@ namespace iqrf {
 
     std::basic_string<uint8_t> result;
     result.resize(sizeof(uint64_t) * (iqrfCode.length() / maximumPiece57Length) + lastPieceLenIndex);
- 
+
     for (unsigned int piece57Index = 0, pieceIndex = 0; piece57Index < iqrfCode.length(); piece57Index += maximumPiece57Length, pieceIndex += sizeof(uint64_t))
     {
       int piece57Length = std::min((size_t)maximumPiece57Length, iqrfCode.length() - piece57Index);

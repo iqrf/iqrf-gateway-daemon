@@ -1,5 +1,5 @@
-# Copyright 2015-2021 IQRF Tech s.r.o.
-# Copyright 2019-2021 MICRORISC s.r.o.
+# Copyright 2015-2023 IQRF Tech s.r.o.
+# Copyright 2019-2023 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ else()
     add_library(${PROJECT_NAME} SHARED ${_HDRFILES} ${_SRCFILES})
 endif()
 
-if (WIN32) 
+if (WIN32)
 	target_link_libraries(${PROJECT_NAME}
 		Ws2_32
 		iphlpapi

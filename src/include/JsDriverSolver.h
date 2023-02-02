@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ namespace iqrf {
     virtual void postRequest(const rapidjson::Document & requestResultDoc) = 0;
     virtual void preResponse(rapidjson::Document & responseParamDoc) = 0;
     virtual void postResponse(const rapidjson::Document & responseResultDoc) = 0;
-    
+
     // request processing
   protected:
     // used by JsDriverStandardFrcSolver
@@ -157,7 +157,7 @@ namespace iqrf {
     // in: nadr - pass nadr as RawHdp from driver doesn't contain it
     // out: pnum - return pnum as set by driver
     // out: pcmd return pcmd as set by driver
-    // in: hwpid - pass hwpid as RawHdp from driver doesn't contain it 
+    // in: hwpid - pass hwpid as RawHdp from driver doesn't contain it
     // in: rawHdpRequestDoc - RawHdp to be converted
     static void rawHdp2dpaRequest(DpaMessage & dpaRequest, uint16_t nadr, uint8_t & pnum, uint8_t & pcmd, uint16_t hwpid, const rapidjson::Value & rawHdpRequestVal)
     {

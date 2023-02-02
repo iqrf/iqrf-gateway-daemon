@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ namespace iqrf {
     /// \brief Register message handler
     /// \param [in] hndl registering handler function
     /// \details
-    /// Whenever a message is received it is passed to the handler function. It is possible to register 
+    /// Whenever a message is received it is passed to the handler function. It is possible to register
     /// just one handler
     virtual void registerMessageHandler(MessageHandlerFunc hndl) = 0;
 
@@ -52,7 +52,7 @@ namespace iqrf {
     virtual void unregisterMessageHandler() = 0;
 
     /// \brief send message
-    /// \param [in] msg message to be sent 
+    /// \param [in] msg message to be sent
     /// \details
     /// The message is send outside
     virtual void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) = 0;

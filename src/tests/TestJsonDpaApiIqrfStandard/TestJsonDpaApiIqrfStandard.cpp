@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -268,16 +268,16 @@ namespace iqrf {
 
     //simulate receiving of jmi
     Imp::get().m_iTestSimulationMessaging->pushIncomingMessage(jmi);
-    
+
     //expected DPA transaction as result jmi processing
     //expected DPA request sent from IqrfDpa
     EXPECT_EQ("00.00.00.00.ff.ff", Imp::get().m_iTestSimulationIqrfChannel->popIncomingMessage(MILLIS_WAIT));
     //simulate send DPA response
     Imp::get().m_iTestSimulationIqrfChannel->pushOutgoingMessage("00.00.00.80.00.00.00.40.04.2a", 10);
-    
+
     //expected JSON message output (jmo) as result of processing to be sent out by a messaging
     std::string jmo = Imp::get().m_iTestSimulationMessaging->popOutgoingMessage(1000);
-    
+
     //TODO check EXPECT jmo
     // parse jmo and replace timestamps as the time cannot be compared
     // in tests with timestams from .../iqrf-daemon\tests\test-api-app/test-api-app/log/

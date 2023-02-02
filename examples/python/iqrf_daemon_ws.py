@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright 2015-2021 IQRF Tech s.r.o.
-# Copyright 2019-2021 MICRORISC s.r.o.
+# Copyright 2015-2023 IQRF Tech s.r.o.
+# Copyright 2019-2023 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import time
 
 # IQRF STD JSON request
 def create_std_json_req(m_type, msg_id, addr):
-    
+
     request = {}
     request['mType'] = m_type
 
@@ -34,7 +34,7 @@ def create_std_json_req(m_type, msg_id, addr):
 
     param = {}
     param['sensorIndexes'] = -1
-    req['param'] = param 
+    req['param'] = param
 
     data['req'] = req
     data['returnVerbose'] = True

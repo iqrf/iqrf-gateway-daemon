@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 namespace jutils
 {
   /// @brief Dump JSON to string
-  /// @param [in] val rapidjson value 
+  /// @param [in] val rapidjson value
   /// @return string JSON dumped to string
   /// rapidjson value is copied into a local document and loaded into pretty writer,
   /// then contents of the writter buffer are returned

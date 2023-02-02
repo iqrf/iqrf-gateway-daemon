@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ namespace iqrf {
     void parseRequest(rapidjson::Document &doc) {
       rapidjson::Value *jsonValue;
 
-      // discoveryTxPower      
+      // discoveryTxPower
       if ((jsonValue = rapidjson::Pointer("/data/req/discoveryTxPower").Get(doc))) {
         m_autonetworkParams.discoveryTxPower = (uint8_t)jsonValue->GetUint();
       }
@@ -173,7 +173,7 @@ namespace iqrf {
       // midList
       m_autonetworkParams.bondingControl.midList.clear();
       m_autonetworkParams.bondingControl.duplicitMidMidList = 0;
-      m_autonetworkParams.bondingControl.duplicitAddressMidList = 0;      
+      m_autonetworkParams.bondingControl.duplicitAddressMidList = 0;
       if ((jsonValue = rapidjson::Pointer("/data/req/midList").Get(doc))) {
         const auto val = jsonValue->GetArray();
         for (auto itr = val.Begin(); itr != val.End(); ++itr) {
@@ -209,7 +209,7 @@ namespace iqrf {
         }
       }
       m_autonetworkParams.bondingControl.midListActive = m_autonetworkParams.bondingControl.midList.empty() == false;
-      
+
       // midFiltering - parse only in case the MID list is active
       m_autonetworkParams.bondingControl.midFiltering = false;
       if (m_autonetworkParams.bondingControl.midListActive == true) {

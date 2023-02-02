@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace iqrf {
   public:
     MqttMessaging();
     virtual ~MqttMessaging();
-    
+
     void registerMessageHandler(MessageHandlerFunc hndl) override;
     void unregisterMessageHandler() override;
     void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) override;

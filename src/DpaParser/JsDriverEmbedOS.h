@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ namespace iqrf
           m_rssi = jutils::getMemberAs<int>("rssi", v);
           m_supplyVoltage = jutils::getMemberAs<double>("supplyVoltage", v);
           m_flags = jutils::getMemberAs<int>("flags", v);
-          
+
           //TODO check 303
           if (Pointer("/dpaVer").Get(v)) {
             auto vect = jutils::getPossibleMemberAsVector<int>("ibk", v);

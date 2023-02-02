@@ -1,5 +1,5 @@
-# Copyright 2015-2021 IQRF Tech s.r.o.
-# Copyright 2019-2021 MICRORISC s.r.o.
+# Copyright 2015-2023 IQRF Tech s.r.o.
+# Copyright 2019-2023 MICRORISC s.r.o.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ find_file(_libzip_pkgcfg libzip.pc
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
-    LIBZIP 
+    LIBZIP
     REQUIRED_VARS
         LIBZIP_LIBRARY
         LIBZIP_INCLUDE_DIR

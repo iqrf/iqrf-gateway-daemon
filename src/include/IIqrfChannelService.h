@@ -1,6 +1,6 @@
 /**
- * Copyright 2015-2021 IQRF Tech s.r.o.
- * Copyright 2019-2021 MICRORISC s.r.o.
+ * Copyright 2015-2023 IQRF Tech s.r.o.
+ * Copyright 2019-2023 MICRORISC s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,16 +84,16 @@ namespace iqrf {
     class Accessor
     {
     public:
-      //TODO return value if message was not send because of access refuse 
+      //TODO return value if message was not send because of access refuse
       virtual void send(const std::basic_string<unsigned char>& message) = 0;
-      
+
       virtual AccesType getAccessType() = 0;
       virtual ~Accessor() {}
 
       virtual bool enterProgrammingState() = 0;
       virtual bool terminateProgrammingState() = 0;
 
-      // 'address' parameter is NOT used, if upload target has already defined its own address, 
+      // 'address' parameter is NOT used, if upload target has already defined its own address,
       // which to upload code into, e.g. RF band or RFPGM
       virtual UploadErrorCode upload(
         const UploadTarget target,
