@@ -1,10 +1,11 @@
-iqrf-gateway-daemon (2.4.0~rc4~1.gbpef3af9) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.4.0~rc4) testing; urgency=medium
 
-  ** SNAPSHOT build @ef3af936a3f5015f693c23f0e0403f990451c056 **
+  [ Karel Hanák ]
+  * Prepare for version 2.4.0-rc4
+  * IqrfDpa: use os build for timing parameters instead of os version string, updated clibdpa reference
+  * updated clibdpa submodule reference
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Sat, 28 Jan 2023 09:11:47 +0100
+ -- Karel Hanák <karel.hanak@iqrf.org>  Thu, 02 Feb 2023 17:09:40 +0100
 
 iqrf-gateway-daemon (2.4.0~rc3) testing; urgency=medium
 
