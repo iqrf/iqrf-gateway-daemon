@@ -20,95 +20,92 @@
 #include "Trace.h"
 #include <list>
 
+using namespace rapidjson;
+
 namespace iqrf {
 
-  // OtaUpload input parameters
-  typedef struct TOtaUploadInputParams
-  {
-    TOtaUploadInputParams()
-    {
-      hwpId = HWPID_DoNotCheck;
-      repeat = 1;
-      uploadEepromData = false;
-      uploadEeepromData = false;
-    }
-    uint16_t deviceAddress;
-    uint16_t hwpId;
-    std::string fileName;
-    uint16_t repeat;
-    uint16_t startMemAddr;
-    std::string loadingAction;
-    bool uploadEepromData;
-    bool uploadEeepromData;
-  }TOtaUploadInputParams;
+	// OtaUpload input parameters
+	typedef struct TOtaUploadInputParams {
+		TOtaUploadInputParams()
+		{
+			hwpId = HWPID_DoNotCheck;
+			repeat = 1;
+			uploadEepromData = false;
+			uploadEeepromData = false;
+		}
+		uint16_t deviceAddress;
+		uint16_t hwpId;
+		std::set<uint8_t> selectedNodes;
+		std::string fileName;
+		uint16_t repeat;
+		uint16_t startMemAddr;
+		bool uploadEepromData;
+		bool uploadEeepromData;
+	} TOtaUploadInputParams;
 
-  class ComIqmeshNetworkOtaUpload : public ComBase
-  {
-  public:
-    ComIqmeshNetworkOtaUpload() = delete;
-    explicit ComIqmeshNetworkOtaUpload(rapidjson::Document& doc)
-      :ComBase(doc)
-    {
-      parse(doc);
-    }
+	class ComIqmeshNetworkOtaUpload : public ComBase {
+	public:
+		ComIqmeshNetworkOtaUpload() = delete;
+		explicit ComIqmeshNetworkOtaUpload(Document& doc) : ComBase(doc) {
+			parse(doc);
+		}
 
-    virtual ~ComIqmeshNetworkOtaUpload()
-    {
-    }
+		virtual ~ComIqmeshNetworkOtaUpload() {}
 
-    const TOtaUploadInputParams getOtaUploadInputParams() const
-    {
-      return m_otaUploadInputParams;
-    }
+		const TOtaUploadInputParams getOtaUploadInputParams() const {
+			return m_otaUploadInputParams;
+		}
 
-  protected:
-    void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
-    {
-      rapidjson::Pointer("/data/rsp/response")
-        .Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
-    }
+	protected:
+		void createResponsePayload(Document& doc, const IDpaTransactionResult2& res) override {
+			Pointer("/data/rsp/response").Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
+		}
 
+	private:
+		TOtaUploadInputParams m_otaUploadInputParams;
 
-  private:
-    TOtaUploadInputParams m_otaUploadInputParams;
+		void parse(rapidjson::Document& doc) {
+			const Value* val = Pointer("/data/repeat").Get(doc);
+			if (val && val->IsInt()) {
+				m_otaUploadInputParams.repeat = static_cast<uint16_t>(val->GetInt());
+			}
 
-    // Parses document into data fields
-    void parse(rapidjson::Document& doc)
-    {
-      rapidjson::Value* jsonVal;
+			val = Pointer("/data/req/deviceAddr").Get(doc);
+			if (val && val->IsInt()) {
+				m_otaUploadInputParams.deviceAddress = static_cast<uint16_t>(val->GetInt());
+			}
 
-      // Repeat
-      if ((jsonVal = rapidjson::Pointer("/data/repeat").Get(doc)))
-        m_otaUploadInputParams.repeat = (uint16_t)jsonVal->GetInt();
+			val = Pointer("/data/req/hwpId").Get(doc);
+			if (val && val->IsInt()) {
+				m_otaUploadInputParams.hwpId = static_cast<uint16_t>(val->GetInt());
+			}
 
-      // Device address
-      if ((jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc)))
-        m_otaUploadInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
+			val = Pointer("/data/req/selectedNodes").Get(doc);
+			if (val && val->IsArray()) {
+				for (const Value *itr = val->Begin(); itr != val->End(); ++itr) {
+					m_otaUploadInputParams.selectedNodes.insert(static_cast<uint8_t>(itr->GetUint()));
+				}
+			}
 
-      // hwpId
-      if ((jsonVal = rapidjson::Pointer("/data/req/hwpId").Get(doc)))
-        m_otaUploadInputParams.hwpId = (uint16_t)jsonVal->GetInt();
+			val = Pointer("/data/req/fileName").Get(doc);
+			if (val && val->IsString()) {
+				m_otaUploadInputParams.fileName = val->GetString();
+			}
 
-      // File name
-      if ((jsonVal = rapidjson::Pointer("/data/req/fileName").Get(doc)))
-        m_otaUploadInputParams.fileName = jsonVal->GetString();
+			val = Pointer("/data/req/startMemAddr").Get(doc);
+			if (val && val->IsInt()) {
+				m_otaUploadInputParams.startMemAddr = static_cast<uint16_t>(val->GetInt());
+			}
 
-      // Start memory address
-      if ((jsonVal = rapidjson::Pointer("/data/req/startMemAddr").Get(doc)))
-        m_otaUploadInputParams.startMemAddr = (uint16_t)jsonVal->GetInt();
+			val = Pointer("/data/req/uploadEepromData").Get(doc);
+			if (val && val->IsBool()) {
+				m_otaUploadInputParams.uploadEepromData = val->GetBool();
+			}
 
-      // Loading action
-      if ((jsonVal = rapidjson::Pointer("/data/req/loadingAction").Get(doc)))
-        m_otaUploadInputParams.loadingAction = jsonVal->GetString();
-
-      // Upload eeprom data
-      if ((jsonVal = rapidjson::Pointer("/data/req/uploadEepromData").Get(doc)))
-        m_otaUploadInputParams.uploadEepromData = jsonVal->GetBool();
-
-      // Upload eeeprom data
-      if ((jsonVal = rapidjson::Pointer("/data/req/uploadEeepromData").Get(doc)))
-        m_otaUploadInputParams.uploadEeepromData = jsonVal->GetBool();
-
-    }
-  };
+			val = Pointer("/data/req/uploadEeepromData").Get(doc);
+			if (val && val->IsBool()) {
+				m_otaUploadInputParams.uploadEeepromData = val->GetBool();
+			}
+		}
+	};
 }

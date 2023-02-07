@@ -42,8 +42,7 @@
 					"required": [
 						"deviceAddr",
 						"fileName",
-						"startMemAddr",
-						"loadingAction"
+						"startMemAddr"
 					],
 					"additionalProperties": false,
 					"properties": {
@@ -54,6 +53,19 @@
 						"hwpId": {
 							"type": "integer",
 							"description": "Hardware profile ID of the devices to write the hex or iqrf file."
+						},
+						"selectedNodes": {
+							"type": "array",
+							"description": "Selected nodes.",
+							"additionalItems": false,
+							"minItems": 1,
+							"maxItems": 239,
+							"uniqueItems": true,
+							"items": {
+								"type": "integer",
+								"minimum": 1,
+								"maximum": 239
+							}
 						},
 						"fileName": {
 							"type": "string",
