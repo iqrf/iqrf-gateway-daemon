@@ -35,9 +35,7 @@ namespace iqrf {
 		 * @param message UDP message
 		 * @param dpaService DPA service interface
 		 */
-		TrInfo(const std::basic_string<uint8_t> &message, IIqrfDpaService *dpaService) : BaseCommand(message) {
-			m_dpaService = dpaService;
-		}
+		TrInfo(const std::basic_string<uint8_t> &message, IIqrfDpaService *dpaService) : BaseCommand(message), m_dpaService(dpaService) {}
 
 		/**
 		 * Destructor

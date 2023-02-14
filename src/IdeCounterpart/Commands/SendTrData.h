@@ -49,7 +49,7 @@ namespace iqrf {
 			const size_t dataLen = m_data.size();
 
 			m_response.resize(HEADER_SIZE + CRC_SIZE);
-			m_response[CMD] = static_cast<unsigned char>(SPI_DATA);
+			m_response[CMD] = static_cast<unsigned char>(SEND_TR_DATA);
 			m_response[DLEN_H] = static_cast<unsigned char>((dataLen >> 8) & 0xFF);
 			m_response[DLEN_L] = static_cast<unsigned char>(dataLen & 0xFF);
 
@@ -57,7 +57,7 @@ namespace iqrf {
 				m_response.insert(HEADER_SIZE, m_data);
 			}
 
-			uint16_t crc = Crc::get().GetCRC_CCITT((unsigned char *)m_response.data(), HEADER_SIZE + dataLen);
+			uint16_t crc = Crc::get().GetCRC_CCITT(reinterpret_cast<unsigned char *>(m_response.data()), HEADER_SIZE + dataLen);
 			m_response[HEADER_SIZE + dataLen] = static_cast<unsigned char>((crc >> 8) & 0xFF);
 			m_response[HEADER_SIZE + dataLen + 1] = static_cast<unsigned char>(crc & 0xFF);
 		}

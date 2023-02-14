@@ -44,8 +44,8 @@ namespace iqrf {
 		 * Builds and encodes unknown or unsupported command response
 		 */
 		void buildResponse() override {
-			m_header[CMD] = m_header[CMD] | 0x80;
-			m_header[SUBCMD] = m_header[SUBCMD] = PACKET_ERROR;
+			m_header[CMD] |= PACKET_RESPONSE_CODE;
+			m_header[SUBCMD] = PACKET_ERROR;
 
 			encodeResponse();
 		}

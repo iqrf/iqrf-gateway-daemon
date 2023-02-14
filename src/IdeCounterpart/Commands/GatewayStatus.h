@@ -26,23 +26,42 @@ namespace iqrf {
 
 	/// Gateway status items enum
 	enum StatusData {
+		/// TR module status (SPI ready state)
 		TR_STATUS,
+		/// Not used
 		UNUSED2,
+		/// Supplied from external source (always 0x01)
 		SUPPLY_EXT,
+		/// Gateway time - seconds
 		SECONDS,
+		/// Gateway time - minutes
 		MINUTES,
+		/// Gateway time - hours
 		HOURS,
+		/// Gateway time - day of the week
 		WEEK_DAY,
+		/// Gateway time - day
 		MONTH_DAY,
+		/// Gateway time - month
 		MONTH,
+		/// Gateway time - year
 		YEAR,
+		/// Not used
 		UNUSED11,
+		/// Not used
 		UNUSED12,
 	};
 
 	/// Gateway status command class
 	class GatewayStatus : public BaseCommand {
 	public:
+		/// SPI ready
+		const static uint8_t SPI_READY = 0x80;
+		/// SPI not active
+		const static uint8_t SPI_INACTIVE = 0xFF;
+		/// Supplied from external source
+		const static uint8_t SUPPLY_EXT_VALUE = 0x01;
+
 		/**
 		 * Delete default constructor
 		 */
@@ -70,8 +89,8 @@ namespace iqrf {
 			std::tm *time = std::localtime(&now);
 
 			m_data.resize(len);
-			m_data[TR_STATUS] = m_exclusiveAccess ? 0x80 : 0xFF;
-			m_data[SUPPLY_EXT] = 0x01;
+			m_data[TR_STATUS] = m_exclusiveAccess ? SPI_READY : SPI_INACTIVE;
+			m_data[SUPPLY_EXT] = SUPPLY_EXT_VALUE;
 			m_data[SECONDS] = static_cast<unsigned char>(time->tm_sec);
 			m_data[MINUTES] = static_cast<unsigned char>(time->tm_min);
 			m_data[HOURS] = static_cast<unsigned char>(time->tm_hour);

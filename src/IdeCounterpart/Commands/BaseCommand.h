@@ -23,29 +23,40 @@
 namespace iqrf {
 	/// Packet header item enum
 	enum PacketHeader {
+		/// Identification address of device: 0x22 for IQRF device, 0x20 for 3rd party or user devices
 		GW_ADDR,
+		/// Packet command, response: CMD = CMD | 0x80
 		CMD,
+		/// Auxiliary data for a command
 		SUBCMD,
+		/// Reserved
 		RES0,
+		/// Reserved
 		RES1,
+		/// Packet ID, upper byte: 0x00 - 0xFF
 		PACID_H,
+		/// Packet ID, lower byte: 0x00 - 0xFF
 		PACID_L,
+		/// Packet data length, upper byte: 0x00, 0x01
 		DLEN_H,
-		DLEN_L
+		/// Packet data length, lower byte: 0x00 - 0xFF
+		DLEN_L,
 	};
 
 	/// UDP commands enum
 	enum UdpCommands {
+		/// Gateway identification command
 		GW_IDENTIFICATION = 0x01,
+		/// Gateway status command
 		GW_STATUS,
+		/// Write data to TR module command
 		TR_WRITE,
-		SPI_DATA,
-		GW_STATUS_ASYNC,
-		RTCC_WRITE = 0x08,
-		CHANGE_AUTENTIZATION,
+		/// Send data from TR module to IDE command
+		SEND_TR_DATA,
+		/// TR module information command
 		TR_INFO = 0x11,
-		GW_RESET,
-		TR_RESET
+		/// TR reset command
+		TR_RESET = 0x13,
 	};
 
 	/// UDP command base class
@@ -57,8 +68,12 @@ namespace iqrf {
 		const static uint16_t DATA_MAX_SIZE = 497;
 		/// UDP packet CRC size
 		const static uint8_t CRC_SIZE = 2;
+		/// UDP packet ok code
+		const static uint8_t PACKET_OK = 0x50;
 		/// UDP packet error code
 		const static uint8_t PACKET_ERROR = 0x60;
+		/// UDP packet response command code
+		const static uint8_t PACKET_RESPONSE_CODE = 0x80;
 
 		/**
 		 * Default constructor
@@ -90,7 +105,7 @@ namespace iqrf {
 		 * Indicates whether UDP message requires write to TR
 		 * @return true if writing to TR is required, false otherwise
 		 */
-		bool shouldTrWrite() {
+		bool isTrWriteRequired() {
 			return m_trWrite;
 		}
 
@@ -111,7 +126,7 @@ namespace iqrf {
 			m_response = m_header;
 
 			m_response.resize(HEADER_SIZE + CRC_SIZE);
-			m_response[CMD] = m_response[CMD] | 0x80;
+			m_response[CMD] |= PACKET_RESPONSE_CODE;
 			if (write) {
 				m_response[SUBCMD] = subcmd;
 			}
@@ -122,7 +137,7 @@ namespace iqrf {
 				m_response.insert(HEADER_SIZE, m_data);
 			}
 
-			uint16_t crc = Crc::get().GetCRC_CCITT((unsigned char *)m_response.data(), HEADER_SIZE + dataLen);
+			uint16_t crc = Crc::get().GetCRC_CCITT(reinterpret_cast<unsigned char *>(m_response.data()), HEADER_SIZE + dataLen);
 			m_response[HEADER_SIZE + dataLen] = static_cast<unsigned char>((crc >> 8) & 0xFF);
 			m_response[HEADER_SIZE + dataLen + 1] = static_cast<unsigned char>(crc & 0xFF);
 		}

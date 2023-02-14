@@ -24,12 +24,19 @@
 namespace iqrf {
 	/// Gateway identification parameters
 	struct GwIdentParams {
+		/// Gateway identification mode (0x20, 0x22)
 		uint8_t mode;
+		/// Gateway type / name (IQD-GW-02)
 		std::string name;
+		/// TCP/IP stack version (5.42)
 		std::string ipStack;
+		/// Net BIOS name
 		std::string netBios;
+		/// Gateway public IP address
 		std::string publicIp;
+		/// Gateway IP address
 		std::string IP;
+		/// Gateway MAC address
 		std::string MAC;
 	};
 
@@ -47,10 +54,7 @@ namespace iqrf {
 		 * @param params Gateway indentification parameters
 		 * @param dpaService DPA service interface
 		 */
-		GatewayIdentification(const std::basic_string<uint8_t> &message, GwIdentParams &params, IIqrfDpaService *dpaService) : BaseCommand(message) {
-			m_dpaService = dpaService;
-			m_params = params;
-		}
+		GatewayIdentification(const std::basic_string<uint8_t> &message, GwIdentParams &params, IIqrfDpaService *dpaService) : BaseCommand(message), m_params(params), m_dpaService(dpaService) {}
 
 		/**
 		 * Destructor
@@ -74,7 +78,7 @@ namespace iqrf {
 				<< coordinatorParams.osVersion << "(" << coordinatorParams.osBuild << ")" << crlf
 				<< m_params.publicIp << crlf;
 			std::string data = ss.str();
-			m_data = std::basic_string<unsigned char>((unsigned char *)data.data(), data.size());
+			m_data = std::basic_string<unsigned char>(reinterpret_cast<unsigned char *>(data.data()), data.size());
 
 			encodeResponse();
 		}

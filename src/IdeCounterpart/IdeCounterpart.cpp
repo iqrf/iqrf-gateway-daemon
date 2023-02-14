@@ -49,33 +49,24 @@ namespace iqrf {
 
 		std::lock_guard<std::mutex> lck(m_modeMtx);
 
-		switch (mode) {
-			case Mode::Operational:
-				m_exclusiveAcessor.reset();
-				m_snifferAcessor.reset();
-				m_mode = mode;
-				break;
-
-			case Mode::Forwarding:
-				m_exclusiveAcessor.reset();
-				m_snifferAcessor = m_iqrfChannelService->getAccess([&](const std::basic_string<unsigned char>& received)->int {
-					return sendMessageToIde(received);
-				}, IIqrfChannelService::AccesType::Sniffer);
-				m_mode = mode;
-				break;
-
-			case Mode::Service: {
-				m_snifferAcessor.reset();
-				m_exclusiveAcessor = m_iqrfChannelService->getAccess([&](const std::basic_string<unsigned char>& received)->int {
-					return sendMessageToIde(received);
-				}, IIqrfChannelService::AccesType::Exclusive);
-				m_mode = mode;
-				break;
-			}
-			break;
-
-			default:;
+		if (mode == Mode::Operational) {
+			m_exclusiveAcessor.reset();
+			m_snifferAcessor.reset();
+		} else if (mode == Mode::Forwarding) {
+			m_exclusiveAcessor.reset();
+			m_snifferAcessor = m_iqrfChannelService->getAccess([&](const std::basic_string<unsigned char>& received)->int {
+				return sendMessageToIde(received);
+			}, IIqrfChannelService::AccesType::Sniffer);
+		} else if (mode == Mode::Service) {
+			m_snifferAcessor.reset();
+			m_exclusiveAcessor = m_iqrfChannelService->getAccess([&](const std::basic_string<unsigned char>& received)->int {
+				return sendMessageToIde(received);
+			}, IIqrfChannelService::AccesType::Exclusive);
+		} else {
+			return;
 		}
+
+		m_mode = mode;
 
 		TRC_INFORMATION("Set mode " << ModeStringConvertor::enum2str(m_mode));
 		TRC_FUNCTION_LEAVE("");
@@ -102,29 +93,38 @@ namespace iqrf {
 		std::basic_string<unsigned char> data = message.substr(BaseCommand::HEADER_SIZE, dataLen);
 		const uint8_t command = message[PacketHeader::CMD];
 		std::unique_ptr<BaseCommand> handler;
-		if (command == UdpCommands::GW_IDENTIFICATION) {
-			auto params = m_params;
-			params.IP = m_messaging->getListeningIpAddress();
-			params.MAC = m_messaging->getListeningMacAddress();
-			handler = std::make_unique<GatewayIdentification>(GatewayIdentification(message, params, m_iqrfDpaService));
-		} else if (command == UdpCommands::GW_STATUS) {
-			handler = std::make_unique<GatewayStatus>(GatewayStatus(message, m_exclusiveAcessor || m_snifferAcessor));
-		} else if (command == UdpCommands::TR_WRITE) {
-			handler = std::make_unique<TrWrite>(TrWrite(message, (m_exclusiveAcessor != nullptr)));
-		} else if (command == UdpCommands::TR_INFO) {
-			handler = std::make_unique<TrInfo>(TrInfo(message, m_iqrfDpaService));
-		} else if (command == UdpCommands::TR_RESET) {
-			handler = std::make_unique<TrReset>(TrReset(message, (m_exclusiveAcessor != nullptr)));
-			data = TrReset::getDpaRequest();
-		} else {
-			handler = std::make_unique<UnknownCommand>(UnknownCommand(message));
-			TRC_DEBUG("Unknown or unsupported UDP command.");
+
+
+		switch (command) {
+			case UdpCommands::GW_IDENTIFICATION: {
+				auto params = m_params;
+				params.IP = m_messaging->getListeningIpAddress();
+				params.MAC = m_messaging->getListeningMacAddress();
+				handler = std::make_unique<GatewayIdentification>(GatewayIdentification(message, params, m_iqrfDpaService));
+				break;
+			}
+			case UdpCommands::GW_STATUS:
+				handler = std::make_unique<GatewayStatus>(GatewayStatus(message, m_exclusiveAcessor || m_snifferAcessor));
+				break;
+			case UdpCommands::TR_WRITE:
+				handler = std::make_unique<TrWrite>(TrWrite(message, (m_exclusiveAcessor != nullptr)));
+				break;
+			case UdpCommands::TR_INFO:
+				handler = std::make_unique<TrInfo>(TrInfo(message, m_iqrfDpaService));
+				break;
+			case UdpCommands::TR_RESET:
+				handler = std::make_unique<TrReset>(TrReset(message, (m_exclusiveAcessor != nullptr)));
+				data = TrReset::getDpaRequest();
+				break;
+			default:
+				handler = std::make_unique<UnknownCommand>(UnknownCommand(message));
+				TRC_DEBUG("Unknown or unsupported UDP command: " << PAR(command));
 		}
 
 		try {
 			handler->buildResponse();
 			m_messaging->sendMessage("", handler->getResponse());
-			if (handler->shouldTrWrite() && m_exclusiveAcessor) {
+			if (handler->isTrWriteRequired() && m_exclusiveAcessor) {
 				m_exclusiveAcessor->send(data);
 			}
 			return 0;
@@ -156,7 +156,7 @@ namespace iqrf {
 		}
 
 		unsigned short crc = (message[BaseCommand::HEADER_SIZE + dataLen] << 8) + message[BaseCommand::HEADER_SIZE + dataLen + 1];
-		if (crc != Crc::get().GetCRC_CCITT((unsigned char *)message.data(), BaseCommand::HEADER_SIZE + dataLen)) {
+		if (crc != Crc::get().GetCRC_CCITT(const_cast<unsigned char*>(reinterpret_cast<const unsigned char *>(message.data())), BaseCommand::HEADER_SIZE + dataLen)) {
 			THROW_EXC_TRC_WAR(std::logic_error, "Invalid message CRC.");
 		}
 	}

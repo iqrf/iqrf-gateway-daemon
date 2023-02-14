@@ -34,8 +34,7 @@ namespace iqrf {
 		 * @param message DPA message
 		 * @param exclusiveAccess Exclusive access acquired
 		 */
-		TrReset(const std::basic_string<uint8_t> &message, bool exclusiveAccess) : BaseCommand(message) {
-			m_exclusiveAccess = exclusiveAccess;
+		TrReset(const std::basic_string<uint8_t> &message, bool exclusiveAccess) : BaseCommand(message), m_exclusiveAccess(exclusiveAccess) {
 			m_trWrite = true;
 		}
 
@@ -58,9 +57,9 @@ namespace iqrf {
 		void buildResponse() override {
 			m_response = m_header;
 			if (m_exclusiveAccess) {
-				m_response[SUBCMD] = 0x50;
+				m_response[SUBCMD] = PACKET_OK;
 			} else {
-				m_response[SUBCMD] = 0x60;
+				m_response[SUBCMD] = PACKET_ERROR;
 			}
 
 			encodeResponse();

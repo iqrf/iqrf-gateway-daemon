@@ -43,8 +43,7 @@ namespace iqrf {
 		 * @param message UDP message
 		 * @param exclusiveAccess Exclusive access acquired
 		 */
-		TrWrite(const std::basic_string<uint8_t> &message, bool exclusiveAccess) : BaseCommand(message) {
-			m_exclusiveAccess = exclusiveAccess;
+		TrWrite(const std::basic_string<uint8_t> &message, bool exclusiveAccess) : BaseCommand(message), m_exclusiveAccess(exclusiveAccess) {
 			m_trWrite = true;
 		}
 
