@@ -1,10 +1,9 @@
-iqrf-gateway-daemon (2.6.0~alpha~1.gbpfc8b96) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (3.0.0~alpha~1.gbpbf96c7) UNRELEASED; urgency=medium
 
-  ** SNAPSHOT build @fc8b96fee0c1e0f36ff6c5e810a0f19687eb75d5 **
+  * updated license headers
+  * added IqrfDb and JsonDbApi components, added sqlite_orm and nlohmann_json libraries
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 29 Aug 2023 13:47:30 +0200
+ -- Karel Hanák <karel.hanak@iqrf.org>  Sun, 19 Feb 2023 18:28:07 +0100
 
 iqrf-gateway-daemon (2.5.0) stable; urgency=medium
 
