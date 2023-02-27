@@ -17,10 +17,6 @@
 #pragma once
 
 #include "IDpaParamsService.h"
-#include "IDpaTransaction2.h"
-#include "IDpaTransactionResult2.h"
-#include "IMessagingSplitterService.h"
-#include "rapidjson/document.h"
 #include "ServiceResultBase.h"
 
 #include <list>
