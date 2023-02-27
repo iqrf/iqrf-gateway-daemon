@@ -76,7 +76,7 @@
 							"default": 0
 						},
 						"offlineFrc": {
-							"$id": "#/properties/data/properites/req/properties/offlineFrc",
+							"$id": "#/properties/data/properties/req/properties/offlineFrc",
 							"title": "Offline FRC",
 							"description": "Current offline FRC.",
 							"type": "boolean"
