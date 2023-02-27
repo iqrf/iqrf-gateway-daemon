@@ -106,9 +106,9 @@
       "startlevel": 0
     },
     {
-      "name": "iqrf::IqrfInfo",
+      "name": "iqrf::IqrfDb",
       "libraryPath": "",
-      "libraryName": "IqrfInfo",
+      "libraryName": "IqrfDb",
       "enabled": true,
       "startlevel": 0
     },
@@ -204,9 +204,9 @@
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsonIqrfInfoApi",
+      "name": "iqrf::JsonDbApi",
       "libraryPath": "",
-      "libraryName": "JsonIqrfInfoApi",
+      "libraryName": "JsonDbApi",
       "enabled": true,
       "startlevel": 2
     },
