@@ -174,6 +174,13 @@ namespace iqrf {
 		virtual void setSensorValue(const uint8_t &address, const uint8_t &type, const uint8_t &index, const double &value, std::shared_ptr<std::string> updated) = 0;
 
 		/**
+		 * Retrieves device MID specified by address
+		 * @param address Device address
+		 * @return Device MID
+		 */
+		virtual uint32_t getDeviceMid(const uint8_t &address) = 0;
+
+		/**
 		 * Retrieves metadata stored at device specified by address
 		 * @param address Device address
 		 * @return Device metadata
