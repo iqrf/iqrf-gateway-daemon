@@ -50,7 +50,7 @@ namespace iqrf
               m_frcs = std::set<int>(vect.begin(), vect.end());
             }
             const Value *val = Pointer("/value").Get(v);
-            if (val) {
+            if (val && !val->IsNull()) {
               m_value = val->GetDouble();
               m_valueSet = true;
             }
@@ -60,6 +60,12 @@ namespace iqrf
               m_breakdownShortname = jutils::getMemberAs<std::string>("shortName", *breakdown);
               m_breakdownUnit = jutils::getMemberAs<std::string>("unit", *breakdown);
               m_breakdownDecimalPlaces = (uint8_t)jutils::getPossibleMemberAs<int>("decimalPlaces", *breakdown, m_breakdownDecimalPlaces);
+              val = Pointer("/value").Get(*breakdown);
+              if (val && !val->IsNull()) {
+                m_breakdownValue = val->GetDouble();
+              } else {
+                m_breakdownValue = m_value;
+              }
             }
           }
 
@@ -100,6 +106,37 @@ namespace iqrf
         }
       };
       typedef std::unique_ptr<Enumerate> EnumeratePtr;
+
+      class ReadSensorsWithTypes : public sensor::ReadSensorsWithTypes, public JsDriverDpaCommandSolver {
+      public:
+        ReadSensorsWithTypes(IJsRenderService* iJsRenderService, uint16_t nadr, const rapidjson::Value &params) : JsDriverDpaCommandSolver(iJsRenderService, nadr) {
+          setRequestParamDoc(params);
+        }
+
+        virtual ~ReadSensorsWithTypes() {}
+      protected:
+        std::string functionName() const override {
+          return "iqrf.sensor.ReadSensorsWithTypes";
+        }
+
+        void preRequest(rapidjson::Document& params) override {
+          (void)params;
+        }
+
+        void parseResponse(const rapidjson::Value &v) override {
+          using namespace rapidjson;
+
+          const auto val = Pointer("/sensors").Get(v)->GetArray();
+          for (auto itr = val.Begin(); itr != val.End(); ++itr) {
+            jsdriver::item::SensorPtr sensor;
+            if (!itr->IsNull()) {
+              sensor.reset(new jsdriver::item::Sensor(*itr, itr - val.begin()));
+            }
+            m_sensors.push_back(std::move(sensor));
+          }
+        }
+      };
+      typedef std::unique_ptr<ReadSensorsWithTypes> ReadSensorsWithTypesPtr;
 
       ////////////////
       class SensorFrc {
