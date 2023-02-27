@@ -88,7 +88,7 @@ namespace iqrf {
 		 * @param response response document
 		 */
 		void createResponse(Document &response) {
-			if (m_verbose) {
+			if (m_verbose && m_transactionResults.size() > 0) {
 				Value array(kArrayType);
 				Document::AllocatorType &allocator = response.GetAllocator();
 

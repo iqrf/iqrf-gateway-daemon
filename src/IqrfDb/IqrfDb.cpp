@@ -93,6 +93,10 @@ namespace iqrf {
 		return this->query.getDevices();
 	}
 
+	uint32_t IqrfDb::getDeviceMid(const uint8_t &address) {
+		return this->query.getDeviceMid(address);
+	}
+
 	std::map<uint8_t, uint8_t> IqrfDb::getBinaryOutputs() {
 		return this->query.getBinaryOutputs();
 	}

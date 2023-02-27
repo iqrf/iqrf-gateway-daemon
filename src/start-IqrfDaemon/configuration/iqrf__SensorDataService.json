@@ -1,0 +1,4 @@
+{
+    "component": "iqrf::SensorDataService",
+    "instance": "iqrf::SensorDataService-Instance1"
+  }

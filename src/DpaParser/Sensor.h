@@ -53,6 +53,7 @@ namespace iqrf
         std::string m_breakdownShortname;
         std::string m_breakdownUnit;
         uint8_t m_breakdownDecimalPlaces = 1;
+        double m_breakdownValue = 0;
 
       public:
         int getIdx() const { return m_idx; }
@@ -68,8 +69,9 @@ namespace iqrf
         const std::string& getBreakdownUnit() const { return m_breakdownUnit; }
         const uint8_t& getBreakdownDecimalPlaces() const { return m_breakdownDecimalPlaces; }
         const std::set<int> & getFrcs() const { return m_frcs; }
-        double getValue() const { return m_value; }
         bool isValueSet() const { return m_valueSet; }
+        double getValue() const { return m_value; }
+        double getBreakdownValue() const { return m_breakdownValue; }
 
         virtual ~Sensor() {}
       };
@@ -93,6 +95,19 @@ namespace iqrf
 
     };
     typedef std::unique_ptr<Enumerate> EnumeratePtr;
+
+    class ReadSensorsWithTypes {
+    protected:
+      ReadSensorsWithTypes() {}
+
+      /// response
+      std::vector<item::SensorPtr> m_sensors;
+    public:
+      virtual ~ReadSensorsWithTypes() {};
+
+			const std::vector<item::SensorPtr>& getSensors() const { return m_sensors; }
+    };
+    typedef std::unique_ptr<ReadSensorsWithTypes> ReadSensorsWithTypesPtr;
 
     ////////////////
     class Frc

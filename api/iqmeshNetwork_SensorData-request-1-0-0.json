@@ -1,12 +1,6 @@
 {
 	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmeshNetwork_FrcParams-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-	"title": "IQMESH Network - DPA Params - FRC Params",
+	"title": "IQMESH Network - Sensor Data",
 	"type": "object",
 	"required": [
 		"mType",
@@ -17,9 +11,9 @@
 		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
-			"description": "IQMESH Network management - DPA Params - FRC Params request.",
+			"description": "IQMESH Network - Sensor Data request",
 			"type": "string",
-			"enum": ["iqmeshNetwork_FrcParams"]
+			"enum": ["iqmeshNetwork_SensorData"]
 		},
 		"data": {
 			"$id": "#/properties/data",
@@ -44,42 +38,27 @@
 					"description": "Request parameters.",
 					"type": "object",
 					"required": [
-						"action"
+						"devices"
 					],
 					"additionalProperties": false,
 					"properties": {
-						"action": {
-							"$id": "#/properties/data/properties/req/properties/action",
-							"title": "Action",
-							"description": "Get or Set FRC params. If action is set and type not specified, default frc params are used.",
-							"type": "string",
-							"enum": [
-								"get",
-								"set"
-							]
-						},
-						"responseTime": {
-							"$id": "#/properties/data/properties/req/properties/responseTime",
-							"title": "FRC response time",
-							"description": "FRC response time to set in milliseconds. [0 - 40ms, 16 - 360ms, 32 - 680ms, 48 - 1320ms, 64 - 2600ms, 80 - 5160ms, 96 - 10280ms, 112 - 20620ms].",
-							"type": "integer",
-							"enum": [
-								0,
-								16,
-								32,
-								48,
-								64,
-								80,
-								96,
-								112
-							],
-							"default": 0
-						},
-						"offlineFrc": {
-							"$id": "#/properties/data/properties/req/properties/offlineFrc",
-							"title": "Offline FRC",
-							"description": "Perform offline FRC, for beaming sensors only.",
-							"type": "boolean"
+						"devices": {
+							"$id": "#/properties/data/properties/req/properties/devices",
+							"title": "Devices",
+							"description": "Array of device addresses.",
+							"type": "array",
+							"uniqueItems": true,
+							"minItems": 1,
+							"maxItems": 239,
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/req/properties/devices/items",
+								"title": "Device address",
+								"description": "Address of device in network.",
+								"type": "integer",
+								"minimum": 1,
+								"maximum": 239
+							}
 						}
 					}
 				},

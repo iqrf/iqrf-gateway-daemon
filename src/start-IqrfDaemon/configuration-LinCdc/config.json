@@ -377,6 +377,13 @@
       "libraryName": "DpaValueService",
       "enabled": true,
       "startlevel": 3
+    },
+    {
+      "name": "iqrf::SensorDataService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "SensorDataService",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }
