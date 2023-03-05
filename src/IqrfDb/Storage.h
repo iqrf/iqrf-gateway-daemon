@@ -32,7 +32,7 @@ static inline auto initializeDb(const std::string &fileName) {
 	using namespace sqlite_orm;
 	return make_storage(fileName,
 		make_table("product",
-			make_column("id", &Product::getId, &Product::setId, primary_key(), autoincrement()),
+			make_column("id", &Product::getId, &Product::setId, primary_key().autoincrement()),
 			make_column("hwpid", &Product::getHwpid, &Product::setHwpid),
 			make_column("hwpidVersion", &Product::getHwpidVersion, &Product::setHwpidVersion),
 			make_column("osBuild", &Product::getOsBuild, &Product::setOsBuild),
@@ -47,7 +47,7 @@ static inline auto initializeDb(const std::string &fileName) {
 			unique(&Product::getHwpid, &Product::getHwpidVersion, &Product::getOsBuild, &Product::getDpaVersion)
 		),
 		make_table("driver",
-			make_column("id", &Driver::getId, &Driver::setId, primary_key(), autoincrement()),
+			make_column("id", &Driver::getId, &Driver::setId, primary_key().autoincrement()),
 			make_column("name", &Driver::getName, &Driver::setName),
 			make_column("peripheralNumber", &Driver::getPeripheralNumber, &Driver::setPeripheralNumber),
 			make_column("version", &Driver::getVersion, &Driver::setVersion),
@@ -64,7 +64,7 @@ static inline auto initializeDb(const std::string &fileName) {
 			primary_key(&ProductDriver::getProductId, &ProductDriver::getDriverId)
 		),
 		make_table("device",
-			make_column("id", &Device::getId, &Device::setId, primary_key(), autoincrement()),
+			make_column("id", &Device::getId, &Device::setId, primary_key().autoincrement()),
 			make_column("address", &Device::getAddress, &Device::setAddress, unique()),
 			make_column("discovered", &Device::isDiscovered, &Device::setDiscovered),
 			make_column("mid", &Device::getMid, &Device::setMid, unique()),
@@ -79,24 +79,24 @@ static inline auto initializeDb(const std::string &fileName) {
 			foreign_key(&Device::getProductId).references(&Product::getId)
 		),
 		make_table("bo",
-			make_column("id", &BinaryOutput::getId, &BinaryOutput::setId, primary_key(), autoincrement()),
+			make_column("id", &BinaryOutput::getId, &BinaryOutput::setId, primary_key().autoincrement()),
 			make_column("deviceId", &BinaryOutput::getDeviceId, &BinaryOutput::setDeviceId),
 			make_column("count", &BinaryOutput::getCount, &BinaryOutput::setCount),
 			foreign_key(&BinaryOutput::getDeviceId).references(&Device::getId).on_delete.cascade()
 		),
 		make_table("dali",
-			make_column("id", &Dali::getId, &Dali::setId, primary_key(), autoincrement()),
+			make_column("id", &Dali::getId, &Dali::setId, primary_key().autoincrement()),
 			make_column("deviceId", &Dali::getDeviceId, &Dali::setDeviceId),
 			foreign_key(&Dali::getDeviceId).references(&Device::getId).on_delete.cascade()
 		),
 		make_table("light",
-			make_column("id", &Light::getId, &Light::setId, primary_key(), autoincrement()),
+			make_column("id", &Light::getId, &Light::setId, primary_key().autoincrement()),
 			make_column("deviceId", &Light::getDeviceId, &Light::setDeviceId),
 			make_column("count", &Light::getCount, &Light::setCount),
 			foreign_key(&Light::getDeviceId).references(&Device::getId).on_delete.cascade()
 		),
 		make_table("sensor",
-			make_column("id", &Sensor::getId, &Sensor::setId, primary_key(), autoincrement()),
+			make_column("id", &Sensor::getId, &Sensor::setId, primary_key().autoincrement()),
 			make_column("type", &Sensor::getType, &Sensor::setType),
 			make_column("name", &Sensor::getName, &Sensor::setName),
 			make_column("shortname", &Sensor::getShortname, &Sensor::setShortname),
