@@ -387,10 +387,10 @@ namespace iqrf {
 		uint8_t pnum = 0, pcmd = 0;
 
 		if (Value *val = Pointer("/pnum").Get(doc)) {
-			parseHexaNum(pnum, val->GetString());
+			HexStringConversion::parseHexaNum(pnum, val->GetString());
 		}
 		if (Value *val = Pointer("/pcmd").Get(doc)) {
-			parseHexaNum(pcmd, val->GetString());
+			HexStringConversion::parseHexaNum(pcmd, val->GetString());
 		}
 
 		retvect.push_back(nadr & 0xff);
@@ -402,7 +402,7 @@ namespace iqrf {
 
 		if (Value *val = Pointer("/rdata").Get(doc)) {
 			uint8_t buf[DPA_MAX_DATA_LENGTH];
-			int len = parseBinary(buf, val->GetString(), DPA_MAX_DATA_LENGTH);
+			int len = HexStringConversion::parseBinary(buf, val->GetString(), DPA_MAX_DATA_LENGTH);
 			for (int i = 0; i < len; i++) {
 			retvect.push_back(buf[i]);
 			}
@@ -430,10 +430,10 @@ namespace iqrf {
 			rcode = rcode8;
 			dpaval = dpaResponse[7];
 
-			pnumStr = encodeHexaNum(pnum);
-			pcmdStr = encodeHexaNum(pcmd);
-			rcodeStr = encodeHexaNum(rcode8);
-			dpavalStr = encodeHexaNum(dpaval);
+			pnumStr = HexStringConversion::encodeHexaNum(pnum);
+			pcmdStr = HexStringConversion::encodeHexaNum(pcmd);
+			rcodeStr = HexStringConversion::encodeHexaNum(rcode8);
+			dpavalStr = HexStringConversion::encodeHexaNum(dpaval);
 
 			//nadr, hwpid is not interesting for drivers
 			Pointer("/pnum").Set(doc, pnumStr);
@@ -442,7 +442,7 @@ namespace iqrf {
 			Pointer("/dpaval").Set(doc, rcodeStr);
 
 			if (dpaResponse.size() > 8) {
-				Pointer("/rdata").Set(doc, encodeBinary(dpaResponse.data() + 8, static_cast<int>(dpaResponse.size()) - 8));
+				Pointer("/rdata").Set(doc, HexStringConversion::encodeBinary(dpaResponse.data() + 8, static_cast<int>(dpaResponse.size()) - 8));
 			}
 
 			Document rawHdpRequestDoc;

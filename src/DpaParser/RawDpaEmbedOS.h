@@ -67,11 +67,11 @@ namespace iqrf
           if (m_rdata.size() > 28 + 11 ) {
             m_dpaVer = (int)resp.DpaVersion;
             m_perNr = (int)resp.UserPerNr;
-            m_embedPer = bitmapToIndexes(resp.EmbeddedPers, 0, 3, 0);
+            m_embedPer = HexStringConversion::bitmapToIndexes(resp.EmbeddedPers, 0, 3, 0);
             m_hwpidValEnum = (int)resp.HWPID;
             m_hwpidVer = (int)resp.HWPIDver;
             m_flags = (int)resp.Flags;
-            m_userPer = bitmapToIndexes(resp.UserPer, 0, 11, 0x20);
+            m_userPer = HexStringConversion::bitmapToIndexes(resp.UserPer, 0, 11, 0x20);
             m_is410Compliant = true;
           }
         }
