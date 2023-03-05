@@ -90,7 +90,7 @@ namespace iqrf {
      * @param res Transaction result
      */
     void createResponsePayload(rapidjson::Document &doc, const IDpaTransactionResult2 &res) override {
-      rapidjson::Pointer("/data/rsp/response").Set(doc, encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
+      rapidjson::Pointer("/data/rsp/response").Set(doc, HexStringConversion::encodeBinary(res.getResponse().DpaPacket().Buffer, res.getResponse().GetLength()));
     }
   private:
     /**
