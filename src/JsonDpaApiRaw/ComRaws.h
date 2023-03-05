@@ -53,7 +53,7 @@ namespace iqrf {
     ComRaw(rapidjson::Document& doc)
       :ComNadr(doc)
     {
-      int len = parseBinary(m_request.DpaPacket().Buffer,
+      int len = HexStringConversion::parseBinary(m_request.DpaPacket().Buffer,
         rapidjson::Pointer("/data/req/rData").Get(doc)->GetString(),
         DPA_MAX_DATA_LENGTH);
       m_request.SetLength(len);
@@ -72,7 +72,7 @@ namespace iqrf {
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
       auto response = res.getResponse();
-      rapidjson::Pointer("/data/rsp/rData").Set(doc, encodeBinary(response.DpaPacket().Buffer, response.GetLength()));
+      rapidjson::Pointer("/data/rsp/rData").Set(doc, HexStringConversion::encodeBinary(response.DpaPacket().Buffer, response.GetLength()));
       if (m_appendMidMetaData) {
         rapidjson::Pointer("/data/rsp/metaData").Set(doc, m_midMetaData);
       }

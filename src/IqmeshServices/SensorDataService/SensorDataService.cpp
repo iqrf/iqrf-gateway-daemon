@@ -40,7 +40,7 @@ namespace iqrf {
 
 	///// Message handling
 
-	void SensorDataService::getSensorData(SensorDataResult &result) {
+	void SensorDataService::readSensorData(SensorDataResult &result) {
 		TRC_FUNCTION_ENTER("");
 		std::unique_ptr<IDpaTransactionResult2> transResult;
 		try {
@@ -97,7 +97,7 @@ namespace iqrf {
 		}
 
 		try {
-			getSensorData(result);
+			readSensorData(result);
 		} catch (const std::exception &e) {
 			CATCH_EXC_TRC_WAR(std::exception, e, e.what());
 		}

@@ -53,12 +53,12 @@ namespace iqrf
 
           m_dpaVer = (int)resp.DpaVersion;
           m_perNr = (int)resp.UserPerNr;
-          m_embedPer = bitmapToIndexes(resp.EmbeddedPers, 0, 3, 0);
+          m_embedPer = HexStringConversion::bitmapToIndexes(resp.EmbeddedPers, 0, 3, 0);
           m_hwpidEnm = (int)resp.HWPID;
           m_hwpid = (int)resp.HWPID;
           m_hwpidVer = (int)resp.HWPIDver;
           m_flags = (int)resp.Flags;
-          m_userPer = bitmapToIndexes(getRdata().data(), 12, (int)getRdata().size() - 1, 0x20);
+          m_userPer = HexStringConversion::bitmapToIndexes(getRdata().data(), 12, (int)getRdata().size() - 1, 0x20);
         }
       };
       typedef std::unique_ptr<RawDpaEnumerate> RawDpaEnumeratePtr;

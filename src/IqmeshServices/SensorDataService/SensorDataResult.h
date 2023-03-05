@@ -50,6 +50,14 @@ namespace iqrf {
 		}
 
 		/**
+		 * Returns map of devices and sensor data
+		 * @return Devices and sensor data
+		 */
+		std::map<uint8_t, std::vector<sensor::item::Sensor>> getSensorData() {
+			return m_sensorData;
+		}
+
+		/**
 		 * Populates response document
 		 * @param response Response document
 		 */
