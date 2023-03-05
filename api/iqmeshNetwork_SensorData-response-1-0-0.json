@@ -148,6 +148,12 @@
 														},
 														{
 															"type": "null"
+														},
+														{
+															"type": "array",
+															"items": {
+																"type": "integer"
+															}
 														}
 													]
 												}

@@ -20,6 +20,7 @@
 #include "../IqrfDb/Entities/Device.h"
 #include "../IqrfDb/Entities/DeviceSensor.h"
 #include "../IqrfDb/Entities/Sensor.h"
+#include "JsDriverSensor.h"
 
 #include <functional>
 #include <map>
@@ -229,19 +230,25 @@ namespace iqrf {
 		virtual void unregisterEnumerationHandler(const std::string &clientId) = 0;
 
 		/**
-		 * Handles Sensor_ReadSensorsWithTypes response and stores sensor values
+		 * Updates sensor values from map of addresses and sensor objects 
+		 * @param devices Map of devices and sensors
+		 */
+		virtual void updateSensorValues(const std::map<uint8_t, std::vector<sensor::item::Sensor>> &devices) = 0;
+
+		/**
+		 * Updates sensor values from_ReadSensorsWithTypes response
 		 * @param address Device address
 		 * @param sensors Parsed sensors JSON string
 		 */
-		virtual void handleSensorRead(const uint8_t &address, const std::string &sensors) = 0;
+		virtual void updateSensorValues(const uint8_t &address, const std::string &sensors) = 0;
 
 		/**
-		 * Handles Sensor_Frc response and stores sensor values
+		 * Updates sensor values from Sensor_Frc response
 		 * @param type Sensor type
 		 * @param index Sensor index
 		 * @param selectedNodes Set of selected nodes
 		 * @param sensors Parsed sensors JSON string
 		 */
-		virtual void handleSensorFrc(const uint8_t &type, const uint8_t &index, const std::set<uint8_t> &selectedNodes, const std::string &sensors) = 0;
+		virtual void updateSensorValues(const uint8_t &type, const uint8_t &index, const std::set<uint8_t> &selectedNodes, const std::string &sensors) = 0;
 	};
 }

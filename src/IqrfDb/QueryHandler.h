@@ -44,6 +44,13 @@ public:
 	std::vector<DeviceTuple> getDevices();
 
 	/**
+	 * Checks if device record exists 
+	 * @param address Device address
+	 * @return true if device record exists, false otherwise
+	 */
+	bool deviceExists(const uint8_t &address);
+
+	/**
 	 * Returns device at specified address
 	 * @param address Device address
 	 * @return Device

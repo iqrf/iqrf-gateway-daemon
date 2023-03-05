@@ -51,7 +51,12 @@ namespace iqrf
             }
             const Value *val = Pointer("/value").Get(v);
             if (val && !val->IsNull()) {
-              m_value = val->GetDouble();
+              if (m_type == 192) {
+                auto vect = jutils::getPossibleMemberAsVector<int>("value", v);
+                m_valueArray = std::vector<uint8_t>(vect.begin(), vect.end());
+              } else {
+                m_value = val->GetDouble();
+              }
               m_valueSet = true;
             }
             const Value *breakdown = Pointer("/breakdown/0").Get(v);
@@ -62,9 +67,15 @@ namespace iqrf
               m_breakdownDecimalPlaces = (uint8_t)jutils::getPossibleMemberAs<int>("decimalPlaces", *breakdown, m_breakdownDecimalPlaces);
               val = Pointer("/value").Get(*breakdown);
               if (val && !val->IsNull()) {
-                m_breakdownValue = val->GetDouble();
+                if (m_type == 192) {
+                  auto vect = jutils::getPossibleMemberAsVector<int>("value", *breakdown);
+                  m_breakdownValueArray = std::vector<uint8_t>(vect.begin(), vect.end());
+                } else {
+                  m_breakdownValue = val->GetDouble();
+                }
               } else {
                 m_breakdownValue = m_value;
+                m_breakdownValueArray = m_valueArray;
               }
             }
           }

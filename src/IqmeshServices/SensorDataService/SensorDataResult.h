@@ -88,7 +88,16 @@ namespace iqrf {
 						Pointer("/name").Set(sensor, sensorItem.hasBreakdown() ? sensorItem.getBreakdownName() : sensorItem.getName(), allocator);
 						Pointer("/unit").Set(sensor, sensorItem.hasBreakdown() ? sensorItem.getBreakdownUnit() : sensorItem.getUnit(), allocator);
 						if (sensorItem.isValueSet()) {
-							Pointer("/value").Set(sensor, sensorItem.hasBreakdown() ? sensorItem.getBreakdownValue() : sensorItem.getValue(), allocator);
+							if (sensorItem.getType() != 192) {
+								Pointer("/value").Set(sensor, sensorItem.hasBreakdown() ? sensorItem.getBreakdownValue() : sensorItem.getValue(), allocator);
+							} else {
+								auto vals = sensorItem.hasBreakdown() ?  sensorItem.getBreakdownValueArray() : sensorItem.getValueArray();
+								Value datablock(kArrayType);
+								for (auto &val : vals) {
+									datablock.PushBack(Value(val), allocator);
+								}
+								Pointer("/value").Set(sensor, datablock, allocator);
+							}
 						} else {
 							Pointer("/value").Set(sensor, rapidjson::Value(kNullType), allocator);
 						}
