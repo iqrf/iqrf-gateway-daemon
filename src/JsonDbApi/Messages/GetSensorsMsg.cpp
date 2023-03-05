@@ -48,11 +48,23 @@ namespace iqrf {
 				Pointer("/frc1Byte").Set(sensorObject, sensor.hasFrc1Byte(), allocator);
 				Pointer("/frc2Byte").Set(sensorObject, sensor.hasFrc2Byte(), allocator);
 				Pointer("/frc4Byte").Set(sensorObject, sensor.hasFrc4Byte(), allocator);
-				std::shared_ptr<double> val = deviceSensor.getValue();
-				if (val) {
-					Pointer("/value").Set(sensorObject, *val.get(), allocator);
+				std::shared_ptr<std::string> metadata = deviceSensor.getMetadata();
+				Document metadataDoc;
+				if (metadata) {
+					metadataDoc.Parse(metadata->c_str());
+				}
+				if (sensor.getType() == 192) {
+					if (metadata && metadataDoc.HasMember("datablock")) {
+						Pointer("/value").Set(sensorObject, Value(metadataDoc["datablock"], allocator).Move(), allocator);
+						metadataDoc.RemoveMember("datablock");
+					}
 				} else {
-					Pointer("/value").Create(sensorObject, allocator);
+					std::shared_ptr<double> val = deviceSensor.getValue();
+					if (val) {
+						Pointer("/value").Set(sensorObject, *val.get(), allocator);
+					} else {
+						Pointer("/value").Create(sensorObject, allocator);
+					}
 				}
 				std::shared_ptr<std::string> updated = deviceSensor.getUpdated();
 				if (updated) {
@@ -60,10 +72,7 @@ namespace iqrf {
 				} else {
 					Pointer("/updated").Create(sensorObject, allocator);
 				}
-				std::shared_ptr<std::string> metadata = deviceSensor.getMetadata();
 				if (metadata) {
-					Document metadataDoc;
-					metadataDoc.Parse(metadata->c_str());
 					Pointer("/metadata").Set(sensorObject, Value(metadataDoc, allocator).Move(), allocator);
 				} else {
 					Pointer("/metadata").Create(sensorObject, allocator);

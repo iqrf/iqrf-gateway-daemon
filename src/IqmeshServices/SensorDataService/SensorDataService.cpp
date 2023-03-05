@@ -47,7 +47,6 @@ namespace iqrf {
 			std::set<uint8_t>::iterator it;
 			for (it = m_params.devices.begin(); it != m_params.devices.end(); ++it) {
 				const uint8_t addr = *it;
-				sensor::jsdriver::Enumerate enumSensors(m_jsRenderService, addr);
 				rapidjson::Document params(kObjectType);
 				Pointer("/sensorIndexes").Set(params, -1);
 				sensor::jsdriver::ReadSensorsWithTypes readSensors(m_jsRenderService, addr, params);
@@ -98,6 +97,7 @@ namespace iqrf {
 
 		try {
 			readSensorData(result);
+			m_dbService->updateSensorValues(result.getSensorData());
 		} catch (const std::exception &e) {
 			CATCH_EXC_TRC_WAR(std::exception, e, e.what());
 		}
