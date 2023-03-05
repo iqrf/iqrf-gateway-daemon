@@ -24,7 +24,8 @@
 #include <set>
 #include <vector>
 
-namespace iqrf {
+class HexStringConversion {
+public:
   /// \brief Parse binary data encoded hexa
   /// \param [out] to buffer for result binary data
   /// \param [in] from hexadecimal string
@@ -32,7 +33,7 @@ namespace iqrf {
   /// \return length of result
   /// \details
   /// Gets hexadecimal string in form e.g: "00 a5 b1" (space separation) or "00.a5.b1" (dot separation) and parses to binary data
-  int parseBinary(uint8_t* to, const std::string& from, int maxlen)
+  static int parseBinary(uint8_t* to, const std::string& from, int maxlen)
   {
     int retval = 0;
     if (!from.empty()) {
@@ -53,7 +54,7 @@ namespace iqrf {
     return retval;
   }
 
-  int parseBinary(std::vector<uint8_t> & to, const std::string& from, int maxlen)
+  static int parseBinary(std::vector<uint8_t> & to, const std::string& from, int maxlen)
   {
     int retval = 0;
     if (!from.empty()) {
@@ -81,7 +82,7 @@ namespace iqrf {
   /// \details
   /// Gets hexadecimal string in form e.g: "00a5b1" and inerpret it as templated ordinary type
   template<typename T>
-  void parseHexaNum(T& to, const char* from)
+  static void parseHexaNum(T& to, const char* from)
   {
     int val = 0;
     std::istringstream istr(from);
@@ -96,7 +97,7 @@ namespace iqrf {
   /// \brief Encode uint_8 to hexa string
   /// \param [in] from value to be encoded
   /// \return encoded string
-  std::string encodeHexaNum(uint8_t from)
+  static std::string encodeHexaNum(uint8_t from)
   {
     std::ostringstream os;
     os.fill('0'); os.width(2);
@@ -107,7 +108,7 @@ namespace iqrf {
   /// \brief Encode uint_16 to hexa string
   /// \param [in] from value to be encoded
   /// \return encoded string
-  std::string encodeHexaNum(uint16_t from)
+  static std::string encodeHexaNum(uint16_t from)
   {
     std::ostringstream os;
     os.fill('0'); os.width(4);
@@ -121,7 +122,7 @@ namespace iqrf {
   /// \details
   /// Encode binary data to hexadecimal string in form e.g: "00 a5 b1" (space separation) or "00.a5.b1" (dot separation)
   /// Used separation is controlled by member m_dotNotation and it is hardcoded as dot separation it this version
-  std::string encodeBinary(const uint8_t* from, int len)
+  static std::string encodeBinary(const uint8_t* from, int len)
   {
     std::string to;
     if (len > 0) {
@@ -141,7 +142,7 @@ namespace iqrf {
   /// \param [in] indexTo - ending index of the byte in the bitmap
   /// \param [in] offset - value to start indexing from
   /// \return set of integers specifying the offset indexes of bits set in the bitmap
-  std::set<int> bitmapToIndexes(const uint8_t* bitmap, int indexFrom, int indexTo, int offset)
+  static std::set<int> bitmapToIndexes(const uint8_t* bitmap, int indexFrom, int indexTo, int offset)
   {
     std::set<int> retval;
 
@@ -165,7 +166,7 @@ namespace iqrf {
   /// \brief Returns a vector of bytes with the selected indexes
   /// \param [in] indexes - set of integers each specifying the index of bit to set in the bitmap
   /// \return vector of bytes with the bit set according to the indexes parameter
-  std::vector<uint8_t> indexesToBitmap(const std::set<int> & indexes, int bitmapSize)
+  static std::vector<uint8_t> indexesToBitmap(const std::set<int> & indexes, int bitmapSize)
   {
     std::vector<uint8_t> retval(bitmapSize, 0);
     for (int idx : indexes) {
@@ -236,4 +237,4 @@ namespace iqrf {
     std::basic_string<unsigned char> m_msg;
   };
 
-}
+};

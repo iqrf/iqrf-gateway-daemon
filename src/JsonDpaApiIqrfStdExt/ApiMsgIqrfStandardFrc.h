@@ -128,11 +128,11 @@ namespace iqrf {
 			}
 			bool r = (bool)m_extraRes;
 			if (getVerbose() && r) {
-				Pointer("/data/raw/1/request").Set(doc, r ? encodeBinary(m_extraRes->getRequest().DpaPacket().Buffer, m_extraRes->getRequest().GetLength()) : "");
+				Pointer("/data/raw/1/request").Set(doc, r ? HexStringConversion::encodeBinary(m_extraRes->getRequest().DpaPacket().Buffer, m_extraRes->getRequest().GetLength()) : "");
 				Pointer("/data/raw/1/requestTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_extraRes->getRequestTs()) : "");
-				Pointer("/data/raw/1/confirmation").Set(doc, r ? encodeBinary(m_extraRes->getConfirmation().DpaPacket().Buffer, m_extraRes->getConfirmation().GetLength()) : "");
+				Pointer("/data/raw/1/confirmation").Set(doc, r ? HexStringConversion::encodeBinary(m_extraRes->getConfirmation().DpaPacket().Buffer, m_extraRes->getConfirmation().GetLength()) : "");
 				Pointer("/data/raw/1/confirmationTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_extraRes->getConfirmationTs()) : "");
-				Pointer("/data/raw/1/response").Set(doc, r ? encodeBinary(m_extraRes->getResponse().DpaPacket().Buffer, m_extraRes->getResponse().GetLength()) : "");
+				Pointer("/data/raw/1/response").Set(doc, r ? HexStringConversion::encodeBinary(m_extraRes->getResponse().DpaPacket().Buffer, m_extraRes->getResponse().GetLength()) : "");
 				Pointer("/data/raw/1/responseTs").Set(doc, r ? TimeConversion::encodeTimestamp(m_extraRes->getResponseTs()) : "");
 			}
 		}
