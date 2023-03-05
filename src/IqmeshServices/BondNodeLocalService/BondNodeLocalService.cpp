@@ -621,7 +621,7 @@ namespace iqrf {
           rapidjson::Value rawObject(kObjectType);
           rawObject.AddMember(
             "request",
-            encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
+            HexStringConversion::encodeBinary(transResult->getRequest().DpaPacket().Buffer, transResult->getRequest().GetLength()),
             allocator
           );
           rawObject.AddMember(
@@ -631,7 +631,7 @@ namespace iqrf {
           );
           rawObject.AddMember(
             "confirmation",
-            encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
+            HexStringConversion::encodeBinary(transResult->getConfirmation().DpaPacket().Buffer, transResult->getConfirmation().GetLength()),
             allocator
           );
           rawObject.AddMember(
@@ -641,7 +641,7 @@ namespace iqrf {
           );
           rawObject.AddMember(
             "response",
-            encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
+            HexStringConversion::encodeBinary(transResult->getResponse().DpaPacket().Buffer, transResult->getResponse().GetLength()),
             allocator
           );
           rawObject.AddMember(
