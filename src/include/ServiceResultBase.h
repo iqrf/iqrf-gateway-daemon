@@ -98,7 +98,7 @@ namespace iqrf {
 					Value object(kObjectType);
 					object.AddMember(
 						"request",
-						encodeBinary(result->getRequest().DpaPacket().Buffer, result->getRequest().GetLength()),
+						HexStringConversion::encodeBinary(result->getRequest().DpaPacket().Buffer, result->getRequest().GetLength()),
 						allocator
 					);
 					object.AddMember(
@@ -108,7 +108,7 @@ namespace iqrf {
 					);
 					object.AddMember(
 						"confirmation",
-						encodeBinary(result->getConfirmation().DpaPacket().Buffer, result->getConfirmation().GetLength()),
+						HexStringConversion::encodeBinary(result->getConfirmation().DpaPacket().Buffer, result->getConfirmation().GetLength()),
 						allocator
 					);
 					object.AddMember(
@@ -118,7 +118,7 @@ namespace iqrf {
 					);
 					object.AddMember(
 						"response",
-						encodeBinary(result->getResponse().DpaPacket().Buffer, result->getResponse().GetLength()),
+						HexStringConversion::encodeBinary(result->getResponse().DpaPacket().Buffer, result->getResponse().GetLength()),
 						allocator
 					);
 					object.AddMember(
