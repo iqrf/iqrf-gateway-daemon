@@ -145,7 +145,7 @@ namespace iqrf {
 		Document fakeRequest;
 		Pointer("/mType").Set(fakeRequest, "iqrfRaw");
 		Pointer("/data/msgId").Set(fakeRequest, "async");
-		std::string rData = encodeBinary(msg.DpaPacket().Buffer, msg.GetLength());
+		std::string rData = HexStringConversion::encodeBinary(msg.DpaPacket().Buffer, msg.GetLength());
 		//Pointer("/data/req/rData").Set(fakeRequest, "00.00.00.00.00.00");
 		Pointer("/data/req/rData").Set(fakeRequest, rData);
 		Document respDoc;
