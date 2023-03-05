@@ -48,12 +48,14 @@ namespace iqrf
         int m_decimalPlaces = 1;
         std::set<int> m_frcs;
         double m_value = 0;
+        std::vector<uint8_t> m_valueArray;
         bool m_valueSet = false;
         std::string m_breakdownName;
         std::string m_breakdownShortname;
         std::string m_breakdownUnit;
         uint8_t m_breakdownDecimalPlaces = 1;
         double m_breakdownValue = 0;
+        std::vector<uint8_t> m_breakdownValueArray;
 
       public:
         int getIdx() const { return m_idx; }
@@ -63,7 +65,7 @@ namespace iqrf
         const std::string & getShortName() const { return m_shortName; }
         const std::string & getUnit() const { return m_unit; }
         int getDecimalPlaces() const { return m_decimalPlaces; }
-        bool hasBreakdown() { return m_breakdownName.length() > 0 && m_breakdownShortname.length() > 0 && m_breakdownUnit.length() > 0; }
+        bool hasBreakdown() const { return m_breakdownName.length() > 0 && m_breakdownShortname.length() > 0 && m_breakdownUnit.length() > 0; }
         const std::string& getBreakdownName() const { return m_breakdownName; }
         const std::string& getBreakdownShortName() const { return m_breakdownShortname; }
         const std::string& getBreakdownUnit() const { return m_breakdownUnit; }
@@ -71,7 +73,9 @@ namespace iqrf
         const std::set<int> & getFrcs() const { return m_frcs; }
         bool isValueSet() const { return m_valueSet; }
         double getValue() const { return m_value; }
+        const std::vector<uint8_t>& getValueArray() const { return m_valueArray; }
         double getBreakdownValue() const { return m_breakdownValue; }
+        const std::vector<uint8_t>& getBreakdownValueArray() const { return m_breakdownValueArray; }
 
         virtual ~Sensor() {}
       };
