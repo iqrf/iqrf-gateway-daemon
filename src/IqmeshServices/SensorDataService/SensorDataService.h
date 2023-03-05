@@ -135,7 +135,7 @@ namespace iqrf {
 		 * Executes API requests to retrieve sensor data
 		 * @param result Service result
 		 */
-		void getSensorData(SensorDataResult &result);
+		void readSensorData(SensorDataResult &result);
 
 		/**
 		 * Handles request from splitter
