@@ -196,7 +196,7 @@ namespace iqrf {
 					} else {
 						// store in db
 						if (m_dbService && msgType.m_type == "iqrfSensor_ReadSensorsWithTypes") {
-							m_dbService->handleSensorRead(nadrRes, rspObjStr);
+							m_dbService->updateSensorValues(nadrRes, rspObjStr);
 						}
 						// get json from its text representation
 						Document rspObj;

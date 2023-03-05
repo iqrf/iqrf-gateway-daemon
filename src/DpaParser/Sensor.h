@@ -63,7 +63,7 @@ namespace iqrf
         const std::string & getShortName() const { return m_shortName; }
         const std::string & getUnit() const { return m_unit; }
         int getDecimalPlaces() const { return m_decimalPlaces; }
-        bool hasBreakdown() { return m_breakdownName.length() > 0 && m_breakdownShortname.length() > 0 && m_breakdownUnit.length() > 0; }
+        bool hasBreakdown() const { return m_breakdownName.length() > 0 && m_breakdownShortname.length() > 0 && m_breakdownUnit.length() > 0; }
         const std::string& getBreakdownName() const { return m_breakdownName; }
         const std::string& getBreakdownShortName() const { return m_breakdownShortname; }
         const std::string& getBreakdownUnit() const { return m_breakdownUnit; }

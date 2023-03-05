@@ -153,7 +153,35 @@ namespace iqrf {
 		m_enumHandlers.erase(clientId);
 	}
 
-	void IqrfDb::handleSensorRead(const uint8_t &address, const std::string &sensors) {
+	void IqrfDb::updateSensorValues(const std::map<uint8_t, std::vector<sensor::item::Sensor>> &devices) {
+		TRC_FUNCTION_ENTER("");
+		std::shared_ptr<std::string> timestamp = IqrfDbAux::getCurrentTimestamp();
+		for (auto &device : devices) {
+			const uint8_t addr = device.first;
+			if (!this->query.deviceExists(addr)) {
+				continue;
+			}
+			for (auto &sensor : device.second) {
+				if (!sensor.isValueSet()) {
+					continue;
+				}
+				double val;
+				if (sensor.hasBreakdown()) {
+					val = sensor.getBreakdownValue();
+				} else {
+					val = sensor.getValue();
+				}
+				try {
+					this->query.setSensorValue(addr, sensor.getType(), sensor.getIdx(), val, timestamp);
+				} catch (const std::logic_error &e) {
+					TRC_WARNING(e.what());
+				}
+			}
+		}
+		TRC_FUNCTION_LEAVE("");
+	}
+
+	void IqrfDb::updateSensorValues(const uint8_t &address, const std::string &sensors) {
 		TRC_FUNCTION_ENTER("");
 		json j = json::parse(sensors);
 		std::shared_ptr<std::string> timestamp = IqrfDbAux::getCurrentTimestamp();
@@ -186,7 +214,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfDb::handleSensorFrc(const uint8_t &type, const uint8_t &index, const std::set<uint8_t> &selectedNodes, const std::string &sensors) {
+	void IqrfDb::updateSensorValues(const uint8_t &type, const uint8_t &index, const std::set<uint8_t> &selectedNodes, const std::string &sensors) {
 		TRC_FUNCTION_ENTER("");
 		json j = json::parse(sensors);
 		std::shared_ptr<std::string> timestamp = IqrfDbAux::getCurrentTimestamp();
@@ -217,7 +245,6 @@ namespace iqrf {
 		} else {
 			uint8_t i = 1;
 			for (auto it = selectedNodes.begin(); it != selectedNodes.end(); ++it, ++i) {
-				uint8_t addr = *it;
 				json item = j["sensors"][i];
 				if (item["value"].is_null()) {
 					continue;
@@ -872,10 +899,10 @@ namespace iqrf {
 				}
 			}
 			return onlineNodes;
+			TRC_FUNCTION_LEAVE("");
 		} catch (const std::exception &e) {
 			THROW_EXC(std::logic_error, e.what());
 		}
-		TRC_FUNCTION_LEAVE("");
 	}
 
 	void IqrfDb::frcSendSelectiveMemoryRead(uint8_t* data, const uint16_t &address, const uint8_t &pnum, const uint8_t &pcmd, const uint8_t &numNodes, const uint8_t &processedNodes) {
@@ -1162,7 +1189,7 @@ namespace iqrf {
 					this->query.removeLights(deviceId);
 				}
 				if (sensor) {
-					sensorEnumeration(deviceId, address);
+					sensorEnumeration(address);
 				} else {
 					this->query.removeSensors(deviceId);
 				}
@@ -1256,7 +1283,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfDb::sensorEnumeration(const uint32_t &deviceId, const uint8_t &address) {
+	void IqrfDb::sensorEnumeration(const uint8_t &address) {
 		TRC_FUNCTION_ENTER("");
 		sensor::jsdriver::Enumerate sensorEnum(m_renderService, address);
 		sensorEnum.processDpaTransactionResult(m_dpaService->executeDpaTransaction(sensorEnum.getRequest())->get());

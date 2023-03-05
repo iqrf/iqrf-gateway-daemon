@@ -125,7 +125,7 @@ namespace iqrf {
 				} else {
 					jsDriverStandardFrcSolver.processResponseDrv();
 				}
-				m_dbService->handleSensorFrc(sensorFrc.getType(), sensorFrc.getIndex(), sensorFrc.getSelectedNodes(), jsDriverStandardFrcSolver.getResponseResultStr());
+				m_dbService->updateSensorValues(sensorFrc.getType(), sensorFrc.getIndex(), sensorFrc.getSelectedNodes(), jsDriverStandardFrcSolver.getResponseResultStr());
 			} else {
 				jsDriverStandardFrcSolver.processResponseDrv();
 			}
