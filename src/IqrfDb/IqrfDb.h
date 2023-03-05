@@ -198,20 +198,26 @@ namespace iqrf {
 		void unregisterEnumerationHandler(const std::string &clientId) override;
 
 		/**
-		 * Handles Sensor_ReadSensorsWithTypes response and stores sensor values
+		 * Updates sensor values from map of addresses and sensor objects 
+		 * @param devices Map of devices and sensors
+		 */
+		void updateSensorValues(const std::map<uint8_t, std::vector<sensor::item::Sensor>> &devices) override;
+
+		/**
+		 * Updates sensor values from_ReadSensorsWithTypes response
 		 * @param address Device address
 		 * @param sensors Parsed sensors JSON string
 		 */
-		void handleSensorRead(const uint8_t &address, const std::string &sensors) override;
+		void updateSensorValues(const uint8_t &address, const std::string &sensors) override;
 
 		/**
-		 * Handles Sensor_Frc response and stores sensor values
+		 * Updates sensor values from Sensor_Frc response
 		 * @param type Sensor type
 		 * @param index Sensor index
 		 * @param selectedNodes Set of selected nodes
 		 * @param sensors Parsed sensors JSON string
 		 */
-		void handleSensorFrc(const uint8_t &type, const uint8_t &index, const std::set<uint8_t> &selectedNodes, const std::string &sensors) override;
+		void updateSensorValues(const uint8_t &type, const uint8_t &index, const std::set<uint8_t> &selectedNodes, const std::string &sensors) override;
 
 		/**
 		 * Component instance lifecycle activate step
@@ -449,8 +455,9 @@ namespace iqrf {
 
 		/**
 		 * Performs sensor standard enumeration
+		 * @param address Device address
 		 */
-		void sensorEnumeration(const uint32_t &deviceId, const uint8_t &address);
+		void sensorEnumeration(const uint8_t &address);
 
 		/**
 		 * Retrieves bonded devices
