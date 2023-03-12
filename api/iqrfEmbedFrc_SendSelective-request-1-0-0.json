@@ -58,7 +58,7 @@
 									"description": "Selected nodes 1 ... 30.",
 									"items": {
 										"type": "integer"
-									}                        
+									}
 								},
 								"userData": {
 									"type": "array",

@@ -78,8 +78,6 @@
 									"type": "array",
 									"additionalItems": false,
 									"uniqueItems": true,
-									"minItems": 1,
-									"maxItems": 239,
 									"items": {
 										"type": "integer",
 										"minimum": 1,
