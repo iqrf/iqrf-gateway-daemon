@@ -189,13 +189,13 @@ namespace iqrf {
         //check PNUM
         uint8_t pnum = *pos++;
         if ((0x7F & pnum) != m_pnum) { //get rid of MSB
-          THROW_EXC_TRC_WAR(std::logic_error, "Responded by unexpected " << std::hex << NAME_PAR(pnum, (int)pnum) << NAME_PAR(expected, (int)m_pnum));
+          THROW_EXC_TRC_WAR(std::logic_error, "Responded by unexpected " << std::hex << NAME_PAR(pnum, (int)pnum));
         }
 
         //check PCMD
         uint8_t pcmd = *pos++;
         if (pcmd != m_pcmd) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Responded by unexpected " << std::hex << NAME_PAR(pcmd, (int)pcmd) << NAME_PAR(expected, (int)m_pcmd));
+          THROW_EXC_TRC_WAR(std::logic_error, "Responded by unexpected " << std::hex << NAME_PAR(pcmd, (int)pcmd));
         }
 
         //check len
