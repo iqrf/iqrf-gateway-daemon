@@ -27,7 +27,7 @@
 //// iqrf namespace
 namespace iqrf {
 	/// FRC response time interface
-	class IFrcResponseTime_DECLSPEC IFrcResponseTime {
+	class /*IFrcResponseTime_DECLSPEC*/ IFrcResponseTime {
 	public:
 		virtual ~IFrcResponseTime() {};
 	};

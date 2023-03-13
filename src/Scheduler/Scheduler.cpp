@@ -27,6 +27,16 @@
 
 #ifdef SHAPE_PLATFORM_WINDOWS
 #include <windows.h>
+//#if defined(BOOST_UUID_FORCE_AUTO_LINK) || (!defined(BOOST_ALL_NO_LIB) && !defined(BOOST_UUID_RANDOM_PROVIDER_NO_LIB))
+#   define BOOST_LIB_NAME "bcrypt"
+#   if defined(BOOST_AUTO_LINK_NOMANGLE)
+#      include <boost/config/auto_link.hpp>
+#   else
+#      define BOOST_AUTO_LINK_NOMANGLE
+#      include <boost/config/auto_link.hpp>
+#      undef BOOST_AUTO_LINK_NOMANGLE
+#   endif
+//#endif
 #else
 #include <dirent.h>
 #include <fcntl.h>
@@ -649,10 +659,10 @@ namespace iqrf {
 					filename = uuid;
 					updated = true;
 				}
-				if (!std::regex_match(basename(filename.c_str()), std::regex(TASK_FILE_PATTERN, std::regex_constants::icase))) {
-					filename = val->GetString();
-					updated = true;
-				}
+				//if (!std::regex_match(basename(filename.c_str()), std::regex(TASK_FILE_PATTERN, std::regex_constants::icase))) {
+				//	filename = val->GetString();
+				//	updated = true;
+				//}
 
 				if (updated) {
 					// remove old file and create new

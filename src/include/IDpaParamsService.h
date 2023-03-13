@@ -59,7 +59,7 @@ namespace iqrf {
 	};
 
 	/// DPA Value service interface
-	class IDpaValueService_DECLSPEC IDpaValueService {
+	class /*IDpaValueService_DECLSPEC*/ IDpaValueService {
 	public:
 		/**
 		 * Destructor
@@ -68,7 +68,7 @@ namespace iqrf {
 	};
 
 	/// DPA Hops service interface
-	class IDpaHopsService_DECLSPEC IDpaHopsService {
+	class /*IDpaHopsService_DECLSPEC*/ IDpaHopsService {
 	public:
 		/**
 		 * Destructor
@@ -77,7 +77,7 @@ namespace iqrf {
 	};
 
 	/// DPA FRC params service interface
-	class IFrcParamsService_DECLSPEC IFrcParamsService {
+	class /*IFrcParamsService_DECLSPEC*/ IFrcParamsService {
 	public:
 		/**
 		 * Destructor
