@@ -1,10 +1,10 @@
-iqrf-gateway-daemon (2.4.2~alpha~1.gbpfc106a) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.4.2) stable; urgency=medium
 
-  ** SNAPSHOT build @fc106a2628aed46401de7cb6887197ebd7810e33 **
+  [ Karel Hanák ]
+  * Prepare for version 2.4.2-alpha
+  * iqmesh services: include new properties for dpa 4.17
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Sun, 12 Mar 2023 09:54:16 +0100
+ -- Karel Hanák <karel.hanak@iqrf.org>  Thu, 23 Mar 2023 19:18:11 +0100
 
 iqrf-gateway-daemon (2.4.1) stable; urgency=medium
 
