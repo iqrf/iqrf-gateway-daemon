@@ -448,6 +448,7 @@ namespace iqrf {
         bool rfPgmTerminateMcuPin = ((rfpgm & 0b10000000) == 0b10000000);
         Pointer("/data/rsp/rfPgmTerminateMcuPin").Set(response, rfPgmTerminateMcuPin);
 
+
         // RF band - undocumented byte
         std::string rfBand = "";
         switch (hwpConfig.Undocumented[0] & 0x03)
@@ -465,6 +466,18 @@ namespace iqrf {
           TRC_WARNING("Unknown baud rate constant: " << PAR((hwpConfig.Undocumented[0] & 0x03)));
         }
         Pointer("/data/rsp/rfBand").Set(response, rfBand);
+
+        // Undocumented breakdown for DPA 4.17+
+        if (dpaVer >= 0x0417) {
+          bool thermometerPresent = hwpConfig.Undocumented[0] & 0x10;
+          Pointer("/data/rsp/thermometerSensorPresent").Set(response, thermometerPresent);
+
+          bool eepromPresent = hwpConfig.Undocumented[0] & 0x20;
+          Pointer("/data/rsp/serialEepromPresent").Set(response, eepromPresent);
+
+          bool transcieverIL = hwpConfig.Undocumented[0] & 0x40;
+          Pointer("/data/rsp/transcieverILType").Set(response, transcieverIL);
+        }
       }
 
       // Set raw fields, if verbose mode is active

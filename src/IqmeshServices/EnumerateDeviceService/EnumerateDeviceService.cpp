@@ -588,7 +588,11 @@ namespace iqrf {
         Pointer("/data/rsp/osRead/supplyVoltage").Set(response, deviceEnumerateResult.getOsRead()->getSupplyVoltageAsString());
         // Flags
         Pointer("/data/rsp/osRead/flags/value").Set(response, deviceEnumerateResult.getOsRead()->getFlags());
-        Pointer("/data/rsp/osRead/flags/insufficientOsBuild").Set(response, deviceEnumerateResult.getOsRead()->isInsufficientOsBuild());
+        if (deviceEnumerateResult.getOsRead()->getDpaVer() >= 0x0417) {
+          rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsVersion").Set(response, deviceEnumerateResult.getOsRead()->isInsufficientOs());
+        } else {
+          rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsBuild").Set(response, deviceEnumerateResult.getOsRead()->isInsufficientOs());
+        }
         Pointer("/data/rsp/osRead/flags/interfaceType").Set(response, deviceEnumerateResult.getOsRead()->getInterfaceAsString());
         Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, deviceEnumerateResult.getOsRead()->isDpaHandlerDetected());
         Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, deviceEnumerateResult.getOsRead()->isDpaHandlerNotDetectedButEnabled());
@@ -795,13 +799,22 @@ namespace iqrf {
         case 0b10:
           rfBand = "433";
           break;
-        case 0b00100000:
-          rfBand = "IL";
-          break;
         default:
           TRC_WARNING("Unknown rf band constant: " << PAR((hwpConfig.Undocumented[0] & 0x03)));
         }
         Pointer("/data/rsp/trConfiguration/rfBand").Set(response, rfBand);
+
+        // Undocumented breakdown for DPA 4.17+
+        if (dpaVer >= 0x0417) {
+          bool thermometerPresent = hwpConfig.Undocumented[0] & 0x10;
+          Pointer("/data/rsp/trConfiguration/thermometerSensorPresent").Set(response, thermometerPresent);
+
+          bool eepromPresent = hwpConfig.Undocumented[0] & 0x20;
+          Pointer("/data/rsp/trConfiguration/serialEepromPresent").Set(response, eepromPresent);
+
+          bool transcieverIL = hwpConfig.Undocumented[0] & 0x40;
+          Pointer("/data/rsp/trConfiguration/transcieverILType").Set(response, transcieverIL);
+        }
 
         // Result of more peripherals info according to request
         if (m_enumerateDeviceParams.morePeripheralsInfo == true)
