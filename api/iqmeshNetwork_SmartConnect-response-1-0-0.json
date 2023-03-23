@@ -102,6 +102,7 @@
                 "flags": {
                   "type": "object",
                   "description": "See DPA guide.",
+                  "additionalProperties": false,
                   "properties": {
                     "value": {
                       "type": "integer",
@@ -109,9 +110,13 @@
                     },
                     "insufficientOsBuild": {
                       "type": "boolean",
-                      "description": "Flags.0 - Insufficient OsBuild."
+                      "description": "Flags.0 - Insufficient OsBuild. (DPA < 4.17)"
                     },
-                    "interface": {
+                    "insufficientOsVersion": {
+                      "type": "boolean",
+                      "description": "Flags.0 - Insufficient OsVersion. (DPA >= 4.17)"
+                    },
+                    "interfaceType": {
                       "type": "string",
                       "description": "Flags.1 - Interface type."
                     },

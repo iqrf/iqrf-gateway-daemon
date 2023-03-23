@@ -102,6 +102,7 @@
             },
             "rfBand": {
               "type": "string",
+              "enum": ["868", "916", "433"],
               "description": "Used RF band."
             },
             "rfChannelA": {
@@ -203,6 +204,18 @@
             "stdAndLpNetwork": {
               "type": "boolean",
               "description": "If the bit is set, then the [C] controls the STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00"
+            },
+            "thermometerSensorPresent": {
+              "type": "boolean",
+              "description": "If set, on-board thermometer sensor chip is present."
+            },
+            "serialEepromPresent": {
+              "type": "boolean",
+              "description": "If set, serial EEPROM chip is present."
+            },
+            "transcieverILType": {
+              "type": "boolean",
+              "description": "If set, transciever is IL type for Israel region."
             }
           },
           "required": [

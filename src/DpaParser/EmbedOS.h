@@ -277,7 +277,7 @@ namespace iqrf
 					return os.str();
 				}
 
-				bool isInsufficientOsBuild() const { return (m_flags & 0x01) != 0; }
+				bool isInsufficientOs() const { return (m_flags & 0x01) != 0; }
 				bool getInterface() const { return (m_flags & 0x02) != 0; }
 				std::string getInterfaceAsString() const { return (m_flags & 0x02) != 0 ? "UART" : "SPI"; }
 				bool isDpaHandlerDetected() const { return (m_flags & 0x04) != 0; }

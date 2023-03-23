@@ -519,7 +519,11 @@ namespace iqrf {
 
         // Flags
         rapidjson::Pointer("/data/rsp/osRead/flags/value").Set(response, smartConnectResult.getOsRead()->getFlags());
-        rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsBuild").Set(response, smartConnectResult.getOsRead()->isInsufficientOsBuild());
+        if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0417) {
+          rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsVersion").Set(response, smartConnectResult.getOsRead()->isInsufficientOs());
+        } else {
+          rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsBuild").Set(response, smartConnectResult.getOsRead()->isInsufficientOs());
+        }
         rapidjson::Pointer("/data/rsp/osRead/flags/interfaceType").Set(response, smartConnectResult.getOsRead()->getInterfaceAsString());
         rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, smartConnectResult.getOsRead()->isDpaHandlerDetected());
         rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, smartConnectResult.getOsRead()->isDpaHandlerNotDetectedButEnabled());

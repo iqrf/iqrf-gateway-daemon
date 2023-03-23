@@ -11,9 +11,7 @@
 		"mType": {
 			"type": "string",
 			"description": "IQMESH Network management - Read TR configuration request.",
-			"enum": [
-				"iqmeshNetwork_ReadTrConf"
-			]
+			"enum": ["iqmeshNetwork_ReadTrConf"]
 		},
 		"data": {
 			"type": "object",
@@ -31,31 +29,23 @@
 					"type": "object",
 					"properties": {
 						"deviceAddr": {
-                            "type": "integer",
-                            "description": "Device address to read the configuration from."
-                        },
+							"type": "integer",
+							"description": "Device address to read the configuration from."
+						},
 						"hwpId": {
 							"type": "integer",
-                            "description": "HWP Id."
+							"description": "HWP Id."
 						}
 					},
-					"required": [
-						"deviceAddr"
-					]
+					"required": ["deviceAddr"]
 				},
 				"returnVerbose": {
 					"type": "boolean",
 					"description": "Flag that includes additional parameters in the response."
 				}
 			},
-			"required": [
-				"msgId",
-				"req"
-			]
+			"required": ["msgId", "req"]
 		}
 	},
-	"required": [
-		"mType",
-		"data"
-	]
+	"required": ["mType", "data"]
 }
