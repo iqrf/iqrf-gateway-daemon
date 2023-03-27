@@ -170,7 +170,11 @@ if (iqrf.embed.coordinator !== undefined) {
   };
 
   iqrf.embed.coordinator.AuthorizeBond_Request_req = function (param) {
-    return iqrf.embed.coordinator.AuthorizeBond_Request(param.reqAddr, param.mid)
+    if (param.nodes !== undefined) {
+      return iqrf.embed.coordinator.AuthorizeBond_Request(param.nodes);
+    } else {
+      return iqrf.embed.coordinator.AuthorizeBond_Request(param.reqAddr, param.mid);
+    }
   };
 
   iqrf.embed.coordinator.AuthorizeBond_Response_rsp = function (rawHdp) {
