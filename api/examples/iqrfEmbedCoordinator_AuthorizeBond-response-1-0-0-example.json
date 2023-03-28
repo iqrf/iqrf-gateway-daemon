@@ -1,24 +1,60 @@
-{
+[
+  {
     "mType": "iqrfEmbedCoordinator_AuthorizeBond",
     "data": {
-        "msgId": "testEmbedCoordinator",
-        "rsp": {
-            "nAdr": 0,
-            "hwpId": 0,
-            "rCode": 1,
-            "dpaVal": 0,
-            "errorStr": "rcode error"
-        },
-        "raw": {
-            "request": "00.00.00.0d.ff.ff.06.00.00.00.00",
-            "requestTs": "2018-07-09T19:28:23.521495",
-            "confirmation": "",
-            "confirmationTs": "",
-            "response": "00.00.00.8d.00.00.01.00",
-            "responseTs": "2018-07-09T19:28:23.553160"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ERROR_FAIL",
-        "status": 1
+      "msgId": "paramsObject",
+      "rsp": {
+        "nAdr": 0,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 0,
+        "result": {
+          "bondAddr": 10,
+          "devNr": 6
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.00.0d.ff.ff.0a.00.00.00.00",
+          "requestTs": "2023-03-28T11:43:18.919+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.00.0a.06",
+          "responseTs": "2023-03-28T11:43:19.446+02:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
     }
-}
+  },
+  {
+    "mType": "iqrfEmbedCoordinator_AuthorizeBond",
+    "data": {
+      "msgId": "paramsArray",
+      "rsp": {
+        "nAdr": 0,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 64,
+        "result": {
+          "bondAddr": 0,
+          "devNr": 5
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.00.0d.ff.ff.0b.01.00.00.00.0c.02.00.00.00",
+          "requestTs": "2023-03-28T11:41:58.152+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.8d.00.00.00.40.00.05",
+          "responseTs": "2023-03-28T11:41:58.893+02:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  }
+]
