@@ -173,16 +173,15 @@ if (iqrf.embed.coordinator !== undefined) {
     if (param.nodes !== undefined) {
       return iqrf.embed.coordinator.AuthorizeBond_Request(param.nodes);
     } else {
-      return iqrf.embed.coordinator.AuthorizeBond_Request(param.reqAddr, param.mid);
+      return iqrf.embed.coordinator.AuthorizeBond_Request([{
+        reqAddr: param.reqAddr,
+        mid: param.mid
+      }]);
     }
   };
 
   iqrf.embed.coordinator.AuthorizeBond_Response_rsp = function (rawHdp) {
-    iqrf.embed.coordinator.AuthorizeBond_Response(rawHdp);
-    var result =
-    {
-    };
-    return result;
+    return iqrf.embed.coordinator.AuthorizeBond_Response(rawHdp);
   };
 
   iqrf.embed.coordinator.ReadRemotelyBondedMid_Request_req = function (param) {
