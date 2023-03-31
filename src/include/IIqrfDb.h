@@ -30,6 +30,8 @@
 #include <vector>
 
 typedef std::tuple<Device, uint16_t, uint16_t, uint16_t, std::string, uint16_t> DeviceTuple;
+typedef std::tuple<uint8_t, uint8_t> AddrIndex;
+typedef std::unordered_map<uint8_t, std::vector<AddrIndex>> SensorSelectMap;
 
 
 namespace iqrf {
@@ -163,6 +165,8 @@ namespace iqrf {
 		 * @return Map of device addresses and implemented sensors
 		 */
 		virtual std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> getSensors() = 0;
+
+		virtual SensorSelectMap constructSensorSelectMap() = 0;
 
 		/**
 		 * Stores value of sensor

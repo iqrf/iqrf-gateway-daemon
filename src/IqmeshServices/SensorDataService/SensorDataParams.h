@@ -29,6 +29,7 @@ namespace iqrf {
 	typedef struct {
 		std::map<uint8_t, std::list<uint8_t>> sensors;
 		std::set<uint8_t> devices;
+		bool unicast = false;
 		int repeat = 1;
 	} TSensorDataInputParams;
 
@@ -76,26 +77,18 @@ namespace iqrf {
 		 */
 		void parse(Document &doc) {
 			const Value *val;
-			// Sensors
-			/*val = Pointer("/data/req/sensors").Get(doc);
-			if (val && val->IsArray()) {
-				for (auto itr = val->Begin(); itr != val->End(); ++itr) {
-					const auto sensorObj = itr->GetObject();
-					const uint8_t type = static_cast<uint8_t>(sensorObj["type"].GetUint());
-					const auto arr = sensorObj["devices"].GetArray();
-					std::list<uint8_t> devices = std::list<uint8_t>();
-					for (auto it = arr.Begin(); it != arr.End(); ++it) {
-						devices.push_back(static_cast<uint8_t>(it->GetUint()));
-					}
-					m_params.sensors.insert(std::make_pair(type, devices));
-				}
-			}*/
+			
 			// Devices
 			val = Pointer("/data/req/devices").Get(doc);
 			if (val && val->IsArray()) {
 				for (auto it = val->Begin(); it != val->End(); ++it) {
 					m_params.devices.insert(static_cast<uint8_t>(it->GetUint()));
 				}
+			}
+			// Unicast
+			val = Pointer("/data/req/unicast").Get(doc);
+			if (val && val->IsBool()) {
+				m_params.unicast = val->GetBool();
 			}
 			// Repeat
 			val = Pointer("/data/repeat").Get(doc);
