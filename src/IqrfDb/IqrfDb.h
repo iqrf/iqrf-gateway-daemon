@@ -133,6 +133,8 @@ namespace iqrf {
 		 */
 		std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> getSensors() override;
 
+		SensorSelectMap constructSensorSelectMap() override;
+
 		/**
 		 * Stores value of sensor
 		 * @param address Device address
