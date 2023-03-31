@@ -18,6 +18,8 @@
 #include "SensorDataService.h"
 #include "iqrf__SensorDataService.hxx"
 
+#include <deque>
+
 namespace iqrf {
 
 	SensorDataService::SensorDataService() {
@@ -36,6 +38,20 @@ namespace iqrf {
 		result.setStatus(transResult->getErrorCode(), errorStr);
 		result.addTransactionResult(transResult);
 		THROW_EXC(std::logic_error, errorStr);
+	}
+
+	const uint8_t SensorDataService::frcDeviceCountByType(const uint8_t &type) const {
+		if (type >= 0x01 && type <= 0x7F) {
+			return 31;
+		}
+		if (type >= 0x80 && type <= 0x9F) {
+			return 61;
+		}
+		if (type >= 0xA0 && type <= 0xBF) {
+			return 15;
+		}
+		return 15;
+		//throw std::domain_error("Unknown or unsupported sensor type.");
 	}
 
 	///// Message handling
@@ -67,6 +83,77 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
+	void SensorDataService::setOfflineFrc(SensorDataResult &result) {
+		TRC_FUNCTION_ENTER("");
+		std::unique_ptr<IDpaTransactionResult2> transResult;
+		try {
+			DpaMessage setOfflineFrcRequest;
+			DpaMessage::DpaPacket_t setOfflineFrcPacket;
+			setOfflineFrcPacket.DpaRequestPacket_t.NADR = COORDINATOR_ADDRESS;
+			setOfflineFrcPacket.DpaRequestPacket_t.PNUM = PNUM_FRC;
+			setOfflineFrcPacket.DpaRequestPacket_t.PCMD = CMD_FRC_SET_PARAMS;
+			setOfflineFrcPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+			setOfflineFrcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FrcParams = 0x08;
+			setOfflineFrcRequest.DataToBuffer(setOfflineFrcPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerFrcSetParams_RequestResponse));
+			// Execute the DPA request
+			m_exclusiveAccess->executeDpaTransactionRepeat(setOfflineFrcRequest, transResult, m_params.repeat);
+			TRC_DEBUG("Result from Set FRC params transaction as string: " << PAR(transResult->getErrorString()));
+			DpaMessage setOfflineFrcResponse = transResult->getResponse();
+			TRC_DEBUG(
+				"DPA transaction: "
+				<< NAME_PAR(Peripheral type, setOfflineFrcRequest.PeripheralType())
+				<< NAME_PAR(Node address, setOfflineFrcRequest.NodeAddress())
+				<< NAME_PAR(Command, (int)setOfflineFrcRequest.PeripheralCommand())
+			);
+			result.addTransactionResult(transResult);
+			TRC_FUNCTION_LEAVE("");
+		} catch (const std::exception &e) {
+			setErrorTransactionResult(result, transResult, e.what());
+		}
+	}
+
+	void SensorDataService::sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, const std::vector<uint8_t> &nodes) {
+		const uint8_t command = getSensorFrcCommand(type);
+		//
+	}
+
+	void SensorDataService::getTypeData(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::deque<uint8_t> &addresses) {
+		const uint8_t devicesPerRequest = frcDeviceCountByType(type);
+		const uint8_t v = addresses.size() / devicesPerRequest;
+		const uint8_t r = addresses.size() & devicesPerRequest;
+		std::vector<std::vector<uint8_t>> vectors;
+		for (uint8_t i = 0; i < v; ++i) {
+			vectors.push_back(std::vector<uint8_t>(addresses.begin(), addresses.begin() + devicesPerRequest));
+			addresses.erase(addresses.begin(), addresses.begin() + devicesPerRequest);
+		}
+		vectors.push_back(std::vector<uint8_t>(addresses.begin(), addresses.end()));
+		for (const auto &v : vectors) {
+			sendSensorFrc(result, type, idx, v);
+		}
+	}
+
+	void SensorDataService::getDataByFrc(SensorDataResult &result) {
+		SensorSelectMap map = m_dbService->constructSensorSelectMap();
+		for (const auto& [type, addrIdx] : map) {
+			TRC_DEBUG("type: " << std::to_string(type));
+			if (type >= 0xC0) {
+				continue;
+			}
+			for (uint8_t desiredIdx = 0; desiredIdx < 32; ++desiredIdx) {
+				std::deque<uint8_t> addrs;
+				for (const auto& [addr, idx] : addrIdx) {
+					if (desiredIdx == idx) {
+						addrs.emplace_back(addr);
+					}
+				}
+				if (addrs.size() > 0) {
+					getTypeData(result, type, desiredIdx, addrs);
+				}
+			}
+		}
+	}
+	
+
 	void SensorDataService::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, Document doc) {
 		TRC_FUNCTION_ENTER(
 			PAR(messagingId) <<
@@ -96,7 +183,11 @@ namespace iqrf {
 		}
 
 		try {
-			readSensorData(result);
+			if (m_params.unicast) {
+				readSensorData(result);
+			} else {
+				getDataByFrc(result);
+			}
 			m_dbService->updateSensorValues(result.getSensorData());
 		} catch (const std::exception &e) {
 			CATCH_EXC_TRC_WAR(std::exception, e, e.what());

@@ -59,6 +59,12 @@
 								"minimum": 1,
 								"maximum": 239
 							}
+						},
+						"unicast": {
+							"$id": "#/properties/data/properties/req/properties/poll",
+							"title": "Unicast",
+							"description": "Retrieve data by sending unicast messages to devices.",
+							"type": "boolean"
 						}
 					}
 				},

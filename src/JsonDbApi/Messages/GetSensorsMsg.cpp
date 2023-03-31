@@ -57,6 +57,8 @@ namespace iqrf {
 					if (metadata && metadataDoc.HasMember("datablock")) {
 						Pointer("/value").Set(sensorObject, Value(metadataDoc["datablock"], allocator).Move(), allocator);
 						metadataDoc.RemoveMember("datablock");
+					} else {
+						Pointer("/value").Create(sensorObject, allocator);
 					}
 				} else {
 					std::shared_ptr<double> val = deviceSensor.getValue();

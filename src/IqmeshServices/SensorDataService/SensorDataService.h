@@ -25,6 +25,8 @@
 #include "SensorDataResult.h"
 #include "ShapeProperties.h"
 
+#include <stdexcept>
+
 namespace iqrf {
 	/// Sensor data service class
 	class SensorDataService : public ISensorDataService {
@@ -131,11 +133,21 @@ namespace iqrf {
 		 */
 		void setErrorTransactionResult(SensorDataResult &result, std::unique_ptr<IDpaTransactionResult2> &transResult, const std::string &errorStr);
 
+		const uint8_t frcDeviceCountByType(const uint8_t &type) const;
+
 		/**
 		 * Executes API requests to retrieve sensor data
 		 * @param result Service result
 		 */
 		void readSensorData(SensorDataResult &result);
+
+		void setOfflineFrc(SensorDataResult &result);
+
+		void sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, const std::vector<uint8_t> &nodes);
+
+		void getTypeData(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::deque<uint8_t> &addresses);
+
+		void getDataByFrc(SensorDataResult &result);
 
 		/**
 		 * Handles request from splitter

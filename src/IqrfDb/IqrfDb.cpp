@@ -113,6 +113,10 @@ namespace iqrf {
 		return this->query.getSensors();
 	}
 
+	SensorSelectMap IqrfDb::constructSensorSelectMap() {
+		return this->query.constructSensorSelectMap();
+	}
+
 	void IqrfDb::setSensorValue(const uint8_t &address, const uint8_t &type, const uint8_t &index, const double &value, std::shared_ptr<std::string> updated) {
 		this->query.setSensorValue(address, type, index, value, updated);
 	}
