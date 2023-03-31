@@ -314,6 +314,29 @@ std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> QueryHandler::g
 	return sensors;
 }
 
+SensorSelectMap QueryHandler::constructSensorSelectMap() {
+	SensorSelectMap map;
+	auto deviceSensors = db->get_all<DeviceSensor>(
+		multi_order_by(
+			order_by(&DeviceSensor::getAddress).asc(),
+			order_by(&DeviceSensor::getType).asc(),
+			order_by(&DeviceSensor::getIndex).asc()
+		)
+	);
+	uint8_t lastAddr = 0;
+	uint8_t idx = 0;
+	for (auto &ds : deviceSensors) {
+		uint8_t address = ds.getAddress();
+		if (lastAddr != address) {
+			lastAddr = address;
+			idx = 0;
+		}
+		uint8_t type = ds.getType();
+		map[type].emplace_back(std::make_tuple(address, idx++));
+	}
+	return map;
+}
+
 void QueryHandler::removeSensors(const uint8_t &address) {
 	db->remove_all<DeviceSensor>(where(c(&DeviceSensor::getAddress) == address));
 }
@@ -384,7 +407,10 @@ DeviceSensor QueryHandler::getSensorByTypeIndex(const uint8_t &address, const ui
 }
 
 std::vector<DeviceSensor> QueryHandler::getSensorsOfType(const uint8_t &address, const uint8_t &type) {
-	return db->get_all<DeviceSensor>(where(c(&DeviceSensor::getAddress) == address and c(&DeviceSensor::getType) == type));
+	return db->get_all<DeviceSensor>(
+		where(c(&DeviceSensor::getAddress) == address and c(&DeviceSensor::getType) == type),
+		order_by(&DeviceSensor::getIndex).asc()
+	);
 }
 
 std::map<uint16_t, std::set<uint8_t>> QueryHandler::getSensorDeviceHwpids(const uint8_t &type) {
