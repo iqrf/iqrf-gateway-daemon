@@ -20,10 +20,16 @@
 #include "Storage.h"
 #include "EmbedNode.h"
 
+#include <tuple>
+#include <unordered_map>
+#include <vector>
+
 using json = nlohmann::json;
 using namespace sqlite_orm;
 
 typedef std::tuple<Device, uint16_t, uint16_t, uint16_t, std::string, uint16_t> DeviceTuple;
+typedef std::tuple<uint8_t, uint8_t> AddrIndex;
+typedef std::unordered_map<uint8_t, std::vector<AddrIndex>> SensorSelectMap;
 
 class QueryHandler {
 public:
@@ -236,6 +242,8 @@ public:
 	 * @return Map of device addresses and implemented sensors
 	 */
 	std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> getSensors();
+
+	SensorSelectMap constructSensorSelectMap();
 
 	/**
 	 * Remove all device Sensor records implemented by device ID
