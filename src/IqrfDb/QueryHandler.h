@@ -50,7 +50,7 @@ public:
 	std::vector<DeviceTuple> getDevices();
 
 	/**
-	 * Checks if device record exists 
+	 * Checks if device record exists
 	 * @param address Device address
 	 * @return true if device record exists, false otherwise
 	 */
@@ -243,6 +243,8 @@ public:
 	std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> getSensors();
 
 	SensorSelectMap constructSensorSelectMap();
+
+	uint8_t getGlobalSensorIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index);
 
 	/**
 	 * Remove all device Sensor records implemented by device ID
