@@ -17,10 +17,11 @@
 
 #include "DeviceSensor.h"
 
-DeviceSensor::DeviceSensor(const uint8_t &address, const uint8_t &type, const uint8_t &index, const uint32_t &sensorId, std::shared_ptr<double> value) {
+DeviceSensor::DeviceSensor(const uint8_t &address, const uint8_t &type, const uint8_t &globalIndex, const uint8_t &typeIndex, const uint32_t &sensorId, std::shared_ptr<double> value) {
 	this->address = address;
 	this->type = type;
-	this->index = index;
+	this->globalIndex = globalIndex;
+	this->typeIndex = typeIndex;
 	this->sensorId = sensorId;
 	this->value = value;
 }
@@ -41,12 +42,20 @@ void DeviceSensor::setType(const uint8_t &type) {
 	this->type = type;
 }
 
-const uint8_t& DeviceSensor::getIndex() const {
-	return this->index;
+const uint8_t& DeviceSensor::getGlobalIndex() const {
+	return this->globalIndex;
 }
 
-void DeviceSensor::setIndex(const uint8_t &index) {
-	this->index = index;
+void DeviceSensor::setGlobalIndex(const uint8_t &globalIndex) {
+	this->globalIndex = globalIndex;
+}
+
+const uint8_t& DeviceSensor::getTypeIndex() const {
+	return this->typeIndex;
+}
+
+void DeviceSensor::setTypeIndex(const uint8_t &typeIndex) {
+	this->typeIndex = typeIndex;
 }
 
 const uint32_t& DeviceSensor::getSensorId() const {

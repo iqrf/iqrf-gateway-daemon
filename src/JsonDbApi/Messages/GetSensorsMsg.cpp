@@ -38,7 +38,7 @@ namespace iqrf {
 				DeviceSensor deviceSensor = std::get<0>(s);
 				Sensor sensor = std::get<1>(s);
 				Value sensorObject;
-				Pointer("/index").Set(sensorObject, deviceSensor.getIndex(), allocator);
+				Pointer("/index").Set(sensorObject, deviceSensor.getGlobalIndex(), allocator);
 				Pointer("/type").Set(sensorObject, sensor.getType(), allocator);
 				Pointer("/name").Set(sensorObject, sensor.getName(), allocator);
 				Pointer("/shortname").Set(sensorObject, sensor.getShortname(), allocator);

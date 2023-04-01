@@ -1304,6 +1304,8 @@ namespace iqrf {
 
 		auto &sensors = sensorEnum.getSensors();
 
+		uint8_t cnt[255] = {0};
+
 		for (auto &item : sensors) {
 			uint32_t sensorId;
 			uint8_t type = item->getType();
@@ -1332,7 +1334,8 @@ namespace iqrf {
 			const uint8_t index = item->getIdx();
 			exists = this->query.deviceSensorExists(address, type, index);
 			if (!exists) {
-				m_db->replace(DeviceSensor(address, type, index, sensorId, nullptr));
+				m_db->replace(DeviceSensor(address, type, index, cnt[type], sensorId, nullptr));
+				cnt[type] += 1;
 			}
 		}
 		TRC_FUNCTION_LEAVE("");

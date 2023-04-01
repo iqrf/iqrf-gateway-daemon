@@ -111,14 +111,15 @@ static inline auto initializeDb(const std::string &fileName) {
 		make_table("deviceSensor",
 			make_column("address", &DeviceSensor::getAddress, &DeviceSensor::setAddress),
 			make_column("type", &DeviceSensor::getType, &DeviceSensor::setType),
-			make_column("idx", &DeviceSensor::getIndex, &DeviceSensor::setIndex),
+			make_column("globalIndex", &DeviceSensor::getGlobalIndex, &DeviceSensor::setGlobalIndex),
+			make_column("typeIndex", &DeviceSensor::getTypeIndex, &DeviceSensor::setTypeIndex),
 			make_column("sensorId", &DeviceSensor::getSensorId, &DeviceSensor::setSensorId),
 			make_column("value", &DeviceSensor::getValue, &DeviceSensor::setValue),
 			make_column("updated", &DeviceSensor::getUpdated, &DeviceSensor::setUpdated),
 			make_column("metadata", &DeviceSensor::getMetadata, &DeviceSensor::setMetadata),
 			foreign_key(&DeviceSensor::getAddress).references(&Device::getAddress).on_delete.cascade(),
 			foreign_key(&DeviceSensor::getSensorId).references(&Sensor::getId),
-			primary_key(&DeviceSensor::getAddress, &DeviceSensor::getType, &DeviceSensor::getIndex)
+			primary_key(&DeviceSensor::getAddress, &DeviceSensor::getType, &DeviceSensor::getGlobalIndex)
 		)
 	);
 }
