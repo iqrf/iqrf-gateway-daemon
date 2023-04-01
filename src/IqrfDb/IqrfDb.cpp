@@ -117,6 +117,10 @@ namespace iqrf {
 		return this->query.constructSensorSelectMap();
 	}
 
+	uint8_t IqrfDb::getGlobalSensorIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index) {
+		return this->query.getGlobalSensorIndex(address, type, index);
+	}
+
 	void IqrfDb::setSensorValue(const uint8_t &address, const uint8_t &type, const uint8_t &index, const double &value, std::shared_ptr<std::string> updated) {
 		this->query.setSensorValue(address, type, index, value, updated);
 	}

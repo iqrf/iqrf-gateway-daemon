@@ -56,8 +56,10 @@ namespace iqrf
         uint8_t m_breakdownDecimalPlaces = 1;
         double m_breakdownValue = 0;
         std::vector<uint8_t> m_breakdownValueArray;
+        int m_addr = -1;
 
       public:
+        int getAddr() const { return m_addr; }
         int getIdx() const { return m_idx; }
         const std::string & getSid() const { return m_sid; }
         int getType() const { return m_type; }
@@ -76,6 +78,7 @@ namespace iqrf
         const std::vector<uint8_t>& getValueArray() const { return m_valueArray; }
         double getBreakdownValue() const { return m_breakdownValue; }
         const std::vector<uint8_t>& getBreakdownValueArray() const { return m_breakdownValueArray; }
+        void setIdx(const uint8_t &idx) { m_idx = idx; }
 
         virtual ~Sensor() {}
       };
@@ -122,7 +125,7 @@ namespace iqrf
       int m_sensorIndex = 0;
       uint8_t m_frcCommand = 0;
       bool m_selectedNodesSet = false;
-      std::vector<int> m_selectedNodes;
+      std::set<uint8_t> m_selectedNodes;
       bool m_sleepAfterFrcSet = false;
       int m_time = 0;
       int m_control = 0;
@@ -139,7 +142,18 @@ namespace iqrf
         , m_frcCommand(frcCommand)
       {}
 
-      Frc(int sensorType, int sensorIndex, uint8_t frcCommand, const std::vector<int> & selectedNodes)
+      Frc(uint8_t sensorType, uint8_t sensorIndex, uint8_t frcCommand, const std::set<uint8_t> &selectedNodes = {})
+        : m_sensorType(sensorType),
+        m_sensorIndex(sensorIndex),
+        m_frcCommand(frcCommand)
+      {
+        if (selectedNodes.size() > 0) {
+          m_selectedNodes = selectedNodes;
+          m_selectedNodesSet = true;
+        }
+      }
+
+      Frc(int sensorType, int sensorIndex, uint8_t frcCommand, const std::set<uint8_t> &selectedNodes)
         :m_sensorType(sensorType)
         , m_sensorIndex(sensorIndex)
         , m_frcCommand(frcCommand)
@@ -147,7 +161,7 @@ namespace iqrf
         , m_selectedNodes(selectedNodes)
       {}
 
-      Frc(int sensorType, int sensorIndex, uint8_t frcCommand, const std::vector<int> & selectedNodes, int time, int control)
+      Frc(int sensorType, int sensorIndex, uint8_t frcCommand, const std::set<uint8_t> &selectedNodes, int time, int control)
         :m_sensorType(sensorType)
         , m_sensorIndex(sensorIndex)
         , m_frcCommand(frcCommand)
@@ -174,7 +188,7 @@ namespace iqrf
       int getSensorType() const { return m_sensorType; }
       int getSensorIndex() const { return m_sensorIndex; }
       int getFrcCommand() const { return m_frcCommand; }
-      const std::vector<int> & getSelectedNodes() const { return m_selectedNodes; }
+      const std::set<uint8_t>& getSelectedNodes() const { return m_selectedNodes; }
       int getTime() const { return m_time; }
       int getControl() const { return m_control; }
 
