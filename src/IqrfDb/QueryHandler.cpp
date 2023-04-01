@@ -324,17 +324,39 @@ SensorSelectMap QueryHandler::constructSensorSelectMap() {
 		)
 	);
 	uint8_t lastAddr = 0;
+	uint8_t lastType = 0;
 	uint8_t idx = 0;
 	for (auto &ds : deviceSensors) {
 		uint8_t address = ds.getAddress();
+		uint8_t type = ds.getType();
 		if (lastAddr != address) {
 			lastAddr = address;
 			idx = 0;
 		}
-		uint8_t type = ds.getType();
+		if (lastType != type) {
+			lastType = type;
+			idx = 0;
+		}
 		map[type].emplace_back(std::make_tuple(address, idx++));
 	}
 	return map;
+}
+
+uint8_t QueryHandler::getGlobalSensorIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index) {
+	auto deviceSensors = db->get_all<DeviceSensor>(
+		where(
+			c(&DeviceSensor::getAddress) == address
+			and c(&DeviceSensor::getType) == type
+		),
+		order_by(&DeviceSensor::getIndex).asc()
+	);
+	if (deviceSensors.size() <= index) {
+		throw std::logic_error("Device at address " + std::to_string(address)
+			+ " does not implement sensor of type " + std::to_string(type)
+			+ " at index " + std::to_string(index)
+		);
+	}
+	return deviceSensors[index].getIndex();
 }
 
 void QueryHandler::removeSensors(const uint8_t &address) {

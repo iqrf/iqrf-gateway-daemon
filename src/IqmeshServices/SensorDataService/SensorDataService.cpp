@@ -40,7 +40,7 @@ namespace iqrf {
 		THROW_EXC(std::logic_error, errorStr);
 	}
 
-	const uint8_t SensorDataService::frcDeviceCountByType(const uint8_t &type) const {
+	uint8_t SensorDataService::frcDeviceCountByType(const uint8_t &type) {
 		if (type >= 0x01 && type <= 0x7F) {
 			return 31;
 		}
@@ -75,7 +75,7 @@ namespace iqrf {
 				} catch (const std::exception &e) {
 					result.addDeviceMid(addr, 0);
 				}
-				result.addSensorData(addr, readSensors.getSensors());
+				result.addSensorData(readSensors.getSensors());
 			}
 		} catch (const std::exception &e) {
 			setErrorTransactionResult(result, transResult, e.what());
@@ -112,22 +112,52 @@ namespace iqrf {
 		}
 	}
 
-	void SensorDataService::sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, const std::vector<uint8_t> &nodes) {
-		const uint8_t command = getSensorFrcCommand(type);
-		//
+	void SensorDataService::sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes) {
+		uint8_t command = getSensorFrcCommand(type);
+		std::unique_ptr<IDpaTransactionResult2> transResult;
+		try {
+			sensor::jsdriver::SensorFrcJs sensorFrc(m_jsRenderService, type, idx, command, nodes);
+			sensorFrc.processRequestDrv();
+			// frc send selective
+			m_dpaService->executeDpaTransactionRepeat(sensorFrc.getFrcRequest(), transResult, m_params.repeat);
+			sensorFrc.setFrcDpaTransactionResult(std::move(transResult));
+			// frc extra result
+			m_dpaService->executeDpaTransactionRepeat(sensorFrc.getFrcExtraRequest(), transResult, m_params.repeat);
+			sensorFrc.setFrcExtraDpaTransactionResult(std::move(transResult));
+			// handle response
+			if (type == 129 || type == 160) {
+				auto map = m_dbService->getSensorDeviceHwpids(type);
+				sensorFrc.processResponseSensorDrv(map, nodes, true);
+			} else {
+				sensorFrc.processResponseDrv();
+			}
+			for (auto &sensor : sensorFrc.getSensors()) {
+				const uint8_t addr = sensor->getAddr();
+				try {
+					uint32_t mid = m_dbService->getDeviceMid(addr);
+					result.addDeviceMid(addr, mid);
+				} catch (const std::exception &e) {
+					result.addDeviceMid(addr, 0);
+				}
+				sensor->setIdx(m_dbService->getGlobalSensorIndex(sensor->getAddr(), sensor->getType(), sensor->getIdx()));
+			}
+			result.addSensorData(sensorFrc.getSensors());
+		} catch (const std::exception &e) {
+			setErrorTransactionResult(result, transResult, e.what());
+		}
 	}
 
 	void SensorDataService::getTypeData(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::deque<uint8_t> &addresses) {
 		const uint8_t devicesPerRequest = frcDeviceCountByType(type);
 		const uint8_t v = addresses.size() / devicesPerRequest;
-		const uint8_t r = addresses.size() & devicesPerRequest;
-		std::vector<std::vector<uint8_t>> vectors;
+		const uint8_t r = addresses.size() % devicesPerRequest;
+		std::vector<std::set<uint8_t>> vectors;
 		for (uint8_t i = 0; i < v; ++i) {
-			vectors.push_back(std::vector<uint8_t>(addresses.begin(), addresses.begin() + devicesPerRequest));
+			vectors.push_back(std::set<uint8_t>(addresses.begin(), addresses.begin() + devicesPerRequest));
 			addresses.erase(addresses.begin(), addresses.begin() + devicesPerRequest);
 		}
-		vectors.push_back(std::vector<uint8_t>(addresses.begin(), addresses.end()));
-		for (const auto &v : vectors) {
+		vectors.push_back(std::set<uint8_t>(addresses.begin(), addresses.end()));
+		for (auto &v : vectors) {
 			sendSensorFrc(result, type, idx, v);
 		}
 	}
@@ -152,7 +182,7 @@ namespace iqrf {
 			}
 		}
 	}
-	
+
 
 	void SensorDataService::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, Document doc) {
 		TRC_FUNCTION_ENTER(

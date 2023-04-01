@@ -135,6 +135,8 @@ namespace iqrf {
 
 		SensorSelectMap constructSensorSelectMap() override;
 
+		uint8_t getGlobalSensorIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index) override;
+
 		/**
 		 * Stores value of sensor
 		 * @param address Device address
@@ -200,7 +202,7 @@ namespace iqrf {
 		void unregisterEnumerationHandler(const std::string &clientId) override;
 
 		/**
-		 * Updates sensor values from map of addresses and sensor objects 
+		 * Updates sensor values from map of addresses and sensor objects
 		 * @param devices Map of devices and sensors
 		 */
 		void updateSensorValues(const std::map<uint8_t, std::vector<sensor::item::Sensor>> &devices) override;
