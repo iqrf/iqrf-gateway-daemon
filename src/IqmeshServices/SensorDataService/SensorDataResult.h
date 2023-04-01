@@ -41,12 +41,10 @@ namespace iqrf {
 		 * Stores collected sensor data
 		 * @param sensorData Collected sensor data
 		 */
-		void addSensorData(const uint8_t &address, const std::vector<sensor::item::SensorPtr> &sensorData) {
-			std::vector<sensor::item::Sensor> sensors;
-			for (auto it = sensorData.begin(); it != sensorData.end(); ++it) {
-				sensors.push_back(*((*it).get()));
+		void addSensorData(const std::vector<sensor::item::SensorPtr> &sensorData) {
+			for (const auto& sensor : sensorData) {
+				m_sensorData[sensor->getAddr()].emplace_back(*sensor.get());
 			}
-			m_sensorData.insert(std::make_pair(address, sensors));
 		}
 
 		/**
