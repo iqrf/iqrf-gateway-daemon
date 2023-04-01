@@ -33,11 +33,12 @@ public:
 	 * Full constructor
 	 * @param address Device address
 	 * @param type Sensor type
-	 * @param index Sensor index
+	 * @param globalIndex Global index
+	 * @param typeIndex TypeIndex
 	 * @param sensorId Sensor ID
 	 * @param value Last sensor value
 	 */
-	DeviceSensor(const uint8_t &address, const uint8_t &type, const uint8_t &index, const uint32_t &sensorId, std::shared_ptr<double> value = nullptr);
+	DeviceSensor(const uint8_t &address, const uint8_t &type, const uint8_t &globalIndex, const uint8_t &typeIndex, const uint32_t &sensorId, std::shared_ptr<double> value = nullptr);
 
 	/**
 	 * Returns device ID
@@ -64,16 +65,28 @@ public:
 	void setType(const uint8_t &type);
 
 	/**
-	 * Returns Sensor index
-	 * @return Sensor index
+	 * Returns global sensor index
+	 * @return Global sensor index
 	 */
-	const uint8_t& getIndex() const;
+	const uint8_t& getGlobalIndex() const;
 
 	/**
-	 * Sets Sensor index
-	 * @param index Sensor index
+	 * Sets global sensor index
+	 * @param globalIndex Global sensor index
 	 */
-	void setIndex(const uint8_t &index);
+	void setGlobalIndex(const uint8_t &globalIndex);
+
+	/**
+	 * Returns type sensor index
+	 * @return Type sensor index
+	 */
+	const uint8_t& getTypeIndex() const;
+
+	/**
+	 * Sets type sensor index
+	 * @param globalIndex Type sensor index
+	 */
+	void setTypeIndex(const uint8_t &typeIndex);
 
 	/**
 	 * Returns Sensor ID
@@ -128,8 +141,10 @@ private:
 	uint8_t address;
 	/// Sensor type
 	uint8_t type;
-	/// Sensor index
-	uint8_t index;
+	/// Sensor index per device
+	uint8_t globalIndex;
+	/// Sensor index per type
+	uint8_t typeIndex;
 	/// Sensor ID
 	uint32_t sensorId;
 	/// Last recorded value
