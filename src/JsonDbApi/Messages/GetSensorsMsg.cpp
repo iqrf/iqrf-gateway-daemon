@@ -34,9 +34,7 @@ namespace iqrf {
 			std::vector<std::tuple<DeviceSensor, Sensor>> sensorVector = item.second;
 			Value sensorArray(kArrayType);
 
-			for (auto &s : sensorVector) {
-				DeviceSensor deviceSensor = std::get<0>(s);
-				Sensor sensor = std::get<1>(s);
+			for (auto &[deviceSensor, sensor] : sensorVector) {
 				Value sensorObject;
 				Pointer("/index").Set(sensorObject, deviceSensor.getGlobalIndex(), allocator);
 				Pointer("/type").Set(sensorObject, sensor.getType(), allocator);
