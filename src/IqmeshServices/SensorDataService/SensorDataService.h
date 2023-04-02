@@ -25,7 +25,12 @@
 #include "SensorDataResult.h"
 #include "ShapeProperties.h"
 
+#include <deque>
 #include <stdexcept>
+
+#define FRC_CMD_1BYTE 0x90
+#define FRC_CMD_2BYTE 0xE0
+#define FRC_CMD_4BYTE 0xF9
 
 namespace iqrf {
 	/// Sensor data service class
@@ -133,20 +138,49 @@ namespace iqrf {
 		 */
 		void setErrorTransactionResult(SensorDataResult &result, std::unique_ptr<IDpaTransactionResult2> &transResult, const std::string &errorStr);
 
+		/**
+		 * Returns number of devices that data can be collected from in one request by sensor type
+		 * @param type Sensor type
+		 * @return Number of devices per request
+		 */
 		uint8_t frcDeviceCountByType(const uint8_t &type);
 
 		/**
-		 * Executes API requests to retrieve sensor data
+		 * Checks if extra result request is required to collect data from all devices
+		 * @param command FRC command
+		 * @param deviceCount Number of devices
+		 * @return True if device count requires extra result request to retrieve all data, false otherwise
+		 */
+		bool extraResultRequired(const uint8_t &command, const uint8_t &deviceCount);
+
+		/**
+		 * Sets offline FRC flag
 		 * @param result Service result
 		 */
-		void readSensorData(SensorDataResult &result);
-
 		void setOfflineFrc(SensorDataResult &result);
 
+		/**
+		 * Sends Sensor FRC and stores response data
+		 * @param result Service result
+		 * @param type Sensor type
+		 * @param idx Sensor index
+		 * @param nodes Devices to read data from
+		 */
 		void sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes);
 
+		/**
+		 * Prepares requests for specified sensor type, index and selected devices
+		 * @param result Service result
+		 * @param type Sensor type
+		 * @param idx Sensor index
+		 * @param addresses Devices to read data from
+		 */
 		void getTypeData(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::deque<uint8_t> &addresses);
 
+		/**
+		 * Reads Sensor data using FRC requests
+		 * @param result Service result
+		 */
 		void getDataByFrc(SensorDataResult &result);
 
 		/**

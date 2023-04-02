@@ -27,9 +27,6 @@ using namespace rapidjson;
 namespace iqrf {
 	/// Sensor data input parameters struct
 	typedef struct {
-		std::map<uint8_t, std::list<uint8_t>> sensors;
-		std::set<uint8_t> devices;
-		bool unicast = false;
 		int repeat = 1;
 	} TSensorDataInputParams;
 
@@ -48,7 +45,7 @@ namespace iqrf {
 		explicit SensorDataParams(Document &doc) : ComBase(doc) {
 			parse(doc);
 		}
-	
+
 		/**
 		 * Destructor
 		 */
@@ -77,26 +74,14 @@ namespace iqrf {
 		 */
 		void parse(Document &doc) {
 			const Value *val;
-			
-			// Devices
-			val = Pointer("/data/req/devices").Get(doc);
-			if (val && val->IsArray()) {
-				for (auto it = val->Begin(); it != val->End(); ++it) {
-					m_params.devices.insert(static_cast<uint8_t>(it->GetUint()));
-				}
-			}
-			// Unicast
-			val = Pointer("/data/req/unicast").Get(doc);
-			if (val && val->IsBool()) {
-				m_params.unicast = val->GetBool();
-			}
+
 			// Repeat
 			val = Pointer("/data/repeat").Get(doc);
 			if (val && val->IsInt()) {
 				m_params.repeat = val->GetInt();
 			}
 		}
-	
+
 		/// Sensor data parameters
 		TSensorDataInputParams m_params;
 	};
