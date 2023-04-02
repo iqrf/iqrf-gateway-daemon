@@ -18,8 +18,6 @@
 #include "SensorDataService.h"
 #include "iqrf__SensorDataService.hxx"
 
-#include <deque>
-
 namespace iqrf {
 
 	SensorDataService::SensorDataService() {
@@ -50,38 +48,23 @@ namespace iqrf {
 		if (type >= 0xA0 && type <= 0xBF) {
 			return 15;
 		}
-		return 15;
-		//throw std::domain_error("Unknown or unsupported sensor type.");
+		throw std::domain_error("Unknown or unsupported sensor type.");
+	}
+
+	bool SensorDataService::extraResultRequired(const uint8_t &command, const uint8_t &deviceCount) {
+		switch (command) {
+			case FRC_CMD_1BYTE:
+				return deviceCount > 55;
+			case FRC_CMD_2BYTE:
+				return deviceCount > 27;
+			case FRC_CMD_4BYTE:
+				return deviceCount > 13;
+			default:
+				throw std::domain_error("Unknown or unsupported FRC command.");
+		}
 	}
 
 	///// Message handling
-
-	void SensorDataService::readSensorData(SensorDataResult &result) {
-		TRC_FUNCTION_ENTER("");
-		std::unique_ptr<IDpaTransactionResult2> transResult;
-		try {
-			std::set<uint8_t>::iterator it;
-			for (it = m_params.devices.begin(); it != m_params.devices.end(); ++it) {
-				const uint8_t addr = *it;
-				rapidjson::Document params(kObjectType);
-				Pointer("/sensorIndexes").Set(params, -1);
-				sensor::jsdriver::ReadSensorsWithTypes readSensors(m_jsRenderService, addr, params);
-				readSensors.processRequestDrv();
-				m_dpaService->executeDpaTransactionRepeat(readSensors.getRequest(), transResult, m_params.repeat);
-				readSensors.processDpaTransactionResult(std::move(transResult));
-				try {
-					uint32_t mid = m_dbService->getDeviceMid(addr);
-					result.addDeviceMid(addr, mid);
-				} catch (const std::exception &e) {
-					result.addDeviceMid(addr, 0);
-				}
-				result.addSensorData(readSensors.getSensors());
-			}
-		} catch (const std::exception &e) {
-			setErrorTransactionResult(result, transResult, e.what());
-		}
-		TRC_FUNCTION_LEAVE("");
-	}
 
 	void SensorDataService::setOfflineFrc(SensorDataResult &result) {
 		TRC_FUNCTION_ENTER("");
@@ -105,7 +88,6 @@ namespace iqrf {
 				<< NAME_PAR(Node address, setOfflineFrcRequest.NodeAddress())
 				<< NAME_PAR(Command, (int)setOfflineFrcRequest.PeripheralCommand())
 			);
-			result.addTransactionResult(transResult);
 			TRC_FUNCTION_LEAVE("");
 		} catch (const std::exception &e) {
 			setErrorTransactionResult(result, transResult, e.what());
@@ -122,8 +104,10 @@ namespace iqrf {
 			m_dpaService->executeDpaTransactionRepeat(sensorFrc.getFrcRequest(), transResult, m_params.repeat);
 			sensorFrc.setFrcDpaTransactionResult(std::move(transResult));
 			// frc extra result
-			m_dpaService->executeDpaTransactionRepeat(sensorFrc.getFrcExtraRequest(), transResult, m_params.repeat);
-			sensorFrc.setFrcExtraDpaTransactionResult(std::move(transResult));
+			if (extraResultRequired(command, nodes.size())) {
+				m_dpaService->executeDpaTransactionRepeat(sensorFrc.getFrcExtraRequest(), transResult, m_params.repeat);
+				sensorFrc.setFrcExtraDpaTransactionResult(std::move(transResult));
+			}
 			// handle response
 			if (type == 129 || type == 160) {
 				auto map = m_dbService->getSensorDeviceHwpids(type);
@@ -157,8 +141,9 @@ namespace iqrf {
 			addresses.erase(addresses.begin(), addresses.begin() + devicesPerRequest);
 		}
 		vectors.push_back(std::set<uint8_t>(addresses.begin(), addresses.end()));
-		for (auto &v : vectors) {
-			sendSensorFrc(result, type, idx, v);
+		for (auto &vector : vectors) {
+			setOfflineFrc(result);
+			sendSensorFrc(result, type, idx, vector);
 		}
 	}
 
@@ -213,11 +198,7 @@ namespace iqrf {
 		}
 
 		try {
-			if (m_params.unicast) {
-				readSensorData(result);
-			} else {
-				getDataByFrc(result);
-			}
+			getDataByFrc(result);
 			m_dbService->updateSensorValues(result.getSensorData());
 		} catch (const std::exception &e) {
 			CATCH_EXC_TRC_WAR(std::exception, e, e.what());
