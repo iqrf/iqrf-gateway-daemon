@@ -242,8 +242,19 @@ public:
 	 */
 	std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> getSensors();
 
+	/**
+	 * Constructs and returns a map of sensor types, devices that implement them and their local indexes
+	 * @return Map of sensor types and devices
+	 */
 	SensorSelectMap constructSensorSelectMap();
 
+	/**
+	 * Retrieves global sensor index from address, type and type index
+	 * @param address Device address
+	 * @param type Sensor type
+	 * @param index Type index
+	 * @return Global sensor index
+	 */
 	uint8_t getGlobalSensorIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index);
 
 	/**

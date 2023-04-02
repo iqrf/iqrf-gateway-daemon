@@ -164,8 +164,19 @@ namespace iqrf {
 		 */
 		virtual std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> getSensors() = 0;
 
+		/**
+		 * Constructs and returns a map of sensor types, devices that implement them and their local indexes
+		 * @return Map of sensor types and devices
+		 */
 		virtual SensorSelectMap constructSensorSelectMap() = 0;
 
+		/**
+		 * Retrieves global sensor index from address, type and type index
+		 * @param address Device address
+		 * @param type Sensor type
+		 * @param index Type index
+		 * @return Global sensor index
+		 */
 		virtual uint8_t getGlobalSensorIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index) = 0;
 
 		/**
