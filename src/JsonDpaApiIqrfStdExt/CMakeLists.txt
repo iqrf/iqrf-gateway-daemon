@@ -15,7 +15,7 @@
 
 project(JsonDpaApiIqrfStdExt)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(COMPONENT iqrf::JsonDpaApiIqrfStdExt)
 DeclareShapeComponent(${COMPONENT})
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDb UNREQUIRED SINGLE)
