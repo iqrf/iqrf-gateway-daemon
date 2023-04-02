@@ -36,37 +36,7 @@
 					"$id": "#/properties/data/properties/req",
 					"title": "Request parameters",
 					"description": "Request parameters.",
-					"type": "object",
-					"required": [
-						"devices"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"devices": {
-							"$id": "#/properties/data/properties/req/properties/devices",
-							"title": "Devices",
-							"description": "Array of device addresses.",
-							"type": "array",
-							"uniqueItems": true,
-							"minItems": 1,
-							"maxItems": 239,
-							"additionalItems": false,
-							"items": {
-								"$id": "#/properties/data/properties/req/properties/devices/items",
-								"title": "Device address",
-								"description": "Address of device in network.",
-								"type": "integer",
-								"minimum": 1,
-								"maximum": 239
-							}
-						},
-						"unicast": {
-							"$id": "#/properties/data/properties/req/properties/poll",
-							"title": "Unicast",
-							"description": "Retrieve data by sending unicast messages to devices.",
-							"type": "boolean"
-						}
-					}
+					"type": "object"
 				},
 				"repeat": {
 					"$id": "#/properties/data/properties/repeat",
