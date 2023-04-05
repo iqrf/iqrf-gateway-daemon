@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "IConfigurationService.h"
 #include "IIqrfDb.h"
 #include "IIqrfDpaService.h"
 #include "IJsRenderService.h"
@@ -25,8 +26,12 @@
 #include "SensorDataResult.h"
 #include "ShapeProperties.h"
 
+#include <chrono>
+#include <condition_variable>
 #include <deque>
+#include <mutex>
 #include <stdexcept>
+#include <thread>
 
 #define FRC_CMD_1BYTE 0x90
 #define FRC_CMD_2BYTE 0xE0
@@ -41,6 +46,9 @@ namespace iqrf {
 			serviceError = 1000,
 			requestParseError = 1001,
 			exclusiveAccessError = 1002,
+			notRunning = 1003,
+			readingInProgress = 1004,
+			configNotFound = 1005,
 		};
 
 		/**
@@ -69,6 +77,18 @@ namespace iqrf {
 		 * Deactivates component
 		 */
 		void deactivate();
+
+		/**
+		 * Attaches configuration service interface
+		 * @param iface Configuration service interface
+		 */
+		void attachInterface(shape::IConfigurationService *iface);
+
+		/**
+		 * Detaches configuration service interface
+		 * @param iface Configuration service interface
+		 */
+		void detachInterface(shape::IConfigurationService *iface);
 
 		/**
 		 * Attaches DB service interface
@@ -183,6 +203,18 @@ namespace iqrf {
 		 */
 		void getDataByFrc(SensorDataResult &result);
 
+		void worker();
+
+		void notifyWorker(rapidjson::Document &request, const std::string &messagingId);
+
+		void startWorker(rapidjson::Document &request, const std::string &messagingId);
+
+		void stopWorker(rapidjson::Document &request, const std::string &messagingId);
+
+		void getConfig(rapidjson::Document &request, const std::string &messagingId);
+
+		void setConfig(rapidjson::Document &request, const std::string &messagingId);
+
 		/**
 		 * Handles request from splitter
 		 * @param messagingId Messaging ID
@@ -191,10 +223,12 @@ namespace iqrf {
 		 */
 		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
 
-		/// Message type
-		const std::vector<std::string> m_mTypes = {
-			"iqmeshNetwork_SensorData"
-		};
+		/// Component name
+		std::string m_componentName;
+		/// Instance name
+		std::string m_instanceName;
+		/// Configuratiion service
+		shape::IConfigurationService *m_configService = nullptr;
 		/// DB service
 		IIqrfDb *m_dbService = nullptr;
 		/// DPA service
@@ -205,6 +239,26 @@ namespace iqrf {
 		IMessagingSplitterService *m_splitterService = nullptr;
 		/// Exclusive access
 		std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
+		/// Worker thread
+		std::thread m_workerThread;
+		/// Worker thread run condition
+		bool m_workerRun = false;
+		/// Mutex
+		std::mutex m_mtx;
+		/// Condition variable
+		std::condition_variable m_cv;
+		/// Run worker thread at start
+		bool m_autoRun = false;
+		/// Reading execution period
+		uint32_t m_period = 1;
+		/// Async reports
+		bool m_asyncReports = false;
+		/// Async response messaging list
+		std::list<std::string> m_messagingList;
+		/// Handled API request mtype
+		const std::string m_messageType = "iqmeshNetwork_SensorData";
+		/// Async response message type
+		const std::string m_messageTypeAsync = "iqmeshNetwork_SensorDataAsync";
 		/// Input parameters
 		TSensorDataInputParams m_params;
 	};
