@@ -7,18 +7,48 @@
       "version": "1-0-0"
     },
     "type": "object",
+    "required": [
+      "component",
+      "instance",
+      "autoRun",
+      "period",
+      "asyncReports",
+      "messagingList"
+    ],
+    "additionalProperties": false,
     "properties": {
       "component": {
         "type": "string",
         "description": "Name of component.",
-        "enum": [
-          "iqrf::SensorDataService"
-        ]
+        "enum": ["iqrf::SensorDataService"]
       },
       "instance": {
         "type": "string",
         "description": "Recomended iqrf::SensorDataService-(id)",
         "default": "iqrf::SensorDataService-1"
+      },
+      "autoRun": {
+        "description": "Run worker on component startup.",
+        "type": "boolean"
+      },
+      "period": {
+        "description": "Time between data reads in minutes.",
+        "type": "integer",
+        "minimum": 1
+      },
+      "asyncReports": {
+        "description": "Send asynchronous messages when sensor data read concludes.",
+        "type": "boolean"
+      },
+      "messagingList": {
+        "description": "Messagings to use to send asynchronous messages.",
+        "type": "array",
+        "uniqueItems": true,
+        "additionalItems": false,
+        "items": {
+          "description": "Messaging identifiers.",
+          "type": "string"
+        }
       },
       "RequiredInterfaces": {
         "type": "array",
@@ -41,10 +71,5 @@
           ]
         }
       }
-    },
-    "required": [
-      "component",
-      "instance"
-    ]
+    }
   }
-  
