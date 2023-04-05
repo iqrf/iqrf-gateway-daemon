@@ -21,13 +21,20 @@
 #include <list>
 #include <map>
 
+#define SENSOR_DATA_COMMAND_START "start"
+#define SENSOR_DATA_COMMAND_STOP "stop"
+#define SENSOR_DATA_COMMAND_NOW "now"
+#define SENSOR_DATA_COMMAND_GET_CONFIG "getConfig"
+#define SENSOR_DATA_COMMAND_SET_CONFIG "setConfig"
+
 using namespace rapidjson;
 
 /// iqrf namespace
 namespace iqrf {
+
 	/// Sensor data input parameters struct
 	typedef struct {
-		int repeat = 1;
+		std::string command;
 	} TSensorDataInputParams;
 
 	/// Sensor data parameters class
@@ -73,13 +80,7 @@ namespace iqrf {
 		 * @param doc Request document
 		 */
 		void parse(Document &doc) {
-			const Value *val;
-
-			// Repeat
-			val = Pointer("/data/repeat").Get(doc);
-			if (val && val->IsInt()) {
-				m_params.repeat = val->GetInt();
-			}
+			m_params.command = Pointer("/data/req/command").Get(doc)->GetString();
 		}
 
 		/// Sensor data parameters
