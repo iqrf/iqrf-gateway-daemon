@@ -203,16 +203,44 @@ namespace iqrf {
 		 */
 		void getDataByFrc(SensorDataResult &result);
 
+		/**
+		 * Sensor data reading worker
+		 */
 		void worker();
 
+		/**
+		 * Notifies a sleeping worker
+		 * @param request Request document
+		 * @param messagingId Messaging ID
+		 */
 		void notifyWorker(rapidjson::Document &request, const std::string &messagingId);
 
+		/**
+		 * Starts the worker
+		 * @param request Request document
+		 * @param messagingId Messaging ID
+		 */
 		void startWorker(rapidjson::Document &request, const std::string &messagingId);
 
+		/**
+		 * Stops the worker
+		 * @param request Request document
+		 * @param messagingId Messaging ID
+		 */
 		void stopWorker(rapidjson::Document &request, const std::string &messagingId);
 
+		/**
+		 * Returns worker configuration
+		 * @param request Request document
+		 * @param messagingId Messaging ID
+		 */
 		void getConfig(rapidjson::Document &request, const std::string &messagingId);
 
+		/**
+		 * Configures worker
+		 * @param request Request document
+		 * @param messagingId Messaging ID
+		 */
 		void setConfig(rapidjson::Document &request, const std::string &messagingId);
 
 		/**
