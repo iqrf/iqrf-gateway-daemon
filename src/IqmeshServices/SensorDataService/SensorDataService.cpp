@@ -172,10 +172,6 @@ namespace iqrf {
 		TRC_FUNCTION_ENTER("");
 
 		while (m_workerRun) {
-			std::unique_lock<std::mutex> lock(m_mtx);
-			TRC_DEBUG("Sensor data worker thread sleeping for: " + std::to_string(m_period) + " minutes.");
-			m_cv.wait_for(lock, std::chrono::minutes(m_period));
-
 			try {
 				m_exclusiveAccess = m_dpaService->getExclusiveAccess();
 			} catch (const std::exception &e) {
@@ -199,6 +195,10 @@ namespace iqrf {
 				CATCH_EXC_TRC_WAR(std::exception, e, e.what());
 				m_exclusiveAccess.reset();
 			}
+
+			std::unique_lock<std::mutex> lock(m_mtx);
+			TRC_DEBUG("Sensor data worker thread sleeping for: " + std::to_string(m_period) + " minutes.");
+			m_cv.wait_for(lock, std::chrono::minutes(m_period));
 		}
 
 		TRC_FUNCTION_LEAVE("");
