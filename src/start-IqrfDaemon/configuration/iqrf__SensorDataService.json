@@ -1,8 +1,8 @@
 {
-    "component": "iqrf::SensorDataService",
-    "instance": "iqrf::SensorDataService-Instance1",
-    "autoRun": true,
-    "period": 2,
-    "asyncReports": true,
-    "messagingList": []
-  }
+  "component": "iqrf::SensorDataService",
+  "instance": "iqrf::SensorDataService-Instance1",
+  "autoRun": true,
+  "period": 1,
+  "asyncReports": true,
+  "messagingList": []
+}
