@@ -834,7 +834,15 @@ namespace iqrf {
 	class InfoDaemonMsgReset : public InfoDaemonMsg {
 	public:
 		InfoDaemonMsgReset() = delete;
-		InfoDaemonMsgReset(const rapidjson::Document& doc): InfoDaemonMsg(doc) {}
+		InfoDaemonMsgReset(const rapidjson::Document& doc): InfoDaemonMsg(doc) {
+      using namespace rapidjson;
+
+      const Value *val = Pointer("/data/req/reinitializeCoordinator").Get(doc);
+      if (val && val->IsBool()) {
+        m_reinitializeCoordinator = val->GetBool();
+      }
+
+    }
 		virtual ~InfoDaemonMsgReset() {}
 
 		/**
@@ -843,11 +851,11 @@ namespace iqrf {
 		 */
 		void handleMsg(JsonIqrfInfoApi::Imp* imp) override {
 			TRC_FUNCTION_ENTER("");
-			imp->resetDb();
+			imp->resetDb(m_reinitializeCoordinator);
 			TRC_FUNCTION_LEAVE("");
 		}
 	private:
-		int m_res;
+		bool m_reinitializeCoordinator = false;
 	};
 
   ///////////////////// Imp members
@@ -1036,12 +1044,12 @@ namespace iqrf {
       m_iIqrfInfo->setNodeMetaData(nadr, metaData);
     }
 
-	/**
-	 * Calls IqrfInfo reset database function
-	 */
-	void resetDb() {
-		m_iIqrfInfo->resetDb();
-	}
+    /**
+     * Calls IqrfInfo reset database function
+     */
+    void resetDb(bool reinitializeCoordinator) {
+      m_iIqrfInfo->resetDb(reinitializeCoordinator);
+    }
 
     void activate(const shape::Properties *props)
     {

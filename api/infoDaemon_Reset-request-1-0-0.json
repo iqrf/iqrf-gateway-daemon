@@ -40,7 +40,17 @@
 				},
 				"req": {
 					"$id": "#/properties/data/properties/req",
-					"type": "object"
+					"title": "Request parameters",
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"reinitializeCoordinator": {
+							"$id": "#/properties/data/properties/req/properties/reinitializeCoordinator",
+							"title": "Reinitiaze coordiantor",
+							"description": "Restart coordinator device and reinitialize it with current coordinator parameters.",
+							"type": "boolean"
+						}
+					}
 				},
 				"returnVerbose": {
 					"$id": "#/properties/data/properties/returnVerbose",

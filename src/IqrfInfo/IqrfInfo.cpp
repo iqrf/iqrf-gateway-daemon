@@ -304,7 +304,10 @@ namespace iqrf {
      * Resets database
      * @return Op status code
      */
-	void resetDb() {
+	void resetDb(bool reinitializeCoordinator) {
+    if (reinitializeCoordinator) {
+      m_iIqrfDpaService->reinitializeCoordinator();
+    }
 		std::string dbPath = m_iLaunchService->getDataDir() + "/DB/IqrfInfo.db";
 		std::ifstream dbFile(dbPath);
 		sqlite_config config;
@@ -2789,8 +2792,8 @@ namespace iqrf {
     m_imp->setNodeMetaData(nadr, metaData);
   }
 
-  void IqrfInfo::resetDb() {
-    m_imp->resetDb();
+  void IqrfInfo::resetDb(bool reinitializeCoordinator = false) {
+    m_imp->resetDb(reinitializeCoordinator);
   }
 
   void IqrfInfo::reloadDrivers() {

@@ -68,7 +68,7 @@ namespace iqrf {
     void setNodeMetaData(int nadr, const rapidjson::Value & metaData) override;
 
     // resets database
-    void resetDb() override;
+    void resetDb(bool reinitializeCoordinator) override;
     void reloadDrivers() override;
 
     void activate(const shape::Properties *props = 0);
