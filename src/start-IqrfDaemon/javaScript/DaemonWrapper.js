@@ -648,6 +648,24 @@ if (iqrf.embed.ledr !== undefined) {
     return result;
   };
 
+  iqrf.embed.ledr.SetOn_Request_req = function () {
+    return iqrf.embed.ledr.Set_Request(true);
+  }
+
+  iqrf.embed.ledr.SetOn_Response_rsp = function(rawHdp) {
+    iqrf.embed.ledr.Set_Response(rawHdp);
+    return {};
+  }
+
+  iqrf.embed.ledr.SetOff_Request_req = function () {
+    return iqrf.embed.ledr.Set_Request(false);
+  }
+
+  iqrf.embed.ledr.SetOff_Response_rsp = function(rawHdp) {
+    iqrf.embed.ledr.Set_Response(rawHdp);
+    return {};
+  }
+
   iqrf.embed.ledr.Get_Request_req = function (param) {
     return iqrf.embed.ledr.Get_Request();
   };
@@ -694,11 +712,26 @@ if (iqrf.embed.ledg !== undefined) {
 
   iqrf.embed.ledg.Set_Response_rsp = function (rawHdp) {
     iqrf.embed.ledg.Set_Response(rawHdp);
-    var result =
-    {
-    };
-    return result;
+    return {};
   };
+
+  iqrf.embed.ledg.SetOn_Request_req = function () {
+    return iqrf.embed.ledg.Set_Request(true);
+  }
+
+  iqrf.embed.ledg.SetOn_Response_rsp = function(rawHdp) {
+    iqrf.embed.ledg.Set_Response(rawHdp);
+    return {};
+  }
+
+  iqrf.embed.ledg.SetOff_Request_req = function () {
+    return iqrf.embed.ledg.Set_Request(false);
+  }
+
+  iqrf.embed.ledg.SetOff_Response_rsp = function(rawHdp) {
+    iqrf.embed.ledg.Set_Response(rawHdp);
+    return {};
+  }
 
   iqrf.embed.ledg.Get_Request_req = function (param) {
     return iqrf.embed.ledg.Get_Request();

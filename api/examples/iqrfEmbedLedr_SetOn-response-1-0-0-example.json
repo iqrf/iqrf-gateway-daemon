@@ -1,0 +1,26 @@
+{
+	"mType": "iqrfEmbedLedr_SetOn",
+	"data": {
+		"msgId": "24728981-92ec-4c61-b6af-f9bb5654bc48",
+		"rsp": {
+			"nAdr": 0,
+			"hwpId": 0,
+			"rCode": 0,
+			"dpaVal": 0,
+			"result": {}
+		},
+		"raw": [
+			{
+				"request": "00.00.06.01.ff.ff",
+				"requestTs": "2023-04-18T11:50:55.741+02:00",
+				"confirmation": "",
+				"confirmationTs": "",
+				"response": "00.00.06.81.00.00.00.00",
+				"responseTs": "2023-04-18T11:50:55.766+02:00"
+			}
+		],
+		"insId": "iqrfgd2-default",
+		"statusStr": "ok",
+		"status": 0
+	}
+}
