@@ -64,22 +64,33 @@ namespace iqrf
           using namespace rapidjson;
 
           m_status = jutils::getMemberAs<int>("status", v);
-          m_frcData = jutils::getMemberAsVector<int>("frcData", v);
+          const Value *val = Pointer("/frcData").Get(v);
+          if (!val || !val->IsArray()) {
+            return;
+          }
+          auto arr = val->GetArray();
+          std::vector<uint8_t> data;
+          for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+            if (itr->IsUint()) {
+              data.emplace_back(static_cast<uint8_t>(itr->GetUint()));
+            }
+          }
+          m_frcData = data;
         }
 
       };
       typedef std::unique_ptr<JsDriverSend> JsDriverSendPtr;
 
       ////////////////
-      class JsDriverSendSelective1 : public SendSelective, public JsDriverDpaCommandSolver
+      class JsDriverSendSelective : public Send, public JsDriverDpaCommandSolver
       {
       public:
-        JsDriverSendSelective1(IJsRenderService* iJsRenderService, uint8_t frcCommand, const std::set<int> & selectedNodes, const std::vector<uint8_t> & userData)
-          :JsDriverDpaCommandSolver(iJsRenderService)
-          , SendSelective(frcCommand, selectedNodes, userData)
+        JsDriverSendSelective(IJsRenderService* iJsRenderService, uint8_t frcCommand, const std::set<uint8_t> &selectedNodes, const std::vector<uint8_t> &userData)
+          :JsDriverDpaCommandSolver(iJsRenderService, 0)
+          , Send(frcCommand, selectedNodes, userData)
         {}
 
-        virtual ~JsDriverSendSelective1() {}
+        virtual ~JsDriverSendSelective() {}
 
       protected:
         std::string functionName() const override
@@ -87,15 +98,48 @@ namespace iqrf
           return "iqrf.embed.frc.SendSelective";
         }
 
+        void requestParameter(rapidjson::Document& doc) const override
+        {
+          using namespace rapidjson;
+
+          Document::AllocatorType &alloc = doc.GetAllocator();
+          Pointer("/frcCommand").Set(doc, m_frcCommand);
+          Value nodes(kArrayType);
+          for (auto addr : m_selectedNodes) {
+            Value val;
+            val.SetUint(addr);
+            nodes.PushBack(val, alloc);
+          }
+          Pointer("/selectedNodes").Set(doc, nodes);
+          Value userData(kArrayType);
+          for (auto data : m_userData) {
+            Value val;
+            val.SetUint(data);
+            userData.PushBack(val, alloc);
+          }
+          Pointer("/userData").Set(doc, userData);
+        }
+
         void parseResponse(const rapidjson::Value& v) override
         {
           using namespace rapidjson;
 
           m_status = jutils::getMemberAs<int>("status", v);
-          m_frcData = jutils::getMemberAsVector<int>("frcData", v);
+          const Value *val = Pointer("/frcData").Get(v);
+          if (!val || !val->IsArray()) {
+            return;
+          }
+          auto arr = val->GetArray();
+          std::vector<uint8_t> data;
+          for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+            if (itr->IsUint()) {
+              data.emplace_back(static_cast<uint8_t>(itr->GetUint()));
+            }
+          }
+          m_frcData = data;
         }
       };
-      typedef std::unique_ptr<JsDriverSend> JsDriverSendPtr;
+      typedef std::unique_ptr<JsDriverSendSelective> JsDriverSendSelectivePtr;
 
       ////////////////
       class JsDriverExtraResult : public ExtraResult, public JsDriverDpaCommandSolver
@@ -118,7 +162,18 @@ namespace iqrf
         {
           using namespace rapidjson;
 
-          m_frcData = jutils::getMemberAsVector<int>("frcData", v);
+          const Value *val = Pointer("/frcData").Get(v);
+          if (!val || !val->IsArray()) {
+            return;
+          }
+          auto arr = val->GetArray();
+          std::vector<uint8_t> data;
+          for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+            if (itr->IsUint()) {
+              data.emplace_back(static_cast<uint8_t>(itr->GetUint()));
+            }
+          }
+          m_frcData = data;
         }
       };
       typedef std::unique_ptr<JsDriverExtraResult> JsDriverExtraResultPtr;
