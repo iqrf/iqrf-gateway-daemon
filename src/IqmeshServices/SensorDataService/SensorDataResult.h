@@ -93,7 +93,7 @@ namespace iqrf {
 						Pointer("/mid").Set(device, rapidjson::Value(kNullType), allocator);
 					}
 					if (m_rssi.find(deviceItem.first) != m_rssi.end()) {
-						Pointer("/rssi").Set(device, m_rssi[deviceItem.first], allocator);
+						Pointer("/rssi").Set(device, m_rssi[deviceItem.first] - 130, allocator);
 					} else {
 						Pointer("/rssi").Set(device, rapidjson::Value(kNullType), allocator);
 					}

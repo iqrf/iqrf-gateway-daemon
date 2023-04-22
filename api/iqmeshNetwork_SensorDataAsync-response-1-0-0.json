@@ -98,6 +98,19 @@
 											}
 										]
 									},
+									"rssi": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/mid",
+										"title": "Device MID",
+										"description": "Module ID of a network device.",
+										"oneOf": [
+											{
+												"type": "integer"
+											},
+											{
+												"type": "null"
+											}
+										]
+									},
 									"sensors": {
 										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/sensors",
 										"title": "Sensors",
