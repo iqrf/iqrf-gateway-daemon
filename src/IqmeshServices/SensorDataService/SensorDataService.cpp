@@ -43,7 +43,7 @@ namespace iqrf {
 			return 31;
 		}
 		if (type >= 0x80 && type <= 0x9F) {
-			return 61;
+			return 63;
 		}
 		if (type >= 0xA0 && type <= 0xBF) {
 			return 15;
@@ -79,7 +79,7 @@ namespace iqrf {
 			setOfflineFrcPacket.DpaRequestPacket_t.DpaMessage.PerFrcSetParams_RequestResponse.FrcParams = 0x08;
 			setOfflineFrcRequest.DataToBuffer(setOfflineFrcPacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerFrcSetParams_RequestResponse));
 			// Execute the DPA request
-			m_exclusiveAccess->executeDpaTransactionRepeat(setOfflineFrcRequest, transResult, 3);
+			m_exclusiveAccess->executeDpaTransactionRepeat(setOfflineFrcRequest, transResult, 2);
 			TRC_DEBUG("Result from Set FRC params transaction as string: " << PAR(transResult->getErrorString()));
 			DpaMessage setOfflineFrcResponse = transResult->getResponse();
 			TRC_DEBUG(
@@ -101,11 +101,11 @@ namespace iqrf {
 			sensor::jsdriver::SensorFrcJs sensorFrc(m_jsRenderService, type, idx, command, nodes);
 			sensorFrc.processRequestDrv();
 			// frc send selective
-			m_dpaService->executeDpaTransactionRepeat(sensorFrc.getFrcRequest(), transResult, 3);
+			m_dpaService->executeDpaTransactionRepeat(sensorFrc.getFrcRequest(), transResult, 2);
 			sensorFrc.setFrcDpaTransactionResult(std::move(transResult));
 			// frc extra result
 			if (extraResultRequired(command, nodes.size())) {
-				m_dpaService->executeDpaTransactionRepeat(sensorFrc.getFrcExtraRequest(), transResult, 3);
+				m_dpaService->executeDpaTransactionRepeat(sensorFrc.getFrcExtraRequest(), transResult, 2);
 				sensorFrc.setFrcExtraDpaTransactionResult(std::move(transResult));
 			}
 			// handle response
@@ -117,6 +117,12 @@ namespace iqrf {
 			}
 			for (auto &sensor : sensorFrc.getSensors()) {
 				const uint8_t addr = sensor->getAddr();
+				try {
+					uint16_t hwpid = m_dbService->getDeviceHwpid(addr);
+					result.addDeviceHwpid(addr, hwpid);
+				} catch (const std::exception &e) {
+					result.addDeviceHwpid(addr, 0);
+				}
 				try {
 					uint32_t mid = m_dbService->getDeviceMid(addr);
 					result.addDeviceMid(addr, mid);
@@ -140,15 +146,76 @@ namespace iqrf {
 			vectors.push_back(std::set<uint8_t>(addresses.begin(), addresses.begin() + devicesPerRequest));
 			addresses.erase(addresses.begin(), addresses.begin() + devicesPerRequest);
 		}
-		vectors.push_back(std::set<uint8_t>(addresses.begin(), addresses.end()));
+		if (addresses.size() > 0) {
+			vectors.push_back(std::set<uint8_t>(addresses.begin(), addresses.end()));
+		}
 		for (auto &vector : vectors) {
 			setOfflineFrc(result);
 			sendSensorFrc(result, type, idx, vector);
 		}
 	}
 
+	std::vector<std::set<uint8_t>> SensorDataService::splitSet(std::set<uint8_t> &set, size_t size) {
+		std::vector<std::set<uint8_t>> res;
+
+		size_t sCount = set.size() / size;
+		size_t remainder = set.size() % size;
+		auto itr = set.begin();
+
+		for (size_t i = 0; i <= sCount; ++i) {
+			std::set<uint8_t> newSet;
+			if (i != sCount) {
+				newSet.insert(itr, std::next(itr, size));
+				std::advance(itr, size);
+			} else {
+				newSet.insert(itr, std::next(itr, remainder));
+			}
+			if (newSet.size() > 0) {
+				res.push_back(newSet);
+			}
+		}
+		return res;
+	}
+
+	void SensorDataService::getRssi(SensorDataResult &result, std::set<uint8_t> &nodes) {
+		std::unique_ptr<IDpaTransactionResult2> transResult;
+		std::vector<std::set<uint8_t>> nodeVectors = splitSet(nodes, 63);
+		try {
+			std::vector<uint8_t> frcData;
+			for (auto vector : nodeVectors) {
+				embed::frc::JsDriverSendSelective frcSelective(m_jsRenderService, 130, vector, {182, 5, 2, 0, 0});
+				frcSelective.processRequestDrv();
+				m_dpaService->executeDpaTransactionRepeat(frcSelective.getRequest(), transResult, 2);
+				frcSelective.processDpaTransactionResult(std::move(transResult));
+				auto data = frcSelective.getFrcData();
+				frcData.insert(frcData.end(), data.begin() + 1, data.begin() + 1 + vector.size());
+
+				if (vector.size() > 55) {
+					embed::frc::JsDriverExtraResult extraResult(m_jsRenderService);
+					extraResult.processRequestDrv();
+					m_dpaService->executeDpaTransactionRepeat(extraResult.getRequest(), transResult, 2);
+					extraResult.processDpaTransactionResult(std::move(transResult));
+					auto extraData = extraResult.getFrcData();
+					frcData.insert(frcData.end(), extraData.begin(), extraData.end());
+				}
+			}
+
+			if (nodes.size() == frcData.size()) {
+				std::map<uint8_t, uint8_t> rssiMap;
+				auto it = nodes.begin();
+				for (size_t i = 0; i < nodes.size(); ++i, ++it) {
+					rssiMap[*it] = frcData[i];
+				}
+				result.setRssi(rssiMap);
+			}
+		} catch (const std::exception &e) {
+			setErrorTransactionResult(result, transResult, e.what());
+		}
+	}
+
 	void SensorDataService::getDataByFrc(SensorDataResult &result) {
 		SensorSelectMap map = m_dbService->constructSensorSelectMap();
+		std::set<uint8_t> rssiNodes;
 		for (const auto& [type, addrIdx] : map) {
 			TRC_DEBUG("type: " << std::to_string(type));
 			if (type >= 0xC0) {
@@ -157,6 +224,7 @@ namespace iqrf {
 			for (uint8_t desiredIdx = 0; desiredIdx < 32; ++desiredIdx) {
 				std::deque<uint8_t> addrs;
 				for (const auto& [addr, idx] : addrIdx) {
+					rssiNodes.insert(addr);
 					if (desiredIdx == idx) {
 						addrs.emplace_back(addr);
 					}
@@ -166,6 +234,8 @@ namespace iqrf {
 				}
 			}
 		}
+		// rssi
+		getRssi(result, rssiNodes);
 	}
 
 	void SensorDataService::worker() {

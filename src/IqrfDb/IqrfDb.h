@@ -159,6 +159,13 @@ namespace iqrf {
 		void setSensorValue(const uint8_t &address, const uint8_t &type, const uint8_t &index, const double &value, std::shared_ptr<std::string> updated) override;
 
 		/**
+		 * Retrieves device HWPID specified by address
+		 * @param address Device address
+		 * @return Device HWPID
+		 */
+		uint16_t getDeviceHwpid(const uint8_t &address) override;
+
+		/**
 		 * Retrieves device MID specified by address
 		 * @param address Device address
 		 * @return Device MID

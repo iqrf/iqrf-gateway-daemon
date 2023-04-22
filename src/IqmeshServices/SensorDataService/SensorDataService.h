@@ -25,6 +25,7 @@
 #include "ITraceService.h"
 #include "SensorDataResult.h"
 #include "ShapeProperties.h"
+#include "JsDriverFrc.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -196,6 +197,10 @@ namespace iqrf {
 		 * @param addresses Devices to read data from
 		 */
 		void getTypeData(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::deque<uint8_t> &addresses);
+
+		std::vector<std::set<uint8_t>> splitSet(std::set<uint8_t> &set, size_t size);
+
+		void getRssi(SensorDataResult &result, std::set<uint8_t> &nodes);
 
 		/**
 		 * Reads Sensor data using FRC requests
