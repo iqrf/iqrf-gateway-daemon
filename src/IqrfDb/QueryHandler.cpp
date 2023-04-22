@@ -42,6 +42,17 @@ std::vector<Device> QueryHandler::getDevice(const uint8_t &address) {
 	return db->get_all<Device>(where(c(&Device::getAddress) == address));
 }
 
+uint16_t QueryHandler::getDeviceHwpid(const uint8_t &address) {
+	auto hwpid = db->select(&Product::getHwpid,
+		inner_join<Product>(on(c(&Product::getId) == &Device::getProductId)),
+		where(c(&Device::getAddress) == address)
+	);
+	if (hwpid.size() == 0) {
+		throw std::logic_error("Device at address " + std::to_string(address) + " does not exist.");
+	}
+	return hwpid[0];
+}
+
 uint32_t QueryHandler::getDeviceMid(const uint8_t &address) {
 	auto mid = db->select(&Device::getMid, where(c(&Device::getAddress) == address));
 	if (mid.size() == 0) {
