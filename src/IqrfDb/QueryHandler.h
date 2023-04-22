@@ -72,6 +72,13 @@ public:
 	uint32_t getDeviceMid(const uint8_t &address);
 
 	/**
+	 * Returns device HWPID
+	 * @param address Device address
+	 * @return Device HWPID
+	 */
+	uint16_t getDeviceHwpid(const uint8_t &address);
+
+	/**
 	 * Returns metadata stored for device at specified address
 	 * @param address Device address
 	 * @return Device metadata string
