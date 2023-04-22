@@ -788,16 +788,20 @@ namespace iqrf {
 			uint8_t pData[55] = {0};
 			frcSendSelectiveMemoryRead(pData, memoryAddress, PNUM_ENUMERATION, CMD_GET_PER_INFO, numNodes, processedNodes);
 			processedNodes += numNodes;
-			if (numNodes == nodes) {
-				numNodes -= 2;
-			}
-			frcData.insert(frcData.end(), pData + 4, pData + (4 + numNodes * 4));
+			// count for frc data copy (at most 13 in send response)
+			uint8_t count = numNodes;
+			uint8_t extraCount = 0;
 			if (numNodes > 13) {
+				count = 13; // read from send response
+				extraCount = numNodes - 13; // read from extra
+			}
+			frcData.insert(frcData.end(), pData + 4, pData + (4 + count * 4));
+			if (extraCount > 0) {
 				// Execute extra result
-				uint8_t extraData[8] = {0};
+				uint8_t extraData[9] = {0};
 				frcExtraResult(extraData);
 				// Store extra result FRC data
-				frcData.insert(frcData.end(), extraData, extraData + 8);
+				frcData.insert(frcData.end(), extraData, extraData + (4 * extraCount));
 			}
 		}
 		uint16_t i = 0;
@@ -823,16 +827,20 @@ namespace iqrf {
 			uint8_t pData[55] = {0};
 			frcSendSelectiveMemoryRead(pData, memoryAddress, PNUM_ENUMERATION, CMD_GET_PER_INFO, numNodes, processedNodes);
 			processedNodes += numNodes;
-			if (numNodes == nodes) {
-				numNodes -= 2;
-			}
-			frcData.insert(frcData.end(), pData + 4, pData + (4 + numNodes * 4));
+			// count for frc data copy (at most 13 in send response)
+			uint8_t count = numNodes;
+			uint8_t extraCount = 0;
 			if (numNodes > 13) {
+				count = 13; // read from send response
+				extraCount = numNodes - 13; // read from extra
+			}
+			frcData.insert(frcData.end(), pData + 4, pData + (4 + count * 4));
+			if (extraCount > 0) {
 				// Execute extra result
-				uint8_t extraData[8] = {0};
+				uint8_t extraData[9] = {0};
 				frcExtraResult(extraData);
 				// Store extra result FRC data
-				frcData.insert(frcData.end(), extraData, extraData + 8);
+				frcData.insert(frcData.end(), extraData, extraData + (4 * extraCount));
 			}
 		}
 		uint16_t i = 0;
@@ -863,7 +871,7 @@ namespace iqrf {
 			frcData.insert(frcData.end(), pData + 4, pData + (4 + numNodes * 4));
 			if (numNodes > 13) {
 				// Execute extra result
-				uint8_t extraData[7] = {0};
+				uint8_t extraData[9] = {0};
 				frcExtraResult(extraData);
 				// Store extra result FRC data
 				frcData.insert(frcData.end(), extraData, extraData + 7);
@@ -905,10 +913,6 @@ namespace iqrf {
 			}
 			std::vector<uint8_t> data;
 			const uint8_t *frcData = frcPingResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData;
-			uint8_t extraData[7] = {0};
-			frcExtraResult(extraData);
-			data.insert(data.end(), frcData, frcData + 55);
-			data.insert(data.end(), extraData, extraData + 7);
 			// Store addresses of online nodes
 			std::set<uint8_t> onlineNodes;
 			for (uint8_t i = 1, n = MAX_ADDRESS; i <= n; i++) {
@@ -982,7 +986,7 @@ namespace iqrf {
 			m_dpaService->executeDpaTransactionRepeat(frcExtraResultRequest, result, 1);
 			DpaMessage frcExtraResultResponse = result->getResponse();
 			const uint8_t *pData = frcExtraResultResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-			for (uint8_t i = 0; i < 8; i++) {
+			for (uint8_t i = 0; i < 9; i++) {
 				data[i] = pData[i];
 			}
 		} catch (const std::exception &e) {
@@ -992,6 +996,7 @@ namespace iqrf {
 	}
 
 	void IqrfDb::productPackageEnumeration() {
+		TRC_FUNCTION_ENTER("");
 		using namespace sqlite_orm;
 		if (m_deviceProductMap.count(0) != 0) {
 			m_toEnumerate.insert(0);
@@ -1036,7 +1041,7 @@ namespace iqrf {
 				}
 			}
 			if (package.m_packageId < 0) {
-				TRC_WARNING("Cannot find package for: " << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, osBuild) << " any DPA");
+				TRC_WARNING("Cannot find package for: " << NAME_PAR(nadr, addr) << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, osBuild) << " any DPA");
 				continue;
 			}
 
@@ -1066,9 +1071,11 @@ namespace iqrf {
 				}
 			}
 		}
+		TRC_FUNCTION_LEAVE("");
 	}
 
 	void IqrfDb::updateDatabaseProducts() {
+		TRC_FUNCTION_ENTER("");
 		using namespace sqlite_orm;
 		m_db->begin_transaction();
 		for (auto &deleteId : m_toDelete) {
@@ -1139,6 +1146,7 @@ namespace iqrf {
 			}
 		}
 		m_db->commit();
+		TRC_FUNCTION_LEAVE("");
 	}
 
 	void IqrfDb::standardEnumeration() {
@@ -1303,8 +1311,10 @@ namespace iqrf {
 
 	void IqrfDb::sensorEnumeration(const uint8_t &address) {
 		TRC_FUNCTION_ENTER("");
+		std::unique_ptr<IDpaTransactionResult2> result;
 		sensor::jsdriver::Enumerate sensorEnum(m_renderService, address);
-		sensorEnum.processDpaTransactionResult(m_dpaService->executeDpaTransaction(sensorEnum.getRequest())->get());
+		m_dpaService->executeDpaTransactionRepeat(sensorEnum.getRequest(), result, 1);
+		sensorEnum.processDpaTransactionResult(std::move(result));
 
 		auto &sensors = sensorEnum.getSensors();
 
