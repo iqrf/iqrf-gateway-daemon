@@ -34,15 +34,24 @@
                             "description": "Network device address."
                         },
                         "hwpId": {
-                            "type": "integer",
+                            "oneOf": [
+                                {"type": "integer"},
+                                {"type": "null"}
+                            ],
                             "description": "Hardware profile identification."
                         },
                         "rCode": {
-                            "type": "integer",
+                            "oneOf": [
+                                {"type": "integer"},
+                                {"type": "null"}
+                            ],
                             "description": "DPA error code."
                         },
                         "dpaVal": {
-                            "type": "integer",
+                            "oneOf": [
+                                {"type": "integer"},
+                                {"type": "null"}
+                            ],
                             "description": "DPA value."
                         },
                         "result": {

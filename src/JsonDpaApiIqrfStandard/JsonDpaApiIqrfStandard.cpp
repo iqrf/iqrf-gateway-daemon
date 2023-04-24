@@ -338,9 +338,6 @@ namespace iqrf {
         }
         else {
           if (res->getErrorCode() != 0) {
-            Document rDataError;
-            rDataError.SetString("rcode error", rDataError.GetAllocator());
-            com->setPayload("/data/rsp/errorStr", rDataError, true);
             com->setStatus(res->getErrorString(), res->getErrorCode());
             com->createResponse(allResponseDoc, *res);
           }
