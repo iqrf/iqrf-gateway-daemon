@@ -17,6 +17,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace iqrf {
 	static const char *STRING_UTILS_WHITESPACE = " \t\n\r\f\v";
@@ -37,6 +38,24 @@ namespace iqrf {
 
 		static bool starsWith(const std::string &s, const std::string &prefix) {
 			return s.rfind(prefix, 0) == 0;
+		}
+
+		static bool endsWith(const std::string &s, const std::string &suffix) {
+			auto res = s.rfind(suffix);
+			return (res != std::string::npos) && res == (s.size() - suffix.size());
+		}
+
+		static std::vector<std::string> split(const std::string &string, const std::string &delimiter) {
+			std::string token;
+			std::vector<std::string> tokens;
+			size_t needle, start = 0, len = delimiter.length();
+			while ((needle = string.find(delimiter, start)) != std::string::npos) {
+				token = string.substr(start, needle - start);
+				tokens.push_back(token);
+				start = needle + len;
+			}
+			tokens.push_back(string.substr(start));
+			return tokens;
 		}
 	};
 }
