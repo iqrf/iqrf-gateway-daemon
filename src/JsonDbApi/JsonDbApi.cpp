@@ -127,13 +127,16 @@ namespace iqrf {
 	void JsonDbApi::sendEnumerationResponse(IIqrfDb::EnumerationProgress progress) {
 		std::unique_lock<std::mutex> lock(m_enumerateMutex);
 		if (!m_enumerateMsg) {
-			if (progress.getStep() == IIqrfDb::EnumerationProgress::Steps::Finish) {
+			if (progress.getStep() == IIqrfDb::EnumerationProgress::Steps::Start) {
+				sendAsyncEnumerationFinishResponse(progress);
+			} else if (progress.getStep() == IIqrfDb::EnumerationProgress::Steps::Finish) {
 				sendAsyncEnumerationFinishResponse(progress);
 			}
 			return;
 		}
 		rapidjson::Document response;
-		m_enumerateMsg->setErrorString(progress.getStepMessage());
+		m_enumerateMsg->setStepCode(progress.getStep());
+		m_enumerateMsg->setStepString(progress.getStepMessage());
 		m_enumerateMsg->setStatus("ok", 0);
 		if (progress.getStep() == IIqrfDb::EnumerationProgress::Steps::Finish) {
 			m_enumerateMsg->setFinished();
@@ -154,7 +157,8 @@ namespace iqrf {
 		Pointer("/data/returnVerbose").Set(request, true, allocator);
 		Pointer("/data/req/standards").Set(request, false, allocator);
 		EnumerateMsg msg(request);
-		msg.setErrorString(progress.getStepMessage());
+		msg.setStepCode(progress.getStep());
+		msg.setStepString(progress.getStepMessage());
 		msg.setStatus("ok", 0);
 		msg.setFinished();
 		msg.createResponse(response);
