@@ -33,13 +33,17 @@ namespace iqrf {
 
 	void EnumerateMsg::createResponsePayload(Document &doc) {
 		Document::AllocatorType &allocator = doc.GetAllocator();
-		Pointer("/data/rsp/finished").Set(doc, finished, allocator);
-		Pointer("/data/rsp/step").Set(doc, errorStr, allocator);
+		Pointer("/data/rsp/step").Set(doc, stepCode, allocator);
+		Pointer("/data/rsp/stepStr").Set(doc, stepStr, allocator);
 		BaseMsg::createResponsePayload(doc);
 	}
 
-	void EnumerateMsg::setErrorString(const std::string &errorStr) {
-		this->errorStr = errorStr;
+	void EnumerateMsg::setStepCode(const uint8_t &stepCode) {
+		this->stepCode = stepCode;
+	}
+
+	void EnumerateMsg::setStepString(const std::string &stepStr) {
+		this->stepStr = stepStr;
 	}
 
 	void EnumerateMsg::setFinished() {

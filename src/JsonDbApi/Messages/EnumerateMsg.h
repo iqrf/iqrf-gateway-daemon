@@ -54,10 +54,16 @@ namespace iqrf {
 		void createResponsePayload(Document &doc) override;
 
 		/**
-		 * Sets enumeration error string
-		 * @param errorStr Error string
+		 * Sets enumeration step code
+		 * @param stepCode Step code
 		 */
-		void setErrorString(const std::string &errorStr);
+		void setStepCode(const uint8_t &stepCode);
+
+		/**
+		 * Sets enumeration step message
+		 * @param errorStr Step message
+		 */
+		void setStepString(const std::string &stepStr);
 
 		/**
 		 * Sets finished status of enumeration
@@ -66,10 +72,10 @@ namespace iqrf {
 	private:
 		/// Enumeration parameters
 		IIqrfDb::EnumParams parameters;
-		/// Error code
-		uint8_t errorCode;
-		/// Error string
-		std::string errorStr;
+		/// Step code
+		uint8_t stepCode;
+		/// Step string
+		std::string stepStr;
 		/// Enumeration finished
 		bool finished = false;
 	};
