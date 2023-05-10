@@ -365,34 +365,45 @@ namespace iqrf {
 		while (m_enumThreadRun) {
 			if (m_enumRun) {
 				if (!m_dpaService->hasExclusiveAccess()) {
+					waitForExclusiveAccess();
 					TRC_INFORMATION("Running enumeration with: " << PAR(m_params.reenumerate) << PAR(m_params.standards));
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Start));
 					checkNetwork(m_params.reenumerate);
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::NetworkDone));
+					m_exclusiveAccess.reset();
 
 					if (!m_enumThreadRun) {
 						break;
 					}
+
+					waitForExclusiveAccess();
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Devices));
 					enumerateDevices();
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::DevicesDone));
+					m_exclusiveAccess.reset();
 
 					if (!m_enumThreadRun) {
 						break;
 					}
+
+					waitForExclusiveAccess();
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Products));
 					productPackageEnumeration();
 					updateDatabaseProducts();
 					loadProductDrivers();
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::ProductsDone));
+					m_exclusiveAccess.reset();
 
 					if (!m_enumThreadRun) {
 						break;
 					}
+
 					if (m_params.standards || m_params.reenumerate) {
+						waitForExclusiveAccess();
 						sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Standards));
 						standardEnumeration();
 						sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::StandardsDone));
+						m_exclusiveAccess.reset();
 					}
 					m_enumRepeat = false;
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Finish));
@@ -788,20 +799,13 @@ namespace iqrf {
 			uint8_t pData[55] = {0};
 			frcSendSelectiveMemoryRead(pData, memoryAddress, PNUM_ENUMERATION, CMD_GET_PER_INFO, numNodes, processedNodes);
 			processedNodes += numNodes;
-			// count for frc data copy (at most 13 in send response)
-			uint8_t count = numNodes;
-			uint8_t extraCount = 0;
-			if (numNodes > 13) {
-				count = 13; // read from send response
-				extraCount = numNodes - 13; // read from extra
-			}
-			frcData.insert(frcData.end(), pData + 4, pData + (4 + count * 4));
-			if (extraCount > 0) {
+			frcData.insert(frcData.end(), pData + 4, pData + 55);
+			if (numNodes > 12) {
 				// Execute extra result
 				uint8_t extraData[9] = {0};
 				frcExtraResult(extraData);
 				// Store extra result FRC data
-				frcData.insert(frcData.end(), extraData, extraData + (4 * extraCount));
+				frcData.insert(frcData.end(), extraData, extraData + 9);
 			}
 		}
 		uint16_t i = 0;
@@ -827,20 +831,12 @@ namespace iqrf {
 			uint8_t pData[55] = {0};
 			frcSendSelectiveMemoryRead(pData, memoryAddress, PNUM_ENUMERATION, CMD_GET_PER_INFO, numNodes, processedNodes);
 			processedNodes += numNodes;
-			// count for frc data copy (at most 13 in send response)
-			uint8_t count = numNodes;
-			uint8_t extraCount = 0;
-			if (numNodes > 13) {
-				count = 13; // read from send response
-				extraCount = numNodes - 13; // read from extra
-			}
-			frcData.insert(frcData.end(), pData + 4, pData + (4 + count * 4));
-			if (extraCount > 0) {
-				// Execute extra result
+			frcData.insert(frcData.end(), pData + 4, pData + 55);
+			if (numNodes > 12) {
 				uint8_t extraData[9] = {0};
 				frcExtraResult(extraData);
 				// Store extra result FRC data
-				frcData.insert(frcData.end(), extraData, extraData + (4 * extraCount));
+				frcData.insert(frcData.end(), extraData, extraData + 9);
 			}
 		}
 		uint16_t i = 0;
@@ -865,16 +861,13 @@ namespace iqrf {
 			uint8_t pData[55] = {0};
 			frcSendSelectiveMemoryRead(pData, memoryAddress, PNUM_OS, CMD_OS_READ, numNodes, processedNodes);
 			processedNodes += numNodes;
-			if (numNodes == nodes) {
-				numNodes -= 2;
-			}
-			frcData.insert(frcData.end(), pData + 4, pData + (4 + numNodes * 4));
-			if (numNodes > 13) {
+			frcData.insert(frcData.end(), pData + 4, pData + 55);
+			if (numNodes > 12) {
 				// Execute extra result
 				uint8_t extraData[9] = {0};
 				frcExtraResult(extraData);
 				// Store extra result FRC data
-				frcData.insert(frcData.end(), extraData, extraData + 7);
+				frcData.insert(frcData.end(), extraData, extraData + 9);
 			}
 		}
 		uint16_t i = 0;
@@ -1565,6 +1558,14 @@ namespace iqrf {
 		m_productMap.clear();
 		m_deviceProductMap.clear();
 		TRC_FUNCTION_LEAVE("");
+	}
+
+	void IqrfDb::waitForExclusiveAccess() {
+		std::unique_lock<std::mutex> lock(m_enumMutex);
+		while (m_exclusiveAccessCv.wait_for(lock, std::chrono::seconds(1), [&] {
+			return m_dpaService->hasExclusiveAccess();
+		}));
+		m_exclusiveAccess = m_dpaService->getExclusiveAccess();
 	}
 
 	///// Component instance lifecycle methods /////
