@@ -524,6 +524,8 @@ namespace iqrf {
 		 */
 		void clearAuxBuffers();
 
+		void waitForExclusiveAccess();
+
 		/// Component instance name
 		std::string m_instance;
 		/// Path to database file
@@ -536,6 +538,10 @@ namespace iqrf {
 		QueryHandler query;
 		/// DPA service
 		IIqrfDpaService *m_dpaService = nullptr;
+		/// Enumeration condition variable
+		std::condition_variable m_exclusiveAccessCv;
+		/// Exclusive access
+		std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
 		/// JS cache service
 		IJsCacheService *m_cacheService = nullptr;
 		/// JS render service
