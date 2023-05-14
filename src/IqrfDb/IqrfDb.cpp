@@ -370,7 +370,7 @@ namespace iqrf {
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Start));
 					checkNetwork(m_params.reenumerate);
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::NetworkDone));
-					m_exclusiveAccess.reset();
+					resetExclusiveAccess();
 
 					if (!m_enumThreadRun) {
 						break;
@@ -380,7 +380,7 @@ namespace iqrf {
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Devices));
 					enumerateDevices();
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::DevicesDone));
-					m_exclusiveAccess.reset();
+					resetExclusiveAccess();
 
 					if (!m_enumThreadRun) {
 						break;
@@ -392,7 +392,7 @@ namespace iqrf {
 					updateDatabaseProducts();
 					loadProductDrivers();
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::ProductsDone));
-					m_exclusiveAccess.reset();
+					resetExclusiveAccess();
 
 					if (!m_enumThreadRun) {
 						break;
@@ -403,7 +403,7 @@ namespace iqrf {
 						sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Standards));
 						standardEnumeration();
 						sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::StandardsDone));
-						m_exclusiveAccess.reset();
+						resetExclusiveAccess();
 					}
 					m_enumRepeat = false;
 					sendEnumerationResponse(EnumerationProgress(EnumerationProgress::Steps::Finish));
@@ -1566,6 +1566,15 @@ namespace iqrf {
 			return m_dpaService->hasExclusiveAccess();
 		}));
 		m_exclusiveAccess = m_dpaService->getExclusiveAccess();
+		TRC_DEBUG("Exclusive access acquired.");
+	}
+
+	void IqrfDb::resetExclusiveAccess() {
+		std::unique_lock<std::mutex> lock(m_enumMutex);
+		if (m_exclusiveAccess != nullptr) {
+			m_exclusiveAccess.reset();
+			TRC_DEBUG("Exclusive access released.");
+		}
 	}
 
 	///// Component instance lifecycle methods /////

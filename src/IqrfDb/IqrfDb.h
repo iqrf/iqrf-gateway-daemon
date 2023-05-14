@@ -522,7 +522,15 @@ namespace iqrf {
 		 */
 		void clearAuxBuffers();
 
+		/**
+		 * Waits for and claims exclusive access when available
+		 */
 		void waitForExclusiveAccess();
+
+		/**
+		 * Resets exclusive access
+		 */
+		void resetExclusiveAccess();
 
 		/// Component instance name
 		std::string m_instance;
