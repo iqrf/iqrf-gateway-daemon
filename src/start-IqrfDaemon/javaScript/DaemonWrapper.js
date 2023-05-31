@@ -632,20 +632,20 @@ if (iqrf.embed.ledg !== undefined) {
   };
 
   iqrf.embed.ledg.SetOn_Request_req = function () {
-    return iqrf.embed.ledg.Set_Request(true);
+    return iqrf.embed.ledg.SetOn_Request(true);
   }
 
   iqrf.embed.ledg.SetOn_Response_rsp = function(rawHdp) {
-    iqrf.embed.ledg.Set_Response(rawHdp);
+    iqrf.embed.ledg.SetOn_Response(rawHdp);
     return {};
   }
 
   iqrf.embed.ledg.SetOff_Request_req = function () {
-    return iqrf.embed.ledg.Set_Request(false);
+    return iqrf.embed.ledg.SetOff_Request(false);
   }
 
   iqrf.embed.ledg.SetOff_Response_rsp = function(rawHdp) {
-    iqrf.embed.ledg.Set_Response(rawHdp);
+    iqrf.embed.ledg.SetOff_Response(rawHdp);
     return {};
   }
 
