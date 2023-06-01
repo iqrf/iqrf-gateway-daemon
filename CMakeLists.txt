@@ -64,8 +64,6 @@ add_subdirectory(libraries/date EXCLUDE_FROM_ALL)
 
 #add_subdirectory(src)
 
-enable_testing()
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/include)
 
 add_subdirectory(src/include)
@@ -124,7 +122,10 @@ add_subdirectory(src/IqmeshServices/Maintenance)
 add_subdirectory(src/IqmeshServices/DpaParams)
 
 if(${BUILD_TESTING})
+  include(CTest)
+  enable_testing()
   add_subdirectory(src/tests)
+  add_subdirectory(test)
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake @ONLY)
