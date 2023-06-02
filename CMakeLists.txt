@@ -41,6 +41,10 @@ include(${PROJECT_SOURCE_DIR}/cmake/hardening.cmake)
 
 set_directory_properties(PROPERTIES COMPILE_DEFINITIONS $<$<CONFIG:Debug>:_DEBUG>)
 
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+	set(DEBUG_POSTFIX d)
+endif()
+
 find_package(shape REQUIRED)
 
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
