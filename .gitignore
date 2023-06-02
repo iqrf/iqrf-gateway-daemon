@@ -3,8 +3,10 @@
 .vscode
 
 # ci build
+shape
 shape-source/
 shape-build/
+shapeware
 shapeware-source/
 shapeware-build/
 

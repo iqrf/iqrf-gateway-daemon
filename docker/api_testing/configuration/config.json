@@ -22,14 +22,21 @@
       "startlevel": -3
     },
     {
-      "name": "shape::ConfigurationService",
+      "name": "iqrf::SyslogLogger",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "SyslogLogger",
+      "enabled": true,
+      "startlevel": -3
+    },
+    {
+      "name": "shape::LauncherService",
       "libraryPath": "",
       "libraryName": "",
       "enabled": true,
       "startlevel": -2
     },
     {
-      "name": "shape::LauncherService",
+      "name": "shape::ConfigurationService",
       "libraryPath": "",
       "libraryName": "",
       "enabled": true,
@@ -40,6 +47,13 @@
       "libraryPath": "shapeware/bin",
       "libraryName": "WebsocketCppService",
       "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "shape::MqttService",
+      "libraryPath": "shapeware/bin",
+      "libraryName": "MqttService",
+      "enabled": false,
       "startlevel": 0
     },
     {
@@ -99,6 +113,27 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::IqrfBackup",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfBackup",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::IqrfRestore",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfRestore",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
+      "name": "iqrf::MonitorService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "MonitorService",
+      "enabled": true,
+      "startlevel": 0
+    },
+    {
       "name": "iqrf::MqMessaging",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MqMessaging",
@@ -110,6 +145,13 @@
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MqttMessaging",
       "enabled": true,
+      "startlevel": 10
+    },
+    {
+      "name": "iqrf::BufferedMqttMessaging",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "BufferedMqttMessaging",
+      "enabled": false,
       "startlevel": 10
     },
     {
@@ -162,16 +204,16 @@
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsonCfgApi",
+      "name": "iqrf::JsonIqrfInfoApi",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "JsonCfgApi",
+      "libraryName": "JsonIqrfInfoApi",
       "enabled": true,
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsonIqrfInfoApi",
+      "name": "iqrf::JsonCfgApi",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "JsonIqrfInfoApi",
+      "libraryName": "JsonCfgApi",
       "enabled": true,
       "startlevel": 2
     },
@@ -211,13 +253,6 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::SmartConnectService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "SmartConnectService",
-      "enabled": true,
-      "startlevel": 3
-    },
-    {
       "name": "iqrf::ReadTrConfService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "ReadTrConfService",
@@ -225,9 +260,9 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::OtaUploadService",
+      "name": "iqrf::SmartConnectService",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "OtaUploadService",
+      "libraryName": "SmartConnectService",
       "enabled": true,
       "startlevel": 3
     },
@@ -246,13 +281,6 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::AutonetworkService",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "AutonetworkService",
-      "enabled": true,
-      "startlevel": 3
-    },
-    {
       "name": "iqrf::RemoveBondService",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "RemoveBondService",
@@ -260,11 +288,81 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::MonitorService",
+      "name": "iqrf::AutonetworkService",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "MonitorService",
+      "libraryName": "AutonetworkService",
       "enabled": true,
-      "startlevel": 0
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::BackupService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "BackupService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::RestoreService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "RestoreService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::OtaUploadService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "OtaUploadService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::PingService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "PingService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::RestartService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "RestartService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::MaintenanceService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "MaintenanceService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::FrcResponseTime",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "FrcResponseTime",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::FrcParamsService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "FrcParamsService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::DpaHopsService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "DpaHopsService",
+      "enabled": true,
+      "startlevel": 3
+    },
+    {
+      "name": "iqrf::DpaValueService",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "DpaValueService",
+      "enabled": true,
+      "startlevel": 3
     }
   ]
 }
