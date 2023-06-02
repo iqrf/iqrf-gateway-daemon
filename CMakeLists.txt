@@ -26,7 +26,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 if(NOT CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake|MSBuild)")
   include(CheckCXXCompilerFlag)
   CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
-  if(COMPILER_SUPPORTS_CXX14)
+  if(COMPILER_SUPPORTS_CXX17)
   	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++17 -pthread")
   else()
     message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
@@ -92,6 +92,10 @@ if(${USE_CCACHE})
 endif()
 
 set_directory_properties(PROPERTIES COMPILE_DEFINITIONS $<$<CONFIG:Debug>:_DEBUG>)
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+	set(DEBUG_POSTFIX d)
+endif()
 
 find_package(shape REQUIRED)
 

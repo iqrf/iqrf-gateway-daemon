@@ -1,5 +1,5 @@
-#!/bin/sh
+#!/bin/bash
 
-pushd build 
+pushd build/Unix_Makefiles
 ctest -v
 popd
