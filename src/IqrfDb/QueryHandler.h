@@ -238,11 +238,11 @@ public:
 	/**
 	 * Checks if device implementing sensor record is in database
 	 * @param address Device address
-	 * @param type Sensor type
+	 * @param sensorId Sensor ID
 	 * @param index Sensor index
 	 * @return true if record exists, false otherwise
 	 */
-	bool deviceSensorExists(const uint8_t &address, const uint8_t &type, const uint8_t &index);
+	bool deviceSensorExists(const uint8_t &address, const uint32_t &sensorId, const uint8_t &index);
 
 	/**
 	 * Returns all sensor device records from database
