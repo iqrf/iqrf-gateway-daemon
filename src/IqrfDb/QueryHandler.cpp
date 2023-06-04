@@ -300,8 +300,14 @@ uint32_t QueryHandler::getSensorId(const uint8_t &type, const std::string &name)
 	return id;
 }
 
-bool QueryHandler::deviceSensorExists(const uint8_t &address, const uint8_t &type, const uint8_t &index) {
-	auto count = db->count<DeviceSensor>(where(c(&DeviceSensor::getAddress) == address and c(&DeviceSensor::getType) == type and c(&DeviceSensor::getGlobalIndex) == index));
+bool QueryHandler::deviceSensorExists(const uint8_t &address, const uint32_t &sensorId, const uint8_t &index) {
+	auto count = db->count<DeviceSensor>(
+		where(
+			c(&DeviceSensor::getAddress) == address and
+			c(&DeviceSensor::getSensorId) == sensorId and
+			c(&DeviceSensor::getGlobalIndex) == index
+		)
+	);
 	return count > 0;
 }
 
