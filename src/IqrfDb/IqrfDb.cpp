@@ -1343,7 +1343,7 @@ namespace iqrf {
 
 			// store device and sensor
 			const uint8_t index = item->getIdx();
-			exists = this->query.deviceSensorExists(address, type, index);
+			exists = this->query.deviceSensorExists(address, sensorId, index);
 			if (!exists) {
 				m_db->replace(DeviceSensor(address, type, index, cnt[type], sensorId, nullptr));
 				cnt[type] += 1;
