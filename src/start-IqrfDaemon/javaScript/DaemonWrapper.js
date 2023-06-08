@@ -906,7 +906,7 @@ if (iqrf.sensor !== undefined) {
   };
 
   iqrf.sensor.ReadSensorsWithTypes_Request_req = function (param) {
-    return iqrf.sensor.ReadSensorsWithTypes_Request(param.sensorIndexes);
+    return iqrf.sensor.ReadSensorsWithTypes_Request(param.sensorIndexes, param.writtenData);
   };
 
   iqrf.sensor.ReadSensorsWithTypes_Response_rsp = function (rawHdp) {

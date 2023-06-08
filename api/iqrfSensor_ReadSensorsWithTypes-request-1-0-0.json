@@ -61,6 +61,16 @@
 										}
 									],
 									"description": "Specifies sensors to read data from. Undefined: Missing parameter: reads 1st sensor. Number: -1: reads all sensors. Array: array of indexes: specifies sensors to read."
+								},
+								"writtenData": {
+									"type": "array",
+									"minItems": 1,
+									"items": {
+										"type": "array",
+										"items": {
+											"type": "integer"
+										}
+									}
 								}
 							}
 						}
