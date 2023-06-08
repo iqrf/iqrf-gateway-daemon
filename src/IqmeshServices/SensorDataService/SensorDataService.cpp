@@ -378,54 +378,65 @@ namespace iqrf {
 
 	void SensorDataService::setConfig(rapidjson::Document &request, const std::string &messagingId)  {
 		TRC_FUNCTION_ENTER("");
-
-		const Value *val = Pointer("/data/req/autoRun").Get(request);
-		if (val && val->IsBool()) {
-			m_autoRun = val->GetBool();
-		}
-
-		val = Pointer("/data/req/period").Get(request);
-		if (val && val->IsUint()) {
-			m_period = val->GetUint();
-		}
-
-		val = Pointer("/data/req/asyncReports").Get(request);
-		if (val && val->IsBool()) {
-			m_asyncReports = val->GetBool();
-		}
-
-		val = Pointer("/data/req/messagingList").Get(request);
-		if (val && val->IsArray()) {
-			std::list<std::string> list = {};
-			auto arr = val->GetArray();
-			for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
-				list.push_back(itr->GetString());
-			}
-			m_messagingList = list;
-		}
-
+		
 		Document rsp;
-
 		Pointer("/mType").Set(rsp, m_messageType);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
 		Pointer("/data/rsp/command").Set(rsp, SENSOR_DATA_COMMAND_SET_CONFIG);
+
+		auto oldAutoRun = m_autoRun;
+		auto oldPeriod = m_period;
+		auto oldAsyncReports = m_asyncReports;
+		auto oldMessagingList = m_messagingList;
 
 		shape::IConfiguration *cfg = m_configService->getConfiguration(m_componentName, m_instanceName);
 		try {
 			if (!cfg) {
 				throw std::logic_error("Failed to load configuration");
 			}
-			Document newCfg;
-			Value *cfgDoc = Pointer("/data/req").Get(request);
-			newCfg.CopyFrom(*cfgDoc, newCfg.GetAllocator());
-			Document &currentCfg = cfg->getProperties()->getAsJson();
-			currentCfg.CopyFrom(newCfg, currentCfg.GetAllocator());
-			Pointer("/component").Set(currentCfg, m_componentName);
-			Pointer("/instance").Set(currentCfg, m_instanceName);
+
+			Document &cfgDoc = cfg->getProperties()->getAsJson();
+			Document::AllocatorType &allocator = cfgDoc.GetAllocator();
+			
+
+			const Value *val = Pointer("/data/req/autoRun").Get(request);
+			if (val && val->IsBool()) {
+				m_autoRun = val->GetBool();
+				Pointer("/autoRun").Set(cfgDoc, m_autoRun);
+			}
+
+			val = Pointer("/data/req/period").Get(request);
+			if (val && val->IsUint()) {
+				m_period = val->GetUint();
+				Pointer("/period").Set(cfgDoc, m_period);
+			}
+
+			val = Pointer("/data/req/asyncReports").Get(request);
+			if (val && val->IsBool()) {
+				m_asyncReports = val->GetBool();
+				Pointer("/asyncReports").Set(cfgDoc, m_asyncReports);
+			}
+
+			val = Pointer("/data/req/messagingList").Get(request);
+			if (val && val->IsArray()) {
+				std::list<std::string> list = {};
+				auto arr = val->GetArray();
+				for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+					list.push_back(itr->GetString());
+				}
+				m_messagingList = list;
+				Pointer("/messagingList").Set(cfgDoc, *val, allocator);
+			}
+
+			cfg->update(true);
 
 			Pointer("/data/status").Set(rsp, 0);
 		} catch (const std::exception &e) {
 			CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+			m_autoRun = oldAutoRun;
+			m_period = oldPeriod;
+			m_asyncReports = oldAsyncReports;
+			m_messagingList = oldMessagingList;
 			Pointer("/data/status").Set(rsp, 1005);
 			Pointer("/data/statusStr").Set(rsp, "Failed to load and update component instance configuration.");
 		}
@@ -490,6 +501,9 @@ namespace iqrf {
 		TRC_FUNCTION_ENTER("");
 
 		const Document &doc = props->getAsJson();
+
+		m_componentName = Pointer("/component").Get(doc)->GetString();
+		m_instanceName = Pointer("/instance").Get(doc)->GetString();
 
 		m_autoRun = Pointer("/autoRun").Get(doc)->GetBool();
 		m_period = Pointer("/period").Get(doc)->GetUint();
