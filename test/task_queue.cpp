@@ -62,3 +62,19 @@ TEST(TaskQueue, StopQueue) {
     
     EXPECT_EQ(tq.size(), 1);
 }
+
+/* Test queus stop/start handling */
+TEST(TaskQueue, StartQueue) {
+    auto tq = TaskQueue<std::string>(handleQueueDelayed);
+    tq.pushToQueue("8");
+    tq.stopQueue();
+
+    EXPECT_EQ(tq.size(), 1);
+
+    tq.startQueue();
+
+    sleep(2);
+
+    EXPECT_EQ(tq.size(), 0);
+
+}
