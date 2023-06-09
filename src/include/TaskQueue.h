@@ -83,6 +83,20 @@ public:
     return retval;
   }
 
+  /// \brief Start queue
+  /// \details
+  /// Worker thread is again started
+  void startQueue()
+  {
+    {
+      std::unique_lock<std::mutex> lck(m_taskQueueMutex);
+      m_runWorkerThread = true;
+      m_taskPushed = true;
+    }
+    m_conditionVariable.notify_all();
+  }
+
+
   /// \brief Stop queue
   /// \details
   /// Worker thread is explicitly stopped
