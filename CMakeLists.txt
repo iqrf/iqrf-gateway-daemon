@@ -187,10 +187,21 @@ add_subdirectory(src/IqmeshServices/Maintenance)
 add_subdirectory(src/IqmeshServices/DpaParams)
 
 if(${BUILD_TESTING})
-  include(CTest)
-  enable_testing()
-  add_subdirectory(src/tests)
-  add_subdirectory(test)
+  	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")  
+
+	include(CTest)
+  	enable_testing()
+#  add_subdirectory(src/tests)
+  	add_subdirectory(test)
+
+  	include(${CMAKE_SOURCE_DIR}/cmake/CodeCoverage.cmake)
+  
+  SETUP_TARGET_FOR_COVERAGE(
+      test_coverage
+      ctest
+      coverage_result
+  )
+
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake @ONLY)
