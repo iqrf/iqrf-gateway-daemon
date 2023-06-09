@@ -76,5 +76,22 @@ TEST(TaskQueue, StartQueue) {
     sleep(2);
 
     EXPECT_EQ(tq.size(), 0);
+}
+
+TEST(TaskQueue, ClearTest) {
+    auto tq = TaskQueue<std::string>(handleQueueDelayed);
+    tq.pushToQueue("8");
+    tq.pushToQueue("9");
+
+    sleep(2);
+
+    tq.cleanQueue();
+
+    EXPECT_EQ(tq.size(), 0);
+
+    // add item to queue
+    tq.pushToQueue("8");
+
+    EXPECT_EQ(tq.size(), 1);
 
 }
