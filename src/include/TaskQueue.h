@@ -110,6 +110,22 @@ public:
     m_conditionVariable.notify_all();
   }
 
+  /// \brief Clean queue
+  /// \details
+  /// Clean queue from items
+  void cleanQueue()
+  {
+    // stop first
+    stopQueue();
+
+    {
+      std::unique_lock<std::mutex> lck(m_taskQueueMutex);
+      std::queue<T> empty;
+      std::swap( m_taskQueue, empty );
+    }
+  }
+
+
   /// \brief Get actual queue size
   /// \return queue size
   size_t size()
