@@ -48,6 +48,10 @@ pwd
 cmake -G "Unix Makefiles" -DBUILD_TESTING:BOOL=true -Dshape_DIR:PATH=${shape} -Dshapeware_DIR:PATH=${shapeware} ${currentdir} -DCMAKE_BUILD_TYPE=Debug
 popd
 
-#build from generated build environment
-cmake --build ${builddir} --config Debug --target install
-cmake --build ${builddir} --config Release --target install
+if [ "$@" = 0 ];then
+	#build from generated build environment
+	cmake --build ${builddir} --config Debug --target install
+	cmake --build ${builddir} --config Release --target install
+else
+	cmake --build ${builddir} --config Debug --target "$@"
+fi
