@@ -108,6 +108,9 @@ public:
       m_taskPushed = true;
     }
     m_conditionVariable.notify_all();
+
+    if (m_workerThread.joinable())
+      m_workerThread.join();
   }
 
   /// \brief Clean queue
