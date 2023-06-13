@@ -88,12 +88,17 @@ public:
   /// Worker thread is again started
   void startQueue()
   {
-    {
-      std::unique_lock<std::mutex> lck(m_taskQueueMutex);
+    // only if worker queue is not running yet
+    if (!m_runWorkerThread) {
+      // if we have some data for processing
+      m_taskPushed = size() > 0 ? true : false;
       m_runWorkerThread = true;
-      m_taskPushed = true;
+      m_workerThread = std::thread(&TaskQueue::worker, this);
+
+      if (m_taskPushed) {
+        m_conditionVariable.notify_all();
+      }
     }
-    m_conditionVariable.notify_all();
   }
 
 
