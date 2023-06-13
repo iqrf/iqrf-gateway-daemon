@@ -68,6 +68,7 @@ TEST(TaskQueue, StartQueue) {
     auto tq = TaskQueue<std::string>(handleQueueDelayed);
     tq.pushToQueue("8");
     tq.stopQueue();
+    sleep(1);
 
     EXPECT_EQ(tq.size(), 1);
 
