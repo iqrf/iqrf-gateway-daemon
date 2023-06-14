@@ -316,6 +316,19 @@ namespace iqrf {
         << "\n"
         << NAME_PAR(Message, msgStr)
         );
+      
+      StringStream sstr(msgStr.data());
+      Document reqdoc;
+      reqdoc.ParseStream(sstr);
+      MsgType msgType = getMessageType(reqdoc);
+      if (msgType.m_type == "mngDaemon_StartQueue") {
+        m_splitterMessageQueue->startQueue();
+        return;
+      }
+      if (msgType.m_type == "mngDaemon_StopQueue") {
+        m_splitterMessageQueue->stopQueue();
+        return;
+      }
 
       int queueLen = -1;
       if (m_splitterMessageQueue) {
