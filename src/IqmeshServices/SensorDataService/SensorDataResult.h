@@ -97,9 +97,14 @@ namespace iqrf {
 					} else {
 						Pointer("/rssi").Set(device, rapidjson::Value(kNullType), allocator);
 					}
+
+					std::vector<sensor::item::Sensor> &sensors = deviceItem.second;
+					std::sort(sensors.begin(), sensors.end(), [](sensor::item::Sensor a, sensor::item::Sensor b) {
+						return a.getIdx() < b.getIdx();
+					});
 					Value sensorArray(kArrayType);
 					// sensors
-					for (auto &sensorItem : deviceItem.second) {
+					for (auto &sensorItem : sensors) {
 						Value sensor(kObjectType);
 						Pointer("/index").Set(sensor, sensorItem.getIdx(), allocator);
 						Pointer("/type").Set(sensor, sensorItem.getType(), allocator);
