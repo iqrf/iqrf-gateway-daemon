@@ -33,6 +33,14 @@
                             "type": "integer",
                             "description": "Network device address."
                         },
+                        "pnum": {
+							"type": "integer",
+							"description": "Peripheral number."
+						},
+						"pcmd": {
+							"type": "integer",
+							"description": "Peripheral response command."
+						},
                         "hwpId": {
                             "type": "integer",
                             "description": "Hardware profile identification."
@@ -54,7 +62,7 @@
                                 },
                                 "configuration": {
                                     "type": "array",
-                                    "description": "Content the configuration memory block from address 0x01 to 0x1F.",    
+                                    "description": "Content the configuration memory block from address 0x01 to 0x1F.",
                                     "items": {
                                         "type": "integer"
                                     }
