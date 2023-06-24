@@ -263,8 +263,7 @@
 								"sensorIndex": {
 									"description": "Index of sensor",
 									"type": "integer",
-									"minimum": 0,
-									"maximum": 31
+									"minimum": 0
 								},
 								"selectedNodes": {
 									"description": "Array of network device addresses requested to execute FRC command.",
