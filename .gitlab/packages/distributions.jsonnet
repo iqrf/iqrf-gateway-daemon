@@ -1,4 +1,7 @@
 [
+	{ name: 'debian', version: 'bookworm', arch: 'amd64' },
+	{ name: 'debian', version: 'bookworm', arch: 'arm64' },
+	{ name: 'debian', version: 'bookworm', arch: 'armhf' },
 	{ name: 'debian', version: 'bullseye', arch: 'amd64' },
 	{ name: 'debian', version: 'bullseye', arch: 'arm64' },
 	{ name: 'debian', version: 'bullseye', arch: 'armhf' },
@@ -7,6 +10,7 @@
 	{ name: 'debian', version: 'buster', arch: 'arm64' },
 	{ name: 'debian', version: 'buster', arch: 'armhf' },
 	{ name: 'debian', version: 'buster', arch: 'armel' },
+	{ name: 'raspbian', version: 'bookworm', arch: 'armhf' },
 	{ name: 'raspbian', version: 'bullseye', arch: 'armhf' },
 	{ name: 'raspbian', version: 'buster', arch: 'armhf' },
 	{ name: 'ubuntu', version: 'bionic', arch: 'amd64' },
