@@ -24,22 +24,22 @@ namespace iqrf {
 	/**
 	 * Exit request message
 	 */
-	class MngRestartMsg : public MngBaseMsg {
+	class MngExitMsg : public MngBaseMsg {
 	public:
 		/// Delete base constructor
-		MngRestartMsg() = delete;
+		MngExitMsg() = delete;
 
 		/**
 		 * Constructor
 		 * @param doc Request document
 		 * @param schedulerRervice Scheduler service interface
 		 */
-		MngRestartMsg(const Document &doc, ISchedulerService *schedulerRervice);
+		MngExitMsg(const Document &doc, ISchedulerService *schedulerRervice);
 
 		/**
 		 * Destructor
 		 */
-		virtual ~MngRestartMsg() {};
+		virtual ~MngExitMsg() {};
 
 		/**
 		 * Handles exit request
@@ -55,6 +55,6 @@ namespace iqrf {
 		/// Scheduler service interface
 		ISchedulerService *m_schedulerService = nullptr;
 		/// Time to scheduled exit
-		double m_timeToExit;
+		uint32_t m_timeToExit;
 	};
 }

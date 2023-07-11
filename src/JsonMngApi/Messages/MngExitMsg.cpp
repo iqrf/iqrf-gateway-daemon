@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-#include "MngRestartMsg.h"
+#include "MngExitMsg.h"
 
 namespace iqrf {
 
-	MngRestartMsg::MngRestartMsg(const Document &doc, ISchedulerService *schedulerService) : MngBaseMsg(doc) {
+	MngExitMsg::MngExitMsg(const Document &doc, ISchedulerService *schedulerService) : MngBaseMsg(doc) {
 		m_schedulerService = schedulerService;
-		m_timeToExit = Pointer("/data/req/timeToExit").Get(doc)->GetDouble();
+		m_timeToExit = Pointer("/data/req/timeToExit").Get(doc)->GetUint();
 	}
 
-	void MngRestartMsg::handleMsg() {
+	void MngExitMsg::handleMsg() {
 		Document doc;
 		Pointer("/task/restart").Set(doc, true);
 
@@ -53,7 +53,7 @@ namespace iqrf {
 		);
 	}
 
-	void MngRestartMsg::createResponsePayload(Document &doc) {
+	void MngExitMsg::createResponsePayload(Document &doc) {
 		Pointer("/data/rsp/timeToExit").Set(doc, m_timeToExit);
 		MngBaseMsg::createResponsePayload(doc);
 	}

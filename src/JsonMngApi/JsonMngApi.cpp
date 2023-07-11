@@ -28,9 +28,9 @@
 #include <memory>
 
 #include "Messages/MngBaseMsg.h"
+#include "Messages/MngExitMsg.h"
 #include "Messages/MngModeMsg.h"
 #include "Messages/MngReloadCoordinatorMsg.h"
-#include "Messages/MngRestartMsg.h"
 #include "Messages/MngUpdateCacheMsg.h"
 #include "Messages/MngVersionMsg.h"
 
@@ -88,7 +88,7 @@ namespace iqrf {
 			Document respDoc;
 			std::unique_ptr<MngBaseMsg> msg;
 			if (msgType.m_type == "mngDaemon_Exit") {
-				msg = std::make_unique<MngRestartMsg>(MngRestartMsg(doc, m_iSchedulerService));
+				msg = std::make_unique<MngExitMsg>(MngExitMsg(doc, m_iSchedulerService));
 			} else if (msgType.m_type == "mngDaemon_Mode") {
 				msg = std::make_unique<MngModeMsg>(MngModeMsg(doc, m_iUdpConnectorService));
 			} else if (msgType.m_type == "mngDaemon_ReloadCoordinator") {
