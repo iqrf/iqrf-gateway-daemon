@@ -535,6 +535,8 @@ namespace iqrf {
 			m_workerThread.join();
 		}
 
+		m_splitterService->unregisterFilteredMsgHandler(std::vector<std::string>{m_messageType});
+
 		TRC_FUNCTION_LEAVE("");
 	}
 
