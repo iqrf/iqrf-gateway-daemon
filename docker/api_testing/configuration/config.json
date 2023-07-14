@@ -207,7 +207,7 @@
       "name": "iqrf::JsonIqrfInfoApi",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsonIqrfInfoApi",
-      "enabled": true,
+      "enabled": false,
       "startlevel": 2
     },
     {
@@ -221,7 +221,7 @@
       "name": "iqrf::JsonDbApi",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsonDbApi",
-      "enabled": false,
+      "enabled": true,
       "startlevel": 2
     },
     {
