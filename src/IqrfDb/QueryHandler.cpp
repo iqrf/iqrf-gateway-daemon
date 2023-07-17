@@ -146,6 +146,14 @@ uint32_t QueryHandler::getProductId(const uint16_t &hwpid, const uint16_t &hwpid
 	return productId[0];
 }
 
+Product QueryHandler::getProductById(const uint32_t &productId) {
+	auto products = db->get_all<Product>(where(c(&Product::getId) == productId));
+	if (products.size() == 0) {
+		throw std::logic_error("Product record with ID " + std::to_string(productId) + " does not exist.");
+	}
+	return products[0];
+}
+
 std::vector<uint8_t> QueryHandler::getProductAddresses(const uint32_t &productId) {
 	auto addresses = db->select(&Device::getAddress, where(c(&Device::getProductId) == productId));
 	return addresses;
@@ -288,6 +296,21 @@ void QueryHandler::removeLights(const uint32_t &deviceId) {
 }
 
 ///// Sensor /////
+
+bool QueryHandler::hasSensors(const uint8_t &deviceAddress) {
+	auto count = db->count<DeviceSensor>(where(c(&DeviceSensor::getAddress) == deviceAddress));
+	return count > 0;
+}
+
+std::map<uint8_t, Sensor> QueryHandler::getDeviceSensorsByAddress(const uint8_t &deviceAddress) {
+	auto deviceSensors = db->get_all<DeviceSensor>(where(c(&DeviceSensor::getAddress) == deviceAddress));
+	std::map<uint8_t, Sensor> sensors;
+	for (auto ds : deviceSensors) {
+		auto sensor = db->get<Sensor>(ds.getSensorId());
+		sensors.insert(std::make_pair(ds.getGlobalIndex(), sensor));
+	}
+	return sensors;
+}
 
 bool QueryHandler::sensorTypeExists(const uint8_t &type, const std::string &name) {
 	auto count = db->count<Sensor>(where(c(&Sensor::getType) == type and c(&Sensor::getName) == name));

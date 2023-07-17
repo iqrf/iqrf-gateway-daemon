@@ -19,6 +19,7 @@
 #include "rapidjson/document.h"
 #include "../IqrfDb/Entities/Device.h"
 #include "../IqrfDb/Entities/DeviceSensor.h"
+#include "../IqrfDb/Entities/Product.h"
 #include "../IqrfDb/Entities/Sensor.h"
 #include "JsDriverSensor.h"
 
@@ -134,11 +135,15 @@ namespace iqrf {
 		 */
 		virtual void reloadCoordinatorDrivers() = 0;
 
+		virtual std::vector<Device> getDevice(const uint8_t &addr) = 0;
+
 		/**
 		 * Retrieves information about devices in network
 		 * @return Vector of devices
 		 */
 		virtual std::vector<DeviceTuple> getDevices() = 0;
+
+		virtual Product getProductById(const uint32_t &productId) = 0;
 
 		/**
 		 * Retrieves information about devices implementing BinaryOutput standard
@@ -157,6 +162,10 @@ namespace iqrf {
 		 * @return Map of device addresses and implemented lights
 		 */
 		virtual std::map<uint8_t, uint8_t> getLights() = 0;
+
+		virtual bool hasSensors(const uint8_t &deviceAddress) = 0;
+
+		virtual std::map<uint8_t, Sensor> getDeviceSensorsByAddress(const uint8_t &deviceAddress) = 0;
 
 		/**
 		 * Retrieves information about devices implementing Sensor standard
