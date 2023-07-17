@@ -94,6 +94,8 @@ namespace iqrf {
 			msg = std::make_unique<GetBinaryOutputsMsg>(GetBinaryOutputsMsg(request));
 		} else if (msgType.m_type == "iqrfDb_GetDalis") {
 			msg = std::make_unique<GetDalisMsg>(GetDalisMsg(request));
+		} else if (msgType.m_type == "iqrfDb_GetDevice") {
+			msg = std::make_unique<GetDeviceMsg>(GetDeviceMsg(request));
 		} else if (msgType.m_type == "iqrfDb_GetDevices") {
 			msg = std::make_unique<GetDevicesMsg>(GetDevicesMsg(request));
 		} else if (msgType.m_type == "iqrfDb_GetNetworkTopology") {

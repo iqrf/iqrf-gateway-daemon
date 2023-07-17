@@ -104,10 +104,19 @@ namespace iqrf {
 		void reloadCoordinatorDrivers() override;
 
 		/**
+		 * Returns device by address
+		 * @param addr Device address
+		 * @return Device 
+		 */
+		std::vector<Device> getDevice(const uint8_t &addr) override;
+
+		/**
 		 * Returns vector of devices
 		 * @return Vector of devices
 		 */
 		std::vector<DeviceTuple> getDevices() override;
+
+		Product getProductById(const uint32_t &productId) override;
 
 		/**
 		 * Returns map of device addresses and implemented binary outputs
@@ -126,6 +135,10 @@ namespace iqrf {
 		 * @return Map of device addresses and implemented lights
 		 */
 		std::map<uint8_t, uint8_t> getLights() override;
+
+		bool hasSensors(const uint8_t &deviceAddress) override;
+
+		std::map<uint8_t, Sensor> getDeviceSensorsByAddress(const uint8_t &deviceAddress) override;
 
 		/**
 		 * Returns map of device addresses and implemented sensors

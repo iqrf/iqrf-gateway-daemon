@@ -25,6 +25,7 @@
 #include "Messages/EnumerateMsg.h"
 #include "Messages/GetBinaryOutputsMsg.h"
 #include "Messages/GetDalisMsg.h"
+#include "Messages/GetDeviceMsg.h"
 #include "Messages/GetDevicesMsg.h"
 #include "Messages/GetNetworkTopologyMsg.h"
 #include "Messages/GetLightsMsg.h"
@@ -133,6 +134,7 @@ namespace iqrf {
 		std::vector<std::string> m_messageTypes = {
 			"iqrfDb_GetBinaryOutput",
 			"iqrfDb_GetDalis",
+			"iqrfDb_GetDevice",
 			"iqrfDb_GetDevices",
 			"iqrfDb_GetNetworkTopology",
 			"iqrfDb_GetLights",
