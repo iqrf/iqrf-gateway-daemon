@@ -109,6 +109,8 @@ public:
 	 */
 	uint32_t getProductId(const uint16_t &hwpid, const uint16_t &hwpidVersion, const uint16_t &osBuild, const uint16_t &dpaVersion);
 
+	Product getProductById(const uint32_t &productId);
+
 	/**
 	 * Returns addresses of devices that match product ID
 	 * @param productID Product ID
@@ -218,6 +220,15 @@ public:
 	 * @param deviceId Device ID
 	 */
 	void removeLights(const uint32_t &deviceId);
+
+	/**
+	 * Checks if device implements sensors
+	 * @param deviceAddress Device address
+	 * @return true if device implements sensors, false otherwise
+	 */
+	bool hasSensors(const uint8_t &deviceAddress);
+
+	std::map<uint8_t, Sensor> getDeviceSensorsByAddress(const uint8_t &deviceAddress);
 
 	/**
 	 * Checks if a sensor type exists in database
