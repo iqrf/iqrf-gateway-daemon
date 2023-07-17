@@ -89,6 +89,10 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
+	std::vector<Device> IqrfDb::getDevice(const uint8_t &addr) {
+		return this->query.getDevice(addr);
+	}
+
 	std::vector<DeviceTuple> IqrfDb::getDevices() {
 		return this->query.getDevices();
 	}
@@ -101,6 +105,10 @@ namespace iqrf {
 		return this->query.getDeviceHwpid(address);
 	}
 
+	Product IqrfDb::getProductById(const uint32_t &productId) {
+		return this->query.getProductById(productId);
+	}
+
 	std::map<uint8_t, uint8_t> IqrfDb::getBinaryOutputs() {
 		return this->query.getBinaryOutputs();
 	}
@@ -111,6 +119,14 @@ namespace iqrf {
 
 	std::map<uint8_t, uint8_t> IqrfDb::getLights() {
 		return this->query.getLights();
+	}
+
+	bool IqrfDb::hasSensors(const uint8_t &deviceAddress) {
+		return this->query.hasSensors(deviceAddress);
+	}
+
+	std::map<uint8_t, Sensor> IqrfDb::getDeviceSensorsByAddress(const uint8_t &deviceAddress) {
+		return this->query.getDeviceSensorsByAddress(deviceAddress);
 	}
 
 	std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> IqrfDb::getSensors() {
@@ -1636,6 +1652,8 @@ namespace iqrf {
 		);
 		m_enumThreadRun = false;
 		stopEnumerationThread();
+		m_cacheService->unregisterCacheReloadedHandler(m_instance);
+		m_dpaService->unregisterAnyMessageHandler(m_instance);
 		clearAuxBuffers();
 		TRC_FUNCTION_LEAVE("");
 	}
