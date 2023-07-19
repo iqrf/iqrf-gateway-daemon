@@ -72,6 +72,7 @@ namespace iqrf {
 			"******************************"
 		);
 		m_splitterService->unregisterFilteredMsgHandler(m_messageTypes);
+		m_dbService->unregisterEnumerationHandler(m_instance);
 		TRC_FUNCTION_LEAVE("");
 	}
 
