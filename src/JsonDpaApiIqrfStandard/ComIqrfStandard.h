@@ -40,23 +40,25 @@ namespace iqrf {
       m_nadr = rapidjson::Pointer("/data/req/nAdr").Get(doc)->GetInt();
       m_hwpid = rapidjson::Pointer("/data/req/hwpId").GetWithDefault(doc, m_hwpid).GetInt();
       Value* reqParamObj = Pointer("/data/req/param").Get(doc);
-      rapidjson::Document param;
-      param.CopyFrom(*reqParamObj, param.GetAllocator());
-      rapidjson::StringBuffer buffer;
-      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-      param.Accept(writer);
-      m_param = buffer.GetString();
-      std::string mType = getMType();
-      if (mType == "iqrfSensor_ReadSensorsWithTypes") {
-        Value *sensorIndexes = Pointer("/sensorIndexes").Get(param);
-        if (sensorIndexes) {
-          m_sensorIndexes.CopyFrom(*sensorIndexes, m_sensorIndexes.GetAllocator());
+      if (reqParamObj != nullptr) {
+        rapidjson::Document param;
+        param.CopyFrom(*reqParamObj, param.GetAllocator());
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        param.Accept(writer);
+        m_param = buffer.GetString();
+        std::string mType = getMType();
+        if (mType == "iqrfSensor_ReadSensorsWithTypes") {
+          Value *sensorIndexes = Pointer("/sensorIndexes").Get(param);
+          if (sensorIndexes) {
+            m_sensorIndexes.CopyFrom(*sensorIndexes, m_sensorIndexes.GetAllocator());
+          }
         }
-      }
-      if (mType == "iqrfEmbedFrc_SendSelective" || mType == "iqrfEmbedOs_SelectiveBatch") {
-        Value* selectedNodes = Pointer("/selectedNodes").Get(param);
-        if (selectedNodes) {
-          m_selectedNodes.CopyFrom(*selectedNodes, m_selectedNodes.GetAllocator());
+        if (mType == "iqrfEmbedFrc_SendSelective" || mType == "iqrfEmbedOs_SelectiveBatch") {
+          Value* selectedNodes = Pointer("/selectedNodes").Get(param);
+          if (selectedNodes) {
+            m_selectedNodes.CopyFrom(*selectedNodes, m_selectedNodes.GetAllocator());
+          }
         }
       }
     }
@@ -145,7 +147,7 @@ namespace iqrf {
 
       // TODO: CHANGE THIS, THIS IS BAD AND SHOULDN'T BE DONE THIS WAY, SET PAYLOAD ACCORDING TO STATUS, NOT EVERYTIME
       // FIX TO PREVENT REWRITE OF JSON ROOT
-      if (m_hasPayload && (!m_payloadOnlyForVerbose || getVerbose())) {
+      if (m_hasPayload && (!m_payloadOnlyForVerbose || getVerbose()) && (m_payload.IsObject() && !m_payload.ObjectEmpty())) {
         Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
       }
 
@@ -166,7 +168,7 @@ namespace iqrf {
   private:
     int m_nadr = -1;
     int m_hwpid = -1;
-    std::string m_param;
+    std::string m_param = "{}";
     std::string m_payloadKey;
     rapidjson::Document m_payload;
     bool m_hasPayload = false;
