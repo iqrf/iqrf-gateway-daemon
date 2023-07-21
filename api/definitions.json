@@ -1,0 +1,38 @@
+{
+  "general": {
+    "mType": {
+      "title": "Message type",
+      "description": "Daemon API message"
+    },
+    "msgId": {
+      "title": "Message ID",
+      "description": "Message identification for binding request with response.",
+      "type": "string"
+    },
+    "timeout": {
+      "title": "Request timeout",
+      "description": "Timeout to wait for IQRF DPA response.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "returnVerbose": {
+      "title": "Verbose response",
+      "description": "API response will be more verbose.",
+      "type": "boolean"
+    },
+    "nAdr": {
+      "title": "Node address",
+      "description": "Network device address.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "hwpId": {
+      "title": "HWPID",
+      "description": "Hardware profile ID",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    }
+  }
+}
