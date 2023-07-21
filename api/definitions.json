@@ -1,38 +1,169 @@
 {
   "general": {
-    "mType": {
-      "title": "Message type",
-      "description": "Daemon API message"
-    },
-    "msgId": {
-      "title": "Message ID",
-      "description": "Message identification for binding request with response.",
-      "type": "string"
-    },
-    "timeout": {
-      "title": "Request timeout",
-      "description": "Timeout to wait for IQRF DPA response.",
-      "type": "integer",
-      "minimum": 0
-    },
-    "returnVerbose": {
-      "title": "Verbose response",
-      "description": "API response will be more verbose.",
-      "type": "boolean"
-    },
-    "nAdr": {
-      "title": "Node address",
-      "description": "Network device address.",
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 255
-    },
-    "hwpId": {
-      "title": "HWPID",
-      "description": "Hardware profile ID",
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 65535
-    }
+      "mType": {
+          "title": "Message type",
+          "description": "Daemon API message"
+      },
+      "msgId": {
+          "title": "Message ID",
+          "description": "Message identification for binding request with response.",
+          "type": "string"
+      },
+      "nAdr": {
+          "title": "Node address",
+          "description": "Network device address.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+      },
+      "returnVerbose": {
+          "title": "Verbose response",
+          "description": "API response will be more verbose.",
+          "type": "boolean"
+      },
+      "timeout": {
+          "title": "Request timeout",
+          "description": "Timeout to wait for IQRF DPA response.",
+          "type": "integer",
+          "minimum": 0
+      },
+      "request": {
+          "hwpId": {
+              "title": "HWPID",
+              "description": "Hardware profile ID.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 65535,
+              "default": 65535
+          }
+      },
+      "response": {
+          "pnum": {
+              "title": "Peripheral",
+              "description": "Peripheral number.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+          },
+          "pcmd": {
+              "title": "Peripheral command",
+              "description": "Peripheral command number.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+          },
+          "hwpId": {
+              "title": "HWPID",
+              "description": "Hardware profile ID.",
+              "oneOf": [
+                  {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 65535
+                  },
+                  {
+                      "type": "null"
+                  }
+              ]
+          },
+          "rCode": {
+              "title": "Return code",
+              "description": "DPA error code.",
+              "oneOf": [
+                  {
+                      "type": "integer",
+                      "minimum": 0
+                  },
+                  {
+                      "type": "null"
+                  }
+              ]
+          },
+          "dpaVal": {
+              "title": "DPA value",
+              "description": "DPA value.",
+              "oneOf": [
+                  {
+                      "type": "integer",
+                      "minimum": 0
+                  },
+                  {
+                      "type": "null"
+                  }
+              ]
+          },
+          "status": {
+              "title": "Status code",
+              "description": "Status of operation.",
+              "type": "integer"
+          },
+          "statusStr": {
+              "title": "Status string",
+              "description": "IQRF GW daemon API (general or mType) status in string form.",
+              "type": "string"
+          },
+          "insId": {
+              "title": "Instance ID",
+              "description": "IQRF GW daemon instance identification.",
+              "type": "string"
+          },
+          "errorStr": {
+              "title": "Error string",
+              "description": "Error description message.",
+              "type": "string"
+          },
+          "raw": {
+              "title": "Raw DPA messages",
+              "description": "Returns array of objects req-cnf-rsp, see its description.",
+              "type": "array",
+              "additionalItems": false,
+              "items": {
+                  "title": "Raw DPA messages object",
+                  "description": "Object containing Request, Confirmation and Response DPA messages and their timestamps.",
+                  "type": "object",
+                  "required": [
+                      "request",
+                      "requestTs",
+                      "confirmation",
+                      "confirmationTs",
+                      "response",
+                      "responseTs"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                      "request": {
+                          "title": "Request DPA",
+                          "description": "DPA request string.",
+                          "type": "string"
+                      },
+                      "requestTs": {
+                          "title": "Request timestamp",
+                          "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
+                          "type": "string"
+                      },
+                      "confirmation": {
+                          "title": "Confirmation DPA",
+                          "description": "DPA confirmation string.",
+                          "type": "string"
+                      },
+                      "confirmationTs": {
+                          "title": "Confirmation timestamp",
+                          "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
+                          "type": "string"
+                      },
+                      "response": {
+                          "title": "Response DPA",
+                          "description": "DPA response string",
+                          "type": "string"
+                      },
+                      "responseTs": {
+                          "title": "Response timestamp",
+                          "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
+                          "type": "string"
+                      }
+                  }
+              }
+          }
+      }
   }
 }
