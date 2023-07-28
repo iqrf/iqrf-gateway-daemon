@@ -21,6 +21,9 @@ namespace iqrf {
 
 	void GetSensorsMsg::handleMsg(IIqrfDb *dbService) {
 		sensors = dbService->getSensors();
+		for (auto &[addr, s] : sensors) {
+			mids[addr] = dbService->getDeviceMid(addr);
+		}
 	}
 
 	void GetSensorsMsg::createResponsePayload(Document &doc) {
@@ -30,6 +33,7 @@ namespace iqrf {
 		for (auto &item : sensors) {
 			Value deviceObject;
 			Pointer("/address").Set(deviceObject, item.first, allocator);
+			Pointer("/mid").Set(deviceObject, mids[item.first], allocator);
 
 			std::vector<std::tuple<DeviceSensor, Sensor>> sensorVector = item.second;
 			Value sensorArray(kArrayType);
