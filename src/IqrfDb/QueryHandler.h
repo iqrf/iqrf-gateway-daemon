@@ -45,10 +45,11 @@ public:
 	QueryHandler(std::shared_ptr<Storage> &db);
 
 	/**
-	 * Returns all device records with product information from database
+	 * Returns device records with product information from database, if vector of request devices is empty, all devices are returned
+	 * @param requestedDevices Addresses of request devices
 	 * @return Vector of devices with product information
 	 */
-	std::vector<DeviceTuple> getDevices();
+	std::vector<DeviceTuple> getDevices(std::vector<uint8_t> requestedDevices = {});
 
 	/**
 	 * Checks if device record exists
