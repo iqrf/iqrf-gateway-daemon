@@ -106,7 +106,7 @@ namespace iqrf {
 		/**
 		 * Returns device by address
 		 * @param addr Device address
-		 * @return Device 
+		 * @return Device
 		 */
 		std::vector<Device> getDevice(const uint8_t &addr) override;
 
@@ -114,7 +114,7 @@ namespace iqrf {
 		 * Returns vector of devices
 		 * @return Vector of devices
 		 */
-		std::vector<DeviceTuple> getDevices() override;
+		std::vector<DeviceTuple> getDevices(std::vector<uint8_t> requestedDevices = {}) override;
 
 		Product getProductById(const uint32_t &productId) override;
 
