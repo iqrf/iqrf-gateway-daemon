@@ -93,8 +93,8 @@ namespace iqrf {
 		return this->query.getDevice(addr);
 	}
 
-	std::vector<DeviceTuple> IqrfDb::getDevices() {
-		return this->query.getDevices();
+	std::vector<DeviceTuple> IqrfDb::getDevices(std::vector<uint8_t> requestedDevices) {
+		return this->query.getDevices(requestedDevices);
 	}
 
 	uint32_t IqrfDb::getDeviceMid(const uint8_t &address) {
