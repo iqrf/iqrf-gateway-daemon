@@ -47,6 +47,22 @@
 							"title": "Brief information",
 							"description": "Brief information about a device.",
 							"type": "boolean"
+						},
+						"addresses": {
+							"$id": "#/properties/data/properties/req/properties/addresses",
+							"title": "Device addresses",
+							"description": "Addresses of requested devices.",
+							"type": "array",
+							"uniqueItems": true,
+							"maxItems": 240,
+							"items": {
+								"$id": "#/properties/data/properties/req/properties/addresses/items",
+								"title": "Device address",
+								"description": "Requested device address",
+								"type": "integer",
+								"minimum": 0,
+								"maximum": 239
+							}
 						}
 					}
 				},

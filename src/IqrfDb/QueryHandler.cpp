@@ -23,9 +23,15 @@ QueryHandler::QueryHandler(std::shared_ptr<Storage> &db) {
 
 ///// General /////
 
-std::vector<DeviceTuple> QueryHandler::getDevices() {
+std::vector<DeviceTuple> QueryHandler::getDevices(std::vector<uint8_t> requestedDevices) {
 	std::vector<DeviceTuple> devices;
-	for (auto &device : db->iterate<Device>()) {
+	std::vector<Device> dbDevices;
+	if (requestedDevices.size() == 0) {
+		dbDevices = db->get_all<Device>();
+	} else {
+		dbDevices = db->get_all<Device>(where(in(&Device::getAddress, requestedDevices)));
+	}
+	for (auto &device : dbDevices) {
 		uint32_t productId = device.getProductId();
 		Product product = db->get<Product>(productId);
 		devices.push_back(std::make_tuple(device, product.getHwpid(), product.getHwpidVersion(), product.getOsBuild(), product.getOsVersion(), product.getDpaVersion()));
