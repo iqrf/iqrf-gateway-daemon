@@ -143,7 +143,7 @@ namespace iqrf {
 		 * Retrieves information about devices in network
 		 * @return Vector of devices
 		 */
-		virtual std::vector<DeviceTuple> getDevices() = 0;
+		virtual std::vector<DeviceTuple> getDevices(std::vector<uint8_t> requestedDevices = {}) = 0;
 
 		virtual Product getProductById(const uint32_t &productId) = 0;
 

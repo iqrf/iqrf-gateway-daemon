@@ -24,10 +24,17 @@ namespace iqrf {
 		if (v) {
 			brief = v->GetBool();
 		}
+		v = Pointer("/data/req/addresses").Get(doc);
+		if (v && v->IsArray()) {
+			auto arr = v->GetArray();
+			for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+				requestedDevices.push_back(static_cast<uint8_t>(itr->GetUint()));
+			}
+		}
 	}
 
 	void GetDevicesMsg::handleMsg(IIqrfDb *dbService) {
-		devices = dbService->getDevices();
+		devices = dbService->getDevices(requestedDevices);
 	}
 
 	void GetDevicesMsg::createResponsePayload(Document &doc) {

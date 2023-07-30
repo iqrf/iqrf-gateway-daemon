@@ -55,6 +55,8 @@ namespace iqrf {
 	private:
 		/// Indicates whether response should contain brief information
 		bool brief = false;
+		/// Vector of requested device addresses
+		std::vector<uint8_t> requestedDevices;
 		/// Vector of devices with product information
 		std::vector<DeviceTuple> devices;
 	};
