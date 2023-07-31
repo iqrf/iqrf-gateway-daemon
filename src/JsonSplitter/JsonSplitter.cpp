@@ -317,56 +317,18 @@ namespace iqrf {
         << NAME_PAR(Message, msgStr)
         );
 
-      int queueLen = -1;
-      if (m_splitterMessageQueue) {
-        queueLen = static_cast<int>(m_splitterMessageQueue->size());
-        if (queueLen <= 32) { //TODO parameter
-          queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messagingId, message));
-        }
-        else {
-          TRC_WARNING("Error queue overload: " << PAR(queueLen));
-
-          StringStream ss(msgStr.data());
-          Document doc;
-          doc.ParseStream(ss);
-          std::string msgId("ignored");
-
-          if (!doc.HasParseError()) {
-            msgId = Pointer("/data/msgId").GetWithDefault(doc, "ignored").GetString();
-          }
-          std::ostringstream oser;
-          oser << "daemon overload: " << PAR(queueLen);
-          Document rspDoc;
-          MessageErrorMsg msg(msgId, msgStr, oser.str());
-          msg.createResponse(rspDoc);
-          try {
-            sendMessage(messagingId, std::move(rspDoc));
-          }
-          catch (std::logic_error &ee) {
-            TRC_WARNING("Cannot create error response:" << ee.what());
-          }
-        }
-      }
-      else {
-        TRC_WARNING("Not activated yet => message is dropped.");
-      }
-      TRC_FUNCTION_LEAVE(PAR(queueLen))
-    }
-
-    int getMsgQueueLen() const
-    {
-      return (int)m_splitterMessageQueue->size();
-    }
-
-    void handleMessageFromSplitterQueue(const std::string& messagingId, const std::vector<uint8_t>& message) const
-    {
-      using namespace rapidjson;
-
-      std::string str((char*)message.data(), message.size());
-      StringStream sstr(str.data());
+      /*
+       * verify message validity:
+       * 1. json is valid
+       * 2. scheme is valid
+       */
+      
+      StringStream ss(msgStr.data());
       Document doc;
-      doc.ParseStream(sstr);
-      std::string msgId("undefined");
+      doc.ParseStream(ss);
+      std::string msgId("ignored");
+
+      int queueLen = -1;
 
       try {
         if (doc.HasParseError()) {
@@ -386,6 +348,70 @@ namespace iqrf {
         const std::string REQS("request");
         msgType = foundType->second;
         validate(msgType, doc, m_validatorMapRequest, REQS);
+
+        if (m_splitterMessageQueue) {
+          queueLen = static_cast<int>(m_splitterMessageQueue->size());
+          if (queueLen <= 32) { //TODO parameter
+            queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messagingId, message));
+          }
+          else {
+            TRC_WARNING("Error queue overload: " << PAR(queueLen));
+
+            if (!doc.HasParseError()) {
+              msgId = Pointer("/data/msgId").GetWithDefault(doc, "ignored").GetString();
+            }
+            std::ostringstream oser;
+            oser << "daemon overload: " << PAR(queueLen);
+            Document rspDoc;
+            MessageErrorMsg msg(msgId, msgStr, oser.str());
+            msg.createResponse(rspDoc);
+            try {
+              sendMessage(messagingId, std::move(rspDoc));
+            }
+            catch (std::logic_error &ee) {
+              TRC_WARNING("Cannot create error response:" << ee.what());
+            }
+          }
+        }
+        else {
+          TRC_WARNING("Not activated yet => message is dropped.");
+        }
+      }
+      catch (std::logic_error &e) {
+        TRC_WARNING("Error while handling incoming message:" << e.what());
+
+        Document rspDoc;
+        MessageErrorMsg msg(msgId, msgStr, e.what());
+        msg.createResponse(rspDoc);
+        try {
+          sendMessage(messagingId, std::move(rspDoc));
+        }
+        catch (std::logic_error &ee) {
+          TRC_WARNING("Cannot create error response:" << ee.what());
+        }
+      }
+
+      TRC_FUNCTION_LEAVE(PAR(queueLen))
+    }
+
+    int getMsgQueueLen() const
+    {
+      return (int)m_splitterMessageQueue->size();
+    }
+
+    void handleMessageFromSplitterQueue(const std::string& messagingId, const std::vector<uint8_t>& message) const
+    {
+      using namespace rapidjson;
+
+      std::string str((char*)message.data(), message.size());
+      StringStream sstr(str.data());
+      Document doc;
+      doc.ParseStream(sstr);
+      std::string msgId("undefined");
+
+      try {
+        msgId = Pointer("/data/msgId").GetWithDefault(doc, "undefined").GetString();
+        MsgType msgType = getMessageType(doc);
 
         std::map<std::string, FilteredMessageHandlerFunc > bestFitMap;
         { //lock scope
