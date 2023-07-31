@@ -25,16 +25,30 @@ namespace iqrf {
 			brief = v->GetBool();
 		}
 		v = Pointer("/data/req/addresses").Get(doc);
-		if (v && v->IsArray()) {
+		if (v) {
 			auto arr = v->GetArray();
 			for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
 				requestedDevices.push_back(static_cast<uint8_t>(itr->GetUint()));
 			}
 		}
+		v = Pointer("/data/req/sensors").Get(doc);
+		if (v) {
+			includeSensors = v->GetBool();
+		}
+		v = Pointer("/data/req/binouts").Get(doc);
+		if (v) {
+			includeBinouts = v->GetBool();
+		}
 	}
 
 	void GetDevicesMsg::handleMsg(IIqrfDb *dbService) {
 		devices = dbService->getDevices(requestedDevices);
+		if (includeSensors) {
+			sensors = dbService->getSensors();
+		}
+		if (includeBinouts) {
+			binouts = dbService->getBinaryOutputs();
+		}
 	}
 
 	void GetDevicesMsg::createResponsePayload(Document &doc) {
@@ -73,6 +87,37 @@ namespace iqrf {
 				Pointer("/location").Set(object, *val.get(), allocator);
 			} else {
 				Pointer("/location").Create(object, allocator);
+			}
+
+			// sensor
+			if (includeSensors) {
+				if (sensors.find(device.getAddress()) != sensors.end()) {
+					Value sensorArray(kArrayType);
+					auto sensorVector = sensors[device.getAddress()];
+					for (auto &[ds, s] : sensorVector) {
+						Value sensorObject;
+						Pointer("/index").Set(sensorObject, ds.getGlobalIndex(), allocator);
+						Pointer("/type").Set(sensorObject, s.getType(), allocator);
+						Pointer("/name").Set(sensorObject, s.getName(), allocator);
+						sensorArray.PushBack(sensorObject, allocator);
+					}
+					Pointer("/sensors").Set(object, sensorArray, allocator);
+				} else {
+					Pointer("/sensors").Create(object, allocator);
+				}
+
+			}
+
+			// binout
+			if (includeBinouts) {
+				if (binouts.find(device.getAddress()) == binouts.end()) {
+					Pointer("/binouts").Create(object, allocator);
+				} else {
+					Value boObject;
+					auto bo = binouts[device.getAddress()];
+					Pointer("/count").Set(boObject, bo, allocator);
+					Pointer("/binouts").Set(object, boObject, allocator);
+				}
 			}
 
 			array.PushBack(object, allocator);
