@@ -55,9 +55,17 @@ namespace iqrf {
 	private:
 		/// Indicates whether response should contain brief information
 		bool brief = false;
+		/// Include binary outputs in response
+		bool includeBinouts = false;
+		/// Include sensors in response
+		bool includeSensors = false;
 		/// Vector of requested device addresses
 		std::vector<uint8_t> requestedDevices;
 		/// Vector of devices with product information
 		std::vector<DeviceTuple> devices;
+		/// Map of sensor device tuples
+		std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> sensors;
+		/// Map of binout devices
+		std::map<uint8_t, uint8_t> binouts;
 	};
 }
