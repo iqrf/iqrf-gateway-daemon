@@ -326,8 +326,7 @@ namespace iqrf {
         else {
           TRC_WARNING("Error queue overload: " << PAR(queueLen));
 
-          std::string str((char*)message.data(), message.size());
-          StringStream ss(str.data());
+          StringStream ss(msgStr.data());
           Document doc;
           doc.ParseStream(ss);
           std::string msgId("ignored");
@@ -338,7 +337,7 @@ namespace iqrf {
           std::ostringstream oser;
           oser << "daemon overload: " << PAR(queueLen);
           Document rspDoc;
-          MessageErrorMsg msg(msgId, str, oser.str());
+          MessageErrorMsg msg(msgId, msgStr, oser.str());
           msg.createResponse(rspDoc);
           try {
             sendMessage(messagingId, std::move(rspDoc));
