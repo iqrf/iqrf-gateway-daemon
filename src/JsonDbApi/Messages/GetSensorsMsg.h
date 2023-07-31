@@ -55,6 +55,5 @@ namespace iqrf {
 	private:
 		/// Map of sensor device tuples
 		std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> sensors;
-		std::map<uint8_t, uint32_t> mids;
 	};
 }

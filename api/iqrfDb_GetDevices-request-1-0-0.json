@@ -63,6 +63,18 @@
 								"minimum": 0,
 								"maximum": 239
 							}
+						},
+						"sensors": {
+							"$id": "#/properties/data/properties/req/properties/sensors",
+							"title": "Sensor standard",
+							"description": "Include sensors if the device implements Sensor standard.",
+							"type": "boolean"
+						},
+						"binouts": {
+							"$id": "#/properties/data/properties/req/properties/binouts",
+							"title": "BinaryOutput standard",
+							"description": "Include binary outputs if the device implements BinaryOutput standard.",
+							"type": "boolean"
 						}
 					}
 				},
