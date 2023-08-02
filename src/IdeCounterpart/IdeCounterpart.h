@@ -23,78 +23,148 @@
 #include "IIqrfChannelService.h"
 #include "IIqrfDpaService.h"
 #include "TaskQueue.h"
+#include "Trace.h"
 #include <string>
 
+#include "crc.h"
+#include "EnumStringConvertor.h"
+#include "rapidjson/pointer.h"
+
+#include "Commands/BaseCommand.h"
+#include "Commands/GatewayIdentification.h"
+#include "Commands/GatewayStatus.h"
+#include "Commands/SendTrData.h"
+#include "Commands/TrInfo.h"
+#include "Commands/TrReset.h"
+#include "Commands/TrWrite.h"
+#include "Commands/UnknownCommand.h"
+
+/// iqrf namespace
 namespace iqrf {
-  class IdeCounterpart : public IUdpConnectorService
-  {
-  public:
-    IdeCounterpart();
-    virtual ~IdeCounterpart();
+	/// IDE counterpart class
+	class IdeCounterpart : public IUdpConnectorService {
+	public:
+		/**
+		 * Constructor
+		 */
+		IdeCounterpart();
 
-    void activate(const shape::Properties *props = 0);
-    void deactivate();
-    void modify(const shape::Properties *props);
+		/**
+		 * Destructor
+		 */
+		virtual ~IdeCounterpart();
 
-    void attachInterface(shape::ITraceService* iface);
-    void detachInterface(shape::ITraceService* iface);
+		/**
+		 * Get current gateway mode
+		 * @return Gateway mode
+		 */
+		Mode getMode() const override;
 
-    void attachInterface(iqrf::IUdpMessagingService* iface);
-    void detachInterface(iqrf::IUdpMessagingService* iface);
+		/**
+		 * Set gateway mode
+		 * @param mode Gateway mode
+		 */
+		void setMode(Mode mode) override;
 
-    void attachInterface(iqrf::IIqrfChannelService* iface);
-    void detachInterface(iqrf::IIqrfChannelService* iface);
+		/**
+		 * Initializes component
+		 * @param props Component properties
+		 */
+		void activate(const shape::Properties *props = 0);
 
-    void attachInterface(iqrf::IIqrfDpaService* iface);
-    void detachInterface(iqrf::IIqrfDpaService* iface);
+		/**
+		 * Modifies component properties
+		 * @param props Component properties
+		 */
+		void modify(const shape::Properties *props);
 
-    /// \brief switch operational mode
-    /// \param [in] mode operational mode to switch
-    /// \details
-    /// \details
-    /// Operational is used for normal work
-    /// Service the only UDP Messaging is used to communicate with IQRF IDE
-    /// Forwarding normal work but all DPA messages are forwarded to IQRF IDE to me monitored there
-    void setMode(Mode mode) override;
-    Mode getMode() const override;
+		/**
+		 * Deactivates component
+		 */
+		void deactivate();
 
-  private:
-    /// \brief Get GW identification for IQRF IDE
-    /// \param [out] message composed message to send
-    void getGwIdent(std::basic_string<unsigned char>& message);
+		/**
+		 * Attaches IQRF channel service interface
+		 * @param iface IQRF channel service interface
+		 */
+		void attachInterface(iqrf::IIqrfChannelService* iface);
 
-    /// \brief Get GW status for IQRF IDE
-    /// \param [out] message composed message to send
-    void getGwStatus(std::basic_string<unsigned char>& message);
+		/**
+		 * Detaches IQRF channel service interface
+		 * @param iface IQRF channel service interface
+		 */
+		void detachInterface(iqrf::IIqrfChannelService* iface);
 
-    /// \brief UDP message handler
-    int handleMessageFromUdp(const std::vector<uint8_t>& udpMessage);
+		/**
+		 * Attaches DPA service interface
+		 * @param iface DPA service interface
+		 */
+		void attachInterface(iqrf::IIqrfDpaService* iface);
 
-    /// \brief encode message
-    /// \param [out] udpMessage encoded message
-    /// \param [in] message to insert to udpMessage
-    void encodeMessageUdp(std::basic_string<unsigned char>& udpMessage, const std::basic_string<unsigned char>& message = std::basic_string<unsigned char>());
+		/**
+		 * Detaches DPA service interface
+		 * @param iface DPA service interface
+		 */
+		void detachInterface(iqrf::IIqrfDpaService* iface);
 
-    /// \brief decode message
-    /// \param [in] udpMessage to decode
-    /// \param [out] message content of udpMessage
-    void decodeMessageUdp(const std::basic_string<unsigned char>& udpMessage, std::basic_string<unsigned char>& message);
+		/**
+		 * Attaches UDP messaging service interface
+		 * @param iface IQRF channel service interface
+		 */
+		void attachInterface(iqrf::IUdpMessagingService* iface);
 
-  private:
-    IUdpMessagingService *m_messaging = nullptr;
-    IIqrfChannelService *m_iqrfChannelService = nullptr;
-    IIqrfDpaService *m_iqrfDpaService = nullptr;
-    mutable std::mutex m_modeMtx;
-    Mode m_mode;
-    std::unique_ptr<IIqrfChannelService::Accessor> m_exclusiveAcessor;
-    std::unique_ptr<IIqrfChannelService::Accessor> m_snifferAcessor;
-    int sendMessageToIde(const std::basic_string<unsigned char>& message);
+		/**
+		 * Detaches UDP messaging service interface
+		 * @param iface IQRF channel service interface
+		 */
+		void detachInterface(iqrf::IUdpMessagingService* iface);
 
-    uint8_t m_gwIdentModeByte = 0x20;
-    std::string m_gwIdentName = "iqrf-gateway-daemon";
-    std::string m_gwIdentIpStack = "N/A";
-    std::string m_gwIdentNetBios = "N/A";
-    std::string m_gwIdentPublicIp = "N/A";
+		/**
+		 * Attaches tracing service interface
+		 * @param iface Tracing service interface
+		 */
+		void attachInterface(shape::ITraceService* iface);
 
-  };
+		/**
+		 * Detaches tracing service interface
+		 * @param iface Tracing service interface
+		 */
+		void detachInterface(shape::ITraceService* iface);
+	private:
+		/**
+		 * Handles incoming UDP messages from IDE
+		 * @param message IDE message
+		 * @return Execution status code
+		 */
+		int handleMsg(const std::vector<uint8_t> &message);
+
+		/**
+		 * Validates UDP message
+		 * @param message UDP message
+		 */
+		void validateMsg(const std::basic_string<unsigned char> &message);
+
+		/**
+		 * Asynchronous response handler, used for sending responses to IDE
+		 * @param message Message to send
+		 * @return Execution status code
+		 */
+		int sendMessageToIde(const std::basic_string<unsigned char> &message);
+
+		/// IQRF channel service interface
+		IIqrfChannelService *m_iqrfChannelService = nullptr;
+		/// DPA service interface
+		IIqrfDpaService *m_iqrfDpaService = nullptr;
+		/// UDP messaging service interface
+		IUdpMessagingService *m_messaging = nullptr;
+		/// Gateway mode mutex
+		mutable std::mutex m_modeMtx;
+		/// Current gateway mode
+		Mode m_mode;
+		/// Acessors
+		std::unique_ptr<IIqrfChannelService::Accessor> m_exclusiveAcessor;
+		std::unique_ptr<IIqrfChannelService::Accessor> m_snifferAcessor;
+		/// Gateway identification parameters
+		GwIdentParams m_params {0x20, "iqrf-gateway-daemon", "N/A", "N/A", "N/A", "N/A", "N/A"};
+	};
 }
