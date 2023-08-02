@@ -99,13 +99,19 @@ namespace iqrf {
 						Pointer("/index").Set(sensorObject, ds.getGlobalIndex(), allocator);
 						Pointer("/type").Set(sensorObject, s.getType(), allocator);
 						Pointer("/name").Set(sensorObject, s.getName(), allocator);
+						Pointer("/shortname").Set(sensorObject, s.getShortname(), allocator);
+						Pointer("/unit").Set(sensorObject, s.getUnit(), allocator);
+						Pointer("/decimalPlaces").Set(sensorObject, s.getDecimals(), allocator);
+						Pointer("/frc2Bit").Set(sensorObject, s.hasFrc2Bit(), allocator);
+						Pointer("/frc1Byte").Set(sensorObject, s.hasFrc1Byte(), allocator);
+						Pointer("/frc2Byte").Set(sensorObject, s.hasFrc2Byte(), allocator);
+						Pointer("/frc4Byte").Set(sensorObject, s.hasFrc4Byte(), allocator);
 						sensorArray.PushBack(sensorObject, allocator);
 					}
 					Pointer("/sensors").Set(object, sensorArray, allocator);
 				} else {
 					Pointer("/sensors").Create(object, allocator);
 				}
-
 			}
 
 			// binout
