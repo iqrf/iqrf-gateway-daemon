@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "DpaPerExceptions.h"
 #include "IIqrfInfo.h"
 #include "IJsRenderService.h"
 #include "IIqrfDpaService.h"

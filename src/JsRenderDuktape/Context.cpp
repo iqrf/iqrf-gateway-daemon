@@ -26,44 +26,44 @@ namespace iqrf {
 		m_initialized = true;
 	}
 
-	bool Context::findFunction(const std::string &name) {
-		bool retval = false;
-		if (!m_initialized || name.empty()) {
-			duk_pop_n(m_ctx, m_relativeStack);
-			throw std::logic_error("JS engine not initialized");
-		}
-		std::string buffer = name;
-		std::replace(buffer.begin(), buffer.end(), '.', ' ');
-		std::istringstream iss(buffer);
-
-		std::vector<std::string> items;
-		while (true) {
-			std::string item;
-			if (!(iss >> item) && iss.eof()) {
-				break;
-			}
-			items.push_back(item);
-		}
-
-		retval = true;
+	void Context::findNamespaceObject(const std::string &ns, const std::string &object) {
+		auto tokens = StringUtils::split(ns, ".");
 		m_relativeStack = 0;
-		for (const auto &item : items) {
+		for (const auto &item : tokens) {
 			++m_relativeStack;
-			bool result = duk_get_prop_string(m_ctx, -1, item.c_str());
-			if (!result) {
+			bool exists = duk_get_prop_string(m_ctx, -1, item.c_str());
+			if (!exists) {
 				duk_pop_n(m_ctx, m_relativeStack);
-				throw std::logic_error("Not found: " + item);
+				throw PeripheralException("Peripheral " + item + " namespace not found.");
 			}
 		}
-
-		return retval;
+		if (StringUtils::endsWith(object, "_req") || StringUtils::endsWith(object, "_rsp"))  {
+			++m_relativeStack;
+			std::string fn = object.substr(0, object.length() - 4);
+			bool exists = duk_get_prop_string(m_ctx, -1, fn.c_str());
+			if (!exists) {
+				duk_pop_n(m_ctx, m_relativeStack);
+				throw PeripheralCommandException("Peripheral " + ns + " namespace object " + fn + " not found.");
+			}
+			duk_pop_n(m_ctx, 1);
+			m_relativeStack--;
+		}
+		++m_relativeStack;
+		bool exists = duk_get_prop_string(m_ctx, -1, object.c_str());
+		if (!exists) {
+			duk_pop_n(m_ctx, m_relativeStack);
+			throw std::logic_error("Cannot find driver function: " + ns + '.' + object);
+		}
 	}
 
 	void Context::callFunction(const std::string &name, const std::string &params, std::string &ret) {
-		if (!findFunction(name)) {
-			duk_pop_n(m_ctx, m_relativeStack);
-			throw std::logic_error("Cannot find driver function: " + name);
+		auto pos = name.find_last_of('.');
+		if (pos == std::string::npos) {
+			throw std::logic_error("Invalid namespace and function format: " + name);
 		}
+		std::string ns = name.substr(0, pos);
+		std::string object = name.substr(pos + 1, name.length() -1);
+		findNamespaceObject(ns, object);
 
 		duk_push_string(m_ctx, params.c_str());
 		duk_json_decode(m_ctx, -1);

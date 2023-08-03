@@ -1,4 +1,6 @@
 #include "duktape.h"
+#include "DpaPerExceptions.h"
+#include "StringUtils.h"
 
 #include <algorithm>
 #include <iostream>
@@ -38,10 +40,10 @@ namespace iqrf {
 	private:
 		/**
 		 * Attempts to find called function in context heap
-		 * @param name Function name
-		 * @return true if function exists, false otherwise
+		 * @param ns namespace
+		 * @param object object to find
 		 */
-		bool findFunction(const std::string &name);
+		void findNamespaceObject(const std::string &ns, const std::string &object);
 
 		/// Driver context initialized
 		bool m_initialized = false;

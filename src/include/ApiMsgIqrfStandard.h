@@ -104,6 +104,14 @@ namespace iqrf {
 
       bool r = (bool)m_res && m_res->isResponded();
       Pointer("/data/rsp/nAdr").Set(doc, m_nadr);
+      Pointer("/data/rsp/pnum").Set(doc, r ?
+        m_res->getResponse().DpaPacket().DpaResponsePacket_t.PNUM :
+        m_res->getRequest().DpaPacket().DpaRequestPacket_t.PNUM
+      );
+      Pointer("/data/rsp/pcmd").Set(doc, r ?
+        m_res->getResponse().DpaPacket().DpaResponsePacket_t.PCMD :
+        m_res->getRequest().DpaPacket().DpaRequestPacket_t.PCMD + 0x80
+      );
       Pointer("/data/rsp/hwpId").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.HWPID : m_hwpid);
       Pointer("/data/rsp/rCode").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
       Pointer("/data/rsp/dpaVal").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);

@@ -33,6 +33,14 @@
                             "type": "integer",
                             "description": "Network device address."
                         },
+                        "pnum": {
+							"type": "integer",
+							"description": "Peripheral number."
+						},
+						"pcmd": {
+							"type": "integer",
+							"description": "Peripheral response command."
+						},
                         "hwpId": {
                             "type": "integer",
                             "description": "Hardware profile identification."
@@ -50,7 +58,7 @@
                             "properties": {
                                 "readData": {
                                     "type": "array",
-                                    "description": "Optional data to be written.",    
+                                    "description": "Optional data to be written.",
                                     "items": {
                                         "type": "integer"
                                     }

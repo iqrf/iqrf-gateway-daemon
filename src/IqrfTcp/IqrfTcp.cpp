@@ -361,7 +361,6 @@ namespace iqrf {
           //receive a message from server
           recvlen = recv(sockfd, buffer, BUFFER_SIZE-1, 0);
           if (recvlen == -1) {
-            TRC_WARNING("Cannot receive response.");
             //connection closed
             if (errno == ENOTCONN) {
               fprintf(stderr, "Error receiving message: %s\n", strerror(errno));

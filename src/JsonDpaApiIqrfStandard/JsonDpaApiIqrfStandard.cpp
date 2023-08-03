@@ -242,10 +242,21 @@ namespace iqrf {
       std::string rawHdpRequest;
       std::string errStrReq;
       bool driverRequestError = false;
+      int errorCode = 0;
       try {
         m_iJsRenderService->callContext(com->getNadr(), com->getHwpid(), methodRequestName, com->getParamAsString(), rawHdpRequest);
-      }
-      catch (std::exception &e) {
+      } catch (const PeripheralException &e) {
+        CATCH_EXC_TRC_WAR(PeripheralException, e, e.what());
+        errorCode = ERROR_PNUM;
+        errStrReq = "Invalid PNUM";
+        driverRequestError = true;
+      } catch (const PeripheralCommandException &e) {
+        CATCH_EXC_TRC_WAR(PeripheralCommandException, e, e.what());
+        errorCode = ERROR_PCMD;
+        errStrReq = "Invalid PCMD";
+        driverRequestError = true;
+      } catch (std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
         //request driver func error
         errStrReq = e.what();
         driverRequestError = true;
@@ -253,10 +264,11 @@ namespace iqrf {
 
       if (driverRequestError) {
         //provide error response
-        Document rDataError;
-        rDataError.SetString(errStrReq, rDataError.GetAllocator());
-        com->setPayload("/data/rsp/errorStr", rDataError, true);
         FakeTransactionResult fr;
+        if (errorCode != 0) {
+          fr.overrideErrorCode(static_cast<IDpaTransactionResult2::ErrorCode>(errorCode));
+          fr.setErrorString(errStrReq);
+        }
         com->setStatus(fr.getErrorString(), fr.getErrorCode());
         com->createResponse(allResponseDoc, fr);
       }
@@ -338,9 +350,6 @@ namespace iqrf {
         }
         else {
           if (res->getErrorCode() != 0) {
-            Document rDataError;
-            rDataError.SetString("rcode error", rDataError.GetAllocator());
-            com->setPayload("/data/rsp/errorStr", rDataError, true);
             com->setStatus(res->getErrorString(), res->getErrorCode());
             com->createResponse(allResponseDoc, *res);
           }

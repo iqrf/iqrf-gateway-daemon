@@ -1,0 +1,11 @@
+{
+	"mType": "iqrfEmbedLedg_SetOff",
+	"data": {
+		"req": {
+			"nAdr": 0,
+			"param": {}
+		},
+		"returnVerbose": true,
+		"msgId": "7e7ef3ae-09d5-4ddb-9eeb-21e874a3cbf6"
+	}
+}

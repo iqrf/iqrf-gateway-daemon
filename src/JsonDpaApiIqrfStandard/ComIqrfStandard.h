@@ -92,6 +92,7 @@ namespace iqrf {
       m_payloadKey = payloadKey;
       m_payload.CopyFrom(val, m_payload.GetAllocator());
       m_payloadOnlyForVerbose = onlyForVerbose;
+      m_hasPayload = true;
     }
 
     //db metadata
@@ -109,12 +110,24 @@ namespace iqrf {
     void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) override
     {
       using namespace rapidjson;
-      bool r = res.isResponded();
       Pointer("/data/rsp/nAdr").Set(doc, m_nadr);
-      Pointer("/data/rsp/hwpId").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.HWPID : m_hwpid);
-      Pointer("/data/rsp/rCode").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
-      Pointer("/data/rsp/dpaVal").Set(doc, r ? res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);
-      if (!m_payloadOnlyForVerbose || getVerbose()) {
+      if (res.isResponded()) {
+        Pointer("/data/rsp/pnum").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.PNUM);
+        Pointer("/data/rsp/pcmd").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.PCMD);
+        Pointer("/data/rsp/hwpId").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.HWPID);
+        Pointer("/data/rsp/rCode").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode);
+        Pointer("/data/rsp/dpaVal").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue);
+      } else {
+        Pointer("/data/rsp/pnum").Set(doc, res.getRequest().DpaPacket().DpaRequestPacket_t.PNUM);
+        Pointer("/data/rsp/pcmd").Set(doc, res.getRequest().DpaPacket().DpaRequestPacket_t.PCMD + 0x80);
+        Pointer("/data/rsp/hwpId").Set(doc, -1);
+        Pointer("/data/rsp/rCode").Set(doc, -1);
+        Pointer("/data/rsp/dpaVal").Set(doc, -1);
+      }
+
+      // TODO: CHANGE THIS, THIS IS BAD AND SHOULDN'T BE DONE THIS WAY, SET PAYLOAD ACCORDING TO STATUS, NOT EVERYTIME
+      // FIX TO PREVENT REWRITE OF JSON ROOT
+      if (m_hasPayload && (!m_payloadOnlyForVerbose || getVerbose())) {
         Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
       }
 
@@ -138,6 +151,7 @@ namespace iqrf {
     std::string m_param;
     std::string m_payloadKey;
     rapidjson::Document m_payload;
+    bool m_hasPayload = false;
     bool m_payloadOnlyForVerbose = true;
     bool m_appendMidMetaData = false;
     rapidjson::Document m_midMetaData;
