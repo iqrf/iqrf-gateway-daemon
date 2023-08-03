@@ -322,7 +322,7 @@ namespace iqrf {
        * 1. json is valid
        * 2. scheme is valid
        */
-      
+
       StringStream ss(msgStr.data());
       Document doc;
       doc.ParseStream(ss);
@@ -412,6 +412,12 @@ namespace iqrf {
       try {
         msgId = Pointer("/data/msgId").GetWithDefault(doc, "undefined").GetString();
         MsgType msgType = getMessageType(doc);
+
+        auto foundType = m_msgTypeToHandle.find(getKey(msgType));
+        if (foundType == m_msgTypeToHandle.end()) {
+          THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type) << NAME_PAR(key, getKey(msgType)));
+        }
+        msgType = foundType->second;
 
         std::map<std::string, FilteredMessageHandlerFunc > bestFitMap;
         { //lock scope
