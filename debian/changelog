@@ -1,10 +1,33 @@
-iqrf-gateway-daemon (2.5.0~alpha~1.gbp9ec99f) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.5.0~rc1) testing; urgency=medium
 
-  ** SNAPSHOT build @9ec99ff12507da9a9b5ad4fd31d7eb62a2955e80 **
+  [ Karel Hanák ]
+  * Prepare for version 2.5.0-alpha
+  * fixed frc sendselective request schemas
+  * iqmesh services: include new properties for dpa 4.17
+  * extended authorizeBond request api
+  * api: updated authorizebond examples, jswrapper: authorizebond response fixed
+  * updated api testing configuration
 
-  * UNRELEASED
+  [ Roman Ondráček ]
+  * GitLab CI: add package builds for Debian 12 and Raspbian 12
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 03 Mar 2023 15:06:10 +0100
+  [ Karel Hanák ]
+  * JsonMngApi: updated exit message name, fixed exit time type
+  * updated clibdpa reference
+  * IdeCounterpart rework
+  * IdeCounterpart: added missing comments, refactor code
+  * added LEDR(G) SetOn and SetOff requests and responses
+  * JsonDpaApiIqrfStandard: missing response update
+  * drivers: catch driver errors and interpret as dpa error if possible
+  * DaemonWrapper: use recently added SetOn and SetOff functions
+  * API and daemon wrapper: sensor read written data
+  * include pnum and pcmd in json api responses
+  * api: added pnum and pcmd to read sensors with types response schema
+  * use api-testing container for v2.5-alpha
+  * iqrfSensor_Frc-response: removed index maximum
+  * added pnum and pcmd to embed peripheral and standard response schemas
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 04 Aug 2023 06:51:01 +0200
 
 iqrf-gateway-daemon (2.4.0) stable; urgency=medium
 
