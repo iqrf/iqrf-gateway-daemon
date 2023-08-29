@@ -1,4 +1,4 @@
-iqrf-gateway-daemon (2.5.0~rc1) testing; urgency=medium
+iqrf-gateway-daemon (2.5.0) stable; urgency=medium
 
   [ Karel Hanák ]
   * Prepare for version 2.5.0-alpha
@@ -27,7 +27,7 @@ iqrf-gateway-daemon (2.5.0~rc1) testing; urgency=medium
   * iqrfSensor_Frc-response: removed index maximum
   * added pnum and pcmd to embed peripheral and standard response schemas
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 04 Aug 2023 06:51:01 +0200
+ -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 29 Aug 2023 13:40:08 +0200
 
 iqrf-gateway-daemon (2.4.0) stable; urgency=medium
 
