@@ -175,6 +175,14 @@ namespace iqrf {
 		bool extraResultRequired(const uint8_t &command, const uint8_t &deviceCount);
 
 		/**
+		 * Split set of into vector of sets of specific size
+		 * @param set Set to split
+		 * @param size Sub-set size
+		 * @return std::vector<std::set<uint8_t>> Subsets
+		 */
+		std::vector<std::set<uint8_t>> splitSet(std::set<uint8_t> &set, size_t size);
+
+		/**
 		 * Sets offline FRC flag
 		 * @param result Service result
 		 */
@@ -187,7 +195,7 @@ namespace iqrf {
 		 * @param idx Sensor index
 		 * @param nodes Devices to read data from
 		 */
-		void sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes);
+		std::vector<iqrf::sensor::item::Sensor> sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes);
 
 		/**
 		 * Prepares requests for specified sensor type, index and selected devices
@@ -198,9 +206,26 @@ namespace iqrf {
 		 */
 		void getTypeData(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::deque<uint8_t> &addresses);
 
-		std::vector<std::set<uint8_t>> splitSet(std::set<uint8_t> &set, size_t size);
+		/**
+		 * Set device HWPID and MID by node addresses
+		 * @param result Service result
+		 * @param nodes Nodes
+		 */
+		void setDeviceHwpidMid(SensorDataResult &result, std::set<uint8_t> &nodes);
 
+		/**
+		 * Get RSSI from regular devices
+		 * @param result Service result
+		 * @param nodes Nodes to get RSSI from
+		 */
 		void getRssi(SensorDataResult &result, std::set<uint8_t> &nodes);
+
+		/**
+		 * Get RSSI from beaming devices
+		 * @param result Service result
+		 * @param nodes Nodes to get RSSI from
+		 */
+		void getRssiBeaming(SensorDataResult &result, std::set<uint8_t> &nodes);
 
 		/**
 		 * Reads Sensor data using FRC requests
