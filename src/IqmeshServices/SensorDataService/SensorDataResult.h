@@ -25,6 +25,13 @@ using namespace rapidjson;
 
 /// iqrf namespace
 namespace iqrf {
+	class DeviceMetadata {
+		public:
+			uint16_t hwpid = 0;
+			uint32_t mid = 0;
+			uint8_t rssi = 0;
+	};
+
 	/// Sensor data result class
 	class SensorDataResult : public ServiceResultBase {
 	public:
@@ -33,8 +40,14 @@ namespace iqrf {
 		 * @param address Device address
 		 * @param hwpid Device HWPID
 		 */
-		void addDeviceHwpid(const uint8_t &address, const uint16_t &hwpid) {
-			m_hwpid.insert(std::make_pair(address, hwpid));
+		void setDeviceHwpid(const uint8_t &address, const uint16_t &hwpid) {
+			if (!m_deviceMetadata.count(address)) {
+				DeviceMetadata metadata;
+				metadata.hwpid = hwpid;
+				m_deviceMetadata.emplace(address, metadata);
+				return;
+			}
+			m_deviceMetadata[address].hwpid = hwpid;
 		}
 
 		/**
@@ -42,22 +55,39 @@ namespace iqrf {
 		 * @param address Device address
 		 * @param mid Device MID
 		 */
-		void addDeviceMid(const uint8_t &address, const uint32_t &mid) {
-			m_mids.insert(std::make_pair(address, mid));
+		void setDeviceMid(const uint8_t &address, const uint32_t &mid) {
+			if (!m_deviceMetadata.count(address)) {
+				DeviceMetadata metadata;
+				metadata.mid = mid;
+				m_deviceMetadata.emplace(address, metadata);
+				return;
+			}
+			m_deviceMetadata[address].mid = mid;
+		}
+
+		/**
+		 * Stores device RSSI
+		 * @param address Device address
+		 * @param rssi Device RSSI
+		 */
+		void setDeviceRssi(const uint8_t &address, const uint8_t &rssi) {
+			if (!m_deviceMetadata.count(address)) {
+				DeviceMetadata metadata;
+				metadata.rssi = rssi;
+				m_deviceMetadata.emplace(address, metadata);
+				return;
+			}
+			m_deviceMetadata[address].rssi = rssi;
 		}
 
 		/**
 		 * Stores collected sensor data
 		 * @param sensorData Collected sensor data
 		 */
-		void addSensorData(const std::vector<sensor::item::SensorPtr> &sensorData) {
+		void addSensorData(const std::vector<sensor::item::Sensor> &sensorData) {
 			for (const auto& sensor : sensorData) {
-				m_sensorData[sensor->getAddr()].emplace_back(*sensor.get());
+				m_sensorData[sensor.getAddr()].emplace_back(sensor);
 			}
-		}
-
-		void setRssi(const std::map<uint8_t, uint8_t> &rssiMap) {
-			m_rssi = rssiMap;
 		}
 
 		/**
@@ -84,16 +114,17 @@ namespace iqrf {
 				for (auto &deviceItem : m_sensorData) {
 					Value device(kObjectType);
 					Pointer("/address").Set(device, deviceItem.first, allocator);
-					auto hwpid = m_hwpid[deviceItem.first];
+					auto hwpid = m_deviceMetadata[deviceItem.first].hwpid;
 					Pointer("/hwpid").Set(device, hwpid, allocator);
-					auto mid = m_mids[deviceItem.first];
+					auto mid = m_deviceMetadata[deviceItem.first].mid;
 					if (mid != 0) {
 						Pointer("/mid").Set(device, mid, allocator);
 					} else {
 						Pointer("/mid").Set(device, rapidjson::Value(kNullType), allocator);
 					}
-					if (m_rssi.find(deviceItem.first) != m_rssi.end()) {
-						Pointer("/rssi").Set(device, m_rssi[deviceItem.first] - 130, allocator);
+					auto rssi = m_deviceMetadata[deviceItem.first].rssi;
+					if (rssi != 0) {
+						Pointer("/rssi").Set(device, rssi - 130, allocator);
 					} else {
 						Pointer("/rssi").Set(device, rapidjson::Value(kNullType), allocator);
 					}
@@ -136,12 +167,8 @@ namespace iqrf {
 			ServiceResultBase::createResponse(response);
 		}
 	private:
-		/// Device HWPIDs
-		std::map<uint8_t, uint16_t> m_hwpid;
-		/// Device MIDs
-		std::map<uint8_t, uint32_t> m_mids;
-		/// Device RSSI
-		std::map<uint8_t, uint8_t> m_rssi;
+		/// Device metadata
+		std::map<uint8_t, DeviceMetadata> m_deviceMetadata;
 		/// Device sensors data
 		std::map<uint8_t, std::vector<sensor::item::Sensor>> m_sensorData;
 	};
