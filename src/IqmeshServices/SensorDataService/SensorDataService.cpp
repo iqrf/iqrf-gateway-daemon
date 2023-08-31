@@ -64,6 +64,28 @@ namespace iqrf {
 		}
 	}
 
+	std::vector<std::set<uint8_t>> SensorDataService::splitSet(std::set<uint8_t> &set, size_t size) {
+		std::vector<std::set<uint8_t>> res;
+
+		size_t sCount = set.size() / size;
+		size_t remainder = set.size() % size;
+		auto itr = set.begin();
+
+		for (size_t i = 0; i <= sCount; ++i) {
+			std::set<uint8_t> newSet;
+			if (i != sCount) {
+				newSet.insert(itr, std::next(itr, size));
+				std::advance(itr, size);
+			} else {
+				newSet.insert(itr, std::next(itr, remainder));
+			}
+			if (newSet.size() > 0) {
+				res.push_back(newSet);
+			}
+		}
+		return res;
+	}
+
 	///// Message handling
 
 	void SensorDataService::setOfflineFrc(SensorDataResult &result) {
@@ -94,9 +116,10 @@ namespace iqrf {
 		}
 	}
 
-	void SensorDataService::sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes) {
+	std::vector<iqrf::sensor::item::Sensor> SensorDataService::sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes) {
 		uint8_t command = getSensorFrcCommand(type);
 		std::unique_ptr<IDpaTransactionResult2> transResult;
+		std::vector<iqrf::sensor::item::Sensor> sensorData;
 		try {
 			sensor::jsdriver::SensorFrcJs sensorFrc(m_jsRenderService, type, idx, command, nodes);
 			sensorFrc.processRequestDrv();
@@ -116,25 +139,13 @@ namespace iqrf {
 				sensorFrc.processResponseDrv();
 			}
 			for (auto &sensor : sensorFrc.getSensors()) {
-				const uint8_t addr = sensor->getAddr();
-				try {
-					uint16_t hwpid = m_dbService->getDeviceHwpid(addr);
-					result.addDeviceHwpid(addr, hwpid);
-				} catch (const std::exception &e) {
-					result.addDeviceHwpid(addr, 0);
-				}
-				try {
-					uint32_t mid = m_dbService->getDeviceMid(addr);
-					result.addDeviceMid(addr, mid);
-				} catch (const std::exception &e) {
-					result.addDeviceMid(addr, 0);
-				}
 				sensor->setIdx(m_dbService->getGlobalSensorIndex(sensor->getAddr(), sensor->getType(), sensor->getIdx()));
+				sensorData.push_back(*sensor.get());
 			}
-			result.addSensorData(sensorFrc.getSensors());
 		} catch (const std::exception &e) {
 			setErrorTransactionResult(result, transResult, e.what());
 		}
+		return sensorData;
 	}
 
 	void SensorDataService::getTypeData(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::deque<uint8_t> &addresses) {
@@ -151,30 +162,26 @@ namespace iqrf {
 		}
 		for (auto &vector : vectors) {
 			setOfflineFrc(result);
-			sendSensorFrc(result, type, idx, vector);
+			auto sensorData = sendSensorFrc(result, type, idx, vector);
+			result.addSensorData(sensorData);
 		}
 	}
 
-	std::vector<std::set<uint8_t>> SensorDataService::splitSet(std::set<uint8_t> &set, size_t size) {
-		std::vector<std::set<uint8_t>> res;
-
-		size_t sCount = set.size() / size;
-		size_t remainder = set.size() % size;
-		auto itr = set.begin();
-
-		for (size_t i = 0; i <= sCount; ++i) {
-			std::set<uint8_t> newSet;
-			if (i != sCount) {
-				newSet.insert(itr, std::next(itr, size));
-				std::advance(itr, size);
-			} else {
-				newSet.insert(itr, std::next(itr, remainder));
+	void SensorDataService::setDeviceHwpidMid(SensorDataResult &result, std::set<uint8_t> &nodes) {
+		for (auto &addr : nodes) {
+			try {
+				uint16_t hwpid = m_dbService->getDeviceHwpid(addr);
+				result.setDeviceHwpid(addr, hwpid);
+			} catch (const std::exception &e) {
+				result.setDeviceHwpid(addr, 0);
 			}
-			if (newSet.size() > 0) {
-				res.push_back(newSet);
+			try {
+				uint32_t mid = m_dbService->getDeviceMid(addr);
+				result.setDeviceMid(addr, mid);
+			} catch (const std::exception &e) {
+				result.setDeviceMid(addr, 0);
 			}
 		}
-		return res;
 	}
 
 	void SensorDataService::getRssi(SensorDataResult &result, std::set<uint8_t> &nodes) {
@@ -199,23 +206,29 @@ namespace iqrf {
 					frcData.insert(frcData.end(), extraData.begin(), extraData.end());
 				}
 			}
-
 			if (nodes.size() == frcData.size()) {
-				std::map<uint8_t, uint8_t> rssiMap;
 				auto it = nodes.begin();
 				for (size_t i = 0; i < nodes.size(); ++i, ++it) {
-					rssiMap[*it] = frcData[i];
+					result.setDeviceRssi(*it, frcData[i]);
 				}
-				result.setRssi(rssiMap);
 			}
 		} catch (const std::exception &e) {
 			setErrorTransactionResult(result, transResult, e.what());
 		}
 	}
 
+	void SensorDataService::getRssiBeaming(SensorDataResult &result, std::set<uint8_t> &nodes) {
+		setOfflineFrc(result);
+		// TODO: gather data from all nodes, in case more nodes than can fit in a single request
+		auto rssiData = sendSensorFrc(result, 133, 0, nodes);
+		for (auto item : rssiData) {
+			result.setDeviceRssi(item.getAddr(), item.getValue());
+		}
+	}
+
 	void SensorDataService::getDataByFrc(SensorDataResult &result) {
 		SensorSelectMap map = m_dbService->constructSensorSelectMap();
-		std::set<uint8_t> rssiNodes;
+		std::set<uint8_t> allNodes;
 		for (const auto& [type, addrIdx] : map) {
 			TRC_DEBUG("type: " << std::to_string(type));
 			if (type >= 0xC0) {
@@ -224,7 +237,7 @@ namespace iqrf {
 			for (uint8_t desiredIdx = 0; desiredIdx < 32; ++desiredIdx) {
 				std::deque<uint8_t> addrs;
 				for (const auto& [addr, idx] : addrIdx) {
-					rssiNodes.insert(addr);
+					allNodes.insert(addr);
 					if (desiredIdx == idx) {
 						addrs.emplace_back(addr);
 					}
@@ -234,8 +247,13 @@ namespace iqrf {
 				}
 			}
 		}
+		// fill HWPID and MID
+		setDeviceHwpidMid(result, allNodes);
 		// rssi
-		getRssi(result, rssiNodes);
+		getRssi(result, allNodes);
+		//RSSI from beaming devices - split nodes into ones that can get data using offline frc (beaming and aggregating repeaters)
+		//this requires metadata :)))))))))))))
+		//getRssiBeaming(result, allNodes);
 	}
 
 	void SensorDataService::worker() {
@@ -378,7 +396,7 @@ namespace iqrf {
 
 	void SensorDataService::setConfig(rapidjson::Document &request, const std::string &messagingId)  {
 		TRC_FUNCTION_ENTER("");
-		
+
 		Document rsp;
 		Pointer("/mType").Set(rsp, m_messageType);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
@@ -397,7 +415,6 @@ namespace iqrf {
 
 			Document &cfgDoc = cfg->getProperties()->getAsJson();
 			Document::AllocatorType &allocator = cfgDoc.GetAllocator();
-			
 
 			const Value *val = Pointer("/data/req/autoRun").Get(request);
 			if (val && val->IsBool()) {
