@@ -251,9 +251,9 @@ namespace iqrf {
 		setDeviceHwpidMid(result, allNodes);
 		// rssi
 		getRssi(result, allNodes);
-		//RSSI from beaming devices - split nodes into ones that can get data using offline frc (beaming and aggregating repeaters)
-		//this requires metadata :)))))))))))))
-		//getRssiBeaming(result, allNodes);
+		// rssi from beaming devices - split nodes into ones that can get data using offline frc (beaming and aggregating repeaters)
+		// this requires metadata :)))))))))))))
+		// getRssiBeaming(result, allNodes);
 	}
 
 	void SensorDataService::worker() {
