@@ -71,6 +71,9 @@ namespace iqrf {
 		 * @param rssi Device RSSI
 		 */
 		void setDeviceRssi(const uint8_t &address, const uint8_t &rssi) {
+			if (rssi == 0) {
+				return;
+			}
 			if (!m_deviceMetadata.count(address)) {
 				DeviceMetadata metadata;
 				metadata.rssi = rssi;
