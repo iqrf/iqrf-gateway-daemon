@@ -1,0 +1,40 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "standardVersions.json",
+    "title": "Standard versions schema",
+    "type": "object",
+    "required": [
+        "standardID",
+        "name",
+        "versions"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "standardID": {
+            "title": "Standard ID",
+            "type": "integer",
+            "minimum": -1
+        },
+        "name": {
+            "title": "Standard name",
+            "type": "string"
+        },
+        "versions": {
+            "title": "Standard versions",
+            "type": "array",
+            "additionalItems": false,
+            "items": {
+                "title": "Standard version",
+                "type": "number"
+            }
+        },
+        "conly": {
+            "title": "Coordinator-only peripheral",
+            "type": "boolean"
+        },
+        "nonly": {
+            "title": "Node-only peripheral",
+            "type": "boolean"
+        }
+    }
+}

@@ -40,6 +40,8 @@ include_directories(${CMAKE_BINARY_DIR})
 
 add_executable(${PROJECT_NAME} ${_HDRFILES} ${_SRCFILES} ${_CONFIG} ${_CONFIG_WIN_CDC} ${_JAVA_SCRIPT})
 
+add_dependencies(${PROJECT_NAME} iqrfgd2-cache-update)
+
 target_link_libraries(${PROJECT_NAME}
   launcher
   ${Boost_LIBRARIES}
@@ -60,17 +62,14 @@ else()
 	list(APPEND CfgList "WinCdc" "WinUartWin")
 endif()
 
-add_custom_target(build-time-scheduler-dir ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/scheduler)
 
 foreach(cfg ${CfgList})
 	DeployShapeConfiguration(${PROJECT_NAME}-${cfg}
 		${CMAKE_CURRENT_SOURCE_DIR}/configuration					configuration
 		${CMAKE_CURRENT_SOURCE_DIR}/configuration-${cfg}			configuration
 		${CMAKE_SOURCE_DIR}/api										configuration/apiSchemas
-		${CMAKE_CURRENT_SOURCE_DIR}/scheduler						configuration/scheduler
 		${CMAKE_CURRENT_SOURCE_DIR}/schedulerSchemas				configuration/schedulerSchemas
    		${CMAKE_CURRENT_SOURCE_DIR}/DB/init							configuration/DB/init
-		${CMAKE_CURRENT_SOURCE_DIR}/iqrfRepoCache					configuration/iqrfRepoCache
 		${CMAKE_CURRENT_SOURCE_DIR}/javaScript						configuration/javaScript
 		${CMAKE_CURRENT_SOURCE_DIR}/cfgSchemas						configuration/cfgSchemas
 		${CMAKE_CURRENT_SOURCE_DIR}/systemd							configuration/systemd

@@ -1,0 +1,49 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "packageStandard.json",
+    "title": "Standard data schema",
+    "type": "object",
+    "required": [
+        "standardID",
+        "name",
+        "version",
+        "versionFlags"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "standardID": {
+            "title": "Standard ID",
+            "type": "integer",
+            "minimum": -1
+        },
+        "name": {
+            "title": "Standard name",
+            "type": "string"
+        },
+        "version": {
+            "title": "Standard version",
+            "type": "number"
+        },
+        "versionFlags": {
+            "title": "Standard version flags",
+            "type": "integer",
+            "minimum": 0
+        },
+        "driver": {
+            "title": "Standard driver",
+            "type": "string"
+        },
+        "notes": {
+            "title": "Standard update notes",
+            "type": "string"
+        },
+        "conly": {
+            "title": "Coordinator-only peripheral",
+            "type": "boolean"
+        },
+        "nonly": {
+            "title": "Node-only peripheral",
+            "type": "boolean"
+        }
+    }
+}

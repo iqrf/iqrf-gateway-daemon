@@ -503,22 +503,23 @@ namespace iqrf {
         osRead(deviceEnumerateResult, m_enumerateDeviceParams.deviceAddress);
 
         // Obtains HwpId, which in turn is needed to get manufacturer and product
-        IJsCacheService::Manufacturer manufacturer = m_iJsCacheService->getManufacturer(deviceEnumerateResult.getHwpId());
-        if (manufacturer.m_manufacturerId > -1)
-          deviceEnumerateResult.setManufacturer(manufacturer.m_name);
-        IJsCacheService::Product product = m_iJsCacheService->getProduct(deviceEnumerateResult.getHwpId());
-        if (product.m_manufacturerId > -1)
-          deviceEnumerateResult.setProduct(product.m_name);
+        std::shared_ptr<IJsCacheService::Manufacturer> manufacturer = m_iJsCacheService->getManufacturer(deviceEnumerateResult.getHwpId());
+        if (manufacturer != nullptr) {
+          deviceEnumerateResult.setManufacturer(manufacturer->m_name);
+        }
+        std::shared_ptr<IJsCacheService::Product> product = m_iJsCacheService->getProduct(deviceEnumerateResult.getHwpId());
+        if (product != nullptr) {
+          deviceEnumerateResult.setProduct(product->m_name);
+        }
 
         // Peripheral enumeration
         peripheralEnumeration(deviceEnumerateResult, m_enumerateDeviceParams.deviceAddress);
 
-        IJsCacheService::Package package;
-        package = m_iJsCacheService->getPackage(deviceEnumerateResult.getHwpId(), deviceEnumerateResult.getHwpIdVer(), deviceEnumerateResult.getOsRead()->getOsBuildAsString(), deviceEnumerateResult.getPerEnum()->getDpaVerAsHexaString());
-        if (package.m_packageId > -1)
+        std::shared_ptr<IJsCacheService::Package> package = m_iJsCacheService->getPackage(deviceEnumerateResult.getHwpId(), deviceEnumerateResult.getHwpIdVer(), deviceEnumerateResult.getOsRead()->getOsBuildAsString(), deviceEnumerateResult.getPerEnum()->getDpaVerAsHexaString());
+        if (package != nullptr)
         {
           std::list<std::string> standards;
-          for (const IJsCacheService::StdDriver& driver : package.m_stdDriverVect)
+          for (const IJsCacheService::StdDriver& driver : package->m_stdDriverVect)
             standards.push_back(driver.getName());
           deviceEnumerateResult.setStandards(standards);
         }

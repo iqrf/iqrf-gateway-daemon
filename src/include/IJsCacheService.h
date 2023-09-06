@@ -32,78 +32,156 @@
 
 namespace iqrf {
 
-  class IJsCacheService_DECLSPEC IJsCacheService
-  {
+  class IJsCacheService_DECLSPEC IJsCacheService {
   public:
-    class Company
-    {
+    ///// Company /////
+
+    class Company {
     public:
-      Company()
-        :m_companyId(-1)
+      Company(
+        unsigned int companyId,
+        const std::string &name,
+        const std::string &homePage
+      ):
+        m_companyId(companyId),
+        m_name(name),
+        m_homePage(homePage)
       {}
 
-      Company(int companyId, const std::string& name, const std::string& homePage)
-        :m_companyId(companyId), m_name(name), m_homePage(homePage)
-      {}
-      int m_companyId;
+      unsigned int m_companyId;
       std::string m_name;
       std::string m_homePage;
     };
 
-    class Manufacturer
-    {
+    ///// Manufacturer /////
+
+    class Manufacturer {
     public:
-      Manufacturer()
-        :m_manufacturerId(-1), m_companyId(-1)
+      Manufacturer(
+        unsigned int manufacturerId,
+        unsigned int companyId,
+        const std::string &name
+      ):
+        m_manufacturerId(manufacturerId),
+        m_companyId(companyId),
+        m_name(name)
       {}
 
-      Manufacturer(int manufacturerId, int companyId, const std::string& name)
-        :m_manufacturerId(manufacturerId), m_companyId(companyId), m_name(name)
-      {}
-      int m_manufacturerId;
-      int m_companyId;
+      unsigned int m_manufacturerId;
+      unsigned int m_companyId;
       std::string m_name;
     };
 
-    class Product
-    {
+    ///// Product metadata /////
+
+    class MetadataHwpidProfile {
     public:
-      Product()
-        :m_hwpid(-1), m_manufacturerId(-1)
+      MetadataHwpidProfile(
+        uint8_t hwpidVerMin = 0,
+        int8_t hwpidVerMax = -1,
+        bool routing = false,
+        bool beaming = false,
+        bool repeater = false,
+        bool frcAggregation = false,
+        bool iqarosCompatible = false,
+        const std::vector<uint8_t> sensors = {},
+        uint8_t binouts = 0
+      ):
+        m_hwpidVerMin(hwpidVerMin),
+        m_hwpidVerMax(hwpidVerMax),
+        m_routing(routing),
+        m_beaming(beaming),
+        m_repeater(repeater),
+        m_frcAggregation(frcAggregation),
+        m_iqarosCompatible(iqarosCompatible),
+        m_sensors(sensors),
+        m_binouts(binouts)
       {}
 
-      Product(int hwpid, int manufacturerId, const std::string& name, const std::string& homePage, const std::string& picture)
-        :m_hwpid(hwpid), m_manufacturerId(manufacturerId), m_name(name), m_homePage(homePage), m_picture(picture)
+      uint8_t m_hwpidVerMin;
+      int8_t m_hwpidVerMax;
+      bool m_routing;
+      bool m_beaming;
+      bool m_repeater;
+      bool m_frcAggregation;
+      bool m_iqarosCompatible;
+      std::vector<uint8_t> m_sensors;
+      uint8_t m_binouts;
+    };
+
+    class Metadata {
+    public:
+      Metadata(
+        uint8_t version = 0,
+        std::vector<MetadataHwpidProfile> profiles = {}
+      ):
+        m_version(version),
+        m_profiles(profiles)
       {}
-      int m_hwpid;
-      int m_manufacturerId;
+
+      std::shared_ptr<MetadataHwpidProfile> getProfileByHwpidVersion(uint8_t hwpidVersion) {
+        for (auto &profile : m_profiles) {
+          if (hwpidVersion >= profile.m_hwpidVerMin && (profile.m_hwpidVerMax == -1 || profile.m_hwpidVerMax >= hwpidVersion)) {
+            return std::make_shared<MetadataHwpidProfile>(profile);
+          }
+        }
+        return nullptr;
+      }
+
+      uint8_t m_version;
+      std::vector<MetadataHwpidProfile> m_profiles;
+    };
+
+    ///// Product /////
+
+    class Product {
+    public:
+      Product(
+        uint16_t hwpid,
+        unsigned int manufacturerId,
+        const std::string &name,
+        const std::string &homePage,
+        const std::string &picture,
+        std::shared_ptr<Metadata> metadata
+      ):
+        m_hwpid(hwpid),
+        m_manufacturerId(manufacturerId),
+        m_name(name),
+        m_homePage(homePage),
+        m_picture(picture),
+        m_metadata(metadata)
+      {}
+
+      uint16_t m_hwpid;
+      unsigned int m_manufacturerId;
       std::string m_name;
       std::string m_homePage;
       std::string m_picture;
+      std::shared_ptr<Metadata> m_metadata = nullptr;
     };
 
-    class StdDriver
-    {
+    ///// Driver /////
+
+    class StdDriver {
     public:
-      StdDriver()
-        :m_valid(false)
+      StdDriver() {}
+
+      StdDriver(
+        int id,
+        const std::string &name,
+        double version,
+        const std::shared_ptr<std::string> &driver,
+        const std::shared_ptr<std::string> &notes,
+        int verFlags
+      ):
+        m_id(id),
+        m_version(version),
+        m_versionFlags(verFlags),
+        m_name(name),
+        m_driver(driver),
+        m_notes(notes)
       {}
-      StdDriver(int id
-        , const std::string & name
-        , double version
-        , const std::shared_ptr<std::string> & driver
-        , const std::shared_ptr<std::string> & notes
-        , int verFlags
-      )
-        : m_valid(true)
-        ,m_id(id)
-        ,m_version(version)
-        ,m_versionFlags(verFlags)
-        ,m_name(name)
-        ,m_driver(driver)
-        ,m_notes(notes)
-      {}
-      bool isValid() const { return m_valid; }
+
       const std::string & getName() const { return m_name; }
       const std::shared_ptr<std::string> & getDriver() const { return m_driver; }
       const std::shared_ptr<std::string> & getNotes() const { return m_notes; }
@@ -111,7 +189,6 @@ namespace iqrf {
       double getVersion() const { return m_version; }
       int getId() const { return m_id; }
     private:
-      bool m_valid = false;
       int m_id = 0;
       double m_version = 0;
       int m_versionFlags = 0;
@@ -120,17 +197,51 @@ namespace iqrf {
       std::shared_ptr<std::string> m_notes;
     };
 
-    class Package
-    {
+    ///// Standard /////
+
+    class StdItem {
     public:
-      Package() {}
+      StdItem() = delete;
+      StdItem(const std::string &name) : m_name(name) {}
+      StdItem(const std::string &name, const std::map<double, StdDriver> &drvs) : m_name(name), m_drivers(drvs) {}
+
       bool m_valid = false;
-      int m_packageId = -1;
-      int m_hwpid = -1;
-      int m_hwpidVer = -1;
+      std::string m_name;
+      std::map<double, StdDriver> m_drivers;
+    };
+
+    ///// Package /////
+
+    class Package {
+    public:
+      Package(
+        unsigned int packageId,
+        uint16_t hwpid,
+        uint16_t hwpidVer,
+        const std::string &handlerUrl,
+        const std::string &handlerHash,
+        const std::string &os,
+        const std::string &dpa,
+        const std::string &notes,
+        const std::string &driver,
+        const std::vector<StdDriver> &driverVect
+      ):
+        m_packageId(packageId),
+        m_hwpid(hwpid),
+        m_hwpidVer(hwpidVer),
+        m_handlerUrl(handlerUrl),
+        m_handlerHash(handlerHash),
+        m_os(os),
+        m_dpa(dpa),
+        m_notes(notes),
+        m_driver(driver),
+        m_stdDriverVect(driverVect)
+      {}
+
+      unsigned int m_packageId;
+      uint16_t m_hwpid;
+      uint16_t m_hwpidVer;
       std::string m_handlerUrl;
-      std::string m_handlerHex;
-      bool m_handlerValid = false;
       std::string m_handlerHash;
       std::string m_os;
       std::string m_dpa;
@@ -139,17 +250,23 @@ namespace iqrf {
       std::vector<StdDriver> m_stdDriverVect;
     };
 
-    class OsDpa
-    {
+    ///// OsDpa /////
+
+    class OsDpa {
     public:
-      OsDpa()
-        :m_osdpaId(0)
+      OsDpa(
+        unsigned int osdpaId,
+        const std::string &os,
+        const std::string &dpa,
+        const std::string &notes
+      ):
+        m_osdpaId(osdpaId),
+        m_os(os),
+        m_dpa(dpa),
+        m_notes(notes)
       {}
 
-      OsDpa(int osdpaId, const std::string& os, const std::string& dpa, const std::string& notes)
-        :m_osdpaId(osdpaId), m_os(os), m_dpa(dpa), m_notes(notes)
-      {}
-      int m_osdpaId;
+      unsigned int m_osdpaId;
       std::string m_os;
       std::string m_dpa;
       std::string m_notes;
@@ -158,8 +275,46 @@ namespace iqrf {
     // get os map of dpa list as integers
     typedef std::map<int, std::set<int>> MapOsListDpa;
 
-    class ServerState
-    {
+    ///// Quantity /////
+
+    class Quantity {
+    public:
+      Quantity(
+        const uint8_t &type,
+        const std::string &id,
+        const std::string &name,
+        const std::string &shortName,
+        const std::string &unit,
+        const uint8_t &precision,
+        const std::vector<uint8_t> &frcs,
+        const uint8_t &width,
+        const std::string &driverKey
+      ):
+        m_type(type),
+        m_id(id),
+        m_name(name),
+        m_shortName(shortName),
+        m_unit(unit),
+        m_precision(precision),
+        m_frcs(frcs),
+        m_width(width),
+        m_driverKey(driverKey)
+      {}
+
+      uint8_t m_type;
+      std::string m_id;
+      std::string m_name;
+      std::string m_shortName;
+      std::string m_unit;
+      uint8_t m_precision;
+      std::vector<uint8_t> m_frcs;
+      uint8_t m_width;
+      std::string m_driverKey;
+    };
+
+    ///// Server state /////
+
+    class ServerState {
     public:
       ServerState() {}
       int m_apiVersion = -1;
@@ -184,16 +339,17 @@ namespace iqrf {
       UPDATE_FAILED,
     };
 
-    virtual StdDriver getDriver(int id, double ver) const = 0;
-    virtual Manufacturer getManufacturer(uint16_t hwpid) const = 0;
-    virtual Product getProduct(uint16_t hwpid) const = 0;
-    virtual Package getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const = 0;
-    virtual Package getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const = 0;
+    virtual std::shared_ptr<StdDriver> getDriver(int id, double ver) const = 0;
+    virtual std::shared_ptr<Manufacturer> getManufacturer(uint16_t hwpid) const = 0;
+    virtual std::shared_ptr<Product> getProduct(uint16_t hwpid) const = 0;
+    virtual std::shared_ptr<Package> getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const = 0;
+    virtual std::shared_ptr<Package> getPackage(uint16_t hwpid, uint16_t hwpidVer, uint16_t os, uint16_t dpa) const = 0;
     virtual std::map<int, std::map<double, std::vector<std::pair<int,int>>>> getDrivers(const std::string& os, const std::string& dpa) const = 0;
     virtual std::map<int, std::map<int, std::string>> getCustomDrivers(const std::string& os, const std::string& dpa) const = 0;
     virtual MapOsListDpa getOsDpa() const = 0;
-    virtual OsDpa getOsDpa(int id) const = 0;
-    virtual OsDpa getOsDpa(const std::string& os, const std::string& dpa) const = 0;
+    virtual std::shared_ptr<OsDpa> getOsDpa(int id) const = 0;
+    virtual std::shared_ptr<OsDpa> getOsDpa(const std::string& os, const std::string& dpa) const = 0;
+    virtual std::shared_ptr<Quantity> getQuantity(const uint8_t &type) const = 0;
     virtual ServerState getServerState() const = 0;
     virtual std::tuple<CacheStatus, std::string> invokeWorker() = 0;
 
@@ -203,6 +359,4 @@ namespace iqrf {
 
     virtual ~IJsCacheService() {};
   };
-
-
 }

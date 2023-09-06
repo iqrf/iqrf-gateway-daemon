@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "products.json",
+  "title": "Quantities schema",
+  "description": "IQRF Repository quantities data schema.",
+  "type": "array",
+  "additionalItems": false,
+  "items": {
+    "title": "Quantity item",
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "shortName",
+      "unit",
+      "decimalPlaces",
+      "frcs",
+      "idValue",
+      "width",
+      "idDriver"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "title": "Quantity text identifier",
+        "type": "string"
+      },
+      "name": {
+        "title": "Quantity name",
+        "type": "string"
+      },
+      "shortName": {
+        "title": "Short quantity name",
+        "type": "string"
+      },
+      "iqrfName": {
+        "title": "IQRF Name for packet inspector",
+        "type": "string"
+      },
+      "unit": {
+        "title": "Quantity unit",
+        "type": "string"
+      },
+      "decimalPlaces": {
+        "title": "Precision",
+        "type": "integer",
+        "minimum": 0
+      },
+      "frcs": {
+        "title": "Available and implemented FRC commands",
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "enum": [16, 144, 224, 249]
+        }
+      },
+      "idValue": {
+        "title": "Sensor type (ID by standard)",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 255
+      },
+      "width": {
+        "title": "Quantity data width in bytes",
+        "type": "integer",
+        "minimum": 0
+      },
+      "idDriver": {
+        "title": "JS driver identifier key",
+        "type": "string"
+      },
+      "helpPage": {
+        "title": "IQRF documentation help document",
+        "type": "string"
+      }
+    }
+  }
+}

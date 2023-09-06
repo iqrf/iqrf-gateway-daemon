@@ -604,23 +604,23 @@ namespace iqrf {
         std::map<int, double> perVerMap;
 
         // Get for hwpid 0 plain DPA plugin
-        iqrf::IJsCacheService::Package pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, (uint16_t)d.m_dpaVer);
-        if (pckg0.m_packageId < 0) {
+        std::shared_ptr<iqrf::IJsCacheService::Package> pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, (uint16_t)d.m_dpaVer);
+        if (pckg0 == nullptr) {
           TRC_WARNING("Cannot find package for:" << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, d.m_osBuild) << NAME_PAR(dpaVer, d.m_dpaVer)
             << std::endl << "trying to find the package for previous version of DPA");
 
           for (uint16_t dpa = (uint16_t)d.m_dpaVer - 1; dpa > 300; dpa--) {
             pckg0 = m_iJsCacheService->getPackage((uint16_t)0, (uint16_t)0, (uint16_t)d.m_osBuild, dpa);
-            if (pckg0.m_packageId > -1) {
+            if (pckg0 != nullptr) {
               TRC_WARNING("Found and loading package for:" << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, d.m_osBuild) << NAME_PAR(dpaVer, dpa));
               break;
             }
           }
         }
 
-        if (pckg0.m_packageId > -1) {
+        if (pckg0 != nullptr) {
           for (auto per : nd->getEmbedExploreEnumerate()->getEmbedPer()) {
-            for (const auto & drv : pckg0.m_stdDriverVect) {
+            for (const auto & drv : pckg0->m_stdDriverVect) {
               if (drv.getId() == -1) {
                 perVerMap.insert(std::make_pair(-1, drv.getVersion())); // driver library
               }
@@ -654,9 +654,9 @@ namespace iqrf {
         }
 
         for (auto pv : perVerMap) {
-          IJsCacheService::StdDriver sd = m_iJsCacheService->getDriver(pv.first, pv.second);
-          if (sd.isValid()) {
-            d.m_drivers.push_back(sd);
+          std::shared_ptr<IJsCacheService::StdDriver> sd = m_iJsCacheService->getDriver(pv.first, pv.second);
+          if (sd != nullptr) {
+            d.m_drivers.push_back(*sd);
           }
         }
       }
@@ -1051,13 +1051,13 @@ namespace iqrf {
             Device device(hwpid, hwpidVer, osBuild, dpaVer);
 
             // get package from JsCache if exists
-            iqrf::IJsCacheService::Package pckg;
+            std::shared_ptr<iqrf::IJsCacheService::Package> pckg;
             if (hwpid != 0) { // no custom handler => use default pckg0 to resolve periferies
               pckg = m_iJsCacheService->getPackage((uint16_t)hwpid, (uint16_t)hwpidVer, (uint16_t)osBuild, (uint16_t)dpaVer);
             }
 
-            if (pckg.m_packageId > -1) {
-              deviceIdPtr = enumerateDeviceInRepo(device, pckg);
+            if (pckg != nullptr) {
+              deviceIdPtr = enumerateDeviceInRepo(device, *pckg);
             }
             else {
               try {
@@ -1252,17 +1252,16 @@ namespace iqrf {
         else {
           TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << " no version");
         }
-        IJsCacheService::StdDriver driver;
-        driver = m_iJsCacheService->getDriver(driverId, driverVer);
-        if (driver.isValid()) {
-          str2load += *driver.getDriver();
+        std::shared_ptr<IJsCacheService::StdDriver> driver = m_iJsCacheService->getDriver(driverId, driverVer);
+        if (driver != nullptr) {
+          str2load += *driver->getDriver()  + '\n';
         }
         else {
           TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << PAR(driverVer) << " no driver found");
         }
       }
 
-      str2load += wrapperStr;
+      str2load += wrapperStr  + '\n';
       m_iJsRenderService->loadContextCode(IJsRenderService::HWPID_DEFAULT_MAPPING, str2load, driversIdSet); // provisional context for all with empty custom drivers
 
       // get all non empty custom drivers because of breakdown
@@ -1273,7 +1272,7 @@ namespace iqrf {
       for (auto d : customDrivers) {
         std::string js = str2load;
         std::string driver = d.second.rbegin()->second; // get the highest hwpidVer one from reverse end
-        js += driver;
+        js += driver + '\n';
         m_iJsRenderService->loadContextCode(IJsRenderService::HWPID_MAPPING_SPACE - d.first, js, driversIdSet);
       }
 
@@ -1418,13 +1417,13 @@ namespace iqrf {
             std::set<int> driverIdSet;
             for (auto it : driverIdDriverMap) {
               driverIdSet.insert(it.first);
-              str2load += it.second.m_drv;
+              str2load += it.second.m_drv + '\n';
 
               ostrDrv << '[' << it.second.m_stdId << ',' << std::fixed << std::setprecision(2) << it.second.m_ver << "] ";
 
             }
-            str2load += customDrv;
-            str2load += wrapperStr; // add wrapper
+            str2load += customDrv + '\n';
+            str2load += wrapperStr + '\n'; // add wrapper
             bool success = m_iJsRenderService->loadContextCode(deviceId, str2load, driverIdSet);
 
             if (!success) {

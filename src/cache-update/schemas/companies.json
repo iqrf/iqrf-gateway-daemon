@@ -1,0 +1,32 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "companies.json",
+	"title": "Companies schema",
+	"description": "IQRF Repository companies data schema.",
+	"type": "array",
+	"additionalItems": false,
+	"items": {
+		"title": "Company item",
+		"type": "object",
+		"required": [
+			"companyID",
+			"name",
+			"homePage"
+		],
+		"additionalProperties": false,
+		"properties": {
+			"companyID": {
+				"title": "Company ID",
+				"type": "integer",
+				"minimum": 0
+			},
+			"name": {
+				"title": "Company name",
+				"type": "string"
+			},
+			"homePage": {
+				"title": "Company homepage"
+			}
+		}
+	}
+}

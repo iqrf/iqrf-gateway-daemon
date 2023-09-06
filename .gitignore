@@ -28,3 +28,6 @@ cmake-build-debug/
 
 # IQRF Repository cache
 src/start-IqrfDaemon/iqrfRepoCache/cache/
+src/cache-update/cache/
+src/cache-update/cache.zip
+src/cache-update/serverCheck.json
