@@ -239,21 +239,19 @@ namespace iqrf
           std::vector<uint8_t> requested(m_selectedNodes.begin(), m_selectedNodes.end());
           uint8_t cnt = 0;
           const auto val = Pointer("/sensors").Get(responseDoc)->GetArray();
-          for (auto itr = val.Begin(); itr != val.End(); ++itr) {
-            jsdriver::item::SensorPtr sensor;
-            if (m_selectedNodesSet) {
-              if (!itr->IsNull()) {
+          auto itr = val.Begin();
+          std::advance(itr, 1);
+          for (; itr != val.End(); ++itr) {
+            if (!itr->IsNull()) {
+              jsdriver::item::SensorPtr sensor;
+              if (m_selectedNodesSet) {
                 sensor.reset(new jsdriver::item::Sensor(*itr, m_sensorIndex, requested[cnt]));
-                m_sensors.push_back(std::move(sensor));
-                cnt++;
-              }
-            } else {
-              if (!itr->IsNull()) {
+              } else {
                 sensor.reset(new jsdriver::item::Sensor(*itr, m_sensorIndex, cnt));
-                m_sensors.push_back(std::move(sensor));
               }
-              cnt++;
+              m_sensors.push_back(std::move(sensor));
             }
+            cnt++;
           }
         }
       };
