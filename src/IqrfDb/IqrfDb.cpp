@@ -1515,12 +1515,12 @@ namespace iqrf {
 					std::set<int> driverSet;
 					for (auto driver : drivers) {
 						driverSet.insert(driver.getId());
-						ss << driver.getDriver();
+						ss << driver.getDriver() << std::endl;
 						drv << '[' << driver.getPeripheralNumber() << ',' << std::fixed << std::setprecision(2) << driver.getVersion() << ']';
 					}
 
-					ss << customDriver;
-					ss << wrapper;
+					ss << customDriver << std::endl;
+					ss << wrapper << std::endl;
 					bool success = m_renderService->loadContextCode(productId, ss.str(), driverSet);
 
 					if (!success) {
