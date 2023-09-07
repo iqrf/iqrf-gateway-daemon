@@ -83,6 +83,16 @@ namespace iqrf {
 			m_deviceMetadata[address].rssi = rssi;
 		}
 
+		std::set<uint8_t> getNodesWithoutRssi() {
+			std::set<uint8_t> nodes;
+			for (auto &[addr, metadata] : m_deviceMetadata) {
+				if (metadata.rssi == 0) {
+					nodes.insert(addr);
+				}
+			}
+			return nodes;
+		}
+
 		/**
 		 * Stores collected sensor data
 		 * @param sensorData Collected sensor data

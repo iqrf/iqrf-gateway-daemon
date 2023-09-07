@@ -139,7 +139,6 @@ namespace iqrf {
 				sensorFrc.processResponseDrv();
 			}
 			for (auto &sensor : sensorFrc.getSensors()) {
-				sensor->setIdx(m_dbService->getGlobalSensorIndex(sensor->getAddr(), sensor->getType(), sensor->getIdx()));
 				sensorData.push_back(*sensor.get());
 			}
 		} catch (const std::exception &e) {
@@ -163,6 +162,15 @@ namespace iqrf {
 		for (auto &vector : vectors) {
 			setOfflineFrc(result);
 			auto sensorData = sendSensorFrc(result, type, idx, vector);
+			for (auto &sensor : sensorData) {
+				sensor.setIdx(
+					m_dbService->getGlobalSensorIndex(
+						sensor.getAddr(),
+						sensor.getType(),
+						sensor.getIdx()
+					)
+				);
+			}
 			result.addSensorData(sensorData);
 		}
 	}
@@ -218,11 +226,18 @@ namespace iqrf {
 	}
 
 	void SensorDataService::getRssiBeaming(SensorDataResult &result, std::set<uint8_t> &nodes) {
-		setOfflineFrc(result);
-		// TODO: gather data from all nodes, in case more nodes than can fit in a single request
-		auto rssiData = sendSensorFrc(result, 133, 0, nodes);
-		for (auto item : rssiData) {
-			result.setDeviceRssi(item.getAddr(), item.getValue());
+		std::unique_ptr<IDpaTransactionResult2> transResult;
+		std::vector<std::set<uint8_t>> nodeVectors = splitSet(nodes, 63);
+		for (auto vector : nodeVectors) {
+			try {
+				setOfflineFrc(result);
+				auto rssiData = sendSensorFrc(result, 133, 0, nodes);
+				for (auto item : rssiData) {
+					result.setDeviceRssi(item.getAddr(), item.getValue() + 130);
+				}
+			} catch (const std::exception &e) {
+				setErrorTransactionResult(result, transResult, e.what());
+			}
 		}
 	}
 
@@ -249,11 +264,13 @@ namespace iqrf {
 		}
 		// fill HWPID and MID
 		setDeviceHwpidMid(result, allNodes);
-		// rssi
-		getRssi(result, allNodes);
 		// rssi from beaming devices - split nodes into ones that can get data using offline frc (beaming and aggregating repeaters)
 		// this requires metadata :)))))))))))))
-		// getRssiBeaming(result, allNodes);
+		getRssiBeaming(result, allNodes);;
+		auto noRssi = result.getNodesWithoutRssi();
+		if (noRssi.size() > 0) {
+			getRssi(result, noRssi);
+		}
 	}
 
 	void SensorDataService::worker() {
