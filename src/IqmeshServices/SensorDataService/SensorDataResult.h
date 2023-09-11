@@ -30,6 +30,7 @@ namespace iqrf {
 			uint16_t hwpid = 0;
 			uint32_t mid = 0;
 			uint8_t rssi = 0;
+			float voltage = 0;
 	};
 
 	/// Sensor data result class
@@ -93,6 +94,20 @@ namespace iqrf {
 			return nodes;
 		}
 
+		void setDeviceVoltage(const uint8_t &address, const uint8_t &voltage) {
+			if (voltage == 0) {
+				return;
+			}
+			float realVoltage = 261.12 / (127 - voltage);
+			if (!m_deviceMetadata.count(address)) {
+				DeviceMetadata metadata;
+				metadata.voltage = realVoltage;
+				m_deviceMetadata.emplace(address, metadata);
+				return;
+			}
+			m_deviceMetadata[address].voltage = realVoltage;
+		}
+
 		/**
 		 * Stores collected sensor data
 		 * @param sensorData Collected sensor data
@@ -140,6 +155,12 @@ namespace iqrf {
 						Pointer("/rssi").Set(device, rssi - 130, allocator);
 					} else {
 						Pointer("/rssi").Set(device, rapidjson::Value(kNullType), allocator);
+					}
+					auto voltage = m_deviceMetadata[deviceItem.first].voltage;
+					if (voltage != 0) {
+						Pointer("/voltage").Set(device, voltage, allocator);
+					} else {
+						Pointer("/voltage").Set(device, rapidjson::Value(kNullType), allocator);
 					}
 
 					std::vector<sensor::item::Sensor> &sensors = deviceItem.second;

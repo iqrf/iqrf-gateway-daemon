@@ -64,6 +64,8 @@
 									"address",
 									"hwpid",
 									"mid",
+									"rssi",
+									"voltage",
 									"sensors"
 								],
 								"additionalProperties": false,
@@ -99,12 +101,25 @@
 										]
 									},
 									"rssi": {
-										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/mid",
-										"title": "Device MID",
-										"description": "Module ID of a network device.",
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/voltage",
+										"title": "Device RSSI",
+										"description": "Last RSSI of a network device.",
 										"oneOf": [
 											{
 												"type": "integer"
+											},
+											{
+												"type": "null"
+											}
+										]
+									},
+									"voltage": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/voltage",
+										"title": "Device voltage",
+										"description": "Voltage of a network device.",
+										"oneOf": [
+											{
+												"type": "number"
 											},
 											{
 												"type": "null"

@@ -147,6 +147,35 @@ namespace iqrf {
 		return sensorData;
 	}
 
+	std::vector<uint8_t> SensorDataService::frcReadMemory(SensorDataResult &result, std::set<uint8_t> &nodes, const std::vector<uint8_t> &userData) {
+		std::unique_ptr<IDpaTransactionResult2> transResult;
+		std::vector<std::set<uint8_t>> nodeVectors = splitSet(nodes, 63);
+		std::vector<uint8_t> frcData;
+		try {
+			for (auto vector : nodeVectors) {
+				embed::frc::JsDriverSendSelective frcSelective(m_jsRenderService, FRC_MemoryRead, vector, userData);
+				frcSelective.processRequestDrv();
+				m_dpaService->executeDpaTransactionRepeat(frcSelective.getRequest(), transResult, 2);
+				frcSelective.processDpaTransactionResult(std::move(transResult));
+				auto data = frcSelective.getFrcData();
+				frcData.insert(frcData.end(), data.begin() + 1, data.begin() + 1 + vector.size());
+
+				if (vector.size() > 55) {
+					embed::frc::JsDriverExtraResult extraResult(m_jsRenderService);
+					extraResult.processRequestDrv();
+					m_dpaService->executeDpaTransactionRepeat(extraResult.getRequest(), transResult, 2);
+					extraResult.processDpaTransactionResult(std::move(transResult));
+					auto extraData = extraResult.getFrcData();
+					frcData.insert(frcData.end(), extraData.begin(), extraData.end());
+				}
+			}
+		} catch (const std::exception &e) {
+			setErrorTransactionResult(result, transResult, e.what());
+			frcData.clear();
+		}
+		return frcData;
+	}
+
 	void SensorDataService::getTypeData(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::deque<uint8_t> &addresses) {
 		const uint8_t devicesPerRequest = frcDeviceCountByType(type);
 		const uint8_t v = addresses.size() / devicesPerRequest;
@@ -193,35 +222,16 @@ namespace iqrf {
 	}
 
 	void SensorDataService::getRssi(SensorDataResult &result, std::set<uint8_t> &nodes) {
-		std::unique_ptr<IDpaTransactionResult2> transResult;
-		std::vector<std::set<uint8_t>> nodeVectors = splitSet(nodes, 63);
-		try {
-			std::vector<uint8_t> frcData;
-			for (auto vector : nodeVectors) {
-				embed::frc::JsDriverSendSelective frcSelective(m_jsRenderService, 130, vector, {182, 5, 2, 0, 0});
-				frcSelective.processRequestDrv();
-				m_dpaService->executeDpaTransactionRepeat(frcSelective.getRequest(), transResult, 2);
-				frcSelective.processDpaTransactionResult(std::move(transResult));
-				auto data = frcSelective.getFrcData();
-				frcData.insert(frcData.end(), data.begin() + 1, data.begin() + 1 + vector.size());
-
-				if (vector.size() > 55) {
-					embed::frc::JsDriverExtraResult extraResult(m_jsRenderService);
-					extraResult.processRequestDrv();
-					m_dpaService->executeDpaTransactionRepeat(extraResult.getRequest(), transResult, 2);
-					extraResult.processDpaTransactionResult(std::move(transResult));
-					auto extraData = extraResult.getFrcData();
-					frcData.insert(frcData.end(), extraData.begin(), extraData.end());
-				}
+		auto frcData = frcReadMemory(result, nodes, {182, 5, 2, 0, 0});
+		if (nodes.size() == frcData.size()) {
+			auto it = nodes.begin();
+			for (size_t i = 0; i < nodes.size(); ++i, ++it) {
+				result.setDeviceRssi(*it, frcData[i]);
 			}
-			if (nodes.size() == frcData.size()) {
-				auto it = nodes.begin();
-				for (size_t i = 0; i < nodes.size(); ++i, ++it) {
-					result.setDeviceRssi(*it, frcData[i]);
-				}
+		} else {
+			if (frcData.size() == 0) {
+				TRC_WARNING("Failed to get device voltage via FRC Memory read.");
 			}
-		} catch (const std::exception &e) {
-			setErrorTransactionResult(result, transResult, e.what());
 		}
 	}
 
@@ -237,6 +247,20 @@ namespace iqrf {
 				}
 			} catch (const std::exception &e) {
 				setErrorTransactionResult(result, transResult, e.what());
+			}
+		}
+	}
+
+	void SensorDataService::getVoltage(SensorDataResult &result, std::set<uint8_t> &nodes) {
+		auto frcData = frcReadMemory(result, nodes, {169, 4, 2, 0, 0});
+		if (nodes.size() == frcData.size()) {
+			auto it = nodes.begin();
+			for (size_t i = 0; i < nodes.size(); ++i, ++it) {
+				result.setDeviceVoltage(*it, frcData[i]);
+			}
+		} else {
+			if (frcData.size() == 0) {
+				TRC_WARNING("Failed to get device voltage via FRC Memory read.");
 			}
 		}
 	}
@@ -271,6 +295,8 @@ namespace iqrf {
 		if (noRssi.size() > 0) {
 			getRssi(result, noRssi);
 		}
+		// voltage
+		getVoltage(result, allNodes);
 	}
 
 	void SensorDataService::worker() {
