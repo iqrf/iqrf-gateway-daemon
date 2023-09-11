@@ -197,6 +197,8 @@ namespace iqrf {
 		 */
 		std::vector<iqrf::sensor::item::Sensor> sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes);
 
+		std::vector<uint8_t> frcReadMemory(SensorDataResult &result, std::set<uint8_t> &nodes, const std::vector<uint8_t> &userData);
+
 		/**
 		 * Prepares requests for specified sensor type, index and selected devices
 		 * @param result Service result
@@ -226,6 +228,13 @@ namespace iqrf {
 		 * @param nodes Nodes to get RSSI from
 		 */
 		void getRssiBeaming(SensorDataResult &result, std::set<uint8_t> &nodes);
+
+		/**
+		 * Get voltage from devices
+		 * @param result Service result
+		 * @param nodes Nodes to get voltage from
+		 */
+		void getVoltage(SensorDataResult &result, std::set<uint8_t> &nodes);
 
 		/**
 		 * Reads Sensor data using FRC requests
