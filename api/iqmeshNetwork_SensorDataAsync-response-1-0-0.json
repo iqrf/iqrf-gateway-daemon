@@ -65,7 +65,6 @@
 									"hwpid",
 									"mid",
 									"rssi",
-									"voltage",
 									"sensors"
 								],
 								"additionalProperties": false,
