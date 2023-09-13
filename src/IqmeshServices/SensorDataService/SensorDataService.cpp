@@ -296,7 +296,7 @@ namespace iqrf {
 			getRssi(result, noRssi);
 		}
 		// voltage
-		getVoltage(result, allNodes);
+		//getVoltage(result, allNodes);
 	}
 
 	void SensorDataService::worker() {

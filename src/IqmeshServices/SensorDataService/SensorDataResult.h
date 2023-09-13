@@ -156,12 +156,12 @@ namespace iqrf {
 					} else {
 						Pointer("/rssi").Set(device, rapidjson::Value(kNullType), allocator);
 					}
-					auto voltage = m_deviceMetadata[deviceItem.first].voltage;
+					/*auto voltage = m_deviceMetadata[deviceItem.first].voltage;
 					if (voltage != 0) {
 						Pointer("/voltage").Set(device, voltage, allocator);
 					} else {
 						Pointer("/voltage").Set(device, rapidjson::Value(kNullType), allocator);
-					}
+					}*/
 
 					std::vector<sensor::item::Sensor> &sensors = deviceItem.second;
 					std::sort(sensors.begin(), sensors.end(), [](sensor::item::Sensor a, sensor::item::Sensor b) {
