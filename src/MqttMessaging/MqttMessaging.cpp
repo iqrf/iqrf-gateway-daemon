@@ -185,7 +185,7 @@ namespace iqrf {
       }
 
       m_conn_opts.keepAliveInterval = m_mqttKeepAliveInterval;
-      m_conn_opts.cleansession = 1;
+      m_conn_opts.cleansession = (m_mqttQos == 0);
       m_conn_opts.connectTimeout = m_mqttConnectTimeout;
       m_conn_opts.automaticReconnect = 1;
       m_conn_opts.minRetryInterval = m_mqttMinReconnect;
