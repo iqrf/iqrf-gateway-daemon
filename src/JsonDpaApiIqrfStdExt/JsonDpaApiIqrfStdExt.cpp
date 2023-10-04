@@ -86,6 +86,7 @@ namespace iqrf {
 
         // process *_Request
         jsDriverStandardFrcSolver.processRequestDrv();
+        apiMsgIqrfStandardFrc.setDpaRequest(jsDriverStandardFrcSolver.getFrcRequest());
 
         auto exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
         int timeOut = apiMsgIqrfStandardFrc.getTimeout();
