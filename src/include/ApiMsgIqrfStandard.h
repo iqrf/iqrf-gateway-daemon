@@ -75,7 +75,7 @@ namespace iqrf {
     std::string getRequestParamStr() const { return m_requestParamStr; }
 
     const DpaMessage& getDpaRequest() const { return m_dpaRequest; }
-    //void setDpaRequest(const DpaMessage& dpaRequest) { m_dpaRequest = dpaRequest; }
+    void setDpaRequest(const DpaMessage& dpaRequest) { m_dpaRequest = dpaRequest; }
 
     void setPayload(const std::string& payloadKey, const rapidjson::Value& val)
     {
@@ -106,11 +106,11 @@ namespace iqrf {
       Pointer("/data/rsp/nAdr").Set(doc, m_nadr);
       Pointer("/data/rsp/pnum").Set(doc, r ?
         m_res->getResponse().DpaPacket().DpaResponsePacket_t.PNUM :
-        m_res->getRequest().DpaPacket().DpaRequestPacket_t.PNUM
+        m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM
       );
       Pointer("/data/rsp/pcmd").Set(doc, r ?
         m_res->getResponse().DpaPacket().DpaResponsePacket_t.PCMD :
-        m_res->getRequest().DpaPacket().DpaRequestPacket_t.PCMD + 0x80
+        m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD + 0x80
       );
       Pointer("/data/rsp/hwpId").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.HWPID : m_hwpid);
       Pointer("/data/rsp/rCode").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
