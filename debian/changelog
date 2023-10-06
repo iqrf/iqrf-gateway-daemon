@@ -1,10 +1,11 @@
-iqrf-gateway-daemon (2.5.1~alpha~1.gbpfc8b96) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.5.1) stable; urgency=medium
 
-  ** SNAPSHOT build @fc8b96fee0c1e0f36ff6c5e810a0f19687eb75d5 **
+  [ Karel Hanák ]
+  * Prepare for version 2.5.1-alpha
+  * MqttMessaging: set cleanSession according to qos value
+  * JsonDpaApiIqrfStdExt: fixed an error causing crashes when standard frc request is sent in to daemon in service mode
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 29 Aug 2023 13:46:07 +0200
+ -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 06 Oct 2023 12:35:20 +0200
 
 iqrf-gateway-daemon (2.5.0) stable; urgency=medium
 
