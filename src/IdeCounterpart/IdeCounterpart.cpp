@@ -162,7 +162,7 @@ namespace iqrf {
 	}
 
 	int IdeCounterpart::sendMessageToIde(const std::basic_string<unsigned char>& message) {
-		SendTrData dataToSend(message);
+		SendTrData dataToSend(m_params.mode, message);
 		dataToSend.buildResponse();
 		m_messaging->sendMessage("", dataToSend.getResponse());
 		return 0;
