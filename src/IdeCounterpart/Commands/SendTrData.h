@@ -33,7 +33,8 @@ namespace iqrf {
 		 * Full constructor
 		 * @param data Asynchronous response data
 		 */
-		SendTrData(const std::basic_string<uint8_t> &data) {
+		SendTrData(const uint8_t mode, const std::basic_string<uint8_t> &data) {
+			m_mode = mode;
 			m_data = data;
 		}
 
@@ -49,6 +50,7 @@ namespace iqrf {
 			const size_t dataLen = m_data.size();
 
 			m_response.resize(HEADER_SIZE + CRC_SIZE);
+			m_response[GW_ADDR] = static_cast<unsigned char>(m_mode);
 			m_response[CMD] = static_cast<unsigned char>(SEND_TR_DATA);
 			m_response[DLEN_H] = static_cast<unsigned char>((dataLen >> 8) & 0xFF);
 			m_response[DLEN_L] = static_cast<unsigned char>(dataLen & 0xFF);
@@ -61,5 +63,7 @@ namespace iqrf {
 			m_response[HEADER_SIZE + dataLen] = static_cast<unsigned char>((crc >> 8) & 0xFF);
 			m_response[HEADER_SIZE + dataLen + 1] = static_cast<unsigned char>(crc & 0xFF);
 		}
+	private:
+		uint8_t m_mode;
 	};
 }
