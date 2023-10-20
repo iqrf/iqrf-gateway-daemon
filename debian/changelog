@@ -1,3 +1,11 @@
+iqrf-gateway-daemon (2.5.3~alpha~1.gbp07af6e) UNRELEASED; urgency=medium
+
+  ** SNAPSHOT build @07af6e1c6b82bd7d02e26933ec8d809161e73844 **
+
+  * UNRELEASED
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 20 Oct 2023 13:36:15 +0200
+
 iqrf-gateway-daemon (2.5.2) stable; urgency=medium
 
   * UNRELEASED
