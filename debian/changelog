@@ -1,10 +1,11 @@
-iqrf-gateway-daemon (2.5.2~alpha~1.gbp2a4033) UNRELEASED; urgency=medium
-
-  ** SNAPSHOT build @2a4033854106bceb27d3415a80e665167d421f0d **
+iqrf-gateway-daemon (2.5.2) stable; urgency=medium
 
   * UNRELEASED
+  * Prepare for version 2.5.2-alpha
+  * IdeCounterpart: include GW_ADDR in asynchronous TR packets
+  * changed api testing image to latest
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 06 Oct 2023 12:38:10 +0200
+ -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 20 Oct 2023 13:35:08 +0200
 
 iqrf-gateway-daemon (2.5.1) stable; urgency=medium
 
