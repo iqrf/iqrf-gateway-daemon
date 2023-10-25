@@ -2895,6 +2895,16 @@ namespace iqrf {
             // Clear duplicit MIDs
             // TestCase - overit chovani clearDuplicitMID
             clearDuplicitMID(autonetworkResult);
+          } else {
+            for (auto nodeAddr : FrcSelect) {
+              if (!antwProcessParams.networkNodes[nodeAddr].bonded) {
+                continue;
+              }
+              antwProcessParams.respondedNewNodes.push_back({
+                nodeAddr,
+                antwProcessParams.networkNodes[nodeAddr].mid.value
+              });
+            }
           }
 
           // Skip discovery in each wave ?
