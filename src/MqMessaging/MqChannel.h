@@ -24,6 +24,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <stdexcept>
 
 #ifdef SHAPE_PLATFORM_WINDOWS
 #include <windows.h>
