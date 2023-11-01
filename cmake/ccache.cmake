@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright 2015-2023 IQRF Tech s.r.o.
 # Copyright 2019-2023 MICRORISC s.r.o.
 #
@@ -15,17 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+option(USE_CCACHE "Use ccache" OFF)
 
-# Script for building IQRF Gateway Daemon's package
+if(NOT DEFINED USE_CCACHE AND DEFINED ENV{USE_CCACHE})
+	set(USE_CCACHE $ENV{USE_CCACHE})
+endif()
 
-set -e
+message(STATUS "Use ccache:\t ${USE_CCACHE}")
 
-# Generate Debian changelog
-if [ ! -v BUILD ] || [ -z "$BUILD" ] || [ "$BUILD" != "release" ]; then
-    gbp dch -a -S --ignore-branch
-else
-    gbp dch -a -R --ignore-branch
-fi
-
-# Build Debian package
-debuild -e CCACHE_COMPILERCHECK -e CCACHE_COMPRESS -e CCACHE_BASEDIR -e CCACHE_DIR -b -uc -us -tc
+if(${USE_CCACHE})
+	find_program(CCACHE_PROGRAM ccache)
+	if(CCACHE_PROGRAM)
+		set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+		set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+	endif()
+endif()

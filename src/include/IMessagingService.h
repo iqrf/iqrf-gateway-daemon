@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <cstdint>
 
 #ifdef IMessagingService_EXPORTS
 #define IMessagingService_DECLSPEC SHAPE_ABI_EXPORT
