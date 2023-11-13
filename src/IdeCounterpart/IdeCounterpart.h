@@ -67,6 +67,19 @@ namespace iqrf {
 		void setMode(Mode mode) override;
 
 		/**
+		 * Registers mode set callback
+		 * @param instanceId Component instance
+		 * @param callback Callable
+		 */
+		void registerModeSetCallback(const std::string &instanceId, std::function<void()> callback) override;
+
+		/**
+		 * Unregisters mode set callback
+		 * @param instanceId Component instance
+		 */
+		void unregisterModeSetCallback(const std::string &instanceId) override;
+
+		/**
 		 * Initializes component
 		 * @param props Component properties
 		 */
@@ -166,5 +179,9 @@ namespace iqrf {
 		std::unique_ptr<IIqrfChannelService::Accessor> m_snifferAcessor;
 		/// Gateway identification parameters
 		GwIdentParams m_params {0x20, "iqrf-gateway-daemon", "N/A", "N/A", "N/A", "N/A", "N/A"};
+		/// Callback mutex
+		mutable std::mutex m_callbackMutex;
+		/// Map of Mode set callbacks
+		std::map<std::string, std::function<void()>> m_setModeCallbacks;
 	};
 }

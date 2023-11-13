@@ -16,304 +16,243 @@
  */
 #include "MonitorService.h"
 
-#include "Trace.h"
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/document.h"
-#include "rapidjson/pointer.h"
-#include "rapidjson/writer.h"
-
-#include <thread>
-#include <condition_variable>
-
 #include "iqrf__MonitorService.hxx"
 
 TRC_INIT_MODULE(iqrf::MonitorService)
 
 namespace iqrf {
 
-  // implementation class
-  class MonitorService::Imp
-  {
-  private:
-    IIqrfDpaService* m_iIqrfDpaService = nullptr;
-    IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
-    IUdpConnectorService* m_iUdpConnectorService = nullptr;
-    shape::IWebsocketService* m_iWebsocketService = nullptr;
-    std::thread m_runThread;
-    bool m_runThreadFlag = true;
-    std::mutex m_mtx;
-    std::condition_variable m_cond;
-    int m_reportPeriod = 20;
+	MonitorService::MonitorService() {
+		TRC_FUNCTION_ENTER("");
+		TRC_FUNCTION_LEAVE("");
+	}
 
-  public:
-    Imp()
-    {
-    }
+	MonitorService::~MonitorService() {
+		TRC_FUNCTION_ENTER("");
+		TRC_FUNCTION_LEAVE("");
+	}
 
-    ~Imp()
-    {
-    }
+	///// API implementation
 
-    int getDpaQueueLen() const
-    {
-      return m_iIqrfDpaService->getDpaQueueLen();
-    }
+	int MonitorService::getDpaQueueLen() const {
+		return m_dpaService->getDpaQueueLen();
+	}
 
-    IIqrfChannelService::State getIqrfChannelState()
-    {
-      return m_iIqrfDpaService->getIqrfChannelState();
-    }
+	IIqrfChannelService::State MonitorService::getIqrfChannelState() {
+		return m_dpaService->getIqrfChannelState();
+	}
 
-    IIqrfDpaService::DpaState getDpaChannelState()
-    {
-      return m_iIqrfDpaService->getDpaChannelState();
-    }
+	IIqrfDpaService::DpaState MonitorService::getDpaChannelState() {
+		return m_dpaService->getDpaChannelState();
+	}
 
-    void worker() {
-      TRC_FUNCTION_ENTER("");
+	void MonitorService::invokeWorker() {
+		std::unique_lock<std::mutex> workerInvokeLock(m_invokeMutex);
+		m_cv.notify_all();
+	}
 
-      static unsigned num = 0;
-      int dpaQueueLen = -1;
-      int msgQueueLen = -1;
-      IIqrfChannelService::State iqrfChannelState = IIqrfChannelService::State::NotReady;
-      IIqrfDpaService::DpaState dpaChannelState = IIqrfDpaService::DpaState::NotReady;
-      IUdpConnectorService::Mode operMode = IUdpConnectorService::Mode::Unknown;
+	///// Component lifecycle
 
-      while (m_runThreadFlag) {
+	void MonitorService::activate(const shape::Properties *props) {
+		TRC_FUNCTION_ENTER("");
+		TRC_INFORMATION(std::endl <<
+			"******************************************" << std::endl <<
+			"MonitorService instance activate" << std::endl <<
+			"******************************************"
+		);
 
-        std::unique_lock<std::mutex> lck(m_mtx);
-        m_cond.wait_for(lck, std::chrono::seconds(m_reportPeriod));
+		modify(props);
 
-        using namespace rapidjson;
+		m_runThread = true;
+		m_workerThread = std::thread([&]() {
+			worker();
+		});
 
-        if (m_iIqrfDpaService) {
-          dpaQueueLen = m_iIqrfDpaService->getDpaQueueLen();
-          iqrfChannelState = m_iIqrfDpaService->getIqrfChannelState();
-          dpaChannelState = m_iIqrfDpaService->getDpaChannelState();
-        }
+		TRC_FUNCTION_LEAVE("");
+	}
 
-        if (m_iMessagingSplitterService) {
-          msgQueueLen = m_iMessagingSplitterService->getMsgQueueLen();
-        }
+	void MonitorService::modify(const shape::Properties *props) {
+		TRC_FUNCTION_ENTER("");
 
-        if (m_iUdpConnectorService) {
-          operMode = m_iUdpConnectorService->getMode();
-        }
+		using namespace rapidjson;
 
-        auto ts = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		const Document& doc = props->getAsJson();
+		{
+			const Value* v = Pointer("/reportPeriod").Get(doc);
+			if (v && v->IsInt()) {
+				m_reportPeriod = v->GetInt();
+			}
+			m_instanceId = Pointer("/instance").Get(doc)->GetString();
+		}
 
-        Document doc;
-        Pointer("/mType").Set(doc, "ntfDaemon_Monitor");
-        Pointer("/data/num").Set(doc, num++);
-        Pointer("/data/timestamp").Set(doc, ts);
-        Pointer("/data/dpaQueueLen").Set(doc, dpaQueueLen);
-        Pointer("/data/iqrfChannelState").Set(doc, IIqrfChannelService::StateStringConvertor::enum2str(iqrfChannelState));
-        Pointer("/data/dpaChannelState").Set(doc, IIqrfDpaService::DpaStateStringConvertor::enum2str(dpaChannelState));
-        Pointer("/data/msgQueueLen").Set(doc, msgQueueLen);
-        Pointer("/data/operMode").Set(doc, ModeStringConvertor::enum2str(operMode));
+		TRC_FUNCTION_LEAVE("");
+	}
 
-        std::string gwMonitorRecord;
-        rapidjson::StringBuffer buffer;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        doc.Accept(writer);
-        gwMonitorRecord = buffer.GetString();
+	void MonitorService::deactivate() {
+		TRC_FUNCTION_ENTER("");
+		TRC_INFORMATION(std::endl <<
+			"**************************************" << std::endl <<
+			"MonitorService instance deactivate" << std::endl <<
+			"**************************************"
+		);
 
-        m_iWebsocketService->sendMessage(gwMonitorRecord, ""); //send to all connected clients
-      }
+		m_runThread = false;
+		m_cv.notify_all();
+		if (m_workerThread.joinable()) {
+			m_workerThread.join();
+		}
 
-      TRC_FUNCTION_LEAVE("");
-    }
+		TRC_FUNCTION_LEAVE("");
+	}
 
-  public:
-    void activate(const shape::Properties *props)
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "******************************************" << std::endl <<
-        "MonitorService instance activate" << std::endl <<
-        "******************************************"
-      );
+	///// Private methods
 
-      modify(props);
+	void MonitorService::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+		TRC_FUNCTION_ENTER("");
 
-      m_runThreadFlag = true;
-      m_runThread = std::thread([&]() {
-        worker();
-      });
+		invokeWorker();
 
-      TRC_FUNCTION_LEAVE("");
-    }
+		std::string msgId = rapidjson::Pointer("/data/msgId").Get(doc)->GetString();
+		bool verbose = false;
+		rapidjson::Value *val = rapidjson::Pointer("/data/returnVerbose").Get(doc);
+		if (val && val->IsBool()) {
+			verbose = val->GetBool();
+		}
+		rapidjson::Document rspDoc;
+		rapidjson::Pointer("/mType").Set(rspDoc, msgType.m_type);
+		rapidjson::Pointer("/data/msgId").Set(rspDoc, msgId);
+		rapidjson::Pointer("/data/status").Set(rspDoc, 0);
+		if (verbose) {
+			rapidjson::Pointer("/data/statusStr").Set(rspDoc, "ok");
+		}
 
-    void deactivate()
-    {
-      TRC_FUNCTION_ENTER("");
-      TRC_INFORMATION(std::endl <<
-        "**************************************" << std::endl <<
-        "MonitorService instance deactivate" << std::endl <<
-        "**************************************"
-      );
+		m_splitterService->sendMessage(messagingId, std::move(rspDoc));
 
-      m_runThreadFlag = false;
-      m_cond.notify_all();
-      if (m_runThread.joinable())
-        m_runThread.join();
+		TRC_FUNCTION_LEAVE("");
+	}
 
-      TRC_FUNCTION_LEAVE("");
-    }
+	rapidjson::Document MonitorService::createMonitorMessage() {
+		TRC_FUNCTION_ENTER("");
 
-    void modify(const shape::Properties *props)
-    {
-      TRC_FUNCTION_ENTER("");
-      using namespace rapidjson;
+		static unsigned num = 0;
+		int dpaQueueLen = -1;
+		int msgQueueLen = -1;
+		IIqrfChannelService::State iqrfChannelState = IIqrfChannelService::State::NotReady;
+		IIqrfDpaService::DpaState dpaChannelState = IIqrfDpaService::DpaState::NotReady;
+		IUdpConnectorService::Mode operMode = IUdpConnectorService::Mode::Unknown;
 
-      const Document& doc = props->getAsJson();
+		using namespace rapidjson;
 
-      {
-        const Value* v = Pointer("/reportPeriod").Get(doc);
-        if (v && v->IsInt()) {
-          m_reportPeriod = v->GetInt();
-        }
-      }
-      TRC_FUNCTION_LEAVE("");
-    }
+		if (m_dpaService) {
+			dpaQueueLen = m_dpaService->getDpaQueueLen();
+			iqrfChannelState = m_dpaService->getIqrfChannelState();
+			dpaChannelState = m_dpaService->getDpaChannelState();
+		}
 
-    void attachInterface(IIqrfDpaService* iface)
-    {
-      m_iIqrfDpaService = iface;
-    }
+		if (m_splitterService) {
+			msgQueueLen = m_splitterService->getMsgQueueLen();
+		}
 
-    void detachInterface(IIqrfDpaService* iface)
-    {
-      if (m_iIqrfDpaService == iface) {
-        m_iIqrfDpaService = nullptr;
-      }
-    }
+		if (m_udpConnectorService) {
+			operMode = m_udpConnectorService->getMode();
+		}
 
-    void attachInterface(IMessagingSplitterService* iface)
-    {
-      m_iMessagingSplitterService = iface;
-    }
+		auto ts = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
-    void detachInterface(IMessagingSplitterService* iface)
-    {
-      if (m_iMessagingSplitterService == iface) {
-        m_iMessagingSplitterService = nullptr;
-      }
-    }
+		Document doc;
+		Pointer("/mType").Set(doc, "ntfDaemon_Monitor");
+		Pointer("/data/num").Set(doc, num++);
+		Pointer("/data/timestamp").Set(doc, ts);
+		Pointer("/data/dpaQueueLen").Set(doc, dpaQueueLen);
+		Pointer("/data/iqrfChannelState").Set(doc, IIqrfChannelService::StateStringConvertor::enum2str(iqrfChannelState));
+		Pointer("/data/dpaChannelState").Set(doc, IIqrfDpaService::DpaStateStringConvertor::enum2str(dpaChannelState));
+		Pointer("/data/msgQueueLen").Set(doc, msgQueueLen);
+		Pointer("/data/operMode").Set(doc, ModeStringConvertor::enum2str(operMode));
+		return doc;
+	}
 
-    void attachInterface(IUdpConnectorService* iface)
-    {
-      m_iUdpConnectorService = iface;
-    }
+	void MonitorService::worker() {
+		TRC_FUNCTION_ENTER("");
 
-    void detachInterface(IUdpConnectorService* iface)
-    {
-      if (m_iUdpConnectorService == iface) {
-        m_iUdpConnectorService = nullptr;
-      }
-    }
+		while (m_runThread) {
 
-    void attachInterface(shape::IWebsocketService* iface)
-    {
-      m_iWebsocketService = iface;
-    }
+			std::unique_lock<std::mutex> lck(m_workerMutex);
+			m_cv.wait_for(lck, std::chrono::seconds(m_reportPeriod));
 
-    void detachInterface(shape::IWebsocketService* iface)
-    {
-      if (m_iWebsocketService == iface) {
-        m_iWebsocketService = nullptr;
-      }
-    }
+			using namespace rapidjson;
 
-  };
+			auto doc = createMonitorMessage();
 
-  MonitorService::MonitorService()
-  {
-    m_imp = shape_new Imp();
-  }
+			std::string gwMonitorRecord;
+			rapidjson::StringBuffer buffer;
+			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+			doc.Accept(writer);
+			gwMonitorRecord = buffer.GetString();
 
-  MonitorService::~MonitorService()
-  {
-    delete m_imp;
-  }
+			m_websocketService->sendMessage(gwMonitorRecord, ""); //send to all connected clients
+		}
 
-  int MonitorService::getDpaQueueLen() const
-  {
-    return m_imp->getDpaQueueLen();
-  }
+		TRC_FUNCTION_LEAVE("");
+	}
 
-  IIqrfChannelService::State MonitorService::getIqrfChannelState()
-  {
-    return m_imp->getIqrfChannelState();
-  }
+	///// Interfaces
 
-  IIqrfDpaService::DpaState MonitorService::getDpaChannelState()
-  {
-    return m_imp->getDpaChannelState();
-  }
+	void MonitorService::attachInterface(IIqrfDpaService* iface) {
+		m_dpaService = iface;
+	}
 
-  void MonitorService::attachInterface(IIqrfDpaService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
+	void MonitorService::detachInterface(IIqrfDpaService* iface) {
+		if (m_dpaService == iface) {
+			m_dpaService = nullptr;
+		}
+	}
 
-  void MonitorService::detachInterface(IIqrfDpaService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
+	void MonitorService::attachInterface(IMessagingSplitterService* iface) {
+		m_splitterService = iface;
+		m_splitterService->registerFilteredMsgHandler(
+			m_mTypes,
+			[&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+				handleMsg(messagingId, msgType, std::move(doc));
+			}
+		);
+	}
 
-  void MonitorService::attachInterface(IMessagingSplitterService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
+	void MonitorService::detachInterface(IMessagingSplitterService* iface) {
+		if (m_splitterService == iface) {
+			m_splitterService->unregisterFilteredMsgHandler(m_mTypes);
+			m_splitterService = nullptr;
+		}
+	}
 
-  void MonitorService::detachInterface(IMessagingSplitterService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
+	void MonitorService::attachInterface(IUdpConnectorService* iface) {
+		m_udpConnectorService = iface;
+		m_udpConnectorService->registerModeSetCallback(
+			m_instanceId, [&]() {invokeWorker();}
+		);
+	}
 
-  void MonitorService::attachInterface(IUdpConnectorService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
+	void MonitorService::detachInterface(IUdpConnectorService* iface) {
+		if (m_udpConnectorService == iface) {
+			m_udpConnectorService = nullptr;
+			m_udpConnectorService->unregisterModeSetCallback(m_instanceId);
+		}
+	}
 
-  void MonitorService::detachInterface(IUdpConnectorService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
+	void MonitorService::attachInterface(shape::IWebsocketService* iface) {
+		m_websocketService = iface;
+	}
 
-  void MonitorService::attachInterface(shape::IWebsocketService* iface)
-  {
-    m_imp->attachInterface(iface);
-  }
+	void MonitorService::detachInterface(shape::IWebsocketService* iface) {
+		if (m_websocketService == iface) {
+			m_websocketService = nullptr;
+		}
+	}
 
-  void MonitorService::detachInterface(shape::IWebsocketService* iface)
-  {
-    m_imp->detachInterface(iface);
-  }
+	void MonitorService::attachInterface(shape::ITraceService* iface) {
+		shape::Tracer::get().addTracerService(iface);
+	}
 
-  void MonitorService::attachInterface(shape::ITraceService* iface)
-  {
-    shape::Tracer::get().addTracerService(iface);
-  }
-
-  void MonitorService::detachInterface(shape::ITraceService* iface)
-  {
-    shape::Tracer::get().removeTracerService(iface);
-  }
-
-  void MonitorService::activate(const shape::Properties *props)
-  {
-    m_imp->activate(props);
-  }
-
-  void MonitorService::deactivate()
-  {
-    m_imp->deactivate();
-  }
-
-  void MonitorService::modify(const shape::Properties *props)
-  {
-    m_imp->modify(props);
-  }
+	void MonitorService::detachInterface(shape::ITraceService* iface) {
+		shape::Tracer::get().removeTracerService(iface);
+	}
 }

@@ -23,43 +23,178 @@
 #include "IUdpConnectorService.h"
 #include "IWebsocketService.h"
 #include "ITraceService.h"
-#include <string>
+#include "Trace.h"
 
+#include "rapidjson/rapidjson.h"
+#include "rapidjson/document.h"
+#include "rapidjson/pointer.h"
+#include "rapidjson/writer.h"
+
+#include <condition_variable>
+#include <string>
+#include <thread>
+
+/// iqrf namespace
 namespace iqrf {
 
-  class MonitorService : public IMonitorService
-  {
-  public:
-    MonitorService();
+	/// Daemon monitoring service class
+	class MonitorService : public IMonitorService {
+	public:
+		/**
+		 * Constructor
+		 */
+		MonitorService();
 
-    /// \brief Destructor
-    virtual ~MonitorService();
+		/**
+		 * Destructor
+		 */
+		virtual ~MonitorService();
 
-    int getDpaQueueLen() const override;
-    virtual IIqrfChannelService::State getIqrfChannelState() override;
-    virtual IIqrfDpaService::DpaState getDpaChannelState() override;
+		/**
+		 * Get DPA message queue length
+		 * @return int Message queue length
+		 */
+		int getDpaQueueLen() const override;
 
-    void activate(const shape::Properties *props = 0);
-    void deactivate();
-    void modify(const shape::Properties *props);
+		/**
+		 * Get current IQRF channel state
+		 * @return IQRF channel state
+		 */
+		virtual IIqrfChannelService::State getIqrfChannelState() override;
 
-    void attachInterface(shape::ITraceService* iface);
-    void detachInterface(shape::ITraceService* iface);
+		/**
+		 * Get current DPA channel state
+		 * @return DPA channel state
+		 */
+		virtual IIqrfDpaService::DpaState getDpaChannelState() override;
 
-    void attachInterface(iqrf::IIqrfDpaService* iface);
-    void detachInterface(iqrf::IIqrfDpaService* iface);
+		/**
+		 * Wake up sleeping worker and force monitoring notification on demand
+		 */
+		void invokeWorker() override;
 
-    void attachInterface(iqrf::IMessagingSplitterService* iface);
-    void detachInterface(iqrf::IMessagingSplitterService* iface);
+		/**
+		 * Initializes component
+		 * @param props Component properties
+		 */
+		void activate(const shape::Properties *props = 0);
 
-    void attachInterface(iqrf::IUdpConnectorService* iface);
-    void detachInterface(iqrf::IUdpConnectorService* iface);
+		/**
+		 * Modifies component properties
+		 * @param props Component properties
+		 */
+		void modify(const shape::Properties *props);
 
-    void attachInterface(shape::IWebsocketService* iface);
-    void detachInterface(shape::IWebsocketService* iface);
+		/**
+		 * Deactivates component
+		 */
+		void deactivate();
 
-  private:
-    class Imp;
-    Imp* m_imp;
-  };
+		/**
+		 * Attaches DPA service interface
+		 * @param iface DPA service interface
+		 */
+		void attachInterface(iqrf::IIqrfDpaService* iface);
+
+		/**
+		 * Detaches DPA service interface
+		 * @param iface DPA service interface
+		 */
+		void detachInterface(iqrf::IIqrfDpaService* iface);
+
+		/**
+		 * Attaches splitter service interface
+		 * @param iface Splitter service interface
+		 */
+		void attachInterface(iqrf::IMessagingSplitterService* iface);
+
+		/**
+		 * Detaches splitter service interface
+		 * @param iface Splitter service interface
+		 */
+		void detachInterface(iqrf::IMessagingSplitterService* iface);
+
+		/**
+		 * Attaches UDP connector service interface
+		 * @param iface UDP connector service interface
+		 */
+		void attachInterface(iqrf::IUdpConnectorService* iface);
+
+		/**
+		 * Detaches UDP connector service interface
+		 * @param iface UDP connector service interface
+		 */
+		void detachInterface(iqrf::IUdpConnectorService* iface);
+
+		/**
+		 * Attaches Shape websocket service interface
+		 * @param iface Shape websocket service interface
+		 */
+		void attachInterface(shape::IWebsocketService* iface);
+
+		/**
+		 * Detaches Shape websocket service interface
+		 * @param iface Shape websocket service interface
+		 */
+		void detachInterface(shape::IWebsocketService* iface);
+
+		/**
+		 * Attaches tracing service interface
+		 * @param iface Tracing service interface
+		 */
+		void attachInterface(shape::ITraceService* iface);
+
+		/**
+		 * Detaches tracing service interface
+		 * @param iface Tracing service interface
+		 */
+		void detachInterface(shape::ITraceService* iface);
+
+	private:
+		/**
+		 * Handles request from splitter
+		 * @param messagingId Messaging ID
+		 * @param msgType Message type
+		 * @param doc request document
+		 */
+		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
+
+		/**
+		 * Generates rapidjson document containing monitoring notification message
+		 * @return Monitoring notification message document
+		 */
+		rapidjson::Document createMonitorMessage();
+
+		/**
+		 * Notification worker thread
+		 */
+		void worker();
+
+		/// Instance ID
+		std::string m_instanceId;
+		/// DPA service interface
+		IIqrfDpaService *m_dpaService = nullptr;
+		/// Splitter service interface
+		IMessagingSplitterService *m_splitterService = nullptr;
+		/// UDP connector service
+		IUdpConnectorService *m_udpConnectorService = nullptr;
+		/// Shape websocket service
+		shape::IWebsocketService *m_websocketService = nullptr;
+		/// Monitoring notification worker thread
+		std::thread m_workerThread;
+		/// Thread running condition
+		bool m_runThread = true;
+		/// Worker mutex
+		std::mutex m_workerMutex;
+		/// Worker invocation mutex
+		std::mutex m_invokeMutex;
+		/// Condition variable
+		std::condition_variable m_cv;
+		/// Splitter message types filter
+		const std::vector<std::string> m_mTypes = {
+			"ntfDaemon_InvokeMonitor"
+		};
+		/// Notification period
+		int m_reportPeriod = 20;
+	};
 }

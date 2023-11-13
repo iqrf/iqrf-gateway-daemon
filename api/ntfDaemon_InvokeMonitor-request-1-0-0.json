@@ -1,0 +1,42 @@
+{
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "ntfDaemon_InvokeMonitor-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "title": "Daemon monitoring - Notification Invocation",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "title": "Message type",
+      "description": "Daemon monitoring - Notification Invocation request.",
+      "type": "string",
+      "enum": ["ntfDaemon_InvokeMonitor"]
+    },
+    "data": {
+      "title": "Message data",
+      "type": "object",
+      "required": [
+        "msgId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "title": "Message ID",
+          "type": "string"
+        },
+        "returnVerbose": {
+          "title": "Verbose response",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
