@@ -20,15 +20,38 @@
 #include "IIqrfChannelService.h"
 #include "IIqrfDpaService.h"
 
+/// iqrf namespace
 namespace iqrf {
 
-  class IMonitorService
-  {
-  public:
-    virtual int getDpaQueueLen() const = 0;
-    virtual IIqrfChannelService::State getIqrfChannelState() = 0;
-    virtual IIqrfDpaService::DpaState getDpaChannelState() = 0;
+	/// Daemon monitoring service API
+	class IMonitorService {
+	public:
+		/**
+		 * Get DPA message queue length
+		 * @return int Message queue length
+		 */
+		virtual int getDpaQueueLen() const = 0;
 
-    virtual ~IMonitorService() {}
-  };
+		/**
+		 * Get current IQRF channel state
+		 * @return IQRF channel state
+		 */
+		virtual IIqrfChannelService::State getIqrfChannelState() = 0;
+
+		/**
+		 * Get current DPA channel state
+		 * @return DPA channel state
+		 */
+		virtual IIqrfDpaService::DpaState getDpaChannelState() = 0;
+
+		/**
+		 * Wake up sleeping worker and force monitoring notification on demand
+		 */
+		virtual void invokeWorker() = 0;
+
+		/**
+		 * Destructor
+		 */
+		virtual ~IMonitorService() {}
+	};
 }

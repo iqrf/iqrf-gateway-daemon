@@ -60,6 +60,8 @@ namespace iqrf {
     virtual void setMode(Mode mode) = 0;
 
     virtual Mode getMode() const = 0;
+    virtual void registerModeSetCallback(const std::string &instanceId, std::function<void()> callback) = 0;
+    virtual void unregisterModeSetCallback(const std::string &instanceId) = 0;
 
     inline virtual ~IUdpConnectorService() {};
   };

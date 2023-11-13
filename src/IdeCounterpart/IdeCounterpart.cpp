@@ -67,9 +67,27 @@ namespace iqrf {
 		}
 
 		m_mode = mode;
+		{
+			std::lock_guard<std::mutex> lck(m_callbackMutex);
+			for (auto &callback : m_setModeCallbacks) {
+				if (callback.second) {
+					callback.second();
+				}
+			}
+		}
 
 		TRC_INFORMATION("Set mode " << ModeStringConvertor::enum2str(m_mode));
 		TRC_FUNCTION_LEAVE("");
+	}
+
+	void IdeCounterpart::registerModeSetCallback(const std::string &instanceId, std::function<void()> callback) {
+		std::lock_guard<std::mutex> lck(m_callbackMutex);
+		m_setModeCallbacks.insert_or_assign(instanceId, callback);
+	}
+
+	void IdeCounterpart::unregisterModeSetCallback(const std::string &instanceId) {
+		std::lock_guard<std::mutex> lck(m_callbackMutex);
+		m_setModeCallbacks.erase(instanceId);
 	}
 
 	///// Message handling /////
