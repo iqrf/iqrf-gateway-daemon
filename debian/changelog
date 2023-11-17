@@ -1,10 +1,17 @@
-iqrf-gateway-daemon (2.5.3~alpha~1.gbp07af6e) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.5.3) stable; urgency=medium
 
-  ** SNAPSHOT build @07af6e1c6b82bd7d02e26933ec8d809161e73844 **
+  [ Karel Hanák ]
+  * Prepare for version 2.5.3-alpha
 
-  * UNRELEASED
+  [ Roman Ondráček ]
+  * CMake: rework version handling
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 20 Oct 2023 13:36:15 +0200
+  [ Karel Hanák ]
+  * AutonetworkService: always report new nodes
+  * MonitorService: added notification worker invocation message: IdeCounterpart: mode set callbacks
+  * websocket: set deployment configuration to accept connections from localhost only
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 17 Nov 2023 09:28:10 +0100
 
 iqrf-gateway-daemon (2.5.2) stable; urgency=medium
 
