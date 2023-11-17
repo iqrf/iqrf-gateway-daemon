@@ -1,0 +1,9 @@
+{
+  "mType": "ntfDaemon_InvokeMonitor",
+  "data": {
+    "msgId": "ebde7974-4ee7-4151-b5d7-43fef00bd521",
+    "status": 0,
+    "statusStr": "ok",
+    "insId": "iqrfgd2-default"
+  }
+}
