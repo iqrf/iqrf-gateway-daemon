@@ -2,7 +2,7 @@
   "component": "shape::WebsocketCppService",
   "instance": "WebsocketCppService_Monitor",
   "WebsocketPort": 1438,
-  "acceptOnlyLocalhost": false,
+  "acceptOnlyLocalhost": true,
   "tlsEnabled": false,
   "tlsMode": "intermediate",
   "certificate": "/etc/iqrf-gateway-daemon/certs/core/cert.pem",
