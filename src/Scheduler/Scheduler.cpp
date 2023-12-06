@@ -89,11 +89,11 @@ namespace iqrf {
 			THROW_EXC_TRC_WAR(std::logic_error, "Json parse error: " << NAME_PAR(emsg, sd.GetParseError()) << NAME_PAR(eoffset, sd.GetErrorOffset()));
 		}
 
-		m_schema = std::shared_ptr<SchemaDocument>(shape_new SchemaDocument(sd));
+		m_schema = std::shared_ptr<SchemaDocument>(new SchemaDocument(sd));
 
 		loadCache();
 
-		m_dpaTaskQueue = shape_new TaskQueue<SchedulerRecord>([&](const SchedulerRecord &record) {
+		m_dpaTaskQueue = new TaskQueue<SchedulerRecord>([&](const SchedulerRecord &record) {
 			handleScheduledRecord(record);
 		});
 
@@ -263,14 +263,7 @@ namespace iqrf {
 		bool enabled
 	) {
 		auto record = std::shared_ptr<SchedulerRecord>(
-			shape_new SchedulerRecord(
-				clientId,
-				taskId,
-				task,
-				tp,
-				persist,
-				enabled
-			)
+			new SchedulerRecord(clientId, taskId, task, tp, persist, enabled)
 		);
 		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
 		addSchedulerTask(record, enabled);
@@ -296,41 +289,18 @@ namespace iqrf {
 		if (periodic) { // periodic task
 			uint32_t period = Pointer("/period").Get(timeSpec)->GetUint();
 			record = std::shared_ptr<SchedulerRecord>(
-				shape_new SchedulerRecord(
-					clientId,
-					getTaskHandle(taskId),
-					task,
-					std::chrono::seconds(period),
-					persist,
-					enabled
-				)
+				new SchedulerRecord(clientId, getTaskHandle(taskId), task, std::chrono::seconds(period),persist, enabled)
 			);
 		} else if (exactTime) { // oneshot
 			std::string startTime = Pointer("/startTime").Get(timeSpec)->GetString();
 			record = std::shared_ptr<SchedulerRecord>(
-				shape_new SchedulerRecord(
-					clientId,
-					getTaskHandle(taskId),
-					task,
-					startTime,
-					persist,
-					enabled
-				)
+				new SchedulerRecord(clientId, getTaskHandle(taskId), task, false, startTime, persist, enabled)
 			);
 		} else { // cron
-			std::string cronString;
-			CronType cron;
-			const Value* val = Pointer("/cronTime").Get(timeSpec);
-			if (val->IsArray()) {
-				auto it = val->Begin();
-				for (int i = 0; i < 7; i++) {
-					cron[i] = it->GetString();
-					it++;
-				}
-			} else {
-				cronString = val->GetString();
-			}
-			record = std::shared_ptr<SchedulerRecord>(shape_new SchedulerRecord(clientId, getTaskHandle(taskId), task, cronString, cron, persist, enabled));
+			std::string cronString = Pointer("/cronTime").Get(timeSpec)->GetString();
+			record = std::shared_ptr<SchedulerRecord>(
+				new SchedulerRecord(clientId, getTaskHandle(taskId), task, true, cronString, persist, enabled)
+			);
 		}
 		record->setDescription(description);
 		std::lock_guard<std::mutex> lck(m_scheduledTasksMutex);
@@ -649,6 +619,15 @@ namespace iqrf {
 					filename = uuid;
 					updated = true;
 				}
+				val = Pointer("/task").Get(taskDoc);
+				if (val && !val->IsArray()) {
+					rapidjson::Value obj(kObjectType);
+					obj.CopyFrom(*val, taskDoc.GetAllocator());
+					rapidjson::Value arr(kArrayType);
+					arr.PushBack(obj, taskDoc.GetAllocator());
+					Pointer("/task").Set(taskDoc, arr);
+					updated = true;
+				}
 				if (!std::regex_match(basename(filename.c_str()), std::regex(TASK_FILE_PATTERN, std::regex_constants::icase))) {
 					filename = val->GetString();
 					updated = true;
@@ -676,7 +655,7 @@ namespace iqrf {
 #endif
 				}
 
-				std::shared_ptr<SchedulerRecord> record(shape_new SchedulerRecord(taskDoc));
+				std::shared_ptr<SchedulerRecord> record(new SchedulerRecord(taskDoc));
 				record->setPersistence(true);
 
 				// lock and copy

@@ -2,13 +2,13 @@
   "taskId": 25828,
   "clientId": "TestSchedulerPersist",
   "timeSpec": {
-    "cronTime": [ "0", "*/1", "*", "*", "*", "*", "*" ],
+    "cronTime": "0 */1 * * * * *",
     "exactTime": false,
     "periodic": false,
     "period": 0,
     "startTime": "2018-11-21T21:21:16.103930"
   },
-  "task": {
+  "task": [{
     "messaging": "WebsocketMessaging",
     "message": {
       "mType": "iqmeshNetwork_EnumerateDevice",
@@ -21,5 +21,5 @@
         "returnVerbose": true
       }
     }
-  }
+  }]
 }

@@ -40,7 +40,6 @@ namespace iqrf {
   {
   public:
     typedef std::string TaskHandle;
-    typedef std::array<std::string, 7> CronType;
 
     /// Task to be processed handler functional type
     typedef std::function<void(const rapidjson::Value &)> TaskHandlerFunc;

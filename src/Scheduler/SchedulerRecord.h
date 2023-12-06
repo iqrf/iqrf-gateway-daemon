@@ -41,11 +41,12 @@ namespace iqrf {
 		SchedulerRecord() = delete;
 
 		/**
-		 * One-shot task constructor
+		 * One-shot or cron string task constructor
 		 * @param clientId Client ID
 		 * @param taskId Task ID
 		 * @param task Task messages
-		 * @param startTime Task execution timestamp
+		 * @param cron Cron time
+		 * @param timeString Task execution time string or cronstring
 		 * @param persist Persistent task
 		 * @param enabled Start task automatically
 		 */
@@ -53,7 +54,8 @@ namespace iqrf {
 			const std::string &clientId,
 			const std::string &taskId,
 			const rapidjson::Value &task,
-			const std::string &startTime,
+			bool cron,
+			const std::string &timeString,
 			bool persist,
 			bool enabled
 		);
@@ -90,26 +92,6 @@ namespace iqrf {
 			const std::string &taskId,
 			const rapidjson::Value &task,
 			const std::chrono::seconds &period,
-			bool persist,
-			bool enabled
-		);
-
-		/**
-		 * Cron array task constructor
-		 * @param clientId Client ID
-		 * @param taskId Task ID
-		 * @param task Task messages
-		 * @param cronString CRON time string
-		 * @param cronArray CRON time field array
-		 * @param persist Persistent task
-		 * @param enabled Start task automatically
-		 */
-		SchedulerRecord(
-			const std::string &clientId,
-			const std::string &taskId,
-			const rapidjson::Value &task,
-			const std::string &cronString,
-			const ISchedulerService::CronType &cronArray,
 			bool persist,
 			bool enabled
 		);
@@ -264,7 +246,7 @@ namespace iqrf {
 		void parseTimeSpec(const rapidjson::Value &timeSpec);
 
 		/**
-		 * Parses cron array or cron string into task execution time units
+		 * Parses cron string into task execution time units
 		 */
 		void parseCron();
 
@@ -318,8 +300,6 @@ namespace iqrf {
 		std::string m_startTime;
 		/// Execution time point
 		std::chrono::system_clock::time_point m_startTimePoint;
-		/// Cron array
-		ISchedulerService::CronType m_cron;
 		/// Cron string
 		std::string m_cronString;
 		/// Parsed cron expression

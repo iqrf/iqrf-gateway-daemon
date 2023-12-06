@@ -73,19 +73,12 @@
 							"$id": "#/properties/data/properties/rsp/properties/task",
 							"title": "Tasks",
 							"description": "Scheduled task or array of tasks.",
-							"oneOf": [
-								{
-									"$ref": "#/definitions/task"
-								},
-								{
-									"type": "array",
-									"additionalItems": false,
-									"items": {
-										"$id": "#/properties/data/properties/req/properties/task/items",
-										"$ref": "#/definitions/task"
-									}
-								}
-							]
+							"type": "array",
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/req/properties/task/items",
+								"$ref": "#/definitions/task"
+							}
 						},
 						"timeSpec": {
 							"$id": "#/properties/data/properties/req/properties/timespec",
@@ -104,20 +97,7 @@
 								"cronTime": {
 									"title": "cron time",
 									"description": "Array of 7 cron format values or cron alias string",
-									"oneOf": [
-										{
-											"type": "array",
-											"minItems": 7,
-											"maxItems": 7,
-											"additionalItems": false,
-											"items": {
-												"type": "string"
-											}
-										},
-										{
-											"type": "string"
-										}
-									]
+									"type": "string"
 								},
 								"periodic": {
 									"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",

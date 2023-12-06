@@ -28,13 +28,20 @@ namespace iqrf {
 		const std::string &clientId,
 		const std::string &taskId,
 		const rapidjson::Value &task,
-		const std::string &startTime,
+		bool cron,
+		const std::string &timeString,
 		bool persist,
 		bool enabled
-	) : m_clientId(clientId), m_taskId(taskId), m_exactTime(true), m_startTime(startTime), m_persist(persist), m_enabled(enabled)
+	) : m_clientId(clientId), m_taskId(taskId), m_persist(persist), m_enabled(enabled)
 	{
-		TimeConversion::fixTimestamp(m_startTime);
-		m_startTimePoint = DatetimeParser::parse_to_timepoint(m_startTime);
+		if (cron) {
+			m_cronString = timeString;
+		} else {
+			m_exactTime = true;
+			m_startTime = timeString;
+			TimeConversion::fixTimestamp(m_startTime);
+			m_startTimePoint = DatetimeParser::parse_to_timepoint(m_startTime);
+		}
 		init(task);
 	}
 
@@ -62,19 +69,6 @@ namespace iqrf {
 		if (period.count() <= 0) {
 			THROW_EXC_TRC_WAR(std::logic_error, "Period must be at least >= 1sec " << NAME_PAR(period, period.count()))
 		}
-		init(task);
-	}
-
-	SchedulerRecord::SchedulerRecord(
-		const std::string &clientId,
-		const std::string &taskId,
-		const rapidjson::Value &task,
-		const std::string &cronString,
-		const ISchedulerService::CronType &cronArray,
-		bool persist,
-		bool enabled
-	) : m_clientId(clientId), m_taskId(taskId), m_cron(cronArray), m_cronString(cronString), m_persist(persist), m_enabled(enabled)
-	{
 		init(task);
 	}
 
@@ -111,7 +105,6 @@ namespace iqrf {
 		m_exactTime = other.m_exactTime;
 		m_startTime = other.m_startTime;
 		m_startTimePoint = other.m_startTimePoint;
-		m_cron = other.m_cron;
 		m_cronString = other.m_cronString;
 		m_cronExpr = other.m_cronExpr;
 		m_started = other.m_started;
@@ -173,7 +166,6 @@ namespace iqrf {
 	}
 
 	void SchedulerRecord::setTimeSpec(const rapidjson::Value &timeSpec) {
-		m_cron = ISchedulerService::CronType();
 		m_cronString = std::string();
 		parseTimeSpec(timeSpec);
 		parseCron();
@@ -246,16 +238,7 @@ namespace iqrf {
 	void SchedulerRecord::parseTimeSpec(const rapidjson::Value &timeSpec) {
 		using namespace rapidjson;
 		m_timeSpec.CopyFrom(timeSpec, m_timeSpec.GetAllocator());
-		const Value *cron = Pointer("/cronTime").Get(timeSpec);
-		if (cron->IsArray()) {
-			auto it = cron->Begin();
-			for (int i = 0; i < 7; i++) {
-				m_cron[i] = it->GetString();
-				it++;
-			}
-		} else {
-			m_cronString = cron->GetString();
-		}
+		m_cronString = Pointer("/cronTime").Get(timeSpec)->GetString();
 		m_exactTime = Pointer("/exactTime").Get(m_timeSpec)->GetBool();
 		m_periodic = Pointer("/periodic").Get(m_timeSpec)->GetBool();
 		m_period = std::chrono::seconds(Pointer("/period").Get(m_timeSpec)->GetInt());
@@ -279,22 +262,10 @@ namespace iqrf {
 			return;
 		}
 		try {
-			if (!m_cronString.empty()) {
-				if (m_cronString[0] == '@') {
-					m_cronString = resolveCronAlias(m_cronString);
-				}
-				m_cronExpr = cron::make_cron(m_cronString);
-				return;
-
+			if (m_cronString[0] == '@') {
+				m_cronString = resolveCronAlias(m_cronString);
 			}
-			std::ostringstream oss;
-			for (int i = 0, n = m_cron.size(); i < n; ++i) {
-				oss << m_cron[i];
-				if ((i+1) != n) {
-					oss << ' ';
-				}
-			}
-			m_cronExpr = cron::make_cron(oss.str());
+			m_cronExpr = cron::make_cron(m_cronString);
 		} catch (const cron::bad_cronexpr &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, "Cron expression error: " << e.what());
 		}
@@ -302,17 +273,7 @@ namespace iqrf {
 
 	void SchedulerRecord::populateTimeSpec() {
 		using namespace rapidjson;
-		if (m_cronString.length() > 0) {
-			Pointer("/cronTime").Set(m_timeSpec, m_cronString);
-		} else {
-			Pointer("/cronTime/0").Set(m_timeSpec, m_cron[0]);
-			Pointer("/cronTime/1").Set(m_timeSpec, m_cron[1]);
-			Pointer("/cronTime/2").Set(m_timeSpec, m_cron[2]);
-			Pointer("/cronTime/3").Set(m_timeSpec, m_cron[3]);
-			Pointer("/cronTime/4").Set(m_timeSpec, m_cron[4]);
-			Pointer("/cronTime/5").Set(m_timeSpec, m_cron[5]);
-			Pointer("/cronTime/6").Set(m_timeSpec, m_cron[6]);
-		}
+		Pointer("/cronTime").Set(m_timeSpec, m_cronString);
 		Pointer("/exactTime").Set(m_timeSpec, m_exactTime);
 		Pointer("/periodic").Set(m_timeSpec, m_periodic);
 		Pointer("/period").Set(m_timeSpec, (uint64_t)(m_period.count()));

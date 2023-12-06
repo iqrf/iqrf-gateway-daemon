@@ -2,7 +2,7 @@
   "taskId": 79295,
   "clientId": "TestSchedulerMultitask",
   "timeSpec": {
-    "cronTime": [ "", "", "", "", "", "", "" ],
+    "cronTime": "",
     "exactTime": false,
     "periodic": true,
     "period": 2,
