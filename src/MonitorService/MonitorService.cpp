@@ -233,8 +233,8 @@ namespace iqrf {
 
 	void MonitorService::detachInterface(IUdpConnectorService* iface) {
 		if (m_udpConnectorService == iface) {
-			m_udpConnectorService = nullptr;
 			m_udpConnectorService->unregisterModeSetCallback(m_instanceId);
+			m_udpConnectorService = nullptr;
 		}
 	}
 
