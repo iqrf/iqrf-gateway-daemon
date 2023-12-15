@@ -1,10 +1,10 @@
-iqrf-gateway-daemon (2.5.4~alpha~1.gbpa0dbc0) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.5.4) stable; urgency=medium
 
-  ** SNAPSHOT build @a0dbc0c7b91d83d1077a7f584a49c527e267e688 **
+  [ Karel Hanák ]
+  * Prepare for version 2.5.4-alpha
+  * MonitorService: unregister mode change callback before removing interface
 
-  * UNRELEASED
-
- -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 17 Nov 2023 09:30:37 +0100
+ -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 15 Dec 2023 10:22:26 +0100
 
 iqrf-gateway-daemon (2.5.3) stable; urgency=medium
 
