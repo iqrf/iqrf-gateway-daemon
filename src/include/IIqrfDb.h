@@ -135,7 +135,7 @@ namespace iqrf {
 		 */
 		virtual void reloadCoordinatorDrivers() = 0;
 
-		virtual std::vector<Device> getDevice(const uint8_t &addr) = 0;
+		virtual Device getDevice(const uint8_t &addr) = 0;
 
 		/**
 		 * Retrieves information about devices in network

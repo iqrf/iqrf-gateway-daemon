@@ -52,84 +52,86 @@ namespace iqrf {
 	}
 
 	void GetDevicesMsg::createResponsePayload(Document &doc) {
-		Value array(kArrayType);
-		Document::AllocatorType &allocator = doc.GetAllocator();
+		if (m_status == 0) {
+			Value array(kArrayType);
+			Document::AllocatorType &allocator = doc.GetAllocator();
 
-		for (auto &item : devices) {
-			Value object;
-			Device device = std::get<0>(item);
-			Pointer("/address").Set(object, device.getAddress(), allocator);
-			Pointer("/hwpid").Set(object, std::get<1>(item), allocator);
-			if (!brief) {
-				Pointer("/discovered").Set(object, device.isDiscovered(), allocator);
-				Pointer("/vrn").Set(object, device.getVrn(), allocator);
-				Pointer("/zone").Set(object, device.getZone(), allocator);
-				std::shared_ptr<uint8_t> val = device.getParent();
-				if (val) {
-					Pointer("/parent").Set(object, *val.get(), allocator);
-				} else {
-					Pointer("/parent").Create(object, allocator);
-				}
-				Pointer("/mid").Set(object, device.getMid(), allocator);
-				Pointer("/hwpidVersion").Set(object, std::get<2>(item), allocator);
-				Pointer("/osBuild").Set(object, std::get<3>(item), allocator);
-				Pointer("/osVersion").Set(object, std::get<4>(item), allocator);
-				Pointer("/dpa").Set(object, std::get<5>(item), allocator);
-			}
-			std::shared_ptr<std::string> val = device.getName();
-			if (val) {
-				Pointer("/name").Set(object, *val.get(), allocator);
-			} else {
-				Pointer("/name").Create(object, allocator);
-			}
-			val = device.getLocation();
-			if (val) {
-				Pointer("/location").Set(object, *val.get(), allocator);
-			} else {
-				Pointer("/location").Create(object, allocator);
-			}
-
-			// sensor
-			if (includeSensors) {
-				if (sensors.find(device.getAddress()) != sensors.end()) {
-					Value sensorArray(kArrayType);
-					auto sensorVector = sensors[device.getAddress()];
-					for (auto &[ds, s] : sensorVector) {
-						Value sensorObject;
-						Pointer("/index").Set(sensorObject, ds.getGlobalIndex(), allocator);
-						Pointer("/type").Set(sensorObject, s.getType(), allocator);
-						Pointer("/name").Set(sensorObject, s.getName(), allocator);
-						Pointer("/shortname").Set(sensorObject, s.getShortname(), allocator);
-						Pointer("/unit").Set(sensorObject, s.getUnit(), allocator);
-						Pointer("/decimalPlaces").Set(sensorObject, s.getDecimals(), allocator);
-						Pointer("/frc2Bit").Set(sensorObject, s.hasFrc2Bit(), allocator);
-						Pointer("/frc1Byte").Set(sensorObject, s.hasFrc1Byte(), allocator);
-						Pointer("/frc2Byte").Set(sensorObject, s.hasFrc2Byte(), allocator);
-						Pointer("/frc4Byte").Set(sensorObject, s.hasFrc4Byte(), allocator);
-						sensorArray.PushBack(sensorObject, allocator);
+			for (auto &item : devices) {
+				Value object;
+				Device device = std::get<0>(item);
+				Pointer("/address").Set(object, device.getAddress(), allocator);
+				Pointer("/hwpid").Set(object, std::get<1>(item), allocator);
+				if (!brief) {
+					Pointer("/discovered").Set(object, device.isDiscovered(), allocator);
+					Pointer("/vrn").Set(object, device.getVrn(), allocator);
+					Pointer("/zone").Set(object, device.getZone(), allocator);
+					std::shared_ptr<uint8_t> val = device.getParent();
+					if (val) {
+						Pointer("/parent").Set(object, *val.get(), allocator);
+					} else {
+						Pointer("/parent").Create(object, allocator);
 					}
-					Pointer("/sensors").Set(object, sensorArray, allocator);
-				} else {
-					Pointer("/sensors").Create(object, allocator);
+					Pointer("/mid").Set(object, device.getMid(), allocator);
+					Pointer("/hwpidVersion").Set(object, std::get<2>(item), allocator);
+					Pointer("/osBuild").Set(object, std::get<3>(item), allocator);
+					Pointer("/osVersion").Set(object, std::get<4>(item), allocator);
+					Pointer("/dpa").Set(object, std::get<5>(item), allocator);
 				}
+				std::shared_ptr<std::string> val = device.getName();
+				if (val) {
+					Pointer("/name").Set(object, *val.get(), allocator);
+				} else {
+					Pointer("/name").Create(object, allocator);
+				}
+				val = device.getLocation();
+				if (val) {
+					Pointer("/location").Set(object, *val.get(), allocator);
+				} else {
+					Pointer("/location").Create(object, allocator);
+				}
+
+				// sensor
+				if (includeSensors) {
+					if (sensors.find(device.getAddress()) != sensors.end()) {
+						Value sensorArray(kArrayType);
+						auto sensorVector = sensors[device.getAddress()];
+						for (auto &[ds, s] : sensorVector) {
+							Value sensorObject;
+							Pointer("/index").Set(sensorObject, ds.getGlobalIndex(), allocator);
+							Pointer("/type").Set(sensorObject, s.getType(), allocator);
+							Pointer("/name").Set(sensorObject, s.getName(), allocator);
+							Pointer("/shortname").Set(sensorObject, s.getShortname(), allocator);
+							Pointer("/unit").Set(sensorObject, s.getUnit(), allocator);
+							Pointer("/decimalPlaces").Set(sensorObject, s.getDecimals(), allocator);
+							Pointer("/frc2Bit").Set(sensorObject, s.hasFrc2Bit(), allocator);
+							Pointer("/frc1Byte").Set(sensorObject, s.hasFrc1Byte(), allocator);
+							Pointer("/frc2Byte").Set(sensorObject, s.hasFrc2Byte(), allocator);
+							Pointer("/frc4Byte").Set(sensorObject, s.hasFrc4Byte(), allocator);
+							sensorArray.PushBack(sensorObject, allocator);
+						}
+						Pointer("/sensors").Set(object, sensorArray, allocator);
+					} else {
+						Pointer("/sensors").Create(object, allocator);
+					}
+				}
+
+				// binout
+				if (includeBinouts) {
+					if (binouts.find(device.getAddress()) == binouts.end()) {
+						Pointer("/binouts").Create(object, allocator);
+					} else {
+						Value boObject;
+						auto bo = binouts[device.getAddress()];
+						Pointer("/count").Set(boObject, bo, allocator);
+						Pointer("/binouts").Set(object, boObject, allocator);
+					}
+				}
+
+				array.PushBack(object, allocator);
 			}
 
-			// binout
-			if (includeBinouts) {
-				if (binouts.find(device.getAddress()) == binouts.end()) {
-					Pointer("/binouts").Create(object, allocator);
-				} else {
-					Value boObject;
-					auto bo = binouts[device.getAddress()];
-					Pointer("/count").Set(boObject, bo, allocator);
-					Pointer("/binouts").Set(object, boObject, allocator);
-				}
-			}
-
-			array.PushBack(object, allocator);
+			Pointer("/data/rsp/devices").Set(doc, array, allocator);
 		}
-
-		Pointer("/data/rsp/devices").Set(doc, array, allocator);
 		BaseMsg::createResponsePayload(doc);
 	}
 }

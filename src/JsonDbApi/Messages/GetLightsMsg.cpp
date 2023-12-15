@@ -24,17 +24,19 @@ namespace iqrf {
 	}
 
 	void GetLightsMsg::createResponsePayload(Document &doc) {
-		Value array(kArrayType);
-		Document::AllocatorType &allocator = doc.GetAllocator();
+		if (m_status == 0) {
+			Value array(kArrayType);
+			Document::AllocatorType &allocator = doc.GetAllocator();
 
-		for (auto &item : lights) {
-			Value object;
-			Pointer("/address").Set(object, item.first, allocator);
-			Pointer("/count").Set(object, item.second, allocator);
-			array.PushBack(object, allocator);
+			for (auto &item : lights) {
+				Value object;
+				Pointer("/address").Set(object, item.first, allocator);
+				Pointer("/count").Set(object, item.second, allocator);
+				array.PushBack(object, allocator);
+			}
+
+			Pointer("/data/rsp/lightDevices").Set(doc, array, allocator);
 		}
-
-		Pointer("/data/rsp/lightDevices").Set(doc, array, allocator);
 		BaseMsg::createResponsePayload(doc);
 	}
 }
