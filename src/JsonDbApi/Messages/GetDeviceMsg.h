@@ -55,13 +55,13 @@ namespace iqrf {
 	private:
 		/// Indicates whether response should contain brief information
 		bool brief = false;
-        /// Device address
-        uint8_t address;
+		// Device address
+		uint8_t address;
 		/// Vector of devices with product information
 		Device device;
-
-        Product product;
-
+		/// Product info
+		Product product;
+		/// Sensors
 		std::map<uint8_t, Sensor> sensors;
 	};
 }

@@ -44,8 +44,12 @@ bool QueryHandler::deviceExists(const uint8_t &address) {
 	return count > 0;
 }
 
-std::vector<Device> QueryHandler::getDevice(const uint8_t &address) {
-	return db->get_all<Device>(where(c(&Device::getAddress) == address));
+Device QueryHandler::getDevice(const uint8_t &address) {
+	auto devices = db->get_all<Device>(where(c(&Device::getAddress) == address));
+	if (devices.size() == 0) {
+		throw std::logic_error("Device at address " + std::to_string(address) + " does not exist.");
+	}
+	return devices[0];
 }
 
 uint16_t QueryHandler::getDeviceHwpid(const uint8_t &address) {

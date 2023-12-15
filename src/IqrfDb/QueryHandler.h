@@ -63,7 +63,7 @@ public:
 	 * @param address Device address
 	 * @return Device
 	 */
-	std::vector<Device> getDevice(const uint8_t &address);
+	Device getDevice(const uint8_t &address);
 
 	/**
 	 * Returns device MID
