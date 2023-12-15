@@ -74,6 +74,7 @@ namespace iqrf {
 
   protected:
     virtual void createResponsePayload(rapidjson::Document& doc) = 0;
+    int m_status = -1;
 
   private:
     std::string m_mType;
@@ -81,6 +82,5 @@ namespace iqrf {
     bool m_verbose = false;
     std::string m_insId = "iqrfgd2-1";
     std::string m_statusStr = "err";
-    int m_status = -1;
   };
 }

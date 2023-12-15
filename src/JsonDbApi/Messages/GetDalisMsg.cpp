@@ -24,14 +24,16 @@ namespace iqrf {
 	}
 
 	void GetDalisMsg::createResponsePayload(Document &doc) {
-		Value array(kArrayType);
-		Document::AllocatorType &allocator = doc.GetAllocator();
+		if (m_status == 0) {
+			Value array(kArrayType);
+			Document::AllocatorType &allocator = doc.GetAllocator();
 
-		for (auto &item : dalis) {
-			array.PushBack(item, allocator);
+			for (auto &item : dalis) {
+				array.PushBack(item, allocator);
+			}
+
+			Pointer("/data/rsp/daliDevices").Set(doc, array, allocator);
 		}
-
-		Pointer("/data/rsp/daliDevices").Set(doc, array, allocator);
 		BaseMsg::createResponsePayload(doc);
 	}
 }

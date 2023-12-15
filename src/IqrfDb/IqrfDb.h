@@ -108,7 +108,7 @@ namespace iqrf {
 		 * @param addr Device address
 		 * @return Device
 		 */
-		std::vector<Device> getDevice(const uint8_t &addr) override;
+		Device getDevice(const uint8_t &addr) override;
 
 		/**
 		 * Returns vector of devices

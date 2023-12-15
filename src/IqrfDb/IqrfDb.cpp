@@ -89,7 +89,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	std::vector<Device> IqrfDb::getDevice(const uint8_t &addr) {
+	Device IqrfDb::getDevice(const uint8_t &addr) {
 		return this->query.getDevice(addr);
 	}
 
@@ -1118,20 +1118,19 @@ namespace iqrf {
 				}
 
 				// create a new device or update existing
-				auto dbDevice = this->query.getDevice(addr);
 				bool discovered = m_discovered.find(addr) != m_discovered.end();
 				uint32_t mid = m_mids[addr];
 				uint8_t vrn = discovered ? m_vrns[addr] : 0;
 				uint8_t zone = discovered ? m_zones[addr] : 0;
 				std::shared_ptr<uint8_t> parent = discovered ? std::make_shared<uint8_t>(m_parents[addr]) : nullptr;
-				if (dbDevice.size() == 0) {
+				if (!this->query.deviceExists(addr)) {
 					// create new
 					Device device(addr, discovered, mid, vrn, zone, parent);
 					device.setProductId(productId);
 					m_db->insert(device);
 				} else {
 					// update existing
-					Device device = dbDevice[0];
+					Device device = this->query.getDevice(addr);
 					if (device.isDiscovered() != discovered) {
 						device.setDiscovered(discovered);
 					}
