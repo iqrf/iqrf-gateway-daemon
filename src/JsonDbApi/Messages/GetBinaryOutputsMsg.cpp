@@ -24,17 +24,19 @@ namespace iqrf {
 	}
 
 	void GetBinaryOutputsMsg::createResponsePayload(Document &doc) {
-		Value array(kArrayType);
-		Document::AllocatorType &allocator = doc.GetAllocator();
+		if (m_status == 0) {
+			Value array(kArrayType);
+			Document::AllocatorType &allocator = doc.GetAllocator();
 
-		for (auto &item : bos) {
-			Value object;
-			Pointer("/address").Set(object, item.first, allocator);
-			Pointer("/count").Set(object, item.second, allocator);
-			array.PushBack(object, allocator);
+			for (auto &item : bos) {
+				Value object;
+				Pointer("/address").Set(object, item.first, allocator);
+				Pointer("/count").Set(object, item.second, allocator);
+				array.PushBack(object, allocator);
+			}
+
+			Pointer("/data/rsp/binoutDevices").Set(doc, array, allocator);
 		}
-
-		Pointer("/data/rsp/binoutDevices").Set(doc, array, allocator);
 		BaseMsg::createResponsePayload(doc);
 	}
 }
