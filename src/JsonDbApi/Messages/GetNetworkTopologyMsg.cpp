@@ -24,28 +24,30 @@ namespace iqrf {
 	}
 
 	void GetNetworkTopologyMsg::createResponsePayload(Document &doc) {
-		Value array(kArrayType);
-		Document::AllocatorType &allocator = doc.GetAllocator();
+		if (m_status == 0) {
+			Value array(kArrayType);
+			Document::AllocatorType &allocator = doc.GetAllocator();
 
-		for (auto &item : devices) {
-			Value object;
-			Device device = std::get<0>(item);
-			Pointer("/address").Set(object, device.getAddress(), allocator);
-			Pointer("/vrn").Set(object, device.getVrn(), allocator);
-			Pointer("/zone").Set(object, device.getZone(), allocator);
-			std::shared_ptr<uint8_t> val = device.getParent();
-			if (val) {
-				Pointer("/parent").Set(object, *val.get(), allocator);
-			} else {
-				Pointer("/parent").Create(object, allocator);
+			for (auto &item : devices) {
+				Value object;
+				Device device = std::get<0>(item);
+				Pointer("/address").Set(object, device.getAddress(), allocator);
+				Pointer("/vrn").Set(object, device.getVrn(), allocator);
+				Pointer("/zone").Set(object, device.getZone(), allocator);
+				std::shared_ptr<uint8_t> val = device.getParent();
+				if (val) {
+					Pointer("/parent").Set(object, *val.get(), allocator);
+				} else {
+					Pointer("/parent").Create(object, allocator);
+				}
+				Pointer("/os").Set(object, std::get<4>(item), allocator);
+				Pointer("/dpa").Set(object, std::get<5>(item), allocator);
+
+				array.PushBack(object, allocator);
 			}
-			Pointer("/os").Set(object, std::get<4>(item), allocator);
-			Pointer("/dpa").Set(object, std::get<5>(item), allocator);
 
-			array.PushBack(object, allocator);
+			Pointer("/data/rsp/devices").Set(doc, array, allocator);
 		}
-
-		Pointer("/data/rsp/devices").Set(doc, array, allocator);
 		BaseMsg::createResponsePayload(doc);
 	}
 }
