@@ -38,26 +38,28 @@ namespace iqrf {
 	}
 
 	void GetDeviceMetadataMsg::createResponsePayload(Document &doc) {
-		Value array(kArrayType);
-		Document::AllocatorType &allocator = doc.GetAllocator();
+		if (m_status) {
+			Value array(kArrayType);
+			Document::AllocatorType &allocator = doc.GetAllocator();
 
-		for (auto item : deviceMetadata) {
-			Value deviceObject;
-			bool status = std::get<0>(item.second);
-			std::string str = std::get<1>(item.second);
-			Pointer("/address").Set(deviceObject, item.first, allocator);
-			Pointer("/success").Set(deviceObject, status, allocator);
-			if (status) {
-				Document metadataDoc;
-				metadataDoc.Parse(str.c_str());
-				Pointer("/metadata").Set(deviceObject, Value(metadataDoc, allocator).Move(), allocator);
-			} else {
-				Pointer("/errorStr").Set(deviceObject, str, allocator);
+			for (auto item : deviceMetadata) {
+				Value deviceObject;
+				bool status = std::get<0>(item.second);
+				std::string str = std::get<1>(item.second);
+				Pointer("/address").Set(deviceObject, item.first, allocator);
+				Pointer("/success").Set(deviceObject, status, allocator);
+				if (status) {
+					Document metadataDoc;
+					metadataDoc.Parse(str.c_str());
+					Pointer("/metadata").Set(deviceObject, Value(metadataDoc, allocator).Move(), allocator);
+				} else {
+					Pointer("/errorStr").Set(deviceObject, str, allocator);
+				}
+				array.PushBack(deviceObject, allocator);
 			}
-			array.PushBack(deviceObject, allocator);
-		}
 
-		Pointer("/data/rsp/devices").Set(doc, array, allocator);
+			Pointer("/data/rsp/devices").Set(doc, array, allocator);
+		}
 		BaseMsg::createResponsePayload(doc);
 	}
 }
