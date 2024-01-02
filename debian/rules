@@ -50,6 +50,9 @@ override_dh_fixperms:
 override_dh_auto_install:
 	echo "skip make install"
 
+override_dh_builddeb:
+	dh_builddeb -- -Zxz -z6
+
 override_dh_install:
 	dh_install
 	#release: rm components from package: IqrfInfo, AutoNetwork, OTA
