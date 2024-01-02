@@ -1,10 +1,12 @@
-iqrf-gateway-daemon (2.5.5~alpha~1.gbpf2c3c2) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.5.5) stable; urgency=medium
 
-  ** SNAPSHOT build @f2c3c26affc862514246f71f563e6ca6991d8523 **
+  [ Karel Hanák ]
+  * Prepare for version 2.5.5-alpha
 
-  * UNRELEASED
+  [ Roman Ondráček ]
+  * Debian packaging: use xz compression type for package packing
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Fri, 15 Dec 2023 10:32:04 +0100
+ -- Roman Ondráček <mail@romanondracek.cz>  Tue, 02 Jan 2024 15:08:56 +0100
 
 iqrf-gateway-daemon (2.5.4) stable; urgency=medium
 
