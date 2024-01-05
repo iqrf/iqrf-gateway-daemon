@@ -94,42 +94,6 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void JsRenderDuktape::callContext(int address, int hwpid, const std::string &fname, const std::string &params, std::string &ret) {
-		TRC_FUNCTION_ENTER(PAR(address) << PAR(hwpid) << PAR(fname));
-		int contextId = 0;
-		std::unique_lock<std::mutex> lck(m_contextMtx);
-
-		auto fctx = m_addressContextMap.find(address);
-		if (fctx != m_addressContextMap.end()) { // address context found
-			contextId = fctx->second;
-			auto found = m_contexts.find(contextId);
-			if (found != m_contexts.end()) {
-				TRC_DEBUG("Found address context: " << PAR(address) << PAR(contextId) << PAR(fname));
-				found->second->callFunction(fname, params, ret);
-			} else {
-				THROW_EXC_TRC_WAR(std::logic_error, "Cannot find JS context for address: " << PAR(address) << PAR(contextId) << PAR(fname));
-			}
-		} else {
-			uint16_t uhwpid = (uint16_t)hwpid;
-			contextId = HWPID_MAPPING_SPACE - (int)uhwpid;
-			auto found = m_contexts.find(contextId);
-			if (found != m_contexts.end()) { // hwpid context found
-				TRC_DEBUG("Using provisional hwpid context: " << PAR(uhwpid) << PAR(contextId) << PAR(fname));
-				found->second->callFunction(fname, params, ret);
-			} else { // default context
-				contextId = HWPID_DEFAULT_MAPPING;
-				found = m_contexts.find(contextId);
-				if (found != m_contexts.end()) {
-					TRC_DEBUG("Using default provisional hwpid context: " << PAR(uhwpid) << PAR(contextId) << PAR(fname));
-					found->second->callFunction(fname, params, ret);
-				} else {
-					THROW_EXC_TRC_WAR(std::logic_error, "Cannot find any usable context: " << PAR(address) << PAR(uhwpid) << PAR(contextId) << PAR(fname));
-				}
-			}
-		}
-		TRC_FUNCTION_LEAVE("");
-	}
-
 	std::set<int> JsRenderDuktape::getDriverIdSet(int contextId) const {
 		std::unique_lock<std::mutex> lck(m_contextMtx);
 		auto found = m_contextDriverMap.find(contextId);
@@ -137,6 +101,79 @@ namespace iqrf {
 			return found->second;
 		}
 		return std::set<int>();
+	}
+
+	void JsRenderDuktape::callContext(int address, int hwpid, const std::string &fname, const std::string &params, std::string &ret) {
+		TRC_FUNCTION_ENTER(PAR(address) << PAR(hwpid) << PAR(fname));
+		std::unique_lock<std::mutex> lck(m_contextMtx);
+
+		bool addrContextUsed = true;
+		std::shared_ptr<Context> ctx;
+		try {
+			ctx = findAddressContext(address);
+			if (ctx == nullptr) {
+				addrContextUsed = false;
+				ctx = findHwpidContext(hwpid);
+			}
+		} catch (const std::logic_error &e) {
+			CATCH_EXC_TRC_WAR(std::logic_error, e, e.what());
+			THROW_EXC_TRC_WAR(std::logic_error, "Cannot find any usable context: " << PAR(address) << PAR(hwpid));
+		}
+		if (address == 0 && addrContextUsed) {
+			bool driverError = false;
+			try {
+				ctx->callFunction(fname, params, ret);
+			} catch (const PeripheralException &e) {
+				driverError = true;
+			} catch (const PeripheralCommandException &e) {
+				driverError = true;
+			}
+			if (driverError) {
+				TRC_DEBUG("Addr 0 context missing peripheral or command, retrying with provisional context.");
+				int contextId = HWPID_DEFAULT_MAPPING;
+				auto found = m_contexts.find(contextId);
+				if (found == m_contexts.end()) {
+					THROW_EXC_TRC_WAR(std::logic_error, "Default hwpid context not found for addr 0 fallback context.");
+				}
+				ctx = found->second;
+				ctx->callFunction(fname, params, ret);
+			}
+		} else {
+			ctx->callFunction(fname, params, ret);
+		}
+		TRC_FUNCTION_LEAVE("");
+	}
+
+	std::shared_ptr<Context> JsRenderDuktape::findAddressContext(int address) {
+		auto addrContext = m_addressContextMap.find(address);
+		if (addrContext == m_addressContextMap.end()) {
+			return nullptr;
+		}
+		int contextId = addrContext->second;
+		auto context = m_contexts.find(contextId);
+		if (context == m_contexts.end()) {
+			THROW_EXC_TRC_WAR(std::logic_error, "Cannot find JS context for address: " << PAR(address) << PAR(contextId));
+		}
+		TRC_DEBUG("Found address context: " << PAR(address) << PAR(contextId));
+		return context->second;
+	}
+
+	std::shared_ptr<Context> JsRenderDuktape::findHwpidContext(int hwpid) {
+		uint16_t uhwpid = (uint16_t)hwpid;
+		int contextId = HWPID_MAPPING_SPACE - (int)uhwpid;
+		auto context = m_contexts.find(contextId);
+		if (context == m_contexts.end()) {
+			contextId = HWPID_DEFAULT_MAPPING;
+			context = m_contexts.find(contextId);
+		} else {
+			TRC_DEBUG("Using provisional hwpid context: " << PAR(uhwpid) << PAR(contextId));
+		}
+		if (context == m_contexts.end()) {
+			THROW_EXC_TRC_WAR(std::logic_error, "Default hwpid context not found.");
+		} else {
+			TRC_DEBUG("Using default provisional hwpid context: " << PAR(uhwpid) << PAR(contextId));
+		}
+		return context->second;
 	}
 
 	void JsRenderDuktape::clearContexts() {
