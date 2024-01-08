@@ -38,7 +38,7 @@ namespace iqrf {
 	}
 
 	void GetDeviceMetadataMsg::createResponsePayload(Document &doc) {
-		if (m_status) {
+		if (m_status == 0) {
 			Value array(kArrayType);
 			Document::AllocatorType &allocator = doc.GetAllocator();
 

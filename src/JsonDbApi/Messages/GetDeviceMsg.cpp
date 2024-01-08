@@ -20,7 +20,7 @@
 namespace iqrf {
 
 	GetDeviceMsg::GetDeviceMsg(const Document &doc) : BaseMsg(doc) {
-        address = static_cast<uint8_t>(Pointer("/data/req/address").Get(doc)->GetUint());
+		address = static_cast<uint8_t>(Pointer("/data/req/address").Get(doc)->GetUint());
 		const Value *v = Pointer("/data/req/brief").Get(doc);
 		if (v) {
 			brief = v->GetBool();
