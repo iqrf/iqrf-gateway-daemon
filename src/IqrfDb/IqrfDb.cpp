@@ -1426,7 +1426,7 @@ namespace iqrf {
 		}
 
 		std::stringstream ss;
-		std::set<int> driversToLoad;
+		std::set<uint32_t> driversToLoad;
 
 		for (auto &driver : drivers) {
 			int id = driver.first;
@@ -1476,27 +1476,14 @@ namespace iqrf {
 			// check if device drivers need to be reloaded
 			for (auto &pd : productsDrivers) {
 				const uint8_t productId = pd.first;
-				if (productId == coordinatorProductId) {
-					continue;
-				}
 				const std::set<uint32_t> &dbDrivers = pd.second;
 				auto currentDrivers = m_renderService->getDriverIdSet(productId);
-				if (currentDrivers.size() != dbDrivers.size()) {
+				if (currentDrivers != dbDrivers) {
 					reloadDevices.insert(productId);
-				} else {
-					auto dbId = dbDrivers.begin();
-					for (auto currentId : currentDrivers) {
-						if (*dbId++ != currentId) {
-							reloadDevices.insert(productId);
-							break;
-						}
-					}
 				}
 			}
 
 			if (reloadDevices.size() > 0) {
-				reloadDevices.insert(coordinatorProductId);
-
 				for (uint32_t productId : reloadDevices) {
 					std::string customDriver = this->query.getProductCustomDriver(productId);
 					std::vector<Driver> drivers = this->query.getProductDrivers(productId);
@@ -1507,7 +1494,7 @@ namespace iqrf {
 
 					std::ostringstream drv, adr;
 					std::stringstream ss;
-					std::set<int> driverSet;
+					std::set<uint32_t> driverSet;
 					for (auto driver : drivers) {
 						driverSet.insert(driver.getId());
 						ss << driver.getDriver() << std::endl;
