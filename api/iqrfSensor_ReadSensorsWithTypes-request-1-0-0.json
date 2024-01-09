@@ -54,10 +54,10 @@
 									"oneOf": [
 										{ "type": "null" },
 										{ "type": "integer" },
-										{ "type": "array", 
+										{ "type": "array",
 											"items": {
 												"type":"integer"
-											}  
+											}
 										}
 									],
 									"description": "Specifies sensors to read data from. Undefined: Missing parameter: reads 1st sensor. Number: -1: reads all sensors. Array: array of indexes: specifies sensors to read."
@@ -67,8 +67,12 @@
 									"minItems": 1,
 									"items": {
 										"type": "array",
+										"minItems": 5,
+										"maxItems": 5,
 										"items": {
-											"type": "integer"
+											"type": "integer",
+											"minimum": 0,
+											"maximum": 255
 										}
 									}
 								}
