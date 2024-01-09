@@ -265,9 +265,9 @@ namespace iqrf {
       if (driverRequestError) {
         //provide error response
         FakeTransactionResult fr;
+        fr.setErrorString(errStrReq);
         if (errorCode != 0) {
           fr.overrideErrorCode(static_cast<IDpaTransactionResult2::ErrorCode>(errorCode));
-          fr.setErrorString(errStrReq);
         }
         com->setStatus(fr.getErrorString(), fr.getErrorCode());
         com->createResponse(allResponseDoc, fr);
