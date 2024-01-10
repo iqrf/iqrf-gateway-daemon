@@ -1,10 +1,14 @@
-iqrf-gateway-daemon (2.5.6~alpha~1.gbpf5f1e9) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.5.6) stable; urgency=medium
 
-  ** SNAPSHOT build @f5f1e910f591dbbdeb30c22a4a7e061f38a37134 **
+  [ Roman Ondráček ]
+  * Prepare for version 2.5.6-alpha
 
-  * UNRELEASED
+  [ Karel Hanák ]
+  * JsonDpaApiIqrfStandard: pass error message to response when driver request error occurs
+  * JsRenderDuktape: use default HWPID context as fallback in case of missing driver peripheral namespaces for address 0
+  * IqrfInfo: always load coordinator device drivers
 
- -- Roman Ondráček <mail@romanondracek.cz>  Tue, 02 Jan 2024 15:11:11 +0100
+ -- Karel Hanák <karel.hanak@iqrf.org>  Wed, 10 Jan 2024 11:26:30 +0100
 
 iqrf-gateway-daemon (2.5.5) stable; urgency=medium
 
