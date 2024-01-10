@@ -1339,7 +1339,6 @@ namespace iqrf {
         for (auto it : mapDeviceIdDriverIdSet) {
           int deviceId = it.first;
           const std::set<int> & driversIdSet = it.second;
-          if (deviceId == coordDeviceId) continue; // don't compare [C] will be reloaded anyway in case of reload any device
 
           // drivers reload only if set of drivers differs from previous one
           auto origDriversIdSet = m_iJsRenderService->getDriverIdSet(deviceId);

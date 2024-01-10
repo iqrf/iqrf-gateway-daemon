@@ -120,6 +120,20 @@ namespace iqrf {
 		 */
 		void detachInterface(shape::ITraceService *iface);
 	private:
+		/**
+		 * Attempts to find context by device address
+		 * @param address Device address
+		 * @return Context
+		 */
+		std::shared_ptr<Context> findAddressContext(int address);
+
+		/**
+		 * Attempts to find context by HWPID with default HWPID fallback
+		 * @param hwpid HWPID
+		 * @return Context
+		 */
+		std::shared_ptr<Context> findHwpidContext(int hwpid);
+
 		/// context mutex
 		mutable std::mutex m_contextMtx;
 		/// map of contexts
