@@ -698,10 +698,10 @@ namespace iqrf {
 		peripheralEnumerationPacket.DpaRequestPacket_t.PNUM = PNUM_ENUMERATION;
 		peripheralEnumerationPacket.DpaRequestPacket_t.PCMD = CMD_GET_PER_INFO;
 		peripheralEnumerationPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-		for (const uint8_t addr : m_toEnumerate) {
+		for (auto it = m_toEnumerate.begin(); it != m_toEnumerate.end(); ) {
 			try {
 				// Build OS Read request
-				osReadPacket.DpaRequestPacket_t.NADR = addr;
+				osReadPacket.DpaRequestPacket_t.NADR = *it;
 				osReadRequest.DataToBuffer(osReadPacket.Buffer, sizeof(TDpaIFaceHeader));
 				// Execute OS Read request
 				m_dpaService->executeDpaTransactionRepeat(osReadRequest, result, 1);
@@ -711,7 +711,7 @@ namespace iqrf {
 				uint16_t osBuild = osRead.OsBuild;
 				std::string osVersion = common::device::osVersionString(osRead.OsVersion, osRead.McuType);
 				// Build peripheral enumeration request
-				peripheralEnumerationPacket.DpaRequestPacket_t.NADR = addr;
+				peripheralEnumerationPacket.DpaRequestPacket_t.NADR = *it;
 				peripheralEnumerationRequest.DataToBuffer(peripheralEnumerationPacket.Buffer, sizeof(TDpaIFaceHeader));
 				// Execute peripheral enumeration request
 				m_dpaService->executeDpaTransactionRepeat(peripheralEnumerationRequest, result, 1);
@@ -727,10 +727,11 @@ namespace iqrf {
 					Product product(hwpid, hwpidVersion, osBuild, osVersion, dpaVersion);
 					m_productMap.insert(std::make_pair(uniqueProduct, product));
 				}
-				m_deviceProductMap.insert(std::make_pair(addr, std::make_shared<Product>(m_productMap[uniqueProduct])));
+				m_deviceProductMap.insert(std::make_pair(*it, std::make_shared<Product>(m_productMap[uniqueProduct])));
+				++it;
 			} catch (const std::exception &e) {
-				m_toEnumerate.erase(addr);
-				TRC_WARNING("Failed to enumerate node at address " << std::to_string(addr) << ": " << e.what());
+				TRC_WARNING("Failed to enumerate node at address " << static_cast<unsigned>(*it) << ": " << e.what());
+				m_toEnumerate.erase(*it++);
 			}
 		}
 		TRC_FUNCTION_LEAVE("");
