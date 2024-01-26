@@ -23,7 +23,7 @@ TRC_INIT_MODULE(iqrf::DpaHopsService)
 /// iqrf namespace
 namespace iqrf {
 
-    DpaHopsService::DpaHopsService() {
+  DpaHopsService::DpaHopsService() {
 		TRC_FUNCTION_ENTER("");
 		TRC_FUNCTION_LEAVE("");
 	}
