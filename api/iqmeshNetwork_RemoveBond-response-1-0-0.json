@@ -11,9 +11,7 @@
     "mType": {
       "type": "string",
       "description": "IQMESH Network management - Remove bond response.",
-      "enum": [
-        "iqmeshNetwork_RemoveBond"
-      ]
+      "enum": ["iqmeshNetwork_RemoveBond"]
     },
     "data": {
       "type": "object",

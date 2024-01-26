@@ -1,67 +1,112 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_RemoveBond-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - remove bond.",
-      "enum": [
-        "iqmeshNetwork_RemoveBond"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "repeat": {
-          "type": "integer",
-          "description": "Number of repetitions of DPA messages.",
-          "default": 1
-        },
-        "req": {
-          "type": "object",
-          "properties": {
-            "deviceAddr": {
-              "type": "integer",
-              "description": "Address (1..239) of Node to remove, 255 to remove all bonded nodes."
-            },
-            "wholeNetwork": {
-              "type": "boolean",
-              "description": "Undobds all bonded Nodes.",
-              "default": false
-            },
-            "hwpId": {
-              "type": "integer",
-              "description": "HWP ID of ode to remove.",
-              "default": 65535
-            }
-          },
-          "required": [
-            "deviceAddr"
-          ]
-        },
-        "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
-        }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
-    }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"self": {
+		"vendor": "com.iqrftech.self-desc",
+		"name": "iqmeshNetwork_RemoveBond-request",
+		"format": "jsonschema",
+		"version": "1-0-0"
+	},
+	"title": "IQMESH Network - RemoveBond",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "IQMESH Network management - RemoveBond request.",
+			"type": "string",
+			"enum": ["iqmeshNetwork_RemoveBond"]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data.",
+			"description": "Message metadata and body.",
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message ID used for pairing requests and responses.",
+					"type": "string"
+				},
+				"repeat": {
+					"$id": "#/properties/data/properties/repeat",
+					"title": "Repeat request",
+					"description": "Number of repetitions of DPA messages.",
+					"type": "integer",
+					"default": 1
+				},
+				"req": {
+					"$id": "#/properties/data/properties/req",
+					"title": "Request parameters",
+					"description": "Request parameters.",
+					"type": "object",
+					"additionalProperties": false,
+					"oneOf": [
+						{
+							"required": ["deviceAddr"]
+						},
+						{
+							"required": ["wholeNetwork"]
+						}
+					],
+					"properties": {
+						"deviceAddr": {
+							"$id": "#/properties/data/properties/req/properties/deviceAddr",
+							"title": "Device(s) to unbond",
+							"description": "Address of device or array of device addresses to unbond.",
+							"oneOf": [
+								{
+									"type": "integer",
+									"minimum": 1,
+									"maximum": 239
+								},
+								{
+									"type": "array",
+									"uniqueItems": true,
+									"additionalItems": false,
+									"maxItems": 239,
+									"items": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 239
+									}
+								}
+							]
+						},
+						"wholeNetwork": {
+							"$id": "#/properties/data/properties/req/properties/wholeNetwork",
+							"type": "boolean",
+							"title": "Unbond all",
+							"description": "Unbond all devices in network.",
+							"enum": [true]
+						},
+						"hwpId": {
+							"$id": "#/properties/data/properties/req/properties/hwpId",
+							"title": "HWPID filter",
+							"description": "Unbond devices with specified HWPID only.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 65535
+						}
+					}
+				},
+				"returnVerbose": {
+					"$id": "#/properties/data/properties/returnVerbose",
+					"title": "Verbose response",
+					"description": "Return more verbose response.",
+					"type": "boolean"
+				}
+			}
+		}
+	}
 }
