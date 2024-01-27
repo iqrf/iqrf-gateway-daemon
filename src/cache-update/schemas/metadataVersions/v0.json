@@ -1,0 +1,83 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "v0.json",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "profiles": {
+            "type": "array",
+            "additionalItems": false,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "hwpidVersions": {
+                        "type": "object",
+                        "required": [
+                            "min",
+                            "max"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "min": {
+                                "title": "Minimum revision version",
+                                "description": "Minimum HWPID version the profile applies to.",
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "max": {
+                                "title": "Maximum revision version",
+                                "description": "Maximum HWPID version the profile applies to. Value -1 represents no maximum version.",
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "routing": {
+                        "title": "Routing device",
+                        "description": "Device is capable of routing packets in network.",
+                        "type": "boolean"
+                    },
+                    "beaming": {
+                        "title": "Beaming device",
+                        "description": "Device beams data in intervals and sleeps otherwise.",
+                        "type": "boolean"
+                    },
+                    "repeater": {
+                        "title": "Repeater device",
+                        "description": "Device is a repeater.",
+                        "type": "boolean"
+                    },
+                    "frcAggregation": {
+                        "title": "FRC aggregation",
+                        "description": "Device is capable of aggregating FRC data from other devices.",
+                        "type": "boolean"
+                    },
+                    "iqarosCompatible": {
+                        "title": "IQAROS compatible",
+                        "description": "Device is compatible with the IQAROS system.",
+                        "type": "boolean"
+                    },
+                    "iqrfSensor": {
+                        "title": "Device sensors",
+                        "description": "Sensors implemented by the device.",
+                        "type": "array",
+                        "additionalItems": false,
+                        "items": {
+                            "title": "Sensor type",
+                            "description": "Unique identifier of IQRF Sensor Standard quantity.",
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 255
+                        }
+                    },
+                    "iqrfBinaryOutput": {
+                        "title": "Binary Output standard",
+                        "description": "Number of binary outputs this device implements.",
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                }
+            }
+        }
+    }
+}

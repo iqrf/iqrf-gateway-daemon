@@ -429,16 +429,16 @@ namespace iqrf {
         // Read OS of new node
         osRead(bondResult);
 
-        IJsCacheService::Manufacturer manufacturer = m_iJsCacheService->getManufacturer(bondResult.getHwpId());
-        if (manufacturer.m_manufacturerId > -1)
+        std::shared_ptr<IJsCacheService::Manufacturer> manufacturer = m_iJsCacheService->getManufacturer(bondResult.getHwpId());
+        if (manufacturer != nullptr)
         {
-          bondResult.setManufacturer(manufacturer.m_name);
+          bondResult.setManufacturer(manufacturer->m_name);
         }
 
-        IJsCacheService::Product product = m_iJsCacheService->getProduct(bondResult.getHwpId());
-        if (product.m_manufacturerId > -1)
+        std::shared_ptr<IJsCacheService::Product> product = m_iJsCacheService->getProduct(bondResult.getHwpId());
+        if (product != nullptr)
         {
-          bondResult.setProduct(product.m_name);
+          bondResult.setProduct(product->m_name);
         }
 
         std::string osBuildStr;
@@ -449,16 +449,16 @@ namespace iqrf {
           osBuildStr = os.str();
         }
 
-        IJsCacheService::Package package = m_iJsCacheService->getPackage(
+        std::shared_ptr<IJsCacheService::Package> package = m_iJsCacheService->getPackage(
           bondResult.getHwpId(),
           bondResult.getHwpIdVersion(),
           osBuildStr,
           m_iIqrfDpaService->getCoordinatorParameters().dpaVerWordAsStr
         );
-        if (package.m_packageId > -1)
+        if (package != nullptr)
         {
           std::list<std::string> standards;
-          for (const IJsCacheService::StdDriver & driver : package.m_stdDriverVect)
+          for (const IJsCacheService::StdDriver & driver : package->m_stdDriverVect)
           {
             standards.push_back(driver.getName());
           }

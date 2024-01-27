@@ -38,7 +38,6 @@ DeployShapeConfiguration(${PROJECT_NAME}
 	${CMAKE_CURRENT_SOURCE_DIR}/configuration					configuration
 	${CMAKE_SOURCE_DIR}/api 									configuration/apiSchemas
 	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/javaScript 		configuration/javaScript
-	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/scheduler 			configuration/scheduler
 	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/schedulerSchemas 	configuration/schedulerSchemas
 	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/DB/init 			configuration//DB/init
 	${CMAKE_SOURCE_DIR}/src/start-IqrfDaemon/iqrfRepoCache 		configuration/iqrfRepoCache

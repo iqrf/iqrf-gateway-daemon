@@ -22,3 +22,12 @@
 [submodule "libraries/date"]
 	path = libraries/date
 	url = https://github.com/HowardHinnant/date.git
+[submodule "libraries/nlohmann_json"]
+	path = libraries/nlohmann_json
+	url = https://github.com/nlohmann/json
+[submodule "libraries/valijson"]
+	path = libraries/valijson
+	url = https://github.com/tristanpenman/valijson.git
+[submodule "libraries/cpr"]
+	path = libraries/cpr
+	url = https://github.com/libcpr/cpr.git

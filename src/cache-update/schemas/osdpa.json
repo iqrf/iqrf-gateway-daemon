@@ -1,0 +1,77 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "osdpa.json",
+	"title": "OS-DPA schema",
+	"description": "IQRF Repository OS-DPA data schema.",
+	"type": "array",
+	"additionalItems": false,
+	"items": {
+		"title": "OS-DPA item",
+		"type": "object",
+		"required": [
+      "os",
+      "dpa",
+      "notes"
+		],
+		"additionalProperties": false,
+		"properties": {
+      "os": {
+        "title": "OS build",
+        "type": "string",
+        "format": "^[0-9a-fA-F]+$"
+      },
+      "dpa": {
+        "title": "DPA version",
+        "type": "string",
+        "format": "^[0-9a-fA-F]+$"
+      },
+      "notes": {
+        "title": "OS-DPA notes",
+        "type": "string"
+      },
+      "osDpaID": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "osVersion": {
+        "title": "OS version",
+        "type": "string"
+      },
+      "osTrFamily": {
+        "title": "OS TR family",
+        "type": "string"
+      },
+      "osDownloadPath": {
+        "title": "OS downloads URL",
+        "type": "string"
+      },
+      "dpaDownloadPath": {
+        "title": "DPA downloads URL",
+        "type": "string"
+      },
+      "downloadPath": {
+        "title": "Downloads URL",
+        "type": "string"
+      },
+      "osAttributes": {
+        "title": "OS flags",
+        "type": "integer",
+        "minimum": 0
+      },
+      "dpaAttributes": {
+        "title": "DPA flags",
+        "type": "integer",
+        "minimum": 0
+      },
+      "compatibility": {
+        "title": "Compatibility flags",
+        "type": "array",
+        "additionalItems": false,
+        "items": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+		}
+	}
+}

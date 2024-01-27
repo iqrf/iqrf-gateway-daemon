@@ -56,6 +56,7 @@ target_link_libraries(${PROJECT_NAME}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${LIBZIP_LIBRARY}
+  nlohmann_json::nlohmann_json
 )
 
 DeployShapeComponent(${PROJECT_NAME})

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.18)
 
 project(iqrf-gateway-daemon)
 
@@ -54,6 +54,8 @@ add_definitions(
   -D_CRT_SECURE_NO_WARNINGS
 )
 
+find_package(CURL REQUIRED)
+
 add_subdirectory(libraries/clibspi  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibcdc  EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/clibdpa  EXCLUDE_FROM_ALL)
@@ -61,6 +63,11 @@ add_subdirectory(libraries/clibuart EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/iqrf-header-parser EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/croncpp EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/date EXCLUDE_FROM_ALL)
+add_subdirectory(libraries/cpr EXCLUDE_FROM_ALL)
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(libraries/nlohmann_json EXCLUDE_FROM_ALL)
+set(valijson_BUILD_TESTS OFF)
+add_subdirectory(libraries/valijson EXCLUDE_FROM_ALL)
 
 #add_subdirectory(src)
 
@@ -70,6 +77,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/include)
 
 add_subdirectory(src/include)
 add_subdirectory(src/start-IqrfDaemon)
+add_subdirectory(src/cache-update)
 add_subdirectory(src/Scheduler)
 add_subdirectory(src/IqrfCdc)
 if (WIN32)
