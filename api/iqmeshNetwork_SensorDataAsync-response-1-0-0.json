@@ -44,10 +44,16 @@
 					"description": "Response object.",
 					"type": "object",
 					"required": [
-						"devices"
+						"reading"
 					],
 					"additionalProperties": false,
 					"properties": {
+						"reading": {
+							"$id": "#/properties/data/properties/rsp/properties/reading",
+							"title": "Reading data",
+							"description": "Sensor data reading in progress.",
+							"type": "boolean"
+						},
 						"devices": {
 							"$id": "#/properties/data/properties/rsp/properties/devices",
 							"title": "Devices",

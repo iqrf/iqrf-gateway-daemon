@@ -312,15 +312,22 @@ namespace iqrf {
 
 			try {
 				SensorDataResult result;
+				if (m_asyncReports) {
+					Document doc;
+					result.setMessageType(m_messageTypeAsync);
+					result.setMessageId("async");
+					result.createStartMessage(doc);
+					m_splitterService->sendMessage(m_messagingList, std::move(doc));
+				}
 				getDataByFrc(result);
 				m_dbService->updateSensorValues(result.getSensorData());
 				m_exclusiveAccess.reset();
 				if (m_asyncReports) {
-					Document response;
+					Document doc;
 					result.setMessageType(m_messageTypeAsync);
 					result.setMessageId("async");
-					result.createResponse(response);
-					m_splitterService->sendMessage(m_messagingList, std::move(response));
+					result.createResultMessage(doc);
+					m_splitterService->sendMessage(m_messagingList, std::move(doc));
 				}
 			} catch (const std::exception &e) {
 				CATCH_EXC_TRC_WAR(std::exception, e, e.what());

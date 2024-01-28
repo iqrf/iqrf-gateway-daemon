@@ -126,18 +126,24 @@ namespace iqrf {
 			return m_sensorData;
 		}
 
+		void createStartMessage(Document &doc) {
+			ServiceResultBase::setResponseMetadata(doc);
+			Pointer("/data/rsp/reading").Set(doc, true);
+			ServiceResultBase::createResponse(doc);
+		}
+
 		/**
 		 * Populates response document
 		 * @param response Response document
 		 */
-		void createResponse(Document &response) {
+		void createResultMessage(Document &doc) {
 			// Default parameters
-			ServiceResultBase::setResponseMetadata(response);
+			ServiceResultBase::setResponseMetadata(doc);
 
 			// Service results
 			if (m_status == 0) {
 				Value array(kArrayType);
-				Document::AllocatorType &allocator = response.GetAllocator();
+				Document::AllocatorType &allocator = doc.GetAllocator();
 				// devices
 				for (auto &deviceItem : m_sensorData) {
 					Value device(kObjectType);
@@ -194,11 +200,12 @@ namespace iqrf {
 					Pointer("/sensors").Set(device, sensorArray, allocator);
 					array.PushBack(device, allocator);
 				}
-				Pointer("/data/rsp/devices").Set(response, array, allocator);
+				Pointer("/data/rsp/devices").Set(doc, array, allocator);
+				Pointer("/data/rsp/reading").Set(doc, false);
 			}
 
 			// Transactions and error codes
-			ServiceResultBase::createResponse(response);
+			ServiceResultBase::createResponse(doc);
 		}
 	private:
 		/// Device metadata
