@@ -1,0 +1,9 @@
+{
+  "component": "iqrf::IqrfSensorData",
+  "instance": "iqrf::IqrfSensorData-Instance1",
+  "autoRun": false,
+  "period": 10,
+  "retryPeriod": 1,
+  "asyncReports": true,
+  "messagingList": []
+}

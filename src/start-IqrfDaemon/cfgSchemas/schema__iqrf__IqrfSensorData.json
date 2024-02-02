@@ -20,12 +20,12 @@
       "component": {
         "type": "string",
         "description": "Name of component.",
-        "enum": ["iqrf::SensorDataService"]
+        "enum": ["iqrf::IqrfSensorData"]
       },
       "instance": {
         "type": "string",
-        "description": "Recomended iqrf::SensorDataService-(id)",
-        "default": "iqrf::SensorDataService-1"
+        "description": "Recomended iqrf::IqrfSensorData-(id)",
+        "default": "iqrf::IqrfSensorData-1"
       },
       "autoRun": {
         "description": "Run worker on component startup.",
