@@ -43,77 +43,84 @@
 					"title": "Response object",
 					"description": "Response object.",
 					"oneOf": [
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "command"
-              ],
-              "properties": {
-                "command": {
-                  "$id": "#/properties/data/properties/req/properties/command",
-                  "title": "Request command",
-                  "description": "start - start reading worker; stop - stop reading worker; now - invoke reading; getConfig - retrieve current configuration; setConfig - update configuration",
-                  "enum": [
-                    "getConfig"
-                  ]
-                },
-                "autoRun": {
-                  "$id": "#/properties/data/properties/req/properties/autoRun",
-                  "title": "Run worker automatically",
-                  "description": "Start sensor data reading worker on startup.",
-                  "type": "boolean"
-                },
-                "period": {
-                  "$id": "#/properties/data/properties/req/properties/period",
-                  "title": "Reading period",
-                  "description": "Time between data reads in minutes.",
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "asyncReports": {
-                  "$id": "#/properties/data/properties/req/properties/asyncReports",
-                  "title": "Asynchronous reports",
-                  "description": "Sends asynchronous messages reporting results when sensor read concludes.",
-                  "type": "boolean"
-                },
-                "messagingList": {
-                  "$id": "#/properties/data/properties/req/properties/messagingList",
-                  "title": "Messaging list",
-                  "description": "List of messaging identifiers to use for asynchronous reporting.",
-                  "type": "array",
-                  "uniqueItems": true,
-                  "additionalItems": false,
-                  "items": {
-                    "$id": "#/properties/data/properties/req/properties/messagingList/items",
-                    "title": "Messaging identifier",
-                    "description": "Messaging service intstance identifier.",
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "command"
-              ],
-              "properties": {
-                "command": {
-                  "$id": "#/properties/data/properties/req/properties/command",
-                  "title": "Command",
-                  "description": "start - start reading worker; stop - stop reading worker; now - invoke reading; getConfig - retrieve current configuration; setConfig - update configuration",
-                  "enum": [
-                    "start",
-                    "stop",
-                    "now",
-                    "setConfig"
-                  ]
-                }
-              }
-            }
-          ]
+						{
+							"type": "object",
+							"additionalProperties": false,
+							"required": [
+								"command"
+							],
+							"properties": {
+								"command": {
+									"$id": "#/properties/data/properties/rsp/properties/command",
+									"title": "Request command",
+									"description": "start - start reading worker; stop - stop reading worker; now - invoke reading; getConfig - retrieve current configuration; setConfig - update configuration",
+									"enum": [
+										"getConfig"
+									]
+								},
+								"autoRun": {
+									"$id": "#/properties/data/properties/rsp/properties/autoRun",
+									"title": "Run worker automatically",
+									"description": "Start sensor data reading worker on startup.",
+									"type": "boolean"
+								},
+								"period": {
+									"$id": "#/properties/data/properties/rsp/properties/period",
+									"title": "Reading period",
+									"description": "Time between data reads in minutes.",
+									"type": "integer",
+									"minimum": 1
+								},
+								"retryPeriod": {
+									"$id": "#/properties/data/properties/rsp/properties/retryPeriod",
+									"title": "Retry period",
+									"description": "Time between reading retry after a failure.",
+									"type": "integer",
+									"minimum": 1
+								},
+								"asyncReports": {
+									"$id": "#/properties/data/properties/rsp/properties/asyncReports",
+									"title": "Asynchronous reports",
+									"description": "Sends asynchronous messages reporting results when sensor read concludes.",
+									"type": "boolean"
+								},
+								"messagingList": {
+									"$id": "#/properties/data/properties/rsp/properties/messagingList",
+									"title": "Messaging list",
+									"description": "List of messaging identifiers to use for asynchronous reporting.",
+									"type": "array",
+									"uniqueItems": true,
+									"additionalItems": false,
+									"items": {
+										"$id": "#/properties/data/properties/rsp/properties/messagingList/items",
+										"title": "Messaging identifier",
+										"description": "Messaging service intstance identifier.",
+										"type": "string"
+									}
+								}
+							}
+						},
+						{
+							"type": "object",
+							"additionalProperties": false,
+							"required": [
+								"command"
+							],
+							"properties": {
+								"command": {
+									"$id": "#/properties/data/properties/req/properties/command",
+									"title": "Command",
+									"description": "start - start reading worker; stop - stop reading worker; now - invoke reading; getConfig - retrieve current configuration; setConfig - update configuration",
+									"enum": [
+										"start",
+										"stop",
+										"now",
+										"setConfig"
+									]
+								}
+							}
+						}
+					]
 				},
 				"raw": {
 					"type": "array",

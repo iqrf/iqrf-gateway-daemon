@@ -21,7 +21,7 @@
 #include "IIqrfDpaService.h"
 #include "IJsRenderService.h"
 #include "IMessagingSplitterService.h"
-#include "ISensorDataService.h"
+#include "IIqrfSensorData.h"
 #include "ITraceService.h"
 #include "SensorDataResult.h"
 #include "ShapeProperties.h"
@@ -40,7 +40,7 @@
 
 namespace iqrf {
 	/// Sensor data service class
-	class SensorDataService : public ISensorDataService {
+	class IqrfSensorData : public IIqrfSensorData {
 	public:
 		/// Service error codes
 		enum ErrorCodes {
@@ -55,12 +55,12 @@ namespace iqrf {
 		/**
 		 * Constructor
 		 */
-		SensorDataService();
+		IqrfSensorData();
 
 		/**
 		 * Destructor
 		 */
-		virtual ~SensorDataService();
+		virtual ~IqrfSensorData();
 
 		/**
 		 * Initializes component
@@ -317,16 +317,24 @@ namespace iqrf {
 		/// Run worker thread at start
 		bool m_autoRun = false;
 		/// Reading execution period
-		uint32_t m_period = 1;
+		uint32_t m_period = 10;
+		/// Execution retry period in case of a failure
+		uint32_t m_retryPeriod = 1;
 		/// Async reports
 		bool m_asyncReports = false;
 		/// Async response messaging list
 		std::list<std::string> m_messagingList;
-		/// Handled API request mtype
-		const std::string m_messageType = "iqmeshNetwork_SensorData";
+		/// Get config API message type
+		const std::string m_mTypeGetConfig = "iqrfSensorData_GetConfig";
+		/// Set config API message type
+		const std::string m_mTypeSetConfig = "iqrfSensorData_SetConfig";
+		/// Invoke worker API message type
+		const std::string m_mTypeInvoke = "iqrfSensorData_Invoke";
+		/// Start worker API message type
+		const std::string m_mTypeStart = "iqrfSensorData_Start";
+		/// Stop worker API message type
+		const std::string m_mTypeStop = "iqrfSensorData_Stop";
 		/// Async response message type
-		const std::string m_messageTypeAsync = "iqmeshNetwork_SensorDataAsync";
-		/// Input parameters
-		TSensorDataInputParams m_params;
+		const std::string m_mTypeReportAsync = "iqrfSensorData_ReportAsync";
 	};
 }

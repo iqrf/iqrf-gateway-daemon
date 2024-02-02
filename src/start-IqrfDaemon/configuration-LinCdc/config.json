@@ -379,9 +379,9 @@
       "startlevel": 3
     },
     {
-      "name": "iqrf::SensorDataService",
+      "name": "iqrf::IqrfSensorData",
       "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "SensorDataService",
+      "libraryName": "IqrfSensorData",
       "enabled": true,
       "startlevel": 3
     }

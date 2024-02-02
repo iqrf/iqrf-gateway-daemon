@@ -29,15 +29,20 @@ namespace iqrf {
     //FRC command to return 4-bytes wide sensor data of the supporting sensor types.
     const int STD_SENSOR_FRC_4BYTES = 0xF9;
 
-	/// @class ISensorDataService
-	/// @brief Sensor data service interface
-	class ISensorDataService {
+	/// @class IIqrfSensorData
+	/// @brief IQRF Sensor data interface
+	class IIqrfSensorData {
 	public:
 		/**
 		 * Destructor
 		 */
-		virtual ~ISensorDataService() {};
+		virtual ~IIqrfSensorData() {};
 
+		/**
+		 * Get sensor FRC command from sensor type
+		 * @param sensorType Sensor type (code)
+		 * @return uint8_t FRC command code
+		 */
 		static uint8_t getSensorFrcCommand(const uint8_t &sensorType) {
 			if (sensorType >= 0x01 && sensorType <= 0x1D) {
 				return STD_SENSOR_FRC_2BYTES;
@@ -49,6 +54,11 @@ namespace iqrf {
 			throw std::domain_error("Sensor type " + std::to_string(sensorType) + " not supported.");
 		}
 
+		/**
+		 * Get node count per FRC command
+		 * @param command FRC command
+		 * @return uint8_t Node count
+		 */
 		static uint8_t getMaxDevicesPerCommand(const uint8_t &command) {
 			switch (command) {
 				case STD_SENSOR_FRC_2BITS:

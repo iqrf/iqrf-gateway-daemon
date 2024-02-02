@@ -20,6 +20,8 @@
 #include "IDpaTransactionResult2.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
+#include "HexStringCoversion.h"
+#include "TimeConversion.h"
 
 #include <list>
 

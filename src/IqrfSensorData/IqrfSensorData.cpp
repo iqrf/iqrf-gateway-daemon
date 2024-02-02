@@ -15,30 +15,30 @@
  * limitations under the License.
  */
 
-#include "SensorDataService.h"
-#include "iqrf__SensorDataService.hxx"
+#include "IqrfSensorData.h"
+#include "iqrf__IqrfSensorData.hxx"
 
 namespace iqrf {
 
-	SensorDataService::SensorDataService() {
+	IqrfSensorData::IqrfSensorData() {
 		TRC_FUNCTION_ENTER("");
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	SensorDataService::~SensorDataService() {
+	IqrfSensorData::~IqrfSensorData() {
 		TRC_FUNCTION_ENTER("");
 		TRC_FUNCTION_LEAVE("");
 	}
 
 	///// Auxiliary methods
 
-	void SensorDataService::setErrorTransactionResult(SensorDataResult &result, std::unique_ptr<IDpaTransactionResult2> &transResult, const std::string &errorStr) {
+	void IqrfSensorData::setErrorTransactionResult(SensorDataResult &result, std::unique_ptr<IDpaTransactionResult2> &transResult, const std::string &errorStr) {
 		result.setStatus(transResult->getErrorCode(), errorStr);
 		result.addTransactionResult(transResult);
 		THROW_EXC(std::logic_error, errorStr);
 	}
 
-	uint8_t SensorDataService::frcDeviceCountByType(const uint8_t &type) {
+	uint8_t IqrfSensorData::frcDeviceCountByType(const uint8_t &type) {
 		if (type >= 0x01 && type <= 0x7F) {
 			return 31;
 		}
@@ -51,7 +51,7 @@ namespace iqrf {
 		throw std::domain_error("Unknown or unsupported sensor type.");
 	}
 
-	bool SensorDataService::extraResultRequired(const uint8_t &command, const uint8_t &deviceCount) {
+	bool IqrfSensorData::extraResultRequired(const uint8_t &command, const uint8_t &deviceCount) {
 		switch (command) {
 			case FRC_CMD_1BYTE:
 				return deviceCount > 55;
@@ -64,7 +64,7 @@ namespace iqrf {
 		}
 	}
 
-	std::vector<std::set<uint8_t>> SensorDataService::splitSet(std::set<uint8_t> &set, size_t size) {
+	std::vector<std::set<uint8_t>> IqrfSensorData::splitSet(std::set<uint8_t> &set, size_t size) {
 		std::vector<std::set<uint8_t>> res;
 
 		size_t sCount = set.size() / size;
@@ -88,7 +88,7 @@ namespace iqrf {
 
 	///// Message handling
 
-	void SensorDataService::setOfflineFrc(SensorDataResult &result) {
+	void IqrfSensorData::setOfflineFrc(SensorDataResult &result) {
 		TRC_FUNCTION_ENTER("");
 		std::unique_ptr<IDpaTransactionResult2> transResult;
 		try {
@@ -116,7 +116,7 @@ namespace iqrf {
 		}
 	}
 
-	std::vector<iqrf::sensor::item::Sensor> SensorDataService::sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes) {
+	std::vector<iqrf::sensor::item::Sensor> IqrfSensorData::sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes) {
 		uint8_t command = getSensorFrcCommand(type);
 		std::unique_ptr<IDpaTransactionResult2> transResult;
 		std::vector<iqrf::sensor::item::Sensor> sensorData;
@@ -147,7 +147,7 @@ namespace iqrf {
 		return sensorData;
 	}
 
-	std::vector<uint8_t> SensorDataService::frcReadMemory(SensorDataResult &result, std::set<uint8_t> &nodes, const std::vector<uint8_t> &userData) {
+	std::vector<uint8_t> IqrfSensorData::frcReadMemory(SensorDataResult &result, std::set<uint8_t> &nodes, const std::vector<uint8_t> &userData) {
 		std::unique_ptr<IDpaTransactionResult2> transResult;
 		std::vector<std::set<uint8_t>> nodeVectors = splitSet(nodes, 63);
 		std::vector<uint8_t> frcData;
@@ -176,7 +176,7 @@ namespace iqrf {
 		return frcData;
 	}
 
-	void SensorDataService::getTypeData(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::deque<uint8_t> &addresses) {
+	void IqrfSensorData::getTypeData(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::deque<uint8_t> &addresses) {
 		const uint8_t devicesPerRequest = frcDeviceCountByType(type);
 		const uint8_t v = addresses.size() / devicesPerRequest;
 		//const uint8_t r = addresses.size() % devicesPerRequest;
@@ -204,7 +204,7 @@ namespace iqrf {
 		}
 	}
 
-	void SensorDataService::setDeviceHwpidMid(SensorDataResult &result, std::set<uint8_t> &nodes) {
+	void IqrfSensorData::setDeviceHwpidMid(SensorDataResult &result, std::set<uint8_t> &nodes) {
 		for (auto &addr : nodes) {
 			try {
 				uint16_t hwpid = m_dbService->getDeviceHwpid(addr);
@@ -221,7 +221,7 @@ namespace iqrf {
 		}
 	}
 
-	void SensorDataService::getRssi(SensorDataResult &result, std::set<uint8_t> &nodes) {
+	void IqrfSensorData::getRssi(SensorDataResult &result, std::set<uint8_t> &nodes) {
 		auto frcData = frcReadMemory(result, nodes, {182, 5, 2, 0, 0});
 		if (nodes.size() == frcData.size()) {
 			auto it = nodes.begin();
@@ -235,7 +235,7 @@ namespace iqrf {
 		}
 	}
 
-	void SensorDataService::getRssiBeaming(SensorDataResult &result, std::set<uint8_t> &nodes) {
+	void IqrfSensorData::getRssiBeaming(SensorDataResult &result, std::set<uint8_t> &nodes) {
 		std::unique_ptr<IDpaTransactionResult2> transResult;
 		std::vector<std::set<uint8_t>> nodeVectors = splitSet(nodes, 63);
 		for (auto vector : nodeVectors) {
@@ -251,7 +251,7 @@ namespace iqrf {
 		}
 	}
 
-	void SensorDataService::getVoltage(SensorDataResult &result, std::set<uint8_t> &nodes) {
+	void IqrfSensorData::getVoltage(SensorDataResult &result, std::set<uint8_t> &nodes) {
 		auto frcData = frcReadMemory(result, nodes, {169, 4, 2, 0, 0});
 		if (nodes.size() == frcData.size()) {
 			auto it = nodes.begin();
@@ -265,7 +265,7 @@ namespace iqrf {
 		}
 	}
 
-	void SensorDataService::getDataByFrc(SensorDataResult &result) {
+	void IqrfSensorData::getDataByFrc(SensorDataResult &result) {
 		SensorSelectMap map = m_dbService->constructSensorSelectMap();
 		std::set<uint8_t> allNodes;
 		for (const auto& [type, addrIdx] : map) {
@@ -299,7 +299,7 @@ namespace iqrf {
 		//getVoltage(result, allNodes);
 	}
 
-	void SensorDataService::worker() {
+	void IqrfSensorData::worker() {
 		TRC_FUNCTION_ENTER("");
 
 		while (m_workerRun) {
@@ -307,6 +307,9 @@ namespace iqrf {
 				m_exclusiveAccess = m_dpaService->getExclusiveAccess();
 			} catch (const std::exception &e) {
 				CATCH_EXC_TRC_WAR(std::exception, e, "Failed to acquire exclusive access: " << e.what());
+				std::unique_lock<std::mutex> lock(m_mtx);
+				TRC_DEBUG("Exlusive access acquisition failed, retrying in " << m_retryPeriod << " minutes.");
+				m_cv.wait_for(lock, std::chrono::minutes(m_retryPeriod));
 				continue;
 			}
 
@@ -314,7 +317,7 @@ namespace iqrf {
 				SensorDataResult result;
 				if (m_asyncReports) {
 					Document doc;
-					result.setMessageType(m_messageTypeAsync);
+					result.setMessageType(m_mTypeReportAsync);
 					result.setMessageId("async");
 					result.createStartMessage(doc);
 					m_splitterService->sendMessage(m_messagingList, std::move(doc));
@@ -324,7 +327,7 @@ namespace iqrf {
 				m_exclusiveAccess.reset();
 				if (m_asyncReports) {
 					Document doc;
-					result.setMessageType(m_messageTypeAsync);
+					result.setMessageType(m_mTypeReportAsync);
 					result.setMessageId("async");
 					result.createResultMessage(doc);
 					m_splitterService->sendMessage(m_messagingList, std::move(doc));
@@ -342,7 +345,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void SensorDataService::notifyWorker(rapidjson::Document &request, const std::string &messagingId) {
+	void IqrfSensorData::notifyWorker(rapidjson::Document &request, const std::string &messagingId) {
 		TRC_FUNCTION_ENTER("");
 
 		bool invoked = false;
@@ -358,9 +361,8 @@ namespace iqrf {
 
 		Document rsp;
 
-		Pointer("/mType").Set(rsp, m_messageType);
+		Pointer("/mType").Set(rsp, m_mTypeInvoke);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
-		Pointer("/data/rsp/command").Set(rsp, SENSOR_DATA_COMMAND_NOW);
 		if (invoked && running) {
 			Pointer("/data/status").Set(rsp, 0);
 		} else {
@@ -376,7 +378,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void SensorDataService::startWorker(rapidjson::Document &request, const std::string &messagingId) {
+	void IqrfSensorData::startWorker(rapidjson::Document &request, const std::string &messagingId) {
 		TRC_FUNCTION_ENTER("");
 
 		if (!m_workerRun) {
@@ -391,15 +393,14 @@ namespace iqrf {
 
 		Document rsp;
 
-		Pointer("/mType").Set(rsp, m_messageType);
+		Pointer("/mType").Set(rsp, m_mTypeStart);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
-		Pointer("/data/rsp/command").Set(rsp, SENSOR_DATA_COMMAND_START);
 		Pointer("/data/status").Set(rsp, 0);
 		m_splitterService->sendMessage(messagingId, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void SensorDataService::stopWorker(rapidjson::Document &request, const std::string &messagingId) {
+	void IqrfSensorData::stopWorker(rapidjson::Document &request, const std::string &messagingId) {
 		TRC_FUNCTION_ENTER("");
 
 		if (m_workerRun) {
@@ -412,25 +413,24 @@ namespace iqrf {
 
 		Document rsp;
 
-		Pointer("/mType").Set(rsp, m_messageType);
+		Pointer("/mType").Set(rsp, m_mTypeStop);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
-		Pointer("/data/rsp/command").Set(rsp, SENSOR_DATA_COMMAND_STOP);
 		Pointer("/data/status").Set(rsp, 0);
 		m_splitterService->sendMessage(messagingId, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void SensorDataService::getConfig(rapidjson::Document &request, const std::string &messagingId) {
+	void IqrfSensorData::getConfig(rapidjson::Document &request, const std::string &messagingId) {
 		TRC_FUNCTION_ENTER("");
 
 		Document rsp;
 		Document::AllocatorType &allocator = rsp.GetAllocator();
 
-		Pointer("/mType").Set(rsp, m_messageType);
+		Pointer("/mType").Set(rsp, m_mTypeGetConfig);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
-		Pointer("/data/rsp/command").Set(rsp, SENSOR_DATA_COMMAND_GET_CONFIG);
 		Pointer("/data/rsp/autoRun").Set(rsp, m_autoRun);
 		Pointer("/data/rsp/period").Set(rsp, m_period);
+		Pointer("/data/rsp/retryPeriod").Set(rsp, m_retryPeriod);
 		Pointer("/data/rsp/asyncReports").Set(rsp, m_asyncReports);
 		Value arr(kArrayType);
 		for (auto &item : m_messagingList) {
@@ -444,16 +444,16 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void SensorDataService::setConfig(rapidjson::Document &request, const std::string &messagingId)  {
+	void IqrfSensorData::setConfig(rapidjson::Document &request, const std::string &messagingId)  {
 		TRC_FUNCTION_ENTER("");
 
 		Document rsp;
-		Pointer("/mType").Set(rsp, m_messageType);
+		Pointer("/mType").Set(rsp, m_mTypeSetConfig);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
-		Pointer("/data/rsp/command").Set(rsp, SENSOR_DATA_COMMAND_SET_CONFIG);
 
 		auto oldAutoRun = m_autoRun;
 		auto oldPeriod = m_period;
+		auto oldRetryPeriod = m_retryPeriod;
 		auto oldAsyncReports = m_asyncReports;
 		auto oldMessagingList = m_messagingList;
 
@@ -476,6 +476,12 @@ namespace iqrf {
 			if (val && val->IsUint()) {
 				m_period = val->GetUint();
 				Pointer("/period").Set(cfgDoc, m_period);
+			}
+
+			val = Pointer("/data/req/retryPeriod").Get(request);
+			if (val && val->IsUint()) {
+				m_retryPeriod = val->GetUint();
+				Pointer("/retryPeriod").Set(cfgDoc, m_retryPeriod);
 			}
 
 			val = Pointer("/data/req/asyncReports").Get(request);
@@ -502,6 +508,7 @@ namespace iqrf {
 			CATCH_EXC_TRC_WAR(std::exception, e, e.what());
 			m_autoRun = oldAutoRun;
 			m_period = oldPeriod;
+			m_retryPeriod = oldRetryPeriod;
 			m_asyncReports = oldAsyncReports;
 			m_messagingList = oldMessagingList;
 			Pointer("/data/status").Set(rsp, 1005);
@@ -512,7 +519,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void SensorDataService::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, Document doc) {
+	void IqrfSensorData::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, Document doc) {
 		TRC_FUNCTION_ENTER(
 			PAR(messagingId) <<
 			NAME_PAR(mType, msgType.m_type) <<
@@ -521,15 +528,13 @@ namespace iqrf {
 			NAME_PAR(patch, msgType.m_micro)
 		);
 
-		SensorDataParams params(doc);
-		m_params = params.getInputParams();
-		if (m_params.command == SENSOR_DATA_COMMAND_NOW) {
+		if (msgType.m_type == m_mTypeInvoke) {
 			notifyWorker(doc, messagingId);
-		} else if (m_params.command == SENSOR_DATA_COMMAND_START) {
+		} else if (msgType.m_type == m_mTypeStart) {
 			startWorker(doc, messagingId);
-		} else if (m_params.command == SENSOR_DATA_COMMAND_STOP) {
+		} else if (msgType.m_type == m_mTypeStop) {
 			stopWorker(doc, messagingId);
-		} else if (m_params.command == SENSOR_DATA_COMMAND_GET_CONFIG) {
+		} else if (msgType.m_type == m_mTypeGetConfig) {
 			getConfig(doc, messagingId);
 		} else {
 			setConfig(doc, messagingId);
@@ -539,11 +544,11 @@ namespace iqrf {
 
 	///// Component management
 
-	void SensorDataService::activate(const shape::Properties *props) {
+	void IqrfSensorData::activate(const shape::Properties *props) {
 		TRC_FUNCTION_ENTER("");
 		TRC_INFORMATION(std::endl
 			<< "******************************" << std::endl
-			<< "SensorDataService instance activate" << std::endl
+			<< "IqrfSensorData instance activate" << std::endl
 			<< "******************************"
 		);
 
@@ -556,7 +561,13 @@ namespace iqrf {
 		}
 
 		m_splitterService->registerFilteredMsgHandler(
-			std::vector<std::string>{m_messageType},
+			std::vector<std::string>{
+				m_mTypeGetConfig,
+				m_mTypeSetConfig,
+				m_mTypeInvoke,
+				m_mTypeStart,
+				m_mTypeStop
+			},
 			[&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
 				handleMsg(messagingId, msgType, std::move(doc));
 			}
@@ -564,7 +575,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void SensorDataService::modify(const shape::Properties *props) {
+	void IqrfSensorData::modify(const shape::Properties *props) {
 		TRC_FUNCTION_ENTER("");
 
 		const Document &doc = props->getAsJson();
@@ -575,6 +586,7 @@ namespace iqrf {
 		m_autoRun = Pointer("/autoRun").Get(doc)->GetBool();
 		m_period = Pointer("/period").Get(doc)->GetUint();
 		m_asyncReports = Pointer("/asyncReports").Get(doc)->GetBool();
+		m_retryPeriod = Pointer("/retryPeriod").Get(doc)->GetUint();
 
 		m_messagingList.clear();
 		const Value *val = Pointer("/messagingList").Get(doc);
@@ -588,11 +600,11 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void SensorDataService::deactivate() {
+	void IqrfSensorData::deactivate() {
 		TRC_FUNCTION_ENTER("");
 		TRC_INFORMATION(std::endl
 			<< "******************************" << std::endl
-			<< "SensorDataService instance deactivate" << std::endl
+			<< "IqrfSensorData instance deactivate" << std::endl
 			<< "******************************"
 		);
 
@@ -602,68 +614,74 @@ namespace iqrf {
 			m_workerThread.join();
 		}
 
-		m_splitterService->unregisterFilteredMsgHandler(std::vector<std::string>{m_messageType});
+		m_splitterService->unregisterFilteredMsgHandler(std::vector<std::string>{
+			m_mTypeGetConfig,
+			m_mTypeSetConfig,
+			m_mTypeInvoke,
+			m_mTypeStart,
+			m_mTypeStop
+		});
 
 		TRC_FUNCTION_LEAVE("");
 	}
 
 	///// Interface management
 
-	void SensorDataService::attachInterface(shape::IConfigurationService *iface) {
+	void IqrfSensorData::attachInterface(shape::IConfigurationService *iface) {
 		m_configService = iface;
 	}
 
-	void SensorDataService::detachInterface(shape::IConfigurationService *iface) {
+	void IqrfSensorData::detachInterface(shape::IConfigurationService *iface) {
 		if (m_configService == iface) {
 			m_configService = nullptr;
 		}
 	}
 
-	void SensorDataService::attachInterface(IIqrfDb *iface) {
+	void IqrfSensorData::attachInterface(IIqrfDb *iface) {
 		m_dbService = iface;
 	}
 
-	void SensorDataService::detachInterface(IIqrfDb *iface) {
+	void IqrfSensorData::detachInterface(IIqrfDb *iface) {
 		if (m_dbService == iface) {
 			m_dbService = nullptr;
 		}
 	}
 
-	void SensorDataService::attachInterface(IIqrfDpaService *iface) {
+	void IqrfSensorData::attachInterface(IIqrfDpaService *iface) {
 		m_dpaService = iface;
 	}
 
-	void SensorDataService::detachInterface(IIqrfDpaService *iface) {
+	void IqrfSensorData::detachInterface(IIqrfDpaService *iface) {
 		if (m_dpaService == iface) {
 			m_dpaService = nullptr;
 		}
 	}
 
-	void SensorDataService::attachInterface(IJsRenderService *iface) {
+	void IqrfSensorData::attachInterface(IJsRenderService *iface) {
 		m_jsRenderService = iface;
 	}
 
-	void SensorDataService::detachInterface(IJsRenderService *iface) {
+	void IqrfSensorData::detachInterface(IJsRenderService *iface) {
 		if (m_jsRenderService == iface) {
 			m_jsRenderService = nullptr;
 		}
 	}
 
-	void SensorDataService::attachInterface(IMessagingSplitterService *iface) {
+	void IqrfSensorData::attachInterface(IMessagingSplitterService *iface) {
 		m_splitterService = iface;
 	}
 
-	void SensorDataService::detachInterface(IMessagingSplitterService *iface) {
+	void IqrfSensorData::detachInterface(IMessagingSplitterService *iface) {
 		if (m_splitterService == iface) {
 			m_splitterService = nullptr;
 		}
 	}
 
-	void SensorDataService::attachInterface(shape::ITraceService *iface) {
+	void IqrfSensorData::attachInterface(shape::ITraceService *iface) {
 		shape::Tracer::get().addTracerService(iface);
 	}
 
-	void SensorDataService::detachInterface(shape::ITraceService *iface) {
+	void IqrfSensorData::detachInterface(shape::ITraceService *iface) {
 		shape::Tracer::get().removeTracerService(iface);
 	}
 }
