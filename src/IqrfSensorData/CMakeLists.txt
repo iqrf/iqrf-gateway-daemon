@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-project(SensorDataService)
+project(IqrfSensorData)
 
-set(COMPONENT iqrf::SensorDataService)
+set(COMPONENT iqrf::IqrfSensorData)
 DeclareShapeComponent(${COMPONENT})
-AddShapeProvidedInterface(${COMPONENT} iqrf::ISensorDataService)
+AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfSensorData)
 AddShapeRequiredInterface(${COMPONENT} shape::IConfigurationService MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDb MANDATORY SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService MANDATORY SINGLE)
@@ -49,7 +49,5 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	nlohmann_json::nlohmann_json
 )
-
-set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER ${IQMESH_SERVICES_FOLDER})
 
 DeployShapeComponent(${PROJECT_NAME})
