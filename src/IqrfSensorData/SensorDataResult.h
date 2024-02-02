@@ -18,7 +18,6 @@
 
 #include "JsDriverSensor.h"
 #include "rapidjson/document.h"
-#include "SensorDataParams.h"
 #include "ServiceResultBase.h"
 
 using namespace rapidjson;
