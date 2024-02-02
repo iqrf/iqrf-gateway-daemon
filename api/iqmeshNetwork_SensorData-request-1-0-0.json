@@ -67,6 +67,13 @@
                   "type": "integer",
                   "minimum": 1
                 },
+                "retryPeriod": {
+									"$id": "#/properties/data/properties/req/properties/retryPeriod",
+									"title": "Retry period",
+									"description": "Time between reading retry after a failure.",
+									"type": "integer",
+									"minimum": 1
+								},
                 "asyncReports": {
                   "$id": "#/properties/data/properties/req/properties/asyncReports",
                   "title": "Asynchronous reports",
