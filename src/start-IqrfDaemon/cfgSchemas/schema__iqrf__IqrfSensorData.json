@@ -12,6 +12,7 @@
       "instance",
       "autoRun",
       "period",
+      "retryPeriod",
       "asyncReports",
       "messagingList"
     ],
@@ -33,6 +34,11 @@
       },
       "period": {
         "description": "Time between data reads in minutes.",
+        "type": "integer",
+        "minimum": 1
+      },
+      "retryPeriod": {
+        "description": "Time between retry following a failure.",
         "type": "integer",
         "minimum": 1
       },

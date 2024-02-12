@@ -16,16 +16,16 @@
  */
 #pragma once
 
+#include "IIqrfSensorData.h"
+#include "SensorDataResult.h"
 #include "IConfigurationService.h"
 #include "IIqrfDb.h"
 #include "IIqrfDpaService.h"
 #include "IJsRenderService.h"
 #include "IMessagingSplitterService.h"
-#include "IIqrfSensorData.h"
-#include "ITraceService.h"
-#include "SensorDataResult.h"
-#include "ShapeProperties.h"
 #include "JsDriverFrc.h"
+#include "ShapeProperties.h"
+#include "ITraceService.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -248,6 +248,13 @@ namespace iqrf {
 		void worker();
 
 		/**
+		 * Returns worker status
+		 * @param request Request document
+		 * @param messagingId Messaging ID
+		 */
+		void workerStatus(rapidjson::Document &request, const std::string &messagingId);
+
+		/**
 		 * Notifies a sleeping worker
 		 * @param request Request document
 		 * @param messagingId Messaging ID
@@ -328,6 +335,8 @@ namespace iqrf {
 		const std::string m_mTypeGetConfig = "iqrfSensorData_GetConfig";
 		/// Set config API message type
 		const std::string m_mTypeSetConfig = "iqrfSensorData_SetConfig";
+		/// Get worker status API message type
+		const std::string m_mTypeStatus = "iqrfSensorData_Status";
 		/// Invoke worker API message type
 		const std::string m_mTypeInvoke = "iqrfSensorData_Invoke";
 		/// Start worker API message type
