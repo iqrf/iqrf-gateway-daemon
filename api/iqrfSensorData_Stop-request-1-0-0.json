@@ -1,6 +1,6 @@
 {
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "title": "IQRF Sensor Data - Get configuration.",
+  "title": "IQRF Sensor Data - Stop worker",
   "type": "object",
   "required": [
     "mType",
@@ -11,9 +11,9 @@
     "mType": {
       "$id": "#/properties/mType",
       "title": "Message type",
-      "description": "IQRF Sensor Data - GetConfig request.",
+      "description": "IQRF Sensor Data - Stop request.",
       "type": "string",
-      "enum": ["iqrfSensorData_GetConfig"]
+      "enum": ["iqrfSensorData_Stop"]
     },
     "data": {
       "$id": "#/properties/data",

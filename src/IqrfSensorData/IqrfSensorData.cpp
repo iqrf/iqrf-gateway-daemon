@@ -18,6 +18,8 @@
 #include "IqrfSensorData.h"
 #include "iqrf__IqrfSensorData.hxx"
 
+TRC_INIT_MODULE(iqrf::IqrfSensorData);
+
 namespace iqrf {
 
 	IqrfSensorData::IqrfSensorData() {
@@ -345,6 +347,23 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
+	void IqrfSensorData::workerStatus(rapidjson::Document &request, const std::string &messagingId) {
+		TRC_FUNCTION_ENTER("");
+
+		bool running = m_workerRun;
+		bool reading = m_workerRun && m_exclusiveAccess != nullptr;
+
+		Document rsp;
+		Pointer("/mType").Set(rsp, m_mTypeStatus);
+		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
+		Pointer("/data/rsp/running").Set(rsp, running);
+		Pointer("/data/rsp/reading").Set(rsp, reading);
+		Pointer("/data/status").Set(rsp, 0);
+		Pointer("/data/statusStr").Set(rsp, "ok");
+		m_splitterService->sendMessage(messagingId, std::move(rsp));
+		TRC_FUNCTION_LEAVE("");
+	}
+
 	void IqrfSensorData::notifyWorker(rapidjson::Document &request, const std::string &messagingId) {
 		TRC_FUNCTION_ENTER("");
 
@@ -528,7 +547,9 @@ namespace iqrf {
 			NAME_PAR(patch, msgType.m_micro)
 		);
 
-		if (msgType.m_type == m_mTypeInvoke) {
+		if (msgType.m_type == m_mTypeStatus) {
+			workerStatus(doc, messagingId);
+		} else if (msgType.m_type == m_mTypeInvoke) {
 			notifyWorker(doc, messagingId);
 		} else if (msgType.m_type == m_mTypeStart) {
 			startWorker(doc, messagingId);
@@ -564,6 +585,7 @@ namespace iqrf {
 			std::vector<std::string>{
 				m_mTypeGetConfig,
 				m_mTypeSetConfig,
+				m_mTypeStatus,
 				m_mTypeInvoke,
 				m_mTypeStart,
 				m_mTypeStop
@@ -617,6 +639,7 @@ namespace iqrf {
 		m_splitterService->unregisterFilteredMsgHandler(std::vector<std::string>{
 			m_mTypeGetConfig,
 			m_mTypeSetConfig,
+			m_mTypeStatus,
 			m_mTypeInvoke,
 			m_mTypeStart,
 			m_mTypeStop
