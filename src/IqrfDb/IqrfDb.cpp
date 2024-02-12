@@ -1025,8 +1025,8 @@ namespace iqrf {
 			uint16_t hwpidVersion = product->getHwpidVersion();
 			uint16_t osBuild = product->getOsBuild();
 			uint16_t dpaVersion = product->getDpaVersion();
-			IJsCacheService::Package package = m_cacheService->getPackage(hwpid, hwpidVersion, osBuild, dpaVersion);
-			if (package.m_packageId < 0) {
+			std::shared_ptr<IJsCacheService::Package> package = m_cacheService->getPackage(hwpid, hwpidVersion, osBuild, dpaVersion);
+			if (package == nullptr) {
 				// try to find db product
 				uint32_t productId = this->query.getProductId(hwpid, hwpidVersion, osBuild, dpaVersion);
 				if (productId > 0) {
@@ -1046,33 +1046,33 @@ namespace iqrf {
 				// try hwpid 0 package
 				package = m_cacheService->getPackage(0, 0, osBuild, dpaVersion);
 			}
-			if (package.m_packageId < 0) {
+			if (package == nullptr) {
 				// try to find package for lower DPA
 				uint16_t dpa = dpaVersion - 1;
-				while (package.m_packageId < 0 && dpa >= 768) {
+				while (package == nullptr && dpa >= 768) {
 					package = m_cacheService->getPackage(0, 0, osBuild, dpa);
 					dpa--;
 				}
 			}
-			if (package.m_packageId < 0) {
+			if (package == nullptr) {
 				TRC_WARNING("Cannot find package for: " << NAME_PAR(nadr, addr) << NAME_PAR(hwpid, 0) << NAME_PAR(hwpidVer, 0) << NAME_PAR(osBuild, osBuild) << " any DPA");
 				continue;
 			}
 
-			if (package.m_handlerUrl.length() != 0) {
-				product->setHandlerUrl(std::make_shared<std::string>(package.m_handlerUrl));
+			if (package->m_handlerUrl.length() != 0) {
+				product->setHandlerUrl(std::make_shared<std::string>(package->m_handlerUrl));
 			}
-			if (package.m_handlerHash.length() != 0) {
-				product->setHandlerHash(std::make_shared<std::string>(package.m_handlerHash));
+			if (package->m_handlerHash.length() != 0) {
+				product->setHandlerHash(std::make_shared<std::string>(package->m_handlerHash));
 			}
-			if (package.m_notes.length() != 0) {
-				product->setNotes(std::make_shared<std::string>(package.m_notes));
+			if (package->m_notes.length() != 0) {
+				product->setNotes(std::make_shared<std::string>(package->m_notes));
 			}
-			if (package.m_driver.length() != 0) {
-				product->setCustomDriver(std::make_shared<std::string>(package.m_driver));
+			if (package->m_driver.length() != 0) {
+				product->setCustomDriver(std::make_shared<std::string>(package->m_driver));
 			}
-			product->setPackageId(package.m_packageId);
-			for (auto &item : package.m_stdDriverVect) {
+			product->setPackageId(package->m_packageId);
+			for (auto &item : package->m_stdDriverVect) {
 				int16_t per = item.getId();
 				double version = item.getVersion();
 				auto dbDriver = m_db->select(&Driver::getId, where(c(&Driver::getPeripheralNumber) == per and c(&Driver::getVersion) == version));
@@ -1445,9 +1445,9 @@ namespace iqrf {
 				TRC_WARNING("No driver version found for driver ID: " << id);
 			}
 
-			IJsCacheService::StdDriver cacheDriver = m_cacheService->getDriver(id, version);
-			if (cacheDriver.isValid()) {
-				ss << *cacheDriver.getDriver();
+			std::shared_ptr<IJsCacheService::StdDriver> cacheDriver = m_cacheService->getDriver(id, version);
+			if (cacheDriver != nullptr) {
+				ss << *cacheDriver->getDriver();
 			} else {
 				TRC_WARNING("No driver found in cache for ID: " << id << ", version: " << version);
 			}
