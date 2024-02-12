@@ -1,0 +1,267 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"title": "IQRF Sensor data - Asynchronous report",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"$id": "#/properties/mType",
+			"title": "Message type",
+			"description": "IQRF Sensor data - ReportAsync response.",
+			"type": "string",
+			"enum": ["iqrfSensorData_ReportAsync"]
+		},
+		"data": {
+			"$id": "#/properties/data",
+			"title": "Message data",
+			"description": "Message metadata and body.",
+			"type": "object",
+			"required": [
+				"msgId",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"$id": "#/properties/data/properties/msgId",
+					"title": "Message ID",
+					"description": "Message ID used for pairing requests and responses.",
+					"type": "string"
+				},
+				"rsp": {
+					"$id": "#/properties/data/properties/rsp",
+					"title": "Response object",
+					"description": "Response object.",
+					"type": "object",
+					"required": [
+						"reading"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"reading": {
+							"$id": "#/properties/data/properties/rsp/properties/reading",
+							"title": "Reading data",
+							"description": "Sensor data reading in progress.",
+							"type": "boolean"
+						},
+						"devices": {
+							"$id": "#/properties/data/properties/rsp/properties/devices",
+							"title": "Devices",
+							"description": "Array of devices and sensors data.",
+							"type": "array",
+							"maxItems": 239,
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/devices/items",
+								"title": "Device",
+								"description": "Device and sensors data.",
+								"type": "object",
+								"required": [
+									"address",
+									"hwpid",
+									"mid",
+									"rssi",
+									"sensors"
+								],
+								"additionalProperties": false,
+								"properties": {
+									"address": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/address",
+										"title": "Device address",
+										"description": "Address of a network device.",
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 239
+									},
+									"hwpid": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/address",
+										"title": "Device HWPID",
+										"description": "Hardware profile of a network device.",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 65535
+									},
+									"mid": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/mid",
+										"title": "Device MID",
+										"description": "Module ID of a network device.",
+										"oneOf": [
+											{
+												"type": "integer",
+												"minimum": 0
+											},
+											{
+												"type": "null"
+											}
+										]
+									},
+									"rssi": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/voltage",
+										"title": "Device RSSI",
+										"description": "Last RSSI of a network device.",
+										"oneOf": [
+											{
+												"type": "integer"
+											},
+											{
+												"type": "null"
+											}
+										]
+									},
+									"voltage": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/voltage",
+										"title": "Device voltage",
+										"description": "Voltage of a network device.",
+										"oneOf": [
+											{
+												"type": "number"
+											},
+											{
+												"type": "null"
+											}
+										]
+									},
+									"sensors": {
+										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/sensors",
+										"title": "Sensors",
+										"description": "Sensor information and values.",
+										"type": "array",
+										"minItems": 1,
+										"maxItems": 32,
+										"additionalItems": false,
+										"items": {
+											"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/sensors/items",
+											"title": "Sensor",
+											"description": "Sensor information and value.",
+											"type": "object",
+											"required": [
+												"index",
+												"type",
+												"name",
+												"unit",
+												"value"
+											],
+											"additionalProperties": false,
+											"properties": {
+												"index": {
+													"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/sensors/items/properties/index",
+													"title": "Sensor index",
+													"description": "Index of sensor on device.",
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 31
+												},
+												"type": {
+													"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/sensors/items/properties/type",
+													"title": "Sensor type",
+													"description": "Numerical value corresponding to sensor type and quantity.",
+													"type": "integer",
+													"enum": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 128, 129, 130, 131, 132, 133, 160, 161, 162, 163, 164, 165, 166, 167, 192]
+												},
+												"name": {
+													"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/sensors/items/properties/name",
+													"title": "Quantity name",
+													"description": "Quantity measured by the sensor.",
+													"type": "string"
+												},
+												"unit": {
+													"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/sensors/items/properties/unit",
+													"title": "Quantity unit",
+													"description": "Unit in which the quantity is measured.",
+													"type": "string"
+												},
+												"value": {
+													"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/sensors/items/properties/value",
+													"title": "Value",
+													"description": "Measured value.",
+													"oneOf": [
+														{
+															"type": "number"
+														},
+														{
+															"type": "null"
+														},
+														{
+															"type": "array",
+															"items": {
+																"type": "integer"
+															}
+														}
+													]
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"raw": {
+					"type": "array",
+					"description": "Returns array of objects req-cnf-rsp, see its description.",
+					"items": {
+						"type": "object",
+						"required": [
+							"request",
+							"requestTs",
+							"confirmation",
+							"confirmationTs",
+							"response",
+							"responseTs"
+						],
+						"additionalProperties": false,
+						"properties": {
+							"request": {
+								"type": "string",
+								"description": "Binary buffer with DPA request."
+							},
+							"requestTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"confirmation": {
+								"type": "string",
+								"description": "Binary buffer with DPA confirmation."
+							},
+							"confirmationTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"response": {
+								"type": "string",
+								"description": "Binary buffer with DPA response."
+							},
+							"responseTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							}
+						}
+					}
+				},
+				"insId": {
+					"$id": "#/properties/data/properties/insId",
+					"title": "Instance ID",
+					"description": "Daemon insteance ID.",
+					"type": "string"
+				},
+				"status": {
+					"$id": "#/properties/data/properties/status",
+					"title": "Status code",
+					"description": "Status code.",
+					"type": "integer"
+				},
+				"statusStr": {
+					"$id": "#/properties/data/properties/statusStr",
+					"title": "Status string",
+					"description": "Verbose status string",
+					"type": "string"
+				}
+			}
+		}
+	}
+}
