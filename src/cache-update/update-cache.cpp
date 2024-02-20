@@ -413,6 +413,11 @@ int main(int argc, char** argv) {
     if (std::filesystem::exists("cache/quantities")) {
       validate_quantities_file();
     }
+    std::filesystem::permissions(
+      path,
+      std::filesystem::perms::owner_all | std::filesystem::perms::group_all | std::filesystem::perms::others_all,
+      std::filesystem::perm_options::add
+    );
   } catch (const std::exception &e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;

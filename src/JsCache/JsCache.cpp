@@ -1254,6 +1254,11 @@ namespace iqrf {
     }
     // rename inflate dir to cache
     filesystem::rename(getCachePath("inflated"), cacheName);
+    // set perms
+    filesystem::permissions(
+      m_cacheDir,
+      filesystem::owner_all | filesystem::group_all | filesystem::others_all
+    );
 
     TRC_INFORMATION("[IQRF Repository cache] Cache successfully downloaded.");
     std::cout << "[IQRF Repository cache] Cache successfully downloaded." << std::endl;
