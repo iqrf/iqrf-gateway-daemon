@@ -111,6 +111,12 @@ namespace iqrf {
 		};
 
 		/**
+		 * Check if enumeration is in progress
+		 * @return true if enumeration is in progress, false otherwise
+		 */
+		virtual bool isRunning() = 0;
+
+		/**
 		 * Runs enumeration
 		 * @param reenumerate Executes full enumeration regardless of the database contents
 		 * @param standards Enumerates standards
