@@ -49,6 +49,10 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
+	bool IqrfDb::isRunning() {
+		return m_exclusiveAccess != nullptr && m_enumRun;
+	}
+
 	void IqrfDb::enumerate(IIqrfDb::EnumParams &parameters) {
 		TRC_FUNCTION_ENTER("");
 		m_enumRun = true;

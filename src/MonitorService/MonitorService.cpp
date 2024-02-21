@@ -140,13 +140,23 @@ namespace iqrf {
 		IIqrfChannelService::State iqrfChannelState = IIqrfChannelService::State::NotReady;
 		IIqrfDpaService::DpaState dpaChannelState = IIqrfDpaService::DpaState::NotReady;
 		IUdpConnectorService::Mode operMode = IUdpConnectorService::Mode::Unknown;
+		bool enumRunning = false;
+		bool dataReadRunning = false;
 
 		using namespace rapidjson;
+
+		if (m_dbService) {
+			enumRunning = m_dbService->isRunning();
+		}
 
 		if (m_dpaService) {
 			dpaQueueLen = m_dpaService->getDpaQueueLen();
 			iqrfChannelState = m_dpaService->getIqrfChannelState();
 			dpaChannelState = m_dpaService->getDpaChannelState();
+		}
+
+		if (m_sensorDataService) {
+			dataReadRunning = m_sensorDataService->readInProgress();
 		}
 
 		if (m_splitterService) {
@@ -168,6 +178,8 @@ namespace iqrf {
 		Pointer("/data/dpaChannelState").Set(doc, IIqrfDpaService::DpaStateStringConvertor::enum2str(dpaChannelState));
 		Pointer("/data/msgQueueLen").Set(doc, msgQueueLen);
 		Pointer("/data/operMode").Set(doc, ModeStringConvertor::enum2str(operMode));
+		Pointer("/data/enumInProgress").Set(doc, enumRunning);
+		Pointer("/data/dataReadingInProgress").Set(doc, dataReadRunning);
 		return doc;
 	}
 
@@ -197,6 +209,26 @@ namespace iqrf {
 
 	///// Interfaces
 
+	void MonitorService::attachInterface(IIqrfDb* iface) {
+		m_dbService = iface;
+		m_dbService->registerEnumerationHandler(
+			m_instanceId,
+			[&](IIqrfDb::EnumerationProgress progress) {
+				auto step = progress.getStep();
+				if (step == IIqrfDb::EnumerationProgress::Start || step == IIqrfDb::EnumerationProgress::Finish) {
+					invokeWorker();
+				}
+			}
+		);
+	}
+
+	void MonitorService::detachInterface(IIqrfDb* iface) {
+		if (m_dbService == iface) {
+			m_dbService->unregisterEnumerationHandler(m_instanceId);
+			m_dbService = nullptr;
+		}
+	}
+
 	void MonitorService::attachInterface(IIqrfDpaService* iface) {
 		m_dpaService = iface;
 	}
@@ -204,6 +236,23 @@ namespace iqrf {
 	void MonitorService::detachInterface(IIqrfDpaService* iface) {
 		if (m_dpaService == iface) {
 			m_dpaService = nullptr;
+		}
+	}
+
+	void MonitorService::attachInterface(IIqrfSensorData* iface) {
+		m_sensorDataService = iface;
+		m_sensorDataService->registerReadingCallback(
+			m_instanceId,
+			[&](bool reading) {
+				invokeWorker();
+			}
+		);
+	}
+
+	void MonitorService::detachInterface(IIqrfSensorData* iface) {
+		if (m_sensorDataService == iface) {
+			m_sensorDataService->unregisterReadingCallback(m_instanceId);
+			m_sensorDataService = nullptr;
 		}
 	}
 
@@ -227,7 +276,10 @@ namespace iqrf {
 	void MonitorService::attachInterface(IUdpConnectorService* iface) {
 		m_udpConnectorService = iface;
 		m_udpConnectorService->registerModeSetCallback(
-			m_instanceId, [&]() {invokeWorker();}
+			m_instanceId,
+			[&]() {
+				invokeWorker();
+			}
 		);
 	}
 
