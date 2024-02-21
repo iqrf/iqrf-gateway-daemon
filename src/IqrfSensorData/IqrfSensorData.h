@@ -80,6 +80,25 @@ namespace iqrf {
 		void deactivate();
 
 		/**
+		 * Check if data reading is in progress
+		 * @return true if data reading is in progress, false otherwise
+		 */
+		bool readInProgress() override;
+
+		/**
+		 * Registers reading worker callback
+		 * @param instanceId Component instance
+		 * @param callback Callable
+		 */
+		void registerReadingCallback(const std::string &instanceId, std::function<void(bool)> callback) override;
+
+		/**
+		 * Unregisters reading worker callback
+		 * @param instanceId Component instance
+		 */
+		void unregisterReadingCallback(const std::string &messagingId) override;
+
+		/**
 		 * Attaches configuration service interface
 		 * @param iface Configuration service interface
 		 */
@@ -151,6 +170,12 @@ namespace iqrf {
 		 */
 		void detachInterface(shape::ITraceService *iface);
 	private:
+		/**
+		 * Executes registered callbacks
+		 * @param inProgress Reading in progress
+		 */
+		void executeCallbacks(bool inProgress);
+
 		/**
 		 * Set transaction result, error code and error string
 		 * @param result Service result
@@ -345,5 +370,10 @@ namespace iqrf {
 		const std::string m_mTypeStop = "iqrfSensorData_Stop";
 		/// Async response message type
 		const std::string m_mTypeReportAsync = "iqrfSensorData_ReportAsync";
+
+		/// Callback mutex
+		mutable std::mutex m_callbackMutex;
+		/// Callback map
+		std::map<std::string, std::function<void(bool)>> m_readingCallbacks;
 	};
 }
