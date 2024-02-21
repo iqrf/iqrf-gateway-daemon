@@ -18,7 +18,9 @@
 
 #include "IMonitorService.h"
 #include "ShapeProperties.h"
+#include "IIqrfDb.h"
 #include "IIqrfDpaService.h"
+#include "IIqrfSensorData.h"
 #include "IMessagingSplitterService.h"
 #include "IUdpConnectorService.h"
 #include "IWebsocketService.h"
@@ -91,6 +93,18 @@ namespace iqrf {
 		void deactivate();
 
 		/**
+		 * Attaches DB service interface
+		 * @param iface DB service interface
+		 */
+		void attachInterface(iqrf::IIqrfDb* iface);
+
+		/**
+		 * Detaches DB service interface
+		 * @param iface DB service interface
+		 */
+		void detachInterface(iqrf::IIqrfDb* iface);
+
+		/**
 		 * Attaches DPA service interface
 		 * @param iface DPA service interface
 		 */
@@ -101,6 +115,18 @@ namespace iqrf {
 		 * @param iface DPA service interface
 		 */
 		void detachInterface(iqrf::IIqrfDpaService* iface);
+
+		/**
+		 * Attaches Sensor data interface
+		 * @param iface Sensor data interface
+		 */
+		void attachInterface(iqrf::IIqrfSensorData* iface);
+
+		/**
+		 * Detaches Sensor data interface
+		 * @param iface Sensor data interface
+		 */
+		void detachInterface(iqrf::IIqrfSensorData* iface);
 
 		/**
 		 * Attaches splitter service interface
@@ -172,8 +198,12 @@ namespace iqrf {
 
 		/// Instance ID
 		std::string m_instanceId;
+		/// DB service
+		IIqrfDb *m_dbService = nullptr;
 		/// DPA service interface
 		IIqrfDpaService *m_dpaService = nullptr;
+		/// Sensor data service
+		IIqrfSensorData *m_sensorDataService = nullptr;
 		/// Splitter service interface
 		IMessagingSplitterService *m_splitterService = nullptr;
 		/// UDP connector service

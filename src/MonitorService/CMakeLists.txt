@@ -20,7 +20,9 @@ FIND_PACKAGE(shapeware REQUIRED)
 set(COMPONENT iqrf::MonitorService)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IMonitorService)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDb UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfDpaService UNREQUIRED SINGLE)
+AddShapeRequiredInterface(${COMPONENT} iqrf::IIqrfSensorData UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IMessagingSplitterService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} iqrf::IUdpConnectorService UNREQUIRED SINGLE)
 AddShapeRequiredInterface(${COMPONENT} shape::IWebsocketService MANDATORY SINGLE)
@@ -37,7 +39,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${clibdpa_INCLUDE_DIRS})
 include_directories(${cutils_INCLUDE_DIRS})
-
+include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 
@@ -48,6 +50,7 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
+    nlohmann_json::nlohmann_json
 	Dpa
 )
 

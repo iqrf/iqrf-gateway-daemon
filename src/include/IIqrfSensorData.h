@@ -16,6 +16,7 @@
 */
 #pragma once
 
+#include <functional>
 #include <stdexcept>
 
 namespace iqrf {
@@ -37,6 +38,10 @@ namespace iqrf {
 		 * Destructor
 		 */
 		virtual ~IIqrfSensorData() {};
+
+		virtual bool readInProgress() = 0;
+		virtual void registerReadingCallback(const std::string &instanceId, std::function<void(bool)> callback) = 0;
+    virtual void unregisterReadingCallback(const std::string &messagingId) = 0;
 
 		/**
 		 * Get sensor FRC command from sensor type

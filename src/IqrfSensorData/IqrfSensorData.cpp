@@ -32,6 +32,33 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
+	///// API
+
+	bool IqrfSensorData::readInProgress() {
+		return m_workerRun && m_exclusiveAccess != nullptr;
+	}
+
+	void IqrfSensorData::registerReadingCallback(const std::string &instanceId, std::function<void(bool)> callback) {
+		std::lock_guard<std::mutex> lck(m_callbackMutex);
+		m_readingCallbacks.insert_or_assign(instanceId, callback);
+	}
+
+	void IqrfSensorData::unregisterReadingCallback(const std::string &instanceId) {
+		std::lock_guard<std::mutex> lck(m_callbackMutex);
+		m_readingCallbacks.erase(instanceId);
+	}
+
+	///// Private
+
+	void IqrfSensorData::executeCallbacks(bool inProgress) {
+		std::lock_guard<std::mutex> lck(m_callbackMutex);
+		for (auto &callback : m_readingCallbacks) {
+			if (callback.second) {
+				callback.second(inProgress);
+			}
+		}
+	}
+
 	///// Auxiliary methods
 
 	void IqrfSensorData::setErrorTransactionResult(SensorDataResult &result, std::unique_ptr<IDpaTransactionResult2> &transResult, const std::string &errorStr) {
@@ -316,6 +343,7 @@ namespace iqrf {
 			}
 
 			try {
+				executeCallbacks(true);
 				SensorDataResult result;
 				if (m_asyncReports) {
 					Document doc;
@@ -338,6 +366,8 @@ namespace iqrf {
 				CATCH_EXC_TRC_WAR(std::exception, e, e.what());
 				m_exclusiveAccess.reset();
 			}
+
+			executeCallbacks(false);
 
 			std::unique_lock<std::mutex> lock(m_mtx);
 			TRC_DEBUG("Sensor data worker thread sleeping for: " + std::to_string(m_period) + " minutes.");
