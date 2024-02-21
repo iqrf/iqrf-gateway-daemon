@@ -83,6 +83,12 @@ namespace iqrf {
 		virtual ~IqrfDb();
 
 		/**
+		 * Check if enumeration is in progress
+		 * @return true if enumeration is in progress, false otherwise
+		 */
+		bool isRunning() override;
+
+		/**
 		 * Performs network enumeration according to request parameters
 		 * @param parameters Enumeration parameters
 		 */
