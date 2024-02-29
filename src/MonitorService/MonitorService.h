@@ -18,7 +18,7 @@
 
 #include "IMonitorService.h"
 #include "ShapeProperties.h"
-#include "IIqrfDb.h"
+#include "IIqrfNetworkEnum.h"
 #include "IIqrfDpaService.h"
 #include "IIqrfSensorData.h"
 #include "IMessagingSplitterService.h"
@@ -96,13 +96,13 @@ namespace iqrf {
 		 * Attaches DB service interface
 		 * @param iface DB service interface
 		 */
-		void attachInterface(iqrf::IIqrfDb* iface);
+		void attachInterface(iqrf::IIqrfNetworkEnum* iface);
 
 		/**
 		 * Detaches DB service interface
 		 * @param iface DB service interface
 		 */
-		void detachInterface(iqrf::IIqrfDb* iface);
+		void detachInterface(iqrf::IIqrfNetworkEnum* iface);
 
 		/**
 		 * Attaches DPA service interface
@@ -199,7 +199,7 @@ namespace iqrf {
 		/// Instance ID
 		std::string m_instanceId;
 		/// DB service
-		IIqrfDb *m_dbService = nullptr;
+		IIqrfNetworkEnum *m_networkEnumService = nullptr;
 		/// DPA service interface
 		IIqrfDpaService *m_dpaService = nullptr;
 		/// Sensor data service

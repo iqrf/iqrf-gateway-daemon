@@ -18,7 +18,7 @@
 
 #include "MngBaseMsg.h"
 
-#include "IIqrfDb.h"
+#include "IIqrfNetworkEnum.h"
 #include "IJsCacheService.h"
 
 namespace iqrf {
@@ -34,10 +34,10 @@ namespace iqrf {
 		/**
 		 * Request document constructor
 		 * @param doc Request document
-		 * @param dbService IQRF DB service interface
+		 * @param networkEnumService Network enum service interface
 		 * @param cacheService JS cache service interface
 		 */
-		MngUpdateCacheMsg(const Document &doc, IIqrfDb *dbService, IJsCacheService *cacheService);
+		MngUpdateCacheMsg(const Document &doc, IIqrfNetworkEnum *networkEnumService, IJsCacheService *cacheService);
 
 		/**
 		 * Destructor
@@ -55,8 +55,8 @@ namespace iqrf {
 		 */
 		void createResponsePayload(Document &doc) override;
 	private:
-		/// DB service interface
-		IIqrfDb *m_dbService = nullptr;
+		/// Network enum service interface
+		IIqrfNetworkEnum *m_networkEnumService = nullptr;
 		/// Cache service interface
 		IJsCacheService *m_cacheService = nullptr;
 		/// Cache update status

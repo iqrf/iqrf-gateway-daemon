@@ -62,7 +62,7 @@ namespace iqrf {
 		/// Tracing service
 		shape::ITraceService *m_traceService = nullptr;
 		/// IqrfDb service
-		IIqrfDb *m_dbService = nullptr;
+		IIqrfNetworkEnum *m_networkEnumService = nullptr;
 		/// DPA service
 		IIqrfDpaService *m_dpaService = nullptr;
 		/// Scheduler service
@@ -92,9 +92,9 @@ namespace iqrf {
 			} else if (msgType.m_type == "mngDaemon_Mode") {
 				msg = std::make_unique<MngModeMsg>(MngModeMsg(doc, m_iUdpConnectorService));
 			} else if (msgType.m_type == "mngDaemon_ReloadCoordinator") {
-				msg = std::make_unique<MngReloadCoordinatorMsg>(MngReloadCoordinatorMsg(doc, m_dpaService, m_dbService));
+				msg = std::make_unique<MngReloadCoordinatorMsg>(MngReloadCoordinatorMsg(doc, m_dpaService, m_networkEnumService));
 			} else if (msgType.m_type == "mngDaemon_UpdateCache") {
-				msg = std::make_unique<MngUpdateCacheMsg>(MngUpdateCacheMsg(doc, m_dbService, m_cacheService));
+				msg = std::make_unique<MngUpdateCacheMsg>(MngUpdateCacheMsg(doc, m_networkEnumService, m_cacheService));
 			} else if (msgType.m_type == "mngDaemon_Version") {
 				msg = std::make_unique<MngVersionMsg>(MngVersionMsg(doc));
 			} else if (msgType.m_type == "mngScheduler_AddTask") {
@@ -192,13 +192,13 @@ namespace iqrf {
 			m_dpaService = iface;
 		}
 
-		void attachInterface(IIqrfDb *iface) {
-			m_dbService = iface;
+		void attachInterface(IIqrfNetworkEnum *iface) {
+			m_networkEnumService = iface;
 		}
 
-		void detachInterface(IIqrfDb *iface) {
-			if (m_dbService == iface) {
-				m_dbService = nullptr;
+		void detachInterface(IIqrfNetworkEnum *iface) {
+			if (m_networkEnumService == iface) {
+				m_networkEnumService = nullptr;
 			}
 		}
 
@@ -288,11 +288,11 @@ namespace iqrf {
 		m_imp->detachInterface(iface);
 	}
 
-	void JsonMngApi::attachInterface(IIqrfDb *iface) {
+	void JsonMngApi::attachInterface(IIqrfNetworkEnum *iface) {
 		m_imp->attachInterface(iface);
 	}
 
-	void JsonMngApi::detachInterface(IIqrfDb *iface) {
+	void JsonMngApi::detachInterface(IIqrfNetworkEnum *iface) {
 		m_imp->detachInterface(iface);
 	}
 

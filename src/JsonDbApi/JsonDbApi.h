@@ -22,7 +22,6 @@
 #include "ITraceService.h"
 #include "Trace.h"
 
-#include "Messages/EnumerateMsg.h"
 #include "Messages/GetBinaryOutputsMsg.h"
 #include "Messages/GetDalisMsg.h"
 #include "Messages/GetDeviceMsg.h"
@@ -114,18 +113,6 @@ namespace iqrf {
 		 */
 		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request);
 
-		/**
-		 * Sends enumeration process response
-		 * @param progress Enumeration progress, step and details
-		 */
-		void sendEnumerationResponse(IIqrfDb::EnumerationProgress progress);
-
-		/**
-		 * Sends asynchronous enumeration finish response
-		 * @param progress Enumeration progress, step and details
-		 */
-		void sendAsyncEnumerationFinishResponse(IIqrfDb::EnumerationProgress progress);
-
 		/// Database service
 		IIqrfDb *m_dbService = nullptr;
 		/// Splitter service
@@ -146,9 +133,5 @@ namespace iqrf {
 		};
 		/// Component instance name
 		std::string m_instance;
-		/// Enumeration message pointer for progress reporting
-		std::unique_ptr<EnumerateMsg> m_enumerateMsg;
-		/// Enumeration message reporting mutex
-		std::mutex m_enumerateMutex;
 	};
 }

@@ -19,6 +19,7 @@
 #include "BaseMsg.h"
 
 using namespace rapidjson;
+using namespace iqrf::db;
 
 namespace iqrf {
 

@@ -10,8 +10,6 @@
 	"required": [
 		"component",
 		"instance",
-		"autoEnumerateBeforeInvoked",
-		"enumerateOnLaunch",
 		"metadataToMessages"
 	],
 	"additionalProperties": false,
@@ -28,18 +26,6 @@
 			"description": "Recomended iqrf::IqrfDb-(id)",
 			"pattern": "^[^&]+$",
 			"default": "iqrf::IqrfDb-1"
-		},
-		"autoEnumerateBeforeInvoked": {
-			"$id": "#/properties/autoEnumerateBeforeInvoked",
-			"title": "Auto enumerate before invoked",
-			"description": "Run enumeration automatically without initial user invocation",
-			"type": "boolean"
-		},
-		"enumerateOnLaunch": {
-			"$id": "#/properties/enumerateOnLaunch",
-			"title": "Enumerate on launch",
-			"description": "Run enumeration when Daemon starts.",
-			"type": "boolean"
 		},
 		"metadataToMessages": {
 			"$id" : "#/properties/metadataToMessages",

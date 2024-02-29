@@ -162,7 +162,7 @@ namespace iqrf {
 			}
 			// handle response
 			if (type == 129 || type == 160) {
-				auto map = m_dbService->getSensorDeviceHwpids(type);
+				auto map = m_dbService->getHwpidAddrsMapImplementingSensor(type);
 				sensorFrc.processResponseSensorDrv(map, nodes, true);
 			} else {
 				sensorFrc.processResponseDrv();
@@ -222,7 +222,7 @@ namespace iqrf {
 			auto sensorData = sendSensorFrc(result, type, idx, vector);
 			for (auto &sensor : sensorData) {
 				sensor.setIdx(
-					m_dbService->getGlobalSensorIndex(
+					m_dbService->getDeviceSensorGlobalIndex(
 						sensor.getAddr(),
 						sensor.getType(),
 						sensor.getIdx()
@@ -295,7 +295,7 @@ namespace iqrf {
 	}
 
 	void IqrfSensorData::getDataByFrc(SensorDataResult &result) {
-		SensorSelectMap map = m_dbService->constructSensorSelectMap();
+		SensorDataSelectMap map = m_dbService->getSensorDataSelectMap();
 		std::set<uint8_t> allNodes;
 		for (const auto& [type, addrIdx] : map) {
 			TRC_DEBUG("type: " << std::to_string(type));
@@ -353,7 +353,7 @@ namespace iqrf {
 					m_splitterService->sendMessage(m_messagingList, std::move(doc));
 				}
 				getDataByFrc(result);
-				m_dbService->updateSensorValues(result.getSensorData());
+				m_dbService->updateDeviceSensorValues(result.getSensorData());
 				m_exclusiveAccess.reset();
 				if (m_asyncReports) {
 					Document doc;

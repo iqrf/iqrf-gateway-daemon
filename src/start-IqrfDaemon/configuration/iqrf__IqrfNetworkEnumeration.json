@@ -1,0 +1,6 @@
+{
+	"component": "iqrf::IqrfNetworkEnum",
+	"instance": "IqrfNetworkEnum",
+	"autoEnumerateBeforeInvoked": false,
+	"enumerateOnLaunch": false
+}

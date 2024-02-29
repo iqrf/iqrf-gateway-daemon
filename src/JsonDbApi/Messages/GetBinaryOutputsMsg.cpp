@@ -20,7 +20,7 @@
 namespace iqrf {
 
 	void GetBinaryOutputsMsg::handleMsg(IIqrfDb *dbService) {
-		bos = dbService->getBinaryOutputs();
+		bos = dbService->getBinaryOutputCountMap();
 	}
 
 	void GetBinaryOutputsMsg::createResponsePayload(Document &doc) {
