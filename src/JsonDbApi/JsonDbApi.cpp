@@ -51,9 +51,6 @@ namespace iqrf {
 		m_splitterService->registerFilteredMsgHandler(m_messageTypes, [&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request) {
 			handleMsg(messagingId, msgType, std::move(request));
 		});
-		m_dbService->registerEnumerationHandler(m_instance, [&](IIqrfDb::EnumerationProgress progress) {
-			sendEnumerationResponse(progress);
-		});
 		TRC_FUNCTION_LEAVE("");
 	}
 
@@ -72,7 +69,6 @@ namespace iqrf {
 			"******************************"
 		);
 		m_splitterService->unregisterFilteredMsgHandler(m_messageTypes);
-		m_dbService->unregisterEnumerationHandler(m_instance);
 		TRC_FUNCTION_LEAVE("");
 	}
 
@@ -82,16 +78,7 @@ namespace iqrf {
 		rapidjson::Document response;
 		std::unique_ptr<BaseMsg> msg;
 
-		if (msgType.m_type == "iqrfDb_Enumerate") {
-			std::unique_lock<std::mutex> lock(m_enumerateMutex);
-			if (m_enumerateMsg) {
-				THROW_EXC_TRC_WAR(std::logic_error, "Enumeration already in progress.");
-			}
-			m_enumerateMsg = std::make_unique<EnumerateMsg>(EnumerateMsg(request));
-			m_enumerateMsg->setMessagingId(messagingId);
-			m_enumerateMsg->handleMsg(m_dbService);
-			return;
-		} else if (msgType.m_type == "iqrfDb_GetBinaryOutputs") {
+		if (msgType.m_type == "iqrfDb_GetBinaryOutputs") {
 			msg = std::make_unique<GetBinaryOutputsMsg>(GetBinaryOutputsMsg(request));
 		} else if (msgType.m_type == "iqrfDb_GetDalis") {
 			msg = std::make_unique<GetDalisMsg>(GetDalisMsg(request));
@@ -125,47 +112,6 @@ namespace iqrf {
 			msg->createResponse(errorResponse);
 			m_splitterService->sendMessage(messagingId, std::move(errorResponse));
 		}
-	}
-
-	void JsonDbApi::sendEnumerationResponse(IIqrfDb::EnumerationProgress progress) {
-		std::unique_lock<std::mutex> lock(m_enumerateMutex);
-		if (!m_enumerateMsg) {
-			if (progress.getStep() == IIqrfDb::EnumerationProgress::Steps::Start) {
-				sendAsyncEnumerationFinishResponse(progress);
-			} else if (progress.getStep() == IIqrfDb::EnumerationProgress::Steps::Finish) {
-				sendAsyncEnumerationFinishResponse(progress);
-			}
-			return;
-		}
-		rapidjson::Document response;
-		m_enumerateMsg->setStepCode(progress.getStep());
-		m_enumerateMsg->setStepString(progress.getStepMessage());
-		m_enumerateMsg->setStatus("ok", 0);
-		if (progress.getStep() == IIqrfDb::EnumerationProgress::Steps::Finish) {
-			m_enumerateMsg->setFinished();
-		}
-		m_enumerateMsg->createResponse(response);
-		m_splitterService->sendMessage(m_enumerateMsg->getMessagingId(), std::move(response));
-		if (progress.getStep() == IIqrfDb::EnumerationProgress::Steps::Finish) {
-			m_enumerateMsg.reset();
-		}
-	}
-
-	void JsonDbApi::sendAsyncEnumerationFinishResponse(IIqrfDb::EnumerationProgress progress) {
-		Document request, response;
-		Document::AllocatorType &allocator = request.GetAllocator();
-		request.SetObject();
-		Pointer("/mType").Set(request, "iqrfDb_Enumerate", allocator);
-		Pointer("/data/msgId").Set(request, "iqrfdb_enumerate_async", allocator);
-		Pointer("/data/returnVerbose").Set(request, true, allocator);
-		Pointer("/data/req/standards").Set(request, false, allocator);
-		EnumerateMsg msg(request);
-		msg.setStepCode(progress.getStep());
-		msg.setStepString(progress.getStepMessage());
-		msg.setStatus("ok", 0);
-		msg.setFinished();
-		msg.createResponse(response);
-		m_splitterService->sendMessage("", std::move(response));
 	}
 
 	///// Service interfaces /////

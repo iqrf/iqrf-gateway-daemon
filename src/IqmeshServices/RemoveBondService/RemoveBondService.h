@@ -17,7 +17,7 @@
 #pragma once
 
 #include "ComIqmeshNetworkRemoveBond.h"
-#include "IIqrfDb.h"
+#include "IIqrfNetworkEnum.h"
 #include "IIqrfDpaService.h"
 #include "IJsCacheService.h"
 #include "IMessagingSplitterService.h"
@@ -89,16 +89,16 @@ namespace iqrf {
 		void detachInterface(iqrf::IIqrfDpaService* iface);
 
 		/**
-		 * Attaches DB service interface
-		 * @param iface DB service interface
+		 * Attaches network enum service interface
+		 * @param iface Network enum interface
 		 */
-		void attachInterface(iqrf::IIqrfDb *iface);
+		void attachInterface(iqrf::IIqrfNetworkEnum *iface);
 
 		/**
 		 * Detaches DB service interface
 		 * @param iface DB service interface
 		 */
-    void detachInterface(iqrf::IIqrfDb *iface);
+    void detachInterface(iqrf::IIqrfNetworkEnum *iface);
 
 		/**
 		 * Attaches splitter service interface
@@ -229,7 +229,7 @@ namespace iqrf {
 		/// Service request parameters
 		TRemoveBondRequestParams m_requestParams;
 		/// DB service
-		IIqrfDb *m_dbService = nullptr;
+		IIqrfNetworkEnum *m_networkEnumService = nullptr;
 		/// DPA service
 		IIqrfDpaService *m_dpaService = nullptr;
 		/// Splitter service

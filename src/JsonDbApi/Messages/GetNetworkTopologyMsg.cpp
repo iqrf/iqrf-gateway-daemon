@@ -20,7 +20,7 @@
 namespace iqrf {
 
 	void GetNetworkTopologyMsg::handleMsg(IIqrfDb *dbService) {
-		devices = dbService->getDevices();
+		devices = dbService->getDevicesWithProductInfo();
 	}
 
 	void GetNetworkTopologyMsg::createResponsePayload(Document &doc) {

@@ -20,9 +20,9 @@
 
 namespace iqrf {
 
-	MngUpdateCacheMsg::MngUpdateCacheMsg(const Document &doc, IIqrfDb *infoService, IJsCacheService *cacheService) : MngBaseMsg(doc) {
+	MngUpdateCacheMsg::MngUpdateCacheMsg(const Document &doc, IIqrfNetworkEnum *networkEnumService, IJsCacheService *cacheService) : MngBaseMsg(doc) {
 		TRC_FUNCTION_ENTER("");
-		m_dbService = infoService;
+		m_networkEnumService = networkEnumService;
 		m_cacheService = cacheService;
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -35,7 +35,7 @@ namespace iqrf {
 			throw std::logic_error(std::get<1>(result));
 		}
 		if (m_cacheState == IJsCacheService::CacheStatus::UPDATED) {
-			m_dbService->reloadDrivers();
+			m_networkEnumService->reloadDrivers();
 		}
 		TRC_FUNCTION_LEAVE("");
 	}

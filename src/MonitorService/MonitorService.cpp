@@ -145,8 +145,8 @@ namespace iqrf {
 
 		using namespace rapidjson;
 
-		if (m_dbService) {
-			enumRunning = m_dbService->isRunning();
+		if (m_networkEnumService) {
+			enumRunning = m_networkEnumService->isRunning();
 		}
 
 		if (m_dpaService) {
@@ -209,23 +209,23 @@ namespace iqrf {
 
 	///// Interfaces
 
-	void MonitorService::attachInterface(IIqrfDb* iface) {
-		m_dbService = iface;
-		m_dbService->registerEnumerationHandler(
+	void MonitorService::attachInterface(IIqrfNetworkEnum* iface) {
+		m_networkEnumService = iface;
+		m_networkEnumService->registerEnumerationHandler(
 			m_instanceId,
-			[&](IIqrfDb::EnumerationProgress progress) {
+			[&](IIqrfNetworkEnum::EnumerationProgress progress) {
 				auto step = progress.getStep();
-				if (step == IIqrfDb::EnumerationProgress::Start || step == IIqrfDb::EnumerationProgress::Finish) {
+				if (step == IIqrfNetworkEnum::EnumerationProgress::Start || step == IIqrfNetworkEnum::EnumerationProgress::Finish) {
 					invokeWorker();
 				}
 			}
 		);
 	}
 
-	void MonitorService::detachInterface(IIqrfDb* iface) {
-		if (m_dbService == iface) {
-			m_dbService->unregisterEnumerationHandler(m_instanceId);
-			m_dbService = nullptr;
+	void MonitorService::detachInterface(IIqrfNetworkEnum* iface) {
+		if (m_networkEnumService == iface) {
+			m_networkEnumService->unregisterEnumerationHandler(m_instanceId);
+			m_networkEnumService = nullptr;
 		}
 	}
 

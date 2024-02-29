@@ -134,6 +134,13 @@
       "startlevel": 0
     },
     {
+      "name": "iqrf::IqrfNetworkEnum",
+      "libraryPath": "iqrf-gateway-daemon/bin",
+      "libraryName": "IqrfNetworkEnum",
+      "enabled": true,
+      "startlevel": 1
+    },
+    {
       "name": "iqrf::MqMessaging",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "MqMessaging",

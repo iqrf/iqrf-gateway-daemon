@@ -28,10 +28,18 @@ namespace iqrf {
 	}
 
 	void GetDeviceMsg::handleMsg(IIqrfDb *dbService) {
-		device = dbService->getDevice(address);
-		product = dbService->getProductById(device.getProductId());
-		if (dbService->hasSensors(device.getAddress())) {
-			sensors = dbService->getDeviceSensorsByAddress(device.getAddress());
+		auto devicePtr = dbService->getDevice(address);
+		if (devicePtr == nullptr) {
+			throw std::logic_error("Device at address " + std::to_string(address) + " does not exist.");
+		}
+		device = *devicePtr.get();
+		auto productId = device.getProductId();
+		auto productPtr = dbService->getProduct(productId);
+		if (productPtr == nullptr) {
+			throw std::logic_error("Product ID " + std::to_string(productId) + " does not exist.");
+		}
+		if (dbService->deviceImplementsPeripheral(device.getId(), IqrfCommon::StandardPers::SENSOR)) {
+			sensors = dbService->getSensorsImplementedByDeviceMap(device.getAddress());
 		}
 	}
 

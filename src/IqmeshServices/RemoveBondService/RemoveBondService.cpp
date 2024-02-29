@@ -545,11 +545,11 @@ namespace iqrf {
 	}
 
 	void RemoveBondService::invokeDbEnumeration() {
-		if (m_dbService != nullptr) {
-			IIqrfDb::EnumParams parameters;
+		if (m_networkEnumService != nullptr) {
+			IIqrfNetworkEnum::EnumParams parameters;
 			parameters.reenumerate = true;
 			parameters.standards = true;
-			m_dbService->enumerate(parameters);
+			m_networkEnumService->enumerate(parameters);
 		}
 	}
 
@@ -682,13 +682,13 @@ namespace iqrf {
 
 	///// Interface management
 
-	void RemoveBondService::attachInterface(IIqrfDb *iface) {
-			m_dbService = iface;
+	void RemoveBondService::attachInterface(IIqrfNetworkEnum *iface) {
+			m_networkEnumService = iface;
 		}
 
-	void RemoveBondService::detachInterface(IIqrfDb *iface) {
-		if (m_dbService == iface) {
-			m_dbService = nullptr;
+	void RemoveBondService::detachInterface(IIqrfNetworkEnum *iface) {
+		if (m_networkEnumService == iface) {
+			m_networkEnumService = nullptr;
 		}
 	}
 

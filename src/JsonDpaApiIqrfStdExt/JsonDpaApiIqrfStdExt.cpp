@@ -124,12 +124,12 @@ namespace iqrf {
 				sensor::jsdriver::SensorFrc sensorFrc(apiMsgIqrfStandardFrc.getRequestParamDoc());
 				const uint8_t type = sensorFrc.getType();
 				if (type == 129 || type == 160) {
-					auto map = m_dbService->getSensorDeviceHwpids(type);
+					auto map = m_dbService->getHwpidAddrsMapImplementingSensor(type);
 					jsDriverStandardFrcSolver.processResponseSensorDrv(map, sensorFrc.getSelectedNodes(), sensorFrc.getExtraResult());
 				} else {
 					jsDriverStandardFrcSolver.processResponseDrv();
 				}
-				m_dbService->updateSensorValues(sensorFrc.getType(), sensorFrc.getIndex(), sensorFrc.getSelectedNodes(), jsDriverStandardFrcSolver.getResponseResultStr());
+				m_dbService->updateDeviceSensorValues(sensorFrc.getType(), sensorFrc.getIndex(), sensorFrc.getSelectedNodes(), jsDriverStandardFrcSolver.getResponseResultStr());
 			} else {
 				jsDriverStandardFrcSolver.processResponseDrv();
 			}

@@ -20,7 +20,7 @@
 namespace iqrf {
 
 	void GetSensorsMsg::handleMsg(IIqrfDb *dbService) {
-		sensors = dbService->getSensors();
+		sensors = dbService->getDeviceSensorMap();
 	}
 
 	void GetSensorsMsg::createResponsePayload(Document &doc) {

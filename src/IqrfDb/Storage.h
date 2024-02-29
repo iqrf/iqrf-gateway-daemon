@@ -18,18 +18,12 @@
 
 #include <sqlite_orm/sqlite_orm.h>
 
-#include "Entities/BinaryOutput.h"
-#include "Entities/Dali.h"
-#include "Entities/Device.h"
-#include "Entities/DeviceSensor.h"
-#include "Entities/Driver.h"
-#include "Entities/Light.h"
-#include "Entities/Product.h"
-#include "Entities/ProductDriver.h"
-#include "Entities/Sensor.h"
+#include "Entities.h"
+
+using namespace sqlite_orm;
+using namespace iqrf::db;
 
 static inline auto initializeDb(const std::string &fileName) {
-	using namespace sqlite_orm;
 	return make_storage(fileName,
 		make_table("product",
 			make_column("id", &Product::getId, &Product::setId, primary_key().autoincrement()),

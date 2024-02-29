@@ -19,7 +19,7 @@
 #include "MngBaseMsg.h"
 
 #include "IIqrfDpaService.h"
-#include "IIqrfDb.h"
+#include "IIqrfNetworkEnum.h"
 
 namespace iqrf {
 
@@ -35,9 +35,9 @@ namespace iqrf {
 		 * Constructor
 		 * @param doc Request document
 		 * @param dpaService DPA service interface
-		 * @param dbService DB service interface
+		 * @param networkEnumService network enum service interface
 		 */
-		MngReloadCoordinatorMsg(const Document &doc, IIqrfDpaService *dpaService, IIqrfDb *dbService);
+		MngReloadCoordinatorMsg(const Document &doc, IIqrfDpaService *dpaService, IIqrfNetworkEnum *networkEnumService);
 
 		/**
 		 * Destructor
@@ -51,7 +51,7 @@ namespace iqrf {
 	private:
 		/// DPA service interface
 		IIqrfDpaService *m_dpaService = nullptr;
-		/// DB service interface
-		IIqrfDb *m_dbService = nullptr;
+		/// Network enum service
+		IIqrfNetworkEnum *m_networkEnumService = nullptr;
 	};
 }

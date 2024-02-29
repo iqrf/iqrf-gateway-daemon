@@ -33,21 +33,15 @@ namespace iqrf {
 	class IqrfDbAux {
 	public:
 		/**
-		 * Populates selected nodes for selective FRC requests
-		 * @param nodes Nodes
-		 * @param idx Index to start from
-		 * @param count Number of nodes to add
-		 * @return Selected nodes
-		 */
-		static std::vector<uint8_t> selectNodes(const std::set<uint8_t> &nodes, const uint8_t &idx, const uint8_t &count);
-
-		/**
 		 * Generates timestamp
 		 * @return Timestamp string
 		 */
-		static std::shared_ptr<std::string> getCurrentTimestamp();
-	private:
-		/// Date and time string format
-		static const std::string date_format;
+		static std::shared_ptr<std::string> getCurrentTimestamp() {
+			char datetime[200];
+			time_t t = std::time(NULL);
+			std::tm *tmp = std::gmtime(&t);
+			std::strftime(datetime, sizeof(datetime), "%a, %d %b %y %T %Z", tmp);
+			return std::make_shared<std::string>(datetime);
+		}
 	};
 }
