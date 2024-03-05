@@ -70,10 +70,6 @@ set(valijson_BUILD_TESTS OFF)
 add_subdirectory(libraries/valijson EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/sqlite_orm EXCLUDE_FROM_ALL)
 
-
-set(valijson_BUILD_TESTS OFF)
-add_subdirectory(libraries/valijson EXCLUDE_FROM_ALL)
-
 #add_subdirectory(src)
 
 enable_testing()
