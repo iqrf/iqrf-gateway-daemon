@@ -1,68 +1,84 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedExplore_PeripheralInformation-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
-    },
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "title": "Embedded Peripheral Explore - Peripheral Information response",
+    "description": "© IQRF Tech",
     "type": "object",
+    "required": [
+        "mType",
+        "data"
+    ],
+    "additionalProperties": false,
     "properties": {
         "mType": {
-            "type": "string",
-            "description": "Embedded peripheral Explore - Peripheral Information response.",
-            "enum": [
-                "iqrfEmbedExplore_PeripheralInformation"
-            ]
+            "$ref": "definitions.json#/general/mType",
+            "const": "iqrfEmbedExplore_PeripheralInformation"
         },
         "data": {
+            "title": "Message data",
+            "description": "Message metadata and body",
             "type": "object",
+            "required": [
+                "msgId",
+                "rsp",
+                "status"
+            ],
+            "additionalProperties": false,
             "properties": {
                 "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
+                    "$ref": "definitions.json#/general/msgId"
                 },
                 "rsp": {
+                    "title": "Response",
+                    "description": "Holds request data",
                     "type": "object",
+                    "required": [
+                        "nAdr",
+                        "hwpId",
+                        "rCode",
+                        "dpaVal"
+                    ],
+                    "additionalProperties": false,
                     "properties": {
                         "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
+                          "$ref": "definitions.json#/general/nAdr"
                         },
                         "pnum": {
-							"type": "integer",
-							"description": "Peripheral number."
-						},
-						"pcmd": {
-							"type": "integer",
-							"description": "Peripheral response command."
-						},
+                            "$ref": "definitions.json#/general/response/pnum"
+                        },
+                        "pcmd": {
+                            "$ref": "definitions.json#/general/response/pcmd"
+                        },
                         "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
+                            "$ref": "definitions.json#/general/response/hwpId"
                         },
                         "rCode": {
-                            "type": "integer",
-                            "description": "DPA error code."
+                            "$ref": "definitions.json#/general/response/rCode"
                         },
                         "dpaVal": {
-                            "type": "integer",
-                            "description": "DPA value."
+                            "$ref": "definitions.json#/general/response/dpaVal"
+                        },
+                        "errorStr": {
+                            "$ref": "definitions.json#/general/response/errorStr"
                         },
                         "result": {
                             "type": "object",
+                            "required": [
+                              "perT",
+                              "perTe"
+                            ],
+                            "additionalProperties": false,
                             "properties": {
                                 "perTe": {
                                     "type": "integer",
-                                    "description": "Extended peripheral characteristic. See Extended Peripheral Characteristic constants."
+                                    "description": "Extended peripheral characteristic.",
+                                    "minimum": 0,
+                                    "maximum": 3
                                 },
                                 "perT": {
                                     "type": "integer",
-                                    "description": "Peripheral type. If the peripheral is not supported or enabled, then PerTx = PERIPHERAL_TYPE_DUMMY. See Peripheral Types constants."
+                                    "description": "Peripheral type. If the peripheral is not supported or enabled, then PERIPHERAL_TYPE_DUMMY (0x00).",
+                                    "minimum": 0,
+                                    "maximum": 255
                                 },
                                 "par1": {
                                     "type": "integer",
@@ -73,82 +89,25 @@
                                     "description": "Optional peripheral specific information."
                                 }
                             }
-                        },
-                        "errorStr": {
-                            "type": "string",
-                            "description": "Error description from JS drivers."
                         }
-                    },
-                    "required": [
-                        "nAdr",
-                        "hwpId",
-                        "rCode",
-                        "dpaVal"
-                    ]
+                    }
                 },
                 "raw": {
-					"type": "array",
-					"description": "Returns array of objects req-cnf-rsp, see its description.",
-					"items": {
-						"type": "object",
-						"properties": {
-							"request": {
-								"type": "string",
-								"description": "Binary buffer with DPA request."
-							},
-							"requestTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"confirmation": {
-								"type": "string",
-								"description": "Binary buffer with DPA confirmation."
-							},
-							"confirmationTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"response": {
-								"type": "string",
-								"description": "Binary buffer with DPA response."
-							},
-							"responseTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							}
-						},
-						"required": [
-							"request",
-							"requestTs",
-							"confirmation",
-							"confirmationTs",
-							"response",
-							"responseTs"
-						]
-					}
+                    "$ref": "definitions.json#/general/response/raw"
                 },
                 "insId": {
-                    "type": "string",
-                    "description": "IQRF GW daemon instance identification."
+                    "$ref": "definitions.json#/general/response/insId"
                 },
                 "status": {
-                    "type": "integer",
-                    "description": "IQRF GW daemon API (general or mType) status."
+                    "$ref": "definitions.json#/general/response/status"
                 },
                 "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
+                    "$ref": "definitions.json#/general/response/statusStr"
+                },
+                "timeout": {
+                    "$ref": "definitions.json#/general/timeout"
                 }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
+            }
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+    }
 }
