@@ -7,16 +7,24 @@
     "version": "1-0-0"
   },
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
       "type": "string",
       "description": "Standard peripheral DALI - FRC request.",
-      "enum": [
-        "iqrfDali_Frc"
-      ]
+      "enum": ["iqrfDali_Frc"]
     },
     "data": {
       "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
       "properties": {
         "msgId": {
           "type": "string",
@@ -28,6 +36,11 @@
         },
         "req": {
           "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
           "properties": {
             "nAdr": {
               "type": "integer",
@@ -39,6 +52,10 @@
             },
             "param": {
               "type": "object",
+              "required": [
+                "command"
+              ],
+              "additionalProperties": false,
               "properties": {
                 "command": {
                   "type": "integer",
@@ -61,30 +78,15 @@
                   "description": "Sensors returns in extended format",
                   "default": false
                 }
-              },
-              "required": [
-                "command"
-              ]
+              }
             }
-          },
-          "required": [
-            "nAdr",
-            "param"
-          ]
+          }
         },
         "returnVerbose": {
           "type": "boolean",
           "description": "Flag that includes additional parameters in the response."
         }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }
