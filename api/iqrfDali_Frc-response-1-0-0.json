@@ -7,6 +7,11 @@
     "version": "1-0-0"
   },
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
       "type": "string",
@@ -17,6 +22,12 @@
     },
     "data": {
       "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
       "properties": {
         "msgId": {
           "type": "string",
@@ -28,19 +39,26 @@
         },
         "rsp": {
           "type": "object",
+          "required": [
+            "nAdr",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ],
+          "additionalProperties": false,
           "properties": {
             "nAdr": {
               "type": "integer",
               "description": "Network device address."
             },
             "pnum": {
-							"type": "integer",
-							"description": "Peripheral number."
-						},
-						"pcmd": {
-							"type": "integer",
-							"description": "Peripheral response command."
-						},
+              "type": "integer",
+              "description": "Peripheral number."
+            },
+            "pcmd": {
+              "type": "integer",
+              "description": "Peripheral response command."
+            },
             "hwpId": {
               "type": "integer",
               "description": "Hardware profile identification."
@@ -55,7 +73,18 @@
             },
             "result": {
               "type": "object",
+              "required": [
+                "command",
+                "answers"
+              ],
+              "additionalProperties": false,
               "properties": {
+                "command": {
+                  "title": "DALI command",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535
+                },
                 "answers": {
                   "type": "array",
                   "description": "Array of objects for every DALI answer. Object array index represent the node address (or index in case selectedNodes parameter was used). The object has the same fields as object at the return object of iqrf.DALI.SendCommands_Response.",
@@ -66,23 +95,35 @@
                       },
                       {
                         "type": "object",
-                        "properties": {
-                          "status": {
-                            "type": "integer",
-                            "description": "DALI status: See IQRF DALI standard for details."
-                          },
-                          "value": {
-                            "type": "integer",
-                            "description": "DALI value: See IQRF DALI standard for details."
-                          }
-                        },
+                        "title": "Regular format",
                         "required": [
                           "status",
                           "value"
-                        ]
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "description": "DALI status: See IQRF DALI standard for details.",
+                            "minimum": 0,
+                            "maximum": 255
+                          },
+                          "value": {
+                            "type": "integer",
+                            "description": "DALI value: See IQRF DALI standard for details.",
+                            "minimum": 0,
+                            "maximum": 255
+                          }
+                        }
                       },
                       {
                         "type": "object",
+                        "title": "Extended format",
+                        "required": [
+                          "nAdr",
+                          "answer"
+                        ],
+                        "additionalProperties": false,
                         "properties": {
                           "nAdr": {
                             "type": "integer",
@@ -99,54 +140,68 @@
                               },
                               {
                                 "type": "object",
-                                "properties": {
-                                  "status": {
-                                    "type": "integer",
-                                    "description": "DALI status: See IQRF DALI standard for details."
-                                  },
-                                  "value": {
-                                    "type": "integer",
-                                    "description": "DALI value: See IQRF DALI standard for details."
-                                  }
-                                },
                                 "required": [
                                   "status",
                                   "value"
-                                ]
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                  "status": {
+                                    "type": "integer",
+                                    "description": "DALI status: See IQRF DALI standard for details.",
+                                    "minimum": 0,
+                                    "maximum": 255
+                                  },
+                                  "value": {
+                                    "type": "integer",
+                                    "description": "DALI value: See IQRF DALI standard for details.",
+                                    "minimum": 0,
+                                    "maximum": 255
+                                  }
+                                }
                               }
                             ]
                           }
-                        },
-                        "required": [
-                          "nAdr",
-                          "answer"
-                        ]
+                        }
                       }
                     ]
                   }
-                }
-              },
-              "required": [
-                "answers"
-              ]
+                },
+                "selectedNodes": {
+									"description": "Array of network device addresses requested to execute FRC command.",
+									"type": "array",
+									"additionalItems": false,
+									"uniqueItems": true,
+									"minItems": 1,
+									"maxItems": 239,
+									"items": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 239
+									}
+								}
+              }
             },
             "errorStr": {
               "type": "string",
               "description": "Error description from JS drivers."
             }
-          },
-          "required": [
-            "nAdr",
-            "hwpId",
-            "rCode",
-            "dpaVal"
-          ]
+          }
         },
         "raw": {
           "type": "array",
           "description": "Returns array of objects req-cnf-rsp, see its description.",
           "items": {
             "type": "object",
+            "required": [
+              "request",
+              "requestTs",
+              "confirmation",
+              "confirmationTs",
+              "response",
+              "responseTs"
+            ],
+            "additionalProperties": false,
             "properties": {
               "request": {
                 "type": "string",
@@ -172,15 +227,7 @@
                 "type": "string",
                 "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
               }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
+            }
           }
         },
         "insId": {
@@ -195,16 +242,7 @@
           "type": "string",
           "description": "IQRF GW daemon API (general or mType) status in string form."
         }
-      },
-      "required": [
-        "msgId",
-        "rsp",
-        "status"
-      ]
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }

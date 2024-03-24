@@ -30,9 +30,12 @@ namespace iqrf {
     DpaMessage m_dpaRequestExtra;
     std::unique_ptr<IDpaTransactionResult2> m_extraRes;
     std::set<uint8_t> selectedNodes;
-    bool hasSensorIndex = false;
-    uint8_t sensorIndex = 0;
+    bool m_hasSensorIndex = false;
+    uint8_t m_sensorIndex = 0;
+    uint16_t m_daliCommand = 0;
     rapidjson::Document m_selectedNodes;
+    const std::string m_sensorMType = "iqrfSensor_Frc";
+    const std::string m_daliMtype = "iqrfDali_Frc";
 
   public:
     ApiMsgIqrfStandardFrc() = delete;
@@ -41,34 +44,32 @@ namespace iqrf {
     {
       using namespace rapidjson;
 
-      {
-        const Value *val = Pointer("/data/req/param/getExtraResult").Get(doc);
-        if (val && val->IsBool()) {
-          m_getExtraResult = val->GetBool();
-        }
+      
+      const Value *val = Pointer("/data/req/param/getExtraResult").Get(doc);
+      if (val && val->IsBool()) {
+        m_getExtraResult = val->GetBool();
       }
-      {
-        const Value *val = Pointer("/data/req/param/extFormat").Get(doc);
-        if (val && val->IsBool()) {
-          m_getExtFormat = val->GetBool();
-        }
+      val = Pointer("/data/req/param/extFormat").Get(doc);
+      if (val && val->IsBool()) {
+        m_getExtFormat = val->GetBool();
       }
-      {
-        const std::string mType = getMType();
-        if (mType != "iqrfSensor_Frc") {
-          return;
-        }
-        const Value *val = Pointer("/data/req/param/sensorIndex").Get(doc);
+      const std::string mType = getMType();
+      if (mType == m_daliMtype) {
+        val = Pointer("/data/req/param/command").Get(doc);
         if (val && val->IsUint()) {
-          hasSensorIndex = true;
-          sensorIndex = val->GetUint();
+          m_daliCommand = static_cast<uint16_t>(val->GetUint());
+        }
+      } else if (mType == m_sensorMType) {
+        val = Pointer("/data/req/param/sensorIndex").Get(doc);
+        if (val && val->IsUint()) {
+          m_hasSensorIndex = true;
+          m_sensorIndex = val->GetUint();
         }
       }
-      {
-        const Value *val = Pointer("/data/req/param/selectedNodes").Get(doc);
-        if (val) {
-          m_selectedNodes.CopyFrom(*val, m_selectedNodes.GetAllocator());
-        }
+      
+      val = Pointer("/data/req/param/selectedNodes").Get(doc);
+      if (val) {
+        m_selectedNodes.CopyFrom(*val, m_selectedNodes.GetAllocator());
       }
     }
 
@@ -91,8 +92,11 @@ namespace iqrf {
       ApiMsgIqrfStandard::createResponsePayload(doc);
 
       if (getStatus() == 0) {
-        if (hasSensorIndex) {
-          Pointer("/data/rsp/result/sensorIndex").Set(doc, sensorIndex);
+        const std::string mType = getMType();
+        if (mType == m_daliMtype) {
+          Pointer("/data/rsp/result/command").Set(doc, m_daliCommand);
+        } else if (mType == m_sensorMType && m_hasSensorIndex) {
+          Pointer("/data/rsp/result/sensorIndex").Set(doc, m_sensorIndex);
         }
 
         if (!m_selectedNodes.IsNull()) {
