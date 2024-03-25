@@ -10,7 +10,7 @@ local machineArch(arch) = if arch == 'all' then 'amd64' else arch;
 // Export environment variable for given stability
 local stabilityEnvironmentVars(stability) = (
 if stability == 'devel' then
-	'export STABILITY=devel'
+	'[[ "$CI_COMMIT_BRANCH" = "v3.x-dev" ]] && export STABILITY="next" || export STABILITY="devel"'
 else
 	'[[ "$CI_COMMIT_TAG" =~ ^.*-(alpha|beta|rc)[0-9]*$ ]] && export STABILITY="testing" || export STABILITY="stable"'
 );
@@ -106,7 +106,7 @@ local deployPackageJob(distribution, stability) = {
 if stability == 'devel' then {
 	except: ['tags'],
 	only: {
-		refs: ['master'],
+		refs: ['master', 'v3.x-dev'],
 	},
 	script: [
 		stabilityEnvironmentVars(stability),
