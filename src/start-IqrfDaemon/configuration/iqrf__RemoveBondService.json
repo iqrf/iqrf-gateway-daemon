@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::RemoveBondService",
-  "instance": "iqrf::RemoveBondService-Instance1"
+    "component": "iqrf::RemoveBondService",
+    "instance": "iqrf::RemoveBondService-Instance1"
 }

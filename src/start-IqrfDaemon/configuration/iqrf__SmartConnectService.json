@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::SmartConnectService",
-  "instance": "iqrf::SmartConnectService-Instance1"
+    "component": "iqrf::SmartConnectService",
+    "instance": "iqrf::SmartConnectService-Instance1"
 }
