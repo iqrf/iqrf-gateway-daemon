@@ -2,9 +2,9 @@
     "component": "iqrf::SyslogLogger",
     "instance": "iqrf::SyslogLogger-daemon1",
     "VerbosityLevels": [
-      {
-        "channel": 0,
-        "level": "WAR"
-      }
+        {
+            "channel": 0,
+            "level": "WAR"
+        }
     ]
-  }
+}

@@ -1,5 +1,5 @@
 {
-  "component": "iqrf::IqrfCdc",
-  "instance": "iqrf::IqrfCdc-Instance1",
-  "IqrfInterface": "/dev/ttyACM0"
+    "component": "iqrf::IqrfCdc",
+    "instance": "iqrf::IqrfCdc-Instance1",
+    "IqrfInterface": "/dev/ttyACM0"
 }
