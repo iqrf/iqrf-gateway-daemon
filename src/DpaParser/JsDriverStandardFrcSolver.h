@@ -21,6 +21,9 @@
 #include "Dali.h"
 #include "JsonUtils.h"
 #include <vector>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 namespace iqrf
 {
@@ -97,63 +100,59 @@ namespace iqrf
 
     const rapidjson::Document & getResponseResultDoc() { return m_responseResultDoc; }
 
-    // partial JSON parse to get nadrs of returned results
-    rapidjson::Document getExtFormat(const std::string & resultArrayKey, const std::string & resultItemKey)
-    {
-      using namespace rapidjson;
-      Document doc;
-      doc.SetArray();
+    void filterSelectedNodes(json &doc, const std::string &path, size_t size) {
+      json itemArray = doc[path];
 
-      // get nadrs from selectedNodes if applied
-      std::set<int> selectedNodesSet;
-      const Value *selectedNodesVal = Pointer("/selectedNodes").Get(getRequestParamDoc());
-      if (selectedNodesVal && selectedNodesVal->IsArray()) {
-        for (const Value *nadrVal = selectedNodesVal->Begin(); nadrVal != selectedNodesVal->End(); nadrVal++) {
-          if (nadrVal->IsInt()) {
-            selectedNodesSet.insert(nadrVal->GetInt());
-          }
-          else {
-            THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array of Int .../selectedNodes[]");
-          }
-        }
+      if (!itemArray.is_array()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Expected member " << path << " to be an array.");
       }
 
-      Value *arrayVal = Pointer(resultArrayKey).Get(m_frcResponseResultDoc);
-      if (!(arrayVal && arrayVal->IsArray())) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array ..." << resultArrayKey << "[]");
+      if (itemArray.size() == 0) {
+        return;
       }
 
-      if (arrayVal->Size() > 0) { // is there something in the array?
-        if (selectedNodesSet.size() > 0) {
-          // selective FRC
-
-          // check size
-          if ((selectedNodesSet.size() + 1)  > arrayVal->Size()) {
-            THROW_EXC_TRC_WAR(std::logic_error, "Inconsistent .../selectedNodes[] and ..." << resultArrayKey << "[]");
-          }
-
-          // iterate via selected nodes
-          const Value *itemVal = arrayVal->Begin() + 1; //skip index 0 as driver returns first null as a result of general FRC
-          for (auto nadr : selectedNodesSet) {
-            Value sensorVal;
-            Pointer("/nAdr").Set(sensorVal, nadr, doc.GetAllocator());
-            Pointer(resultItemKey).Set(sensorVal, *itemVal++, doc.GetAllocator());
-            doc.PushBack(sensorVal, doc.GetAllocator());
-          }
-        }
-        else {
-          // non-selective FRC //TODO does FRC always starts from nadr=0?
-          int nadr = 0;
-          for (Value *itemVal = arrayVal->Begin(); itemVal != arrayVal->End(); itemVal++) {
-            Value sensorVal;
-            Pointer("/nAdr").Set(sensorVal, nadr++, doc.GetAllocator());
-            Pointer(resultItemKey).Set(sensorVal, *itemVal, doc.GetAllocator());
-            doc.PushBack(sensorVal, doc.GetAllocator());
-          }
-        }
+      if (size + 1 > itemArray.size()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Result member " << path << " contains less items than requested nodes.");
       }
 
-      return doc;
+      doc[path] = json(itemArray.begin() + 1, itemArray.begin() + 1 + size);
+    }
+
+    void convertToExtendedFormat(json &doc, const std::string &arrayPath, const std::string &itemPath, const std::set<uint8_t> &selected) {
+      json itemArray = doc[arrayPath];
+
+      if (!itemArray.is_array()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Expected member " << arrayPath << " to be an array.");
+      }
+
+      if (itemArray.size() == 0) {
+        return;
+      }
+
+      std::set<uint8_t> addrs;
+      if (selected.empty()) {
+        auto itr = addrs.begin();
+        for (uint8_t i = 0; i < itemArray.size(); ++i) {
+          itr = addrs.insert(itr, i);
+        }
+      } else {
+        addrs = selected;
+      }
+
+      if (addrs.size() != itemArray.size()) {
+        THROW_EXC_TRC_WAR(std::logic_error, "Addr count does not match result item count.");
+      }
+
+      auto itr = addrs.begin();
+      json convertedArray = json::array();
+      for (auto arrayItr = itemArray.begin(); arrayItr != itemArray.end(); ++arrayItr) {
+        json convertedItem = {
+          {"nAdr", *itr++},
+          {itemPath, *arrayItr}
+        };
+        convertedArray.push_back(convertedItem);
+      }
+      doc[arrayPath] = convertedArray;
     }
 
   protected:
