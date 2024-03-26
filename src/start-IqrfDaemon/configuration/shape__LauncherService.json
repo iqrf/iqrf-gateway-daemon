@@ -1,4 +1,4 @@
 {
-  "component": "shape::LauncherService",
-  "instance": "shape::LauncherService"
+    "component": "shape::LauncherService",
+    "instance": "shape::LauncherService"
 }
