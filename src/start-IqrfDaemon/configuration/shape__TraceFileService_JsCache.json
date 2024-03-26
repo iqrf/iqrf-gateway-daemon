@@ -1,18 +1,16 @@
 {
-  "component": "shape::TraceFileService",
-  "instance": "shape::TraceFileService-JsCache",
-
-  "path": "",
-  "filename": "IqrfDaemonJsCache.txt",
-  "maxSize": 2097152,
-  "timestampFiles": false,
-  "maxAgeMinutes": 480,
-  "maxNumber": 20,
-
-  "VerbosityLevels": [
-    {
-      "channel": 33,
-      "level": "DBG"
-    }
-  ]
+    "component": "shape::TraceFileService",
+    "instance": "shape::TraceFileService-JsCache",
+    "path": "",
+    "filename": "IqrfDaemonJsCache.txt",
+    "maxSize": 2097152,
+    "timestampFiles": false,
+    "maxAgeMinutes": 480,
+    "maxNumber": 20,
+    "VerbosityLevels": [
+        {
+            "channel": 33,
+            "level": "DBG"
+        }
+    ]
 }

@@ -1,4 +1,4 @@
 {
-	"component": "iqrf::DpaHopsService",
-	"instance": "iqrf::DpaHopsService-Instance1"
+    "component": "iqrf::DpaHopsService",
+    "instance": "iqrf::DpaHopsService-Instance1"
 }

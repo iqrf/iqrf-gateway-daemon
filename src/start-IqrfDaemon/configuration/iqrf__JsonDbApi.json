@@ -1,4 +1,4 @@
 {
-	"component": "iqrf::JsonDbApi",
-	"instance": "iqrf::JsonDbApi-1"
+    "component": "iqrf::JsonDbApi",
+    "instance": "iqrf::JsonDbApi-1"
 }

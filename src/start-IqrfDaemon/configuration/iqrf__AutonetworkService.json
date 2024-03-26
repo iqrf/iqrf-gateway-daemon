@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::AutonetworkService",
-  "instance": "iqrf::AutonetworkService-Instance1"
+    "component": "iqrf::AutonetworkService",
+    "instance": "iqrf::AutonetworkService-Instance1"
 }
