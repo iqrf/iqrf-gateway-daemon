@@ -1,7 +1,7 @@
 {
-  "component": "iqrf::UdpMessaging",
-  "instance": "UdpMessaging",
-  "RemotePort": 55000,
-  "LocalPort": 55300,
-  "deviceRecordExpiration": 300
+    "component": "iqrf::UdpMessaging",
+    "instance": "UdpMessaging",
+    "RemotePort": 55000,
+    "LocalPort": 55300,
+    "deviceRecordExpiration": 300
 }

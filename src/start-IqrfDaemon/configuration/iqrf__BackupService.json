@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::BackupService",
-  "instance": "iqrf::BackupService-Instance1"
+    "component": "iqrf::BackupService",
+    "instance": "iqrf::BackupService-Instance1"
 }

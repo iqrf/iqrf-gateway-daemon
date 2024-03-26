@@ -1,7 +1,7 @@
 {
-	"component": "iqrf::IqrfDb",
-	"instance": "iqrf::IqrfDb-Instance1",
-	"autoEnumerateBeforeInvoked": true,
-	"enumerateOnLaunch": false,
-	"metadataToMessages": false
+    "component": "iqrf::IqrfDb",
+    "instance": "iqrf::IqrfDb-Instance1",
+    "autoEnumerateBeforeInvoked": true,
+    "enumerateOnLaunch": false,
+    "metadataToMessages": false
 }

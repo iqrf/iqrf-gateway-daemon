@@ -1,8 +1,8 @@
 {
-  "component": "iqrf::IqrfInfo",
-  "instance": "iqrf::IqrfInfo",
-  "enumAtStartUp": false,
-  "enumPeriod": 0,
-  "enumUniformDpaVer": false,
-  "metaDataToMessages": false
+    "component": "iqrf::IqrfInfo",
+    "instance": "iqrf::IqrfInfo",
+    "enumAtStartUp": false,
+    "enumPeriod": 0,
+    "enumUniformDpaVer": false,
+    "metaDataToMessages": false
 }

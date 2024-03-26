@@ -1,4 +1,4 @@
 {
-	"component":	"shape::TraceFormatService",
-	"instance":	"shape::TraceFormatService-Standard"
+    "component": "shape::TraceFormatService",
+    "instance": "shape::TraceFormatService-Standard"
 }

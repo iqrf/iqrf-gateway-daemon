@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::SchedulerMessaging",
-  "instance": "SchedulerMessaging"
+    "component": "iqrf::SchedulerMessaging",
+    "instance": "SchedulerMessaging"
 }

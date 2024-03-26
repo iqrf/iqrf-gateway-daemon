@@ -1,4 +1,4 @@
 {
-	"component": "iqrf::FrcResponseTime",
-	"instance": "iqrf::FrcResponseTime-Instance1"
+    "component": "iqrf::FrcResponseTime",
+    "instance": "iqrf::FrcResponseTime-Instance1"
 }

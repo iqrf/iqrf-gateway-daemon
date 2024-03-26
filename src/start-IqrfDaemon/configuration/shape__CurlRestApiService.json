@@ -1,4 +1,4 @@
 {
-  "component": "shape::CurlRestApiService",
-  "instance": "CurlRestApiService"
+    "component": "shape::CurlRestApiService",
+    "instance": "CurlRestApiService"
 }

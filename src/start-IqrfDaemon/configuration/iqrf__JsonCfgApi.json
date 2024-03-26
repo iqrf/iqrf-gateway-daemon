@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::JsonCfgApi",
-  "instance": "JsonCfgApi-1"
+    "component": "iqrf::JsonCfgApi",
+    "instance": "JsonCfgApi-1"
 }

@@ -1,7 +1,7 @@
 {
-	"component": "iqrf::JsonSplitter",
-	"instance": "JsonSplitter",
-	"validateJsonResponse": true,
-	"insId": "iqrfgd2-default",
-	"messagingList": []
+    "component": "iqrf::JsonSplitter",
+    "instance": "JsonSplitter",
+    "validateJsonResponse": true,
+    "insId": "iqrfgd2-default",
+    "messagingList": []
 }

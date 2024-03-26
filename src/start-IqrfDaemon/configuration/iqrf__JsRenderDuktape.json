@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::JsRenderDuktape",
-  "instance": "JsRenderDuktape"
+    "component": "iqrf::JsRenderDuktape",
+    "instance": "JsRenderDuktape"
 }

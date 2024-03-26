@@ -1,13 +1,13 @@
 {
-  "component": "iqrf::MonitorService",
-  "instance": "iqrf::MonitorService",
-  "reportPeriod": 10,
-  "RequiredInterfaces": [
-    {
-      "name": "shape::IWebsocketService",
-      "target": {
-        "WebsocketPort": 1438
-      }
-    }
-  ]
+    "component": "iqrf::MonitorService",
+    "instance": "iqrf::MonitorService",
+    "reportPeriod": 10,
+    "RequiredInterfaces": [
+        {
+            "name": "shape::IWebsocketService",
+            "target": {
+                "WebsocketPort": 1438
+            }
+        }
+    ]
 }

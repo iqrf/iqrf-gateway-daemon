@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::Scheduler",
-  "instance": "iqrf::Scheduler-Instance"
+    "component": "iqrf::Scheduler",
+    "instance": "iqrf::Scheduler-Instance"
 }

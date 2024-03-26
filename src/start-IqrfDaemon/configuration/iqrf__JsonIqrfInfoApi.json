@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::JsonIqrfInfoApi",
-  "instance": "JsonIqrfInfoApi"
+    "component": "iqrf::JsonIqrfInfoApi",
+    "instance": "JsonIqrfInfoApi"
 }

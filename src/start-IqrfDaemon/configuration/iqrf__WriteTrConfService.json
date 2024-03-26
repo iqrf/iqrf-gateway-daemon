@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::WriteTrConfService",
-  "instance": "iqrf::WriteTrConfService-Instance1"
+    "component": "iqrf::WriteTrConfService",
+    "instance": "iqrf::WriteTrConfService-Instance1"
 }

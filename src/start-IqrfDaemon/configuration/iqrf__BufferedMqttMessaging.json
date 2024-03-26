@@ -1,8 +1,8 @@
 {
-  "component": "iqrf::BufferedMqttMessaging",
-  "instance": "BufferedMqttMessaging",
-  "ClientId": "IqrfDpaBufferedMessaging",
-  "TopicRequest": "Iqrf/DpaRequest",
-  "TopicResponse": "Iqrf/DpaResponse",
-  "acceptAsyncMsg": true
+    "component": "iqrf::BufferedMqttMessaging",
+    "instance": "BufferedMqttMessaging",
+    "ClientId": "IqrfDpaBufferedMessaging",
+    "TopicRequest": "Iqrf/DpaRequest",
+    "TopicResponse": "Iqrf/DpaResponse",
+    "acceptAsyncMsg": true
 }

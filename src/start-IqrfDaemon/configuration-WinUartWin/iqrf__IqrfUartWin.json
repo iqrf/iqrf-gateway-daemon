@@ -1,6 +1,6 @@
 {
-  "component": "iqrf::IqrfUartWin",
-  "instance": "iqrf::IqrfUartWin-Instance1",
-  "IqrfInterface": "COM6",
-  "baudRate": 57600
+    "component": "iqrf::IqrfUartWin",
+    "instance": "iqrf::IqrfUartWin-Instance1",
+    "IqrfInterface": "COM6",
+    "baudRate": 57600
 }

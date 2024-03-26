@@ -1,4 +1,4 @@
 {
-  "component": "iqrf::JsonDpaApiIqrfStdExt",
-  "instance": "JsonDpaApiIqrfStdExt"
+    "component": "iqrf::JsonDpaApiIqrfStdExt",
+    "instance": "JsonDpaApiIqrfStdExt"
 }
