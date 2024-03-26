@@ -69,6 +69,7 @@ endif()
 if(UNIX)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     sqlite3
+    nlohmann_json::nlohmann_json
   )
 else()
   if(${VCPKG_VER} STREQUAL "2021-01-13-unknownhash")
