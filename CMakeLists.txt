@@ -61,6 +61,7 @@ add_subdirectory(libraries/clibuart EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/iqrf-header-parser EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/croncpp EXCLUDE_FROM_ALL)
 add_subdirectory(libraries/date EXCLUDE_FROM_ALL)
+add_subdirectory(libraries/nlohmann_json EXCLUDE_FROM_ALL)
 
 #add_subdirectory(src)
 

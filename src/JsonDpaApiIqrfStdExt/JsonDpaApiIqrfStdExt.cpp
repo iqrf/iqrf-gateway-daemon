@@ -73,6 +73,7 @@ namespace iqrf {
         NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
 
       using namespace rapidjson;
+      using json = nlohmann::json;
 
       Document allResponseDoc;
 
@@ -103,66 +104,49 @@ namespace iqrf {
         // process *_Response
         jsDriverStandardFrcSolver.processResponseDrv();
 
-        // finalize api response
-        if (!apiMsgIqrfStandardFrc.getExtFormat()) {
-          apiMsgIqrfStandardFrc.setPayload("/data/rsp/result", jsDriverStandardFrcSolver.getResponseResultDoc());
+        json jsonDoc = json::parse(jsDriverStandardFrcSolver.getResponseResultStr());
+        std::string arrayKey = apiMsgIqrfStandardFrc.getArrayKeyByMessageType(msgType.m_type);
+        if (apiMsgIqrfStandardFrc.hasSelectedNodes()) {
+          jsDriverStandardFrcSolver.filterSelectedNodes(
+            jsonDoc,
+            arrayKey,
+            apiMsgIqrfStandardFrc.getSelectedNodes().size()
+          );
         }
-        else {
-          std::string arrayKey, itemKey;
+        if (apiMsgIqrfStandardFrc.getExtFormat()) {
+          
+          jsDriverStandardFrcSolver.convertToExtendedFormat(
+            jsonDoc,
+            arrayKey,
+            apiMsgIqrfStandardFrc.getItemKeyByMessageType(msgType.m_type),
+            apiMsgIqrfStandardFrc.getSelectedNodes()
+          );
 
-          // TODO maybe better to virtualize getExtFormat()
-          if (msgType.m_type == "iqrfDali_Frc") {
-            arrayKey = "/answers";
-            itemKey = "/answer";
-          }
-          else if (msgType.m_type == "iqrfSensor_Frc") {
-            arrayKey = "/sensors";
-            itemKey = "/sensor";
-          }
-          else {
-            THROW_EXC_TRC_WAR(std::logic_error, "Unexpected: " << NAME_PAR(messageType, msgType.m_type));
-          }
-
-          rapidjson::Document doc = jsDriverStandardFrcSolver.getExtFormat(arrayKey, itemKey);
-
-          for (Value * senVal = doc.Begin(); senVal != doc.End(); senVal++) {
-            Value *nadrVal = Pointer("/nAdr").Get(*senVal);
-            if (!(nadrVal && nadrVal->IsInt())) {
-              THROW_EXC_TRC_WAR(std::logic_error, "Expected: .../nAdr of type integer");
-            }
-
-            int nadr = nadrVal->GetInt();
-
+          if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
             try {
-              // db metadata
-              if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
-                // anotate with metada
-                Pointer("/metaData").Set(*senVal, m_iIqrfInfo->getNodeMetaData(nadr), doc.GetAllocator());
+              for (auto itr = jsonDoc[arrayKey].begin(); itr != jsonDoc[arrayKey].end(); ++itr) {
+                uint8_t nadr = (*itr)["nAdr"].get<uint8_t>();
+                if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
+                  std::string metadataStr = jutils::jsonToStr(m_iIqrfInfo->getNodeMetaData(nadr));
+                  (*itr)["metaData"] = json::parse(metadataStr);
+                }
               }
-            }
-            catch (std::exception & e) {
+            } catch (const std::exception &e) {
               CATCH_EXC_TRC_WAR(std::exception, e, "Cannot annotate by metadata");
             }
           }
-
-          //TODO right key here
-          std::string fullArrayKey = "/data/rsp/result";
-          fullArrayKey += arrayKey;
-          apiMsgIqrfStandardFrc.setPayload(fullArrayKey, doc);
         }
+
+        std::string jsonDocStr = jsonDoc.dump();
+        Document doc;
+        doc.Parse(jsonDocStr);
+        apiMsgIqrfStandardFrc.setPayload("/data/rsp/result", doc);
+
         apiMsgIqrfStandardFrc.setDpaTransactionResult(jsDriverStandardFrcSolver.moveFrcDpaTransactionResult());
         apiMsgIqrfStandardFrc.setDpaTransactionExtraResult(jsDriverStandardFrcSolver.moveFrcExtraDpaTransactionResult());
         IDpaTransactionResult2::ErrorCode status = IDpaTransactionResult2::ErrorCode::TRN_OK;
         apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
         apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
-
-        //{ //TODO debug  only
-        //  rapidjson::StringBuffer buffer;
-        //  rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-        //  allResponseDoc.Accept(writer);
-        //  std::string allResponseDocStr = buffer.GetString();
-        //}
-
       }
       catch (std::exception & e) {
         //provide error response
