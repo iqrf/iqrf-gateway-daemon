@@ -1,17 +1,17 @@
 {
-  "component": "iqrf::IdeCounterpart",
-  "instance": "IdeCounterpart",
-  "gwIdentModeByte": 32,
-  "gwIdentName": "iqrf-gateway-daemon",
-  "gwIdentIpStack": "N/A",
-  "gwIdentNetBios": "N/A",
-  "gwIdentPublicIp": "N/A",
-  "RequiredInterfaces": [
-    {
-      "name": "iqrf::IMessagingService",
-      "target": {
-        "instance": "UdpMessaging"
-      }
-    }
-  ]
+    "component": "iqrf::IdeCounterpart",
+    "instance": "IdeCounterpart",
+    "gwIdentModeByte": 32,
+    "gwIdentName": "iqrf-gateway-daemon",
+    "gwIdentIpStack": "N/A",
+    "gwIdentNetBios": "N/A",
+    "gwIdentPublicIp": "N/A",
+    "RequiredInterfaces": [
+        {
+            "name": "iqrf::IMessagingService",
+            "target": {
+                "instance": "UdpMessaging"
+            }
+        }
+    ]
 }
