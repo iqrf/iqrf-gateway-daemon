@@ -1,4 +1,4 @@
 {
-  "component": "shape::ConfigurationService",
-  "instance": "shape::ConfigurationService-1"
+    "component": "shape::ConfigurationService",
+    "instance": "shape::ConfigurationService-1"
 }

@@ -1,16 +1,14 @@
 {
-  "component": "shape::TraceFileService",
-  "instance": "shape::TraceFileService-daemon1",
-
-  "path": "/var/log/iqrf-gateway-daemon",
-  "filename": "iqrf-gateway-daemon.log",
-  "maxSizeMB": 1048576,
-  "timestampFiles": false,
-
-  "VerbosityLevels": [
-    {
-      "channel": 0,
-      "level": "WAR"
-    }
-  ]
+    "component": "shape::TraceFileService",
+    "instance": "shape::TraceFileService-daemon1",
+    "path": "/var/log/iqrf-gateway-daemon",
+    "filename": "iqrf-gateway-daemon.log",
+    "maxSizeMB": 1048576,
+    "timestampFiles": false,
+    "VerbosityLevels": [
+        {
+            "channel": 0,
+            "level": "WAR"
+        }
+    ]
 }
