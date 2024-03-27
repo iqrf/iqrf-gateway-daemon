@@ -63,8 +63,10 @@
                         "result": {
                             "type": "object",
                             "required": [
-                              "perT",
-                              "perTe"
+                                "perT",
+                                "perTe",
+                                "par1",
+                                "par2"
                             ],
                             "additionalProperties": false,
                             "properties": {
@@ -82,11 +84,15 @@
                                 },
                                 "par1": {
                                     "type": "integer",
-                                    "description": "Optional peripheral specific information."
+                                    "description": "Optional peripheral specific information.",
+                                    "minimum": 0,
+                                    "maximum": 255
                                 },
                                 "par2": {
                                     "type": "integer",
-                                    "description": "Optional peripheral specific information."
+                                    "description": "Optional peripheral specific information.",
+                                    "minimum": 0,
+                                    "maximum": 255
                                 }
                             }
                         }
