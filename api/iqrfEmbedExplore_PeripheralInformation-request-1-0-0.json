@@ -52,7 +52,9 @@
                             "properties": {
                                 "per": {
                                     "type": "integer",
-                                    "description": "Peripheral to get information about (PNUM)."
+                                    "description": "Peripheral to get information about (PNUM).",
+                                    "minimum": 0,
+                                    "maximum": 255
                                 }
                             }
                         }
