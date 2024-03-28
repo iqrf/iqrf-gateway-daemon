@@ -1,9 +1,0 @@
-mType: cfgDaemon_Component
-data:
-  msgId: testMetaDataCfg
-  req:
-    componentName: iqrf::JsonMngMetaDataApi
-    componentInstance: JsonMngMetaDataApi
-    configuration:
-      metaDataToMessages: false
-  returnVerbose: true
