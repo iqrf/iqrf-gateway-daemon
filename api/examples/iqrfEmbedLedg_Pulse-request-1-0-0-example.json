@@ -1,10 +1,9 @@
 {
   "mType": "iqrfEmbedLedg_Pulse",
   "data": {
-    "msgId": "testEmbedLedg",
+    "msgId": "e4ba0de8-e969-4447-843e-57dd7ee88c84",
     "req": {
-      "nAdr": 1,
-      "param": {}
+      "nAdr": 1
     },
     "returnVerbose": true
   }
