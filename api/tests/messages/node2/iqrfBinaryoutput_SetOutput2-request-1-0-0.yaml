@@ -1,8 +1,0 @@
-mType: iqrfBinaryoutput_SetOutput
-data:
-  msgId: testEmbedBout
-  req:
-    nAdr: 2
-    param:
-      binOuts: []
-  returnVerbose: true
