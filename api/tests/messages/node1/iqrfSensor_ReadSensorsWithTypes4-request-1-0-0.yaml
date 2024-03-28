@@ -1,8 +1,0 @@
-mType: iqrfSensor_ReadSensorsWithTypes
-data:
-  msgId: testEmbedSensor
-  req:
-    nAdr: 1
-    hwpId: 2050
-    param: {}
-  returnVerbose: true
