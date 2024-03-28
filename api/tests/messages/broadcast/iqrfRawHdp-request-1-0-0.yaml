@@ -1,9 +1,0 @@
-mType: iqrfRawHdp
-data:
-  msgId: testRawHdp
-  req:
-    nAdr: 255
-    pNum: 6
-    pCmd: 3
-    pData: []
-  returnVerbose: true

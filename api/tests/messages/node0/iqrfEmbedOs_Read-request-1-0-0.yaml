@@ -1,7 +1,0 @@
-mType: iqrfEmbedOs_Read
-data:
-  msgId: testEmbedOs
-  req:
-    nAdr: 0
-    param: {}
-  returnVerbose: true
