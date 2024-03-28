@@ -12,6 +12,7 @@ shapeware-build/
 
 # api/tests
 .pytest_cache
+__pycache__/
 
 # examples
 examples/java/iqrf-raw/bin/
