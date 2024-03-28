@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedLedg_Set",
   "data": {
-    "msgId": "testEmbedLedr",
+    "msgId": "77219dff-4c7e-4d61-ab8b-0f1f446b8a6d",
     "req": {
       "nAdr": 1,
       "param": {
