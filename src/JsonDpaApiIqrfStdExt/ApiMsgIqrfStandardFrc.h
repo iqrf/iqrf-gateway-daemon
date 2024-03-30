@@ -34,8 +34,8 @@ namespace iqrf {
     uint8_t m_sensorIndex = 0;
     uint16_t m_daliCommand = 0;
     rapidjson::Document m_selectedNodes;
-    const std::string m_sensorMType = "iqrfSensor_Frc";
-    const std::string m_daliMtype = "iqrfDali_Frc";
+    const std::string mTypeDali = "iqrfDali_Frc";
+    const std::string mTypeSensor = "iqrfSensor_Frc";
 
   public:
     ApiMsgIqrfStandardFrc() = delete;
@@ -54,12 +54,12 @@ namespace iqrf {
         m_getExtFormat = val->GetBool();
       }
       const std::string mType = getMType();
-      if (mType == m_daliMtype) {
+      if (mType == mTypeDali) {
         val = Pointer("/data/req/param/command").Get(doc);
         if (val && val->IsUint()) {
           m_daliCommand = static_cast<uint16_t>(val->GetUint());
         }
-      } else if (mType == m_sensorMType) {
+      } else if (mType == mTypeSensor) {
         val = Pointer("/data/req/param/sensorIndex").Get(doc);
         if (val && val->IsUint()) {
           m_hasSensorIndex = true;
@@ -70,7 +70,36 @@ namespace iqrf {
       val = Pointer("/data/req/param/selectedNodes").Get(doc);
       if (val) {
         m_selectedNodes.CopyFrom(*val, m_selectedNodes.GetAllocator());
+        for (Value *item = m_selectedNodes.Begin(); item != m_selectedNodes.End(); item++) {
+          selectedNodes.insert(item->GetUint());
+        }
       }
+    }
+
+    bool hasSelectedNodes() const {
+      return selectedNodes.size() > 0;
+    }
+  
+    std::set<uint8_t> getSelectedNodes() const {
+      return selectedNodes;
+    }
+
+    std::string getArrayKeyByMessageType(const std::string mType) {
+      if (mType == mTypeDali) {
+        return "answers";
+      } else if (mType == mTypeSensor) {
+        return "sensors";
+      }
+      return "";
+    }
+
+    std::string getItemKeyByMessageType(const std::string mType) {
+      if (mType == mTypeDali) {
+        return "answer";
+      } else if (mType == mTypeSensor) { 
+        return "sensor";
+      }
+      return "";
     }
 
     bool getExtraResult() const { return m_getExtraResult; }
@@ -93,9 +122,9 @@ namespace iqrf {
 
       if (getStatus() == 0) {
         const std::string mType = getMType();
-        if (mType == m_daliMtype) {
+        if (mType == mTypeDali) {
           Pointer("/data/rsp/result/command").Set(doc, m_daliCommand);
-        } else if (mType == m_sensorMType && m_hasSensorIndex) {
+        } else if (mType == mTypeSensor && m_hasSensorIndex) {
           Pointer("/data/rsp/result/sensorIndex").Set(doc, m_sensorIndex);
         }
 
