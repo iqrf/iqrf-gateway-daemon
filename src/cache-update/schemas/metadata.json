@@ -1,33 +1,41 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "metadata.json",
-    "type": "object",
-    "required": [
-        "metadataVersion",
-        "metadata"
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "metadataVersion": {
-            "title": "Metadata version",
-            "description": "Version of metadata, versions differ in properties described by the schema.",
-            "type": "integer",
-            "minimum": 0
-        },
-        "metadata": {}
-    },
-    "allOf": [
-        {
-            "if": {
-                "properties": {
-                    "metadataVersion": {"const": 0}
-                }
+    "type": "array",
+    "additionalItems": false,
+    "items": {
+        "type": "object",
+        "required": [
+            "metadataVersion",
+            "metadata"
+        ],
+        "additionalProperties": false,
+        "properties": {
+            "metadataVersion": {
+                "title": "Metadata version",
+                "description": "Version of metadata, versions differ in properties described by the schema.",
+                "type": "integer",
+                "minimum": 0
             },
-            "then": {
-                "properties": {
-                    "metadata": {"$ref": "metadataVersions/v0.json#"}
+            "metadata": {},
+            "extra": {
+                "title": "Additional, optional metadata",
+                "type": "object"
+            }
+        },
+        "allOf": [
+            {
+                "if": {
+                    "properties": {
+                        "metadataVersion": {"const": 0}
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "metadata": {"$ref": "metadataVersions/v0.json#"}
+                    }
                 }
             }
-        }
-    ]
+        ]
+    }
 }

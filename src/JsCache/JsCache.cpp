@@ -710,13 +710,14 @@ namespace iqrf {
         std::string name = productDoc["name"];
         std::string homePage = productDoc["homePage"];
         std::string picture = productDoc["picture"];
-        std::shared_ptr<Metadata> metadata = nullptr;
+        std::vector<Metadata> metadata;
 
-        if (!productDoc["metadata"].empty()) {
-          uint8_t metadataVersion = productDoc["metadata"]["metadataVersion"];
+        for (auto metadataItemItr = productDoc["metadata"].begin(); metadataItemItr != productDoc["metadata"].end(); ++metadataItemItr) {
+          json metadataItemDoc = metadataItemItr.value();
+          uint8_t metadataVersion = metadataItemDoc["metadataVersion"];
 
           std::vector<MetadataHwpidProfile> profiles;
-          json profilesDoc = productDoc["metadata"]["metadata"]["profiles"];
+          json profilesDoc = metadataItemDoc["metadata"]["profiles"];
           for (auto profileItr = profilesDoc.begin(); profileItr != profilesDoc.end(); ++profileItr) {
             json profileDoc = profileItr.value();
             uint8_t versionMin = profileDoc["hwpidVersions"]["min"];
@@ -732,7 +733,7 @@ namespace iqrf {
               MetadataHwpidProfile(versionMin, versionMax, routing, beaming, repeater, frcAggregation, iqarosCompatible, iqrfSensors, binouts)
             );
           }
-          metadata = std::make_shared<Metadata>(Metadata(metadataVersion, profiles));
+          metadata.push_back(Metadata(metadataVersion, profiles));
         }
         productMap.insert(
           std::make_pair(hwpid, Product(hwpid, manufacturerId, name, homePage, picture, metadata))

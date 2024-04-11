@@ -75,6 +75,52 @@
                         "description": "Number of binary outputs this device implements.",
                         "type": "integer",
                         "minimum": 0
+                    },
+                    "powerSupply": {
+                        "title": "Power supply information",
+                        "type": "object",
+                        "required": [
+                            "mains",
+                            "accumulator",
+                            "battery",
+                            "batteryType",
+                            "minVoltage"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "mains": {
+                                "title": "Mains powered",
+                                "description": "Power supplied by a main cable.",
+                                "type": "boolean"
+                            },
+                            "accumulator": {
+                                "title": "Accumulator powered",
+                                "description": "Power supplied from an accumulator.",
+                                "type": "boolean"
+                            },
+                            "battery": {
+                                "title": "Battery powered",
+                                "description": "Power supplied from a battery.",
+                                "type": "boolean"
+                            },
+                            "batteryType": {
+                                "title": "Type of battery",
+                                "description": "Battery type identifier.",
+                                "oneOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "minVoltage": {
+                                "title": "Minimum voltage",
+                                "description": "Minimum voltage characteristic in mV.",
+                                "type": "integer"
+                            }
+                        }
                     }
                 }
             }

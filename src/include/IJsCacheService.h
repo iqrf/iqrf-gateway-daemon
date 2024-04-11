@@ -142,7 +142,7 @@ namespace iqrf {
         const std::string &name,
         const std::string &homePage,
         const std::string &picture,
-        std::shared_ptr<Metadata> metadata
+        std::vector<Metadata> metadata
       ):
         m_hwpid(hwpid),
         m_manufacturerId(manufacturerId),
@@ -157,7 +157,7 @@ namespace iqrf {
       std::string m_name;
       std::string m_homePage;
       std::string m_picture;
-      std::shared_ptr<Metadata> m_metadata = nullptr;
+      std::vector<Metadata> m_metadata;
     };
 
     ///// Driver /////
