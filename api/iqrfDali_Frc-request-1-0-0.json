@@ -16,7 +16,9 @@
     "mType": {
       "type": "string",
       "description": "Standard peripheral DALI - FRC request.",
-      "enum": ["iqrfDali_Frc"]
+      "enum": [
+        "iqrfDali_Frc"
+      ]
     },
     "data": {
       "type": "object",
