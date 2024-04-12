@@ -97,8 +97,12 @@ namespace iqrf {
 
 		try {
 			// solves JsDriver processing
-			JsDriverStandardFrcSolver jsDriverStandardFrcSolver(m_jsRenderService, msgType.m_possibleDriverFunction,
-				apiMsgIqrfStandardFrc.getRequestParamDoc(), apiMsgIqrfStandardFrc.getHwpid());
+			JsDriverStandardFrcSolver jsDriverStandardFrcSolver(
+				m_jsRenderService,
+				msgType.m_possibleDriverFunction,
+				apiMsgIqrfStandardFrc.getRequestParamDoc(),
+				apiMsgIqrfStandardFrc.getHwpid()
+			);
 
 			// process *_Request
 			jsDriverStandardFrcSolver.processRequestDrv();
@@ -154,7 +158,7 @@ namespace iqrf {
 					try {
 						for (auto itr = jsonDoc[arrayKey].begin(); itr != jsonDoc[arrayKey].end(); ++itr) {
 							uint8_t nadr = (*itr)["nAdr"].get<uint8_t>();
-								std::string metadataStr = jutils::jsonToStr(m_dbService->getDeviceMetadataDoc());
+								std::string metadataStr = jutils::jsonToStr(m_dbService->getDeviceMetadataDoc(nadr));
 								(*itr)["metaData"] = json::parse(metadataStr);
 						}
 					} catch (const std::exception &e) {
@@ -173,8 +177,7 @@ namespace iqrf {
 			IDpaTransactionResult2::ErrorCode status = IDpaTransactionResult2::ErrorCode::TRN_OK;
 			apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
 			apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
-		}
-		catch (std::exception & e) {
+		} catch (const std::exception & e) {
 			//provide error response
 			Document rDataError;
 			rDataError.SetString(e.what(), rDataError.GetAllocator());
