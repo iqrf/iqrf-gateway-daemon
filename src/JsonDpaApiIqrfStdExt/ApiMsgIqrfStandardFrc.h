@@ -34,68 +34,68 @@ namespace iqrf {
 		 * @param doc Request document
 		 */
 		ApiMsgIqrfStandardFrc(const Document& doc) : ApiMsgIqrfStandard(doc) {
-      const Value *val = Pointer("/data/req/param/getExtraResult").Get(doc);
-      if (val && val->IsBool()) {
-        m_getExtraResult = val->GetBool();
-      }
-      val = Pointer("/data/req/param/extFormat").Get(doc);
-      if (val && val->IsBool()) {
-        m_getExtFormat = val->GetBool();
-      }
-      const std::string mType = getMType();
-      if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
-        val = Pointer("/data/req/param/command").Get(doc);
-        if (val && val->IsUint()) {
-          m_ldiCommand = static_cast<uint16_t>(val->GetUint());
-        }
-      } else if (mType == mTypeSensorFrc) {
-        val = Pointer("/data/req/param/sensorIndex").Get(doc);
-        if (val && val->IsUint()) {
-          m_hasSensorIndex = true;
-          m_sensorIndex = val->GetUint();
-        }
-      }
+			const Value *val = Pointer("/data/req/param/getExtraResult").Get(doc);
+			if (val && val->IsBool()) {
+				m_getExtraResult = val->GetBool();
+			}
+			val = Pointer("/data/req/param/extFormat").Get(doc);
+			if (val && val->IsBool()) {
+				m_getExtFormat = val->GetBool();
+			}
+			const std::string mType = getMType();
+			if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
+				val = Pointer("/data/req/param/command").Get(doc);
+				if (val && val->IsUint()) {
+					m_ldiCommand = static_cast<uint16_t>(val->GetUint());
+				}
+			} else if (mType == mTypeSensorFrc) {
+				val = Pointer("/data/req/param/sensorIndex").Get(doc);
+				if (val && val->IsUint()) {
+					m_hasSensorIndex = true;
+					m_sensorIndex = val->GetUint();
+				}
+			}
 
-      val = Pointer("/data/req/param/selectedNodes").Get(doc);
-      if (val) {
-        m_selectedNodes.CopyFrom(*val, m_selectedNodes.GetAllocator());
-        for (Value *item = m_selectedNodes.Begin(); item != m_selectedNodes.End(); item++) {
-          selectedNodes.insert(item->GetUint());
-        }
-      }
-    }
+			val = Pointer("/data/req/param/selectedNodes").Get(doc);
+			if (val) {
+				m_selectedNodes.CopyFrom(*val, m_selectedNodes.GetAllocator());
+				for (Value *item = m_selectedNodes.Begin(); item != m_selectedNodes.End(); item++) {
+					selectedNodes.insert(item->GetUint());
+				}
+			}
+		}
 
-    bool hasSelectedNodes() const {
-      return selectedNodes.size() > 0;
-    }
+		bool hasSelectedNodes() const {
+			return selectedNodes.size() > 0;
+		}
 
-    std::set<uint8_t> getSelectedNodes() const {
-      return selectedNodes;
-    }
+		std::set<uint8_t> getSelectedNodes() const {
+			return selectedNodes;
+		}
 
-    std::string getArrayKeyByMessageType(const std::string mType) {
-      if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
-        return "answers";
-      } else if (mType == mTypeLightFrcLaiRead) {
-        return "voltages";
-      } else if (mType == mTypeSensorFrc) {
-        return "sensors";
-      }
-      return "";
-    }
+		std::string getArrayKeyByMessageType(const std::string mType) {
+			if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
+				return "answers";
+			} else if (mType == mTypeLightFrcLaiRead) {
+				return "voltages";
+			} else if (mType == mTypeSensorFrc) {
+				return "sensors";
+			}
+			return "";
+		}
 
-    std::string getItemKeyByMessageType(const std::string mType) {
-      if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
-        return "answer";
-      } else if (mType == mTypeLightFrcLaiRead) {
-        return "voltage";
-      } else if (mType == mTypeSensorFrc) {
-        return "sensor";
-      }
-      return "";
-    }
+		std::string getItemKeyByMessageType(const std::string mType) {
+			if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
+				return "answer";
+			} else if (mType == mTypeLightFrcLaiRead) {
+				return "voltage";
+			} else if (mType == mTypeSensorFrc) {
+				return "sensor";
+			}
+			return "";
+		}
 
-    bool getExtraResult() const { return m_getExtraResult; }
+		bool getExtraResult() const { return m_getExtraResult; }
 
 		/**
 		 * Checks if extended format should be used in response
@@ -119,13 +119,13 @@ namespace iqrf {
 		void createResponsePayload(Document& doc) override {
 			ApiMsgIqrfStandard::createResponsePayload(doc);
 
-      if (getStatus() == 0) {
-        const std::string mType = getMType();
-        if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
-          Pointer("/data/rsp/result/command").Set(doc, m_ldiCommand);
-        } else if (mType == mTypeSensorFrc && m_hasSensorIndex) {
-          Pointer("/data/rsp/result/sensorIndex").Set(doc, m_sensorIndex);
-        }
+			if (getStatus() == 0) {
+				const std::string mType = getMType();
+				if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
+					Pointer("/data/rsp/result/command").Set(doc, m_ldiCommand);
+				} else if (mType == mTypeSensorFrc && m_hasSensorIndex) {
+					Pointer("/data/rsp/result/sensorIndex").Set(doc, m_sensorIndex);
+				}
 
 				if (!m_selectedNodes.IsNull()) {
 					Pointer("/data/rsp/result/selectedNodes").Set(doc, m_selectedNodes);
@@ -163,14 +163,14 @@ namespace iqrf {
 		uint16_t m_ldiCommand = 0;
 		/// Selected nodes document
 		rapidjson::Document m_selectedNodes;
-    /// DALI FRC message type
-    const std::string mTypeDaliFrc = "iqrfDali_Frc";
-    /// Light FRC LAI read message type
-    const std::string mTypeLightFrcLaiRead = "iqrfLight_FrcLaiRead";
-    /// Light FRC LDI send message type
-    const std::string mTypeLightFrcLdiSend = "iqrfLight_FrcLdiSend";
-    /// Sensor FRC message type
-    const std::string mTypeSensorFrc = "iqrfSensor_Frc";    
+		/// DALI FRC message type
+		const std::string mTypeDaliFrc = "iqrfDali_Frc";
+		/// Light FRC LAI read message type
+		const std::string mTypeLightFrcLaiRead = "iqrfLight_FrcLaiRead";
+		/// Light FRC LDI send message type
+		const std::string mTypeLightFrcLdiSend = "iqrfLight_FrcLdiSend";
+		/// Sensor FRC message type
+		const std::string mTypeSensorFrc = "iqrfSensor_Frc";    
 	};
 
 }
