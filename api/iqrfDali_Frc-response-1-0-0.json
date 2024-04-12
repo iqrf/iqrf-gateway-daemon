@@ -182,18 +182,18 @@
                   }
                 },
                 "selectedNodes": {
-									"description": "Array of network device addresses requested to execute FRC command.",
-									"type": "array",
-									"additionalItems": false,
-									"uniqueItems": true,
-									"minItems": 1,
-									"maxItems": 239,
-									"items": {
-										"type": "integer",
-										"minimum": 1,
-										"maximum": 239
-									}
-								}
+                  "description": "Array of network device addresses requested to execute FRC command.",
+                  "type": "array",
+                  "additionalItems": false,
+                  "uniqueItems": true,
+                  "minItems": 1,
+                  "maxItems": 239,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 239
+                  }
+                }
               }
             },
             "errorStr": {
