@@ -1,122 +1,222 @@
-{
-	"mType": "iqrfSensor_Frc",
-	"data": {
-		"msgId": "testEmbedSensor",
-		"rsp": {
-			"nAdr": 0,
-			"hwpId": 0,
-			"rCode": 0,
-			"dpaVal": 0,
-			"result": {
-				"sensors": [
-					null,
-					{
-						"id": "TEMPERATURE",
-						"type": 1,
-						"name": "Temperature",
-						"shortName": "t",
-						"value": 27.5,
-						"unit": "°C",
-						"decimalPlaces": 4
-					},
-					{
-						"id": "TEMPERATURE",
-						"type": 1,
-						"name": "Temperature",
-						"shortName": "t",
-						"value": null,
-						"unit": "°C",
-						"decimalPlaces": 4
-					},
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null
-				],
-				"sensorIndex": 0,
-				"selectedNodes": [
-					1,
-					2
-				]
-			}
-		},
-		"raw": [
-			{
-				"request": "00.00.0d.02.ff.ff.90.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.5e.01.00.00",
-				"requestTs": "2022-12-15T08:41:55.165+01:00",
-				"confirmation": "",
-				"confirmationTs": "",
-				"response": "00.00.0d.82.00.00.00.00.02.00.63.02.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-				"responseTs": "2022-12-15T08:41:56.064+01:00"
-			},
-			{
-				"request": "00.00.0d.01.ff.ff",
-				"requestTs": "2022-12-15T08:41:56.064+01:00",
-				"confirmation": "",
-				"confirmationTs": "",
-				"response": "00.00.0d.81.00.00.00.00.00.00.00.00.00.00.00.00.00",
-				"responseTs": "2022-12-15T08:41:56.192+01:00"
-			}
-		],
-		"insId": "iqrfgd2-default",
-		"statusStr": "ok",
-		"status": 0
-	}
-}
+[
+  {
+    "mType": "iqrfSensor_Frc",
+    "data": {
+      "msgId": "a868d365-5cd2-4964-bbc9-e37331b96f75",
+      "rsp": {
+        "nAdr": 0,
+        "pnum": 13,
+        "pcmd": 128,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 0,
+        "result": {
+          "sensors": [
+            null,
+            {
+              "decimalPlaces": 4,
+              "id": "TEMPERATURE",
+              "name": "Temperature",
+              "shortName": "T",
+              "type": 1,
+              "unit": "°C",
+              "value": 25
+            },
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "sensorIndex": 0
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.00.ff.ff.90.5e.01.00.00",
+          "requestTs": "2024-04-17T11:16:00.355-04:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.80.00.00.00.00.03.00.5e.00.01.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-04-17T11:16:00.960-04:00"
+        },
+        {
+          "request": "00.00.0d.01.ff.ff",
+          "requestTs": "2024-04-17T11:16:00.960-04:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.81.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-04-17T11:16:01.086-04:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  },
+  {
+    "mType": "iqrfSensor_Frc",
+    "data": {
+      "msgId": "35a2a9f6-1c1a-459a-8707-c20b9351acba",
+      "rsp": {
+        "nAdr": 0,
+        "pnum": 13,
+        "pcmd": 130,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 0,
+        "result": {
+          "sensors": [
+            {
+              "decimalPlaces": 4,
+              "id": "TEMPERATURE",
+              "name": "Temperature",
+              "shortName": "T",
+              "type": 1,
+              "unit": "°C",
+              "value": 25
+            },
+            null
+          ],
+          "sensorIndex": 0,
+          "selectedNodes": [1, 4]
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.02.ff.ff.90.12.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.5e.01.00.00",
+          "requestTs": "2024-04-17T11:17:36.428-04:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.82.00.00.00.00.02.00.5e.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-04-17T11:17:37.009-04:00"
+        },
+        {
+          "request": "00.00.0d.01.ff.ff",
+          "requestTs": "2024-04-17T11:17:37.009-04:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.81.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-04-17T11:17:37.135-04:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  },
+  {
+    "mType": "iqrfSensor_Frc",
+    "data": {
+      "msgId": "d878e5f9-34c3-4559-b1fb-25e8624b2667",
+      "rsp": {
+        "nAdr": 0,
+        "pnum": 13,
+        "pcmd": 130,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 0,
+        "result": {
+          "sensors": [
+            {
+              "nAdr": 1,
+              "sensor": {
+                "decimalPlaces": 4,
+                "id": "TEMPERATURE",
+                "name": "Temperature",
+                "shortName": "T",
+                "type": 1,
+                "unit": "°C",
+                "value": 25.5
+              }
+            },
+            {
+              "nAdr": 4,
+              "sensor": null
+            }
+          ],
+          "sensorIndex": 0,
+          "selectedNodes": [1, 4]
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.02.ff.ff.90.12.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.5e.01.00.00",
+          "requestTs": "2024-04-17T11:22:56.509-04:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.82.00.00.00.00.02.00.5f.01.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-04-17T11:22:57.089-04:00"
+        },
+        {
+          "request": "00.00.0d.01.ff.ff",
+          "requestTs": "2024-04-17T11:22:57.089-04:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.81.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-04-17T11:22:57.216-04:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  }
+]
