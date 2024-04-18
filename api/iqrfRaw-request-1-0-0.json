@@ -1,56 +1,56 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqrfRaw-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "title": "Raw DPA request",
+    "description": "© IQRF Tech",
     "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Message type for Raw communication.",
-            "enum": [
-                "iqrfRaw"
-            ]
-        },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response"
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "rData": {
-                            "type": "string",
-                            "description": "Binary buffer with DPA request"
-                        }
-                    },
-                    "required": [
-                        "rData"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
-        }
-    },
     "required": [
         "mType",
         "data"
-    ]
+    ],
+    "properties": {
+        "mType": {
+            "$ref": "definitions.json#/general/mType",
+            "description": "Message type for Raw DPA communication.",
+            "const": "iqrfRaw"
+        },
+        "data": {
+            "title": "Message data",
+            "description": "Message metadata and body",
+            "type": "object",
+            "required": [
+                "msgId",
+                "req"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "msgId": {
+                    "$ref": "definitions.json#/general/msgId"
+                },
+                "req": {
+                    "title": "Request",
+                    "description": "Holds request data",
+                    "type": "object",
+                    "required": [
+                        "rData"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "rData": {
+                            "type": "string",
+                            "description": "Binary buffer with DPA request.",
+                            "examples": [
+                                "00.00.06.03.FF.FF"
+                            ]
+                        }
+                    }
+                },
+                "timeout": {
+                    "$ref": "definitions.json#/general/timeout"
+                },
+                "returnVerbose": {
+                    "$ref": "definitions.json#/general/returnVerbose"
+                }
+            }
+        }
+    }
 }
