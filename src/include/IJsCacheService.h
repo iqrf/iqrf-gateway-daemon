@@ -74,11 +74,87 @@ namespace iqrf {
 
     ///// Product metadata /////
 
-    class MetadataHwpidProfile {
+    class ProfilePowerMains {
     public:
-      MetadataHwpidProfile(
-        uint8_t hwpidVerMin = 0,
-        int8_t hwpidVerMax = -1,
+      ProfilePowerMains(
+        bool present = false
+      ):
+        present(present)
+      {}
+
+      bool present;
+    };
+
+    class ProfilePowerAccumulator {
+    public:
+      ProfilePowerAccumulator(
+        bool present = false,
+        std::shared_ptr<std::string> type = nullptr,
+        std::shared_ptr<uint16_t> lowLevel = nullptr
+      ):
+        present(present),
+        type(type),
+        lowLevel(lowLevel)
+      {}
+      bool present;
+      std::shared_ptr<std::string> type;
+      std::shared_ptr<uint16_t> lowLevel;
+    };
+
+    class ProfilePowerBattery {
+    public:
+      ProfilePowerBattery(
+        bool present = false,
+        std::shared_ptr<std::string> type = nullptr,
+        std::shared_ptr<uint16_t> changeThreshold = nullptr
+      ):
+        present(present),
+        type(type),
+        changeThreshold(changeThreshold)
+      {}
+      bool present;
+      std::shared_ptr<std::string> type;
+      std::shared_ptr<uint16_t> changeThreshold;
+    };
+
+    class ProfilePower {
+    public:
+      ProfilePower(
+        ProfilePowerMains mains,
+        ProfilePowerAccumulator accumulator,
+        ProfilePowerBattery battery,
+        uint16_t minVoltage
+      ):
+        mains(mains),
+        accumulator(accumulator),
+        battery(battery),
+        minVoltage(minVoltage)
+      {}
+
+      ProfilePowerMains mains;
+      ProfilePowerAccumulator accumulator;
+      ProfilePowerBattery battery;
+      uint16_t minVoltage;
+    };
+
+    class ProfileHwpidVersion {
+    public:
+      ProfileHwpidVersion(
+        uint16_t min = 0,
+        int16_t max = -1
+      ):
+        min(min),
+        max(max)
+      {}
+      uint16_t min;
+      int16_t max;
+    };
+
+    class MetadataProfile {
+    public:
+      MetadataProfile(
+        ProfileHwpidVersion hwpidVer,
+        ProfilePower powerSupply,
         bool routing = false,
         bool beaming = false,
         bool repeater = false,
@@ -87,49 +163,49 @@ namespace iqrf {
         const std::vector<uint8_t> sensors = {},
         uint8_t binouts = 0
       ):
-        m_hwpidVerMin(hwpidVerMin),
-        m_hwpidVerMax(hwpidVerMax),
-        m_routing(routing),
-        m_beaming(beaming),
-        m_repeater(repeater),
-        m_frcAggregation(frcAggregation),
-        m_iqarosCompatible(iqarosCompatible),
-        m_sensors(sensors),
-        m_binouts(binouts)
+        hwpidVer(hwpidVer),
+        routing(routing),
+        beaming(beaming),
+        repeater(repeater),
+        frcAggregation(frcAggregation),
+        iqarosCompatible(iqarosCompatible),
+        sensors(sensors),
+        binouts(binouts),
+        powerSupply(powerSupply)
       {}
 
-      uint8_t m_hwpidVerMin;
-      int8_t m_hwpidVerMax;
-      bool m_routing;
-      bool m_beaming;
-      bool m_repeater;
-      bool m_frcAggregation;
-      bool m_iqarosCompatible;
-      std::vector<uint8_t> m_sensors;
-      uint8_t m_binouts;
+      ProfileHwpidVersion hwpidVer;
+      bool routing;
+      bool beaming;
+      bool repeater;
+      bool frcAggregation;
+      bool iqarosCompatible;
+      std::vector<uint8_t> sensors;
+      uint8_t binouts;
+      ProfilePower powerSupply;
     };
 
     class Metadata {
     public:
       Metadata(
         uint8_t version = 0,
-        std::vector<MetadataHwpidProfile> profiles = {}
+        std::vector<MetadataProfile> profiles = {}
       ):
-        m_version(version),
-        m_profiles(profiles)
+        version(version),
+        profiles(profiles)
       {}
 
-      std::shared_ptr<MetadataHwpidProfile> getProfileByHwpidVersion(uint8_t hwpidVersion) {
-        for (auto &profile : m_profiles) {
-          if (hwpidVersion >= profile.m_hwpidVerMin && (profile.m_hwpidVerMax == -1 || profile.m_hwpidVerMax >= hwpidVersion)) {
-            return std::make_shared<MetadataHwpidProfile>(profile);
+      std::shared_ptr<MetadataProfile> getProfileByHwpidVersion(uint8_t hwpidVersion) {
+        for (auto &profile : profiles) {
+          if (hwpidVersion >= profile.hwpidVer.min && (profile.hwpidVer.max == -1 || profile.hwpidVer.max >= hwpidVersion)) {
+            return std::make_shared<MetadataProfile>(profile);
           }
         }
         return nullptr;
       }
 
-      uint8_t m_version;
-      std::vector<MetadataHwpidProfile> m_profiles;
+      uint8_t version;
+      std::vector<MetadataProfile> profiles;
     };
 
     ///// Product /////
@@ -142,7 +218,7 @@ namespace iqrf {
         const std::string &name,
         const std::string &homePage,
         const std::string &picture,
-        std::vector<Metadata> metadata
+        const std::shared_ptr<Metadata> &metadata
       ):
         m_hwpid(hwpid),
         m_manufacturerId(manufacturerId),
@@ -157,7 +233,7 @@ namespace iqrf {
       std::string m_name;
       std::string m_homePage;
       std::string m_picture;
-      std::vector<Metadata> m_metadata;
+      std::shared_ptr<Metadata> m_metadata;
     };
 
     ///// Driver /////

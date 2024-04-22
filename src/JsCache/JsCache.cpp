@@ -710,30 +710,71 @@ namespace iqrf {
         std::string name = productDoc["name"];
         std::string homePage = productDoc["homePage"];
         std::string picture = productDoc["picture"];
-        std::vector<Metadata> metadata;
+        std::shared_ptr<Metadata> metadata = nullptr;
 
-        for (auto metadataItemItr = productDoc["metadata"].begin(); metadataItemItr != productDoc["metadata"].end(); ++metadataItemItr) {
-          json metadataItemDoc = metadataItemItr.value();
-          uint8_t metadataVersion = metadataItemDoc["metadataVersion"];
+        if (!productDoc["metadata"].empty()) {
+          json metadataDoc = productDoc["metadata"]["static"];
 
-          std::vector<MetadataHwpidProfile> profiles;
-          json profilesDoc = metadataItemDoc["metadata"]["profiles"];
-          for (auto profileItr = profilesDoc.begin(); profileItr != profilesDoc.end(); ++profileItr) {
-            json profileDoc = profileItr.value();
-            uint8_t versionMin = profileDoc["hwpidVersions"]["min"];
-            int8_t versionMax = profileDoc["hwpidVersions"]["max"];
-            bool routing = profileDoc["routing"];
-            bool beaming = profileDoc["beaming"];
-            bool repeater = profileDoc["repeater"];
-            bool frcAggregation = profileDoc["frcAggregation"];
-            bool iqarosCompatible = profileDoc["iqarosCompatible"];
-            std::vector<uint8_t> iqrfSensors = profileDoc["iqrfSensor"];
-            uint8_t binouts = profileDoc["iqrfBinaryOutput"];
-            profiles.emplace_back(
-              MetadataHwpidProfile(versionMin, versionMax, routing, beaming, repeater, frcAggregation, iqarosCompatible, iqrfSensors, binouts)
-            );
+          for (auto metadataItemItr = metadataDoc.begin(); metadataItemItr != metadataDoc.end(); ++metadataItemItr) {
+            json metadataItemDoc = metadataItemItr.value();
+
+            uint16_t version = metadataItemDoc["version"];
+            std::vector<MetadataProfile> profiles;
+
+            for (auto profileItr = metadataItemDoc["profiles"].begin(); profileItr != metadataItemDoc["profiles"].end(); ++profileItr) {
+              json profileDoc = profileItr.value();
+              ProfileHwpidVersion hwpidVer(profileDoc["hwpidVersions"]["min"], profileDoc["hwpidVersions"]["max"]);
+              bool routing = profileDoc["routing"];
+              bool beaming = profileDoc["beaming"];
+              bool repeater = profileDoc["repeater"];
+              bool frcAggregation = profileDoc["frcAggregation"];
+              bool iqarosCompatible = profileDoc["iqarosCompatible"];
+              std::vector<uint8_t> iqrfSensors = profileDoc["iqrfSensor"];
+              uint8_t binouts = profileDoc["iqrfBinaryOutput"];
+              // Mains power
+              ProfilePowerMains mainsPower(profileDoc["powerSupply"]["mains"]);
+              // Accumulator power
+              std::shared_ptr<std::string> accuType;
+              if (!profileDoc["powerSupply"]["accumulator"]["type"].is_null()) {
+                accuType = std::make_shared<std::string>(profileDoc["powerSupply"]["accumulator"]["type"]);
+              }
+              std::shared_ptr<uint16_t> accuLowLevel;
+              if (!profileDoc["powerSupply"]["accumulator"]["lowLevel"].is_null()) {
+                accuLowLevel = std::make_shared<uint16_t>(profileDoc["powerSupply"]["accumulator"]["lowLevel"]);
+              }
+              ProfilePowerAccumulator accuPower(
+                profileDoc["powerSupply"]["accumulator"]["present"],
+                accuType,
+                accuLowLevel
+              );
+              // Battery power
+              std::shared_ptr<std::string> batteryType;
+              if (!profileDoc["powerSupply"]["battery"]["type"].is_null()) {
+                batteryType = std::make_shared<std::string>(profileDoc["powerSupply"]["battery"]["type"]);
+              }
+              std::shared_ptr<uint16_t> batteryChangeThreshold;
+              if (!profileDoc["powerSupply"]["battery"]["changeThreshold"].is_null()) {
+                batteryChangeThreshold = std::make_shared<uint16_t>(profileDoc["powerSupply"]["battery"]["changeThreshold"]);
+              }
+              ProfilePowerBattery batteryPower(
+                profileDoc["powerSupply"]["battery"]["present"],
+                batteryType,
+                batteryChangeThreshold
+              );
+              // power
+              uint16_t minVoltage = profileDoc["powerSupply"]["minVoltage"];
+              ProfilePower powerSupply(mainsPower, accuPower, batteryPower, minVoltage);
+              // profile
+              profiles.emplace_back(
+                MetadataProfile(hwpidVer, powerSupply, routing, beaming, repeater, frcAggregation, iqarosCompatible, iqrfSensors, binouts)
+              );
+            }
+
+            metadata = std::make_shared<Metadata>(Metadata(version, profiles));
+            if (metadata->profiles[0].powerSupply.accumulator.type != nullptr) {
+              std::string aType = (*metadata->profiles[0].powerSupply.accumulator.type.get());
+            }
           }
-          metadata.push_back(Metadata(metadataVersion, profiles));
         }
         productMap.insert(
           std::make_pair(hwpid, Product(hwpid, manufacturerId, name, homePage, picture, metadata))

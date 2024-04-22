@@ -1,129 +1,165 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "v0.json",
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
-        "profiles": {
-            "type": "array",
-            "additionalItems": false,
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                    "hwpidVersions": {
-                        "type": "object",
-                        "required": [
-                            "min",
-                            "max"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "min": {
-                                "title": "Minimum revision version",
-                                "description": "Minimum HWPID version the profile applies to.",
-                                "type": "integer",
-                                "minimum": 0
-                            },
-                            "max": {
-                                "title": "Maximum revision version",
-                                "description": "Maximum HWPID version the profile applies to. Value -1 represents no maximum version.",
-                                "type": "integer"
-                            }
-                        }
-                    },
-                    "routing": {
-                        "title": "Routing device",
-                        "description": "Device is capable of routing packets in network.",
-                        "type": "boolean"
-                    },
-                    "beaming": {
-                        "title": "Beaming device",
-                        "description": "Device beams data in intervals and sleeps otherwise.",
-                        "type": "boolean"
-                    },
-                    "repeater": {
-                        "title": "Repeater device",
-                        "description": "Device is a repeater.",
-                        "type": "boolean"
-                    },
-                    "frcAggregation": {
-                        "title": "FRC aggregation",
-                        "description": "Device is capable of aggregating FRC data from other devices.",
-                        "type": "boolean"
-                    },
-                    "iqarosCompatible": {
-                        "title": "IQAROS compatible",
-                        "description": "Device is compatible with the IQAROS system.",
-                        "type": "boolean"
-                    },
-                    "iqrfSensor": {
-                        "title": "Device sensors",
-                        "description": "Sensors implemented by the device.",
-                        "type": "array",
-                        "additionalItems": false,
-                        "items": {
-                            "title": "Sensor type",
-                            "description": "Unique identifier of IQRF Sensor Standard quantity.",
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 255
-                        }
-                    },
-                    "iqrfBinaryOutput": {
-                        "title": "Binary Output standard",
-                        "description": "Number of binary outputs this device implements.",
-                        "type": "integer",
-                        "minimum": 0
-                    },
-                    "powerSupply": {
-                        "title": "Power supply information",
-                        "type": "object",
-                        "required": [
-                            "mains",
-                            "accumulator",
-                            "battery",
-                            "batteryType",
-                            "minVoltage"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "mains": {
-                                "title": "Mains powered",
-                                "description": "Power supplied by a main cable.",
-                                "type": "boolean"
-                            },
-                            "accumulator": {
-                                "title": "Accumulator powered",
-                                "description": "Power supplied from an accumulator.",
-                                "type": "boolean"
-                            },
-                            "battery": {
-                                "title": "Battery powered",
-                                "description": "Power supplied from a battery.",
-                                "type": "boolean"
-                            },
-                            "batteryType": {
-                                "title": "Type of battery",
-                                "description": "Battery type identifier.",
-                                "oneOf": [
-                                    {
-                                        "type": "null"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "minVoltage": {
-                                "title": "Minimum voltage",
-                                "description": "Minimum voltage characteristic in mV.",
-                                "type": "integer"
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "v0.json",
+	"type": "array",
+	"additionalItems": false,
+	"items": {
+		"type": "object",
+		"additionalProperties": false,
+		"properties": {
+			"hwpidVersions": {
+				"type": "object",
+				"required": [
+          "min",
+          "max"
+        ],
+				"additionalProperties": false,
+				"properties": {
+					"min": {
+						"title": "Minimum revision version",
+						"description": "Minimum HWPID version the profile applies to.",
+						"type": "integer",
+						"minimum": 0
+					},
+					"max": {
+						"title": "Maximum revision version",
+						"description": "Maximum HWPID version the profile applies to. Value -1 represents no maximum version.",
+						"type": "integer"
+					}
+				}
+			},
+			"routing": {
+				"title": "Routing device",
+				"description": "Device is capable of routing packets in network.",
+				"type": "boolean"
+			},
+			"beaming": {
+				"title": "Beaming device",
+				"description": "Device beams data in intervals and sleeps otherwise.",
+				"type": "boolean"
+			},
+			"repeater": {
+				"title": "Repeater device",
+				"description": "Device is a repeater.",
+				"type": "boolean"
+			},
+			"frcAggregation": {
+				"title": "FRC aggregation",
+				"description": "Device is capable of aggregating FRC data from other devices.",
+				"type": "boolean"
+			},
+			"iqarosCompatible": {
+				"title": "IQAROS compatible",
+				"description": "Device is compatible with the IQAROS system.",
+				"type": "boolean"
+			},
+			"iqrfSensor": {
+				"title": "Device sensors",
+				"description": "Sensors implemented by the device.",
+				"type": "array",
+				"additionalItems": false,
+				"items": {
+					"title": "Sensor type",
+					"description": "Unique identifier of IQRF Sensor Standard quantity.",
+					"type": "integer",
+					"minimum": 1,
+					"maximum": 255
+				}
+			},
+			"iqrfBinaryOutput": {
+				"title": "Binary Output standard",
+				"description": "Number of binary outputs this device implements.",
+				"type": "integer",
+				"minimum": 0
+			},
+			"powerSupply": {
+				"title": "Power supply information",
+				"type": "object",
+				"required": [
+          "mains",
+          "accumulator",
+          "battery",
+          "minVoltage"
+        ],
+				"additionalProperties": false,
+				"properties": {
+					"mains": {
+						"title": "Mains powered",
+						"description": "Power supplied by a main cable.",
+						"type": "boolean"
+					},
+					"accumulator": {
+						"title": "Accumulator properties",
+						"type": "object",
+						"required": [
+              "present",
+              "type",
+              "lowLevel"
+            ],
+						"additionalProperties": false,
+						"properties": {
+							"present": {
+								"title": "Accumulator present",
+								"description": "Power supplied from an accumulator.",
+								"type": "boolean"
+							},
+							"type": {
+								"title": "Type of accumulator",
+								"description": "Accumulator type identifier.",
+								"oneOf": [
+									{ "type": "string" },
+									{ "type": "null" }
+								]
+							},
+							"lowLevel": {
+								"title": "Low voltage",
+								"description": "Low voltage level.",
+								"oneOf": [
+									{ "type": "integer" },
+									{ "type": "null" }
+								]
+							}
+						}
+					},
+					"battery": {
+						"title": "Battery properties",
+						"type": "object",
+						"required": [
+              "present",
+              "type",
+              "changeThreshold"
+            ],
+						"properties": {
+							"present": {
+								"title": "Battery present",
+								"description": "Power supplied from a battery.",
+								"type": "boolean"
+							},
+							"type": {
+								"title": "Type of battery",
+								"description": "Battery type identifier.",
+								"oneOf": [
+									{ "type": "string" },
+									{ "type": "null" }
+								]
+							},
+							"changeThreshold": {
+								"title": "Change threshold voltage",
+								"description": "Voltage threshold indicating a change of battery is recommended.",
+								"oneOf": [
+									{ "type": "integer" },
+									{ "type": "null" }
+								]
+							}
+						}
+					},
+					"minVoltage": {
+						"title": "Minimum voltage",
+						"description": "Minimum voltage characteristic in mV.",
+						"type": "integer"
+					}
+				}
+			}
+		}
+	}
 }
