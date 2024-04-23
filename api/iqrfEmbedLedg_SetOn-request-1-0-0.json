@@ -1,55 +1,55 @@
 {
-	"$schema": "https://json-schema.org/draft-07/schema",
-	"title": "Peripheral Green LED - SetOn request",
-	"description": "(c) IQRF Tech",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"$ref": "definitions.json#/general/mType",
-			"const": "iqrfEmbedLedg_SetOn"
-		},
-		"data": {
-			"title": "Message data",
-			"description": "Message metadata and body",
-			"type": "object",
-			"required": [
-				"msgId",
-				"req"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"$ref": "definitions.json#/general/msgId"
-				},
-				"req": {
-					"title": "Request",
-					"description": "Holds request data",
-					"type": "object",
-					"required": [
-						"nAdr"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"nAdr": {
-							"$ref": "definitions.json#/general/nAdr"
-						},
-						"hwpId": {
-							"$ref": "definitions.json#/general/request/hwpId"
-						}
-					}
-				},
-				"timeout": {
-					"$ref": "definitions.json#/general/timeout"
-				},
-				"returnVerbose": {
-					"$ref": "definitions.json#/general/returnVerbose"
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral Green LED - SetOn request",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedLedg_SetOn"
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "nAdr"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/request/hwpId"
+            }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
+        }
+      }
+    }
+  }
 }

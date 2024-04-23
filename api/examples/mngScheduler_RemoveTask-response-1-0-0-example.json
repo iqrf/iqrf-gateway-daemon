@@ -1,13 +1,13 @@
 {
-	"mType": "mngScheduler_RemoveTask",
-	"data": {
-		"msgId": "652c0f76-2476-4815-a65a-75ad50ea7a8d",
-		"rsp": {
-			"clientId": "SchedulerMessaging",
-			"taskId": "89e8a261-a062-414c-86d8-3979a5052876"
-		},
-		"insId": "iqrfgd2-default",
-		"statusStr": "ok",
-		"status": 0
-	}
+  "mType": "mngScheduler_RemoveTask",
+  "data": {
+    "msgId": "652c0f76-2476-4815-a65a-75ad50ea7a8d",
+    "rsp": {
+      "clientId": "SchedulerMessaging",
+      "taskId": "89e8a261-a062-414c-86d8-3979a5052876"
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

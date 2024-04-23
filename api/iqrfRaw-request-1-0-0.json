@@ -1,56 +1,56 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
-    "title": "Raw DPA request",
-    "description": "© IQRF Tech",
-    "type": "object",
-    "required": [
-        "mType",
-        "data"
-    ],
-    "properties": {
-        "mType": {
-            "$ref": "definitions.json#/general/mType",
-            "description": "Message type for Raw DPA communication.",
-            "const": "iqrfRaw"
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Raw DPA request",
+  "description": "© IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "properties": {
+    "mType": {
+      "$ref": "definitions.json#/general/mType",
+      "description": "Message type for Raw DPA communication.",
+      "const": "iqrfRaw"
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
         },
-        "data": {
-            "title": "Message data",
-            "description": "Message metadata and body",
-            "type": "object",
-            "required": [
-                "msgId",
-                "req"
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "msgId": {
-                    "$ref": "definitions.json#/general/msgId"
-                },
-                "req": {
-                    "title": "Request",
-                    "description": "Holds request data",
-                    "type": "object",
-                    "required": [
-                        "rData"
-                    ],
-                    "additionalProperties": false,
-                    "properties": {
-                        "rData": {
-                            "type": "string",
-                            "description": "Binary buffer with DPA request.",
-                            "examples": [
-                                "00.00.06.03.FF.FF"
-                            ]
-                        }
-                    }
-                },
-                "timeout": {
-                    "$ref": "definitions.json#/general/timeout"
-                },
-                "returnVerbose": {
-                    "$ref": "definitions.json#/general/returnVerbose"
-                }
+        "req": {
+          "title": "Request",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "rData"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rData": {
+              "type": "string",
+              "description": "Binary buffer with DPA request.",
+              "examples": [
+                "00.00.06.03.FF.FF"
+              ]
             }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
         }
+      }
     }
+  }
 }

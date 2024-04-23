@@ -1,117 +1,119 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqrfSensor_Frc-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"type": "string",
-			"description": "Standard peripheral Sensor - FRC request.",
-			"enum": ["iqrfSensor_Frc"]
-		},
-		"data": {
-			"type": "object",
-			"required": [
-				"msgId",
-				"req"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"type": "string",
-					"description": "Message identification for binding request with response."
-				},
-				"req": {
-					"type": "object",
-					"required": [
-						"nAdr",
-						"param"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"nAdr": {
-							"type": "integer",
-							"description": "Network device address."
-						},
-						"hwpId": {
-							"type": "integer",
-							"description": "Hardware profile identification."
-						},
-						"param": {
-							"type": "object",
-							"required": [
-								"sensorType",
-								"sensorIndex",
-								"frcCommand"
-							],
-							"additionalProperties": false,
-							"properties": {
-								"sensorType": {
-									"type": "integer",
-									"description": "Type of sensor (quantity) to read values of. Refer to the Sensor interoperability standard https://www.iqrfalliance.org/iqrf-interoperability/ for details."
-								},
-								"sensorIndex": {
-									"type": "integer",
-									"description": "Index of the sensor. When the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data."
-								},
-								"frcCommand": {
-									"type": "integer",
-									"description": "One of predefined standard sensor FRC commands. Use FRC commands available from Sensor enumeration."
-								},
-								"selectedNodes": {
-									"type": "array",
-									"description": "Array if integer values corresponding to the selected nodes. Use default value to select all nodes and use sleepAfterFrc parameter.",
-									"items": {
-										"type": "integer"
-									}
-								},
-								"sleepAfterFrc": {
-									"type": "object",
-									"description": "Object with the following fields to put the nodes into sleep mode after the FRC is finished.",
-									"additionalProperties": false,
-									"properties": {
-										"time": {
-											"type": "integer",
-											"description": "See DPA documentation https://www.iqrf.org/DpaTechGuide/pages/sleep.html for details."
-										},
-										"control": {
-											"type": "integer",
-											"description": "See DPA documentation https://www.iqrf.org/DpaTechGuide/pages/sleep.html for details."
-										}
-									}
-								},
-								"getExtraResult": {
-									"type": "boolean",
-									"description": "If set Extra result DPA message is sent and processed",
-									"default": true
-								},
-								"extFormat": {
-									"type": "boolean",
-									"description": "Sensors returns in extended format",
-									"default": false
-								}
-							}
-						}
-					}
-				},
-				"timeout": {
-					"type": "integer",
-					"description": "Timeout to wait for IQRF DPA response."
-				},
-				"returnVerbose": {
-					"type": "boolean",
-					"description": "Flag that includes additional parameters in the response."
-				}
-			}
-		}
-	}
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqrfSensor_Frc-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Standard peripheral Sensor - FRC request.",
+      "enum": [
+        "iqrfSensor_Frc"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
+        },
+        "req": {
+          "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "type": "integer",
+              "description": "Network device address."
+            },
+            "hwpId": {
+              "type": "integer",
+              "description": "Hardware profile identification."
+            },
+            "param": {
+              "type": "object",
+              "required": [
+                "sensorType",
+                "sensorIndex",
+                "frcCommand"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "sensorType": {
+                  "type": "integer",
+                  "description": "Type of sensor (quantity) to read values of. Refer to the Sensor interoperability standard https://www.iqrfalliance.org/iqrf-interoperability/ for details."
+                },
+                "sensorIndex": {
+                  "type": "integer",
+                  "description": "Index of the sensor. When the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data."
+                },
+                "frcCommand": {
+                  "type": "integer",
+                  "description": "One of predefined standard sensor FRC commands. Use FRC commands available from Sensor enumeration."
+                },
+                "selectedNodes": {
+                  "type": "array",
+                  "description": "Array if integer values corresponding to the selected nodes. Use default value to select all nodes and use sleepAfterFrc parameter.",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "sleepAfterFrc": {
+                  "type": "object",
+                  "description": "Object with the following fields to put the nodes into sleep mode after the FRC is finished.",
+                  "additionalProperties": false,
+                  "properties": {
+                    "time": {
+                      "type": "integer",
+                      "description": "See DPA documentation https://www.iqrf.org/DpaTechGuide/pages/sleep.html for details."
+                    },
+                    "control": {
+                      "type": "integer",
+                      "description": "See DPA documentation https://www.iqrf.org/DpaTechGuide/pages/sleep.html for details."
+                    }
+                  }
+                },
+                "getExtraResult": {
+                  "type": "boolean",
+                  "description": "If set Extra result DPA message is sent and processed",
+                  "default": true
+                },
+                "extFormat": {
+                  "type": "boolean",
+                  "description": "Sensors returns in extended format",
+                  "default": false
+                }
+              }
+            }
+          }
+        },
+        "timeout": {
+          "type": "integer",
+          "description": "Timeout to wait for IQRF DPA response."
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
+        }
+      }
+    }
+  }
 }

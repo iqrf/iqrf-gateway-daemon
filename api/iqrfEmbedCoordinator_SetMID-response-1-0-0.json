@@ -1,137 +1,137 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedCoordinator_SetMID-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqrfEmbedCoordinator_SetMID-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Embedded peripheral Coordinator - Set MID value response.",
+      "enum": [
+        "iqrfEmbedCoordinator_SetMID"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral Coordinator - Set MID value response.",
-            "enum": [
-                "iqrfEmbedCoordinator_SetMID"
-            ]
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
+        "timeout": {
+          "type": "integer",
+          "description": "Timeout to wait for IQRF DPA response."
+        },
+        "rsp": {
+          "type": "object",
+          "properties": {
+            "nAdr": {
+              "type": "integer",
+              "description": "Network device address."
+            },
+            "pnum": {
+              "type": "integer",
+              "description": "Peripheral number."
+            },
+            "pcmd": {
+              "type": "integer",
+              "description": "Peripheral response command."
+            },
+            "hwpId": {
+              "type": "integer",
+              "description": "Hardware profile identification."
+            },
+            "rCode": {
+              "type": "integer",
+              "description": "DPA error code."
+            },
+            "dpaVal": {
+              "type": "integer",
+              "description": "DPA value."
+            },
+            "result": {
+              "type": "object",
+              "properties": {}
+            },
+            "errorStr": {
+              "type": "string",
+              "description": "Error description from JS drivers."
+            }
+          },
+          "required": [
+            "nAdr",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ]
+        },
+        "raw": {
+          "type": "array",
+          "description": "Returns array of objects req-cnf-rsp, see its description.",
+          "items": {
             "type": "object",
             "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "pnum": {
-							"type": "integer",
-							"description": "Peripheral number."
-						},
-						"pcmd": {
-							"type": "integer",
-							"description": "Peripheral response command."
-						},
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "rCode": {
-                            "type": "integer",
-                            "description": "DPA error code."
-                        },
-                        "dpaVal": {
-                            "type": "integer",
-                            "description": "DPA value."
-                        },
-                        "result": {
-                            "type": "object",
-                            "properties": {}
-                        },
-                        "errorStr": {
-                            "type": "string",
-                            "description": "Error description from JS drivers."
-                        }
-                    },
-                    "required": [
-                        "nAdr",
-                        "hwpId",
-                        "rCode",
-                        "dpaVal"
-                    ]
-                },
-                "raw": {
-					"type": "array",
-					"description": "Returns array of objects req-cnf-rsp, see its description.",
-					"items": {
-						"type": "object",
-						"properties": {
-							"request": {
-								"type": "string",
-								"description": "Binary buffer with DPA request."
-							},
-							"requestTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"confirmation": {
-								"type": "string",
-								"description": "Binary buffer with DPA confirmation."
-							},
-							"confirmationTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"response": {
-								"type": "string",
-								"description": "Binary buffer with DPA response."
-							},
-							"responseTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							}
-						},
-						"required": [
-							"request",
-							"requestTs",
-							"confirmation",
-							"confirmationTs",
-							"response",
-							"responseTs"
-						]
-					}
-                },
-                "insId": {
-                    "type": "string",
-                    "description": "IQRF GW daemon instance identification."
-                },
-                "status": {
-                    "type": "integer",
-                    "description": "IQRF GW daemon API (general or mType) status."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                }
+              "request": {
+                "type": "string",
+                "description": "Binary buffer with DPA request."
+              },
+              "requestTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+              },
+              "confirmation": {
+                "type": "string",
+                "description": "Binary buffer with DPA confirmation."
+              },
+              "confirmationTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+              },
+              "response": {
+                "type": "string",
+                "description": "Binary buffer with DPA response."
+              },
+              "responseTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+              }
             },
             "required": [
-                "msgId",
-                "rsp",
-                "status"
+              "request",
+              "requestTs",
+              "confirmation",
+              "confirmationTs",
+              "response",
+              "responseTs"
             ]
+          }
+        },
+        "insId": {
+          "type": "string",
+          "description": "IQRF GW daemon instance identification."
+        },
+        "status": {
+          "type": "integer",
+          "description": "IQRF GW daemon API (general or mType) status."
+        },
+        "statusStr": {
+          "type": "string",
+          "description": "IQRF GW daemon API (general or mType) status in string form."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      },
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
 }
