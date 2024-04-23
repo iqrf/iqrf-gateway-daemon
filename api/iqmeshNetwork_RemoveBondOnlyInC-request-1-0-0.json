@@ -42,10 +42,7 @@
               "description": "Clears all bonds at [C] side.",
               "default": false
             }
-          },
-          "required": [
-            "deviceAddr"
-          ]
+          }
         },
         "returnVerbose": {
           "type": "boolean",
