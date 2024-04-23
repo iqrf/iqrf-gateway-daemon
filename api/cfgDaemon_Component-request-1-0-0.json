@@ -1,62 +1,62 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "cfgDaemon_Component-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "cfgDaemon_Component-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "General component configuration.",
+      "enum": [
+        "cfgDaemon_Component"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "General component configuration.",
-            "enum": [
-                "cfgDaemon_Component"
-            ]
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "componentName": {
-                            "type": "string",
-                            "description": "Component name."
-                        },   
-                        "componentInstance": {
-                            "type": "string",
-                            "description": "Component instance."
-                        },                                                
-                        "configuration": {
-                            "type": "object",
-                            "description": "Configuration Json."
-                        }
-                    },
-                    "required": [
-                        "componentName", 
-                        "componentInstance", 
-                        "configuration"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
+        "req": {
+          "type": "object",
+          "properties": {
+            "componentName": {
+              "type": "string",
+              "description": "Component name."
             },
-            "required": [
-                "msgId",
-                "req"
-            ]
+            "componentInstance": {
+              "type": "string",
+              "description": "Component instance."
+            },
+            "configuration": {
+              "type": "object",
+              "description": "Configuration Json."
+            }
+          },
+          "required": [
+            "componentName",
+            "componentInstance",
+            "configuration"
+          ]
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      },
+      "required": [
+        "msgId",
+        "req"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
 }

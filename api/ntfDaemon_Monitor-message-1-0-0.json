@@ -1,60 +1,60 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "ntfDaemon_Monitor-message",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "ntfDaemon_Monitor-message",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Daemon monitoring - notifications.",
+      "enum": [
+        "ntfDaemon_Monitor"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Daemon monitoring - notifications.",
-            "enum": [
-                "ntfDaemon_Monitor"
-            ]
+    "data": {
+      "type": "object",
+      "properties": {
+        "num": {
+          "type": "integer",
+          "description": "Message counter. It counts from zero at start-up."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "num": {
-                    "type": "integer",
-                    "description": "Message counter. It counts from zero at start-up."
-                },
-                "timestamp": {
-                    "type": "integer",
-                    "description": "Time since epoch in seconds (Unix time)."
-                },
-                "dpaQueueLen": {
-                    "type": "integer",
-                    "description": "Length of pending DPA transaction queue (16 is maximum)."
-                },
-                "dpaChannelState": {
-                    "type": "string",
-                    "description": "State (Ready/NotReady/ExclusiveAccess) of DPA channel - one of USB CDC, SPI or UART interface."
-                },
-                "msgQueueLen": {
-                    "type": "integer",
-                    "description": "Length of pending API msg queue (32 is maximum)."
-                },
-                "operMode": {
-                    "type": "string",
-                    "description": "Daemon mode (operational/service/forwarding)."
-                }
-            },
-            "required": [
-                "num",
-                "timestamp",
-                "dpaQueueLen",
-                "dpaChannelState",
-                "msgQueueLen",
-                "operMode"
-            ]
+        "timestamp": {
+          "type": "integer",
+          "description": "Time since epoch in seconds (Unix time)."
+        },
+        "dpaQueueLen": {
+          "type": "integer",
+          "description": "Length of pending DPA transaction queue (16 is maximum)."
+        },
+        "dpaChannelState": {
+          "type": "string",
+          "description": "State (Ready/NotReady/ExclusiveAccess) of DPA channel - one of USB CDC, SPI or UART interface."
+        },
+        "msgQueueLen": {
+          "type": "integer",
+          "description": "Length of pending API msg queue (32 is maximum)."
+        },
+        "operMode": {
+          "type": "string",
+          "description": "Daemon mode (operational/service/forwarding)."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      },
+      "required": [
+        "num",
+        "timestamp",
+        "dpaQueueLen",
+        "dpaChannelState",
+        "msgQueueLen",
+        "operMode"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
 }

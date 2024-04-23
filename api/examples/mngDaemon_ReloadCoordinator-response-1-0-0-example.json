@@ -1,9 +1,9 @@
 {
-	"mType": "mngDaemon_ReloadCoordinator",
-	"data": {
-		"msgId": "d6b05c55-408b-459d-bc25-f74c42fa0153",
-		"insId": "iqrfgd2-default",
-		"statusStr": "ok",
-		"status": 0
-	}
+  "mType": "mngDaemon_ReloadCoordinator",
+  "data": {
+    "msgId": "d6b05c55-408b-459d-bc25-f74c42fa0153",
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

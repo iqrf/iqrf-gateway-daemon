@@ -1,257 +1,261 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "mngScheduler_GetTask-response",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-	"title": "Scheduler Management - Get Task",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
-			"description": "Scheduler management - Get Task response.",
-			"type": "string",
-			"enum": ["mngScheduler_GetTask"]
-		},
-		"data": {
-			"$id": "#/properties/data",
-			"title": "Message data",
-			"description": "Message metadata and body.",
-			"type": "object",
-			"required": [
-				"msgId",
-				"rsp",
-				"status"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"$id": "#/properties/data/properties/msgId",
-					"title": "Message ID",
-					"description": "Message ID used for pairing requests and responses.",
-					"type": "string"
-				},
-				"rsp": {
-					"$id": "#/properties/data/properties/rsp",
-					"title": "Response data",
-					"description": "Response data.",
-					"type": "object",
-					"required": [
-						"clientId",
-						"taskId"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"clientId": {
-							"$id": "#/properties/data/properties/rsp/properties/clientId",
-							"title": "Client ID",
-							"description": "Client identifier.",
-							"type": "string"
-						},
-						"taskId": {
-							"$id": "#/properties/data/properties/rsp/properties/taskId",
-							"title": "Task ID",
-							"description": "Task identifier.",
-							"type": "string",
-							"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-						},
-						"description": {
-							"$id": "#/properties/data/properties/req/properties/description",
-							"title": "Description",
-							"description": "Task description.",
-							"type": "string"
-						},
-						"task": {
-							"$id": "#/properties/data/properties/rsp/properties/task",
-							"title": "Tasks",
-							"description": "Scheduled task or array of tasks.",
-							"oneOf": [
-								{
-									"$ref": "#/definitions/task"
-								},
-								{
-									"type": "array",
-									"additionalItems": false,
-									"items": {
-										"$id": "#/properties/data/properties/req/properties/task/items",
-										"$ref": "#/definitions/task"
-									}
-								}
-							]
-						},
-						"timeSpec": {
-							"$id": "#/properties/data/properties/req/properties/timespec",
-							"title": "Time specification",
-							"description": "Time-based task execution conditions.",
-							"type": "object",
-							"required": [
-								"cronTime",
-								"periodic",
-								"period",
-								"exactTime",
-								"startTime"
-							],
-							"additionalProperties": false,
-							"properties": {
-								"cronTime": {
-									"title": "cron time",
-									"description": "Array of 7 cron format values or cron alias string",
-									"oneOf": [
-										{
-											"type": "array",
-											"minItems": 7,
-											"maxItems": 7,
-											"additionalItems": false,
-											"items": {
-												"type": "string"
-											}
-										},
-										{
-											"type": "string"
-										}
-									]
-								},
-								"periodic": {
-									"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
-									"title": "Periodic",
-									"description": "Periodic task execution.",
-									"type": "boolean"
-								},
-								"period": {
-									"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
-									"title": "Period",
-									"description": "Task execution period in seconds.",
-									"type": "integer"
-								},
-								"exactTime": {
-									"$id": "#/properties/data/properties/req/properties/timespec/properties/exactTime",
-									"title": "One shot",
-									"description": "Single task execution now or at a specified time (startTime).",
-									"type": "boolean"
-								},
-								"startTime": {
-									"$id": "#/properties/data/properties/req/properties/timespec/properties/exactTime",
-									"title": "Start time",
-									"description": "One shot task start time in format '2018-01-03T16:00:09'",
-									"type": "string",
-									"anyOf": [
-										{
-											"format": "date-time"
-										},
-										{
-											"enum": [""]
-										}
-									]
-								}
-							}
-						},
-						"persist": {
-							"$id": "#/properties/data/properties/req/properties/persist",
-							"title": "Persistent task",
-							"description": "Task will persist through daemon restarts and shutdowns.",
-							"type": "boolean"
-						},
-						"enabled": {
-							"$id": "#/properties/data/properties/req/properties/enabled",
-							"title": "Start task",
-							"description": "Schedule task immediately.",
-							"type": "boolean"
-						},
-						"active": {
-							"$id": "#/properties/data/properties/req/properties/active",
-							"title": "Task active",
-							"description": "Is task scheduled?.",
-							"type": "boolean"
-						}
-					}
-				},
-				"insId": {
-					"$id": "#/properties/data/properties/insId",
-					"title": "Instance ID",
-					"description": "Daemon insteance ID.",
-					"type": "string"
-				},
-				"status": {
-					"$id": "#/properties/data/properties/status",
-					"title": "Status code",
-					"description": "Status code.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"$id": "#/properties/data/properties/statusStr",
-					"title": "Status string",
-					"description": "Verbose status string",
-					"type": "string"
-				},
-				"errorStr": {
-					"$id": "#/properties/data/properties/errorStr",
-					"title": "Error string",
-					"description": "Error message string.",
-					"type": "string"
-				}
-			}
-		}
-	},
-	"definitions": {
-		"task": {
-			"$id": "#/definitions/task",
-			"title": "Task object",
-			"type": "object",
-			"required": [
-				"message",
-				"messaging"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"messaging": {
-					"$id": "#/definitions/task/properties/messaging",
-					"title": "Messaging instance list",
-					"description": "List of messaging instances.",
-					"type": "array",
-					"uniqueItems": true,
-					"additionalItems": false,
-					"items": {
-						"$id": "#/definitions/task/properties/messaging/items",
-						"title": "Messaging instance",
-						"description": "Messaging service instance.",
-						"type": "object",
-						"required": [
-							"type",
-							"instance"
-						],
-						"additionalProperties": false,
-						"properties": {
-							"type": {
-								"$id": "#/definitions/task/properties/messaging/items/properties/type",
-								"title": "Messaging type",
-								"type": "string",
-								"enum": ["mqtt", "ws"],
-								"example": "mqtt"
-							},
-							"instance": {
-								"$id": "#/definitions/task/properties/messaging/items/properties/instance",
-								"title": "Messaging instance name",
-								"type": "string",
-								"example": "default"
-							}
-						}
-					}
-				},
-				"message": {
-					"$id": "#/definitions/task/properties/message",
-					"title": "Task message",
-					"description": "Supported Daemon API json request.",
-					"type": "object"
-				}
-			}
-		}
-	}
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "mngScheduler_GetTask-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "title": "Scheduler Management - Get Task",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$id": "#/properties/mType",
+      "title": "Message type",
+      "description": "Scheduler management - Get Task response.",
+      "type": "string",
+      "enum": [
+        "mngScheduler_GetTask"
+      ]
+    },
+    "data": {
+      "$id": "#/properties/data",
+      "title": "Message data",
+      "description": "Message metadata and body.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$id": "#/properties/data/properties/msgId",
+          "title": "Message ID",
+          "description": "Message ID used for pairing requests and responses.",
+          "type": "string"
+        },
+        "rsp": {
+          "$id": "#/properties/data/properties/rsp",
+          "title": "Response data",
+          "description": "Response data.",
+          "type": "object",
+          "required": [
+            "clientId",
+            "taskId"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "clientId": {
+              "$id": "#/properties/data/properties/rsp/properties/clientId",
+              "title": "Client ID",
+              "description": "Client identifier.",
+              "type": "string"
+            },
+            "taskId": {
+              "$id": "#/properties/data/properties/rsp/properties/taskId",
+              "title": "Task ID",
+              "description": "Task identifier.",
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            },
+            "description": {
+              "$id": "#/properties/data/properties/req/properties/description",
+              "title": "Description",
+              "description": "Task description.",
+              "type": "string"
+            },
+            "task": {
+              "$id": "#/properties/data/properties/rsp/properties/task",
+              "title": "Tasks",
+              "description": "Scheduled task or array of tasks.",
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/task"
+                },
+                {
+                  "type": "array",
+                  "additionalItems": false,
+                  "items": {
+                    "$id": "#/properties/data/properties/req/properties/task/items",
+                    "$ref": "#/definitions/task"
+                  }
+                }
+              ]
+            },
+            "timeSpec": {
+              "$id": "#/properties/data/properties/req/properties/timespec",
+              "title": "Time specification",
+              "description": "Time-based task execution conditions.",
+              "type": "object",
+              "required": [
+                "cronTime",
+                "periodic",
+                "period",
+                "exactTime",
+                "startTime"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "cronTime": {
+                  "title": "cron time",
+                  "description": "Array of 7 cron format values or cron alias string",
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "minItems": 7,
+                      "maxItems": 7,
+                      "additionalItems": false,
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "periodic": {
+                  "$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
+                  "title": "Periodic",
+                  "description": "Periodic task execution.",
+                  "type": "boolean"
+                },
+                "period": {
+                  "$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
+                  "title": "Period",
+                  "description": "Task execution period in seconds.",
+                  "type": "integer"
+                },
+                "exactTime": {
+                  "$id": "#/properties/data/properties/req/properties/timespec/properties/exactTime",
+                  "title": "One shot",
+                  "description": "Single task execution now or at a specified time (startTime).",
+                  "type": "boolean"
+                },
+                "startTime": {
+                  "$id": "#/properties/data/properties/req/properties/timespec/properties/exactTime",
+                  "title": "Start time",
+                  "description": "One shot task start time in format '2018-01-03T16:00:09'",
+                  "type": "string",
+                  "anyOf": [
+                    {
+                      "format": "date-time"
+                    },
+                    {
+                      "enum": [
+                        ""
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "persist": {
+              "$id": "#/properties/data/properties/req/properties/persist",
+              "title": "Persistent task",
+              "description": "Task will persist through daemon restarts and shutdowns.",
+              "type": "boolean"
+            },
+            "enabled": {
+              "$id": "#/properties/data/properties/req/properties/enabled",
+              "title": "Start task",
+              "description": "Schedule task immediately.",
+              "type": "boolean"
+            },
+            "active": {
+              "$id": "#/properties/data/properties/req/properties/active",
+              "title": "Task active",
+              "description": "Is task scheduled?.",
+              "type": "boolean"
+            }
+          }
+        },
+        "insId": {
+          "$id": "#/properties/data/properties/insId",
+          "title": "Instance ID",
+          "description": "Daemon insteance ID.",
+          "type": "string"
+        },
+        "status": {
+          "$id": "#/properties/data/properties/status",
+          "title": "Status code",
+          "description": "Status code.",
+          "type": "integer"
+        },
+        "statusStr": {
+          "$id": "#/properties/data/properties/statusStr",
+          "title": "Status string",
+          "description": "Verbose status string",
+          "type": "string"
+        },
+        "errorStr": {
+          "$id": "#/properties/data/properties/errorStr",
+          "title": "Error string",
+          "description": "Error message string.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "task": {
+      "$id": "#/definitions/task",
+      "title": "Task object",
+      "type": "object",
+      "required": [
+        "message",
+        "messaging"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "messaging": {
+          "$id": "#/definitions/task/properties/messaging",
+          "title": "Messaging instance list",
+          "description": "List of messaging instances.",
+          "type": "array",
+          "uniqueItems": true,
+          "additionalItems": false,
+          "items": {
+            "$id": "#/definitions/task/properties/messaging/items",
+            "title": "Messaging instance",
+            "description": "Messaging service instance.",
+            "type": "object",
+            "required": [
+              "type",
+              "instance"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "$id": "#/definitions/task/properties/messaging/items/properties/type",
+                "title": "Messaging type",
+                "type": "string",
+                "enum": ["mqtt", "ws"],
+                "example": "mqtt"
+              },
+              "instance": {
+                "$id": "#/definitions/task/properties/messaging/items/properties/instance",
+                "title": "Messaging instance name",
+                "type": "string",
+                "example": "default"
+              }
+            }
+          }
+        },
+        "message": {
+          "$id": "#/definitions/task/properties/message",
+          "title": "Task message",
+          "description": "Supported Daemon API json request.",
+          "type": "object"
+        }
+      }
+    }
+  }
 }

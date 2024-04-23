@@ -1,98 +1,98 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfEmbedCoordinator_SmartConnect-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqrfEmbedCoordinator_SmartConnect-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Embedded peripheral Coordinator - Smart Connect request.",
+      "enum": [
+        "iqrfEmbedCoordinator_SmartConnect"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Embedded peripheral Coordinator - Smart Connect request.",
-            "enum": [
-                "iqrfEmbedCoordinator_SmartConnect"
-            ]
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
-                    "type": "object",
-                    "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "reqAddr": {
-                                    "type": "integer",
-                                    "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node."
-                                },
-                                "bondingTestRetries": {
-                                    "type": "integer",
-                                    "description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds."
-                                },
-                                "ibk": {
-                                    "type": "array",
-                                    "description": "Individual Bonding Key of the Node to bond.",
-                                    "items": {
-                                        "type": "integer"
-                                    },
-                                    "maxItems": 16
-                                },
-                                "mid": {
-                                    "type": "integer",
-                                    "description": "MID of the Node to bond."
-                                },
-                                "virtualDeviceAddress": {
-                                    "type": "integer",
-                                    "description": "Virtual device address. Must equal to 0xFF if not used."
-                                },
-                                "userData": {
-                                    "type": "array",
-                                    "description": "Optional data passed to the bonded node.",
-                                    "items": {
-                                        "type": "integer"
-                                    },
-                                    "maxItems": 4
-                                }
-                            }
-						}
-                    },
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
+        "timeout": {
+          "type": "integer",
+          "description": "Timeout to wait for IQRF DPA response."
+        },
+        "req": {
+          "type": "object",
+          "properties": {
+            "nAdr": {
+              "type": "integer",
+              "description": "Network device address."
             },
-            "required": [
-                "msgId",
-                "req"
-            ]
+            "hwpId": {
+              "type": "integer",
+              "description": "Hardware profile identification."
+            },
+            "param": {
+              "type": "object",
+              "properties": {
+                "reqAddr": {
+                  "type": "integer",
+                  "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node."
+                },
+                "bondingTestRetries": {
+                  "type": "integer",
+                  "description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds."
+                },
+                "ibk": {
+                  "type": "array",
+                  "description": "Individual Bonding Key of the Node to bond.",
+                  "items": {
+                    "type": "integer"
+                  },
+                  "maxItems": 16
+                },
+                "mid": {
+                  "type": "integer",
+                  "description": "MID of the Node to bond."
+                },
+                "virtualDeviceAddress": {
+                  "type": "integer",
+                  "description": "Virtual device address. Must equal to 0xFF if not used."
+                },
+                "userData": {
+                  "type": "array",
+                  "description": "Optional data passed to the bonded node.",
+                  "items": {
+                    "type": "integer"
+                  },
+                  "maxItems": 4
+                }
+              }
+            }
+          },
+          "required": [
+            "nAdr",
+            "param"
+          ]
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      },
+      "required": [
+        "msgId",
+        "req"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
 }
