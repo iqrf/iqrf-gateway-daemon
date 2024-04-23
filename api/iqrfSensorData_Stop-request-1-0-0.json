@@ -13,7 +13,9 @@
       "title": "Message type",
       "description": "IQRF Sensor Data - Stop request.",
       "type": "string",
-      "enum": ["iqrfSensorData_Stop"]
+      "enum": [
+        "iqrfSensorData_Stop"
+      ]
     },
     "data": {
       "$id": "#/properties/data",

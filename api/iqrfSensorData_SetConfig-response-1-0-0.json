@@ -1,62 +1,64 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"title": "IQRF Sensor Data - Set Configuration",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "title": "IQRF Sensor Data - Set Configuration",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
-			"description": "IQRF Sensor Data - SetConfig response.",
-			"type": "string",
-			"enum": ["iqrfSensorData_SetConfig"]
-		},
-		"data": {
-			"$id": "#/properties/data",
-			"title": "Message data",
-			"description": "Message metadata and body.",
-			"type": "object",
-			"required": [
-				"msgId",
-				"status"
-			],
-			"additionalProperties": false,
+      "$id": "#/properties/mType",
+      "title": "Message type",
+      "description": "IQRF Sensor Data - SetConfig response.",
+      "type": "string",
+      "enum": [
+        "iqrfSensorData_SetConfig"
+      ]
+    },
+    "data": {
+      "$id": "#/properties/data",
+      "title": "Message data",
+      "description": "Message metadata and body.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "status"
+      ],
+      "additionalProperties": false,
       "properties": {
-				"msgId": {
-					"$id": "#/properties/data/properties/msgId",
-					"title": "Message ID",
-					"description": "Message ID used for pairing requests and responses.",
-					"type": "string"
-				},
-				"rsp": {
-					"$id": "#/properties/data/properties/rsp",
-					"title": "Response object",
-					"description": "Response object.",
+        "msgId": {
+          "$id": "#/properties/data/properties/msgId",
+          "title": "Message ID",
+          "description": "Message ID used for pairing requests and responses.",
+          "type": "string"
+        },
+        "rsp": {
+          "$id": "#/properties/data/properties/rsp",
+          "title": "Response object",
+          "description": "Response object.",
           "type": "object",
           "additionalProperties": false
         },
         "insId": {
-					"$id": "#/properties/data/properties/insId",
-					"title": "Instance ID",
-					"description": "Daemon insteance ID.",
-					"type": "string"
-				},
-				"status": {
-					"$id": "#/properties/data/properties/status",
-					"title": "Status code",
-					"description": "Status code.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"$id": "#/properties/data/properties/statusStr",
-					"title": "Status string",
-					"description": "Verbose status string",
-					"type": "string"
-				}
+          "$id": "#/properties/data/properties/insId",
+          "title": "Instance ID",
+          "description": "Daemon insteance ID.",
+          "type": "string"
+        },
+        "status": {
+          "$id": "#/properties/data/properties/status",
+          "title": "Status code",
+          "description": "Status code.",
+          "type": "integer"
+        },
+        "statusStr": {
+          "$id": "#/properties/data/properties/statusStr",
+          "title": "Status string",
+          "description": "Verbose status string",
+          "type": "string"
+        }
       }
     }
   }

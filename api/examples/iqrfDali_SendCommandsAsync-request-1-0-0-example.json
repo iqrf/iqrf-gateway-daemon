@@ -5,7 +5,9 @@
     "req": {
       "nAdr": 1,
       "param": {
-        "commands": [65424]
+        "commands": [
+          65424
+        ]
       }
     },
     "returnVerbose": true

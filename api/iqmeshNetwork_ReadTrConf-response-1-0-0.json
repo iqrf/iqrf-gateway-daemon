@@ -102,7 +102,11 @@
             },
             "rfBand": {
               "type": "string",
-              "enum": ["868", "916", "433"],
+              "enum": [
+                "868",
+                "916",
+                "433"
+              ],
               "description": "Used RF band."
             },
             "rfChannelA": {

@@ -13,7 +13,9 @@
       "title": "Message type",
       "description": "IQRF Sensor Data - Start request.",
       "type": "string",
-      "enum": ["iqrfSensorData_Start"]
+      "enum": [
+        "iqrfSensorData_Start"
+      ]
     },
     "data": {
       "$id": "#/properties/data",

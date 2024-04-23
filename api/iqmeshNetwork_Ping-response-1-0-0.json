@@ -1,175 +1,177 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "iqmeshNetwork_Ping-response",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-	"title": "IQMESH Network - Ping.",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
-			"description": "IQMESH Network management - Ping response.",
-			"type": "string",
-			"enum": ["iqmeshNetwork_Ping"]
-		},
-		"data": {
-			"$id": "#/properties/data",
-			"title": "Message data",
-			"description": "Message metadata and body.",
-			"type": "object",
-			"required": [
-				"msgId",
-				"status"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"$id": "#/properties/data/properties/msgId",
-					"title": "Message ID",
-					"description": "Message ID used for pairing requests and responses.",
-					"type": "string"
-				},
-				"rsp": {
-					"$id": "#/properties/data/properties/rsp",
-					"title": "Response object",
-					"description": "Response object.",
-					"type": "object",
-					"required": [
-						"hwpId"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"hwpId": {
-							"$id": "#/properties/data/properties/rsp/properties/hwpId",
-							"title": "HWPID filter",
-							"description": "Ping devices with specified HWPID only.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 65535
-						},
-						"nodesNr": {
-							"$id": "#/properties/data/properties/rsp/properties/nodesNr",
-							"title": "Node count",
-							"description": "Number of nodes in the network.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 239
-						},
-						"inaccessibleNodesNr": {
-							"$id": "#/properties/data/properties/rsp/properties/inaccessibleNodesNr",
-							"title": "Inaccessible node count",
-							"description": "Number of nodes that don't reply to FRC.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 239
-						},
-						"pingResult": {
-							"$id": "#/properties/data/properties/rsp/properties/pingPesult",
-							"title": "Ping results",
-							"description": "List of ping results.",
-							"type": "array",
-							"maxItems": 239,
-							"additionalItems": false,
-							"items": {
-								"$id": "#/properties/data/properties/rsp/properties/pingPesult/items",
-								"title": "Ping result",
-								"description": "Ping result for a single node device.",
-								"type": "object",
-								"required": [
-									"address",
-									"result"
-								],
-								"additionalProperties": false,
-								"properties": {
-									"address": {
-										"$id": "#/properties/data/properties/rsp/properties/pingPesult/items/properties/address",
-										"title": "Node address",
-										"description": "Address of node device in network.",
-										"type": "integer",
-										"minimum": 1,
-										"maximum": 239
-									},
-									"result": {
-										"$id": "#/properties/data/properties/rsp/properties/pingPesult/items/properties/result",
-										"title": "Ping result",
-										"description": "Node device ping result.",
-										"type": "boolean"
-									}
-								}
-							}
-						}
-					}
-				},
-				"raw": {
-					"type": "array",
-					"description": "Returns array of objects req-cnf-rsp, see its description.",
-					"items": {
-						"type": "object",
-						"required": [
-							"request",
-							"requestTs",
-							"confirmation",
-							"confirmationTs",
-							"response",
-							"responseTs"
-						],
-						"additionalProperties": false,
-						"properties": {
-							"request": {
-								"type": "string",
-								"description": "Binary buffer with DPA request."
-							},
-							"requestTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"confirmation": {
-								"type": "string",
-								"description": "Binary buffer with DPA confirmation."
-							},
-							"confirmationTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"response": {
-								"type": "string",
-								"description": "Binary buffer with DPA response."
-							},
-							"responseTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							}
-						}
-					}
-				},
-				"insId": {
-					"$id": "#/properties/data/properties/insId",
-					"title": "Instance ID",
-					"description": "Daemon insteance ID.",
-					"type": "string"
-				},
-				"status": {
-					"$id": "#/properties/data/properties/status",
-					"title": "Status code",
-					"description": "Status code.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"$id": "#/properties/data/properties/statusStr",
-					"title": "Status string",
-					"description": "Verbose status string",
-					"type": "string"
-				}
-			}
-		}
-	}
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqmeshNetwork_Ping-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "title": "IQMESH Network - Ping.",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$id": "#/properties/mType",
+      "title": "Message type",
+      "description": "IQMESH Network management - Ping response.",
+      "type": "string",
+      "enum": [
+        "iqmeshNetwork_Ping"
+      ]
+    },
+    "data": {
+      "$id": "#/properties/data",
+      "title": "Message data",
+      "description": "Message metadata and body.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$id": "#/properties/data/properties/msgId",
+          "title": "Message ID",
+          "description": "Message ID used for pairing requests and responses.",
+          "type": "string"
+        },
+        "rsp": {
+          "$id": "#/properties/data/properties/rsp",
+          "title": "Response object",
+          "description": "Response object.",
+          "type": "object",
+          "required": [
+            "hwpId"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "hwpId": {
+              "$id": "#/properties/data/properties/rsp/properties/hwpId",
+              "title": "HWPID filter",
+              "description": "Ping devices with specified HWPID only.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 65535
+            },
+            "nodesNr": {
+              "$id": "#/properties/data/properties/rsp/properties/nodesNr",
+              "title": "Node count",
+              "description": "Number of nodes in the network.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 239
+            },
+            "inaccessibleNodesNr": {
+              "$id": "#/properties/data/properties/rsp/properties/inaccessibleNodesNr",
+              "title": "Inaccessible node count",
+              "description": "Number of nodes that don't reply to FRC.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 239
+            },
+            "pingResult": {
+              "$id": "#/properties/data/properties/rsp/properties/pingPesult",
+              "title": "Ping results",
+              "description": "List of ping results.",
+              "type": "array",
+              "maxItems": 239,
+              "additionalItems": false,
+              "items": {
+                "$id": "#/properties/data/properties/rsp/properties/pingPesult/items",
+                "title": "Ping result",
+                "description": "Ping result for a single node device.",
+                "type": "object",
+                "required": [
+                  "address",
+                  "result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "$id": "#/properties/data/properties/rsp/properties/pingPesult/items/properties/address",
+                    "title": "Node address",
+                    "description": "Address of node device in network.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 239
+                  },
+                  "result": {
+                    "$id": "#/properties/data/properties/rsp/properties/pingPesult/items/properties/result",
+                    "title": "Ping result",
+                    "description": "Node device ping result.",
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "raw": {
+          "type": "array",
+          "description": "Returns array of objects req-cnf-rsp, see its description.",
+          "items": {
+            "type": "object",
+            "required": [
+              "request",
+              "requestTs",
+              "confirmation",
+              "confirmationTs",
+              "response",
+              "responseTs"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "request": {
+                "type": "string",
+                "description": "Binary buffer with DPA request."
+              },
+              "requestTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+              },
+              "confirmation": {
+                "type": "string",
+                "description": "Binary buffer with DPA confirmation."
+              },
+              "confirmationTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+              },
+              "response": {
+                "type": "string",
+                "description": "Binary buffer with DPA response."
+              },
+              "responseTs": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+              }
+            }
+          }
+        },
+        "insId": {
+          "$id": "#/properties/data/properties/insId",
+          "title": "Instance ID",
+          "description": "Daemon insteance ID.",
+          "type": "string"
+        },
+        "status": {
+          "$id": "#/properties/data/properties/status",
+          "title": "Status code",
+          "description": "Status code.",
+          "type": "integer"
+        },
+        "statusStr": {
+          "$id": "#/properties/data/properties/statusStr",
+          "title": "Status string",
+          "description": "Verbose status string",
+          "type": "string"
+        }
+      }
+    }
+  }
 }

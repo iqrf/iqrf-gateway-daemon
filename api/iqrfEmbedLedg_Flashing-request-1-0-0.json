@@ -22,7 +22,9 @@
       ],
       "additionalProperties": false,
       "properties": {
-        "msgId": {"$ref": "definitions.json#/general/msgId"},
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
         "req": {
           "title": "Request data",
           "description": "Request body object",
@@ -32,12 +34,20 @@
           ],
           "additionalProperties": false,
           "properties": {
-            "nAdr": {"$ref": "definitions.json#/general/nAdr"},
-            "hwpId": {"$ref": "definitions.json#/general/request/hwpId"}
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/request/hwpId"
+            }
           }
         },
-        "timeout": {"$ref": "definitions.json#/general/timeout"},
-        "returnVerbose": {"$ref": "definitions.json#/general/returnVerbose"}
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
+        }
       }
     }
   }

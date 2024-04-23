@@ -1,26 +1,26 @@
 {
-    "mType": "iqrfEmbedCoordinator_RemoveBond",
-    "data": {
-        "msgId": "testEmbedCoordinator",
-        "rsp": {
-            "nAdr": 0,
-            "hwpId": 0,
-            "rCode": 0,
-            "dpaVal": 53,
-            "result": {
-                "devNr": 1
-            }
-        },
-        "raw": {
-            "request": "00.00.00.05.ff.ff.01",
-            "requestTs": "2018-07-14T22:19:01.1222",
-            "confirmation": "",
-            "confirmationTs": "",
-            "response": "00.00.00.85.00.00.00.35.01",
-            "responseTs": "2018-07-14T22:19:01.31486"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedCoordinator_RemoveBond",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "rsp": {
+      "nAdr": 0,
+      "hwpId": 0,
+      "rCode": 0,
+      "dpaVal": 53,
+      "result": {
+        "devNr": 1
+      }
+    },
+    "raw": {
+      "request": "00.00.00.05.ff.ff.01",
+      "requestTs": "2018-07-14T22:19:01.1222",
+      "confirmation": "",
+      "confirmationTs": "",
+      "response": "00.00.00.85.00.00.00.35.01",
+      "responseTs": "2018-07-14T22:19:01.31486"
+    },
+    "insId": "iqrfgd2-1",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

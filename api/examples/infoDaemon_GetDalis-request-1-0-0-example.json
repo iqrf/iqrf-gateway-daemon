@@ -1,8 +1,8 @@
 {
-	"mType": "infoDaemon_GetDalis",
-	"data": {
-		"msgId": "test",
-		"req": {},
-		"returnVerbose": true
-	}
+  "mType": "infoDaemon_GetDalis",
+  "data": {
+    "msgId": "test",
+    "req": {},
+    "returnVerbose": true
+  }
 }

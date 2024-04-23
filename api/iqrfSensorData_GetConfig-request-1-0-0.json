@@ -13,7 +13,9 @@
       "title": "Message type",
       "description": "IQRF Sensor Data - GetConfig request.",
       "type": "string",
-      "enum": ["iqrfSensorData_GetConfig"]
+      "enum": [
+        "iqrfSensorData_GetConfig"
+      ]
     },
     "data": {
       "$id": "#/properties/data",
