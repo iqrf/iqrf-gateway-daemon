@@ -1,8 +1,8 @@
 {
-	"mType": "infoDaemon_GetLights",
-	"data": {
-		"msgId": "test",
-		"req": {},
-		"returnVerbose": true
-	}
+  "mType": "infoDaemon_GetLights",
+  "data": {
+    "msgId": "test",
+    "req": {},
+    "returnVerbose": true
+  }
 }

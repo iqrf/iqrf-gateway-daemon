@@ -1,67 +1,69 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
-    "title": "Embed LEDR - Set request schema",
-    "type": "object",
-    "required": [
-        "mType",
-        "data"
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "mType": {
-            "$ref": "definitions.json#/general/mType",
-            "const": "iqrfEmbedLedr_Set"
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Embed LEDR - Set request schema",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedLedr_Set"
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
         },
-        "data": {
-            "title": "Message data",
-            "description": "Message metadata and body.",
-            "type": "object",
-            "required": [
-                "msgId",
-                "req"
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "msgId": {
-                    "$ref": "definitions.json#/general/msgId"
-                },
-                "req": {
-                    "title": "Request data",
-                    "description": "Request body object",
-                    "type": "object",
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ],
-                    "additionalProperties": false,
-                    "properties": {
-                        "nAdr": {
-                            "$ref": "definitions.json#/general/nAdr"
-                        },
-                        "hwpId": {
-                            "$ref": "definitions.json#/general/request/hwpId"
-                        },
-                        "param": {
-							"title": "Request parameters",
-							"description": "Request message configuration parameters.",
-							"type": "object",
-							"required": [
-								"onOff"
-							],
-							"additionalProperties": false,
-							"properties": {
-								"onOff": {"$ref": "definitions.json#/embed/led/onOff"}
-							}
-						}
-                    }
-                },
-                "timeout": {
-                    "$ref": "definitions.json#/general/timeout"
-                },
-                "returnVerbose": {
-                    "$ref": "definitions.json#/general/returnVerbose"
+        "req": {
+          "title": "Request data",
+          "description": "Request body object",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/request/hwpId"
+            },
+            "param": {
+              "title": "Request parameters",
+              "description": "Request message configuration parameters.",
+              "type": "object",
+              "required": [
+                "onOff"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "onOff": {
+                  "$ref": "definitions.json#/embed/led/onOff"
                 }
+              }
             }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
         }
+      }
     }
+  }
 }

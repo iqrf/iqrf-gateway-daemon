@@ -13,7 +13,9 @@
       "title": "Message type",
       "description": "IQRF Sensor Data - Invoke request.",
       "type": "string",
-      "enum": ["iqrfSensorData_Invoke"]
+      "enum": [
+        "iqrfSensorData_Invoke"
+      ]
     },
     "data": {
       "$id": "#/properties/data",

@@ -13,7 +13,9 @@
       "title": "Message type",
       "description": "IQRF Sensor Data - Status request.",
       "type": "string",
-      "enum": ["iqrfSensorData_Status"]
+      "enum": [
+        "iqrfSensorData_Status"
+      ]
     },
     "data": {
       "$id": "#/properties/data",

@@ -1,7 +1,7 @@
 {
-    "mType": "infoDaemon_GetNodes",
-    "data": {
-        "msgId": "testGetNodes",
-        "req": {}
-    }
+  "mType": "infoDaemon_GetNodes",
+  "data": {
+    "msgId": "testGetNodes",
+    "req": {}
+  }
 }

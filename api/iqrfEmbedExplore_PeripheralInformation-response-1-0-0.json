@@ -1,119 +1,119 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
-    "title": "Embedded Peripheral Explore - Peripheral Information response",
-    "description": "© IQRF Tech",
-    "type": "object",
-    "required": [
-        "mType",
-        "data"
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "mType": {
-            "$ref": "definitions.json#/general/mType",
-            "const": "iqrfEmbedExplore_PeripheralInformation"
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Embedded Peripheral Explore - Peripheral Information response",
+  "description": "© IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedExplore_PeripheralInformation"
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
         },
-        "data": {
-            "title": "Message data",
-            "description": "Message metadata and body",
-            "type": "object",
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "msgId": {
-                    "$ref": "definitions.json#/general/msgId"
+        "rsp": {
+          "title": "Response",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "pnum": {
+              "$ref": "definitions.json#/general/response/pnum"
+            },
+            "pcmd": {
+              "$ref": "definitions.json#/general/response/pcmd"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/response/hwpId"
+            },
+            "rCode": {
+              "$ref": "definitions.json#/general/response/rCode"
+            },
+            "dpaVal": {
+              "$ref": "definitions.json#/general/response/dpaVal"
+            },
+            "errorStr": {
+              "$ref": "definitions.json#/general/response/errorStr"
+            },
+            "result": {
+              "type": "object",
+              "required": [
+                "perT",
+                "perTe",
+                "par1",
+                "par2"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "perTe": {
+                  "type": "integer",
+                  "description": "Extended peripheral characteristic.",
+                  "minimum": 0,
+                  "maximum": 3
                 },
-                "rsp": {
-                    "title": "Response",
-                    "description": "Holds request data",
-                    "type": "object",
-                    "required": [
-                        "nAdr",
-                        "hwpId",
-                        "rCode",
-                        "dpaVal"
-                    ],
-                    "additionalProperties": false,
-                    "properties": {
-                        "nAdr": {
-                          "$ref": "definitions.json#/general/nAdr"
-                        },
-                        "pnum": {
-                            "$ref": "definitions.json#/general/response/pnum"
-                        },
-                        "pcmd": {
-                            "$ref": "definitions.json#/general/response/pcmd"
-                        },
-                        "hwpId": {
-                            "$ref": "definitions.json#/general/response/hwpId"
-                        },
-                        "rCode": {
-                            "$ref": "definitions.json#/general/response/rCode"
-                        },
-                        "dpaVal": {
-                            "$ref": "definitions.json#/general/response/dpaVal"
-                        },
-                        "errorStr": {
-                            "$ref": "definitions.json#/general/response/errorStr"
-                        },
-                        "result": {
-                            "type": "object",
-                            "required": [
-                                "perT",
-                                "perTe",
-                                "par1",
-                                "par2"
-                            ],
-                            "additionalProperties": false,
-                            "properties": {
-                                "perTe": {
-                                    "type": "integer",
-                                    "description": "Extended peripheral characteristic.",
-                                    "minimum": 0,
-                                    "maximum": 3
-                                },
-                                "perT": {
-                                    "type": "integer",
-                                    "description": "Peripheral type. If the peripheral is not supported or enabled, then PERIPHERAL_TYPE_DUMMY (0x00).",
-                                    "minimum": 0,
-                                    "maximum": 255
-                                },
-                                "par1": {
-                                    "type": "integer",
-                                    "description": "Optional peripheral specific information.",
-                                    "minimum": 0,
-                                    "maximum": 255
-                                },
-                                "par2": {
-                                    "type": "integer",
-                                    "description": "Optional peripheral specific information.",
-                                    "minimum": 0,
-                                    "maximum": 255
-                                }
-                            }
-                        }
-                    }
+                "perT": {
+                  "type": "integer",
+                  "description": "Peripheral type. If the peripheral is not supported or enabled, then PERIPHERAL_TYPE_DUMMY (0x00).",
+                  "minimum": 0,
+                  "maximum": 255
                 },
-                "raw": {
-                    "$ref": "definitions.json#/general/response/raw"
+                "par1": {
+                  "type": "integer",
+                  "description": "Optional peripheral specific information.",
+                  "minimum": 0,
+                  "maximum": 255
                 },
-                "insId": {
-                    "$ref": "definitions.json#/general/response/insId"
-                },
-                "status": {
-                    "$ref": "definitions.json#/general/response/status"
-                },
-                "statusStr": {
-                    "$ref": "definitions.json#/general/response/statusStr"
-                },
-                "timeout": {
-                    "$ref": "definitions.json#/general/timeout"
+                "par2": {
+                  "type": "integer",
+                  "description": "Optional peripheral specific information.",
+                  "minimum": 0,
+                  "maximum": 255
                 }
+              }
             }
+          }
+        },
+        "raw": {
+          "$ref": "definitions.json#/general/response/raw"
+        },
+        "insId": {
+          "$ref": "definitions.json#/general/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/general/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
         }
+      }
     }
+  }
 }

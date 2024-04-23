@@ -1,8 +1,8 @@
 {
-    "mType": "infoDaemon_GetSensors",
-    "data": {
-        "msgId": "test",
-        "req": {},
-        "returnVerbose": true
-    }
+  "mType": "infoDaemon_GetSensors",
+  "data": {
+    "msgId": "test",
+    "req": {},
+    "returnVerbose": true
+  }
 }

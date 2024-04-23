@@ -1,25 +1,25 @@
 {
-    "mType": "infoDaemon_GetBinaryOutputs",
-    "data": {
-        "msgId": "test",
-        "rsp": {
-            "binOutsDevices": [
-                {
-                    "nAdr": 3,
-                    "binOuts": 3
-                },
-                {
-                    "nAdr": 5,
-                    "binOuts": 3
-                },
-                {
-                    "nAdr": 6,
-                    "binOuts": 3
-                }
-            ]
+  "mType": "infoDaemon_GetBinaryOutputs",
+  "data": {
+    "msgId": "test",
+    "rsp": {
+      "binOutsDevices": [
+        {
+          "nAdr": 3,
+          "binOuts": 3
         },
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
-    }
+        {
+          "nAdr": 5,
+          "binOuts": 3
+        },
+        {
+          "nAdr": 6,
+          "binOuts": 3
+        }
+      ]
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

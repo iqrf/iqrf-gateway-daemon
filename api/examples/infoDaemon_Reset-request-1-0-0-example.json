@@ -1,8 +1,8 @@
 {
-    "mType": "infoDaemon_Reset",
-    "data": {
-        "msgId": "testInfoReset",
-        "req": {},
-        "returnVerbose": true
-    }
+  "mType": "infoDaemon_Reset",
+  "data": {
+    "msgId": "testInfoReset",
+    "req": {},
+    "returnVerbose": true
+  }
 }

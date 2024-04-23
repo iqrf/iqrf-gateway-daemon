@@ -1,44 +1,44 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "infoDaemon_GetSensors-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "infoDaemon_GetSensors-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Daemon information - get all detected sensors.",
+      "enum": [
+        "infoDaemon_GetSensors"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Daemon information - get all detected sensors.",
-            "enum": [
-                "infoDaemon_GetSensors"
-            ]
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "req": {
-                    "type": "object",
-                    "description": "TODO parameters to select sensor types."
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
-                }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
+        "req": {
+          "type": "object",
+          "description": "TODO parameters to select sensor types."
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      },
+      "required": [
+        "msgId",
+        "req"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
 }

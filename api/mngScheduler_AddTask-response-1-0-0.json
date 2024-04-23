@@ -1,94 +1,96 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "mngScheduler_AddTask-response",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-	"title": "Scheduler Management - Add Task",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
-			"description": "Scheduler management - Add Task response.",
-			"type": "string",
-			"enum": ["mngScheduler_AddTask"]
-		},
-		"data": {
-			"$id": "#/properties/data",
-			"title": "Message data",
-			"description": "Message metadata and body.",
-			"type": "object",
-			"required": [
-				"msgId",
-				"rsp",
-				"status"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"$id": "#/properties/data/properties/msgId",
-					"title": "Message ID",
-					"description": "Message ID used for pairing requests and responses.",
-					"type": "string"
-				},
-				"rsp": {
-					"$id": "#/properties/data/properties/rsp",
-					"title": "Response data",
-					"description": "Response data.",
-					"type": "object",
-					"required": [
-						"clientId"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"clientId": {
-							"$id": "#/properties/data/properties/rsp/properties/clientId",
-							"title": "Client ID",
-							"description": "Client identifier.",
-							"type": "string"
-						},
-						"taskId": {
-							"$id": "#/properties/data/properties/rsp/properties/taskId",
-							"title": "Task ID",
-							"description": "Task identifier.",
-							"type": "string",
-							"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-						}
-					}
-				},
-				"insId": {
-					"$id": "#/properties/data/properties/insId",
-					"title": "Instance ID",
-					"description": "Daemon insteance ID.",
-					"type": "string"
-				},
-				"status": {
-					"$id": "#/properties/data/properties/status",
-					"title": "Status code",
-					"description": "Status code.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"$id": "#/properties/data/properties/statusStr",
-					"title": "Status string",
-					"description": "Verbose status string",
-					"type": "string"
-				},
-				"errorStr": {
-					"$id": "#/properties/data/properties/errorStr",
-					"title": "Error string",
-					"description": "Error message string.",
-					"type": "string"
-				}
-			}
-		}
-	}
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "mngScheduler_AddTask-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "title": "Scheduler Management - Add Task",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$id": "#/properties/mType",
+      "title": "Message type",
+      "description": "Scheduler management - Add Task response.",
+      "type": "string",
+      "enum": [
+        "mngScheduler_AddTask"
+      ]
+    },
+    "data": {
+      "$id": "#/properties/data",
+      "title": "Message data",
+      "description": "Message metadata and body.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$id": "#/properties/data/properties/msgId",
+          "title": "Message ID",
+          "description": "Message ID used for pairing requests and responses.",
+          "type": "string"
+        },
+        "rsp": {
+          "$id": "#/properties/data/properties/rsp",
+          "title": "Response data",
+          "description": "Response data.",
+          "type": "object",
+          "required": [
+            "clientId"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "clientId": {
+              "$id": "#/properties/data/properties/rsp/properties/clientId",
+              "title": "Client ID",
+              "description": "Client identifier.",
+              "type": "string"
+            },
+            "taskId": {
+              "$id": "#/properties/data/properties/rsp/properties/taskId",
+              "title": "Task ID",
+              "description": "Task identifier.",
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            }
+          }
+        },
+        "insId": {
+          "$id": "#/properties/data/properties/insId",
+          "title": "Instance ID",
+          "description": "Daemon insteance ID.",
+          "type": "string"
+        },
+        "status": {
+          "$id": "#/properties/data/properties/status",
+          "title": "Status code",
+          "description": "Status code.",
+          "type": "integer"
+        },
+        "statusStr": {
+          "$id": "#/properties/data/properties/statusStr",
+          "title": "Status string",
+          "description": "Verbose status string",
+          "type": "string"
+        },
+        "errorStr": {
+          "$id": "#/properties/data/properties/errorStr",
+          "title": "Error string",
+          "description": "Error message string.",
+          "type": "string"
+        }
+      }
+    }
+  }
 }

@@ -1,11 +1,11 @@
 {
-	"mType": "iqmeshNetwork_Restart",
-	"data": {
-		"msgId": "493cd616-d14c-4e77-a0ec-c93e0b7dfb90",
-		"repeat": 1,
-		"req": {
-			"hwpId": 65535
-		},
-		"returnVerbose": true
-	}
+  "mType": "iqmeshNetwork_Restart",
+  "data": {
+    "msgId": "493cd616-d14c-4e77-a0ec-c93e0b7dfb90",
+    "repeat": 1,
+    "req": {
+      "hwpId": 65535
+    },
+    "returnVerbose": true
+  }
 }

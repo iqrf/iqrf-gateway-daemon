@@ -1,11 +1,11 @@
 {
   "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "ntfDaemon_InvokeMonitor-response",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "ntfDaemon_InvokeMonitor-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
   "title": "Daemon monitoring - notification invocation",
   "type": "object",
   "required": [
@@ -15,11 +15,13 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-			"title": "Message type",
-			"description": "Daemon monitoring - notification invocation.",
-			"type": "string",
-			"enum": ["ntfDaemon_InvokeMonitor"]
-		},
+      "title": "Message type",
+      "description": "Daemon monitoring - notification invocation.",
+      "type": "string",
+      "enum": [
+        "ntfDaemon_InvokeMonitor"
+      ]
+    },
     "data": {
       "title": "Message data",
       "type": "object",
@@ -30,25 +32,25 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-					"title": "Message ID",
-					"description": "Message ID used for pairing requests and responses.",
-					"type": "string"
-				},
+          "title": "Message ID",
+          "description": "Message ID used for pairing requests and responses.",
+          "type": "string"
+        },
         "insId": {
-					"title": "Instance ID",
-					"description": "Daemon insteance ID.",
-					"type": "string"
-				},
-				"status": {
-					"title": "Status code",
-					"description": "Status code.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"title": "Status string",
-					"description": "Verbose status string",
-					"type": "string"
-				}
+          "title": "Instance ID",
+          "description": "Daemon insteance ID.",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status code",
+          "description": "Status code.",
+          "type": "integer"
+        },
+        "statusStr": {
+          "title": "Status string",
+          "description": "Verbose status string",
+          "type": "string"
+        }
       }
     }
   }
