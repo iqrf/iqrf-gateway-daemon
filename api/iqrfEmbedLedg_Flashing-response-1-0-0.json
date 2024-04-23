@@ -23,7 +23,9 @@
       ],
       "additionalProperties": false,
       "properties": {
-        "msgId": {"$ref": "definitions.json#/general/msgId"},
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
         "rsp": {
           "title": "Response data",
           "description": "Response body object",
@@ -38,20 +40,44 @@
           ],
           "additionalProperties": false,
           "properties": {
-            "nAdr": {"$ref": "definitions.json#/general/nAdr"},
-            "pnum": {"$ref": "definitions.json#/general/response/pnum"},
-            "pcmd": {"$ref": "definitions.json#/general/response/pcmd"},
-            "hwpId": {"$ref": "definitions.json#/general/response/hwpId"},
-            "rCode": {"$ref": "definitions.json#/general/response/rCode"},
-            "dpaVal": {"$ref": "definitions.json#/general/response/dpaVal"},
-            "errorStr": {"$ref": "definitions.json#/general/response/errorStr"}
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "pnum": {
+              "$ref": "definitions.json#/general/response/pnum"
+            },
+            "pcmd": {
+              "$ref": "definitions.json#/general/response/pcmd"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/response/hwpId"
+            },
+            "rCode": {
+              "$ref": "definitions.json#/general/response/rCode"
+            },
+            "dpaVal": {
+              "$ref": "definitions.json#/general/response/dpaVal"
+            },
+            "errorStr": {
+              "$ref": "definitions.json#/general/response/errorStr"
+            }
           }
         },
-        "raw": {"$ref": "definitions.json#/general/response/raw"},
-        "insId": {"$ref": "definitions.json#/general/response/insId"},
-        "status": {"$ref": "definitions.json#/general/response/status"},
-        "statusStr": {"$ref": "definitions.json#/general/response/statusStr"},
-        "timeout": {"$ref": "definitions.json#/general/timeout"}
+        "raw": {
+          "$ref": "definitions.json#/general/response/raw"
+        },
+        "insId": {
+          "$ref": "definitions.json#/general/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/general/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        }
       }
     }
   }

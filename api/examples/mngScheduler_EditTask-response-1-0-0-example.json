@@ -1,13 +1,13 @@
 {
-	"mType": "mngScheduler_EditTask",
-	"data": {
-		"msgId": "69d1f245-06c1-4e1a-a7cf-ab64963cacba",
-		"rsp": {
-			"clientId": "SchedulerMessaging",
-			"taskId": "4cc98a1f-c944-4aa2-a727-433421cf95bc"
-		},
-		"insId": "iqrfgd2-default",
-		"statusStr": "ok",
-		"status": 0
-	}
+  "mType": "mngScheduler_EditTask",
+  "data": {
+    "msgId": "69d1f245-06c1-4e1a-a7cf-ab64963cacba",
+    "rsp": {
+      "clientId": "SchedulerMessaging",
+      "taskId": "4cc98a1f-c944-4aa2-a727-433421cf95bc"
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

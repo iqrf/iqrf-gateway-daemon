@@ -1,56 +1,56 @@
 [
-	{
-		"mType": "iqmeshNetwork_DpaValue",
-		"data": {
-			"msgId": "0760f47f-7300-4d86-96bb-04475aa23834",
-			"rsp": {
-				"action": "get",
-				"type": 1
-			},
-			"raw": [
-				{
-					"request": "00.00.00.08.ff.ff.00",
-					"requestTs": "2022-06-18T09:20:01.702+02:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.88.00.00.00.28.01",
-					"responseTs": "2022-06-18T09:20:01.728+02:00"
-				},
-				{
-					"request": "00.00.00.08.ff.ff.01",
-					"requestTs": "2022-06-18T09:20:01.728+02:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.88.00.00.00.00.00",
-					"responseTs": "2022-06-18T09:20:01.854+02:00"
-				}
-			],
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_DpaValue",
-		"data": {
-			"msgId": "a0f60280-1dd0-4bab-88cd-c6e13fd32e81",
-			"rsp": {
-				"action": "set",
-				"type": 0
-			},
-			"raw": [
-				{
-					"request": "00.00.00.08.ff.ff.00",
-					"requestTs": "2022-06-18T09:21:04.871+02:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.00.88.00.00.00.28.01",
-					"responseTs": "2022-06-18T09:21:04.897+02:00"
-				}
-			],
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	}
+  {
+    "mType": "iqmeshNetwork_DpaValue",
+    "data": {
+      "msgId": "0760f47f-7300-4d86-96bb-04475aa23834",
+      "rsp": {
+        "action": "get",
+        "type": 1
+      },
+      "raw": [
+        {
+          "request": "00.00.00.08.ff.ff.00",
+          "requestTs": "2022-06-18T09:20:01.702+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.88.00.00.00.28.01",
+          "responseTs": "2022-06-18T09:20:01.728+02:00"
+        },
+        {
+          "request": "00.00.00.08.ff.ff.01",
+          "requestTs": "2022-06-18T09:20:01.728+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.88.00.00.00.00.00",
+          "responseTs": "2022-06-18T09:20:01.854+02:00"
+        }
+      ],
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_DpaValue",
+    "data": {
+      "msgId": "a0f60280-1dd0-4bab-88cd-c6e13fd32e81",
+      "rsp": {
+        "action": "set",
+        "type": 0
+      },
+      "raw": [
+        {
+          "request": "00.00.00.08.ff.ff.00",
+          "requestTs": "2022-06-18T09:21:04.871+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.00.88.00.00.00.28.01",
+          "responseTs": "2022-06-18T09:21:04.897+02:00"
+        }
+      ],
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  }
 ]

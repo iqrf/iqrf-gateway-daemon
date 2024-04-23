@@ -1,85 +1,85 @@
 {
-	"$schema": "https://json-schema.org/draft-07/schema",
-	"title": "Peripheral Green LED - SetOn response",
-	"description": "(c) IQRF Tech",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"$ref": "definitions.json#/general/mType",
-			"const": "iqrfEmbedLedg_SetOn"
-		},
-		"data": {
-			"title": "Message data",
-			"description": "Message metadata and body",
-			"type": "object",
-			"required": [
-				"msgId",
-				"rsp",
-				"status"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"$ref": "definitions.json#/general/msgId"
-				},
-				"rsp": {
-					"title": "Response",
-					"description": "Holds request data",
-					"type": "object",
-					"required": [
-						"nAdr",
-						"pnum",
-						"pcmd",
-						"hwpId",
-						"rCode",
-						"dpaVal"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"nAdr": {
-							"$ref": "definitions.json#/general/nAdr"
-						},
-						"pnum": {
-							"$ref": "definitions.json#/general/response/pnum"
-						},
-						"pcmd": {
-							"$ref": "definitions.json#/general/response/pcmd"
-						},
-						"hwpId": {
-							"$ref": "definitions.json#/general/response/hwpId"
-						},
-						"rCode": {
-							"$ref": "definitions.json#/general/response/rCode"
-						},
-						"dpaVal": {
-							"$ref": "definitions.json#/general/response/dpaVal"
-						},
-						"errorStr": {
-							"$ref": "definitions.json#/general/response/errorStr"
-						}
-					}
-				},
-				"raw": {
-					"$ref": "definitions.json#/general/response/raw"
-				},
-				"insId": {
-					"$ref": "definitions.json#/general/response/insId"
-				},
-				"status": {
-					"$ref": "definitions.json#/general/response/status"
-				},
-				"statusStr": {
-					"$ref": "definitions.json#/general/response/statusStr"
-				},
-				"timeout": {
-					"$ref": "definitions.json#/general/timeout"
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral Green LED - SetOn response",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedLedg_SetOn"
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
+        "rsp": {
+          "title": "Response",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "pnum",
+            "pcmd",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "pnum": {
+              "$ref": "definitions.json#/general/response/pnum"
+            },
+            "pcmd": {
+              "$ref": "definitions.json#/general/response/pcmd"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/response/hwpId"
+            },
+            "rCode": {
+              "$ref": "definitions.json#/general/response/rCode"
+            },
+            "dpaVal": {
+              "$ref": "definitions.json#/general/response/dpaVal"
+            },
+            "errorStr": {
+              "$ref": "definitions.json#/general/response/errorStr"
+            }
+          }
+        },
+        "raw": {
+          "$ref": "definitions.json#/general/response/raw"
+        },
+        "insId": {
+          "$ref": "definitions.json#/general/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/general/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        }
+      }
+    }
+  }
 }

@@ -1,88 +1,90 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "mngDaemon_Exit-response",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-	"title": "Daemon Management - Restart Daemon",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
-			"description": "Daemon management - Restart Daemon response.",
-			"type": "string",
-			"enum": ["mngDaemon_Exit"]
-		},
-		"data": {
-			"$id": "#/properties/data",
-			"title": "Message data",
-			"description": "Message metadata and body.",
-			"type": "object",
-			"required": [
-				"msgId",
-				"rsp",
-				"status"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"$id": "#/properties/data/properties/msgId",
-					"title": "Message ID",
-					"description": "Message ID used for pairing requests and responses.",
-					"type": "string"
-				},
-				"rsp": {
-					"$id": "#/properties/data/properties/rsp",
-					"title": "Response data",
-					"description": "Response data.",
-					"type": "object",
-					"required": [
-						"timeToExit"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"timeToExit": {
-							"$id": "#/properties/data/properties/req/properties/timeToExit",
-							"title": "Time to exit",
-							"description": "Restart timeout in milliseconds.",
-							"type": "integer",
-							"minimum": 0
-						}
-					}
-				},
-				"insId": {
-					"$id": "#/properties/data/properties/insId",
-					"title": "Instance ID",
-					"description": "Daemon insteance ID.",
-					"type": "string"
-				},
-				"status": {
-					"$id": "#/properties/data/properties/status",
-					"title": "Status code",
-					"description": "Status code.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"$id": "#/properties/data/properties/statusStr",
-					"title": "Status string",
-					"description": "Verbose status string",
-					"type": "string"
-				},
-				"errorStr": {
-					"$id": "#/properties/data/properties/errorStr",
-					"title": "Error string",
-					"description": "Error message string.",
-					"type": "string"
-				}
-			}
-		}
-	}
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "mngDaemon_Exit-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "title": "Daemon Management - Restart Daemon",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$id": "#/properties/mType",
+      "title": "Message type",
+      "description": "Daemon management - Restart Daemon response.",
+      "type": "string",
+      "enum": [
+        "mngDaemon_Exit"
+      ]
+    },
+    "data": {
+      "$id": "#/properties/data",
+      "title": "Message data",
+      "description": "Message metadata and body.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$id": "#/properties/data/properties/msgId",
+          "title": "Message ID",
+          "description": "Message ID used for pairing requests and responses.",
+          "type": "string"
+        },
+        "rsp": {
+          "$id": "#/properties/data/properties/rsp",
+          "title": "Response data",
+          "description": "Response data.",
+          "type": "object",
+          "required": [
+            "timeToExit"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "timeToExit": {
+              "$id": "#/properties/data/properties/req/properties/timeToExit",
+              "title": "Time to exit",
+              "description": "Restart timeout in milliseconds.",
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "insId": {
+          "$id": "#/properties/data/properties/insId",
+          "title": "Instance ID",
+          "description": "Daemon insteance ID.",
+          "type": "string"
+        },
+        "status": {
+          "$id": "#/properties/data/properties/status",
+          "title": "Status code",
+          "description": "Status code.",
+          "type": "integer"
+        },
+        "statusStr": {
+          "$id": "#/properties/data/properties/statusStr",
+          "title": "Status string",
+          "description": "Verbose status string",
+          "type": "string"
+        },
+        "errorStr": {
+          "$id": "#/properties/data/properties/errorStr",
+          "title": "Error string",
+          "description": "Error message string.",
+          "type": "string"
+        }
+      }
+    }
+  }
 }
