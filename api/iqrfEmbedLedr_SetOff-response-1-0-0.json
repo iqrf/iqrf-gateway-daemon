@@ -1,11 +1,7 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfEmbedLedr_SetOff-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral Red LED - SetOff response",
+  "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
     "mType",
@@ -14,13 +10,12 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "Embedded peripheral Ledr - Set Off response.",
-      "enum": [
-        "iqrfEmbedLedr_SetOff"
-      ]
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedLedr_SetOff"
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
       "required": [
         "msgId",
@@ -30,17 +25,16 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
+          "$ref": "definitions.json#/general/msgId"
         },
         "rsp": {
+          "title": "Response",
+          "description": "Holds request data",
           "type": "object",
           "required": [
             "nAdr",
+            "pnum",
+            "pcmd",
             "hwpId",
             "rCode",
             "dpaVal"
@@ -48,92 +42,42 @@
           "additionalProperties": false,
           "properties": {
             "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
+              "$ref": "definitions.json#/general/nAdr"
             },
             "pnum": {
-              "type": "integer",
-              "description": "Peripheral number."
+              "$ref": "definitions.json#/general/response/pnum"
             },
             "pcmd": {
-              "type": "integer",
-              "description": "Peripheral response command."
+              "$ref": "definitions.json#/general/response/pcmd"
             },
             "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
+              "$ref": "definitions.json#/general/response/hwpId"
             },
             "rCode": {
-              "type": "integer",
-              "description": "DPA error code."
+              "$ref": "definitions.json#/general/response/rCode"
             },
             "dpaVal": {
-              "type": "integer",
-              "description": "DPA value."
-            },
-            "result": {
-              "type": "object",
-              "properties": {}
+              "$ref": "definitions.json#/general/response/dpaVal"
             },
             "errorStr": {
-              "type": "string",
-              "description": "Error description from JS drivers."
+              "$ref": "definitions.json#/general/response/errorStr"
             }
           }
         },
         "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            }
-          }
+          "$ref": "definitions.json#/general/response/raw"
         },
         "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
+          "$ref": "definitions.json#/general/response/insId"
         },
         "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
+          "$ref": "definitions.json#/general/response/status"
         },
         "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
         }
       }
     }
