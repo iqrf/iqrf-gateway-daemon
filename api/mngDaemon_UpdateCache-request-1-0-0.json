@@ -1,51 +1,51 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"self": {
-		"vendor": "com.iqrftech.self-desc",
-		"name": "mngDaemon_UpdateCache-request",
-		"format": "jsonschema",
-		"version": "1-0-0"
-	},
-	"title": "Daemon Management - Update Cache",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
-			"description": "Daemon management - Update Cache request.",
-			"type": "string",
-			"enum": [
-				"mngDaemon_UpdateCache"
-			]
-		},
-		"data": {
-			"$id": "#/properties/data",
-			"title": "Message data",
-			"description": "Message metadata and body.",
-			"type": "object",
-			"required": [
-				"msgId"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"$id": "#/properties/data/properties/msgId",
-					"title": "Message ID",
-					"description": "Message ID used for pairing requests and responses.",
-					"type": "string"
-				},
-				"returnVerbose": {
-					"$id": "#/properties/data/properties/returnVerbose",
-					"title": "Verbose response",
-					"description": "Return more verbose response.",
-					"type": "boolean"
-				}
-			}
-		}
-	}
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "mngDaemon_UpdateCache-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "title": "Daemon Management - Update Cache",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$id": "#/properties/mType",
+      "title": "Message type",
+      "description": "Daemon management - Update Cache request.",
+      "type": "string",
+      "enum": [
+        "mngDaemon_UpdateCache"
+      ]
+    },
+    "data": {
+      "$id": "#/properties/data",
+      "title": "Message data",
+      "description": "Message metadata and body.",
+      "type": "object",
+      "required": [
+        "msgId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$id": "#/properties/data/properties/msgId",
+          "title": "Message ID",
+          "description": "Message ID used for pairing requests and responses.",
+          "type": "string"
+        },
+        "returnVerbose": {
+          "$id": "#/properties/data/properties/returnVerbose",
+          "title": "Verbose response",
+          "description": "Return more verbose response.",
+          "type": "boolean"
+        }
+      }
+    }
+  }
 }

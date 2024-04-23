@@ -1,70 +1,70 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "cfgDaemon_Component-response",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "cfgDaemon_Component-response",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "General component configuration.",
+      "enum": [
+        "cfgDaemon_Component"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "General component configuration.",
-            "enum": [
-                "cfgDaemon_Component"
-            ]
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "rsp": {
-                    "type": "object",
-                    "properties": {
-                        "componentName": {
-                            "type": "string",
-                            "description": "Component name."
-                        },   
-                        "componentInstance": {
-                            "type": "string",
-                            "description": "Component instance."
-                        }
-                    },
-                    "required": [
-                        "componentName",
-                        "componentInstance"
-                    ]
-                },
-                "insId": {
-                    "type": "string",
-                    "description": "IQRF GW daemon instance identification."
-                },
-                "status": {
-                    "type": "integer",
-                    "description": "Status of operation."
-                },
-                "statusStr": {
-                    "type": "string",
-                    "description": "IQRF GW daemon API (general or mType) status in string form."
-                },
-                "errorStr": {
-                    "type": "string",
-                    "description": "reason of error in string form."
-                }
+        "rsp": {
+          "type": "object",
+          "properties": {
+            "componentName": {
+              "type": "string",
+              "description": "Component name."
             },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
+            "componentInstance": {
+              "type": "string",
+              "description": "Component instance."
+            }
+          },
+          "required": [
+            "componentName",
+            "componentInstance"
+          ]
+        },
+        "insId": {
+          "type": "string",
+          "description": "IQRF GW daemon instance identification."
+        },
+        "status": {
+          "type": "integer",
+          "description": "Status of operation."
+        },
+        "statusStr": {
+          "type": "string",
+          "description": "IQRF GW daemon API (general or mType) status in string form."
+        },
+        "errorStr": {
+          "type": "string",
+          "description": "reason of error in string form."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      },
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
 }

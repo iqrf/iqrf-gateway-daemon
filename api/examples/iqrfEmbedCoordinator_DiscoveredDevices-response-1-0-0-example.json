@@ -1,26 +1,26 @@
 {
-    "mType": "iqrfEmbedCoordinator_DiscoveredDevices",
-    "data": {
-        "msgId": "testEmbedCoordinator",
-        "rsp": {
-            "nAdr": 0,
-            "hwpId": 0,
-            "rCode": 0,
-            "dpaVal": 64,
-            "result": {
-                "discoveredDevices": []
-            }
-        },
-        "raw": {
-            "request": "00.00.00.01.ff.ff",
-            "requestTs": "2018-07-07T20:19:11.499595",
-            "confirmation": "",
-            "confirmationTs": "",
-            "response": "00.00.00.81.00.00.00.40.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.50.17",
-            "responseTs": "2018-07-07T20:19:11.539522"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedCoordinator_DiscoveredDevices",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "rsp": {
+      "nAdr": 0,
+      "hwpId": 0,
+      "rCode": 0,
+      "dpaVal": 64,
+      "result": {
+        "discoveredDevices": []
+      }
+    },
+    "raw": {
+      "request": "00.00.00.01.ff.ff",
+      "requestTs": "2018-07-07T20:19:11.499595",
+      "confirmation": "",
+      "confirmationTs": "",
+      "response": "00.00.00.81.00.00.00.40.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.50.17",
+      "responseTs": "2018-07-07T20:19:11.539522"
+    },
+    "insId": "iqrfgd2-1",
+    "statusStr": "ok",
+    "status": 0
+  }
 }
