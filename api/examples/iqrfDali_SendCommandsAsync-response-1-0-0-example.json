@@ -1,26 +1,26 @@
 {
-    "mType": "iqrfDali_SendCommandsAsync",
-    "data": {
-        "msgId": "testDaliAsync",
-        "rsp": {
-            "nAdr": 1,
-            "hwpId": 0,
-            "rCode": 0,
-            "dpaVal": 100,
-            "result": {}
-        },
-        "raw": [
-            {
-                "request": "01.00.4a.01.ff.ff.ff.90",
-                "requestTs": "2019-06-27T14:38:52.636508",
-                "confirmation": "01.00.4a.01.ff.ff.ff.00.01.08.01",
-                "confirmationTs": "2019-06-27T14:38:52.679419",
-                "response": "01.00.4a.81.00.00.00.64",
-                "responseTs": "2019-06-27T14:38:52.932533"
-            }
-        ],
-        "insId": "iqrfgd2-default",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfDali_SendCommandsAsync",
+  "data": {
+    "msgId": "testDaliAsync",
+    "rsp": {
+      "nAdr": 1,
+      "hwpId": 0,
+      "rCode": 0,
+      "dpaVal": 100,
+      "result": {}
+    },
+    "raw": [
+      {
+        "request": "01.00.4a.01.ff.ff.ff.90",
+        "requestTs": "2019-06-27T14:38:52.636508",
+        "confirmation": "01.00.4a.01.ff.ff.ff.00.01.08.01",
+        "confirmationTs": "2019-06-27T14:38:52.679419",
+        "response": "01.00.4a.81.00.00.00.64",
+        "responseTs": "2019-06-27T14:38:52.932533"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

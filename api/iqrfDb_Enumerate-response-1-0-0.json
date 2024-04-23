@@ -1,79 +1,79 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"title": "Enumerate response",
-	"description": "Enumerates devices in network and stores information in database.",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"$id": "#/properties/mType",
-			"title": "Message type",
-			"description": "IQRF DB - Enumerate response.",
-			"type": "string",
-			"enum": [
-				"iqrfDb_Enumerate"
-			]
-		},
-		"data": {
-			"$id": "#/properties/data",
-			"title": "Response data",
-			"description": "Response data.",
-			"type": "object",
-			"required": [
-				"msgId",
-				"rsp"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"$id": "#/properties/data/properties/msgId",
-					"title": "Message ID",
-					"description": "Message ID used for pairing requests and responses.",
-					"type": "string"
-				},
-				"rsp": {
-					"$id": "#/properties/data/properties/rsp",
-					"title": "Response parameters",
-					"description": "Response parameters.",
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"step": {
-							"$id": "#/properties/data/properties/rsp/properties/step",
-							"title": "Enumeration step code",
-							"type": "integer",
-							"minimum": 0
-						},
-						"stepStr": {
-							"$id": "#/properties/data/properties/rsp/properties/stepStr",
-							"title": "Enumeration step message",
-							"type": "string"
-						}
-					}
-				},
-				"insId": {
-					"$id": "#/properties/data/properties/insId",
-					"title": "Instance ID",
-					"description": "Daemon insteance ID.",
-					"type": "string"
-				},
-				"status": {
-					"$id": "#/properties/data/properties/status",
-					"title": "Status code",
-					"description": "Status code.",
-					"type": "integer"
-				},
-				"statusStr": {
-					"$id": "#/properties/data/properties/statusStr",
-					"title": "Status string",
-					"description": "Verbose status string",
-					"type": "string"
-				}
-			}
-		}
-	}
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "title": "Enumerate response",
+  "description": "Enumerates devices in network and stores information in database.",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$id": "#/properties/mType",
+      "title": "Message type",
+      "description": "IQRF DB - Enumerate response.",
+      "type": "string",
+      "enum": [
+        "iqrfDb_Enumerate"
+      ]
+    },
+    "data": {
+      "$id": "#/properties/data",
+      "title": "Response data",
+      "description": "Response data.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$id": "#/properties/data/properties/msgId",
+          "title": "Message ID",
+          "description": "Message ID used for pairing requests and responses.",
+          "type": "string"
+        },
+        "rsp": {
+          "$id": "#/properties/data/properties/rsp",
+          "title": "Response parameters",
+          "description": "Response parameters.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "step": {
+              "$id": "#/properties/data/properties/rsp/properties/step",
+              "title": "Enumeration step code",
+              "type": "integer",
+              "minimum": 0
+            },
+            "stepStr": {
+              "$id": "#/properties/data/properties/rsp/properties/stepStr",
+              "title": "Enumeration step message",
+              "type": "string"
+            }
+          }
+        },
+        "insId": {
+          "$id": "#/properties/data/properties/insId",
+          "title": "Instance ID",
+          "description": "Daemon insteance ID.",
+          "type": "string"
+        },
+        "status": {
+          "$id": "#/properties/data/properties/status",
+          "title": "Status code",
+          "description": "Status code.",
+          "type": "integer"
+        },
+        "statusStr": {
+          "$id": "#/properties/data/properties/statusStr",
+          "title": "Status string",
+          "description": "Verbose status string",
+          "type": "string"
+        }
+      }
+    }
+  }
 }

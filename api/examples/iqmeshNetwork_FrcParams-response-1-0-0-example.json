@@ -1,50 +1,50 @@
 [
-	{
-		"mType": "iqmeshNetwork_FrcParams",
-		"data": {
-			"msgId": "04df34da-e288-4887-ae0a-cf5f742fdc86",
-			"rsp": {
-				"action": "get",
-				"responseTime": 0,
-				"offlineFrc": false
-			},
-			"raw": [
-				{
-					"request": "00.00.0d.03.ff.ff.00",
-					"requestTs": "2022-06-18T10:07:52.728+02:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.0d.83.00.00.00.00.00",
-					"responseTs": "2022-06-18T10:07:52.754+02:00"
-				}
-			],
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	},
-	{
-		"mType": "iqmeshNetwork_FrcParams",
-		"data": {
-			"msgId": "2aa9b3bf-1f16-4a0b-a6b1-5a41e98dbf88",
-			"rsp": {
-				"action": "set",
-				"responseTime": 16,
-				"offlineFrc": false
-			},
-			"raw": [
-				{
-					"request": "00.00.0d.03.ff.ff.10",
-					"requestTs": "2022-06-18T10:15:36.177+02:00",
-					"confirmation": "",
-					"confirmationTs": "",
-					"response": "00.00.0d.83.00.00.00.00.00",
-					"responseTs": "2022-06-18T10:15:36.203+02:00"
-				}
-			],
-			"status": 0,
-			"statusStr": "ok",
-			"insId": "iqrfgd2-default"
-		}
-	}
+  {
+    "mType": "iqmeshNetwork_FrcParams",
+    "data": {
+      "msgId": "04df34da-e288-4887-ae0a-cf5f742fdc86",
+      "rsp": {
+        "action": "get",
+        "responseTime": 0,
+        "offlineFrc": false
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.03.ff.ff.00",
+          "requestTs": "2022-06-18T10:07:52.728+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.83.00.00.00.00.00",
+          "responseTs": "2022-06-18T10:07:52.754+02:00"
+        }
+      ],
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqmeshNetwork_FrcParams",
+    "data": {
+      "msgId": "2aa9b3bf-1f16-4a0b-a6b1-5a41e98dbf88",
+      "rsp": {
+        "action": "set",
+        "responseTime": 16,
+        "offlineFrc": false
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.03.ff.ff.10",
+          "requestTs": "2022-06-18T10:15:36.177+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.83.00.00.00.00.00",
+          "responseTs": "2022-06-18T10:15:36.203+02:00"
+        }
+      ],
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  }
 ]

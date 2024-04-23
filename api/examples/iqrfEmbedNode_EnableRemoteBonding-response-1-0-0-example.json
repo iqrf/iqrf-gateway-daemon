@@ -1,24 +1,24 @@
 {
-    "mType": "iqrfEmbedNode_EnableRemoteBonding",
-    "data": {
-        "msgId": "testEmbedNode",
-        "rsp": {
-            "nAdr": 1,
-            "hwpId": 2,
-            "rCode": 0,
-            "dpaVal": 52,
-            "result": {}
-        },
-        "raw": {
-            "request": "01.00.01.04.ff.ff.00.00.00.01.02.03",
-            "requestTs": "2018-07-14T22:11:49.14466",
-            "confirmation": "01.00.01.04.ff.ff.ff.2f.01.04.01",
-            "confirmationTs": "2018-07-14T22:11:49.44522",
-            "response": "01.00.01.84.02.00.00.34",
-            "responseTs": "2018-07-14T22:11:49.176166"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedNode_EnableRemoteBonding",
+  "data": {
+    "msgId": "testEmbedNode",
+    "rsp": {
+      "nAdr": 1,
+      "hwpId": 2,
+      "rCode": 0,
+      "dpaVal": 52,
+      "result": {}
+    },
+    "raw": {
+      "request": "01.00.01.04.ff.ff.00.00.00.01.02.03",
+      "requestTs": "2018-07-14T22:11:49.14466",
+      "confirmation": "01.00.01.04.ff.ff.ff.2f.01.04.01",
+      "confirmationTs": "2018-07-14T22:11:49.44522",
+      "response": "01.00.01.84.02.00.00.34",
+      "responseTs": "2018-07-14T22:11:49.176166"
+    },
+    "insId": "iqrfgd2-1",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

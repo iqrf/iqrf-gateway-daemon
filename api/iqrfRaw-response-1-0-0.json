@@ -1,63 +1,63 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
-    "title": "Raw DPA response",
-    "description": "© IQRF Tech",
-    "type": "object",
-    "required": [
-        "mType",
-        "data"
-    ],
-    "properties": {
-        "mType": {
-            "$ref": "definitions.json#/general/mType",
-            "description": "Message type for Raw DPA communication.",
-            "const": "iqrfRaw"
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Raw DPA response",
+  "description": "© IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "properties": {
+    "mType": {
+      "$ref": "definitions.json#/general/mType",
+      "description": "Message type for Raw DPA communication.",
+      "const": "iqrfRaw"
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
         },
-        "data": {
-            "title": "Message data",
-            "description": "Message metadata and body",
-            "type": "object",
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "msgId": {
-                    "$ref": "definitions.json#/general/msgId"
-                },
-                "rsp": {
-                    "title": "Response",
-                    "description": "Holds request data",
-                    "type": "object",
-                    "required": [
-                        "rData"
-                    ],
-                    "additionalProperties": false,
-                    "properties": {
-                        "rData": {
-                            "type": "string",
-                            "description": "Binary buffer with DPA response"
-                        }
-                    }
-                },
-                "raw": {
-                    "$ref": "definitions.json#/general/response/raw"
-                },
-                "insId": {
-                    "$ref": "definitions.json#/general/response/insId"
-                },
-                "status": {
-                    "$ref": "definitions.json#/general/response/status"
-                },
-                "statusStr": {
-                    "$ref": "definitions.json#/general/response/statusStr"
-                },
-                "timeout": {
-                    "$ref": "definitions.json#/general/timeout"
-                }
+        "rsp": {
+          "title": "Response",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "rData"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rData": {
+              "type": "string",
+              "description": "Binary buffer with DPA response"
             }
+          }
+        },
+        "raw": {
+          "$ref": "definitions.json#/general/response/raw"
+        },
+        "insId": {
+          "$ref": "definitions.json#/general/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/general/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
         }
+      }
     }
+  }
 }

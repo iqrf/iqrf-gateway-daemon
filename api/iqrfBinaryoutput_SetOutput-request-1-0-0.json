@@ -1,91 +1,91 @@
 {
-    "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-    "self": {
-        "vendor": "com.iqrftech.self-desc",
-        "name": "iqrfBinaryoutput_SetOutput-request",
-        "format": "jsonschema",
-        "version": "1-0-0"
+  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.iqrftech.self-desc",
+    "name": "iqrfBinaryoutput_SetOutput-request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "mType": {
+      "type": "string",
+      "description": "Standard peripheral Binary Output - Set Output request.",
+      "enum": [
+        "iqrfBinaryoutput_SetOutput"
+      ]
     },
-    "type": "object",
-    "properties": {
-        "mType": {
-            "type": "string",
-            "description": "Standard peripheral Binary Output - Set Output request.",
-            "enum": [
-                "iqrfBinaryoutput_SetOutput"
-            ]
+    "data": {
+      "type": "object",
+      "properties": {
+        "msgId": {
+          "type": "string",
+          "description": "Message identification for binding request with response."
         },
-        "data": {
-            "type": "object",
-            "properties": {
-                "msgId": {
-                    "type": "string",
-                    "description": "Message identification for binding request with response."
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "Timeout to wait for IQRF DPA response."
-                },
-                "req": {
+        "timeout": {
+          "type": "integer",
+          "description": "Timeout to wait for IQRF DPA response."
+        },
+        "req": {
+          "type": "object",
+          "properties": {
+            "nAdr": {
+              "type": "integer",
+              "description": "Network device address."
+            },
+            "hwpId": {
+              "type": "integer",
+              "description": "Hardware profile identification."
+            },
+            "param": {
+              "type": "object",
+              "properties": {
+                "binOuts": {
+                  "type": "array",
+                  "description": "Array of objects with the following fields.",
+                  "items": {
                     "type": "object",
                     "properties": {
-                        "nAdr": {
-                            "type": "integer",
-                            "description": "Network device address."
-                        },
-                        "hwpId": {
-                            "type": "integer",
-                            "description": "Hardware profile identification."
-                        },
-                        "param": {
-                            "type": "object",
-                            "properties": {
-                                "binOuts": {
-                                    "type": "array",
-                                    "description": "Array of objects with the following fields.",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "index": {
-                                                "type": "integer",
-                                                "description": "Zero based index of the light to set."
-                                            },
-                                            "state": {
-                                                "type": "boolean",
-                                                "description": "true to set ON state, false to set OFF state."
-                                            },
-                                            "time": {
-                                                "type": "integer",
-                                                "description": "Time in seconds. Allowed values are <1;127> or 60*<1;127>."
-                                            }
-                                        },
-                                        "required": [
-                                            "index",
-                                            "state"
-                                        ]
-                                    }
-                                }
-                            }
-                        }
+                      "index": {
+                        "type": "integer",
+                        "description": "Zero based index of the light to set."
+                      },
+                      "state": {
+                        "type": "boolean",
+                        "description": "true to set ON state, false to set OFF state."
+                      },
+                      "time": {
+                        "type": "integer",
+                        "description": "Time in seconds. Allowed values are <1;127> or 60*<1;127>."
+                      }
                     },
                     "required": [
-                        "nAdr",
-                        "param"
+                      "index",
+                      "state"
                     ]
-                },
-                "returnVerbose": {
-                    "type": "boolean",
-                    "description": "Flag that includes additional parameters in the response."
+                  }
                 }
-            },
-            "required": [
-                "msgId",
-                "req"
-            ]
+              }
+            }
+          },
+          "required": [
+            "nAdr",
+            "param"
+          ]
+        },
+        "returnVerbose": {
+          "type": "boolean",
+          "description": "Flag that includes additional parameters in the response."
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+      },
+      "required": [
+        "msgId",
+        "req"
+      ]
+    }
+  },
+  "required": [
+    "mType",
+    "data"
+  ]
 }
