@@ -1,11 +1,7 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfEmbedLedr_SetOff-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral Red LED - SetOff request",
+  "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
     "mType",
@@ -14,13 +10,12 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "Embedded peripheral Ledr - Set Off request.",
-      "enum": [
-        "iqrfEmbedLedr_SetOff"
-      ]
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedLedr_SetOff"
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
       "required": [
         "msgId",
@@ -29,37 +24,30 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
+          "$ref": "definitions.json#/general/msgId"
         },
         "req": {
+          "title": "Request",
+          "description": "Holds request data",
           "type": "object",
           "required": [
-            "nAdr",
-            "param"
+            "nAdr"
           ],
           "additionalProperties": false,
           "properties": {
             "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
+              "$ref": "definitions.json#/general/nAdr"
             },
             "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
-            },
-            "param": {
-              "type": "object"
+              "$ref": "definitions.json#/general/request/hwpId"
             }
           }
         },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        },
         "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
+          "$ref": "definitions.json#/general/returnVerbose"
         }
       }
     }
