@@ -4,10 +4,11 @@
     "msgId": "testEmbedLedr",
     "rsp": {
       "nAdr": 1,
+      "pnum": 6,
+      "pcmd": 132,
       "hwpId": 0,
       "rCode": 0,
-      "dpaVal": 78,
-      "result": {}
+      "dpaVal": 78
     },
     "raw": [
       {
