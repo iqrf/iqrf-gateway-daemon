@@ -1,72 +1,72 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
-    "title": "Embedded Peripheral Explore - Peripheral Information request",
-    "description": "© IQRF Tech",
-    "type": "object",
-    "required": [
-        "mType",
-        "data"
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "mType": {
-            "$ref": "definitions.json#/general/mType",
-            "const": "iqrfEmbedExplore_PeripheralInformation"
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Embedded Peripheral Explore - Peripheral Information request",
+  "description": "© IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedExplore_PeripheralInformation"
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
         },
-        "data": {
-            "title": "Message data",
-            "description": "Message metadata and body",
-            "type": "object",
-            "required": [
-                "msgId",
-                "req"
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "msgId": {
-                    "$ref": "definitions.json#/general/msgId"
-                },
-                "req": {
-                    "title": "Request",
-                    "description": "Holds request data",
-                    "type": "object",
-                    "required": [
-                        "nAdr",
-                        "param"
-                    ],
-                    "additionalProperties": false,
-                    "properties": {
-                        "nAdr": {
-                            "$ref": "definitions.json#/general/nAdr"
-                        },
-                        "hwpId": {
-                            "$ref": "definitions.json#/general/request/hwpId",
-                            "$comment": "The HWPID value is ignored at this command."
-                        },
-                        "param": {
-                            "type": "object",
-                            "required": [
-                                "per"
-                            ],
-                            "additionalProperties": false,
-                            "properties": {
-                                "per": {
-                                    "type": "integer",
-                                    "description": "Peripheral to get information about (PNUM).",
-                                    "minimum": 0,
-                                    "maximum": 255
-                                }
-                            }
-                        }
-                    }
-                },
-                "timeout": {
-                    "$ref": "definitions.json#/general/timeout"
-                },
-                "returnVerbose": {
-                    "$ref": "definitions.json#/general/returnVerbose"
+        "req": {
+          "title": "Request",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/request/hwpId",
+              "$comment": "The HWPID value is ignored at this command."
+            },
+            "param": {
+              "type": "object",
+              "required": [
+                "per"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "per": {
+                  "type": "integer",
+                  "description": "Peripheral to get information about (PNUM).",
+                  "minimum": 0,
+                  "maximum": 255
                 }
+              }
             }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
         }
+      }
     }
+  }
 }
