@@ -18,7 +18,9 @@
       "title": "Message type",
       "description": "Daemon monitoring - Notification Invocation request.",
       "type": "string",
-      "enum": ["ntfDaemon_InvokeMonitor"]
+      "enum": [
+        "ntfDaemon_InvokeMonitor"
+      ]
     },
     "data": {
       "title": "Message data",
