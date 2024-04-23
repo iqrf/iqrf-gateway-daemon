@@ -1,8 +1,8 @@
 {
-	"mType": "iqmeshNetwork_MaintenanceUselessPrebondedNodes",
-	"data": {
-		"msgId": "e18b59fa-cb4c-4731-a82e-8319c235c4ca",
-		"repeat": 1,
-		"returnVerbose": true
-	}
+  "mType": "iqmeshNetwork_MaintenanceUselessPrebondedNodes",
+  "data": {
+    "msgId": "e18b59fa-cb4c-4731-a82e-8319c235c4ca",
+    "repeat": 1,
+    "returnVerbose": true
+  }
 }

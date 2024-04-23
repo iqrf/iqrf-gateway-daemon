@@ -1,35 +1,35 @@
 {
-    "mType": "iqrfEmbedNode_Read",
-    "data": {
-        "msgId": "testEmbedNode",
-        "rsp": {
-            "nAdr": 1,
-            "hwpId": 2,
-            "rCode": 0,
-            "dpaVal": 62,
-            "result": {
-                "ntwADDR": 1,
-                "ntwVRN": 1,
-                "ntwZIN": 1,
-                "ntwDID": 79,
-                "ntwPVRN": 0,
-                "ntwUSERADDRESS": 65535,
-                "ntwID": 22421,
-                "ntwVRNFNZ": 0,
-                "ntwCFG": 2,
-                "flags": 1
-            }
-        },
-        "raw": {
-            "request": "01.00.01.00.ff.ff",
-            "requestTs": "2018-07-14T17:37:49.832024",
-            "confirmation": "01.00.01.00.ff.ff.ff.36.01.04.01",
-            "confirmationTs": "2018-07-14T17:37:49.856610",
-            "response": "01.00.01.80.02.00.00.3e.01.01.01.4f.00.ff.ff.95.57.00.02.01",
-            "responseTs": "2018-07-14T17:37:50.2437"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedNode_Read",
+  "data": {
+    "msgId": "testEmbedNode",
+    "rsp": {
+      "nAdr": 1,
+      "hwpId": 2,
+      "rCode": 0,
+      "dpaVal": 62,
+      "result": {
+        "ntwADDR": 1,
+        "ntwVRN": 1,
+        "ntwZIN": 1,
+        "ntwDID": 79,
+        "ntwPVRN": 0,
+        "ntwUSERADDRESS": 65535,
+        "ntwID": 22421,
+        "ntwVRNFNZ": 0,
+        "ntwCFG": 2,
+        "flags": 1
+      }
+    },
+    "raw": {
+      "request": "01.00.01.00.ff.ff",
+      "requestTs": "2018-07-14T17:37:49.832024",
+      "confirmation": "01.00.01.00.ff.ff.ff.36.01.04.01",
+      "confirmationTs": "2018-07-14T17:37:49.856610",
+      "response": "01.00.01.80.02.00.00.3e.01.01.01.4f.00.ff.ff.95.57.00.02.01",
+      "responseTs": "2018-07-14T17:37:50.2437"
+    },
+    "insId": "iqrfgd2-1",
+    "statusStr": "ok",
+    "status": 0
+  }
 }

@@ -1,14 +1,14 @@
 {
-    "mType": "cfgDaemon_Component",
-    "data": {
-        "msgId": "testMetaDataCfg",
-        "req": {
-            "componentName": "iqrf::JsonMngMetaDataApi",
-            "componentInstance": "JsonMngMetaDataApi",
-            "configuration": {
-                "metaDataToMessages": true
-            }
-        },
-        "returnVerbose": true
-    }
+  "mType": "cfgDaemon_Component",
+  "data": {
+    "msgId": "testMetaDataCfg",
+    "req": {
+      "componentName": "iqrf::JsonMngMetaDataApi",
+      "componentInstance": "JsonMngMetaDataApi",
+      "configuration": {
+        "metaDataToMessages": true
+      }
+    },
+    "returnVerbose": true
+  }
 }

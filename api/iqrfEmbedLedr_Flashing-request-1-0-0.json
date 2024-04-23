@@ -1,54 +1,54 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
-    "title": "Embed LEDR - Flashing request schema",
-    "type": "object",
-    "required": [
-        "mType",
-        "data"
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "mType": {
-            "$ref": "definitions.json#/general/mType",
-            "const": "iqrfEmbedLedr_Flashing"
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Embed LEDR - Flashing request schema",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedLedr_Flashing"
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body.",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
         },
-        "data": {
-            "title": "Message data",
-            "description": "Message metadata and body.",
-            "type": "object",
-            "required": [
-                "msgId",
-                "req"
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "msgId": {
-                    "$ref": "definitions.json#/general/msgId"
-                },
-                "req": {
-                    "title": "Request data",
-                    "description": "Request body object",
-                    "type": "object",
-                    "required": [
-                        "nAdr"
-                    ],
-                    "additionalProperties": false,
-                    "properties": {
-                        "nAdr": {
-                            "$ref": "definitions.json#/general/nAdr"
-                        },
-                        "hwpId": {
-                            "$ref": "definitions.json#/general/request/hwpId"
-                        }
-                    }
-                },
-                "timeout": {
-                    "$ref": "definitions.json#/general/timeout"
-                },
-                "returnVerbose": {
-                    "$ref": "definitions.json#/general/returnVerbose"
-                }
+        "req": {
+          "title": "Request data",
+          "description": "Request body object",
+          "type": "object",
+          "required": [
+            "nAdr"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/request/hwpId"
             }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
         }
+      }
     }
+  }
 }

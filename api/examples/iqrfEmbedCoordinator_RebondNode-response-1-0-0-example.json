@@ -1,27 +1,27 @@
 {
-    "mType": "iqrfEmbedCoordinator_RebondNode",
-    "data": {
-        "msgId": "testEmbedCoordinator",
-        "timeout": 11000,
-        "rsp": {
-            "nAdr": 0,
-            "hwpId": 0,
-            "rCode": 0,
-            "dpaVal": 0,
-            "result": {
-                "devNr": 1
-            }
-        },
-        "raw": {
-            "request": "00.00.00.06.ff.ff.06",
-            "requestTs": "2018-07-09T11:56:45.872484",
-            "confirmation": "",
-            "confirmationTs": "",
-            "response": "00.00.00.86.00.00.00.00.01",
-            "responseTs": "2018-07-09T11:56:45.909404"
-        },
-        "insId": "iqrfgd2-1",
-        "statusStr": "ok",
-        "status": 0
-    }
+  "mType": "iqrfEmbedCoordinator_RebondNode",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "timeout": 11000,
+    "rsp": {
+      "nAdr": 0,
+      "hwpId": 0,
+      "rCode": 0,
+      "dpaVal": 0,
+      "result": {
+        "devNr": 1
+      }
+    },
+    "raw": {
+      "request": "00.00.00.06.ff.ff.06",
+      "requestTs": "2018-07-09T11:56:45.872484",
+      "confirmation": "",
+      "confirmationTs": "",
+      "response": "00.00.00.86.00.00.00.00.01",
+      "responseTs": "2018-07-09T11:56:45.909404"
+    },
+    "insId": "iqrfgd2-1",
+    "statusStr": "ok",
+    "status": 0
+  }
 }
