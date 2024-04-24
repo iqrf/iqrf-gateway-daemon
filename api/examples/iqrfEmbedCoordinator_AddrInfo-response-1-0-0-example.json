@@ -4,6 +4,8 @@
     "msgId": "testEmbedCoordinator",
     "rsp": {
       "nAdr": 0,
+      "pnum": 0,
+      "pcmd": 128,
       "hwpId": 0,
       "rCode": 0,
       "dpaVal": 64,
@@ -12,14 +14,16 @@
         "did": 42
       }
     },
-    "raw": {
-      "request": "00.00.00.00.ff.ff",
-      "requestTs": "2018-07-07T20:16:03.125144",
-      "confirmation": "",
-      "confirmationTs": "",
-      "response": "00.00.00.80.00.00.00.40.00.2a",
-      "responseTs": "2018-07-07T20:16:03.150580"
-    },
+    "raw": [
+      {
+        "request": "00.00.00.00.ff.ff",
+        "requestTs": "2018-07-07T20:16:03.125144",
+        "confirmation": "",
+        "confirmationTs": "",
+        "response": "00.00.00.80.00.00.00.40.00.2a",
+        "responseTs": "2018-07-07T20:16:03.150580"
+      }
+    ],
     "insId": "iqrfgd2-1",
     "statusStr": "ok",
     "status": 0
