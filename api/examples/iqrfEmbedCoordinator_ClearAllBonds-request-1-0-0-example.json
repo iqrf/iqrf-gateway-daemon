@@ -3,8 +3,7 @@
   "data": {
     "msgId": "testEmbedCoordinator",
     "req": {
-      "nAdr": 0,
-      "param": {}
+      "nAdr": 0
     },
     "returnVerbose": true
   }

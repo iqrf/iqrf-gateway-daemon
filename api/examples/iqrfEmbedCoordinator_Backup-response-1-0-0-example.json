@@ -4,6 +4,8 @@
     "msgId": "testEmbedCoordinator",
     "rsp": {
       "nAdr": 0,
+      "pnum": 0,
+      "pcmd": 139,
       "hwpId": 0,
       "rCode": 0,
       "dpaVal": 64,
@@ -61,14 +63,16 @@
         ]
       }
     },
-    "raw": {
-      "request": "00.00.00.0b.ff.ff.00",
-      "requestTs": "2018-07-07T20:15:04.977337",
-      "confirmation": "",
-      "confirmationTs": "",
-      "response": "00.00.00.8b.00.00.00.40.ed.60.14.51.82.de.7c.72.de.f8.90.a3.ee.82.75.ed.90.54.a7.b7.81.33.ca.65.70.07.7b.24.03.43.08.1e.82.62.ce.0b.10.2b.23.43.a3.58.d6.a6.8c.91.11.68.a8",
-      "responseTs": "2018-07-07T20:15:05.23197"
-    },
+    "raw": [
+      {
+        "request": "00.00.00.0b.ff.ff.00",
+        "requestTs": "2018-07-07T20:15:04.977337",
+        "confirmation": "",
+        "confirmationTs": "",
+        "response": "00.00.00.8b.00.00.00.40.ed.60.14.51.82.de.7c.72.de.f8.90.a3.ee.82.75.ed.90.54.a7.b7.81.33.ca.65.70.07.7b.24.03.43.08.1e.82.62.ce.0b.10.2b.23.43.a3.58.d6.a6.8c.91.11.68.a8",
+        "responseTs": "2018-07-07T20:15:05.23197"
+      }
+    ],
     "insId": "iqrfgd2-1",
     "statusStr": "ok",
     "status": 0
