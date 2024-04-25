@@ -27,7 +27,7 @@
 					{
 						"if": {
 							"properties": {
-								"metadataVersion": { "const": 0 }
+								"version": { "const": 0 }
 							}
 						},
 						"then": {
