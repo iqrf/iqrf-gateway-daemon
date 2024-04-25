@@ -132,7 +132,7 @@ void validate_companies_file() {
 
   if (!validator.validate(schema, adapter, &errors)) {
     valijson::ValidationResults::Error error;
-    std::cerr << "Errors found when validating companies data file file." << std::endl;
+    std::cerr << "Errors found when validating companies data file." << std::endl;
     while (errors.popError(error)) {
       std::string context;
       std::vector<std::string>::iterator itr = error.context.begin();
@@ -156,7 +156,7 @@ void validate_manufacturers_file() {
   valijson::adapters::NlohmannJsonAdapter adapter(doc);
 
   if (!validator.validate(schema, adapter, &errors)) {
-    std::cerr << "Errors found when validating manufacturers data file file." << std::endl;
+    std::cerr << "Errors found when validating manufacturers data file." << std::endl;
     valijson::ValidationResults::Error error;
     while (errors.popError(error)) {
       std::string context;
@@ -181,7 +181,7 @@ void validate_products_file() {
   valijson::adapters::NlohmannJsonAdapter adapter(doc);
 
   if (!validator.validate(schema, adapter, &errors)) {
-    std::cerr << "Errors found when validating products data file file." << std::endl;
+    std::cerr << "Errors found when validating products data file." << std::endl;
     valijson::ValidationResults::Error error;
     while (errors.popError(error)) {
       std::string context;
