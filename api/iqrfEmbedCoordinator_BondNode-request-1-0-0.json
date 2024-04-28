@@ -58,10 +58,11 @@
                   "type": "integer",
                   "default": 0
                 },
-                "bondingMask": {
-                  "title": "Bonding mask",
-                  "description": "See IQRF OS User's and Reference guides (remote bonding, function bondNewNode).",
-                  "type": "integer"
+                "bondingTestRetries": {
+                  "title": "Bonding Test Retries",
+                  "description": "Maximum number of FRCs used to test whether the node was successfully bonded. If the value is 0, then no test is performed.",
+                  "type": "integer",
+                  "default": 0
                 }
               }
             }
