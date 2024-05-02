@@ -4,6 +4,8 @@
     "msgId": "testEmbedCoordinator",
     "rsp": {
       "nAdr": 0,
+      "pnum": 0,
+      "pcmd": 147,
       "hwpId": 0,
       "rCode": 3,
       "dpaVal": 0,
