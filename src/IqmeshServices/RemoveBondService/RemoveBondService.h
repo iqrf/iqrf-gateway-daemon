@@ -45,6 +45,8 @@ namespace iqrf {
 			serviceError = 1000,
 			requestParseError = 1001,
 			exclusiveAccessError = 1002,
+			noDeviceError = 1003,
+			partailFailureError = 1004,
 		};
 
 		/**

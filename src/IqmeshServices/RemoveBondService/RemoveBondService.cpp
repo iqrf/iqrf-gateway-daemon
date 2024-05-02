@@ -471,6 +471,9 @@ namespace iqrf {
 				for (auto node : removedNodes) {
 					removeBondResult.setNodeRemoved(node, true);
 				}
+				if (nodes.size() != removedNodes.size()) {
+					removeBondResult.setStatus(partailFailureError, "Some devices could not be removed from network.");
+				}
 				// Invoke DB enum
 				invokeDbEnumeration();
 			} else {
@@ -489,6 +492,8 @@ namespace iqrf {
 					removeBondResult.setNodeRemoved(nodeAddr, true);
 					// Invoke DB enum
 					invokeDbEnumeration();
+				} else {
+					removeBondResult.setStatus(noDeviceError, "No device exists at address " + std::to_string(nodeAddr) + ".");
 				}
 			}
 			// Get addressing info
@@ -564,23 +569,21 @@ namespace iqrf {
 		Pointer("/data/msgId").Set(response, m_comRemoveBond->getMsgId());
 		// Set status
 		int status = removeBondResult.getStatus();
-		if (status == 0) {
-			// Rsp object
-			rapidjson::Pointer("/data/rsp/nodesNr").Set(response, removeBondResult.getNodesNr());
-			// iqmeshNetwork_RemoveBond request
-			if (!m_requestParams.coordinatorOnly) {
-				Document::AllocatorType& allocator = response.GetAllocator();
-				rapidjson::Value nodeArray(kArrayType);
-				auto nodes = removeBondResult.getNodesStatus();
-				for (auto &[addr, v] : nodes) {
-					rapidjson::Value nodeObject(kObjectType);
-					Pointer("/address").Set(nodeObject, addr, allocator);
-					Pointer("/bonded").Set(nodeObject, v.bonded, allocator);
-					Pointer("/removed").Set(nodeObject, v.removed, allocator);
-					nodeArray.PushBack(nodeObject, allocator);
-				}
-				Pointer("/data/rsp/result").Set(response, nodeArray);
+		// Rsp object
+		rapidjson::Pointer("/data/rsp/nodesNr").Set(response, removeBondResult.getNodesNr());
+		// iqmeshNetwork_RemoveBond request
+		if (!m_requestParams.coordinatorOnly) {
+			Document::AllocatorType& allocator = response.GetAllocator();
+			rapidjson::Value nodeArray(kArrayType);
+			auto nodes = removeBondResult.getNodesStatus();
+			for (auto &[addr, v] : nodes) {
+				rapidjson::Value nodeObject(kObjectType);
+				Pointer("/address").Set(nodeObject, addr, allocator);
+				Pointer("/bonded").Set(nodeObject, v.bonded, allocator);
+				Pointer("/removed").Set(nodeObject, v.removed, allocator);
+				nodeArray.PushBack(nodeObject, allocator);
 			}
+			Pointer("/data/rsp/result").Set(response, nodeArray);
 		}
 
 		// Set raw fields, if verbose mode is active
