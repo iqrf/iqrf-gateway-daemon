@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "EnumerationStructures.h"
 #include "IIqrfDpaService.h"
 #include "IIqrfDb.h"
 #include "IIqrfNetworkEnum.h"
@@ -237,6 +238,21 @@ namespace iqrf {
 		 */
 		void stopEnumerationThread();
 
+		////
+
+		void getNetworkInformation();
+
+		std::set<uint8_t> getBondedNodes();
+
+		std::set<uint8_t> getDiscoveredNodes();
+
+		std::map<uint8_t, uint32_t> getMids();
+
+		std::map<uint8_t, EnumDevice> enumMap;
+
+		std::set<uint8_t> devicesToRemove;
+		////
+
 		/**
 		 * Compares network with database information, selects nodes to enumerate and retrieves their routing information
 		 * @param reenumerate Force re-enumerate existing records in database
@@ -362,22 +378,6 @@ namespace iqrf {
 		 * @param address Device address
 		 */
 		void sensorEnumeration(const uint8_t &address);
-
-		/**
-		 * Retrieves bonded devices
-		 */
-		void getBondedNodes();
-
-		/**
-		 * Retrieves discovered devices
-		 * @param bondedNodes Vector of bonded nodes for filtering
-		 */
-		void getDiscoveredNodes();
-
-		/**
-		 * Retrieves MIDs of bonded devices
-		 */
-		void getMids();
 
 		/**
 		 * Retrieves VRN, zone and parent information

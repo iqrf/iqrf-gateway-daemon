@@ -214,7 +214,8 @@ namespace iqrf {
 					waitForExclusiveAccess();
 					TRC_INFORMATION("Running enumeration with: " << PAR(m_params.reenumerate) << PAR(m_params.standards));
 					sendEnumerationProgressMessage(EnumerationProgress(EnumerationProgress::Steps::Start));
-					checkNetwork(m_params.reenumerate);
+
+					//checkNetwork(m_params.reenumerate);
 					sendEnumerationProgressMessage(EnumerationProgress(EnumerationProgress::Steps::NetworkDone));
 					resetExclusiveAccess();
 
@@ -272,6 +273,44 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
+	void IqrfNetworkEnum::getNetworkInformation() {
+		TRC_FUNCTION_ENTER("");
+		try {
+			// get bonded
+			auto bonded = getBondedNodes();
+			// check if devices are in C memory
+			if (bonded.size() > 0) {
+				// create auxiliary enumeration device objects
+				for (auto addr : bonded) {
+					enumMap.insert(std::make_pair(addr, EnumDevice()));
+				}
+				// get discovered
+				auto discovered = getDiscoveredNodes();
+				// mark discovered devices
+				for (auto addr : discovered) {
+					enumMap[addr].discovered = true;
+				}
+				// get mids
+				auto mids = getMids();
+				// store device mids
+				for (auto [addr, mid] : mids) {
+					enumMap[addr].mid = mid;
+				}
+			}
+			// store addresses of devices to remove from database
+			for (auto dbDevice : m_dbService->getAllDevices()) {
+				uint8_t addr = dbDevice.getAddress();
+				if (enumMap.count(addr) == 0) {
+					devicesToRemove.insert(addr);
+				}
+			}
+		} catch (const std::exception &e) {
+			THROW_EXC(std::logic_error, e.what());
+		}
+
+		TRC_FUNCTION_LEAVE("");
+	}
+
 	void IqrfNetworkEnum::checkNetwork(bool reenumerate) {
 		TRC_FUNCTION_ENTER("");
 		m_coordinatorParams = m_dpaService->getCoordinatorParameters();
@@ -326,9 +365,10 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfNetworkEnum::getBondedNodes() {
+	std::set<uint8_t> IqrfNetworkEnum::getBondedNodes() {
 		TRC_FUNCTION_ENTER("");
 		std::unique_ptr<IDpaTransactionResult2> result;
+		std::set<uint8_t> nodes;
 		try {
 			// Build DPA request
 			DpaMessage bondedRequest;
@@ -345,22 +385,20 @@ namespace iqrf {
 			const unsigned char *pData = bondedResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
 			for (uint8_t i = 1, n = MAX_ADDRESS; i <= n; i++) {
 				if ((pData[i / 8] & (1 << (i % 8))) != 0) {
-					m_toEnumerate.insert(i);
+					nodes.insert(i);
 				}
 			}
-			m_toEnumerate.insert(0);
 		} catch (const std::exception &e) {
 			THROW_EXC(std::logic_error, e.what());
 		}
 		TRC_FUNCTION_LEAVE("");
+		return nodes;
 	}
 
-	void IqrfNetworkEnum::getDiscoveredNodes() {
+	std::set<uint8_t> IqrfNetworkEnum::getDiscoveredNodes() {
 		TRC_FUNCTION_ENTER("");
-		if (m_toEnumerate.size() == 0) {
-			return;
-		}
 		std::unique_ptr<IDpaTransactionResult2> result;
+		std::set<uint8_t> nodes;
 		try {
 			// Build DPA request
 			DpaMessage discoveredRequest;
@@ -377,19 +415,22 @@ namespace iqrf {
 			const unsigned char *pData = discoveredResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
 			for (uint8_t addr : m_toEnumerate) {
 				if ((pData[addr / 8] & (1 << (addr % 8))) != 0) {
-					m_discovered.insert(addr);
+					nodes.insert(addr);
 				}
 			}
 		} catch (const std::exception &e) {
 			THROW_EXC(std::logic_error, e.what());
 		}
 		TRC_FUNCTION_LEAVE("");
+		return nodes;
 	}
 
-	void IqrfNetworkEnum::getMids() {
+	std::map<uint8_t, uint32_t> IqrfNetworkEnum::getMids() {
 		TRC_FUNCTION_ENTER("");
-		if (m_toEnumerate.size() == 0) {
-			return;
+		std::map<uint8_t, uint32_t> midMap;
+
+		if (enumMap.size() == 0) {
+			return midMap;
 		}
 		// Prepare request parameters
 		const uint8_t maxDataLen = 54;
@@ -426,18 +467,19 @@ namespace iqrf {
 				eeepromData.insert(eeepromData.end(), pData, pData + length);
 			}
 			// Process EEEPROM data into mids
-			for (const uint8_t addr : m_toEnumerate) {
+			for (auto &[addr, _] : enumMap) {
 				if (addr == 0) {
 					continue;
 				}
 				uint16_t idx = addr * 8;
 				uint32_t mid = ((uint32_t)eeepromData[idx] | ((uint32_t)eeepromData[idx + 1] << 8) | ((uint32_t)eeepromData[idx + 2] << 16) | ((uint32_t)eeepromData[idx + 3] << 24));
-				m_mids.insert(std::make_pair(addr, mid));
+				midMap.insert(std::make_pair(addr, mid));
 			}
 		} catch (const std::exception &e) {
 			THROW_EXC(std::logic_error, e.what());
 		}
 		TRC_FUNCTION_LEAVE("");
+		return midMap;
 	}
 
 	void IqrfNetworkEnum::getRoutingInformation() {
