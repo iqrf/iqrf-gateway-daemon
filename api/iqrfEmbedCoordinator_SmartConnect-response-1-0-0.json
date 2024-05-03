@@ -37,8 +37,7 @@
             "pcmd",
             "hwpId",
             "rCode",
-            "dpaVal",
-            "result"
+            "dpaVal"
           ],
           "additionalProperties": false,
           "properties": {
