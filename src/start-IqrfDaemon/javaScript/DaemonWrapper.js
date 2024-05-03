@@ -64,7 +64,7 @@ if (iqrf.embed.coordinator !== undefined) {
   };
 
   iqrf.embed.coordinator.BondNode_Request_req = function (param) {
-    return iqrf.embed.coordinator.BondNode_Request(param.reqAddr, param.bondingMask);
+    return iqrf.embed.coordinator.BondNode_Request(param.reqAddr, param.bondingTestRetries);
   };
 
   iqrf.embed.coordinator.BondNode_Response_rsp = function (rawHdp) {
