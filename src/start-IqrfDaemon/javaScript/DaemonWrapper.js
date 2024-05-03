@@ -111,12 +111,10 @@ if (iqrf.embed.coordinator !== undefined) {
     return iqrf.embed.coordinator.SetDpaParams_Request(param.dpaParam);
   };
 
-  iqrf.embed.coordinator.SetDpaParams_Response_rsp = function (rawHdp) {
-    var result =
-    {
-      prevDpaParam: iqrf.embed.coordinator.SetDpaParams_Response(rawHdp)
+  iqrf.embed.coordinator.SetDpaParams_Response_rsp = function (rawHdp){
+    return {
+        dpaParam: iqrf.embed.coordinator.SetDpaParams_Response(rawHdp)
     };
-    return result;
   };
 
   iqrf.embed.coordinator.SetHops_Request_req = function (param) {
