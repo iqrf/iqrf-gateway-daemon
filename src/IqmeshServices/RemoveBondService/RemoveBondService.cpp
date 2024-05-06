@@ -523,7 +523,10 @@ namespace iqrf {
 					if (m_requestParams.deviceAddrList.size() > 0) {
 						// One Node in the list ?
 						if (m_requestParams.deviceAddrList.size() == 1) {
-							coordRemoveBond(removeBondResult, *m_requestParams.deviceAddrList.begin());
+							auto nodeAddr = *m_requestParams.deviceAddrList.begin();
+							removeBondResult.addNodeStatus(nodeAddr, bondedNodes.count(nodeAddr) > 0, false);
+							coordRemoveBond(removeBondResult, nodeAddr);
+							removeBondResult.setNodeRemoved(nodeAddr, true);
 						} else {
 							coordRemoveBondBatch(removeBondResult, m_requestParams.deviceAddrList);
 						}
