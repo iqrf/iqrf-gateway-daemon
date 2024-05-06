@@ -738,9 +738,9 @@ namespace iqrf {
               if (!profileDoc["powerSupply"]["accumulator"]["type"].is_null()) {
                 accuType = std::make_shared<std::string>(profileDoc["powerSupply"]["accumulator"]["type"]);
               }
-              std::shared_ptr<uint16_t> accuLowLevel;
+              std::shared_ptr<double> accuLowLevel;
               if (!profileDoc["powerSupply"]["accumulator"]["lowLevel"].is_null()) {
-                accuLowLevel = std::make_shared<uint16_t>(profileDoc["powerSupply"]["accumulator"]["lowLevel"]);
+                accuLowLevel = std::make_shared<double>(profileDoc["powerSupply"]["accumulator"]["lowLevel"]);
               }
               ProfilePowerAccumulator accuPower(
                 profileDoc["powerSupply"]["accumulator"]["present"],
@@ -752,9 +752,9 @@ namespace iqrf {
               if (!profileDoc["powerSupply"]["battery"]["type"].is_null()) {
                 batteryType = std::make_shared<std::string>(profileDoc["powerSupply"]["battery"]["type"]);
               }
-              std::shared_ptr<uint16_t> batteryChangeThreshold;
+              std::shared_ptr<double> batteryChangeThreshold;
               if (!profileDoc["powerSupply"]["battery"]["changeThreshold"].is_null()) {
-                batteryChangeThreshold = std::make_shared<uint16_t>(profileDoc["powerSupply"]["battery"]["changeThreshold"]);
+                batteryChangeThreshold = std::make_shared<double>(profileDoc["powerSupply"]["battery"]["changeThreshold"]);
               }
               ProfilePowerBattery batteryPower(
                 profileDoc["powerSupply"]["battery"]["present"],
@@ -762,7 +762,7 @@ namespace iqrf {
                 batteryChangeThreshold
               );
               // power
-              uint16_t minVoltage = profileDoc["powerSupply"]["minVoltage"];
+              double minVoltage = profileDoc["powerSupply"]["minVoltage"];
               ProfilePower powerSupply(mainsPower, accuPower, batteryPower, minVoltage);
               // profile
               profiles.emplace_back(

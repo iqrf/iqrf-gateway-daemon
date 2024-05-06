@@ -90,7 +90,7 @@ namespace iqrf {
       ProfilePowerAccumulator(
         bool present = false,
         std::shared_ptr<std::string> type = nullptr,
-        std::shared_ptr<uint16_t> lowLevel = nullptr
+        std::shared_ptr<double> lowLevel = nullptr
       ):
         present(present),
         type(type),
@@ -98,7 +98,7 @@ namespace iqrf {
       {}
       bool present;
       std::shared_ptr<std::string> type;
-      std::shared_ptr<uint16_t> lowLevel;
+      std::shared_ptr<double> lowLevel;
     };
 
     class ProfilePowerBattery {
@@ -106,7 +106,7 @@ namespace iqrf {
       ProfilePowerBattery(
         bool present = false,
         std::shared_ptr<std::string> type = nullptr,
-        std::shared_ptr<uint16_t> changeThreshold = nullptr
+        std::shared_ptr<double> changeThreshold = nullptr
       ):
         present(present),
         type(type),
@@ -114,7 +114,7 @@ namespace iqrf {
       {}
       bool present;
       std::shared_ptr<std::string> type;
-      std::shared_ptr<uint16_t> changeThreshold;
+      std::shared_ptr<double> changeThreshold;
     };
 
     class ProfilePower {
@@ -123,7 +123,7 @@ namespace iqrf {
         ProfilePowerMains mains,
         ProfilePowerAccumulator accumulator,
         ProfilePowerBattery battery,
-        uint16_t minVoltage
+        double minVoltage
       ):
         mains(mains),
         accumulator(accumulator),
@@ -134,7 +134,7 @@ namespace iqrf {
       ProfilePowerMains mains;
       ProfilePowerAccumulator accumulator;
       ProfilePowerBattery battery;
-      uint16_t minVoltage;
+      double minVoltage;
     };
 
     class ProfileHwpidVersion {
