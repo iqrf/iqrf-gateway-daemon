@@ -1,74 +1,82 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfEmbedCoordinator_Discovery-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral Coordinator - Discovery request",
+  "description": "(c) IQRF Tech",
   "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "Embedded peripheral Coordinator - Discovery request.",
-      "enum": [
-        "iqrfEmbedCoordinator_Discovery"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
-        },
-        "req": {
-          "type": "object",
-          "properties": {
-            "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
-            },
-            "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
-            },
-            "param": {
-              "type": "object",
-              "properties": {
-                "txPower": {
-                  "type": "integer",
-                  "description": "TX Power used for discovery."
-                },
-                "maxAddr": {
-                  "type": "integer",
-                  "description": "Nonzero value specifies maxItems node address to be part of the discovery process."
-                }
-              }
-            }
-          },
-          "required": [
-            "nAdr",
-            "param"
-          ]
-        },
-        "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
-        }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
-    }
-  },
   "required": [
     "mType",
     "data"
-  ]
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedCoordinator_Discovery"
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/request/hwpId"
+            },
+            "param": {
+              "title": "Request parameters",
+              "description": "Specific request parameters (PData).",
+              "type": "object",
+              "required": [
+                "txPower",
+                "maxAddr"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "txPower": {
+                  "type": "integer",
+                  "description": "TX Power used for discovery.",
+                  "minimum": 0,
+                  "maximum": 255,
+                  "default": 0
+                },
+                "maxAddr": {
+                  "type": "integer",
+                  "description": "Nonzero value specifies maxItems node address to be part of the discovery process.",
+                  "minimum": 0,
+                  "maximum": 239,
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
+        }
+      }
+    }
+  }
 }
