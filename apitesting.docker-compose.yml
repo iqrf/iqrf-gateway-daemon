@@ -18,8 +18,8 @@ version: "3.3"
 
 services:
 
-  deamon:
-    image: deamon_test
+  daemon:
+    image: daemon_test
     container_name: iqrfgd-api-tests
     build:
       context: .
@@ -48,4 +48,4 @@ services:
     depends_on:
       - mosquitto
       - emulator
-      - deamon
+      - daemon
