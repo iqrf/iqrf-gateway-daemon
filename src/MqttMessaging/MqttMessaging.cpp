@@ -81,9 +81,8 @@ namespace iqrf {
     std::string m_enabledCipherSuites;
     //True/False option to enable verification of the server certificate
     bool m_enableServerCertAuth = true;
-
-    std::string m_name;
     bool m_acceptAsyncMsg = false;
+    MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::MQTT);
 
     TaskQueue<ustring>* m_toMqttMessageQueue = nullptr;
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
@@ -122,7 +121,9 @@ namespace iqrf {
     {
       TRC_FUNCTION_ENTER("");
 
-      props->getMemberAsString("instance", m_name);
+      std::string instanceName;
+
+      props->getMemberAsString("instance", instanceName);
       props->getMemberAsString("BrokerAddr", m_mqttBrokerAddr);
       props->getMemberAsString("ClientId", m_mqttClientId);
       props->getMemberAsInt("Persistence", m_mqttPersistence);
@@ -145,6 +146,8 @@ namespace iqrf {
       props->getMemberAsInt("MaxReconnect", m_mqttMaxReconnect);
       props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
 
+      // update messaging instance
+      m_messagingInstance.instance = instanceName;
       // detect if TLS should be enabled
       if (
         iqrf::StringUtils::startsWith(m_mqttBrokerAddr, "ssl://") ||
@@ -157,6 +160,7 @@ namespace iqrf {
       if (m_mqttClientId.empty()) {
         m_mqttClientId = "iqrf-gateway-daemon_" + std::to_string(getpid());
       }
+
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -308,11 +312,14 @@ namespace iqrf {
     }
 
     //------------------------
-    const std::string& getName() const { return m_name; }
-
-    bool acceptAsyncMsg() const
-    {
+    bool acceptAsyncMsg() const {
       return m_acceptAsyncMsg;
+    }
+
+    //------------------------
+    const MessagingInstance &getMessagingInstance() const
+    {
+      return m_messagingInstance;
     }
 
     //------------------------
@@ -337,7 +344,10 @@ namespace iqrf {
         "Received from MQTT: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
       if (m_messageHandlerFunc)
-        m_messageHandlerFunc(m_name, std::vector<uint8_t>(message.data(), message.data() + message.size()));
+        m_messageHandlerFunc(
+          m_messagingInstance,
+          std::vector<uint8_t>(message.data(), message.data() + message.size())
+        );
     }
 
     //------------------------
@@ -649,21 +659,20 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void MqttMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
+  void MqttMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
   {
-    TRC_FUNCTION_ENTER(PAR(messagingId));
+    TRC_FUNCTION_ENTER(PAR(messaging.instance));
     m_impl->sendMessage(msg);
     TRC_FUNCTION_LEAVE("")
   }
 
-  const std::string &  MqttMessaging::getName() const
-  {
-    return m_impl->getName();
+  bool MqttMessaging::acceptAsyncMsg() const {
+    return m_impl->acceptAsyncMsg();
   }
 
-  bool MqttMessaging::acceptAsyncMsg() const
+  const MessagingInstance &MqttMessaging::getMessagingInstance() const
   {
-    return m_impl->acceptAsyncMsg();
+    return m_impl->getMessagingInstance();
   }
 
   void MqttMessaging::activate(const shape::Properties *props)

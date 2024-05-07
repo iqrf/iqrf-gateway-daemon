@@ -277,50 +277,50 @@ namespace iqrf {
 		 * @param request Request document
 		 * @param messagingId Messaging ID
 		 */
-		void workerStatus(rapidjson::Document &request, const std::string &messagingId);
+		void workerStatus(rapidjson::Document &request, const MessagingInstance &messaging);
 
 		/**
 		 * Notifies a sleeping worker
 		 * @param request Request document
 		 * @param messagingId Messaging ID
 		 */
-		void notifyWorker(rapidjson::Document &request, const std::string &messagingId);
+		void notifyWorker(rapidjson::Document &request, const MessagingInstance &messaging);
 
 		/**
 		 * Starts the worker
 		 * @param request Request document
 		 * @param messagingId Messaging ID
 		 */
-		void startWorker(rapidjson::Document &request, const std::string &messagingId);
+		void startWorker(rapidjson::Document &request, const MessagingInstance &messaging);
 
 		/**
 		 * Stops the worker
 		 * @param request Request document
 		 * @param messagingId Messaging ID
 		 */
-		void stopWorker(rapidjson::Document &request, const std::string &messagingId);
+		void stopWorker(rapidjson::Document &request, const MessagingInstance &messaging);
 
 		/**
 		 * Returns worker configuration
 		 * @param request Request document
 		 * @param messagingId Messaging ID
 		 */
-		void getConfig(rapidjson::Document &request, const std::string &messagingId);
+		void getConfig(rapidjson::Document &request, const MessagingInstance &messaging);
 
 		/**
 		 * Configures worker
 		 * @param request Request document
 		 * @param messagingId Messaging ID
 		 */
-		void setConfig(rapidjson::Document &request, const std::string &messagingId);
+		void setConfig(rapidjson::Document &request, const MessagingInstance &messaging);
 
 		/**
 		 * Handles request from splitter
-		 * @param messagingId Messaging ID
+		 * @param messaging Messaging instance
 		 * @param msgType Message type
 		 * @param doc request document
 		 */
-		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
+		void handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
 
 		/// Component name
 		std::string m_componentName;
@@ -355,7 +355,7 @@ namespace iqrf {
 		/// Async reports
 		bool m_asyncReports = false;
 		/// Async response messaging list
-		std::list<std::string> m_messagingList;
+		std::list<MessagingInstance> m_messagingList;
 		/// Get config API message type
 		const std::string m_mTypeGetConfig = "iqrfSensorData_GetConfig";
 		/// Set config API message type

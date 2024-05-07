@@ -39,11 +39,11 @@ namespace iqrf {
   private:
     shape::IMqttService* m_iMqttService = nullptr;
 
-    std::string m_name;
     std::string m_mqttClientId;
     std::string m_mqttTopicRequest;
     std::string m_mqttTopicResponse;
     bool m_acceptAsyncMsg = false;
+    MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::BUFFERED_MQTT);
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
 
   public:
@@ -64,7 +64,7 @@ namespace iqrf {
       {
         (void)topic;
         if (m_messageHandlerFunc) {
-          m_messageHandlerFunc(m_name, std::vector<uint8_t>((uint8_t*)msg.data(), (uint8_t*)(msg.data() + msg.size())));
+          m_messageHandlerFunc(m_messagingInstance, std::vector<uint8_t>((uint8_t*)msg.data(), (uint8_t*)(msg.data() + msg.size())));
         }
       });
 
@@ -91,11 +91,14 @@ namespace iqrf {
     }
 
     //------------------------
-    const std::string& getName() const { return m_name; }
-
-    bool acceptAsyncMsg() const
-    {
+    bool acceptAsyncMsg() const {
       return m_acceptAsyncMsg;
+    }
+
+    //------------------------
+    const MessagingInstance &getMessagingInstance() const
+    {
+      return m_messagingInstance;
     }
 
     //------------------------
@@ -152,11 +155,15 @@ namespace iqrf {
     void modify(const shape::Properties *props)
     {
       TRC_FUNCTION_ENTER("");
-      props->getMemberAsString("instance", m_name);
+      std::string instanceName;
+
+      props->getMemberAsString("instance", instanceName);
       props->getMemberAsString("ClientId", m_mqttClientId);
       props->getMemberAsString("TopicRequest", m_mqttTopicRequest);
       props->getMemberAsString("TopicResponse", m_mqttTopicResponse);
       props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
+
+      m_messagingInstance.instance = instanceName;
       TRC_FUNCTION_LEAVE("");
     }
 
@@ -205,20 +212,20 @@ namespace iqrf {
     m_impl->unregisterMessageHandler();
   }
 
-  void BufferedMqttMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
+  void BufferedMqttMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
   {
-    (void)messagingId;
+    TRC_FUNCTION_LEAVE(PAR(messaging.instance));
     m_impl->sendMessage(msg);
+    TRC_FUNCTION_LEAVE("");
   }
 
-  const std::string &  BufferedMqttMessaging::getName() const
-  {
-    return m_impl->getName();
-  }
-
-  bool BufferedMqttMessaging::acceptAsyncMsg() const
-  {
+  bool BufferedMqttMessaging::acceptAsyncMsg() const {
     return m_impl->acceptAsyncMsg();
+  }
+
+  const MessagingInstance &BufferedMqttMessaging::getMessagingInstance() const
+  {
+    return m_impl->getMessagingInstance();
   }
 
   void BufferedMqttMessaging::activate(const shape::Properties *props)

@@ -137,7 +137,7 @@ namespace iqrf {
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
-    const std::string* m_messagingId = nullptr;
+    const MessagingInstance* m_messaging = nullptr;
     const IMessagingSplitterService::MsgType* m_msgType = nullptr;
     const ComIqmeshNetworkPing* m_comPing = nullptr;
 
@@ -386,7 +386,7 @@ namespace iqrf {
       Pointer("/data/statusStr").Set(response, statusStr);
 
       // Send message
-      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
+      m_iMessagingSplitterService->sendMessage(*m_messaging, std::move(response));
     }
 
     //--------------------------
@@ -477,7 +477,7 @@ namespace iqrf {
       Pointer("/data/statusStr").Set(response, pingResult.getStatusStr());
 
       // Send message
-      m_iMessagingSplitterService->sendMessage(*m_messagingId, std::move(response));
+      m_iMessagingSplitterService->sendMessage(*m_messaging, std::move(response));
     }
 
     //-------------
@@ -534,10 +534,10 @@ namespace iqrf {
     //-------------------
     // Handle the request
     //-------------------
-    void handleMsg(const std::string& messagingId, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc)
+    void handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc)
     {
       TRC_FUNCTION_ENTER(
-        PAR(messagingId) <<
+        PAR( messaging.to_string() ) <<
         NAME_PAR(mType, msgType.m_type) <<
         NAME_PAR(major, msgType.m_major) <<
         NAME_PAR(minor, msgType.m_minor) <<
@@ -551,7 +551,7 @@ namespace iqrf {
       // Creating representation object
       ComIqmeshNetworkPing comPing(doc);
       m_msgType = &msgType;
-      m_messagingId = &messagingId;
+      m_messaging = &messaging;
       m_comPing = &comPing;
 
       // Parsing and checking service parameters
@@ -619,9 +619,9 @@ namespace iqrf {
 
       m_iMessagingSplitterService->registerFilteredMsgHandler(
         supportedMsgTypes,
-        [&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
+        [&](const MessagingInstance &messaging, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
         {
-          handleMsg(messagingId, msgType, std::move(doc));
+          handleMsg(messaging, msgType, std::move(doc));
         });
 
       TRC_FUNCTION_LEAVE("");

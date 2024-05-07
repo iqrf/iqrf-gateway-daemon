@@ -32,9 +32,9 @@ namespace iqrf {
 
     void registerMessageHandler(MessageHandlerFunc hndl) override;
     void unregisterMessageHandler() override;
-    void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) override;
-    const std::string & getName() const override;
+    void sendMessage(const MessagingInstance &messaging, const std::basic_string<uint8_t> & msg) override;
     bool acceptAsyncMsg() const override;
+    const MessagingInstance &getMessagingInstance() const override;
 
     void activate(const shape::Properties *props = 0);
     void deactivate();

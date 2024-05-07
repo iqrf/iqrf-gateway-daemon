@@ -126,11 +126,11 @@ namespace iqrf {
 
 		/**
 		 * Handles request from splitter
-		 * @param messagingId Messaging ID
+		 * @param messaging Messaging instance
 		 * @param msgType Message type
 		 * @param doc request document
 		 */
-		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
+		void handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
 
 	private:
 		/**
@@ -236,8 +236,8 @@ namespace iqrf {
 		IMessagingSplitterService *m_splitterService = nullptr;
 		/// Exclusive access
 		std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
-		/// Messaging ID
-		const std::string* m_messagingId = nullptr;
+		/// Messaging instance
+		const MessagingInstance* m_messaging = nullptr;
 		/// Message type
 		const IMessagingSplitterService::MsgType* m_msgType = nullptr;
 		/// Remove bond request document

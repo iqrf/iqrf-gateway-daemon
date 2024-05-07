@@ -59,12 +59,21 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
-  void MqMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
+  void MqMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
   {
-    TRC_FUNCTION_ENTER(PAR(messagingId));
+    TRC_FUNCTION_ENTER(PAR(messaging.instance));
     TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
     m_toMqMessageQueue->pushToQueue(msg);
     TRC_FUNCTION_LEAVE("")
+  }
+
+  bool MqMessaging::acceptAsyncMsg() const {
+    return m_acceptAsyncMsg;
+  }
+
+  const MessagingInstance &MqMessaging::getMessagingInstance() const
+  {
+    return m_messagingInstance;
   }
 
   int MqMessaging::handleMessageFromMq(const ustring& message)
@@ -72,8 +81,9 @@ namespace iqrf {
     TRC_DEBUG("==================================" << std::endl <<
       "Received from MQ: " << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
-    if (m_messageHandlerFunc)
-      m_messageHandlerFunc(m_name, std::vector<uint8_t>(message.data(), message.data() + message.size()));
+    if (m_messageHandlerFunc) {
+      m_messageHandlerFunc(m_messagingInstance, std::vector<uint8_t>(message.data(), message.data() + message.size()));
+    }
 
     return 0;
   }
@@ -88,8 +98,10 @@ namespace iqrf {
       "******************************"
     );
 
+    std::string instanceName;
+
     const rapidjson::Document &doc = props->getAsJson();
-    props->getMemberAsString("instance", m_name);
+    props->getMemberAsString("instance", instanceName);
     props->getMemberAsString("LocalMqName", m_localMqName);
     props->getMemberAsString("RemoteMqName", m_remoteMqName);
     props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
@@ -97,12 +109,15 @@ namespace iqrf {
 
     m_mqChannel = shape_new MqChannel(m_remoteMqName, m_localMqName, m_timeout, IQRF_MQ_BUFFER_SIZE, true);
 
+    m_messagingInstance.instance = instanceName;
+
     m_toMqMessageQueue = shape_new TaskQueue<ustring>([&](const ustring& msg) {
       m_mqChannel->sendTo(msg);
     });
 
     m_mqChannel->registerReceiveFromHandler([&](const std::basic_string<unsigned char>& msg) -> int {
-      return handleMessageFromMq(msg); });
+      return handleMessageFromMq(msg);
+    });
 
     TRC_FUNCTION_LEAVE("")
   }
