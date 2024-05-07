@@ -35,9 +35,9 @@ namespace iqrf {
     //from iqrf::IMessagingService
     void registerMessageHandler(MessageHandlerFunc hndl) override;
     void unregisterMessageHandler() override;
-    void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) override;
-    const std::string & getName() const override;
+    void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg) override;
     bool acceptAsyncMsg() const override;
+    const MessagingInstance &getMessagingInstance() const override;
 
     //from iqrf::ITestSimulationMessaging
     void pushIncomingMessage(const std::string& msg) override;
