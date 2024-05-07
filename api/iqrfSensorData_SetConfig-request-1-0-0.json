@@ -66,19 +66,39 @@
               "type": "boolean"
             },
             "messagingList": {
-              "$id": "#/properties/data/properties/req/properties/messagingList",
-              "title": "Messaging list",
-              "description": "List of messaging identifiers to use for asynchronous reporting.",
-              "type": "array",
-              "uniqueItems": true,
-              "additionalItems": false,
-              "items": {
-                "$id": "#/properties/data/properties/req/properties/messagingList/items",
-                "title": "Messaging identifier",
-                "description": "Messaging service intstance identifier.",
-                "type": "string"
-              }
-            }
+							"$id": "#/properties/data/properties/rsp/properties/messagingList",
+							"title": "Messaging instance list",
+							"description": "List of messaging instances to use for asynchronous reporting.",
+							"type": "array",
+							"uniqueItems": true,
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/messagingList/items",
+								"title": "Messaging instance",
+								"description": "Messaging service instance.",
+								"type": "object",
+								"required": [
+									"type",
+									"instance"
+								],
+								"additionalProperties": false,
+								"properties": {
+									"type": {
+										"$id": "#/properties/data/properties/rsp/properties/messagingList/items/properties/type",
+										"title": "Messaging type",
+										"type": "string",
+										"enum": ["mqtt", "ws"],
+										"example": "mqtt"
+									},
+									"instance": {
+										"$id": "#/properties/data/properties/rsp/properties/messagingList/items/properties/instance",
+										"title": "Messaging instance name",
+										"type": "string",
+										"example": "default"
+									}
+								}
+							}
+						}
           }
         },
         "returnVerbose": {

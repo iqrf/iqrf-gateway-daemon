@@ -41,15 +41,14 @@ namespace iqrf {
   class WebsocketMessaging::Imp
   {
   private:
-    std::string m_name;
-    bool m_acceptAsyncMsg = false;
-
     shape::IWebsocketService* m_iWebsocketService = nullptr;
 
-    typedef std::pair<std::string, std::vector<uint8_t>> ConnMsg;
+    typedef std::pair<MessagingInstance, std::vector<uint8_t>> ConnMsg;
 
     TaskQueue<ConnMsg>* m_toMqMessageQueue = nullptr;
 
+    bool m_acceptAsyncMsg = false;
+    MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::WS);
     IMessagingService::MessageHandlerFunc m_messageHandlerFunc;
 
     int handleMessageFromWebsocket(const std::vector<uint8_t>& message, const std::string& connId)
@@ -58,10 +57,9 @@ namespace iqrf {
         "Received from Websocket: " << PAR(connId) << std::endl << MEM_HEX_CHAR(message.data(), message.size()));
 
       if (m_messageHandlerFunc) {
-        std::string messaginId(m_name);
-        messaginId += '/';
-        messaginId += connId;
-        m_messageHandlerFunc(messaginId, message);
+        auto auxMessaging = m_messagingInstance;
+        auxMessaging.instance += '/' + connId;
+        m_messageHandlerFunc(auxMessaging, message);
       }
 
       return 0;
@@ -90,22 +88,21 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
-    void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
+    void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
     {
       TRC_FUNCTION_ENTER("");
       TRC_DEBUG(MEM_HEX_CHAR(msg.data(), msg.size()));
-      m_toMqMessageQueue->pushToQueue(std::make_pair(messagingId, std::vector<uint8_t>(msg.data(), msg.data() + msg.size())));
+      m_toMqMessageQueue->pushToQueue(std::make_pair(messaging, std::vector<uint8_t>(msg.data(), msg.data() + msg.size())));
       TRC_FUNCTION_LEAVE("")
     }
 
-    const std::string& getName() const
-    {
-      return m_name;
+    bool acceptAsyncMsg() const {
+      return m_acceptAsyncMsg;
     }
 
-    bool acceptAsyncMsg() const
+    const MessagingInstance &getMessagingInstance() const
     {
-      return m_acceptAsyncMsg;
+      return m_messagingInstance;
     }
 
     void activate(const shape::Properties *props)
@@ -117,11 +114,15 @@ namespace iqrf {
         "******************************"
       );
 
-      props->getMemberAsString("instance", m_name);
+      std::string instanceName;
+
+      props->getMemberAsString("instance", instanceName);
       props->getMemberAsBool("acceptAsyncMsg", m_acceptAsyncMsg);
 
+      m_messagingInstance.instance = instanceName;
+
       m_toMqMessageQueue = shape_new TaskQueue<ConnMsg>([&](ConnMsg conMsg) {
-        std::string messagingId2(conMsg.first);
+        std::string messagingId2(conMsg.first.instance);
         std::string connId;
         if (std::string::npos != messagingId2.find_first_of('/')) {
           //preparse messageId to remove possible optional appended topic
@@ -199,19 +200,18 @@ namespace iqrf {
     m_imp->unregisterMessageHandler();
   }
 
-  void WebsocketMessaging::sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg)
+  void WebsocketMessaging::sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg)
   {
-    m_imp->sendMessage(messagingId, msg);
+    m_imp->sendMessage(messaging, msg);
   }
 
-  const std::string& WebsocketMessaging::getName() const
-  {
-    return m_imp->getName();
-  }
-
-  bool WebsocketMessaging::acceptAsyncMsg() const
-  {
+  bool WebsocketMessaging::acceptAsyncMsg() const {
     return m_imp->acceptAsyncMsg();
+  }
+
+  const MessagingInstance &WebsocketMessaging::getMessagingInstance() const
+  {
+    return m_imp->getMessagingInstance();
   }
 
   //////////////////////////////////////

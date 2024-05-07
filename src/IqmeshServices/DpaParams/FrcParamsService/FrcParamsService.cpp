@@ -73,8 +73,9 @@ namespace iqrf {
 		return previous;
 	}
 
-	void FrcParamsService::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, Document doc) {
-		TRC_FUNCTION_ENTER(PAR(messagingId) <<
+	void FrcParamsService::handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, Document doc) {
+		TRC_FUNCTION_ENTER(
+			PAR( messaging.to_string() ) <<
 			NAME_PAR(mType, msgType.m_type) <<
 			NAME_PAR(major, msgType.m_major) <<
 			NAME_PAR(minor, msgType.m_minor) <<
@@ -96,7 +97,7 @@ namespace iqrf {
 			CATCH_EXC_TRC_WAR(std::exception, e, "Failed to acquire exclusive access: " << e.what());
 			result.setStatus(ErrorCodes::exclusiveAccessError, e.what());
 			result.createErrorResponse(response);
-			m_splitterService->sendMessage(messagingId, std::move(response));
+			m_splitterService->sendMessage(messaging, std::move(response));
 			TRC_FUNCTION_LEAVE("");
 			return;
 		}
@@ -127,7 +128,7 @@ namespace iqrf {
 
 		// Create and send response
 		result.createResponse(response);
-		m_splitterService->sendMessage(messagingId, std::move(response));
+		m_splitterService->sendMessage(messaging, std::move(response));
 
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -143,8 +144,9 @@ namespace iqrf {
 		);
 		modify(props);
 		m_splitterService->registerFilteredMsgHandler(
-			m_mTypes, [&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, Document doc) {
-				handleMsg(messagingId, msgType, std::move(doc));
+			m_mTypes,
+			[&](const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, Document doc) {
+				handleMsg(messaging, msgType, std::move(doc));
 			}
 		);
 		TRC_FUNCTION_LEAVE("");
