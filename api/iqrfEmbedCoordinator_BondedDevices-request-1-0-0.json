@@ -1,65 +1,55 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfEmbedCoordinator_BondedDevices-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral Coordinator - BondedDevices request",
+  "description": "(c) IQRF Tech",
   "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "Embedded peripheral Coordinator - Get Bonded Devices request.",
-      "enum": [
-        "iqrfEmbedCoordinator_BondedDevices"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
-        },
-        "req": {
-          "type": "object",
-          "properties": {
-            "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
-            },
-            "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
-            },
-            "param": {
-              "type": "object",
-              "properties": {}
-            }
-          },
-          "required": [
-            "nAdr",
-            "param"
-          ]
-        },
-        "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
-        }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
-    }
-  },
   "required": [
     "mType",
     "data"
-  ]
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedCoordinator_BondedDevices"
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "nAdr"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/request/hwpId"
+            }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
+        }
+      }
+    }
+  }
 }
