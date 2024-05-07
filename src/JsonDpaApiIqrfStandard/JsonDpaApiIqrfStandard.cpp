@@ -52,8 +52,8 @@ namespace iqrf {
 			"******************************"
 		);
 		modify(props);
-		m_splitterService->registerFilteredMsgHandler(m_filters, [&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, Document doc) {
-			handleMsg(messagingId, msgType, std::move(doc));
+		m_splitterService->registerFilteredMsgHandler(m_filters, [&](const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, Document doc) {
+			handleMsg(messaging, msgType, std::move(doc));
 		});
 		m_dpaService->registerAsyncMessageHandler(m_instance, [&](const DpaMessage &dpaMessage) {
 			handleAsyncMsg(dpaMessage);
@@ -90,9 +90,9 @@ namespace iqrf {
 
 	///// Message handling
 
-	void JsonDpaApiIqrfStandard::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, Document doc) {
+	void JsonDpaApiIqrfStandard::handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, Document doc) {
 		TRC_FUNCTION_ENTER(
-			PAR(messagingId) <<
+			PAR(messaging.to_string()) <<
 			NAME_PAR(mType, msgType.m_type) <<
 			NAME_PAR(major, msgType.m_major) <<
 			NAME_PAR(minor, msgType.m_minor) <<
@@ -273,7 +273,7 @@ namespace iqrf {
 		}
 		TRC_DEBUG("response object: " << std::endl << jsonToStr(&allResponseDoc));
 
-		m_splitterService->sendMessage(messagingId, std::move(allResponseDoc));
+		m_splitterService->sendMessage(messaging, std::move(allResponseDoc));
 
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -404,7 +404,7 @@ namespace iqrf {
 			TRC_DEBUG("response object: " << std::endl << jsonToStr(&allResponseDoc));
 
 			//empty messagingId => send to all messaging returning iface->acceptAsyncMsg() == true
-			m_splitterService->sendMessage("", std::move(allResponseDoc));
+			m_splitterService->sendMessage(std::list<MessagingInstance>(), std::move(allResponseDoc));
 
 		} catch (std::invalid_argument &e) {
 			// unsupported PNUM, PCMD - just skip it, we don't care

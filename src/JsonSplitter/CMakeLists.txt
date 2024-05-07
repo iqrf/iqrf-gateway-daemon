@@ -15,6 +15,7 @@
 
 project(JsonSplitter)
 
+set(CMAKE_CXX_STANDARD 17)
 set(COMPONENT iqrf::JsonSplitter)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IMessagingSplitterService)
