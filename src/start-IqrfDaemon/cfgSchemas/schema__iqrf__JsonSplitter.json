@@ -31,14 +31,29 @@
 			"default": "iqrfgd2-default"
 		},
 		"messagingList": {
-			"title": "Messaging IDs",
+			"title": "Messaging list",
 			"description": "List of messaging services to send responses to.",
 			"type": "array",
 			"additionalItems": false,
 			"items": {
-				"title": "Messaging ID",
-				"description": "ID of messaging service",
-				"type": "string"
+				"type": "object",
+				"required": [
+					"type",
+					"instance"
+				],
+				"additionalProperties": false,
+				"properties": {
+					"type": {
+						"title": "Messaging type",
+						"type": "string",
+						"enum": ["mq", "mqtt", "ws", "scheduler"]
+					},
+					"instance": {
+						"title": "Messaging instance",
+						"type": "string",
+						"minLength": 1
+					}
+				}
 			}
 		},
 		"RequiredInterfaces": {

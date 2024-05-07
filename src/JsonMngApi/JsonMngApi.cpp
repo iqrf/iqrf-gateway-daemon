@@ -83,8 +83,8 @@ namespace iqrf {
 
 		~Imp() {}
 
-		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
-			TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) << NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
+		void handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+			TRC_FUNCTION_ENTER(PAR(messaging.to_string()) << NAME_PAR(mType, msgType.m_type) << NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
 			Document respDoc;
 			std::unique_ptr<MngBaseMsg> msg;
 			if (msgType.m_type == "mngDaemon_Exit") {
@@ -120,13 +120,13 @@ namespace iqrf {
 				msg->handleMsg();
 				msg->setStatus("ok", 0);
 				msg->createResponse(respDoc);
-				m_iMessagingSplitterService->sendMessage(messagingId, std::move(respDoc));
+				m_iMessagingSplitterService->sendMessage(messaging, std::move(respDoc));
 			} catch (const std::exception &e) {
 				msg->setErrorString(e.what());
 				msg->setStatus("err", -1);
 				Document errorDoc;
 				msg->createResponse(errorDoc);
-				m_iMessagingSplitterService->sendMessage(messagingId, std::move(errorDoc));
+				m_iMessagingSplitterService->sendMessage(messaging, std::move(errorDoc));
 			}
 			TRC_FUNCTION_LEAVE("");
 		}
@@ -148,8 +148,8 @@ namespace iqrf {
 			);
 			m_iMessagingSplitterService->registerFilteredMsgHandler(
 				m_filters,
-				[&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
-					handleMsg(messagingId, msgType, std::move(doc));
+				[&](const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+					handleMsg(messaging, msgType, std::move(doc));
 				}
 			);
 			m_iSchedulerService->registerTaskHandler(

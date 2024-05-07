@@ -377,7 +377,7 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfSensorData::workerStatus(rapidjson::Document &request, const std::string &messagingId) {
+	void IqrfSensorData::workerStatus(rapidjson::Document &request, const MessagingInstance &messaging) {
 		TRC_FUNCTION_ENTER("");
 
 		bool running = m_workerRun;
@@ -390,11 +390,11 @@ namespace iqrf {
 		Pointer("/data/rsp/reading").Set(rsp, reading);
 		Pointer("/data/status").Set(rsp, 0);
 		Pointer("/data/statusStr").Set(rsp, "ok");
-		m_splitterService->sendMessage(messagingId, std::move(rsp));
+		m_splitterService->sendMessage(messaging, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfSensorData::notifyWorker(rapidjson::Document &request, const std::string &messagingId) {
+	void IqrfSensorData::notifyWorker(rapidjson::Document &request, const MessagingInstance &messaging) {
 		TRC_FUNCTION_ENTER("");
 
 		bool invoked = false;
@@ -423,11 +423,11 @@ namespace iqrf {
 				Pointer("/data/statusStr").Set(rsp, "Sensor data read already in progress.");
 			}
 		}
-		m_splitterService->sendMessage(messagingId, std::move(rsp));
+		m_splitterService->sendMessage(messaging, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfSensorData::startWorker(rapidjson::Document &request, const std::string &messagingId) {
+	void IqrfSensorData::startWorker(rapidjson::Document &request, const MessagingInstance &messaging) {
 		TRC_FUNCTION_ENTER("");
 
 		if (!m_workerRun) {
@@ -445,11 +445,11 @@ namespace iqrf {
 		Pointer("/mType").Set(rsp, m_mTypeStart);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
 		Pointer("/data/status").Set(rsp, 0);
-		m_splitterService->sendMessage(messagingId, std::move(rsp));
+		m_splitterService->sendMessage(messaging, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfSensorData::stopWorker(rapidjson::Document &request, const std::string &messagingId) {
+	void IqrfSensorData::stopWorker(rapidjson::Document &request, const MessagingInstance &messaging) {
 		TRC_FUNCTION_ENTER("");
 
 		if (m_workerRun) {
@@ -465,11 +465,11 @@ namespace iqrf {
 		Pointer("/mType").Set(rsp, m_mTypeStop);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
 		Pointer("/data/status").Set(rsp, 0);
-		m_splitterService->sendMessage(messagingId, std::move(rsp));
+		m_splitterService->sendMessage(messaging, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfSensorData::getConfig(rapidjson::Document &request, const std::string &messagingId) {
+	void IqrfSensorData::getConfig(rapidjson::Document &request, const MessagingInstance &messaging) {
 		TRC_FUNCTION_ENTER("");
 
 		Document rsp;
@@ -483,17 +483,18 @@ namespace iqrf {
 		Pointer("/data/rsp/asyncReports").Set(rsp, m_asyncReports);
 		Value arr(kArrayType);
 		for (auto &item : m_messagingList) {
-			Value val;
-			val.SetString(item.c_str(), allocator);
-			arr.PushBack(val, allocator);
+			Value messagingObject;
+			Pointer("/type").Set(messagingObject, MessagingConversion::messagingTypeToString(item.type).c_str(), allocator);
+			Pointer("/instance").Set(messagingObject, item.instance, allocator);
+			arr.PushBack(messagingObject, allocator);
 		}
 		Pointer("/data/rsp/messagingList").Set(rsp, arr, allocator);
 		Pointer("/data/status").Set(rsp, 0);
-		m_splitterService->sendMessage(messagingId, std::move(rsp));
+		m_splitterService->sendMessage(messaging, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfSensorData::setConfig(rapidjson::Document &request, const std::string &messagingId)  {
+	void IqrfSensorData::setConfig(rapidjson::Document &request, const MessagingInstance &messaging)  {
 		TRC_FUNCTION_ENTER("");
 
 		Document rsp;
@@ -541,10 +542,15 @@ namespace iqrf {
 
 			val = Pointer("/data/req/messagingList").Get(request);
 			if (val && val->IsArray()) {
-				std::list<std::string> list = {};
+				std::list<MessagingInstance> list = {};
 				auto arr = val->GetArray();
 				for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
-					list.push_back(itr->GetString());
+					list.push_back(
+						MessagingInstance(
+							Pointer("/type").Get(*itr)->GetString(),
+							Pointer("/instance").Get(*itr)->GetString()
+						)
+					);
 				}
 				m_messagingList = list;
 				Pointer("/messagingList").Set(cfgDoc, *val, allocator);
@@ -564,13 +570,13 @@ namespace iqrf {
 			Pointer("/data/statusStr").Set(rsp, "Failed to load and update component instance configuration.");
 		}
 
-		m_splitterService->sendMessage(messagingId, std::move(rsp));
+		m_splitterService->sendMessage(messaging, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfSensorData::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, Document doc) {
+	void IqrfSensorData::handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, Document doc) {
 		TRC_FUNCTION_ENTER(
-			PAR(messagingId) <<
+			PAR(messaging.to_string()) <<
 			NAME_PAR(mType, msgType.m_type) <<
 			NAME_PAR(major, msgType.m_major) <<
 			NAME_PAR(minor, msgType.m_minor) <<
@@ -578,17 +584,17 @@ namespace iqrf {
 		);
 
 		if (msgType.m_type == m_mTypeStatus) {
-			workerStatus(doc, messagingId);
+			workerStatus(doc, messaging);
 		} else if (msgType.m_type == m_mTypeInvoke) {
-			notifyWorker(doc, messagingId);
+			notifyWorker(doc, messaging);
 		} else if (msgType.m_type == m_mTypeStart) {
-			startWorker(doc, messagingId);
+			startWorker(doc, messaging);
 		} else if (msgType.m_type == m_mTypeStop) {
-			stopWorker(doc, messagingId);
+			stopWorker(doc, messaging);
 		} else if (msgType.m_type == m_mTypeGetConfig) {
-			getConfig(doc, messagingId);
+			getConfig(doc, messaging);
 		} else {
-			setConfig(doc, messagingId);
+			setConfig(doc, messaging);
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -620,8 +626,8 @@ namespace iqrf {
 				m_mTypeStart,
 				m_mTypeStop
 			},
-			[&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
-				handleMsg(messagingId, msgType, std::move(doc));
+			[&](const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+				handleMsg(messaging, msgType, std::move(doc));
 			}
 		);
 		TRC_FUNCTION_LEAVE("");
@@ -645,7 +651,12 @@ namespace iqrf {
 		if (val && val->IsArray()) {
 			const auto arr = val->GetArray();
 			for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
-				m_messagingList.push_back(itr->GetString());
+				m_messagingList.push_back(
+					MessagingInstance(
+						Pointer("/type").Get(*itr)->GetString(),
+						Pointer("/instance").Get(*itr)->GetString()
+					)
+				);
 			}
 		}
 
