@@ -50,16 +50,22 @@ namespace iqrf {
 
 		/**
 		 * Sends response via UDP channel
-		 * @param messagingId Messaging ID
+		 * @param messaging Messaging
 		 * @param msg Message to send
 		 */
-		void sendMessage(const std::string& messagingId, const std::basic_string<uint8_t> & msg) override;
+		void sendMessage(const MessagingInstance& messaging, const std::basic_string<uint8_t> & msg) override;
 
 		/**
-		 * Returns instance name
-		 * @return Instance name
+		 * Check if messaging accepts asynchronous messages
+		 * @return true if messaging accepts asynchronous messages, false otherwise
 		 */
-		const std::string& getName() const override;
+		bool acceptAsyncMsg() const override { return false; }
+
+		/**
+		 * Return messaging instance
+		 * @return Messagign instance
+		 */
+		const MessagingInstance &getMessagingInstance() const override;
 
 		/**
 		 * Returns IP address of receiving interface
@@ -78,12 +84,6 @@ namespace iqrf {
 		 * @return Listening port
 		 */
 		unsigned short getListeningIpPort() const override;
-
-		/**
-		 * Checks if messaging accepts asynchronos messages
-		 * @return false, dummpy impl
-		 */
-		bool acceptAsyncMsg() const override { return false; }
 
 		/**
 		 * Initializes component instance
@@ -121,8 +121,6 @@ namespace iqrf {
 		 */
 		int handleMessageFromUdp(const std::basic_string<uint8_t> & message);
 
-		/// Instance name
-		std::string m_name;
 		/// Port to send to
 		int m_remotePort = 55000;
 		/// Port to listen on
@@ -133,6 +131,8 @@ namespace iqrf {
 		UdpChannel* m_udpChannel = nullptr;
 		/// UDP message queue
 		TaskQueue<std::basic_string<uint8_t>>* m_toUdpMessageQueue = nullptr;
+		/// Messaging instance
+		MessagingInstance m_messagingInstance = MessagingInstance(MessagingType::UDP);
 		/// Message handler
 		IMessagingService::MessageHandlerFunc m_messageHandler;
 	};

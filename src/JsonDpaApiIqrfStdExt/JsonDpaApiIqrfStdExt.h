@@ -135,11 +135,11 @@ namespace iqrf {
 	private:
 		/**
 		 * Handles DPA messages
-		 * @param messagingId Messaging ID
+		 * @param messaging Messagin instance
 		 * @param msgType Message type
 		 * @param doc Request document
 		 */
-		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
+		void handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc);
 
 		/// DB service interface
 		IIqrfDb *m_dbService = nullptr;

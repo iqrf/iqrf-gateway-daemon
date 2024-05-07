@@ -24,6 +24,7 @@
 #include "ITraceService.h"
 #include "rapidjson/schema.h"
 
+#include <filesystem>
 #include <string>
 #include <chrono>
 #include <map>

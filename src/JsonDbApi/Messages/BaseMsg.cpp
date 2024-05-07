@@ -28,12 +28,12 @@ namespace iqrf {
 		}
 	}
 
-	const std::string& BaseMsg::getMessagingId() const {
-		return messagingId;
+	const std::shared_ptr<MessagingInstance>& BaseMsg::getMessaging() const {
+		return messaging;
 	}
 
-	void BaseMsg::setMessagingId(const std::string &messagingId) {
-		this->messagingId = messagingId;
+	void BaseMsg::setMessaging(const MessagingInstance &messaging) {
+		this->messaging = std::make_shared<MessagingInstance>(messaging);
 	}
 
 }

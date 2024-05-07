@@ -38,9 +38,9 @@ namespace iqrf {
 
 	///// Message handling
 
-	void RemoveBondService::handleMsg(const std::string& messagingId, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc) {
+	void RemoveBondService::handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc) {
 		TRC_FUNCTION_ENTER(
-			PAR(messagingId) <<
+			PAR( messaging.to_string() ) <<
 			NAME_PAR(mType, msgType.m_type) <<
 			NAME_PAR(major, msgType.m_major) <<
 			NAME_PAR(minor, msgType.m_minor) <<
@@ -53,7 +53,7 @@ namespace iqrf {
 		// Creating representation object
 		ComIqmeshNetworkRemoveBond comRemoveBond(doc);
 		m_msgType = &msgType;
-		m_messagingId = &messagingId;
+		m_messaging = &messaging;
 		m_comRemoveBond = &comRemoveBond;
 		// Parsing and checking service parameters
 		try {
@@ -563,7 +563,7 @@ namespace iqrf {
 		Pointer("/data/status").Set(response, status);
 		Pointer("/data/statusStr").Set(response, statusStr);
 		// Send message
-		m_splitterService->sendMessage(*m_messagingId, std::move(response));
+		m_splitterService->sendMessage(*m_messaging, std::move(response));
 	}
 
 	void RemoveBondService::createResponse(RemoveBondResult& removeBondResult) {
@@ -637,7 +637,7 @@ namespace iqrf {
 		Pointer("/data/status").Set(response, status);
 		Pointer("/data/statusStr").Set(response, removeBondResult.getStatusStr());
 		// Send message
-		m_splitterService->sendMessage(*m_messagingId, std::move(response));
+		m_splitterService->sendMessage(*m_messaging, std::move(response));
 	}
 
 	///// Component management
@@ -656,8 +656,8 @@ namespace iqrf {
 		};
 		m_splitterService->registerFilteredMsgHandler(
 			supportedMsgTypes,
-			[&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc) {
-				handleMsg(messagingId, msgType, std::move(doc));
+			[&](const MessagingInstance &messaging, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc) {
+				handleMsg(messaging, msgType, std::move(doc));
 			}
 		);
 		TRC_FUNCTION_LEAVE("")

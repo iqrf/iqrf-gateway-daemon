@@ -112,7 +112,7 @@ namespace iqrf {
 		 * @param msgType Request message type
 		 * @param request Request message document
 		 */
-		void handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request);
+		void handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request);
 
 		/**
 		 * Sends enumeration process response

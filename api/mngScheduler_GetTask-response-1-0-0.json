@@ -213,27 +213,37 @@
 			"properties": {
 				"messaging": {
 					"$id": "#/definitions/task/properties/messaging",
-					"title": "Messaging ID(s)",
-					"description": "Scheduler messaging channel(s).",
-					"oneOf":[
-						{
-							"type": "string",
-							"example": "MqttMessaging"
-						},
-						{
-							"type": "array",
-							"items": {
-								"$id": "#/definitions/task/properties/messaging/items",
+					"title": "Messaging instance list",
+					"description": "List of messaging instances.",
+					"type": "array",
+					"uniqueItems": true,
+					"additionalItems": false,
+					"items": {
+						"$id": "#/definitions/task/properties/messaging/items",
+						"title": "Messaging instance",
+						"description": "Messaging service instance.",
+						"type": "object",
+						"required": [
+							"type",
+							"instance"
+						],
+						"additionalProperties": false,
+						"properties": {
+							"type": {
+								"$id": "#/definitions/task/properties/messaging/items/properties/type",
+								"title": "Messaging type",
 								"type": "string",
-								"pattern": "^[^&]+$"
+								"enum": ["mqtt", "ws"],
+								"example": "mqtt"
 							},
-							"additionalItems": false,
-							"example": [
-								"MqMessaging",
-								"MqttMessaging"
-							]
+							"instance": {
+								"$id": "#/definitions/task/properties/messaging/items/properties/instance",
+								"title": "Messaging instance name",
+								"type": "string",
+								"example": "default"
+							}
 						}
-					]
+					}
 				},
 				"message": {
 					"$id": "#/definitions/task/properties/message",
