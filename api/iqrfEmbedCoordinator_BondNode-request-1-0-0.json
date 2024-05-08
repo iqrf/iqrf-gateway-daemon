@@ -64,6 +64,8 @@
                   "title": "Bonding Test Retries",
                   "description": "Maximum number of FRCs used to test whether the node was successfully bonded. If the value is 0, then no test is performed.",
                   "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255,
                   "default": 0
                 }
               }
