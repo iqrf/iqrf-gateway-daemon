@@ -1,142 +1,101 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfEmbedCoordinator_RemoveBond-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral Coordinator - RemoveBond response",
+  "description": "(c) IQRF Tech",
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "Embedded peripheral Coordinator - Remove Bond response.",
-      "enum": [
-        "iqrfEmbedCoordinator_RemoveBond"
-      ]
+      "$ref": "definitions.json#/general/mType",
+      "const": "iqrfEmbedCoordinator_RemoveBond"
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
-        },
-        "rsp": {
-          "type": "object",
-          "properties": {
-            "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
-            },
-            "pnum": {
-              "type": "integer",
-              "description": "Peripheral number."
-            },
-            "pcmd": {
-              "type": "integer",
-              "description": "Peripheral response command."
-            },
-            "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
-            },
-            "rCode": {
-              "type": "integer",
-              "description": "DPA error code."
-            },
-            "dpaVal": {
-              "type": "integer",
-              "description": "DPA value."
-            },
-            "result": {
-              "type": "object",
-              "properties": {
-                "devNr": {
-                  "type": "integer",
-                  "description": "Number of bonded nodes."
-                }
-              }
-            },
-            "errorStr": {
-              "type": "string",
-              "description": "Error description from JS drivers."
-            }
-          },
-          "required": [
-            "nAdr",
-            "hwpId",
-            "rCode",
-            "dpaVal"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
-          }
-        },
-        "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
-        },
-        "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
-        },
-        "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
-        }
-      },
       "required": [
         "msgId",
         "rsp",
         "status"
-      ]
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
+        "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "pnum",
+            "pcmd",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "pnum": {
+              "$ref": "definitions.json#/general/response/pnum"
+            },
+            "pcmd": {
+              "$ref": "definitions.json#/general/response/pcmd"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/response/hwpId"
+            },
+            "rCode": {
+              "$ref": "definitions.json#/general/response/rCode"
+            },
+            "dpaVal": {
+              "$ref": "definitions.json#/general/response/dpaVal"
+            },
+            "result": {
+              "title": "Result",
+              "description": "Contains the results of the request",
+              "type": "object",
+              "required": [
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "devNr": {
+                  "type": "integer",
+                  "description": "Number of bonded nodes.",
+                  "minimum": 0,
+                  "maximum": 255
+                }
+              }
+            },
+            "errorStr": {
+              "$ref": "definitions.json#/general/response/errorStr"
+            }
+          }
+        },
+        "raw": {
+          "$ref": "definitions.json#/general/response/raw"
+        },
+        "insId": {
+          "$ref": "definitions.json#/general/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/general/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        }
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }
