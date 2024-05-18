@@ -56,7 +56,9 @@
                   "description": "One block of the coordinator network info data previously obtained by a backup command.",
                   "type": "array",
                   "items": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
                   },
                   "maxItems": 49
                 }
