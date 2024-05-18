@@ -60,38 +60,51 @@
                   "title": "Requested address",
                   "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node.",
                   "type": "integer",
+                  "minimum": 0,
+                  "maximum": 239,
                   "default": 0
                 },
                 "bondingTestRetries": {
                   "title": "Bonding test retries",
                   "description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds.",
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255,
+                  "default": 0
                 },
                 "ibk": {
                   "title": "IBK",
                   "description": "Individual Bonding Key of the Node to bond. [Byte array]",
                   "type": "array",
                   "items": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
                   },
                   "maxItems": 16
                 },
                 "mid": {
                   "title": "MID",
                   "description": "MID of the Node to bond.",
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4294967295
                 },
                 "virtualDeviceAddress": {
                   "title": "Virtual device address",
                   "description": "Virtual device address. Must equal to 0xFF if not used.",
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
                 },
                 "userData": {
                   "title": "User data",
                   "description": "Optional data passed to the bonded node. [Byte array]",
                   "type": "array",
                   "items": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
                   },
                   "maxItems": 4,
                   "default": [0,0,0,0]
