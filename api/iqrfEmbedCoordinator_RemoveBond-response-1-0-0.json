@@ -71,7 +71,7 @@
                   "type": "integer",
                   "description": "Number of bonded nodes.",
                   "minimum": 0,
-                  "maximum": 255
+                  "maximum": 239
                 }
               }
             },
