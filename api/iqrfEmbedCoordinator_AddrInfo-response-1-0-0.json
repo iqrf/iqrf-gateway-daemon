@@ -72,12 +72,16 @@
                 "devNr": {
                   "title": "Device number",
                   "description": "Number of bonded network nodes.",
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 239
                 },
                 "did": {
                   "title": "Discovery ID",
                   "description": "Discovery ID of the network.",
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
                 }
               }
             },
