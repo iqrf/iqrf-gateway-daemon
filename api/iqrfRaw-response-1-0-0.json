@@ -38,7 +38,10 @@
           "properties": {
             "rData": {
               "type": "string",
-              "description": "Binary buffer with DPA response"
+              "description": "Binary buffer with DPA response",
+              "examples": [
+                "00.00.00.80.00.00.00.00.0A.32"
+              ]
             }
           }
         },

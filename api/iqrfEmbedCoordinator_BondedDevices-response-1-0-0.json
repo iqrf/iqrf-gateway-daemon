@@ -72,7 +72,9 @@
                   "type": "array",
                   "description": "Values corresponding to the addresses of the bonded devices",
                   "items": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
                   },
                   "maxItems": 239
                 }
