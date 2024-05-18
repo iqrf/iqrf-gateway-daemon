@@ -54,7 +54,9 @@
                 "index": {
                   "title": "Index",
                   "description": "Index of the block of data.",
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
                 }
               }
             }
