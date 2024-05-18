@@ -72,12 +72,16 @@
                 "bondAddr": {
                   "title": "Bonded address",
                   "description": "Address of the node newly bonded to the network.",
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 239
                 },
                 "devNr": {
                   "title": "Device number",
                   "description": "Number of bonded network nodes.",
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 239
                 }
               }
             },
