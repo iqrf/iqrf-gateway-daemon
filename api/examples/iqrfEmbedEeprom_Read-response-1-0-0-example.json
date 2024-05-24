@@ -4,6 +4,8 @@
     "msgId": "testEmbedEeprom",
     "rsp": {
       "nAdr": 1,
+      "pnum": 3,
+      "pcmd": 128,
       "hwpId": 2,
       "rCode": 0,
       "dpaVal": 77,
@@ -22,14 +24,16 @@
         ]
       }
     },
-    "raw": {
-      "request": "01.00.03.00.ff.ff.00.0a",
-      "requestTs": "2018-07-17T16:28:14.112711",
-      "confirmation": "01.00.03.00.ff.ff.ff.3b.01.04.01",
-      "confirmationTs": "2018-07-17T16:28:14.143809",
-      "response": "01.00.03.80.02.00.00.4d.00.01.02.03.04.00.00.00.00.00",
-      "responseTs": "2018-07-17T16:28:14.278814"
-    },
+    "raw": [
+      {
+        "request": "01.00.03.00.ff.ff.00.0a",
+        "requestTs": "2018-07-17T16:28:14.112711",
+        "confirmation": "01.00.03.00.ff.ff.ff.3b.01.04.01",
+        "confirmationTs": "2018-07-17T16:28:14.143809",
+        "response": "01.00.03.80.02.00.00.4d.00.01.02.03.04.00.00.00.00.00",
+        "responseTs": "2018-07-17T16:28:14.278814"
+      }
+    ],
     "insId": "iqrfgd2-1",
     "statusStr": "ok",
     "status": 0
