@@ -407,7 +407,7 @@ if (iqrf.embed.os !== undefined) {
 ////////////////////////
 if (iqrf.embed.eeprom !== undefined) {
   iqrf.embed.eeprom.Read_Request_req = function (param) {
-    return iqrf.embed.eeprom.Read_Request(param.address, param.len)
+    return iqrf.embed.eeprom.Read_Request(param.address, param.length)
   };
 
   iqrf.embed.eeprom.Read_Response_rsp = function (rawHdp) {
