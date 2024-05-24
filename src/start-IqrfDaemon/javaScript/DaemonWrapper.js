@@ -432,7 +432,7 @@ if (iqrf.embed.eeprom !== undefined) {
 ////////////////////////
 if (iqrf.embed.eeeprom !== undefined) {
   iqrf.embed.eeeprom.Read_Request_req = function (param) {
-    return iqrf.embed.eeeprom.Read_Request(param.address, param.len)
+    return iqrf.embed.eeeprom.Read_Request(param.address, param.length)
   };
 
   iqrf.embed.eeeprom.Read_Response_rsp = function (rawHdp) {
