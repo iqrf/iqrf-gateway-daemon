@@ -56,7 +56,7 @@
                   "type": "integer",
                   "description": "Memory address to write to.",
                   "minimum": 0,
-                  "maximum": 255
+                  "maximum": 65535
                 },
                 "pData": {
                   "type": "array",
