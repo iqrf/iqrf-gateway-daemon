@@ -4,8 +4,7 @@
     "msgId": "testEmbedExplore",
     "timeout": 1000,
     "req": {
-      "nAdr": 1,
-      "param": {}
+      "nAdr": 1
     },
     "returnVerbose": true
   }
