@@ -1045,8 +1045,10 @@ if (iqrf.embed.explore !== undefined) {
     var result = iqrf.embed.explore.Enumerate_Response(rawHdp);
 
     // Rename perNr to userPerNr for compliance with DPA
-    Object.defineProperty(result, 'userPerNr', Object.getOwnPropertyDescriptor(result, 'perNr'));
-    delete result['perNr'];
+    if (result.hasOwnProperty('perNr')) {
+        Object.defineProperty(result, 'userPerNr', Object.getOwnPropertyDescriptor(result, 'perNr'));
+        delete result['perNr'];
+    }
 
     return result;
   };
