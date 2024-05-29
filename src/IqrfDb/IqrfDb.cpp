@@ -1108,15 +1108,40 @@ namespace iqrf {
 						c(&Product::getDpaVersion) == product->getDpaVersion()
 					)
 				);
+
+				// store new product or use existing
 				if (dbProduct.size() == 0) {
 					productId = m_db->insert(*product.get());
-					for (auto &driver : product->drivers) {
-						ProductDriver productDriver(productId, driver);
-						m_db->replace(productDriver);
-					}
 				} else {
 					productId = dbProduct[0];
 				}
+
+				// update product drivers, reuse dbProductDrivers to delete old unused drivers by erasing intersecting elements
+				auto dbProductDrivers = this->query.getProductDriversIds(productId);
+				if (dbProductDrivers != product->drivers) {
+					for (auto &driverId : product->drivers) {
+						if (dbProductDrivers.count(driverId)) {
+							// product driver in db, do not add and remove from old db set
+							dbProductDrivers.erase(driverId);
+							continue;
+						} else {
+							// add new product driver
+							ProductDriver productDriver(productId, driverId);
+							m_db->replace(productDriver);
+						}
+					}
+					// remove old unused product drivers
+					for (auto &driverId : dbProductDrivers) {
+						// remove old set
+						m_db->remove_all<ProductDriver>(
+							where(
+								c(&ProductDriver::getProductId) == productId and
+								c(&ProductDriver::getDriverId) == driverId
+							)
+						);
+					}
+				}
+
 
 				// create a new device or update existing
 				bool discovered = m_discovered.find(addr) != m_discovered.end();
