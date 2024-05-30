@@ -458,10 +458,18 @@ namespace iqrf {
 		 */
 		void frcExtraResult(uint8_t* data);
 
+		std::set<int> getEmbeddedStandardPeripherals(const uint8_t &addr);
+
 		/**
 		 * Performs product package enumeration
 		 */
 		void productPackageEnumeration();
+
+		/**
+		 * Enumerates non-certified / development / example products from network
+		 * @param addr Device address
+		 */
+		void enumerateNoncertifiedProduct(const uint8_t &addr);
 
 		/**
 		 * Updates products in database

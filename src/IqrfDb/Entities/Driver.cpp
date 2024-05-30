@@ -17,12 +17,11 @@
 
 #include "Driver.h"
 
-Driver::Driver(const std::string &name, const int16_t &peripheralNumber, const double &version, const uint8_t &versionFlags, const std::string &notes, const std::string &driver) {
+Driver::Driver(const std::string &name, const int16_t &peripheralNumber, const double &version, const uint8_t &versionFlags, const std::string &driver) {
 	this->name = name;
 	this->peripheralNumber = peripheralNumber;
 	this->version = version;
 	this->versionFlags = versionFlags;
-	this->notes = notes;
 	this->driver = driver;
 }
 
@@ -64,14 +63,6 @@ const uint8_t& Driver::getVersionFlags() const {
 
 void Driver::setVersionFlags(const uint8_t& versionFlags) {
 	this->versionFlags = versionFlags;
-}
-
-const std::string& Driver::getNotes() const {
-	return this->notes;
-}
-
-void Driver::setNotes(const std::string &notes) {
-	this->notes = notes;
 }
 
 const std::string& Driver::getDriver() const {

@@ -35,10 +35,9 @@ public:
 	 * @param peripheralNumber Driver peripheral number
 	 * @param version Driver version
 	 * @param versionFlags Driver version flags
-	 * @param notes Driver notes
 	 * @param driver Driver code
 	 */
-	Driver(const std::string &name, const int16_t &peripheralNumber, const double &version, const uint8_t &versionFlags, const std::string &notes, const std::string &driver);
+	Driver(const std::string &name, const int16_t &peripheralNumber, const double &version, const uint8_t &versionFlags, const std::string &driver);
 
 	/**
 	 * Returns driver ID
@@ -101,18 +100,6 @@ public:
 	void setVersionFlags(const uint8_t &versionFlags);
 
 	/**
-	 * Returns driver notes
-	 * @return Driver notes
-	 */
-	const std::string& getNotes() const;
-
-	/**
-	 * Sets driver notes
-	 * @param notes Driver notes
-	 */
-	void setNotes(const std::string &notes);
-
-	/**
 	 * Returns driver code
 	 * @return Driver code
 	 */
@@ -134,8 +121,6 @@ private:
 	double version;
 	/// Driver version flags
 	uint8_t versionFlags;
-	/// Driver notes
-	std::string notes;
 	/// Driver content
 	std::string driver;
 };
