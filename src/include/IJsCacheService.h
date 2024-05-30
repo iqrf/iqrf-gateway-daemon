@@ -416,6 +416,7 @@ namespace iqrf {
     };
 
     virtual std::shared_ptr<StdDriver> getDriver(int id, double ver) const = 0;
+    virtual std::shared_ptr<StdDriver> getLatestDriver(int id) const = 0;
     virtual std::shared_ptr<Manufacturer> getManufacturer(uint16_t hwpid) const = 0;
     virtual std::shared_ptr<Product> getProduct(uint16_t hwpid) const = 0;
     virtual std::shared_ptr<Package> getPackage(uint16_t hwpid, uint16_t hwpidVer, const std::string& os, const std::string& dpa) const = 0;
