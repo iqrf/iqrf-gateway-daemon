@@ -26,6 +26,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <sstream>
 #include <thread>
 #include <vector>
 
@@ -41,6 +42,7 @@
 #include "ShapeProperties.h"
 #include "Trace.h"
 
+#include <openssl/evp.h>
 #include <nlohmann/json.hpp>
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
@@ -361,6 +363,11 @@ namespace iqrf {
 		void executeMigration(SQLite::Database &db, const std::string &migration);
 
 		/**
+		 * Compare DB driver hashes with cache driver hashes and update drivers if changes are detected
+		 */
+		void updateDbDrivers();
+
+		/**
 		 * Starts enumeration thread
 		 * @param parameters Enumeration parameters
 		 */
@@ -473,10 +480,18 @@ namespace iqrf {
 		 */
 		void frcExtraResult(uint8_t* data);
 
+		std::set<int> getEmbeddedStandardPeripherals(const uint8_t &addr);
+
 		/**
 		 * Performs product package enumeration
 		 */
 		void productPackageEnumeration();
+
+		/**
+		 * Enumerates non-certified / development / example products from network
+		 * @param addr Device address
+		 */
+		void enumerateNoncertifiedProduct(const uint8_t &addr);
 
 		/**
 		 * Updates products in database
@@ -538,6 +553,8 @@ namespace iqrf {
 		 * Loads drivers coresponding to the products
 		 */
 		void loadProductDrivers();
+
+		std::string generateDriverHash(const std::string &driver);
 
 		/**
 		 * Loads DaemonWrapper code
