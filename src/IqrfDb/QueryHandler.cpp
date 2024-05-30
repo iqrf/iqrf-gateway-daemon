@@ -158,6 +158,21 @@ uint32_t QueryHandler::getProductId(const uint16_t &hwpid, const uint16_t &hwpid
 		and c(&Product::getHwpidVersion) == hwpidVersion
 		and c(&Product::getOsBuild) == osBuild
 		and c(&Product::getDpaVersion) == dpaVersion
+		and c(&Product::getPackageId) != nullptr
+	));
+	if (productId.size() == 0) {
+		return 0;
+	}
+	return productId[0];
+}
+
+uint32_t QueryHandler::getProductIdNoncertified(const uint16_t &hwpid, const uint16_t &hwpidVersion, const uint16_t &osBuild, const uint16_t &dpaVersion) {
+	auto productId = db->select(&Product::getId, where(
+		c(&Product::getHwpid) == hwpid
+		and c(&Product::getHwpidVersion) == hwpidVersion
+		and c(&Product::getOsBuild) == osBuild
+		and c(&Product::getDpaVersion) == dpaVersion
+		and c(&Product::getPackageId) == nullptr
 	));
 	if (productId.size() == 0) {
 		return 0;

@@ -46,6 +46,10 @@ namespace iqrf {
 			};
 		}
 		initializeDatabase();
+		if (m_renderService != nullptr) {
+			m_renderService->clearContexts();
+		}
+		reloadCoordinatorDrivers();
 		TRC_FUNCTION_LEAVE("");
 	}
 
@@ -318,7 +322,7 @@ namespace iqrf {
 	void IqrfDb::initializeDatabase() {
 		migrateDatabase();
 		m_db = std::make_shared<Storage>(initializeDb(m_dbPath));
-		auto res = m_db->sync_schema();
+		auto res = m_db->sync_schema(true);
 		this->query = QueryHandler(m_db);
 	}
 
@@ -392,6 +396,26 @@ namespace iqrf {
 		} catch (const std::exception &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, e.what());
 		}
+	}
+
+	void IqrfDb::updateDbDrivers() {
+		TRC_FUNCTION_ENTER("");
+		auto dbDrivers = m_db->get_all<Driver>();
+		for (auto &dbDriver : dbDrivers) {
+			auto driver = m_cacheService->getDriver(dbDriver.getPeripheralNumber(), dbDriver.getVersion());
+			if (driver == nullptr) {
+				continue;
+			}
+			std::string driverHash = generateDriverHash(*driver->getDriver());
+			if (driverHash == dbDriver.getDriverHash()) {
+				continue;
+			}
+			TRC_INFORMATION("[IqrfDb] Updating code of driver per " << std::to_string(dbDriver.getPeripheralNumber()) << ", version " << std::to_string(dbDriver.getVersion()));
+			dbDriver.setDriver(*driver->getDriver());
+			dbDriver.setDriverHash(driverHash);
+			m_db->update(dbDriver);
+		}
+		TRC_FUNCTION_LEAVE("");
 	}
 
 	void IqrfDb::startEnumerationThread(IIqrfDb::EnumParams &parameters) {
@@ -981,6 +1005,7 @@ namespace iqrf {
 	const std::set<uint8_t> IqrfDb::frcPing() {
 		TRC_FUNCTION_ENTER("");
 		std::unique_ptr<IDpaTransactionResult2> result;
+		std::set<uint8_t> onlineNodes;
 		try {
 			// Build FRC request base
 			DpaMessage frcPingRequest;
@@ -1005,17 +1030,16 @@ namespace iqrf {
 			std::vector<uint8_t> data;
 			const uint8_t *frcData = frcPingResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.PerFrcSend_Response.FrcData;
 			// Store addresses of online nodes
-			std::set<uint8_t> onlineNodes;
 			for (uint8_t i = 1, n = MAX_ADDRESS; i <= n; i++) {
 				if ((frcData[i / 8] & (1 << (i % 8))) != 0) {
 					onlineNodes.insert(i);
 				}
 			}
-			return onlineNodes;
-			TRC_FUNCTION_LEAVE("");
 		} catch (const std::exception &e) {
 			THROW_EXC(std::logic_error, e.what());
 		}
+		TRC_FUNCTION_LEAVE("");
+		return onlineNodes;
 	}
 
 	void IqrfDb::frcSendSelectiveMemoryRead(uint8_t* data, const uint16_t &address, const uint8_t &pnum, const uint8_t &pcmd, const uint8_t &numNodes, const uint8_t &processedNodes) {
@@ -1086,6 +1110,35 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
+	std::set<int> IqrfDb::getEmbeddedStandardPeripherals(const uint8_t &addr) {
+		TRC_FUNCTION_ENTER("");
+		std::unique_ptr<IDpaTransactionResult2> result;
+		try {
+			DpaMessage perEnumRequest;
+			DpaMessage::DpaPacket_t perEnumPacket;
+			perEnumPacket.DpaRequestPacket_t.NADR = addr;
+			perEnumPacket.DpaRequestPacket_t.PNUM = PNUM_ENUMERATION;
+			perEnumPacket.DpaRequestPacket_t.PCMD = 0x3F;
+			perEnumPacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
+			perEnumRequest.DataToBuffer(perEnumPacket.Buffer, sizeof(TDpaIFaceHeader));
+			m_dpaService->executeDpaTransactionRepeat(perEnumRequest, result, 1);
+		} catch (const std::exception &e) {
+			THROW_EXC(std::logic_error, e.what());
+		}
+		auto response = result->getResponse();
+		auto pers = HexStringConversion::bitmapToIndexes(response.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.EmbeddedPers, 0, 3, 0);
+		if (response.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.UserPerNr > 0) {
+			auto userPers = HexStringConversion::bitmapToIndexes(response.DpaPacket().DpaResponsePacket_t.DpaMessage.EnumPeripheralsAnswer.UserPer, 0, 11, 0x20);
+			for (auto per : userPers) {
+				pers.insert(per);
+			}
+		}
+		pers.insert(-1);
+		pers.insert(255);
+		TRC_FUNCTION_LEAVE("");
+		return pers;
+	}
+
 	void IqrfDb::productPackageEnumeration() {
 		TRC_FUNCTION_ENTER("");
 		using namespace sqlite_orm;
@@ -1099,6 +1152,10 @@ namespace iqrf {
 				continue;
 			}
 			uint16_t hwpid = product->getHwpid();
+			if ((hwpid & 0x000F) == 0xF) {
+				this->enumerateNoncertifiedProduct(addr);
+				continue;
+			}
 			uint16_t hwpidVersion = product->getHwpidVersion();
 			uint16_t osBuild = product->getOsBuild();
 			uint16_t dpaVersion = product->getDpaVersion();
@@ -1111,7 +1168,6 @@ namespace iqrf {
 					Product dbProduct = m_db->get<Product>(productId);
 					product->setHandlerUrl(dbProduct.getHandlerUrl());
 					product->setHandlerHash(dbProduct.getHandlerHash());
-					product->setNotes(dbProduct.getNotes());
 					product->setCustomDriver(dbProduct.getCustomDriver());
 					product->setPackageId(dbProduct.getPackageId());
 					std::set<uint32_t> driverIds = this->query.getProductDriversIds(productId);
@@ -1142,19 +1198,16 @@ namespace iqrf {
 			if (package->m_handlerHash.length() != 0) {
 				product->setHandlerHash(std::make_shared<std::string>(package->m_handlerHash));
 			}
-			if (package->m_notes.length() != 0) {
-				product->setNotes(std::make_shared<std::string>(package->m_notes));
-			}
 			if (package->m_driver.length() != 0) {
 				product->setCustomDriver(std::make_shared<std::string>(package->m_driver));
 			}
-			product->setPackageId(package->m_packageId);
+			product->setPackageId(std::make_shared<uint32_t>(package->m_packageId));
 			for (auto &item : package->m_stdDriverVect) {
 				int16_t per = item.getId();
 				double version = item.getVersion();
 				auto dbDriver = m_db->select(&Driver::getId, where(c(&Driver::getPeripheralNumber) == per and c(&Driver::getVersion) == version));
 				if (dbDriver.size() == 0) {
-					Driver driver(item.getName(), per, version, item.getVersionFlags(), *item.getNotes(), *item.getDriver());
+					Driver driver(item.getName(), per, version, item.getVersionFlags(), *item.getDriver(), generateDriverHash(*item.getDriver()));
 					uint32_t driverId = m_db->insert(driver);
 					product->drivers.insert(driverId);
 				} else {
@@ -1163,6 +1216,39 @@ namespace iqrf {
 			}
 		}
 		TRC_FUNCTION_LEAVE("");
+	}
+
+	void IqrfDb::enumerateNoncertifiedProduct(const uint8_t &addr) {
+		auto &product = m_deviceProductMap[addr];
+		uint32_t dbProductId = this->query.getProductIdNoncertified(
+			product->getHwpid(),
+			product->getHwpidVersion(),
+			product->getOsBuild(),
+			product->getDpaVersion()
+		);
+		if (dbProductId > 0) {
+			std::set<uint32_t> driverIds = this->query.getProductDriversIds(dbProductId);
+			for (auto id : driverIds) {
+				product->drivers.insert(id);
+			}
+			return;
+		}
+		auto pers = getEmbeddedStandardPeripherals(addr);
+		for (auto &per : pers) {
+			auto candidate = m_cacheService->getLatestDriver(per);
+			if (candidate == nullptr) {
+				continue;
+			}
+			double version = candidate->getVersion();
+			auto dbDriver = m_db->select(&Driver::getId, where(c(&Driver::getPeripheralNumber) == per and c(&Driver::getVersion) == version));
+			if (dbDriver.size() == 0) {
+				Driver driver(candidate->getName(), per, version, candidate->getVersionFlags(), *candidate->getDriver(), generateDriverHash(*candidate->getDriver()));
+				uint32_t driverId = m_db->insert(driver);
+				product->drivers.insert(driverId);
+			} else {
+				product->drivers.insert(dbDriver[0]);
+			}
+		}
 	}
 
 	void IqrfDb::updateDatabaseProducts() {
@@ -1608,6 +1694,40 @@ namespace iqrf {
 
 	///// Auxiliary functions /////
 
+	std::string IqrfDb::generateDriverHash(const std::string &driver) {
+		EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+
+		if (ctx == nullptr) {
+			THROW_EXC_TRC_WAR(std::logic_error, "Failed to generate driver hash, context not created.");
+		}
+
+		if (!EVP_DigestInit_ex(ctx, EVP_sha256(), NULL)) {
+			EVP_MD_CTX_free(ctx);
+			THROW_EXC_TRC_WAR(std::logic_error, "Failed to generate driver hash, digest initialization failed.");
+		}
+
+		if (!EVP_DigestUpdate(ctx, driver.c_str(), driver.length())) {
+			EVP_MD_CTX_free(ctx);
+			THROW_EXC_TRC_WAR(std::logic_error, "Failed to generate driver hash, digest update failed.");
+		}
+
+		unsigned char digest[EVP_MAX_MD_SIZE];
+		unsigned int hashLen = 0;
+
+		if (!EVP_DigestFinal_ex(ctx, digest, &hashLen)) {
+			EVP_MD_CTX_free(ctx);
+			THROW_EXC_TRC_WAR(std::logic_error, "Faield to generate driver hash, digest final failed.");
+		}
+
+		std::ostringstream oss;
+		for (unsigned int i = 0; i < hashLen; ++i) {
+			oss << std::hex << std::setw(2) << std::setfill('0') << (int)digest[i];
+		}
+
+		EVP_MD_CTX_free(ctx);
+		return oss.str();
+	}
+
 	std::string IqrfDb::loadWrapper() {
 		std::string path = m_launchService->getDataDir() + "/javaScript/DaemonWrapper.js";
 		std::ifstream file(path);
@@ -1661,12 +1781,14 @@ namespace iqrf {
 		);
 		modify(props);
 		m_cacheService->registerCacheReloadedHandler(m_instance, [&]() {
+			updateDbDrivers();
 			reloadDrivers();
 		});
 		m_dpaService->registerAnyMessageHandler(m_instance, [&](const DpaMessage &msg) {
 			analyzeDpaMessage(msg);
 		});
 		initializeDatabase();
+		updateDbDrivers();
 		reloadDrivers();
 
 		m_enumRun = false;

@@ -90,14 +90,6 @@ void Product::setHandlerHash(std::shared_ptr<std::string> handlerHash) {
 	this->handlerHash = std::move(handlerHash);
 }
 
-std::shared_ptr<std::string> Product::getNotes() const {
-	return this->notes;
-}
-
-void Product::setNotes(std::shared_ptr<std::string> notes) {
-	this->notes = std::move(notes);
-}
-
 std::shared_ptr<std::string> Product::getCustomDriver() const {
 	return this->customDriver;
 }
@@ -106,12 +98,12 @@ void Product::setCustomDriver(std::shared_ptr<std::string> customDriver) {
 	this->customDriver = std::move(customDriver);
 }
 
-const uint32_t& Product::getPackageId() const {
+std::shared_ptr<uint32_t> Product::getPackageId() const {
 	return this->packageId;
 }
 
-void Product::setPackageId(const uint32_t &packageId) {
-	this->packageId = packageId;
+void Product::setPackageId(std::shared_ptr<uint32_t> packageId) {
+	this->packageId = std::move(packageId);
 }
 
 bool Product::isStandardEnumerated() const {
@@ -122,6 +114,6 @@ void Product::setStandardEnumerated(bool standardEnumerated) {
 	this->standardEnumerated = standardEnumerated;
 }
 
-bool Product::isValid() { 
+bool Product::isValid() {
 	return (this->osBuild > 0) && (this->dpaVersion > 0);
 }
