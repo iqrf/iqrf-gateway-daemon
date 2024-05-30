@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS 'product' (
     'dpaVersion' INTEGER NOT NULL,
     'handlerUrl' TEXT,
     'handlerHash' TEXT,
-    'notes' TEXT,
     'customDriver' TEXT,
     'packageId' INTEGER NOT NULL,
     'standardEnumerated' INTEGER NOT NULL
@@ -32,8 +31,8 @@ CREATE TABLE IF NOT EXISTS 'driver' (
     'peripheralNumber' INTEGER NOT NULL,
     'version' REAL NOT NULL,
     'versionFlags' INTEGER NOT NULL,
-    'notes' TEXT NOT NULL,
     'driver' TEXT NOT NULL,
+    'driverHash' TEXT NOT NULL,
     UNIQUE('peripheralNumber', 'version')
 );
 

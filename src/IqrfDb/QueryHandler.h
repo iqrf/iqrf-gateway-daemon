@@ -116,6 +116,8 @@ public:
 	 */
 	uint32_t getProductId(const uint16_t &hwpid, const uint16_t &hwpidVersion, const uint16_t &osBuild, const uint16_t &dpaVersion);
 
+	uint32_t getProductIdNoncertified(const uint16_t &hwpid, const uint16_t &hwpidVersion, const uint16_t &osBuild, const uint16_t &dpaVersion);
+
 	Product getProductById(const uint32_t &productId);
 
 	/**
