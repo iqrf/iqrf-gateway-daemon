@@ -134,18 +134,6 @@ public:
 	void setHandlerHash(std::shared_ptr<std::string> handlerHash);
 
 	/**
-	 * Returns product notes
-	 * @return Product notes
-	 */
-	std::shared_ptr<std::string> getNotes() const;
-
-	/**
-	 * Sets product notes
-	 * @param notes Product notes
-	 */
-	void setNotes(std::shared_ptr<std::string> notes);
-
-	/**
 	 * Returns product custom driver
 	 * @return Product custom driver
 	 */
@@ -161,13 +149,13 @@ public:
 	 * Returns product package ID
 	 * @return Product package ID
 	 */
-	const uint32_t& getPackageId() const;
+	std::shared_ptr<uint32_t> getPackageId() const;
 
 	/**
 	 * Sets product package ID
 	 * @param packageId Product package ID
 	 */
-	void setPackageId(const uint32_t &packageId);
+	void setPackageId(std::shared_ptr<uint32_t> packageId);
 
 	/**
 	 * Returns product standard enumerated status
@@ -205,12 +193,10 @@ private:
 	std::shared_ptr<std::string> handlerUrl = nullptr;
 	/// Product handler hash
 	std::shared_ptr<std::string> handlerHash = nullptr;
-	/// Product notes
-	std::shared_ptr<std::string> notes = nullptr;
 	/// Product customDriver
 	std::shared_ptr<std::string> customDriver = nullptr;
 	/// Product package ID
-	uint32_t packageId;
+	std::shared_ptr<uint32_t> packageId = nullptr;
 	/// Indicates whether standards have been enumerated
 	bool standardEnumerated;
 };

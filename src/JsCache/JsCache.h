@@ -138,6 +138,13 @@ namespace iqrf {
     std::shared_ptr<StdDriver> getDriver(int id, double ver) const override;
 
     /**
+     * Return latest driver by ID
+     * @param id Driver (standard) ID
+     * @return std::shared_ptr<StdDriver>
+     */
+    std::shared_ptr<StdDriver> getLatestDriver(int id) const override;
+
+    /**
      * Returns manufacturer by product HWPID
      * @param hwpid Product HWPID
      * @return std::shared_ptr<Manufacturer> Manufacturer

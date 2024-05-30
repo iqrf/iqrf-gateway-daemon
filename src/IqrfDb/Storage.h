@@ -40,7 +40,6 @@ static inline auto initializeDb(const std::string &fileName) {
 			make_column("dpaVersion", &Product::getDpaVersion, &Product::setDpaVersion),
 			make_column("handlerUrl", &Product::getHandlerUrl, &Product::setHandlerUrl),
 			make_column("handlerHash", &Product::getHandlerHash, &Product::setHandlerHash),
-			make_column("notes", &Product::getNotes, &Product::setNotes),
 			make_column("customDriver", &Product::getCustomDriver, &Product::setCustomDriver),
 			make_column("packageId", &Product::getPackageId, &Product::setPackageId),
 			make_column("standardEnumerated", &Product::isStandardEnumerated, &Product::setStandardEnumerated),
@@ -52,8 +51,8 @@ static inline auto initializeDb(const std::string &fileName) {
 			make_column("peripheralNumber", &Driver::getPeripheralNumber, &Driver::setPeripheralNumber),
 			make_column("version", &Driver::getVersion, &Driver::setVersion),
 			make_column("versionFlags", &Driver::getVersionFlags, &Driver::setVersionFlags),
-			make_column("notes", &Driver::getNotes, &Driver::setNotes),
 			make_column("driver", &Driver::getDriver, &Driver::setDriver),
+			make_column("driverHash", &Driver::getDriverHash, &Driver::setDriverHash),
 			unique(&Driver::getPeripheralNumber, &Driver::getVersion)
 		),
 		make_table("productDriver",
