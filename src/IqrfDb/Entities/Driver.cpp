@@ -17,12 +17,13 @@
 
 #include "Driver.h"
 
-Driver::Driver(const std::string &name, const int16_t &peripheralNumber, const double &version, const uint8_t &versionFlags, const std::string &driver) {
+Driver::Driver(const std::string &name, const int16_t &peripheralNumber, const double &version, const uint8_t &versionFlags, const std::string &driver, const std::string &driverHash) {
 	this->name = name;
 	this->peripheralNumber = peripheralNumber;
 	this->version = version;
 	this->versionFlags = versionFlags;
 	this->driver = driver;
+	this->driverHash = driverHash;
 }
 
 const uint32_t& Driver::getId() const {
@@ -71,4 +72,12 @@ const std::string& Driver::getDriver() const {
 
 void Driver::setDriver(const std::string &driver) {
 	this->driver = driver;
+}
+
+const std::string& Driver::getDriverHash() const {
+	return this->driverHash;
+}
+
+void Driver::setDriverHash(const std::string &driverHash) {
+	this->driverHash = driverHash;
 }

@@ -38,6 +38,11 @@ include_directories(${clibdpa_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING)
+find_package(OpenSSL REQUIRED)
+
+if (NOT OPENSSL_FOUND)
+	message(FATAL_ERROR "OpenSSL library not found.")
+endif()
 
 if(SHAPE_STATIC_LIBS)
 	add_library(${PROJECT_NAME} STATIC ${_HDRFILES} ${_SRCFILES})
@@ -48,6 +53,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	nlohmann_json::nlohmann_json
 	sqlite_orm::sqlite_orm
+	OpenSSL::Crypto
 )
 
 DeployShapeComponent(${PROJECT_NAME})

@@ -313,8 +313,28 @@ namespace iqrf {
 
 	void IqrfDb::initializeDatabase() {
 		m_db = std::make_shared<Storage>(initializeDb(m_dbPath));
-		auto res = m_db->sync_schema();
+		auto res = m_db->sync_schema(true);
 		this->query = QueryHandler(m_db);
+	}
+
+	void IqrfDb::updateDbDrivers() {
+		TRC_FUNCTION_ENTER("");
+		auto dbDrivers = m_db->get_all<Driver>();
+		for (auto &dbDriver : dbDrivers) {
+			auto driver = m_cacheService->getDriver(dbDriver.getPeripheralNumber(), dbDriver.getVersion());
+			if (driver == nullptr) {
+				continue;
+			}
+			std::string driverHash = generateDriverHash(*driver->getDriver());
+			if (driverHash == dbDriver.getDriverHash()) {
+				continue;
+			}
+			TRC_INFORMATION("[IqrfDb] Updating code of driver per " << std::to_string(dbDriver.getPeripheralNumber()) << ", version " << std::to_string(dbDriver.getVersion()));
+			dbDriver.setDriver(*driver->getDriver());
+			dbDriver.setDriverHash(driverHash);
+			m_db->update(dbDriver);
+		}
+		TRC_FUNCTION_LEAVE("");
 	}
 
 	void IqrfDb::startEnumerationThread(IIqrfDb::EnumParams &parameters) {
@@ -1106,7 +1126,7 @@ namespace iqrf {
 				double version = item.getVersion();
 				auto dbDriver = m_db->select(&Driver::getId, where(c(&Driver::getPeripheralNumber) == per and c(&Driver::getVersion) == version));
 				if (dbDriver.size() == 0) {
-					Driver driver(item.getName(), per, version, item.getVersionFlags(), *item.getDriver());
+					Driver driver(item.getName(), per, version, item.getVersionFlags(), *item.getDriver(), generateDriverHash(*item.getDriver()));
 					uint32_t driverId = m_db->insert(driver);
 					product->drivers.insert(driverId);
 				} else {
@@ -1141,7 +1161,7 @@ namespace iqrf {
 			double version = candidate->getVersion();
 			auto dbDriver = m_db->select(&Driver::getId, where(c(&Driver::getPeripheralNumber) == per and c(&Driver::getVersion) == version));
 			if (dbDriver.size() == 0) {
-				Driver driver(candidate->getName(), per, version, candidate->getVersionFlags(), *candidate->getDriver());
+				Driver driver(candidate->getName(), per, version, candidate->getVersionFlags(), *candidate->getDriver(), generateDriverHash(*candidate->getDriver()));
 				uint32_t driverId = m_db->insert(driver);
 				product->drivers.insert(driverId);
 			} else {
@@ -1629,6 +1649,40 @@ namespace iqrf {
 
 	///// Auxiliary functions /////
 
+	std::string IqrfDb::generateDriverHash(const std::string &driver) {
+		EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+
+		if (ctx == nullptr) {
+			THROW_EXC_TRC_WAR(std::logic_error, "Failed to generate driver hash, context not created.");
+		}
+
+		if (!EVP_DigestInit_ex(ctx, EVP_sha256(), NULL)) {
+			EVP_MD_CTX_free(ctx);
+			THROW_EXC_TRC_WAR(std::logic_error, "Failed to generate driver hash, digest initialization failed.");
+		}
+
+		if (!EVP_DigestUpdate(ctx, driver.c_str(), driver.length())) {
+			EVP_MD_CTX_free(ctx);
+			THROW_EXC_TRC_WAR(std::logic_error, "Failed to generate driver hash, digest update failed.");
+		}
+
+		unsigned char digest[EVP_MAX_MD_SIZE];
+		unsigned int hashLen = 0;
+
+		if (!EVP_DigestFinal_ex(ctx, digest, &hashLen)) {
+			EVP_MD_CTX_free(ctx);
+			THROW_EXC_TRC_WAR(std::logic_error, "Faield to generate driver hash, digest final failed.");
+		}
+
+		std::ostringstream oss;
+		for (unsigned int i = 0; i < hashLen; ++i) {
+			oss << std::hex << std::setw(2) << std::setfill('0') << (int)digest[i];
+		}
+
+		EVP_MD_CTX_free(ctx);
+		return oss.str();
+	}
+
 	std::string IqrfDb::loadWrapper() {
 		std::string path = m_launchService->getDataDir() + "/javaScript/DaemonWrapper.js";
 		std::ifstream file(path);
@@ -1682,12 +1736,14 @@ namespace iqrf {
 		);
 		modify(props);
 		m_cacheService->registerCacheReloadedHandler(m_instance, [&]() {
+			updateDbDrivers();
 			reloadDrivers();
 		});
 		m_dpaService->registerAnyMessageHandler(m_instance, [&](const DpaMessage &msg) {
 			analyzeDpaMessage(msg);
 		});
 		initializeDatabase();
+		updateDbDrivers();
 		reloadDrivers();
 
 		m_enumRun = false;

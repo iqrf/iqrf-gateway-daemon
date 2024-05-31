@@ -25,6 +25,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <sstream>
 #include <thread>
 #include <vector>
 
@@ -40,6 +41,7 @@
 #include "ShapeProperties.h"
 #include "Trace.h"
 
+#include <openssl/evp.h>
 #include <nlohmann/json.hpp>
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
@@ -346,6 +348,11 @@ namespace iqrf {
 		void initializeDatabase();
 
 		/**
+		 * Compare DB driver hashes with cache driver hashes and update drivers if changes are detected
+		 */
+		void updateDbDrivers();
+
+		/**
 		 * Starts enumeration thread
 		 * @param parameters Enumeration parameters
 		 */
@@ -538,6 +545,8 @@ namespace iqrf {
 		 * Loads drivers coresponding to the products
 		 */
 		void loadProductDrivers();
+
+		std::string generateDriverHash(const std::string &driver);
 
 		/**
 		 * Loads DaemonWrapper code

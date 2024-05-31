@@ -52,6 +52,7 @@ static inline auto initializeDb(const std::string &fileName) {
 			make_column("version", &Driver::getVersion, &Driver::setVersion),
 			make_column("versionFlags", &Driver::getVersionFlags, &Driver::setVersionFlags),
 			make_column("driver", &Driver::getDriver, &Driver::setDriver),
+			make_column("driverHash", &Driver::getDriverHash, &Driver::setDriverHash),
 			unique(&Driver::getPeripheralNumber, &Driver::getVersion)
 		),
 		make_table("productDriver",
