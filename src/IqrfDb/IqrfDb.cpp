@@ -46,6 +46,10 @@ namespace iqrf {
 			};
 		}
 		initializeDatabase();
+		if (m_renderService != nullptr) {
+			m_renderService->clearContexts();
+		}
+		reloadCoordinatorDrivers();
 		TRC_FUNCTION_LEAVE("");
 	}
 
