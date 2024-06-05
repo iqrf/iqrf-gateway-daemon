@@ -25,7 +25,7 @@
 #include "IOtaUploadService.h"
 #include "StringUtils.h"
 
-#include "iqrf_header_parser.h"
+#include "iqrf-header-parser/iqrf_header_parser.h"
 
 namespace ihp = iqrf_header_parser;
 

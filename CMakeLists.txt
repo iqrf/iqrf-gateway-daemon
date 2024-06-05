@@ -53,6 +53,7 @@ add_definitions(
   -DRAPIDJSON_HAS_STDSTRING
   -D_CRT_SECURE_NO_WARNINGS
 )
+set(IHP_BUILD_STATIC ON)
 
 find_package(CURL REQUIRED)
 
