@@ -22,4 +22,7 @@
 	{ name: 'ubuntu', version: 'jammy', arch: 'amd64' },
 	{ name: 'ubuntu', version: 'jammy', arch: 'arm64' },
 	{ name: 'ubuntu', version: 'jammy', arch: 'armhf' },
+	{ name: 'ubuntu', version: 'noble', arch: 'amd64' },
+	{ name: 'ubuntu', version: 'noble', arch: 'arm64' },
+	{ name: 'ubuntu', version: 'noble', arch: 'armhf' },
 ]
