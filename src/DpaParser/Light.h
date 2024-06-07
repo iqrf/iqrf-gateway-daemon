@@ -21,124 +21,213 @@
 #include <vector>
 #include <memory>
 
-namespace iqrf
-{
-  namespace light
-  {
-    namespace item
-    {
-      class Light
-      {
+namespace iqrf {
+  namespace light {
+    namespace item {
+      class Answer {
       public:
-        Light()
+        Answer(uint8_t status, uint8_t value)
+          :m_status(status)
+          , m_value(value)
         {}
 
-        int getIndex() const { return m_index; }
-        int getPower() const { return m_power; }
-        int getTime() const { return m_time; }
-
-        Light(int index, int power, int time)
-          :m_index(index)
-          , m_power(power)
-          , m_time(time)
-        {}
+        uint8_t getStatus() const { return m_status; }
+        uint8_t getValue() const { return m_value; }
 
       protected:
-        int m_index = 0;
-        int m_power = 0;
-        int m_time = 0;
+        Answer()
+        {}
+
+        uint8_t m_status = 0;
+        uint8_t m_value = 0;
       };
+      typedef std::unique_ptr<Answer> AnswerPtr;
     }
 
     ////////////////
-    class Enumerate
-    {
+    class SendLdiCommands {
     protected:
-      int m_lightsNum;
+      /**
+       * Base constructor
+       */
+      SendLdiCommands() {}
 
-      Enumerate()
-      {}
+      /**
+       * Commands constructor
+       */
+      SendLdiCommands(const std::vector<uint16_t> &ldiCommands): m_ldiCommands(ldiCommands) {}
 
+      /// LDI commands
+      std::vector<uint16_t> m_ldiCommands;
+      /// LDI answers
+      std::vector<item::AnswerPtr> m_answers;
     public:
-      virtual ~Enumerate() {}
+      /**
+       * Destructor
+       */
+      virtual ~SendLdiCommands() {}
 
-      int getLightsNum() const { return m_lightsNum; }
+      /**
+       * Get LDI commands
+       * @return std::vector<uint16_t> LDI commands
+       */
+      const std::vector<uint16_t>& getLdiCommands() const { return m_ldiCommands; }
+
+      /**
+       * Get LDI answers
+       * @return std::vector<item::AnswerPtr> LDI Answers
+       */
+      const std::vector<item::AnswerPtr>& getAnswers() const { return m_answers; }
     };
-    typedef std::unique_ptr<Enumerate> EnumeratePtr;
+    typedef std::unique_ptr<SendLdiCommands> SendCommandsPtr;
 
     ////////////////
-    class SetPower
-    {
+    class SendLdiCommandsAsync : public SendLdiCommands {
     protected:
-      //param
-      std::vector<item::Light> m_lights;
-      //response
-      std::vector<int> m_prevVals;
+      /**
+       * Base constructor
+       */
+      SendLdiCommandsAsync() : SendLdiCommands() {}
 
-      SetPower()
-      {}
-
-      SetPower(const std::vector<item::Light> & lights)
-        :m_lights(lights)
-      {}
-
+      /**
+       * Commands constructor
+       * @param ldiCommands Vector of LDI commands
+       */
+      SendLdiCommandsAsync(const std::vector<uint16_t> &ldiCommands) : SendLdiCommands(ldiCommands) {}
     public:
-      // get param data passes by ctor
-      const std::vector<item::Light> & getLights() const { return m_lights; }
-
-      // get data as returned from driver
-      const std::vector<int> & getPrevVals() const { return m_prevVals; }
-
-      virtual ~SetPower() {}
+      /**
+       * Destructor
+       */
+      virtual ~SendLdiCommandsAsync() {}
     };
-    typedef std::unique_ptr<SetPower> SetPowerPtr;
+    typedef std::unique_ptr<SendLdiCommands> SendCommandsPtr;
 
     ////////////////
-    class IncrementPower : public SetPower
-    {
+    class SetLai {
     protected:
-      IncrementPower()
-        :SetPower()
-      {}
+      /**
+       * Base constructor
+       */
+      SetLai() {}
 
-      IncrementPower(const std::vector<item::Light> & lights)
-        :SetPower(lights)
-      {}
+      /**
+       * Voltage constructor
+       * @param voltage Voltage to set
+       */
+      SetLai(uint16_t voltage) : m_voltage(voltage) {}
 
+      /// Voltage to set
+      uint16_t m_voltage = 0;
+      /// Previous voltage
+      uint16_t m_prevVoltage = 0;
     public:
-      virtual ~IncrementPower() {}
+      /**
+       * Destructor
+       */
+      virtual ~SetLai() {}
+
+      /**
+       * Get voltage to set
+       * @return uint16_t Voltage to set
+       */
+      uint16_t getVoltage() const { return m_voltage; }
+
+      /**
+       * Get previous voltage
+       * @return uint16_t Previous voltage
+       */
+      uint16_t getPreviousVoltage() const { return m_prevVoltage; }
     };
-    typedef std::unique_ptr<IncrementPower> IncrementPowerPtr;
+    typedef std::unique_ptr<SetLai> SetLaiPtr;
 
     ////////////////
-    class DecrementPower : public SetPower
-    {
+    class FrcLdiSend {
     protected:
-      DecrementPower()
-        :SetPower()
-      {}
+      /**
+       * Base constructor
+       */
+      FrcLdiSend() : m_ldiCommand(0) {}
 
-      DecrementPower(const std::vector<item::Light> & lights)
-        :SetPower(lights)
-      {}
+      /**
+       * Command constructor
+       * @param ldiCommand LDI command
+       */
+      FrcLdiSend(uint16_t ldiCommand) : m_ldiCommand(ldiCommand) {}
 
+      /**
+       * Full constructor
+       * @param ldiCommand LDI command
+       * @param selectedNodes Selected nodes
+       */
+      FrcLdiSend(uint16_t ldiCommand, const std::vector<int> &selectedNodes) : m_ldiCommand(ldiCommand), m_selectedNodes(selectedNodes) {}
+
+      /// LDI command to execute
+      uint16_t m_ldiCommand;
+      /// Selected nodes
+      std::vector<int> m_selectedNodes;
+      /// Answers
+      std::vector<item::AnswerPtr> m_answers;
     public:
-      virtual ~DecrementPower() {}
+      /**
+       * Destructor
+       */
+      virtual ~FrcLdiSend() {}
+
+      /**
+       * Get LDI command
+       */
+      uint16_t getLdiCommand() const { return m_ldiCommand; }
+
+      /**
+       * Get selected nodes
+       */
+      const std::vector<int> &getSelectedNodes() const { return m_selectedNodes; }
+
+      /**
+       * Get answers
+       * @return std::vector<item::AnswerPtr> Answers
+       */
+      const std::vector<item::AnswerPtr> &getAnswersPerNode() const { return m_answers; }
     };
-    typedef std::unique_ptr<DecrementPower> DecrementPowerPtr;
+    typedef std::unique_ptr<FrcLdiSend> FrcLdiSendPtr;
 
     ////////////////
-    // not implemented just kept here for future use and to be consistent with other standards
-    class Frc
-    {
+    class FrcLaiRead {
     protected:
-      Frc()
-      {}
+      /**
+       * Base constructor
+       */
+      FrcLaiRead() {}
 
+      /**
+       * Selected nodes constructor
+       * @param selectedNodes Selected nodes
+       */
+      FrcLaiRead(const std::vector<int> &selectedNodes) : m_selectedNodes(selectedNodes) {}
+
+      /// Selected nodes
+      std::vector<int> m_selectedNodes;
+      /// Voltages
+      std::vector<uint16_t> m_voltages;
     public:
-      virtual ~Frc() {}
-    };
-    typedef std::unique_ptr<Frc> FrcPtr;
+      /**
+       * Destructor
+       */
+      virtual ~FrcLaiRead() {}
 
-  } //namespace light
+      /**
+       * Get selected nodes
+       * @return std::vector<int> Selected nodes
+       */
+      const std::vector<int>& getSelectedNodes() const { return m_selectedNodes; }
+
+      /**
+       * Get node voltages
+       * @return std::vector<uint16_t> Node voltages
+       */
+      const std::vector<uint16_t>& getVoltages() const { return m_voltages; }
+    };
+    typedef std::unique_ptr<FrcLaiRead> FrcLaiReadPtr;
+
+  } //namespace dali
 } //namespace iqrf

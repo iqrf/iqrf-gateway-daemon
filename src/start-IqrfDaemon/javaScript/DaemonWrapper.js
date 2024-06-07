@@ -839,6 +839,63 @@ if (iqrf.binaryoutput !== undefined) {
 ////////////////////////
 if (iqrf.light !== undefined) {
 
+  // NEW API
+
+  iqrf.light.SendLdiCommands_Request_req = function (params) {
+    return iqrf.light.SendLdiCommands_Request(params.commands);
+  };
+
+  iqrf.light.SendLdiCommands_Response_rsp = function (rawHdp) {
+    return {
+      answers: iqrf.light.SendLdiCommands_Response(rawHdp)
+    };
+  };
+
+  iqrf.light.SendLdiCommandsAsync_Request_req = function (params) {
+    return iqrf.light.SendLdiCommandsAsync_Request(params.commands);
+  };
+
+  iqrf.light.SendLdiCommandsAsync_Response_rsp = function (rawHdp) {
+    iqrf.light.SendLdiCommandsAsync_Response(rawHdp);
+    return {};
+  };
+
+  iqrf.light.SetLai_Request_req = function (params) {
+    return iqrf.light.SetLai_Request(params.voltage);
+  }
+
+  iqrf.light.SetLai_Response_rsp = function (rawHdp) {
+    return {
+      prevVoltage: iqrf.light.SetLai_Response(rawHdp),
+    };
+  }
+
+  iqrf.light.FrcLdiSend_Request_req = function (params) {
+    return {
+      retpars: iqrf.light.FrcLdiSend_Request(params.command, params.selectedNodes)
+    };
+  };
+
+  iqrf.light.FrcLdiSend_Response_rsp = function (params) {
+    return {
+      answers: iqrf.light.FrcLdiSend_Response(params.responseFrcSend, params.responseFrcExtraResult)
+    };
+  };
+
+  iqrf.light.FrcLaiRead_Request_req = function (params) {
+    return {
+      retpars: iqrf.light.FrcLaiRead_Request(params.selectedNodes)
+    };
+  }
+
+  iqrf.light.FrcLaiRead_Response_rsp = function (params) {
+    return {
+      voltages: iqrf.light.FrcLaiRead_Response(params.responseFrcSend, params.responseFrcExtraResult)
+    }
+  }
+
+  // DEPRECATED API
+
   iqrf.light.Enumerate_Request_req = function (param) {
     return iqrf.light.Enumerate_Request();
   };
@@ -936,7 +993,7 @@ if (iqrf.sensor !== undefined) {
 }
 
 ///////////////////
-// IqrfStandardDALI
+// IqrfStandardDALI // DEPRECATED
 ///////////////////
 if (iqrf.dali !== undefined) {
 

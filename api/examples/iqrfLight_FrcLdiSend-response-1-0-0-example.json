@@ -1,0 +1,285 @@
+[
+  {
+    "mType": "iqrfLight_FrcLdiSend",
+    "data": {
+      "msgId": "b128458b-7b98-4506-b97c-20a69095d296",
+      "rsp": {
+        "nAdr": 0,
+        "pnum": 13,
+        "pcmd": 128,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 90,
+        "result": {
+          "answers": [
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 128,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 129,
+              "value": 96
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            }
+          ],
+          "command": 65424
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.00.ff.ff.e0.4a.ff.90.00",
+          "requestTs": "2024-06-07T12:03:21.957+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.80.00.00.00.5a.02.00.00.80.00.00.00.00.00.81.60.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:03:22.931+02:00"
+        },
+        {
+          "request": "00.00.0d.01.ff.ff",
+          "requestTs": "2024-06-07T12:03:22.931+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.81.00.00.00.5a.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:03:23.057+02:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  },
+  {
+    "mType": "iqrfLight_FrcLdiSend",
+    "data": {
+      "msgId": "13939e0f-1456-4a5f-aae0-1e46949eb579",
+      "rsp": {
+        "nAdr": 0,
+        "pnum": 13,
+        "pcmd": 130,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 90,
+        "result": {
+          "answers": [
+            {
+              "status": 128,
+              "value": 0
+            },
+            {
+              "status": 0,
+              "value": 0
+            },
+            {
+              "status": 129,
+              "value": 96
+            }
+          ],
+          "command": 65424,
+          "selectedNodes": [1, 2, 4]
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.02.ff.ff.e0.16.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.4a.ff.90.00",
+          "requestTs": "2024-06-07T12:11:24.979+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.82.00.00.00.5a.02.00.00.80.00.00.00.81.60.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:11:25.922+02:00"
+        },
+        {
+          "request": "00.00.0d.01.ff.ff",
+          "requestTs": "2024-06-07T12:11:25.923+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.81.00.00.00.5a.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:11:26.049+02:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  },
+  {
+    "mType": "iqrfLight_FrcLdiSend",
+    "data": {
+      "msgId": "1dafa436-d7f7-4486-bade-e3d67d8d8c9f",
+      "rsp": {
+        "nAdr": 0,
+        "pnum": 13,
+        "pcmd": 130,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 90,
+        "result": {
+          "answers": [
+            {
+              "answer": {
+                "status": 128,
+                "value": 0
+              },
+              "nAdr": 1
+            },
+            {
+              "answer": {
+                "status": 0,
+                "value": 0
+              },
+              "nAdr": 2
+            },
+            {
+              "answer": {
+                "status": 129,
+                "value": 96
+              },
+              "nAdr": 4
+            }
+          ],
+          "command": 65424,
+          "selectedNodes": [1, 2, 4]
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.02.ff.ff.e0.16.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.4a.ff.90.00",
+          "requestTs": "2024-06-07T12:14:27.485+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.82.00.00.00.5a.02.00.00.80.00.00.00.81.60.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:14:28.423+02:00"
+        },
+        {
+          "request": "00.00.0d.01.ff.ff",
+          "requestTs": "2024-06-07T12:14:28.423+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.81.00.00.00.5a.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:14:28.550+02:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  }
+]

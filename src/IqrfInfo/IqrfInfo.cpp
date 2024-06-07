@@ -25,11 +25,8 @@
 #include "RawDpaEmbedFRC.h"
 #include "JsDriverBinaryOutput.h"
 #include "JsDriverSensor.h"
-#include "JsDriverLight.h"
 #include "InfoSensor.h"
 #include "InfoBinaryOutput.h"
-#include "InfoDali.h"
-#include "InfoLight.h"
 #include "InfoNode.h"
 #include "HexStringCoversion.h"
 
@@ -54,9 +51,8 @@ using namespace  sqlite;
 namespace iqrf {
 
   const int PERIF_STANDARD_SENSOR = 94;
+  const int PERIF_STANDARD_LIGHT = 74;
   const int PERIF_STANDARD_BINOUT = 75;
-  const int PERIF_STANDARD_DALI = 74;
-  const int PERIF_STANDARD_LIGHT = 113;
 
   class SqlFile
   {
@@ -248,45 +244,56 @@ namespace iqrf {
       try
       {
         std::string dataDir = m_iLaunchService->getDataDir();
-        std::string fname = dataDir + "/DB/IqrfInfo.db";
+        std::string dbFilePath = dataDir + "/DB/IqrfInfo.db";
 
-        std::ifstream f(fname);
-        bool dbExists = f.is_open();
-        f.close();
+        std::ifstream dbFile(dbFilePath);
+        bool dbExists = dbFile.is_open();
+        dbFile.close();
 
-        m_db.reset(shape_new database(fname));
+        m_db.reset(shape_new database(dbFilePath));
         database &db = *m_db;
         db << "PRAGMA foreign_keys=ON";
 
-        std::string sqlpath = dataDir;
-        sqlpath += "/DB/";
+        std::string migrationDirPath = dataDir + "/DB/init/";
+
+        std::vector<std::string> migrations;
+        std::vector<std::string> migrationsToExecute;
+
+        for (const auto &file : std::filesystem::directory_iterator(migrationDirPath)) {
+          if (file.is_regular_file()) {
+            migrations.push_back(file.path().stem());
+          }
+        }
+
+        std::sort(migrations.begin(), migrations.end());
 
         if (!dbExists) {
-          //create tables
-          SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo.db.sql");
-        }
-
-        //update - TODO prepare migration scripts based on DB version in Info table in ver 2.4
-        bool existInfoTable = false;
-        try {
-          int count = 0;
-          db << "select count(*) from Info;" >> count; //if not exists the exception is generated
-          existInfoTable = true;
-        }
-        catch (sqlite_exception &e)
-        {
-          CATCH_EXC_TRC_WAR(sqlite_exception, e, "tried if Info table exists: " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
-        }
-        if (!existInfoTable) {
-          try {
-            SqlFile::makeSqlFile(db, sqlpath + "init/IqrfInfo_update3.db.sql");
-          }
-          catch (sqlite_exception &e)
-          {
-            CATCH_EXC_TRC_WAR(sqlite_exception, e, "tried DB version update problem: " << NAME_PAR(code, e.get_code()) << NAME_PAR(ecode, e.get_extended_code()) << NAME_PAR(SQL, e.get_sql()));
+          migrationsToExecute = migrations;
+        } else {
+          int migrationTableExists = 0;
+          db << "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='Migrations'" >> migrationTableExists;
+          if (migrationTableExists < 1) {
+            for (const auto &migration : migrations) {
+              if (migration >= "20240609100420") {
+                migrationsToExecute.push_back(migration);
+              }
+            }
+          } else {
+            std::set<std::string> executedMigrations;
+            db << "SELECT m.Version FROM Migrations as m" >> [&](std::string version) {
+              executedMigrations.insert(version);
+            };
+            for (const auto &migration : migrations) {
+              if (executedMigrations.count(migration) == 0) {
+                migrationsToExecute.push_back(migration);
+              }
+            }
           }
         }
 
+        for (const auto &migration : migrationsToExecute) {
+          SqlFile::makeSqlFile(db, migrationDirPath + migration + ".sql");
+        }
       }
       catch (sqlite_exception &e)
       {
@@ -640,7 +647,7 @@ namespace iqrf {
         for (auto per : nd->getEmbedExploreEnumerate()->getUserPer()) {
 
           //Get peripheral information for sensor, binout, dali, light and TODO other std if presented
-          if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per || PERIF_STANDARD_DALI == per || PERIF_STANDARD_LIGHT == per) {
+          if (PERIF_STANDARD_BINOUT == per || PERIF_STANDARD_SENSOR == per || PERIF_STANDARD_LIGHT == per) {
 
             embed::explore::RawDpaPeripheralInformation perInfo((uint16_t)nadr, per);
             perInfo.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(perInfo.getRequest())->get());
@@ -1240,24 +1247,28 @@ namespace iqrf {
       // drivers id to be loaded
       std::set<int> driversIdSet;
 
-      for (auto & drv : drivers) {
-        int driverId = drv.first;
+      for (auto &[driverId, versionMap] : drivers) {
         double driverVer = 0;
 
         driversIdSet.insert(driverId);
 
-        if (drv.second.size() > 0) {
-          driverVer = drv.second.rbegin()->first; // get the highest one from reverse end
-        }
-        else {
+        if (versionMap.size() > 0) {
+          driverVer = versionMap.rbegin()->first; // get the highest one from reverse end
+        } else {
           TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << " no version");
         }
         std::shared_ptr<IJsCacheService::StdDriver> driver = m_iJsCacheService->getDriver(driverId, driverVer);
         if (driver != nullptr) {
-          str2load += *driver->getDriver()  + '\n';
-        }
-        else {
+          str2load += *driver->getDriver() + '\n';
+        } else {
           TRC_WARNING("Inconsistency in driver versions: " << PAR(driverId) << PAR(driverVer) << " no driver found");
+        }
+        if (driverId == PERIF_STANDARD_LIGHT && driverVer > 0) {
+          driver = m_iJsCacheService->getDriver(driverId, 0);
+          if (driver != nullptr) {
+            str2load += *driver->getDriver() + '\n';
+            TRC_INFORMATION("Loading deprecated DALI driver for compatibility.");
+          }
         }
       }
 
@@ -1890,9 +1901,6 @@ namespace iqrf {
                 case PERIF_STANDARD_SENSOR:
                   stdSensorEnum(nadr, deviceId);
                   break;
-                case PERIF_STANDARD_DALI:
-                  stdDaliEnum(nadr, deviceId);
-                  break;
                 default:;
                 }
               //}
@@ -1932,7 +1940,7 @@ namespace iqrf {
       return retval;
     }
 
-    void stdDaliEnum(int nadr, int deviceId)
+    void stdLightEnum(int nadr, int deviceId)
     {
       TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
 
@@ -1940,34 +1948,11 @@ namespace iqrf {
 
       database & db = *m_db;
 
-      db << "delete from Dali where DeviceId = ?;"
-        << deviceId;
-
-      db << "insert into Dali (DeviceId)  values (?);"
-        << deviceId;
-
-      TRC_FUNCTION_LEAVE("")
-    }
-
-    void stdLightEnum(int nadr, int deviceId)
-    {
-      TRC_FUNCTION_ENTER(PAR(nadr) << PAR(deviceId));
-
-      light::jsdriver::Enumerate lightEnum(m_iJsRenderService, (uint16_t)nadr);
-      lightEnum.processDpaTransactionResult(m_iIqrfDpaService->executeDpaTransaction(lightEnum.getRequest())->get());
-
-      database & db = *m_db;
-
       db << "delete from Light where DeviceId = ?;"
         << deviceId;
 
-      db << "insert into Light ("
-        "DeviceId"
-        ", Num"
-        ")  values ( "
-        "?, ?"
-        ");"
-        << deviceId << lightEnum.getLightsNum();
+      db << "insert into Light (DeviceId) values (?);"
+        << deviceId;
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -2097,17 +2082,9 @@ namespace iqrf {
       database & db = *m_db;
 
       db <<
-        "select "
-        "b.Nadr "
-        ", o.Num "
-        "from "
-        "Bonded as b "
-        ", Device as d "
-        ", Binout as o "
-        "where "
-        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) and "
-        "d.Id = o.DeviceId "
-        ";"
+        "SELECT b.Nadr, o.Num\n"
+        "FROM Bonded AS b, Device AS d, Binout AS o\n"
+        "WHERE d.Id = (SELECT DeviceId FROM Node AS n WHERE n.Mid = b.Mid) AND d.Id = o.DeviceId;"
         >> [&](int nadr, int num)
       {
         retval.insert(std::make_pair(nadr, binaryoutput::InfoEnumeratePtr(shape_new binaryoutput::InfoEnumerate(num))));
@@ -2117,55 +2094,20 @@ namespace iqrf {
       return retval;
     }
 
-    std::map<int, dali::EnumeratePtr> getDalis() const
+    std::vector<int> getLights() const
     {
       TRC_FUNCTION_ENTER("");
 
-      std::map<int, dali::EnumeratePtr> retval;
+      std::vector<int> retval;
       database & db = *m_db;
 
       db <<
-        "select "
-        "b.Nadr "
-        "from "
-        "Bonded as b "
-        ", Device as d "
-        ", Dali as o "
-        "where "
-        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) and "
-        "d.Id = o.DeviceId "
-        ";"
+        "SELECT b.Nadr\n"
+        "FROM Bonded AS b, Device AS d, Light AS l\n"
+        "WHERE d.Id = (SELECT DeviceId FROM Node AS n WHERE n.Mid = b.Mid) AND d.Id = l.DeviceId;"
         >> [&](int nadr)
       {
-        retval.insert(std::make_pair(nadr, dali::InfoEnumeratePtr(shape_new dali::InfoEnumerate())));
-      };
-
-      TRC_FUNCTION_LEAVE("");
-      return retval;
-    }
-
-    std::map<int, light::EnumeratePtr> getLights() const
-    {
-      TRC_FUNCTION_ENTER("");
-
-      std::map<int, light::EnumeratePtr> retval;
-      database & db = *m_db;
-
-      db <<
-        "select "
-        "b.Nadr "
-        ", o.Num "
-        "from "
-        "Bonded as b "
-        ", Device as d "
-        ", Light as o "
-        "where "
-        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) and "
-        "d.Id = o.DeviceId "
-        ";"
-        >> [&](int nadr, int num)
-      {
-        retval.insert(std::make_pair(nadr, light::InfoEnumeratePtr(shape_new light::InfoEnumerate(num))));
+        retval.push_back(nadr);
       };
 
       TRC_FUNCTION_LEAVE("");
@@ -2180,21 +2122,9 @@ namespace iqrf {
       database & db = *m_db;
 
       db <<
-        "select "
-        "b.Nadr "
-        ", b.Dis "
-        ", b.Mid "
-        ", b.Enm "
-        ", d.Hwpid "
-        ", d.HwpidVer "
-        ", d.OsBuild "
-        ", d.DpaVer "
-        "from "
-        "Bonded as b "
-        ", Device as d "
-        "where "
-        "d.Id = (select DeviceId from Node as n where n.Mid = b.Mid) "
-        ";"
+        "SELECT b.Nadr, b.Dis, b.Mid, b.Enm, d.Hwpid, d.HwpidVer, d.OsBuild, d.DpaVer\n"
+        "FROM Bonded AS b, Device AS d\n"
+        "WHERE d.Id = (SELECT DeviceId FROM Node AS n WHERE n.Mid = b.Mid);"
         >> [&](int nadr, int dis, unsigned mid, int enm, int hwpid, int hwpidVer, int osBuild, int dpaVer)
       {
         retval.insert(std::make_pair(nadr, embed::node::BriefInfoPtr(
@@ -2692,12 +2622,7 @@ namespace iqrf {
     return m_imp->getBinaryOutputs();
   }
 
-  std::map<int, dali::EnumeratePtr> IqrfInfo::getDalis() const
-  {
-    return m_imp->getDalis();
-  }
-
-  std::map<int, light::EnumeratePtr> IqrfInfo::getLights() const
+  std::vector<int> IqrfInfo::getLights() const
   {
     return m_imp->getLights();
   }

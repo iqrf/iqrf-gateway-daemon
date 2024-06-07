@@ -32,10 +32,12 @@ namespace iqrf {
     std::set<uint8_t> selectedNodes;
     bool m_hasSensorIndex = false;
     uint8_t m_sensorIndex = 0;
-    uint16_t m_daliCommand = 0;
+    uint16_t m_ldiCommand = 0;
     rapidjson::Document m_selectedNodes;
-    const std::string mTypeDali = "iqrfDali_Frc";
-    const std::string mTypeSensor = "iqrfSensor_Frc";
+    const std::string mTypeDaliFrc = "iqrfDali_Frc";
+    const std::string mTypeLightFrcLaiRead = "iqrfLight_FrcLaiRead";
+    const std::string mTypeLightFrcLdiSend = "iqrfLight_FrcLdiSend";
+    const std::string mTypeSensorFrc = "iqrfSensor_Frc";
 
   public:
     ApiMsgIqrfStandardFrc() = delete;
@@ -44,7 +46,7 @@ namespace iqrf {
     {
       using namespace rapidjson;
 
-      
+
       const Value *val = Pointer("/data/req/param/getExtraResult").Get(doc);
       if (val && val->IsBool()) {
         m_getExtraResult = val->GetBool();
@@ -54,19 +56,19 @@ namespace iqrf {
         m_getExtFormat = val->GetBool();
       }
       const std::string mType = getMType();
-      if (mType == mTypeDali) {
+      if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
         val = Pointer("/data/req/param/command").Get(doc);
         if (val && val->IsUint()) {
-          m_daliCommand = static_cast<uint16_t>(val->GetUint());
+          m_ldiCommand = static_cast<uint16_t>(val->GetUint());
         }
-      } else if (mType == mTypeSensor) {
+      } else if (mType == mTypeSensorFrc) {
         val = Pointer("/data/req/param/sensorIndex").Get(doc);
         if (val && val->IsUint()) {
           m_hasSensorIndex = true;
           m_sensorIndex = val->GetUint();
         }
       }
-      
+
       val = Pointer("/data/req/param/selectedNodes").Get(doc);
       if (val) {
         m_selectedNodes.CopyFrom(*val, m_selectedNodes.GetAllocator());
@@ -79,24 +81,28 @@ namespace iqrf {
     bool hasSelectedNodes() const {
       return selectedNodes.size() > 0;
     }
-  
+
     std::set<uint8_t> getSelectedNodes() const {
       return selectedNodes;
     }
 
     std::string getArrayKeyByMessageType(const std::string mType) {
-      if (mType == mTypeDali) {
+      if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
         return "answers";
-      } else if (mType == mTypeSensor) {
+      } else if (mType == mTypeLightFrcLaiRead) {
+        return "voltages";
+      } else if (mType == mTypeSensorFrc) {
         return "sensors";
       }
       return "";
     }
 
     std::string getItemKeyByMessageType(const std::string mType) {
-      if (mType == mTypeDali) {
+      if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
         return "answer";
-      } else if (mType == mTypeSensor) { 
+      } else if (mType == mTypeLightFrcLaiRead) {
+        return "voltage";
+      } else if (mType == mTypeSensorFrc) {
         return "sensor";
       }
       return "";
@@ -122,9 +128,9 @@ namespace iqrf {
 
       if (getStatus() == 0) {
         const std::string mType = getMType();
-        if (mType == mTypeDali) {
-          Pointer("/data/rsp/result/command").Set(doc, m_daliCommand);
-        } else if (mType == mTypeSensor && m_hasSensorIndex) {
+        if (mType == mTypeLightFrcLdiSend || mType == mTypeDaliFrc) {
+          Pointer("/data/rsp/result/command").Set(doc, m_ldiCommand);
+        } else if (mType == mTypeSensorFrc && m_hasSensorIndex) {
           Pointer("/data/rsp/result/sensorIndex").Set(doc, m_sensorIndex);
         }
 

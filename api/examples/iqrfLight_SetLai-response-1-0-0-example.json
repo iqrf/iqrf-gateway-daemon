@@ -1,0 +1,30 @@
+{
+  "mType": "iqrfLight_SetLai",
+  "data": {
+    "msgId": "7b740fba-7e80-4c9b-a4bf-882f2cda237c",
+    "rsp": {
+      "nAdr": 4,
+      "pnum": 74,
+      "pcmd": 130,
+      "hwpId": 0,
+      "rCode": 0,
+      "dpaVal": 90,
+      "result": {
+        "prevVoltage": 1220
+      }
+    },
+    "raw": [
+      {
+        "request": "04.00.4a.02.ff.ff.ac.0d",
+        "requestTs": "2024-06-07T11:57:00.542+02:00",
+        "confirmation": "04.00.4a.02.ff.ff.ff.59.03.08.03",
+        "confirmationTs": "2024-06-07T11:57:00.568+02:00",
+        "response": "04.00.4a.82.00.00.00.5a.c4.04",
+        "responseTs": "2024-06-07T11:57:00.986+02:00"
+      }
+    ],
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}
