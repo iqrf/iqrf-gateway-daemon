@@ -56,9 +56,9 @@ namespace iqrf {
 		modify(props);
 
 		m_splitterService->registerFilteredMsgHandler(m_filters,
-			[&](const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
+			[&](const MessagingInstance& messaging, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc)
 		{
-			handleMsg(messagingId, msgType, std::move(doc));
+			handleMsg(messaging, msgType, std::move(doc));
 		});
 
 		if (m_asyncDpaMessage) {
@@ -104,9 +104,9 @@ namespace iqrf {
 
 	///// Message handling
 
-	void JsonDpaApiRaw::handleMsg(const std::string & messagingId, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc) {
+	void JsonDpaApiRaw::handleMsg(const MessagingInstance& messaging, const IMessagingSplitterService::MsgType & msgType, rapidjson::Document doc) {
 		TRC_FUNCTION_ENTER(
-			PAR(messagingId) <<
+			PAR(messaging.to_string()) <<
 			NAME_PAR(mType, msgType.m_type) <<
 			NAME_PAR(major, msgType.m_major) <<
 			NAME_PAR(minor, msgType.m_minor) <<
@@ -134,7 +134,7 @@ namespace iqrf {
 
 		Pointer("/mType").Set(respDoc, msgType.m_type);
 
-		m_splitterService->sendMessage(messagingId, std::move(respDoc));
+		m_splitterService->sendMessage(messaging, std::move(respDoc));
 
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -159,7 +159,7 @@ namespace iqrf {
 		//update message type - type is the same for request/response
 		Pointer("/mType").Set(respDoc, "iqrfRaw");
 
-		m_splitterService->sendMessage("", std::move(respDoc));
+		m_splitterService->sendMessage(std::list<MessagingInstance>(), std::move(respDoc));
 
 		TRC_FUNCTION_LEAVE("");
 	}

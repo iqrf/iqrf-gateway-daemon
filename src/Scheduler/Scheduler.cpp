@@ -469,6 +469,10 @@ namespace iqrf {
 
 	void Scheduler::writeTaskFile(std::shared_ptr<SchedulerRecord> &record) {
 		using namespace rapidjson;
+		if (!std::filesystem::exists(m_cacheDir)) {
+			std::filesystem::create_directory(m_cacheDir);
+			std::filesystem::permissions(m_cacheDir, std::filesystem::perms::all);
+		}
 		std::ostringstream os;
 		os << m_cacheDir << '/' << record->getTaskId() << ".json";
 		std::string fname = os.str();

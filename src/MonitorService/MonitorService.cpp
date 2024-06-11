@@ -107,7 +107,7 @@ namespace iqrf {
 
 	///// Private methods
 
-	void MonitorService::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+	void MonitorService::handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
 		TRC_FUNCTION_ENTER("");
 
 		invokeWorker();
@@ -126,7 +126,7 @@ namespace iqrf {
 			rapidjson::Pointer("/data/statusStr").Set(rspDoc, "ok");
 		}
 
-		m_splitterService->sendMessage(messagingId, std::move(rspDoc));
+		m_splitterService->sendMessage(messaging, std::move(rspDoc));
 
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -260,8 +260,8 @@ namespace iqrf {
 		m_splitterService = iface;
 		m_splitterService->registerFilteredMsgHandler(
 			m_mTypes,
-			[&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
-				handleMsg(messagingId, msgType, std::move(doc));
+			[&](const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+				handleMsg(messaging, msgType, std::move(doc));
 			}
 		);
 	}

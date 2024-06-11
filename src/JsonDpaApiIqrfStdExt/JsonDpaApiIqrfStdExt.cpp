@@ -51,9 +51,9 @@ namespace iqrf {
 		);
 		modify(props);
 		m_splitterService->registerFilteredMsgHandler(m_filters,
-			[&](const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc)
+			[&](const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc)
 		{
-			handleMsg(messagingId, msgType, std::move(doc));
+			handleMsg(messaging, msgType, std::move(doc));
 		});
 
 		TRC_FUNCTION_LEAVE("")
@@ -85,8 +85,8 @@ namespace iqrf {
 
 	///// Message handling
 
-	void JsonDpaApiIqrfStdExt::handleMsg(const std::string &messagingId, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
-		TRC_FUNCTION_ENTER(PAR(messagingId) << NAME_PAR(mType, msgType.m_type) <<
+	void JsonDpaApiIqrfStdExt::handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+		TRC_FUNCTION_ENTER(PAR(messaging.to_string()) << NAME_PAR(mType, msgType.m_type) <<
 			NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
 
 
@@ -146,7 +146,7 @@ namespace iqrf {
 			}
 			// ext format
 			if (apiMsgIqrfStandardFrc.getExtFormat()) {
-				
+
 				jsDriverStandardFrcSolver.convertToExtendedFormat(
 					jsonDoc,
 					arrayKey,
@@ -188,7 +188,7 @@ namespace iqrf {
 			apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
 		}
 
-		m_splitterService->sendMessage(messagingId, std::move(allResponseDoc));
+		m_splitterService->sendMessage(messaging, std::move(allResponseDoc));
 
 		TRC_FUNCTION_LEAVE("");
 	}

@@ -47,13 +47,33 @@
         "type": "boolean"
       },
       "messagingList": {
-        "description": "Messagings to use to send asynchronous messages.",
+        "title": "Messaging instance list",
+        "description": "List of messaging instances to use for asynchronous reporting.",
         "type": "array",
         "uniqueItems": true,
         "additionalItems": false,
         "items": {
-          "description": "Messaging identifiers.",
-          "type": "string"
+          "title": "Messaging instance",
+          "description": "Messaging service instance.",
+          "type": "object",
+          "required": [
+            "type",
+            "instance"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "title": "Messaging type",
+              "type": "string",
+              "enum": ["mqtt", "ws"],
+              "example": "mqtt"
+            },
+            "instance": {
+              "title": "Messaging instance name",
+              "type": "string",
+              "example": "default"
+            }
+          }
         }
       },
       "RequiredInterfaces": {
