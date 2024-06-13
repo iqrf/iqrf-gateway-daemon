@@ -34,3 +34,6 @@
 [submodule "libraries/sqlite_orm"]
 	path = libraries/sqlite_orm
 	url = https://github.com/fnc12/sqlite_orm.git
+[submodule "libraries/sqlitec++"]
+	path = libraries/sqlitec++
+	url = https://github.com/SRombauts/SQLiteCpp.git
