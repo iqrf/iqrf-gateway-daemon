@@ -20,6 +20,7 @@
 #include <atomic>
 #include <cmath>
 #include <condition_variable>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -44,6 +45,7 @@
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/rapidjson.h"
+#include <SQLiteCpp/SQLiteCpp.h>
 #include <sqlite_orm/sqlite_orm.h>
 #include "Common.h"
 #include "QueryHandler.h"
@@ -345,6 +347,10 @@ namespace iqrf {
 		 */
 		void initializeDatabase();
 
+		void migrateDatabase();
+
+		void executeMigration(SQLite::Database &db, const std::string &migration);
+
 		/**
 		 * Starts enumeration thread
 		 * @param parameters Enumeration parameters
@@ -553,6 +559,8 @@ namespace iqrf {
 
 		/// Component instance name
 		std::string m_instance;
+		/// Path to directory containing db file
+		std::string m_dbDirPath;
 		/// Path to database file
 		std::string m_dbPath;
 		/// Path to daemon js wrapper

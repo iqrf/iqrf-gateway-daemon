@@ -23,6 +23,7 @@
 #include "Entities/Device.h"
 #include "Entities/DeviceSensor.h"
 #include "Entities/Driver.h"
+#include "Entities/Migration.h"
 #include "Entities/Light.h"
 #include "Entities/Product.h"
 #include "Entities/ProductDriver.h"
@@ -120,6 +121,10 @@ static inline auto initializeDb(const std::string &fileName) {
 			foreign_key(&DeviceSensor::getAddress).references(&Device::getAddress).on_delete.cascade(),
 			foreign_key(&DeviceSensor::getSensorId).references(&Sensor::getId),
 			primary_key(&DeviceSensor::getAddress, &DeviceSensor::getType, &DeviceSensor::getGlobalIndex)
+		),
+		make_table("migrations",
+			make_column("version", &Migration::getVersion, &Migration::setVersion, primary_key()),
+			make_column("executedAt", &Migration::getExecutedAt, &Migration::setExecutedAt)
 		)
 	);
 }

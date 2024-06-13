@@ -15,7 +15,7 @@
 
 project(IqrfDb)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(COMPONENT iqrf::IqrfDb)
 DeclareShapeComponent(${COMPONENT})
 AddShapeProvidedInterface(${COMPONENT} iqrf::IIqrfDb)
@@ -48,6 +48,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	nlohmann_json::nlohmann_json
 	sqlite_orm::sqlite_orm
+	SQLiteCpp
 )
 
 DeployShapeComponent(${PROJECT_NAME})
