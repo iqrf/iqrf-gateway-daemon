@@ -316,9 +316,82 @@ namespace iqrf {
 	///// Private methods /////
 
 	void IqrfDb::initializeDatabase() {
+		migrateDatabase();
 		m_db = std::make_shared<Storage>(initializeDb(m_dbPath));
 		auto res = m_db->sync_schema();
 		this->query = QueryHandler(m_db);
+	}
+
+	void IqrfDb::migrateDatabase() {
+		// find all migrations
+		std::string migrationDir = m_dbDirPath + "migrations/";
+		std::vector<std::string> migrations;
+		for (const auto &file : std::filesystem::directory_iterator(migrationDir)) {
+			if (file.is_regular_file()) {
+				migrations.push_back(file.path().stem());
+			}
+		}
+		std::sort(migrations.begin(), migrations.end());
+		// determine which migrations need to be executed
+		bool exists = std::filesystem::exists(m_dbPath);
+		SQLite::Database db(m_dbPath, SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
+		std::vector<std::string> migrationsToExecute;
+		if (!exists) {
+			// DB does not exist, execute all migrations
+			migrationsToExecute = migrations;
+		} else {
+			// DB exists, get executed migrations
+			std::set<std::string> executedMigrations;
+			SQLite::Statement query(db, "SELECT m.version FROM migrations as m");
+			while (query.executeStep()) {
+				auto version = query.getColumn(0).getString();
+				executedMigrations.insert(version);
+			}
+			// determine executed migrations and migrations to execute
+			for (auto &migration : migrations) {
+				if (executedMigrations.count(migration) == 0) {
+					migrationsToExecute.push_back(migration);
+				}
+			}
+		}
+		// execute missing migrations
+		for (const auto &migration : migrationsToExecute) {
+			executeMigration(db, migrationDir + migration + ".sql");
+		}
+	}
+
+	void IqrfDb::executeMigration(SQLite::Database &db, const std::string &migration) {
+		std::vector<std::string> statements;
+		// try to access migration file
+		std::ifstream migrationFile(migration);
+		if (!migrationFile.is_open()) {
+			THROW_EXC_TRC_WAR(std::logic_error, "Unable to read migration file: " << migration);
+		}
+		std::string line;
+		std::stringstream statementStream;
+		// remove comments and empty lines
+		while (std::getline(migrationFile, line)) {
+			if (line.empty() || line.rfind("--", 0) == 0) {
+				continue;
+			}
+			statementStream << line;
+		}
+		// split into separate statements
+		while (std::getline(statementStream, line, ';')) {
+			statements.push_back(line);
+		}
+		// check for empty file
+		if (statements.size() == 0) {
+			THROW_EXC_TRC_WAR(std::logic_error, "Empty migration file: " << migration);
+		}
+		try {
+			// execute migration statements
+			for (auto &statement : statements) {
+				db.exec(statement);
+			}
+		} catch (const std::exception &e) {
+			THROW_EXC_TRC_WAR(std::logic_error, e.what());
+		}
 	}
 
 	void IqrfDb::startEnumerationThread(IIqrfDb::EnumParams &parameters) {
@@ -1612,8 +1685,10 @@ namespace iqrf {
 	void IqrfDb::modify(const shape::Properties *props) {
 		TRC_FUNCTION_ENTER("");
 		using namespace rapidjson;
+		//
+		m_dbDirPath = m_launchService->getDataDir() + "/DB/";
 		// path to db file
-		m_dbPath = m_launchService->getDataDir() + "/DB/IqrfDb.db";
+		m_dbPath = m_dbDirPath + "IqrfDb.db";
 		// read configuration parameters
 		const Document &doc = props->getAsJson();
 		m_instance = Pointer("/instance").Get(doc)->GetString();
