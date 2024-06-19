@@ -122,6 +122,12 @@ namespace iqrf {
 		 */
 		std::vector<DeviceTuple> getDevices(std::vector<uint8_t> requestedDevices = {}) override;
 
+		/**
+		 * Returns addresses of devices in network from database
+		 * @return std::set<uint8_t> Set of device addresses
+		 */
+		std::set<uint8_t> getDeviceAddrs() override;
+
 		Product getProductById(const uint32_t &productId) override;
 
 		/**
