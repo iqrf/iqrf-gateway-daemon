@@ -255,13 +255,6 @@ namespace iqrf {
 		void getRssiBeaming(SensorDataResult &result, std::set<uint8_t> &nodes);
 
 		/**
-		 * Get voltage from devices
-		 * @param result Service result
-		 * @param nodes Nodes to get voltage from
-		 */
-		void getVoltage(SensorDataResult &result, std::set<uint8_t> &nodes);
-
-		/**
 		 * Reads Sensor data using FRC requests
 		 * @param result Service result
 		 */

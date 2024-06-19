@@ -52,6 +52,12 @@ public:
 	std::vector<DeviceTuple> getDevices(std::vector<uint8_t> requestedDevices = {});
 
 	/**
+	 * Returns addresses of devices in network from database
+	 * @return std::set<uint8_t> Set of device addresses
+	 */
+	std::set<uint8_t> getDeviceAddrs();
+
+	/**
 	 * Checks if device record exists
 	 * @param address Device address
 	 * @return true if device record exists, false otherwise
