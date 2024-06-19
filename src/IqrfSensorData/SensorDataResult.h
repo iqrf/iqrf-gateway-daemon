@@ -24,12 +24,12 @@ using namespace rapidjson;
 
 /// iqrf namespace
 namespace iqrf {
-	class DeviceMetadata {
+	class DeviceData {
 		public:
 			uint16_t hwpid = 0;
 			uint32_t mid = 0;
 			uint8_t rssi = 0;
-			float voltage = 0;
+			std::vector<sensor::item::Sensor> sensors;
 	};
 
 	/// Sensor data result class
@@ -41,13 +41,13 @@ namespace iqrf {
 		 * @param hwpid Device HWPID
 		 */
 		void setDeviceHwpid(const uint8_t &address, const uint16_t &hwpid) {
-			if (!m_deviceMetadata.count(address)) {
-				DeviceMetadata metadata;
-				metadata.hwpid = hwpid;
-				m_deviceMetadata.emplace(address, metadata);
+			if (!m_deviceData.count(address)) {
+				DeviceData data;
+				data.hwpid = hwpid;
+				m_deviceData.emplace(address, data);
 				return;
 			}
-			m_deviceMetadata[address].hwpid = hwpid;
+			m_deviceData[address].hwpid = hwpid;
 		}
 
 		/**
@@ -56,13 +56,13 @@ namespace iqrf {
 		 * @param mid Device MID
 		 */
 		void setDeviceMid(const uint8_t &address, const uint32_t &mid) {
-			if (!m_deviceMetadata.count(address)) {
-				DeviceMetadata metadata;
-				metadata.mid = mid;
-				m_deviceMetadata.emplace(address, metadata);
+			if (!m_deviceData.count(address)) {
+				DeviceData data;
+				data.mid = mid;
+				m_deviceData.emplace(address, data);
 				return;
 			}
-			m_deviceMetadata[address].mid = mid;
+			m_deviceData[address].mid = mid;
 		}
 
 		/**
@@ -74,37 +74,23 @@ namespace iqrf {
 			if (rssi == 0) {
 				return;
 			}
-			if (!m_deviceMetadata.count(address)) {
-				DeviceMetadata metadata;
-				metadata.rssi = rssi;
-				m_deviceMetadata.emplace(address, metadata);
+			if (!m_deviceData.count(address)) {
+				DeviceData data;
+				data.rssi = rssi;
+				m_deviceData.emplace(address, data);
 				return;
 			}
-			m_deviceMetadata[address].rssi = rssi;
+			m_deviceData[address].rssi = rssi;
 		}
 
 		std::set<uint8_t> getNodesWithoutRssi() {
 			std::set<uint8_t> nodes;
-			for (auto &[addr, metadata] : m_deviceMetadata) {
+			for (auto &[addr, metadata] : m_deviceData) {
 				if (metadata.rssi == 0) {
 					nodes.insert(addr);
 				}
 			}
 			return nodes;
-		}
-
-		void setDeviceVoltage(const uint8_t &address, const uint8_t &voltage) {
-			if (voltage == 0) {
-				return;
-			}
-			float realVoltage = 261.12 / (127 - voltage);
-			if (!m_deviceMetadata.count(address)) {
-				DeviceMetadata metadata;
-				metadata.voltage = realVoltage;
-				m_deviceMetadata.emplace(address, metadata);
-				return;
-			}
-			m_deviceMetadata[address].voltage = realVoltage;
 		}
 
 		/**
@@ -113,7 +99,14 @@ namespace iqrf {
 		 */
 		void addSensorData(const std::vector<sensor::item::Sensor> &sensorData) {
 			for (const auto& sensor : sensorData) {
-				m_sensorData[sensor.getAddr()].emplace_back(sensor);
+				const auto &addr = sensor.getAddr();
+				if (!m_deviceData.count(addr)) {
+					DeviceData data;
+					data.sensors.push_back(sensor);
+					m_deviceData.emplace(addr, data);
+					return;
+				}
+				m_deviceData[addr].sensors.emplace_back(sensor);
 			}
 		}
 
@@ -122,7 +115,11 @@ namespace iqrf {
 		 * @return Devices and sensor data
 		 */
 		std::map<uint8_t, std::vector<sensor::item::Sensor>> getSensorData() {
-			return m_sensorData;
+			std::map<uint8_t, std::vector<sensor::item::Sensor>> sensorData;
+			for (auto &[addr, device] : m_deviceData) {
+				sensorData[addr] = device.sensors;
+			}
+			return sensorData;
 		}
 
 		void createStartMessage(Document &doc) {
@@ -144,31 +141,23 @@ namespace iqrf {
 				Value array(kArrayType);
 				Document::AllocatorType &allocator = doc.GetAllocator();
 				// devices
-				for (auto &deviceItem : m_sensorData) {
+				for (auto &[addr, data] : m_deviceData) {
 					Value device(kObjectType);
-					Pointer("/address").Set(device, deviceItem.first, allocator);
-					auto hwpid = m_deviceMetadata[deviceItem.first].hwpid;
-					Pointer("/hwpid").Set(device, hwpid, allocator);
-					auto mid = m_deviceMetadata[deviceItem.first].mid;
-					if (mid != 0) {
-						Pointer("/mid").Set(device, mid, allocator);
+					Pointer("/address").Set(device, addr, allocator);
+
+					Pointer("/hwpid").Set(device, data.hwpid, allocator);
+					if (data.mid != 0) {
+						Pointer("/mid").Set(device, data.mid, allocator);
 					} else {
 						Pointer("/mid").Set(device, rapidjson::Value(kNullType), allocator);
 					}
-					auto rssi = m_deviceMetadata[deviceItem.first].rssi;
-					if (rssi != 0) {
-						Pointer("/rssi").Set(device, rssi - 130, allocator);
+					if (data.rssi != 0) {
+						Pointer("/rssi").Set(device, data.rssi - 130, allocator);
 					} else {
 						Pointer("/rssi").Set(device, rapidjson::Value(kNullType), allocator);
 					}
-					/*auto voltage = m_deviceMetadata[deviceItem.first].voltage;
-					if (voltage != 0) {
-						Pointer("/voltage").Set(device, voltage, allocator);
-					} else {
-						Pointer("/voltage").Set(device, rapidjson::Value(kNullType), allocator);
-					}*/
 
-					std::vector<sensor::item::Sensor> &sensors = deviceItem.second;
+					std::vector<sensor::item::Sensor> &sensors = data.sensors;
 					std::sort(sensors.begin(), sensors.end(), [](sensor::item::Sensor a, sensor::item::Sensor b) {
 						return a.getIdx() < b.getIdx();
 					});
@@ -208,8 +197,6 @@ namespace iqrf {
 		}
 	private:
 		/// Device metadata
-		std::map<uint8_t, DeviceMetadata> m_deviceMetadata;
-		/// Device sensors data
-		std::map<uint8_t, std::vector<sensor::item::Sensor>> m_sensorData;
+		std::map<uint8_t, DeviceData> m_deviceData;
 	};
 }

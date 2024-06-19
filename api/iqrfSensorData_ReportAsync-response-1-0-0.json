@@ -130,7 +130,6 @@
 										"title": "Sensors",
 										"description": "Sensor information and values.",
 										"type": "array",
-										"minItems": 1,
 										"maxItems": 32,
 										"additionalItems": false,
 										"items": {
@@ -159,8 +158,7 @@
 													"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/sensors/items/properties/type",
 													"title": "Sensor type",
 													"description": "Numerical value corresponding to sensor type and quantity.",
-													"type": "integer",
-													"enum": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 128, 129, 130, 131, 132, 133, 160, 161, 162, 163, 164, 165, 166, 167, 192]
+													"type": "integer"
 												},
 												"name": {
 													"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/sensors/items/properties/name",
