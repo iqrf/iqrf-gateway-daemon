@@ -20,7 +20,7 @@
 namespace iqrf {
 
 	void GetDalisMsg::handleMsg(IIqrfDb *dbService) {
-		dalis = dbService->getDalis();
+		dalis = dbService->getDaliAddresses();
 	}
 
 	void GetDalisMsg::createResponsePayload(Document &doc) {

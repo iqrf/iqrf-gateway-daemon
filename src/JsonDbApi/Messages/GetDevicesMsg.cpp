@@ -42,12 +42,12 @@ namespace iqrf {
 	}
 
 	void GetDevicesMsg::handleMsg(IIqrfDb *dbService) {
-		devices = dbService->getDevices(requestedDevices);
+		devices = dbService->getDevicesWithProductInfo(requestedDevices);
 		if (includeSensors) {
-			sensors = dbService->getSensors();
+			sensors = dbService->getDeviceSensorMap();
 		}
 		if (includeBinouts) {
-			binouts = dbService->getBinaryOutputs();
+			binouts = dbService->getBinaryOutputCountMap();
 		}
 	}
 

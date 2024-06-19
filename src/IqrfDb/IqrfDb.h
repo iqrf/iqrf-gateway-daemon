@@ -46,7 +46,7 @@
 #include "rapidjson/rapidjson.h"
 #include <sqlite_orm/sqlite_orm.h>
 #include "Common.h"
-#include "QueryHandler.h"
+#include "Storage.h"
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -109,121 +109,180 @@ namespace iqrf {
 		 */
 		void reloadCoordinatorDrivers() override;
 
-		/**
-		 * Returns device by address
-		 * @param addr Device address
-		 * @return Device
-		 */
-		Device getDevice(const uint8_t &addr) override;
+		///// Binary Output API
 
-		/**
-		 * Returns vector of devices
-		 * @return Vector of devices
-		 */
-		std::vector<DeviceTuple> getDevices(std::vector<uint8_t> requestedDevices = {}) override;
+		uint32_t inseryBinaryOutput(BinaryOutput &binaryOutput) override;
 
-		/**
-		 * Returns addresses of devices in network from database
-		 * @return std::set<uint8_t> Set of device addresses
-		 */
-		std::set<uint8_t> getDeviceAddrs() override;
+		void updateBinaryOutput(BinaryOutput &binaryOutput) override;
 
-		Product getProductById(const uint32_t &productId) override;
+		void removeBinaryOutput(const uint32_t &deviceId) override;
 
-		/**
-		 * Returns map of device addresses and implemented binary outputs
-		 * @return Map of device addresses and implemented binary outputs
-		 */
-		std::map<uint8_t, uint8_t> getBinaryOutputs() override;
+		std::unique_ptr<BinaryOutput> getBinaryOutput(const uint32_t &deviceId) override;
 
-		/**
-		 * Returns set of device addresses implementing DALI standard
-		 * @return Map of devices implementing DALI standard
-		 */
-		std::set<uint8_t> getDalis() override;
+		std::unique_ptr<BinaryOutput> getBinaryOutputByDeviceId(const uint32_t &deviceId) override;
 
-		/**
-		 * Returns map of device addresses and implemented lights
-		 * @return Map of device addresses and implemented lights
-		 */
-		std::map<uint8_t, uint8_t> getLights() override;
+		std::set<uint8_t> getBinaryOutputAddresses() override;
 
-		bool hasSensors(const uint8_t &deviceAddress) override;
+		std::map<uint8_t, uint8_t> getBinaryOutputCountMap() override;
 
-		std::map<uint8_t, Sensor> getDeviceSensorsByAddress(const uint8_t &deviceAddress) override;
+		///// DALI API
 
-		/**
-		 * Returns map of device addresses and implemented sensors
-		 * @return Map of device addresses and implemented sensors
-		 */
-		std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> getSensors() override;
+		uint32_t insertDali(Dali &dali) override;
 
-		/**
-		 * Constructs and returns a map of sensor types, devices that implement them and their local indexes
-		 * @return Map of sensor types and devices
-		 */
-		SensorSelectMap constructSensorSelectMap() override;
+		void removeDali(const uint32_t &deviceId) override;
 
-		/**
-		 * Retrieves global sensor index from address, type and type index
-		 * @param address Device address
-		 * @param type Sensor type
-		 * @param index Type index
-		 * @return Global sensor index
-		 */
-		uint8_t getGlobalSensorIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index) override;
+		std::unique_ptr<Dali> getDali(const uint32_t &id) override;
 
-		/**
-		 * Stores value of sensor
-		 * @param address Device address
-		 * @param type Sensor type
-		 * @param index Sensor index
-		 * @param value Last measured value
-		 * @param updated Last updated
-		 */
-		void setSensorValue(const uint8_t &address, const uint8_t &type, const uint8_t &index, const double &value, std::shared_ptr<std::string> updated) override;
+		std::unique_ptr<Dali> getDaliByDeviceId(const uint32_t &deviceId) override;
 
-		/**
-		 * Retrieves device HWPID specified by address
-		 * @param address Device address
-		 * @return Device HWPID
-		 */
+		std::set<uint8_t> getDaliAddresses() override;
+
+		///// Devices API
+
+		uint32_t insertDevice(Device &device) override;
+
+		void updateDevice(Device &device) override;
+
+		void removeDevice(const uint32_t &id) override;
+
+		std::vector<Device> getDevices() override;
+
+		std::unique_ptr<Device> getDevice(const uint32_t &id) override;
+
+		std::unique_ptr<Device> getDevice(const uint8_t &address) override;
+
+		bool deviceImplementsPeripheral(const uint32_t &id, int16_t peripheral) override;
+
+		std::set<uint8_t> getDeviceAddresses() override;
+
 		uint16_t getDeviceHwpid(const uint8_t &address) override;
 
-		/**
-		 * Retrieves device MID specified by address
-		 * @param address Device address
-		 * @return Device MID
-		 */
-		uint32_t getDeviceMid(const uint8_t &address) override;
+		uint32_t  getDeviceMid(const uint8_t &address) override;
 
-		/**
-		 * Retrieves metadata stored at device specified by address
-		 * @param address Device address
-		 * @return Device metadata
-		 */
 		std::string getDeviceMetadata(const uint8_t &address) override;
 
-		/**
-		 * Retrieves metadata stored at device specified by address in a rapidjson document
-		 * @param address Device address
-		 * @return Device metadata document
-		 */
 		rapidjson::Document getDeviceMetadataDoc(const uint8_t &address) override;
 
-		/**
-		 * Sets metadata to device at specified address
-		 * @param address Device address
-		 * @param metadata Metadata to store
-		 */
 		void setDeviceMetadata(const uint8_t &address, const std::string &metadata) override;
 
-		/**
-		 * Returns map of hwpids and devices implementing sensor device specified by type and index
-		 * @param type Sensor type
-		 * @return Map of hwpids and device addresses
-		 */
-		std::map<uint16_t, std::set<uint8_t>> getSensorDeviceHwpids(const uint8_t &type) override;
+		std::vector<DeviceTuple> getDevicesWithProductInfo(std::vector<uint8_t> requestedDevices) override;
+
+		///// Device sensors API
+
+		void insertDeviceSensor(DeviceSensor &deviceSensor) override;
+
+		void updateDeviceSensor(DeviceSensor &deviceSensor) override;
+
+		void removeDeviceSensors(const uint8_t &address) override;
+
+		std::unique_ptr<DeviceSensor> getDeviceSensor(const uint32_t &id) override;
+
+		std::unique_ptr<DeviceSensor> getDeviceSensor(const uint8_t &address, const uint32_t &sensorId, const uint8_t &index) override;
+
+		std::unique_ptr<DeviceSensor> getDeviceSensorByGlobalIndex(const uint8_t &address, const uint8_t &index) override;
+
+		std::unique_ptr<DeviceSensor> getDeviceSensorByTypeIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index) override;
+
+		std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> getDeviceSensorMap() override;
+
+		void setDeviceSensorMetadata(DeviceSensor &deviceSensor, json &metadata, std::shared_ptr<std::string> updated) override;
+
+		void setDeviceSensorMetadata(const uint8_t &address, const uint8_t &index, json &metadata, std::shared_ptr<std::string> updated) override;
+
+		void setDeviceSensorMetadata(const uint8_t &address, const uint8_t &type, const uint8_t &index, nlohmann::json &metadata, std::shared_ptr<std::string> updated) override;
+
+		void setDeviceSensorValue(DeviceSensor &deviceSensor, double &value, std::shared_ptr<std::string> timestamp) override;
+
+		void setDeviceSensorValue(const uint8_t &address, const uint8_t &index, double &value, std::shared_ptr<std::string> timestamp) override;
+
+		// FRC
+		void setDeviceSensorValue(const uint8_t &address, const uint8_t &type, const uint8_t &index, double &value, std::shared_ptr<std::string> timestamp) override;
+
+		void updateDeviceSensorValues(const std::map<uint8_t, std::vector<sensor::item::Sensor>> &devices) override;
+
+		void updateDeviceSensorValues(const uint8_t &address, const std::string &sensors) override;
+
+		void updateDeviceSensorValues(const uint8_t &type, const uint8_t &index, const std::set<uint8_t> &selectedNodes, const std::string &sensors) override;
+
+		uint8_t getDeviceSensorGlobalIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index) override;
+
+		///// Drivers API
+
+		uint32_t insertDriver(Driver &driver) override;
+
+		void updateDriver(Driver &driver) override;
+
+		void removeDriver(const uint32_t &id) override;
+
+		std::unique_ptr<Driver> getDriver(const int16_t &peripheral, const double &version) override;
+
+		std::vector<Driver> getDriversByProduct(const uint32_t &productId) override;
+
+		std::vector<uint32_t> getDriverIdsByProduct(const uint32_t &productId) override;
+
+		std::vector<Driver> getLatestDrivers() override;
+
+		///// Light API
+
+		uint32_t insertLight(Light &light) override;
+
+		void updateLight(Light &light) override;
+
+		void removeLight(const uint32_t &deviceId) override;
+
+		std::unique_ptr<Light> getLight(const uint32_t &id) override;
+
+		std::unique_ptr<Light> getLightByDeviceId(const uint32_t &deviceId) override;
+
+		std::set<uint8_t> getLightAddresses() override;
+
+		std::map<uint8_t, uint8_t> getLightCountMap() override;
+
+		///// Products API
+
+		uint32_t insertProduct(Product &product) override;
+
+		void updateProduct(Product &product) override;
+
+		void removeProduct(const uint32_t &id) override;
+
+		std::unique_ptr<Product> getProduct(const uint32_t &id) override;
+
+		std::unique_ptr<Product> getProduct(const uint16_t &hwpid, const uint16_t &hwpidVer, const uint16_t &osBuild, const uint16_t &dpa) override;
+
+		uint32_t getCoordinatorProductId() override;
+
+		std::vector<uint8_t> getProductDeviceAddresses(const uint32_t &productId) override;
+
+		std::string getProductCustomDriver(const uint32_t &productId) override;
+
+		///// Product drivers API
+
+		void insertProductDriver(ProductDriver &productDriver) override;
+
+		void removeProductDriver(const uint32_t &productId, const uint32_t &driverId) override;
+
+		std::set<uint32_t> getProductDriversIds(const uint32_t &productId);
+
+		std::map<uint32_t, std::set<uint32_t>> getProductsDriversIdMap() override;
+
+		///// Sensors API
+
+		uint32_t insertSensor(Sensor &sensor) override;
+
+		void updateSensor(Sensor &sensor) override;
+
+		void removeSensor(const uint32_t &id) override;
+
+		std::unique_ptr<Sensor> getSensor(const uint8_t &type, const std::string &name) override;
+
+		std::map<uint8_t, Sensor> getSensorsImplementedByDeviceMap(const uint8_t &address) override;
+
+		///// Other API
+
+		std::map<uint16_t, std::set<uint8_t>> getHwpidAddrsMapImplementingSensor(const uint8_t &type) override;
+
+		SensorDataSelectMap getSensorDataSelectMap() override;
 
 		/**
 		 * Checks if metadata should be added to messages
@@ -243,28 +302,6 @@ namespace iqrf {
 		 * @param clientId Handler owner
 		 */
 		void unregisterEnumerationHandler(const std::string &clientId) override;
-
-		/**
-		 * Updates sensor values from map of addresses and sensor objects
-		 * @param devices Map of devices and sensors
-		 */
-		void updateSensorValues(const std::map<uint8_t, std::vector<sensor::item::Sensor>> &devices) override;
-
-		/**
-		 * Updates sensor values from_ReadSensorsWithTypes response
-		 * @param address Device address
-		 * @param sensors Parsed sensors JSON string
-		 */
-		void updateSensorValues(const uint8_t &address, const std::string &sensors) override;
-
-		/**
-		 * Updates sensor values from Sensor_Frc response
-		 * @param type Sensor type
-		 * @param index Sensor index
-		 * @param selectedNodes Set of selected nodes
-		 * @param sensors Parsed sensors JSON string
-		 */
-		void updateSensorValues(const uint8_t &type, const uint8_t &index, const std::set<uint8_t> &selectedNodes, const std::string &sensors) override;
 
 		/**
 		 * Component instance lifecycle activate step
@@ -565,8 +602,6 @@ namespace iqrf {
 		std::string m_wrapperPath;
 		/// Database accessor
 		std::shared_ptr<Storage> m_db = nullptr;
-		/// Query handler
-		QueryHandler query;
 		/// DPA service
 		IIqrfDpaService *m_dpaService = nullptr;
 		/// Enumeration condition variable
