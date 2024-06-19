@@ -39,6 +39,15 @@ std::vector<DeviceTuple> QueryHandler::getDevices(std::vector<uint8_t> requested
 	return devices;
 }
 
+std::set<uint8_t> QueryHandler::getDeviceAddrs() {
+	std::set<uint8_t> addrs;
+	auto devices = db->get_all<Device>();
+	for (const auto &device : devices) {
+		addrs.insert(device.getAddress());
+	}
+	return addrs;
+}
+
 bool QueryHandler::deviceExists(const uint8_t &address) {
 	auto count = db->count<Device>(where(c(&Device::getAddress) == address));
 	return count > 0;
