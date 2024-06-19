@@ -280,23 +280,22 @@ namespace iqrf {
 		}
 	}
 
-	void IqrfSensorData::getVoltage(SensorDataResult &result, std::set<uint8_t> &nodes) {
-		auto frcData = frcReadMemory(result, nodes, {169, 4, 2, 0, 0});
-		if (nodes.size() == frcData.size()) {
-			auto it = nodes.begin();
-			for (size_t i = 0; i < nodes.size(); ++i, ++it) {
-				result.setDeviceVoltage(*it, frcData[i]);
-			}
-		} else {
-			if (frcData.size() == 0) {
-				TRC_WARNING("Failed to get device voltage via FRC Memory read.");
-			}
-		}
-	}
-
 	void IqrfSensorData::getDataByFrc(SensorDataResult &result) {
+		std::set<uint8_t> allNodes = m_dbService->getDeviceAddrs();
+		if (allNodes.count(0) > 0) {
+			allNodes.erase(0);
+		}
+		// fill HWPID and MID
+		setDeviceHwpidMid(result, allNodes);
+		// TODO: rssi from beaming devices - split nodes into ones that can get data using offline frc (beaming and aggregating repeaters)
+		// TODO: this requires metadata
+		getRssiBeaming(result, allNodes);
+		auto noRssi = result.getNodesWithoutRssi();
+		if (noRssi.size() > 0) {
+			getRssi(result, noRssi);
+		}
 		SensorSelectMap map = m_dbService->constructSensorSelectMap();
-		std::set<uint8_t> allNodes;
+		std::set<uint8_t> sensorNodes;
 		for (const auto& [type, addrIdx] : map) {
 			TRC_DEBUG("type: " << std::to_string(type));
 			if (type >= 0xC0) {
@@ -305,7 +304,7 @@ namespace iqrf {
 			for (uint8_t desiredIdx = 0; desiredIdx < 32; ++desiredIdx) {
 				std::deque<uint8_t> addrs;
 				for (const auto& [addr, idx] : addrIdx) {
-					allNodes.insert(addr);
+					sensorNodes.insert(addr);
 					if (desiredIdx == idx) {
 						addrs.emplace_back(addr);
 					}
@@ -315,17 +314,6 @@ namespace iqrf {
 				}
 			}
 		}
-		// fill HWPID and MID
-		setDeviceHwpidMid(result, allNodes);
-		// rssi from beaming devices - split nodes into ones that can get data using offline frc (beaming and aggregating repeaters)
-		// this requires metadata :)))))))))))))
-		getRssiBeaming(result, allNodes);;
-		auto noRssi = result.getNodesWithoutRssi();
-		if (noRssi.size() > 0) {
-			getRssi(result, noRssi);
-		}
-		// voltage
-		//getVoltage(result, allNodes);
 	}
 
 	void IqrfSensorData::worker() {
