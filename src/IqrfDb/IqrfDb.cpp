@@ -101,6 +101,10 @@ namespace iqrf {
 		return this->query.getDevices(requestedDevices);
 	}
 
+	std::set<uint8_t> IqrfDb::getDeviceAddrs() {
+		return this->query.getDeviceAddrs();
+	}
+
 	uint32_t IqrfDb::getDeviceMid(const uint8_t &address) {
 		return this->query.getDeviceMid(address);
 	}

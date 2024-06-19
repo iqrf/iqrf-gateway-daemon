@@ -149,6 +149,12 @@ namespace iqrf {
 		 */
 		virtual std::vector<DeviceTuple> getDevices(std::vector<uint8_t> requestedDevices = {}) = 0;
 
+		/**
+		 * Returns addresses of devices in network from database
+		 * @return std::set<uint8_t> Set of device addresses
+		 */
+		virtual std::set<uint8_t> getDeviceAddrs() = 0;
+
 		virtual Product getProductById(const uint32_t &productId) = 0;
 
 		/**
