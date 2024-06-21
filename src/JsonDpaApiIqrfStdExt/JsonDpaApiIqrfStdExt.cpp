@@ -55,6 +55,8 @@ namespace iqrf {
     std::vector<std::string> m_filters =
     {
       "iqrfDali_Frc",
+      "iqrfLight_FrcLaiRead",
+      "iqrfLight_FrcLdiSend",
       "iqrfSensor_Frc"
     };
 
@@ -114,7 +116,6 @@ namespace iqrf {
           );
         }
         if (apiMsgIqrfStandardFrc.getExtFormat()) {
-          
           jsDriverStandardFrcSolver.convertToExtendedFormat(
             jsonDoc,
             arrayKey,

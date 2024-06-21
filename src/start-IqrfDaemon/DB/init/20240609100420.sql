@@ -1,0 +1,19 @@
+PRAGMA foreign_keys=off;
+
+BEGIN TRANSACTION;
+
+DROP TABLE IF EXISTS 'Info';
+DROP TABLE IF EXISTS 'Light';
+
+ALTER TABLE 'Dali' RENAME TO 'Light';
+
+CREATE TABLE IF NOT EXISTS `Migrations` (
+    'Version' VARCHAR(255) NOT NULL PRIMARY KEY
+);
+INSERT INTO 'Migrations' ('Version') VALUES ('20190902151910');
+INSERT INTO 'Migrations' ('Version') VALUES ('20200507073114');
+INSERT INTO 'Migrations' ('Version') VALUES ('20240609100420');
+
+COMMIT;
+
+PRAGMA foreign_keys=on;

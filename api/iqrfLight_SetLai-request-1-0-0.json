@@ -1,0 +1,81 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"title": "Message type",
+			"description": "Standard peripheral Light - Set Voltage of lighting analog interface (LAI).",
+			"type": "string",
+			"enum": ["iqrfLight_SetLai"]
+		},
+		"data": {
+			"type": "object",
+			"required": [
+				"msgId",
+				"req"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"title": "Message ID",
+					"description": "Message identification for binding request with response.",
+					"type": "string"
+				},
+				"req": {
+					"title": "Request object",
+					"type": "object",
+					"required": [
+						"nAdr",
+						"param"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {
+							"title": "Device address",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 255
+						},
+						"hwpId": {
+							"title": "HWPID",
+							"description": "Hardware profile identification.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 65535
+						},
+						"param": {
+							"title": "Request parameters",
+							"type": "object",
+							"required": ["voltage"],
+							"additionalProperties": false,
+							"properties": {
+								"voltage": {
+									"title": "Voltage",
+									"description": "Voltage to set (range of 0-10 V), resolution is 1 mV.",
+									"type": "integer",
+									"minimum": 0,
+									"maximum": 65535
+								}
+							}
+						}
+					}
+				},
+				"timeout": {
+					"title": "DPA timeout",
+					"description": "Timeout to wait for IQRF DPA response.",
+					"type": "integer"
+				},
+				"returnVerbose": {
+					"title": "Verbose response",
+					"description": "Flag that includes additional parameters in the response.",
+					"type": "boolean"
+				}
+			}
+		}
+	}
+}

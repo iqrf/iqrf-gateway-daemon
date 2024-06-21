@@ -1,0 +1,17 @@
+{
+  "mType": "iqrfLight_SendLdiCommandsAsync",
+  "data": {
+    "msgId": "7fdb55bc-8216-4dcd-af5d-80f67d056f71",
+    "req": {
+      "nAdr": 4,
+      "param": {
+        "commands": [
+          0,
+          65424,
+          65521
+        ]
+      }
+    },
+    "returnVerbose": true
+  }
+}

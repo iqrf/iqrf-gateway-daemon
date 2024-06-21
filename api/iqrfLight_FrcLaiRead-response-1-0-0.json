@@ -1,0 +1,205 @@
+{
+	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+	"type": "object",
+	"required": [
+		"mType",
+		"data"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"mType": {
+			"type": "string",
+			"description": "Standard peripheral Light - Read Voltage of lighting analog interface (LAI) using FRC.",
+			"enum": ["iqrfLight_FrcLaiRead"]
+		},
+		"data": {
+			"type": "object",
+			"required": [
+				"msgId",
+				"rsp",
+				"status"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"msgId": {
+					"title": "Message ID",
+					"description": "Message identification for binding request with response.",
+					"type": "string"
+				},
+				"timeout": {
+					"type": "integer",
+					"description": "Timeout to wait for IQRF DPA response."
+				},
+				"rsp": {
+					"type": "object",
+					"required": [
+						"nAdr",
+						"hwpId",
+						"rCode",
+						"dpaVal"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"nAdr": {
+							"title": "Device address",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 255
+						},
+						"pnum": {
+							"title": "Peripheral number",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 255
+						},
+						"pcmd": {
+							"title": "Peripheral command",
+							"description": "Peripheral response command.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 255
+						},
+						"hwpId": {
+							"title": "HWPID",
+							"description": "Hardware profile identification.",
+							"type": "integer"
+						},
+						"rCode": {
+							"title": "DPA error code",
+							"type": "integer"
+						},
+						"dpaVal": {
+							"title": "DPA value",
+							"type": "integer"
+						},
+						"result": {
+							"type": "object",
+							"required": [
+								"voltages"
+							],
+							"additionalProperties": false,
+							"properties": {
+								"voltages": {
+									"type": "array",
+									"description": "Array of LAI voltages.",
+									"items": {
+										"oneOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "number"
+											},
+											{
+												"type": "object",
+												"title": "Extended format",
+												"required": [
+													"nAdr",
+													"voltage"
+												],
+												"additionalProperties": false,
+												"properties": {
+													"nAdr": {
+														"title": "Device address",
+														"type": "integer"
+													},
+													"metaData": {
+														"title": "Device metadata",
+														"description": "Arbitrary user defined meta data.",
+														"type": "object"
+													},
+													"voltage": {
+														"title": "Voltage",
+														"oneOf": [
+															{
+																"type": "null"
+															},
+															{
+																"type": "number"
+															}
+														]
+													}
+												}
+											}
+										]
+									}
+								},
+								"selectedNodes": {
+									"description": "Array of network device addresses requested to execute FRC command.",
+									"type": "array",
+									"additionalItems": false,
+									"uniqueItems": true,
+									"minItems": 1,
+									"maxItems": 239,
+									"items": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 239
+									}
+								}
+							}
+						},
+						"errorStr": {
+							"type": "string",
+							"description": "Error description from JS drivers."
+						}
+					}
+				},
+				"raw": {
+					"type": "array",
+					"description": "Returns array of objects req-cnf-rsp, see its description.",
+					"items": {
+						"type": "object",
+						"required": [
+							"request",
+							"requestTs",
+							"confirmation",
+							"confirmationTs",
+							"response",
+							"responseTs"
+						],
+						"additionalProperties": false,
+						"properties": {
+							"request": {
+								"type": "string",
+								"description": "Binary buffer with DPA request."
+							},
+							"requestTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"confirmation": {
+								"type": "string",
+								"description": "Binary buffer with DPA confirmation."
+							},
+							"confirmationTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							},
+							"response": {
+								"type": "string",
+								"description": "Binary buffer with DPA response."
+							},
+							"responseTs": {
+								"type": "string",
+								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+							}
+						}
+					}
+				},
+				"insId": {
+					"type": "string",
+					"description": "IQRF GW daemon instance identification."
+				},
+				"status": {
+					"type": "integer",
+					"description": "IQRF GW daemon API (general or mType) status."
+				},
+				"statusStr": {
+					"type": "string",
+					"description": "IQRF GW daemon API (general or mType) status in string form."
+				}
+			}
+		}
+	}
+}

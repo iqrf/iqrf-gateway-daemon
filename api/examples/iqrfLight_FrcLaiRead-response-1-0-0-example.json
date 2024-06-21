@@ -1,0 +1,156 @@
+[
+  {
+    "mType": "iqrfLight_FrcLaiRead",
+    "data": {
+      "msgId": "c8eab27f-dd58-4d63-8242-33466f364983",
+      "rsp": {
+        "nAdr": 0,
+        "pnum": 13,
+        "pcmd": 128,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 90,
+        "result": {
+          "voltages": [
+            null,
+            null,
+            null,
+            null,
+            3.5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.00.ff.ff.e1.4a.00",
+          "requestTs": "2024-06-07T12:16:06.645+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.80.00.00.00.5a.01.00.00.00.00.00.00.00.00.ac.8d.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:16:07.607+02:00"
+        },
+        {
+          "request": "00.00.0d.01.ff.ff",
+          "requestTs": "2024-06-07T12:16:07.608+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.81.00.00.00.5a.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:16:07.734+02:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  },
+  {
+    "mType": "iqrfLight_FrcLaiRead",
+    "data": {
+      "msgId": "d90612ea-0e66-48c7-b598-69543feb9114",
+      "rsp": {
+        "nAdr": 0,
+        "pnum": 13,
+        "pcmd": 130,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 90,
+        "result": {
+          "voltages": [3.5],
+          "selectedNodes": [4]
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.02.ff.ff.e1.10.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.4a.00",
+          "requestTs": "2024-06-07T12:18:53.127+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.82.00.00.00.5a.01.00.00.ac.8d.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:18:54.003+02:00"
+        },
+        {
+          "request": "00.00.0d.01.ff.ff",
+          "requestTs": "2024-06-07T12:18:54.004+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.81.00.00.00.5a.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:18:54.130+02:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  },
+  {
+    "mType": "iqrfLight_FrcLaiRead",
+    "data": {
+      "msgId": "211a85ee-d207-44ec-9c2a-6f1cf0deb10d",
+      "rsp": {
+        "nAdr": 0,
+        "pnum": 13,
+        "pcmd": 130,
+        "hwpId": 0,
+        "rCode": 0,
+        "dpaVal": 90,
+        "result": {
+          "voltages": [
+            {
+              "nAdr": 4,
+              "voltage": 3.5
+            }
+          ],
+          "selectedNodes": [4]
+        }
+      },
+      "raw": [
+        {
+          "request": "00.00.0d.02.ff.ff.e1.10.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.4a.00",
+          "requestTs": "2024-06-07T12:19:52.389+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.82.00.00.00.5a.01.00.00.ac.8d.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:19:53.266+02:00"
+        },
+        {
+          "request": "00.00.0d.01.ff.ff",
+          "requestTs": "2024-06-07T12:19:53.267+02:00",
+          "confirmation": "",
+          "confirmationTs": "",
+          "response": "00.00.0d.81.00.00.00.5a.00.00.00.00.00.00.00.00.00",
+          "responseTs": "2024-06-07T12:19:53.393+02:00"
+        }
+      ],
+      "insId": "iqrfgd2-default",
+      "statusStr": "ok",
+      "status": 0
+    }
+  }
+]

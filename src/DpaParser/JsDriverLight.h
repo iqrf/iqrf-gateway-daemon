@@ -22,125 +22,146 @@
 #include "JsonUtils.h"
 #include <vector>
 
-namespace iqrf
-{
-  namespace light
-  {
-    namespace jsdriver
-    {
+namespace iqrf {
+  namespace light {
+    namespace jsdriver {
+      namespace item {
+        class Answer : public light::item::Answer {
+        public:
+          Answer(const rapidjson::Value& v) : light::item::Answer() {
+            m_status = (uint8_t)jutils::getMemberAs<int>("status", v);
+            m_value = (uint8_t)jutils::getMemberAs<int>("value", v);
+          }
+        };
+      } //namespace item
 
       ////////////////
-      class Enumerate : public light::Enumerate, public JsDriverDpaCommandSolver
+      class SendLdiCommands : public light::SendLdiCommands, public JsDriverDpaCommandSolver
       {
       public:
-        Enumerate(IJsRenderService* iJsRenderService, uint16_t nadr)
-          :JsDriverDpaCommandSolver(iJsRenderService, nadr)
+        SendLdiCommands(IJsRenderService* iJsRenderService, const std::vector<uint16_t> & ldiCommands)
+          :JsDriverDpaCommandSolver(iJsRenderService)
+          , light::SendLdiCommands(ldiCommands)
         {}
 
-        virtual ~Enumerate() {}
+        virtual ~SendLdiCommands() {}
 
-      protected:
-        std::string functionName() const override
-        {
-          return "iqrf.light.Enumerate";
-        }
-
-        void parseResponse(const rapidjson::Value& v) override
-        {
-          m_lightsNum = jutils::getMemberAs<int>("lights", v);
-        }
-      };
-      typedef std::unique_ptr<Enumerate> JsDriverEnumeratePtr;
-
-      ////////////////
-      class SetPower : public light::SetPower, public JsDriverDpaCommandSolver
-      {
-      public:
-        SetPower(IJsRenderService* iJsRenderService, const std::vector<light::item::Light> & lights)
-          :light::SetPower(lights)
-          , JsDriverDpaCommandSolver(iJsRenderService)
-        {}
-
-        virtual ~SetPower() {}
-
-        static void parsePrevVals(std::vector<int> & prevVals, const rapidjson::Value& v)
+        static void parseAnswers(std::vector<light::item::AnswerPtr> & answers, const rapidjson::Value& v)
         {
           using namespace rapidjson;
 
-          const Value *arrayVal = Pointer("/prevVals").Get(v);
+          const Value *arrayVal = Pointer("/answers").Get(v);
           if (!(arrayVal && arrayVal->IsArray())) {
-            THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array .../prevVals[]");
+            THROW_EXC_TRC_WAR(std::logic_error, "Expected: Json Array .../answers[]");
           }
 
           for (const Value *itr = arrayVal->Begin(); itr != arrayVal->End(); ++itr) {
-            if (!(itr && itr->IsInt())) {
-              THROW_EXC_TRC_WAR(std::logic_error, "Expected: integer item in .../prevVals[int]");
+            if (!(itr && itr->IsObject())) {
+              THROW_EXC_TRC_WAR(std::logic_error, "Expected: Object item in .../answers[{}]");
             }
-            prevVals.push_back(itr->GetInt());
+            answers.push_back(light::item::AnswerPtr(shape_new light::jsdriver::item::Answer(*itr)));
           }
         }
 
       protected:
-        std::string functionName() const override
-        {
-          return "iqrf.light.SetPower";
+        std::string functionName() const override {
+          return "iqrf.light.SendLdiCommands";
         }
 
-        void parseResponse(const rapidjson::Value& v) override
-        {
-          jsdriver::SetPower::parsePrevVals(m_prevVals, v);
+        void parseResponse(const rapidjson::Value& v) override {
+          jsdriver::SendLdiCommands::parseAnswers(m_answers, v);
         }
       };
-      typedef std::unique_ptr<SetPower> SetPowerPtr;
+      typedef std::unique_ptr<SendLdiCommands> SendLdiCommandsPtr;
 
       ////////////////
-      class IncrementPower : public light::IncrementPower, public JsDriverDpaCommandSolver
-      {
+      class SendLdiCommandsAsync : public light::SendLdiCommandsAsync, public JsDriverDpaCommandSolver {
       public:
-        IncrementPower(IJsRenderService* iJsRenderService, const std::vector<light::item::Light> & lights)
-          :light::IncrementPower(lights)
-          , JsDriverDpaCommandSolver(iJsRenderService)
+        SendLdiCommandsAsync(IJsRenderService* iJsRenderService, const std::vector<uint16_t>& ldiCommands)
+          :JsDriverDpaCommandSolver(iJsRenderService)
+          , light::SendLdiCommandsAsync(ldiCommands)
         {}
 
-        virtual ~IncrementPower() {}
+        virtual ~SendLdiCommandsAsync() {}
+
+      protected:
+        std::string functionName() const override {
+          return "iqrf.light.SendLdiCommandsAsync";
+        }
+
+        void parseResponse(const rapidjson::Value& v) override {
+          jsdriver::SendLdiCommands::parseAnswers(m_answers, v);
+        }
+
+      };
+      typedef std::unique_ptr<SendLdiCommands> SendCommandsPtr;
+
+      class SetLai : public light::SetLai, public JsDriverDpaCommandSolver {
+      public:
+        SetLai(IJsRenderService* jsRenderService, const uint16_t voltage)
+        : JsDriverDpaCommandSolver(jsRenderService), light::SetLai(voltage) {}
+
+        virtual ~SetLai() {}
+      protected:
+        std::string functionName() const override {
+          return "iqrf.light.SetLai";
+        }
+
+        void parseResponse(const rapidjson::Value &v) override {
+          m_prevVoltage = std::round(jutils::getMemberAs<double>("prevVoltage", v) * 1000);
+        }
+      };
+
+      /*
+      ////////////////
+      class Frc : public dali::Frc, public JsDriverStandardFrcSolver
+      {
+      public:
+
+        Frc(IJsRenderService* iJsRenderService, int command)
+          :JsDriverStandardFrcSolver(iJsRenderService)
+          , dali::Frc(command)
+        {}
+
+        Frc(IJsRenderService* iJsRenderService, int command, const std::vector<int> & selectedNodes)
+          :JsDriverStandardFrcSolver(iJsRenderService)
+          , dali::Frc(command, selectedNodes)
+        {}
+
+        virtual ~Frc() {}
 
       protected:
         std::string functionName() const override
         {
-          return "iqrf.light.IncrementPower";
+          return "iqrf.dali.Frc";
         }
 
-        void parseResponse(const rapidjson::Value& v) override
+        void preRequest(rapidjson::Document& requestParamDoc) override
         {
-          jsdriver::SetPower::parsePrevVals(m_prevVals, v);
+          using namespace rapidjson;
+
+          Pointer("/command").Set(requestParamDoc, (int)m_daliCommand);
+
+          Value selectedNodesArr;
+          selectedNodesArr.SetArray();
+          for (auto n : m_selectedNodes) {
+            Value nVal;
+            nVal.SetInt(n);
+            selectedNodesArr.PushBack(nVal, requestParamDoc.GetAllocator());
+          }
+          Pointer("/selectedNodes").Set(requestParamDoc, selectedNodesArr);
         }
+
+        void postResponse(const rapidjson::Document& responseResultDoc) override
+        {
+          JsDriverStandardFrcSolver::postResponse(responseResultDoc);
+          jsdriver::SendCommands::parseAnswers(m_answers, responseResultDoc);
+        }
+
       };
-      typedef std::unique_ptr<IncrementPower> IncrementPowerPtr;
-
-      ////////////////
-      class DecrementPower : public light::DecrementPower, public JsDriverDpaCommandSolver
-      {
-      public:
-        DecrementPower(IJsRenderService* iJsRenderService, const std::vector<light::item::Light> & lights)
-          :light::DecrementPower(lights)
-          , JsDriverDpaCommandSolver(iJsRenderService)
-        {}
-
-        virtual ~DecrementPower() {}
-
-      protected:
-        std::string functionName() const override
-        {
-          return "iqrf.light.DecrementPower";
-        }
-
-        void parseResponse(const rapidjson::Value& v) override
-        {
-          jsdriver::SetPower::parsePrevVals(m_prevVals, v);
-        }
-      };
-      typedef std::unique_ptr<DecrementPower> DecrementPowerPtr;
+      typedef std::unique_ptr<Frc> FrcPtr;
+      */
 
     } //namespace jsdriver
-  } //namespace light
+  } //namespace dali
 } //namespace iqrf

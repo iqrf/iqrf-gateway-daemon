@@ -25,6 +25,8 @@
 #include "ILaunchService.h"
 #include "ITraceService.h"
 
+#include <filesystem>
+
 namespace iqrf {
   class IqrfInfo : public IIqrfInfo
   {
@@ -34,8 +36,7 @@ namespace iqrf {
 
     std::map<int, sensor::EnumeratePtr> getSensors() const override;
     std::map<int, binaryoutput::EnumeratePtr> getBinaryOutputs() const override;
-    std::map<int, dali::EnumeratePtr> getDalis() const override;
-    std::map<int, light::EnumeratePtr> getLights() const override;
+    std::vector<int> getLights() const override;
     std::map<int, embed::node::BriefInfoPtr> getNodes() const override;
 
     void insertNodes(const std::map<int, embed::node::BriefInfo> & nodes) override;

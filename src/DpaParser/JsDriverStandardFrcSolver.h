@@ -18,7 +18,6 @@
 
 #include "IDpaTransactionResult2.h"
 #include "JsDriverSolver.h"
-#include "Dali.h"
 #include "JsonUtils.h"
 #include <vector>
 #include <nlohmann/json.hpp>
