@@ -23,8 +23,6 @@ for cfg_file in cfg_files:
 mqtt_instances = list(set(mqtt_instances))
 ws_instances = list(set(ws_instances))
 
-print(mqtt_instances, ws_instances)
-
 for cfg_file in ['iqrf__JsonSplitter.json', 'iqrf__IqrfSensorData.json']:
     path = Path(daemon_cfg_dir) / cfg_file
     if not path.exists() or not path.is_file():
