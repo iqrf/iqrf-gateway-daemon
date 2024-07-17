@@ -13,18 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM arm64v8/debian:bullseye
+FROM arm64v8/debian:bookworm
 
 LABEL maintainer="roman.ondracek@iqrf.com"
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
- && apt-get install --no-install-recommends -y dirmngr gnupg2 \
- && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9C076FCC7AB8F2E43C2AB0E73241B9B7B4BD8F8E \
- && echo "deb http://repos.iqrf.org/debian bullseye stable" | tee /etc/apt/sources.list.d/iqrf.list \
+ && apt-get install --no-install-recommends -y dirmngr gnupg2 curl openssl \
+ && curl -sSLo /usr/share/keyrings/iqrf.gpg http://repos.iqrf.org/apt.gpg \
+ && echo "deb [signed-by=/usr/share/keyrings/iqrf.gpg] http://repos.iqrf.org/debian bookworm stable" | tee /etc/apt/sources.list.d/iqrf.list \
  && apt-get update \
- && apt-get install --no-install-recommends -y iqrf-gateway-daemon openssl \
+ && apt-get install --no-install-recommends -y iqrf-gateway-daemon \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* /etc/iqrf-gateway-daemon/certs/core/*
 
