@@ -129,6 +129,20 @@
                             "type": "integer",
                             "description": "Node address."
                           },
+                          "mid": {
+                            "description": "Node module ID.",
+                            "oneOf": [
+                              { "type": "integer" },
+                              { "type": "null" }
+                            ]
+                          },
+                          "hwpid": {
+                            "description": "Node hardware profile ID.",
+                            "oneOf": [
+                              { "type": "integer" },
+                              { "type": "null" }
+                            ]
+                          },
                           "metaData": {
                             "type": "object",
                             "description": "Arbitrary user defined meta data."

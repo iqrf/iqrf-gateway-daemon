@@ -34,6 +34,7 @@ namespace iqrf
     virtual std::map<int, binaryoutput::EnumeratePtr> getBinaryOutputs() const = 0;
     virtual std::vector<int> getLights() const = 0;
     virtual std::map<int, embed::node::BriefInfoPtr> getNodes() const = 0;
+    virtual std::map<uint8_t, embed::node::NodeMidHwpid> getNodeMidHwpidMap() const = 0;
 
     // for AutoNetwork usage
     virtual void insertNodes(const std::map<int, embed::node::BriefInfo> & nodes) = 0;

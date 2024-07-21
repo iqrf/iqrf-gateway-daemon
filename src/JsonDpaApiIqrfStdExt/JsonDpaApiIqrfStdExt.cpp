@@ -116,21 +116,25 @@ namespace iqrf {
           );
         }
         if (apiMsgIqrfStandardFrc.getExtFormat()) {
+          std::map<uint8_t, embed::node::NodeMidHwpid> nodeMap;
+          if (m_iIqrfInfo) {
+            nodeMap = m_iIqrfInfo->getNodeMidHwpidMap();
+          }
+
           jsDriverStandardFrcSolver.convertToExtendedFormat(
             jsonDoc,
             arrayKey,
             apiMsgIqrfStandardFrc.getItemKeyByMessageType(msgType.m_type),
-            apiMsgIqrfStandardFrc.getSelectedNodes()
+            apiMsgIqrfStandardFrc.getSelectedNodes(),
+            nodeMap
           );
 
           if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
             try {
               for (auto itr = jsonDoc[arrayKey].begin(); itr != jsonDoc[arrayKey].end(); ++itr) {
                 uint8_t nadr = (*itr)["nAdr"].get<uint8_t>();
-                if (m_iIqrfInfo && m_iIqrfInfo->getMidMetaDataToMessages()) {
                   std::string metadataStr = jutils::jsonToStr(m_iIqrfInfo->getNodeMetaData(nadr));
                   (*itr)["metaData"] = json::parse(metadataStr);
-                }
               }
             } catch (const std::exception &e) {
               CATCH_EXC_TRC_WAR(std::exception, e, "Cannot annotate by metadata");

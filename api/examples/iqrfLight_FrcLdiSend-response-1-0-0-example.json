@@ -238,6 +238,8 @@
                 "status": 128,
                 "value": 0
               },
+              "hwpid": 0,
+              "mid": 2165406801,
               "nAdr": 1
             },
             {
@@ -245,6 +247,8 @@
                 "status": 0,
                 "value": 0
               },
+              "hwpid": null,
+              "mid": null,
               "nAdr": 2
             },
             {
@@ -252,6 +256,8 @@
                 "status": 129,
                 "value": 96
               },
+              "hwpid": null,
+              "mid": null,
               "nAdr": 4
             }
           ],

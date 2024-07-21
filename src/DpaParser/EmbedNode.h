@@ -124,6 +124,26 @@ namespace iqrf
       };
       typedef std::unique_ptr<BriefInfo> BriefInfoPtr;
 
+      class NodeMidHwpid {
+      private:
+        uint32_t m_mid;
+        uint16_t m_hwpid;
+      
+      public:
+
+        NodeMidHwpid(uint32_t mid, uint16_t hwpid): m_mid(mid), m_hwpid(hwpid) {}
+
+        virtual ~NodeMidHwpid() {}
+
+        uint32_t getMid() const {
+          return m_mid;
+        }
+
+        uint16_t getHwpid() const {
+          return m_hwpid;
+        }
+      };
+
     } //namespace node
   } //namespace embed
 } //namespace iqrf

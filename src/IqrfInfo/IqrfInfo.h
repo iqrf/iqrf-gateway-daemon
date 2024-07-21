@@ -38,6 +38,7 @@ namespace iqrf {
     std::map<int, binaryoutput::EnumeratePtr> getBinaryOutputs() const override;
     std::vector<int> getLights() const override;
     std::map<int, embed::node::BriefInfoPtr> getNodes() const override;
+    std::map<uint8_t, embed::node::NodeMidHwpid> getNodeMidHwpidMap() const override;
 
     void insertNodes(const std::map<int, embed::node::BriefInfo> & nodes) override;
 

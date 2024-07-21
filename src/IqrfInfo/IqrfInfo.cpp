@@ -2114,6 +2114,23 @@ namespace iqrf {
       return retval;
     }
 
+    std::map<uint8_t, embed::node::NodeMidHwpid> getNodeMidHwpidMap() const {
+      TRC_FUNCTION_ENTER("");
+
+      std::map<uint8_t, embed::node::NodeMidHwpid> map;
+      database & db = *m_db;
+
+      db <<
+        "SELECT b.Nadr, b.Mid, d.Hwpid\n"
+        "FROM Bonded AS b, Device AS d\n"
+        "WHERE d.Id = (SELECT DeviceId FROM Node AS n WHERE n.Mid = b.Mid);"
+      >> [&](uint8_t address, uint32_t mid, uint16_t hwpid) {
+        map.insert(std::make_pair(address, embed::node::NodeMidHwpid(mid, hwpid)));
+      };
+
+      return map;
+    }
+
     std::map<int, embed::node::BriefInfoPtr> getNodes() const
     {
       TRC_FUNCTION_ENTER("");
@@ -2630,6 +2647,10 @@ namespace iqrf {
   std::map<int, embed::node::BriefInfoPtr> IqrfInfo::getNodes() const
   {
     return m_imp->getNodes();
+  }
+
+  std::map<uint8_t, embed::node::NodeMidHwpid> IqrfInfo::getNodeMidHwpidMap() const {
+    return m_imp->getNodeMidHwpidMap();
   }
 
   void IqrfInfo::insertNodes(const std::map<int, embed::node::BriefInfo> & nodes)

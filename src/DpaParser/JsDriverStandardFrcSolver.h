@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "EmbedNode.h"
 #include "IDpaTransactionResult2.h"
 #include "JsDriverSolver.h"
 #include "JsonUtils.h"
@@ -117,7 +118,7 @@ namespace iqrf
       doc[path] = json(itemArray.begin() + 1, itemArray.begin() + 1 + size);
     }
 
-    void convertToExtendedFormat(json &doc, const std::string &arrayPath, const std::string &itemPath, const std::set<uint8_t> &selected) {
+    void convertToExtendedFormat(json &doc, const std::string &arrayPath, const std::string &itemPath, const std::set<uint8_t> &selected, std::map<uint8_t, embed::node::NodeMidHwpid> &nodeMap) {
       json itemArray = doc[arrayPath];
 
       if (!itemArray.is_array()) {
@@ -145,10 +146,20 @@ namespace iqrf
       auto itr = addrs.begin();
       json convertedArray = json::array();
       for (auto arrayItr = itemArray.begin(); arrayItr != itemArray.end(); ++arrayItr) {
+        auto addr = *itr++;
         json convertedItem = {
-          {"nAdr", *itr++},
+          {"nAdr", addr},
           {itemPath, *arrayItr}
         };
+        if (nodeMap.count(addr)) {
+          auto nodeItem = nodeMap.at(addr);
+          convertedItem["mid"] = nodeItem.getMid();
+          convertedItem["hwpid"] = nodeItem.getHwpid();
+        } else {
+          convertedItem["mid"] = nullptr;
+          convertedItem["hwpid"] = nullptr;
+        }
+        
         convertedArray.push_back(convertedItem);
       }
       doc[arrayPath] = convertedArray;

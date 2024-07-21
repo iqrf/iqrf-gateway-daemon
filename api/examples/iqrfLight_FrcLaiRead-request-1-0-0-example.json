@@ -30,7 +30,7 @@
       "req": {
         "nAdr": 0,
         "param": {
-          "selectedNodes": [4],
+          "selectedNodes": [1, 4],
           "extFormat": true
         }
       },

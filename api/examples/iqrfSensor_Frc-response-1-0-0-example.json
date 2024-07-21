@@ -176,6 +176,8 @@
         "result": {
           "sensors": [
             {
+              "hwpid": 5122,
+              "mid": 2165406801,
               "nAdr": 1,
               "sensor": {
                 "decimalPlaces": 4,
@@ -188,6 +190,8 @@
               }
             },
             {
+              "hwpid": null,
+              "mid": null,
               "nAdr": 4,
               "sensor": null
             }

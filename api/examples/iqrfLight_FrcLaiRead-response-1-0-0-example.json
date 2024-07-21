@@ -123,11 +123,19 @@
         "result": {
           "voltages": [
             {
+                "hwpid": 5122,
+                "mid": 2165406801,
+                "nAdr": 1,
+                "voltage": -32.767
+            },
+            {
+              "hwpid": null,
+              "mid": null,
               "nAdr": 4,
               "voltage": 3.5
             }
           ],
-          "selectedNodes": [4]
+          "selectedNodes": [1, 4]
         }
       },
       "raw": [

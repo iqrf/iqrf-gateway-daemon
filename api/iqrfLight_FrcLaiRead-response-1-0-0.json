@@ -103,6 +103,20 @@
 														"title": "Device address",
 														"type": "integer"
 													},
+													"mid": {
+														"description": "Device module ID.",
+														"oneOf": [
+															{ "type": "integer" },
+															{ "type": "null" }
+														]
+													},
+													"hwpid": {
+														"description": "Device hardware profile ID.",
+														"oneOf": [
+															{ "type": "integer" },
+															{ "type": "null" }
+														]
+													},
 													"metaData": {
 														"title": "Device metadata",
 														"description": "Arbitrary user defined meta data.",
