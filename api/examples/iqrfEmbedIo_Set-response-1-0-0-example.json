@@ -4,19 +4,22 @@
     "msgId": "testEmbedIo",
     "rsp": {
       "nAdr": 1,
+      "pnum": 9,
+      "pcmd": 129,
       "hwpId": 2,
       "rCode": 0,
-      "dpaVal": 66,
-      "result": {}
+      "dpaVal": 66
     },
-    "raw": {
-      "request": "01.00.09.01.ff.ff.00.04.04",
-      "requestTs": "2018-07-18T21:40:29.971929",
-      "confirmation": "01.00.09.01.ff.ff.ff.38.01.04.01",
-      "confirmationTs": "2018-07-18T21:40:30.4220",
-      "response": "01.00.09.81.02.00.00.42",
-      "responseTs": "2018-07-18T21:40:30.124945"
-    },
+    "raw": [
+      {
+        "request": "01.00.09.01.ff.ff.00.04.04",
+        "requestTs": "2018-07-18T21:40:29.971929",
+        "confirmation": "01.00.09.01.ff.ff.ff.38.01.04.01",
+        "confirmationTs": "2018-07-18T21:40:30.4220",
+        "response": "01.00.09.81.02.00.00.42",
+        "responseTs": "2018-07-18T21:40:30.124945"
+      }
+    ],
     "insId": "iqrfgd2-1",
     "statusStr": "ok",
     "status": 0
