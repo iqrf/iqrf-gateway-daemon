@@ -67,7 +67,7 @@
                     "properties": {
                       "port": {
                         "type": "integer",
-                        "description": " Specifies port to setup a direction."
+                        "description": " Specifies port to setup a direction or pull-up."
                       },
                       "mask": {
                         "type": "integer",
@@ -75,7 +75,7 @@
                       },
                       "value": {
                         "type": "integer",
-                        "description": "Actual direction."
+                        "description": "Actual direction bits or pull-up state."
                       }
                     }
                   },
