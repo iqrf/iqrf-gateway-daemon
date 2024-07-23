@@ -227,7 +227,7 @@ if (iqrf.embed.coordinator !== undefined) {
 ////////////////////////
 if (iqrf.embed.io !== undefined) {
   iqrf.embed.io.Direction_Request_req = function (param) {
-    return iqrf.embed.io.Direction_Request(param.ports);
+    return iqrf.embed.io.Direction_Request(param.subcommands);
   };
 
   iqrf.embed.io.Direction_Response_rsp = function (rawHdp) {
@@ -248,7 +248,7 @@ if (iqrf.embed.io !== undefined) {
   };
 
   iqrf.embed.io.Set_Request_req = function (param) {
-    return iqrf.embed.io.Set_Request(param.ports);
+    return iqrf.embed.io.Set_Request(param.subcommands);
   };
 
   iqrf.embed.io.Set_Response_rsp = function (rawHdp) {
