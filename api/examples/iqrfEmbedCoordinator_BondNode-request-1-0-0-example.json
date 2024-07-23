@@ -7,7 +7,7 @@
       "nAdr": 0,
       "param": {
         "reqAddr": 1,
-        "bondingMask": 0
+        "bondingTestRetries": 0
       }
     },
     "returnVerbose": true
