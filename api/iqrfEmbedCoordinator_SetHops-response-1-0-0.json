@@ -10,8 +10,10 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "$ref": "definitions.json#/general/mType",
-      "const": "iqrfEmbedCoordinator_SetHops"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfEmbedCoordinator_SetHops" }
+      ]
     },
     "data": {
       "title": "Message data",

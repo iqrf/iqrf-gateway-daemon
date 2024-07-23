@@ -10,8 +10,10 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "$ref": "definitions.json#/general/mType",
-      "const": "iqrfEmbedEeeprom_Write"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfEmbedEeeprom_Write" }
+      ]
     },
     "data": {
       "title": "Message data",
