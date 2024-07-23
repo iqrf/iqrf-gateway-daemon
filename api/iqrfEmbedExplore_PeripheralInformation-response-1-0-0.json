@@ -10,8 +10,10 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "$ref": "definitions.json#/general/mType",
-      "const": "iqrfEmbedExplore_PeripheralInformation"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfEmbedExplore_PeripheralInformation" }
+      ]
     },
     "data": {
       "title": "Message data",
@@ -33,6 +35,8 @@
           "type": "object",
           "required": [
             "nAdr",
+            "pnum",
+            "pcmd",
             "hwpId",
             "rCode",
             "dpaVal"
