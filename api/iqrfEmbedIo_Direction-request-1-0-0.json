@@ -49,11 +49,11 @@
               "description": "Specific request parameters.",
               "type": "object",
               "required": [
-                "ports"
+                "subcommands"
               ],
               "additionalProperties": false,
               "properties": {
-                "ports": {
+                "subcommands": {
                   "type": "array",
                   "description": "Array of subcommands.",
                   "items": {
