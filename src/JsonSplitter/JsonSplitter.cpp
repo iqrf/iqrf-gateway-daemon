@@ -596,7 +596,21 @@ namespace iqrf {
           std::string ver;
 
           // get message type
-          Value* mTypeVal = Pointer("/properties/mType/const").Get(sd);
+          Value* mTypeVal = nullptr;
+
+          Value* allOf = Pointer("/properties/mType/allOf").Get(sd);
+          if (allOf != nullptr && allOf->IsArray() && allOf->Size() > 0) {
+            for (auto &item : allOf->GetArray()) {
+              auto found = item.FindMember("const");
+              if (found != item.MemberEnd()) {
+                mTypeVal = &found->value;
+                break;
+              }
+            }
+          }
+          if (mTypeVal == nullptr) {
+            mTypeVal = Pointer("/properties/mType/const").Get(sd);
+          }
           if (mTypeVal == nullptr) {
             mTypeVal = Pointer("/properties/mType/enum/0").Get(sd);
           }
