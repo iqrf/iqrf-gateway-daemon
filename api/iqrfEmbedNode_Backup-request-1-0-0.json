@@ -57,7 +57,7 @@
                   "type": "integer",
                   "description": "Index of the block of data.",
                   "minimum": 0,
-                  "maximum": 49
+                  "maximum": 255
                 }
               }
             }
