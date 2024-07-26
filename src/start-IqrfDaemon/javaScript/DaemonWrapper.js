@@ -688,7 +688,7 @@ if (iqrf.embed.node !== undefined) {
   iqrf.embed.node.Backup_Response_rsp = function (rawHdp) {
     var result =
     {
-      backupData: iqrf.embed.node.Backup_Response(rawHdp)
+      networkData: iqrf.embed.node.Backup_Response(rawHdp)
     };
     return result;
   };
