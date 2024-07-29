@@ -150,7 +150,7 @@ if (iqrf.embed.coordinator !== undefined) {
   };
 
   iqrf.embed.coordinator.Restore_Request_req = function (param) {
-    return iqrf.embed.coordinator.Restore_Request(param.netData);
+    return iqrf.embed.coordinator.Restore_Request(param.networkData);
   };
 
   iqrf.embed.coordinator.Restore_Response_rsp = function (rawHdp) {
@@ -741,7 +741,7 @@ if (iqrf.embed.node !== undefined) {
   };
 
   iqrf.embed.node.Restore_Request_req = function (param) {
-    return iqrf.embed.node.Restore_Request(param.backupData);
+    return iqrf.embed.node.Restore_Request(param.networkData);
   };
 
   iqrf.embed.node.Restore_Response_rsp = function (rawHdp) {
