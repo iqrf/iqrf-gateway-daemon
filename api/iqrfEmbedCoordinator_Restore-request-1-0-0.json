@@ -49,11 +49,11 @@
               "description": "Specific request parameters (PData).",
               "type": "object",
               "required": [
-                "netData"
+                "networkData"
               ],
               "additionalProperties": false,
               "properties": {
-                "netData": {
+                "networkData": {
                   "title": "Network Data",
                   "description": "One block of the coordinator network info data previously obtained by a backup command.",
                   "type": "array",
