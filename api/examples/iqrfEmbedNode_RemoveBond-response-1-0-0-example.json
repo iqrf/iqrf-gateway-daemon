@@ -4,19 +4,22 @@
     "msgId": "testEmbedNode",
     "rsp": {
       "nAdr": 1,
+      "pnum": 1,
+      "pcmd": 129,
       "hwpId": 2,
       "rCode": 0,
-      "dpaVal": 62,
-      "result": {}
+      "dpaVal": 62
     },
-    "raw": {
-      "request": "01.00.01.01.ff.ff",
-      "requestTs": "2018-07-14T22:17:46.788071",
-      "confirmation": "01.00.01.01.ff.ff.ff.37.01.04.01",
-      "confirmationTs": "2018-07-14T22:17:46.819087",
-      "response": "01.00.01.81.02.00.00.3e",
-      "responseTs": "2018-07-14T22:17:46.950155"
-    },
+    "raw": [
+      {
+        "request": "01.00.01.01.ff.ff",
+        "requestTs": "2018-07-14T22:17:46.788071",
+        "confirmation": "01.00.01.01.ff.ff.ff.37.01.04.01",
+        "confirmationTs": "2018-07-14T22:17:46.819087",
+        "response": "01.00.01.81.02.00.00.3e",
+        "responseTs": "2018-07-14T22:17:46.950155"
+      }
+    ],
     "insId": "iqrfgd2-1",
     "statusStr": "ok",
     "status": 0
