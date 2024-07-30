@@ -1,7 +1,7 @@
 {
 	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
 	"title": "GetLights request",
-	"description": "Retrieves device addresses and the number of implemented lights.",
+	"description": "Retrieves addresses of devices implementing the Light standard.",
 	"type": "object",
 	"required": [
 		"mType",

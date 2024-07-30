@@ -17,6 +17,7 @@
 #pragma once
 
 #include "BaseMsg.h"
+#include <set>
 
 using namespace rapidjson;
 
@@ -32,7 +33,7 @@ namespace iqrf {
 
 		/**
 		 * Constructor
-		 * @param doc Request documents
+		 * @param doc Request document
 		 */
 		GetLightsMsg(const Document &doc) : BaseMsg(doc) {};
 
@@ -45,15 +46,14 @@ namespace iqrf {
 		 * Handles get lights request
 		 * @param dbService IQRF DB service
 		 */
-		void handleMsg(IIqrfDb *dbServices) override;
+		void handleMsg(IIqrfDb *dbService) override;
 
 		/**
 		 * Populates response document with lights response
-		 * @param doc Response document
 		 */
 		void createResponsePayload(Document &doc) override;
 	private:
-		/// Map of device addresses and number of implemented lights
-		std::map<uint8_t, uint8_t> lights;
+		/// Set of device addresses implementing lights standard
+		std::set<uint8_t> lights;
 	};
 }

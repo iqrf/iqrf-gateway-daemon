@@ -31,18 +31,17 @@ public:
 	/**
 	 * Full constructor
 	 * @param deviceId Device ID
-	 * @param count Implemented lights
 	 */
-	Light(const uint32_t &deviceId, const uint8_t &count) : deviceId(deviceId), count(count) {};
+	Light(const uint32_t &deviceId) : deviceId(deviceId) {};
 
 	/**
-	 * Returns light ID
+	 * Returns Light ID
 	 * @return Light ID
 	 */
 	const uint32_t& getId() const;
 
 	/**
-	 * Sets light ID
+	 * Sets Light ID
 	 * @param id Light ID
 	 */
 	void setId(const uint32_t &id);
@@ -58,23 +57,9 @@ public:
 	 * @param deviceId Device ID
 	 */
 	void setDeviceId(const uint32_t &deviceId);
-
-	/**
-	 * Returns number of implemented lights
-	 * @return Light count
-	 */
-	const uint8_t& getCount() const;
-
-	/**
-	 * Sets number of implemented lights
-	 * @param count Light count
-	 */
-	void setCount(const uint8_t &count);
 private:
 	/// Light ID
 	uint32_t id;
 	/// Device ID
 	uint32_t deviceId;
-	/// Implemented lights
-	uint8_t count;
 };
