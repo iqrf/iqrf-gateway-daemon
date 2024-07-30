@@ -166,16 +166,10 @@ namespace iqrf {
 		virtual std::map<uint8_t, uint8_t> getBinaryOutputs() = 0;
 
 		/**
-		 * Retrieves information about devices implementing DALI standard
-		 * @return Set of device addresses implementing DALI standard
-		 */
-		virtual std::set<uint8_t> getDalis() = 0;
-
-		/**
 		 * Retrieves information about devices implementing Light standard
-		 * @return Map of device addresses and implemented lights
+		 * @return Set of device addresses implementing Light standard
 		 */
-		virtual std::map<uint8_t, uint8_t> getLights() = 0;
+		virtual std::set<uint8_t> getLights() = 0;
 
 		virtual bool hasSensors(const uint8_t &deviceAddress) = 0;
 

@@ -19,7 +19,6 @@
 #include <sqlite_orm/sqlite_orm.h>
 
 #include "Entities/BinaryOutput.h"
-#include "Entities/Dali.h"
 #include "Entities/Device.h"
 #include "Entities/DeviceSensor.h"
 #include "Entities/Driver.h"
@@ -84,15 +83,9 @@ static inline auto initializeDb(const std::string &fileName) {
 			make_column("count", &BinaryOutput::getCount, &BinaryOutput::setCount),
 			foreign_key(&BinaryOutput::getDeviceId).references(&Device::getId).on_delete.cascade()
 		),
-		make_table("dali",
-			make_column("id", &Dali::getId, &Dali::setId, primary_key().autoincrement()),
-			make_column("deviceId", &Dali::getDeviceId, &Dali::setDeviceId),
-			foreign_key(&Dali::getDeviceId).references(&Device::getId).on_delete.cascade()
-		),
 		make_table("light",
 			make_column("id", &Light::getId, &Light::setId, primary_key().autoincrement()),
 			make_column("deviceId", &Light::getDeviceId, &Light::setDeviceId),
-			make_column("count", &Light::getCount, &Light::setCount),
 			foreign_key(&Light::getDeviceId).references(&Device::getId).on_delete.cascade()
 		),
 		make_table("sensor",
