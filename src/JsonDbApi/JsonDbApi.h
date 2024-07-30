@@ -24,7 +24,6 @@
 
 #include "Messages/EnumerateMsg.h"
 #include "Messages/GetBinaryOutputsMsg.h"
-#include "Messages/GetDalisMsg.h"
 #include "Messages/GetDeviceMsg.h"
 #include "Messages/GetDevicesMsg.h"
 #include "Messages/GetNetworkTopologyMsg.h"
