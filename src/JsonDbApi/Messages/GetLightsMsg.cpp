@@ -29,10 +29,7 @@ namespace iqrf {
 			Document::AllocatorType &allocator = doc.GetAllocator();
 
 			for (auto &item : lights) {
-				Value object;
-				Pointer("/address").Set(object, item.first, allocator);
-				Pointer("/count").Set(object, item.second, allocator);
-				array.PushBack(object, allocator);
+				array.PushBack(item, allocator);
 			}
 
 			Pointer("/data/rsp/lightDevices").Set(doc, array, allocator);

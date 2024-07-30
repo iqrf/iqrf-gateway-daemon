@@ -55,9 +55,8 @@
 
 #define EEEPROM_READ_MAX_LEN 54
 
+#define PERIPHERAL_LIGHT 74
 #define PERIPHERAL_BINOUT 75
-#define PERIPHERAL_DALI 74
-#define PERIPHERAL_LIGHT 113
 #define PERIPHERAL_SENSOR 94
 
 typedef std::shared_ptr<Product> ProductPtr;
@@ -137,16 +136,10 @@ namespace iqrf {
 		std::map<uint8_t, uint8_t> getBinaryOutputs() override;
 
 		/**
-		 * Returns set of device addresses implementing DALI standard
-		 * @return Map of devices implementing DALI standard
+		 * Returns set of device addresses implementing Light standard
+		 * @return Map of devices implementing Light standard
 		 */
-		std::set<uint8_t> getDalis() override;
-
-		/**
-		 * Returns map of device addresses and implemented lights
-		 * @return Map of device addresses and implemented lights
-		 */
-		std::map<uint8_t, uint8_t> getLights() override;
+		std::set<uint8_t> getLights() override;
 
 		bool hasSensors(const uint8_t &deviceAddress) override;
 
@@ -489,18 +482,11 @@ namespace iqrf {
 		void binoutEnumeration(const uint32_t &deviceId, const uint8_t &address);
 
 		/**
-		 * Performs dali standard enumeration
+		 * Performs light standard enumeration
 		 * @param deviceId Device ID
 		 * @param address Device address
 		 */
-		void daliEnumeration(const uint32_t &deviceId);
-
-		/**
-		 * Performs light standard enumeration
-		 * @param deviceId Device ID
-		 * @param address device address
-		 */
-		void lightEnumeration(const uint32_t &deviceId, const uint8_t &address);
+		void lightEnumeration(const uint32_t &deviceId);
 
 		/**
 		 * Performs sensor standard enumeration

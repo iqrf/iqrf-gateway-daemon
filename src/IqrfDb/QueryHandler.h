@@ -184,43 +184,17 @@ public:
 	void removeBinaryOutputs(const uint32_t &deviceId);
 
 	/**
-	 * Checks if a device implements DALI standard
+	 * Checks if a device implements Light standard
 	 * @param deviceId Device ID
-	 * @return true if device implements DALI standard, false otherwise
-	 */
-	bool daliExists(const uint32_t &deviceId);
-
-	/**
-	 * Returns all DALI device records from database
-	 * @return Set of device addresses implementing DALI
-	 */
-	std::set<uint8_t> getDalis();
-
-	/**
-	 * Remove all DALI records implemented by device ID
-	 * @param deviceId Device ID
-	 */
-	void removeDalis(const uint32_t &deviceId);
-
-	/**
-	 * Checks if a device implements light standard
-	 * @param deviceId Device ID
-	 * @return true if device implements Light, false otherwise
+	 * @return true if device implements Light standard, false otherwise
 	 */
 	bool lightExists(const uint32_t &deviceId);
 
 	/**
-	 * Returns ID of Light record
-	 * @param deviceId Device ID
-	 * @return Light record ID, 0 if no such record exists
-	 */
-	uint32_t getLightId(const uint32_t &deviceId);
-
-	/**
 	 * Returns all Light device records from database
-	 * @return Map of device addresses and implemented lights
+	 * @return Set of device addresses implementing Light
 	 */
-	std::map<uint8_t, uint8_t> getLights();
+	std::set<uint8_t> getLights();
 
 	/**
 	 * Remove all Light records implemented by device ID

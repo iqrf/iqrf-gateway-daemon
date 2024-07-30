@@ -121,11 +121,7 @@ namespace iqrf {
 		return this->query.getBinaryOutputs();
 	}
 
-	std::set<uint8_t> IqrfDb::getDalis() {
-		return this->query.getDalis();
-	}
-
-	std::map<uint8_t, uint8_t> IqrfDb::getLights() {
+	std::set<uint8_t> IqrfDb::getLights() {
 		return this->query.getLights();
 	}
 
@@ -1216,21 +1212,17 @@ namespace iqrf {
 				inner_join<Device>(on(c(&Device::getProductId) == &ProductDriver::getProductId)),
 				where(c(&Device::getId) == deviceId and (
 					c(&Driver::getPeripheralNumber) == PERIPHERAL_BINOUT or
-					c(&Driver::getPeripheralNumber) == PERIPHERAL_DALI or
 					c(&Driver::getPeripheralNumber) == PERIPHERAL_LIGHT or
 					c(&Driver::getPeripheralNumber) == PERIPHERAL_SENSOR)
 				)
 			);
-			bool binout = false, dali = false, light = false, sensor = false;
+			bool binout = false, light = false, sensor = false;
 
 			// select peripherals to enumerate
 			for (auto per : peripherals) {
 				switch (per) {
 					case PERIPHERAL_BINOUT:
 						binout = true;
-						break;
-					case PERIPHERAL_DALI:
-						dali = true;
 						break;
 					case PERIPHERAL_LIGHT:
 						light = true;
@@ -1250,13 +1242,8 @@ namespace iqrf {
 				} else {
 					this->query.removeBinaryOutputs(deviceId);
 				}
-				if (dali) {
-					daliEnumeration(deviceId);
-				} else {
-					this->query.removeDalis(deviceId);
-				}
 				if (light) {
-					lightEnumeration(deviceId, address);
+					lightEnumeration(deviceId);
 				} else {
 					this->query.removeLights(deviceId);
 				}
@@ -1311,46 +1298,13 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
-	void IqrfDb::daliEnumeration(const uint32_t &deviceId) {
+	void IqrfDb::lightEnumeration(const uint32_t &deviceId) {
 		TRC_FUNCTION_ENTER("");
 		using namespace sqlite_orm;
-
-		bool exists = this->query.daliExists(deviceId);
-		if (!exists) {
-			m_db->insert(Dali(deviceId));
-		}
-		TRC_FUNCTION_LEAVE("");
-	}
-
-	void IqrfDb::lightEnumeration(const uint32_t &deviceId, const uint8_t &address) {
-		TRC_FUNCTION_ENTER("");
-		using namespace sqlite_orm;
-		std::unique_ptr<IDpaTransactionResult2> result;
-		try {
-			// Build light enumerate request
-			DpaMessage lightEnumerateRequest;
-			DpaMessage::DpaPacket_t lightEnumeratePacket;
-			lightEnumeratePacket.DpaRequestPacket_t.NADR = address;
-			lightEnumeratePacket.DpaRequestPacket_t.PNUM = PERIPHERAL_LIGHT;
-			lightEnumeratePacket.DpaRequestPacket_t.PCMD = 0x3E;
-			lightEnumeratePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
-			lightEnumerateRequest.DataToBuffer(lightEnumeratePacket.Buffer, sizeof(TDpaIFaceHeader));
-			// Execute DPA request
-			m_dpaService->executeDpaTransactionRepeat(lightEnumerateRequest, result, 1);
-		} catch (const std::exception &e) {
-			THROW_EXC(std::logic_error, e.what());
-		}
-		DpaMessage lightEnumerateResponse = result->getResponse();
-		const uint8_t count = lightEnumerateResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
 
 		bool exists = this->query.lightExists(deviceId);
-		if (exists) {
-			uint32_t lightId = this->query.getLightId(deviceId);
-			auto light = m_db->get<Light>(lightId);
-			light.setCount(count);
-			m_db->update(light);
-		} else {
-			m_db->insert(Light(deviceId, count));
+		if (!exists) {
+			m_db->insert(Light(deviceId));
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -1466,23 +1420,29 @@ namespace iqrf {
 		std::stringstream ss;
 		std::set<uint32_t> driversToLoad;
 
-		for (auto &driver : drivers) {
-			int id = driver.first;
-			double version = 0;
-			driversToLoad.insert(id);
+		for (auto &[driverId, versionMap] : drivers) {
+			double driverVersion = 0;
+			driversToLoad.insert(driverId);
 
-			if (driver.second.size() > 0) {
+			if (versionMap.size() > 0) {
 				// use latest
-				version = driver.second.rbegin()->first;
+				driverVersion = versionMap.rbegin()->first;
 			} else {
-				TRC_WARNING("No driver version found for driver ID: " << id);
+				TRC_WARNING("No driver version found for driver ID: " << driverId);
 			}
 
-			std::shared_ptr<IJsCacheService::StdDriver> cacheDriver = m_cacheService->getDriver(id, version);
+			std::shared_ptr<IJsCacheService::StdDriver> cacheDriver = m_cacheService->getDriver(driverId, driverVersion);
 			if (cacheDriver != nullptr) {
 				ss << *cacheDriver->getDriver();
 			} else {
-				TRC_WARNING("No driver found in cache for ID: " << id << ", version: " << version);
+				TRC_WARNING("No driver found in cache for ID: " << driverId << ", version: " << driverVersion);
+			}
+			if (driverId == PERIPHERAL_LIGHT && driverVersion > 0) {
+				cacheDriver = m_cacheService->getDriver(driverId, 0);
+				if (cacheDriver != nullptr) {
+					ss << *cacheDriver->getDriver();
+					TRC_INFORMATION("Loading deprecated DALI driver for compatibility.");
+				}
 			}
 		}
 
