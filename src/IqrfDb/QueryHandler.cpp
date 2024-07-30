@@ -264,28 +264,6 @@ void QueryHandler::removeBinaryOutputs(const uint32_t &deviceId) {
 	db->remove_all<BinaryOutput>(where(c(&BinaryOutput::getDeviceId) == deviceId));
 }
 
-///// DALI /////
-
-bool QueryHandler::daliExists(const uint32_t &deviceId) {
-	auto count = db->count<Dali>(where(c(&Dali::getDeviceId) == deviceId));
-	return count > 0;
-}
-
-std::set<uint8_t> QueryHandler::getDalis() {
-	auto rows = db->select(&Device::getAddress,
-		inner_join<Dali>(on(c(&Dali::getDeviceId) == &Device::getId))
-	);
-	std::set<uint8_t> dalis;
-	for (auto &row : rows) {
-		dalis.insert(row);
-	}
-	return dalis;
-}
-
-void QueryHandler::removeDalis(const uint32_t &deviceId) {
-	db->remove_all<Dali>(where(c(&Dali::getDeviceId) == deviceId));
-}
-
 ///// Light /////
 
 bool QueryHandler::lightExists(const uint32_t &deviceId) {
@@ -293,21 +271,15 @@ bool QueryHandler::lightExists(const uint32_t &deviceId) {
 	return count > 0;
 }
 
-uint32_t QueryHandler::getLightId(const uint32_t &deviceId) {
-	auto lightId = db->select(&Light::getId, where(c(&Light::getDeviceId) == deviceId));
-	uint32_t id = (lightId.size() > 0) ? lightId[0] : 0;
-	return id;
-}
-
-std::map<uint8_t, uint8_t> QueryHandler::getLights() {
-	auto rows = db->select(columns(&Device::getAddress, &Light::getCount),
+std::set<uint8_t> QueryHandler::getLights() {
+	auto rows = db->select(&Device::getAddress,
 		inner_join<Light>(on(c(&Light::getDeviceId) == &Device::getId))
 	);
-	std::map<uint8_t, uint8_t> lights;
+	std::set<uint8_t> dalis;
 	for (auto &row : rows) {
-		lights.insert(std::make_pair(std::get<0>(row), std::get<1>(row)));
+		dalis.insert(row);
 	}
-	return lights;
+	return dalis;
 }
 
 void QueryHandler::removeLights(const uint32_t &deviceId) {

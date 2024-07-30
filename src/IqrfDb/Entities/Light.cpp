@@ -32,11 +32,3 @@ const uint32_t& Light::getDeviceId() const {
 void Light::setDeviceId(const uint32_t &deviceId) {
 	this->deviceId = deviceId;
 }
-
-const uint8_t& Light::getCount() const {
-	return this->count;
-}
-
-void Light::setCount(const uint8_t &count) {
-	this->count = count;
-}
