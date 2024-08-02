@@ -166,17 +166,17 @@ namespace iqrf {
       using namespace rapidjson;
 
       {
-        const Value *val = Pointer("/pnum").Get(rawHdpRequestVal);
+        const Value *val = Pointer("/pNum").Get(rawHdpRequestVal);
         if (!(val && val->IsString())) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Expected: string /pnum");
+          THROW_EXC_TRC_WAR(std::logic_error, "Expected: string /pNum");
         }
         HexStringConversion::parseHexaNum(pnum, val->GetString());
       }
 
       {
-        const Value *val = Pointer("/pcmd").Get(rawHdpRequestVal);
+        const Value *val = Pointer("/pCmd").Get(rawHdpRequestVal);
         if (!(val && val->IsString())) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Expected: string /pcmd");
+          THROW_EXC_TRC_WAR(std::logic_error, "Expected: string /pCmd");
         }
         HexStringConversion::parseHexaNum(pcmd, val->GetString());
       }
@@ -220,8 +220,8 @@ namespace iqrf {
       dpavalStr = HexStringConversion::encodeHexaNum(dpaval);
 
       //nadr, hwpid is not interesting for drivers
-      Pointer("/pnum").Set(rawHdpResponseVal, pnumStr, a);
-      Pointer("/pcmd").Set(rawHdpResponseVal, pcmdStr, a);
+      Pointer("/pNum").Set(rawHdpResponseVal, pnumStr, a);
+      Pointer("/pCmd").Set(rawHdpResponseVal, pcmdStr, a);
       Pointer("/rcode").Set(rawHdpResponseVal, rcodeStr, a);
       Pointer("/dpaval").Set(rawHdpResponseVal, rcodeStr, a);
 
