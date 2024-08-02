@@ -4,8 +4,8 @@
     "msgId": "testEmbedNode",
     "rsp": {
       "nAdr": 1,
-      "pnum": 1,
-      "pcmd": 136,
+      "pNum": 1,
+      "pCmd": 136,
       "hwpId": 0,
       "rCode": 0,
       "dpaVal": 76

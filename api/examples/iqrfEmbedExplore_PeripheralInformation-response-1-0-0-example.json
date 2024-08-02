@@ -5,8 +5,8 @@
     "timeout": 1000,
     "rsp": {
       "nAdr": 1,
-      "pnum": 2,
-      "pcmd": 191,
+      "pNum": 2,
+      "pCmd": 191,
       "hwpId": 2,
       "rCode": 0,
       "dpaVal": 80,
