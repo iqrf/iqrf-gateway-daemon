@@ -4,8 +4,8 @@
     "msgId": "testEmbedFrc",
     "rsp": {
       "nAdr": 0,
-      "pnum": 13,
-      "pcmd": 131,
+      "pNum": 13,
+      "pCmd": 131,
       "hwpId": 0,
       "rCode": 0,
       "dpaVal": 64,
