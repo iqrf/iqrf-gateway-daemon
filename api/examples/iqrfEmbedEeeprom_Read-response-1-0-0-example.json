@@ -4,8 +4,8 @@
     "msgId": "testEmbedEeeprom",
     "rsp": {
       "nAdr": 1,
-      "pnum": 4,
-      "pcmd": 130,
+      "pNum": 4,
+      "pCmd": 130,
       "hwpId": 2,
       "rCode": 0,
       "dpaVal": 76,

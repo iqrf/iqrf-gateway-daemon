@@ -35,8 +35,8 @@
           "type": "object",
           "required": [
             "nAdr",
-            "pnum",
-            "pcmd",
+            "pNum",
+            "pCmd",
             "hwpId",
             "rCode",
             "dpaVal"
@@ -46,11 +46,11 @@
             "nAdr": {
               "$ref": "definitions.json#/general/nAdr"
             },
-            "pnum": {
-              "$ref": "definitions.json#/general/response/pnum"
+            "pNum": {
+              "$ref": "definitions.json#/general/response/pNum"
             },
-            "pcmd": {
-              "$ref": "definitions.json#/general/response/pcmd"
+            "pCmd": {
+              "$ref": "definitions.json#/general/response/pCmd"
             },
             "hwpId": {
               "$ref": "definitions.json#/general/response/hwpId"
