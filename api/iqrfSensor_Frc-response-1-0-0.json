@@ -42,11 +42,11 @@
               "type": "integer",
               "description": "Network device address."
             },
-            "pnum": {
+            "pNum": {
               "type": "integer",
               "description": "Peripheral number."
             },
-            "pcmd": {
+            "pCmd": {
               "type": "integer",
               "description": "Peripheral response command."
             },

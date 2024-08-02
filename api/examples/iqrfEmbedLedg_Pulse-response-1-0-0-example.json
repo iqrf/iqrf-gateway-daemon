@@ -4,8 +4,8 @@
     "msgId": "e4ba0de8-e969-4447-843e-57dd7ee88c84",
     "rsp": {
       "nAdr": 1,
-      "pnum": 7,
-      "pcmd": 131,
+      "pNum": 7,
+      "pCmd": 131,
       "hwpId": 2,
       "rCode": 0,
       "dpaVal": 74
