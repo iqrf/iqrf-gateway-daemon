@@ -5,8 +5,8 @@
       "msgId": "a868d365-5cd2-4964-bbc9-e37331b96f75",
       "rsp": {
         "nAdr": 0,
-        "pnum": 13,
-        "pcmd": 128,
+        "pNum": 13,
+        "pCmd": 128,
         "hwpId": 0,
         "rCode": 0,
         "dpaVal": 0,
@@ -117,8 +117,8 @@
       "msgId": "35a2a9f6-1c1a-459a-8707-c20b9351acba",
       "rsp": {
         "nAdr": 0,
-        "pnum": 13,
-        "pcmd": 130,
+        "pNum": 13,
+        "pCmd": 130,
         "hwpId": 0,
         "rCode": 0,
         "dpaVal": 0,
@@ -168,8 +168,8 @@
       "msgId": "d878e5f9-34c3-4559-b1fb-25e8624b2667",
       "rsp": {
         "nAdr": 0,
-        "pnum": 13,
-        "pcmd": 130,
+        "pNum": 13,
+        "pCmd": 130,
         "hwpId": 0,
         "rCode": 0,
         "dpaVal": 0,

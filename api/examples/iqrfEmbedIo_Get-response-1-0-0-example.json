@@ -4,8 +4,8 @@
     "msgId": "testEmbedIo",
     "rsp": {
       "nAdr": 1,
-      "pnum": 9,
-      "pcmd": 130,
+      "pNum": 9,
+      "pCmd": 130,
       "hwpId": 2,
       "rCode": 0,
       "dpaVal": 64,
