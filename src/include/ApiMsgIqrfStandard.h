@@ -137,8 +137,8 @@ namespace iqrf {
         pcmd = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD + 0x80;
       }
       Pointer("/data/rsp/nAdr").Set(doc, m_nadr);
-      Pointer("/data/rsp/pnum").Set(doc, pnum);
-      Pointer("/data/rsp/pcmd").Set(doc, pcmd);
+      Pointer("/data/rsp/pNum").Set(doc, pnum);
+      Pointer("/data/rsp/pCmd").Set(doc, pcmd);
       Pointer("/data/rsp/hwpId").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.HWPID : -1);
       Pointer("/data/rsp/rCode").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : -1);
       Pointer("/data/rsp/dpaVal").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : -1);
