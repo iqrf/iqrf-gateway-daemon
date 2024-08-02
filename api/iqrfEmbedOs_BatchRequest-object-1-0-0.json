@@ -9,11 +9,11 @@
   "type": "object",
   "description": "Single request for batch.",
   "properties": {
-    "pnum": {
+    "pNum": {
       "type": "string",
       "description": "Peripheral Number."
     },
-    "pcmd": {
+    "pCmd": {
       "type": "string",
       "description": "Peripheral Command."
     },
@@ -27,7 +27,7 @@
     }
   },
   "required": [
-    "pnum",
-    "pcmd"
+    "pNum",
+    "pCmd"
   ]
 }

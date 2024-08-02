@@ -38,14 +38,14 @@
       }
     },
     "response": {
-      "pnum": {
+      "pNum": {
         "title": "Peripheral",
         "description": "Peripheral number.",
         "type": "integer",
         "minimum": 0,
         "maximum": 255
       },
-      "pcmd": {
+      "pCmd": {
         "title": "Peripheral command",
         "description": "Peripheral command number.",
         "type": "integer",

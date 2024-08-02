@@ -13,8 +13,8 @@
           {
             "ctype": "dpa",
             "type": "raw-hdp",
-            "pnum": "06",
-            "pcmd": "01",
+            "pNum": "06",
+            "pCmd": "01",
             "hwpid": "ffff"
           }
         ]
