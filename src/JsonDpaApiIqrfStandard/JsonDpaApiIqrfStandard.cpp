@@ -427,10 +427,10 @@ namespace iqrf {
 
 		uint8_t pnum = 0, pcmd = 0;
 
-		if (Value *val = Pointer("/pNum").Get(doc)) {
+		if (Value *val = Pointer("/pnum").Get(doc)) {
 			HexStringConversion::parseHexaNum(pnum, val->GetString());
 		}
-		if (Value *val = Pointer("/pCmd").Get(doc)) {
+		if (Value *val = Pointer("/pcmd").Get(doc)) {
 			HexStringConversion::parseHexaNum(pcmd, val->GetString());
 		}
 
@@ -477,8 +477,8 @@ namespace iqrf {
 			dpavalStr = HexStringConversion::encodeHexaNum(dpaval);
 
 			//nadr, hwpid is not interesting for drivers
-			Pointer("/pNum").Set(doc, pnumStr);
-			Pointer("/pCmd").Set(doc, pcmdStr);
+			Pointer("/pnum").Set(doc, pnumStr);
+			Pointer("/pcmd").Set(doc, pcmdStr);
 			Pointer("/rcode").Set(doc, rcodeStr);
 			Pointer("/dpaval").Set(doc, rcodeStr);
 
