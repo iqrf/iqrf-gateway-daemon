@@ -114,14 +114,14 @@ namespace iqrf {
       using namespace rapidjson;
       Pointer("/data/rsp/nAdr").Set(doc, m_nadr);
       if (res.isResponded()) {
-        Pointer("/data/rsp/pnum").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.PNUM);
-        Pointer("/data/rsp/pcmd").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.PCMD);
+        Pointer("/data/rsp/pNum").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.PNUM);
+        Pointer("/data/rsp/pCmd").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.PCMD);
         Pointer("/data/rsp/hwpId").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.HWPID);
         Pointer("/data/rsp/rCode").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode);
         Pointer("/data/rsp/dpaVal").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue);
       } else {
-        Pointer("/data/rsp/pnum").Set(doc, res.getRequest().DpaPacket().DpaRequestPacket_t.PNUM);
-        Pointer("/data/rsp/pcmd").Set(doc, res.getRequest().DpaPacket().DpaRequestPacket_t.PCMD + 0x80);
+        Pointer("/data/rsp/pNum").Set(doc, res.getRequest().DpaPacket().DpaRequestPacket_t.PNUM);
+        Pointer("/data/rsp/pCmd").Set(doc, res.getRequest().DpaPacket().DpaRequestPacket_t.PCMD + 0x80);
         Pointer("/data/rsp/hwpId").Set(doc, -1);
         Pointer("/data/rsp/rCode").Set(doc, -1);
         Pointer("/data/rsp/dpaVal").Set(doc, -1);
