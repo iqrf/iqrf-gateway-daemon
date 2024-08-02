@@ -61,11 +61,6 @@
             "description": "...",
             "default": ""
         },
-        "EnabledSSL": {
-            "type": "boolean",
-            "description": "...",
-            "default": false
-        },
         "KeepAliveInterval": {
             "type": "integer",
             "description": "...",
