@@ -4,8 +4,8 @@
     "msgId": "testEmbedLedr",
     "rsp": {
       "nAdr": 1,
-      "pnum": 6,
-      "pcmd": 132,
+      "pNum": 6,
+      "pCmd": 132,
       "hwpId": 2,
       "rCode": 0,
       "dpaVal": 75
