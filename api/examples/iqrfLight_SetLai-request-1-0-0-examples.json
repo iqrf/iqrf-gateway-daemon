@@ -5,7 +5,7 @@
     "req": {
       "nAdr": 4,
       "param": {
-        "voltage": 3500
+        "voltage": 3.5
       }
     },
     "returnVerbose": true

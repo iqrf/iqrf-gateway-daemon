@@ -57,9 +57,10 @@
 								"voltage": {
 									"title": "Voltage",
 									"description": "Voltage to set (range of 0-10 V), resolution is 1 mV.",
-									"type": "integer",
+									"type": "number",
+									"multipleOf": 0.001,
 									"minimum": 0,
-									"maximum": 65535
+									"maximum": 10
 								}
 							}
 						}

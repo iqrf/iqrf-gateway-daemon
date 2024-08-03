@@ -78,9 +78,10 @@
 								"prevVoltage": {
 									"title": "Previous Voltage",
 									"description": "Voltage set before changing via the request.",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 65535
+									"type": "number",
+									"multipleOf": 0.001,
+									"minimum": 0,
+									"maximum": 10
 								}
 							}
 						},
