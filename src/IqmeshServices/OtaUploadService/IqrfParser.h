@@ -55,10 +55,10 @@ namespace iqrf {
 				}
 				linenum++;
 				try {
-					if (linenum <= 5 && !StringUtils::starsWith(record, "#")) {
+					if (linenum <= 5 && !StringUtils::startsWith(record, "#")) {
 						throw std::logic_error("IQRF plugins should start with 5 header records.");
 					}
-					if (StringUtils::starsWith(record, "#")) {
+					if (StringUtils::startsWith(record, "#")) {
 						switch (linenum) {
 						case 1:
 							ihp::iqrf::parseMcuHeader(record, m_mcu, m_tr);

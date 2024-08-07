@@ -23,28 +23,62 @@ namespace iqrf {
 	static const char *STRING_UTILS_WHITESPACE = " \t\n\r\f\v";
 	class StringUtils {
 	public:
+
+		/**
+		 * Trim from start
+		 * @param s String to trim
+		 * @return Trimmed string
+		 */
 		static void ltrim(std::string &s) {
 			s.erase(0, s.find_first_not_of(STRING_UTILS_WHITESPACE));
 		}
 
+		/**
+		 * Trim from end
+		 * @param s String to trim
+		 * @return Trimmed string
+		 */
 		static void rtrim(std::string &s) {
 			s.erase(s.find_last_not_of(STRING_UTILS_WHITESPACE) + 1);
 		}
 
+		/**
+		 * Trim from both ends
+		 * @param s String to trim
+		 * @return Trimmed string
+		 */
 		static void trim(std::string &s) {
 			rtrim(s);
 			ltrim(s);
 		}
 
-		static bool starsWith(const std::string &s, const std::string &prefix) {
+		/**
+		 * Check if string starts with prefix
+		 * @param s String to check
+		 * @param prefix Prefix to check
+		 * @return True if string starts with prefix
+		 */
+		static bool startsWith(const std::string &s, const std::string &prefix) {
 			return s.rfind(prefix, 0) == 0;
 		}
 
+		/**
+		 * Check if string ends with suffix
+		 * @param s String to check
+		 * @param suffix Suffix to check
+		 * @return True if string ends with suffix
+		 */
 		static bool endsWith(const std::string &s, const std::string &suffix) {
 			auto res = s.rfind(suffix);
 			return (res != std::string::npos) && res == (s.size() - suffix.size());
 		}
 
+		/**
+		 * Split string by delimiter
+		 * @param string String to split
+		 * @param delimiter Delimiter
+		 * @return Vector of strings
+		 */
 		static std::vector<std::string> split(const std::string &string, const std::string &delimiter) {
 			std::string token;
 			std::vector<std::string> tokens;
