@@ -17,11 +17,15 @@
 
 #define IMessagingService_EXPORTS
 
+#include <filesystem>
+#include <future>
+
+#include <unistd.h>
+
 #include "MqttMessaging.h"
 #include "TaskQueue.h"
 #include "MQTTAsync.h"
-#include <atomic>
-#include <future>
+#include "StringUtils.h"
 
 #define CONNECTION(broker, client)  "[" << broker << ":" << client << "]: "
 
@@ -102,11 +106,11 @@ namespace iqrf {
 
   public:
     //------------------------
-    MqttMessagingImpl()
-      : m_toMqttMessageQueue(nullptr)
-    {
-      m_connected = false;
-    }
+    MqttMessagingImpl():
+      m_toMqttMessageQueue(nullptr),
+      m_connected(false),
+      m_subscribed(false)
+    {}
 
     //------------------------
     ~MqttMessagingImpl()
@@ -128,7 +132,6 @@ namespace iqrf {
       props->getMemberAsString("TopicResponse", m_mqttTopicResponse);
       props->getMemberAsString("User", m_mqttUser);
       props->getMemberAsString("Password", m_mqttPassword);
-      props->getMemberAsBool("EnabledSSL", m_mqttEnabledSSL);
 
       props->getMemberAsString("TrustStore", m_trustStore);
       props->getMemberAsString("KeyStore", m_keyStore);
@@ -145,6 +148,18 @@ namespace iqrf {
 
       // update messaging instance
       m_messagingInstance.instance = instanceName;
+      // detect if TLS should be enabled
+      if (
+        iqrf::StringUtils::startsWith(m_mqttBrokerAddr, "ssl://") ||
+        iqrf::StringUtils::startsWith(m_mqttBrokerAddr, "mqtts://") ||
+        iqrf::StringUtils::startsWith(m_mqttBrokerAddr, "wss://")
+      ) {
+        m_mqttEnabledSSL = true;
+      }
+      // generate ClientId if not set
+      if (m_mqttClientId.empty()) {
+        m_mqttClientId = "iqrf-gateway-daemon_" + std::to_string(getpid());
+      }
 
       TRC_FUNCTION_LEAVE("");
     }
@@ -160,11 +175,45 @@ namespace iqrf {
 
       m_ssl_opts.enableServerCertAuth = true;
 
-      if (!m_trustStore.empty()) m_ssl_opts.trustStore = m_trustStore.c_str();
-      if (!m_keyStore.empty()) m_ssl_opts.keyStore = m_keyStore.c_str();
-      if (!m_privateKey.empty()) m_ssl_opts.privateKey = m_privateKey.c_str();
-      if (!m_privateKeyPassword.empty()) m_ssl_opts.privateKeyPassword = m_privateKeyPassword.c_str();
-      if (!m_enabledCipherSuites.empty()) m_ssl_opts.enabledCipherSuites = m_enabledCipherSuites.c_str();
+      if (!m_trustStore.empty()) {
+        if (!std::filesystem::exists(m_trustStore)) {
+          TRC_ERROR(
+            CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+            "TrustStore file does not exist: " <<
+            PAR(m_trustStore)
+          );
+        } else {
+          m_ssl_opts.trustStore = m_trustStore.c_str();
+        }
+      }
+      if (!m_keyStore.empty()) {
+        if (!std::filesystem::exists(m_keyStore)) {
+          TRC_ERROR(
+            CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+            "KeyStore file does not exist: " <<
+            PAR(m_keyStore)
+          );
+        } else {
+          m_ssl_opts.keyStore = m_keyStore.c_str();
+        }
+      }
+      if (!m_privateKey.empty()) {
+        if (!std::filesystem::exists(m_privateKey)) {
+          TRC_ERROR(
+            CONNECTION(m_mqttBrokerAddr, m_mqttClientId) <<
+            "PrivateKey file does not exist: " <<
+            PAR(m_privateKey)
+          );
+        } else {
+          m_ssl_opts.privateKey = m_privateKey.c_str();
+        }
+      }
+      if (!m_privateKeyPassword.empty()) {
+        m_ssl_opts.privateKeyPassword = m_privateKeyPassword.c_str();
+      }
+      if (!m_enabledCipherSuites.empty()) {
+        m_ssl_opts.enabledCipherSuites = m_enabledCipherSuites.c_str();
+      }
       m_ssl_opts.enableServerCertAuth = m_enableServerCertAuth;
 
       int retval;
