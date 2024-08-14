@@ -265,7 +265,12 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.Read_Response_rsp = function (rawHdp) {
-    return iqrf.embed.os.Read_Response(rawHdp);
+    let result = iqrf.embed.os.Read_Response(rawHdp);
+    if (result.hasOwnProperty('trMcuType')) {
+        result['trType'] = result['trMcuType'];
+        delete result['trMcuType']
+    }
+    return result;
   };
 
   iqrf.embed.os.Reset_Request_req = function (param) {
