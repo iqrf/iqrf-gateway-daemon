@@ -1,74 +1,82 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfEmbedOs_Sleep-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral OS - Sleep request",
+  "description": "(c) IQRF Tech",
   "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "Embedded peripheral OS - Sleep request.",
-      "enum": [
-        "iqrfEmbedOs_Sleep"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
-        },
-        "req": {
-          "type": "object",
-          "properties": {
-            "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
-            },
-            "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
-            },
-            "param": {
-              "type": "object",
-              "properties": {
-                "time": {
-                  "type": "integer",
-                  "description": "Sleep time in 2.097 s or 32.768 ms units. See Control.bit.4."
-                },
-                "control": {
-                  "type": "integer",
-                  "description": "See DPA guide."
-                }
-              }
-            }
-          },
-          "required": [
-            "nAdr",
-            "param"
-          ]
-        },
-        "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
-        }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
-    }
-  },
   "required": [
     "mType",
     "data"
-  ]
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfEmbedOs_Sleep" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "param"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/request/hwpId"
+            },
+            "param": {
+              "title": "Request parameters",
+              "description": "Specific request parameters.",
+              "type": "object",
+              "required": [
+                "time",
+                "control"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "time": {
+                  "type": "integer",
+                  "description": "Sleep time in 2.097 s or 32.768 ms units. See Control.bit.4.",
+                  "minimum": 0,
+                  "maximum": 65535
+                },
+                "control": {
+                  "type": "integer",
+                  "description": "See DPA guide.",
+                  "minimum": 0,
+                  "maximum": 255
+                }
+              }
+            }
+          }
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
+        }
+      }
+    }
+  }
 }
