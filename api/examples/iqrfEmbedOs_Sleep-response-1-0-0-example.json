@@ -4,19 +4,22 @@
     "msgId": "testEmbedOs",
     "rsp": {
       "nAdr": 2,
+      "pNum": 2,
+      "pCmd": 132,
       "hwpId": 3074,
       "rCode": 0,
-      "dpaVal": 68,
-      "result": {}
+      "dpaVal": 68
     },
-    "raw": {
-      "request": "02.00.02.04.ff.ff.01.00.00",
-      "requestTs": "2018-07-16T19:54:28.652859",
-      "confirmation": "02.00.02.04.ff.ff.ff.37.02.04.02",
-      "confirmationTs": "2018-07-16T19:54:28.678066",
-      "response": "02.00.02.84.02.0c.00.44",
-      "responseTs": "2018-07-16T19:54:28.973724"
-    },
+    "raw": [
+      {
+        "request": "02.00.02.04.ff.ff.01.00.00",
+        "requestTs": "2018-07-16T19:54:28.652859",
+        "confirmation": "02.00.02.04.ff.ff.ff.37.02.04.02",
+        "confirmationTs": "2018-07-16T19:54:28.678066",
+        "response": "02.00.02.84.02.0c.00.44",
+        "responseTs": "2018-07-16T19:54:28.973724"
+      }
+    ],
     "insId": "iqrfgd2-1",
     "statusStr": "ok",
     "status": 0
