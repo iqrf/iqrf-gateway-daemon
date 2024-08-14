@@ -1,235 +1,219 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfEmbedOs_Read-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral OS - Read response",
+  "description": "(c) IQRF Tech",
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "Embedded peripheral OS - Read response.",
-      "enum": [
-        "iqrfEmbedOs_Read"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfEmbedOs_Read" }
       ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
+          "$ref": "definitions.json#/general/msgId"
         },
         "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
           "type": "object",
+          "required": [
+            "nAdr",
+            "pNum",
+            "pCmd",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ],
+          "additionalProperties": false,
           "properties": {
             "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
+              "$ref": "definitions.json#/general/nAdr"
             },
             "pNum": {
-              "type": "integer",
-              "description": "Peripheral number."
+              "$ref": "definitions.json#/general/response/pNum"
             },
             "pCmd": {
-              "type": "integer",
-              "description": "Peripheral response command."
+              "$ref": "definitions.json#/general/response/pCmd"
             },
             "hwpId": {
-              "oneOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Hardware profile identification."
+              "$ref": "definitions.json#/general/response/hwpId"
             },
             "rCode": {
-              "oneOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "DPA error code."
+              "$ref": "definitions.json#/general/response/rCode"
             },
             "dpaVal": {
-              "oneOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "DPA value."
+              "$ref": "definitions.json#/general/response/dpaVal"
             },
             "result": {
+              "title": "Result",
+              "description": "Contains the results of the request",
               "type": "object",
+              "required": [
+                "mid",
+                "osVersion",
+                "trType",
+                "osBuild",
+                "rssi",
+                "supplyVoltage",
+                "flags",
+                "slotLimits",
+                "ibk",
+                "dpaVer",
+                "perNr",
+                "embeddedPers",
+                "hwpid",
+                "hwpidVer",
+                "flagsEnum",
+                "userPer"
+              ],
+              "additionalProperties": false,
               "properties": {
                 "mid": {
                   "type": "number",
-                  "description": "TR Module ID."
+                  "description": "TR Module ID.",
+                  "minimum": 0,
+                  "maximum": 4294967295
                 },
                 "osVersion": {
                   "type": "integer",
-                  "description": "IQRF OS version."
+                  "description": "IQRF OS version.",
+                  "minimum": 0,
+                  "maximum": 255
                 },
-                "trMcuType": {
+                "trType": {
                   "type": "integer",
-                  "description": "TR MCU type."
+                  "description": "TR MCU type.",
+                  "minimum": 0,
+                  "maximum": 255
                 },
                 "osBuild": {
                   "type": "integer",
-                  "description": "IQRF OS build."
+                  "description": "IQRF OS build.",
+                  "minimum": 0,
+                  "maximum": 65535
                 },
                 "rssi": {
                   "type": "integer",
-                  "description": "See lastRSSI at IQRF OS Reference Guide."
+                  "description": "See lastRSSI at IQRF OS Reference Guide.",
+                  "minimum": 0,
+                  "maximum": 255
                 },
                 "supplyVoltage": {
                   "type": "number",
-                  "description": "Module supply voltage, contains real voltage value."
+                  "description": "Module supply voltage, contains real voltage value.",
+                  "minimum": 0,
+                  "maximum": 255
                 },
                 "flags": {
                   "type": "integer",
-                  "description": "See DPA guide."
+                  "description": "See DPA guide.",
+                  "minimum": 0,
+                  "maximum": 255
                 },
                 "slotLimits": {
                   "type": "integer",
-                  "description": "See DPA guide."
+                  "description": "See DPA guide.",
+                  "minimum": 0,
+                  "maximum": 255
                 },
                 "ibk": {
                   "type": "array",
                   "description": "Individual Bonding Key.",
                   "items": {
                     "type": "integer",
-                    "minItems": 16,
-                    "maxItems": 16,
-                    "default": 0
-                  }
+                    "default": 0,
+                    "minimum": 0,
+                    "maximum": 255
+                  },
+                  "minItems": 16,
+                  "maxItems": 16
                 },
                 "dpaVer": {
                   "type": "integer",
-                  "description": "DPA protocol version."
+                  "description": "DPA version.",
+                  "minimum": 0,
+                  "maximum": 65535
                 },
-                "perNr": {
+                "userPerNr": {
                   "type": "integer",
-                  "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler."
+                  "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler.",
+                  "minimum": 0,
+                  "maximum": 255
                 },
                 "embeddedPers": {
                   "type": "array",
-                  "description": "Bits array (starting from LSb of the 1st byte) specifying which of 32 embedded peripherals are enabled in the TR Configuration.",
+                  "description": "Array of embedded peripherals (their ordinal numbers), which are enabled in the TR configuration.",
                   "items": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 32
                   }
                 },
                 "hwpid": {
-                  "type": "integer",
-                  "description": "Hardware profile ID, 0x0000 if default. At Enumerate Peripherals event the field is prefilled by 0x0000."
+                  "$ref": "definitions.json#/general/response/hwpId"
                 },
                 "hwpidVer": {
                   "type": "integer",
-                  "description": "Hardware profile version, 1st byte = minor version, 2nd byte = major version. At Enumerate Peripherals event the field is prefilled by 0x0000."
+                  "description": "Hardware profile version.",
+                  "minimum": 0,
+                  "maximum": 65535
                 },
                 "flagsEnum": {
                   "type": "integer",
-                  "description": "Various flags: bit 0 - Device works in STD-RX mode, bit 1 - Device works in LP-RX mode, bit 2 - STD+LP network is running, otherwise STD network."
+                  "description": "Various flags: bit 0 - Device works in STD-RX mode, bit 1 - Device works in LP-RX mode, bit 2 - STD+LP network is running, otherwise STD network.",
+                  "minimum": 0,
+                  "maximum": 255
                 },
                 "userPer": {
                   "type": "array",
-                  "description": "Bits array (starting from LSb of the 1st byte) specifying which of non-embedded peripherals are implemented.",
+                  "description": "Array of implemented non-embedded peripherals (their ordinal numbers).",
                   "items": {
-                    "type": "integer"
-                  }
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                  },
+                  "maxItems": 12
                 }
               }
             },
             "errorStr": {
-              "type": "string",
-              "description": "Error description from JS drivers."
+              "$ref": "definitions.json#/general/response/errorStr"
             }
-          },
-          "required": [
-            "nAdr",
-            "hwpId",
-            "rCode",
-            "dpaVal"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
           }
         },
+        "raw": {
+          "$ref": "definitions.json#/general/response/raw"
+        },
         "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
+          "$ref": "definitions.json#/general/response/insId"
         },
         "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
+          "$ref": "definitions.json#/general/response/status"
         },
         "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
         }
-      },
-      "required": [
-        "msgId",
-        "rsp",
-        "status"
-      ]
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }
