@@ -265,7 +265,7 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.Read_Response_rsp = function (rawHdp) {
-    let result = iqrf.embed.os.Read_Response(rawHdp);
+    var result = iqrf.embed.os.Read_Response(rawHdp);
     if (result.hasOwnProperty('trMcuType')) {
         result['trType'] = result['trMcuType'];
         delete result['trMcuType'];
