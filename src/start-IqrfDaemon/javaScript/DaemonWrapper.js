@@ -267,8 +267,12 @@ if (iqrf.embed.os !== undefined) {
   iqrf.embed.os.Read_Response_rsp = function (rawHdp) {
     var result = iqrf.embed.os.Read_Response(rawHdp);
     if (result.hasOwnProperty('trMcuType')) {
-        result['trType'] = result['trMcuType'];
+        Object.defineProperty(result, 'trType', Object.getOwnPropertyDescriptor(result, 'trMcuType'));
         delete result['trMcuType'];
+    }
+    if (result.hasOwnProperty('perNr')) {
+        Object.defineProperty(result, 'userPerNr', Object.getOwnPropertyDescriptor(result, 'perNr'));
+        delete result['perNr'];
     }
     return result;
   };
