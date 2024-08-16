@@ -4,10 +4,11 @@
     "msgId": "testEmbedOs",
     "rsp": {
       "nAdr": 1,
+      "pNum": 2,
+      "pCmd": 135,
       "hwpId": 1026,
       "rCode": 0,
-      "dpaVal": 91,
-      "result": {}
+      "dpaVal": 91
     },
     "raw": [
       {
