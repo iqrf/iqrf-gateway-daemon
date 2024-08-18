@@ -317,11 +317,11 @@ if (iqrf.embed.os !== undefined) {
     for (var index = 0; index < param.requests.length; index++) {
         var request = param.requests[index];
         requests[index] = {
-            pnum: String(request.pNum).padStart(2, '0'),
-            pcmd: String(request.pCmd).padStart(2, '0'),
+            pnum: ("00" + request.pNum).slice(-2),
+            pcmd: ("00" + request.pCmd).slice(-2),
         };
         if (request.hasOwnProperty("hwpId")) {
-            requests[index].hwpid = request.hwpId.toString(16).padStart(4, '0');
+            requests[index].hwpid = ("0000" + request.hwpId.toString(16)).slice(-4);
         }
         if (request.hasOwnProperty("rData")) {
             requests[index].rdata = request.rData;
