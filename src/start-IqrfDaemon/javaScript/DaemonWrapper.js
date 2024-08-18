@@ -313,7 +313,21 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.Batch_Request_req = function (param) {
-    return iqrf.embed.os.Batch_Request(param.requests);
+    var requests = [];
+    for (var index = 0; index < param.requests.length; index++) {
+        var request = param.requests[index];
+        requests[index] = {
+            pnum: String(request.pNum).padStart(2, '0'),
+            pcmd: String(request.pCmd).padStart(2, '0'),
+        };
+        if (request.hasOwnProperty("hwpId")) {
+            requests[index].hwpid = request.hwpId.toString(16).padStart(4, '0');
+        }
+        if (request.hasOwnProperty("rData")) {
+            requests[index].rdata = request.rData;
+        }
+    }
+    return iqrf.embed.os.Batch_Request(requests);
   };
 
   iqrf.embed.os.Batch_Response_rsp = function (rawHdp) {

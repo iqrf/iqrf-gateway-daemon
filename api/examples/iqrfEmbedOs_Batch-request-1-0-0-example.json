@@ -7,11 +7,8 @@
       "param": {
         "requests": [
           {
-            "ctype": "dpa",
-            "type": "raw-hdp",
-            "nadr": "01",
-            "pNum": "06",
-            "pCmd": "01"
+            "pNum": 6,
+            "pCmd": 1
           }
         ]
       }
