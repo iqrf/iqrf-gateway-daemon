@@ -4,16 +4,11 @@
     "msgId": "testEmbedOs",
     "rsp": {
       "nAdr": 255,
-      "hwpId": -1,
+      "pNum": 2,
+      "pCmd": 139,
+      "hwpId": 0,
       "rCode": 0,
-      "dpaVal": 0,
-      "result": {
-        "response": "unrequired",
-        "selectedNodes": [
-          1,
-          2
-        ]
-      }
+      "dpaVal": 0
     },
     "raw": [
       {
