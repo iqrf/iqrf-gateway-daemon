@@ -375,7 +375,21 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.SelectiveBatch_Request_req = function (param) {
-    return iqrf.embed.os.SelectiveBatch_Request(param.selectedNodes, param.requests);
+      var requests = [];
+      for (var index = 0; index < param.requests.length; index++) {
+          var request = param.requests[index];
+          requests[index] = {
+              pnum: ("00" + request.pNum).slice(-2),
+              pcmd: ("00" + request.pCmd).slice(-2),
+          };
+          if (request.hasOwnProperty("hwpId")) {
+              requests[index].hwpid = ("0000" + request.hwpId.toString(16)).slice(-4);
+          }
+          if (request.hasOwnProperty("rData")) {
+              requests[index].rdata = request.rData;
+          }
+      }
+    return iqrf.embed.os.SelectiveBatch_Request(param.selectedNodes, requests);
   };
 
   iqrf.embed.os.SelectiveBatch_Response_rsp = function (rawHdp) {
