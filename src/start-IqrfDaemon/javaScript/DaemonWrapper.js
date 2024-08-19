@@ -367,7 +367,6 @@ if (iqrf.embed.os !== undefined) {
   };
 
   iqrf.embed.os.LoadCode_Response_rsp = function (rawHdp) {
-    iqrf.embed.os.LoadCode_Response(rawHdp);
     var result =
     {
       loadingCode: iqrf.embed.os.LoadCode_Response(rawHdp)
