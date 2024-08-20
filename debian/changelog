@@ -1,10 +1,65 @@
-iqrf-gateway-daemon (2.6.0~alpha~1.gbpfc8b96) UNRELEASED; urgency=medium
+iqrf-gateway-daemon (2.6.0~beta1) stable; urgency=medium
 
-  ** SNAPSHOT build @fc8b96fee0c1e0f36ff6c5e810a0f19687eb75d5 **
+  [ Karel Hanák ]
+  * Prepare for version 2.6.0-alpha
+  * MqttMessaging: set cleanSession according to qos value
+  * JsonDpaApiIqrfStdExt: fixed an error causing crashes when standard frc request is sent in to daemon in service mode
+  * IdeCounterpart: include GW_ADDR in asynchronous TR packets
+  * changed api testing image to latest
 
-  * UNRELEASED
+  [ Roman Ondráček ]
+  * CMake: rework version handling
 
- -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 29 Aug 2023 13:47:30 +0200
+  [ Karel Hanák ]
+  * AutonetworkService: always report new nodes
+  * MonitorService: added notification worker invocation message: IdeCounterpart: mode set callbacks
+  * websocket: set deployment configuration to accept connections from localhost only
+  * api: added ntfDaemon_InvokeMonitor examples
+  * MonitorService: unregister mode change callback before removing interface
+  * updated license headers
+
+  [ Roman Ondráček ]
+  * Debian packaging: use xz compression type for package packing
+  * Debian packaging: add gbp config
+
+  [ Karel Hanák ]
+  * JsonDpaApiIqrfStandard: pass error message to response when driver request error occurs
+  * JsRenderDuktape: use default HWPID context as fallback in case of missing driver peripheral namespaces for address 0
+  * IqrfInfo: always load coordinator device drivers
+  * JsCache: cache updater, cache download and initialization rework, validation, support for quantities and metadata
+  * JsonDpaApiIqrfStdExt: include DALI command in FRC response
+  * JsonDpaApiIqrfStdExt: use nlohmann to process frc responses, fixed selected nodes
+  * JsCache: parse metadata as array of objects, allow extra data in metadata
+  * clibdpa: updated submodule reference
+  * api: updated DALI FRC examples
+  * api: updated Sensor FRC examples
+  * API: updated iqmeshNetwork_RemoveBondOnlyInC examples
+  * API: iqmeshNetwork_RemoveBondOnlyInC deviceAddr made optional
+  * JsCache: added support for power supply metadata, updated jsonschemas and metadata structure
+  * metadata: fixed version condition in jsonschema
+  * JsCache: support for floating point values of product voltage properties
+
+  [ Roman Ondráček ]
+  * GitLab CI: build package for Ubuntu 24.04 Noble Numbat
+  * CMake: fix build on Ubuntu 24.04
+  * Update iqrf-header-parser and fix build on Ubuntu 24.04
+
+  [ Karel Hanák ]
+  * Added support for new IQRF Light standard
+
+  [ Roman Ondráček ]
+  * Docker: update deocker images
+
+  [ Karel Hanák ]
+  * include device mid and hwpid in sensor/dali/light frc responses with extended format
+  * iqrfLight_SetLai: accept voltage as number in volts
+
+  [ Roman Ondráček ]
+  * .mailmap: update mappings
+  * StringUtils: fix name of startsWith method, add missing document comments
+  * MqttMessaging: autodetect TLS usage from MQTT broker URI protocol
+
+ -- Roman Ondráček <mail@romanondracek.cz>  Tue, 20 Aug 2024 02:58:47 +0200
 
 iqrf-gateway-daemon (2.5.0) stable; urgency=medium
 
