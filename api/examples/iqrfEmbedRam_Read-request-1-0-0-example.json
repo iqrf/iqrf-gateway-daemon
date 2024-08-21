@@ -6,7 +6,7 @@
       "nAdr": 1,
       "param": {
         "address": 0,
-        "len": 10
+        "length": 10
       }
     },
     "returnVerbose": true
