@@ -63,7 +63,8 @@
                 "length": {
                   "type": "integer",
                   "description": "Length of data to read.",
-                  "minimum": 0
+                  "minimum": 0,
+                  "maximum": 255
                 }
               }
             }
