@@ -6,13 +6,7 @@
       "nAdr": 1,
       "param": {
         "address": 0,
-        "pData": [
-          0,
-          1,
-          2,
-          3,
-          4
-        ]
+        "pData": [0, 1, 2, 3, 4]
       }
     },
     "returnVerbose": true
