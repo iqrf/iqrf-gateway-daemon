@@ -3,8 +3,7 @@
   "data": {
     "msgId": "testEmbedThermometer",
     "req": {
-      "nAdr": 3,
-      "param": {}
+      "nAdr": 3
     },
     "returnVerbose": true
   }
