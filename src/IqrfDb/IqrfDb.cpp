@@ -1356,15 +1356,12 @@ namespace iqrf {
 		// select devices to enumerate
 		std::map<uint32_t, uint8_t> devices;
 		for (auto &device : m_db->iterate<Device>()) {
-			if (!device.isEnumerated() || m_params.reenumerate) {
+			if (!device.isEnumerated() || m_toEnumerate.count(device.getAddress())) {
 				devices.insert(std::make_pair(device.getId(), device.getAddress()));
 			}
 		}
 
-		for (auto &device : devices) {
-			uint32_t deviceId = device.first;
-			uint8_t address = device.second;
-
+		for (auto &[deviceId, address] : devices) {
 			// get device standard peripherals
 			auto peripherals = m_db->select(&Driver::getPeripheralNumber,
 				inner_join<ProductDriver>(on(c(&ProductDriver::getDriverId) == &Driver::getId)),
@@ -1409,7 +1406,7 @@ namespace iqrf {
 				if (sensor) {
 					sensorEnumeration(address);
 				} else {
-					this->query.removeSensors(deviceId);
+					this->query.removeSensors(address);
 				}
 				// set as enumerated
 				auto dbDevice = m_db->get<Device>(deviceId);
