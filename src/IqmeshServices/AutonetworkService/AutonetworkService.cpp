@@ -1729,13 +1729,13 @@ namespace iqrf {
         strWaveState = "The AutoNetwork process cannot be started because the number of existing nodes plus number of new nodes exceeds the maximum network size.";
         break;
       case TWaveStateCode::cannotStartProcessTotalNodesNrMidList:
-        strWaveState = "The AutoNetwork process cannot be started because the Number of total Nodes stop condition is higher than number of already bonded Nodes and not bonded Nodes in the MID list file. Change stop conditions or add Nodes to the MID list file.";
+        strWaveState = "The AutoNetwork process cannot be started because the number of total Nodes stop condition is higher than number of already bonded nodes and not bonded Nodes in the MID list. Change stop conditions or add nodes to the MID list.";
         break;
       case TWaveStateCode::cannotStartProcessNewNodesNrMidList:
-        strWaveState = "The AutoNetwork process cannot be started because the Number of new Nodes stop condition is higher than number of not bonded Nodes in the MID list file. Change stop conditions or add not bonded Nodes to the MID list file.Alternatively, disable the MID filtering option.";
+        strWaveState = "The AutoNetwork process cannot be started because the number of new Nodes stop condition is higher than number of not bonded nodes in the MID list. Change stop conditions or add not bonded Nodes to the MID list. Alternatively, disable the MID filtering option.";
         break;
       case TWaveStateCode::cannotStartProcessAllNodesMidListBonded:
-        strWaveState = "The AutoNetwork process cannot be started because all Nodes in the MID list file are already bonded. Add not bonded Nodes to the MID list file or disable the MID filtering option.";
+        strWaveState = "The AutoNetwork process cannot be started because all nodes in the MID list are already bonded. Add not bonded nodes to the MID list or disable the MID filtering option.";
         break;
       case TWaveStateCode::cannotStartProcessDuplicitMidInCoord:
         strWaveState = "The AutoNetwork process cannot be started because the Coordinator's IQMESH database contains the same Node(s) bonded to more addresses. Please inspect the duplicate MID values in the MID column in the Table View and unbond the duplicate Node(s) in the Coordinator only.";
@@ -1744,7 +1744,7 @@ namespace iqrf {
         strWaveState = "The AutoNetwork process cannot start because there is no free network address limited by address space. Change the value in the address space.";
         break;
       case TWaveStateCode::abortOnAllAddressesFromAddressSpaceAllocated:
-        strWaveState = "All available network addresses limited by the Address space were assigned. No new Node can be bonded.";
+        strWaveState = "All available network addresses limited by the address space were assigned. No new Node can be bonded.";
         break;
       case TWaveStateCode::abortOnAllMIDsFromMidListAllocated:
         strWaveState = "All Nodes with MIDs from the MID list were found. No new Node can be bonded.";
@@ -2110,7 +2110,7 @@ namespace iqrf {
             {
               if ((antwInputParams.stopConditions.numberOfTotalNodes != 0) && (antwInputParams.stopConditions.numberOfTotalNodes > antwProcessParams.bondedNodesNr + countNewNodes))
               {
-                TRC_INFORMATION("The AutoNetwork process cannot be started because the Number of total Nodes stop condition is higher than number of already bonded Nodes and not bonded Nodes in the MID list file. Change stop conditions or add Nodes to the MID list file.");
+                TRC_INFORMATION("The AutoNetwork process cannot be started because the Number of total Nodes stop condition is higher than number of already bonded Nodes and not bonded Nodes in the MID list. Change stop conditions or add Nodes to the MID list.");
                 antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessTotalNodesNrMidList;
                 sendWaveResult(autonetworkResult);
                 TRC_FUNCTION_LEAVE("");
@@ -2119,7 +2119,7 @@ namespace iqrf {
 
               if ((antwInputParams.stopConditions.numberOfNewNodes != 0) && (antwInputParams.stopConditions.numberOfNewNodes > countNewNodes))
               {
-                TRC_INFORMATION("The AutoNetwork process cannot be started because the Number of new Nodes stop condition is higher than number of not bonded Nodes in the MID list file. Change stop conditions or add not bonded Nodes to the MID list file.Alternatively, disable the MID filtering option.");
+                TRC_INFORMATION("The AutoNetwork process cannot be started because the Number of new Nodes stop condition is higher than number of not bonded Nodes in the MID list. Change stop conditions or add not bonded Nodes to the MID list.Alternatively, disable the MID filtering option.");
                 antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessNewNodesNrMidList;
                 sendWaveResult(autonetworkResult);
                 TRC_FUNCTION_LEAVE("");
@@ -2130,7 +2130,7 @@ namespace iqrf {
 
           if ((countNewNodes == 0) && (antwProcessParams.bondedNodesNr != 0))
           {
-            TRC_INFORMATION("The AutoNetwork process cannot be started because all Nodes in the MID list file are already bonded. Add not bonded Nodes to the MID list file or disable the MID filtering option.");
+            TRC_INFORMATION("The AutoNetwork process cannot be started because all Nodes in the MID list are already bonded. Add not bonded Nodes to the MID list or disable the MID filtering option.");
             antwProcessParams.waveStateCode = TWaveStateCode::cannotStartProcessAllNodesMidListBonded;
             sendWaveResult(autonetworkResult);
             TRC_FUNCTION_LEAVE("");
