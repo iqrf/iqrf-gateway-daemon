@@ -100,6 +100,12 @@ public:
 	void setDeviceMetadata(const uint8_t &address, const std::string &metadata);
 
 	/**
+	 * Return map of device addresses and product IDs
+	 * @return std::map<uint8_t, uint32_t> Map of device addresses and product IDs
+	 */
+	std::map<uint8_t, uint32_t> getDeviceProductIdMap();
+
+	/**
 	 * Returns ID of coordinator device
 	 * @param db Database pointer
 	 * @return ID of coordinator device, 0 if C device doesn't exist
