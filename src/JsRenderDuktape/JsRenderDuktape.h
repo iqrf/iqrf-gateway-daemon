@@ -104,6 +104,13 @@ namespace iqrf {
 		std::set<uint32_t> getDriverIdSet(int contextId) const override;
 
 		/**
+		 * Returns loaded product context ID by device address
+		 * @param address Device address
+		 * @return std::shared_ptr<int> Poaded product context ID
+		 */
+		std::shared_ptr<int> getDeviceAddrProductId(int address) const override;
+
+		/**
 		 * Clears all driver contexts, device and address mapping
 		 */
 		void clearContexts() override;
