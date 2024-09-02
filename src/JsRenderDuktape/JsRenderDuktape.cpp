@@ -176,6 +176,14 @@ namespace iqrf {
 		return context->second;
 	}
 
+	std::shared_ptr<int> JsRenderDuktape::getDeviceAddrProductId(int address) const {
+		auto result = m_addressContextMap.find(address);
+		if (result == m_addressContextMap.end()) {
+			return nullptr;
+		}
+		return std::make_shared<int>(result->second);
+	}
+
 	void JsRenderDuktape::clearContexts() {
 		TRC_FUNCTION_ENTER("");
 		std::unique_lock<std::mutex> lck(m_contextMtx);

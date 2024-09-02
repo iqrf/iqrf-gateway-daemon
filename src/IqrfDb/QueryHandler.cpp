@@ -139,6 +139,15 @@ void QueryHandler::setDeviceMetadata(const uint8_t &address, const std::string &
 	db->update(d);
 }
 
+std::map<uint8_t, uint32_t> QueryHandler::getDeviceProductIdMap() {
+	std::map<uint8_t, uint32_t> map;
+	auto records = db->select(columns(&Device::getAddress, &Device::getProductId));
+	for (auto &record : records) {
+		map.insert_or_assign(std::get<0>(record), std::get<1>(record));
+	}
+	return map;
+}
+
 ///// Product /////
 
 std::uint32_t QueryHandler::getCoordinatorProductId() {

@@ -1590,14 +1590,15 @@ namespace iqrf {
 			std::shared_ptr<IJsCacheService::StdDriver> cacheDriver = m_cacheService->getDriver(driverId, driverVersion);
 			if (cacheDriver != nullptr) {
 				ss << *cacheDriver->getDriver();
+				TRC_DEBUG("[C] Loading driver ID " << driverId << ", version " << driverVersion);
 			} else {
-				TRC_WARNING("No driver found in cache for ID: " << driverId << ", version: " << driverVersion);
+				TRC_WARNING("[C] No driver found in cache for ID: " << driverId << ", version: " << driverVersion);
 			}
 			if (driverId == PERIPHERAL_LIGHT && driverVersion > 0) {
 				cacheDriver = m_cacheService->getDriver(driverId, 0);
 				if (cacheDriver != nullptr) {
 					ss << *cacheDriver->getDriver();
-					TRC_INFORMATION("Loading deprecated DALI driver for compatibility.");
+					TRC_INFORMATION("[C] Loading deprecated DALI driver for compatibility.");
 				}
 			}
 		}
@@ -1622,65 +1623,75 @@ namespace iqrf {
 		std::string wrapper = loadWrapper();
 
 		try {
-			std::map<uint32_t, std::set<uint32_t>> productsDrivers = this->query.getProductsDriversMap();
-			std::set<uint8_t> reloadDevices;
+
+			std::map<uint32_t, std::set<uint32_t>> productsDriversMap = this->query.getProductsDriversMap();
+			std::set<uint32_t> productsToLoad;
 
 			uint32_t coordinatorProductId = this->query.getCoordinatorProductId();
 
-			// check if device drivers need to be reloaded
-			for (auto &pd : productsDrivers) {
-				const uint8_t productId = pd.first;
-				const std::set<uint32_t> &dbDrivers = pd.second;
-				auto currentDrivers = m_renderService->getDriverIdSet(productId);
-				if (currentDrivers != dbDrivers) {
-					reloadDevices.insert(productId);
+			auto deviceAddrProductIdMap = this->query.getDeviceProductIdMap();
+			for (auto &[addr, productId] : deviceAddrProductIdMap) {
+				if (productsToLoad.count(productId)) {
+					continue;
+				}
+				auto loadedProductId = m_renderService->getDeviceAddrProductId(addr);
+				if (loadedProductId == nullptr || *loadedProductId.get() != productId) {
+					productsToLoad.insert(productId);
+					continue;
+				}
+				auto loadedDrivers = m_renderService->getDriverIdSet(productId);
+				auto productDriverRecord = productsDriversMap.find(productId);
+				if (productDriverRecord == productsDriversMap.end()) {
+					continue;
+				}
+				auto productDriverSet = productDriverRecord->second;
+				if (productDriverSet != loadedDrivers) {
+					productsToLoad.insert(productId);
 				}
 			}
 
-			if (reloadDevices.size() > 0) {
-				for (uint32_t productId : reloadDevices) {
-					std::string customDriver = this->query.getProductCustomDriver(productId);
-					std::vector<Driver> drivers = this->query.getProductDrivers(productId);
+			for (uint32_t productId : productsToLoad) {
+				std::string customDriver = this->query.getProductCustomDriver(productId);
+				std::vector<Driver> drivers = this->query.getProductDrivers(productId);
 
-					if (productId == coordinatorProductId) { // ensure standard FRC backwards compatibility
-						drivers = this->query.getNewestDrivers();
-					}
-
-					std::ostringstream drv, adr;
-					std::stringstream ss;
-					std::set<uint32_t> driverSet;
-					for (auto driver : drivers) {
-						driverSet.insert(driver.getId());
-						ss << driver.getDriver() << std::endl;
-						drv << '[' << driver.getPeripheralNumber() << ',' << std::fixed << std::setprecision(2) << driver.getVersion() << ']';
-					}
-
-					ss << customDriver << std::endl;
-					ss << wrapper << std::endl;
-					bool success = m_renderService->loadContextCode(productId, ss.str(), driverSet);
-
-					if (!success) {
-						TRC_WARNING_CHN(
-							33,
-							"iqrf::JsCache",
-							"Failed to load drivers for deviceId: " << productId << std::endl
-						);
-						continue;
-					}
-
-					std::vector<uint8_t> addresses = this->query.getProductAddresses(productId);
-
-					for (auto addr : addresses) {
-						m_renderService->mapAddressToContext(addr, productId);
-						adr << std::to_string(addr) << ", ";
-					}
-
-					TRC_INFORMATION_CHN(33, "iqrf::JsCache", "Loading drivers for context: "
-						<< std::endl << "nadr: " << adr.str()
-						<< std::endl << "drv:  " << drv.str()
-						<< std::endl
-            		);
+				if (productId == coordinatorProductId) { // ensure standard FRC backwards compatibility
+					drivers = this->query.getNewestDrivers();
 				}
+
+				std::ostringstream drv, adr;
+				std::stringstream ss;
+				std::set<uint32_t> driverSet;
+				for (auto driver : drivers) {
+					driverSet.insert(driver.getId());
+					ss << driver.getDriver() << std::endl;
+					drv << '[' << driver.getPeripheralNumber() << ',' << std::fixed << std::setprecision(2) << driver.getVersion() << ']';
+				}
+
+				ss << customDriver << std::endl;
+				ss << wrapper << std::endl;
+				bool success = m_renderService->loadContextCode(productId, ss.str(), driverSet);
+
+				if (!success) {
+					TRC_WARNING_CHN(
+						33,
+						"iqrf::JsCache",
+						"Failed to load drivers for deviceId: " << productId << std::endl
+					);
+					continue;
+				}
+
+				std::vector<uint8_t> addresses = this->query.getProductAddresses(productId);
+
+				for (auto addr : addresses) {
+					m_renderService->mapAddressToContext(addr, productId);
+					adr << std::to_string(addr) << ", ";
+				}
+
+				TRC_INFORMATION_CHN(33, "iqrf::JsCache", "Loading drivers for context: "
+					<< std::endl << "nadr: " << adr.str()
+					<< std::endl << "drv:  " << drv.str()
+					<< std::endl
+							);
 			}
 		} catch (std::exception &e) {
 			CATCH_EXC_TRC_WAR(std::exception, e, "Failed to load drivers: " << e.what());
