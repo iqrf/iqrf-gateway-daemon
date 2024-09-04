@@ -49,8 +49,7 @@
               "description": "Specific request parameters.",
               "type": "object",
               "required": [
-                "readTimeout",
-                "writtenData"
+                "readTimeout"
               ],
               "additionalProperties": false,
               "properties": {
