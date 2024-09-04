@@ -850,19 +850,19 @@ if (iqrf.binaryoutput !== undefined) {
   iqrf.binaryoutput.Enumerate_Response_rsp = function (rawhdp) {
     var result =
     {
-      binOuts: iqrf.binaryoutput.Enumerate_Response(rawhdp)
+      count: iqrf.binaryoutput.Enumerate_Response(rawhdp)
     };
     return result;
   };
 
   iqrf.binaryoutput.SetOutput_Request_req = function (param) {
-    return iqrf.binaryoutput.SetOutput_Request(param.binOuts);
+    return iqrf.binaryoutput.SetOutput_Request(param.outputs);
   };
 
   iqrf.binaryoutput.SetOutput_Response_rsp = function (rawhdp) {
     var result =
     {
-      prevVals: iqrf.binaryoutput.SetOutput_Response(rawhdp)
+        previousStates: iqrf.binaryoutput.SetOutput_Response(rawhdp)
     };
     return result;
   };
