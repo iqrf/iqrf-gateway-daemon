@@ -3,8 +3,7 @@
   "data": {
     "msgId": "testEmbedBout",
     "req": {
-      "nAdr": 2,
-      "param": {}
+      "nAdr": 2
     },
     "returnVerbose": true
   }
