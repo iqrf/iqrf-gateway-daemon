@@ -4,11 +4,13 @@
     "msgId": "testEmbedBout",
     "rsp": {
       "nAdr": 2,
+      "pNum": 75,
+      "pCmd": 128,
       "hwpId": 3074,
       "rCode": 0,
       "dpaVal": 66,
       "result": {
-        "prevVals": [
+        "previousStates": [
           false,
           false,
           false,
@@ -44,14 +46,16 @@
         ]
       }
     },
-    "raw": {
-      "request": "02.00.4b.00.ff.ff.01.00.00.00.01",
-      "requestTs": "2018-07-18T14:19:25.847926",
-      "confirmation": "02.00.4b.00.ff.ff.ff.3f.02.04.02",
-      "confirmationTs": "2018-07-18T14:19:25.880370",
-      "response": "02.00.4b.80.02.0c.00.42.00.00.00.00",
-      "responseTs": "2018-07-18T14:19:26.58392"
-    },
+    "raw": [
+      {
+        "request": "02.00.4b.00.ff.ff.01.00.00.00.01",
+        "requestTs": "2018-07-18T14:19:25.847926",
+        "confirmation": "02.00.4b.00.ff.ff.ff.3f.02.04.02",
+        "confirmationTs": "2018-07-18T14:19:25.880370",
+        "response": "02.00.4b.80.02.0c.00.42.00.00.00.00",
+        "responseTs": "2018-07-18T14:19:26.58392"
+      }
+    ],
     "insId": "iqrfgd2-1",
     "statusStr": "ok",
     "status": 0
