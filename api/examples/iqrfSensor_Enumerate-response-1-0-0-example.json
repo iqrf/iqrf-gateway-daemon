@@ -4,6 +4,8 @@
     "msgId": "testEmbedSensor",
     "rsp": {
       "nAdr": 1,
+      "pNum": 94,
+      "pCmd": 190,
       "hwpId": 4117,
       "rCode": 0,
       "dpaVal": 88,
