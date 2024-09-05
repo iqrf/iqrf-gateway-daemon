@@ -1,66 +1,92 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfSensor_Enumerate-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Interoperability Standard Sensor - Enumerate Sensors response",
+  "description": "(c) IQRF Tech",
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "Message type for IQRF standard communication.",
-      "enum": [
-        "iqrfSensor_Enumerate"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfSensor_Enumerate" }
       ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
+          "$ref": "definitions.json#/general/msgId"
         },
         "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
           "type": "object",
+          "required": [
+            "nAdr",
+            "pNum",
+            "pCmd",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ],
+          "additionalProperties": false,
           "properties": {
             "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
+              "$ref": "definitions.json#/general/nAdr"
             },
             "pNum": {
-              "type": "integer",
-              "description": "Peripheral number."
+              "$ref": "definitions.json#/general/response/pNum"
             },
             "pCmd": {
-              "type": "integer",
-              "description": "Peripheral response command."
+              "$ref": "definitions.json#/general/response/pCmd"
             },
             "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
+              "$ref": "definitions.json#/general/response/hwpId"
             },
             "rCode": {
-              "type": "integer",
-              "description": "DPA error code."
+              "$ref": "definitions.json#/general/response/rCode"
             },
             "dpaVal": {
-              "type": "integer",
-              "description": "DPA value."
+              "$ref": "definitions.json#/general/response/dpaVal"
             },
             "result": {
+              "title": "Result",
+              "description": "Contains the results of the request",
               "type": "object",
+              "required": [
+                "sensors"
+              ],
+              "additionalProperties": false,
               "properties": {
                 "sensors": {
+                  "title": "Sensors",
+                  "description": "Array of sensor objects.",
                   "type": "array",
-                  "description": "Returns array of objects for every sensor, see its description.",
                   "items": {
+                    "title": "Sensor",
+                    "description": "Sensor object",
                     "type": "object",
+                    "required": [
+                      "id",
+                      "type",
+                      "name",
+                      "shortName",
+                      "unit",
+                      "frcs"
+                    ],
+                    "additionalProperties": false,
                     "properties": {
                       "id": {
                         "type": "string",
@@ -76,7 +102,7 @@
                       },
                       "shortName": {
                         "type": "string",
-                        "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
+                        "description": " Short name of the sensor (quantity). Typically it contains a symbol used at physics."
                       },
                       "unit": {
                         "type": "string",
@@ -112,6 +138,7 @@
                               "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
                             },
                             "value": {
+                              "description": "Value of the sensor.",
                               "oneOf": [
                                 {
                                   "type": "number"
@@ -125,8 +152,7 @@
                                     "type": "integer"
                                   }
                                 }
-                              ],
-                              "description": "Value of the sensor."
+                              ]
                             },
                             "unit": {
                               "type": "string",
@@ -141,92 +167,31 @@
                       }
                     }
                   },
-                  "required": [
-                    "type",
-                    "name",
-                    "shortName",
-                    "unit",
-                    "decimalPlaces",
-                    "frcs"
-                  ]
+                  "maxItems": 31
                 }
               }
             },
             "errorStr": {
-              "type": "string",
-              "description": "Error description from JS drivers."
+              "$ref": "definitions.json#/general/response/errorStr"
             }
-          },
-          "required": [
-            "nAdr",
-            "hwpId",
-            "rCode",
-            "dpaVal"
-          ]
-        },
-        "raw": {
-          "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
-          "items": {
-            "type": "object",
-            "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
-              },
-              "requestTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "confirmation": {
-                "type": "string",
-                "description": "Binary buffer with DPA confirmation."
-              },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              },
-              "response": {
-                "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-              }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
           }
         },
+        "raw": {
+          "$ref": "definitions.json#/general/response/raw"
+        },
         "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
+          "$ref": "definitions.json#/general/response/insId"
         },
         "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
+          "$ref": "definitions.json#/general/response/status"
         },
         "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
         }
-      },
-      "required": [
-        "msgId",
-        "rsp",
-        "status"
-      ]
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }
