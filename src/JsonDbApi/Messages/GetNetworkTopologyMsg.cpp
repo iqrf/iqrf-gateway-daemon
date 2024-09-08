@@ -31,6 +31,7 @@ namespace iqrf {
 			for (auto &item : devices) {
 				Value object;
 				Device device = std::get<0>(item);
+				Product product = std::get<1>(item);
 				Pointer("/address").Set(object, device.getAddress(), allocator);
 				Pointer("/vrn").Set(object, device.getVrn(), allocator);
 				Pointer("/zone").Set(object, device.getZone(), allocator);
@@ -40,8 +41,8 @@ namespace iqrf {
 				} else {
 					Pointer("/parent").Create(object, allocator);
 				}
-				Pointer("/os").Set(object, std::get<4>(item), allocator);
-				Pointer("/dpa").Set(object, std::get<5>(item), allocator);
+				Pointer("/os").Set(object, product.getOsVersion(), allocator);
+				Pointer("/dpa").Set(object, product.getDpaVersion(), allocator);
 
 				array.PushBack(object, allocator);
 			}
