@@ -101,7 +101,7 @@ namespace iqrf {
 		return this->query.getDevice(addr);
 	}
 
-	std::vector<DeviceTuple> IqrfDb::getDevices(std::vector<uint8_t> requestedDevices) {
+	std::vector<DeviceProductTuple> IqrfDb::getDevices(std::vector<uint8_t> requestedDevices) {
 		return this->query.getDevices(requestedDevices);
 	}
 
@@ -322,8 +322,12 @@ namespace iqrf {
 	void IqrfDb::initializeDatabase() {
 		migrateDatabase();
 		m_db = std::make_shared<Storage>(initializeDb(m_dbPath));
-		auto res = m_db->sync_schema(true);
-		this->query = QueryHandler(m_db);
+		try {
+			auto res = m_db->sync_schema(true);
+			this->query = QueryHandler(m_db);
+		} catch (const std::exception &e) {
+			THROW_EXC_TRC_WAR(std::logic_error, "[IqrfDB] Sync schema failed: " << e.what());
+		}
 	}
 
 	void IqrfDb::migrateDatabase() {
@@ -396,6 +400,19 @@ namespace iqrf {
 		} catch (const std::exception &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, e.what());
 		}
+	}
+
+	void IqrfDb::updateDbProductNames() {
+		TRC_FUNCTION_ENTER("");
+		for (auto dbProduct : m_db->iterate<Product>()) {
+			if (dbProduct.getName() != nullptr) {
+				continue;
+			}
+			auto cacheProduct = m_cacheService->getProduct(dbProduct.getHwpid());
+			dbProduct.setName(std::make_shared<std::string>(cacheProduct->m_name));
+			m_db->update(dbProduct);
+		}
+		TRC_FUNCTION_LEAVE("");
 	}
 
 	void IqrfDb::updateDbDrivers() {
@@ -1159,6 +1176,10 @@ namespace iqrf {
 			uint16_t hwpidVersion = product->getHwpidVersion();
 			uint16_t osBuild = product->getOsBuild();
 			uint16_t dpaVersion = product->getDpaVersion();
+			std::shared_ptr<IJsCacheService::Product> cacheProduct = m_cacheService->getProduct(hwpid);
+			if (cacheProduct != nullptr) {
+				product->setName(std::make_shared<std::string>(cacheProduct->m_name));
+			}
 			std::shared_ptr<IJsCacheService::Package> package = m_cacheService->getPackage(hwpid, hwpidVersion, osBuild, dpaVersion);
 			if (package == nullptr) {
 				// try to find db product
@@ -1170,6 +1191,7 @@ namespace iqrf {
 					product->setHandlerHash(dbProduct.getHandlerHash());
 					product->setCustomDriver(dbProduct.getCustomDriver());
 					product->setPackageId(dbProduct.getPackageId());
+					product->setName(dbProduct.getName());
 					std::set<uint32_t> driverIds = this->query.getProductDriversIds(productId);
 					for (auto id : driverIds) {
 						product->drivers.insert(id);
@@ -1796,6 +1818,7 @@ namespace iqrf {
 			analyzeDpaMessage(msg);
 		});
 		initializeDatabase();
+		updateDbProductNames();
 		updateDbDrivers();
 		reloadDrivers();
 

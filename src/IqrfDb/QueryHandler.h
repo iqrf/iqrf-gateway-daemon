@@ -27,7 +27,7 @@
 using json = nlohmann::json;
 using namespace sqlite_orm;
 
-typedef std::tuple<Device, uint16_t, uint16_t, uint16_t, std::string, uint16_t> DeviceTuple;
+typedef std::tuple<Device, Product> DeviceProductTuple;
 typedef std::tuple<uint8_t, uint8_t> AddrIndex;
 typedef std::unordered_map<uint8_t, std::vector<AddrIndex>> SensorSelectMap;
 
@@ -49,7 +49,7 @@ public:
 	 * @param requestedDevices Addresses of request devices
 	 * @return Vector of devices with product information
 	 */
-	std::vector<DeviceTuple> getDevices(std::vector<uint8_t> requestedDevices = {});
+	std::vector<DeviceProductTuple> getDevices(std::vector<uint8_t> requestedDevices = {});
 
 	/**
 	 * Returns addresses of devices in network from database

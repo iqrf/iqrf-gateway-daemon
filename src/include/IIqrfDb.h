@@ -30,7 +30,7 @@
 #include <set>
 #include <vector>
 
-typedef std::tuple<Device, uint16_t, uint16_t, uint16_t, std::string, uint16_t> DeviceTuple;
+typedef std::tuple<Device, Product> DeviceProductTuple;
 typedef std::tuple<uint8_t, uint8_t> AddrIndex;
 typedef std::unordered_map<uint8_t, std::vector<AddrIndex>> SensorSelectMap;
 
@@ -149,7 +149,7 @@ namespace iqrf {
 		 * Retrieves information about devices in network
 		 * @return Vector of devices
 		 */
-		virtual std::vector<DeviceTuple> getDevices(std::vector<uint8_t> requestedDevices = {}) = 0;
+		virtual std::vector<DeviceProductTuple> getDevices(std::vector<uint8_t> requestedDevices = {}) = 0;
 
 		/**
 		 * Returns addresses of devices in network from database

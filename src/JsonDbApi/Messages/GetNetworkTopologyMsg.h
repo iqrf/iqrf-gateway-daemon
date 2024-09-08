@@ -54,6 +54,6 @@ namespace iqrf {
 		void createResponsePayload(Document &doc) override;
 	private:
 		/// Vector of devices with product information
-		std::vector<DeviceTuple> devices;
+		std::vector<DeviceProductTuple> devices;
 	};
 }

@@ -23,7 +23,6 @@ Product::Product(const uint16_t &hwpid, const uint16_t &hwpidVersion, const uint
 	this->osBuild = osBuild;
 	this->osVersion = osVersion;
 	this->dpaVersion = dpaVersion;
-	this->standardEnumerated = false;
 }
 
 const uint32_t& Product::getId() const {
@@ -106,12 +105,12 @@ void Product::setPackageId(std::shared_ptr<uint32_t> packageId) {
 	this->packageId = std::move(packageId);
 }
 
-bool Product::isStandardEnumerated() const {
-	return this->standardEnumerated;
+std::shared_ptr<std::string> Product::getName() const {
+	return this->name;
 }
 
-void Product::setStandardEnumerated(bool standardEnumerated) {
-	this->standardEnumerated = standardEnumerated;
+void Product::setName(std::shared_ptr<std::string> name) {
+	this->name = std::move(name);
 }
 
 bool Product::isValid() {
