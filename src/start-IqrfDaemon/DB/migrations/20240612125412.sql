@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS 'product' (
     'handlerUrl' TEXT,
     'handlerHash' TEXT,
     'customDriver' TEXT,
-    'packageId' INTEGER NOT NULL,
+    'packageId' INTEGER,
     'standardEnumerated' INTEGER NOT NULL
 );
 
