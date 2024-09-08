@@ -123,7 +123,7 @@ namespace iqrf {
 		 * Returns vector of devices
 		 * @return Vector of devices
 		 */
-		std::vector<DeviceTuple> getDevices(std::vector<uint8_t> requestedDevices = {}) override;
+		std::vector<DeviceProductTuple> getDevices(std::vector<uint8_t> requestedDevices = {}) override;
 
 		/**
 		 * Returns addresses of devices in network from database
@@ -361,6 +361,11 @@ namespace iqrf {
 		 * @param migration Migration name
 		 */
 		void executeMigration(SQLite::Database &db, const std::string &migration);
+
+		/**
+		 * Assign product names if product doesn't have a name and is available in cache
+		 */
+		void updateDbProductNames();
 
 		/**
 		 * Compare DB driver hashes with cache driver hashes and update drivers if changes are detected

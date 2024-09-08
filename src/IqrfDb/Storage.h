@@ -42,7 +42,7 @@ static inline auto initializeDb(const std::string &fileName) {
 			make_column("handlerHash", &Product::getHandlerHash, &Product::setHandlerHash),
 			make_column("customDriver", &Product::getCustomDriver, &Product::setCustomDriver),
 			make_column("packageId", &Product::getPackageId, &Product::setPackageId),
-			make_column("standardEnumerated", &Product::isStandardEnumerated, &Product::setStandardEnumerated),
+			make_column("name", &Product::getName, &Product::setName),
 			unique(&Product::getHwpid, &Product::getHwpidVersion, &Product::getOsBuild, &Product::getDpaVersion)
 		),
 		make_table("driver",

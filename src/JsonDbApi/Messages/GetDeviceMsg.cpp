@@ -43,6 +43,12 @@ namespace iqrf {
 			Pointer("/address").Set(object, device.getAddress(), allocator);
 			Pointer("/hwpid").Set(object, product.getHwpid(), allocator);
 			if (!brief) {
+				std::shared_ptr<std::string> productName = product.getName();
+				if (productName) {
+					Pointer("/product").Set(object, *productName.get(), allocator);
+				} else {
+					Pointer("/product").Create(object, allocator);
+				}
 				Pointer("/discovered").Set(object, device.isDiscovered(), allocator);
 				Pointer("/vrn").Set(object, device.getVrn(), allocator);
 				Pointer("/zone").Set(object, device.getZone(), allocator);
@@ -57,36 +63,34 @@ namespace iqrf {
 				Pointer("/osBuild").Set(object, product.getOsBuild(), allocator);
 				Pointer("/osVersion").Set(object, product.getOsVersion(), allocator);
 				Pointer("/dpa").Set(object, product.getDpaVersion(), allocator);
-				if (sensors.size() > 0) {
-					Value sensorArray(kArrayType);
 
-					for (auto &[index, sensor] : sensors) {
-						Value sensorObject;
-						Pointer("/index").Set(sensorObject, index, allocator);
-						Pointer("/type").Set(sensorObject, sensor.getType(), allocator);
-						Pointer("/name").Set(sensorObject, sensor.getName(), allocator);
-						Pointer("/shortname").Set(sensorObject, sensor.getShortname(), allocator);
-						Pointer("/unit").Set(sensorObject, sensor.getUnit(), allocator);
-						Value frcArray(kArrayType);
-						if (sensor.hasFrc2Bit()) {
-							frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_2BITS, allocator);
-						}
-						if (sensor.hasFrc1Byte()) {
-							frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_1BYTE, allocator);
-						}
-						if (sensor.hasFrc2Byte()) {
-							frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_2BYTES, allocator);
-						}
-						if (sensor.hasFrc4Byte()) {
-							frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_4BYTES, allocator);
-						}
-						Pointer("/frcs").Set(sensorObject, frcArray, allocator);
-
-						sensorArray.PushBack(sensorObject, allocator);
+				/// sensors
+				Value sensorArray(kArrayType);
+				for (auto &[index, sensor] : sensors) {
+					Value sensorObject;
+					Pointer("/index").Set(sensorObject, index, allocator);
+					Pointer("/type").Set(sensorObject, sensor.getType(), allocator);
+					Pointer("/name").Set(sensorObject, sensor.getName(), allocator);
+					Pointer("/shortname").Set(sensorObject, sensor.getShortname(), allocator);
+					Pointer("/unit").Set(sensorObject, sensor.getUnit(), allocator);
+					Pointer("/decimalPlaces").Set(sensorObject, sensor.getDecimals(), allocator);
+					Value frcArray(kArrayType);
+					if (sensor.hasFrc2Bit()) {
+						frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_2BITS, allocator);
 					}
-
-					Pointer("/sensors").Set(object, sensorArray, allocator);
+					if (sensor.hasFrc1Byte()) {
+						frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_1BYTE, allocator);
+					}
+					if (sensor.hasFrc2Byte()) {
+						frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_2BYTES, allocator);
+					}
+					if (sensor.hasFrc4Byte()) {
+						frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_4BYTES, allocator);
+					}
+					Pointer("/frcs").Set(sensorObject, frcArray, allocator);
+					sensorArray.PushBack(sensorObject, allocator);
 				}
+				Pointer("/sensors").Set(object, sensorArray, allocator);
 			}
 			std::shared_ptr<std::string> val = device.getName();
 			if (val) {

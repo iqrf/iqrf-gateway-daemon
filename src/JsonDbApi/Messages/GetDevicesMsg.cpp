@@ -59,9 +59,16 @@ namespace iqrf {
 			for (auto &item : devices) {
 				Value object;
 				Device device = std::get<0>(item);
+				Product product = std::get<1>(item);
 				Pointer("/address").Set(object, device.getAddress(), allocator);
-				Pointer("/hwpid").Set(object, std::get<1>(item), allocator);
+				Pointer("/hwpid").Set(object, product.getHwpid(), allocator);
 				if (!brief) {
+					std::shared_ptr<std::string> productName = product.getName();
+					if (productName) {
+						Pointer("/product").Set(object, *productName.get(), allocator);
+					} else {
+						Pointer("/product").Create(object, allocator);
+					}
 					Pointer("/discovered").Set(object, device.isDiscovered(), allocator);
 					Pointer("/vrn").Set(object, device.getVrn(), allocator);
 					Pointer("/zone").Set(object, device.getZone(), allocator);
@@ -72,10 +79,10 @@ namespace iqrf {
 						Pointer("/parent").Create(object, allocator);
 					}
 					Pointer("/mid").Set(object, device.getMid(), allocator);
-					Pointer("/hwpidVersion").Set(object, std::get<2>(item), allocator);
-					Pointer("/osBuild").Set(object, std::get<3>(item), allocator);
-					Pointer("/osVersion").Set(object, std::get<4>(item), allocator);
-					Pointer("/dpa").Set(object, std::get<5>(item), allocator);
+					Pointer("/hwpidVersion").Set(object, product.getHwpidVersion(), allocator);
+					Pointer("/osBuild").Set(object, product.getOsBuild(), allocator);
+					Pointer("/osVersion").Set(object, product.getOsVersion(), allocator);
+					Pointer("/dpa").Set(object, product.getDpaVersion(), allocator);
 				}
 				std::shared_ptr<std::string> val = device.getName();
 				if (val) {
@@ -90,10 +97,10 @@ namespace iqrf {
 					Pointer("/location").Create(object, allocator);
 				}
 
-				// sensor
+				/// sensors
 				if (includeSensors) {
+					Value sensorArray(kArrayType);
 					if (sensors.find(device.getAddress()) != sensors.end()) {
-						Value sensorArray(kArrayType);
 						auto sensorVector = sensors[device.getAddress()];
 						for (auto &[ds, s] : sensorVector) {
 							Value sensorObject;
@@ -103,16 +110,24 @@ namespace iqrf {
 							Pointer("/shortname").Set(sensorObject, s.getShortname(), allocator);
 							Pointer("/unit").Set(sensorObject, s.getUnit(), allocator);
 							Pointer("/decimalPlaces").Set(sensorObject, s.getDecimals(), allocator);
-							Pointer("/frc2Bit").Set(sensorObject, s.hasFrc2Bit(), allocator);
-							Pointer("/frc1Byte").Set(sensorObject, s.hasFrc1Byte(), allocator);
-							Pointer("/frc2Byte").Set(sensorObject, s.hasFrc2Byte(), allocator);
-							Pointer("/frc4Byte").Set(sensorObject, s.hasFrc4Byte(), allocator);
+							Value frcArray(kArrayType);
+							if (s.hasFrc2Bit()) {
+								frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_2BITS, allocator);
+							}
+							if (s.hasFrc1Byte()) {
+								frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_1BYTE, allocator);
+							}
+							if (s.hasFrc2Byte()) {
+								frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_2BYTES, allocator);
+							}
+							if (s.hasFrc4Byte()) {
+								frcArray.PushBack(iqrf::sensor::STD_SENSOR_FRC_4BYTES, allocator);
+							}
+							Pointer("/frcs").Set(sensorObject, frcArray, allocator);
 							sensorArray.PushBack(sensorObject, allocator);
 						}
-						Pointer("/sensors").Set(object, sensorArray, allocator);
-					} else {
-						Pointer("/sensors").Create(object, allocator);
 					}
+					Pointer("/sensors").Set(object, sensorArray, allocator);
 				}
 
 				// binout
