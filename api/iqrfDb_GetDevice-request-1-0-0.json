@@ -42,14 +42,14 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-                        "address": {
-                            "$id": "#/properties/data/properties/req/properties/address",
-                            "title": "Device address",
-                            "description": "Address of device in network.",
-                            "type": "integer",
-                            "minimum": 0,
-                            "maximum": 239
-                        },
+						"address": {
+								"$id": "#/properties/data/properties/req/properties/address",
+								"title": "Device address",
+								"description": "Address of device in network.",
+								"type": "integer",
+								"minimum": 0,
+								"maximum": 239
+						},
 						"brief": {
 							"$id": "#/properties/data/properties/req/properties/brief",
 							"title": "Brief information",

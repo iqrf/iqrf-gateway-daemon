@@ -158,16 +158,16 @@ public:
 	void setPackageId(std::shared_ptr<uint32_t> packageId);
 
 	/**
-	 * Returns product standard enumerated status
-	 * @return true if product standard is enumerated
+	 * Returns product name
+	 * @return Product name
 	 */
-	bool isStandardEnumerated() const;
+	std::shared_ptr<std::string> getName() const;
 
 	/**
-	 * Sets product standard enumerated status
-	 * @param standardEnumerated Product standard enumerated status
+	 * Sets product name
+	 * @param name Product name
 	 */
-	void setStandardEnumerated(bool standardEnumerated);
+	void setName(std::shared_ptr<std::string> name);
 
 	/**
 	 * Checks whether enumerated product is valid
@@ -197,6 +197,6 @@ private:
 	std::shared_ptr<std::string> customDriver = nullptr;
 	/// Product package ID
 	std::shared_ptr<uint32_t> packageId = nullptr;
-	/// Indicates whether standards have been enumerated
-	bool standardEnumerated;
+	/// Product name
+	std::shared_ptr<std::string> name = nullptr;
 };
