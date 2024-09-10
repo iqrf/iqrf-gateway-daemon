@@ -1,11 +1,7 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfEmbedCoordinator_AuthorizeBond-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Peripheral Coordinator - Authorize bond request",
+  "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
     "mType",
@@ -14,13 +10,14 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "Embedded peripheral Coordinator - Authorize Bond request.",
-      "enum": [
-        "iqrfEmbedCoordinator_AuthorizeBond"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfEmbedCoordinator_AuthorizeBond" }
       ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
       "required": [
         "msgId",
@@ -29,10 +26,11 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
+          "$ref": "definitions.json#/general/msgId"
         },
         "req": {
+          "title": "Request",
+          "description": "Holds request data",
           "type": "object",
           "required": [
             "nAdr",
@@ -41,32 +39,19 @@
           "additionalProperties": false,
           "properties": {
             "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
+              "$ref": "definitions.json#/general/nAdr"
             },
             "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
+              "$ref": "definitions.json#/general/request/hwpId"
             },
             "param": {
               "oneOf": [
                 {
-                  "type": "object",
-                  "required": [
-                    "reqAddr",
-                    "mid"
-                  ],
-                  "additionalProperties": false,
-                  "properties": {
-                    "reqAddr": {
-                      "$ref": "#/$defs/reqAddr"
-                    },
-                    "mid": {
-                      "$ref": "#/$defs/mid"
-                    }
-                  }
+                  "$ref": "#/$localDefinitions/node"
                 },
                 {
+                  "title": "Request parameters",
+                  "description": "Specific request parameters.",
                   "type": "object",
                   "required": [
                     "nodes"
@@ -74,24 +59,13 @@
                   "additionalProperties": false,
                   "properties": {
                     "nodes": {
+                      "title": "Nodes",
+                      "description": "Prebonded nodes which shall be authorized.",
                       "type": "array",
                       "additionalItems": false,
                       "minItems": 1,
                       "items": {
-                        "type": "object",
-                        "required": [
-                          "reqAddr",
-                          "mid"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                          "reqAddr": {
-                            "$ref": "#/$defs/reqAddr"
-                          },
-                          "mid": {
-                            "$ref": "#/$defs/mid"
-                          }
-                        }
+                        "$ref": "#/$localDefinitions/node"
                       }
                     }
                   }
@@ -101,29 +75,32 @@
           }
         },
         "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
+          "$ref": "definitions.json#/general/timeout"
         },
         "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
+          "$ref": "definitions.json#/general/returnVerbose"
         }
       }
     }
   },
-  "$defs": {
-    "reqAddr": {
-      "title": "Request address",
-      "description": "0 - first free address, 1-239 - specific addresses",
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 239
-    },
-    "mid": {
-      "title": "Module ID",
-      "description": "Module ID of the node to be authorized.",
-      "type": "integer",
-      "minimum": 0
+  "$localDefinitions": {
+    "node": {
+      "title": "Node",
+      "description": "Information about a prebonded node which shall be authorized",
+      "type": "object",
+      "required": [
+        "reqAddr",
+        "mid"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "reqAddr": {
+          "$ref": "definitions.json#/general/nAdr"
+        },
+        "mid": {
+          "$ref": "definitions.json#/general/mId"
+        }
+      }
     }
   }
 }

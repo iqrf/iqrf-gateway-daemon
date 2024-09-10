@@ -5,6 +5,8 @@
       "msgId": "paramsObject",
       "rsp": {
         "nAdr": 0,
+        "pNum": 0,
+        "pCmd": 141,
         "hwpId": 0,
         "rCode": 0,
         "dpaVal": 0,
@@ -34,6 +36,8 @@
       "msgId": "paramsArray",
       "rsp": {
         "nAdr": 0,
+        "pNum": 0,
+        "pCmd": 141,
         "hwpId": 0,
         "rCode": 0,
         "dpaVal": 64,
