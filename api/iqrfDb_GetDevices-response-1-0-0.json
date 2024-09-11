@@ -39,7 +39,182 @@
 					"$id": "#/properties/data/properties/rsp",
 					"title": "Response parameters",
 					"description": "Response parameters.",
-					"type": "object"
+					"type": "object",
+					"required": [
+						"devices"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"devices": {
+							"title": "Device data",
+							"type": "array",
+							"additionalItems": false,
+							"items": {
+								"title": "Device information",
+								"type": "object",
+								"required": [
+									"address",
+									"hwpid",
+									"name",
+									"location"
+								],
+								"additionalProperties": false,
+								"properties": {
+									"address": {
+										"title": "Device address",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 255
+									},
+									"hwpid": {
+										"title": "Hardware profile ID",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 65535
+									},
+									"product": {
+										"title": "Product name",
+										"oneOf": [
+											{"type": "string"},
+											{"type": "null"}
+										]
+									},
+									"discovered": {
+										"title": "Discovery status",
+										"type": "boolean"
+									},
+									"vrn": {
+										"title": "Virtual routing number",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 255
+									},
+									"zone": {
+										"title": "Zone",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 255
+									},
+									"parent": {
+										"title": "Parent device",
+										"oneOf": [
+											{
+												"type": "integer",
+												"minimum": 0,
+												"maximum": 255
+											},
+											{"type": "null"}
+										]
+									},
+									"mid": {
+										"title": "Module ID",
+										"type": "integer",
+										"minimum": 0
+									},
+									"hwpidVersion": {
+										"title": "Hardware profile ID version",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 65535
+									},
+									"osBuild": {
+										"title": "OS build",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 65535
+									},
+									"osVersion": {
+										"title": "OS version",
+										"type": "string"
+									},
+									"dpa": {
+										"title": "DPA version",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 65535
+									},
+									"sensors": {
+										"title": "Sensors implemented",
+										"type": "array",
+										"additionalItems": false,
+										"items": {
+											"title": "Sensor information",
+											"type": "object",
+											"required": [
+												"index",
+												"type",
+												"name",
+												"shortname",
+												"unit",
+												"decimalPlaces",
+												"frcs"
+											],
+											"additionalProperties": false,
+											"properties": {
+												"index": {
+													"title": "Sensor index",
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 31
+												},
+												"type": {
+													"title": "Sensor type",
+													"type": "integer",
+													"minimum": 1,
+													"maximum": 255
+												},
+												"name": {
+													"title": "Quantity name",
+													"type": "string"
+												},
+												"shortname": {
+													"title": "Quantity shortname",
+													"type": "string"
+												},
+												"unit": {
+													"title": "Unit of measurement",
+													"oneOf": [
+														{"type": "string"},
+														{"type": "null"}
+													]
+												},
+												"decimalPlaces": {
+													"title": "Precision",
+													"type": "integer",
+													"minimum": 0
+												},
+												"frcs": {
+													"title": "Supported FRC commands",
+													"type": "array",
+													"additionalItems": false,
+													"items": {
+														"title": "FRC command",
+														"type": "integer",
+														"minimum": 0,
+														"maximum": 255
+													}
+												}
+											}
+										}
+									},
+									"name": {
+										"title": "Name metadata",
+										"oneOf": [
+											{"type": "string"},
+											{"type": "null"}
+										]
+									},
+									"location": {
+										"title": "Location metadata",
+										"oneOf": [
+											{"type": "string"},
+											{"type": "null"}
+										]
+									}
+								}
+							}
+						}
+					}
 				},
 				"insId": {
 					"$id": "#/properties/data/properties/insId",

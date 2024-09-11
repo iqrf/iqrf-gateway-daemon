@@ -62,7 +62,7 @@ namespace iqrf {
 		/// Vector of requested device addresses
 		std::vector<uint8_t> requestedDevices;
 		/// Vector of devices with product information
-		std::vector<DeviceTuple> devices;
+		std::vector<DeviceProductTuple> devices;
 		/// Map of sensor device tuples
 		std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> sensors;
 		/// Map of binout devices
