@@ -4,6 +4,8 @@
     "msgId": "testEmbedFrc",
     "rsp": {
       "nAdr": 0,
+      "pNum": 13,
+      "pCmd": 129,
       "hwpId": 0,
       "rCode": 0,
       "dpaVal": 0,
@@ -21,14 +23,16 @@
         ]
       }
     },
-    "raw": {
-      "request": "00.00.0d.01.ff.ff",
-      "requestTs": "2018-07-23T22:24:28.76794",
-      "confirmation": "",
-      "confirmationTs": "",
-      "response": "00.00.0d.81.00.00.00.00.00.00.00.00.00.00.00.00.00",
-      "responseTs": "2018-07-23T22:24:28.107120"
-    },
+    "raw": [
+      {
+        "request": "00.00.0d.01.ff.ff",
+        "requestTs": "2018-07-23T22:24:28.76794",
+        "confirmation": "",
+        "confirmationTs": "",
+        "response": "00.00.0d.81.00.00.00.00.00.00.00.00.00.00.00.00.00",
+        "responseTs": "2018-07-23T22:24:28.107120"
+      }
+    ],
     "insId": "iqrfgd2-1",
     "statusStr": "ok",
     "status": 0
