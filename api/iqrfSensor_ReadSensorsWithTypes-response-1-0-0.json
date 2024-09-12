@@ -66,6 +66,7 @@
               "description": "Contains the results of the request",
               "type": "object",
               "required": [
+                "sensors"
               ],
               "additionalProperties": false,
               "properties": {
