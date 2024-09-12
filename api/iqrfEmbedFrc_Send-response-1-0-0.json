@@ -66,6 +66,8 @@
               "description": "Contains the results of the request",
               "type": "object",
               "required": [
+                "status",
+                "frcData"
               ],
               "additionalProperties": false,
               "properties": {
