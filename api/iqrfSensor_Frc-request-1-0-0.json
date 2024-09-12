@@ -56,29 +56,22 @@
               "additionalProperties": false,
               "properties": {
                 "frcCommand": {
-                  "type": "integer",
-                  "description": "One of predefined standard sensor FRC commands. Use FRC commands available from Sensor enumeration.",
-                  "minimum": 0,
-                  "maximum": 255
+                  "$ref": "definitions.json#/interoperability/sensor/frcCommand"
                 },
                 "selectedNodes": {
                   "type": "array",
                   "description": "Optional array of indexes of the selected nodes.",
-                  "minItems": 1,
-                  "maxItems": 255,
-                  "uniqueItems": true,
-                  "additionalItems": false,
                   "items": {
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 255
-                  }
+                  },
+                  "minItems": 1,
+                  "maxItems": 255,
+                  "uniqueItems": true
                 },
                 "sensorType": {
-                  "type": "integer",
-                  "description": "Type of sensor (quantity) to read values of. Refer to the Sensor interoperability standard https://www.iqrfalliance.org/iqrf-interoperability/ for details.",
-                  "minimum": 0,
-                  "maximum": 255
+                  "$ref": "definitions.json#/interoperability/sensor/type"
                 },
                 "sensorIndex": {
                   "type": "integer",

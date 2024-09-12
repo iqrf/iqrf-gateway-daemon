@@ -53,28 +53,7 @@
               "additionalProperties": false,
               "properties": {
                 "sensorIndexes": {
-                  "description": "Specifies sensors to read data from. If missing, the 1st sensor is read.",
-                  "oneOf": [
-                    {
-                      "type": "null",
-                      "description": "Reads 1st sensor."
-                    },
-                    {
-                      "type": "integer",
-                      "description": "Number -1 denotes read all sensors."
-                    },
-                    {
-                      "type": "array",
-                      "description": "Array of indexes of the sensors which shall be read.",
-                      "additionalItems": false,
-                      "uniqueItems": true,
-                      "items": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 31
-                      }
-                    }
-                  ]
+                  "$ref": "definitions.json#/interoperability/sensor/indexes"
                 },
                 "writtenData": {
                   "description": "Optional data to write to the sensors.",
