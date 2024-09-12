@@ -87,117 +87,35 @@
                     "additionalProperties": false,
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "description": "Value type as text id."
+                        "$ref": "definitions.json#/interoperability/sensor/id"
                       },
                       "type": {
-                        "type": "integer",
-                        "description": "Value type of the sensor (quantity)."
+                        "$ref": "definitions.json#/interoperability/sensor/type"
                       },
                       "name": {
-                        "type": "string",
-                        "description": "Name of the sensor (quantity)."
+                        "$ref": "definitions.json#/interoperability/sensor/name"
                       },
                       "shortName": {
-                        "type": "string",
-                        "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
+                        "$ref": "definitions.json#/interoperability/sensor/shortName"
                       },
                       "value": {
-                        "description": "Value of the sensor.",
-                        "oneOf": [
-                          {
-                            "type": "null"
-                          },
-                          {
-                            "type": "number"
-                          },
-                          {
-                            "type": "array",
-                            "items": {
-                              "type": "integer"
-                            }
-                          }
-                        ]
+                        "$ref": "definitions.json#/interoperability/sensor/value"
                       },
                       "unit": {
-                        "type": "string",
-                        "description": "Unit of the quantity. Dimensionless quantities has \"\"."
+                        "$ref": "definitions.json#/interoperability/sensor/unit"
                       },
                       "decimalPlaces": {
-                        "type": "number",
-                        "description": "Number of valid decimal places."
+                        "$ref": "definitions.json#/interoperability/sensor/decimalPlaces"
                       },
                       "breakdown": {
-                        "type": "array",
-                        "description": "Parsed generic types if present in device response.",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "type": {
-                              "type": "integer",
-                              "description": "Value type of the sensor (quantity)."
-                            },
-                            "name": {
-                              "type": "string",
-                              "description": "Name of the sensor (quantity)."
-                            },
-                            "shortName": {
-                              "type": "string",
-                              "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-                            },
-                            "value": {
-                              "description": "Value of the sensor.",
-                              "oneOf": [
-                                {
-                                  "type": "number"
-                                },
-                                {
-                                  "type": "null"
-                                },
-                                {
-                                  "type": "array",
-                                  "items": {
-                                    "type": "integer"
-                                  }
-                                }
-                              ]
-                            },
-                            "unit": {
-                              "type": "string",
-                              "description": "Unit of the quantity. Dimensionless quantities has \"\"."
-                            },
-                            "decimalPlaces": {
-                              "type": "number",
-                              "description": "Number of valid decimal places."
-                            }
-                          }
-                        }
+                        "$ref": "definitions.json#/interoperability/sensor/genericReadout"
                       }
                     },
                     "maxItems": 31
                   }
                 },
                 "sensorIndexes": {
-                  "description": "Indexes of requested sensors.",
-                  "additionalItems": false,
-                  "oneOf": [
-                    {
-                      "type": "null"
-                    },
-                    {
-                      "type": "integer"
-                    },
-                    {
-                      "type": "array",
-                      "additionalItems": false,
-                      "uniqueItems": true,
-                      "items": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 31
-                      }
-                    }
-                  ]
+                  "$ref": "definitions.json#/interoperability/sensor/indexes"
                 }
               }
             },
