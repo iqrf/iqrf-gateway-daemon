@@ -47,12 +47,17 @@ def test_validation(example: str) -> None:
     schema = get_schema(example)
     validator = Draft7Validator(schema=schema, registry=registry)
 
-    err_iter = validator.iter_errors(data)
+    if not isinstance(data, list):
+        data = [data]
 
-    errors = ''
-    for error in err_iter:
-        errors += f"{error.message}\n"
+    for case in data:
 
-    if len(errors) > 0:
-        pytest.fail(f"{errors}\n\nExample JSON:\n{json.dumps(data, indent=2)}", pytrace=False)
+        err_iter = validator.iter_errors(case)
+
+        errors = ''
+        for error in err_iter:
+            errors += f"{error.message}\n"
+
+        if len(errors) > 0:
+            pytest.fail(f"{errors}\n\nExample JSON:\n{json.dumps(data, indent=2)}", pytrace=False)
 
