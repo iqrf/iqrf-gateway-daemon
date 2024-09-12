@@ -1,11 +1,7 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfSensor_Frc-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Interoperability Standard Sensor - FRC response",
+  "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
     "mType",
@@ -14,11 +10,14 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "Standard peripheral Sensor - FRC response.",
-      "enum": ["iqrfSensor_Frc"]
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfSensor_Frc" }
+      ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
       "required": [
         "msgId",
@@ -28,143 +27,70 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
+          "$ref": "definitions.json#/general/msgId"
         },
         "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
           "type": "object",
+          "required": [
+            "nAdr",
+            "pNum",
+            "pCmd",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ],
+          "additionalProperties": false,
           "properties": {
             "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
+              "$ref": "definitions.json#/general/nAdr"
             },
             "pNum": {
-              "type": "integer",
-              "description": "Peripheral number."
+              "$ref": "definitions.json#/general/response/pNum"
             },
             "pCmd": {
-              "type": "integer",
-              "description": "Peripheral response command."
+              "$ref": "definitions.json#/general/response/pCmd"
             },
             "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
+              "$ref": "definitions.json#/general/response/hwpId"
             },
             "rCode": {
-              "type": "integer",
-              "description": "DPA error code."
+              "$ref": "definitions.json#/general/response/rCode"
             },
             "dpaVal": {
-              "type": "integer",
-              "description": "DPA value."
+              "$ref": "definitions.json#/general/response/dpaVal"
             },
             "result": {
+              "title": "Result",
+              "description": "Contains the results of the request",
               "type": "object",
               "required": [
                 "sensors"
               ],
+              "additionalProperties": false,
               "properties": {
                 "sensors": {
+                  "title": "Sensors",
+                  "description": "Array of sensor objects.",
                   "type": "array",
-                  "description": "Returns array of objects for every sensor, see its description.",
+                  "additionalItems": false,
                   "items": {
                     "oneOf": [
                       {
+                        "title": "Unavailable",
+                        "description": "Sensor data not available at the node",
                         "type": "null"
                       },
+                      { "$ref": "#/$localDefinitions/sensor" },
                       {
+                        "title": "SensorAtNode",
+                        "description": "Sensor data with node determination",
                         "type": "object",
-                        "title": "Regular format",
                         "required": [
-                          "id",
-                          "type",
-                          "name",
-                          "shortName",
-                          "unit"
+                          "nAdr",
+                          "sensor"
                         ],
-                        "additionalProperties": false,
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "description": "Value type as text id."
-                          },
-                          "type": {
-                            "type": "integer",
-                            "description": "Value type of the sensor (quantity)."
-                          },
-                          "name": {
-                            "type": "string",
-                            "description": "Name of the sensor (quantity)."
-                          },
-                          "shortName": {
-                            "type": "string",
-                            "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-                          },
-                          "value": {
-                            "oneOf": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ],
-                            "description": "Value of the sensor."
-                          },
-                          "decimalPlaces": {
-                            "type": "integer",
-                            "description": "Precision."
-                          },
-                          "unit": {
-                            "type": "string",
-                            "description": "Unit of the quantity. Dimensionless quantities has \"\"."
-                          },
-                          "breakdown": {
-                            "type": "array",
-                            "description": "Parsed generic types if present in device response.",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "type": {
-                                  "type": "integer",
-                                  "description": "Value type of the sensor (quantity)."
-                                },
-                                "name": {
-                                  "type": "string",
-                                  "description": "Name of the sensor (quantity)."
-                                },
-                                "shortName": {
-                                  "type": "string",
-                                  "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-                                },
-                                "value": {
-                                  "oneOf": [
-                                    {
-                                      "type": "number"
-                                    },
-                                    {
-                                      "type": "null"
-                                    }
-                                  ],
-                                  "description": "Value of the sensor."
-                                },
-                                "unit": {
-                                  "type": "string",
-                                  "description": "Unit of the quantity. Dimensionless quantities has \"\"."
-                                }
-                              }
-                            }
-                          }
-                        }
-                      },
-                      {
-                        "type": "object",
-                        "title": "Extended format",
-                        "additionalProperties": false,
                         "properties": {
                           "nAdr": {
                             "type": "integer",
@@ -197,187 +123,111 @@
                           },
                           "sensor": {
                             "oneOf": [
-                              {
-                                "type": "null"
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "type": "string",
-                                    "description": "Value type as text id."
-                                  },
-                                  "type": {
-                                    "type": "integer",
-                                    "description": "Value type of the sensor (quantity)."
-                                  },
-                                  "name": {
-                                    "type": "string",
-                                    "description": "Name of the sensor (quantity)."
-                                  },
-                                  "shortName": {
-                                    "type": "string",
-                                    "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-                                  },
-                                  "value": {
-                                    "oneOf": [
-                                      {
-                                        "type": "number"
-                                      },
-                                      {
-                                        "type": "null"
-                                      }
-                                    ],
-                                    "description": "Value of the sensor."
-                                  },
-                                  "unit": {
-                                    "type": "string",
-                                    "description": "Unit of the quantity. Dimensionless quantities has \"\"."
-                                  },
-                                  "decimalPlaces": {
-                                    "type": "integer",
-                                    "description": "Precision."
-                                  },
-                                  "breakdown": {
-                                    "type": "array",
-                                    "description": "Parsed generic types if present in device response.",
-                                    "items": {
-                                      "type": "object",
-                                      "properties": {
-                                        "type": {
-                                          "type": "integer",
-                                          "description": "Value type of the sensor (quantity)."
-                                        },
-                                        "name": {
-                                          "type": "string",
-                                          "description": "Name of the sensor (quantity)."
-                                        },
-                                        "shortName": {
-                                          "type": "string",
-                                          "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-                                        },
-                                        "value": {
-                                          "oneOf": [
-                                            {
-                                              "type": "number"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ],
-                                          "description": "Value of the sensor."
-                                        },
-                                        "unit": {
-                                          "type": "string",
-                                          "description": "Unit of the quantity. Dimensionless quantities has \"\"."
-                                        }
-                                      }
-                                    }
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "type",
-                                  "name",
-                                  "shortName",
-                                  "unit"
-                                ]
-                              }
+                              { "type": "null" },
+                              { "$ref": "#/$localDefinitions/sensor" }
                             ]
                           }
-                        },
-                        "required": [
-                          "nAdr",
-                          "sensor"
-                        ]
+                        }
                       }
                     ]
-                  }
-                },
-                "sensorIndex": {
-                  "description": "Index of sensor",
-                  "type": "integer",
-                  "minimum": 0
-                },
-                "selectedNodes": {
-                  "description": "Array of network device addresses requested to execute FRC command.",
-                  "type": "array",
-                  "additionalItems": false,
-                  "uniqueItems": true,
-                  "minItems": 1,
-                  "maxItems": 239,
-                  "items": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 239
                   }
                 }
               }
             },
             "errorStr": {
-              "type": "string",
-              "description": "Error description from JS drivers."
+              "$ref": "definitions.json#/general/response/errorStr"
             }
-          },
-          "required": [
-            "nAdr",
-            "hwpId",
-            "rCode",
-            "dpaVal"
-          ]
+          }
         },
         "raw": {
+          "$ref": "definitions.json#/general/response/raw"
+        },
+        "insId": {
+          "$ref": "definitions.json#/general/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/general/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        }
+      }
+    }
+  },
+  "$localDefinitions": {
+    "sensor": {
+      "title": "Sensor",
+      "description": "Contains data from one sensor",
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "name",
+        "shortName",
+        "unit"
+      ],
+      "properties": {
+        "id": {
+          "description": "Value type as text id.",
+          "type": "string"
+        },
+        "type": {
+          "description": "Value type of the sensor (quantity).",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Name of the sensor (quantity).",
+          "type": "string"
+        },
+        "shortName": {
+          "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics.",
+          "type": "string"
+        },
+        "value": {
+          "description": "Value of the sensor.",
+          "oneOf": [
+            { "type": "null" },
+            { "type": "number" }
+          ]
+        },
+        "unit": {
+          "description": "Unit of the quantity. Dimensionless quantities has \"\".",
+          "type": "string"
+        },
+        "breakdown": {
+          "description": "Parsed generic types if present in device response.",
           "type": "array",
-          "description": "Returns array of objects req-cnf-rsp, see its description.",
           "items": {
             "type": "object",
             "properties": {
-              "request": {
-                "type": "string",
-                "description": "Binary buffer with DPA request."
+              "type": {
+                "type": "integer",
+                "description": "Value type of the sensor (quantity)."
               },
-              "requestTs": {
+              "name": {
                 "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+                "description": "Name of the sensor (quantity)."
               },
-              "confirmation": {
+              "shortName": {
                 "type": "string",
-                "description": "Binary buffer with DPA confirmation."
+                "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
               },
-              "confirmationTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+              "value": {
+                "description": "Value of the sensor.",
+                "oneOf": [
+                  { "type": "null" },
+                  { "type": "number" }
+                ]
               },
-              "response": {
+              "unit": {
                 "type": "string",
-                "description": "Binary buffer with DPA response."
-              },
-              "responseTs": {
-                "type": "string",
-                "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
+                "description": "Unit of the quantity. Dimensionless quantities has \"\"."
               }
-            },
-            "required": [
-              "request",
-              "requestTs",
-              "confirmation",
-              "confirmationTs",
-              "response",
-              "responseTs"
-            ]
+            }
           }
-        },
-        "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
-        },
-        "status": {
-          "type": "integer",
-          "description": "IQRF GW daemon API (general or mType) status."
-        },
-        "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
         }
       }
     }
