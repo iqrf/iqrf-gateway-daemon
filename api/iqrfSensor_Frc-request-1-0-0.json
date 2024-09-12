@@ -1,11 +1,7 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqrfSensor_Frc-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Interoperability Standard Sensor - FRC request",
+  "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
     "mType",
@@ -14,13 +10,14 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "Standard peripheral Sensor - FRC request.",
-      "enum": [
-        "iqrfSensor_Frc"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfSensor_Frc" }
       ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
       "required": [
         "msgId",
@@ -29,10 +26,11 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
+          "$ref": "definitions.json#/general/msgId"
         },
         "req": {
+          "title": "Request",
+          "description": "Holds request data",
           "type": "object",
           "required": [
             "nAdr",
@@ -41,53 +39,73 @@
           "additionalProperties": false,
           "properties": {
             "nAdr": {
-              "type": "integer",
-              "description": "Network device address."
+              "$ref": "definitions.json#/general/nAdr"
             },
             "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile identification."
+              "$ref": "definitions.json#/general/request/hwpId"
             },
             "param": {
+              "title": "Request parameters",
+              "description": "Specific request parameters.",
               "type": "object",
               "required": [
+                "frcCommand",
                 "sensorType",
-                "sensorIndex",
-                "frcCommand"
+                "sensorIndex"
               ],
               "additionalProperties": false,
               "properties": {
-                "sensorType": {
-                  "type": "integer",
-                  "description": "Type of sensor (quantity) to read values of. Refer to the Sensor interoperability standard https://www.iqrfalliance.org/iqrf-interoperability/ for details."
-                },
-                "sensorIndex": {
-                  "type": "integer",
-                  "description": "Index of the sensor. When the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data."
-                },
                 "frcCommand": {
                   "type": "integer",
-                  "description": "One of predefined standard sensor FRC commands. Use FRC commands available from Sensor enumeration."
+                  "description": "One of predefined standard sensor FRC commands. Use FRC commands available from Sensor enumeration.",
+                  "minimum": 0,
+                  "maximum": 255
                 },
                 "selectedNodes": {
                   "type": "array",
-                  "description": "Array if integer values corresponding to the selected nodes. Use default value to select all nodes and use sleepAfterFrc parameter.",
+                  "description": "Optional array of indexes of the selected nodes.",
+                  "minItems": 1,
+                  "maxItems": 255,
+                  "uniqueItems": true,
+                  "additionalItems": false,
                   "items": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
                   }
                 },
+                "sensorType": {
+                  "type": "integer",
+                  "description": "Type of sensor (quantity) to read values of. Refer to the Sensor interoperability standard https://www.iqrfalliance.org/iqrf-interoperability/ for details.",
+                  "minimum": 0,
+                  "maximum": 255
+                },
+                "sensorIndex": {
+                  "type": "integer",
+                  "description": "Index of the sensor. When the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data.",
+                  "minimum": 0,
+                  "maximum": 255
+                },
                 "sleepAfterFrc": {
+                  "description": "Optional 'sleep after FRC' parameters to put the nodes into sleep mode after the FRC is finished.",
                   "type": "object",
-                  "description": "Object with the following fields to put the nodes into sleep mode after the FRC is finished.",
+                  "required": [
+                    "time",
+                    "control"
+                  ],
                   "additionalProperties": false,
                   "properties": {
                     "time": {
                       "type": "integer",
-                      "description": "See DPA documentation https://www.iqrf.org/DpaTechGuide/pages/sleep.html for details."
+                      "description": "Sleep time in 2.097 s or 32.768 ms units. See https://doc.iqrf.org/DpaTechGuide/index.html?page=sleep.html.",
+                      "minimum": 0,
+                      "maximum": 65535
                     },
                     "control": {
                       "type": "integer",
-                      "description": "See DPA documentation https://www.iqrf.org/DpaTechGuide/pages/sleep.html for details."
+                      "description": "See https://doc.iqrf.org/DpaTechGuide/index.html?page=sleep.html.",
+                      "minimum": 0,
+                      "maximum": 255
                     }
                   }
                 },
@@ -106,12 +124,10 @@
           }
         },
         "timeout": {
-          "type": "integer",
-          "description": "Timeout to wait for IQRF DPA response."
+          "$ref": "definitions.json#/general/timeout"
         },
         "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
+          "$ref": "definitions.json#/general/returnVerbose"
         }
       }
     }
