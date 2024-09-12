@@ -84,8 +84,7 @@
             null,
             null,
             null
-          ],
-          "sensorIndex": 0
+          ]
         }
       },
       "raw": [
@@ -134,9 +133,7 @@
               "value": 25
             },
             null
-          ],
-          "sensorIndex": 0,
-          "selectedNodes": [1, 4]
+          ]
         }
       },
       "raw": [
@@ -195,9 +192,7 @@
               "nAdr": 4,
               "sensor": null
             }
-          ],
-          "sensorIndex": 0,
-          "selectedNodes": [1, 4]
+          ]
         }
       },
       "raw": [
