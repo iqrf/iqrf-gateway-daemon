@@ -35,7 +35,7 @@ services:
       - 1883
 
   emulator:
-    image: iqrftech/iqrf-tr-emulator:latest
+    image: iqrftech/iqrf-tr-emulator:v3.x
     container_name: network_emulator
     expose:
       - 10000
