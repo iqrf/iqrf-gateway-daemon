@@ -171,63 +171,25 @@
       ],
       "properties": {
         "id": {
-          "description": "Value type as text id.",
-          "type": "string"
+          "$ref": "definitions.json#/interoperability/sensor/id"
         },
         "type": {
-          "description": "Value type of the sensor (quantity).",
-          "type": "integer"
+          "$ref": "definitions.json#/interoperability/sensor/type"
         },
         "name": {
-          "description": "Name of the sensor (quantity).",
-          "type": "string"
+          "$ref": "definitions.json#/interoperability/sensor/name"
         },
         "shortName": {
-          "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics.",
-          "type": "string"
+          "$ref": "definitions.json#/interoperability/sensor/shortName"
         },
         "value": {
-          "description": "Value of the sensor.",
-          "oneOf": [
-            { "type": "null" },
-            { "type": "number" }
-          ]
+          "$ref": "definitions.json#/interoperability/sensor/value"
         },
         "unit": {
-          "description": "Unit of the quantity. Dimensionless quantities has \"\".",
-          "type": "string"
+          "$ref": "definitions.json#/interoperability/sensor/unit"
         },
         "breakdown": {
-          "description": "Parsed generic types if present in device response.",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "integer",
-                "description": "Value type of the sensor (quantity)."
-              },
-              "name": {
-                "type": "string",
-                "description": "Name of the sensor (quantity)."
-              },
-              "shortName": {
-                "type": "string",
-                "description": " Short name of the sensor (quantity). Typically it is a symbol used at physics."
-              },
-              "value": {
-                "description": "Value of the sensor.",
-                "oneOf": [
-                  { "type": "null" },
-                  { "type": "number" }
-                ]
-              },
-              "unit": {
-                "type": "string",
-                "description": "Unit of the quantity. Dimensionless quantities has \"\"."
-              }
-            }
-          }
+          "$ref": "definitions.json#/interoperability/sensor/genericReadout"
         }
       }
     }

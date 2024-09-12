@@ -180,5 +180,96 @@
         "type": "boolean"
       }
     }
+  },
+  "interoperability": {
+    "sensor": {
+      "decimalPlaces": {
+        "description": "Number of valid decimal places.",
+        "type": "number"
+      },
+      "frcCommand": {
+        "type": "integer",
+        "description": "One of predefined standard sensor FRC commands. Use FRC commands available from Sensor enumeration.",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "genericReadout": {
+        "title": "Generic readout",
+        "description": "Parsed generic sensor readout.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": { "$ref": "#/interoperability/sensor/id" },
+            "type": { "$ref": "#/interoperability/sensor/type" },
+            "name": { "$ref": "#/interoperability/sensor/name" },
+            "shortName": { "$ref": "#/interoperability/sensor/shortName" },
+            "value": { "$ref": "#/interoperability/sensor/value" },
+            "unit": { "$ref": "#/interoperability/sensor/unit" },
+            "decimalPlaces": { "$ref": "#/interoperability/sensor/decimalPlaces" }
+          }
+        }
+      },
+      "id": {
+        "title": "Sensor ID",
+        "description": "Value type as text id.",
+        "type": "string"
+      },
+      "indexes": {
+        "title": "Sensor indexes",
+        "description": "Indexes of requested sensors.",
+        "oneOf": [
+          { "type": "null" },
+          { "type": "integer" },
+          {
+            "type": "array",
+            "additionalItems": false,
+            "uniqueItems": true,
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 31
+            }
+          }
+        ]
+      },
+      "name": {
+        "title": "Sensor name",
+        "description": "Name of the sensor (quantity).",
+        "type": "string"
+      },
+      "shortName": {
+        "title": "Sensor short name",
+        "description": "Short name of the sensor (quantity). Typically it is a symbol used at physics.",
+        "type": "string"
+      },
+      "type": {
+        "title": "Sensor type",
+        "description": "Value type of the sensor (quantity).",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "unit": {
+        "description": "Unit of the quantity. Dimensionless quantities has \"\".",
+        "type": "string"
+      },
+      "value": {
+        "title": "Sensor value",
+        "description": "Value of the sensor.",
+        "oneOf": [
+          { "type": "null" },
+          { "type": "number" },
+          {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            }
+          }
+        ]
+      }
+    }
   }
 }
