@@ -3,8 +3,7 @@
   "data": {
     "msgId": "testEmbedFrc",
     "req": {
-      "nAdr": 0,
-      "param": {}
+      "nAdr": 0
     },
     "returnVerbose": true
   }
