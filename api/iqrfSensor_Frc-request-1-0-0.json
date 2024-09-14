@@ -59,25 +59,13 @@
                   "$ref": "definitions.json#/interoperability/sensor/frcCommand"
                 },
                 "selectedNodes": {
-                  "type": "array",
-                  "description": "Optional array of indexes of the selected nodes.",
-                  "items": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 255
-                  },
-                  "minItems": 1,
-                  "maxItems": 255,
-                  "uniqueItems": true
+                  "$ref": "definitions.json#/interoperability/selectedNodes"
                 },
                 "sensorType": {
                   "$ref": "definitions.json#/interoperability/sensor/type"
                 },
                 "sensorIndex": {
-                  "type": "integer",
-                  "description": "Index of the sensor. When the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data.",
-                  "minimum": 0,
-                  "maximum": 255
+                  "$ref": "definitions.json#/interoperability/sensor/index"
                 },
                 "sleepAfterFrc": {
                   "description": "Optional 'sleep after FRC' parameters to put the nodes into sleep mode after the FRC is finished.",

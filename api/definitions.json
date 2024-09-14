@@ -182,6 +182,18 @@
     }
   },
   "interoperability": {
+    "selectedNodes": {
+      "type": "array",
+      "description": "Optional array of indexes of the selected nodes.",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 239
+      },
+      "minItems": 0,
+      "maxItems": 239,
+      "uniqueItems": true
+    },
     "sensor": {
       "decimalPlaces": {
         "description": "Number of valid decimal places.",
@@ -190,6 +202,12 @@
       "frcCommand": {
         "type": "integer",
         "description": "One of predefined standard sensor FRC commands. Use FRC commands available from Sensor enumeration.",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "index": {
+        "type": "integer",
+        "description": "Index of the sensor. When the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data.",
         "minimum": 0,
         "maximum": 255
       },
