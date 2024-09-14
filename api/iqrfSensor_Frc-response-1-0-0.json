@@ -84,41 +84,46 @@
                       },
                       { "$ref": "#/$localDefinitions/sensor" },
                       {
-                        "title": "SensorAtNode",
+                        "title": "Extended format",
                         "description": "Sensor data with node determination",
                         "type": "object",
                         "required": [
                           "nAdr",
+                          "hwpid",
+                          "mid",
                           "sensor"
                         ],
+                        "additionalProperties": false,
                         "properties": {
                           "nAdr": {
                             "type": "integer",
-                            "description": "Node address."
-                          },
-                          "mid": {
-                            "description": "Node module ID.",
-                            "oneOf": [
-                              { "type": "integer" },
-                              { "type": "null" }
-                            ]
+                            "description": "Node address.",
+                            "minimum": 1,
+                            "maximum": 239
                           },
                           "hwpid": {
-                            "description": "Node hardware profile ID.",
+                            "description": "Hardware profile ID.",
+                            "oneOf": [
+                              {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 65535
+                              },
+                              { "type": "null" }
+                            ]
+                          },
+                          "mid": {
+                            "description": "Module ID.",
                             "oneOf": [
                               { "type": "integer" },
                               { "type": "null" }
                             ]
                           },
-                          "metaData": {
+                          "metadata": {
+                            "description": "Arbitrary user defined meta data.",
                             "oneOf": [
-                              {
-                                "type": "object",
-                                "description": "Arbitrary user defined meta data."
-                              },
-                              {
-                                "type": "null"
-                              }
+                              { "type": "null" },
+                              { "type": "object" }
                             ]
                           },
                           "sensor": {
@@ -131,6 +136,12 @@
                       }
                     ]
                   }
+                },
+                "sensorIndex": {
+                  "$ref": "definitions.json#/interoperability/sensor/index"
+                },
+                "selectedNodes": {
+                  "$ref": "definitions.json#/interoperability/selectedNodes"
                 }
               }
             },
