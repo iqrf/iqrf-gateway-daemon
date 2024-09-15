@@ -106,6 +106,8 @@ namespace iqrf {
 			}
 
 			Pointer("/data/rsp/device").Set(doc, object, allocator);
+		} else {
+			Pointer("/data/rsp/device").Set(doc, rapidjson::Value(kNullType));
 		}
 		BaseMsg::createResponsePayload(doc);
 	}
