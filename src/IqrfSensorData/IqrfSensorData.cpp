@@ -200,7 +200,6 @@ namespace iqrf {
 			}
 		} catch (const std::exception &e) {
 			setErrorTransactionResult(result, transResult, e.what());
-			frcData.clear();
 		}
 		return frcData;
 	}
@@ -275,7 +274,7 @@ namespace iqrf {
 					result.setDeviceRssi(item.getAddr(), item.getValue() + 130);
 				}
 			} catch (const std::exception &e) {
-				setErrorTransactionResult(result, transResult, e.what());
+				THROW_EXC_TRC_WAR(std::logic_error, e.what());
 			}
 		}
 	}
