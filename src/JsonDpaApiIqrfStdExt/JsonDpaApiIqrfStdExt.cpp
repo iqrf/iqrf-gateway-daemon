@@ -107,6 +107,7 @@ namespace iqrf {
 			// process *_Request
 			jsDriverStandardFrcSolver.processRequestDrv();
 			apiMsgIqrfStandardFrc.setDpaRequest(jsDriverStandardFrcSolver.getFrcRequest());
+			apiMsgIqrfStandardFrc.setDriverTranslateSuccess(true);
 
 			auto exclusiveAccess = m_dpaService->getExclusiveAccess();
 			int timeOut = apiMsgIqrfStandardFrc.getTimeout();
@@ -150,7 +151,7 @@ namespace iqrf {
 				if (m_dbService) {
 					nodeMap = m_dbService->getNodeMidHwpidMap();
 				}
-				
+
 				jsDriverStandardFrcSolver.convertToExtendedFormat(
 					jsonDoc,
 					arrayKey,
@@ -183,6 +184,15 @@ namespace iqrf {
 			apiMsgIqrfStandardFrc.setStatus(IDpaTransactionResult2::errorCode(status), status);
 			apiMsgIqrfStandardFrc.createResponse(allResponseDoc);
 		} catch (const std::exception & e) {
+			if (!apiMsgIqrfStandardFrc.getDriverTranslateSuccess()) {
+				if (message_types::MessageTypeConverter::isFrcStandardMessageType(msgType.m_type)) {
+					auto tuple = message_types::MessageTypeConverter::frcMessageTypeToPerCmd(apiMsgIqrfStandardFrc.hasSelectedNodes());
+					apiMsgIqrfStandardFrc.setPnum(EnumUtils::toScalar(std::get<0>(tuple)));
+					apiMsgIqrfStandardFrc.setPcmd(EnumUtils::toScalar(std::get<1>(tuple)));
+				} else {
+					apiMsgIqrfStandardFrc.setUnresolvablePerCmd(true);
+				}
+			}
 			//provide error response
 			Document rDataError;
 			rDataError.SetString(e.what(), rDataError.GetAllocator());

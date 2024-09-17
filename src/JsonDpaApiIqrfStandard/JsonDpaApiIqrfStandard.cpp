@@ -141,8 +141,37 @@ namespace iqrf {
 		}
 
 		if (driverRequestError) {
+			com->setRequestDriverConvertFailure(true);
+			try {
+				if (msgType.m_type == "iqrfEmbedExplore_PeripheralInformation" || msgType.m_type == "iqrfEmbedExplore_MorePeripheralsInformation") {
+					try {
+						auto per = static_cast<uint8_t>(Pointer("/data/req/param/per").Get(doc)->GetUint());
+						if (msgType.m_type == "iqrfEmbedExplore_PeripheralInformation") {
+							com->setPnum(per);
+							com->setPcmd(EnumUtils::toScalar(message_types::Commands::Exploration_PerInfo));
+						} else if (msgType.m_type == "iqrfEmbedExplore_MorePeripheralsInformation") {
+							com->setPnum(EnumUtils::toScalar(message_types::Peripherals::Exploration));
+							com->setPcmd(per);
+						}
+					} catch (const std::exception &e) {
+						CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+						com->setUnresolvablePerCmd(true);
+					}
+				} else if (msgType.m_type == "iqrfEmbedLedr_Set" || msgType.m_type == "iqrfEmbedLedg_Set") {
+					auto pnum = msgType.m_type == "iqrfEmbedLedr_Set" ? message_types::Peripherals::Ledr : message_types::Peripherals::Ledg;
+					auto cmd = static_cast<uint8_t>(Pointer("/data/req/param/onOff").Get(doc)->GetBool());
+					com->setPnum(EnumUtils::toScalar(pnum));
+					com->setPcmd(cmd);
+				} else {
+					auto tuple = message_types::MessageTypeConverter::messageTypeToPerCmd(msgType.m_type);
+					com->setPnum(EnumUtils::toScalar(std::get<0>(tuple)));
+					com->setPcmd(EnumUtils::toScalar(std::get<1>(tuple)));
+				}
+			} catch (const std::domain_error &e) {
+				com->setUnresolvablePerCmd(true);
+			}
 			//provide error response
-			FakeTransactionResult fr;
+			FakeTransactionResult fr(com->getDpaRequest(), true);
       fr.setErrorString(errStrReq);
       if (errorCode != 0) {
         fr.overrideErrorCode(static_cast<IDpaTransactionResult2::ErrorCode>(errorCode));

@@ -55,6 +55,12 @@ namespace iqrf {
       m_statusStr = statusStr;
       m_status = status;
     }
+    void setRequestDriverConvertFailure(bool val) {
+      m_requestDriverConvertFailure = val;
+    }
+    void setUnresolvablePerCmd(bool val) {
+      m_unresolvablePerCmd = val;
+    }
 
     const DpaMessage& getDpaRequest() const
     {
@@ -91,6 +97,8 @@ namespace iqrf {
   protected:
     virtual void createResponsePayload(rapidjson::Document& doc, const IDpaTransactionResult2& res) = 0;
     DpaMessage m_request;
+    bool m_requestDriverConvertFailure = false;
+    bool m_unresolvablePerCmd = false;
 
   private:
     std::string m_mType;

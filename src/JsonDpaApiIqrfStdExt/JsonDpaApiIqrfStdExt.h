@@ -25,6 +25,8 @@
 #include "ITraceService.h"
 #include "JsDriverStandardFrcSolver.h"
 #include "ShapeProperties.h"
+#include "EnumUtils.h"
+#include "MessageTypes.h"
 #include "Trace.h"
 
 #include "rapidjson/rapidjson.h"

@@ -28,12 +28,28 @@ namespace iqrf {
 		FakeTransactionResult() : IDpaTransactionResult2() {};
 
 		/**
-		 * Full constructor with DPA message
+		 * Single DPA message constructor
 		 * @param dpaMessage DPA message
+		 * @param request Request or response (response by default <false>)
 		 */
-		FakeTransactionResult(const DpaMessage &dpaMessage) {
+		FakeTransactionResult(const DpaMessage &dpaMessage, bool request = false) {
 			m_now = std::chrono::system_clock::now();
-			m_response = dpaMessage;
+			if (request) {
+				m_request = dpaMessage;
+			} else {
+				m_response = dpaMessage;
+			}
+		}
+
+		/**
+		 * Full constructor
+		 * @param request Request DPA message
+		 * @param response Response DPA message
+		 */
+		FakeTransactionResult(const DpaMessage &request, const DpaMessage &response) {
+			m_now = std::chrono::system_clock::now();
+			m_request = request;
+			m_response = response;
 		}
 
 		/**
