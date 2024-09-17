@@ -4,7 +4,7 @@
     "VerbosityLevels": [
       {
         "channel": 0,
-        "level": "INF"
+        "level": "WAR"
       }
     ]
   }
