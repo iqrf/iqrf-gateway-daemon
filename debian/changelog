@@ -1,3 +1,10 @@
+iqrf-gateway-daemon (2.6.0~beta2) stable; urgency=medium
+
+  [ Karel Hanák ]
+  * set logging level of deployment configurations to warning
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 17 Sep 2024 10:24:17 +0200
+
 iqrf-gateway-daemon (2.6.0~beta1) stable; urgency=medium
 
   [ Karel Hanák ]
