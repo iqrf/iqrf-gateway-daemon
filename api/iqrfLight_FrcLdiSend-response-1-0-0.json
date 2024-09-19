@@ -1,263 +1,167 @@
 {
-	"$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-	"type": "object",
-	"required": [
-		"mType",
-		"data"
-	],
-	"additionalProperties": false,
-	"properties": {
-		"mType": {
-			"type": "string",
-			"description": "Standard peripheral Light - Execute LDI command using FRC.",
-			"enum": ["iqrfLight_FrcLdiSend"]
-		},
-		"data": {
-			"type": "object",
-			"required": [
-				"msgId",
-				"rsp",
-				"status"
-			],
-			"additionalProperties": false,
-			"properties": {
-				"msgId": {
-					"title": "Message ID",
-					"description": "Message identification for binding request with response.",
-					"type": "string"
-				},
-				"timeout": {
-					"type": "integer",
-					"description": "Timeout to wait for IQRF DPA response."
-				},
-				"rsp": {
-					"type": "object",
-					"required": [
-						"nAdr",
-						"hwpId",
-						"rCode",
-						"dpaVal"
-					],
-					"additionalProperties": false,
-					"properties": {
-						"nAdr": {
-							"title": "Device address",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 255
-						},
-						"pnum": {
-							"title": "Peripheral number",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 255
-						},
-						"pcmd": {
-							"title": "Peripheral command",
-							"description": "Peripheral response command.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 255
-						},
-						"hwpId": {
-							"title": "HWPID",
-							"description": "Hardware profile identification.",
-							"type": "integer"
-						},
-						"rCode": {
-							"title": "DPA error code",
-							"type": "integer"
-						},
-						"dpaVal": {
-							"title": "DPA value",
-							"type": "integer"
-						},
-						"result": {
-							"type": "object",
-							"required": [
-								"command",
-								"answers"
-							],
-							"additionalProperties": false,
-							"properties": {
-								"command": {
-									"title": "LDI (DALI) command",
-									"type": "integer",
-									"minimum": 0,
-									"maximum": 65535
-								},
-								"answers": {
-									"type": "array",
-									"description": "Array of objects for every LDI (DALI) answer. Object array index represent the node address (or index in case selectedNodes parameter was used).",
-									"items": {
-										"oneOf": [
-											{
-												"type": "null"
-											},
-											{
-												"type": "object",
-												"title": "Regular format",
-												"required": [
-													"status",
-													"value"
-												],
-												"additionalProperties": false,
-												"properties": {
-													"status": {
-														"title": "DALI status",
-														"type": "integer",
-														"minimum": 0,
-														"maximum": 255
-													},
-													"value": {
-														"title": "DALI value",
-														"type": "integer",
-														"minimum": 0,
-														"maximum": 255
-													}
-												}
-											},
-											{
-												"type": "object",
-												"title": "Extended format",
-												"required": [
-													"nAdr",
-													"answer"
-												],
-												"additionalProperties": false,
-												"properties": {
-													"nAdr": {
-														"type": "integer",
-														"description": "Node address."
-													},
-													"mid": {
-														"description": "Device module ID.",
-														"oneOf": [
-															{ "type": "integer" },
-															{ "type": "null" }
-														]
-													},
-													"hwpid": {
-														"description": "Device hardware profile ID.",
-														"oneOf": [
-															{ "type": "integer" },
-															{ "type": "null" }
-														]
-													},
-													"metaData": {
-														"type": "object",
-														"description": "Arbitrary user defined meta data."
-													},
-													"answer": {
-														"oneOf": [
-															{
-																"type": "null"
-															},
-															{
-																"type": "object",
-																"required": [
-																	"status",
-																	"value"
-																],
-																"additionalProperties": false,
-																"properties": {
-																	"status": {
-																		"title": "DALI status",
-																		"type": "integer",
-																		"minimum": 0,
-																		"maximum": 255
-																	},
-																	"value": {
-																		"title": "DALI value",
-																		"type": "integer",
-																		"minimum": 0,
-																		"maximum": 255
-																	}
-																}
-															}
-														]
-													}
-												}
-											}
-										]
-									}
-								},
-								"selectedNodes": {
-									"description": "Array of network device addresses requested to execute FRC command.",
-									"type": "array",
-									"additionalItems": false,
-									"uniqueItems": true,
-									"minItems": 1,
-									"maxItems": 239,
-									"items": {
-										"type": "integer",
-										"minimum": 1,
-										"maximum": 239
-									}
-								}
-							}
-						},
-						"errorStr": {
-							"type": "string",
-							"description": "Error description from JS drivers."
-						}
-					}
-				},
-				"raw": {
-					"type": "array",
-					"description": "Returns array of objects req-cnf-rsp, see its description.",
-					"items": {
-						"type": "object",
-						"required": [
-							"request",
-							"requestTs",
-							"confirmation",
-							"confirmationTs",
-							"response",
-							"responseTs"
-						],
-						"additionalProperties": false,
-						"properties": {
-							"request": {
-								"type": "string",
-								"description": "Binary buffer with DPA request."
-							},
-							"requestTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"confirmation": {
-								"type": "string",
-								"description": "Binary buffer with DPA confirmation."
-							},
-							"confirmationTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							},
-							"response": {
-								"type": "string",
-								"description": "Binary buffer with DPA response."
-							},
-							"responseTs": {
-								"type": "string",
-								"description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM"
-							}
-						}
-					}
-				},
-				"insId": {
-					"type": "string",
-					"description": "IQRF GW daemon instance identification."
-				},
-				"status": {
-					"type": "integer",
-					"description": "IQRF GW daemon API (general or mType) status."
-				},
-				"statusStr": {
-					"type": "string",
-					"description": "IQRF GW daemon API (general or mType) status in string form."
-				}
-			}
-		}
-	}
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Interoperability Standard Light - FRC Send LDI response",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfLight_FrcLdiSend" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "rsp",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
+        "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
+          "type": "object",
+          "required": [
+            "nAdr",
+            "pNum",
+            "pCmd",
+            "hwpId",
+            "rCode",
+            "dpaVal"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nAdr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "pNum": {
+              "$ref": "definitions.json#/general/response/pNum"
+            },
+            "pCmd": {
+              "$ref": "definitions.json#/general/response/pCmd"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/response/hwpId"
+            },
+            "rCode": {
+              "$ref": "definitions.json#/general/response/rCode"
+            },
+            "dpaVal": {
+              "$ref": "definitions.json#/general/response/dpaVal"
+            },
+            "result": {
+              "title": "Result",
+              "description": "Contains the results of the request",
+              "type": "object",
+              "required": [
+                "command",
+                "answers"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "command": {
+                  "$ref": "definitions.json#/interoperability/light/ldiCommand"
+                },
+                "answers": {
+                  "type": "array",
+                  "description": "Array of objects for every LDI (DALI) answer. Object array index represent the node address (or index in case selectedNodes parameter was used).",
+                  "items": {
+                    "oneOf": [
+                      { "type": "null" },
+                      {
+                        "$ref": "#/$localDefinitions/answer"
+                      },
+                      {
+                        "type": "object",
+                        "title": "Extended format",
+                        "required": [
+                          "nAdr",
+                          "answer"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "nAdr": {
+                            "$ref": "definitions.json#/general/nAdr"
+                          },
+                          "hwpid": {
+                            "$ref": "definitions.json#/interoperability/frc/hwpid"
+                          },
+                          "mid": {
+                            "$ref": "definitions.json#/interoperability/frc/mid"
+                          },
+                          "metaData": {
+                            "$ref": "definitions.json#/interoperability/frc/metadata"
+                          },
+                          "answer": {
+                            "oneOf": [
+                              { "type": "null" },
+                              {
+                                "$ref": "#/$localDefinitions/answer"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "selectedNodes": {
+                  "$ref": "definitions.json#/interoperability/frc/selectedNodes"
+                }
+              }
+            },
+            "errorStr": {
+              "$ref": "definitions.json#/general/response/errorStr"
+            }
+          }
+        },
+        "raw": {
+          "$ref": "definitions.json#/general/response/raw"
+        },
+        "insId": {
+          "$ref": "definitions.json#/general/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/general/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "timeout": {
+          "$ref": "definitions.json#/general/timeout"
+        }
+      }
+    }
+  },
+  "$localDefinitions": {
+    "answer": {
+      "type": "object",
+      "title": "Regular format of LDI answer",
+      "required": [
+        "status",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "$ref": "definitions.json#/interoperability/light/status"
+        },
+        "value": {
+          "$ref": "definitions.json#/interoperability/light/value"
+        }
+      }
+    }
+  }
 }
