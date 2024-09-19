@@ -96,35 +96,16 @@
                         "additionalProperties": false,
                         "properties": {
                           "nAdr": {
-                            "type": "integer",
-                            "description": "Node address.",
-                            "minimum": 1,
-                            "maximum": 239
+                            "$ref": "definitions.json#/general/nAdr"
                           },
                           "hwpid": {
-                            "description": "Hardware profile ID.",
-                            "oneOf": [
-                              {
-                                "type": "integer",
-                                "minimum": 0,
-                                "maximum": 65535
-                              },
-                              { "type": "null" }
-                            ]
+                            "$ref": "definitions.json#/interoperability/frc/hwpid"
                           },
                           "mid": {
-                            "description": "Module ID.",
-                            "oneOf": [
-                              { "type": "integer" },
-                              { "type": "null" }
-                            ]
+                            "$ref": "definitions.json#/interoperability/frc/mid"
                           },
                           "metadata": {
-                            "description": "Arbitrary user defined meta data.",
-                            "oneOf": [
-                              { "type": "null" },
-                              { "type": "object" }
-                            ]
+                            "$ref": "definitions.json#/interoperability/frc/metadata"
                           },
                           "sensor": {
                             "oneOf": [
@@ -141,7 +122,7 @@
                   "$ref": "definitions.json#/interoperability/sensor/index"
                 },
                 "selectedNodes": {
-                  "$ref": "definitions.json#/interoperability/selectedNodes"
+                  "$ref": "definitions.json#/interoperability/frc/selectedNodes"
                 }
               }
             },

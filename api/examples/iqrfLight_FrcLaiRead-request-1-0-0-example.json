@@ -4,8 +4,7 @@
     "data": {
       "msgId": "c8eab27f-dd58-4d63-8242-33466f364983",
       "req": {
-        "nAdr": 0,
-        "param": {}
+        "nAdr": 0
       },
       "returnVerbose": true
     }
