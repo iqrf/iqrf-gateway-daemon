@@ -59,7 +59,7 @@
                   "$ref": "definitions.json#/interoperability/sensor/frcCommand"
                 },
                 "selectedNodes": {
-                  "$ref": "definitions.json#/interoperability/selectedNodes"
+                  "$ref": "definitions.json#/interoperability/frc/selectedNodes"
                 },
                 "sensorType": {
                   "$ref": "definitions.json#/interoperability/sensor/type"
@@ -91,14 +91,10 @@
                   }
                 },
                 "getExtraResult": {
-                  "type": "boolean",
-                  "description": "If set Extra result DPA message is sent and processed",
-                  "default": true
+                  "$ref": "definitions.json#/interoperability/frc/getExtraResult"
                 },
                 "extFormat": {
-                  "type": "boolean",
-                  "description": "Sensors returns in extended format",
-                  "default": false
+                  "$ref": "definitions.json#/interoperability/frc/extFormat"
                 }
               }
             }

@@ -182,17 +182,59 @@
     }
   },
   "interoperability": {
-    "selectedNodes": {
-      "type": "array",
-      "description": "Optional array of indexes of the selected nodes.",
-      "items": {
-        "type": "integer",
-        "minimum": 1,
-        "maximum": 239
+    "frc": {
+      "selectedNodes": {
+        "title": "Selected nodes",
+        "description": "Optional array of indexes of the selected nodes.",
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 239
+        },
+        "minItems": 0,
+        "maxItems": 239,
+        "uniqueItems": true
       },
-      "minItems": 0,
-      "maxItems": 239,
-      "uniqueItems": true
+      "getExtraResult": {
+        "title": "Get extra result",
+        "description": "If set Extra result DPA message is sent and processed.",
+        "type": "boolean",
+        "default": true
+      },
+      "extFormat": {
+        "title": "Extended format",
+        "description": "Return the data in the extended format.",
+        "type": "boolean",
+        "default": false
+      },
+      "hwpid": {
+        "title": "HWPID",
+        "description": "Hardware profile ID.",
+        "oneOf": [
+          { "type": "null" },
+          {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          }
+        ]
+      },
+      "mid": {
+        "title": "MID",
+        "description": "Module ID.",
+        "oneOf": [
+          { "type": "null" },
+          { "type": "integer" }
+        ]
+      },
+      "metadata": {
+        "description": "Arbitrary user defined meta data.",
+        "oneOf": [
+          { "type": "null" },
+          { "type": "object" }
+        ]
+      }
     },
     "sensor": {
       "decimalPlaces": {
@@ -287,6 +329,27 @@
             }
           }
         ]
+      }
+    },
+    "light": {
+      "ldiCommand": {
+        "title": "LDI (DALI) command",
+        "description": "2-byte LDI (DALI) commands in the standard YAAAAAAS+DDDDDDDD format.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 65535
+      },
+      "status": {
+        "title": "Light (DALI) digital status",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "value": {
+        "title": "Light (DALI) digital value",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
       }
     }
   }
