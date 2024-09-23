@@ -33,6 +33,17 @@
       "type": "integer",
       "minimum": 0
     },
+    "ibk": {
+      "title": "IBK",
+      "description": "Individual Bonding Key [Byte array].",
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "maxItems": 16
+    },
     "request": {
       "hwpId": {
         "title": "HWPID",
@@ -351,6 +362,28 @@
         "minimum": 0,
         "maximum": 255
       }
+    }
+  },
+  "iqmesh": {
+    "repeat": {
+      "title": "Repeat request",
+      "description": "Number of repetitions of DPA messages.",
+      "type": "integer",
+      "default": 1
+    },
+    "nodesNr": {
+      "title": "Node count",
+      "description": "Number of nodes in the network.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 239
+    },
+    "inaccessibleNodesNr": {
+      "title": "Inaccessible node count",
+      "description": "Number of nodes that don't reply to FRC.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 239
     }
   }
 }
