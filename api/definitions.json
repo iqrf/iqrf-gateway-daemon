@@ -183,6 +183,151 @@
       }
     }
   },
+  "explore": {
+    "embeddedPers": {
+      "type": "array",
+      "description": "Array of embedded peripherals (their ordinal numbers), which are enabled in the TR configuration.",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 31
+      },
+      "maxItems": 32,
+      "uniqueItems": true
+    },
+    "userPerNr": {
+      "type": "integer",
+      "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler.",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "userPeripherals": {
+      "title": "Non-embedded peripherals",
+      "description": "Array of implemented non-embedded peripherals (their ordinal numbers).",
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "uniqueItems": true
+    },
+    "hwpIdVersion": {
+      "title": "Hardware profile ID version",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "dpaVer": {
+      "title": "DPA version.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "flags": {
+      "title": "Enumeration flags",
+      "description": "A byte containing various enumeration flags. For details see Peripheral enumeration in DPA Technical Guide.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "peripheralInformation": {
+      "title": "Information about a peripheral",
+      "type": "object",
+      "required": [
+        "perT",
+        "perTe",
+        "par1",
+        "par2"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "perTe": {
+          "type": "integer",
+          "description": "Extended peripheral characteristic.",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "perT": {
+          "type": "integer",
+          "description": "Peripheral type. If the peripheral is not supported or enabled, then PERIPHERAL_TYPE_DUMMY (0x00).",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "par1": {
+          "type": "integer",
+          "description": "Optional peripheral specific information.",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "par2": {
+          "type": "integer",
+          "description": "Optional peripheral specific information.",
+          "minimum": 0,
+          "maximum": 255
+        }
+      }
+    }
+  },
+  "bonding": {
+    "reqAddr": {
+      "title": "Requested address",
+      "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 239,
+      "default": 0
+    },
+    "bondingTestRetries": {
+      "title": "Bonding test retries",
+      "description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255,
+      "default": 0
+    },
+    "userData": {
+      "title": "User data",
+      "description": "Optional data passed to the bonded node. [Byte array]",
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "maxItems": 4,
+      "default": [0,0,0,0]
+    },
+    "assignedAddr": {
+      "description": "The address assigned to the node.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 255
+    }
+  },
+  "os": {
+    "trType": {
+      "title": "TR & MCU type.",
+      "description": "A byte value defining the TR and MCU types. For details see moduleInfo in IQRF OS Reference Guide.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "flags": {
+      "title": "Flags",
+      "description": "A byte containing OS flags. For the meaning of individual bits see DPA Technical Guide.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "slotLimits": {
+      "title": "Timeslot limits",
+      "description": "A byte specifying the timeslot limits. For details see DPA Technical Guide.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    }
+  },
   "embed": {
     "led": {
       "onOff": {
@@ -236,7 +381,11 @@
         "description": "Module ID.",
         "oneOf": [
           { "type": "null" },
-          { "type": "integer" }
+          {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          }
         ]
       },
       "metadata": {
@@ -384,6 +533,147 @@
       "type": "integer",
       "minimum": 0,
       "maximum": 239
+    },
+    "manufacturer": {
+      "description": "Manufacturer name.",
+      "type": "string"
+    },
+    "product": {
+      "description": "Product name.",
+      "type": "string"
+    },
+    "standards": {
+      "description": "List of standards supported by the device.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "midStr": {
+      "title": "TR Module ID",
+      "type": "string"
+    },
+    "osVersion": {
+      "description": "IQRF OS version.",
+      "type": "string"
+    },
+    "osBuild": {
+      "description": "IQRF OS build.",
+      "type": "string"
+    },
+    "osFlags": {
+      "description": "OS Flags, for detail see DPA Guide",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "$ref": "#/os/flags"
+        },
+        "insufficientOsBuild": {
+          "description": "Flags.0 - Insufficient OsBuild. (DPA < 4.17)",
+          "type": "boolean"
+        },
+        "insufficientOsVersion": {
+          "description": "Flags.0 - Insufficient OsVersion. (DPA >= 4.17)",
+          "type": "boolean"
+        },
+        "interfaceType": {
+          "description": "Flags.1 - Interface type.",
+          "type": "string"
+        },
+        "dpaHandlerDetected": {
+          "description": "Flags.2 - Custom DPA handler was detected.",
+          "type": "boolean"
+        },
+        "dpaHandlerNotDetectedButEnabled": {
+          "description": "Flags.3 - Custom DPA Handler is not detected but enabled.",
+          "type": "boolean"
+        },
+        "noInterfaceSupported": {
+          "description": "Flags.4 - No interface supported.",
+          "type": "boolean"
+        },
+        "iqrfOsChanged": {
+          "description": "Flags.5 - IQRF OS is changed from the originally manufactured version.",
+          "type": "boolean"
+        },
+        "frcAggregationEnabled": {
+          "description": "Flags.6 - is 1 if the FRC Aggregation feature is enabled by the TR manufacturer.",
+          "type": "boolean"
+        }
+      }
+    },
+    "dpaVerStr": {
+      "description": "DPA version.",
+      "type": "string"
+    },
+    "trMcuType": {
+      "description": "Transciever module type and MCU",
+      "type": "object",
+      "properties": {
+        "value": {
+          "$ref": "#/os/trType"
+        },
+        "trType": {
+          "description": "TR module type.",
+          "type": "string"
+        },
+        "fccCertified": {
+          "description": "TR module is FCC certified.",
+          "type": "boolean"
+        },
+        "mcuType": {
+          "description": "TR module MCU type.",
+          "type": "string"
+        }
+      }
+    },
+    "rssiStr": {
+      "description": "See lastRSSI at IQRF OS Reference Guide.",
+      "type": "string"
+    },
+    "supplyVoltageStr": {
+      "description": "Module supply voltage",
+      "type": "string"
+    },
+    "slotLimits": {
+      "title": "Timeslot limits",
+      "description": "For details see DPA Guide.",
+      "type": "object",
+      "properties": {
+        "value": {
+          "$ref": "#/os/slotLimits"
+        },
+        "shortestTimeslot": {
+          "description": "Shortest timeslot length in 10 ms units.",
+          "type": "string"
+        },
+        "longestTimeslot": {
+          "description": "Longest timeslot length in 10 ms units.",
+          "type": "string"
+        }
+      }
+    },
+    "enumerationFlags": {
+      "description": "Enumeration flags.",
+      "type": "object",
+      "properties": {
+        "value": {
+          "$ref": "#/explore/flags"
+        },
+        "rfModeStd": {
+          "title": "STD-RX mode",
+          "type": "boolean"
+        },
+        "rfModeLp": {
+          "title": "LP-RX mode",
+          "type": "boolean"
+        },
+        "stdAndLpNetwork": {
+          "title": "STD+LP network",
+          "type": "boolean"
+        }
+      }
     }
   }
 }

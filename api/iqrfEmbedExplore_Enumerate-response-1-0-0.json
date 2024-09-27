@@ -77,50 +77,25 @@
               "additionalProperties": false,
               "properties": {
                 "dpaVer": {
-                  "type": "integer",
-                  "description": "DPA version.",
-                  "minimum": 0,
-                  "maximum": 65535
+                  "$ref": "definitions.json#/explore/dpaVer"
                 },
                 "userPerNr": {
-                  "type": "integer",
-                  "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler.",
-                  "minimum": 0,
-                  "maximum": 255
+                  "$ref": "definitions.json#/explore/userPerNr"
                 },
                 "embeddedPers": {
-                  "type": "array",
-                  "description": "Array of embedded peripherals (their ordinal numbers), which are enabled in the TR configuration.",
-                  "items": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 32
-                  }
+                  "$ref": "definitions.json#/explore/embeddedPers"
                 },
                 "hwpid": {
                   "$ref": "definitions.json#/general/response/hwpId"
                 },
                 "hwpidVer": {
-                  "type": "integer",
-                  "description": "Hardware profile version.",
-                  "minimum": 0,
-                  "maximum": 65535
+                  "$ref": "definitions.json#/explore/hwpIdVersion"
                 },
                 "flags": {
-                  "type": "integer",
-                  "description": "Various flags.",
-                  "minimum": 0,
-                  "maximum": 255
+                  "$ref": "definitions.json#/explore/flags"
                 },
                 "userPer": {
-                  "type": "array",
-                  "description": "Array of implemented non-embedded peripherals (their ordinal numbers).",
-                  "items": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 255
-                  },
-                  "maxItems": 12
+                  "$ref": "definitions.json#/explore/userPeripherals"
                 }
               }
             },
