@@ -65,40 +65,7 @@
               "$ref": "definitions.json#/general/response/errorStr"
             },
             "result": {
-              "type": "object",
-              "required": [
-                "perT",
-                "perTe",
-                "par1",
-                "par2"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "perTe": {
-                  "type": "integer",
-                  "description": "Extended peripheral characteristic.",
-                  "minimum": 0,
-                  "maximum": 3
-                },
-                "perT": {
-                  "type": "integer",
-                  "description": "Peripheral type. If the peripheral is not supported or enabled, then PERIPHERAL_TYPE_DUMMY (0x00).",
-                  "minimum": 0,
-                  "maximum": 255
-                },
-                "par1": {
-                  "type": "integer",
-                  "description": "Optional peripheral specific information.",
-                  "minimum": 0,
-                  "maximum": 255
-                },
-                "par2": {
-                  "type": "integer",
-                  "description": "Optional peripheral specific information.",
-                  "minimum": 0,
-                  "maximum": 255
-                }
-              }
+              "$ref": "definitions.json#/explore/peripheralInformation"
             }
           }
         },
