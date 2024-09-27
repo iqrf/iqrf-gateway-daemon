@@ -86,110 +86,68 @@
               "additionalProperties": false,
               "properties": {
                 "mid": {
-                  "type": "number",
-                  "description": "TR Module ID.",
-                  "minimum": 0,
-                  "maximum": 4294967295
+                  "$ref": "definitions.json#/general/mId"
                 },
                 "osVersion": {
+                  "title": "OS version",
+                  "description": "Hexadecimal number identifying IQRF OS version.",
                   "type": "integer",
-                  "description": "IQRF OS version.",
                   "minimum": 0,
                   "maximum": 255
                 },
                 "trType": {
-                  "type": "integer",
-                  "description": "TR MCU type.",
-                  "minimum": 0,
-                  "maximum": 255
+                  "$ref": "definitions.json#/os/trType"
                 },
                 "osBuild": {
+                  "title": "IQRF OS build.",
+                  "description": "A number identifying a subversion of IQRF OS.",
                   "type": "integer",
-                  "description": "IQRF OS build.",
                   "minimum": 0,
                   "maximum": 65535
                 },
                 "rssi": {
+                  "title": "RSSI",
+                  "description": "The signal level of the last received message. See lastRSSI register at IQRF OS Reference Guide.",
                   "type": "integer",
-                  "description": "See lastRSSI at IQRF OS Reference Guide.",
                   "minimum": 0,
                   "maximum": 255
                 },
                 "supplyVoltage": {
-                  "type": "number",
+                  "title": "Supply voltage",
                   "description": "Module supply voltage, contains real voltage value.",
+                  "type": "number",
                   "minimum": 0,
                   "maximum": 255
                 },
                 "flags": {
-                  "type": "integer",
-                  "description": "See DPA guide.",
-                  "minimum": 0,
-                  "maximum": 255
+                  "$ref": "definitions.json#/os/flags"
                 },
                 "slotLimits": {
-                  "type": "integer",
-                  "description": "See DPA guide.",
-                  "minimum": 0,
-                  "maximum": 255
+                  "$ref": "definitions.json#/os/slotLimits"
                 },
                 "ibk": {
-                  "type": "array",
-                  "description": "Individual Bonding Key.",
-                  "items": {
-                    "type": "integer",
-                    "default": 0,
-                    "minimum": 0,
-                    "maximum": 255
-                  },
-                  "minItems": 16,
-                  "maxItems": 16
+                  "$ref": "definitions.json#/general/ibk"
                 },
                 "dpaVer": {
-                  "type": "integer",
-                  "description": "DPA version.",
-                  "minimum": 0,
-                  "maximum": 65535
+                  "$ref": "definitions.json#/explore/dpaVer"
                 },
                 "userPerNr": {
-                  "type": "integer",
-                  "description": "Number of all non-embedded peripherals implemented by Custom DPA Handler.",
-                  "minimum": 0,
-                  "maximum": 255
+                  "$ref": "definitions.json#/explore/userPerNr"
                 },
                 "embeddedPers": {
-                  "type": "array",
-                  "description": "Array of embedded peripherals (their ordinal numbers), which are enabled in the TR configuration.",
-                  "items": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 32
-                  }
+                  "$ref": "definitions.json#/explore/embeddedPers"
                 },
                 "hwpid": {
                   "$ref": "definitions.json#/general/response/hwpId"
                 },
                 "hwpidVer": {
-                  "type": "integer",
-                  "description": "Hardware profile version.",
-                  "minimum": 0,
-                  "maximum": 65535
+                  "$ref": "definitions.json#/explore/hwpIdVersion"
                 },
                 "flagsEnum": {
-                  "type": "integer",
-                  "description": "Various flags: bit 0 - Device works in STD-RX mode, bit 1 - Device works in LP-RX mode, bit 2 - STD+LP network is running, otherwise STD network.",
-                  "minimum": 0,
-                  "maximum": 255
+                  "$ref": "definitions.json#/explore/flags"
                 },
                 "userPer": {
-                  "type": "array",
-                  "description": "Array of implemented non-embedded peripherals (their ordinal numbers).",
-                  "items": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 255
-                  },
-                  "maxItems": 12
+                  "$ref": "definitions.json#/explore/userPeripherals"
                 }
               }
             },
