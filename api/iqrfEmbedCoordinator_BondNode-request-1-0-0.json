@@ -55,20 +55,10 @@
               "additionalProperties": false,
               "properties": {
                 "reqAddr": {
-                  "title": "Requested address",
-                  "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node.",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 255,
-                  "default": 0
+                  "$ref": "definitions.json#/bonding/reqAddr"
                 },
                 "bondingTestRetries": {
-                  "title": "Bonding Test Retries",
-                  "description": "Maximum number of FRCs used to test whether the node was successfully bonded. If the value is 0, then no test is performed.",
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 255,
-                  "default": 0
+                  "$ref": "definitions.json#/bonding/bondingTestRetries"
                 }
               }
             }
