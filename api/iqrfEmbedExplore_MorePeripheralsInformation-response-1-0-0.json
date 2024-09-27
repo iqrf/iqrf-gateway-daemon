@@ -71,44 +71,12 @@
               "additionalProperties": false,
               "properties": {
                 "peripherals": {
+                  "description": "Same information as Get peripheral information but for up to 14 peripherals of consecutive indexes starting with the specified PCMD.",
                   "type": "array",
-                  "description": "Returns the same information as Get peripheral information but for up to 14 peripherals of consecutive indexes starting with the specified PCMD.",
-                  "maxItems": 14,
                   "items": {
-                    "type": "object",
-                    "properties": {
-                      "perTe": {
-                        "type": "integer",
-                        "description": "Extended peripheral characteristic. See Extended Peripheral Characteristic constants.",
-                        "minimum": 0,
-                        "maximum": 255
-                      },
-                      "perT": {
-                        "type": "integer",
-                        "description": "Peripheral type. If the peripheral is not supported or enabled, then PerTx = PERIPHERAL_TYPE_DUMMY. See Peripheral Types constants.",
-                        "minimum": 0,
-                        "maximum": 255
-                      },
-                      "par1": {
-                        "type": "integer",
-                        "description": "Optional peripheral specific information.",
-                        "minimum": 0,
-                        "maximum": 255
-                      },
-                      "par2": {
-                        "type": "integer",
-                        "description": "Optional peripheral specific information.",
-                        "minimum": 0,
-                        "maximum": 255
-                      }
-                    },
-                    "required": [
-                      "perTe",
-                      "perT",
-                      "par1",
-                      "par2"
-                    ]
-                  }
+                    "$ref": "definitions.json#/explore/peripheralInformation"
+                  },
+                  "maxItems": 14
                 }
               }
             },

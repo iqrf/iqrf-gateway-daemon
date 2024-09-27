@@ -306,11 +306,7 @@ namespace iqrf {
         bondNodePacket.DpaRequestPacket_t.PCMD = CMD_COORDINATOR_BOND_NODE;
         bondNodePacket.DpaRequestPacket_t.HWPID = HWPID_DoNotCheck;
         bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.ReqAddr = (uint8_t)m_bondNodeParams.deviceAddress;
-        // Put bondingTestRetries for DPA >= 4.00, bondingMask for DPA < 4.00
-        if (m_iIqrfDpaService->getCoordinatorParameters().dpaVerWord >= 0x400)
-          bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.BondNode.Current.BondingTestRetries = (uint8_t)m_bondNodeParams.bondingTestRetries;
-        else
-          bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.BondNode.Previous.BondingMask = (uint8_t)m_bondNodeParams.bondingMask;
+        bondNodePacket.DpaRequestPacket_t.DpaMessage.PerCoordinatorBondNode_Request.BondNode.Current.BondingTestRetries = (uint8_t)m_bondNodeParams.bondingTestRetries;
         bondNodeRequest.DataToBuffer(bondNodePacket.Buffer, sizeof(TDpaIFaceHeader) + sizeof(TPerCoordinatorBondNode_Request));
         // Execute the DPA request
         m_exclusiveAccess->executeDpaTransactionRepeat(bondNodeRequest, transResult, m_bondNodeParams.repeat);
