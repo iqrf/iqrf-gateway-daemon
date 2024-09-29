@@ -26,7 +26,7 @@
           "type": "object",
           "description": "Returns following values, see its description.",
           "properties": {
-            "numNodes": {
+            "nodesNr": {
               "type": "integer",
               "description": "Number of nodes in the network."
             },
