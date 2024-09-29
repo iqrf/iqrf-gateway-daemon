@@ -537,10 +537,9 @@ namespace iqrf {
 
         // Create and send response
         createResponse(restartResult);
-      }
-      catch (std::exception& e)
-      {
-        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+      } catch (const std::exception& e) {
+        m_exclusiveAccess.reset();
+        THROW_EXC_TRC_WAR(std::logic_error, e.what());
       }
 
       // Release exclusive access

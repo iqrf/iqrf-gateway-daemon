@@ -1755,10 +1755,9 @@ namespace iqrf
 
         // Create and send response
         createResponse(uploadResult);
-      }
-      catch (std::exception& e)
-      {
-        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+      } catch (const std::exception& e) {
+        m_exclusiveAccess.reset();
+        THROW_EXC_TRC_WAR(std::logic_error, e.what());
       }
 
       // release exclusive access
@@ -1772,9 +1771,10 @@ namespace iqrf
     {
       TRC_FUNCTION_ENTER("");
       TRC_INFORMATION(std::endl
-                      << "************************************" << std::endl
-                      << "OtaUploadService instance activate" << std::endl
-                      << "************************************");
+        << "************************************" << std::endl
+        << "OtaUploadService instance activate" << std::endl
+        << "************************************"
+      );
 
       m_uploadPath = m_iLaunchService->getCacheDir();
       props->getMemberAsString("uploadPathSuffix", m_uploadPathSuffix);
