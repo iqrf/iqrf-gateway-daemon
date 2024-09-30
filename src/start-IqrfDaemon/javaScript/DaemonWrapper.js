@@ -839,8 +839,6 @@ if (iqrf.binaryoutput !== undefined) {
 ////////////////////////
 if (iqrf.light !== undefined) {
 
-  // NEW API
-
   iqrf.light.SendLdiCommands_Request_req = function (params) {
     return iqrf.light.SendLdiCommands_Request(params.commands);
   };
@@ -862,13 +860,13 @@ if (iqrf.light !== undefined) {
 
   iqrf.light.SetLai_Request_req = function (params) {
     return iqrf.light.SetLai_Request(params.voltage * 1000);
-  }
+  };
 
   iqrf.light.SetLai_Response_rsp = function (rawHdp) {
     return {
       prevVoltage: iqrf.light.SetLai_Response(rawHdp) / 1000,
     };
-  }
+  };
 
   iqrf.light.FrcLdiSend_Request_req = function (params) {
     return {
@@ -886,62 +884,12 @@ if (iqrf.light !== undefined) {
     return {
       retpars: iqrf.light.FrcLaiRead_Request(params.selectedNodes)
     };
-  }
+  };
 
   iqrf.light.FrcLaiRead_Response_rsp = function (params) {
     return {
       voltages: iqrf.light.FrcLaiRead_Response(params.responseFrcSend, params.responseFrcExtraResult)
     }
-  }
-
-  // DEPRECATED API
-
-  iqrf.light.Enumerate_Request_req = function (param) {
-    return iqrf.light.Enumerate_Request();
-  };
-
-  iqrf.light.Enumerate_Response_rsp = function (rawHdp) {
-    var result =
-    {
-      lights: iqrf.light.Enumerate_Response(rawHdp)
-    };
-    return result;
-  };
-
-  iqrf.light.SetPower_Request_req = function (param) {
-    return iqrf.light.SetPower_Request(param.lights);
-  };
-
-  iqrf.light.SetPower_Response_rsp = function (rawHdp) {
-    var result =
-    {
-      prevVals: iqrf.light.SetPower_Response(rawHdp)
-    };
-    return result;
-  };
-
-  iqrf.light.IncrementPower_Request_req = function (param) {
-    return iqrf.light.IncrementPower_Request(param.lights);
-  };
-
-  iqrf.light.IncrementPower_Response_rsp = function (rawHdp) {
-    var result =
-    {
-      prevVals: iqrf.light.IncrementPower_Response(rawHdp)
-    };
-    return result;
-  };
-
-  iqrf.light.DecrementPower_Request_req = function (param) {
-    return iqrf.light.DecrementPower_Request(param.lights);
-  };
-
-  iqrf.light.DecrementPower_Response_rsp = function (rawHdp) {
-    var result =
-    {
-      prevVals: iqrf.light.DecrementPower_Response(rawHdp)
-    };
-    return result;
   };
 }
 
