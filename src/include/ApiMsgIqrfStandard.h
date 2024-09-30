@@ -34,6 +34,8 @@ namespace iqrf {
     std::unique_ptr<IDpaTransactionResult2> m_res;
     std::string m_payloadKey;
     rapidjson::Document m_payload;
+    bool m_driverTranslateSuccess = false;
+    bool m_unresolvablePerCmd = false;
 
   private:
     int m_timeout = -1;
@@ -83,6 +85,28 @@ namespace iqrf {
       m_payload.CopyFrom(val, m_payload.GetAllocator());
     }
 
+    bool getDriverTranslateSuccess() {
+      return m_driverTranslateSuccess;
+    }
+    void setDriverTranslateSuccess(bool val) {
+      m_driverTranslateSuccess = val;
+    }
+    void setUnresolvablePerCmd(bool val) {
+      m_unresolvablePerCmd = val;
+    }
+
+    void setPnum(const uint8_t &pnum) {
+      auto packet = m_dpaRequest.DpaPacket();
+      packet.DpaRequestPacket_t.PNUM = pnum;
+      m_dpaRequest.DataToBuffer(packet.Buffer, sizeof(packet.Buffer));
+    }
+
+    void setPcmd(const uint8_t &pcmd) {
+      auto packet = m_dpaRequest.DpaPacket();
+      packet.DpaRequestPacket_t.PCMD = pcmd;
+      m_dpaRequest.DataToBuffer(packet.Buffer, sizeof(packet.Buffer));
+    }
+
     virtual ~ApiMsgIqrfStandard()
     {}
 
@@ -103,18 +127,21 @@ namespace iqrf {
       }
 
       bool r = (bool)m_res && m_res->isResponded();
+      int pnum = -1;
+      int pcmd = -1;
+      if (r) {
+        pnum = m_res->getResponse().DpaPacket().DpaResponsePacket_t.PNUM;
+        pcmd = m_res->getResponse().DpaPacket().DpaResponsePacket_t.PCMD;
+      } else if (!m_driverTranslateSuccess && !m_unresolvablePerCmd) {
+        pnum = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM;
+        pcmd = m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD + 0x80;
+      }
       Pointer("/data/rsp/nAdr").Set(doc, m_nadr);
-      Pointer("/data/rsp/pnum").Set(doc, r ?
-        m_res->getResponse().DpaPacket().DpaResponsePacket_t.PNUM :
-        m_dpaRequest.DpaPacket().DpaRequestPacket_t.PNUM
-      );
-      Pointer("/data/rsp/pcmd").Set(doc, r ?
-        m_res->getResponse().DpaPacket().DpaResponsePacket_t.PCMD :
-        m_dpaRequest.DpaPacket().DpaRequestPacket_t.PCMD + 0x80
-      );
-      Pointer("/data/rsp/hwpId").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.HWPID : m_hwpid);
-      Pointer("/data/rsp/rCode").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : 0);
-      Pointer("/data/rsp/dpaVal").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : 0);
+      Pointer("/data/rsp/pnum").Set(doc, pnum);
+      Pointer("/data/rsp/pcmd").Set(doc, pcmd);
+      Pointer("/data/rsp/hwpId").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.HWPID : -1);
+      Pointer("/data/rsp/rCode").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode : -1);
+      Pointer("/data/rsp/dpaVal").Set(doc, r ? m_res->getResponse().DpaPacket().DpaResponsePacket_t.DpaValue : -1);
       Pointer(m_payloadKey.c_str()).Set(doc, m_payload);
 
       if (getVerbose()) {

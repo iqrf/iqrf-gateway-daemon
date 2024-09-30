@@ -22,6 +22,8 @@
 #include "IMessagingSplitterService.h"
 #include "ShapeProperties.h"
 #include "ITraceService.h"
+#include "EnumUtils.h"
+#include "MessageTypes.h"
 #include <map>
 
 namespace iqrf {

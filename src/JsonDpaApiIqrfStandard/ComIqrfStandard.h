@@ -41,7 +41,7 @@ namespace iqrf {
       m_hwpid = rapidjson::Pointer("/data/req/hwpId").GetWithDefault(doc, m_hwpid).GetInt();
       Value* reqParamObj = Pointer("/data/req/param").Get(doc);
       rapidjson::Document param;
-      param.Swap(*reqParamObj);
+      param.CopyFrom(*reqParamObj, param.GetAllocator());
       rapidjson::StringBuffer buffer;
       rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
       param.Accept(writer);
@@ -74,6 +74,18 @@ namespace iqrf {
     std::string getParamAsString() const
     {
       return m_param;
+    }
+
+    void setPnum(const uint8_t &pnum) {
+      auto packet = m_request.DpaPacket();
+      packet.DpaRequestPacket_t.PNUM = pnum;
+      m_request.DataToBuffer(packet.Buffer, sizeof(packet.Buffer));
+    }
+
+    void setPcmd(const uint8_t &pcmd) {
+      auto packet = m_request.DpaPacket();
+      packet.DpaRequestPacket_t.PCMD = pcmd;
+      m_request.DataToBuffer(packet.Buffer, sizeof(packet.Buffer));
     }
 
     void setDpaMessage(std::vector<uint8_t> dpaVect)
@@ -118,8 +130,14 @@ namespace iqrf {
         Pointer("/data/rsp/rCode").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode);
         Pointer("/data/rsp/dpaVal").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue);
       } else {
-        Pointer("/data/rsp/pnum").Set(doc, res.getRequest().DpaPacket().DpaRequestPacket_t.PNUM);
-        Pointer("/data/rsp/pcmd").Set(doc, res.getRequest().DpaPacket().DpaRequestPacket_t.PCMD + 0x80);
+        int pnum = res.getRequest().DpaPacket().DpaRequestPacket_t.PNUM;
+        int pcmd = res.getRequest().DpaPacket().DpaRequestPacket_t.PCMD + 0x80;
+        if (m_requestDriverConvertFailure && m_unresolvablePerCmd) {
+          pnum = -1;
+          pcmd = -1;
+        }
+        Pointer("/data/rsp/pnum").Set(doc, pnum);
+        Pointer("/data/rsp/pcmd").Set(doc, pcmd);
         Pointer("/data/rsp/hwpId").Set(doc, -1);
         Pointer("/data/rsp/rCode").Set(doc, -1);
         Pointer("/data/rsp/dpaVal").Set(doc, -1);

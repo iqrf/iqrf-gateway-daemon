@@ -24,6 +24,8 @@
 #include "ShapeProperties.h"
 #include "IMessagingService.h"
 #include "ITraceService.h"
+#include "EnumUtils.h"
+#include "MessageTypes.h"
 #include <map>
 
 namespace iqrf {
