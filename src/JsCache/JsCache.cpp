@@ -1060,6 +1060,10 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
+  std::string JsCache::getTmpPath(const std::string &path) {
+    return m_tmpDir + path;
+  }
+
   std::string JsCache::getCachePath(const std::string &path) {
     std::ostringstream os;
     os << m_cacheDir << '/' << path;
@@ -1095,49 +1099,26 @@ namespace iqrf {
     }
   }
 
-  void JsCache::downloadFromAbsoluteUrl(const std::string &url, const std::string &fileName) {
+  void JsCache::downloadFromUrl(const std::string &url, const std::string &fileName, bool absolute) {
     TRC_FUNCTION_ENTER(PAR(url) << PAR(fileName));
+
     createFile(fileName);
 
-    std::string urlLoading = url;
+    std::string urlLoading = absolute ? url : getAbsoluteUrl(url);
 
     TRC_DEBUG("Getting: " << PAR(urlLoading));
 
     try {
       boost::filesystem::path getFile(fileName);
-      boost::filesystem::path downloadFile(fileName);
-      downloadFile += ".download";
-      boost::filesystem::remove(downloadFile);
+      boost::filesystem::path downloadFile(fileName + ".download");
+      if (boost::filesystem::exists(downloadFile)) {
+        boost::filesystem::remove(downloadFile);
+      }
 
       m_iRestApiService->getFile(urlLoading, downloadFile.string());
 
       boost::filesystem::copy_file(downloadFile, getFile, boost::filesystem::copy_option::overwrite_if_exists);
-    } catch (boost::filesystem::filesystem_error &e) {
-      CATCH_EXC_TRC_WAR(boost::filesystem::filesystem_error, e, "Error handling file " << PAR(fileName));
-      throw e;
-    }
-
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  void JsCache::downloadFromRelativeUrl(const std::string &url, const std::string &fileName) {
-    TRC_FUNCTION_ENTER(PAR(url) << PAR(fileName));
-
-    createFile(fileName);
-
-    std::string urlLoading = getAbsoluteUrl(url);
-
-    TRC_DEBUG("Getting: " << PAR(urlLoading));
-
-    try {
-      boost::filesystem::path getFile(fileName);
-      boost::filesystem::path downloadFile(fileName);
-      downloadFile += ".download";
       boost::filesystem::remove(downloadFile);
-
-      m_iRestApiService->getFile(urlLoading, downloadFile.string());
-
-      boost::filesystem::copy_file(downloadFile, getFile, boost::filesystem::copy_option::overwrite_if_exists);
     } catch (boost::filesystem::filesystem_error &e) {
       CATCH_EXC_TRC_WAR(boost::filesystem::filesystem_error, e, "cannot get " << PAR(urlLoading));
       throw e;
@@ -1158,7 +1139,7 @@ namespace iqrf {
 
     std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-    downloadFromRelativeUrl(SERVER_URL, m_serverStateFilePath);
+    downloadFromUrl(SERVER_URL, m_serverStateFilePath);
     ServerState remoteServerState = getCacheServer(m_serverStateFilePath);
 
     TRC_INFORMATION(
@@ -1189,57 +1170,43 @@ namespace iqrf {
     TRC_INFORMATION("[IQRF Repository cache] Downloading cache ...");
     std::cout << "[IQRF Repository cache] Downloading cache ..." << std::endl;
 
-    std::string zipArchFname = getCachePath("IQRFrepository.zip");
-    downloadFromRelativeUrl(ZIP_URL, zipArchFname);
-    downloadFromRelativeUrl(SERVER_URL, m_serverStateFilePath);
+    std::string archivePath = getTmpPath("cache.zip");
+    downloadFromUrl(ZIP_URL, archivePath);
+    downloadFromUrl(SERVER_URL, m_serverStateFilePath);
 
-    if (!filesystem::exists(zipArchFname)) {
-      THROW_EXC_TRC_WAR(std::logic_error, "file not exist " << PAR(zipArchFname));
+    if (!filesystem::exists(archivePath)) {
+      THROW_EXC_TRC_WAR(std::logic_error, "file not exist " << PAR(archivePath));
     }
 
-    zip_t *zipArch = nullptr;
+    zip_t *archive = nullptr;
     zip_file_t *zipFile = nullptr;
     int err;
     const zip_uint64_t BUF_SIZE = 8196;
     char buf[BUF_SIZE];
 
-    if ((zipArch = zip_open(zipArchFname.c_str(), 0, &err)) == NULL) {
+    if ((archive = zip_open(archivePath.c_str(), 0, &err)) == NULL) {
       zip_error_to_str(buf, sizeof(buf), err, errno);
       THROW_EXC_TRC_WAR(std::logic_error, "Can't open zip archive: " << buf);
     }
 
-    zip_int64_t num_entries = zip_get_num_entries(zipArch, 0);
+    zip_int64_t num_entries = zip_get_num_entries(archive, 0);
 
     for (zip_uint64_t i = 0; i < (zip_uint64_t)num_entries; i++) {
-      std::string zipFname = "inflated/";
-      zipFname += zip_get_name(zipArch, i, 0);
+      std::string name = zip_get_name(archive, i, 0);
 
-      // convert from win \\ (escaped dir separator) to lin /
-      // it is processed later with boost on both platforms correctly
-
-      const std::string winSep("\\");
-      const std::string linSep("/");
-
-      size_t pos = zipFname.find(winSep);
-      while (pos != std::string::npos) {
-        zipFname.replace(pos, winSep.size(), linSep);
-        // get the next occurrence from the current position
-        pos = zipFname.find(winSep, pos + linSep.size());
-      }
-
-      std::string pathInflate = getCachePath(zipFname);
-      createFile(pathInflate);
+      std::string extractedPath = m_tmpDir + "/cache/" +  name;
+      createFile(extractedPath);
 
       zip_stat_t zipStat;
-      if (zip_stat_index(zipArch, i, 0, &zipStat) == 0) {
-        zipFile = zip_fopen_index(zipArch, i, 0);
+      if (zip_stat_index(archive, i, 0, &zipStat) == 0) {
+        zipFile = zip_fopen_index(archive, i, 0);
         if (!zipFile) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Can't open file from zip: " << pathInflate);
+          THROW_EXC_TRC_WAR(std::logic_error, "Can't open file from zip: " << extractedPath);
         }
 
-        std::ofstream outfile(pathInflate, std::ofstream::binary);
+        std::ofstream outfile(extractedPath, std::ofstream::binary);
         if (!outfile.is_open()) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Can't open output file to inflate from zip: " << pathInflate);
+          THROW_EXC_TRC_WAR(std::logic_error, "Can't open output file to inflate from zip: " << extractedPath);
         }
 
         zip_uint64_t sum = 0;
@@ -1247,7 +1214,7 @@ namespace iqrf {
         while (sum != zipStat.size) {
           len = zip_fread(zipFile, buf, BUF_SIZE);
           if (len < 0) {
-            THROW_EXC_TRC_WAR(std::logic_error, "Can't write file from zip: " << pathInflate);
+            THROW_EXC_TRC_WAR(std::logic_error, "Can't write file from zip: " << extractedPath);
           }
 
           outfile.write(buf, len);
@@ -1259,13 +1226,13 @@ namespace iqrf {
       }
     }
 
-    if (zip_close(zipArch) == -1) {
-      TRC_WARNING("Can't close zip: " << zipArchFname);
+    if (zip_close(archive) == -1) {
+      TRC_WARNING("Can't close zip: " << archivePath);
     }
 
     // rename old cache dir to cache.bkp
     std::string cacheName = getCachePath("cache");
-    std::string cacheNameBkp = getCachePath("cache.bkp");
+    std::string cacheNameBkp = getCachePath("cache.old");
     if (filesystem::exists(cacheName)) {
 
 #ifdef SHAPE_PLATFORM_WINDOWS
@@ -1294,7 +1261,8 @@ namespace iqrf {
       filesystem::rename(cacheName, cacheNameBkp);
     }
     // rename inflate dir to cache
-    filesystem::rename(getCachePath("inflated"), cacheName);
+    filesystem::rename(getTmpPath("cache"), cacheName);
+    filesystem::remove(archivePath);
 
     TRC_INFORMATION("[IQRF Repository cache] Cache successfully downloaded.");
     std::cout << "[IQRF Repository cache] Cache successfully downloaded." << std::endl;

@@ -296,6 +296,8 @@ namespace iqrf {
      */
     void updateCacheQuantities();
 
+    std::string getTmpPath(const std::string &path);
+
     /**
      * Returns absolute path to cache directory
      * @param path Directory name
@@ -324,18 +326,12 @@ namespace iqrf {
     void createFile(const std::string &path);
 
     /**
-     * Downloads file from absolute URL
-     * @param url File URL
-     * @param urlFname
-     */
-    void downloadFromAbsoluteUrl(const std::string &url, const std::string &fileName);
-
-    /**
      * Downloads file from relative URL
-     * @param url File URL
-     * @param urlFname
+     * @param url URL
+     * @param fileName Path to file
+     * @param absolute Absolute url?
      */
-    void downloadFromRelativeUrl(const std::string &url, const std::string &fileName);
+    void downloadFromUrl(const std::string &url, const std::string &fileName, bool absolute = false);
 
     /**
      * Checks if cache data exists in filesystem
@@ -353,6 +349,12 @@ namespace iqrf {
      * Downloads remote cache
      */
     void downloadCache();
+
+    /**
+     * Validates downloaded cache
+     * @return true if cache content is valid, false otherwise
+     */
+    bool validateCache();
 
     /**
      * Deletes repository cache
@@ -383,6 +385,8 @@ namespace iqrf {
     shape::IRestApiService *m_iRestApiService = nullptr;
     /// Cache update mutex
     mutable std::recursive_mutex m_updateMtx;
+    /// Path to temporary daemon directory
+    std::string m_tmpDir = "/tmp/iqrf-gateway-daemon/";
     /// Path to cache root directory
     std::string m_cacheDir = "";
     /// Repository URL
