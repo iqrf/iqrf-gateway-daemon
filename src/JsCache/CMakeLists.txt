@@ -15,7 +15,9 @@
 
 project(JsCache)
 
-find_package(Boost REQUIRED COMPONENTS filesystem )
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS ON)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(LIBZIP REQUIRED)
 find_package(shapeware REQUIRED)
@@ -37,10 +39,6 @@ file(GLOB_RECURSE _SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 source_group("Header Files" FILES ${_HDRFILES})
 source_group("Source Files" FILES ${_SRCFILES})
 
-if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
-endif()
-
 include_directories(${CMAKE_SOURCE_DIR}/src/DpaParser)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -53,10 +51,9 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
   ${LIBZIP_LIBRARY}
   nlohmann_json::nlohmann_json
+  ValiJSON::valijson
 )
 
 DeployShapeComponent(${PROJECT_NAME})

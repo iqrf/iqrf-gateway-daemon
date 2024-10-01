@@ -37,7 +37,7 @@ list(APPEND CfgList "LinCdc" "LinSpi" "LinUart" "LinDeploy")
 foreach(cfg ${CfgList})
     DeployShapeConfiguration(iqrfgd2-${cfg}
         ${CMAKE_CURRENT_SOURCE_DIR}/cache       configuration/iqrfRepoCache/cache
-        ${CMAKE_CURRENT_SOURCE_DIR}/schemas     configuration/iqrfRepoCache/schemas
+        ${CMAKE_CURRENT_SOURCE_DIR}/schemas     configuration/cacheSchemas
     )
     install(
         FILES ${CMAKE_CURRENT_SOURCE_DIR}/serverCheck.json

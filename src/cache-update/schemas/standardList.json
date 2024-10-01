@@ -1,35 +1,35 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "standardList.json",
-    "title": "Standards list schema",
-    "type": "array",
-    "additionalItems": false,
-    "items": {
-        "title": "Standard list item",
-        "type": "object",
-        "required": [
-            "standardID",
-            "name"
-        ],
-        "additionalProperties": false,
-        "properties": {
-            "standardID": {
-                "title": "Standard ID",
-                "type": "integer",
-                "minimum": -1
-            },
-            "name": {
-                "title": "Standard name",
-                "type": "string"
-            },
-            "conly": {
-                "title": "Coordinator-only peripheral",
-                "type": "boolean"
-            },
-            "nonly": {
-                "title": "Node-only peripheral",
-                "type": "boolean"
-            }
-        }
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "standardList.json",
+  "title": "Standards list schema",
+  "type": "array",
+  "additionalItems": false,
+  "items": {
+    "title": "Standard list item",
+    "type": "object",
+    "required": [
+      "standardID",
+      "name"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "standardID": {
+        "title": "Standard ID",
+        "type": "integer",
+        "minimum": -1
+      },
+      "name": {
+        "title": "Standard name",
+        "type": "string"
+      },
+      "conly": {
+        "title": "Coordinator-only peripheral",
+        "type": "boolean"
+      },
+      "nonly": {
+        "title": "Node-only peripheral",
+        "type": "boolean"
+      }
     }
+  }
 }

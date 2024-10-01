@@ -16,7 +16,17 @@
  */
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include <chrono>
+#include <exception>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
+#include <zip.h>
+
+#include "EmbedExplore.h"
+#include "EmbedOS.h"
 #include "IJsCacheService.h"
 #include "IJsRenderService.h"
 #include "ISchedulerService.h"
@@ -24,8 +34,19 @@
 #include "IRestApiService.h"
 #include "IIqrfDpaService.h"
 #include "ITraceService.h"
+#include "JsonValidationUtils.h"
 #include "ShapeProperties.h"
-#include <string>
+#include "Trace.h"
+
+#include <nlohmann/json.hpp>
+#include <valijson/adapters/nlohmann_json_adapter.hpp>
+#include <valijson/utils/nlohmann_json_utils.hpp>
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/validation_results.hpp>
+#include <valijson/validator.hpp>
+#include "rapidjson/document.h"
+#include "rapidjson/pointer.h"
 
 namespace iqrf {
 
@@ -297,11 +318,39 @@ namespace iqrf {
     void updateCacheQuantities();
 
     /**
+     * Returns absolute path to tmp cache directory
+     * @param path Directory name
+     * @return std::string Absolute path to tmp cache directory
+     */
+    std::string getTmpPath(const std::string &path);
+
+    /**
+     * Returns absolute path to tmp cache file
+     * @param path Relative path to file
+     * @return std::string Absolute path to tmp cache file
+     */
+    std::string getTmpCachePath(const std::string &path);
+
+    /**
+     * Returns absolute path to tmp cache directory data file
+     * @param relativeDir Relative directory path
+     * @return std::string Absolute path to tmp cache directory data file
+     */
+    std::string getTmpCacheDataFilePath(const std::string &relativeDir);
+
+    /**
      * Returns absolute path to cache directory
      * @param path Directory name
      * @return std::string Absolute path to cache directory
      */
     std::string getCachePath(const std::string &path);
+
+    /**
+     * Returns absolute path to cache schema file
+     * @param path Relative path to schema file
+     * @return std::string Absolute path to cache schema file
+     */
+    std::string getSchemaFilePath(const std::string &path);
 
     /**
      * Returns absolute path to cache directory data file
@@ -324,18 +373,12 @@ namespace iqrf {
     void createFile(const std::string &path);
 
     /**
-     * Downloads file from absolute URL
-     * @param url File URL
-     * @param urlFname
-     */
-    void downloadFromAbsoluteUrl(const std::string &url, const std::string &fileName);
-
-    /**
      * Downloads file from relative URL
-     * @param url File URL
-     * @param urlFname
+     * @param url URL
+     * @param fileName Path to file
+     * @param absolute Absolute url?
      */
-    void downloadFromRelativeUrl(const std::string &url, const std::string &fileName);
+    void downloadFromUrl(const std::string &url, const std::string &fileName, bool absolute = false);
 
     /**
      * Checks if cache data exists in filesystem
@@ -353,6 +396,57 @@ namespace iqrf {
      * Downloads remote cache
      */
     void downloadCache();
+
+    /**
+     * Validates downloaded cache
+     */
+    bool validateCache();
+
+    /**
+     * Log schema violations
+     * @param errors Schema violations
+     */
+    void logSchemaViolations(const std::vector<std::string> &errors);
+
+    /**
+     * Validates companies data
+     */
+    void validateCompaniesData();
+
+    /**
+     * Validates manufacturers data
+     */
+    void validateManufacturersData();
+
+    /**
+     * Validates products data
+     */
+    void validateProductsData();
+
+    /**
+     * Validates OS and DPA data
+     */
+    void validateOsDpaData();
+
+    /**
+     * Validates standards list data
+     */
+    void validateStandardsListData();
+
+    /**
+     * Validates standards version data
+     */
+    void validateStandardsVersionsData();
+
+    /**
+     * Validates packages data
+     */
+    void validatePackagesData();
+
+    /**
+     * Validates quantities data
+     */
+    void validateQuantitiesData();
 
     /**
      * Deletes repository cache
@@ -383,8 +477,12 @@ namespace iqrf {
     shape::IRestApiService *m_iRestApiService = nullptr;
     /// Cache update mutex
     mutable std::recursive_mutex m_updateMtx;
+    /// Path to temporary daemon directory
+    std::string m_tmpDir = "/tmp/iqrf-gateway-daemon/";
     /// Path to cache root directory
-    std::string m_cacheDir = "";
+    std::string m_cacheDir;
+    /// Path to cache schema directory
+    std::string m_schemaDir;
     /// Repository URL
     std::string m_urlRepo = "https://repository.iqrfalliance.org/api";
     /// Cache repository directory
