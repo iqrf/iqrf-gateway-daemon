@@ -410,9 +410,7 @@ int main(int argc, char** argv) {
     validate_standards_list_file();
     validate_standards_versions();
     validate_package_files();
-    if (std::filesystem::exists("cache/quantities")) {
-      validate_quantities_file();
-    }
+    validate_quantities_file();
   } catch (const std::exception &e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;

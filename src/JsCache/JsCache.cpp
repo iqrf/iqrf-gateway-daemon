@@ -19,20 +19,6 @@
 #define ISchedulerService_EXPORTS
 
 #include "JsCache.h"
-#include "EmbedExplore.h"
-#include "EmbedOS.h"
-#include "rapidjson/document.h"
-#include "rapidjson/pointer.h"
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/exception.hpp>
-#include "Trace.h"
-#include <chrono>
-#include <map>
-#include <fstream>
-#include <exception>
-#include <iostream>
-#include <zip.h>
 
 #ifdef TRC_CHANNEL
 #undef TRC_CHANNEL
@@ -86,9 +72,10 @@ namespace iqrf {
         std::cout << "[IQRF Repository cache] Cache does not exist, will attempt to download." << std::endl;
         try {
           downloadCache();
-        } catch (const std::logic_error &e) {
-          TRC_WARNING("[IQRF Repository cache] Failed to download remote cache.");
-          std::cerr << "[IQRF Repository cache] Failed to downlaod remote cache." << std::endl;
+        } catch (const std::exception &e) {
+          CATCH_EXC_TRC_WAR(std::logic_error, e, e.what())
+          TRC_WARNING("[IQRF Repository cache] Failed to download remote cache or validate cache content.");
+          std::cerr << "[IQRF Repository cache] Failed to download remote cache or validate cache content." << std::endl;
         }
       } else {
         TRC_INFORMATION("[IQRF Repository cache] Cache download if empty not allowed, this feature can be enabled in configuration.");
@@ -111,9 +98,9 @@ namespace iqrf {
         std::cout << "[IQRF Repository cache] Cache exists, but is out of date." << std::endl;
         try {
           downloadCache();
-        } catch (const std::logic_error &e) {
-          TRC_WARNING("[IQRF Repository cache] Failed to download or save cache to filesystem.");
-          std::cerr << "[IQRF Repository cache] Failed to download or save cache to filesystem." << std::endl;
+        } catch (const std::exception &e) {
+          TRC_WARNING("[IQRF Repository cache] Failed to download or save cache to filesystem, or validate cache content.");
+          std::cerr << "[IQRF Repository cache] Failed to download or save cache to filesystem, or validate cache content." << std::endl;
         }
       } else if (m_cacheStatus == CacheStatus::UPDATE_FAILED) {
         TRC_WARNING("[IQRF Repository cache] Failed to get remote cache status, using local cache if available...");
@@ -132,7 +119,7 @@ namespace iqrf {
     }
     try {
       loadCache(true);
-    } catch (const std::logic_error &e) {
+    } catch (const std::exception &e) {
       TRC_ERROR("[IQRF Repository cache] Failed to load and initialize cache, deleting cache and exiting...");
       std::cerr << "[IQRF Repository cache] Failed to load and initialize cache, deleting cache and exiting..." << std::endl;
       deleteCache();
@@ -182,6 +169,8 @@ namespace iqrf {
 
     m_cacheDir = m_iLaunchService->getCacheDir() + "/" + m_iqrfRepoCache;
     TRC_DEBUG("Using cache directory: " << PAR(m_cacheDir));
+    m_schemaDir = m_iLaunchService->getDataDir() + "/cacheSchemas";
+    TRC_DEBUG("Using cache schema directory: " << PAR(m_schemaDir));
 
     m_serverStateFilePath = getCachePath("serverCheck.json");
 
@@ -536,7 +525,7 @@ namespace iqrf {
 
     ServerState serverState;
 
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Server state file does not exist. " << PAR(fileName));
     }
 
@@ -591,7 +580,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fname = getCacheDataFilePath(SERVER_DIR);
-    if (!boost::filesystem::exists(fname)) {
+    if (!std::filesystem::exists(fname)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Cache server data file does not exist. " << PAR(fname));
     }
     m_serverState = getCacheServer(fname);
@@ -603,7 +592,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(COMPANIES_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Companies information file does not exist. " << PAR(fileName));
     }
 
@@ -644,7 +633,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(MANUFACTURERS_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Manufacturers information file does not exist." << PAR(fileName));
     }
 
@@ -685,7 +674,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(PRODUCTS_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Products information file does not exist." << PAR(fileName));
     }
 
@@ -794,7 +783,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(OSDPA_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "OsDpa information file does not exist." << PAR(fileName));
     }
 
@@ -837,7 +826,7 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(STANDARDS_DIR);
-    if (!boost::filesystem::exists(fileName)) {
+    if (!std::filesystem::exists(fileName)) {
       THROW_EXC_TRC_WAR(std::logic_error, "Standards information file does not exist. " << PAR(fileName));
     }
 
@@ -871,7 +860,7 @@ namespace iqrf {
       std::string url = os.str();
       fileName = getCacheDataFilePath(url);
 
-      if (!boost::filesystem::exists(fileName)) {
+      if (!std::filesystem::exists(fileName)) {
         THROW_EXC_TRC_WAR(std::logic_error, "Standard file does not exist: " << PAR(fileName));
       }
 
@@ -891,7 +880,7 @@ namespace iqrf {
           oss << STANDARDS_DIR << '/' << id << '/' << std::fixed << std::setprecision(2) << version;
           fileName = getCacheDataFilePath(oss.str());
 
-          if (!boost::filesystem::exists(fileName)) {
+          if (!std::filesystem::exists(fileName)) {
             THROW_EXC_TRC_WAR(std::logic_error, "Standard version file does not exist. " << PAR(fileName));
           }
 
@@ -927,19 +916,17 @@ namespace iqrf {
   void JsCache::updateCachePackages() {
     TRC_FUNCTION_ENTER("");
 
-    using namespace boost;
-
     std::string fname = getCachePath(PACKAGES_DIR);
 
-    filesystem::path p(fname);
-    std::vector<filesystem::directory_entry> v; // To save the file names in a vector.
+    std::filesystem::path p(fname);
+    std::vector<std::filesystem::directory_entry> v; // To save the file names in a vector.
 
     if (is_directory(p)) {
-      std::copy(filesystem::directory_iterator(p), filesystem::directory_iterator(), std::back_inserter(v));
+      std::copy(std::filesystem::directory_iterator(p), std::filesystem::directory_iterator(), std::back_inserter(v));
     }
 
     std::vector<std::string> vstr;
-    for (std::vector<filesystem::directory_entry>::const_iterator it = v.begin(); it != v.end(); ++it) {
+    for (std::vector<std::filesystem::directory_entry>::const_iterator it = v.begin(); it != v.end(); ++it) {
       vstr.push_back((*it).path().string() + "/data.json");
     }
 
@@ -1012,10 +999,8 @@ namespace iqrf {
     TRC_FUNCTION_ENTER("");
 
     std::string fileName = getCacheDataFilePath(QUANTITIES_DIR);
-    if (!boost::filesystem::exists(fileName)) {
-      TRC_WARNING("Quantities data file does not exist." << PAR(fileName));
-      return;
-      //THROW_EXC_TRC_WAR(std::logic_error, "Quantities data file does not exist." << PAR(fileName));
+    if (!std::filesystem::exists(fileName)) {
+      THROW_EXC_TRC_WAR(std::logic_error, "Quantities data file does not exist." << PAR(fileName));
     }
 
     std::ifstream file(fileName);
@@ -1060,6 +1045,22 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("");
   }
 
+  std::string JsCache::getTmpPath(const std::string &path) {
+    return m_tmpDir + path;
+  }
+
+  std::string JsCache::getTmpCachePath(const std::string &path) {
+    return m_tmpDir + "cache/" + path;
+  }
+
+  std::string JsCache::getTmpCacheDataFilePath(const std::string &relativeDir) {
+    return m_tmpDir + "cache/" + relativeDir + "/data.json";
+  }
+
+  std::string JsCache::getSchemaFilePath(const std::string &path) {
+    return m_schemaDir + '/' + path;
+  }
+
   std::string JsCache::getCachePath(const std::string &path) {
     std::ostringstream os;
     os << m_cacheDir << '/' << path;
@@ -1079,12 +1080,12 @@ namespace iqrf {
   }
 
   void JsCache::createFile(const std::string &path) {
-    boost::filesystem::path createdFile(path);
-    boost::filesystem::path parent(createdFile.parent_path());
+    std::filesystem::path createdFile(path);
+    std::filesystem::path parent(createdFile.parent_path());
 
     try {
-      if (!(boost::filesystem::exists(parent))) {
-        if (boost::filesystem::create_directories(parent)) {
+      if (!(std::filesystem::exists(parent))) {
+        if (std::filesystem::create_directories(parent)) {
           TRC_DEBUG("Created: " << PAR(parent));
         } else {
           TRC_DEBUG("Cannot create: " << PAR(parent));
@@ -1095,51 +1096,28 @@ namespace iqrf {
     }
   }
 
-  void JsCache::downloadFromAbsoluteUrl(const std::string &url, const std::string &fileName) {
-    TRC_FUNCTION_ENTER(PAR(url) << PAR(fileName));
-    createFile(fileName);
-
-    std::string urlLoading = url;
-
-    TRC_DEBUG("Getting: " << PAR(urlLoading));
-
-    try {
-      boost::filesystem::path getFile(fileName);
-      boost::filesystem::path downloadFile(fileName);
-      downloadFile += ".download";
-      boost::filesystem::remove(downloadFile);
-
-      m_iRestApiService->getFile(urlLoading, downloadFile.string());
-
-      boost::filesystem::copy_file(downloadFile, getFile, boost::filesystem::copy_option::overwrite_if_exists);
-    } catch (boost::filesystem::filesystem_error &e) {
-      CATCH_EXC_TRC_WAR(boost::filesystem::filesystem_error, e, "Error handling file " << PAR(fileName));
-      throw e;
-    }
-
-    TRC_FUNCTION_LEAVE("")
-  }
-
-  void JsCache::downloadFromRelativeUrl(const std::string &url, const std::string &fileName) {
+  void JsCache::downloadFromUrl(const std::string &url, const std::string &fileName, bool absolute) {
     TRC_FUNCTION_ENTER(PAR(url) << PAR(fileName));
 
     createFile(fileName);
 
-    std::string urlLoading = getAbsoluteUrl(url);
+    std::string urlLoading = absolute ? url : getAbsoluteUrl(url);
 
     TRC_DEBUG("Getting: " << PAR(urlLoading));
 
     try {
-      boost::filesystem::path getFile(fileName);
-      boost::filesystem::path downloadFile(fileName);
-      downloadFile += ".download";
-      boost::filesystem::remove(downloadFile);
+      std::filesystem::path getFile(fileName);
+      std::filesystem::path downloadFile(fileName + ".download");
+      if (std::filesystem::exists(downloadFile)) {
+        std::filesystem::remove(downloadFile);
+      }
 
       m_iRestApiService->getFile(urlLoading, downloadFile.string());
 
-      boost::filesystem::copy_file(downloadFile, getFile, boost::filesystem::copy_option::overwrite_if_exists);
-    } catch (boost::filesystem::filesystem_error &e) {
-      CATCH_EXC_TRC_WAR(boost::filesystem::filesystem_error, e, "cannot get " << PAR(urlLoading));
+      std::filesystem::copy_file(downloadFile, getFile, std::filesystem::copy_options::overwrite_existing);
+      std::filesystem::remove(downloadFile);
+    } catch (const std::filesystem::filesystem_error &e) {
+      CATCH_EXC_TRC_WAR(std::filesystem::filesystem_error, e, "cannot get " << PAR(urlLoading));
       throw e;
     }
 
@@ -1148,7 +1126,7 @@ namespace iqrf {
 
   bool JsCache::cacheExists() {
     std::string filename = getCacheDataFilePath(SERVER_DIR);
-    return boost::filesystem::exists(filename);
+    return std::filesystem::exists(filename);
   }
 
   void JsCache::checkCache() {
@@ -1158,7 +1136,7 @@ namespace iqrf {
 
     std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
-    downloadFromRelativeUrl(SERVER_URL, m_serverStateFilePath);
+    downloadFromUrl(SERVER_URL, m_serverStateFilePath);
     ServerState remoteServerState = getCacheServer(m_serverStateFilePath);
 
     TRC_INFORMATION(
@@ -1182,64 +1160,48 @@ namespace iqrf {
   void JsCache::downloadCache() {
     TRC_FUNCTION_ENTER("");
 
-    using namespace boost;
-
     // std::lock_guard<std::recursive_mutex> lck(m_updateMtx);
 
     TRC_INFORMATION("[IQRF Repository cache] Downloading cache ...");
     std::cout << "[IQRF Repository cache] Downloading cache ..." << std::endl;
 
-    std::string zipArchFname = getCachePath("IQRFrepository.zip");
-    downloadFromRelativeUrl(ZIP_URL, zipArchFname);
-    downloadFromRelativeUrl(SERVER_URL, m_serverStateFilePath);
+    std::string archivePath = getTmpPath("cache.zip");
+    downloadFromUrl(ZIP_URL, archivePath);
+    downloadFromUrl(SERVER_URL, m_serverStateFilePath);
 
-    if (!filesystem::exists(zipArchFname)) {
-      THROW_EXC_TRC_WAR(std::logic_error, "file not exist " << PAR(zipArchFname));
+    if (!std::filesystem::exists(archivePath)) {
+      THROW_EXC_TRC_WAR(std::logic_error, "file not exist " << PAR(archivePath));
     }
 
-    zip_t *zipArch = nullptr;
+    zip_t *archive = nullptr;
     zip_file_t *zipFile = nullptr;
     int err;
     const zip_uint64_t BUF_SIZE = 8196;
     char buf[BUF_SIZE];
 
-    if ((zipArch = zip_open(zipArchFname.c_str(), 0, &err)) == NULL) {
+    if ((archive = zip_open(archivePath.c_str(), 0, &err)) == NULL) {
       zip_error_to_str(buf, sizeof(buf), err, errno);
       THROW_EXC_TRC_WAR(std::logic_error, "Can't open zip archive: " << buf);
     }
 
-    zip_int64_t num_entries = zip_get_num_entries(zipArch, 0);
+    zip_int64_t num_entries = zip_get_num_entries(archive, 0);
 
     for (zip_uint64_t i = 0; i < (zip_uint64_t)num_entries; i++) {
-      std::string zipFname = "inflated/";
-      zipFname += zip_get_name(zipArch, i, 0);
+      std::string name = zip_get_name(archive, i, 0);
 
-      // convert from win \\ (escaped dir separator) to lin /
-      // it is processed later with boost on both platforms correctly
-
-      const std::string winSep("\\");
-      const std::string linSep("/");
-
-      size_t pos = zipFname.find(winSep);
-      while (pos != std::string::npos) {
-        zipFname.replace(pos, winSep.size(), linSep);
-        // get the next occurrence from the current position
-        pos = zipFname.find(winSep, pos + linSep.size());
-      }
-
-      std::string pathInflate = getCachePath(zipFname);
-      createFile(pathInflate);
+      std::string extractedPath = getTmpCachePath(name);
+      createFile(extractedPath);
 
       zip_stat_t zipStat;
-      if (zip_stat_index(zipArch, i, 0, &zipStat) == 0) {
-        zipFile = zip_fopen_index(zipArch, i, 0);
+      if (zip_stat_index(archive, i, 0, &zipStat) == 0) {
+        zipFile = zip_fopen_index(archive, i, 0);
         if (!zipFile) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Can't open file from zip: " << pathInflate);
+          THROW_EXC_TRC_WAR(std::logic_error, "Can't open file from zip: " << extractedPath);
         }
 
-        std::ofstream outfile(pathInflate, std::ofstream::binary);
+        std::ofstream outfile(extractedPath, std::ofstream::binary);
         if (!outfile.is_open()) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Can't open output file to inflate from zip: " << pathInflate);
+          THROW_EXC_TRC_WAR(std::logic_error, "Can't open output file to inflate from zip: " << extractedPath);
         }
 
         zip_uint64_t sum = 0;
@@ -1247,7 +1209,7 @@ namespace iqrf {
         while (sum != zipStat.size) {
           len = zip_fread(zipFile, buf, BUF_SIZE);
           if (len < 0) {
-            THROW_EXC_TRC_WAR(std::logic_error, "Can't write file from zip: " << pathInflate);
+            THROW_EXC_TRC_WAR(std::logic_error, "Can't write file from zip: " << extractedPath);
           }
 
           outfile.write(buf, len);
@@ -1259,42 +1221,28 @@ namespace iqrf {
       }
     }
 
-    if (zip_close(zipArch) == -1) {
-      TRC_WARNING("Can't close zip: " << zipArchFname);
+    if (zip_close(archive) == -1) {
+      TRC_WARNING("Can't close zip: " << archivePath);
+    }
+
+    if (!validateCache()) {
+      std::filesystem::remove_all(getTmpPath("cache"));
+      std::filesystem::remove(archivePath);
+      throw std::logic_error("Remote cache content not valid against cache schema constraints.");
     }
 
     // rename old cache dir to cache.bkp
     std::string cacheName = getCachePath("cache");
-    std::string cacheNameBkp = getCachePath("cache.bkp");
-    if (filesystem::exists(cacheName)) {
-
-#ifdef SHAPE_PLATFORM_WINDOWS
-      {
-        boost::filesystem::recursive_directory_iterator rdi(cacheNameBkp);
-        boost::filesystem::recursive_directory_iterator end_rdi;
-
-        for (; rdi != end_rdi; rdi++)
-        {
-          try
-          {
-            if (boost::filesystem::is_regular_file(rdi->status()))
-            {
-              boost::filesystem::remove(rdi->path());
-            }
-          }
-          catch (const std::exception &e)
-          {
-            CATCH_EXC_TRC_WAR(std::exception, e, "Cannot delete file");
-          }
-        }
-      }
-#endif
-
-      filesystem::remove_all(cacheNameBkp);
-      filesystem::rename(cacheName, cacheNameBkp);
+    std::string cacheNameBkp = getCachePath("cache.old");
+    if (std::filesystem::exists(cacheName)) {
+      std::filesystem::remove_all(cacheNameBkp);
+      std::filesystem::rename(cacheName, cacheNameBkp);
     }
-    // rename inflate dir to cache
-    filesystem::rename(getCachePath("inflated"), cacheName);
+    // move cache from tmp
+    std::string tmpCache = getTmpPath("cache");
+    std::filesystem::copy(tmpCache, cacheName, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+    std::filesystem::remove_all(tmpCache);
+    std::filesystem::remove(archivePath);
 
     TRC_INFORMATION("[IQRF Repository cache] Cache successfully downloaded.");
     std::cout << "[IQRF Repository cache] Cache successfully downloaded." << std::endl;
@@ -1302,13 +1250,238 @@ namespace iqrf {
     TRC_FUNCTION_LEAVE("")
   }
 
+  bool JsCache::validateCache() {
+    TRC_FUNCTION_ENTER("");
+
+    TRC_INFORMATION("[IQRF Repository cache] Validating cache contents...");
+    std::cout << "[IQRF Repository cache] Validating cache contents..." << std::endl;
+
+    // companies data
+    try {
+      validateCompaniesData();
+      validateManufacturersData();
+      validateProductsData();
+      validateOsDpaData();
+      validateStandardsListData();
+      validateStandardsVersionsData();
+      validatePackagesData();
+      validateQuantitiesData();
+    } catch (const std::exception &e) {
+      CATCH_EXC_TRC_WAR(std::exception, e, "[IQRF Repository cache] " << e.what() << std::endl);
+      std::cerr << "[IQRF Repository cache] " << e.what() << std::endl;
+      return false;
+    }
+
+    TRC_INFORMATION("[IQRF Repository cache] Cache contents successfully validated.");
+    std::cout << "[IQRF Repository cache] Cache contents successfully validated." << std::endl;
+
+    TRC_FUNCTION_LEAVE("");
+    return true;
+  }
+
+  void JsCache::logSchemaViolations(const std::vector<std::string> &errors) {
+    for (auto itr = errors.begin(); itr != errors.end(); ++itr) {
+      TRC_WARNING("[IQRF Repository cache] " << *itr << std::endl);
+    }
+  }
+
+  void JsCache::validateCompaniesData() {
+    TRC_FUNCTION_ENTER("");
+
+    valijson::Schema schema;
+    auto schemaPath = getSchemaFilePath("companies.json");
+    auto filePath = getTmpCacheDataFilePath("companies");
+    TRC_DEBUG("Loading schema file: " + schemaPath);
+    JsonValidationUtils::populateSchema(schema, schemaPath);
+    valijson::ValidationResults errors;
+    TRC_DEBUG("Validating data file: " + filePath);
+    if (!JsonValidationUtils::validateFile(schema, filePath, errors)) {
+      logSchemaViolations(JsonValidationUtils::getSchemaViolations(errors));
+      throw JsonValidationUtils::SchemaViolationException("Data file " + filePath + " violates constraints of schema " + schemaPath);
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void JsCache::validateManufacturersData() {
+    TRC_FUNCTION_ENTER("");
+
+    valijson::Schema schema;
+    auto schemaPath = getSchemaFilePath("manufacturers.json");
+    auto filePath = getTmpCacheDataFilePath("manufacturers");
+    JsonValidationUtils::populateSchema(schema, schemaPath);
+    valijson::ValidationResults errors;
+    if (!JsonValidationUtils::validateFile(schema, filePath, errors)) {
+      logSchemaViolations(JsonValidationUtils::getSchemaViolations(errors));
+      throw JsonValidationUtils::SchemaViolationException("Data file " + filePath + " violates constraints of schema " + schemaPath);
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void JsCache::validateProductsData() {
+    TRC_FUNCTION_ENTER("");
+
+    valijson::Schema schema;
+    auto schemaPath = getSchemaFilePath("products.json");
+    auto filePath = getTmpCacheDataFilePath("products");
+    JsonValidationUtils::populateSchema(
+      schema,
+      schemaPath,
+      [&schemaDir = m_schemaDir](const std::string &uri) -> const json* {
+        json *doc = new json();
+        std::string path = schemaDir + '/' + uri;
+        if (!valijson::utils::loadDocument(path, *doc)) {
+          return nullptr;
+        }
+        return doc;
+      }
+    );
+    valijson::ValidationResults errors;
+    if (!JsonValidationUtils::validateFile(schema, filePath, errors)) {
+      logSchemaViolations(JsonValidationUtils::getSchemaViolations(errors));
+      throw JsonValidationUtils::SchemaViolationException("Data file " + filePath + " violates constraints of schema " + schemaPath);
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void JsCache::validateOsDpaData() {
+    TRC_FUNCTION_ENTER("");
+
+    valijson::Schema schema;
+    auto schemaPath = getSchemaFilePath("osdpa.json");
+    auto filePath = getTmpCacheDataFilePath("osdpa");
+    JsonValidationUtils::populateSchema(schema, schemaPath);
+    valijson::ValidationResults errors;
+    if (!JsonValidationUtils::validateFile(schema, filePath, errors)) {
+      logSchemaViolations(JsonValidationUtils::getSchemaViolations(errors));
+      throw JsonValidationUtils::SchemaViolationException("Data file " + filePath + " violates constraints of schema " + schemaPath);
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void JsCache::validateStandardsListData() {
+    TRC_FUNCTION_ENTER("");
+
+    valijson::Schema schema;
+    auto schemaPath = getSchemaFilePath("standardList.json");
+    auto filePath = getTmpCacheDataFilePath("standards");
+    JsonValidationUtils::populateSchema(schema, schemaPath);
+    valijson::ValidationResults errors;
+    if (!JsonValidationUtils::validateFile(schema, filePath, errors)) {
+      logSchemaViolations(JsonValidationUtils::getSchemaViolations(errors));
+      throw JsonValidationUtils::SchemaViolationException("Data file " + filePath + " violates constraints of schema " + schemaPath);
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void JsCache::validateStandardsVersionsData() {
+    TRC_FUNCTION_ENTER("");
+
+    valijson::Schema standardVersionsSchema, standardDataSchema;
+    auto standardVersionsSchemaPath = getSchemaFilePath("standardVersions.json");
+    auto standardDataSchemaPath = getSchemaFilePath("standardData.json");
+    JsonValidationUtils::populateSchema(standardVersionsSchema, standardVersionsSchemaPath);
+    JsonValidationUtils::populateSchema(standardDataSchema, standardDataSchemaPath);
+
+    std::vector<std::filesystem::path> dirs;
+    for (const auto &item : std::filesystem::directory_iterator(getTmpCachePath("standards"))) {
+      if (item.is_directory()) {
+        dirs.emplace_back(item.path());
+      }
+    }
+
+    valijson::ValidationResults errors;
+    for (const auto &dir : dirs) {
+      auto standardVersionFilePath = dir.string() + "/data.json";
+      valijson::ValidationResults errors;
+      if (!JsonValidationUtils::validateFile(standardVersionsSchema, standardVersionFilePath, errors)) {
+        logSchemaViolations(JsonValidationUtils::getSchemaViolations(errors));
+        throw JsonValidationUtils::SchemaViolationException("Data file " + standardVersionFilePath + " violates constraints of schema " + standardVersionsSchemaPath);
+      }
+
+      std::ifstream standardVersionFile(standardVersionFilePath);
+
+      json version_doc = json::parse(standardVersionFile);
+      std::vector<double> versions = version_doc["versions"];
+
+      for (const auto &version : versions) {
+        std::ostringstream oss;
+        oss << dir.string() << '/' << std::setprecision(2) << std::fixed << version << "/data.json";
+        auto standardDataFilePath = oss.str();
+        if (!JsonValidationUtils::validateFile(standardDataSchema, standardDataFilePath, errors)) {
+          logSchemaViolations(JsonValidationUtils::getSchemaViolations(errors));
+          throw JsonValidationUtils::SchemaViolationException("Data file " + standardDataFilePath + " violates constraints of schema " + standardDataSchemaPath);
+        }
+      }
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void JsCache::validatePackagesData() {
+    TRC_FUNCTION_ENTER("");
+
+    valijson::Schema schema;
+    auto schemaPath = getSchemaFilePath("package.json");
+    JsonValidationUtils::populateSchema(
+      schema,
+      schemaPath,
+      [&schemaDir = m_schemaDir](const std::string &uri) -> const json* {
+        json *doc = new json();
+        std::string path = schemaDir + '/' + uri;
+        if (!valijson::utils::loadDocument(path, *doc)) {
+          return nullptr;
+        }
+        return doc;
+      }
+    );
+
+    std::vector<std::filesystem::path> dirs;
+    for (const auto &item : std::filesystem::directory_iterator(getTmpCachePath("packages/id"))) {
+      if (item.is_directory()) {
+        dirs.emplace_back(item.path());
+      }
+    }
+
+    valijson::ValidationResults errors;
+    for (const auto &dir : dirs) {
+      auto filePath = dir.string() + "/data.json";
+      if (!JsonValidationUtils::validateFile(schema, filePath, errors)) {
+        logSchemaViolations(JsonValidationUtils::getSchemaViolations(errors));
+        throw JsonValidationUtils::SchemaViolationException("Data file " + filePath + " violates constraints of schema " + schemaPath);
+      }
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
+  void JsCache::validateQuantitiesData() {
+    TRC_FUNCTION_ENTER("");
+
+    valijson::Schema schema;
+    auto schemaPath = getSchemaFilePath("quantities.json");
+    auto filePath = getTmpCacheDataFilePath("quantities");
+    JsonValidationUtils::populateSchema(schema, schemaPath);
+    valijson::ValidationResults errors;
+    if (!JsonValidationUtils::validateFile(schema, filePath, errors)) {
+      logSchemaViolations(JsonValidationUtils::getSchemaViolations(errors));
+      throw JsonValidationUtils::SchemaViolationException("Data file " + filePath + " violates constraints of schema " + schemaPath);
+    }
+
+    TRC_FUNCTION_LEAVE("");
+  }
+
   void JsCache::deleteCache() {
     TRC_FUNCTION_ENTER("");
 
     try {
-      boost::filesystem::remove_all(m_cacheDir);
-    } catch (const boost::filesystem::filesystem_error &e) {
-      CATCH_EXC_TRC_WAR(boost::filesystem::filesystem_error, e, "[IQRF Repository cache] Failed to delete cache: " << e.what());
+      std::filesystem::remove_all(m_cacheDir);
+    } catch (const std::filesystem::filesystem_error &e) {
+      CATCH_EXC_TRC_WAR(std::filesystem::filesystem_error, e, "[IQRF Repository cache] Failed to delete cache: " << e.what());
       std::cerr << "[IQRF Repository cache] Failed to delete cache: " << e.what() << std::endl;
     }
 
