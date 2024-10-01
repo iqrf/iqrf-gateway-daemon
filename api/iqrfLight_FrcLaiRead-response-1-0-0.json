@@ -118,9 +118,11 @@
 														]
 													},
 													"metaData": {
-														"title": "Device metadata",
-														"description": "Arbitrary user defined meta data.",
-														"type": "object"
+														"oneOf": [
+															{"type": "object"},
+															{"type": "null"}
+														],
+														"description": "Device metedata"
 													},
 													"voltage": {
 														"title": "Voltage",

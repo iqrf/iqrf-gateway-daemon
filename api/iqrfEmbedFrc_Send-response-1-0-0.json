@@ -69,6 +69,13 @@
                                 }
                             }
                         },
+                        "metaData": {
+                            "oneOf": [
+                                {"type": "object"},
+                                {"type": "null"}
+                            ],
+                            "description": "Device metedata"
+                        },
                         "errorStr": {
                             "type": "string",
                             "description": "Error description from JS drivers."

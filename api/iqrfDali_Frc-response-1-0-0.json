@@ -144,8 +144,11 @@
                             ]
                           },
                           "metaData": {
-                            "type": "object",
-                            "description": "Arbitrary user defined meta data."
+                            "oneOf": [
+                                {"type": "object"},
+                                {"type": "null"}
+                            ],
+                            "description": "Device metedata"
                           },
                           "answer": {
                             "oneOf": [

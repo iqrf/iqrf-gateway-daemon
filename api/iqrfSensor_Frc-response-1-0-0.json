@@ -184,7 +184,7 @@
 															{ "type": "null" }
 														]
 													},
-													"metadata": {
+													"metaData": {
 														"oneOf": [
 															{
 																"type": "object",

@@ -7,16 +7,23 @@
         "version": "1-0-0"
     },
     "type": "object",
+    "required": [
+        "mType",
+        "data"
+    ],
     "properties": {
         "mType": {
             "type": "string",
             "description": "Daemon information - get all detected lights.",
-            "enum": [
-                "infoDaemon_GetLights"
-            ]
+            "enum": ["infoDaemon_GetLights"]
         },
         "data": {
             "type": "object",
+            "required": [
+                "msgId",
+                "rsp",
+                "status"
+            ],
             "properties": {
                 "msgId": {
                     "type": "string",
@@ -24,7 +31,39 @@
                 },
                 "rsp": {
                     "type": "object",
-                    "description": "TODO parameters to select lights."
+                    "description": "Response object",
+                    "required": [
+                        "lightDevices"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "lightDevices": {
+                            "type": "array",
+                            "additionalItems": false,
+                            "items": {
+                                "type": "object",
+                                "required": [
+                                    "nAdr"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "nAdr": {
+                                        "type": "number",
+                                        "description": "Device address",
+                                        "minimum": 0,
+                                        "maximum": 239
+                                    },
+                                    "metaData": {
+                                        "oneOf": [
+                                            {"type": "object"},
+                                            {"type": "null"}
+                                        ],
+                                        "description": "Device metedata"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
                 "insId": {
 					"type": "string",
@@ -38,16 +77,7 @@
                     "type": "string",
                     "description": "IQRF GW daemon API (general or mType) status in string form."
                 }
-            },
-            "required": [
-                "msgId",
-                "rsp",
-                "status"
-            ]
+            }
         }
-    },
-    "required": [
-        "mType",
-        "data"
-    ]
+    }
 }

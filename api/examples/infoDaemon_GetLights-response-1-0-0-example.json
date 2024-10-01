@@ -1,24 +1,11 @@
 {
     "mType": "infoDaemon_GetLights",
     "data": {
-        "msgId": "test",
+        "msgId": "0bd02988-916c-4bfc-9c92-2b0cef56f061",
         "rsp": {
             "lightDevices": [
                 {
-                    "nAdr": 3,
-                    "lights": 7
-                },
-                {
-                    "nAdr": 4,
-                    "lights": 7
-                },
-                {
-                    "nAdr": 5,
-                    "lights": 7
-                },
-                {
-                    "nAdr": 6,
-                    "lights": 7
+                    "nAdr": 1
                 }
             ]
         },
