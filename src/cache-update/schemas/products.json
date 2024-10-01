@@ -1,15 +1,15 @@
 {
-	"$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "products.json",
-	"title": "Products schema",
-	"description": "IQRF Repository products data schema.",
-	"type": "array",
-	"additionalItems": false,
-	"items": {
-		"title": "Product item",
-		"type": "object",
-		"required": [
-			"hwpid",
+  "title": "Products schema",
+  "description": "IQRF Repository products data schema.",
+  "type": "array",
+  "additionalItems": false,
+  "items": {
+    "title": "Product item",
+    "type": "object",
+    "required": [
+      "hwpid",
       "name",
       "manufacturerID",
       "companyName",
@@ -17,9 +17,9 @@
       "picture",
       "rfMode",
       "metadata"
-		],
-		"additionalProperties": false,
-		"properties": {
+    ],
+    "additionalProperties": false,
+    "properties": {
       "hwpid": {
         "title": "Hardware profile ID",
         "type": "integer",
@@ -63,6 +63,6 @@
           }
         ]
       }
-		}
-	}
+    }
+  }
 }

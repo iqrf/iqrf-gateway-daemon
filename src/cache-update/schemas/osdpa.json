@@ -1,20 +1,16 @@
 {
-	"$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "osdpa.json",
-	"title": "OS-DPA schema",
-	"description": "IQRF Repository OS-DPA data schema.",
-	"type": "array",
-	"additionalItems": false,
-	"items": {
-		"title": "OS-DPA item",
-		"type": "object",
-		"required": [
-      "os",
-      "dpa",
-      "notes"
-		],
-		"additionalProperties": false,
-		"properties": {
+  "title": "OS-DPA schema",
+  "description": "IQRF Repository OS-DPA data schema.",
+  "type": "array",
+  "additionalItems": false,
+  "items": {
+    "title": "OS-DPA item",
+    "type": "object",
+    "required": ["os", "dpa", "notes"],
+    "additionalProperties": false,
+    "properties": {
       "os": {
         "title": "OS build",
         "type": "string",
@@ -72,6 +68,6 @@
           "minimum": 0
         }
       }
-		}
-	}
+    }
+  }
 }

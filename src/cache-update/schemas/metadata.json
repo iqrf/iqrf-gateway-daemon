@@ -1,50 +1,52 @@
 {
-	"$schema": "http://json-schema.org/draft-07/schema#",
-	"$id": "metadata.json",
-	"type": "object",
-	"additionalProperties": false,
-	"properties": {
-		"static": {
-			"type": "array",
-			"additionalItems": false,
-			"items": {
-				"type": "object",
-				"required": [
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "metadata.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "static": {
+      "type": "array",
+      "additionalItems": false,
+      "items": {
+        "type": "object",
+        "required": [
           "version",
           "profiles"
         ],
-				"additionalProperties": false,
-				"properties": {
-					"version": {
-						"title": "Metadata version",
-						"description": "Version of metadata, versions differ in properties described by the schema.",
-						"type": "integer",
-						"minimum": 0
-					},
-					"profiles": {}
-				},
-				"allOf": [
-					{
-						"if": {
-							"properties": {
-								"version": { "const": 0 }
-							}
-						},
-						"then": {
-							"properties": {
-								"profiles": { "$ref": "metadataVersions/v0.json#" }
-							}
-						}
-					}
-				]
-			}
-		},
-		"extra": {
-			"oneOf": [
-				{ "type": "object" },
-				{ "type": "array" },
-				{ "type": "null" }
-			]
-		}
-	}
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "title": "Metadata version",
+            "description": "Version of metadata, versions differ in properties described by the schema.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "profiles": {}
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "version": { "const": 0 }
+              }
+            },
+            "then": {
+              "properties": {
+                "profiles": {
+                  "$ref": "metadataVersions/v0.json#"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "extra": {
+      "oneOf": [
+        { "type": "object" },
+        { "type": "array" },
+        { "type": "null" }
+      ]
+    }
+  }
 }
