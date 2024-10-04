@@ -3121,11 +3121,17 @@ namespace iqrf {
         return;
       }
 
-      // Run autonetwork
-      m_msgType = &msgType;
-      m_messagingId = &messagingId;
-      m_comAutonetwork = &comAutonetwork;
-      runAutonetwork();
+      try {
+        // Run autonetwork
+        m_msgType = &msgType;
+        m_messagingId = &messagingId;
+        m_comAutonetwork = &comAutonetwork;
+        runAutonetwork();
+      } catch (const std::exception &e) {
+        m_exclusiveAccess.reset();
+        THROW_EXC_TRC_WAR(std::logic_error, e.what());
+      }
+
       // Release exclusive access
       m_exclusiveAccess.reset();
 
