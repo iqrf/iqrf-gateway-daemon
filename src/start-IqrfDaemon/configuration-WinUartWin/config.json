@@ -99,13 +99,6 @@
             "startlevel": 0
         },
         {
-            "name": "iqrf::IqrfInfo",
-            "libraryPath": "iqrf-gateway-daemon/bin",
-            "libraryName": "IqrfInfo",
-            "enabled": true,
-            "startlevel": 0
-        },
-        {
             "name": "iqrf::IqrfBackup",
             "libraryPath": "iqrf-gateway-daemon/bin",
             "libraryName": "IqrfBackup",
@@ -193,13 +186,6 @@
             "name": "iqrf::JsonMngApi",
             "libraryPath": "iqrf-gateway-daemon/bin",
             "libraryName": "JsonMngApi",
-            "enabled": true,
-            "startlevel": 2
-        },
-        {
-            "name": "iqrf::JsonIqrfInfoApi",
-            "libraryPath": "iqrf-gateway-daemon/bin",
-            "libraryName": "JsonIqrfInfoApi",
             "enabled": true,
             "startlevel": 2
         },
