@@ -1,0 +1,8 @@
+{
+  "mType": "iqrfSensorData_Invoke",
+  "data": {
+    "msgId": "fca42aae-3509-416e-9b6f-aba3ac53861e",
+    "status": 0,
+    "insId": "iqrfgd2-default"
+  }
+}
