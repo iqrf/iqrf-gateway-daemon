@@ -204,13 +204,6 @@
       "startlevel": 2
     },
     {
-      "name": "iqrf::JsonIqrfInfoApi",
-      "libraryPath": "iqrf-gateway-daemon/bin",
-      "libraryName": "JsonIqrfInfoApi",
-      "enabled": false,
-      "startlevel": 2
-    },
-    {
       "name": "iqrf::JsonCfgApi",
       "libraryPath": "iqrf-gateway-daemon/bin",
       "libraryName": "JsonCfgApi",

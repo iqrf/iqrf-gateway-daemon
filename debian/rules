@@ -55,7 +55,6 @@ override_dh_builddeb:
 
 override_dh_install:
 	dh_install
-	#release: rm components from package: IqrfInfo, AutoNetwork, OTA
 	rm -rf debian/iqrf-gateway-daemon/builds
 
 override_dh_installsystemd:

@@ -19,7 +19,6 @@
 #include "ApiMsgIqrfStandardFrc.h"
 #include "IIqrfDb.h"
 #include "IIqrfDpaService.h"
-#include "IIqrfInfo.h"
 #include "IJsRenderService.h"
 #include "IMessagingSplitterService.h"
 #include "ITraceService.h"
