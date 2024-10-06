@@ -1,0 +1,14 @@
+{
+  "mType": "iqrfSensorData_SetConfig",
+  "data": {
+    "msgId": "7575d323-f647-410f-afb1-94fd94592435",
+    "req": {
+      "autoRun": false,
+      "period": 60,
+      "retryPeriod": 5,
+      "asyncReports": true,
+      "messagingList": []
+    },
+    "returnVerbose": true
+  }
+}

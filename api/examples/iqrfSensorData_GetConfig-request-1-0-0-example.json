@@ -1,0 +1,7 @@
+{
+  "mType": "iqrfSensorData_GetConfig",
+  "data": {
+    "msgId": "b3636421-b9d5-491e-8f93-3eac0543803d",
+    "returnVerbose": true
+  }
+}
