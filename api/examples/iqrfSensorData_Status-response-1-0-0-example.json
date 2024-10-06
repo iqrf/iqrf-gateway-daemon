@@ -1,0 +1,13 @@
+{
+  "mType": "iqrfSensorData_Status",
+  "data": {
+    "msgId": "999c1fba-bceb-42e2-a63e-58e958f0b1d8",
+    "rsp": {
+      "running": true,
+      "reading": false
+    },
+    "status": 0,
+    "statusStr": "ok",
+    "insId": "iqrfgd2-default"
+  }
+}
