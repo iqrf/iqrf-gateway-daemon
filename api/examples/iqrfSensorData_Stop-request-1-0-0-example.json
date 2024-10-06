@@ -1,0 +1,7 @@
+{
+  "mType": "iqrfSensorData_Stop",
+  "data": {
+    "msgId": "34cdbaff-19e6-47a5-adee-75f94c83f3dd",
+    "returnVerbose": true
+  }
+}
