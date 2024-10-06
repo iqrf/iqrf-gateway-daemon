@@ -18,7 +18,7 @@
     "instance": {
       "type": "string",
       "description": "Recomended iqrf::IqrfRestore-(id)",
-      "default": "iqrf::IqrfInfo-1"
+      "default": "iqrf::IqrfRestore-1"
     },
     "RequiredInterfaces": {
       "type": "array",
