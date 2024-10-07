@@ -7,7 +7,12 @@
       "period": 60,
       "retryPeriod": 5,
       "asyncReports": true,
-      "messagingList": []
+      "messagingList": [
+        {
+          "type": "mqtt",
+          "instance": "default"
+        }
+      ]
     },
     "returnVerbose": true
   }
