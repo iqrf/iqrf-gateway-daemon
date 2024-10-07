@@ -1,0 +1,64 @@
+[
+  {
+    "mType": "iqrfSensorData_ReportAsync",
+    "data": {
+      "msgId": "async",
+      "rsp": {
+        "reading": true
+      },
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqrfSensorData_ReportAsync",
+    "data": {
+      "msgId": "async",
+      "rsp": {
+        "devices": [
+          {
+            "address": 1,
+            "hwpid": 10244,
+            "mid": 2165474388,
+            "rssi": -63,
+            "sensors": []
+          },
+          {
+            "address": 2,
+            "hwpid": 33796,
+            "mid": 2165517735,
+            "rssi": -67,
+            "sensors": [
+              {
+                "index": 0,
+                "type": 1,
+                "name": "Temperature",
+                "unit": "°C",
+                "value": 23.25
+              },
+              {
+                "index": 1,
+                "type": 128,
+                "name": "Relative humidity",
+                "unit": "%",
+                "value": 51.0
+              },
+              {
+                "index": 2,
+                "type": 4,
+                "name": "Extra-low voltage",
+                "unit": "V",
+                "value": 3.184
+              }
+            ]
+          }
+        ],
+        "reading": false
+      },
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  }
+]

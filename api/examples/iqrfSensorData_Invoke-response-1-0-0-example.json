@@ -1,8 +1,29 @@
-{
-  "mType": "iqrfSensorData_Invoke",
-  "data": {
-    "msgId": "fca42aae-3509-416e-9b6f-aba3ac53861e",
-    "status": 0,
-    "insId": "iqrfgd2-default"
+[
+  {
+    "mType": "iqrfSensorData_Invoke",
+    "data": {
+      "msgId": "fca42aae-3509-416e-9b6f-aba3ac53861e",
+      "status": 0,
+      "statusStr": "ok",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqrfSensorData_Invoke",
+    "data": {
+      "msgId": "fca42aae-3509-416e-9b6f-aba3ac53861e",
+      "status": 1003,
+      "statusStr": "Sensor data read worker not running.",
+      "insId": "iqrfgd2-default"
+    }
+  },
+  {
+    "mType": "iqrfSensorData_Invoke",
+    "data": {
+      "msgId": "fca42aae-3509-416e-9b6f-aba3ac53861e",
+      "status": 1004,
+      "statusStr": "Sensor data read already in progress.",
+      "insId": "iqrfgd2-default"
+    }
   }
-}
+]
