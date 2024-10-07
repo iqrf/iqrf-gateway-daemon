@@ -132,17 +132,16 @@ namespace iqrf {
         Pointer("/data/rsp/rCode").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.ResponseCode);
         Pointer("/data/rsp/dpaVal").Set(doc, res.getResponse().DpaPacket().DpaResponsePacket_t.DpaValue);
       } else {
-        int pnum = res.getRequest().DpaPacket().DpaRequestPacket_t.PNUM;
-        int pcmd = res.getRequest().DpaPacket().DpaRequestPacket_t.PCMD + 0x80;
         if (m_requestDriverConvertFailure && m_unresolvablePerCmd) {
-          pnum = -1;
-          pcmd = -1;
+          Pointer("/data/rsp/pNum").Set(doc, Value(kNullType));
+          Pointer("/data/rsp/pCmd").Set(doc, Value(kNullType));
+        } else {
+          Pointer("/data/rsp/pNum").Set(doc, res.getRequest().DpaPacket().DpaRequestPacket_t.PNUM);
+          Pointer("/data/rsp/pCmd").Set(doc, res.getRequest().DpaPacket().DpaRequestPacket_t.PCMD + 0x80);
         }
-        Pointer("/data/rsp/pNum").Set(doc, pnum);
-        Pointer("/data/rsp/pCmd").Set(doc, pcmd);
-        Pointer("/data/rsp/hwpId").Set(doc, -1);
-        Pointer("/data/rsp/rCode").Set(doc, -1);
-        Pointer("/data/rsp/dpaVal").Set(doc, -1);
+        Pointer("/data/rsp/hwpId").Set(doc, Value(kNullType));
+        Pointer("/data/rsp/rCode").Set(doc, Value(kNullType));
+        Pointer("/data/rsp/dpaVal").Set(doc, Value(kNullType));
       }
 
       // TODO: CHANGE THIS, THIS IS BAD AND SHOULDN'T BE DONE THIS WAY, SET PAYLOAD ACCORDING TO STATUS, NOT EVERYTIME
