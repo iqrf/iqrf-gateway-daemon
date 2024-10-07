@@ -7,9 +7,15 @@
       "period": 10,
       "retryPeriod": 1,
       "asyncReports": true,
-      "messagingList": []
+      "messagingList": [
+        {
+          "type": "mqtt",
+          "instance": "default"
+        }
+      ]
     },
     "status": 0,
+    "statusStr": "ok",
     "insId": "iqrfgd2-default"
   }
 }
