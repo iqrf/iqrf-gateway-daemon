@@ -401,6 +401,7 @@ namespace iqrf {
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
 		if (invoked && running) {
 			Pointer("/data/status").Set(rsp, 0);
+			Pointer("/data/statusStr").Set(rsp, "ok");
 		} else {
 			if (!running) {
 				Pointer("/data/status").Set(rsp, ErrorCodes::notRunning);
@@ -432,6 +433,7 @@ namespace iqrf {
 		Pointer("/mType").Set(rsp, m_mTypeStart);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
 		Pointer("/data/status").Set(rsp, 0);
+		Pointer("/data/statusStr").Set(rsp, "ok");
 		m_splitterService->sendMessage(messaging, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -452,6 +454,7 @@ namespace iqrf {
 		Pointer("/mType").Set(rsp, m_mTypeStop);
 		Pointer("/data/msgId").Set(rsp, Pointer("/data/msgId").Get(request)->GetString());
 		Pointer("/data/status").Set(rsp, 0);
+		Pointer("/data/statusStr").Set(rsp, "ok");
 		m_splitterService->sendMessage(messaging, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -477,6 +480,7 @@ namespace iqrf {
 		}
 		Pointer("/data/rsp/messagingList").Set(rsp, arr, allocator);
 		Pointer("/data/status").Set(rsp, 0);
+		Pointer("/data/statusStr").Set(rsp, "ok");
 		m_splitterService->sendMessage(messaging, std::move(rsp));
 		TRC_FUNCTION_LEAVE("");
 	}
@@ -546,6 +550,7 @@ namespace iqrf {
 			cfg->update(true);
 
 			Pointer("/data/status").Set(rsp, 0);
+			Pointer("/data/statusStr").Set(rsp, "ok");
 		} catch (const std::exception &e) {
 			CATCH_EXC_TRC_WAR(std::exception, e, e.what());
 			m_autoRun = oldAutoRun;
