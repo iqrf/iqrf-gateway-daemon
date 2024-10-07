@@ -7,8 +7,8 @@
 		"data"
 	],
 	"additionalProperties": false,
-  "properties": {
-    "mType": {
+	"properties": {
+		"mType": {
 			"$id": "#/properties/mType",
 			"title": "Message type",
 			"description": "IQRF Sensor Data - SetConfig response.",
@@ -25,7 +25,7 @@
 				"status"
 			],
 			"additionalProperties": false,
-      "properties": {
+			"properties": {
 				"msgId": {
 					"$id": "#/properties/data/properties/msgId",
 					"title": "Message ID",
@@ -36,10 +36,10 @@
 					"$id": "#/properties/data/properties/rsp",
 					"title": "Response object",
 					"description": "Response object.",
-          "type": "object",
-          "additionalProperties": false
-        },
-        "insId": {
+					"type": "object",
+					"additionalProperties": false
+				},
+				"insId": {
 					"$id": "#/properties/data/properties/insId",
 					"title": "Instance ID",
 					"description": "Daemon insteance ID.",
@@ -57,7 +57,7 @@
 					"description": "Verbose status string",
 					"type": "string"
 				}
-      }
-    }
-  }
+			}
+		}
+	}
 }
