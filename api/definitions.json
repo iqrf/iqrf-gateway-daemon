@@ -376,18 +376,6 @@
           }
         ]
       },
-      "mid": {
-        "title": "MID",
-        "description": "Module ID.",
-        "oneOf": [
-          { "type": "null" },
-          {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 4294967295
-          }
-        ]
-      },
       "metadata": {
         "description": "Arbitrary user defined meta data.",
         "oneOf": [
