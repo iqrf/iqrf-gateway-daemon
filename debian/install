@@ -13,6 +13,7 @@ src/start-IqrfDaemon/cfgSchemas                                 usr/share/iqrf-g
 src/start-IqrfDaemon/javaScript                                 usr/share/iqrf-gateway-daemon
 src/start-IqrfDaemon/DB                                         usr/share/iqrf-gateway-daemon
 src/start-IqrfDaemon/schedulerSchemas/schema_cache_record.json  usr/share/iqrf-gateway-daemon/schedulerSchemas
+src/cache-update/serverCheck.json                               var/cache/iqrf-gateway-daemon/iqrfRepoCache
 src/cache-update/cache/*                                        var/cache/iqrf-gateway-daemon/iqrfRepoCache/cache
 src/cache-update/schemas/*                                      usr/share/iqrf-gateway-daemon/cacheSchemas
 scripts/*                                                       usr/bin
