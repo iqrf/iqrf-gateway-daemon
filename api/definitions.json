@@ -454,8 +454,8 @@
         ]
       },
       "name": {
-        "title": "Sensor name",
-        "description": "Name of the sensor (quantity).",
+        "title": "Quantity name",
+        "description": "Quantity measured by the sensor.",
         "type": "string"
       },
       "shortName": {
@@ -465,18 +465,19 @@
       },
       "type": {
         "title": "Sensor type",
-        "description": "Value type of the sensor (quantity).",
+        "description": "Numerical value corresponding to sensor type and quantity.",
         "type": "integer",
-        "minimum": 0,
+        "minimum": 1,
         "maximum": 255
       },
       "unit": {
-        "description": "Unit of the quantity. Dimensionless quantities has \"\".",
+        "title": "Quantity unit",
+        "description": "Unit in which the quantity is measured. Dimensionless quantities has \"\".",
         "type": "string"
       },
       "value": {
         "title": "Sensor value",
-        "description": "Value of the sensor.",
+        "description": "Measured value of the sensor.",
         "oneOf": [
           { "type": "null" },
           { "type": "number" },
@@ -672,6 +673,66 @@
         "stdAndLpNetwork": {
           "title": "STD+LP network",
           "type": "boolean"
+        }
+      }
+    },
+    "voltage": {
+      "title": "Device voltage",
+      "description": "Voltage of a network device.",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "number" }
+      ]
+    }
+  },
+  "sensorData": {
+    "autoRun": {
+      "title": "Run worker automatically",
+      "description": "Start sensor data reading worker on startup.",
+      "type": "boolean"
+    },
+    "period": {
+      "title": "Reading period",
+      "description": "Time between data reads in minutes.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "retryPeriod": {
+      "title": "Retry period",
+      "description": "Time between reading retry after a failure.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "asyncReports": {
+      "title": "Asynchronous reports",
+      "description": "Sends asynchronous messages reporting results when sensor read concludes.",
+      "type": "boolean"
+    },
+    "messagingList": {
+      "title": "Messaging instance list",
+      "description": "List of messaging instances to use for asynchronous reporting.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "title": "Messaging instance",
+        "description": "Messaging service instance.",
+        "type": "object",
+        "required": [
+          "type",
+          "instance"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "title": "Messaging type",
+            "type": "string",
+            "enum": ["mqtt", "ws"]
+          },
+          "instance": {
+            "title": "Messaging instance name",
+            "type": "string",
+            "example": "default"
+          }
         }
       }
     }
