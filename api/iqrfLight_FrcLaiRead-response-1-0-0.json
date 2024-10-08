@@ -94,7 +94,12 @@
                             "$ref": "definitions.json#/interoperability/frc/hwpid"
                           },
                           "mid": {
-                            "$ref": "definitions.json#/interoperability/frc/mid"
+                            "oneOf": [
+                              { "type": "null" },
+                              {
+                                "$ref": "definitions.json#/general/mId"
+                              }
+                            ]
                           },
                           "metaData": {
                             "$ref": "definitions.json#/interoperability/frc/metadata"
