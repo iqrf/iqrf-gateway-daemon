@@ -68,7 +68,12 @@
                     "$ref": "definitions.json#/general/response/hwpId"
                   },
                   "mid": {
-                    "$ref": "definitions.json#/interoperability/frc/mid"
+                    "oneOf": [
+                      { "type": "null" },
+                      {
+                        "$ref": "definitions.json#/general/mId"
+                      }
+                    ]
                   },
                   "rssi": {
                     "title": "Device RSSI",
