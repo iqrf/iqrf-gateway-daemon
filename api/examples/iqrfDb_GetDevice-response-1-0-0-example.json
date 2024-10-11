@@ -1,0 +1,178 @@
+[
+    {
+        "mType": "iqrfDb_GetDevice",
+        "data": {
+            "msgId": "8a62b6be-a6a7-4598-a897-3783b276bd66",
+            "rsp": {
+                "device": {
+                    "address": 0,
+                    "hwpid": 12292,
+                    "product": "IQUBE",
+                    "discovered": false,
+                    "vrn": 0,
+                    "zone": 0,
+                    "parent": null,
+                    "mid": 2164293634,
+                    "hwpidVersion": 6,
+                    "osBuild": 2264,
+                    "osVersion": "4.06D",
+                    "dpa": 1047,
+                    "metadata": {
+                        "location": {
+                            "building": "a1",
+                            "floor": 1,
+                            "room": 1,
+                            "gw": 1
+                        },
+                        "identification": {
+                            "name": "s1",
+                            "measure_number": 159,
+                            "manufacturer": "xyz",
+                            "serial_number": 753
+                        }
+                    }
+                }
+            },
+            "insId": "iqrfgd2-default",
+            "statusStr": "ok",
+            "status": 0
+        }
+    },
+    {
+        "mType": "iqrfDb_GetDevice",
+        "data": {
+            "msgId": "53756b0e-fada-4fd4-959e-ed01b5c94ee1",
+            "rsp": {
+                "device": {
+                    "address": 0,
+                    "hwpid": 12292
+                }
+            },
+            "insId": "iqrfgd2-default",
+            "statusStr": "ok",
+            "status": 0
+        }
+    },
+    {
+        "mType": "iqrfDb_GetDevice",
+        "data": {
+            "msgId": "b6dcdafa-d845-43c9-a9f6-0465a6e1e3b2",
+            "rsp": {
+                "device": {
+                    "address": 1,
+                    "hwpid": 1026,
+                    "product": "DDC-SE-01 + DDC-RE-01",
+                    "discovered": true,
+                    "vrn": 1,
+                    "zone": 0,
+                    "parent": 0,
+                    "mid": 2165406801,
+                    "hwpidVersion": 2,
+                    "osBuild": 2264,
+                    "osVersion": "4.06D",
+                    "dpa": 1047,
+                    "metadata": {
+                        "name": "sensor 1"
+                    },
+                    "sensors": [
+                        {
+                            "index": 0,
+                            "type": 1,
+                            "name": "Temperature",
+                            "shortname": "T",
+                            "unit": "°C",
+                            "decimalPlaces": 4,
+                            "frcs": [
+                                144,
+                                224
+                            ]
+                        },
+                        {
+                            "index": 1,
+                            "type": 129,
+                            "name": "Light indicator",
+                            "shortname": "light",
+                            "unit": "%",
+                            "decimalPlaces": 1,
+                            "frcs": [
+                                16,
+                                144
+                            ]
+                        },
+                        {
+                            "index": 2,
+                            "type": 129,
+                            "name": "Potentiometer",
+                            "shortname": "pot",
+                            "unit": "%",
+                            "decimalPlaces": 1,
+                            "frcs": [
+                                16,
+                                144
+                            ]
+                        }
+                    ]
+                }
+            },
+            "insId": "iqrfgd2-default",
+            "statusStr": "ok",
+            "status": 0
+        }
+    },
+    {
+        "mType": "iqrfDb_GetDevice",
+        "data": {
+            "msgId": "2938fc1c-8aea-4640-a2d1-518d7004c22b",
+            "rsp": {
+                "device": {
+                    "address": 1,
+                    "hwpid": 1026,
+                    "sensors": [
+                        {
+                            "index": 0,
+                            "type": 1,
+                            "name": "Temperature",
+                            "shortname": "T",
+                            "unit": "°C",
+                            "decimalPlaces": 4,
+                            "frcs": [
+                                144,
+                                224
+                            ]
+                        },
+                        {
+                            "index": 1,
+                            "type": 129,
+                            "name": "Light indicator",
+                            "shortname": "light",
+                            "unit": "%",
+                            "decimalPlaces": 1,
+                            "frcs": [
+                                16,
+                                144
+                            ]
+                        },
+                        {
+                            "index": 2,
+                            "type": 129,
+                            "name": "Potentiometer",
+                            "shortname": "pot",
+                            "unit": "%",
+                            "decimalPlaces": 1,
+                            "frcs": [
+                                16,
+                                144
+                            ]
+                        }
+                    ],
+                    "binouts": {
+                        "count": 4
+                    }
+                }
+            },
+            "insId": "iqrfgd2-default",
+            "statusStr": "ok",
+            "status": 0
+        }
+    }
+]

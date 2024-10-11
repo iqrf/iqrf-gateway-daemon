@@ -1,0 +1,52 @@
+[
+    {
+        "mType": "iqrfDb_GetDevices",
+        "data": {
+            "msgId": "dfa72579-59fe-417d-a8e6-19f4fb5780e4",
+            "req": {},
+            "returnVerbose": true
+        }
+    },
+    {
+        "mType": "iqrfDb_GetDevices",
+        "data": {
+            "msgId": "ee88e11b-f75c-4601-8434-220bb58289d5",
+            "req": {
+                "addresses": [
+                    1
+                ],
+                "brief": true
+            },
+            "returnVerbose": true
+        }
+    },
+    {
+        "mType": "iqrfDb_GetDevices",
+        "data": {
+            "msgId": "8aa08d78-f428-4ce6-9689-f8c61abecc36",
+            "req": {
+                "addresses": [
+                    1
+                ],
+                "sensors": true
+            },
+            "returnVerbose": true
+        }
+    },
+    {
+        "mType": "iqrfDb_GetDevices",
+        "data": {
+            "msgId": "f191d92c-1d9c-41fb-a4ee-d8df29040e64",
+            "req": {
+                "addresses": [
+                    0,
+                    1
+                ],
+                "brief": true,
+                "sensors": true,
+                "binouts": true
+            },
+            "returnVerbose": true
+        }
+    }
+]

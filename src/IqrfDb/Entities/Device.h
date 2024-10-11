@@ -154,30 +154,6 @@ public:
 	void setProductId(const uint32_t &productId);
 
 	/**
-	 * Returns user specified device name
-	 * @return User specified device name
-	 */
-	std::shared_ptr<std::string> getName() const;
-
-	/**
-	 * Sets user specified device name
-	 * @param name User specified device name
-	 */
-	void setName(std::shared_ptr<std::string> name);
-
-	/**
-	 * Returns user specified device location
-	 * @return User specified device location
-	 */
-	std::shared_ptr<std::string> getLocation() const;
-
-	/**
-	 * Sets user specified device location
-	 * @param location User specified device location
-	 */
-	void setLocation(std::shared_ptr<std::string> location);
-
-	/**
 	 * Returns device metadata
 	 * @return Device metadata pointer
 	 */
@@ -212,10 +188,6 @@ private:
 	bool enumerated;
 	/// Product ID
 	uint32_t productId;
-	/// User specified device name
-	std::shared_ptr<std::string> name = nullptr;
-	/// User specified device location
-	std::shared_ptr<std::string> location = nullptr;
 	/// Device metadata
 	std::shared_ptr<std::string> metadata = nullptr;
 };

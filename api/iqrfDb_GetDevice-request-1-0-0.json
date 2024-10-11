@@ -40,21 +40,39 @@
 					"title": "Request parameters",
 					"description": "Request parameters.",
 					"type": "object",
+					"required": [
+						"address"
+					],
 					"additionalProperties": false,
 					"properties": {
 						"address": {
-								"$id": "#/properties/data/properties/req/properties/address",
-								"title": "Device address",
-								"description": "Address of device in network.",
-								"type": "integer",
-								"minimum": 0,
-								"maximum": 239
+							"$id": "#/properties/data/properties/req/properties/address",
+							"title": "Device address",
+							"description": "Address of device in network.",
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 239
+						},
+						"sensors": {
+							"$id": "#/properties/data/properties/req/properties/sensors",
+							"title": "Sensors data",
+							"description": "Include device sensors data.",
+							"type": "boolean",
+							"default": false
+						},
+						"binouts": {
+							"$id": "#/properties/data/properties/req/properties/binouts",
+							"title": "Binout data",
+							"description": "Include binout data.",
+							"type": "boolean",
+							"default": false
 						},
 						"brief": {
 							"$id": "#/properties/data/properties/req/properties/brief",
 							"title": "Brief information",
 							"description": "Brief information about a device.",
-							"type": "boolean"
+							"type": "boolean",
+							"default": false
 						}
 					}
 				},

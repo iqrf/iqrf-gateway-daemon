@@ -111,6 +111,50 @@ namespace iqrf {
 		};
 
 		/**
+		 * Enumeration errors class
+		 */
+		class EnumerationError {
+		public:
+			/**
+			 * Enumeration errors enum
+			 */
+			enum Errors {
+				AlreadyRunning = -1,
+			};
+
+			/**
+			 * Base constructor
+			 */
+			EnumerationError() {}
+
+			/**
+			 * Full constructor
+			 * @param error Enumeration error
+			 */
+			EnumerationError(Errors error) : error(error) {};
+
+			/**
+			 * Returns enumeration error
+			 * @return Enumeration error
+			 */
+			Errors getError() { return error; }
+
+			/**
+			 * Returns message corresponding to the error
+			 * @param error Error
+			 * @return Error message
+			 */
+			std::string getErrorMessage() { return errorMessages[error]; }
+		private:
+			/// Enumeration Error
+			Errors error = Errors::AlreadyRunning;
+			/// Map of enumeration errors and messages
+			std::map<Errors, std::string> errorMessages = {
+				{Errors::AlreadyRunning, "Enumeration is already in progress."},
+			};
+		};
+
+		/**
 		 * Check if enumeration is in progress
 		 * @return true if enumeration is in progress, false otherwise
 		 */
@@ -160,10 +204,24 @@ namespace iqrf {
 		virtual Product getProductById(const uint32_t &productId) = 0;
 
 		/**
+		 * Checks if a device implements BinaryOutput standard
+		 * @param deviceId Device ID
+		 * @return true if device implements BinaryOutput standard, false otherwise
+		 */
+		virtual bool hasBinaryOutputs(const uint32_t &deviceId) = 0;
+
+		/**
 		 * Retrieves information about devices implementing BinaryOutput standard
 		 * @return Map of device addresses and implemented binary outputs
 		 */
 		virtual std::map<uint8_t, uint8_t> getBinaryOutputs() = 0;
+
+		/**
+		 * Returns implemeneted BinaryOutput count by a device
+		 * @param deviceId Device ID
+		 * @return Implemented BinaryOutput count
+		 */
+		virtual uint8_t getBinaryOutputsByDeviceId(const uint32_t &deviceId) = 0;
 
 		/**
 		 * Retrieves information about devices implementing Light standard
@@ -225,7 +283,7 @@ namespace iqrf {
 		 * @param address Device address
 		 * @return Device metadata
 		 */
-		virtual std::string getDeviceMetadata(const uint8_t &address) = 0;
+		virtual std::shared_ptr<std::string> getDeviceMetadata(const uint8_t &address) = 0;
 
 		/**
 		 * Retrieves metadata stored at device specified by address in a rapidjson document
@@ -239,7 +297,7 @@ namespace iqrf {
 		 * @param address Device address
 		 * @param metadata Metadata to store
 		 */
-		virtual void setDeviceMetadata(const uint8_t &address, const std::string &metadata) = 0;
+		virtual void setDeviceMetadata(const uint8_t &address, std::shared_ptr<std::string> metadata) = 0;
 
 		/**
 		 * Returns map of hwpids and devices implementing sensor device specified by type and index
