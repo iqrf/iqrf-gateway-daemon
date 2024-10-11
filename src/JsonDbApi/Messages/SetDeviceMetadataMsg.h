@@ -22,7 +22,7 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
-typedef std::tuple<bool, std::string> MetadataResponse;
+typedef std::tuple<bool, std::string> SetMetadataResponse;
 
 namespace iqrf {
 
@@ -60,6 +60,6 @@ namespace iqrf {
 		/// Map of device addresses and metadata
 		std::map<uint8_t, std::string> metadataRequest;
 		/// Map of device addresses and operation status
-		std::map<uint8_t, MetadataResponse> metadataResponse;
+		std::map<uint8_t, SetMetadataResponse> metadataResponse;
 	};
 }

@@ -73,49 +73,10 @@
 										"$id": "#/properties/data/properties/req/properties/devices/items/properties/metadata",
 										"title": "User metadata",
 										"description": "User defined device metadata.",
-										"type": "object",
-										"additionalProperties": false,
-										"properties": {
-											"name": {
-												"$id": "#/properties/data/properties/req/properties/devices/items/properties/metadata/properties/name",
-												"title": "Device name",
-												"description": "User-specified device name.",
-												"oneOf": [
-													{
-														"type": "string"
-													},
-													{
-														"type": "null"
-													}
-												]
-											},
-											"location": {
-												"$id": "#/properties/data/properties/req/properties/devices/items/properties/metadata/properties/location",
-												"title": "Device location",
-												"description": "User-specified device location.",
-												"oneOf": [
-													{
-														"type": "string"
-													},
-													{
-														"type": "null"
-													}
-												]
-											},
-											"other": {
-												"$id": "#/properties/data/properties/req/properties/devices/items/properties/metadata/properties/other",
-												"title": "Other metadata",
-												"description": "Other, user-specified device metadata",
-												"oneOf": [
-													{
-														"type": "object"
-													},
-													{
-														"type": "null"
-													}
-												]
-											}
-										}
+										"oneOf": [
+											{ "type": "object" },
+											{ "type": "null" }
+										]
 									}
 								}
 							}

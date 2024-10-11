@@ -85,11 +85,12 @@ namespace iqrf {
 		if (msgType.m_type == "iqrfDb_Enumerate") {
 			std::unique_lock<std::mutex> lock(m_enumerateMutex);
 			if (m_enumerateMsg) {
-				THROW_EXC_TRC_WAR(std::logic_error, "Enumeration already in progress.");
+				sendEnumerationErrorResponse(messaging, IIqrfDb::EnumerationError::Errors::AlreadyRunning, std::move(request));
+			} else {
+				m_enumerateMsg = std::make_unique<EnumerateMsg>(EnumerateMsg(request));
+				m_enumerateMsg->setMessaging(messaging);
+				m_enumerateMsg->handleMsg(m_dbService);
 			}
-			m_enumerateMsg = std::make_unique<EnumerateMsg>(EnumerateMsg(request));
-			m_enumerateMsg->setMessaging(messaging);
-			m_enumerateMsg->handleMsg(m_dbService);
 			return;
 		} else if (msgType.m_type == "iqrfDb_GetBinaryOutputs") {
 			msg = std::make_unique<GetBinaryOutputsMsg>(GetBinaryOutputsMsg(request));
@@ -123,6 +124,15 @@ namespace iqrf {
 			msg->createResponse(errorResponse);
 			m_splitterService->sendMessage(messaging, std::move(errorResponse));
 		}
+	}
+
+	void JsonDbApi::sendEnumerationErrorResponse(const MessagingInstance &messaging, IIqrfDb::EnumerationError::Errors errCode, rapidjson::Document request) {
+		IIqrfDb::EnumerationError error(errCode);
+		Document response;
+		EnumerateMsg msg(request);
+		msg.setStatus(error.getErrorMessage(), error.getError());
+		msg.createErrorResponsePayload(response);
+		m_splitterService->sendMessage(messaging, std::move(response));
 	}
 
 	void JsonDbApi::sendEnumerationResponse(IIqrfDb::EnumerationProgress progress) {

@@ -72,8 +72,6 @@ static inline auto initializeDb(const std::string &fileName) {
 			make_column("parent", &Device::getParent, &Device::setParent),
 			make_column("enumerated", &Device::isEnumerated, &Device::setEnumerated),
 			make_column("productId", &Device::getProductId, &Device::setProductId),
-			make_column("name", &Device::getName, &Device::setName),
-			make_column("location", &Device::getLocation, &Device::setLocation),
 			make_column("metadata", &Device::getMetadata, &Device::setMetadata),
 			foreign_key(&Device::getProductId).references(&Product::getId)
 		),

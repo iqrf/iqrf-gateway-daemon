@@ -121,8 +121,16 @@ namespace iqrf {
 		return this->query.getProductById(productId);
 	}
 
+	bool IqrfDb::hasBinaryOutputs(const uint32_t &deviceId) {
+		return this->query.hasBinaryOutputs(deviceId);
+	}
+
 	std::map<uint8_t, uint8_t> IqrfDb::getBinaryOutputs() {
 		return this->query.getBinaryOutputs();
+	}
+
+	uint8_t IqrfDb::getBinaryOutputsByDeviceId(const uint32_t &deviceId) {
+		return this->query.getBinaryOutputsByDeviceId(deviceId);
 	}
 
 	std::set<uint8_t> IqrfDb::getLights() {
@@ -153,21 +161,23 @@ namespace iqrf {
 		this->query.setSensorValue(address, type, index, value, updated);
 	}
 
-	std::string IqrfDb::getDeviceMetadata(const uint8_t &address) {
+	std::shared_ptr<std::string> IqrfDb::getDeviceMetadata(const uint8_t &address) {
 		return this->query.getDeviceMetadata(address);
 	}
 
 	rapidjson::Document IqrfDb::getDeviceMetadataDoc(const uint8_t &address) {
-		std::string metadata = this->query.getDeviceMetadata(address);
+		auto metadata = this->query.getDeviceMetadata(address);
 		rapidjson::Document doc;
-		doc.Parse(metadata.c_str());
-		if (doc.HasParseError()) {
-			THROW_EXC_TRC_WAR(std::logic_error, "Invalid json syntax in metadata: " << doc.GetParseError() << ", " << doc.GetErrorOffset());
+		if (metadata) {
+			doc.Parse(metadata.get()->c_str());
+			if (doc.HasParseError()) {
+				THROW_EXC_TRC_WAR(std::logic_error, "Invalid json syntax in metadata: " << doc.GetParseError() << ", " << doc.GetErrorOffset());
+			}
 		}
 		return doc;
 	}
 
-	void IqrfDb::setDeviceMetadata(const uint8_t &address, const std::string &metadata) {
+	void IqrfDb::setDeviceMetadata(const uint8_t &address, std::shared_ptr<std::string> metadata) {
 		this->query.setDeviceMetadata(address, metadata);
 	}
 
@@ -1464,7 +1474,7 @@ namespace iqrf {
 		DpaMessage binoutEnumerateResponse = result->getResponse();
 		const uint8_t count = binoutEnumerateResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
 
-		bool exists = this->query.boExists(deviceId);
+		bool exists = this->query.hasBinaryOutputs(deviceId);
 		if (exists) {
 			uint32_t boId = this->query.getBoId(deviceId);
 			auto bo = m_db->get<BinaryOutput>(boId);

@@ -72,9 +72,9 @@ namespace iqrf {
 					Pointer("/discovered").Set(object, device.isDiscovered(), allocator);
 					Pointer("/vrn").Set(object, device.getVrn(), allocator);
 					Pointer("/zone").Set(object, device.getZone(), allocator);
-					std::shared_ptr<uint8_t> val = device.getParent();
-					if (val) {
-						Pointer("/parent").Set(object, *val.get(), allocator);
+					std::shared_ptr<uint8_t> parent = device.getParent();
+					if (parent) {
+						Pointer("/parent").Set(object, *parent.get(), allocator);
 					} else {
 						Pointer("/parent").Create(object, allocator);
 					}
@@ -83,18 +83,15 @@ namespace iqrf {
 					Pointer("/osBuild").Set(object, product.getOsBuild(), allocator);
 					Pointer("/osVersion").Set(object, product.getOsVersion(), allocator);
 					Pointer("/dpa").Set(object, product.getDpaVersion(), allocator);
-				}
-				std::shared_ptr<std::string> val = device.getName();
-				if (val) {
-					Pointer("/name").Set(object, *val.get(), allocator);
-				} else {
-					Pointer("/name").Create(object, allocator);
-				}
-				val = device.getLocation();
-				if (val) {
-					Pointer("/location").Set(object, *val.get(), allocator);
-				} else {
-					Pointer("/location").Create(object, allocator);
+					/// metadata
+					std::shared_ptr<std::string> metadata = device.getMetadata();
+					if (metadata) {
+						Document metadataDoc;
+						metadataDoc.Parse(metadata.get()->c_str());
+						Pointer("/metadata").Set(object, metadataDoc, allocator);
+					} else {
+						Pointer("/metadata").Set(object, Value(kNullType), allocator);
+					}
 				}
 
 				/// sensors
@@ -130,16 +127,13 @@ namespace iqrf {
 					Pointer("/sensors").Set(object, sensorArray, allocator);
 				}
 
-				// binout
+				// binouts
 				if (includeBinouts) {
-					if (binouts.find(device.getAddress()) == binouts.end()) {
-						Pointer("/binouts").Create(object, allocator);
-					} else {
-						Value boObject;
-						auto bo = binouts[device.getAddress()];
-						Pointer("/count").Set(boObject, bo, allocator);
-						Pointer("/binouts").Set(object, boObject, allocator);
-					}
+					auto devBinout = binouts.find(device.getAddress());
+					auto count = devBinout == binouts.end() ? 0 : devBinout->second;
+					Value boObject;
+					Pointer("/count").Set(boObject, count, allocator);
+					Pointer("/binouts").Set(object, boObject, allocator);
 				}
 
 				array.PushBack(object, allocator);

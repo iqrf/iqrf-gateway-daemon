@@ -100,22 +100,6 @@ void Device::setProductId(const uint32_t &productId) {
 	this->productId = productId;
 }
 
-std::shared_ptr<std::string> Device::getName() const {
-	return this->name;
-}
-
-void Device::setName(std::shared_ptr<std::string> name) {
-	this->name = std::move(name);
-}
-
-std::shared_ptr<std::string> Device::getLocation() const {
-	return this->location;
-}
-
-void Device::setLocation(std::shared_ptr<std::string> location) {
-	this->location = std::move(location);
-}
-
 std::shared_ptr<std::string> Device::getMetadata() const {
 	return this->metadata;
 }

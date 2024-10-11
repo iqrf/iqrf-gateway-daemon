@@ -40,21 +40,18 @@
 					"title": "Request parameters",
 					"description": "Request parameters.",
 					"type": "object",
-					"required": [
-						"standards"
-					],
 					"additionalProperties": false,
 					"properties": {
 						"standards": {
 							"$id": "#/properties/data/properties/req/properties/standards",
 							"title": "Enumerate standards",
-							"description": "Indicates that standard devices should be enumerated.",
+							"description": "Enumerate IQRF standards.",
 							"type": "boolean"
 						},
 						"reenumerate": {
 							"$id": "#/properties/data/properties/req/properties/reenumerate",
 							"title": "Force re-enumeration",
-							"description": "Indicates that enumeration should be carried out fully even if the network was previously enumerated.",
+							"description": "Re-enumerate all devices. This includes IQRF standards enumeration.",
 							"type": "boolean"
 						}
 					}
