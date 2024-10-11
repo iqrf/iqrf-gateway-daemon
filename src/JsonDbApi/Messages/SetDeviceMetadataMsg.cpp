@@ -41,7 +41,7 @@ namespace iqrf {
 					metadataResponse.insert(std::make_pair(item.first, std::make_tuple(false, "Empty object not stored.")));
 					continue;
 				}
-				dbService->setDeviceMetadata(item.first, item.second);
+				dbService->setDeviceMetadata(item.first, std::make_shared<std::string>(item.second));
 				metadataResponse.insert(std::make_pair(item.first, std::make_tuple(true, std::string())));
 			} catch (const std::logic_error &e) {
 				metadataResponse.insert(std::make_pair(item.first, std::make_tuple(false, e.what())));

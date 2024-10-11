@@ -39,7 +39,21 @@
 					"$id": "#/properties/data/properties/rsp",
 					"title": "Response parameters",
 					"description": "Response parameters.",
-					"type": "object"
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"step": {
+							"$id": "#/properties/data/properties/rsp/properties/step",
+							"title": "Enumeration step code",
+							"type": "integer",
+							"minimum": 0
+						},
+						"stepStr": {
+							"$id": "#/properties/data/properties/rsp/properties/stepStr",
+							"title": "Enumeration step message",
+							"type": "string"
+						}
+					}
 				},
 				"insId": {
 					"$id": "#/properties/data/properties/insId",

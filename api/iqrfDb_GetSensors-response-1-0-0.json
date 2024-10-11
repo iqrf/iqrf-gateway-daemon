@@ -39,7 +39,149 @@
 					"$id": "#/properties/data/properties/rsp",
 					"title": "Response parameters",
 					"description": "Response parameters.",
-					"type": "object"
+					"type": "object",
+					"required": [
+						"sensorDevices"
+					],
+					"additionalProperties": false,
+					"properties": {
+						"sensorDevices": {
+							"$id": "#/properties/data/properties/rsp/properties/sensorDevices",
+							"title": "Sensor devices",
+							"type": "array",
+							"additionalItems": false,
+							"items": {
+								"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items",
+								"title": "Sensor device",
+								"type": "object",
+								"required": [
+									"address",
+									"sensors"
+								],
+								"additionalProperties": false,
+								"properties": {
+									"address": {
+										"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/address",
+										"title": "Device address",
+										"type": "integer",
+										"minimum": 0,
+										"maximum": 239
+									},
+									"sensors": {
+										"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors",
+										"title": "Device sensors",
+										"type": "array",
+										"additionalItems": false,
+										"items": {
+											"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items",
+											"title": "Device sensor",
+											"type": "object",
+											"required": [
+												"index",
+												"type",
+												"name",
+												"shortname",
+												"unit",
+												"decimalPlaces",
+												"frc2Bit",
+												"frc1Byte",
+												"frc2Byte",
+												"frc4Byte",
+												"value",
+												"updated",
+												"metadata"
+											],
+											"additionalProperties": false,
+											"properties": {
+												"index": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/index",
+													"title": "Sensor index",
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 31
+												},
+												"type": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/type",
+													"title": "Sensor type",
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 255
+												},
+												"name": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/name",
+													"title": "Quantity name",
+													"type": "string"
+												},
+												"shortname": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/shortname",
+													"title": "Quantity short name",
+													"type": "string"
+												},
+												"unit": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/unit",
+													"title": "Unit of measurement",
+													"oneOf": [
+														{ "type": "string" },
+														{ "type": "null" }
+													]
+												},
+												"decimalPlaces": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/decimalPlaces",
+													"title": "Decimal places",
+													"type": "integer",
+													"minimum": 0
+												},
+												"frc2Bit": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/frc2Bit",
+													"title": "2-bit FRC implemented",
+													"type": "boolean"
+												},
+												"frc1Byte": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/frc1Byte",
+													"title": "1-byte FRC implemented",
+													"type": "boolean"
+												},
+												"frc2Byte": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/frc2Byte",
+													"title": "2-byte FRC implemented",
+													"type": "boolean"
+												},
+												"frc4Byte": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/frc4Byte",
+													"title": "4-byte FRC implemented",
+													"type": "boolean"
+												},
+												"value": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/value",
+													"title": "Last measured value",
+													"oneOf": [
+														{ "type": "number" },
+														{ "type": "null" }
+													]
+												},
+												"updated": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/updated",
+													"title": "Last measurement timestamp",
+													"oneOf": [
+														{ "type": "string" },
+														{ "type": "null" }
+													]
+												},
+												"metadata": {
+													"$id": "#/properties/data/properties/rsp/properties/sensorDevices/items/properties/sensors/items/properties/metadata",
+													"title": "Additional data",
+													"oneOf": [
+														{ "type": "object" },
+														{ "type": "null" }
+													]
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
 				},
 				"insId": {
 					"$id": "#/properties/data/properties/insId",

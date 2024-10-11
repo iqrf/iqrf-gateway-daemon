@@ -1,0 +1,38 @@
+[
+    {
+        "mType": "iqrfDb_Enumerate",
+        "data": {
+            "msgId": "cad2243f-ee92-4ff8-b983-41ce36a08caf",
+            "rsp": {
+                "step": 0,
+                "stepStr": "Enumeration started, checking current state of the network."
+            },
+            "insId": "iqrfgd2-default",
+            "statusStr": "ok",
+            "status": 0
+        }
+    },
+    {
+        "mType": "iqrfDb_Enumerate",
+        "data": {
+            "msgId": "cad2243f-ee92-4ff8-b983-41ce36a08caf",
+            "rsp": {
+                "step": 8,
+                "stepStr": "Enumeration finished."
+            },
+            "insId": "iqrfgd2-default",
+            "statusStr": "ok",
+            "status": 0
+        }
+    },
+    {
+        "mType": "iqrfDb_Enumerate",
+        "data": {
+            "msgId": "fe35be45-d25b-4a0a-b794-e69fde42fcc2",
+            "rsp": {},
+            "insId": "iqrfgd2-default",
+            "statusStr": "Enumeration is already in progress.",
+            "status": -1
+        }
+    }
+]

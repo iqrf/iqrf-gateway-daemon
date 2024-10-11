@@ -114,6 +114,13 @@ namespace iqrf {
 		void handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document request);
 
 		/**
+		 * Sends enumeration error response
+		 * @param error Enumeration error
+		 * @param request Request message
+		 */
+		void sendEnumerationErrorResponse(const MessagingInstance &messaging, IIqrfDb::EnumerationError::Errors errCode, rapidjson::Document request);
+
+		/**
 		 * Sends enumeration process response
 		 * @param progress Enumeration progress, step and details
 		 */

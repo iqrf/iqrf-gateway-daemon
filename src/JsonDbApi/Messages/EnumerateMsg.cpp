@@ -24,7 +24,10 @@ namespace iqrf {
 		if (v) {
 			parameters.reenumerate = v->GetBool();
 		}
-		parameters.standards = Pointer("/data/req/standards").Get(doc)->GetBool();
+		v = Pointer("/data/req/standards").Get(doc);
+		if (v) {
+			parameters.standards = v->GetBool();
+		}
 	}
 
 	void EnumerateMsg::handleMsg(IIqrfDb *dbService) {
@@ -36,6 +39,17 @@ namespace iqrf {
 		Pointer("/data/rsp/step").Set(doc, stepCode, allocator);
 		Pointer("/data/rsp/stepStr").Set(doc, stepStr, allocator);
 		BaseMsg::createResponsePayload(doc);
+	}
+
+	void EnumerateMsg::createErrorResponsePayload(Document &doc) {
+		Pointer("/mType").Set(doc, getMType());
+		Pointer("/data/msgId").Set(doc, getMsgId());
+		BaseMsg::createResponsePayload(doc);
+		if (getVerbose()) {
+			Pointer("/data/insId").Set(doc, getInsId());
+			Pointer("/data/statusStr").Set(doc, getStatusStr());
+		}
+		Pointer("/data/status").Set(doc, getStatus());
 	}
 
 	void EnumerateMsg::setStepCode(const uint8_t &stepCode) {

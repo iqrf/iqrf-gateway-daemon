@@ -140,6 +140,20 @@ namespace iqrf {
 		std::map<uint8_t, uint8_t> getBinaryOutputs() override;
 
 		/**
+		 * Checks if a device implements BinaryOutput standard
+		 * @param deviceId Device ID
+		 * @return true if device implements BinaryOutput standard, false otherwise
+		 */
+		bool hasBinaryOutputs(const uint32_t &deviceId) override;
+
+		/**
+		 * Returns implemeneted BinaryOutput count by a device
+		 * @param deviceId Device ID
+		 * @return Implemented BinaryOutput count
+		 */
+		uint8_t getBinaryOutputsByDeviceId(const uint32_t &deviceId) override;
+
+		/**
 		 * Returns set of device addresses implementing Light standard
 		 * @return Map of devices implementing Light standard
 		 */
@@ -199,7 +213,7 @@ namespace iqrf {
 		 * @param address Device address
 		 * @return Device metadata
 		 */
-		std::string getDeviceMetadata(const uint8_t &address) override;
+		std::shared_ptr<std::string> getDeviceMetadata(const uint8_t &address) override;
 
 		/**
 		 * Retrieves metadata stored at device specified by address in a rapidjson document
@@ -213,7 +227,7 @@ namespace iqrf {
 		 * @param address Device address
 		 * @param metadata Metadata to store
 		 */
-		void setDeviceMetadata(const uint8_t &address, const std::string &metadata) override;
+		void setDeviceMetadata(const uint8_t &address, std::shared_ptr<std::string> metadata) override;
 
 		/**
 		 * Returns map of hwpids and devices implementing sensor device specified by type and index

@@ -53,9 +53,7 @@
 									"type": "object",
 									"required": [
 										"address",
-										"hwpid",
-										"name",
-										"location"
+										"hwpid"
 									],
 									"additionalProperties": false,
 									"properties": {
@@ -196,18 +194,26 @@
 												}
 											}
 										},
-										"name": {
-											"title": "Name metadata",
-											"oneOf": [
-												{"type": "string"},
-												{"type": "null"}
-											]
+										"binouts": {
+											"title": "Implemented binouts",
+											"description": "Information about implemented binary outputs",
+											"type": "object",
+											"required": [
+												"count"
+											],
+											"additionalProperties": false,
+											"properties": {
+												"count": {
+													"title": "Binout count",
+													"description": "Number of implemented binary outputs"
+												}
+											}
 										},
-										"location": {
-											"title": "Location metadata",
+										"metadata": {
+											"title": "User metadata",
 											"oneOf": [
-												{"type": "string"},
-												{"type": "null"}
+												{ "type": "object" },
+												{ "type": "null" }
 											]
 										}
 									}
