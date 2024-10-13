@@ -1,13 +1,37 @@
-{
-  "mType": "iqmeshNetwork_RemoveBond",
-  "data": {
-    "msgId": "790f158c-c61b-466b-8a19-1de90563e748",
-    "repeat": 2,
-    "req": {
-      "deviceAddr": 1,
-      "hwpId": 65535,
-      "wholeNetwork": false
+[
+    {
+        "mType": "iqmeshNetwork_RemoveBond",
+        "data": {
+            "msgId": "a02b4528-38a3-486b-b554-c120f02676e4",
+            "repeat": 2,
+            "req": {
+                "deviceAddr": 1,
+                "hwpId": 65535
+            },
+            "returnVerbose": true
+        }
     },
-    "returnVerbose": true
-  }
-}
+    {
+        "mType": "iqmeshNetwork_RemoveBond",
+        "data": {
+            "msgId": "49430fd9-a93b-413f-a0bb-7f3239453a2d",
+            "repeat": 2,
+            "req": {
+                "allNodes": true
+            },
+            "returnVerbose": true
+        }
+    },
+    {
+        "mType": "iqmeshNetwork_RemoveBond",
+        "data": {
+            "msgId": "0c20ed16-2634-4221-97e6-e105993eab25",
+            "repeat": 2,
+            "req": {
+                "deviceAddr": 1,
+                "coordinatorOnly": true
+            },
+            "returnVerbose": true
+        }
+    }
+]
