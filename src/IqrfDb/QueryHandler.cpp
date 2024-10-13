@@ -80,62 +80,21 @@ uint32_t QueryHandler::getDeviceMid(const uint8_t &address) {
 	return mid[0];
 }
 
-std::string QueryHandler::getDeviceMetadata(const uint8_t &address) {
+std::shared_ptr<std::string> QueryHandler::getDeviceMetadata(const uint8_t &address) {
 	auto device = db->get_all<Device>(where(c(&Device::getAddress) == address));
 	if (device.size() == 0) {
 		throw std::logic_error("Device at address " + std::to_string(address) + " does not exist.");
 	}
-	json j = {
-		{"name", nullptr},
-		{"location", nullptr},
-		{"other", nullptr},
-	};
-	std::shared_ptr<std::string> val = device[0].getName();
-	if (val != nullptr) {
-		j["name"] = *val;
-	}
-	val = device[0].getLocation();
-	if (val != nullptr) {
-		j["location"] = *val;
-	}
-	val = device[0].getMetadata();
-	if (val != nullptr) {
-		j["other"] = *val;
-	}
-	return j.dump();
+	return device[0].getMetadata();
 }
 
-void QueryHandler::setDeviceMetadata(const uint8_t &address, const std::string &metadata) {
+void QueryHandler::setDeviceMetadata(const uint8_t &address, std::shared_ptr<std::string> metadata) {
 	auto device = db->get_all<Device>(where(c(&Device::getAddress) == address));
 	if (device.size() == 0) {
 		throw std::logic_error("Device at address " + std::to_string(address) + " does not exist.");
 	}
 	Device d = device[0];
-	json j = json::parse(metadata);
-	if (j.find("name") != j.end()) {
-		if (j["name"].is_null()) {
-			d.setName(nullptr);
-		} else {
-			std::string name = j["name"].get<std::string>();
-			d.setName(std::make_shared<std::string>(name));
-		}
-	}
-	if (j.find("location") != j.end()) {
-		if (j["location"].is_null()) {
-			d.setLocation(nullptr);
-		} else {
-			std::string location = j["location"].get<std::string>();
-			d.setLocation(std::make_shared<std::string>(location));
-		}
-	}
-	if (j.find("other") != j.end()) {
-		if (j["other"].is_null() || j["other"].empty()) {
-			d.setMetadata(nullptr);
-		} else {
-			std::string other = j["other"].dump();
-			d.setMetadata(std::make_shared<std::string>(other));
-		}
-	}
+	d.setMetadata(metadata);
 	db->update(d);
 }
 
@@ -262,7 +221,7 @@ std::vector<Driver> QueryHandler::getNewestDrivers() {
 
 ///// BinaryOutput /////
 
-bool QueryHandler::boExists(const uint32_t &deviceId) {
+bool QueryHandler::hasBinaryOutputs(const uint32_t &deviceId) {
 	auto count = db->count<BinaryOutput>(where(c(&BinaryOutput::getDeviceId) == deviceId));
 	return count > 0;
 }
@@ -282,6 +241,14 @@ std::map<uint8_t, uint8_t> QueryHandler::getBinaryOutputs() {
 		bos.insert(std::make_pair(std::get<0>(row), std::get<1>(row)));
 	}
 	return bos;
+}
+
+uint8_t QueryHandler::getBinaryOutputsByDeviceId(const uint32_t &deviceId) {
+	auto rows = db->select(&BinaryOutput::getCount,
+		inner_join<BinaryOutput>(on(c(&BinaryOutput::getDeviceId) == &Device::getId)),
+		where(c(&BinaryOutput::getDeviceId) == deviceId)
+	);
+	return rows.size() > 0 ? rows[0] : 0;
 }
 
 void QueryHandler::removeBinaryOutputs(const uint32_t &deviceId) {

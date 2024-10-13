@@ -1,0 +1,47 @@
+[
+    {
+        "mType": "iqrfDb_GetDevice",
+        "data": {
+            "msgId": "8a62b6be-a6a7-4598-a897-3783b276bd66",
+            "req": {
+                "address": 0
+            },
+            "returnVerbose": true
+        }
+    },
+    {
+        "mType": "iqrfDb_GetDevice",
+        "data": {
+            "msgId": "53756b0e-fada-4fd4-959e-ed01b5c94ee1",
+            "req": {
+                "address": 0,
+                "brief": true
+            },
+            "returnVerbose": true
+        }
+    },
+    {
+        "mType": "iqrfDb_GetDevice",
+        "data": {
+            "msgId": "b6dcdafa-d845-43c9-a9f6-0465a6e1e3b2",
+            "req": {
+                "address": 1,
+                "sensors": true
+            },
+            "returnVerbose": true
+        }
+    },
+    {
+        "mType": "iqrfDb_GetDevice",
+        "data": {
+            "msgId": "2938fc1c-8aea-4640-a2d1-518d7004c22b",
+            "req": {
+                "address": 1,
+                "brief": true,
+                "sensors": true,
+                "binouts": true
+            },
+            "returnVerbose": true
+        }
+    }
+]

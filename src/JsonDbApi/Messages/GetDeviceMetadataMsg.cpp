@@ -29,10 +29,10 @@ namespace iqrf {
 	void GetDeviceMetadataMsg::handleMsg(IIqrfDb *dbService) {
 		for (auto &item : requestedDevices) {
 			try {
-				std::string metadata = dbService->getDeviceMetadata(item);
+				auto metadata = dbService->getDeviceMetadata(item);
 				deviceMetadata.insert(std::make_pair(item, std::make_tuple(true, metadata)));
 			} catch (const std::logic_error &e) {
-				deviceMetadata.insert(std::make_pair(item, std::make_tuple(false, e.what())));
+				deviceMetadata.insert(std::make_pair(item, std::make_tuple(false, std::make_shared<std::string>(e.what()))));
 			}
 		}
 	}
@@ -45,14 +45,18 @@ namespace iqrf {
 			for (auto item : deviceMetadata) {
 				Value deviceObject;
 				bool status = std::get<0>(item.second);
-				std::string str = std::get<1>(item.second);
+				
 				Pointer("/address").Set(deviceObject, item.first, allocator);
 				Pointer("/success").Set(deviceObject, status, allocator);
 				if (status) {
 					Document metadataDoc;
-					metadataDoc.Parse(str.c_str());
-					Pointer("/metadata").Set(deviceObject, Value(metadataDoc, allocator).Move(), allocator);
+					auto str = std::get<1>(item.second);
+					if (str) {
+						metadataDoc.Parse(str.get()->c_str());
+					}
+					Pointer("/metadata").Set(deviceObject, metadataDoc, allocator);
 				} else {
+					auto str = std::get<1>(item.second)->c_str();
 					Pointer("/errorStr").Set(deviceObject, str, allocator);
 				}
 				array.PushBack(deviceObject, allocator);

@@ -90,14 +90,14 @@ public:
 	 * @param address Device address
 	 * @return Device metadata string
 	 */
-	std::string getDeviceMetadata(const uint8_t &address);
+	std::shared_ptr<std::string> getDeviceMetadata(const uint8_t &address);
 
 	/**
 	 * Sets metadata to device at specified address
 	 * @param address Device address
 	 * @param metadata Metadata string
 	 */
-	void setDeviceMetadata(const uint8_t &address, const std::string &metadata);
+	void setDeviceMetadata(const uint8_t &address, std::shared_ptr<std::string> metadata);
 
 	/**
 	 * Return map of device addresses and product IDs
@@ -170,7 +170,7 @@ public:
 	 * @param deviceId Device ID
 	 * @return true if device implements BinaryOutput standard, false otherwise
 	 */
-	bool boExists(const uint32_t &deviceId);
+	bool hasBinaryOutputs(const uint32_t &deviceId);
 
 	/**
 	 * Returns ID of BinaryOutput record
@@ -184,6 +184,13 @@ public:
 	 * @return Map of device addresses and implemented binary outputs
 	 */
 	std::map<uint8_t, uint8_t> getBinaryOutputs();
+
+	/**
+	 * Returns implemeneted BinaryOutput count by a device
+	 * @param deviceId Device ID
+	 * @return Implemented BinaryOutput count
+	 */
+	uint8_t getBinaryOutputsByDeviceId(const uint32_t &deviceId);
 
 	/**
 	 * Remove all BinaryOutput records implemented by device ID

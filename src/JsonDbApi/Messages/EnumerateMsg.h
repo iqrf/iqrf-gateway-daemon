@@ -54,6 +54,12 @@ namespace iqrf {
 		void createResponsePayload(Document &doc) override;
 
 		/**
+		 * Populates response document with enumeration error
+		 * @param doc Response document
+		 */
+		void createErrorResponsePayload(Document &doc);
+
+		/**
 		 * Sets enumeration step code
 		 * @param stepCode Step code
 		 */

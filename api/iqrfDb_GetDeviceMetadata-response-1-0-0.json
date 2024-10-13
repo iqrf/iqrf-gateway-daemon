@@ -79,54 +79,10 @@
 										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/metadata",
 										"title": "Device metadata",
 										"description": "Device metadata object",
-										"type": "object",
-										"required": [
-											"name",
-											"location",
-											"other"
-										],
-										"additionalProperties": false,
-										"properties": {
-											"name": {
-												"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/metadata/properties/name",
-												"title": "Device name",
-												"description": "User-specified device name.",
-												"oneOf": [
-													{
-														"type": "string"
-													},
-													{
-														"type": "null"
-													}
-												]
-											},
-											"location": {
-												"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/metadata/properties/location",
-												"title": "Device location",
-												"description": "User-specified device location.",
-												"oneOf": [
-													{
-														"type": "string"
-													},
-													{
-														"type": "null"
-													}
-												]
-											},
-											"other": {
-												"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/metadata/properties/other",
-												"title": "Other metadata",
-												"description": "Other, user-specified device metadata",
-												"oneOf": [
-													{
-														"type": "object"
-													},
-													{
-														"type": "null"
-													}
-												]
-											}
-										}
+										"oneOf": [
+											{ "type": "object" },
+											{ "type": "null" }
+										]
 									},
 									"errorStr": {
 										"$id": "#/properties/data/properties/rsp/properties/devices/items/properties/errorStr",

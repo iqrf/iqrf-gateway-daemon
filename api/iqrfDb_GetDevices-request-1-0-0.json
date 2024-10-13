@@ -46,7 +46,8 @@
 							"$id": "#/properties/data/properties/req/properties/brief",
 							"title": "Brief information",
 							"description": "Brief information about a device.",
-							"type": "boolean"
+							"type": "boolean",
+							"default": false
 						},
 						"addresses": {
 							"$id": "#/properties/data/properties/req/properties/addresses",

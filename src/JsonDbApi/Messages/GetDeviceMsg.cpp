@@ -25,6 +25,14 @@ namespace iqrf {
 		if (v) {
 			brief = v->GetBool();
 		}
+		v = Pointer("/data/req/sensors").Get(doc);
+		if (v) {
+			includeSensors = v->GetBool();
+		}
+		v = Pointer("/data/req/binouts").Get(doc);
+		if (v) {
+			includeBinouts = v->GetBool();
+		}
 	}
 
 	void GetDeviceMsg::handleMsg(IIqrfDb *dbService) {
@@ -32,6 +40,9 @@ namespace iqrf {
 		product = dbService->getProductById(device.getProductId());
 		if (dbService->hasSensors(device.getAddress())) {
 			sensors = dbService->getDeviceSensorsByAddress(device.getAddress());
+		}
+		if (dbService->hasBinaryOutputs(device.getId())) {
+			binouts = dbService->getBinaryOutputsByDeviceId(device.getId());
 		}
 	}
 
@@ -52,9 +63,9 @@ namespace iqrf {
 				Pointer("/discovered").Set(object, device.isDiscovered(), allocator);
 				Pointer("/vrn").Set(object, device.getVrn(), allocator);
 				Pointer("/zone").Set(object, device.getZone(), allocator);
-				std::shared_ptr<uint8_t> val = device.getParent();
-				if (val) {
-					Pointer("/parent").Set(object, *val.get(), allocator);
+				std::shared_ptr<uint8_t> parent = device.getParent();
+				if (parent) {
+					Pointer("/parent").Set(object, *parent.get(), allocator);
 				} else {
 					Pointer("/parent").Create(object, allocator);
 				}
@@ -63,7 +74,18 @@ namespace iqrf {
 				Pointer("/osBuild").Set(object, product.getOsBuild(), allocator);
 				Pointer("/osVersion").Set(object, product.getOsVersion(), allocator);
 				Pointer("/dpa").Set(object, product.getDpaVersion(), allocator);
+				/// metadata
+				std::shared_ptr<std::string> metadata = device.getMetadata();
+				if (metadata) {
+					Document metadataDoc;
+					metadataDoc.Parse(metadata.get()->c_str());
+					Pointer("/metadata").Set(object, metadataDoc, allocator);
+				} else {
+					Pointer("/metadata").Set(object, Value(kNullType), allocator);
+				}
+			}
 
+			if (includeSensors) {
 				/// sensors
 				Value sensorArray(kArrayType);
 				for (auto &[index, sensor] : sensors) {
@@ -92,17 +114,12 @@ namespace iqrf {
 				}
 				Pointer("/sensors").Set(object, sensorArray, allocator);
 			}
-			std::shared_ptr<std::string> val = device.getName();
-			if (val) {
-				Pointer("/name").Set(object, *val.get(), allocator);
-			} else {
-				Pointer("/name").Create(object, allocator);
-			}
-			val = device.getLocation();
-			if (val) {
-				Pointer("/location").Set(object, *val.get(), allocator);
-			} else {
-				Pointer("/location").Create(object, allocator);
+
+			// binouts
+			if (includeBinouts) {
+				Value boObject;
+				Pointer("/count").Set(boObject, binouts, allocator);
+				Pointer("/binouts").Set(object, boObject, allocator);
 			}
 
 			Pointer("/data/rsp/device").Set(doc, object, allocator);

@@ -1,0 +1,63 @@
+{
+    "mType": "iqrfDb_GetSensors",
+    "data": {
+        "msgId": "926714a4-49e0-4615-98e7-f44f311a54f7",
+        "rsp": {
+            "sensorDevices": [
+                {
+                    "address": 2,
+                    "sensors": [
+                        {
+                            "index": 0,
+                            "type": 1,
+                            "name": "Temperature",
+                            "shortname": "T",
+                            "unit": "°C",
+                            "decimalPlaces": 4,
+                            "frc2Bit": false,
+                            "frc1Byte": true,
+                            "frc2Byte": true,
+                            "frc4Byte": false,
+                            "value": 26.5625,
+                            "updated": "Fri, 11 Oct 24 11:10:28 GMT",
+                            "metadata": null
+                        },
+                        {
+                            "index": 1,
+                            "type": 128,
+                            "name": "Relative humidity",
+                            "shortname": "RH",
+                            "unit": "%",
+                            "decimalPlaces": 1,
+                            "frc2Bit": false,
+                            "frc1Byte": true,
+                            "frc2Byte": false,
+                            "frc4Byte": false,
+                            "value": 60.5,
+                            "updated": "Fri, 11 Oct 24 11:10:28 GMT",
+                            "metadata": null
+                        },
+                        {
+                            "index": 2,
+                            "type": 4,
+                            "name": "Extra-low voltage",
+                            "shortname": "U",
+                            "unit": "V",
+                            "decimalPlaces": 3,
+                            "frc2Bit": false,
+                            "frc1Byte": false,
+                            "frc2Byte": true,
+                            "frc4Byte": false,
+                            "value": 3.146,
+                            "updated": "Fri, 11 Oct 24 11:10:28 GMT",
+                            "metadata": null
+                        }
+                    ]
+                }
+            ]
+        },
+        "insId": "iqrfgd2-default",
+        "statusStr": "ok",
+        "status": 0
+    }
+}
