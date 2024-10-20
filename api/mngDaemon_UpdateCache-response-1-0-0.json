@@ -1,12 +1,7 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "mngDaemon_UpdateCache-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
-  "title": "Daemon Management - Update Cache",
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Daemon Management - Update cache response",
+  "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
     "mType",
@@ -15,34 +10,27 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "$id": "#/properties/mType",
-      "title": "Message type",
-      "description": "Daemon management - Update Cache response.",
-      "type": "string",
-      "enum": [
-        "mngDaemon_UpdateCache"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "mngDaemon_UpdateCache" }
       ]
     },
     "data": {
-      "$id": "#/properties/data",
       "title": "Message data",
-      "description": "Message metadata and body.",
+      "description": "Message metadata and body",
       "type": "object",
       "required": [
-        "msgId"
+        "msgId",
+        "status"
       ],
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$id": "#/properties/data/properties/msgId",
-          "title": "Message ID",
-          "description": "Message ID used for pairing requests and responses.",
-          "type": "string"
+          "$ref": "definitions.json#/general/msgId"
         },
         "rsp": {
-          "$id": "#/properties/data/properties/rsp",
-          "title": "Response data",
-          "description": "Response data.",
+          "title": "Response",
+          "description": "Holds response data",
           "type": "object",
           "required": [
             "updated",
@@ -51,13 +39,11 @@
           "additionalProperties": false,
           "properties": {
             "updated": {
-              "$id": "#/properties/data/properties/rsp/properties/updated",
               "title": "Cache updated",
               "description": "Cache update status: true = updated, false = up to date.",
               "type": "boolean"
             },
             "status": {
-              "$id": "#/properties/data/properties/rsp/properties/status",
               "title": "Update status string",
               "description": "Cache update status string.",
               "type": "string"
@@ -65,28 +51,16 @@
           }
         },
         "insId": {
-          "$id": "#/properties/data/properties/insId",
-          "title": "Instance ID",
-          "description": "Daemon insteance ID.",
-          "type": "string"
+          "$ref": "definitions.json#/general/response/insId"
         },
         "status": {
-          "$id": "#/properties/data/properties/status",
-          "title": "Status code",
-          "description": "Status code.",
-          "type": "integer"
+          "$ref": "definitions.json#/general/response/status"
         },
         "statusStr": {
-          "$id": "#/properties/data/properties/statusStr",
-          "title": "Status string",
-          "description": "Verbose status string",
-          "type": "string"
+          "$ref": "definitions.json#/general/response/statusStr"
         },
         "errorStr": {
-          "$id": "#/properties/data/properties/errorStr",
-          "title": "Error string",
-          "description": "Error message string.",
-          "type": "string"
+          "$ref": "definitions.json#/general/response/errorStr"
         }
       }
     }
