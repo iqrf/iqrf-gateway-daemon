@@ -1,7 +1,7 @@
 {
   "mType": "mngDaemon_Mode",
   "data": {
-    "msgId": "testMngMode",
+    "msgId": "bd7e0ad9-3da9-4300-8124-63457f22b727",
     "rsp": {
       "operMode": "service"
     },
