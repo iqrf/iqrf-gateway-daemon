@@ -91,7 +91,7 @@
                             "$ref": "definitions.json#/general/nAdr"
                           },
                           "hwpid": {
-                            "$ref": "definitions.json#/interoperability/frc/hwpid"
+                            "$ref": "definitions.json#/general/response/hwpId"
                           },
                           "mid": {
                             "oneOf": [
