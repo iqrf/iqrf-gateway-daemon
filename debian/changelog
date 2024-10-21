@@ -1,3 +1,16 @@
+iqrf-gateway-daemon (2.6.0~rc1) testing; urgency=medium
+
+  * fixed iqmesh service responses not being sent if validation failed
+  * iqmeshNetwork_RemoveBond: fixed network node count property in response api schema
+  * added pnum and pcmd resolution in case request drivers are not available
+  * removed old iqrfLight api schemas, examples and wrapper functions
+  * removed old iqrfInfo dali schemas and examples, updated light schemas and examples, fixed metadata in schemas
+  * debian package: changed cache content and schemas install dirs
+  * debian package: install serverCheck file to cache dir
+  * Autonetwork: reset exclusive access in case of unexpected failure
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Mon, 21 Oct 2024 12:02:39 +0200
+
 iqrf-gateway-daemon (2.6.0~beta2) stable; urgency=medium
 
   [ Karel Hanák ]
