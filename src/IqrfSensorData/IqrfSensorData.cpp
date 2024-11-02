@@ -145,7 +145,7 @@ namespace iqrf {
 		}
 	}
 
-	std::vector<iqrf::sensor::item::Sensor> IqrfSensorData::sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes) {
+	std::vector<iqrf::sensor::item::Sensor> IqrfSensorData::sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes, bool resolveMissing) {
 		uint8_t command = getSensorFrcCommand(type);
 		std::unique_ptr<IDpaTransactionResult2> transResult;
 		std::vector<iqrf::sensor::item::Sensor> sensorData;
@@ -167,8 +167,35 @@ namespace iqrf {
 			} else {
 				sensorFrc.processResponseDrv();
 			}
+			std::set<uint8_t> handled, diff;
 			for (auto &sensor : sensorFrc.getSensors()) {
+				handled.insert(sensor->getAddr());
 				sensorData.push_back(*sensor.get());
+			}
+			if (resolveMissing) {
+				std::set_difference(nodes.begin(), nodes.end(), handled.begin(), handled.end(), std::inserter(diff, diff.begin()));
+				if (diff.size() > 0) {
+					auto cacheQuantity = m_cacheService->getQuantity(type);
+					if (!cacheQuantity) {
+						TRC_WARNING("Quantity for sensor type " << std::to_string(type) << " not found, sensor data breakdown from some devices may be missing.");
+					} else {
+						std::vector<int> frcs(cacheQuantity->m_frcs.begin(), cacheQuantity->m_frcs.end());
+						for (auto &addr : diff) {
+							auto fakeSensor = sensor::jsdriver::item::Sensor(
+								addr,
+								idx,
+								cacheQuantity->m_id,
+								type,
+								cacheQuantity->m_name,
+								cacheQuantity->m_shortName,
+								cacheQuantity->m_unit,
+								cacheQuantity->m_precision,
+								frcs
+							);
+							sensorData.push_back(fakeSensor);
+						}
+					}
+				}
 			}
 		} catch (const std::exception &e) {
 			setErrorTransactionResult(result, transResult, e.what());
@@ -269,7 +296,7 @@ namespace iqrf {
 		for (auto vector : nodeVectors) {
 			try {
 				setOfflineFrc(result);
-				auto rssiData = sendSensorFrc(result, 133, 0, nodes);
+				auto rssiData = sendSensorFrc(result, 133, 0, nodes, false);
 				for (auto item : rssiData) {
 					result.setDeviceRssi(item.getAddr(), item.getValue() + 130);
 				}
@@ -717,6 +744,16 @@ namespace iqrf {
 	void IqrfSensorData::detachInterface(IIqrfDpaService *iface) {
 		if (m_dpaService == iface) {
 			m_dpaService = nullptr;
+		}
+	}
+
+	void IqrfSensorData::attachInterface(IJsCacheService *iface) {
+		m_cacheService = iface;
+	}
+
+	void IqrfSensorData::detachInterface(IJsCacheService *iface) {
+		if (m_cacheService == iface) {
+			m_cacheService = nullptr;
 		}
 	}
 
