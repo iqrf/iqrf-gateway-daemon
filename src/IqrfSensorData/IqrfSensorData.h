@@ -27,6 +27,7 @@
 #include "ShapeProperties.h"
 #include "ITraceService.h"
 
+#include <algorithm>
 #include <chrono>
 #include <condition_variable>
 #include <deque>
@@ -34,6 +35,7 @@
 #include <stdexcept>
 #include <thread>
 
+#define FRC_CMD_2BITS 0x10
 #define FRC_CMD_1BYTE 0x90
 #define FRC_CMD_2BYTE 0xE0
 #define FRC_CMD_4BYTE 0xF9
@@ -135,6 +137,18 @@ namespace iqrf {
 		void detachInterface(iqrf::IIqrfDpaService *iface);
 
 		/**
+		 * Attaches JS cache service interface
+		 * @param iface JS cache service interface
+		 */
+		void attachInterface(IJsCacheService *iface);
+
+		/**
+		 * Detaches JS cache service interface
+		 * @param iface JS cache service interface
+		 */
+		void detachInterface(IJsCacheService *iface);
+
+		/**
 		 * Attaches JS render service interface
 		 * @param iface JS render service interface
 		 */
@@ -220,7 +234,7 @@ namespace iqrf {
 		 * @param idx Sensor index
 		 * @param nodes Devices to read data from
 		 */
-		std::vector<iqrf::sensor::item::Sensor> sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes);
+		std::vector<iqrf::sensor::item::Sensor> sendSensorFrc(SensorDataResult &result, const uint8_t &type, const uint8_t &idx, std::set<uint8_t> &nodes, bool resolveMissing = true);
 
 		std::vector<uint8_t> frcReadMemory(SensorDataResult &result, std::set<uint8_t> &nodes, const std::vector<uint8_t> &userData);
 
@@ -325,6 +339,8 @@ namespace iqrf {
 		IIqrfDb *m_dbService = nullptr;
 		/// DPA service
 		IIqrfDpaService *m_dpaService = nullptr;
+		/// JS cache service
+		IJsCacheService *m_cacheService = nullptr;
 		/// JS render service
 		IJsRenderService *m_jsRenderService = nullptr;
 		/// Splitter service
