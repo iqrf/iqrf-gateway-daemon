@@ -329,6 +329,8 @@ namespace iqrf {
 				continue;
 			}
 
+			auto nextReadingTime = std::chrono::steady_clock::now() + std::chrono::minutes(m_period);
+
 			try {
 				executeCallbacks(true);
 				SensorDataResult result;
@@ -356,9 +358,14 @@ namespace iqrf {
 
 			executeCallbacks(false);
 
-			std::unique_lock<std::mutex> lock(m_mtx);
-			TRC_DEBUG("Sensor data worker thread sleeping for: " + std::to_string(m_period) + " minutes.");
-			m_cv.wait_for(lock, std::chrono::minutes(m_period));
+			auto nowTime = std::chrono::steady_clock::now();
+			auto waitTimeSec = std::chrono::duration_cast<std::chrono::seconds>(nextReadingTime - nowTime).count();
+
+			if (waitTimeSec > 0) {
+				std::unique_lock<std::mutex> lock(m_mtx);
+				TRC_DEBUG("Sensor data worker thread sleeping for: " + std::to_string(waitTimeSec) + " seconds.");
+				m_cv.wait_for(lock, std::chrono::seconds(waitTimeSec));
+			}
 		}
 
 		TRC_FUNCTION_LEAVE("");
