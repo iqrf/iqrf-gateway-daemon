@@ -1,3 +1,12 @@
+iqrf-gateway-daemon (2.6.0) stable; urgency=medium
+
+  [ Roman Ondráček ]
+  * Update cpr, date and valijson to the latest versions
+  * CMake: use system curl libraries for cpr
+  * Revert "CMake: use system curl libraries for cpr"
+
+ -- Karel Hanák <karel.hanak@iqrf.org>  Tue, 05 Nov 2024 06:13:32 -0500
+
 iqrf-gateway-daemon (2.6.0~rc1) testing; urgency=medium
 
   * fixed iqmesh service responses not being sent if validation failed
