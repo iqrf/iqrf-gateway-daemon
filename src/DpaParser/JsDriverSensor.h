@@ -81,6 +81,18 @@ namespace iqrf
             }
           }
 
+          Sensor(const int &addr, const uint8_t &idx, const std::string &id, const int &type, const std::string &name, const std::string &shortname, const std::string &unit, const int &decplaces, const std::vector<int> &frcs) {
+            m_addr = addr;
+            m_idx = idx;
+            m_sid = id;
+            m_type = type;
+            m_name = name;
+            m_shortName = shortname;
+            m_unit = unit;
+            m_decimalPlaces = decplaces;
+            m_frcs = std::set<int>(frcs.begin(), frcs.end());
+          }
+
           virtual ~Sensor() {}
         };
         typedef std::unique_ptr<Sensor> SensorPtr;
