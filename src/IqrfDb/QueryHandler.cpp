@@ -294,6 +294,14 @@ std::map<uint8_t, Sensor> QueryHandler::getDeviceSensorsByAddress(const uint8_t 
 	return sensors;
 }
 
+std::map<uint8_t, uint32_t> QueryHandler::getDeviceSensorIndexIdMap(const uint8_t &deviceAddress) {
+	std::map<uint8_t, uint32_t> map;
+	for (auto ds : db->iterate<DeviceSensor>()) {
+		map.insert_or_assign(ds.getGlobalIndex(), ds.getSensorId());
+	}
+	return map;
+}
+
 bool QueryHandler::sensorTypeExists(const uint8_t &type, const std::string &name) {
 	auto count = db->count<Sensor>(where(c(&Sensor::getType) == type and c(&Sensor::getName) == name));
 	return count > 0;
@@ -378,6 +386,14 @@ void QueryHandler::removeSensors(const uint8_t &address) {
 	db->remove_all<DeviceSensor>(where(c(&DeviceSensor::getAddress) == address));
 }
 
+void QueryHandler::removeDeviceSensor(const uint8_t &address, const uint8_t &index) {
+	db->remove_all<DeviceSensor>(where(c(&DeviceSensor::getAddress) == address) and c(&DeviceSensor::getGlobalIndex) == index);
+}
+
+void QueryHandler::removeDeviceSensors(const uint8_t &address, const std::vector<uint8_t> &indexes) {
+	db->remove_all<DeviceSensor>(where(c(&DeviceSensor::getAddress) == address and in(&DeviceSensor::getGlobalIndex, indexes)));
+}
+
 void QueryHandler::setSensorValue(const uint8_t &address, const uint8_t &type, const uint8_t &index, const double &value, std::shared_ptr<std::string> updated, bool frc) {
 	DeviceSensor ds;
 	if (frc) {
@@ -439,6 +455,14 @@ DeviceSensor QueryHandler::getSensorByTypeIndex(const uint8_t &address, const ui
 			+ " does not implement sensor of type " + std::to_string(type)
 			+ " at index " + std::to_string(index)
 		);
+	}
+	return deviceSensors[0];
+}
+
+DeviceSensor QueryHandler::getDeviceSensorByIndex(const uint8_t &address, const uint8_t &index) {
+	auto deviceSensors = db->get_all<DeviceSensor>(where(c(&DeviceSensor::getAddress) == address and c(&DeviceSensor::getGlobalIndex) == index));
+	if (deviceSensors.size() == 0) {
+		throw std::logic_error("Device at address " + std::to_string(address) + " does not implement at index " + std::to_string(index));
 	}
 	return deviceSensors[0];
 }

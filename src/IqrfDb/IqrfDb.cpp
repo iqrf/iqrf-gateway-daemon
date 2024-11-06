@@ -145,6 +145,10 @@ namespace iqrf {
 		return this->query.getDeviceSensorsByAddress(deviceAddress);
 	}
 
+	std::map<uint8_t, uint32_t> IqrfDb::getDeviceSensorIndexIdMap(const uint8_t &deviceAddress) {
+		return this->query.getDeviceSensorIndexIdMap(deviceAddress);
+	}
+
 	std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> IqrfDb::getSensors() {
 		return this->query.getSensors();
 	}
@@ -1504,6 +1508,7 @@ namespace iqrf {
 		m_dpaService->executeDpaTransactionRepeat(sensorEnum.getRequest(), result, 1);
 		sensorEnum.processDpaTransactionResult(std::move(result));
 
+		auto oldSensors = this->query.getDeviceSensorIndexIdMap(address);
 		auto &sensors = sensorEnum.getSensors();
 
 		uint8_t cnt[255] = {0};
@@ -1534,11 +1539,23 @@ namespace iqrf {
 
 			// store device and sensor
 			const uint8_t index = item->getIdx();
-			exists = this->query.deviceSensorExists(address, sensorId, index);
-			if (!exists) {
+
+			auto candidate = oldSensors.find(index);
+			if (candidate == oldSensors.end() || (candidate != oldSensors.end() && candidate->second != sensorId)) {
+				this->query.removeDeviceSensor(address, index);
 				m_db->replace(DeviceSensor(address, type, index, cnt[type], sensorId, nullptr));
 				cnt[type] += 1;
 			}
+			oldSensors.erase(index);
+		}
+
+		if (oldSensors.size() > 0) {
+			std::vector<uint8_t> indexesToDelete;
+			indexesToDelete.reserve(oldSensors.size());
+			for (const auto &[key, value] : oldSensors) {
+				indexesToDelete.push_back(key);
+			}
+			this->query.removeDeviceSensors(address, indexesToDelete);
 		}
 		TRC_FUNCTION_LEAVE("");
 	}
