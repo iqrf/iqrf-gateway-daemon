@@ -229,9 +229,26 @@ namespace iqrf {
 		 */
 		virtual std::set<uint8_t> getLights() = 0;
 
+		/**
+		 * Checks if device implements sensors
+		 * @param deviceAddress Device address
+		 * @return true if device implements sensors, false otherwise
+		 */
 		virtual bool hasSensors(const uint8_t &deviceAddress) = 0;
 
+		/**
+		 * Returns map of device sensor indexes and sensor entities
+		 * @param deviceAddress Device address
+		 * @return Map of device sensor indexes and sensor entities
+		 */
 		virtual std::map<uint8_t, Sensor> getDeviceSensorsByAddress(const uint8_t &deviceAddress) = 0;
+
+		/**
+		 * Returns map of device sensor indexes and sensor IDs
+		 * @param deviceAddress Device address
+		 * @return Map of device sensor indexes and sensor IDs
+		 */
+		virtual std::map<uint8_t, uint32_t> getDeviceSensorIndexIdMap(const uint8_t &deviceAddress) = 0;
 
 		/**
 		 * Retrieves information about devices implementing Sensor standard
