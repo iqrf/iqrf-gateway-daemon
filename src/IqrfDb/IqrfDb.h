@@ -161,7 +161,17 @@ namespace iqrf {
 
 		bool hasSensors(const uint8_t &deviceAddress) override;
 
+		/**
+		 * Returns map of device sensor indexes and Sensor entities
+		 * @param deviceAddress Device address
+		 */
 		std::map<uint8_t, Sensor> getDeviceSensorsByAddress(const uint8_t &deviceAddress) override;
+
+		/**
+		 * Returns map of device sensor indexes and sensor IDs
+		 * @param deviceAddress Device address
+		 */
+		std::map<uint8_t, uint32_t> getDeviceSensorIndexIdMap(const uint8_t &deviceAddress) override;
 
 		/**
 		 * Returns map of device addresses and implemented sensors

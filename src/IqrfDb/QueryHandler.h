@@ -224,7 +224,19 @@ public:
 	 */
 	bool hasSensors(const uint8_t &deviceAddress);
 
+	/**
+	 * Returns map of device sensor indexes and sensor entities
+	 * @param deviceAddress Device address
+	 * @return Map of device sensor indexes and sensor entities
+	 */
 	std::map<uint8_t, Sensor> getDeviceSensorsByAddress(const uint8_t &deviceAddress);
+
+	/**
+	 * Returns map of device sensor indexes and sensor IDs
+	 * @param deviceAddress Device address
+	 * @return Map of device sensor indexes and sensor IDs
+	 */
+	std::map<uint8_t, uint32_t> getDeviceSensorIndexIdMap(const uint8_t &deviceAddress);
 
 	/**
 	 * Checks if a sensor type exists in database
@@ -279,6 +291,20 @@ public:
 	void removeSensors(const uint8_t &address);
 
 	/**
+	 * Remove device sensor record by device address and sensor index
+	 * @param address Device address
+	 * @param index Sensor index
+	 */
+	void removeDeviceSensor(const uint8_t &address, const uint8_t &index);
+
+	/**
+	 * Remove device sensor records by device address and sensor indexes
+	 * @param address Device address
+	 * @param indexes Sensor indexes
+	 */
+	void removeDeviceSensors(const uint8_t &address, const std::vector<uint8_t> &indexes);
+
+	/**
 	 * Stores value of sensor
 	 * @param address Device address
 	 * @param type Sensor type
@@ -305,9 +331,17 @@ public:
 	 * @param address Device address
 	 * @param type Sensor type
 	 * @param index Sensor index
-	 * @return Sensor device object
+	 * @return Sensor device entity
 	 */
 	DeviceSensor getSensorByTypeIndex(const uint8_t &address, const uint8_t &type, const uint8_t &index);
+
+	/**
+	 * Returns device sensor entity if it exists
+	 * @param address Device address
+	 * @param index Sensor index
+	 * @return Sensor device entity
+	 */
+	DeviceSensor getDeviceSensorByIndex(const uint8_t &address, const uint8_t &index);
 
 	/**
 	 * Finds and returns all sensors of a type implemented by a device
