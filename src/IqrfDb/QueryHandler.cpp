@@ -27,9 +27,9 @@ std::vector<DeviceProductTuple> QueryHandler::getDevices(std::vector<uint8_t> re
 	std::vector<DeviceProductTuple> devices;
 	std::vector<Device> dbDevices;
 	if (requestedDevices.size() == 0) {
-		dbDevices = db->get_all<Device>();
+		dbDevices = db->get_all<Device>(order_by(&Device::getAddress));
 	} else {
-		dbDevices = db->get_all<Device>(where(in(&Device::getAddress, requestedDevices)));
+		dbDevices = db->get_all<Device>(where(in(&Device::getAddress, requestedDevices)), order_by(&Device::getAddress));
 	}
 	for (auto &device : dbDevices) {
 		uint32_t productId = device.getProductId();
@@ -295,8 +295,9 @@ std::map<uint8_t, Sensor> QueryHandler::getDeviceSensorsByAddress(const uint8_t 
 }
 
 std::map<uint8_t, uint32_t> QueryHandler::getDeviceSensorIndexIdMap(const uint8_t &deviceAddress) {
+	auto deviceSensors = db->get_all<DeviceSensor>(where(c(&DeviceSensor::getAddress) == deviceAddress));
 	std::map<uint8_t, uint32_t> map;
-	for (auto ds : db->iterate<DeviceSensor>()) {
+	for (auto ds : deviceSensors) {
 		map.insert_or_assign(ds.getGlobalIndex(), ds.getSensorId());
 	}
 	return map;
@@ -326,7 +327,10 @@ bool QueryHandler::deviceSensorExists(const uint8_t &address, const uint32_t &se
 
 std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> QueryHandler::getSensors() {
 	std::map<uint8_t, std::vector<std::tuple<DeviceSensor, Sensor>>> sensors;
-	auto deviceSensors = db->get_all<DeviceSensor>();
+	auto deviceSensors = db->get_all<DeviceSensor>(multi_order_by(
+		order_by(&DeviceSensor::getAddress).asc(),
+		order_by(&DeviceSensor::getGlobalIndex).asc()
+	));
 	for (auto &item : deviceSensors) {
 		auto device = db->get_all<Device>(where(c(&Device::getAddress) == item.getAddress()));
 		if (device.size() == 0) {
