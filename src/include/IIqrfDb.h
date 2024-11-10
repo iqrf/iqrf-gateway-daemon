@@ -18,6 +18,7 @@
 
 #include "EmbedNode.h"
 #include "rapidjson/document.h"
+#include "../IqrfDb/Entities/BinaryOutput.h"
 #include "../IqrfDb/Entities/Device.h"
 #include "../IqrfDb/Entities/DeviceSensor.h"
 #include "../IqrfDb/Entities/Product.h"
@@ -203,25 +204,71 @@ namespace iqrf {
 
 		virtual Product getProductById(const uint32_t &productId) = 0;
 
-		/**
-		 * Checks if a device implements BinaryOutput standard
-		 * @param deviceId Device ID
-		 * @return true if device implements BinaryOutput standard, false otherwise
-		 */
-		virtual bool hasBinaryOutputs(const uint32_t &deviceId) = 0;
+		///// DEVICE PERIPHERAL API
+
+		virtual bool deviceImplementsPeripheral(const uint32_t &deviceId, const int16_t peripheral) = 0;
+
+		///// BINARY OUTPUT API
 
 		/**
-		 * Retrieves information about devices implementing BinaryOutput standard
-		 * @return Map of device addresses and implemented binary outputs
+		 * Check if a binary output record exists for device
+		 * @param deviceId Device ID
+		 * @return `true` if a binary output record exists, `false` otherwise
 		 */
-		virtual std::map<uint8_t, uint8_t> getBinaryOutputs() = 0;
+		virtual bool binaryOutputExists(const uint32_t &deviceId) = 0;
 
 		/**
-		 * Returns implemeneted BinaryOutput count by a device
-		 * @param deviceId Device ID
-		 * @return Implemented BinaryOutput count
+		 * Return binary output entity by ID
+		 * @param id Binary output ID
+		 * @return Binary output entity
 		 */
-		virtual uint8_t getBinaryOutputsByDeviceId(const uint32_t &deviceId) = 0;
+		virtual std::unique_ptr<BinaryOutput> getBinaryOutput(const uint32_t &id) = 0;
+
+		/**
+		 * Return binary output entity by device ID
+		 * @param deviceId Device ID
+		 * @return Binary output entity
+		 */
+		virtual std::unique_ptr<BinaryOutput> getBinaryOutputByDeviceId(const uint32_t &deviceId) = 0;
+
+		/**
+		 * Insert binary output record
+		 * @param binaryOutput Binary output entity
+		 * @return Binary output ID
+		 */
+		virtual uint32_t insertBinaryOutput(BinaryOutput &binaryOutput) = 0;
+
+		/**
+		 * Update binary output record
+		 * @param binaryOutput Binary output entity
+		 */
+		virtual void updateBinaryOutput(BinaryOutput &binaryOutput) = 0;
+
+		/**
+		 * Remove binary output record by ID
+		 * @param id Binary output ID
+		 */
+		virtual void removeBinaryOutput(const uint32_t &id) = 0;
+
+		/**
+		 * Remove binary output record by device ID
+		 * @param deviceId Device ID
+		 */
+		virtual void removeBinaryOutputByDeviceId(const uint32_t &deviceId) = 0;
+
+		/**
+		 * Get addresses of devices implementing binary output
+		 * @return Set of device addresses
+		 */
+		virtual std::set<uint8_t> getBinaryOutputAddresses() = 0;
+
+		/**
+		 * Get map of device addresses and number of implemented binary outputs
+		 * @return Map of device addresses and number of implemented binary outputs
+		 */
+		virtual std::map<uint8_t, uint8_t> getBinaryOutputCountMap() = 0;
+
+		/////
 
 		/**
 		 * Retrieves information about devices implementing Light standard
