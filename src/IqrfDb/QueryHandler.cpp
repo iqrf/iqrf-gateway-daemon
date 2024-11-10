@@ -219,42 +219,6 @@ std::vector<Driver> QueryHandler::getNewestDrivers() {
 	return drivers;
 }
 
-///// BinaryOutput /////
-
-bool QueryHandler::hasBinaryOutputs(const uint32_t &deviceId) {
-	auto count = db->count<BinaryOutput>(where(c(&BinaryOutput::getDeviceId) == deviceId));
-	return count > 0;
-}
-
-uint32_t QueryHandler::getBoId(const uint32_t &deviceId) {
-	auto boId = db->select(&BinaryOutput::getId, where(c(&BinaryOutput::getDeviceId) == deviceId));
-	uint32_t id = (boId.size() > 0) ? boId[0] : 0;
-	return id;
-}
-
-std::map<uint8_t, uint8_t> QueryHandler::getBinaryOutputs() {
-	auto rows = db->select(columns(&Device::getAddress, &BinaryOutput::getCount),
-		inner_join<BinaryOutput>(on(c(&BinaryOutput::getDeviceId) == &Device::getId))
-	);
-	std::map<uint8_t, uint8_t> bos;
-	for (auto &row : rows) {
-		bos.insert(std::make_pair(std::get<0>(row), std::get<1>(row)));
-	}
-	return bos;
-}
-
-uint8_t QueryHandler::getBinaryOutputsByDeviceId(const uint32_t &deviceId) {
-	auto rows = db->select(&BinaryOutput::getCount,
-		inner_join<BinaryOutput>(on(c(&BinaryOutput::getDeviceId) == &Device::getId)),
-		where(c(&BinaryOutput::getDeviceId) == deviceId)
-	);
-	return rows.size() > 0 ? rows[0] : 0;
-}
-
-void QueryHandler::removeBinaryOutputs(const uint32_t &deviceId) {
-	db->remove_all<BinaryOutput>(where(c(&BinaryOutput::getDeviceId) == deviceId));
-}
-
 ///// Light /////
 
 bool QueryHandler::lightExists(const uint32_t &deviceId) {

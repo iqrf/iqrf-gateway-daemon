@@ -97,6 +97,8 @@ namespace iqrf {
 		TRC_FUNCTION_LEAVE("");
 	}
 
+	///// DB API
+
 	Device IqrfDb::getDevice(const uint8_t &addr) {
 		return this->query.getDevice(addr);
 	}
@@ -121,16 +123,107 @@ namespace iqrf {
 		return this->query.getProductById(productId);
 	}
 
-	bool IqrfDb::hasBinaryOutputs(const uint32_t &deviceId) {
-		return this->query.hasBinaryOutputs(deviceId);
+	///// DEVICE PERIPHERAL API
+
+	bool IqrfDb::deviceImplementsPeripheral(const uint32_t &id, const int16_t peripheral) {
+		auto records = m_db->select(
+			&Driver::getId,
+			inner_join<ProductDriver>(
+				on(
+					c(&ProductDriver::getDriverId) == &Driver::getId)
+				),
+			inner_join<Device>(
+				on(c(&Device::getProductId) == &ProductDriver::getProductId)
+			),
+			where(
+				c(&Device::getId) == id
+				and c(&Driver::getPeripheralNumber) == peripheral
+			)
+		);
+		return records.size() > 0;
 	}
 
-	std::map<uint8_t, uint8_t> IqrfDb::getBinaryOutputs() {
-		return this->query.getBinaryOutputs();
+	///// BINARY OUTPUT API
+
+	bool IqrfDb::binaryOutputExists(const uint32_t &deviceId) {
+		auto count = m_db->count<BinaryOutput>(
+			where(
+				c(&BinaryOutput::getDeviceId) == deviceId
+			)
+		);
+		return count > 0;
 	}
 
-	uint8_t IqrfDb::getBinaryOutputsByDeviceId(const uint32_t &deviceId) {
-		return this->query.getBinaryOutputsByDeviceId(deviceId);
+	std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutput(const uint32_t &id) {
+		return m_db->get_pointer<BinaryOutput>(id);
+	}
+
+	std::unique_ptr<BinaryOutput> IqrfDb::getBinaryOutputByDeviceId(const uint32_t &deviceId) {
+		auto records = m_db->get_all<BinaryOutput>(
+			where(
+				c(&BinaryOutput::getDeviceId) == deviceId
+			)
+		);
+		if (records.size() == 0) {
+			return nullptr;
+		}
+		return std::make_unique<BinaryOutput>(records[0]);
+	}
+
+	uint32_t IqrfDb::insertBinaryOutput(BinaryOutput &binaryOutput) {
+		return m_db->insert<BinaryOutput>(binaryOutput);
+	}
+
+	void IqrfDb::updateBinaryOutput(BinaryOutput &binaryOutput) {
+		m_db->update<BinaryOutput>(binaryOutput);
+	}
+
+	void IqrfDb::removeBinaryOutput(const uint32_t &id) {
+		m_db->remove<BinaryOutput>(id);
+	}
+
+	void IqrfDb::removeBinaryOutputByDeviceId(const uint32_t &deviceId) {
+		m_db->remove_all<BinaryOutput>(
+			where(
+				c(&BinaryOutput::getDeviceId) == deviceId
+			)
+		);
+	}
+
+	std::set<uint8_t> IqrfDb::getBinaryOutputAddresses() {
+		auto records = m_db->select(
+			&Device::getAddress,
+			inner_join<BinaryOutput>(
+				on(
+					c(&BinaryOutput::getDeviceId) == &Device::getId
+				)
+			)
+		);
+		return std::set<uint8_t>(records.begin(), records.end());
+	}
+
+	std::map<uint8_t, uint8_t> IqrfDb::getBinaryOutputCountMap() {
+		auto records = m_db->select(
+			columns(
+				&Device::getAddress,
+				&BinaryOutput::getCount
+			),
+			inner_join<BinaryOutput>(
+				on(
+					c(&BinaryOutput::getDeviceId) == &Device::getId
+				)
+			)
+		);
+		std::map<uint8_t, uint8_t> map;
+		for (auto const &record : records) {
+			map.insert(
+				std::make_pair(
+					std::get<0>(record),
+					std::get<1>(record)
+				)
+			);
+		}
+		return map;
 	}
 
 	std::set<uint8_t> IqrfDb::getLights() {
@@ -1398,48 +1491,22 @@ namespace iqrf {
 		}
 
 		for (auto &[deviceId, address] : devices) {
-			// get device standard peripherals
-			auto peripherals = m_db->select(&Driver::getPeripheralNumber,
-				inner_join<ProductDriver>(on(c(&ProductDriver::getDriverId) == &Driver::getId)),
-				inner_join<Device>(on(c(&Device::getProductId) == &ProductDriver::getProductId)),
-				where(c(&Device::getId) == deviceId and (
-					c(&Driver::getPeripheralNumber) == PERIPHERAL_BINOUT or
-					c(&Driver::getPeripheralNumber) == PERIPHERAL_LIGHT or
-					c(&Driver::getPeripheralNumber) == PERIPHERAL_SENSOR)
-				)
-			);
-			bool binout = false, light = false, sensor = false;
-
-			// select peripherals to enumerate
-			for (auto per : peripherals) {
-				switch (per) {
-					case PERIPHERAL_BINOUT:
-						binout = true;
-						break;
-					case PERIPHERAL_LIGHT:
-						light = true;
-						break;
-					case PERIPHERAL_SENSOR:
-						sensor = true;
-						break;
-					default:;
-				}
-			}
-
 			// begin transaction
 			m_db->begin_transaction();
 			try {
-				if (binout) {
+				if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_BINOUT)) {
 					binoutEnumeration(deviceId, address);
 				} else {
-					this->query.removeBinaryOutputs(deviceId);
+					if (this->binaryOutputExists(deviceId)) {
+						this->removeBinaryOutputByDeviceId(deviceId);
+					}
 				}
-				if (light) {
+				if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_LIGHT)) {
 					lightEnumeration(deviceId);
 				} else {
 					this->query.removeLights(deviceId);
 				}
-				if (sensor) {
+				if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_SENSOR)) {
 					sensorEnumeration(address);
 				} else {
 					this->query.removeSensors(address);
@@ -1478,14 +1545,13 @@ namespace iqrf {
 		DpaMessage binoutEnumerateResponse = result->getResponse();
 		const uint8_t count = binoutEnumerateResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData[0];
 
-		bool exists = this->query.hasBinaryOutputs(deviceId);
-		if (exists) {
-			uint32_t boId = this->query.getBoId(deviceId);
-			auto bo = m_db->get<BinaryOutput>(boId);
-			bo.setCount(count);
-			m_db->update(bo);
-		} else {
-			m_db->insert(BinaryOutput(deviceId, count));
+		auto dbBinaryOutput = this->getBinaryOutputByDeviceId(deviceId);
+		if (dbBinaryOutput == nullptr) {
+			BinaryOutput newBinaryOutput(deviceId, count);
+			this->insertBinaryOutput(newBinaryOutput);
+		} else if (dbBinaryOutput->getCount() != count) {
+			dbBinaryOutput->setCount(count);
+			this->updateBinaryOutput(*dbBinaryOutput);
 		}
 		TRC_FUNCTION_LEAVE("");
 	}

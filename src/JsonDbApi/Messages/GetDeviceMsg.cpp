@@ -41,8 +41,9 @@ namespace iqrf {
 		if (dbService->hasSensors(device.getAddress())) {
 			sensors = dbService->getDeviceSensorsByAddress(device.getAddress());
 		}
-		if (dbService->hasBinaryOutputs(device.getId())) {
-			binouts = dbService->getBinaryOutputsByDeviceId(device.getId());
+		auto dbBinout = dbService->getBinaryOutputByDeviceId(device.getId());
+		if (dbBinout) {
+			binouts = dbBinout->getCount();
 		}
 	}
 

@@ -47,7 +47,7 @@ namespace iqrf {
 			sensors = dbService->getSensors();
 		}
 		if (includeBinouts) {
-			binouts = dbService->getBinaryOutputs();
+			binouts = dbService->getBinaryOutputCountMap();
 		}
 	}
 

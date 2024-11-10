@@ -165,38 +165,7 @@ public:
 	 */
 	std::vector<Driver> getNewestDrivers();
 
-	/**
-	 * Checks if a device implements BinaryOutput standard
-	 * @param deviceId Device ID
-	 * @return true if device implements BinaryOutput standard, false otherwise
-	 */
-	bool hasBinaryOutputs(const uint32_t &deviceId);
-
-	/**
-	 * Returns ID of BinaryOutput record
-	 * @param deviceId Device ID
-	 * @return BinaryOutput record ID, 0 if no such record exists
-	 */
-	uint32_t getBoId(const uint32_t &deviceId);
-
-	/**
-	 * Returns all BinaryOutput device records from database
-	 * @return Map of device addresses and implemented binary outputs
-	 */
-	std::map<uint8_t, uint8_t> getBinaryOutputs();
-
-	/**
-	 * Returns implemeneted BinaryOutput count by a device
-	 * @param deviceId Device ID
-	 * @return Implemented BinaryOutput count
-	 */
-	uint8_t getBinaryOutputsByDeviceId(const uint32_t &deviceId);
-
-	/**
-	 * Remove all BinaryOutput records implemented by device ID
-	 * @param deviceId Device ID
-	 */
-	void removeBinaryOutputs(const uint32_t &deviceId);
+	/////
 
 	/**
 	 * Checks if a device implements Light standard

@@ -133,25 +133,75 @@ namespace iqrf {
 
 		Product getProductById(const uint32_t &productId) override;
 
-		/**
-		 * Returns map of device addresses and implemented binary outputs
-		 * @return Map of device addresses and implemented binary outputs
-		 */
-		std::map<uint8_t, uint8_t> getBinaryOutputs() override;
+		///// DEVICE PERIPHERAL API
 
 		/**
-		 * Checks if a device implements BinaryOutput standard
+		 * Check if device implements peripheral
 		 * @param deviceId Device ID
-		 * @return true if device implements BinaryOutput standard, false otherwise
+		 * @param peripheral Peripheral
+		 * @return `true` if Device implements peripheral, `false` otherwise
 		 */
-		bool hasBinaryOutputs(const uint32_t &deviceId) override;
+		bool deviceImplementsPeripheral(const uint32_t &deviceId, const int16_t peripheral) override;
+
+		///// BINARY OUTPUT API
 
 		/**
-		 * Returns implemeneted BinaryOutput count by a device
+		 * Check if a binary output record exists for device
 		 * @param deviceId Device ID
-		 * @return Implemented BinaryOutput count
+		 * @return `true` if a binary output record exists, `false` otherwise
 		 */
-		uint8_t getBinaryOutputsByDeviceId(const uint32_t &deviceId) override;
+		bool binaryOutputExists(const uint32_t &deviceId) override;
+
+		/**
+		 * Return binary output entity by ID
+		 * @param id Binary output ID
+		 * @return Binary output entity
+		 */
+		std::unique_ptr<BinaryOutput> getBinaryOutput(const uint32_t &id) override;
+
+		/**
+		 * Return binary output entity by device ID
+		 * @param deviceId Device ID
+		 * @return Binary output entity
+		 */
+		std::unique_ptr<BinaryOutput> getBinaryOutputByDeviceId(const uint32_t &deviceId) override;
+
+		/**
+		 * Insert binary output record
+		 * @param binaryOutput Binary output entity
+		 * @return Binary output ID
+		 */
+		uint32_t insertBinaryOutput(BinaryOutput &binaryOutput) override;
+
+		/**
+		 * Update binary output record
+		 * @param binaryOutput Binary output entity
+		 */
+		void updateBinaryOutput(BinaryOutput &binaryOutput) override;
+
+		/**
+		 * Remove binary output record by ID
+		 * @param id Binary output ID
+		 */
+		void removeBinaryOutput(const uint32_t &id) override;
+
+		/**
+		 * Remove binary output record by device ID
+		 * @param deviceId Device ID
+		 */
+		void removeBinaryOutputByDeviceId(const uint32_t &deviceId) override;
+
+		/**
+		 * Get addresses of devices implementing binary output
+		 * @return Set of device addresses
+		 */
+		std::set<uint8_t> getBinaryOutputAddresses() override;
+
+		/**
+		 * Get map of device addresses and number of implemented binary outputs
+		 * @return Map of device addresses and number of implemented binary outputs
+		 */
+		std::map<uint8_t, uint8_t> getBinaryOutputCountMap() override;
 
 		/**
 		 * Returns set of device addresses implementing Light standard
