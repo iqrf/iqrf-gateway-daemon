@@ -21,6 +21,7 @@
 #include "../IqrfDb/Entities/BinaryOutput.h"
 #include "../IqrfDb/Entities/Device.h"
 #include "../IqrfDb/Entities/DeviceSensor.h"
+#include "../IqrfDb/Entities/Light.h"
 #include "../IqrfDb/Entities/Product.h"
 #include "../IqrfDb/Entities/Sensor.h"
 #include "JsDriverSensor.h"
@@ -268,13 +269,61 @@ namespace iqrf {
 		 */
 		virtual std::map<uint8_t, uint8_t> getBinaryOutputCountMap() = 0;
 
-		/////
+		///// LIGHT API
 
 		/**
-		 * Retrieves information about devices implementing Light standard
-		 * @return Set of device addresses implementing Light standard
+		 * Check if a light record exists for device
+		 * @param deviceId Device ID
+		 * @return `true` if a light record exists, `false` otherwise
 		 */
-		virtual std::set<uint8_t> getLights() = 0;
+		virtual bool lightExists(const uint32_t &deviceId) = 0;
+
+		/**
+		 * Return light entity by ID
+		 * @param id Light ID
+		 * @return Light entity
+		 */
+		virtual std::unique_ptr<Light> getLight(const uint32_t &id) = 0;
+
+		/**
+		 * Return light entity by device ID
+		 * @param deviceId Device ID
+		 * @return Light entity
+		 */
+		virtual std::unique_ptr<Light> getLightByDeviceId(const uint32_t &deviceId) = 0;
+
+		/**
+		 * Insert light record
+		 * @param binaryOutput Light entity
+		 * @return Light ID
+		 */
+		virtual uint32_t insertLight(Light &light) = 0;
+
+		/**
+		 * Update light record
+		 * @param binaryOutput Light entity
+		 */
+		virtual void updateLight(Light &light) = 0;
+
+		/**
+		 * Remove light record by ID
+		 * @param id Light ID
+		 */
+		virtual void removeLight(const uint32_t &id) = 0;
+
+		/**
+		 * Remove light record by device ID
+		 * @param deviceId Device ID
+		 */
+		virtual void removeLightByDeviceId(const uint32_t &deviceId) = 0;
+
+		/**
+		 * Get addresses of devices implementing light
+		 * @return Set of device addresses
+		 */
+		virtual std::set<uint8_t> getLightAddresses() = 0;
+
+		///// SENSOR API
 
 		/**
 		 * Checks if device implements sensors

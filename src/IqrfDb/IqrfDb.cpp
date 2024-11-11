@@ -226,9 +226,67 @@ namespace iqrf {
 		return map;
 	}
 
-	std::set<uint8_t> IqrfDb::getLights() {
-		return this->query.getLights();
+	///// LIGHT API
+
+
+	bool IqrfDb::lightExists(const uint32_t &deviceId) {
+		auto count = m_db->count<Light>(
+			where(
+				c(&Light::getDeviceId) == deviceId
+			)
+		);
+		return count > 0;
 	}
+
+	std::unique_ptr<Light> IqrfDb::getLight(const uint32_t &id) {
+		return m_db->get_pointer<Light>(id);
+	}
+
+	std::unique_ptr<Light> IqrfDb::getLightByDeviceId(const uint32_t &deviceId) {
+		auto records = m_db->get_all<Light>(
+			where(
+				c(&Light::getDeviceId) == deviceId
+			)
+		);
+		if (records.size() == 0) {
+			return nullptr;
+		}
+		return std::make_unique<Light>(records[0]);
+	}
+
+	uint32_t IqrfDb::insertLight(Light &light) {
+		return m_db->insert<Light>(light);
+	}
+
+	void IqrfDb::updateLight(Light &light) {
+		m_db->update<Light>(light);
+	}
+
+	void IqrfDb::removeLight(const uint32_t &id) {
+		m_db->remove<Light>(id);
+	}
+
+	void IqrfDb::removeLightByDeviceId(const uint32_t &deviceId) {
+		m_db->remove_all<Light>(
+			where(
+				c(&Light::getDeviceId) == deviceId
+			)
+		);
+	}
+
+	std::set<uint8_t> IqrfDb::getLightAddresses() {
+		auto records = m_db->select(
+			&Device::getAddress,
+			inner_join<Light>(
+				on(
+					c(&Light::getDeviceId) == &Device::getId
+				)
+			)
+		);
+		return std::set<uint8_t>(records.begin(), records.end());
+	}
+
+	///// SENSOR API
 
 	bool IqrfDb::hasSensors(const uint8_t &deviceAddress) {
 		return this->query.hasSensors(deviceAddress);
@@ -1504,7 +1562,9 @@ namespace iqrf {
 				if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_LIGHT)) {
 					lightEnumeration(deviceId);
 				} else {
-					this->query.removeLights(deviceId);
+					if (this->lightExists(deviceId)) {
+						this->removeLightByDeviceId(deviceId);
+					}
 				}
 				if (this->deviceImplementsPeripheral(deviceId, PERIPHERAL_SENSOR)) {
 					sensorEnumeration(address);
@@ -1560,9 +1620,10 @@ namespace iqrf {
 		TRC_FUNCTION_ENTER("");
 		using namespace sqlite_orm;
 
-		bool exists = this->query.lightExists(deviceId);
-		if (!exists) {
-			m_db->insert(Light(deviceId));
+		auto dbLight = this->getLightByDeviceId(deviceId);
+		if (dbLight == nullptr) {
+			Light newLight(deviceId);
+			this->insertLight(newLight);
 		}
 		TRC_FUNCTION_LEAVE("");
 	}

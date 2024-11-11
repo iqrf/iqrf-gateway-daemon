@@ -165,27 +165,6 @@ public:
 	 */
 	std::vector<Driver> getNewestDrivers();
 
-	/////
-
-	/**
-	 * Checks if a device implements Light standard
-	 * @param deviceId Device ID
-	 * @return true if device implements Light standard, false otherwise
-	 */
-	bool lightExists(const uint32_t &deviceId);
-
-	/**
-	 * Returns all Light device records from database
-	 * @return Set of device addresses implementing Light
-	 */
-	std::set<uint8_t> getLights();
-
-	/**
-	 * Remove all Light records implemented by device ID
-	 * @param deviceId Device ID
-	 */
-	void removeLights(const uint32_t &deviceId);
-
 	/**
 	 * Checks if device implements sensors
 	 * @param deviceAddress Device address

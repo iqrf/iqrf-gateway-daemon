@@ -219,28 +219,6 @@ std::vector<Driver> QueryHandler::getNewestDrivers() {
 	return drivers;
 }
 
-///// Light /////
-
-bool QueryHandler::lightExists(const uint32_t &deviceId) {
-	auto count = db->count<Light>(where(c(&Light::getDeviceId) == deviceId));
-	return count > 0;
-}
-
-std::set<uint8_t> QueryHandler::getLights() {
-	auto rows = db->select(&Device::getAddress,
-		inner_join<Light>(on(c(&Light::getDeviceId) == &Device::getId))
-	);
-	std::set<uint8_t> dalis;
-	for (auto &row : rows) {
-		dalis.insert(row);
-	}
-	return dalis;
-}
-
-void QueryHandler::removeLights(const uint32_t &deviceId) {
-	db->remove_all<Light>(where(c(&Light::getDeviceId) == deviceId));
-}
-
 ///// Sensor /////
 
 bool QueryHandler::hasSensors(const uint8_t &deviceAddress) {
