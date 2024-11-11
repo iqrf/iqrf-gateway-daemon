@@ -20,7 +20,7 @@
 namespace iqrf {
 
 	void GetLightsMsg::handleMsg(IIqrfDb *dbService) {
-		lights = dbService->getLights();
+		lights = dbService->getLightAddresses();
 	}
 
 	void GetLightsMsg::createResponsePayload(Document &doc) {
