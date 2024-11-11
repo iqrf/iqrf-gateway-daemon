@@ -203,11 +203,61 @@ namespace iqrf {
 		 */
 		std::map<uint8_t, uint8_t> getBinaryOutputCountMap() override;
 
+		///// LIGHT API
+
 		/**
-		 * Returns set of device addresses implementing Light standard
-		 * @return Map of devices implementing Light standard
+		 * Check if a light record exists for device
+		 * @param deviceId Device ID
+		 * @return `true` if a light record exists, `false` otherwise
 		 */
-		std::set<uint8_t> getLights() override;
+		bool lightExists(const uint32_t &deviceId) override;
+
+		/**
+		 * Return light entity by ID
+		 * @param id Light ID
+		 * @return Light entity
+		 */
+		std::unique_ptr<Light> getLight(const uint32_t &id) override;
+
+		/**
+		 * Return light entity by device ID
+		 * @param deviceId Device ID
+		 * @return Light entity
+		 */
+		std::unique_ptr<Light> getLightByDeviceId(const uint32_t &deviceId) override;
+
+		/**
+		 * Insert light record
+		 * @param binaryOutput Light entity
+		 * @return Light ID
+		 */
+		uint32_t insertLight(Light &light) override;
+
+		/**
+		 * Update light record
+		 * @param binaryOutput Light entity
+		 */
+		void updateLight(Light &light) override;
+
+		/**
+		 * Remove light record by ID
+		 * @param id Light ID
+		 */
+		void removeLight(const uint32_t &id) override;
+
+		/**
+		 * Remove light record by device ID
+		 * @param deviceId Device ID
+		 */
+		void removeLightByDeviceId(const uint32_t &deviceId) override;
+
+		/**
+		 * Get addresses of devices implementing light
+		 * @return Set of device addresses
+		 */
+		std::set<uint8_t> getLightAddresses() override;
+
+		///// SENSOR API
 
 		bool hasSensors(const uint8_t &deviceAddress) override;
 
