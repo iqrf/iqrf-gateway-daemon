@@ -288,6 +288,21 @@ namespace iqrf {
 
 	///// SENSOR API
 
+	std::unique_ptr<Sensor> IqrfDb::getSensorByAddrIndexType(const uint8_t &deviceAddress, const uint8_t &index, const uint8_t &type) {
+		auto records = m_db->select(
+			&DeviceSensor::getSensorId,
+			where(
+				c(&DeviceSensor::getAddress) == deviceAddress
+				and c(&DeviceSensor::getGlobalIndex) == index
+				and c(&DeviceSensor::getType) == type
+			)
+		);
+		if (records.size() == 0) {
+			return nullptr;
+		}
+		return m_db->get_pointer<Sensor>(records[0]);
+	}
+
 	bool IqrfDb::hasSensors(const uint8_t &deviceAddress) {
 		return this->query.hasSensors(deviceAddress);
 	}
