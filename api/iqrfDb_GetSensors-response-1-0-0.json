@@ -156,6 +156,13 @@
 													"title": "Last measured value",
 													"oneOf": [
 														{ "type": "number" },
+														{
+															"type": "array",
+															"additionalItems": false,
+															"items": {
+																"type": "integer"
+															}
+														},
 														{ "type": "null" }
 													]
 												},
