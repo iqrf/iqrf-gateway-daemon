@@ -259,6 +259,8 @@ namespace iqrf {
 
 		///// SENSOR API
 
+		std::unique_ptr<Sensor> getSensorByAddrIndexType(const uint8_t &deviceAddress, const uint8_t &index, const uint8_t &type) override;
+
 		bool hasSensors(const uint8_t &deviceAddress) override;
 
 		/**
