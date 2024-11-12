@@ -325,6 +325,8 @@ namespace iqrf {
 
 		///// SENSOR API
 
+		virtual std::unique_ptr<Sensor> getSensorByAddrIndexType(const uint8_t &deviceAddress, const uint8_t &index, const uint8_t &type) = 0;
+
 		/**
 		 * Checks if device implements sensors
 		 * @param deviceAddress Device address

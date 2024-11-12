@@ -181,15 +181,17 @@ namespace iqrf {
 					} else {
 						std::vector<int> frcs(cacheQuantity->m_frcs.begin(), cacheQuantity->m_frcs.end());
 						for (auto &addr : diff) {
+							auto globalIdx = m_dbService->getGlobalSensorIndex(addr, type, idx);
+							auto dbSensor = m_dbService->getSensorByAddrIndexType(addr, globalIdx, type);
 							auto fakeSensor = sensor::jsdriver::item::Sensor(
 								addr,
 								idx,
 								cacheQuantity->m_id,
 								type,
-								cacheQuantity->m_name,
-								cacheQuantity->m_shortName,
-								cacheQuantity->m_unit,
-								cacheQuantity->m_precision,
+								dbSensor ? dbSensor->getName() : cacheQuantity->m_name,
+								dbSensor ? dbSensor->getShortname() : cacheQuantity->m_shortName,
+								dbSensor ? dbSensor->getUnit() : cacheQuantity->m_unit,
+								dbSensor ? dbSensor->getDecimals() : cacheQuantity->m_precision,
 								frcs
 							);
 							sensorData.push_back(fakeSensor);
