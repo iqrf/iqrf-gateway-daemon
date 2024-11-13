@@ -1,185 +1,185 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQMESH Network - AutoNetwork request",
+  "description": "(c) IQRF Tech",
+  "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
-      "description": "IQMESH Network management - AutoNetwork request.",
-      "enum": [
-        "iqmeshNetwork_AutoNetwork"
-      ],
-      "type": "string"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqmeshNetwork_AutoNetwork" }
+      ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
       "properties": {
         "msgId": {
-          "description": "Message identification for binding request with response.",
-          "type": "string"
+          "$ref": "definitions.json#/general/msgId"
         },
         "req": {
+          "title": "Request",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "stopConditions"
+          ],
+          "additionalProperties": false,
           "properties": {
-            "discoveryTxPower": {
-              "default": 7,
-              "description": "TX power to use in discovery process.",
-              "maximum": 7,
-              "minimum": 0,
-              "type": "integer"
+            "actionRetries": {
+              "description": "Number of retries DPA transactions.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "default": 1
+            },
+            "addressSpace": {
+              "title": "Address space",
+              "description": "TODO: List of addresses which can be assigned during Autonetwork",
+              "type": "array",
+              "items": {
+                "$ref": "definitions.json#/general/nAdr"
+              },
+              "maxItems": 239
             },
             "discoveryBeforeStart": {
-              "default": false,
               "description": "Run discovery before start.",
-              "type": "boolean"
+              "type": "boolean",
+              "default": false
+            },
+            "discoveryTxPower": {
+              "description": "TX power to use in discovery process.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 7,
+              "default": 7
+            },
+            "hwpidFiltering": {
+              "description": "Allows to add only nodes with specified HWPID to the network.",
+              "type": "array",
+              "items": {
+                "$ref": "definitions.json#/general/request/hwpId"
+              }
+            },
+            "midFiltering": {
+              "description": "Bond only Nodes with MIDs listed in midList array).",
+              "type": "boolean",
+              "default": false
+            },
+            "midList": {
+              "description": "Select this option to control MIDs of the Nodes and/or their addresses.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "deviceMID"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "deviceAddr": {
+                    "$ref": "definitions.json#/general/nAdr"
+                  },
+                  "deviceMID": {
+                    "$ref": "definitions.json#/iqmesh/midStr"
+                  }
+                }
+              },
+              "maxItems": 239
+            },
+            "overlappingNetworks": {
+              "description": "Settings for building multiple overlapping networks.",
+              "type": "object",
+              "required": [
+                "network",
+                "networks"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "network": {
+                  "description": "Network number that will be build.",
+                  "type": "integer"
+                },
+                "networks": {
+                  "description": "Number of the networks to be built.",
+                  "type": "integer"
+                }
+              }
             },
             "skipDiscoveryEachWave": {
-              "type": "boolean",
               "description": "Skip discovery in each wave.",
+              "type": "boolean",
               "default": false
+            },
+            "skipPrebonding": {
+              "description": "Skip SmartConnect.",
+              "type": "boolean",
+              "default": false
+            },
+            "stopConditions": {
+              "title": "Stop conditions",
+              "description": "Autonetwork will iteratively look for other devices until one of the stop conditions is met.",
+              "type": "object",
+              "required": [
+                "emptyWaves"
+              ],
+              "properties": {
+                "emptyWaves": {
+                  "description": "Number of consecutive waves, in which no new nodes were added into network.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255,
+                  "default": 2
+                },
+                "abortOnTooManyNodesFound": {
+                  "description": "Abort the Autonetwork if too many nodes were found.",
+                  "type": "boolean",
+                  "default": false
+                },
+                "numberOfNewNodes": {
+                  "description": "Number of new nodes bonded into the network.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 239
+                },
+                "numberOfTotalNodes": {
+                  "description": "Number of total nodes bonded into the network.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 239
+                },
+                "waves": {
+                  "description": "Maximum number of waves.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
+                }
+              }
             },
             "unbondUnrespondingNodes": {
               "default": true,
               "description": "Unbond Nodes that don't respond.",
               "type": "boolean"
-            },
-            "skipPrebonding": {
-              "default": false,
-              "description": "Skip SmartConnect.",
-              "type": "boolean"
-            },
-            "actionRetries": {
-              "default": 1,
-              "description": "Number of retries DPA transactions.",
-              "maximum": 10,
-              "minimum": 1,
-              "type": "integer"
-            },
-            "addressSpace": {
-              "description": "ToDo - add description.",
-              "items": {
-                "maximum": 239,
-                "minimum": 1,
-                "type": "integer"
-              },
-              "maxItems": 239,
-              "type": "array"
-            },
-            "midList": {
-              "description": "Select this option to control MIDs of the Nodes and/or their addresses.",
-              "items": {
-                "maxItems": 239,
-                "properties": {
-                  "deviceMID": {
-                    "description": "Device MID.",
-                    "maxLength": 8,
-                    "minLength": 8,
-                    "pattern": "^[a-fA-F0-9]{8}$",
-                    "type": "string"
-                  },
-                  "deviceAddr": {
-                    "description": "Device address.",
-                    "maximum": 239,
-                    "minimum": 1,
-                    "type": "integer"
-                  }
-                },
-                "required": [
-                  "deviceMID"
-                ],
-                "type": "object"
-              },
-              "type": "array"
-            },
-            "midFiltering": {
-              "default": false,
-              "description": "Bond only Nodes with MIDs listed in midList array).",
-              "type": "boolean"
-            },
-            "overlappingNetworks": {
-              "properties": {
-                "networks": {
-                  "description": "Number of the networks to be built.",
-                  "type": "integer"
-                },
-                "network": {
-                  "description": "Network number that will be build.",
-                  "type": "integer"
-                }
-              },
-              "required": [
-                "networks",
-                "network"
-              ],
-              "type": "object"
-            },
-            "hwpidFiltering": {
-              "description": "Allows to add only nodes with specified HWPID to the network.",
-              "items": {
-                "type": "integer"
-              },
-              "type": "array"
-            },
-            "stopConditions": {
-              "type": "object",
-              "properties": {
-                "waves": {
-                  "description": "Maximum number of waves.",
-                  "maximum": 255,
-                  "minimum": 0,
-                  "type": "integer"
-                },
-                "emptyWaves": {
-                  "default": 2,
-                  "description": "Number of consecutive waves, in which no new nodes were added into network.",
-                  "maximum": 255,
-                  "minimum": 0,
-                  "type": "integer"
-                },
-                "numberOfTotalNodes": {
-                  "description": "Number of total nodes bonded into the network.",
-                  "maximum": 239,
-                  "minimum": 0,
-                  "type": "integer"
-                },
-                "numberOfNewNodes": {
-                  "description": "Number of new nodes bonded into the network.",
-                  "maximum": 239,
-                  "minimum": 0,
-                  "type": "integer"
-                },
-                "abortOnTooManyNodesFound": {
-                  "default": false,
-                  "description": "Abort the Autonetwork if too many nodes were found.",
-                  "type": "boolean"
-                }
-              },
-              "required": [
-                "emptyWaves"
-              ]
             }
-          },
-          "required": [
-            "stopConditions"
-          ],
-          "type": "object"
+          }
+        },
+        "repeat": {
+          "$ref": "definitions.json#/iqmesh/repeat"
         },
         "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
+          "$ref": "definitions.json#/general/returnVerbose"
         }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ],
-      "type": "object"
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ],
-  "self": {
-    "format": "jsonschema",
-    "name": "iqmeshNetwork_AutoNetwork-request",
-    "vendor": "com.iqrftech.self-desc",
-    "version": "1-0-0"
-  },
-  "type": "object"
+  }
 }
