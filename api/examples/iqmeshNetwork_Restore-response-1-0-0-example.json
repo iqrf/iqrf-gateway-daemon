@@ -1,31 +1,18 @@
-[
-  {
-    "mType": "iqmeshNetwork_Restore",
-    "data": {
-      "msgId": "9cf36ca4-0cff-43aa-b77c-6b406bd99998",
-      "rsp": {
-        "progress": 100,
-        "devices": [
-          {
-            "deviceAddr": 0,
-            "restoreStatus": true
-          }
-        ]
-      },
-      "status": 0,
-      "statusStr": "ok",
-      "insId": "iqdgw01-0242951d1f773a56"
-    }
-  },
-  {
-    "mType": "iqrfRaw",
-    "data": {
-      "msgId": "async",
-      "rsp": {
-        "rData": "00.00.ff.3f.00.00.80.00.14.04.00.fd.22.00.00.00.00.00.00.01"
-      },
-      "status": 0,
-      "insId": "iqdgw01-0242951d1f773a56"
-    }
+{
+  "mType": "iqmeshNetwork_Restore",
+  "data": {
+    "msgId": "9cf36ca4-0cff-43aa-b77c-6b406bd99998",
+    "rsp": {
+      "progress": 100,
+      "devices": [
+        {
+          "deviceAddr": 0,
+          "restoreStatus": true
+        }
+      ]
+    },
+    "status": 0,
+    "statusStr": "ok",
+    "insId": "iqdgw01-0242951d1f773a56"
   }
-]
+}
