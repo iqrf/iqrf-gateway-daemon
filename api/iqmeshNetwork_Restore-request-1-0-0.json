@@ -1,62 +1,69 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_Restore-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQMESH Network - Restore request",
+  "description": "(c) IQRF Tech",
   "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Restore request.",
-      "enum": [
-        "iqmeshNetwork_Restore"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "req": {
-          "type": "object",
-          "properties": {
-            "deviceAddr": {
-              "type": "integer",
-              "description": "Address of device to restore (0 - [C] device, 1..239 - [N] device)",
-              "default": 0
-            },
-            "data": {
-              "type": "string",
-              "description": "Device Backup Data (hex-string format)."
-            },
-            "restartCoordinator": {
-              "type": "boolean",
-              "description": "Restart Coordinator after restore."
-            }
-          },
-          "required": [
-            "deviceAddr",
-            "data"
-          ]
-        },
-        "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
-        }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
-    }
-  },
   "required": [
     "mType",
     "data"
-  ]
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqmeshNetwork_Restore" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "data",
+            "deviceAddr"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "deviceAddr": {
+              "allOf": [
+                { "$ref": "definitions.json#/general/nAdr" },
+                {
+                  "description": "Address of device to restore (0 - [C] device, 1..239 - [N] device)",
+                  "default": 0
+                }
+              ]
+            },
+            "data": {
+              "description": "Device Backup Data (hex-string format).",
+              "type": "string"
+            },
+            "restartCoordinator": {
+              "description": "Restart Coordinator after restore.",
+              "type": "boolean"
+            }
+          }
+        },
+        "repeat": {
+          "$ref": "definitions.json#/iqmesh/repeat"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
+        }
+      }
+    }
+  }
 }
