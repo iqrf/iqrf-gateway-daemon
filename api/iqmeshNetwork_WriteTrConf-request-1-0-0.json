@@ -1,217 +1,130 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_WriteTrConf-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQMESH Network - Write TR configuration request",
+  "description": "(c) IQRF Tech",
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Write TR configuration request.",
-      "enum": [
-        "iqmeshNetwork_WriteTrConf"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqmeshNetwork_WriteTrConf" }
       ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "repeat": {
-          "type": "integer",
-          "description": "Number of repetitions of DPA messages.",
-          "default": 1
+          "$ref": "definitions.json#/general/msgId"
         },
         "req": {
+          "title": "Request",
+          "description": "Holds request data",
           "type": "object",
+          "required": [
+            "deviceAddr"
+          ],
+          "additionalProperties": false,
           "properties": {
             "deviceAddr": {
-              "type": "integer",
+              "$ref": "definitions.json#/general/nAdr",
               "description": "Device address to write the configuration to. Broadcast address is also allowed."
             },
             "hwpId": {
-              "type": "integer",
-              "description": "HWP Id."
+              "$ref": "definitions.json#/general/request/hwpId"
             },
             "embPers": {
-              "type": "object",
-              "description": "Embedded peripherals enabled on the node.",
-              "properties": {
-                "values": {
-                  "type": "array",
-                  "description": "An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.",
-                  "items": {
-                    "type": "integer"
-                  },
-                  "maxItems": 4
-                },
-                "coordinator": {
-                  "type": "boolean",
-                  "description": "If coordinator is enabled."
-                },
-                "node": {
-                  "type": "boolean",
-                  "description": "If node is enabled."
-                },
-                "os": {
-                  "type": "boolean",
-                  "description": "If OS is enabled."
-                },
-                "eeprom": {
-                  "type": "boolean",
-                  "description": "If EEPROM is enabled."
-                },
-                "eeeprom": {
-                  "type": "boolean",
-                  "description": "If EEEPROM is enabled."
-                },
-                "ram": {
-                  "type": "boolean",
-                  "description": "If RAM is enabled."
-                },
-                "ledr": {
-                  "type": "boolean",
-                  "description": "If LEDR is enabled."
-                },
-                "ledg": {
-                  "type": "boolean",
-                  "description": "If LEDG is enabled."
-                },
-                "spi": {
-                  "type": "boolean",
-                  "description": "If SPI is enabled."
-                },
-                "io": {
-                  "type": "boolean",
-                  "description": "If IO is enabled."
-                },
-                "thermometer": {
-                  "type": "boolean",
-                  "description": "If thermometer is enabled."
-                },
-                "pwm": {
-                  "type": "boolean",
-                  "description": "If PWM is enabled."
-                },
-                "uart": {
-                  "type": "boolean",
-                  "description": "If UART is enabled."
-                },
-                "frc": {
-                  "type": "boolean",
-                  "description": "If FRC is enabled."
-                }
-              },
-              "additionalProperties": false
+              "$ref": "definitions.json#/iqmesh/trConfig/embPers"
             },
             "rfChannelA": {
-              "type": "integer",
-              "description": "Main RF channel A of the main network. Valid numbers depend on used RF band."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfChannelA"
             },
             "rfChannelB": {
-              "type": "integer",
-              "description": "Same as above but second B channel. Used at RFPGM only."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfChannelB"
             },
             "rfSubChannelA": {
-              "type": "integer",
-              "description": "Main RF channel A of the optional subordinate network in case the node also plays a role of the coordinator of such network. Valid numbers depend on used RF band. Available for DPA<400."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfSubChannelA"
             },
             "rfSubChannelB": {
-              "type": "integer",
-              "description": "Same as above but second B channel."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfSubChannelB"
             },
             "txPower": {
-              "type": "integer",
-              "description": "RF output power. Valid numbers 0-7."
+              "$ref": "definitions.json#/iqmesh/trConfig/txPower"
             },
             "rxFilter": {
-              "type": "integer",
-              "description": "RF signal filter. Valid numbers 0-64."
+              "$ref": "definitions.json#/iqmesh/trConfig/rxFilter"
             },
             "lpRxTimeout": {
-              "type": "integer",
-              "description": "Timeout for receiving RF packets at LP mode at N device."
+              "$ref": "definitions.json#/iqmesh/trConfig/lpRxTimeout"
             },
             "rfAltDsmChannel": {
-              "type": "integer",
-              "description": "A nonzero value specifies an alternative DPA service mode channel."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfAltDsmChannel"
             },
             "localFrcReception": {
-              "type": "boolean",
-              "description": "If set, then Local FRC reception is enabled at [N]."
+              "$ref": "definitions.json#/iqmesh/trConfig/localFrcReception"
             },
             "rfPgmEnableAfterReset": {
-              "type": "boolean",
-              "description": "If sets, then activates RFPGM invoking by TR module reset."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmEnableAfterReset"
             },
             "rfPgmTerminateAfter1Min": {
-              "type": "boolean",
-              "description": "If sets, then terminates RFPGM automatically ~1 minute after reset."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmTerminateAfter1Min"
             },
             "rfPgmTerminateMcuPin": {
-              "type": "boolean",
-              "description": "If sets, then terminates RFPGM by dedicated pin of the TR module."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmTerminateMcuPin"
             },
             "rfPgmDualChannel": {
-              "type": "boolean",
-              "description": "If sets, then enables single or dual channel function."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmDualChannel"
             },
             "rfPgmLpMode": {
-              "type": "boolean",
-              "description": "RFPGM receiving mode setting. If set, then LP (low power) Rx mode is used during RFPGM. Otherwise STD (standard) Rx mode is used."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmLpMode"
             },
             "rfPgmIncorrectUpload": {
-              "type": "boolean",
-              "description": "Read only. Indicates that the last RFPGM has successfully been completed."
+              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmIncorrectUpload"
             },
             "customDpaHandler": {
-              "type": "boolean",
-              "description": "If set, then a Custom DPA handler is called in case of an event."
+              "$ref": "definitions.json#/iqmesh/trConfig/customDpaHandler"
             },
             "dpaPeerToPeer": {
-              "type": "boolean",
-              "description": "If set, then DP2P is enabled at [N]."
+              "$ref": "definitions.json#/iqmesh/trConfig/dpaPeerToPeer"
             },
             "nodeDpaInterface": {
-              "type": "boolean",
-              "description": "If set, then Node device can be controlled by a SPI or UART interface. Valid only in DPA version < 4.00"
+              "$ref": "definitions.json#/iqmesh/trConfig/nodeDpaInterface"
             },
             "uartBaudrate": {
-              "type": "integer",
-              "description": "Baud rate of the UART interface if one is used."
+              "$ref": "definitions.json#/iqmesh/trConfig/uartBaudrate"
             },
             "dpaAutoexec": {
-              "type": "boolean",
-              "description": "If set, then DPA Autoexec is run at a later stage of the module boot time."
+              "$ref": "definitions.json#/iqmesh/trConfig/dpaAutoexec"
             },
             "routingOff": {
-              "type": "boolean",
-              "description": "If set, then the Node device does not route packets on the background."
+              "$ref": "definitions.json#/iqmesh/trConfig/routingOff"
             },
             "ioSetup": {
-              "type": "boolean",
-              "description": "If set, then DPA IO Setup is run at an early stage of the module boot time."
+              "$ref": "definitions.json#/iqmesh/trConfig/ioSetup"
             },
             "peerToPeer": {
-              "type": "boolean",
-              "description": "If set, then device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event."
+              "$ref": "definitions.json#/iqmesh/trConfig/peerToPeer"
             },
             "neverSleep": {
-              "type": "boolean",
-              "description": "If set, then unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03"
+              "$ref": "definitions.json#/iqmesh/trConfig/neverSleep"
             },
             "stdAndLpNetwork": {
-              "type": "boolean",
-              "description": "If the bit is set, then the [C] controls the STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00"
+              "$ref": "definitions.json#/iqmesh/trConfig/stdAndLpNetwork"
             },
             "accessPassword": {
               "type": "string",
-              "description": "It sets access password. If the field is left completely empty (no characters filled), the default password (16x number 0x00) is used (the same as the default set from the factory.",
+              "description": "It sets access password. If the field is left completely empty (no characters filled), the default password (16x number 0x00) is used (the same as the default set from the factory).",
               "maxItems": 16
             },
             "securityUserKey": {
@@ -219,27 +132,15 @@
               "description": "It sets security user key. Enter a value up to 16 characters.",
               "maxItems": 16
             }
-          },
-          "additionalProperties": false,
-          "required": [
-            "deviceAddr"
-          ]
+          }
+        },
+        "repeat": {
+          "$ref": "definitions.json#/iqmesh/repeat"
         },
         "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
+          "$ref": "definitions.json#/general/returnVerbose"
         }
-      },
-      "additionalProperties": false,
-      "required": [
-        "msgId",
-        "req"
-      ]
+      }
     }
-  },
-  "additionalProperties": false,
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }

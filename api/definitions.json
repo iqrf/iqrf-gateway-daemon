@@ -670,6 +670,276 @@
         { "type": "null" },
         { "type": "number" }
       ]
+    },
+    "dpaHops": {
+      "action": {
+        "title": "Action",
+        "description": "Whether to GET the current DPA hops setting or SET a new configuration.",
+        "type": "string",
+        "enum": [
+          "get",
+          "set"
+        ]
+      },
+      "requestHops": {
+        "title": "Request hops",
+        "description": "Request hops.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255,
+        "default": 255
+      },
+      "responseHops": {
+        "title": "Response hops",
+        "description": "Response hops.",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 255,
+        "default": 255
+      }
+    },
+    "dpaValue": {
+      "action": {
+        "title": "Action",
+        "description": "Whether to GET the current DPA value type or SET a new type. Set action without explicit type will reset DPA value type to default.",
+        "type": "string",
+        "enum": [
+          "get",
+          "set"
+        ]
+      },
+      "type": {
+        "title": "Type",
+        "description": "DPA value type. [0 - RSSI, 1 - Supply Voltage, 2 - System, 3 - User].",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3,
+        "default": 0
+      }
+    },
+    "frcParams": {
+      "action": {
+        "title": "Action",
+        "description": "Whether to GET the current FRC parameters or SET a new configuration. Set action without explicit type will reset FRC parameters to default.",
+        "type": "string",
+        "enum": [
+          "get",
+          "set"
+        ]
+      },
+      "responseTime": {
+        "title": "FRC response time",
+        "description": "FRC response time in milliseconds. [0 - 40ms, 16 - 360ms, 32 - 680ms, 48 - 1320ms, 64 - 2600ms, 80 - 5160ms, 96 - 10280ms, 112 - 20620ms].",
+        "type": "integer",
+        "enum": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112
+        ],
+        "default": 0
+      },
+      "offlineFrc": {
+        "title": "Offline FRC",
+        "description": "Whether to perform offline FRC (for beaming sensors only).",
+        "type": "boolean"
+      }
+    },
+    "ota": {
+      "loadingAction": {
+        "title": "Loading action",
+        "description": "Loading action: WithoutCodeLoading, WithCodeLoading.",
+        "type": "string"
+      }
+    },
+    "trConfig": {
+      "embPers": {
+        "description": "Embedded peripherals enabled on the node.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "values": {
+            "description": "An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 4
+          },
+          "coordinator": {
+            "description": "Coordinator is enabled.",
+            "type": "boolean"
+          },
+          "node": {
+            "description": "Node is enabled.",
+            "type": "boolean"
+          },
+          "os": {
+            "description": "OS is enabled.",
+            "type": "boolean"
+          },
+          "eeprom": {
+            "description": "EEPROM is enabled.",
+            "type": "boolean"
+          },
+          "eeeprom": {
+            "description": "EEEPROM is enabled.",
+            "type": "boolean"
+          },
+          "ram": {
+            "description": "RAM is enabled.",
+            "type": "boolean"
+          },
+          "ledr": {
+            "description": "LEDR is enabled.",
+            "type": "boolean"
+          },
+          "ledg": {
+            "description": "LEDG is enabled.",
+            "type": "boolean"
+          },
+          "spi": {
+            "description": "SPI is enabled.",
+            "type": "boolean"
+          },
+          "io": {
+            "description": "IO is enabled.",
+            "type": "boolean"
+          },
+          "thermometer": {
+            "description": "Thermometer is enabled.",
+            "type": "boolean"
+          },
+          "pwm": {
+            "description": "PWM is enabled.",
+            "type": "boolean"
+          },
+          "uart": {
+            "description": "UART is enabled.",
+            "type": "boolean"
+          },
+          "frc": {
+            "description": "FRC is enabled.",
+            "type": "boolean"
+          }
+        }
+      },
+      "rfChannelA": {
+        "description": "Main RF channel A of the main network. Valid numbers depend on used RF band.",
+        "type": "integer"
+      },
+      "rfChannelB": {
+        "description": "Same as above but second B channel. Used at RFPGM only.",
+        "type": "integer"
+      },
+      "rfSubChannelA": {
+        "description": "Main RF channel A of the optional subordinate network in case the node also plays a role of the coordinator of such network. Valid numbers depend on used RF band. Available for DPA<400.",
+        "type": "integer"
+      },
+      "rfSubChannelB": {
+        "description": "Same as above but second B channel.",
+        "type": "integer"
+      },
+      "txPower": {
+        "description": "RF output power. Valid numbers 0-7.",
+        "type": "integer"
+      },
+      "rxFilter": {
+        "description": "RF signal filter. Valid numbers 0-64.",
+        "type": "integer"
+      },
+      "lpRxTimeout": {
+        "description": "Timeout for receiving RF packets at LP mode at N device.",
+        "type": "integer"
+      },
+      "rfAltDsmChannel": {
+        "description": "A nonzero value specifies an alternative DPA service mode channel.",
+        "type": "integer"
+      },
+      "rfPgmEnableAfterReset": {
+        "description": "Activates RFPGM invoking by TR module reset.",
+        "type": "boolean"
+      },
+      "rfPgmTerminateAfter1Min": {
+        "description": "Terminates RFPGM automatically ~1 minute after reset.",
+        "type": "boolean"
+      },
+      "rfPgmTerminateMcuPin": {
+        "description": "Terminates RFPGM by dedicated pin of the TR module.",
+        "type": "boolean"
+      },
+      "rfPgmDualChannel": {
+        "description": "Enables single or dual channel function.",
+        "type": "boolean"
+      },
+      "rfPgmLpMode": {
+        "description": "RFPGM receiving mode setting. If set, then LP (low power) Rx mode is used during RFPGM. Otherwise STD (standard) Rx mode is used.",
+        "type": "boolean"
+      },
+      "rfPgmIncorrectUpload": {
+        "description": "Read only. Indicates that the last RFPGM has successfully been completed.",
+        "type": "boolean"
+      },
+      "customDpaHandler": {
+        "description": "Whether a Custom DPA handler is called in case of an event.",
+        "type": "boolean"
+      },
+      "dpaPeerToPeer": {
+        "description": "Whether DP2P is enabled at [N].",
+        "type": "boolean"
+      },
+      "nodeDpaInterface": {
+        "description": "Whether Node device can be controlled by a SPI or UART interface. Valid only in DPA version < 4.00",
+        "type": "boolean"
+      },
+      "uartBaudrate": {
+        "description": "Baud rate of the UART interface if one is used.",
+        "type": "integer"
+      },
+      "localFrcReception": {
+        "description": "Local FRC reception is enabled at [N].",
+        "type": "boolean"
+      },
+      "dpaAutoexec": {
+        "description": "Whether DPA Autoexec is run at a later stage of the module boot time.",
+        "type": "boolean"
+      },
+      "routingOff": {
+        "description": "Node device does not route packets on the background.",
+        "type": "boolean"
+      },
+      "ioSetup": {
+        "description": "Whether DPA IO Setup is run at an early stage of the module boot time.",
+        "type": "boolean"
+      },
+      "peerToPeer": {
+        "description": "Whether the device receives also peer-to-peer (non-networking) packets and raises PeerToPeer event.",
+        "type": "boolean"
+      },
+      "neverSleep": {
+        "description": "Whether an unbonded Node using default IQRF buttons never sleeps during the button bonding. From DPA v3.03",
+        "type": "boolean"
+      },
+      "stdAndLpNetwork": {
+        "description": "Denotes that the Coordinator maintains STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00",
+        "type": "boolean"
+      },
+      "thermometerSensorPresent": {
+        "description": "On-board thermometer sensor chip is present.",
+        "type": "boolean"
+      },
+      "serialEepromPresent": {
+        "description": "Serial EEPROM chip is present.",
+        "type": "boolean"
+      },
+      "transcieverILType": {
+        "description": "Transciever is IL type for Israel region.",
+        "type": "boolean"
+      }
     }
   },
   "sensorData": {
