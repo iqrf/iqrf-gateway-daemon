@@ -1,61 +1,57 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_ReadTrConf-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQMESH Network - Read TR configuration request",
+  "description": "(c) IQRF Tech",
   "type": "object",
-  "properties": {
-    "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Read TR configuration request.",
-      "enum": [
-        "iqmeshNetwork_ReadTrConf"
-      ]
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "repeat": {
-          "type": "integer",
-          "description": "Number of repetitions of DPA messages.",
-          "default": 1
-        },
-        "req": {
-          "type": "object",
-          "properties": {
-            "deviceAddr": {
-              "type": "integer",
-              "description": "Device address to read the configuration from."
-            },
-            "hwpId": {
-              "type": "integer",
-              "description": "HWP Id."
-            }
-          },
-          "required": [
-            "deviceAddr"
-          ]
-        },
-        "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
-        }
-      },
-      "required": [
-        "msgId",
-        "req"
-      ]
-    }
-  },
   "required": [
     "mType",
     "data"
-  ]
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "mType": {
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqmeshNetwork_ReadTrConf" }
+      ]
+    },
+    "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
+      "type": "object",
+      "required": [
+        "msgId",
+        "req"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
+        "req": {
+          "title": "Request",
+          "description": "Holds request data",
+          "type": "object",
+          "required": [
+            "deviceAddr"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "deviceAddr": {
+              "$ref": "definitions.json#/general/nAdr"
+            },
+            "hwpId": {
+              "$ref": "definitions.json#/general/request/hwpId"
+            }
+          }
+        },
+        "repeat": {
+          "$ref": "definitions.json#/iqmesh/repeat"
+        },
+        "returnVerbose": {
+          "$ref": "definitions.json#/general/returnVerbose"
+        }
+      }
+    }
+  }
 }

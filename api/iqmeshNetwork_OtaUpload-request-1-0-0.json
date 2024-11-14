@@ -1,11 +1,7 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "iqmeshNetwork_OtaUpload-request",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQMESH Network - OTA Upload request",
+  "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
     "mType",
@@ -14,13 +10,14 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "IQMESH Network management - Upload hex or iqrf file request.",
-      "enum": [
-        "iqmeshNetwork_OtaUpload"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqmeshNetwork_OtaUpload" }
       ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
       "required": [
         "msgId",
@@ -29,15 +26,11 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "repeat": {
-          "type": "integer",
-          "description": "Number of repetitions of DPA messages.",
-          "default": 1
+          "$ref": "definitions.json#/general/msgId"
         },
         "req": {
+          "title": "Request",
+          "description": "Holds request data",
           "type": "object",
           "required": [
             "deviceAddr",
@@ -48,38 +41,39 @@
           "additionalProperties": false,
           "properties": {
             "deviceAddr": {
-              "type": "integer",
-              "description": "Device address to write the hex or iqrf file."
+              "$ref": "definitions.json#/general/nAdr"
             },
             "hwpId": {
-              "type": "integer",
-              "description": "Hardware profile ID of the devices to write the hex or iqrf file."
+              "$ref": "definitions.json#/general/request/hwpId"
             },
             "fileName": {
-              "type": "string",
-              "description": "Full name of file with source code to load."
+              "title": "File name",
+              "description": "Full name of file with source code to load.",
+              "type": "string"
             },
             "startMemAddr": {
-              "type": "integer",
-              "description": "Start address on which will be the data saved into memory."
+              "title": "Starting memory address",
+              "description": "Start address on which will be the data saved into memory.",
+              "type": "integer"
             },
             "loadingAction": {
-              "type": "string",
-              "description": "Loading action - WithoutCodeLoading, WithCodeLoading."
+              "$ref": "definitions.json#/iqmesh/ota/loadingAction"
             },
             "uploadEepromData": {
-              "type": "boolean",
-              "description": "Upload internal eeprom data from hex file."
+              "description": "Upload internal eeprom data from hex file.",
+              "type": "boolean"
             },
             "uploadEeepromData": {
-              "type": "boolean",
-              "description": "Upload external eeprom data from hex file."
+              "description": "Upload external eeprom data from hex file.",
+              "type": "boolean"
             }
           }
         },
+        "repeat": {
+          "$ref": "definitions.json#/iqmesh/repeat"
+        },
         "returnVerbose": {
-          "type": "boolean",
-          "description": "Flag that includes additional parameters in the response."
+          "$ref": "definitions.json#/general/returnVerbose"
         }
       }
     }
