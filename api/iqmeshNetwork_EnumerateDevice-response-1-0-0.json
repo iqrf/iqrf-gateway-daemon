@@ -62,23 +62,16 @@
               ],
               "properties": {
                 "discovered": {
-                  "title": "Discovered",
-                  "description": "Whether is the device discovered.",
-                  "type": "boolean"
+                  "$ref": "definitions.json#/node/discovered"
                 },
                 "vrn": {
-                  "title": "Virtual Routing Number",
-                  "type": "integer"
+                  "$ref": "definitions.json#/node/vrn"
                 },
                 "zone": {
-                  "title": "Zone",
-                  "description": "Device zone.",
-                  "type": "integer"
+                  "$ref": "definitions.json#/node/zone"
                 },
                 "parent": {
-                  "title": "Parent",
-                  "description": "Device parent.",
-                  "type": "integer"
+                  "$ref": "definitions.json#/node/parent"
                 }
               }
             },

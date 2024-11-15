@@ -22,6 +22,13 @@
       "minimum": 0,
       "maximum": 255
     },
+    "hwpId": {
+      "title": "HWPID",
+      "description": "Hardware profile ID.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
     "returnVerbose": {
       "title": "Verbose response",
       "description": "API response will be more verbose.",
@@ -46,12 +53,10 @@
     },
     "request": {
       "hwpId": {
-        "title": "HWPID",
-        "description": "Hardware profile ID.",
-        "type": "integer",
-        "minimum": 0,
-        "maximum": 65535,
-        "default": 65535
+        "allOf": {
+          "$ref": "#/general/hwpId",
+          "default": 65535
+        }
       }
     },
     "response": {
@@ -375,18 +380,22 @@
     },
     "sensor": {
       "decimalPlaces": {
+        "title": "Precision",
         "description": "Number of valid decimal places.",
-        "type": "number"
+        "type": "integer",
+        "minimum": 0
       },
       "frcCommand": {
-        "type": "integer",
+        "title": "FRC command",
         "description": "One of predefined standard sensor FRC commands. Use FRC commands available from Sensor enumeration.",
+        "type": "integer",
         "minimum": 0,
         "maximum": 255
       },
       "index": {
-        "type": "integer",
+        "title": "Sensor index",
         "description": "Index of the sensor. When the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data.",
+        "type": "integer",
         "minimum": 0,
         "maximum": 255
       },
@@ -992,6 +1001,81 @@
           }
         }
       }
+    }
+  },
+  "device": {
+    "dpaVersion": {
+      "title": "DPA version.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "hwpidVersion": {
+      "title": "Hardware profile ID version",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "mId": {
+      "title": "Module ID",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "osBuild": {
+      "title": "IQRF OS build",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "osVersionStr": {
+      "title": "IQRF OS version",
+      "type": "string"
+    },
+    "product": {
+      "oneOf": [
+        {
+          "title": "Product name",
+          "type": "string"
+        },
+        {
+          "title": "Unknown product",
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "node": {
+    "discovered": {
+      "title": "Discovery status",
+      "description": "Whether is the device discovered.",
+      "type": "boolean"
+    },
+    "parent": {
+      "oneOf": [
+        {
+          "title": "Parent device",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        {
+          "title": "No parents",
+          "type": "null"
+        }
+      ]
+    },
+    "vrn": {
+      "title": "Virtual routing number",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "zone": {
+      "title": "Zone",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
     }
   }
 }
