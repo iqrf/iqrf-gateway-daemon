@@ -131,7 +131,7 @@
       },
       "errorStr": {
         "title": "Error string",
-        "description": "Error description message.",
+        "description": "Human readable description of the error.",
         "type": "string"
       },
       "raw": {
@@ -462,19 +462,23 @@
         "type": "string"
       },
       "value": {
-        "title": "Sensor value",
-        "description": "Measured value of the sensor.",
         "oneOf": [
-          { "type": "null" },
-          { "type": "number" },
           {
+            "title": "Sensor value",
+            "description": "Last measured value of the sensor.",
+            "type": "number"
+          },
+          {
+            "title": "Sensor values",
+            "description": "List of last measured values of the sensor.",
             "type": "array",
             "items": {
               "type": "integer",
               "minimum": 0,
               "maximum": 255
             }
-          }
+          },
+          { "type": "null" }
         ]
       }
     },
@@ -1016,6 +1020,16 @@
       "minimum": 0,
       "maximum": 65535
     },
+    "metadata": {
+      "oneOf": [
+        {
+          "title": "Metadata",
+          "description": "Arbitrary user defined device meta data.",
+          "type": "object"
+        },
+        { "type": "null" }
+      ]
+    },
     "mId": {
       "title": "Module ID",
       "type": "integer",
@@ -1076,6 +1090,26 @@
       "type": "integer",
       "minimum": 0,
       "maximum": 255
+    }
+  },
+  "iqrfDb": {
+    "binouts": {
+      "title": "BinaryOutput standard",
+      "description": "Include binary outputs if the device implements BinaryOutput standard.",
+      "type": "boolean",
+      "default": false
+    },
+    "brief": {
+      "title": "Brief information",
+      "description": "Brief information about a device.",
+      "type": "boolean",
+      "default": false
+    },
+    "sensors": {
+      "title": "Sensor standard",
+      "description": "Include sensors if the device implements Sensor standard.",
+      "type": "boolean",
+      "default": false
     }
   }
 }

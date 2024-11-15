@@ -1,8 +1,17 @@
-{
-  "mType": "iqrfDb_Reset",
-  "data": {
-    "msgId": "df939d51-f50a-420d-b7d8-c7fd70dfa4d5",
-    "req": {},
-    "returnVerbose": true
+[
+  {
+    "mType": "iqrfDb_Reset",
+    "data": {
+      "msgId": "79ce9d6d-f630-4539-b573-fd1ac6f4d029",
+      "returnVerbose": true
+    }
+  },
+  {
+    "mType": "iqrfDb_Reset",
+    "data": {
+      "msgId": "df939d51-f50a-420d-b7d8-c7fd70dfa4d5",
+      "req": {},
+      "returnVerbose": true
+    }
   }
-}
+]
