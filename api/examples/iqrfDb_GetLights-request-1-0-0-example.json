@@ -1,8 +1,17 @@
-{
+[
+  {
     "mType": "iqrfDb_GetLights",
     "data": {
-        "msgId": "50a9dabd-6693-4400-8682-7422e9a56a21",
-        "req": {},
-        "returnVerbose": true
+      "msgId": "50a9dabd-6693-4400-8682-7422e9a56a21",
+      "req": {},
+      "returnVerbose": true
     }
-}
+  },
+  {
+    "mType": "iqrfDb_GetLights",
+    "data": {
+      "msgId": "258debe1-5994-44aa-98fa-755783ecc211",
+      "returnVerbose": true
+    }
+  }
+]
