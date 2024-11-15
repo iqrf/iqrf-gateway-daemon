@@ -1,7 +1,7 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "title": "Enumerate request",
-  "description": "Enumerates devices in network and stores information in database.",
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "IQRF DB - Enumerate request",
+  "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
     "mType",
@@ -10,18 +10,14 @@
   "additionalProperties": false,
   "properties": {
     "mType": {
-      "$id": "#/properties/mType",
-      "title": "Message type",
-      "description": "IQRF DB - Enumerate request.",
-      "type": "string",
-      "enum": [
-        "iqrfDb_Enumerate"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "iqrfDb_Enumerate" }
       ]
     },
     "data": {
-      "$id": "#/properties/data",
-      "title": "Request data",
-      "description": "Request data.",
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
       "required": [
         "msgId",
@@ -30,26 +26,21 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$id": "#/properties/data/properties/msgId",
-          "title": "Message ID",
-          "description": "Message ID used for pairing requests and responses.",
-          "type": "string"
+          "$ref": "definitions.json#/general/msgId"
         },
         "req": {
-          "$id": "#/properties/data/properties/req",
-          "title": "Request parameters",
-          "description": "Request parameters.",
+          "title": "Request",
+          "description": "Holds request data",
           "type": "object",
+          "required": [],
           "additionalProperties": false,
           "properties": {
             "standards": {
-              "$id": "#/properties/data/properties/req/properties/standards",
               "title": "Enumerate standards",
               "description": "Enumerate IQRF standards.",
               "type": "boolean"
             },
             "reenumerate": {
-              "$id": "#/properties/data/properties/req/properties/reenumerate",
               "title": "Force re-enumeration",
               "description": "Re-enumerate all devices. This includes IQRF standards enumeration.",
               "type": "boolean"
@@ -57,10 +48,7 @@
           }
         },
         "returnVerbose": {
-          "$id": "#/properties/data/properties/returnVerbose",
-          "title": "Verbose response",
-          "description": "Return more verbose response.",
-          "type": "boolean"
+          "$ref": "definitions.json#/general/returnVerbose"
         }
       }
     }
