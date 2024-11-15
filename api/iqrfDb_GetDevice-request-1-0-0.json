@@ -43,22 +43,13 @@
               "$ref": "definitions.json#/general/nAdr"
             },
             "sensors": {
-              "title": "Sensors data",
-              "description": "Include device sensors data.",
-              "type": "boolean",
-              "default": false
+              "$ref": "definitions.json#/iqrfDb/sensors"
             },
             "binouts": {
-              "title": "Binout data",
-              "description": "Include binout data.",
-              "type": "boolean",
-              "default": false
+              "$ref": "definitions.json#/iqrfDb/binouts"
             },
             "brief": {
-              "title": "Brief information",
-              "description": "Brief information about a device.",
-              "type": "boolean",
-              "default": false
+              "$ref": "definitions.json#/iqrfDb/brief"
             }
           }
         },
