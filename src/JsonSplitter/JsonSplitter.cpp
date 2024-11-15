@@ -18,7 +18,6 @@
 #define IMessagingSplitterService_EXPORTS
 
 #include "TaskQueue.h"
-#include "ApiMsg.h"
 #include "JsonSplitter.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
@@ -56,33 +55,6 @@ TRC_INIT_MODULE(iqrf::JsonSplitter)
 using namespace rapidjson;
 
 namespace iqrf {
-  class MessageErrorMsg : public ApiMsg
-  {
-  public:
-    MessageErrorMsg() = delete;
-    MessageErrorMsg(const std::string msgId, const std::string wrongMsg, const std::string errorStr)
-      :ApiMsg("messageError", msgId, true)
-      ,m_wrongMsg(wrongMsg)
-      ,m_errorStr(errorStr)
-    {
-    }
-
-    virtual ~MessageErrorMsg()
-    {
-    }
-
-    void createResponsePayload(rapidjson::Document& doc) override
-    {
-      Pointer("/data/rsp/wrongMsg").Set(doc, m_wrongMsg);
-      Pointer("/data/rsp/errorStr").Set(doc, m_errorStr);
-      setStatus("err",-1);
-    }
-
-  private:
-    std::string m_wrongMsg;
-    std::string m_errorStr;
-  };
-
   class JsonSplitter::Imp {
   private:
     /// Messaging ID and message pair
@@ -110,15 +82,31 @@ namespace iqrf {
     std::map<std::string, rapidjson::SchemaDocument> m_validatorMapResponse;
     /// Message type to handle
     std::map<std::string, MsgType> m_msgTypeToHandle;
-    /// Message queue
-    TaskQueue<MsgIdMsg>* m_splitterMessageQueue = nullptr;
+    /// Daemon network queue size
+    std::size_t m_networkQueueSize = 32;
+    /// Daemon network queue
+    TaskQueue<MsgIdMsg>* m_networkQueue = nullptr;
+    /// Daemon management queue size
+    std::size_t m_managementQueueSize = 32;
+    /// Daemon management queue
+    TaskQueue<MsgIdMsg>* m_managementQueue = nullptr;
+    /// Network queue control message filters
+    std::vector<std::string> m_queueControlFilters = {
+      "mngDaemon_StartQueue",
+      "mngDaemon_StopQueue"
+    };
+    // Set of message types handled by management queue
+    std::set<std::string> m_managementQueueMessageFilter = {
+      "mngDaemon_StartQueue",
+      "mngDaemon_StopQueue"
+    };
     /// Launch service interface
     shape::ILaunchService* m_iLaunchService = nullptr;
 
     std::string getKey(const MsgType& msgType) const
     {
       std::ostringstream os;
-      os << msgType.m_type << '.' << msgType.m_major << '.' << msgType.m_minor << '.' << msgType.m_micro;
+      os << msgType.m_type << '.' << msgType.m_major << '.' << msgType.m_minor << '.' << msgType.m_patch;
       return os.str();
     }
 
@@ -142,13 +130,13 @@ namespace iqrf {
       //default version
       int major = 1;
       int minor = 0;
-      int micro = 0;
+      int patch = 0;
 
       // get message type
       if (const Value* mTypeVal = Pointer("/mType").Get(doc)) {
         mType = mTypeVal->GetString();
       } else {
-        THROW_EXC_TRC_WAR(std::logic_error, "Missing message type");
+        THROW_EXC_TRC_WAR(std::invalid_argument, "Missing message type");
       }
 
       // get version
@@ -156,10 +144,20 @@ namespace iqrf {
         ver = verVal->GetString();
         std::replace(ver.begin(), ver.end(), '.', ' ');
         std::istringstream istr(ver);
-        istr >> major >> minor >> micro;
+        istr >> major >> minor >> patch;
       }
 
-      return MsgType(mType, major, minor, micro);
+      std::ostringstream oss;
+      oss << mType << '.' << major << '.' << minor << '.' << patch;
+      std::string verKey = oss.str();
+
+      // check if message type is supported
+      auto match = m_msgTypeToHandle.find(verKey);
+      if (match == m_msgTypeToHandle.end()) {
+        THROW_EXC_TRC_WAR(std::domain_error, "Unsupported: " << NAME_PAR(mType, mType) << NAME_PAR(key, verKey));
+      }
+
+      return match->second;
     }
 
     void sendMessage(const MessagingInstance &messaging, rapidjson::Document doc) const {
@@ -176,15 +174,11 @@ namespace iqrf {
       TRC_INFORMATION("Outgoing message: " << std::endl << JsonToStr(doc));
 
       // Check if message is allowed or supported
-      MsgType mType = getMessageType(doc);
-      auto searchResult = m_msgTypeToHandle.find(getKey(mType));
-      if (searchResult == m_msgTypeToHandle.end()) {
-        THROW_EXC_TRC_WAR(std::logic_error, "Unsupported message type: " << mType.m_type);
-      }
+      MsgType msgType = getMessageType(doc);
 
       // Validate generated response
       if (m_validateResponse) {
-        validate(searchResult->second, doc, m_validatorMapResponse, "response");
+        validate(msgType, doc, m_validatorMapResponse, "response");
       }
 
       StringBuffer buffer;
@@ -292,6 +286,30 @@ namespace iqrf {
       TRC_FUNCTION_LEAVE("")
     }
 
+    void sendErrorMessage(const MessagingInstance &messaging, rapidjson::Document doc) const {
+      try {
+        sendMessage(messaging, std::move(doc));
+      } catch (const std::logic_error &e) {
+        TRC_WARNING("Unable to send error response: " << e.what());
+      }
+    }
+ 
+    void handleQueueManagementMsg(const MessagingInstance &messaging, const MsgType &msgType, rapidjson::Document doc) const {
+      TRC_FUNCTION_ENTER(
+				PAR(messaging.to_string()) <<
+				NAME_PAR(mType, msgType.m_type) <<
+				NAME_PAR(major, msgType.m_major) <<
+				NAME_PAR(minor, msgType.m_minor) <<
+				NAME_PAR(patch, msgType.m_patch)
+			);
+      
+      if (msgType.m_type == "mngDaemon_StartQueue") {
+        m_networkQueue->startQueue();
+      } else if (msgType.m_type == "mngDaemon_StopQueue") {
+        m_networkQueue->stopQueue();
+      }
+    }
+
     void handleMessageFromMessaging(const MessagingInstance &messaging, const std::vector<uint8_t>& message) const
     {
       TRC_FUNCTION_ENTER(PAR(messaging.instance));
@@ -306,45 +324,91 @@ namespace iqrf {
         );
 
       int queueLen = -1;
-      if (m_splitterMessageQueue) {
-        queueLen = static_cast<int>(m_splitterMessageQueue->size());
-        if (queueLen <= 32) { //TODO parameter
-          queueLen = m_splitterMessageQueue->pushToQueue(std::make_pair(messaging, message));
+
+      StringStream ss(msgStr.data());
+      Document doc;
+      doc.ParseStream(ss);
+      std::string msgId("unknown");
+
+      try {
+        if (doc.HasParseError()) {
+          //TODO parse error handling => send back an error JSON with details
+          THROW_EXC_TRC_WAR(std::logic_error, "Json parse error: " <<
+            NAME_PAR(emsg, doc.GetParseError()) <<
+            NAME_PAR(eoffset, doc.GetErrorOffset())
+          );
         }
-        else {
-          TRC_WARNING("Error queue overload: " << PAR(queueLen));
+      } catch (const std::logic_error &e) {
+        rapidjson::Document errDoc;
+        JsonParseErrorMsg errMsg(msgStr);
+        errMsg.createResponse(errDoc);
+        sendErrorMessage(messaging, std::move(errDoc));
+        return;
+      }
 
-          std::string str((char*)message.data(), message.size());
-          StringStream ss(str.data());
-          Document doc;
-          doc.ParseStream(ss);
-          std::string msgId("ignored");
+      msgId = Pointer("/data/msgId").GetWithDefault(doc, "unknown").GetString();
 
-          if (!doc.HasParseError()) {
-            msgId = Pointer("/data/msgId").GetWithDefault(doc, "ignored").GetString();
+      try {
+        MsgType msgType = getMessageType(doc);
+
+        const std::string REQS("request");
+        validate(msgType, doc, m_validatorMapRequest, REQS);
+      } catch (const std::invalid_argument &e) {
+
+      } catch (const std::logic_error &e) {
+        rapidjson::Document errDoc;
+        InvalidMsg()
+        return;
+      }
+
+      MsgType msgType = getMessageType(doc);
+      if (m_managementQueueMessageFilter.count(msgType.m_type)) {
+        // check availability of management queue
+        if (m_managementQueue) {
+          if (m_managementQueue->size() < m_managementQueueSize) {
+            m_managementQueue->pushToQueue(std::make_pair(messaging, message));
+          } else {
+            TRC_WARNING("Management queue full, message ignored.");
+            rapidjson::Document errDoc;
+            QueueFullMsg errMsg(msgId, msgType.m_type, m_managementQueueSize, false);
+            errMsg.createResponse(errDoc);
+            sendErrorMessage(messaging, std::move(errDoc));
+            return;
           }
-          std::ostringstream oser;
-          oser << "daemon overload: " << PAR(queueLen);
-          Document rspDoc;
-          MessageErrorMsg msg(msgId, str, oser.str());
-          msg.createResponse(rspDoc);
-          try {
-            sendMessage(messaging, std::move(rspDoc));
+        } else {
+          TRC_WARNING("Management queue not available, message ignored.");
+          rapidjson::Document errDoc;
+          QueueInactiveMsg errMsg(msgId, msgType.m_type, false);
+          errMsg.createResponse(errDoc);
+          sendErrorMessage(messaging, std::move(errDoc));
+          return;
+        }
+      } else {
+        if (m_networkQueue) {
+          if (m_networkQueue->size() < m_networkQueueSize) {
+            m_networkQueue->pushToQueue(std::make_pair(messaging, message));
+          } else {
+            TRC_WARNING("Network queue full, message ignored.");
+            rapidjson::Document errDoc;
+            QueueFullMsg errMsg(msgId, msgType.m_type, m_managementQueueSize);
+            errMsg.createResponse(errDoc);
+            sendErrorMessage(messaging, std::move(errDoc));
+            return;
           }
-          catch (std::logic_error &ee) {
-            TRC_WARNING("Cannot create error response:" << ee.what());
-          }
+        } else {
+          TRC_WARNING("Network queue not available, message ignored.");
+          rapidjson::Document errDoc;
+          QueueInactiveMsg errMsg(msgId, msgType.m_type);
+          errMsg.createResponse(errDoc);
+          sendErrorMessage(messaging, std::move(errDoc));
+          return;
         }
       }
-      else {
-        TRC_WARNING("Not activated yet => message is dropped.");
-      }
-      TRC_FUNCTION_LEAVE(PAR(queueLen))
     }
 
     int getMsgQueueLen() const
     {
-      return (int)m_splitterMessageQueue->size();
+      return (int)m_networkQueue->size();
     }
 
     void handleMessageFromSplitterQueue(const MessagingInstance &messaging, const std::vector<uint8_t>& message) const
@@ -358,23 +422,8 @@ namespace iqrf {
       std::string msgId("undefined");
 
       try {
-        if (doc.HasParseError()) {
-          //TODO parse error handling => send back an error JSON with details
-          THROW_EXC_TRC_WAR(std::logic_error, "Json parse error: " << NAME_PAR(emsg, doc.GetParseError()) <<
-            NAME_PAR(eoffset, doc.GetErrorOffset()));
-        }
-
         msgId = Pointer("/data/msgId").GetWithDefault(doc, "undefined").GetString();
         MsgType msgType = getMessageType(doc);
-
-        auto foundType = m_msgTypeToHandle.find(getKey(msgType));
-        if (foundType == m_msgTypeToHandle.end()) {
-          THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType, msgType.m_type) << NAME_PAR(key, getKey(msgType)));
-        }
-
-        const std::string REQS("request");
-        msgType = foundType->second;
-        validate(msgType, doc, m_validatorMapRequest, REQS);
 
         std::map<std::string, FilteredMessageHandlerFunc > bestFitMap;
         { //lock scope
@@ -398,18 +447,14 @@ namespace iqrf {
             try {
               selected(messaging, msgType, std::move(doc));
               TRC_INFORMATION("Incoming message successfully handled.");
-            }
-            catch (std::exception &e) {
+            } catch (std::exception &e) {
               THROW_EXC_TRC_WAR(std::logic_error, "Unhandled exception: " << e.what());
             }
-          }
-          else {
+          } else {
             THROW_EXC_TRC_WAR(std::logic_error, "Unsupported: " << NAME_PAR(mType.version, getKey(msgType)));
           }
         }
-
-      }
-      catch (std::logic_error &e) {
+      } catch (std::logic_error &e) {
         TRC_WARNING("Error while handling incoming message:" << e.what());
 
         Document rspDoc;
@@ -583,10 +628,13 @@ namespace iqrf {
             m_validatorMapResponse.insert(std::make_pair(getKey(msgType), std::move(schema)));
           }
           m_msgTypeToHandle.insert(std::make_pair(getKey(msgType), msgType));
-          TRC_DEBUG ("Add: " << NAME_PAR(key, getKey(msgType)) << PAR(msgType.m_type) << " ver" << msgType.m_major << '.' << msgType.m_minor << '.' << msgType.m_micro << " drv:" <<
-            msgType.m_possibleDriverFunction)
-        }
-        catch (std::exception & e) {
+          TRC_DEBUG ("Added: " <<
+            NAME_PAR(key, getKey(msgType)) <<
+            PAR(msgType.m_type) <<
+            NAME_PAR(ver, msgType.m_major << '.' << msgType.m_minor << '.' << msgType.m_patch) <<
+            NAME_PAR(drv, msgType.m_possibleDriverFunction)
+          );
+        } catch (const std::exception &e) {
           CATCH_EXC_TRC_WAR(std::exception, e, "");
         }
       }
@@ -609,9 +657,20 @@ namespace iqrf {
       TRC_INFORMATION("loading schemes from: " << PAR(m_schemesDir));
       loadJsonSchemesRequest(m_schemesDir);
 
-      m_splitterMessageQueue = shape_new TaskQueue<MsgIdMsg>([&](const MsgIdMsg& msgIdMsg) {
+      m_managementQueue = new TaskQueue<MsgIdMsg>([&](const MsgIdMsg &msgIdMsg) {
         handleMessageFromSplitterQueue(msgIdMsg.first, msgIdMsg.second);
       });
+
+      m_networkQueue = new TaskQueue<MsgIdMsg>([&](const MsgIdMsg& msgIdMsg) {
+        handleMessageFromSplitterQueue(msgIdMsg.first, msgIdMsg.second);
+      });
+
+      registerFilteredMsgHandler(
+        m_queueControlFilters,
+        [&](const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
+          handleQueueManagementMsg(messaging, msgType, std::move(doc));
+        }
+      );
 
       TRC_FUNCTION_LEAVE("")
     }
@@ -639,6 +698,15 @@ namespace iqrf {
         m_messagingList.sort();
         m_messagingList.unique();
       }
+      
+      val = Pointer("/managementQueueSize").Get(doc);
+      if (val) {
+        m_managementQueueSize = val->Get<size_t>();
+      }
+      val = Pointer("/networkQueueSize").Get(doc);
+      if (val) {
+        m_networkQueueSize = val->Get<size_t>();
+      }
       TRC_INFORMATION(PAR(m_validateResponse));
     }
 
@@ -651,7 +719,7 @@ namespace iqrf {
         "******************************"
       );
 
-      delete m_splitterMessageQueue;
+      delete m_networkQueue;
 
       TRC_FUNCTION_LEAVE("")
     }

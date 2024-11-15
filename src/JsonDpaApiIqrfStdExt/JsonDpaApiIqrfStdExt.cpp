@@ -86,9 +86,13 @@ namespace iqrf {
 	///// Message handling
 
 	void JsonDpaApiIqrfStdExt::handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType &msgType, rapidjson::Document doc) {
-		TRC_FUNCTION_ENTER(PAR(messaging.to_string()) << NAME_PAR(mType, msgType.m_type) <<
-			NAME_PAR(major, msgType.m_major) << NAME_PAR(minor, msgType.m_minor) << NAME_PAR(micro, msgType.m_micro));
-
+		TRC_FUNCTION_ENTER(
+			PAR(messaging.to_string()) <<
+			NAME_PAR(mType, msgType.m_type) <<
+			NAME_PAR(major, msgType.m_major) <<
+			NAME_PAR(minor, msgType.m_minor) <<
+			NAME_PAR(patch, msgType.m_patch)
+		);
 
 		Document allResponseDoc;
 

@@ -29,8 +29,7 @@
 /// Provide asynchronous processing of incoming tasks of type T in dedicated worker thread.
 /// The tasks are processed in FIFO way. Processing function is passed as parameter in constructor.
 template <class T>
-class TaskQueue
-{
+class TaskQueue {
 public:
   /// Processing function type
   typedef std::function<void(T)> ProcessTaskFunc;
@@ -40,9 +39,7 @@ public:
   /// \details
   /// Processing function is used in dedicated worker thread to process incoming queued tasks.
   /// The function must be thread safe. The worker thread is started.
-  TaskQueue(ProcessTaskFunc processTaskFunc)
-    :m_processTaskFunc(processTaskFunc)
-  {
+  TaskQueue(ProcessTaskFunc processTaskFunc) : m_processTaskFunc(processTaskFunc) {
     m_taskPushed = false;
     m_runWorkerThread = true;
     m_workerThread = std::thread(&TaskQueue::worker, this);
@@ -51,8 +48,7 @@ public:
   /// \brief destructor
   /// \details
   /// Stops working thread
-  virtual ~TaskQueue()
-  {
+  virtual ~TaskQueue() {
     {
       std::unique_lock<std::mutex> lck(m_taskQueueMutex);
       m_runWorkerThread = false;
@@ -60,8 +56,9 @@ public:
     }
     m_conditionVariable.notify_all();
 
-    if (m_workerThread.joinable())
+    if (m_workerThread.joinable()) {
       m_workerThread.join();
+    }
   }
 
   /// \brief Push task to queue
@@ -70,36 +67,59 @@ public:
   /// \details
   /// Pushes task to queue to be processed in worker thread. The task type T has to be copyable
   /// as the copy is pushed to queue container
-  int pushToQueue(const T& task)
-  {
-    int retval = 0;
+  size_t pushToQueue(const T& task) {
+    size_t retval = 0;
     {
       std::unique_lock<std::mutex> lck(m_taskQueueMutex);
       m_taskQueue.push(task);
-      retval = static_cast<uint8_t>(m_taskQueue.size());
+      retval = m_taskQueue.size();
       m_taskPushed = true;
     }
     m_conditionVariable.notify_all();
     return retval;
   }
 
-  /// \brief Stop queue
-  /// \details
-  /// Worker thread is explicitly stopped
-  void stopQueue()
-  {
+  /// Starts worker thread
+  void startQueue() {
+    if (!m_runWorkerThread) {
+      m_taskPushed = size() > 0;
+      m_runWorkerThread = true;
+      m_workerThread = std::thread(&TaskQueue::worker, this);
+
+      if (m_taskPushed) {
+        m_conditionVariable.notify_all();
+      }
+    }
+  }
+
+  /// Stops worker thread
+  void stopQueue() {
     {
       std::unique_lock<std::mutex> lck(m_taskQueueMutex);
       m_runWorkerThread = false;
       m_taskPushed = true;
     }
     m_conditionVariable.notify_all();
+
+    if (m_workerThread.joinable()) {
+      m_workerThread.join();
+    }
+  }
+
+  /// Clean task queue
+  void cleanQueue() {
+    stopQueue();
+
+    {
+      std::unique_lock<std::mutex> lock(m_taskQueueMutex);
+      std::queue<T> empty;
+      std::swap(m_taskQueue, empty);
+    }
   }
 
   /// \brief Get actual queue size
   /// \return queue size
-  size_t size()
-  {
+  size_t size() {
     size_t retval = 0;
     {
       std::unique_lock<std::mutex> lck(m_taskQueueMutex);
@@ -110,8 +130,7 @@ public:
 
 private:
   /// Worker thread function
-  void worker()
-  {
+  void worker() {
     std::unique_lock<std::mutex> lck(m_taskQueueMutex, std::defer_lock);
 
     while (m_runWorkerThread) {
@@ -128,8 +147,7 @@ private:
           m_taskQueue.pop();
           lck.unlock();
           m_processTaskFunc(task);
-        }
-        else {
+        } else {
           lck.unlock();
           break;
         }

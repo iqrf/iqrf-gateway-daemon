@@ -608,7 +608,7 @@ namespace iqrf {
 			NAME_PAR(mType, msgType.m_type) <<
 			NAME_PAR(major, msgType.m_major) <<
 			NAME_PAR(minor, msgType.m_minor) <<
-			NAME_PAR(patch, msgType.m_micro)
+			NAME_PAR(patch, msgType.m_patch)
 		);
 
 		if (msgType.m_type == m_mTypeStatus) {

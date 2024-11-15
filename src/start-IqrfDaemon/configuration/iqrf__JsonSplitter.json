@@ -3,5 +3,7 @@
     "instance": "JsonSplitter",
     "validateJsonResponse": true,
     "insId": "iqrfgd2-default",
-    "messagingList": []
+    "messagingList": [],
+    "managementQueueSize": 32,
+    "networkQueueSize": 32
 }

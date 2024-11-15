@@ -56,6 +56,18 @@
 				}
 			}
 		},
+		"managementQueueSize": {
+			"title": "Management queue size",
+			"description": "Number of messages daemon management queue can carry.",
+			"type": "integer",
+			"minimum": 1
+		},
+		"networkQueueSize": {
+			"title": "Network queue size",
+			"description": "Number of messages daemon network queue can carry.",
+			"type": "integer",
+			"minimum": 1
+		},
 		"RequiredInterfaces": {
 			"type": "array",
 			"description": "Array of required interfaces.",

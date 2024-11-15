@@ -23,6 +23,8 @@
 #include "ITraceService.h"
 #include <map>
 
+#include "ApiErrorMessages.h"
+
 namespace iqrf {
   class JsonSplitter : public IMessagingSplitterService
   {
