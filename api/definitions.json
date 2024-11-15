@@ -53,10 +53,10 @@
     },
     "request": {
       "hwpId": {
-        "allOf": {
-          "$ref": "#/general/hwpId",
-          "default": 65535
-        }
+        "allOf": [
+          { "$ref": "#/general/hwpId" },
+          { "default": 65535 }
+        ]
       }
     },
     "response": {
