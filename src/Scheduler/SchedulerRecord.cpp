@@ -279,22 +279,10 @@ namespace iqrf {
 			return;
 		}
 		try {
-			if (!m_cronString.empty()) {
-				if (m_cronString[0] == '@') {
-					m_cronString = resolveCronAlias(m_cronString);
-				}
-				m_cronExpr = cron::make_cron(m_cronString);
-				return;
-
+			if (m_cronString[0] == '@') {
+				m_cronString = resolveCronAlias(m_cronString);
 			}
-			std::ostringstream oss;
-			for (int i = 0, n = m_cron.size(); i < n; ++i) {
-				oss << m_cron[i];
-				if ((i+1) != n) {
-					oss << ' ';
-				}
-			}
-			m_cronExpr = cron::make_cron(oss.str());
+			m_cronExpr = cron::make_cron(m_cronString);
 		} catch (const cron::bad_cronexpr &e) {
 			THROW_EXC_TRC_WAR(std::logic_error, "Cron expression error: " << e.what());
 		}

@@ -91,59 +91,73 @@
 							"$id": "#/properties/data/properties/req/properties/timespec",
 							"title": "Time specification",
 							"description": "Time-based task execution conditions.",
-							"type": "object",
-							"required": [
-								"cronTime",
-								"periodic",
-								"period",
-								"exactTime",
-								"startTime"
-							],
-							"additionalProperties": false,
-							"properties": {
-								"cronTime": {
-									"title": "cron time",
-									"description": "Array of 7 cron format values or cron alias string",
-									"oneOf": [
-										{
-											"type": "array",
-											"minItems": 7,
-											"maxItems": 7,
-											"additionalItems": false,
-											"items": {
-												"type": "string"
-											}
+							"oneOf": [
+								{
+									"type": "object",
+									"required": [
+										"type",
+										"cron"
+									],
+									"additionalProperties": false,
+									"properties": {
+										"type": {
+											"title": "Condition type",
+											"description": "Time execution condition type",
+											"type": "string",
+											"enum": ["cron"]
 										},
-										{
+										"cron": {
+											"title": "cron time",
+											"description": "cron expression string.",
 											"type": "string"
 										}
-									]
+									}
 								},
-								"periodic": {
-									"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
-									"title": "Periodic",
-									"description": "Periodic task execution.",
-									"type": "boolean"
+								{
+									"type": "object",
+									"required": [
+										"type",
+										"period"
+									],
+									"additionalProperties": false,
+									"properties": {
+										"type": {
+											"title": "Condition type",
+											"description": "Time execution condition type",
+											"type": "string",
+											"enum": ["periodic"]
+										},
+										"period": {
+											"title": "Period",
+											"description": "Task execution period in seconds.",
+											"type": "integer",
+											"minimum": 1
+										}
+									}
 								},
-								"period": {
-									"$id": "#/properties/data/properties/req/properties/timespec/properties/periodic",
-									"title": "Period",
-									"description": "Task execution period in seconds.",
-									"type": "integer"
-								},
-								"exactTime": {
-									"$id": "#/properties/data/properties/req/properties/timespec/properties/exactTime",
-									"title": "One shot",
-									"description": "Single task execution now or at a specified time (startTime).",
-									"type": "boolean"
-								},
-								"startTime": {
-									"$id": "#/properties/data/properties/req/properties/timespec/properties/startTime",
-									"title": "Start time",
-									"description": "One shot task start time in ISO8601 date-time format.",
-									"type": "string"
+								{
+									"type": "object",
+									"required": [
+										"type",
+										"timestamp"
+									],
+									"additionalProperties": false,
+									"properties": {
+										"type": {
+											"title": "Condition type",
+											"description": "Time execution condition type",
+											"type": "string",
+											"enum": ["oneshot"]
+										},
+										"timestamp": {
+											"title": "Start time",
+											"description": "One shot task start time in ISO8601 date-time format.",
+											"type": "string",
+											"format": "date-time"
+										}
+									}
 								}
-							}
+							]
 						},
 						"persist": {
 							"$id": "#/properties/data/properties/req/properties/persist",

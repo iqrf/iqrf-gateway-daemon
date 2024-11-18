@@ -291,9 +291,8 @@ namespace iqrf {
 
 		std::shared_ptr<SchedulerRecord> record;
 
-		bool periodic = Pointer("/periodic").Get(timeSpec)->GetBool();
-		bool exactTime = Pointer("/exactTime").Get(timeSpec)->GetBool();
-		if (periodic) { // periodic task
+		std::string type = Pointer("/type").Get(timeSpec)->GetString();
+		if (type == "periodic") { // periodic task
 			uint32_t period = Pointer("/period").Get(timeSpec)->GetUint();
 			record = std::shared_ptr<SchedulerRecord>(
 				shape_new SchedulerRecord(
@@ -305,8 +304,8 @@ namespace iqrf {
 					enabled
 				)
 			);
-		} else if (exactTime) { // oneshot
-			std::string startTime = Pointer("/startTime").Get(timeSpec)->GetString();
+		} else if (type == "oneshot") { // oneshot
+			std::string startTime = Pointer("/timestamp").Get(timeSpec)->GetString();
 			record = std::shared_ptr<SchedulerRecord>(
 				shape_new SchedulerRecord(
 					clientId,
@@ -320,7 +319,7 @@ namespace iqrf {
 		} else { // cron
 			std::string cronString;
 			CronType cron;
-			const Value* val = Pointer("/cronTime").Get(timeSpec);
+			const Value* val = Pointer("/cron").Get(timeSpec);
 			if (val->IsArray()) {
 				auto it = val->Begin();
 				for (int i = 0; i < 7; i++) {
