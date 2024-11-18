@@ -34,14 +34,16 @@
                   "data": {
                     "msgId": "testEmbedLedr",
                     "req": {
-                      "nAdr": 1,
-                      "param": {}
+                      "nAdr": 1
                     },
                     "returnVerbose": true
                   }
                 },
                 "messaging": [
-                  "WebsocketMessaging"
+                  {
+                    "instance": "WebsocketMessaging",
+                    "type": "ws"
+                  }
                 ]
               },
               {
@@ -50,14 +52,16 @@
                   "data": {
                     "msgId": "testEmbedLedg",
                     "req": {
-                      "nAdr": 1,
-                      "param": {}
+                      "nAdr": 1
                     },
                     "returnVerbose": true
                   }
                 },
                 "messaging": [
-                  "MqttMessaging"
+                  {
+                    "instance": "MqttMessaging",
+                    "type": "mqtt"
+                  }
                 ]
               }
             ],
@@ -83,14 +87,16 @@
                   "data": {
                     "msgId": "testEmbedLedr",
                     "req": {
-                      "nAdr": 1,
-                      "param": {}
+                      "nAdr": 1
                     },
                     "returnVerbose": true
                   }
                 },
                 "messaging": [
-                  "WebsocketMessaging"
+                  {
+                    "instance": "WebsocketMessaging",
+                    "type": "ws"
+                  }
                 ]
               }
             ],
@@ -124,14 +130,16 @@
                   "data": {
                     "msgId": "testEmbedLedr",
                     "req": {
-                      "nAdr": 1,
-                      "param": {}
+                      "nAdr": 1
                     },
                     "returnVerbose": true
                   }
                 },
                 "messaging": [
-                  "WebsocketMessaging"
+                  {
+                    "instance": "WebsocketMessaging",
+                    "type": "ws"
+                  }
                 ]
               }
             ],
