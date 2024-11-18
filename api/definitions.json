@@ -1111,5 +1111,133 @@
       "type": "boolean",
       "default": false
     }
+  },
+  "scheduler": {
+    "clientId": {
+      "title": "Client ID",
+      "description": "Client identifier.",
+      "type": "string"
+    },
+    "description": {
+      "title": "Description",
+      "description": "Scheduler task description.",
+      "type": "string"
+    },
+    "enabled": {
+      "title": "Start scheduler task",
+      "description": "Schedule task immediately.",
+      "type": "boolean",
+      "default": false
+    },
+    "persist": {
+      "title": "Persistent scheduler task",
+      "description": "Task will persist through daemon restarts and shutdowns.",
+      "type": "boolean",
+      "default": false
+    },
+    "task": {
+      "title": "Scheduler task",
+      "type": "object",
+      "required": [
+        "message",
+        "messaging"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "title": "Task message",
+          "description": "Supported Daemon API json request.",
+          "type": "object"
+        },
+        "messaging": {
+          "title": "Messaging services",
+          "description": "List of messaging services.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "title": "Messaging service instance",
+            "type": "object",
+            "required": [
+              "instance",
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "instance": {
+                "title": "Messaging instance name",
+                "type": "string",
+                "example": "default"
+              },
+              "type": {
+                "title": "Messaging type",
+                "type": "string",
+                "enum": [
+                  "mqtt",
+                  "ws"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "taskId": {
+      "title": "Scheduler task ID",
+      "description": "Unique identifier of the scheduler task.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "timeSpec": {
+      "title": "Time specification",
+      "description": "Time-based task execution conditions.",
+      "type": "object",
+      "required": [
+        "cronTime",
+        "periodic",
+        "period",
+        "exactTime",
+        "startTime"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "cronTime": {
+          "title": "Cron time",
+          "description": "Array of 7 cron format values or cron alias string",
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 7,
+              "maxItems": 7,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "periodic": {
+          "title": "Periodic",
+          "description": "Periodic task execution.",
+          "type": "boolean"
+        },
+        "period": {
+          "title": "Period",
+          "description": "Task execution period in seconds.",
+          "type": "integer"
+        },
+        "exactTime": {
+          "title": "One shot",
+          "description": "Single task execution now or at a specified time (startTime).",
+          "type": "boolean"
+        },
+        "startTime": {
+          "title": "Start time",
+          "description": "One shot task start time in ISO8601 date-time format.",
+          "type": "string"
+        }
+      }
+    }
   }
 }
