@@ -1,0 +1,13 @@
+{
+  "mType": "messageError",
+  "data": {
+    "msgId": "testEmbedCoordinator",
+    "rsp": {
+      "wrongMsg": "{\"mType\": \"iqrfEmbedCoordinator_DiscoveredDevices\", \"data\": {\"msgId\": \"testEmbedCoordinator\", \"req\": {\"nAdr\": 0}, \"returnVerbose\": true}}",
+      "errorStr": "Invalid request: mType=\"iqrfEmbedCoordinator_DiscoveredDevices\" schema=\"#/properties/data/properties/req\" keyword=\"required\" message=\"#/data/req\" "
+    },
+    "insId": "iqrfgd2-default",
+    "statusStr": "err",
+    "status": -1
+  }
+}
