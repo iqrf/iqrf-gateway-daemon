@@ -1,70 +1,67 @@
 {
-  "$schema": "https://apidocs.iqrf.org/iqrf-gateway-daemon/latest/com.iqrftech.self-desc/schema/jsonschema/1-0-0#",
-  "self": {
-    "vendor": "com.iqrftech.self-desc",
-    "name": "cfgDaemon_Component-response",
-    "format": "jsonschema",
-    "version": "1-0-0"
-  },
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "Daemon configuration - General component response",
+  "description": "(c) IQRF Tech",
   "type": "object",
+  "required": [
+    "mType",
+    "data"
+  ],
+  "additionalProperties": false,
   "properties": {
     "mType": {
-      "type": "string",
-      "description": "General component configuration.",
-      "enum": [
-        "cfgDaemon_Component"
+      "allOf": [
+        { "$ref": "definitions.json#/general/mType" },
+        { "const": "cfgDaemon_Component" }
       ]
     },
     "data": {
+      "title": "Message data",
+      "description": "Message metadata and body",
       "type": "object",
-      "properties": {
-        "msgId": {
-          "type": "string",
-          "description": "Message identification for binding request with response."
-        },
-        "rsp": {
-          "type": "object",
-          "properties": {
-            "componentName": {
-              "type": "string",
-              "description": "Component name."
-            },
-            "componentInstance": {
-              "type": "string",
-              "description": "Component instance."
-            }
-          },
-          "required": [
-            "componentName",
-            "componentInstance"
-          ]
-        },
-        "insId": {
-          "type": "string",
-          "description": "IQRF GW daemon instance identification."
-        },
-        "status": {
-          "type": "integer",
-          "description": "Status of operation."
-        },
-        "statusStr": {
-          "type": "string",
-          "description": "IQRF GW daemon API (general or mType) status in string form."
-        },
-        "errorStr": {
-          "type": "string",
-          "description": "reason of error in string form."
-        }
-      },
       "required": [
         "msgId",
         "rsp",
         "status"
-      ]
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "msgId": {
+          "$ref": "definitions.json#/general/msgId"
+        },
+        "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
+          "type": "object",
+          "required": [
+            "componentName",
+            "componentInstance"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "componentName": {
+              "title": "Component name",
+              "type": "string"
+            },
+            "componentInstance": {
+              "title": "Component instance",
+              "type": "string"
+            }
+          }
+        },
+        "insId": {
+          "$ref": "definitions.json#/general/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/general/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/general/response/statusStr"
+        },
+        "errorStr": {
+          "$ref": "definitions.json#/general/response/errorStr"
+        }
+      }
     }
-  },
-  "required": [
-    "mType",
-    "data"
-  ]
+  }
 }
