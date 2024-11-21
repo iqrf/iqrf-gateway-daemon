@@ -42,7 +42,7 @@
               "$ref": "definitions.json#/node/address"
             },
             "hwpId": {
-              "$ref": "definitions.json#/device/hwpId_request"
+              "$ref": "definitions.json#/request/hwpId"
             },
             "param": {
               "title": "Request parameters",
@@ -86,7 +86,7 @@
                         "$ref": "definitions.json#/general/response/pCmd"
                       },
                       "hwpId": {
-                        "$ref": "definitions.json#/device/hwpId_response"
+                        "$ref": "definitions.json#/response/hwpId"
                       },
                       "rData": {
                         "type": "string",

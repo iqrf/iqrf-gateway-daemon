@@ -69,7 +69,7 @@
               "description": "Allows to add only nodes with specified HWPID to the network.",
               "type": "array",
               "items": {
-                "$ref": "definitions.json#/device/hwpId_request"
+                "$ref": "definitions.json#/request/hwpId"
               }
             },
             "midFiltering": {
