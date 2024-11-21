@@ -67,7 +67,7 @@
                 "additionalProperties": false,
                 "properties": {
                   "deviceAddr": {
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "responded": {
                     "title": "Node responded",

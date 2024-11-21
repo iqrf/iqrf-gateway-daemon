@@ -39,7 +39,7 @@
           "additionalProperties": false,
           "properties": {
             "deviceAddr": {
-              "$ref": "definitions.json#/general/nAdr"
+              "$ref": "definitions.json#/node/address"
             },
             "manufacturer": {
               "$ref": "definitions.json#/iqmesh/manufacturer"
@@ -125,7 +125,7 @@
                   "$ref": "definitions.json#/iqmesh/dpaVerStr"
                 },
                 "hwpId": {
-                  "$ref": "definitions.json#/general/response/hwpId"
+                  "$ref": "definitions.json#/device/hwpId_response"
                 },
                 "hwpIdVer": {
                   "$ref": "definitions.json#/explore/hwpIdVersion"

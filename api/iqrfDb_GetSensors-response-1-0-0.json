@@ -52,7 +52,7 @@
                 "properties": {
                   "address": {
                     "title": "Device address",
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "sensors": {
                     "title": "Device sensors",

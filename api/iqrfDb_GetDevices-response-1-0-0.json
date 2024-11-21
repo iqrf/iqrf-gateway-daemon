@@ -52,10 +52,10 @@
                 "properties": {
                   "address": {
                     "title": "Device address",
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "hwpid": {
-                    "$ref": "definitions.json#/general/hwpId"
+                    "$ref": "definitions.json#/device/hwpId"
                   },
                   "product": {
                     "$ref": "definitions.json#/device/product"

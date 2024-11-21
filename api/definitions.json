@@ -9,20 +9,6 @@
       "description": "Message identification for binding request with response.",
       "type": "string"
     },
-    "nAdr": {
-      "title": "Node address",
-      "description": "Network device address.",
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 255
-    },
-    "hwpId": {
-      "title": "HWPID",
-      "description": "Hardware profile ID.",
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 65535
-    },
     "returnVerbose": {
       "title": "Verbose response",
       "description": "API response will be more verbose.",
@@ -45,14 +31,6 @@
       },
       "maxItems": 16
     },
-    "request": {
-      "hwpId": {
-        "allOf": [
-          { "$ref": "#/general/hwpId" },
-          { "default": 65535 }
-        ]
-      }
-    },
     "response": {
       "pNum": {
         "title": "Peripheral",
@@ -67,20 +45,6 @@
         "type": "integer",
         "minimum": 0,
         "maximum": 255
-      },
-      "hwpId": {
-        "title": "HWPID",
-        "description": "Hardware profile ID.",
-        "oneOf": [
-          {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 65535
-          },
-          {
-            "type": "null"
-          }
-        ]
       },
       "rCode": {
         "title": "Return code",
@@ -1008,6 +972,25 @@
       "minimum": 0,
       "maximum": 65535
     },
+    "hwpId": {
+      "title": "HWPID",
+      "description": "Hardware profile ID.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "hwpId_request": {
+      "allOf": [
+        { "default": 65535 },
+        { "$ref": "#/device/hwpId" }
+      ]
+    },
+    "hwpId_response": {
+      "oneOf": [
+        { "$ref": "#/device/hwpId" },
+        { "type": "null" }
+      ]
+    },
     "hwpidVersion": {
       "title": "Hardware profile ID version",
       "type": "integer",
@@ -1054,6 +1037,13 @@
     }
   },
   "node": {
+    "address": {
+      "title": "Node address",
+      "description": "Network device address.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
     "discovered": {
       "title": "Discovery status",
       "description": "Whether is the device discovered.",

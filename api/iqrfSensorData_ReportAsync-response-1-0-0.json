@@ -62,10 +62,10 @@
                 "additionalProperties": false,
                 "properties": {
                   "address": {
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "hwpid": {
-                    "$ref": "definitions.json#/general/response/hwpId"
+                    "$ref": "definitions.json#/device/hwpId_response"
                   },
                   "mid": {
                     "oneOf": [

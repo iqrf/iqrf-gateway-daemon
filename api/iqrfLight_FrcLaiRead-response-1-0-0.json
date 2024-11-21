@@ -44,7 +44,7 @@
           "additionalProperties": false,
           "properties": {
             "nAdr": {
-              "$ref": "definitions.json#/general/nAdr"
+              "$ref": "definitions.json#/node/address"
             },
             "pNum": {
               "$ref": "definitions.json#/general/response/pNum"
@@ -53,7 +53,7 @@
               "$ref": "definitions.json#/general/response/pCmd"
             },
             "hwpId": {
-              "$ref": "definitions.json#/general/response/hwpId"
+              "$ref": "definitions.json#/device/hwpId_response"
             },
             "rCode": {
               "$ref": "definitions.json#/general/response/rCode"
@@ -88,10 +88,10 @@
                         "additionalProperties": false,
                         "properties": {
                           "nAdr": {
-                            "$ref": "definitions.json#/general/nAdr"
+                            "$ref": "definitions.json#/node/address"
                           },
                           "hwpid": {
-                            "$ref": "definitions.json#/general/response/hwpId"
+                            "$ref": "definitions.json#/device/hwpId_response"
                           },
                           "mid": {
                             "oneOf": [

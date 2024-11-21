@@ -51,7 +51,7 @@
                 "additionalProperties": false,
                 "properties": {
                   "deviceAddr": {
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "restoreStatus": {
                     "description": "Result of restore operation.",

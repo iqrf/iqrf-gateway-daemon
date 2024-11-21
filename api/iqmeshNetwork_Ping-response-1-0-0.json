@@ -39,7 +39,7 @@
           "additionalProperties": false,
           "properties": {
             "hwpId": {
-              "$ref": "definitions.json#/general/response/hwpId"
+              "$ref": "definitions.json#/device/hwpId_response"
             },
             "nodesNr": {
               "$ref": "definitions.json#/iqmesh/nodesNr"
@@ -63,7 +63,7 @@
                 "additionalProperties": false,
                 "properties": {
                   "address": {
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "result": {
                     "title": "Ping result",
