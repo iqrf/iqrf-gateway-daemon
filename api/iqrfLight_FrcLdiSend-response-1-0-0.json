@@ -102,7 +102,7 @@
                             "oneOf": [
                               { "type": "null" },
                               {
-                                "$ref": "definitions.json#/general/mId"
+                                "$ref": "definitions.json#/device/mId"
                               }
                             ]
                           },

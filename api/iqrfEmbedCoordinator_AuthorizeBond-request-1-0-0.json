@@ -98,7 +98,7 @@
           "$ref": "definitions.json#/general/nAdr"
         },
         "mid": {
-          "$ref": "definitions.json#/general/mId"
+          "$ref": "definitions.json#/device/mId"
         }
       }
     }

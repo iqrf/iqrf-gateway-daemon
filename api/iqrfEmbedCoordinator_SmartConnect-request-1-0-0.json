@@ -71,9 +71,7 @@
                   "title": "Module ID",
                   "description": "MID of the Node to bond.",
                   "default": 0,
-                  "allOf": [
-                    { "$ref": "definitions.json#/general/mId" }
-                  ]
+                  "$ref": "definitions.json#/device/mId"
                 },
                 "virtualDeviceAddress": {
                   "title": "Virtual device address",
