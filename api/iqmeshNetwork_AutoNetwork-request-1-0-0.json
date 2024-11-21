@@ -49,7 +49,7 @@
               "description": "TODO: List of addresses which can be assigned during Autonetwork",
               "type": "array",
               "items": {
-                "$ref": "definitions.json#/general/nAdr"
+                "$ref": "definitions.json#/node/address"
               },
               "maxItems": 239
             },
@@ -69,7 +69,7 @@
               "description": "Allows to add only nodes with specified HWPID to the network.",
               "type": "array",
               "items": {
-                "$ref": "definitions.json#/general/request/hwpId"
+                "$ref": "definitions.json#/device/hwpId_request"
               }
             },
             "midFiltering": {
@@ -88,7 +88,7 @@
                 "additionalProperties": false,
                 "properties": {
                   "deviceAddr": {
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "deviceMID": {
                     "$ref": "definitions.json#/iqmesh/midStr"

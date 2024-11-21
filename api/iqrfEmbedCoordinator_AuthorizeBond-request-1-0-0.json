@@ -39,10 +39,10 @@
           "additionalProperties": false,
           "properties": {
             "nAdr": {
-              "$ref": "definitions.json#/general/nAdr"
+              "$ref": "definitions.json#/node/address"
             },
             "hwpId": {
-              "$ref": "definitions.json#/general/request/hwpId"
+              "$ref": "definitions.json#/device/hwpId_request"
             },
             "param": {
               "oneOf": [
@@ -95,7 +95,7 @@
       "additionalProperties": false,
       "properties": {
         "reqAddr": {
-          "$ref": "definitions.json#/general/nAdr"
+          "$ref": "definitions.json#/node/address"
         },
         "mid": {
           "$ref": "definitions.json#/device/mId"

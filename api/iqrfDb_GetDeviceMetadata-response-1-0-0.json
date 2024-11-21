@@ -58,7 +58,7 @@
                   "address": {
                     "title": "Device address",
                     "description": "Address of device in network.",
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "success": {
                     "title": "Operation success",
