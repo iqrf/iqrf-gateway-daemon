@@ -44,7 +44,7 @@
               "$ref": "definitions.json#/node/address"
             },
             "hwpId": {
-              "$ref": "definitions.json#/device/hwpId_request"
+              "$ref": "definitions.json#/request/hwpId"
             },
             "fileName": {
               "title": "File name",
