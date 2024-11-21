@@ -47,25 +47,25 @@
           "additionalProperties": false,
           "properties": {
             "nAdr": {
-              "$ref": "definitions.json#/general/nAdr"
+              "$ref": "definitions.json#/node/address"
             },
             "hwpId": {
               "title": "HWPID filter",
               "description": "Unbond devices with specified HWPID only.",
-              "$ref": "definitions.json#/general/request/hwpId"
+              "$ref": "definitions.json#/device/hwpId_request"
             },
             "deviceAddr": {
               "title": "Device(s) to unbond",
               "description": "Address of a device or array of device addresses to unbond.",
               "oneOf": [
                 {
-                  "$ref": "definitions.json#/general/nAdr"
+                  "$ref": "definitions.json#/node/address"
                 },
                 {
                   "type": "array",
                   "uniqueItems": true,
                   "items": {
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "maxItems": 239
                 }

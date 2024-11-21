@@ -49,7 +49,7 @@
                 "additionalProperties": false,
                 "properties": {
                   "address": {
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "bonded": {
                     "title": "Node bonded",

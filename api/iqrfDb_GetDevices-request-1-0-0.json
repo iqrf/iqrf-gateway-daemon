@@ -42,7 +42,7 @@
               "items": {
                 "title": "Device address",
                 "description": "Requested device address",
-                "$ref": "definitions.json#/general/nAdr"
+                "$ref": "definitions.json#/node/address"
               },
               "maxItems": 240
             },

@@ -45,7 +45,7 @@
               "items": {
                 "title": "Device address",
                 "description": "Address of device implementing Light standard.",
-                "$ref": "definitions.json#/general/nAdr"
+                "$ref": "definitions.json#/node/address"
               }
             }
           }
