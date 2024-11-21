@@ -20,17 +20,6 @@
       "type": "integer",
       "minimum": 0
     },
-    "ibk": {
-      "title": "IBK",
-      "description": "Individual Bonding Key [Byte array].",
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "minimum": 0,
-        "maximum": 255
-      },
-      "maxItems": 16
-    },
     "response": {
       "pNum": {
         "title": "Peripheral",
@@ -1048,6 +1037,17 @@
       "title": "Discovery status",
       "description": "Whether is the device discovered.",
       "type": "boolean"
+    },
+    "ibk": {
+      "title": "IBK",
+      "description": "Individual Bonding Key [Byte array].",
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "maxItems": 16
     },
     "parent": {
       "oneOf": [
