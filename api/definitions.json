@@ -9,12 +9,6 @@
       "description": "Message identification for binding request with response.",
       "type": "string"
     },
-    "mId": {
-      "title": "Module ID",
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 4294967295
-    },
     "nAdr": {
       "title": "Node address",
       "description": "Network device address.",
