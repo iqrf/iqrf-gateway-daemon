@@ -38,7 +38,7 @@
           "additionalProperties": false,
           "properties": {
             "deviceAddr": {
-              "$ref": "definitions.json#/general/nAdr"
+              "$ref": "definitions.json#/node/address"
             },
             "morePeripheralsInfo": {
               "title": "Get peripherals information",

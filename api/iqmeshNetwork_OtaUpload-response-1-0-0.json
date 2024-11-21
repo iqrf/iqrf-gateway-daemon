@@ -41,10 +41,10 @@
           "additionalProperties": false,
           "properties": {
             "deviceAddr": {
-              "$ref": "definitions.json#/general/nAdr"
+              "$ref": "definitions.json#/node/address"
             },
             "hwpId": {
-              "$ref": "definitions.json#/general/request/hwpId"
+              "$ref": "definitions.json#/device/hwpId_request"
             },
             "loadingAction": {
               "$ref": "definitions.json#/iqmesh/ota/loadingAction"
@@ -65,7 +65,7 @@
                 "additionalProperties": false,
                 "properties": {
                   "address": {
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "result": {
                     "description": "Verification result.",
@@ -87,7 +87,7 @@
                 "type": "object",
                 "properties": {
                   "address": {
-                    "$ref": "definitions.json#/general/nAdr"
+                    "$ref": "definitions.json#/node/address"
                   },
                   "result": {
                     "description": "Loading result.",

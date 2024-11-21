@@ -41,10 +41,10 @@
           "additionalProperties": false,
           "properties": {
             "deviceAddr": {
-              "$ref": "definitions.json#/general/nAdr"
+              "$ref": "definitions.json#/node/address"
             },
             "hwpId": {
-              "$ref": "definitions.json#/general/request/hwpId"
+              "$ref": "definitions.json#/device/hwpId_request"
             },
             "fileName": {
               "title": "File name",
