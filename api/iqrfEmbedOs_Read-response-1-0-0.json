@@ -126,7 +126,7 @@
                   "$ref": "definitions.json#/os/slotLimits"
                 },
                 "ibk": {
-                  "$ref": "definitions.json#/general/ibk"
+                  "$ref": "definitions.json#/node/ibk"
                 },
                 "dpaVer": {
                   "$ref": "definitions.json#/explore/dpaVer"
