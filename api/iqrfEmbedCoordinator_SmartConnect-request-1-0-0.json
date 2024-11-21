@@ -68,10 +68,16 @@
                   "$ref": "definitions.json#/general/ibk"
                 },
                 "mid": {
-                  "title": "Module ID",
-                  "description": "MID of the Node to bond.",
-                  "default": 0,
-                  "$ref": "definitions.json#/device/mId"
+                  "allOf": [
+                    {
+                      "title": "Module ID",
+                      "description": "MID of the Node to bond.",
+                      "default": 0
+                    },
+                    {
+                      "$ref": "definitions.json#/device/mId"
+                    }
+                  ]
                 },
                 "virtualDeviceAddress": {
                   "title": "Virtual device address",
