@@ -65,7 +65,7 @@
                   "$ref": "definitions.json#/bonding/bondingTestRetries"
                 },
                 "ibk": {
-                  "$ref": "definitions.json#/general/ibk"
+                  "$ref": "definitions.json#/node/ibk"
                 },
                 "mid": {
                   "allOf": [
