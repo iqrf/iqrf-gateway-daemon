@@ -98,7 +98,7 @@
                   "$ref": "definitions.json#/iqmesh/slotLimits"
                 },
                 "ibk": {
-                  "$ref": "definitions.json#/general/ibk"
+                  "$ref": "definitions.json#/node/ibk"
                 },
                 "dpaVer": {
                   "$ref": "definitions.json#/iqmesh/dpaVerStr"
