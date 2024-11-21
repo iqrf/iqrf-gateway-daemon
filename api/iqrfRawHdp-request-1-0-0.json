@@ -49,7 +49,7 @@
               "$ref": "definitions.json#/general/response/pCmd"
             },
             "hwpId": {
-              "$ref": "definitions.json#/device/hwpId_request"
+              "$ref": "definitions.json#/request/hwpId"
             },
             "pData": {
               "type": "array",

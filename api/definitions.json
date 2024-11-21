@@ -968,18 +968,6 @@
       "minimum": 0,
       "maximum": 65535
     },
-    "hwpId_request": {
-      "allOf": [
-        { "default": 65535 },
-        { "$ref": "#/device/hwpId" }
-      ]
-    },
-    "hwpId_response": {
-      "oneOf": [
-        { "$ref": "#/device/hwpId" },
-        { "type": "null" }
-      ]
-    },
     "hwpidVersion": {
       "title": "Hardware profile ID version",
       "type": "integer",
@@ -1074,6 +1062,22 @@
       "type": "integer",
       "minimum": 0,
       "maximum": 255
+    }
+  },
+  "request": {
+    "hwpId": {
+      "allOf": [
+        { "default": 65535 },
+        { "$ref": "#/device/hwpId" }
+      ]
+    }
+  },
+  "response": {
+    "hwpId": {
+      "oneOf": [
+        { "$ref": "#/device/hwpId" },
+        { "type": "null" }
+      ]
     }
   },
   "iqrfDb": {
