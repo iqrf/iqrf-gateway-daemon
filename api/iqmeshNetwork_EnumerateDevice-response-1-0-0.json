@@ -125,7 +125,7 @@
                   "$ref": "definitions.json#/iqmesh/dpaVerStr"
                 },
                 "hwpId": {
-                  "$ref": "definitions.json#/device/hwpId_response"
+                  "$ref": "definitions.json#/response/hwpId"
                 },
                 "hwpIdVer": {
                   "$ref": "definitions.json#/explore/hwpIdVersion"

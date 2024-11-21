@@ -39,7 +39,7 @@
           "additionalProperties": false,
           "properties": {
             "hwpId": {
-              "$ref": "definitions.json#/device/hwpId_response"
+              "$ref": "definitions.json#/response/hwpId"
             },
             "nodesNr": {
               "$ref": "definitions.json#/iqmesh/nodesNr"

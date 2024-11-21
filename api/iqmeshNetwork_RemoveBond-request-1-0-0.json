@@ -52,7 +52,7 @@
             "hwpId": {
               "title": "HWPID filter",
               "description": "Unbond devices with specified HWPID only.",
-              "$ref": "definitions.json#/device/hwpId_request"
+              "$ref": "definitions.json#/request/hwpId"
             },
             "deviceAddr": {
               "title": "Device(s) to unbond",

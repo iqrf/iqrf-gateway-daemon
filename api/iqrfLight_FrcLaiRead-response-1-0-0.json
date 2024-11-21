@@ -53,7 +53,7 @@
               "$ref": "definitions.json#/general/response/pCmd"
             },
             "hwpId": {
-              "$ref": "definitions.json#/device/hwpId_response"
+              "$ref": "definitions.json#/response/hwpId"
             },
             "rCode": {
               "$ref": "definitions.json#/general/response/rCode"
@@ -91,7 +91,7 @@
                             "$ref": "definitions.json#/node/address"
                           },
                           "hwpid": {
-                            "$ref": "definitions.json#/device/hwpId_response"
+                            "$ref": "definitions.json#/response/hwpId"
                           },
                           "mid": {
                             "oneOf": [

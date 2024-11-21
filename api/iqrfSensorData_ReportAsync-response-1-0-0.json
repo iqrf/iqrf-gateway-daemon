@@ -65,7 +65,7 @@
                     "$ref": "definitions.json#/node/address"
                   },
                   "hwpid": {
-                    "$ref": "definitions.json#/device/hwpId_response"
+                    "$ref": "definitions.json#/response/hwpId"
                   },
                   "mid": {
                     "oneOf": [

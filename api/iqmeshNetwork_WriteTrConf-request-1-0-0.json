@@ -42,7 +42,7 @@
               "description": "Device address to write the configuration to. Broadcast address is also allowed."
             },
             "hwpId": {
-              "$ref": "definitions.json#/device/hwpId_request"
+              "$ref": "definitions.json#/request/hwpId"
             },
             "embPers": {
               "$ref": "definitions.json#/iqmesh/trConfig/embPers"
