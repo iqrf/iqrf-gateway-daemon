@@ -46,7 +46,7 @@
               "$ref": "definitions.json#/bonding/assignedAddr"
             },
             "hwpId": {
-              "$ref": "definitions.json#/general/response/hwpId"
+              "$ref": "definitions.json#/device/hwpId_response"
             },
             "manufacturer": {
               "$ref": "definitions.json#/iqmesh/manufacturer"
@@ -113,7 +113,7 @@
                   "$ref": "definitions.json#/explore/userPeripherals"
                 },
                 "hwpId": {
-                  "$ref": "definitions.json#/general/response/hwpId"
+                  "$ref": "definitions.json#/device/hwpId_response"
                 },
                 "hwpIdVer": {
                   "$ref": "definitions.json#/explore/hwpIdVersion"

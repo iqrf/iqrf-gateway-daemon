@@ -40,7 +40,7 @@
           "properties": {
             "deviceAddr": {
               "allOf": [
-                { "$ref": "definitions.json#/general/nAdr" },
+                { "$ref": "definitions.json#/node/address" },
                 {
                   "description": "Address of device to restore (0 - [C] device, 1..239 - [N] device)",
                   "default": 0
