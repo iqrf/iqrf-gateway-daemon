@@ -42,7 +42,7 @@
               "$ref": "definitions.json#/node/address"
             },
             "hwpId": {
-              "$ref": "definitions.json#/device/hwpId_request",
+              "$ref": "definitions.json#/request/hwpId",
               "$comment": "The HWPID value is ignored at this command."
             },
             "param": {
