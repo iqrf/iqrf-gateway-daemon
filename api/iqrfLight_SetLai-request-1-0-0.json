@@ -49,17 +49,12 @@
               "description": "Specific request parameters.",
               "type": "object",
               "required": [
-                "voltage"
+                "ctrlSignal"
               ],
               "additionalProperties": false,
               "properties": {
-                "voltage": {
-                  "title": "Voltage",
-                  "description": "Voltage to set (range of 0-10 V), resolution is 1 mV.",
-                  "type": "number",
-                  "multipleOf": 0.001,
-                  "minimum": 0,
-                  "maximum": 10
+                "ctrlSignal": {
+                  "$ref": "definitions.json#/interoperability/light/laiSignal"
                 }
               }
             }
