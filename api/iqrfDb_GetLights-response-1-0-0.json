@@ -34,11 +34,11 @@
           "description": "Holds response data",
           "type": "object",
           "required": [
-            "lightDevices"
+            "devices"
           ],
           "additionalProperties": false,
           "properties": {
-            "lightDevices": {
+            "devices": {
               "title": "Light devices",
               "description": "Array containing addresses of devices implementing Light standard.",
               "type": "array",
