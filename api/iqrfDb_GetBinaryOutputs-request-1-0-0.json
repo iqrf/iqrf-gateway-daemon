@@ -27,13 +27,6 @@
         "msgId": {
           "$ref": "definitions.json#/message/id"
         },
-        "req": {
-          "title": "Request",
-          "description": "Holds request data",
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {}
-        },
         "returnVerbose": {
           "$ref": "definitions.json#/request/returnVerbose"
         }

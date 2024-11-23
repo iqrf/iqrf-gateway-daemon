@@ -1,17 +1,7 @@
-[
-  {
-    "mType": "iqrfDb_GetNetworkTopology",
-    "data": {
-      "msgId": "38e26883-a7b2-4dda-b390-a7825a453c20",
-      "returnVerbose": true
-    }
-  },
-  {
-    "mType": "iqrfDb_GetNetworkTopology",
-    "data": {
-      "msgId": "38e26883-a7b2-4dda-b390-a7825a453c20",
-      "req": {},
-      "returnVerbose": true
-    }
+{
+  "mType": "iqrfDb_GetNetworkTopology",
+  "data": {
+    "msgId": "38e26883-a7b2-4dda-b390-a7825a453c20",
+    "returnVerbose": true
   }
-]
+}
