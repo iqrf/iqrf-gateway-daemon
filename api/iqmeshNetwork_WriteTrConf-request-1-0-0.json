@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqmeshNetwork_WriteTrConf" }
       ]
     },
@@ -26,7 +26,7 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "req": {
           "title": "Request",
@@ -45,82 +45,82 @@
               "$ref": "definitions.json#/request/hwpId"
             },
             "embPers": {
-              "$ref": "definitions.json#/iqmesh/trConfig/embPers"
+              "$ref": "definitions.json#/peripheral/embeddedParsed"
             },
             "rfChannelA": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfChannelA"
+              "$ref": "definitions.json#/transciever/radio/channelA"
             },
             "rfChannelB": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfChannelB"
+              "$ref": "definitions.json#/transciever/radio/channelB"
             },
             "rfSubChannelA": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfSubChannelA"
+              "$ref": "definitions.json#/transciever/radio/subChannelA"
             },
             "rfSubChannelB": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfSubChannelB"
+              "$ref": "definitions.json#/transciever/radio/subChannelB"
             },
             "txPower": {
-              "$ref": "definitions.json#/iqmesh/trConfig/txPower"
+              "$ref": "definitions.json#/transciever/radio/txPower"
             },
             "rxFilter": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rxFilter"
+              "$ref": "definitions.json#/transciever/radio/rxFilter"
             },
             "lpRxTimeout": {
-              "$ref": "definitions.json#/iqmesh/trConfig/lpRxTimeout"
+              "$ref": "definitions.json#/transciever/radio/lpRxTimeout"
             },
             "rfAltDsmChannel": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfAltDsmChannel"
+              "$ref": "definitions.json#/transciever/radio/altDsmChannel"
             },
             "localFrcReception": {
-              "$ref": "definitions.json#/iqmesh/trConfig/localFrcReception"
+              "$ref": "definitions.json#/frc/localReception"
             },
             "rfPgmEnableAfterReset": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmEnableAfterReset"
+              "$ref": "definitions.json#/transciever/rfpgm/enableAfterReset"
             },
             "rfPgmTerminateAfter1Min": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmTerminateAfter1Min"
+              "$ref": "definitions.json#/transciever/rfpgm/terminateAfter1Min"
             },
             "rfPgmTerminateMcuPin": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmTerminateMcuPin"
+              "$ref": "definitions.json#/transciever/rfpgm/terminateMcuPin"
             },
             "rfPgmDualChannel": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmDualChannel"
+              "$ref": "definitions.json#/transciever/rfpgm/dualChannel"
             },
             "rfPgmLpMode": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmLpMode"
+              "$ref": "definitions.json#/transciever/rfpgm/lpMode"
             },
             "rfPgmIncorrectUpload": {
-              "$ref": "definitions.json#/iqmesh/trConfig/rfPgmIncorrectUpload"
+              "$ref": "definitions.json#/transciever/rfpgm/incorrectUpload"
             },
             "customDpaHandler": {
-              "$ref": "definitions.json#/iqmesh/trConfig/customDpaHandler"
+              "$ref": "definitions.json#/dpa/customHandler"
             },
             "dpaPeerToPeer": {
-              "$ref": "definitions.json#/iqmesh/trConfig/dpaPeerToPeer"
+              "$ref": "definitions.json#/dpa/peerToPeer"
             },
             "nodeDpaInterface": {
-              "$ref": "definitions.json#/iqmesh/trConfig/nodeDpaInterface"
+              "$ref": "definitions.json#/dpa/interface"
             },
             "uartBaudrate": {
-              "$ref": "definitions.json#/iqmesh/trConfig/uartBaudrate"
+              "$ref": "definitions.json#/transciever/config/uartBaudrate"
             },
             "dpaAutoexec": {
-              "$ref": "definitions.json#/iqmesh/trConfig/dpaAutoexec"
+              "$ref": "definitions.json#/transciever/config/dpaAutoexec"
             },
             "routingOff": {
-              "$ref": "definitions.json#/iqmesh/trConfig/routingOff"
+              "$ref": "definitions.json#/node/routingOff"
             },
             "ioSetup": {
-              "$ref": "definitions.json#/iqmesh/trConfig/ioSetup"
+              "$ref": "definitions.json#/transciever/config/ioSetup"
             },
             "peerToPeer": {
-              "$ref": "definitions.json#/iqmesh/trConfig/peerToPeer"
+              "$ref": "definitions.json#/node/peerToPeer"
             },
             "neverSleep": {
-              "$ref": "definitions.json#/iqmesh/trConfig/neverSleep"
+              "$ref": "definitions.json#/transciever/config/neverSleep"
             },
             "stdAndLpNetwork": {
-              "$ref": "definitions.json#/iqmesh/trConfig/stdAndLpNetwork"
+              "$ref": "definitions.json#/node/stdAndLpNetwork"
             },
             "accessPassword": {
               "type": "string",
@@ -138,7 +138,7 @@
           "$ref": "definitions.json#/iqmesh/repeat"
         },
         "returnVerbose": {
-          "$ref": "definitions.json#/general/returnVerbose"
+          "$ref": "definitions.json#/request/returnVerbose"
         }
       }
     }

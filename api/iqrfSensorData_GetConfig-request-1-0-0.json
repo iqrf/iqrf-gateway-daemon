@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqrfSensorData_GetConfig" }
       ]
     },
@@ -25,10 +25,10 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "returnVerbose": {
-          "$ref": "definitions.json#/general/returnVerbose"
+          "$ref": "definitions.json#/request/returnVerbose"
         }
       }
     }
