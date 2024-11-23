@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqrfDb_GetDevices" }
       ]
     },
@@ -27,7 +27,7 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "rsp": {
           "title": "Response",
@@ -58,7 +58,7 @@
                     "$ref": "definitions.json#/device/hwpId"
                   },
                   "product": {
-                    "$ref": "definitions.json#/device/product"
+                    "$ref": "definitions.json#/response/product"
                   },
                   "discovered": {
                     "$ref": "definitions.json#/node/discovered"
@@ -73,19 +73,19 @@
                     "$ref": "definitions.json#/node/parent"
                   },
                   "mid": {
-                    "$ref": "definitions.json#/device/mId"
+                    "$ref": "definitions.json#/transciever/id"
                   },
                   "hwpidVersion": {
-                    "$ref": "definitions.json#/device/hwpidVersion"
+                    "$ref": "definitions.json#/device/hwpIdVersion"
                   },
                   "osBuild": {
-                    "$ref": "definitions.json#/device/osBuild"
+                    "$ref": "definitions.json#/os/build"
                   },
                   "osVersion": {
-                    "$ref": "definitions.json#/device/osVersionStr"
+                    "$ref": "definitions.json#/os/versionStr"
                   },
                   "dpa": {
-                    "$ref": "definitions.json#/device/dpaVersion"
+                    "$ref": "definitions.json#/dpa/version"
                   },
                   "sensors": {
                     "title": "Implemented sensors",
@@ -182,13 +182,13 @@
           }
         },
         "insId": {
-          "$ref": "definitions.json#/general/response/insId"
+          "$ref": "definitions.json#/response/insId"
         },
         "status": {
-          "$ref": "definitions.json#/general/response/status"
+          "$ref": "definitions.json#/response/status"
         },
         "statusStr": {
-          "$ref": "definitions.json#/general/response/statusStr"
+          "$ref": "definitions.json#/response/statusStr"
         }
       }
     }

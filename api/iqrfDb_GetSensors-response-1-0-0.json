@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqrfDb_GetSensors" }
       ]
     },
@@ -27,7 +27,7 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "rsp": {
           "title": "Response",
@@ -133,7 +133,7 @@
                           ]
                         },
                         "metadata": {
-                          "$ref": "definitions.json#/interoperability/frc/metadata"
+                          "$ref": "definitions.json#/frc/metadata"
                         }
                       }
                     }
@@ -144,13 +144,13 @@
           }
         },
         "insId": {
-          "$ref": "definitions.json#/general/response/insId"
+          "$ref": "definitions.json#/response/insId"
         },
         "status": {
-          "$ref": "definitions.json#/general/response/status"
+          "$ref": "definitions.json#/response/status"
         },
         "statusStr": {
-          "$ref": "definitions.json#/general/response/statusStr"
+          "$ref": "definitions.json#/response/statusStr"
         }
       }
     }
