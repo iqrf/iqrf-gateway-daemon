@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqrfEmbedCoordinator_BondedDevices" }
       ]
     },
@@ -27,7 +27,7 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "rsp": {
           "title": "Response",
@@ -47,19 +47,19 @@
               "$ref": "definitions.json#/node/address"
             },
             "pNum": {
-              "$ref": "definitions.json#/general/response/pNum"
+              "$ref": "definitions.json#/peripheral/number"
             },
             "pCmd": {
-              "$ref": "definitions.json#/general/response/pCmd"
+              "$ref": "definitions.json#/peripheral/command"
             },
             "hwpId": {
               "$ref": "definitions.json#/response/hwpId"
             },
             "rCode": {
-              "$ref": "definitions.json#/general/response/rCode"
+              "$ref": "definitions.json#/response/rCode"
             },
             "dpaVal": {
-              "$ref": "definitions.json#/general/response/dpaVal"
+              "$ref": "definitions.json#/response/dpaVal"
             },
             "result": {
               "title": "Result",
@@ -83,24 +83,24 @@
               }
             },
             "errorStr": {
-              "$ref": "definitions.json#/general/response/errorStr"
+              "$ref": "definitions.json#/response/errorStr"
             }
           }
         },
         "raw": {
-          "$ref": "definitions.json#/general/response/raw"
+          "$ref": "definitions.json#/response/raw"
         },
         "insId": {
-          "$ref": "definitions.json#/general/response/insId"
+          "$ref": "definitions.json#/response/insId"
         },
         "status": {
-          "$ref": "definitions.json#/general/response/status"
+          "$ref": "definitions.json#/response/status"
         },
         "statusStr": {
-          "$ref": "definitions.json#/general/response/statusStr"
+          "$ref": "definitions.json#/response/statusStr"
         },
         "timeout": {
-          "$ref": "definitions.json#/general/timeout"
+          "$ref": "definitions.json#/dpa/timeout"
         }
       }
     }

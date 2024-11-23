@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqmeshNetwork_Backup" }
       ]
     },
@@ -27,7 +27,7 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "rsp": {
           "title": "Response",
@@ -61,10 +61,10 @@
                     "type": "boolean"
                   },
                   "mid": {
-                    "$ref": "definitions.json#/device/mId"
+                    "$ref": "definitions.json#/transciever/id"
                   },
                   "dpaVer": {
-                    "$ref": "definitions.json#/explore/dpaVer"
+                    "$ref": "definitions.json#/dpa/version"
                   },
                   "data": {
                     "description": "Device Backup Data (hex-string format).",
@@ -76,16 +76,16 @@
           }
         },
         "raw": {
-          "$ref": "definitions.json#/general/response/raw"
+          "$ref": "definitions.json#/response/raw"
         },
         "insId": {
-          "$ref": "definitions.json#/general/response/insId"
+          "$ref": "definitions.json#/response/insId"
         },
         "status": {
-          "$ref": "definitions.json#/general/response/status"
+          "$ref": "definitions.json#/response/status"
         },
         "statusStr": {
-          "$ref": "definitions.json#/general/response/statusStr"
+          "$ref": "definitions.json#/response/statusStr"
         }
       }
     }
