@@ -786,7 +786,15 @@ if (iqrf.embed.node !== undefined) {
   };
 
   iqrf.embed.node.ValidateBonds_Request_req = function (param) {
-    return iqrf.embed.node.ValidateBonds_Request(param.nodes);
+    var nodes = []
+    for (var index = 0; index < param.nodes.length; index++) {
+        var el = param.nodes[index]
+        nodes.push({
+            "bondAddr": el.address,
+            "mid": el.mid
+        })
+    }
+    return iqrf.embed.node.ValidateBonds_Request(nodes);
   };
 
   iqrf.embed.node.ValidateBonds_Response_rsp = function (rawHdp) {
