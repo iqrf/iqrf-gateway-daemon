@@ -1,17 +1,7 @@
-[
-  {
-    "mType": "iqrfDb_GetSensors",
-    "data": {
-      "msgId": "3aecea02-7e0e-4fb9-9a59-13eca58f86be",
-      "returnVerbose": true
-    }
-  },
-  {
-    "mType": "iqrfDb_GetSensors",
-    "data": {
-      "msgId": "926714a4-49e0-4615-98e7-f44f311a54f7",
-      "req": {},
-      "returnVerbose": true
-    }
+{
+  "mType": "iqrfDb_GetSensors",
+  "data": {
+    "msgId": "3aecea02-7e0e-4fb9-9a59-13eca58f86be",
+    "returnVerbose": true
   }
-]
+}
