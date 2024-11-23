@@ -301,6 +301,14 @@
       }
     },
     "light": {
+      "laiSignal": {
+        "title": "Control signal",
+        "description": "Voltage to set (range of 0-10 V), resolution is 1 mV.",
+        "type": "number",
+        "multipleOf": 0.001,
+        "minimum": 0,
+        "maximum": 10
+      },
       "ldiCommand": {
         "title": "LDI (DALI) command",
         "description": "2-byte LDI (DALI) commands in the standard YAAAAAAS+DDDDDDDD format.",
