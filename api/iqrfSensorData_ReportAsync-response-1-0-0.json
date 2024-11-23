@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqrfSensorData_ReportAsync" }
       ]
     },
@@ -26,7 +26,7 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "rsp": {
           "title": "Response object",
@@ -71,20 +71,14 @@
                     "oneOf": [
                       { "type": "null" },
                       {
-                        "$ref": "definitions.json#/device/mId"
+                        "$ref": "definitions.json#/transciever/id"
                       }
                     ]
                   },
                   "rssi": {
-                    "title": "Device RSSI",
-                    "description": "The signal level of the last received message from the network device.",
-                    "oneOf": [
-                      { "type": "null" },
-                      { "type": "integer" }
-                    ]
                   },
                   "voltage": {
-                    "$ref": "definitions.json#/iqmesh/voltage"
+                    "$ref": "definitions.json#/device/voltage"
                   },
                   "sensors": {
                     "title": "Sensors",
@@ -132,16 +126,16 @@
           }
         },
         "raw": {
-          "$ref": "definitions.json#/general/response/raw"
+          "$ref": "definitions.json#/response/raw"
         },
         "insId": {
-          "$ref": "definitions.json#/general/response/insId"
+          "$ref": "definitions.json#/response/insId"
         },
         "status": {
-          "$ref": "definitions.json#/general/response/status"
+          "$ref": "definitions.json#/response/status"
         },
         "statusStr": {
-          "$ref": "definitions.json#/general/response/statusStr"
+          "$ref": "definitions.json#/response/statusStr"
         }
       }
     }

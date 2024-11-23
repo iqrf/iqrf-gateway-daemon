@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqrfBinaryoutput_SetOutput" }
       ]
     },
@@ -26,7 +26,7 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "req": {
           "title": "Request",
@@ -86,10 +86,10 @@
           }
         },
         "timeout": {
-          "$ref": "definitions.json#/general/timeout"
+          "$ref": "definitions.json#/dpa/timeout"
         },
         "returnVerbose": {
-          "$ref": "definitions.json#/general/returnVerbose"
+          "$ref": "definitions.json#/request/returnVerbose"
         }
       }
     }
