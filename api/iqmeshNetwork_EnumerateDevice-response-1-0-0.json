@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqmeshNetwork_EnumerateDevice" }
       ]
     },
@@ -27,7 +27,7 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "rsp": {
           "title": "Response",
@@ -42,13 +42,13 @@
               "$ref": "definitions.json#/node/address"
             },
             "manufacturer": {
-              "$ref": "definitions.json#/iqmesh/manufacturer"
+              "$ref": "definitions.json#/device/manufacturer"
             },
             "product": {
-              "$ref": "definitions.json#/iqmesh/product"
+              "$ref": "definitions.json#/device/product"
             },
             "standards": {
-              "$ref": "definitions.json#/iqmesh/standards"
+              "$ref": "definitions.json#/enumeration/standards"
             },
             "discovery": {
               "title": "Discovery",
@@ -86,28 +86,28 @@
               ],
               "properties": {
                 "mid": {
-                  "$ref": "definitions.json#/iqmesh/midStr"
+                  "$ref": "definitions.json#/transciever/idStr"
                 },
                 "osVersion": {
-                  "$ref": "definitions.json#/iqmesh/osVersion"
+                  "$ref": "definitions.json#/os/versionStr"
                 },
                 "osBuild": {
-                  "$ref": "definitions.json#/iqmesh/osBuild"
+                  "$ref": "definitions.json#/os/buildStr"
                 },
                 "trMcuType": {
-                  "$ref": "definitions.json#/iqmesh/trMcuType"
+                  "$ref": "definitions.json#/transciever/typeParsed"
                 },
                 "rssi": {
-                  "$ref": "definitions.json#/iqmesh/rssiStr"
+                  "$ref": "definitions.json#/node/rssiStr"
                 },
                 "supplyVoltage": {
-                  "$ref": "definitions.json#/iqmesh/supplyVoltageStr"
+                  "$ref": "definitions.json#/device/supplyVoltageStr"
                 },
                 "flags": {
-                  "$ref": "definitions.json#/iqmesh/osFlags"
+                  "$ref": "definitions.json#/os/flagsParsed"
                 },
                 "slotLimits": {
-                  "$ref": "definitions.json#/iqmesh/slotLimits"
+                  "$ref": "definitions.json#/node/timeslotLimitsParsed"
                 }
               }
             },
@@ -122,25 +122,25 @@
               ],
               "properties": {
                 "dpaVer": {
-                  "$ref": "definitions.json#/iqmesh/dpaVerStr"
+                  "$ref": "definitions.json#/dpa/versionStr"
                 },
                 "hwpId": {
                   "$ref": "definitions.json#/response/hwpId"
                 },
                 "hwpIdVer": {
-                  "$ref": "definitions.json#/explore/hwpIdVersion"
+                  "$ref": "definitions.json#/device/hwpIdVersion"
                 },
                 "embPers": {
-                  "$ref": "definitions.json#/explore/embeddedPers"
+                  "$ref": "definitions.json#/peripheral/embedded"
                 },
                 "perNr": {
-                  "$ref": "definitions.json#/explore/userPerNr"
+                  "$ref": "definitions.json#/peripheral/userCnt"
                 },
                 "userPers": {
-                  "$ref": "definitions.json#/explore/userPeripherals"
+                  "$ref": "definitions.json#/peripheral/user"
                 },
                 "flags": {
-                  "$ref": "definitions.json#/iqmesh/enumerationFlags"
+                  "$ref": "definitions.json#/enumeration/flagsParsed"
                 }
               }
             },
@@ -149,7 +149,7 @@
               "description": "Embedded peripheral OS - Read TR Configuration response.",
               "properties": {
                 "embPeripherals": {
-                  "$ref": "definitions.json#/explore/embeddedPers"
+                  "$ref": "definitions.json#/peripheral/embedded"
                 },
                 "coordinator": {
                   "title": "Coordinator",
@@ -372,7 +372,7 @@
                   "description": "If set, serial EEPROM chip is present.",
                   "type": "boolean"
                 },
-                "transcieverILType": {
+                "ilType": {
                   "title": "TR Type - IL",
                   "description": "If set, transciever is IL type for Israel region.",
                   "type": "boolean"
@@ -384,23 +384,23 @@
               "description": "If requested, this object contains the result of Get information of more peripherals result.",
               "type": "array",
               "items": {
-                "$ref": "definitions.json#/explore/peripheralInformation"
+                "$ref": "definitions.json#/peripheral/information"
               },
               "maxItems": 14
             }
           }
         },
         "raw": {
-          "$ref": "definitions.json#/general/response/raw"
+          "$ref": "definitions.json#/response/raw"
         },
         "insId": {
-          "$ref": "definitions.json#/general/response/insId"
+          "$ref": "definitions.json#/response/insId"
         },
         "status": {
-          "$ref": "definitions.json#/general/response/status"
+          "$ref": "definitions.json#/response/status"
         },
         "statusStr": {
-          "$ref": "definitions.json#/general/response/statusStr"
+          "$ref": "definitions.json#/response/statusStr"
         }
       }
     }

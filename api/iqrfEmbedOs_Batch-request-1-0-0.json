@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqrfEmbedOs_Batch" }
       ]
     },
@@ -26,7 +26,7 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "req": {
           "title": "Request",
@@ -67,10 +67,10 @@
                     "additionalProperties": false,
                     "properties": {
                       "pNum": {
-                        "$ref": "definitions.json#/general/response/pNum"
+                        "$ref": "definitions.json#/peripheral/number"
                       },
                       "pCmd": {
-                        "$ref": "definitions.json#/general/response/pCmd"
+                        "$ref": "definitions.json#/peripheral/command"
                       },
                       "hwpId": {
                         "$ref": "definitions.json#/response/hwpId"
@@ -87,10 +87,10 @@
           }
         },
         "timeout": {
-          "$ref": "definitions.json#/general/timeout"
+          "$ref": "definitions.json#/dpa/timeout"
         },
         "returnVerbose": {
-          "$ref": "definitions.json#/general/returnVerbose"
+          "$ref": "definitions.json#/request/returnVerbose"
         }
       }
     }

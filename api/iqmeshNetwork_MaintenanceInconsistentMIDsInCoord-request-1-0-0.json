@@ -11,7 +11,7 @@
   "properties": {
     "mType": {
       "allOf": [
-        { "$ref": "definitions.json#/general/mType" },
+        { "$ref": "definitions.json#/message/type" },
         { "const": "iqmeshNetwork_MaintenanceInconsistentMIDsInCoord" }
       ]
     },
@@ -25,13 +25,13 @@
       "additionalProperties": false,
       "properties": {
         "msgId": {
-          "$ref": "definitions.json#/general/msgId"
+          "$ref": "definitions.json#/message/id"
         },
         "repeat": {
           "$ref": "definitions.json#/iqmesh/repeat"
         },
         "returnVerbose": {
-          "$ref": "definitions.json#/general/returnVerbose"
+          "$ref": "definitions.json#/request/returnVerbose"
         }
       }
     }
