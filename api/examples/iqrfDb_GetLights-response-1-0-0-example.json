@@ -3,7 +3,7 @@
     "data": {
         "msgId": "50a9dabd-6693-4400-8682-7422e9a56a21",
         "rsp": {
-            "lightDevices": [1, 3]
+            "devices": [1, 3]
         },
         "insId": "iqrfgd2-default",
         "statusStr": "ok",

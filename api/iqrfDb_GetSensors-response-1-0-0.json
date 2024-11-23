@@ -34,11 +34,11 @@
           "description": "Holds response data",
           "type": "object",
           "required": [
-            "sensorDevices"
+            "devices"
           ],
           "additionalProperties": false,
           "properties": {
-            "sensorDevices": {
+            "devices": {
               "title": "Devices containing sensors",
               "type": "array",
               "items": {
