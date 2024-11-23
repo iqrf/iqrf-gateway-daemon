@@ -66,17 +66,13 @@
               "description": "Contains the results of the request",
               "type": "object",
               "required": [
-                "prevVoltage"
+                "ctrlSignal"
               ],
               "additionalProperties": false,
               "properties": {
-                "prevVoltage": {
-                  "title": "Previous Voltage",
-                  "description": "Voltage set before changing via the request.",
-                  "type": "number",
-                  "multipleOf": 0.001,
-                  "minimum": 0,
-                  "maximum": 10
+                "ctrlSignal": {
+                  "description": "Previous voltage value (before the change).",
+                  "$ref": "definitions.json#/interoperability/light/laiSignal"
                 }
               }
             },
