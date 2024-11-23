@@ -901,12 +901,12 @@ if (iqrf.light !== undefined) {
   };
 
   iqrf.light.SetLai_Request_req = function (params) {
-    return iqrf.light.SetLai_Request(params.voltage * 1000);
+    return iqrf.light.SetLai_Request(params.ctrlSignal * 1000);
   };
 
   iqrf.light.SetLai_Response_rsp = function (rawHdp) {
     return {
-      prevVoltage: iqrf.light.SetLai_Response(rawHdp) / 1000,
+      ctrlSignal: iqrf.light.SetLai_Response(rawHdp) / 1000,
     };
   };
 
