@@ -10,7 +10,7 @@
       "rCode": 0,
       "dpaVal": 90,
       "result": {
-        "prevVoltage": 1.22
+        "ctrlSignal": 1.22
       }
     },
     "raw": [
