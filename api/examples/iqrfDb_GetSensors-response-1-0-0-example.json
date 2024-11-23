@@ -3,7 +3,7 @@
     "data": {
         "msgId": "926714a4-49e0-4615-98e7-f44f311a54f7",
         "rsp": {
-            "sensorDevices": [
+            "devices": [
                 {
                     "address": 2,
                     "sensors": [
