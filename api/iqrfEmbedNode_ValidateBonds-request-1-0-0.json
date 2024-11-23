@@ -58,20 +58,20 @@
                   "description": "Array of network [N] address and [N] MID pairs.",
                   "items": {
                     "type": "object",
+                    "required": [
+                      "address",
+                      "mid"
+                    ],
                     "properties": {
-                      "bondAddr": {
-                        "type": "integer",
-                        "description": "Address of the node to validate."
+                      "address": {
+                        "description": "Address of the node to validate.",
+                        "$ref": "definitions.json#/node/address"
                       },
                       "mid": {
-                        "type": "integer",
-                        "description": "MID to check against."
+                        "description": "MID to check against.",
+                        "$ref": "definitions.json#/transciever/id"
                       }
-                    },
-                    "required": [
-                      "bondAddr",
-                      "mid"
-                    ]
+                    }
                   },
                   "minItems": 1,
                   "maxItems": 11
