@@ -3,7 +3,7 @@
     "data": {
         "msgId": "0e99e3da-0703-4963-87da-3652877607df",
         "rsp": {
-            "binoutDevices": [
+            "devices": [
                 {
                     "address": 1,
                     "count": 4
