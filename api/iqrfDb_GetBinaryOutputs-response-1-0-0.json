@@ -34,11 +34,11 @@
           "description": "Holds response data",
           "type": "object",
           "required": [
-            "binoutDevices"
+            "devices"
           ],
           "additionalProperties": false,
           "properties": {
-            "binoutDevices": {
+            "devices": {
               "title": "BinaryOutput devices",
               "descriptions": "Array of devices implementing BinaryOutput standard and count of implemented binary outputs.",
               "type": "array",
