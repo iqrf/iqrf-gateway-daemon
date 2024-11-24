@@ -649,12 +649,12 @@
     },
     "embeddedParsed": {
       "title": "Enabled embedded peripherals",
-      "description": "Embedded peripherals, which are implemented on the node.",
+      "description": "Embedded peripherals, which are supported by the node.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "values": {
-          "description": "An array of 32 bits. Each bit enables/disables one of the embedded 32 predefined peripherals.",
+          "description": "An array of 32 bits, where each bit enables/disables one of the predefined peripherals. See DPA Tech Guide > TR Configuration > Embedded Peripherals.",
           "type": "array",
           "items": {
             "type": "integer"

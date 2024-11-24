@@ -149,6 +149,7 @@
               "description": "Embedded peripheral OS - Read TR Configuration response.",
               "properties": {
                 "embPeripherals": {
+                  "description": "Array of supported peripherals (their ordinal numbers) on the node, which are enabled in the TR configuration.",
                   "$ref": "definitions.json#/peripheral/embedded"
                 },
                 "coordinator": {
