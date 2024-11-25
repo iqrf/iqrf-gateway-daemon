@@ -38,13 +38,11 @@ namespace iqrf {
 		Document::AllocatorType &allocator = doc.GetAllocator();
 		Pointer("/data/rsp/step").Set(doc, stepCode, allocator);
 		Pointer("/data/rsp/stepStr").Set(doc, stepStr, allocator);
-		BaseMsg::createResponsePayload(doc);
 	}
 
 	void EnumerateMsg::createErrorResponsePayload(Document &doc) {
 		Pointer("/mType").Set(doc, getMType());
 		Pointer("/data/msgId").Set(doc, getMsgId());
-		BaseMsg::createResponsePayload(doc);
 		if (getVerbose()) {
 			Pointer("/data/insId").Set(doc, getInsId());
 			Pointer("/data/statusStr").Set(doc, getStatusStr());
