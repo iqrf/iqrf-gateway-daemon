@@ -21,7 +21,7 @@
     },
     "data": {
       "title": "Message data",
-      "description": "Message metadata and body",
+      "description": "Contains the message payload.",
       "type": "object",
       "required": [
         "msgId",
