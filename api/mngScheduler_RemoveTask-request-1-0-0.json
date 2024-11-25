@@ -17,7 +17,7 @@
     },
     "data": {
       "title": "Message data",
-      "description": "Message metadata and body",
+      "description": "Contains the message payload.",
       "type": "object",
       "required": [
         "msgId",
@@ -30,7 +30,7 @@
         },
         "req": {
           "title": "Request",
-          "description": "Holds request data",
+          "description": "Contains request specific parameters.",
           "type": "object",
           "required": [
             "clientId",
