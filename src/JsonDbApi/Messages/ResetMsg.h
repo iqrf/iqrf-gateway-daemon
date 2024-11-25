@@ -44,5 +44,13 @@ namespace iqrf {
 		 * @param dbService IQRF DB service
 		 */
 		void handleMsg(IIqrfDb *dbService) override;
+
+		/**
+		 * Populates response document with sensors response
+		 * @param doc Response document
+		 */
+		void createResponsePayload(Document &doc) override {
+			(void) doc;
+		};
 	};
 }
