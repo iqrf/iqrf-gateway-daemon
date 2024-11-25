@@ -32,7 +32,7 @@ namespace iqrf {
 				array.PushBack(item, allocator);
 			}
 
-			Pointer("/data/rsp/lightDevices").Set(doc, array, allocator);
+			Pointer("/data/rsp/devices").Set(doc, array, allocator);
 		}
 		BaseMsg::createResponsePayload(doc);
 	}

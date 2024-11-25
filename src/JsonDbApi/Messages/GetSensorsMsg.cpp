@@ -86,7 +86,7 @@ namespace iqrf {
 				array.PushBack(deviceObject, allocator);
 			}
 
-			Pointer("/data/rsp/sensorDevices").Set(doc, array, allocator);
+			Pointer("/data/rsp/devices").Set(doc, array, allocator);
 		}
 		BaseMsg::createResponsePayload(doc);
 	}
