@@ -1,7 +1,6 @@
 {
   "bonding": {
     "reqAddr": {
-      "title": "Requested address",
       "description": "A requested address for the bonded node. The address must not be used (bonded) yet. If this parameter equals to 0, then the 1st free address is assigned to the node.",
       "type": "integer",
       "minimum": 0,
@@ -9,7 +8,6 @@
       "default": 0
     },
     "bondingTestRetries": {
-      "title": "Bonding test retries",
       "description": "Maximum number of FRCs used to test whether the Node was successfully bonded. If value is 0, then no test is performed and the command always succeeds.",
       "type": "integer",
       "minimum": 0,
@@ -17,7 +15,6 @@
       "default": 0
     },
     "userData": {
-      "title": "User data",
       "description": "Optional data passed to the bonded node. [Byte array]",
       "type": "array",
       "items": {
@@ -37,20 +34,19 @@
   },
   "device": {
     "hwpId": {
-      "title": "HWPID",
-      "description": "Hardware profile ID.",
+      "description": "Hardware profile ID of the device.",
       "type": "integer",
       "minimum": 0,
       "maximum": 65535
     },
     "hwpIdVersion": {
-      "title": "Hardware profile ID version",
+      "description": "Version of the HWPID (Hardware profile ID).",
       "type": "integer",
       "minimum": 0,
       "maximum": 65535
     },
     "manufacturer": {
-      "description": "Manufacturer name.",
+      "description": "Manufacturer of the device.",
       "type": "string"
     },
     "metadata": {
@@ -87,7 +83,6 @@
       "type": "boolean"
     },
     "interface": {
-      "title": "Node DPA interface",
       "description": "Whether Node device can be controlled by a SPI or UART interface. Valid only in DPA version < 4.00",
       "type": "boolean"
     },
@@ -96,47 +91,48 @@
       "type": "boolean"
     },
     "timeout": {
-      "title": "DPA request timeout",
       "description": "Timeout to wait for IQRF DPA response.",
       "type": "integer",
       "minimum": 0
     },
     "version": {
-      "title": "DPA version.",
+      "description": "BCD encoded version of the implemented DPA standard. (See Peripheral enumeration in DPA Technical Guide.)",
       "type": "integer",
       "minimum": 0,
       "maximum": 65535
     },
     "versionStr": {
-      "description": "DPA version.",
-      "type": "string"
+      "description": "Version of the implemented DPA standard.",
+      "type": "string",
+      "examples": [
+        "4.03D"
+      ]
     }
   },
   "enumeration": {
     "flags": {
-      "title": "Enumeration flags",
-      "description": "A byte containing various enumeration flags. For details see Peripheral enumeration in DPA Technical Guide.",
+      "description": "A byte containing various enumeration flags. (See Peripheral enumeration in DPA Technical Guide.)",
       "type": "integer",
       "minimum": 0,
       "maximum": 255
     },
     "flagsParsed": {
-      "description": "Enumeration flags.",
+      "title": "Enumeration flags",
       "type": "object",
       "properties": {
         "value": {
           "$ref": "#/enumeration/flags"
         },
         "rfModeStd": {
-          "title": "STD-RX mode",
+          "description": "Device works in STD-RX mode.",
           "type": "boolean"
         },
         "rfModeLp": {
-          "title": "LP-RX mode",
+          "description": "Device works in LP-RX mode.",
           "type": "boolean"
         },
         "stdAndLpNetwork": {
-          "title": "STD+LP network",
+          "description": "The network is running in STD+LP mode. (If false, STD only mode is used.)",
           "type": "boolean"
         }
       }
@@ -145,25 +141,26 @@
       "description": "List of standards supported by the device.",
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "examples": [
+          "Embed: Node",
+          "IQRF: Sensor"
+        ]
       }
     }
   },
   "frc": {
     "extendedFormat": {
-      "title": "Extended format",
       "description": "Return the data in the extended format.",
       "type": "boolean",
       "default": false
     },
     "extraResult": {
-      "title": "Get extra result",
-      "description": "If set Extra result DPA message is sent and processed.",
+      "description": "Whether Get extra result DPA message is sent and processed.",
       "type": "boolean",
       "default": true
     },
     "inaccessibleCnt": {
-      "title": "Inaccessible node count",
       "description": "Number of nodes that don't reply to FRC.",
       "type": "integer",
       "minimum": 0,
@@ -174,16 +171,17 @@
       "type": "boolean"
     },
     "metadata": {
-      "title": "Metadata",
-      "description": "Arbitrary user defined meta data.",
       "oneOf": [
-        { "type": "object" },
+        {
+          "title": "Metadata",
+          "description": "Arbitrary user defined meta data.",
+          "type": "object"
+        },
         { "type": "null" }
       ]
     },
     "selectedNodes": {
-      "title": "Selected nodes",
-      "description": "Optional array of indexes of the selected nodes.",
+      "description": "List of the selected nodes (their addresses).",
       "type": "array",
       "items": {
         "type": "integer",
@@ -198,22 +196,21 @@
   "interoperability": {
     "sensor": {
       "decimalPlaces": {
-        "title": "Precision",
         "description": "Number of valid decimal places.",
         "type": "integer",
         "minimum": 0
       },
       "frcCommand": {
-        "title": "FRC command",
         "description": "One of predefined standard sensor FRC commands. Use FRC commands available from Sensor enumeration.",
         "type": "integer",
         "minimum": 0,
         "maximum": 255
       },
       "genericReadout": {
-        "title": "Generic readout",
-        "description": "Parsed generic sensor readout.",
+        "type": "array",
         "items": {
+          "title": "Generic readout",
+          "description": "Data of generic sensor readout.",
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -228,47 +225,48 @@
         }
       },
       "id": {
-        "title": "Sensor ID",
-        "description": "Value type as text id.",
-        "type": "string"
+        "description": "Sensor value type as text id.",
+        "type": "string",
+        "examples": [
+          "CARBON_DIOXIDE"
+        ]
       },
       "index": {
-        "title": "Sensor index",
         "description": "Index of the sensor. When the sensor type is specified, then its is an index among of all sensors of the specified type. Some FRC commands might use top 3 bits of this parameter for passing additional data.",
         "type": "integer",
         "minimum": 0,
         "maximum": 255
       },
       "indexes": {
-        "title": "Sensor indexes",
-        "description": "Indexes of requested sensors.",
         "oneOf": [
-          { "type": "null" },
-          { "type": "integer" },
+          {
+            "$ref": "#/interoperability/sensor/index"
+          },
           {
             "type": "array",
-            "additionalItems": false,
-            "uniqueItems": true,
             "items": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 31
-            }
-          }
+              "$ref": "#/interoperability/sensor/index"
+            },
+            "uniqueItems": true
+          },
+          { "type": "null" }
         ]
       },
       "name": {
-        "title": "Quantity name",
         "description": "Quantity measured by the sensor.",
-        "type": "string"
+        "type": "string",
+        "examples": [
+          "Altitude"
+        ]
       },
       "shortName": {
-        "title": "Sensor short name",
-        "description": "Short name of the sensor (quantity). Typically it is a symbol used at physics.",
-        "type": "string"
+        "description": "Short name of the quantity measured by the sensor. Typically it is a symbol used at physics.",
+        "type": "string",
+        "examples": [
+          "h", "CO2"
+        ]
       },
       "type": {
-        "title": "Sensor type",
         "description": "Numerical value corresponding to sensor type and quantity.",
         "type": "integer",
         "minimum": 1,
@@ -277,20 +275,22 @@
       "unit": {
         "title": "Quantity unit",
         "description": "Unit in which the quantity is measured. Dimensionless quantities has \"\".",
-        "type": "string"
+        "type": "string",
+        "examples": [
+          "m", "ppm"
+        ]
       },
       "value": {
         "oneOf": [
           {
-            "title": "Sensor value",
             "description": "Last measured value of the sensor.",
             "type": "number"
           },
           {
-            "title": "Sensor values",
-            "description": "List of last measured values of the sensor.",
+            "description": "Binary buffer of the last measured value of the sensor.",
             "type": "array",
             "items": {
+              "description": "Data byte.",
               "type": "integer",
               "minimum": 0,
               "maximum": 255
@@ -302,28 +302,26 @@
     },
     "light": {
       "laiSignal": {
-        "title": "Control signal",
-        "description": "Voltage to set (range of 0-10 V), resolution is 1 mV.",
+        "description": "Control signal (voltage) to set. (Resolution is 1 mV, available range is 0-10 V.)",
         "type": "number",
         "multipleOf": 0.001,
         "minimum": 0,
         "maximum": 10
       },
       "ldiCommand": {
-        "title": "LDI (DALI) command",
         "description": "2-byte LDI (DALI) commands in the standard YAAAAAAS+DDDDDDDD format.",
         "type": "integer",
         "minimum": 0,
         "maximum": 65535
       },
       "status": {
-        "title": "Light (DALI) digital status",
+        "description": "Light (DALI) digital status.",
         "type": "integer",
         "minimum": 0,
         "maximum": 255
       },
       "value": {
-        "title": "Light (DALI) digital value",
+        "description": "Light (DALI) digital value.",
         "type": "integer",
         "minimum": 0,
         "maximum": 255
@@ -332,7 +330,6 @@
   },
   "iqmesh": {
     "action": {
-      "title": "Action",
       "description": "Defines the action which shall be performed, either retrieve current value (GET) or set a new value (SET).",
       "type": "string",
       "enum": [
@@ -341,13 +338,11 @@
       ]
     },
     "repeat": {
-      "title": "Repeat request",
-      "description": "Number of repetitions of DPA messages.",
+      "description": "Number of retries of DPA requests.",
       "type": "integer",
       "default": 1
     },
     "progress": {
-      "title": "Progress",
       "description": "Estimation of algorithm progress [%].",
       "type": "integer",
       "minimum": 0,
@@ -359,7 +354,6 @@
         "$ref": "#/iqmesh/action"
       },
       "requestHops": {
-        "title": "Request hops",
         "description": "Request hops.",
         "type": "integer",
         "minimum": 0,
@@ -367,7 +361,6 @@
         "default": 255
       },
       "responseHops": {
-        "title": "Response hops",
         "description": "Response hops.",
         "type": "integer",
         "minimum": 1,
@@ -381,7 +374,6 @@
         "$ref": "#/iqmesh/action"
       },
       "type": {
-        "title": "Type",
         "description": "DPA value type. [0 - RSSI, 1 - Supply Voltage, 2 - System, 3 - User].",
         "type": "integer",
         "minimum": 0,
@@ -395,7 +387,6 @@
         "$ref": "#/iqmesh/action"
       },
       "responseTime": {
-        "title": "FRC response time",
         "description": "FRC response time in milliseconds. [0 - 40ms, 16 - 360ms, 32 - 680ms, 48 - 1320ms, 64 - 2600ms, 80 - 5160ms, 96 - 10280ms, 112 - 20620ms].",
         "type": "integer",
         "enum": [
@@ -411,14 +402,12 @@
         "default": 0
       },
       "offlineFrc": {
-        "title": "Offline FRC",
         "description": "Whether to perform offline FRC (for beaming sensors only).",
         "type": "boolean"
       }
     },
     "ota": {
       "loadingAction": {
-        "title": "Loading action",
         "description": "Loading action: WithoutCodeLoading, WithCodeLoading.",
         "type": "string"
       }
@@ -426,57 +415,74 @@
   },
   "iqrfDb": {
     "binouts": {
-      "title": "BinaryOutput standard",
       "description": "Include binary outputs if the device implements BinaryOutput standard.",
       "type": "boolean",
       "default": false
     },
     "brief": {
-      "title": "Brief information",
       "description": "Brief information about a device.",
       "type": "boolean",
       "default": false
     },
     "sensors": {
-      "title": "Sensor standard",
       "description": "Include sensors if the device implements Sensor standard.",
       "type": "boolean",
       "default": false
     }
   },
   "message": {
+    "carrier": {
+      "title": "Messaging service",
+      "description": "Instance of a messaging service.",
+      "type": "object",
+      "required": [
+        "instance",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "instance": {
+          "description": "Messaging instance name.",
+          "type": "string",
+          "example": "default"
+        },
+        "type": {
+          "description": "Messaging instance type.",
+          "type": "string",
+          "enum": [
+            "mqtt",
+            "ws"
+          ]
+        }
+      }
+    },
     "id": {
-      "title": "Message ID",
-      "description": "Message identification for binding request with response.",
+      "description": "Message flow identification for binding request with response.",
       "type": "string"
     },
     "type": {
-      "title": "Message type",
-      "description": "Daemon API message"
+      "description": "Daemon API message type.",
+      "type": "string"
     }
   },
   "node": {
     "address": {
-      "title": "Node address",
-      "description": "Network device address.",
+      "description": "IQRF network address of the node.",
       "type": "integer",
       "minimum": 0,
       "maximum": 255
     },
     "count": {
-      "title": "Node count",
       "description": "Number of nodes in the network.",
       "type": "integer",
       "minimum": 0,
       "maximum": 239
     },
     "discovered": {
-      "title": "Discovery status",
-      "description": "Whether is the device discovered.",
+      "description": "Whether the device is discovered.",
       "type": "boolean"
     },
     "ibk": {
-      "title": "IBK",
       "description": "Individual Bonding Key [Byte array].",
       "type": "array",
       "items": {
@@ -489,13 +495,13 @@
     "parent": {
       "oneOf": [
         {
-          "title": "Parent device",
+          "description": "Parent device of this device.",
           "type": "integer",
           "minimum": 0,
           "maximum": 255
         },
         {
-          "title": "No parents",
+          "description": "The device has no parents.",
           "type": "null"
         }
       ]
@@ -509,23 +515,23 @@
       "type": "boolean"
     },
     "rssi": {
-      "title": "RSSI",
       "description": "The signal level of the last received message. See lastRSSI register at IQRF OS Reference Guide.",
       "type": "integer",
       "minimum": 0,
       "maximum": 255
     },
     "rssiStr": {
-      "title": "RSSI",
       "description": "The signal level of the last received message. See lastRSSI register at IQRF OS Reference Guide.",
-      "type": "string"
+      "type": "string",
+      "examples": [
+        "-38 dBm"
+      ]
     },
     "stdAndLpNetwork": {
       "description": "Denotes that the Coordinator maintains STD+LP network; otherwise, it controls the STD network. The bit can only be changed if the network is empty (no [Ns] are bonded) otherwise the network will stop working. From DPA v4.00",
       "type": "boolean"
     },
     "timeslotLimits": {
-      "title": "Timeslot limits",
       "description": "A byte specifying the timeslot limits. For details see DPA Technical Guide.",
       "type": "integer",
       "minimum": 0,
@@ -550,13 +556,13 @@
       }
     },
     "vrn": {
-      "title": "Virtual routing number",
+      "description": "Virtual routing number of the node.",
       "type": "integer",
       "minimum": 0,
       "maximum": 255
     },
     "zone": {
-      "title": "Zone",
+      "description": "Zone of the node.",
       "type": "integer",
       "minimum": 0,
       "maximum": 255
@@ -564,24 +570,26 @@
   },
   "os": {
     "build": {
-      "title": "IQRF OS build",
+      "description": "Build identifier of the IQRF OS.",
       "type": "integer",
       "minimum": 0,
       "maximum": 65535
     },
     "buildStr": {
-      "description": "IQRF OS build.",
-      "type": "string"
+      "description": "Build identifier of the IQRF OS.",
+      "type": "string",
+      "examples": [
+        "08C8"
+      ]
     },
     "flags": {
-      "title": "Flags",
-      "description": "A byte containing OS flags. For the meaning of individual bits see DPA Technical Guide.",
+      "description": "A byte containing IQRF OS flags. For the meaning of individual bits see DPA Technical Guide.",
       "type": "integer",
       "minimum": 0,
       "maximum": 255
     },
     "flagsParsed": {
-      "description": "OS Flags, for detail see DPA Guide",
+      "title": "IQRF OS Flags",
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -629,17 +637,16 @@
   },
   "peripheral": {
     "command": {
-      "title": "Peripheral command",
-      "description": "Peripheral command number.",
+      "description": "Peripheral command number PCMD as defined in the DPA Tech Guide.",
       "type": "integer",
       "minimum": 0,
       "maximum": 255
     },
     "embedded": {
-      "title": "Enabled embedded peripherals",
       "description": "Array of embedded peripherals (their ordinal numbers), which are enabled in the TR configuration.",
       "type": "array",
       "items": {
+        "description": "Ordinal number of the enabled embedded peripheral.",
         "type": "integer",
         "minimum": 0,
         "maximum": 31
@@ -657,7 +664,9 @@
           "description": "An array of 32 bits, where each bit enables/disables one of the predefined peripherals. See DPA Tech Guide > TR Configuration > Embedded Peripherals.",
           "type": "array",
           "items": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
           },
           "maxItems": 4
         },
@@ -757,7 +766,7 @@
       }
     },
     "number": {
-      "title": "Peripheral number",
+      "description": "Peripheral number PNUM as defined in the DPA Tech Guide.",
       "type": "integer",
       "minimum": 0,
       "maximum": 255
@@ -767,6 +776,7 @@
       "description": "Array of implemented non-embedded peripherals (their ordinal numbers).",
       "type": "array",
       "items": {
+        "description": "Ordinal number of the non-embedded peripheral.",
         "type": "integer",
         "minimum": 0,
         "maximum": 255
@@ -788,7 +798,6 @@
       ]
     },
     "returnVerbose": {
-      "title": "Verbose response",
       "description": "API response will be more verbose.",
       "type": "boolean"
     }
@@ -805,8 +814,7 @@
       ]
     },
     "errorStr": {
-      "title": "Error string",
-      "description": "Human readable description of the error.",
+      "description": "Human readable description of an error.",
       "type": "string"
     },
     "hwpId": {
@@ -816,7 +824,6 @@
       ]
     },
     "insId": {
-      "title": "Instance ID",
       "description": "IQRF GW daemon instance identification.",
       "type": "string",
       "examples": [
@@ -849,7 +856,6 @@
         "additionalProperties": false,
         "properties": {
           "request": {
-            "title": "Raw DPA request",
             "description": "Raw DPA request encoded as comma separated hex bytes.",
             "type": "string",
             "examples": [
@@ -857,7 +863,6 @@
             ]
           },
           "requestTs": {
-            "title": "Request timestamp",
             "description": "Request timestamp in ISO 8601 date and time with the offset format.",
             "type": "string",
             "examples": [
@@ -865,7 +870,6 @@
             ]
           },
           "confirmation": {
-            "title": "Raw DPA confirmation",
             "description": "Raw DPA confirmation encoded as comma separated hex bytes.",
             "type": "string",
             "examples": [
@@ -873,7 +877,6 @@
             ]
           },
           "confirmationTs": {
-            "title": "Confirmation timestamp",
             "description": "Confirmation timestamp in ISO 8601 date and time with the offset format.",
             "type": "string",
             "examples": [
@@ -881,7 +884,6 @@
             ]
           },
           "response": {
-            "title": "Raw DPA response",
             "description": "Raw DPA response encoded as comma separated hex bytes.",
             "type": "string",
             "examples": [
@@ -889,7 +891,6 @@
             ]
           },
           "responseTs": {
-            "title": "Response timestamp",
             "description": "Response timestamp in ISO 8601 date and time with the offset format.",
             "type": "string",
             "examples": [
@@ -902,7 +903,6 @@
     "rCode": {
       "oneOf": [
         {
-          "title": "Response code",
           "description": "DPA response code as defined in DPA Tech Guide.",
           "type": "integer",
           "minimum": 0
@@ -911,36 +911,30 @@
       ]
     },
     "status": {
-      "title": "Status code",
       "description": "IQRF GW daemon API status code of the operation.",
       "type": "integer"
     },
     "statusStr": {
-      "title": "Status string",
       "description": "IQRF GW daemon API status in human readable form.",
       "type": "string"
     }
   },
   "scheduler": {
     "clientId": {
-      "title": "Client ID",
       "description": "Client identifier.",
       "type": "string"
     },
     "description": {
-      "title": "Description",
       "description": "Scheduler task description.",
       "type": "string"
     },
     "enabled": {
-      "title": "Start scheduler task",
-      "description": "Schedule task immediately.",
+      "description": "Start the scheduler task immediately.",
       "type": "boolean",
       "default": false
     },
     "persist": {
-      "title": "Persistent scheduler task",
-      "description": "Task will persist through daemon restarts and shutdowns.",
+      "description": "Scheduler task will persist through daemon restarts and shutdowns.",
       "type": "boolean",
       "default": false
     },
@@ -954,50 +948,27 @@
       "additionalProperties": false,
       "properties": {
         "message": {
-          "title": "Task message",
-          "description": "Supported Daemon API json request.",
+          "title": "Daemon API request",
+          "description": "Supported IQRF GW Daemon API JSON request.",
           "type": "object"
         },
         "messaging": {
           "title": "Messaging services",
-          "description": "List of messaging services.",
+          "description": "List of messaging services which shall be used.",
           "type": "array",
-          "uniqueItems": true,
           "items": {
-            "title": "Messaging service instance",
-            "type": "object",
-            "required": [
-              "instance",
-              "type"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "instance": {
-                "title": "Messaging instance name",
-                "type": "string",
-                "example": "default"
-              },
-              "type": {
-                "title": "Messaging type",
-                "type": "string",
-                "enum": [
-                  "mqtt",
-                  "ws"
-                ]
-              }
-            }
-          }
+            "$ref": "#/message/carrier"
+          },
+          "uniqueItems": true
         }
       }
     },
     "taskId": {
-      "title": "Scheduler task ID",
-      "description": "Unique identifier of the scheduler task.",
+      "description": "Unique scheduler task ID.",
       "type": "string",
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
     },
     "timeSpec": {
-      "title": "Time specification",
       "description": "Time-based task execution conditions.",
       "type": "object",
       "required": [
@@ -1010,39 +981,39 @@
       "additionalProperties": false,
       "properties": {
         "cronTime": {
-          "title": "Cron time",
-          "description": "Array of 7 cron format values or cron alias string",
           "oneOf": [
             {
+              "title": "Cron time",
+              "description": "Array of 7 cron format values.",
               "type": "array",
-              "minItems": 7,
-              "maxItems": 7,
               "items": {
                 "type": "string"
-              }
+              },
+              "minItems": 7,
+              "maxItems": 7
             },
             {
-              "type": "string"
+              "description": "Cron alias string.",
+              "type": "string",
+              "examples": [
+                "0 */5 * * * * *"
+              ]
             }
           ]
         },
         "periodic": {
-          "title": "Periodic",
           "description": "Periodic task execution.",
           "type": "boolean"
         },
         "period": {
-          "title": "Period",
           "description": "Task execution period in seconds.",
           "type": "integer"
         },
         "exactTime": {
-          "title": "One shot",
           "description": "Single task execution now or at a specified time (startTime).",
           "type": "boolean"
         },
         "startTime": {
-          "title": "Start time",
           "description": "One shot task start time in ISO8601 date-time format.",
           "type": "string"
         }
@@ -1051,51 +1022,28 @@
   },
   "sensorData": {
     "asyncReports": {
-      "title": "Asynchronous reports",
       "description": "Sends asynchronous messages reporting results when sensor read concludes.",
       "type": "boolean"
     },
     "autoRun": {
-      "title": "Run worker automatically",
       "description": "Start sensor data reading worker on startup.",
       "type": "boolean"
     },
     "messagingList": {
-      "title": "Messaging instance list",
-      "description": "List of messaging instances to use for asynchronous reporting.",
+      "title": "Messaging services",
+      "description": "List of messaging services to use for asynchronous reporting.",
       "type": "array",
-      "uniqueItems": true,
       "items": {
-        "title": "Messaging instance",
-        "description": "Messaging service instance.",
-        "type": "object",
-        "required": [
-          "type",
-          "instance"
-        ],
-        "additionalProperties": false,
-        "properties": {
-          "type": {
-            "title": "Messaging type",
-            "type": "string",
-            "enum": ["mqtt", "ws"]
-          },
-          "instance": {
-            "title": "Messaging instance name",
-            "type": "string",
-            "example": "default"
-          }
-        }
-      }
+        "$ref": "#/message/carrier"
+      },
+      "uniqueItems": true
     },
     "period": {
-      "title": "Reading period",
       "description": "Time between data reads in minutes.",
       "type": "integer",
       "minimum": 1
     },
     "retryPeriod": {
-      "title": "Retry period",
       "description": "Time between reading retry after a failure.",
       "type": "integer",
       "minimum": 1
@@ -1130,13 +1078,13 @@
       }
     },
     "id": {
-      "title": "TR Module ID",
+      "description": "Transciever module ID",
       "type": "integer",
       "minimum": 0,
       "maximum": 4294967295
     },
     "idStr": {
-      "title": "TR Module ID",
+      "description": "Transciever module ID",
       "type": "string",
       "maxLength": 8,
       "minLength": 8,
@@ -1215,7 +1163,6 @@
       "type": "boolean"
     },
     "type": {
-      "title": "TR & MCU type",
       "description": "A byte value defining the TR and MCU types. For details see moduleInfo in IQRF OS Reference Guide.",
       "type": "integer",
       "minimum": 0,
