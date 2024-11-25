@@ -40,8 +40,8 @@
           "additionalProperties": false,
           "properties": {
             "rData": {
+              "description": "Raw DPA request encoded as comma separated hex bytes.",
               "type": "string",
-              "description": "Binary buffer with DPA request.",
               "examples": [
                 "00.00.06.03.FF.FF"
               ]

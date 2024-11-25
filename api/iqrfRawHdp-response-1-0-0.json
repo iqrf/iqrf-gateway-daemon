@@ -63,9 +63,12 @@
             },
             "pData": {
               "type": "array",
-              "description": "Binary buffer with DPA response data.",
+              "description": "Binary buffer with DPA request data bytes.",
               "items": {
-                "type": "integer"
+                "description": "Data byte.",
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
               }
             },
             "errorStr": {

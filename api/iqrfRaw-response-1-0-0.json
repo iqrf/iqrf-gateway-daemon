@@ -41,8 +41,8 @@
           "additionalProperties": false,
           "properties": {
             "rData": {
+              "description": "Raw DPA response encoded as comma separated hex bytes.",
               "type": "string",
-              "description": "Binary buffer with DPA response.",
               "examples": [
                 "00.00.00.80.00.00.00.00.0A.32"
               ]
