@@ -19,15 +19,6 @@
 
 namespace iqrf {
 
-	void BaseMsg::createResponsePayload(Document &doc) {
-		Value *v = Pointer("/data/rsp").Get(doc);
-		if (!v) {
-			Value empty;
-			empty.SetObject();
-			Pointer("/data/rsp").Set(doc, empty);
-		}
-	}
-
 	const std::shared_ptr<MessagingInstance>& BaseMsg::getMessaging() const {
 		return messaging;
 	}
