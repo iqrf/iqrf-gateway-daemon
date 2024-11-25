@@ -34,6 +34,5 @@ namespace iqrf {
 
 			Pointer("/data/rsp/devices").Set(doc, array, allocator);
 		}
-		BaseMsg::createResponsePayload(doc);
 	}
 }
