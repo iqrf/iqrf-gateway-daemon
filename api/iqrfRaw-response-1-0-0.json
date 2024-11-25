@@ -9,13 +9,17 @@
   ],
   "properties": {
     "mType": {
-      "$ref": "definitions.json#/message/type",
-      "description": "Message type for Raw DPA communication.",
-      "const": "iqrfRaw"
+      "allOf": [
+        { "$ref": "definitions.json#/message/type" },
+        {
+          "description": "Message type for Raw DPA communication.",
+          "const": "iqrfRaw"
+        }
+      ]
     },
     "data": {
       "title": "Message data",
-      "description": "Message metadata and body",
+      "description": "Contains the message payload.",
       "type": "object",
       "required": [
         "msgId",
@@ -29,7 +33,7 @@
         },
         "rsp": {
           "title": "Response",
-          "description": "Holds request data",
+          "description": "Contains response specific data.",
           "type": "object",
           "required": [
             "rData"
@@ -38,7 +42,7 @@
           "properties": {
             "rData": {
               "type": "string",
-              "description": "Binary buffer with DPA response",
+              "description": "Binary buffer with DPA response.",
               "examples": [
                 "00.00.00.80.00.00.00.00.0A.32"
               ]

@@ -17,7 +17,7 @@
     },
     "data": {
       "title": "Message data",
-      "description": "Message metadata and body",
+      "description": "Contains the message payload.",
       "type": "object",
       "required": [
         "msgId",
@@ -31,7 +31,7 @@
         },
         "rsp": {
           "title": "Response",
-          "description": "Holds request data",
+          "description": "Contains response specific data.",
           "type": "object",
           "required": [
             "nAdr",
