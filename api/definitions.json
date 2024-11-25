@@ -96,7 +96,7 @@
       "type": "boolean"
     },
     "timeout": {
-      "title": "Request timeout",
+      "title": "DPA request timeout",
       "description": "Timeout to wait for IQRF DPA response.",
       "type": "integer",
       "minimum": 0
@@ -797,13 +797,11 @@
     "dpaVal": {
       "oneOf": [
         {
-          "title": "DPA value",
+          "description": "DPA Value according to the DPA Param set at the Coordinator.",
           "type": "integer",
           "minimum": 0
         },
-        {
-          "type": "null"
-        }
+        { "type": "null" }
       ]
     },
     "errorStr": {
@@ -820,7 +818,10 @@
     "insId": {
       "title": "Instance ID",
       "description": "IQRF GW daemon instance identification.",
-      "type": "string"
+      "type": "string",
+      "examples": [
+        "iqdgw01-0242951d1f773a56"
+      ]
     },
     "product": {
       "oneOf": [
@@ -829,13 +830,13 @@
       ]
     },
     "raw": {
-      "title": "Raw DPA messages",
-      "description": "Returns array of objects req-cnf-rsp, see its description.",
+      "title": "Raw DPA message flows",
+      "description": "List of raw DPA message flows, which were exchanged to fulfill the request, and their timestamps.",
       "type": "array",
       "additionalItems": false,
       "items": {
-        "title": "Raw DPA messages object",
-        "description": "Object containing Request, Confirmation and Response DPA messages and their timestamps.",
+        "title": "Raw DPA message flow",
+        "description": "Raw DPA Request, Confirmation and Response, and their timestamps.",
         "type": "object",
         "required": [
           "request",
@@ -848,34 +849,52 @@
         "additionalProperties": false,
         "properties": {
           "request": {
-            "title": "Request DPA",
-            "description": "DPA request string.",
-            "type": "string"
+            "title": "Raw DPA request",
+            "description": "Raw DPA request encoded as comma separated hex bytes.",
+            "type": "string",
+            "examples": [
+              "01.00.01.01.ff.ff"
+            ]
           },
           "requestTs": {
             "title": "Request timestamp",
-            "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
-            "type": "string"
+            "description": "Request timestamp in ISO 8601 date and time with the offset format.",
+            "type": "string",
+            "examples": [
+              "2024-10-13T12:42:59.946+02:00"
+            ]
           },
           "confirmation": {
-            "title": "Confirmation DPA",
-            "description": "DPA confirmation string.",
-            "type": "string"
+            "title": "Raw DPA confirmation",
+            "description": "Raw DPA confirmation encoded as comma separated hex bytes.",
+            "type": "string",
+            "examples": [
+              "01.00.01.01.ff.ff.ff.00.01.08.01"
+            ]
           },
           "confirmationTs": {
             "title": "Confirmation timestamp",
-            "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
-            "type": "string"
+            "description": "Confirmation timestamp in ISO 8601 date and time with the offset format.",
+            "type": "string",
+            "examples": [
+              "2024-10-13T12:43:00.071+02:00"
+            ]
           },
           "response": {
-            "title": "Response DPA",
-            "description": "DPA response string",
-            "type": "string"
+            "title": "Raw DPA response",
+            "description": "Raw DPA response encoded as comma separated hex bytes.",
+            "type": "string",
+            "examples": [
+              "01.00.01.81.02.04.00.58"
+            ]
           },
           "responseTs": {
             "title": "Response timestamp",
-            "description": "YYYY-MM-DDTHH:MM:SS.SSS±HH:MM",
-            "type": "string"
+            "description": "Response timestamp in ISO 8601 date and time with the offset format.",
+            "type": "string",
+            "examples": [
+              "2024-10-13T12:43:00.327+02:00"
+            ]
           }
         }
       }
@@ -883,8 +902,8 @@
     "rCode": {
       "oneOf": [
         {
-          "title": "Return code",
-          "description": "DPA error code.",
+          "title": "Response code",
+          "description": "DPA response code as defined in DPA Tech Guide.",
           "type": "integer",
           "minimum": 0
         },
@@ -893,12 +912,12 @@
     },
     "status": {
       "title": "Status code",
-      "description": "Status of operation.",
+      "description": "IQRF GW daemon API status code of the operation.",
       "type": "integer"
     },
     "statusStr": {
       "title": "Status string",
-      "description": "IQRF GW daemon API (general or mType) status in string form.",
+      "description": "IQRF GW daemon API status in human readable form.",
       "type": "string"
     }
   },
