@@ -130,8 +130,6 @@ namespace iqrf {
 
       bool r = (bool)m_res && m_res->isResponded();
       Pointer("/data/rsp/nAdr").Set(doc, m_nadr);
-      int pnum = -1;
-      int pcmd = -1;
       if (r) {
         Pointer("/data/rsp/pNum").Set(doc, m_res->getResponse().DpaPacket().DpaResponsePacket_t.PNUM);
         Pointer("/data/rsp/pCmd").Set(doc, m_res->getResponse().DpaPacket().DpaResponsePacket_t.PCMD);
