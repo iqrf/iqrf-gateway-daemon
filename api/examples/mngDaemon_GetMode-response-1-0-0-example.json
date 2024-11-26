@@ -1,11 +1,11 @@
 {
-  "mType": "mngDaemon_Mode",
+  "mType": "mngDaemon_GetMode",
   "data": {
     "msgId": "bd7e0ad9-3da9-4300-8124-63457f22b727",
     "rsp": {
-      "operMode": "service"
+      "operMode": "operational"
     },
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }
