@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "title": "Daemon Management - Change daemon mode request",
+  "title": "Daemon Management - Get mode response",
   "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
@@ -12,7 +12,7 @@
     "mType": {
       "allOf": [
         { "$ref": "definitions.json#/message/type" },
-        { "const": "mngDaemon_Mode" }
+        { "const": "mngDaemon_GetMode" }
       ]
     },
     "data": {
@@ -21,16 +21,17 @@
       "type": "object",
       "required": [
         "msgId",
-        "req"
+        "rsp",
+        "status"
       ],
       "additionalProperties": false,
       "properties": {
         "msgId": {
           "$ref": "definitions.json#/message/id"
         },
-        "req": {
-          "title": "Request",
-          "description": "Contains request specific parameters.",
+        "rsp": {
+          "title": "Response",
+          "description": "Holds response data",
           "type": "object",
           "required": [
             "operMode"
@@ -38,20 +39,28 @@
           "additionalProperties": false,
           "properties": {
             "operMode": {
-              "title": "Operation mode",
-              "description": "Daemon mode: select operational / forwarding / service to set mode or set empty string to get current mode.",
+              "description": "Daemon operating mode.",
               "type": "string",
               "enum": [
-                "",
+                "forwarding",
                 "operational",
                 "service",
-                "forwarding"
+                "unknown"
               ]
             }
           }
         },
-        "returnVerbose": {
-          "$ref": "definitions.json#/request/returnVerbose"
+        "insId": {
+          "$ref": "definitions.json#/response/insId"
+        },
+        "status": {
+          "$ref": "definitions.json#/response/status"
+        },
+        "statusStr": {
+          "$ref": "definitions.json#/response/statusStr"
+        },
+        "errorStr": {
+          "$ref": "definitions.json#/response/errorStr"
         }
       }
     }
