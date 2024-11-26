@@ -1,0 +1,9 @@
+{
+  "mType": "mngDaemon_SetMode",
+  "data": {
+    "msgId": "bd7e0ad9-3da9-4300-8124-63457f22b727",
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
+  }
+}

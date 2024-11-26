@@ -23,24 +23,24 @@
 namespace iqrf {
 
 	/**
-	 * Daemon mode request message
+	 * Daemon get mode request message
 	 */
-	class MngModeMsg : public MngBaseMsg {
+	class MngGetModeMsg : public MngBaseMsg {
 	public:
 		/// Delete base constructor
-		MngModeMsg() = delete;
+		MngGetModeMsg() = delete;
 
 		/**
 		 * Request document constructor
 		 * @param doc Request document
 		 * @param udpConnectorService UDP connector service interface
 		 */
-		MngModeMsg(const Document &doc, IUdpConnectorService *udpConnectorService);
+		MngGetModeMsg(const Document &doc, IUdpConnectorService *udpConnectorService);
 
 		/**
 		 * Destructor
 		 */
-		virtual ~MngModeMsg() {};
+		virtual ~MngGetModeMsg() {};
 
 		/**
 		 * Handles daemon mode request

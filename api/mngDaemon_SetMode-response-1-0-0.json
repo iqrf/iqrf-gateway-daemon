@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "title": "Daemon Management - Change daemon mode response",
+  "title": "Daemon Management - Set mode response",
   "description": "(c) IQRF Tech",
   "type": "object",
   "required": [
@@ -12,7 +12,7 @@
     "mType": {
       "allOf": [
         { "$ref": "definitions.json#/message/type" },
-        { "const": "mngDaemon_Mode" }
+        { "const": "mngDaemon_SetMode" }
       ]
     },
     "data": {
@@ -21,35 +21,12 @@
       "type": "object",
       "required": [
         "msgId",
-        "rsp",
         "status"
       ],
       "additionalProperties": false,
       "properties": {
         "msgId": {
           "$ref": "definitions.json#/message/id"
-        },
-        "rsp": {
-          "title": "Response",
-          "description": "Holds response data",
-          "type": "object",
-          "required": [
-            "operMode"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "operMode": {
-              "title": "Daemon mode",
-              "description": "Confirms selected operation mode or returns current one if empty mode was sent.",
-              "type": "string",
-              "enum": [
-                "operational",
-                "service",
-                "forwarding",
-                "unknown"
-              ]
-            }
-          }
         },
         "insId": {
           "$ref": "definitions.json#/response/insId"
