@@ -86,7 +86,7 @@
               ],
               "properties": {
                 "mid": {
-                  "$ref": "definitions.json#/transciever/idStr"
+                  "$ref": "definitions.json#/transceiver/idStr"
                 },
                 "osVersion": {
                   "$ref": "definitions.json#/os/versionStr"
@@ -95,7 +95,7 @@
                   "$ref": "definitions.json#/os/buildStr"
                 },
                 "trMcuType": {
-                  "$ref": "definitions.json#/transciever/typeParsed"
+                  "$ref": "definitions.json#/transceiver/typeParsed"
                 },
                 "rssi": {
                   "$ref": "definitions.json#/node/rssiStr"
@@ -373,9 +373,9 @@
                   "description": "If set, serial EEPROM chip is present.",
                   "type": "boolean"
                 },
-                "ilType": {
+                "transceiverIlType": {
                   "title": "TR Type - IL",
-                  "description": "If set, transciever is IL type for Israel region.",
+                  "description": "If set, transceiver is IL type for Israel region.",
                   "type": "boolean"
                 }
               }

@@ -97,7 +97,7 @@
                             "oneOf": [
                               { "type": "null" },
                               {
-                                "$ref": "definitions.json#/transciever/id"
+                                "$ref": "definitions.json#/transceiver/id"
                               }
                             ]
                           },

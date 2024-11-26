@@ -54,46 +54,46 @@
               ]
             },
             "rfChannelA": {
-              "$ref": "definitions.json#/transciever/radio/channelA"
+              "$ref": "definitions.json#/transceiver/radio/channelA"
             },
             "rfChannelB": {
-              "$ref": "definitions.json#/transciever/radio/channelB"
+              "$ref": "definitions.json#/transceiver/radio/channelB"
             },
             "rfSubChannelA": {
-              "$ref": "definitions.json#/transciever/radio/subChannelA"
+              "$ref": "definitions.json#/transceiver/radio/subChannelA"
             },
             "rfSubChannelB": {
-              "$ref": "definitions.json#/transciever/radio/subChannelB"
+              "$ref": "definitions.json#/transceiver/radio/subChannelB"
             },
             "txPower": {
-              "$ref": "definitions.json#/transciever/radio/txPower"
+              "$ref": "definitions.json#/transceiver/radio/txPower"
             },
             "rxFilter": {
-              "$ref": "definitions.json#/transciever/radio/rxFilter"
+              "$ref": "definitions.json#/transceiver/radio/rxFilter"
             },
             "lpRxTimeout": {
-              "$ref": "definitions.json#/transciever/radio/lpRxTimeout"
+              "$ref": "definitions.json#/transceiver/radio/lpRxTimeout"
             },
             "rfAltDsmChannel": {
-              "$ref": "definitions.json#/transciever/radio/altDsmChannel"
+              "$ref": "definitions.json#/transceiver/radio/altDsmChannel"
             },
             "rfPgmEnableAfterReset": {
-              "$ref": "definitions.json#/transciever/rfpgm/enableAfterReset"
+              "$ref": "definitions.json#/transceiver/rfpgm/enableAfterReset"
             },
             "rfPgmTerminateAfter1Min": {
-              "$ref": "definitions.json#/transciever/rfpgm/terminateAfter1Min"
+              "$ref": "definitions.json#/transceiver/rfpgm/terminateAfter1Min"
             },
             "rfPgmTerminateMcuPin": {
-              "$ref": "definitions.json#/transciever/rfpgm/terminateMcuPin"
+              "$ref": "definitions.json#/transceiver/rfpgm/terminateMcuPin"
             },
             "rfPgmDualChannel": {
-              "$ref": "definitions.json#/transciever/rfpgm/dualChannel"
+              "$ref": "definitions.json#/transceiver/rfpgm/dualChannel"
             },
             "rfPgmLpMode": {
-              "$ref": "definitions.json#/transciever/rfpgm/lpMode"
+              "$ref": "definitions.json#/transceiver/rfpgm/lpMode"
             },
             "rfPgmIncorrectUpload": {
-              "$ref": "definitions.json#/transciever/rfpgm/incorrectUpload"
+              "$ref": "definitions.json#/transceiver/rfpgm/incorrectUpload"
             },
             "customDpaHandler": {
               "$ref": "definitions.json#/dpa/customHandler"
@@ -105,37 +105,37 @@
               "$ref": "definitions.json#/dpa/interface"
             },
             "uartBaudrate": {
-              "$ref": "definitions.json#/transciever/config/uartBaudrate"
+              "$ref": "definitions.json#/transceiver/config/uartBaudrate"
             },
             "localFrcReception": {
               "$ref": "definitions.json#/frc/localReception"
             },
             "dpaAutoexec": {
-              "$ref": "definitions.json#/transciever/config/dpaAutoexec"
+              "$ref": "definitions.json#/transceiver/config/dpaAutoexec"
             },
             "routingOff": {
               "$ref": "definitions.json#/node/routingOff"
             },
             "ioSetup": {
-              "$ref": "definitions.json#/transciever/config/ioSetup"
+              "$ref": "definitions.json#/transceiver/config/ioSetup"
             },
             "peerToPeer": {
               "$ref": "definitions.json#/node/peerToPeer"
             },
             "neverSleep": {
-              "$ref": "definitions.json#/transciever/config/neverSleep"
+              "$ref": "definitions.json#/transceiver/config/neverSleep"
             },
             "stdAndLpNetwork": {
               "$ref": "definitions.json#/node/stdAndLpNetwork"
             },
             "thermometerSensorPresent": {
-              "$ref": "definitions.json#/transciever/thermometerSensorPresent"
+              "$ref": "definitions.json#/transceiver/thermometerSensorPresent"
             },
             "serialEepromPresent": {
-              "$ref": "definitions.json#/transciever/serialEepromPresent"
+              "$ref": "definitions.json#/transceiver/serialEepromPresent"
             },
-            "ilType": {
-              "$ref": "definitions.json#/transciever/ilType"
+            "transceiverIlType": {
+              "$ref": "definitions.json#/transceiver/ilType"
             }
           }
         },
