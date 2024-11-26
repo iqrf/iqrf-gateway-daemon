@@ -98,7 +98,7 @@
           "$ref": "definitions.json#/node/address"
         },
         "mid": {
-          "$ref": "definitions.json#/transciever/id"
+          "$ref": "definitions.json#/transceiver/id"
         }
       }
     }

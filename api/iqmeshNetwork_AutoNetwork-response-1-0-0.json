@@ -62,7 +62,7 @@
                     "$ref": "definitions.json#/node/address"
                   },
                   "mid": {
-                    "$ref": "definitions.json#/transciever/idStr"
+                    "$ref": "definitions.json#/transceiver/idStr"
                   }
                 }
               }
