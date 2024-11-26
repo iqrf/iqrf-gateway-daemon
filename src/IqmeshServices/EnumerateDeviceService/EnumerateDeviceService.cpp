@@ -813,8 +813,8 @@ namespace iqrf {
           bool eepromPresent = hwpConfig.Undocumented[0] & 0x20;
           Pointer("/data/rsp/trConfiguration/serialEepromPresent").Set(response, eepromPresent);
 
-          bool transcieverIL = hwpConfig.Undocumented[0] & 0x40;
-          Pointer("/data/rsp/trConfiguration/transcieverILType").Set(response, transcieverIL);
+          bool transceiverIL = hwpConfig.Undocumented[0] & 0x40;
+          Pointer("/data/rsp/trConfiguration/transceiverIlType").Set(response, transceiverIL);
         }
 
         // Result of more peripherals info according to request
