@@ -86,7 +86,7 @@
               "additionalProperties": false,
               "properties": {
                 "mid": {
-                  "$ref": "definitions.json#/transciever/id"
+                  "$ref": "definitions.json#/transceiver/id"
                 },
                 "osVersion": {
                   "title": "OS version",
@@ -96,7 +96,7 @@
                   "maximum": 255
                 },
                 "trType": {
-                  "$ref": "definitions.json#/transciever/type"
+                  "$ref": "definitions.json#/transceiver/type"
                 },
                 "osBuild": {
                   "title": "IQRF OS build.",
