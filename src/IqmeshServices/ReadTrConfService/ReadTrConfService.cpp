@@ -475,8 +475,8 @@ namespace iqrf {
           bool eepromPresent = hwpConfig.Undocumented[0] & 0x20;
           Pointer("/data/rsp/serialEepromPresent").Set(response, eepromPresent);
 
-          bool transcieverIL = hwpConfig.Undocumented[0] & 0x40;
-          Pointer("/data/rsp/transcieverILType").Set(response, transcieverIL);
+          bool transceiverIL = hwpConfig.Undocumented[0] & 0x40;
+          Pointer("/data/rsp/transceiverIlType").Set(response, transceiverIL);
         }
       }
 
