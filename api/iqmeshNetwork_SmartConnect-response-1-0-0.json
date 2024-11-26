@@ -74,7 +74,7 @@
               "additionalProperties": false,
               "properties": {
                 "mid": {
-                  "$ref": "definitions.json#/transciever/idStr"
+                  "$ref": "definitions.json#/transceiver/idStr"
                 },
                 "osVersion": {
                   "$ref": "definitions.json#/os/versionStr"
@@ -83,7 +83,7 @@
                   "$ref": "definitions.json#/os/buildStr"
                 },
                 "trMcuType": {
-                  "$ref": "definitions.json#/transciever/typeParsed"
+                  "$ref": "definitions.json#/transceiver/typeParsed"
                 },
                 "rssi": {
                   "$ref": "definitions.json#/node/rssiStr"

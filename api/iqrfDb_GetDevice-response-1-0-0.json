@@ -72,7 +72,7 @@
                       "$ref": "definitions.json#/node/parent"
                     },
                     "mid": {
-                      "$ref": "definitions.json#/transciever/id"
+                      "$ref": "definitions.json#/transceiver/id"
                     },
                     "hwpidVersion": {
                       "$ref": "definitions.json#/device/hwpIdVersion"
