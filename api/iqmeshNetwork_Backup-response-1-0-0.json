@@ -61,7 +61,7 @@
                     "type": "boolean"
                   },
                   "mid": {
-                    "$ref": "definitions.json#/transciever/id"
+                    "$ref": "definitions.json#/transceiver/id"
                   },
                   "dpaVer": {
                     "$ref": "definitions.json#/dpa/version"

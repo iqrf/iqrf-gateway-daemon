@@ -91,7 +91,7 @@
                     "$ref": "definitions.json#/node/address"
                   },
                   "deviceMID": {
-                    "$ref": "definitions.json#/transciever/idStr"
+                    "$ref": "definitions.json#/transceiver/idStr"
                   }
                 }
               },

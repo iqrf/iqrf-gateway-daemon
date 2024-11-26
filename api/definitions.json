@@ -1058,7 +1058,7 @@
       ]
     }
   },
-  "transciever": {
+  "transceiver": {
     "config": {
       "dpaAutoexec": {
         "description": "Whether DPA Autoexec is run at a later stage of the module boot time.",
@@ -1078,20 +1078,20 @@
       }
     },
     "id": {
-      "description": "Transciever module ID",
+      "description": "transceiver module ID",
       "type": "integer",
       "minimum": 0,
       "maximum": 4294967295
     },
     "idStr": {
-      "description": "Transciever module ID",
+      "description": "transceiver module ID",
       "type": "string",
       "maxLength": 8,
       "minLength": 8,
       "pattern": "^[a-fA-F0-9]{8}$"
     },
     "ilType": {
-      "description": "Transciever is IL type for Israel region.",
+      "description": "transceiver is IL type for Israel region.",
       "type": "boolean"
     },
     "radio": {
@@ -1170,11 +1170,11 @@
     },
     "typeParsed": {
       "title": "TR & MCU type",
-      "description": "Transciever module and microcontroller types.",
+      "description": "transceiver module and microcontroller types.",
       "type": "object",
       "properties": {
         "value": {
-          "$ref": "#/transciever/type"
+          "$ref": "#/transceiver/type"
         },
         "trType": {
           "description": "TR module type.",

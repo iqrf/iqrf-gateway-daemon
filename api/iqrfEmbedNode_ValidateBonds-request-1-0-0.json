@@ -69,7 +69,7 @@
                       },
                       "mid": {
                         "description": "MID to check against.",
-                        "$ref": "definitions.json#/transciever/id"
+                        "$ref": "definitions.json#/transceiver/id"
                       }
                     }
                   },
