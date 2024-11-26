@@ -15,29 +15,25 @@
  * limitations under the License.
  */
 
-#include "MngModeMsg.h"
+#include "MngSetModeMsg.h"
 
 namespace iqrf {
 
-	MngModeMsg::MngModeMsg(const Document &doc, IUdpConnectorService *udpConnectorService) : MngBaseMsg(doc) {
+	MngSetModeMsg::MngSetModeMsg(const Document &doc, IUdpConnectorService *udpConnectorService) : MngBaseMsg(doc) {
 		m_udpConnectorService = udpConnectorService;
 		std::string mode = Pointer("/data/req/operMode").Get(doc)->GetString();
 		m_mode = ModeStringConvertor::str2enum(mode);
 	}
 
-	void MngModeMsg::handleMsg() {
+	void MngSetModeMsg::handleMsg() {
 		if (m_udpConnectorService) {
-			if (m_mode != IUdpConnectorService::Mode::Unknown) {
-				m_udpConnectorService->setMode(m_mode);
-			}
-			m_mode = m_udpConnectorService->getMode();
+			m_udpConnectorService->setMode(m_mode);
 		} else {
 			throw std::logic_error("UdpConnectorService not active.");
 		}
 	}
 
-	void MngModeMsg::createResponsePayload(Document &doc) {
-		Pointer("/data/rsp/operMode").Set(doc, ModeStringConvertor::enum2str(m_mode));
+	void MngSetModeMsg::createResponsePayload(Document &doc) {
 		MngBaseMsg::createResponsePayload(doc);
 	}
 }
