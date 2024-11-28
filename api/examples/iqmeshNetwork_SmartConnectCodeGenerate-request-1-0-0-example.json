@@ -1,0 +1,11 @@
+{
+  "mType": "iqmeshNetwork_SmartConnectCodeGenerate",
+  "data": {
+    "repeat": 1,
+    "req": {
+      "deviceAddr": 1
+    },
+    "returnVerbose": true,
+    "msgId": "c028eb8a-d396-4587-80e3-1e1326bae6b5"
+  }
+}

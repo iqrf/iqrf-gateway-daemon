@@ -17,11 +17,14 @@
 
 #define ISmartConnectService_EXPORTS
 
+#include "SmartConnectCodeGenerateResult.h"
+#include "SmartConnectResult.h"
 #include "SmartConnectService.h"
 #include "RawDpaEmbedOS.h"
 #include "Trace.h"
+#include "ComIqmeshNetworkSmartConnectCodeGenerate.h"
 #include "ComIqmeshNetworkSmartConnect.h"
-#include "IqrfCodeDecoder.h"
+#include "IqrfCode.h"
 #include "iqrf__SmartConnectService.hxx"
 #include <list>
 #include <math.h>
@@ -53,124 +56,10 @@ namespace {
   static const int exclusiveAccessError = 1002;
   static const int addressUsedError = 1003;
   static const int noFreeAddressError = 1004;
+  static const int noBondedDeviceError = 1005;
 }
 
 namespace iqrf {
-  // Holds information about result of smart connect
-  class SmartConnectResult
-  {
-  private:
-    // Status
-    int m_status = 0;
-    std::string m_statusStr = "ok";
-
-    uint16_t m_hwpId;
-    uint16_t m_hwpIdVer;
-    uint8_t m_bondedAddr;
-    uint8_t m_bondedNodesNum;
-    std::string m_manufacturer = "";
-    std::string m_product = "";
-    std::list<std::string> m_standards = { "" };
-
-    // OS read response data
-    TEnumPeripheralsAnswer m_enumPer;
-    embed::os::RawDpaReadPtr m_osRead;
-    uint16_t m_osBuild;
-
-    // Transaction results
-    std::list<std::unique_ptr<IDpaTransactionResult2>> m_transResults;
-
-  public:
-    // Status
-    int getStatus() const { return m_status; };
-    std::string getStatusStr() const { return m_statusStr; };
-    void setStatus(const int status) {
-      m_status = status;
-    }
-    void setStatus(const int status, const std::string statusStr) {
-      m_status = status;
-      m_statusStr = statusStr;
-    }
-    void setStatusStr(const std::string statusStr) {
-      m_statusStr = statusStr;
-    }
-
-    uint16_t getHwpId() const { return m_hwpId; };
-    void setHwpId(uint16_t hwpId) {
-      m_hwpId = hwpId;
-    }
-
-    uint16_t getHwpIdVersion() const { return m_hwpIdVer; };
-    void setHwpIdVersion(uint16_t hwpIdVer) {
-      m_hwpIdVer = hwpIdVer;
-    }
-
-    uint8_t getBondedAddr() const { return m_bondedAddr; };
-    void setBondedAddr(uint8_t bondedAddr) {
-      m_bondedAddr = bondedAddr;
-    }
-
-    uint8_t getBondedNodesNum() const { return m_bondedNodesNum; };
-    void setBondedNodesNum(uint8_t bondedNodesNum) {
-      m_bondedNodesNum = bondedNodesNum;
-    }
-
-    std::string getManufacturer() const { return m_manufacturer; };
-    void setManufacturer(const std::string& manufacturer) {
-      m_manufacturer = manufacturer;
-    }
-
-    std::string getProduct() const { return m_product; };
-    void setProduct(const std::string& product) {
-      m_product = product;
-    }
-
-    std::list<std::string> getStandards() const { return m_standards; };
-    void setStandards(std::list<std::string> standards) {
-      m_standards = standards;
-    }
-
-    const embed::os::RawDpaReadPtr& getOsRead() const { return m_osRead; };
-    void setOsRead(embed::os::RawDpaReadPtr &osReadPtr) {
-      m_osRead = std::move(osReadPtr);
-    }
-
-    uint16_t getOsBuild() const { return m_osBuild; };
-    void setOsBuild(uint16_t osBuild) {
-      m_osBuild = osBuild;
-    }
-
-    TEnumPeripheralsAnswer getEnumPer() const { return m_enumPer; };
-    void setEnumPer(TEnumPeripheralsAnswer enumPer) {
-      m_enumPer = enumPer;
-    }
-
-    // Adds transaction result into the list of results
-    void addTransactionResult(std::unique_ptr<IDpaTransactionResult2> transResult)
-    {
-      m_transResults.push_back(std::move(transResult));
-    }
-
-    // Adds transaction result into the list of results
-    void addTransactionResultRef(std::unique_ptr<IDpaTransactionResult2> &transResult)
-    {
-      m_transResults.push_back(std::move(transResult));
-    }
-
-    bool isNextTransactionResult()
-    {
-      return (m_transResults.size() > 0);
-    }
-
-    // Consumes the first element in the transaction results list
-    std::unique_ptr<IDpaTransactionResult2> consumeNextTransactionResult()
-    {
-      std::list<std::unique_ptr<IDpaTransactionResult2>>::iterator iter = m_transResults.begin();
-      std::unique_ptr<IDpaTransactionResult2> tranResult = std::move(*iter);
-      m_transResults.pop_front();
-      return tranResult;
-    }
-  };
 
   // implementation class
   class SmartConnectService::Imp {
@@ -179,17 +68,20 @@ namespace iqrf {
     SmartConnectService& m_parent;
 
     // message type
-    const std::string m_mTypeName_iqmeshNetworkSmartConnect = "iqmeshNetwork_SmartConnect";
+    const std::string m_mType_smartConnect = "iqmeshNetwork_SmartConnect";
+    const std::string m_mType_smartConnectCodeGenerate = "iqmeshNetwork_SmartConnectCodeGenerate";
     IJsCacheService* m_iJsCacheService = nullptr;
     IMessagingSplitterService* m_iMessagingSplitterService = nullptr;
     IIqrfDpaService* m_iIqrfDpaService = nullptr;
     std::unique_ptr<IIqrfDpaService::ExclusiveAccess> m_exclusiveAccess;
     const MessagingInstance* m_messaging = nullptr;
     const IMessagingSplitterService::MsgType* m_msgType = nullptr;
+    const ComIqmeshNetworkSmartConnectCodeGenerate* m_comSmartConnectCodeGenerate = nullptr;
     const ComIqmeshNetworkSmartConnect* m_comSmartConnect = nullptr;
 
     // Service input parameters
     TSmartConnectInputParams m_smartConnectParams;
+    TSmartConnectCodeGenerateInputParams m_smartConnectCodeGenerateParams;
 
   public:
     explicit Imp(SmartConnectService& parent) : m_parent(parent)
@@ -201,11 +93,18 @@ namespace iqrf {
     }
 
   private:
-    void checkBondedNodes(SmartConnectResult &smartConnectResult) {
+    std::bitset<MAX_ADDRESS> toNodesBitmap(const unsigned char* pData) {
+      std::bitset<MAX_ADDRESS> nodesMap;
+      for (uint8_t nodeAddr = 1; nodeAddr <= MAX_ADDRESS; nodeAddr++)
+        nodesMap[nodeAddr - 1] = (pData[nodeAddr / 8] & (1 << (nodeAddr % 8))) != 0;
+
+      return nodesMap;
+    }
+
+    std::bitset<MAX_ADDRESS> getBondedNodes(SmartConnectResult &smartConnectResult) {
       TRC_FUNCTION_ENTER("");
       std::unique_ptr<IDpaTransactionResult2> result;
-      uint8_t bondedArray[DPA_MAX_DATA_LENGTH] = {0};
-      const uint16_t addr = m_smartConnectParams.deviceAddress;
+      std::bitset<MAX_ADDRESS> nodes;
       try {
         // Build packet and request
         DpaMessage bondedRequest;
@@ -227,35 +126,15 @@ namespace iqrf {
           << NAME_PAR(PNUM, bondedRequest.PeripheralType())
           << NAME_PAR(PCMD, (int)bondedRequest.PeripheralCommand())
         );
-        uint8_t *pdata = bondedResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData;
-        for (uint8_t i = 0; i < DPA_MAX_DATA_LENGTH; ++i) {
-          bondedArray[i] = pdata[i];
-        }
+        nodes = toNodesBitmap(bondedResponse.DpaPacket().DpaResponsePacket_t.DpaMessage.Response.PData);
         smartConnectResult.addTransactionResultRef(result);
       } catch (const std::exception &e) {
         smartConnectResult.setStatus(result->getErrorCode(), e.what());
         smartConnectResult.addTransactionResultRef(result);
         THROW_EXC(std::logic_error, e.what());
       }
-      if (addr == 0) {
-        bool freeAddr = false;
-        for (uint8_t i = 0; i <= MAX_ADDRESS; ++i) {
-          if (!(bondedArray[i / 8] & (1 << (i % 8)))) {
-            freeAddr = true;
-            break;
-          }
-        }
-        if (!freeAddr) {
-          smartConnectResult.setStatus(noFreeAddressError, "No available address to assign to a new node found.");
-          THROW_EXC(std::logic_error, smartConnectResult.getStatusStr());
-        }
-      } else {
-        if ((bondedArray[addr / 8] & (1 << (addr % 8))) != 0) {
-          smartConnectResult.setStatus(addressUsedError, "Requested address is already assigned to another device.");
-          THROW_EXC(std::logic_error, smartConnectResult.getStatusStr())
-        }
-      }
       TRC_FUNCTION_LEAVE("");
+      return nodes;
     }
 
     //-------------
@@ -389,6 +268,33 @@ namespace iqrf {
       }
     }
 
+    //----------------------------
+    // Generate smart connect code
+    //----------------------------
+    void generateSmartConnectCode(SmartConnectResult &result) {
+      TRC_FUNCTION_ENTER("");
+      try {
+        auto nodes = getBondedNodes(result);
+        if (!nodes.test(m_smartConnectCodeGenerateParams.deviceAddress - 1)) {
+          result.setStatus(noBondedDeviceError, "No device bonded at specified address.");
+          THROW_EXC(std::logic_error, result.getStatusStr());
+        }
+        osRead(result);
+        auto ibk = result.getOsRead()->getIbk();
+        iqrf::code::IqrfValues values(
+          result.getOsRead()->getMid(),
+          std::basic_string<uint8_t>(ibk.begin(), ibk.end()),
+          result.getOsRead()->getHwpid()
+        );
+        result.setSmartConnectCode(
+          iqrf::code::IqrfCode::encode(values)
+        );
+      } catch (const std::exception& e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, e.what());
+      }
+      TRC_FUNCTION_LEAVE("");
+    }
+
     //-------------
     // SmartConnect
     //-------------
@@ -405,7 +311,20 @@ namespace iqrf {
           THROW_EXC(std::logic_error, "Old version of DPA: " << PAR(dpaVersion));
         }
 
-        checkBondedNodes(smartConnectResult);
+        // check available addresses
+        auto nodes = getBondedNodes(smartConnectResult);
+        auto addr = m_smartConnectParams.deviceAddress;
+        if (addr == 0) {
+          if (nodes.all()) {
+            smartConnectResult.setStatus(noFreeAddressError, "No available address to assign to a new node found.");
+            THROW_EXC(std::logic_error, smartConnectResult.getStatusStr());
+          }
+        } else {
+          if (nodes.test(addr - 1)) {
+            smartConnectResult.setStatus(addressUsedError, "Requested address is already assigned to another device.");
+            THROW_EXC(std::logic_error, smartConnectResult.getStatusStr())
+          }
+        }
 
         // SmartConnect request
         doSmartConnect(smartConnectResult);
@@ -475,134 +394,143 @@ namespace iqrf {
 
       // set common parameters
       Pointer("/mType").Set(response, m_msgType->m_type);
-      Pointer("/data/msgId").Set(response, m_comSmartConnect->getMsgId());
+      Pointer("/data/msgId").Set(
+        response,
+        m_msgType->m_type == m_mType_smartConnect ?
+          m_comSmartConnect->getMsgId() : m_comSmartConnectCodeGenerate->getMsgId()
+      );
+
+      bool verbose = m_msgType->m_type == m_mType_smartConnect ? m_comSmartConnect->getVerbose() : m_comSmartConnectCodeGenerate->getVerbose();
 
       // Set status
       int status = smartConnectResult.getStatus();
-      if (status == 0)
-      {
-        Pointer("/data/rsp/assignedAddr").Set(response, smartConnectResult.getBondedAddr());
-        Pointer("/data/rsp/nodesNr").Set(response, smartConnectResult.getBondedNodesNum());
-        Pointer("/data/rsp/hwpId").Set(response, smartConnectResult.getHwpId());
-        Pointer("/data/rsp/manufacturer").Set(response, smartConnectResult.getManufacturer());
-        Pointer("/data/rsp/product").Set(response, smartConnectResult.getProduct());
+      if (status == 0) {
+        if (m_msgType->m_type == m_mType_smartConnect) {
+          Pointer("/data/rsp/assignedAddr").Set(response, smartConnectResult.getBondedAddr());
+          Pointer("/data/rsp/nodesNr").Set(response, smartConnectResult.getBondedNodesNum());
+          Pointer("/data/rsp/hwpId").Set(response, smartConnectResult.getHwpId());
+          Pointer("/data/rsp/manufacturer").Set(response, smartConnectResult.getManufacturer());
+          Pointer("/data/rsp/product").Set(response, smartConnectResult.getProduct());
 
-        // rsp object
-        Pointer("/data/rsp/assignedAddr").Set(response, smartConnectResult.getBondedAddr());
-        Pointer("/data/rsp/nodesNr").Set(response, smartConnectResult.getBondedNodesNum());
+          // rsp object
+          Pointer("/data/rsp/assignedAddr").Set(response, smartConnectResult.getBondedAddr());
+          Pointer("/data/rsp/nodesNr").Set(response, smartConnectResult.getBondedNodesNum());
 
-        // standards - array of strings
-        rapidjson::Value standardsJsonArray(kArrayType);
-        Document::AllocatorType& allocator = response.GetAllocator();
-        for (std::string standard : smartConnectResult.getStandards())
-        {
-          rapidjson::Value standardJsonString;
-          standardJsonString.SetString(standard.c_str(), (SizeType)standard.length(), allocator);
-          standardsJsonArray.PushBack(standardJsonString, allocator);
-        }
-        Pointer("/data/rsp/standards").Set(response, standardsJsonArray);
-
-        rapidjson::Pointer("/data/rsp/osRead/mid").Set(response, smartConnectResult.getOsRead()->getMidAsString());
-        rapidjson::Pointer("/data/rsp/osRead/osVersion").Set(response, smartConnectResult.getOsRead()->getOsVersionAsString());
-        rapidjson::Pointer("/data/rsp/osRead/trMcuType/value").Set(response, smartConnectResult.getOsRead()->getTrMcuType());
-        rapidjson::Pointer("/data/rsp/osRead/trMcuType/trType").Set(response, smartConnectResult.getOsRead()->getTrTypeAsString());
-        rapidjson::Pointer("/data/rsp/osRead/trMcuType/fccCertified").Set(response, smartConnectResult.getOsRead()->isFccCertified());
-        rapidjson::Pointer("/data/rsp/osRead/trMcuType/mcuType").Set(response, smartConnectResult.getOsRead()->getTrMcuTypeAsString());
-
-        rapidjson::Pointer("/data/rsp/osRead/osBuild").Set(response, smartConnectResult.getOsRead()->getOsBuildAsString());
-
-        // RSSI [dBm]
-        rapidjson::Pointer("/data/rsp/osRead/rssi").Set(response, smartConnectResult.getOsRead()->getRssiAsString());
-
-        // Supply voltage [V]
-        rapidjson::Pointer("/data/rsp/osRead/supplyVoltage").Set(response, smartConnectResult.getOsRead()->getSupplyVoltageAsString());
-
-        // Flags
-        rapidjson::Pointer("/data/rsp/osRead/flags/value").Set(response, smartConnectResult.getOsRead()->getFlags());
-        if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0417) {
-          rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsVersion").Set(response, smartConnectResult.getOsRead()->isInsufficientOs());
-        } else {
-          rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsBuild").Set(response, smartConnectResult.getOsRead()->isInsufficientOs());
-        }
-        rapidjson::Pointer("/data/rsp/osRead/flags/interfaceType").Set(response, smartConnectResult.getOsRead()->getInterfaceAsString());
-        rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, smartConnectResult.getOsRead()->isDpaHandlerDetected());
-        rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, smartConnectResult.getOsRead()->isDpaHandlerNotDetectedButEnabled());
-        rapidjson::Pointer("/data/rsp/osRead/flags/noInterfaceSupported").Set(response, smartConnectResult.getOsRead()->isNoInterfaceSupported());
-        if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0413)
-          rapidjson::Pointer("/data/rsp/osRead/flags/iqrfOsChanged").Set(response, smartConnectResult.getOsRead()->isIqrfOsChanges());
-        if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0416)
-          rapidjson::Pointer("/data/rsp/osRead/flags/frcAggregationEnabled").Set(response, smartConnectResult.getOsRead()->isFrcAggregationEnabled());
-
-        // Slot limits
-        rapidjson::Pointer("/data/rsp/osRead/slotLimits/value").Set(response, smartConnectResult.getOsRead()->getSlotLimits());
-        rapidjson::Pointer("/data/rsp/osRead/slotLimits/shortestTimeslot").Set(response, smartConnectResult.getOsRead()->getShortestTimeSlotAsString());
-        rapidjson::Pointer("/data/rsp/osRead/slotLimits/longestTimeslot").Set(response, smartConnectResult.getOsRead()->getLongestTimeSlotAsString());
-
-        if (smartConnectResult.getOsRead()->is410Compliant())
-        {
-          // dpaVer, perNr
-          Pointer("/data/rsp/osRead/dpaVer").Set(response, smartConnectResult.getOsRead()->getDpaVerAsString());
-          Pointer("/data/rsp/osRead/perNr").Set(response, smartConnectResult.getOsRead()->getPerNr());
-
+          // standards - array of strings
+          rapidjson::Value standardsJsonArray(kArrayType);
           Document::AllocatorType& allocator = response.GetAllocator();
-
-          // embPers
-          rapidjson::Value embPersJsonArray(kArrayType);
-          for (std::set<int>::iterator it = smartConnectResult.getOsRead()->getEmbedPer().begin(); it != smartConnectResult.getOsRead()->getEmbedPer().end(); ++it)
+          for (std::string standard : smartConnectResult.getStandards())
           {
-            embPersJsonArray.PushBack(*it, allocator);
+            rapidjson::Value standardJsonString;
+            standardJsonString.SetString(standard.c_str(), (SizeType)standard.length(), allocator);
+            standardsJsonArray.PushBack(standardJsonString, allocator);
           }
-          Pointer("/data/rsp/osRead/embPers").Set(response, embPersJsonArray);
+          Pointer("/data/rsp/standards").Set(response, standardsJsonArray);
 
-          // hwpId
-          Pointer("/data/rsp/osRead/hwpId").Set(response, smartConnectResult.getOsRead()->getHwpid());
+          rapidjson::Pointer("/data/rsp/osRead/mid").Set(response, smartConnectResult.getOsRead()->getMidAsString());
+          rapidjson::Pointer("/data/rsp/osRead/osVersion").Set(response, smartConnectResult.getOsRead()->getOsVersionAsString());
+          rapidjson::Pointer("/data/rsp/osRead/trMcuType/value").Set(response, smartConnectResult.getOsRead()->getTrMcuType());
+          rapidjson::Pointer("/data/rsp/osRead/trMcuType/trType").Set(response, smartConnectResult.getOsRead()->getTrTypeAsString());
+          rapidjson::Pointer("/data/rsp/osRead/trMcuType/fccCertified").Set(response, smartConnectResult.getOsRead()->isFccCertified());
+          rapidjson::Pointer("/data/rsp/osRead/trMcuType/mcuType").Set(response, smartConnectResult.getOsRead()->getTrMcuTypeAsString());
 
-          // hwpIdVer
-          Pointer("/data/rsp/osRead/hwpIdVer").Set(response, smartConnectResult.getOsRead()->getHwpidVer());
+          rapidjson::Pointer("/data/rsp/osRead/osBuild").Set(response, smartConnectResult.getOsRead()->getOsBuildAsString());
 
-          // flags - int value
-          Pointer("/data/rsp/osRead/enumFlags/value").Set(response, smartConnectResult.getOsRead()->getFlags());
+          // RSSI [dBm]
+          rapidjson::Pointer("/data/rsp/osRead/rssi").Set(response, smartConnectResult.getOsRead()->getRssiAsString());
 
-          // flags - parsed
-          bool stdModeSupported = (smartConnectResult.getOsRead()->getFlags() & 0b1) == 0b1;
-          if (stdModeSupported)
-          {
-            Pointer("/data/rsp/osRead/enumFlags/rfModeStd").Set(response, true);
-            Pointer("/data/rsp/osRead/enumFlags/rfModeLp").Set(response, false);
+          // Supply voltage [V]
+          rapidjson::Pointer("/data/rsp/osRead/supplyVoltage").Set(response, smartConnectResult.getOsRead()->getSupplyVoltageAsString());
+
+          // Flags
+          rapidjson::Pointer("/data/rsp/osRead/flags/value").Set(response, smartConnectResult.getOsRead()->getFlags());
+          if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0417) {
+            rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsVersion").Set(response, smartConnectResult.getOsRead()->isInsufficientOs());
+          } else {
+            rapidjson::Pointer("/data/rsp/osRead/flags/insufficientOsBuild").Set(response, smartConnectResult.getOsRead()->isInsufficientOs());
           }
-          else
-          {
-            Pointer("/data/rsp/osRead/enumFlags/rfModeStd").Set(response, false);
-            Pointer("/data/rsp/osRead/enumFlags/rfModeLp").Set(response, true);
-          }
+          rapidjson::Pointer("/data/rsp/osRead/flags/interfaceType").Set(response, smartConnectResult.getOsRead()->getInterfaceAsString());
+          rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerDetected").Set(response, smartConnectResult.getOsRead()->isDpaHandlerDetected());
+          rapidjson::Pointer("/data/rsp/osRead/flags/dpaHandlerNotDetectedButEnabled").Set(response, smartConnectResult.getOsRead()->isDpaHandlerNotDetectedButEnabled());
+          rapidjson::Pointer("/data/rsp/osRead/flags/noInterfaceSupported").Set(response, smartConnectResult.getOsRead()->isNoInterfaceSupported());
+          if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0413)
+            rapidjson::Pointer("/data/rsp/osRead/flags/iqrfOsChanged").Set(response, smartConnectResult.getOsRead()->isIqrfOsChanges());
+          if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0416)
+            rapidjson::Pointer("/data/rsp/osRead/flags/frcAggregationEnabled").Set(response, smartConnectResult.getOsRead()->isFrcAggregationEnabled());
 
-          // STD+LP network is running, otherwise STD network.
-          if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0400)
+          // Slot limits
+          rapidjson::Pointer("/data/rsp/osRead/slotLimits/value").Set(response, smartConnectResult.getOsRead()->getSlotLimits());
+          rapidjson::Pointer("/data/rsp/osRead/slotLimits/shortestTimeslot").Set(response, smartConnectResult.getOsRead()->getShortestTimeSlotAsString());
+          rapidjson::Pointer("/data/rsp/osRead/slotLimits/longestTimeslot").Set(response, smartConnectResult.getOsRead()->getLongestTimeSlotAsString());
+
+          if (smartConnectResult.getOsRead()->is410Compliant())
           {
-            bool stdAndLpModeNetwork = (smartConnectResult.getOsRead()->getFlags() & 0b100) == 0b100;
-            if (stdAndLpModeNetwork)
+            // dpaVer, perNr
+            Pointer("/data/rsp/osRead/dpaVer").Set(response, smartConnectResult.getOsRead()->getDpaVerAsString());
+            Pointer("/data/rsp/osRead/perNr").Set(response, smartConnectResult.getOsRead()->getPerNr());
+
+            Document::AllocatorType& allocator = response.GetAllocator();
+
+            // embPers
+            rapidjson::Value embPersJsonArray(kArrayType);
+            for (std::set<int>::iterator it = smartConnectResult.getOsRead()->getEmbedPer().begin(); it != smartConnectResult.getOsRead()->getEmbedPer().end(); ++it)
             {
-              Pointer("/data/rsp/osRead/enumFlags/stdAndLpNetwork").Set(response, true);
+              embPersJsonArray.PushBack(*it, allocator);
+            }
+            Pointer("/data/rsp/osRead/embPers").Set(response, embPersJsonArray);
+
+            // hwpId
+            Pointer("/data/rsp/osRead/hwpId").Set(response, smartConnectResult.getOsRead()->getHwpid());
+
+            // hwpIdVer
+            Pointer("/data/rsp/osRead/hwpIdVer").Set(response, smartConnectResult.getOsRead()->getHwpidVer());
+
+            // flags - int value
+            Pointer("/data/rsp/osRead/enumFlags/value").Set(response, smartConnectResult.getOsRead()->getFlags());
+
+            // flags - parsed
+            bool stdModeSupported = (smartConnectResult.getOsRead()->getFlags() & 0b1) == 0b1;
+            if (stdModeSupported)
+            {
+              Pointer("/data/rsp/osRead/enumFlags/rfModeStd").Set(response, true);
+              Pointer("/data/rsp/osRead/enumFlags/rfModeLp").Set(response, false);
             }
             else
             {
-              Pointer("/data/rsp/osRead/enumFlags/stdAndLpNetwork").Set(response, false);
+              Pointer("/data/rsp/osRead/enumFlags/rfModeStd").Set(response, false);
+              Pointer("/data/rsp/osRead/enumFlags/rfModeLp").Set(response, true);
             }
-          }
 
-          // UserPers
-          rapidjson::Value userPerJsonArray(kArrayType);
-          for (std::set<int>::iterator it = smartConnectResult.getOsRead()->getUserPer().begin(); it != smartConnectResult.getOsRead()->getUserPer().end(); ++it)
-          {
-            userPerJsonArray.PushBack(*it, allocator);
+            // STD+LP network is running, otherwise STD network.
+            if (smartConnectResult.getOsRead()->getDpaVer() >= 0x0400)
+            {
+              bool stdAndLpModeNetwork = (smartConnectResult.getOsRead()->getFlags() & 0b100) == 0b100;
+              if (stdAndLpModeNetwork)
+              {
+                Pointer("/data/rsp/osRead/enumFlags/stdAndLpNetwork").Set(response, true);
+              }
+              else
+              {
+                Pointer("/data/rsp/osRead/enumFlags/stdAndLpNetwork").Set(response, false);
+              }
+            }
+
+            // UserPers
+            rapidjson::Value userPerJsonArray(kArrayType);
+            for (std::set<int>::iterator it = smartConnectResult.getOsRead()->getUserPer().begin(); it != smartConnectResult.getOsRead()->getUserPer().end(); ++it)
+            {
+              userPerJsonArray.PushBack(*it, allocator);
+            }
+            Pointer("/data/rsp/osRead/userPers").Set(response, userPerJsonArray);
           }
-          Pointer("/data/rsp/osRead/userPers").Set(response, userPerJsonArray);
+        } else {
+          Pointer("/data/rsp/deviceAddr").Set(response, smartConnectResult.getBondedAddr());
+          Pointer("/data/rsp/smartConnectCode").Set(response, smartConnectResult.getSmartConnectCode());
         }
       }
 
       // Set raw fields, if verbose mode is active
-      if (m_comSmartConnect->getVerbose())
-      {
+      if (verbose) {
         rapidjson::Value rawArray(kArrayType);
         Document::AllocatorType& allocator = response.GetAllocator();
         while (smartConnectResult.isNextTransactionResult())
@@ -705,7 +633,11 @@ namespace iqrf {
 
       // Set common parameters
       Pointer("/mType").Set(response, m_msgType->m_type);
-      Pointer("/data/msgId").Set(response, m_comSmartConnect->getMsgId());
+      Pointer("/data/msgId").Set(
+        response,
+        m_msgType->m_type == m_mType_smartConnect ?
+          m_comSmartConnect->getMsgId() : m_comSmartConnectCodeGenerate->getMsgId()
+      );
 
       // Set status
       Pointer("/data/status").Set(response, status);
@@ -715,42 +647,63 @@ namespace iqrf {
       m_iMessagingSplitterService->sendMessage(*m_messaging, std::move(response));
     }
 
-    void handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc)
-    {
-      TRC_FUNCTION_ENTER(
-        PAR( messaging.to_string() ) <<
-        NAME_PAR(mType, msgType.m_type) <<
-        NAME_PAR(major, msgType.m_major) <<
-        NAME_PAR(minor, msgType.m_minor) <<
-        NAME_PAR(micro, msgType.m_micro)
-      );
+    void handleSmartConnectCodeGenerateMsg(rapidjson::Document doc) {
+      TRC_FUNCTION_ENTER("");
 
-      // Unsupported type of request
-      if (msgType.m_type != m_mTypeName_iqmeshNetworkSmartConnect)
-        THROW_EXC(std::logic_error, "Unsupported message type: " << PAR(msgType.m_type));
+      ComIqmeshNetworkSmartConnectCodeGenerate comSmartConnectCodeGenerate(doc);
+      m_comSmartConnectCodeGenerate = &comSmartConnectCodeGenerate;
 
+      try {
+        m_smartConnectCodeGenerateParams = comSmartConnectCodeGenerate.getParams();
+      } catch (const std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Error parsing service input parameters.");
+        createResponse(parsingRequestError, e.what());
+      }
+
+      try {
+        m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
+      } catch (const std::exception &e) {
+        CATCH_EXC_TRC_WAR(std::exception, e, "Exclusive access error.");
+        createResponse(exclusiveAccessError, e.what());
+        TRC_FUNCTION_LEAVE("");
+        return;
+      }
+
+      try {
+        SmartConnectResult result;
+        result.setBondedAddr(m_smartConnectCodeGenerateParams.deviceAddress);
+        generateSmartConnectCode(result);
+
+        createResponse(result);
+      } catch (const std::exception& e) {
+        m_exclusiveAccess.reset();
+        THROW_EXC_TRC_WAR(std::logic_error, e.what());
+      }
+
+      m_exclusiveAccess.reset();
+      TRC_FUNCTION_LEAVE("");
+    }
+
+    void handleSmartConnectMsg(rapidjson::Document doc) {
+      TRC_FUNCTION_ENTER("");
       // Creating representation object
       ComIqmeshNetworkSmartConnect comSmartConnect(doc);
-      m_msgType = &msgType;
-      m_messaging = &messaging;
       m_comSmartConnect = &comSmartConnect;
 
       // Parsing and checking service parameters
       try
       {
         m_smartConnectParams = comSmartConnect.getSmartConnectInputParams();
-        IqrfCodeDecoder::decode(m_smartConnectParams.smartConnectCode);
-        m_smartConnectParams.MID = IqrfCodeDecoder::getMid();
-        m_smartConnectParams.IBK = IqrfCodeDecoder::getIbk();
-        m_smartConnectParams.hwpId = IqrfCodeDecoder::getHwpId();
+        auto iqrfValues = iqrf::code::IqrfCode::decode(m_smartConnectParams.smartConnectCode);
+        m_smartConnectParams.MID = iqrfValues.getMidBytes();
+        m_smartConnectParams.IBK = iqrfValues.getIbk();
+        m_smartConnectParams.hwpId = iqrfValues.getHwpid();
         // Logs decoded values
         TRC_INFORMATION("IQRFCode decoded values: ");
         TRC_INFORMATION("MID: " << PAR(getHexaString(m_smartConnectParams.MID)));
         TRC_INFORMATION("IBK: " << PAR(getHexaString(m_smartConnectParams.IBK)));
         TRC_INFORMATION("HWP ID: " << PAR(getHexaString(m_smartConnectParams.hwpId)));
-      }
-      catch (const std::exception& e)
-      {
+      } catch (const std::exception& e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Error while parsing service input parameters.");
         createResponse(parsingRequestError, e.what());
         TRC_FUNCTION_LEAVE("");
@@ -761,9 +714,7 @@ namespace iqrf {
       try
       {
         m_exclusiveAccess = m_iIqrfDpaService->getExclusiveAccess();
-      }
-      catch (const std::exception &e)
-      {
+      } catch (const std::exception &e) {
         CATCH_EXC_TRC_WAR(std::exception, e, "Exclusive access error.");
         createResponse(exclusiveAccessError, e.what());
         TRC_FUNCTION_LEAVE("");
@@ -785,9 +736,30 @@ namespace iqrf {
         THROW_EXC_TRC_WAR(std::logic_error, e.what());
       }
 
-      // release exclusive access
       m_exclusiveAccess.reset();
       TRC_FUNCTION_LEAVE("");
+    }
+
+    void handleMsg(const MessagingInstance &messaging, const IMessagingSplitterService::MsgType& msgType, rapidjson::Document doc) {
+      TRC_FUNCTION_ENTER(
+        PAR( messaging.to_string() ) <<
+        NAME_PAR(mType, msgType.m_type) <<
+        NAME_PAR(major, msgType.m_major) <<
+        NAME_PAR(minor, msgType.m_minor) <<
+        NAME_PAR(micro, msgType.m_micro)
+      );
+
+      m_msgType = &msgType;
+      m_messaging = &messaging;
+
+      // Unsupported type of request
+      if (msgType.m_type == m_mType_smartConnect) {
+        handleSmartConnectMsg(std::move(doc));
+      } else if (msgType.m_type == m_mType_smartConnectCodeGenerate) {
+        handleSmartConnectCodeGenerateMsg(std::move(doc));
+      } else {
+        THROW_EXC(std::logic_error, "Unsupported message type: " << PAR(msgType.m_type));
+      }
     }
 
 
@@ -806,7 +778,8 @@ namespace iqrf {
       // for the sake of register function parameters
       std::vector<std::string> m_filters =
       {
-        "iqmeshNetwork_SmartConnect"
+        m_mType_smartConnect,
+        m_mType_smartConnectCodeGenerate
       };
 
       m_iMessagingSplitterService->registerFilteredMsgHandler(
@@ -832,7 +805,8 @@ namespace iqrf {
       // for the sake of unregister function parameters
       std::vector<std::string> m_filters =
       {
-        m_mTypeName_iqmeshNetworkSmartConnect
+        m_mType_smartConnect,
+        m_mType_smartConnectCodeGenerate,
       };
 
       m_iMessagingSplitterService->unregisterFilteredMsgHandler(m_filters);
