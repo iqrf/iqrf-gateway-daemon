@@ -33,7 +33,7 @@ namespace iqrf {
       bondingRetries = 1;
       repeat = 1;
     }
-    uint16_t deviceAddress;
+    uint8_t deviceAddress;
     std::string smartConnectCode;
     int bondingRetries;
     std::basic_string<uint8_t> userData;
@@ -85,7 +85,7 @@ namespace iqrf {
 
       // Device address
       if ((jsonVal = rapidjson::Pointer("/data/req/deviceAddr").Get(doc))) {
-        m_smartConnectInputParams.deviceAddress = (uint16_t)jsonVal->GetInt();
+        m_smartConnectInputParams.deviceAddress = (uint8_t)jsonVal->GetInt();
       }
 
       // smartConnectCode

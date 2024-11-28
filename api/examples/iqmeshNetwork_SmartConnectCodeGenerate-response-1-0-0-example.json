@@ -1,0 +1,31 @@
+{
+  "mType": "iqmeshNetwork_SmartConnectCodeGenerate",
+  "data": {
+    "msgId": "c028eb8a-d396-4587-80e3-1e1326bae6b5",
+    "rsp": {
+      "deviceAddr": 1,
+      "smartConnectCode": "q1ZfR2rrxP4TdRv1fkpwLntLSUKgpaNnce"
+    },
+    "raw": [
+      {
+        "request": "00.00.00.02.ff.ff",
+        "requestTs": "2024-12-04T11:37:40.433+01:00",
+        "confirmation": "",
+        "confirmationTs": "",
+        "response": "00.00.00.82.04.30.00.59.06.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
+        "responseTs": "2024-12-04T11:37:40.463+01:00"
+      },
+      {
+        "request": "01.00.02.00.ff.ff",
+        "requestTs": "2024-12-04T11:37:40.463+01:00",
+        "confirmation": "01.00.02.00.ff.ff.ff.59.01.08.01",
+        "confirmationTs": "2024-12-04T11:37:40.589+01:00",
+        "response": "01.00.02.80.02.14.00.57.51.7c.11.81.46.24.d8.08.57.28.34.75.34.65.c0.e3.d9.14.d3.a7.dc.92.cf.b3.d8.ff.39.1b.17.04.01.fe.06.00.00.02.14.02.00.05.00.00.00.00.00.00.00.40",
+        "responseTs": "2024-12-04T11:37:40.864+01:00"
+      }
+    ],
+    "status": 0,
+    "statusStr": "ok",
+    "insId": "iqrfgd2-default"
+  }
+}
