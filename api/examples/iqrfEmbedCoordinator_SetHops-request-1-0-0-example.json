@@ -1,12 +1,12 @@
 {
   "mType": "iqrfEmbedCoordinator_SetHops",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "0ace989b-5611-4058-b245-1edb9a3bf985",
     "req": {
       "nAdr": 0,
       "param": {
-        "requestHops": 255,
-        "responseHops": 255
+        "requestHops": 0,
+        "responseHops": 11
       }
     },
     "returnVerbose": true
