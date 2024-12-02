@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedExplore_PeripheralInformation",
   "data": {
-    "msgId": "testEmbedExplore",
+    "msgId": "df35af3c-cfc5-4945-a6db-f67632d0ef0c",
     "timeout": 1000,
     "req": {
       "nAdr": 1,
