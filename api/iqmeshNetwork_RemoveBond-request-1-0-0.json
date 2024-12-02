@@ -43,7 +43,9 @@
                   "$ref": "definitions.json#/node/address"
                 },
                 "hwpId": {
-                  "$ref": "#/localDefinitions/hwpId"
+                  "title": "HWPID filter",
+                  "description": "Unbond devices with specified HWPID only.",
+                  "$ref": "definitions.json#/request/hwpId"
                 },
                 "deviceAddr": {
                   "description": "Address of a device or array of device addresses to unbond.",
@@ -64,7 +66,9 @@
                   ]
                 },
                 "coordinatorOnly": {
-                  "$ref": "#/localDefinitions/coordinatorOnly"
+                  "title": "Coordinator only",
+                  "description": "Unbond nodes only in Coordinator.",
+                  "type": "boolean"
                 }
               }
             },
@@ -81,7 +85,7 @@
                   "$ref": "definitions.json#/node/address"
                 },
                 "hwpId": {
-                  "$ref": "#/localDefinitions/hwpId"
+                  "$ref": "#/properties/data/properties/req/oneOf/0/properties/hwpId"
                 },
                 "allNodes": {
                   "title": "Unbond all",
@@ -90,7 +94,7 @@
                   "const": true
                 },
                 "coordinatorOnly": {
-                  "$ref": "#/localDefinitions/coordinatorOnly"
+                  "$ref": "#/properties/data/properties/req/oneOf/0/properties/coordinatorOnly"
                 }
               }
             }
@@ -103,18 +107,6 @@
           "$ref": "definitions.json#/request/returnVerbose"
         }
       }
-    }
-  },
-  "localDefinitions": {
-    "coordinatorOnly": {
-      "title": "Coordinator only",
-      "description": "Unbond nodes only in Coordinator.",
-      "type": "boolean"
-    },
-    "hwpId": {
-      "title": "HWPID filter",
-      "description": "Unbond devices with specified HWPID only.",
-      "$ref": "definitions.json#/request/hwpId"
     }
   }
 }
