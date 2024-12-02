@@ -1,11 +1,11 @@
 {
   "mType": "iqrfEmbedCoordinator_SetDpaParams",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "6f428b49-63fc-4d70-8877-f58d8a6fc190",
     "req": {
       "nAdr": 0,
       "param": {
-        "dpaParam": 0
+        "dpaParam": 3
       }
     },
     "returnVerbose": true

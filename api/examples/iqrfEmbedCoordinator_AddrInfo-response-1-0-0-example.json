@@ -1,30 +1,30 @@
 {
   "mType": "iqrfEmbedCoordinator_AddrInfo",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "7f82362b-f3dd-4f79-b079-9e105ea891bf",
     "rsp": {
       "nAdr": 0,
       "pNum": 0,
       "pCmd": 128,
       "hwpId": 0,
       "rCode": 0,
-      "dpaVal": 64,
+      "dpaVal": 92,
       "result": {
-        "devNr": 0,
-        "did": 42
+        "devNr": 4,
+        "did": 10
       }
     },
     "raw": [
       {
         "request": "00.00.00.00.ff.ff",
-        "requestTs": "2018-07-07T20:16:03.125144",
+        "requestTs": "2024-12-02T15:53:12.557+01:00",
         "confirmation": "",
         "confirmationTs": "",
-        "response": "00.00.00.80.00.00.00.40.00.2a",
-        "responseTs": "2018-07-07T20:16:03.150580"
+        "response": "00.00.00.80.00.00.00.5c.04.0a",
+        "responseTs": "2024-12-02T15:53:12.596+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }
