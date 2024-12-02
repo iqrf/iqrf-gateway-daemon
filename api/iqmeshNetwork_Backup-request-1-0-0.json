@@ -29,27 +29,42 @@
           "$ref": "definitions.json#/message/id"
         },
         "req": {
-          "title": "Request",
-          "description": "Contains request specific parameters.",
-          "type": "object",
-          "required": [
-            "deviceAddr"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "deviceAddr": {
-              "description": "Address of device to backup (0 - [C] device, 1..239 - [N] device)",
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 239,
-              "default": 0
+          "oneOf": [
+            {
+              "title": "Backup a device",
+              "description": "Specific parameters for the backup of a single device.",
+              "type": "object",
+              "required": [
+                "deviceAddr"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "deviceAddr": {
+                  "description": "Address of device to backup (0 - [C] device, 1..239 - [N] device)",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 239,
+                  "default": 0
+                }
+              }
             },
-            "wholeNetwork": {
-              "description": "Backup the whole Network ",
-              "type": "boolean",
-              "default": false
+            {
+              "title": "Backup the network",
+              "description": "Scpecific parameters for backing up the whole network.",
+              "type": "object",
+              "required": [
+                "wholeNetwork"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "wholeNetwork": {
+                  "description": "Backup the whole Network ",
+                  "type": "boolean",
+                  "const": true
+                }
+              }
             }
-          }
+          ]
         },
         "repeat": {
           "$ref": "definitions.json#/iqmesh/repeat"
