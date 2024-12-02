@@ -1,15 +1,15 @@
 {
   "mType": "iqrfEmbedExplore_PeripheralInformation",
   "data": {
-    "msgId": "testEmbedExplore",
+    "msgId": "df35af3c-cfc5-4945-a6db-f67632d0ef0c",
     "timeout": 1000,
     "rsp": {
       "nAdr": 1,
-      "pNum": 2,
+      "pNum": 1,
       "pCmd": 191,
-      "hwpId": 2,
+      "hwpId": 5122,
       "rCode": 0,
-      "dpaVal": 80,
+      "dpaVal": 94,
       "result": {
         "perTe": 3,
         "perT": 2,
@@ -20,14 +20,14 @@
     "raw": [
       {
         "request": "01.00.01.3f.ff.ff",
-        "requestTs": "2018-07-04T20:59:43.291584",
-        "confirmation": "01.00.01.3f.ff.ff.ff.4e.01.04.01",
-        "confirmationTs": "2018-07-04T20:59:43.322600",
-        "response": "01.00.01.bf.02.00.00.50.03.02.38.00",
-        "responseTs": "2018-07-04T20:59:43.456462"
+        "requestTs": "2024-12-02T15:49:39.804+01:00",
+        "confirmation": "01.00.01.3f.ff.ff.ff.5c.01.08.01",
+        "confirmationTs": "2024-12-02T15:49:39.844+01:00",
+        "response": "01.00.01.bf.02.14.00.5e.03.02.38.00",
+        "responseTs": "2024-12-02T15:49:40.089+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }
