@@ -46,6 +46,8 @@
               "$comment": "The HWPID value is ignored at this command."
             },
             "param": {
+              "title": "Request parameters",
+              "description": "Specific request parameters.",
               "type": "object",
               "required": [
                 "per"
