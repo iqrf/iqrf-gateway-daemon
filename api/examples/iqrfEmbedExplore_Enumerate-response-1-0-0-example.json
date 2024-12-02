@@ -1,36 +1,49 @@
 {
   "mType": "iqrfEmbedExplore_Enumerate",
   "data": {
-    "msgId": "testEmbedExplore",
+    "msgId": "13ee3365-0bde-464e-8a6d-9ec94910bc67",
     "timeout": 1000,
     "rsp": {
       "nAdr": 1,
       "pNum": 255,
       "pCmd": 191,
-      "hwpId": 2,
+      "hwpId": 5122,
       "rCode": 0,
-      "dpaVal": 80,
+      "dpaVal": 94,
       "result": {
-        "dpaVer": 771,
-        "userPerNr": 1,
-        "embeddedPers": [1, 2, 3, 4, 5, 6, 7, 9, 10, 13],
-        "hwpid": 2,
-        "hwpidVer": 0,
-        "flags": 1,
-        "userPer": [94]
+        "dpaVer": 1047,
+        "embeddedPers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          9,
+          10,
+          12
+        ],
+        "hwpid": 5122,
+        "hwpidVer": 2,
+        "flags": 6,
+        "userPer": [
+          94
+        ],
+        "userPerNr": 1
       }
     },
     "raw": [
       {
         "request": "01.00.ff.3f.ff.ff",
-        "requestTs": "2018-07-04T21:00:47.95442",
-        "confirmation": "01.00.ff.3f.ff.ff.ff.4e.01.04.01",
-        "confirmationTs": "2018-07-04T21:00:47.132168",
-        "response": "01.00.ff.bf.02.00.00.50.03.03.01.fe.26.00.00.02.00.00.00.01.00.00.00.00.00.00.00.40",
-        "responseTs": "2018-07-04T21:00:47.265792"
+        "requestTs": "2024-12-02T15:48:21.876+01:00",
+        "confirmation": "01.00.ff.3f.ff.ff.ff.5c.01.08.01",
+        "confirmationTs": "2024-12-02T15:48:21.914+01:00",
+        "response": "01.00.ff.bf.02.14.00.5e.17.04.01.fe.16.00.00.02.14.02.00.06.00.00.00.00.00.00.00.40",
+        "responseTs": "2024-12-02T15:48:22.201+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }
