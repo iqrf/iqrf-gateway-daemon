@@ -1,22 +1,22 @@
 {
   "mType": "iqrfRaw",
   "data": {
-    "msgId": "testRaw",
+    "msgId": "f0885f20-36b4-41f6-a64b-70c9bfc008c8",
     "timeout": 1000,
     "rsp": {
-      "rData": "00.00.06.83.00.00.00.44"
+      "rData": "00.00.06.83.00.00.00.00"
     },
     "raw": [
       {
         "request": "00.00.06.03.ff.ff",
-        "requestTs": "2018-08-31T12:48:35.887733",
+        "requestTs": "2024-12-02T10:31:36.477+01:00",
         "confirmation": "",
         "confirmationTs": "",
-        "response": "00.00.06.83.00.00.00.44",
-        "responseTs": "2018-08-31T12:48:35.915579"
+        "response": "00.00.06.83.00.00.00.00",
+        "responseTs": "2024-12-02T10:31:36.513+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }
