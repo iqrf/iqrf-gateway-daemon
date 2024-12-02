@@ -1,7 +1,7 @@
 {
   "mType": "iqrfRaw",
   "data": {
-    "msgId": "testRaw",
+    "msgId": "f0885f20-36b4-41f6-a64b-70c9bfc008c8",
     "timeout": 1000,
     "req": {
       "rData": "00.00.06.03.FF.FF"
