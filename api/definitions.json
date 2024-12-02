@@ -412,6 +412,16 @@
         "description": "Loading action: WithoutCodeLoading, WithCodeLoading.",
         "type": "string"
       }
+    },
+    "unbondCoordinatorOnly": {
+      "title": "Coordinator only",
+      "description": "Unbond nodes only in the Coordinator.",
+      "type": "boolean"
+    },
+    "unbondFilter": {
+      "title": "HWPID filter",
+      "description": "Unbond devices with specified HWPID only.",
+      "$ref": "#/request/hwpId"
     }
   },
   "iqrfDb": {
