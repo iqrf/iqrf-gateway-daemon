@@ -36,6 +36,7 @@
     "hwpId": {
       "description": "Hardware profile ID of the device.",
       "type": "integer",
+      "title": "integer",
       "minimum": 0,
       "maximum": 65535
     },
