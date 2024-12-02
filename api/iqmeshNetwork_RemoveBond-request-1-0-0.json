@@ -29,60 +29,72 @@
           "$ref": "definitions.json#/message/id"
         },
         "req": {
-          "title": "Request",
-          "description": "Contains request specific parameters.",
-          "type": "object",
           "oneOf": [
             {
+              "title": "Remove selected nodes",
+              "description": "Specific request parameters for removing selected bonds.",
+              "type": "object",
               "required": [
                 "deviceAddr"
-              ]
-            },
-            {
-              "required": [
-                "allNodes"
-              ]
-            }
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "nAdr": {
-              "$ref": "definitions.json#/node/address"
-            },
-            "hwpId": {
-              "title": "HWPID filter",
-              "description": "Unbond devices with specified HWPID only.",
-              "$ref": "definitions.json#/request/hwpId"
-            },
-            "deviceAddr": {
-              "title": "Device(s) to unbond",
-              "description": "Address of a device or array of device addresses to unbond.",
-              "oneOf": [
-                {
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "nAdr": {
                   "$ref": "definitions.json#/node/address"
                 },
-                {
-                  "type": "array",
-                  "uniqueItems": true,
-                  "items": {
-                    "$ref": "definitions.json#/node/address"
-                  },
-                  "maxItems": 239
+                "hwpId": {
+                  "$ref": "#/localDefinitions/hwpId"
+                },
+                "deviceAddr": {
+                  "description": "Address of a device or array of device addresses to unbond.",
+                  "oneOf": [
+                    {
+                      "description": "Address of a device to unbond.",
+                      "$ref": "definitions.json#/node/address"
+                    },
+                    {
+                      "description": "List of addresses of devices to unbond.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "definitions.json#/node/address"
+                      },
+                      "uniqueItems": true,
+                      "maxItems": 239
+                    }
+                  ]
+                },
+                "coordinatorOnly": {
+                  "$ref": "#/localDefinitions/coordinatorOnly"
                 }
-              ]
+              }
             },
-            "allNodes": {
-              "title": "Unbond all",
-              "description": "Unbond all devices in network.",
-              "type": "boolean",
-              "const": true
-            },
-            "coordinatorOnly": {
-              "title": "Coordinator only",
-              "description": "Unbond nodes only in Coordinator.",
-              "type": "boolean"
+            {
+              "title": "Remove all nodes",
+              "description": "Specific request parameters for removing all bonds.",
+              "type": "object",
+              "required": [
+                "allNodes"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "nAdr": {
+                  "$ref": "definitions.json#/node/address"
+                },
+                "hwpId": {
+                  "$ref": "#/localDefinitions/hwpId"
+                },
+                "allNodes": {
+                  "title": "Unbond all",
+                  "description": "Unbond all devices in the network.",
+                  "type": "boolean",
+                  "const": true
+                },
+                "coordinatorOnly": {
+                  "$ref": "#/localDefinitions/coordinatorOnly"
+                }
+              }
             }
-          }
+          ]
         },
         "repeat": {
           "$ref": "definitions.json#/iqmesh/repeat"
@@ -91,6 +103,18 @@
           "$ref": "definitions.json#/request/returnVerbose"
         }
       }
+    }
+  },
+  "localDefinitions": {
+    "coordinatorOnly": {
+      "title": "Coordinator only",
+      "description": "Unbond nodes only in Coordinator.",
+      "type": "boolean"
+    },
+    "hwpId": {
+      "title": "HWPID filter",
+      "description": "Unbond devices with specified HWPID only.",
+      "$ref": "definitions.json#/request/hwpId"
     }
   }
 }
