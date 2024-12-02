@@ -1,7 +1,7 @@
 {
   "mType": "iqrfEmbedCoordinator_DiscoveredDevices",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "45cbc2cf-5d31-47bd-b774-da79bff8081f",
     "req": {
       "nAdr": 0
     },
