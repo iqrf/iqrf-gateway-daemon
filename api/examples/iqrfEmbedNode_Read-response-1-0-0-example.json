@@ -1,22 +1,22 @@
 {
   "mType": "iqrfEmbedNode_Read",
   "data": {
-    "msgId": "testEmbedNode",
+    "msgId": "5820890d-ae03-4e5f-9431-6aead88dbdb4",
     "rsp": {
       "nAdr": 1,
       "pNum": 1,
       "pCmd": 128,
-      "hwpId": 2,
+      "hwpId": 5122,
       "rCode": 0,
-      "dpaVal": 62,
+      "dpaVal": 94,
       "result": {
         "ntwADDR": 1,
         "ntwVRN": 1,
         "ntwZIN": 1,
-        "ntwDID": 79,
-        "ntwPVRN": 0,
-        "ntwUSERADDRESS": 65535,
-        "ntwID": 22421,
+        "ntwDID": 10,
+        "ntwPVRN": 3,
+        "ntwUSERADDRESS": 7680,
+        "ntwID": 22972,
         "ntwVRNFNZ": 0,
         "ntwCFG": 2,
         "flags": 1
@@ -25,14 +25,14 @@
     "raw": [
       {
         "request": "01.00.01.00.ff.ff",
-        "requestTs": "2018-07-14T17:37:49.832024",
-        "confirmation": "01.00.01.00.ff.ff.ff.36.01.04.01",
-        "confirmationTs": "2018-07-14T17:37:49.856610",
-        "response": "01.00.01.80.02.00.00.3e.01.01.01.4f.00.ff.ff.95.57.00.02.01",
-        "responseTs": "2018-07-14T17:37:50.2437"
+        "requestTs": "2024-12-02T18:04:19.579+01:00",
+        "confirmation": "01.00.01.00.ff.ff.ff.5c.01.08.01",
+        "confirmationTs": "2024-12-02T18:04:19.617+01:00",
+        "response": "01.00.01.80.02.14.00.5e.01.01.01.0a.03.00.1e.bc.59.00.02.01",
+        "responseTs": "2024-12-02T18:04:19.888+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }
