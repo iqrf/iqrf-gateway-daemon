@@ -43,9 +43,7 @@
                   "$ref": "definitions.json#/node/address"
                 },
                 "hwpId": {
-                  "title": "HWPID filter",
-                  "description": "Unbond devices with specified HWPID only.",
-                  "$ref": "definitions.json#/request/hwpId"
+                  "$ref": "definitions.json#/iqmesh/unbondFilter"
                 },
                 "deviceAddr": {
                   "description": "Address of a device or array of device addresses to unbond.",
@@ -66,9 +64,7 @@
                   ]
                 },
                 "coordinatorOnly": {
-                  "title": "Coordinator only",
-                  "description": "Unbond nodes only in Coordinator.",
-                  "type": "boolean"
+                  "$ref": "definitions.json#/iqmesh/unbondCoordinatorOnly"
                 }
               }
             },
@@ -85,7 +81,7 @@
                   "$ref": "definitions.json#/node/address"
                 },
                 "hwpId": {
-                  "$ref": "#/properties/data/properties/req/oneOf/0/properties/hwpId"
+                  "$ref": "definitions.json#/iqmesh/unbondFilter"
                 },
                 "allNodes": {
                   "title": "Unbond all",
@@ -94,7 +90,7 @@
                   "const": true
                 },
                 "coordinatorOnly": {
-                  "$ref": "#/properties/data/properties/req/oneOf/0/properties/coordinatorOnly"
+                  "$ref": "definitions.json#/iqmesh/unbondCoordinatorOnly"
                 }
               }
             }
