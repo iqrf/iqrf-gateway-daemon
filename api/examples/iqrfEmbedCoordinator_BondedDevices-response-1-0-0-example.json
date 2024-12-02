@@ -1,33 +1,34 @@
 {
   "mType": "iqrfEmbedCoordinator_BondedDevices",
   "data": {
-    "msgId": "testEmbedCoordinator",
+    "msgId": "f44491c0-c4e0-4a04-89d4-afb8529cd607",
     "rsp": {
       "nAdr": 0,
       "pNum": 0,
       "pCmd": 130,
       "hwpId": 0,
       "rCode": 0,
-      "dpaVal": 71,
+      "dpaVal": 92,
       "result": {
         "bondedDevices": [
           1,
           2,
-          3
+          3,
+          4
         ]
       }
     },
     "raw": [
       {
         "request": "00.00.00.02.ff.ff",
-        "requestTs": "2018-07-11T19:38:57.686486",
+        "requestTs": "2024-12-02T17:03:33.926+01:00",
         "confirmation": "",
         "confirmationTs": "",
-        "response": "00.00.00.82.00.00.00.47.0e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00",
-        "responseTs": "2018-07-11T19:38:57.728294"
+        "response": "00.00.00.82.00.00.00.5c.1e.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.00.04.00",
+        "responseTs": "2024-12-02T17:03:33.985+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
+    "insId": "iqrfgd2-default",
     "statusStr": "ok",
     "status": 0
   }

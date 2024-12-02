@@ -7,22 +7,21 @@
       "pNum": 0,
       "pCmd": 147,
       "hwpId": 0,
-      "rCode": 3,
-      "dpaVal": 0,
-      "errorStr": "rcode error"
+      "rCode": 0,
+      "dpaVal": 92
     },
     "raw": [
       {
-        "request": "00.00.00.13.ff.ff.00.00.00.00.0a",
-        "requestTs": "2018-10-22T08:09:14.501922",
+        "request": "00.00.00.13.ff.ff.ed.de.d1.c0.02",
+        "requestTs": "2024-12-02T17:34:05.694+01:00",
         "confirmation": "",
         "confirmationTs": "",
-        "response": "00.00.00.93.00.00.03.00",
-        "responseTs": "2018-10-22T08:09:14.542970"
+        "response": "00.00.00.93.00.00.00.5c",
+        "responseTs": "2024-12-02T17:34:05.743+01:00"
       }
     ],
-    "insId": "iqrfgd2-1",
-    "statusStr": "ERROR_PNUM",
-    "status": 3
+    "insId": "iqrfgd2-default",
+    "statusStr": "ok",
+    "status": 0
   }
 }
